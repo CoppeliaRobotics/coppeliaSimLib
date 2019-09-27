@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgSimpleFilter_edge</class>
+ <widget class="QDialog" name="CQDlgSimpleFilter_edge">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>190</width>
+    <height>74</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Edge Detection</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QDialogButtonBox" name="qqOkCancel">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>40</y>
+     <width>171</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>111</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Threshold</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqThreshold">
+   <property name="geometry">
+    <rect>
+     <x>125</x>
+     <y>10</y>
+     <width>56</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>qqThreshold</tabstop>
+  <tabstop>qqOkCancel</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

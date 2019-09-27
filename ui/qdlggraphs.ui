@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgGraphs</class>
+ <widget class="QDialog" name="CQDlgGraphs">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>534</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Graph Properties</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>361</width>
+     <height>121</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Main properties</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QCheckBox" name="qqExplicitHandling">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>151</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Explicit handling</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqShowXYZPlanes">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>151</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Display XYZ planes</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqBufferIsCyclic">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>151</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Buffer is cyclic</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>175</x>
+      <y>20</y>
+      <width>91</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Object size [m]</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqObjectSize">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>20</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>175</x>
+      <y>40</y>
+      <width>91</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Buffer size</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqBufferSize">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>40</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="qqRemoveAllStatics">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>60</y>
+      <width>181</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Remove all static streams/curves</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="qqAdjustBackgroundColor">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>90</y>
+      <width>141</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Adjust background color</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="qqAdjustGridColor">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>90</y>
+      <width>141</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Adjust grid color</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_4">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>140</y>
+     <width>361</width>
+     <height>321</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Data stream recording list</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QListWidget" name="qqRecordingList">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>341</width>
+      <height>101</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_5">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>160</y>
+      <width>341</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Data transformations</string>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>51</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Value = </string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="qqTransformationCombo">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>20</y>
+       <width>91</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>20</y>
+       <width>21</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>x</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqTransformationCoeff">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>20</y>
+       <width>66</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_5">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>20</y>
+       <width>21</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>+</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqTransformationOffset">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>20</y>
+       <width>66</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_6">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>131</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Moving average period</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqMovingAveragePeriod">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>40</y>
+       <width>56</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_6">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>240</y>
+      <width>341</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Time graph properties</string>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <widget class="QCheckBox" name="qqTimeGraphVisible">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>101</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Visible</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="qqShowLabel">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>20</y>
+       <width>121</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Show label</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="qqLinkPoints">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>20</y>
+       <width>111</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Link points</string>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="qqAdjustCurveColor">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>151</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Adjust curve color</string>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="qqDuplicateToStatic">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>40</y>
+       <width>151</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Duplicate curve to static</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QToolButton" name="qqAddNewDataStream">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>201</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Add new data stream to record</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_7">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>470</y>
+     <width>361</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>XY graphs / 3D curves</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QToolButton" name="qqEditXYGraphs">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>151</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Edit XY graphs</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="qqEdit3DCurves">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>20</y>
+      <width>151</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Edit 3D curves</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>qqExplicitHandling</tabstop>
+  <tabstop>qqObjectSize</tabstop>
+  <tabstop>qqBufferIsCyclic</tabstop>
+  <tabstop>qqBufferSize</tabstop>
+  <tabstop>qqShowXYZPlanes</tabstop>
+  <tabstop>qqRemoveAllStatics</tabstop>
+  <tabstop>qqAdjustBackgroundColor</tabstop>
+  <tabstop>qqAdjustGridColor</tabstop>
+  <tabstop>qqAddNewDataStream</tabstop>
+  <tabstop>qqRecordingList</tabstop>
+  <tabstop>qqTransformationCombo</tabstop>
+  <tabstop>qqTransformationCoeff</tabstop>
+  <tabstop>qqTransformationOffset</tabstop>
+  <tabstop>qqMovingAveragePeriod</tabstop>
+  <tabstop>qqTimeGraphVisible</tabstop>
+  <tabstop>qqShowLabel</tabstop>
+  <tabstop>qqLinkPoints</tabstop>
+  <tabstop>qqAdjustCurveColor</tabstop>
+  <tabstop>qqDuplicateToStatic</tabstop>
+  <tabstop>qqEditXYGraphs</tabstop>
+  <tabstop>qqEdit3DCurves</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

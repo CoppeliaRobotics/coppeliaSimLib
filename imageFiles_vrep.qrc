@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>imageFiles_vrep/splashBasic.png</file>
+        <file>imageFiles_vrep/splashEdu.png</file>
+        <file>imageFiles_vrep/v_repIcon128.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgSimpleFilter_5x5</class>
+ <widget class="QDialog" name="CQDlgSimpleFilter_5x5">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>224</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>5X5 Filter</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QDialogButtonBox" name="qqOkCancel">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>190</y>
+     <width>361</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>81</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Passes</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqPasses">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>10</y>
+     <width>66</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>30</y>
+     <width>81</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Multiplier</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqMultiplier">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>30</y>
+     <width>66</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>55</y>
+     <width>361</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Convolution matrix</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QLineEdit" name="qq0">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq1">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>20</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq2">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>20</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq3">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>20</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq4">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>20</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq5">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq7">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>40</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq6">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>40</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq9">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>40</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq8">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>40</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq10">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq11">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>60</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq14">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>60</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq12">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>60</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq13">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>60</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq15">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq19">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>80</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq17">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>80</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq16">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>80</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq18">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>80</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq24">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>100</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq23">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>100</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq20">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>100</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq21">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>100</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qq22">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>100</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>qqPasses</tabstop>
+  <tabstop>qqMultiplier</tabstop>
+  <tabstop>qq0</tabstop>
+  <tabstop>qq1</tabstop>
+  <tabstop>qq2</tabstop>
+  <tabstop>qq3</tabstop>
+  <tabstop>qq4</tabstop>
+  <tabstop>qq5</tabstop>
+  <tabstop>qq6</tabstop>
+  <tabstop>qq7</tabstop>
+  <tabstop>qq8</tabstop>
+  <tabstop>qq9</tabstop>
+  <tabstop>qq10</tabstop>
+  <tabstop>qq11</tabstop>
+  <tabstop>qq12</tabstop>
+  <tabstop>qq13</tabstop>
+  <tabstop>qq14</tabstop>
+  <tabstop>qq15</tabstop>
+  <tabstop>qq16</tabstop>
+  <tabstop>qq17</tabstop>
+  <tabstop>qq18</tabstop>
+  <tabstop>qq19</tabstop>
+  <tabstop>qq20</tabstop>
+  <tabstop>qq21</tabstop>
+  <tabstop>qq22</tabstop>
+  <tabstop>qq23</tabstop>
+  <tabstop>qq24</tabstop>
+  <tabstop>qqOkCancel</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

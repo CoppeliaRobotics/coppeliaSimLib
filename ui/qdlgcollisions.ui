@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgCollisions</class>
+ <widget class="QDialog" name="CQDlgCollisions">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>372</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Collisions</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QGroupBox" name="qqEnableAll">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>361</width>
+     <height>351</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Enable all collision detections</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <widget class="QListWidget" name="qqCollisionList">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>341</width>
+      <height>181</height>
+     </rect>
+    </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+    </property>
+    <property name="alternatingRowColors">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>250</y>
+      <width>341</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Collision object properties</string>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <widget class="QCheckBox" name="qqColliderColorChanges">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>20</y>
+       <width>131</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Collider color changes</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="qqComputeContour">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>191</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Comp. coll. contour (shapes only)</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>60</y>
+       <width>101</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Contour width [pt]</string>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="qqAdjustContourColor">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>141</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Adjust contour color</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="qqExplicitHandling">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>161</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Explicit handling</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqContourWidth">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>60</y>
+       <width>56</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="qqCollideeColorChanges">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>40</y>
+       <width>131</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Collidee color changes</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QToolButton" name="qqAddNewObject">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>151</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Add new collision object</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="qqCollisionColor">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>30</y>
+      <width>141</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Adjust collision color</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>qqCollisionColor</tabstop>
+  <tabstop>qqAddNewObject</tabstop>
+  <tabstop>qqCollisionList</tabstop>
+  <tabstop>qqExplicitHandling</tabstop>
+  <tabstop>qqColliderColorChanges</tabstop>
+  <tabstop>qqComputeContour</tabstop>
+  <tabstop>qqCollideeColorChanges</tabstop>
+  <tabstop>qqAdjustContourColor</tabstop>
+  <tabstop>qqContourWidth</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

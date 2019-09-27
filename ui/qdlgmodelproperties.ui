@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgModelProperties</class>
+ <widget class="QDialog" name="CQDlgModelProperties">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>400</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Model Properties</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QToolButton" name="qqSelectThumbnail">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>141</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Select model thumbnail</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>35</y>
+     <width>361</width>
+     <height>151</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Override properties</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QCheckBox" name="qqNotVisible">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>181</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Model is not visible</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqNotCollidable">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>20</y>
+      <width>181</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Model is not collidable</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqNotMeasurable">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>181</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Model is not measurable</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqNotRenderable">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>40</y>
+      <width>181</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Model is not renderable</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqNotCuttable">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>181</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Model is not cuttable</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqNotDetectable">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>60</y>
+      <width>181</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Model is not detectable</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqNotDynamic">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>181</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Model is not dynamic</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqNotRespondable">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>80</y>
+      <width>181</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Model is not respondable</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqScriptsInactive">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>100</y>
+      <width>341</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Model scripts are inactive (child scripts and customization scripts)</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqNotInsideModelBBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>120</y>
+      <width>341</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Invisible to other model's bounding boxes</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>200</y>
+     <width>361</width>
+     <height>151</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Model content acknowledgments/info</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QPlainTextEdit" name="qqAcknowledgments">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>341</width>
+      <height>121</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QDialogButtonBox" name="qqClose">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>360</y>
+     <width>361</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Close</set>
+   </property>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>qqSelectThumbnail</tabstop>
+  <tabstop>qqNotVisible</tabstop>
+  <tabstop>qqNotCollidable</tabstop>
+  <tabstop>qqNotMeasurable</tabstop>
+  <tabstop>qqNotRenderable</tabstop>
+  <tabstop>qqNotCuttable</tabstop>
+  <tabstop>qqNotDetectable</tabstop>
+  <tabstop>qqNotDynamic</tabstop>
+  <tabstop>qqNotRespondable</tabstop>
+  <tabstop>qqScriptsInactive</tabstop>
+  <tabstop>qqNotInsideModelBBox</tabstop>
+  <tabstop>qqAcknowledgments</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

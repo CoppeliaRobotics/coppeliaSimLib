@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgSettings</class>
+ <widget class="QDialog" name="CQDlgSettings">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>333</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>User settings</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QGroupBox" name="groupBox_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>361</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Object manipulation</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>161</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Translation step size [m]</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="translationStepSize">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>20</y>
+      <width>111</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>161</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Rotation step size [deg]</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="rotationStepSize">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>40</y>
+      <width>111</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="frame">
+     <bool>true</bool>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>90</y>
+     <width>361</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Vertices/triangles verification settings</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QCheckBox" name="removeIdenticalVerticesCheckbox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>251</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Remove identical vertices, tolerance [m]</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="removeIdenticalVerticesTolerance">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>20</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="removeIdenticalTriangles">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>191</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Remove identical triangles</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="ignoreTriangleWinding">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>40</y>
+      <width>141</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Ignore triangle winding</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_4">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>170</y>
+     <width>361</width>
+     <height>141</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Various settings</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QCheckBox" name="worldReference">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>20</y>
+      <width>181</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Display world reference</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="boundingBoxDisplay">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>291</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Display bounding boxes of selected objects</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="undoRedo">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>171</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Undo / redo enabled</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="hideConsole">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>60</y>
+      <width>181</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Hide console window</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqAutoSave">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>171</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Auto-save enabled</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="qqAdjustOpenGl">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>110</y>
+      <width>161</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Adjust OpenGL settings</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqHideHierarchy">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>171</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Hide hierarchy during simul.</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>310</y>
+     <width>361</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Additional parameters can be adjusted in file system/usrset.txt</string>
+   </property>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>translationStepSize</tabstop>
+  <tabstop>rotationStepSize</tabstop>
+  <tabstop>removeIdenticalVerticesCheckbox</tabstop>
+  <tabstop>removeIdenticalVerticesTolerance</tabstop>
+  <tabstop>removeIdenticalTriangles</tabstop>
+  <tabstop>ignoreTriangleWinding</tabstop>
+  <tabstop>undoRedo</tabstop>
+  <tabstop>worldReference</tabstop>
+  <tabstop>boundingBoxDisplay</tabstop>
+  <tabstop>qqAutoSave</tabstop>
+  <tabstop>hideConsole</tabstop>
+  <tabstop>qqHideHierarchy</tabstop>
+  <tabstop>qqAdjustOpenGl</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

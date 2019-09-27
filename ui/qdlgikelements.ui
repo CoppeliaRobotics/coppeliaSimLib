@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgIkElements</class>
+ <widget class="QDialog" name="CQDlgIkElements">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>499</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>IK Elements</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>361</width>
+     <height>481</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>IK elements</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QToolButton" name="qqAddNewElement">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>161</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Add new IK element with tip:</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="qqList">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>341</width>
+      <height>151</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="qqActive">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>220</y>
+      <width>341</width>
+      <height>251</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Element is active</string>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>321</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Kinematic chain</string>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>51</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Base</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="qqBaseCombo">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>20</y>
+        <width>251</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="maxVisibleItems">
+       <number>30</number>
+      </property>
+     </widget>
+     <widget class="QLabel" name="qqTargetString">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>40</y>
+        <width>251</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>51</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Target</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>321</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Constraints</string>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <widget class="QCheckBox" name="qqX">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>51</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::StrongFocus</enum>
+      </property>
+      <property name="text">
+       <string>X</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="qqY">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>20</y>
+        <width>51</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::StrongFocus</enum>
+      </property>
+      <property name="text">
+       <string>Y</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="qqZ">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>20</y>
+        <width>51</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::StrongFocus</enum>
+      </property>
+      <property name="text">
+       <string>Z</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="qqAlphaBeta">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>20</y>
+        <width>91</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::StrongFocus</enum>
+      </property>
+      <property name="text">
+       <string>Alpha-beta</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="qqGamma">
+      <property name="geometry">
+       <rect>
+        <x>250</x>
+        <y>20</y>
+        <width>81</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::StrongFocus</enum>
+      </property>
+      <property name="text">
+       <string>Gamma</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="qqTargetString_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>151</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Relative to coordinate frame</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="qqRelativeCombo">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>40</y>
+        <width>151</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="maxVisibleItems">
+       <number>30</number>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_5">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>170</y>
+       <width>151</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Desired precisions</string>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <widget class="QLabel" name="qqTargetString_3">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>81</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Linear [m]</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="qqPrecisionLinear">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>20</y>
+        <width>56</width>
+        <height>18</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="qqTargetString_4">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>81</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Angular [deg]</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="qqPrecisionAngular">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>40</y>
+        <width>56</width>
+        <height>18</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_6">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>170</y>
+       <width>151</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Resolution weights</string>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <widget class="QLineEdit" name="qqWeightAngular">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>40</y>
+        <width>56</width>
+        <height>18</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="qqTargetString_5">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>71</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Linear</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="qqWeightLinear">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>20</y>
+        <width>56</width>
+        <height>18</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="qqTargetString_6">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>71</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Angular</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QComboBox" name="qqTipCombo">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>30</y>
+      <width>171</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="maxVisibleItems">
+     <number>30</number>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>qqAddNewElement</tabstop>
+  <tabstop>qqTipCombo</tabstop>
+  <tabstop>qqList</tabstop>
+  <tabstop>qqActive</tabstop>
+  <tabstop>qqBaseCombo</tabstop>
+  <tabstop>qqX</tabstop>
+  <tabstop>qqY</tabstop>
+  <tabstop>qqZ</tabstop>
+  <tabstop>qqAlphaBeta</tabstop>
+  <tabstop>qqGamma</tabstop>
+  <tabstop>qqRelativeCombo</tabstop>
+  <tabstop>qqPrecisionLinear</tabstop>
+  <tabstop>qqPrecisionAngular</tabstop>
+  <tabstop>qqWeightLinear</tabstop>
+  <tabstop>qqWeightAngular</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

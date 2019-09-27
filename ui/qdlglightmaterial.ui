@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgLightMaterial</class>
+ <widget class="QDialog" name="CQDlgLightMaterial">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>201</width>
+    <height>59</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Light</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QToolButton" name="qqSpecularAdjust">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>30</y>
+     <width>181</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Specular component</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="qqDiffuseAdjust">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>181</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Diffuse component</string>
+   </property>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>qqDiffuseAdjust</tabstop>
+  <tabstop>qqSpecularAdjust</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

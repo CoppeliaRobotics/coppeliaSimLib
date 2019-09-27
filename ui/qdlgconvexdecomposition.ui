@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgConvexDecomposition</class>
+ <widget class="QDialog" name="CQDlgConvexDecomposition">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>316</width>
+    <height>539</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Convex Decomposition</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QDialogButtonBox" name="qqOkCancel">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>500</y>
+     <width>291</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="qqIndividualComponents">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>271</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Handle compound shape components individually</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>30</y>
+     <width>231</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Max. iterations</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqMaxIterations">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>30</y>
+     <width>56</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="qqHACD">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>60</y>
+     <width>291</width>
+     <height>171</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>HACD convex decomposition</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <widget class="QLineEdit" name="qqTargetBlabla">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>100</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqMaxHullVertices">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>120</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>140</y>
+      <width>221</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Small cluster detection threshold [%]</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqExtraDistPoints">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>141</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Add extra points</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>211</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Max. concavity [m]</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>100</y>
+      <width>221</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Target nb of triangles of decimated mesh</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqConnectDist">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>80</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqClusters">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>40</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqExtraFacesPoints">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>20</y>
+      <width>131</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Add extra face points</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqSmallClusterThreshold">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>140</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqConcavity">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>60</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>221</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Max. connection distance [m]</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>120</y>
+      <width>221</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Max. nb of vertices / convex hull</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>221</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Min. nb of clusters</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="qqVHACD">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>240</y>
+     <width>291</width>
+     <height>251</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>V-HACD convex decomposition</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <widget class="QLineEdit" name="qqPlaneDownsampling">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>100</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqConvexHullDownsampling">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>120</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>140</y>
+      <width>221</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Alpha</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqPcaEnabled">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>141</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>PCA enabled</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>211</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Depth</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_10">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>100</y>
+      <width>221</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Plane downsampling</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqConcavity_2">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>80</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqResolution">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>40</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqVoxelBased">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>20</y>
+      <width>131</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Voxel-based</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqAlpha">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>140</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqDepth">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>60</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>221</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Concavity [m]</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_12">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>120</y>
+      <width>221</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Convex hull downsampling</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_13">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>221</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Resolution</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqGamma">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>180</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_15">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>180</y>
+      <width>221</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Gamma</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqBeta">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>160</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_14">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>160</y>
+      <width>221</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Beta</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_16">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>200</y>
+      <width>221</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Max. number of vertices / convex hull</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqMaxVerticesPerCh">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>200</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_17">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>220</y>
+      <width>221</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Min. volume / convex hull [m^3]</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqMinVolumePerCh">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>220</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>qqIndividualComponents</tabstop>
+  <tabstop>qqMaxIterations</tabstop>
+  <tabstop>qqHACD</tabstop>
+  <tabstop>qqExtraDistPoints</tabstop>
+  <tabstop>qqExtraFacesPoints</tabstop>
+  <tabstop>qqClusters</tabstop>
+  <tabstop>qqConcavity</tabstop>
+  <tabstop>qqConnectDist</tabstop>
+  <tabstop>qqTargetBlabla</tabstop>
+  <tabstop>qqMaxHullVertices</tabstop>
+  <tabstop>qqSmallClusterThreshold</tabstop>
+  <tabstop>qqVHACD</tabstop>
+  <tabstop>qqPcaEnabled</tabstop>
+  <tabstop>qqVoxelBased</tabstop>
+  <tabstop>qqResolution</tabstop>
+  <tabstop>qqDepth</tabstop>
+  <tabstop>qqConcavity_2</tabstop>
+  <tabstop>qqPlaneDownsampling</tabstop>
+  <tabstop>qqConvexHullDownsampling</tabstop>
+  <tabstop>qqAlpha</tabstop>
+  <tabstop>qqBeta</tabstop>
+  <tabstop>qqGamma</tabstop>
+  <tabstop>qqMaxVerticesPerCh</tabstop>
+  <tabstop>qqMinVolumePerCh</tabstop>
+  <tabstop>qqOkCancel</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

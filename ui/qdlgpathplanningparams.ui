@@ -1,0 +1,660 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgPathPlanningParams</class>
+ <widget class="QDialog" name="CQDlgPathPlanningParams">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>420</width>
+    <height>270</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Path Planning Task Parameters</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QComboBox" name="qqHoloTypeCombo">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>10</y>
+     <width>221</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqStepSizeA">
+   <property name="geometry">
+    <rect>
+     <x>315</x>
+     <y>50</y>
+     <width>56</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_13">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>70</y>
+     <width>221</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Min. turning circle diameter [m]</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_8">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>30</y>
+     <width>141</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Delta axis (x/y/z) [m]</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_11">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>50</y>
+     <width>221</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Linear [m] / angular [deg] step size</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqMinTurningCircle">
+   <property name="geometry">
+    <rect>
+     <x>230</x>
+     <y>70</y>
+     <width>56</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>141</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Holonomic type</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_9">
+   <property name="geometry">
+    <rect>
+     <x>210</x>
+     <y>30</y>
+     <width>21</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>/</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_10">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>30</y>
+     <width>21</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>/</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqStepSizeL">
+   <property name="geometry">
+    <rect>
+     <x>230</x>
+     <y>50</y>
+     <width>56</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqdeltaZ">
+   <property name="geometry">
+    <rect>
+     <x>315</x>
+     <y>30</y>
+     <width>56</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqDeltaY">
+   <property name="geometry">
+    <rect>
+     <x>230</x>
+     <y>30</y>
+     <width>56</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_12">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>50</y>
+     <width>21</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>/</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqDeltaX">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>30</y>
+     <width>56</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>115</y>
+     <width>131</width>
+     <height>111</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Search minimum</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QLabel" name="label_14">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>61</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>X [m]</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqMinX">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>20</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_15">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>61</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Y [m]</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqMinY">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>40</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_16">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>61</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Z [m]</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqMinZ">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>60</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_17">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>61</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Delta [deg]</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqMinD">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>80</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_2">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>115</y>
+     <width>131</width>
+     <height>111</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Search range</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QLabel" name="label_18">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>61</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>X [m]</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqMinX_2">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>20</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_19">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>61</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Y [m]</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqMinY_2">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>40</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_20">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>61</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Z [m]</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqMinZ_2">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>60</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_21">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>61</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Delta [deg]</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqMinD_2">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>80</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_3">
+   <property name="geometry">
+    <rect>
+     <x>285</x>
+     <y>115</y>
+     <width>121</width>
+     <height>111</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Search direction</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QLabel" name="label_22">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>31</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>X</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_23">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>31</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Y</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_24">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>41</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Z</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_25">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>41</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Delta</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqPlusX">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>20</y>
+      <width>41</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>+</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqMinusX">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>20</y>
+      <width>41</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>-</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqPlusY">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>40</y>
+      <width>41</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>+</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqMinusY">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>40</y>
+      <width>41</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>-</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqPlusZ">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>60</y>
+      <width>41</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>+</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqMinusZ">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>60</y>
+      <width>41</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>-</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqPlusD">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>80</y>
+      <width>41</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>+</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqMinusD">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>80</y>
+      <width>41</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>-</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QCheckBox" name="qqVisualizeArea">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>90</y>
+     <width>191</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Visualize the search area</string>
+   </property>
+  </widget>
+  <widget class="QDialogButtonBox" name="qqClose">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>230</y>
+     <width>391</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Close</set>
+   </property>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>qqHoloTypeCombo</tabstop>
+  <tabstop>qqDeltaX</tabstop>
+  <tabstop>qqDeltaY</tabstop>
+  <tabstop>qqdeltaZ</tabstop>
+  <tabstop>qqStepSizeL</tabstop>
+  <tabstop>qqStepSizeA</tabstop>
+  <tabstop>qqMinTurningCircle</tabstop>
+  <tabstop>qqVisualizeArea</tabstop>
+  <tabstop>qqMinX</tabstop>
+  <tabstop>qqMinY</tabstop>
+  <tabstop>qqMinZ</tabstop>
+  <tabstop>qqMinD</tabstop>
+  <tabstop>qqMinX_2</tabstop>
+  <tabstop>qqMinY_2</tabstop>
+  <tabstop>qqMinZ_2</tabstop>
+  <tabstop>qqMinD_2</tabstop>
+  <tabstop>qqMinusX</tabstop>
+  <tabstop>qqPlusX</tabstop>
+  <tabstop>qqMinusY</tabstop>
+  <tabstop>qqPlusY</tabstop>
+  <tabstop>qqMinusZ</tabstop>
+  <tabstop>qqPlusZ</tabstop>
+  <tabstop>qqMinusD</tabstop>
+  <tabstop>qqPlusD</tabstop>
+  <tabstop>qqClose</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

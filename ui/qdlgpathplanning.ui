@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgPathPlanning</class>
+ <widget class="QDialog" name="CQDlgPathPlanning">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>563</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Path Planning</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QGroupBox" name="qqPathPlanningGroup">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>361</width>
+     <height>541</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Path planning objects</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QToolButton" name="qqAddNew">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>101</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Add new object</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="qqList">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>341</width>
+      <height>111</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>180</y>
+      <width>341</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Associated objects</string>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>131</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Goal dummy</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="qqGoalCombo">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>20</y>
+       <width>191</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>131</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Path object</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="qqPathCombo">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>40</y>
+       <width>191</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>260</y>
+      <width>341</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Illegal configuration check</string>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <widget class="QComboBox" name="qqCheckTypeCombo">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>321</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>141</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Min. / max. distance [m]</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqMinDist">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>80</y>
+       <width>56</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqMaxDist">
+     <property name="geometry">
+      <rect>
+       <x>225</x>
+       <y>80</y>
+       <width>56</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>71</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Robot</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="qqRobotCombo">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>40</y>
+       <width>251</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_5">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>71</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Obstacle</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="qqObstacleCombo">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>60</y>
+       <width>251</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_6">
+     <property name="geometry">
+      <rect>
+       <x>205</x>
+       <y>80</y>
+       <width>21</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>/</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>380</y>
+      <width>341</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Various</string>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <widget class="QToolButton" name="qqAdjustSearchParameters">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>156</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Adjust search parameters</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="qqUsePartialPath">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>251</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>If no path was found, use a partial path</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="qqShowNodes">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>261</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Show searched configuration nodes</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_14">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>191</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Maximum calculation time [s]</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqMaxCalcTime">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>80</y>
+       <width>56</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqPostProcessingPasses">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>100</y>
+       <width>56</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_15">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>191</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Number of post-processing passes</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QToolButton" name="qqComputePath">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>510</y>
+      <width>111</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Compute path</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>qqAddNew</tabstop>
+  <tabstop>qqList</tabstop>
+  <tabstop>qqGoalCombo</tabstop>
+  <tabstop>qqPathCombo</tabstop>
+  <tabstop>qqCheckTypeCombo</tabstop>
+  <tabstop>qqRobotCombo</tabstop>
+  <tabstop>qqObstacleCombo</tabstop>
+  <tabstop>qqMinDist</tabstop>
+  <tabstop>qqMaxDist</tabstop>
+  <tabstop>qqAdjustSearchParameters</tabstop>
+  <tabstop>qqUsePartialPath</tabstop>
+  <tabstop>qqShowNodes</tabstop>
+  <tabstop>qqMaxCalcTime</tabstop>
+  <tabstop>qqPostProcessingPasses</tabstop>
+  <tabstop>qqComputePath</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

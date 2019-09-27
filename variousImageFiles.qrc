@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>variousImageFiles/plus.png</file>
+        <file>variousImageFiles/minus.png</file>
+        <file>variousImageFiles/iline.png</file>
+        <file>variousImageFiles/tline.png</file>
+        <file>variousImageFiles/lline.png</file>
+        <file>variousImageFiles/hline.png</file>
+        <file>variousImageFiles/hline2.png</file>
+        <file>variousImageFiles/128x128folder.png</file>
+        <file>variousImageFiles/folder.png</file>
+        <file>variousImageFiles/downArrow.png</file>
+        <file>variousImageFiles/leftArrow.png</file>
+        <file>variousImageFiles/rightArrow.png</file>
+        <file>variousImageFiles/upArrow.png</file>
+        <file>variousImageFiles/v_repIcon16.png</file>
+    </qresource>
+</RCC>

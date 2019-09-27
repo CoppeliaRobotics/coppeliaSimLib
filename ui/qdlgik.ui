@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgIk</class>
+ <widget class="QDialog" name="CQDlgIk">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>520</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Inverse Kinematics</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QGroupBox" name="qqIkEnabled">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>361</width>
+     <height>501</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>IK groups enabled</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <widget class="QToolButton" name="qqAddNewGroup">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>121</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Add new IK group</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="qqList">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>311</width>
+      <height>131</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="qqUp">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>90</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset resource="../variousImageFiles.qrc">
+      <normaloff>:/variousImageFiles/upArrow.png</normaloff>:/variousImageFiles/upArrow.png</iconset>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="qqDown">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>130</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset resource="../variousImageFiles.qrc">
+      <normaloff>:/variousImageFiles/downArrow.png</normaloff>:/variousImageFiles/downArrow.png</iconset>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="qqGroupIsActive">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>200</y>
+      <width>341</width>
+      <height>291</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>IK group is active</string>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <widget class="QCheckBox" name="qqExplicitHandling">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>151</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Explicit handling</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="qqRedundant">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>151</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Mechanism is redundant</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>101</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Calc. method</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="qqCalcMethodCombo">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>60</y>
+       <width>101</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>60</y>
+       <width>51</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Damping</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqDamping">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>60</y>
+       <width>56</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>101</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Max. iterations</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqMaxIterations">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>80</y>
+       <width>56</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="qqIgnoreMaxStepSizes">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>40</y>
+       <width>151</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Ignore max. step sizes</string>
+     </property>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>105</y>
+       <width>171</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Calculation weights</string>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <widget class="QLineEdit" name="qqWeightJointLimits">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>20</y>
+        <width>56</width>
+        <height>18</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>101</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Joint limits</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="qqWeightObstacleAvoidance">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>40</y>
+        <width>56</width>
+        <height>18</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>101</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Obstacle avoidance</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_5">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>105</y>
+       <width>141</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Joint limit thresholds</string>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <widget class="QLineEdit" name="qqThresholdLinear">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>20</y>
+        <width>56</width>
+        <height>18</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_6">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>71</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Linear [m]</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="qqThresholdAngular">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>40</y>
+        <width>56</width>
+        <height>18</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_7">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>71</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Angular [deg]</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_6">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>180</y>
+       <width>321</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Various</string>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <widget class="QToolButton" name="qqEditConditional">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>201</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::StrongFocus</enum>
+      </property>
+      <property name="text">
+       <string>Edit conditional parameters</string>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="qqEditObstacleAvoidance">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>201</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::StrongFocus</enum>
+      </property>
+      <property name="text">
+       <string>Edit obstacle avoidance parameters</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QToolButton" name="qqEditIkElements">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>260</y>
+       <width>321</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Edit IK elements</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>qqIkEnabled</tabstop>
+  <tabstop>qqAddNewGroup</tabstop>
+  <tabstop>qqList</tabstop>
+  <tabstop>qqUp</tabstop>
+  <tabstop>qqDown</tabstop>
+  <tabstop>qqGroupIsActive</tabstop>
+  <tabstop>qqExplicitHandling</tabstop>
+  <tabstop>qqRedundant</tabstop>
+  <tabstop>qqIgnoreMaxStepSizes</tabstop>
+  <tabstop>qqCalcMethodCombo</tabstop>
+  <tabstop>qqDamping</tabstop>
+  <tabstop>qqMaxIterations</tabstop>
+  <tabstop>qqWeightJointLimits</tabstop>
+  <tabstop>qqWeightObstacleAvoidance</tabstop>
+  <tabstop>qqThresholdLinear</tabstop>
+  <tabstop>qqThresholdAngular</tabstop>
+  <tabstop>qqEditConditional</tabstop>
+  <tabstop>qqEditObstacleAvoidance</tabstop>
+  <tabstop>qqEditIkElements</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../variousImageFiles.qrc"/>
+ </resources>
+ <connections/>
+</ui>

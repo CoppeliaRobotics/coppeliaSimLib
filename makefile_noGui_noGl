@@ -1,0 +1,303 @@
+CFLAGS =  -DSIM_WITHOUT_QT_AT_ALL -Wall -fPIC -static
+
+OS = $(shell uname -s)
+ifeq ($(OS), Linux)
+	CFLAGS += -D__linux -DLIN_VREP
+	CFLAGS += -DQT_VREP_64BIT
+	EXT = so
+else
+	CFLAGS += -D__APPLE__ -DMAC_VREP
+	CFLAGS += -DQT_VREP_64BIT
+	EXT = dylib
+endif
+
+CFLAGS += -std=c++11
+CFLAGS += -I../../lua5_1_4_Linux26g4_64_lib/include
+
+CFLAGS += -I../programming/include
+CFLAGS += -I../programming/v_repMath
+
+CFLAGS += -IsourceCode
+CFLAGS += -IsourceCode/inverseKinematics/geomConstraintSolver
+CFLAGS += -IsourceCode/inverseKinematics/ik
+CFLAGS += -IsourceCode/shared/sharedBufferFunctions
+CFLAGS += -IsourceCode/communication
+CFLAGS += -IsourceCode/communication/tubes
+CFLAGS += -IsourceCode/communication/wireless
+CFLAGS += -IsourceCode/drawingObjects
+CFLAGS += -IsourceCode/platform
+CFLAGS += -IsourceCode/collections
+CFLAGS += -IsourceCode/collisions
+CFLAGS += -IsourceCode/distances
+CFLAGS += -IsourceCode/pathPlanning_old
+CFLAGS += -IsourceCode/motionPlanning_old
+CFLAGS += -IsourceCode/3dObjects
+CFLAGS += -IsourceCode/3dObjects/related
+CFLAGS += -IsourceCode/3dObjects/graphObjectRelated
+CFLAGS += -IsourceCode/3dObjects/millObjectRelated
+CFLAGS += -IsourceCode/3dObjects/pathObjectRelated
+CFLAGS += -IsourceCode/3dObjects/proximitySensorObjectRelated
+CFLAGS += -IsourceCode/3dObjects/shapeObjectRelated
+CFLAGS += -IsourceCode/3dObjects/visionSensorObjectRelated
+CFLAGS += -IsourceCode/mainContainers
+CFLAGS += -IsourceCode/mainContainers/sceneContainers
+CFLAGS += -IsourceCode/mainContainers/applicationContainers
+CFLAGS += -IsourceCode/luaScripting
+CFLAGS += -IsourceCode/luaScripting/customLuaFuncAndVar
+CFLAGS += -IsourceCode/pagesAndViews
+CFLAGS += -IsourceCode/importExport
+CFLAGS += -IsourceCode/textures
+CFLAGS += -IsourceCode/serialization
+CFLAGS += -IsourceCode/strings
+CFLAGS += -IsourceCode/interfaces
+CFLAGS += -IsourceCode/interfaces/interfaceStack
+CFLAGS += -IsourceCode/menusAndSimilar
+CFLAGS += -IsourceCode/variousFunctions
+CFLAGS += -IsourceCode/geometricAlgorithms
+CFLAGS += -IsourceCode/various
+CFLAGS += -IsourceCode/verSpec
+CFLAGS += -IsourceCode/rendering
+CFLAGS += -IsourceCode/libsAndPlugins
+CFLAGS += -IsourceCode/visual
+CFLAGS += -IsourceCode/utils
+CFLAGS += -IsourceCode/sharedBufferFunctions
+CFLAGS += -IsourceCode/backwardCompatibility
+CFLAGS += -IsourceCode/backwardCompatibility/motionPlanning
+CFLAGS += -IsourceCode/backwardCompatibility/pathPlanning
+CFLAGS += -IsourceCode/customUserInterfaces
+CFLAGS += -IsourceCode/undoRedo
+
+
+
+all: 
+	@rm -f lib/*.*
+	@rm -f *.o 
+
+	gcc $(CFLAGS) -c ../programming/v_repMath/Vector.cpp -o Vector.o
+	gcc $(CFLAGS) -c ../programming/v_repMath/MyMath.cpp -o MyMath.o
+	gcc $(CFLAGS) -c ../programming/v_repMath/MMatrix.cpp -o MMatrix.o
+	gcc $(CFLAGS) -c ../programming/v_repMath/7Vector.cpp -o 7Vector.o
+	gcc $(CFLAGS) -c ../programming/v_repMath/6X6Matrix.cpp -o 6X6Matrix.o
+	gcc $(CFLAGS) -c ../programming/v_repMath/6Vector.cpp -o 6Vector.o
+	gcc $(CFLAGS) -c ../programming/v_repMath/4X4Matrix.cpp -o 4X4Matrix.o
+	gcc $(CFLAGS) -c ../programming/v_repMath/4X4FullMatrix.cpp -o 4X4FullMatrix.o
+	gcc $(CFLAGS) -c ../programming/v_repMath/4Vector.cpp -o 4Vector.o
+	gcc $(CFLAGS) -c ../programming/v_repMath/3X3Matrix.cpp -o 3X3Matrix.o
+	gcc $(CFLAGS) -c ../programming/v_repMath/3Vector.cpp -o 3Vector.o
+
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/geomConstraintSolver/iKObject.cpp -o iKObject.o
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/geomConstraintSolver/iKObjCont.cpp -o iKObjCont.o
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/geomConstraintSolver/iKMesh.cpp -o iKMesh.o
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/geomConstraintSolver/iKJoint.cpp -o iKJoint.o
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/geomConstraintSolver/iKGraphObject.cpp -o iKGraphObject.o
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/geomConstraintSolver/iKGraphObjCont.cpp -o iKGraphObjCont.o
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/geomConstraintSolver/iKGraphNode.cpp -o iKGraphNode.o
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/geomConstraintSolver/iKGraphJoint.cpp -o iKGraphJoint.o
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/geomConstraintSolver/iKDummy.cpp -o iKDummy.o
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/geomConstraintSolver/iKChainCont.cpp -o iKChainCont.o
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/geomConstraintSolver/iKChain.cpp -o iKChain.o
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/geomConstraintSolver/geometricConstraintSolverInt.cpp -o geometricConstraintSolverInt.o
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/geomConstraintSolver/geometricConstraintSolver.cpp -o geometricConstraintSolver.o
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/ik/ikRoutine.cpp -o ikRoutine.o
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/ik/ikGroup.cpp -o ikGroup.o
+	gcc $(CFLAGS) -c sourceCode/inverseKinematics/ik/ikEl.cpp -o ikEl.o
+	gcc $(CFLAGS) -c sourceCode/shared/sharedBufferFunctions/sharedFloatVector.cpp -o sharedFloatVector.o
+	gcc $(CFLAGS) -c sourceCode/shared/sharedBufferFunctions/sharedIntVector.cpp -o sharedIntVector.o
+	gcc $(CFLAGS) -c sourceCode/shared/sharedBufferFunctions/sharedUCharVector.cpp -o sharedUCharVector.o
+	gcc $(CFLAGS) -c sourceCode/drawingObjects/bannerObject.cpp -o bannerObject.o
+	gcc $(CFLAGS) -c sourceCode/drawingObjects/drawingObject2D.cpp -o drawingObject2D.o
+	gcc $(CFLAGS) -c sourceCode/drawingObjects/drawingObject.cpp -o drawingObject.o
+	gcc $(CFLAGS) -c sourceCode/drawingObjects/drawingContainer2D.cpp -o drawingContainer2D.o
+	gcc $(CFLAGS) -c sourceCode/drawingObjects/ptCloud_old.cpp -o ptCloud_old.o
+	gcc $(CFLAGS) -c sourceCode/rendering/bannerRendering.cpp -o bannerRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/pageRendering.cpp -o pageRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/viewRendering.cpp -o viewRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/broadcastDataVisualRendering.cpp -o broadcastDataVisualRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/cameraRendering.cpp -o cameraRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/collisionContourRendering.cpp -o collisionContourRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/distanceRendering.cpp -o distanceRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/drawingObject2DRendering.cpp -o drawingObject2DRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/drawingObjectRendering.cpp -o drawingObjectRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/dummyRendering.cpp -o dummyRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/dynamicsRendering.cpp -o dynamicsRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/environmentRendering.cpp -o environmentRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/forceSensorRendering.cpp -o forceSensorRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/ghostRendering.cpp -o ghostRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/graphRendering.cpp -o graphRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/jointRendering.cpp -o jointRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/lightRendering.cpp -o lightRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/millRendering.cpp -o millRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/mirrorRendering.cpp -o mirrorRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/motionPlanningTaskRendering_old.cpp -o motionPlanningTaskRendering_old.o
+	gcc $(CFLAGS) -c sourceCode/rendering/octreeRendering.cpp -o octreeRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/pathPlanningTaskRendering_old.cpp -o pathPlanningTaskRendering_old.o
+	gcc $(CFLAGS) -c sourceCode/rendering/pathRendering.cpp -o pathRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/pointCloudRendering.cpp -o pointCloudRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/proximitySensorRendering.cpp -o proximitySensorRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/ptCloudRendering_old.cpp -o ptCloudRendering_old.o
+	gcc $(CFLAGS) -c sourceCode/rendering/rendering.cpp -o rendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/shapeRendering.cpp -o shapeRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/thumbnailRendering.cpp -o thumbnailRendering.o
+	gcc $(CFLAGS) -c sourceCode/rendering/visionSensorRendering.cpp -o visionSensorRendering.o
+	gcc $(CFLAGS) -c sourceCode/platform/vVarious.cpp -o vVarious.o
+	gcc $(CFLAGS) -c sourceCode/platform/vThread.cpp -o vThread.o
+	gcc $(CFLAGS) -c sourceCode/platform/vMutex.cpp -o vMutex.o
+	gcc $(CFLAGS) -c sourceCode/platform/vFileFinder.cpp -o vFileFinder.o
+	gcc $(CFLAGS) -c sourceCode/platform/vFile.cpp -o vFile.o
+	gcc $(CFLAGS) -c sourceCode/platform/vDateTime.cpp -o vDateTime.o
+	gcc $(CFLAGS) -c sourceCode/platform/vArchive.cpp -o vArchive.o
+	gcc $(CFLAGS) -c sourceCode/collections/regCollectionEl.cpp -o regCollectionEl.o
+	gcc $(CFLAGS) -c sourceCode/collections/regCollection.cpp -o regCollection.o
+	gcc $(CFLAGS) -c sourceCode/collisions/regCollision.cpp -o regCollision.o
+	gcc $(CFLAGS) -c sourceCode/collisions/collisionRoutine.cpp -o collisionRoutine.o
+	gcc $(CFLAGS) -c sourceCode/distances/regDist.cpp -o regDist.o
+	gcc $(CFLAGS) -c sourceCode/distances/distanceRoutine.cpp -o distanceRoutine.o
+	gcc $(CFLAGS) -c sourceCode/distances/statDistObj.cpp -o statDistObj.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/related/3DObject.cpp -o 3DObject.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/related/convexVolume.cpp -o convexVolume.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/related/viewableBase.cpp -o viewableBase.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/jointObject.cpp -o jointObject.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/camera.cpp -o camera.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/dummy.cpp -o dummy.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/forceSensor.cpp -o forceSensor.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/graph.cpp -o graph.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/light.cpp -o light.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/mirror.cpp -o mirror.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/octree.cpp -o octree.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/pointCloud.cpp -o pointCloud.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/mill.cpp -o mill.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/path.cpp -o path.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/proximitySensor.cpp -o proximitySensor.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/shape.cpp -o shape.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/visionSensor.cpp -o visionSensor.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/graphObjectRelated/graphingRoutines.cpp -o graphingRoutines.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/graphObjectRelated/graphDataComb.cpp -o graphDataComb.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/graphObjectRelated/graphData.cpp -o graphData.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/graphObjectRelated/staticGraphCurve.cpp -o staticGraphCurve.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/millObjectRelated/cuttingRoutine.cpp -o cuttingRoutine.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/pathObjectRelated/bezierPathPoint.cpp -o bezierPathPoint.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/pathObjectRelated/simplePathPoint.cpp -o simplePathPoint.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/pathObjectRelated/pathPoint.cpp -o pathPoint.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/pathObjectRelated/pathCont.cpp -o pathCont.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/proximitySensorObjectRelated/proxSensorRoutine.cpp -o proxSensorRoutine.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/shapeObjectRelated/geometric.cpp -o geometric.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/shapeObjectRelated/geomWrap.cpp -o geomWrap.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/shapeObjectRelated/geomProxy.cpp -o geomProxy.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/shapeObjectRelated/volInt.cpp -o volInt.o
+	gcc $(CFLAGS) -c sourceCode/backwardCompatibility/geomObject.cpp -o geomObject.o
+	gcc $(CFLAGS) -c sourceCode/backwardCompatibility/shapeComponent.cpp -o shapeComponent.o
+	gcc $(CFLAGS) -c sourceCode/communication/tubes/commTube.cpp -o commTube.o
+	gcc $(CFLAGS) -c sourceCode/communication/wireless/broadcastDataContainer.cpp -o broadcastDataContainer.o
+	gcc $(CFLAGS) -c sourceCode/communication/wireless/broadcastData.cpp -o broadcastData.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/mainContainer.cpp -o mainContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/bannerContainer.cpp -o bannerContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/drawingContainer.cpp -o drawingContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/textureContainer.cpp -o textureContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/simulation.cpp -o simulation.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/signalContainer.cpp -o signalContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/registeredPathPlanningTasks.cpp -o registeredPathPlanningTasks.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/registeredMotionPlanningTasks.cpp -o registeredMotionPlanningTasks.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/registerediks.cpp -o registerediks.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/registeredCollections.cpp -o registeredCollections.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/registeredDistances.cpp -o registeredDistances.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/registeredCollisions.cpp -o registeredCollisions.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp -o outsideCommandQueue.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/objCont.cpp -o objCont.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/memorizedConfContainer.cpp -o memorizedConfContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/mainSettings.cpp -o mainSettings.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/mainCont.cpp -o mainCont.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/luaScriptContainer.cpp -o luaScriptContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/environment.cpp -o environment.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/dynamicsContainer.cpp -o dynamicsContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/customData.cpp -o customData.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/constraintSolverContainer.cpp -o constraintSolverContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/commTubeContainer.cpp -o commTubeContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/cacheCont.cpp -o cacheCont.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/apiErrors.cpp -o apiErrors.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/ghostObjectContainer.cpp -o ghostObjectContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/pointCloudContainer_old.cpp -o pointCloudContainer_old.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/buttonBlockContainer.cpp -o buttonBlockContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/undoBufferCont.cpp -o undoBufferCont.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/interfaceStackContainer.cpp -o interfaceStackContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/copyBuffer.cpp -o copyBuffer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/persistentDataContainer.cpp -o persistentDataContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/simulatorMessageQueue.cpp -o simulatorMessageQueue.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/calculationInfo.cpp -o calculationInfo.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/visionSensorObjectRelated/imageProcess.cpp -o imageProcess.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/visionSensorObjectRelated/simpleFilter.cpp -o simpleFilter.o
+	gcc $(CFLAGS) -c sourceCode/3dObjects/visionSensorObjectRelated/composedFilter.cpp -o composedFilter.o
+	gcc $(CFLAGS) -c sourceCode/pathPlanning_old/pathPlanningTask_old.cpp -o pathPlanningTask_old.o
+	gcc $(CFLAGS) -c sourceCode/motionPlanning_old/motionPlanningTask_old.cpp -o motionPlanningTask_old.o
+	gcc $(CFLAGS) -c sourceCode/luaScripting/luaScriptParameters.cpp -o luaScriptParameters.o
+	gcc $(CFLAGS) -c sourceCode/luaScripting/luaScriptObject.cpp -o luaScriptObject.o
+	gcc $(CFLAGS) -c sourceCode/luaScripting/outsideCommandQueueForScript.cpp -o outsideCommandQueueForScript.o
+	gcc $(CFLAGS) -c sourceCode/luaScripting/luaWrapper.cpp -o luaWrapper.o
+	gcc $(CFLAGS) -c sourceCode/luaScripting/customLuaFuncAndVar/luaCustomFuncAndVarContainer.cpp -o luaCustomFuncAndVarContainer.o
+	gcc $(CFLAGS) -c sourceCode/luaScripting/customLuaFuncAndVar/luaCustomFunction.cpp -o luaCustomFunction.o
+	gcc $(CFLAGS) -c sourceCode/luaScripting/customLuaFuncAndVar/luaCustomVariable.cpp -o luaCustomVariable.o
+	gcc $(CFLAGS) -c sourceCode/pagesAndViews/pageContainer.cpp -o pageContainer.o
+	gcc $(CFLAGS) -c sourceCode/pagesAndViews/sPage.cpp -o sPage.o
+	gcc $(CFLAGS) -c sourceCode/pagesAndViews/sView.cpp -o sView.o
+	gcc $(CFLAGS) -c sourceCode/importExport/importExport.cpp -o importExport.o
+	gcc $(CFLAGS) -c sourceCode/importExport/objFile.cpp -o objFile.o
+	gcc $(CFLAGS) -c sourceCode/importExport/dxfFile.cpp -o dxfFile.o
+	gcc $(CFLAGS) -c sourceCode/importExport/stlFile.cpp -o stlFile.o
+	gcc $(CFLAGS) -c sourceCode/textures/textureObject.cpp -o textureObject.o
+	gcc $(CFLAGS) -c sourceCode/textures/imgLoaderSaver.cpp -o imgLoaderSaver.o
+	gcc $(CFLAGS) -c sourceCode/textures/tGAFormat.cpp -o tGAFormat.o
+	gcc $(CFLAGS) -c sourceCode/textures/stb_image.c -o stb_image.o
+	gcc $(CFLAGS) -c sourceCode/textures/textureProperty.cpp -o textureProperty.o
+	gcc $(CFLAGS) -c sourceCode/serialization/ser.cpp -o ser.o
+	gcc $(CFLAGS) -c sourceCode/serialization/xmlSer.cpp -o xmlSer.o
+	gcc $(CFLAGS) -c sourceCode/serialization/extIkSer.cpp -o extIkSer.o
+	gcc $(CFLAGS) -c sourceCode/serialization/huffman.c -o huffman.o
+	gcc $(CFLAGS) -c sourceCode/serialization/tinyxml2.cpp -o tinyxml2.o
+	gcc $(CFLAGS) -c sourceCode/interfaces/v_rep.cpp -o v_rep.o
+	gcc $(CFLAGS) -c sourceCode/interfaces/v_rep_internal.cpp -o v_rep_internal.o
+	gcc $(CFLAGS) -c sourceCode/interfaces/luaScriptFunctions.cpp -o luaScriptFunctions.o
+	gcc $(CFLAGS) -c sourceCode/interfaces/pathPlanningInterface.cpp -o pathPlanningInterface.o
+	gcc $(CFLAGS) -c sourceCode/interfaces/interfaceStack/interfaceStack.cpp -o interfaceStack.o
+	gcc $(CFLAGS) -c sourceCode/interfaces/interfaceStack/interfaceStackBool.cpp -o interfaceStackBool.o
+	gcc $(CFLAGS) -c sourceCode/interfaces/interfaceStack/interfaceStackNull.cpp -o interfaceStackNull.o
+	gcc $(CFLAGS) -c sourceCode/interfaces/interfaceStack/interfaceStackNumber.cpp -o interfaceStackNumber.o
+	gcc $(CFLAGS) -c sourceCode/interfaces/interfaceStack/interfaceStackObject.cpp -o interfaceStackObject.o
+	gcc $(CFLAGS) -c sourceCode/interfaces/interfaceStack/interfaceStackString.cpp -o interfaceStackString.o
+	gcc $(CFLAGS) -c sourceCode/interfaces/interfaceStack/interfaceStackTable.cpp -o interfaceStackTable.o
+	gcc $(CFLAGS) -c sourceCode/menusAndSimilar/addOperations.cpp -o addOperations.o
+	gcc $(CFLAGS) -c sourceCode/menusAndSimilar/fileOperations.cpp -o fileOperations.o
+	gcc $(CFLAGS) -c sourceCode/variousFunctions/sceneObjectOperations.cpp -o sceneObjectOperations.o
+	gcc $(CFLAGS) -c sourceCode/geometricAlgorithms/linMotionRoutines.cpp -o linMotionRoutines.o
+	gcc $(CFLAGS) -c sourceCode/geometricAlgorithms/meshRoutines.cpp -o meshRoutines.o
+	gcc $(CFLAGS) -c sourceCode/geometricAlgorithms/meshManip.cpp -o meshManip.o
+	gcc $(CFLAGS) -c sourceCode/geometricAlgorithms/edgeElement.cpp -o edgeElement.o
+	gcc $(CFLAGS) -c sourceCode/geometricAlgorithms/algos.cpp -o algos.o
+	gcc $(CFLAGS) -c sourceCode/various/gV.cpp -o gV.o
+	gcc $(CFLAGS) -c sourceCode/various/memorizedConf.cpp -o memorizedConf.o
+	gcc $(CFLAGS) -c sourceCode/various/userSettings.cpp -o userSettings.o
+	gcc $(CFLAGS) -c sourceCode/various/directoryPaths.cpp -o directoryPaths.o
+	gcc $(CFLAGS) -c sourceCode/various/constraintSolverObject.cpp -o constraintSolverObject.o
+	gcc $(CFLAGS) -c sourceCode/various/uiThread.cpp -o uiThread.o
+	gcc $(CFLAGS) -c sourceCode/various/simThread.cpp -o simThread.o
+	gcc $(CFLAGS) -c sourceCode/various/app.cpp -o app.o
+	gcc $(CFLAGS) -c sourceCode/various/dynMaterialObject.cpp -o dynMaterialObject.o
+	gcc $(CFLAGS) -c sourceCode/various/easyLock.cpp -o easyLock.o
+	gcc $(CFLAGS) -c sourceCode/various/funcDebug.cpp -o funcDebug.o
+	gcc $(CFLAGS) -c sourceCode/various/ghostObject.cpp -o ghostObject.o
+	gcc $(CFLAGS) -c sourceCode/various/debugLogFile.cpp -o debugLogFile.o
+	gcc $(CFLAGS) -c sourceCode/undoRedo/undoBufferArrays.cpp -o undoBufferArrays.o
+	gcc $(CFLAGS) -c sourceCode/undoRedo/undoBuffer.cpp -o undoBuffer.o
+	gcc $(CFLAGS) -c sourceCode/undoRedo/undoBufferCameras.cpp -o undoBufferCameras.o
+	gcc $(CFLAGS) -c sourceCode/libsAndPlugins/pluginContainer.cpp -o pluginContainer.o
+	gcc $(CFLAGS) -c sourceCode/visual/visualParam.cpp -o visualParam.o
+	gcc $(CFLAGS) -c sourceCode/visual/thumbnail.cpp -o thumbnail.o
+	gcc $(CFLAGS) -c sourceCode/utils/threadPool.cpp -o threadPool.o
+	gcc $(CFLAGS) -c sourceCode/utils/ttUtil.cpp -o ttUtil.o
+	gcc $(CFLAGS) -c sourceCode/utils/tt.cpp -o tt.o
+	gcc $(CFLAGS) -c sourceCode/utils/confReaderAndWriter.cpp -o confReaderAndWriter.o
+	gcc $(CFLAGS) -c sourceCode/customUserInterfaces/buttonBlock.cpp -o buttonBlock.o
+	gcc $(CFLAGS) -c sourceCode/customUserInterfaces/softButton.cpp -o softButton.o
+	gcc $(CFLAGS) -c sourceCode/various/sigHandler.cpp -o sigHandler.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/addOnScriptContainer.cpp -o addOnScriptContainer.o
+
+	@mkdir -p lib
+	gcc *.o -o lib/libv_rep.$(EXT) -lpthread -ldl -llua5.1 -shared

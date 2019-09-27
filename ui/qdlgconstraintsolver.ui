@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgConstraintSolver</class>
+ <widget class="QDialog" name="CQDlgConstraintSolver">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>460</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Geometric Constraint Solver</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QGroupBox" name="qqAllEnabled">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>361</width>
+     <height>441</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Enable geometric constraint solver</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <widget class="QListWidget" name="qqObjectList">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>341</width>
+      <height>171</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>240</y>
+      <width>341</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Object properties</string>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <widget class="QCheckBox" name="qqExplicitHandling">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>151</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Explicit handling</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>141</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Maximum iterations</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>141</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Interpolation</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>141</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>General damping</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqIterations">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>40</y>
+       <width>56</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqInterpolation">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>60</y>
+       <width>56</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqDamping">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>80</y>
+       <width>56</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqLinearVariation">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>100</y>
+       <width>56</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>191</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Maximum linear variation [m]</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_5">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>120</y>
+       <width>191</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Maximum angular variation [deg]</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqAngularVariation">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>120</y>
+       <width>56</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_6">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>140</y>
+       <width>191</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Loop closure positional tolerance [m]</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqLoopClosurePosTol">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>140</y>
+       <width>56</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>160</y>
+       <width>191</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Loop closure angular tolerance [deg]</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqLoopClosureAngTol">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>160</y>
+       <width>56</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QToolButton" name="qqAddNew">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>141</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Insert new object</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

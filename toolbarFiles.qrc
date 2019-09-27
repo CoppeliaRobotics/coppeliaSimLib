@@ -1,0 +1,47 @@
+<RCC>
+    <qresource prefix="/">
+        <file>toolbarFiles/verify.png</file>
+        <file>toolbarFiles/cameraShift.png</file>
+        <file>toolbarFiles/cameraAngle.png</file>
+        <file>toolbarFiles/cameraFly.png</file>
+        <file>toolbarFiles/cameraRotate.png</file>
+        <file>toolbarFiles/cameraZoom.png</file>
+        <file>toolbarFiles/objectRotate.png</file>
+        <file>toolbarFiles/objectShift.png</file>
+        <file>toolbarFiles/clickSelection.png</file>
+        <file>toolbarFiles/undo.png</file>
+        <file>toolbarFiles/redo.png</file>
+        <file>toolbarFiles/start.png</file>
+        <file>toolbarFiles/pause.png</file>
+        <file>toolbarFiles/stop.png</file>
+        <file>toolbarFiles/realTime.png</file>
+        <file>toolbarFiles/online.png</file>
+        <file>toolbarFiles/onlineOn.png</file>
+        <file>toolbarFiles/increaseSpeed.png</file>
+        <file>toolbarFiles/reduceSpeed.png</file>
+        <file>toolbarFiles/collections.png</file>
+        <file>toolbarFiles/commonProperties.png</file>
+        <file>toolbarFiles/simulationSettings.png</file>
+        <file>toolbarFiles/2dElements.png</file>
+        <file>toolbarFiles/aviRecorder.png</file>
+        <file>toolbarFiles/modelBrowser.png</file>
+        <file>toolbarFiles/sceneHierarchy.png</file>
+        <file>toolbarFiles/scripts.png</file>
+        <file>toolbarFiles/selection.png</file>
+        <file>toolbarFiles/userSettings.png</file>
+        <file>toolbarFiles/layers.png</file>
+        <file>toolbarFiles/cameraResize.png</file>
+        <file>toolbarFiles/calcmods.png</file>
+        <file>toolbarFiles/dynamics.png</file>
+        <file>toolbarFiles/pageSelector.png</file>
+        <file>toolbarFiles/pathEdition.png</file>
+        <file>toolbarFiles/sceneSelector.png</file>
+        <file>toolbarFiles/shapeEdition.png</file>
+        <file>toolbarFiles/assemble.png</file>
+        <file>toolbarFiles/disassemble.png</file>
+        <file>toolbarFiles/transferDna.png</file>
+        <file>toolbarFiles/pathPointCreation.png</file>
+        <file>toolbarFiles/threadedRendering.png</file>
+        <file>toolbarFiles/toggleVisualization.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgMaterial</class>
+ <widget class="QDialog" name="CQDlgMaterial">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>201</width>
+    <height>195</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Color</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QCheckBox" name="qqOpacityEnable">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>130</y>
+     <width>111</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Opacity</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="qqEmissiveAdjust">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>50</y>
+     <width>181</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Emissive component</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="qqSpecularAdjust">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>30</y>
+     <width>181</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Specular component</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>110</y>
+     <width>111</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Shininess</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqShininess">
+   <property name="geometry">
+    <rect>
+     <x>135</x>
+     <y>110</y>
+     <width>56</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="qqAmbientAdjust">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>181</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Ambient/diffuse component</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqOpacity">
+   <property name="geometry">
+    <rect>
+     <x>135</x>
+     <y>130</y>
+     <width>56</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="qqPulsationAdjust">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>90</y>
+     <width>181</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Pulsation parameters</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>150</y>
+     <width>71</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Color name</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqColorName">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>150</y>
+     <width>111</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="qqAuxiliaryAdjust">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>70</y>
+     <width>181</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Auxiliary component</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>170</y>
+     <width>61</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Ext. string</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqExtensionString">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>170</y>
+     <width>111</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>qqAmbientAdjust</tabstop>
+  <tabstop>qqSpecularAdjust</tabstop>
+  <tabstop>qqEmissiveAdjust</tabstop>
+  <tabstop>qqAuxiliaryAdjust</tabstop>
+  <tabstop>qqPulsationAdjust</tabstop>
+  <tabstop>qqShininess</tabstop>
+  <tabstop>qqOpacityEnable</tabstop>
+  <tabstop>qqOpacity</tabstop>
+  <tabstop>qqColorName</tabstop>
+  <tabstop>qqExtensionString</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

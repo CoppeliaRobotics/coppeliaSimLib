@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgLayers</class>
+ <widget class="QDialog" name="CQDlgLayers">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>151</width>
+    <height>111</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Layers</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QCheckBox" name="a_1">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="a_2">
+   <property name="geometry">
+    <rect>
+     <x>26</x>
+     <y>10</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="a_3">
+   <property name="geometry">
+    <rect>
+     <x>42</x>
+     <y>10</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="a_4">
+   <property name="geometry">
+    <rect>
+     <x>58</x>
+     <y>10</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="a_5">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>10</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="a_6">
+   <property name="geometry">
+    <rect>
+     <x>96</x>
+     <y>10</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="a_7">
+   <property name="geometry">
+    <rect>
+     <x>112</x>
+     <y>10</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="a_8">
+   <property name="geometry">
+    <rect>
+     <x>128</x>
+     <y>10</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="invert">
+   <property name="geometry">
+    <rect>
+     <x>4</x>
+     <y>50</y>
+     <width>141</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Invert</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="a_9">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>30</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="a_10">
+   <property name="geometry">
+    <rect>
+     <x>26</x>
+     <y>30</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="a_11">
+   <property name="geometry">
+    <rect>
+     <x>42</x>
+     <y>30</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="a_12">
+   <property name="geometry">
+    <rect>
+     <x>58</x>
+     <y>30</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="a_13">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>30</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="a_14">
+   <property name="geometry">
+    <rect>
+     <x>96</x>
+     <y>30</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="a_15">
+   <property name="geometry">
+    <rect>
+     <x>112</x>
+     <y>30</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="a_16">
+   <property name="geometry">
+    <rect>
+     <x>128</x>
+     <y>30</y>
+     <width>16</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="qqDynamicContentOnly">
+   <property name="geometry">
+    <rect>
+     <x>4</x>
+     <y>70</y>
+     <width>141</width>
+     <height>36</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Visualize only
+dynamic content</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>a_1</tabstop>
+  <tabstop>a_2</tabstop>
+  <tabstop>a_3</tabstop>
+  <tabstop>a_4</tabstop>
+  <tabstop>a_5</tabstop>
+  <tabstop>a_6</tabstop>
+  <tabstop>a_7</tabstop>
+  <tabstop>a_8</tabstop>
+  <tabstop>a_9</tabstop>
+  <tabstop>a_10</tabstop>
+  <tabstop>a_11</tabstop>
+  <tabstop>a_12</tabstop>
+  <tabstop>a_13</tabstop>
+  <tabstop>a_14</tabstop>
+  <tabstop>a_15</tabstop>
+  <tabstop>a_16</tabstop>
+  <tabstop>invert</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlgSlider</class>
+ <widget class="QDialog" name="CQDlgSlider">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>114</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Slider</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QLabel" name="qqText2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>50</y>
+     <width>361</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Decimate by xx % (about xxxxxx triangles)</string>
+   </property>
+  </widget>
+  <widget class="QSlider" name="qqSlider">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>30</y>
+     <width>361</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>100</number>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QLabel" name="qqText1">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>361</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>xxxx</string>
+   </property>
+  </widget>
+  <widget class="QDialogButtonBox" name="qqOkCancelButtons">
+   <property name="geometry">
+    <rect>
+     <x>15</x>
+     <y>80</y>
+     <width>351</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CQDlg2D3DGraphProperties</class>
+ <widget class="QDialog" name="CQDlg2D3DGraphProperties">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>291</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QGroupBox" name="qqGroupBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>361</width>
+     <height>271</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>XY curve properties</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QToolButton" name="qqAddNewCurve">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>25</y>
+      <width>121</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Add new curve</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="qqList">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>341</width>
+      <height>101</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqVisible">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>160</y>
+      <width>131</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Curve is visible</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqLinkPoints">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>160</y>
+      <width>131</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Link points</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqDisplayLabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>180</y>
+      <width>131</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Display label</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="qqAdjustColor">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>180</y>
+      <width>121</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Adjust color</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="qqDuplicate">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>200</y>
+      <width>121</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Duplicate to static</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="qqWidthLabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>240</y>
+      <width>91</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Curve width [pt]</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqWidth">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>240</y>
+      <width>41</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="qqRelativeToGraph">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>220</y>
+      <width>141</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Relative to graph</string>
+    </property>
+    <property name="autoExclusive">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="qqRelativeToWorld">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>240</y>
+      <width>141</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Relative to world</string>
+    </property>
+    <property name="autoExclusive">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqAlwaysOnTop">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>220</y>
+      <width>161</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Curve always on top</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>qqAddNewCurve</tabstop>
+  <tabstop>qqList</tabstop>
+  <tabstop>qqVisible</tabstop>
+  <tabstop>qqLinkPoints</tabstop>
+  <tabstop>qqDisplayLabel</tabstop>
+  <tabstop>qqAdjustColor</tabstop>
+  <tabstop>qqDuplicate</tabstop>
+  <tabstop>qqAlwaysOnTop</tabstop>
+  <tabstop>qqRelativeToGraph</tabstop>
+  <tabstop>qqWidth</tabstop>
+  <tabstop>qqRelativeToWorld</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
