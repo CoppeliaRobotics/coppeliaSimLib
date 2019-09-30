@@ -1,4 +1,3 @@
-
 #include "auxLibVideo.h"
 #include "app.h"
 
@@ -14,7 +13,7 @@ void CAuxLibVideo::loadLibrary(bool headless)
     if (!headless)
     {
         std::string vidLibPathAndName(VVarious::getModulePath());
-        vidLibPathAndName+=VREP_SLASH;
+        vidLibPathAndName+="/";
 #ifdef WIN_VREP
         vidLibPathAndName+="vvcl.dll";
 #endif

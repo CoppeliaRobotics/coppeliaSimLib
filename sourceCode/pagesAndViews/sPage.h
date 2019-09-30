@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "sView.h"
 #include "ser.h"
 

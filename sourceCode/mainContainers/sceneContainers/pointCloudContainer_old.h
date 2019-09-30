@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "ptCloud_old.h"
 #include "mainCont.h"
 #include "7Vector.h"

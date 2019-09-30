@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "pathPlanningTask_old.h"
 #include "mainCont.h"
 

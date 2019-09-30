@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "ser.h"
 #include "huffman.h"
 #include "v_repStrings.h"
@@ -238,6 +237,7 @@ void CSer::_writeBinaryHeader()
 
     // We write the compilation version: (since ser ver 13 (2009/07/21))
     int compilVer=VREP_COMPILATION_VERSION;
+
     if (theArchive!=nullptr)
     {
         (*theArchive) << ((char*)&compilVer)[0];
@@ -261,7 +261,6 @@ void CSer::_writeBinaryHeader()
         (*theArchive) << ((char*)&v)[1];
 
         unsigned int licenseType=VREP_LICENSE_TYPE+1; // +1 because zero means: no info about license type yet!
-
         (*theArchive) << ((char*)&licenseType)[0];
         (*theArchive) << ((char*)&licenseType)[1];
         (*theArchive) << ((char*)&licenseType)[2];
@@ -274,7 +273,6 @@ void CSer::_writeBinaryHeader()
         (*_bufferArchive).push_back(((char*)&v)[1]);
 
         unsigned int licenseType=VREP_LICENSE_TYPE+1; // +1 because zero means: no info about license type yet!
-
         (*_bufferArchive).push_back(((char*)&licenseType)[0]);
         (*_bufferArchive).push_back(((char*)&licenseType)[1]);
         (*_bufferArchive).push_back(((char*)&licenseType)[2]);

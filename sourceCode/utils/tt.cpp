@@ -1,14 +1,16 @@
-
-#include "vrepMainHeader.h"
 #include "tt.h"
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include "MyMath.h"
 #ifndef SIM_WITHOUT_QT_AT_ALL
 #include <QString>
 #else
 #include <algorithm>
+#endif
+
+#ifndef radToDeg_f
+#define radToDeg_f 57.2957795130785499f
+#define degToRad_f 0.017453292519944444f
 #endif
 
 struct filestruct_A
@@ -872,8 +874,8 @@ void tt::rgbToHsl(float rgb[3],float hsl[3])
     float g=rgb[1];
     float b=rgb[2];
     float h,s,l,delta;
-    float cmax=SIM_MAX(r,SIM_MAX(g,b));
-    float cmin=SIM_MIN(r,SIM_MIN(g,b));
+    float cmax=std::max<float>(r,std::max<float>(g,b));
+    float cmin=std::min<float>(r,std::min<float>(g,b));
     l=(cmax+cmin)/2.0f;
     if (cmax==cmin) 
     {

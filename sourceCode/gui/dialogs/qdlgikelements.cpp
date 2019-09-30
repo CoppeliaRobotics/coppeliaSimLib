@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgikelements.h"
 #include "ui_qdlgikelements.h"
 #include "gV.h"

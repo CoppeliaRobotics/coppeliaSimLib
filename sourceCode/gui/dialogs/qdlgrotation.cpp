@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgrotation.h"
 #include "ui_qdlgrotation.h"
 #include "gV.h"

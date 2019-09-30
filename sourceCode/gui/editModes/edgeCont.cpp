@@ -1,6 +1,5 @@
-
-#include "vrepMainHeader.h"
 #include "edgeCont.h"
+#include <algorithm>
 
 const int eCnt=3;
 const int eCnt2=2*eCnt;
@@ -16,8 +15,8 @@ CEdgeCont::~CEdgeCont()
 
 int CEdgeCont::getEdgeIndex(int ind1,int ind2)
 {
-    int indS=SIM_MIN(ind1,ind2);
-    int indB=SIM_MAX(ind1,ind2);
+    int indS=std::min<int>(ind1,ind2);
+    int indB=std::max<int>(ind1,ind2);
     if (indS>=int(_edges.size()/eCnt2))
         return(-1); // that edge doesn't exist
     // 1. Special case?
@@ -55,8 +54,8 @@ int CEdgeCont::addEdge(int ind1,int ind2)
     int t=getEdgeIndex(ind1,ind2);
     if (t!=-1)
         return(t); // edge already exists!
-    int indS=SIM_MIN(ind1,ind2);
-    int indB=SIM_MAX(ind1,ind2);
+    int indS=std::min<int>(ind1,ind2);
+    int indB=std::max<int>(ind1,ind2);
     while (indS>=int(_edges.size()/eCnt2))
     {
         for (int i=0;i<eCnt;i++)

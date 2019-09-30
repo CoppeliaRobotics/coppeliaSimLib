@@ -1,7 +1,5 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "broadcastData.h"
 #include "vMutex.h"
 #include "broadcastDataVisual.h"

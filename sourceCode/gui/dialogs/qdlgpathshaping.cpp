@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgpathshaping.h"
 #include "ui_qdlgpathshaping.h"
 #include "gV.h"

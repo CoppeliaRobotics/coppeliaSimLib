@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgnewui.h"
 #include "ui_qdlgnewui.h"
 #include "v_rep_internal.h"

@@ -100,7 +100,7 @@ protected:
     int hitForMouseUpProcessing_minus2MeansIgnore;
     int _attributesForRendering;
     unsigned int _textureNameForExtGeneratedView;
-    
+
     static unsigned int selectBuff[SELECTION_BUFFER_SIZE*4];    // For picking
 
     bool _initialValuesInitialized;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "luaWrapper.h"
 
 class CInterfaceStackObject

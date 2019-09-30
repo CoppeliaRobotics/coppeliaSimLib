@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgtextureloadoptions.h"
 #include "ui_qdlgtextureloadoptions.h"
 #include "gV.h"

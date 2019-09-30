@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgsimplefilter_rectangularCut.h"
 #include "ui_qdlgsimplefilter_rectangularCut.h"
 #include "gV.h"

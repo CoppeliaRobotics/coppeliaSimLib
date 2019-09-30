@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "iKGraphObjCont.h"
 #include "iKGraphObject.h"
 #include "iKGraphJoint.h"

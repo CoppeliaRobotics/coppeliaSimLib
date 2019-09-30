@@ -1,10 +1,7 @@
-
 #include "holonomicPathPlanning.h"
 #include "pathPlanningInterface.h"
 #include "v_rep_internal.h"
-
-#define SIM_MIN(a,b) (((a)<(b)) ? (a) : (b))
-#define SIM_MAX(a,b) (((a)>(b)) ? (a) : (b))
+#include <algorithm>
 
 CHolonomicPathPlanning::CHolonomicPathPlanning(int theStartDummyID,int theGoalDummyID,
                         int theRobotCollectionID,int theObstacleCollectionID,int ikGroupID,
@@ -1043,8 +1040,8 @@ int CHolonomicPathPlanning::smoothFoundPath(int steps,int maxTimePerPass)
                     int rb=int((SIM_RAND_FLOAT*float(foundPath.size()))-0.5f);
                     if ( (ra!=rb)&&(abs(ra-rb)>1)&&(foundPathSameStraightLineID_forSteppedSmoothing[ra]!=foundPathSameStraightLineID_forSteppedSmoothing[rb]) )
                     {
-                        lowIndex=SIM_MIN(ra,rb);
-                        highIndex=SIM_MAX(ra,rb);
+                        lowIndex=std::min<int>(ra,rb);
+                        highIndex=std::max<int>(ra,rb);
                         startP=foundPath[lowIndex];
                         endP=foundPath[highIndex];
                         break;

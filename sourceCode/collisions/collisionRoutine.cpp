@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "collisionRoutine.h"
 #include "distanceRoutine.h"
 #include "pluginContainer.h"

@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgui.h"
 #include "ui_qdlgui.h"
 #include "app.h"

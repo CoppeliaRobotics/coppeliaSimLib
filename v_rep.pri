@@ -139,6 +139,9 @@ unix:!macx {
     DEFINES += LIN_VREP
 }
 
+INCLUDEPATH += $$BOOST_INCLUDEPATH
+INCLUDEPATH += $$LUA_INCLUDEPATH
+LIBS += $$LUA_LIBS
 
 INCLUDEPATH += $$PWD/"sourceCode"
 INCLUDEPATH += $$PWD/"sourceCode/inverseKinematics/geomConstraintSolver"
@@ -212,6 +215,12 @@ WITH_GUI {
     INCLUDEPATH += $$PWD/"sourceCode/gui/libs"
 }
 
+*-msvc* {
+    QMAKE_CXXFLAGS += /FI $$PWD/"sourceCode/various/vrepMainHeader.h"
+} else {
+    QMAKE_CXXFLAGS += -include $$PWD/"sourceCode/various/vrepMainHeader.h"
+}
+
 WITH_GUI {
     FORMS += $$PWD/ui/qdlgsettings.ui \
     $$PWD/ui/qdlglayers.ui \
@@ -257,26 +266,6 @@ WITH_GUI {
     $$PWD/ui/qdlgvisionsensors.ui \
     $$PWD/ui/qdlgimagecolor.ui \
     $$PWD/ui/qdlgsimpleSearch.ui \
-    $$PWD/ui/qdlgfilters.ui \
-    $$PWD/ui/qdlgsimplefilter_rotate.ui \
-    $$PWD/ui/qdlgsimplefilter_uniformImage.ui \
-    $$PWD/ui/qdlgsimplefilter_shift.ui \
-    $$PWD/ui/qdlgsimplefilter_scaleCols.ui \
-    $$PWD/ui/qdlgsimplefilter_resize.ui \
-    $$PWD/ui/qdlgsimplefilter_coordExtraction.ui \
-    $$PWD/ui/qdlgsimplefilter_velodyne.ui \
-    $$PWD/ui/qdlgsimplefilter_pixelChange.ui \
-    $$PWD/ui/qdlgsimplefilter_rectangularCut.ui \
-    $$PWD/ui/qdlgsimplefilter_keepRemoveCols.ui \
-    $$PWD/ui/qdlgsimplefilter_intensityScale.ui \
-    $$PWD/ui/qdlgsimplefilter_edge.ui \
-    $$PWD/ui/qdlgsimplefilter_correlation.ui \
-    $$PWD/ui/qdlgsimplefilter_colorSegmentation.ui \
-    $$PWD/ui/qdlgsimplefilter_circularCut.ui \
-    $$PWD/ui/qdlgsimplefilter_blob.ui \
-    $$PWD/ui/qdlgsimplefilter_binary.ui \
-    $$PWD/ui/qdlgsimplefilter_5x5.ui \
-    $$PWD/ui/qdlgsimplefilter_3x3.ui \
     $$PWD/ui/qdlgshapes.ui \
     $$PWD/ui/qdlgmultishapeedition.ui \
     $$PWD/ui/qdlgtextures.ui \
@@ -370,9 +359,7 @@ HEADERS += $$PWD/sourceCode/shared/sharedBufferFunctions/sharedFloatVector.h \
     $$PWD/sourceCode/shared/sharedBufferFunctions/sharedUCharVector.h \
 
 HEADERS += $$PWD/sourceCode/drawingObjects/bannerObject.h \
-    $$PWD/sourceCode/drawingObjects/drawingObject2D.h \
     $$PWD/sourceCode/drawingObjects/drawingObject.h \
-    $$PWD/sourceCode/drawingObjects/drawingContainer2D.h \
     $$PWD/sourceCode/drawingObjects/ptCloud_old.h \
 
 HEADERS += $$PWD/sourceCode/platform/vVarious.h \
@@ -482,8 +469,7 @@ HEADERS += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/interfaceStackContainer.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/addOnScriptContainer.h \
 
-HEADERS += $$PWD/sourceCode/3dObjects/visionSensorObjectRelated/imageProcess.h \
-    $$PWD/sourceCode/3dObjects/visionSensorObjectRelated/simpleFilter.h \
+HEADERS += $$PWD/sourceCode/3dObjects/visionSensorObjectRelated/simpleFilter.h \
     $$PWD/sourceCode/3dObjects/visionSensorObjectRelated/composedFilter.h \
 
 HEADERS += $$PWD/sourceCode/pathPlanning_old/pathPlanningTask_old.h \
@@ -510,7 +496,6 @@ HEADERS += $$PWD/sourceCode/textures/textureObject.h \
     $$PWD/sourceCode/textures/textureProperty.h \
 
 HEADERS += $$PWD/sourceCode/serialization/ser.h \
-    $$PWD/sourceCode/serialization/xmlSer.h \
     $$PWD/sourceCode/serialization/extIkSer.h \
     $$PWD/sourceCode/serialization/huffman.h \
     $$PWD/sourceCode/serialization/tinyxml2.cpp \
@@ -524,7 +509,7 @@ HEADERS += $$PWD/sourceCode/interfaces/v_rep.h \
     $$PWD/sourceCode/interfaces/luaScriptFunctions.h \
     $$PWD/sourceCode/interfaces/pathPlanningInterface.h \
     $$PWD/sourceCode/interfaces/dummyClasses.h \
-
+    
 HEADERS += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackObject.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackNull.h \
@@ -560,7 +545,6 @@ HEADERS += $$PWD/sourceCode/various/vrepConfig.h \
     $$PWD/sourceCode/various/funcDebug.h \
     $$PWD/sourceCode/various/ghostObject.h \
     $$PWD/sourceCode/various/debugLogFile.h \
-    $$PWD/sourceCode/various/vrepConfig.h \
     $$PWD/sourceCode/various/sigHandler.h \
 
 HEADERS += $$PWD/sourceCode/undoRedo/undoBufferArrays.h \
@@ -584,7 +568,6 @@ HEADERS += $$PWD/sourceCode/rendering/rendering.h \
     $$PWD/sourceCode/rendering/shapeRendering.h \
     $$PWD/sourceCode/rendering/ghostRendering.h \
     $$PWD/sourceCode/rendering/drawingObjectRendering.h \
-    $$PWD/sourceCode/rendering/drawingObject2DRendering.h \
     $$PWD/sourceCode/rendering/ptCloudRendering_old.h \
     $$PWD/sourceCode/rendering/collisionContourRendering.h \
     $$PWD/sourceCode/rendering/distanceRendering.h \
@@ -683,27 +666,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgvisionsensors.h \
         $$PWD/sourceCode/gui/dialogs/qdlgimagecolor.h \
         $$PWD/sourceCode/gui/dialogs/qdlgsimpleSearch.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgfilters.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_rotate.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_uniformImage.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_shift.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_coordExtraction.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_velodyne.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_pixelChange.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_scaleCols.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_resize.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_rectangularCut.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_keepRemoveCols.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_intensityScale.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_edge.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_correlation.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_colorSegmentation.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_circularCut.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_blob.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_binary.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_5x5.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_3x3.h \
         $$PWD/sourceCode/gui/dialogs/qdlgshapes.h \
         $$PWD/sourceCode/gui/dialogs/qdlgmultishapeedition.h \
         $$PWD/sourceCode/gui/dialogs/qdlgtextures.h \
@@ -857,9 +819,7 @@ SOURCES += $$PWD/sourceCode/shared/sharedBufferFunctions/sharedFloatVector.cpp \
     $$PWD/sourceCode/shared/sharedBufferFunctions/sharedUCharVector.cpp \
 
 SOURCES += $$PWD/sourceCode/drawingObjects/bannerObject.cpp \
-    $$PWD/sourceCode/drawingObjects/drawingObject2D.cpp \
     $$PWD/sourceCode/drawingObjects/drawingObject.cpp \
-    $$PWD/sourceCode/drawingObjects/drawingContainer2D.cpp \
     $$PWD/sourceCode/drawingObjects/ptCloud_old.cpp \
 
 SOURCES += $$PWD/sourceCode/platform/vVarious.cpp \
@@ -972,8 +932,7 @@ SOURCES += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.cpp 
     $$PWD/sourceCode/mainContainers/applicationContainers/interfaceStackContainer.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/addOnScriptContainer.cpp \
 
-SOURCES += $$PWD/sourceCode/3dObjects/visionSensorObjectRelated/imageProcess.cpp \
-    $$PWD/sourceCode/3dObjects/visionSensorObjectRelated/simpleFilter.cpp \
+SOURCES += $$PWD/sourceCode/3dObjects/visionSensorObjectRelated/simpleFilter.cpp \
     $$PWD/sourceCode/3dObjects/visionSensorObjectRelated/composedFilter.cpp \
 
 SOURCES += $$PWD/sourceCode/pathPlanning_old/pathPlanningTask_old.cpp \
@@ -1000,7 +959,6 @@ SOURCES += $$PWD/sourceCode/textures/textureObject.cpp \
     $$PWD/sourceCode/textures/textureProperty.cpp \
 
 SOURCES += $$PWD/sourceCode/serialization/ser.cpp \
-    $$PWD/sourceCode/serialization/xmlSer.cpp \
     $$PWD/sourceCode/serialization/extIkSer.cpp \
     $$PWD/sourceCode/serialization/huffman.c \
     $$PWD/sourceCode/serialization/tinyxml2.cpp \
@@ -1065,7 +1023,6 @@ SOURCES += $$PWD/sourceCode/rendering/rendering.cpp \
     $$PWD/sourceCode/rendering/shapeRendering.cpp \
     $$PWD/sourceCode/rendering/ghostRendering.cpp \
     $$PWD/sourceCode/rendering/drawingObjectRendering.cpp \
-    $$PWD/sourceCode/rendering/drawingObject2DRendering.cpp \
     $$PWD/sourceCode/rendering/ptCloudRendering_old.cpp \
     $$PWD/sourceCode/rendering/collisionContourRendering.cpp \
     $$PWD/sourceCode/rendering/distanceRendering.cpp \
@@ -1165,27 +1122,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgvisionsensors.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgimagecolor.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgsimpleSearch.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgfilters.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_rotate.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_uniformImage.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_shift.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_coordExtraction.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_velodyne.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_pixelChange.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_scaleCols.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_resize.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_rectangularCut.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_keepRemoveCols.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_intensityScale.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_edge.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_correlation.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_colorSegmentation.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_circularCut.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_blob.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_binary.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_5x5.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimplefilter_3x3.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgshapes.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgmultishapeedition.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgtextures.cpp \

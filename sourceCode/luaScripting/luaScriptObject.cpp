@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "easyLock.h"
 #include "v_rep_internal.h"
@@ -71,6 +70,8 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
     _containsJointCallbackFunction=false;
     _containsContactCallbackFunction=false;
     _containsDynCallbackFunction=false;
+    _containsVisionCallbackFunction=false;
+    _containsTriggerCallbackFunction=false;
 
 
     L=nullptr;
@@ -107,7 +108,7 @@ CLuaScriptObject::~CLuaScriptObject()
     if (App::userSettings->externalScriptEditor.length()>0)
     {
         // destroy file
-        std::string fname=App::directories->extScriptEditorTempFileDirectory+VREP_SLASH;
+        std::string fname=App::directories->extScriptEditorTempFileDirectory+"/";
         fname.append(_filenameForExternalScriptEditor);
         if (VFile::doesFileExist(fname))
             VFile::eraseFile(fname);
@@ -116,7 +117,7 @@ CLuaScriptObject::~CLuaScriptObject()
 
 std::string CLuaScriptObject::getFilenameForExternalScriptEditor() const
 {
-    std::string fname=App::directories->extScriptEditorTempFileDirectory+VREP_SLASH;
+    std::string fname=App::directories->extScriptEditorTempFileDirectory+"/";
     fname.append(_filenameForExternalScriptEditor);
     return(fname);
 }
@@ -125,7 +126,7 @@ void CLuaScriptObject::fromFileToBuffer()
 {
     if (App::userSettings->externalScriptEditor.size()>0)
     { // read file
-        std::string fname=App::directories->extScriptEditorTempFileDirectory+VREP_SLASH;
+        std::string fname=App::directories->extScriptEditorTempFileDirectory+"/";
         fname.append(_filenameForExternalScriptEditor);
 
         VFile myFile(fname.c_str(),VFile::READ|VFile::SHARE_DENY_NONE,true);
@@ -149,7 +150,7 @@ void CLuaScriptObject::fromBufferToFile() const
     { // write file
         if ((App::ct->environment==NULL)||(!App::ct->environment->getSceneLocked()))
         {
-            std::string fname=App::directories->extScriptEditorTempFileDirectory+VREP_SLASH;
+            std::string fname=App::directories->extScriptEditorTempFileDirectory+"/";
             fname.append(_filenameForExternalScriptEditor);
 
             VFile myFile(fname.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE,true);
@@ -324,6 +325,20 @@ std::string CLuaScriptObject::getSystemCallbackString(int calltype,bool callTips
         std::string r("sysCall_jointCallback");
         if (callTips)
             r+="=(inData)\nCalled after a dynamic simulation step.";
+        return(r);
+    }
+    if (calltype==sim_syscb_vision)
+    {
+        std::string r("sysCall_vision");
+        if (callTips)
+            r+="=(inData)\nCalled when a vision sensor requests image processing.";
+        return(r);
+    }
+    if (calltype==sim_syscb_trigger)
+    {
+        std::string r("sysCall_trigger");
+        if (callTips)
+            r+="=(inData)\nCalled when the sensor is triggered.";
         return(r);
     }
     if (calltype==sim_syscb_contactcallback)
@@ -506,6 +521,10 @@ bool CLuaScriptObject::canCallSystemCallback(int scriptType,bool threaded,int ca
             return(true);
         if (callType==sim_syscb_jointcallback)
             return(true);
+        if (callType==sim_syscb_vision)
+            return(true);
+        if (callType==sim_syscb_trigger)
+            return(true);
         if (callType==sim_syscb_contactcallback)
             return(true);
         if (callType==sim_syscb_dyncallback)
@@ -543,6 +562,10 @@ bool CLuaScriptObject::canCallSystemCallback(int scriptType,bool threaded,int ca
     if (scriptType==sim_scripttype_childscript)
     {
         if (callType==sim_syscb_cleanup)
+            return(true);
+        if (callType==sim_syscb_vision)
+            return(true);
+        if (callType==sim_syscb_trigger)
             return(true);
         if (threaded)
         {
@@ -611,6 +634,8 @@ std::vector<std::string> CLuaScriptObject::getAllSystemCallbackStrings(int scrip
                  sim_syscb_jointcallback,
                  sim_syscb_contactcallback,
                  sim_syscb_dyncallback,
+                 sim_syscb_vision,
+                 sim_syscb_trigger,
                  sim_syscb_customcallback1,
                  sim_syscb_customcallback2,
                  sim_syscb_customcallback3,
@@ -664,6 +689,15 @@ bool CLuaScriptObject::getContainsDynCallbackFunction() const
     return(_containsDynCallbackFunction);
 }
 
+bool CLuaScriptObject::getContainsVisionCallbackFunction() const
+{
+    return(_containsVisionCallbackFunction);
+}
+
+bool CLuaScriptObject::getContainsTriggerCallbackFunction() const
+{
+    return(_containsTriggerCallbackFunction);
+}
 
 int CLuaScriptObject::getErrorReportMode() const
 {
@@ -1569,6 +1603,11 @@ void CLuaScriptObject::_launchThreadedChildScriptNow()
         }
         else
         {
+            luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_vision,false).c_str());
+            _containsVisionCallbackFunction=luaWrap_lua_isfunction(L,-1);
+            luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_trigger,false).c_str());
+            _containsTriggerCallbackFunction=luaWrap_lua_isfunction(L,-1);
+            luaWrap_lua_pop(L,2);
 
             int calls[2]={sim_syscb_threadmain,sim_syscb_cleanup};
             bool errOccured=false;
@@ -1803,7 +1842,11 @@ int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfa
             _containsContactCallbackFunction=luaWrap_lua_isfunction(L,-1);
             luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_dyncallback,false).c_str());
             _containsDynCallbackFunction=luaWrap_lua_isfunction(L,-1);
-            luaWrap_lua_pop(L,3);
+            luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_vision,false).c_str());
+            _containsVisionCallbackFunction=luaWrap_lua_isfunction(L,-1);
+            luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_trigger,false).c_str());
+            _containsTriggerCallbackFunction=luaWrap_lua_isfunction(L,-1);
+            luaWrap_lua_pop(L,5);
         }
         // Push the function name onto the stack (will be automatically popped from stack after _luaPCall):
         std::string funcName(getSystemCallbackString(callType,false));
@@ -2464,6 +2507,8 @@ bool CLuaScriptObject::killLuaState()
     _containsJointCallbackFunction=false;
     _containsContactCallbackFunction=false;
     _containsDynCallbackFunction=false;
+    _containsVisionCallbackFunction=false;
+    _containsTriggerCallbackFunction=false;
     _flaggedForDestruction=false;
     return(retVal);
 }
@@ -2772,7 +2817,7 @@ void CLuaScriptObject::serialize(CSer& ar)
                         { // We just loaded a main script text. Do we want to load the default main script instead?
                             if (_mainScriptIsDefaultMainScript)
                             { // Yes!
-                                std::string filenameAndPath(App::directories->systemDirectory+VREP_SLASH);
+                                std::string filenameAndPath(App::directories->systemDirectory+"/");
                                 filenameAndPath+=DEFAULT_MAINSCRIPT_NAME;
                                 if (VFile::doesFileExist(filenameAndPath))
                                 {

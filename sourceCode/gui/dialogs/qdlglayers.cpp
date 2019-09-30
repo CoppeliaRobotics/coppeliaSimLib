@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlglayers.h"
 #include "ui_qdlglayers.h"
 #include "app.h"

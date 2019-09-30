@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgconstraintsolver.h"
 #include "ui_qdlgconstraintsolver.h"
 #include "tt.h"

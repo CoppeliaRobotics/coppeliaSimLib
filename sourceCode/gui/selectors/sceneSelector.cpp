@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "sceneSelector.h"
 #include "sPage.h"

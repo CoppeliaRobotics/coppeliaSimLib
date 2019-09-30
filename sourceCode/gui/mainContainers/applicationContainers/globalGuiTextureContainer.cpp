@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "globalGuiTextureContainer.h"
 #include "global.h"
@@ -217,7 +215,6 @@ CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
     dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/cur_ctrl.tga",xres,yres,rgba,nullptr);
     addObject(CURSOR_CTRL_BUTTON,xres,yres,rgba,false,true,dat);
     delete[] dat;
-
     int tag;
     std::string str(CGlobalGuiTextureContainerBase::handleVerSpec_getWatermarkStr1(tag));
     if (str.size()>0)

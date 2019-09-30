@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgworkspacemetric.h"
 #include "ui_qdlgworkspacemetric.h"
 #include "gV.h"

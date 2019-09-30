@@ -1,7 +1,6 @@
 
 // This file includes many many very ugly things and requires some serious refactoring!!!!
 
-#include "vrepMainHeader.h"
 #include "oGL.h"
 #include "global.h"
 #include "v_rep_internal.h"

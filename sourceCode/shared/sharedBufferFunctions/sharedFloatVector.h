@@ -1,7 +1,6 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
+#include <vector>
 
 class CSharedFloatVector_data; // forward declaration
 

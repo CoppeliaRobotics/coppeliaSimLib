@@ -1,7 +1,6 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
+#include <string>
 
 //FULLY STATIC CLASS
 class gv  

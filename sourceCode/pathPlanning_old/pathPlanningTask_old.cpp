@@ -1,7 +1,6 @@
 
 // This file requires some serious refactoring!
 
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "pathPlanningTask_old.h"
 #include "pathPlanningInterface.h"

@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "uiThread.h"
 #include "vThread.h"

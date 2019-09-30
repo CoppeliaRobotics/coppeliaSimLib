@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "vrepQApp.h"
 #include "app.h"
 

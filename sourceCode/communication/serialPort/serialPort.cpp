@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "serialPort.h"
 #include "serial_win_mac_linux.h"
 

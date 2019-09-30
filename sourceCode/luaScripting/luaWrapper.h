@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 
 enum {  STACK_OBJECT_NULL=0,
         STACK_OBJECT_NUMBER,

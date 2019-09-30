@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "ser.h"
 #include "dummyClasses.h"
 #include "jointObject.h"

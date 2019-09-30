@@ -1,7 +1,4 @@
-
 #pragma once
-
-#include "vrepMainHeader.h"
 
 // FULLY STATIC CLASS
 class CCuttingRoutine  

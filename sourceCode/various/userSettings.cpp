@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "v_rep_internal.h"
 #include "userSettings.h"
@@ -191,6 +189,7 @@
 
 #define _USR_CONNECTION_ADDRESS "conParam1"
 #define _USR_CONNECTION_PORT "conParam2"
+
 
 CUserSettings::CUserSettings()
 {
@@ -769,7 +768,7 @@ void CUserSettings::saveUserSettings()
 
     handleVerSpecSaveUserSettings1(c);
 
-    std::string filenameAndPath(VVarious::getModulePath()+VREP_SLASH+V_REP_SYSTEM_DIRECTORY_NAME+VREP_SLASH+USER_SETTINGS_FILENAME);
+    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+USER_SETTINGS_FILENAME);
     c.writeConfiguration(filenameAndPath.c_str());
 }
 
@@ -777,7 +776,7 @@ bool CUserSettings::getBooleanFromFileDirectly(const char* varName,bool& varValu
 { // static function
     bool result=false;
     CConfReaderAndWriter c;
-    std::string filenameAndPath(VVarious::getModulePath()+VREP_SLASH+V_REP_SYSTEM_DIRECTORY_NAME+VREP_SLASH+USER_SETTINGS_FILENAME); // The CDirectoryPaths object might not yet be set-up
+    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+USER_SETTINGS_FILENAME); // The CDirectoryPaths object might not yet be set-up
     if (c.readConfiguration(filenameAndPath.c_str()))
         result=c.getBoolean(varName,varValue);
     return(result);
@@ -787,7 +786,7 @@ bool CUserSettings::getIntegerFromFileDirectly(const char* varName,int& varValue
 { // static function
     bool result=false;
     CConfReaderAndWriter c;
-    std::string filenameAndPath(VVarious::getModulePath()+VREP_SLASH+V_REP_SYSTEM_DIRECTORY_NAME+VREP_SLASH+USER_SETTINGS_FILENAME); // The CDirectoryPaths object might not yet be set-up
+    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+USER_SETTINGS_FILENAME); // The CDirectoryPaths object might not yet be set-up
     if (c.readConfiguration(filenameAndPath.c_str()))
         result=c.getInteger(varName,varValue);
     return(result);
@@ -797,7 +796,7 @@ bool CUserSettings::getFloatFromFileDirectly(const char* varName,float& varValue
 { // static function
     bool result=false;
     CConfReaderAndWriter c;
-    std::string filenameAndPath(VVarious::getModulePath()+VREP_SLASH+V_REP_SYSTEM_DIRECTORY_NAME+VREP_SLASH+USER_SETTINGS_FILENAME); // The CDirectoryPaths object might not yet be set-up
+    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+USER_SETTINGS_FILENAME); // The CDirectoryPaths object might not yet be set-up
     if (c.readConfiguration(filenameAndPath.c_str()))
         result=c.getFloat(varName,varValue);
     return(result);
@@ -807,7 +806,7 @@ bool CUserSettings::getStringFromFileDirectly(const char* varName,std::string& v
 { // static function
     bool result=false;
     CConfReaderAndWriter c;
-    std::string filenameAndPath(VVarious::getModulePath()+VREP_SLASH+V_REP_SYSTEM_DIRECTORY_NAME+VREP_SLASH+USER_SETTINGS_FILENAME); // The CDirectoryPaths object might not yet be set-up
+    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+USER_SETTINGS_FILENAME); // The CDirectoryPaths object might not yet be set-up
     if (c.readConfiguration(filenameAndPath.c_str()))
         result=c.getString(varName,varValue);
     return(result);
@@ -819,7 +818,7 @@ void CUserSettings::loadUserSettings()
     CConfReaderAndWriter c;
 
     // The CDirectoryPaths object might not yet be set-up
-    std::string filenameAndPath(VVarious::getModulePath()+VREP_SLASH+V_REP_SYSTEM_DIRECTORY_NAME+VREP_SLASH+USER_SETTINGS_FILENAME);
+    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+USER_SETTINGS_FILENAME);
     // Following call might fail.
     if (!c.readConfiguration(filenameAndPath.c_str()))
         saveUserSettings();

@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlg2d3dgraphproperties.h"
 #include "ui_qdlg2d3dgraphproperties.h"
 #include "gV.h"

@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "oGL.h"
 #include "glBufferObjects.h"
 #include "vDateTime.h"

@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgtranslation.h"
 #include "ui_qdlgtranslation.h"
 #include "gV.h"

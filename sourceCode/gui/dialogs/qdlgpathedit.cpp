@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgpathedit.h"
 #include "ui_qdlgpathedit.h"
 #include "app.h"

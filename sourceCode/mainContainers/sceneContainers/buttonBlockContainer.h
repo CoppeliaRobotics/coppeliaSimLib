@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "buttonBlock.h"
 #include "mainCont.h"
 #include "VPoint.h"

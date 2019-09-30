@@ -1,4 +1,6 @@
 #include "vFile.h"
+#include "v_repStringTable.h"
+#include <QMessageBox>
 #include "app.h"
 #include "v_repStrings.h"
 #include "vVarious.h"
@@ -109,8 +111,7 @@ void VFile::reportAndHandleFileExceptionError(VFILE_EXCEPTION_TYPE e)
 {
 #ifdef SIM_WITH_GUI
     // stl file exceptions:
-    App::uiThread->messageBox_critical(nullptr,strTranslate(IDSN_FILE_EXCEPTION_ERROR),e.what(),VMESSAGEBOX_OKELI);
-    // And #include <exception>
+    QMessageBox::critical(nullptr,IDSN_FILE_EXCEPTION_ERROR,e.what());
 #endif
     printf("File exception error: %s\n",e.what());
 }

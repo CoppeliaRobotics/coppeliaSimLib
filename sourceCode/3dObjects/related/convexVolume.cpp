@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "convexVolume.h"
 #include "tt.h"
@@ -346,10 +344,10 @@ bool CConvexVolume::getVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
     }
     if (_volumeType==PYRAMID_TYPE_CONVEX_VOLUME)
     {
-        float maxX=SIM_MAX(xSize,xSizeFar)/2.0f;
+        float maxX=std::max<float>(xSize,xSizeFar)/2.0f;
         minV(0)=-maxX;
         maxV(0)=maxX;
-        float maxY=SIM_MAX(ySize,ySizeFar)/2.0f;
+        float maxY=std::max<float>(ySize,ySizeFar)/2.0f;
         minV(1)=-maxY;
         maxV(1)=maxY;
         minV(2)=0.0f;
@@ -361,7 +359,7 @@ bool CConvexVolume::getVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
     }
     if (_volumeType==CYLINDER_TYPE_CONVEX_VOLUME)
     {
-        float maxRad=SIM_MAX(radius,radiusFar);
+        float maxRad=std::max<float>(radius,radiusFar);
         minV(0)=-maxRad;
         maxV(0)=maxRad;
         minV(1)=-maxRad;
@@ -1483,8 +1481,8 @@ void CConvexVolume::computeVolumes()
             // We search for the interesection:
             if ((l0<m1)&&(l1>m0))
             { // we have an intersection!
-                l0=SIM_MAX(l0,m0);
-                l1=SIM_MIN(l1,m1);
+                l0=std::max<float>(l0,m0);
+                l1=std::min<float>(l1,m1);
                 nonDetectingVolumeEdges.push_back(0.0f);
                 nonDetectingVolumeEdges.push_back(0.0f);
                 nonDetectingVolumeEdges.push_back(l0);

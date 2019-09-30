@@ -1,7 +1,4 @@
-
-#include "vrepMainHeader.h"
 #include "simplePathPoint.h"
-
 #include "tt.h"
 #include "v_rep_internal.h"
 

@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "v_rep_internal.h"
 #include "shape.h"
@@ -857,8 +856,8 @@ bool CShape::doesShapeCollideWithShape(CShape* collidee,std::vector<float>* inte
         return(false);
 
     C4X4Matrix collObjMatr[2]={shapeACTM,shapeBCTM};
-    const void* collInfos[2]={geomData->collInfo,collidee->geomData->collInfo};
 
+    const void* collInfos[2]={geomData->collInfo,collidee->geomData->collInfo};
     if ( CPluginContainer::mesh_getMeshMeshCollision(geomData->collInfo,collidee->geomData->collInfo,collObjMatr,collInfos,false,_intersectP,nullptr))
     { // There was a collision
         if (intersections!=nullptr)

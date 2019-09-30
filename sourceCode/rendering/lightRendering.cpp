@@ -30,19 +30,19 @@ void displayLight(CLight* light,CViewableBase* renderingObject,int displayAttrib
 
         _enableAuxClippingPlanes(light->getObjectHandle());
         C3Vector normalizedAmbientColor(light->getColor(true)->colors);
-        float m=SIM_MAX(SIM_MAX(normalizedAmbientColor(0),normalizedAmbientColor(1)),normalizedAmbientColor(2));
+        float m=std::max<float>(std::max<float>(normalizedAmbientColor(0),normalizedAmbientColor(1)),normalizedAmbientColor(2));
         if (m>0.00001f)
             normalizedAmbientColor/=m;
         C3Vector normalizedDiffuseColor(light->getColor(true)->colors+3);
-        m=SIM_MAX(SIM_MAX(normalizedDiffuseColor(0),normalizedDiffuseColor(1)),normalizedDiffuseColor(2));
+        m=std::max<float>(std::max<float>(normalizedDiffuseColor(0),normalizedDiffuseColor(1)),normalizedDiffuseColor(2));
         if (m>0.00001f)
             normalizedDiffuseColor/=m;
         C3Vector normalizedSpecularColor(light->getColor(true)->colors+6);
-        m=SIM_MAX(SIM_MAX(normalizedSpecularColor(0),normalizedSpecularColor(1)),normalizedSpecularColor(2));
+        m=std::max<float>(std::max<float>(normalizedSpecularColor(0),normalizedSpecularColor(1)),normalizedSpecularColor(2));
         if (m>0.00001f)
             normalizedSpecularColor/=m;
         normalizedAmbientColor+=normalizedDiffuseColor*0.2f+normalizedSpecularColor*0.1f;
-        m=SIM_MAX(SIM_MAX(normalizedAmbientColor(0),normalizedAmbientColor(1)),normalizedAmbientColor(2));
+        m=std::max<float>(std::max<float>(normalizedAmbientColor(0),normalizedAmbientColor(1)),normalizedAmbientColor(2));
         if (m>0.00001f)
             normalizedAmbientColor/=m;
 //      float black[3]={0.0f,0.0f,0.0f};

@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "regCollision.h"
 #include "mainCont.h"
 

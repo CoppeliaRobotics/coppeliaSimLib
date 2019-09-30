@@ -1,8 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
-
 class CBroadcastData  
 {
 public:

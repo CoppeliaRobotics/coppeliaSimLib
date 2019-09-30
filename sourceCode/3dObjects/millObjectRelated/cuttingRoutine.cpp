@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "cuttingRoutine.h"
 #include "pluginContainer.h"
 #include "app.h"

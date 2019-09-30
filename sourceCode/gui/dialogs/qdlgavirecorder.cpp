@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgavirecorder.h"
 #include "ui_qdlgavirecorder.h"
 #include "tt.h"

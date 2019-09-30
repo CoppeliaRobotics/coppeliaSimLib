@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgimagecolor.h"
 #include "ui_qdlgimagecolor.h"
 #include "tt.h"

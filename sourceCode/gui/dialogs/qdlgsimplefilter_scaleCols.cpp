@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgsimplefilter_scaleCols.h"
 #include "ui_qdlgsimplefilter_scaleCols.h"
 #include "gV.h"

@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "regCollection.h"
 #include "shape.h"
 #include "dummy.h"

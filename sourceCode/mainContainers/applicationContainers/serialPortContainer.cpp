@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "serialPortContainer.h"
 #include "v_rep_internal.h"
 #include "tt.h"
@@ -204,8 +203,8 @@ int CSerialPortContainer::serialPortReceive_alternativeRoutine(int portHandle,st
             int availableData=port->readDataWaiting();
             if (availableData>0)
             {
-                data.resize(SIM_MIN(availableData,dataLengthToRead));
-                result=port->readData(&data[0],SIM_MIN(availableData,dataLengthToRead));
+                data.resize(std::min<int>(availableData,dataLengthToRead));
+                result=port->readData(&data[0],std::min<int>(availableData,dataLengthToRead));
             }
         }
         return(result);
@@ -300,7 +299,7 @@ int CSerialPortContainer::serialPortReceive(int portHandle,std::string& data,int
         {
             int availableData=port->readDataWaiting();
             if (availableData>0)
-                retVal=port->readData(&data[0],SIM_MIN(availableData,dataLengthToRead));
+                retVal=port->readData(&data[0],std::min<int>(availableData,dataLengthToRead));
         }
         return(retVal);
     }
@@ -343,6 +342,6 @@ int CSerialPortContainer::serialPortReceive_old(int portNumber,char* buffer,int 
     int retVal=0;
     int availableData=port->readDataWaiting();
     if (availableData!=0)
-        retVal=port->readData(buffer,SIM_MIN(availableData,dataLengthToRead));
+        retVal=port->readData(buffer,std::min<int>(availableData,dataLengthToRead));
     return(retVal);
 }

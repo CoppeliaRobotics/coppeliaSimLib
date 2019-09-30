@@ -1,7 +1,3 @@
-
-//search for following strings: //modifiedOn
-//                              //addedOn
-
 #pragma once
 
 #include "v_repStringTableBase.h"

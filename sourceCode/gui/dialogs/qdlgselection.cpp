@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgselection.h"
 #include "ui_qdlgselection.h"
 #include "app.h"

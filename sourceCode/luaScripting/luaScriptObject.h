@@ -162,6 +162,8 @@ public:
     bool getContainsJointCallbackFunction() const;
     bool getContainsContactCallbackFunction() const;
     bool getContainsDynCallbackFunction() const;
+    bool getContainsVisionCallbackFunction() const;
+    bool getContainsTriggerCallbackFunction() const;
 
     VTHREAD_ID_TYPE getThreadedScriptThreadId() const;
 
@@ -245,6 +247,8 @@ protected:
     bool _containsJointCallbackFunction;
     bool _containsContactCallbackFunction;
     bool _containsDynCallbackFunction;
+    bool _containsVisionCallbackFunction;
+    bool _containsTriggerCallbackFunction;
 
     int _messageReportingOverride;
 
@@ -276,3 +280,4 @@ protected:
     static std::vector<CLuaScriptObject*> toBeCalledByThread;
     static VTHREAD_RETURN_TYPE _startAddressForThreadedScripts(VTHREAD_ARGUMENT_TYPE lpData);
 };
+

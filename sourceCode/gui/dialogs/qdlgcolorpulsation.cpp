@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgcolorpulsation.h"
 #include "ui_qdlgcolorpulsation.h"
 #include "gV.h"

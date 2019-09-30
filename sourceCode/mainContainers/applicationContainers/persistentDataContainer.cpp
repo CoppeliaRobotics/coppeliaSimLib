@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "persistentDataContainer.h"
 #include "app.h"
@@ -110,7 +109,7 @@ void CPersistentDataContainer::_readFromFile(std::vector<std::string>& dataNames
 {
     dataNames.clear();
     dataValues.clear();
-    std::string filenameAndPath(VVarious::getModulePath()+VREP_SLASH+V_REP_SYSTEM_DIRECTORY_NAME+VREP_SLASH+_filename.c_str());
+    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+_filename.c_str());
     if (VFile::doesFileExist(filenameAndPath))
     {
         try
@@ -130,7 +129,7 @@ void CPersistentDataContainer::_readFromFile(std::vector<std::string>& dataNames
 
 void CPersistentDataContainer::_writeToFile(std::vector<std::string>& dataNames,std::vector<std::string>& dataValues)
 {
-    std::string filenameAndPath(VVarious::getModulePath()+VREP_SLASH+V_REP_SYSTEM_DIRECTORY_NAME+VREP_SLASH+_filename.c_str());
+    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+_filename.c_str());
     try
     {
         VFile myFile(filenameAndPath,VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);

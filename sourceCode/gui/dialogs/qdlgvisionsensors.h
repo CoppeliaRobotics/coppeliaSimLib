@@ -22,8 +22,6 @@ public:
 
     bool inMainRefreshRoutine;
 
-    static bool showFilterWindow;
-
 private slots:
     void on_qqEnabled_clicked();
 
@@ -60,8 +58,6 @@ private slots:
     void on_qqAdjustImageColor_clicked();
 
     void on_qqApplyMainProperties_clicked();
-
-    void on_qqAdjustFilters_clicked();
 
     void on_qqCasingColorPassive_clicked();
 

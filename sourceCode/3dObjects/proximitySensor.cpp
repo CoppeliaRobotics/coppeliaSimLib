@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "v_rep_internal.h"
 #include "proximitySensor.h"
@@ -731,6 +729,86 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
     _detectedObjectHandle=detectedObjectHandle;
     _detectedNormalVector=detectedNormalVector;
     _calcTimeInMs=VDateTime::getTimeDiffInMs(stTime);
+    if (_sensorResultValid&&_detectedPointValid)
+    {
+        CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+        if ( (script!=nullptr)&&(!script->getContainsTriggerCallbackFunction()) )
+            script=nullptr;
+        CLuaScriptObject* cScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
+        if ( (cScript!=nullptr)&&(!cScript->getContainsTriggerCallbackFunction()) )
+            cScript=nullptr;
+        if ( (script!=nullptr)||(cScript!=nullptr) )
+        {
+            CInterfaceStack inStack;
+            inStack.pushTableOntoStack();
+
+            inStack.pushStringOntoStack("handle",0);
+            inStack.pushNumberOntoStack(getObjectHandle());
+            inStack.insertDataIntoStackTable();
+
+            inStack.pushStringOntoStack("detectedObjectHandle",0);
+            inStack.pushNumberOntoStack(_detectedObjectHandle);
+            inStack.insertDataIntoStackTable();
+
+            inStack.pushStringOntoStack("detectedPoint",0);
+            inStack.pushTableOntoStack();
+            inStack.pushNumberOntoStack(1);
+            inStack.pushNumberOntoStack(_detectedPoint(0));
+            inStack.insertDataIntoStackTable();
+            inStack.pushNumberOntoStack(2);
+            inStack.pushNumberOntoStack(_detectedPoint(1));
+            inStack.insertDataIntoStackTable();
+            inStack.pushNumberOntoStack(3);
+            inStack.pushNumberOntoStack(_detectedPoint(2));
+            inStack.insertDataIntoStackTable();
+            inStack.insertDataIntoStackTable();
+
+            inStack.pushStringOntoStack("normalVector",0);
+            inStack.pushTableOntoStack();
+            inStack.pushNumberOntoStack(1);
+            inStack.pushNumberOntoStack(_detectedNormalVector(0));
+            inStack.insertDataIntoStackTable();
+            inStack.pushNumberOntoStack(2);
+            inStack.pushNumberOntoStack(_detectedNormalVector(1));
+            inStack.insertDataIntoStackTable();
+            inStack.pushNumberOntoStack(3);
+            inStack.pushNumberOntoStack(_detectedNormalVector(2));
+            inStack.insertDataIntoStackTable();
+            inStack.insertDataIntoStackTable();
+
+            CInterfaceStack outStack1;
+            CInterfaceStack outStack2;
+            CInterfaceStack* outSt1=&outStack1;
+            CInterfaceStack* outSt2=&outStack2;
+            if (VThread::isCurrentThreadTheMainSimulationThread())
+            { // we are in the main simulation thread. Call only scripts that live in the same thread
+                if ( (script!=nullptr)&&(!script->getThreadedExecution()) )
+                    script->runNonThreadedChildScript(sim_syscb_trigger,&inStack,&outStack1);
+                if (cScript!=nullptr)
+                    cScript->runCustomizationScript(sim_syscb_trigger,&inStack,&outStack2);
+            }
+            else
+            { // we are in the thread started by a threaded child script. Call only that script
+                if ( (script!=nullptr)&&script->getThreadedExecution() )
+                {
+                    script->callScriptFunctionEx(CLuaScriptObject::getSystemCallbackString(sim_syscb_trigger,false).c_str(),&inStack);
+                    outSt1=&inStack;
+                }
+            }
+            CInterfaceStack* outStacks[2]={outSt1,outSt2};
+            for (size_t cnt=0;cnt<2;cnt++)
+            {
+                CInterfaceStack* outStack=outStacks[cnt];
+                if (outStack->getStackSize()>=1)
+                {
+                    outStack->moveStackItemToTop(0);
+                    bool trig=false;
+                    if (outStack->getStackMapBoolValue("trigger",trig))
+                        _detectedPointValid=trig;
+                }
+            }
+        }
+    }
     return(_detectedPointValid);
 }
 

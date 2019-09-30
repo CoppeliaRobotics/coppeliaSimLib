@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "qdlgjointdyn.h"
 #include "ui_qdlgjointdyn.h"
 #include "tt.h"

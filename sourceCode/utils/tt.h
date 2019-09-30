@@ -1,7 +1,6 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
+#include <vector>
 
 // FULLY STATIC CLASS
 class tt  

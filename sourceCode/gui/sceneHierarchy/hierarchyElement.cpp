@@ -1,7 +1,6 @@
 
 // This file requires some serious refactoring!!
 
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "hierarchyElement.h"
 #include "oGL.h"
@@ -875,7 +874,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
             if (simIconCode==sim_dynamicsimicon_objectisnotdynamicallyenabled)
                 ic=WARNING_PICTURE;
             lineLastPos+=16*App::sc+_drawIcon_3DObject(hier,lineLastPos+24*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,it,ic,!dontDisplay,transparencyFactor,forDragAndDrop);
-            int mmm=SIM_MAX(lineLastPos,textEndPosition);
+            int mmm=std::max<int>(lineLastPos,textEndPosition);
 //          if (textEndPosition+lineLastPos>maxRenderedPos[0])
 //              maxRenderedPos[0]=textEndPosition+lineLastPos;
             if (mmm>maxRenderedPos[0])

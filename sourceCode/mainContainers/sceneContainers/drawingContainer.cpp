@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "drawingContainer.h"
 #include "viewableBase.h"

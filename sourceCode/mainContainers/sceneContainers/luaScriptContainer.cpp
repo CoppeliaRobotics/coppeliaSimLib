@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "luaScriptContainer.h"
 #include "tt.h"
@@ -318,7 +317,7 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
     if (scriptType!=sim_scripttype_childscript)
         threaded=false; // just to make sure
     int retVal=-1;
-    std::string filenameAndPath(App::directories->systemDirectory+VREP_SLASH);
+    std::string filenameAndPath(App::directories->systemDirectory+"/");
 
     if (scriptType==sim_scripttype_mainscript)
         filenameAndPath+=DEFAULT_MAINSCRIPT_NAME;

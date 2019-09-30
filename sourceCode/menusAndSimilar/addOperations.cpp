@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "addOperations.h"
 #include "tt.h"
@@ -393,7 +391,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 {
                     if (!it->getEnableCustomizationScript())
                     { // we don't yet have a customization script
-                        std::string filenameAndPath(App::directories->systemDirectory+VREP_SLASH);
+                        std::string filenameAndPath(App::directories->systemDirectory+"/");
                         filenameAndPath+=DEFAULT_CUSTOMIZATIONSCRIPT_NAME;
                         if (VFile::doesFileExist(filenameAndPath))
                         {

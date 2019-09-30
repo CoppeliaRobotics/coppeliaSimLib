@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "pathCont.h"
 #include "tt.h"
@@ -966,7 +964,7 @@ void CPathCont::_recomputeBezierPathElementLengths()
         if (_pathLengthCalculationMethod==sim_distcalcmethod_dac)
             vdl=da;
         if (_pathLengthCalculationMethod==sim_distcalcmethod_max_dl_dac)
-            vdl=SIM_MAX(dl,da);
+            vdl=std::max<float>(dl,da);
         if (_pathLengthCalculationMethod==sim_distcalcmethod_dl_and_dac)
             vdl=dl+da;
         if (_pathLengthCalculationMethod==sim_distcalcmethod_sqrt_dl2_and_dac2)
@@ -1130,7 +1128,7 @@ void CPathCont::_recomputeBezierPathMaxVelocities()
                     if ((v0.getLength()!=0.0f)&&(v1.getLength()!=0.0f))
                     { // unless we have a completely coincident trajectory (e.g. on-spot rotation), this should always pass:
                         float angle=v0.getAngle(v1);
-                        float len=SIM_MIN(v0.getLength(),v1.getLength());
+                        float len=std::min<float>(v0.getLength(),v1.getLength());
                         float lengthByAngle=len/angle;
                         float rv=lengthByAngle/(2.0f*_avp_turningCircleRadiusForHalfVelocity);
                         if (rv<maxOk[i+0])

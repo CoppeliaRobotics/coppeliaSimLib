@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgscriptparameters.h"
 #include "ui_qdlgscriptparameters.h"
 #include <QShortcut>

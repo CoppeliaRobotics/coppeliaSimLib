@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlginteractiveik.h"
 #include "ui_qdlginteractiveik.h"
 #include "app.h"

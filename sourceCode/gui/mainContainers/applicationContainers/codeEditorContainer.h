@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vrepMainHeader.h"
+#include <vector>
 #include <QString>
 
 struct SCodeEditor {

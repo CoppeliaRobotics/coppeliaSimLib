@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgmodelthumbnail.h"
 #include "ui_qdlgmodelthumbnail.h"
 #include "sceneObjectOperations.h"
@@ -138,7 +136,7 @@ void CQDlgModelThumbnail::actualizeBitmap()
                     maxPerpY=fabs(w(1));
                 float a=fabs(w(0))/tan(THUMBNAIL_THING_VIEW_ANGLE*degToRad*0.5);
                 float b=fabs(w(1))/tan(THUMBNAIL_THING_VIEW_ANGLE*degToRad*0.5);
-                float c=SIM_MAX(a,b)-w(2);
+                float c=std::max<float>(a,b)-w(2);
                 if (c>d)
                     d=c;
                 if (w(2)>maxDist)

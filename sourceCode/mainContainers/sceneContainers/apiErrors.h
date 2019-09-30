@@ -1,7 +1,6 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
+#include <vector>
 #include "mainCont.h"
 #ifndef WIN_VREP
     #include <pthread.h>

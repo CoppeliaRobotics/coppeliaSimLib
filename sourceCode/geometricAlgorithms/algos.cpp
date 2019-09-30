@@ -1,5 +1,4 @@
-
-#include "vrepMainHeader.h"
+#include <vector>
 #include "algos.h"
 
 C7Vector CAlgos::alignAndCenterGeometryAndGetTransformation(float* vert,int vertLength,int* ind,int indLength,float* norm,int normLength,bool alignWithGeomMainAxis)

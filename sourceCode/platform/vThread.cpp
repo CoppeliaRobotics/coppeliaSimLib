@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "vThread.h"
 
 #ifdef WIN_VREP

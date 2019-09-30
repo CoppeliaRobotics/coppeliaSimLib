@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "luaScriptParameters.h"
 
 #include "app.h"

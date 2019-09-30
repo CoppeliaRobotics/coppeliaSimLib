@@ -1,13 +1,14 @@
 #pragma once
 
-#include "vrepMainHeader.h"
+#include <vector>
+#include <string>
 
 struct SFileOrFolder
 {
     std::string name;
     std::string path;
     bool isFile;
-    suint64 lastWriteTime;
+    unsigned long long int lastWriteTime;
 };
 
 class VFileFinder  

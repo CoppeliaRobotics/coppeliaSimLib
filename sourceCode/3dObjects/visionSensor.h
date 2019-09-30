@@ -85,8 +85,8 @@ public:
     bool handleSensor();
     bool checkSensor(int entityID,bool overrideRenderableFlagsForNonCollections);
     float* checkSensorEx(int entityID,bool imageBuffer,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
-    bool setExternalImage(const float* img,bool imgIsGreyScale);
-    bool setExternalCharImage(const unsigned char* img,bool imgIsGreyScale);
+    bool setExternalImage(const float* img,bool imgIsGreyScale,bool noProcessing);
+    bool setExternalCharImage(const unsigned char* img,bool imgIsGreyScale,bool noProcessing);
 
     void setIgnoreRGBInfo(bool ignore);
     bool getIgnoreRGBInfo();
@@ -182,6 +182,7 @@ protected:
     bool _computeImageBasicStats;
     int _renderMode; // 0=visible, 1=aux channels, 2=colorCodedID, 3=rayTracer, 4=rayTracer2, 5=extRenderer, 6=extRendererWindowed, 7=oculus, 8=oculusWindowed
     int _attributesForRendering;
+    bool _inApplyFilterRoutine;
 
 
     CComposedFilter* _composedFilter;

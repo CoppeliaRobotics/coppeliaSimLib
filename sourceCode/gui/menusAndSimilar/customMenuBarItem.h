@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "vMenubar.h"
 
 class CCustomMenuBarItem  

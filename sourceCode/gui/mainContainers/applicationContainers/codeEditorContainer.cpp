@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "codeEditorContainer.h"
 #include "pluginContainer.h"
 #include "luaScriptFunctions.h"
@@ -6,6 +5,7 @@
 #include "v_repStrings.h"
 #include "vVarious.h"
 #include "app.h"
+#include "tinyxml2.h"
 
 int CCodeEditorContainer::_nextUniqueId=0;
 

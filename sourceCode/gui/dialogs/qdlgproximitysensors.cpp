@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgproximitysensors.h"
 #include "ui_qdlgproximitysensors.h"
 #include "tt.h"

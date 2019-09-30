@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgikconditional.h"
 #include "ui_qdlgikconditional.h"
 #include "app.h"

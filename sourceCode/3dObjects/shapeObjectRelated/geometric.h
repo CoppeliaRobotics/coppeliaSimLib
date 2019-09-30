@@ -50,7 +50,7 @@ public:
     bool hasTextureThatUsesFixedTextureCoordinates();
     void removeAllTextures();
     void getColorStrings(std::string& colorStrings);
-    void setHeightfieldDiamonds(int d); //0 for Bullet, 1 for ODE
+    void setHeightfieldDiamonds(int d); // 0
 
     int getUniqueID();
     void setMesh(const std::vector<float>& vertices,const std::vector<int>& indices,const std::vector<float>* normals,const C7Vector& transformation);

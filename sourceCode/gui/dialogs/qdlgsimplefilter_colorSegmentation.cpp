@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgsimplefilter_colorSegmentation.h"
 #include "ui_qdlgsimplefilter_colorSegmentation.h"
 #include "gV.h"

@@ -1,11 +1,8 @@
-
-#include "vrepMainHeader.h"
 #include "regCollectionEl.h"
 #include "global.h"
 #include "3DObject.h"
 #include "tt.h"
 #include "app.h"
-
 
 CRegCollectionEl::CRegCollectionEl(int objID,int grType,bool add)
 {

@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "environment.h"
 #include "tt.h"
@@ -528,7 +527,7 @@ void CEnvironment::serialize(CSer& ar)
                         ambientLightColor[0]*=2.0f;
                         ambientLightColor[1]*=2.0f;
                         ambientLightColor[2]*=2.0f;
-                        float mx=SIM_MAX(SIM_MAX(ambientLightColor[0],ambientLightColor[1]),ambientLightColor[2]);
+                        float mx=std::max<float>(std::max<float>(ambientLightColor[0],ambientLightColor[1]),ambientLightColor[2]);
                         if (mx>0.4f)
                         {
                             ambientLightColor[0]=ambientLightColor[0]*0.4f/mx;

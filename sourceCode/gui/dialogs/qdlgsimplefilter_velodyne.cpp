@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgsimplefilter_velodyne.h"
 #include "ui_qdlgsimplefilter_velodyne.h"
 #include "gV.h"

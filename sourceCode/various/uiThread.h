@@ -1,6 +1,5 @@
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "3Vector.h"
 #include "4Vector.h"
 #include "7Vector.h"

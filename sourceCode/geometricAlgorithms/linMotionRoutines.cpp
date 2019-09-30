@@ -1,10 +1,9 @@
-
 // Those routines should be replaced with the Reflexxes RML libraries!!!!
 
-#include "vrepMainHeader.h"
 #include "linMotionRoutines.h"
 #include "tt.h"
 #include "mathDefines.h"
+#include <algorithm>
 
 const double LIN_MOTION_POSITION_TOLERANCE  =0.000001f;
 const double LIN_MOTION_TIME_TOLERANCE      =0.000001f;
@@ -36,15 +35,15 @@ double CLinMotionRoutines::getTimeToPosition_negOk(double pos,double speed,doubl
     {
         if (t1>0.0)
             return(t1);
-        return(SIM_MAX(t0,t1));
+        return(std::max<double>(t0,t1));
     }
     if (t1<0.0)
     {
         if (t0>0.0)
             return(t0);
-        return(SIM_MAX(t0,t1));
+        return(std::max<double>(t0,t1));
     }
-    return(SIM_MIN(t0,t1));
+    return(std::min<double>(t0,t1));
 }
 
 
@@ -409,7 +408,7 @@ double CLinMotionRoutines::getMaxVelocityAtPosition(double position,double accel
     double v1=upperMaxAbsVel;
     if (dt1>0.0f)
         v1=getNextVelocityForTimeStep_lvp(upperMaxAbsVel,accelAbs,dt1);
-    return(SIM_MIN(v0,v1));
+    return(std::min<double>(v0,v1));
 }
 
 double CLinMotionRoutines::getCurrentVelocityOnPath(double position,double nominalVelocity,double lowerLimitPosition,double upperLimitPosition,

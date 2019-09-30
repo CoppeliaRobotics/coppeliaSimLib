@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "simThread.h"
 #include "vThread.h"
@@ -223,9 +221,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 #endif
     }
 
+#ifdef SIM_WITH_GUI
     handleVerSpecExecuteSimulationThreadCommand1(&cmd);
 
-#ifdef SIM_WITH_GUI
     if (cmd.sceneUniqueId==App::ct->environment->getSceneUniqueID())
     {
         if (cmd.cmdId==TOGGLE_EXPAND_COLLAPSE_HIERARCHY_OBJECT_CMD)
@@ -2484,7 +2482,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     CShape* shape=shapeList[i];
                     C3Vector bbhs(shape->geomData->getBoundingBoxHalfSizes());
-                    float s=SIM_MAX(SIM_MAX(bbhs(0),bbhs(1)),bbhs(2))*2.0f;
+                    float s=std::max<float>(std::max<float>(bbhs(0),bbhs(1)),bbhs(2))*2.0f;
                     std::vector<CGeometric*> components;
                     shape->geomData->geomInfo->getAllShapeComponentsCumulative(components);
                     for (size_t j=0;j<components.size();j++)
@@ -2521,132 +2519,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
         }
-
-
-
-
-
-        if (cmd.cmdId==DELETE_FILTER_VISIONSENSORFILTERGUITRIGGEREDCMD)
-        {
-            CVisionSensor* it=App::ct->objCont->getVisionSensor(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                CComposedFilter* filters=it->getComposedFilter();
-                if (filters!=nullptr)
-                    filters->removeSimpleFilter(cmd.intParams[1]);
-            }
-        }
-        if (cmd.cmdId==ADD_FILTER_VISIONSENSORFILTERGUITRIGGEREDCMD)
-        {
-            CVisionSensor* it=App::ct->objCont->getVisionSensor(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                CComposedFilter* filters=it->getComposedFilter();
-                if (filters!=nullptr)
-                {
-                    CSimpleFilter* sf=new CSimpleFilter();
-                    sf->setFilterType(cmd.intParams[1]);
-                    filters->insertSimpleFilter(sf);
-                    // Now select the object in the UI. We need to post it so that it arrives after the dialog refresh!:
-                    SSimulationThreadCommand cmd2;
-                    cmd2.cmdId=CALL_DIALOG_FUNCTION_GUITRIGGEREDCMD;
-                    cmd2.intParams.push_back(VISION_SENSOR_FILTER_DLG);
-                    cmd2.intParams.push_back(0);
-                    cmd2.intParams.push_back(filters->getSimpleFilterCount()-1);
-                    App::appendSimulationThreadCommand(cmd2);
-                }
-            }
-        }
-        if (cmd.cmdId==MOVE_FILTER_VISIONSENSORFILTERGUITRIGGEREDCMD)
-        {
-            CVisionSensor* it=App::ct->objCont->getVisionSensor(cmd.intParams[0]);
-            int data=cmd.intParams[1];
-            if ( (it!=nullptr)&&(data>=0) )
-            {
-                CComposedFilter* filters=it->getComposedFilter();
-                if (data<filters->getSimpleFilterCount())
-                {
-                    if (filters->moveSimpleFilter(data,cmd.boolParams[0]))
-                    {
-                        if (cmd.boolParams[0])
-                            data--; // up
-                        else
-                            data++; // down
-                        // Now select the object in the UI. We need to post it so that it arrives after the dialog refresh!:
-                        SSimulationThreadCommand cmd2;
-                        cmd2.cmdId=CALL_DIALOG_FUNCTION_GUITRIGGEREDCMD;
-                        cmd2.intParams.push_back(VISION_SENSOR_FILTER_DLG);
-                        cmd2.intParams.push_back(0);
-                        cmd2.intParams.push_back(data);
-                        App::appendSimulationThreadCommand(cmd2);
-                    }
-                }
-            }
-        }
-        if (cmd.cmdId==TOGGLE_FILTERENABLE_VISIONSENSORFILTERGUITRIGGEREDCMD)
-        {
-            CVisionSensor* it=App::ct->objCont->getVisionSensor(cmd.intParams[0]);
-            int data=cmd.intParams[1];
-            if ( (it!=nullptr)&&(data>=0) )
-            {
-                CComposedFilter* filters=it->getComposedFilter();
-                if (filters!=nullptr)
-                {
-                    if (data<filters->getSimpleFilterCount())
-                        filters->getSimpleFilter(data)->setEnabled(!filters->getSimpleFilter(data)->getEnabled());
-                }
-            }
-        }
-        if (cmd.cmdId==APPLY_FILTERS_VISIONSENSORFILTERGUITRIGGEREDCMD)
-        {
-            CVisionSensor* last=App::ct->objCont->getVisionSensor(cmd.intParams[0]);
-            if (last!=nullptr)
-            {
-                for (size_t i=1;i<cmd.intParams.size();i++)
-                {
-                    CVisionSensor* it=App::ct->objCont->getVisionSensor(cmd.intParams[i]);
-                    if (it!=nullptr)
-                        it->setComposedFilter(last->getComposedFilter()->copyYourself());
-                }
-            }
-        }
-        if (cmd.cmdId==SET_FILTERPARAMS_VISIONSENSORFILTERGUITRIGGEREDCMD)
-        {
-            CVisionSensor* it=App::ct->objCont->getVisionSensor(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                CComposedFilter* filters=it->getComposedFilter();
-                if (filters!=nullptr)
-                {
-                    CSimpleFilter* filter=filters->getSimpleFilter(cmd.intParams[1]);
-                    if ((filter!=nullptr)&&filter->canFilterBeEdited()&&(filter->getFilterType()==cmd.intParams[2]))
-                    {
-                        std::vector<int> intP;
-                        for (size_t i=3;i<cmd.intParams.size()-1;i++)
-                            intP.push_back(cmd.intParams[i]);
-                        filter->setParameters(cmd.uint8Params,intP,cmd.floatParams,cmd.intParams[cmd.intParams.size()-1]);
-                    }
-                }
-            }
-        }
-        if (cmd.cmdId==SET_CUSTOMFILTERPARAMS_VISIONSENSORFILTERGUITRIGGEREDCMD)
-        {
-            CVisionSensor* it=App::ct->objCont->getVisionSensor(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                CComposedFilter* filters=it->getComposedFilter();
-                if (filters!=nullptr)
-                {
-                    CSimpleFilter* filter=filters->getSimpleFilter(cmd.intParams[1]);
-                    if ((filter!=nullptr)&&filter->canFilterBeEdited()&&(filter->getFilterType()==cmd.intParams[2]))
-                        filter->setCustomFilterParameters(cmd.uint8Params);
-                }
-            }
-        }
-
-
-
-
 
         if (cmd.cmdId==APPLY_SIZE_GEOMETRYGUITRIGGEREDCMD)
         {
@@ -3654,7 +3526,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (script!=nullptr)
             {
                 if ((script->getScriptType()==sim_scripttype_mainscript)||(script->getScriptType()==sim_scripttype_childscript))
+                {
+                    if (App::mainWindow!=nullptr)
+                        App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptID,nullptr,true);
                     App::ct->luaScriptContainer->removeScript(scriptID);
+                }
                 else if (script->getScriptType()==sim_scripttype_customizationscript)
                 {
                     int objID=script->getObjectIDThatScriptIsAttachedTo_customization();
@@ -3662,7 +3538,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     if (it!=nullptr)
                         it->setEnableCustomizationScript(false,nullptr);
                     else
+                    {
+                        if (App::mainWindow!=nullptr)
+                            App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptID,nullptr,true);
                         App::ct->luaScriptContainer->removeScript(scriptID); // unassociated
+                    }
                 }
             }
         }
@@ -3675,7 +3555,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 newScriptID=App::ct->luaScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(scriptT,threaded);
             if (scriptT==sim_scripttype_customizationscript)
             {
-                std::string filenameAndPath(App::directories->systemDirectory+VREP_SLASH);
+                std::string filenameAndPath(App::directories->systemDirectory+"/");
                 filenameAndPath+=DEFAULT_CUSTOMIZATIONSCRIPT_NAME;
                 std::string scriptInitText;
                 if (VFile::doesFileExist(filenameAndPath))
@@ -5810,7 +5690,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (cmd.intParams[0]==1)
             { // sphere
                 App::addStatusbarMessage("Generating sphere...");
-                float mm=SIM_MAX(SIM_MAX(size(0),size(1)),size(2));
+                float mm=std::max<float>(std::max<float>(size(0),size(1)),size(2));
                 size(0)=mm;
                 size(1)=mm;
                 size(2)=mm;
@@ -5832,9 +5712,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 App::addStatusbarMessage("Generating cylinder...");
                 C3Vector diff(fabs(size(0)-size(1)),fabs(size(0)-size(2)),fabs(size(1)-size(2)));
                 int t=2;
-                if (SIM_MIN(SIM_MIN(diff(0),diff(1)),diff(2))==diff(0))
+                if (std::min<float>(std::min<float>(diff(0),diff(1)),diff(2))==diff(0))
                     t=0;
-                if (SIM_MIN(SIM_MIN(diff(0),diff(1)),diff(2))==diff(1))
+                if (std::min<float>(std::min<float>(diff(0),diff(1)),diff(2))==diff(1))
                     t=1;
                 if (t==0)
                 {
@@ -6174,7 +6054,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
             // First post the next command in the sequence:
             cmd.intParams[0]=1;
             App::appendSimulationThreadCommand(cmd,1000);
-            CPersistentDataContainer cont(FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+            CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
             std::string val;
             cont.readData("SIMSETTINGS_VREP_CRASHED",val);
             if (val=="Yes")
@@ -6185,9 +6065,9 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                     {
                         if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_question(App::mainWindow,IDSN_VREP_CRASH,IDSN_VREP_CRASH_OR_NEW_INSTANCE_INFO,VMESSAGEBOX_YES_NO))
                         {
-                            std::string testScene=App::directories->executableDirectory+VREP_SLASH;
+                            std::string testScene=App::directories->executableDirectory+"/";
                             testScene.append("AUTO_SAVED_INSTANCE_1.");
-                            testScene+=VREP_SCENE_EXTENSION;
+                            testScene+=SIM_VREP_SCENE_EXTENSION;
                             if (CFileOperations::loadScene(testScene.c_str(),false,false,false))
                             {
                                 App::ct->mainSettings->setScenePathAndName("");
@@ -6196,11 +6076,11 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                             int instanceNb=2;
                             while (true)
                             {
-                                testScene=App::directories->executableDirectory+VREP_SLASH;
+                                testScene=App::directories->executableDirectory+"/";
                                 testScene.append("AUTO_SAVED_INSTANCE_");
                                 testScene+=tt::FNb(instanceNb);
                                 testScene+=".";
-                                testScene+=VREP_SCENE_EXTENSION;
+                                testScene+=SIM_VREP_SCENE_EXTENSION;
                                 if (VFile::doesFileExist(testScene))
                                 {
                                     App::ct->createNewInstance();
@@ -6229,7 +6109,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
             // First post the auto-save command:
             cmd.intParams[0]=2;
             App::appendSimulationThreadCommand(cmd,1000);
-            CPersistentDataContainer cont(FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+            CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
             cont.writeData("SIMSETTINGS_VREP_CRASHED","Yes",!App::userSettings->doNotWritePersistentData);
         }
         else if (cmd.intParams[0]==2)
@@ -6241,11 +6121,11 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                 if (VDateTime::getSecondsSince1970()>(App::ct->environment->autoSaveLastSaveTimeInSecondsSince1970+App::userSettings->autoSaveDelay*60))
                 {
                     std::string savedLoc=App::ct->mainSettings->getScenePathAndName();
-                    std::string testScene=App::directories->executableDirectory+VREP_SLASH;
+                    std::string testScene=App::directories->executableDirectory+"/";
                     testScene+="AUTO_SAVED_INSTANCE_";
                     testScene+=tt::FNb(App::ct->getCurrentInstanceIndex()+1);
                     testScene+=".";
-                    testScene+=VREP_SCENE_EXTENSION;
+                    testScene+=SIM_VREP_SCENE_EXTENSION;
                     CFileOperations::saveScene(testScene.c_str(),false,false,false,false);
                     //std::string info=IDSNS_AUTO_SAVED_SCENE;
                     //info+=" ("+testScene+")";
@@ -6278,7 +6158,7 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
 
     if (displayNonStandardParams)
     {
-        CPersistentDataContainer cont(FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+        CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
         std::string val;
         cont.readData("SIMSETTINGS_WARNING_NO_SHOW",val);
         int intVal=0;
@@ -6304,7 +6184,7 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
 
     if (displayNonPureNonConvexShapeUseWarning)
     {
-        CPersistentDataContainer cont(FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+        CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
         std::string val;
         cont.readData("NONPURESHAPEFORDYNAMICS_WARNING_NO_SHOW",val);
         int intVal=0;
@@ -6322,7 +6202,7 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
 
     if (displayStaticShapeOnDynamicConstructionWarning)
     {
-        CPersistentDataContainer cont(FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+        CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
         std::string val;
         cont.readData("STATICSHAPEONTOPOFDYNAMICCONSTRUCTION_WARNING_NO_SHOW",val);
         int intVal=0;

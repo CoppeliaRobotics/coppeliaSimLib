@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgtextureselection.h"
 #include "ui_qdlgtextureselection.h"
 #include "app.h"

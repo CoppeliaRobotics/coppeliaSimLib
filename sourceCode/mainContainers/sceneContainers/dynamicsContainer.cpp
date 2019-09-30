@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "dynamicsContainer.h"
 #include "pluginContainer.h"
@@ -1301,8 +1300,8 @@ void CDynamicsContainer::serialize(CSer& ar)
                         int cnt1,cnt2;
                         ar >> cnt1 >> cnt2;
 
-                        int cnt1_b=SIM_MIN(int(_vortexFloatParams.size()),cnt1);
-                        int cnt2_b=SIM_MIN(int(_vortexIntParams.size()),cnt2);
+                        int cnt1_b=std::min<int>(int(_vortexFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_vortexIntParams.size()),cnt2);
 
                         float vf;
                         int vi;
@@ -1337,8 +1336,8 @@ void CDynamicsContainer::serialize(CSer& ar)
                         int cnt1,cnt2;
                         ar >> cnt1 >> cnt2;
 
-                        int cnt1_b=SIM_MIN(int(_newtonFloatParams.size()),cnt1);
-                        int cnt2_b=SIM_MIN(int(_newtonIntParams.size()),cnt2);
+                        int cnt1_b=std::min<int>(int(_newtonFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_newtonIntParams.size()),cnt2);
 
                         float vf;
                         int vi;
@@ -1368,8 +1367,8 @@ void CDynamicsContainer::serialize(CSer& ar)
                         int cnt1,cnt2;
                         ar >> cnt1 >> cnt2;
 
-                        int cnt1_b=SIM_MIN(int(_bulletFloatParams.size()),cnt1);
-                        int cnt2_b=SIM_MIN(int(_bulletIntParams.size()),cnt2);
+                        int cnt1_b=std::min<int>(int(_bulletFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_bulletIntParams.size()),cnt2);
 
                         float vf;
                         int vi;
@@ -1399,8 +1398,8 @@ void CDynamicsContainer::serialize(CSer& ar)
                         int cnt1,cnt2;
                         ar >> cnt1 >> cnt2;
 
-                        int cnt1_b=SIM_MIN(int(_odeFloatParams.size()),cnt1);
-                        int cnt2_b=SIM_MIN(int(_odeIntParams.size()),cnt2);
+                        int cnt1_b=std::min<int>(int(_odeFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_odeIntParams.size()),cnt2);
 
                         float vf;
                         int vi;

@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "visualParam.h"
 #include "app.h"
 #include "vDateTime.h"
@@ -203,7 +202,7 @@ void CVisualParam::serialize(CSer& ar,int objType)
                             colors[1]*=App::userSettings->colorAdjust_backCompatibility;
                             colors[2]*=App::userSettings->colorAdjust_backCompatibility;
 
-                            float mx=SIM_MAX(SIM_MAX(colors[0],colors[1]),colors[2]);
+                            float mx=std::max<float>(std::max<float>(colors[0],colors[1]),colors[2]);
                             if (mx>1.0f)
                             {
                                 colors[0]/=mx;

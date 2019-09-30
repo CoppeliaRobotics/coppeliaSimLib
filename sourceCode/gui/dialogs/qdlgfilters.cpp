@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgfilters.h"
 #include "ui_qdlgfilters.h"
 #include "app.h"
@@ -224,7 +222,7 @@ bool CQDlgFilters::_editFilter(int index)
             cmd.intParams.push_back(it->getObjectHandle());
             cmd.intParams.push_back(index);
             cmd.intParams.push_back(ft);
-            if (ft==sim_filtercomponent_rotate)
+            if (ft==sim_filtercomponent_rotate_deprecated)
             {
                 CQDlgSimpleFilter_rotate theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -234,7 +232,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_uniformimage)
+            if (ft==sim_filtercomponent_uniformimage_deprecated)
             {
                 CQDlgSimpleFilter_uniformImage theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -244,7 +242,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_3x3filter)
+            if (ft==sim_filtercomponent_3x3filter_deprecated)
             {
                 CQDlgSimpleFilter_3x3 theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -254,7 +252,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_5x5filter)
+            if (ft==sim_filtercomponent_5x5filter_deprecated)
             {
                 CQDlgSimpleFilter_5x5 theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -264,7 +262,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_keeporremovecolors)
+            if (ft==sim_filtercomponent_keeporremovecolors_deprecated)
             {
                 CQDlgSimpleFilter_keepRemoveCols theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -274,7 +272,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_scaleandoffsetcolors)
+            if (ft==sim_filtercomponent_scaleandoffsetcolors_deprecated)
             {
                 CQDlgSimpleFilter_scaleCols theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -284,7 +282,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_correlationwithbuffer1)
+            if (ft==sim_filtercomponent_correlationwithbuffer1_deprecated)
             {
                 CQDlgSimpleFilter_correlation theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -294,7 +292,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_shift)
+            if (ft==sim_filtercomponent_shift_deprecated)
             {
                 CQDlgSimpleFilter_shift theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -304,7 +302,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_imagetocoord)
+            if (ft==sim_filtercomponent_imagetocoord_deprecated)
             {
                 CQDlgSimpleFilter_coordExtraction theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -314,7 +312,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_velodyne)
+            if (ft==sim_filtercomponent_velodyne_deprecated)
             {
                 CQDlgSimpleFilter_velodyne theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -324,7 +322,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_pixelchange)
+            if (ft==sim_filtercomponent_pixelchange_deprecated)
             {
                 CQDlgSimpleFilter_pixelChange theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -334,7 +332,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_circularcut)
+            if (ft==sim_filtercomponent_circularcut_deprecated)
             {
                 CQDlgSimpleFilter_circularCut theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -344,7 +342,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_colorsegmentation)
+            if (ft==sim_filtercomponent_colorsegmentation_deprecated)
             {
                 CQDlgSimpleFilter_colorSegmentation theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -354,7 +352,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_rectangularcut)
+            if (ft==sim_filtercomponent_rectangularcut_deprecated)
             {
                 CQDlgSimpleFilter_rectangularCut theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -364,7 +362,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_intensityscale)
+            if (ft==sim_filtercomponent_intensityscale_deprecated)
             {
                 CQDlgSimpleFilter_intensityScale theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -374,7 +372,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_binary)
+            if (ft==sim_filtercomponent_binary_deprecated)
             {
                 CQDlgSimpleFilter_binary theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -384,7 +382,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_edge)
+            if (ft==sim_filtercomponent_edge_deprecated)
             {
                 CQDlgSimpleFilter_edge theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -394,7 +392,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_blobextraction)
+            if (ft==sim_filtercomponent_blobextraction_deprecated)
             {
                 CQDlgSimpleFilter_blob theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -404,7 +402,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft==sim_filtercomponent_resize)
+            if (ft==sim_filtercomponent_resize_deprecated)
             {
                 CQDlgSimpleFilter_resize theDialog(this);
                 theDialog.initializeDialogValues(filter);
@@ -414,7 +412,7 @@ bool CQDlgFilters::_editFilter(int index)
                     retVal=true;
                 }
             }
-            if (ft>=sim_filtercomponent_customized)
+            if (ft>=sim_filtercomponent_customized_deprecated)
             { // special here!
                 std::vector<unsigned char> params;
                 filter->getCustomFilterParameters(params);

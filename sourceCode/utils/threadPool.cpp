@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "threadPool.h"
 
 #include "app.h"

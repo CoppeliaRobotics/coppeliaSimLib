@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgstopscripts.h"
 #include "ui_qdlgstopscripts.h"
 #include "miscBase.h"

@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "ghostObject.h"
 #include "mainCont.h"
 #include "ser.h"

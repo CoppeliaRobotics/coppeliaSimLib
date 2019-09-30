@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "v_rep_internal.h"
 #include "buttonBlockContainer.h" 
@@ -68,7 +66,7 @@ void CButtonBlockContainer::emptySceneProcedure(bool mainContainer)
             if (App::operationalUIParts&sim_gui_infobar)
             {
                 // System block creation:
-                std::string fullPathAndFilename=App::directories->systemDirectory+VREP_SLASH;
+                std::string fullPathAndFilename=App::directories->systemDirectory+"/";
                 fullPathAndFilename.append("sysnfo.ttb");
                 CButtonBlockContainer* cont=loadSystemButtonBlocks(fullPathAndFilename);
                 if (cont!=nullptr)

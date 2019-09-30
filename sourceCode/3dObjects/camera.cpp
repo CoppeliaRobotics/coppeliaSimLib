@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "camera.h"
 #include "v_rep_internal.h"
@@ -1840,7 +1838,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                 tt::limitValue(1,10000,pickSizeY);
                 unsigned char* bf=new unsigned char[pickSizeX*pickSizeY*3];
                 glPixelStorei(GL_PACK_ALIGNMENT,1);
-                glReadPixels(SIM_MIN(mouseX,mouseDownRelativePosition[0])+viewport[0],SIM_MIN(mouseY,mouseDownRelativePosition[1])+viewport[1],pickSizeX,pickSizeY,GL_RGB,GL_UNSIGNED_BYTE,bf);
+                glReadPixels(std::min<int>(mouseX,mouseDownRelativePosition[0])+viewport[0],std::min<int>(mouseY,mouseDownRelativePosition[1])+viewport[1],pickSizeX,pickSizeY,GL_RGB,GL_UNSIGNED_BYTE,bf);
                 glPixelStorei(GL_PACK_ALIGNMENT,4); // important to restore! Really?
                 std::vector<bool> sel;
                 sel.resize(1000000,false);

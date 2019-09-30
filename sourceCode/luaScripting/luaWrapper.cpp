@@ -273,7 +273,7 @@ bool _getLibProcAddresses()
 void loadExtLuaLibrary(bool useExternalLuaLibrary,bool headless)
 {
     std::string luaLibPathAndName(VVarious::getModulePath());
-    luaLibPathAndName+=VREP_SLASH;
+    luaLibPathAndName+="/";
 #ifdef WIN_VREP
     luaLibPathAndName+="v_repLua.dll";
 #endif

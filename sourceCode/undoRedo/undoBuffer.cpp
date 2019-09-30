@@ -1,10 +1,7 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "v_rep_internal.h"
 #include "undoBuffer.h"
-
-
+#include <algorithm>
 
 CUndoBuffer::CUndoBuffer(const std::vector<char>& fullBuffer,int bufferId,CUndoBufferCameras* camBuff)
 {
@@ -37,7 +34,7 @@ bool CUndoBuffer::finalize(const std::vector<char>& previousFullBuffer)
     FUNCTION_DEBUG;
     _sameCountFromBeginning=0;
     _sameCountFromEnd=0;
-    int minBufferLength=SIM_MIN(int(previousFullBuffer.size()),int(buffer.size()));
+    int minBufferLength=std::min<int>(int(previousFullBuffer.size()),int(buffer.size()));
     for (int i=0;i<minBufferLength;i++)
     {
         if (previousFullBuffer[i]!=buffer[i])

@@ -1,10 +1,8 @@
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "v_rep_internal.h"
 #include "fileOperations.h"
 #include "simulation.h"
 #include "tt.h"
-#include "xmlSer.h"
 #include "persistentDataContainer.h"
 #include "sceneObjectOperations.h"
 #include "algos.h"
@@ -101,6 +99,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             { // we are NOT in the UI thread. We execute the command now:
                 App::addStatusbarMessage(tt::decorateString("",IDSNS_LOADING_SCENE,"...").c_str());
                 std::string filenameAndPath=CFileOperationsBase::handleVerSpec_openScenePhase2();
+
                 if (filenameAndPath.length()!=0)
                 {
                     App::setRebuildHierarchyFlag();
@@ -141,7 +140,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             if (!VThread::isCurrentThreadTheUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 CFileOperationsBase::handleVerSpec_openRecentScene();
-                CPersistentDataContainer cont(FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+                CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
                 std::string filenameAndPath;
                 int recentScenesCnt=0;
                 for (int i=0;i<10;i++)
@@ -185,6 +184,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::string filenameAndPath=CFileOperationsBase::handleVerSpec_loadModel2();
+
             if (filenameAndPath.length()!=0)
                 loadModel(filenameAndPath.c_str(),true,true,true,nullptr,true,nullptr,false,false); // Undo things is in here.
             else
@@ -271,7 +271,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         int modelBase=App::ct->objCont->getLastSelectionID();
 
                         // Display a warning if needed
-                        CPersistentDataContainer cont(FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+                        CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
                         std::string val;
                         cont.readData("SIMSETTINGS_MODEL_SAVE_OFFSET_WARNING",val);
                         int intVal=0;
@@ -288,6 +288,11 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
 
                         bool keepCurrentThumbnail=false;
                         bool operationCancelled=false;
+                        int ft=-1;
+                        if (cmd.cmdId==FILE_OPERATION_SAVE_MODEL_AS_VREP_FOCMD)
+                            ft=0;
+                        if (cmd.cmdId==FILE_OPERATION_SAVE_MODEL_AS_BR_FOCMD)
+                            ft=1;
                         while (true)
                         {
                             if (App::ct->environment->modelThumbnail_notSerializedHere.hasImage())
@@ -330,7 +335,8 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         }
                         if (!operationCancelled)
                         {
-                            std::string filenameAndPath=CFileOperationsBase::handleVerSpec_saveModel(cmd.cmdId-FILE_OPERATION_SAVE_MODEL_AS_VREP_FOCMD);
+                            std::string filenameAndPath=CFileOperationsBase::handleVerSpec_saveModel(ft);
+
                             if (filenameAndPath.length()!=0)
                             {
 
@@ -767,9 +773,9 @@ void CFileOperations::createNewScene(bool displayMessages,bool forceForNewInstan
     else
         App::ct->simulation->stopSimulation();
     App::ct->emptyScene(true);
-    std::string fullPathAndFilename=App::directories->systemDirectory+VREP_SLASH;
+    std::string fullPathAndFilename=App::directories->systemDirectory+"/";
     fullPathAndFilename+="dfltscn.";
-    fullPathAndFilename+=VREP_SCENE_EXTENSION;
+    fullPathAndFilename+=SCENE_EXTENSION;
     loadScene(fullPathAndFilename.c_str(),false,false,false);
     App::ct->mainSettings->setScenePathAndName("");//savedLoc;
     App::ct->environment->generateNewUniquePersistentIdString();
@@ -820,9 +826,9 @@ void CFileOperations::closeScene(bool displayMessages,bool displayDialogs)
         else
         { // simply set-up an empty (default) scene
             std::string savedLoc=App::ct->mainSettings->getScenePathAndName();
-            std::string fullPathAndFilename=App::directories->systemDirectory+VREP_SLASH;
+            std::string fullPathAndFilename=App::directories->systemDirectory+"/";
             fullPathAndFilename+="dfltscn.";
-            fullPathAndFilename+=VREP_SCENE_EXTENSION;
+            fullPathAndFilename+=SIM_VREP_SCENE_EXTENSION;
             loadScene(fullPathAndFilename.c_str(),false,false,false);
             App::ct->mainSettings->setScenePathAndName(""); //savedLoc.c_str());
             App::ct->environment->generateNewUniquePersistentIdString();
@@ -1088,11 +1094,8 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
         unsigned short vrepVersionThatWroteThis;
         int licenseTypeThatWroteThis;
         char revisionNumber;
-        if (CSer::getFileTypeFromName(pathAndFilename)!=CSer::filetype_unspecified_file)
-        {
-            serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
-            result=serObj->readOpenBinary(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
-        }
+        serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
+        result=serObj->readOpenBinary(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
 
         std::string infoPrintOut(tt::decorateString("",IDSNS_LOADING_SCENE," ("));
         infoPrintOut+=std::string(pathAndFilename)+"). ";
@@ -1228,11 +1231,8 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
             int licenseTypeThatWroteThis;
             char revisionNumber;
 
-            if (CSer::getFileTypeFromName(pathAndFilename)!=CSer::filetype_unspecified_file)
-            {
-                serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
-                result=serObj->readOpenBinary(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
-            }
+            serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
+            result=serObj->readOpenBinary(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
 
             std::string infoPrintOut(tt::decorateString("",IDSNS_LOADING_MODEL," ("));
             infoPrintOut+=std::string(pathAndFilename)+"). ";
@@ -1408,8 +1408,8 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
         delete[] (char*)returnVal;
 
         CSer* serObj;
-            serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
-            retVal=serObj->writeOpenBinary(App::userSettings->compressFiles);
+        serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
+        retVal=serObj->writeOpenBinary(App::userSettings->compressFiles);
 
         if (retVal)
         {
@@ -1430,7 +1430,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
             infoPrintOut+=std::string(pathAndFilename)+"). ";
             infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
             infoPrintOut+=" ";
-                infoPrintOut+=boost::lexical_cast<std::string>(CSer::SER_SERIALIZATION_VERSION)+".";
+            infoPrintOut+=boost::lexical_cast<std::string>(CSer::SER_SERIALIZATION_VERSION)+".";
             if (displayMessages)
                 App::addStatusbarMessage(infoPrintOut.c_str());
 
@@ -1506,11 +1506,8 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
             if (pathAndFilename!=nullptr)
             { // saving to file...
                 CSer* serObj;
-                if (CSer::getFileTypeFromName(pathAndFilename)!=CSer::filetype_unspecified_file)
-                {
-                    serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
-                    serObj->writeOpenBinary(App::userSettings->compressFiles);
-                }
+                serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
+                serObj->writeOpenBinary(App::userSettings->compressFiles);
                 App::ct->copyBuffer->serializeCurrentSelection(serObj[0],&sel,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
                 serObj->writeClose();
                 delete serObj;
@@ -1563,19 +1560,15 @@ std::string CFileOperations::_getStringOfVersionAndLicenseThatTheFileWasWrittenW
     if (licenseType!=-1)
     {
         licenseType=(licenseType|0x00040000)-0x00040000;
-        if (licenseType==VREP_LICENSE_VREP_DEMO)
-            retStr+=" (V-REP EVAL/STUDENT license)";
-        if (licenseType==VREP_LICENSE_VREP_PRO_EDU)
+        if (licenseType==0x00001000)
             retStr+=" (V-REP PRO EDU license)";
-        if ((licenseType==VREP_LICENSE_VREP_PRO)||(licenseType==VREP_LICENSE_VREP_PRO_P))
+        if (licenseType==0x00002000)
             retStr+=" (V-REP PRO license)";
-        if (licenseType==VREP_LICENSE_VREP_SUBLICENSE)
-            retStr+=" (custom V-REP license)";
-        if (licenseType==VREP_LICENSE_VREP_PLAYER)
+        if (licenseType==0x00005000)
             retStr+=" (V-REP PLAYER license)";
-        if (licenseType==VREP_LICENSE_VREP_BASIC)
-            retStr+=" (V-REP license, custom compilation)";
-        if (licenseType==VREP_LICENSE_BLUE_REALITY)
+        if (licenseType==0x00006000)
+            retStr+=" (custom compilation)";
+        if (licenseType==0x00007000)
             retStr+=" (BlueReality license)";
     }
     return(retStr);
@@ -1765,7 +1758,7 @@ int CFileOperations::apiAddHeightfieldToScene(int xSize,float pointSpacing,const
 
 void CFileOperations::addToRecentlyOpenedScenes(std::string filenameAndPath)
 {
-    CPersistentDataContainer cont(FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+    CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
     std::string recentScenes[10];
     int sameIndex=-1;
     for (int i=0;i<10;i++)
@@ -1802,7 +1795,7 @@ void CFileOperations::addToRecentlyOpenedScenes(std::string filenameAndPath)
 
 void CFileOperations::_removeFromRecentlyOpenedScenes(std::string filenameAndPath)
 {
-    CPersistentDataContainer cont(FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+    CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
     std::string recentScenes[10];
     int sameIndex=-1;
     for (int i=0;i<10;i++)

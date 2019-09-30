@@ -2,7 +2,6 @@
 // Unfortunately credit cannot be given, since I forgot the original author.!
 // Should you know, please let me know!     -marc
 
-#include "vrepMainHeader.h"
 #include "tGAFormat.h"
 #include "tt.h"
 #include <strstream>

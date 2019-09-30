@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "geometric.h"
 #include "global.h"
@@ -736,14 +735,7 @@ void CGeometric::setHeightfieldData(const std::vector<float>& heights,int xCount
 
 float* CGeometric::getHeightfieldData(int& xCount,int& yCount,float& minHeight,float& maxHeight)
 {
-    if (App::ct->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_bullet)
-        setHeightfieldDiamonds(0);
-    if (App::ct->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_ode)
-        setHeightfieldDiamonds(1);
-    if (App::ct->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_vortex)
-        setHeightfieldDiamonds(0);
-    if (App::ct->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_newton)
-        setHeightfieldDiamonds(0);
+    setHeightfieldDiamonds(0);
     if ( (_purePrimitive!=sim_pure_primitive_heightfield)||(_heightfieldHeights.size()==0) )
         return(nullptr);
     xCount=_heightfieldXCount;
@@ -764,7 +756,7 @@ void CGeometric::setHeightfieldDiamonds(int d)
 { 
     if (_purePrimitive==sim_pure_primitive_heightfield)
     {
-        for (int i=0;i<int(_indices.size())/6;i++)
+        for (size_t i=0;i<_indices.size()/6;i++)
         {
             if (d==0)
             {

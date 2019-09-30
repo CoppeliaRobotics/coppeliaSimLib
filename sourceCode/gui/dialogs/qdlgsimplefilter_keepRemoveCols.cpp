@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgsimplefilter_keepRemoveCols.h"
 #include "ui_qdlgsimplefilter_keepRemoveCols.h"
 #include "gV.h"

@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgdetectableproperties.h"
 #include "ui_qdlgdetectableproperties.h"
 #include "v_rep_internal.h"

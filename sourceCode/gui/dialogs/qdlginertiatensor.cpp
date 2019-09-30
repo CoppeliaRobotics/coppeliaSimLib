@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlginertiatensor.h"
 #include "ui_qdlginertiatensor.h"
 #include "v_rep_internal.h"

@@ -1,6 +1,5 @@
 // This file requires serious refactoring!!
 
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "v_rep_internal.h"
 #include "mainWindow.h"
@@ -1049,7 +1048,6 @@ void CMainWindow::createDefaultMenuBar()
             _menubar->appendMenuAndDetach(_sSystemMenu,menuBarEnabled,sMenuStr+DUMMY_SPACE_QMENUBAR_QT5);
             connect(_sSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowSSystemMenu()));
         }
-
         if (editModeContainer->getEditModeType()==NO_EDIT_MODE)
         {
             _helpSystemMenu=new VMenu();
@@ -1514,9 +1512,9 @@ void CMainWindow::dragEnterEvent(QDragEnterEvent* dEvent)
                 std::string pathFile=urlList.at(i).toLocalFile().toStdString();
                 std::string extension(VVarious::splitPath_fileExtension(pathFile));
 
-                if (extension.compare(VREP_SCENE_EXTENSION)==0)
+                if (extension.compare(SIM_VREP_SCENE_EXTENSION)==0)
                     sceneCnt++;
-                if (extension.compare(VREP_MODEL_EXTENSION)==0)
+               if (extension.compare(VREP_MODEL_EXTENSION)==0)
                     modelCnt++;
                 sceneCnt+=handleVerSpec_checkSceneExt(extension);
                 modelCnt+=handleVerSpec_checkModelExt(extension);
@@ -1545,9 +1543,9 @@ void CMainWindow::dropEvent(QDropEvent* dEvent)
             {
                 std::string pathFile=urlList.at(i).toLocalFile().toLocal8Bit().data();
                 std::string extension(VVarious::splitPath_fileExtension(pathFile));
-                if (extension.compare(VREP_SCENE_EXTENSION)==0)
+                if (extension.compare(SIM_VREP_SCENE_EXTENSION)==0)
                     scenes.push_back(pathFile);
-                if (extension.compare(VREP_MODEL_EXTENSION)==0)
+                if (extension.compare(SIM_VREP_MODEL_EXTENSION)==0)
                     models.push_back(pathFile);
                 if (handleVerSpec_checkSceneExt(extension)==1)
                     scenes.push_back(pathFile);
@@ -2280,7 +2278,6 @@ void CMainWindow::_aboutToShowSSystemMenu()
     _sSystemMenu->clear();
     handleVerSpec_aboutToShowSSystemMenu(_sSystemMenu);
 }
-
 void CMainWindow::_aboutToShowCustomMenu()
 {
     customMenuBarItemContainer->_menuHandle->clear();

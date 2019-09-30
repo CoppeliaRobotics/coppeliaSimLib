@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "drawingObject.h"
 #include "app.h"

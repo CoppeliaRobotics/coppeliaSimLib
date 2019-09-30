@@ -1,7 +1,5 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
 #ifndef SIM_WITHOUT_QT_AT_ALL
     #include <QLibrary>
     typedef QLibrary* WLibrary;

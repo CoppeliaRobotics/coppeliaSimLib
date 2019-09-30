@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgsimplefilter_rotate.h"
 #include "ui_qdlgsimplefilter_rotate.h"
 #include "gV.h"

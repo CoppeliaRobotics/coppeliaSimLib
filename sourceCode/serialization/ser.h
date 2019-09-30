@@ -1,7 +1,6 @@
 #pragma once
 
 #include "serBase.h"
-#include "vrepMainHeader.h"
 #include "vArchive.h"
 
 #define SER_VREP_HEADER "VREP" // The file header since 03/07/2009
@@ -93,7 +92,6 @@ public:
     static int SER_SERIALIZATION_VERSION;
     static int SER_MIN_SERIALIZATION_VERSION_THAT_CAN_READ_THIS;
     static int SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ;
-    static int XML_SERIALIZATION_VERSION;
 
 private:
     void _commonInit();

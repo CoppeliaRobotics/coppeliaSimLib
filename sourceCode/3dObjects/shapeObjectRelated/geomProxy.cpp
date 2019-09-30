@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "geomProxy.h"
 #include "geometric.h"
@@ -195,7 +194,7 @@ void CGeomProxy::initializeCalculationStructureIfNeeded()
         std::vector<int> wind;
         geomInfo->getCumulativeMeshes(wvert,&wind,nullptr);
         float maxTriSize=App::ct->environment->getCalculationMaxTriangleSize();
-        float minTriSize=(SIM_MAX(SIM_MAX(_boundingBoxHalfSizes(0),_boundingBoxHalfSizes(1)),_boundingBoxHalfSizes(2)))*2.0f*App::ct->environment->getCalculationMinRelTriangleSize();
+        float minTriSize=(std::max<float>(std::max<float>(_boundingBoxHalfSizes(0),_boundingBoxHalfSizes(1)),_boundingBoxHalfSizes(2)))*2.0f*App::ct->environment->getCalculationMinRelTriangleSize();
         if (maxTriSize<minTriSize)
             maxTriSize=minTriSize;
         collInfo=CPluginContainer::mesh_createCollisionInformationStructure(&wvert[0],(int)wvert.size(),&wind[0],(int)wind.size(),maxTriSize,geomInfo->getEdgeThresholdAngle(),App::userSettings->triCountInOBB);

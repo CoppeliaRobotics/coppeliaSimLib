@@ -1,7 +1,6 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
+#include <string>
 #include "luaWrapper.h"
 
 class CLuaCustomVariable

@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgvisionsensors.h"
 #include "ui_qdlgvisionsensors.h"
 #include "tt.h"
@@ -9,8 +7,6 @@
 #include "v_repStrings.h"
 #include "app.h"
 #include "vMessageBox.h"
-
-bool CQDlgVisionSensors::showFilterWindow=false;
 
 CQDlgVisionSensors::CQDlgVisionSensors(QWidget *parent) :
     CDlgEx(parent),
@@ -78,8 +74,6 @@ void CQDlgVisionSensors::refresh()
     ui->qqApplyColors->setEnabled(isSensor&&manySensors&&noEditModeAndNoSim);
 
     ui->qqAdjustImageColor->setEnabled(isSensor&&noEditModeAndNoSim);
-    ui->qqAdjustFilters->setEnabled(noEditModeAndNoSim);
-    ui->qqAdjustFilters->setChecked(showFilterWindow);
 
     ui->qqRenderModeCombo->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqRenderModeCombo->clear();
@@ -612,16 +606,6 @@ void CQDlgVisionSensors::on_qqApplyMainProperties_clicked()
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-    }
-}
-
-void CQDlgVisionSensors::on_qqAdjustFilters_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        showFilterWindow=!showFilterWindow;
-        if (App::mainWindow->dlgCont->isVisible(VISION_SENSOR_FILTER_DLG)!=showFilterWindow)
-            App::mainWindow->dlgCont->toggle(VISION_SENSOR_FILTER_DLG);
     }
 }
 

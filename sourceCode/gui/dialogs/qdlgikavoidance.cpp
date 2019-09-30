@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgikavoidance.h"
 #include "ui_qdlgikavoidance.h"
 #include "app.h"

@@ -1,7 +1,5 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "regCollectionEl.h"
 
 class CRegCollection

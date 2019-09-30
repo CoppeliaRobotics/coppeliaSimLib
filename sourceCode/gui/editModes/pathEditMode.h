@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "path.h"
 #include "objCont.h"
 #include "vMenubar.h"

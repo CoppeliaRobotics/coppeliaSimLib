@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgenvironment.h"
 #include "ui_qdlgenvironment.h"
 #include "gV.h"

@@ -1,4 +1,3 @@
-
 #include "uiEditMode.h"
 #include "buttonBlockContainer.h"
 #include "vMenubar.h"

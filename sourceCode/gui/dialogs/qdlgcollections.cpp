@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgcollections.h"
 #include "ui_qdlgcollections.h"
 #include "app.h"

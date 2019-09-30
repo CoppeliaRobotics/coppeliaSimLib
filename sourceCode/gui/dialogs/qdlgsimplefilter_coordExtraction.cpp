@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgsimplefilter_coordExtraction.h"
 #include "ui_qdlgsimplefilter_coordExtraction.h"
 #include "gV.h"

@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgheightfielddimension.h"
 #include "ui_qdlgheightfielddimension.h"
 #include "gV.h"

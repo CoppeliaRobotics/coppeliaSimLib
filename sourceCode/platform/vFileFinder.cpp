@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "vFileFinder.h"
 #include "vVarious.h"
 #ifndef SIM_WITHOUT_QT_AT_ALL

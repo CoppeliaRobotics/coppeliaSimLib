@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "v_rep_internal.h"
 #include "tt.h"
@@ -105,17 +104,17 @@ void CMainContainer::simulationAboutToStart()
 
     if (App::ct->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_newton)
     {
-        App::addStatusbarMessage("Warning: the Newton Dynamics plugin is still in a BETA stage, and you might experience strange/inaccurate behaviour, and crashes!");
-        printf("Warning: the Newton Dynamics plugin is still in a BETA stage, and you might experience strange/inaccurate behaviour, and crashes!\n");
+//        App::addStatusbarMessage("Warning: the Newton Dynamics plugin is still in a BETA stage, and you might experience strange/inaccurate behaviour, and crashes!");
+//        printf("Warning: the Newton Dynamics plugin is still in a BETA stage, and you might experience strange/inaccurate behaviour, and crashes!\n");
     }
 
 
     if (!CPluginContainer::isMeshPluginAvailable())
     {
 #ifdef SIM_WITH_GUI
-        simDisplayDialog_internal("ERROR","The 'MeshCalc' plugin could not be initialized. Collision detection, distance calculation,\nproximity sensor simulation and cutting simulation will not work.",sim_dlgstyle_ok,"",nullptr,nullptr,nullptr);
+        simDisplayDialog_internal("ERROR","The 'MeshCalc' plugin could not be initialized. Collision detection, distance calculation,\n and proximity sensor simulation will not work.",sim_dlgstyle_ok,"",nullptr,nullptr,nullptr);
 #endif
-        printf("ERROR: The 'MeshCalc' plugin could not be initialized. Collision detection,\n       distance calculation, proximity sensor simulation and cutting\n       simulation will not work.\n");
+        printf("ERROR: The 'MeshCalc' plugin could not be initialized. Collision detection,\n       distance calculation, and proximity sensor simulation will not work.\n");
     }
 
     drawingCont->simulationAboutToStart();

@@ -1,7 +1,4 @@
-
-#include "vrepMainHeader.h"
 #include "viewableBase.h"
-
 #include "tt.h"
 #include "v_rep_internal.h"
 #include "camera.h"

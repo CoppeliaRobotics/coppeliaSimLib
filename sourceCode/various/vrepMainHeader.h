@@ -5,9 +5,6 @@
 
 #include "vrepConfig.h"
 #include <stdio.h>
-#include <vector>
-#include <string>
-#include <map>
 
 #ifdef SIM_WITHOUT_QT_AT_ALL
     #define IF_UI_EVENT_CAN_WRITE_DATA if(true)
@@ -114,7 +111,6 @@
     #define QT_MODELESS_SCINTILLA_DLG_STYLE (Qt::WindowCloseButtonHint) // WindowMaximizeButtonHint has a strange behaviour here. Can't get anything work right except for a single close button!!!
 #endif
 
-typedef unsigned long long int suint64;
 #define VRGB(r,g,b) (quint32(quint8(r)|(quint8(g) << 8)|(quint8(b) << 16)))
 #define VRGBW(a) (static_cast<unsigned int>((static_cast<unsigned char>(a[0])|(static_cast<unsigned short>(static_cast<unsigned char>(a[1]))<<8))|((static_cast<unsigned int>(static_cast<unsigned char>(a[2])))<<16)))
 #define VTHREAD_ARGUMENT_TYPE void*

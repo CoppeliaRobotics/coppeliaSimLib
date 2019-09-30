@@ -1,7 +1,5 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "edgeElement.h"
 #include "MyMath.h"
 

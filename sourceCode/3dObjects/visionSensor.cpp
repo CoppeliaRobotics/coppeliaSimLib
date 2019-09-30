@@ -1,12 +1,9 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "visionSensor.h"
 #include "v_rep_internal.h"
 #include "global.h"
 #include "tt.h"
 #include "meshManip.h"
-#include "imageProcess.h"
 #include "sceneObjectOperations.h"
 #include "v_repStrings.h"
 #include <boost/lexical_cast.hpp>
@@ -18,6 +15,7 @@
 #include "app.h"
 #include "pluginContainer.h"
 #include "visionSensorRendering.h"
+#include "interfaceStackString.h"
 #ifdef SIM_WITH_OPENGL
 #include "rendering.h"
 #include "oGL.h"
@@ -229,6 +227,7 @@ void CVisionSensor::commonInit()
     _orthoViewSize=0.01f;
     _showFogIfAvailable=true;
     _useLocalLights=false;
+    _inApplyFilterRoutine=false;
     _rayTracingTextureName=(unsigned int)-1;
 
     layer=VISION_SENSOR_LAYER;
@@ -250,12 +249,6 @@ void CVisionSensor::commonInit()
     _useSameBackgroundAsEnvironment=true;
 
     _composedFilter=new CComposedFilter();
-    CSimpleFilter* it=new CSimpleFilter();
-    it->setFilterType(sim_filtercomponent_originalimage);
-    _composedFilter->insertSimpleFilter(it);
-    it=new CSimpleFilter();
-    it->setFilterType(sim_filtercomponent_tooutput);
-    _composedFilter->insertSimpleFilter(it);
 
     _defaultBufferValues[0]=0.0f;
     _defaultBufferValues[1]=0.0f;
@@ -480,8 +473,6 @@ void CVisionSensor::setDesiredResolution(int r[2])
     _resolutionX=_desiredResolution[0];
     _resolutionY=_desiredResolution[1];
     _reserveBuffers();
-    if (_composedFilter!=nullptr)
-        _composedFilter->removeBuffers();
 }
 
 void CVisionSensor::getDesiredResolution(int r[2])
@@ -644,7 +635,7 @@ void CVisionSensor::resetSensor()
         _clearBuffers();
 }
 
-bool CVisionSensor::setExternalImage(const float* img,bool imgIsGreyScale)
+bool CVisionSensor::setExternalImage(const float* img,bool imgIsGreyScale,bool noProcessing)
 {
     if (imgIsGreyScale)
     {
@@ -663,7 +654,9 @@ bool CVisionSensor::setExternalImage(const float* img,bool imgIsGreyScale)
         for (int i=0;i<n;i++)
             _rgbBuffer[i]=(unsigned char)(img[i]*255.1f);
     }
-    bool returnValue=_computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
+    bool returnValue=false;
+    if (!noProcessing)
+        returnValue=_computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
 
 #ifdef SIM_WITH_OPENGL
     if (_contextFboAndTexture==nullptr)
@@ -675,7 +668,7 @@ bool CVisionSensor::setExternalImage(const float* img,bool imgIsGreyScale)
     return(returnValue);
 }
 
-bool CVisionSensor::setExternalCharImage(const unsigned char* img,bool imgIsGreyScale)
+bool CVisionSensor::setExternalCharImage(const unsigned char* img,bool imgIsGreyScale,bool noProcessing)
 {
     if (imgIsGreyScale)
     {
@@ -693,7 +686,9 @@ bool CVisionSensor::setExternalCharImage(const unsigned char* img,bool imgIsGrey
         for (int i=0;i<n;i++)
             _rgbBuffer[i]=img[i];
     }
-    bool returnValue=_computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
+    bool returnValue=false;
+    if (!noProcessing)
+        returnValue=_computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
 
 #ifdef SIM_WITH_OPENGL
     if (_contextFboAndTexture==nullptr)
@@ -1803,9 +1798,6 @@ C3DObject* CVisionSensor::copyYourself()
 {   
     CVisionSensor* newVisionSensor=(CVisionSensor*)copyYourselfMain();
 
-    delete newVisionSensor->_composedFilter;
-    newVisionSensor->_composedFilter=_composedFilter->copyYourself();
-
     newVisionSensor->_viewAngle=_viewAngle;
     newVisionSensor->_orthoViewSize=_orthoViewSize;
     newVisionSensor->_nearClippingPlane=_nearClippingPlane;
@@ -1958,22 +1950,13 @@ void CVisionSensor::initializeInitialValues(bool simulationIsRunning)
     sensorResult.sensorWasTriggered=false;
     sensorResult.sensorResultIsValid=false;
     sensorResult.calcTimeInMs=0;
-    if (_composedFilter!=nullptr)
-        _composedFilter->initializeInitialValues(simulationIsRunning);
     if (simulationIsRunning)
-    {
         _initialExplicitHandling=_explicitHandling;
-    }
     else
     {
 #ifdef SIM_WITH_OPENGL
         _removeGlContextAndFboAndTextureObjectIfNeeded();
 #endif
-        if (_composedFilter!=nullptr)
-        {
-            _composedFilter->drawingContainer.removeAllObjects();
-            _composedFilter->simulationEnded();
-        }
     }
 }
 
@@ -1988,15 +1971,8 @@ void CVisionSensor::simulationEnded()
 #ifdef SIM_WITH_OPENGL
     _removeGlContextAndFboAndTextureObjectIfNeeded();
 #endif
-    if (_composedFilter!=nullptr)
-    {
-        _composedFilter->drawingContainer.removeAllObjects();
-        _composedFilter->simulationEnded();
-    }
     if (_initialValuesInitialized&&App::ct->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
-    {
         _explicitHandling=_initialExplicitHandling;
-    }
     _initialValuesInitialized=false;
     simulationEndedMain();
 }
@@ -2004,6 +1980,9 @@ void CVisionSensor::simulationEnded()
 bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
 {
     bool trigger=false;
+    if (_inApplyFilterRoutine)
+        return(trigger);
+    _inApplyFilterRoutine=true;
 
     sensorAuxiliaryResult.clear();
     sensorResult.sensorResultIsValid=true;
@@ -2136,35 +2115,168 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         }
     }
 
-    bool applyFilter=(_composedFilter->getSimpleFilterCount()>0);
-    if (applyFilter)
+    CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+    if ( (script!=nullptr)&&(!script->getContainsVisionCallbackFunction()) )
+        script=nullptr;
+    CLuaScriptObject* cScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
+    if ( (cScript!=nullptr)&&(!cScript->getContainsVisionCallbackFunction()) )
+        cScript=nullptr;
+    if ( (script!=nullptr)||(cScript!=nullptr) )
     {
-        if ( (_composedFilter->getSimpleFilterCount()==2)&&(_composedFilter->getSimpleFilter(0)->getFilterType()==sim_filtercomponent_originalimage)&&(_composedFilter->getSimpleFilter(1)->getFilterType()==sim_filtercomponent_tooutput) )
-            applyFilter=false; // since this represents the identity filter
-    }
-    if (applyFilter)
-    {
-        float* outputImage=CImageProcess::createRGBImage(_resolutionX,_resolutionY);
-        float* outputDepthBuffer=nullptr;
-        if (_composedFilter->includesDepthBufferModification())
-            outputDepthBuffer=CImageProcess::createIntensityImage(_resolutionX,_resolutionY);
-        int s=_resolutionX*_resolutionY*3;
-        float* imageBuffer=new float[s];
-        for (int i=0;i<s;i++)
-            imageBuffer[i]=float(_rgbBuffer[i])/255.0f;
-        trigger=_composedFilter->processAndTrigger(this,_resolutionX,_resolutionY,imageBuffer,_depthBuffer,outputImage,outputDepthBuffer,sensorAuxiliaryResult);
-        delete[] imageBuffer;
-        for (int i=0;i<s;i++)
-            _rgbBuffer[i]=(unsigned char)(outputImage[i]*255.1f);
-        if (_composedFilter->includesDepthBufferModification())
-        {
-            int s=_resolutionX*_resolutionY;
-            for (int i=0;i<s;i++)
-               _depthBuffer[i]=outputDepthBuffer[i];
-            CImageProcess::deleteImage(outputDepthBuffer);
+        CInterfaceStack inStack;
+        inStack.pushTableOntoStack();
+
+        inStack.pushStringOntoStack("handle",0);
+        inStack.pushNumberOntoStack(getObjectHandle());
+        inStack.insertDataIntoStackTable();
+
+        inStack.pushStringOntoStack("resolution",0);
+        inStack.pushTableOntoStack();
+        inStack.pushNumberOntoStack(1);
+        inStack.pushNumberOntoStack(_resolutionX);
+        inStack.insertDataIntoStackTable();
+        inStack.pushNumberOntoStack(2);
+        inStack.pushNumberOntoStack(_resolutionY);
+        inStack.insertDataIntoStackTable();
+        inStack.insertDataIntoStackTable();
+
+        inStack.pushStringOntoStack("clippingPlanes",0);
+        inStack.pushTableOntoStack();
+        inStack.pushNumberOntoStack(1);
+        inStack.pushNumberOntoStack(getNearClippingPlane());
+        inStack.insertDataIntoStackTable();
+        inStack.pushNumberOntoStack(2);
+        inStack.pushNumberOntoStack(getFarClippingPlane());
+        inStack.insertDataIntoStackTable();
+        inStack.insertDataIntoStackTable();
+
+        inStack.pushStringOntoStack("viewAngle",0);
+        inStack.pushNumberOntoStack(getViewAngle());
+        inStack.insertDataIntoStackTable();
+
+        inStack.pushStringOntoStack("orthoSize",0);
+        inStack.pushNumberOntoStack(getOrthoViewSize());
+        inStack.insertDataIntoStackTable();
+
+        inStack.pushStringOntoStack("perspectiveOperation",0);
+        inStack.pushBoolOntoStack(getPerspectiveOperation());
+        inStack.insertDataIntoStackTable();
+
+        CInterfaceStack outStack1;
+        CInterfaceStack outStack2;
+        CInterfaceStack* outSt1=&outStack1;
+        CInterfaceStack* outSt2=&outStack2;
+        if (VThread::isCurrentThreadTheMainSimulationThread())
+        { // we are in the main simulation thread. Call only scripts that live in the same thread
+            if ( (script!=nullptr)&&(!script->getThreadedExecution()) )
+                script->runNonThreadedChildScript(sim_syscb_vision,&inStack,&outStack1);
+            if (cScript!=nullptr)
+                cScript->runCustomizationScript(sim_syscb_vision,&inStack,&outStack2);
         }
-        CImageProcess::deleteImage(outputImage);
+        else
+        { // we are in the thread started by a threaded child script. Call only that script
+            if ( (script!=nullptr)&&script->getThreadedExecution() )
+            {
+                script->callScriptFunctionEx(CLuaScriptObject::getSystemCallbackString(sim_syscb_vision,false).c_str(),&inStack);
+                outSt1=&inStack;
+            }
+        }
+
+        CInterfaceStack* outStacks[2]={outSt1,outSt2};
+        for (size_t cnt=0;cnt<2;cnt++)
+        {
+            CInterfaceStack* outStack=outStacks[cnt];
+            if (outStack->getStackSize()>=1)
+            {
+                outStack->moveStackItemToTop(0);
+                bool trig=false;
+                if (outStack->getStackMapBoolValue("trigger",trig))
+                    trigger=trig;
+                CInterfaceStackObject* obj=outStack->getStackMapObject("packedPackets");
+                if ( (obj!=nullptr)&&(obj->getObjectType()==STACK_OBJECT_TABLE) )
+                {
+                    CInterfaceStackTable* table=(CInterfaceStackTable*)obj;
+                    if (table->isTableArray())
+                    {
+                        for (size_t i=0;i<table->getArraySize();i++)
+                        {
+                            CInterfaceStackObject* obj2=table->getArrayItemAtIndex(i);
+                            if ( (obj2!=nullptr)&&(obj2->getObjectType()==STACK_OBJECT_STRING) )
+                            {
+                                CInterfaceStackString* buff=(CInterfaceStackString*)obj2;
+                                std::vector<float> data;
+                                int l;
+                                buff->getValue(&l);
+                                data.assign((float*)buff->getValue(nullptr),((float*)buff->getValue(nullptr))+l/4);
+                                sensorAuxiliaryResult.push_back(data);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
+    if (trigger)
+    {
+        if ( (script!=nullptr)&&(!script->getContainsTriggerCallbackFunction()) )
+            script=nullptr;
+        if ( (cScript!=nullptr)&&(!cScript->getContainsTriggerCallbackFunction()) )
+            cScript=nullptr;
+        if ( (script!=nullptr)||(cScript!=nullptr) )
+        {
+            CInterfaceStack inStack;
+            inStack.pushTableOntoStack();
+            inStack.pushStringOntoStack("handle",0);
+            inStack.pushNumberOntoStack(getObjectHandle());
+            inStack.insertDataIntoStackTable();
+
+            inStack.pushStringOntoStack("packedPackets",0);
+            inStack.pushTableOntoStack();
+            for (size_t i=0;i<sensorAuxiliaryResult.size();i++)
+            {
+                inStack.pushNumberOntoStack(i+1);
+                if (sensorAuxiliaryResult[i].size()>0)
+                    inStack.pushStringOntoStack((char*)&(sensorAuxiliaryResult[i])[0],sensorAuxiliaryResult[i].size()*sizeof(float));
+                else
+                    inStack.pushStringOntoStack("",0);
+                inStack.insertDataIntoStackTable();
+            }
+            inStack.insertDataIntoStackTable();
+
+            CInterfaceStack outStack1;
+            CInterfaceStack outStack2;
+            CInterfaceStack* outSt1=&outStack1;
+            CInterfaceStack* outSt2=&outStack2;
+            if (VThread::isCurrentThreadTheMainSimulationThread())
+            { // we are in the main simulation thread. Call only scripts that live in the same thread
+                if ( (script!=nullptr)&&(!script->getThreadedExecution()) )
+                    script->runNonThreadedChildScript(sim_syscb_trigger,&inStack,&outStack1);
+                if (cScript!=nullptr)
+                    cScript->runCustomizationScript(sim_syscb_trigger,&inStack,&outStack2);
+            }
+            else
+            { // we are in the thread started by a threaded child script. Call only that script
+                if ( (script!=nullptr)&&script->getThreadedExecution() )
+                {
+                    script->callScriptFunctionEx(CLuaScriptObject::getSystemCallbackString(sim_syscb_trigger,false).c_str(),&inStack);
+                    outSt1=&inStack;
+                }
+            }
+            CInterfaceStack* outStacks[2]={outSt1,outSt2};
+            for (size_t cnt=0;cnt<2;cnt++)
+            {
+                CInterfaceStack* outStack=outStacks[cnt];
+                if (outStack->getStackSize()>=1)
+                {
+                    outStack->moveStackItemToTop(0);
+                    bool trig=false;
+                    if (outStack->getStackMapBoolValue("trigger",trig))
+                        trigger=trig;
+                }
+            }
+        }
+    }
+    _inApplyFilterRoutine=false;
     return(trigger);
 }
 
@@ -2243,11 +2355,11 @@ void CVisionSensor::serialize(CSer& ar)
 
     // RESERVED     ar.storeDataName("Cl4");
 
-            ar.storeDataName("Cfr");
-            ar.setCountingMode();
-            _composedFilter->serialize(ar);
-            if (ar.setWritingMode())
-                _composedFilter->serialize(ar);
+//            ar.storeDataName("Cfr");
+//            ar.setCountingMode();
+//            _composedFilter->serialize(ar);
+//            if (ar.setWritingMode())
+//                _composedFilter->serialize(ar);
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -2748,9 +2860,6 @@ void CVisionSensor::lookAt(CSView* viewObject,int viewPos[2],int viewSize[2])
             glDisable(GL_TEXTURE_2D);
         else
             _endTextureDisplay();
-
-        if (_composedFilter!=nullptr)
-            _composedFilter->displayOverlay(c0,c1);
     }
 
 

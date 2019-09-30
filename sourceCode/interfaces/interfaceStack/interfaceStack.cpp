@@ -1,4 +1,3 @@
-
 #include "v_repConst.h"
 #include "interfaceStack.h"
 #include "interfaceStackNull.h"
@@ -6,6 +5,7 @@
 #include "interfaceStackNumber.h"
 #include "interfaceStackString.h"
 #include "interfaceStackTable.h"
+#include <algorithm>
 
 CInterfaceStack::CInterfaceStack()
 {
@@ -297,7 +297,7 @@ void CInterfaceStack::buildFromLuaStack(luaWrap_lua_State* L,int fromPos,int cnt
     if (fromPos>1)
         numberOfArguments-=fromPos-1;
     if (cnt>0)
-        numberOfArguments=SIM_MIN(numberOfArguments,cnt);
+        numberOfArguments=std::min<int>(numberOfArguments,cnt);
     for (int i=fromPos;i<fromPos+numberOfArguments;i++)
     {
         std::map<void*,bool> visitedTables;

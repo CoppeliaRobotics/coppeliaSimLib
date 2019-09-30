@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgsimplefilter_intensityScale.h"
 #include "ui_qdlgsimplefilter_intensityScale.h"
 #include "gV.h"

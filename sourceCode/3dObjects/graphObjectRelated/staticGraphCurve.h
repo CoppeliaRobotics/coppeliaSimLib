@@ -1,7 +1,5 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "ser.h"
 
 class CStaticGraphCurve  

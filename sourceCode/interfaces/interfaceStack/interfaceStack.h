@@ -1,10 +1,10 @@
-
 #pragma once
 
 #include "interfaceStackObject.h"
 #include "interfaceStackTable.h"
 #include <vector>
 #include <string>
+#include <map>
 
 class CInterfaceStack
 {

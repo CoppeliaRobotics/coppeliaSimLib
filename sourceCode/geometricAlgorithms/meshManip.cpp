@@ -1,6 +1,5 @@
-
-#include "vrepMainHeader.h"
 #include "meshManip.h"
+#include <algorithm>
 
 CMeshManip::CMeshManip(float* vertices,int verticesNb,int* indices,int indicesNb)
 {
@@ -68,8 +67,8 @@ bool CMeshManip::extractOneShape(std::vector<float>* vertices,std::vector<int>* 
             int k=j+1;
             if (k>2)
                 k-=3;
-            int a=SIM_MIN(ind[j],ind[k]);
-            int b=SIM_MAX(ind[j],ind[k]);
+            int a=std::min<int>(ind[j],ind[k]);
+            int b=std::max<int>(ind[j],ind[k]);
             allEdges[a].push_back(b);
             allEdges[a].push_back(i);
         }
@@ -92,8 +91,8 @@ bool CMeshManip::extractOneShape(std::vector<float>* vertices,std::vector<int>* 
                 int k=j+1;
                 if (k>2)
                     k-=3;
-                int a=SIM_MIN(ind[j],ind[k]);
-                int b=SIM_MAX(ind[j],ind[k]);
+                int a=std::min<int>(ind[j],ind[k]);
+                int b=std::max<int>(ind[j],ind[k]);
                 for (int i=0;i<int(allEdges[a].size())/2;i++)
                 {
                     int b2=allEdges[a][2*i+0];

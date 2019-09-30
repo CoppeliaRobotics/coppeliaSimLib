@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "qdlgcalcdialogcontainer.h"
 #include "ui_qdlgcalcdialogcontainer.h"
 #include "app.h"

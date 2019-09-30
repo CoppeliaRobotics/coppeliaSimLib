@@ -1,4 +1,3 @@
-
 #include "holonomicPathNode.h"
 #include "pathPlanningInterface.h"
 #include "v_rep_internal.h"

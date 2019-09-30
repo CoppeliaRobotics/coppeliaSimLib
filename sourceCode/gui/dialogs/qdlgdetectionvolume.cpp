@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgdetectionvolume.h"
 #include "ui_qdlgdetectionvolume.h"
 #include "gV.h"

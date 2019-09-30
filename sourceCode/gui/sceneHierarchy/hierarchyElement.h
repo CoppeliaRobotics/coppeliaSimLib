@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "3DObject.h"
 
 #define HIERARCHY_INTER_LINE_SPACE 18

@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlguidialogcontainer.h"
 #include "ui_qdlguidialogcontainer.h"
 #include "app.h"

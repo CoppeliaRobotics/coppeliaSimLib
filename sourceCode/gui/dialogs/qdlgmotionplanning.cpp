@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgmotionplanning.h"
 #include "ui_qdlgmotionplanning.h"
 #include "tt.h"

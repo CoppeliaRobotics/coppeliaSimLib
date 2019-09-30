@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "ghostObjectContainer.h"
 #include "app.h"
 #include "sceneObjectOperations.h"

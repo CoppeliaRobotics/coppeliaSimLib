@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "dlgEx.h"
 #include "app.h"
 #include <QLineEdit>

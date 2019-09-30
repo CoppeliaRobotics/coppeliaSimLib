@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "v_repConst.h"
 #include "meshRoutines.h"
@@ -465,7 +463,7 @@ int CMeshRoutines::convexDecompose(const float* vertices,int verticesLength,cons
             }
         }
         C3Vector extent(mmax-mmin);
-        if ((_ind->size()>=12)&&(SIM_MIN(SIM_MIN(extent(0),extent(1)),extent(2))>0.0001f))
+        if ((_ind->size()>=12)&&(std::min<float>(std::min<float>(extent(0),extent(1)),extent(2))>0.0001f))
         {
             verticesList.push_back(_vert);
             indicesList.push_back(_ind);
@@ -488,8 +486,8 @@ int CMeshRoutines::convexDecompose(const float* vertices,int verticesLength,cons
 
 void CMeshRoutines::_insertEdge(std::vector<std::vector<int>* >& allEdges,int vertexIndex1,int vertexIndex2,int triangleIndex)
 {
-    int minI=SIM_MIN(vertexIndex1,vertexIndex2);    
-    int maxI=SIM_MAX(vertexIndex1,vertexIndex2);
+    int minI=std::min<int>(vertexIndex1,vertexIndex2);
+    int maxI=std::max<int>(vertexIndex1,vertexIndex2);
     if (allEdges[minI]==nullptr)
         allEdges[minI]=new std::vector<int>;
     allEdges[minI]->push_back(maxI);
@@ -498,8 +496,8 @@ void CMeshRoutines::_insertEdge(std::vector<std::vector<int>* >& allEdges,int ve
 
 int CMeshRoutines::_getTriangleIndexFromEdge(std::vector<std::vector<int>* >& allEdges,int vertexIndex1,int vertexIndex2,int triangleIndexToExclude)
 { // returns -1 if there is no such triangle, or more than 1
-    int minI=SIM_MIN(vertexIndex1,vertexIndex2);    
-    int maxI=SIM_MAX(vertexIndex1,vertexIndex2);
+    int minI=std::min<int>(vertexIndex1,vertexIndex2);
+    int maxI=std::max<int>(vertexIndex1,vertexIndex2);
     if (allEdges[minI]==nullptr)
         return(-1);
     int cnt=0;

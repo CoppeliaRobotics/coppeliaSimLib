@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlginsertscript.h"
 #include "ui_qdlginsertscript.h"
 #include "v_rep_internal.h"

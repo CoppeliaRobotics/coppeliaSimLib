@@ -1,4 +1,3 @@
-
 #include "editModeContainer.h"
 #include "funcDebug.h"
 #include "app.h"

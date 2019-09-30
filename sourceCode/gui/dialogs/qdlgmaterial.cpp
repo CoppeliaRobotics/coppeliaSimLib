@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgmaterial.h"
 #include "ui_qdlgmaterial.h"
 #include "gV.h"

@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgfog.h"
 #include "ui_qdlgfog.h"
 #include "gV.h"

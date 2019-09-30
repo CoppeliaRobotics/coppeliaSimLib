@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "customMenuBarItemContainer.h"
 #include "global.h"
 

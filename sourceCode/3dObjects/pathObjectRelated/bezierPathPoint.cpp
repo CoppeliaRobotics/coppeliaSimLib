@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "bezierPathPoint.h"
 
 CBezierPathPoint::CBezierPathPoint(const C7Vector& transf)

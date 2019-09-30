@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "shape.h"
 #include "proximitySensor.h"
 #include "visionSensor.h"
@@ -28,7 +27,6 @@
 #include "jointObject.h"
 #include "ikGroup.h"
 #include "mainCont.h"
-#include "xmlSer.h"
 
 class CObjCont : public CMainCont 
 {
@@ -119,6 +117,7 @@ public:
     void exportIkContent(CExtIkSer& ar);
     bool loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize);
     bool loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize);
+
     void setAbsoluteAngle(int objectHandle,float angle,int index);
     void setAbsolutePosition(int objectHandle,float pos,int index);
     void setAbsoluteAngles(int objectHandle,const C3Vector& euler);

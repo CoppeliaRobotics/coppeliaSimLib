@@ -1,7 +1,4 @@
-
-#include "vrepMainHeader.h"
 #include "staticGraphCurve.h"
-
 
 CStaticGraphCurve::CStaticGraphCurve()
 {

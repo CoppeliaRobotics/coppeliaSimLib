@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlggeometry.h"
 #include "ui_qdlggeometry.h"
 #include "tt.h"

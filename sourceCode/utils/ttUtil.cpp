@@ -1,11 +1,8 @@
-
-#include "vrepMainHeader.h"
 #include "ttUtil.h"
 #include <stdarg.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 #include "base64.h"
-#include "mathDefines.h"
 #include "vDateTime.h"
 
 void CTTUtil::lightBinaryEncode(char* data,int length)
@@ -293,7 +290,7 @@ void CTTUtil::scaleLightDown_(float& r,float& g,float& b)
 void CTTUtil::scaleColorUp_(float& r,float& g,float& b)
 { // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other applications
     float f=1.5f;
-    float m=SIM_MAX(SIM_MAX(r,g),b);
+    float m=std::max<float>(std::max<float>(r,g),b);
     float d=1.0f/m;
     if (d<f)
         f=d;
@@ -327,7 +324,7 @@ std::string CTTUtil::generateUniqueString()
     std::string s("1234567890123456");
     char a[17];
     for (size_t i=0;i<16;i++)
-        a[i]=(unsigned char)(SIM_RAND_FLOAT*255.1f);
+        a[i]=(unsigned char)(((static_cast<float>(rand())/static_cast<float>(RAND_MAX)))*255.1f);
     char b[17];
     sprintf(b,"%i",VDateTime::getTimeInMs());
     char c[17];
@@ -349,7 +346,7 @@ std::string CTTUtil::generateUniqueReadableString()
     char num[4];
     for (size_t i=0;i<8;i++)
     {
-        unsigned char nb=(unsigned char)(SIM_RAND_FLOAT*255.1f);
+        unsigned char nb=(unsigned char)(((static_cast<float>(rand())/static_cast<float>(RAND_MAX)))*255.1f);
         snprintf(num,3,"%x",nb);
         if (strlen(num)==1)
             str+=std::string("0")+num;

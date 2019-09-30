@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "geometricConstraintSolver.h"
 #include "iKJoint.h"
 #include "iKObjCont.h"

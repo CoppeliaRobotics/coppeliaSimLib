@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgentityvsentityselection.h"
 #include "ui_qdlgentityvsentityselection.h"
 #include "tt.h"

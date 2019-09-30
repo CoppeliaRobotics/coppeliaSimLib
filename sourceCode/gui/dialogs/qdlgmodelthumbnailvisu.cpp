@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgmodelthumbnailvisu.h"
 #include "ui_qdlgmodelthumbnailvisu.h"
 #include "thumbnail.h"

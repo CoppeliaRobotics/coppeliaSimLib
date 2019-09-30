@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "vDateTime.h"
 #ifndef SIM_WITHOUT_QT_AT_ALL
 #include <QDateTime>

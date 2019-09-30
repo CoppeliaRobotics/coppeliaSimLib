@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgcameras.h"
 #include "ui_qdlgcameras.h"
 #include "tt.h"

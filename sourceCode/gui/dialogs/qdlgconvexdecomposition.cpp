@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgconvexdecomposition.h"
 #include "ui_qdlgconvexdecomposition.h"
 #include "tt.h"

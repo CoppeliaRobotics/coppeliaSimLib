@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "3DObject.h"
 #include "regCollection.h"
 #include "regCollision.h"
@@ -14,7 +13,6 @@
 #include "luaScriptObject.h"
 #include "constraintSolverObject.h"
 #include "dynMaterialObject.h"
-#include "xmlSer.h"
 
 class CCopyBuffer  
 {

@@ -1,4 +1,3 @@
-
 #include "qdlgedgeedit.h"
 #include "ui_qdlgedgeedit.h"
 #include "app.h"

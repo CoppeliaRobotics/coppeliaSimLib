@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "imgLoaderSaver.h"
 #ifdef SIM_WITH_GUI
     #include "tGAFormat.h"

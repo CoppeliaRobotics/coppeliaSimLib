@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgcommonproperties.h"
 #include "ui_qdlgcommonproperties.h"
 #include "tt.h"

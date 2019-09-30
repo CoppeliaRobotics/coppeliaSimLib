@@ -1,4 +1,3 @@
-
 #include "qdlgtriangleedit.h"
 #include "ui_qdlgtriangleedit.h"
 #include "app.h"

@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "tt.h"
 #include "vVarious.h"
@@ -87,7 +86,7 @@ int CAddOnScriptContainer::insertAddOnScripts()
     {
         if ( (foundItem->name.find(ADDON_SCRIPT_PREFIX_AUTOSTART)==0)||(foundItem->name.find(ADDON_SCRIPT_PREFIX_NOAUTOSTART)==0) )
         {
-            std::string fp(App::directories->executableDirectory+VREP_SLASH);
+            std::string fp(App::directories->executableDirectory+"/");
             fp+=foundItem->name;
             CLuaScriptObject* defScript=new CLuaScriptObject(sim_scripttype_addonscript);
             if (defScript->setScriptTextFromFile(fp.c_str()))
@@ -123,7 +122,7 @@ int CAddOnScriptContainer::insertAddOnScripts()
         std::string fp(additionalScripts[addScr]);
         if (!VVarious::isAbsolutePath(fp))
         {
-            fp=App::directories->executableDirectory+VREP_SLASH;
+            fp=App::directories->executableDirectory+"/";
             fp+=additionalScripts[addScr];
         }
         std::string fileName_noExtension(VVarious::splitPath_fileBase(fp));
@@ -267,7 +266,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                 App::addStatusbarMessage(txt.c_str());
 
                 // execute the add-on function here!!
-                std::string fp(App::directories->executableDirectory+VREP_SLASH);
+                std::string fp(App::directories->executableDirectory+"/");
                 fp+=ADDON_FUNCTION_PREFIX;
                 fp+=allAddOnFunctionNames[index];
                 fp+=".";

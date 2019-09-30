@@ -1,4 +1,3 @@
-
 #include "pathEditMode.h"
 #include "v_repConst.h"
 #include "global.h"

@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "vArchive.h"
 
 unsigned short VArchive::LOAD=0;

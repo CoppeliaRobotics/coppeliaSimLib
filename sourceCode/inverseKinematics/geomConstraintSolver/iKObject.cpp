@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "iKObject.h"
 #include "iKJoint.h"
 #include "iKDummy.h"

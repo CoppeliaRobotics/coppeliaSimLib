@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #ifdef SIM_WITH_GUI
     #include "vMenubar.h"
 #endif

@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "graphingRoutines.h"
 #include "v_rep_internal.h"
 #include "app.h"

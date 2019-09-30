@@ -1,4 +1,3 @@
-
 #include "qdlgvertexedit.h"
 #include "ui_qdlgvertexedit.h"
 #include "app.h"

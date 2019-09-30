@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "v_rep_internal.h"
 #include "simulation.h"
@@ -736,7 +734,7 @@ void CSimulation::toggleThreadedRendering(bool noWarningMessage)
         _threadedRenderingMessageShown=true;
         if (!noWarningMessage)
         {
-            CPersistentDataContainer cont(FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+            CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
             std::string val;
             cont.readData("THREADEDRENDERING_WARNING_NO_SHOW",val);
             int intVal=0;

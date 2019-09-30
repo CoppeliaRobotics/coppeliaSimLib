@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgsimulation.h"
 #include "ui_qdlgsimulation.h"
 #include "app.h"

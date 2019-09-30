@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "distanceRoutine.h"
 #include "distanceRoutine.h"
@@ -542,10 +541,10 @@ void CikGroup::getCollisionPartners(std::vector<C3DObject*>* partners,
 
     // Now we prepare 2 vectors
     std::vector<C3DObject*> aux1;
-    aux1.reserve(SIM_MAX(gr1.size(),gr2.size()));
+    aux1.reserve(std::max<int>(gr1.size(),gr2.size()));
     aux1.clear();
     std::vector<C3DObject*> aux2;
-    aux2.reserve(SIM_MAX(gr1.size(),gr2.size()));
+    aux2.reserve(std::max<int>(gr1.size(),gr2.size()));
     aux2.clear();
     for (int pass=0;pass<2;pass++)
     {

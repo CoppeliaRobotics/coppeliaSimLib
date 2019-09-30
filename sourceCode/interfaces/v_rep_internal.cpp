@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "easyLock.h"
 #include "v_rep_internal.h"
@@ -21,13 +20,13 @@
 #include "ttUtil.h"
 #include "vVarious.h"
 #include "volInt.h"
-#include "xmlSer.h"
 #include "imgLoaderSaver.h"
 #include "apiErrors.h"
 #include "sigHandler.h"
 #include "luaScriptFunctions.h"
 #include <algorithm>
 #include <iostream>
+#include "tinyxml2.h"
 #include "v_rep_internalBase.h"
 #ifdef SIM_WITH_GUI
     #include <QSplashScreen>
@@ -1424,7 +1423,7 @@ simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName)
             App::ct->objCont->altRenameObject(it->getObjectHandle(),text.c_str());
         else
         {
-            if ( (VREP_LOWCASE_STRING_COMPARE("world",text.c_str())==0)||(VREP_LOWCASE_STRING_COMPARE("none",text.c_str())==0) )
+            if ( (SIM_LOWCASE_STRING_COMPARE("world",text.c_str())==0)||(SIM_LOWCASE_STRING_COMPARE("none",text.c_str())==0) )
             {
                 if ((handleFlags&sim_handleflag_silenterror)==0)
                     CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
@@ -4421,118 +4420,91 @@ simChar* simGetStringParameter_internal(simInt parameter)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        char* dval=handleVerSpec_getStringParam(parameter);
-        if (dval!=nullptr)
-            return(dval);
+        std::string retVal;
+        const char* p=handleVerSpec_getStringParam(parameter);
+        if (p!=nullptr)
+        {
+            retVal=p;
+            delete[] p;
+        }
+        bool validParam=(retVal.length()>0);
         if (parameter==sim_stringparam_application_path)
         {
-            char* retVal=new char[App::directories->executableDirectory.length()+1];
-            for (int i=0;i<int(App::directories->executableDirectory.length());i++)
-                retVal[i]=App::directories->executableDirectory[i];
-            retVal[App::directories->executableDirectory.length()]=0;
-            return(retVal);
+            validParam=true;
+            retVal=App::directories->executableDirectory;
         }
         if (parameter==sim_stringparam_scene_path_and_name)
         {
+            validParam=true;
             if (App::ct->mainSettings==nullptr)
                 return(nullptr);
-            std::string pan(App::ct->mainSettings->getScenePathAndName());
-            char* retVal=new char[pan.length()+1];
-            for (size_t i=0;i<pan.length();i++)
-                retVal[i]=pan[i];
-            retVal[pan.length()]=0;
-            return(retVal);
+            retVal=App::ct->mainSettings->getScenePathAndName();
         }
         if (parameter==sim_stringparam_scene_name)
         {
+            validParam=true;
             if (App::ct->mainSettings==nullptr)
                 return(nullptr);
-            std::string tmp(App::ct->mainSettings->getSceneNameWithExt());
-            char* retVal=new char[tmp.length()+1];
-            for (int i=0;i<int(tmp.length());i++)
-                retVal[i]=tmp[i];
-            retVal[tmp.length()]=0;
-            return(retVal);
+            retVal=App::ct->mainSettings->getSceneNameWithExt();
         }
         if (parameter==sim_stringparam_scene_unique_id)
         {
+            validParam=true;
             if (App::ct->environment==nullptr)
                 return(nullptr);
-            std::string tmp(App::ct->environment->getUniquePersistentIdString());
-            tmp=CTTUtil::encode64(tmp);
-            char* retVal=new char[tmp.length()+1];
-            for (int i=0;i<int(tmp.length());i++)
-                retVal[i]=tmp[i];
-            retVal[tmp.length()]=0;
-            return(retVal);
+            retVal=App::ct->environment->getUniquePersistentIdString();
+            retVal=CTTUtil::encode64(retVal);
         }
         if (parameter==sim_stringparam_scene_path)
         {
+            validParam=true;
             if (App::ct->mainSettings==nullptr)
                 return(nullptr);
-            std::string tmp(App::ct->mainSettings->getScenePath());
-            char* retVal=new char[tmp.length()+1];
-            for (int i=0;i<int(tmp.length());i++)
-                retVal[i]=tmp[i];
-            retVal[tmp.length()]=0;
-            return(retVal);
+            retVal=App::ct->mainSettings->getScenePath();
         }
         if (parameter==sim_stringparam_remoteapi_temp_file_dir)
         {
-            char* retVal=new char[App::directories->remoteApiFileTransferDirectory.length()+1];
-            for (int i=0;i<int(App::directories->remoteApiFileTransferDirectory.length());i++)
-                retVal[i]=App::directories->remoteApiFileTransferDirectory[i];
-            retVal[App::directories->remoteApiFileTransferDirectory.length()]=0;
-            return(retVal);
+            validParam=true;
+            retVal=App::directories->remoteApiFileTransferDirectory;
         }
         if (parameter==sim_stringparam_video_filename)
         {
-            char* retVal=nullptr;
+            validParam=true;
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-            {
-                char userSet;
-                std::string s(App::mainWindow->simulationRecorder->getPath(&userSet));
-                if (userSet==0)
-                    s+="/";
-                retVal=new char[s.length()+1];
-                for (int i=0;i<int(s.length());i++)
-                    retVal[i]=s[i];
-                retVal[s.length()]=0;
-            }
+            if (App::mainWindow==nullptr)
+                return(nullptr);
+            char userSet;
+            retVal=App::mainWindow->simulationRecorder->getPath(&userSet);
+            if (userSet==0)
+                retVal+="/";
+#else
+            return(nullptr);
 #endif
-            return(retVal);
         }
         if (parameter==sim_stringparam_job)
         {
-            std::string job(App::ct->environment->getCurrentJob());
-            char* retVal=new char[job.length()+1];
-            for (size_t i=0;i<job.length();i++)
-                retVal[i]=job[i];
-            retVal[job.length()]=0;
-            return(retVal);
+            validParam=true;
+            retVal=App::ct->environment->getCurrentJob();
         }
         if ( (parameter>=sim_stringparam_job0)&&(parameter<=sim_stringparam_job99) )
         {
-            std::string job(App::ct->environment->getJobAtIndex(parameter-sim_stringparam_job0));
-            if (job.size()>0)
-            {
-                char* retVal=new char[job.length()+1];
-                for (size_t i=0;i<job.length();i++)
-                    retVal[i]=job[i];
-                retVal[job.length()]=0;
-                return(retVal);
-            }
-            return(nullptr);
+            validParam=true;
+            retVal=App::ct->environment->getJobAtIndex(parameter-sim_stringparam_job0);
+            if (retVal.size()==0)
+                return(nullptr);
         }
         if ((parameter>=sim_stringparam_app_arg1)&&(parameter<=sim_stringparam_app_arg9))
         {
-            std::string s(App::getApplicationArgument(parameter-sim_stringparam_app_arg1));
-            char* retVal=new char[s.length()+1];
-            for (int i=0;i<int(s.length());i++)
-                retVal[i]=s[i];
-            retVal[s.length()]=0;
-            return(retVal);
+            validParam=true;
+            retVal=App::getApplicationArgument(parameter-sim_stringparam_app_arg1);
+        }
+        if (validParam)
+        {
+            char* retVal2=new char[retVal.length()+1];
+            for (size_t i=0;i<retVal.length();i++)
+                retVal2[i]=retVal[i];
+            retVal2[retVal.length()]=0;
+            return(retVal2);
         }
         CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(nullptr);
@@ -4783,9 +4755,7 @@ simInt simDoesFileExist_internal(const simChar* filename)
     C_API_FUNCTION_DEBUG;
 
     if (!VFile::doesFileExist(filename))
-    {
         return(0);
-    }
     return(1);
 }
 
@@ -5900,6 +5870,8 @@ simInt simRemoveScript_internal(simInt scriptHandle)
             CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(-1);
         }
+        if (App::mainWindow!=nullptr)
+            App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
         App::ct->luaScriptContainer->removeScript_safe(scriptHandle);
         App::setFullDialogRefreshFlag();
         return(1);
@@ -10463,9 +10435,7 @@ simFloat* simGetIkGroupMatrix_internal(simInt ikGroupHandle,simInt options,simIn
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(nullptr);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -10746,8 +10716,8 @@ simInt simFloatingViewAdd_internal(simFloat posX,simFloat posY,simFloat sizeX,si
             posY=0.01f;
         if (posY>0.99f)
             posY=0.99f;
-        sizeX=SIM_MIN(sizeX,2.0f*SIM_MIN(posX,1.0f-posX));
-        sizeY=SIM_MIN(sizeY,2.0f*SIM_MIN(posY,1.0f-posY));
+        sizeX=std::min<float>(sizeX,2.0f*std::min<float>(posX,1.0f-posX));
+        sizeY=std::min<float>(sizeY,2.0f*std::min<float>(posY,1.0f-posY));
         float sizes[2]={sizeX,sizeY};
         float positions[2]={posX-sizeX*0.5f,posY-sizeY*0.5f};
         page->addFloatingView(theFloatingView,sizes,positions);
@@ -10775,9 +10745,7 @@ simInt simFloatingViewRemove_internal(simInt floatingViewHandle)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -10906,9 +10874,7 @@ simInt simAdjustView_internal(simInt viewHandleOrIndex,simInt associatedViewable
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -10988,9 +10954,7 @@ simInt simCreateHeightfieldShape_internal(simInt options,simFloat shadingAngle,s
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -11021,9 +10985,7 @@ simInt simGetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterI
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -13057,31 +13019,21 @@ simFloat* simCheckVisionSensorEx_internal(simInt sensorHandle,simInt entityHandl
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(nullptr);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,sensorHandle))
-        {
             return(nullptr);
-        }
         if (!isVisionSensor(__func__,sensorHandle))
-        {
             return(nullptr);
-        }
         if ( (entityHandle!=sim_handle_all)&&(!doesEntityExist(__func__,entityHandle)) )
-        {
             return(nullptr);
-        }
         if (entityHandle==sim_handle_all)
             entityHandle=-1;
 
         if (!App::ct->mainSettings->visionSensorsEnabled)
-        {
             return(nullptr);
-        }
 
         CVisionSensor* it=App::ct->objCont->getVisionSensor(sensorHandle);
         float* retBuffer=it->checkSensorEx(entityHandle,returnImage!=0,false,false,true);
@@ -13230,9 +13182,7 @@ simInt simSetVisionSensorImage_internal(simInt sensorHandle,const simFloat* imag
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -13248,7 +13198,7 @@ simInt simSetVisionSensorImage_internal(simInt sensorHandle,const simFloat* imag
         }
         CVisionSensor* it=App::ct->objCont->getVisionSensor(objectHandle);
         int retVal=0;
-        if (it->setExternalImage(image,(handleFlags&sim_handleflag_greyscale)!=0))
+        if (it->setExternalImage(image,(handleFlags&sim_handleflag_greyscale)!=0,(handleFlags&sim_handleflag_rawvalue)!=0))
             retVal=1;
         return(retVal);
     }
@@ -13261,25 +13211,19 @@ simInt simSetVisionSensorCharImage_internal(simInt sensorHandle,const simUChar* 
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int handleFlags=sensorHandle&0xff00000;
         int objectHandle=sensorHandle&0xfffff;
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         if (!isVisionSensor(__func__,objectHandle))
-        {
             return(-1);
-        }
         CVisionSensor* it=App::ct->objCont->getVisionSensor(objectHandle);
         int retVal=0;
-        if (it->setExternalCharImage(image,(handleFlags&sim_handleflag_greyscale)!=0))
+        if (it->setExternalCharImage(image,(handleFlags&sim_handleflag_greyscale)!=0,(handleFlags&sim_handleflag_rawvalue)!=0))
             retVal=1;
         return(retVal);
     }
@@ -14051,23 +13995,12 @@ simInt simSetShapeMassAndInertia_internal(simInt shapeHandle,simFloat mass,const
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        /*
-        if (!App::ct->simulation->isSimulationStopped())
-        {
-            CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
-            return(-1);
-        }
-        */
         if (!isShape(__func__,shapeHandle))
-        {
             return(-1);
-        }
         CShape* it=App::ct->objCont->getShape(shapeHandle);
 
         if (mass<0.0000001f)
@@ -15582,22 +15515,16 @@ simInt simReorientShapeBoundingBox_internal(simInt shapeHandle,simInt relativeTo
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!isShape(__func__,shapeHandle))
-        {
             return(-1);
-        }
         if ( (relativeToHandle!=-1)&&(relativeToHandle!=sim_handle_self) )
         {
             if (!doesObjectExist(__func__,relativeToHandle))
-            {
                 return(-1);
-            }
         }
 
         CShape* theShape=App::ct->objCont->getShape(shapeHandle);
@@ -15644,9 +15571,7 @@ simInt simCreateIkGroup_internal(simInt options,const simInt* intParams,const si
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -15682,9 +15607,7 @@ simInt simRemoveIkGroup_internal(simInt ikGroupHandle)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -15706,9 +15629,7 @@ simInt simCreateIkElement_internal(simInt ikGroupHandle,simInt options,const sim
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -15723,9 +15644,7 @@ simInt simCreateIkElement_internal(simInt ikGroupHandle,simInt options,const sim
         int constrBase=intParams[2];
         int constraints=intParams[3];
         if (!isDummy(__func__,tip))
-        {
             return(-1);
-        }
         if (App::ct->objCont->getObjectFromHandle(base)==nullptr)
             base=-1;
         if (App::ct->objCont->getObjectFromHandle(constrBase)==nullptr)
@@ -18149,16 +18068,12 @@ const float* simGetOctreeVoxels_internal(simInt octreeHandle,simInt* ptCnt,simVo
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(nullptr);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isOctree(__func__,octreeHandle))
-        {
             return(nullptr);
-        }
         COctree* it=App::ct->objCont->getOctree(octreeHandle);
         const std::vector<float>* p=it->getCubePositions();
         if (p->size()==0)
@@ -18438,122 +18353,6 @@ simInt simUnpackTable_internal(simInt stackHandle,const simChar* buffer,simInt b
         }
         CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
-    }
-    CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simSetVisionSensorFilter_internal(simInt visionSensorHandle,simInt filterIndex,simInt options,const simInt* pSizes,const simUChar* bytes,const simInt* ints,const simFloat* floats,const simUChar* custom)
-{
-    C_API_FUNCTION_DEBUG;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!isVisionSensor(__func__,visionSensorHandle))
-            return(-1);
-
-        CVisionSensor* it=App::ct->objCont->getVisionSensor(visionSensorHandle);
-        CComposedFilter* cf=it->getComposedFilter();
-        if (cf!=nullptr)
-        {
-            if ( (filterIndex>=0)&&(filterIndex<cf->getSimpleFilterCount()) )
-            {
-                CSimpleFilter* sf=cf->getSimpleFilter(filterIndex);
-                sf->setEnabled((options&1)!=0);
-                std::vector<unsigned char> byteP;
-                std::vector<unsigned char> custP;
-                std::vector<int> intP;
-                std::vector<float> floatP;
-                int fVersion;
-                sf->getParameters(byteP,intP,floatP,fVersion);
-                sf->getCustomFilterParameters(custP);
-                int bs=int(byteP.size());
-                int is=int(intP.size());
-                int fs=int(floatP.size());
-                int cs=int(custP.size());
-                if (bs>pSizes[0])
-                    bs=pSizes[0];
-                if (is>pSizes[1])
-                    is=pSizes[1];
-                if (fs>pSizes[2])
-                    fs=pSizes[2];
-                if (cs>pSizes[3])
-                    cs=pSizes[3];
-                for (int i=0;i<bs;i++)
-                    byteP[i]=bytes[i];
-                for (int i=0;i<is;i++)
-                    intP[i]=ints[i];
-                for (int i=0;i<fs;i++)
-                    floatP[i]=floats[i];
-                for (int i=0;i<cs;i++)
-                    custP[i]=custom[i];
-                sf->setParameters(byteP,intP,floatP,fVersion);
-                sf->setCustomFilterParameters(custP);
-                return(sf->getFilterType());
-            }
-        }
-        return(0); // kind of silent error
-    }
-    CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simGetVisionSensorFilter_internal(simInt visionSensorHandle,simInt filterIndex,simInt* options,simInt* pSizes,simUChar** bytes,simInt** ints,simFloat** floats,simUChar** custom)
-{
-    C_API_FUNCTION_DEBUG;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!isVisionSensor(__func__,visionSensorHandle))
-            return(-1);
-
-        CVisionSensor* it=App::ct->objCont->getVisionSensor(visionSensorHandle);
-        CComposedFilter* cf=it->getComposedFilter();
-        if (cf!=nullptr)
-        {
-            if ( (filterIndex>=0)&&(filterIndex<cf->getSimpleFilterCount()) )
-            {
-                CSimpleFilter* sf=cf->getSimpleFilter(filterIndex);
-                options[0]=0;
-                if (sf->getEnabled())
-                    options[0]|=1;
-                std::vector<unsigned char> byteP;
-                std::vector<unsigned char> custP;
-                std::vector<int> intP;
-                std::vector<float> floatP;
-                int fVersion;
-                sf->getParameters(byteP,intP,floatP,fVersion);
-                sf->getCustomFilterParameters(custP);
-                pSizes[0]=int(byteP.size());
-                pSizes[1]=int(intP.size());
-                pSizes[2]=int(floatP.size());
-                pSizes[3]=int(custP.size());
-                unsigned char* _b=new unsigned char[pSizes[0]];
-                int* _i=new int[pSizes[1]];
-                float* _f=new float[pSizes[2]];
-                unsigned char* _c=new unsigned char[pSizes[3]];
-                for (int i=0;i<pSizes[0];i++)
-                    _b[i]=byteP[i];
-                for (int i=0;i<pSizes[1];i++)
-                    _i[i]=intP[i];
-                for (int i=0;i<pSizes[2];i++)
-                    _f[i]=floatP[i];
-                for (int i=0;i<pSizes[3];i++)
-                    _c[i]=custP[i];
-                bytes[0]=_b;
-                ints[0]=_i;
-                floats[0]=_f;
-                custom[0]=_c;
-                return(sf->getFilterType());
-            }
-        }
-        return(0); // kind of silent error
     }
     CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
@@ -19249,7 +19048,7 @@ simChar* simGetStringNamedParam_internal(const simChar* paramName,simInt* paramL
                 retVal[i]=val[i];
             retVal[val.size()]=0;
             if (paramLength!=nullptr)
-                paramLength[0]=val.size();
+                paramLength[0]=int(val.size());
         }
         return(retVal);
     }
@@ -20637,7 +20436,7 @@ simInt simInitializePathSearch_internal(simInt pathPlanningObjectHandle,simFloat
         }
 
         maximumSearchTime=tt::getLimitedFloat(0.01f,36000.0f,maximumSearchTime);
-        searchTimeStep=tt::getLimitedFloat(0.001f,SIM_MIN(1.0f,maximumSearchTime),searchTimeStep);
+        searchTimeStep=tt::getLimitedFloat(0.001f,std::min<float>(1.0f,maximumSearchTime),searchTimeStep);
         CPathPlanningTask* oldIt=it;
         it=oldIt->copyYourself(); // we copy it because the original might be destroyed at any time
         it->setOriginalTask(oldIt);
@@ -22278,6 +22077,20 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
         return(retVal);
     }
     CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+
+    return(-1);
+}
+
+simInt simSetVisionSensorFilter_internal(simInt visionSensorHandle,simInt filterIndex,simInt options,const simInt* pSizes,const simUChar* bytes,const simInt* ints,const simFloat* floats,const simUChar* custom)
+{ // DEPRECATED
+    C_API_FUNCTION_DEBUG;
+
+    return(-1);
+}
+
+simInt simGetVisionSensorFilter_internal(simInt visionSensorHandle,simInt filterIndex,simInt* options,simInt* pSizes,simUChar** bytes,simInt** ints,simFloat** floats,simUChar** custom)
+{ // DEPRECATED
+    C_API_FUNCTION_DEBUG;
 
     return(-1);
 }

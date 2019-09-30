@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "v_rep_internal.h"
 #include "luaScriptFunctions.h"
@@ -445,8 +443,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.insertObjectIntoPointCloud",_simInsertObjectIntoPointCloud,"number totalPointCnt=sim.insertObjectIntoPointCloud(number pointCloudHandle,\nnumber objectHandle,number options,number gridSize,table color=nil,number duplicateTolerance=nil)",true},
     {"sim.subtractObjectFromPointCloud",_simSubtractObjectFromPointCloud,    "number totalPointCnt=sim.subtractObjectFromPointCloud(number pointCloudHandle,number objectHandle,number options,number tolerance)",true},
     {"sim.checkOctreePointOccupancy",_simCheckOctreePointOccupancy,"number result,number tag,number locationLow,number locationHigh=sim.checkOctreePointOccupancy(number octreeHandle,number options,table points)",true},
-    {"sim.setVisionSensorFilter",_simSetVisionSensorFilter,      "number filterType=sim.setVisionSensorFilter(number sensorHandle,number filterIndex,number options\ntable byteVals,table intVals,table floatVals,string customBuffer)",true},
-    {"sim.getVisionSensorFilter",_simGetVisionSensorFilter,      "number filterType,number options,table byteVals,table intVals,table floatVals,string customBuffer=\nsim.getVisionSensorFilter(number sensorHandle,number filterIndex)",true},
+    {"sim.setVisionSensorFilter",_simSetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",true},
+    {"sim.getVisionSensorFilter",_simGetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",true},
     {"sim.handleSimulationStart",_simHandleSimulationStart,      "number result=sim.handleSimulationStart()",true},
     {"sim.handleSensingStart",_simHandleSensingStart,            "number result=sim.handleSensingStart()",true},
     {"sim.auxFunc",_simAuxFunc,                                  "... =sim.auxFunc(...)",true},
@@ -861,8 +859,8 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simSubtractObjectFromPointCloud",_simSubtractObjectFromPointCloud,    "Use the newer 'sim.subtractObjectFromPointCloud' notation",false},
     {"simCheckOctreePointOccupancy",_simCheckOctreePointOccupancy,"Use the newer 'sim.checkOctreePointOccupancy' notation",false},
     {"simOpenTextEditor",_simOpenTextEditor,                    "Deprecated. Use 'sim.textEditorOpen' instead",false},
-    {"simSetVisionSensorFilter",_simSetVisionSensorFilter,      "Use the newer 'sim.setVisionSensorFilter' notation",false},
-    {"simGetVisionSensorFilter",_simGetVisionSensorFilter,      "Use the newer 'sim.getVisionSensorFilter' notation",false},
+    {"simSetVisionSensorFilter",_simSetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",false},
+    {"simGetVisionSensorFilter",_simGetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",false},
     {"simHandleSimulationStart",_simHandleSimulationStart,      "Use the newer 'sim.handleSimulationStart' notation",false},
     {"simHandleSensingStart",_simHandleSensingStart,            "Use the newer 'sim.handleSensingStart' notation",false},
     {"simAuxFunc",_simAuxFunc,                                  "Use the newer 'sim.auxFunc' notation",false},
@@ -1153,6 +1151,8 @@ const SLuaVariables simLuaVariables[]=
     {"sim.syscb_aos_suspend",sim_syscb_aos_suspend,true},
     {"sim.syscb_aos_resume",sim_syscb_aos_resume,true},
     {"sim.syscb_jointcallback",sim_syscb_jointcallback,true},
+    {"sim.syscb_vision",sim_syscb_vision,true},
+    {"sim.syscb_trigger",sim_syscb_trigger,true},
     {"sim.syscb_contactcallback",sim_syscb_contactcallback,true},
     {"sim.syscb_dyncallback",sim_syscb_dyncallback,true},
     {"sim.syscb_customcallback1",sim_syscb_customcallback1,true},
@@ -1939,45 +1939,45 @@ const SLuaVariables simLuaVariables[]=
     {"sim.bullet_constraintsolvertype_dantzig",sim_bullet_constraintsolvertype_dantzig,true},
     {"sim.bullet_constraintsolvertype_projectedgaussseidel",sim_bullet_constraintsolvertype_projectedgaussseidel,true},
     // Filter component types:
-    {"sim.filtercomponent_originalimage",sim_filtercomponent_originalimage,true},
-    {"sim.filtercomponent_originaldepth",sim_filtercomponent_originaldepth,true},
-    {"sim.filtercomponent_uniformimage",sim_filtercomponent_uniformimage,true},
-    {"sim.filtercomponent_tooutput",sim_filtercomponent_tooutput,true},
-    {"sim.filtercomponent_tobuffer1",sim_filtercomponent_tobuffer1,true},
-    {"sim.filtercomponent_tobuffer2",sim_filtercomponent_tobuffer2,true},
-    {"sim.filtercomponent_frombuffer1",sim_filtercomponent_frombuffer1,true},
-    {"sim.filtercomponent_frombuffer2",sim_filtercomponent_frombuffer2,true},
-    {"sim.filtercomponent_swapbuffers",sim_filtercomponent_swapbuffers,true},
-    {"sim.filtercomponent_addbuffer1",sim_filtercomponent_addbuffer1,true},
-    {"sim.filtercomponent_subtractbuffer1",sim_filtercomponent_subtractbuffer1,true},
-    {"sim.filtercomponent_multiplywithbuffer1",sim_filtercomponent_multiplywithbuffer1,true},
-    {"sim.filtercomponent_horizontalflip",sim_filtercomponent_horizontalflip,true},
-    {"sim.filtercomponent_verticalflip",sim_filtercomponent_verticalflip,true},
-    {"sim.filtercomponent_rotate",sim_filtercomponent_rotate,true},
-    {"sim.filtercomponent_shift",sim_filtercomponent_shift,true},
-    {"sim.filtercomponent_resize",sim_filtercomponent_resize,true},
-    {"sim.filtercomponent_3x3filter",sim_filtercomponent_3x3filter,true},
-    {"sim.filtercomponent_5x5filter",sim_filtercomponent_5x5filter,true},
-    {"sim.filtercomponent_sharpen",sim_filtercomponent_sharpen,true},
-    {"sim.filtercomponent_edge",sim_filtercomponent_edge,true},
-    {"sim.filtercomponent_rectangularcut",sim_filtercomponent_rectangularcut,true},
-    {"sim.filtercomponent_circularcut",sim_filtercomponent_circularcut,true},
-    {"sim.filtercomponent_normalize",sim_filtercomponent_normalize,true},
-    {"sim.filtercomponent_intensityscale",sim_filtercomponent_intensityscale,true},
-    {"sim.filtercomponent_keeporremovecolors",sim_filtercomponent_keeporremovecolors,true},
-    {"sim.filtercomponent_scaleandoffsetcolors",sim_filtercomponent_scaleandoffsetcolors,true},
-    {"sim.filtercomponent_binary",sim_filtercomponent_binary,true},
-    {"sim.filtercomponent_swapwithbuffer1",sim_filtercomponent_swapwithbuffer1,true},
-    {"sim.filtercomponent_addtobuffer1",sim_filtercomponent_addtobuffer1,true},
-    {"sim.filtercomponent_subtractfrombuffer1",sim_filtercomponent_subtractfrombuffer1,true},
-    {"sim.filtercomponent_correlationwithbuffer1",sim_filtercomponent_correlationwithbuffer1,true},
-    {"sim.filtercomponent_colorsegmentation",sim_filtercomponent_colorsegmentation,true},
-    {"sim.filtercomponent_blobextraction",sim_filtercomponent_blobextraction,true},
-    {"sim.filtercomponent_imagetocoord",sim_filtercomponent_imagetocoord,true},
-    {"sim.filtercomponent_pixelchange",sim_filtercomponent_pixelchange,true},
-    {"sim.filtercomponent_velodyne",sim_filtercomponent_velodyne,true},
-    {"sim.filtercomponent_todepthoutput",sim_filtercomponent_todepthoutput,true},
-    {"sim.filtercomponent_customized",sim_filtercomponent_customized,true},
+    {"sim.filtercomponent_originalimage",sim_filtercomponent_originalimage_deprecated,true},
+    {"sim.filtercomponent_originaldepth",sim_filtercomponent_originaldepth_deprecated,true},
+    {"sim.filtercomponent_uniformimage",sim_filtercomponent_uniformimage_deprecated,true},
+    {"sim.filtercomponent_tooutput",sim_filtercomponent_tooutput_deprecated,true},
+    {"sim.filtercomponent_tobuffer1",sim_filtercomponent_tobuffer1_deprecated,true},
+    {"sim.filtercomponent_tobuffer2",sim_filtercomponent_tobuffer2_deprecated,true},
+    {"sim.filtercomponent_frombuffer1",sim_filtercomponent_frombuffer1_deprecated,true},
+    {"sim.filtercomponent_frombuffer2",sim_filtercomponent_frombuffer2_deprecated,true},
+    {"sim.filtercomponent_swapbuffers",sim_filtercomponent_swapbuffers_deprecated,true},
+    {"sim.filtercomponent_addbuffer1",sim_filtercomponent_addbuffer1_deprecated,true},
+    {"sim.filtercomponent_subtractbuffer1",sim_filtercomponent_subtractbuffer1_deprecated,true},
+    {"sim.filtercomponent_multiplywithbuffer1",sim_filtercomponent_multiplywithbuffer1_deprecated,true},
+    {"sim.filtercomponent_horizontalflip",sim_filtercomponent_horizontalflip_deprecated,true},
+    {"sim.filtercomponent_verticalflip",sim_filtercomponent_verticalflip_deprecated,true},
+    {"sim.filtercomponent_rotate",sim_filtercomponent_rotate_deprecated,true},
+    {"sim.filtercomponent_shift",sim_filtercomponent_shift_deprecated,true},
+    {"sim.filtercomponent_resize",sim_filtercomponent_resize_deprecated,true},
+    {"sim.filtercomponent_3x3filter",sim_filtercomponent_3x3filter_deprecated,true},
+    {"sim.filtercomponent_5x5filter",sim_filtercomponent_5x5filter_deprecated,true},
+    {"sim.filtercomponent_sharpen",sim_filtercomponent_sharpen_deprecated,true},
+    {"sim.filtercomponent_edge",sim_filtercomponent_edge_deprecated,true},
+    {"sim.filtercomponent_rectangularcut",sim_filtercomponent_rectangularcut_deprecated,true},
+    {"sim.filtercomponent_circularcut",sim_filtercomponent_circularcut_deprecated,true},
+    {"sim.filtercomponent_normalize",sim_filtercomponent_normalize_deprecated,true},
+    {"sim.filtercomponent_intensityscale",sim_filtercomponent_intensityscale_deprecated,true},
+    {"sim.filtercomponent_keeporremovecolors",sim_filtercomponent_keeporremovecolors_deprecated,true},
+    {"sim.filtercomponent_scaleandoffsetcolors",sim_filtercomponent_scaleandoffsetcolors_deprecated,true},
+    {"sim.filtercomponent_binary",sim_filtercomponent_binary_deprecated,true},
+    {"sim.filtercomponent_swapwithbuffer1",sim_filtercomponent_swapwithbuffer1_deprecated,true},
+    {"sim.filtercomponent_addtobuffer1",sim_filtercomponent_addtobuffer1_deprecated,true},
+    {"sim.filtercomponent_subtractfrombuffer1",sim_filtercomponent_subtractfrombuffer1_deprecated,true},
+    {"sim.filtercomponent_correlationwithbuffer1",sim_filtercomponent_correlationwithbuffer1_deprecated,true},
+    {"sim.filtercomponent_colorsegmentation",sim_filtercomponent_colorsegmentation_deprecated,true},
+    {"sim.filtercomponent_blobextraction",sim_filtercomponent_blobextraction_deprecated,true},
+    {"sim.filtercomponent_imagetocoord",sim_filtercomponent_imagetocoord_deprecated,true},
+    {"sim.filtercomponent_pixelchange",sim_filtercomponent_pixelchange_deprecated,true},
+    {"sim.filtercomponent_velodyne",sim_filtercomponent_velodyne_deprecated,true},
+    {"sim.filtercomponent_todepthoutput",sim_filtercomponent_todepthoutput_deprecated,true},
+    {"sim.filtercomponent_customized",sim_filtercomponent_customized_deprecated,true},
     // buffer types:
     {"sim.buffer_uint8",sim_buffer_uint8,true},
     {"sim.buffer_int8",sim_buffer_int8,true},
@@ -2868,45 +2868,45 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim_bullet_constraintsolvertype_nncg",sim_bullet_constraintsolvertype_nncg,false},
     {"sim_bullet_constraintsolvertype_dantzig",sim_bullet_constraintsolvertype_dantzig,false},
     {"sim_bullet_constraintsolvertype_projectedgaussseidel",sim_bullet_constraintsolvertype_projectedgaussseidel,false},
-    {"sim_filtercomponent_originalimage",sim_filtercomponent_originalimage,false},
-    {"sim_filtercomponent_originaldepth",sim_filtercomponent_originaldepth,false},
-    {"sim_filtercomponent_uniformimage",sim_filtercomponent_uniformimage,false},
-    {"sim_filtercomponent_tooutput",sim_filtercomponent_tooutput,false},
-    {"sim_filtercomponent_tobuffer1",sim_filtercomponent_tobuffer1,false},
-    {"sim_filtercomponent_tobuffer2",sim_filtercomponent_tobuffer2,false},
-    {"sim_filtercomponent_frombuffer1",sim_filtercomponent_frombuffer1,false},
-    {"sim_filtercomponent_frombuffer2",sim_filtercomponent_frombuffer2,false},
-    {"sim_filtercomponent_swapbuffers",sim_filtercomponent_swapbuffers,false},
-    {"sim_filtercomponent_addbuffer1",sim_filtercomponent_addbuffer1,false},
-    {"sim_filtercomponent_subtractbuffer1",sim_filtercomponent_subtractbuffer1,false},
-    {"sim_filtercomponent_multiplywithbuffer1",sim_filtercomponent_multiplywithbuffer1,false},
-    {"sim_filtercomponent_horizontalflip",sim_filtercomponent_horizontalflip,false},
-    {"sim_filtercomponent_verticalflip",sim_filtercomponent_verticalflip,false},
-    {"sim_filtercomponent_rotate",sim_filtercomponent_rotate,false},
-    {"sim_filtercomponent_shift",sim_filtercomponent_shift,false},
-    {"sim_filtercomponent_resize",sim_filtercomponent_resize,false},
-    {"sim_filtercomponent_3x3filter",sim_filtercomponent_3x3filter,false},
-    {"sim_filtercomponent_5x5filter",sim_filtercomponent_5x5filter,false},
-    {"sim_filtercomponent_sharpen",sim_filtercomponent_sharpen,false},
-    {"sim_filtercomponent_edge",sim_filtercomponent_edge,false},
-    {"sim_filtercomponent_rectangularcut",sim_filtercomponent_rectangularcut,false},
-    {"sim_filtercomponent_circularcut",sim_filtercomponent_circularcut,false},
-    {"sim_filtercomponent_normalize",sim_filtercomponent_normalize,false},
-    {"sim_filtercomponent_intensityscale",sim_filtercomponent_intensityscale,false},
-    {"sim_filtercomponent_keeporremovecolors",sim_filtercomponent_keeporremovecolors,false},
-    {"sim_filtercomponent_scaleandoffsetcolors",sim_filtercomponent_scaleandoffsetcolors,false},
-    {"sim_filtercomponent_binary",sim_filtercomponent_binary,false},
-    {"sim_filtercomponent_swapwithbuffer1",sim_filtercomponent_swapwithbuffer1,false},
-    {"sim_filtercomponent_addtobuffer1",sim_filtercomponent_addtobuffer1,false},
-    {"sim_filtercomponent_subtractfrombuffer1",sim_filtercomponent_subtractfrombuffer1,false},
-    {"sim_filtercomponent_correlationwithbuffer1",sim_filtercomponent_correlationwithbuffer1,false},
-    {"sim_filtercomponent_colorsegmentation",sim_filtercomponent_colorsegmentation,false},
-    {"sim_filtercomponent_blobextraction",sim_filtercomponent_blobextraction,false},
-    {"sim_filtercomponent_imagetocoord",sim_filtercomponent_imagetocoord,false},
-    {"sim_filtercomponent_pixelchange",sim_filtercomponent_pixelchange,false},
-    {"sim_filtercomponent_velodyne",sim_filtercomponent_velodyne,false},
-    {"sim_filtercomponent_todepthoutput",sim_filtercomponent_todepthoutput,false},
-    {"sim_filtercomponent_customized",sim_filtercomponent_customized,false},
+    {"sim_filtercomponent_originalimage",sim_filtercomponent_originalimage_deprecated,false},
+    {"sim_filtercomponent_originaldepth",sim_filtercomponent_originaldepth_deprecated,false},
+    {"sim_filtercomponent_uniformimage",sim_filtercomponent_uniformimage_deprecated,false},
+    {"sim_filtercomponent_tooutput",sim_filtercomponent_tooutput_deprecated,false},
+    {"sim_filtercomponent_tobuffer1",sim_filtercomponent_tobuffer1_deprecated,false},
+    {"sim_filtercomponent_tobuffer2",sim_filtercomponent_tobuffer2_deprecated,false},
+    {"sim_filtercomponent_frombuffer1",sim_filtercomponent_frombuffer1_deprecated,false},
+    {"sim_filtercomponent_frombuffer2",sim_filtercomponent_frombuffer2_deprecated,false},
+    {"sim_filtercomponent_swapbuffers",sim_filtercomponent_swapbuffers_deprecated,false},
+    {"sim_filtercomponent_addbuffer1",sim_filtercomponent_addbuffer1_deprecated,false},
+    {"sim_filtercomponent_subtractbuffer1",sim_filtercomponent_subtractbuffer1_deprecated,false},
+    {"sim_filtercomponent_multiplywithbuffer1",sim_filtercomponent_multiplywithbuffer1_deprecated,false},
+    {"sim_filtercomponent_horizontalflip",sim_filtercomponent_horizontalflip_deprecated,false},
+    {"sim_filtercomponent_verticalflip",sim_filtercomponent_verticalflip_deprecated,false},
+    {"sim_filtercomponent_rotate",sim_filtercomponent_rotate_deprecated,false},
+    {"sim_filtercomponent_shift",sim_filtercomponent_shift_deprecated,false},
+    {"sim_filtercomponent_resize",sim_filtercomponent_resize_deprecated,false},
+    {"sim_filtercomponent_3x3filter",sim_filtercomponent_3x3filter_deprecated,false},
+    {"sim_filtercomponent_5x5filter",sim_filtercomponent_5x5filter_deprecated,false},
+    {"sim_filtercomponent_sharpen",sim_filtercomponent_sharpen_deprecated,false},
+    {"sim_filtercomponent_edge",sim_filtercomponent_edge_deprecated,false},
+    {"sim_filtercomponent_rectangularcut",sim_filtercomponent_rectangularcut_deprecated,false},
+    {"sim_filtercomponent_circularcut",sim_filtercomponent_circularcut_deprecated,false},
+    {"sim_filtercomponent_normalize",sim_filtercomponent_normalize_deprecated,false},
+    {"sim_filtercomponent_intensityscale",sim_filtercomponent_intensityscale_deprecated,false},
+    {"sim_filtercomponent_keeporremovecolors",sim_filtercomponent_keeporremovecolors_deprecated,false},
+    {"sim_filtercomponent_scaleandoffsetcolors",sim_filtercomponent_scaleandoffsetcolors_deprecated,false},
+    {"sim_filtercomponent_binary",sim_filtercomponent_binary_deprecated,false},
+    {"sim_filtercomponent_swapwithbuffer1",sim_filtercomponent_swapwithbuffer1_deprecated,false},
+    {"sim_filtercomponent_addtobuffer1",sim_filtercomponent_addtobuffer1_deprecated,false},
+    {"sim_filtercomponent_subtractfrombuffer1",sim_filtercomponent_subtractfrombuffer1_deprecated,false},
+    {"sim_filtercomponent_correlationwithbuffer1",sim_filtercomponent_correlationwithbuffer1_deprecated,false},
+    {"sim_filtercomponent_colorsegmentation",sim_filtercomponent_colorsegmentation_deprecated,false},
+    {"sim_filtercomponent_blobextraction",sim_filtercomponent_blobextraction_deprecated,false},
+    {"sim_filtercomponent_imagetocoord",sim_filtercomponent_imagetocoord_deprecated,false},
+    {"sim_filtercomponent_pixelchange",sim_filtercomponent_pixelchange_deprecated,false},
+    {"sim_filtercomponent_velodyne",sim_filtercomponent_velodyne_deprecated,false},
+    {"sim_filtercomponent_todepthoutput",sim_filtercomponent_todepthoutput_deprecated,false},
+    {"sim_filtercomponent_customized",sim_filtercomponent_customized_deprecated,false},
     {"sim_buffer_uint8",sim_buffer_uint8,false},
     {"sim_buffer_int8",sim_buffer_int8,false},
     {"sim_buffer_uint16",sim_buffer_uint16,false},
@@ -5782,8 +5782,11 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
         int handleFlags=arg1&0xff00000;
         int sensHandle=arg1&0xfffff;
         int valPerPix=3;
+        bool noProcessing=false;
         if ((handleFlags&sim_handleflag_greyscale)!=0)
             valPerPix=1;
+        if ((handleFlags&sim_handleflag_rawvalue)!=0)
+            noProcessing=true;
         C3DObject* it=App::ct->objCont->getObjectFromHandle(sensHandle);
         if (it!=nullptr)
         { // Ok we have a valid object
@@ -5802,7 +5805,7 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
                     {
                         float* img=new float[res[0]*res[1]*valPerPix];
                         getFloatsFromTable(L,2,res[0]*res[1]*valPerPix,img); // we do the operation directly without going through the c-api
-                        if (rendSens->setExternalImage(img,valPerPix==1))
+                        if (rendSens->setExternalImage(img,valPerPix==1,noProcessing))
                             retVal=1;
                         delete[] img;
                     }
@@ -5820,7 +5823,7 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
                         float* img=new float[res[0]*res[1]*valPerPix];
                         for (int i=0;i<res[0]*res[1]*valPerPix;i++)
                             img[i]=float(data[i])/255.0f;
-                        if (rendSens->setExternalImage(img,valPerPix==1))
+                        if (rendSens->setExternalImage(img,valPerPix==1,noProcessing))
                             retVal=1;
                         delete[] img;
                     }
@@ -5856,6 +5859,9 @@ int _simSetVisionSensorCharImage(luaWrap_lua_State* L)
         int valPerPix=3;
         if ((handleFlags&sim_handleflag_greyscale)!=0)
             valPerPix=1;
+        bool noProcessing=false;
+        if ((handleFlags&sim_handleflag_rawvalue)!=0)
+            noProcessing=true;
         C3DObject* it=App::ct->objCont->getObjectFromHandle(sensHandle);
         if (it!=nullptr)
         { // Ok we have a valid object
@@ -5872,7 +5878,7 @@ int _simSetVisionSensorCharImage(luaWrap_lua_State* L)
                     char* data=(char*)luaWrap_lua_tolstring(L,2,&dataLength);
                     if (int(dataLength)>=res[0]*res[1]*valPerPix)
                     {
-                        if (rendSens->setExternalCharImage((unsigned char*)data,valPerPix==1))
+                        if (rendSens->setExternalCharImage((unsigned char*)data,valPerPix==1,noProcessing))
                             retVal=1;
                     }
                     else
@@ -6013,15 +6019,34 @@ int _simCheckVisionSensorEx(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_bool,0))
     {
         simBool returnImage=luaToBool(L,3);
+        int arg1=luaToInt(L,1);
+        int handleFlags=arg1&0xff00000;
+        int sensHandle=arg1&0xfffff;
+        int res[2];
+        simGetVisionSensorResolution_internal(sensHandle,res);
         float* buffer=simCheckVisionSensorEx_internal(luaToInt(L,1),luaToInt(L,2),returnImage);
         if (buffer!=nullptr)
         {
-            int res[2];
-            simGetVisionSensorResolution_internal(luaToInt(L,1),res);
-            if (returnImage)
-                pushFloatTableOntoStack(L,res[0]*res[1]*3,buffer);
+            if ((handleFlags&sim_handleflag_codedstring)!=0)
+            {
+                if (returnImage)
+                {
+                    unsigned char* buff2=new unsigned char[res[0]*res[1]*3];
+                    for (size_t i=0;i<res[0]*res[1]*3;i++)
+                        buff2[i]=(unsigned char)(buffer[i]*255.1f);
+                    luaWrap_lua_pushlstring(L,(const char*)buff2,res[0]*res[1]*3);
+                    delete[] buff2;
+                }
+                else
+                    luaWrap_lua_pushlstring(L,(const char*)buffer,res[0]*res[1]*sizeof(float));
+            }
             else
-                pushFloatTableOntoStack(L,res[0]*res[1],buffer);
+            {
+                if (returnImage)
+                    pushFloatTableOntoStack(L,res[0]*res[1]*3,buffer);
+                else
+                    pushFloatTableOntoStack(L,res[0]*res[1],buffer);
+            }
             simReleaseBuffer_internal((char*)buffer);
             LUA_END(1);
         }
@@ -8447,9 +8472,9 @@ int _simTest(luaWrap_lua_State* L)
 {
     LUA_API_FUNCTION_DEBUG;
     LUA_START("sim.test");
-    int r=handleVerSpec_test(L);
-    if (r>=0)
-        LUA_END(r);
+    //int r=handleVerSpec_test(L);
+    //if (r>=0)
+    //    LUA_END(r);
     LUA_END(0);
 }
 
@@ -8615,7 +8640,7 @@ int _simSetStringNamedParam(luaWrap_lua_State* L)
         std::string paramName(luaWrap_lua_tostring(L,1));
         size_t l;
         const char* data=((char*)luaWrap_lua_tolstring(L,2,&l));
-        retVal=simSetStringNamedParam_internal(paramName.c_str(),data,l);
+        retVal=simSetStringNamedParam_internal(paramName.c_str(),data,int(l));
         if (retVal>=0)
         {
             luaWrap_lua_pushinteger(L,retVal);
@@ -10352,7 +10377,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                            for (size_t i=0;i<dataLength;i++)
                            {
                                float v=data[i];
-                               dat[i]=(v<-2147483648.499f)?(-2147483648):((v>2147483647.499f)?(2147483647):((int32_t)v));
+                               dat[i]=(v<-2147483648.499f)?(-2147483647):((v>2147483647.499f)?(2147483647):((int32_t)v));
                            }
                        }
                        else
@@ -10360,7 +10385,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                            for (size_t i=0;i<dataLength;i++)
                            {
                                float v=data[i]*mult+off;
-                               dat[i]=(v<-2147483648.499f)?(-2147483648):((v>2147483647.499f)?(2147483647):((int32_t)v));
+                               dat[i]=(v<-2147483648.499f)?(-2147483647):((v>2147483647.499f)?(2147483647):((int32_t)v));
                            }
                        }
                    }
@@ -10687,7 +10712,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                            for (size_t i=0;i<dataLength;i++)
                            {
                                double v=data[i];
-                               dat[i]=(v<-2147483648.499)?(-2147483648):((v>2147483647.499)?(2147483647):((int32_t)v));
+                               dat[i]=(v<-2147483648.499)?(-2147483647):((v>2147483647.499)?(2147483647):((int32_t)v));
                            }
                        }
                        else
@@ -10695,7 +10720,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                            for (size_t i=0;i<dataLength;i++)
                            {
                                double v=data[i]*mult+off;
-                               dat[i]=(v<-2147483648.499)?(-2147483648):((v>2147483647.499)?(2147483647):((int32_t)v));
+                               dat[i]=(v<-2147483648.499)?(-2147483647):((v>2147483647.499)?(2147483647):((int32_t)v));
                            }
                        }
                    }
@@ -11754,7 +11779,7 @@ int _simAddParticleObject(luaWrap_lua_State* L)
                         getIntsFromTable(L,4,paramLen,intParams);
                         getFloatsFromTable(L,4,paramLen,floatParams);
                         params=new char[paramLen*sizeof(int)];
-                        ((int*)params)[0]=SIM_MIN(intParams[0],(paramLen-1)/2);
+                        ((int*)params)[0]=std::min<int>(intParams[0],(paramLen-1)/2);
                         for (int i=0;i<(paramLen-1)/2;i++)
                         {
                             ((int*)params)[1+2*i]=intParams[1+2*i+0];
@@ -13137,7 +13162,7 @@ int _simSetShapeColor(luaWrap_lua_State* L)
                         rgbData[0]=(rgbData[0]+0.25f)/0.85f;
                         rgbData[1]=(rgbData[1]+0.25f)/0.85f;
                         rgbData[2]=(rgbData[2]+0.25f)/0.85f;
-                        float mx=SIM_MAX(SIM_MAX(rgbData[0],rgbData[1]),rgbData[2]);
+                        float mx=std::max<float>(std::max<float>(rgbData[0],rgbData[1]),rgbData[2]);
                         if (mx>1.0f)
                         {
                             rgbData[0]/=mx;
@@ -13866,7 +13891,7 @@ int _simExportMesh(luaWrap_lua_State* L)
         {
             int ve=(int)luaWrap_lua_objlen(L,5);
             int ie=(int)luaWrap_lua_objlen(L,6);
-            elementCount=SIM_MIN(ve,ie);
+            elementCount=std::min<int>(ve,ie);
         }
         if ( (checkOneGeneralInputArgument(L,5,lua_arg_table,elementCount,false,false,&errorString)==2)&&
                 (checkOneGeneralInputArgument(L,6,lua_arg_table,elementCount,false,false,&errorString)==2) )
@@ -15969,11 +15994,20 @@ int _simGroupShapes(luaWrap_lua_State* L)
     int retVal=-1; // error
     if (checkInputArguments(L,&errorString,lua_arg_number,1))
     {
-        int tableSize=int(luaWrap_lua_objlen(L,1));
-        int* theTable=new int[tableSize];
-        getIntsFromTable(L,1,tableSize,theTable);
-        retVal=simGroupShapes_internal(theTable,tableSize);
-        delete[] theTable;
+        int res=checkOneGeneralInputArgument(L,2,lua_arg_bool,0,true,true,&errorString);
+        if (res>=0)
+        {
+            bool mergeShapes=false;
+            if (res==2)
+                mergeShapes=luaWrap_lua_toboolean(L,2);
+            int tableSize=int(luaWrap_lua_objlen(L,1));
+            int* theTable=new int[tableSize];
+            getIntsFromTable(L,1,tableSize,theTable);
+            if (mergeShapes)
+                tableSize=-tableSize;
+            retVal=simGroupShapes_internal(theTable,tableSize);
+            delete[] theTable;
+        }
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -17762,78 +17796,6 @@ int _simUnpackTable(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSetVisionSensorFilter(luaWrap_lua_State* L)
-{
-    LUA_API_FUNCTION_DEBUG;
-    LUA_START("sim.setVisionSensorFilter");
-    int retVal=-1; // error
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,-1,lua_arg_number,-1,lua_arg_number,-1,lua_arg_string,0))
-    {
-        int handle=luaWrap_lua_tointeger(L,1);
-        int index=luaWrap_lua_tointeger(L,2);
-        int options=luaWrap_lua_tointeger(L,3);
-        int byteS=int(luaWrap_lua_objlen(L,4));
-        int intS=int(luaWrap_lua_objlen(L,5));
-        int floatS=int(luaWrap_lua_objlen(L,6));
-        unsigned char* byteP=new unsigned char[byteS];
-        int* intP=new int[intS];
-        float* floatP=new float[floatS];
-        getUCharsFromTable(L,4,byteS,byteP);
-        getIntsFromTable(L,5,intS,intP);
-        getFloatsFromTable(L,6,floatS,floatP);
-        size_t custS;
-        const char* cust=luaWrap_lua_tolstring(L,7,&custS);
-        int sizes[4]={byteS,intS,floatS,int(custS)};
-        retVal=simSetVisionSensorFilter_internal(handle,index,options,sizes,byteP,intP,floatP,(unsigned char*)cust);
-        delete[] byteP;
-        delete[] intP;
-        delete[] floatP;
-    }
-
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simGetVisionSensorFilter(luaWrap_lua_State* L)
-{
-    LUA_API_FUNCTION_DEBUG;
-    LUA_START("sim.getVisionSensorFilter");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        int handle=luaWrap_lua_tointeger(L,1);
-        int index=luaWrap_lua_tointeger(L,2);
-        int options=0;
-        int sizes[4]={0,0,0,0};
-        unsigned char* bytes;
-        int* ints;
-        float* floats;
-        unsigned char* custom;
-        int filterT=simGetVisionSensorFilter_internal(handle,index,&options,sizes,&bytes,&ints,&floats,&custom);
-        luaWrap_lua_pushnumber(L,filterT);
-        if (filterT>0)
-        {
-            luaWrap_lua_pushnumber(L,options);
-            pushUCharTableOntoStack(L,sizes[0],bytes);
-            pushIntTableOntoStack(L,sizes[1],ints);
-            pushFloatTableOntoStack(L,sizes[2],floats);
-            luaWrap_lua_pushlstring(L,(char*)custom,sizes[3]);
-            delete[] bytes;
-            delete[] ints;
-            delete[] floats;
-            delete[] custom;
-            LUA_END(6);
-        }
-        LUA_END(1);
-    }
-
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,-1);
-    LUA_END(1);
-}
-
 int _simHandleSimulationStart(luaWrap_lua_State* L)
 {
     LUA_API_FUNCTION_DEBUG;
@@ -18970,7 +18932,7 @@ int _simMoveToPosition(luaWrap_lua_State* L)
                     if (distCalcMethod==sim_distcalcmethod_dac)
                         vdl=da;
                     if (distCalcMethod==sim_distcalcmethod_max_dl_dac)
-                        vdl=SIM_MAX(dl,da);
+                        vdl=std::max<float>(dl,da);
                     if (distCalcMethod==sim_distcalcmethod_dl_and_dac)
                         vdl=dl+da;
                     if (distCalcMethod==sim_distcalcmethod_sqrt_dl2_and_dac2)
@@ -19973,7 +19935,7 @@ int _simSearchPath(luaWrap_lua_State* L)
             res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,true,&errorString);
             if (res==2)
             { // get the data
-                subDt=tt::getLimitedFloat(0.001f,SIM_MIN(1.0f,maximumSearchTime),luaToFloat(L,3));
+                subDt=tt::getLimitedFloat(0.001f,std::min<float>(1.0f,maximumSearchTime),luaToFloat(L,3));
             }
             foundError=(res==-1);
         }
@@ -21330,7 +21292,7 @@ int launchThreadedChildScriptsRoutine_OLD(CLuaScriptObject* it)
     std::vector<int> firstToExecute;
     std::vector<int> normalToExecute;
     std::vector<int> lastToExecute;
-    for (int i=0;i<int(childScriptIDsToRun.size());i++)
+    for (size_t i=0;i<childScriptIDsToRun.size();i++)
     {
         CLuaScriptObject* as=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(childScriptIDsToRun[i]);
         if (as!=nullptr) //&&(!as->getScriptIsDisabled()) )
@@ -21340,7 +21302,7 @@ int launchThreadedChildScriptsRoutine_OLD(CLuaScriptObject* it)
                 C3DObject* obj=App::ct->objCont->getObjectFromHandle(as->getObjectIDThatScriptIsAttachedTo_child());
                 if (obj!=nullptr)
                 {
-                    for (int j=0;j<int(obj->childList.size());j++)
+                    for (size_t j=0;j<obj->childList.size();j++)
                         obj->childList[j]->getChildScriptsToRun_OLD(childScriptIDsToRun); // append to the end of the list
                 }
             }
@@ -21409,3 +21371,23 @@ int _simResumeThreads_legacy(luaWrap_lua_State* L)
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
+
+int _simSetVisionSensorFilter(luaWrap_lua_State* L)
+{ // DEPRECATED
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.setVisionSensorFilter");
+    int retVal=-1; // error
+
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetVisionSensorFilter(luaWrap_lua_State* L)
+{ // DEPRECATED
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.getVisionSensorFilter");
+
+    luaWrap_lua_pushnumber(L,-1);
+    LUA_END(1);
+}
+

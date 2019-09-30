@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "directoryPaths.h"
 #include "global.h"
@@ -11,21 +10,21 @@ CDirectoryPaths::CDirectoryPaths()
     executableDirectory=currentDir;
     extScriptEditorTempFileDirectory=currentDir;
     remoteApiFileTransferDirectory=currentDir;
-    systemDirectory=executableDirectory+VREP_SLASH+V_REP_SYSTEM_DIRECTORY_NAME;
+    systemDirectory=executableDirectory+"/"+SIM_SYSTEM_DIRECTORY_NAME;
 #ifdef MAC_VREP
     // We are inside of the package!!!
     sceneDirectory=executableDirectory+"/../../../"+V_REP_SCENES_DIRECTORY_NAME;// if scenes can't be found, it will use the last used directory somehow!
     modelDirectory=executableDirectory+"/../../../"+V_REP_MODELS_DIRECTORY_NAME;
     uiDirectory=executableDirectory+"/../../../";
-    cadFormatDirectory=executableDirectory+"/../../../"+V_REP_CADFILES_DIRECTORY_NAME;
+    cadFormatDirectory=executableDirectory+"/../../../"+SIM_CADFILES_DIRECTORY_NAME;
     textureDirectory=executableDirectory+"/../../../";
     videoDirectory=executableDirectory+"/../../../";
     otherFilesDirectory=executableDirectory+"/../../../";
 #else
-    sceneDirectory=executableDirectory+VREP_SLASH+V_REP_SCENES_DIRECTORY_NAME;// if scenes can't be found, it will use the last used directory somehow!
-    modelDirectory=executableDirectory+VREP_SLASH+V_REP_MODELS_DIRECTORY_NAME;
+    sceneDirectory=executableDirectory+"/"+V_REP_SCENES_DIRECTORY_NAME;// if scenes can't be found, it will use the last used directory somehow!
+    modelDirectory=executableDirectory+"/"+V_REP_MODELS_DIRECTORY_NAME;
     uiDirectory=executableDirectory;
-    cadFormatDirectory=executableDirectory+VREP_SLASH+V_REP_CADFILES_DIRECTORY_NAME;
+    cadFormatDirectory=executableDirectory+"/"+SIM_CADFILES_DIRECTORY_NAME;
     textureDirectory=executableDirectory;
     videoDirectory=executableDirectory;
     otherFilesDirectory=executableDirectory;

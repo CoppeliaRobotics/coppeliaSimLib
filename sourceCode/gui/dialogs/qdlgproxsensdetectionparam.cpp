@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgproxsensdetectionparam.h"
 #include "ui_qdlgproxsensdetectionparam.h"
 #include "gV.h"

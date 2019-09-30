@@ -1,7 +1,4 @@
-
 #pragma once
-
-#include "vrepMainHeader.h"
 
 // FULLY STATIC CLASS
 class VDateTime  
@@ -11,7 +8,7 @@ public:
     static unsigned int getOSTimeInMs();
     static int getTimeDiffInMs(int lastTime);
     static int getTimeDiffInMs(int oldTime,int newTime);
-    static suint64 getSecondsSince1970();
+    static unsigned long long int getSecondsSince1970();
     static void getYearMonthDayHourMinuteSecond(int* year,int* month,int* day,int* hour,int* minute,int* second);
     static int getDaysTo(int year_before,int month_before,int day_before,int year_after,int month_after,int day_after);
 

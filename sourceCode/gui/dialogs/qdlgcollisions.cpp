@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgcollisions.h"
 #include "ui_qdlgcollisions.h"
 #include "tt.h"

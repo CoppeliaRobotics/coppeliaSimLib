@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "app.h"
 #include "funcDebug.h"
 #include "pluginContainer.h"
@@ -6,6 +5,7 @@
 #include "pathPlanningInterface.h"
 #include "easyLock.h"
 #include "v_rep_internal.h"
+#include "ttUtil.h"
 
 CPlugin::CPlugin(const char* filename,const char* pluginName)
 {

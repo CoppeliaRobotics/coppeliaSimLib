@@ -1,7 +1,5 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "ser.h"
 #include "3DObject.h"
 #include "3Vector.h"

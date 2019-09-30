@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "iKChainCont.h"
 
 CIKChainCont::CIKChainCont(std::vector<CIKDummy*>& tipContainer,float interpolationFactor,int jointNbToExclude)

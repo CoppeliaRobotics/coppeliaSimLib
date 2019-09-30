@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgsimplefilter_shift.h"
 #include "ui_qdlgsimplefilter_shift.h"
 #include "gV.h"

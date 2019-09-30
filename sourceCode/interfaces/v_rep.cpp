@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "v_rep.h"
 #include "v_rep_internal.h"
 
@@ -1662,14 +1661,6 @@ VREP_DLLEXPORT simInt simUnpackTable(simInt stackHandle,const simChar* buffer,si
 {
     return(simUnpackTable_internal(stackHandle,buffer,bufferSize));
 }
-VREP_DLLEXPORT simInt simSetVisionSensorFilter(simInt visionSensorHandle,simInt filterIndex,simInt options,const simInt* pSizes,const simUChar* bytes,const simInt* ints,const simFloat* floats,const simUChar* custom)
-{
-    return(simSetVisionSensorFilter_internal(visionSensorHandle,filterIndex,options,pSizes,bytes,ints,floats,custom));
-}
-VREP_DLLEXPORT simInt simGetVisionSensorFilter(simInt visionSensorHandle,simInt filterIndex,simInt* options,simInt* pSizes,simUChar** bytes,simInt** ints,simFloat** floats,simUChar** custom)
-{
-    return(simGetVisionSensorFilter_internal(visionSensorHandle,filterIndex,options,pSizes,bytes,ints,floats,custom));
-}
 VREP_DLLEXPORT simInt simSetReferencedHandles(simInt objectHandle,simInt count,const simInt* referencedHandles,const simInt* reserved1,const simInt* reserved2)
 {
     return(simSetReferencedHandles_internal(objectHandle,count,referencedHandles,reserved1,reserved2));
@@ -2441,6 +2432,14 @@ VREP_DLLEXPORT simInt simCallScriptFunction(simInt scriptHandleOrType,const simC
 VREP_DLLEXPORT simInt _simGetJointCallbackCallOrder(const simVoid* )
 {
     return(0);
+}
+VREP_DLLEXPORT simInt simSetVisionSensorFilter(simInt visionSensorHandle,simInt filterIndex,simInt options,const simInt* pSizes,const simUChar* bytes,const simInt* ints,const simFloat* floats,const simUChar* custom)
+{
+    return(simSetVisionSensorFilter_internal(visionSensorHandle,filterIndex,options,pSizes,bytes,ints,floats,custom));
+}
+VREP_DLLEXPORT simInt simGetVisionSensorFilter(simInt visionSensorHandle,simInt filterIndex,simInt* options,simInt* pSizes,simUChar** bytes,simInt** ints,simFloat** floats,simUChar** custom)
+{
+    return(simGetVisionSensorFilter_internal(visionSensorHandle,filterIndex,options,pSizes,bytes,ints,floats,custom));
 }
 // Deprecated end
 

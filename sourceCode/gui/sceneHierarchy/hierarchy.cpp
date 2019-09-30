@@ -1,7 +1,6 @@
 
 // This file requires some serious refactoring!!
 
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "v_rep_internal.h"
 #include "hierarchy.h"
@@ -230,7 +229,7 @@ void CHierarchy::keyPress(int key)
                     {
                         if (App::ct->objCont->getObjectFromName(editionText.c_str())==nullptr)
                         {
-                            if ( (VREP_LOWCASE_STRING_COMPARE("world",editionText.c_str())!=0)&&(VREP_LOWCASE_STRING_COMPARE("none",editionText.c_str())!=0) )
+                            if ( (SIM_LOWCASE_STRING_COMPARE("world",editionText.c_str())!=0)&&(SIM_LOWCASE_STRING_COMPARE("none",editionText.c_str())!=0) )
                             {
                                 App::ct->objCont->renameObject(it->getObjectHandle(),editionText.c_str());
                                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
@@ -1741,11 +1740,11 @@ void CHierarchy::_drawLinesLinkingDummies(int maxRenderedPos[2])
                         int secondIndex=positions[7*j+4];
                         if (secondIndex!=firstIndex)
                         { // make sure the two dummies are not linking to the same line!
-                            int maxX=SIM_MAX(positions[7*i+0],positions[7*j+0]);
+                            int maxX=std::max<int>(positions[7*i+0],positions[7*j+0]);
                             int overallOffset=0;
                             // a. we don't want to intersect any text/icon in-between. We search for the overallOffset needed:
-                            int low=SIM_MIN(firstIndex,secondIndex);
-                            int high=SIM_MAX(firstIndex,secondIndex);
+                            int low=std::min<int>(firstIndex,secondIndex);
+                            int high=std::max<int>(firstIndex,secondIndex);
                             int maxOtherX=0;
                             for (int k=low+1;k<high;k++)
                             {
@@ -1756,8 +1755,8 @@ void CHierarchy::_drawLinesLinkingDummies(int maxRenderedPos[2])
                                 overallOffset+=maxOtherX-maxX;
                             // b. we don't want to overlap other dummy-dummy link lines
                             // i.e. maxX+overallOffset should no lie within other lines maxX+overallOffset
-                            int minY=SIM_MIN(positions[7*i+1],positions[7*j+1]);
-                            int maxY=SIM_MAX(positions[7*i+1],positions[7*j+1]);
+                            int minY=std::min<int>(positions[7*i+1],positions[7*j+1]);
+                            int maxY=std::max<int>(positions[7*i+1],positions[7*j+1]);
                             for (int k=0;k<int(linesPresent.size())/3;k++)
                             {
                                 if ((maxY>=linesPresent[3*k+0])&&(minY<=linesPresent[3*k+1]))

@@ -1,7 +1,6 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
+#include <vector>
 #include "vMutex.h"
 
 struct SMessageQueueMessage

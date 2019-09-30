@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "shapeEditMode.h"
 #include "multishapeEditMode.h"
 #include "pathEditMode.h"

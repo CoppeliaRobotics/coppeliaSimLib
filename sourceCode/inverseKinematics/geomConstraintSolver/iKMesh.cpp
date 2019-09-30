@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "iKMesh.h"
 #include "gCSDefs.h"
 

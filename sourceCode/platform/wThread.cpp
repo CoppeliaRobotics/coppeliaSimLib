@@ -1,4 +1,3 @@
-
 #include "wThread.h"
 
 unsigned int(*Thread::startAddress)(void*)=nullptr;

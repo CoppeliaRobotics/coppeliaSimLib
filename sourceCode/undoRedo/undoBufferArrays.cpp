@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "undoBufferArrays.h"
 
 CUndoBufferArrays::CUndoBufferArrays()

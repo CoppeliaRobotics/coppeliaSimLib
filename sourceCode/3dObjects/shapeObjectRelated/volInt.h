@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
+#include <vector>
 #include "3Vector.h"
 #include "3X3Matrix.h"
 

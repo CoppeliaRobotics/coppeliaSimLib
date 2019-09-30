@@ -37,6 +37,7 @@ public:
 
 protected:
     int _offscreenType;
+    bool _isHeadless;
     QThread* _initialThread;
 
     // Native window vars:

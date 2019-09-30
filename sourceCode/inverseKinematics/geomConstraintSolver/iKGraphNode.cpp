@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "iKGraphNode.h"
 
 CIKGraphNode::CIKGraphNode()

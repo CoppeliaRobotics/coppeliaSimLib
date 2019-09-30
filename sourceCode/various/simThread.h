@@ -1,7 +1,6 @@
 #pragma once
 
 #include "simThreadBase.h"
-#include "vrepMainHeader.h"
 #include "3Vector.h"
 #include "4Vector.h"
 #include "7Vector.h"

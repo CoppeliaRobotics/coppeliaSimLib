@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgshapeeditioncontainer.h"
 #include "ui_qdlgshapeeditioncontainer.h"
 #include "app.h"

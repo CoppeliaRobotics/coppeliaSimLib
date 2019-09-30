@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgmirrors.h"
 #include "ui_qdlgmirrors.h"
 #include "tt.h"

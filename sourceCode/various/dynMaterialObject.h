@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "ser.h"
 
 enum { /* Bullet body float params */

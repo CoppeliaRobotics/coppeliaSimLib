@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgaddgraphcurve.h"
 #include "ui_qdlgaddgraphcurve.h"
 #include "gV.h"

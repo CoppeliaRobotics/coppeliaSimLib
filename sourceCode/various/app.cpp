@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "app.h"
 #include "vThread.h"
@@ -98,7 +97,7 @@ void App::simulationThreadInit()
 #endif
 
     App::ct->sandboxScript=new CLuaScriptObject(sim_scripttype_sandboxscript);
-    App::ct->sandboxScript->setScriptTextFromFile((App::directories->systemDirectory+VREP_SLASH+"sndbxscpt.txt").c_str());
+    App::ct->sandboxScript->setScriptTextFromFile((App::directories->systemDirectory+"/"+"sndbxscpt.txt").c_str());
     App::ct->sandboxScript->runSandboxScript(sim_syscb_init,nullptr,nullptr);
 }
 
@@ -300,10 +299,10 @@ App::App(bool headless)
 #ifdef SIM_WITH_GUI
     if (userSettings->highResDisplay!=-1)
     {
-        char hr[2]="1";
+        std::string sf("1.0");
         if (userSettings->highResDisplay!=0)
-            hr[0]='2';
-        qputenv("QT_DEVICE_PIXEL_RATIO",QByteArray(hr));
+            sf="2.0";
+        qputenv("QT_SCALE_FACTOR",sf.c_str());
     }
 #endif
 
@@ -392,17 +391,17 @@ App::~App()
     delete uiThread;
 
     // Clear the TAG that V-REP crashed! (because if we arrived here, we didn't crash!)
-    CPersistentDataContainer cont(FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+    CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
     cont.writeData("SIMSETTINGS_VREP_CRASHED","No",!App::userSettings->doNotWritePersistentData);
 
     // Remove any remaining auto-saved file:
     for (int i=1;i<30;i++)
     {
-        std::string testScene=App::directories->executableDirectory+VREP_SLASH;
+        std::string testScene=App::directories->executableDirectory+"/";
         testScene.append("AUTO_SAVED_INSTANCE_");
         testScene+=tt::FNb(i);
         testScene+=".";
-        testScene+=VREP_SCENE_EXTENSION;
+        testScene+=SIM_VREP_SCENE_EXTENSION;
         if (VFile::doesFileExist(testScene))
             VFile::eraseFile(testScene);
     }
@@ -518,8 +517,6 @@ void App::_runInitializationCallback(void(*initCallBack)())
 
     if (CPathPlanningInterface::initializeFunctionsIfNeeded())
         printf("Using the 'PathPlanning' plugin.\n");
-
-    CSimpleFilter::readAllExternalFilters();
 
     handleVerSpecRunInitCallback1(!App::userSettings->doNotWritePersistentData);
 }
@@ -835,7 +832,7 @@ void App::addStatusbarMessage(const std::string& txt,bool scriptErrorMsg/*=false
             if ( (mainWindow==nullptr)||CMiscBase::handleVerSpec_statusbarMsgToConsole() )
 #endif
             {
-                #ifndef SIM_WITHOUT_QT_AT_ALL
+                #ifdef SIM_WITH_GUI
                 if (html)
                 {
                     QTextDocument text;

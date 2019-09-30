@@ -1,4 +1,3 @@
-
 #if !defined(V_REP_INCLUDED_)
 #define V_REP_INCLUDED_
 
@@ -431,8 +430,6 @@ VREP_DLLEXPORT simInt simCheckOctreePointOccupancy(simInt octreeHandle,simInt op
 VREP_DLLEXPORT simChar* simOpenTextEditor(const simChar* initText,const simChar* xml,simInt* various);
 VREP_DLLEXPORT simChar* simPackTable(simInt stackHandle,simInt* bufferSize);
 VREP_DLLEXPORT simInt simUnpackTable(simInt stackHandle,const simChar* buffer,simInt bufferSize);
-VREP_DLLEXPORT simInt simSetVisionSensorFilter(simInt visionSensorHandle,simInt filterIndex,simInt options,const simInt* pSizes,const simUChar* bytes,const simInt* ints,const simFloat* floats,const simUChar* custom);
-VREP_DLLEXPORT simInt simGetVisionSensorFilter(simInt visionSensorHandle,simInt filterIndex,simInt* options,simInt* pSizes,simUChar** bytes,simInt** ints,simFloat** floats,simUChar** custom);
 VREP_DLLEXPORT simInt simSetReferencedHandles(simInt objectHandle,simInt count,const simInt* referencedHandles,const simInt* reserved1,const simInt* reserved2);
 VREP_DLLEXPORT simInt simGetReferencedHandles(simInt objectHandle,simInt** referencedHandles,simInt** reserved1,simInt** reserved2);
 VREP_DLLEXPORT simInt simGetShapeViz(simInt shapeHandle,simInt index,struct SShapeVizInfo* info);
@@ -638,6 +635,8 @@ VREP_DLLEXPORT simInt simGetMechanismHandle(const simChar* mechanismName);
 VREP_DLLEXPORT simInt simHandleMechanism(simInt mechanismHandle);
 VREP_DLLEXPORT simInt simHandleCustomizationScripts(simInt callType);
 VREP_DLLEXPORT simInt simCallScriptFunction(simInt scriptHandleOrType,const simChar* functionNameAtScriptName,SLuaCallBack* data,const simChar* reservedSetToNull);
+VREP_DLLEXPORT simInt simSetVisionSensorFilter(simInt visionSensorHandle,simInt filterIndex,simInt options,const simInt* pSizes,const simUChar* bytes,const simInt* ints,const simFloat* floats,const simUChar* custom);
+VREP_DLLEXPORT simInt simGetVisionSensorFilter(simInt visionSensorHandle,simInt filterIndex,simInt* options,simInt* pSizes,simUChar** bytes,simInt** ints,simFloat** floats,simUChar** custom);
 // Deprecated end
 
 #endif // !defined(V_REP_INCLUDED_)

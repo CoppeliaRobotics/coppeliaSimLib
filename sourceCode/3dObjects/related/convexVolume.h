@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "ser.h"
@@ -74,7 +73,6 @@ public:
     bool getSmallestDistanceEnabled();
     void setSmallestDistanceAllowed(float d);
     float getSmallestDistanceAllowed();
-
     void setDefaultVolumeParameters(int objectTypeTheVolumeIsFor,float pointSize);
     void solveInterferences();
     

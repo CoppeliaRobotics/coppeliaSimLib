@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "regCollection.h"
 #include "3DObject.h"

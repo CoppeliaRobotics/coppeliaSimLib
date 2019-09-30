@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "tt.h"
 #include "shape.h"
@@ -1538,7 +1537,11 @@ void C3DObject::setEnableCustomizationScript(bool c,const char* scriptContent)
     // We remove a script that might be associated:
     CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(getObjectHandle());
     if (script)
+    {
+        if (App::mainWindow!=nullptr)
+            App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptID(),nullptr,true);
         App::ct->luaScriptContainer->removeScript(script->getScriptID());
+    }
 
     if (c)
     { // we have to add a script
@@ -2931,7 +2934,7 @@ void C3DObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay)
             localPositionOnPath/=float(pathPointsToTakeIntoAccount.size());
         else
             return; // Should normally never happen
-        sizeValueForPath=SIM_MAX((maxCoord-minCoord).getLength()/3.0f,pc->getSquareSize()*2.0f);
+        sizeValueForPath=std::max<float>((maxCoord-minCoord).getLength()/3.0f,pc->getSquareSize()*2.0f);
     }
 
     C4X4Matrix tr;
@@ -2996,21 +2999,21 @@ void C3DObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay)
             rot.buildYRotation(piValD2_f);
             bbsavg(1)=0.0f;
             bbsavg(2)=0.0f;
-            halfSize=1.5f*SIM_MAX(bbs(1),bbs(2))/2.0f;
+            halfSize=1.5f*std::max<float>(bbs(1),bbs(2))/2.0f;
         }
         if (axisInfo==1)
         { // rotation around the y-axis
             rot.buildXRotation(-piValD2_f);
             bbsavg(0)=0.0f;
             bbsavg(2)=0.0f;
-            halfSize=1.5f*SIM_MAX(bbs(0),bbs(2))/2.0f;
+            halfSize=1.5f*std::max<float>(bbs(0),bbs(2))/2.0f;
         }
         if (axisInfo==2)
         { // rotation around the z-axis
             rot.setIdentity();
             bbsavg(0)=0.0f;
             bbsavg(1)=0.0f;
-            halfSize=1.5f*SIM_MAX(bbs(0),bbs(1))/2.0f;
+            halfSize=1.5f*std::max<float>(bbs(0),bbs(1))/2.0f;
         }
 
         if (isPath)

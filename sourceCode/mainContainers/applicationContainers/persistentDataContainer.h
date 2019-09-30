@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "vArchive.h"
 
 class CPersistentDataContainer 

@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgsettings.h"
 #include "ui_qdlgsettings.h"
 #include "tt.h"

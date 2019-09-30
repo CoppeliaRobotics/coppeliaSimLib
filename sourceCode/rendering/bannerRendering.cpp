@@ -21,11 +21,11 @@ void displayBanner(int objId,int options,const float* bckColor,const C7Vector& t
 
         if (bckColor!=nullptr)
         {
-            ogl::setMaterialColor(sim_colorcomponent_emission,SIM_MAX(bckColor[0],bckColor[9]),SIM_MAX(bckColor[1],bckColor[10]),SIM_MAX(bckColor[2],bckColor[11]));
+            ogl::setMaterialColor(sim_colorcomponent_emission,std::max<float>(bckColor[0],bckColor[9]),std::max<float>(bckColor[1],bckColor[10]),std::max<float>(bckColor[2],bckColor[11]));
             ogl::drawBitmapTextBackgroundIntoScene(tr.X(0),tr.X(1),tr.X(2),label);
         }
 
-        ogl::setTextColor(SIM_MAX(color.colors[0],color.colors[9]),SIM_MAX(color.colors[1],color.colors[10]),SIM_MAX(color.colors[2],color.colors[11]));
+        ogl::setTextColor(std::max<float>(color.colors[0],color.colors[9]),std::max<float>(color.colors[1],color.colors[10]),std::max<float>(color.colors[2],color.colors[11]));
         ogl::drawBitmapTextIntoScene(tr.X(0),tr.X(1),tr.X(2),label);
 
         glDepthRange(0.0f,1.0f);

@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgdistances.h"
 #include "ui_qdlgdistances.h"
 #include "tt.h"

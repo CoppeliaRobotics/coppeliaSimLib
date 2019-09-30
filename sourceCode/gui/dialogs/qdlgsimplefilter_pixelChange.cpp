@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgsimplefilter_pixelChange.h"
 #include "ui_qdlgsimplefilter_pixelChange.h"
 #include "gV.h"

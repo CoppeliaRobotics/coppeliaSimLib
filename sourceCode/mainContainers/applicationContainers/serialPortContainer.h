@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "serialPort.h"
 #include "uiThread.h"
 

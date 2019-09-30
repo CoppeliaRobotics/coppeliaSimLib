@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "thumbnail.h"
 #include "global.h"
 #include "v_repConst.h"

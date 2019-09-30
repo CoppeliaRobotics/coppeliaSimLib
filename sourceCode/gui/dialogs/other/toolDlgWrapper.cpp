@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "toolDlgWrapper.h"
 #include "global.h"
@@ -27,7 +25,6 @@
 #include "qdlgforcesensors.h"
 #include "qdlgconstraintsolver.h"
 #include "qdlgvisionsensors.h"
-#include "qdlgfilters.h"
 #include "qdlgshapes.h"
 #include "qdlgtextures.h"
 #include "qdlggeometry.h"
@@ -145,8 +142,6 @@ void CToolDlgWrapper::setVisible(bool visible,QWidget* parentWindow)
                 toolDialog=new CQDlgCollections(App::mainWindow);
             if (dialogType==LUA_SCRIPT_DLG)
                 toolDialog=new CQDlgScripts(App::mainWindow);
-            if (dialogType==VISION_SENSOR_FILTER_DLG)
-                toolDialog=new CQDlgFilters(App::mainWindow);
             if (dialogType==TEXTURE_DLG)
                 toolDialog=new CQDlgTextures(App::mainWindow);
             if (dialogType==GEOMETRY_DLG)

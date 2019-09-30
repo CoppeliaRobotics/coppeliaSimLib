@@ -66,6 +66,7 @@ public:
     float getDynamicOrientationError() const;
     void getDynamicErrorsFull(C3Vector& linear,C3Vector& angular) const;
 
+    bool getStillAutomaticallyBreaking();
     void setForceThreshold(float t);
     float getForceThreshold() const;
     void setTorqueThreshold(float t);
@@ -102,6 +103,7 @@ protected:
     int _filterType; //0=average, 1=median
     bool _forceThresholdEnabled;
     bool _torqueThresholdEnabled;
+    bool _stillAutomaticallyBreaking;
 
     bool _forceSensorIsBroken; // if false, then _unbrokenConstraintState is applied, else _brokenConstraintState is applied
 

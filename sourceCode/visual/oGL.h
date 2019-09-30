@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "textureProperty.h"
 #include "VPoint.h"
 #ifdef USING_QOPENGLWIDGET

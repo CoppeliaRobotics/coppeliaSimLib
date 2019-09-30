@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgpointclouds.h"
 #include "ui_qdlgpointclouds.h"
 #include "tt.h"

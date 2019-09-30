@@ -1,4 +1,3 @@
-
 #include "shapeEditMode.h"
 #include "v_repConst.h"
 #include "geometric.h"

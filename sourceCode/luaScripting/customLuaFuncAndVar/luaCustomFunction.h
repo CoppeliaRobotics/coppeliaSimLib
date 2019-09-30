@@ -1,7 +1,7 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
+#include <vector>
+#include <string>
 #include "luaWrapper.h"
 
 class CLuaCustomFunction

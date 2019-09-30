@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "easyLock.h"
 #include "v_rep_internal.h"
@@ -58,9 +56,9 @@ bool CHelpMenu::processCommand(int commandID)
         if (VThread::isCurrentThreadTheUiThread())
         { // We are in the UI thread. Execute the command via the main thread:
             #ifdef MAC_VREP
-                std::string tmp(App::directories->executableDirectory+"/../../../"+"helpFiles"+VREP_SLASH+"index.html");
+                std::string tmp(App::directories->executableDirectory+"/../../../"+"helpFiles"+"/"+"index.html");
             #else
-                std::string tmp(App::directories->executableDirectory+VREP_SLASH+"helpFiles"+VREP_SLASH+"index.html");
+                std::string tmp(App::directories->executableDirectory+"/"+"helpFiles"+"/"+"index.html");
             #endif
             VVarious::openUrl(tmp);
         }
@@ -85,7 +83,7 @@ bool CHelpMenu::processCommand(int commandID)
             #ifdef MAC_VREP
                 std::string tmp(App::directories->executableDirectory+"/../../../"+"credits.txt");
             #else
-                std::string tmp(App::directories->executableDirectory+VREP_SLASH+"credits.txt");
+                std::string tmp(App::directories->executableDirectory+"/"+"credits.txt");
             #endif
             if (VFile::doesFileExist(tmp))
             { // FILE is present!

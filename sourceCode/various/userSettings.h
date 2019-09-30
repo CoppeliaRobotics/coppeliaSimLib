@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "userSettingsBase.h"
@@ -194,6 +193,7 @@ public:
     int desktopRecordingIndex;
     int desktopRecordingWidth;
     std::string externalScriptEditor;
+
 
 private:
     bool _supportOldApiNotation;

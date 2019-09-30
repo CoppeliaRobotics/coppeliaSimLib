@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "ser.h"
 #include "3Vector.h"
 #ifdef SIM_WITH_GUI

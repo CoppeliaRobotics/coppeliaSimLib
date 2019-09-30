@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vrepMainHeader.h"
+#include <map>
 #include "luaWrapper.h"
 #include "vMutex.h"
 #ifndef WIN_VREP
@@ -544,8 +544,6 @@ extern int _simSubtractObjectFromOctree(luaWrap_lua_State* L);
 extern int _simInsertObjectIntoPointCloud(luaWrap_lua_State* L);
 extern int _simSubtractObjectFromPointCloud(luaWrap_lua_State* L);
 extern int _simCheckOctreePointOccupancy(luaWrap_lua_State* L);
-extern int _simSetVisionSensorFilter(luaWrap_lua_State* L);
-extern int _simGetVisionSensorFilter(luaWrap_lua_State* L);
 extern int _simHandleSimulationStart(luaWrap_lua_State* L);
 extern int _simHandleSensingStart(luaWrap_lua_State* L);
 extern int _simAuxFunc(luaWrap_lua_State* L);
@@ -623,3 +621,5 @@ extern int _simHandleChildScripts_legacy(luaWrap_lua_State* L);
 extern int _simHandleChildScripts2_legacy(luaWrap_lua_State* L,std::string &functionName, std::string& errorString);
 extern int _simLaunchThreadedChildScripts_legacy(luaWrap_lua_State* L);
 extern int _simResumeThreads_legacy(luaWrap_lua_State* L);
+extern int _simSetVisionSensorFilter(luaWrap_lua_State* L);
+extern int _simGetVisionSensorFilter(luaWrap_lua_State* L);

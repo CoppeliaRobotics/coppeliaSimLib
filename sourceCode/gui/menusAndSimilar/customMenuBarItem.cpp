@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "customMenuBarItem.h"
 #include "app.h"
 #include "oGL.h"

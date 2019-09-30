@@ -1,6 +1,5 @@
 // This file needs serious refactoring!!
 
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "tt.h"
 #include "objCont.h"
@@ -49,7 +48,6 @@ void CObjCont::simulationEnded()
 
 bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
 {
-
     // Should always be called through 'loadModel' or 'loadScene'!!!!
 
     _loadOperationIssuesToBeDisplayed.clear();
@@ -371,6 +369,48 @@ bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool jus
         App::ct->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercreate,&stack);
     }
 
+    // Following for backward compatibility for vision sensor filters:
+    for (size_t i=0;i<App::ct->objCont->visionSensorList.size();i++)
+    {
+        CVisionSensor* it=App::ct->objCont->getVisionSensor(App::ct->objCont->visionSensorList[i]);
+        CComposedFilter* cf=it->getComposedFilter();
+        std::string txt(cf->scriptEquivalent);
+        if (txt.size()>0)
+        {
+            cf->scriptEquivalent.clear();
+            CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
+            if (script==nullptr)
+            {
+                txt=std::string("function sysCall_init()\nend\n\n")+txt;
+                script=new CLuaScriptObject(sim_scripttype_customizationscript);
+                App::ct->luaScriptContainer->insertScript(script);
+                script->setObjectIDThatScriptIsAttachedTo(it->getObjectHandle());
+            }
+            std::string t(script->getScriptText());
+            t=txt+t;
+            script->setScriptText(t.c_str());
+        }
+    }
+    // Following for backward compatibility for force/torque sensor filters:
+    for (size_t i=0;i<App::ct->objCont->forceSensorList.size();i++)
+    {
+        CForceSensor* it=App::ct->objCont->getForceSensor(App::ct->objCont->forceSensorList[i]);
+        if (it->getStillAutomaticallyBreaking())
+        {
+            CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
+            std::string txt("function sysCall_trigger(inData)\n    -- callback function automatically added for backward compatibility\n    sim.breakForceSensor(inData.handle)\nend\n\n");
+            if (script==nullptr)
+            {
+                txt=std::string("function sysCall_init()\nend\n\n")+txt;
+                script=new CLuaScriptObject(sim_scripttype_customizationscript);
+                App::ct->luaScriptContainer->insertScript(script);
+                script->setObjectIDThatScriptIsAttachedTo(it->getObjectHandle());
+            }
+            std::string t(script->getScriptText());
+            t=txt+t;
+            script->setScriptText(t.c_str());
+        }
+    }
     return(true);
 }
 

@@ -1,7 +1,6 @@
 
 // This file requires some serious refactoring!
 
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "v_rep_internal.h"
 #include "sView.h"
@@ -2321,15 +2320,15 @@ void CSView::cameraAndObjectMotion()
             if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&8))
                 accelY=0.5f;
             if ((accelX==0.0f)&&(rotXVel!=0.0f))
-                accelX=-SIM_MIN(0.5f,fabs(rotXVel)/dt)*rotXVel/fabs(rotXVel);
+                accelX=-std::min<float>(0.5f,fabs(rotXVel)/dt)*rotXVel/fabs(rotXVel);
             if ((accelY==0.0f)&&(rotYVel!=0.0f))
-                accelY=-SIM_MIN(0.5f,fabs(rotYVel)/dt)*rotYVel/fabs(rotYVel);
+                accelY=-std::min<float>(0.5f,fabs(rotYVel)/dt)*rotYVel/fabs(rotYVel);
             rotXVel+=dt*accelX;
             rotYVel+=dt*accelY;
             if (rotXVel!=0.0f)
-                rotXVel=SIM_MIN(fabs(rotXVel),0.55f)*rotXVel/fabs(rotXVel);
+                rotXVel=std::min<float>(fabs(rotXVel),0.55f)*rotXVel/fabs(rotXVel);
             if (rotYVel!=0.0f)
-                rotYVel=SIM_MIN(fabs(rotYVel),0.55f)*rotYVel/fabs(rotYVel);
+                rotYVel=std::min<float>(fabs(rotYVel),0.55f)*rotYVel/fabs(rotYVel);
             rotX+=dt*rotXVel;
             rotY+=dt*rotYVel;
             if (translateMode)

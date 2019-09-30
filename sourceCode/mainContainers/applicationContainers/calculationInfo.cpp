@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "calculationInfo.h"
 #include "app.h"
 #include "gV.h"
@@ -204,23 +203,6 @@ void CCalculationInfo::formatInfo()
     }
     else
         _dynamicsTxt[1]+="0 (no dynamic content)";
-/*
-    // Milling calculation:
-    if (CPluginContainer::isMeshPluginAvailable())
-    {
-        if (!App::ct->mainSettings->millsEnabled)
-            _millTxt[0]="&&fg930Mill handling disabled";
-        else
-            _millTxt[0]="Mill handling enabled";
-    }
-    else
-        _millTxt[0]="&&fg930'MeshCalc' plugin not found";
-
-    _millTxt[1]="Calculations: ";
-    _millTxt[1]+=boost::lexical_cast<std::string>(_millCalcCount)+", surface cut: ";
-    _millTxt[1]+=boost::lexical_cast<std::string>(_millRemovedSurface*1000000.0f)+" mm^2 (";
-    _millTxt[1]+=boost::lexical_cast<std::string>(_millCalcDuration)+" ms)";
-    */
 }
 
 float CCalculationInfo::getCollisionCalculationTime()

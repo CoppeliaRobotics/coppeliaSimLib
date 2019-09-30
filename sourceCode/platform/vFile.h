@@ -1,7 +1,5 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
 #include <exception>
 #define VFILE_EXCEPTION_TYPE std::exception&
 #ifndef SIM_WITHOUT_QT_AT_ALL

@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlglights.h"
 #include "ui_qdlglights.h"
 #include "tt.h"

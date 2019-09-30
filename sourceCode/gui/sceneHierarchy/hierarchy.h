@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "hierarchyElement.h"
 #include "vMenubar.h"
 

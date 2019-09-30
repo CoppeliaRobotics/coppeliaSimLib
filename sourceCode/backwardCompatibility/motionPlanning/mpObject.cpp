@@ -1,4 +1,3 @@
-
 #include "mpObject.h"
 #include "v_rep_internal.h"
 #include <boost/random/mersenne_twister.hpp>

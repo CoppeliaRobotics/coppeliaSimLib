@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "luaCustomFunction.h"
 
 CLuaCustomFunction::CLuaCustomFunction(const char* theFullFunctionName,const char* theCallTips,std::vector<int>& theInputArgTypes,void(*callBack)(struct SLuaCallBack* p))

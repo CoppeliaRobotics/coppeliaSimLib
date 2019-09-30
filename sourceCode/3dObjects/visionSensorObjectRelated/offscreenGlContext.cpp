@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "offscreenGlContext.h"
 #include "app.h"
@@ -47,6 +45,7 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
 
     FUNCTION_DEBUG;
     _offscreenType=offscreenType;
+    _isHeadless=(otherWidgetToShareResourcesWith==nullptr);
     _initialThread=QThread::currentThread();
     if (_offscreenType==QT_OFFSCREEN_TP)
     {
@@ -225,31 +224,37 @@ COffscreenGlContext::~COffscreenGlContext()
     FUNCTION_DEBUG;
     if (_offscreenType==QT_OFFSCREEN_TP)
     {
-        for (int i=0;i<int(_allQtContexts.size());i++)
+        if ( (!_isHeadless)||(_allQtContexts.size()>1) ) // otherwise we have a problem with context sharing somehow, in headless mode... we probably can live with this for the time being
         {
-            if (_allQtContexts[i]==_qContext)
+            for (size_t i=0;i<_allQtContexts.size();i++)
             {
-                _allQtContexts.erase(_allQtContexts.begin()+i);
-                break;
+                if (_allQtContexts[i]==_qContext)
+                {
+                    _allQtContexts.erase(_allQtContexts.begin()+i);
+                    break;
+                }
             }
+            delete _qContext;
+            _qOffscreenSurface->destroy();
+            delete _qOffscreenSurface;
         }
-        delete _qContext;
-        _qOffscreenSurface->destroy();
-        delete _qOffscreenSurface;
     }
 
     if ((_offscreenType==QT_WINDOW_SHOW_TP)||(_offscreenType==QT_WINDOW_HIDE_TP))
     {
-        for (int i=0;i<int(_allQtWidgets.size());i++)
+        if ( (!_isHeadless)||(_allQtContexts.size()>1) ) // otherwise we have a problem with context sharing somehow, in headless mode... we probably can live with this for the time being
         {
-            if (_allQtWidgets[i]==_hiddenWindow)
+            for (size_t i=0;i<_allQtWidgets.size();i++)
             {
-                _allQtWidgets.erase(_allQtWidgets.begin()+i);
-                break;
+                if (_allQtWidgets[i]==_hiddenWindow)
+                {
+                    _allQtWidgets.erase(_allQtWidgets.begin()+i);
+                    break;
+                }
             }
+            _hiddenWindow->hide(); // required, otherwise crash at simulator exit when in headless mode
+            _hiddenWindow->deleteLater(); // delete _hiddenWindow works also (with hide first) under Windows
         }
-        _hiddenWindow->hide(); // required, otherwise crash at simulator exit when in headless mode
-        _hiddenWindow->deleteLater(); // delete _hiddenWindow works also (with hide first) under Windows
     }
 }
 

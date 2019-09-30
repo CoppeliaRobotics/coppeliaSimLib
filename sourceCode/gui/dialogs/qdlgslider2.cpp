@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgslider2.h"
 #include "ui_qdlgslider2.h"
 #include "tt.h"

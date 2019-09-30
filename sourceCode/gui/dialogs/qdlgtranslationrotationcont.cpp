@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "qdlgtranslationrotationcont.h"
 #include "ui_qdlgtranslationrotationcont.h"
 #include "app.h"

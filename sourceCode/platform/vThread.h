@@ -1,6 +1,5 @@
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "vMutex.h"
 #ifndef SIM_WITHOUT_QT_AT_ALL
     #include <QTime>

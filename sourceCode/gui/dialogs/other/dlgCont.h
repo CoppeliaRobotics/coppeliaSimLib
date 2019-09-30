@@ -1,7 +1,5 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
 #include "toolDlgWrapper.h"
 #include "dlgEx.h"
 #include "vMenubar.h"

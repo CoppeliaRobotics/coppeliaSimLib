@@ -1,7 +1,6 @@
-
 #pragma once
 
-#include "vrepMainHeader.h"
+#include <map>
 #include "7Vector.h"
 
 struct SCamBuff

@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "ghostObject.h"
 #include "app.h"
 #include "ghostRendering.h"

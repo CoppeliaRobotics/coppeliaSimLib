@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgforcesensors.h"
 #include "ui_qdlgforcesensors.h"
 #include "tt.h"

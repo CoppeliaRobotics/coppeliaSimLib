@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>imageFiles/splashBasic.png</file>
+        <file>imageFiles/splashEdu.png</file>
+        <file>imageFiles/splashPlayer.png</file>
+        <file>imageFiles/splashPro.png</file>
+        <file>imageFiles/splashReality.png</file>
+        <file>imageFiles/icon128Basic.png</file>
+        <file>imageFiles/icon128Edu.png</file>
+        <file>imageFiles/icon128Player.png</file>
+        <file>imageFiles/icon128Pro.png</file>
+        <file>imageFiles/icon128Reality.png</file>
+    </qresource>
+</RCC>

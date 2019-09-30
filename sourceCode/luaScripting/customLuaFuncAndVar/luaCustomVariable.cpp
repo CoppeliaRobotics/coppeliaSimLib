@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "luaCustomVariable.h"
 #include "app.h"
 

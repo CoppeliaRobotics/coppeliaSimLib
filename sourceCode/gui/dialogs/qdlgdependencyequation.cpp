@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "qdlgdependencyequation.h"
 #include "ui_qdlgdependencyequation.h"
 #include "gV.h"

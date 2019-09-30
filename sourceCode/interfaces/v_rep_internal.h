@@ -1,10 +1,9 @@
-
 #if !defined(V_REP_internal_INCLUDED_)
 #define V_REP_internal_INCLUDED_
 
-#include "vrepMainHeader.h"
 #include "v_repConst.h"
 #include "v_repTypes.h"
+#include <vector>
 
 std::vector<contactCallback>& getAllContactCallbacks();
 std::vector<jointCtrlCallback>& getAllJointCtrlCallbacks();
@@ -420,8 +419,6 @@ simInt simCheckOctreePointOccupancy_internal(simInt octreeHandle,simInt options,
 simChar* simOpenTextEditor_internal(const simChar* initText,const simChar* xml,simInt* various);
 simChar* simPackTable_internal(simInt stackHandle,simInt* bufferSize);
 simInt simUnpackTable_internal(simInt stackHandle,const simChar* buffer,simInt bufferSize);
-simInt simSetVisionSensorFilter_internal(simInt visionSensorHandle,simInt filterIndex,simInt options,const simInt* pSizes,const simUChar* bytes,const simInt* ints,const simFloat* floats,const simUChar* custom);
-simInt simGetVisionSensorFilter_internal(simInt visionSensorHandle,simInt filterIndex,simInt* options,simInt* pSizes,simUChar** bytes,simInt** ints,simFloat** floats,simUChar** custom);
 simInt simSetReferencedHandles_internal(simInt objectHandle,simInt count,const simInt* referencedHandles,const simInt* reserved1,const simInt* reserved2);
 simInt simGetReferencedHandles_internal(simInt objectHandle,simInt** referencedHandles,simInt** reserved1,simInt** reserved2);
 simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizInfo* info);
@@ -623,6 +620,8 @@ simInt simGetMechanismHandle_internal(const simChar* mechanismName);
 simInt simHandleMechanism_internal(simInt mechanismHandle);
 simInt simHandleCustomizationScripts_internal(simInt callType);
 simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* functionNameAtScriptName,SLuaCallBack* data,const simChar* reservedSetToNull);
+simInt simSetVisionSensorFilter_internal(simInt visionSensorHandle,simInt filterIndex,simInt options,const simInt* pSizes,const simUChar* bytes,const simInt* ints,const simFloat* floats,const simUChar* custom);
+simInt simGetVisionSensorFilter_internal(simInt visionSensorHandle,simInt filterIndex,simInt* options,simInt* pSizes,simUChar** bytes,simInt** ints,simFloat** floats,simUChar** custom);
 
 
 #endif // !defined(V_REP_internal_INCLUDED_)

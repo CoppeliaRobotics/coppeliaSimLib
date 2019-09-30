@@ -1,4 +1,3 @@
-#include "vrepMainHeader.h"
 #include "qdlgobjectdialogcontainer.h"
 #include "ui_qdlgobjectdialogcontainer.h"
 #include "app.h"
@@ -56,8 +55,6 @@ CQDlgObjectDialogContainer::~CQDlgObjectDialogContainer()
 {
     if (App::mainWindow->dlgCont->isVisible(JOINT_DYN_DLG))
         App::mainWindow->dlgCont->toggle(JOINT_DYN_DLG);
-    if (App::mainWindow->dlgCont->isVisible(VISION_SENSOR_FILTER_DLG))
-        App::mainWindow->dlgCont->toggle(VISION_SENSOR_FILTER_DLG);
     if (App::mainWindow->dlgCont->isVisible(DETECTION_VOLUME_DLG))
         App::mainWindow->dlgCont->toggle(DETECTION_VOLUME_DLG);
     if (App::mainWindow->dlgCont->isVisible(SHAPE_DYN_DLG))
@@ -237,16 +234,6 @@ void CQDlgObjectDialogContainer::refresh()
             if (App::mainWindow->dlgCont->isVisible(JOINT_DYN_DLG))
                 App::mainWindow->dlgCont->toggle(JOINT_DYN_DLG);
         }
-        if (objTypeDlg==sim_object_visionsensor_type)
-        {
-            if (CQDlgVisionSensors::showFilterWindow!=App::mainWindow->dlgCont->isVisible(VISION_SENSOR_FILTER_DLG))
-                App::mainWindow->dlgCont->toggle(VISION_SENSOR_FILTER_DLG);
-        }
-        else
-        {
-            if (App::mainWindow->dlgCont->isVisible(VISION_SENSOR_FILTER_DLG))
-                App::mainWindow->dlgCont->toggle(VISION_SENSOR_FILTER_DLG);
-        }
         if ((objTypeDlg==sim_object_proximitysensor_type)||(objTypeDlg==sim_object_mill_type))
         {
             if (CQDlgDetectionVolume::showVolumeWindow!=App::mainWindow->dlgCont->isVisible(DETECTION_VOLUME_DLG))
@@ -262,8 +249,6 @@ void CQDlgObjectDialogContainer::refresh()
     {
         if (App::mainWindow->dlgCont->isVisible(JOINT_DYN_DLG))
             App::mainWindow->dlgCont->toggle(JOINT_DYN_DLG);
-        if (App::mainWindow->dlgCont->isVisible(VISION_SENSOR_FILTER_DLG))
-            App::mainWindow->dlgCont->toggle(VISION_SENSOR_FILTER_DLG);
         if (App::mainWindow->dlgCont->isVisible(DETECTION_VOLUME_DLG))
             App::mainWindow->dlgCont->toggle(DETECTION_VOLUME_DLG);
         if (App::mainWindow->dlgCont->isVisible(SHAPE_DYN_DLG))

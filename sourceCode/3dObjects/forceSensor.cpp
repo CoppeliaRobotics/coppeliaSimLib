@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "forceSensor.h"
 #include "v_rep_internal.h"
@@ -28,6 +26,7 @@ void CForceSensor::commonInit()
     _torqueThresholdEnabled=false;
     _consecutiveThresholdViolationsForBreaking=10;
     _currentThresholdViolationCount=0;
+    bool _stillAutomaticallyBreaking=false;
 
     // Dynamic values:
     _dynamicSecondPartIsValid=false;
@@ -89,6 +88,12 @@ void CForceSensor::setFilterType(int t)
 int CForceSensor::getFilterType() const
 {
     return(_filterType);
+}
+bool CForceSensor::getStillAutomaticallyBreaking()
+{
+    bool retVal=_stillAutomaticallyBreaking;
+    _stillAutomaticallyBreaking=false;
+    return(retVal);
 }
 void CForceSensor::setForceThreshold(float t)
 {
@@ -294,7 +299,78 @@ void CForceSensor::_handleSensorBreaking()
             _currentThresholdViolationCount=0;
         if (_currentThresholdViolationCount>=_consecutiveThresholdViolationsForBreaking)
         { // we need to break something!
-            setForceSensorIsBroken();
+            CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+            if ( (script!=nullptr)&&(!script->getContainsTriggerCallbackFunction()) )
+                script=nullptr;
+            CLuaScriptObject* cScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
+            if ( (cScript!=nullptr)&&(!cScript->getContainsTriggerCallbackFunction()) )
+                cScript=nullptr;
+            if ( (script!=nullptr)||(cScript!=nullptr) )
+            {
+                CInterfaceStack inStack;
+                inStack.pushTableOntoStack();
+
+                inStack.pushStringOntoStack("handle",0);
+                inStack.pushNumberOntoStack(getObjectHandle());
+                inStack.insertDataIntoStackTable();
+
+                inStack.pushStringOntoStack("force",0);
+                inStack.pushTableOntoStack();
+                inStack.pushNumberOntoStack(1);
+                inStack.pushNumberOntoStack(_lastForce_dynStep(0));
+                inStack.insertDataIntoStackTable();
+                inStack.pushNumberOntoStack(2);
+                inStack.pushNumberOntoStack(_lastForce_dynStep(1));
+                inStack.insertDataIntoStackTable();
+                inStack.pushNumberOntoStack(3);
+                inStack.pushNumberOntoStack(_lastForce_dynStep(2));
+                inStack.insertDataIntoStackTable();
+                inStack.insertDataIntoStackTable();
+
+                inStack.pushStringOntoStack("torque",0);
+                inStack.pushTableOntoStack();
+                inStack.pushNumberOntoStack(1);
+                inStack.pushNumberOntoStack(_lastTorque_dynStep(0));
+                inStack.insertDataIntoStackTable();
+                inStack.pushNumberOntoStack(2);
+                inStack.pushNumberOntoStack(_lastTorque_dynStep(1));
+                inStack.insertDataIntoStackTable();
+                inStack.pushNumberOntoStack(3);
+                inStack.pushNumberOntoStack(_lastTorque_dynStep(2));
+                inStack.insertDataIntoStackTable();
+                inStack.insertDataIntoStackTable();
+
+                inStack.pushStringOntoStack("filteredForce",0);
+                inStack.pushTableOntoStack();
+                inStack.pushNumberOntoStack(1);
+                inStack.pushNumberOntoStack(_filteredDynamicForces(0));
+                inStack.insertDataIntoStackTable();
+                inStack.pushNumberOntoStack(2);
+                inStack.pushNumberOntoStack(_filteredDynamicForces(1));
+                inStack.insertDataIntoStackTable();
+                inStack.pushNumberOntoStack(3);
+                inStack.pushNumberOntoStack(_filteredDynamicForces(2));
+                inStack.insertDataIntoStackTable();
+                inStack.insertDataIntoStackTable();
+
+                inStack.pushStringOntoStack("filteredTorque",0);
+                inStack.pushTableOntoStack();
+                inStack.pushNumberOntoStack(1);
+                inStack.pushNumberOntoStack(_filteredDynamicTorques(0));
+                inStack.insertDataIntoStackTable();
+                inStack.pushNumberOntoStack(2);
+                inStack.pushNumberOntoStack(_filteredDynamicTorques(1));
+                inStack.insertDataIntoStackTable();
+                inStack.pushNumberOntoStack(3);
+                inStack.pushNumberOntoStack(_filteredDynamicTorques(2));
+                inStack.insertDataIntoStackTable();
+                inStack.insertDataIntoStackTable();
+                // we are in the main simulation thread. Call only scripts that live in the same thread
+                if ( (script!=nullptr)&&(!script->getThreadedExecution()) )
+                    script->runNonThreadedChildScript(sim_syscb_trigger,&inStack,nullptr);
+                if (cScript!=nullptr)
+                    cScript->runCustomizationScript(sim_syscb_trigger,&inStack,nullptr);
+            }
             _currentThresholdViolationCount=0;
         }
     }
@@ -601,7 +677,7 @@ void CForceSensor::serialize(CSer& ar)
             ar << dummy;
             ar.flush();
 
-            ar.storeDataName("Tre");
+            ar.storeDataName("Tri");
             ar << _forceThreshold << _torqueThreshold << _consecutiveThresholdViolationsForBreaking;
             ar.flush();
 
@@ -662,11 +738,18 @@ void CForceSensor::serialize(CSer& ar)
                         _forceThresholdEnabled=SIM_IS_BIT_SET(dummy,0);
                         _torqueThresholdEnabled=SIM_IS_BIT_SET(dummy,1);
                     }
+                    if (theName.compare("Tri")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _forceThreshold >> _torqueThreshold >> _consecutiveThresholdViolationsForBreaking;
+                    }
                     if (theName.compare("Tre")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _forceThreshold >> _torqueThreshold >> _consecutiveThresholdViolationsForBreaking;
+                        _stillAutomaticallyBreaking=true;
                     }
                     if (theName.compare("Fil")==0)
                     {

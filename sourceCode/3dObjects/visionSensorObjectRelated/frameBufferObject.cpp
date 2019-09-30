@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "frameBufferObject.h"
 #include "oglExt.h"

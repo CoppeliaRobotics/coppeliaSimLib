@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "modelListWidget.h"
 #include "vFileFinder.h"
@@ -179,8 +177,8 @@ void CModelListWidget::setFolder(const char* folderPath)
         // 2. Check if a thumbnail file exists:
         clearAll();
         std::string thmbFile(folderPath);
-        thmbFile+=VREP_SLASH;
-        thmbFile+=VREP_MODEL_THUMBNAILFILE_NAME;
+        thmbFile+="/";
+        thmbFile+=SIM_MODEL_THUMBNAILFILE_NAME;
         bool thumbnailFileExistsAndWasLoaded=false;
         if (VFile::doesFileExist(thmbFile))
         {
@@ -239,7 +237,7 @@ void CModelListWidget::setFolder(const char* folderPath)
                 if (allModelOrFolder[i]==1)
                 { // we have a model here
                     std::string nameAndPath(_folderPath);
-                    nameAndPath+=VREP_SLASH;
+                    nameAndPath+="/";
                     nameAndPath+=allModelNames[i];
                     int result;
                     C7Vector modelTr;
@@ -262,8 +260,8 @@ void CModelListWidget::setFolder(const char* folderPath)
             }
             // 4. Serialize the thumbnail file for fast access in future:
             std::string thmbFile(_folderPath);
-            thmbFile+=VREP_SLASH;
-            thmbFile+=VREP_MODEL_THUMBNAILFILE_NAME;
+            thmbFile+="/";
+            thmbFile+=SIM_MODEL_THUMBNAILFILE_NAME;
             CSer serObj(thmbFile.c_str(),CSer::filetype_vrep_bin_thumbnails_file);
             serObj.writeOpenBinary(App::userSettings->compressFiles);
             serializePart1(serObj);

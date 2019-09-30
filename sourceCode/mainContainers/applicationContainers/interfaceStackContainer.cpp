@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "global.h"
 #include "interfaceStackContainer.h"
 

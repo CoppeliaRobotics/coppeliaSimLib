@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "vDialog.h"
 
 Qt::WindowFlags VDialog::dialogStyle;

@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "distanceRoutine.h"
 #include "pluginContainer.h"
 #include "tt.h"
@@ -352,8 +350,8 @@ bool CDistanceRoutine::_getShapeShapeDistanceIfSmaller(CShape* shape1,CShape* sh
     float distances[7];
     distances[6]=dist;
     C4X4Matrix distObjMatr[2]={shape1PCTM,shape2PCTM};
-    const void* collInfos[2]={shape1->geomData->collInfo,shape2->geomData->collInfo};
     int buffer[2];
+    const void* collInfos[2]={shape1->geomData->collInfo,shape2->geomData->collInfo};
     CPluginContainer::mesh_getMeshMeshDistance(shape1->geomData->collInfo,shape2->geomData->collInfo,distObjMatr,collInfos,false,distances,buffer);
     if (distances[6]<dist)
     {

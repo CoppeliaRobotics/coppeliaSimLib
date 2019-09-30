@@ -2,7 +2,6 @@
 #pragma once
 
 #include "dummyClasses.h"
-#include "vrepConfig.h"
 
 typedef void* (*ptr_createNonHolonomicPathPlanningObject)(int theStartDummyID,int theGoalDummyID,
                             int theRobotCollectionID,int theObstacleCollectionID,float theAngularCoeff,

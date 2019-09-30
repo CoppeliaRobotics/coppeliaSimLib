@@ -1,5 +1,4 @@
 
-#include "vrepMainHeader.h"
 #include "simulatorMessageQueue.h"
 #include "app.h"
 

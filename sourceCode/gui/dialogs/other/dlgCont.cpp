@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "dlgCont.h"
 #include "global.h"
@@ -34,7 +32,6 @@ void CDlgCont::initialize(QWidget* pWindow)
     parentWindow=pWindow;
 
     dialogs.push_back(new CToolDlgWrapper(DETECTION_VOLUME_DLG,0));
-    dialogs.push_back(new CToolDlgWrapper(VISION_SENSOR_FILTER_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(SHAPE_DYN_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(SHAPE_EDITION_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(OBJECT_DLG,0));

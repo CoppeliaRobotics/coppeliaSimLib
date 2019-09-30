@@ -1,5 +1,3 @@
-
-#include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "v_rep_internal.h"
 #include "sceneObjectOperations.h"
@@ -1017,6 +1015,8 @@ bool CSceneObjectOperations::processCommand(int commandID)
             CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(id);
             if (script!=nullptr)
             {
+                if (App::mainWindow!=nullptr)
+                    App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptID(),nullptr,true);
                 App::ct->luaScriptContainer->removeScript(script->getScriptID());
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
                 App::setFullDialogRefreshFlag();
@@ -1039,6 +1039,8 @@ bool CSceneObjectOperations::processCommand(int commandID)
             CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(id);
             if (script!=nullptr)
             {
+                if (App::mainWindow!=nullptr)
+                    App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptID(),nullptr,true);
                 App::ct->luaScriptContainer->removeScript(script->getScriptID());
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
                 App::setFullDialogRefreshFlag();
