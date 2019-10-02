@@ -3,6 +3,7 @@
 
 #include "v_repConst.h"
 #include "v_repTypes.h"
+#include <string>
 #include <vector>
 
 std::vector<contactCallback>& getAllContactCallbacks();

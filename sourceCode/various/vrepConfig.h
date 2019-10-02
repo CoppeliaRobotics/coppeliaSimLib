@@ -1,7 +1,7 @@
 #ifndef VREP_CONFIG_INCLUDED
 #define VREP_CONFIG_INCLUDED
 
-#include "vrepConfigBase.h"
+#include "../verSpec/vrepConfigBase.h"
 #define SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE "settings.dat"
 #define SIM_SYSTEM_DIRECTORY_NAME "system"
 #define SIM_CADFILES_DIRECTORY_NAME "cadFiles"
