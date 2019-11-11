@@ -8,7 +8,7 @@
 #include "qdlgcolor.h"
 #include "qdlgmaterial.h"
 #include "qdlgaddgraphcurve.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "vMessageBox.h"
 

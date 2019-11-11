@@ -14,7 +14,7 @@ public:
 
 private:
     static int _getTimeWithStartInMs_viaQt(bool& success);
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     static int _getTimeWithStartInMs_viaPerformanceCounter(bool& success);
     static int _getTimeWithStartInMs_viaTimeGetTime(bool& success);
 #else

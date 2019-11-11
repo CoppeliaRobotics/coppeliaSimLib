@@ -1,10 +1,10 @@
 #include "graphingRoutines.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "app.h"
 #include "tt.h"
 #include "gV.h"
 
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 CGraphingRoutines::CGraphingRoutines()
 {

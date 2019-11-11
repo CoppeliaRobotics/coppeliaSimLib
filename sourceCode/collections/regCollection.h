@@ -28,6 +28,7 @@ public:
     void setCollectionID(int newID);
     std::string getCollectionName();
     void setCollectionName(std::string newName);
+    std::string getCollectionLoadName() const;
     bool getOverridesObjectMainProperties();
     void setOverridesObjectMainProperties(bool o);
     CRegCollection* copyYourself();
@@ -46,5 +47,6 @@ private:
     int groupID;
     bool _overridesObjectMainProperties;
     // Other
+    std::string _groupLoadName;
     std::vector<int> markedObjects;
 };

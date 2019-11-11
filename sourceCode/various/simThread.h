@@ -1,6 +1,5 @@
 #pragma once
 
-#include "simThreadBase.h"
 #include "3Vector.h"
 #include "4Vector.h"
 #include "7Vector.h"
@@ -34,10 +33,10 @@ enum {  NO_COMMAND_FROMUI_TOSIM_CMD=100000, // Always start at 100000!!!!
 };
 
 #ifdef SIM_WITHOUT_QT_AT_ALL
-class CSimThread : public CSimThreadBase
+class CSimThread
 {
 #else
-class CSimThread : public QObject, public CSimThreadBase
+class CSimThread : public QObject
 {
     Q_OBJECT
 #endif

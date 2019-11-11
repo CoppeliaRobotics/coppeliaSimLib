@@ -1,15 +1,14 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "addOperations.h"
 #include "tt.h"
 #include "meshRoutines.h"
 #include "sceneObjectOperations.h"
-#include "pluginContainer.h"
+#include "libLic.h"
 #include "app.h"
 #include "meshManip.h"
 #include "geometric.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include <boost/lexical_cast.hpp>
-#include "miscBase.h"
 
 CAddOperations::CAddOperations()
 {
@@ -1490,7 +1489,7 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
             menu->appendMenuAndDetach(prim,true,IDS_PRIMITIVE_SHAPE_MENU_ITEM);
             itemsPresent=true;
 
-            if (CMiscBase::handleVerSpec_fullEditionAdd())
+            if (CLibLic::getBoolVal(7))
             {
                 VMenu* joint=new VMenu();
                 joint->appendMenuItem(true,false,ADD_COMMANDS_ADD_REVOLUTE_JOINT_ACCMD,IDS_REVOLUTE_MENU_ITEM);
@@ -1508,12 +1507,12 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
 
         menu->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens,false,ADD_COMMANDS_ADD_CAMERA_ACCMD,IDS_CAMERA_MENU_ITEM);
 
-        if (CMiscBase::handleVerSpec_fullEditionAdd()&&App::userSettings->enableOldMirrorObjects)
+        if (CLibLic::getBoolVal(7)&&App::userSettings->enableOldMirrorObjects)
             menu->appendMenuItem(true,false,ADD_COMMANDS_ADD_MIRROR_ACCMD,IDS_MIRROR_MENU_ITEM);
 
         itemsPresent=true;
 
-        if ( CMiscBase::handleVerSpec_fullEditionAdd()&&(!onlyCamera) )
+        if ( CLibLic::getBoolVal(7)&&(!onlyCamera) )
         {
             VMenu* light=new VMenu();
             light->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens,false,ADD_COMMANDS_ADD_OMNI_LIGHT_ACCMD,IDS_OMNIDIRECTIONAL_MENU_ITEM);

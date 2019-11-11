@@ -5,7 +5,7 @@
 #include "vArchive.h"
 #include "ttUtil.h"
 #include "vDateTime.h"
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     #include <Windows.h>
     #include <Shellapi.h>
 #else
@@ -20,7 +20,7 @@
     #include <QUrl>
     #include <QProcess>
 #else // SIM_WITHOUT_QT_AT_ALL
-    #ifndef WIN_VREP
+    #ifndef WIN_SIM
         #include <dlfcn.h>
         #include <stdlib.h>
     #endif
@@ -28,7 +28,7 @@
 
 bool VVarious::executeExternalApplication(const std::string& file,const std::string& arguments,const std::string& switchToDirectory,int showFlag)
 {
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     int sh=SW_SHOWDEFAULT;
     if (showFlag==VVARIOUS_SHOWMAXIMIZED)
         sh=SW_SHOWMAXIMIZED;
@@ -44,7 +44,7 @@ bool VVarious::executeExternalApplication(const std::string& file,const std::str
             cmd.erase(cmd.begin());
     }
     return (reinterpret_cast<long long>(ShellExecuteA(nullptr,"open",cmd.c_str(),arguments.c_str(),nullptr,sh))>32);
-#else // WIN_VREP
+#else // WIN_SIM
 #ifdef SIM_WITHOUT_QT_AT_ALL
     std::string cmd(file);
     if (file.size()>0)
@@ -100,7 +100,7 @@ bool VVarious::executeExternalApplication(const std::string& file,const std::str
         strList << QString(word.c_str());
     return(QProcess::startDetached(cmd,strList,QString::fromLocal8Bit(switchToDirectory.c_str()),nullptr));
 #endif
-#endif // WIN_VREP
+#endif // WIN_SIM
 }
 
 std::string VVarious::getModulePath()
@@ -204,7 +204,7 @@ std::string VVarious::splitPath_fileBaseAndExtension(const std::string& fullPath
 
 
 std::string VVarious::splitPath_fileBase(const std::string& fullPathAndName)
-{   // returns the base of a filename, without path or extension
+{   // returns the base of a filename, without path or extension. for xxx/yyy/zzz.a.b.c will return zzz.a.b
     std::string retVal;
 #ifdef SIM_WITHOUT_QT_AT_ALL
     // TODO_SIM_WITHOUT_QT_AT_ALL
@@ -260,7 +260,7 @@ bool VVarious::isAbsolutePath(const std::string& pathAndOptionalFilename)
 #ifdef SIM_WITHOUT_QT_AT_ALL
     // TODO_SIM_WITHOUT_QT_AT_ALL
     // This routine should be rewritten with OS-specific mechanisms
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     if (pathAndOptionalFilename.size()==0)
         return(false);
     if (pathAndOptionalFilename[0]=='\\')
@@ -270,11 +270,11 @@ bool VVarious::isAbsolutePath(const std::string& pathAndOptionalFilename)
     if (pathAndOptionalFilename[1]==':')
         return(true);
     return(false);
-#else // WIN_VREP
+#else // WIN_SIM
     if (pathAndOptionalFilename.size()==0)
         return(false);
     return(pathAndOptionalFilename[0]=='/');
-#endif // WIN_VREP
+#endif // WIN_SIM
 #else // SIM_WITHOUT_QT_AT_ALL
     QFileInfo pathInfo(QString::fromLocal8Bit(pathAndOptionalFilename.c_str()));
     return(pathInfo.isAbsolute());
@@ -284,7 +284,7 @@ bool VVarious::isAbsolutePath(const std::string& pathAndOptionalFilename)
 WLibrary VVarious::openLibrary(const char* filename)
 { // here we have the extension in the filename (.dll, .so or .dylib)
 #ifdef SIM_WITHOUT_QT_AT_ALL
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     return LoadLibraryA(filename);
 #else
     return dlopen(filename,RTLD_LAZY);
@@ -303,7 +303,7 @@ WLibrary VVarious::openLibrary(const char* filename)
 void VVarious::closeLibrary(WLibrary lib)
 {
 #ifdef SIM_WITHOUT_QT_AT_ALL
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     if (lib!=0)
         FreeLibrary(lib);
 #else
@@ -321,7 +321,7 @@ void VVarious::closeLibrary(WLibrary lib)
 WLibraryFunc VVarious::resolveLibraryFuncName(WLibrary lib,const char* funcName)
 {
 #ifdef SIM_WITHOUT_QT_AT_ALL
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     if (lib!=nullptr)
         return GetProcAddress(lib,funcName);
 #else
@@ -347,15 +347,11 @@ bool VVarious::copyTextToClipboard(const std::string& text)
 #ifdef SIM_WITH_GUI
 bool VVarious::openUrl(const std::string& url)
 {
-    std::string f(url);
-    f="file:///"+f;
-    return(QDesktopServices::openUrl(QUrl(QString::fromLocal8Bit(f.c_str()),QUrl::TolerantMode)));
+    return(QDesktopServices::openUrl(QUrl::fromLocalFile(url.c_str())));
 }
 
 bool VVarious::openTextFile(const std::string& file)
 {
-    std::string f(file);
-    f="file:///"+f;
-    return(QDesktopServices::openUrl(QUrl(QString::fromLocal8Bit(f.c_str()),QUrl::TolerantMode)));
+    return(QDesktopServices::openUrl(QUrl::fromLocalFile(file.c_str())));
 }
 #endif

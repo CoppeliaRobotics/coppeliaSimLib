@@ -1,9 +1,9 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "modelListWidget.h"
 #include "vFileFinder.h"
 #include "imgLoaderSaver.h"
 #include "app.h"
-#include "miscBase.h"
+#include "libLic.h"
 #include <QMimeData>
 #include <QScrollBar>
 
@@ -109,10 +109,10 @@ CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename,int
         CSer serObj(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
 
         int serializationVersion;
-        unsigned short vrepVersionThatWroteThis;
+        unsigned short csimVersionThatWroteThis;
         int licenseTypeThatWroteThis;
         char revisionNumber;
-        result=serObj.readOpenBinary(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,true);
+        result=serObj.readOpenBinary(serializationVersion,csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,true);
         if (result==1)
         {
             result=0;
@@ -155,7 +155,7 @@ void CModelListWidget::setFolder(const char* folderPath)
             if (foundItem->isFile)
             { // Files
                 std::string filename(foundItem->name);
-                if (CMiscBase::handleVerSpec_hasCorrectModelExtension(filename))
+                if (CLibLic::getBoolVal_str(0,filename.c_str()))
                 {
                     allModelNames.push_back(filename);
                     allModelCreationTimes.push_back((unsigned int)foundItem->lastWriteTime);
@@ -182,12 +182,12 @@ void CModelListWidget::setFolder(const char* folderPath)
         bool thumbnailFileExistsAndWasLoaded=false;
         if (VFile::doesFileExist(thmbFile))
         {
-            CSer serObj(thmbFile.c_str(),CSer::filetype_vrep_bin_thumbnails_file);
+            CSer serObj(thmbFile.c_str(),CSer::filetype_csim_bin_thumbnails_file);
             int serializationVersion;
-            unsigned short vrepVersionThatWroteThis;
+            unsigned short csimVersionThatWroteThis;
             int licenseTypeThatWroteThis;
             char revisionNumber;
-            int result=serObj.readOpenBinary(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+            int result=serObj.readOpenBinary(serializationVersion,csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
             if (result==1)
             {
                 thumbnailFileExistsAndWasLoaded=true;
@@ -262,7 +262,7 @@ void CModelListWidget::setFolder(const char* folderPath)
             std::string thmbFile(_folderPath);
             thmbFile+="/";
             thmbFile+=SIM_MODEL_THUMBNAILFILE_NAME;
-            CSer serObj(thmbFile.c_str(),CSer::filetype_vrep_bin_thumbnails_file);
+            CSer serObj(thmbFile.c_str(),CSer::filetype_csim_bin_thumbnails_file);
             serObj.writeOpenBinary(App::userSettings->compressFiles);
             serializePart1(serObj);
             serializePart2(serObj);

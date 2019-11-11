@@ -1,6 +1,6 @@
 #include "pathPlanning.h"
 #include "pathPlanningInterface.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 
 CPathPlanning::CPathPlanning()
 {

@@ -3,7 +3,7 @@
 #include "sceneObjectOperations.h"
 #include "imgLoaderSaver.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vFileDialog.h"
 #include "vMessageBox.h"
 

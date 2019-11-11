@@ -1,5 +1,5 @@
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "shape.h"
 #include "tt.h"
 #include "algos.h"
@@ -705,6 +705,75 @@ void CShape::serialize(CSer& ar)
             actualizeContainsTransparentComponent();
         }
     }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (exhaustiveXml)
+        { // for non-exhaustive, is done in CObjCont
+            if (ar.isStoring())
+            {
+                ar.xmlPushNewNode("meshProxy");
+                geomData->serialize(ar,_objectName.c_str());
+                ar.xmlPopNode();
+
+                ar.xmlPushNewNode("dynamics");
+                ar.xmlAddNode_int("respondableMask",_dynamicCollisionMask);
+                C3Vector vel=_initialDynamicLinearVelocity;
+                vel*=180.0f/piValue_f;
+                ar.xmlAddNode_floats("initialLinearVelocity",vel.data,3);
+                vel=_initialDynamicAngularVelocity;
+                vel*=180.0f/piValue_f;
+                ar.xmlAddNode_floats("initialAngularVelocity",vel.data,3);
+                ar.xmlPushNewNode("switches");
+                ar.xmlAddNode_bool("static",_shapeIsDynamicallyStatic);
+                ar.xmlAddNode_bool("respondable",_shapeIsDynamicallyRespondable);
+                ar.xmlAddNode_bool("parentFollows",_parentFollowsDynamic);
+                ar.xmlAddNode_bool("startSleeping",_startInDynamicSleeping);
+                ar.xmlAddNode_bool("setToDynamicIfGetsParent",_setAutomaticallyToNonStaticIfGetsParent);
+                ar.xmlPopNode();
+                ar.xmlPushNewNode("material");
+                _dynMaterial->serialize(ar);
+                ar.xmlPopNode();
+                ar.xmlPopNode();
+            }
+            else
+            {
+                if (ar.xmlPushChildNode("meshProxy"))
+                {
+                    geomData=new CGeomProxy();
+                    geomData->serialize(ar,_objectName.c_str());
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("dynamics"))
+                {
+                    int m;
+                    ar.xmlGetNode_int("respondableMask",m);
+                    _dynamicCollisionMask=(unsigned short)m;
+                    C3Vector vel;
+                    ar.xmlGetNode_floats("initialLinearVelocity",vel.data,3);
+                    _initialDynamicLinearVelocity=vel*piValue_f/180.0f;
+                    ar.xmlGetNode_floats("initialAngularVelocity",vel.data,3);
+                    _initialDynamicAngularVelocity=vel*piValue_f/180.0f;
+                    if (ar.xmlPushChildNode("switches"))
+                    {
+                        ar.xmlGetNode_bool("static",_shapeIsDynamicallyStatic);
+                        ar.xmlGetNode_bool("respondable",_shapeIsDynamicallyRespondable);
+                        ar.xmlGetNode_bool("parentFollows",_parentFollowsDynamic);
+                        ar.xmlGetNode_bool("startSleeping",_startInDynamicSleeping);
+                        ar.xmlGetNode_bool("setToDynamicIfGetsParent",_setAutomaticallyToNonStaticIfGetsParent);
+                        ar.xmlPopNode();
+                    }
+                    if (ar.xmlPushChildNode("material"))
+                    {
+                        _dynMaterial->serialize(ar);
+                        ar.xmlPopNode();
+                    }
+                    ar.xmlPopNode();
+                }
+            }
+        }
+    }
 }
 
 void CShape::serializeWExtIk(CExtIkSer& ar)
@@ -846,19 +915,7 @@ bool CShape::doesShapeCollideWithShape(CShape* collidee,std::vector<float>* inte
     std::vector<float>* _intersectP=nullptr;
     if (intersections!=nullptr)
         _intersectP=&_intersect;
-
-    C4X4Matrix shapeACTM=getCumulativeTransformation().getMatrix();
-    C4X4Matrix shapeBCTM=collidee->getCumulativeTransformation().getMatrix();
-
-    if (!shapeACTM.isValid())
-        return(false);
-    if (!shapeBCTM.isValid())
-        return(false);
-
-    C4X4Matrix collObjMatr[2]={shapeACTM,shapeBCTM};
-
-    const void* collInfos[2]={geomData->collInfo,collidee->geomData->collInfo};
-    if ( CPluginContainer::mesh_getMeshMeshCollision(geomData->collInfo,collidee->geomData->collInfo,collObjMatr,collInfos,false,_intersectP,nullptr))
+    if ( CPluginContainer::geomPlugin_getMeshMeshCollision(geomData->collInfo,getCumulativeTransformation(),collidee->geomData->collInfo,collidee->getCumulativeTransformation(),_intersectP,nullptr,nullptr))
     { // There was a collision
         if (intersections!=nullptr)
             intersections->insert(intersections->end(),_intersect.begin(),_intersect.end());
@@ -875,13 +932,11 @@ bool CShape::getDistanceToDummy_IfSmaller(CDummy* dummy,float &dist,float ray[7]
     initializeCalculationStructureIfNeeded();
 
     C3Vector dummyPos(dummy->getCumulativeTransformation().X);
-    C4X4Matrix thisPCTM(getCumulativeTransformation());
     C3Vector rayPart0;
-    C3Vector rayPart1;
-    if (CPluginContainer::mesh_getDistanceAgainstDummy_ifSmaller(geomData->collInfo,dummyPos,thisPCTM,dist,rayPart0,rayPart1,buffer))
+    if (CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(geomData->collInfo,getCumulativeTransformation(),dummyPos,dist,&rayPart0,&buffer))
     {
-        rayPart0.copyTo(ray);
-        rayPart1.copyTo(ray+3);
+        rayPart0.getInternalData(ray+0);
+        dummyPos.getInternalData(ray+3);
         ray[6]=dist;
         return(true);
     }

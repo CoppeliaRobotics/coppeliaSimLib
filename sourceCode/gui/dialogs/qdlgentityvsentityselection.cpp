@@ -1,7 +1,7 @@
 #include "qdlgentityvsentityselection.h"
 #include "ui_qdlgentityvsentityselection.h"
 #include "tt.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "vMessageBox.h"
 

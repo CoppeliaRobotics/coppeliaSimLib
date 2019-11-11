@@ -76,6 +76,7 @@ public:
     int getLinkType() const;
     C7Vector getTempLocalTransformation() const;
     void setTempLocalTransformation(const C7Vector& tr);
+    std::string getLinkedDummyLoadName() const;
 
     CVisualParam* getColor();
 
@@ -90,4 +91,5 @@ protected:
     float _virtualDistanceOffsetOnPath;
     float _virtualDistanceOffsetOnPath_variationWhenCopy;
     C7Vector _localTransformation_temp; // used for IK (needed when the dummy is freely sliding on a path object!)
+    std::string _linkedDummyLoadName;
 };

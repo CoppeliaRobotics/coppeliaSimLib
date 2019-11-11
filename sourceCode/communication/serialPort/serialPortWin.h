@@ -5,7 +5,7 @@
 
 #pragma once
 
-#ifdef WIN_VREP
+#ifdef WIN_SIM
 #include <windows.h>
 #define FC_DTRDSR       0x01
 #define FC_RTSCTS       0x02

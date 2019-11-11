@@ -7,7 +7,7 @@
 #include "geometric.h"
 #include "qdlgtextureselection.h"
 #include "qdlgtextureloadoptions.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include <boost/lexical_cast.hpp>
 #include "vFileDialog.h"
 #include "app.h"

@@ -1,6 +1,6 @@
 #include "viewableBase.h"
 #include "tt.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "camera.h"
 #include "vDateTime.h"
 #include "4X4Matrix.h"

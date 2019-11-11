@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "visualParam.h"
@@ -7,6 +6,8 @@
 #include "4Vector.h"
 #include "7Vector.h"
 #include "vMutex.h"
+#include <map>
+#include "userParameters.h"
 
 struct SCustomRefs
 {
@@ -307,6 +308,11 @@ public:
     int getObjectType() const;
     int getFirstModelRelatives(std::vector<C3DObject*>& firstModelRelatives,bool visibleModelsOnly) const;
     int countFirstModelRelatives(bool visibleModelsOnly) const;
+    std::string getObjectTempName() const;
+    std::string getObjectTempAltName() const;
+    void acquireCommonPropertiesFromObject_simpleXMLLoading(const C3DObject* obj);
+    CUserParameters* getUserScriptParameterObject();
+    void setUserScriptParameterObject(CUserParameters* obj);
 
     std::vector<C3DObject*> childList;
     unsigned short layer;
@@ -334,6 +340,8 @@ protected:
     int _objectHandle;
     std::string _objectName;
     std::string _objectAltName;
+    std::string _objectTempName;
+    std::string _objectTempAltName;
     // Keep parent stored as pointer. Very important!!! If we would use a simple
     // parent identifier, an object and its copy in the copy buffer would have
     // the exact same parent (which would be retrieved via 'CObjCont::getObject()')
@@ -390,6 +398,8 @@ protected:
     std::vector<SCustomRefs> _customReferencedHandles;
     std::vector<SCustomOriginalRefs> _customReferencedOriginalHandles;
     std::string _modelAcknowledgement;
+    CUserParameters* _userScriptParameters;
+
 
     C7Vector _transformation_buffered;
     C7Vector _transformation_forDisplay;

@@ -10,7 +10,7 @@
 #include "vFileDialog.h"
 #include "app.h"
 #include "imgLoaderSaver.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vMessageBox.h"
 
 CQDlgShapes::CQDlgShapes(QWidget *parent) :

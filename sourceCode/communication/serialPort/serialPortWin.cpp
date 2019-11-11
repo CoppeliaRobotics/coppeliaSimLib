@@ -5,7 +5,7 @@
 
 #include "serialPortWin.h"
 
-#ifdef WIN_VREP
+#ifdef WIN_SIM
 
 int CSerialPortWin::_nextPortHandle=0;
 

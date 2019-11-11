@@ -1,4 +1,4 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "tt.h"
 #include "shape.h"
 #include "camera.h"
@@ -18,7 +18,9 @@
 #include "3DObject.h"
 #include "dummy.h"
 #include "global.h"
-#include "miscBase.h"
+#include "libLic.h"
+#include "base64.h"
+#include <boost/algorithm/string.hpp>
 #ifdef SIM_WITH_GUI
     #include "oGL.h"
     #include "oglSurface.h"
@@ -35,6 +37,7 @@ C3DObject::C3DObject()
     generateDnaString();
     _assemblingLocalTransformation.setIdentity();
     _assemblingLocalTransformationIsUsed=false;
+    _userScriptParameters=nullptr;
 
     _authorizedViewableObjects=-1; // all
     _assemblyMatchValuesChild.push_back("default");
@@ -88,6 +91,7 @@ C3DObject::C3DObject()
     _uniqueID=_uniqueIDCounter++; // not persistent
     _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
     _modelAcknowledgement="";
+    _objectTempName="__object__";
 
     _specificLight=-1; // default, i.e. all lights
 
@@ -103,6 +107,7 @@ C3DObject::~C3DObject()
 {
     delete _customObjectData;
     delete _customObjectData_tempData;
+    delete _userScriptParameters;
 }
 
 void C3DObject::setForceAlwaysVisible_tmp(bool force)
@@ -592,8 +597,13 @@ void C3DObject::getChildScriptsToRun_OLD(std::vector<int>& childScriptIDs)
 
 int C3DObject::getModelSelectionHandle(bool firstObject)
 { // firstObject is true by default
-    if (CMiscBase::handleVerSpec_canCtrlShiftSelectObjects())
-        return(getObjectHandle());
+#ifdef SIM_WITH_GUI
+    if (CLibLic::getBoolVal(9))
+    {
+        if ( (App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1)&&(App::mainWindow->getKeyDownState()&2) )
+            return(getObjectHandle());
+    }
+#endif
 
     if (_modelBase)
     {
@@ -1161,6 +1171,11 @@ C3DObject* C3DObject::copyYourselfMain()
     if (_customObjectData_tempData!=nullptr)
         theNewObject->_customObjectData_tempData=_customObjectData_tempData->copyYourself();
 
+    delete theNewObject->_userScriptParameters;
+    theNewObject->_userScriptParameters=nullptr;
+    if (_userScriptParameters!=nullptr)
+        theNewObject->_userScriptParameters=_userScriptParameters->copyYourself();
+
     theNewObject->_customReferencedHandles.assign(_customReferencedHandles.begin(),_customReferencedHandles.end());
     theNewObject->_customReferencedOriginalHandles.assign(_customReferencedOriginalHandles.begin(),_customReferencedOriginalHandles.end());
 
@@ -1428,6 +1443,8 @@ void C3DObject::initializeInitialValuesMain(bool simulationIsRunning)
     _measuredAngularVelocityAxis_velocityMeasurement.clear();
     _measuredLinearVelocity_velocityMeasurement.clear();
     _previousPositionOrientationIsValid=false;
+    if (_userScriptParameters!=nullptr)
+        _userScriptParameters->initializeInitialValues(simulationIsRunning);
 //    _previousAbsTransf_velocityMeasurement=getCumulativeTransformationPart1();
 
     if (simulationIsRunning)
@@ -1451,6 +1468,8 @@ void C3DObject::simulationEndedMain()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
     _dynamicSimulationIconCode=sim_dynamicsimicon_none;
     _dynamicObjectFlag_forVisualization=0;
+    if (_userScriptParameters!=nullptr)
+        _userScriptParameters->simulationEnded();
     if (_initialValuesInitializedMain&&App::ct->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
     {
         if (_initialConfigurationMemorized)
@@ -1538,8 +1557,10 @@ void C3DObject::setEnableCustomizationScript(bool c,const char* scriptContent)
     CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(getObjectHandle());
     if (script)
     {
+#ifdef SIM_WITH_GUI
         if (App::mainWindow!=nullptr)
             App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptID(),nullptr,true);
+#endif
         App::ct->luaScriptContainer->removeScript(script->getScriptID());
     }
 
@@ -1802,7 +1823,7 @@ void C3DObject::serializeMain(CSer& ar)
             ar << objProp;
             ar.flush();
 
-            // Keep a while for backward compatibility (19/4/2017) (in case people want to return to a previous V-REP version):
+            // Keep a while for backward compatibility (19/4/2017) (in case people want to return to a previous CoppeliaSim version):
             ar.storeDataName("Va2");
             unsigned char dummy=0;
             SIM_SET_CLEAR_BIT(dummy,0,_modelBase);
@@ -1870,6 +1891,15 @@ void C3DObject::serializeMain(CSer& ar)
                 _customObjectData->serializeData(ar,nullptr,-1);
                 if (ar.setWritingMode())
                     _customObjectData->serializeData(ar,nullptr,-1);
+            }
+
+            if (_userScriptParameters!=nullptr)
+            {
+                ar.storeDataName("Lsp");
+                ar.setCountingMode();
+                _userScriptParameters->serialize(ar);
+                if (ar.setWritingMode())
+                    _userScriptParameters->serialize(ar);
             }
 
             if (_customReferencedHandles.size()>0)
@@ -2035,6 +2065,7 @@ void C3DObject::serializeMain(CSer& ar)
                         ar >> _objectName;
                         if (!hasAltName)
                             _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+                        _objectTempName=_objectName;
                     }
                     if (theName.compare("Op2")==0)
                     {
@@ -2143,6 +2174,13 @@ void C3DObject::serializeMain(CSer& ar)
                         _customObjectData=new CCustomData();
                         _customObjectData->serializeData(ar,nullptr,-1);
                     }
+                    if (theName.compare("Lsp")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        _userScriptParameters=new CUserParameters();
+                        _userScriptParameters->serialize(ar);
+                    }
                     if (theName.compare("Crh")==0)
                     {
                         noHit=false;
@@ -2244,7 +2282,7 @@ void C3DObject::serializeMain(CSer& ar)
 
             //*************************************************************
             // For old models to support the DNA-thing by default:
-            if ( (ar.getVrepVersionThatWroteThisFile()<30003)&&getModelBase() )
+            if ( (ar.getCoppeliaSimVersionThatWroteThisFile()<30003)&&getModelBase() )
             {
                 _localObjectProperty|=sim_objectproperty_canupdatedna;
                 // We now create a "unique" id, that is always the same for the same file:
@@ -2265,6 +2303,457 @@ void C3DObject::serializeMain(CSer& ar)
                 }
             }
             //*************************************************************
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            ar.xmlPushNewNode("common");
+
+            ar.xmlAddNode_string("name",_objectName.c_str());
+            ar.xmlAddNode_string("altName",_objectAltName.c_str());
+
+            if (exhaustiveXml)
+            {
+                ar.xmlAddNode_int("handle",_objectHandle);
+                int parentID=-1;
+                if (getParentObject()!=nullptr)
+                    parentID=getParentObject()->getObjectHandle();
+                ar.xmlAddNode_int("parentHandle",parentID);
+            }
+
+            ar.xmlPushNewNode("localFrame");
+            C7Vector tr=getLocalTransformationPart1();
+            if (getObjectType()==sim_object_shape_type)
+            {
+                ar.xmlAddNode_comment(" 'position' tag (in case of a shape): the value of this tag will be used to correctly build the shape, relative to its parent (or children), ",exhaustiveXml);
+                ar.xmlAddNode_comment(" however, when load operation is finished, the local position of the shape will very probably be different (because the position of the shape ",exhaustiveXml);
+                ar.xmlAddNode_comment(" is automatically selected to be at the geometric center of the shape) ",exhaustiveXml);
+            }
+            ar.xmlAddNode_3float("position", tr.X(0), tr.X(1), tr.X(2));
+            if (exhaustiveXml)
+                ar.xmlAddNode_4float("quaternion", tr.Q(0), tr.Q(1), tr.Q(2), tr.Q(3));
+            else
+            {
+                if (getObjectType()==sim_object_shape_type)
+                {
+                    ar.xmlAddNode_comment(" 'euler' tag (in case of a shape): the value of this tag will be used to correctly build the shape, relative to its parent (or children), ",exhaustiveXml);
+                    ar.xmlAddNode_comment(" however, when load operation is finished, the local orientation of the shape might be different (primitive shapes have a fixed orientation) ",exhaustiveXml);
+                }
+                C3Vector euler(tr.Q.getEulerAngles());
+                euler*=180.0f/piValue_f;
+                ar.xmlAddNode_floats("euler",euler.data,3);
+            }
+            ar.xmlPopNode();
+
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("assembling");
+                ar.xmlPushNewNode("localFrame");
+                tr=_assemblingLocalTransformation;
+                ar.xmlAddNode_3float("position", tr.X(0), tr.X(1), tr.X(2));
+                ar.xmlAddNode_4float("quaternion", tr.Q(0), tr.Q(1), tr.Q(2), tr.Q(3));
+                ar.xmlPopNode();
+                ar.xmlPushNewNode("matchValues");
+                ar.xmlAddNode_strings("child", _assemblyMatchValuesChild);
+                ar.xmlAddNode_strings("parent", _assemblyMatchValuesParent);
+                ar.xmlPopNode();
+                ar.xmlAddNode_bool("localFrameIsUsed",_assemblingLocalTransformationIsUsed);
+                ar.xmlPopNode();
+            }
+
+            ar.xmlAddNode_int("hierarchyColorIndex",_hierarchyColorIndex);
+
+            ar.xmlAddNode_int("collectionSelfCollisionIndicator",_collectionSelfCollisionIndicator);
+
+            ar.xmlPushNewNode("localObjectProperty");
+            ar.xmlAddNode_bool("hierarchyCollapsed",_localObjectProperty&sim_objectproperty_collapsed);
+            ar.xmlAddNode_bool("selectable",_localObjectProperty&sim_objectproperty_selectable);
+            ar.xmlAddNode_bool("selectModelBaseInstead",_localObjectProperty&sim_objectproperty_selectmodelbaseinstead);
+            ar.xmlAddNode_bool("dontShowAsInsideModel",_localObjectProperty&sim_objectproperty_dontshowasinsidemodel);
+            ar.xmlAddNode_bool("canUpdateDna",_localObjectProperty&sim_objectproperty_canupdatedna);
+            ar.xmlAddNode_bool("selectInvisible",_localObjectProperty&sim_objectproperty_selectinvisible);
+            ar.xmlAddNode_bool("depthInvisible",_localObjectProperty&sim_objectproperty_depthinvisible);
+            ar.xmlAddNode_bool("cannotDelete",_localObjectProperty&sim_objectproperty_cannotdelete);
+            ar.xmlAddNode_bool("cannotDeleteDuringSimulation",_localObjectProperty&sim_objectproperty_cannotdeleteduringsim);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("localObjectSpecialProperty");
+            ar.xmlAddNode_bool("collidable",_localObjectSpecialProperty&sim_objectspecialproperty_collidable);
+            ar.xmlAddNode_bool("measurable",_localObjectSpecialProperty&sim_objectspecialproperty_measurable);
+            ar.xmlAddNode_bool("renderable",_localObjectSpecialProperty&sim_objectspecialproperty_renderable);
+            ar.xmlAddNode_comment(" following 5 can be set at the same time with the 'detectable' tag",exhaustiveXml);
+            ar.xmlAddNode_bool("ultrasonicDetectable",_localObjectSpecialProperty&sim_objectspecialproperty_detectable_ultrasonic);
+            ar.xmlAddNode_bool("infraredDetectable",_localObjectSpecialProperty&sim_objectspecialproperty_detectable_infrared);
+            ar.xmlAddNode_bool("laserDetectable",_localObjectSpecialProperty&sim_objectspecialproperty_detectable_laser);
+            ar.xmlAddNode_bool("inductiveDetectable",_localObjectSpecialProperty&sim_objectspecialproperty_detectable_inductive);
+            ar.xmlAddNode_bool("capacitiveDetectable",_localObjectSpecialProperty&sim_objectspecialproperty_detectable_capacitive);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("localModelProperty");
+            ar.xmlAddNode_bool("notCollidable",_localModelProperty&sim_modelproperty_not_collidable);
+            ar.xmlAddNode_bool("notMeasurable",_localModelProperty&sim_modelproperty_not_measurable);
+            ar.xmlAddNode_bool("notRenderable",_localModelProperty&sim_modelproperty_not_renderable);
+            ar.xmlAddNode_bool("notDetectable",_localModelProperty&sim_modelproperty_not_detectable);
+            ar.xmlAddNode_bool("notDynamic",_localModelProperty&sim_modelproperty_not_dynamic);
+            ar.xmlAddNode_bool("notRespondable",_localModelProperty&sim_modelproperty_not_respondable);
+            ar.xmlAddNode_bool("notReset",_localModelProperty&sim_modelproperty_not_reset);
+            ar.xmlAddNode_bool("notVisible",_localModelProperty&sim_modelproperty_not_visible);
+            ar.xmlAddNode_bool("scriptsInactive",_localModelProperty&sim_modelproperty_scripts_inactive);
+            ar.xmlAddNode_bool("notShowAsInsideModel",_localModelProperty&sim_modelproperty_not_showasinsidemodel);
+            ar.xmlPopNode();
+
+            ar.xmlAddNode_int("layer",layer);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("modelBase",_modelBase);
+            ar.xmlAddNode_bool("ignoredByViewFitting",_ignoredByViewFitting);
+            ar.xmlPopNode();
+
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("manipulation");
+                ar.xmlAddNode_int("permissions",_objectManipulationModePermissions);
+                ar.xmlPushNewNode("translation");
+                ar.xmlAddNode_bool("disabledDuringSimulation",_objectTranslationDisabledDuringSimulation);
+                ar.xmlAddNode_bool("disabledDuringNonSimulation",_objectTranslationDisabledDuringNonSimulation);
+                ar.xmlAddNode_bool("settingsLocked",_objectTranslationSettingsLocked);
+                ar.xmlAddNode_int("relativeTo",_objectManipulationTranslationRelativeTo);
+                ar.xmlAddNode_float("nonDefaultStepSize",_objectTranslationNonDefaultStepSize);
+                ar.xmlPopNode();
+                ar.xmlPushNewNode("rotation");
+                ar.xmlAddNode_bool("disabledDuringSimulation",_objectRotationDisabledDuringSimulation);
+                ar.xmlAddNode_bool("disabledDuringNonSimulation",_objectRotationDisabledDuringNonSimulation);
+                ar.xmlAddNode_bool("settingsLocked",_objectRotationSettingsLocked);
+                ar.xmlAddNode_int("relativeTo",_objectManipulationRotationRelativeTo);
+                ar.xmlAddNode_float("nonDefaultStepSize",_objectRotationNonDefaultStepSize);
+                ar.xmlPopNode();
+                ar.xmlPopNode();
+            }
+
+            if (exhaustiveXml)
+            {
+                ar.xmlAddNode_float("sizeFactor",_sizeFactor);
+
+                ar.xmlAddNode_floats("sizeValues",_sizeValues,3);
+
+                std::string str(base64_encode((unsigned char*)_dnaString.c_str(),_dnaString.size()));
+                ar.xmlAddNode_string("dnaString_base64Coded",str.c_str());
+
+                str=base64_encode((unsigned char*)_uniquePersistentIdString.c_str(),_uniquePersistentIdString.size());
+                ar.xmlAddNode_string("uniquePersistentString_base64Coded",str.c_str());
+
+                ar.xmlAddNode_float("transparentObjectDistanceOffset",_transparentObjectDistanceOffset);
+
+                ar.xmlAddNode_int("authorizedViewableObjects",_authorizedViewableObjects);
+            }
+
+            ar.xmlAddNode_string("extensionString",_extensionString.c_str());
+
+            ar.xmlAddNode_string("modelAcknowledgement",_modelAcknowledgement.c_str());
+
+            if (exhaustiveXml)
+            {
+                if (_customObjectData!=nullptr)
+                {
+                    ar.xmlPushNewNode("customData");
+                    _customObjectData->serializeData(ar,_objectName.c_str(),-1);
+                    ar.xmlPopNode();
+                }
+                if (_userScriptParameters!=nullptr)
+                {
+                    ar.xmlPushNewNode("userParameters");
+                    _userScriptParameters->serialize(ar);
+                    ar.xmlPopNode();
+                }
+                if (_customReferencedHandles.size()>0)
+                {
+                    ar.xmlPushNewNode("customReferencedHandles");
+                    ar.xmlAddNode_int("count",int(_customReferencedHandles.size()));
+                    std::vector<int> tmp;
+                    for (size_t i=0;i<_customReferencedHandles.size();i++)
+                        tmp.push_back(_customReferencedHandles[i].generalObjectType);
+                    ar.xmlAddNode_ints("generalObjectTypes",&tmp[0],tmp.size());
+                    tmp.clear();
+                    for (size_t i=0;i<_customReferencedHandles.size();i++)
+                        tmp.push_back(_customReferencedHandles[i].generalObjectHandle);
+                    ar.xmlAddNode_ints("generalObjectHandles",&tmp[0],tmp.size());
+                    ar.xmlPopNode();
+                }
+
+                if (_customReferencedOriginalHandles.size()>0)
+                {
+                    ar.xmlPushNewNode("customReferencedOriginalHandles");
+                    ar.xmlAddNode_int("count",int(_customReferencedOriginalHandles.size()));
+                    std::vector<int> tmp;
+                    for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+                        tmp.push_back(_customReferencedOriginalHandles[i].generalObjectType);
+                    ar.xmlAddNode_ints("generalObjectTypes",&tmp[0],tmp.size());
+                    tmp.clear();
+                    for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+                        tmp.push_back(_customReferencedOriginalHandles[i].generalObjectHandle);
+                    ar.xmlAddNode_ints("generalObjectHandles",&tmp[0],tmp.size());
+                    std::vector<std::string> sTmp;
+                    for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+                        sTmp.push_back(base64_encode((unsigned char*)_customReferencedOriginalHandles[i].uniquePersistentIdString.c_str(),_customReferencedOriginalHandles[i].uniquePersistentIdString.size()));
+                    ar.xmlAddNode_strings("uniquePersistentIdString_base64Coded",sTmp);
+
+                    ar.xmlPopNode();
+                }
+            }
+
+            ar.xmlPopNode();
+        }
+        else
+        {
+            if (ar.xmlPushChildNode("common",exhaustiveXml))
+            {
+                if ( ar.xmlGetNode_string("name",_objectName,exhaustiveXml)&&(!exhaustiveXml) )
+                {
+                    tt::removeIllegalCharacters(_objectName,true);
+                    _objectTempName=_objectName;
+                    _objectName="XYZ___"+_objectName+"___XYZ";
+                }
+                if ( ar.xmlGetNode_string("altName",_objectAltName,exhaustiveXml)&&(!exhaustiveXml) )
+                {
+                    tt::removeAltNameIllegalCharacters(_objectAltName);
+                    _objectTempAltName=_objectAltName;
+                    _objectAltName="XYZ___"+_objectAltName+"___XYZ";
+                }
+
+                if (exhaustiveXml)
+                {
+                    ar.xmlGetNode_int("handle",_objectHandle);
+                    ar.xmlGetNode_int("parentHandle",_parentHandle);
+                }
+                _parentObject=nullptr;
+
+                if (ar.xmlPushChildNode("localFrame",exhaustiveXml))
+                {
+                    C7Vector tr;
+                    tr.setIdentity();
+                    ar.xmlGetNode_floats("position",tr.X.data,3,exhaustiveXml);
+                    if (exhaustiveXml)
+                        ar.xmlGetNode_floats("quaternion",tr.Q.data,4);
+                    else
+                    {
+                        C3Vector euler;
+                        if (ar.xmlGetNode_floats("euler",euler.data,3,exhaustiveXml))
+                        {
+                            euler(0)*=piValue_f/180.0f;
+                            euler(1)*=piValue_f/180.0f;
+                            euler(2)*=piValue_f/180.0f;
+                            tr.Q.setEulerAngles(euler);
+                        }
+                    }
+                    setLocalTransformation(tr);
+                    ar.xmlPopNode();
+                }
+
+                if (exhaustiveXml&&ar.xmlPushChildNode("assembling"))
+                {
+                    if (ar.xmlPushChildNode("localFrame"))
+                    {
+                        ar.xmlGetNode_floats("position",_assemblingLocalTransformation.X.data,3);
+                        ar.xmlGetNode_floats("quaternion",_assemblingLocalTransformation.Q.data,4);
+                        ar.xmlPopNode();
+                    }
+                    if (ar.xmlPushChildNode("matchValues"))
+                    {
+                        _assemblyMatchValuesChild.clear();
+                        ar.xmlGetNode_strings("child",_assemblyMatchValuesChild);
+                        _assemblyMatchValuesParent.clear();
+                        ar.xmlGetNode_strings("parent",_assemblyMatchValuesParent);
+                        ar.xmlPopNode();
+                    }
+                    ar.xmlGetNode_bool("localFrameIsUsed",_assemblingLocalTransformationIsUsed);
+                    ar.xmlPopNode();
+                }
+
+                ar.xmlGetNode_int("hierarchyColorIndex",_hierarchyColorIndex,exhaustiveXml);
+
+                ar.xmlGetNode_int("collectionSelfCollisionIndicator",_collectionSelfCollisionIndicator,exhaustiveXml);
+
+                if (ar.xmlPushChildNode("localObjectProperty",exhaustiveXml))
+                {
+                    _localObjectProperty=0;
+                    ar.xmlGetNode_flags("hierarchyCollapsed",_localObjectProperty,sim_objectproperty_collapsed,exhaustiveXml);
+                    ar.xmlGetNode_flags("selectable",_localObjectProperty,sim_objectproperty_selectable,exhaustiveXml);
+                    ar.xmlGetNode_flags("selectModelBaseInstead",_localObjectProperty,sim_objectproperty_selectmodelbaseinstead,exhaustiveXml);
+                    ar.xmlGetNode_flags("dontShowAsInsideModel",_localObjectProperty,sim_objectproperty_dontshowasinsidemodel,exhaustiveXml);
+                    ar.xmlGetNode_flags("canUpdateDna",_localObjectProperty,sim_objectproperty_canupdatedna,exhaustiveXml);
+                    ar.xmlGetNode_flags("selectInvisible",_localObjectProperty,sim_objectproperty_selectinvisible,exhaustiveXml);
+                    ar.xmlGetNode_flags("depthInvisible",_localObjectProperty,sim_objectproperty_depthinvisible,exhaustiveXml);
+                    ar.xmlGetNode_flags("cannotDelete",_localObjectProperty,sim_objectproperty_cannotdelete,exhaustiveXml);
+                    ar.xmlGetNode_flags("cannotDeleteDuringSimulation",_localObjectProperty,sim_objectproperty_cannotdeleteduringsim,exhaustiveXml);
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("localObjectSpecialProperty",exhaustiveXml))
+                {
+                    _localObjectSpecialProperty=0;
+                    ar.xmlGetNode_flags("collidable",_localObjectSpecialProperty,sim_objectspecialproperty_collidable,exhaustiveXml);
+                    ar.xmlGetNode_flags("measurable",_localObjectSpecialProperty,sim_objectspecialproperty_measurable,exhaustiveXml);
+                    if (!exhaustiveXml)
+                    {
+                        bool detectable;
+                        if (ar.xmlGetNode_bool("detectable",detectable,exhaustiveXml))
+                        {
+                            _localObjectSpecialProperty|=sim_objectspecialproperty_detectable_all;
+                            if (!detectable)
+                                _localObjectSpecialProperty-=sim_objectspecialproperty_detectable_all;
+                        }
+                    }
+                    ar.xmlGetNode_flags("ultrasonicDetectable",_localObjectSpecialProperty,sim_objectspecialproperty_detectable_ultrasonic,exhaustiveXml);
+                    ar.xmlGetNode_flags("infraredDetectable",_localObjectSpecialProperty,sim_objectspecialproperty_detectable_infrared,exhaustiveXml);
+                    ar.xmlGetNode_flags("laserDetectable",_localObjectSpecialProperty,sim_objectspecialproperty_detectable_laser,exhaustiveXml);
+                    ar.xmlGetNode_flags("inductiveDetectable",_localObjectSpecialProperty,sim_objectspecialproperty_detectable_inductive,exhaustiveXml);
+                    ar.xmlGetNode_flags("capacitiveDetectable",_localObjectSpecialProperty,sim_objectspecialproperty_detectable_capacitive,exhaustiveXml);
+                    ar.xmlGetNode_flags("renderable",_localObjectSpecialProperty,sim_objectspecialproperty_renderable,exhaustiveXml);
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("localModelProperty",exhaustiveXml))
+                {
+                    _localModelProperty=0;
+                    ar.xmlGetNode_flags("notCollidable",_localModelProperty,sim_modelproperty_not_collidable,exhaustiveXml);
+                    ar.xmlGetNode_flags("notMeasurable",_localModelProperty,sim_modelproperty_not_measurable,exhaustiveXml);
+                    ar.xmlGetNode_flags("notRenderable",_localModelProperty,sim_modelproperty_not_renderable,exhaustiveXml);
+                    ar.xmlGetNode_flags("notDetectable",_localModelProperty,sim_modelproperty_not_detectable,exhaustiveXml);
+                    ar.xmlGetNode_flags("notDynamic",_localModelProperty,sim_modelproperty_not_dynamic,exhaustiveXml);
+                    ar.xmlGetNode_flags("notRespondable",_localModelProperty,sim_modelproperty_not_respondable,exhaustiveXml);
+                    ar.xmlGetNode_flags("notReset",_localModelProperty,sim_modelproperty_not_reset,exhaustiveXml);
+                    ar.xmlGetNode_flags("notVisible",_localModelProperty,sim_modelproperty_not_visible,exhaustiveXml);
+                    ar.xmlGetNode_flags("scriptsInactive",_localModelProperty,sim_modelproperty_scripts_inactive,exhaustiveXml);
+                    ar.xmlGetNode_flags("notShowAsInsideModel",_localModelProperty,sim_modelproperty_not_showasinsidemodel,exhaustiveXml);
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("switches",exhaustiveXml))
+                {
+                    ar.xmlGetNode_bool("modelBase",_modelBase,exhaustiveXml);
+                    ar.xmlGetNode_bool("ignoredByViewFitting",_ignoredByViewFitting,exhaustiveXml);
+                    ar.xmlPopNode();
+                }
+
+                int l;
+                if (ar.xmlGetNode_int("layer",l,exhaustiveXml))
+                    layer=(unsigned short)l;
+
+                if (exhaustiveXml&&ar.xmlPushChildNode("manipulation"))
+                {
+                    ar.xmlGetNode_int("permissions",_objectManipulationModePermissions);
+                    if (ar.xmlPushChildNode("translation"))
+                    {
+                        ar.xmlGetNode_bool("disabledDuringSimulation",_objectTranslationDisabledDuringSimulation);
+                        ar.xmlGetNode_bool("disabledDuringNonSimulation",_objectTranslationDisabledDuringNonSimulation);
+                        ar.xmlGetNode_bool("settingsLocked",_objectTranslationSettingsLocked);
+                        ar.xmlGetNode_int("relativeTo",_objectManipulationTranslationRelativeTo);
+                        ar.xmlGetNode_float("nonDefaultStepSize",_objectTranslationNonDefaultStepSize);
+                        ar.xmlPopNode();
+                    }
+                    if (ar.xmlPushChildNode("rotation"))
+                    {
+                        ar.xmlGetNode_bool("disabledDuringSimulation",_objectRotationDisabledDuringSimulation);
+                        ar.xmlGetNode_bool("disabledDuringNonSimulation",_objectRotationDisabledDuringNonSimulation);
+                        ar.xmlGetNode_bool("settingsLocked",_objectRotationSettingsLocked);
+                        ar.xmlGetNode_int("relativeTo",_objectManipulationRotationRelativeTo);
+                        ar.xmlGetNode_float("nonDefaultStepSize",_objectRotationNonDefaultStepSize);
+                        ar.xmlPopNode();
+                    }
+                    ar.xmlPopNode();
+                }
+
+                if (exhaustiveXml)
+                    ar.xmlGetNode_float("sizeFactor",_sizeFactor,exhaustiveXml);
+
+                if (exhaustiveXml)
+                    ar.xmlGetNode_floats("sizeValues",_sizeValues,3,exhaustiveXml);
+
+                if (exhaustiveXml&&ar.xmlGetNode_string("dnaString_base64Coded",_dnaString))
+                    _dnaString=base64_decode(_dnaString);
+
+                if (exhaustiveXml&&ar.xmlGetNode_string("uniquePersistentString_base64Coded",_uniquePersistentIdString))
+                    _uniquePersistentIdString=base64_decode(_uniquePersistentIdString);
+
+                if (exhaustiveXml)
+                    ar.xmlGetNode_float("transparentObjectDistanceOffset",_transparentObjectDistanceOffset,exhaustiveXml);
+
+                if (exhaustiveXml)
+                    ar.xmlGetNode_int("authorizedViewableObjects",_authorizedViewableObjects,exhaustiveXml);
+
+                ar.xmlGetNode_string("extensionString",_extensionString,exhaustiveXml);
+
+                ar.xmlGetNode_string("modelAcknowledgement",_modelAcknowledgement,exhaustiveXml);
+
+                if (exhaustiveXml&&ar.xmlPushChildNode("customData",false))
+                {
+                    _customObjectData=new CCustomData();
+                    _customObjectData->serializeData(ar,_objectName.c_str(),-1);
+                    ar.xmlPopNode();
+                }
+                if (exhaustiveXml&&ar.xmlPushChildNode("userParameters",false))
+                {
+                    if (_userScriptParameters!=nullptr)
+                        delete _userScriptParameters;
+                    _userScriptParameters=new CUserParameters();
+                    _userScriptParameters->serialize(ar);
+                    ar.xmlPopNode();
+                }
+
+                if (exhaustiveXml&&ar.xmlPushChildNode("customReferencedHandles",false))
+                {
+                    int cnt;
+                    ar.xmlGetNode_int("count",cnt);
+                    std::vector<int> ot;
+                    std::vector<int> oh;
+                    if (cnt>0)
+                    {
+                        ot.resize(cnt,-1);
+                        oh.resize(cnt,-1);
+                        ar.xmlGetNode_ints("generalObjectTypes",&ot[0],cnt);
+                        ar.xmlGetNode_ints("generalObjectHandles",&oh[0],cnt);
+                        for (int i=0;i<cnt;i++)
+                        {
+                            SCustomRefs r;
+                            r.generalObjectType=ot[i];
+                            r.generalObjectHandle=oh[i];
+                            _customReferencedHandles.push_back(r);
+                        }
+                    }
+                    ar.xmlPopNode();
+                }
+
+                if (exhaustiveXml&&ar.xmlPushChildNode("customReferencedOriginalHandles",false))
+                {
+                    int cnt;
+                    ar.xmlGetNode_int("count",cnt);
+                    std::vector<int> ot;
+                    std::vector<int> oh;
+                    std::vector<std::string> oi;
+                    if (cnt>0)
+                    {
+                        ot.resize(cnt,-1);
+                        oh.resize(cnt,-1);
+                        ar.xmlGetNode_ints("generalObjectTypes",&ot[0],cnt);
+                        ar.xmlGetNode_ints("generalObjectHandles",&oh[0],cnt);
+                        ar.xmlGetNode_strings("uniquePersistentIdString_base64Coded",oi);
+                        for (int i=0;i<cnt;i++)
+                        {
+                            SCustomOriginalRefs r;
+                            r.generalObjectType=ot[i];
+                            r.generalObjectHandle=oh[i];
+                            if (r.generalObjectHandle>=0)
+                                r.uniquePersistentIdString=base64_decode(oi[i]);
+                            _customReferencedOriginalHandles.push_back(r);
+                        }
+                    }
+                    ar.xmlPopNode();
+                }
+                ar.xmlPopNode();
+            }
         }
     }
 }
@@ -2342,7 +2831,7 @@ void C3DObject::setObjectAltName_objectNotYetInScene(std::string newAltName)
 }
 std::string C3DObject::getDisplayName() const
 {
-    if (CMiscBase::handleVerSpec_isDisplayNameAltName())
+    if (CLibLic::getBoolVal(8))
         return(_objectAltName);
     return(_objectName);
 }
@@ -2854,6 +3343,45 @@ int C3DObject::countFirstModelRelatives(bool visibleModelsOnly) const
             cnt+=child->countFirstModelRelatives(visibleModelsOnly);
     }
     return(cnt);
+}
+std::string C3DObject::getObjectTempName() const
+{
+    return(_objectTempName);
+}
+
+std::string C3DObject::getObjectTempAltName() const
+{
+    return(_objectTempAltName);
+}
+
+CUserParameters* C3DObject::getUserScriptParameterObject()
+{
+    return(_userScriptParameters);
+}
+
+void C3DObject::setUserScriptParameterObject(CUserParameters* obj)
+{
+    if (_userScriptParameters!=nullptr)
+        delete _userScriptParameters;
+    _userScriptParameters=obj;
+}
+
+void C3DObject::acquireCommonPropertiesFromObject_simpleXMLLoading(const C3DObject* obj)
+{ // names can't be changed here!
+//    _objectName=obj->_objectName;
+    _objectTempName=obj->_objectTempName;
+//    _objectAltName=obj->_objectAltName;
+    _transformation=obj->_transformation;
+    _hierarchyColorIndex=obj->_hierarchyColorIndex;
+    _collectionSelfCollisionIndicator=obj->_collectionSelfCollisionIndicator;
+    _localObjectProperty=obj->_localObjectProperty;
+    _localObjectSpecialProperty=obj->_localObjectSpecialProperty;
+    _localModelProperty=obj->_localModelProperty;
+    _modelBase=obj->_modelBase;
+    _ignoredByViewFitting=obj->_ignoredByViewFitting;
+    layer=obj->layer;
+    _extensionString=obj->_extensionString;
+    _modelAcknowledgement=obj->_modelAcknowledgement;
 }
 
 int C3DObject::getObjectType() const

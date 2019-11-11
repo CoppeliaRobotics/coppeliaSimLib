@@ -1,8 +1,9 @@
 #include "debugLogFile.h"
 #include "vDateTime.h"
 #include "tt.h"
-#include "v_repConst.h"
+#include "simConst.h"
 #include "vMutex.h"
+#include "libLic.h"
 
 
 bool CDebugLogFile::_debugToFile=false;
@@ -86,7 +87,7 @@ void CDebugLogFile::addDebugText(bool forceAlsoToConsole,const char* txt1,const 
 void CDebugLogFile::addDebugText(bool forceAlsoToConsole,const char* txt)
 {
     static VMutex mutex;
-    mutex.lock_simple();
+    mutex.lock_simple("CDebugLogFile::addDebugText()");
     std::string theTxt(txt);
     if (_addTime)
     {
@@ -109,11 +110,11 @@ void CDebugLogFile::addDebugText(bool forceAlsoToConsole,const char* txt)
         static bool first=true;
         if (first)
         {
-            std::string t(VREP_VERSION_STR);
+            std::string t(CLibLic::getStringVal(2));
             t+=" ";
-            t+=VREP_PROGRAM_VERSION;
+            t+=SIM_PROGRAM_VERSION;
             t+=" ";
-            t+=VREP_PROGRAM_REVISION;
+            t+=SIM_PROGRAM_REVISION;
 #ifndef SIM_WITHOUT_QT_AT_ALL
             t+=", Qt ";
             t+=QT_VERSION_STR;
@@ -124,13 +125,13 @@ void CDebugLogFile::addDebugText(bool forceAlsoToConsole,const char* txt)
             t+=", Non-Qt version";
 #endif
 
-#ifdef WIN_VREP
+#ifdef WIN_SIM
             t+=", Windows";
 #endif
-#ifdef MAC_VREP
+#ifdef MAC_SIM
             t+=", MacOS";
 #endif
-#ifdef LIN_VREP
+#ifdef LIN_SIM
             t+=", Linux";
 #endif
             for (int i=0;i<int(t.length());i++)

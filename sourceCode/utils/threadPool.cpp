@@ -6,7 +6,7 @@
 #include "debugLogFile.h"
 #include <boost/lexical_cast.hpp>
 
-#ifdef MAC_VREP
+#ifdef MAC_SIM
     #include <curses.h>
 #endif
 
@@ -781,7 +781,7 @@ bool CThreadPool::getSimulationStopRequestedAndActivated()
 
 void CThreadPool::_lock(unsigned char debugInfo)
 {
-    _threadPoolMutex.lock();
+    _threadPoolMutex.lock("CThreadPool::_lock()");
     _lockStage++;
 }
 

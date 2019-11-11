@@ -2,7 +2,7 @@
 // This file requires some serious refactoring!
 
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "sPage.h"
 #include "global.h"
 #include "tt.h"
@@ -744,6 +744,67 @@ void CSPage::serialize(CSer& ar)
             // Following is to correct for a bug where deleted views would still have their sizes and pos stored (19/7/2011):
             std::vector<float> copy(_allViewAuxSizesAndPos);
             _allViewAuxSizesAndPos.assign(copy.begin(),copy.begin()+4*_allViews.size());
+        }
+    }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_int("type",_pageType);
+
+            int floatViewsNotToSaveCnt=0;
+            for (int i=getRegularViewCount();i<int(_allViews.size());i++)
+            {
+                if (_allViews[i]->getDoNotSaveFloatingView())
+                    floatViewsNotToSaveCnt++;
+            }
+            int totViewsToSaveCnt=int(_allViews.size())-floatViewsNotToSaveCnt;
+
+            for (size_t i=0;i<_allViews.size();i++)
+            {
+                if ( (i<getRegularViewCount())||(!_allViews[i]->getDoNotSaveFloatingView()) )
+                {
+                    ar.xmlPushNewNode("view");
+                    _allViews[i]->serialize(ar);
+                    ar.xmlPopNode();
+                }
+            }
+            std::vector<float> tmp;
+            for (size_t i=0;i<_allViews.size();i++)
+            {
+                if ( (i<getRegularViewCount())||(!_allViews[i]->getDoNotSaveFloatingView()) )
+                {
+                    tmp.push_back(_allViewAuxSizesAndPos[4*i+0]);
+                    tmp.push_back(_allViewAuxSizesAndPos[4*i+1]);
+                    tmp.push_back(_allViewAuxSizesAndPos[4*i+2]);
+                    tmp.push_back(_allViewAuxSizesAndPos[4*i+3]);
+                }
+            }
+
+            ar.xmlAddNode_floats("sizesAndPositions",tmp);
+        }
+        else
+        {
+            for (int i=0;i<int(_allViews.size());i++)
+                delete _allViews[i];
+            _allViews.clear();
+            _allViewAuxSizesAndPos.clear();
+
+            ar.xmlGetNode_int("type",_pageType);
+
+            if (ar.xmlPushChildNode("view",false))
+            {
+                while (true)
+                {
+                    CSView* theSubView=new CSView(-1);
+                    theSubView->serialize(ar);
+                    _allViews.push_back(theSubView);
+                    if (!ar.xmlPushSiblingNode("view",false))
+                        break;
+                }
+                ar.xmlPopNode();
+            }
+            ar.xmlGetNode_floats("sizesAndPositions",_allViewAuxSizesAndPos);
         }
     }
 }

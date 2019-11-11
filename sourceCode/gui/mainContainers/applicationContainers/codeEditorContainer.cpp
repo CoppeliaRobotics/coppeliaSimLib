@@ -1,8 +1,8 @@
 #include "codeEditorContainer.h"
 #include "pluginContainer.h"
 #include "luaScriptFunctions.h"
-#include "v_rep_internal.h"
-#include "v_repStrings.h"
+#include "simInternal.h"
+#include "simStrings.h"
 #include "vVarious.h"
 #include "app.h"
 #include "tinyxml2.h"
@@ -36,12 +36,12 @@ QString CCodeEditorContainer::getFuncKeywords(int scriptType,bool threaded)
     QString retVal;
     std::vector<std::string> t;
     std::map<std::string,bool> map;
-    pushAllVrepFunctionNamesThatStartSame_autoCompletionList("",t,map,scriptType,threaded);
+    pushAllSimFunctionNamesThatStartSame_autoCompletionList("",t,map,scriptType,threaded);
     App::ct->luaCustomFuncAndVarContainer->pushAllFunctionNamesThatStartSame_autoCompletionList("",t,map);
     std::sort(t.begin(),t.end());
     for (size_t i=0;i<t.size();i++)
     {
-        std::string tip(getVrepFunctionCalltip(t[i].c_str(),scriptType,threaded,true));
+        std::string tip(getSimFunctionCalltip(t[i].c_str(),scriptType,threaded,true));
         if (tip.size()==0)
         {
             for (size_t j=0;j<App::ct->luaCustomFuncAndVarContainer->allCustomFunctions.size();j++)
@@ -64,7 +64,7 @@ QString CCodeEditorContainer::getVarKeywords(int scriptType,bool threaded)
     QString retVal;
     std::vector<std::string> t;
     std::map<std::string,bool> map;
-    pushAllVrepVariableNamesThatStartSame_autoCompletionList("",t,map);
+    pushAllSimVariableNamesThatStartSame_autoCompletionList("",t,map);
     App::ct->luaCustomFuncAndVarContainer->pushAllVariableNamesThatStartSame_autoCompletionList("",t,map);
     std::sort(t.begin(),t.end());
     for (size_t i=0;i<t.size();i++)
@@ -79,11 +79,11 @@ QString CCodeEditorContainer::translateXml(const char* oldXml,const char* callba
         retVal+=QString(" on-close=\"%1\"").arg(callback);
     if (oldXml!=nullptr)
     {
-        tinyxml2::XMLDocument xmldoc;
-        tinyxml2::XMLError error=xmldoc.Parse(oldXml);
-        if(error==tinyxml2::XML_NO_ERROR)
+        sim::tinyxml2::XMLDocument xmldoc;
+        sim::tinyxml2::XMLError error=xmldoc.Parse(oldXml);
+        if(error==sim::tinyxml2::XML_NO_ERROR)
         {
-            tinyxml2::XMLElement* rootElement=xmldoc.FirstChildElement();
+            sim::tinyxml2::XMLElement* rootElement=xmldoc.FirstChildElement();
             const char* val=rootElement->Attribute("title");
             if (val!=nullptr)
                 retVal+=QString(" title=\"%1\"").arg(val);
@@ -141,34 +141,40 @@ QString CCodeEditorContainer::translateXml(const char* oldXml,const char* callba
             val=rootElement->Attribute("word4Color");
             if (val!=nullptr)
                 retVal+=QString(" keyword4-col=\"%1\"").arg(val);
-            val=rootElement->Attribute("useVrepKeywords");
-            bool vrepKeywords=false;
+            bool csimKeywords=false;
+            val=rootElement->Attribute("useCoppeliaSimKeywords");
             if (val!=nullptr)
-                vrepKeywords=(strcmp(val,"true")==0);
+                csimKeywords=(strcmp(val,"true")==0);
+            else
+            {
+                val=rootElement->Attribute("useVrepKeywords");
+                if (val!=nullptr)
+                    csimKeywords=(strcmp(val,"true")==0);
+            }
 
             retVal+=" resizable=\"true\" placement=\"absolute\" font=\"Courier\" toolbar=\"false\" statusbar=\"false\"";
             retVal+=" can-restart=\"false\" max-lines=\"0\" wrap-word=\"false\" closeable=\"true\"";
             retVal+=" activate=\"false\" line-numbers=\"true\" tab-width=\"4\"";
             int fontSize=12;
-            #ifdef MAC_VREP
+            #ifdef MAC_SIM
                 fontSize=16; // bigger fonts here
             #endif
             if (App::userSettings->scriptEditorFontSize!=-1)
                 fontSize=App::userSettings->scriptEditorFontSize;
-            #ifndef MAC_VREP
+            #ifndef MAC_SIM
             if (App::sc>1)
                 fontSize*=2;
             #endif
             retVal+=QString(" font-size=\"%1\"").arg(fontSize);
 
-            tinyxml2::XMLElement* keywords1=rootElement->FirstChildElement("keywords1");
+            sim::tinyxml2::XMLElement* keywords1=rootElement->FirstChildElement("keywords1");
             if (keywords1!=nullptr)
             {
                 val=keywords1->Attribute("color");
                 if (val!=nullptr)
                     retVal+=QString(" keyword1-col=\"%1\"").arg(val);
             }
-            tinyxml2::XMLElement* keywords2=rootElement->FirstChildElement("keywords2");
+            sim::tinyxml2::XMLElement* keywords2=rootElement->FirstChildElement("keywords2");
             if (keywords2!=nullptr)
             {
                 val=keywords2->Attribute("color");
@@ -180,7 +186,7 @@ QString CCodeEditorContainer::translateXml(const char* oldXml,const char* callba
             retVal+="<keywords1> ";
             if (keywords1!=nullptr)
             {
-                tinyxml2::XMLElement* item=keywords1->FirstChildElement("item");
+                sim::tinyxml2::XMLElement* item=keywords1->FirstChildElement("item");
                 while (item!=nullptr)
                 {
                     retVal+="<item ";
@@ -196,7 +202,7 @@ QString CCodeEditorContainer::translateXml(const char* oldXml,const char* callba
                     item=item->NextSiblingElement("item");
                     retVal+=" />";
                 }
-                if (vrepKeywords)
+                if (csimKeywords)
                     retVal+=getFuncKeywords(sim_scripttype_childscript,false);
             }
             retVal+="</keywords1>";
@@ -204,7 +210,7 @@ QString CCodeEditorContainer::translateXml(const char* oldXml,const char* callba
             retVal+="<keywords2> ";
             if (keywords2!=nullptr)
             {
-                tinyxml2::XMLElement* item=keywords2->FirstChildElement("item");
+                sim::tinyxml2::XMLElement* item=keywords2->FirstChildElement("item");
                 while (item!=nullptr)
                 {
                     retVal+="<item ";
@@ -220,7 +226,7 @@ QString CCodeEditorContainer::translateXml(const char* oldXml,const char* callba
                     item=item->NextSiblingElement("item");
                     retVal+=" />";
                 }
-                if (vrepKeywords)
+                if (csimKeywords)
                     retVal+=getVarKeywords(sim_scripttype_childscript,false);
             }
             retVal+="</keywords2>";
@@ -322,12 +328,12 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                 xml+=" max-lines=\"0\" activate=\"true\" editable=\"true\" searchable=\"true\" line-numbers=\"true\" tab-width=\"4\" is-lua=\"true\"";
                 xml+=QString(" lua-search-paths=\"%1\"").arg(it->getLuaSearchPath().c_str());
                 int fontSize=12;
-                #ifdef MAC_VREP
+                #ifdef MAC_SIM
                     fontSize=16; // bigger fonts here
                 #endif
                 if (App::userSettings->scriptEditorFontSize!=-1)
                     fontSize=App::userSettings->scriptEditorFontSize;
-                #ifndef MAC_VREP
+                #ifndef MAC_SIM
                 if (App::sc>1)
                     fontSize*=2;
                 #endif
@@ -449,12 +455,12 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                 xml+=" max-lines=\"0\" can-restart=\"true\"";
                 xml+=" activate=\"true\" editable=\"true\" searchable=\"true\" line-numbers=\"true\" tab-width=\"4\" is-lua=\"true\"";
                 int fontSize=12;
-                #ifdef MAC_VREP
+                #ifdef MAC_SIM
                     fontSize=16; // bigger fonts here
                 #endif
                 if (App::userSettings->scriptEditorFontSize!=-1)
                     fontSize=App::userSettings->scriptEditorFontSize;
-                #ifndef MAC_VREP
+                #ifndef MAC_SIM
                 if (App::sc>1)
                     fontSize*=2;
                 #endif
@@ -542,12 +548,12 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
         else
             xml+="  closeable=\"false\"";
         int fontSize=12;
-        #ifdef MAC_VREP
+        #ifdef MAC_SIM
             fontSize=16; // bigger fonts here
         #endif
         if (App::userSettings->scriptEditorFontSize!=-1)
             fontSize=App::userSettings->scriptEditorFontSize;
-        #ifndef MAC_VREP
+        #ifndef MAC_SIM
         if (App::sc>1)
             fontSize*=2;
         #endif

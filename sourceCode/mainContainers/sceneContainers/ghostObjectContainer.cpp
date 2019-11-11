@@ -301,6 +301,78 @@ void CGhostObjectContainer::serialize(CSer& ar)
             }
         }
     }
+    else
+    {
+        if (ar.isStoring())
+        {
+            for (size_t i=0;i<_allObjects.size();i++)
+            {
+                ar.xmlPushNewNode("ghost");
+
+                ar.xmlAddNode_int("id",_allObjects[i]->ghostId);
+                ar.xmlAddNode_int("groupId",_allObjects[i]->groupId);
+                ar.xmlAddNode_int("objectHandle",_allObjects[i]->objectHandle);
+                ar.xmlAddNode_int("options",_allObjects[i]->options);
+                ar.xmlAddNode_int("options",(int)_allObjects[i]->transparencyFactor);
+                ar.xmlAddNode_2float("startEndTime",_allObjects[i]->startTime,_allObjects[i]->endTime);
+
+                ar.xmlPushNewNode("color");
+                ar.xmlAddNode_floats("ambient",_allObjects[i]->color+0,3);
+                ar.xmlAddNode_floats("diffuse",_allObjects[i]->color+3,3);
+                ar.xmlAddNode_floats("specular",_allObjects[i]->color+6,3);
+                ar.xmlAddNode_floats("emission",_allObjects[i]->color+9,3);
+                ar.xmlPopNode();
+
+                ar.xmlPushNewNode("pose");
+                ar.xmlAddNode_floats("position",_allObjects[i]->tr.X.data,3);
+                ar.xmlAddNode_floats("quaternion",_allObjects[i]->tr.Q.data,4);
+                ar.xmlPopNode();
+
+                ar.xmlPopNode();
+            }
+        }
+        else
+        {
+            if (ar.xmlPushChildNode("ghost",false))
+            {
+                while (true)
+                {
+                    CGhostObject* go=new CGhostObject();
+
+                    ar.xmlGetNode_int("id",go->ghostId);
+                    ar.xmlGetNode_int("groupId",go->groupId);
+                    ar.xmlGetNode_int("objectHandle",go->objectHandle);
+                    ar.xmlGetNode_int("options",go->options);
+                    int tmp;
+                    ar.xmlGetNode_int("options",tmp);
+                    go->transparencyFactor=(unsigned char)tmp;
+                    ar.xmlGetNode_2float("startEndTime",go->startTime,go->endTime);
+
+                    if (ar.xmlPushChildNode("color"))
+                    {
+                        ar.xmlGetNode_floats("ambient",go->color+0,3);
+                        ar.xmlGetNode_floats("diffuse",go->color+3,3);
+                        ar.xmlGetNode_floats("specular",go->color+6,3);
+                        ar.xmlGetNode_floats("emission",go->color+9,3);
+                        ar.xmlPopNode();
+                    }
+
+                    if (ar.xmlPushChildNode("pose"))
+                    {
+                        ar.xmlGetNode_floats("position",go->tr.X.data,3);
+                        ar.xmlGetNode_floats("quaternion",go->tr.Q.data,4);
+                        ar.xmlPopNode();
+                    }
+
+                    _allObjects.push_back(go);
+
+                    if (!ar.xmlPushSiblingNode("ghost",false))
+                        break;
+                }
+                ar.xmlPopNode();
+            }
+        }
+    }
 }
 
 void CGhostObjectContainer::renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib)

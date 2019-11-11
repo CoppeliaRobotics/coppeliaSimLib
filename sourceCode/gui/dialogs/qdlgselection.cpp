@@ -1,7 +1,7 @@
 #include "qdlgselection.h"
 #include "ui_qdlgselection.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include <boost/lexical_cast.hpp>
 
 CQDlgSelection::CQDlgSelection(QWidget *parent) :

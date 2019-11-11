@@ -7,7 +7,7 @@
 #include "qdlgtextures.h"
 #include "qdlgnewui.h"
 #include "qdlguirolledup.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include <boost/lexical_cast.hpp>
 
 

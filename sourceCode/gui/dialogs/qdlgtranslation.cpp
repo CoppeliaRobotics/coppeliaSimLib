@@ -3,7 +3,7 @@
 #include "gV.h"
 #include "tt.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 int CQDlgTranslation::coordMode=0; //0=abs,1=rel to parent
 float CQDlgTranslation::translationValues[3]={0.0f,0.0f,0.0f};

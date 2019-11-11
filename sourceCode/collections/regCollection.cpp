@@ -1,9 +1,10 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "regCollection.h"
 #include "3DObject.h"
 #include "tt.h"
 #include "ttUtil.h"
 #include "app.h"
+#include "base64.h"
 
 CRegCollection::CRegCollection(std::string grName)
 {
@@ -275,6 +276,11 @@ std::string CRegCollection::getCollectionName()
     return(groupName);
 }
 
+std::string CRegCollection::getCollectionLoadName() const
+{
+    return(_groupLoadName);
+}
+
 void CRegCollection::setCollectionName(std::string newName)
 {
     groupName=newName;
@@ -392,6 +398,73 @@ void CRegCollection::serialize(CSer& ar)
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("handle",groupID);
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_string("name",groupName.c_str());
+            else
+                ar.xmlAddNode_string("name",("@collection@"+groupName).c_str());
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("overrideProperties",_overridesObjectMainProperties);
+            ar.xmlPopNode();
+
+            if (exhaustiveXml)
+            {
+                std::string str(base64_encode((unsigned char*)_uniquePersistentIdString.c_str(),_uniquePersistentIdString.size()));
+                ar.xmlAddNode_string("uniquePersistentIdString_base64Coded",str.c_str());
+            }
+
+            for (size_t i=0;i<subCollectionList.size();i++)
+            {
+                ar.xmlAddNode_comment(" 'item' tag: at least one of such tag is required ",exhaustiveXml);
+                ar.xmlPushNewNode("item");
+                subCollectionList[i]->serialize(ar);
+                ar.xmlPopNode();
+            }
+        }
+        else
+        {
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("handle",groupID);
+
+            if ( ar.xmlGetNode_string("name",groupName,exhaustiveXml)&&(!exhaustiveXml) )
+            {
+                _groupLoadName=groupName;
+                if (groupName.find("@collection@")==0)
+                    groupName.assign(_groupLoadName.begin()+strlen("@collection@"),_groupLoadName.end());
+                tt::removeIllegalCharacters(groupName,true);
+            }
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("overrideProperties",_overridesObjectMainProperties,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            if (exhaustiveXml&&ar.xmlGetNode_string("uniquePersistentIdString_base64Coded",_uniquePersistentIdString))
+                _uniquePersistentIdString=base64_decode(_uniquePersistentIdString);
+
+            if (ar.xmlPushChildNode("item",exhaustiveXml))
+            {
+                while (true)
+                {
+                    CRegCollectionEl* it=new CRegCollectionEl(0,0,false);
+                    it->serialize(ar);
+                    subCollectionList.push_back(it);
+                    if (!ar.xmlPushSiblingNode("item",false))
+                        break;
+                }
+                ar.xmlPopNode();
             }
         }
     }

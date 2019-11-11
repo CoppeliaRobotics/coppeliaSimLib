@@ -1,5 +1,5 @@
 
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "drawingContainer.h"
 #include "viewableBase.h"
 #include "easyLock.h"

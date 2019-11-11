@@ -2,11 +2,11 @@
 #include "ui_qdlgabout.h"
 #include "ttUtil.h"
 #include "tt.h"
-#include "v_repStrings.h"
-#include "v_repConst.h"
+#include "simStrings.h"
+#include "simConst.h"
 #include "ser.h"
 #include "app.h"
-#include "aboutBase.h"
+#include "libLic.h"
 
 CQDlgAbout::CQDlgAbout(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE|Qt::CustomizeWindowHint|Qt::WindowTitleHint), // since Qt5.1: Tool --> Dialog
@@ -35,11 +35,11 @@ void CQDlgAbout::initializationEvent()
 {
     defaultDialogInitializationRoutine();
     QPixmap img;
-    img.load(CAboutBase::handleVerSpec_1().c_str());
+    img.load(CLibLic::getStringVal(1).c_str());
     ui->splashImage->setPixmap(img);
     std::string windowTitle;
     std::string txt;
-    CAboutBase::handleVerSpec_2(windowTitle,txt);
+    CLibLic::getAboutStr(windowTitle,txt);
     setWindowTitle(windowTitle.c_str());
     ui->info->setText(txt.c_str());
 }

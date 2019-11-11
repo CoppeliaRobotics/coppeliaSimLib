@@ -60,7 +60,7 @@ bool CCuttingRoutine::_cutShape(int millID,int shapeID,float& cutSurface,bool ju
     C4X4Matrix shapeRTM((inv*shape->getCumulativeTransformation()).getMatrix());
 
     if (!justForInitialization)
-        cutSurface=CPluginContainer::mesh_cutNodeWithVolume(shape->geomData->collInfo,shapeRTM,&mill->convexVolume->planesInside);
+        cutSurface=0.0f;
     return (cutSurface>0.0f);
 }
 

@@ -2,7 +2,7 @@
 // This file requires some serious refactoring!
 
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "pageContainer.h"
 #include "tt.h"
 #include "sceneObjectOperations.h"
@@ -11,10 +11,10 @@
 #include "gV.h"
 #include "pluginContainer.h"
 #include "fileOperations.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "pageRendering.h"
-#include "pageContainerBase.h"
+#include "libLic.h"
 #ifdef SIM_WITH_GUI
     #include "toolBarCommand.h"
 #endif
@@ -119,6 +119,31 @@ CSPage* CPageContainer::getPage(int pageIndex) const
     if ( (pageIndex<0)||(pageIndex>=PAGES_COUNT) )
         return(nullptr); // Invalid view number
     return(_allPages[pageIndex]);   
+}
+
+int CPageContainer::getMainCameraHandle() const
+{
+    int retVal=-1;
+#ifdef SIM_WITH_GUI
+    CSPage* page=App::ct->pageContainer->getPage(App::ct->pageContainer->getActivePageIndex());
+    if (page!=nullptr)
+    {
+        for (size_t i=0;i<10;i++)
+        {
+            CSView* view=page->getView(i);
+            if (view!=nullptr)
+            {
+                CCamera* cam=App::ct->objCont->getCamera(view->getLinkedObjectID());
+                if (cam!=nullptr)
+                {
+                    retVal=cam->getObjectHandle();
+                    break;
+                }
+            }
+        }
+    }
+#endif
+    return(retVal);
 }
 
 void CPageContainer::announceObjectWillBeErased(int objectID)
@@ -235,6 +260,47 @@ void CPageContainer::serialize(CSer& ar)
             }
         }
     }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_int("currentPage",_activePageIndex);
+
+            for (int i=0;i<PAGES_COUNT;i++)
+            {
+                ar.xmlPushNewNode("pageWrapper");
+                if (_allPages[i]!=nullptr)
+                {
+                    ar.xmlPushNewNode("page");
+                    _allPages[i]->serialize(ar);
+                    ar.xmlPopNode();
+                }
+                ar.xmlPopNode();
+            }
+        }
+        else
+        {
+            ar.xmlGetNode_int("currentPage",_activePageIndex);
+            int viewCounter=0;
+            if (ar.xmlPushChildNode("pageWrapper",false))
+            {
+                while (true)
+                {
+                    if (ar.xmlPushChildNode("page",false))
+                    {
+                        CSPage* theView=new CSPage(0);
+                        theView->serialize(ar);
+                        _allPages[viewCounter]=theView;
+                        ar.xmlPopNode();
+                    }
+                    viewCounter++;
+                    if (!ar.xmlPushSiblingNode("pageWrapper",false))
+                        break;
+                }
+                ar.xmlPopNode();
+            }
+        }
+    }
 }
 
 void CPageContainer::performObjectLoadingMapping(std::vector<int>* map)
@@ -329,10 +395,15 @@ void CPageContainer::renderCurrentPage(bool hideWatermark)
 
     displayContainerPageOverlay(_pagePosition,_pageSize,_activePageIndex,focusObject);
 
-    int tagId=CPageContainerBase::handleVerSpec_getTag(hideWatermark);
-
-    if (tagId!=-1)
-        displayContainerPageWatermark(_pagePosition,_pageSize,tagId);
+    if ( (!hideWatermark)&&(App::mainWindow!=nullptr)&&(!App::mainWindow->simulationRecorder->getIsRecording()) )
+    {
+        int tagId=CLibLic::getIntVal(0);
+        // if compiling CoppeliaSim yourself, and using the mesh calculation plugin, you must use the EDU_TAG below!
+        if (tagId==0)
+            displayContainerPageWatermark(_pagePosition,_pageSize,EDU_TAG);
+        if (tagId==1)
+            displayContainerPageWatermark(_pagePosition,_pageSize,EVAL_TAG);
+    }
 }
 
 int CPageContainer::getActivePageIndex() const

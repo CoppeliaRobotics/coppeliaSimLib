@@ -1,5 +1,5 @@
 
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "dynMaterialObject.h"
 #include "app.h"
 #include "tt.h"
@@ -1042,6 +1042,228 @@ void CDynMaterialObject::serialize(CSer& ar)
                 averageFriction*=0.5f;
                 _newtonFloatParams[simi_newton_body_staticfriction]=averageFriction;
                 _newtonFloatParams[simi_newton_body_kineticfriction]=averageFriction;
+            }
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            if (exhaustiveXml)
+            {
+                ar.xmlAddNode_int("id",_objectID);
+                ar.xmlAddNode_string("name",_objectName.c_str());
+            }
+
+            ar.xmlPushNewNode("engines");
+            ar.xmlPushNewNode("bullet");
+            ar.xmlAddNode_float("restitution",getEngineFloatParam(sim_bullet_body_restitution,nullptr));
+            ar.xmlAddNode_float("friction",getEngineFloatParam(sim_bullet_body_friction,nullptr));
+            ar.xmlAddNode_float("oldfriction",getEngineFloatParam(sim_bullet_body_oldfriction,nullptr));
+            ar.xmlAddNode_float("lineardamping",getEngineFloatParam(sim_bullet_body_lineardamping,nullptr));
+            ar.xmlAddNode_float("angulardamping",getEngineFloatParam(sim_bullet_body_angulardamping,nullptr));
+            ar.xmlAddNode_float("nondefaultcollisionmargingfactor",getEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactor,nullptr));
+            ar.xmlAddNode_float("nondefaultcollisionmargingfactorconvex",getEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactorconvex,nullptr));
+
+            ar.xmlAddNode_bool("sticky",getEngineBoolParam(sim_bullet_body_sticky,nullptr));
+            ar.xmlAddNode_bool("usenondefaultcollisionmargin",getEngineBoolParam(sim_bullet_body_usenondefaultcollisionmargin,nullptr));
+            ar.xmlAddNode_bool("usenondefaultcollisionmarginconvex",getEngineBoolParam(sim_bullet_body_usenondefaultcollisionmarginconvex,nullptr));
+            ar.xmlAddNode_bool("autoshrinkconvex",getEngineBoolParam(sim_bullet_body_autoshrinkconvex,nullptr));
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("ode");
+            ar.xmlAddNode_float("friction",getEngineFloatParam(sim_ode_body_friction,nullptr));
+            ar.xmlAddNode_float("softerp",getEngineFloatParam(sim_ode_body_softerp,nullptr));
+            ar.xmlAddNode_float("softcfm",getEngineFloatParam(sim_ode_body_softcfm,nullptr));
+            ar.xmlAddNode_float("lineardamping",getEngineFloatParam(sim_ode_body_lineardamping,nullptr));
+            ar.xmlAddNode_float("angulardamping",getEngineFloatParam(sim_ode_body_angulardamping,nullptr));
+
+            ar.xmlAddNode_int("maxcontacts",getEngineIntParam(sim_ode_body_maxcontacts,nullptr));
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("vortex");
+            ar.xmlAddNode_float("primlinearaxisfriction",getEngineFloatParam(sim_vortex_body_primlinearaxisfriction,nullptr));
+            ar.xmlAddNode_float("seclinearaxisfriction",getEngineFloatParam(sim_vortex_body_seclinearaxisfriction,nullptr));
+            ar.xmlAddNode_float("primangularaxisfriction",getEngineFloatParam(sim_vortex_body_primangularaxisfriction,nullptr));
+            ar.xmlAddNode_float("secangularaxisfriction",getEngineFloatParam(sim_vortex_body_secangularaxisfriction,nullptr));
+            ar.xmlAddNode_float("normalangularaxisfriction",getEngineFloatParam(sim_vortex_body_normalangularaxisfriction,nullptr));
+            ar.xmlAddNode_float("primlinearaxisstaticfrictionscale",getEngineFloatParam(sim_vortex_body_primlinearaxisstaticfrictionscale,nullptr));
+            ar.xmlAddNode_float("seclinearaxisstaticfrictionscale",getEngineFloatParam(sim_vortex_body_seclinearaxisstaticfrictionscale,nullptr));
+            ar.xmlAddNode_float("primangularaxisstaticfrictionscale",getEngineFloatParam(sim_vortex_body_primangularaxisstaticfrictionscale,nullptr));
+            ar.xmlAddNode_float("secangularaxisstaticfrictionscale",getEngineFloatParam(sim_vortex_body_secangularaxisstaticfrictionscale,nullptr));
+            ar.xmlAddNode_float("normalangularaxisstaticfrictionscale",getEngineFloatParam(sim_vortex_body_normalangularaxisstaticfrictionscale,nullptr));
+            ar.xmlAddNode_float("compliance",getEngineFloatParam(sim_vortex_body_compliance,nullptr));
+            ar.xmlAddNode_float("damping",getEngineFloatParam(sim_vortex_body_damping,nullptr));
+            ar.xmlAddNode_float("restitution",getEngineFloatParam(sim_vortex_body_restitution,nullptr));
+            ar.xmlAddNode_float("restitutionthreshold",getEngineFloatParam(sim_vortex_body_restitutionthreshold,nullptr));
+            ar.xmlAddNode_float("adhesiveforce",getEngineFloatParam(sim_vortex_body_adhesiveforce,nullptr));
+            ar.xmlAddNode_float("linearvelocitydamping",getEngineFloatParam(sim_vortex_body_linearvelocitydamping,nullptr));
+            ar.xmlAddNode_float("angularvelocitydamping",getEngineFloatParam(sim_vortex_body_angularvelocitydamping,nullptr));
+            ar.xmlAddNode_float("primlinearaxisslide",getEngineFloatParam(sim_vortex_body_primlinearaxisslide,nullptr));
+            ar.xmlAddNode_float("seclinearaxisslide",getEngineFloatParam(sim_vortex_body_seclinearaxisslide,nullptr));
+            ar.xmlAddNode_float("primangularaxisslide",getEngineFloatParam(sim_vortex_body_primangularaxisslide,nullptr));
+            ar.xmlAddNode_float("secangularaxisslide",getEngineFloatParam(sim_vortex_body_secangularaxisslide,nullptr));
+            ar.xmlAddNode_float("normalangularaxisslide",getEngineFloatParam(sim_vortex_body_normalangularaxisslide,nullptr));
+            ar.xmlAddNode_float("primlinearaxisslip",getEngineFloatParam(sim_vortex_body_primlinearaxisslip,nullptr));
+            ar.xmlAddNode_float("seclinearaxisslip",getEngineFloatParam(sim_vortex_body_seclinearaxisslip,nullptr));
+            ar.xmlAddNode_float("primangularaxisslip",getEngineFloatParam(sim_vortex_body_primangularaxisslip,nullptr));
+            ar.xmlAddNode_float("secangularaxisslip",getEngineFloatParam(sim_vortex_body_secangularaxisslip,nullptr));
+            ar.xmlAddNode_float("normalangularaxisslip",getEngineFloatParam(sim_vortex_body_normalangularaxisslip,nullptr));
+            ar.xmlAddNode_float("autosleeplinearspeedthreshold",getEngineFloatParam(sim_vortex_body_autosleeplinearspeedthreshold,nullptr));
+            ar.xmlAddNode_float("autosleeplinearaccelthreshold",getEngineFloatParam(sim_vortex_body_autosleeplinearaccelthreshold,nullptr));
+            ar.xmlAddNode_float("autosleepangularspeedthreshold",getEngineFloatParam(sim_vortex_body_autosleepangularspeedthreshold,nullptr));
+            ar.xmlAddNode_float("autosleepangularaccelthreshold",getEngineFloatParam(sim_vortex_body_autosleepangularaccelthreshold,nullptr));
+            ar.xmlAddNode_float("skinthickness",getEngineFloatParam(sim_vortex_body_skinthickness,nullptr));
+            ar.xmlAddNode_float("autoangulardampingtensionratio",getEngineFloatParam(sim_vortex_body_autoangulardampingtensionratio,nullptr));
+            ar.xmlAddNode_float("primaxisvectorx",getEngineFloatParam(sim_vortex_body_primaxisvectorx,nullptr));
+            ar.xmlAddNode_float("primaxisvectory",getEngineFloatParam(sim_vortex_body_primaxisvectory,nullptr));
+            ar.xmlAddNode_float("primaxisvectorz",getEngineFloatParam(sim_vortex_body_primaxisvectorz,nullptr));
+
+            ar.xmlAddNode_int("primlinearaxisfrictionmodel",getEngineIntParam(sim_vortex_body_primlinearaxisfrictionmodel,nullptr));
+            ar.xmlAddNode_int("seclinearaxisfrictionmodel",getEngineIntParam(sim_vortex_body_seclinearaxisfrictionmodel,nullptr));
+            ar.xmlAddNode_int("primangulararaxisfrictionmodel",getEngineIntParam(sim_vortex_body_primangulararaxisfrictionmodel,nullptr));
+            ar.xmlAddNode_int("secmangulararaxisfrictionmodel",getEngineIntParam(sim_vortex_body_secmangulararaxisfrictionmodel,nullptr));
+            ar.xmlAddNode_int("normalmangulararaxisfrictionmodel",getEngineIntParam(sim_vortex_body_normalmangulararaxisfrictionmodel,nullptr));
+            ar.xmlAddNode_int("autosleepsteplivethreshold",getEngineIntParam(sim_vortex_body_autosleepsteplivethreshold,nullptr));
+            ar.xmlAddNode_int("materialuniqueid",getEngineIntParam(sim_vortex_body_materialuniqueid,nullptr));
+
+            ar.xmlAddNode_bool("pureshapesasconvex",getEngineBoolParam(sim_vortex_body_pureshapesasconvex,nullptr));
+            ar.xmlAddNode_bool("convexshapesasrandom",getEngineBoolParam(sim_vortex_body_convexshapesasrandom,nullptr));
+            ar.xmlAddNode_bool("randomshapesasterrain",getEngineBoolParam(sim_vortex_body_randomshapesasterrain,nullptr));
+            ar.xmlAddNode_bool("fastmoving",getEngineBoolParam(sim_vortex_body_fastmoving,nullptr));
+            ar.xmlAddNode_bool("autoslip",getEngineBoolParam(sim_vortex_body_autoslip,nullptr));
+            ar.xmlAddNode_bool("seclinaxissameasprimlinaxis",getEngineBoolParam(sim_vortex_body_seclinaxissameasprimlinaxis,nullptr));
+            ar.xmlAddNode_bool("secangaxissameasprimangaxis",getEngineBoolParam(sim_vortex_body_secangaxissameasprimangaxis,nullptr));
+            ar.xmlAddNode_bool("normangaxissameasprimangaxis",getEngineBoolParam(sim_vortex_body_normangaxissameasprimangaxis,nullptr));
+            ar.xmlAddNode_bool("autoangulardamping",getEngineBoolParam(sim_vortex_body_autoangulardamping,nullptr));
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("newton");
+            ar.xmlAddNode_float("staticfriction",getEngineFloatParam(sim_newton_body_staticfriction,nullptr));
+            ar.xmlAddNode_float("kineticfriction",getEngineFloatParam(sim_newton_body_kineticfriction,nullptr));
+            ar.xmlAddNode_float("restitution",getEngineFloatParam(sim_newton_body_restitution,nullptr));
+            ar.xmlAddNode_float("lineardrag",getEngineFloatParam(sim_newton_body_lineardrag,nullptr));
+            ar.xmlAddNode_float("angulardrag",getEngineFloatParam(sim_newton_body_angulardrag,nullptr));
+
+            ar.xmlAddNode_bool("fastmoving",getEngineBoolParam(sim_newton_body_fastmoving,nullptr));
+            ar.xmlPopNode();
+
+            ar.xmlPopNode();
+        }
+        else
+        {
+            if (exhaustiveXml)
+            {
+                ar.xmlGetNode_int("id",_objectID);
+                ar.xmlGetNode_string("name",_objectName);
+            }
+
+            float v;
+            int vi;
+            bool vb;
+            if (ar.xmlPushChildNode("engines",exhaustiveXml))
+            {
+                if (ar.xmlPushChildNode("bullet",exhaustiveXml))
+                {
+                    if (ar.xmlGetNode_float("restitution",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_body_restitution,v);
+                    if (ar.xmlGetNode_float("friction",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_body_friction,v);
+                    if (ar.xmlGetNode_float("oldfriction",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_body_oldfriction,v);
+                    if (ar.xmlGetNode_float("lineardamping",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_body_lineardamping,v);
+                    if (ar.xmlGetNode_float("angulardamping",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_body_angulardamping,v);
+                    if (ar.xmlGetNode_float("nondefaultcollisionmargingfactor",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactor,v);
+                    if (ar.xmlGetNode_float("nondefaultcollisionmargingfactorconvex",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactorconvex,v);
+
+                    if (ar.xmlGetNode_bool("sticky",vb,exhaustiveXml)) setEngineBoolParam(sim_bullet_body_sticky,vb);
+                    if (ar.xmlGetNode_bool("usenondefaultcollisionmargin",vb,exhaustiveXml)) setEngineBoolParam(sim_bullet_body_usenondefaultcollisionmargin,vb);
+                    if (ar.xmlGetNode_bool("usenondefaultcollisionmarginconvex",vb,exhaustiveXml)) setEngineBoolParam(sim_bullet_body_usenondefaultcollisionmarginconvex,vb);
+                    if (ar.xmlGetNode_bool("autoshrinkconvex",vb,exhaustiveXml)) setEngineBoolParam(sim_bullet_body_autoshrinkconvex,vb);
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("ode",exhaustiveXml))
+                {
+                    if (ar.xmlGetNode_float("friction",v,exhaustiveXml)) setEngineFloatParam(sim_ode_body_friction,v);
+                    if (ar.xmlGetNode_float("softerp",v,exhaustiveXml)) setEngineFloatParam(sim_ode_body_softerp,v);
+                    if (ar.xmlGetNode_float("softcfm",v,exhaustiveXml)) setEngineFloatParam(sim_ode_body_softcfm,v);
+                    if (ar.xmlGetNode_float("lineardamping",v,exhaustiveXml)) setEngineFloatParam(sim_ode_body_lineardamping,v);
+                    if (ar.xmlGetNode_float("angulardamping",v,exhaustiveXml)) setEngineFloatParam(sim_ode_body_angulardamping,v);
+
+                    if (ar.xmlGetNode_int("maxcontacts",vi,exhaustiveXml)) setEngineIntParam(sim_ode_body_maxcontacts,vi);
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("vortex",exhaustiveXml))
+                {
+                    if (ar.xmlGetNode_float("primlinearaxisfriction",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_primlinearaxisfriction,v);
+                    if (ar.xmlGetNode_float("seclinearaxisfriction",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_seclinearaxisfriction,v);
+                    if (ar.xmlGetNode_float("primangularaxisfriction",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_primangularaxisfriction,v);
+                    if (ar.xmlGetNode_float("secangularaxisfriction",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_secangularaxisfriction,v);
+                    if (ar.xmlGetNode_float("normalangularaxisfriction",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_normalangularaxisfriction,v);
+                    if (ar.xmlGetNode_float("primlinearaxisstaticfrictionscale",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_primlinearaxisstaticfrictionscale,v);
+                    if (ar.xmlGetNode_float("seclinearaxisstaticfrictionscale",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_seclinearaxisstaticfrictionscale,v);
+                    if (ar.xmlGetNode_float("primangularaxisstaticfrictionscale",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_primangularaxisstaticfrictionscale,v);
+                    if (ar.xmlGetNode_float("secangularaxisstaticfrictionscale",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_secangularaxisstaticfrictionscale,v);
+                    if (ar.xmlGetNode_float("normalangularaxisstaticfrictionscale",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_normalangularaxisstaticfrictionscale,v);
+                    if (ar.xmlGetNode_float("compliance",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_compliance,v);
+                    if (ar.xmlGetNode_float("damping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_damping,v);
+                    if (ar.xmlGetNode_float("restitution",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_restitution,v);
+                    if (ar.xmlGetNode_float("restitutionthreshold",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_restitutionthreshold,v);
+                    if (ar.xmlGetNode_float("adhesiveforce",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_adhesiveforce,v);
+                    if (ar.xmlGetNode_float("linearvelocitydamping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_linearvelocitydamping,v);
+                    if (ar.xmlGetNode_float("angularvelocitydamping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_angularvelocitydamping,v);
+                    if (ar.xmlGetNode_float("primlinearaxisslide",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_primlinearaxisslide,v);
+                    if (ar.xmlGetNode_float("seclinearaxisslide",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_seclinearaxisslide,v);
+                    if (ar.xmlGetNode_float("primangularaxisslide",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_primangularaxisslide,v);
+                    if (ar.xmlGetNode_float("secangularaxisslide",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_secangularaxisslide,v);
+                    if (ar.xmlGetNode_float("normalangularaxisslide",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_normalangularaxisslide,v);
+                    if (ar.xmlGetNode_float("primlinearaxisslip",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_primlinearaxisslip,v);
+                    if (ar.xmlGetNode_float("seclinearaxisslip",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_seclinearaxisslip,v);
+                    if (ar.xmlGetNode_float("primangularaxisslip",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_primangularaxisslip,v);
+                    if (ar.xmlGetNode_float("secangularaxisslip",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_secangularaxisslip,v);
+                    if (ar.xmlGetNode_float("normalangularaxisslip",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_normalangularaxisslip,v);
+                    if (ar.xmlGetNode_float("autosleeplinearspeedthreshold",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_autosleeplinearspeedthreshold,v);
+                    if (ar.xmlGetNode_float("autosleeplinearaccelthreshold",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_autosleeplinearaccelthreshold,v);
+                    if (ar.xmlGetNode_float("autosleepangularspeedthreshold",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_autosleepangularspeedthreshold,v);
+                    if (ar.xmlGetNode_float("autosleepangularaccelthreshold",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_autosleepangularaccelthreshold,v);
+                    if (ar.xmlGetNode_float("skinthickness",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_skinthickness,v);
+                    if (ar.xmlGetNode_float("autoangulardampingtensionratio",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_autoangulardampingtensionratio,v);
+                    if (ar.xmlGetNode_float("primaxisvectorx",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_primaxisvectorx,v);
+                    if (ar.xmlGetNode_float("primaxisvectory",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_primaxisvectory,v);
+                    if (ar.xmlGetNode_float("primaxisvectorz",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_body_primaxisvectorz,v);
+
+                    if (ar.xmlGetNode_int("primlinearaxisfrictionmodel",vi,exhaustiveXml)) setEngineIntParam(sim_vortex_body_primlinearaxisfrictionmodel,vi);
+                    if (ar.xmlGetNode_int("seclinearaxisfrictionmodel",vi,exhaustiveXml)) setEngineIntParam(sim_vortex_body_seclinearaxisfrictionmodel,vi);
+                    if (ar.xmlGetNode_int("primangulararaxisfrictionmodel",vi,exhaustiveXml)) setEngineIntParam(sim_vortex_body_primangulararaxisfrictionmodel,vi);
+                    if (ar.xmlGetNode_int("secmangulararaxisfrictionmodel",vi,exhaustiveXml)) setEngineIntParam(sim_vortex_body_secmangulararaxisfrictionmodel,vi);
+                    if (ar.xmlGetNode_int("normalmangulararaxisfrictionmodel",vi,exhaustiveXml)) setEngineIntParam(sim_vortex_body_normalmangulararaxisfrictionmodel,vi);
+                    if (ar.xmlGetNode_int("autosleepsteplivethreshold",vi,exhaustiveXml)) setEngineIntParam(sim_vortex_body_autosleepsteplivethreshold,vi);
+                    if (ar.xmlGetNode_int("materialuniqueid",vi,exhaustiveXml)) setEngineIntParam(sim_vortex_body_materialuniqueid,vi);
+
+                    if (ar.xmlGetNode_bool("pureshapesasconvex",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_body_pureshapesasconvex,vb);
+                    if (ar.xmlGetNode_bool("convexshapesasrandom",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_body_convexshapesasrandom,vb);
+                    if (ar.xmlGetNode_bool("randomshapesasterrain",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_body_randomshapesasterrain,vb);
+                    if (ar.xmlGetNode_bool("fastmoving",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_body_fastmoving,vb);
+                    if (ar.xmlGetNode_bool("autoslip",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_body_autoslip,vb);
+                    if (ar.xmlGetNode_bool("seclinaxissameasprimlinaxis",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_body_seclinaxissameasprimlinaxis,vb);
+                    if (ar.xmlGetNode_bool("secangaxissameasprimangaxis",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_body_secangaxissameasprimangaxis,vb);
+                    if (ar.xmlGetNode_bool("normangaxissameasprimangaxis",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_body_normangaxissameasprimangaxis,vb);
+                    if (ar.xmlGetNode_bool("autoangulardamping",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_body_autoangulardamping,vb);
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("newton",exhaustiveXml))
+                {
+                    if (ar.xmlGetNode_float("staticfriction",v,exhaustiveXml)) setEngineFloatParam(sim_newton_body_staticfriction,v);
+                    if (ar.xmlGetNode_float("kineticfriction",v,exhaustiveXml)) setEngineFloatParam(sim_newton_body_kineticfriction,v);
+                    if (ar.xmlGetNode_float("restitution",v,exhaustiveXml)) setEngineFloatParam(sim_newton_body_restitution,v);
+                    if (ar.xmlGetNode_float("lineardrag",v,exhaustiveXml)) setEngineFloatParam(sim_newton_body_lineardrag,v);
+                    if (ar.xmlGetNode_float("angulardrag",v,exhaustiveXml)) setEngineFloatParam(sim_newton_body_angulardrag,v);
+
+                    if (ar.xmlGetNode_bool("fastmoving",vb,exhaustiveXml)) setEngineBoolParam(sim_newton_body_fastmoving,vb);
+                    ar.xmlPopNode();
+                }
+                ar.xmlPopNode();
             }
         }
     }

@@ -1,8 +1,9 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "directoryPaths.h"
 #include "global.h"
 #include "vVarious.h"
 #include "app.h"
+#include "libLic.h"
 
 CDirectoryPaths::CDirectoryPaths()
 {
@@ -11,18 +12,18 @@ CDirectoryPaths::CDirectoryPaths()
     extScriptEditorTempFileDirectory=currentDir;
     remoteApiFileTransferDirectory=currentDir;
     systemDirectory=executableDirectory+"/"+SIM_SYSTEM_DIRECTORY_NAME;
-#ifdef MAC_VREP
+#ifdef MAC_SIM
     // We are inside of the package!!!
-    sceneDirectory=executableDirectory+"/../../../"+V_REP_SCENES_DIRECTORY_NAME;// if scenes can't be found, it will use the last used directory somehow!
-    modelDirectory=executableDirectory+"/../../../"+V_REP_MODELS_DIRECTORY_NAME;
+    sceneDirectory=executableDirectory+"/../../../"+CLibLic::getStringVal(13);// if scenes can't be found, it will use the last used directory somehow!
+    modelDirectory=executableDirectory+"/../../../"+CLibLic::getStringVal(14);
     uiDirectory=executableDirectory+"/../../../";
     cadFormatDirectory=executableDirectory+"/../../../"+SIM_CADFILES_DIRECTORY_NAME;
     textureDirectory=executableDirectory+"/../../../";
     videoDirectory=executableDirectory+"/../../../";
     otherFilesDirectory=executableDirectory+"/../../../";
 #else
-    sceneDirectory=executableDirectory+"/"+V_REP_SCENES_DIRECTORY_NAME;// if scenes can't be found, it will use the last used directory somehow!
-    modelDirectory=executableDirectory+"/"+V_REP_MODELS_DIRECTORY_NAME;
+    sceneDirectory=executableDirectory+"/"+CLibLic::getStringVal(13);// if scenes can't be found, it will use the last used directory somehow!
+    modelDirectory=executableDirectory+"/"+CLibLic::getStringVal(14);
     uiDirectory=executableDirectory;
     cadFormatDirectory=executableDirectory+"/"+SIM_CADFILES_DIRECTORY_NAME;
     textureDirectory=executableDirectory;

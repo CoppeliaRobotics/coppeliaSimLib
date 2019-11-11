@@ -6,16 +6,15 @@
 #include "userSettings.h"
 #include "vMutex.h"
 #include "mainContainer.h"
-#include "appBase.h"
 #ifndef SIM_WITHOUT_QT_AT_ALL
-    #include "vrepQApp.h"
+    #include "simQApp.h"
     #include "simAndUiThreadSync.h"
 #endif
 #ifdef SIM_WITH_GUI
     #include "mainWindow.h"
 #endif
 
-class App : public AppBase
+class App
 {
 public:
     App(bool headless);
@@ -103,7 +102,7 @@ private:
 
 #ifndef SIM_WITHOUT_QT_AT_ALL
 public:
-    static CVrepQApp* qtApp;
+    static CSimQApp* qtApp;
 
 private:
     static int _qApp_argc;

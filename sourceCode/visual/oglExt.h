@@ -2,21 +2,21 @@
 #pragma once
 #include <oGL.h>
 
-#ifdef WIN_VREP
+#ifdef WIN_SIM
 //  #include <qgl.h>
 //  #include <GL/gl.h>
 //  #include "glext.h"
 //  #define GL_DEPTH24_STENCIL8_EXT 0x88F0
 #endif
 
-#ifdef LIN_VREP
+#ifdef LIN_SIM
     #include <GL/glext.h>
     #include <GL/gl.h>
     #include <GL/glx.h>
     #include <GL/glxext.h>
 #endif
 
-#ifdef MAC_VREP
+#ifdef MAC_SIM
 //  #define GL_GLEXT_FUNCTION_POINTERS 1
     #include <OpenGL/OpenGL.h>
     #include <OpenGL/gl.h>
@@ -25,7 +25,7 @@
     #include <OpenGL/gl3ext.h>
 #endif
 
-#ifndef MAC_VREP
+#ifndef MAC_SIM
     extern PFNGLGENFRAMEBUFFERSEXTPROC _glGenFramebuffers;
     extern PFNGLDELETEFRAMEBUFFERSEXTPROC _glDeleteFramebuffers;
     extern PFNGLBINDFRAMEBUFFEREXTPROC _glBindFramebuffer;
@@ -61,7 +61,7 @@ public:
     static void CheckFramebufferStatus(GLenum a);
     static void GetRenderbufferParameteriv(GLenum a,GLenum b,GLint* c);
 
-#ifndef MAC_VREP
+#ifndef MAC_SIM
     static PFNGLGENFRAMEBUFFERSEXTPROC _glGenFramebuffers;
     static PFNGLDELETEFRAMEBUFFERSEXTPROC _glDeleteFramebuffers;
     static PFNGLBINDFRAMEBUFFEREXTPROC _glBindFramebuffer;

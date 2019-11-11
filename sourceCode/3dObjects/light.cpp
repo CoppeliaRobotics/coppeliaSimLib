@@ -1,8 +1,8 @@
 #include "funcDebug.h"
 #include "light.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "tt.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "ttUtil.h"
 #include "easyLock.h"
 #include "app.h"
@@ -539,7 +539,7 @@ void CLight::serialize(CSer& ar)
                 _extensionString+="}}";
             }
 
-            if (ar.getVrepVersionThatWroteThisFile()<=30601)
+            if (ar.getCoppeliaSimVersionThatWroteThisFile()<=30601)
             {
                 if (_extensionString.find("openGL3")==std::string::npos)
                 {
@@ -552,6 +552,124 @@ void CLight::serialize(CSer& ar)
                     if (_lightType==sim_light_directional_subtype)
                         _extensionString+="openGL3 {lightProjection {nearPlane {0.1} farPlane {10} orthoSize {8} bias {0.001} normalBias {0.005} shadowTextureSize {2048}}}";
                 }
+            }
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_comment(" 'type' tag: can be 'omnidirectional', 'spotlight' or 'directional' ",exhaustiveXml);
+            ar.xmlAddNode_enum("type",_lightType,sim_light_omnidirectional_subtype,"omnidirectional",sim_light_spot_subtype,"spotlight",sim_light_directional_subtype,"directional");
+
+            ar.xmlAddNode_float("size",_lightSize);
+
+            ar.xmlAddNode_int("spotExponent",_spotExponent);
+
+            ar.xmlAddNode_float("cutoffAngle",_spotCutoffAngle*180.0f/piValue_f);
+
+            ar.xmlPushNewNode("attenuationFactors");
+            ar.xmlAddNode_float("constant",constantAttenuation);
+            ar.xmlAddNode_float("linear",linearAttenuation);
+            ar.xmlAddNode_float("quadratic",quadraticAttenuation);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("lightIsActive",lightActive);
+            if (exhaustiveXml)
+                ar.xmlAddNode_bool("lightIsLocal",_lightIsLocal);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("color");
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("object");
+                objectColor.serialize(ar,0);
+                ar.xmlPopNode();
+                ar.xmlPushNewNode("light");
+                lightColor.serialize(ar,0);
+                ar.xmlPopNode();
+            }
+            else
+            {
+                int rgb[3];
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(objectColor.colors[l]*255.1f);
+                ar.xmlAddNode_ints("object",rgb,3);
+                ar.xmlPushNewNode("light");
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(lightColor.colors[3+l]*255.1f);
+                ar.xmlAddNode_ints("ambientDiffuse",rgb,3);
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(lightColor.colors[6+l]*255.1f);
+                ar.xmlAddNode_ints("specular",rgb,3);
+                ar.xmlPopNode();
+            }
+            ar.xmlPopNode();
+        }
+        else
+        {
+            ar.xmlGetNode_enum("type",_lightType,exhaustiveXml,"omnidirectional",sim_light_omnidirectional_subtype,"spotlight",sim_light_spot_subtype,"directional",sim_light_directional_subtype);
+
+            if (ar.xmlGetNode_float("size",_lightSize,exhaustiveXml))
+                setLightSize(_lightSize);
+
+            if (ar.xmlGetNode_int("spotExponent",_spotExponent,exhaustiveXml))
+                setSpotExponent(_spotExponent);
+
+            if (ar.xmlGetNode_float("cutoffAngle",_spotCutoffAngle,exhaustiveXml))
+                setSpotCutoffAngle(_spotCutoffAngle*piValue_f/180.0f);
+
+            if (ar.xmlPushChildNode("attenuationFactors",exhaustiveXml))
+            {
+                if (ar.xmlGetNode_float("constant",constantAttenuation,exhaustiveXml))
+                    setAttenuationFactor(constantAttenuation,CONSTANT_ATTENUATION);
+                if (ar.xmlGetNode_float("linear",linearAttenuation,exhaustiveXml))
+                    setAttenuationFactor(linearAttenuation,LINEAR_ATTENUATION);
+                if (ar.xmlGetNode_float("quadratic",quadraticAttenuation,exhaustiveXml))
+                    setAttenuationFactor(quadraticAttenuation,QUADRATIC_ATTENUATION);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("lightIsActive",lightActive,exhaustiveXml);
+                if (exhaustiveXml)
+                    ar.xmlGetNode_bool("lightIsLocal",_lightIsLocal,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("color",exhaustiveXml))
+            {
+                if (exhaustiveXml)
+                {
+                    if (ar.xmlPushChildNode("object"))
+                    {
+                        objectColor.serialize(ar,0);
+                        ar.xmlPopNode();
+                    }
+                    if (ar.xmlPushChildNode("light"))
+                    {
+                        lightColor.serialize(ar,0);
+                        ar.xmlPopNode();
+                    }
+                }
+                else
+                {
+                    int rgb[3];
+                    if (ar.xmlGetNode_ints("object",rgb,3,exhaustiveXml))
+                        objectColor.setColor(float(rgb[0])/255.0f,float(rgb[1])/255.0f,float(rgb[2])/255.0f,sim_colorcomponent_ambient_diffuse);
+                    if (ar.xmlPushChildNode("light",exhaustiveXml))
+                    {
+                        if (ar.xmlGetNode_ints("ambientDiffuse",rgb,3,exhaustiveXml))
+                            lightColor.setColor(float(rgb[0])/255.0f,float(rgb[1])/255.0f,float(rgb[2])/255.0f,sim_colorcomponent_diffuse);
+                        if (ar.xmlGetNode_ints("specular",rgb,3,exhaustiveXml))
+                            lightColor.setColor(float(rgb[0])/255.0f,float(rgb[1])/255.0f,float(rgb[2])/255.0f,sim_colorcomponent_specular);
+                        ar.xmlPopNode();
+                    }
+                }
+                ar.xmlPopNode();
             }
         }
     }

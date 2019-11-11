@@ -1,6 +1,6 @@
 #include "qdlgmodelproperties.h"
 #include "ui_qdlgmodelproperties.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "qdlgmodelthumbnailvisu.h"
 #include "qdlgmodelthumbnail.h"
 #include "app.h"

@@ -4,15 +4,19 @@
 #include "tt.h"
 #include "objCont.h"
 #include "global.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "geometricConstraintSolverInt.h"
 #include "pluginContainer.h"
 #include "geometric.h"
 #include "meshManip.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "vDateTime.h"
 #include "ttUtil.h"
+#include "addOperations.h"
+#include "sceneObjectOperations.h"
+#include "fileOperations.h"
+#include "pluginContainer.h"
 
 CObjCont::CObjCont()
 {
@@ -154,7 +158,7 @@ bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool jus
                     noHit=false;
                 }
                 if (theName.compare(SER_DYNMATERIAL)==0)
-                { // Following for backward compatibility (i.e. files written prior V-REP 3.4.0) (30/10/2016)
+                { // Following for backward compatibility (i.e. files written prior CoppeliaSim 3.4.0) (30/10/2016)
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                     CDynMaterialObject* myNewObject=new CDynMaterialObject();
                     myNewObject->serialize(ar);
@@ -245,11 +249,11 @@ bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool jus
                             App::addStatusbarMessage(l.c_str());
                         }
                         if (it->getScriptType()==sim_scripttype_jointctrlcallback_old)
-                            App::addStatusbarMessage("<font color='red'>The file contains a joint control callback script, which is a script type that is not supported anymore (since V-REP V3.6.1 rev2). Use a joint callback function instead.</font>@html");
+                            App::addStatusbarMessage("<font color='red'>The file contains a joint control callback script, which is a script type that is not supported anymore (since CoppeliaSim V3.6.1 rev2). Use a joint callback function instead.</font>@html");
                         if (it->getScriptType()==sim_scripttype_generalcallback_old)
-                            App::addStatusbarMessage("<font color='red'>The file contains a general callback script, which is a script type that is not supported anymore (since V-REP V3.6.1 rev2).</font>@html");
+                            App::addStatusbarMessage("<font color='red'>The file contains a general callback script, which is a script type that is not supported anymore (since CoppeliaSim V3.6.1 rev2).</font>@html");
                         if (it->getScriptType()==sim_scripttype_contactcallback_old)
-                            App::addStatusbarMessage("<font color='red'>The file contains a contact callback script, which is a script type that is not supported anymore (since V-REP V3.6.1 rev2). Use a contact callback functions instead.</font>@html");
+                            App::addStatusbarMessage("<font color='red'>The file contains a contact callback script, which is a script type that is not supported anymore (since CoppeliaSim V3.6.1 rev2). Use a contact callback functions instead.</font>@html");
                         App::addStatusbarMessage("<font color='red'>See above the content of the unsupported script</font>@html");
                         delete it;
                     }
@@ -316,10 +320,142 @@ bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool jus
             }
         }
     }
+    else
+    {
+        std::string dummy1;
+        bool dummy2;
+        if (ar.xmlPushChildNode(SERX_MODEL_THUMBNAIL))
+        {
+            App::ct->environment->modelThumbnail_notSerializedHere.serialize(ar);
+            ar.xmlPopNode();
+            hasThumbnail=true;
+        }
+        if (ar.xmlPushChildNode(SERX_SCENEOBJECT,false))
+        {
+            while (true)
+            {
+                std::string dummy1;
+                bool dummy2;
+                C3DObject* it=load3DObject(ar,dummy1,dummy2);
+                if (it!=nullptr)
+                    loadedObjectList.push_back(it);
+                if (!ar.xmlPushSiblingNode(SERX_SCENEOBJECT,false))
+                    break;
+            }
+            ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_TEXTURE,false))
+        {
+            while (true)
+            {
+                CTextureObject* theTextureData=App::ct->textureCont->loadTextureObject(ar,dummy1,dummy2);
+                if (theTextureData!=nullptr)
+                    loadedTextureList.push_back(theTextureData);
+                if (!ar.xmlPushSiblingNode(SERX_TEXTURE,false))
+                    break;
+            }
+            ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_GHOSTS,isScene))
+        {
+            App::ct->ghostObjectCont->serialize(ar);
+            ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_ENVIRONMENT,isScene))
+        {
+            App::ct->environment->serialize(ar);
+            ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_SETTINGS,isScene))
+        {
+            App::ct->mainSettings->serialize(ar);
+            ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_DYNAMICS,isScene))
+        {
+            App::ct->dynamicsContainer->serialize(ar);
+            ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_SIMULATION,isScene))
+        {
+            App::ct->simulation->serialize(ar);
+            ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_SCENE_CUSTOM_DATA,isScene))
+        {
+            App::ct->customSceneData->serializeData(ar,nullptr,-1);
+            ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_VIEWS,isScene))
+        {
+            App::ct->pageContainer->serialize(ar);
+            ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_COLLISION,false))
+        {
+            while (true)
+            {
+                CRegCollision* it=new CRegCollision(0,0,"",0);
+                it->serialize(ar);
+                loadedCollisionList.push_back(it);
+                if (!ar.xmlPushSiblingNode(SERX_COLLISION,false))
+                    break;
+            }
+            ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_DISTANCE,false))
+        {
+            while (true)
+            {
+                CRegDist* it=new CRegDist(0,0,"",0);
+                it->serialize(ar);
+                loadedDistanceList.push_back(it);
+                if (!ar.xmlPushSiblingNode(SERX_DISTANCE,false))
+                    break;
+            }
+            ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_COLLECTION,false))
+        {
+            while (true)
+            {
+                CRegCollection* it=new CRegCollection("Default");
+                it->serialize(ar);
+                loadedGroupList.push_back(it);
+                if (!ar.xmlPushSiblingNode(SERX_COLLECTION,false))
+                    break;
+            }
+            ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_IK,false))
+        {
+            while (true)
+            {
+                CikGroup* it=new CikGroup();
+                it->serialize(ar);
+                loadedIkGroupList.push_back(it);
+                if (!ar.xmlPushSiblingNode(SERX_IK,false))
+                    break;
+            }
+            ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_LUA_SCRIPT,false))
+        {
+            while (true)
+            {
+                CLuaScriptObject* it=new CLuaScriptObject(-1);
+                it->serialize(ar);
+                loadedLuaScriptList.push_back(it);
+                if (!ar.xmlPushSiblingNode(SERX_LUA_SCRIPT,false))
+                    break;
+            }
+            ar.xmlPopNode();
+        }
+    }
 
     CGeometric::clearTempVerticesIndicesNormalsAndEdges();
 
-    int fileVrepVersion=ar.getVrepVersionThatWroteThisFile();
+    int fileSimVersion=ar.getCoppeliaSimVersionThatWroteThisFile();
 
     // All object have been loaded and are in:
     // loadedObjectList
@@ -338,7 +474,7 @@ bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool jus
                                         &loadedConstraintSolverObjectList,
                                         loadedTextureList,
                                         loadedDynMaterialList,
-                                        !isScene,fileVrepVersion,forceModelAsCopy);
+                                        !isScene,fileSimVersion,forceModelAsCopy);
 
     // Following to avoid the flickering when loading something (also during undo/redo):
     for (size_t i=0;i<App::ct->objCont->objectList.size();i++)
@@ -411,6 +547,25 @@ bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool jus
             script->setScriptText(t.c_str());
         }
     }
+    // Following for backward compatibility (Lua script parameters are now attached to objects, and not scripts anymore):
+    for (size_t i=0;i<loadedLuaScriptList.size();i++)
+    {
+        CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(loadedLuaScriptList[i]->getScriptID());
+        if (script!=nullptr)
+        {
+            CUserParameters* params=script->getScriptParametersObject_backCompatibility();
+            int obj=script->getObjectIDThatScriptIsAttachedTo_child();
+            C3DObject* theObj=getObjectFromHandle(obj);
+            if ( (theObj!=nullptr)&&(params!=nullptr) )
+            {
+                if (params->userParamEntries.size()>0)
+                {
+                    theObj->setUserScriptParameterObject(params->copyYourself());
+                    params->userParamEntries.clear();
+                }
+            }
+        }
+    }
     return(true);
 }
 
@@ -426,11 +581,11 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
                                                     std::vector<CConstraintSolverObject*>* loadedConstraintSolverObjectList,
                                                     std::vector<CTextureObject*>& loadedTextureObjectList,
                                                     std::vector<CDynMaterialObject*>& loadedDynMaterialObjectList,
-                                                    bool model,int fileVrepVersion,bool forceModelAsCopy)
+                                                    bool model,int fileSimVersion,bool forceModelAsCopy)
 {
     FUNCTION_DEBUG;
     // We check what suffix offset is needed for this model (in case of a scene, the offset is ignored since we won't introduce the objects as copies!):
-    int suffixOffset=getSuffixOffsetForObjectToAdd(loadedObjectList,
+    int suffixOffset=getSuffixOffsetForObjectToAdd(false,loadedObjectList,
         loadedGroupList,
         loadedCollisionList,
         loadedDistanceList,
@@ -473,7 +628,7 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
         {
             CShape* shape=(CShape*)loadedObjectList->at(i);
             int matId=shape->geomData->geomInfo->getDynMaterialId_OLD();
-            if ((fileVrepVersion<30303)&&(matId>=0))
+            if ((fileSimVersion<30303)&&(matId>=0))
             { // for backward compatibility(29/10/2016), when the dyn material was stored separaterly and shared among shapes
                 for (size_t j=0;j<loadedDynMaterialObjectList.size();j++)
                 {
@@ -485,7 +640,7 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
                     }
                 }
             }
-            if (fileVrepVersion<30301)
+            if (fileSimVersion<30301)
             { // Following for backward compatibility (09/03/2016)
                 CDynMaterialObject* mat=shape->getDynMaterial();
                 if (mat->getEngineBoolParam(sim_bullet_body_sticky,nullptr))
@@ -787,7 +942,7 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
     _loadOperationIssuesToBeDisplayed_objectHandles.clear();
 }
 
-int CObjCont::getSuffixOffsetForObjectToAdd(std::vector<C3DObject*>* loadedObjectList,
+int CObjCont::getSuffixOffsetForObjectToAdd(bool tempNames,std::vector<C3DObject*>* loadedObjectList,
                                                  std::vector<CRegCollection*>* loadedGroupList,
                                                  std::vector<CRegCollision*>* loadedCollisionList,
                                                  std::vector<CRegDist*>* loadedDistanceList,
@@ -801,72 +956,102 @@ int CObjCont::getSuffixOffsetForObjectToAdd(std::vector<C3DObject*>* loadedObjec
     // 1. We find out about the smallest suffix to paste:
     int smallestSuffix=SIM_MAX_INT;
     // 3DObjects:
-    for (size_t i=0;i<loadedObjectList->size();i++)
+    if (loadedObjectList!=nullptr)
     {
-        int s=tt::getNameSuffixNumber(loadedObjectList->at(i)->getObjectName().c_str(),true);
-        if (i==0)
-            smallestSuffix=s;
-        else
+        for (size_t i=0;i<loadedObjectList->size();i++)
         {
+            std::string str(loadedObjectList->at(i)->getObjectName());
+            if (tempNames)
+                str=loadedObjectList->at(i)->getObjectTempName();
+            int s=tt::getNameSuffixNumber(str.c_str(),true);
+            if (i==0)
+                smallestSuffix=s;
+            else
+            {
+                if (s<smallestSuffix)
+                    smallestSuffix=s;
+            }
+        }
+    }
+    // Collections:
+    if (loadedGroupList!=nullptr)
+    {
+        for (size_t i=0;i<loadedGroupList->size();i++)
+        {
+            int s=tt::getNameSuffixNumber(loadedGroupList->at(i)->getCollectionName().c_str(),true);
             if (s<smallestSuffix)
                 smallestSuffix=s;
         }
     }
-    // Collections:
-    for (size_t i=0;i<loadedGroupList->size();i++)
-    {
-        int s=tt::getNameSuffixNumber(loadedGroupList->at(i)->getCollectionName().c_str(),true);
-        if (s<smallestSuffix)
-            smallestSuffix=s;
-    }
     // Collisions:
-    for (size_t i=0;i<loadedCollisionList->size();i++)
+    if (loadedCollisionList!=nullptr)
     {
-        int s=tt::getNameSuffixNumber(loadedCollisionList->at(i)->getObjectName().c_str(),true);
-        if (s<smallestSuffix)
-            smallestSuffix=s;
+        for (size_t i=0;i<loadedCollisionList->size();i++)
+        {
+            int s=tt::getNameSuffixNumber(loadedCollisionList->at(i)->getObjectName().c_str(),true);
+            if (s<smallestSuffix)
+                smallestSuffix=s;
+        }
     }
     // Distances:
-    for (size_t i=0;i<loadedDistanceList->size();i++)
+    if (loadedDistanceList!=nullptr)
     {
-        int s=tt::getNameSuffixNumber(loadedDistanceList->at(i)->getObjectName().c_str(),true);
-        if (s<smallestSuffix)
-            smallestSuffix=s;
+        for (size_t i=0;i<loadedDistanceList->size();i++)
+        {
+            int s=tt::getNameSuffixNumber(loadedDistanceList->at(i)->getObjectName().c_str(),true);
+            if (s<smallestSuffix)
+                smallestSuffix=s;
+        }
     }
     // IK Groups:
-    for (size_t i=0;i<loadedIkGroupList->size();i++)
+    if (loadedIkGroupList!=nullptr)
     {
-        int s=tt::getNameSuffixNumber(loadedIkGroupList->at(i)->getObjectName().c_str(),true);
-        if (s<smallestSuffix)
-            smallestSuffix=s;
+        for (size_t i=0;i<loadedIkGroupList->size();i++)
+        {
+            int s=tt::getNameSuffixNumber(loadedIkGroupList->at(i)->getObjectName().c_str(),true);
+            if (s<smallestSuffix)
+                smallestSuffix=s;
+        }
     }
     // Path planning tasks:
-    for (size_t i=0;i<loadedPathPlanningTaskList->size();i++)
+    if (loadedPathPlanningTaskList!=nullptr)
     {
-        int s=tt::getNameSuffixNumber(loadedPathPlanningTaskList->at(i)->getObjectName().c_str(),true);
-        if (s<smallestSuffix)
-            smallestSuffix=s;
+        for (size_t i=0;i<loadedPathPlanningTaskList->size();i++)
+        {
+            int s=tt::getNameSuffixNumber(loadedPathPlanningTaskList->at(i)->getObjectName().c_str(),true);
+            if (s<smallestSuffix)
+                smallestSuffix=s;
+        }
     }
     // Motion planning tasks:
-    for (size_t i=0;i<loadedMotionPlanningTaskList->size();i++)
+    if (loadedMotionPlanningTaskList!=nullptr)
     {
-        int s=tt::getNameSuffixNumber(loadedMotionPlanningTaskList->at(i)->getObjectName().c_str(),true);
-        if (s<smallestSuffix)
-            smallestSuffix=s;
+        for (size_t i=0;i<loadedMotionPlanningTaskList->size();i++)
+        {
+            int s=tt::getNameSuffixNumber(loadedMotionPlanningTaskList->at(i)->getObjectName().c_str(),true);
+            if (s<smallestSuffix)
+                smallestSuffix=s;
+        }
     }
     // 2D Elements:
-    for (size_t i=0;i<loadedButtonBlockList->size();i++)
+    if (loadedButtonBlockList!=nullptr)
     {
-        int s=tt::getNameSuffixNumber(loadedButtonBlockList->at(i)->getBlockName().c_str(),true);
-        if (s<smallestSuffix)
-            smallestSuffix=s;
+        for (size_t i=0;i<loadedButtonBlockList->size();i++)
+        {
+            int s=tt::getNameSuffixNumber(loadedButtonBlockList->at(i)->getBlockName().c_str(),true);
+            if (s<smallestSuffix)
+                smallestSuffix=s;
+        }
     }
     // GCS objects:
-    for (size_t i=0;i<loadedConstraintSolverObjectList->size();i++)
+    if (loadedConstraintSolverObjectList!=nullptr)
     {
-        int s=tt::getNameSuffixNumber(loadedConstraintSolverObjectList->at(i)->getObjectName().c_str(),true);
-        if (s<smallestSuffix)
-            smallestSuffix=s;
+        for (size_t i=0;i<loadedConstraintSolverObjectList->size();i++)
+        {
+            int s=tt::getNameSuffixNumber(loadedConstraintSolverObjectList->at(i)->getObjectName().c_str(),true);
+            if (s<smallestSuffix)
+                smallestSuffix=s;
+        }
     }
 
     // 2. Now we find out about the highest suffix among existing objects (already in the scene):
@@ -878,7 +1063,11 @@ int CObjCont::getSuffixOffsetForObjectToAdd(std::vector<C3DObject*>* loadedObjec
 
 bool CObjCont::loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
 {
-    bool retVal=loadModelOrScene(ar,true,false,justLoadThumbnail,forceModelAsCopy,optionalModelTr,optionalModelBoundingBoxSize,optionalModelNonDefaultTranslationStepSize);
+    bool retVal;
+    if (ar.getFileType()==CSer::filetype_csim_xml_simplemodel_file)
+        retVal=_loadSimpleXmlSceneOrModel(ar);
+    else
+        retVal=loadModelOrScene(ar,true,false,justLoadThumbnail,forceModelAsCopy,optionalModelTr,optionalModelBoundingBoxSize,optionalModelNonDefaultTranslationStepSize);
     if (!justLoadThumbnail)
     {
         void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_modelloaded,nullptr,nullptr,nullptr);
@@ -1009,7 +1198,7 @@ C3DObject* CObjCont::load3DObject(CSer& ar,std::string theName,bool &noHit)
             noHit=false;
             return(myNewObject);
         }
-        // If we arrived here it means that maybe we have a new 3DObject type that this V-REP doesn't understand yet.
+        // If we arrived here it means that maybe we have a new 3DObject type that this CoppeliaSim doesn't understand yet.
         // We try to replace it with a dummy (2009/12/09):
         unsigned char dat[14];
         if (ar.readBytesButKeepPointerUnchanged(dat,14)!=14)
@@ -1023,19 +1212,129 @@ C3DObject* CObjCont::load3DObject(CSer& ar,std::string theName,bool &noHit)
             return(newUnknownType);
         }
     }
+    else
+    {
+        if (ar.xmlPushChildNode(SERX_SHAPE,false))
+        {
+            CShape* myNewObject=new CShape();
+            myNewObject->serialize(ar);
+            ar.xmlPopNode();
+            return(myNewObject);
+        }
+        if (ar.xmlPushChildNode(SERX_JOINT,false))
+        {
+            CJoint* myNewObject=new CJoint();
+            myNewObject->serialize(ar);
+            ar.xmlPopNode();
+            return(myNewObject);
+        }
+        if (ar.xmlPushChildNode(SERX_GRAPH,false))
+        {
+            CGraph* myNewObject=new CGraph();
+            myNewObject->serialize(ar);
+            ar.xmlPopNode();
+            return(myNewObject);
+        }
+        if (ar.xmlPushChildNode(SERX_CAMERA,false))
+        {
+            CCamera* myNewObject=new CCamera();
+            myNewObject->serialize(ar);
+            ar.xmlPopNode();
+            return(myNewObject);
+        }
+        if (ar.xmlPushChildNode(SERX_LIGHT,false))
+        {
+            CLight* myNewObject=new CLight();
+            myNewObject->serialize(ar);
+            ar.xmlPopNode();
+            return(myNewObject);
+        }
+        if (ar.xmlPushChildNode(SERX_MIRROR,false))
+        {
+            CMirror* myNewObject=new CMirror();
+            myNewObject->serialize(ar);
+            ar.xmlPopNode();
+            return(myNewObject);
+        }
+        if (ar.xmlPushChildNode(SERX_OCTREE,false))
+        {
+            COctree* myNewObject=new COctree();
+            myNewObject->serialize(ar);
+            ar.xmlPopNode();
+            return(myNewObject);
+        }
+        if (ar.xmlPushChildNode(SERX_POINTCLOUD,false))
+        {
+            CPointCloud* myNewObject=new CPointCloud();
+            myNewObject->serialize(ar);
+            ar.xmlPopNode();
+            return(myNewObject);
+        }
+        if (ar.xmlPushChildNode(SERX_DUMMY,false))
+        {
+            CDummy* myNewObject=new CDummy();
+            myNewObject->serialize(ar);
+            ar.xmlPopNode();
+            return(myNewObject);
+        }
+        if (ar.xmlPushChildNode(SERX_PROXIMITYSENSOR,false))
+        {
+            CProxSensor* myNewObject=new CProxSensor();
+            myNewObject->serialize(ar);
+            ar.xmlPopNode();
+            return(myNewObject);
+        }
+        if (ar.xmlPushChildNode(SERX_VISIONSENSOR,false))
+        {
+            CVisionSensor* myNewObject=new CVisionSensor();
+            myNewObject->serialize(ar);
+            ar.xmlPopNode();
+            return(myNewObject);
+        }
+        if (ar.xmlPushChildNode(SERX_PATH,false))
+        {
+            CPath* myNewObject=new CPath();
+            myNewObject->serialize(ar);
+            ar.xmlPopNode();
+            return(myNewObject);
+        }
+        if (ar.xmlPushChildNode(SERX_MILL,false))
+        {
+            CMill* myNewObject=new CMill();
+            myNewObject->serialize(ar);
+            ar.xmlPopNode();
+            return(myNewObject);
+        }
+        if (ar.xmlPushChildNode(SERX_FORCESENSOR,false))
+        {
+            CForceSensor* myNewObject=new CForceSensor();
+            myNewObject->serialize(ar);
+            ar.xmlPopNode();
+            return(myNewObject);
+        }
+    }
     return(nullptr); // No, this is not a 3DObject!
 }
 
 bool CObjCont::loadScene(CSer& ar,bool forUndoRedoOperation)
 {   // We have another similar routine for XML files further down
+    bool retVal=false;
     removeAllObjects(true);
-    bool retVal=loadModelOrScene(ar,false,true,false,false,nullptr,nullptr,nullptr);
-    if (!forUndoRedoOperation)
+    if (ar.getFileType()==CSer::filetype_csim_xml_simplescene_file)
     {
-        void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_sceneloaded,nullptr,nullptr,nullptr);
-        delete[] (char*)returnVal;
-        App::ct->setModificationFlag(8); // scene loaded
-        App::ct->outsideCommandQueue->addCommand(sim_message_scene_loaded,0,0,0,0,nullptr,0);
+        retVal=_loadSimpleXmlSceneOrModel(ar);
+        deselectObjects();
+    }
+    else
+    {
+        retVal=loadModelOrScene(ar,false,true,false,false,nullptr,nullptr,nullptr);
+        if (!forUndoRedoOperation)
+        {
+            void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_sceneloaded,nullptr,nullptr,nullptr);
+            delete[] (char*)returnVal;
+            App::ct->setModificationFlag(8); // scene loaded
+            App::ct->outsideCommandQueue->addCommand(sim_message_scene_loaded,0,0,0,0,nullptr,0);
+        }
     }
     return(retVal);
 }
@@ -1077,8 +1376,1310 @@ void CObjCont::store3DObject(CSer& ar,C3DObject* it)
         if (ar.setWritingMode())
             it->serialize(ar);
     }
+    else
+    {
+        xmlNode* node;
+        if (it->getObjectType()==sim_object_shape_type)
+            ar.xmlPushNewNode(SERX_SHAPE);
+        if (it->getObjectType()==sim_object_joint_type)
+            ar.xmlPushNewNode(SERX_JOINT);
+        if (it->getObjectType()==sim_object_graph_type)
+            ar.xmlPushNewNode(SERX_GRAPH);
+        if (it->getObjectType()==sim_object_camera_type)
+            ar.xmlPushNewNode(SERX_CAMERA);
+        if (it->getObjectType()==sim_object_light_type)
+            ar.xmlPushNewNode(SERX_LIGHT);
+        if (it->getObjectType()==sim_object_mirror_type)
+            ar.xmlPushNewNode(SERX_MIRROR);
+        if (it->getObjectType()==sim_object_octree_type)
+            ar.xmlPushNewNode(SERX_OCTREE);
+        if (it->getObjectType()==sim_object_pointcloud_type)
+            ar.xmlPushNewNode(SERX_POINTCLOUD);
+        if (it->getObjectType()==sim_object_dummy_type)
+            ar.xmlPushNewNode(SERX_DUMMY);
+        if (it->getObjectType()==sim_object_proximitysensor_type)
+            ar.xmlPushNewNode(SERX_PROXIMITYSENSOR);
+        if (it->getObjectType()==sim_object_visionsensor_type)
+            ar.xmlPushNewNode(SERX_VISIONSENSOR);
+        if (it->getObjectType()==sim_object_path_type)
+            ar.xmlPushNewNode(SERX_PATH);
+        if (it->getObjectType()==sim_object_mill_type)
+            ar.xmlPushNewNode(SERX_MILL);
+        if (it->getObjectType()==sim_object_forcesensor_type)
+            ar.xmlPushNewNode(SERX_FORCESENSOR);
+        it->serialize(ar);
+        ar.xmlPopNode();
+    }
 }
 
+bool CObjCont::_loadSimpleXmlSceneOrModel(CSer& ar)
+{
+    bool retVal=true;
+    bool isScene=(ar.getFileType()==CSer::filetype_csim_xml_simplescene_file);
+
+    if ( isScene&&ar.xmlPushChildNode(SERX_ENVIRONMENT,false) )
+    {
+        App::ct->environment->serialize(ar);
+        ar.xmlPopNode();
+    }
+
+    if ( isScene&&ar.xmlPushChildNode(SERX_SETTINGS,false) )
+    {
+        App::ct->mainSettings->serialize(ar);
+        ar.xmlPopNode();
+    }
+
+    if ( isScene&&ar.xmlPushChildNode(SERX_DYNAMICS,false) )
+    {
+        App::ct->dynamicsContainer->serialize(ar);
+        ar.xmlPopNode();
+    }
+
+    if ( isScene&&ar.xmlPushChildNode(SERX_SIMULATION,false) )
+    {
+        App::ct->simulation->serialize(ar);
+        ar.xmlPopNode();
+    }
+
+    std::vector<CRegCollection*> allLoadedCollections;
+    std::map<std::string,CRegCollection*> _collectionLoadNamesMap;
+    if (ar.xmlPushChildNode(SERX_COLLECTION,false))
+    {
+        while (true)
+        {
+            CRegCollection* it=new CRegCollection("Default");
+            it->serialize(ar);
+            allLoadedCollections.push_back(it);
+            _collectionLoadNamesMap[it->getCollectionLoadName()]=it;
+            if (!ar.xmlPushSiblingNode(SERX_COLLECTION,false))
+                break;
+        }
+        ar.xmlPopNode();
+    }
+
+    std::vector<CikGroup*> allLoadedIkGroups;
+    if (ar.xmlPushChildNode(SERX_IK,false))
+    {
+        while (true)
+        {
+            CikGroup* it=new CikGroup();
+            it->serialize(ar);
+            allLoadedIkGroups.push_back(it);
+            if (!ar.xmlPushSiblingNode(SERX_IK,false))
+                break;
+        }
+        ar.xmlPopNode();
+    }
+
+    if ( isScene&&(App::ct->luaScriptContainer->getMainScript()==nullptr) )
+        App::ct->luaScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_mainscript,false);
+
+    CCamera* mainCam=nullptr;
+
+    C7Vector ident;
+    ident.setIdentity();
+    loadSimpleXmlSceneObjects(ar,nullptr,ident);
+    std::map<C3DObject*,bool> addedObjects;
+    std::vector<C3DObject*> allLoadedObjects;
+    bool hasAScriptAttached=false;
+    while (_simpleXml_allObjects.size()>0)
+    {
+        for (size_t i=0;i<_simpleXml_allObjects.size();i++)
+        {
+            C3DObject* it=_simpleXml_allObjects[i];
+            if (it->getObjectType()==sim_object_camera_type)
+            {
+                if ( (mainCam==nullptr)||((CCamera*)it)->getIsMainCamera() )
+                    mainCam=(CCamera*)it;
+            }
+            C3DObject* pit=_simpleXml_allParentObjects[i];
+            CLuaScriptObject* childScript=_simpleXml_allChildScripts[i];
+            CLuaScriptObject* customizationScript=_simpleXml_allCustomizationScripts[i];
+            std::map<C3DObject*,bool>::iterator s=addedObjects.find(pit);
+            if ( (s!=addedObjects.end())||(pit==nullptr) )
+            {
+                allLoadedObjects.push_back(it);
+                it->setParentObject(pit);
+                addedObjects[it]=true;
+
+                if (childScript!=nullptr)
+                {
+                    hasAScriptAttached=true;
+                    App::ct->luaScriptContainer->insertScript(childScript);
+                    childScript->setObjectIDThatScriptIsAttachedTo(it->getObjectHandle());
+                }
+                if (customizationScript!=nullptr)
+                {
+                    hasAScriptAttached=true;
+                    App::ct->luaScriptContainer->insertScript(customizationScript);
+                    customizationScript->setObjectIDThatScriptIsAttachedTo(it->getObjectHandle());
+                }
+
+                _simpleXml_allObjects.erase(_simpleXml_allObjects.begin()+i);
+                _simpleXml_allParentObjects.erase(_simpleXml_allParentObjects.begin()+i);
+                _simpleXml_allChildScripts.erase(_simpleXml_allChildScripts.begin()+i);
+                _simpleXml_allCustomizationScripts.erase(_simpleXml_allCustomizationScripts.begin()+i);
+            }
+        }
+    }
+     _simpleXml_allObjects.clear();
+     _simpleXml_allParentObjects.clear();
+     _simpleXml_allChildScripts.clear();
+     _simpleXml_allCustomizationScripts.clear();
+    if ( (mainCam!=nullptr)&&isScene )
+    {
+        App::ct->pageContainer->setUpDefaultPages(true);
+#ifdef SIM_WITH_GUI
+        CSPage* page=App::ct->pageContainer->getPage(App::ct->pageContainer->getActivePageIndex());
+        CSView* view=page->getView(0);
+        if (view!=nullptr)
+            view->setLinkedObjectID(mainCam->getObjectHandle(),false);
+#endif
+    }
+
+    // Now adjust the names:
+    int suffixOffset=getSuffixOffsetForObjectToAdd(true,&allLoadedObjects,&allLoadedCollections,nullptr,nullptr,&allLoadedIkGroups,nullptr,nullptr,nullptr,nullptr,nullptr);
+    // We add objects to the scene as copies only if we also add at least one associated script and we don't have a scene. Otherwise objects are added
+    // and no '#' (or no modified suffix) will appear in their names.
+    // Following line summarizes this:
+    bool objectIsACopy=(hasAScriptAttached&&(ar.getFileType()==CSer::filetype_csim_xml_simplemodel_file)); // scenes are not treated like copies!
+    std::map<std::string,C3DObject*> _objectTempNamesMap;
+    for (size_t i=0;i<allLoadedObjects.size();i++)
+    {
+        C3DObject* it=allLoadedObjects[i];
+        _objectTempNamesMap[it->getObjectTempName()]=it;
+        std::string newObjName=it->getObjectTempName();
+        if (objectIsACopy)
+            newObjName=tt::generateNewName_dash(newObjName,suffixOffset);
+        else
+        {
+            if (getObjectFromName(newObjName.c_str())!=nullptr)
+            {
+                // Following faster with many objects:
+                std::string baseName(tt::getNameWithoutSuffixNumber(newObjName.c_str(),false));
+                int initialSuffix=tt::getNameSuffixNumber(newObjName.c_str(),false);
+                std::vector<int> suffixes;
+                std::vector<int> dummyValues;
+                for (size_t i=0;i<objectList.size();i++)
+                {
+                    std::string baseNameIt(tt::getNameWithoutSuffixNumber(_objectHandleIndex[objectList[i]]->getObjectName().c_str(),false));
+                    if (baseName.compare(baseNameIt)==0)
+                    {
+                        suffixes.push_back(tt::getNameSuffixNumber(_objectHandleIndex[objectList[i]]->getObjectName().c_str(),false));
+                        dummyValues.push_back(0);
+                    }
+                }
+                tt::orderAscending(suffixes,dummyValues);
+                int lastS=-1;
+                for (size_t i=0;i<suffixes.size();i++)
+                {
+                    if ( (suffixes[i]>initialSuffix)&&(suffixes[i]>lastS+1) )
+                        break;
+                    lastS=suffixes[i];
+                }
+                newObjName=tt::generateNewName_noDash(baseName,lastS+1+1);
+            }
+            // Following was too slow with many objects:
+            //      while (getObject(newObjName)!=nullptr)
+            //          newObjName=tt::generateNewName_noDash(newObjName);
+        }
+        renameObject(it->getObjectHandle(),newObjName.c_str());
+
+        // Now a similar procedure, but with the alt object names:
+        std::string newObjAltName=it->getObjectTempAltName();
+        if (getObjectFromAltName(newObjAltName.c_str())!=nullptr)
+        {
+            // Following faster with many objects:
+            std::string baseAltName(tt::getNameWithoutSuffixNumber(newObjAltName.c_str(),false));
+            int initialSuffix=tt::getNameSuffixNumber(newObjAltName.c_str(),false);
+            std::vector<int> suffixes;
+            std::vector<int> dummyValues;
+            for (size_t i=0;i<objectList.size();i++)
+            {
+                std::string baseAltNameIt(tt::getNameWithoutSuffixNumber(_objectHandleIndex[objectList[i]]->getObjectAltName().c_str(),false));
+                if (baseAltName.compare(baseAltNameIt)==0)
+                {
+                    suffixes.push_back(tt::getNameSuffixNumber(_objectHandleIndex[objectList[i]]->getObjectAltName().c_str(),false));
+                    dummyValues.push_back(0);
+                }
+            }
+            tt::orderAscending(suffixes,dummyValues);
+            int lastS=-1;
+            for (size_t i=0;i<suffixes.size();i++)
+            {
+                if ( (suffixes[i]>initialSuffix)&&(suffixes[i]>lastS+1) )
+                    break;
+                lastS=suffixes[i];
+            }
+            newObjAltName=tt::generateNewName_noDash(baseAltName,lastS+1+1);
+        }
+        // Following was too slow with many objects:
+        //      while (getObjectFromAltName(newObjAltName)!=nullptr)
+        //          newObjAltName=tt::generateNewName_noDash(newObjAltName);
+        altRenameObject(it->getObjectHandle(),newObjAltName.c_str());
+    }
+
+    // Add collections and perform mapping:
+    for (size_t i=0;i<allLoadedCollections.size();i++)
+    {
+        CRegCollection* it=allLoadedCollections[i];
+        for (size_t j=0;j<it->subCollectionList.size();j++)
+        {
+            CRegCollectionEl* el=it->subCollectionList[j];
+            std::map<std::string,C3DObject*>::const_iterator elIt=_objectTempNamesMap.find(el->getMainObjectTempName());
+            if ( (el->getMainObjectTempName().size()>0)&&(elIt!=_objectTempNamesMap.end()) )
+                el->setMainObject(elIt->second->getObjectHandle());
+            else
+            {
+                if (el->getCollectionType()!=GROUP_EVERYTHING)
+                {
+                    delete el;
+                    it->subCollectionList.erase(it->subCollectionList.begin()+j);
+                    j--; // reprocess this position
+                }
+            }
+        }
+        if (it->subCollectionList.size()>0)
+        {
+            App::ct->collections->addCollectionWithSuffixOffset(it,objectIsACopy,suffixOffset);
+            it->actualizeCollection(true);
+        }
+        else
+        {
+            delete it;
+            allLoadedCollections.erase(allLoadedCollections.begin()+i);
+            i--; // reprocess this position
+        }
+    }
+
+    // Add ik groups and perform mapping:
+    for (size_t i=0;i<allLoadedIkGroups.size();i++)
+    {
+        CikGroup* it=allLoadedIkGroups[i];
+        for (size_t j=0;j<it->ikElements.size();j++)
+        {
+            CikEl* el=it->ikElements[j];
+            std::map<std::string,C3DObject*>::const_iterator elIt=_objectTempNamesMap.find(el->getTipLoadName());
+            if ( (el->getTipLoadName().size()>0)&&(elIt!=_objectTempNamesMap.end()) )
+            {
+                el->setTooltip(elIt->second->getObjectHandle());
+                elIt=_objectTempNamesMap.find(el->getBaseLoadName());
+                if ( (el->getBaseLoadName().size()>0)&&(elIt!=_objectTempNamesMap.end()) )
+                    el->setBase(elIt->second->getObjectHandle());
+                elIt=_objectTempNamesMap.find(el->getAltBaseLoadName());
+                if ( (el->getAltBaseLoadName().size()>0)&&(elIt!=_objectTempNamesMap.end()) )
+                    el->setAlternativeBaseForConstraints(elIt->second->getObjectHandle());
+            }
+            else
+            {
+                delete el;
+                it->ikElements.erase(it->ikElements.begin()+j);
+                j--; // reprocess this position
+            }
+        }
+        if (it->ikElements.size()>0)
+            App::ct->ikGroups->addIkGroupWithSuffixOffset(it,objectIsACopy,suffixOffset);
+        else
+        {
+            delete it;
+            allLoadedIkGroups.erase(allLoadedIkGroups.begin()+i);
+            i--; // reprocess this position
+        }
+    }
+
+    for (size_t i=0;i<allLoadedObjects.size();i++)
+    {
+        C3DObject* obj=allLoadedObjects[i];
+        // Handle dummy-dummy linking:
+        if (obj->getObjectType()==sim_object_dummy_type)
+        {
+            CDummy* dummy=(CDummy*)obj;
+            if (dummy->getLinkedDummyLoadName().size()>0)
+            {
+                std::map<std::string,C3DObject*>::const_iterator it=_objectTempNamesMap.find(dummy->getLinkedDummyLoadName());
+                if (it!=_objectTempNamesMap.end())
+                    dummy->setLinkedDummyID(it->second->getObjectHandle(),false);
+            }
+        }
+        // Handle joint-joint linking:
+        if (obj->getObjectType()==sim_object_joint_type)
+        {
+            CJoint* joint=(CJoint*)obj;
+            if (joint->getDdependencyJointLoadName().size()>0)
+            {
+                std::map<std::string,C3DObject*>::const_iterator it=_objectTempNamesMap.find(joint->getDdependencyJointLoadName());
+                if (it!=_objectTempNamesMap.end())
+                    joint->setDependencyJointID(it->second->getObjectHandle());
+            }
+        }
+        // Handle camera tracking:
+        if (obj->getObjectType()==sim_object_camera_type)
+        {
+            CCamera* camera=(CCamera*)obj;
+            if (camera->getTrackedObjectLoadName().size()>0)
+            {
+                std::map<std::string,C3DObject*>::const_iterator it=_objectTempNamesMap.find(camera->getTrackedObjectLoadName());
+                if (it!=_objectTempNamesMap.end())
+                    camera->setTrackedObjectID(it->second->getObjectHandle());
+            }
+        }
+        // Handle proximitySensor sensable entity linking:
+        if (obj->getObjectType()==sim_object_proximitysensor_type)
+        {
+            CProxSensor* proxSensor=(CProxSensor*)obj;
+            if (proxSensor->getSensableObjectLoadName().size()>0)
+            {
+                std::map<std::string,C3DObject*>::const_iterator it=_objectTempNamesMap.find(proxSensor->getSensableObjectLoadName());
+                if (it!=_objectTempNamesMap.end())
+                    proxSensor->setSensableObject(it->second->getObjectHandle());
+                else
+                {
+                    std::map<std::string,CRegCollection*>::const_iterator itColl=_collectionLoadNamesMap.find(proxSensor->getSensableObjectLoadName());
+                    if (itColl!=_collectionLoadNamesMap.end())
+                        proxSensor->setSensableObject(itColl->second->getCollectionID());
+                }
+            }
+        }
+        // Handle visionSensor renderable entity linking:
+        if (obj->getObjectType()==sim_object_visionsensor_type)
+        {
+            CVisionSensor* visionSensor=(CVisionSensor*)obj;
+            if (visionSensor->getDdetectableEntityLoadName().size()>0)
+            {
+                std::map<std::string,C3DObject*>::const_iterator it=_objectTempNamesMap.find(visionSensor->getDdetectableEntityLoadName());
+                if (it!=_objectTempNamesMap.end())
+                    visionSensor->setDetectableEntityID(it->second->getObjectHandle());
+                else
+                {
+                    std::map<std::string,CRegCollection*>::const_iterator itColl=_collectionLoadNamesMap.find(visionSensor->getDdetectableEntityLoadName());
+                    if (itColl!=_collectionLoadNamesMap.end())
+                        visionSensor->setDetectableEntityID(itColl->second->getCollectionID());
+                }
+            }
+        }
+    }
+    return(retVal);
+}
+
+void CObjCont::saveSimpleXmlSceneObjectTree(CSer& ar,C3DObject* object)
+{
+    if (object->getObjectType()==sim_object_shape_type)
+    {
+        CShape* obj=(CShape*)object;
+        ar.xmlPushNewNode("shape");
+        saveSimpleXmlShape(ar,obj);
+    }
+    if (object->getObjectType()==sim_object_joint_type)
+    {
+        CJoint* obj=(CJoint*)object;
+        ar.xmlPushNewNode("joint");
+        obj->serialize(ar);
+    }
+    if (object->getObjectType()==sim_object_graph_type)
+    {
+        CGraph* obj=(CGraph*)object;
+        ar.xmlPushNewNode("graph");
+        obj->serialize(ar);
+    }
+    if (object->getObjectType()==sim_object_camera_type)
+    {
+        CCamera* obj=(CCamera*)object;
+        ar.xmlPushNewNode("camera");
+        obj->serialize(ar);
+    }
+    if (object->getObjectType()==sim_object_dummy_type)
+    {
+        CDummy* obj=(CDummy*)object;
+        ar.xmlPushNewNode("dummy");
+        obj->serialize(ar);
+    }
+    if (object->getObjectType()==sim_object_proximitysensor_type)
+    {
+        CProxSensor* obj=(CProxSensor*)object;
+        ar.xmlPushNewNode("proximitySensor");
+        obj->serialize(ar);
+    }
+    if (object->getObjectType()==sim_object_path_type)
+    {
+        CPath* obj=(CPath*)object;
+        ar.xmlPushNewNode("path");
+        obj->serialize(ar);
+    }
+    if (object->getObjectType()==sim_object_visionsensor_type)
+    {
+        CVisionSensor* obj=(CVisionSensor*)object;
+        ar.xmlPushNewNode("visionSensor");
+        obj->serialize(ar);
+    }
+    if (object->getObjectType()==sim_object_forcesensor_type)
+    {
+        CForceSensor* obj=(CForceSensor*)object;
+        ar.xmlPushNewNode("forceSensor");
+        obj->serialize(ar);
+    }
+    if (object->getObjectType()==sim_object_light_type)
+    {
+        CLight* obj=(CLight*)object;
+        ar.xmlPushNewNode("light");
+        obj->serialize(ar);
+    }
+    if (object->getObjectType()==sim_object_octree_type)
+    {
+        COctree* obj=(COctree*)object;
+        ar.xmlPushNewNode("ocTree");
+        obj->serialize(ar);
+    }
+    if (object->getObjectType()==sim_object_pointcloud_type)
+    {
+        CPointCloud* obj=(CPointCloud*)object;
+        ar.xmlPushNewNode("pointCloud");
+        obj->serialize(ar);
+    }
+
+    CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(object->getObjectHandle());
+    if (script!=nullptr)
+    {
+        ar.xmlPushNewNode("childScript");
+        script->serialize(ar);
+        ar.xmlPopNode();
+    }
+    script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(object->getObjectHandle());
+    if (script!=nullptr)
+    {
+        ar.xmlPushNewNode("customizationScript");
+        script->serialize(ar);
+        ar.xmlPopNode();
+    }
+
+    for (size_t i=0;i<object->childList.size();i++)
+        saveSimpleXmlSceneObjectTree(ar,object->childList[i]);
+
+    ar.xmlPopNode();
+}
+
+bool CObjCont::_saveSimpleXmlScene(CSer& ar)
+{
+    bool retVal=true;
+    bool isScene=(ar.getFileType()==CSer::filetype_csim_xml_simplescene_file);
+
+    ar.xmlAddNode_comment(" 'environment' tag: has no effect when loading a model ",false);
+    ar.xmlPushNewNode(SERX_ENVIRONMENT);
+    App::ct->environment->serialize(ar);
+    ar.xmlPopNode();
+
+    ar.xmlAddNode_comment(" 'settings' tag: has no effect when loading a model ",false);
+    ar.xmlPushNewNode(SERX_SETTINGS);
+    App::ct->mainSettings->serialize(ar);
+    ar.xmlPopNode();
+
+    ar.xmlAddNode_comment(" 'dynamics' tag: has no effect when loading a model ",false);
+    ar.xmlPushNewNode(SERX_DYNAMICS);
+    App::ct->dynamicsContainer->serialize(ar);
+    ar.xmlPopNode();
+
+    ar.xmlAddNode_comment(" 'simulation' tag: has no effect when loading a model ",false);
+    ar.xmlPushNewNode(SERX_SIMULATION);
+    App::ct->simulation->serialize(ar);
+    ar.xmlPopNode();
+
+    for (size_t i=0;i<App::ct->collections->allCollections.size();i++)
+    {
+        ar.xmlPushNewNode(SERX_COLLECTION);
+        App::ct->collections->allCollections[i]->serialize(ar);
+        ar.xmlPopNode();
+    }
+
+    for (size_t i=0;i<App::ct->ikGroups->ikGroups.size();i++)
+    {
+        ar.xmlPushNewNode(SERX_IK);
+        App::ct->ikGroups->ikGroups[i]->serialize(ar);
+        ar.xmlPopNode();
+    }
+
+    for (size_t i=0;i<orphanList.size();i++)
+        saveSimpleXmlSceneObjectTree(ar,getObjectFromHandle(orphanList[i]));
+
+    return(retVal);
+}
+
+CShape* CObjCont::_createSimpleXmlShape(CSer& ar,bool noHeightfield,const char* itemType,bool checkSibling)
+{
+    CShape* retVal=nullptr;
+    bool loadVisualAttributes=false;
+    int t=-1;
+    if ( (!checkSibling)&&((itemType==nullptr)||(std::string("primitive").compare(itemType)==0))&&ar.xmlPushChildNode("primitive",false))
+        t=0;
+    else
+    {
+        if ( (itemType!=nullptr)&&std::string("primitive").compare(itemType)==0 )
+        {
+            if (checkSibling)
+            {
+                if (ar.xmlPushSiblingNode("primitive",false))
+                    t=0;
+                else
+                    ar.xmlPopNode();
+            }
+        }
+    }
+    if (t==0)
+    {
+        loadVisualAttributes=true;
+        int primitiveType=0;
+        ar.xmlGetNode_enum("type",primitiveType,false,"cuboid",0,"sphere",1,"cylinder",2,"cone",3,"plane",4,"disc",5);
+        float sizes[3]={0.1f,0.1f,0.1f};
+        ar.xmlGetNode_floats("size",sizes,3,false);
+        C7Vector tr;
+        tr.setIdentity();
+        if (ar.xmlPushChildNode("localFrame",false))
+        {
+            ar.xmlGetNode_floats("position",tr.X.data,3,false);
+            C3Vector euler;
+            if (ar.xmlGetNode_floats("euler",euler.data,3,false))
+            {
+                euler(0)*=piValue_f/180.0f;
+                euler(1)*=piValue_f/180.0f;
+                euler(2)*=piValue_f/180.0f;
+                tr.Q.setEulerAngles(euler);
+            }
+            ar.xmlPopNode();
+        }
+        int pType=-1;
+        bool cone=false;
+        C3Vector s(tt::getLimitedFloat(0.00001f,100000.0f,sizes[0]),tt::getLimitedFloat(0.00001f,100000.0f,sizes[1]),tt::getLimitedFloat(0.00001f,100000.0f,sizes[2]));
+        int openEnds=0;
+        int faces=0;
+        int sides=32;
+        if (primitiveType==0) // cuboid
+            pType=1;
+        if (primitiveType==1) // sphere
+        {
+            pType=2;
+            faces=16;
+            s(1)=s(0);
+            s(2)=s(0);
+        }
+        if (primitiveType==2) // cylinder
+        {
+            pType=3;
+            s(1)=s(0);
+        }
+        if (primitiveType==3) // cone
+        {
+            pType=3;
+            s(1)=s(0);
+            cone=true;
+        }
+        if (primitiveType==4) // plane
+            pType=0;
+        if (primitiveType==5) // disc
+            pType=4;
+        retVal=CAddOperations::addPrimitiveShape(pType,s,nullptr,faces,sides,0,true,openEnds,true,true,cone,1000.0f,false,0.5f);
+        retVal->setLocalTransformation(tr);
+    }
+    if (!noHeightfield)
+    {
+        if ( (!checkSibling)&&((itemType==nullptr)||(std::string("heightfield").compare(itemType)==0))&&ar.xmlPushChildNode("heightfield",false))
+            t=1;
+        else
+        {
+            if ( (itemType!=nullptr)&&std::string("heightfield").compare(itemType)==0 )
+            {
+                if (checkSibling)
+                {
+                    if (ar.xmlPushSiblingNode("heightfield",false))
+                        t=1;
+                    else
+                        ar.xmlPopNode();
+                }
+            }
+        }
+    }
+    if (t==1)
+    {
+        loadVisualAttributes=true;
+        int size[2]={2,2};
+        float meshSize=0.1f;
+        std::vector<float> data;
+        ar.xmlGetNode_ints("size",size,2,false);
+        if (ar.xmlGetNode_float("gridStep",meshSize,false))
+            tt::limitValue(0.00001f,10.0f,meshSize);
+        ar.xmlGetNode_floats("data",data,false);
+        if (data.size()!=size[0]*size[1])
+        {
+            size[0]=2;
+            size[1]=2;
+            data.clear();
+            data.push_back(0.0f);
+            data.push_back(0.0f);
+            data.push_back(0.0f);
+            data.push_back(0.0f);
+        }
+        std::vector<std::vector<float>*> allData;
+        for (int i=0;i<size[1];i++)
+        {
+            std::vector<float>* vect=new std::vector<float>;
+            for (int j=0;j<size[0];j++)
+                vect->push_back(data[i*size[0]+j]);
+            allData.push_back(vect);
+        }
+        int newShapeHandle=CFileOperations::apiAddHeightfieldToScene(size[0],meshSize/float(size[0]-1),allData,0.0f,0);
+        for (size_t i=0;i<allData.size();i++)
+            delete allData[i];
+        retVal=getShape(newShapeHandle);
+    }
+    if ( (!checkSibling)&&((itemType==nullptr)||(std::string("mesh").compare(itemType)==0))&&ar.xmlPushChildNode("mesh",false))
+        t=2;
+    else
+    {
+        if ( (itemType!=nullptr)&&std::string("mesh").compare(itemType)==0 )
+        {
+            if (checkSibling)
+            {
+                if (ar.xmlPushSiblingNode("mesh",false))
+                    t=2;
+                else
+                    ar.xmlPopNode();
+            }
+        }
+    }
+    if (t==2)
+    {
+        loadVisualAttributes=true;
+        std::string str;
+        if (ar.xmlGetNode_string("fileName",str,false))
+        { // try to load from file first
+            std::string filename(ar.getFilenamePath()+str);
+            if (CPluginContainer::isAssimpPluginAvailable())
+            {
+                if (VFile::doesFileExist(filename))
+                {
+                    int cnt=0;
+                    int* shapes=CPluginContainer::assimp_importShapes(filename.c_str(),512,1.0f,1,32+128+256,&cnt);
+                    if (shapes!=nullptr)
+                    {
+                        int newShapeHandle=shapes[0];
+                        delete[] shapes;
+                        retVal=getShape(newShapeHandle);
+                    }
+                }
+            }
+        }
+        if (retVal==nullptr)
+        { // try to load from vertices and indices list:
+            std::vector<float> vertices;
+            std::vector<int> indices;
+            if (ar.xmlGetNode_floats("vertices",vertices,false))
+            {
+                if (ar.xmlGetNode_ints("indices",indices,false))
+                {
+                    bool ok=true;
+                    while ( (vertices.size()%3)!=0 )
+                        vertices.pop_back();
+                    while ( (indices.size()%3)!=0 )
+                        indices.pop_back();
+                    for (size_t i=0;i<indices.size();i++)
+                    {
+                        if (indices[i]<0)
+                            indices[i]=(vertices.size()/3)+indices[i];
+                        if ( (indices[i]<0)||(indices[i]>=(vertices.size()/3)) )
+                            ok=false;
+                    }
+                    if (ok)
+                    {
+                        CGeomProxy* geom=new CGeomProxy(nullptr,vertices,indices,nullptr,nullptr);
+                        retVal=new CShape();
+                        retVal->setLocalTransformation(geom->getCreationTransformation());
+                        geom->setCreationTransformation(C7Vector::identityTransformation);
+                        retVal->geomData=geom;
+                        App::ct->objCont->addObjectToScene(retVal,false,true);
+                    }
+                }
+            }
+        }
+        if (retVal!=nullptr)
+        {
+            C7Vector tr;
+            tr.setIdentity();
+            if (ar.xmlPushChildNode("localFrame",false))
+            {
+                ar.xmlGetNode_floats("position",tr.X.data,3,false);
+                C3Vector euler;
+                if (ar.xmlGetNode_floats("euler",euler.data,3,false))
+                {
+                    euler(0)*=piValue_f/180.0f;
+                    euler(1)*=piValue_f/180.0f;
+                    euler(2)*=piValue_f/180.0f;
+                    tr.Q.setEulerAngles(euler);
+                }
+                ar.xmlPopNode();
+            }
+            retVal->setLocalTransformation(tr*retVal->getLocalTransformation());
+        }
+    }
+    if ( (!checkSibling)&&((itemType==nullptr)||(std::string("compound").compare(itemType)==0))&&ar.xmlPushChildNode("compound",false))
+        t=3;
+    else
+    {
+        if ( (itemType!=nullptr)&&std::string("compound").compare(itemType)==0 )
+        {
+            if (checkSibling)
+            {
+                if (ar.xmlPushSiblingNode("compound",false))
+                    t=3;
+                else
+                    ar.xmlPopNode();
+            }
+        }
+    }
+
+    if (t==3)
+    { // compound
+        std::vector<int> allShapes;
+        CShape* it=_createSimpleXmlShape(ar,true,"primitive",false);
+        if (it!=nullptr)
+        {
+            allShapes.push_back(it->getObjectHandle());
+            while (true)
+            {
+                it=_createSimpleXmlShape(ar,true,"primitive",true);
+                if (it!=nullptr)
+                    allShapes.push_back(it->getObjectHandle());
+                else
+                    break;
+            }
+        }
+        it=_createSimpleXmlShape(ar,true,"mesh",false);
+        if (it!=nullptr)
+        {
+            allShapes.push_back(it->getObjectHandle());
+            while (true)
+            {
+                it=_createSimpleXmlShape(ar,true,"mesh",true);
+                if (it!=nullptr)
+                    allShapes.push_back(it->getObjectHandle());
+                else
+                    break;
+            }
+        }
+        it=_createSimpleXmlShape(ar,true,"compound",false);
+        if (it!=nullptr)
+        {
+            allShapes.push_back(it->getObjectHandle());
+            while (true)
+            {
+                it=_createSimpleXmlShape(ar,true,"compound",true);
+                if (it!=nullptr)
+                    allShapes.push_back(it->getObjectHandle());
+                else
+                    break;
+            }
+        }
+        if (allShapes.size()>=1)
+        {
+            int newShapeHandle=-1;
+            if (allShapes.size()>=2)
+                newShapeHandle=CSceneObjectOperations::groupSelection(&allShapes,false);
+            else
+                newShapeHandle=allShapes[0];
+            retVal=getShape(newShapeHandle);
+        }
+        if (itemType==nullptr)
+            ar.xmlPopNode();
+    }
+    if ( (retVal!=nullptr)&&(t!=-1)&&loadVisualAttributes )
+    {
+        float v;
+        if (ar.xmlGetNode_float("shadingAngle",v,false))
+        {
+            ((CGeometric*)retVal->geomData->geomInfo)->setGouraudShadingAngle(v*piValue_f/180.0f);
+            ((CGeometric*)retVal->geomData->geomInfo)->setEdgeThresholdAngle(v*piValue_f/180.0f);
+        }
+        retVal->setVisibleEdges(false);
+        bool b;
+        if (ar.xmlGetNode_bool("culling",b,false))
+            retVal->setCulling(b);
+        if (ar.xmlGetNode_bool("wireframe",b,false))
+            ((CGeometric*)retVal->geomData->geomInfo)->setWireframe(b);
+        if (ar.xmlPushChildNode("color",false))
+        {
+            int rgb[3];
+            if (ar.xmlGetNode_ints("ambientDiffuse",rgb,3,false))
+                ((CGeometric*)retVal->geomData->geomInfo)->color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+            if (ar.xmlGetNode_ints("specular",rgb,3,false))
+                ((CGeometric*)retVal->geomData->geomInfo)->color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_specular);
+            if (ar.xmlGetNode_ints("emission",rgb,3,false))
+                ((CGeometric*)retVal->geomData->geomInfo)->color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_emission);
+            ar.xmlPopNode();
+        }
+        if (itemType==nullptr)
+            ar.xmlPopNode();
+    }
+    return(retVal);
+}
+
+CShape* CObjCont::loadSimpleXmlShape(CSer& ar,C7Vector& desiredLocalFrame)
+{
+    CDummy* dummy=new CDummy();
+    dummy->serialize(ar); // we later transfer the common data to the shape object
+    desiredLocalFrame=dummy->getLocalTransformation();
+    CShape* shape=_createSimpleXmlShape(ar,false,nullptr,false);
+    if (shape!=nullptr)
+    {
+        if (ar.xmlPushChildNode("dynamics",false))
+        {
+            int m;
+            if (ar.xmlGetNode_int("respondableMask",m,false))
+                shape->setDynamicCollisionMask((unsigned short)m);
+            C3Vector vel;
+            if (ar.xmlGetNode_floats("initialLinearVelocity",vel.data,3,false))
+                shape->setInitialDynamicLinearVelocity(vel);
+            if (ar.xmlGetNode_floats("initialAngularVelocity",vel.data,3,false))
+                shape->setInitialDynamicAngularVelocity(vel*piValue_f/180.0f);
+            float mass=1.0f;
+            if (ar.xmlGetNode_float("mass",mass,false))
+            {
+                if (mass<0.0000001f)
+                    mass=0.0000001f;
+                shape->geomData->geomInfo->setMass(mass);
+            }
+
+            C3Vector pmoment(0.1f,0.1f,0.1f);
+            ar.xmlGetNode_floats("principalMomentOfInertia",pmoment.data,3,false);
+            C7Vector inertiaFrame;
+            inertiaFrame.setIdentity();
+            if (ar.xmlPushChildNode("localInertiaFrame",false))
+            {
+                ar.xmlGetNode_floats("position",inertiaFrame.X.data,3,false);
+                C3Vector euler;
+                if (ar.xmlGetNode_floats("euler",euler.data,3,false))
+                {
+                    euler(0)*=piValue_f/180.0f;
+                    euler(1)*=piValue_f/180.0f;
+                    euler(2)*=piValue_f/180.0f;
+                    inertiaFrame.Q.setEulerAngles(euler);
+                }
+                ar.xmlPopNode();
+            }
+            float inertia[6]={0.1f,0.0f,0.0f,0.1f,0.0f,0.1f};
+            bool hasInertia=false;
+            hasInertia=ar.xmlGetNode_floats("inertia",inertia,6,false);
+            if (ar.xmlPushChildNode("switches",false))
+            {
+                bool b;
+                if (ar.xmlGetNode_bool("static",b,false))
+                    shape->setShapeIsDynamicallyStatic(b);
+                if (ar.xmlGetNode_bool("respondable",b,false))
+                    shape->setRespondable(b);
+                if (ar.xmlGetNode_bool("startSleeping",b,false))
+                    shape->setStartInDynamicSleeping(b);
+                if (ar.xmlGetNode_bool("setToDynamicIfGetsParent",b,false))
+                    shape->setSetAutomaticallyToNonStaticIfGetsParent(b);
+                ar.xmlPopNode();
+            }
+            if (ar.xmlPushChildNode("material",false))
+            {
+                shape->getDynMaterial()->serialize(ar);
+                ar.xmlPopNode();
+            }
+            ar.xmlPopNode();
+
+            C3Vector com(inertiaFrame.X);
+            C4X4Matrix tr;
+            tr.setIdentity();
+            C4Vector rot;
+            rot.setIdentity();
+            if (hasInertia)
+            {
+                C3X3Matrix m;
+                m.axis[0](0)=inertia[0];
+                m.axis[1](0)=inertia[1];
+                m.axis[2](0)=inertia[2];
+                m.axis[0](1)=inertia[1];
+                m.axis[1](1)=inertia[3];
+                m.axis[2](1)=inertia[4];
+                m.axis[0](2)=inertia[2];
+                m.axis[1](2)=inertia[4];
+                m.axis[2](2)=inertia[5];
+                m/=mass; // in CoppeliaSim we work with the "massless inertia"
+                CGeomWrap::findPrincipalMomentOfInertia(m,rot,pmoment);
+            }
+            if (pmoment(0)<0.0000001f)
+                pmoment(0)=0.0000001f;
+            if (pmoment(1)<0.0000001f)
+                pmoment(1)=0.0000001f;
+            if (pmoment(2)<0.0000001f)
+                pmoment(0)=0.0000001f;
+            shape->geomData->geomInfo->setPrincipalMomentsOfInertia(pmoment);
+            shape->geomData->geomInfo->setLocalInertiaFrame(shape->getCumulativeTransformation().getInverse()*tr.getTransformation()*C7Vector(rot,com));
+        }
+        C7Vector tr(shape->getCumulativeTransformation());
+        shape->acquireCommonPropertiesFromObject_simpleXMLLoading(dummy);
+        renameObject(shape->getObjectHandle(),dummy->getObjectName().c_str());
+        altRenameObject(shape->getObjectHandle(),dummy->getObjectAltName().c_str());
+        shape->setLocalTransformation(dummy->getCumulativeTransformation()*tr);
+        // We cannot decided of the position of the shape (the position is selected at the center of the shape)
+        // But we can decide of the orientation of the shape (most of the time), so do it here (we simply reorient the shape's bounding box):
+        if ( (!shape->geomData->geomInfo->isPure())||(shape->isCompound()) )
+        {
+            C7Vector oldAbsTr(shape->getCumulativeTransformationPart1());
+            C7Vector oldAbsTr2(dummy->getCumulativeTransformationPart1().getInverse()*oldAbsTr);
+            C7Vector x(oldAbsTr2*oldAbsTr.getInverse());
+            shape->setLocalTransformation(oldAbsTr2);
+            shape->alignBoundingBoxWithWorld();
+            C7Vector newAbsTr2(shape->getCumulativeTransformationPart1());
+            C7Vector newAbsTr(x.getInverse()*newAbsTr2);
+            shape->setLocalTransformation(newAbsTr);
+        }
+    }
+    delete dummy;
+    return(shape);
+}
+
+void CObjCont::_saveSimpleXmlSimpleShape(CSer& ar,const char* originalShapeName,CShape* shape,const C7Vector& frame)
+{
+    CGeometric* geom=(CGeometric*)shape->geomData->geomInfo;
+    if (geom->getPurePrimitiveType()==sim_pure_primitive_none)
+    { // mesh
+        ar.xmlPushNewNode("mesh");
+        C7Vector trOld(shape->getLocalTransformation());
+        C7Vector x(frame.getInverse()*trOld);
+        shape->setLocalTransformation(C7Vector::identityTransformation);
+//        shape->setLocalTransformation(geom->getVerticeLocalFrame().getInverse()); // we temporarily want the shape's pose so that the mesh appears at the origin, for export
+        ar.xmlAddNode_comment(" one of following tags is required: 'fileName' or 'vertices' and 'indices' ",false);
+        if ( CPluginContainer::isAssimpPluginAvailable()&&(!ar.xmlSaveDataInline(geom->getVertices()->size()+geom->getIndices()->size()*4)) )
+        {
+            int shapeHandle=shape->getObjectHandle();
+            std::string filename(ar.getFilenameBase()+"_mesh_"+originalShapeName+tt::FNb(ar.getIncrementCounter())+".dae");
+            CPluginContainer::assimp_exportShapes(&shapeHandle,1,(ar.getFilenamePath()+filename).c_str(),"collada",1.0f,1,256);
+            ar.xmlAddNode_string("fileName",filename.c_str());
+        }
+        else
+        {
+            std::vector<float> v;
+            v.resize(geom->getVertices()->size());
+            for (size_t i=0;i<geom->getVertices()->size()/3;i++)
+            {
+                C3Vector w(&geom->getVertices()[0][3*i]);
+                w*=geom->getVerticeLocalFrame();
+                v[3*i+0]=w(0);
+                v[3*i+1]=w(1);
+                v[3*i+2]=w(2);
+            }
+            ar.xmlAddNode_floats("vertices",v);
+            ar.xmlAddNode_ints("indices",geom->getIndices()[0]);
+        }
+
+        shape->setLocalTransformation(trOld); // restore it
+        ar.xmlPushNewNode("localFrame");
+        C7Vector tr(x);
+        ar.xmlAddNode_floats("position",tr.X.data,3);
+        C3Vector euler(tr.Q.getEulerAngles()*180.0f/piValue_f);
+        ar.xmlAddNode_floats("euler",euler.data,3);
+        ar.xmlPopNode();
+    }
+    else if (geom->getPurePrimitiveType()==sim_pure_primitive_heightfield)
+    { // heightfield
+        ar.xmlPushNewNode("heightfield");
+
+        ar.xmlAddNode_comment(" 'size' tag: required ",false);
+        ar.xmlAddNode_2int("size",geom->_heightfieldXCount,geom->_heightfieldYCount);
+        C3Vector s;
+        geom->getPurePrimitiveSizes(s);
+        float gridStep=s(0)/float(geom->_heightfieldXCount-1);
+        ar.xmlAddNode_float("gridStep",gridStep);
+        ar.xmlAddNode_comment(" 'data' tag: required. has to contain size[0]*size[1] values ",false);
+        ar.xmlAddNode_floats("data",geom->_heightfieldHeights);
+    }
+    else
+    { // primitive
+        ar.xmlPushNewNode("primitive");
+
+        ar.xmlAddNode_comment(" 'type' tag: required. Can be one of following: 'cuboid', 'sphere', 'cylinder', 'cone', 'plane' or 'disc' ",false);
+        if (geom->getPurePrimitiveType()==sim_pure_primitive_cuboid)
+            ar.xmlAddNode_string("type","cuboid");
+        if (geom->getPurePrimitiveType()==sim_pure_primitive_spheroid)
+            ar.xmlAddNode_string("type","sphere");
+        if (geom->getPurePrimitiveType()==sim_pure_primitive_cylinder)
+            ar.xmlAddNode_string("type","cylinder");
+        if (geom->getPurePrimitiveType()==sim_pure_primitive_cone)
+            ar.xmlAddNode_string("type","cone");
+        if (geom->getPurePrimitiveType()==sim_pure_primitive_plane)
+            ar.xmlAddNode_string("type","plane");
+        if (geom->getPurePrimitiveType()==sim_pure_primitive_disc)
+            ar.xmlAddNode_string("type","disc");
+
+        C3Vector s;
+        geom->getPurePrimitiveSizes(s);
+        ar.xmlAddNode_floats("size",s.data,3);
+        ar.xmlPushNewNode("localFrame");
+        C7Vector tr(frame.getInverse()*shape->getCumulativeTransformation()*geom->getVerticeLocalFrame()); // 'geom->getVerticeLocalFrame()' indicates also the origin of primitives
+        ar.xmlAddNode_floats("position",tr.X.data,3);
+        C3Vector euler(tr.Q.getEulerAngles()*180.0f/piValue_f);
+        ar.xmlAddNode_floats("euler",euler.data,3);
+        ar.xmlPopNode();
+    }
+
+    // now the visual attributes:
+    ar.xmlAddNode_float("shadingAngle",geom->getGouraudShadingAngle()*180.0f/piValue_f);
+    ar.xmlAddNode_bool("culling",geom->getCulling());
+    ar.xmlAddNode_bool("wireframe",geom->getWireframe());
+
+    ar.xmlPushNewNode("color");
+    int rgb[3];
+    for (size_t l=0;l<3;l++)
+        rgb[l]=int(geom->color.colors[l]*255.1f);
+    ar.xmlAddNode_ints("ambientDiffuse",rgb,3);
+    for (size_t l=0;l<3;l++)
+        rgb[l]=int(geom->color.colors[6+l]*255.1f);
+    ar.xmlAddNode_ints("specular",rgb,3);
+    for (size_t l=0;l<3;l++)
+        rgb[l]=int(geom->color.colors[9+l]*255.1f);
+    ar.xmlAddNode_ints("emission",rgb,3);
+    ar.xmlPopNode();
+
+    ar.xmlPopNode(); // "primitive" or "mesh" or "heightField"
+}
+
+void CObjCont::saveSimpleXmlShape(CSer& ar,CShape* shape)
+{
+    shape->serialize(ar); // will only serialize the common part. The rest has to be done here:
+
+    std::vector<CShape*> allComponents;
+
+    CShape* copy=(CShape*)shape->copyYourself();
+    copy->setParentObject(nullptr,false);
+    copy->setLocalTransformation(shape->getCumulativeTransformation());
+
+    addObjectToScene(copy,false,false);
+    if (copy->isCompound())
+    {
+        int h=copy->getObjectHandle();
+        std::vector<int> finalSel;
+        std::vector<int> previousSel;
+        std::vector<int> sel;
+        previousSel.push_back(h);
+        sel.push_back(h);
+        while (sel.size()!=0)
+        {
+            CSceneObjectOperations::ungroupSelection(&sel,false);
+            for (size_t i=0;i<previousSel.size();i++)
+            {
+                int previousID=previousSel[i];
+                bool present=false;
+                for (size_t j=0;j<sel.size();j++)
+                {
+                    if (sel[j]==previousID)
+                    {
+                        present=true;
+                        break;
+                    }
+                }
+                if ((!present)&&(h!=previousID)) // the original shape will be added at the very end for correct ordering (see below)
+                    finalSel.push_back(previousID); // this is a simple shape (not a group)
+            }
+            previousSel.assign(sel.begin(),sel.end());
+        }
+        finalSel.push_back(h);
+        for (size_t i=0;i<finalSel.size();i++)
+            allComponents.push_back(getShape(finalSel[i]));
+    }
+    else
+        allComponents.push_back(copy);
+
+    ar.xmlAddNode_comment(" one of following tags is required: 'compound', 'primitive', 'heightfield' or 'mesh'. 'compound' itself requires at least two of those tags as children ",false);
+    if (allComponents.size()>1)
+    {
+        ar.xmlPushNewNode("compound");
+        for (size_t i=0;i<allComponents.size();i++)
+            _saveSimpleXmlSimpleShape(ar,shape->getObjectName().c_str(),allComponents[i],shape->getCumulativeTransformation());
+        ar.xmlPopNode();
+    }
+    else
+        _saveSimpleXmlSimpleShape(ar,shape->getObjectName().c_str(),allComponents[0],shape->getCumulativeTransformation());
+
+
+    for (size_t i=0;i<allComponents.size();i++)
+        eraseObject(allComponents[i],false);
+
+    ar.xmlPushNewNode("dynamics");
+
+    ar.xmlAddNode_int("respondableMask",shape->getDynamicCollisionMask());
+    ar.xmlAddNode_floats("initialLinearVelocity",shape->getInitialDynamicLinearVelocity().data,3);
+    C3Vector vel(shape->getInitialDynamicAngularVelocity()*180.0f/piValue_f);
+    ar.xmlAddNode_floats("initialAngularVelocity",vel.data,3);
+    ar.xmlAddNode_float("mass",shape->geomData->geomInfo->getMass());
+    C7Vector tr(shape->geomData->geomInfo->getLocalInertiaFrame());
+
+    ar.xmlPushNewNode("localInertiaFrame");
+    ar.xmlAddNode_floats("position",tr.X.data,3);
+    C3Vector euler(tr.Q.getEulerAngles());
+    euler*=180.0f/piValue_f;
+    ar.xmlAddNode_floats("euler",euler.data,3);
+    ar.xmlPopNode();
+
+    ar.xmlAddNode_floats("principalMomentOfInertia",shape->geomData->geomInfo->getPrincipalMomentsOfInertia().data,3);
+    ar.xmlPushNewNode("switches");
+    ar.xmlAddNode_bool("static",shape->getShapeIsDynamicallyStatic());
+    ar.xmlAddNode_bool("respondable",shape->getRespondable());
+    ar.xmlAddNode_bool("startSleeping",shape->getStartInDynamicSleeping());
+    ar.xmlAddNode_bool("setToDynamicIfGetsParent",shape->getSetAutomaticallyToNonStaticIfGetsParent());
+    ar.xmlPopNode();
+
+    ar.xmlPushNewNode("material");
+    shape->getDynMaterial()->serialize(ar);
+    ar.xmlPopNode();
+
+    ar.xmlPopNode();
+}
+
+bool CObjCont::loadSimpleXmlSceneObjects(CSer& ar,C3DObject* parentObject,const C7Vector& localFramePreCorrection)
+{
+    bool retVal=true;
+    bool isScene=(ar.getFileType()==CSer::filetype_csim_xml_simplescene_file);
+    const char* objNames={"shape\0joint\0graph\0camera\0dummy\0proximitySensor\0visionSensor\0forceSensor\0path\0light\0ocTree\0pointCloud\0\0"};
+    int off=0;
+    while (true)
+    {
+        std::string nm(objNames+off);
+        if (nm.size()==0)
+            break;
+        if (ar.xmlPushChildNode(nm.c_str(),false))
+        {
+            while (true)
+            {
+                C7Vector desiredLocalFrame;
+                C3DObject* obj=nullptr;
+                if (nm.compare("shape")==0)
+                    obj=loadSimpleXmlShape(ar,desiredLocalFrame); // special, added to scene already. Can fail
+                if (nm.compare("joint")==0)
+                {
+                    CJoint* myNewObject=new CJoint();
+                    myNewObject->serialize(ar);
+                    obj=myNewObject;
+                    addObjectToScene(obj,false,true);
+                }
+                if (nm.compare("graph")==0)
+                {
+                    CGraph* myNewObject=new CGraph();
+                    myNewObject->serialize(ar);
+                    obj=myNewObject;
+                    addObjectToScene(obj,false,true);
+                }
+                if (nm.compare("camera")==0)
+                {
+                    CCamera* myNewObject=new CCamera();
+                    myNewObject->serialize(ar);
+                    obj=myNewObject;
+                    addObjectToScene(obj,false,true);
+                }
+                if (nm.compare("dummy")==0)
+                {
+                    CDummy* myNewObject=new CDummy();
+                    myNewObject->serialize(ar);
+                    obj=myNewObject;
+                    addObjectToScene(obj,false,true);
+                }
+                if (nm.compare("proximitySensor")==0)
+                {
+                    CProxSensor* myNewObject=new CProxSensor();
+                    myNewObject->serialize(ar);
+                    obj=myNewObject;
+                    addObjectToScene(obj,false,true);
+                }
+                if (nm.compare("visionSensor")==0)
+                {
+                    CVisionSensor* myNewObject=new CVisionSensor();
+                    myNewObject->serialize(ar);
+                    obj=myNewObject;
+                    addObjectToScene(obj,false,true);
+                }
+                if (nm.compare("forceSensor")==0)
+                {
+                    CForceSensor* myNewObject=new CForceSensor();
+                    myNewObject->serialize(ar);
+                    obj=myNewObject;
+                    addObjectToScene(obj,false,true);
+                }
+                if (nm.compare("path")==0)
+                {
+                    CPath* myNewObject=new CPath();
+                    myNewObject->serialize(ar);
+                    obj=myNewObject;
+                    addObjectToScene(obj,false,true);
+                }
+                if (nm.compare("light")==0)
+                {
+                    CLight* myNewObject=new CLight();
+                    myNewObject->serialize(ar);
+                    obj=myNewObject;
+                    addObjectToScene(obj,false,true);
+                }
+                if (nm.compare("ocTree")==0)
+                {
+                    COctree* myNewObject=new COctree();
+                    myNewObject->serialize(ar);
+                    obj=myNewObject;
+                    addObjectToScene(obj,false,true);
+                }
+                if (nm.compare("pointCloud")==0)
+                {
+                    CPointCloud* myNewObject=new CPointCloud();
+                    myNewObject->serialize(ar);
+                    obj=myNewObject;
+                    addObjectToScene(obj,false,true);
+                }
+
+                if (obj!=nullptr)
+                {
+                    if (obj->getObjectType()!=sim_object_shape_type)
+                        desiredLocalFrame=obj->getLocalTransformationPart1();
+                    C7Vector localFramePreCorrectionForChildren(obj->getLocalTransformationPart1().getInverse()*desiredLocalFrame);
+                    obj->setLocalTransformation(localFramePreCorrection*obj->getLocalTransformationPart1());
+
+                    _simpleXml_allParentObjects.push_back(parentObject);
+                    _simpleXml_allObjects.push_back(obj);
+
+                    // Handle attached child scripts:
+                    CLuaScriptObject* script=nullptr;
+                    if (ar.xmlPushChildNode("childScript",false))
+                    {
+                        script=new CLuaScriptObject(sim_scripttype_childscript);
+                        script->serialize(ar);
+                        ar.xmlPopNode();
+                    }
+                    _simpleXml_allChildScripts.push_back(script);
+
+                    // Handle attached customization scripts:
+                    script=nullptr;
+                    if (ar.xmlPushChildNode("customizationScript",false))
+                    {
+                        script=new CLuaScriptObject(sim_scripttype_customizationscript);
+                        script->serialize(ar);
+                        ar.xmlPopNode();
+                    }
+                    _simpleXml_allCustomizationScripts.push_back(script);
+
+                    // Possibly recurse:
+                    loadSimpleXmlSceneObjects(ar,obj,localFramePreCorrectionForChildren);
+
+                    if ( (!isScene)&&(parentObject==nullptr) )
+                        break;
+                }
+
+                if (!ar.xmlPushSiblingNode(nm.c_str(),false))
+                    break;
+            }
+            ar.xmlPopNode();
+        }
+        off+=strlen(objNames+off)+1;
+
+        if ( (!isScene)&&(parentObject==nullptr) )
+            break;
+    }
+
+    return(retVal);
+}
 C3DObject* CObjCont::getObjectWithUniqueID(int uniqueID)
 {
     for (int i=0;i<int(objectList.size());i++)
@@ -1122,6 +2723,11 @@ std::string CObjCont::getSimilarNameWithHighestSuffix(std::string objectName,boo
 
 void CObjCont::saveScene(CSer& ar)
 {
+    if (ar.getFileType()==CSer::filetype_csim_xml_simplescene_file)
+    {
+        _saveSimpleXmlScene(ar);
+        return;
+    }
     // **** Following needed to save existing calculation structures:
     App::ct->environment->setSaveExistingCalculationStructuresTemp(false);
     if (!App::ct->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
@@ -1142,6 +2748,12 @@ void CObjCont::saveScene(CSer& ar)
         if (ar.setWritingMode())
             App::ct->environment->modelThumbnail_notSerializedHere.serialize(ar,false);
     }
+    else
+    {
+        ar.xmlPushNewNode(SERX_MODEL_THUMBNAIL);
+        App::ct->environment->modelThumbnail_notSerializedHere.serialize(ar,false);
+        ar.xmlPopNode();
+    }
     //****************************************************
 
     // Textures:
@@ -1151,11 +2763,17 @@ void CObjCont::saveScene(CSer& ar)
         CTextureObject* it=App::ct->textureCont->getObjectAtIndex(textCnt);
         if (ar.isBinary())
             App::ct->textureCont->storeTextureObject(ar,it);
+        else
+        {
+            ar.xmlPushNewNode(SERX_TEXTURE);
+            App::ct->textureCont->storeTextureObject(ar,it);
+            ar.xmlPopNode();
+        }
         textCnt++;
     }
 
     // DynMaterial objects:
-    // We only save this for backward compatibility, but not needed for V-REP's from 3.4.0 on:
+    // We only save this for backward compatibility, but not needed for CoppeliaSim's from 3.4.0 on:
     //------------------------------------------------------------
     if (ar.isBinary())
     {
@@ -1201,6 +2819,13 @@ void CObjCont::saveScene(CSer& ar)
             C3DObject* it=getObjectFromHandle(objectList[i]);
             store3DObject(ar,it);
         }
+        else
+        {
+            ar.xmlPushNewNode(SERX_SCENEOBJECT);
+            C3DObject* it=getObjectFromHandle(objectList[i]);
+            store3DObject(ar,it);
+            ar.xmlPopNode();
+        }
     }
 
     if (ar.isBinary())
@@ -1211,6 +2836,12 @@ void CObjCont::saveScene(CSer& ar)
         if (ar.setWritingMode())
             App::ct->ghostObjectCont->serialize(ar);
     }
+    else
+    {
+        ar.xmlPushNewNode(SERX_GHOSTS);
+        App::ct->ghostObjectCont->serialize(ar);
+        ar.xmlPopNode();
+    }
 
     if (ar.isBinary())
     {
@@ -1219,6 +2850,12 @@ void CObjCont::saveScene(CSer& ar)
         App::ct->environment->serialize(ar);
         if (ar.setWritingMode())
             App::ct->environment->serialize(ar);
+    }
+    else
+    {
+        ar.xmlPushNewNode(SERX_ENVIRONMENT);
+        App::ct->environment->serialize(ar);
+        ar.xmlPopNode();
     }
 
 
@@ -1232,6 +2869,12 @@ void CObjCont::saveScene(CSer& ar)
             if (ar.setWritingMode())
                 App::ct->collisions->collisionObjects[i]->serialize(ar);
         }
+        else
+        {
+            ar.xmlPushNewNode(SERX_COLLISION);
+            App::ct->collisions->collisionObjects[i]->serialize(ar);
+            ar.xmlPopNode();
+        }
     }
     for (size_t i=0;i<App::ct->distances->distanceObjects.size();i++)
     {
@@ -1243,6 +2886,12 @@ void CObjCont::saveScene(CSer& ar)
             if (ar.setWritingMode())
                 App::ct->distances->distanceObjects[i]->serialize(ar);
         }
+        else
+        {
+            ar.xmlPushNewNode(SERX_DISTANCE);
+            App::ct->distances->distanceObjects[i]->serialize(ar);
+            ar.xmlPopNode();
+        }
     }
     for (size_t i=0;i<App::ct->ikGroups->ikGroups.size();i++)
     {
@@ -1253,6 +2902,12 @@ void CObjCont::saveScene(CSer& ar)
             App::ct->ikGroups->ikGroups[i]->serialize(ar);
             if (ar.setWritingMode())
                 App::ct->ikGroups->ikGroups[i]->serialize(ar);
+        }
+        else
+        {
+            ar.xmlPushNewNode(SERX_IK);
+            App::ct->ikGroups->ikGroups[i]->serialize(ar);
+            ar.xmlPopNode();
         }
     }
     if (ar.isBinary())
@@ -1283,6 +2938,12 @@ void CObjCont::saveScene(CSer& ar)
         if (ar.setWritingMode())
             App::ct->mainSettings->serialize(ar);
     }
+    else
+    {
+        ar.xmlPushNewNode(SERX_SETTINGS);
+        App::ct->mainSettings->serialize(ar);
+        ar.xmlPopNode();
+    }
 
     if (ar.isBinary())
     {
@@ -1291,6 +2952,12 @@ void CObjCont::saveScene(CSer& ar)
         App::ct->dynamicsContainer->serialize(ar);
         if (ar.setWritingMode())
             App::ct->dynamicsContainer->serialize(ar);
+    }
+    else
+    {
+        ar.xmlPushNewNode(SERX_DYNAMICS);
+        App::ct->dynamicsContainer->serialize(ar);
+        ar.xmlPopNode();
     }
 
     if (ar.isBinary())
@@ -1301,6 +2968,12 @@ void CObjCont::saveScene(CSer& ar)
         if (ar.setWritingMode())
             App::ct->simulation->serialize(ar);
     }
+    else
+    {
+        ar.xmlPushNewNode(SERX_SIMULATION);
+        App::ct->simulation->serialize(ar);
+        ar.xmlPopNode();
+    }
     if (ar.isBinary())
     {
         ar.storeDataName(SER_SCENE_CUSTOM_DATA);
@@ -1308,6 +2981,12 @@ void CObjCont::saveScene(CSer& ar)
         App::ct->customSceneData->serializeData(ar,nullptr,-1);
         if (ar.setWritingMode())
             App::ct->customSceneData->serializeData(ar,nullptr,-1);
+    }
+    else
+    {
+        ar.xmlPushNewNode(SERX_SCENE_CUSTOM_DATA);
+        App::ct->customSceneData->serializeData(ar,nullptr,-1);
+        ar.xmlPopNode();
     }
 
     if (ar.isBinary())
@@ -1317,6 +2996,12 @@ void CObjCont::saveScene(CSer& ar)
         App::ct->pageContainer->serialize(ar);
         if (ar.setWritingMode())
             App::ct->pageContainer->serialize(ar);
+    }
+    else
+    {
+        ar.xmlPushNewNode(SERX_VIEWS);
+        App::ct->pageContainer->serialize(ar);
+        ar.xmlPopNode();
     }
 
     // We serialize all collections:
@@ -1329,6 +3014,12 @@ void CObjCont::saveScene(CSer& ar)
             App::ct->collections->allCollections[i]->serialize(ar);
             if (ar.setWritingMode())
                 App::ct->collections->allCollections[i]->serialize(ar);
+        }
+        else
+        {
+            ar.xmlPushNewNode(SERX_COLLECTION);
+            App::ct->collections->allCollections[i]->serialize(ar);
+            ar.xmlPopNode();
         }
     }
 
@@ -1362,6 +3053,12 @@ void CObjCont::saveScene(CSer& ar)
                 it->serialize(ar);
                 if (ar.setWritingMode())
                     it->serialize(ar);
+            }
+            else
+            {
+                ar.xmlPushNewNode(SERX_LUA_SCRIPT);
+                it->serialize(ar);
+                ar.xmlPopNode();
             }
         }
     }

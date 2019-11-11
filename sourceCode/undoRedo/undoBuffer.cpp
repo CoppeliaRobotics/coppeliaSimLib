@@ -1,5 +1,5 @@
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "undoBuffer.h"
 #include <algorithm>
 

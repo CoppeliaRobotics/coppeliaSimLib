@@ -23,6 +23,7 @@ public:
     static bool doesFileExist(const std::string& filenameAndPath);
     static bool doesFolderExist(const std::string& foldernameAndPath); // no final slash!
     static void eraseFile(const std::string& filenameAndPath);
+    static int eraseFilesWithPrefix(const char* pathWithoutTerminalSlash,const char* prefix);
 
     quint64 getLength();
     void close();

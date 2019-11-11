@@ -41,7 +41,7 @@ protected:
     QThread* _initialThread;
 
     // Native window vars:
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     HWND _windowHandle;
     HDC _hdc;
     HGLRC _nativeContext;

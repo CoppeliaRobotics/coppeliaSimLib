@@ -1,5 +1,5 @@
 
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "mainSettings.h"
 #include "global.h"
 #include "tt.h"
@@ -360,6 +360,61 @@ void CMainSettings::serialize(CSer& ar)
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_int("visibleLayers",_activeLayers);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("visionSensorsEnabled",visionSensorsEnabled);
+            ar.xmlAddNode_bool("proximitySensorsEnabled",proximitySensorsEnabled);
+            ar.xmlAddNode_bool("mirrorsEnabled",!mirrorsDisabled);
+            ar.xmlAddNode_bool("clippingPlanesEnabled",!clippingPlanesDisabled);
+            ar.xmlAddNode_bool("ikEnabled",ikCalculationEnabled);
+            ar.xmlAddNode_bool("collisionDetectionsEnabled",collisionDetectionEnabled);
+            ar.xmlAddNode_bool("distanceCalculationsEnabled",distanceCalculationEnabled);
+            ar.xmlPopNode();
+
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("collisionColor");
+                collisionColor.serialize(ar,0);
+                ar.xmlPopNode();
+            }
+        }
+        else
+        {
+
+            int l;
+            if (ar.xmlGetNode_int("visibleLayers",l,exhaustiveXml))
+            {
+                tt::limitValue(0,65526,l);
+                _activeLayers=(unsigned short)l;
+            }
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("visionSensorsEnabled",visionSensorsEnabled,exhaustiveXml);
+                ar.xmlGetNode_bool("proximitySensorsEnabled",proximitySensorsEnabled,exhaustiveXml);
+                if (ar.xmlGetNode_bool("mirrorsEnabled",mirrorsDisabled,exhaustiveXml))
+                    mirrorsDisabled=!mirrorsDisabled;
+                if (ar.xmlGetNode_bool("clippingPlanesEnabled",clippingPlanesDisabled,exhaustiveXml))
+                    clippingPlanesDisabled=!clippingPlanesDisabled;
+                ar.xmlGetNode_bool("ikEnabled",ikCalculationEnabled,exhaustiveXml);
+                ar.xmlGetNode_bool("collisionDetectionsEnabled",collisionDetectionEnabled,exhaustiveXml);
+                ar.xmlGetNode_bool("distanceCalculationsEnabled",distanceCalculationEnabled,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            if (exhaustiveXml&&ar.xmlPushChildNode("collisionColor"))
+            {
+                collisionColor.serialize(ar,0);
+                ar.xmlPopNode();
             }
         }
     }

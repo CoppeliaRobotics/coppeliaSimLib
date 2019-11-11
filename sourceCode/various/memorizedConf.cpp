@@ -1,7 +1,7 @@
 
 #include "memorizedConf.h"
 #include "app.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 
 CMemorizedConf::CMemorizedConf(C3DObject* theObject)
 {

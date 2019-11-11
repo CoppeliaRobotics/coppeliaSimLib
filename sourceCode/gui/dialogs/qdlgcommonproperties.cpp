@@ -7,7 +7,7 @@
 #include "qdlgmodelproperties.h"
 #include "qdlgassembly.h"
 #include "qdlgscaling.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "vMessageBox.h"
 

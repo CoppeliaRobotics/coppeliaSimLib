@@ -64,7 +64,7 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
             if (pointCloud->getShowOctree()&&(pointCloud->getPointCloudInfo()!=nullptr)&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
             {
                 std::vector<float> corners;
-                CPluginContainer::mesh_getPointCloudDebugCorners(pointCloud->getPointCloudInfo(),corners);
+                CPluginContainer::geomPlugin_getPtcloudOctreeCorners(pointCloud->getPointCloudInfo(),corners);
 
                 glBegin(GL_LINES);
                 glNormal3fv(normalVectorForLinesAndPoints.data);

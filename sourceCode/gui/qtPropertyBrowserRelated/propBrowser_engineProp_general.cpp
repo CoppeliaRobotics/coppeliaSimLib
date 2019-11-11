@@ -2,7 +2,7 @@
 #include "tt.h"
 #include "gV.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vMessageBox.h"
 
 bool CPropBrowserEngineGeneral::_bulletPropertiesExpanded=true;

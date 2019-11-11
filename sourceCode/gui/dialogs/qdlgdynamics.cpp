@@ -4,7 +4,7 @@
 #include "app.h"
 #include "gV.h"
 #include "propBrowser_engineProp_general.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 CQDlgDynamics::CQDlgDynamics(QWidget *parent) :
     CDlgEx(parent),

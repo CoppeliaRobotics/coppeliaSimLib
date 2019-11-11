@@ -1,7 +1,8 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "textureObject.h"
 #include "app.h"
 #include <boost/format.hpp>
+#include "base64.h"
 
 unsigned int CTextureObject::_textureContentUniqueId=0;
 
@@ -537,6 +538,44 @@ void CTextureObject::serialize(CSer& ar)
                         ar.loadUnknownData();
                 }
             }
+        }
+    }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_string("name",_objectName.c_str());
+            ar.xmlAddNode_int("id",_objectID);
+            ar.xmlAddNode_ints("resolution",_textureSize,2);
+            ar.xmlAddNode_bool("rgba",_providedImageWasRGBA);
+            if (ar.xmlSaveDataInline(_textureSize[0]*_textureSize[1]*4))
+            {
+                std::string str(base64_encode(&_textureBuffer[0],_textureSize[0]*_textureSize[1]*4));
+                ar.xmlAddNode_string("data_base64Coded",str.c_str());
+            }
+            else
+                ar.xmlAddNode_imageFile("file",(std::string("texture_")+_objectName).c_str(),&_textureBuffer[0],_textureSize[0],_textureSize[1],true);
+        }
+        else
+        {
+            ar.xmlGetNode_string("name",_objectName);
+            ar.xmlGetNode_int("id",_objectID);
+            ar.xmlGetNode_ints("resolution",_textureSize,2);
+            ar.xmlGetNode_bool("rgba",_providedImageWasRGBA);
+            std::string str;
+            if (ar.xmlGetNode_string("data_base64Coded",str,false))
+                str=base64_decode(str);
+            else
+            {
+                std::vector<unsigned char> img;
+                ar.xmlGetNode_imageFile("file",img);
+                str.resize(img.size());
+                for (size_t i=0;i<img.size();i++)
+                    str[i]=img[i];
+            }
+            _textureBuffer.resize(4*_textureSize[0]*_textureSize[1],0);
+            for (size_t i=0;i<_textureSize[0]*_textureSize[1]*4;i++)
+                _textureBuffer[i]=str[i];
         }
     }
 }

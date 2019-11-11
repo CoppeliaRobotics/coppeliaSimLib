@@ -6,9 +6,12 @@
     #include "vMenubar.h"
 #endif
 
-#define ADDON_SCRIPT_PREFIX_AUTOSTART "vrepAddOnScript_"
-#define ADDON_SCRIPT_PREFIX_NOAUTOSTART "vrepAddOnScript-"
-#define ADDON_FUNCTION_PREFIX "vrepAddOnFunc_"
+#define ADDON_SCRIPT_PREFIX1_AUTOSTART "simAddOnScript_"
+#define ADDON_SCRIPT_PREFIX2_AUTOSTART "vrepAddOnScript_"
+#define ADDON_SCRIPT_PREFIX1_NOAUTOSTART "simAddOnScript-"
+#define ADDON_SCRIPT_PREFIX2_NOAUTOSTART "vrepAddOnScript-"
+#define ADDON_FUNCTION_PREFIX1 "simAddOnFunc_"
+#define ADDON_FUNCTION_PREFIX2 "vrepAddOnFunc_"
 #define ADDON_EXTENTION "lua"
 
 class CAddOnScriptContainer

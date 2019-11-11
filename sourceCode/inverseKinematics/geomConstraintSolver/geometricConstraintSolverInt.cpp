@@ -1,5 +1,5 @@
 
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "geometricConstraintSolverInt.h"
 #include "geometricConstraintSolver.h"
 #include "3DObject.h"

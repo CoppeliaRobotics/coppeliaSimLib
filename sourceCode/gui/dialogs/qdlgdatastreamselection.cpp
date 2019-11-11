@@ -5,7 +5,7 @@
 #include "global.h"
 #include "graphingRoutines.h"
 #include <QPushButton>
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 
 CQDlgDataStreamSelection::CQDlgDataStreamSelection(QWidget *parent) :

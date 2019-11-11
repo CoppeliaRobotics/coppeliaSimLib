@@ -1,11 +1,12 @@
 #include "funcDebug.h"
-#include "v_repConst.h"
+#include "simConst.h"
 #include "meshRoutines.h"
 #include "meshManip.h"
 #include "tt.h"
 #include "pluginContainer.h"
 #include <stdio.h>
-#include "v_rep_internal.h"
+#include "simInternal.h"
+#include <algorithm>
 
 void CMeshRoutines::getEdgeFeatures(float* vertices,int verticesLength,int* indices,int indicesLength,
             std::vector<int>* theVertexIDs,std::vector<int>* theEdgeIDs,std::vector<int>* theFaceIDs,

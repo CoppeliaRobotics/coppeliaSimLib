@@ -5,7 +5,7 @@
 #include "gV.h"
 #include "qdlgtextures.h"
 #include "qdlgcolor.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 CQDlgUiButtons::CQDlgUiButtons(QWidget *parent) :
     CDlgEx(parent),

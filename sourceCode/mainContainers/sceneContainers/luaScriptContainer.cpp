@@ -1,11 +1,11 @@
 
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "luaScriptContainer.h"
 #include "tt.h"
 #include "vVarious.h"
 #include "threadPool.h"
 #include "vFileFinder.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "vDateTime.h"
 #include "funcDebug.h"
@@ -545,7 +545,7 @@ int CLuaScriptContainer::handleCascadedScriptExecution(int scriptType,int callTy
     }
     return(cnt);
 }
-
+/*
 int CLuaScriptContainer::getScriptSimulationParameter_mainAndChildScriptsOnly(int scriptHandle,const char* parameterName,std::string& parameterValue) const
 {
     int retVal=0;
@@ -591,7 +591,7 @@ int CLuaScriptContainer::setScriptSimulationParameter_mainAndChildScriptsOnly(in
     }
     return(retVal);
 }
-
+*/
 bool CLuaScriptContainer::addCommandToOutsideCommandQueues(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const float aux2Vals[8],int aux2Count)
 {
     for (size_t i=0;i<allScripts.size();i++)

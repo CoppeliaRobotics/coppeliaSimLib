@@ -1,4 +1,4 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "pageSelector.h"
 #include "sPage.h"
 #include "oGL.h"

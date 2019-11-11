@@ -31,7 +31,7 @@ CQDlgUiDialogContainer::CQDlgUiDialogContainer(QWidget *parent) :
     s.setHeight(originalHeights[currentPage]+TOP_BORDER_WIDTH);
     setFixedSize(s);
 /*
-#ifndef WIN_VREP
+#ifndef WIN_SIM
     // Since Qt5, we have problems on Linux (resizing-->dlg shifts in position) and Mac (resising-->ugly glitch)
     // In that case we keep constant-size dialogs.
     if (QT_VERSION>=0x050000)
@@ -84,7 +84,7 @@ void CQDlgUiDialogContainer::refresh()
         QSize s(pageDlgs[currentPage]->size());
         s.setHeight(originalHeights[currentPage]+TOP_BORDER_WIDTH);
 
-#ifdef MAC_VREP
+#ifdef MAC_SIM
         if (QT_VERSION>=0x050000)
         { // Since Qt5, we have problems on Mac (resising-->ugly glitch)
             setVisible(false);
@@ -99,7 +99,7 @@ void CQDlgUiDialogContainer::refresh()
 
 
 /*
-#ifdef WIN_VREP
+#ifdef WIN_SIM
         // Since Qt5, we have problems on Linux (resizing-->dlg shifts in position) and Mac (resising-->ugly glitch)
         // In that case we keep constant-size dialogs.
         QSize s(pageDlgs[currentPage]->size());

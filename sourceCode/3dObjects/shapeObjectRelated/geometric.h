@@ -12,7 +12,6 @@ public:
 
     void display(CGeomProxy* geomData,int displayAttrib,CVisualParam* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
     void display_colorCoded(CGeomProxy* geomData,int objectId,int displayAttrib);
-    void displayForCutting(CGeomProxy* geomData,int displayAttrib,CVisualParam* collisionColor,const float normalVectorForPointsAndLines[3]);
     void displayGhost(CGeomProxy* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors);
 
     void prepareVerticesIndicesNormalsAndEdgesForSerialization();

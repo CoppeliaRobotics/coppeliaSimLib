@@ -130,6 +130,7 @@ public:
     void setUseEnvironmentBackgroundColor(bool s);
     bool getUseEnvironmentBackgroundColor();
     float getCalculationTime();
+    std::string getDdetectableEntityLoadName() const;
 
     CComposedFilter* getComposedFilter();
     void setComposedFilter(CComposedFilter* newFilter);
@@ -190,6 +191,7 @@ protected:
     // Other variables:
     bool _initialValuesInitialized;
     bool _initialExplicitHandling;
+    std::string _detectableEntityLoadName;
 
 #ifdef SIM_WITH_OPENGL
 public:

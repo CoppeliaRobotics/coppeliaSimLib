@@ -1,4 +1,4 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "graphDataComb.h"
 #include "global.h"
 #include "graph.h"
@@ -223,6 +223,56 @@ void CGraphDataComb::serialize(CSer& ar)
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+        }
+    }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_string("name",name.c_str());
+
+            ar.xmlAddNode_int("id",identifier);
+
+            ar.xmlAddNode_float("curveSize",threeDCurveWidth);
+
+            ar.xmlAddNode_3int("dataStreams",data[0],data[1],data[2]);
+
+            ar.xmlPushNewNode("color");
+            curveColor.serialize(ar,0);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("visible",visible);
+            ar.xmlAddNode_bool("linkPoints",linkPoints);
+            ar.xmlAddNode_bool("showLabel",label);
+            ar.xmlAddNode_bool("onTop",visibleOnTopOfEverything);
+            ar.xmlAddNode_bool("relativeToWorld",_curveRelativeToWorld);
+            ar.xmlPopNode();
+        }
+        else
+        {
+            ar.xmlGetNode_string("name",name);
+            ar.xmlGetNode_int("id",identifier);
+
+            ar.xmlGetNode_float("curveSize",threeDCurveWidth);
+
+            ar.xmlGetNode_3int("dataStreams",data[0],data[1],data[2]);
+
+            if (ar.xmlPushChildNode("color"))
+            {
+                curveColor.serialize(ar,0);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("switches"))
+            {
+                ar.xmlGetNode_bool("visible",visible);
+                ar.xmlGetNode_bool("linkPoints",linkPoints);
+                ar.xmlGetNode_bool("showLabel",label);
+                ar.xmlGetNode_bool("onTop",visibleOnTopOfEverything);
+                ar.xmlGetNode_bool("relativeToWorld",_curveRelativeToWorld);
+                ar.xmlPopNode();
             }
         }
     }

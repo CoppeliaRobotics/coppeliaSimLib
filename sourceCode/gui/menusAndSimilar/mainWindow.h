@@ -11,8 +11,7 @@
 #include <QComboBox>
 #include <QBoxLayout>
 #include "statusBar.h"
-#include "mainWindowBase.h"
-#include "qvrep_openglwidget.h"
+#include "qsim_openglwidget.h"
 #include "global.h"
 #include "dlgCont.h"
 #include "customMenuBarItemContainer.h"
@@ -35,7 +34,7 @@ struct SSceneThumbnail
 };
 
 
-class CMainWindow : public QMainWindow, public CMainWindowBase
+class CMainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
@@ -205,7 +204,6 @@ private:
     VMenu* _instancesSystemMenu;
     VMenu* _layoutSystemMenu;
     VMenu* _jobsSystemMenu;
-    VMenu* _sSystemMenu;
 
 
     std::vector<SSceneThumbnail> _sceneThumbnails;
@@ -316,8 +314,8 @@ public slots:
     void _enginePrecisionViaToolbar(int index);
     void _timeStepConfigViaToolbar(int index);
 
-    void _vrepPopupMessageHandler(int id);
-    void _vrepMessageHandler(int id);
+    void _simPopupMessageHandler(int id);
+    void _simMessageHandler(int id);
 
     void _aboutToShowFileSystemMenu();
     void _aboutToShowEditSystemMenu();
@@ -330,7 +328,6 @@ public slots:
     void _aboutToShowCustomMenu();
     void _aboutToShowLayoutSystemMenu();
     void _aboutToShowJobsSystemMenu();
-    void _aboutToShowSSystemMenu();
 
     void statusbarSplitterMoved(int pos,int index);
 

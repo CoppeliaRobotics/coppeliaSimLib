@@ -3,7 +3,7 @@
 #include "serial_win_mac_linux.h"
 #include "serialPortWin.h"
 
-#ifdef WIN_VREP
+#ifdef WIN_SIM
 #include <vector>
 
 static std::vector<CSerialPortWin*> allOpenedSerialPorts;

@@ -1,15 +1,15 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "dlgCont.h"
 #include "global.h"
 #include "oglSurface.h"
 #include "app.h"
 #include "auxLibVideo.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "qdlgobjectdialogcontainer.h"
 #include "qdlgshapeeditioncontainer.h"
 #include "sceneObjectOperations.h"
 #include "qdlgopenglsettings.h"
-#include "dlgContBase.h"
+#include "libLic.h"
 
 CDlgCont::CDlgCont(QWidget* pWindow)
 {
@@ -329,7 +329,38 @@ void CDlgCont::addMenu(VMenu* menu)
     if (App::mainWindow->oglSurface->isSceneSelectionActive()||App::mainWindow->oglSurface->isPageSelectionActive())
         noShapePathEditModeNoSelector=false;
 
-    CDlgContBase::handleVerSpec_addMenu(menu,noShapePathEditModeNoSelector);
+    if ( (CLibLic::getIntVal(2)==-1)||(CLibLic::getIntVal(2)==1)||(CLibLic::getIntVal(2)==2) )
+    {
+        menu->appendMenuItem(App::mainWindow->getObjPropToggleViaGuiEnabled()&&noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(OBJECT_DLG),TOGGLE_OBJECT_DLG_CMD,IDSN_OBJECT_PROPERTIES_MENU_ITEM,true);
+        menu->appendMenuItem(App::mainWindow->getCalcModulesToggleViaGuiEnabled()&&noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(CALCULATION_DLG),TOGGLE_CALCULATION_DLG_CMD,IDSN_CALCULATION_MODULE_PROPERTIES_MENU_ITEM,true);
+        menu->appendMenuSeparator();
+        menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(LUA_SCRIPT_DLG),TOGGLE_LUA_SCRIPT_DLG_CMD,IDSN_SCRIPTS,true);
+        menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(COLLECTION_DLG),TOGGLE_COLLECTION_DLG_CMD,IDSN_COLLECTIONS,true);
+        menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(SELECTION_DLG),TOGGLE_SELECTION_DLG_CMD,IDSN_SELECTION,true);
+        menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(ENVIRONMENT_DLG),TOGGLE_ENVIRONMENT_DLG_CMD,IDSN_ENVIRONMENT,true);
+        menu->appendMenuItem(noShapePathEditModeNoSelector&&App::mainWindow->getBrowserToggleViaGuiEnabled(),App::getBrowserEnabled(),TOGGLE_BROWSER_DLG_CMD,IDSN_MODEL_BROWSER,true);
+        menu->appendMenuItem(App::mainWindow->getHierarchyToggleViaGuiEnabled(),App::mainWindow->oglSurface->isHierarchyEnabled(),TOGGLE_HIERARCHY_DLG_CMD,IDSN_SCENE_HIERARCHY,true);
+    }
+    if (CLibLic::getIntVal(2)==0)
+    {
+        menu->appendMenuItem(noShapePathEditModeNoSelector,App::getBrowserEnabled(),TOGGLE_BROWSER_DLG_CMD,IDSN_MODEL_BROWSER,true);
+        menu->appendMenuItem(true,App::mainWindow->oglSurface->isHierarchyEnabled(),TOGGLE_HIERARCHY_DLG_CMD,IDSN_SCENE_HIERARCHY,true);
+        menu->appendMenuItem(true,App::mainWindow->dlgCont->isVisible(LAYERS_DLG),TOGGLE_LAYERS_DLG_CMD,IDS_LAYERS,true);
+        menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString!=nullptr,App::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG),TOGGLE_AVI_RECORDER_DLG_CMD,IDSN_AVI_RECORDER,true);
+        menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(SETTINGS_DLG),TOGGLE_SETTINGS_DLG_CMD,IDSN_USER_SETTINGS,true);
+    }
+    if ( (CLibLic::getIntVal(2)==-1)||(CLibLic::getIntVal(2)==0)||(CLibLic::getIntVal(2)==1)||(CLibLic::getIntVal(2)==2) )
+    {
+        menu->appendMenuItem(true,App::mainWindow->dlgCont->isVisible(LAYERS_DLG),TOGGLE_LAYERS_DLG_CMD,IDS_LAYERS,true);
+        menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString!=nullptr,App::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG),TOGGLE_AVI_RECORDER_DLG_CMD,IDSN_AVI_RECORDER,true);
+        menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(SETTINGS_DLG),TOGGLE_SETTINGS_DLG_CMD,IDSN_USER_SETTINGS,true);
+    }
+    if (CLibLic::getIntVal(2)==0)
+    {
+        menu->appendMenuItem(noShapePathEditModeNoSelector,App::getBrowserEnabled(),TOGGLE_BROWSER_DLG_CMD,IDSN_MODEL_BROWSER,true);
+        menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString!=nullptr,App::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG),TOGGLE_AVI_RECORDER_DLG_CMD,IDSN_AVI_RECORDER,true);
+        menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(SETTINGS_DLG),TOGGLE_SETTINGS_DLG_CMD,IDSN_USER_SETTINGS,false);
+    }
 }
 
 bool CDlgCont::processCommand(int commandID)
@@ -568,7 +599,7 @@ bool CDlgCont::processCommand(int commandID)
         }
         if (commandID==TOGGLE_SETTINGS_DLG_CMD)
         {
-            if (!CDlgContBase::handleVerSpec_modalSettingsDlg())
+            if (CLibLic::getBoolVal(11))
                 toggle(SETTINGS_DLG);
             else
             {

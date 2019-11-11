@@ -1,6 +1,6 @@
 #include "funcDebug.h"
-#include "v_rep_internal.h"
-#include "v_repStrings.h"
+#include "simInternal.h"
+#include "simStrings.h"
 #include "ttUtil.h"
 #include "tt.h"
 #include "pointCloud.h"
@@ -44,12 +44,13 @@ COctree::~COctree()
     clear();
 }
 
-void COctree::getMatrixAndHalfSizeOfBoundingBox(C4X4Matrix& m,C3Vector& hs) const
+void COctree::getTransfAndHalfSizeOfBoundingBox(C7Vector& tr,C3Vector& hs) const
 {
     hs=(_maxDim-_minDim)*0.5f;
-    m=getCumulativeTransformation().getMatrix();
+    C4X4Matrix m=getCumulativeTransformation().getMatrix();
     C3Vector center((_minDim+_maxDim)*0.5);
     m.X+=m.M*center;
+    tr=m.getTransformation();
 }
 
 CVisualParam* COctree::getColor()
@@ -99,7 +100,8 @@ void COctree::_readPositionsAndColorsAndSetDimensions()
     _colors.clear();
     if (_octreeInfo!=nullptr)
     {
-        CPluginContainer::mesh_getOctreeVoxels(_octreeInfo,_voxelPositions,_colors);
+        CPluginContainer::geomPlugin_getOctreeVoxelPositions(_octreeInfo,_voxelPositions);
+        CPluginContainer::geomPlugin_getOctreeVoxelColors(_octreeInfo,_colors);
         if (_useRandomColors)
         {
             _colors.clear();
@@ -158,31 +160,31 @@ void COctree::insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeToOctr
     if (_octreeInfo==nullptr)
     {
         if (optionalColors3==nullptr)
-            _octreeInfo=CPluginContainer::mesh_createOctreeFromPoints(_pts,ptsCnt,_cellSize,color.colors,theTagWhenOptionalTagsIsNull);
+        {
+            unsigned char cols[3]={(unsigned char)(color.colors[0]*255.1f),(unsigned char)(color.colors[1]*255.1f),(unsigned char)(color.colors[2]*255.1f)};
+            _octreeInfo=CPluginContainer::geomPlugin_createOctreeFromPoints(_pts,ptsCnt,nullptr,_cellSize,cols,theTagWhenOptionalTagsIsNull);
+        }
         else
         {
             if (colorsAreIndividual)
-                _octreeInfo=CPluginContainer::mesh_createOctreeFromColorPoints(_pts,ptsCnt,_cellSize,optionalColors3,optionalTags);
+                _octreeInfo=CPluginContainer::geomPlugin_createOctreeFromColorPoints(_pts,ptsCnt,nullptr,_cellSize,optionalColors3,optionalTags);
             else
-            {
-                const float c[3]={float(optionalColors3[0])/255.1f,float(optionalColors3[1])/255.1f,float(optionalColors3[2])/255.1f};
-                _octreeInfo=CPluginContainer::mesh_createOctreeFromPoints(_pts,ptsCnt,_cellSize,c,optionalTags[0]);
-            }
+                _octreeInfo=CPluginContainer::geomPlugin_createOctreeFromPoints(_pts,ptsCnt,nullptr,_cellSize,optionalColors3,optionalTags[0]);
         }
     }
     else
     {
         if (optionalColors3==nullptr)
-            CPluginContainer::mesh_insertPointsIntoOctree(_octreeInfo,_pts,ptsCnt,color.colors,theTagWhenOptionalTagsIsNull);
+        {
+            unsigned char cols[3]={(unsigned char)(color.colors[0]*255.1f),(unsigned char)(color.colors[1]*255.1f),(unsigned char)(color.colors[2]*255.1f)};
+            CPluginContainer::geomPlugin_insertPointsIntoOctree(_octreeInfo,C7Vector::identityTransformation,_pts,ptsCnt,cols,theTagWhenOptionalTagsIsNull);
+        }
         else
         {
             if (colorsAreIndividual)
-                CPluginContainer::mesh_insertColorPointsIntoOctree(_octreeInfo,_pts,ptsCnt,optionalColors3,optionalTags);
+                CPluginContainer::geomPlugin_insertColorPointsIntoOctree(_octreeInfo,C7Vector::identityTransformation,_pts,ptsCnt,optionalColors3,optionalTags);
             else
-            {
-                const float c[3]={float(optionalColors3[0])/255.1f,float(optionalColors3[1])/255.1f,float(optionalColors3[2])/255.1f};
-                CPluginContainer::mesh_insertPointsIntoOctree(_octreeInfo,_pts,ptsCnt,c,optionalTags[0]);
-            }
+                CPluginContainer::geomPlugin_insertPointsIntoOctree(_octreeInfo,C7Vector::identityTransformation,_pts,ptsCnt,optionalColors3,optionalTags[0]);
         }
     }
     _readPositionsAndColorsAndSetDimensions();
@@ -193,12 +195,13 @@ void COctree::insertShape(const CShape* shape,unsigned int theTag)
     FUNCTION_DEBUG;
     shape->geomData->initializeCalculationStructureIfNeeded();
 
-    C4X4Matrix octreeM(getCumulativeTransformation().getMatrix());
-    C4X4Matrix shapeM(((CShape*)shape)->getCumulativeTransformation().getMatrix());
+    C7Vector octreeTr(getCumulativeTransformation());
+    C7Vector shapeTr(((CShape*)shape)->getCumulativeTransformation());
+    unsigned char cols[3]={(unsigned char)(color.colors[0]*255.1f),(unsigned char)(color.colors[1]*255.1f),(unsigned char)(color.colors[2]*255.1f)};
     if (_octreeInfo==nullptr)
-        _octreeInfo=CPluginContainer::mesh_createOctreeFromShape(octreeM,shape->geomData->collInfo,shapeM,_cellSize,color.colors,theTag);
+        _octreeInfo=CPluginContainer::geomPlugin_createOctreeFromMesh(shape->geomData->collInfo,shapeTr,&octreeTr,_cellSize,cols,theTag);
     else
-        CPluginContainer::mesh_insertShapeIntoOctree(_octreeInfo,octreeM,shape->geomData->collInfo,shapeM,color.colors,theTag);
+        CPluginContainer::geomPlugin_insertMeshIntoOctree(_octreeInfo,octreeTr,shape->geomData->collInfo,shapeTr,cols,theTag);
     _readPositionsAndColorsAndSetDimensions();
 }
 
@@ -236,15 +239,18 @@ void COctree::insertPointCloud(const CPointCloud* pointCloud,unsigned int theTag
 }
 
 
-void COctree::insertOctree(const void* octree2Info,const C4X4Matrix& octree2CTM,unsigned int theTag)
+void COctree::insertOctree(const void* octree2Info,const C7Vector& octree2Tr,unsigned int theTag)
 {
     FUNCTION_DEBUG;
 
-    C4X4Matrix octreeM(getCumulativeTransformation().getMatrix());
+    unsigned char cols[3]={(unsigned char)(color.colors[0]*255.1f),(unsigned char)(color.colors[1]*255.1f),(unsigned char)(color.colors[2]*255.1f)};
     if (_octreeInfo==nullptr)
-        _octreeInfo=CPluginContainer::mesh_createOctreeFromOctree(octreeM,octree2Info,octree2CTM,_cellSize,color.colors,theTag);
+    {
+        const C7Vector tr(getCumulativeTransformation());
+        _octreeInfo=CPluginContainer::geomPlugin_createOctreeFromOctree(octree2Info,octree2Tr,&tr,_cellSize,cols,theTag);
+    }
     else
-        CPluginContainer::mesh_insertOctreeIntoOctree(_octreeInfo,octreeM,octree2Info,octree2CTM,color.colors,theTag);
+        CPluginContainer::geomPlugin_insertOctreeIntoOctree(_octreeInfo,getCumulativeTransformation(),octree2Info,octree2Tr,cols,theTag);
     _readPositionsAndColorsAndSetDimensions();
 }
 
@@ -290,9 +296,9 @@ void COctree::subtractPoints(const float* pts,int ptsCnt,bool ptsAreRelativeToOc
     }
     if (_octreeInfo!=nullptr)
     {
-        if (CPluginContainer::mesh_removeOctreeVoxelsFromPoints(_octreeInfo,_pts,ptsCnt))
+        if (CPluginContainer::geomPlugin_removePointsFromOctree(_octreeInfo,C7Vector::identityTransformation,_pts,ptsCnt))
         {
-            CPluginContainer::mesh_destroyOctree(_octreeInfo);
+            CPluginContainer::geomPlugin_destroyOctree(_octreeInfo);
             _octreeInfo=nullptr;
         }
     }
@@ -308,9 +314,9 @@ void COctree::subtractShape(const CShape* shape)
 
         C4X4Matrix octreeM(getCumulativeTransformation().getMatrix());
         C4X4Matrix shapeM(((CShape*)shape)->getCumulativeTransformation().getMatrix());
-        if (CPluginContainer::mesh_removeOctreeVoxelsFromShape(_octreeInfo,octreeM,shape->geomData->collInfo,shapeM))
+        if (CPluginContainer::geomPlugin_removeMeshFromOctree(_octreeInfo,octreeM,shape->geomData->collInfo,shapeM))
         {
-            CPluginContainer::mesh_destroyOctree(_octreeInfo);
+            CPluginContainer::geomPlugin_destroyOctree(_octreeInfo);
             _octreeInfo=nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
@@ -321,7 +327,7 @@ void COctree::subtractOctree(const COctree* octree)
 {
     FUNCTION_DEBUG;
     if (octree->_octreeInfo!=nullptr)
-        subtractOctree(octree->_octreeInfo,((COctree*)octree)->getCumulativeTransformation().getMatrix());
+        subtractOctree(octree->_octreeInfo,((COctree*)octree)->getCumulativeTransformation());
 }
 
 void COctree::subtractDummy(const CDummy* dummy)
@@ -351,15 +357,14 @@ void COctree::subtractPointCloud(const CPointCloud* pointCloud)
 }
 
 
-void COctree::subtractOctree(const void* octree2Info,const C4X4Matrix& octree2CTM)
+void COctree::subtractOctree(const void* octree2Info,const C7Vector& octree2Tr)
 {
     FUNCTION_DEBUG;
     if (_octreeInfo!=nullptr)
     {
-        C4X4Matrix octreeM(getCumulativeTransformation().getMatrix());
-        if (CPluginContainer::mesh_removeOctreeVoxelsFromOctree(_octreeInfo,octreeM,octree2Info,octree2CTM))
+        if (CPluginContainer::geomPlugin_removeOctreeFromOctree(_octreeInfo,getCumulativeTransformation(),octree2Info,octree2Tr))
         {
-            CPluginContainer::mesh_destroyOctree(_octreeInfo);
+            CPluginContainer::geomPlugin_destroyOctree(_octreeInfo);
             _octreeInfo=nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
@@ -393,7 +398,7 @@ void COctree::clear()
     FUNCTION_DEBUG;
     if (_octreeInfo!=nullptr)
     {
-        CPluginContainer::mesh_destroyOctree(_octreeInfo);
+        CPluginContainer::geomPlugin_destroyOctree(_octreeInfo);
         _octreeInfo=nullptr;
     }
     _voxelPositions.clear();
@@ -546,7 +551,7 @@ void COctree::scaleObject(float scalingFactor)
     for (size_t i=0;i<_voxelPositions.size();i++)
         _voxelPositions[i]*=scalingFactor;
     if (_octreeInfo!=nullptr)
-        CPluginContainer::mesh_scaleOctree(_octreeInfo,scalingFactor);
+        CPluginContainer::geomPlugin_scaleOctree(_octreeInfo,scalingFactor);
 }
 
 void COctree::scaleObjectNonIsometrically(float x,float y,float z)
@@ -568,7 +573,7 @@ C3DObject* COctree::copyYourself()
     color.copyYourselfInto(&newOctree->color);
 
     if (_octreeInfo!=nullptr)
-        newOctree->_octreeInfo=CPluginContainer::mesh_copyOctree(_octreeInfo);
+        newOctree->_octreeInfo=CPluginContainer::geomPlugin_copyOctree(_octreeInfo);
     newOctree->_voxelPositions.assign(_voxelPositions.begin(),_voxelPositions.end());
     newOctree->_colors.assign(_colors.begin(),_colors.end());
     newOctree->_minDim=_minDim;
@@ -597,7 +602,7 @@ void COctree::setCellSize(float theNewSize)
             _octreeInfo=nullptr;
             clear();
             insertOctree(octree2Info,getCumulativeTransformation().getMatrix(),0);
-            CPluginContainer::mesh_destroyOctree(octree2Info);
+            CPluginContainer::geomPlugin_destroyOctree(octree2Info);
         }
     }
 }
@@ -771,7 +776,7 @@ void COctree::serialize(CSer& ar)
                     ar.flush();
 
                     std::vector<unsigned char> data;
-                    CPluginContainer::mesh_getOctreeSerializationData(_octreeInfo,data);
+                    CPluginContainer::geomPlugin_getOctreeSerializationData(_octreeInfo,data);
                     ar.storeDataName("Co2");
                     ar.setCountingMode(true);
                     for (size_t i=0;i<data.size();i++)
@@ -868,12 +873,167 @@ void COctree::serialize(CSer& ar)
                             ar >> dummy;
                             data.push_back(dummy);
                         }
-                        _octreeInfo=CPluginContainer::mesh_getOctreeFromSerializationData(data);
+                        _octreeInfo=CPluginContainer::geomPlugin_getOctreeFromSerializationData(&data[0]);
                         _readPositionsAndColorsAndSetDimensions();
                     }
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_float("cellSize",_cellSize);
+            ar.xmlAddNode_int("pointSize",_pointSize);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("showStructure",_showOctreeStructure);
+            ar.xmlAddNode_bool("randomColors",_useRandomColors);
+            ar.xmlAddNode_bool("pointsInsteadOfCubes",_usePointsInsteadOfCubes);
+            if (exhaustiveXml)
+                ar.xmlAddNode_bool("saveCalculationStructure",_saveCalculationStructure);
+            ar.xmlAddNode_bool("emissiveColor",_colorIsEmissive);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("applyColor");
+            if (exhaustiveXml)
+                color.serialize(ar,0);
+            else
+            {
+                int rgb[3];
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(color.colors[l]*255.1f);
+                ar.xmlAddNode_ints("points",rgb,3);
+            }
+            ar.xmlPopNode();
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("voxelCount",int(_voxelPositions.size()/3));
+
+            if (_octreeInfo!=nullptr)
+            {
+                if (ar.xmlSaveDataInline(_voxelPositions.size()*4+_colors.size()*3/4)||(!exhaustiveXml))
+                {
+                    ar.xmlAddNode_floats("voxelPositions",_voxelPositions);
+                    std::vector<int> tmp;
+                    for (size_t i=0;i<_voxelPositions.size()/3;i++)
+                    {
+                        tmp.push_back((unsigned int)(_colors[4*i+0]*255.1f));
+                        tmp.push_back((unsigned int)(_colors[4*i+1]*255.1f));
+                        tmp.push_back((unsigned int)(_colors[4*i+2]*255.1f));
+                    }
+                    ar.xmlAddNode_ints("voxelColors",tmp);
+                }
+                else
+                {
+                    CSer* w=ar.xmlAddNode_binFile("file",(std::string("octree_")+_objectName).c_str());
+                    w[0] << int(_voxelPositions.size());
+                    for (size_t i=0;i<_voxelPositions.size();i++)
+                        w[0] << _voxelPositions[i];
+
+                    for (size_t i=0;i<_voxelPositions.size()/3;i++)
+                    {
+                        w[0] << (unsigned char)(_colors[4*i+0]*255.1f);
+                        w[0] << (unsigned char)(_colors[4*i+1]*255.1f);
+                        w[0] << (unsigned char)(_colors[4*i+2]*255.1f);
+                    }
+                    w->flush();
+                    w->writeClose();
+                    delete w;
+                }
+            }
+        }
+        else
+        {
+            ar.xmlGetNode_float("cellSize",_cellSize,exhaustiveXml);
+            ar.xmlGetNode_int("pointSize",_pointSize,exhaustiveXml);
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("showStructure",_showOctreeStructure,exhaustiveXml);
+                ar.xmlGetNode_bool("randomColors",_useRandomColors,exhaustiveXml);
+                ar.xmlGetNode_bool("pointsInsteadOfCubes",_usePointsInsteadOfCubes,exhaustiveXml);
+                if (exhaustiveXml)
+                    ar.xmlGetNode_bool("saveCalculationStructure",_saveCalculationStructure);
+                ar.xmlGetNode_bool("emissiveColor",_colorIsEmissive,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("applyColor",exhaustiveXml))
+            {
+                if (exhaustiveXml)
+                    color.serialize(ar,0);
+                else
+                {
+                    int rgb[3];
+                    if (ar.xmlGetNode_ints("object",rgb,3,exhaustiveXml))
+                        color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                }
+                ar.xmlPopNode();
+            }
+
+            if (exhaustiveXml)
+            {
+                int voxelCnt=0;
+                ar.xmlGetNode_int("voxelCount",voxelCnt);
+    
+                if (voxelCnt>0)
+                {
+                    std::vector<float> pts;
+                    std::vector<unsigned char> cols;
+                    std::vector<unsigned int> tags;
+                    if (ar.xmlGetNode_floats("voxelPositions",pts,false))
+                        ar.xmlGetNode_uchars("voxelColors",cols);
+                    else
+                    {
+                        CSer* w=ar.xmlGetNode_binFile("file");
+                        int cnt;
+                        w[0] >> cnt;
+                        pts.resize(cnt);
+                        for (int i=0;i<cnt;i++)
+                            w[0] >> pts[i];
+                        cols.resize(cnt);
+                        for (int i=0;i<cnt;i++)
+                            w[0] >> cols[i];
+                        w->readClose();
+                        delete w;
+                    }
+                    tags.resize(voxelCnt,0);
+                    insertPoints(&pts[0],voxelCnt,true,&cols[0],true,&tags[0],0);
+                }
+                else
+                    _readPositionsAndColorsAndSetDimensions();
+            }
+            else
+            {
+                std::vector<float> pts;
+                std::vector<unsigned char> cols;
+                std::vector<unsigned int> tags;
+                if (ar.xmlGetNode_floats("voxelPositions",pts,exhaustiveXml))
+                    ar.xmlGetNode_uchars("voxelColors",cols,exhaustiveXml);
+                if (pts.size()>=3)
+                {
+                    while ((pts.size() % 3)!=0)
+                        pts.pop_back();
+                    if (cols.size()<pts.size())
+                    {
+                        cols.resize(pts.size());
+                        for (size_t i=0;i<pts.size()/3;i++)
+                        {
+                            cols[3*i+0]=(unsigned char)(color.colors[0]*255.1f);
+                            cols[3*i+1]=(unsigned char)(color.colors[1]*255.1f);
+                            cols[3*i+2]=(unsigned char)(color.colors[2]*255.1f);
+                        }
+                    }
+                    tags.resize(pts.size()/3,0);
+                    insertPoints(&pts[0],pts.size()/3,true,&cols[0],true,&tags[0],0);
+                }
+                else
+                    _readPositionsAndColorsAndSetDimensions();
             }
         }
     }

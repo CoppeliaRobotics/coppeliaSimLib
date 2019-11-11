@@ -1,4 +1,4 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "regCollision.h"
 #include "3DObject.h"
 #include "global.h"
@@ -6,10 +6,11 @@
 #include "tt.h"
 #include "ttUtil.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vDateTime.h"
 #include "pluginContainer.h"
 #include "collisionContourRendering.h"
+#include "base64.h"
 
 CRegCollision::CRegCollision(int obj1ID,int obj2ID,std::string objName,int objID)
 { // obj2ID can be -1, in which case obj1ID will be checked against all other collidable objects in the scene
@@ -334,7 +335,7 @@ bool CRegCollision::handleCollision()
     clearCollisionResult();
     if (!App::ct->mainSettings->collisionDetectionEnabled)
         return(false);
-    if (!CPluginContainer::isMeshPluginAvailable())
+    if (!CPluginContainer::isGeomPluginAvailable())
         return(false);
     int stT=VDateTime::getTimeInMs();
     if (detectAllCollisions)
@@ -496,6 +497,61 @@ void CRegCollision::serialize(CSer& ar)
                         ar.loadUnknownData();
                 }
             }
+        }
+    }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_int("handle",objectID);
+            ar.xmlAddNode_string("name",objectName.c_str());
+            ar.xmlAddNode_2int("pairHandles",object1ID,object2ID);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("colliderChangesColor",colliderChangesColor);
+            ar.xmlAddNode_bool("collideeChangesColor",collideeChangesColor);
+            ar.xmlAddNode_bool("explicitHandling",explicitHandling);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("collisionContour");
+            ar.xmlAddNode_bool("enabled",detectAllCollisions);
+            ar.xmlAddNode_int("size",_countourWidth);
+            ar.xmlPushNewNode("color");
+            contourColor.serialize(ar,1);
+            ar.xmlPopNode();
+            ar.xmlPopNode();
+
+            std::string str(base64_encode((unsigned char*)_uniquePersistentIdString.c_str(),_uniquePersistentIdString.size()));
+            ar.xmlAddNode_string("uniquePersistentIdString_base64Coded",str.c_str());
+        }
+        else
+        {
+            ar.xmlGetNode_int("handle",objectID);
+            ar.xmlGetNode_string("name",objectName);
+            ar.xmlGetNode_2int("pairHandles",object1ID,object2ID);
+
+            if (ar.xmlPushChildNode("switches"))
+            {
+                ar.xmlGetNode_bool("colliderChangesColor",colliderChangesColor);
+                ar.xmlGetNode_bool("collideeChangesColor",collideeChangesColor);
+                ar.xmlGetNode_bool("explicitHandling",explicitHandling);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("collisionContour"))
+            {
+                ar.xmlGetNode_bool("enabled",detectAllCollisions);
+                ar.xmlGetNode_int("size",_countourWidth);
+                if (ar.xmlPushChildNode("color"))
+                {
+                    contourColor.serialize(ar,1);
+                    ar.xmlPopNode();
+                }
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlGetNode_string("uniquePersistentIdString_base64Coded",_uniquePersistentIdString))
+                _uniquePersistentIdString=base64_decode(_uniquePersistentIdString);
         }
     }
 }

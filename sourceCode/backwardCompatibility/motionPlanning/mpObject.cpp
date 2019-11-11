@@ -1,5 +1,5 @@
 #include "mpObject.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
@@ -879,8 +879,8 @@ float* CmpObject::findPath(const float* startConfig,const float* goalConfig,int 
             retVal[configs*dofs+configs+3*i+1]=abs.X(1);
             retVal[configs*dofs+configs+3*i+2]=abs.X(2);
 
-            // V-REP quaternion, internally: w x y z
-            // V-REP quaternion, at interfaces: x y z w
+            // CoppeliaSim quaternion, internally: w x y z
+            // CoppeliaSim quaternion, at interfaces: x y z w
             retVal[configs*dofs+configs+3*configs+4*i+0]=abs.Q(1);
             retVal[configs*dofs+configs+3*configs+4*i+1]=abs.Q(2);
             retVal[configs*dofs+configs+3*configs+4*i+2]=abs.Q(3);
@@ -1356,8 +1356,8 @@ float* CmpObject::findIkPath(const float* startConfig,const float* goalPos,const
             retVal[configs*dofs+configs+3*i+1]=abs.X(1);
             retVal[configs*dofs+configs+3*i+2]=abs.X(2);
 
-            // V-REP quaternion, internally: w x y z
-            // V-REP quaternion, at interfaces: x y z w
+            // CoppeliaSim quaternion, internally: w x y z
+            // CoppeliaSim quaternion, at interfaces: x y z w
             retVal[configs*dofs+configs+3*configs+4*i+0]=abs.Q(1);
             retVal[configs*dofs+configs+3*configs+4*i+1]=abs.Q(2);
             retVal[configs*dofs+configs+3*configs+4*i+2]=abs.Q(3);
@@ -1481,8 +1481,8 @@ float* CmpObject::simplifyPath(const float* pathBuffer,int configCnt,int options
             retVal[configs*dofs+configs+3*i+1]=abs.X(1);
             retVal[configs*dofs+configs+3*i+2]=abs.X(2);
 
-            // V-REP quaternion, internally: w x y z
-            // V-REP quaternion, at interfaces: x y z w
+            // CoppeliaSim quaternion, internally: w x y z
+            // CoppeliaSim quaternion, at interfaces: x y z w
             retVal[configs*dofs+configs+3*configs+4*i+0]=abs.Q(1);
             retVal[configs*dofs+configs+3*configs+4*i+1]=abs.Q(2);
             retVal[configs*dofs+configs+3*configs+4*i+2]=abs.Q(3);
@@ -1718,8 +1718,8 @@ float* CmpObject::getConfigTransition(const float* startConfig,const float* goal
             retVal[configs*dofs+configs+3*i+1]=abs.X(1);
             retVal[configs*dofs+configs+3*i+2]=abs.X(2);
 
-            // V-REP quaternion, internally: w x y z
-            // V-REP quaternion, at interfaces: x y z w
+            // CoppeliaSim quaternion, internally: w x y z
+            // CoppeliaSim quaternion, at interfaces: x y z w
             retVal[configs*dofs+configs+3*configs+4*i+0]=abs.Q(1);
             retVal[configs*dofs+configs+3*configs+4*i+1]=abs.Q(2);
             retVal[configs*dofs+configs+3*configs+4*i+2]=abs.Q(3);

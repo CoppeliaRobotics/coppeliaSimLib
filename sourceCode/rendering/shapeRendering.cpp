@@ -134,43 +134,38 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
                 otherColorP=&otherColor;
             }
 
-            if (shape->geomData->isCollisionInformationInitialized()&&(CPluginContainer::mesh_getCalculatedPolygonCount(shape->geomData->collInfo)!=0))
-                ((CGeometric*)shape->geomData->geomInfo)->displayForCutting(shape->geomData,displayAttrib,otherColorP,normalVectorForLinesAndPoints.data);
-            else
-            {
-                if (renderingObject->isObjectInsideView(shape->getCumulativeTransformation(),shape->geomData->getBoundingBoxHalfSizes()))
-                { // the bounding box is inside of the view (at least some part of it!)
-                    if ((displayAttrib&sim_displayattribute_colorcoded)==0)
-                    { // normal visualization
-                        if (obbVisualizationMode)
-                        { // visualize OBB calculation structures
-                            CVisualParam fakeCol;
-                            fakeCol.setDefaultValues();
-                            if (shape->geomData->isCollisionInformationInitialized())
-                            {
-                                fakeCol.setColor(0.5f,0.1f,0.1f,0);
-                                shape->geomData->geomInfo->display(shape->geomData,(displayAttrib|sim_displayattribute_trianglewireframe)-sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicObjectFlag_forVisualization_forDisplay(guiIsRendering),0,false);
-                            }
-                            else
-                            {
-                                fakeCol.setColor(0.5f,0.5f,0.5f,0);
-                                shape->geomData->geomInfo->display(shape->geomData,displayAttrib|sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicObjectFlag_forVisualization_forDisplay(guiIsRendering),0,false);
-                            }
+            if (renderingObject->isObjectInsideView(shape->getCumulativeTransformation(),shape->geomData->getBoundingBoxHalfSizes()))
+            { // the bounding box is inside of the view (at least some part of it!)
+                if ((displayAttrib&sim_displayattribute_colorcoded)==0)
+                { // normal visualization
+                    if (obbVisualizationMode)
+                    { // visualize OBB calculation structures
+                        CVisualParam fakeCol;
+                        fakeCol.setDefaultValues();
+                        if (shape->geomData->isCollisionInformationInitialized())
+                        {
+                            fakeCol.setColor(0.5f,0.1f,0.1f,0);
+                            shape->geomData->geomInfo->display(shape->geomData,(displayAttrib|sim_displayattribute_trianglewireframe)-sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicObjectFlag_forVisualization_forDisplay(guiIsRendering),0,false);
                         }
                         else
-                        { // normal visualization
-                            if (shape->getContainsTransparentComponent())
-                            {
-                                shape->geomData->geomInfo->display(shape->geomData,displayAttrib,otherColorP,shape->getDynamicObjectFlag_forVisualization_forDisplay(guiIsRendering),2,false);
-                                shape->geomData->geomInfo->display(shape->geomData,displayAttrib,otherColorP,shape->getDynamicObjectFlag_forVisualization_forDisplay(guiIsRendering),1,false);
-                            }
-                            else
-                                shape->geomData->geomInfo->display(shape->geomData,displayAttrib,otherColorP,shape->getDynamicObjectFlag_forVisualization_forDisplay(guiIsRendering),0,false);
+                        {
+                            fakeCol.setColor(0.5f,0.5f,0.5f,0);
+                            shape->geomData->geomInfo->display(shape->geomData,displayAttrib|sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicObjectFlag_forVisualization_forDisplay(guiIsRendering),0,false);
                         }
                     }
                     else
-                        shape->geomData->geomInfo->display_colorCoded(shape->geomData,shape->getObjectHandle(),displayAttrib); // color-coded visualization
+                    { // normal visualization
+                        if (shape->getContainsTransparentComponent())
+                        {
+                            shape->geomData->geomInfo->display(shape->geomData,displayAttrib,otherColorP,shape->getDynamicObjectFlag_forVisualization_forDisplay(guiIsRendering),2,false);
+                            shape->geomData->geomInfo->display(shape->geomData,displayAttrib,otherColorP,shape->getDynamicObjectFlag_forVisualization_forDisplay(guiIsRendering),1,false);
+                        }
+                        else
+                            shape->geomData->geomInfo->display(shape->geomData,displayAttrib,otherColorP,shape->getDynamicObjectFlag_forVisualization_forDisplay(guiIsRendering),0,false);
+                    }
                 }
+                else
+                    shape->geomData->geomInfo->display_colorCoded(shape->geomData,shape->getObjectHandle(),displayAttrib); // color-coded visualization
             }
             _disableAuxClippingPlanes();
         }
@@ -513,156 +508,6 @@ void displayGeometric_colorCoded(CGeometric* geometric,CGeomProxy* geomData,int 
     glPopMatrix();
 }
 
-void displayGeometricForCutting(CGeometric* geometric,CGeomProxy* geomData,int displayAttrib,CVisualParam* collisionColor,const float normalVectorForPointsAndLines[3])
-{
-    glPushAttrib(GL_POLYGON_BIT);
-
-    bool wire=(geometric->getWireframe()||(displayAttrib&sim_displayattribute_forcewireframe))&&((displayAttrib&sim_displayattribute_depthpass)==0);
-    if (displayAttrib&sim_displayattribute_forbidwireframe)
-        wire=false;
-    bool edges=geometric->getVisibleEdges();
-    if (displayAttrib&sim_displayattribute_forbidedges)
-        edges=false;
-    if (collisionColor==nullptr)
-        geometric->color.makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-    else
-        collisionColor->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-    if (geometric->getCulling()||(!geometric->getInsideAndOutsideFacesSameColor_DEPRECATED()))
-        glEnable(GL_CULL_FACE);
-// REMOVED ON 2010/07/29 so that we see edges over non-edges shapes (e.g. wall elements)    if (edges||wire)
-    {
-        glPolygonOffset(0.5f,0.0f); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
-        glEnable(GL_POLYGON_OFFSET_FILL);
-    }
-    C3Vector v0,v1,v2;
-    int ind[3];
-    CVisualParam col;
-    if ( (!wire)||(displayAttrib&sim_displayattribute_trianglewireframe) )
-    {
-        if (displayAttrib&sim_displayattribute_trianglewireframe)
-            glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-
-        for (int pss=0;pss<2;pss++)
-        { // we have only a second pass if the inside color is different!
-            // FIRST TRIANGLES:
-            glBegin(GL_TRIANGLES);
-            int calcTriangleCount=CPluginContainer::mesh_getCalculatedTriangleCount(geomData->collInfo);
-            int* calcIndices=CPluginContainer::mesh_getCalculatedTrianglesPointer(geomData->collInfo);
-            float* calcVertices=CPluginContainer::mesh_getCalculatedVerticesPointer(geomData->collInfo);
-            for (int i=0;i<calcTriangleCount;i++)
-            {
-                ind[0]=calcIndices[3*i+0];
-                if (ind[0]!=-1)
-                {
-                    ind[1]=calcIndices[3*i+1];
-                    ind[2]=calcIndices[3*i+2];
-                    v0.set(calcVertices+3*ind[0]);
-                    v1.set(calcVertices+3*ind[1]);
-                    v2.set(calcVertices+3*ind[2]);
-                    v1-=v0;
-                    v2-=v0;
-                    v0=(v1^v2).getNormalized();
-                    glNormal3f(v0(0),v0(1),v0(2));
-                    glVertex3fv(calcVertices+3*ind[0]);
-                    glVertex3fv(calcVertices+3*ind[1]);
-                    glVertex3fv(calcVertices+3*ind[2]);
-                }
-            }
-            glEnd();
-
-            // THEN POLYGONS:
-            int calcPolygonCount=CPluginContainer::mesh_getCalculatedPolygonCount(geomData->collInfo);
-            for (int i=0;i<calcPolygonCount;i++)
-            {
-                int polSize=CPluginContainer::mesh_getCalculatedPolygonSize(geomData->collInfo,i);
-                int* pol=CPluginContainer::mesh_getCalculatedPolygonArrayPointer(geomData->collInfo,i);
-                if (polSize!=0)
-                {
-                    glBegin(GL_TRIANGLE_FAN); // GL_POLYGON is problematic on certain graphic cards!
-                    v0.set(calcVertices+3*pol[0]);
-                    v1.set(calcVertices+3*pol[1]);
-                    v2.set(calcVertices+3*pol[2]);
-                    v1-=v0;
-                    v2-=v0;
-                    v0=(v1^v2).getNormalized();
-                    glNormal3f(v0(0),v0(1),v0(2));
-                    for (int j=0;j<polSize-2;j++)
-                    {
-                        glVertex3fv(calcVertices+3*pol[0]);
-                        glVertex3fv(calcVertices+3*pol[j+1]);
-                        glVertex3fv(calcVertices+3*pol[j+2]);
-                    }
-                    glEnd();
-                }
-            }
-            if (geometric->getInsideAndOutsideFacesSameColor_DEPRECATED()||geometric->getCulling())
-                break; // we leave here.. inside and outside colors are same
-            if (pss==0)
-            {
-                if (collisionColor==nullptr)
-                    geometric->insideColor_DEPRECATED.makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-                glCullFace(GL_FRONT);
-            }
-            else
-            { // we reset to initial state
-                if (collisionColor==nullptr)
-                    geometric->color.makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-                glCullFace(GL_BACK);
-            }
-        }
-        if (displayAttrib&sim_displayattribute_trianglewireframe)
-            glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
-    }
-
-    glDisable(GL_POLYGON_OFFSET_FILL);
-
-    if ( edges||(wire&&((displayAttrib&sim_displayattribute_trianglewireframe)==0)) )
-    {
-        if (!wire)
-            geometric->edgeColor_DEPRECATED.makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-
-        if (displayAttrib&sim_displayattribute_thickEdges)
-            glLineWidth(float(4*geometric->getEdgeWidth_DEPRECATED()));
-        else
-            glLineWidth(float(geometric->getEdgeWidth_DEPRECATED()));
-
-        if (App::userSettings->antiAliasing&&edges&&(!wire))
-        {
-            glEnable (GL_LINE_SMOOTH);
-            glEnable (GL_BLEND);
-            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glHint (GL_LINE_SMOOTH_HINT, GL_NICEST);
-        }
-
-        ogl::buffer.clear();
-        int calcSegmentsCount=CPluginContainer::mesh_getCalculatedSegmentCount(geomData->collInfo);
-        int* calcSegments=CPluginContainer::mesh_getCalculatedSegmentsPointer(geomData->collInfo);
-        float* calcVertices=CPluginContainer::mesh_getCalculatedVerticesPointer(geomData->collInfo);
-        for (int i=0;i<calcSegmentsCount;i++)
-        {
-            ind[0]=calcSegments[2*i+0];
-            if (ind[0]!=-1)
-            {
-                ind[1]=calcSegments[2*i+1];
-                ogl::addBuffer3DPoints(calcVertices+3*ind[0]);
-                ogl::addBuffer3DPoints(calcVertices+3*ind[1]);
-            }
-
-        }
-        if (ogl::buffer.size()!=0)
-            ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,normalVectorForPointsAndLines);
-        ogl::buffer.clear();
-
-        // following 2 to reset antialiasing:
-        glDisable (GL_LINE_SMOOTH);
-        glDisable (GL_BLEND);
-
-        glLineWidth(1.0f);
-    }
-    glDisable(GL_CULL_FACE);
-    glPopAttrib();
-}
-
 void displayGeometricGhost(CGeometric* geometric,CGeomProxy* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors)
 {
     if (originalColors)
@@ -826,10 +671,6 @@ void displayGeometric_colorCoded(CGeometric* geometric,CGeomProxy* geomData,int 
 
 }
 
-void displayGeometricForCutting(CGeometric* geometric,CGeomProxy* geomData,int displayAttrib,CVisualParam* collisionColor,const float normalVectorForPointsAndLines[3])
-{
-
-}
 
 void displayGeometricGhost(CGeometric* geometric,CGeomProxy* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors)
 {

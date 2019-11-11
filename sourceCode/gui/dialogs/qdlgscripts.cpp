@@ -4,7 +4,7 @@
 #include <QShortcut>
 #include "qdlginsertscript.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "jointObject.h"
 #include "vMessageBox.h"
 

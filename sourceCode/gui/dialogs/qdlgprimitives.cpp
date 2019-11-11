@@ -2,7 +2,7 @@
 #include "ui_qdlgprimitives.h"
 #include "tt.h"
 #include "gV.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "vMessageBox.h"
 

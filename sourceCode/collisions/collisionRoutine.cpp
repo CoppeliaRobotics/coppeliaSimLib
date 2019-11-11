@@ -144,7 +144,7 @@ bool CCollisionRoutine::_doesShapeCollideWithShape(CShape* shape1,CShape* shape2
     // Before building collision nodes, check if the shape's bounding boxes collide (new since 9/7/2014):
     if ( (!shape1->isCollisionInformationInitialized())||(!shape2->isCollisionInformationInitialized()) )
     {
-        if (!CPluginContainer::mesh_getBoxBoxCollision(shape1->getCumulativeTransformation().getMatrix(),shape1->geomData->getBoundingBoxHalfSizes(),shape2->getCumulativeTransformation().getMatrix(),shape2->geomData->getBoundingBoxHalfSizes()))
+        if (!CPluginContainer::geomPlugin_getBoxBoxCollision(shape1->getCumulativeTransformation(),shape1->geomData->getBoundingBoxHalfSizes(),shape2->getCumulativeTransformation(),shape2->geomData->getBoundingBoxHalfSizes(),true))
             return(false);
     }
 
@@ -245,26 +245,26 @@ bool CCollisionRoutine::_areObjectBoundingBoxesOverlapping(C3DObject* obj1,C3DOb
 {
     C3DObject* objs[2]={obj1,obj2};
     C3Vector halfSizes[2];
-    C4X4Matrix m[2];
+    C7Vector m[2];
     for (size_t cnt=0;cnt<2;cnt++)
     {
         C3DObject* obj=objs[cnt];
         if (obj->getObjectType()==sim_object_shape_type)
         {
             halfSizes[cnt]=((CShape*)obj)->geomData->getBoundingBoxHalfSizes();
-            m[cnt]=obj->getCumulativeTransformation().getMatrix();
+            m[cnt]=obj->getCumulativeTransformation();
         }
         if (obj->getObjectType()==sim_object_dummy_type)
         {
             halfSizes[cnt]=C3Vector(0.0001f,0.0001f,0.0001f);
-            m[cnt]=obj->getCumulativeTransformation().getMatrix();
+            m[cnt]=obj->getCumulativeTransformation();
         }
         if (obj->getObjectType()==sim_object_octree_type)
-            ((COctree*)obj)->getMatrixAndHalfSizeOfBoundingBox(m[cnt],halfSizes[cnt]);
+            ((COctree*)obj)->getTransfAndHalfSizeOfBoundingBox(m[cnt],halfSizes[cnt]);
         if (obj->getObjectType()==sim_object_pointcloud_type)
-            ((CPointCloud*)obj)->getMatrixAndHalfSizeOfBoundingBox(m[cnt],halfSizes[cnt]);
+            ((CPointCloud*)obj)->getTransfAndHalfSizeOfBoundingBox(m[cnt],halfSizes[cnt]);
     }
-    return (CPluginContainer::mesh_getBoxBoxCollision(m[0],halfSizes[0],m[1],halfSizes[1]));
+    return (CPluginContainer::geomPlugin_getBoxBoxCollision(m[0],halfSizes[0],m[1],halfSizes[1],true));
 }
 
 bool CCollisionRoutine::_doesOctreeCollideWithShape(COctree* octree,CShape* shape,bool overrideOctreeCollidableFlag,bool overrideShapeCollidableFlag)
@@ -286,7 +286,10 @@ bool CCollisionRoutine::_doesOctreeCollideWithShape(COctree* octree,CShape* shap
     // Build the collision nodes only when needed. So do it right here!
     shape->initializeCalculationStructureIfNeeded();
 
-    return(CPluginContainer::mesh_checkOctreeCollisionWithShape(octree->getOctreeInfo(),octree->getCumulativeTransformation().getMatrix(),shape->geomData->collInfo,shape->getCumulativeTransformation().getMatrix()));
+    // TODO_CACHING
+    int meshCaching=-1;
+    unsigned long long int ocCaching=0;
+    return(CPluginContainer::geomPlugin_getMeshOctreeCollision(shape->geomData->collInfo,shape->getCumulativeTransformation(),octree->getOctreeInfo(),octree->getCumulativeTransformation(),&meshCaching,&ocCaching));
 }
 
 bool CCollisionRoutine::_doesOctreeCollideWithOctree(COctree* octree1,COctree* octree2,bool overrideOctree1CollidableFlag,bool overrideOctree2CollidableFlag)
@@ -303,7 +306,7 @@ bool CCollisionRoutine::_doesOctreeCollideWithOctree(COctree* octree1,COctree* o
         return(false);
     if (!_areObjectBoundingBoxesOverlapping(octree1,octree2))
         return(false);
-    return(CPluginContainer::mesh_checkOctreeCollisionWithOctree(octree1->getOctreeInfo(),octree1->getCumulativeTransformation().getMatrix(),octree2->getOctreeInfo(),octree2->getCumulativeTransformation().getMatrix()));
+    return(CPluginContainer::geomPlugin_getOctreeOctreeCollision(octree1->getOctreeInfo(),octree1->getCumulativeTransformation().getMatrix(),octree2->getOctreeInfo(),octree2->getCumulativeTransformation().getMatrix()));
 }
 
 bool CCollisionRoutine::_doesOctreeCollideWithPointCloud(COctree* octree,CPointCloud* pointCloud,bool overrideOctreeCollidableFlag,bool overridePointCloudCollidableFlag)
@@ -320,7 +323,10 @@ bool CCollisionRoutine::_doesOctreeCollideWithPointCloud(COctree* octree,CPointC
     if (!_areObjectBoundingBoxesOverlapping(octree,pointCloud))
         return(false);
 
-    return(CPluginContainer::mesh_checkOctreeCollisionWithPointCloud(octree->getOctreeInfo(),octree->getCumulativeTransformation().getMatrix(),pointCloud->getPointCloudInfo(),pointCloud->getCumulativeTransformation().getMatrix()));
+    // TODO_CACHING
+    unsigned long long int ocCaching=0;
+    unsigned long long int pcCaching=0;
+    return(CPluginContainer::geomPlugin_getOctreePtcloudCollision(octree->getOctreeInfo(),octree->getCumulativeTransformation(),pointCloud->getPointCloudInfo(),pointCloud->getCumulativeTransformation(),&ocCaching,&pcCaching));
 }
 
 bool CCollisionRoutine::_doesOctreeCollideWithDummy(COctree* octree,CDummy* dummy,bool overrideOctreeCollidableFlag,bool overrideDummyCollidableFlag)
@@ -332,7 +338,9 @@ bool CCollisionRoutine::_doesOctreeCollideWithDummy(COctree* octree,CDummy* dumm
     if ( ( (dummy->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_collidable)==0 )&&(!overrideDummyCollidableFlag) )
         return(false);
 
-    return(CPluginContainer::mesh_checkOctreeCollisionWithSinglePoint(octree->getOctreeInfo(),octree->getCumulativeTransformation().getMatrix(),dummy->getCumulativeTransformation().X,nullptr,nullptr));
+    // TODO_CACHING
+    unsigned long long int ocCaching=0;
+    return(CPluginContainer::geomPlugin_getOctreePointCollision(octree->getOctreeInfo(),octree->getCumulativeTransformation(),dummy->getCumulativeTransformation().X,nullptr,&ocCaching));
 }
 
 bool CCollisionRoutine::_doesObjectCollideWithObject(C3DObject* object1,C3DObject* object2,bool overrideObject1CollidableFlag,bool overrideObject2CollidableFlag,std::vector<float>* intersections)

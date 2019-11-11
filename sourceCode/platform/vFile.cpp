@@ -1,9 +1,9 @@
 #include "vFile.h"
-#include "v_repStringTable.h"
+#include "simStringTable.h"
 #include <QMessageBox>
-#include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vVarious.h"
+#include "vFileFinder.h"
 #ifdef SIM_WITHOUT_QT_AT_ALL
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -175,14 +175,14 @@ bool VFile::_doesFileOrFolderExist(const std::string& filenameOrFoldernameAndPat
 bool VFile::createFolder(const std::string& pathAndName)
 {
 #ifdef SIM_WITHOUT_QT_AT_ALL
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     return(CreateDirectoryA(pathAndName.c_str(),nullptr)!=0);
-#else // WIN_VREP
+#else // WIN_SIM
     std::string tmp("mkdir -p ");
     tmp+=pathAndName;
     system(tmp.c_str());
     return(true);
-#endif // WIN_VREP
+#endif // WIN_SIM
 #else // SIM_WITHOUT_QT_AT_ALL
     QDir qdir("");
     return(qdir.mkdir(QString::fromLocal8Bit(pathAndName.c_str())));
@@ -225,3 +225,25 @@ bool VFile::flush()
 }
 
 
+int VFile::eraseFilesWithPrefix(const char* pathWithoutTerminalSlash,const char* prefix)
+{
+    int cnt=0;
+    VFileFinder finder;
+    finder.searchFilesOrFolders(std::string(pathWithoutTerminalSlash));
+    int index=0;
+    SFileOrFolder* foundItem=finder.getFoundItem(index++);
+    while (foundItem!=nullptr)
+    {
+        if (foundItem->isFile)
+        {
+            std::string filename(foundItem->name);
+            if (filename.find(prefix)==0)
+            {
+                eraseFile(foundItem->path);
+                cnt++;
+            }
+        }
+        foundItem=finder.getFoundItem(index++);
+    }
+    return(cnt);
+}

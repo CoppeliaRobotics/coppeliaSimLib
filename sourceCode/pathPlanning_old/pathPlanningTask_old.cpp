@@ -1,7 +1,7 @@
 
 // This file requires some serious refactoring!
 
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "pathPlanningTask_old.h"
 #include "pathPlanningInterface.h"
 #include "tt.h"
@@ -10,7 +10,7 @@
 #include "tt.h"
 #include "registerediks.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vDateTime.h"
 #include "pathPlanningTaskRendering_old.h"
 

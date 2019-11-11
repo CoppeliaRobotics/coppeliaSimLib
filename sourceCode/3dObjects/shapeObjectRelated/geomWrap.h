@@ -29,7 +29,6 @@ public:
     virtual void display(CGeomProxy* geomData,int displayAttrib,CVisualParam* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
     virtual void display_extRenderer(CGeomProxy* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex);
     virtual void display_colorCoded(CGeomProxy* geomData,int objectId,int displayAttrib);
-    virtual void displayForCutting(CGeomProxy* geomData,int displayAttrib,CVisualParam* collisionColor);
     virtual CGeomWrap* copyYourself();
     virtual void scale(float xVal,float yVal,float zVal);
     virtual void setPurePrimitiveType(int theType,float xOrDiameter,float y,float zOrHeight);

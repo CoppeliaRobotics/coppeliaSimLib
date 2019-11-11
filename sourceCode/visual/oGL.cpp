@@ -3,7 +3,7 @@
 
 #include "oGL.h"
 #include "global.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "4X4Matrix.h"
 #include "app.h"
 #include "rendering.h"

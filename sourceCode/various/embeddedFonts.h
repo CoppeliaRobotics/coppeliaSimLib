@@ -1,7 +1,7 @@
 
 #pragma once
 
-const unsigned char VREPFONT_MS_SANS_SERIF[]=
+const unsigned char SIMFONT_MS_SANS_SERIF[]=
 {
 // Letter : space
    4,1,0,0,3,
@@ -293,7 +293,7 @@ const unsigned char VREPFONT_MS_SANS_SERIF[]=
    192,192,192,192,192,192,192,192,192,192
 };
 
-const unsigned char VREPFONT_COURIER_NEW[]=
+const unsigned char SIMFONT_COURIER_NEW[]=
 {
 // Letter : space
    4,1,0,0,8,
@@ -585,7 +585,7 @@ const unsigned char VREPFONT_COURIER_NEW[]=
    224,160,160,160,160,160,160,160,160,224
 };
 
-const int VREPOUTLINEFONT_ARIAL_INT[]=
+const int SIMOUTLINEFONT_ARIAL_INT[]=
 {
 // Letter : space
    0,0,625, // same width as "M"!
@@ -1155,7 +1155,7 @@ const int VREPOUTLINEFONT_ARIAL_INT[]=
    2333,2337,2331,2337,2338,2331
 };
 
-const float VREPOUTLINEFONT_ARIAL_FLOAT[]=
+const float SIMOUTLINEFONT_ARIAL_FLOAT[]=
 {
 // Vertices
    0.157556057f,0.584136784f,0.157556057f,0.763128936f,0.0f,0.763128936f,0.0f,0.584136784f,0.120042801f,0.197213098f,
@@ -1750,7 +1750,7 @@ const float VREPOUTLINEFONT_ARIAL_FLOAT[]=
 };
 
 
-const unsigned char VREPFONT_LUCIDA_CONSOLE_26[]=
+const unsigned char SIMFONT_LUCIDA_CONSOLE_26[]=
 {
 // Letter : space
    8,1,0,0,16,
@@ -2042,7 +2042,7 @@ const unsigned char VREPFONT_LUCIDA_CONSOLE_26[]=
        224,32,32,32,32,32,32,32,32,32,32,32,32,32,32,224,224
 };
 
-const unsigned char VREPFONT_MS_SANS_SERIF_30[]=
+const unsigned char SIMFONT_MS_SANS_SERIF_30[]=
 {
 // Letter : space
    8,1,0,0,6,

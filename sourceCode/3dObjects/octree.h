@@ -65,7 +65,7 @@ public:
     void insertOctree(const COctree* octree,unsigned int theTag);
     void insertDummy(const CDummy* dummy,unsigned int theTag);
     void insertPointCloud(const CPointCloud* pointCloud,unsigned int theTag);
-    void insertOctree(const void* octree2Info,const C4X4Matrix& octree2CTM,unsigned int theTag);
+    void insertOctree(const void* octree2Info,const C7Vector& octree2Tr,unsigned int theTag);
     void insertObjects(const std::vector<int>& sel);
     void insertObject(const C3DObject* obj,unsigned int theTag);
 
@@ -74,7 +74,7 @@ public:
     void subtractOctree(const COctree* octree);
     void subtractDummy(const CDummy* dummy);
     void subtractPointCloud(const CPointCloud* pointCloud);
-    void subtractOctree(const void* octree2Info,const C4X4Matrix& octree2CTM);
+    void subtractOctree(const void* octree2Info,const C7Vector& octree2Tr);
     void subtractObjects(const std::vector<int>& sel);
     void subtractObject(const C3DObject* obj);
 
@@ -95,7 +95,7 @@ public:
     std::vector<float>* getCubePositions();
     const void* getOctreeInfo() const;
     void* getOctreeInfo();
-    void getMatrixAndHalfSizeOfBoundingBox(C4X4Matrix& m,C3Vector& hs) const;
+    void getTransfAndHalfSizeOfBoundingBox(C7Vector& tr,C3Vector& hs) const;
     CVisualParam* getColor();
 
     void setVertexBufferId(int id);

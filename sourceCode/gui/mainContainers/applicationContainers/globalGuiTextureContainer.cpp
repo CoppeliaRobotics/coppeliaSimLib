@@ -1,10 +1,9 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "globalGuiTextureContainer.h"
 #include "global.h"
 #include "imgLoaderSaver.h"
 #include "oGL.h"
 #include "rendering.h"
-#include "globalGuiTextureContainerBase.h"
 
 CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
 {
@@ -123,11 +122,8 @@ CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
     dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/scriptthreadedDisabled.tga",xres,yres,rgba,nullptr);
     addObject(SCRIPTDISABLED_THREADED_PICTURE,xres,yres,rgba,false,true,dat);
     delete[] dat;
-    dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/scriptparameters.tga",xres,yres,rgba,nullptr);
-    addObject(SCRIPT_PARAMETERS_PICTURE,xres,yres,rgba,false,true,dat);
-    delete[] dat;
-    dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/scriptparametersactive.tga",xres,yres,rgba,nullptr);
-    addObject(SCRIPT_PARAMETERS_ACTIVE_PICTURE,xres,yres,rgba,false,true,dat);
+    dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/userParameters.tga",xres,yres,rgba,nullptr);
+    addObject(USER_PARAMETERS_PICTURE,xres,yres,rgba,false,true,dat);
     delete[] dat;
     dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/pathpoint.tga",xres,yres,rgba,nullptr);
     addObject(PATH_POINT_PICTURE,xres,yres,rgba,false,true,dat);
@@ -215,21 +211,12 @@ CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
     dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/cur_ctrl.tga",xres,yres,rgba,nullptr);
     addObject(CURSOR_CTRL_BUTTON,xres,yres,rgba,false,true,dat);
     delete[] dat;
-    int tag;
-    std::string str(CGlobalGuiTextureContainerBase::handleVerSpec_getWatermarkStr1(tag));
-    if (str.size()>0)
-    {
-        dat=CImageLoaderSaver::loadQTgaImageData(str.c_str(),xres,yres,rgba,nullptr);
-        addObject(tag,xres,yres,rgba,false,true,dat);
-        delete[] dat;
-    }
-    str=CGlobalGuiTextureContainerBase::handleVerSpec_getWatermarkStr2(tag);
-    if (str.size()>0)
-    {
-        dat=CImageLoaderSaver::loadQTgaImageData(str.c_str(),xres,yres,rgba,nullptr);
-        addObject(tag,xres,yres,rgba,false,true,dat);
-        delete[] dat;
-    }
+    dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/eduWaterMark.tga",xres,yres,rgba,nullptr);
+    addObject(EDU_TAG,xres,yres,rgba,false,true,dat);
+    delete[] dat;
+    dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/evalWaterMark.tga",xres,yres,rgba,nullptr);
+    addObject(EVAL_TAG,xres,yres,rgba,false,true,dat);
+    delete[] dat;
 }
 
 CGlobalGuiTextureContainer::~CGlobalGuiTextureContainer()

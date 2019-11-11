@@ -1,11 +1,11 @@
 
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "constraintSolverObject.h"
 #include "tt.h"
 
 #include "app.h"
 #include "geometricConstraintSolverInt.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vDateTime.h"
 
 CConstraintSolverObject::CConstraintSolverObject()

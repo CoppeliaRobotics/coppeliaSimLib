@@ -1,6 +1,6 @@
 #include "vThread.h"
 
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     #include <Windows.h>
     #include <process.h>
 #endif
@@ -18,7 +18,7 @@ VTHREAD_AFFINITY_MASK VThread::_mainThreadAffinityMask=0; // We use the OS defau
 
 void VThread::setProcessorCoreAffinity(int mode)
 {
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     if (mode<0)
     {
         _mainThreadAffinityMask=0; // Means: we keep what the os choose
@@ -56,7 +56,7 @@ void VThread::setProcessorCoreAffinity(int mode)
 
 void VThread::launchThread(VTHREAD_START_ADDRESS startAddress,bool followMainThreadAffinity)
 {
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     unsigned long aff=0;
     if ( (_mainThreadAffinityMask!=0)&&followMainThreadAffinity )
         aff=_mainThreadAffinityMask;
@@ -75,7 +75,7 @@ void VThread::launchThread(VTHREAD_START_ADDRESS startAddress,bool followMainThr
 
 void VThread::endThread()
 {
-#ifndef WIN_VREP
+#ifndef WIN_SIM
     pthread_detach(pthread_self());
 #endif
 }
@@ -90,7 +90,7 @@ void VThread::endSimpleThread()
 #ifndef SIM_WITHOUT_QT_AT_ALL
 void VThread::launchSimpleThread(SIMPLE_VTHREAD_START_ADDRESS startAddress)
 {
-    _lock.lock_simple();
+    _lock.lock_simple("VThread::launchSimpleThread");
     Thread* it=new Thread();
     Thread::startAddress=startAddress;
     Thread::startAddressIsFree=false;
@@ -182,7 +182,7 @@ bool VThread::isCurrentThreadTheMainSimulationThread()
 
 bool VThread::areThreadIDsSame(VTHREAD_ID_TYPE threadA,VTHREAD_ID_TYPE threadB)
 {
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     return(threadA==threadB); // normally this is the only thread ID comparison place!! Except for another one in VMutex
 #else
     return(pthread_equal(threadA,threadB)!=0); // normally this is the only thread ID comparison place!! Except for another one in VMutex (THREAD_ID_COMPARISON)
@@ -191,7 +191,7 @@ bool VThread::areThreadIDsSame(VTHREAD_ID_TYPE threadA,VTHREAD_ID_TYPE threadB)
 
 VTHREAD_ID_TYPE VThread::getCurrentThreadId()
 {
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     return(GetCurrentThreadId());
 #else
     return(pthread_self());
@@ -200,20 +200,20 @@ VTHREAD_ID_TYPE VThread::getCurrentThreadId()
 
 void VThread::switchThread()
 {
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     SwitchToThread();
 #endif
-#ifdef MAC_VREP
+#ifdef MAC_SIM
     pthread_yield_np();
 #endif
-#ifdef LIN_VREP
+#ifdef LIN_SIM
     pthread_yield();
 #endif
 }
 
 void VThread::sleep(int ms)
 {
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     Sleep(ms);
 #else
     usleep(ms*1000);

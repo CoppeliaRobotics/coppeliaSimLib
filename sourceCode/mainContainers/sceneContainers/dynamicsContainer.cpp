@@ -1,9 +1,9 @@
 
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "dynamicsContainer.h"
 #include "pluginContainer.h"
 #include "app.h"
-#include "v_repStringTable.h"
+#include "simStringTable.h"
 #include "tt.h"
 #include "dynamicsRendering.h"
 #ifdef SIM_WITH_GUI
@@ -28,7 +28,7 @@ const float DYNAMIC_VORTEX_DEFAULT_STEP_SIZE[4]={0.0025f,0.005f,0.01f,0.025f};
 const bool DYNAMIC_VORTEX_DEFAULT_AUTO_SLEEP[4]={true,true,true,true};
 const float DYNAMIC_VORTEX_DEFAULT_INTERNAL_SCALING_FACTOR[4]={1.0f,1.0f,1.0f,1.0f};
 const float DYNAMIC_VORTEX_DEFAULT_CONTACT_TOLERANCE[4]={0.001f,0.001f,0.001f,0.001f};
-const bool DYNAMIC_VORTEX_DEFAULT_MULTITHREADING[4]={false,false,false,false}; // false since 8/3/2017: false is faster (for V-REP scenes) and more stable
+const bool DYNAMIC_VORTEX_DEFAULT_MULTITHREADING[4]={false,false,false,false}; // false since 8/3/2017: false is faster (for CoppeliaSim scenes) and more stable
 // const bool DYNAMIC_VORTEX_DEFAULT_MULTITHREADING[4]={true,true,true,true};
 const float DYNAMIC_VORTEX_DEFAULT_CONSTRAINT_LIN_COMPLIANCE[4]={1.0e-7f,1.0e-7f,1.0e-7f,1.0e-7f};
 const float DYNAMIC_VORTEX_DEFAULT_CONSTRAINT_LIN_DAMPING[4]={8.0e+6,8.0e+6,8.0e+6,8.0e+6};
@@ -341,21 +341,21 @@ void CDynamicsContainer::displayWarningsIfNeeded()
     {
         if (_dynamicEngineToUse==sim_physics_vortex)
         {
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     #ifdef SIM_WITH_GUI
             App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
     #else
             printf("%s\n",IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
     #endif
 #endif
-#ifdef LIN_VREP
+#ifdef LIN_SIM
     #ifdef SIM_WITH_GUI
             App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
     #else
             printf("%s\n",IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
     #endif
 #endif
-#ifdef MAC_VREP
+#ifdef MAC_SIM
     #ifdef SIM_WITH_GUI
             App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WHEN_VORTEX_NOT_YET_SUPPORTED),VMESSAGEBOX_OKELI);
     #else
@@ -1323,8 +1323,8 @@ void CDynamicsContainer::serialize(CSer& ar)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
                             ar >> vi;
                         }
-                        if (ar.getVrepVersionThatWroteThisFile()<30400)
-                        { // In Vortex Studio we have some crashes and instability due to multithreading. At the same time, if multithreading is off, it is faster for V-REP scenes
+                        if (ar.getCoppeliaSimVersionThatWroteThisFile()<30400)
+                        { // In Vortex Studio we have some crashes and instability due to multithreading. At the same time, if multithreading is off, it is faster for CoppeliaSim scenes
                             _vortexIntParams[0]|=simi_vortex_global_multithreading;
                             _vortexIntParams[0]-=simi_vortex_global_multithreading;
                         }
@@ -1454,6 +1454,167 @@ void CDynamicsContainer::serialize(CSer& ar)
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_comment(" 'engine' tag: can be 'bullet', 'ode', 'vortex' or 'newton' ",exhaustiveXml);
+            ar.xmlAddNode_enum("engine",_dynamicEngineToUse,sim_physics_bullet,"bullet",sim_physics_ode,"ode",sim_physics_vortex,"vortex",sim_physics_newton,"newton");
+
+            ar.xmlAddNode_int("engineVersion",_dynamicEngineVersionToUse);
+
+            ar.xmlAddNode_comment(" 'engineMode' tag: can be 'veryAccurate', 'accurate', 'fast', 'veryFast' or 'customized' ",exhaustiveXml);
+            ar.xmlAddNode_enum("engineMode",_dynamicDefaultTypeCalculationParameters,0,"veryAccurate",1,"accurate",2,"fast",3,"veryFast",4,"customized");
+
+            ar.xmlAddNode_floats("gravity",_gravity.data,3);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("dynamicsEnabled",_dynamicsEnabled);
+            ar.xmlAddNode_bool("showContactPoints",_displayContactPoints);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("engines");
+            ar.xmlPushNewNode("bullet");
+            ar.xmlAddNode_float("stepsize",getEngineFloatParam(sim_bullet_global_stepsize,nullptr));
+            ar.xmlAddNode_float("internalscalingfactor",getEngineFloatParam(sim_bullet_global_internalscalingfactor,nullptr));
+            ar.xmlAddNode_float("collisionmarginfactor",getEngineFloatParam(sim_bullet_global_collisionmarginfactor,nullptr));
+
+            ar.xmlAddNode_int("constraintsolvingiterations",getEngineIntParam(sim_bullet_global_constraintsolvingiterations,nullptr));
+            ar.xmlAddNode_int("constraintsolvertype",getEngineIntParam(sim_bullet_global_constraintsolvertype,nullptr));
+
+            ar.xmlAddNode_bool("fullinternalscaling",getEngineBoolParam(sim_bullet_global_fullinternalscaling,nullptr));
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("ode");
+            ar.xmlAddNode_float("stepsize",getEngineFloatParam(sim_ode_global_stepsize,nullptr));
+            ar.xmlAddNode_float("internalscalingfactor",getEngineFloatParam(sim_ode_global_internalscalingfactor,nullptr));
+            ar.xmlAddNode_float("cfm",getEngineFloatParam(sim_ode_global_cfm,nullptr));
+            ar.xmlAddNode_float("erp",getEngineFloatParam(sim_ode_global_erp,nullptr));
+
+            ar.xmlAddNode_int("constraintsolvingiterations",getEngineIntParam(sim_ode_global_constraintsolvingiterations,nullptr));
+            ar.xmlAddNode_int("randomseed",getEngineIntParam(sim_ode_global_randomseed,nullptr));
+
+            ar.xmlAddNode_bool("fullinternalscaling",getEngineBoolParam(sim_ode_global_fullinternalscaling,nullptr));
+            ar.xmlAddNode_bool("quickstep",getEngineBoolParam(sim_ode_global_quickstep,nullptr));
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("vortex");
+            ar.xmlAddNode_float("stepsize",getEngineFloatParam(sim_vortex_global_stepsize,nullptr));
+            ar.xmlAddNode_float("internalscalingfactor",getEngineFloatParam(sim_vortex_global_internalscalingfactor,nullptr));
+            ar.xmlAddNode_float("contacttolerance",getEngineFloatParam(sim_vortex_global_contacttolerance,nullptr));
+            ar.xmlAddNode_float("constraintlinearcompliance",getEngineFloatParam(sim_vortex_global_constraintlinearcompliance,nullptr));
+            ar.xmlAddNode_float("constraintlineardamping",getEngineFloatParam(sim_vortex_global_constraintlineardamping,nullptr));
+            ar.xmlAddNode_float("constraintlinearkineticloss",getEngineFloatParam(sim_vortex_global_constraintlinearkineticloss,nullptr));
+            ar.xmlAddNode_float("constraintangularcompliance",getEngineFloatParam(sim_vortex_global_constraintangularcompliance,nullptr));
+            ar.xmlAddNode_float("constraintangulardamping",getEngineFloatParam(sim_vortex_global_constraintangulardamping,nullptr));
+            ar.xmlAddNode_float("constraintangularkineticloss",getEngineFloatParam(sim_vortex_global_constraintangularkineticloss,nullptr));
+
+            ar.xmlAddNode_bool("autosleep",getEngineBoolParam(sim_vortex_global_autosleep,nullptr));
+            ar.xmlAddNode_bool("multithreading",getEngineBoolParam(sim_vortex_global_multithreading,nullptr));
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("newton");
+            ar.xmlAddNode_float("stepsize",getEngineFloatParam(sim_newton_global_stepsize,nullptr));
+            ar.xmlAddNode_float("contactmergetolerance",getEngineFloatParam(sim_newton_global_contactmergetolerance,nullptr));
+
+            ar.xmlAddNode_int("constraintsolvingiterations",getEngineIntParam(sim_newton_global_constraintsolvingiterations,nullptr));
+
+            ar.xmlAddNode_bool("multithreading",getEngineBoolParam(sim_newton_global_multithreading,nullptr));
+            ar.xmlAddNode_bool("exactsolver",getEngineBoolParam(sim_newton_global_exactsolver,nullptr));
+            ar.xmlAddNode_bool("highjointaccuracy",getEngineBoolParam(sim_newton_global_highjointaccuracy,nullptr));
+            ar.xmlPopNode();
+
+            ar.xmlPopNode();
+        }
+        else
+        {
+            ar.xmlGetNode_enum("engine",_dynamicEngineToUse,exhaustiveXml,"bullet",sim_physics_bullet,"ode",sim_physics_ode,"vortex",sim_physics_vortex,"newton",sim_physics_newton);
+
+            if (ar.xmlGetNode_int("engineVersion",_dynamicEngineVersionToUse,exhaustiveXml))
+            {
+                if ( (_dynamicEngineVersionToUse!=0)&&(_dynamicEngineVersionToUse!=283) )
+                    _dynamicEngineVersionToUse=0;
+            }
+
+            ar.xmlGetNode_enum("engineMode",_dynamicDefaultTypeCalculationParameters,exhaustiveXml,"veryAccurate",0,"accurate",1,"fast",2,"veryFast",3,"customized",4);
+
+            ar.xmlGetNode_floats("gravity",_gravity.data,3,exhaustiveXml);
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("dynamicsEnabled",_dynamicsEnabled,exhaustiveXml);
+                ar.xmlGetNode_bool("showContactPoints",_displayContactPoints,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            float v;
+            int vi;
+            bool vb;
+            if (ar.xmlPushChildNode("engines",exhaustiveXml))
+            {
+                if (ar.xmlPushChildNode("bullet",exhaustiveXml))
+                {
+                    if (ar.xmlGetNode_float("stepsize",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_global_stepsize,v,true);
+                    if (ar.xmlGetNode_float("internalscalingfactor",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_global_internalscalingfactor,v,true);
+                    if (ar.xmlGetNode_float("collisionmarginfactor",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_global_collisionmarginfactor,v,true);
+
+                    if (ar.xmlGetNode_int("constraintsolvingiterations",vi,exhaustiveXml)) setEngineIntParam(sim_bullet_global_constraintsolvingiterations,vi,true);
+                    if (ar.xmlGetNode_int("constraintsolvertype",vi,exhaustiveXml)) setEngineIntParam(sim_bullet_global_constraintsolvertype,vi,true);
+
+                    if (ar.xmlGetNode_bool("fullinternalscaling",vb,exhaustiveXml)) setEngineBoolParam(sim_bullet_global_fullinternalscaling,vb,true);
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("ode"))
+                {
+                    if (ar.xmlGetNode_float("stepsize",v,exhaustiveXml)) setEngineFloatParam(sim_ode_global_stepsize,v,true);
+                    if (ar.xmlGetNode_float("internalscalingfactor",v,exhaustiveXml)) setEngineFloatParam(sim_ode_global_internalscalingfactor,v,true);
+                    if (ar.xmlGetNode_float("cfm",v,exhaustiveXml)) setEngineFloatParam(sim_ode_global_cfm,v,true);
+                    if (ar.xmlGetNode_float("erp",v,exhaustiveXml)) setEngineFloatParam(sim_ode_global_erp,v,true);
+
+                    if (ar.xmlGetNode_int("constraintsolvingiterations",vi,exhaustiveXml)) setEngineIntParam(sim_ode_global_constraintsolvingiterations,vi,true);
+                    if (ar.xmlGetNode_int("randomseed",vi,exhaustiveXml)) setEngineIntParam(sim_ode_global_randomseed,vi,true);
+
+                    if (ar.xmlGetNode_bool("fullinternalscaling",vb,exhaustiveXml)) setEngineBoolParam(sim_ode_global_fullinternalscaling,vb,true);
+                    if (ar.xmlGetNode_bool("quickstep",vb,exhaustiveXml)) setEngineBoolParam(sim_ode_global_quickstep,vb,true);
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("vortex"))
+                {
+                    if (ar.xmlGetNode_float("stepsize",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_global_stepsize,v,true);
+                    if (ar.xmlGetNode_float("internalscalingfactor",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_global_internalscalingfactor,v,true);
+                    if (ar.xmlGetNode_float("contacttolerance",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_global_contacttolerance,v,true);
+                    if (ar.xmlGetNode_float("constraintlinearcompliance",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_global_constraintlinearcompliance,v,true);
+                    if (ar.xmlGetNode_float("constraintlineardamping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_global_constraintlineardamping,v,true);
+                    if (ar.xmlGetNode_float("constraintlinearkineticloss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_global_constraintlinearkineticloss,v,true);
+                    if (ar.xmlGetNode_float("constraintangularcompliance",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_global_constraintangularcompliance,v,true);
+                    if (ar.xmlGetNode_float("constraintangulardamping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_global_constraintangulardamping,v,true);
+                    if (ar.xmlGetNode_float("constraintangularkineticloss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_global_constraintangularkineticloss,v,true);
+
+                    if (ar.xmlGetNode_bool("autosleep",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_global_autosleep,vb,true);
+                    if (ar.xmlGetNode_bool("multithreading",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_global_multithreading,vb,true);
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("newton"))
+                {
+                    if (ar.xmlGetNode_float("stepsize",v,exhaustiveXml)) setEngineFloatParam(sim_newton_global_stepsize,v,true);
+                    if (ar.xmlGetNode_float("contactmergetolerance",v,exhaustiveXml)) setEngineFloatParam(sim_newton_global_contactmergetolerance,v,true);
+
+                    if (ar.xmlGetNode_int("constraintsolvingiterations",vi,exhaustiveXml)) setEngineIntParam(sim_newton_global_constraintsolvingiterations,vi,true);
+
+                    if (ar.xmlGetNode_bool("multithreading",vb,exhaustiveXml)) setEngineBoolParam(sim_newton_global_multithreading,vb,true);
+                    if (ar.xmlGetNode_bool("exactsolver",vb,exhaustiveXml)) setEngineBoolParam(sim_newton_global_exactsolver,vb,true);
+                    if (ar.xmlGetNode_bool("highjointaccuracy",vb,exhaustiveXml)) setEngineBoolParam(sim_newton_global_highjointaccuracy,vb,true);
+                    ar.xmlPopNode();
+                }
+
+                ar.xmlPopNode();
             }
         }
     }

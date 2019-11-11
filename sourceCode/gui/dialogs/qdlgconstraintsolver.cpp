@@ -5,7 +5,7 @@
 #include <QShortcut>
 #include "editboxdelegate.h"
 #include "geometricConstraintSolverInt.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "vMessageBox.h"
 

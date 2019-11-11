@@ -1,11 +1,11 @@
 #include "funcDebug.h"
 #include "visionSensor.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "global.h"
 #include "tt.h"
 #include "meshManip.h"
 #include "sceneObjectOperations.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include <boost/lexical_cast.hpp>
 #include "vDateTime.h"
 #include "vVarious.h"
@@ -375,6 +375,11 @@ CVisionSensor::~CVisionSensor()
 float CVisionSensor::getCalculationTime()
 {
     return(float(sensorResult.calcTimeInMs)*0.001f);
+}
+
+std::string CVisionSensor::getDdetectableEntityLoadName() const
+{
+    return(_detectableEntityLoadName);
 }
 
 void CVisionSensor::_reserveBuffers()
@@ -1049,7 +1054,7 @@ bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
     data[20]=_extWindowedViewPos;
     data[21]=_extWindowedViewPos+1;
 
-    // Following actually free since V-REP 3.3.0
+    // Following actually free since CoppeliaSim 3.3.0
     // But the older PovRay plugin version crash without this:
     float povFogDist=4.0f;
     float povFogTransp=0.5f;
@@ -1098,7 +1103,7 @@ void CVisionSensor::_extRenderer_prepareLights()
             int lightHandle=light->getObjectHandle();
             data[13]=&lightHandle;
 
-            // Following actually free since V-REP 3.3.0
+            // Following actually free since CoppeliaSim 3.3.0
             // But the older PovRay plugin version crash without this:
             float povFadeXDist=0.0;
             bool povNoShadow=false;
@@ -1291,7 +1296,7 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
             {
                 static bool alreadyShown=false;
                 if (!alreadyShown)
-                    App::uiThread->messageBox_information(App::mainWindow,"POV-Ray plugin",strTranslate("The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/v_repExtPovRay"),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_information(App::mainWindow,"POV-Ray plugin",strTranslate("The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/simExtPovRay"),VMESSAGEBOX_OKELI);
                 alreadyShown=true;
             }
         }
@@ -2512,6 +2517,181 @@ void CVisionSensor::serialize(CSer& ar)
             }
         }
     }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_floats("size",_size.data,3);
+
+            ar.xmlAddNode_float("orthoViewSize",_orthoViewSize);
+
+            ar.xmlAddNode_float("viewAngle",_viewAngle*180.0f/piValue_f);
+
+            ar.xmlAddNode_2float("clippingPlanes",_nearClippingPlane,_farClippingPlane);
+
+            ar.xmlAddNode_ints("resolution",_desiredResolution,2);
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_floats("defaultBufferValues",_defaultBufferValues,3);
+            else
+            {
+                int rgb[3];
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(_defaultBufferValues[l]*255.1f);
+                ar.xmlAddNode_ints("defaultBufferValues",rgb,3);
+            }
+
+            ar.xmlAddNode_comment(" 'renderMode' tag: can be 'openGL', 'auxiliaryChannels', 'colorCoded', 'PovRay', 'externalRenderer', 'externalRendererWindowed', 'openGL3' or 'openGL3Windowed' ",exhaustiveXml);
+            ar.xmlAddNode_enum("renderMode",_renderMode,sim_rendermode_opengl,"openGL",sim_rendermode_auxchannels,"auxiliaryChannels",sim_rendermode_colorcoded,"colorCoded",sim_rendermode_povray,"PovRay",sim_rendermode_extrenderer,"externalRenderer",sim_rendermode_extrendererwindowed,"externalRendererWindowed",sim_rendermode_opengl3,"openGL3",sim_rendermode_opengl3windowed,"openGL3Windowed");
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("renderAttributes",_attributesForRendering);
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("renderableEntity",_detectableEntityID);
+            else
+            {
+                std::string str;
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(_detectableEntityID);
+                if (it!=nullptr)
+                    str=it->getObjectName();
+                else
+                {
+                    CRegCollection* coll=App::ct->collections->getCollection(_detectableEntityID);
+                    if (coll!=nullptr)
+                        str="@collection@"+coll->getCollectionName();
+                }
+                ar.xmlAddNode_string("renderableEntity",str.c_str());
+            }
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("perspectiveMode",_perspectiveOperation);
+            ar.xmlAddNode_bool("explicitHandling",_explicitHandling);
+            ar.xmlAddNode_bool("showFog",_showFogIfAvailable);
+            ar.xmlAddNode_bool("showVolumeWhenDetecting",_showVolumeWhenDetecting);
+            ar.xmlAddNode_bool("showVolumeWhenNotDetecting",_showVolumeWhenNotDetecting);
+            if (exhaustiveXml)
+                ar.xmlAddNode_bool("useLocalLights",_useLocalLights);
+            ar.xmlAddNode_bool("useExternalImage",_useExternalImage);
+            ar.xmlAddNode_bool("ignoreRgbInfo",_ignoreRGBInfo);
+            ar.xmlAddNode_bool("ignoreDepthInfo",_ignoreDepthInfo);
+            ar.xmlAddNode_bool("computeBasicStats",_computeImageBasicStats);
+            ar.xmlAddNode_bool("sameBackgroundAsEnvironment",_useSameBackgroundAsEnvironment);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("color");
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("passive");
+                color.serialize(ar,0);
+                ar.xmlPopNode();
+                ar.xmlPushNewNode("active");
+                activeColor.serialize(ar,0);
+                ar.xmlPopNode();
+            }
+            else
+            {
+                int rgb[3];
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(color.colors[l]*255.1f);
+                ar.xmlAddNode_ints("passive",rgb,3);
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(activeColor.colors[l]*255.1f);
+                ar.xmlAddNode_ints("active",rgb,3);
+            }
+            ar.xmlPopNode();
+
+        }
+        else
+        {
+            C3Vector x;
+            if (ar.xmlGetNode_floats("size",x.data,3,exhaustiveXml))
+                setSize(x);
+
+            if (ar.xmlGetNode_float("orthoViewSize",_orthoViewSize,exhaustiveXml))
+                setOrthoViewSize(_orthoViewSize);
+
+            if (ar.xmlGetNode_float("viewAngle",_viewAngle,exhaustiveXml))
+                setViewAngle(_viewAngle*piValue_f/180.0f);
+
+            if (ar.xmlGetNode_2float("clippingPlanes",_nearClippingPlane,_farClippingPlane,exhaustiveXml))
+            {
+                setNearClippingPlane(_nearClippingPlane);
+                setFarClippingPlane(_farClippingPlane);
+            }
+
+            if (ar.xmlGetNode_ints("resolution",_desiredResolution,2,exhaustiveXml))
+                setDesiredResolution(_desiredResolution); // we need to set the real resolution!
+
+            if (exhaustiveXml)
+                ar.xmlGetNode_floats("defaultBufferValues",_defaultBufferValues,3,exhaustiveXml);
+            else
+            {
+                int rgb[3];
+                if (ar.xmlGetNode_ints("defaultBufferValues",rgb,3,exhaustiveXml))
+                {
+                    _defaultBufferValues[0]=float(rgb[0])/255.0f;
+                    _defaultBufferValues[1]=float(rgb[1])/255.0f;
+                    _defaultBufferValues[2]=float(rgb[2])/255.0f;
+                }
+            }
+
+            ar.xmlGetNode_enum("renderMode",_renderMode,exhaustiveXml,"openGL",sim_rendermode_opengl,"auxiliaryChannels",sim_rendermode_auxchannels,"colorCoded",sim_rendermode_colorcoded,"PovRay",sim_rendermode_povray,"externalRenderer",sim_rendermode_extrenderer,"externalRendererWindowed",sim_rendermode_extrendererwindowed,"openGL3",sim_rendermode_opengl3,"openGL3Windowed",sim_rendermode_opengl3windowed);
+
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("renderAttributes",_attributesForRendering,exhaustiveXml);
+
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("renderableEntity",_detectableEntityID);
+            else
+                ar.xmlGetNode_string("renderableEntity",_detectableEntityLoadName,exhaustiveXml);
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("perspectiveMode",_perspectiveOperation,exhaustiveXml);
+                ar.xmlGetNode_bool("explicitHandling",_explicitHandling,exhaustiveXml);
+                ar.xmlGetNode_bool("showFog",_showFogIfAvailable,exhaustiveXml);
+                ar.xmlGetNode_bool("showVolumeWhenDetecting",_showVolumeWhenDetecting,exhaustiveXml);
+                ar.xmlGetNode_bool("showVolumeWhenNotDetecting",_showVolumeWhenNotDetecting,exhaustiveXml);
+                if (exhaustiveXml)
+                    ar.xmlGetNode_bool("useLocalLights",_useLocalLights,exhaustiveXml);
+                ar.xmlGetNode_bool("useExternalImage",_useExternalImage,exhaustiveXml);
+                ar.xmlGetNode_bool("ignoreRgbInfo",_ignoreRGBInfo,exhaustiveXml);
+                ar.xmlGetNode_bool("ignoreDepthInfo",_ignoreDepthInfo,exhaustiveXml);
+                ar.xmlGetNode_bool("computeBasicStats",_computeImageBasicStats,exhaustiveXml);
+                ar.xmlGetNode_bool("sameBackgroundAsEnvironment",_useSameBackgroundAsEnvironment,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("color",exhaustiveXml))
+            {
+                if (exhaustiveXml)
+                {
+                    if (ar.xmlPushChildNode("passive"))
+                    {
+                        color.serialize(ar,0);
+                        ar.xmlPopNode();
+                    }
+                    if (ar.xmlPushChildNode("active"))
+                    {
+                        activeColor.serialize(ar,0);
+                        ar.xmlPopNode();
+                    }
+                }
+                else
+                {
+                    int rgb[3];
+                    if (ar.xmlGetNode_ints("passive",rgb,3,exhaustiveXml))
+                        color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                    if (ar.xmlGetNode_ints("active",rgb,3,exhaustiveXml))
+                        activeColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                }
+                ar.xmlPopNode();
+            }
+            _reserveBuffers();
+        }
+    }
 }
 
 void CVisionSensor::serializeWExtIk(CExtIkSer& ar)
@@ -2593,7 +2773,7 @@ void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded(bool useStenci
         // In Headless mode under Linux, we use a offscreen type by default,
         // because otherwise even hidden windows are visible somehow
         int offscreenContextType=COffscreenGlContext::QT_WINDOW_HIDE_TP;
-#ifdef LIN_VREP
+#ifdef LIN_SIM
 #ifdef SIM_WITH_GUI
         if (App::mainWindow==nullptr) // headless mode
 #endif
@@ -2612,13 +2792,13 @@ void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded(bool useStenci
         // By default:
         // - we use Qt FBOs on Mac (the non-Qt FBOs always caused problems there)
         // - we use non-Qt FBOs on Windows and Linux (Qt FBOs on Linux cause a lot of problems, e.g.: NVIDIA Geforce 9600M GS
-#ifdef WIN_VREP
+#ifdef WIN_SIM
         bool nativeFbo=true;
 #endif
-#ifdef MAC_VREP
+#ifdef MAC_SIM
         bool nativeFbo=false;
 #endif
-#ifdef LIN_VREP
+#ifdef LIN_SIM
         bool nativeFbo=true;
 #endif
         if (App::userSettings->fboType!=-1)

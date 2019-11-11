@@ -66,7 +66,7 @@ bool VMenubar::doNotExecuteCommandButMemorizeIt=false;
 VMenubar::VMenubar()
 {
     _qMenubar=App::mainWindow->menuBar();
-    #ifdef MAC_VREP
+    #ifdef MAC_SIM
         _qMenubar->setNativeMenuBar(false); // otherwise we have plenty of crashes!!! The result with this instruction is that the menu bar is not in the Mac top bar, but in the main window as in Windows!
     #endif
 }

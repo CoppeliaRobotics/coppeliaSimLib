@@ -1,8 +1,8 @@
 #include "funcDebug.h"
 #include "forceSensor.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "tt.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include <algorithm>
 #include "ttUtil.h"
 #include "easyLock.h"
@@ -765,6 +765,114 @@ void CForceSensor::serialize(CSer& ar)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
                 CTTUtil::scaleColorUp_(colorPart1.colors);
                 CTTUtil::scaleColorUp_(colorPart2.colors);
+            }
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_float("size",_forceSensorSize);
+
+            ar.xmlPushNewNode("filter");
+            ar.xmlAddNode_int("sampleSize",_valueCountForFilter);
+            ar.xmlAddNode_bool("averageFilter",_filterType==0); // 0=average, 1=median
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("force");
+            ar.xmlAddNode_bool("thresholdEnabled",_forceThresholdEnabled);
+            ar.xmlAddNode_float("threshold",_forceThreshold);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("torque");
+            ar.xmlAddNode_bool("threasholdEnabled",_torqueThresholdEnabled);
+            ar.xmlAddNode_float("threshold",_torqueThreshold);
+            ar.xmlPopNode();
+
+            ar.xmlAddNode_int("consecutiveThresholdViolationsForTrigger",_consecutiveThresholdViolationsForBreaking);
+
+            ar.xmlPushNewNode("color");
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("part1");
+                colorPart1.serialize(ar,0);
+                ar.xmlPopNode();
+                ar.xmlPushNewNode("part2");
+                colorPart2.serialize(ar,0);
+                ar.xmlPopNode();
+            }
+            else
+            {
+                int rgb[3];
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(colorPart1.colors[l]*255.1f);
+                ar.xmlAddNode_ints("part1",rgb,3);
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(colorPart2.colors[l]*255.1f);
+                ar.xmlAddNode_ints("part2",rgb,3);
+            }
+            ar.xmlPopNode();
+        }
+        else
+        {
+            if (ar.xmlGetNode_float("size",_forceSensorSize,exhaustiveXml))
+                setSize(_forceSensorSize);
+
+            if (ar.xmlPushChildNode("filter",exhaustiveXml))
+            {
+                if (ar.xmlGetNode_int("sampleSize",_valueCountForFilter,exhaustiveXml))
+                    setValueCountForFilter(_valueCountForFilter);
+                bool avg;
+                if (ar.xmlGetNode_bool("averageFilter",avg,exhaustiveXml))
+                {
+                    _filterType=0;
+                    if (!avg)
+                        _filterType=1;
+                }
+                ar.xmlPopNode();
+            }
+            if (ar.xmlPushChildNode("force",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("thresholdEnabled",_forceThresholdEnabled,exhaustiveXml);
+                if (ar.xmlGetNode_float("threshold",_forceThreshold,exhaustiveXml))
+                    setForceThreshold(_forceThreshold);
+                ar.xmlPopNode();
+            }
+            if (ar.xmlPushChildNode("torque",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("threasholdEnabled",_torqueThresholdEnabled);
+                if (ar.xmlGetNode_float("threshold",_torqueThreshold,exhaustiveXml))
+                    setTorqueThreshold(_torqueThreshold);
+                ar.xmlPopNode();
+            }
+
+            ar.xmlGetNode_int("consecutiveThresholdViolationsForTrigger",_consecutiveThresholdViolationsForBreaking,exhaustiveXml);
+
+            if (ar.xmlPushChildNode("color",exhaustiveXml))
+            {
+                if (exhaustiveXml)
+                {
+                    if (ar.xmlPushChildNode("part1"))
+                    {
+                        colorPart1.serialize(ar,0);
+                        ar.xmlPopNode();
+                    }
+                    if (ar.xmlPushChildNode("part2"))
+                    {
+                        colorPart2.serialize(ar,0);
+                        ar.xmlPopNode();
+                    }
+                }
+                else
+                {
+                    int rgb[3];
+                    if (ar.xmlGetNode_ints("part1",rgb,3,exhaustiveXml))
+                        colorPart1.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                    if (ar.xmlGetNode_ints("part2",rgb,3,exhaustiveXml))
+                        colorPart2.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                }
+                ar.xmlPopNode();
             }
         }
     }

@@ -1,7 +1,6 @@
-
 // This file requires some serious refactoring!!
 
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "hierarchyElement.h"
 #include "oGL.h"
 #include "imgLoaderSaver.h"
@@ -59,7 +58,7 @@ int CHierarchyElement::addYourChildren()
             for (size_t i=0;i<App::ct->objCont->objectList.size();i++)
             {
                 C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
-#ifdef KEYWORD__NOT_DEFINED_FORMELY_BR
+#ifdef KEYWORD__NOT_DEFINED_FORMELY_XR
                 if ((it->getParent()==nullptr)&&it->getModelBase()&&(!it->isObjectPartOfInvisibleModel()))
 #else
                 if (it->getParentObject()==nullptr)
@@ -83,7 +82,7 @@ int CHierarchyElement::addYourChildren()
             C3DObject* it=App::ct->objCont->getObjectFromHandle(objectID);
             if (it!=nullptr)
             {
-#ifdef KEYWORD__NOT_DEFINED_FORMELY_BR
+#ifdef KEYWORD__NOT_DEFINED_FORMELY_XR
                 std::vector<C3DObject*> firstModelRelatives;
                 retVal+=it->getFirstModelRelatives(firstModelRelatives,true);
                 for (size_t i=0;i<firstModelRelatives.size();i++)
@@ -129,7 +128,7 @@ int CHierarchyElement::getLinkedObjectID()
     return(objectID);
 }
 
-#ifdef KEYWORD__NOT_DEFINED_FORMELY_BR
+#ifdef KEYWORD__NOT_DEFINED_FORMELY_XR
 void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObjectID,bool& bright,bool dontDisplay,
         int renderingSize[2],int textPos[2],
         int indentNb,std::vector<int>* vertLines,int minRenderedPos[2],int maxRenderedPos[2],bool forDragAndDrop/*=false*/,int transparentForTreeObjects/*=-1*/,int dropID/*=-1*/,int worldClick/*=-9999*/)
@@ -750,10 +749,12 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
     int localOffset=16;
     if (it!=nullptr)
     {
+        bool hasScript=false;
         // Child scripts:
         CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(it->getObjectHandle());
         if (script!=nullptr)
         {
+            hasScript=true;
             if (!dontDisplay)
             {
                 if (script->getThreadedExecution())
@@ -779,11 +780,12 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
                 hier->scriptIconPosition.push_back(script->getScriptID());
             }
             localOffset+=HIERARCHY_ICON_WIDTH*App::sc;
+            /*
             if (!dontDisplay)
             {
                 
-                if (script->getScriptParametersObject()->scriptParamEntries.size()!=0)
-                    App::ct->globalGuiTextureCont->startTextureDisplay(SCRIPT_PARAMETERS_ACTIVE_PICTURE);
+                if (script->getScriptParametersObject()->userParamEntries.size()!=0)
+                    App::ct->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
                 else
                     App::ct->globalGuiTextureCont->startTextureDisplay(SCRIPT_PARAMETERS_PICTURE);
                 _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
@@ -795,15 +797,17 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
                 hier->scriptParametersIconPosition.push_back(script->getScriptID());
             }
             localOffset+=(HIERARCHY_ICON_WIDTH+HIERARCHY_INTER_ICON_SPACING)*App::sc;
+            */
         }
 
         // Customization scripts:
-        script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
-        if (script!=nullptr)
+        CLuaScriptObject* customizationScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
+        if (customizationScript!=nullptr)
         {
+            hasScript=true;
             if (!dontDisplay)
             {
-                if (script->hasCustomizationScripAnyChanceToGetExecuted(false,false))
+                if (customizationScript->hasCustomizationScripAnyChanceToGetExecuted(false,false))
                     App::ct->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPT_PICTURE);
                 else
                     App::ct->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPTDISABLED_PICTURE);
@@ -813,10 +817,31 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
             {
                 hier->scriptIconPosition.push_back(tPosX+localOffset);
                 hier->scriptIconPosition.push_back(tPosY);
-                hier->scriptIconPosition.push_back(script->getScriptID());
+                hier->scriptIconPosition.push_back(customizationScript->getScriptID());
             }
             localOffset+=HIERARCHY_ICON_WIDTH*App::sc;
         }
+
+        if (hasScript)
+        { // User params:
+            CUserParameters* params=it->getUserScriptParameterObject();
+            if ( ((params!=nullptr)&&(params->userParamEntries.size()>0)) || ((customizationScript!=nullptr)&&customizationScript->getContainsUserConfigCallbackFunction()) )
+            {
+                if (!dontDisplay)
+                {
+                    App::ct->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
+                    _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
+                }
+                if (!forDragAndDrop)
+                {
+                    hier->scriptParametersIconPosition.push_back(tPosX+localOffset);
+                    hier->scriptParametersIconPosition.push_back(tPosY);
+                    hier->scriptParametersIconPosition.push_back(objectID);
+                }
+                localOffset+=(HIERARCHY_ICON_WIDTH+HIERARCHY_INTER_ICON_SPACING)*App::sc;
+            }
+        }
+
     }
     else
     { // This is for the main script (pseudo object "world"):
@@ -838,11 +863,11 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
                 hier->scriptIconPosition.push_back(script->getScriptID());
             }
             localOffset+=HIERARCHY_ICON_WIDTH*App::sc;
+            /*
             if (!dontDisplay)
             {
-                
-                if (script->getScriptParametersObject()->scriptParamEntries.size()!=0)
-                    App::ct->globalGuiTextureCont->startTextureDisplay(SCRIPT_PARAMETERS_ACTIVE_PICTURE);
+                if (script->getScriptParametersObject()->userParamEntries.size()!=0)
+                    App::ct->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
                 else
                     App::ct->globalGuiTextureCont->startTextureDisplay(SCRIPT_PARAMETERS_PICTURE);
                 _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
@@ -854,6 +879,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
                 hier->scriptParametersIconPosition.push_back(script->getScriptID());
             }
             localOffset+=(HIERARCHY_ICON_WIDTH+HIERARCHY_INTER_ICON_SPACING)*App::sc;
+            */
         }
     }
     lineLastPos+=localOffset;
@@ -981,7 +1007,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
 }
 #endif
 
-#ifdef KEYWORD__NOT_DEFINED_FORMELY_BR
+#ifdef KEYWORD__NOT_DEFINED_FORMELY_XR
 int CHierarchyElement::_drawIcon_brm(CHierarchy* hier,int tPosX,int tPosY,C3DObject* it,int pictureID,bool drawIt,float transparencyFactor,bool forDragAndDrop)
 //*
 { // pictureID is -1 by default. It is then ignored. The size of the icon is 16x16

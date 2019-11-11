@@ -1,5 +1,5 @@
 
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "ikEl.h"
 #include "ikRoutine.h"
 #include "app.h"
@@ -182,6 +182,134 @@ void CikEl::serialize(CSer& ar)
             }
         }
     }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("id",objectID);
+
+            if (exhaustiveXml)
+            {
+                ar.xmlAddNode_int("tipHandle",tooltip);
+                ar.xmlAddNode_int("baseHandle",base);
+                ar.xmlAddNode_int("alternateBaseHandle",alternativeBaseForConstraints);
+            }
+            else
+            {
+                std::string str;
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(tooltip);
+                if (it!=nullptr)
+                    str=it->getObjectName();
+                ar.xmlAddNode_comment(" 'tip' tag: is required and has to be the name of an existing scene object ",exhaustiveXml);
+                ar.xmlAddNode_string("tip",str.c_str());
+                str.clear();
+                it=App::ct->objCont->getObjectFromHandle(base);
+                if (it!=nullptr)
+                    str=it->getObjectName();
+                ar.xmlAddNode_string("base",str.c_str());
+                str.clear();
+                it=App::ct->objCont->getObjectFromHandle(alternativeBaseForConstraints);
+                if (it!=nullptr)
+                    str=it->getObjectName();
+                ar.xmlAddNode_string("alternateBase",str.c_str());
+            }
+
+            ar.xmlPushNewNode("precision");
+            ar.xmlAddNode_float("linear",minLinearPrecision);
+            ar.xmlAddNode_float("angular",minAngularPrecision*180.0f/piValue_f);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("weight");
+            ar.xmlAddNode_float("position",positionWeight);
+            ar.xmlAddNode_float("orientation",orientationWeight);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("constraints");
+            ar.xmlAddNode_bool("x",constraints&sim_ik_x_constraint);
+            ar.xmlAddNode_bool("y",constraints&sim_ik_y_constraint);
+            ar.xmlAddNode_bool("z",constraints&sim_ik_z_constraint);
+            ar.xmlAddNode_bool("alpha_beta",constraints&sim_ik_alpha_beta_constraint);
+            ar.xmlAddNode_bool("gamma",constraints&sim_ik_gamma_constraint);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("enabled",active);
+            ar.xmlPopNode();
+        }
+        else
+        {
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("id",objectID);
+
+            if (exhaustiveXml)
+            {
+                ar.xmlGetNode_int("tipHandle",tooltip);
+                ar.xmlGetNode_int("baseHandle",base);
+                ar.xmlGetNode_int("alternateBaseHandle",alternativeBaseForConstraints);
+            }
+            else
+            {
+                ar.xmlGetNode_string("tip",_tipLoadName,exhaustiveXml);
+                ar.xmlGetNode_string("base",_baseLoadName,exhaustiveXml);
+                ar.xmlGetNode_string("alternateBase",_altBaseLoadName,exhaustiveXml);
+            }
+
+            if (ar.xmlPushChildNode("precision",exhaustiveXml))
+            {
+                ar.xmlGetNode_float("linear",minLinearPrecision,exhaustiveXml);
+                if (ar.xmlGetNode_float("angular",minAngularPrecision,exhaustiveXml))
+                    minAngularPrecision*=piValue_f/180.0f;
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("weight",exhaustiveXml))
+            {
+                ar.xmlGetNode_float("position",positionWeight,exhaustiveXml);
+                ar.xmlGetNode_float("orientation",orientationWeight,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("constraints",exhaustiveXml))
+            {
+                constraints=0;
+                bool tmp;
+                if (ar.xmlGetNode_bool("x",tmp,exhaustiveXml)&&tmp)
+                    constraints|=sim_ik_x_constraint;
+                if (ar.xmlGetNode_bool("y",tmp,exhaustiveXml)&&tmp)
+                    constraints|=sim_ik_y_constraint;
+                if (ar.xmlGetNode_bool("z",tmp,exhaustiveXml)&&tmp)
+                    constraints|=sim_ik_z_constraint;
+                if (ar.xmlGetNode_bool("alpha_beta",tmp,exhaustiveXml)&&tmp)
+                    constraints|=sim_ik_alpha_beta_constraint;
+                if (ar.xmlGetNode_bool("gamma",tmp,exhaustiveXml)&&tmp)
+                    constraints|=sim_ik_gamma_constraint;
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("enabled",active,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+        }
+    }
+}
+
+std::string CikEl::getTipLoadName() const
+{
+    return(_tipLoadName);
+}
+
+std::string CikEl::getBaseLoadName() const
+{
+    return(_baseLoadName);
+}
+
+std::string CikEl::getAltBaseLoadName() const
+{
+    return(_altBaseLoadName);
 }
 
 void CikEl::serializeWExtIk(CExtIkSer& ar)

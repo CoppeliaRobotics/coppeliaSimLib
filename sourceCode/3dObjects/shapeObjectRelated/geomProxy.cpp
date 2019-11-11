@@ -5,6 +5,7 @@
 #include "algos.h"
 #include "pluginContainer.h"
 #include "app.h"
+#include "base64.h"
 
 CGeomProxy::CGeomProxy()
 {
@@ -148,7 +149,7 @@ void CGeomProxy::removeCollisionInformation()
     FUNCTION_DEBUG;
     if (collInfo!=nullptr)
     {
-        CPluginContainer::mesh_destroyCollisionInformationStructure(collInfo);
+        CPluginContainer::geomPlugin_destroyMesh(collInfo);
         collInfo=nullptr;
     }
 }
@@ -197,7 +198,7 @@ void CGeomProxy::initializeCalculationStructureIfNeeded()
         float minTriSize=(std::max<float>(std::max<float>(_boundingBoxHalfSizes(0),_boundingBoxHalfSizes(1)),_boundingBoxHalfSizes(2)))*2.0f*App::ct->environment->getCalculationMinRelTriangleSize();
         if (maxTriSize<minTriSize)
             maxTriSize=minTriSize;
-        collInfo=CPluginContainer::mesh_createCollisionInformationStructure(&wvert[0],(int)wvert.size(),&wind[0],(int)wind.size(),maxTriSize,geomInfo->getEdgeThresholdAngle(),App::userSettings->triCountInOBB);
+        collInfo=CPluginContainer::geomPlugin_createMesh(&wvert[0],(int)wvert.size(),&wind[0],(int)wind.size(),nullptr,maxTriSize,App::userSettings->triCountInOBB);
     }
 }
 
@@ -261,7 +262,7 @@ void CGeomProxy::scale(float x,float y,float z,float& xp,float& yp,float& zp)
 
     // Scale collision info if we have an isometric scaling:
     if ((x==y)&&(x==z)&&(collInfo!=nullptr))
-        CPluginContainer::mesh_scaleCollisionInformationStructure(collInfo,x);
+        CPluginContainer::geomPlugin_scaleMesh(collInfo,x);
     else
         removeCollisionInformation(); // we have to recompute it!
 
@@ -708,7 +709,7 @@ CGeomProxy* CGeomProxy::copyYourself()
     newGeom->_boundingBoxHalfSizes=_boundingBoxHalfSizes;
 
     if (collInfo!=nullptr)
-        newGeom->collInfo=CPluginContainer::mesh_copyCollisionInformationStructure(collInfo);
+        newGeom->collInfo=CPluginContainer::geomPlugin_copyMesh(collInfo);
     return(newGeom);
 }
 
@@ -787,20 +788,6 @@ bool CGeomProxy::applyCuttingChanges(const C7Vector& shapeCTM)
         options|=4;
     if (App::userSettings->identicalTrianglesWindingCheck)
         options|=8;
-    float* vertices;
-    int verticesSize;
-    int* indices;
-    int indicesSize;
-    if (CPluginContainer::mesh_getCutMesh(collInfo,&shapeCTM,&vertices,&verticesSize,&indices,&indicesSize,options))
-    {
-        std::vector<float> vert(vertices,vertices+verticesSize);
-        std::vector<int> ind(indices,indices+indicesSize);
-        CPluginContainer::mesh_releaseBuffer(vertices);
-        CPluginContainer::mesh_releaseBuffer(indices);
-        removeCollisionInformation();
-        acceptNewGeometry(vert,ind,nullptr,nullptr);
-        return(false);
-    }
     return(true);
 }
 
@@ -828,27 +815,20 @@ void CGeomProxy::serialize(CSer& ar,const char* shapeName)
             // (if undo/redo under way, getSaveExistingCalculationStructuresTemp is false)
             if (App::ct->environment->getSaveExistingCalculationStructuresTemp()&&isCollisionInformationInitialized())
             {
-                if (CPluginContainer::mesh_getCalculatedPolygonCount(collInfo)!=0)
-                {
-                    removeCollisionInformation(); // Make sure the shape is not in the cut-state:
-                    initializeCalculationStructureIfNeeded();
-                }
 
-                int collInfoDataSize;
-                unsigned char* collInfoData=CPluginContainer::mesh_getCollisionInformationStructureSerializationData(collInfo,collInfoDataSize);
-
+                std::vector<unsigned char> serializationData;
+                CPluginContainer::geomPlugin_getMeshSerializationData(collInfo,serializationData);
                 ar.storeDataName("Coi");
                 ar.setCountingMode(true);
-                for (int i=0;i<collInfoDataSize;i++)
-                    ar << collInfoData[i];
+                for (int i=0;i<serializationData.size();i++)
+                    ar << serializationData[i];
                 ar.flush(false);
                 if (ar.setWritingMode(true))
                 {
-                    for (int i=0;i<collInfoDataSize;i++)
-                        ar << collInfoData[i];
+                    for (int i=0;i<serializationData.size();i++)
+                        ar << serializationData[i];
                     ar.flush(false);
                 }
-                CPluginContainer::mesh_releaseBuffer(collInfoData);
             }
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -896,10 +876,73 @@ void CGeomProxy::serialize(CSer& ar,const char* shapeName)
                         std::vector<float> wvert;
                         std::vector<int> wind;
                         geomInfo->getCumulativeMeshes(wvert,&wind,nullptr);
-                        collInfo=CPluginContainer::mesh_getCollisionInformationStructureFromSerializationData(&data[0],&wvert[0],(int)wvert.size(),&wind[0],(int)wind.size());
+                        collInfo=CPluginContainer::geomPlugin_getMeshFromSerializationData(&data[0]);
                     }
                     if (noHit)
                         ar.loadUnknownData();
+                }
+            }
+            computeBoundingBox();
+        }
+    }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.clearIncrementCounter();
+            if (App::ct->environment->getSaveExistingCalculationStructuresTemp()&&isCollisionInformationInitialized())
+            {
+                std::vector<unsigned char> collInfoData;
+                CPluginContainer::geomPlugin_getMeshSerializationData(collInfo,collInfoData);
+                ar.xmlPushNewNode("calculationStructure");
+                if (ar.xmlSaveDataInline(int(collInfoData.size())))
+                {
+                    std::string str(base64_encode(&collInfoData[0],(unsigned int)collInfoData.size()));
+                    ar.xmlAddNode_string("data_base64Coded",str.c_str());
+                }
+                else
+                    ar.xmlAddNode_binFile("file",(std::string("calcStruct_")+shapeName).c_str(),&collInfoData[0],collInfoData.size());
+                ar.xmlPopNode();
+            }
+
+            if (geomInfo->isGeometric())
+                ar.xmlPushNewNode("mesh");
+            else
+                ar.xmlPushNewNode("compound");
+            geomInfo->serialize(ar,shapeName);
+            ar.xmlPopNode();
+        }
+        else
+        {
+            if (ar.xmlPushChildNode("calculationStructure",false))
+            {
+                std::string str;
+                if (ar.xmlGetNode_string("data_base64Coded",str,false))
+                    str=base64_decode(str);
+                else
+                    ar.xmlGetNode_binFile("file",str);
+
+                std::vector<float> wvert;
+                std::vector<int> wind;
+                geomInfo->getCumulativeMeshes(wvert,&wind,nullptr);
+                collInfo=CPluginContainer::geomPlugin_getMeshFromSerializationData((unsigned char*)str.c_str());
+                ar.xmlPopNode();
+            }
+            if (ar.xmlPushChildNode("mesh",false))
+            {
+                delete geomInfo;
+                geomInfo=new CGeometric();
+                ((CGeometric*)geomInfo)->serialize(ar,shapeName);
+                ar.xmlPopNode();
+            }
+            else
+            {
+                if (ar.xmlPushChildNode("compound"))
+                {
+                    delete geomInfo;
+                    geomInfo=new CGeomWrap();
+                    geomInfo->serialize(ar,shapeName);
+                    ar.xmlPopNode();
                 }
             }
             computeBoundingBox();

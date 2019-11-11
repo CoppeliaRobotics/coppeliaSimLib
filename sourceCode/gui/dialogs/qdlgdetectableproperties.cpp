@@ -1,6 +1,6 @@
 #include "qdlgdetectableproperties.h"
 #include "ui_qdlgdetectableproperties.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "app.h"
 
 CQDlgDetectableProperties::CQDlgDetectableProperties(QWidget *parent) :

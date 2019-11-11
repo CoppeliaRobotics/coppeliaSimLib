@@ -1,7 +1,8 @@
 #include "thumbnail.h"
 #include "global.h"
-#include "v_repConst.h"
+#include "simConst.h"
 #include "thumbnailRendering.h"
+#include "base64.h"
 
 CThumbnail::CThumbnail()
 {
@@ -243,6 +244,33 @@ void  CThumbnail::serializeAdditionalModelInfos(CSer& ar,C7Vector& modelTr,C3Vec
             }
         }
     }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlPushNewNode("pose");
+            ar.xmlAddNode_floats("position",modelTr.X.data,3);
+            ar.xmlAddNode_floats("quaternion",modelTr.Q.data,4);
+            ar.xmlPopNode();
+
+            ar.xmlAddNode_floats("modelBoundingBoxSize",modelBBSize.data,3);
+
+            ar.xmlAddNode_float("modelNonDefaultTranslationStepSize",modelNonDefaultTranslationStepSize);
+        }
+        else
+        {
+            if (ar.xmlPushChildNode("pose"))
+            {
+                ar.xmlGetNode_floats("position",modelTr.X.data,3);
+                ar.xmlGetNode_floats("quaternion",modelTr.Q.data,4);
+                ar.xmlPopNode();
+            }
+
+            ar.xmlGetNode_floats("modelBoundingBoxSize",modelBBSize.data,3);
+
+            ar.xmlGetNode_float("modelNonDefaultTranslationStepSize",modelNonDefaultTranslationStepSize);
+        }
+    }
 }
 
 void CThumbnail::serialize(CSer& ar,bool forceCompressedSaving/*=false*/)
@@ -360,6 +388,43 @@ void CThumbnail::serialize(CSer& ar,bool forceCompressedSaving/*=false*/)
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+        }
+    }
+    else
+    {
+        if (ar.isStoring())
+        {
+            if (_thumbnailRGBAImage!=nullptr)
+            {
+                if (ar.xmlSaveDataInline(128*128*4))
+                {
+                    std::string str(base64_encode((unsigned char*)_thumbnailRGBAImage,128*128*4));
+                    ar.xmlAddNode_string("data_base64Coded",str.c_str());
+                }
+                else
+                    ar.xmlAddNode_imageFile("file","thumbnail",(unsigned char*)_thumbnailRGBAImage,128,128,true);
+            }
+        }
+        else
+        {
+            std::string str;
+            if (ar.xmlGetNode_string("data_base64Coded",str,false))
+                str=base64_decode(str);
+            else
+            {
+                std::vector<unsigned char> img;
+                ar.xmlGetNode_imageFile("file",img);
+                str.resize(img.size());
+                for (size_t i=0;i<img.size();i++)
+                    str[i]=img[i];
+            }
+            if (str.size()==128*128*4)
+            {
+                if (_thumbnailRGBAImage==nullptr)
+                    _thumbnailRGBAImage=new char[128*128*4];
+                for (size_t i=0;i<128*128*4;i++)
+                    _thumbnailRGBAImage[i]=str[i];
             }
         }
     }

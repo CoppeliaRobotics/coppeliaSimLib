@@ -1,5 +1,5 @@
 #include "mpPhase2Node.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 
 CmpPhase2Node::CmpPhase2Node(int jointCount,const float* _jointPositions,const C7Vector& _tipTransf)
 {

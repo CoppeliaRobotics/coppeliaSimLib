@@ -1,5 +1,5 @@
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "oglSurface.h"
 #include "tt.h"
 #include "oGL.h"
@@ -9,8 +9,8 @@
 #include "imgLoaderSaver.h"
 #include "vDateTime.h"
 #include "pluginContainer.h"
-#include "v_repStrings.h"
-#include "miscBase.h"
+#include "simStrings.h"
+#include "libLic.h"
 
 enum {NO_ONE=0,HIERARCHY_PART,VIEW_SELECTION_PART,PAGE_PART,
         HIERARCHY_RESIZING_PART,HIERARCHY_CLOSING_PART,BROWSER_PART,
@@ -224,7 +224,7 @@ void COglSurface::mouseWheel(int deltaZ,int x,int y)
         hierarchy->mouseWheel(deltaZ,x-offx,y-offy);
         offx+=_hierarchyWidth;
     }
-#ifdef MAC_VREP
+#ifdef MAC_SIM
         deltaZ=-deltaZ; // on Mac the mouse wheel appears inverted for that
 #endif
     App::ct->pageContainer->mouseWheel(deltaZ,x-offx,y-offy);
@@ -405,7 +405,7 @@ void COglSurface::rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* main
     mouseRelativePosition[1]=y;
     mousePreviousRelativePosition[0]=mouseRelativePosition[0];
     mousePreviousRelativePosition[1]=mouseRelativePosition[1];
-    if (CMiscBase::handleVerSpec_hasPopupDlg())
+    if (CLibLic::getBoolVal(3))
     {
         if (sceneSelectionActive&&(sceneSelector->getCaughtElements()&sim_right_button))
             sceneSelector->rightMouseButtonUp(mouseRelativePosition[0],mouseRelativePosition[1],absX,absY,mainWindow);

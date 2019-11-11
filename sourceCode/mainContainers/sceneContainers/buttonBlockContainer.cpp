@@ -1,11 +1,11 @@
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "buttonBlockContainer.h" 
 #include "global.h"
 #include "tt.h"
 #include "app.h"
-#include "v_repStrings.h"
-#include "miscBase.h"
+#include "simStrings.h"
+#include "libLic.h"
 
 CButtonBlockContainer::CButtonBlockContainer(bool mainContainer)
 {
@@ -59,7 +59,7 @@ void CButtonBlockContainer::emptySceneProcedure(bool mainContainer)
     buttonsLocked=false;
 
 #ifdef SIM_WITH_GUI
-    if ( CMiscBase::handleVerSpec_hasInfoBar()&&(newSceneProcedurePasses==0) )
+    if ( CLibLic::getBoolVal(4)&&(newSceneProcedurePasses==0) )
     {
         if (mainContainer)
         {
@@ -1212,7 +1212,7 @@ CButtonBlockContainer* CButtonBlockContainer::loadSystemButtonBlocks(std::string
     {
         try
         {
-            CSer ar(fullPathAndFilename.c_str(),CSer::filetype_vrep_bin_ui_file);
+            CSer ar(fullPathAndFilename.c_str(),CSer::filetype_csim_bin_ui_file);
             int serializationVersion;
             unsigned short dum0;
             int dum1;

@@ -2,7 +2,7 @@
 #include "ui_qdlgsettings.h"
 #include "tt.h"
 #include "gV.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vFileDialog.h"
 #include "qdlgopenglsettings.h"
 #include "app.h"
@@ -27,7 +27,7 @@ void CQDlgSettings::refresh()
     bool noSim=App::ct->simulation->isSimulationStopped();
     bool noEditModeAndNoSim=noEditMode&&noSim;
 
-#ifndef WIN_VREP
+#ifndef WIN_SIM
     ui->hideConsole->setVisible(false);
 #endif
 

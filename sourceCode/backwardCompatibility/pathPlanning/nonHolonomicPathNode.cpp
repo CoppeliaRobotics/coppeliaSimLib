@@ -1,6 +1,6 @@
 #include "nonHolonomicPathNode.h"
 #include "pathPlanningInterface.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 
 CNonHolonomicPathNode::CNonHolonomicPathNode()
 {

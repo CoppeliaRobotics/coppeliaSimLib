@@ -1,8 +1,8 @@
 #include "funcDebug.h"
 #include "mirror.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "tt.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "ttUtil.h"
 #include "easyLock.h"
 #include "app.h"
@@ -423,6 +423,55 @@ void CMirror::serialize(CSer& ar)
             if (ar.getSerializationVersionThatWroteThisFile()<17)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
                 CTTUtil::scaleColorUp_(mirrorColor);
+            }
+        }
+    }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_2float("sizes",_mirrorWidth,_mirrorHeight);
+
+            ar.xmlAddNode_int("clippingEntity",_clippingObjectOrCollection);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("active",_active);
+            ar.xmlAddNode_bool("isMirror",_isMirror);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("mirror");
+            ar.xmlAddNode_float("reflectance",_mirrorReflectance);
+            ar.xmlAddNode_floats("color",mirrorColor,3);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("color");
+            clipPlaneColor.serialize(ar,0);
+            ar.xmlPopNode();
+        }
+        else
+        {
+            ar.xmlGetNode_2float("sizes",_mirrorWidth,_mirrorHeight);
+
+            ar.xmlGetNode_int("clippingEntity",_clippingObjectOrCollection);
+
+            if (ar.xmlPushChildNode("switches"))
+            {
+                ar.xmlGetNode_bool("active",_active);
+                ar.xmlGetNode_bool("isMirror",_isMirror);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("mirror"))
+            {
+                ar.xmlGetNode_float("reflectance",_mirrorReflectance);
+                ar.xmlGetNode_floats("color",mirrorColor,3);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("color"))
+            {
+                clipPlaneColor.serialize(ar,0);
+                ar.xmlPopNode();
             }
         }
     }

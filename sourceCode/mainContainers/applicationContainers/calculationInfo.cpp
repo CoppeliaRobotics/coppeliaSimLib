@@ -6,7 +6,7 @@
 #include "pluginContainer.h"
 #include "threadPool.h"
 #include <boost/lexical_cast.hpp>
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vDateTime.h"
 
 CCalculationInfo::CCalculationInfo()
@@ -103,7 +103,7 @@ void CCalculationInfo::formatInfo()
     _scriptTxt[1]+=_mainScriptMessage;
 
     // Collision detection:
-    if (CPluginContainer::isMeshPluginAvailable())
+    if (CPluginContainer::isGeomPluginAvailable())
     {
         if (!App::ct->mainSettings->collisionDetectionEnabled)
             _collTxt[0]="&&fg930Collision handling disabled";
@@ -111,7 +111,7 @@ void CCalculationInfo::formatInfo()
             _collTxt[0]="Collision handling enabled";
     }
     else
-        _collTxt[0]="&&fg930'MeshCalc' plugin not found";
+        _collTxt[0]="&&fg930'Geometric' plugin not found";
 
     _collTxt[1]="Calculations: ";
     _collTxt[1]+=boost::lexical_cast<std::string>(_collCalcCount)+", detections: ";
@@ -119,7 +119,7 @@ void CCalculationInfo::formatInfo()
     _collTxt[1]+=boost::lexical_cast<std::string>(_collCalcDuration)+" ms)";
 
     // Distance calculation:
-    if (CPluginContainer::isMeshPluginAvailable())
+    if (CPluginContainer::isGeomPluginAvailable())
     {
         if (!App::ct->mainSettings->distanceCalculationEnabled)
             _distTxt[0]="&&fg930Distance handling disabled";
@@ -127,7 +127,7 @@ void CCalculationInfo::formatInfo()
             _distTxt[0]="Distance handling enabled";
     }
     else
-        _distTxt[0]="&&fg930'MeshCalc' plugin not found";
+        _distTxt[0]="&&fg930'Geometric' plugin not found";
 
     _distTxt[1]="Calculations: ";
     _distTxt[1]+=boost::lexical_cast<std::string>(_distCalcCount)+" (";
@@ -135,7 +135,7 @@ void CCalculationInfo::formatInfo()
 
 
     // Proximity sensor calculation:
-    if (CPluginContainer::isMeshPluginAvailable())
+    if (CPluginContainer::isGeomPluginAvailable())
     {
         if (!App::ct->mainSettings->proximitySensorsEnabled)
             _sensTxt[0]="&&fg930Proximity sensor handling disabled";
@@ -143,7 +143,7 @@ void CCalculationInfo::formatInfo()
             _sensTxt[0]="Proximity sensor handling enabled";
     }
     else
-        _sensTxt[0]="&&fg930'MeshCalc' plugin not found";
+        _sensTxt[0]="&&fg930'Geometric' plugin not found";
 
     _sensTxt[1]="Calculations: ";
     _sensTxt[1]+=boost::lexical_cast<std::string>(_sensCalcCount)+", detections: ";

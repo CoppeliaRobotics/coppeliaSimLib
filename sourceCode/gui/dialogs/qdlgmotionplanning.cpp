@@ -3,7 +3,7 @@
 #include "tt.h"
 #include "gV.h"
 #include "editboxdelegate.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include <boost/lexical_cast.hpp>
 #include "qdlgmotionplanningjoints.h"

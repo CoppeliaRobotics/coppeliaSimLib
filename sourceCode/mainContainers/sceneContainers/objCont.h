@@ -80,9 +80,9 @@ public:
                                                     std::vector<CConstraintSolverObject*>* loadedConstraintSolverObjectList,
                                                     std::vector<CTextureObject*>& loadedTextureObjectList,
                                                     std::vector<CDynMaterialObject*>& loadedDynMaterialObjectList,
-                                                    bool model,int fileVrepVersion,bool forceModelAsCopy);
+                                                    bool model,int fileSimVersion,bool forceModelAsCopy);
 
-    int getSuffixOffsetForObjectToAdd(std::vector<C3DObject*>* loadedObjectList,
+    int getSuffixOffsetForObjectToAdd(bool tempNames,std::vector<C3DObject*>* loadedObjectList,
         std::vector<CRegCollection*>* loadedGroupList,
         std::vector<CRegCollision*>* loadedCollisionList,
         std::vector<CRegDist*>* loadedDistanceList,
@@ -117,6 +117,12 @@ public:
     void exportIkContent(CExtIkSer& ar);
     bool loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize);
     bool loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize);
+    void saveSimpleXmlSceneObjectTree(CSer& ar,C3DObject* object);
+    bool loadSimpleXmlSceneObjects(CSer& ar,C3DObject* parentObject,const C7Vector& localFramePreCorrection);
+    CShape* loadSimpleXmlShape(CSer& ar,C7Vector& desiredLocalFrame);
+    void saveSimpleXmlShape(CSer& ar,CShape* shape);
+    void _saveSimpleXmlSimpleShape(CSer& ar,const char* originalShapeName,CShape* shape,const C7Vector& frame);
+    CShape* _createSimpleXmlShape(CSer& ar,bool noHeightfield,const char* itemType,bool checkSibling);
 
     void setAbsoluteAngle(int objectHandle,float angle,int index);
     void setAbsolutePosition(int objectHandle,float pos,int index);
@@ -300,6 +306,12 @@ public:
     C3Vector _ikManipulationCurrentPosAbs;
 
 private:
+    bool _loadSimpleXmlSceneOrModel(CSer& ar);
+    bool _saveSimpleXmlScene(CSer& ar);
+    std::vector<C3DObject*> _simpleXml_allObjects;
+    std::vector<C3DObject*> _simpleXml_allParentObjects;
+    std::vector<CLuaScriptObject*> _simpleXml_allChildScripts;
+    std::vector<CLuaScriptObject*> _simpleXml_allCustomizationScripts;
     std::vector<int> _selectedObjectHandles;
     std::vector<unsigned char> _selectedObjectsBool;
 

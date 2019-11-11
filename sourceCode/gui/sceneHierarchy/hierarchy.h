@@ -1,4 +1,3 @@
-
 // This file requires some serious refactoring!!
 
 #pragma once

@@ -1,7 +1,7 @@
 #include "qdlgobjectdialogcontainer.h"
 #include "ui_qdlgobjectdialogcontainer.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "qdlgmirrors.h"
 #include "qdlgcameras.h"
 #include "qdlglights.h"
@@ -83,7 +83,7 @@ void CQDlgObjectDialogContainer::refresh()
         QSize s(pageDlgs[currentPage]->size());
         s.setHeight(originalHeights[currentPage]+TOP_BORDER_WIDTH);
 
-#ifdef MAC_VREP
+#ifdef MAC_SIM
         // Since Qt5, we have problems on Mac (resising-->ugly glitch)
         setVisible(false);
         setFixedSize(s);
@@ -191,7 +191,7 @@ void CQDlgObjectDialogContainer::refresh()
             QSize s(pageDlgs[currentPage]->size());
             s.setHeight(originalHeights[currentPage]+TOP_BORDER_WIDTH);
 
-#ifdef MAC_VREP
+#ifdef MAC_SIM
             // Since Qt5, we have problems on Mac (resising-->ugly glitch)
             setVisible(false);
             setFixedSize(s);

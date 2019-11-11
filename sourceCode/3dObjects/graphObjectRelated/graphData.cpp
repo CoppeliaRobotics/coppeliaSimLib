@@ -1,4 +1,4 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "graphData.h"
 #include "global.h"
 #include "graph.h"
@@ -664,6 +664,124 @@ void CGraphData::serialize(CSer& ar,void* it)
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+        }
+    }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_string("name",name.c_str());
+
+            ar.xmlAddNode_int("id",identifier);
+
+            ar.xmlAddNode_int("dataType",dataType);
+            ar.xmlAddNode_int("dataObjectId",dataObjectID);
+            ar.xmlAddNode_int("dataObjectAuxId",dataObjectAuxID);
+
+            ar.xmlAddNode_floats("color",ambientColor,3);
+
+            ar.xmlPushNewNode("transformation");
+            ar.xmlAddNode_enum("value",_derivativeIntegralAndCumulative,DATA_STREAM_ORIGINAL,"original",DATA_STREAM_DERIVATIVE,"derivative",DATA_STREAM_INTEGRAL,"integral",DATA_STREAM_CUMULATIVE,"cumulative");
+            ar.xmlAddNode_float("scaling",zoomFactor);
+            ar.xmlAddNode_float("offset",addCoeff);
+            ar.xmlAddNode_int("movingAveragePeriod",_movingAverageCount);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("visible",visible);
+            ar.xmlAddNode_bool("linkPoints",linkPoints);
+            ar.xmlAddNode_bool("showLabel",label);
+            ar.xmlPopNode();
+
+            std::vector<float> tmp;
+            for (int i=0;i<cg->getNumberOfPoints();i++)
+            {
+                int absIndex;
+                cg->getAbsIndexOfPosition(i,absIndex);
+                tmp.push_back(_floatData[absIndex]);
+            }
+            ar.xmlAddNode_floats("data",tmp);
+
+            tmp.clear();
+            for (int i=0;i<cg->getNumberOfPoints();i++)
+            {
+                int absIndex;
+                cg->getAbsIndexOfPosition(i,absIndex);
+               tmp.push_back(_transformedFloatData[absIndex]);
+            }
+            ar.xmlAddNode_floats("transformedData",tmp);
+
+            std::vector<bool> tmp2;
+            for (int i=0;i<cg->getNumberOfPoints();i++)
+            {
+                int absIndex;
+                cg->getAbsIndexOfPosition(i,absIndex);
+                tmp2.push_back(((_floatDataValidFlags[absIndex/8]&(1<<(absIndex&7)))!=0));
+            }
+            ar.xmlAddNode_bools("dataValidity",tmp2);
+
+            tmp2.clear();
+            for (int i=0;i<cg->getNumberOfPoints();i++)
+            {
+                int absIndex;
+                cg->getAbsIndexOfPosition(i,absIndex);
+                tmp2.push_back(((_transformedFloatDataValidFlags[absIndex/8]&(1<<(absIndex&7)))!=0));
+            }
+            ar.xmlAddNode_bools("transformedDataValidity",tmp2);
+        }
+        else
+        {
+            ar.xmlGetNode_string("name",name);
+            ar.xmlGetNode_int("id",identifier);
+
+            ar.xmlGetNode_int("dataType",dataType);
+            ar.xmlGetNode_int("dataObjectId",dataObjectID);
+            ar.xmlGetNode_int("dataObjectAuxId",dataObjectAuxID);
+
+            ar.xmlGetNode_floats("color",ambientColor,3);
+
+            if (ar.xmlPushChildNode("transformation"))
+            {
+                ar.xmlGetNode_enum("value",_derivativeIntegralAndCumulative,true,"original",DATA_STREAM_ORIGINAL,"derivative",DATA_STREAM_DERIVATIVE,"integral",DATA_STREAM_INTEGRAL,"cumulative",DATA_STREAM_CUMULATIVE);
+                ar.xmlGetNode_float("scaling",zoomFactor);
+                ar.xmlGetNode_float("offset",addCoeff);
+                ar.xmlGetNode_int("movingAveragePeriod",_movingAverageCount);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("switches"))
+            {
+                ar.xmlGetNode_bool("visible",visible);
+                ar.xmlGetNode_bool("linkPoints",linkPoints);
+                ar.xmlGetNode_bool("showLabel",label);
+                ar.xmlPopNode();
+            }
+
+            ar.xmlGetNode_floats("data",_floatData);
+
+            ar.xmlGetNode_floats("transformedData",_transformedFloatData);
+
+            std::vector<bool> tmp;
+            ar.xmlGetNode_bools("dataValidity",tmp);
+            _floatDataValidFlags.clear();
+            for (int i=0;i<((cg->getBufferSize()/8)+1);i++)
+                _floatDataValidFlags.push_back(0); // None valid!
+            for (size_t i=0;i<tmp.size();i++)
+            {
+                if (tmp[i])
+                    _floatDataValidFlags[i/8]|=(1<<(i&7));
+            }
+
+            tmp.clear();
+            ar.xmlGetNode_bools("transformedDataValidity",tmp);
+            _transformedFloatDataValidFlags.clear();
+            for (int i=0;i<((cg->getBufferSize()/8)+1);i++)
+                _transformedFloatDataValidFlags.push_back(0); // None valid!
+            for (size_t i=0;i<tmp.size();i++)
+            {
+                if (tmp[i])
+                    _transformedFloatDataValidFlags[i/8]|=(1<<(i&7));
             }
         }
     }

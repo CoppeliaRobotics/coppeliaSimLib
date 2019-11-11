@@ -5,7 +5,7 @@
 #include <QDir>
 #else
 #include <algorithm>
-#ifdef WIN_VREP
+#ifdef WIN_SIM
 #include "_dirent.h"
 #else
 #include <sys/stat.h>
@@ -66,14 +66,14 @@ int VFileFinder::_searchFilesOrFolders(const std::string& pathWithoutTerminalSla
                     std::string fileAndPath(pathWithoutTerminalSlash);
                     fileAndPath+='/';
                     fileAndPath+=ent->d_name;
-#ifdef WIN_VREP
+#ifdef WIN_SIM
                     // TODO_SIM_WITHOUT_QT_AT_ALL
                     f.lastWriteTime=0;
-#else // WIN_VREP
+#else // WIN_SIM
                     struct stat attrib;
                     stat(fileAndPath.c_str(),&attrib);
                     f.lastWriteTime=attrib.st_ctime;
-#endif // WIN_VREP
+#endif // WIN_SIM
                     _searchResult.push_back(f);
                 }
             }
@@ -132,3 +132,58 @@ SFileOrFolder* VFileFinder::getFoundItem(int index)
 }
 
 
+int VFileFinder::countFiles(const char* pathWithoutTerminalSlash)
+{
+    int cnt=0;
+    VFileFinder finder;
+    finder.searchFilesOrFolders(std::string(pathWithoutTerminalSlash));
+    int index=0;
+    SFileOrFolder* foundItem=finder.getFoundItem(index++);
+    while (foundItem!=nullptr)
+    {
+        if (foundItem->isFile)
+            cnt++;
+        foundItem=finder.getFoundItem(index++);
+    }
+    return(cnt);
+}
+
+int VFileFinder::countFolders(const char* pathWithoutTerminalSlash)
+{
+    int cnt=0;
+    VFileFinder finder;
+    finder.searchFilesOrFolders(std::string(pathWithoutTerminalSlash));
+    int index=0;
+    SFileOrFolder* foundItem=finder.getFoundItem(index++);
+    while (foundItem!=nullptr)
+    {
+        if (!foundItem->isFile)
+        {
+            std::string filename(foundItem->name);
+            if ( (filename!=".")&&(filename!="..") )
+                cnt++;
+        }
+        foundItem=finder.getFoundItem(index++);
+    }
+    return(cnt);
+}
+
+int VFileFinder::countFilesWithPrefix(const char* pathWithoutTerminalSlash,const char* prefix)
+{
+    int cnt=0;
+    VFileFinder finder;
+    finder.searchFilesOrFolders(std::string(pathWithoutTerminalSlash));
+    int index=0;
+    SFileOrFolder* foundItem=finder.getFoundItem(index++);
+    while (foundItem!=nullptr)
+    {
+        if (foundItem->isFile)
+        {
+            std::string filename(foundItem->name);
+            if (filename.find(prefix)==0)
+                cnt++;
+        }
+        foundItem=finder.getFoundItem(index++);
+    }
+    return(cnt);
+}

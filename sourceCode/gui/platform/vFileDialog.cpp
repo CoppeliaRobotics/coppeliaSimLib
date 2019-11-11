@@ -64,7 +64,7 @@ std::string VFileDialog::_getOpenOrSaveFileName(bool open,QWidget* parent,unsign
     }
 
     bool native=true;
-#ifndef WIN_VREP // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that, we don't use native dialogs
+#ifndef WIN_SIM // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that, we don't use native dialogs
     native=false;
 #endif
     if (_fileDialogNative!=-1)
@@ -75,7 +75,7 @@ std::string VFileDialog::_getOpenOrSaveFileName(bool open,QWidget* parent,unsign
             native=false;
     }
 
-#ifndef WIN_VREP
+#ifndef WIN_SIM
     // On Linux (and sometimes on Mac too), we have several problems if the message queue is not fully processed,
     // but only partially processed (e.g. App::qtApp->processEvents(QEventLoop::ExcludeUserInputEvents|QEventLoop::ExcludeSocketNotifiers)).
     // A quick/dirty fix is tweak1 below. The full fix is to process all messages while
@@ -179,7 +179,7 @@ bool VFileDialog::getOpenFileNames(std::vector<std::string>& files,QWidget* pare
         filter+=";;all (*.*)";
 
     bool native=true;
-#ifndef WIN_VREP // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that, we don't use native dialogs
+#ifndef WIN_SIM // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that, we don't use native dialogs
     native=false;
 #endif
     if (_fileDialogNative!=-1)
@@ -192,7 +192,7 @@ bool VFileDialog::getOpenFileNames(std::vector<std::string>& files,QWidget* pare
 
     QStringList qfiles;
 
-#ifndef WIN_VREP
+#ifndef WIN_SIM
     // On Linux (and sometimes on Mac too), the static functions sometimes just display a blank dialog. For that reason,
     // we use the non-static version on those platforms! The "show()/hide()" below might be important, otherwise we have the same
     // problem as with the static version of the functions!
@@ -222,7 +222,7 @@ std::string VFileDialog::getExistingFolder(QWidget* parent,const std::string& ti
     QString path(QString::fromLocal8Bit(startPath.c_str()));
 
     bool native=true;
-#ifndef WIN_VREP // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that, we don't use native dialogs
+#ifndef WIN_SIM // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that, we don't use native dialogs
     native=false;
 #endif
     if (_fileDialogNative!=-1)

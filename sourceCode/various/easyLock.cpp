@@ -86,7 +86,7 @@ void CEasyLock::_lock()
         CDebugLogFile::addDebugText(false,arrow.c_str(),_functionName.c_str(),") 'easy unlocking'\n");
     }
 
-    _mutex->lock();
+    _mutex->lock((_functionName+" (from CEasyLock::_lock)").c_str());
 
     if (_showActivity)
     {

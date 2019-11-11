@@ -1,4 +1,4 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "environment.h"
 #include "tt.h"
 #include "global.h"
@@ -8,6 +8,8 @@
 #include "ttUtil.h"
 #include "app.h"
 #include "environmentRendering.h"
+#include "base64.h"
+#include <boost/algorithm/string.hpp>
 
 int CEnvironment::_nextSceneUniqueID=0;
 bool CEnvironment::_shapeTexturesTemporarilyDisabled=false;
@@ -633,6 +635,207 @@ void CEnvironment::serialize(CSer& ar)
             }
         }
     }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {       // Storing
+            if (exhaustiveXml)
+            {
+                ar.xmlAddNode_floats("ambientLight",ambientLightColor,3);
+
+                ar.xmlPushNewNode("backgroundColor");
+                ar.xmlAddNode_floats("down",backGroundColorDown,3);
+                ar.xmlAddNode_floats("up",backGroundColor,3);
+                ar.xmlPopNode();
+            }
+            else
+            {
+                ar.xmlAddNode_3int("ambientLight",int(255.1f*ambientLightColor[0]),int(255.1f*ambientLightColor[1]),int(255.1f*ambientLightColor[2]));
+
+                ar.xmlPushNewNode("backgroundColor");
+                ar.xmlAddNode_3int("down",int(255.1f*backGroundColorDown[0]),int(255.1f*backGroundColorDown[1]),int(255.1f*backGroundColorDown[2]));
+                ar.xmlAddNode_3int("up",int(255.1f*backGroundColor[0]),int(255.1f*backGroundColor[1]),int(255.1f*backGroundColor[2]));
+                ar.xmlPopNode();
+            }
+
+            ar.xmlPushNewNode("fog");
+            ar.xmlAddNode_bool("enabled",fogEnabled);
+            ar.xmlAddNode_comment(" 'type' tag: can be 'linear', 'exp' or 'exp2' ",exhaustiveXml);
+            ar.xmlAddNode_enum("type",fogType,0,"linear",1,"exp",2,"exp2");
+            ar.xmlAddNode_2float("startEnd",fogStart,fogEnd);
+            ar.xmlAddNode_float("density",fogDensity);
+            if (exhaustiveXml)
+                ar.xmlAddNode_floats("color",fogBackgroundColor,3);
+            else
+                ar.xmlAddNode_3int("color",int(255.1f*fogBackgroundColor[0]),int(255.1f*fogBackgroundColor[1]),int(255.1f*fogBackgroundColor[2]));
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("shapeTexturesEnabled",_shapeTexturesEnabled);
+            ar.xmlPopNode();
+
+            ar.xmlAddNode_string("acknowledgment",_acknowledgement.c_str());
+
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("calcStruct");
+                ar.xmlAddNode_bool("saveExisting",_saveExistingCalculationStructures);
+                ar.xmlAddNode_float("maxTriSize",_calculationMaxTriangleSize);
+                ar.xmlAddNode_float("minRelativeTriSize",_calculationMinRelTriangleSize);
+                ar.xmlPopNode();
+            }
+
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("wireless");
+                ar.xmlPushNewNode("emitters");
+                ar.xmlAddNode_bool("visualize",_visualizeWirelessEmitters);
+                ar.xmlPushNewNode("color");
+                wirelessEmissionVolumeColor.serialize(ar,1);
+                ar.xmlPopNode();
+                ar.xmlPopNode();
+                ar.xmlPushNewNode("receivers");
+                ar.xmlAddNode_bool("visualize",_visualizeWirelessReceivers);
+                ar.xmlPushNewNode("color");
+                wirelessReceptionVolumeColor.serialize(ar,1);
+                ar.xmlPopNode();
+                ar.xmlPopNode();
+                ar.xmlPopNode();
+            }
+
+            ar.xmlAddNode_string("extensionString",_extensionString.c_str());
+
+            if (exhaustiveXml)
+            {
+                std::string str(base64_encode((unsigned char*)_sceneUniquePersistentIdString.c_str(),_sceneUniquePersistentIdString.size()));
+                ar.xmlAddNode_string("sceneUniquePersistentIdString_base64Coded",str.c_str());
+            }
+
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("jobs");
+                ar.xmlAddNode_string("current",_currentJob.c_str());
+                ar.xmlAddNode_strings("allJobs",_jobs);
+                ar.xmlPopNode();
+            }
+        }
+        else
+        {       // Loading
+            if (exhaustiveXml)
+            {
+                ar.xmlGetNode_floats("ambientLight",ambientLightColor,3);
+
+                if (ar.xmlPushChildNode("backgroundColor"))
+                {
+                    ar.xmlGetNode_floats("down",backGroundColorDown,3);
+                    ar.xmlGetNode_floats("up",backGroundColor,3);
+                    ar.xmlPopNode();
+                }
+            }
+            else
+            {
+                int rgb[3];
+                if (ar.xmlGetNode_ints("ambientLight",rgb,3,exhaustiveXml))
+                {
+                    ambientLightColor[0]=float(rgb[0])/255.0f;
+                    ambientLightColor[1]=float(rgb[1])/255.0f;
+                    ambientLightColor[2]=float(rgb[2])/255.0f;
+                }
+                if (ar.xmlPushChildNode("backgroundColor",exhaustiveXml))
+                {
+                    if (ar.xmlGetNode_ints("down",rgb,3,exhaustiveXml))
+                    {
+                        backGroundColorDown[0]=float(rgb[0])/255.0f;
+                        backGroundColorDown[1]=float(rgb[1])/255.0f;
+                        backGroundColorDown[2]=float(rgb[2])/255.0f;
+                    }
+                    if (ar.xmlGetNode_ints("up",rgb,3,exhaustiveXml))
+                    {
+                        backGroundColor[0]=float(rgb[0])/255.0f;
+                        backGroundColor[1]=float(rgb[1])/255.0f;
+                        backGroundColor[2]=float(rgb[2])/255.0f;
+                    }
+                    ar.xmlPopNode();
+                }
+            }
+
+            if (ar.xmlPushChildNode("fog",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("enabled",fogEnabled,exhaustiveXml);
+                if (ar.xmlGetNode_enum("type",fogType,exhaustiveXml,"linear",0,"exp",1,"exp2",2))
+                    setFogType(fogType);
+                ar.xmlGetNode_2float("startEnd",fogStart,fogEnd,exhaustiveXml);
+                ar.xmlGetNode_float("density",fogDensity,exhaustiveXml);
+                if (exhaustiveXml)
+                    ar.xmlGetNode_floats("color",fogBackgroundColor,3);
+                else
+                {
+                    int rgb[3];
+                    if (ar.xmlGetNode_ints("color",rgb,3,exhaustiveXml))
+                    {
+                        fogBackgroundColor[0]=float(rgb[0])/255.0f;
+                        fogBackgroundColor[1]=float(rgb[1])/255.0f;
+                        fogBackgroundColor[2]=float(rgb[2])/255.0f;
+                    }
+                }
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("shapeTexturesEnabled",_shapeTexturesEnabled,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            ar.xmlGetNode_string("acknowledgment",_acknowledgement,exhaustiveXml);
+
+            if (exhaustiveXml&&ar.xmlPushChildNode("calcStruct"))
+            {
+                ar.xmlGetNode_bool("saveExisting",_saveExistingCalculationStructures);
+                ar.xmlGetNode_float("maxTriSize",_calculationMaxTriangleSize);
+                ar.xmlGetNode_float("minRelativeTriSize",_calculationMinRelTriangleSize);
+                ar.xmlPopNode();
+            }
+
+            if (exhaustiveXml&&ar.xmlPushChildNode("wireless"))
+            {
+                if (ar.xmlPushChildNode("emitters"))
+                {
+                    ar.xmlGetNode_bool("visualize",_visualizeWirelessEmitters);
+                    if (ar.xmlPushChildNode("color"))
+                    {
+                        wirelessEmissionVolumeColor.serialize(ar,1);
+                        ar.xmlPopNode();
+                    }
+                    ar.xmlPopNode();
+                }
+                if (ar.xmlPushChildNode("receivers"))
+                {
+                    ar.xmlGetNode_bool("visualize",_visualizeWirelessReceivers);
+                    if (ar.xmlPushChildNode("color"))
+                    {
+                        wirelessReceptionVolumeColor.serialize(ar,1);
+                        ar.xmlPopNode();
+                    }
+                    ar.xmlPopNode();
+                }
+                ar.xmlPopNode();
+            }
+
+            ar.xmlGetNode_string("extensionString",_extensionString,exhaustiveXml);
+
+            if ( exhaustiveXml&&ar.xmlGetNode_string("sceneUniquePersistentIdString_base64Coded",_sceneUniquePersistentIdString))
+                _sceneUniquePersistentIdString=base64_decode(_sceneUniquePersistentIdString);
+
+            if ( exhaustiveXml&&ar.xmlPushChildNode("jobs") )
+            {
+                ar.xmlGetNode_string("current",_currentJob);
+                ar.xmlGetNode_strings("allJobs",_jobs);
+                ar.xmlPopNode();
+            }
+        }
+    }
 }
 
 void CEnvironment::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
@@ -807,33 +1010,33 @@ void CEnvironment::addLayoutMenu(VMenu* menu)
 { // GUI THREAD only
     bool simStopped=App::ct->simulation->isSimulationStopped();
     bool noEditMode=App::getEditModeType()==NO_EDIT_MODE;
-    menu->appendMenuItem(noEditMode,false,BR_COMMAND_1_SCCMD+5,"General properties");
-    menu->appendMenuItem(simStopped&&noEditMode,false,BR_COMMAND_1_SCCMD+0,"Actions");
+    menu->appendMenuItem(noEditMode,false,XR_COMMAND_1_SCCMD+5,"General properties");
+    menu->appendMenuItem(simStopped&&noEditMode,false,XR_COMMAND_1_SCCMD+0,"Actions");
 
-    menu->appendMenuItem(noEditMode,_showPartRepository,BR_COMMAND_1_SCCMD+3,"Part repository",true);
-    menu->appendMenuItem(noEditMode,_showPalletRepository,BR_COMMAND_1_SCCMD+4,"Pallet repository",true);
-    // BR_COMMAND_1_SCCMD+11 is for the verify layout toolbar button
+    menu->appendMenuItem(noEditMode,_showPartRepository,XR_COMMAND_1_SCCMD+3,"Part repository",true);
+    menu->appendMenuItem(noEditMode,_showPalletRepository,XR_COMMAND_1_SCCMD+4,"Pallet repository",true);
+    // XR_COMMAND_1_SCCMD+11 is for the verify layout toolbar button
 }
 
 void CEnvironment::addJobsMenu(VMenu* menu)
 { // GUI THREAD only
     bool enabled=App::ct->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE)&&_jobFuncEnabled;
-    menu->appendMenuItem((_jobs.size()<99)&&enabled,false,BR_COMMAND_1_SCCMD+297,"Create new job");
-    menu->appendMenuItem((_jobs.size()>1)&&enabled,false,BR_COMMAND_1_SCCMD+298,"Delete current job");
-    menu->appendMenuItem(enabled,false,BR_COMMAND_1_SCCMD+299,"Rename current job");
+    menu->appendMenuItem((_jobs.size()<99)&&enabled,false,XR_COMMAND_1_SCCMD+297,"Create new job");
+    menu->appendMenuItem((_jobs.size()>1)&&enabled,false,XR_COMMAND_1_SCCMD+298,"Delete current job");
+    menu->appendMenuItem(enabled,false,XR_COMMAND_1_SCCMD+299,"Rename current job");
     menu->appendMenuSeparator();
     for (size_t i=0;i<_jobs.size();i++)
     {
         std::string tmp("Job '");
         tmp+=_jobs[i];
         tmp+="'";
-        menu->appendMenuItem(enabled,_currentJob.compare(_jobs[i])==0,BR_COMMAND_1_SCCMD+300+int(i),tmp.c_str(),true);
+        menu->appendMenuItem(enabled,_currentJob.compare(_jobs[i])==0,XR_COMMAND_1_SCCMD+300+int(i),tmp.c_str(),true);
     }
 }
 
 bool CEnvironment::processGuiCommand(int commandID)
 { // GUI THREAD only. Return value is true if the command belonged to object edition menu and was executed
-    if ( (commandID>=BR_COMMAND_1_SCCMD)&&(commandID<BR_COMMANDS_END_SCCMD) )
+    if ( (commandID>=XR_COMMAND_1_SCCMD)&&(commandID<XR_COMMANDS_END_SCCMD) )
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=commandID;

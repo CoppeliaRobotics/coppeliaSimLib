@@ -1,4 +1,4 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "viewSelector.h"
 #include "oGL.h"
 #include "oglSurface.h"

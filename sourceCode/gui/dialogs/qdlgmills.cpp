@@ -4,7 +4,7 @@
 #include "gV.h"
 #include "qdlgmaterial.h"
 #include "qdlgdetectionvolume.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "vMessageBox.h"
 

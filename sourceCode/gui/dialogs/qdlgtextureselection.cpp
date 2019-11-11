@@ -2,7 +2,7 @@
 #include "ui_qdlgtextureselection.h"
 #include "app.h"
 #include "tt.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include <boost/lexical_cast.hpp>
 
 CQDlgTextureSelection::CQDlgTextureSelection(QWidget *parent) :

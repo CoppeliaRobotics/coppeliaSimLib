@@ -1,7 +1,6 @@
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "luaScriptFunctions.h"
-#include "luaScriptFunctionsBase.h"
 #include "tt.h"
 #include "threadPool.h"
 #include "linMotionRoutines.h"
@@ -155,8 +154,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getCollisionHandle",_simGetCollisionHandle,            "number collisionObjectHandle=sim.getCollisionHandle(string collisionObjectName)",true},
     {"sim.getDistanceHandle",_simGetDistanceHandle,              "number distanceObjectHandle=sim.getDistanceHandle(string distanceObjectName)",true},
     {"sim.getMechanismHandle",_simGetMechanismHandle,            "number mechanismHandle=sim.getMechanismHandle(string mechanismName)",true},
-    {"sim.getScriptSimulationParameter",_simGetScriptSimulationParameter,"boolean/number/string parameterValue=sim.getScriptSimulationParameter(number scriptHandle,string parameterName,boolean forceStringReturn=false)\ntable parameterValues,table scriptHandles=sim.getScriptSimulationParameter(number targetScripts,string parameterName,boolean forceStringReturn=false)",true},
-    {"sim.setScriptSimulationParameter",_simSetScriptSimulationParameter,"number setCount=sim.setScriptSimulationParameter(number scriptHandle,string parameterName,string parameterValue)",true},
     {"sim.stopSimulation",_simStopSimulation,                    "number result=sim.stopSimulation()",true},
     {"sim.pauseSimulation",_simPauseSimulation,                  "number result=sim.pauseSimulation()",true},
     {"sim.startSimulation",_simStartSimulation,                  "number result=sim.startSimulation()",true},
@@ -470,6 +467,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getStackTraceback",_simGetStackTraceback,              "string stacktraceback=sim.getStackTraceback()",true},
     {"sim.setStringNamedParam",_simSetStringNamedParam,          "number result=sim.setStringNamedParam(string paramName,string stringParam)",true},
     {"sim.getStringNamedParam",_simGetStringNamedParam,          "string stringParam=sim.getStringNamedParam(string paramName)",true},
+    {"sim.getUserParameter",_simGetUserParameter,"boolean/number/string parameterValue=sim.getUserParameter(number objectHandle,string parameterName,boolean forceStringReturn=false)",true},
+    {"sim.setUserParameter",_simSetUserParameter,"number result=sim.setUserParameter(number objectHandle,string parameterName,string parameterValue)",true},
 
 
     {"sim.test",_simTest,                                        "test function - shouldn't be used",true},
@@ -485,6 +484,10 @@ const SLuaCommands simLuaCommands[]=
     {"sim.handleChildScripts_legacy",_simHandleChildScripts_legacy,    "Deprecated",false},
     {"sim.launchThreadedChildScripts_legacy",_simLaunchThreadedChildScripts_legacy,"Deprecated",false},
     {"sim.resumeThreads_legacy",_simResumeThreads_legacy,           "Deprecated",false},
+    {"sim.getScriptSimulationParameter",_simGetScriptSimulationParameter,"Deprecated. Use 'sim.getUserParameter' instead",true},
+    {"sim.setScriptSimulationParameter",_simSetScriptSimulationParameter,"Deprecated. Use 'sim.setUserParameter' instead",true},
+
+
     {"",nullptr,"",false}
 };
 
@@ -576,8 +579,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetCollisionHandle",_simGetCollisionHandle,            "Use the newer 'sim.getCollisionHandle' notation",false},
     {"simGetDistanceHandle",_simGetDistanceHandle,              "Use the newer 'sim.getDistanceHandle' notation",false},
     {"simGetMechanismHandle",_simGetMechanismHandle,            "Use the newer 'sim.getMechanismHandle' notation",false},
-    {"simGetScriptSimulationParameter",_simGetScriptSimulationParameter,"Use the newer 'sim.getScriptSimulationParameter' notation",false},
-    {"simSetScriptSimulationParameter",_simSetScriptSimulationParameter,"Use the newer 'sim.setScriptSimulationParameter' notation",false},
     {"simStopSimulation",_simStopSimulation,                    "Use the newer 'sim.stopSimulation' notation",false},
     {"simPauseSimulation",_simPauseSimulation,                  "Use the newer 'sim.pauseSimulation' notation",false},
     {"simStartSimulation",_simStartSimulation,                  "Use the newer 'sim.startSimulation' notation",false},
@@ -861,6 +862,8 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simOpenTextEditor",_simOpenTextEditor,                    "Deprecated. Use 'sim.textEditorOpen' instead",false},
     {"simSetVisionSensorFilter",_simSetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",false},
     {"simGetVisionSensorFilter",_simGetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",false},
+    {"simGetScriptSimulationParameter",_simGetScriptSimulationParameter,"Deprecated. Use 'sim.getUserParameter' instead",false},
+    {"simSetScriptSimulationParameter",_simSetScriptSimulationParameter,"Deprecated. Use 'sim.setUserParameter' instead",false},
     {"simHandleSimulationStart",_simHandleSimulationStart,      "Use the newer 'sim.handleSimulationStart' notation",false},
     {"simHandleSensingStart",_simHandleSensingStart,            "Use the newer 'sim.handleSensingStart' notation",false},
     {"simAuxFunc",_simAuxFunc,                                  "Use the newer 'sim.auxFunc' notation",false},
@@ -1163,6 +1166,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.syscb_afterdelete",sim_syscb_afterdelete,true},
     {"sim.syscb_aftercreate",sim_syscb_aftercreate,true},
     {"sim.syscb_threadmain",sim_syscb_threadmain,true},
+    {"sim.syscb_userconfig",sim_syscb_userconfig,true},
     {"sim.syscb_br",sim_syscb_br,true},
     // script attributes:
     {"sim.customizationscriptattribute_activeduringsimulation",sim_customizationscriptattribute_activeduringsimulation,true},
@@ -1318,9 +1322,9 @@ const SLuaVariables simLuaVariables[]=
     {"sim.boolparam_full_model_copy_from_api",sim_boolparam_reserved3,true},
     {"sim.boolparam_realtime_simulation",sim_boolparam_realtime_simulation,true},
     {"sim.boolparam_online_mode",sim_boolparam_online_mode,true},
-    {"sim.boolparam_br_partrepository",sim_boolparam_br_partrepository,true},
-    {"sim.boolparam_br_palletrepository",sim_boolparam_br_palletrepository,true},
-    {"sim.boolparam_br_jobfunc",sim_boolparam_br_jobfunc,true},
+    {"sim.boolparam_br_partrepository",sim_boolparam_xr_partrepository,true},
+    {"sim.boolparam_br_palletrepository",sim_boolparam_xr_palletrepository,true},
+    {"sim.boolparam_br_jobfunc",sim_boolparam_xr_jobfunc,true},
     {"sim.boolparam_scene_closing",sim_boolparam_scene_closing,true},
     {"sim.boolparam_use_glfinish_cmd",sim_boolparam_use_glfinish_cmd,true},
     {"sim.boolparam_force_show_wireless_emission",sim_boolparam_force_show_wireless_emission,true},
@@ -3032,7 +3036,7 @@ bool isObjectAssociatedWithThisThreadedChildScriptValid(luaWrap_lua_State* L)
 
 void memorizeLocation(luaWrap_lua_State* L)
 {
-    memorizeLocationMutex.lock();
+    memorizeLocationMutex.lock("luaScriptFunctions,memorizeLocation()");
     VTHREAD_ID_TYPE threadID=VThread::getCurrentThreadId();
     int index=getLocationIndex(threadID);
     if (index==-1)
@@ -3077,7 +3081,7 @@ int getLocationIndex(VTHREAD_ID_TYPE threadID)
 
 void forgetLocation()
 {
-    memorizeLocationMutex.lock();
+    memorizeLocationMutex.lock("luaScriptFunctions,forgetLocation()");
     VTHREAD_ID_TYPE threadID=VThread::getCurrentThreadId();
     int index=getLocationIndex(threadID);
     if (index!=-1)
@@ -3264,7 +3268,7 @@ std::string getAdditionalLuaSearchPath()
 {
     std::string retVal;
     retVal+=App::directories->executableDirectory;
-#ifdef MAC_VREP
+#ifdef MAC_SIM
     // We are inside of the package!!!
     retVal+="/../../../?.lua";
 #else
@@ -3272,7 +3276,7 @@ std::string getAdditionalLuaSearchPath()
 #endif
     retVal+=";";
     retVal+=App::directories->executableDirectory;
-#ifdef MAC_VREP
+#ifdef MAC_SIM
     // We are inside of the package!!!
     retVal+="/../../../lua/?.lua";
 #else
@@ -3280,7 +3284,7 @@ std::string getAdditionalLuaSearchPath()
 #endif
     retVal+=";";
     retVal+=App::directories->executableDirectory;
-#ifdef MAC_VREP
+#ifdef MAC_SIM
     // We are inside of the package!!!
     retVal+="/../../../bwf/?.lua";
 #else
@@ -3306,6 +3310,7 @@ luaWrap_lua_State* initializeNewLuaState(const char* scriptSuffixNumberString,in
 {
     luaWrap_lua_State* L=luaWrap_luaL_newstate();
     luaWrap_luaL_openlibs(L);
+    luaWrap_luaL_dostring(L,"os.setlocale'C'");
 
     // --------------------------------------------
     // append some paths to the Lua path variable:
@@ -3367,7 +3372,7 @@ void registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char
 
 void registerNewLuaFunctions(luaWrap_lua_State* L)
 {
-    // V-REP API functions:
+    // CoppeliaSim API functions:
     for (int i=0;simLuaCommands[i].name!="";i++)
     {
         std::string name(simLuaCommands[i].name);
@@ -4437,7 +4442,7 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func)
     return(outputArgCount);
 }
 
-void appendAllVrepFunctionNames_spaceSeparated(std::string& keywords,int scriptType,bool scriptIsThreaded)
+void appendAllSimFunctionNames_spaceSeparated(std::string& keywords,int scriptType,bool scriptIsThreaded)
 {
     for (size_t i=0;simLuaCommands[i].name!="";i++)
     {
@@ -4460,7 +4465,7 @@ void appendAllVrepFunctionNames_spaceSeparated(std::string& keywords,int scriptT
     }
 }
 
-void appendAllVrepVariableNames_spaceSeparated(std::string& keywords)
+void appendAllSimVariableNames_spaceSeparated(std::string& keywords)
 {
     for (size_t i=0;simLuaVariables[i].name!="";i++)
     {
@@ -4477,7 +4482,7 @@ void appendAllVrepVariableNames_spaceSeparated(std::string& keywords)
     }
 }
 
-void pushAllVrepFunctionNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m,int scriptType,bool scriptIsThreaded)
+void pushAllSimFunctionNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m,int scriptType,bool scriptIsThreaded)
 {
     std::string ttxt(txt);
     bool hasDot=(ttxt.find('.')!=std::string::npos);
@@ -4550,7 +4555,7 @@ void pushAllVrepFunctionNamesThatStartSame_autoCompletionList(const std::string&
     }
 }
 
-void pushAllVrepVariableNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m)
+void pushAllSimVariableNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m)
 {
     std::string ttxt(txt);
     bool hasDot=(ttxt.find('.')!=std::string::npos);
@@ -4603,7 +4608,7 @@ void pushAllVrepVariableNamesThatStartSame_autoCompletionList(const std::string&
     }
 }
 
-std::string getVrepFunctionCalltip(const char* txt,int scriptType,bool scriptIsThreaded,bool forceDoNotSupportOldApi)
+std::string getSimFunctionCalltip(const char* txt,int scriptType,bool scriptIsThreaded,bool forceDoNotSupportOldApi)
 {
     for (size_t i=0;simLuaCommands[i].name!="";i++)
     {
@@ -7040,179 +7045,66 @@ int _simAddStatusbarMessage(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
+int _simGetUserParameter(luaWrap_lua_State* L)
 {
     LUA_API_FUNCTION_DEBUG;
-    LUA_START("sim.getScriptSimulationParameter");
+    LUA_START("sim.getUserParameter");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
     {
-        bool goOn=true;
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
         {
             handle=getCurrentScriptID(L);
-            // Since this routine can also be called by customization scripts, check for that here:
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle);
-            if (it->getScriptType()==sim_scripttype_customizationscript)
-            {
-                handle=it->getObjectIDThatScriptIsAttachedTo_customization();
-                it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(handle);
-                if (it!=nullptr)
-                    handle=it->getScriptID();
-                else
-                    goOn=false;
-            }
+            handle=it->getObjectIDThatScriptIsAttachedTo();
         }
-        if (goOn)
+        bool returnString=false;
+        int ret=checkOneGeneralInputArgument(L,3,lua_arg_bool,0,true,false,&errorString);
+        if ((ret==0)||(ret==2))
         {
-            bool returnString=false;
-            int ret=checkOneGeneralInputArgument(L,3,lua_arg_bool,0,true,false,&errorString);
-            if ((ret==0)||(ret==2))
+            if (ret==2)
+                returnString=luaToBool(L,3);
+            std::string parameterName(luaWrap_lua_tostring(L,2));
+            int l;
+            char* p=simGetUserParameter_internal(handle,parameterName.c_str(),&l);
+            if (p!=nullptr)
             {
-                if (ret==2)
-                    returnString=luaToBool(L,3);
-                std::string parameterName(luaWrap_lua_tostring(L,2));
-                if ( (handle!=sim_handle_tree)&&(handle!=sim_handle_chain)&&(handle!=sim_handle_all) )
-                {
-                    int l;
-                    char* p=simGetScriptSimulationParameter_internal(handle,parameterName.c_str(),&l);
-                    if (p!=nullptr)
-                    {
-                        std::string a;
-                        a.assign(p,l);
-                        if (returnString)
-                            luaWrap_lua_pushlstring(L,a.c_str(),a.length());
-                        else
-                            pushCorrectTypeOntoLuaStack(L,a);
-                        simReleaseBuffer_internal(p);
-                        LUA_END(1);
-                    }
-                }
+                std::string a;
+                a.assign(p,l);
+                if (returnString)
+                    luaWrap_lua_pushlstring(L,a.c_str(),a.length());
                 else
-                {
-                    std::vector<int> scriptHandles;
-                    if (handle==sim_handle_tree)
-                        getScriptTree(L,false,scriptHandles);
-                    if (handle==sim_handle_chain)
-                        getScriptChain(L,false,false,scriptHandles);
-                    if (handle==sim_handle_all)
-                    {
-                        for (int i=0;i<int(App::ct->luaScriptContainer->allScripts.size());i++)
-                        {
-                            CLuaScriptObject* it=App::ct->luaScriptContainer->allScripts[i];
-                            int scrType=it->getScriptType();
-                            if ((scrType==sim_scripttype_mainscript)||(scrType==sim_scripttype_childscript)) // make sure plugin script etc. are not included!
-                                scriptHandles.push_back(it->getScriptID());
-                        }
-                    }
-                    std::vector<std::string> retParams;
-                    std::vector<int> retHandles;
-                    for (int i=0;i<int(scriptHandles.size());i++)
-                    {
-                        int l;
-                        char* p=simGetScriptSimulationParameter_internal(scriptHandles[i],parameterName.c_str(),&l);
-                        if (p!=nullptr)
-                        {
-                            std::string a;
-                            a.assign(p,l);
-                            simReleaseBuffer_internal(p);
-                            retParams.push_back(a);
-                            retHandles.push_back(scriptHandles[i]);
-                        }
-                    }
-                    if (retParams.size()!=0)
-                    { // now we push two tables onto the stack:
-                        CInterfaceStack stack;
-                        stack.pushTableOntoStack();
-                        for (int i=0;i<int(retParams.size());i++)
-                        {
-                            stack.pushNumberOntoStack((double)i+1); // key
-                            int t=getCorrectType(retParams[i]);
-                            if (returnString)
-                                t=4; // we force for strings!
-                            if (t==0)
-                                stack.pushNullOntoStack();
-                            if ((t==1)||(t==2))
-                                stack.pushBoolOntoStack(t==2);
-                            if (t==3)
-                            {
-                                float v;
-                                tt::getValidFloat(retParams[i],v);
-                                stack.pushNumberOntoStack((double)v);
-                            }
-                            if (t==4)
-                                stack.pushStringOntoStack(retParams[i].c_str(),0);
-                            if (stack.getStackSize()<2)
-                                stack.pushNullOntoStack();
-                            stack.insertDataIntoStackTable();
-                        }
-                        stack.buildOntoLuaStack(L,true);
-                        pushIntTableOntoStack(L,(int)retHandles.size(),&retHandles[0]);
-                        LUA_END(2);
-                    }
-                }
+                    pushCorrectTypeOntoLuaStack(L,a);
+                simReleaseBuffer_internal(p);
+                LUA_END(1);
             }
         }
-        else
-            errorString=SIM_ERROR_NO_ASSOCIATED_CHILD_SCRIPT_FOUND;
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
     LUA_END(0);
 }
 
-int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
+int _simSetUserParameter(luaWrap_lua_State* L)
 {
     LUA_API_FUNCTION_DEBUG;
-    LUA_START("sim.setScriptSimulationParameter");
+    LUA_START("sim.setUserParameter");
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_string,0))
     {
-        bool goOn=true;
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
         {
             handle=getCurrentScriptID(L);
-            // Since this routine can also be called by customization scripts, check for that here:
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle);
-            if (it->getScriptType()==sim_scripttype_customizationscript)
-            {
-                handle=it->getObjectIDThatScriptIsAttachedTo_customization();
-                it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(handle);
-                if (it!=nullptr)
-                    handle=it->getScriptID();
-                else
-                    goOn=false;
-            }
+            handle=it->getObjectIDThatScriptIsAttachedTo();
         }
-        if (goOn)
-        {
-            std::string parameterName(luaWrap_lua_tostring(L,2));
-            size_t parameterValueLength;
-            char* parameterValue=(char*)luaWrap_lua_tolstring(L,3,&parameterValueLength);
-            if ( (handle!=sim_handle_tree)&&(handle!=sim_handle_chain) )
-            {
-                retVal=simSetScriptSimulationParameter_internal(handle,parameterName.c_str(),parameterValue,(int)parameterValueLength);
-            }
-            else
-            {
-                std::vector<int> scriptHandles;
-                if (handle==sim_handle_tree)
-                    getScriptTree(L,false,scriptHandles);
-                else
-                    getScriptChain(L,false,false,scriptHandles);
-                retVal=0;
-                for (size_t i=0;i<scriptHandles.size();i++)
-                {
-                    if (simSetScriptSimulationParameter_internal(scriptHandles[i],parameterName.c_str(),parameterValue,(int)parameterValueLength)==1)
-                        retVal++;
-                }
-            }
-        }
-        else
-            errorString=SIM_ERROR_NO_ASSOCIATED_CHILD_SCRIPT_FOUND;
+        std::string parameterName(luaWrap_lua_tostring(L,2));
+        size_t parameterValueLength;
+        char* parameterValue=(char*)luaWrap_lua_tolstring(L,3,&parameterValueLength);
+        retVal=simSetUserParameter_internal(handle,parameterName.c_str(),parameterValue,(int)parameterValueLength);
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -17861,6 +17753,22 @@ int _simAuxFunc(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string cmd(luaWrap_lua_tostring(L,1));
+        if (cmd.compare("createMirror")==0)
+        {
+            if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,2))
+            {
+                float s[2];
+                getFloatsFromTable(L,2,2,s);
+                CMirror* m=new CMirror();
+                m->setMirrorWidth(s[0]);
+                m->setMirrorHeight(s[1]);
+                App::ct->objCont->addObjectToScene(m,false,true);
+                int h=m->getObjectHandle();
+                luaWrap_lua_pushnumber(L,h);
+                LUA_END(1);
+            }
+            LUA_END(0);
+        }
         if (cmd.compare("activateMainWindow")==0)
         {
 #ifdef SIM_WITH_GUI
@@ -21388,6 +21296,186 @@ int _simGetVisionSensorFilter(luaWrap_lua_State* L)
     LUA_START("sim.getVisionSensorFilter");
 
     luaWrap_lua_pushnumber(L,-1);
+    LUA_END(1);
+}
+
+int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
+{ // DEPRECATED
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.getScriptSimulationParameter");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
+    {
+        bool goOn=true;
+        int handle=luaWrap_lua_tointeger(L,1);
+        if (handle==sim_handle_self)
+        {
+            handle=getCurrentScriptID(L);
+            // Since this routine can also be called by customization scripts, check for that here:
+            CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle);
+            if (it->getScriptType()==sim_scripttype_customizationscript)
+            {
+                handle=it->getObjectIDThatScriptIsAttachedTo_customization();
+                it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(handle);
+                if (it!=nullptr)
+                    handle=it->getScriptID();
+                else
+                    goOn=false;
+            }
+        }
+        if (goOn)
+        {
+            bool returnString=false;
+            int ret=checkOneGeneralInputArgument(L,3,lua_arg_bool,0,true,false,&errorString);
+            if ((ret==0)||(ret==2))
+            {
+                if (ret==2)
+                    returnString=luaToBool(L,3);
+                std::string parameterName(luaWrap_lua_tostring(L,2));
+                if ( (handle!=sim_handle_tree)&&(handle!=sim_handle_chain)&&(handle!=sim_handle_all) )
+                {
+                    int l;
+                    char* p=simGetScriptSimulationParameter_internal(handle,parameterName.c_str(),&l);
+                    if (p!=nullptr)
+                    {
+                        std::string a;
+                        a.assign(p,l);
+                        if (returnString)
+                            luaWrap_lua_pushlstring(L,a.c_str(),a.length());
+                        else
+                            pushCorrectTypeOntoLuaStack(L,a);
+                        simReleaseBuffer_internal(p);
+                        LUA_END(1);
+                    }
+                }
+                else
+                {
+                    std::vector<int> scriptHandles;
+                    if (handle==sim_handle_tree)
+                        getScriptTree(L,false,scriptHandles);
+                    if (handle==sim_handle_chain)
+                        getScriptChain(L,false,false,scriptHandles);
+                    if (handle==sim_handle_all)
+                    {
+                        for (int i=0;i<int(App::ct->luaScriptContainer->allScripts.size());i++)
+                        {
+                            CLuaScriptObject* it=App::ct->luaScriptContainer->allScripts[i];
+                            int scrType=it->getScriptType();
+                            if ((scrType==sim_scripttype_mainscript)||(scrType==sim_scripttype_childscript)) // make sure plugin script etc. are not included!
+                                scriptHandles.push_back(it->getScriptID());
+                        }
+                    }
+                    std::vector<std::string> retParams;
+                    std::vector<int> retHandles;
+                    for (int i=0;i<int(scriptHandles.size());i++)
+                    {
+                        int l;
+                        char* p=simGetScriptSimulationParameter_internal(scriptHandles[i],parameterName.c_str(),&l);
+                        if (p!=nullptr)
+                        {
+                            std::string a;
+                            a.assign(p,l);
+                            simReleaseBuffer_internal(p);
+                            retParams.push_back(a);
+                            retHandles.push_back(scriptHandles[i]);
+                        }
+                    }
+                    if (retParams.size()!=0)
+                    { // now we push two tables onto the stack:
+                        CInterfaceStack stack;
+                        stack.pushTableOntoStack();
+                        for (int i=0;i<int(retParams.size());i++)
+                        {
+                            stack.pushNumberOntoStack((double)i+1); // key
+                            int t=getCorrectType(retParams[i]);
+                            if (returnString)
+                                t=4; // we force for strings!
+                            if (t==0)
+                                stack.pushNullOntoStack();
+                            if ((t==1)||(t==2))
+                                stack.pushBoolOntoStack(t==2);
+                            if (t==3)
+                            {
+                                float v;
+                                tt::getValidFloat(retParams[i],v);
+                                stack.pushNumberOntoStack((double)v);
+                            }
+                            if (t==4)
+                                stack.pushStringOntoStack(retParams[i].c_str(),0);
+                            if (stack.getStackSize()<2)
+                                stack.pushNullOntoStack();
+                            stack.insertDataIntoStackTable();
+                        }
+                        stack.buildOntoLuaStack(L,true);
+                        pushIntTableOntoStack(L,(int)retHandles.size(),&retHandles[0]);
+                        LUA_END(2);
+                    }
+                }
+            }
+        }
+        else
+            errorString=SIM_ERROR_NO_ASSOCIATED_CHILD_SCRIPT_FOUND;
+    }
+
+    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
+{ // DEPRECATED
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.setScriptSimulationParameter");
+
+    int retVal=-1;// error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_string,0))
+    {
+        bool goOn=true;
+        int handle=luaWrap_lua_tointeger(L,1);
+        if (handle==sim_handle_self)
+        {
+            handle=getCurrentScriptID(L);
+            // Since this routine can also be called by customization scripts, check for that here:
+            CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle);
+            if (it->getScriptType()==sim_scripttype_customizationscript)
+            {
+                handle=it->getObjectIDThatScriptIsAttachedTo_customization();
+                it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(handle);
+                if (it!=nullptr)
+                    handle=it->getScriptID();
+                else
+                    goOn=false;
+            }
+        }
+        if (goOn)
+        {
+            std::string parameterName(luaWrap_lua_tostring(L,2));
+            size_t parameterValueLength;
+            char* parameterValue=(char*)luaWrap_lua_tolstring(L,3,&parameterValueLength);
+            if ( (handle!=sim_handle_tree)&&(handle!=sim_handle_chain) )
+            {
+                retVal=simSetScriptSimulationParameter_internal(handle,parameterName.c_str(),parameterValue,(int)parameterValueLength);
+            }
+            else
+            {
+                std::vector<int> scriptHandles;
+                if (handle==sim_handle_tree)
+                    getScriptTree(L,false,scriptHandles);
+                else
+                    getScriptChain(L,false,false,scriptHandles);
+                retVal=0;
+                for (size_t i=0;i<scriptHandles.size();i++)
+                {
+                    if (simSetScriptSimulationParameter_internal(scriptHandles[i],parameterName.c_str(),parameterValue,(int)parameterValueLength)==1)
+                        retVal++;
+                }
+            }
+        }
+        else
+            errorString=SIM_ERROR_NO_ASSOCIATED_CHILD_SCRIPT_FOUND;
+    }
+
+    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
 

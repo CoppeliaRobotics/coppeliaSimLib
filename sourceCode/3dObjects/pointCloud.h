@@ -71,7 +71,7 @@ public:
     void subtractOctree(const COctree* octree);
     void subtractDummy(const CDummy* dummy,float distanceTolerance);
     void subtractPointCloud(const CPointCloud* pointCloud,float distanceTolerance);
-    void subtractOctree(const void* octree2Info,const C4X4Matrix& octree2CTM);
+    void subtractOctree(const void* octree2Info,const C7Vector& octree2Tr);
     void subtractObjects(const std::vector<int>& sel);
     void subtractObject(const C3DObject* obj,float distanceTolerance);
 
@@ -103,7 +103,7 @@ public:
     std::vector<float>* getPoints();
     const void* getPointCloudInfo() const;
     void* getPointCloudInfo();
-    void getMatrixAndHalfSizeOfBoundingBox(C4X4Matrix& m,C3Vector& hs) const;
+    void getTransfAndHalfSizeOfBoundingBox(C7Vector& tr,C3Vector& hs) const;
 
     CVisualParam* getColor();
     void getMaxMinDims(C3Vector& ma,C3Vector& mi) const;

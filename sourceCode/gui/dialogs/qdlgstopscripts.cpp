@@ -1,6 +1,6 @@
 #include "qdlgstopscripts.h"
 #include "ui_qdlgstopscripts.h"
-#include "miscBase.h"
+#include "libLic.h"
 
 bool CQDlgStopScripts::stopScriptNow=false;
 bool CQDlgStopScripts::visible=false;
@@ -12,7 +12,7 @@ CQDlgStopScripts::CQDlgStopScripts(QWidget *parent) :
     ui->setupUi(this);
     setVisible(false);
     visible=false;
-    ui->qqStop->setEnabled(CMiscBase::handleVerSpec_canAbortScriptExecutionViaEmergencyButton());
+    ui->qqStop->setEnabled(CLibLic::getBoolVal(5));
 }
 
 CQDlgStopScripts::~CQDlgStopScripts()
@@ -22,7 +22,7 @@ CQDlgStopScripts::~CQDlgStopScripts()
 
 void CQDlgStopScripts::setScriptName(const char* name)
 {
-    std::string txt(CMiscBase::handleVerSpec_getAbortScriptExecutionEmergencyButtonTxt());
+    std::string txt(CLibLic::getStringVal(0));
     if (txt.length()==0)
     {
         txt=name;

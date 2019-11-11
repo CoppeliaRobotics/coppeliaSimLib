@@ -1,11 +1,11 @@
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "path.h"
 #include "tt.h"
 #include "meshManip.h"
 #include "gV.h"
 #include "meshRoutines.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "ttUtil.h"
 #include "easyLock.h"
 #include "app.h"
@@ -720,6 +720,74 @@ void CPath::serialize(CSer& ar)
                 CTTUtil::scaleColorUp_(shapingColor.colors);
             }
             _generatePathShape();
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("shaping");
+                ar.xmlAddNode_int("type",_shapingType);
+                ar.xmlAddNode_float("elementMaxLength",_shapingElementMaxLength);
+                ar.xmlAddNode_float("scaling",_shapingScaling);
+                ar.xmlAddNode_floats("coordinates",shapingCoordinates);
+                ar.xmlPushNewNode("switches");
+                ar.xmlAddNode_bool("enabled",_shapingEnabled);
+                ar.xmlAddNode_bool("followFullOrientation",_shapingFollowFullOrientation);
+                ar.xmlAddNode_bool("sectionClosed",_shapingSectionClosed);
+                ar.xmlAddNode_bool("convexHull",_shapingConvexHull);
+                ar.xmlPopNode();
+                ar.xmlPushNewNode("color");
+                shapingColor.serialize(ar,0);
+                ar.xmlPopNode();
+                ar.xmlPopNode();
+
+                ar.xmlPushNewNode("pathContainer");
+                pathContainer->serialize(ar);
+                ar.xmlPopNode();
+            }
+            else
+                pathContainer->serialize(ar);
+        }
+        else
+        {
+            if (exhaustiveXml&&ar.xmlPushChildNode("shaping"))
+            {
+                ar.xmlGetNode_int("type",_shapingType);
+                ar.xmlGetNode_float("elementMaxLength",_shapingElementMaxLength);
+                ar.xmlGetNode_float("scaling",_shapingScaling);
+                shapingCoordinates.clear();
+                ar.xmlGetNode_floats("coordinates",shapingCoordinates);
+                if (ar.xmlPushChildNode("switches"))
+                {
+                    ar.xmlGetNode_bool("enabled",_shapingEnabled);
+                    ar.xmlGetNode_bool("followFullOrientation",_shapingFollowFullOrientation);
+                    ar.xmlGetNode_bool("sectionClosed",_shapingSectionClosed);
+                    ar.xmlGetNode_bool("convexHull",_shapingConvexHull);
+                    ar.xmlPopNode();
+                }
+                if (ar.xmlPushChildNode("color"))
+                {
+                    shapingColor.serialize(ar,0);
+                    ar.xmlPopNode();
+                }
+                ar.xmlPopNode();
+            }
+            _explicitHandling=true;
+            if (exhaustiveXml)
+            {
+                if (ar.xmlPushChildNode("pathContainer"))
+                {
+                    pathContainer->serialize(ar);
+                    ar.xmlPopNode();
+                }
+                _generatePathShape();
+            }
+            else
+                pathContainer->serialize(ar);
         }
     }
 }

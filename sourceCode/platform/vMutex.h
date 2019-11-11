@@ -1,20 +1,23 @@
 #pragma once
 
+#include <string>
+
 #ifndef SIM_WITHOUT_QT_AT_ALL
     #include <QMutex>
     #include <QWaitCondition>
     typedef QMutex WMutex;
     typedef QWaitCondition WWaitCondition;
 #else // SIM_WITHOUT_QT_AT_ALL
-    #ifdef WIN_VREP
+    #include <vector>
+    #ifdef WIN_SIM
         #include <Windows.h>
         typedef CRITICAL_SECTION WMutex;
         typedef std::vector<int> WWaitCondition;
-    #else // WIN_VREP
+    #else // WIN_SIM
         #include <pthread.h>
         typedef pthread_mutex_t WMutex;
         typedef pthread_cond_t WWaitCondition;
-    #endif // WIN_VREP
+    #endif // WIN_SIM
 #endif // SIM_WITHOUT_QT_AT_ALL
 
 class VMutex
@@ -24,12 +27,12 @@ public:
     virtual ~VMutex();
 
     // When using recursive mutexes:
-    void lock();
+    void lock(const char* location);
     bool tryLock();
     void unlock();
 
     // When using non-recursive mutexes:
-    void lock_simple();
+    void lock_simple(const char* location);
     bool tryLock_simple();
     void unlock_simple();
 
@@ -47,13 +50,14 @@ private:
 
     int _lockLevel;
     VTHREAD_ID_TYPE _lockThreadId;
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     int _nextWaitConditionId;
-#endif // WIN_VREP
+#endif // WIN_SIM
 #endif // SIM_WITHOUT_QT_AT_ALL
 
     WMutex _recursiveMutex;
     WMutex _simpleMutex;
     WWaitCondition _simpleWaitCondition;
+    std::string _location;
 };
 

@@ -45,6 +45,9 @@ public:
     float getPositionWeight();
     void setOrientationWeight(float weight);
     float getOrientationWeight();
+    std::string getTipLoadName() const;
+    std::string getBaseLoadName() const;
+    std::string getAltBaseLoadName() const;
 
     void checkIfWithinTolerance(bool& position,bool& orientation,bool useTempValues);
     void prepareIkEquations(float interpolFact);
@@ -71,4 +74,7 @@ private:
                     // sim_avoidance_conjstraint is reserved for collections! Don't use it here!!
     float positionWeight;
     float orientationWeight;
+    std::string _tipLoadName;
+    std::string _baseLoadName;
+    std::string _altBaseLoadName;
 };

@@ -5,7 +5,7 @@
 #include "geometric.h"
 #include "qdlgtextures.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "qdlgmaterial.h"
 
 CGeometric* theGeom=nullptr;

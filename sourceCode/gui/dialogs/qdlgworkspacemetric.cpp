@@ -3,7 +3,7 @@
 #include "gV.h"
 #include "tt.h"
 #include "app.h"
-#include "v_repStringTable.h"
+#include "simStringTable.h"
 
 CQDlgWorkSpaceMetric::CQDlgWorkSpaceMetric(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

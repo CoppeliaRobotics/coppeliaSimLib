@@ -41,7 +41,7 @@ public:
     void initializeInitialValues(bool simulationIsRunning);
     bool getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const;
     bool getSensingVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const;
-    void getSensingVolumeOBB(C4X4Matrix& m,C3Vector& halfSizes);
+    void getSensingVolumeOBB(C7Vector& tr,C3Vector& halfSizes);
     bool getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const;
     bool getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const;
     bool isPotentiallyCollidable() const;
@@ -111,6 +111,7 @@ public:
     float getCalculationTime() const;
     C3Vector getDetectedPoint() const;
     bool getIsDetectedPointValid() const;
+    std::string getSensableObjectLoadName() const;
 
     CVisualParam* getColor(int index);
 
@@ -157,4 +158,5 @@ protected:
     bool _initialExplicitHandling;
 
     bool _hideDetectionRay;
+    std::string _sensableObjectLoadName;
 };

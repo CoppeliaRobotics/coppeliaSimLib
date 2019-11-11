@@ -3,7 +3,7 @@
 #include <map>
 #include "luaWrapper.h"
 #include "vMutex.h"
-#ifndef WIN_VREP
+#ifndef WIN_SIM
 #include <pthread.h>
 #endif
 
@@ -120,11 +120,11 @@ void moduleCommonPart(luaWrap_lua_State* L,int action,std::string* errorString);
 int handleChildScriptsRoutine_OLD(int callType,CLuaScriptObject* it,CInterfaceStack& inputArguments);
 int launchThreadedChildScriptsRoutine_OLD(CLuaScriptObject* it);
 
-void appendAllVrepFunctionNames_spaceSeparated(std::string& keywords,int scriptType,bool scriptIsThreaded);
-void appendAllVrepVariableNames_spaceSeparated(std::string& keywords);
-void pushAllVrepFunctionNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m,int scriptType,bool scriptIsThreaded);
-void pushAllVrepVariableNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m);
-std::string getVrepFunctionCalltip(const char* txt,int scriptType,bool scriptIsThreaded,bool forceDoNotSupportOldApi);
+void appendAllSimFunctionNames_spaceSeparated(std::string& keywords,int scriptType,bool scriptIsThreaded);
+void appendAllSimVariableNames_spaceSeparated(std::string& keywords);
+void pushAllSimFunctionNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m,int scriptType,bool scriptIsThreaded);
+void pushAllSimVariableNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m);
+std::string getSimFunctionCalltip(const char* txt,int scriptType,bool scriptIsThreaded,bool forceDoNotSupportOldApi);
 int isFuncOrConstDeprecated(const char* txt);
 
 
@@ -231,8 +231,6 @@ extern int _simGetIkGroupHandle(luaWrap_lua_State* L);
 extern int _simGetCollisionHandle(luaWrap_lua_State* L);
 extern int _simRemoveScript(luaWrap_lua_State* L);
 extern int _simGetDistanceHandle(luaWrap_lua_State* L);
-extern int _simGetScriptSimulationParameter(luaWrap_lua_State* L);
-extern int _simSetScriptSimulationParameter(luaWrap_lua_State* L);
 extern int _simStopSimulation(luaWrap_lua_State* L);
 extern int _simPauseSimulation(luaWrap_lua_State* L);
 extern int _simStartSimulation(luaWrap_lua_State* L);
@@ -570,6 +568,8 @@ extern int _simSetJointDependency(luaWrap_lua_State* L);
 extern int _simGetStackTraceback(luaWrap_lua_State* L);
 extern int _simSetStringNamedParam(luaWrap_lua_State* L);
 extern int _simGetStringNamedParam(luaWrap_lua_State* L);
+extern int _simGetUserParameter(luaWrap_lua_State* L);
+extern int _simSetUserParameter(luaWrap_lua_State* L);
 
 // DEPRECATED
 extern int _simOpenTextEditor(luaWrap_lua_State* L);
@@ -623,3 +623,5 @@ extern int _simLaunchThreadedChildScripts_legacy(luaWrap_lua_State* L);
 extern int _simResumeThreads_legacy(luaWrap_lua_State* L);
 extern int _simSetVisionSensorFilter(luaWrap_lua_State* L);
 extern int _simGetVisionSensorFilter(luaWrap_lua_State* L);
+extern int _simGetScriptSimulationParameter(luaWrap_lua_State* L);
+extern int _simSetScriptSimulationParameter(luaWrap_lua_State* L);

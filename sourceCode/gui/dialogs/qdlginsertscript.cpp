@@ -1,7 +1,7 @@
 #include "qdlginsertscript.h"
 #include "ui_qdlginsertscript.h"
-#include "v_rep_internal.h"
-#include "v_repStrings.h"
+#include "simInternal.h"
+#include "simStrings.h"
 #include "app.h"
 
 CQDlgInsertScript::CQDlgInsertScript(QWidget *parent) :

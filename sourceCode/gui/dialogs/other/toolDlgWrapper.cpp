@@ -1,4 +1,4 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "toolDlgWrapper.h"
 #include "global.h"
 #include "app.h"
@@ -82,7 +82,7 @@ void CToolDlgWrapper::showDialogButDontOpenIt()
     if (toolDialog!=nullptr)
     {
         toolDialog->showDialog(true);
-#ifdef LIN_VREP
+#ifdef LIN_SIM
         toolDialog->bringDialogToTop(); // otherwise the dialog opens behind the last dialog on Linux
 #endif
     }
@@ -180,15 +180,15 @@ void CToolDlgWrapper::setVisible(bool visible,QWidget* parentWindow)
             {
                 if (position[0]==42000)
                 { // first time we open that dialog
-#ifdef WIN_VREP
+#ifdef WIN_SIM
                     position[0]=App::mainWindow->geometry().width()+App::mainWindow->geometry().x()-toolDialog->geometry().width()-10; // -10 because when in full-screen, the main window doesn't have a frame and things are a little bit different!!
                     position[1]=App::mainWindow->geometry().y()+100;
 #endif
-#ifdef MAC_VREP
+#ifdef MAC_SIM
                     position[0]=400; // doesn't work like under windows somehow...
                     position[1]=200;
 #endif
-#ifdef LIN_VREP
+#ifdef LIN_SIM
                     position[0]=App::mainWindow->geometry().width()+App::mainWindow->geometry().x()-toolDialog->geometry().width()-10; // -10 because when in full-screen, the main window doesn't have a frame and things are a little bit different!!
                     position[1]=App::mainWindow->geometry().y()+100;
 #endif
@@ -196,7 +196,7 @@ void CToolDlgWrapper::setVisible(bool visible,QWidget* parentWindow)
                 setPosition(position[0],position[1]);
                 toolDialog->refresh();
                 toolDialog->showDialog(true);
-#ifdef LIN_VREP
+#ifdef LIN_SIM
                 toolDialog->bringDialogToTop(); // otherwise the dialog opens behind the last dialog on Linux
 #endif
             }

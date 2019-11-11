@@ -2,7 +2,7 @@
 #include "buttonBlockContainer.h"
 #include "vMenubar.h"
 #include "global.h"
-#include "v_repStringTable.h"
+#include "simStringTable.h"
 
 CUiEditMode::CUiEditMode(CButtonBlockContainer* buttonBlockContainer)
 {

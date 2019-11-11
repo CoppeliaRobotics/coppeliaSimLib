@@ -2,7 +2,7 @@
 #include "ui_qdlgavirecorder.h"
 #include "tt.h"
 #include "vFileDialog.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vVarious.h"
 #include "app.h"
 #include "funcDebug.h"

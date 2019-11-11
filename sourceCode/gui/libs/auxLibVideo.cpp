@@ -14,13 +14,13 @@ void CAuxLibVideo::loadLibrary(bool headless)
     {
         std::string vidLibPathAndName(VVarious::getModulePath());
         vidLibPathAndName+="/";
-#ifdef WIN_VREP
+#ifdef WIN_SIM
         vidLibPathAndName+="vvcl.dll";
 #endif
-#ifdef MAC_VREP
+#ifdef MAC_SIM
         vidLibPathAndName+="libvvcl.dylib";
 #endif
-#ifdef LIN_VREP
+#ifdef LIN_SIM
         vidLibPathAndName+="libvvcl.so";
 #endif
         if (_loadLibrary(vidLibPathAndName.c_str()))
@@ -45,7 +45,7 @@ void CAuxLibVideo::loadLibrary(bool headless)
             cmd.cmdId=DISPLAY_MESSAGE_CMD;
             cmd.intParams.push_back(sim_msgbox_type_info);
             cmd.stringParams.push_back("Video compression library");
-            #ifdef LIN_VREP
+            #ifdef LIN_SIM
             cmd.stringParams.push_back("Could not find or correctly load the video compression library.\n\nTry following:\n\n>sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev\nif above fails, try first:\nsudo apt-get -f install");
             #else
             cmd.stringParams.push_back("Could not find or correctly load the video compression library.");
@@ -55,7 +55,7 @@ void CAuxLibVideo::loadLibrary(bool headless)
             else
                 App::addStatusbarMessage(cmd.stringParams[1].c_str());
             printf("Could not find or correctly load the video compression library.\n");
-            #ifdef LIN_VREP
+            #ifdef LIN_SIM
             printf("Try following:\n");
             printf("\n");
             printf(">sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev\n");

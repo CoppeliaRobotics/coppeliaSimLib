@@ -73,6 +73,4 @@ protected:
 
     unsigned char* _buffer;
     unsigned char* _tempBuffer;
-
-    int _vrepMsgRes[2];
 };

@@ -1,6 +1,6 @@
 #include "holonomicPathNode.h"
 #include "pathPlanningInterface.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 
 CHolonomicPathNode::CHolonomicPathNode(const C4Vector& rotAxisRot,const C4Vector& rotAxisRotInv)
 {

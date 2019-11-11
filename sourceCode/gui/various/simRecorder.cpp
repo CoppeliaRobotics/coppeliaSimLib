@@ -6,7 +6,7 @@
 #include <QDesktopWidget>
 #include "imgLoaderSaver.h"
 #include "auxLibVideo.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vDateTime.h"
 #include "app.h"
 

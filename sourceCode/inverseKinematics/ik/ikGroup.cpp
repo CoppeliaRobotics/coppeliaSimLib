@@ -1,4 +1,4 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "distanceRoutine.h"
 #include "distanceRoutine.h"
 #include "ikGroup.h"
@@ -7,6 +7,7 @@
 #include "tt.h"
 #include "ttUtil.h"
 #include <algorithm>
+#include "base64.h"
 
 CikGroup::CikGroup()
 {
@@ -452,6 +453,124 @@ void CikGroup::serialize(CSer &ar)
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("handle",objectID);
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_string("name",objectName.c_str());
+            else
+                ar.xmlAddNode_string("name",("@ik@"+objectName).c_str());
+
+            ar.xmlAddNode_int("maxIterations",maxIterations);
+
+            ar.xmlPushNewNode("jointLimits");
+            ar.xmlAddNode_float("weight",jointLimitWeight);
+            ar.xmlAddNode_float("treshholdLinear",jointTreshholdLinear);
+            ar.xmlAddNode_float("treshholdAngular",jointTreshholdAngular*180.0f/piValue_f);
+            ar.xmlPopNode();
+
+            ar.xmlAddNode_comment(" 'calculationMethod' tag: can be 'pseudoInverse', 'dls' or 'jacobianTranspose' ",exhaustiveXml);
+            ar.xmlAddNode_enum("calculationMethod",calculationMethod,sim_ik_pseudo_inverse_method,"pseudoInverse",sim_ik_damped_least_squares_method,"dls",sim_ik_jacobian_transpose_method,"jacobianTranspose");
+            ar.xmlAddNode_float("dlsFactor",dlsFactor);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("enabled",active);
+            ar.xmlAddNode_bool("restoreIfPositionNotReached",restoreIfPositionNotReached);
+            ar.xmlAddNode_bool("restoreIfOrientationNotReached",restoreIfOrientationNotReached);
+            if (exhaustiveXml)
+            {
+                ar.xmlAddNode_bool("doOnFail",doOnFail);
+                ar.xmlAddNode_bool("doOnSuccess",doOnPerformed);
+            }
+            ar.xmlAddNode_bool("ignoreMaxStepSizes",ignoreMaxStepSizes);
+            ar.xmlAddNode_bool("explicitHandling",_explicitHandling);
+            ar.xmlAddNode_bool("correctJointLimits",_correctJointLimits);
+            ar.xmlPopNode();
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("ikGroupHandleToConditionallyExecute",doOnFailOrSuccessOf);
+
+            if (exhaustiveXml)
+            {
+                std::string str(base64_encode((unsigned char*)_uniquePersistentIdString.c_str(),_uniquePersistentIdString.size()));
+                ar.xmlAddNode_string("uniquePersistentIdString_base64Coded",str.c_str());
+            }
+
+            for (size_t i=0;i<ikElements.size();i++)
+            {
+                ar.xmlAddNode_comment(" 'ikElement' tag: at least one of such tag is required ",exhaustiveXml);
+                ar.xmlPushNewNode("ikElement");
+                ikElements[i]->serialize(ar);
+                ar.xmlPopNode();
+            }
+        }
+        else
+        {
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("handle",objectID);
+
+            if ( ar.xmlGetNode_string("name",objectName,exhaustiveXml)&&(!exhaustiveXml) )
+            {
+                if (objectName.find("@ik@")==0)
+                    objectName.erase(objectName.begin(),objectName.begin()+strlen("@ik@"));
+                tt::removeIllegalCharacters(objectName,true);
+            }
+
+            ar.xmlGetNode_int("maxIterations",maxIterations,exhaustiveXml);
+
+            if (ar.xmlPushChildNode("jointLimits",exhaustiveXml))
+            {
+                ar.xmlGetNode_float("weight",jointLimitWeight,exhaustiveXml);
+                ar.xmlGetNode_float("treshholdLinear",jointTreshholdLinear,exhaustiveXml);
+                if (ar.xmlGetNode_float("treshholdAngular",jointTreshholdAngular,exhaustiveXml))
+                    jointTreshholdAngular*=piValue_f/180.0f;
+                ar.xmlPopNode();
+            }
+
+            ar.xmlGetNode_enum("calculationMethod",calculationMethod,exhaustiveXml,"pseudoInverse",sim_ik_pseudo_inverse_method,"dls",sim_ik_damped_least_squares_method,"jacobianTranspose",sim_ik_jacobian_transpose_method);
+            ar.xmlGetNode_float("dlsFactor",dlsFactor,exhaustiveXml);
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("enabled",active,exhaustiveXml);
+                ar.xmlGetNode_bool("restoreIfPositionNotReached",restoreIfPositionNotReached,exhaustiveXml);
+                ar.xmlGetNode_bool("restoreIfOrientationNotReached",restoreIfOrientationNotReached,exhaustiveXml);
+                if (exhaustiveXml)
+                {
+                    ar.xmlGetNode_bool("doOnFail",doOnFail);
+                    ar.xmlGetNode_bool("doOnSuccess",doOnPerformed);
+                }
+                ar.xmlGetNode_bool("ignoreMaxStepSizes",ignoreMaxStepSizes,exhaustiveXml);
+                ar.xmlGetNode_bool("explicitHandling",_explicitHandling,exhaustiveXml);
+                ar.xmlGetNode_bool("correctJointLimits",_correctJointLimits,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("ikGroupHandleToConditionallyExecute",doOnFailOrSuccessOf);
+
+            if (exhaustiveXml&&ar.xmlGetNode_string("uniquePersistentIdString_base64Coded",_uniquePersistentIdString))
+                _uniquePersistentIdString=base64_decode(_uniquePersistentIdString);
+
+            if (ar.xmlPushChildNode("ikElement",true))
+            {
+                while (true)
+                {
+                    CikEl* it=new CikEl();
+                    it->serialize(ar);
+                    ikElements.push_back(it);
+                    if (!ar.xmlPushSiblingNode("ikElement",false))
+                        break;
+                }
+                ar.xmlPopNode();
             }
         }
     }

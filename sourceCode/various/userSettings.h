@@ -1,10 +1,9 @@
 #pragma once
 
-#include "userSettingsBase.h"
 #include "mainCont.h"
 #include "visualParam.h"
 
-class CUserSettings: public CUserSettingsBase
+class CUserSettings
 {
 public:
     CUserSettings();
@@ -110,6 +109,7 @@ public:
     bool doNotShowVideoCompressionLibraryLoadError;
     bool redirectStatusbarMsgToConsoleInHeadlessMode;
     bool suppressStartupDialogs;
+    bool suppressXmlOverwriteMsg;
 
     std::string scriptEditorFont;
     int scriptEditorFontSize;
@@ -193,7 +193,14 @@ public:
     int desktopRecordingIndex;
     int desktopRecordingWidth;
     std::string externalScriptEditor;
+    int xmlExportSplitSize;
+    bool xmlExportKnownFormats;
 
+    bool floatingLicenseEnabled;
+    std::string floatingLicenseServer;
+    int floatingLicensePort;
+    bool keepDongleOpen;
+    int xrTest;
 
 private:
     bool _supportOldApiNotation;

@@ -1062,6 +1062,21 @@ void tt::limitValue(float minValue,float maxValue,float &value)
     if (value<minValue) value=minValue;
 }
 
+void tt::limitDoubleValue(double minValue,double maxValue,double &value)
+{
+    if (value>maxValue) value=maxValue;
+    if (value<minValue) value=minValue;
+}
+
+void tt::limit3ArrayValue(float minValue,float maxValue,float value[3])
+{
+    for (int i=0;i<3;i++)
+    {
+        if (value[i]>maxValue) value[i]=maxValue;
+        if (value[i]<minValue) value[i]=minValue;
+    }
+}
+
 bool tt::getValueOfKey(const char* key,const char* txt,std::string& value)
 {
     std::vector<std::string> keys;

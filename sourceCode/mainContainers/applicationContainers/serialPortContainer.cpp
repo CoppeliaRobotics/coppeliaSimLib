@@ -1,6 +1,6 @@
 
 #include "serialPortContainer.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "tt.h"
 #include "app.h"
 

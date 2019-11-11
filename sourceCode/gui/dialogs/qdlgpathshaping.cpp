@@ -4,7 +4,7 @@
 #include "tt.h"
 #include "qdlgmaterial.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 bool CQDlgPathShaping::showWindow=false;
 

@@ -5,7 +5,7 @@
 #include "qdlgmaterial.h"
 #include "tt.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vMessageBox.h"
 
 CQDlgEnvironment::CQDlgEnvironment(QWidget *parent) :

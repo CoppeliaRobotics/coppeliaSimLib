@@ -1,11 +1,11 @@
 
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "undoBufferCont.h"
 #include "pluginContainer.h"
 #include "vDateTime.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 //#include "vMessageBox.h"
 
 CUndoBufferCont::CUndoBufferCont()
@@ -171,7 +171,7 @@ bool CUndoBufferCont::memorizeState()
         App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
 
     std::vector<char> newBuff;
-    CSer serObj(newBuff,CSer::filetype_vrep_bin_scene_buff);
+    CSer serObj(newBuff,CSer::filetype_csim_bin_scene_buff);
     serObj.disableCountingModeExceptForExceptions();
 
     serObj.writeOpenBinary(false); // we don't wanna compression
@@ -347,7 +347,7 @@ void CUndoBufferCont::undo()
     App::ct->simulation->stopSimulation(); // should be anyway stopped!
     App::ct->emptyScene(false);
 
-    CSer serObj(theBuff,CSer::filetype_vrep_bin_scene_buff);
+    CSer serObj(theBuff,CSer::filetype_csim_bin_scene_buff);
     int serializationVersion;
     unsigned short dum0;
     int dum1;
@@ -408,7 +408,7 @@ void CUndoBufferCont::redo()
     App::ct->simulation->stopSimulation(); // should be anyway stopped!
     App::ct->emptyScene(false);
 
-    CSer serObj(theBuff,CSer::filetype_vrep_bin_scene_buff);
+    CSer serObj(theBuff,CSer::filetype_csim_bin_scene_buff);
     int serializationVersion;
     unsigned short dum0;
     int dum1;

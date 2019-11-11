@@ -1,6 +1,6 @@
 #include "funcDebug.h"
-#include "v_rep_internal.h"
-#include "v_repStrings.h"
+#include "simInternal.h"
+#include "simStrings.h"
 #include "ttUtil.h"
 #include "tt.h"
 #include "pointCloud.h"
@@ -47,12 +47,13 @@ CPointCloud::~CPointCloud()
     clear();
 }
 
-void CPointCloud::getMatrixAndHalfSizeOfBoundingBox(C4X4Matrix& m,C3Vector& hs) const
+void CPointCloud::getTransfAndHalfSizeOfBoundingBox(C7Vector& tr,C3Vector& hs) const
 {
     hs=(_maxDim-_minDim)*0.5f;
-    m=getCumulativeTransformation().getMatrix();
+    C4X4Matrix m=getCumulativeTransformation().getMatrix();
     C3Vector center((_minDim+_maxDim)*0.5);
     m.X+=m.M*center;
+    tr=m.getTransformation();
 }
 
 CVisualParam* CPointCloud::getColor()
@@ -129,11 +130,11 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
         _colors.clear();
         if (_pointCloudInfo!=nullptr)
         {
-            _nonEmptyCells=CPluginContainer::mesh_getPointCloudNonEmptyCellCount(_pointCloudInfo);
+            _nonEmptyCells=CPluginContainer::geomPlugin_getPtcloudNonEmptyCellCount(_pointCloudInfo);
 
-            CPluginContainer::mesh_getPointCloudPointData(_pointCloudInfo,_points,_colors);
+            CPluginContainer::geomPlugin_getPtcloudPoints(_pointCloudInfo,_points,&_colors);
             if (_pointDisplayRatio<0.99f)
-                CPluginContainer::mesh_getPartialPointCloudPointData(_pointCloudInfo,_displayPoints,_displayColors,_pointDisplayRatio);
+                CPluginContainer::geomPlugin_getPtcloudPoints(_pointCloudInfo,_displayPoints,&_displayColors,_pointDisplayRatio);
             if (_useRandomColors)
             {
                 _colors.clear();
@@ -214,9 +215,9 @@ int CPointCloud::removePoints(const float* pts,int ptsCnt,bool ptsAreRelativeToP
             }
             _pts=&__pts[0];
         }
-        if (CPluginContainer::mesh_removePointCloudPoints(_pointCloudInfo,_pts,ptsCnt,distanceTolerance,pointCntRemoved))
+        if (CPluginContainer::geomPlugin_removePointsFromPtcloud(_pointCloudInfo,C7Vector::identityTransformation,_pts,ptsCnt,distanceTolerance,&pointCntRemoved))
         {
-            CPluginContainer::mesh_destroyPointCloud(_pointCloudInfo);
+            CPluginContainer::geomPlugin_destroyPtcloud(_pointCloudInfo);
             _pointCloudInfo=nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
@@ -228,7 +229,7 @@ void CPointCloud::subtractOctree(const COctree* octree)
 {
     FUNCTION_DEBUG;
     if (octree->getOctreeInfo()!=nullptr)
-        subtractOctree(octree->getOctreeInfo(),((COctree*)octree)->getCumulativeTransformation().getMatrix());
+        subtractOctree(octree->getOctreeInfo(),((COctree*)octree)->getCumulativeTransformation());
 }
 
 void CPointCloud::subtractDummy(const CDummy* dummy,float distanceTolerance)
@@ -258,16 +259,15 @@ void CPointCloud::subtractPointCloud(const CPointCloud* pointCloud,float distanc
 }
 
 
-void CPointCloud::subtractOctree(const void* octree2Info,const C4X4Matrix& octree2CTM)
+void CPointCloud::subtractOctree(const void* octree2Info,const C7Vector& octree2Tr)
 {
     FUNCTION_DEBUG;
     if (_pointCloudInfo!=nullptr)
     {
-        C4X4Matrix pointCloudM(getCumulativeTransformation().getMatrix());
         int ptCntRemoved;
-        if (CPluginContainer::mesh_removePointCloudPointsFromOctree(_pointCloudInfo,pointCloudM,octree2Info,octree2CTM,ptCntRemoved))
+        if (CPluginContainer::geomPlugin_removeOctreeFromPtcloud(_pointCloudInfo,getCumulativeTransformation(),octree2Info,octree2Tr,&ptCntRemoved))
         {
-            CPluginContainer::mesh_destroyPointCloud(_pointCloudInfo);
+            CPluginContainer::geomPlugin_destroyPtcloud(_pointCloudInfo);
             _pointCloudInfo=nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
@@ -314,9 +314,9 @@ int CPointCloud::intersectPoints(const float* pts,int ptsCnt,bool ptsAreRelative
             }
             _pts=&__pts[0];
         }
-        if (CPluginContainer::mesh_intersectPointCloudPoints(_pointCloudInfo,_pts,ptsCnt,distanceTolerance))
+        if (CPluginContainer::geomPlugin_intersectPointsWithPtcloud(_pointCloudInfo,C7Vector::identityTransformation,_pts,ptsCnt,distanceTolerance))
         {
-            CPluginContainer::mesh_destroyPointCloud(_pointCloudInfo);
+            CPluginContainer::geomPlugin_destroyPtcloud(_pointCloudInfo);
             _pointCloudInfo=nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
@@ -387,31 +387,31 @@ void CPointCloud::insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeTo
         if (_pointCloudInfo==nullptr)
         {
             if (optionalColors3==nullptr)
-                _pointCloudInfo=CPluginContainer::mesh_createPointCloud(_pts,ptsCnt,_cellSize,_maxPointCountPerCell,color.colors,_insertionDistanceTolerance);
+            {
+                unsigned char cols[3]={(unsigned char)(color.colors[0]*255.1f),(unsigned char)(color.colors[1]*255.1f),(unsigned char)(color.colors[2]*255.1f)};
+                _pointCloudInfo=CPluginContainer::geomPlugin_createPtcloudFromPoints(_pts,ptsCnt,nullptr,_cellSize,_maxPointCountPerCell,cols,_insertionDistanceTolerance);
+            }
             else
             {
                 if (colorsAreIndividual)
-                    _pointCloudInfo=CPluginContainer::mesh_createColorPointCloud(_pts,ptsCnt,_cellSize,_maxPointCountPerCell,optionalColors3,_insertionDistanceTolerance);
+                    _pointCloudInfo=CPluginContainer::geomPlugin_createPtcloudFromColorPoints(_pts,ptsCnt,nullptr,_cellSize,_maxPointCountPerCell,optionalColors3,_insertionDistanceTolerance);
                 else
-                {
-                    const float c[3]={float(optionalColors3[0])/255.1f,float(optionalColors3[1])/255.1f,float(optionalColors3[2])/255.1f};
-                    _pointCloudInfo=CPluginContainer::mesh_createPointCloud(_pts,ptsCnt,_cellSize,_maxPointCountPerCell,c,_insertionDistanceTolerance);
-                }
+                    _pointCloudInfo=CPluginContainer::geomPlugin_createPtcloudFromPoints(_pts,ptsCnt,nullptr,_cellSize,_maxPointCountPerCell,optionalColors3,_insertionDistanceTolerance);
             }
         }
         else
         {
             if (optionalColors3==nullptr)
-                CPluginContainer::mesh_insertPointsIntoPointCloud(_pointCloudInfo,_pts,ptsCnt,color.colors,_insertionDistanceTolerance);
+            {
+                unsigned char cols[3]={(unsigned char)(color.colors[0]*255.1f),(unsigned char)(color.colors[1]*255.1f),(unsigned char)(color.colors[2]*255.1f)};
+                CPluginContainer::geomPlugin_insertPointsIntoPtcloud(_pointCloudInfo,C7Vector::identityTransformation,_pts,ptsCnt,cols,_insertionDistanceTolerance);
+            }
             else
             {
                 if (colorsAreIndividual)
-                    CPluginContainer::mesh_insertColorPointsIntoPointCloud(_pointCloudInfo,_pts,ptsCnt,optionalColors3,_insertionDistanceTolerance);
+                    CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud(_pointCloudInfo,C7Vector::identityTransformation,_pts,ptsCnt,optionalColors3,_insertionDistanceTolerance);
                 else
-                {
-                    const float c[3]={float(optionalColors3[0])/255.1f,float(optionalColors3[1])/255.1f,float(optionalColors3[2])/255.1f};
-                    CPluginContainer::mesh_insertPointsIntoPointCloud(_pointCloudInfo,_pts,ptsCnt,c,_insertionDistanceTolerance);
-                }
+                    CPluginContainer::geomPlugin_insertPointsIntoPtcloud(_pointCloudInfo,C7Vector::identityTransformation,_pts,ptsCnt,optionalColors3,_insertionDistanceTolerance);
             }
         }
     }
@@ -424,12 +424,12 @@ void CPointCloud::insertShape(const CShape* shape)
     // We first build an octree from the shape, then insert the octree cube points:
     ((CShape*)shape)->geomData->initializeCalculationStructureIfNeeded();
     C4X4Matrix m(getCumulativeTransformation().getMatrix());
-    float dummyColor[3];
-    void* octree=CPluginContainer::mesh_createOctreeFromShape(m,shape->geomData->collInfo,shape->getCumulativeTransformation().getMatrix(),_buildResolution,dummyColor,0);
+    unsigned char dummyColor[3];
+    const C7Vector tr(getCumulativeTransformation());
+    void* octree=CPluginContainer::geomPlugin_createOctreeFromMesh(shape->geomData->collInfo,shape->getCumulativeTransformation(),&tr,_buildResolution,dummyColor,0);
     std::vector<float> pts;
-    std::vector<float> cols;
-    CPluginContainer::mesh_getOctreeVoxels(octree,pts,cols);
-    CPluginContainer::mesh_destroyOctree(octree);
+    CPluginContainer::geomPlugin_getOctreeVoxelPositions(octree,pts);
+    CPluginContainer::geomPlugin_destroyOctree(octree);
     insertPoints(&pts[0],(int)pts.size()/3,true,nullptr,false);
 }
 
@@ -513,7 +513,7 @@ void CPointCloud::clear()
     _displayColors.clear();
     if (_pointCloudInfo!=nullptr)
     {
-        CPluginContainer::mesh_destroyPointCloud(_pointCloudInfo);
+        CPluginContainer::geomPlugin_destroyPtcloud(_pointCloudInfo);
         _pointCloudInfo=nullptr;
     }
     _minDim.set(-0.1f,-0.1f,-0.1f);
@@ -606,7 +606,7 @@ void CPointCloud::scaleObject(float scalingFactor)
     for (size_t i=0;i<_displayPoints.size();i++)
         _displayPoints[i]*=scalingFactor;
     if (_pointCloudInfo!=nullptr)
-        CPluginContainer::mesh_scalePointCloud(_pointCloudInfo,scalingFactor);
+        CPluginContainer::geomPlugin_scalePtcloud(_pointCloudInfo,scalingFactor);
 }
 
 void CPointCloud::scaleObjectNonIsometrically(float x,float y,float z)
@@ -629,7 +629,7 @@ C3DObject* CPointCloud::copyYourself()
     color.copyYourselfInto(&newPointcloud->color);
 
     if (_pointCloudInfo!=nullptr)
-        newPointcloud->_pointCloudInfo=CPluginContainer::mesh_copyPointCloud(_pointCloudInfo);
+        newPointcloud->_pointCloudInfo=CPluginContainer::geomPlugin_copyPtcloud(_pointCloudInfo);
     newPointcloud->_points.assign(_points.begin(),_points.end());
     newPointcloud->_colors.assign(_colors.begin(),_colors.end());
     newPointcloud->_minDim=_minDim;
@@ -987,7 +987,7 @@ void CPointCloud::serialize(CSer& ar)
                     ar.flush();
 
                     std::vector<unsigned char> data;
-                    CPluginContainer::mesh_getPointCloudSerializationData(_pointCloudInfo,data);
+                    CPluginContainer::geomPlugin_getPtcloudSerializationData(_pointCloudInfo,data);
                     ar.storeDataName("Co2");
                     ar.setCountingMode(true);
                     for (size_t i=0;i<data.size();i++)
@@ -1113,12 +1113,187 @@ void CPointCloud::serialize(CSer& ar)
                             ar >> dummy;
                             data.push_back(dummy);
                         }
-                        _pointCloudInfo=CPluginContainer::mesh_getPointCloudFromSerializationData(data);
+                        _pointCloudInfo=CPluginContainer::geomPlugin_getPtcloudFromSerializationData(&data[0]);
                         _readPositionsAndColorsAndSetDimensions();
                     }
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_float("cellSize",_cellSize);
+            ar.xmlAddNode_int("pointSize",_pointSize);
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("occupiedCells",_nonEmptyCells);
+
+            ar.xmlAddNode_int("maxPointsPerCell",_maxPointCountPerCell);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("showStructure",_showOctreeStructure);
+            ar.xmlAddNode_bool("randomColors",_useRandomColors);
+            if (exhaustiveXml)
+                ar.xmlAddNode_bool("saveCalculationStructure",_saveCalculationStructure);
+            ar.xmlAddNode_bool("emissiveColor",_colorIsEmissive);
+            ar.xmlAddNode_bool("useOctreeStructure",!_doNotUseOctreeStructure);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("tolerances");
+            ar.xmlAddNode_float("insertion",_insertionDistanceTolerance);
+            ar.xmlAddNode_float("removal",_removalDistanceTolerance);
+            ar.xmlPopNode();
+
+            ar.xmlAddNode_float("buildResolution",_buildResolution);
+            ar.xmlAddNode_float("displayRatio",_pointDisplayRatio);
+
+            ar.xmlPushNewNode("applyColor");
+            if (exhaustiveXml)
+                color.serialize(ar,0);
+            else
+            {
+                int rgb[3];
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(color.colors[l]*255.1f);
+                ar.xmlAddNode_ints("points",rgb,3);
+            }
+            ar.xmlPopNode();
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("pointCount",int(_points.size()/3));
+
+            if (ar.xmlSaveDataInline(_points.size()*4+_colors.size()*3/4)||(!exhaustiveXml))
+            {
+                ar.xmlAddNode_floats("points",_points);
+                std::vector<int> tmp;
+                for (size_t i=0;i<_points.size()/3;i++)
+                {
+                    tmp.push_back((unsigned int)(_colors[4*i+0]*255.1f));
+                    tmp.push_back((unsigned int)(_colors[4*i+1]*255.1f));
+                    tmp.push_back((unsigned int)(_colors[4*i+2]*255.1f));
+                }
+                ar.xmlAddNode_ints("pointColors",tmp);
+            }
+            else
+            {
+                CSer* w=ar.xmlAddNode_binFile("file",(std::string("ptcloud_")+_objectName).c_str());
+                w[0] << int(_points.size());
+                for (size_t i=0;i<_points.size();i++)
+                    w[0] << _points[i];
+
+                for (size_t i=0;i<_points.size()/3;i++)
+                {
+                    w[0] << (unsigned char)(_colors[4*i+0]*255.1f);
+                    w[0] << (unsigned char)(_colors[4*i+1]*255.1f);
+                    w[0] << (unsigned char)(_colors[4*i+2]*255.1f);
+                }
+                w->flush();
+                w->writeClose();
+                delete w;
+            }
+        }
+        else
+        {
+            ar.xmlGetNode_float("cellSize",_cellSize,exhaustiveXml);
+            ar.xmlGetNode_int("pointSize",_pointSize,exhaustiveXml);
+
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("occupiedCells",_nonEmptyCells);
+
+            ar.xmlGetNode_int("maxPointsPerCell",_maxPointCountPerCell,exhaustiveXml);
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("showStructure",_showOctreeStructure,exhaustiveXml);
+                ar.xmlGetNode_bool("randomColors",_useRandomColors,exhaustiveXml);
+                if (exhaustiveXml)
+                    ar.xmlGetNode_bool("saveCalculationStructure",_saveCalculationStructure);
+                ar.xmlGetNode_bool("emissiveColor",_colorIsEmissive,exhaustiveXml);
+                if (ar.xmlGetNode_bool("useOctreeStructure",_doNotUseOctreeStructure,exhaustiveXml))
+                    _doNotUseOctreeStructure=!_doNotUseOctreeStructure;
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("tolerances",exhaustiveXml))
+            {
+                ar.xmlGetNode_float("insertion",_insertionDistanceTolerance,exhaustiveXml);
+                ar.xmlGetNode_float("removal",_removalDistanceTolerance,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            ar.xmlGetNode_float("buildResolution",_buildResolution,exhaustiveXml);
+            ar.xmlGetNode_float("displayRatio",_pointDisplayRatio,exhaustiveXml);
+
+            if (ar.xmlPushChildNode("applyColor",exhaustiveXml))
+            {
+                if (exhaustiveXml)
+                    color.serialize(ar,0);
+                else
+                {
+                    int rgb[3];
+                    if (ar.xmlGetNode_ints("object",rgb,3,exhaustiveXml))
+                        color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                }
+                ar.xmlPopNode();
+            }
+
+            if (exhaustiveXml)
+            {
+                int ptCnt=0;
+                ar.xmlGetNode_int("pointCount",ptCnt);
+
+                std::vector<float> pts;
+                std::vector<unsigned char> cols;
+                if (ar.xmlGetNode_floats("points",pts,false))
+                    ar.xmlGetNode_uchars("pointColors",cols);
+                else
+                {
+                    CSer* w=ar.xmlGetNode_binFile("file");
+                    int cnt;
+                    w[0] >> cnt;
+                    pts.resize(cnt);
+                    for (int i=0;i<cnt;i++)
+                        w[0] >> pts[i];
+                    cols.resize(cnt);
+                    for (int i=0;i<cnt;i++)
+                        w[0] >> cols[i];
+                    w->readClose();
+                    delete w;
+                }
+                if (ptCnt>0)
+                    insertPoints(&pts[0],ptCnt,true,&cols[0],true);
+                else
+                    clear();
+            }
+            else
+            {
+                std::vector<float> pts;
+                std::vector<unsigned char> cols;
+                if (ar.xmlGetNode_floats("points",pts,exhaustiveXml))
+                    ar.xmlGetNode_uchars("pointColors",cols,exhaustiveXml);
+                if (pts.size()>=3)
+                {
+                    while ((pts.size() % 3)!=0)
+                        pts.pop_back();
+                    if (cols.size()<pts.size())
+                    {
+                        cols.resize(pts.size());
+                        for (size_t i=0;i<pts.size()/3;i++)
+                        {
+                            cols[3*i+0]=(unsigned char)(color.colors[0]*255.1f);
+                            cols[3*i+1]=(unsigned char)(color.colors[1]*255.1f);
+                            cols[3*i+2]=(unsigned char)(color.colors[2]*255.1f);
+                        }
+                    }
+                    insertPoints(&pts[0],pts.size()/3,true,&cols[0],true);
+                }
+                else
+                    clear();
             }
         }
     }

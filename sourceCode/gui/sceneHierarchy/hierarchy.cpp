@@ -1,8 +1,7 @@
-
 // This file requires some serious refactoring!!
 
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "hierarchy.h"
 #include "oGL.h"
 #include "imgLoaderSaver.h"
@@ -12,11 +11,11 @@
 #include "fileOperations.h"
 #include "tt.h"
 #include "pluginContainer.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "vVarious.h"
 #include "vDateTime.h"
-#include "miscBase.h"
+#include "libLic.h"
 
 const int SAFETY_BORDER_SIZE=20;
 const int CONST_VAL_40=40;
@@ -861,7 +860,7 @@ bool CHierarchy::leftMouseDown(int x,int y,int selectionStatus)
                     {
                         App::ct->objCont->deselectObjects();
                         App::ct->objCont->addObjectToSelection(objID); // Normal selection
-#ifndef KEYWORD__NOT_DEFINED_FORMELY_BR
+#ifndef KEYWORD__NOT_DEFINED_FORMELY_XR
                         int dxv[2];
                         if (getLineObjectID(mouseDownRelativePosition[1],dxv)==objID)
                         {
@@ -1184,7 +1183,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
     shiftSelectionStarted=false;
     shiftingAllowed=false;
 
-#ifndef KEYWORD__NOT_DEFINED_FORMELY_BR
+#ifndef KEYWORD__NOT_DEFINED_FORMELY_XR
     // We check if we have to launch a script editor window:
     int scriptID=getScriptActionObjectID(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
     if (scriptID!=-1)
@@ -1213,16 +1212,15 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
         }
         return(true);
     }
-    scriptID=getScriptParameterActionObjectID(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
-    if (scriptID!=-1)
+    int objID=getScriptParameterActionObjectID(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
+    if (objID!=-1)
     {
-        CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptID);
-        if ( (it!=nullptr)&&((App::operationalUIParts&sim_gui_scriptsimulationparameters)!=0) )
+        if ((App::operationalUIParts&sim_gui_scriptsimulationparameters)!=0)
         {
             // Process the command via the simulation thread (delayed):
             SSimulationThreadCommand cmd;
-            cmd.cmdId=OPEN_MODAL_SCRIPT_SIMULATION_PARAMETERS_CMD;
-            cmd.intParams.push_back(it->getScriptID());
+            cmd.cmdId=CALL_USER_CONFIG_CALLBACK_CMD;
+            cmd.intParams.push_back(objID);
             App::appendSimulationThreadCommand(cmd);
         }
         return(true);
@@ -1231,7 +1229,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
     if (App::getEditModeType()==NO_EDIT_MODE)
     {
         int objID=-1;
-#ifndef KEYWORD__NOT_DEFINED_FORMELY_BR
+#ifndef KEYWORD__NOT_DEFINED_FORMELY_XR
         // Do we need to open an object property dialog?
         objID=getActionObjectID_icon(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
         if (objID!=-9999) // minus numbers are for the world(s)
@@ -1353,7 +1351,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
         return(true);
     }
 
-    if ( CMiscBase::handleVerSpec_supportsOpenglBasedCustomUiEdition()&&(App::getEditModeType()&BUTTON_EDIT_MODE) )
+    if ( CLibLic::getBoolVal(6)&&(App::getEditModeType()&BUTTON_EDIT_MODE) )
     {
         // Did we double-click the icon?
         int objID=getActionObjectID_icon(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
@@ -1376,7 +1374,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
         }
         return(true);
     }
-    if ( CMiscBase::handleVerSpec_supportsOpenglBasedCustomUiEdition()&&(App::getEditModeType()&(VERTEX_EDIT_MODE|PATH_EDIT_MODE)) )
+    if ( CLibLic::getBoolVal(6)&&(App::getEditModeType()&(VERTEX_EDIT_MODE|PATH_EDIT_MODE)) )
     {
         // Did we double-click the icon?
         int objID=getActionObjectID_icon(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);

@@ -1,7 +1,7 @@
 
 #include "oglExt.h"
 
-#ifndef MAC_VREP
+#ifndef MAC_SIM
 PFNGLGENFRAMEBUFFERSEXTPROC oglExt::_glGenFramebuffers=nullptr;
 PFNGLDELETEFRAMEBUFFERSEXTPROC oglExt::_glDeleteFramebuffers=nullptr;
 PFNGLBINDFRAMEBUFFEREXTPROC oglExt::_glBindFramebuffer=nullptr;
@@ -25,7 +25,7 @@ bool oglExt::_usingExt=false;
 
 void oglExt::GenFramebuffers(GLsizei a,GLuint* b)
 {
-#ifndef MAC_VREP
+#ifndef MAC_SIM
     _glGenFramebuffers(a,b);
 #else
     if (_usingExt)
@@ -37,7 +37,7 @@ void oglExt::GenFramebuffers(GLsizei a,GLuint* b)
 
 void oglExt::DeleteFramebuffers(GLsizei a,const GLuint* b)
 {
-#ifndef MAC_VREP
+#ifndef MAC_SIM
     _glDeleteFramebuffers(a,b);
 #else
     if (_usingExt)
@@ -49,7 +49,7 @@ void oglExt::DeleteFramebuffers(GLsizei a,const GLuint* b)
 
 void oglExt::BindFramebuffer(GLenum a,GLuint b)
 {
-#ifndef MAC_VREP
+#ifndef MAC_SIM
     _glBindFramebuffer(a,b);
 #else
     if (_usingExt)
@@ -61,7 +61,7 @@ void oglExt::BindFramebuffer(GLenum a,GLuint b)
 
 void oglExt::GenRenderbuffers(GLsizei a,GLuint* b)
 {
-#ifndef MAC_VREP
+#ifndef MAC_SIM
     _glGenRenderbuffers(a,b);
 #else
     if (_usingExt)
@@ -73,7 +73,7 @@ void oglExt::GenRenderbuffers(GLsizei a,GLuint* b)
 
 void oglExt::DeleteRenderbuffers(GLsizei a,const GLuint* b)
 {
-#ifndef MAC_VREP
+#ifndef MAC_SIM
     _glDeleteRenderbuffers(a,b);
 #else
     if (_usingExt)
@@ -85,7 +85,7 @@ void oglExt::DeleteRenderbuffers(GLsizei a,const GLuint* b)
 
 void oglExt::BindRenderbuffer(GLenum a,GLuint b)
 {
-#ifndef MAC_VREP
+#ifndef MAC_SIM
     _glBindRenderbuffer(a,b);
 #else
     if (_usingExt)
@@ -97,7 +97,7 @@ void oglExt::BindRenderbuffer(GLenum a,GLuint b)
 
 void oglExt::RenderbufferStorage(GLenum a,GLenum b,GLsizei c,GLsizei d)
 {
-#ifndef MAC_VREP
+#ifndef MAC_SIM
     _glRenderbufferStorage(a,b,c,d);
 #else
     if (_usingExt)
@@ -109,7 +109,7 @@ void oglExt::RenderbufferStorage(GLenum a,GLenum b,GLsizei c,GLsizei d)
 
 void oglExt::FramebufferRenderbuffer(GLenum a,GLenum b,GLenum c,GLuint d)
 {
-#ifndef MAC_VREP
+#ifndef MAC_SIM
     _glFramebufferRenderbuffer(a,b,c,d);
 #else
     if (_usingExt)
@@ -121,7 +121,7 @@ void oglExt::FramebufferRenderbuffer(GLenum a,GLenum b,GLenum c,GLuint d)
 
 void oglExt::CheckFramebufferStatus(GLenum a)
 {
-#ifndef MAC_VREP
+#ifndef MAC_SIM
     _glCheckFramebufferStatus(a);
 #else
     if (_usingExt)
@@ -133,7 +133,7 @@ void oglExt::CheckFramebufferStatus(GLenum a)
 
 void oglExt::GetRenderbufferParameteriv(GLenum a,GLenum b,GLint* c)
 {
-#ifndef MAC_VREP
+#ifndef MAC_SIM
     _glGetRenderbufferParameteriv(a,b,c);
 #else
     if (_usingExt)
@@ -147,7 +147,7 @@ void oglExt::prepareExtensionFunctions(bool forceFboToUseExt)
 {
     _usingExt=false;
     _isFboAvailable(_usingExt);
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     if (_usingExt||forceFboToUseExt)
     {
         _glGenFramebuffers=(PFNGLGENFRAMEBUFFERSEXTPROC)wglGetProcAddress("glGenFramebuffersEXT");
@@ -183,7 +183,7 @@ void oglExt::prepareExtensionFunctions(bool forceFboToUseExt)
     }
 #endif
 
-#ifdef LIN_VREP
+#ifdef LIN_SIM
     if (_usingExt||forceFboToUseExt)
     {
         _glGenFramebuffers=(PFNGLGENFRAMEBUFFERSEXTPROC)glXGetProcAddress((GLubyte*)"glGenFramebuffersEXT");
@@ -219,7 +219,7 @@ void oglExt::prepareExtensionFunctions(bool forceFboToUseExt)
     }
 #endif
 
-#ifdef MAC_VREP
+#ifdef MAC_SIM
     if ((!_usingExt)&&(!forceFboToUseExt))
     {
         DEPTH24_STENCIL8=GL_DEPTH24_STENCIL8;
@@ -237,20 +237,20 @@ void oglExt::prepareExtensionFunctions(bool forceFboToUseExt)
 
 void oglExt::turnOffVSync(int vsync)
 {
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     typedef BOOL (WINAPI *PFNWGLSWAPINTERVALEXTPROC)(int interval);
     PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT=(PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
     if (wglSwapIntervalEXT)
         wglSwapIntervalEXT(vsync);
 #endif
 
-#ifdef MAC_VREP
+#ifdef MAC_SIM
     int swap_interval=vsync;
     CGLContextObj cgl_context=CGLGetCurrentContext();
     CGLSetParameter(cgl_context,kCGLCPSwapInterval,&swap_interval);
 #endif
 
-#ifdef LIN_VREP
+#ifdef LIN_SIM
     typedef int (APIENTRY * AAAAGLSWAPINTERVALEXTPROC)(int);
     AAAAGLSWAPINTERVALEXTPROC wglSwapIntervalEXT=(AAAAGLSWAPINTERVALEXTPROC)glXGetProcAddress((const GLubyte*)"glXSwapIntervalSGI");
     if (wglSwapIntervalEXT)
@@ -269,8 +269,10 @@ bool oglExt::isFboAvailable()
 
 bool oglExt::_isFboAvailable(bool& viaExt)
 { // prepareExtensionFunctions() should have been called previously!
-#ifndef MAC_VREP
+#ifndef MAC_SIM
     const char* gl_version=(const char*)(glGetString(GL_VERSION));
+    if (gl_version==nullptr)
+        return(false);
 //  printf("glVersion: %s\n",gl_version);
 /*
     printf("glVersion: %s\n",gl_version);
@@ -294,6 +296,8 @@ bool oglExt::_isFboAvailable(bool& viaExt)
     else
     {
         const char* gl_extensions=(const char*)(glGetString(GL_EXTENSIONS));
+        if (gl_extensions==nullptr)
+            return(false);
         if (strstr(gl_extensions,"ARB_framebuffer_object")!=0)
             viaExt=false;
         else if (strstr(gl_extensions,"EXT_framebuffer_object")!=0)

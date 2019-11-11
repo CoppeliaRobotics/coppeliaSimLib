@@ -25,6 +25,7 @@ public:
     void serialize(CSer& ar);
     void performObjectLoadingMapping(std::vector<int>* map);
     CSPage* getPage(int pageIndex) const;
+    int getMainCameraHandle() const;
 
     void setPageSizeAndPosition(int sizeX,int sizeY,int posX,int posY);
     void removePage(int pageIndex);

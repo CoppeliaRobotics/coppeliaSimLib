@@ -5,7 +5,7 @@
 #include "qdlgmaterial.h"
 #include "qdlgcolor.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 CQDlgMirrors::CQDlgMirrors(QWidget *parent) :
     CDlgEx(parent),

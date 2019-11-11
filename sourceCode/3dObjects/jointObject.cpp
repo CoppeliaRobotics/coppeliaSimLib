@@ -1,10 +1,10 @@
 #include "funcDebug.h"
 #include "jointObject.h"
 #include "tt.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "gV.h"
 #include "linMotionRoutines.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "ttUtil.h"
 #include "easyLock.h"
 #include "app.h"
@@ -2475,6 +2475,411 @@ void CJoint::serialize(CSer& ar)
             }
         }
     }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            float mult=1.0f;
+            if (_jointType!=sim_joint_prismatic_subtype)
+                mult=180.0f/piValue_f;
+            ar.xmlAddNode_comment(" 'type' tag: can be 'revolute', 'prismatic' or 'spherical' ",exhaustiveXml);
+            ar.xmlAddNode_enum("type",_jointType,sim_joint_revolute_subtype,"revolute",sim_joint_prismatic_subtype,"prismatic",sim_joint_spherical_subtype,"spherical");
+            ar.xmlAddNode_comment(" 'mode' tag: can be 'passive', 'ik', 'dependent' or 'force' ",exhaustiveXml);
+            ar.xmlAddNode_enum("mode",_jointMode,sim_jointmode_passive,"passive",sim_jointmode_ik,"ik",sim_jointmode_dependent,"dependent",sim_jointmode_force,"force");
+
+            ar.xmlAddNode_float("minPosition",_jointMinPosition*mult);
+            ar.xmlAddNode_float("range",_jointPositionRange*mult);
+            ar.xmlAddNode_float("position",_jointPosition*mult);
+
+            ar.xmlAddNode_float("screwPitch",_screwPitch);
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_floats("sphericalQuaternion",_sphericalTransformation.data,4);
+            else
+            {
+                C3Vector euler(_sphericalTransformation.getEulerAngles());
+                for (size_t l=0;l<3;l++)
+                    euler(l)*=180.0f/piValue_f;
+                ar.xmlAddNode_floats("sphericalEuler",euler.data,3);
+            }
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("cyclic",_positionIsCyclic);
+            ar.xmlAddNode_bool("hybridMode",_jointHasHybridFunctionality);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("sizes");
+            ar.xmlAddNode_float("length",_length);
+            ar.xmlAddNode_float("diameter",_diameter);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("color");
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("part1");
+                colorPart1.serialize(ar,0);
+                ar.xmlPopNode();
+                ar.xmlPushNewNode("part2");
+                colorPart2.serialize(ar,0);
+                ar.xmlPopNode();
+            }
+            else
+            {
+                int rgb[3];
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(colorPart1.colors[l]*255.1f);
+                ar.xmlAddNode_ints("part1",rgb,3);
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(colorPart2.colors[l]*255.1f);
+                ar.xmlAddNode_ints("part2",rgb,3);
+            }
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("ik");
+            ar.xmlAddNode_float("maxStepSize",_maxStepSize*mult);
+            ar.xmlAddNode_float("weight",_ikWeight);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("dependency");
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("jointHandle",_dependencyJointID);
+            else
+            {
+                std::string str;
+                CJoint* it=App::ct->objCont->getJoint(_dependencyJointID);
+                if (it!=nullptr)
+                    str=it->getObjectName();
+                ar.xmlAddNode_string("dependentJoint",str.c_str());
+            }
+            ar.xmlAddNode_comment(" 'offset_m_or_rad' tag: has to be specified in meters or radians ",exhaustiveXml);
+            ar.xmlAddNode_float("offset_m_or_rad",_dependencyJointOffset);
+            ar.xmlAddNode_comment(" 'mult_m_or_rad' tag: has to be specified in meters or radians ",exhaustiveXml);
+            ar.xmlAddNode_float("mult_m_or_rad",_dependencyJointCoeff);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("dynamics");
+            ar.xmlAddNode_float("maxForce",_dynamicMotorMaximumForce);
+            ar.xmlAddNode_float("upperVelocityLimit",_dynamicMotorUpperLimitVelocity*mult);
+            ar.xmlAddNode_float("targetPosition",_dynamicMotorPositionControl_targetPosition*mult);
+            ar.xmlAddNode_float("targetVelocity",_dynamicMotorTargetVelocity*mult);
+            ar.xmlAddNode_3float("pidValues",_dynamicMotorPositionControl_P,_dynamicMotorPositionControl_I,_dynamicMotorPositionControl_D);
+            ar.xmlAddNode_2float("kcValues",_dynamicMotorSpringControl_K,_dynamicMotorSpringControl_C);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("motorEnabled",_dynamicMotorEnabled);
+            ar.xmlAddNode_bool("controlLoopEnabled",_dynamicMotorControlLoopEnabled);
+            ar.xmlAddNode_bool("springMode",_dynamicMotorPositionControl_torqueModulation);
+            ar.xmlAddNode_bool("lockInVelocityControl",_dynamicLockModeWhenInVelocityControl);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("engines");
+            ar.xmlPushNewNode("bullet");
+            ar.xmlAddNode_float("stoperp",getEngineFloatParam(sim_bullet_joint_stoperp,nullptr));
+            ar.xmlAddNode_float("stopcfm",getEngineFloatParam(sim_bullet_joint_stopcfm,nullptr));
+            ar.xmlAddNode_float("normalcfm",getEngineFloatParam(sim_bullet_joint_normalcfm,nullptr));
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("ode");
+            ar.xmlAddNode_float("stoperp",getEngineFloatParam(sim_ode_joint_stoperp,nullptr));
+            ar.xmlAddNode_float("stopcfm",getEngineFloatParam(sim_ode_joint_stopcfm,nullptr));
+            ar.xmlAddNode_float("bounce",getEngineFloatParam(sim_ode_joint_bounce,nullptr));
+            ar.xmlAddNode_float("fudgefactor",getEngineFloatParam(sim_ode_joint_fudgefactor,nullptr));
+            ar.xmlAddNode_float("normalcfm",getEngineFloatParam(sim_ode_joint_normalcfm,nullptr));
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("vortex");
+            ar.xmlAddNode_float("lowerlimitdamping",getEngineFloatParam(sim_vortex_joint_lowerlimitdamping,nullptr));
+            ar.xmlAddNode_float("upperlimitdamping",getEngineFloatParam(sim_vortex_joint_upperlimitdamping,nullptr));
+            ar.xmlAddNode_float("lowerlimitstiffness",getEngineFloatParam(sim_vortex_joint_lowerlimitstiffness,nullptr));
+            ar.xmlAddNode_float("upperlimitstiffness",getEngineFloatParam(sim_vortex_joint_upperlimitstiffness,nullptr));
+            ar.xmlAddNode_float("lowerlimitrestitution",getEngineFloatParam(sim_vortex_joint_lowerlimitrestitution,nullptr));
+            ar.xmlAddNode_float("upperlimitrestitution",getEngineFloatParam(sim_vortex_joint_upperlimitrestitution,nullptr));
+            ar.xmlAddNode_float("lowerlimitmaxforce",getEngineFloatParam(sim_vortex_joint_lowerlimitmaxforce,nullptr));
+            ar.xmlAddNode_float("upperlimitmaxforce",getEngineFloatParam(sim_vortex_joint_upperlimitmaxforce,nullptr));
+            ar.xmlAddNode_float("motorconstraintfrictioncoeff",getEngineFloatParam(sim_vortex_joint_motorconstraintfrictioncoeff,nullptr));
+            ar.xmlAddNode_float("motorconstraintfrictionmaxforce",getEngineFloatParam(sim_vortex_joint_motorconstraintfrictionmaxforce,nullptr));
+            ar.xmlAddNode_float("motorconstraintfrictionloss",getEngineFloatParam(sim_vortex_joint_motorconstraintfrictionloss,nullptr));
+            ar.xmlAddNode_float("p0loss",getEngineFloatParam(sim_vortex_joint_p0loss,nullptr));
+            ar.xmlAddNode_float("p0stiffness",getEngineFloatParam(sim_vortex_joint_p0stiffness,nullptr));
+            ar.xmlAddNode_float("p0damping",getEngineFloatParam(sim_vortex_joint_p0damping,nullptr));
+            ar.xmlAddNode_float("p0frictioncoeff",getEngineFloatParam(sim_vortex_joint_p0frictioncoeff,nullptr));
+            ar.xmlAddNode_float("p0frictionmaxforce",getEngineFloatParam(sim_vortex_joint_p0frictionmaxforce,nullptr));
+            ar.xmlAddNode_float("p0frictionloss",getEngineFloatParam(sim_vortex_joint_p0frictionloss,nullptr));
+            ar.xmlAddNode_float("p1loss",getEngineFloatParam(sim_vortex_joint_p1loss,nullptr));
+            ar.xmlAddNode_float("p1stiffness",getEngineFloatParam(sim_vortex_joint_p1stiffness,nullptr));
+            ar.xmlAddNode_float("p1damping",getEngineFloatParam(sim_vortex_joint_p1damping,nullptr));
+            ar.xmlAddNode_float("p1frictioncoeff",getEngineFloatParam(sim_vortex_joint_p1frictioncoeff,nullptr));
+            ar.xmlAddNode_float("p1frictionmaxforce",getEngineFloatParam(sim_vortex_joint_p1frictionmaxforce,nullptr));
+            ar.xmlAddNode_float("p1frictionloss",getEngineFloatParam(sim_vortex_joint_p1frictionloss,nullptr));
+            ar.xmlAddNode_float("p2loss",getEngineFloatParam(sim_vortex_joint_p2loss,nullptr));
+            ar.xmlAddNode_float("p2stiffness",getEngineFloatParam(sim_vortex_joint_p2stiffness,nullptr));
+            ar.xmlAddNode_float("p2damping",getEngineFloatParam(sim_vortex_joint_p2damping,nullptr));
+            ar.xmlAddNode_float("p2frictioncoeff",getEngineFloatParam(sim_vortex_joint_p2frictioncoeff,nullptr));
+            ar.xmlAddNode_float("p2frictionmaxforce",getEngineFloatParam(sim_vortex_joint_p2frictionmaxforce,nullptr));
+            ar.xmlAddNode_float("p2frictionloss",getEngineFloatParam(sim_vortex_joint_p2frictionloss,nullptr));
+            ar.xmlAddNode_float("a0loss",getEngineFloatParam(sim_vortex_joint_a0loss,nullptr));
+            ar.xmlAddNode_float("a0stiffness",getEngineFloatParam(sim_vortex_joint_a0stiffness,nullptr));
+            ar.xmlAddNode_float("a0damping",getEngineFloatParam(sim_vortex_joint_a0damping,nullptr));
+            ar.xmlAddNode_float("a0frictioncoeff",getEngineFloatParam(sim_vortex_joint_a0frictioncoeff,nullptr));
+            ar.xmlAddNode_float("a0frictionmaxforce",getEngineFloatParam(sim_vortex_joint_a0frictionmaxforce,nullptr));
+            ar.xmlAddNode_float("a0frictionloss",getEngineFloatParam(sim_vortex_joint_a0frictionloss,nullptr));
+            ar.xmlAddNode_float("a1loss",getEngineFloatParam(sim_vortex_joint_a1loss,nullptr));
+            ar.xmlAddNode_float("a1stiffness",getEngineFloatParam(sim_vortex_joint_a1stiffness,nullptr));
+            ar.xmlAddNode_float("a1damping",getEngineFloatParam(sim_vortex_joint_a1damping,nullptr));
+            ar.xmlAddNode_float("a1frictioncoeff",getEngineFloatParam(sim_vortex_joint_a1frictioncoeff,nullptr));
+            ar.xmlAddNode_float("a1frictionmaxforce",getEngineFloatParam(sim_vortex_joint_a1frictionmaxforce,nullptr));
+            ar.xmlAddNode_float("a1frictionloss",getEngineFloatParam(sim_vortex_joint_a1frictionloss,nullptr));
+            ar.xmlAddNode_float("a2loss",getEngineFloatParam(sim_vortex_joint_a2loss,nullptr));
+            ar.xmlAddNode_float("a2stiffness",getEngineFloatParam(sim_vortex_joint_a2stiffness,nullptr));
+            ar.xmlAddNode_float("a2damping",getEngineFloatParam(sim_vortex_joint_a2damping,nullptr));
+            ar.xmlAddNode_float("a2frictioncoeff",getEngineFloatParam(sim_vortex_joint_a2frictioncoeff,nullptr));
+            ar.xmlAddNode_float("a2frictionmaxforce",getEngineFloatParam(sim_vortex_joint_a2frictionmaxforce,nullptr));
+            ar.xmlAddNode_float("a2frictionloss",getEngineFloatParam(sim_vortex_joint_a2frictionloss,nullptr));
+            ar.xmlAddNode_float("dependencyfactor",getEngineFloatParam(sim_vortex_joint_dependencyfactor,nullptr));
+            ar.xmlAddNode_float("dependencyoffset",getEngineFloatParam(sim_vortex_joint_dependencyoffset,nullptr));
+
+            //ar.xmlAddNode_int("bitcoded",getEngineIntParam(sim_vortex_joint_bitcoded,nullptr));
+            ar.xmlAddNode_int("relaxationenabledbc",getEngineIntParam(sim_vortex_joint_relaxationenabledbc,nullptr));
+            ar.xmlAddNode_int("frictionenabledbc",getEngineIntParam(sim_vortex_joint_frictionenabledbc,nullptr));
+            ar.xmlAddNode_int("frictionproportionalbc",getEngineIntParam(sim_vortex_joint_frictionproportionalbc,nullptr));
+            ar.xmlAddNode_int("objectid",getEngineIntParam(sim_vortex_joint_objectid,nullptr));
+            ar.xmlAddNode_int("dependentobjectid",getEngineIntParam(sim_vortex_joint_dependentobjectid,nullptr));
+
+            ar.xmlAddNode_bool("motorfrictionenabled",getEngineBoolParam(sim_vortex_joint_motorfrictionenabled,nullptr));
+            ar.xmlAddNode_bool("proportionalmotorfriction",getEngineBoolParam(sim_vortex_joint_proportionalmotorfriction,nullptr));
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("newton");
+            ar.xmlAddNode_float("dependencyfactor",getEngineFloatParam(sim_newton_joint_dependencyfactor,nullptr));
+            ar.xmlAddNode_float("dependencyoffset",getEngineFloatParam(sim_newton_joint_dependencyoffset,nullptr));
+
+            ar.xmlAddNode_int("objectid",getEngineIntParam(sim_newton_joint_objectid,nullptr));
+            ar.xmlAddNode_int("dependentobjectid",getEngineIntParam(sim_newton_joint_dependentobjectid,nullptr));
+            ar.xmlPopNode();
+
+            ar.xmlPopNode();
+
+            ar.xmlPopNode();
+        }
+        else
+        {
+            float mult=1.0f;
+            if (ar.xmlGetNode_enum("type",_jointType,exhaustiveXml,"revolute",sim_joint_revolute_subtype,"prismatic",sim_joint_prismatic_subtype,"spherical",sim_joint_spherical_subtype))
+            {
+                if (_jointType==sim_joint_revolute_subtype)
+                    mult=piValue_f/180.0f;
+            }
+
+            ar.xmlGetNode_enum("mode",_jointMode,exhaustiveXml,"passive",sim_jointmode_passive,"ik",sim_jointmode_ik,"dependent",sim_jointmode_dependent,"force",sim_jointmode_force);
+
+            if (ar.xmlGetNode_float("minPosition",_jointMinPosition,exhaustiveXml))
+            {
+                _jointMinPosition*=mult;
+
+                if (ar.xmlGetNode_float("range",_jointPositionRange,exhaustiveXml))
+                    _jointPositionRange*=mult;
+            }
+
+            if (ar.xmlGetNode_float("position",_jointPosition,exhaustiveXml))
+                _jointPosition*=mult;
+
+            ar.xmlGetNode_float("screwPitch",_screwPitch,exhaustiveXml);
+
+            if (exhaustiveXml)
+                ar.xmlGetNode_floats("sphericalQuaternion",_sphericalTransformation.data,4);
+            else
+            {
+                C3Vector euler;
+                if (ar.xmlGetNode_floats("sphericalEuler",euler.data,3,exhaustiveXml))
+                {
+                    euler(0)*=piValue_f/180.0f;
+                    euler(1)*=piValue_f/180.0f;
+                    euler(2)*=piValue_f/180.0f;
+                    _sphericalTransformation.setEulerAngles(euler);
+                }
+            }
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("cyclic",_positionIsCyclic,exhaustiveXml);
+                ar.xmlGetNode_bool("hybridMode",_jointHasHybridFunctionality,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("sizes",exhaustiveXml))
+            {
+                ar.xmlGetNode_float("length",_length,exhaustiveXml);
+                ar.xmlGetNode_float("diameter",_diameter,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("color",exhaustiveXml))
+            {
+                if (exhaustiveXml)
+                {
+                    if (ar.xmlPushChildNode("part1"))
+                    {
+                        colorPart1.serialize(ar,0);
+                        ar.xmlPopNode();
+                    }
+                    if (ar.xmlPushChildNode("part2"))
+                    {
+                        colorPart2.serialize(ar,0);
+                        ar.xmlPopNode();
+                    }
+                }
+                else
+                {
+                    int rgb[3];
+                    if (ar.xmlGetNode_ints("part1",rgb,3,exhaustiveXml))
+                        colorPart1.setColor(float(rgb[0])/255.0f,float(rgb[1])/255.0f,float(rgb[2])/255.0f,sim_colorcomponent_ambient_diffuse);
+                    if (ar.xmlGetNode_ints("part2",rgb,3,exhaustiveXml))
+                        colorPart2.setColor(float(rgb[0])/255.0f,float(rgb[1])/255.0f,float(rgb[2])/255.0f,sim_colorcomponent_ambient_diffuse);
+                }
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("ik",exhaustiveXml))
+            {
+                if (ar.xmlGetNode_float("maxStepSize",_maxStepSize,exhaustiveXml))
+                    _maxStepSize*=mult;
+                ar.xmlGetNode_float("weight",_ikWeight,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("dependency",exhaustiveXml))
+            {
+                if (exhaustiveXml)
+                    ar.xmlGetNode_int("jointHandle",_dependencyJointID);
+                else
+                    ar.xmlGetNode_string("dependentJoint",_dependencyJointLoadName,exhaustiveXml);
+                ar.xmlGetNode_float("offset_m_or_rad",_dependencyJointOffset,exhaustiveXml);
+                ar.xmlGetNode_float("mult_m_or_rad",_dependencyJointCoeff,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("dynamics",exhaustiveXml))
+            {
+                ar.xmlGetNode_float("maxForce",_dynamicMotorMaximumForce,exhaustiveXml);
+                if (ar.xmlGetNode_float("upperVelocityLimit",_dynamicMotorUpperLimitVelocity,exhaustiveXml))
+                    _dynamicMotorUpperLimitVelocity*=mult;
+                if (ar.xmlGetNode_float("targetPosition",_dynamicMotorPositionControl_targetPosition,exhaustiveXml))
+                    _dynamicMotorPositionControl_targetPosition*=mult;
+                if (ar.xmlGetNode_float("targetVelocity",_dynamicMotorTargetVelocity,exhaustiveXml))
+                    _dynamicMotorTargetVelocity*=mult;
+                ar.xmlGetNode_3float("pidValues",_dynamicMotorPositionControl_P,_dynamicMotorPositionControl_I,_dynamicMotorPositionControl_D,exhaustiveXml);
+                ar.xmlGetNode_2float("kcValues",_dynamicMotorSpringControl_K,_dynamicMotorSpringControl_C,exhaustiveXml);
+
+                if (ar.xmlPushChildNode("switches",exhaustiveXml))
+                {
+                    ar.xmlGetNode_bool("motorEnabled",_dynamicMotorEnabled,exhaustiveXml);
+                    ar.xmlGetNode_bool("controlLoopEnabled",_dynamicMotorControlLoopEnabled,exhaustiveXml);
+                    ar.xmlGetNode_bool("springMode",_dynamicMotorPositionControl_torqueModulation,exhaustiveXml);
+                    ar.xmlGetNode_bool("lockInVelocityControl",_dynamicLockModeWhenInVelocityControl,exhaustiveXml);
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("engines",exhaustiveXml))
+                {
+                    float v;
+                    int vi;
+                    bool vb;
+                    if (ar.xmlPushChildNode("bullet",exhaustiveXml))
+                    {
+                        if (ar.xmlGetNode_float("stoperp",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_joint_stoperp,v);
+                        if (ar.xmlGetNode_float("stopcfm",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_joint_stopcfm,v);
+                        if (ar.xmlGetNode_float("normalcfm",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_joint_normalcfm,v);
+                        ar.xmlPopNode();
+                    }
+                    if (ar.xmlPushChildNode("ode",exhaustiveXml))
+                    {
+                        if (ar.xmlGetNode_float("stoperp",v,exhaustiveXml)) setEngineFloatParam(sim_ode_joint_stoperp,v);
+                        if (ar.xmlGetNode_float("stopcfm",v,exhaustiveXml)) setEngineFloatParam(sim_ode_joint_stopcfm,v);
+                        if (ar.xmlGetNode_float("bounce",v,exhaustiveXml)) setEngineFloatParam(sim_ode_joint_bounce,v);
+                        if (ar.xmlGetNode_float("fudgefactor",v,exhaustiveXml)) setEngineFloatParam(sim_ode_joint_fudgefactor,v);
+                        if (ar.xmlGetNode_float("normalcfm",v,exhaustiveXml)) setEngineFloatParam(sim_ode_joint_normalcfm,v);
+                        ar.xmlPopNode();
+                    }
+                    if (ar.xmlPushChildNode("vortex",exhaustiveXml))
+                    {
+                        if (ar.xmlGetNode_float("lowerlimitdamping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_lowerlimitdamping,v);
+                        if (ar.xmlGetNode_float("upperlimitdamping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_upperlimitdamping,v);
+                        if (ar.xmlGetNode_float("lowerlimitstiffness",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_lowerlimitstiffness,v);
+                        if (ar.xmlGetNode_float("upperlimitstiffness",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_upperlimitstiffness,v);
+                        if (ar.xmlGetNode_float("lowerlimitrestitution",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_lowerlimitrestitution,v);
+                        if (ar.xmlGetNode_float("upperlimitrestitution",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_upperlimitrestitution,v);
+                        if (ar.xmlGetNode_float("lowerlimitmaxforce",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_lowerlimitmaxforce,v);
+                        if (ar.xmlGetNode_float("upperlimitmaxforce",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_upperlimitmaxforce,v);
+                        if (ar.xmlGetNode_float("motorconstraintfrictioncoeff",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_motorconstraintfrictioncoeff,v);
+                        if (ar.xmlGetNode_float("motorconstraintfrictionmaxforce",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_motorconstraintfrictionmaxforce,v);
+                        if (ar.xmlGetNode_float("motorconstraintfrictionloss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_motorconstraintfrictionloss,v);
+                        if (ar.xmlGetNode_float("p0loss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p0loss,v);
+                        if (ar.xmlGetNode_float("p0stiffness",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p0stiffness,v);
+                        if (ar.xmlGetNode_float("p0damping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p0damping,v);
+                        if (ar.xmlGetNode_float("p0frictioncoeff",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p0frictioncoeff,v);
+                        if (ar.xmlGetNode_float("p0frictionmaxforce",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p0frictionmaxforce,v);
+                        if (ar.xmlGetNode_float("p0frictionloss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p0frictionloss,v);
+                        if (ar.xmlGetNode_float("p1loss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p1loss,v);
+                        if (ar.xmlGetNode_float("p1stiffness",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p1stiffness,v);
+                        if (ar.xmlGetNode_float("p1damping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p1damping,v);
+                        if (ar.xmlGetNode_float("p1frictioncoeff",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p1frictioncoeff,v);
+                        if (ar.xmlGetNode_float("p1frictionmaxforce",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p1frictionmaxforce,v);
+                        if (ar.xmlGetNode_float("p1frictionloss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p1frictionloss,v);
+                        if (ar.xmlGetNode_float("p2loss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p2loss,v);
+                        if (ar.xmlGetNode_float("p2stiffness",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p2stiffness,v);
+                        if (ar.xmlGetNode_float("p2damping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p2damping,v);
+                        if (ar.xmlGetNode_float("p2frictioncoeff",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p2frictioncoeff,v);
+                        if (ar.xmlGetNode_float("p2frictionmaxforce",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p2frictionmaxforce,v);
+                        if (ar.xmlGetNode_float("p2frictionloss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_p2frictionloss,v);
+                        if (ar.xmlGetNode_float("a0loss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a0loss,v);
+                        if (ar.xmlGetNode_float("a0stiffness",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a0stiffness,v);
+                        if (ar.xmlGetNode_float("a0damping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a0damping,v);
+                        if (ar.xmlGetNode_float("a0frictioncoeff",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a0frictioncoeff,v);
+                        if (ar.xmlGetNode_float("a0frictionmaxforce",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a0frictionmaxforce,v);
+                        if (ar.xmlGetNode_float("a0frictionloss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a0frictionloss,v);
+                        if (ar.xmlGetNode_float("a1loss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a1loss,v);
+                        if (ar.xmlGetNode_float("a1stiffness",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a1stiffness,v);
+                        if (ar.xmlGetNode_float("a1damping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a1damping,v);
+                        if (ar.xmlGetNode_float("a1frictioncoeff",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a1frictioncoeff,v);
+                        if (ar.xmlGetNode_float("a1frictionmaxforce",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a1frictionmaxforce,v);
+                        if (ar.xmlGetNode_float("a1frictionloss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a1frictionloss,v);
+                        if (ar.xmlGetNode_float("a2loss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a2loss,v);
+                        if (ar.xmlGetNode_float("a2stiffness",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a2stiffness,v);
+                        if (ar.xmlGetNode_float("a2damping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a2damping,v);
+                        if (ar.xmlGetNode_float("a2frictioncoeff",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a2frictioncoeff,v);
+                        if (ar.xmlGetNode_float("a2frictionmaxforce",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a2frictionmaxforce,v);
+                        if (ar.xmlGetNode_float("a2frictionloss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a2frictionloss,v);
+                        if (ar.xmlGetNode_float("dependencyfactor",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_dependencyfactor,v);
+                        if (ar.xmlGetNode_float("dependencyoffset",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_dependencyoffset,v);
+
+                        //if (ar.xmlGetNode_int("bitcoded")) setEngineIntParam(sim_vortex_joint_bitcoded,vi);
+                        if (ar.xmlGetNode_int("relaxationenabledbc",vi,exhaustiveXml)) setEngineIntParam(sim_vortex_joint_relaxationenabledbc,vi);
+                        if (ar.xmlGetNode_int("frictionenabledbc",vi,exhaustiveXml)) setEngineIntParam(sim_vortex_joint_frictionenabledbc,vi);
+                        if (ar.xmlGetNode_int("frictionproportionalbc",vi,exhaustiveXml)) setEngineIntParam(sim_vortex_joint_frictionproportionalbc,vi);
+                        if (ar.xmlGetNode_int("objectid",vi,exhaustiveXml)) setEngineIntParam(sim_vortex_joint_objectid,vi);
+                        if (ar.xmlGetNode_int("dependentobjectid",vi,exhaustiveXml)) setEngineIntParam(sim_vortex_joint_dependentobjectid,vi);
+
+                        if (ar.xmlGetNode_bool("motorfrictionenabled",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_joint_motorfrictionenabled,vb);
+                        if (ar.xmlGetNode_bool("proportionalmotorfriction",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_joint_proportionalmotorfriction,vb);
+                        ar.xmlPopNode();
+                    }
+                    if (ar.xmlPushChildNode("newton",exhaustiveXml))
+                    {
+                        if (ar.xmlGetNode_float("dependencyfactor",v,exhaustiveXml)) setEngineFloatParam(sim_newton_joint_dependencyfactor,v);
+                        if (ar.xmlGetNode_float("dependencyoffset",v,exhaustiveXml)) setEngineFloatParam(sim_newton_joint_dependencyoffset,v);
+
+                        if (ar.xmlGetNode_int("objectid",vi,exhaustiveXml)) setEngineIntParam(sim_newton_joint_objectid,vi);
+                        if (ar.xmlGetNode_int("dependentobjectid",vi,exhaustiveXml)) setEngineIntParam(sim_newton_joint_dependentobjectid,vi);
+                        ar.xmlPopNode();
+                    }
+                    ar.xmlPopNode();
+                }
+
+                ar.xmlPopNode();
+            }
+        }
+    }
 }
 
 void CJoint::serializeWExtIk(CExtIkSer& ar)
@@ -2660,6 +3065,11 @@ void CJoint::setMaxStepSize(float stepS)
 float CJoint::getMaxStepSize()
 {
     return(_maxStepSize);
+}
+
+std::string CJoint::getDdependencyJointLoadName() const
+{
+    return(_dependencyJointLoadName);
 }
 
 float CJoint::getPosition(bool useTempValues)

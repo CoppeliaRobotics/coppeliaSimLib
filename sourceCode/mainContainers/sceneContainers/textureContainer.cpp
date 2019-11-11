@@ -1,5 +1,5 @@
 
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "textureContainer.h"
 #include "tt.h"
 
@@ -231,6 +231,8 @@ void CTextureContainer::storeTextureObject(CSer& ar,CTextureObject* it)
         if (ar.setWritingMode())
             it->serialize(ar);
     }
+    else
+        it->serialize(ar);
 }
 
 CTextureObject* CTextureContainer::loadTextureObject(CSer& ar,std::string theName,bool &noHit)
@@ -246,6 +248,12 @@ CTextureObject* CTextureContainer::loadTextureObject(CSer& ar,std::string theNam
             myNewObject->serialize(ar);
             return(myNewObject);
         }
+    }
+    else
+    {
+        CTextureObject* myNewObject=new CTextureObject();
+        myNewObject->serialize(ar);
+        return(myNewObject);
     }
     return(nullptr);
 }

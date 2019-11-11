@@ -1,5 +1,5 @@
 #include "pathPlanningInterface.h"
-#include "v_repConst.h"
+#include "simConst.h"
 #include <math.h>
 #include "pluginContainer.h"
 #include "nonHolonomicPathPlanning.h"
@@ -108,7 +108,6 @@ bool CPathPlanningInterface::initializeFunctionsIfNeeded()
     auxVals[0]=v++;
     _mpGetConfigTransition=(ptr_mpGetConfigTransition)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    // IF YOU ADD A FUNCTION HERE, DO NOT FORGET TO ADD A CORRESPONDING ENTRY IN v_repExtPathPlanning.cpp !!!
 
     _pathPlanningInterfaceInitialized=true;
     return(true);

@@ -1,6 +1,6 @@
 #include "simplePathPoint.h"
 #include "tt.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 
 CSimplePathPoint::CSimplePathPoint()
 {
@@ -144,6 +144,71 @@ void CSimplePathPoint::serialize(CSer& ar)
                         ar.loadUnknownData();
                 }
             }
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            ar.xmlPushNewNode("localFrame");
+            ar.xmlAddNode_floats("position",_transformation.X.data,3);
+            if (exhaustiveXml)
+                ar.xmlAddNode_floats("quaternion",_transformation.Q.data,4);
+            else
+            {
+                C3Vector euler(_transformation.Q.getEulerAngles());
+                euler*=180.0f/piValue_f;
+                ar.xmlAddNode_floats("euler",euler.data,3);
+            }
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("bezierPoints");
+            ar.xmlAddNode_int("count",_bezierPointCount);
+            ar.xmlAddNode_2float("factors",_bezierFactorBefore,_bezierFactorAfter);
+            ar.xmlPopNode();
+
+            ar.xmlAddNode_float("virtualDistance",_onSpotDistance);
+
+            ar.xmlAddNode_int("auxiliaryFlags",_auxFlags);
+
+            ar.xmlAddNode_floats("auxiliaryChannels",_auxChannels,4);
+        }
+        else
+        {
+            if (ar.xmlPushChildNode("localFrame",exhaustiveXml))
+            {
+                ar.xmlGetNode_floats("position",_transformation.X.data,3,exhaustiveXml);
+                if (exhaustiveXml)
+                    ar.xmlGetNode_floats("quaternion",_transformation.Q.data,4);
+                else
+                {
+                    C3Vector euler;
+                    if (ar.xmlGetNode_floats("euler",euler.data,3,exhaustiveXml))
+                    {
+                        euler(0)*=piValue_f/180.0f;
+                        euler(1)*=piValue_f/180.0f;
+                        euler(2)*=piValue_f/180.0f;
+                        _transformation.Q.setEulerAngles(euler);
+                    }
+                }
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("bezierPoints",exhaustiveXml))
+            {
+                ar.xmlGetNode_int("count",_bezierPointCount,exhaustiveXml);
+                ar.xmlGetNode_2float("factors",_bezierFactorBefore,_bezierFactorAfter,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            ar.xmlGetNode_float("virtualDistance",_onSpotDistance,exhaustiveXml);
+
+            int tmp;
+            ar.xmlGetNode_int("auxiliaryFlags",tmp,exhaustiveXml);
+            _auxFlags=(unsigned short)tmp;
+
+            ar.xmlGetNode_floats("auxiliaryChannels",_auxChannels,4,exhaustiveXml);
         }
     }
 }

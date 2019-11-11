@@ -1,6 +1,6 @@
 #include "funcDebug.h"
 #include "easyLock.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "helpMenu.h"
 #include "oGL.h"
 #include "global.h"
@@ -8,7 +8,7 @@
 #include "algos.h"
 #include "tt.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "ttUtil.h"
 #include "vVarious.h"
 #include "qdlgabout.h"
@@ -18,7 +18,7 @@
 #include "vMessageBox.h"
 #include "collisionRoutine.h"
 #include "distanceRoutine.h"
-#include "helpMenuBase.h"
+#include "libLic.h"
 
 CHelpMenu::CHelpMenu()
 {
@@ -32,8 +32,17 @@ CHelpMenu::~CHelpMenu()
 
 void CHelpMenu::addMenu(VMenu* menu)
 {
-    CHelpMenuBase::handleVerSpec_addMenu1(menu);
-    if (CHelpMenuBase::handleVerSpec_addMenu2())
+    std::string tmp;
+    tmp=CLibLic::getStringVal(5);
+    if (tmp.size()>0)
+        menu->appendMenuItem(true,false,HELP_TOPICS_CMD,tmp.c_str());
+    tmp=CLibLic::getStringVal(6);
+    if (tmp.size()>0)
+        menu->appendMenuItem(true,false,ABOUT_CMD,tmp.c_str());
+    tmp=CLibLic::getStringVal(7);
+    if (tmp.size()>0)
+        menu->appendMenuItem(true,false,CREDITS_CMD,tmp.c_str());
+    if (CLibLic::getBoolVal(11))
     {
         VMenu* debugMenu=new VMenu();
         debugMenu->appendMenuItem(true,CFuncDebug::getDebugMask()&1,SHOW_INTERNAL_FUNCTION_ACCESS_DEBUG_CMD,IDSN_SHOW_INTERNAL_FUNCTION_ACCESS_DEBUG_MENU_ITEM,true);
@@ -46,7 +55,11 @@ void CHelpMenu::addMenu(VMenu* menu)
         debugMenu->appendMenuItem(true,CShape::getDebugObbStructures(),VISUALIZE_OBB_STRUCTURE_DEBUG_CMD,IDSN_VISUALIZE_OBB_STRUCTURE_DEBUG_MENU_ITEM,true);
         menu->appendMenuAndDetach(debugMenu,true,IDSN_DEBUG_MENU_ITEM);
     }
-    CHelpMenuBase::handleVerSpec_addMenu3(menu);
+    if ( CLibLic::getBoolVal(13)&&(!CLibLic::getBoolVal(14)) )
+    {
+        menu->appendMenuSeparator();
+        menu->appendMenuItem(true,false,EK_CMD,CLibLic::getStringVal(8).c_str());
+    }
 }
 
 bool CHelpMenu::processCommand(int commandID)
@@ -55,7 +68,7 @@ bool CHelpMenu::processCommand(int commandID)
     {
         if (VThread::isCurrentThreadTheUiThread())
         { // We are in the UI thread. Execute the command via the main thread:
-            #ifdef MAC_VREP
+            #ifdef MAC_SIM
                 std::string tmp(App::directories->executableDirectory+"/../../../"+"helpFiles"+"/"+"index.html");
             #else
                 std::string tmp(App::directories->executableDirectory+"/"+"helpFiles"+"/"+"index.html");
@@ -80,7 +93,7 @@ bool CHelpMenu::processCommand(int commandID)
     {
         if (VThread::isCurrentThreadTheUiThread())
         { // We are in the UI thread. Execute the command via the main thread:
-            #ifdef MAC_VREP
+            #ifdef MAC_SIM
                 std::string tmp(App::directories->executableDirectory+"/../../../"+"credits.txt");
             #else
                 std::string tmp(App::directories->executableDirectory+"/"+"credits.txt");
@@ -156,7 +169,11 @@ bool CHelpMenu::processCommand(int commandID)
         }
         return(true);
     }
-    if (CHelpMenuBase::handleVerSpec_processCommand1(commandID))
+    if ( CLibLic::getBoolVal(13)&&(commandID==EK_CMD) )
+    {
+        CLibLic::setHld(App::mainWindow);
+        CLibLic::ekd();
         return(true);
+    }
     return(false);
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "globalBase.h"
 // Default layers for 3D objects:
 #define SHAPE_LAYER             0x0001
 #define JOINT_LAYER             0x0002
@@ -59,6 +58,37 @@
 #define SER_MODEL_THUMBNAIL_INFO        "BBC"
 #define SER_VERTICESINDICESNORMALSEDGES "VIN"
 
+#define SERX_MODEL_THUMBNAIL            "modelThumbnail"
+#define SERX_MODEL_THUMBNAIL_INFO       "modelThumbnailInfo"
+#define SERX_TEXTURE                    "texture"
+#define SERX_VERTICESINDICESNORMALS     "meshData"
+#define SERX_SHAPE                      "shape"
+#define SERX_JOINT                      "joint"
+#define SERX_GRAPH                      "graph"
+#define SERX_CAMERA                     "camera"
+#define SERX_LIGHT                      "light"
+#define SERX_MIRROR                     "mirror"
+#define SERX_OCTREE                     "octree"
+#define SERX_POINTCLOUD                 "pointCloud"
+#define SERX_DUMMY                      "dummy"
+#define SERX_PROXIMITYSENSOR            "proximitySensor"
+#define SERX_VISIONSENSOR               "visionSensor"
+#define SERX_PATH                       "path"
+#define SERX_MILL                       "mill"
+#define SERX_FORCESENSOR                "forceSensor"
+#define SERX_SCENEOBJECT                "sceneObject"
+#define SERX_GHOSTS                     "ghosts"
+#define SERX_ENVIRONMENT                "environment"
+#define SERX_COLLISION                  "collision"
+#define SERX_DISTANCE                   "distance"
+#define SERX_IK                         "inverseKinematicsGroup"
+#define SERX_SETTINGS                   "settings"
+#define SERX_DYNAMICS                   "dynamics"
+#define SERX_SIMULATION                 "simulation"
+#define SERX_SCENE_CUSTOM_DATA          "sceneCustomData"
+#define SERX_VIEWS                      "views"
+#define SERX_COLLECTION                 "collection"
+#define SERX_LUA_SCRIPT                 "script"
 
 #define IK_DIVISION_FACTOR 100.0f // needed for better stability of resolutions!
 #define SELECTION_BUFFER_SIZE 100000    // Specifies how many objects can be selected at the (from 10000 to 100000 on 14/6/2011)
@@ -446,8 +476,7 @@ enum {
     CHECKED_BACKGROUND_PICTURE,
     SCRIPT_THREADED_PICTURE,
     SCRIPTDISABLED_THREADED_PICTURE,
-    SCRIPT_PARAMETERS_PICTURE,
-    SCRIPT_PARAMETERS_ACTIVE_PICTURE,
+    USER_PARAMETERS_PICTURE,
     PATH_POINT_PICTURE,
     VERTEX_PICTURE,
     TRIANGLE_PICTURE,
@@ -467,10 +496,8 @@ enum {
     CURSOR_MIDDLE_BUTTON,
     CURSOR_RIGHT_BUTTON,
     EDU_TAG,
-    VREP_TAG,
     EVAL_TAG,
-    BLUEREALITY_TAG,
-    BLUEREALITYEVAL_TAG,
+
     CURSOR_WHEEL_BUTTON,
     CURSOR_SHIFT_BUTTON,
     CURSOR_CTRL_BUTTON,
@@ -723,13 +750,13 @@ enum {
     //----------
 
     //----------
-    // BR commands start:
-    BR_COMMANDS_START_SCCMD,
+    // XR commands start:
+    XR_COMMANDS_START_SCCMD,
 
-    BR_COMMAND_1_SCCMD,
+    XR_COMMAND_1_SCCMD,
 
-    // BR commands end:
-    BR_COMMANDS_END_SCCMD=BR_COMMANDS_START_SCCMD+1000,
+    // XR commands end:
+    XR_COMMANDS_END_SCCMD=XR_COMMANDS_START_SCCMD+1000,
     //----------
 
     //----------
@@ -803,15 +830,15 @@ enum {
 
 
     //----------
-    SAVE_LAYOUT_CONFIG_BR,
-    SWITCH_ONLINE_BR,
-    OPEN_PACKML_BR,
-    GET_QUOTE_BR,
-    CREATE_JOB_BR,
-    DELETE_JOB_BR,
-    VERIFY_LAYOUT_BR,
-    SWITCH_TO_JOB_BR,
-    SWITCH_TO_JOB_END_BR=SWITCH_TO_JOB_BR+100,
+    SAVE_LAYOUT_CONFIG_XR,
+    SWITCH_ONLINE_XR,
+    OPEN_PACKML_XR,
+    GET_QUOTE_XR,
+    CREATE_JOB_XR,
+    DELETE_JOB_XR,
+    VERIFY_LAYOUT_XR,
+    SWITCH_TO_JOB_XR,
+    SWITCH_TO_JOB_END_XR=SWITCH_TO_JOB_XR+100,
     //----------
 
 
@@ -939,11 +966,14 @@ enum {
     FILE_OPERATION_NEW_SCENE_PHASE2_FOCMD,
     FILE_OPERATION_LOAD_MODEL_FOCMD,
     FILE_OPERATION_SAVE_SCENE_FOCMD,
-    FILE_OPERATION_SAVE_SCENE_AS_VREP_FOCMD,
-    FILE_OPERATION_SAVE_SCENE_AS_BR_FOCMD,
+    FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD,
+    FILE_OPERATION_SAVE_SCENE_AS_XR_FOCMD,
     FILE_OPERATION_EXPORT_IK_CONTENT_FOCMD,
-    FILE_OPERATION_SAVE_MODEL_AS_VREP_FOCMD,
-    FILE_OPERATION_SAVE_MODEL_AS_BR_FOCMD,
+    FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD,
+    FILE_OPERATION_SAVE_MODEL_AS_XR_FOCMD,
+    FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD,
+    FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD,
+    FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD,
     FILE_OPERATION_IMPORT_MESH_FOCMD,
     FILE_OPERATION_IMPORT_PATH_FOCMD,
     FILE_OPERATION_IMPORT_HEIGHTFIELD_FOCMD,
@@ -1005,7 +1035,7 @@ enum {
     HELP_TOPICS_CMD,
     ABOUT_CMD,
     CREDITS_CMD,
-    ENTER_KEY_CMD,
+    EK_CMD,
 
 
     SHOW_INTERNAL_FUNCTION_ACCESS_DEBUG_CMD,
@@ -1026,7 +1056,7 @@ enum {
     TOGGLE_EXPAND_COLLAPSE_HIERARCHY_OBJECT_CMD,
     ADD_OR_REMOVE_TO_FROM_OBJECT_SELECTION_CMD,
     OPEN_SCRIPT_EDITOR_CMD,
-    OPEN_MODAL_SCRIPT_SIMULATION_PARAMETERS_CMD,
+    CALL_USER_CONFIG_CALLBACK_CMD,
     OPEN_MODAL_MODEL_PROPERTIES_CMD,
     MAKE_OBJECT_CHILD_OF_CMD,
     CLOSE_FLOATING_VIEW_CMD,
@@ -1576,7 +1606,10 @@ enum {
     END_GUITRIGGEREDCMD,
 
     //----------------------
-    START_VREPPLUS_CMDS=9500,
+    START_SIMPLUS_CMDS=9500,
+    PLUS_HFLM_CMD,
+    PLUS_CVU_CMD,
+    PLUS_HVUD_CMD,
     OUTSIDE_CUSTOMIZED_COMMANDS_START_CMD=10000
     // 100000-200000 for cmds from UI to SIM
     // 999995-999999 for UNDO point announcements

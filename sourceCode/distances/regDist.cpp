@@ -1,4 +1,4 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "regDist.h"
 #include "3DObject.h"
 #include "global.h"
@@ -7,10 +7,11 @@
 #include "ttUtil.h"
 #include "app.h"
 #include "gV.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vDateTime.h"
 #include "pluginContainer.h"
 #include "distanceRendering.h"
+#include "base64.h"
 
 CRegDist::CRegDist(int obj1ID,int obj2ID,std::string objName,int objID)
 {
@@ -245,7 +246,7 @@ float CRegDist::handleDistance()
     _calcTimeInMs=0;
     if (!App::ct->mainSettings->distanceCalculationEnabled)
         return(-1.0);
-    if (!CPluginContainer::isMeshPluginAvailable())
+    if (!CPluginContainer::isGeomPluginAvailable())
         return(-1.0);
     int stTime=VDateTime::getTimeInMs();
     _distance=SIM_MAX_FLOAT;
@@ -428,6 +429,69 @@ void CRegDist::serialize(CSer& ar)
                         ar.loadUnknownData();
                 }
             }
+        }
+    }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_int("handle",objectID);
+            ar.xmlAddNode_string("name",objectName.c_str());
+            ar.xmlAddNode_2int("pairHandles",object1ID,object2ID);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("explicitHandling",explicitHandling);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("threshold");
+            ar.xmlAddNode_bool("enabled",treshholdActive);
+            ar.xmlAddNode_float("treshhold",treshhold);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("distanceSegment");
+            ar.xmlAddNode_bool("show",displaySegment);
+            ar.xmlAddNode_int("size",_segmentWidth);
+            ar.xmlPushNewNode("color");
+            segmentColor.serialize(ar,1);
+            ar.xmlPopNode();
+            ar.xmlPopNode();
+
+            std::string str(base64_encode((unsigned char*)_uniquePersistentIdString.c_str(),_uniquePersistentIdString.size()));
+            ar.xmlAddNode_string("uniquePersistentIdString_base64Coded",str.c_str());
+        }
+        else
+        {
+            ar.xmlGetNode_int("handle",objectID);
+            ar.xmlGetNode_string("name",objectName);
+            ar.xmlGetNode_2int("pairHandles",object1ID,object2ID);
+
+            if (ar.xmlPushChildNode("switches"))
+            {
+                ar.xmlGetNode_bool("explicitHandling",explicitHandling);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("threshold"))
+            {
+                ar.xmlGetNode_bool("enabled",treshholdActive);
+                ar.xmlGetNode_float("treshhold",treshhold);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("distanceSegment"))
+            {
+                ar.xmlGetNode_bool("show",displaySegment);
+                ar.xmlGetNode_int("size",_segmentWidth);
+                if (ar.xmlPushChildNode("color"))
+                {
+                    segmentColor.serialize(ar,1);
+                    ar.xmlPopNode();
+                }
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlGetNode_string("uniquePersistentIdString_base64Coded",_uniquePersistentIdString))
+                _uniquePersistentIdString=base64_decode(_uniquePersistentIdString);
         }
     }
 }

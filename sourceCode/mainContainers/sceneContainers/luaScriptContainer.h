@@ -4,7 +4,7 @@
 #include "mainCont.h"
 #include "luaScriptObject.h"
 #include "broadcastDataContainer.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 
 class CLuaScriptContainer : public CMainCont 
 {
@@ -53,8 +53,10 @@ public:
 
     std::vector<CLuaScriptObject*> allScripts;
 
+    /*
     int getScriptSimulationParameter_mainAndChildScriptsOnly(int scriptHandle,const char* parameterName,std::string& parameterValue) const;
     int setScriptSimulationParameter_mainAndChildScriptsOnly(int scriptHandle,const char* parameterName,const char* parameterValue,int parameterValueLength);
+    */
 
     CBroadcastDataContainer broadcastDataContainer;
 

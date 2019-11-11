@@ -1,5 +1,5 @@
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "proximitySensor.h"
 #include "tt.h"
 #include "proxSensorRoutine.h"
@@ -611,6 +611,195 @@ void CProxSensor::serialize(CSer& ar)
             }
         }
     }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_comment(" 'type' tag: can be 'pyramid', 'cylinder', 'disc', 'cone' or 'ray' ",exhaustiveXml);
+            ar.xmlAddNode_enum("type",sensorType,sim_proximitysensor_pyramid_subtype,"pyramid",sim_proximitysensor_cylinder_subtype,"cylinder",sim_proximitysensor_disc_subtype,"disc",sim_proximitysensor_cone_subtype,"cone",sim_proximitysensor_ray_subtype,"ray");
+
+            ar.xmlAddNode_float("size",size);
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("detectableEntity",_sensableObject);
+            else
+            {
+                std::string str;
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(_sensableObject);
+                if (it!=nullptr)
+                    str=it->getObjectName();
+                else
+                {
+                    CRegCollection* coll=App::ct->collections->getCollection(_sensableObject);
+                    if (coll!=nullptr)
+                        str="@collection@"+coll->getCollectionName();
+                }
+                ar.xmlAddNode_string("detectableEntity",str.c_str());
+            }
+
+            ar.xmlAddNode_comment(" 'detectionType' tag: can be 'ultrasonic', 'infrared', 'laser', 'inductive' or 'capacitive' ",exhaustiveXml);
+            ar.xmlAddNode_enum("detectionType",_sensableType,sim_objectspecialproperty_detectable_ultrasonic,"ultrasonic",sim_objectspecialproperty_detectable_infrared,"infrared",sim_objectspecialproperty_detectable_laser,"laser",sim_objectspecialproperty_detectable_inductive,"inductive",sim_objectspecialproperty_detectable_capacitive,"capacitive");
+
+            ar.xmlAddNode_float("allowedNormalAngle",allowedNormal*180.0f/piValue_f);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("showVolumeWhenDetecting",_showVolumeWhenDetecting);
+            ar.xmlAddNode_bool("showVolumeWhenNotDetecting",_showVolumeWhenNotDetecting);
+            ar.xmlAddNode_bool("closestObjectMode",closestObjectMode);
+            ar.xmlAddNode_bool("normalCheck",normalCheck);
+            ar.xmlAddNode_bool("frontFaceDetection",frontFaceDetection);
+            ar.xmlAddNode_bool("backFaceDetection",backFaceDetection);
+            ar.xmlAddNode_bool("explicitHandling",explicitHandling);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("randomizedDetection");
+            ar.xmlAddNode_bool("enabled",_randomizedDetection);
+            ar.xmlAddNode_int("sampleCount",_randomizedDetectionSampleCount);
+            ar.xmlAddNode_int("countForTrigger",_randomizedDetectionCountForDetection);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("color");
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("passiveVolume");
+                passiveVolumeColor.serialize(ar,0);
+                ar.xmlPopNode();
+                ar.xmlPushNewNode("activeVolume");
+                activeVolumeColor.serialize(ar,0);
+                ar.xmlPopNode();
+                ar.xmlPushNewNode("detectionRay");
+                detectionRayColor.serialize(ar,0);
+                ar.xmlPopNode();
+                ar.xmlPushNewNode("closestDistVolume");
+                closestDistanceVolumeColor.serialize(ar,0);
+                ar.xmlPopNode();
+            }
+            else
+            {
+                int rgb[3];
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(passiveVolumeColor.colors[l]*127.0f+passiveVolumeColor.colors[9+l]*127.0f);
+                ar.xmlAddNode_ints("passiveVolume",rgb,3);
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(activeVolumeColor.colors[l]*127.1f+activeVolumeColor.colors[9+l]*127.1f);
+                ar.xmlAddNode_ints("activeVolume",rgb,3);
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(detectionRayColor.colors[l]*127.1f+detectionRayColor.colors[9+l]*127.1f);
+                ar.xmlAddNode_ints("detectionRay",rgb,3);
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(closestDistanceVolumeColor.colors[l]*127.1f+closestDistanceVolumeColor.colors[9+l]*127.1f);
+                ar.xmlAddNode_ints("closestDistVolume",rgb,3);
+            }
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("volume");
+            convexVolume->serialize(ar);
+            ar.xmlPopNode();
+        }
+        else
+        {
+            ar.xmlGetNode_enum("type",sensorType,exhaustiveXml,"pyramid",sim_proximitysensor_pyramid_subtype,"cylinder",sim_proximitysensor_cylinder_subtype,"disc",sim_proximitysensor_disc_subtype,"cone",sim_proximitysensor_cone_subtype,"ray",sim_proximitysensor_ray_subtype);
+
+            ar.xmlGetNode_float("size",size,exhaustiveXml);
+
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("detectableEntity",_sensableObject);
+            else
+                ar.xmlGetNode_string("detectableEntity",_sensableObjectLoadName,exhaustiveXml);
+
+            ar.xmlGetNode_enum("detectionType",_sensableType,exhaustiveXml,"ultrasonic",sim_objectspecialproperty_detectable_ultrasonic,"infrared",sim_objectspecialproperty_detectable_infrared,"laser",sim_objectspecialproperty_detectable_laser,"inductive",sim_objectspecialproperty_detectable_inductive,"capacitive",sim_objectspecialproperty_detectable_capacitive);
+
+            if (ar.xmlGetNode_float("allowedNormalAngle",allowedNormal,exhaustiveXml))
+                allowedNormal*=piValue_f/180.0f;
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("showVolumeWhenDetecting",_showVolumeWhenDetecting,exhaustiveXml);
+                ar.xmlGetNode_bool("showVolumeWhenNotDetecting",_showVolumeWhenNotDetecting,exhaustiveXml);
+                ar.xmlGetNode_bool("closestObjectMode",closestObjectMode,exhaustiveXml);
+                ar.xmlGetNode_bool("normalCheck",normalCheck,exhaustiveXml);
+                ar.xmlGetNode_bool("frontFaceDetection",frontFaceDetection,exhaustiveXml);
+                ar.xmlGetNode_bool("backFaceDetection",backFaceDetection,exhaustiveXml);
+                ar.xmlGetNode_bool("explicitHandling",explicitHandling,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("randomizedDetection",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("enabled",_randomizedDetection,exhaustiveXml);
+                ar.xmlGetNode_int("sampleCount",_randomizedDetectionSampleCount,exhaustiveXml);
+                ar.xmlGetNode_int("countForTrigger",_randomizedDetectionCountForDetection,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("color",exhaustiveXml))
+            {
+                if (exhaustiveXml)
+                {
+                    if (ar.xmlPushChildNode("passiveVolume"))
+                    {
+                        passiveVolumeColor.serialize(ar,0);
+                        ar.xmlPopNode();
+                    }
+                    if (ar.xmlPushChildNode("activeVolume"))
+                    {
+                        activeVolumeColor.serialize(ar,0);
+                        ar.xmlPopNode();
+                    }
+                    if (ar.xmlPushChildNode("detectionRay"))
+                    {
+                        detectionRayColor.serialize(ar,0);
+                        ar.xmlPopNode();
+                    }
+                    if (ar.xmlPushChildNode("closestDistVolume"))
+                    {
+                        closestDistanceVolumeColor.serialize(ar,0);
+                        ar.xmlPopNode();
+                    }
+                }
+                else
+                {
+                    int rgb[3];
+                    if (ar.xmlGetNode_ints("passiveVolume",rgb,3,exhaustiveXml))
+                        passiveVolumeColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                    if (ar.xmlGetNode_ints("activeVolume",rgb,3,exhaustiveXml))
+                        activeVolumeColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                    if (ar.xmlGetNode_ints("detectionRay",rgb,3,exhaustiveXml))
+                        detectionRayColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                    if (ar.xmlGetNode_ints("closestDistVolume",rgb,3,exhaustiveXml))
+                        closestDistanceVolumeColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                }
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("volume",exhaustiveXml))
+            {
+                if (convexVolume!=nullptr)
+                    delete convexVolume;
+                convexVolume=new CConvexVolume();
+
+                if (!exhaustiveXml)
+                {
+                    if (sensorType==sim_proximitysensor_ray_subtype)
+                        convexVolume->setVolumeType(RAY_TYPE_CONVEX_VOLUME,_objectType,size);
+                    else
+                        _randomizedDetection=false;
+                    if (sensorType==sim_proximitysensor_cylinder_subtype)
+                        convexVolume->setVolumeType(CYLINDER_TYPE_CONVEX_VOLUME,_objectType,size);
+                    if (sensorType==sim_proximitysensor_disc_subtype)
+                        convexVolume->setVolumeType(DISC_TYPE_CONVEX_VOLUME,_objectType,size);
+                    if (sensorType==sim_proximitysensor_pyramid_subtype)
+                        convexVolume->setVolumeType(PYRAMID_TYPE_CONVEX_VOLUME,_objectType,size);
+                    if (sensorType==sim_proximitysensor_cone_subtype)
+                        convexVolume->setVolumeType(CONE_TYPE_CONVEX_VOLUME,_objectType,size);
+                }
+
+                convexVolume->serialize(ar);
+                ar.xmlPopNode();
+            }
+        }
+    }
 }
 
 void CProxSensor::serializeWExtIk(CExtIkSer& ar)
@@ -624,15 +813,16 @@ bool CProxSensor::getSensingVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) con
     return(convexVolume->getVolumeBoundingBox(minV,maxV));
 }
 
-void CProxSensor::getSensingVolumeOBB(C4X4Matrix& m,C3Vector& halfSizes)
+void CProxSensor::getSensingVolumeOBB(C7Vector& tr,C3Vector& halfSizes)
 {
     C3Vector minV,maxV,center;
     convexVolume->getVolumeBoundingBox(minV,maxV);
     center=(minV+maxV)*0.5f;
-    m=getCumulativeTransformation().getMatrix();
+    C4X4Matrix m(getCumulativeTransformation().getMatrix());
     center=m*center;
     m.X=center;
     halfSizes=(maxV-minV)*0.5f;
+    tr=m.getTransformation();
 }
 
 bool CProxSensor::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
@@ -711,7 +901,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
     _calcTimeInMs=0;
     if (!App::ct->mainSettings->proximitySensorsEnabled)
         return(false);
-    if (!CPluginContainer::isMeshPluginAvailable())
+    if (!CPluginContainer::isGeomPluginAvailable())
         return(false);
 
     _sensorResultValid=true;
@@ -725,7 +915,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
 
     _randomizedVectors.clear();
     _randomizedVectorDetectionStates.clear();
-    _detectedPointValid=CProxSensorRoutine::detectEntity(_objectHandle,_sensableObject,closestObjectMode,normalCheck,allowedNormal,_detectedPoint,treshhold,frontFaceDetection,backFaceDetection,detectedObjectHandle,minThreshold,detectedNormalVector,false,false);
+    _detectedPointValid=CProxSensorRoutine::detectEntity(_objectHandle,_sensableObject,closestObjectMode,normalCheck,allowedNormal,_detectedPoint,treshhold,frontFaceDetection,backFaceDetection,detectedObjectHandle,minThreshold,detectedNormalVector,false);
     _detectedObjectHandle=detectedObjectHandle;
     _detectedNormalVector=detectedNormalVector;
     _calcTimeInMs=VDateTime::getTimeDiffInMs(stTime);
@@ -923,6 +1113,11 @@ C3Vector CProxSensor::getDetectedPoint() const
 bool CProxSensor::getIsDetectedPointValid() const
 {
     return(_detectedPointValid);
+}
+
+std::string CProxSensor::getSensableObjectLoadName() const
+{
+    return(_sensableObjectLoadName);
 }
 
 CVisualParam* CProxSensor::getColor(int index)

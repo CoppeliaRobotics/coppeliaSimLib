@@ -1,6 +1,6 @@
 
 #include "commTubeContainer.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 
 int CCommTubeContainer::_nextPartnerID=0;
 

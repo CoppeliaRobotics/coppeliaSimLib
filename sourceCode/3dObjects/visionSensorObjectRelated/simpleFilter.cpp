@@ -1,7 +1,7 @@
 // Needed for backward compatibility
 
 #include "simpleFilter.h"
-#include "v_repConst.h"
+#include "simConst.h"
 #include "MyMath.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>

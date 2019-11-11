@@ -100,6 +100,8 @@ public:
     static void limitValue(int minValue,int maxValue,int &value);
     static float getLimitedFloat(float minValue,float maxValue,float value);
     static void limitValue(float minValue,float maxValue,float &value);
+    static void limitDoubleValue(double minValue,double maxValue,double &value);
+    static void limit3ArrayValue(float minValue,float maxValue,float value[3]);
 
 private:
     static void _removeKeyAndValue(const char* key,std::string& txt);

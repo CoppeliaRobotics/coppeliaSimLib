@@ -1,13 +1,13 @@
 #include "funcDebug.h"
 #include "camera.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "tt.h"
 #include "meshManip.h"
 #include "global.h"
 #include "sceneObjectOperations.h"
 #include "graphingRoutines.h"
 #include "pluginContainer.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vDateTime.h"
 #include "ttUtil.h"
 #include "easyLock.h"
@@ -747,6 +747,7 @@ void CCamera::commonInit()
     _renderMode=sim_rendermode_opengl;
     _renderModeDuringSimulation=false;
     _renderModeDuringRecording=false;
+    _isMainCamera=false;
 
     _viewAngle=60.0f*degToRad_f;
     _orthoViewSize=2.0f;
@@ -797,6 +798,18 @@ void CCamera::setCameraManipulationModePermissions(int p)
 int CCamera::getCameraManipulationModePermissions() const
 { // bit coded: own x, own y, own z, full rotation, tilting, never tilting
     return(_cameraManipulationModePermissions);
+}
+
+bool CCamera::getIsMainCamera()
+{
+    bool retVal=_isMainCamera;
+    _isMainCamera=false;
+    return(retVal);
+}
+
+std::string CCamera::getTrackedObjectLoadName() const
+{
+    return(_trackedObjectLoadName);
 }
 
 void CCamera::shiftCameraInCameraManipulationMode(const C3Vector& newLocalPos)
@@ -1413,7 +1426,7 @@ void CCamera::serialize(CSer& ar)
                 }
             }
 
-            if (ar.getVrepVersionThatWroteThisFile()<20509)
+            if (ar.getCoppeliaSimVersionThatWroteThisFile()<20509)
             { // For backward compatibility (27/7/2011)
                 if ( (_objectName.compare("DefaultXViewCamera")==0)||(_objectName.compare("DefaultYViewCamera")==0)||(_objectName.compare("DefaultZViewCamera")==0) )
                     _showFogIfAvailable=false;
@@ -1423,6 +1436,139 @@ void CCamera::serialize(CSer& ar)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
                 CTTUtil::scaleColorUp_(colorPart1.colors);
                 CTTUtil::scaleColorUp_(colorPart2.colors);
+            }
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            if (!exhaustiveXml)
+            {
+                int h=App::ct->pageContainer->getMainCameraHandle();
+                ar.xmlAddNode_bool("mainCamera",h==_objectHandle);
+            }
+            int trck=-1;
+            if (trackedObjectIdentifier_NeverDirectlyTouch!=-1)
+                trck=trackedObjectIdentifier_NeverDirectlyTouch;
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("trackedObjectHandle",trck);
+            else
+            {
+                std::string str;
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(trck);
+                if (it!=nullptr)
+                    str=it->getObjectName();
+                ar.xmlAddNode_string("trackedObject",str.c_str());
+            }
+
+            ar.xmlAddNode_float("size",cameraSize);
+
+            ar.xmlAddNode_float("orthoViewSize",_orthoViewSize);
+
+            ar.xmlAddNode_float("viewAngle",_viewAngle*180.0f/piValue_f);
+
+            ar.xmlAddNode_2float("clippingPlanes",_nearClippingPlane,_farClippingPlane);
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("renderMode",_renderMode);
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("manipulationPermissions",_cameraManipulationModePermissions);
+
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("switches");
+                ar.xmlAddNode_bool("useParentAsManipulationProxy",_useParentObjectAsManipulationProxy);
+                ar.xmlAddNode_bool("useLocalLights",_useLocalLights);
+                ar.xmlAddNode_bool("allowPicking",_allowPicking);
+                ar.xmlAddNode_bool("renderModeOnlyDuringSimulation",_renderModeDuringSimulation);
+                ar.xmlAddNode_bool("renderModeOnlyDuringRecording",_renderModeDuringRecording);
+                ar.xmlPopNode();
+            }
+
+            ar.xmlPushNewNode("color");
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("part1");
+                colorPart1.serialize(ar,0);
+                ar.xmlPopNode();
+                ar.xmlPushNewNode("part2");
+                colorPart2.serialize(ar,0);
+                ar.xmlPopNode();
+            }
+            else
+            {
+                int rgb[3];
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(colorPart1.colors[l]*255.1f);
+                ar.xmlAddNode_ints("part1",rgb,3);
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(colorPart2.colors[l]*255.1f);
+                ar.xmlAddNode_ints("part2",rgb,3);
+            }
+            ar.xmlPopNode();
+        }
+        else
+        {
+            if (!exhaustiveXml)
+                ar.xmlGetNode_bool("mainCamera",_isMainCamera,exhaustiveXml);
+
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("trackedObjectHandle",trackedObjectIdentifier_NeverDirectlyTouch);
+            else
+                ar.xmlGetNode_string("trackedObject",_trackedObjectLoadName,exhaustiveXml);
+
+            ar.xmlGetNode_float("size",cameraSize,exhaustiveXml);
+
+            ar.xmlGetNode_float("orthoViewSize",_orthoViewSize,exhaustiveXml);
+
+            if (ar.xmlGetNode_float("viewAngle",_viewAngle,exhaustiveXml))
+                _viewAngle*=piValue_f/180.0f;
+
+            ar.xmlGetNode_2float("clippingPlanes",_nearClippingPlane,_farClippingPlane,exhaustiveXml);
+
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("renderMode",_renderMode);
+
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("manipulationPermissions",_cameraManipulationModePermissions);
+
+            if (exhaustiveXml&&ar.xmlPushChildNode("switches"))
+            {
+                ar.xmlGetNode_bool("useParentAsManipulationProxy",_useParentObjectAsManipulationProxy);
+                ar.xmlGetNode_bool("useLocalLights",_useLocalLights);
+                ar.xmlGetNode_bool("allowPicking",_allowPicking);
+                ar.xmlGetNode_bool("renderModeOnlyDuringSimulation",_renderModeDuringSimulation);
+                ar.xmlGetNode_bool("renderModeOnlyDuringRecording",_renderModeDuringRecording);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("color",exhaustiveXml))
+            {
+                if (exhaustiveXml)
+                {
+                    if (ar.xmlPushChildNode("part1"))
+                    {
+                        colorPart1.serialize(ar,0);
+                        ar.xmlPopNode();
+                    }
+                    if (ar.xmlPushChildNode("part2"))
+                    {
+                        colorPart2.serialize(ar,0);
+                        ar.xmlPopNode();
+                    }
+                }
+                else
+                {
+                    int rgb[3];
+                    if (ar.xmlGetNode_ints("part1",rgb,3,exhaustiveXml))
+                        colorPart1.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                    if (ar.xmlGetNode_ints("part2",rgb,3,exhaustiveXml))
+                        colorPart2.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                }
+                ar.xmlPopNode();
             }
         }
     }
@@ -1901,7 +2047,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                     {
                         static bool alreadyShown=false;
                         if (!alreadyShown)
-                            App::uiThread->messageBox_information(App::mainWindow,"POV-Ray plugin",strTranslate("The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/v_repExtPovRay"),VMESSAGEBOX_OKELI);
+                            App::uiThread->messageBox_information(App::mainWindow,"POV-Ray plugin",strTranslate("The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/simExtPovRay"),VMESSAGEBOX_OKELI);
                         alreadyShown=true;
                     }
                 }
@@ -2183,7 +2329,7 @@ bool CCamera::_extRenderer_prepareView(int extRendererIndex,int resolution[2],bo
     data[20]=nullptr;
     data[21]=nullptr;
 
-    // Following actually free since V-REP 3.3.0
+    // Following actually free since CoppeliaSim 3.3.0
     // But the older PovRay plugin version crash without this:
     float povFogDist=4.0f;
     float povFogTransp=0.5f;
@@ -2232,7 +2378,7 @@ void CCamera::_extRenderer_prepareLights()
             int lightHandle=light->getObjectHandle();
             data[13]=&lightHandle;
 
-            // Following actually free since V-REP 3.3.0
+            // Following actually free since CoppeliaSim 3.3.0
             // But the older PovRay plugin version crash without this:
             float povFadeXDist=0.0;
             bool povNoShadow=false;

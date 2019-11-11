@@ -1,4 +1,4 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "geomWrap.h"
 #include "geometric.h"
 #include "tt.h"
@@ -52,13 +52,6 @@ void CGeomWrap::display_colorCoded(CGeomProxy* geomData,int objectId,int display
 { // function has virtual/non-virtual counterpart!
     for (int i=0;i<int(childList.size());i++)
         childList[i]->display_colorCoded(geomData,objectId,displayAttrib);
-}
-
-
-void CGeomWrap::displayForCutting(CGeomProxy* geomData,int displayAttrib,CVisualParam* collisionColor)
-{ // function has virtual/non-virtual counterpart!
-    for (int i=0;i<int(childList.size());i++)
-        childList[i]->displayForCutting(geomData,displayAttrib,collisionColor);
 }
 
 void CGeomWrap::displayGhost(CGeomProxy* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors)
@@ -253,7 +246,7 @@ void CGeomWrap::setPrincipalMomentsOfInertia(const C3Vector& inertia)
     _principalMomentsOfInertia(1)=tt::getLimitedFloat(0.0f,10000.0f,_principalMomentsOfInertia(1));
     _principalMomentsOfInertia(2)=tt::getLimitedFloat(0.0f,10000.0f,_principalMomentsOfInertia(2));
     if (_principalMomentsOfInertia.getLength()==0.0f)
-        _principalMomentsOfInertia(0)=0.001f; // make sure we don't have a zero vector (problems with Bullet? and V-REP!)
+        _principalMomentsOfInertia(0)=0.001f; // make sure we don't have a zero vector (problems with Bullet? and CoppeliaSim!)
 }
 
 void CGeomWrap::scale(float xVal,float yVal,float zVal)
@@ -557,6 +550,106 @@ void CGeomWrap::serializeWrapperInfos(CSer& ar,const char* shapeName)
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+        }
+    }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlPushNewNode("common");
+
+            ar.xmlAddNode_string("name",_name.c_str());
+
+            ar.xmlPushNewNode("dynamics");
+            ar.xmlAddNode_float("mass",_mass);
+            ar.xmlPushNewNode("localInertiaFrame");
+            ar.xmlAddNode_floats("position",_localInertiaFrame.X.data,3);
+            ar.xmlAddNode_floats("quaternion",_localInertiaFrame.Q.data,4);
+            ar.xmlAddNode_floats("principalMomentsOfInertia",_principalMomentsOfInertia.data,3);
+            ar.xmlPopNode();
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("transformationSinceGrouping");
+            ar.xmlAddNode_floats("position",_transformationsSinceGrouping.X.data,3);
+            ar.xmlAddNode_floats("quaternion",_transformationsSinceGrouping.Q.data,4);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("convex",_convex);
+            ar.xmlPopNode();
+
+            for (size_t i=0;i<childList.size();i++)
+            {
+                ar.xmlPushNewNode("child");
+                if (childList[i]->isGeometric())
+                    ar.xmlPushNewNode("mesh");
+                else
+                    ar.xmlPushNewNode("compound");
+                childList[i]->serialize(ar,shapeName);
+                ar.xmlPopNode();
+                ar.xmlPopNode();
+            }
+            ar.xmlPopNode();
+        }
+        else
+        {
+            if (ar.xmlPushChildNode("common"))
+            {
+                ar.xmlGetNode_string("name",_name);
+
+                if (ar.xmlPushChildNode("dynamics"))
+                {
+                    ar.xmlGetNode_float("mass",_mass);
+                    if (ar.xmlPushChildNode("localInertiaFrame"))
+                    {
+                        ar.xmlGetNode_floats("position",_localInertiaFrame.X.data,3);
+                        ar.xmlGetNode_floats("quaternion",_localInertiaFrame.Q.data,4);
+                        ar.xmlGetNode_floats("principalMomentsOfInertia",_principalMomentsOfInertia.data,3);
+                        ar.xmlPopNode();
+                    }
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("transformationSinceGrouping"))
+                {
+                    ar.xmlGetNode_floats("position",_transformationsSinceGrouping.X.data,3);
+                    ar.xmlGetNode_floats("quaternion",_transformationsSinceGrouping.Q.data,4);
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("switches"))
+                {
+                    ar.xmlGetNode_bool("convex",_convex);
+                    ar.xmlPopNode();
+                }
+                if (ar.xmlPushChildNode("child",false))
+                {
+                    while (true)
+                    {
+                        if (ar.xmlPushChildNode("mesh",false))
+                        {
+                            CGeometric* it=new CGeometric();
+                            it->serialize(ar,shapeName);
+                            childList.push_back(it);
+                            ar.xmlPopNode();
+                        }
+                        else
+                        {
+                            if (ar.xmlPushChildNode("compound"))
+                            {
+                                CGeomWrap* it=new CGeomWrap();
+                                it->serialize(ar,shapeName);
+                                childList.push_back(it);
+                                ar.xmlPopNode();
+                            }
+                        }
+                        if (!ar.xmlPushSiblingNode("child",false))
+                            break;
+                    }
+                    ar.xmlPopNode();
+                }
+                ar.xmlPopNode();
             }
         }
     }

@@ -1,6 +1,6 @@
 // This file requires some serious refactoring!!
 
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "softButton.h"
 #include "tt.h"
 #include "global.h"

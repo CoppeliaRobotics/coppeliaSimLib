@@ -6,7 +6,7 @@
 #include "app.h"
 #include "qdlgdependencyequation.h"
 #include "qdlgjointdyn.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 bool CQDlgJoints::showDynamicWindow=false;
 

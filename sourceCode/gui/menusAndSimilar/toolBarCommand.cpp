@@ -1,9 +1,9 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "toolBarCommand.h"
 #include "simulation.h"
 #include "oglSurface.h"
 #include "threadPool.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include <boost/lexical_cast.hpp>
 #include "app.h"
 

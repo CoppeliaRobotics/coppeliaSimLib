@@ -1,7 +1,7 @@
 // This file requires serious refactoring!!
 
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "mainWindow.h"
 #include "oGL.h"
 #include "simulation.h"
@@ -19,7 +19,7 @@
 #include "pluginContainer.h"
 #include "auxLibVideo.h"
 #include "vVarious.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vDateTime.h"
 #include "vFileFinder.h"
 #include "ttUtil.h"
@@ -27,16 +27,17 @@
 #include "vMessageBox.h"
 #include <boost/lexical_cast.hpp>
 #include "qdlgmessageandcheckbox.h"
+#include "libLic.h"
 #include <QMimeData>
 #include <QDragEnterEvent>
 #include <QUrl>
 #include <QToolButton>
 #include <QLabel>
 #include <QWindow>
-#ifdef MAC_VREP
+#ifdef MAC_SIM
     #include <curses.h> // required for the beep() function
 #endif
-#ifdef LIN_VREP
+#ifdef LIN_SIM
     #include <GL/glx.h>
 #endif
 
@@ -110,7 +111,7 @@ CMainWindow::CMainWindow() : QMainWindow()
     resize(1024,768);
 
     // setWindowTitle adds multiple app icons on Linux somehow..
-#ifndef LIN_VREP
+#ifndef LIN_SIM
     setWindowTitle(App::getApplicationName().c_str()); // somehow it is important for Linux. Even if this title gets later overwritten, Linux keeps this text to display the app name when minimized
 #endif
 
@@ -121,9 +122,9 @@ CMainWindow::CMainWindow() : QMainWindow()
     modelListWidget->setMaximumWidth(170*4);
     modelListWidget->setMinimumWidth(180);
 
-    modelFolderWidget=new CModelFolderWidget(modelListWidget,"Model browser",App::directories->modelDirectory.c_str(),VREP_INITIAL_MODEL_FOLDER_NAME);
+    modelFolderWidget=new CModelFolderWidget(modelListWidget,"Model browser",App::directories->modelDirectory.c_str(),CLibLic::getStringVal(15).c_str());
 
-    #ifdef MAC_VREP
+    #ifdef MAC_SIM
         if (modelFolderWidget->hasError())
         {
             SSimulationThreadCommand cmd;
@@ -172,15 +173,15 @@ CMainWindow::CMainWindow() : QMainWindow()
             FUNCTION_INSIDE_DEBUG("OpenGL: could not enable stereo.");
         }
     }
-    #ifdef LIN_VREP
-        printf("If V-REP crashes now, try to install libgl1-mesa-dev on your system:\n");
+    #ifdef LIN_SIM
+        printf("If CoppeliaSim crashes now, try to install libgl1-mesa-dev on your system:\n");
         printf(">sudo apt install libgl1-mesa-dev\n");
     #endif
     #ifndef USING_QOPENGLWIDGET
         openglWidget->makeCurrent();
         initGl_ifNeeded();
     #endif
-    #ifdef LIN_VREP
+    #ifdef LIN_SIM
     printf("...did not crash.\n");
     #endif
 // -----------
@@ -195,7 +196,7 @@ CMainWindow::CMainWindow() : QMainWindow()
     tabBar=new QTabBar();
     tabBar->addTab(App::ct->mainSettings->getSceneNameForUi().c_str());
 
-    #ifdef MAC_VREP
+    #ifdef MAC_SIM
         tabBar->setExpanding(true);
     #else
         tabBar->setExpanding(false);
@@ -267,9 +268,9 @@ CMainWindow::CMainWindow() : QMainWindow()
 
 
     _signalMapper=new QSignalMapper(this);
-    connect(_signalMapper,SIGNAL(mapped(int)),this,SLOT(_vrepMessageHandler(int)));
+    connect(_signalMapper,SIGNAL(mapped(int)),this,SLOT(_simMessageHandler(int)));
     _popupSignalMapper=new QSignalMapper(this);
-    connect(_popupSignalMapper,SIGNAL(mapped(int)),this,SLOT(_vrepPopupMessageHandler(int)));
+    connect(_popupSignalMapper,SIGNAL(mapped(int)),this,SLOT(_simPopupMessageHandler(int)));
     setAcceptDrops(true);
 }
 
@@ -314,6 +315,7 @@ void CMainWindow::flashStatusbar()
     if (statusBar!=nullptr)
     {
         statusBar->setStyleSheet("background-color: yellow");
+        statusBar->verticalScrollBar()->setStyleSheet("background-color: white"); // since Qt 5.12.5 the scrollbar's color is not reverted with above command, but white
         _statusbarFlashTime=VDateTime::getTimeInMs();
     }
 }
@@ -724,7 +726,7 @@ void CMainWindow::refreshDialogs_uiThread()
     _toolbarRefreshFlag=false;
     //----------------------------------------------------------------------------------
 
-#ifndef LIN_VREP
+#ifndef LIN_SIM
     // setWindowTitle somehow adds multiple app icons on Linux...
     int ct=VDateTime::getTimeInMs();
     if ( (VDateTime::getTimeDiffInMs(timeCounter)>1000)||((VDateTime::getTimeDiffInMs(timeCounter)>100)&&(!getOpenGlDisplayEnabled())) )
@@ -968,7 +970,7 @@ void CMainWindow::createDefaultMenuBar()
 
         // Since Qt5, Mac MenuBars don't have separators anymore... this is a quick and dirty workaround:
         #define DUMMY_SPACE_QMENUBAR_QT5 ""
-        #ifdef MAC_VREP
+        #ifdef MAC_SIM
             #undef DUMMY_SPACE_QMENUBAR_QT5
             #define DUMMY_SPACE_QMENUBAR_QT5 "    "
         #endif
@@ -989,7 +991,7 @@ void CMainWindow::createDefaultMenuBar()
 
         if (editModeContainer->getEditModeType()==NO_EDIT_MODE)
         {
-            if (handleVerSpec_showAddMenubarItem())
+            if (CLibLic::getBoolVal(11))
             {
                 _addSystemMenu=new VMenu();
                 _menubar->appendMenuAndDetach(_addSystemMenu,menuBarEnabled,std::string(IDS_ADD_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
@@ -1006,14 +1008,14 @@ void CMainWindow::createDefaultMenuBar()
             _menubar->appendMenuAndDetach(_windowSystemMenu,menuBarEnabled,std::string(IDS_TOOLS_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
             connect(_windowSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowWindowSystemMenu()));
 
-            if ( handleVerSpec_showPluginMenubarItem()&&(customMenuBarItemContainer->allItems.size()!=0))
+            if (customMenuBarItemContainer->allItems.size()!=0)
             { // Plugins
                 customMenuBarItemContainer->_menuHandle=new VMenu();
                 _menubar->appendMenuAndDetach(customMenuBarItemContainer->_menuHandle,menuBarEnabled,std::string(IDS_MODULES_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
                 connect(customMenuBarItemContainer->_menuHandle->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowCustomMenu()));
             }
 
-            if (handleVerSpec_showAddOnMenubarItem())
+            if (CLibLic::getBoolVal(11))
             {
                 _addOnSystemMenu=new VMenu();
                 _menubar->appendMenuAndDetach(_addOnSystemMenu,menuBarEnabled,std::string(IDS_ADDON_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
@@ -1026,14 +1028,14 @@ void CMainWindow::createDefaultMenuBar()
                 connect(_instancesSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowInstancesSystemMenu()));
             }
 
-            if (handleVerSpec_showLayoutMenubarItem())
+            if (CLibLic::getBoolVal_int(0,App::userSettings->xrTest))
             {
                 _layoutSystemMenu=new VMenu();
                 _menubar->appendMenuAndDetach(_layoutSystemMenu,menuBarEnabled,std::string(IDS_LAYOUT_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
                 connect(_layoutSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowLayoutSystemMenu()));
             }
 
-            if (handleVerSpec_showJobMenubarItem())
+            if (CLibLic::getBoolVal_int(0,App::userSettings->xrTest))
             {
                 _jobsSystemMenu=new VMenu();
                 _menubar->appendMenuAndDetach(_jobsSystemMenu,menuBarEnabled,std::string(IDS_JOBS_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
@@ -1041,13 +1043,6 @@ void CMainWindow::createDefaultMenuBar()
             }
         }
 
-        std::string sMenuStr;
-        if (handleVerSpec_showSMenubarItem(sMenuStr))
-        {
-            _sSystemMenu=new VMenu();
-            _menubar->appendMenuAndDetach(_sSystemMenu,menuBarEnabled,sMenuStr+DUMMY_SPACE_QMENUBAR_QT5);
-            connect(_sSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowSSystemMenu()));
-        }
         if (editModeContainer->getEditModeType()==NO_EDIT_MODE)
         {
             _helpSystemMenu=new VMenu();
@@ -1076,7 +1071,7 @@ void CMainWindow::_createDefaultToolBars()
         _toolbar1->setIconSize(QSize(28,28));
         _toolbar1->setAllowedAreas(Qt::TopToolBarArea|Qt::BottomToolBarArea);
         addToolBar(Qt::TopToolBarArea,_toolbar1);
-        #ifdef MAC_VREP
+        #ifdef MAC_SIM
             _toolbar1->setMovable(false); // 14/7/2013: since Qt5.1.0 the toolbar looks just plain white when undocked under MacOS
         #endif
 
@@ -1095,7 +1090,7 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionCameraZoom,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionCameraZoom,CAMERA_ZOOM_NAVIGATION_CMD);
 
-        if (handleVerSpec_showCameraAngleButton())
+        if (CLibLic::getBoolVal(11))
         {
             _toolbarActionCameraAngle=_toolbar1->addAction(QIcon(":/toolbarFiles/cameraAngle.png"),tr(IDS_TOOLBAR_TOOLTIP_CAMERA_OPENING_ANGLE));
             _toolbarActionCameraAngle->setCheckable(true);
@@ -1117,7 +1112,7 @@ void CMainWindow::_createDefaultToolBars()
 
         _toolbar1->addSeparator();
 
-        if (handleVerSpec_showClickSelectionButton())
+        if (CLibLic::getBoolVal(11))
         {
             _toolbarActionClickSelection=_toolbar1->addAction(QIcon(":/toolbarFiles/clickSelection.png"),tr(IDS_TOOLBAR_TOOLTIP_CLICK_SELECTION));
             _toolbarActionClickSelection->setCheckable(true);
@@ -1149,7 +1144,7 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionAssemble,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionAssemble,SCENE_OBJECT_OPERATION_ASSEMBLE_SOOCMD);
 
-        if (handleVerSpec_showTransferDnaButton())
+        if (CLibLic::getBoolVal(11))
         {
             _toolbarActionTransferDna=_toolbar1->addAction(QIcon(":/toolbarFiles/transferDna.png"),tr(IDSN_TRANSFER_DNA));
             _toolbarActionTransferDna->setCheckable(false);
@@ -1170,15 +1165,15 @@ void CMainWindow::_createDefaultToolBars()
         _signalMapper->setMapping(_toolbarActionRedo,SCENE_OBJECT_OPERATION_REDO_SOOCMD);
         _toolbar1->addSeparator();
 
-        if (handleVerSpec_showVerifyButton())
+        if (CLibLic::getBoolVal_int(0,App::userSettings->xrTest))
         {
             _toolbarActionVerify=_toolbar1->addAction(QIcon(":/toolbarFiles/verify.png"),tr(IDS_TOOLBAR_TOOLTIP_VERIFY));
             _toolbarActionVerify->setCheckable(false);
             connect(_toolbarActionVerify,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionVerify,BR_COMMAND_1_SCCMD+11);
+            _signalMapper->setMapping(_toolbarActionVerify,XR_COMMAND_1_SCCMD+11);
         }
 
-        if (handleVerSpec_showDynContentVisualizationButton())
+        if (CLibLic::getBoolVal(11))
         {
             _toolbarActionDynamicContentVisualization=_toolbar1->addAction(QIcon(":/toolbarFiles/dynamics.png"),tr(IDS_TOOLBAR_TOOLTIP_VISUALIZE_DYNAMIC_CONTENT));
             _toolbarActionDynamicContentVisualization->setCheckable(true);
@@ -1188,19 +1183,19 @@ void CMainWindow::_createDefaultToolBars()
 
         _engineSelectCombo=new QComboBox();
 
-        #ifdef WIN_VREP
+        #ifdef WIN_SIM
             _engineSelectCombo->setMinimumWidth(80);
             _engineSelectCombo->setMaximumWidth(80);
             _engineSelectCombo->setMinimumHeight(24);
             _engineSelectCombo->setMaximumHeight(24);
         #endif
-        #ifdef MAC_VREP
+        #ifdef MAC_SIM
             _engineSelectCombo->setMinimumWidth(85);
             _engineSelectCombo->setMaximumWidth(85);
             _engineSelectCombo->setMinimumHeight(24);
             _engineSelectCombo->setMaximumHeight(24);
         #endif
-        #ifdef LIN_VREP
+        #ifdef LIN_SIM
             _engineSelectCombo->setMinimumWidth(80);
             _engineSelectCombo->setMaximumWidth(80);
             _engineSelectCombo->setMinimumHeight(24);
@@ -1216,23 +1211,23 @@ void CMainWindow::_createDefaultToolBars()
         _toolbar1->addWidget(_engineSelectCombo);
         connect(_engineSelectCombo,SIGNAL(activated(int)),this,SLOT(_engineSelectedViaToolbar(int)));
 
-        if (handleVerSpec_showEnginePrecisionCombo())
+        if (CLibLic::getBoolVal(11))
         {
             _enginePrecisionCombo=new QComboBox();
 
-            #ifdef WIN_VREP
+            #ifdef WIN_SIM
                 _enginePrecisionCombo->setMinimumWidth(120);
                 _enginePrecisionCombo->setMaximumWidth(120);
                 _enginePrecisionCombo->setMinimumHeight(24);
                 _enginePrecisionCombo->setMaximumHeight(24);
             #endif
-            #ifdef MAC_VREP
+            #ifdef MAC_SIM
                 _enginePrecisionCombo->setMinimumWidth(125);
                 _enginePrecisionCombo->setMaximumWidth(125);
                 _enginePrecisionCombo->setMinimumHeight(24);
                 _enginePrecisionCombo->setMaximumHeight(24);
             #endif
-            #ifdef LIN_VREP
+            #ifdef LIN_SIM
                 _enginePrecisionCombo->setMinimumWidth(120);
                 _enginePrecisionCombo->setMaximumWidth(120);
                 _enginePrecisionCombo->setMinimumHeight(24);
@@ -1249,23 +1244,23 @@ void CMainWindow::_createDefaultToolBars()
             connect(_enginePrecisionCombo,SIGNAL(activated(int)),this,SLOT(_enginePrecisionViaToolbar(int)));
         }
 
-        if (handleVerSpec_showTimeStepConfigCombo())
+        if (CLibLic::getBoolVal(11))
         {
             _timeStepConfigCombo=new QComboBox();
 
-            #ifdef WIN_VREP
+            #ifdef WIN_SIM
                 _timeStepConfigCombo->setMinimumWidth(135);
                 _timeStepConfigCombo->setMaximumWidth(135);
                 _timeStepConfigCombo->setMinimumHeight(24);
                 _timeStepConfigCombo->setMaximumHeight(24);
             #endif
-            #ifdef MAC_VREP
+            #ifdef MAC_SIM
                 _timeStepConfigCombo->setMinimumWidth(140);
                 _timeStepConfigCombo->setMaximumWidth(140);
                 _timeStepConfigCombo->setMinimumHeight(24);
                 _timeStepConfigCombo->setMaximumHeight(24);
             #endif
-            #ifdef LIN_VREP
+            #ifdef LIN_SIM
                 _timeStepConfigCombo->setMinimumWidth(135);
                 _timeStepConfigCombo->setMaximumWidth(135);
                 _timeStepConfigCombo->setMinimumHeight(24);
@@ -1304,7 +1299,7 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionStop,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionStop,SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD);
 
-        if (handleVerSpec_showOnlineButton())
+        if (CLibLic::getBoolVal_int(0,App::userSettings->xrTest))
         {
             _toolbarActionOnline=_toolbar1->addAction(QIcon(":/toolbarFiles/online.png"),tr(IDS_TOOLBAR_TOOLTIP_ONLINE));
             _toolbarActionOnline->setCheckable(true);
@@ -1312,7 +1307,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionOnline,SIMULATION_COMMANDS_TOGGLE_ONLINE_SCCMD);
         }
 
-        if (handleVerSpec_showRealTimeButton())
+        if (CLibLic::getBoolVal(11))
         {
             _toolbarActionRealTime=_toolbar1->addAction(QIcon(":/toolbarFiles/realTime.png"),tr(IDS_TOOLBAR_TOOLTIP_REALTIMESIMULATION));
             _toolbarActionRealTime->setCheckable(true);
@@ -1320,7 +1315,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionRealTime,SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD);
         }
 
-        if (handleVerSpec_showReduceSpeedButton())
+        if (CLibLic::getBoolVal(11))
         {
             _toolbarActionReduceSpeed=_toolbar1->addAction(QIcon(":/toolbarFiles/reduceSpeed.png"),tr(IDSN_SLOW_DOWN_SIMULATION));
             _toolbarActionReduceSpeed->setCheckable(false);
@@ -1328,7 +1323,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionReduceSpeed,SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD);
         }
 
-        if (handleVerSpec_showIncreaseSpeedButton())
+        if (CLibLic::getBoolVal(11))
         {
             _toolbarActionIncreaseSpeed=_toolbar1->addAction(QIcon(":/toolbarFiles/increaseSpeed.png"),tr(IDSN_SPEED_UP_SIMULATION));
             _toolbarActionIncreaseSpeed->setCheckable(false);
@@ -1336,7 +1331,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionIncreaseSpeed,SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD);
         }
 
-        if (handleVerSpec_showThreadedRenderingButton())
+        if (CLibLic::getBoolVal(11))
         {
             _toolbarActionThreadedRendering=_toolbar1->addAction(QIcon(":/toolbarFiles/threadedRendering.png"),tr(IDSN_THREADED_RENDERING));
             _toolbarActionThreadedRendering->setCheckable(true);
@@ -1367,11 +1362,11 @@ void CMainWindow::_createDefaultToolBars()
         _toolbar2->setIconSize(QSize(28,28));
         _toolbar2->setAllowedAreas(Qt::LeftToolBarArea|Qt::RightToolBarArea);
         addToolBar(Qt::LeftToolBarArea,_toolbar2);
-        #ifdef MAC_VREP
+        #ifdef MAC_SIM
             _toolbar2->setMovable(false); // 14/7/2013: since Qt5.1.0 the toolbar looks just plain white when undocked under MacOS
         #endif
 
-        if (handleVerSpec_showSimulationSettingsButton())
+        if (CLibLic::getBoolVal(11))
         {
             _toolbarActionSimulationSettings=_toolbar2->addAction(QIcon(":/toolbarFiles/simulationSettings.png"),tr(IDSN_SIMULATION_SETTINGS));
             _toolbarActionSimulationSettings->setCheckable(true);
@@ -1380,7 +1375,7 @@ void CMainWindow::_createDefaultToolBars()
             _toolbar2->addSeparator();
         }
 
-        if (handleVerSpec_showObjectPropertiesButton())
+        if (CLibLic::getBoolVal(12))
         {
             _toolbarActionObjectProperties=_toolbar2->addAction(QIcon(":/toolbarFiles/commonProperties.png"),tr(IDSN_OBJECT_PROPERTIES_MENU_ITEM));
             _toolbarActionObjectProperties->setCheckable(true);
@@ -1388,7 +1383,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionObjectProperties,TOGGLE_OBJECT_DLG_CMD);
         }
 
-        if (handleVerSpec_showCalculationModulesButton())
+        if (CLibLic::getBoolVal(12))
         {
             _toolbarActionCalculationModules=_toolbar2->addAction(QIcon(":/toolbarFiles/calcmods.png"),tr(IDSN_CALCULATION_MODULE_PROPERTIES_MENU_ITEM));
             _toolbarActionCalculationModules->setCheckable(true);
@@ -1397,7 +1392,7 @@ void CMainWindow::_createDefaultToolBars()
             _toolbar2->addSeparator();
         }
 
-        if (handleVerSpec_showCollectionsButton())
+        if (CLibLic::getBoolVal(12))
         {
             _toolbarActionCollections=_toolbar2->addAction(QIcon(":/toolbarFiles/collections.png"),tr(IDSN_COLLECTIONS));
             _toolbarActionCollections->setCheckable(true);
@@ -1405,7 +1400,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionCollections,TOGGLE_COLLECTION_DLG_CMD);
         }
 
-        if (handleVerSpec_showScriptsButton())
+        if (CLibLic::getBoolVal(12))
         {
             _toolbarActionScripts=_toolbar2->addAction(QIcon(":/toolbarFiles/scripts.png"),tr(IDSN_SCRIPTS));
             _toolbarActionScripts->setCheckable(true);
@@ -1413,7 +1408,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionScripts,TOGGLE_LUA_SCRIPT_DLG_CMD);
         }
 
-        if (handleVerSpec_showShapeEditionButton())
+        if (CLibLic::getBoolVal(12))
         {
             _toolbarActionShapeEdition=_toolbar2->addAction(QIcon(":/toolbarFiles/shapeEdition.png"),tr(IDS_SHAPE_EDITION_TOOLBAR_TIP));
             _toolbarActionShapeEdition->setCheckable(true);
@@ -1421,7 +1416,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionShapeEdition,SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD);
         }
 
-        if (handleVerSpec_showPathEditionButton())
+        if (CLibLic::getBoolVal(12))
         {
             _toolbarActionPathEdition=_toolbar2->addAction(QIcon(":/toolbarFiles/pathEdition.png"),tr(IDS_PATH_EDITION_TOOLBAR_TIP));
             _toolbarActionPathEdition->setCheckable(true);
@@ -1439,7 +1434,7 @@ void CMainWindow::_createDefaultToolBars()
         }
 
 
-        if (handleVerSpec_showSelectionButton())
+        if (CLibLic::getBoolVal(12))
         {
             _toolbarActionSelection=_toolbar2->addAction(QIcon(":/toolbarFiles/selection.png"),tr(IDSN_SELECTION_DIALOG));
             _toolbarActionSelection->setCheckable(true);
@@ -1452,7 +1447,7 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionModelBrowser,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionModelBrowser,TOGGLE_BROWSER_DLG_CMD);
 
-        if (handleVerSpec_showSceneHierarchyButton())
+        if (CLibLic::getBoolVal(11))
         {
             _toolbarActionSceneHierarchy=_toolbar2->addAction(QIcon(":/toolbarFiles/sceneHierarchy.png"),tr(IDSN_SCENE_HIERARCHY));
             _toolbarActionSceneHierarchy->setCheckable(true);
@@ -1460,7 +1455,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionSceneHierarchy,TOGGLE_HIERARCHY_DLG_CMD);
         }
 
-        if (handleVerSpec_showLayersButton())
+        if (CLibLic::getBoolVal(11))
         {
             _toolbarActionLayers=_toolbar2->addAction(QIcon(":/toolbarFiles/layers.png"),tr(IDS_LAYERS));
             _toolbarActionLayers->setCheckable(true);
@@ -1474,7 +1469,7 @@ void CMainWindow::_createDefaultToolBars()
         _signalMapper->setMapping(_toolbarActionAviRecorder,TOGGLE_AVI_RECORDER_DLG_CMD);
 
         _toolbarActionUserSettings=_toolbar2->addAction(QIcon(":/toolbarFiles/userSettings.png"),tr(IDSN_USER_SETTINGS));
-        _toolbarActionUserSettings->setCheckable(handleVerSpec_userSettingsButtonCheckable());
+        _toolbarActionUserSettings->setCheckable(CLibLic::getBoolVal(11));
         connect(_toolbarActionUserSettings,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionUserSettings,TOGGLE_SETTINGS_DLG_CMD);
  
@@ -1512,12 +1507,14 @@ void CMainWindow::dragEnterEvent(QDragEnterEvent* dEvent)
                 std::string pathFile=urlList.at(i).toLocalFile().toStdString();
                 std::string extension(VVarious::splitPath_fileExtension(pathFile));
 
-                if (extension.compare(SIM_VREP_SCENE_EXTENSION)==0)
+                if (extension.compare(SIM_SCENE_EXTENSION)==0)
                     sceneCnt++;
-               if (extension.compare(VREP_MODEL_EXTENSION)==0)
+                else
+                    sceneCnt+=CLibLic::getIntVal_str(1,extension.c_str());
+                if (extension.compare(SIM_MODEL_EXTENSION)==0)
                     modelCnt++;
-                sceneCnt+=handleVerSpec_checkSceneExt(extension);
-                modelCnt+=handleVerSpec_checkModelExt(extension);
+                else
+                    modelCnt+=CLibLic::getIntVal_str(2,extension.c_str());
                 fileCnt++;
             }
             if ( (fileCnt==sceneCnt)&&(sceneCnt>0) )
@@ -1543,13 +1540,13 @@ void CMainWindow::dropEvent(QDropEvent* dEvent)
             {
                 std::string pathFile=urlList.at(i).toLocalFile().toLocal8Bit().data();
                 std::string extension(VVarious::splitPath_fileExtension(pathFile));
-                if (extension.compare(SIM_VREP_SCENE_EXTENSION)==0)
+                if (extension.compare(SIM_SCENE_EXTENSION)==0)
                     scenes.push_back(pathFile);
-                if (extension.compare(SIM_VREP_MODEL_EXTENSION)==0)
+                if (extension.compare(SIM_MODEL_EXTENSION)==0)
                     models.push_back(pathFile);
-                if (handleVerSpec_checkSceneExt(extension)==1)
+                if (CLibLic::getIntVal_str(1,extension.c_str())==1)
                     scenes.push_back(pathFile);
-                if (handleVerSpec_checkModelExt(extension)==1)
+                if (CLibLic::getIntVal_str(2,extension.c_str())==1)
                     models.push_back(pathFile);
                 fileCnt++;
             }
@@ -1879,7 +1876,7 @@ void CMainWindow::_actualizetoolbarButtonState()
         _toolbarActionCameraShift->setEnabled(noSelector);
         _toolbarActionCameraRotate->setEnabled(noSelector);
         _toolbarActionCameraZoom->setEnabled(noSelector);
-        if (handleVerSpec_showCameraAngleButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionCameraAngle->setEnabled(noSelector);
         _toolbarActionCameraSizeToScreen->setEnabled(allowFitToView&&noSelector);
 //        _toolbarActionCameraFly->setEnabled(noSelector);
@@ -1890,7 +1887,7 @@ void CMainWindow::_actualizetoolbarButtonState()
             _toolbarActionAssemble->setIcon(QIcon(":/toolbarFiles/assemble.png"));
         _toolbarActionAssemble->setEnabled(assembleEnabled||disassembleEnabled);
 
-        if (handleVerSpec_showTransferDnaButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionTransferDna->setEnabled(transferDnaAllowed);
 
         _toolbarActionObjectShift->setEnabled(noUiNorMultishapeEditMode&&noSelector&&_toolbarButtonObjectShiftEnabled);
@@ -1903,34 +1900,34 @@ void CMainWindow::_actualizetoolbarButtonState()
             _toolbarActionIk->setEnabled(noUiNorMultishapeEditMode&&noSelector);
         #endif
 
-        if (handleVerSpec_showClickSelectionButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionClickSelection->setEnabled(noSelector);
 
         _toolbarActionUndo->setEnabled(App::ct->undoBufferContainer->canUndo()&&noSelector);
         _toolbarActionRedo->setEnabled(App::ct->undoBufferContainer->canRedo()&&noSelector);
 
-        if (handleVerSpec_showDynContentVisualizationButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionDynamicContentVisualization->setEnabled((!App::ct->simulation->isSimulationStopped())&&noSelector);
 
         _engineSelectCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped()&&App::ct->dynamicsContainer->getDynamicsEnabled()&&noSelector);
-        if (handleVerSpec_showEnginePrecisionCombo())
+        if (CLibLic::getBoolVal(11))
             _enginePrecisionCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped()&&App::ct->dynamicsContainer->getDynamicsEnabled()&&noSelector);
-        if (handleVerSpec_showTimeStepConfigCombo())
+        if (CLibLic::getBoolVal(11))
             _timeStepConfigCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped()&&noSelector);
-        if (handleVerSpec_showVerifyButton())
+        if (CLibLic::getBoolVal_int(0,App::userSettings->xrTest))
             _toolbarActionVerify->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped()&&noSelector);
         _toolbarActionStart->setEnabled(_toolbarButtonPlayEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&(!App::ct->simulation->isSimulationRunning())&&noSelector);
         _toolbarActionPause->setEnabled(_toolbarButtonPauseEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationRunning()&&noSelector);
         _toolbarActionStop->setEnabled(_toolbarButtonStopEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&(!App::ct->simulation->isSimulationStopped())&&noSelector);
-        if (handleVerSpec_showOnlineButton())
+        if (CLibLic::getBoolVal_int(0,App::userSettings->xrTest))
             _toolbarActionOnline->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped()&&noSelector);
-        if (handleVerSpec_showRealTimeButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionRealTime->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped()&&noSelector);
-        if (handleVerSpec_showReduceSpeedButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionReduceSpeed->setEnabled(App::ct->simulation->canGoSlower()&&noSelector);
-        if (handleVerSpec_showIncreaseSpeedButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionIncreaseSpeed->setEnabled(App::ct->simulation->canGoFaster()&&noSelector);
-        if (handleVerSpec_showThreadedRenderingButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionThreadedRendering->setEnabled(App::ct->simulation->canToggleThreadedRendering()&&noSelector);
         _toolbarActionToggleVisualization->setEnabled(App::ct->simulation->isSimulationRunning()&&noSelector);
 
@@ -1941,7 +1938,7 @@ void CMainWindow::_actualizetoolbarButtonState()
         _toolbarActionCameraShift->setChecked((getMouseMode()&0x00ff)==sim_navigation_camerashift);
         _toolbarActionCameraRotate->setChecked((getMouseMode()&0x00ff)==sim_navigation_camerarotate);
         _toolbarActionCameraZoom->setChecked((getMouseMode()&0x00ff)==sim_navigation_camerazoom);
-        if (handleVerSpec_showCameraAngleButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionCameraAngle->setChecked((getMouseMode()&0x00ff)==sim_navigation_cameraangle);
 //       _toolbarActionCameraFly->setChecked((getMouseMode()&0x00ff)==sim_navigation_camerafly);
         _toolbarActionObjectShift->setChecked((getMouseMode()&0x00ff)==sim_navigation_objectshift);
@@ -1951,9 +1948,9 @@ void CMainWindow::_actualizetoolbarButtonState()
             _toolbarActionIk->setChecked(dlgCont->isVisible(INTERACTIVE_IK_DLG));
         #endif
 
-        if (handleVerSpec_showClickSelectionButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionClickSelection->setChecked((getMouseMode()&0x0300)==sim_navigation_clickselection);
-        if (handleVerSpec_showDynContentVisualizationButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionDynamicContentVisualization->setChecked(App::ct->simulation->getDynamicContentVisualizationOnly());
 
         int ver;
@@ -1969,7 +1966,7 @@ void CMainWindow::_actualizetoolbarButtonState()
         if (eng==sim_physics_newton)
             _engineSelectCombo->setCurrentIndex(4);
 
-        if (handleVerSpec_showEnginePrecisionCombo())
+        if (CLibLic::getBoolVal(11))
         {
             _enginePrecisionCombo->setCurrentIndex(App::ct->dynamicsContainer->getUseDynamicDefaultCalculationParameters());
             if (App::ct->simulation->isSimulationStopped())
@@ -2005,7 +2002,7 @@ void CMainWindow::_actualizetoolbarButtonState()
         _toolbarActionStart->setChecked(App::ct->simulation->isSimulationRunning());
         _toolbarActionPause->setChecked(App::ct->simulation->isSimulationPaused());
 
-        if (handleVerSpec_showOnlineButton())
+        if (CLibLic::getBoolVal_int(0,App::userSettings->xrTest))
         {
             _toolbarActionOnline->setChecked(App::ct->simulation->getOnlineMode());
             if (App::ct->simulation->getOnlineMode())
@@ -2013,9 +2010,9 @@ void CMainWindow::_actualizetoolbarButtonState()
             else
                 _toolbarActionOnline->setIcon(QIcon(":/toolbarFiles/online.png"));
         }
-        if (handleVerSpec_showRealTimeButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionRealTime->setChecked(App::ct->simulation->getRealTimeSimulation());
-        if (handleVerSpec_showThreadedRenderingButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionThreadedRendering->setChecked(App::ct->simulation->getThreadedRenderingIfSimulationWasRunning());
 
         _toolbarActionToggleVisualization->setChecked(!getOpenGlDisplayEnabled());
@@ -2024,66 +2021,66 @@ void CMainWindow::_actualizetoolbarButtonState()
     }
     if (_toolbar2!=nullptr)
     { // We enable/disable some buttons:
-        if (handleVerSpec_showSimulationSettingsButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionSimulationSettings->setEnabled(noEditMode&&noSelector);
 
-        if (handleVerSpec_showObjectPropertiesButton())
+        if (CLibLic::getBoolVal(12))
             _toolbarActionObjectProperties->setEnabled(_toolbarButtonObjPropEnabled&&noEditMode&&noSelector);
-        if (handleVerSpec_showCalculationModulesButton())
+        if (CLibLic::getBoolVal(12))
             _toolbarActionCalculationModules->setEnabled(_toolbarButtonCalcModulesEnabled&&noEditMode&&noSelector);
-        if (handleVerSpec_showCollectionsButton())
+        if (CLibLic::getBoolVal(12))
             _toolbarActionCollections->setEnabled(noEditMode&&noSelector);
-        if (handleVerSpec_showScriptsButton())
+        if (CLibLic::getBoolVal(12))
             _toolbarActionScripts->setEnabled(noEditMode&&noSelector);
-        if (handleVerSpec_showShapeEditionButton())
+        if (CLibLic::getBoolVal(12))
             _toolbarActionShapeEdition->setEnabled((noSelector&&(selS==1)&&App::ct->objCont->isLastSelectionAShape()&&App::ct->simulation->isSimulationStopped()&&(editModeContainer->getEditModeType()==NO_EDIT_MODE))||(editModeContainer->getEditModeType()&SHAPE_EDIT_MODE)||(editModeContainer->getEditModeType()&MULTISHAPE_EDIT_MODE));
-        if (handleVerSpec_showPathEditionButton())
+        if (CLibLic::getBoolVal(12))
         {
             _toolbarActionPathEdition->setEnabled((noSelector&&(selS==1)&&App::ct->objCont->isLastSelectionAPath()&&App::ct->simulation->isSimulationStopped()&&(editModeContainer->getEditModeType()==NO_EDIT_MODE))||(editModeContainer->getEditModeType()&PATH_EDIT_MODE));
             if (App::userSettings->enableOpenGlBasedCustomUiEditor)
                 _toolbarAction2dElements->setEnabled(noSelector&&App::ct->simulation->isSimulationStopped()&&((editModeContainer->getEditModeType()==NO_EDIT_MODE)||(editModeContainer->getEditModeType()==BUTTON_EDIT_MODE)));
         }
-        if (handleVerSpec_showSelectionButton())
+        if (CLibLic::getBoolVal(12))
             _toolbarActionSelection->setEnabled(noEditMode&&noSelector);
 
         _toolbarActionModelBrowser->setEnabled(noEditMode&&noSelector&&_toolbarButtonBrowserEnabled);
 
-        if (handleVerSpec_showSceneHierarchyButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionSceneHierarchy->setEnabled(noEditMode&&noSelector&&_toolbarButtonHierarchyEnabled&&((!App::userSettings->sceneHierarchyHiddenDuringSimulation)||App::ct->simulation->isSimulationStopped()) );
-        if (handleVerSpec_showLayersButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionLayers->setEnabled(true);
 
         _toolbarActionAviRecorder->setEnabled(noEditMode&&noSelector&&(CAuxLibVideo::video_recorderGetEncoderString!=nullptr));
         _toolbarActionUserSettings->setEnabled(noEditMode&&noSelector);
 
         // Now we check/uncheck some buttons:
-        if (handleVerSpec_userSettingsButtonCheckable())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionSimulationSettings->setChecked(dlgCont->isVisible(SIMULATION_DLG));
 
-        if (handleVerSpec_showObjectPropertiesButton())
+        if (CLibLic::getBoolVal(12))
             _toolbarActionObjectProperties->setChecked(dlgCont->isVisible(OBJECT_DLG));
-        if (handleVerSpec_showCalculationModulesButton())
+        if (CLibLic::getBoolVal(12))
             _toolbarActionCalculationModules->setChecked(dlgCont->isVisible(CALCULATION_DLG));
-        if (handleVerSpec_showCollectionsButton())
+        if (CLibLic::getBoolVal(12))
             _toolbarActionCollections->setChecked(dlgCont->isVisible(COLLECTION_DLG));
-        if (handleVerSpec_showScriptsButton())
+        if (CLibLic::getBoolVal(12))
             _toolbarActionScripts->setChecked(dlgCont->isVisible(LUA_SCRIPT_DLG));
-        if (handleVerSpec_showShapeEditionButton())
+        if (CLibLic::getBoolVal(12))
             _toolbarActionShapeEdition->setChecked(editModeContainer->getEditModeType()&SHAPE_EDIT_MODE);
-        if (handleVerSpec_showPathEditionButton())
+        if (CLibLic::getBoolVal(12))
         {
             _toolbarActionPathEdition->setChecked(editModeContainer->getEditModeType()==PATH_EDIT_MODE);
             if (App::userSettings->enableOpenGlBasedCustomUiEditor)
                 _toolbarAction2dElements->setChecked(editModeContainer->getEditModeType()==BUTTON_EDIT_MODE);
         }
-        if (handleVerSpec_showSelectionButton())
+        if (CLibLic::getBoolVal(12))
             _toolbarActionSelection->setChecked(dlgCont->isVisible(SELECTION_DLG));
 
         _toolbarActionModelBrowser->setChecked(dlgCont->isVisible(BROWSER_DLG));
 
-        if (handleVerSpec_showSceneHierarchyButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionSceneHierarchy->setChecked(dlgCont->isVisible(HIERARCHY_DLG));
-        if (handleVerSpec_showLayersButton())
+        if (CLibLic::getBoolVal(11))
             _toolbarActionLayers->setChecked(dlgCont->isVisible(LAYERS_DLG));
 
         _toolbarActionAviRecorder->setChecked(dlgCont->isVisible(AVI_RECORDER_DLG));
@@ -2170,7 +2167,7 @@ void CMainWindow::_timeStepConfigViaToolbar(int index)
     POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
 }
 
-void CMainWindow::_vrepPopupMessageHandler(int id)
+void CMainWindow::_simPopupMessageHandler(int id)
 {
     if (VMenubar::doNotExecuteCommandButMemorizeIt)
     {
@@ -2178,10 +2175,10 @@ void CMainWindow::_vrepPopupMessageHandler(int id)
         VMenubar::doNotExecuteCommandButMemorizeIt=false;
         return;
     }
-    _vrepMessageHandler(id);
+    _simMessageHandler(id);
 }
 
-void CMainWindow::_vrepMessageHandler(int id)
+void CMainWindow::_simMessageHandler(int id)
 {
     bool processed=false;
     processed=CToolBarCommand::processCommand(id);
@@ -2204,7 +2201,7 @@ void CMainWindow::_vrepMessageHandler(int id)
     if (!processed)
         processed=App::ct->processGuiCommand(id);
     if (!processed)
-        processed=handleVerSpec_vrepMessageHandler1(id);
+        processed=App::ct->environment->processGuiCommand(id);
     if (!processed)
         processed=customMenuBarItemContainer->processCommand(id);
     App::setToolbarRefreshFlag();
@@ -2273,11 +2270,6 @@ void CMainWindow::_aboutToShowJobsSystemMenu()
     App::ct->environment->addJobsMenu(_jobsSystemMenu);
 }
 
-void CMainWindow::_aboutToShowSSystemMenu()
-{
-    _sSystemMenu->clear();
-    handleVerSpec_aboutToShowSSystemMenu(_sSystemMenu);
-}
 void CMainWindow::_aboutToShowCustomMenu()
 {
     customMenuBarItemContainer->_menuHandle->clear();
@@ -2372,7 +2364,7 @@ void CMainWindow::onKeyPress(SMouseOrKeyboardOrResizeEvent e)
             processed=true;
         }
         if (getKeyDownState()&1)
-        { // Very specific to V-REP, except for ctrl+Q (which doesn't exist by default on Windows)
+        { // Very specific to CoppeliaSim, except for ctrl+Q (which doesn't exist by default on Windows)
             if (e.key==81)
             {
                 oglSurface->keyPress(CTRL_Q_KEY,this);
@@ -2410,8 +2402,6 @@ void CMainWindow::onKeyPress(SMouseOrKeyboardOrResizeEvent e)
             QByteArray ba(e.unicodeText.toLatin1());
             if (ba.length()>=1)
             {
-                if (handleVerSpec_onKeyPress1(ba))
-                    createDefaultMenuBar();
                 if (getOpenGlDisplayEnabled())
                     oglSurface->keyPress(int(ba.at(0)),this);
             }

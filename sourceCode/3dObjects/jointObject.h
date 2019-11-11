@@ -297,6 +297,7 @@ public:
     void setIKWeight(float newWeight);
     void setMaxStepSize(float stepS);
     float getMaxStepSize();
+    std::string getDdependencyJointLoadName() const;
 
     void _rectifyDependentJoints(bool useTempValues);
 
@@ -421,4 +422,5 @@ protected:
     float _sphericalTransformation_euler2TempForIK;
     float _sphericalTransformation_euler3TempForIK;
     int _sphericalTransformation_eulerLockTempForIK; // bit-coded, bit0--> _sphericalTransformation_euler1TempForIK, bit1--> _sphericalTransformation_euler2TempForIK, etc.
+    std::string _dependencyJointLoadName;
 };

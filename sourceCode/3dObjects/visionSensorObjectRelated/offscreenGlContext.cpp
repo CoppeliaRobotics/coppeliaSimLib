@@ -11,7 +11,7 @@ std::vector<QOpenGLWidget*> COffscreenGlContext::_allQtWidgets;
 std::vector<QGLWidget*> COffscreenGlContext::_allQtWidgets;
 #endif
 
-#ifdef WIN_VREP
+#ifdef WIN_SIM
 std::vector<HGLRC> COffscreenGlContext::_allNativeContexts;
 /*
 LRESULT CALLBACK WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
@@ -144,7 +144,7 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
             if (_offscreenType==QT_WINDOW_HIDE_TP)
                 _hiddenWindow=new QOpenGLWidget(App::mainWindow);
             else
-#ifdef WIN_VREP
+#ifdef WIN_SIM
                 _hiddenWindow=new QOpenGLWidget(App::mainWindow,Qt::Tool|Qt::CustomizeWindowHint);
 #else
                 _hiddenWindow=new QOpenGLWidget(nullptr);
@@ -187,7 +187,7 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
             if (_offscreenType==QT_WINDOW_HIDE_TP)
                 _hiddenWindow=new QOpenGLWidget(App::mainWindow);
             else
-#ifdef WIN_VREP
+#ifdef WIN_SIM
                 _hiddenWindow=new QOpenGLWidget(App::mainWindow,Qt::Tool|Qt::CustomizeWindowHint);
 #else
                 _hiddenWindow=new QOpenGLWidget(nullptr);

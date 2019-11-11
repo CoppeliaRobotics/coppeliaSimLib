@@ -1,8 +1,8 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "modelFolderWidget.h"
 #include "app.h"
 #include "vFileFinder.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "tt.h"
 
 CModelFolderWidget::CModelFolderWidget(CModelListWidget* modelListWidget,const char* folderName,const char* folderPath,const char* nameOfSelectedFolder) : QTreeWidget()

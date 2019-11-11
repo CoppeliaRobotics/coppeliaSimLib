@@ -5,7 +5,7 @@
     #include <QTime>
     #include <QThread>
 #endif
-#ifndef WIN_VREP
+#ifndef WIN_SIM
     #include <unistd.h>
     #include <pthread.h>
 #endif

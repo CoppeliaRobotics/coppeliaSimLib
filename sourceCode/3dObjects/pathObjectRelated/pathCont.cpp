@@ -1,10 +1,10 @@
 #include "funcDebug.h"
 #include "pathCont.h"
 #include "tt.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "meshRoutines.h"
 #include "linMotionRoutines.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #ifdef SIM_WITH_OPENGL
 #include "oGL.h"
@@ -2032,6 +2032,104 @@ void CPathCont::serialize(CSer& ar)
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+            actualizePath();
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_int("lineSize",_lineSize);
+            ar.xmlAddNode_float("pointSize",_squareSize);
+            ar.xmlAddNode_float("positionAlongPath",float(_position));
+            ar.xmlAddNode_comment(" 'pathLengthCalcMethod' tag: can be 'dl', 'dac', 'max_dl_dac', 'dl_and_dac', 'sqrt_dl2_and_dac2', 'dl_if_nonzero' or 'dac_if_nonzero' ",exhaustiveXml);
+            ar.xmlAddNode_enum("pathLengthCalcMethod",_pathLengthCalculationMethod,sim_distcalcmethod_dl,"dl",sim_distcalcmethod_dac,"dac",sim_distcalcmethod_max_dl_dac,"max_dl_dac",sim_distcalcmethod_dl_and_dac,"dl_and_dac",sim_distcalcmethod_sqrt_dl2_and_dac2,"sqrt_dl2_and_dac2",sim_distcalcmethod_dl_if_nonzero,"dl_if_nonzero",sim_distcalcmethod_dac_if_nonzero,"dac_if_nonzero");
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("attributes",_attributes);
+            else
+            {
+                ar.xmlPushNewNode("switches");
+                ar.xmlAddNode_bool("closed",(_attributes&sim_pathproperty_closed_path)!=0);
+                ar.xmlAddNode_bool("automaticOrientation",(_attributes&sim_pathproperty_automatic_orientation)!=0);
+                ar.xmlPopNode();
+            }
+
+            ar.xmlPushNewNode("color");
+            if (exhaustiveXml)
+                _lineColor.serialize(ar,1);
+            else
+            {
+                int rgb[3];
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(_lineColor.colors[l]*255.1f);
+                ar.xmlAddNode_ints("line",rgb,3);
+            }
+            ar.xmlPopNode();
+
+            for (size_t i=0;i<_simplePathPoints.size();i++)
+            {
+                ar.xmlAddNode_comment(" 'point' tag: at least two of such tags are required, three if the path is closed ",exhaustiveXml);
+                ar.xmlPushNewNode("point");
+                _simplePathPoints[i]->serialize(ar);
+                ar.xmlPopNode();
+            }
+        }
+        else
+        {
+            ar.xmlGetNode_int("lineSize",_lineSize,exhaustiveXml);
+            ar.xmlGetNode_float("pointSize",_squareSize,exhaustiveXml);
+            float p;
+            if (ar.xmlGetNode_float("positionAlongPath",p,exhaustiveXml))
+                _position=(double)p;
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("attributes",_attributes);
+            else
+            {
+                ar.xmlPushChildNode("switches",exhaustiveXml);
+                bool b;
+                if (ar.xmlGetNode_bool("closed",b,exhaustiveXml))
+                {
+                    _attributes|=sim_pathproperty_closed_path;
+                    if (!b)
+                        _attributes-=sim_pathproperty_closed_path;
+                }
+                if (ar.xmlGetNode_bool("automaticOrientation",b,exhaustiveXml))
+                {
+                    _attributes|=sim_pathproperty_automatic_orientation;
+                    if (!b)
+                        _attributes-=sim_pathproperty_automatic_orientation;
+                }
+                ar.xmlPopNode();
+            }
+            ar.xmlGetNode_enum("pathLengthCalcMethod",_pathLengthCalculationMethod,exhaustiveXml,"dl",sim_distcalcmethod_dl,"dac",sim_distcalcmethod_dac,"max_dl_dac",sim_distcalcmethod_max_dl_dac,"dl_and_dac",sim_distcalcmethod_dl_and_dac,"sqrt_dl2_and_dac2",sim_distcalcmethod_sqrt_dl2_and_dac2,"dl_if_nonzero",sim_distcalcmethod_dl_if_nonzero,"dac_if_nonzero",sim_distcalcmethod_dac_if_nonzero);
+
+            if (ar.xmlPushChildNode("color",exhaustiveXml))
+            {
+                if (exhaustiveXml)
+                    _lineColor.serialize(ar,1);
+                else
+                {
+                    int rgb[3];
+                    if (ar.xmlGetNode_ints("line",rgb,3,exhaustiveXml))
+                        _lineColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                }
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("point",false))
+            {
+                while (true)
+                {
+                    CSimplePathPoint* newPoint=new CSimplePathPoint();
+                    newPoint->serialize(ar);
+                    _simplePathPoints.push_back(newPoint);
+                    if (!ar.xmlPushSiblingNode("point",false))
+                        break;
+                }
+                ar.xmlPopNode();
             }
             actualizePath();
         }

@@ -1,7 +1,7 @@
 #include "pathEditMode.h"
-#include "v_repConst.h"
+#include "simConst.h"
 #include "global.h"
-#include "v_repStringTable.h"
+#include "simStringTable.h"
 #include "app.h"
 
 CPathEditMode::CPathEditMode(CPath* path,CObjCont* objCont)

@@ -1,4 +1,3 @@
-
 #include "vArchive.h"
 
 unsigned short VArchive::LOAD=0;
@@ -13,7 +12,7 @@ VArchive::VArchive(VFile* file,unsigned short flag)
     _theFile=file;
     _loading=((flag&1)==0);
     _theArchive=new QDataStream(file->getFile());
-    // Following 2 important to be compatible with the files written with first V-REP versions:
+    // Following 2 important to be compatible with the files written with first CoppeliaSim versions:
     _theArchive->setFloatingPointPrecision(QDataStream::SinglePrecision);
     _theArchive->setByteOrder(QDataStream::LittleEndian);
 #endif

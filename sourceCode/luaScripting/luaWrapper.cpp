@@ -274,14 +274,14 @@ void loadExtLuaLibrary(bool useExternalLuaLibrary,bool headless)
 {
     std::string luaLibPathAndName(VVarious::getModulePath());
     luaLibPathAndName+="/";
-#ifdef WIN_VREP
-    luaLibPathAndName+="v_repLua.dll";
+#ifdef WIN_SIM
+    luaLibPathAndName+="simLua.dll";
 #endif
-#ifdef MAC_VREP
-    luaLibPathAndName+="libv_repLua.dylib";
+#ifdef MAC_SIM
+    luaLibPathAndName+="libsimLua.dylib";
 #endif
-#ifdef LIN_VREP
-    luaLibPathAndName+="libv_repLua.so";
+#ifdef LIN_SIM
+    luaLibPathAndName+="libsimLua.so";
 #endif
     if (!useExternalLuaLibrary)
         luaLibPathAndName="";
@@ -296,12 +296,12 @@ void loadExtLuaLibrary(bool useExternalLuaLibrary,bool headless)
             cmd.stringParams.push_back("Could not find or correctly load the external Lua library.\nReverting to the default library.");
             App::appendSimulationThreadCommand(cmd,5000);
         }
-        printf("Could not find or correctly load the external Lua library (v_repLua).\n");
+        printf("Could not find or correctly load the external Lua library (simLua).\n");
     }
     else
     {
         if (useExternalLuaLibrary)
-            printf("Using the external Lua library (v_repLua).\n");
+            printf("Using the external Lua library (simLua).\n");
         else
             printf("Using the default Lua library.\n");
     }

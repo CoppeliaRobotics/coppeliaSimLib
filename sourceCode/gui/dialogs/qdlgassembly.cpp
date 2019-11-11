@@ -1,9 +1,9 @@
 #include "qdlgassembly.h"
 #include "ui_qdlgassembly.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "tt.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vMessageBox.h"
 
 CQDlgAssembly::CQDlgAssembly(QWidget *parent) :

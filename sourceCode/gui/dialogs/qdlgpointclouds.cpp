@@ -4,7 +4,7 @@
 #include "gV.h"
 #include "qdlgmaterial.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "sceneObjectOperations.h"
 
 CQDlgPointclouds::CQDlgPointclouds(QWidget *parent) :

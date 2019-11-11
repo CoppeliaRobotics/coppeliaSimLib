@@ -5,7 +5,7 @@
 #include "propBrowser_engineProp_joint.h"
 #include "qdlgjoints.h"
 #include "app.h"
-#include "v_repStringTable.h"
+#include "simStringTable.h"
 #include "vMessageBox.h"
 
 CQDlgJointDyn::CQDlgJointDyn(QWidget *parent) :

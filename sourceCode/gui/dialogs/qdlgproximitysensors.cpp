@@ -5,7 +5,7 @@
 #include "qdlgmaterial.h"
 #include "qdlgproxsensdetectionparam.h"
 #include "qdlgdetectionvolume.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "vMessageBox.h"
 

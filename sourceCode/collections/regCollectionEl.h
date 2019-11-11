@@ -15,6 +15,8 @@ public:
     int getCollectionType();
     int getSubCollectionID();
     void setSubCollectionID(int newID);
+    void setMainObject(int objectHandle);
+    std::string getMainObjectTempName() const;
     bool isSame(CRegCollectionEl* it);
     void serialize(CSer& ar);
     void performObjectLoadingMapping(std::vector<int>* map);
@@ -27,4 +29,5 @@ private:
     int groupType;
     bool additive;
     int subGroupID;
+    std::string _objectTempName;
 };

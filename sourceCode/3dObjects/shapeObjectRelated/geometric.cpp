@@ -9,6 +9,7 @@
 #include "pluginContainer.h"
 #include "shapeRendering.h"
 #include "tt.h"
+#include "base64.h"
 
 int CGeometric::_nextUniqueID=0;
 unsigned int CGeometric::_extRendererUniqueObjectID=0;
@@ -170,7 +171,7 @@ void CGeometric::display_extRenderer(CGeomProxy* geomData,int displayAttrib,cons
         data[32]=&shapeHandle;
         data[33]=&componentIndex;
 
-        // Following actually free since V-REP 3.3.0
+        // Following actually free since CoppeliaSim 3.3.0
         // But the older PovRay plugin version crash without this:
         int povMaterial=0;
         data[29]=&povMaterial;
@@ -1926,6 +1927,127 @@ void CGeometric::serialize(CSer& ar,const char* shapeName)
             }
         }
     }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_float("shadingAngle",_gouraudShadingAngle*180.0f/piValue_f);
+            ar.xmlAddNode_float("edgeThresholdAngle",_edgeThresholdAngle*180.0f/piValue_f);
+
+            ar.xmlPushNewNode("color");
+            color.serialize(ar,0);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("primitive");
+            ar.xmlAddNode_enum("type",_purePrimitive,sim_pure_primitive_none,"none",sim_pure_primitive_plane,"plane",sim_pure_primitive_disc,"disc",sim_pure_primitive_cuboid,"cuboid",sim_pure_primitive_spheroid,"spheroid",sim_pure_primitive_cylinder,"cylinder",sim_pure_primitive_cone,"cone",sim_pure_primitive_heightfield,"heightfield");
+            ar.xmlAddNode_float("insideScaling",_purePrimitiveInsideScaling);
+            ar.xmlAddNode_3float("sizes",_purePrimitiveXSizeOrDiameter,_purePrimitiveYSize,_purePrimitiveZSizeOrHeight);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("verticesLocalFrame");
+            ar.xmlAddNode_floats("position",_verticeLocalFrame.X.data,3);
+            ar.xmlAddNode_floats("quaternion",_verticeLocalFrame.Q.data,4);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("edgesVisible",_visibleEdges);
+            ar.xmlAddNode_bool("culling",_culling);
+            ar.xmlAddNode_bool("wireframe",_wireframe);
+            ar.xmlAddNode_bool("hideEdgeBorders",_hideEdgeBorders);
+            ar.xmlPopNode();
+
+            if (_textureProperty!=nullptr)
+            {
+                ar.xmlPushNewNode("texture");
+                _textureProperty->serialize(ar);
+                ar.xmlPopNode();
+            }
+
+            ar.xmlPushNewNode("heightfield");
+            ar.xmlAddNode_2int("sizes",_heightfieldXCount,_heightfieldYCount);
+            ar.xmlAddNode_floats("data",_heightfieldHeights);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("meshData");
+            if (ar.xmlSaveDataInline(_vertices.size()*4+_indices.size()*4+_normals.size()*4+_edges.size()))
+            {
+                ar.xmlAddNode_floats("vertices",_vertices);
+                ar.xmlAddNode_ints("indices",_indices);
+                ar.xmlAddNode_floats("normals",_normals);
+                ar.xmlAddNode_uchars("edges",_edges);
+            }
+            else
+                ar.xmlAddNode_meshFile("file",(std::string("mesh_")+std::string(shapeName)+"_"+tt::FNb(ar.getIncrementCounter())).c_str(),&_vertices[0],(int)_vertices.size(),&_indices[0],(int)_indices.size(),&_normals[0],(int)_normals.size(),&_edges[0],(int)_edges.size());
+            ar.xmlPopNode();
+        }
+        else
+        {
+            ar.xmlGetNode_float("shadingAngle",_gouraudShadingAngle);
+            _gouraudShadingAngle*=piValue_f/180.0f;
+            ar.xmlGetNode_float("edgeThresholdAngle",_edgeThresholdAngle);
+            _edgeThresholdAngle*=piValue_f/180.0f;
+
+            if (ar.xmlPushChildNode("color"))
+            {
+                color.serialize(ar,0);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("primitive"))
+            {
+                ar.xmlGetNode_enum("type",_purePrimitive,true,"none",sim_pure_primitive_none,"plane",sim_pure_primitive_plane,"disc",sim_pure_primitive_disc,"cuboid",sim_pure_primitive_cuboid,"spheroid",sim_pure_primitive_spheroid,"cylinder",sim_pure_primitive_cylinder,"cone",sim_pure_primitive_cone,"heightfield",sim_pure_primitive_heightfield);
+                ar.xmlGetNode_float("insideScaling",_purePrimitiveInsideScaling);
+                ar.xmlGetNode_3float("sizes",_purePrimitiveXSizeOrDiameter,_purePrimitiveYSize,_purePrimitiveZSizeOrHeight);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("verticesLocalFrame"))
+            {
+                ar.xmlGetNode_floats("position",_verticeLocalFrame.X.data,3);
+                ar.xmlGetNode_floats("quaternion",_verticeLocalFrame.Q.data,4);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("switches"))
+            {
+                ar.xmlGetNode_bool("edgesVisible",_visibleEdges);
+                ar.xmlGetNode_bool("culling",_culling);
+                ar.xmlGetNode_bool("wireframe",_wireframe);
+                ar.xmlGetNode_bool("hideEdgeBorders",_hideEdgeBorders);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("texture",false))
+            {
+                _textureProperty=new CTextureProperty();
+                _textureProperty->serialize(ar);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("heightfield"))
+            {
+                ar.xmlGetNode_2int("sizes",_heightfieldXCount,_heightfieldYCount);
+                ar.xmlGetNode_floats("data",_heightfieldHeights);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("meshData"))
+            {
+                if (ar.xmlGetNode_floats("vertices",_vertices,false))
+                {
+                    ar.xmlGetNode_ints("indices",_indices);
+                    ar.xmlGetNode_floats("normals",_normals);
+                    ar.xmlGetNode_uchars("edges",_edges);
+                }
+                else
+                {
+                    ar.xmlGetNode_meshFile("file",_vertices,_indices,_normals,_edges);
+                    actualizeGouraudShadingAndVisibleEdges();
+                }
+                ar.xmlPopNode();
+            }
+        }
+    }
 }
 
 void CGeometric::display(CGeomProxy* geomData,int displayAttrib,CVisualParam* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
@@ -1939,13 +2061,6 @@ void CGeometric::display_colorCoded(CGeomProxy* geomData,int objectId,int displa
     displayGeometric_colorCoded(this,geomData,objectId,displayAttrib);
 }
 
-void CGeometric::displayForCutting(CGeomProxy* geomData,int displayAttrib,CVisualParam* collisionColor,const float normalVectorForPointsAndLines[3])
-{ // function has virtual/non-virtual counterpart!
-    C_API_FUNCTION_DEBUG;
-    CPluginContainer::mesh_lockUnlock(true); // to avoid accessing invalid data! Do not forget to unlock!!
-    displayGeometricForCutting(this,geomData,displayAttrib,collisionColor,normalVectorForPointsAndLines);
-    CPluginContainer::mesh_lockUnlock(false);
-}
 
 void CGeometric::displayGhost(CGeomProxy* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors)
 { // function has virtual/non-virtual counterpart!

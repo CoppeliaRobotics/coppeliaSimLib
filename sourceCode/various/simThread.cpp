@@ -3,7 +3,7 @@
 #include "vThread.h"
 #include "app.h"
 #include "fileOperations.h"
-#include "v_repStringTable.h"
+#include "simStringTable.h"
 #include "tt.h"
 #include "vDateTime.h"
 #include "proxSensorRoutine.h"
@@ -19,7 +19,8 @@
 #include "volInt.h"
 #include "geometricConstraintSolverInt.h"
 #include "graphingRoutines.h"
-#include "v_repStringTable_openGl.h"
+#include "simStringTable_openGl.h"
+#include "libLic.h"
 #ifdef SIM_WITH_GUI
     #include "toolBarCommand.h"
     #include "vMessageBox.h"
@@ -222,7 +223,33 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
 
 #ifdef SIM_WITH_GUI
-    handleVerSpecExecuteSimulationThreadCommand1(&cmd);
+    if (cmd.cmdId==PLUS_HFLM_CMD)
+    {
+        if (CLibLic::hflm())
+            appendSimulationThreadCommand(cmd,1000);
+    }
+    if (cmd.cmdId==PLUS_CVU_CMD)
+    {
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=PLUS_CVU_CMD_UITHREADCMD;
+        {
+            // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
+            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        }
+    }
+    if (cmd.cmdId==PLUS_HVUD_CMD)
+    {
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=PLUS_HVUD_CMD_UITHREADCMD;
+        {
+            // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
+            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        }
+    }
 
     if (cmd.sceneUniqueId==App::ct->environment->getSceneUniqueID())
     {
@@ -284,18 +311,31 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             }
             App::addStatusbarMessage(IDSNS_DONE);
         }
-        if (handleVerSpecExecuteSimulationThreadCommand2())
+        if (CLibLic::getBoolVal(11))
         {
-            if (cmd.cmdId==OPEN_MODAL_SCRIPT_SIMULATION_PARAMETERS_CMD)
+            if (cmd.cmdId==CALL_USER_CONFIG_CALLBACK_CMD)
             {
-                SUIThreadCommand cmdIn;
-                SUIThreadCommand cmdOut;
-                cmdIn.cmdId=OPEN_MODAL_SCRIPT_SIMULATION_PARAMETERS_UITHREADCMD;
-                cmdIn.intParams.push_back(cmd.intParams[0]);
+                CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(cmd.intParams[0]);
+                if ( (script!=nullptr)&&(script->getContainsUserConfigCallbackFunction()) )
+                { // we have a user config callback
+                    CInterfaceStack stack;
+                    script->callScriptFunctionEx(CLuaScriptObject::getSystemCallbackString(sim_syscb_userconfig,false).c_str(),&stack);
+                }
+                else
                 {
-                    // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
-                    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-                    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                    SUIThreadCommand cmdIn;
+                    SUIThreadCommand cmdOut;
+                    cmdIn.cmdId=OPEN_MODAL_SCRIPT_SIMULATION_PARAMETERS_UITHREADCMD;
+                    cmdIn.intParams.push_back(cmd.intParams[0]);
+                    // Make sure we have a script param object:
+                    C3DObject* object=App::ct->objCont->getObjectFromHandle(cmd.intParams[0]);
+                    if (object->getUserScriptParameterObject()==nullptr)
+                        object->setUserScriptParameterObject(new CUserParameters());
+                    {
+                        // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
+                        SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+                        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                    }
                 }
             }
             if (cmd.cmdId==OPEN_SCRIPT_EDITOR_CMD)
@@ -3702,25 +3742,25 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SET_ALL_SCRIPTSIMULPARAMETERGUITRIGGEREDCMD)
         {
-            int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptID);
+            int objID=cmd.intParams[0];
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(objID);
             if (it!=nullptr)
             {
-                CLuaScriptParameters* sp=it->getScriptParametersObject();
-                sp->scriptParamEntries.clear();
+                CUserParameters* sp=it->getUserScriptParameterObject();
+                sp->userParamEntries.clear();
                 for (size_t i=0;i<cmd.intParams.size()-1;i++)
                 {
-                    SScriptParamEntry e;
+                    SUserParamEntry e;
                     e.name=cmd.stringParams[3*i+0];
                     e.unit=cmd.stringParams[3*i+1];
                     e.value=cmd.stringParams[3*i+2];
                     e.properties=cmd.intParams[1+i];
-                    sp->scriptParamEntries.push_back(e);
+                    sp->userParamEntries.push_back(e);
                 }
+                if (sp->userParamEntries.size()==0)
+                    it->setUserScriptParameterObject(nullptr);
             }
         }
-
-
 
 
         if (cmd.cmdId==TOGGLE_ENABLEALL_GEOMCONSTRSOLVERGUITRIGGEREDCMD)
@@ -5548,12 +5588,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             App::userSettings->saveUserSettings();
         }
 
-        if ( (cmd.cmdId>=BR_COMMAND_1_SCCMD)&&(cmd.cmdId<BR_COMMANDS_END_SCCMD) )
+        if ( (cmd.cmdId>=XR_COMMAND_1_SCCMD)&&(cmd.cmdId<XR_COMMANDS_END_SCCMD) )
         {
-            int executeBrCallIndex=-1; // no call
-            if (cmd.cmdId<BR_COMMAND_1_SCCMD+296)
-                executeBrCallIndex=cmd.cmdId-BR_COMMAND_1_SCCMD;
-            else if (cmd.cmdId==BR_COMMAND_1_SCCMD+297)
+            int executeXrCallIndex=-1; // no call
+            if (cmd.cmdId<XR_COMMAND_1_SCCMD+296)
+                executeXrCallIndex=cmd.cmdId-XR_COMMAND_1_SCCMD;
+            else if (cmd.cmdId==XR_COMMAND_1_SCCMD+297)
             { // create new job
                 std::string nn(App::ct->environment->getCurrentJob());
                 while (true)
@@ -5574,15 +5614,15 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     while (App::ct->environment->getJobIndex(nn)!=-1)
                         nn=tt::generateNewName_noDash(nn);
                     if (App::ct->environment->createNewJob(nn))
-                        executeBrCallIndex=cmd.cmdId-BR_COMMAND_1_SCCMD;
+                        executeXrCallIndex=cmd.cmdId-XR_COMMAND_1_SCCMD;
                 }
             }
-            else if (cmd.cmdId==BR_COMMAND_1_SCCMD+298)
+            else if (cmd.cmdId==XR_COMMAND_1_SCCMD+298)
             { // delete current job
                 if (App::ct->environment->deleteCurrentJob())
-                    executeBrCallIndex=cmd.cmdId-BR_COMMAND_1_SCCMD;
+                    executeXrCallIndex=cmd.cmdId-XR_COMMAND_1_SCCMD;
             }
-            else if (cmd.cmdId==BR_COMMAND_1_SCCMD+299)
+            else if (cmd.cmdId==XR_COMMAND_1_SCCMD+299)
             { // rename current job
                 std::string nn(App::ct->environment->getCurrentJob());
                 SUIThreadCommand cmdIn;
@@ -5599,22 +5639,24 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         while (App::ct->environment->getJobIndex(nn)!=-1)
                             nn=tt::generateNewName_noDash(nn);
                         if (App::ct->environment->renameCurrentJob(nn))
-                            executeBrCallIndex=cmd.cmdId-BR_COMMAND_1_SCCMD;
+                            executeXrCallIndex=cmd.cmdId-XR_COMMAND_1_SCCMD;
                     }
                 }
             }
-            else if (cmd.cmdId>=BR_COMMAND_1_SCCMD+300)
+            else if (cmd.cmdId>=XR_COMMAND_1_SCCMD+300)
             { // switch to job
-                if (App::ct->environment->switchJob(cmd.cmdId-(BR_COMMAND_1_SCCMD+300)))
-                    executeBrCallIndex=cmd.cmdId-BR_COMMAND_1_SCCMD;
+                if (App::ct->environment->switchJob(cmd.cmdId-(XR_COMMAND_1_SCCMD+300)))
+                    executeXrCallIndex=cmd.cmdId-XR_COMMAND_1_SCCMD;
             }
 
-            if (executeBrCallIndex>=0)
+            if (executeXrCallIndex>=0)
             {
                 CInterfaceStack stack;
                 stack.pushTableOntoStack();
+                stack.pushStringOntoStack("xrCallIndex",0);
+                stack.pushNumberOntoStack(int(executeXrCallIndex));
                 stack.pushStringOntoStack("brCallIndex",0);
-                stack.pushNumberOntoStack(int(executeBrCallIndex));
+                stack.pushNumberOntoStack(int(executeXrCallIndex));
                 stack.insertDataIntoStackTable();
                 App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_br,&stack,nullptr,nullptr);
                 App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_br,&stack,nullptr);
@@ -6014,7 +6056,7 @@ void CSimThread::_handleClickRayIntersection(SSimulationThreadCommand cmd)
             if (object->getShouldObjectBeDisplayed(cameraHandle,displayAttrib)&&object->isPotentiallyMeasurable())
             {
                 int theObj;
-                bool valid=CProxSensorRoutine::detectEntity(psh,objectHandle,true,false,0.0f,pt,dist,true,true,theObj,0.0f,triNormal,allObjectsAlsoNonDetectable,false);
+                bool valid=CProxSensorRoutine::detectEntity(psh,objectHandle,true,false,0.0f,pt,dist,true,true,theObj,0.0f,triNormal,allObjectsAlsoNonDetectable);
                 ptValid|=valid;
                 if (valid)
                     obj=theObj;
@@ -6047,7 +6089,7 @@ void CSimThread::_handleClickRayIntersection(SSimulationThreadCommand cmd)
 
 void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
 {
-    if ( handleVerSpecHandleAutoSaveSceneCommand1()&&(App::mainWindow!=nullptr)&&App::ct->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
+    if ( (!CLibLic::getBoolVal(15))&&(App::mainWindow!=nullptr)&&App::ct->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
     {
         if (cmd.intParams[0]==0)
         { // Here we maybe need to load auto-saved scenes:
@@ -6056,18 +6098,18 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
             App::appendSimulationThreadCommand(cmd,1000);
             CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
             std::string val;
-            cont.readData("SIMSETTINGS_VREP_CRASHED",val);
+            cont.readData("SIMSETTINGS_SIM_CRASHED",val);
             if (val=="Yes")
             { // ask what to do:
                 if (!App::isFullScreen())
                 {
                     if ( (!App::userSettings->doNotShowCrashRecoveryMessage)&&(!App::userSettings->suppressStartupDialogs) )
                     {
-                        if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_question(App::mainWindow,IDSN_VREP_CRASH,IDSN_VREP_CRASH_OR_NEW_INSTANCE_INFO,VMESSAGEBOX_YES_NO))
+                        if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_question(App::mainWindow,CLibLic::getStringVal(11).c_str(),CLibLic::getStringVal(12).c_str(),VMESSAGEBOX_YES_NO))
                         {
                             std::string testScene=App::directories->executableDirectory+"/";
                             testScene.append("AUTO_SAVED_INSTANCE_1.");
-                            testScene+=SIM_VREP_SCENE_EXTENSION;
+                            testScene+=SIM_SCENE_EXTENSION;
                             if (CFileOperations::loadScene(testScene.c_str(),false,false,false))
                             {
                                 App::ct->mainSettings->setScenePathAndName("");
@@ -6080,7 +6122,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                                 testScene.append("AUTO_SAVED_INSTANCE_");
                                 testScene+=tt::FNb(instanceNb);
                                 testScene+=".";
-                                testScene+=SIM_VREP_SCENE_EXTENSION;
+                                testScene+=SIM_SCENE_EXTENSION;
                                 if (VFile::doesFileExist(testScene))
                                 {
                                     App::ct->createNewInstance();
@@ -6100,23 +6142,23 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                         }
                     }
                     else
-                        App::addStatusbarMessage("It seems that V-REP crashed in last session (or you might be running several instances of V-REP in parallel).");
+                        App::addStatusbarMessage("It seems that CoppeliaSim crashed in last session (or you might be running several instances of CoppeliaSim in parallel).");
                 }
             }
         }
         else if (cmd.intParams[0]==1)
-        { // Set the TAG: V-REP started normally
+        { // Set the TAG: CoppeliaSim started normally
             // First post the auto-save command:
             cmd.intParams[0]=2;
             App::appendSimulationThreadCommand(cmd,1000);
             CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
-            cont.writeData("SIMSETTINGS_VREP_CRASHED","Yes",!App::userSettings->doNotWritePersistentData);
+            cont.writeData("SIMSETTINGS_SIM_CRASHED","Yes",!App::userSettings->doNotWritePersistentData);
         }
         else if (cmd.intParams[0]==2)
         {
             // First repost a same command:
             App::appendSimulationThreadCommand(cmd,1000);
-            if ( handleVerSpecHandleAutoSaveSceneCommand2()&&(App::userSettings->autoSaveDelay>0)&&(!App::ct->environment->getSceneLocked()) )
+            if ( CLibLic::getBoolVal(14)&&(App::userSettings->autoSaveDelay>0)&&(!App::ct->environment->getSceneLocked()) )
             {
                 if (VDateTime::getSecondsSince1970()>(App::ct->environment->autoSaveLastSaveTimeInSecondsSince1970+App::userSettings->autoSaveDelay*60))
                 {
@@ -6125,7 +6167,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                     testScene+="AUTO_SAVED_INSTANCE_";
                     testScene+=tt::FNb(App::ct->getCurrentInstanceIndex()+1);
                     testScene+=".";
-                    testScene+=SIM_VREP_SCENE_EXTENSION;
+                    testScene+=SIM_SCENE_EXTENSION;
                     CFileOperations::saveScene(testScene.c_str(),false,false,false,false);
                     //std::string info=IDSNS_AUTO_SAVED_SCENE;
                     //info+=" ("+testScene+")";
@@ -6175,10 +6217,10 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
     }
 
     if (App::ct->dynamicsContainer->displayVortexPluginIsDemoRequired())
-#ifdef WIN_VREP
+#ifdef WIN_SIM
         App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_WINDOWS),VMESSAGEBOX_OKELI);
 #endif
-#ifdef LIN_VREP
+#ifdef LIN_SIM
         App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_LINUX),VMESSAGEBOX_OKELI);
 #endif
 

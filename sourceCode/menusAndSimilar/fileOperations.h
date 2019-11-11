@@ -29,7 +29,7 @@ private:
     static bool _pathImportRoutine(const std::string& pathName,bool displayDialogs);
     static bool _pathExportPoints(const std::string& pathName,int pathID,bool bezierPoints,bool displayDialogs);
     static bool heightfieldImportRoutine(const std::string& pathName);
-    static std::string _getStringOfVersionAndLicenseThatTheFileWasWrittenWith(unsigned short vrepVer,int licenseType,char revision);
+    static std::string _getStringOfVersionAndLicenseThatTheFileWasWrittenWith(unsigned short coppeliaSimVer,int licenseType,char revision);
 
 #ifdef SIM_WITH_GUI
 public:

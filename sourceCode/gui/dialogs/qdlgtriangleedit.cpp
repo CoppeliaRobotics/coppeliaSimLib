@@ -1,7 +1,7 @@
 #include "qdlgtriangleedit.h"
 #include "ui_qdlgtriangleedit.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include <boost/lexical_cast.hpp>
 
 CQDlgTriangleEdit::CQDlgTriangleEdit(QWidget *parent) :

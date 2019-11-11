@@ -7,7 +7,7 @@
 #include "qdlgikelements.h"
 #include "qdlgikconditional.h"
 #include "qdlgikavoidance.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 CQDlgIk::CQDlgIk(QWidget *parent) :
     CDlgEx(parent),

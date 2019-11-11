@@ -4,7 +4,6 @@
 #include "4Vector.h"
 #include "7Vector.h"
 #include "3DObject.h"
-#include "uiThreadBase.h"
 
 struct SUIThreadCommand
 {
@@ -45,8 +44,8 @@ enum {  OPEN_OR_CLOSE_UITHREADCMD=0,
         OPEN_MODAL_MODEL_PROPERTIES_UITHREADCMD,
         REFRESH_DIALOGS_UITHREADCMD,
         CALL_DIALOG_FUNCTION_UITHREADCMD,
-        CHECK_VERSION_UPDATE_UITHREADCMD,
-        HANDLE_VERSION_UPDATE_DISPLAY_UITHREADCMD,
+        PLUS_CVU_CMD_UITHREADCMD,
+        PLUS_HVUD_CMD_UITHREADCMD,
         TOGGLE_VISUALIZATION_UITHREADCMD,
         VISUALIZATION_OFF_UITHREADCMD,
         VISUALIZATION_ON_UITHREADCMD,
@@ -121,7 +120,6 @@ enum {  OPEN_OR_CLOSE_UITHREADCMD=0,
         EDIT_MODE_ABOUT_TO_START_UITHREADCMD,
         EDIT_MODE_JUST_ENDED_UITHREADCMD,
         COPY_TEXT_TO_CLIPBOARD_UITHREADCMD,
-        LID_UITHREADCMD,
         INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD,
 
         JOB_NAME_UITHREADCMD,
@@ -129,11 +127,11 @@ enum {  OPEN_OR_CLOSE_UITHREADCMD=0,
      };
 
 #ifdef SIM_WITHOUT_QT_AT_ALL
-class CUiThread : public CUiThreadBase
+class CUiThread
 {
 #else
 #include <QObject>
-class CUiThread : public QObject, public CUiThreadBase
+class CUiThread : public QObject
 {
     Q_OBJECT
 #endif

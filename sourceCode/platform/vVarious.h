@@ -5,7 +5,8 @@
     typedef QLibrary* WLibrary;
     typedef void* WLibraryFunc;
 #else
-    #ifdef WIN_VREP
+    #include <string>
+    #ifdef WIN_SIM
         #include <Windows.h>
         typedef HINSTANCE WLibrary;
         typedef FARPROC WLibraryFunc;

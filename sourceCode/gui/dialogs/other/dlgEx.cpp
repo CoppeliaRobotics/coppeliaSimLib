@@ -45,7 +45,7 @@ bool CDlgEx::doesInstanceSwitchRequireDestruction()
 
 void CDlgEx::cancelEvent()
 { // We just hide the dialog and destroy it at next rendering pass
-//#ifndef LIN_VREP
+//#ifndef LIN_SIM
 //    showDialog(false); // on Linux it seems that once a window is hidden, its position becomes (0,0)!!! So we don't hide it on Linux, we just destroy it later!
 //#endif
     _markedForDestruction=true;

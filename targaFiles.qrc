@@ -22,7 +22,6 @@
         <file>targaFiles/dynamics.tga</file>
         <file>targaFiles/edge.tga</file>
         <file>targaFiles/eduWaterMark.tga</file>
-        <file>targaFiles/vrepWaterMark.tga</file>
         <file>targaFiles/folder.tga</file>
         <file>targaFiles/ftsensor.tga</file>
         <file>targaFiles/graph.tga</file>
@@ -47,8 +46,7 @@
         <file>targaFiles/s_lighti.tga</file>
         <file>targaFiles/s_shape.tga</file>
         <file>targaFiles/script.tga</file>
-        <file>targaFiles/scriptparameters.tga</file>
-        <file>targaFiles/scriptparametersactive.tga</file>
+        <file>targaFiles/userParameters.tga</file>
         <file>targaFiles/scriptthreaded.tga</file>
         <file>targaFiles/sensor.tga</file>
         <file>targaFiles/spheric.tga</file>

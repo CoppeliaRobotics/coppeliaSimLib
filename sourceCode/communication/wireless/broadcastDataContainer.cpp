@@ -1,5 +1,5 @@
 #include "easyLock.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "broadcastDataContainer.h"
 #include "app.h"
 #include "vDateTime.h"

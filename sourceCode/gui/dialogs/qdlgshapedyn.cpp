@@ -3,7 +3,7 @@
 #include "tt.h"
 #include "gV.h"
 #include "propBrowser_engineProp_material.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "qdlginertiatensor.h"
 #include <QInputDialog>

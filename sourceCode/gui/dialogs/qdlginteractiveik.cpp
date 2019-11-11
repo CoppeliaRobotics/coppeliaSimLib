@@ -3,7 +3,7 @@
 #include "app.h"
 #include "tt.h"
 #include "gV.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 CQDlgInteractiveIk::CQDlgInteractiveIk(QWidget *parent) :
     CDlgEx(parent),

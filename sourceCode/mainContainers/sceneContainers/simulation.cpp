@@ -1,5 +1,5 @@
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "simulation.h"
 #include "graph.h"
 #include "tt.h"
@@ -7,10 +7,10 @@
 #include "gV.h"
 #include "threadPool.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vDateTime.h"
 #include "persistentDataContainer.h"
-#include "simulationBase.h"
+#include "libLic.h"
 
 const quint64 SIMULATION_DEFAULT_TIME_STEP_NS[5]={200000,100000,50000,25000,10000};
 const int SIMULATION_DEFAULT_PASSES_PER_RENDERING[5]={1,1,1,1,1};
@@ -1242,6 +1242,87 @@ void CSimulation::serialize(CSer& ar)
             }
         }
     }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            if (exhaustiveXml)
+                ar.xmlAddNode_ulonglong("simulationTimeStep_ns",_simulationTimeStep_ns);
+            else
+                ar.xmlAddNode_double("simulationTimeStep",double(_simulationTimeStep_ns)/1000000.0);
+
+            ar.xmlAddNode_int("simulationPassesPerRendering",_simulationPassesPerRendering);
+
+            ar.xmlAddNode_comment(" 'simulationMode' tag: can be '200ms', '100ms', '50ms', '25ms', '10ms' or 'custom' ",exhaustiveXml);
+            ar.xmlAddNode_enum("simulationMode",_defaultSimulationParameterIndex,0,"200ms",1,"100ms",2,"50ms",3,"25ms",4,"10ms",5,"custom");
+
+            ar.xmlAddNode_double("realTimeCoefficient",_realTimeCoefficient);
+            if (exhaustiveXml)
+                ar.xmlAddNode_ulonglong("simulationTimeToPause_ns",_simulationTimeToPause_ns);
+            else
+                ar.xmlAddNode_double("simulationTimeToPause",double(_simulationTimeToPause_ns)/1000000.0);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("realTime",_realTimeSimulation);
+            ar.xmlAddNode_bool("avoidBlocking",_avoidBlocking);
+            ar.xmlAddNode_bool("pauseAtTime",_pauseAtSpecificTime);
+            ar.xmlAddNode_bool("pauseAtError",_pauseAtError);
+            ar.xmlAddNode_bool("catchUpIfLate",_catchUpIfLate);
+            if (exhaustiveXml)
+                ar.xmlAddNode_bool("fullScreen",_fullscreenAtSimulationStart);
+            ar.xmlAddNode_bool("resetAtEnd",_resetSimulationAtEnd);
+            ar.xmlAddNode_bool("removeNewObjectsAtEnd",_removeNewObjectsAtSimulationEnd);
+            ar.xmlPopNode();
+        }
+        else
+        {
+            if (exhaustiveXml)
+                ar.xmlGetNode_ulonglong("simulationTimeStep_ns",_simulationTimeStep_ns);
+            else
+            {
+                double d;
+                if (ar.xmlGetNode_double("simulationTimeStep",d,exhaustiveXml))
+                {
+                    tt::limitDoubleValue(0.00001,10.0,d);
+                    _simulationTimeStep_ns=(unsigned long long)(d*1000000.9);
+                }
+            }
+
+            if (ar.xmlGetNode_int("simulationPassesPerRendering",_simulationPassesPerRendering,exhaustiveXml))
+                tt::limitValue(1,100,_simulationPassesPerRendering);
+
+            ar.xmlGetNode_enum("simulationMode",_defaultSimulationParameterIndex,exhaustiveXml,"200ms",0,"100ms",1,"50ms",2,"25ms",3,"10ms",4,"custom",5);
+
+            if (ar.xmlGetNode_double("realTimeCoefficient",_realTimeCoefficient,exhaustiveXml))
+                tt::limitDoubleValue(0.01,100.0,_realTimeCoefficient);
+            if (exhaustiveXml)
+                ar.xmlGetNode_ulonglong("simulationTimeToPause_ns",_simulationTimeToPause_ns);
+            else
+            {
+                double d;
+                if (ar.xmlGetNode_double("simulationTimeToPause_ns",d,exhaustiveXml))
+                {
+                    tt::limitDoubleValue(0.0001,10000000.0,d);
+                    _simulationTimeToPause_ns=(unsigned long long)(d*1000000.9);
+                }
+            }
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("realTime",_realTimeSimulation,exhaustiveXml);
+                ar.xmlGetNode_bool("avoidBlocking",_avoidBlocking,exhaustiveXml);
+                ar.xmlGetNode_bool("pauseAtTime",_pauseAtSpecificTime,exhaustiveXml);
+                ar.xmlGetNode_bool("pauseAtError",_pauseAtError,exhaustiveXml);
+                ar.xmlGetNode_bool("catchUpIfLate",_catchUpIfLate,exhaustiveXml);
+                if (exhaustiveXml)
+                    ar.xmlGetNode_bool("fullScreen",_fullscreenAtSimulationStart,exhaustiveXml);
+                ar.xmlGetNode_bool("resetAtEnd",_resetSimulationAtEnd,exhaustiveXml);
+                ar.xmlGetNode_bool("removeNewObjectsAtEnd",_removeNewObjectsAtSimulationEnd,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+        }
+    }
 }
 
 #ifdef SIM_WITH_GUI
@@ -1269,7 +1350,45 @@ void CSimulation::showAndHandleEmergencyStopButton(bool showState,const char* sc
 
 void CSimulation::addMenu(VMenu* menu)
 {
-    CSimulationBase::handleVerSpec_addMenu(menu);
+    bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
+    bool simRunning=App::ct->simulation->isSimulationRunning();
+    bool simStopped=App::ct->simulation->isSimulationStopped();
+    bool simPaused=App::ct->simulation->isSimulationPaused();
+    bool canGoSlower=App::ct->simulation->canGoSlower();
+    bool canGoFaster=App::ct->simulation->canGoFaster();
+    bool canToggleThreadedRendering=App::ct->simulation->canToggleThreadedRendering();
+    bool getThreadedRenderingIfSimulationWasRunning=App::ct->simulation->getThreadedRenderingIfSimulationWasRunning();
+    if (simPaused)
+        menu->appendMenuItem(App::mainWindow->getPlayViaGuiEnabled()&&noEditMode,false,SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD,IDS_RESUME_SIMULATION_MENU_ITEM);
+    else
+        menu->appendMenuItem(App::mainWindow->getPlayViaGuiEnabled()&&noEditMode&&(!simRunning),false,SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD,IDS_START_SIMULATION_MENU_ITEM);
+    menu->appendMenuItem(App::mainWindow->getPauseViaGuiEnabled()&&noEditMode&&simRunning,false,SIMULATION_COMMANDS_PAUSE_SIMULATION_REQUEST_SCCMD,IDS_PAUSE_SIMULATION_MENU_ITEM);
+    menu->appendMenuItem(App::mainWindow->getStopViaGuiEnabled()&&noEditMode&&(!simStopped),false,SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD,IDS_STOP_SIMULATION_MENU_ITEM);
+    if (!CLibLic::getBoolVal(11))
+    {
+        menu->appendMenuSeparator();
+        menu->appendMenuItem(noEditMode&&simStopped,App::ct->simulation->getOnlineMode(),SIMULATION_COMMANDS_TOGGLE_ONLINE_SCCMD,IDSN_ONLINE_MODE,true);
+    }
+    menu->appendMenuSeparator();
+    int version;
+    int engine=App::ct->dynamicsContainer->getDynamicEngineType(&version);
+    menu->appendMenuItem(noEditMode&&simStopped,(engine==sim_physics_bullet)&&(version==0),SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_78_ENGINE_SCCMD,IDS_SWITCH_TO_BULLET_2_78_ENGINE_MENU_ITEM,true);
+    menu->appendMenuItem(noEditMode&&simStopped,(engine==sim_physics_bullet)&&(version==283),SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_83_ENGINE_SCCMD,IDS_SWITCH_TO_BULLET_2_83_ENGINE_MENU_ITEM,true);
+    menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_ode,SIMULATION_COMMANDS_TOGGLE_TO_ODE_ENGINE_SCCMD,IDS_SWITCH_TO_ODE_ENGINE_MENU_ITEM,true);
+    menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_vortex,SIMULATION_COMMANDS_TOGGLE_TO_VORTEX_ENGINE_SCCMD,IDS_SWITCH_TO_VORTEX_ENGINE_MENU_ITEM,true);
+    menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_newton,SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD,IDS_SWITCH_TO_NEWTON_ENGINE_MENU_ITEM,true);
+    if (CLibLic::getBoolVal(11))
+    {
+        menu->appendMenuSeparator();
+        menu->appendMenuItem(noEditMode&&simStopped,App::ct->simulation->getRealTimeSimulation(),SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD,IDSN_REAL_TIME_SIMULATION,true);
+        menu->appendMenuItem(canGoSlower,false,SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD,IDSN_SLOW_DOWN_SIMULATION);
+        menu->appendMenuItem(canGoFaster,false,SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD,IDSN_SPEED_UP_SIMULATION);
+        menu->appendMenuItem(canToggleThreadedRendering,getThreadedRenderingIfSimulationWasRunning,SIMULATION_COMMANDS_THREADED_RENDERING_SCCMD,IDSN_THREADED_RENDERING,true);
+        menu->appendMenuItem(simRunning&&(!App::mainWindow->oglSurface->isSceneSelectionActive()||App::mainWindow->oglSurface->isPageSelectionActive()||App::mainWindow->oglSurface->isViewSelectionActive()),!App::mainWindow->getOpenGlDisplayEnabled(),SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD,IDSN_TOGGLE_VISUALIZATION,true);
+        menu->appendMenuSeparator();
+        if (App::mainWindow!=nullptr)
+            menu->appendMenuItem(true,App::mainWindow->dlgCont->isVisible(SIMULATION_DLG),TOGGLE_SIMULATION_DLG_CMD,IDSN_SIMULATION_SETTINGS,true);
+    }
 }
 
 void CSimulation::keyPress(int key)

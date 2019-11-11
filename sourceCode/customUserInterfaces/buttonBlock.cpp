@@ -1,11 +1,11 @@
 
 // This file requires some serious refactoring!!
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "buttonBlock.h" 
 #include "global.h"
 #include "tt.h"
 #include "buttonBlockContainer.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "ttUtil.h"
 #include <boost/lexical_cast.hpp>

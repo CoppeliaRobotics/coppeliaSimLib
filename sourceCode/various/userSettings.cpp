@@ -1,5 +1,6 @@
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "confReaderAndWriter.h"
+#include "simInternal.h"
 #include "userSettings.h"
 #include "global.h"
 #include "threadPool.h"
@@ -8,7 +9,7 @@
 #include "easyLock.h"
 #include "vVarious.h"
 #include "app.h"
-#include "miscBase.h"
+#include "libLic.h"
 #ifdef SIM_WITH_GUI
     #include "vDialog.h"
 #endif
@@ -55,6 +56,8 @@
 #define _USR_DESKTOP_RECORDING_WIDTH "desktopRecordingWidth"
 #define _USR_DIRECTORY_FOR_SCRIPT_EDITOR "defaultDirectoryForExternalScriptEditor"
 #define _USR_EXTERNAL_SCRIPT_EDITOR "externalScriptEditor"
+#define _USR_XML_EXPORT_SPLIT_SIZE "xmlExportSplitSize"
+#define _USR_XML_EXPORT_KNOWN_FORMATS "xmlExportKnownFormats"
 
 
 #define _USR_IDLE_FPS "idleFps"
@@ -181,6 +184,7 @@
 #define _USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR "doNotShowVideoCompressionLibraryLoadError"
 #define _USR_REDIRECT_STATUSBAR_MSG_TO_CONSOLE_IN_HEADLESS_MODE "redirectStatusbarMsgToConsoleInHeadlessMode"
 #define _USR_SUPPRESS_STARTUP_DIALOG "suppressStartupDialogs"
+#define _USR_SUPPRESS_XML_OVERWRITE_MSG "suppressXmlOverwriteMsg"
 
 #define _USR_SCRIPT_EDITOR_FONT "scriptEditorFont"
 #define _USR_SCRIPT_EDITOR_FONT_SIZE "scriptEditorFontSize"
@@ -190,6 +194,11 @@
 #define _USR_CONNECTION_ADDRESS "conParam1"
 #define _USR_CONNECTION_PORT "conParam2"
 
+#define _USR_FLOAT_LICENSE_ENABLED "floatingLicenseEnabled"
+#define _USR_FLOAT_LICENSE_SERVER_ADDRESS "floatingLicenseServer"
+#define _USR_FLOAT_LICENSE_SERVER_PORT "floatingLicensePort"
+#define _USR_KEEP_DONGLE_OPEN "keepDongleOpen"
+#define _USR_XR_TEST "xrTest"
 
 CUserSettings::CUserSettings()
 {
@@ -232,7 +241,7 @@ CUserSettings::CUserSettings()
     guiFontSize_Win=11;
     guiFontSize_Mac=10;
     guiFontSize_Linux=11; // 10; changed on 19/8/2015
-    statusbarInitiallyVisible=CMiscBase::handleVerSpec_statusbarDefaultInitiallyVisible();
+    statusbarInitiallyVisible=CLibLic::getBoolVal(10);
     modelBrowserInitiallyVisible=true;
     sceneHierarchyInitiallyVisible=true;
     sceneHierarchyHiddenDuringSimulation=false;
@@ -341,6 +350,7 @@ CUserSettings::CUserSettings()
     doNotShowVideoCompressionLibraryLoadError=false;
     redirectStatusbarMsgToConsoleInHeadlessMode=false;
     suppressStartupDialogs=false;
+    suppressXmlOverwriteMsg=false;
 
 
     // Compatibility section:
@@ -385,10 +395,16 @@ CUserSettings::CUserSettings()
     desktopRecordingIndex=0;
     desktopRecordingWidth=-1;
     externalScriptEditor="";
+    xmlExportSplitSize=0;
+    xmlExportKnownFormats=true;
 
     forceBugFix_rel30002=false;
 
-    handleVerSpecConstructor1();
+    floatingLicenseEnabled=false;
+    floatingLicenseServer="127.0.0.1";
+    floatingLicensePort=20249;
+    keepDongleOpen=false;
+    xrTest=0;
 
     // Other, not serialized:
     groupSelectionColor.setDefaultValues();
@@ -498,7 +514,7 @@ void CUserSettings::setIdleFps(int fps)
 
 int CUserSettings::getAbortScriptExecutionTiming()
 {
-    if (ignoreAbortScriptExecTiming())
+    if (!CLibLic::getBoolVal(11))
         return(0);
     return(_abortScriptExecutionButton);
 }
@@ -547,9 +563,9 @@ void CUserSettings::saveUserSettings()
     c.addRandomLine("// Debugging");
     c.addRandomLine("// =================================================");
     c.addBoolean(_USR_ALWAYS_SHOW_CONSOLE,alwaysShowConsole,"");
-    c.addBoolean(_USR_DEBUG_INTERNAL_FUNCTION_ACCESS,(CFuncDebug::getDebugMask()&1)!=0,"will also heavily slow down V-REP");
-    c.addBoolean(_USR_DEBUG_C_API_ACCESS,(CFuncDebug::getDebugMask()&2)!=0,"will also drastically slow down V-REP");
-    c.addBoolean(_USR_DEBUG_LUA_API_ACCESS,(CFuncDebug::getDebugMask()&4)!=0,"will also slow down V-REP");
+    c.addBoolean(_USR_DEBUG_INTERNAL_FUNCTION_ACCESS,(CFuncDebug::getDebugMask()&1)!=0,"will also heavily slow down CoppeliaSim");
+    c.addBoolean(_USR_DEBUG_C_API_ACCESS,(CFuncDebug::getDebugMask()&2)!=0,"will also drastically slow down CoppeliaSim");
+    c.addBoolean(_USR_DEBUG_LUA_API_ACCESS,(CFuncDebug::getDebugMask()&4)!=0,"will also slow down CoppeliaSim");
     c.addBoolean(_USR_DEBUG_TO_FILE,CDebugLogFile::getDebugToFile(),"if true, debug info is sent to debugLog.txt");
     c.addRandomLine("");
     c.addRandomLine("");
@@ -715,6 +731,7 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR,doNotShowVideoCompressionLibraryLoadError,"");
     c.addBoolean(_USR_REDIRECT_STATUSBAR_MSG_TO_CONSOLE_IN_HEADLESS_MODE,redirectStatusbarMsgToConsoleInHeadlessMode,"");
     c.addBoolean(_USR_SUPPRESS_STARTUP_DIALOG,suppressStartupDialogs,"");
+    c.addBoolean(_USR_SUPPRESS_XML_OVERWRITE_MSG,suppressXmlOverwriteMsg,"");
 
 
 
@@ -759,14 +776,25 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_TEST1,test1,"recommended to keep false.");
     c.addBoolean(_USR_ORDER_HIERARCHY_ALPHABETICALLY,orderHierarchyAlphabetically,"");
     c.addInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType,"-1=default.");
-    c.addBoolean(_USR_USE_EXTERNAL_LUA_LIBRARY,useExternalLuaLibrary,"if true, will call all Lua functions via the v_repLua library ('v_repLua.dll', 'libv_repLua.so' or 'libv_repLua.dylib')");
-    c.addBoolean(_USR_RAISE_ERROR_WITH_API_SCRIPT_FUNCTIONS,raiseErrorWithApiScriptFunctions,"");
+    c.addBoolean(_USR_USE_EXTERNAL_LUA_LIBRARY,useExternalLuaLibrary,"if true, will call all Lua functions via the simLua library ('simLua.dll', 'libsimLua.so' or 'libsimLua.dylib')");
+// do not advertise this option anymore... c.addBoolean(_USR_RAISE_ERROR_WITH_API_SCRIPT_FUNCTIONS,raiseErrorWithApiScriptFunctions,"");
     c.addString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath,"e.g. d:/myLuaRoutines");
     c.addInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex,"");
     c.addInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth,"-1=default.");
     c.addString(_USR_EXTERNAL_SCRIPT_EDITOR,externalScriptEditor,"");
+    c.addInteger(_USR_XML_EXPORT_SPLIT_SIZE,xmlExportSplitSize,"0=generate a single file.");
+    c.addBoolean(_USR_XML_EXPORT_KNOWN_FORMATS,xmlExportKnownFormats,"true=if several files are generated, mesh and image files are saved under known formats.");
 
-    handleVerSpecSaveUserSettings1(c);
+    c.addRandomLine("");
+    c.addRandomLine("");
+
+    c.addRandomLine("// Floating license / dongle license");
+    c.addRandomLine("// =================================================");
+    c.addBoolean(_USR_FLOAT_LICENSE_ENABLED,floatingLicenseEnabled,"");
+    c.addString(_USR_FLOAT_LICENSE_SERVER_ADDRESS,floatingLicenseServer,"");
+    c.addInteger(_USR_FLOAT_LICENSE_SERVER_PORT,floatingLicensePort,"");
+    c.addBoolean(_USR_KEEP_DONGLE_OPEN,keepDongleOpen,"");
+    // c.addInteger(_USR_XR_TEST,xrTest,"");
 
     std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+USER_SETTINGS_FILENAME);
     c.writeConfiguration(filenameAndPath.c_str());
@@ -998,6 +1026,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR,doNotShowVideoCompressionLibraryLoadError);
     c.getBoolean(_USR_REDIRECT_STATUSBAR_MSG_TO_CONSOLE_IN_HEADLESS_MODE,redirectStatusbarMsgToConsoleInHeadlessMode);
     c.getBoolean(_USR_SUPPRESS_STARTUP_DIALOG,suppressStartupDialogs);
+    c.getBoolean(_USR_SUPPRESS_XML_OVERWRITE_MSG,suppressXmlOverwriteMsg);
 
 
     // Compatibility section:
@@ -1039,7 +1068,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_ORDER_HIERARCHY_ALPHABETICALLY,orderHierarchyAlphabetically);
     c.getInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType);
 #ifdef SIM_WITH_GUI
-    #ifdef MAC_VREP
+    #ifdef MAC_SIM
         if (macChildDialogType<=0)
         { // Qt::Tool
             VDialog::dialogStyle=QT_MODELESS_DLG_STYLE;
@@ -1059,7 +1088,15 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth);
     c.getBoolean(_USR_FORCE_BUG_FIX_REL_30002,forceBugFix_rel30002);
     c.getString(_USR_EXTERNAL_SCRIPT_EDITOR,externalScriptEditor);
+    c.getInteger(_USR_XML_EXPORT_SPLIT_SIZE,xmlExportSplitSize);
+    c.getBoolean(_USR_XML_EXPORT_KNOWN_FORMATS,xmlExportKnownFormats);
 
-    handleVerSpecLoadUserSettings1(c);
+    // Floating license / dongle license section:
+    // *****************************
+    c.getBoolean(_USR_FLOAT_LICENSE_ENABLED,floatingLicenseEnabled);
+    c.getString(_USR_FLOAT_LICENSE_SERVER_ADDRESS,floatingLicenseServer);
+    c.getInteger(_USR_FLOAT_LICENSE_SERVER_PORT,floatingLicensePort);
+    c.getBoolean(_USR_KEEP_DONGLE_OPEN,keepDongleOpen);
+    c.getInteger(_USR_XR_TEST,xrTest);
 }
 

@@ -3,7 +3,7 @@
 #include "gV.h"
 #include "tt.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 CQDlgPathPlanningAddNew::CQDlgPathPlanningAddNew(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

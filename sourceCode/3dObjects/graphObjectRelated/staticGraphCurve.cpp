@@ -185,4 +185,48 @@ void CStaticGraphCurve::serialize(CSer& ar)
             }
         }
     }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_string("name",_name.c_str());
+
+            ar.xmlAddNode_int("type",_curveType);
+
+            ar.xmlAddNode_float("curveSize",_curveWidth);
+
+            ar.xmlAddNode_floats("color",ambientColor,3);
+
+            ar.xmlAddNode_floats("emissiveColor",emissiveColor,3);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("linkPoints",_linkPoints);
+            ar.xmlAddNode_bool("showLabel",_label);
+            ar.xmlAddNode_bool("relativeToWorld",_relativeToWorld);
+            ar.xmlPopNode();
+
+            ar.xmlAddNode_floats("values",values);
+        }
+        else
+        {
+            ar.xmlGetNode_string("name",_name);
+
+            ar.xmlGetNode_int("type",_curveType);
+
+            ar.xmlGetNode_float("curveSize",_curveWidth);
+
+            ar.xmlGetNode_floats("color",ambientColor,3);
+            ar.xmlGetNode_floats("emissiveColor",emissiveColor,3);
+
+            if (ar.xmlPushChildNode("switches"))
+            {
+                ar.xmlGetNode_bool("linkPoints",_linkPoints);
+                ar.xmlGetNode_bool("showLabel",_label);
+                ar.xmlGetNode_bool("relativeToWorld",_relativeToWorld);
+                ar.xmlPopNode();
+            }
+
+            ar.xmlGetNode_floats("values",values);
+        }
+    }
 }

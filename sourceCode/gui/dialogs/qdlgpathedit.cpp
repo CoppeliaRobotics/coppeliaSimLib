@@ -3,7 +3,7 @@
 #include "app.h"
 #include "gV.h"
 #include "tt.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include <boost/lexical_cast.hpp>
 
 CQDlgPathEdit::CQDlgPathEdit(QWidget *parent) :

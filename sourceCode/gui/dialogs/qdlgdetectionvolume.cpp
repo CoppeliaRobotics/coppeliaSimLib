@@ -3,7 +3,7 @@
 #include "gV.h"
 #include "tt.h"
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 bool CQDlgDetectionVolume::showVolumeWindow=false;
 

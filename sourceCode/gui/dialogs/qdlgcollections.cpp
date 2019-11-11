@@ -3,7 +3,7 @@
 #include "app.h"
 #include "tt.h"
 #include <QShortcut>
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 CQDlgCollections::CQDlgCollections(QWidget *parent) :
     CDlgEx(parent),

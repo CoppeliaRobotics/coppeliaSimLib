@@ -5,7 +5,7 @@
 #include "qdlgmaterial.h"
 #include "app.h"
 #include "qdlgpathshaping.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 CQDlgPaths::CQDlgPaths(QWidget *parent) :
     CDlgEx(parent),

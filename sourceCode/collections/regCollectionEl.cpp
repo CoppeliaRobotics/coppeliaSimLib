@@ -118,6 +118,16 @@ CRegCollectionEl* CRegCollectionEl::copyYourself()
     return(newGroupEl);
 }
 
+void CRegCollectionEl::setMainObject(int objectHandle)
+{
+    objectID=objectHandle;
+}
+
+std::string CRegCollectionEl::getMainObjectTempName() const
+{
+    return(_objectTempName);
+}
+
 void CRegCollectionEl::serialize(CSer& ar)
 {
     if (ar.isBinary())
@@ -175,6 +185,52 @@ void CRegCollectionEl::serialize(CSer& ar)
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            if (exhaustiveXml)
+            {
+                ar.xmlAddNode_int("id",objectID);
+                ar.xmlAddNode_int("itemId",subGroupID);
+            }
+            else
+            {
+                std::string str;
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(objectID);
+                if (it!=nullptr)
+                    str=it->getObjectName();
+                ar.xmlAddNode_comment(" 'objectName' tag: required if 'type' is not 'everything'. Has to be an existing scene object name ",exhaustiveXml);
+                ar.xmlAddNode_string("objectName",str.c_str());
+            }
+
+            ar.xmlAddNode_comment(" 'type' tag: can be 'looseObjects', 'fromBaseIncludingBase', 'fromBaseExcludingBase', 'fromTipIncludingTip', 'fromTipExcludingTip' or 'everything' ",exhaustiveXml);
+            ar.xmlAddNode_enum("type",groupType,GROUP_LOOSE,"looseObjects",GROUP_FROM_BASE_INCLUDED,"fromBaseIncludingBase",GROUP_FROM_BASE_EXCLUDED,"fromBaseExcludingBase",GROUP_FROM_TIP_INCLUDED,"fromTipIncludingTip",GROUP_FROM_TIP_EXCLUDED,"fromTipExcludingTip",GROUP_EVERYTHING,"everything");
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("additive",additive);
+            ar.xmlPopNode();
+        }
+        else
+        {
+            if (exhaustiveXml)
+            {
+                ar.xmlGetNode_int("id",objectID);
+                ar.xmlGetNode_int("itemId",subGroupID);
+            }
+            else
+                ar.xmlGetNode_string("objectName",_objectTempName,exhaustiveXml);
+
+            ar.xmlGetNode_enum("type",groupType,exhaustiveXml,"looseObjects",GROUP_LOOSE,"fromBaseIncludingBase",GROUP_FROM_BASE_INCLUDED,"fromBaseExcludingBase",GROUP_FROM_BASE_EXCLUDED,"fromTipIncludingTip",GROUP_FROM_TIP_INCLUDED,"fromTipExcludingTip",GROUP_FROM_TIP_EXCLUDED,"everything",GROUP_EVERYTHING);
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("additive",additive,exhaustiveXml);
+                ar.xmlPopNode();
             }
         }
     }

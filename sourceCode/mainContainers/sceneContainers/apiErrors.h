@@ -2,7 +2,7 @@
 
 #include <vector>
 #include "mainCont.h"
-#ifndef WIN_VREP
+#ifndef WIN_SIM
     #include <pthread.h>
 #endif
 

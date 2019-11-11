@@ -4,7 +4,7 @@
 #include "tt.h"
 #include <QShortcut>
 #include "app.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 bool CQDlgIkElements::_invalid=false;
 int CQDlgIkElements::_ikGroupHandle=-1;

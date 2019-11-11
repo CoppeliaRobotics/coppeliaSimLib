@@ -1,10 +1,10 @@
 
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "tt.h"
 #include "vVarious.h"
 #include "threadPool.h"
 #include "vFileFinder.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "vDateTime.h"
 #include "funcDebug.h"
@@ -84,7 +84,16 @@ int CAddOnScriptContainer::insertAddOnScripts()
     SFileOrFolder* foundItem=finder.getFoundItem(cnt);
     while (foundItem!=nullptr)
     {
-        if ( (foundItem->name.find(ADDON_SCRIPT_PREFIX_AUTOSTART)==0)||(foundItem->name.find(ADDON_SCRIPT_PREFIX_NOAUTOSTART)==0) )
+        std::string at;
+        if (foundItem->name.find(ADDON_SCRIPT_PREFIX1_AUTOSTART)==0)
+            at=ADDON_SCRIPT_PREFIX1_AUTOSTART;
+        if (foundItem->name.find(ADDON_SCRIPT_PREFIX1_NOAUTOSTART)==0)
+            at=ADDON_SCRIPT_PREFIX1_NOAUTOSTART;
+        if (foundItem->name.find(ADDON_SCRIPT_PREFIX2_AUTOSTART)==0)
+            at=ADDON_SCRIPT_PREFIX2_AUTOSTART;
+        if (foundItem->name.find(ADDON_SCRIPT_PREFIX2_NOAUTOSTART)==0)
+            at=ADDON_SCRIPT_PREFIX2_NOAUTOSTART;
+        if (at.size()>0)
         {
             std::string fp(App::directories->executableDirectory+"/");
             fp+=foundItem->name;
@@ -93,10 +102,10 @@ int CAddOnScriptContainer::insertAddOnScripts()
             {
                 insertScript(defScript);
                 std::string nm(foundItem->name);
-                nm.erase(nm.begin(),nm.begin()+strlen(ADDON_SCRIPT_PREFIX_AUTOSTART));
+                nm.erase(nm.begin(),nm.begin()+at.size());
                 nm.erase(nm.end()-strlen(ADDON_EXTENTION)-1,nm.end());
                 defScript->setAddOnName(nm.c_str());
-                if (foundItem->name.find(ADDON_SCRIPT_PREFIX_AUTOSTART)==0)
+                if ( (at.compare(ADDON_SCRIPT_PREFIX1_AUTOSTART)==0)||(at.compare(ADDON_SCRIPT_PREFIX2_AUTOSTART)==0) )
                     defScript->setAddOnScriptAutoRun();
                 addOnsCount++;
                 printf("Add-on script '%s' was loaded.\n",foundItem->name.c_str());
@@ -171,13 +180,24 @@ int CAddOnScriptContainer::prepareAddOnFunctionNames()
     SFileOrFolder* foundItem=finder.getFoundItem(cnt);
     while (foundItem!=nullptr)
     {
-        if (foundItem->name.find(ADDON_FUNCTION_PREFIX)==0)
+        if (foundItem->name.find(ADDON_FUNCTION_PREFIX1)==0)
         {
             std::string nm(foundItem->name);
-            nm.erase(nm.begin(),nm.begin()+strlen(ADDON_FUNCTION_PREFIX));
+            nm.erase(nm.begin(),nm.begin()+strlen(ADDON_FUNCTION_PREFIX1));
             nm.erase(nm.end()-strlen(ADDON_EXTENTION)-1,nm.end());
             allAddOnFunctionNames.push_back(nm);
             addOnsCount++;
+        }
+        else
+        {
+            if (foundItem->name.find(ADDON_FUNCTION_PREFIX2)==0)
+            {
+                std::string nm(foundItem->name);
+                nm.erase(nm.begin(),nm.begin()+strlen(ADDON_FUNCTION_PREFIX2));
+                nm.erase(nm.end()-strlen(ADDON_EXTENTION)-1,nm.end());
+                allAddOnFunctionNames.push_back(nm);
+                addOnsCount++;
+            }
         }
         cnt++;
         foundItem=finder.getFoundItem(cnt);
@@ -266,12 +286,25 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                 App::addStatusbarMessage(txt.c_str());
 
                 // execute the add-on function here!!
-                std::string fp(App::directories->executableDirectory+"/");
-                fp+=ADDON_FUNCTION_PREFIX;
-                fp+=allAddOnFunctionNames[index];
-                fp+=".";
-                fp+=ADDON_EXTENTION;
-                if (VFile::doesFileExist(fp))
+                std::string fp1(App::directories->executableDirectory+"/");
+                fp1+=ADDON_FUNCTION_PREFIX1;
+                fp1+=allAddOnFunctionNames[index];
+                fp1+=".";
+                fp1+=ADDON_EXTENTION;
+                std::string fp2(App::directories->executableDirectory+"/");
+                fp2+=ADDON_FUNCTION_PREFIX2;
+                fp2+=allAddOnFunctionNames[index];
+                fp2+=".";
+                fp2+=ADDON_EXTENTION;
+                std::string fp;
+                if (VFile::doesFileExist(fp1))
+                    fp=fp1;
+                else
+                {
+                    if (VFile::doesFileExist(fp2))
+                        fp=fp2;
+                }
+                if (fp.size()>0)
                 {
                     try
                     {

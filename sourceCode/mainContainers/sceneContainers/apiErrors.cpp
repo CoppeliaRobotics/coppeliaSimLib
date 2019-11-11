@@ -2,10 +2,10 @@
 #include "funcDebug.h"
 #include "apiErrors.h"
 #include "app.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "luaScriptFunctions.h"
 #include "threadPool.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include <iostream>
 
 std::vector<VTHREAD_ID_TYPE> CApiErrors::_controllerLocation_threadIds;

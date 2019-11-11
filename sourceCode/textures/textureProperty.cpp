@@ -1,8 +1,8 @@
 
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "textureProperty.h"
 #include "tt.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "rendering.h"
 
@@ -618,6 +618,61 @@ void CTextureProperty::serialize(CSer& ar)
                         ar.loadUnknownData();
                 }
             }
+        }
+    }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_int("id",_textureOrVisionSensorObjectID);
+            ar.xmlAddNode_enum("applyMode",_applyMode,0,"modulate",1,"decal",2,"add");
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("interpolate",_interpolateColor);
+            ar.xmlAddNode_bool("repeatU",_repeatU);
+            ar.xmlAddNode_bool("repeatV",_repeatV);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("textureMapping");
+            ar.xmlAddNode_enum("mode",_textureCoordinateMode,sim_texturemap_plane,"plane",sim_texturemap_cylinder,"cylinder",sim_texturemap_sphere,"sphere",sim_texturemap_cube,"cube");
+            ar.xmlAddNode_2float("scaling",_textureScalingX,_textureScalingY);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("relativePose");
+            ar.xmlAddNode_floats("position",_textureRelativeConfig.X.data,3);
+            ar.xmlAddNode_floats("quaternion",_textureRelativeConfig.Q.data,4);
+            ar.xmlPopNode();
+
+            ar.xmlAddNode_floats("textureCoordinates",_fixedTextureCoordinates);
+        }
+        else
+        {
+            ar.xmlGetNode_int("id",_textureOrVisionSensorObjectID);
+            ar.xmlGetNode_enum("applyMode",_applyMode,true,"modulate",0,"decal",1,"add",2);
+
+            if (ar.xmlPushChildNode("switches"))
+            {
+                ar.xmlGetNode_bool("interpolate",_interpolateColor);
+                ar.xmlGetNode_bool("repeatU",_repeatU);
+                ar.xmlGetNode_bool("repeatV",_repeatV);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("textureMapping"))
+            {
+                ar.xmlGetNode_enum("mode",_textureCoordinateMode,true,"plane",sim_texturemap_plane,"cylinder",sim_texturemap_cylinder,"sphere",sim_texturemap_sphere,"cube",sim_texturemap_cube);
+                ar.xmlGetNode_2float("scaling",_textureScalingX,_textureScalingY);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("relativePose"))
+            {
+                ar.xmlGetNode_floats("position",_textureRelativeConfig.X.data,3);
+                ar.xmlGetNode_floats("quaternion",_textureRelativeConfig.Q.data,4);
+                ar.xmlPopNode();
+            }
+
+            ar.xmlGetNode_floats("textureCoordinates",_fixedTextureCoordinates);
         }
     }
 }

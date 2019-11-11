@@ -4,7 +4,7 @@
 #include <QElapsedTimer>
 #endif
 #include <ctime>
-#ifdef WIN_VREP
+#ifdef WIN_SIM
 #include <Windows.h>
 #else
 #include <sys/time.h>
@@ -12,7 +12,7 @@
 
 unsigned int VDateTime::getOSTimeInMs()
 {
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     return(timeGetTime());
 #else
     struct timeval now;
@@ -25,19 +25,19 @@ int VDateTime::getTimeInMs()
 {
     bool ok;
     int retVal=0;
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     retVal=_getTimeWithStartInMs_viaPerformanceCounter(ok);
     if (ok)
         return(retVal);
-#endif // WIN_VREP
+#endif // WIN_SIM
     retVal=_getTimeWithStartInMs_viaQt(ok);
     if (ok)
         return(retVal);
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     retVal=_getTimeWithStartInMs_viaTimeGetTime(ok);
-#else // WIN_VREP
+#else // WIN_SIM
     retVal=_getTimeWithStartInMs_viaGetTimeOfDay(ok);
-#endif // WIN_VREP
+#endif // WIN_SIM
     return(retVal);
 }
 
@@ -136,7 +136,7 @@ int VDateTime::_getTimeWithStartInMs_viaQt(bool& success)
 #endif
 }
 
-#ifdef WIN_VREP
+#ifdef WIN_SIM
 int VDateTime::_getTimeWithStartInMs_viaPerformanceCounter(bool& success)
 {
     static bool works=true;
@@ -171,7 +171,7 @@ int VDateTime::_getTimeWithStartInMs_viaTimeGetTime(bool& success)
         return((t-startT)&0x8fffffff);
     return((t+(0xffffffff-startT))&0x8fffffff);
 }
-#else // WIN_VREP
+#else // WIN_SIM
 int VDateTime::_getTimeWithStartInMs_viaGetTimeOfDay(bool& success)
 {
     struct timeval now;
@@ -180,5 +180,5 @@ int VDateTime::_getTimeWithStartInMs_viaGetTimeOfDay(bool& success)
     static suseconds_t initUSec=now.tv_usec;
     return((now.tv_sec-initSec)*1000+(now.tv_usec-initUSec)/1000);
 }
-#endif // WIN_VREP
+#endif // WIN_SIM
 

@@ -1,11 +1,11 @@
 
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "tt.h"
 #include "app.h"
 #include "pluginContainer.h"
 #include "vVarious.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "rendering.h"
 
 CMainContainer::CMainContainer()
@@ -109,10 +109,10 @@ void CMainContainer::simulationAboutToStart()
     }
 
 
-    if (!CPluginContainer::isMeshPluginAvailable())
+    if (!CPluginContainer::isGeomPluginAvailable())
     {
 #ifdef SIM_WITH_GUI
-        simDisplayDialog_internal("ERROR","The 'MeshCalc' plugin could not be initialized. Collision detection, distance calculation,\n and proximity sensor simulation will not work.",sim_dlgstyle_ok,"",nullptr,nullptr,nullptr);
+        simDisplayDialog_internal("ERROR","The 'Geometric' plugin could not be initialized. Collision detection, distance calculation,\n and proximity sensor simulation will not work.",sim_dlgstyle_ok,"",nullptr,nullptr,nullptr);
 #endif
         printf("ERROR: The 'MeshCalc' plugin could not be initialized. Collision detection,\n       distance calculation, and proximity sensor simulation will not work.\n");
     }
@@ -156,7 +156,7 @@ void CMainContainer::simulationAboutToStart()
 
     App::setToolbarRefreshFlag();
     App::setFullDialogRefreshFlag();
-    if (VREP_PROGRAM_VERSION_NB==30500)
+    if (SIM_PROGRAM_VERSION_NB==30500)
         App::addStatusbarMessage("Warning: 'print()' now prints to the status bar, instead of the console (use 'print=printToConsole' to revert).");
 
 #ifdef SIM_WITH_GUI

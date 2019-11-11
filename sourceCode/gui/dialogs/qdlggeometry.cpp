@@ -3,7 +3,7 @@
 #include "tt.h"
 #include "gV.h"
 #include "geometric.h"
-#include "v_repStringTable.h"
+#include "simStringTable.h"
 #include "app.h"
 #include "vMessageBox.h"
 

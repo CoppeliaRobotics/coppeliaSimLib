@@ -3,7 +3,7 @@
 #include "vThread.h"
 #include "ttUtil.h"
 #include "pluginContainer.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vDateTime.h"
 #include "pathPlanningInterface.h"
 #include "vVarious.h"
@@ -13,14 +13,15 @@
 #include "luaWrapper.h"
 #include "geometric.h"
 #include "rendering.h"
-#include "miscBase.h"
+#include "libLic.h"
 #include "threadPool.h"
+#include <boost/algorithm/string/replace.hpp>
 #ifdef SIM_WITH_GUI
     #include "auxLibVideo.h"
     #include "vMessageBox.h"
     #include <QSplashScreen>
     #include <QBitmap>
-    #ifdef WIN_VREP
+    #ifdef WIN_SIM
         #include <QStyleFactory>
     #endif
 #endif
@@ -32,7 +33,7 @@ CSimThread* App::simThread=nullptr;
 CUserSettings* App::userSettings=nullptr;
 CDirectoryPaths* App::directories=nullptr;
 int App::operationalUIParts=0; // sim_gui_menubar,sim_gui_popupmenus,sim_gui_toolbar1,sim_gui_toolbar2, etc.
-std::string App::_applicationName="V-REP (Customized)";
+std::string App::_applicationName="CoppeliaSim (Customized)";
 CMainContainer* App::ct=nullptr;
 bool App::_exitRequest=false;
 bool App::_browserEnabled=true;
@@ -45,9 +46,9 @@ volatile int App::_quitLevel=0;
 
 int App::sc=1;
 #ifndef SIM_WITHOUT_QT_AT_ALL
-    CVrepQApp* App::qtApp=nullptr;
+    CSimQApp* App::qtApp=nullptr;
     int App::_qApp_argc=1;
-    char App::_qApp_arg0[]={"V-REP"};
+    char App::_qApp_arg0[]={"CoppeliaSim"};
     char* App::_qApp_argv[1]={_qApp_arg0};
 #endif
 #ifdef SIM_WITH_GUI
@@ -266,7 +267,7 @@ App::App(bool headless)
 {
     FUNCTION_DEBUG;
 
-    handleVerSpecConstructor0();
+    printf(CLibLic::getStringVal(3).c_str());
 
     uiThread=nullptr;
     _initSuccessful=false;
@@ -281,7 +282,7 @@ App::App(bool headless)
     // show a black color for the openGl content when started from
     // QtCreator, or do very slow rendering. When starting from Qt Creator,
     // add following command-line:
-    // vrep.exe -gCALLED_FROM_QTCREATOR
+    // coppeliaSim.exe -gCALLED_FROM_QTCREATOR
     bool fromQtCreator=false;
     for (int i=0;i<9;i++)
     {
@@ -307,7 +308,7 @@ App::App(bool headless)
 #endif
 
 #ifndef SIM_WITHOUT_QT_AT_ALL
-    qtApp=new CVrepQApp(_qApp_argc,_qApp_argv);
+    qtApp=new CSimQApp(_qApp_argc,_qApp_argv);
 #endif
 
 #ifdef USING_QOPENGLWIDGET
@@ -321,17 +322,18 @@ App::App(bool headless)
     qRegisterMetaType<std::string>("std::string");
 #endif
 
+#ifndef SIM_WITHOUT_QT_AT_ALL
 #ifdef SIM_WITH_GUI
     Q_INIT_RESOURCE(targaFiles);
     Q_INIT_RESOURCE(toolbarFiles);
     Q_INIT_RESOURCE(variousImageFiles);
-
-    handleVerSpecConstructor1();
+    Q_INIT_RESOURCE(imageFiles);
+#endif
 #endif
 
-#ifdef WIN_VREP
+#ifdef WIN_SIM
     #ifdef SIM_WITH_GUI
-        CVrepQApp::setStyle(QStyleFactory::create("Fusion")); // Probably most compatible. Other platforms: best in native (other styles have problems)!
+        CSimQApp::setStyle(QStyleFactory::create("Fusion")); // Probably most compatible. Other platforms: best in native (other styles have problems)!
 
         /*
             QPalette pal;
@@ -361,17 +363,17 @@ App::App(bool headless)
     CAuxLibVideo::loadLibrary(headless);
 
     QFont f=QApplication::font();
-    #ifdef WIN_VREP
+    #ifdef WIN_SIM
         f.setPixelSize(userSettings->guiFontSize_Win);
     #endif
-    #ifdef MAC_VREP
+    #ifdef MAC_SIM
         f.setPixelSize(userSettings->guiFontSize_Mac);
     #endif
-    #ifdef LIN_VREP
+    #ifdef LIN_SIM
         f.setPixelSize(userSettings->guiFontSize_Linux);
     #endif
     QApplication::setFont(f);
-    #ifdef LIN_VREP // make the groupbox frame visible on Linux
+    #ifdef LIN_SIM // make the groupbox frame visible on Linux
         qtApp->setStyleSheet("QGroupBox {  border: 1px solid lightgray;} QGroupBox::title {  background-color: transparent; subcontrol-position: top left; padding:2 13px;}");
     #endif
 #endif
@@ -390,9 +392,9 @@ App::~App()
     VThread::unsetUiThreadId();
     delete uiThread;
 
-    // Clear the TAG that V-REP crashed! (because if we arrived here, we didn't crash!)
+    // Clear the TAG that CoppeliaSim crashed! (because if we arrived here, we didn't crash!)
     CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
-    cont.writeData("SIMSETTINGS_VREP_CRASHED","No",!App::userSettings->doNotWritePersistentData);
+    cont.writeData("SIMSETTINGS_SIM_CRASHED","No",!App::userSettings->doNotWritePersistentData);
 
     // Remove any remaining auto-saved file:
     for (int i=1;i<30;i++)
@@ -401,7 +403,7 @@ App::~App()
         testScene.append("AUTO_SAVED_INSTANCE_");
         testScene+=tt::FNb(i);
         testScene+=".";
-        testScene+=SIM_VREP_SCENE_EXTENSION;
+        testScene+=SIM_SCENE_EXTENSION;
         if (VFile::doesFileExist(testScene))
             VFile::eraseFile(testScene);
     }
@@ -420,12 +422,22 @@ App::~App()
     if (qtApp!=nullptr)
     {
         #ifdef SIM_WITH_GUI
-            handleVerSpecDestructor1();
+            Q_CLEANUP_RESOURCE(imageFiles);
             Q_CLEANUP_RESOURCE(variousImageFiles);
             Q_CLEANUP_RESOURCE(toolbarFiles);
             Q_CLEANUP_RESOURCE(targaFiles);
         #endif // SIM_WITH_GUI
-        delete qtApp;
+        qtApp->disconnect();
+//        qtApp->deleteLater(); // this crashes when trying to run CoppeliaSim several times from the same client app
+        delete qtApp; // this crashes with some plugins, on MacOS
+
+        /*
+            QEventLoop destroyLoop;
+            QObject::connect(qtApp,&QObject::destroyed,&destroyLoop,&QEventLoop::quit);
+            qtApp->deleteLater();
+            destroyLoop.exec();
+            // crashes here above, just after qtApp destruction
+        */
         qtApp=nullptr;
     }
 #endif // SIM_WITHOUT_QT_AT_ALL
@@ -466,7 +478,7 @@ void App::beep(int frequ,int duration)
 #ifdef SIM_WITH_GUI
     for (int i=0;i<3;i++)
     {
-        #ifdef WIN_VREP
+        #ifdef WIN_SIM
             Beep(frequ,duration);
         #else
             if (qtApp!=nullptr)
@@ -479,7 +491,7 @@ void App::beep(int frequ,int duration)
 
 void App::setApplicationName(const char* name)
 {
-    _applicationName=handleVerSpecSetAppName1(name);
+    _applicationName=CLibLic::getStringVal(2);
 }
 
 std::string App::getApplicationName()
@@ -510,15 +522,14 @@ void App::_runInitializationCallback(void(*initCallBack)())
 
     App::ct->luaCustomFuncAndVarContainer->outputWarningWithFunctionNamesWithoutPlugin(true);
 
-    if (CPluginContainer::isMeshPluginAvailable())
-        printf("Using the 'MeshCalc' plugin.\n");
+    if (CPluginContainer::isGeomPluginAvailable())
+        printf("Using the 'Geometric' plugin.\n");
     else
-        printf("The 'MeshCalc' plugin could not be initialized.\n");
+        printf("The 'Geometric' plugin could not be initialized.\n");
 
     if (CPathPlanningInterface::initializeFunctionsIfNeeded())
         printf("Using the 'PathPlanning' plugin.\n");
 
-    handleVerSpecRunInitCallback1(!App::userSettings->doNotWritePersistentData);
 }
 
 void App::_runDeinitializationCallback(void(*deinitCallBack)())
@@ -575,7 +586,17 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
     cmd.intParams.clear();
     App::appendSimulationThreadCommand(cmd,2200); // was 200
 
-    handleVerSpecRun1();
+    if (CLibLic::getBoolVal(13))
+    {
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=PLUS_HFLM_CMD;
+        App::appendSimulationThreadCommand(cmd,10000);
+        CLibLic::run(4);
+        cmd.cmdId=PLUS_CVU_CMD;
+        App::appendSimulationThreadCommand(cmd,1500);
+        cmd.cmdId=PLUS_HVUD_CMD;
+        App::appendSimulationThreadCommand(cmd,20000);
+    }
     cmd.cmdId=REFRESH_DIALOGS_CMD;
     appendSimulationThreadCommand(cmd,1000);
     cmd.cmdId=DISPLAY_WARNING_IF_DEBUGGING_CMD;
@@ -590,7 +611,7 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
         mainWindow->codeEditorContainer->closeAll();
 #endif
 
-    handleVerSpecRun2();
+    CLibLic::run(5);
 
     // Wait until the SIM thread ended:
     _quitLevel=2; // indicate to the SIM thread that the UI thread has left its exec
@@ -800,12 +821,26 @@ void App::addStatusbarMessage(const std::string& txt,bool scriptErrorMsg/*=false
     {
         #ifdef SIM_WITH_GUI
             std::string str(txt);
-            size_t p=txt.rfind("@html");
+            size_t p=str.rfind("@html");
             bool html=false;
-            if ( (p!=std::string::npos)&&(p==strlen(txt.c_str())-5) )
+            if ( (p!=std::string::npos)&&(p==str.size()-5) )
             {
                 html=true;
                 str.assign(txt.begin(),txt.end()-5);
+            }
+            else if (scriptErrorMsg)
+            { // change color
+                html=true;
+                QString qstr(str.c_str());
+                qstr.replace("\n","*+-%NL%-+*");
+                qstr.replace(" ","*+-%S%-+*");
+                qstr.replace("\t","*+-%T%-+*");
+                qstr.toHtmlEscaped();
+                qstr.replace("*+-%NL%-+*","<br/>");
+                qstr.replace("*+-%S%-+*","&nbsp;");
+                qstr.replace("*+-%T%-+*","&nbsp;&nbsp;&nbsp;&nbsp;");
+                str="<font color='#c00'>"+qstr.toStdString();
+                str+="</font>";
             }
 
             if (mainWindow!=nullptr)
@@ -826,10 +861,10 @@ void App::addStatusbarMessage(const std::string& txt,bool scriptErrorMsg/*=false
                 }
             }
         #endif
-        if ( userSettings->redirectStatusbarMsgToConsoleInHeadlessMode||CMiscBase::handleVerSpec_statusbarMsgToConsole() )
+        if ( userSettings->redirectStatusbarMsgToConsoleInHeadlessMode||CLibLic::getBoolVal(0) )
         {
 #ifdef SIM_WITH_GUI
-            if ( (mainWindow==nullptr)||CMiscBase::handleVerSpec_statusbarMsgToConsole() )
+            if ( (mainWindow==nullptr)||CLibLic::getBoolVal(0) )
 #endif
             {
                 #ifdef SIM_WITH_GUI
@@ -845,7 +880,46 @@ void App::addStatusbarMessage(const std::string& txt,bool scriptErrorMsg/*=false
             }
         }
 #ifdef SIM_WITH_GUI
-        handleVerSpecStatusBarMsg(txt.c_str(),html,scriptErrorMsg);
+        if ( (App::mainWindow!=nullptr)&&CLibLic::getBoolVal(1) )
+        {
+            std::string str2(txt);
+            static std::vector<std::string> lastMessages;
+            if (html)
+            {
+                QTextDocument text;
+                text.setHtml(str2.c_str());
+                lastMessages.push_back(text.toPlainText().toStdString());
+            }
+            else
+                lastMessages.push_back(str2);
+            if (lastMessages.size()>100)
+                lastMessages.erase(lastMessages.begin());
+
+            if (scriptErrorMsg)
+            {
+                static int cons=-1;
+                if (cons>=0)
+                {
+                    if (App::mainWindow->codeEditorContainer->getHandleFromUniqueId(cons)==-1)
+                        cons=-1;
+                }
+                if (cons==-1)
+                {
+                    int col[3]={255,204,0};
+                    int h=App::mainWindow->codeEditorContainer->openConsole("Please send this message/error",500,2+4+16,nullptr,nullptr,nullptr,col,-1);
+                    cons=App::mainWindow->codeEditorContainer->getUniqueId(h);
+                }
+                if (cons>=0)
+                {
+                    int h=App::mainWindow->codeEditorContainer->getHandleFromUniqueId(cons);
+                    std::string toAppend;
+                    for (size_t i=0;i<lastMessages.size();i++)
+                        toAppend+=lastMessages[i]+"\n";
+                    App::mainWindow->codeEditorContainer->appendText(h,toAppend.c_str());
+                    lastMessages.clear();
+                }
+            }
+        }
 #endif
     }
 }
@@ -1321,14 +1395,14 @@ void App::showSplashScreen()
     App::setShowConsole(false);
     QPixmap pixmap;
 
-    handleVerSpecShowSplash1(pixmap);
+    pixmap.load(CLibLic::getStringVal(1).c_str());
 
     QSplashScreen splash(pixmap,Qt::WindowStaysOnTopHint);
     splash.setMask(pixmap.mask());
     QString txt("Version ");
-    txt+=VREP_PROGRAM_VERSION;
+    txt+=SIM_PROGRAM_VERSION;
     txt+=" ";
-    txt+=VREP_PROGRAM_REVISION;
+    txt+=SIM_PROGRAM_REVISION;
     txt+=", Built ";
     txt+=__DATE__;
     splash.showMessage(txt,Qt::AlignLeft|Qt::AlignBottom);
@@ -1346,7 +1420,7 @@ void App::showSplashScreen()
 
 void App::setIcon()
 {
-    App::qtApp->setWindowIcon(QIcon(handleVerSpecSetIcon1().c_str()));
+    App::qtApp->setWindowIcon(QIcon(CLibLic::getStringVal(4).c_str()));
 }
 
 void App::createMainWindow()
@@ -1366,7 +1440,7 @@ void App::deleteMainWindow()
 
 void App::setShowConsole(bool s)
 {
-    #ifdef WIN_VREP
+    #ifdef WIN_SIM
         if (s)
             ShowWindow(GetConsoleWindow(),SW_SHOW);
         else

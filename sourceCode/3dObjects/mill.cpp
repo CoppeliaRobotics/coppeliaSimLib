@@ -1,5 +1,5 @@
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "mill.h"
 #include "tt.h"
 #include "cuttingRoutine.h"
@@ -380,6 +380,72 @@ void CMill::serialize(CSer& ar)
             }
         }
     }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_enum("type",_millType,sim_mill_pyramid_subtype,"pyramid",sim_mill_cylinder_subtype,"cylinder",sim_mill_disc_subtype,"disc",sim_mill_cone_subtype,"cone");
+
+            ar.xmlAddNode_float("size",_size);
+
+            ar.xmlAddNode_int("millableEntity",_millableObject);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("explicitHandling",_explicitHandling);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("colors");
+            ar.xmlPushNewNode("passive");
+            passiveVolumeColor.serialize(ar,0);
+            ar.xmlPopNode();
+            ar.xmlPushNewNode("active");
+            activeVolumeColor.serialize(ar,0);
+            ar.xmlPopNode();
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("volume");
+            convexVolume->serialize(ar);
+            ar.xmlPopNode();
+        }
+        else
+        {
+            ar.xmlGetNode_enum("type",_millType,true,"pyramid",sim_mill_pyramid_subtype,"cylinder",sim_mill_cylinder_subtype,"disc",sim_mill_disc_subtype,"cone",sim_mill_cone_subtype);
+
+            ar.xmlGetNode_float("size",_size);
+
+            ar.xmlGetNode_int("millableEntity",_millableObject);
+
+            if (ar.xmlPushChildNode("switches"))
+            {
+                ar.xmlGetNode_bool("explicitHandling",_explicitHandling);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("colors"))
+            {
+                if (ar.xmlPushChildNode("passive"))
+                {
+                    passiveVolumeColor.serialize(ar,0);
+                    ar.xmlPopNode();
+                }
+                if (ar.xmlPushChildNode("active"))
+                {
+                    activeVolumeColor.serialize(ar,0);
+                    ar.xmlPopNode();
+                }
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("volume"))
+            {
+                if (convexVolume!=nullptr)
+                    delete convexVolume;
+                convexVolume=new CConvexVolume();
+                convexVolume->serialize(ar);
+                ar.xmlPopNode();
+            }
+        }
+    }
 }
 
 void CMill::serializeWExtIk(CExtIkSer& ar)
@@ -425,7 +491,7 @@ int CMill::handleMill(bool exceptExplicitHandling,float& milledSurface,float& mi
     _calcTimeInMs=0;
     if (!App::ct->mainSettings->millsEnabled)
         return(0);
-    if (!CPluginContainer::isMeshPluginAvailable())
+    if (!CPluginContainer::isGeomPluginAvailable())
         return(0);
 
     int stTime=VDateTime::getTimeInMs();

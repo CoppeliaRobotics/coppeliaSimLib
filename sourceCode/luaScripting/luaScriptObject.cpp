@@ -1,6 +1,6 @@
 #include "funcDebug.h"
 #include "easyLock.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "luaScriptObject.h"
 #include "luaScriptFunctions.h"
 #include "threadPool.h"
@@ -10,12 +10,1914 @@
 #include "app.h"
 #include "apiErrors.h"
 #include "pluginContainer.h"
+#include <boost/algorithm/string.hpp>
 
 int CLuaScriptObject::_scriptUniqueCounter=-1;
 bool CLuaScriptObject::emergencyStopButtonPressed=false;
 int CLuaScriptObject::_nextIdForExternalScriptEditor=-1;
 VMutex CLuaScriptObject::_globalMutex;
 std::vector<CLuaScriptObject*> CLuaScriptObject::toBeCalledByThread;
+std::map<std::string,std::string> CLuaScriptObject::_newApiMap;
+
+const SNewApiMapping _simApiMapping[]=
+{
+    "sim.mainscriptcall_initialization","sim.syscb_init",
+    "sim.mainscriptcall_cleanup","sim.syscb_cleanup",
+    "sim.mainscriptcall_regular","sim.syscb_regular",
+    "sim.childscriptcall_initialization","sim.syscb_init",
+    "sim.childscriptcall_cleanup","sim.syscb_cleanup",
+    "sim.childscriptcall_actuation","sim.syscb_actuation",
+    "sim.childscriptcall_sensing","sim.syscb_sensing",
+    "sim.customizationscriptcall_initialization","sim.syscb_init",
+    "sim.customizationscriptcall_cleanup","sim.syscb_cleanup",
+    "sim.customizationscriptcall_nonsimulation","sim.syscb_nonsimulation",
+    "sim.customizationscriptcall_lastbeforesimulation","sim.syscb_beforesimulation",
+    "sim.customizationscriptcall_firstaftersimulation","sim.syscb_aftersimulation",
+    "sim.customizationscriptcall_simulationactuation","sim.syscb_actuation",
+    "sim.customizationscriptcall_simulationsensing","sim.syscb_sensing",
+    "sim.customizationscriptcall_simulationpause","sim.syscb_suspended",
+    "sim.customizationscriptcall_simulationpausefirst","sim.syscb_suspend",
+    "sim.customizationscriptcall_simulationpauselast","sim.syscb_resume",
+    "sim.customizationscriptcall_lastbeforeinstanceswitch","sim.syscb_beforeinstanceswitch",
+    "sim.customizationscriptcall_firstafterinstanceswitch","sim.syscb_afterinstanceswitch",
+    "sim.customizationscriptcall_beforecopy","sim.syscb_beforecopy",
+    "sim.customizationscriptcall_aftercopy","sim.syscb_aftercopy",
+    "sim.customizationscriptcall_br","sim.syscb_br",
+
+    "simGetScriptName","sim.getScriptName",
+    "simGetObjectAssociatedWithScript","sim.getObjectAssociatedWithScript",
+    "simGetScriptAssociatedWithObject","sim.getScriptAssociatedWithObject",
+    "simGetCustomizationScriptAssociatedWithObject","sim.getCustomizationScriptAssociatedWithObject",
+    "simGetScriptExecutionCount","sim.getScriptExecutionCount",
+    "simIsScriptExecutionThreaded","sim.isScriptExecutionThreaded",
+    "simIsScriptRunningInThread","sim.isScriptRunningInThread",
+    "simOpenModule","sim.openModule",
+    "simCloseModule","sim.closeModule",
+    "simHandleModule","sim.handleModule",
+    "simBoolOr32","sim.boolOr32",
+    "simBoolAnd32","sim.boolAnd32",
+    "simBoolXor32","sim.boolXor32",
+    "simHandleDynamics","sim.handleDynamics",
+    "simHandleIkGroup","sim.handleIkGroup",
+    "simCheckIkGroup","sim.checkIkGroup",
+    "simHandleCollision","sim.handleCollision",
+    "simReadCollision","sim.readCollision",
+    "simHandleDistance","sim.handleDistance",
+    "simReadDistance","sim.readDistance",
+    "simHandleProximitySensor","sim.handleProximitySensor",
+    "simReadProximitySensor","sim.readProximitySensor",
+    "simHandleMill","sim.handleMill",
+    "simResetCollision","sim.resetCollision",
+    "simResetDistance","sim.resetDistance",
+    "simResetProximitySensor","sim.resetProximitySensor",
+    "simResetMill","sim.resetMill",
+    "simCheckProximitySensor","sim.checkProximitySensor",
+    "simCheckProximitySensorEx","sim.checkProximitySensorEx",
+    "simCheckProximitySensorEx2","sim.checkProximitySensorEx2",
+    "simGetNameSuffix","sim.getNameSuffix",
+    "simSetNameSuffix","sim.setNameSuffix",
+    "simGetObjectHandle","sim.getObjectHandle",
+    "simAddScript","sim.addScript",
+    "simAssociateScriptWithObject","sim.associateScriptWithObject",
+    "simSetScriptText","sim.setScriptText",
+    "simGetScriptHandle","sim.getScriptHandle",
+    "simGetCollectionHandle","sim.getCollectionHandle",
+    "simRemoveCollection","sim.removeCollection",
+    "simEmptyCollection","sim.emptyCollection",
+    "simGetObjectPosition","sim.getObjectPosition",
+    "simGetObjectOrientation","sim.getObjectOrientation",
+    "simSetObjectPosition","sim.setObjectPosition",
+    "simSetObjectOrientation","sim.setObjectOrientation",
+    "simGetJointPosition","sim.getJointPosition",
+    "simSetJointPosition","sim.setJointPosition",
+    "simSetJointTargetPosition","sim.setJointTargetPosition",
+    "simGetJointTargetPosition","sim.getJointTargetPosition",
+    "simSetJointForce","sim.setJointForce",
+    "simGetPathPosition","sim.getPathPosition",
+    "simSetPathPosition","sim.setPathPosition",
+    "simGetPathLength","sim.getPathLength",
+    "simSetJointTargetVelocity","sim.setJointTargetVelocity",
+    "simGetJointTargetVelocity","sim.getJointTargetVelocity",
+    "simSetPathTargetNominalVelocity","sim.setPathTargetNominalVelocity",
+    "simGetObjectName","sim.getObjectName",
+    "simGetCollectionName","sim.getCollectionName",
+    "simRemoveObject","sim.removeObject",
+    "simRemoveModel","sim.removeModel",
+    "simGetSimulationTime","sim.getSimulationTime",
+    "simGetSimulationState","sim.getSimulationState",
+    "simGetSystemTime","sim.getSystemTime",
+    "simGetSystemTimeInMs","sim.getSystemTimeInMs",
+    "simCheckCollision","sim.checkCollision",
+    "simCheckCollisionEx","sim.checkCollisionEx",
+    "simCheckDistance","sim.checkDistance",
+    "simGetObjectConfiguration","sim.getObjectConfiguration",
+    "simSetObjectConfiguration","sim.setObjectConfiguration",
+    "simGetConfigurationTree","sim.getConfigurationTree",
+    "simSetConfigurationTree","sim.setConfigurationTree",
+    "simHandleMechanism","sim.handleMechanism",
+    "simGetSimulationTimeStep","sim.getSimulationTimeStep",
+    "simGetSimulatorMessage","sim.getSimulatorMessage",
+    "simResetGraph","sim.resetGraph",
+    "simHandleGraph","sim.handleGraph",
+    "simAddStatusbarMessage","sim.addStatusbarMessage",
+    "simGetLastError","sim.getLastError",
+    "simGetObjects","sim.getObjects",
+    "simRefreshDialogs","sim.refreshDialogs",
+    "simGetModuleName","sim.getModuleName",
+    "simGetIkGroupHandle","sim.getIkGroupHandle",
+    "simRemoveScript","sim.removeScript",
+    "simGetCollisionHandle","sim.getCollisionHandle",
+    "simGetDistanceHandle","sim.getDistanceHandle",
+    "simGetMechanismHandle","sim.getMechanismHandle",
+    "simGetScriptSimulationParameter","sim.getScriptSimulationParameter",
+    "simSetScriptSimulationParameter","sim.setScriptSimulationParameter",
+    "simDisplayDialog","sim.displayDialog",
+    "simGetDialogResult","sim.getDialogResult",
+    "simGetDialogInput","sim.getDialogInput",
+    "simEndDialog","sim.endDialog",
+    "simStopSimulation","sim.stopSimulation",
+    "simPauseSimulation","sim.pauseSimulation",
+    "simStartSimulation","sim.startSimulation",
+    "simGetObjectMatrix","sim.getObjectMatrix",
+    "simSetObjectMatrix","sim.setObjectMatrix",
+    "simGetJointMatrix","sim.getJointMatrix",
+    "simSetSphericalJointMatrix","sim.setSphericalJointMatrix",
+    "simBuildIdentityMatrix","sim.buildIdentityMatrix",
+    "simCopyMatrix","sim.copyMatrix",
+    "simBuildMatrix","sim.buildMatrix",
+    "simGetEulerAnglesFromMatrix","sim.getEulerAnglesFromMatrix",
+    "simInvertMatrix","sim.invertMatrix",
+    "simMultiplyMatrices","sim.multiplyMatrices",
+    "simInterpolateMatrices","sim.interpolateMatrices",
+    "simMultiplyVector","sim.multiplyVector",
+    "simGetObjectChild","sim.getObjectChild",
+    "simGetObjectParent","sim.getObjectParent",
+    "simSetObjectParent","sim.setObjectParent",
+    "simGetObjectType","sim.getObjectType",
+    "simGetJointType","sim.getJointType",
+    "simSetBoolParameter","sim.setBoolParameter",
+    "simGetBoolParameter","sim.getBoolParameter",
+    "simSetInt32Parameter","sim.setInt32Parameter",
+    "simGetInt32Parameter","sim.getInt32Parameter",
+    "simSetFloatParameter","sim.setFloatParameter",
+    "simGetFloatParameter","sim.getFloatParameter",
+    "simSetStringParameter","sim.setStringParameter",
+    "simGetStringParameter","sim.getStringParameter",
+    "simSetArrayParameter","sim.setArrayParameter",
+    "simGetArrayParameter","sim.getArrayParameter",
+    "simSetObjectName","sim.setObjectName",
+    "simSetCollectionName","sim.setCollectionName",
+    "simGetJointInterval","sim.getJointInterval",
+    "simSetJointInterval","sim.setJointInterval",
+    "simLoadScene","sim.loadScene",
+    "simSaveScene","sim.saveScene",
+    "simLoadModel","sim.loadModel",
+    "simSaveModel","sim.saveModel",
+    "simIsObjectInSelection","sim.isObjectInSelection",
+    "simAddObjectToSelection","sim.addObjectToSelection",
+    "simRemoveObjectFromSelection","sim.removeObjectFromSelection",
+    "simGetObjectSelection","sim.getObjectSelection",
+    "simGetRealTimeSimulation","sim.getRealTimeSimulation",
+    "simSetNavigationMode","sim.setNavigationMode",
+    "simGetNavigationMode","sim.getNavigationMode",
+    "simSetPage","sim.setPage",
+    "simGetPage","sim.getPage",
+    "simCopyPasteObjects","sim.copyPasteObjects",
+    "simScaleObjects","sim.scaleObjects",
+    "simGetObjectUniqueIdentifier","sim.getObjectUniqueIdentifier",
+    "simSetThreadAutomaticSwitch","sim.setThreadAutomaticSwitch",
+    "simGetThreadAutomaticSwitch","sim.getThreadAutomaticSwitch",
+    "simSetThreadSwitchTiming","sim.setThreadSwitchTiming",
+    "simSetThreadResumeLocation","sim.setThreadResumeLocation",
+    "simResumeThreads","sim.resumeThreads",
+    "simSwitchThread","sim.switchThread",
+    "simCreateIkGroup","sim.createIkGroup",
+    "simRemoveIkGroup","sim.removeIkGroup",
+    "simCreateIkElement","sim.createIkElement",
+    "simCreateCollection","sim.createCollection",
+    "simAddObjectToCollection","sim.addObjectToCollection",
+    "simSaveImage","sim.saveImage",
+    "simLoadImage","sim.loadImage",
+    "simGetScaledImage","sim.getScaledImage",
+    "simTransformImage","sim.transformImage",
+    "simGetQHull","sim.getQHull",
+    "simGetDecimatedMesh","sim.getDecimatedMesh",
+    "simExportIk","sim.exportIk",
+    "simComputeJacobian","sim.computeJacobian",
+    "simSendData","sim.sendData",
+    "simReceiveData","sim.receiveData",
+    "simPackInt32Table","sim.packInt32Table",
+    "simPackUInt32Table","sim.packUInt32Table",
+    "simPackFloatTable","sim.packFloatTable",
+    "simPackDoubleTable","sim.packDoubleTable",
+    "simPackUInt8Table","sim.packUInt8Table",
+    "simPackUInt16Table","sim.packUInt16Table",
+    "simUnpackInt32Table","sim.unpackInt32Table",
+    "simUnpackUInt32Table","sim.unpackUInt32Table",
+    "simUnpackFloatTable","sim.unpackFloatTable",
+    "simUnpackDoubleTable","sim.unpackDoubleTable",
+    "simUnpackUInt8Table","sim.unpackUInt8Table",
+    "simUnpackUInt16Table","sim.unpackUInt16Table",
+    "simPackTable","sim.packTable",
+    "simUnpackTable","sim.unpackTable",
+    "simTransformBuffer","sim.transformBuffer",
+    "simCombineRgbImages","sim.combineRgbImages",
+    "simGetVelocity","sim.getVelocity",
+    "simGetObjectVelocity","sim.getObjectVelocity",
+    "simAddForceAndTorque","sim.addForceAndTorque",
+    "simAddForce","sim.addForce",
+    "simSetExplicitHandling","sim.setExplicitHandling",
+    "simGetExplicitHandling","sim.getExplicitHandling",
+    "simSetGraphUserData","sim.setGraphUserData",
+    "simAddDrawingObject","sim.addDrawingObject",
+    "simRemoveDrawingObject","sim.removeDrawingObject",
+    "simAddDrawingObjectItem","sim.addDrawingObjectItem",
+    "simAddParticleObject","sim.addParticleObject",
+    "simRemoveParticleObject","sim.removeParticleObject",
+    "simAddParticleObjectItem","sim.addParticleObjectItem",
+    "simGetObjectSizeFactor","sim.getObjectSizeFactor",
+    "simResetMilling","sim.resetMilling",
+    "simApplyMilling","sim.applyMilling",
+    "simSetIntegerSignal","sim.setIntegerSignal",
+    "simGetIntegerSignal","sim.getIntegerSignal",
+    "simClearIntegerSignal","sim.clearIntegerSignal",
+    "simSetFloatSignal","sim.setFloatSignal",
+    "simGetFloatSignal","sim.getFloatSignal",
+    "simClearFloatSignal","sim.clearFloatSignal",
+    "simSetStringSignal","sim.setStringSignal",
+    "simGetStringSignal","sim.getStringSignal",
+    "simClearStringSignal","sim.clearStringSignal",
+    "simGetSignalName","sim.getSignalName",
+    "simWaitForSignal","sim.waitForSignal",
+    "simPersistentDataWrite","sim.persistentDataWrite",
+    "simPersistentDataRead","sim.persistentDataRead",
+    "simSetObjectProperty","sim.setObjectProperty",
+    "simGetObjectProperty","sim.getObjectProperty",
+    "simSetObjectSpecialProperty","sim.setObjectSpecialProperty",
+    "simGetObjectSpecialProperty","sim.getObjectSpecialProperty",
+    "simSetModelProperty","sim.setModelProperty",
+    "simGetModelProperty","sim.getModelProperty",
+    "simMoveToPosition","sim.moveToPosition",
+    "simMoveToObject","sim.moveToObject",
+    "simFollowPath","sim.followPath",
+    "simMoveToJointPositions","sim.moveToJointPositions",
+    "simWait","sim.wait",
+    "simGetDataOnPath","sim.getDataOnPath",
+    "simGetPositionOnPath","sim.getPositionOnPath",
+    "simGetOrientationOnPath","sim.getOrientationOnPath",
+    "simGetClosestPositionOnPath","sim.getClosestPositionOnPath",
+    "simReadForceSensor","sim.readForceSensor",
+    "simBreakForceSensor","sim.breakForceSensor",
+    "simGetLightParameters","sim.getLightParameters",
+    "simSetLightParameters","sim.setLightParameters",
+    "simGetLinkDummy","sim.getLinkDummy",
+    "simSetLinkDummy","sim.setLinkDummy",
+    "simSetShapeColor","sim.setShapeColor",
+    "simGetShapeColor","sim.getShapeColor",
+    "simResetDynamicObject","sim.resetDynamicObject",
+    "simSetJointMode","sim.setJointMode",
+    "simGetJointMode","sim.getJointMode",
+    "simSerialOpen","sim.serialOpen",
+    "simSerialClose","sim.serialClose",
+    "simSerialSend","sim.serialSend",
+    "simSerialRead","sim.serialRead",
+    "simSerialCheck","sim.serialCheck",
+    "simGetContactInfo","sim.getContactInfo",
+    "simSetThreadIsFree","sim.setThreadIsFree",
+    "simTubeOpen","sim.tubeOpen",
+    "simTubeClose","sim.tubeClose",
+    "simTubeWrite","sim.tubeWrite",
+    "simTubeRead","sim.tubeRead",
+    "simTubeStatus","sim.tubeStatus",
+    "simAuxiliaryConsoleOpen","sim.auxiliaryConsoleOpen",
+    "simAuxiliaryConsoleClose","sim.auxiliaryConsoleClose",
+    "simAuxiliaryConsolePrint","sim.auxiliaryConsolePrint",
+    "simAuxiliaryConsoleShow","sim.auxiliaryConsoleShow",
+    "simImportShape","sim.importShape",
+    "simImportMesh","sim.importMesh",
+    "simExportMesh","sim.exportMesh",
+    "simCreateMeshShape","sim.createMeshShape",
+    "simGetShapeMesh","sim.getShapeMesh",
+    "simCreatePureShape","sim.createPureShape",
+    "simCreateHeightfieldShape","sim.createHeightfieldShape",
+    "simAddBanner","sim.addBanner",
+    "simRemoveBanner","sim.removeBanner",
+    "simCreateJoint","sim.createJoint",
+    "simCreateDummy","sim.createDummy",
+    "simCreateProximitySensor","sim.createProximitySensor",
+    "simCreatePath","sim.createPath",
+    "simCreateForceSensor","sim.createForceSensor",
+    "simCreateVisionSensor","sim.createVisionSensor",
+    "simInsertPathCtrlPoints","sim.insertPathCtrlPoints",
+    "simCutPathCtrlPoints","sim.cutPathCtrlPoints",
+    "simGetIkGroupMatrix","sim.getIkGroupMatrix",
+    "simFloatingViewAdd","sim.floatingViewAdd",
+    "simFloatingViewRemove","sim.floatingViewRemove",
+    "simAdjustView","sim.adjustView",
+    "simCameraFitToView","sim.cameraFitToView",
+    "simAnnounceSceneContentChange","sim.announceSceneContentChange",
+    "simGetObjectInt32Parameter","sim.getObjectInt32Parameter",
+    "simSetObjectInt32Parameter","sim.setObjectInt32Parameter",
+    "simGetObjectFloatParameter","sim.getObjectFloatParameter",
+    "simSetObjectFloatParameter","sim.setObjectFloatParameter",
+    "simGetObjectStringParameter","sim.getObjectStringParameter",
+    "simSetObjectStringParameter","sim.setObjectStringParameter",
+    "simGetRotationAxis","sim.getRotationAxis",
+    "simRotateAroundAxis","sim.rotateAroundAxis",
+    "simLaunchExecutable","sim.launchExecutable",
+    "simGetJointForce","sim.getJointForce",
+    "simSetIkGroupProperties","sim.setIkGroupProperties",
+    "simSetIkElementProperties","sim.setIkElementProperties",
+    "simIsHandleValid","sim.isHandleValid",
+    "simGetObjectQuaternion","sim.getObjectQuaternion",
+    "simSetObjectQuaternion","sim.setObjectQuaternion",
+    "simSetShapeMassAndInertia","sim.setShapeMassAndInertia",
+    "simGetShapeMassAndInertia","sim.getShapeMassAndInertia",
+    "simGroupShapes","sim.groupShapes",
+    "simUngroupShape","sim.ungroupShape",
+    "simConvexDecompose","sim.convexDecompose",
+    "simAddGhost","sim.addGhost",
+    "simModifyGhost","sim.modifyGhost",
+    "simQuitSimulator","sim.quitSimulator",
+    "simGetThreadId","sim.getThreadId",
+    "simSetShapeMaterial","sim.setShapeMaterial",
+    "simGetTextureId","sim.getTextureId",
+    "simReadTexture","sim.readTexture",
+    "simWriteTexture","sim.writeTexture",
+    "simCreateTexture","sim.createTexture",
+    "simWriteCustomDataBlock","sim.writeCustomDataBlock",
+    "simReadCustomDataBlock","sim.readCustomDataBlock",
+    "simReadCustomDataBlockTags","sim.readCustomDataBlockTags",
+    "simAddPointCloud","sim.addPointCloud",
+    "simModifyPointCloud","sim.modifyPointCloud",
+    "simGetShapeGeomInfo","sim.getShapeGeomInfo",
+    "simGetObjectsInTree","sim.getObjectsInTree",
+    "simSetObjectSizeValues","sim.setObjectSizeValues",
+    "simGetObjectSizeValues","sim.getObjectSizeValues",
+    "simScaleObject","sim.scaleObject",
+    "simSetShapeTexture","sim.setShapeTexture",
+    "simGetShapeTextureId","sim.getShapeTextureId",
+    "simGetCollectionObjects","sim.getCollectionObjects",
+    "simHandleCustomizationScripts","sim.handleCustomizationScripts",
+    "simSetScriptAttribute","sim.setScriptAttribute",
+    "simGetScriptAttribute","sim.getScriptAttribute",
+    "simHandleChildScripts","sim.handleChildScripts",
+    "simLaunchThreadedChildScripts","sim.launchThreadedChildScripts",
+    "simReorientShapeBoundingBox","sim.reorientShapeBoundingBox",
+    "simHandleVisionSensor","sim.handleVisionSensor",
+    "simReadVisionSensor","sim.readVisionSensor",
+    "simResetVisionSensor","sim.resetVisionSensor",
+    "simGetVisionSensorResolution","sim.getVisionSensorResolution",
+    "simGetVisionSensorImage","sim.getVisionSensorImage",
+    "simSetVisionSensorImage","sim.setVisionSensorImage",
+    "simGetVisionSensorCharImage","sim.getVisionSensorCharImage",
+    "simSetVisionSensorCharImage","sim.setVisionSensorCharImage",
+    "simGetVisionSensorDepthBuffer","sim.getVisionSensorDepthBuffer",
+    "simCheckVisionSensor","sim.checkVisionSensor",
+    "simCheckVisionSensorEx","sim.checkVisionSensorEx",
+    "simBuildMatrixQ","sim.buildMatrixQ",
+    "simGetQuaternionFromMatrix","sim.getQuaternionFromMatrix",
+    "simFileDialog","sim.fileDialog",
+    "simMsgBox","sim.msgBox",
+    "simLoadModule","sim.loadModule",
+    "simUnloadModule","sim.unloadModule",
+    "simCallScriptFunction","sim.callScriptFunction",
+    "simGetConfigForTipPose","sim.getConfigForTipPose",
+    "simGenerateIkPath","sim.generateIkPath",
+    "simGetExtensionString","sim.getExtensionString",
+    "simComputeMassAndInertia","sim.computeMassAndInertia",
+    "simSetScriptVariable","sim.setScriptVariable",
+    "simGetEngineFloatParameter","sim.getEngineFloatParameter",
+    "simGetEngineInt32Parameter","sim.getEngineInt32Parameter",
+    "simGetEngineBoolParameter","sim.getEngineBoolParameter",
+    "simSetEngineFloatParameter","sim.setEngineFloatParameter",
+    "simSetEngineInt32Parameter","sim.setEngineInt32Parameter",
+    "simSetEngineBoolParameter","sim.setEngineBoolParameter",
+    "simCreateOctree","sim.createOctree",
+    "simCreatePointCloud","sim.createPointCloud",
+    "simSetPointCloudOptions","sim.setPointCloudOptions",
+    "simGetPointCloudOptions","sim.getPointCloudOptions",
+    "simInsertVoxelsIntoOctree","sim.insertVoxelsIntoOctree",
+    "simRemoveVoxelsFromOctree","sim.removeVoxelsFromOctree",
+    "simInsertPointsIntoPointCloud","sim.insertPointsIntoPointCloud",
+    "simRemovePointsFromPointCloud","sim.removePointsFromPointCloud",
+    "simIntersectPointsWithPointCloud","sim.intersectPointsWithPointCloud",
+    "simGetOctreeVoxels","sim.getOctreeVoxels",
+    "simGetPointCloudPoints","sim.getPointCloudPoints",
+    "simInsertObjectIntoOctree","sim.insertObjectIntoOctree",
+    "simSubtractObjectFromOctree","sim.subtractObjectFromOctree",
+    "simInsertObjectIntoPointCloud","sim.insertObjectIntoPointCloud",
+    "simSubtractObjectFromPointCloud","sim.subtractObjectFromPointCloud",
+    "simCheckOctreePointOccupancy","sim.checkOctreePointOccupancy",
+    "simOpenTextEditor","sim.openTextEditor",
+    "simSetVisionSensorFilter","sim.setVisionSensorFilter",
+    "simGetVisionSensorFilter","sim.getVisionSensorFilter",
+    "simHandleSimulationStart","sim.handleSimulationStart",
+    "simHandleSensingStart","sim.handleSensingStart",
+    "simAuxFunc","sim.auxFunc",
+    "simSetReferencedHandles","sim.setReferencedHandles",
+    "simGetReferencedHandles","sim.getReferencedHandles",
+    "simGetGraphCurve","sim.getGraphCurve",
+    "simTest","sim.test",
+    "simRMLPos","sim.rmlPos",
+    "simRMLVel","sim.rmlVel",
+    "simRMLStep","sim.rmlStep",
+    "simRMLRemove","sim.rmlRemove",
+    "simRMLMoveToPosition","sim.rmlMoveToPosition",
+    "simRMLMoveToJointPositions","sim.rmlMoveToJointPositions",
+    "simBoolOr16","sim.boolOr32",
+    "simBoolAnd16","sim.boolAnd32",
+    "simBoolXor16","sim.boolXor32",
+    "simPackInts","sim.packInt32Table",
+    "simPackUInts","sim.packUInt32Table",
+    "simPackFloats","sim.packFloatTable",
+    "simPackDoubles","sim.packDoubleTable",
+    "simPackBytes","sim.packUInt8Table",
+    "simPackWords","sim.packUInt16Table",
+    "simUnpackInts","sim.unpackInt32Table",
+    "simUnpackUInts","sim.unpackUInt32Table",
+    "simUnpackFloats","sim.unpackFloatTable",
+    "simUnpackDoubles","sim.unpackDoubleTable",
+    "simUnpackBytes","sim.unpackUInt8Table",
+    "simUnpackWords","sim.unpackUInt16Table",
+    "simSetBooleanParameter","sim.setBoolParameter",
+    "simGetBooleanParameter","sim.getBoolParameter",
+    "simSetIntegerParameter","sim.setInt32Parameter",
+    "simGetIntegerParameter","sim.getInt32Parameter",
+    "simSetFloatingParameter","sim.setFloatParameter",
+    "simGetFloatingParameter","sim.getFloatParameter",
+    "simGetObjectIntParameter","sim.getObjectInt32Parameter",
+    "simSetObjectIntParameter","sim.setObjectInt32Parameter",
+    "sim_object_shape_type","sim.object_shape_type",
+    "sim_object_joint_type","sim.object_joint_type",
+    "sim_object_graph_type","sim.object_graph_type",
+    "sim_object_camera_type","sim.object_camera_type",
+    "sim_object_dummy_type","sim.object_dummy_type",
+    "sim_object_proximitysensor_type","sim.object_proximitysensor_type",
+    "sim_object_path_type","sim.object_path_type",
+    "sim_object_renderingsensor_type","sim.object_renderingsensor_type",
+    "sim_object_visionsensor_type","sim.object_visionsensor_type",
+    "sim_object_mill_type","sim.object_mill_type",
+    "sim_object_forcesensor_type","sim.object_forcesensor_type",
+    "sim_object_light_type","sim.object_light_type",
+    "sim_object_mirror_type","sim.object_mirror_type",
+    "sim_object_octree_type","sim.object_octree_type",
+    "sim_object_pointcloud_type","sim.object_pointcloud_type",
+    "sim_light_omnidirectional_subtype","sim.light_omnidirectional_subtype",
+    "sim_light_spot_subtype","sim.light_spot_subtype",
+    "sim_light_directional_subtype","sim.light_directional_subtype",
+    "sim_joint_revolute_subtype","sim.joint_revolute_subtype",
+    "sim_joint_prismatic_subtype","sim.joint_prismatic_subtype",
+    "sim_joint_spherical_subtype","sim.joint_spherical_subtype",
+    "sim_shape_simpleshape_subtype","sim.shape_simpleshape_subtype",
+    "sim_shape_multishape_subtype","sim.shape_multishape_subtype",
+    "sim_proximitysensor_pyramid_subtype","sim.proximitysensor_pyramid_subtype",
+    "sim_proximitysensor_cylinder_subtype","sim.proximitysensor_cylinder_subtype",
+    "sim_proximitysensor_disc_subtype","sim.proximitysensor_disc_subtype",
+    "sim_proximitysensor_cone_subtype","sim.proximitysensor_cone_subtype",
+    "sim_proximitysensor_ray_subtype","sim.proximitysensor_ray_subtype",
+    "sim_mill_pyramid_subtype","sim.mill_pyramid_subtype",
+    "sim_mill_cylinder_subtype","sim.mill_cylinder_subtype",
+    "sim_mill_disc_subtype","sim.mill_disc_subtype",
+    "sim_mill_cone_subtype","sim.mill_cone_subtype",
+    "sim_object_no_subtype","sim.object_no_subtype",
+    "sim_appobj_object_type","sim.appobj_object_type",
+    "sim_appobj_collision_type","sim.appobj_collision_type",
+    "sim_appobj_distance_type","sim.appobj_distance_type",
+    "sim_appobj_simulation_type","sim.appobj_simulation_type",
+    "sim_appobj_ik_type","sim.appobj_ik_type",
+    "sim_appobj_constraintsolver_type","sim.appobj_constraintsolver_type",
+    "sim_appobj_collection_type","sim.appobj_collection_type",
+    "sim_appobj_2delement_type","sim.appobj_2delement_type",
+    "sim_appobj_ui_type","sim.appobj_ui_type",
+    "sim_appobj_script_type","sim.appobj_script_type",
+    "sim_appobj_pathplanning_type","sim.appobj_pathplanning_type",
+    "sim_appobj_texture_type","sim.appobj_texture_type",
+    "sim_appobj_motionplanning_type","sim.appobj_motionplanning_type",
+    "sim_ik_pseudo_inverse_method","sim.ik_pseudo_inverse_method",
+    "sim_ik_damped_least_squares_method","sim.ik_damped_least_squares_method",
+    "sim_ik_jacobian_transpose_method","sim.ik_jacobian_transpose_method",
+    "sim_ik_x_constraint","sim.ik_x_constraint",
+    "sim_ik_y_constraint","sim.ik_y_constraint",
+    "sim_ik_z_constraint","sim.ik_z_constraint",
+    "sim_ik_alpha_beta_constraint","sim.ik_alpha_beta_constraint",
+    "sim_ik_gamma_constraint","sim.ik_gamma_constraint",
+    "sim_ik_avoidance_constraint","sim.ik_avoidance_constraint",
+    "sim_ikresult_not_performed","sim.ikresult_not_performed",
+    "sim_ikresult_success","sim.ikresult_success",
+    "sim_ikresult_fail","sim.ikresult_fail",
+    "sim_message_ui_button_state_change","sim.message_ui_button_state_change",
+    "sim_message_model_loaded","sim.message_model_loaded",
+    "sim_message_scene_loaded","sim.message_scene_loaded",
+    "sim_message_object_selection_changed","sim.message_object_selection_changed",
+    "sim_message_keypress","sim.message_keypress",
+    "sim_message_bannerclicked","sim.message_bannerclicked",
+    "sim_message_prox_sensor_select_down","sim.message_prox_sensor_select_down",
+    "sim_message_prox_sensor_select_up","sim.message_prox_sensor_select_up",
+    "sim_message_pick_select_down","sim.message_pick_select_down",
+    "sim_buttonproperty_button","sim.buttonproperty_button",
+    "sim_buttonproperty_label","sim.buttonproperty_label",
+    "sim_buttonproperty_editbox","sim.buttonproperty_editbox",
+    "sim_buttonproperty_slider","sim.buttonproperty_slider",
+    "sim_buttonproperty_staydown","sim.buttonproperty_staydown",
+    "sim_buttonproperty_enabled","sim.buttonproperty_enabled",
+    "sim_buttonproperty_borderless","sim.buttonproperty_borderless",
+    "sim_buttonproperty_horizontallycentered","sim.buttonproperty_horizontallycentered",
+    "sim_buttonproperty_ignoremouse","sim.buttonproperty_ignoremouse",
+    "sim_buttonproperty_isdown","sim.buttonproperty_isdown",
+    "sim_buttonproperty_transparent","sim.buttonproperty_transparent",
+    "sim_buttonproperty_nobackgroundcolor","sim.buttonproperty_nobackgroundcolor",
+    "sim_buttonproperty_rollupaction","sim.buttonproperty_rollupaction",
+    "sim_buttonproperty_closeaction","sim.buttonproperty_closeaction",
+    "sim_buttonproperty_verticallycentered","sim.buttonproperty_verticallycentered",
+    "sim_buttonproperty_downupevent","sim.buttonproperty_downupevent",
+    "sim_objectproperty_collapsed","sim.objectproperty_collapsed",
+    "sim_objectproperty_selectable","sim.objectproperty_selectable",
+    "sim_objectproperty_selectmodelbaseinstead","sim.objectproperty_selectmodelbaseinstead",
+    "sim_objectproperty_dontshowasinsidemodel","sim.objectproperty_dontshowasinsidemodel",
+    "sim_objectproperty_canupdatedna","sim.objectproperty_canupdatedna",
+    "sim_objectproperty_selectinvisible","sim.objectproperty_selectinvisible",
+    "sim_objectproperty_depthinvisible","sim.objectproperty_depthinvisible",
+    "sim_objectproperty_cannotdelete","sim.objectproperty_cannotdelete",
+    "sim_simulation_stopped","sim.simulation_stopped",
+    "sim_simulation_paused","sim.simulation_paused",
+    "sim_simulation_advancing","sim.simulation_advancing",
+    "sim_simulation_advancing_firstafterstop","sim.simulation_advancing_firstafterstop",
+    "sim_simulation_advancing_running","sim.simulation_advancing_running",
+    "sim_simulation_advancing_lastbeforepause","sim.simulation_advancing_lastbeforepause",
+    "sim_simulation_advancing_firstafterpause","sim.simulation_advancing_firstafterpause",
+    "sim_simulation_advancing_abouttostop","sim.simulation_advancing_abouttostop",
+    "sim_simulation_advancing_lastbeforestop","sim.simulation_advancing_lastbeforestop",
+    "sim_texturemap_plane","sim.texturemap_plane",
+    "sim_texturemap_cylinder","sim.texturemap_cylinder",
+    "sim_texturemap_sphere","sim.texturemap_sphere",
+    "sim_texturemap_cube","sim.texturemap_cube",
+    "sim_scripttype_mainscript","sim.scripttype_mainscript",
+    "sim_scripttype_childscript","sim.scripttype_childscript",
+    "sim_scripttype_addonscript","sim.scripttype_addonscript",
+    "sim_scripttype_addonfunction","sim.scripttype_addonfunction",
+    "sim_scripttype_customizationscript","sim.scripttype_customizationscript",
+    "sim_scripttype_threaded","sim.scripttype_threaded",
+    "sim_mainscriptcall_initialization","sim.syscb_init",
+    "sim_mainscriptcall_cleanup","sim.syscb_cleanup",
+    "sim_mainscriptcall_regular","sim.syscb_regular",
+    "sim_childscriptcall_initialization","sim.syscb_init",
+    "sim_childscriptcall_cleanup","sim.syscb_cleanup",
+    "sim_childscriptcall_actuation","sim.syscb_actuation",
+    "sim_childscriptcall_sensing","sim.syscb_sensing",
+    "sim_childscriptcall_threaded","-1",
+    "sim_customizationscriptcall_initialization","sim.syscb_init",
+    "sim_customizationscriptcall_cleanup","sim.syscb_cleanup",
+    "sim_customizationscriptcall_nonsimulation","sim.syscb_nonsimulation",
+    "sim_customizationscriptcall_lastbeforesimulation","sim.syscb_beforesimulation",
+    "sim_customizationscriptcall_firstaftersimulation","sim.syscb_aftersimulation",
+    "sim_customizationscriptcall_simulationactuation","sim.syscb_actuation",
+    "sim_customizationscriptcall_simulationsensing","sim.syscb_sensing",
+    "sim_customizationscriptcall_simulationpause","sim.syscb_suspended",
+    "sim_customizationscriptcall_simulationpausefirst","sim.syscb_suspend",
+    "sim_customizationscriptcall_simulationpauselast","sim.syscb_resume",
+    "sim_customizationscriptcall_lastbeforeinstanceswitch","sim.syscb_beforeinstanceswitch",
+    "sim_customizationscriptcall_firstafterinstanceswitch","sim.syscb_afterinstanceswitch",
+    "sim_addonscriptcall_initialization","sim.syscb_init",
+    "sim_addonscriptcall_run","sim.syscb_run",
+    "sim_addonscriptcall_suspend","sim.syscb_suspend",
+    "sim_addonscriptcall_restarting","sim.syscb_resume",
+    "sim_addonscriptcall_cleanup","sim.syscb_cleanup",
+    "sim_customizationscriptattribute_activeduringsimulation","sim.customizationscriptattribute_activeduringsimulation",
+    "sim_scriptattribute_executionorder","sim.scriptattribute_executionorder",
+    "sim_scriptattribute_executioncount","sim.scriptattribute_executioncount",
+    "sim_childscriptattribute_automaticcascadingcalls","sim.childscriptattribute_automaticcascadingcalls",
+    "sim_childscriptattribute_enabled","sim.childscriptattribute_enabled",
+    "sim_scriptattribute_enabled","sim.scriptattribute_enabled",
+    "sim_customizationscriptattribute_cleanupbeforesave","sim.customizationscriptattribute_cleanupbeforesave",
+    "sim_scriptexecorder_first","sim.scriptexecorder_first",
+    "sim_scriptexecorder_normal","sim.scriptexecorder_normal",
+    "sim_scriptexecorder_last","sim.scriptexecorder_last",
+    "sim_scriptthreadresume_allnotyetresumed","sim.scriptthreadresume_allnotyetresumed",
+    "sim_scriptthreadresume_default","sim.scriptthreadresume_default",
+    "sim_scriptthreadresume_actuation_first","sim.scriptthreadresume_actuation_first",
+    "sim_scriptthreadresume_actuation_last","sim.scriptthreadresume_actuation_last",
+    "sim_scriptthreadresume_sensing_first","sim.scriptthreadresume_sensing_first",
+    "sim_scriptthreadresume_sensing_last","sim.scriptthreadresume_sensing_last",
+    "sim_scriptthreadresume_custom","sim.scriptthreadresume_custom",
+    "sim_callbackid_rossubscriber","sim.callbackid_rossubscriber",
+    "sim_callbackid_dynstep","sim.callbackid_dynstep",
+    "sim_callbackid_userdefined","sim.callbackid_userdefined",
+    "sim_script_no_error","sim.script_no_error",
+    "sim_script_main_script_nonexistent","sim.script_main_script_nonexistent",
+    "sim_script_main_not_called","sim.script_main_not_called",
+    "sim_script_reentrance_error","sim.script_reentrance_error",
+    "sim_script_lua_error","sim.script_lua_error",
+    "sim_script_call_error","sim.script_call_error",
+    "sim_api_error_report","sim.api_error_report",
+    "sim_api_error_output","sim.api_error_output",
+    "sim_api_warning_output","sim.api_warning_output",
+    "sim_handle_all","sim.handle_all",
+    "sim_handle_all_except_explicit","sim.handle_all_except_explicit",
+    "sim_handle_self","sim.handle_self",
+    "sim_handle_main_script","sim.handle_main_script",
+    "sim_handle_tree","sim.handle_tree",
+    "sim_handle_chain","sim.handle_chain",
+    "sim_handle_single","sim.handle_single",
+    "sim_handle_default","sim.handle_default",
+    "sim_handle_all_except_self","sim.handle_all_except_self",
+    "sim_handle_parent","sim.handle_parent",
+    "sim_handle_scene","sim.handle_scene",
+    "sim_handle_app","sim.handle_app",
+    "sim_handleflag_assembly","sim.handleflag_assembly",
+    "sim_handleflag_camera","sim.handleflag_camera",
+    "sim_handleflag_togglevisibility","sim.handleflag_togglevisibility",
+    "sim_handleflag_extended","sim.handleflag_extended",
+    "sim_handleflag_greyscale","sim.handleflag_greyscale",
+    "sim_handleflag_codedstring","sim.handleflag_codedstring",
+    "sim_handleflag_model","sim.handleflag_model",
+    "sim_handleflag_rawvalue","sim.handleflag_rawvalue",
+    "sim_objectspecialproperty_collidable","sim.objectspecialproperty_collidable",
+    "sim_objectspecialproperty_measurable","sim.objectspecialproperty_measurable",
+    "sim_objectspecialproperty_detectable_ultrasonic","sim.objectspecialproperty_detectable_ultrasonic",
+    "sim_objectspecialproperty_detectable_infrared","sim.objectspecialproperty_detectable_infrared",
+    "sim_objectspecialproperty_detectable_laser","sim.objectspecialproperty_detectable_laser",
+    "sim_objectspecialproperty_detectable_inductive","sim.objectspecialproperty_detectable_inductive",
+    "sim_objectspecialproperty_detectable_capacitive","sim.objectspecialproperty_detectable_capacitive",
+    "sim_objectspecialproperty_renderable","sim.objectspecialproperty_renderable",
+    "sim_objectspecialproperty_detectable_all","sim.objectspecialproperty_detectable_all",
+    "sim_objectspecialproperty_cuttable","sim.objectspecialproperty_cuttable",
+    "sim_objectspecialproperty_pathplanning_ignored","sim.objectspecialproperty_pathplanning_ignored",
+    "sim_modelproperty_not_collidable","sim.modelproperty_not_collidable",
+    "sim_modelproperty_not_measurable","sim.modelproperty_not_measurable",
+    "sim_modelproperty_not_renderable","sim.modelproperty_not_renderable",
+    "sim_modelproperty_not_detectable","sim.modelproperty_not_detectable",
+    "sim_modelproperty_not_cuttable","sim.modelproperty_not_cuttable",
+    "sim_modelproperty_not_dynamic","sim.modelproperty_not_dynamic",
+    "sim_modelproperty_not_respondable","sim.modelproperty_not_respondable",
+    "sim_modelproperty_not_reset","sim.modelproperty_not_reset",
+    "sim_modelproperty_not_visible","sim.modelproperty_not_visible",
+    "sim_modelproperty_scripts_inactive","sim.modelproperty_scripts_inactive",
+    "sim_modelproperty_not_showasinsidemodel","sim.modelproperty_not_showasinsidemodel",
+    "sim_modelproperty_not_model","sim.modelproperty_not_model",
+    "sim_dlgstyle_message","sim.dlgstyle_message",
+    "sim_dlgstyle_input","sim.dlgstyle_input",
+    "sim_dlgstyle_ok","sim.dlgstyle_ok",
+    "sim_dlgstyle_ok_cancel","sim.dlgstyle_ok_cancel",
+    "sim_dlgstyle_yes_no","sim.dlgstyle_yes_no",
+    "sim_dlgstyle_dont_center","sim.dlgstyle_dont_center",
+    "sim_dlgret_still_open","sim.dlgret_still_open",
+    "sim_dlgret_ok","sim.dlgret_ok",
+    "sim_dlgret_cancel","sim.dlgret_cancel",
+    "sim_dlgret_yes","sim.dlgret_yes",
+    "sim_dlgret_no","sim.dlgret_no",
+    "sim_pathproperty_show_line","sim.pathproperty_show_line",
+    "sim_pathproperty_show_orientation","sim.pathproperty_show_orientation",
+    "sim_pathproperty_closed_path","sim.pathproperty_closed_path",
+    "sim_pathproperty_automatic_orientation","sim.pathproperty_automatic_orientation",
+    "sim_pathproperty_flat_path","sim.pathproperty_flat_path",
+    "sim_pathproperty_show_position","sim.pathproperty_show_position",
+    "sim_pathproperty_keep_x_up","sim.pathproperty_keep_x_up",
+    "sim_distcalcmethod_dl","sim.distcalcmethod_dl",
+    "sim_distcalcmethod_dac","sim.distcalcmethod_dac",
+    "sim_distcalcmethod_max_dl_dac","sim.distcalcmethod_max_dl_dac",
+    "sim_distcalcmethod_dl_and_dac","sim.distcalcmethod_dl_and_dac",
+    "sim_distcalcmethod_sqrt_dl2_and_dac2","sim.distcalcmethod_sqrt_dl2_and_dac2",
+    "sim_distcalcmethod_dl_if_nonzero","sim.distcalcmethod_dl_if_nonzero",
+    "sim_distcalcmethod_dac_if_nonzero","sim.distcalcmethod_dac_if_nonzero",
+    "sim_boolparam_hierarchy_visible","sim.boolparam_hierarchy_visible",
+    "sim_boolparam_console_visible","sim.boolparam_console_visible",
+    "sim_boolparam_collision_handling_enabled","sim.boolparam_collision_handling_enabled",
+    "sim_boolparam_distance_handling_enabled","sim.boolparam_distance_handling_enabled",
+    "sim_boolparam_ik_handling_enabled","sim.boolparam_ik_handling_enabled",
+    "sim_boolparam_gcs_handling_enabled","sim.boolparam_gcs_handling_enabled",
+    "sim_boolparam_dynamics_handling_enabled","sim.boolparam_dynamics_handling_enabled",
+    "sim_boolparam_proximity_sensor_handling_enabled","sim.boolparam_proximity_sensor_handling_enabled",
+    "sim_boolparam_vision_sensor_handling_enabled","sim.boolparam_vision_sensor_handling_enabled",
+    "sim_boolparam_rendering_sensor_handling_enabled","sim.boolparam_rendering_sensor_handling_enabled",
+    "sim_boolparam_mill_handling_enabled","sim.boolparam_mill_handling_enabled",
+    "sim_boolparam_browser_visible","sim.boolparam_browser_visible",
+    "sim_boolparam_scene_and_model_load_messages","sim.boolparam_scene_and_model_load_messages",
+    "sim_boolparam_shape_textures_are_visible","sim.boolparam_shape_textures_are_visible",
+    "sim_boolparam_display_enabled","sim.boolparam_display_enabled",
+    "sim_boolparam_infotext_visible","sim.boolparam_infotext_visible",
+    "sim_boolparam_statustext_open","sim.boolparam_statustext_open",
+    "sim_boolparam_fog_enabled","sim.boolparam_fog_enabled",
+    "sim_boolparam_rml2_available","sim.boolparam_rml2_available",
+    "sim_boolparam_rml4_available","sim.boolparam_rml4_available",
+    "sim_boolparam_mirrors_enabled","sim.boolparam_mirrors_enabled",
+    "sim_boolparam_aux_clip_planes_enabled","sim.boolparam_aux_clip_planes_enabled",
+    "sim_boolparam_full_model_copy_from_api","sim.boolparam_full_model_copy_from_api",
+    "sim_boolparam_realtime_simulation","sim.boolparam_realtime_simulation",
+    "sim_boolparam_use_glfinish_cmd","sim.boolparam_use_glfinish_cmd",
+    "sim_boolparam_force_show_wireless_emission","sim.boolparam_force_show_wireless_emission",
+    "sim_boolparam_force_show_wireless_reception","sim.boolparam_force_show_wireless_reception",
+    "sim_boolparam_video_recording_triggered","sim.boolparam_video_recording_triggered",
+    "sim_boolparam_threaded_rendering_enabled","sim.boolparam_threaded_rendering_enabled",
+    "sim_boolparam_fullscreen","sim.boolparam_fullscreen",
+    "sim_boolparam_headless","sim.boolparam_headless",
+    "sim_boolparam_hierarchy_toolbarbutton_enabled","sim.boolparam_hierarchy_toolbarbutton_enabled",
+    "sim_boolparam_browser_toolbarbutton_enabled","sim.boolparam_browser_toolbarbutton_enabled",
+    "sim_boolparam_objectshift_toolbarbutton_enabled","sim.boolparam_objectshift_toolbarbutton_enabled",
+    "sim_boolparam_objectrotate_toolbarbutton_enabled","sim.boolparam_objectrotate_toolbarbutton_enabled",
+    "sim_boolparam_force_calcstruct_all_visible","sim.boolparam_force_calcstruct_all_visible",
+    "sim_boolparam_force_calcstruct_all","sim.boolparam_force_calcstruct_all",
+    "sim_boolparam_exit_request","sim.boolparam_exit_request",
+    "sim_boolparam_play_toolbarbutton_enabled","sim.boolparam_play_toolbarbutton_enabled",
+    "sim_boolparam_pause_toolbarbutton_enabled","sim.boolparam_pause_toolbarbutton_enabled",
+    "sim_boolparam_stop_toolbarbutton_enabled","sim.boolparam_stop_toolbarbutton_enabled",
+    "sim_boolparam_waiting_for_trigger","sim.boolparam_waiting_for_trigger",
+    "sim_boolparam_objproperties_toolbarbutton_enabled","sim.boolparam_objproperties_toolbarbutton_enabled",
+    "sim_boolparam_calcmodules_toolbarbutton_enabled","sim.boolparam_calcmodules_toolbarbutton_enabled",
+    "sim_boolparam_rosinterface_donotrunmainscript","sim.boolparam_rosinterface_donotrunmainscript",
+    "sim_intparam_error_report_mode","sim.intparam_error_report_mode",
+    "sim_intparam_program_version","sim.intparam_program_version",
+    "sim_intparam_compilation_version","sim.intparam_compilation_version",
+    "sim_intparam_current_page","sim.intparam_current_page",
+    "sim_intparam_flymode_camera_handle","sim.intparam_flymode_camera_handle",
+    "sim_intparam_dynamic_step_divider","sim.intparam_dynamic_step_divider",
+    "sim_intparam_dynamic_engine","sim.intparam_dynamic_engine",
+    "sim_intparam_server_port_start","sim.intparam_server_port_start",
+    "sim_intparam_server_port_range","sim.intparam_server_port_range",
+    "sim_intparam_server_port_next","sim.intparam_server_port_next",
+    "sim_intparam_visible_layers","sim.intparam_visible_layers",
+    "sim_intparam_infotext_style","sim.intparam_infotext_style",
+    "sim_intparam_settings","sim.intparam_settings",
+    "sim_intparam_qt_version","sim.intparam_qt_version",
+    "sim_intparam_event_flags_read","sim.intparam_event_flags_read",
+    "sim_intparam_event_flags_read_clear","sim.intparam_event_flags_read_clear",
+    "sim_intparam_platform","sim.intparam_platform",
+    "sim_intparam_scene_unique_id","sim.intparam_scene_unique_id",
+    "sim_intparam_edit_mode_type","sim.intparam_edit_mode_type",
+    "sim_intparam_work_thread_count","sim.intparam_work_thread_count",
+    "sim_intparam_mouse_x","sim.intparam_mouse_x",
+    "sim_intparam_mouse_y","sim.intparam_mouse_y",
+    "sim_intparam_core_count","sim.intparam_core_count",
+    "sim_intparam_work_thread_calc_time_ms","sim.intparam_work_thread_calc_time_ms",
+    "sim_intparam_idle_fps","sim.intparam_idle_fps",
+    "sim_intparam_prox_sensor_select_down","sim.intparam_prox_sensor_select_down",
+    "sim_intparam_prox_sensor_select_up","sim.intparam_prox_sensor_select_up",
+    "sim_intparam_stop_request_counter","sim.intparam_stop_request_counter",
+    "sim_intparam_program_revision","sim.intparam_program_revision",
+    "sim_intparam_mouse_buttons","sim.intparam_mouse_buttons",
+    "sim_intparam_dynamic_warning_disabled_mask","sim.intparam_dynamic_warning_disabled_mask",
+    "sim_intparam_simulation_warning_disabled_mask","sim.intparam_simulation_warning_disabled_mask",
+    "sim_intparam_scene_index","sim.intparam_scene_index",
+    "sim_intparam_motionplanning_seed","sim.intparam_motionplanning_seed",
+    "sim_intparam_speedmodifier","sim.intparam_speedmodifier",
+    "sim_intparam_dynamic_iteration_count","sim.intparam_dynamic_iteration_count",
+    "sim_floatparam_rand","sim.floatparam_rand",
+    "sim_floatparam_simulation_time_step","sim.floatparam_simulation_time_step",
+    "sim_floatparam_stereo_distance","sim.floatparam_stereo_distance",
+    "sim_floatparam_dynamic_step_size","sim.floatparam_dynamic_step_size",
+    "sim_floatparam_mouse_wheel_zoom_factor","sim.floatparam_mouse_wheel_zoom_factor",
+    "sim_arrayparam_gravity","sim.arrayparam_gravity",
+    "sim_arrayparam_fog","sim.arrayparam_fog",
+    "sim_arrayparam_fog_color","sim.arrayparam_fog_color",
+    "sim_arrayparam_background_color1","sim.arrayparam_background_color1",
+    "sim_arrayparam_background_color2","sim.arrayparam_background_color2",
+    "sim_arrayparam_ambient_light","sim.arrayparam_ambient_light",
+    "sim_arrayparam_random_euler","sim.arrayparam_random_euler",
+    "sim_stringparam_application_path","sim.stringparam_application_path",
+    "sim_stringparam_video_filename","sim.stringparam_video_filename",
+    "sim_stringparam_app_arg1","sim.stringparam_app_arg1",
+    "sim_stringparam_app_arg2","sim.stringparam_app_arg2",
+    "sim_stringparam_app_arg3","sim.stringparam_app_arg3",
+    "sim_stringparam_app_arg4","sim.stringparam_app_arg4",
+    "sim_stringparam_app_arg5","sim.stringparam_app_arg5",
+    "sim_stringparam_app_arg6","sim.stringparam_app_arg6",
+    "sim_stringparam_app_arg7","sim.stringparam_app_arg7",
+    "sim_stringparam_app_arg8","sim.stringparam_app_arg8",
+    "sim_stringparam_app_arg9","sim.stringparam_app_arg9",
+    "sim_stringparam_scene_path_and_name","sim.stringparam_scene_path_and_name",
+    "sim_stringparam_remoteapi_temp_file_dir","sim.stringparam_remoteapi_temp_file_dir",
+    "sim_stringparam_scene_path","sim.stringparam_scene_path",
+    "sim_stringparam_scene_name","sim.stringparam_scene_name",
+    "sim_displayattribute_renderpass","sim.displayattribute_renderpass",
+    "sim_displayattribute_depthpass","sim.displayattribute_depthpass",
+    "sim_displayattribute_pickpass","sim.displayattribute_pickpass",
+    "sim_displayattribute_selected","sim.displayattribute_selected",
+    "sim_displayattribute_groupselection","sim.displayattribute_groupselection",
+    "sim_displayattribute_mainselection","sim.displayattribute_mainselection",
+    "sim_displayattribute_forcewireframe","sim.displayattribute_forcewireframe",
+    "sim_displayattribute_forbidwireframe","sim.displayattribute_forbidwireframe",
+    "sim_displayattribute_forbidedges","sim.displayattribute_forbidedges",
+    "sim_displayattribute_originalcolors","sim.displayattribute_originalcolors",
+    "sim_displayattribute_ignorelayer","sim.displayattribute_ignorelayer",
+    "sim_displayattribute_forvisionsensor","sim.displayattribute_forvisionsensor",
+    "sim_displayattribute_colorcodedpickpass","sim.displayattribute_colorcodedpickpass",
+    "sim_displayattribute_colorcoded","sim.displayattribute_colorcoded",
+    "sim_displayattribute_trianglewireframe","sim.displayattribute_trianglewireframe",
+    "sim_displayattribute_thickEdges","sim.displayattribute_thickedges",
+    "sim_displayattribute_dynamiccontentonly","sim.displayattribute_dynamiccontentonly",
+    "sim_displayattribute_mirror","sim.displayattribute_mirror",
+    "sim_displayattribute_useauxcomponent","sim.displayattribute_useauxcomponent",
+    "sim_displayattribute_ignorerenderableflag","sim.displayattribute_ignorerenderableflag",
+    "sim_displayattribute_noopenglcallbacks","sim.displayattribute_noopenglcallbacks",
+    "sim_displayattribute_noghosts","sim.displayattribute_noghosts",
+    "sim_displayattribute_nopointclouds","sim.displayattribute_nopointclouds",
+    "sim_displayattribute_nodrawingobjects","sim.displayattribute_nodrawingobjects",
+    "sim_displayattribute_noparticles","sim.displayattribute_noparticles",
+    "sim_displayattribute_colorcodedtriangles","sim.displayattribute_colorcodedtriangles",
+    "sim_navigation_passive","sim.navigation_passive",
+    "sim_navigation_camerashift","sim.navigation_camerashift",
+    "sim_navigation_camerarotate","sim.navigation_camerarotate",
+    "sim_navigation_camerazoom","sim.navigation_camerazoom",
+    "sim_navigation_cameratilt","sim.navigation_cameratilt",
+    "sim_navigation_cameraangle","sim.navigation_cameraangle",
+    "sim_navigation_camerafly","sim.navigation_camerafly",
+    "sim_navigation_objectshift","sim.navigation_objectshift",
+    "sim_navigation_objectrotate","sim.navigation_objectrotate",
+    "sim_navigation_createpathpoint","sim.navigation_createpathpoint",
+    "sim_navigation_clickselection","sim.navigation_clickselection",
+    "sim_navigation_ctrlselection","sim.navigation_ctrlselection",
+    "sim_navigation_shiftselection","sim.navigation_shiftselection",
+    "sim_navigation_camerazoomwheel","sim.navigation_camerazoomwheel",
+    "sim_navigation_camerarotaterightbutton","sim.navigation_camerarotaterightbutton",
+    "sim_navigation_camerarotatemiddlebutton","sim.navigation_camerarotatemiddlebutton",
+    "sim_drawing_points","sim.drawing_points",
+    "sim_drawing_lines","sim.drawing_lines",
+    "sim_drawing_triangles","sim.drawing_triangles",
+    "sim_drawing_trianglepoints","sim.drawing_trianglepoints",
+    "sim_drawing_quadpoints","sim.drawing_quadpoints",
+    "sim_drawing_discpoints","sim.drawing_discpoints",
+    "sim_drawing_cubepoints","sim.drawing_cubepoints",
+    "sim_drawing_spherepoints","sim.drawing_spherepoints",
+    "sim_drawing_itemcolors","sim.drawing_itemcolors",
+    "sim_drawing_vertexcolors","sim.drawing_vertexcolors",
+    "sim_drawing_itemsizes","sim.drawing_itemsizes",
+    "sim_drawing_backfaceculling","sim.drawing_backfaceculling",
+    "sim_drawing_wireframe","sim.drawing_wireframe",
+    "sim_drawing_painttag","sim.drawing_painttag",
+    "sim_drawing_followparentvisibility","sim.drawing_followparentvisibility",
+    "sim_drawing_cyclic","sim.drawing_cyclic",
+    "sim_drawing_50percenttransparency","sim.drawing_50percenttransparency",
+    "sim_drawing_25percenttransparency","sim.drawing_25percenttransparency",
+    "sim_drawing_12percenttransparency","sim.drawing_12percenttransparency",
+    "sim_drawing_emissioncolor","sim.drawing_emissioncolor",
+    "sim_drawing_facingcamera","sim.drawing_facingcamera",
+    "sim_drawing_overlay","sim.drawing_overlay",
+    "sim_drawing_itemtransparency","sim.drawing_itemtransparency",
+    "sim_drawing_persistent","sim.drawing_persistent",
+    "sim_drawing_auxchannelcolor1","sim.drawing_auxchannelcolor1",
+    "sim_drawing_auxchannelcolor2","sim.drawing_auxchannelcolor2",
+    "sim_banner_left","sim.banner_left",
+    "sim_banner_right","sim.banner_right",
+    "sim_banner_nobackground","sim.banner_nobackground",
+    "sim_banner_overlay","sim.banner_overlay",
+    "sim_banner_followparentvisibility","sim.banner_followparentvisibility",
+    "sim_banner_clickselectsparent","sim.banner_clickselectsparent",
+    "sim_banner_clicktriggersevent","sim.banner_clicktriggersevent",
+    "sim_banner_facingcamera","sim.banner_facingcamera",
+    "sim_banner_fullyfacingcamera","sim.banner_fullyfacingcamera",
+    "sim_banner_backfaceculling","sim.banner_backfaceculling",
+    "sim_banner_keepsamesize","sim.banner_keepsamesize",
+    "sim_banner_bitmapfont","sim.banner_bitmapfont",
+    "sim_particle_points1","sim.particle_points1",
+    "sim_particle_points2","sim.particle_points2",
+    "sim_particle_points4","sim.particle_points4",
+    "sim_particle_roughspheres","sim.particle_roughspheres",
+    "sim_particle_spheres","sim.particle_spheres",
+    "sim_particle_respondable1to4","sim.particle_respondable1to4",
+    "sim_particle_respondable5to8","sim.particle_respondable5to8",
+    "sim_particle_particlerespondable","sim.particle_particlerespondable",
+    "sim_particle_ignoresgravity","sim.particle_ignoresgravity",
+    "sim_particle_invisible","sim.particle_invisible",
+    "sim_particle_painttag","sim.particle_painttag",
+    "sim_particle_itemsizes","sim.particle_itemsizes",
+    "sim_particle_itemdensities","sim.particle_itemdensities",
+    "sim_particle_itemcolors","sim.particle_itemcolors",
+    "sim_particle_cyclic","sim.particle_cyclic",
+    "sim_particle_emissioncolor","sim.particle_emissioncolor",
+    "sim_particle_water","sim.particle_water",
+    "sim_jointmode_passive","sim.jointmode_passive",
+    "sim_jointmode_ik","sim.jointmode_ik",
+    "sim_jointmode_ikdependent","sim.jointmode_ikdependent",
+    "sim_jointmode_dependent","sim.jointmode_dependent",
+    "sim_jointmode_force","sim.jointmode_force",
+    "sim_filedlg_type_load","sim.filedlg_type_load",
+    "sim_filedlg_type_save","sim.filedlg_type_save",
+    "sim_filedlg_type_load_multiple","sim.filedlg_type_load_multiple",
+    "sim_filedlg_type_folder","sim.filedlg_type_folder",
+    "sim_msgbox_type_info","sim.msgbox_type_info",
+    "sim_msgbox_type_question","sim.msgbox_type_question",
+    "sim_msgbox_type_warning","sim.msgbox_type_warning",
+    "sim_msgbox_type_critical","sim.msgbox_type_critical",
+    "sim_msgbox_buttons_ok","sim.msgbox_buttons_ok",
+    "sim_msgbox_buttons_yesno","sim.msgbox_buttons_yesno",
+    "sim_msgbox_buttons_yesnocancel","sim.msgbox_buttons_yesnocancel",
+    "sim_msgbox_buttons_okcancel","sim.msgbox_buttons_okcancel",
+    "sim_msgbox_return_cancel","sim.msgbox_return_cancel",
+    "sim_msgbox_return_no","sim.msgbox_return_no",
+    "sim_msgbox_return_yes","sim.msgbox_return_yes",
+    "sim_msgbox_return_ok","sim.msgbox_return_ok",
+    "sim_msgbox_return_error","sim.msgbox_return_error",
+    "sim_physics_bullet","sim.physics_bullet",
+    "sim_physics_ode","sim.physics_ode",
+    "sim_physics_vortex","sim.physics_vortex",
+    "sim_physics_newton","sim.physics_newton",
+    "sim_pure_primitive_none","sim.pure_primitive_none",
+    "sim_pure_primitive_plane","sim.pure_primitive_plane",
+    "sim_pure_primitive_disc","sim.pure_primitive_disc",
+    "sim_pure_primitive_cuboid","sim.pure_primitive_cuboid",
+    "sim_pure_primitive_spheroid","sim.pure_primitive_spheroid",
+    "sim_pure_primitive_cylinder","sim.pure_primitive_cylinder",
+    "sim_pure_primitive_cone","sim.pure_primitive_cone",
+    "sim_pure_primitive_heightfield","sim.pure_primitive_heightfield",
+    "sim_dummy_linktype_dynamics_loop_closure","sim.dummy_linktype_dynamics_loop_closure",
+    "sim_dummy_linktype_dynamics_force_constraint","sim.dummy_linktype_dynamics_force_constraint",
+    "sim_dummy_linktype_gcs_loop_closure","sim.dummy_linktype_gcs_loop_closure",
+    "sim_dummy_linktype_gcs_tip","sim.dummy_linktype_gcs_tip",
+    "sim_dummy_linktype_gcs_target","sim.dummy_linktype_gcs_target",
+    "sim_dummy_linktype_ik_tip_target","sim.dummy_linktype_ik_tip_target",
+    "sim_colorcomponent_ambient","sim.colorcomponent_ambient",
+    "sim_colorcomponent_ambient_diffuse","sim.colorcomponent_ambient_diffuse",
+    "sim_colorcomponent_diffuse","sim.colorcomponent_diffuse",
+    "sim_colorcomponent_specular","sim.colorcomponent_specular",
+    "sim_colorcomponent_emission","sim.colorcomponent_emission",
+    "sim_colorcomponent_transparency","sim.colorcomponent_transparency",
+    "sim_colorcomponent_auxiliary","sim.colorcomponent_auxiliary",
+    "sim_volume_ray","sim.volume_ray",
+    "sim_volume_randomizedray","sim.volume_randomizedray",
+    "sim_volume_pyramid","sim.volume_pyramid",
+    "sim_volume_cylinder","sim.volume_cylinder",
+    "sim_volume_disc","sim.volume_disc",
+    "sim_volume_cone","sim.volume_cone",
+    "sim_objintparam_visibility_layer","sim.objintparam_visibility_layer",
+    "sim_objfloatparam_abs_x_velocity","sim.objfloatparam_abs_x_velocity",
+    "sim_objfloatparam_abs_y_velocity","sim.objfloatparam_abs_y_velocity",
+    "sim_objfloatparam_abs_z_velocity","sim.objfloatparam_abs_z_velocity",
+    "sim_objfloatparam_abs_rot_velocity","sim.objfloatparam_abs_rot_velocity",
+    "sim_objfloatparam_objbbox_min_x","sim.objfloatparam_objbbox_min_x",
+    "sim_objfloatparam_objbbox_min_y","sim.objfloatparam_objbbox_min_y",
+    "sim_objfloatparam_objbbox_min_z","sim.objfloatparam_objbbox_min_z",
+    "sim_objfloatparam_objbbox_max_x","sim.objfloatparam_objbbox_max_x",
+    "sim_objfloatparam_objbbox_max_y","sim.objfloatparam_objbbox_max_y",
+    "sim_objfloatparam_objbbox_max_z","sim.objfloatparam_objbbox_max_z",
+    "sim_objfloatparam_modelbbox_min_x","sim.objfloatparam_modelbbox_min_x",
+    "sim_objfloatparam_modelbbox_min_y","sim.objfloatparam_modelbbox_min_y",
+    "sim_objfloatparam_modelbbox_min_z","sim.objfloatparam_modelbbox_min_z",
+    "sim_objfloatparam_modelbbox_max_x","sim.objfloatparam_modelbbox_max_x",
+    "sim_objfloatparam_modelbbox_max_y","sim.objfloatparam_modelbbox_max_y",
+    "sim_objfloatparam_modelbbox_max_z","sim.objfloatparam_modelbbox_max_z",
+    "sim_objintparam_collection_self_collision_indicator","sim.objintparam_collection_self_collision_indicator",
+    "sim_objfloatparam_transparency_offset","sim.objfloatparam_transparency_offset",
+    "sim_objintparam_child_role","sim.objintparam_child_role",
+    "sim_objintparam_parent_role","sim.objintparam_parent_role",
+    "sim_objintparam_manipulation_permissions","sim.objintparam_manipulation_permissions",
+    "sim_objintparam_illumination_handle","sim.objintparam_illumination_handle",
+    "sim_objstringparam_dna","sim.objstringparam_dna",
+    "sim_visionfloatparam_near_clipping","sim.visionfloatparam_near_clipping",
+    "sim_visionfloatparam_far_clipping","sim.visionfloatparam_far_clipping",
+    "sim_visionintparam_resolution_x","sim.visionintparam_resolution_x",
+    "sim_visionintparam_resolution_y","sim.visionintparam_resolution_y",
+    "sim_visionfloatparam_perspective_angle","sim.visionfloatparam_perspective_angle",
+    "sim_visionfloatparam_ortho_size","sim.visionfloatparam_ortho_size",
+    "sim_visionintparam_disabled_light_components","sim.visionintparam_disabled_light_components",
+    "sim_visionintparam_rendering_attributes","sim.visionintparam_rendering_attributes",
+    "sim_visionintparam_entity_to_render","sim.visionintparam_entity_to_render",
+    "sim_visionintparam_windowed_size_x","sim.visionintparam_windowed_size_x",
+    "sim_visionintparam_windowed_size_y","sim.visionintparam_windowed_size_y",
+    "sim_visionintparam_windowed_pos_x","sim.visionintparam_windowed_pos_x",
+    "sim_visionintparam_windowed_pos_y","sim.visionintparam_windowed_pos_y",
+    "sim_visionintparam_pov_focal_blur","sim.visionintparam_pov_focal_blur",
+    "sim_visionfloatparam_pov_blur_distance","sim.visionfloatparam_pov_blur_distance",
+    "sim_visionfloatparam_pov_aperture","sim.visionfloatparam_pov_aperture",
+    "sim_visionintparam_pov_blur_sampled","sim.visionintparam_pov_blur_sampled",
+    "sim_visionintparam_render_mode","sim.visionintparam_render_mode",
+    "sim_visionintparam_perspective_operation","sim.visionintparam_perspective_operation",
+    "sim_jointintparam_motor_enabled","sim.jointintparam_motor_enabled",
+    "sim_jointintparam_ctrl_enabled","sim.jointintparam_ctrl_enabled",
+    "sim_jointfloatparam_pid_p","sim.jointfloatparam_pid_p",
+    "sim_jointfloatparam_pid_i","sim.jointfloatparam_pid_i",
+    "sim_jointfloatparam_pid_d","sim.jointfloatparam_pid_d",
+    "sim_jointfloatparam_intrinsic_x","sim.jointfloatparam_intrinsic_x",
+    "sim_jointfloatparam_intrinsic_y","sim.jointfloatparam_intrinsic_y",
+    "sim_jointfloatparam_intrinsic_z","sim.jointfloatparam_intrinsic_z",
+    "sim_jointfloatparam_intrinsic_qx","sim.jointfloatparam_intrinsic_qx",
+    "sim_jointfloatparam_intrinsic_qy","sim.jointfloatparam_intrinsic_qy",
+    "sim_jointfloatparam_intrinsic_qz","sim.jointfloatparam_intrinsic_qz",
+    "sim_jointfloatparam_intrinsic_qw","sim.jointfloatparam_intrinsic_qw",
+    "sim_jointfloatparam_velocity","sim.jointfloatparam_velocity",
+    "sim_jointfloatparam_spherical_qx","sim.jointfloatparam_spherical_qx",
+    "sim_jointfloatparam_spherical_qy","sim.jointfloatparam_spherical_qy",
+    "sim_jointfloatparam_spherical_qz","sim.jointfloatparam_spherical_qz",
+    "sim_jointfloatparam_spherical_qw","sim.jointfloatparam_spherical_qw",
+    "sim_jointfloatparam_upper_limit","sim.jointfloatparam_upper_limit",
+    "sim_jointfloatparam_kc_k","sim.jointfloatparam_kc_k",
+    "sim_jointfloatparam_kc_c","sim.jointfloatparam_kc_c",
+    "sim_jointfloatparam_ik_weight","sim.jointfloatparam_ik_weight",
+    "sim_jointfloatparam_error_x","sim.jointfloatparam_error_x",
+    "sim_jointfloatparam_error_y","sim.jointfloatparam_error_y",
+    "sim_jointfloatparam_error_z","sim.jointfloatparam_error_z",
+    "sim_jointfloatparam_error_a","sim.jointfloatparam_error_a",
+    "sim_jointfloatparam_error_b","sim.jointfloatparam_error_b",
+    "sim_jointfloatparam_error_g","sim.jointfloatparam_error_g",
+    "sim_jointfloatparam_error_pos","sim.jointfloatparam_error_pos",
+    "sim_jointfloatparam_error_angle","sim.jointfloatparam_error_angle",
+    "sim_jointintparam_velocity_lock","sim.jointintparam_velocity_lock",
+    "sim_jointintparam_vortex_dep_handle","sim.jointintparam_vortex_dep_handle",
+    "sim_jointfloatparam_vortex_dep_multiplication","sim.jointfloatparam_vortex_dep_multiplication",
+    "sim_jointfloatparam_vortex_dep_offset","sim.jointfloatparam_vortex_dep_offset",
+    "sim_shapefloatparam_init_velocity_x","sim.shapefloatparam_init_velocity_x",
+    "sim_shapefloatparam_init_velocity_y","sim.shapefloatparam_init_velocity_y",
+    "sim_shapefloatparam_init_velocity_z","sim.shapefloatparam_init_velocity_z",
+    "sim_shapeintparam_static","sim.shapeintparam_static",
+    "sim_shapeintparam_respondable","sim.shapeintparam_respondable",
+    "sim_shapefloatparam_mass","sim.shapefloatparam_mass",
+    "sim_shapefloatparam_texture_x","sim.shapefloatparam_texture_x",
+    "sim_shapefloatparam_texture_y","sim.shapefloatparam_texture_y",
+    "sim_shapefloatparam_texture_z","sim.shapefloatparam_texture_z",
+    "sim_shapefloatparam_texture_a","sim.shapefloatparam_texture_a",
+    "sim_shapefloatparam_texture_b","sim.shapefloatparam_texture_b",
+    "sim_shapefloatparam_texture_g","sim.shapefloatparam_texture_g",
+    "sim_shapefloatparam_texture_scaling_x","sim.shapefloatparam_texture_scaling_x",
+    "sim_shapefloatparam_texture_scaling_y","sim.shapefloatparam_texture_scaling_y",
+    "sim_shapeintparam_culling","sim.shapeintparam_culling",
+    "sim_shapeintparam_wireframe","sim.shapeintparam_wireframe",
+    "sim_shapeintparam_compound","sim.shapeintparam_compound",
+    "sim_shapeintparam_convex","sim.shapeintparam_convex",
+    "sim_shapeintparam_convex_check","sim.shapeintparam_convex_check",
+    "sim_shapeintparam_respondable_mask","sim.shapeintparam_respondable_mask",
+    "sim_shapefloatparam_init_velocity_a","sim.shapefloatparam_init_ang_velocity_x",
+    "sim_shapefloatparam_init_velocity_b","sim.shapefloatparam_init_ang_velocity_y",
+    "sim_shapefloatparam_init_velocity_g","sim.shapefloatparam_init_ang_velocity_z",
+    "sim_shapestringparam_color_name","sim.shapestringparam_color_name",
+    "sim_shapeintparam_edge_visibility","sim.shapeintparam_edge_visibility",
+    "sim_shapefloatparam_shading_angle","sim.shapefloatparam_shading_angle",
+    "sim_shapefloatparam_edge_angle","sim.shapefloatparam_edge_angle",
+    "sim_shapeintparam_edge_borders_hidden","sim.shapeintparam_edge_borders_hidden",
+    "sim_proxintparam_ray_invisibility","sim.proxintparam_ray_invisibility",
+    "sim_proxintparam_volume_type","sim.proxintparam_volume_type",
+    "sim_proxintparam_entity_to_detect","sim.proxintparam_entity_to_detect",
+    "sim_forcefloatparam_error_x","sim.forcefloatparam_error_x",
+    "sim_forcefloatparam_error_y","sim.forcefloatparam_error_y",
+    "sim_forcefloatparam_error_z","sim.forcefloatparam_error_z",
+    "sim_forcefloatparam_error_a","sim.forcefloatparam_error_a",
+    "sim_forcefloatparam_error_b","sim.forcefloatparam_error_b",
+    "sim_forcefloatparam_error_g","sim.forcefloatparam_error_g",
+    "sim_forcefloatparam_error_pos","sim.forcefloatparam_error_pos",
+    "sim_forcefloatparam_error_angle","sim.forcefloatparam_error_angle",
+    "sim_lightintparam_pov_casts_shadows","sim.lightintparam_pov_casts_shadows",
+    "sim_cameraintparam_disabled_light_components","sim.cameraintparam_disabled_light_components",
+    "sim_camerafloatparam_perspective_angle","sim.camerafloatparam_perspective_angle",
+    "sim_camerafloatparam_ortho_size","sim.camerafloatparam_ortho_size",
+    "sim_cameraintparam_rendering_attributes","sim.cameraintparam_rendering_attributes",
+    "sim_cameraintparam_pov_focal_blur","sim.cameraintparam_pov_focal_blur",
+    "sim_camerafloatparam_pov_blur_distance","sim.camerafloatparam_pov_blur_distance",
+    "sim_camerafloatparam_pov_aperture","sim.camerafloatparam_pov_aperture",
+    "sim_cameraintparam_pov_blur_samples","sim.cameraintparam_pov_blur_samples",
+    "sim_dummyintparam_link_type","sim.dummyintparam_link_type",
+    "sim_dummyintparam_follow_path","sim.dummyintparam_follow_path",
+    "sim_dummyfloatparam_follow_path_offset","sim.dummyfloatparam_follow_path_offset",
+    "sim_millintparam_volume_type","sim.millintparam_volume_type",
+    "sim_mirrorfloatparam_width","sim.mirrorfloatparam_width",
+    "sim_mirrorfloatparam_height","sim.mirrorfloatparam_height",
+    "sim_mirrorfloatparam_reflectance","sim.mirrorfloatparam_reflectance",
+    "sim_mirrorintparam_enable","sim.mirrorintparam_enable",
+    "sim_bullet_global_stepsize","sim.bullet_global_stepsize",
+    "sim_bullet_global_internalscalingfactor","sim.bullet_global_internalscalingfactor",
+    "sim_bullet_global_collisionmarginfactor","sim.bullet_global_collisionmarginfactor",
+    "sim_bullet_global_constraintsolvingiterations","sim.bullet_global_constraintsolvingiterations",
+    "sim_bullet_global_bitcoded","sim.bullet_global_bitcoded",
+    "sim_bullet_global_constraintsolvertype","sim.bullet_global_constraintsolvertype",
+    "sim_bullet_global_fullinternalscaling","sim.bullet_global_fullinternalscaling",
+    "sim_bullet_joint_stoperp","sim.bullet_joint_stoperp",
+    "sim_bullet_joint_stopcfm","sim.bullet_joint_stopcfm",
+    "sim_bullet_joint_normalcfm","sim.bullet_joint_normalcfm",
+    "sim_bullet_body_restitution","sim.bullet_body_restitution",
+    "sim_bullet_body_oldfriction","sim.bullet_body_oldfriction",
+    "sim_bullet_body_friction","sim.bullet_body_friction",
+    "sim_bullet_body_lineardamping","sim.bullet_body_lineardamping",
+    "sim_bullet_body_angulardamping","sim.bullet_body_angulardamping",
+    "sim_bullet_body_nondefaultcollisionmargingfactor","sim.bullet_body_nondefaultcollisionmargingfactor",
+    "sim_bullet_body_nondefaultcollisionmargingfactorconvex","sim.bullet_body_nondefaultcollisionmargingfactorconvex",
+    "sim_bullet_body_bitcoded","sim.bullet_body_bitcoded",
+    "sim_bullet_body_sticky","sim.bullet_body_sticky",
+    "sim_bullet_body_usenondefaultcollisionmargin","sim.bullet_body_usenondefaultcollisionmargin",
+    "sim_bullet_body_usenondefaultcollisionmarginconvex","sim.bullet_body_usenondefaultcollisionmarginconvex",
+    "sim_bullet_body_autoshrinkconvex","sim.bullet_body_autoshrinkconvex",
+    "sim_ode_global_stepsize","sim.ode_global_stepsize",
+    "sim_ode_global_internalscalingfactor","sim.ode_global_internalscalingfactor",
+    "sim_ode_global_cfm","sim.ode_global_cfm",
+    "sim_ode_global_erp","sim.ode_global_erp",
+    "sim_ode_global_constraintsolvingiterations","sim.ode_global_constraintsolvingiterations",
+    "sim_ode_global_bitcoded","sim.ode_global_bitcoded",
+    "sim_ode_global_randomseed","sim.ode_global_randomseed",
+    "sim_ode_global_fullinternalscaling","sim.ode_global_fullinternalscaling",
+    "sim_ode_global_quickstep","sim.ode_global_quickstep",
+    "sim_ode_joint_stoperp","sim.ode_joint_stoperp",
+    "sim_ode_joint_stopcfm","sim.ode_joint_stopcfm",
+    "sim_ode_joint_bounce","sim.ode_joint_bounce",
+    "sim_ode_joint_fudgefactor","sim.ode_joint_fudgefactor",
+    "sim_ode_joint_normalcfm","sim.ode_joint_normalcfm",
+    "sim_ode_body_friction","sim.ode_body_friction",
+    "sim_ode_body_softerp","sim.ode_body_softerp",
+    "sim_ode_body_softcfm","sim.ode_body_softcfm",
+    "sim_ode_body_lineardamping","sim.ode_body_lineardamping",
+    "sim_ode_body_angulardamping","sim.ode_body_angulardamping",
+    "sim_ode_body_maxcontacts","sim.ode_body_maxcontacts",
+    "sim_vortex_global_stepsize","sim.vortex_global_stepsize",
+    "sim_vortex_global_internalscalingfactor","sim.vortex_global_internalscalingfactor",
+    "sim_vortex_global_contacttolerance","sim.vortex_global_contacttolerance",
+    "sim_vortex_global_constraintlinearcompliance","sim.vortex_global_constraintlinearcompliance",
+    "sim_vortex_global_constraintlineardamping","sim.vortex_global_constraintlineardamping",
+    "sim_vortex_global_constraintlinearkineticloss","sim.vortex_global_constraintlinearkineticloss",
+    "sim_vortex_global_constraintangularcompliance","sim.vortex_global_constraintangularcompliance",
+    "sim_vortex_global_constraintangulardamping","sim.vortex_global_constraintangulardamping",
+    "sim_vortex_global_constraintangularkineticloss","sim.vortex_global_constraintangularkineticloss",
+    "sim_vortex_global_bitcoded","sim.vortex_global_bitcoded",
+    "sim_vortex_global_autosleep","sim.vortex_global_autosleep",
+    "sim_vortex_global_multithreading","sim.vortex_global_multithreading",
+    "sim_vortex_joint_lowerlimitdamping","sim.vortex_joint_lowerlimitdamping",
+    "sim_vortex_joint_upperlimitdamping","sim.vortex_joint_upperlimitdamping",
+    "sim_vortex_joint_lowerlimitstiffness","sim.vortex_joint_lowerlimitstiffness",
+    "sim_vortex_joint_upperlimitstiffness","sim.vortex_joint_upperlimitstiffness",
+    "sim_vortex_joint_lowerlimitrestitution","sim.vortex_joint_lowerlimitrestitution",
+    "sim_vortex_joint_upperlimitrestitution","sim.vortex_joint_upperlimitrestitution",
+    "sim_vortex_joint_lowerlimitmaxforce","sim.vortex_joint_lowerlimitmaxforce",
+    "sim_vortex_joint_upperlimitmaxforce","sim.vortex_joint_upperlimitmaxforce",
+    "sim_vortex_joint_motorconstraintfrictioncoeff","sim.vortex_joint_motorconstraintfrictioncoeff",
+    "sim_vortex_joint_motorconstraintfrictionmaxforce","sim.vortex_joint_motorconstraintfrictionmaxforce",
+    "sim_vortex_joint_motorconstraintfrictionloss","sim.vortex_joint_motorconstraintfrictionloss",
+    "sim_vortex_joint_p0loss","sim.vortex_joint_p0loss",
+    "sim_vortex_joint_p0stiffness","sim.vortex_joint_p0stiffness",
+    "sim_vortex_joint_p0damping","sim.vortex_joint_p0damping",
+    "sim_vortex_joint_p0frictioncoeff","sim.vortex_joint_p0frictioncoeff",
+    "sim_vortex_joint_p0frictionmaxforce","sim.vortex_joint_p0frictionmaxforce",
+    "sim_vortex_joint_p0frictionloss","sim.vortex_joint_p0frictionloss",
+    "sim_vortex_joint_p1loss","sim.vortex_joint_p1loss",
+    "sim_vortex_joint_p1stiffness","sim.vortex_joint_p1stiffness",
+    "sim_vortex_joint_p1damping","sim.vortex_joint_p1damping",
+    "sim_vortex_joint_p1frictioncoeff","sim.vortex_joint_p1frictioncoeff",
+    "sim_vortex_joint_p1frictionmaxforce","sim.vortex_joint_p1frictionmaxforce",
+    "sim_vortex_joint_p1frictionloss","sim.vortex_joint_p1frictionloss",
+    "sim_vortex_joint_p2loss","sim.vortex_joint_p2loss",
+    "sim_vortex_joint_p2stiffness","sim.vortex_joint_p2stiffness",
+    "sim_vortex_joint_p2damping","sim.vortex_joint_p2damping",
+    "sim_vortex_joint_p2frictioncoeff","sim.vortex_joint_p2frictioncoeff",
+    "sim_vortex_joint_p2frictionmaxforce","sim.vortex_joint_p2frictionmaxforce",
+    "sim_vortex_joint_p2frictionloss","sim.vortex_joint_p2frictionloss",
+    "sim_vortex_joint_a0loss","sim.vortex_joint_a0loss",
+    "sim_vortex_joint_a0stiffness","sim.vortex_joint_a0stiffness",
+    "sim_vortex_joint_a0damping","sim.vortex_joint_a0damping",
+    "sim_vortex_joint_a0frictioncoeff","sim.vortex_joint_a0frictioncoeff",
+    "sim_vortex_joint_a0frictionmaxforce","sim.vortex_joint_a0frictionmaxforce",
+    "sim_vortex_joint_a0frictionloss","sim.vortex_joint_a0frictionloss",
+    "sim_vortex_joint_a1loss","sim.vortex_joint_a1loss",
+    "sim_vortex_joint_a1stiffness","sim.vortex_joint_a1stiffness",
+    "sim_vortex_joint_a1damping","sim.vortex_joint_a1damping",
+    "sim_vortex_joint_a1frictioncoeff","sim.vortex_joint_a1frictioncoeff",
+    "sim_vortex_joint_a1frictionmaxforce","sim.vortex_joint_a1frictionmaxforce",
+    "sim_vortex_joint_a1frictionloss","sim.vortex_joint_a1frictionloss",
+    "sim_vortex_joint_a2loss","sim.vortex_joint_a2loss",
+    "sim_vortex_joint_a2stiffness","sim.vortex_joint_a2stiffness",
+    "sim_vortex_joint_a2damping","sim.vortex_joint_a2damping",
+    "sim_vortex_joint_a2frictioncoeff","sim.vortex_joint_a2frictioncoeff",
+    "sim_vortex_joint_a2frictionmaxforce","sim.vortex_joint_a2frictionmaxforce",
+    "sim_vortex_joint_a2frictionloss","sim.vortex_joint_a2frictionloss",
+    "sim_vortex_joint_dependencyfactor","sim.vortex_joint_dependencyfactor",
+    "sim_vortex_joint_dependencyoffset","sim.vortex_joint_dependencyoffset",
+    "sim_vortex_joint_bitcoded","sim.vortex_joint_bitcoded",
+    "sim_vortex_joint_relaxationenabledbc","sim.vortex_joint_relaxationenabledbc",
+    "sim_vortex_joint_frictionenabledbc","sim.vortex_joint_frictionenabledbc",
+    "sim_vortex_joint_frictionproportionalbc","sim.vortex_joint_frictionproportionalbc",
+    "sim_vortex_joint_objectid","sim.vortex_joint_objectid",
+    "sim_vortex_joint_dependentobjectid","sim.vortex_joint_dependentobjectid",
+    "sim_vortex_joint_motorfrictionenabled","sim.vortex_joint_motorfrictionenabled",
+    "sim_vortex_joint_proportionalmotorfriction","sim.vortex_joint_proportionalmotorfriction",
+    "sim_vortex_body_primlinearaxisfriction","sim.vortex_body_primlinearaxisfriction",
+    "sim_vortex_body_seclinearaxisfriction","sim.vortex_body_seclinearaxisfriction",
+    "sim_vortex_body_primangularaxisfriction","sim.vortex_body_primangularaxisfriction",
+    "sim_vortex_body_secangularaxisfriction","sim.vortex_body_secangularaxisfriction",
+    "sim_vortex_body_normalangularaxisfriction","sim.vortex_body_normalangularaxisfriction",
+    "sim_vortex_body_primlinearaxisstaticfrictionscale","sim.vortex_body_primlinearaxisstaticfrictionscale",
+    "sim_vortex_body_seclinearaxisstaticfrictionscale","sim.vortex_body_seclinearaxisstaticfrictionscale",
+    "sim_vortex_body_primangularaxisstaticfrictionscale","sim.vortex_body_primangularaxisstaticfrictionscale",
+    "sim_vortex_body_secangularaxisstaticfrictionscale","sim.vortex_body_secangularaxisstaticfrictionscale",
+    "sim_vortex_body_normalangularaxisstaticfrictionscale","sim.vortex_body_normalangularaxisstaticfrictionscale",
+    "sim_vortex_body_compliance","sim.vortex_body_compliance",
+    "sim_vortex_body_damping","sim.vortex_body_damping",
+    "sim_vortex_body_restitution","sim.vortex_body_restitution",
+    "sim_vortex_body_restitutionthreshold","sim.vortex_body_restitutionthreshold",
+    "sim_vortex_body_adhesiveforce","sim.vortex_body_adhesiveforce",
+    "sim_vortex_body_linearvelocitydamping","sim.vortex_body_linearvelocitydamping",
+    "sim_vortex_body_angularvelocitydamping","sim.vortex_body_angularvelocitydamping",
+    "sim_vortex_body_primlinearaxisslide","sim.vortex_body_primlinearaxisslide",
+    "sim_vortex_body_seclinearaxisslide","sim.vortex_body_seclinearaxisslide",
+    "sim_vortex_body_primangularaxisslide","sim.vortex_body_primangularaxisslide",
+    "sim_vortex_body_secangularaxisslide","sim.vortex_body_secangularaxisslide",
+    "sim_vortex_body_normalangularaxisslide","sim.vortex_body_normalangularaxisslide",
+    "sim_vortex_body_primlinearaxisslip","sim.vortex_body_primlinearaxisslip",
+    "sim_vortex_body_seclinearaxisslip","sim.vortex_body_seclinearaxisslip",
+    "sim_vortex_body_primangularaxisslip","sim.vortex_body_primangularaxisslip",
+    "sim_vortex_body_secangularaxisslip","sim.vortex_body_secangularaxisslip",
+    "sim_vortex_body_normalangularaxisslip","sim.vortex_body_normalangularaxisslip",
+    "sim_vortex_body_autosleeplinearspeedthreshold","sim.vortex_body_autosleeplinearspeedthreshold",
+    "sim_vortex_body_autosleeplinearaccelthreshold","sim.vortex_body_autosleeplinearaccelthreshold",
+    "sim_vortex_body_autosleepangularspeedthreshold","sim.vortex_body_autosleepangularspeedthreshold",
+    "sim_vortex_body_autosleepangularaccelthreshold","sim.vortex_body_autosleepangularaccelthreshold",
+    "sim_vortex_body_skinthickness","sim.vortex_body_skinthickness",
+    "sim_vortex_body_autoangulardampingtensionratio","sim.vortex_body_autoangulardampingtensionratio",
+    "sim_vortex_body_primaxisvectorx","sim.vortex_body_primaxisvectorx",
+    "sim_vortex_body_primaxisvectory","sim.vortex_body_primaxisvectory",
+    "sim_vortex_body_primaxisvectorz","sim.vortex_body_primaxisvectorz",
+    "sim_vortex_body_primlinearaxisfrictionmodel","sim.vortex_body_primlinearaxisfrictionmodel",
+    "sim_vortex_body_seclinearaxisfrictionmodel","sim.vortex_body_seclinearaxisfrictionmodel",
+    "sim_vortex_body_primangulararaxisfrictionmodel","sim.vortex_body_primangulararaxisfrictionmodel",
+    "sim_vortex_body_secmangulararaxisfrictionmodel","sim.vortex_body_secmangulararaxisfrictionmodel",
+    "sim_vortex_body_normalmangulararaxisfrictionmodel","sim.vortex_body_normalmangulararaxisfrictionmodel",
+    "sim_vortex_body_bitcoded","sim.vortex_body_bitcoded",
+    "sim_vortex_body_autosleepsteplivethreshold","sim.vortex_body_autosleepsteplivethreshold",
+    "sim_vortex_body_materialuniqueid","sim.vortex_body_materialuniqueid",
+    "sim_vortex_body_pureshapesasconvex","sim.vortex_body_pureshapesasconvex",
+    "sim_vortex_body_convexshapesasrandom","sim.vortex_body_convexshapesasrandom",
+    "sim_vortex_body_randomshapesasterrain","sim.vortex_body_randomshapesasterrain",
+    "sim_vortex_body_fastmoving","sim.vortex_body_fastmoving",
+    "sim_vortex_body_autoslip","sim.vortex_body_autoslip",
+    "sim_vortex_body_seclinaxissameasprimlinaxis","sim.vortex_body_seclinaxissameasprimlinaxis",
+    "sim_vortex_body_secangaxissameasprimangaxis","sim.vortex_body_secangaxissameasprimangaxis",
+    "sim_vortex_body_normangaxissameasprimangaxis","sim.vortex_body_normangaxissameasprimangaxis",
+    "sim_vortex_body_autoangulardamping","sim.vortex_body_autoangulardamping",
+    "sim_newton_global_stepsize","sim.newton_global_stepsize",
+    "sim_newton_global_contactmergetolerance","sim.newton_global_contactmergetolerance",
+    "sim_newton_global_constraintsolvingiterations","sim.newton_global_constraintsolvingiterations",
+    "sim_newton_global_bitcoded","sim.newton_global_bitcoded",
+    "sim_newton_global_multithreading","sim.newton_global_multithreading",
+    "sim_newton_global_exactsolver","sim.newton_global_exactsolver",
+    "sim_newton_global_highjointaccuracy","sim.newton_global_highjointaccuracy",
+    "sim_newton_joint_dependencyfactor","sim.newton_joint_dependencyfactor",
+    "sim_newton_joint_dependencyoffset","sim.newton_joint_dependencyoffset",
+    "sim_newton_joint_objectid","sim.newton_joint_objectid",
+    "sim_newton_joint_dependentobjectid","sim.newton_joint_dependentobjectid",
+    "sim_newton_body_staticfriction","sim.newton_body_staticfriction",
+    "sim_newton_body_kineticfriction","sim.newton_body_kineticfriction",
+    "sim_newton_body_restitution","sim.newton_body_restitution",
+    "sim_newton_body_lineardrag","sim.newton_body_lineardrag",
+    "sim_newton_body_angulardrag","sim.newton_body_angulardrag",
+    "sim_newton_body_bitcoded","sim.newton_body_bitcoded",
+    "sim_newton_body_fastmoving","sim.newton_body_fastmoving",
+    "sim_vortex_bodyfrictionmodel_box","sim.vortex_bodyfrictionmodel_box",
+    "sim_vortex_bodyfrictionmodel_scaledbox","sim.vortex_bodyfrictionmodel_scaledbox",
+    "sim_vortex_bodyfrictionmodel_proplow","sim.vortex_bodyfrictionmodel_proplow",
+    "sim_vortex_bodyfrictionmodel_prophigh","sim.vortex_bodyfrictionmodel_prophigh",
+    "sim_vortex_bodyfrictionmodel_scaledboxfast","sim.vortex_bodyfrictionmodel_scaledboxfast",
+    "sim_vortex_bodyfrictionmodel_neutral","sim.vortex_bodyfrictionmodel_neutral",
+    "sim_vortex_bodyfrictionmodel_none","sim.vortex_bodyfrictionmodel_none",
+    "sim_bullet_constraintsolvertype_sequentialimpulse","sim.bullet_constraintsolvertype_sequentialimpulse",
+    "sim_bullet_constraintsolvertype_nncg","sim.bullet_constraintsolvertype_nncg",
+    "sim_bullet_constraintsolvertype_dantzig","sim.bullet_constraintsolvertype_dantzig",
+    "sim_bullet_constraintsolvertype_projectedgaussseidel","sim.bullet_constraintsolvertype_projectedgaussseidel",
+    "sim_filtercomponent_originalimage","sim.filtercomponent_originalimage",
+    "sim_filtercomponent_originaldepth","sim.filtercomponent_originaldepth",
+    "sim_filtercomponent_uniformimage","sim.filtercomponent_uniformimage",
+    "sim_filtercomponent_tooutput","sim.filtercomponent_tooutput",
+    "sim_filtercomponent_tobuffer1","sim.filtercomponent_tobuffer1",
+    "sim_filtercomponent_tobuffer2","sim.filtercomponent_tobuffer2",
+    "sim_filtercomponent_frombuffer1","sim.filtercomponent_frombuffer1",
+    "sim_filtercomponent_frombuffer2","sim.filtercomponent_frombuffer2",
+    "sim_filtercomponent_swapbuffers","sim.filtercomponent_swapbuffers",
+    "sim_filtercomponent_addbuffer1","sim.filtercomponent_addbuffer1",
+    "sim_filtercomponent_subtractbuffer1","sim.filtercomponent_subtractbuffer1",
+    "sim_filtercomponent_multiplywithbuffer1","sim.filtercomponent_multiplywithbuffer1",
+    "sim_filtercomponent_horizontalflip","sim.filtercomponent_horizontalflip",
+    "sim_filtercomponent_verticalflip","sim.filtercomponent_verticalflip",
+    "sim_filtercomponent_rotate","sim.filtercomponent_rotate",
+    "sim_filtercomponent_shift","sim.filtercomponent_shift",
+    "sim_filtercomponent_resize","sim.filtercomponent_resize",
+    "sim_filtercomponent_3x3filter","sim.filtercomponent_3x3filter",
+    "sim_filtercomponent_5x5filter","sim.filtercomponent_5x5filter",
+    "sim_filtercomponent_sharpen","sim.filtercomponent_sharpen",
+    "sim_filtercomponent_edge","sim.filtercomponent_edge",
+    "sim_filtercomponent_rectangularcut","sim.filtercomponent_rectangularcut",
+    "sim_filtercomponent_circularcut","sim.filtercomponent_circularcut",
+    "sim_filtercomponent_normalize","sim.filtercomponent_normalize",
+    "sim_filtercomponent_intensityscale","sim.filtercomponent_intensityscale",
+    "sim_filtercomponent_keeporremovecolors","sim.filtercomponent_keeporremovecolors",
+    "sim_filtercomponent_scaleandoffsetcolors","sim.filtercomponent_scaleandoffsetcolors",
+    "sim_filtercomponent_binary","sim.filtercomponent_binary",
+    "sim_filtercomponent_swapwithbuffer1","sim.filtercomponent_swapwithbuffer1",
+    "sim_filtercomponent_addtobuffer1","sim.filtercomponent_addtobuffer1",
+    "sim_filtercomponent_subtractfrombuffer1","sim.filtercomponent_subtractfrombuffer1",
+    "sim_filtercomponent_correlationwithbuffer1","sim.filtercomponent_correlationwithbuffer1",
+    "sim_filtercomponent_colorsegmentation","sim.filtercomponent_colorsegmentation",
+    "sim_filtercomponent_blobextraction","sim.filtercomponent_blobextraction",
+    "sim_filtercomponent_imagetocoord","sim.filtercomponent_imagetocoord",
+    "sim_filtercomponent_pixelchange","sim.filtercomponent_pixelchange",
+    "sim_filtercomponent_velodyne","sim.filtercomponent_velodyne",
+    "sim_filtercomponent_todepthoutput","sim.filtercomponent_todepthoutput",
+    "sim_filtercomponent_customized","sim.filtercomponent_customized",
+    "sim_buffer_uint8","sim.buffer_uint8",
+    "sim_buffer_int8","sim.buffer_int8",
+    "sim_buffer_uint16","sim.buffer_uint16",
+    "sim_buffer_int16","sim.buffer_int16",
+    "sim_buffer_uint32","sim.buffer_uint32",
+    "sim_buffer_int32","sim.buffer_int32",
+    "sim_buffer_float","sim.buffer_float",
+    "sim_buffer_double","sim.buffer_double",
+    "sim_buffer_uint8rgb","sim.buffer_uint8rgb",
+    "sim_buffer_uint8bgr","sim.buffer_uint8bgr",
+    "sim_imgcomb_vertical","sim.imgcomb_vertical",
+    "sim_imgcomb_horizontal","sim.imgcomb_horizontal",
+    "sim_dynmat_default","sim.dynmat_default",
+    "sim_dynmat_highfriction","sim.dynmat_highfriction",
+    "sim_dynmat_lowfriction","sim.dynmat_lowfriction",
+    "sim_dynmat_nofriction","sim.dynmat_nofriction",
+    "sim_dynmat_reststackgrasp","sim.dynmat_reststackgrasp",
+    "sim_dynmat_foot","sim.dynmat_foot",
+    "sim_dynmat_wheel","sim.dynmat_wheel",
+    "sim_dynmat_gripper","sim.dynmat_gripper",
+    "sim_dynmat_floor","sim.dynmat_floor",
+    "simrml_phase_sync_if_possible","sim.rml_phase_sync_if_possible",
+    "simrml_only_time_sync","sim.rml_only_time_sync",
+    "simrml_only_phase_sync","sim.rml_only_phase_sync",
+    "simrml_no_sync","sim.rml_no_sync",
+    "simrml_disable_extremum_motion_states_calc","sim.rml_disable_extremum_motion_states_calc",
+    "simrml_keep_target_vel","sim.rml_keep_target_vel",
+    "simrml_recompute_trajectory","sim.rml_recompute_trajectory",
+    "simrml_keep_current_vel_if_fallback_strategy","sim.rml_keep_current_vel_if_fallback_strategy",
+    "","",
+};
+
+const SNewApiMapping _simBubbleApiMapping[]=
+{
+    "simExtBubble_create","simBubble.create",
+    "simExtBubble_destroy","simBubble.destroy",
+    "simExtBubble_start","simBubble.start",
+    "simExtBubble_stop","simBubble.stop",
+    "","",
+};
+
+const SNewApiMapping _simK3ApiMapping[]=
+{
+    "simExtK3_create","simK3.create",
+    "simExtK3_destroy","simK3.destroy",
+    "simExtK3_getInfrared","simK3.getInfrared",
+    "simExtK3_getUltrasonic","simK3.getUltrasonic",
+    "simExtK3_getLineSensor","simK3.getLineSensor",
+    "simExtK3_getEncoder","simK3.getEncoder",
+    "simExtK3_getGripperProxSensor","simK3.getGripperProxSensor",
+    "simExtK3_setArmPosition","simK3.setArmPosition",
+    "simExtK3_setGripperGap","simK3.setGripperGap",
+    "simExtK3_setVelocity","simK3.setVelocity",
+    "simExtK3_setEncoders","simK3.setEncoders",
+    "","",
+};
+
+const SNewApiMapping _simMTBApiMapping[]=
+{
+    "simExtMtb_startServer","simMTB.startServer",
+    "simExtMtb_stopServer","simMTB.stopServer",
+    "simExtMtb_disconnectInput","simMTB.disconnectInput",
+    "simExtMtb_connectInput","simMTB.connectInput",
+    "simExtMtb_setInput","simMTB.setInput",
+    "simExtMtb_getInput","simMTB.getInput",
+    "simExtMtb_getOutput","simMTB.getOutput",
+    "simExtMtb_getJoints","simMTB.getJoints",
+    "simExtMtb_step","simMTB.step",
+    "","",
+};
+
+const SNewApiMapping _simOpenMeshApiMapping[]=
+{
+    "simExtOpenMesh_getDecimated","simOpenMesh.getDecimated",
+    "","",
+};
+
+const SNewApiMapping _simSkeletonApiMapping[]=
+{
+    "simExtPluginSkeleton_getData","simSkeleton.getData",
+    "","",
+};
+
+const SNewApiMapping _simQHullApiMapping[]=
+{
+    "simExtQhull_compute","simQHull.compute",
+    "","",
+};
+
+const SNewApiMapping _simRemoteApiApiMapping[]=
+{
+    "simExtRemoteApiStart","simRemoteApi.start",
+    "simExtRemoteApiStop","simRemoteApi.stop",
+    "simExtRemoteApiReset","simRemoteApi.reset",
+    "simExtRemoteApiStatus","simRemoteApi.status",
+    "","",
+};
+
+const SNewApiMapping _simRRS1ApiMapping[]=
+{
+    "simExtRRS1_startRcsServer","simRRS1.startRcsServer",
+    "simExtRRS1_selectRcsServer","simRRS1.selectRcsServer",
+    "simExtRRS1_stopRcsServer","simRRS1.stopRcsServer",
+    "simExtRRS1_INITIALIZE","simRRS1.INITIALIZE",
+    "simExtRRS1_RESET","simRRS1.RESET",
+    "simExtRRS1_TERMINATE","simRRS1.TERMINATE",
+    "simExtRRS1_GET_ROBOT_STAMP","simRRS1.GET_ROBOT_STAMP",
+    "simExtRRS1_GET_HOME_JOINT_POSITION","simRRS1.GET_HOME_JOINT_POSITION",
+    "simExtRRS1_GET_RCS_DATA","simRRS1.GET_RCS_DATA",
+    "simExtRRS1_MODIFY_RCS_DATA","simRRS1.MODIFY_RCS_DATA",
+    "simExtRRS1_SAVE_RCS_DATA","simRRS1.SAVE_RCS_DATA",
+    "simExtRRS1_LOAD_RCS_DATA","simRRS1.LOAD_RCS_DATA",
+    "simExtRRS1_GET_INVERSE_KINEMATIC","simRRS1.GET_INVERSE_KINEMATIC",
+    "simExtRRS1_GET_FORWARD_KINEMATIC","simRRS1.GET_FORWARD_KINEMATIC",
+    "simExtRRS1_MATRIX_TO_CONTROLLER_POSITION","simRRS1.MATRIX_TO_CONTROLLER_POSITION",
+    "simExtRRS1_CONTROLLER_POSITION_TO_MATRIX","simRRS1.CONTROLLER_POSITION_TO_MATRIX",
+    "simExtRRS1_GET_CELL_FRAME","simRRS1.GET_CELL_FRAME",
+    "simExtRRS1_MODIFY_CELL_FRAME","simRRS1.MODIFY_CELL_FRAME",
+    "simExtRRS1_SELECT_WORK_FRAMES","simRRS1.SELECT_WORK_FRAMES",
+    "simExtRRS1_SET_INITIAL_POSITION","simRRS1.SET_INITIAL_POSITION",
+    "simExtRRS1_SET_NEXT_TARGET","simRRS1.SET_NEXT_TARGET",
+    "simExtRRS1_GET_NEXT_STEP","simRRS1.GET_NEXT_STEP",
+    "simExtRRS1_SET_INTERPOLATION_TIME","simRRS1.SET_INTERPOLATION_TIME",
+    "simExtRRS1_SELECT_MOTION_TYPE","simRRS1.SELECT_MOTION_TYPE",
+    "simExtRRS1_SELECT_TARGET_TYPE","simRRS1.SELECT_TARGET_TYPE",
+    "simExtRRS1_SELECT_TRAJECTORY_MODE","simRRS1.SELECT_TRAJECTORY_MODE",
+    "simExtRRS1_SELECT_ORIENTATION_INTERPOLATION_MODE","simRRS1.SELECT_ORIENTATION_INTERPOLATION_MODE",
+    "simExtRRS1_SELECT_DOMINANT_INTERPOLATION","simRRS1.SELECT_DOMINANT_INTERPOLATION",
+    "simExtRRS1_SET_ADVANCE_MOTION","simRRS1.SET_ADVANCE_MOTION",
+    "simExtRRS1_SET_MOTION_FILTER","simRRS1.SET_MOTION_FILTER",
+    "simExtRRS1_SET_OVERRIDE_POSITION","simRRS1.SET_OVERRIDE_POSITION",
+    "simExtRRS1_REVERSE_MOTION","simRRS1.REVERSE_MOTION",
+    "simExtRRS1_SET_PAYLOAD_PARAMETER","simRRS1.SET_PAYLOAD_PARAMETER",
+    "simExtRRS1_SELECT_TIME_COMPENSATION","simRRS1.SELECT_TIME_COMPENSATION",
+    "simExtRRS1_SET_CONFIGURATION_CONTROL","simRRS1.SET_CONFIGURATION_CONTROL",
+    "simExtRRS1_SET_JOINT_SPEEDS","simRRS1.SET_JOINT_SPEEDS",
+    "simExtRRS1_SET_CARTESIAN_POSITION_SPEED","simRRS1.SET_CARTESIAN_POSITION_SPEED",
+    "simExtRRS1_SET_CARTESIAN_ORIENTATION_SPEED","simRRS1.SET_CARTESIAN_ORIENTATION_SPEED",
+    "simExtRRS1_SET_JOINT_ACCELERATIONS","simRRS1.SET_JOINT_ACCELERATIONS",
+    "simExtRRS1_SET_CARTESIAN_POSITION_ACCELERATION","simRRS1.SET_CARTESIAN_POSITION_ACCELERATION",
+    "simExtRRS1_SET_CARTESIAN_ORIENTATION_ACCELERATION","simRRS1.SET_CARTESIAN_ORIENTATION_ACCELERATION",
+    "simExtRRS1_SET_JOINT_JERKS","simRRS1.SET_JOINT_JERKS",
+    "simExtRRS1_SET_MOTION_TIME","simRRS1.SET_MOTION_TIME",
+    "simExtRRS1_SET_OVERRIDE_SPEED","simRRS1.SET_OVERRIDE_SPEED",
+    "simExtRRS1_SET_OVERRIDE_ACCELERATION","simRRS1.SET_OVERRIDE_ACCELERATION",
+    "simExtRRS1_SELECT_FLYBY_MODE","simRRS1.SELECT_FLYBY_MODE",
+    "simExtRRS1_SET_FLYBY_CRITERIA_PARAMETER","simRRS1.SET_FLYBY_CRITERIA_PARAMETER",
+    "simExtRRS1_SELECT_FLYBY_CRITERIA","simRRS1.SELECT_FLYBY_CRITERIA",
+    "simExtRRS1_CANCEL_FLYBY_CRITERIA","simRRS1.CANCEL_FLYBY_CRITERIA",
+    "simExtRRS1_SELECT_POINT_ACCURACY","simRRS1.SELECT_POINT_ACCURACY",
+    "simExtRRS1_SET_POINT_ACCURACY_PARAMETER","simRRS1.SET_POINT_ACCURACY_PARAMETER",
+    "simExtRRS1_SET_REST_PARAMETER","simRRS1.SET_REST_PARAMETER",
+    "simExtRRS1_GET_CURRENT_TARGETID","simRRS1.GET_CURRENT_TARGETID",
+    "simExtRRS1_SELECT_TRACKING","simRRS1.SELECT_TRACKING",
+    "simExtRRS1_SET_CONVEYOR_POSITION","simRRS1.SET_CONVEYOR_POSITION",
+    "simExtRRS1_DEFINE_EVENT","simRRS1.DEFINE_EVENT",
+    "simExtRRS1_CANCEL_EVENT","simRRS1.CANCEL_EVENT",
+    "simExtRRS1_GET_EVENT","simRRS1.GET_EVENT",
+    "simExtRRS1_STOP_MOTION","simRRS1.STOP_MOTION",
+    "simExtRRS1_CONTINUE_MOTION","simRRS1.CONTINUE_MOTION",
+    "simExtRRS1_CANCEL_MOTION","simRRS1.CANCEL_MOTION",
+    "simExtRRS1_GET_MESSAGE","simRRS1.GET_MESSAGE",
+    "simExtRRS1_SELECT_WEAVING_MODE","simRRS1.SELECT_WEAVING_MODE",
+    "simExtRRS1_SELECT_WEAVING_GROUP","simRRS1.SELECT_WEAVING_GROUP",
+    "simExtRRS1_SET_WEAVING_GROUP_PARAMETER","simRRS1.SET_WEAVING_GROUP_PARAMETER",
+    "simExtRRS1_DEBUG","simRRS1.DEBUG",
+    "simExtRRS1_EXTENDED_SERVICE","simRRS1.EXTENDED_SERVICE",
+    "","",
+};
+
+const SNewApiMapping _simVisionApiMapping[]=
+{
+    "simExtVision_handleSpherical","simVision.handleSpherical",
+    "simExtVision_handleAnaglyphStereo","simVision.handleAnaglyphStereo",
+    "simExtVision_createVelodyneHDL64E","simVision.createVelodyneHDL64E",
+    "simExtVision_destroyVelodyneHDL64E","simVision.destroyVelodyneHDL64E",
+    "simExtVision_handleVelodyneHDL64E","simVision.handleVelodyneHDL64E",
+    "simExtVision_createVelodyneVPL16","simVision.createVelodyneVPL16",
+    "simExtVision_destroyVelodyneVPL16","simExtVision_destroyVelodyneVPL16",
+    "simExtVision_handleVelodyneVPL16","simVision.handleVelodyneVPL16",
+    "simExtVision_createVelodyne","simVision.createVelodyneHDL64E",
+    "simExtVision_destroyVelodyne","simVision.destroyVelodyneHDL64E",
+    "simExtVision_handleVelodyne","simVision.handleVelodyneHDL64E",
+    "","",
+};
+
+const SNewApiMapping _simCamApiMapping[]=
+{
+    "simExtCamStart","simCam.start",
+    "simExtCamEnd","simCam.stop",
+    "simExtCamInfo","simCam.info",
+    "simExtCamGrab","simCam.grab",
+    "","",
+};
+
+const SNewApiMapping _simJoyApiMapping[]=
+{
+    "simExtJoyGetCount","simJoy.getCount",
+    "simExtJoyGetData","simJoy.getData",
+    "","",
+};
+
+const SNewApiMapping _simWiiApiMapping[]=
+{
+    "simExtWiiStart","simWii.start",
+    "simExtWiiEnd","simWii.stop",
+    "simExtWiiSet","simWii.set",
+    "simExtWiiGet","simWii.get",
+    "","",
+};
+
+const SNewApiMapping _simURDFApiMapping[]=
+{
+    "simExtImportUrdf","simURDF.import",
+    "simExtImportUrdfFile","simURDF.importFile",
+    "","",
+};
+
+const SNewApiMapping _simBWFApiMapping[]=
+{
+    "simExtBwf_query","simBWF.query",
+    "","",
+};
+
+const SNewApiMapping _simUIApiMapping[]=
+{
+    "simExtCustomUI_create","simUI.create",
+    "simExtCustomUI_destroy","simUI.destroy",
+    "simExtCustomUI_getSliderValue","simUI.getSliderValue",
+    "simExtCustomUI_setSliderValue","simUI.setSliderValue",
+    "simExtCustomUI_getEditValue","simUI.getEditValue",
+    "simExtCustomUI_setEditValue","simUI.setEditValue",
+    "simExtCustomUI_getSpinboxValue","simUI.getSpinboxValue",
+    "simExtCustomUI_setSpinboxValue","simUI.setSpinboxValue",
+    "simExtCustomUI_getCheckboxValue","simUI.getCheckboxValue",
+    "simExtCustomUI_setCheckboxValue","simUI.setCheckboxValue",
+    "simExtCustomUI_getRadiobuttonValue","simUI.getRadiobuttonValue",
+    "simExtCustomUI_setRadiobuttonValue","simUI.setRadiobuttonValue",
+    "simExtCustomUI_getLabelText","simUI.getLabelText",
+    "simExtCustomUI_setLabelText","simUI.setLabelText",
+    "simExtCustomUI_insertComboboxItem","simUI.insertComboboxItem",
+    "simExtCustomUI_removeComboboxItem","simUI.removeComboboxItem",
+    "simExtCustomUI_getComboboxItemCount","simUI.getComboboxItemCount",
+    "simExtCustomUI_getComboboxItemText","simUI.getComboboxItemText",
+    "simExtCustomUI_getComboboxItems","simUI.getComboboxItems",
+    "simExtCustomUI_setComboboxItems","simUI.setComboboxItems",
+    "simExtCustomUI_setComboboxSelectedIndex","simUI.setComboboxSelectedIndex",
+    "simExtCustomUI_hide","simUI.hide",
+    "simExtCustomUI_show","simUI.show",
+    "simExtCustomUI_isVisible","simUI.isVisible",
+    "simExtCustomUI_getPosition","simUI.getPosition",
+    "simExtCustomUI_setPosition","simUI.setPosition",
+    "simExtCustomUI_getSize","simUI.getSize",
+    "simExtCustomUI_setSize","simUI.setSize",
+    "simExtCustomUI_getTitle","simUI.getTitle",
+    "simExtCustomUI_setTitle","simUI.setTitle",
+    "simExtCustomUI_setImageData","simUI.setImageData",
+    "simExtCustomUI_setEnabled","simUI.setEnabled",
+    "simExtCustomUI_getCurrentTab","simUI.getCurrentTab",
+    "simExtCustomUI_setCurrentTab","simUI.setCurrentTab",
+    "simExtCustomUI_getWidgetVisibility","simUI.getWidgetVisibility",
+    "simExtCustomUI_setWidgetVisibility","simUI.setWidgetVisibility",
+    "simExtCustomUI_getCurrentEditWidget","simUI.getCurrentEditWidget",
+    "simExtCustomUI_setCurrentEditWidget","simUI.setCurrentEditWidget",
+    "simExtCustomUI_replot","simUI.replot",
+    "simExtCustomUI_addCurve","simUI.addCurve",
+    "simExtCustomUI_addCurveTimePoints","simUI.addCurveTimePoints",
+    "simExtCustomUI_addCurveXYPoints","simUI.addCurveXYPoints",
+    "simExtCustomUI_clearCurve","simUI.clearCurve",
+    "simExtCustomUI_removeCurve","simUI.removeCurve",
+    "simExtCustomUI_setPlotRanges","simUI.setPlotRanges",
+    "simExtCustomUI_setPlotXRange","simUI.setPlotXRange",
+    "simExtCustomUI_setPlotYRange","simUI.setPlotYRange",
+    "simExtCustomUI_growPlotRanges","simUI.growPlotRanges",
+    "simExtCustomUI_growPlotXRange","simUI.growPlotXRange",
+    "simExtCustomUI_growPlotYRange","simUI.growPlotYRange",
+    "simExtCustomUI_setPlotLabels","simUI.setPlotLabels",
+    "simExtCustomUI_setPlotXLabel","simUI.setPlotXLabel",
+    "simExtCustomUI_setPlotYLabel","simUI.setPlotYLabel",
+    "simExtCustomUI_rescaleAxes","simUI.rescaleAxes",
+    "simExtCustomUI_rescaleAxesAll","simUI.rescaleAxesAll",
+    "simExtCustomUI_setMouseOptions","simUI.setMouseOptions",
+    "simExtCustomUI_setLegendVisibility","simUI.setLegendVisibility",
+    "simExtCustomUI_getCurveData","simUI.getCurveData",
+    "simExtCustomUI_clearTable","simUI.clearTable",
+    "simExtCustomUI_setRowCount","simUI.setRowCount",
+    "simExtCustomUI_setColumnCount","simUI.setColumnCount",
+    "simExtCustomUI_setRowHeaderText","simUI.setRowHeaderText",
+    "simExtCustomUI_setColumnHeaderText","simUI.setColumnHeaderText",
+    "simExtCustomUI_setItem","simUI.setItem",
+    "simExtCustomUI_getRowCount","simUI.getRowCount",
+    "simExtCustomUI_getColumnCount","simUI.getColumnCount",
+    "simExtCustomUI_getItem","simUI.getItem",
+    "simExtCustomUI_setItemEditable","simUI.setItemEditable",
+    "simExtCustomUI_saveState","simUI.saveState",
+    "simExtCustomUI_restoreState","simUI.restoreState",
+    "simExtCustomUI_setColumnWidth","simUI.setColumnWidth",
+    "simExtCustomUI_setRowHeight","simUI.setRowHeight",
+    "simExtCustomUI_setTableSelection","simUI.setTableSelection",
+    "simExtCustomUI_setProgress","simUI.setProgress",
+    "simExtCustomUI_clearTree","simUI.clearTree",
+    "simExtCustomUI_addTreeItem","simUI.addTreeItem",
+    "simExtCustomUI_updateTreeItemText","simUI.updateTreeItemText",
+    "simExtCustomUI_updateTreeItemParent","simUI.updateTreeItemParent",
+    "simExtCustomUI_removeTreeItem","simUI.removeTreeItem",
+    "simExtCustomUI_setTreeSelection","simUI.setTreeSelection",
+    "simExtCustomUI_expandAll","simUI.expandAll",
+    "simExtCustomUI_collapseAll","simUI.collapseAll",
+    "simExtCustomUI_expandToDepth","simUI.expandToDepth",
+    "simExtCustomUI_addNode","simUI.addNode",
+    "simExtCustomUI_removeNode","simUI.removeNode",
+    "simExtCustomUI_setNodeValid","simUI.setNodeValid",
+    "simExtCustomUI_isNodeValid","simUI.isNodeValid",
+    "simExtCustomUI_setNodePos","simUI.setNodePos",
+    "simExtCustomUI_getNodePos","simUI.getNodePos",
+    "simExtCustomUI_setNodeText","simUI.setNodeText",
+    "simExtCustomUI_getNodeText","simUI.getNodeText",
+    "simExtCustomUI_setNodeInletCount","simUI.setNodeInletCount",
+    "simExtCustomUI_getNodeInletCount","simUI.getNodeInletCount",
+    "simExtCustomUI_setNodeOutletCount","simUI.setNodeOutletCount",
+    "simExtCustomUI_getNodeOutletCount","simUI.getNodeOutletCount",
+    "simExtCustomUI_addConnection","simUI.addConnection",
+    "simExtCustomUI_removeConnection","simUI.removeConnection",
+    "simExtCustomUI_setText","simUI.setText",
+    "simExtCustomUI_setUrl","simUI.setUrl",
+    "sim_customui_curve_type_time","simUI.curve_type.time",
+    "sim_customui_curve_type_xy","simUI.curve_type.xy",
+    "sim_customui_curve_style_scatter","simUI.curve_style.scatter",
+    "sim_customui_curve_style_line","simUI.curve_style.line",
+    "sim_customui_curve_style_line_and_scatter","simUI.curve_style.line_and_scatter",
+    "sim_customui_curve_style_step_left","simUI.curve_style.step_left",
+    "sim_customui_curve_style_step_center","simUI.curve_style.step_center",
+    "sim_customui_curve_style_step_right","simUI.curve_style.step_right",
+    "sim_customui_curve_style_impulse","simUI.curve_style.impulse",
+    "sim_customui_curve_scatter_shape_none","simUI.curve_scatter_shape.none",
+    "sim_customui_curve_scatter_shape_dot","simUI.curve_scatter_shape.dot",
+    "sim_customui_curve_scatter_shape_cross","simUI.curve_scatter_shape.cross",
+    "sim_customui_curve_scatter_shape_plus","simUI.curve_scatter_shape.plus",
+    "sim_customui_curve_scatter_shape_circle","simUI.curve_scatter_shape.circle",
+    "sim_customui_curve_scatter_shape_disc","simUI.curve_scatter_shape.disc",
+    "sim_customui_curve_scatter_shape_square","simUI.curve_scatter_shape.square",
+    "sim_customui_curve_scatter_shape_diamond","simUI.curve_scatter_shape.diamond",
+    "sim_customui_curve_scatter_shape_star","simUI.curve_scatter_shape.star",
+    "sim_customui_curve_scatter_shape_triangle","simUI.curve_scatter_shape.triangle",
+    "sim_customui_curve_scatter_shape_triangle_inverted","simUI.curve_scatter_shape.triangle_inverted",
+    "sim_customui_curve_scatter_shape_cross_square","simUI.curve_scatter_shape.cross_square",
+    "sim_customui_curve_scatter_shape_plus_square","simUI.curve_scatter_shape.plus_square",
+    "sim_customui_curve_scatter_shape_cross_circle","simUI.curve_scatter_shape.cross_circle",
+    "sim_customui_curve_scatter_shape_plus_circle","simUI.curve_scatter_shape.plus_circle",
+    "sim_customui_curve_scatter_shape_peace","simUI.curve_scatter_shape.peace",
+    "sim_customui_line_style_solid","simUI.line_style.solid",
+    "sim_customui_line_style_dotted","simUI.line_style.dotted",
+    "sim_customui_line_style_dashed","simUI.line_style.dashed",
+    "sim_customui_mouse_left_button_down","simUI.mouse.left_button_down",
+    "sim_customui_mouse_left_button_up","simUI.mouse.left_button_up",
+    "sim_customui_mouse_move","simUI.mouse.move",
+    "","",
+};
+
+const SNewApiMapping _simROSApiMapping[]=
+{
+    "simExtRosInterface_subscribe","simROS.subscribe",
+    "simExtRosInterface_shutdownSubscriber","simROS.shutdownSubscriber",
+    "simExtRosInterface_subscriberTreatUInt8ArrayAsString","simROS.subscriberTreatUInt8ArrayAsString",
+    "simExtRosInterface_advertise","simROS.advertise",
+    "simExtRosInterface_shutdownPublisher","simROS.shutdownPublisher",
+    "simExtRosInterface_publisherTreatUInt8ArrayAsString","simROS.publisherTreatUInt8ArrayAsString",
+    "simExtRosInterface_publish","simROS.publish",
+    "simExtRosInterface_serviceClient","simROS.serviceClient",
+    "simExtRosInterface_shutdownServiceClient","simROS.shutdownServiceClient",
+    "simExtRosInterface_serviceClientTreatUInt8ArrayAsString","simROS.serviceClientTreatUInt8ArrayAsString",
+    "simExtRosInterface_call","simROS.call",
+    "simExtRosInterface_advertiseService","simROS.advertiseService",
+    "simExtRosInterface_shutdownServiceServer","simROS.shutdownServiceServer",
+    "simExtRosInterface_serviceServerTreatUInt8ArrayAsString","simROS.serviceServerTreatUInt8ArrayAsString",
+    "simExtRosInterface_sendTransform","simROS.sendTransform",
+    "simExtRosInterface_sendTransforms","simROS.sendTransforms",
+    "simExtRosInterface_imageTransportSubscribe","simROS.imageTransportSubscribe",
+    "simExtRosInterface_imageTransportShutdownSubscriber","simROS.imageTransportShutdownSubscriber",
+    "simExtRosInterface_imageTransportAdvertise","simROS.imageTransportAdvertise",
+    "simExtRosInterface_imageTransportShutdownPublisher","simROS.imageTransportShutdownPublisher",
+    "simExtRosInterface_imageTransportPublish","simROS.imageTransportPublish",
+    "simExtRosInterface_getTime","simROS.getTime",
+    "simExtRosInterface_getParamString","simROS.getParamString",
+    "simExtRosInterface_getParamInt","simROS.getParamInt",
+    "simExtRosInterface_getParamDouble","simROS.getParamDouble",
+    "simExtRosInterface_getParamBool","simROS.getParamBool",
+    "simExtRosInterface_setParamString","simROS.setParamString",
+    "simExtRosInterface_setParamInt","simROS.setParamInt",
+    "simExtRosInterface_setParamDouble","simROS.setParamDouble",
+    "simExtRosInterface_setParamBool","simROS.setParamBool",
+    "simExtRosInterface_hasParam","simROS.hasParam",
+    "simExtRosInterface_deleteParam","simROS.deleteParam",
+    "simExtRosInterface_searchParam","simROS.searchParam",
+    "","",
+};
+
+const SNewApiMapping _simICPApiMapping[]=
+{
+    "simExtICP_match","simICP.match",
+    "simExtICP_matchToShape","simICP.matchToShape",
+    "","",
+};
+
+const SNewApiMapping _simOMPLApiMapping[]=
+{
+    "simExtOMPL_createStateSpace","simOMPL.createStateSpace",
+    "simExtOMPL_destroyStateSpace","simOMPL.destroyStateSpace",
+    "simExtOMPL_createTask","simOMPL.createTask",
+    "simExtOMPL_destroyTask","simOMPL.destroyTask",
+    "simExtOMPL_printTaskInfo","simOMPL.printTaskInfo",
+    "simExtOMPL_setVerboseLevel","simOMPL.setVerboseLevel",
+    "simExtOMPL_setStateValidityCheckingResolution","simOMPL.setStateValidityCheckingResolution",
+    "simExtOMPL_setStateSpace","simOMPL.setStateSpace",
+    "simExtOMPL_setAlgorithm","simOMPL.setAlgorithm",
+    "simExtOMPL_setCollisionPairs","simOMPL.setCollisionPairs",
+    "simExtOMPL_setStartState","simOMPL.setStartState",
+    "simExtOMPL_setGoalState","simOMPL.setGoalState",
+    "simExtOMPL_addGoalState","simOMPL.addGoalState",
+    "simExtOMPL_setGoal","simOMPL.setGoal",
+    "simExtOMPL_setup","simOMPL.setup",
+    "simExtOMPL_solve","simOMPL.solve",
+    "simExtOMPL_simplifyPath","simOMPL.simplifyPath",
+    "simExtOMPL_interpolatePath","simOMPL.interpolatePath",
+    "simExtOMPL_getPath","simOMPL.getPath",
+    "simExtOMPL_compute","simOMPL.compute",
+    "simExtOMPL_readState","simOMPL.readState",
+    "simExtOMPL_writeState","simOMPL.writeState",
+    "simExtOMPL_isStateValid","simOMPL.isStateValid",
+    "simExtOMPL_setProjectionEvaluationCallback","simOMPL.setProjectionEvaluationCallback",
+    "simExtOMPL_setStateValidationCallback","simOMPL.setStateValidationCallback",
+    "simExtOMPL_setGoalCallback","simOMPL.setGoalCallback",
+    "simExtOMPL_setValidStateSamplerCallback","simOMPL.setValidStateSamplerCallback",
+    "sim_ompl_algorithm_BiTRRT","simOMPL.Algorithm.BiTRRT",
+    "sim_ompl_algorithm_BITstar","simOMPL.Algorithm.BITstar",
+    "sim_ompl_algorithm_BKPIECE1","simOMPL.Algorithm.BKPIECE1",
+    "sim_ompl_algorithm_CForest","simOMPL.Algorithm.CForest",
+    "sim_ompl_algorithm_EST","simOMPL.Algorithm.EST",
+    "sim_ompl_algorithm_FMT","simOMPL.Algorithm.FMT",
+    "sim_ompl_algorithm_KPIECE1","simOMPL.Algorithm.KPIECE1",
+    "sim_ompl_algorithm_LazyPRM","simOMPL.Algorithm.LazyPRM",
+    "sim_ompl_algorithm_LazyPRMstar","simOMPL.Algorithm.LazyPRMstar",
+    "sim_ompl_algorithm_LazyRRT","simOMPL.Algorithm.LazyRRT",
+    "sim_ompl_algorithm_LBKPIECE1","simOMPL.Algorithm.LBKPIECE1",
+    "sim_ompl_algorithm_LBTRRT","simOMPL.Algorithm.LBTRRT",
+    "sim_ompl_algorithm_PDST","simOMPL.Algorithm.PDST",
+    "sim_ompl_algorithm_PRM","simOMPL.Algorithm.PRM",
+    "sim_ompl_algorithm_PRMstar","simOMPL.Algorithm.PRMstar",
+    "sim_ompl_algorithm_pRRT","simOMPL.Algorithm.pRRT",
+    "sim_ompl_algorithm_pSBL","simOMPL.Algorithm.pSBL",
+    "sim_ompl_algorithm_RRT","simOMPL.Algorithm.RRT",
+    "sim_ompl_algorithm_RRTConnect","simOMPL.Algorithm.RRTConnect",
+    "sim_ompl_algorithm_RRTstar","simOMPL.Algorithm.RRTstar",
+    "sim_ompl_algorithm_SBL","simOMPL.Algorithm.SBL",
+    "sim_ompl_algorithm_SPARS","simOMPL.Algorithm.SPARS",
+    "sim_ompl_algorithm_SPARStwo","simOMPL.Algorithm.SPARStwo",
+    "sim_ompl_algorithm_STRIDE","simOMPL.Algorithm.STRIDE",
+    "sim_ompl_algorithm_TRRT","simOMPL.Algorithm.TRRT",
+    "sim_ompl_statespacetype_position2d","simOMPL.StateSpaceType.position2d",
+    "sim_ompl_statespacetype_pose2d","simOMPL.StateSpaceType.pose2d",
+    "sim_ompl_statespacetype_position3d","simOMPL.StateSpaceType.position3d",
+    "sim_ompl_statespacetype_pose3d","simOMPL.StateSpaceType.pose3d",
+    "sim_ompl_statespacetype_joint_position","simOMPL.StateSpaceType.joint_position",
+    "","",
+};
+
+const SNewApiMapping _simSDFApiMapping[]=
+{
+    "simExtSDF_import","simSDF.import",
+    "simExtSDF_dump","simSDF.dump",
+    "","",
+};
+
+const SNewApiMapping _simSurfRecApiMapping[]=
+{
+    "simExtSurfaceReconstruction_reconstruct","simSurfRec.reconstruct",
+    "sim_surfacereconstruction_algorithm_scalespace","simSurfRec.Algorithm.scalespace",
+    "sim_surfacereconstruction_algorithm_poisson","simSurfRec.Algorithm.poisson",
+    "sim_surfacereconstruction_algorithm_advancingfront","simSurfRec.Algorithm.advancingfront",
+    "","",
+};
+
+const SNewApiMapping _simxApiMapping[]=
+{
+    "simxStart","simx.start",
+    "simxFinish","simx.finish",
+    "simxAddStatusbarMessage","simx.addStatusbarMessage",
+    "simxAuxiliaryConsoleClose","simx.auxiliaryConsoleClose",
+    "simxAuxiliaryConsoleOpen","simx.auxiliaryConsoleOpen",
+    "simxAuxiliaryConsolePrint","simx.auxiliaryConsolePrint",
+    "simxAuxiliaryConsoleShow","simx.auxiliaryConsoleShow",
+    "simxBreakForceSensor","simx.breakForceSensor",
+    "simxClearFloatSignal","simx.clearFloatSignal",
+    "simxClearIntegerSignal","simx.clearIntegerSignal",
+    "simxClearStringSignal","simx.clearStringSignal",
+    "simxGetObjectHandle","simx.getObjectHandle",
+    "simxCloseScene","simx.closeScene",
+    "simxCopyPasteObjects","simx.copyPasteObjects",
+    "simxLoadScene","simx.loadScene",
+    "simxLoadModel","simx.loadModel",
+    "simxSetBooleanParameter","simx.setBooleanParameter",
+    "simxStartSimulation","simx.startSimulation",
+    "simxStopSimulation","simx.stopSimulation",
+    "simxSetFloatingParameter","simx.setFloatingParameter",
+    "simxSetIntegerParameter","simx.setIntegerParameter",
+    "simxSetArrayParameter","simx.setArrayParameter",
+    "simxGetBooleanParameter","simx.getBooleanParameter",
+    "simxGetFloatingParameter","simx.getFloatingParameter",
+    "simxGetIntegerParameter","simx.getIntegerParameter",
+    "simxGetArrayParameter","simx.getArrayParameter",
+    "simxGetStringParameter","simx.getStringParameter",
+    "simxSetFloatSignal","simx.setFloatSignal",
+    "simxSetIntegerSignal","simx.setIntegerSignal",
+    "simxSetStringSignal","simx.setStringSignal",
+    "simxGetFloatSignal","simx.getFloatSignal",
+    "simxGetIntegerSignal","simx.getIntegerSignal",
+    "simxGetStringSignal","simx.getStringSignal",
+    "simxCreateDummy","simx.createDummy",
+    "simxDisplayDialog","simx.displayDialog",
+    "simxEndDialog","simx.endDialog",
+    "simxGetDialogInput","simx.getDialogInput",
+    "simxGetDialogResult","simx.getDialogResult",
+    "simxEraseFile","simx.eraseFile",
+    "simxGetCollisionHandle","simx.getCollisionHandle",
+    "simxGetCollectionHandle","simx.getCollectionHandle",
+    "simxGetConnectionId","simx.getConnectionId",
+    "simxGetDistanceHandle","simx.getDistanceHandle",
+    "simxGetInMessageInfo","simx.getInMessageInfo",
+    "simxGetOutMessageInfo","simx.getOutMessageInfo",
+    "simxGetJointForce","simx.getJointForce",
+    "simxGetJointMatrix","simx.getJointMatrix",
+    "simxGetJointPosition","simx.getJointPosition",
+    "simxGetLastCmdTime","simx.getLastCmdTime",
+    "simxGetLastErrors","simx.getLastErrors",
+    "simxGetModelProperty","simx.getModelProperty",
+    "simxGetObjectChild","simx.getObjectChild",
+    "simxGetObjectFloatParameter","simx.getObjectFloatParameter",
+    "simxGetObjectIntParameter","simx.getObjectIntParameter",
+    "simxGetObjectGroupData","simx.getObjectGroupData",
+    "simxGetObjectOrientation","simx.getObjectOrientation",
+    "simxGetObjectPosition","simx.getObjectPosition",
+    "simxGetObjectParent","simx.getObjectParent",
+    "simxGetObjects","simx.getObjects",
+    "simxGetObjectSelection","simx.getObjectSelection",
+    "simxGetObjectVelocity","simx.getObjectVelocity",
+    "simxGetPingTime","simx.getPingTime",
+    "simxGetVisionSensorDepthBuffer","simx.getVisionSensorDepthBuffer",
+    "simxGetVisionSensorImage","simx.getVisionSensorImage",
+    "simxSetVisionSensorImage","simx.setVisionSensorImage",
+    "simxPauseCommunication","simx.pauseCommunication",
+    "simxPauseSimulation","simx.pauseSimulation",
+    "simxQuery","simx.query",
+    "simxReadCollision","simx.readCollision",
+    "simxReadDistance","simx.readDistance",
+    "simxReadForceSensor","simx.readForceSensor",
+    "simxReadProximitySensor","simx.readProximitySensor",
+    "simxReadStringStream","simx.readStringStream",
+    "simxWriteStringStream","simx.writeStringStream",
+    "simxReadVisionSensor","simx.readVisionSensor",
+    "simxRemoveModel","simx.removeModel",
+    "simxRemoveObject","simx.removeObject",
+    "simxSetJointForce","simx.setJointForce",
+    "simxSetJointPosition","simx.setJointPosition",
+    "simxSetJointTargetPosition","simx.setJointTargetPosition",
+    "simxSetJointTargetVelocity","simx.setJointTargetVelocity",
+    "simxSetModelProperty","simx.setModelProperty",
+    "simxSetObjectOrientation","simx.setObjectOrientation",
+    "simxSetObjectPosition","simx.setObjectPosition",
+    "simxSetObjectParent","simx.setObjectParent",
+    "simxSetObjectSelection","simx.setObjectSelection",
+    "simxSetSphericalJointMatrix","simx.setSphericalJointMatrix",
+    "simxSynchronous","simx.synchronous",
+    "simxSynchronousTrigger","simx.synchronousTrigger",
+    "simxTransferFile","simx.transferFile",
+    "simxSetObjectFloatParameter","simx.setObjectFloatParameter",
+    "simxSetObjectIntParameter","simx.setObjectIntParameter",
+    "simxCallScriptFunction","simx.callScriptFunction",
+    "simxLoadUI","simx.loadUI",
+    "simxGetUIButtonProperty","simx.getUIButtonProperty",
+    "simxGetUIEventButton","simx.getUIEventButton",
+    "simxGetUIHandle","simx.getUIHandle",
+    "simxGetUISlider","simx.getUISlider",
+    "simxRemoveUI","simx.removeUI",
+    "simxSetUIButtonLabel","simx.setUIButtonLabel",
+    "simxSetUIButtonProperty","simx.setUIButtonProperty",
+    "simxSetUISlider","simx.setUISlider",
+    "simx_return_ok","simx.return_ok",
+    "simx_return_novalue_flag","simx.return_novalue_flag",
+    "simx_return_timeout_flag","simx.return_timeout_flag",
+    "simx_return_illegal_opmode_flag","simx.return_illegal_opmode_flag",
+    "simx_return_remote_error_flag","simx.return_remote_error_flag",
+    "simx_return_split_progress_flag","simx.return_split_progress_flag",
+    "simx_return_local_error_flag","simx.return_local_error_flag",
+    "simx_return_initialize_error_flag","simx.return_initialize_error_flag",
+    "simx_opmode_oneshot","simx.opmode_oneshot",
+    "simx_opmode_blocking","simx.opmode_blocking",
+    "simx_opmode_oneshot_wait","simx.opmode_oneshot_wait",
+    "simx_opmode_streaming","simx.opmode_streaming",
+    "simx_opmode_oneshot_split","simx.opmode_oneshot_split",
+    "simx_opmode_streaming_split","simx.opmode_streaming_split",
+    "simx_opmode_discontinue","simx.opmode_discontinue",
+    "simx_opmode_buffer","simx.opmode_buffer",
+    "simx_opmode_remove","simx.opmode_remove",
+    "simx_headeroffset_version","simx.headeroffset_version",
+    "simx_headeroffset_message_id","simx.headeroffset_message_id",
+    "simx_headeroffset_client_time","simx.headeroffset_client_time",
+    "simx_headeroffset_server_time","simx.headeroffset_server_time",
+    "simx_headeroffset_scene_id","simx.headeroffset_scene_id",
+    "simx_headeroffset_server_state","simx.headeroffset_server_state",
+    "simx_cmdheaderoffset_mem_size","simx.cmdheaderoffset_mem_size",
+    "simx_cmdheaderoffset_full_mem_size","simx.cmdheaderoffset_full_mem_size",
+    "simx_cmdheaderoffset_cmd","simx.cmdheaderoffset_cmd",
+    "simx_cmdheaderoffset_sim_time","simx.cmdheaderoffset_sim_time",
+    "simx_cmdheaderoffset_status","simx.cmdheaderoffset_status",
+    "","",
+};
 
 CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
 {
@@ -62,7 +1964,7 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
     _customObjectData=nullptr;
     _customObjectData_tempData=nullptr;
 
-    scriptParameters=new CLuaScriptParameters();
+    _scriptParameters_backCompatibility=new CUserParameters();
     _outsideCommandQueue=new COutsideCommandQueueForScript();
 
     _scriptType=scriptTypeOrMinusOneForSerialization;
@@ -72,6 +1974,7 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
     _containsDynCallbackFunction=false;
     _containsVisionCallbackFunction=false;
     _containsTriggerCallbackFunction=false;
+    _containsUserConfigCallbackFunction=false;
 
 
     L=nullptr;
@@ -79,7 +1982,7 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
     _inExecutionNow=false;
 
     if (_nextIdForExternalScriptEditor==-1)
-    { // new since 10/9/2014, otherwise there can be conflicts between simultaneously opened V-REP instances
+    { // new since 10/9/2014, otherwise there can be conflicts between simultaneously opened CoppeliaSim instances
         _nextIdForExternalScriptEditor=(VDateTime::getOSTimeInMs()&0xffff)*1000;
     }
     _filenameForExternalScriptEditor="embScript_"+tt::FNb(_nextIdForExternalScriptEditor++)+".lua";
@@ -101,7 +2004,7 @@ CLuaScriptObject::~CLuaScriptObject()
     FUNCTION_DEBUG;
     killLuaState(); // should already have been done outside of the destructor!
     clearAllUserData();
-    delete scriptParameters;
+    delete _scriptParameters_backCompatibility;
     delete _outsideCommandQueue;
     delete _customObjectData;
     delete _customObjectData_tempData;
@@ -334,6 +2237,13 @@ std::string CLuaScriptObject::getSystemCallbackString(int calltype,bool callTips
             r+="=(inData)\nCalled when a vision sensor requests image processing.";
         return(r);
     }
+    if (calltype==sim_syscb_userconfig)
+    {
+        std::string r("sysCall_userConfig");
+        if (callTips)
+            r+="=()\nCalled when the user double-clicks a user parameter icon.";
+        return(r);
+    }
     if (calltype==sim_syscb_trigger)
     {
         std::string r("sysCall_trigger");
@@ -374,7 +2284,7 @@ std::string CLuaScriptObject::getSystemCallbackString(int calltype,bool callTips
     {
         std::string r("sysCall_br");
         if (callTips)
-            r+="=(...)\nCalled for BlueReality functionality.";
+            r+="=(...)\nCalled for XReality functionality.";
         return(r);
     }
     return("");
@@ -529,6 +2439,8 @@ bool CLuaScriptObject::canCallSystemCallback(int scriptType,bool threaded,int ca
             return(true);
         if (callType==sim_syscb_dyncallback)
             return(true);
+        if (callType==sim_syscb_userconfig)
+            return(true);
         if ( (callType>=sim_syscb_customcallback1)&&(callType<=sim_syscb_customcallback4) )
             return(true);
     }
@@ -641,6 +2553,7 @@ std::vector<std::string> CLuaScriptObject::getAllSystemCallbackStrings(int scrip
                  sim_syscb_customcallback3,
                  sim_syscb_customcallback4,
                  sim_syscb_threadmain,
+                 sim_syscb_userconfig,
                  sim_syscb_br,
                  -1
             };
@@ -697,6 +2610,11 @@ bool CLuaScriptObject::getContainsVisionCallbackFunction() const
 bool CLuaScriptObject::getContainsTriggerCallbackFunction() const
 {
     return(_containsTriggerCallbackFunction);
+}
+
+bool CLuaScriptObject::getContainsUserConfigCallbackFunction() const
+{
+    return(_containsUserConfigCallbackFunction);
 }
 
 int CLuaScriptObject::getErrorReportMode() const
@@ -840,8 +2758,8 @@ void CLuaScriptObject::initializeInitialValues(bool simulationIsRunning)
         {
 
         }
-        if (scriptParameters!=nullptr)
-            scriptParameters->initializeInitialValues(simulationIsRunning);
+//        if (_scriptParameters_backCompatibility!=nullptr)
+//            _scriptParameters_backCompatibility->initializeInitialValues(simulationIsRunning);
         if (_outsideCommandQueue!=nullptr)
             _outsideCommandQueue->initializeInitialValues(simulationIsRunning);
     }
@@ -867,8 +2785,8 @@ void CLuaScriptObject::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
     if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript) )
     {
-        if (scriptParameters!=nullptr)
-            scriptParameters->simulationEnded();
+//        if (_scriptParameters_backCompatibility!=nullptr)
+//            _scriptParameters_backCompatibility->simulationEnded();
         if (_outsideCommandQueue!=nullptr)
             _outsideCommandQueue->simulationEnded();
         _scriptTextExec.clear();
@@ -1550,7 +3468,7 @@ bool CLuaScriptObject::launchThreadedChildScript()
         return(false);
 
     _threadedExecutionUnderWay=true;
-    _globalMutex.lock();
+    _globalMutex.lock("CLuaScriptObject::launchThreadedChildScript()");
     toBeCalledByThread.push_back(this);
     _globalMutex.unlock();
     _threadedScript_associatedFiberOrThreadID=CThreadPool::createNewThread(_startAddressForThreadedScripts);
@@ -1607,7 +3525,6 @@ void CLuaScriptObject::_launchThreadedChildScriptNow()
             _containsVisionCallbackFunction=luaWrap_lua_isfunction(L,-1);
             luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_trigger,false).c_str());
             _containsTriggerCallbackFunction=luaWrap_lua_isfunction(L,-1);
-            luaWrap_lua_pop(L,2);
 
             int calls[2]={sim_syscb_threadmain,sim_syscb_cleanup};
             bool errOccured=false;
@@ -1846,7 +3763,9 @@ int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfa
             _containsVisionCallbackFunction=luaWrap_lua_isfunction(L,-1);
             luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_trigger,false).c_str());
             _containsTriggerCallbackFunction=luaWrap_lua_isfunction(L,-1);
-            luaWrap_lua_pop(L,5);
+            luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_userconfig,false).c_str());
+            _containsUserConfigCallbackFunction=luaWrap_lua_isfunction(L,-1);
+            luaWrap_lua_pop(L,6);
         }
         // Push the function name onto the stack (will be automatically popped from stack after _luaPCall):
         std::string funcName(getSystemCallbackString(callType,false));
@@ -2019,7 +3938,7 @@ VTHREAD_ID_TYPE CLuaScriptObject::getThreadedScriptThreadId() const
 VTHREAD_RETURN_TYPE CLuaScriptObject::_startAddressForThreadedScripts(VTHREAD_ARGUMENT_TYPE lpData)
 {
     FUNCTION_DEBUG;
-    _globalMutex.lock();
+    _globalMutex.lock("CLuaScriptObject::_startAddressForThreadedScripts()");
     CLuaScriptObject* it=toBeCalledByThread[0];
     toBeCalledByThread.erase(toBeCalledByThread.begin());
     _globalMutex.unlock();
@@ -2509,6 +4428,7 @@ bool CLuaScriptObject::killLuaState()
     _containsDynCallbackFunction=false;
     _containsVisionCallbackFunction=false;
     _containsTriggerCallbackFunction=false;
+    _containsUserConfigCallbackFunction=false;
     _flaggedForDestruction=false;
     return(retVal);
 }
@@ -2580,8 +4500,9 @@ CLuaScriptObject* CLuaScriptObject::copyYourself()
     it->_customizationScriptIsTemporarilyDisabled=_customizationScriptIsTemporarilyDisabled;
     it->setScriptText(getScriptText());
 
-    delete it->scriptParameters;
-    it->scriptParameters=scriptParameters->copyYourself();
+//    delete it->_scriptParameters_backCompatibility;
+//    it->_scriptParameters_backCompatibility=_scriptParameters_backCompatibility->copyYourself();
+
     it->_executeJustOnce=_executeJustOnce;
 
     delete it->_customObjectData;
@@ -2598,9 +4519,9 @@ CLuaScriptObject* CLuaScriptObject::copyYourself()
     return(it);
 }
 
-CLuaScriptParameters* CLuaScriptObject::getScriptParametersObject()
+CUserParameters* CLuaScriptObject::getScriptParametersObject_backCompatibility()
 {
-    return(scriptParameters);
+    return(_scriptParameters_backCompatibility);
 }
 
 bool CLuaScriptObject::addCommandToOutsideCommandQueue(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const float aux2Vals[8],int aux2Count)
@@ -2730,11 +4651,11 @@ void CLuaScriptObject::serialize(CSer& ar)
                 ar << stt[i];
             ar.flush();
 
-            ar.storeDataName("Prm");
-            ar.setCountingMode();
-            scriptParameters->serialize(ar);
-            if (ar.setWritingMode())
-                scriptParameters->serialize(ar);
+//            ar.storeDataName("Prm");
+//            ar.setCountingMode();
+//            _scriptParameters_backCompatibility->serialize(ar);
+//            if (ar.setWritingMode())
+//                _scriptParameters_backCompatibility->serialize(ar);
 
             // keep a while so that older versions can read this. 11.06.2019, V3.6.1 is current
             ar.storeDataName("Coc");
@@ -2873,18 +4794,20 @@ void CLuaScriptObject::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        delete scriptParameters;
-                        scriptParameters=new CLuaScriptParameters();
-                        scriptParameters->serialize(ar);
+                        delete _scriptParameters_backCompatibility;
+                        _scriptParameters_backCompatibility=new CUserParameters();
+                        _scriptParameters_backCompatibility->serialize(ar);
+                        /*
                         if (_scriptType==sim_scripttype_mainscript)
                         { // We just loaded a main script. Do we want to load the default main script parameters instead?
                             if (_mainScriptIsDefaultMainScript)
                             { // Yes!
                                 // For now we just clear all parameters! (in future we might load default  parameters)
-                                delete scriptParameters;
-                                scriptParameters=new CLuaScriptParameters();
+                                delete _scriptParameters_backCompatibility;
+                                _scriptParameters_backCompatibility=new CUserParameters();
                             }
                         }
+                        */
                     }
 
                     if (theName.compare("Coc")==0)
@@ -2909,16 +4832,143 @@ void CLuaScriptObject::serialize(CSer& ar)
                 }
             }
 
-            handleVerSpec_adjustScriptText1(this,backwardCompatibility_7_8_2014,executeInSensingPhase_oldCompatibility_7_8_2014);
-            handleVerSpec_adjustScriptText2(this,(!backwardCompatibility_7_8_2014)&&backwardCompatibility_13_8_2014);
-            handleVerSpec_adjustScriptText3(this,backwardCompatibilityCorrectionNeeded_13_10_2014);
-            handleVerSpec_adjustScriptText4(this,backwardCompatibilityCorrectionNeeded_8_11_2014);
-            handleVerSpec_adjustScriptText5(this,ar.getVrepVersionThatWroteThisFile()<30300);
-            handleVerSpec_adjustScriptText6(this,ar.getVrepVersionThatWroteThisFile()<30300);
-            handleVerSpec_adjustScriptText7(this,(ar.getVrepVersionThatWroteThisFile()<=30302)&&(VREP_PROGRAM_VERSION_NB>30302));
-            handleVerSpec_adjustScriptText8(this,App::userSettings->changeScriptCodeForNewApiNotation);
-            handleVerSpec_adjustScriptText9(this);
-            handleVerSpec_adjustScriptText10(this,ar.getVrepVersionThatWroteThisFile()<30401);
+            _adjustScriptText1(this,backwardCompatibility_7_8_2014,executeInSensingPhase_oldCompatibility_7_8_2014);
+            _adjustScriptText2(this,(!backwardCompatibility_7_8_2014)&&backwardCompatibility_13_8_2014);
+            _adjustScriptText3(this,backwardCompatibilityCorrectionNeeded_13_10_2014);
+            _adjustScriptText4(this,backwardCompatibilityCorrectionNeeded_8_11_2014);
+            _adjustScriptText5(this,ar.getCoppeliaSimVersionThatWroteThisFile()<30300);
+            _adjustScriptText6(this,ar.getCoppeliaSimVersionThatWroteThisFile()<30300);
+            _adjustScriptText7(this,(ar.getCoppeliaSimVersionThatWroteThisFile()<=30302)&&(SIM_PROGRAM_VERSION_NB>30302));
+            _adjustScriptText8(this,App::userSettings->changeScriptCodeForNewApiNotation);
+            _adjustScriptText9(this);
+            _adjustScriptText10(this,ar.getCoppeliaSimVersionThatWroteThisFile()<30401);
+            fromBufferToFile();
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            if (exhaustiveXml)
+            {
+                ar.xmlAddNode_int("handle",scriptID);
+                ar.xmlAddNode_int("objectHandle",_objectIDAttachedTo);
+
+                ar.xmlAddNode_enum("type",_scriptType,sim_scripttype_mainscript,"mainScript",sim_scripttype_childscript,"childScript",sim_scripttype_customizationscript,"customizationScript");
+            }
+
+            ar.xmlPushNewNode("switches");
+            if ( exhaustiveXml||(_scriptType==sim_scripttype_childscript) )
+                ar.xmlAddNode_bool("threadedExecution",_threadedExecution);
+            ar.xmlAddNode_bool("enabled",!_scriptIsDisabled);
+            if (exhaustiveXml)
+                ar.xmlAddNode_bool("isDefaultMainScript",_mainScriptIsDefaultMainScript);
+            if ( exhaustiveXml||(_scriptType==sim_scripttype_childscript) )
+                ar.xmlAddNode_bool("executeOnce",_executeJustOnce);
+            if ( exhaustiveXml||(_scriptType==sim_scripttype_customizationscript) )
+                ar.xmlAddNode_bool("disableCustomizationScriptWithError",_disableCustomizationScriptWithError);
+            ar.xmlPopNode();
+
+            ar.xmlAddNode_int("executionOrder",_executionOrder);
+            ar.xmlAddNode_int("treeTraversalDirection",_treeTraversalDirection);
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("debugLevel",_debugLevel);
+
+            std::string tmp(_scriptText.c_str());
+            boost::replace_all(tmp,"\r\n","\n");
+            ar.xmlAddNode_string("scriptText",tmp.c_str());
+
+            if (exhaustiveXml)
+            {
+//                ar.xmlPushNewNode("scriptParameters");
+//                _scriptParameters_backCompatibility->serialize(ar);
+//                ar.xmlPopNode();
+
+                if (_customObjectData!=nullptr)
+                {
+                    ar.xmlPushNewNode("customData");
+                    _customObjectData->serializeData(ar,nullptr,scriptID);
+                    ar.xmlPopNode();
+                }
+            }
+        }
+        else
+        {
+            if (exhaustiveXml)
+            {
+                ar.xmlGetNode_int("handle",scriptID);
+                ar.xmlGetNode_int("objectHandle",_objectIDAttachedTo);
+
+                ar.xmlGetNode_enum("type",_scriptType,true,"mainScript",sim_scripttype_mainscript,"childScript",sim_scripttype_childscript,"customizationScript",sim_scripttype_customizationscript);
+            }
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                if ( exhaustiveXml||(_scriptType==sim_scripttype_childscript) )
+                    ar.xmlGetNode_bool("threadedExecution",_threadedExecution,exhaustiveXml);
+                if (ar.xmlGetNode_bool("enabled",_scriptIsDisabled,exhaustiveXml))
+                    _scriptIsDisabled=!_scriptIsDisabled;
+                if (exhaustiveXml)
+                    ar.xmlGetNode_bool("isDefaultMainScript",_mainScriptIsDefaultMainScript);
+                if ( exhaustiveXml||(_scriptType==sim_scripttype_childscript) )
+                    ar.xmlGetNode_bool("executeOnce",_executeJustOnce,exhaustiveXml);
+                if ( exhaustiveXml||(_scriptType==sim_scripttype_customizationscript) )
+                    ar.xmlGetNode_bool("disableCustomizationScriptWithError",_disableCustomizationScriptWithError,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            ar.xmlGetNode_int("executionOrder",_executionOrder,exhaustiveXml);
+            ar.xmlGetNode_int("treeTraversalDirection",_treeTraversalDirection,exhaustiveXml);
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("debugLevel",_debugLevel);
+
+            if (ar.xmlGetNode_string("scriptText",_scriptText,exhaustiveXml))
+            {
+                if (_scriptType==sim_scripttype_mainscript)
+                { // We just loaded a main script text. Do we want to load the default main script instead?
+                    if (_mainScriptIsDefaultMainScript)
+                    { // Yes!
+                        std::string filenameAndPath(App::directories->systemDirectory+"/");
+                        filenameAndPath+=DEFAULT_MAINSCRIPT_NAME;
+                        if (VFile::doesFileExist(filenameAndPath))
+                        {
+                            try
+                            {
+                                VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
+                                VArchive archive2(&file,VArchive::LOAD);
+                                unsigned int archiveLength=(unsigned int)file.getLength();
+                                // We replace current script with a default main script
+                                _scriptText.resize(archiveLength,' ');
+                                for (unsigned int i=0;i<archiveLength;i++)
+                                    archive2 >> _scriptText[i];
+                                archive2.close();
+                                file.close();
+                            }
+                            catch(VFILE_EXCEPTION_TYPE e)
+                            {
+                                VFile::reportAndHandleFileExceptionError(e);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (exhaustiveXml)
+            {
+//                if (ar.xmlPushChildNode("scriptParameters"))
+//                {
+//                    _scriptParameters_backCompatibility->serialize(ar);
+//                    ar.xmlPopNode();
+//                }
+
+                if (ar.xmlPushChildNode("customData",false))
+                {
+                    _customObjectData=new CCustomData();
+                    _customObjectData->serializeData(ar,nullptr,-1);
+                    ar.xmlPopNode();
+                }
+            }
             fromBufferToFile();
         }
     }
@@ -3179,3 +5229,770 @@ bool CLuaScriptObject::checkAndSetWarning_simFindIkPath_oldCompatibility_2_2_201
     return(retVal);
 }
 
+void CLuaScriptObject::_insertScriptText(CLuaScriptObject* scriptObject,bool toFront,const char* txt)
+{
+    std::string theScript(scriptObject->getScriptText());
+    if (toFront)
+        theScript=std::string(txt)+theScript;
+    else
+        theScript+=txt;
+    scriptObject->setScriptText(theScript.c_str());
+
+/*
+    if (_scriptText_==nullptr)
+        return;
+    std::string theScript(_scriptText_);
+    if (toFront)
+        theScript=std::string(txt)+theScript;
+    else
+        theScript+=txt;
+    delete[] _scriptText_;
+    _scriptTextLength_=int(theScript.length())+1;
+    _scriptText_=new char[_scriptTextLength_];
+    for (int i=0;i<_scriptTextLength_-1;i++)
+        _scriptText_[i]=theScript[i];
+    _scriptText_[_scriptTextLength_-1]=0;
+    */
+}
+
+std::string CLuaScriptObject::_replaceOldApi(const std::string& txt,bool forwardAdjustment)
+{ // recursive
+    size_t p=txt.find("sim");
+//    while ( forwardAdjustment&&(p!=std::string::npos)&&(p<txt.size()-3)&&(txt[p+3]=='.') )
+//    { // this is just to accelerate the search once we have done it already once (do not search words starting with "sim.")
+//        p=txt.find("sim",p+3);
+//    }
+    if (p!=std::string::npos)
+    {
+        std::string beforePart;
+        std::string apiWord;
+        std::string afterPart;
+        _splitApiText(txt,p,beforePart,apiWord,afterPart);
+        std::map<std::string,std::string>::iterator it=_newApiMap.find(apiWord);
+        if (it!=_newApiMap.end())
+        {
+            apiWord=it->second;
+            // Do a second stage replacement:
+            std::map<std::string,std::string>::iterator it2=_newApiMap.find(apiWord);
+            if (it2!=_newApiMap.end())
+                apiWord=it2->second;
+        }
+        return(beforePart+apiWord+_replaceOldApi(afterPart,forwardAdjustment));
+    }
+    return(txt);
+}
+
+void CLuaScriptObject::_performNewApiAdjustments(CLuaScriptObject* scriptObject,bool forwardAdjustment)
+{
+    std::vector<const SNewApiMapping*> all;
+    if (_newApiMap.begin()==_newApiMap.end())
+        all.push_back(_simApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simBubble"))
+        all.push_back(_simBubbleApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simK3"))
+        all.push_back(_simK3ApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simMTB"))
+        all.push_back(_simMTBApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simOpenMesh"))
+        all.push_back(_simOpenMeshApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simSkeleton"))
+        all.push_back(_simSkeletonApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simQHull"))
+        all.push_back(_simQHullApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simRemoteApi"))
+        all.push_back(_simRemoteApiApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simRRS1"))
+        all.push_back(_simRRS1ApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simVision"))
+        all.push_back(_simVisionApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simCam"))
+        all.push_back(_simCamApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simJoy"))
+        all.push_back(_simJoyApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simWii"))
+        all.push_back(_simWiiApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simURDF"))
+        all.push_back(_simURDFApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simBWF"))
+        all.push_back(_simBWFApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simUI"))
+        all.push_back(_simUIApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simROS"))
+        all.push_back(_simROSApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simICP"))
+        all.push_back(_simICPApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simOMPL"))
+        all.push_back(_simOMPLApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simSDF"))
+        all.push_back(_simSDFApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simSurfRec"))
+        all.push_back(_simSurfRecApiMapping);
+    if (App::ct->luaCustomFuncAndVarContainer->isVariableNamePresent("simx"))
+        all.push_back(_simxApiMapping);
+
+    for (size_t j=0;j<all.size();j++)
+    {
+        const SNewApiMapping* aMapping=all[j];
+        for (int i=0;aMapping[i].oldApi!="";i++)
+        {
+            if (forwardAdjustment)
+                _newApiMap[aMapping[i].oldApi]=aMapping[i].newApi;
+            else
+                _newApiMap[aMapping[i].newApi]=aMapping[i].oldApi;
+        }
+    }
+
+
+    std::string theScript(scriptObject->getScriptText());
+    theScript=_replaceOldApi(theScript,forwardAdjustment);
+    scriptObject->setScriptText(theScript.c_str());
+
+/*
+    if (_scriptText_!=nullptr)
+    {
+
+        std::string theScript(_scriptText_);
+        theScript=_replaceOldApi(theScript,forwardAdjustment);
+
+        delete[] _scriptText_;
+        _scriptTextLength_=int(theScript.length())+1;
+        _scriptText_=new char[_scriptTextLength_];
+        for (int i=0;i<_scriptTextLength_-1;i++)
+            _scriptText_[i]=theScript[i];
+        _scriptText_[_scriptTextLength_-1]=0;
+    }
+            */
+}
+
+std::string CLuaScriptObject::extractScriptText(CLuaScriptObject* scriptObject,const char* startLine,const char* endLine,bool discardEndLine)
+{
+    std::string theScript(scriptObject->getScriptText());
+    size_t startPos=theScript.find(startLine,0);
+    if (startPos!=std::string::npos)
+    {
+        bool replacedSomething=false;
+        size_t endPos=theScript.find(endLine,startPos);
+        if (endPos==std::string::npos)
+            return("");
+        size_t endPos2=theScript.find("\n",endPos+1);
+        if (endPos2==std::string::npos)
+            endPos2=theScript.length();
+        replacedSomething=true;
+        std::string ret;
+        if (discardEndLine)
+        {
+            ret.assign(theScript.begin()+startPos,theScript.begin()+endPos);
+            theScript.replace(startPos,endPos2+1-startPos,"");
+        }
+        else
+        {
+            ret.assign(theScript.begin()+startPos,theScript.begin()+endPos2+2);
+            theScript.replace(startPos,endPos2+1-startPos,"");
+        }
+        if (replacedSomething)
+            scriptObject->setScriptText(theScript.c_str());
+        return(ret);
+    }
+    return("");
+}
+
+
+bool CLuaScriptObject::_replaceScriptText(CLuaScriptObject* scriptObject,const char* oldTxt,const char* newTxt)
+{
+    std::string theScript(scriptObject->getScriptText());
+    size_t startPos=theScript.find(oldTxt,0);
+    bool replacedSomething=false;
+    while (startPos!=std::string::npos)
+    {
+        theScript.replace(startPos,strlen(oldTxt),newTxt);
+        startPos=theScript.find(oldTxt,startPos+1);
+        replacedSomething=true;
+    }
+    if (replacedSomething)
+        scriptObject->setScriptText(theScript.c_str());
+    return(replacedSomething);
+}
+
+bool CLuaScriptObject::_replaceScriptTextKeepMiddleUnchanged(CLuaScriptObject* scriptObject,const char* oldTxtStart,const char* oldTxtEnd,const char* newTxtStart,const char* newTxtEnd)
+{ // Will do following: oldTextStart*oldTextEnd --> nextTextStart*newTextEnd
+    std::string theScript(scriptObject->getScriptText());
+    size_t startPos=theScript.find(oldTxtStart,0);
+    bool replacedSomething=false;
+    while (startPos!=std::string::npos)
+    {
+        size_t startPos2=theScript.find(oldTxtEnd,startPos+strlen(oldTxtStart));
+        if (startPos2!=std::string::npos)
+        {
+            // check if we have a line break in-between:
+            bool lineBreak=false;
+            for (size_t i=startPos;i<startPos2;i++)
+            {
+                if ( (theScript[i]==(unsigned char)13)||(theScript[i]==(unsigned char)10) )
+                {
+                    lineBreak=true;
+                    break;
+                }
+            }
+            if (!lineBreak)
+            {
+                theScript.replace(startPos2,strlen(oldTxtEnd),newTxtEnd);
+                theScript.replace(startPos,strlen(oldTxtStart),newTxtStart);
+                startPos=theScript.find(oldTxtStart,startPos2+strlen(newTxtEnd)+strlen(newTxtStart)-strlen(oldTxtStart));
+                replacedSomething=true;
+            }
+            else
+                startPos=theScript.find(oldTxtStart,startPos+1);
+        }
+        else
+            startPos=theScript.find(oldTxtStart,startPos+1);
+    }
+    if (replacedSomething)
+        scriptObject->setScriptText(theScript.c_str());
+    return(replacedSomething);
+}
+
+bool CLuaScriptObject::_replaceScriptText(CLuaScriptObject* scriptObject,const char* oldTxt1,const char* oldTxt2,const char* oldTxt3,const char* newTxt)
+{ // there can be spaces between the 3 words
+    std::string theScript(scriptObject->getScriptText());
+    size_t l1=strlen(oldTxt1);
+    size_t l2=strlen(oldTxt2);
+    size_t l3=strlen(oldTxt3);
+    bool replacedSomething=false;
+    size_t searchStart=0;
+    while (searchStart<theScript.length())
+    {
+        size_t startPos1=theScript.find(oldTxt1,searchStart);
+        if (startPos1!=std::string::npos)
+        {
+            searchStart=startPos1+1;
+            size_t startPos2=theScript.find(oldTxt2,startPos1+l1);
+            if (startPos2!=std::string::npos)
+            {
+                bool onlySpaces=true;
+                size_t p=startPos1+l1;
+                while (p<startPos2)
+                {
+                    if (theScript[p]!=' ')
+                        onlySpaces=false;
+                    p++;
+                }
+                if (onlySpaces)
+                {
+                    size_t startPos3=theScript.find(oldTxt3,startPos2+l2);
+                    if (startPos3!=std::string::npos)
+                    {
+                        onlySpaces=true;
+                        p=startPos2+l2;
+                        while (p<startPos3)
+                        {
+                            if (theScript[p]!=' ')
+                                onlySpaces=false;
+                            p++;
+                        }
+                        if (onlySpaces)
+                        { // ok!
+                            theScript.replace(startPos1,startPos3-startPos1+l3,newTxt);
+                            replacedSomething=true;
+                        }
+                    }
+                }
+            }
+        }
+        else
+            searchStart=theScript.length();
+    }
+    if (replacedSomething)
+        scriptObject->setScriptText(theScript.c_str());
+    return(replacedSomething);
+}
+
+bool CLuaScriptObject::_containsScriptText(CLuaScriptObject* scriptObject,const char* txt)
+{
+    const std::string theScript(scriptObject->getScriptText());
+    size_t startPos=theScript.find(txt);
+    return(startPos!=std::string::npos);
+}
+
+int CLuaScriptObject::_countOccurences(const std::string& source,const char* word)
+{
+    int cnt=0;
+    size_t pos=source.find(word,0);
+    while (pos!=std::string::npos)
+    {
+        cnt++;
+        pos=source.find(word,pos+1);
+    }
+    return(cnt);
+}
+
+void CLuaScriptObject::_splitApiText(const std::string& txt,size_t pos,std::string& beforePart,std::string& apiWord,std::string& afterPart)
+{
+    size_t endPos;
+    for (size_t i=pos;i<txt.size();i++)
+    {
+        char c=txt[i];
+        if ( ((c>='0')&&(c<='9')) || ((c>='a')&&(c<='z')) || ((c>='A')&&(c<='Z')) || (c=='_') || (c=='.') )
+            endPos=i+1;
+        else
+            break;
+    }
+    if (pos>0)
+        beforePart.assign(txt.begin(),txt.begin()+pos);
+    else
+        beforePart.clear();
+    apiWord.assign(txt.begin()+pos,txt.begin()+endPos);
+    if (endPos<txt.size())
+        afterPart.assign(txt.begin()+endPos,txt.end());
+    else
+        afterPart.clear();
+}
+
+void CLuaScriptObject::_adjustScriptText1(CLuaScriptObject* scriptObject,bool doIt,bool doIt2)
+{
+    if (!doIt)
+        return;
+    // here we have to adjust for the new script execution engine (since V3.1.3):
+    if ( (scriptObject->getScriptType()==sim_scripttype_mainscript)&&(!scriptObject->isDefaultMainScript()) )
+    {
+        // We will comment out the customized main script, load the default main script, and display a message so the user knows what happened!!
+        std::string filenameAndPath(App::directories->systemDirectory+"/");
+        filenameAndPath+=DEFAULT_MAINSCRIPT_NAME;
+        std::string defaultMainScriptContent;
+        if (VFile::doesFileExist(filenameAndPath))
+        {
+            try
+            {
+                VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
+                VArchive archive2(&file,VArchive::LOAD);
+                unsigned int archiveLength=(unsigned int)file.getLength();
+                char dummy;
+                for (int i=0;i<int(archiveLength);i++)
+                {
+                    archive2 >> dummy;
+                    defaultMainScriptContent+=dummy;
+                }
+                archive2.close();
+                file.close();
+            }
+            catch(VFILE_EXCEPTION_TYPE e)
+            {
+                VFile::reportAndHandleFileExceptionError(e);
+                defaultMainScriptContent="";
+            }
+        }
+        std::string txt;
+
+        // Comment out the old script:
+        txt+=" \n";
+        txt+=" \n";
+        txt+="------------------------------------------------------------------------------ \n";
+        txt+="-- Following main script automatically commented out by CoppeliaSim to guarantee \n";
+        txt+="-- compatibility with CoppeliaSim 3.1.3 and later: \n";
+        txt+=" \n";
+        txt+="--[[ \n";
+        txt+=" \n";
+        _insertScriptText(scriptObject,true,txt.c_str());
+        txt="";
+        txt+="\n";
+        txt+=" \n";
+        txt+=" \n";
+        txt+="--]] \n";
+        txt+="------------------------------------------------------------------------------ \n";
+        _insertScriptText(scriptObject,false,txt.c_str());
+
+        if (defaultMainScriptContent.size()>200)
+        {
+            // Insert the default main script:
+            _insertScriptText(scriptObject,true,defaultMainScriptContent.c_str());
+            // Insert some message to the user:
+            txt="";
+            txt+="------------------------------------------------------------------------------ \n";
+            txt+="-- The main script was automatically adjusted by CoppeliaSim to guarantee compatibility \n";
+            txt+="-- with CoppeliaSim 3.1.3 and later. You will find the original main script \n";
+            txt+="-- commented out below \n";
+            txt+="if (sim_call_type==sim.syscb_init) then \n";
+            txt+="  simSetScriptAttribute(sim_handle_self,sim_scriptattribute_executioncount,-1) \n";
+            txt+="  local theTxt='The main script of this scene was customized (which is anyway not recommended),&&nand probably not compatible with CoppeliaSim release 3.1.3 and later. For that reason,&&nthe main script was replaced with the default main script. If your scene does not run&&nas expected, have a look at the main script code. '\n";
+            txt+="  local h=simDisplayDialog('Compatibility issue',theTxt,sim_dlgstyle_ok,false,'',{0.8,0,0,0,0,0},{0.5,0,0,1,1,1}) \n";
+            txt+="end \n";
+            txt+="------------------------------------------------------------------------------ \n";
+            txt+=" \n";
+            txt+=" \n";
+            _insertScriptText(scriptObject,true,txt.c_str());
+
+            txt="\n";
+            txt+="Compatibility issue with @@REPLACE@@\n";
+            txt+="Since CoppeliaSim 3.1.3, the functions simHandleChildScript and simHandleSensingChildScripts\n";
+            txt+="were replaced with simHandleChildScripts (i.e. with an additional 's'), which\n";
+            txt+="operates slightly differently. In addition to this, a new function was introduced that\n";
+            txt+="handles threaded child scripts: simLaunchThreadedChildScripts. For that reason, CoppeliaSim\n";
+            txt+="has automatically adjusted the customized main script. Make sure that everything\n";
+            txt+="still works as expected.\n";
+            txt+="\n";
+            App::ct->objCont->appendLoadOperationIssue(txt.c_str(),scriptObject->getScriptID());
+
+        }
+        else
+        { // there was a problem loading the default main script.
+            // Insert some message to the user:
+            txt="";
+            txt+="------------------------------------------------------------------------------ \n";
+            txt+="-- Please manually adjust the customized main script \n";
+            txt+="if (sim_call_type==sim.syscb_init) then \n";
+            txt+="  simSetScriptAttribute(sim_handle_self,sim_scriptattribute_executioncount,-1) \n";
+            txt+="  local theTxt='Please manually adjust the main script!!'\n";
+            txt+="  local h=simDisplayDialog('Compatibility issue',theTxt,sim_dlgstyle_ok,false,'',{0.8,0,0,0,0,0},{0.5,0,0,1,1,1}) \n";
+            txt+="end \n";
+            txt+="------------------------------------------------------------------------------ \n";
+            txt+=" \n";
+            txt+=" \n";
+            _insertScriptText(scriptObject,true,txt.c_str());
+
+            txt="\n";
+            txt+="Compatibility issue with @@REPLACE@@\n";
+            txt+="Since CoppeliaSim 3.1.3, the functions simHandleChildScript and simHandleSensingChildScripts\n";
+            txt+="were replaced with simHandleChildScripts (i.e. with an additional 's'), which\n";
+            txt+="operates slightly differently. In addition to this, a new function was introduced that\n";
+            txt+="handles threaded child scripts: simLaunchThreadedChildScripts. For that reason, CoppeliaSim\n";
+            txt+="tried to automatically adjusted the customized main script, but couldn't find the default\n";
+            txt+="main script normally located in system/dltmscpt.txt. Please manually adjust the main script.\n";
+            txt+="\n";
+            App::ct->objCont->appendLoadOperationIssue(txt.c_str(),scriptObject->getScriptID());
+        }
+    }
+    if (scriptObject->getScriptType()==sim_scripttype_childscript)
+    {
+        if (!scriptObject->getThreadedExecution())
+        {
+
+            _replaceScriptText(scriptObject,"\n","\n\t"); // "\r\n" is also handled
+
+            std::string txt;
+            if (doIt2)
+            {
+                // Add text to the beginning:
+                txt+="------------------------------------------------------------------------------ \n";
+                txt+="-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
+                txt+="-- with CoppeliaSim 3.1.3 and later: \n";
+                txt+="if (sim_call_type==sim.syscb_init) then \n";
+                txt+=" \n";
+                txt+="end \n";
+                txt+="if (sim_call_type==sim.syscb_cleanup) then \n";
+                txt+=" \n";
+                txt+="end \n";
+                txt+="if (sim_call_type==sim.syscb_sensing) then \n";
+                txt+="  if not firstTimeHere93846738 then \n";
+                txt+="      firstTimeHere93846738=0 \n";
+                txt+="  end \n";
+                txt+="  simSetScriptAttribute(sim_handle_self,sim_scriptattribute_executioncount,firstTimeHere93846738) \n";
+                txt+="  firstTimeHere93846738=firstTimeHere93846738+1 \n";
+                txt+=" \n";
+                txt+="------------------------------------------------------------------------------ \n";
+                txt+=" \n";
+                txt+=" \n";
+                _insertScriptText(scriptObject,true,txt.c_str());
+
+                // Add text to the end:
+                txt="\n";
+                txt+=" \n";
+                txt+=" \n";
+                txt+="------------------------------------------------------------------------------ \n";
+                txt+="-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
+                txt+="-- with CoppeliaSim 3.1.3 and later: \n";
+                txt+="end \n";
+                txt+="------------------------------------------------------------------------------ \n";
+                _insertScriptText(scriptObject,false,txt.c_str());
+
+                // Because in old sensing child scripts, simHandleChildScript didn't anyway have an effect:
+                _replaceScriptText(scriptObject,"simHandleChildScript(","-- commented by CoppeliaSim: s@imHandleChildScript(");
+                _replaceScriptText(scriptObject,"s@imHandleChildScript","simHandleChildScript");
+            }
+            else
+            { // actuation child script
+                // Add text to the beginning:
+                txt+="------------------------------------------------------------------------------ \n";
+                txt+="-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
+                txt+="-- with CoppeliaSim 3.1.3 and later: \n";
+                txt+="if (sim_call_type==sim.syscb_init) then \n";
+                txt+="  simSetScriptAttribute(sim_handle_self,sim_childscriptattribute_automaticcascadingcalls,false) \n";
+                txt+="end \n";
+                txt+="if (sim_call_type==sim.syscb_cleanup) then \n";
+                txt+=" \n";
+                txt+="end \n";
+                txt+="if (sim_call_type==sim.syscb_sensing) then \n";
+                txt+="  simHandleChildScripts(sim_call_type) \n";
+                txt+="end \n";
+                txt+="if (sim_call_type==sim.syscb_actuation) then \n";
+                txt+="  if not firstTimeHere93846738 then \n";
+                txt+="      firstTimeHere93846738=0 \n";
+                txt+="  end \n";
+                txt+="  simSetScriptAttribute(sim_handle_self,sim_scriptattribute_executioncount,firstTimeHere93846738) \n";
+                txt+="  firstTimeHere93846738=firstTimeHere93846738+1 \n";
+                txt+=" \n";
+                txt+="------------------------------------------------------------------------------ \n";
+                txt+=" \n";
+                txt+=" \n";
+                _insertScriptText(scriptObject,true,txt.c_str());
+
+                // Add text to the end:
+                txt="\n";
+                txt+=" \n";
+                txt+=" \n";
+                txt+="------------------------------------------------------------------------------ \n";
+                txt+="-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
+                txt+="-- with CoppeliaSim 3.1.3 and later: \n";
+                txt+="end \n";
+                txt+="------------------------------------------------------------------------------ \n";
+                _insertScriptText(scriptObject,false,txt.c_str());
+                _replaceScriptText(scriptObject,"simHandleChildScript(","sim_handle_all_except_explicit",")","simHandleChildScripts(sim_call_type)");
+                _replaceScriptText(scriptObject,"simHandleChildScript(","sim_handle_all",")","simHandleChildScripts(sim_call_type)");
+                _replaceScriptText(scriptObject,"simHandleChildScript(","sim_handle_all_except_explicit",",","simHandleChildScripts(sim_call_type,");
+                _replaceScriptText(scriptObject,"simHandleChildScript(","sim_handle_all",",","simHandleChildScripts(sim_call_type,");
+
+                if (_containsScriptText(scriptObject,"simHandleChildScript("))
+                { // output a warning
+                    txt="\n";
+                    txt+="Compatibility issue with @@REPLACE@@\n";
+                    txt+="Since CoppeliaSim 3.1.3, the function simHandleChildScript is not supported anymore.\n";
+                    txt+="It was replaced with simHandleChildScripts (i.e. with an additional 's'),\n";
+                    txt+="and operates slightly differently. CoppeliaSim has tried to automatically adjust\n";
+                    txt+="the script, but failed. Please correct this issue yourself by editing the script.\n";
+                    txt+="\n";
+                    App::ct->objCont->appendLoadOperationIssue(txt.c_str(),scriptObject->getScriptID());
+                }
+            }
+        }
+        else
+        {
+            if (_containsScriptText(scriptObject,"simHandleChildScript("))
+            { // output a warning
+                std::string txt="\n";
+                txt+="Compatibility issue with @@REPLACE@@\n";
+                txt+="Since CoppeliaSim 3.1.3, the function simHandleChildScript is not supported anymore.\n";
+                txt+="It was replaced with simHandleChildScripts (i.e. with an additional 's'),\n";
+                txt+="and operates slightly differently. In addition to this, simhandleChildScripts\n";
+                txt+="cannot be called from threaded child scripts anymore. Please correct this issue\n";
+                txt+="yourself by editing the script.\n";
+                txt+="\n";
+                App::ct->objCont->appendLoadOperationIssue(txt.c_str(),scriptObject->getScriptID());
+            }
+        }
+    }
+    if (scriptObject->getScriptType()==sim_scripttype_customizationscript)
+    {
+        _replaceScriptText(scriptObject,"sim_customizationscriptcall_firstaftersimulation","sim.syscb_aftersimulation");
+        _replaceScriptText(scriptObject,"sim_customizationscriptcall_lastbeforesimulation","sim.syscb_beforesimulation");
+        _replaceScriptText(scriptObject,"sim_customizationscriptcall_first","sim.syscb_init");
+        _replaceScriptText(scriptObject,"sim_customizationscriptcall_last","sim.syscb_cleanup");
+    }
+}
+
+void CLuaScriptObject::_adjustScriptText2(CLuaScriptObject* scriptObject,bool doIt)
+{
+    if (!doIt)
+        return;
+    if ( (scriptObject->getScriptType()==sim_scripttype_childscript)&&scriptObject->getThreadedExecution() )
+    { // to correct for a forgotten thing. Happens only with files I modified between 11/8/2014 and 13/8/2014 (half of the demo scenes and models)
+        _replaceScriptText(scriptObject,"pcall(threadFunction)","@@call(threadFunction)");
+        _replaceScriptText(scriptObject,"@@call(threadFunction)","res,err=xpcall(threadFunction,function(err) return debug.traceback(err) end)\nif not res then\n\tsimAddStatusbarMessage('Lua runtime error: '..err)\nend");
+    }
+}
+
+void CLuaScriptObject::_adjustScriptText3(CLuaScriptObject* scriptObject,bool doIt)
+{
+    if (!doIt)
+        return;
+    // 1. check if we haven't previously added the correction:
+    if (!_containsScriptText(scriptObject,"@backCompatibility1:"))
+    {
+        bool modifiedSomething=_replaceScriptTextKeepMiddleUnchanged(scriptObject,"simSetShapeColor(",",","simSetShapeColor(colorCorrectionFunction(","),");
+
+        if (modifiedSomething)
+        {
+            // Add text to the beginning:
+            std::string txt;
+            txt+="------------------------------------------------------------------------------ \n";
+            txt+="-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
+            txt+="-- with CoppeliaSim 3.1.3 and earlier: \n";
+            txt+="colorCorrectionFunction=function(_aShapeHandle_) \n";
+            txt+="  local version=simGetIntegerParameter(sim_intparam_program_version) \n";
+            txt+="  local revision=simGetIntegerParameter(sim_intparam_program_revision) \n";
+            txt+="  if (version<30104)and(revision<3) then \n";
+            txt+="      return _aShapeHandle_ \n";
+            txt+="  end \n";
+            txt+="  return '@backCompatibility1:'.._aShapeHandle_ \n";
+            txt+="end \n";
+            txt+="------------------------------------------------------------------------------ \n";
+            txt+=" \n";
+            txt+=" \n";
+            _insertScriptText(scriptObject,true,txt.c_str());
+        }
+    }
+}
+
+void CLuaScriptObject::_adjustScriptText4(CLuaScriptObject* scriptObject,bool doIt)
+{
+    if (!doIt)
+        return;
+    _replaceScriptText(scriptObject,"res,err=pcall(threadFunction)","res,err=xpcall(threadFunction,function(err) return debug.traceback(err) end)");
+}
+
+void CLuaScriptObject::_adjustScriptText5(CLuaScriptObject* scriptObject,bool doIt)
+{   // Following since 19/12/2015: not really needed, but better.
+    if (!doIt)
+        return;
+    _replaceScriptText(scriptObject,"simGetBooleanParameter","simGetBoolParameter");
+    _replaceScriptText(scriptObject,"simSetBooleanParameter","simSetBoolParameter");
+    _replaceScriptText(scriptObject,"simGetIntegerParameter","simGetInt32Parameter");
+    _replaceScriptText(scriptObject,"simSetIntegerParameter","simSetInt32Parameter");
+    _replaceScriptText(scriptObject,"simGetFloatingParameter","simGetFloatParameter");
+    _replaceScriptText(scriptObject,"simSetFloatingParameter","simSetFloatParameter");
+    _replaceScriptText(scriptObject,"simGetObjectIntParameter","simGetObjectInt32Parameter");
+    _replaceScriptText(scriptObject,"simSetObjectIntParameter","simSetObjectInt32Parameter");
+}
+
+void CLuaScriptObject::_adjustScriptText6(CLuaScriptObject* scriptObject,bool doIt)
+{   // since 19/1/2016 we don't use tabs anymore in embedded scripts:
+    if (!doIt)
+        return;
+    _replaceScriptText(scriptObject,"\t","    "); // tab to 4 spaces
+}
+
+void CLuaScriptObject::_adjustScriptText7(CLuaScriptObject* scriptObject,bool doIt)
+{   // Following since 13/9/2016, but active only since V3.3.3 (or V3.4.0)
+    if (!doIt)
+        return;
+    _replaceScriptText(scriptObject,"simPackInts","simPackInt32Table");
+    _replaceScriptText(scriptObject,"simPackUInts","simPackUInt32Table");
+    _replaceScriptText(scriptObject,"simPackFloats","simPackFloatTable");
+    _replaceScriptText(scriptObject,"simPackDoubles","simPackDoubleTable");
+    _replaceScriptText(scriptObject,"simPackBytes","simPackUInt8Table");
+    _replaceScriptText(scriptObject,"simPackWords","simPackUInt16Table");
+    _replaceScriptText(scriptObject,"simUnpackInts","simUnpackInt32Table");
+    _replaceScriptText(scriptObject,"simUnpackUInts","simUnpackUInt32Table");
+    _replaceScriptText(scriptObject,"simUnpackFloats","simUnpackFloatTable");
+    _replaceScriptText(scriptObject,"simUnpackDoubles","simUnpackDoubleTable");
+    _replaceScriptText(scriptObject,"simUnpackBytes","simUnpackUInt8Table");
+    _replaceScriptText(scriptObject,"simUnpackWords","simUnpackUInt16Table");
+}
+
+void CLuaScriptObject::_adjustScriptText8(CLuaScriptObject* scriptObject,int adjust)
+{   // Following since V3.4.1:
+    if (adjust!=0)
+        _performNewApiAdjustments(scriptObject,adjust>0);
+}
+
+void CLuaScriptObject::_adjustScriptText9(CLuaScriptObject* scriptObject)
+{
+    /*
+    // ******************************************************
+    // Some help to adjust for the new script calling conventions
+    // Following script adjustments are not very reliable and should be manually checked!
+
+    std::string errors="";
+    if ( ((getScriptType()==sim_scripttype_childscript)&&(!getThreadedExecution()))||(getScriptType()==sim_scripttype_customizationscript) )
+    {
+        _replaceScriptText(scriptObject,"if (sim_call_type==sim.syscb_init) then","function sysCall_XXinit()");
+        _replaceScriptText(scriptObject,"if (sim_call_type==sim.syscb_cleanup) then","function sysCall_cleanup()");
+        _replaceScriptText(scriptObject,"if (sim_call_type==sim.syscb_actuation) then","function sysCall_actuation()");
+        _replaceScriptText(scriptObject,"if (sim_call_type==sim.syscb_sensing) then","function sysCall_sensing()");
+        if (_replaceScriptText(scriptObject,"sim.syscb_init","sim.syscb_init"))
+            errors+="\n sim.syscb_init not converted";
+        if (_replaceScriptText(scriptObject,"sim.syscb_cleanup","sim.syscb_cleanup"))
+            errors+="\n sim.syscb_cleanup not converted";
+        if (_replaceScriptText(scriptObject,"sim.syscb_actuation","sim.syscb_actuation"))
+            errors+="\n sim.syscb_actuation not converted";
+        if (_replaceScriptText(scriptObject,"sim.syscb_sensing","sim.syscb_sensing"))
+            errors+="\n sim.syscb_sensing not converted";
+        if (_replaceScriptText(scriptObject,"handleChildScripts","handleChildScripts"))
+            errors+="\n ***** found 'handleChildScripts'";
+
+        if (getScriptType()==sim_scripttype_customizationscript)
+        {
+            _replaceScriptText(scriptObject,"if (sim_call_type==sim.syscb_nonsimulation) then","function sysCall_nonSimulation()");
+            _replaceScriptText(scriptObject,"if (sim_call_type==sim.syscb_beforesimulation) then","function sysCall_beforeSimulation()");
+            _replaceScriptText(scriptObject,"if (sim_call_type==sim.syscb_suspended) then","function sysCall_suspended()");
+            _replaceScriptText(scriptObject,"if (sim_call_type==sim.syscb_suspend) then","function sysCall_suspend()");
+            _replaceScriptText(scriptObject,"if (sim_call_type==sim.syscb_resume) then","function sysCall_resume()");
+            _replaceScriptText(scriptObject,"if (sim_call_type==sim.syscb_aftersimulation) then","function sysCall_afterSimulation()");
+            _replaceScriptText(scriptObject,"if (sim_call_type==sim.syscb_beforeinstanceswitch) then","function sysCall_beforeInstanceSwitch()");
+            _replaceScriptText(scriptObject,"if (sim_call_type==sim.syscb_afterinstanceswitch) then","function sysCall_afterInstanceSwitch()");
+            _replaceScriptText(scriptObject,"if (sim_call_type==sim.syscb_beforecopy) then","function sysCall_beforeCopy()");
+            _replaceScriptText(scriptObject,"if (sim_call_type==sim.syscb_aftercopy) then","function sysCall_afterCopy()");
+            _replaceScriptText(scriptObject,"sim.setScriptAttribute(sim.handle_self,sim.customizationscriptattribute_activeduringsimulation,false)","");
+            _replaceScriptText(scriptObject,"sim.setScriptAttribute(sim.handle_self,sim.customizationscriptattribute_activeduringsimulation,true)","");
+            if (_replaceScriptText(scriptObject,"sim.syscb_nonsimulation","sim.syscb_nonsimulation"))
+                errors+="\n sim.syscb_nonsimulation not converted";
+            if (_replaceScriptText(scriptObject,"sim.syscb_beforesimulation","sim.syscb_beforesimulation"))
+                errors+="\n sim.syscb_beforesimulation not converted";
+            if (_replaceScriptText(scriptObject,"sim.syscb_suspended","sim.syscb_suspended"))
+                errors+="\n sim.syscb_suspended not converted";
+            if (_replaceScriptText(scriptObject,"sim.syscb_suspend","sim.syscb_suspend"))
+                errors+="\n sim.syscb_suspend not converted";
+            if (_replaceScriptText(scriptObject,"sim.syscb_resume","sim.syscb_resume"))
+                errors+="\n sim.syscb_resume not converted";
+            if (_replaceScriptText(scriptObject,"sim.syscb_aftersimulation","sim.syscb_aftersimulation"))
+                errors+="\n sim.syscb_aftersimulation not converted";
+            if (_replaceScriptText(scriptObject,"sim.syscb_beforeinstanceswitch","sim.syscb_beforeinstanceswitch"))
+                errors+="\n sim.syscb_beforeinstanceswitch not converted";
+            if (_replaceScriptText(scriptObject,"sim.syscb_afterinstanceswitch","sim.syscb_afterinstanceswitch"))
+                errors+="\n sim.syscb_afterinstanceswitch not converted";
+            if (_replaceScriptText(scriptObject,"sim.syscb_beforecopy","sim.syscb_beforecopy"))
+                errors+="\n sim.syscb_beforecopy not converted";
+            if (_replaceScriptText(scriptObject,"sim.syscb_aftercopy","sim.syscb_aftercopy"))
+                errors+="\n sim.syscb_aftercopy not converted";
+            if (_replaceScriptText(scriptObject,"sim.customizationscriptattribute_activeduringsimulation","sim.customizationscriptattribute_activeduringsimulation"))
+                errors+="\n sim.customizationscriptattribute_activeduringsimulation not removed";
+
+            if (_replaceScriptText(scriptObject,"require('utils')","require('utils')"))
+                errors+="\n found 'require('utils')'";
+        }
+        if (!_replaceScriptText(scriptObject,"function sysCall_init()","function sysCall_init()"))
+        {
+            if (!_replaceScriptText(scriptObject,"sim.include","sim.include"))
+            {
+                if (_replaceScriptText(scriptObject,"function sysCall_XXinit()","function sysCall_init()"))
+                {
+                    std::string ohla=extractScriptText("function sysCall_init()","\nend",true);
+                    if (ohla.size()==0)
+                        errors+="\n problem with init section (1)";
+                    else
+                    {
+                        int cnt=_countOccurences(ohla,"if ");
+                        cnt+=_countOccurences(ohla,"while ");
+                        cnt+=_countOccurences(ohla,"for ");
+                        if (cnt!=_countOccurences(ohla,"end"))
+                            errors+="\n possible error with additional 'end'";
+                        ohla+="\nend\n";
+                        _insertScriptText(scriptObject,true,ohla.c_str());
+                    }
+                }
+                else
+                    errors+="\n problem with init section (2)";
+            }
+        }
+    }
+    if (errors.size()>0)
+    {
+        printf("ERRORS: %s\n",errors.c_str());
+        App::beep();
+    }
+    // ******************************************************
+    // */
+}
+
+void CLuaScriptObject::_adjustScriptText10(CLuaScriptObject* scriptObject,bool doIt)
+{   // some various small details:
+    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include('/",".lua')","require('/","')");
+    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include(\"/",".lua\")","require('/","')");
+    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include('\\",".lua')","require('\\","')");
+    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include(\"\\",".lua\")","require('\\","')");
+    _replaceScriptText(scriptObject,"sim.include('/lua/graph_customization.lua')","require('graph_customization')");
+    _replaceScriptText(scriptObject,"require('/BlueWorkforce/","require('/bwf/");
+    _replaceScriptText(scriptObject,"sim.include('/BlueWorkforce/","sim.include('/bwf/");
+    if (!doIt)
+        return;
+    _replaceScriptText(scriptObject," onclose=\""," on-close=\"");
+    _replaceScriptText(scriptObject," onchange=\""," on-change=\"");
+    _replaceScriptText(scriptObject," onclick=\""," on-click=\"");
+}

@@ -4,7 +4,7 @@
 #include "tt.h"
 #include "gV.h"
 #include "qdlgentityvsentityselection.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 CQDlgIkAvoidance::CQDlgIkAvoidance(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

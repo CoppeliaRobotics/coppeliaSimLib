@@ -44,16 +44,16 @@ void initGl_ifNeeded()
 
     if (App::sc>1)// (userSettings->highResDisplay==1)||(highResDisplay&&(userSettings->highResDisplay==-1)) )
     {
-        ogl::loadBitmapFont(VREPFONT_MS_SANS_SERIF_30,32,0);
-        ogl::loadBitmapFont(VREPFONT_LUCIDA_CONSOLE_26,32,1);
+        ogl::loadBitmapFont(SIMFONT_MS_SANS_SERIF_30,32,0);
+        ogl::loadBitmapFont(SIMFONT_LUCIDA_CONSOLE_26,32,1);
     }
     else
     {
-        ogl::loadBitmapFont(VREPFONT_MS_SANS_SERIF,16,0);
-        ogl::loadBitmapFont(VREPFONT_COURIER_NEW,16,1);
+        ogl::loadBitmapFont(SIMFONT_MS_SANS_SERIF,16,0);
+        ogl::loadBitmapFont(SIMFONT_COURIER_NEW,16,1);
     }
 
-    ogl::loadOutlineFont(VREPOUTLINEFONT_ARIAL_INT,VREPOUTLINEFONT_ARIAL_FLOAT);
+    ogl::loadOutlineFont(SIMOUTLINEFONT_ARIAL_INT,SIMOUTLINEFONT_ARIAL_FLOAT);
 
     std::string glVer("OpenGL: ");
     glVer+=(char*)glGetString(GL_VENDOR);

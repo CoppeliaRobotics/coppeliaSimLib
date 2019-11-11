@@ -20,6 +20,9 @@ public:
     int searchFilesWithExtension(const std::string& pathWithoutTerminalSlash,const std::string& extension);
     int searchFolders(const std::string& pathWithoutTerminalSlash);
     int searchFilesOrFolders(const std::string& pathWithoutTerminalSlash);
+    static int countFiles(const char* pathWithoutTerminalSlash);
+    static int countFolders(const char* pathWithoutTerminalSlash);
+    static int countFilesWithPrefix(const char* pathWithoutTerminalSlash,const char* prefix);
 
     SFileOrFolder* getFoundItem(int index);
 

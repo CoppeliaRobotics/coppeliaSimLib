@@ -1,5 +1,5 @@
 #include "pathPoint.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "tt.h"
 
 CPathPoint::CPathPoint()

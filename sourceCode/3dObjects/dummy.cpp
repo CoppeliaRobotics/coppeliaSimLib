@@ -1,6 +1,6 @@
 #include "funcDebug.h"
-#include "v_rep_internal.h"
-#include "v_repStrings.h"
+#include "simInternal.h"
+#include "simStrings.h"
 #include "ttUtil.h"
 #include "dummy.h"
 #include "global.h"
@@ -402,6 +402,89 @@ void CDummy::serialize(CSer& ar)
             }
         }
     }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_float("size",size);
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("linkedDummyHandle",_linkedDummyID);
+            else
+            {
+                std::string str;
+                CDummy* it=App::ct->objCont->getDummy(_linkedDummyID);
+                if (it!=nullptr)
+                    str=it->getObjectName();
+                ar.xmlAddNode_string("linkedDummy",str.c_str());
+            }
+
+            ar.xmlAddNode_comment(" 'linkType' tag: can be 'dynamics_loopClosure', 'dynamics_forceConstraint' or 'ik_tipTarget' ",exhaustiveXml);
+            ar.xmlAddNode_enum("linkType",_linkType,sim_dummy_linktype_dynamics_loop_closure,"dynamics_loopClosure",sim_dummy_linktype_dynamics_force_constraint,"dynamics_forceConstraint",sim_dummy_linktype_ik_tip_target,"ik_tipTarget");
+
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("switches");
+                ar.xmlAddNode_bool("assignedToParentPath",_assignedToParentPath);
+                ar.xmlAddNode_bool("freeOnPathTrajectory",_freeOnPathTrajectory);
+                ar.xmlAddNode_bool("assignedToParentPathOrientation",_assignedToParentPathOrientation);
+                ar.xmlPopNode();
+
+                ar.xmlAddNode_float("virtualDistanceOffsetOnPath",_virtualDistanceOffsetOnPath);
+                ar.xmlAddNode_float("virtualDistanceOffsetOnPath_whenCopy",_virtualDistanceOffsetOnPath_variationWhenCopy);
+            }
+
+            ar.xmlPushNewNode("color");
+            if (exhaustiveXml)
+                color.serialize(ar,0);
+            else
+            {
+                int rgb[3];
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(color.colors[l]*255.1f);
+                ar.xmlAddNode_ints("object",rgb,3);
+            }
+            ar.xmlPopNode();
+        }
+        else
+        {
+            ar.xmlGetNode_float("size",size,exhaustiveXml);
+
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("linkedDummyHandle",_linkedDummyID);
+            else
+                ar.xmlGetNode_string("linkedDummy",_linkedDummyLoadName,exhaustiveXml);
+            ar.xmlGetNode_enum("linkType",_linkType,exhaustiveXml,"dynamics_loopClosure",sim_dummy_linktype_dynamics_loop_closure,"dynamics_forceConstraint",sim_dummy_linktype_dynamics_force_constraint,"ik_tipTarget",sim_dummy_linktype_ik_tip_target);
+
+            if (exhaustiveXml&&ar.xmlPushChildNode("switches"))
+            {
+                ar.xmlGetNode_bool("assignedToParentPath",_assignedToParentPath);
+                ar.xmlGetNode_bool("freeOnPathTrajectory",_freeOnPathTrajectory);
+                ar.xmlGetNode_bool("assignedToParentPathOrientation",_assignedToParentPathOrientation);
+                ar.xmlPopNode();
+            }
+
+            if (exhaustiveXml)
+            {
+                ar.xmlGetNode_float("virtualDistanceOffsetOnPath",_virtualDistanceOffsetOnPath,exhaustiveXml);
+                ar.xmlGetNode_float("virtualDistanceOffsetOnPath_whenCopy",_virtualDistanceOffsetOnPath_variationWhenCopy,exhaustiveXml);
+            }
+
+            if (ar.xmlPushChildNode("color",exhaustiveXml))
+            {
+                if (exhaustiveXml)
+                    color.serialize(ar,0);
+                else
+                {
+                    int rgb[3];
+                    if (ar.xmlGetNode_ints("object",rgb,3,exhaustiveXml))
+                        color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                }
+                ar.xmlPopNode();
+            }
+        }
+    }
 }
 
 void CDummy::serializeWExtIk(CExtIkSer& ar)
@@ -518,6 +601,11 @@ C7Vector CDummy::getTempLocalTransformation() const
 void CDummy::setTempLocalTransformation(const C7Vector& tr)
 {
     _localTransformation_temp=tr;
+}
+
+std::string CDummy::getLinkedDummyLoadName() const
+{
+    return(_linkedDummyLoadName);
 }
 
 int CDummy::getLinkType() const

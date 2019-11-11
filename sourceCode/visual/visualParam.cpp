@@ -297,6 +297,70 @@ void CVisualParam::serialize(CSer& ar,int objType)
             }
         }
     }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_string("name",colorName.c_str());
+
+            ar.xmlAddNode_string("extensionString",extensionString.c_str());
+
+            ar.xmlAddNode_floats("ambient",colors+0,3);
+            ar.xmlAddNode_floats("diffuse",colors+3,3);
+            ar.xmlAddNode_floats("specular",colors+6,3);
+            ar.xmlAddNode_floats("emission",colors+9,3);
+            ar.xmlAddNode_floats("temperature",colors+12,3);
+
+            ar.xmlAddNode_int("shininess",shininess);
+
+            ar.xmlAddNode_float("transparency",transparencyFactor);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("transparent",translucid);
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("flashing");
+            ar.xmlAddNode_bool("enabled",flash);
+            ar.xmlAddNode_bool("inSimulationTime",useSimulationTime);
+            ar.xmlAddNode_float("frequency",flashFrequency);
+            ar.xmlAddNode_float("ratio",flashRatio);
+            ar.xmlAddNode_float("phase",flashPhase);
+            ar.xmlPopNode();
+        }
+        else
+        {
+            ar.xmlGetNode_string("name",colorName);
+
+            ar.xmlGetNode_string("extensionString",extensionString);
+
+            ar.xmlGetNode_floats("ambient",colors+0,3);
+            ar.xmlGetNode_floats("diffuse",colors+3,3);
+            ar.xmlGetNode_floats("specular",colors+6,3);
+            ar.xmlGetNode_floats("emission",colors+9,3);
+            ar.xmlGetNode_floats("temperature",colors+12,3);
+
+            ar.xmlGetNode_int("shininess",shininess);
+
+            ar.xmlGetNode_float("transparency",transparencyFactor);
+
+            if (ar.xmlPushChildNode("switches"))
+            {
+                ar.xmlGetNode_bool("transparent",translucid);
+                ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("flashing"))
+            {
+                ar.xmlGetNode_bool("enabled",flash);
+                ar.xmlGetNode_bool("inSimulationTime",useSimulationTime);
+                ar.xmlGetNode_float("frequency",flashFrequency);
+                ar.xmlGetNode_float("ratio",flashRatio);
+                ar.xmlGetNode_float("phase",flashPhase);
+                ar.xmlPopNode();
+            }
+
+        }
+    }
 }
 
 std::string CVisualParam::_getPatternStringFromPatternId_backwardCompatibility_3_2_2016(int id)

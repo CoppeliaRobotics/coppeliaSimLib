@@ -1,4 +1,5 @@
 #include "customData.h"
+#include "base64.h"
 #include "tt.h"
 
 CCustomData::CCustomData()
@@ -71,6 +72,102 @@ void CCustomData::serializeData(CSer &ar,const char* objectName,int scriptHandle
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+        }
+    }
+    else
+    {
+        if (ar.isStoring())
+        {
+            int totSize=0;
+            for (size_t i=0;i<dat.size();i++)
+                totSize+=len[i];
+            if (ar.xmlSaveDataInline(totSize))
+            {
+                for (size_t i=0;i<dat.size();i++)
+                {
+                    ar.xmlPushNewNode("data");
+                    ar.xmlAddNode_int("header",head[i]);
+                    ar.xmlAddNode_int("length",len[i]);
+                    if (len[i]>0)
+                    {
+                        std::string str(base64_encode((unsigned char*)&dat[i][0],len[i]));
+                        ar.xmlAddNode_string("data_base64Coded",str.c_str());
+                    }
+                    ar.xmlPopNode();
+                }
+            }
+            else
+            {
+                CSer* serObj=nullptr;
+                if (objectName!=nullptr)
+                    serObj=ar.xmlAddNode_binFile("file",(std::string("objectCustomData_")+objectName).c_str());
+                else
+                {
+                    if (scriptHandle!=-1)
+                        serObj=ar.xmlAddNode_binFile("file",(std::string("scriptCustomData_")+tt::FNb(scriptHandle)).c_str());
+                    else
+                        serObj=ar.xmlAddNode_binFile("file","sceneCustomData");
+                }
+                serObj[0] << int(dat.size());
+                for (size_t i=0;i<dat.size();i++)
+                {
+                    serObj[0] << head[i];
+                    serObj[0] << len[i];
+                    for (int j=0;j<len[i];j++)
+                        serObj[0] << dat[i][j];
+                }
+                serObj->flush();
+                serObj->writeClose();
+                delete serObj;
+            }
+        }
+        else
+        {
+            CSer* serObj=ar.xmlGetNode_binFile("file",false);
+            if (serObj==nullptr)
+            {
+                if (ar.xmlPushChildNode("data",false))
+                {
+                    while (true)
+                    {
+                        int header,l;
+                        ar.xmlGetNode_int("header",header);
+                        ar.xmlGetNode_int("length",l);
+                        std::string data;
+                        if (l>0)
+                        {
+                            ar.xmlGetNode_string("data_base64Coded",data);
+                            data=base64_decode(data);
+                            setData(header,&data[0],l);
+                        }
+                        else
+                            setData(header,nullptr,l);
+                        if (!ar.xmlPushSiblingNode("data",false))
+                            break;
+                    }
+                    ar.xmlPopNode();
+                }
+            }
+            else
+            {
+                int s;
+                serObj[0] >> s;
+                for (size_t i=0;i<s;i++)
+                {
+                    int e;
+                    int l;
+                    serObj[0] >> e;
+                    serObj[0] >> l;
+                    char* dd=new char[l];
+                    for (int i=0;i<l;i++)
+                        serObj[0] >> dd[i];
+                    dat.push_back(dd);
+                    len.push_back(l);
+                    head.push_back(e);
+                }
+                serObj->readClose();
+                delete serObj;
             }
         }
     }

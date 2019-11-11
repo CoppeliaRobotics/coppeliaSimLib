@@ -1,10 +1,10 @@
 #include "app.h"
 #include "funcDebug.h"
 #include "pluginContainer.h"
-#include "v_repConst.h"
+#include "simConst.h"
 #include "pathPlanningInterface.h"
 #include "easyLock.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "ttUtil.h"
 
 CPlugin::CPlugin(const char* filename,const char* pluginName)
@@ -12,7 +12,7 @@ CPlugin::CPlugin(const char* filename,const char* pluginName)
     _filename=filename;
     name=pluginName;
     instance=nullptr;
-    v_repMesh_createCollisionInformationStructure=nullptr;
+    geomPlugin_createMesh=nullptr;
     _codeEditor_openModal=nullptr;
     _customUi_msgBox=nullptr;
     _assimp_importShapes=nullptr;
@@ -24,8 +24,8 @@ CPlugin::~CPlugin()
 {
     if (instance!=nullptr)
         VVarious::closeLibrary(instance);
-    if (v_repMesh_createCollisionInformationStructure!=nullptr)
-        CPluginContainer::currentMeshEngine=nullptr;
+    if (geomPlugin_createMesh!=nullptr)
+        CPluginContainer::currentGeomPlugin=nullptr;
     if (_codeEditor_openModal!=nullptr)
         CPluginContainer::currentCodeEditor=nullptr;
     if (_customUi_msgBox!=nullptr)
@@ -40,136 +40,188 @@ int CPlugin::load()
     if (lib!=nullptr)
     {
         instance=lib;
-        startAddress=(ptrStart)(VVarious::resolveLibraryFuncName(lib,"v_repStart"));
-        endAddress=(ptrEnd)(VVarious::resolveLibraryFuncName(lib,"v_repEnd"));
-        messageAddress=(ptrMessage)(VVarious::resolveLibraryFuncName(lib,"v_repMessage"));
+        startAddress=(ptrStart)(VVarious::resolveLibraryFuncName(lib,"simStart"));
+        if (startAddress==nullptr)
+            startAddress=(ptrStart)(VVarious::resolveLibraryFuncName(lib,"v_repStart")); // for backward compatibility
+
+        endAddress=(ptrEnd)(VVarious::resolveLibraryFuncName(lib,"simEnd"));
+        if (endAddress==nullptr)
+            endAddress=(ptrEnd)(VVarious::resolveLibraryFuncName(lib,"v_repEnd")); // for backward compatibility
+        messageAddress=(ptrMessage)(VVarious::resolveLibraryFuncName(lib,"simMessage"));
+        if (messageAddress==nullptr)
+            messageAddress=(ptrMessage)(VVarious::resolveLibraryFuncName(lib,"v_repMessage")); // for backward compatibility
         if ( (startAddress!=nullptr)&&(endAddress!=nullptr)&&(messageAddress!=nullptr) )
         {
             pluginVersion=startAddress(nullptr,0);
 
-            ptrExtRenderer pov=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repPovRay"));
-            ptrExtRenderer extRenderer=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repExtRenderer"));
-            ptrExtRenderer extRendererWindowed=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repExtRendererWindowed"));
-            ptrExtRenderer openGl3=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repOpenGL3Renderer"));
-            ptrExtRenderer openGl3Windowed=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repOpenGL3RendererWindowed"));
+            ptrExtRenderer pov=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"simPovRay"));
+            if (pov==nullptr)
+                pov=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repPovRay")); // for backward compatibility
+            if (pov!=nullptr)
+                CPluginContainer::_povRayAddress=pov;
 
-            ptrQhull qhull=(ptrQhull)(VVarious::resolveLibraryFuncName(lib,"v_repQhull"));
-            ptrHACD hacd=(ptrHACD)(VVarious::resolveLibraryFuncName(lib,"v_repHACD"));
-            ptrVHACD vhacd=(ptrVHACD)(VVarious::resolveLibraryFuncName(lib,"v_repVHACD"));
-            ptrMeshDecimator meshDecimator=(ptrMeshDecimator)(VVarious::resolveLibraryFuncName(lib,"v_repDecimateMesh"));
+            ptrExtRenderer extRenderer=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"simExtRenderer"));
+            if (extRenderer==nullptr)
+                extRenderer=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repExtRenderer")); // for backward compatibility
+            if (extRenderer!=nullptr)
+                CPluginContainer::_extRendererAddress=extRenderer;
+
+            ptrExtRenderer extRendererWindowed=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"simExtRendererWindowed"));
+            if (extRenderer==nullptr)
+                extRenderer=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repExtRendererWindowed")); // for backward compatibility
+            if (extRendererWindowed!=nullptr)
+                CPluginContainer::_extRendererWindowedAddress=extRendererWindowed;
+
+            ptrExtRenderer openGl3=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"simOpenGL3Renderer"));
+            if (openGl3==nullptr)
+                openGl3=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repOpenGL3Renderer")); // for backward compatibility
+            if (openGl3!=nullptr)
+                CPluginContainer::_openGl3Address=openGl3;
+
+            ptrExtRenderer openGl3Windowed=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"simOpenGL3RendererWindowed"));
+            if (openGl3Windowed==nullptr)
+                openGl3Windowed=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repOpenGL3RendererWindowed")); // for backward compatibility
+            if (openGl3Windowed!=nullptr)
+                CPluginContainer::_openGl3WindowedAddress=openGl3Windowed;
+
+            ptrQhull qhull=(ptrQhull)(VVarious::resolveLibraryFuncName(lib,"simQhull"));
+            if (qhull==nullptr)
+                qhull=(ptrQhull)(VVarious::resolveLibraryFuncName(lib,"v_repQhull")); // for backward compatibility
+            if (qhull!=nullptr)
+                CPluginContainer::_qhullAddress=qhull;
+
+            ptrHACD hacd=(ptrHACD)(VVarious::resolveLibraryFuncName(lib,"simHACD"));
+            if (hacd==nullptr)
+                hacd=(ptrHACD)(VVarious::resolveLibraryFuncName(lib,"v_repHACD")); // for backward compatibility
+            if (hacd!=nullptr)
+                CPluginContainer::_hacdAddress=hacd;
+
+            ptrVHACD vhacd=(ptrVHACD)(VVarious::resolveLibraryFuncName(lib,"simVHACD"));
+            if (vhacd==nullptr)
+                vhacd=(ptrVHACD)(VVarious::resolveLibraryFuncName(lib,"v_repVHACD")); // for backward compatibility
+            if (vhacd!=nullptr)
+                CPluginContainer::_vhacdAddress=vhacd;
+
+            ptrMeshDecimator meshDecimator=(ptrMeshDecimator)(VVarious::resolveLibraryFuncName(lib,"simDecimateMesh"));
+            if (meshDecimator==nullptr)
+                meshDecimator=(ptrMeshDecimator)(VVarious::resolveLibraryFuncName(lib,"v_repDecimateMesh")); // for backward compatibility
+            if (meshDecimator!=nullptr)
+                CPluginContainer::_meshDecimatorAddress=meshDecimator;
 
             if (pluginVersion!=0)
             {
                 // For the dynamic plugins:
-                v_repDyn_startSimulation=(ptrv_repDyn_startSimulation)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_startSimulation"));
-                v_repDyn_endSimulation=(ptrv_repDyn_endSimulation)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_endSimulation"));
-                v_repDyn_step=(ptrv_repDyn_step)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_step"));
-                v_repDyn_isDynamicContentAvailable=(ptrv_repDyn_isDynamicContentAvailable)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_isDynamicContentAvailable"));
-                v_repDyn_serializeDynamicContent=(ptrv_repDyn_serializeDynamicContent)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_serializeDynamicContent"));
-                v_repDyn_addParticleObject=(ptrv_repDyn_addParticleObject)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_addParticleObject"));
-                v_repDyn_removeParticleObject=(ptrv_repDyn_removeParticleObject)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_removeParticleObject"));
-                v_repDyn_addParticleObjectItem=(ptrv_repDyn_addParticleObjectItem)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_addParticleObjectItem"));
-                v_repDyn_getParticleObjectOtherFloatsPerItem=(ptrv_repDyn_getParticleObjectOtherFloatsPerItem)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_getParticleObjectOtherFloatsPerItem"));
-                v_repDyn_getContactPoints=(ptrv_repDyn_getContactPoints)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_getContactPoints"));
-                v_repDyn_getParticles=(ptrv_repDyn_getParticles)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_getParticles"));
-                v_repDyn_getParticleData=(ptrv_repDyn_getParticleData)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_getParticleData"));
-                v_repDyn_getContactForce=(ptrv_repDyn_getContactForce)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_getContactForce"));
-                v_repDyn_reportDynamicWorldConfiguration=(ptrv_repDyn_reportDynamicWorldConfiguration)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_reportDynamicWorldConfiguration"));
-                v_repDyn_getDynamicStepDivider=(ptrv_repDyn_getDynamicStepDivider)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_getDynamicStepDivider"));
-                v_repDyn_getEngineInfo=(ptrv_repDyn_getEngineInfo)(VVarious::resolveLibraryFuncName(lib,"v_repDyn_getEngineInfo"));
+                dynPlugin_startSimulation=(ptr_dynPlugin_startSimulation)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_startSimulation"));
+                dynPlugin_endSimulation=(ptr_dynPlugin_endSimulation)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_endSimulation"));
+                dynPlugin_step=(ptr_dynPlugin_step)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_step"));
+                dynPlugin_isDynamicContentAvailable=(ptr_dynPlugin_isDynamicContentAvailable)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_isDynamicContentAvailable"));
+                dynPlugin_serializeDynamicContent=(ptr_dynPlugin_serializeDynamicContent)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_serializeDynamicContent"));
+                dynPlugin_addParticleObject=(ptr_dynPlugin_addParticleObject)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_addParticleObject"));
+                dynPlugin_removeParticleObject=(ptr_dynPlugin_removeParticleObject)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_removeParticleObject"));
+                dynPlugin_addParticleObjectItem=(ptr_dynPlugin_addParticleObjectItem)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_addParticleObjectItem"));
+                dynPlugin_getParticleObjectOtherFloatsPerItem=(ptr_dynPlugin_getParticleObjectOtherFloatsPerItem)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getParticleObjectOtherFloatsPerItem"));
+                dynPlugin_getContactPoints=(ptr_dynPlugin_getContactPoints)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getContactPoints"));
+                dynPlugin_getParticles=(ptr_dynPlugin_getParticles)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getParticles"));
+                dynPlugin_getParticleData=(ptr_dynPlugin_getParticleData)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getParticleData"));
+                dynPlugin_getContactForce=(ptr_dynPlugin_getContactForce)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getContactForce"));
+                dynPlugin_reportDynamicWorldConfiguration=(ptr_dynPlugin_reportDynamicWorldConfiguration)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_reportDynamicWorldConfiguration"));
+                dynPlugin_getDynamicStepDivider=(ptr_dynPlugin_getDynamicStepDivider)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getDynamicStepDivider"));
+                dynPlugin_getEngineInfo=(ptr_dynPlugin_getEngineInfo)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getEngineInfo"));
 
-                // For the mesh calc plugin:
-                v_repMesh_createCollisionInformationStructure=(ptrv_repMesh_createCollisionInformationStructure)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_createCollisionInformationStructure"));
-                v_repMesh_copyCollisionInformationStructure=(ptrv_repMesh_copyCollisionInformationStructure)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_copyCollisionInformationStructure"));
-                v_repMesh_destroyCollisionInformationStructure=(ptrv_repMesh_destroyCollisionInformationStructure)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_destroyCollisionInformationStructure"));
-                v_repMesh_scaleCollisionInformationStructure=(ptrv_repMesh_scaleCollisionInformationStructure)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_scaleCollisionInformationStructure"));
-                v_repMesh_getCollisionInformationStructureSerializationData=(ptrv_repMesh_getCollisionInformationStructureSerializationData)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getCollisionInformationStructureSerializationData"));
-                v_repMesh_getCollisionInformationStructureFromSerializationData=(ptrv_repMesh_getCollisionInformationStructureFromSerializationData)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getCollisionInformationStructureFromSerializationData"));
-                v_repMesh_releaseBuffer=(ptrv_repMesh_releaseBuffer)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_releaseBuffer"));
-                v_repMesh_getCutMesh=(ptrv_repMesh_getCutMesh)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getCutMesh"));
-                v_repMesh_getCalculatedTriangleCount=(ptrv_repMesh_getCalculatedTriangleCount)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getCalculatedTriangleCount"));
-                v_repMesh_getCalculatedTrianglesPointer=(ptrv_repMesh_getCalculatedTrianglesPointer)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getCalculatedTrianglesPointer"));
-                v_repMesh_getCalculatedVerticeCount=(ptrv_repMesh_getCalculatedVerticeCount)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getCalculatedVerticeCount"));
-                v_repMesh_getCalculatedVerticesPointer=(ptrv_repMesh_getCalculatedVerticesPointer)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getCalculatedVerticesPointer"));
-                v_repMesh_getCalculatedSegmentCount=(ptrv_repMesh_getCalculatedSegmentCount)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getCalculatedSegmentCount"));
-                v_repMesh_getCalculatedSegmentsPointer=(ptrv_repMesh_getCalculatedSegmentsPointer)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getCalculatedSegmentsPointer"));
-                v_repMesh_getCalculatedPolygonCount=(ptrv_repMesh_getCalculatedPolygonCount)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getCalculatedPolygonCount"));
-                v_repMesh_getCalculatedPolygonSize=(ptrv_repMesh_getCalculatedPolygonSize)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getCalculatedPolygonSize"));
-                v_repMesh_getCalculatedPolygonArrayPointer=(ptrv_repMesh_getCalculatedPolygonArrayPointer)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getCalculatedPolygonArrayPointer"));
-                v_repMesh_getCalculatedTriangleAt=(ptrv_repMesh_getCalculatedTriangleAt)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getCalculatedTriangleAt"));
-                v_repMesh_getMeshMeshCollision=(ptrv_repMesh_getMeshMeshCollision)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getMeshMeshCollision"));
-                v_repMesh_getTriangleTriangleCollision=(ptrv_repMesh_getTriangleTriangleCollision)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getTriangleTriangleCollision"));
-                v_repMesh_getBoxBoxCollision=(ptrv_repMesh_getBoxBoxCollision)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getBoxBoxCollision"));
-                v_repMesh_getBoxPointCollision=(ptrv_repMesh_getBoxPointCollision)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getBoxPointCollision"));
-                v_repMesh_getMeshMeshDistance=(ptrv_repMesh_getMeshMeshDistance)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getMeshMeshDistance"));
-                v_repMesh_getDistanceAgainstDummy_ifSmaller=(ptrv_repMesh_getDistanceAgainstDummy_ifSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getDistanceAgainstDummy_ifSmaller"));
-                v_repMesh_getBoxPointDistance=(ptrv_repMesh_getBoxPointDistance)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getBoxPointDistance"));
-                v_repMesh_getApproximateBoxBoxDistance=(ptrv_repMesh_getApproximateBoxBoxDistance)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getApproximateBoxBoxDistance"));
-                v_repMesh_getTriangleTriangleDistance_ifSmaller=(ptrv_repMesh_getTriangleTriangleDistance_ifSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getTriangleTriangleDistance_ifSmaller"));
-                v_repMesh_getTrianglePointDistance_ifSmaller=(ptrv_repMesh_getTrianglePointDistance_ifSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getTrianglePointDistance_ifSmaller"));
-                v_repMesh_getRayProxSensorDistance_ifSmaller=(ptrv_repMesh_getRayProxSensorDistance_ifSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getRayProxSensorDistance_ifSmaller"));
-                v_repMesh_isPointInsideVolume1AndOutsideVolume2=(ptrv_repMesh_isPointInsideVolume1AndOutsideVolume2)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_isPointInsideVolume1AndOutsideVolume2"));
-                v_repMesh_isPointTouchingVolume=(ptrv_repMesh_isPointTouchingVolume)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_isPointTouchingVolume"));
-                v_repMesh_getProxSensorDistance_ifSmaller=(ptrv_repMesh_getProxSensorDistance_ifSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getProxSensorDistance_ifSmaller"));
-                v_repMesh_getProxSensorDistanceToSegment_ifSmaller=(ptrv_repMesh_getProxSensorDistanceToSegment_ifSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getProxSensorDistanceToSegment_ifSmaller"));
-                v_repMesh_getProxSensorDistanceToTriangle_ifSmaller=(ptrv_repMesh_getProxSensorDistanceToTriangle_ifSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getProxSensorDistanceToTriangle_ifSmaller"));
-                v_repMesh_cutNodeWithVolume=(ptrv_repMesh_cutNodeWithVolume)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_cutNodeWithVolume"));
-                v_repMesh_createPointCloud=(ptrv_repMesh_createPointCloud)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_createPointCloud"));
-                v_repMesh_createColorPointCloud=(ptrv_repMesh_createColorPointCloud)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_createColorPointCloud"));
-                v_repMesh_copyPointCloud=(ptrv_repMesh_copyPointCloud)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_copyPointCloud"));
-                v_repMesh_destroyPointCloud=(ptrv_repMesh_destroyPointCloud)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_destroyPointCloud"));
-                v_repMesh_scalePointCloud=(ptrv_repMesh_scalePointCloud)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_scalePointCloud"));
-                v_repMesh_insertPointsIntoPointCloud=(ptrv_repMesh_insertPointsIntoPointCloud)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_insertPointsIntoPointCloud"));
-                v_repMesh_insertColorPointsIntoPointCloud=(ptrv_repMesh_insertColorPointsIntoPointCloud)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_insertColorPointsIntoPointCloud"));
-                v_repMesh_removePointCloudPoints=(ptrv_repMesh_removePointCloudPoints)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_removePointCloudPoints"));
-                v_repMesh_intersectPointCloudPoints=(ptrv_repMesh_intersectPointCloudPoints)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_intersectPointCloudPoints"));
-                v_repMesh_getPointCloudDebugCorners=(ptrv_repMesh_getPointCloudDebugCorners)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getPointCloudDebugCorners"));
-                v_repMesh_getPointCloudSerializationData=(ptrv_repMesh_getPointCloudSerializationData)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getPointCloudSerializationData"));
-                v_repMesh_getPointCloudFromSerializationData=(ptrv_repMesh_getPointCloudFromSerializationData)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getPointCloudFromSerializationData"));
-                v_repMesh_createOctreeFromPoints=(ptrv_repMesh_createOctreeFromPoints)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_createOctreeFromPoints"));
-                v_repMesh_createOctreeFromColorPoints=(ptrv_repMesh_createOctreeFromColorPoints)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_createOctreeFromColorPoints"));
-                v_repMesh_copyOctree=(ptrv_repMesh_copyOctree)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_copyOctree"));
-                v_repMesh_destroyOctree=(ptrv_repMesh_destroyOctree)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_destroyOctree"));
-                v_repMesh_scaleOctree=(ptrv_repMesh_scaleOctree)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_scaleOctree"));
-                v_repMesh_removeOctreeVoxelsFromPoints=(ptrv_repMesh_removeOctreeVoxelsFromPoints)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_removeOctreeVoxelsFromPoints"));
-                v_repMesh_insertPointsIntoOctree=(ptrv_repMesh_insertPointsIntoOctree)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_insertPointsIntoOctree"));
-                v_repMesh_insertColorPointsIntoOctree=(ptrv_repMesh_insertColorPointsIntoOctree)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_insertColorPointsIntoOctree"));
-                v_repMesh_getOctreeVoxels=(ptrv_repMesh_getOctreeVoxels)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getOctreeVoxels"));
-                v_repMesh_getPointCloudPointData=(ptrv_repMesh_getPointCloudPointData)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getPointCloudPointData"));
-                v_repMesh_getPartialPointCloudPointData=(ptrv_repMesh_getPartialPointCloudPointData)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getPartialPointCloudPointData"));
-                v_repMesh_getOctreeDebugCorners=(ptrv_repMesh_getOctreeDebugCorners)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getOctreeDebugCorners"));
-                v_repMesh_getOctreeSerializationData=(ptrv_repMesh_getOctreeSerializationData)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getOctreeSerializationData"));
-                v_repMesh_getOctreeFromSerializationData=(ptrv_repMesh_getOctreeFromSerializationData)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getOctreeFromSerializationData"));
-                v_repMesh_createOctreeFromShape=(ptrv_repMesh_createOctreeFromShape)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_createOctreeFromShape"));
-                v_repMesh_removeOctreeVoxelsFromShape=(ptrv_repMesh_removeOctreeVoxelsFromShape)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_removeOctreeVoxelsFromShape"));
-                v_repMesh_insertShapeIntoOctree=(ptrv_repMesh_insertShapeIntoOctree)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_insertShapeIntoOctree"));
-                v_repMesh_createOctreeFromOctree=(ptrv_repMesh_createOctreeFromOctree)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_createOctreeFromOctree"));
-                v_repMesh_insertOctreeIntoOctree=(ptrv_repMesh_insertOctreeIntoOctree)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_insertOctreeIntoOctree"));
-                v_repMesh_removeOctreeVoxelsFromOctree=(ptrv_repMesh_removeOctreeVoxelsFromOctree)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_removeOctreeVoxelsFromOctree"));
-                v_repMesh_checkOctreeCollisionWithShape=(ptrv_repMesh_checkOctreeCollisionWithShape)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_checkOctreeCollisionWithShape"));
-                v_repMesh_checkOctreeCollisionWithOctree=(ptrv_repMesh_checkOctreeCollisionWithOctree)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_checkOctreeCollisionWithOctree"));
-                v_repMesh_checkOctreeCollisionWithSinglePoint=(ptrv_repMesh_checkOctreeCollisionWithSinglePoint)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_checkOctreeCollisionWithSinglePoint"));
-                v_repMesh_checkOctreeCollisionWithSeveralPoints=(ptrv_repMesh_checkOctreeCollisionWithSeveralPoints)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_checkOctreeCollisionWithSeveralPoints"));
-                v_repMesh_checkOctreeCollisionWithPointCloud=(ptrv_repMesh_checkOctreeCollisionWithPointCloud)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_checkOctreeCollisionWithPointCloud"));
-                v_repMesh_getPointCloudDistanceToPointIfSmaller=(ptrv_repMesh_getPointCloudDistanceToPointIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getPointCloudDistanceToPointIfSmaller"));
-                v_repMesh_getPointCloudDistanceToPointCloudIfSmaller=(ptrv_repMesh_getPointCloudDistanceToPointCloudIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getPointCloudDistanceToPointCloudIfSmaller"));
-                v_repMesh_getPointCloudPointsFromCache=(ptrv_repMesh_getPointCloudPointsFromCache)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getPointCloudPointsFromCache"));
-                v_repMesh_getPointCloudNonEmptyCellCount=(ptrv_repMesh_getPointCloudNonEmptyCellCount)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getPointCloudNonEmptyCellCount"));
-                v_repMesh_getOctreeDistanceToPointIfSmaller=(ptrv_repMesh_getOctreeDistanceToPointIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getOctreeDistanceToPointIfSmaller"));
-                v_repMesh_getOctreeCellFromCache=(ptrv_repMesh_getOctreeCellFromCache)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getOctreeCellFromCache"));
-                v_repMesh_getOctreeDistanceToOctreeIfSmaller=(ptrv_repMesh_getOctreeDistanceToOctreeIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getOctreeDistanceToOctreeIfSmaller"));
-                v_repMesh_getOctreeDistanceToPointCloudIfSmaller=(ptrv_repMesh_getOctreeDistanceToPointCloudIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getOctreeDistanceToPointCloudIfSmaller"));
-                v_repMesh_getOctreeDistanceToShapeIfSmaller=(ptrv_repMesh_getOctreeDistanceToShapeIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getOctreeDistanceToShapeIfSmaller"));
-                v_repMesh_getMinDistBetweenCubeAndTriangleIfSmaller=(ptrv_repMesh_getMinDistBetweenCubeAndTriangleIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getMinDistBetweenCubeAndTriangleIfSmaller"));
-                v_repMesh_getPointCloudDistanceToShapeIfSmaller=(ptrv_repMesh_getPointCloudDistanceToShapeIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getPointCloudDistanceToShapeIfSmaller"));
-                v_repMesh_getMinDistBetweenPointAndTriangleIfSmaller=(ptrv_repMesh_getMinDistBetweenPointAndTriangleIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getMinDistBetweenPointAndTriangleIfSmaller"));
-                v_repMesh_getBoxBoxDistance=(ptrv_repMesh_getBoxBoxDistance)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getBoxBoxDistance"));
-                v_repMesh_getProxSensorPointCloudDistanceIfSmaller=(ptrv_repMesh_getProxSensorPointCloudDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getProxSensorPointCloudDistanceIfSmaller"));
-                v_repMesh_getRayProxSensorOctreeDistanceIfSmaller=(ptrv_repMesh_getRayProxSensorOctreeDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getRayProxSensorOctreeDistanceIfSmaller"));
-                v_repMesh_getProxSensorOctreeDistanceIfSmaller=(ptrv_repMesh_getProxSensorOctreeDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getProxSensorOctreeDistanceIfSmaller"));
-                v_repMesh_removePointCloudPointsFromOctree=(ptrv_repMesh_removePointCloudPointsFromOctree)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_removePointCloudPointsFromOctree"));
-                if (v_repMesh_createCollisionInformationStructure!=nullptr)
-                    CPluginContainer::currentMeshEngine=this;
+                // For the geom plugin:
+                geomPlugin_releaseBuffer=(ptr_geomPlugin_releaseBuffer)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_releaseBuffer"));
+                geomPlugin_createMesh=(ptr_geomPlugin_createMesh)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_createMesh"));
+                geomPlugin_copyMesh=(ptr_geomPlugin_copyMesh)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_copyMesh"));
+                geomPlugin_getMeshFromSerializationData=(ptr_geomPlugin_getMeshFromSerializationData)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getMeshFromSerializationData"));
+                geomPlugin_getMeshSerializationData=(ptr_geomPlugin_getMeshSerializationData)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getMeshSerializationData"));
+                geomPlugin_scaleMesh=(ptr_geomPlugin_scaleMesh)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_scaleMesh"));
+                geomPlugin_destroyMesh=(ptr_geomPlugin_destroyMesh)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_destroyMesh"));
+                geomPlugin_getMeshRootObbVolume=(ptr_geomPlugin_getMeshRootObbVolume)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getMeshRootObbVolume"));
+                geomPlugin_createOctreeFromPoints=(ptr_geomPlugin_createOctreeFromPoints)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_createOctreeFromPoints"));
+                geomPlugin_createOctreeFromColorPoints=(ptr_geomPlugin_createOctreeFromColorPoints)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_createOctreeFromColorPoints"));
+                geomPlugin_createOctreeFromMesh=(ptr_geomPlugin_createOctreeFromMesh)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_createOctreeFromMesh"));
+                geomPlugin_createOctreeFromOctree=(ptr_geomPlugin_createOctreeFromOctree)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_createOctreeFromOctree"));
+                geomPlugin_copyOctree=(ptr_geomPlugin_copyOctree)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_copyOctree"));
+                geomPlugin_getOctreeFromSerializationData=(ptr_geomPlugin_getOctreeFromSerializationData)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeFromSerializationData"));
+                geomPlugin_getOctreeSerializationData=(ptr_geomPlugin_getOctreeSerializationData)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeSerializationData"));
+                geomPlugin_scaleOctree=(ptr_geomPlugin_scaleOctree)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_scaleOctree"));
+                geomPlugin_destroyOctree=(ptr_geomPlugin_destroyOctree)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_destroyOctree"));
+                geomPlugin_getOctreeVoxelData=(ptr_geomPlugin_getOctreeVoxelData)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeVoxelData"));
+                geomPlugin_getOctreeUserData=(ptr_geomPlugin_getOctreeUserData)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeUserData"));
+                geomPlugin_getOctreeCornersFromOctree=(ptr_geomPlugin_getOctreeCornersFromOctree)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeCornersFromOctree"));
+                geomPlugin_insertPointsIntoOctree=(ptr_geomPlugin_insertPointsIntoOctree)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_insertPointsIntoOctree"));
+                geomPlugin_insertColorPointsIntoOctree=(ptr_geomPlugin_insertColorPointsIntoOctree)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_insertColorPointsIntoOctree"));
+                geomPlugin_insertMeshIntoOctree=(ptr_geomPlugin_insertMeshIntoOctree)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_insertMeshIntoOctree"));
+                geomPlugin_insertOctreeIntoOctree=(ptr_geomPlugin_insertOctreeIntoOctree)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_insertOctreeIntoOctree"));
+                geomPlugin_removePointsFromOctree=(ptr_geomPlugin_removePointsFromOctree)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_removePointsFromOctree"));
+                geomPlugin_removeMeshFromOctree=(ptr_geomPlugin_removeMeshFromOctree)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_removeMeshFromOctree"));
+                geomPlugin_removeOctreeFromOctree=(ptr_geomPlugin_removeOctreeFromOctree)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_removeOctreeFromOctree"));
+                geomPlugin_createPtcloudFromPoints=(ptr_geomPlugin_createPtcloudFromPoints)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_createPtcloudFromPoints"));
+                geomPlugin_createPtcloudFromColorPoints=(ptr_geomPlugin_createPtcloudFromColorPoints)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_createPtcloudFromColorPoints"));
+                geomPlugin_copyPtcloud=(ptr_geomPlugin_copyPtcloud)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_copyPtcloud"));
+                geomPlugin_getPtcloudFromSerializationData=(ptr_geomPlugin_getPtcloudFromSerializationData)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getPtcloudFromSerializationData"));
+                geomPlugin_getPtcloudSerializationData=(ptr_geomPlugin_getPtcloudSerializationData)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getPtcloudSerializationData"));
+                geomPlugin_scalePtcloud=(ptr_geomPlugin_scalePtcloud)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_scalePtcloud"));
+                geomPlugin_destroyPtcloud=(ptr_geomPlugin_destroyPtcloud)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_destroyPtcloud"));
+                geomPlugin_getPtcloudPoints=(ptr_geomPlugin_getPtcloudPoints)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getPtcloudPoints"));
+                geomPlugin_getPtcloudOctreeCorners=(ptr_geomPlugin_getPtcloudOctreeCorners)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getPtcloudOctreeCorners"));
+                geomPlugin_getPtcloudNonEmptyCellCount=(ptr_geomPlugin_getPtcloudNonEmptyCellCount)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getPtcloudNonEmptyCellCount"));
+                geomPlugin_insertPointsIntoPtcloud=(ptr_geomPlugin_insertPointsIntoPtcloud)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_insertPointsIntoPtcloud"));
+                geomPlugin_insertColorPointsIntoPtcloud=(ptr_geomPlugin_insertColorPointsIntoPtcloud)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_insertColorPointsIntoPtcloud"));
+                geomPlugin_removePointsFromPtcloud=(ptr_geomPlugin_removePointsFromPtcloud)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_removePointsFromPtcloud"));
+                geomPlugin_removeOctreeFromPtcloud=(ptr_geomPlugin_removeOctreeFromPtcloud)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_removeOctreeFromPtcloud"));
+                geomPlugin_intersectPointsWithPtcloud=(ptr_geomPlugin_intersectPointsWithPtcloud)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_intersectPointsWithPtcloud"));
+                geomPlugin_getMeshMeshCollision=(ptr_geomPlugin_getMeshMeshCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getMeshMeshCollision"));
+                geomPlugin_getMeshOctreeCollision=(ptr_geomPlugin_getMeshOctreeCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getMeshOctreeCollision"));
+                geomPlugin_getMeshTriangleCollision=(ptr_geomPlugin_getMeshTriangleCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getMeshTriangleCollision"));
+                geomPlugin_getMeshSegmentCollision=(ptr_geomPlugin_getMeshSegmentCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getMeshSegmentCollision"));
+                geomPlugin_getOctreeOctreeCollision=(ptr_geomPlugin_getOctreeOctreeCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeOctreeCollision"));
+                geomPlugin_getOctreePtcloudCollision=(ptr_geomPlugin_getOctreePtcloudCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreePtcloudCollision"));
+                geomPlugin_getOctreeTriangleCollision=(ptr_geomPlugin_getOctreeTriangleCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeTriangleCollision"));
+                geomPlugin_getOctreeSegmentCollision=(ptr_geomPlugin_getOctreeSegmentCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeSegmentCollision"));
+                geomPlugin_getOctreePointsCollision=(ptr_geomPlugin_getOctreePointsCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreePointsCollision"));
+                geomPlugin_getOctreePointCollision=(ptr_geomPlugin_getOctreePointCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreePointCollision"));
+                geomPlugin_getBoxBoxCollision=(ptr_geomPlugin_getBoxBoxCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getBoxBoxCollision"));
+                geomPlugin_getBoxTriangleCollision=(ptr_geomPlugin_getBoxTriangleCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getBoxTriangleCollision"));
+                geomPlugin_getBoxSegmentCollision=(ptr_geomPlugin_getBoxSegmentCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getBoxSegmentCollision"));
+                geomPlugin_getBoxPointCollision=(ptr_geomPlugin_getBoxPointCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getBoxPointCollision"));
+                geomPlugin_getTriangleTriangleCollision=(ptr_geomPlugin_getTriangleTriangleCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getTriangleTriangleCollision"));
+                geomPlugin_getTriangleSegmentCollision=(ptr_geomPlugin_getTriangleSegmentCollision)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getTriangleSegmentCollision"));
+                geomPlugin_getMeshMeshDistanceIfSmaller=(ptr_geomPlugin_getMeshMeshDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getMeshMeshDistanceIfSmaller"));
+                geomPlugin_getMeshOctreeDistanceIfSmaller=(ptr_geomPlugin_getMeshOctreeDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getMeshOctreeDistanceIfSmaller"));
+                geomPlugin_getMeshPtcloudDistanceIfSmaller=(ptr_geomPlugin_getMeshPtcloudDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getMeshPtcloudDistanceIfSmaller"));
+                geomPlugin_getMeshTriangleDistanceIfSmaller=(ptr_geomPlugin_getMeshTriangleDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getMeshTriangleDistanceIfSmaller"));
+                geomPlugin_getMeshSegmentDistanceIfSmaller=(ptr_geomPlugin_getMeshSegmentDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getMeshSegmentDistanceIfSmaller"));
+                geomPlugin_getMeshPointDistanceIfSmaller=(ptr_geomPlugin_getMeshPointDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getMeshPointDistanceIfSmaller"));
+                geomPlugin_getOctreeOctreeDistanceIfSmaller=(ptr_geomPlugin_getOctreeOctreeDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeOctreeDistanceIfSmaller"));
+                geomPlugin_getOctreePtcloudDistanceIfSmaller=(ptr_geomPlugin_getOctreePtcloudDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreePtcloudDistanceIfSmaller"));
+                geomPlugin_getOctreeTriangleDistanceIfSmaller=(ptr_geomPlugin_getOctreeTriangleDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeTriangleDistanceIfSmaller"));
+                geomPlugin_getOctreeSegmentDistanceIfSmaller=(ptr_geomPlugin_getOctreeSegmentDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeSegmentDistanceIfSmaller"));
+                geomPlugin_getOctreePointDistanceIfSmaller=(ptr_geomPlugin_getOctreePointDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreePointDistanceIfSmaller"));
+                geomPlugin_getPtcloudPtcloudDistanceIfSmaller=(ptr_geomPlugin_getPtcloudPtcloudDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getPtcloudPtcloudDistanceIfSmaller"));
+                geomPlugin_getPtcloudTriangleDistanceIfSmaller=(ptr_geomPlugin_getPtcloudTriangleDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getPtcloudTriangleDistanceIfSmaller"));
+                geomPlugin_getPtcloudSegmentDistanceIfSmaller=(ptr_geomPlugin_getPtcloudSegmentDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getPtcloudSegmentDistanceIfSmaller"));
+                geomPlugin_getPtcloudPointDistanceIfSmaller=(ptr_geomPlugin_getPtcloudPointDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getPtcloudPointDistanceIfSmaller"));
+                geomPlugin_getApproxBoxBoxDistance=(ptr_geomPlugin_getApproxBoxBoxDistance)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getApproxBoxBoxDistance"));
+                geomPlugin_getBoxBoxDistanceIfSmaller=(ptr_geomPlugin_getBoxBoxDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getBoxBoxDistanceIfSmaller"));
+                geomPlugin_getBoxTriangleDistanceIfSmaller=(ptr_geomPlugin_getBoxTriangleDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getBoxTriangleDistanceIfSmaller"));
+                geomPlugin_getBoxSegmentDistanceIfSmaller=(ptr_geomPlugin_getBoxSegmentDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getBoxSegmentDistanceIfSmaller"));
+                geomPlugin_getBoxPointDistanceIfSmaller=(ptr_geomPlugin_getBoxPointDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getBoxPointDistanceIfSmaller"));
+                geomPlugin_getTriangleTriangleDistanceIfSmaller=(ptr_geomPlugin_getTriangleTriangleDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getTriangleTriangleDistanceIfSmaller"));
+                geomPlugin_getTriangleSegmentDistanceIfSmaller=(ptr_geomPlugin_getTriangleSegmentDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getTriangleSegmentDistanceIfSmaller"));
+                geomPlugin_getTrianglePointDistanceIfSmaller=(ptr_geomPlugin_getTrianglePointDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getTrianglePointDistanceIfSmaller"));
+                geomPlugin_getSegmentSegmentDistanceIfSmaller=(ptr_geomPlugin_getSegmentSegmentDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getSegmentSegmentDistanceIfSmaller"));
+                geomPlugin_getSegmentPointDistanceIfSmaller=(ptr_geomPlugin_getSegmentPointDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getSegmentPointDistanceIfSmaller"));
+                geomPlugin_volumeSensorDetectMeshIfSmaller=(ptr_geomPlugin_volumeSensorDetectMeshIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_volumeSensorDetectMeshIfSmaller"));
+                geomPlugin_volumeSensorDetectOctreeIfSmaller=(ptr_geomPlugin_volumeSensorDetectOctreeIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_volumeSensorDetectOctreeIfSmaller"));
+                geomPlugin_volumeSensorDetectPtcloudIfSmaller=(ptr_geomPlugin_volumeSensorDetectPtcloudIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_volumeSensorDetectPtcloudIfSmaller"));
+                geomPlugin_volumeSensorDetectTriangleIfSmaller=(ptr_geomPlugin_volumeSensorDetectTriangleIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_volumeSensorDetectTriangleIfSmaller"));
+                geomPlugin_volumeSensorDetectSegmentIfSmaller=(ptr_geomPlugin_volumeSensorDetectSegmentIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_volumeSensorDetectSegmentIfSmaller"));
+                geomPlugin_raySensorDetectMeshIfSmaller=(ptr_geomPlugin_raySensorDetectMeshIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_raySensorDetectMeshIfSmaller"));
+                geomPlugin_raySensorDetectOctreeIfSmaller=(ptr_geomPlugin_raySensorDetectOctreeIfSmaller)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_raySensorDetectOctreeIfSmaller"));
+                geomPlugin_isPointInVolume=(ptr_geomPlugin_isPointInVolume)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_isPointInVolume"));
+                if (geomPlugin_createMesh!=nullptr)
+                    CPluginContainer::currentGeomPlugin=this;
 
                 _codeEditor_openModal=(ptrCodeEditor_openModal)(VVarious::resolveLibraryFuncName(lib,"codeEditor_openModal"));
                 _codeEditor_open=(ptrCodeEditor_open)(VVarious::resolveLibraryFuncName(lib,"codeEditor_open"));
@@ -191,29 +243,6 @@ int CPlugin::load()
                 _assimp_exportMeshes=(ptrassimp_exportMeshes)(VVarious::resolveLibraryFuncName(lib,"assimp_exportMeshes"));
                 if (_assimp_importShapes!=nullptr)
                     CPluginContainer::currentAssimp=this;
-
-
-
-                // For other specific plugins:
-                if (pov!=nullptr)
-                    CPluginContainer::_povRayAddress=pov;
-                if (extRenderer!=nullptr)
-                    CPluginContainer::_extRendererAddress=extRenderer;
-                if (extRendererWindowed!=nullptr)
-                    CPluginContainer::_extRendererWindowedAddress=extRendererWindowed;
-                if (openGl3!=nullptr)
-                    CPluginContainer::_openGl3Address=openGl3;
-                if (openGl3Windowed!=nullptr)
-                    CPluginContainer::_openGl3WindowedAddress=openGl3Windowed;
-
-                if (qhull!=nullptr)
-                    CPluginContainer::_qhullAddress=qhull;
-                if (hacd!=nullptr)
-                    CPluginContainer::_hacdAddress=hacd;
-                if (vhacd!=nullptr)
-                    CPluginContainer::_vhacdAddress=vhacd;
-                if (meshDecimator!=nullptr)
-                    CPluginContainer::_meshDecimatorAddress=meshDecimator;
 
                 return(int(pluginVersion)); // success!
             }
@@ -261,12 +290,12 @@ ptrVHACD CPluginContainer::_vhacdAddress=nullptr;
 ptrMeshDecimator CPluginContainer::_meshDecimatorAddress=nullptr;
 
 CPlugin* CPluginContainer::currentDynEngine=nullptr;
-CPlugin* CPluginContainer::currentMeshEngine=nullptr;
+CPlugin* CPluginContainer::currentGeomPlugin=nullptr;
 CPlugin* CPluginContainer::currentCodeEditor=nullptr;
 CPlugin* CPluginContainer::currentCustomUi=nullptr;
 CPlugin* CPluginContainer::currentAssimp=nullptr;
 
-VMutex _meshMutex;
+VMutex _geomMutex;
 
 CPluginContainer::CPluginContainer()
 {
@@ -576,9 +605,9 @@ bool CPluginContainer::dyn_startSimulation(int engine,int version,const float fl
     bool retVal=false;
     for (size_t i=0;i<_allPlugins.size();i++)
     {
-        if (_allPlugins[i]->v_repDyn_startSimulation!=nullptr)
+        if (_allPlugins[i]->dynPlugin_startSimulation!=nullptr)
         {
-            if (_allPlugins[i]->v_repDyn_startSimulation(engine,version,floatParams,intParams)!=0)
+            if (_allPlugins[i]->dynPlugin_startSimulation(engine,version,floatParams,intParams)!=0)
             { // success with this plugin!
                 currentDynEngine=_allPlugins[i];
                 retVal=true;
@@ -592,14 +621,14 @@ bool CPluginContainer::dyn_startSimulation(int engine,int version,const float fl
 void CPluginContainer::dyn_endSimulation()
 {
     if (currentDynEngine!=nullptr)
-        currentDynEngine->v_repDyn_endSimulation();
+        currentDynEngine->dynPlugin_endSimulation();
     currentDynEngine=nullptr;
 }
 
 void CPluginContainer::dyn_step(float timeStep,float simulationTime)
 {
     if (currentDynEngine!=nullptr)
-        currentDynEngine->v_repDyn_step(timeStep,simulationTime);
+        currentDynEngine->dynPlugin_step(timeStep,simulationTime);
 }
 
 bool CPluginContainer::dyn_isInitialized()
@@ -610,48 +639,48 @@ bool CPluginContainer::dyn_isInitialized()
 bool CPluginContainer::dyn_isDynamicContentAvailable()
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->v_repDyn_isDynamicContentAvailable()!=0);
+        return(currentDynEngine->dynPlugin_isDynamicContentAvailable()!=0);
     return(false);
 }
 
 void CPluginContainer::dyn_serializeDynamicContent(const char* filenameAndPath,int bulletSerializationBuffer)
 {
     if (currentDynEngine!=nullptr)
-        currentDynEngine->v_repDyn_serializeDynamicContent(filenameAndPath,bulletSerializationBuffer);
+        currentDynEngine->dynPlugin_serializeDynamicContent(filenameAndPath,bulletSerializationBuffer);
 }
 
 int CPluginContainer::dyn_addParticleObject(int objectType,float size,float massOverVolume,const void* params,float lifeTime,int maxItemCount,const float* ambient,const float* diffuse,const float* specular,const float* emission)
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->v_repDyn_addParticleObject(objectType,size,massOverVolume,params,lifeTime,maxItemCount,ambient,diffuse,specular,emission));
+        return(currentDynEngine->dynPlugin_addParticleObject(objectType,size,massOverVolume,params,lifeTime,maxItemCount,ambient,diffuse,specular,emission));
     return(-1);
 }
 
 bool CPluginContainer::dyn_removeParticleObject(int objectHandle)
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->v_repDyn_removeParticleObject(objectHandle)!=0);
+        return(currentDynEngine->dynPlugin_removeParticleObject(objectHandle)!=0);
     return(false);
 }
 
 bool CPluginContainer::dyn_addParticleObjectItem(int objectHandle,const float* itemData,float simulationTime)
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->v_repDyn_addParticleObjectItem(objectHandle,itemData,simulationTime)!=0);
+        return(currentDynEngine->dynPlugin_addParticleObjectItem(objectHandle,itemData,simulationTime)!=0);
     return(false);
 }
 
 int CPluginContainer::dyn_getParticleObjectOtherFloatsPerItem(int objectHandle)
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->v_repDyn_getParticleObjectOtherFloatsPerItem(objectHandle));
+        return(currentDynEngine->dynPlugin_getParticleObjectOtherFloatsPerItem(objectHandle));
     return(0);
 }
 
 float* CPluginContainer::dyn_getContactPoints(int* count)
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->v_repDyn_getContactPoints(count));
+        return(currentDynEngine->dynPlugin_getContactPoints(count));
     count[0]=0;
     return(nullptr);
 }
@@ -659,47 +688,47 @@ float* CPluginContainer::dyn_getContactPoints(int* count)
 void** CPluginContainer::dyn_getParticles(int index,int* particlesCount,int* objectType,float** cols)
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->v_repDyn_getParticles(index,particlesCount,objectType,cols));
+        return(currentDynEngine->dynPlugin_getParticles(index,particlesCount,objectType,cols));
     return(nullptr);
 }
 
 bool CPluginContainer::dyn_getParticleData(const void* particle,float* pos,float* size,int* objectType,float** additionalColor)
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->v_repDyn_getParticleData(particle,pos,size,objectType,additionalColor)!=0);
+        return(currentDynEngine->dynPlugin_getParticleData(particle,pos,size,objectType,additionalColor)!=0);
     return(false);
 }
 
 bool CPluginContainer::dyn_getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],float contactInfo[6])
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->v_repDyn_getContactForce(dynamicPass,objectHandle,index,objectHandles,contactInfo)!=0);
+        return(currentDynEngine->dynPlugin_getContactForce(dynamicPass,objectHandle,index,objectHandles,contactInfo)!=0);
     return(false);
 }
 
 void CPluginContainer::dyn_reportDynamicWorldConfiguration(int totalPassesCount,char doNotApplyJointIntrinsicPositions,float simulationTime)
 {
     if (currentDynEngine!=nullptr)
-        currentDynEngine->v_repDyn_reportDynamicWorldConfiguration(totalPassesCount,doNotApplyJointIntrinsicPositions,simulationTime);
+        currentDynEngine->dynPlugin_reportDynamicWorldConfiguration(totalPassesCount,doNotApplyJointIntrinsicPositions,simulationTime);
 }
 
 int CPluginContainer::dyn_getDynamicStepDivider()
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->v_repDyn_getDynamicStepDivider());
+        return(currentDynEngine->dynPlugin_getDynamicStepDivider());
     return(0);
 }
 
 int CPluginContainer::dyn_getEngineInfo(int* engine,int* data1,char* data2,char* data3)
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->v_repDyn_getEngineInfo(engine,data1,data2,data3));
+        return(currentDynEngine->dynPlugin_getEngineInfo(engine,data1,data2,data3));
     return(-1);
 }
 
-bool CPluginContainer::isMeshPluginAvailable()
+bool CPluginContainer::isGeomPluginAvailable()
 {
-    return(currentMeshEngine!=nullptr);
+    return(currentGeomPlugin!=nullptr);
 }
 
 bool CPluginContainer::isCodeEditorPluginAvailable()
@@ -717,1088 +746,1398 @@ bool CPluginContainer::isAssimpPluginAvailable()
     return(currentAssimp!=nullptr);
 }
 
-void CPluginContainer::mesh_lockUnlock(bool lock)
+void CPluginContainer::geomPlugin_lockUnlock(bool lock)
 {
     if (lock)
-        _meshMutex.lock();
+        _geomMutex.lock("CPluginContainer::geomPlugin_lockUnlock()");
     else
-        _meshMutex.unlock();
+        _geomMutex.unlock();
 }
 
-void* CPluginContainer::mesh_createCollisionInformationStructure(const float* cumulMeshVertices,int cumulMeshVerticesSize,const int* cumulMeshIndices,int cumulMeshIndicesSize,float maxTriSize,float edgeAngle,int maxTriCount)
+void CPluginContainer::geomPlugin_releaseBuffer(void* buffer)
 {
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_createCollisionInformationStructure(cumulMeshVertices,cumulMeshVerticesSize,cumulMeshIndices,cumulMeshIndicesSize,maxTriSize,edgeAngle,maxTriCount));
-    return(nullptr);
+    if (currentGeomPlugin!=nullptr)
+        currentGeomPlugin->geomPlugin_releaseBuffer(buffer);
 }
 
-void* CPluginContainer::mesh_copyCollisionInformationStructure(const void* collInfo)
+void* CPluginContainer::geomPlugin_createMesh(const float* vertices,int verticesSize,const int* indices,int indicesSize,const C7Vector* meshOrigin/*=nullptr*/,float triangleEdgeMaxLength/*=0.3f*/,int maxTrianglesInBoundingBox/*=8*/)
 {
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_copyCollisionInformationStructure(collInfo));
-    return(nullptr);
-}
-
-void CPluginContainer::mesh_destroyCollisionInformationStructure(void* collInfo)
-{
-    if (currentMeshEngine!=nullptr)
-        currentMeshEngine->v_repMesh_destroyCollisionInformationStructure(collInfo);
-}
-
-void CPluginContainer::mesh_scaleCollisionInformationStructure(void* collInfo,float scaleFactor)
-{
-    if (currentMeshEngine!=nullptr)
-        currentMeshEngine->v_repMesh_scaleCollisionInformationStructure(collInfo,scaleFactor);
-}
-
-unsigned char* CPluginContainer::mesh_getCollisionInformationStructureSerializationData(const void* collInfo,int& dataSize)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getCollisionInformationStructureSerializationData(collInfo,&dataSize));
-    return(nullptr);
-}
-
-void* CPluginContainer::mesh_getCollisionInformationStructureFromSerializationData(const unsigned char* data,const float* cumulMeshVertices,int cumulMeshVerticesSize,const int* cumulMeshIndices,int cumulMeshIndicesSize)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getCollisionInformationStructureFromSerializationData(data,cumulMeshVertices,cumulMeshVerticesSize,cumulMeshIndices,cumulMeshIndicesSize));
-    return(nullptr);
-}
-
-void CPluginContainer::mesh_releaseBuffer(void* buffer)
-{
-    if (currentMeshEngine!=nullptr)
-        currentMeshEngine->v_repMesh_releaseBuffer(buffer);
-}
-
-bool CPluginContainer::mesh_getCutMesh(const void* collInfo,const C7Vector* tr,float** vertices,int* verticesSize,int** indices,int* indicesSize,int options)
-{
-    if (currentMeshEngine!=nullptr)
+    void* retVal=nullptr;
+    if (currentGeomPlugin!=nullptr)
     {
-        float tr_[7];
-        tr->getInternalData(tr_);
-        return(currentMeshEngine->v_repMesh_getCutMesh(collInfo,tr_,vertices,verticesSize,indices,indicesSize,options)!=0);
+        float tr[7];
+        float* _tr=nullptr;
+        if (meshOrigin!=nullptr)
+        {
+            meshOrigin->getInternalData(tr);
+            _tr=tr;
+        }
+        retVal=currentGeomPlugin->geomPlugin_createMesh(vertices,verticesSize,indices,indicesSize,_tr,triangleEdgeMaxLength,maxTrianglesInBoundingBox);
     }
-    return(true);
+    return(retVal);
 }
-
-int CPluginContainer::mesh_getCalculatedTriangleCount(const void* collInfo)
+void* CPluginContainer::geomPlugin_copyMesh(const void* meshObbStruct)
 {
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getCalculatedTriangleCount(collInfo));
-    return(0);
+    void* retVal=nullptr;
+    if (currentGeomPlugin!=nullptr)
+        retVal=currentGeomPlugin->geomPlugin_copyMesh(meshObbStruct);
+    return(retVal);
 }
-
-int* CPluginContainer::mesh_getCalculatedTrianglesPointer(const void* collInfo)
+void* CPluginContainer::geomPlugin_getMeshFromSerializationData(const unsigned char* serializationData)
 {
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getCalculatedTrianglesPointer(collInfo));
-    return(nullptr);
+    void* retVal=nullptr;
+    if (currentGeomPlugin!=nullptr)
+        retVal=currentGeomPlugin->geomPlugin_getMeshFromSerializationData(serializationData);
+    return(retVal);
 }
-
-int CPluginContainer::mesh_getCalculatedVerticeCount(const void* collInfo)
+void CPluginContainer::geomPlugin_getMeshSerializationData(const void* meshObbStruct,std::vector<unsigned char>& serializationData)
 {
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getCalculatedVerticeCount(collInfo));
-    return(0);
-}
-
-float* CPluginContainer::mesh_getCalculatedVerticesPointer(const void* collInfo)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getCalculatedVerticesPointer(collInfo));
-    return(nullptr);
-}
-
-int CPluginContainer::mesh_getCalculatedSegmentCount(const void* collInfo)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getCalculatedSegmentCount(collInfo));
-    return(0);
-}
-
-int* CPluginContainer::mesh_getCalculatedSegmentsPointer(const void* collInfo)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getCalculatedSegmentsPointer(collInfo));
-    return(nullptr);
-}
-
-int CPluginContainer::mesh_getCalculatedPolygonCount(const void* collInfo)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getCalculatedPolygonCount(collInfo));
-    return(0);
-}
-
-int CPluginContainer::mesh_getCalculatedPolygonSize(const void* collInfo,int polygonIndex)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getCalculatedPolygonSize(collInfo,polygonIndex));
-    return(0);
-}
-
-int* CPluginContainer::mesh_getCalculatedPolygonArrayPointer(const void* collInfo,int polygonIndex)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getCalculatedPolygonArrayPointer(collInfo,polygonIndex));
-    return(nullptr);
-}
-
-bool CPluginContainer::mesh_getCalculatedTriangleAt(const void* collInfo,C3Vector& a0,C3Vector& a1,C3Vector& a2,int ind)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getCalculatedTriangleAt(collInfo,a0.data,a1.data,a2.data,ind)!=0);
-    return(false);
-}
-
-bool CPluginContainer::mesh_getMeshMeshCollision(const void* collInfo1,const void* collInfo2,const C4X4Matrix collObjMatr[2],const void* collInfos[2],bool inverseExploration,std::vector<float>* intersections,int caching[2])
-{
-    if (currentMeshEngine!=nullptr)
+    if (currentGeomPlugin!=nullptr)
     {
-        float collObjMatr1[12];
-        float collObjMatr2[12];
-        collObjMatr[0].copyToInterface(collObjMatr1);
-        collObjMatr[1].copyToInterface(collObjMatr2);
-        bool retVal;
-        if (intersections==nullptr)
-            retVal=currentMeshEngine->v_repMesh_getMeshMeshCollision(collInfo1,collInfo2,collObjMatr1,collObjMatr2,collInfos,inverseExploration,nullptr,nullptr,caching)!=0;
+        int l;
+        unsigned char* data=currentGeomPlugin->geomPlugin_getMeshSerializationData(meshObbStruct,&l);
+        if (data!=nullptr)
+        {
+            serializationData.assign(data,data+l);
+            currentGeomPlugin->geomPlugin_releaseBuffer(data);
+        }
+    }
+}
+void CPluginContainer::geomPlugin_scaleMesh(void* meshObbStruct,float scalingFactor)
+{
+    if (currentGeomPlugin!=nullptr)
+        currentGeomPlugin->geomPlugin_scaleMesh(meshObbStruct,scalingFactor);
+}
+void CPluginContainer::geomPlugin_destroyMesh(void* meshObbStruct)
+{
+    if (currentGeomPlugin!=nullptr)
+        currentGeomPlugin->geomPlugin_destroyMesh(meshObbStruct);
+}
+float CPluginContainer::geomPlugin_getMeshRootObbVolume(const void* meshObbStruct)
+{
+    float retVal=0.0f;
+    if (currentGeomPlugin!=nullptr)
+        retVal=currentGeomPlugin->geomPlugin_getMeshRootObbVolume(meshObbStruct);
+    return(retVal);
+}
+void* CPluginContainer::geomPlugin_createOctreeFromPoints(const float* points,int pointCnt,const C7Vector* octreeOrigin/*=nullptr*/,float cellS/*=0.05f*/,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
+{
+    void* retVal=nullptr;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float tr[7];
+        float* _tr=nullptr;
+        if (octreeOrigin!=nullptr)
+        {
+            octreeOrigin->getInternalData(tr);
+            _tr=tr;
+        }
+        retVal=currentGeomPlugin->geomPlugin_createOctreeFromPoints(points,pointCnt,_tr,cellS,rgbData,usrData);
+    }
+    return(retVal);
+}
+void* CPluginContainer::geomPlugin_createOctreeFromColorPoints(const float* points,int pointCnt,const C7Vector* octreeOrigin/*=nullptr*/,float cellS/*=0.05f*/,const unsigned char* rgbData/*=nullptr*/,const unsigned int* usrData/*=nullptr*/)
+{
+    void* retVal=nullptr;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float tr[7];
+        float* _tr=nullptr;
+        if (octreeOrigin!=nullptr)
+        {
+            octreeOrigin->getInternalData(tr);
+            _tr=tr;
+        }
+        retVal=currentGeomPlugin->geomPlugin_createOctreeFromColorPoints(points,pointCnt,_tr,cellS,rgbData,usrData);
+    }
+    return(retVal);
+}
+void* CPluginContainer::geomPlugin_createOctreeFromMesh(const void* meshObbStruct,const C7Vector& meshTransformation,const C7Vector* octreeOrigin/*=nullptr*/,float cellS/*=0.05f*/,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
+{
+    void* retVal=nullptr;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _meshTr[7];
+        meshTransformation.getInternalData(_meshTr);
+        float tr[7];
+        float* _tr=nullptr;
+        if (octreeOrigin!=nullptr)
+        {
+            octreeOrigin->getInternalData(tr);
+            _tr=tr;
+        }
+        retVal=currentGeomPlugin->geomPlugin_createOctreeFromMesh(meshObbStruct,_meshTr,_tr,cellS,rgbData,usrData);
+    }
+    return(retVal);
+}
+void* CPluginContainer::geomPlugin_createOctreeFromOctree(const void* otherOctreeStruct,const C7Vector& otherOctreeTransformation,const C7Vector* newOctreeOrigin/*=nullptr*/,float newOctreeCellS/*=0.05f*/,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
+{
+    void* retVal=nullptr;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _otherOcTr[7];
+        otherOctreeTransformation.getInternalData(_otherOcTr);
+        float tr[7];
+        float* _tr=nullptr;
+        if (newOctreeOrigin!=nullptr)
+        {
+            newOctreeOrigin->getInternalData(tr);
+            _tr=tr;
+        }
+        retVal=currentGeomPlugin->geomPlugin_createOctreeFromOctree(otherOctreeStruct,_otherOcTr,_tr,newOctreeCellS,rgbData,usrData);
+    }
+    return(retVal);
+}
+void* CPluginContainer::geomPlugin_copyOctree(const void* ocStruct)
+{
+    void* retVal=nullptr;
+    if (currentGeomPlugin!=nullptr)
+        retVal=currentGeomPlugin->geomPlugin_copyOctree(ocStruct);
+    return(retVal);
+}
+void* CPluginContainer::geomPlugin_getOctreeFromSerializationData(const unsigned char* serializationData)
+{
+    void* retVal=nullptr;
+    if (currentGeomPlugin!=nullptr)
+        retVal=currentGeomPlugin->geomPlugin_getOctreeFromSerializationData(serializationData);
+    return(retVal);
+}
+void CPluginContainer::geomPlugin_getOctreeSerializationData(const void* ocStruct,std::vector<unsigned char>& serializationData)
+{
+    if (currentGeomPlugin!=nullptr)
+    {
+        int l;
+        unsigned char* data=currentGeomPlugin->geomPlugin_getOctreeSerializationData(ocStruct,&l);
+        if (data!=nullptr)
+        {
+            serializationData.assign(data,data+l);
+            currentGeomPlugin->geomPlugin_releaseBuffer(data);
+        }
+    }
+}
+void CPluginContainer::geomPlugin_scaleOctree(void* ocStruct,float f)
+{
+    if (currentGeomPlugin!=nullptr)
+        currentGeomPlugin->geomPlugin_scaleOctree(ocStruct,f);
+}
+void CPluginContainer::geomPlugin_destroyOctree(void* ocStruct)
+{
+    if (currentGeomPlugin!=nullptr)
+        currentGeomPlugin->geomPlugin_destroyOctree(ocStruct);
+}
+void CPluginContainer::geomPlugin_getOctreeVoxelPositions(const void* ocStruct,std::vector<float>& voxelPositions)
+{
+    if (currentGeomPlugin!=nullptr)
+    {
+        int l;
+        float* data=currentGeomPlugin->geomPlugin_getOctreeVoxelData(ocStruct,&l);
+        if (data!=nullptr)
+        {
+            voxelPositions.resize(3*l);
+            for (int i=0;i<l;i++)
+            {
+                voxelPositions[3*i+0]=data[6*i+0];
+                voxelPositions[3*i+1]=data[6*i+1];
+                voxelPositions[3*i+2]=data[6*i+2];
+            }
+            currentGeomPlugin->geomPlugin_releaseBuffer(data);
+        }
+    }
+}
+void CPluginContainer::geomPlugin_getOctreeVoxelColors(const void* ocStruct,std::vector<float>& voxelColors)
+{
+    if (currentGeomPlugin!=nullptr)
+    {
+        int l;
+        float* data=currentGeomPlugin->geomPlugin_getOctreeVoxelData(ocStruct,&l);
+        if (data!=nullptr)
+        {
+            voxelColors.resize(4*l);
+            for (int i=0;i<l;i++)
+            {
+                voxelColors[4*i+0]=data[6*i+3];
+                voxelColors[4*i+1]=data[6*i+4];
+                voxelColors[4*i+2]=data[6*i+5];
+                voxelColors[4*i+3]=0.0f;
+            }
+            currentGeomPlugin->geomPlugin_releaseBuffer(data);
+        }
+    }
+}
+void CPluginContainer::geomPlugin_getOctreeUserData(const void* ocStruct,std::vector<unsigned int>& userData)
+{
+    if (currentGeomPlugin!=nullptr)
+    {
+        int l;
+        unsigned int* data=currentGeomPlugin->geomPlugin_getOctreeUserData(ocStruct,&l);
+        if (data!=nullptr)
+        {
+            userData.assign(data,data+l);
+            currentGeomPlugin->geomPlugin_releaseBuffer(data);
+        }
+    }
+}
+void CPluginContainer::geomPlugin_getOctreeCornersFromOctree(const void* ocStruct,std::vector<float>& points)
+{
+    if (currentGeomPlugin!=nullptr)
+    {
+        int l;
+        float* data=currentGeomPlugin->geomPlugin_getOctreeCornersFromOctree(ocStruct,&l);
+        if (data!=nullptr)
+        {
+            points.assign(data,data+3*l);
+            currentGeomPlugin->geomPlugin_releaseBuffer(data);
+        }
+    }
+}
+void CPluginContainer::geomPlugin_insertPointsIntoOctree(void* ocStruct,const C7Vector& octreeTransformation,const float* points,int pointCnt,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
+{
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        octreeTransformation.getInternalData(_tr);
+        currentGeomPlugin->geomPlugin_insertPointsIntoOctree(ocStruct,_tr,points,pointCnt,rgbData,usrData);
+    }
+}
+void CPluginContainer::geomPlugin_insertColorPointsIntoOctree(void* ocStruct,const C7Vector& octreeTransformation,const float* points,int pointCnt,const unsigned char* rgbData/*=nullptr*/,const unsigned int* usrData/*=nullptr*/)
+{
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        octreeTransformation.getInternalData(_tr);
+        currentGeomPlugin->geomPlugin_insertColorPointsIntoOctree(ocStruct,_tr,points,pointCnt,rgbData,usrData);
+    }
+}
+void CPluginContainer::geomPlugin_insertMeshIntoOctree(void* ocStruct,const C7Vector& octreeTransformation,const void* obbStruct,const C7Vector& meshTransformation,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
+{
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        octreeTransformation.getInternalData(_tr1);
+        float _tr2[7];
+        meshTransformation.getInternalData(_tr2);
+        currentGeomPlugin->geomPlugin_insertMeshIntoOctree(ocStruct,_tr1,obbStruct,_tr2,rgbData,usrData);
+    }
+}
+void CPluginContainer::geomPlugin_insertOctreeIntoOctree(void* oc1Struct,const C7Vector& octree1Transformation,const void* oc2Struct,const C7Vector& octree2Transformation,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
+{
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        octree1Transformation.getInternalData(_tr1);
+        float _tr2[7];
+        octree2Transformation.getInternalData(_tr2);
+        currentGeomPlugin->geomPlugin_insertOctreeIntoOctree(oc1Struct,_tr1,oc2Struct,_tr2,rgbData,usrData);
+    }
+}
+bool CPluginContainer::geomPlugin_removePointsFromOctree(void* ocStruct,const C7Vector& octreeTransformation,const float* points,int pointCnt)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        octreeTransformation.getInternalData(_tr);
+        retVal=currentGeomPlugin->geomPlugin_removePointsFromOctree(ocStruct,_tr,points,pointCnt);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_removeMeshFromOctree(void* ocStruct,const C7Vector& octreeTransformation,const void* obbStruct,const C7Vector& meshTransformation)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        octreeTransformation.getInternalData(_tr1);
+        float _tr2[7];
+        meshTransformation.getInternalData(_tr2);
+        retVal=currentGeomPlugin->geomPlugin_removeMeshFromOctree(ocStruct,_tr1,obbStruct,_tr2);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_removeOctreeFromOctree(void* oc1Struct,const C7Vector& octree1Transformation,const void* oc2Struct,const C7Vector& octree2Transformation)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        octree1Transformation.getInternalData(_tr1);
+        float _tr2[7];
+        octree2Transformation.getInternalData(_tr2);
+        retVal=currentGeomPlugin->geomPlugin_removeOctreeFromOctree(oc1Struct,_tr1,oc2Struct,_tr2);
+    }
+    return(retVal);
+}
+void* CPluginContainer::geomPlugin_createPtcloudFromPoints(const float* points,int pointCnt,const C7Vector* ptcloudOrigin/*=nullptr*/,float cellS/*=0.05f*/,int maxPointCnt/*=20*/,const unsigned char rgbData[3]/*=nullptr*/,float proximityTol/*=0.005f*/)
+{
+    void* retVal=nullptr;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float tr[7];
+        float* _tr=nullptr;
+        if (ptcloudOrigin!=nullptr)
+        {
+            ptcloudOrigin->getInternalData(tr);
+            _tr=tr;
+        }
+        retVal=currentGeomPlugin->geomPlugin_createPtcloudFromPoints(points,pointCnt,_tr,cellS,maxPointCnt,rgbData,proximityTol);
+    }
+    return(retVal);
+}
+void* CPluginContainer::geomPlugin_createPtcloudFromColorPoints(const float* points,int pointCnt,const C7Vector* ptcloudOrigin/*=nullptr*/,float cellS/*=0.05f*/,int maxPointCnt/*=20*/,const unsigned char* rgbData/*=nullptr*/,float proximityTol/*=0.005f*/)
+{
+    void* retVal=nullptr;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float tr[7];
+        float* _tr=nullptr;
+        if (ptcloudOrigin!=nullptr)
+        {
+            ptcloudOrigin->getInternalData(tr);
+            _tr=tr;
+        }
+        retVal=currentGeomPlugin->geomPlugin_createPtcloudFromColorPoints(points,pointCnt,_tr,cellS,maxPointCnt,rgbData,proximityTol);
+    }
+    return(retVal);
+}
+void* CPluginContainer::geomPlugin_copyPtcloud(const void* pcStruct)
+{
+    void* retVal=nullptr;
+    if (currentGeomPlugin!=nullptr)
+        retVal=currentGeomPlugin->geomPlugin_copyPtcloud(pcStruct);
+    return(retVal);
+}
+void* CPluginContainer::geomPlugin_getPtcloudFromSerializationData(const unsigned char* serializationData)
+{
+    void* retVal=nullptr;
+    if (currentGeomPlugin!=nullptr)
+        retVal=currentGeomPlugin->geomPlugin_getPtcloudFromSerializationData(serializationData);
+    return(retVal);
+}
+void CPluginContainer::geomPlugin_getPtcloudSerializationData(const void* pcStruct,std::vector<unsigned char>& serializationData)
+{
+    if (currentGeomPlugin!=nullptr)
+    {
+        int l;
+        unsigned char* data=currentGeomPlugin->geomPlugin_getPtcloudSerializationData(pcStruct,&l);
+        if (data!=nullptr)
+        {
+            serializationData.assign(data,data+l);
+            currentGeomPlugin->geomPlugin_releaseBuffer(data);
+        }
+    }
+}
+void CPluginContainer::geomPlugin_scalePtcloud(void* pcStruct,float f)
+{
+    if (currentGeomPlugin!=nullptr)
+        currentGeomPlugin->geomPlugin_scalePtcloud(pcStruct,f);
+}
+void CPluginContainer::geomPlugin_destroyPtcloud(void* pcStruct)
+{
+    if (currentGeomPlugin!=nullptr)
+        currentGeomPlugin->geomPlugin_destroyPtcloud(pcStruct);
+}
+void CPluginContainer::geomPlugin_getPtcloudPoints(const void* pcStruct,std::vector<float>& pointData,std::vector<float>* colorData/*=nullptr*/,float prop/*=1.0f*/)
+{
+    pointData.clear();
+    if (colorData!=nullptr)
+        colorData->clear();
+    if (currentGeomPlugin!=nullptr)
+    {
+        int l;
+        float* data=currentGeomPlugin->geomPlugin_getPtcloudPoints(pcStruct,&l,prop);
+        if (data!=nullptr)
+        {
+            for (int i=0;i<l;i++)
+            {
+                pointData.push_back(data[6*i+0]);
+                pointData.push_back(data[6*i+1]);
+                pointData.push_back(data[6*i+2]);
+                if (colorData!=nullptr)
+                {
+                    colorData->push_back(data[6*i+3]);
+                    colorData->push_back(data[6*i+4]);
+                    colorData->push_back(data[6*i+5]);
+                    colorData->push_back(0.0f);
+                }
+            }
+            currentGeomPlugin->geomPlugin_releaseBuffer(data);
+        }
+    }
+}
+
+void CPluginContainer::geomPlugin_getPtcloudOctreeCorners(const void* pcStruct,std::vector<float>& points)
+{
+    if (currentGeomPlugin!=nullptr)
+    {
+        int l;
+        float* data=currentGeomPlugin->geomPlugin_getPtcloudOctreeCorners(pcStruct,&l);
+        if (data!=nullptr)
+        {
+            points.assign(data,data+3*l);
+            currentGeomPlugin->geomPlugin_releaseBuffer(data);
+        }
+    }
+}
+int CPluginContainer::geomPlugin_getPtcloudNonEmptyCellCount(const void* pcStruct)
+{
+    int retVal=0;
+    if (currentGeomPlugin!=nullptr)
+        retVal=currentGeomPlugin->geomPlugin_getPtcloudNonEmptyCellCount(pcStruct);
+    return(retVal);
+}
+void CPluginContainer::geomPlugin_insertPointsIntoPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const float* points,int pointCnt,const unsigned char rgbData[3]/*=nullptr*/,float proximityTol/*=0.001f*/)
+{
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        ptcloudTransformation.getInternalData(_tr);
+        currentGeomPlugin->geomPlugin_insertPointsIntoPtcloud(pcStruct,_tr,points,pointCnt,rgbData,proximityTol);
+    }
+}
+void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const float* points,int pointCnt,const unsigned char* rgbData/*=nullptr*/,float proximityTol/*=0.001f*/)
+{
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        ptcloudTransformation.getInternalData(_tr);
+        currentGeomPlugin->geomPlugin_insertColorPointsIntoPtcloud(pcStruct,_tr,points,pointCnt,rgbData,proximityTol);
+    }
+}
+bool CPluginContainer::geomPlugin_removePointsFromPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const float* points,int pointCnt,float proximityTol,int* countRemoved/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        ptcloudTransformation.getInternalData(_tr);
+        retVal=currentGeomPlugin->geomPlugin_removePointsFromPtcloud(pcStruct,_tr,points,pointCnt,proximityTol,countRemoved);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_removeOctreeFromPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const void* ocStruct,const C7Vector& octreeTransformation,int* countRemoved/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        ptcloudTransformation.getInternalData(_tr);
+        float _tr2[7];
+        octreeTransformation.getInternalData(_tr2);
+        retVal=currentGeomPlugin->geomPlugin_removeOctreeFromPtcloud(pcStruct,_tr,ocStruct,_tr2,countRemoved);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_intersectPointsWithPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const float* points,int pointCnt,float proximityTol/*=0.001f*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        ptcloudTransformation.getInternalData(_tr);
+        retVal=currentGeomPlugin->geomPlugin_intersectPointsWithPtcloud(pcStruct,_tr,points,pointCnt,proximityTol);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getMeshMeshCollision(const void* mesh1ObbStruct,const C7Vector& mesh1Transformation,const void* mesh2ObbStruct,const C7Vector& mesh2Transformation,std::vector<float>* intersections/*=nullptr*/,int* mesh1Caching/*=nullptr*/,int* mesh2Caching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        mesh1Transformation.getInternalData(_tr1);
+        float _tr2[7];
+        mesh2Transformation.getInternalData(_tr2);
+        float* _intersections;
+        int _intersectionsSize;
+        float** _int=nullptr;
+        if (intersections!=nullptr)
+            _int=&_intersections;
+        retVal=currentGeomPlugin->geomPlugin_getMeshMeshCollision(mesh1ObbStruct,_tr1,mesh2ObbStruct,_tr2,_int,&_intersectionsSize,mesh1Caching,mesh2Caching);
+        if (retVal&&(intersections!=nullptr))
+        {
+            intersections->assign(_intersections,_intersections+_intersectionsSize);
+            currentGeomPlugin->geomPlugin_releaseBuffer(_intersections);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getMeshOctreeCollision(const void* meshObbStruct,const C7Vector& meshTransformation,const void* ocStruct,const C7Vector& octreeTransformation,int* meshCaching/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        meshTransformation.getInternalData(_tr1);
+        float _tr2[7];
+        octreeTransformation.getInternalData(_tr2);
+        retVal=currentGeomPlugin->geomPlugin_getMeshOctreeCollision(meshObbStruct,_tr1,ocStruct,_tr2,meshCaching,ocCaching);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getMeshTriangleCollision(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,std::vector<float>* intersections/*=nullptr*/,int* caching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        meshTransformation.getInternalData(_tr);
+        float* _intersections;
+        int _intersectionsSize;
+        float** _int=nullptr;
+        if (intersections!=nullptr)
+            _int=&_intersections;
+        retVal=currentGeomPlugin->geomPlugin_getMeshTriangleCollision(meshObbStruct,_tr,p.data,v.data,w.data,_int,&_intersectionsSize,caching);
+        if (retVal&&(intersections!=nullptr))
+        {
+            intersections->assign(_intersections,_intersections+_intersectionsSize);
+            currentGeomPlugin->geomPlugin_releaseBuffer(_intersections);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getMeshSegmentCollision(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& segmentExtremity,const C3Vector& segmentVector,std::vector<float>* intersections/*=nullptr*/,int* caching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        meshTransformation.getInternalData(_tr);
+        float* _intersections;
+        int _intersectionsSize;
+        float** _int=nullptr;
+        if (intersections!=nullptr)
+            _int=&_intersections;
+        retVal=currentGeomPlugin->geomPlugin_getMeshSegmentCollision(meshObbStruct,_tr,segmentExtremity.data,segmentVector.data,_int,&_intersectionsSize,caching);
+        if (retVal&&(intersections!=nullptr))
+        {
+            intersections->assign(_intersections,_intersections+_intersectionsSize);
+            currentGeomPlugin->geomPlugin_releaseBuffer(_intersections);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getOctreeOctreeCollision(const void* oc1Struct,const C7Vector& octree1Transformation,const void* oc2Struct,const C7Vector& octree2Transformation,unsigned long long int* oc1Caching/*=nullptr*/,unsigned long long int* oc2Caching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        octree1Transformation.getInternalData(_tr1);
+        float _tr2[7];
+        octree2Transformation.getInternalData(_tr2);
+        retVal=currentGeomPlugin->geomPlugin_getOctreeOctreeCollision(oc1Struct,_tr1,oc2Struct,_tr2,oc1Caching,oc2Caching);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getOctreePtcloudCollision(const void* ocStruct,const C7Vector& octreeTransformation,const void* pcStruct,const C7Vector& ptcloudTransformation,unsigned long long int* ocCaching/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        octreeTransformation.getInternalData(_tr1);
+        float _tr2[7];
+        ptcloudTransformation.getInternalData(_tr2);
+        retVal=currentGeomPlugin->geomPlugin_getOctreePtcloudCollision(ocStruct,_tr1,pcStruct,_tr2,ocCaching,pcCaching);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getOctreeTriangleCollision(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,unsigned long long int* caching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        octreeTransformation.getInternalData(_tr1);
+        retVal=currentGeomPlugin->geomPlugin_getOctreeTriangleCollision(ocStruct,_tr1,p.data,v.data,w.data,caching);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getOctreeSegmentCollision(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& segmentExtremity,const C3Vector& segmentVector,unsigned long long int* caching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        octreeTransformation.getInternalData(_tr1);
+        retVal=currentGeomPlugin->geomPlugin_getOctreeSegmentCollision(ocStruct,_tr1,segmentExtremity.data,segmentVector.data,caching);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getOctreePointsCollision(const void* ocStruct,const C7Vector& octreeTransformation,const float* points,int pointCount)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        octreeTransformation.getInternalData(_tr1);
+        retVal=currentGeomPlugin->geomPlugin_getOctreePointsCollision(ocStruct,_tr1,points,pointCount);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getOctreePointCollision(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& point,unsigned int* usrData/*=nullptr*/,unsigned long long int* caching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        octreeTransformation.getInternalData(_tr1);
+        retVal=currentGeomPlugin->geomPlugin_getOctreePointCollision(ocStruct,_tr1,point.data,usrData,caching);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getBoxBoxCollision(const C7Vector& box1Transformation,const C3Vector& box1HalfSize,const C7Vector& box2Transformation,const C3Vector& box2HalfSize,bool boxesAreSolid)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        box1Transformation.getInternalData(_tr1);
+        float _tr2[7];
+        box2Transformation.getInternalData(_tr2);
+        retVal=currentGeomPlugin->geomPlugin_getBoxBoxCollision(_tr1,box1HalfSize.data,_tr2,box2HalfSize.data,boxesAreSolid);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getBoxTriangleCollision(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& p,const C3Vector& v,const C3Vector& w)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        boxTransformation.getInternalData(_tr1);
+        retVal=currentGeomPlugin->geomPlugin_getBoxTriangleCollision(_tr1,boxHalfSize.data,boxIsSolid,p.data,v.data,w.data);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getBoxSegmentCollision(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& segmentEndPoint,const C3Vector& segmentVector)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        boxTransformation.getInternalData(_tr1);
+        retVal=currentGeomPlugin->geomPlugin_getBoxSegmentCollision(_tr1,boxHalfSize.data,boxIsSolid,segmentEndPoint.data,segmentVector.data);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getBoxPointCollision(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,const C3Vector& point)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        boxTransformation.getInternalData(_tr1);
+        retVal=currentGeomPlugin->geomPlugin_getBoxPointCollision(_tr1,boxHalfSize.data,point.data);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getTriangleTriangleCollision(const C3Vector& p1,const C3Vector& v1,const C3Vector& w1,const C3Vector& p2,const C3Vector& v2,const C3Vector& w2,std::vector<float>* intersections/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float* _intersections;
+        int _intersectionsSize;
+        float** _int=nullptr;
+        if (intersections!=nullptr)
+            _int=&_intersections;
+        retVal=currentGeomPlugin->geomPlugin_getTriangleTriangleCollision(p1.data,v1.data,w1.data,p2.data,v2.data,w2.data,_int,&_intersectionsSize);
+        if (retVal&&(intersections!=nullptr))
+        {
+            intersections->assign(_intersections,_intersections+_intersectionsSize);
+            currentGeomPlugin->geomPlugin_releaseBuffer(_intersections);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getTriangleSegmentCollision(const C3Vector& p,const C3Vector& v,const C3Vector& w,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,std::vector<float>* intersections/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float* _intersections;
+        int _intersectionsSize;
+        float** _int=nullptr;
+        if (intersections!=nullptr)
+            _int=&_intersections;
+        retVal=currentGeomPlugin->geomPlugin_getTriangleSegmentCollision(p.data,v.data,w.data,segmentEndPoint.data,segmentVector.data,_int,&_intersectionsSize);
+        if (retVal&&(intersections!=nullptr))
+        {
+            intersections->assign(_intersections,_intersections+_intersectionsSize);
+            currentGeomPlugin->geomPlugin_releaseBuffer(_intersections);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(const void* mesh1ObbStruct,const C7Vector& mesh1Transformation,const void* mesh2ObbStruct,const C7Vector& mesh2Transformation,float& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/,int* mesh1Caching/*=nullptr*/,int* mesh2Caching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        mesh1Transformation.getInternalData(_tr1);
+        float _tr2[7];
+        mesh2Transformation.getInternalData(_tr2);
+        float _minDistSegPt1[3];
+        float _minDistSegPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getMeshMeshDistanceIfSmaller(mesh1ObbStruct,_tr1,mesh2ObbStruct,_tr2,&dist,_minDistSegPt1,_minDistSegPt2,mesh1Caching,mesh2Caching);
+        if (retVal)
+        {
+            if (minDistSegPt1!=nullptr)
+                minDistSegPt1->setInternalData(_minDistSegPt1);
+            if (minDistSegPt2!=nullptr)
+                minDistSegPt2->setInternalData(_minDistSegPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const void* ocStruct,const C7Vector& octreeTransformation,float& dist,C3Vector* meshMinDistPt/*=nullptr*/,C3Vector* ocMinDistPt/*=nullptr*/,int* meshCaching/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        meshTransformation.getInternalData(_tr1);
+        float _tr2[7];
+        octreeTransformation.getInternalData(_tr2);
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getMeshOctreeDistanceIfSmaller(meshObbStruct,_tr1,ocStruct,_tr2,&dist,_minDistPt1,_minDistPt2,meshCaching,ocCaching);
+        if (retVal)
+        {
+            if (meshMinDistPt!=nullptr)
+                meshMinDistPt->setInternalData(_minDistPt1);
+            if (ocMinDistPt!=nullptr)
+                ocMinDistPt->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getMeshPtcloudDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const void* pcStruct,const C7Vector& pcTransformation,float& dist,C3Vector* meshMinDistPt/*=nullptr*/,C3Vector* pcMinDistPt/*=nullptr*/,int* meshCaching/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        meshTransformation.getInternalData(_tr1);
+        float _tr2[7];
+        pcTransformation.getInternalData(_tr2);
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getMeshPtcloudDistanceIfSmaller(meshObbStruct,_tr1,pcStruct,_tr2,&dist,_minDistPt1,_minDistPt2,meshCaching,pcCaching);
+        if (retVal)
+        {
+            if (meshMinDistPt!=nullptr)
+                meshMinDistPt->setInternalData(_minDistPt1);
+            if (pcMinDistPt!=nullptr)
+                pcMinDistPt->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getMeshTriangleDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,float& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/,int* caching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        meshTransformation.getInternalData(_tr);
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getMeshTriangleDistanceIfSmaller(meshObbStruct,_tr,p.data,v.data,w.data,&dist,_minDistPt1,_minDistPt2,caching);
+        if (retVal)
+        {
+            if (minDistSegPt1!=nullptr)
+                minDistSegPt1->setInternalData(_minDistPt1);
+            if (minDistSegPt2!=nullptr)
+                minDistSegPt2->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getMeshSegmentDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,float& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/,int* caching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        meshTransformation.getInternalData(_tr);
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getMeshSegmentDistanceIfSmaller(meshObbStruct,_tr,segmentEndPoint.data,segmentVector.data,&dist,_minDistPt1,_minDistPt2,caching);
+        if (retVal)
+        {
+            if (minDistSegPt1!=nullptr)
+                minDistSegPt1->setInternalData(_minDistPt1);
+            if (minDistSegPt2!=nullptr)
+                minDistSegPt2->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& point,float& dist,C3Vector* minDistSegPt/*=nullptr*/,int* caching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        meshTransformation.getInternalData(_tr);
+        float _minDistPt1[3];
+        retVal=currentGeomPlugin->geomPlugin_getMeshPointDistanceIfSmaller(meshObbStruct,_tr,point.data,&dist,_minDistPt1,caching);
+        if (retVal)
+        {
+            if (minDistSegPt!=nullptr)
+                minDistSegPt->setInternalData(_minDistPt1);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getOctreeOctreeDistanceIfSmaller(const void* oc1Struct,const C7Vector& octree1Transformation,const void* oc2Struct,const C7Vector& octree2Transformation,float& dist,C3Vector* oc1MinDistPt/*=nullptr*/,C3Vector* oc2MinDistPt/*=nullptr*/,unsigned long long int* oc1Caching/*=nullptr*/,unsigned long long int* oc2Caching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        octree1Transformation.getInternalData(_tr1);
+        float _tr2[7];
+        octree2Transformation.getInternalData(_tr2);
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getOctreeOctreeDistanceIfSmaller(oc1Struct,_tr1,oc2Struct,_tr2,&dist,_minDistPt1,_minDistPt2,oc1Caching,oc2Caching);
+        if (retVal)
+        {
+            if (oc1MinDistPt!=nullptr)
+                oc1MinDistPt->setInternalData(_minDistPt1);
+            if (oc2MinDistPt!=nullptr)
+                oc2MinDistPt->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getOctreePtcloudDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const void* pcStruct,const C7Vector& pcTransformation,float& dist,C3Vector* ocMinDistPt/*=nullptr*/,C3Vector* pcMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        octreeTransformation.getInternalData(_tr1);
+        float _tr2[7];
+        pcTransformation.getInternalData(_tr2);
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getOctreePtcloudDistanceIfSmaller(ocStruct,_tr1,pcStruct,_tr2,&dist,_minDistPt1,_minDistPt2,ocCaching,pcCaching);
+        if (retVal)
+        {
+            if (ocMinDistPt!=nullptr)
+                ocMinDistPt->setInternalData(_minDistPt1);
+            if (pcMinDistPt!=nullptr)
+                pcMinDistPt->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getOctreeTriangleDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,float& dist,C3Vector* ocMinDistPt/*=nullptr*/,C3Vector* triMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        octreeTransformation.getInternalData(_tr);
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getOctreeTriangleDistanceIfSmaller(ocStruct,_tr,p.data,v.data,w.data,&dist,_minDistPt1,_minDistPt2,ocCaching);
+        if (retVal)
+        {
+            if (ocMinDistPt!=nullptr)
+                ocMinDistPt->setInternalData(_minDistPt1);
+            if (triMinDistPt!=nullptr)
+                triMinDistPt->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getOctreeSegmentDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,float& dist,C3Vector* ocMinDistPt/*=nullptr*/,C3Vector* segMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        octreeTransformation.getInternalData(_tr);
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getOctreeSegmentDistanceIfSmaller(ocStruct,_tr,segmentEndPoint.data,segmentVector.data,&dist,_minDistPt1,_minDistPt2,ocCaching);
+        if (retVal)
+        {
+            if (ocMinDistPt!=nullptr)
+                ocMinDistPt->setInternalData(_minDistPt1);
+            if (segMinDistPt!=nullptr)
+                segMinDistPt->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getOctreePointDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& point,float& dist,C3Vector* ocMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        octreeTransformation.getInternalData(_tr);
+        float _minDistPt1[3];
+        retVal=currentGeomPlugin->geomPlugin_getOctreePointDistanceIfSmaller(ocStruct,_tr,point.data,&dist,_minDistPt1,ocCaching);
+        if (retVal)
+        {
+            if (ocMinDistPt!=nullptr)
+                ocMinDistPt->setInternalData(_minDistPt1);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getPtcloudPtcloudDistanceIfSmaller(const void* pc1Struct,const C7Vector& pc1Transformation,const void* pc2Struct,const C7Vector& pc2Transformation,float& dist,C3Vector* pc1MinDistPt/*=nullptr*/,C3Vector* pc2MinDistPt/*=nullptr*/,unsigned long long int* pc1Caching/*=nullptr*/,unsigned long long int* pc2Caching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        pc1Transformation.getInternalData(_tr1);
+        float _tr2[7];
+        pc2Transformation.getInternalData(_tr2);
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getPtcloudPtcloudDistanceIfSmaller(pc1Struct,_tr1,pc2Struct,_tr2,&dist,_minDistPt1,_minDistPt2,pc1Caching,pc2Caching);
+        if (retVal)
+        {
+            if (pc1MinDistPt!=nullptr)
+                pc1MinDistPt->setInternalData(_minDistPt1);
+            if (pc2MinDistPt!=nullptr)
+                pc2MinDistPt->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getPtcloudTriangleDistanceIfSmaller(const void* pcStruct,const C7Vector& pcTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,float& dist,C3Vector* pcMinDistPt/*=nullptr*/,C3Vector* triMinDistPt/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        pcTransformation.getInternalData(_tr);
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getPtcloudTriangleDistanceIfSmaller(pcStruct,_tr,p.data,v.data,w.data,&dist,_minDistPt1,_minDistPt2,pcCaching);
+        if (retVal)
+        {
+            if (pcMinDistPt!=nullptr)
+                pcMinDistPt->setInternalData(_minDistPt1);
+            if (triMinDistPt!=nullptr)
+                triMinDistPt->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getPtcloudSegmentDistanceIfSmaller(const void* pcStruct,const C7Vector& pcTransformation,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,float& dist,C3Vector* pcMinDistPt/*=nullptr*/,C3Vector* segMinDistPt/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        pcTransformation.getInternalData(_tr);
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getPtcloudSegmentDistanceIfSmaller(pcStruct,_tr,segmentEndPoint.data,segmentVector.data,&dist,_minDistPt1,_minDistPt2,pcCaching);
+        if (retVal)
+        {
+            if (pcMinDistPt!=nullptr)
+                pcMinDistPt->setInternalData(_minDistPt1);
+            if (segMinDistPt!=nullptr)
+                segMinDistPt->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getPtcloudPointDistanceIfSmaller(const void* pcStruct,const C7Vector& pcTransformation,const C3Vector& point,float& dist,C3Vector* pcMinDistPt/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        pcTransformation.getInternalData(_tr);
+        float _minDistPt1[3];
+        retVal=currentGeomPlugin->geomPlugin_getPtcloudPointDistanceIfSmaller(pcStruct,_tr,point.data,&dist,_minDistPt1,pcCaching);
+        if (retVal)
+        {
+            if (pcMinDistPt!=nullptr)
+                pcMinDistPt->setInternalData(_minDistPt1);
+        }
+    }
+    return(retVal);
+}
+float CPluginContainer::geomPlugin_getApproxBoxBoxDistance(const C7Vector& box1Transformation,const C3Vector& box1HalfSize,const C7Vector& box2Transformation,const C3Vector& box2HalfSize)
+{
+    float retVal=0.0f;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        box1Transformation.getInternalData(_tr1);
+        float _tr2[7];
+        box2Transformation.getInternalData(_tr2);
+        retVal=currentGeomPlugin->geomPlugin_getApproxBoxBoxDistance(_tr1,box1HalfSize.data,_tr2,box2HalfSize.data);
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getBoxBoxDistanceIfSmaller(const C7Vector& box1Transformation,const C3Vector& box1HalfSize,const C7Vector& box2Transformation,const C3Vector& box2HalfSize,bool boxesAreSolid,float& dist,C3Vector* distSegPt1/*=nullptr*/,C3Vector* distSegPt2/*=nullptr*/,bool altRoutine/*=false*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr1[7];
+        box1Transformation.getInternalData(_tr1);
+        float _tr2[7];
+        box2Transformation.getInternalData(_tr2);
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getBoxBoxDistanceIfSmaller(_tr1,box1HalfSize.data,_tr2,box2HalfSize.data,boxesAreSolid,&dist,_minDistPt1,_minDistPt2);
+        if (retVal)
+        {
+            if (distSegPt1!=nullptr)
+                distSegPt1->setInternalData(_minDistPt1);
+            if (distSegPt2!=nullptr)
+                distSegPt2->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getBoxTriangleDistanceIfSmaller(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& p,const C3Vector& v,const C3Vector& w,float& dist,C3Vector* distSegPt1/*=nullptr*/,C3Vector* distSegPt2/*=nullptr*/,bool altRoutine/*=false*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        boxTransformation.getInternalData(_tr);
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getBoxTriangleDistanceIfSmaller(_tr,boxHalfSize.data,boxIsSolid,p.data,v.data,w.data,&dist,_minDistPt1,_minDistPt2);
+        if (retVal)
+        {
+            if (distSegPt1!=nullptr)
+                distSegPt1->setInternalData(_minDistPt1);
+            if (distSegPt2!=nullptr)
+                distSegPt2->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getBoxSegmentDistanceIfSmaller(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,float& dist,C3Vector* distSegPt1/*=nullptr*/,C3Vector* distSegPt2/*=nullptr*/,bool altRoutine/*=false*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        boxTransformation.getInternalData(_tr);
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getBoxSegmentDistanceIfSmaller(_tr,boxHalfSize.data,boxIsSolid,segmentEndPoint.data,segmentVector.data,&dist,_minDistPt1,_minDistPt2);
+        if (retVal)
+        {
+            if (distSegPt1!=nullptr)
+                distSegPt1->setInternalData(_minDistPt1);
+            if (distSegPt2!=nullptr)
+                distSegPt2->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getBoxPointDistanceIfSmaller(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& point,float& dist,C3Vector* distSegPt1/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        boxTransformation.getInternalData(_tr);
+        float _minDistPt1[3];
+        retVal=currentGeomPlugin->geomPlugin_getBoxPointDistanceIfSmaller(_tr,boxHalfSize.data,boxIsSolid,point.data,&dist,_minDistPt1);
+        if (retVal)
+        {
+            if (distSegPt1!=nullptr)
+                distSegPt1->setInternalData(_minDistPt1);
+        }
+    }
+    return(retVal);
+}
+float CPluginContainer::geomPlugin_getBoxPointDistance(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& point,C3Vector* distSegPt1/*=nullptr*/)
+{
+    float dist=FLT_MAX;
+    geomPlugin_getBoxPointDistanceIfSmaller(boxTransformation,boxHalfSize,boxIsSolid,point,dist,distSegPt1);
+    return(dist);
+}
+bool CPluginContainer::geomPlugin_getTriangleTriangleDistanceIfSmaller(const C3Vector& p1,const C3Vector& v1,const C3Vector& w1,const C3Vector& p2,const C3Vector& v2,const C3Vector& w2,float& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getTriangleTriangleDistanceIfSmaller(p1.data,v1.data,w1.data,p2.data,v2.data,w2.data,&dist,_minDistPt1,_minDistPt2);
+        if (retVal)
+        {
+            if (minDistSegPt1!=nullptr)
+                minDistSegPt1->setInternalData(_minDistPt1);
+            if (minDistSegPt2!=nullptr)
+                minDistSegPt2->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getTriangleSegmentDistanceIfSmaller(const C3Vector& p,const C3Vector& v,const C3Vector& w,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,float& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getTriangleSegmentDistanceIfSmaller(p.data,v.data,w.data,segmentEndPoint.data,segmentVector.data,&dist,_minDistPt1,_minDistPt2);
+        if (retVal)
+        {
+            if (minDistSegPt1!=nullptr)
+                minDistSegPt1->setInternalData(_minDistPt1);
+            if (minDistSegPt2!=nullptr)
+                minDistSegPt2->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getTrianglePointDistanceIfSmaller(const C3Vector& p,const C3Vector& v,const C3Vector& w,const C3Vector& point,float& dist,C3Vector* minDistSegPt/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _minDistPt1[3];
+        retVal=currentGeomPlugin->geomPlugin_getTrianglePointDistanceIfSmaller(p.data,v.data,w.data,point.data,&dist,_minDistPt1);
+        if (retVal)
+        {
+            if (minDistSegPt!=nullptr)
+                minDistSegPt->setInternalData(_minDistPt1);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getSegmentSegmentDistanceIfSmaller(const C3Vector& segment1EndPoint,const C3Vector& segment1Vector,const C3Vector& segment2EndPoint,const C3Vector& segment2Vector,float& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _minDistPt1[3];
+        float _minDistPt2[3];
+        retVal=currentGeomPlugin->geomPlugin_getSegmentSegmentDistanceIfSmaller(segment1EndPoint.data,segment1Vector.data,segment2EndPoint.data,segment2Vector.data,&dist,_minDistPt1,_minDistPt2);
+        if (retVal)
+        {
+            if (minDistSegPt1!=nullptr)
+                minDistSegPt1->setInternalData(_minDistPt1);
+            if (minDistSegPt2!=nullptr)
+                minDistSegPt2->setInternalData(_minDistPt2);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_getSegmentPointDistanceIfSmaller(const C3Vector& segmentEndPoint,const C3Vector& segmentVector,const C3Vector& point,float& dist,C3Vector* minDistSegPt/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _minDistPt1[3];
+        retVal=currentGeomPlugin->geomPlugin_getSegmentPointDistanceIfSmaller(segmentEndPoint.data,segmentVector.data,point.data,&dist,_minDistPt1);
+        if (retVal)
+        {
+            if (minDistSegPt!=nullptr)
+                minDistSegPt->setInternalData(_minDistPt1);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_volumeSensorDetectMeshIfSmaller(const std::vector<float>& planesIn,const std::vector<float>& planesOut,const void* obbStruct,const C7Vector& meshTransformation,float& dist,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,float maxAngle/*=0.0f*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/)
+{
+    bool retVal=false;
+    const float* _planesIn=nullptr;
+    if (planesIn.size()>0)
+        _planesIn=&planesIn[0];
+    const float* _planesOut=nullptr;
+    if (planesOut.size()>0)
+        _planesOut=&planesOut[0];
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        meshTransformation.getInternalData(_tr);
+        float _detectPt[3];
+        float _triN[3];
+        retVal=currentGeomPlugin->geomPlugin_volumeSensorDetectMeshIfSmaller(_planesIn,int(planesIn.size()),_planesOut,int(planesOut.size()),obbStruct,_tr,&dist,fast,frontDetection,backDetection,maxAngle,_detectPt,_triN);
+        if (retVal)
+        {
+            if (detectPt!=nullptr)
+                detectPt->setInternalData(_detectPt);
+            if (triN!=nullptr)
+                triN->setInternalData(_triN);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_volumeSensorDetectOctreeIfSmaller(const std::vector<float>& planesIn,const std::vector<float>& planesOut,const void* ocStruct,const C7Vector& octreeTransformation,float& dist,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,float maxAngle/*=0.0f*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/)
+{
+    bool retVal=false;
+    const float* _planesIn=nullptr;
+    if (planesIn.size()>0)
+        _planesIn=&planesIn[0];
+    const float* _planesOut=nullptr;
+    if (planesOut.size()>0)
+        _planesOut=&planesOut[0];
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        octreeTransformation.getInternalData(_tr);
+        float _detectPt[3];
+        float _triN[3];
+        retVal=currentGeomPlugin->geomPlugin_volumeSensorDetectOctreeIfSmaller(_planesIn,int(planesIn.size()),_planesOut,int(planesOut.size()),ocStruct,_tr,&dist,fast,frontDetection,backDetection,maxAngle,_detectPt,_triN);
+        if (retVal)
+        {
+            if (detectPt!=nullptr)
+                detectPt->setInternalData(_detectPt);
+            if (triN!=nullptr)
+                triN->setInternalData(_triN);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_volumeSensorDetectPtcloudIfSmaller(const std::vector<float>& planesIn,const std::vector<float>& planesOut,const void* pcStruct,const C7Vector& ptcloudTransformation,float& dist,bool fast/*=false*/,C3Vector* detectPt/*=nullptr*/)
+{
+    bool retVal=false;
+    const float* _planesIn=nullptr;
+    if (planesIn.size()>0)
+        _planesIn=&planesIn[0];
+    const float* _planesOut=nullptr;
+    if (planesOut.size()>0)
+        _planesOut=&planesOut[0];
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        ptcloudTransformation.getInternalData(_tr);
+        float _detectPt[3];
+        retVal=currentGeomPlugin->geomPlugin_volumeSensorDetectPtcloudIfSmaller(_planesIn,int(planesIn.size()),_planesOut,int(planesOut.size()),pcStruct,_tr,&dist,fast,_detectPt);
+        if (retVal)
+        {
+            if (detectPt!=nullptr)
+                detectPt->setInternalData(_detectPt);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_volumeSensorDetectTriangleIfSmaller(const std::vector<float>& planesIn,const std::vector<float>& planesOut,const C3Vector& p,const C3Vector& v,const C3Vector& w,float& dist,bool frontDetection/*=true*/,bool backDetection/*=true*/,float maxAngle/*=0.0f*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/)
+{
+    bool retVal=false;
+    const float* _planesIn=nullptr;
+    if (planesIn.size()>0)
+        _planesIn=&planesIn[0];
+    const float* _planesOut=nullptr;
+    if (planesOut.size()>0)
+        _planesOut=&planesOut[0];
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _detectPt[3];
+        float _triN[3];
+        retVal=currentGeomPlugin->geomPlugin_volumeSensorDetectTriangleIfSmaller(_planesIn,int(planesIn.size()),_planesOut,int(planesOut.size()),p.data,v.data,w.data,&dist,frontDetection,backDetection,maxAngle,_detectPt,_triN);
+        if (retVal)
+        {
+            if (detectPt!=nullptr)
+                detectPt->setInternalData(_detectPt);
+            if (triN!=nullptr)
+                triN->setInternalData(_triN);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_volumeSensorDetectSegmentIfSmaller(const std::vector<float>& planesIn,const std::vector<float>& planesOut,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,float& dist,float maxAngle/*=0.0f*/,C3Vector* detectPt/*=nullptr*/)
+{
+    bool retVal=false;
+    const float* _planesIn=nullptr;
+    if (planesIn.size()>0)
+        _planesIn=&planesIn[0];
+    const float* _planesOut=nullptr;
+    if (planesOut.size()>0)
+        _planesOut=&planesOut[0];
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _detectPt[3];
+        retVal=currentGeomPlugin->geomPlugin_volumeSensorDetectSegmentIfSmaller(_planesIn,int(planesIn.size()),_planesOut,int(planesOut.size()),segmentEndPoint.data,segmentVector.data,&dist,maxAngle,_detectPt);
+        if (retVal)
+        {
+            if (detectPt!=nullptr)
+                detectPt->setInternalData(_detectPt);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(const C3Vector& rayStart,const C3Vector& rayVect,const void* obbStruct,const C7Vector& meshTransformation,float& dist,float forbiddenDist/*=0.0f*/,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,float maxAngle/*=0.0f*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/,bool* forbiddenDistTouched/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        meshTransformation.getInternalData(_tr);
+        float _detectPt[3];
+        float _triN[3];
+        retVal=currentGeomPlugin->geomPlugin_raySensorDetectMeshIfSmaller(rayStart.data,rayVect.data,obbStruct,_tr,&dist,forbiddenDist,fast,frontDetection,backDetection,maxAngle,_detectPt,_triN,forbiddenDistTouched);
+        if (retVal)
+        {
+            if (detectPt!=nullptr)
+                detectPt->setInternalData(_detectPt);
+            if (triN!=nullptr)
+                triN->setInternalData(_triN);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_raySensorDetectOctreeIfSmaller(const C3Vector& rayStart,const C3Vector& rayVect,const void* ocStruct,const C7Vector& octreeTransformation,float& dist,float forbiddenDist/*=0.0f*/,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,float maxAngle/*=0.0f*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/,bool* forbiddenDistTouched/*=nullptr*/)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        float _tr[7];
+        octreeTransformation.getInternalData(_tr);
+        float _detectPt[3];
+        float _triN[3];
+        retVal=currentGeomPlugin->geomPlugin_raySensorDetectOctreeIfSmaller(rayStart.data,rayVect.data,ocStruct,_tr,&dist,forbiddenDist,fast,frontDetection,backDetection,maxAngle,_detectPt,_triN,forbiddenDistTouched);
+        if (retVal)
+        {
+            if (detectPt!=nullptr)
+                detectPt->setInternalData(_detectPt);
+            if (triN!=nullptr)
+                triN->setInternalData(_triN);
+        }
+    }
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_isPointInVolume(const std::vector<float>& planesIn,const C3Vector& point)
+{
+    bool retVal=false;
+    const float* _planesIn=nullptr;
+    if (planesIn.size()>0)
+        _planesIn=&planesIn[0];
+    if (currentGeomPlugin!=nullptr)
+        retVal=currentGeomPlugin->geomPlugin_isPointInVolume(_planesIn,int(planesIn.size()),point.data);
+    return(retVal);
+}
+bool CPluginContainer::geomPlugin_isPointInVolume1AndOutVolume2(const std::vector<float>& planesIn,const std::vector<float>& planesOut,const C3Vector& point)
+{
+    bool retVal=false;
+    if (currentGeomPlugin!=nullptr)
+    {
+        if (planesIn.size()==0)
+            retVal=true;
         else
-        {
-            float* _intersections;
-            int _intersectionsSize;
-            retVal=currentMeshEngine->v_repMesh_getMeshMeshCollision(collInfo1,collInfo2,collObjMatr1,collObjMatr2,collInfos,inverseExploration,&_intersections,&_intersectionsSize,caching)!=0;
-            if (retVal)
-                intersections->assign(_intersections,_intersections+_intersectionsSize);
-            mesh_releaseBuffer(_intersections);
-        }
-        return(retVal);
+            retVal=currentGeomPlugin->geomPlugin_isPointInVolume(&planesIn[0],int(planesIn.size()),point.data);
+        if (retVal&&(planesOut.size()>0))
+            retVal=!currentGeomPlugin->geomPlugin_isPointInVolume(&planesOut[0],int(planesOut.size()),point.data);
     }
-    return(false);
-}
-
-int CPluginContainer::mesh_getTriangleTriangleCollision(const C3Vector& a0,const C3Vector& e0,const C3Vector& e1,const C3Vector& b0,const C3Vector& f0,const C3Vector& f1,C3Vector* intSegPart0,C3Vector* intSegPart1,bool getIntersection)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        int retVal;
-        if (intSegPart0==nullptr)
-            retVal=currentMeshEngine->v_repMesh_getTriangleTriangleCollision(a0.data,e0.data,e1.data,b0.data,f0.data,f1.data,nullptr,nullptr,getIntersection);
-        else
-        {
-            float v0[3];
-            float v1[3];
-            retVal=currentMeshEngine->v_repMesh_getTriangleTriangleCollision(a0.data,e0.data,e1.data,b0.data,f0.data,f1.data,v0,v1,getIntersection);
-            intSegPart0->setInternalData(v0);
-            intSegPart1->setInternalData(v1);
-        }
-        return(retVal);
-    }
-    return(0);
-}
-
-bool CPluginContainer::mesh_getBoxBoxCollision(const C4X4Matrix& box1Tr,const C3Vector& box1Size,const C4X4Matrix& box2Tr,const C3Vector& box2Size)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        float _t1[12];
-        box1Tr.copyToInterface(_t1);
-        float _t2[12];
-        box2Tr.copyToInterface(_t2);
-        return(currentMeshEngine->v_repMesh_getBoxBoxCollision(_t1,box1Size.data,_t2,box2Size.data)!=0);
-    }
-    return(false);
-}
-
-bool CPluginContainer::mesh_getBoxPointCollision(const C4X4Matrix& boxTr,const C3Vector& boxSize,const C3Vector& point)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        float _t[12];
-        boxTr.copyToInterface(_t);
-        return(currentMeshEngine->v_repMesh_getBoxPointCollision(_t,boxSize.data,point.data)!=0);
-    }
-    return(false);
-}
-
-void CPluginContainer::mesh_getMeshMeshDistance(const void* collInfo1,const void* collInfo2,const C4X4Matrix distObjMatr[2],const void* collInfos[2],bool inverseExploration,float distances[7],int caching[2])
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        float distObjMatr1[12];
-        float distObjMatr2[12];
-        distObjMatr[0].copyToInterface(distObjMatr1);
-        distObjMatr[1].copyToInterface(distObjMatr2);
-        currentMeshEngine->v_repMesh_getMeshMeshDistance(collInfo1,collInfo2,distObjMatr1,distObjMatr2,collInfos,inverseExploration,distances,caching);
-    }
-}
-
-bool CPluginContainer::mesh_getDistanceAgainstDummy_ifSmaller(const void* collInfo,const C3Vector& dummyPos,const C4X4Matrix& itPCTM,float &dist,C3Vector& ray0,C3Vector& ray1,int& itBuff)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        float _itPCTM[12];
-        itPCTM.copyToInterface(_itPCTM);
-        float _ray0[3];
-        float _ray1[3];
-        bool retVal=currentMeshEngine->v_repMesh_getDistanceAgainstDummy_ifSmaller(collInfo,dummyPos.data,_itPCTM,&dist,_ray0,_ray1,&itBuff)!=0;
-        if (retVal)
-        {
-            ray0.set(_ray0);
-            ray1.set(_ray1);
-        }
-        return(retVal);
-    }
-    return(false);
-}
-
-float CPluginContainer::mesh_getBoxPointDistance(const C4X4Matrix& t1,const C3Vector& s1,const C3Vector& dummyPos)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        float _t1[12];
-        t1.copyToInterface(_t1);
-        return(currentMeshEngine->v_repMesh_getBoxPointDistance(_t1,s1.data,dummyPos.data));
-    }
-    return(0.0);
-}
-
-float CPluginContainer::mesh_getApproximateBoxBoxDistance(const C4X4Matrix& t1,const C3Vector& s1,const C4X4Matrix& t2,const C3Vector& s2)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        float _t1[12];
-        t1.copyToInterface(_t1);
-        float _t2[12];
-        t2.copyToInterface(_t2);
-        return(currentMeshEngine->v_repMesh_getApproximateBoxBoxDistance(_t1,s1.data,_t2,s2.data));
-    }
-    return(0.0);
-}
-
-bool CPluginContainer::mesh_getTriangleTriangleDistance_ifSmaller(const C3Vector& a0,const C3Vector& e0,const C3Vector& e1,const C3Vector& b0,const C3Vector& f0,const C3Vector& f1,float &dist,C3Vector& segA,C3Vector& segB)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        float _segA[3];
-        float _segB[3];
-        bool retVal=currentMeshEngine->v_repMesh_getTriangleTriangleDistance_ifSmaller(a0.data,e0.data,e1.data,b0.data,f0.data,f1.data,&dist,_segA,_segB)!=0;
-        if (retVal)
-        {
-            segA.set(_segA);
-            segB.set(_segB);
-        }
-        return(retVal);
-    }
-    return(false);
-}
-
-bool CPluginContainer::mesh_getTrianglePointDistance_ifSmaller(const C3Vector& a0,const C3Vector& e0,const C3Vector& e1,const C3Vector& dummyPos,float &dist,C3Vector& segA)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        float _segA[3];
-        bool retVal=currentMeshEngine->v_repMesh_getTrianglePointDistance_ifSmaller(a0.data,e0.data,e1.data,dummyPos.data,&dist,_segA)!=0;
-        if (retVal)
-            segA.set(_segA);
-        return(retVal);
-    }
-    return(false);
-}
-
-bool CPluginContainer::mesh_getRayProxSensorDistance_ifSmaller(const void* collInfo,const C4X4Matrix& selfPCTM,float &dist,const C3Vector& lp,float closeThreshold,const C3Vector& lvFar,float cosAngle,C3Vector& detectPoint,bool fast,bool frontFace,bool backFace,char* closeDetectionTriggered,C3Vector& triNormalNotNormalized,void* theOcclusionCheckCallback)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        float _selfPCTM[12];
-        selfPCTM.copyToInterface(_selfPCTM);
-        float _detectPoint[3];
-        float _triNormalNotNormalized[3];
-        bool retVal=currentMeshEngine->v_repMesh_getRayProxSensorDistance_ifSmaller(collInfo,_selfPCTM,&dist,lp.data,closeThreshold,lvFar.data,cosAngle,_detectPoint,fast,frontFace,backFace,closeDetectionTriggered,_triNormalNotNormalized,theOcclusionCheckCallback)!=0;
-        if (retVal)
-        {
-            detectPoint.set(_detectPoint);
-            triNormalNotNormalized.set(_triNormalNotNormalized);
-        }
-        return(retVal);
-    }
-    return(false);
-}
-
-bool CPluginContainer::mesh_isPointInsideVolume1AndOutsideVolume2(const C3Vector& p,const std::vector<float>* planes,const std::vector<float>* planesOutside)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        const float* _planes=nullptr;
-        int _planesSize=0;
-        if ((planes!=nullptr)&&(planes->size()!=0))
-        {
-            _planes=&(*planes)[0];
-            _planesSize=(int)planes->size();
-        }
-        const float* _planesOutside=nullptr;
-        int _planesOutsideSize=0;
-        if ((planesOutside!=nullptr)&&(planesOutside->size()!=0))
-        {
-            _planesOutside=&(*planesOutside)[0];
-            _planesOutsideSize=(int)planesOutside->size();
-        }
-        return(currentMeshEngine->v_repMesh_isPointInsideVolume1AndOutsideVolume2(p.data,_planes,_planesSize,_planesOutside,_planesOutsideSize)!=0);
-    }
-    return(false);
-}
-
-bool CPluginContainer::mesh_isPointTouchingVolume(const C3Vector& p,const std::vector<float>* planes)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        const float* _planes=nullptr;
-        int _planesSize=0;
-        if ((planes!=nullptr)&&(planes->size()!=0))
-        {
-            _planes=&(*planes)[0];
-            _planesSize=(int)planes->size();
-        }
-        return(currentMeshEngine->v_repMesh_isPointTouchingVolume(p.data,_planes,_planesSize)!=0);
-    }
-    return(false);
-}
-
-bool CPluginContainer::mesh_getProxSensorDistance_ifSmaller(const void* collInfo,const C4X4Matrix& itPCTM,float &dist,const std::vector<float>* planes,const std::vector<float>* planesOutside,float cosAngle,C3Vector& detectPoint,bool fast,bool frontFace,bool backFace,std::vector<float>* cutEdges,C3Vector& triNormalNotNormalized,void* theOcclusionCheckCallback)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        const float* _planes=nullptr;
-        int _planesSize=0;
-        if ((planes!=nullptr)&&(planes->size()!=0))
-        {
-            _planes=&(*planes)[0];
-            _planesSize=(int)planes->size();
-        }
-        const float* _planesOutside=nullptr;
-        int _planesOutsideSize=0;
-        if ((planesOutside!=nullptr)&&(planesOutside->size()!=0))
-        {
-            _planesOutside=&(*planesOutside)[0];
-            _planesOutsideSize=(int)planesOutside->size();
-        }
-        float _itPCTM[12];
-        itPCTM.copyToInterface(_itPCTM);
-        float _detectPoint[3];
-        float _triNormalNotNormalized[3];
-        bool retVal=currentMeshEngine->v_repMesh_getProxSensorDistance_ifSmaller(collInfo,_itPCTM,&dist,_planes,_planesSize,_planesOutside,_planesOutsideSize,cosAngle,_detectPoint,fast,frontFace,backFace,_triNormalNotNormalized,theOcclusionCheckCallback)!=0;
-        if (retVal)
-        {
-            detectPoint.set(_detectPoint);
-            triNormalNotNormalized.set(_triNormalNotNormalized);
-        }
-        return(retVal);
-    }
-    return(false);
-}
-
-bool CPluginContainer::mesh_getProxSensorDistanceToSegment_ifSmaller(const C3Vector& p0,const C3Vector& p1,float &dist,const std::vector<float>* planes,const std::vector<float>* planesOutside,float maxAngle,C3Vector& detectPoint)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        const float* _planes=nullptr;
-        int _planesSize=0;
-        if ((planes!=nullptr)&&(planes->size()!=0))
-        {
-            _planes=&(*planes)[0];
-            _planesSize=(int)planes->size();
-        }
-        const float* _planesOutside=nullptr;
-        int _planesOutsideSize=0;
-        if ((planesOutside!=nullptr)&&(planesOutside->size()!=0))
-        {
-            _planesOutside=&(*planesOutside)[0];
-            _planesOutsideSize=(int)planesOutside->size();
-        }
-        float _detectPoint[3];
-        bool retVal=currentMeshEngine->v_repMesh_getProxSensorDistanceToSegment_ifSmaller(p0.data,p1.data,&dist,_planes,_planesSize,_planesOutside,_planesOutsideSize,maxAngle,_detectPoint)!=0;
-        if (retVal)
-            detectPoint.set(_detectPoint);
-        return(retVal);
-    }
-    return(false);
-}
-
-bool CPluginContainer::mesh_getProxSensorDistanceToTriangle_ifSmaller(const C3Vector& a0,const C3Vector& e0,const C3Vector& e1,float &dist,const std::vector<float>* planes,const std::vector<float>* planesOutside,float cosAngle,C3Vector& detectPoint,bool frontFace,bool backFace,C3Vector& triNormalNotNormalized)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        const float* _planes=nullptr;
-        int _planesSize=0;
-        if ((planes!=nullptr)&&(planes->size()!=0))
-        {
-            _planes=&(*planes)[0];
-            _planesSize=(int)planes->size();
-        }
-        const float* _planesOutside=nullptr;
-        int _planesOutsideSize=0;
-        if ((planesOutside!=nullptr)&&(planesOutside->size()!=0))
-        {
-            _planesOutside=&(*planesOutside)[0];
-            _planesOutsideSize=(int)planesOutside->size();
-        }
-        float _detectPoint[3];
-        float _triNormalNotNormalized[3];
-        bool retVal=currentMeshEngine->v_repMesh_getProxSensorDistanceToTriangle_ifSmaller(a0.data,e0.data,e1.data,&dist,_planes,_planesSize,_planesOutside,_planesOutsideSize,cosAngle,_detectPoint,frontFace,backFace,_triNormalNotNormalized)!=0;
-        if (retVal)
-        {
-            detectPoint.set(_detectPoint);
-            triNormalNotNormalized.set(_triNormalNotNormalized);
-        }
-        return(retVal);
-    }
-    return(false);
-}
-
-float CPluginContainer::mesh_cutNodeWithVolume(void* collInfo,const C4X4Matrix& itPCTM,const std::vector<float>* planes)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        EASYLOCK(_meshMutex);
-        const float* _planes=nullptr;
-        int _planesSize=0;
-        if ((planes!=nullptr)&&(planes->size()!=0))
-        {
-            _planes=&(*planes)[0];
-            _planesSize=(int)planes->size();
-        }
-        float _itPCTM[12];
-        itPCTM.copyToInterface(_itPCTM);
-        return(currentMeshEngine->v_repMesh_cutNodeWithVolume(collInfo,_itPCTM,_planes,_planesSize));
-    }
-    return(0.0);
-}
-
-void* CPluginContainer::mesh_createPointCloud(const float* relPoints,int ptCnt,float cellSize,int maxPointCountPerCell,const float theColor[3],float distTolerance)
-{
-    unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_createPointCloud(relPoints,ptCnt,cellSize,maxPointCountPerCell,cols,distTolerance));
-    return(nullptr);
-}
-
-void* CPluginContainer::mesh_createColorPointCloud(const float* relPoints,int ptCnt,float cellSize,int maxPointCountPerCell,const unsigned char* theColors,float distTolerance)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_createColorPointCloud(relPoints,ptCnt,cellSize,maxPointCountPerCell,theColors,distTolerance));
-    return(nullptr);
-}
-
-void* CPluginContainer::mesh_copyPointCloud(const void* pointCloudInfo)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_copyPointCloud(pointCloudInfo));
-    return(nullptr);
-}
-
-void CPluginContainer::mesh_destroyPointCloud(void* pointCloudInfo)
-{
-    if (currentMeshEngine!=nullptr)
-        currentMeshEngine->v_repMesh_destroyPointCloud(pointCloudInfo);
-}
-
-void CPluginContainer::mesh_scalePointCloud(void* pointCloudInfo,float scaleFactor)
-{
-    if (currentMeshEngine!=nullptr)
-        currentMeshEngine->v_repMesh_scalePointCloud(pointCloudInfo,scaleFactor);
-}
-
-void CPluginContainer::mesh_insertPointsIntoPointCloud(void* pointCloudInfo,const float* relPoints,int ptCnt,const float theColor[3],float distTolerance)
-{
-    unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
-    if (currentMeshEngine!=nullptr)
-        currentMeshEngine->v_repMesh_insertPointsIntoPointCloud(pointCloudInfo,relPoints,ptCnt,cols,distTolerance);
-}
-
-void CPluginContainer::mesh_insertColorPointsIntoPointCloud(void* pointCloudInfo,const float* relPoints,int ptCnt,const unsigned char* theColors,float distTolerance)
-{
-    if (currentMeshEngine!=nullptr)
-        currentMeshEngine->v_repMesh_insertColorPointsIntoPointCloud(pointCloudInfo,relPoints,ptCnt,theColors,distTolerance);
-}
-
-bool CPluginContainer::mesh_removePointCloudPoints(void* pointCloudInfo,const float* relPoints,int ptCnt,float distTolerance,int& removedCnt)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_removePointCloudPoints(pointCloudInfo,relPoints,ptCnt,distTolerance,&removedCnt)!=0);
-    return(false);
-}
-
-bool CPluginContainer::mesh_intersectPointCloudPoints(void* pointCloudInfo,const float* relPoints,int ptCnt,float distTolerance)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_intersectPointCloudPoints(pointCloudInfo,relPoints,ptCnt,distTolerance)!=0);
-    return(false);
-}
-
-void CPluginContainer::mesh_getPointCloudDebugCorners(const void* pointCloudInfo,std::vector<float>& cubeCorners)
-{
-    cubeCorners.clear();
-    if (currentMeshEngine!=nullptr)
-    {
-        int cubeCnt;
-        float* dat=currentMeshEngine->v_repMesh_getPointCloudDebugCorners(pointCloudInfo,&cubeCnt);
-        cubeCorners.assign(dat,dat+cubeCnt*8*3);
-        currentMeshEngine->v_repMesh_releaseBuffer(dat);
-    }
-}
-
-void CPluginContainer::mesh_getPointCloudSerializationData(const void* pointCloudInfo,std::vector<unsigned char>& data)
-{
-    data.clear();
-    if (currentMeshEngine!=nullptr)
-    {
-        int dataSize;
-        unsigned char* d=currentMeshEngine->v_repMesh_getPointCloudSerializationData(pointCloudInfo,&dataSize);
-        for (int i=0;i<dataSize;i++)
-            data.push_back(d[i]);
-        currentMeshEngine->v_repMesh_releaseBuffer(d);
-    }
-}
-
-void* CPluginContainer::mesh_getPointCloudFromSerializationData(const std::vector<unsigned char>& data)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getPointCloudFromSerializationData(&data[0]));
-    return(nullptr);
-}
-
-
-
-
-
-void* CPluginContainer::mesh_createOctreeFromPoints(const float* relPoints,int ptCnt,float cellSize,const float theColor[3],unsigned int theTag)
-{
-    unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_createOctreeFromPoints(relPoints,ptCnt,cellSize,cols,theTag));
-    return(nullptr);
-}
-
-void* CPluginContainer::mesh_createOctreeFromColorPoints(const float* relPoints,int ptCnt,float cellSize,const unsigned char* theColors,const unsigned int* theTags)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_createOctreeFromColorPoints(relPoints,ptCnt,cellSize,theColors,theTags));
-    return(nullptr);
-}
-
-void* CPluginContainer::mesh_copyOctree(const void* octreeInfo)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_copyOctree(octreeInfo));
-    return(nullptr);
-}
-
-void CPluginContainer::mesh_destroyOctree(void* octreeInfo)
-{
-    if (currentMeshEngine!=nullptr)
-        currentMeshEngine->v_repMesh_destroyOctree(octreeInfo);
-}
-
-void CPluginContainer::mesh_scaleOctree(void* octreeInfo,float scaleFactor)
-{
-    if (currentMeshEngine!=nullptr)
-        currentMeshEngine->v_repMesh_scaleOctree(octreeInfo,scaleFactor);
-}
-
-bool CPluginContainer::mesh_removeOctreeVoxelsFromPoints(void* octreeInfo,const float* relPoints,int ptCnt)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_removeOctreeVoxelsFromPoints(octreeInfo,relPoints,ptCnt)!=0);
-    return(false);
-}
-
-void CPluginContainer::mesh_insertPointsIntoOctree(void* octreeInfo,const float* relPoints,int ptCnt,const float theColor[3],unsigned int theTag)
-{
-    unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
-    if (currentMeshEngine!=nullptr)
-        currentMeshEngine->v_repMesh_insertPointsIntoOctree(octreeInfo,relPoints,ptCnt,cols,theTag);
-}
-
-void CPluginContainer::mesh_insertColorPointsIntoOctree(void* octreeInfo,const float* relPoints,int ptCnt,const unsigned char* theColors,const unsigned int* theTags)
-{
-    if (currentMeshEngine!=nullptr)
-        currentMeshEngine->v_repMesh_insertColorPointsIntoOctree(octreeInfo,relPoints,ptCnt,theColors,theTags);
-}
-
-void CPluginContainer::mesh_getOctreeVoxels(const void* octreeInfo,std::vector<float>& voxelPositions,std::vector<float>& voxelColors)
-{
-    voxelPositions.clear();
-    voxelColors.clear();
-    if (currentMeshEngine!=nullptr)
-    {
-        int voxelCnt;
-        float* dat=currentMeshEngine->v_repMesh_getOctreeVoxels(octreeInfo,&voxelCnt);
-        for (int i=0;i<voxelCnt;i++)
-        {
-            voxelPositions.push_back(dat[6*i+0]);
-            voxelPositions.push_back(dat[6*i+1]);
-            voxelPositions.push_back(dat[6*i+2]);
-            voxelColors.push_back(dat[6*i+3]);
-            voxelColors.push_back(dat[6*i+4]);
-            voxelColors.push_back(dat[6*i+5]);
-            voxelColors.push_back(0.0);
-        }
-        currentMeshEngine->v_repMesh_releaseBuffer(dat);
-    }
-}
-
-void CPluginContainer::mesh_getPointCloudPointData(const void* pointCloudInfo,std::vector<float>& pointPositions,std::vector<float>& pointColors)
-{
-    pointPositions.clear();
-    pointColors.clear();
-    if (currentMeshEngine!=nullptr)
-    {
-        int pointCnt;
-        float* dat=currentMeshEngine->v_repMesh_getPointCloudPointData(pointCloudInfo,&pointCnt);
-        for (int i=0;i<pointCnt;i++)
-        {
-            pointPositions.push_back(dat[6*i+0]);
-            pointPositions.push_back(dat[6*i+1]);
-            pointPositions.push_back(dat[6*i+2]);
-            pointColors.push_back(dat[6*i+3]);
-            pointColors.push_back(dat[6*i+4]);
-            pointColors.push_back(dat[6*i+5]);
-            pointColors.push_back(0.0);
-        }
-        currentMeshEngine->v_repMesh_releaseBuffer(dat);
-    }
-}
-
-void CPluginContainer::mesh_getPartialPointCloudPointData(const void* pointCloudInfo,std::vector<float>& pointPositions,std::vector<float>& pointColors,float ratio)
-{
-    pointPositions.clear();
-    pointColors.clear();
-    if (currentMeshEngine!=nullptr)
-    {
-        int pointCnt;
-        float* dat=currentMeshEngine->v_repMesh_getPartialPointCloudPointData(pointCloudInfo,&pointCnt,ratio);
-        for (int i=0;i<pointCnt;i++)
-        {
-            pointPositions.push_back(dat[6*i+0]);
-            pointPositions.push_back(dat[6*i+1]);
-            pointPositions.push_back(dat[6*i+2]);
-            pointColors.push_back(dat[6*i+3]);
-            pointColors.push_back(dat[6*i+4]);
-            pointColors.push_back(dat[6*i+5]);
-            pointColors.push_back(0.0);
-        }
-        currentMeshEngine->v_repMesh_releaseBuffer(dat);
-    }
-}
-
-void CPluginContainer::mesh_getOctreeDebugCorners(const void* octreeInfo,std::vector<float>& cubeCorners)
-{
-    cubeCorners.clear();
-    if (currentMeshEngine!=nullptr)
-    {
-        int cubeCnt;
-        float* dat=currentMeshEngine->v_repMesh_getOctreeDebugCorners(octreeInfo,&cubeCnt);
-        cubeCorners.assign(dat,dat+cubeCnt*8*3);
-        currentMeshEngine->v_repMesh_releaseBuffer(dat);
-    }
-}
-
-void CPluginContainer::mesh_getOctreeSerializationData(const void* octreeInfo,std::vector<unsigned char>& data)
-{
-    data.clear();
-    if (currentMeshEngine!=nullptr)
-    {
-        int dataSize;
-        unsigned char* d=currentMeshEngine->v_repMesh_getOctreeSerializationData(octreeInfo,&dataSize);
-        for (int i=0;i<dataSize;i++)
-            data.push_back(d[i]);
-        currentMeshEngine->v_repMesh_releaseBuffer(d);
-    }
-}
-
-void* CPluginContainer::mesh_getOctreeFromSerializationData(const std::vector<unsigned char>& data)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getOctreeFromSerializationData(&data[0]));
-    return(nullptr);
-}
-
-
-
-void* CPluginContainer::mesh_createOctreeFromShape(const C4X4Matrix& octreePCTM,const void* collInfo,const C4X4Matrix& collnodePCTM,float cellSize,const float theColor[3],unsigned int theTag)
-{
-    float _octreePCTM[12];
-    octreePCTM.copyToInterface(_octreePCTM);
-
-    float _collnodePCTM[12];
-    collnodePCTM.copyToInterface(_collnodePCTM);
-
-    unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_createOctreeFromShape(_octreePCTM,collInfo,_collnodePCTM,cellSize,cols,theTag));
-    return(nullptr);
-}
-
-bool CPluginContainer::mesh_removeOctreeVoxelsFromShape(void* octreeInfo,const C4X4Matrix& octreePCTM,const void* collInfo,const C4X4Matrix& collnodePCTM)
-{
-    float _octreePCTM[12];
-    octreePCTM.copyToInterface(_octreePCTM);
-
-    float _collnodePCTM[12];
-    collnodePCTM.copyToInterface(_collnodePCTM);
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_removeOctreeVoxelsFromShape(octreeInfo,_octreePCTM,collInfo,_collnodePCTM)!=0);
-    return(false);
-}
-
-void CPluginContainer::mesh_insertShapeIntoOctree(void* octreeInfo,const C4X4Matrix& octreePCTM,const void* collInfo,const C4X4Matrix& collnodePCTM,const float theColor[3],unsigned int theTag)
-{
-    float _octreePCTM[12];
-    octreePCTM.copyToInterface(_octreePCTM);
-
-    float _collnodePCTM[12];
-    collnodePCTM.copyToInterface(_collnodePCTM);
-
-    unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
-
-    if (currentMeshEngine!=nullptr)
-        currentMeshEngine->v_repMesh_insertShapeIntoOctree(octreeInfo,_octreePCTM,collInfo,_collnodePCTM,cols,theTag);
-}
-
-void* CPluginContainer::mesh_createOctreeFromOctree(const C4X4Matrix& octreePCTM,const void* octree2Info,const C4X4Matrix& octree2PCTM,float cellSize,const float theColor[3],unsigned int theTag)
-{
-    float _octreePCTM[12];
-    octreePCTM.copyToInterface(_octreePCTM);
-
-    float _octree2PCTM[12];
-    octree2PCTM.copyToInterface(_octree2PCTM);
-
-    unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_createOctreeFromOctree(_octreePCTM,octree2Info,_octree2PCTM,cellSize,cols,theTag));
-    return(nullptr);
-}
-
-bool CPluginContainer::mesh_removeOctreeVoxelsFromOctree(void* octreeInfo,const C4X4Matrix& octreePCTM,const void* octree2Info,const C4X4Matrix& octree2PCTM)
-{
-    float _octreePCTM[12];
-    octreePCTM.copyToInterface(_octreePCTM);
-
-    float _octree2PCTM[12];
-    octree2PCTM.copyToInterface(_octree2PCTM);
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_removeOctreeVoxelsFromOctree(octreeInfo,_octreePCTM,octree2Info,_octree2PCTM)!=0);
-    return(false);
-}
-
-void CPluginContainer::mesh_insertOctreeIntoOctree(void* octreeInfo,const C4X4Matrix& octreePCTM,const void* octree2Info,const C4X4Matrix& octree2PCTM,const float theColor[3],unsigned int theTag)
-{
-    float _octreePCTM[12];
-    octreePCTM.copyToInterface(_octreePCTM);
-
-    float _octree2PCTM[12];
-    octree2PCTM.copyToInterface(_octree2PCTM);
-
-    unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
-
-    if (currentMeshEngine!=nullptr)
-        currentMeshEngine->v_repMesh_insertOctreeIntoOctree(octreeInfo,_octreePCTM,octree2Info,_octree2PCTM,cols,theTag);
-}
-
-bool CPluginContainer::mesh_checkOctreeCollisionWithShape(const void* octreeInfo,const C4X4Matrix& octreePCTM,const void* collInfo,const C4X4Matrix& collNodePCTM)
-{
-    float _octreePCTM[12];
-    octreePCTM.copyToInterface(_octreePCTM);
-
-    float _collNodePCTM[12];
-    collNodePCTM.copyToInterface(_collNodePCTM);
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_checkOctreeCollisionWithShape(octreeInfo,_octreePCTM,collInfo,_collNodePCTM)!=0);
-    return(false);
-}
-
-bool CPluginContainer::mesh_checkOctreeCollisionWithOctree(const void* octree1Info,const C4X4Matrix& octree1PCTM,const void* octree2Info,const C4X4Matrix& octree2PCTM)
-{
-    float _octree1PCTM[12];
-    octree1PCTM.copyToInterface(_octree1PCTM);
-
-    float _octree2PCTM[12];
-    octree2PCTM.copyToInterface(_octree2PCTM);
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_checkOctreeCollisionWithOctree(octree1Info,_octree1PCTM,octree2Info,_octree2PCTM)!=0);
-    return(false);
-}
-
-bool CPluginContainer::mesh_checkOctreeCollisionWithSeveralPoints(const void* octreeInfo,const C4X4Matrix& octreePCTM,const float* absPoints,int ptCnt)
-{
-    float _octreePCTM[12];
-    octreePCTM.copyToInterface(_octreePCTM);
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_checkOctreeCollisionWithSeveralPoints(octreeInfo,_octreePCTM,absPoints,ptCnt)!=0);
-    return(false);
-}
-
-bool CPluginContainer::mesh_checkOctreeCollisionWithSinglePoint(const void* octreeInfo,const C4X4Matrix& octreePCTM,const C3Vector& absPoint,unsigned int* tag,unsigned long long int* location)
-{
-    float _octreePCTM[12];
-    octreePCTM.copyToInterface(_octreePCTM);
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_checkOctreeCollisionWithSinglePoint(octreeInfo,_octreePCTM,absPoint.data,tag,location)!=0);
-    return(false);
-}
-
-bool CPluginContainer::mesh_checkOctreeCollisionWithPointCloud(const void* octreeInfo,const C4X4Matrix& octreePCTM,const void* pointCloudInfo,const C4X4Matrix& pointCloudPCTM)
-{
-    float _octreePCTM[12];
-    octreePCTM.copyToInterface(_octreePCTM);
-
-    float _pointCloudPCTM[12];
-    pointCloudPCTM.copyToInterface(_pointCloudPCTM);
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_checkOctreeCollisionWithPointCloud(octreeInfo,_octreePCTM,pointCloudInfo,_pointCloudPCTM)!=0);
-    return(false);
-}
-
-bool CPluginContainer::mesh_getPointCloudDistanceToPointIfSmaller(const void* pointCloudInfo,const C4X4Matrix& pointCloudPCTM,const C3Vector& absPoint,float ray[7],long long int& cacheValue)
-{
-    float _pointCloudPCTM[12];
-    pointCloudPCTM.copyToInterface(_pointCloudPCTM);
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getPointCloudDistanceToPointIfSmaller(pointCloudInfo,_pointCloudPCTM,absPoint.data,ray,&cacheValue)!=0);
-    return(false);
-}
-
-bool CPluginContainer::mesh_getPointCloudDistanceToPointCloudIfSmaller(const void* pointCloudInfo1,const void* pointCloudInfo2,const C4X4Matrix& thisPcPCTM,const C4X4Matrix& otherPcPCTM,float ray[7],long long int& thisCacheValue,long long int& otherCacheValue)
-{
-    float _pointCloud1PCTM[12];
-    thisPcPCTM.copyToInterface(_pointCloud1PCTM);
-
-    float _pointCloud2PCTM[12];
-    otherPcPCTM.copyToInterface(_pointCloud2PCTM);
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getPointCloudDistanceToPointCloudIfSmaller(pointCloudInfo1,pointCloudInfo2,_pointCloud1PCTM,_pointCloud2PCTM,ray,&thisCacheValue,&otherCacheValue)!=0);
-    return(false);
-}
-
-float* CPluginContainer::mesh_getPointCloudPointsFromCache(const void* pointCloudInfo,const C4X4Matrix& pointCloudPCTM,const long long int cacheValue,int& ptCnt,C4X4Matrix& ptsRetToThisM)
-{
-    float _pointCloudPCTM[12];
-    pointCloudPCTM.copyToInterface(_pointCloudPCTM);
-
-    float _retM[12];
-
-    if (currentMeshEngine!=nullptr)
-    {
-        float* retVal=currentMeshEngine->v_repMesh_getPointCloudPointsFromCache(pointCloudInfo,_pointCloudPCTM,cacheValue,&ptCnt,_retM);
-        if (retVal!=nullptr)
-            ptsRetToThisM.copyFromInterface(_retM);
-        return(retVal);
-    }
-    return(nullptr);
-}
-
-int CPluginContainer::mesh_getPointCloudNonEmptyCellCount(const void* pointCloudInfo)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getPointCloudNonEmptyCellCount(pointCloudInfo));
-    return(0);
-}
-
-bool CPluginContainer::mesh_getOctreeDistanceToPointIfSmaller(const void* octreeInfo,const C4X4Matrix& octreePCTM,const C3Vector& absPoint,float ray[7],long long int& cacheValue)
-{
-    float _octreePCTM[12];
-    octreePCTM.copyToInterface(_octreePCTM);
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getOctreeDistanceToPointIfSmaller(octreeInfo,_octreePCTM,absPoint.data,ray,&cacheValue)!=0);
-    return(false);
-}
-
-bool CPluginContainer::mesh_getOctreeCellFromCache(const void* octreeInfo,const C4X4Matrix& octreePCTM,const long long int cacheValue,float& cellSize,C4X4Matrix& cellRetToThisM)
-{
-    float _octreePCTM[12];
-    octreePCTM.copyToInterface(_octreePCTM);
-
-    float _retM[12];
-
-    if (currentMeshEngine!=nullptr)
-    {
-        bool retVal=currentMeshEngine->v_repMesh_getOctreeCellFromCache(octreeInfo,_octreePCTM,cacheValue,&cellSize,_retM);
-        if (retVal)
-            cellRetToThisM.copyFromInterface(_retM);
-        return(retVal);
-    }
-    return(false);
-}
-
-bool CPluginContainer::mesh_getOctreeDistanceToOctreeIfSmaller(const void* octreeInfo1,const void* octreeInfo2,const C4X4Matrix& octree1PCTM,const C4X4Matrix& octree2PCTM,float ray[7],long long int& octree1CacheValue,long long int& octree2CacheValue,bool weHaveSomeCoherency)
-{
-    float _octree1PCTM[12];
-    octree1PCTM.copyToInterface(_octree1PCTM);
-
-    float _octree2PCTM[12];
-    octree2PCTM.copyToInterface(_octree2PCTM);
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getOctreeDistanceToOctreeIfSmaller(octreeInfo1,octreeInfo2,_octree1PCTM,_octree2PCTM,ray,&octree1CacheValue,&octree2CacheValue,weHaveSomeCoherency)!=0);
-    return(false);
-}
-
-bool CPluginContainer::mesh_getOctreeDistanceToPointCloudIfSmaller(const void* octreeInfo,const void* pointCloudInfo,const C4X4Matrix& octreePCTM,const C4X4Matrix& pointCloudPCTM,float ray[7],long long int& octreeCacheValue,long long int& pointCloudCacheValue)
-{
-    float _octreePCTM[12];
-    octreePCTM.copyToInterface(_octreePCTM);
-
-    float _pointCloudPCTM[12];
-    pointCloudPCTM.copyToInterface(_pointCloudPCTM);
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getOctreeDistanceToPointCloudIfSmaller(octreeInfo,pointCloudInfo,_octreePCTM,_pointCloudPCTM,ray,&octreeCacheValue,&pointCloudCacheValue)!=0);
-    return(false);
-}
-
-bool CPluginContainer::mesh_getOctreeDistanceToShapeIfSmaller(const void* octreeInfo,const void* collInfo,const C4X4Matrix& octreePCTM,const C4X4Matrix& collNodePCTM,float ray[7],long long int& octreeCacheValue,int& collNodeCacheValue)
-{
-    float _octreePCTM[12];
-    octreePCTM.copyToInterface(_octreePCTM);
-
-    float _collNodePCTM[12];
-    collNodePCTM.copyToInterface(_collNodePCTM);
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getOctreeDistanceToShapeIfSmaller(octreeInfo,collInfo,_octreePCTM,_collNodePCTM,ray,&octreeCacheValue,&collNodeCacheValue)!=0);
-    return(false);
-}
-
-bool CPluginContainer::mesh_getMinDistBetweenCubeAndTriangleIfSmaller(float cubeSize,const C3Vector& b1,const C3Vector& b1e,const C3Vector& b1f,float& dist,C3Vector& distPt1,C3Vector& distPt2)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getMinDistBetweenCubeAndTriangleIfSmaller(cubeSize,b1.data,b1e.data,b1f.data,&dist,distPt1.data,distPt2.data)!=0);
-    return(false);
-}
-
-bool CPluginContainer::mesh_getPointCloudDistanceToShapeIfSmaller(const void* pointCloudInfo,const void* collInfo,const C4X4Matrix& pointCloudPCTM,const C4X4Matrix& collNodePCTM,float ray[7],long long int& pointCloudCacheValue,int& collNodeCacheValue)
-{
-    float _pointCloudPCTM[12];
-    pointCloudPCTM.copyToInterface(_pointCloudPCTM);
-
-    float _collNodePCTM[12];
-    collNodePCTM.copyToInterface(_collNodePCTM);
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getPointCloudDistanceToShapeIfSmaller(pointCloudInfo,collInfo,_pointCloudPCTM,_collNodePCTM,ray,&pointCloudCacheValue,&collNodeCacheValue)!=0);
-    return(false);
-}
-
-bool CPluginContainer::mesh_getMinDistBetweenPointAndTriangleIfSmaller(const C3Vector& point,const C3Vector& b1,const C3Vector& b1e,const C3Vector& b1f,float& dist,C3Vector& distPt1)
-{
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getMinDistBetweenPointAndTriangleIfSmaller(point.data,b1.data,b1e.data,b1f.data,&dist,distPt1.data)!=0);
-    return(false);
-}
-
-float CPluginContainer::mesh_getBoxBoxDistance(const C4X4Matrix& m1,const C3Vector& halfSize1,const C4X4Matrix& m2,const C3Vector& halfSize2)
-{
-    float _m1[12];
-    m1.copyToInterface(_m1);
-    float _m2[12];
-    m2.copyToInterface(_m2);
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_getBoxBoxDistance(_m1,halfSize1.data,_m2,halfSize2.data));
-    return(0.0);
-}
-
-bool CPluginContainer::mesh_getProxSensorPointCloudDistanceIfSmaller(const void* pointCloudInfo,const C4X4Matrix& pointCloudPCTM,float &dist,const std::vector<float>* planes,const std::vector<float>* planesOutside,C3Vector& detectPoint,bool fast,void* theOcclusionCheckCallback)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        const float* _planes=nullptr;
-        int _planesSize=0;
-        if ((planes!=nullptr)&&(planes->size()!=0))
-        {
-            _planes=&(*planes)[0];
-            _planesSize=(int)planes->size();
-        }
-        const float* _planesOutside=nullptr;
-        int _planesOutsideSize=0;
-        if ((planesOutside!=nullptr)&&(planesOutside->size()!=0))
-        {
-            _planesOutside=&(*planesOutside)[0];
-            _planesOutsideSize=(int)planesOutside->size();
-        }
-        float _pointCloudPCTM[12];
-        pointCloudPCTM.copyToInterface(_pointCloudPCTM);
-        return(currentMeshEngine->v_repMesh_getProxSensorPointCloudDistanceIfSmaller(pointCloudInfo,_pointCloudPCTM,&dist,_planes,_planesSize,_planesOutside,_planesOutsideSize,detectPoint.data,fast,theOcclusionCheckCallback)!=0);
-    }
-    return(false);
-}
-
-bool CPluginContainer::mesh_getRayProxSensorOctreeDistanceIfSmaller(const void* octreeInfo,const C4X4Matrix& octreePCTM,float &dist,const C3Vector& lp,const C3Vector& lvFar,float cosAngle,C3Vector& detectPoint,bool fast,bool frontFace,bool backFace,C3Vector& triNormalNotNormalized,void* theOcclusionCheckCallback)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        float _octreePCTM[12];
-        octreePCTM.copyToInterface(_octreePCTM);
-        float _detectPoint[3];
-        float _triNormalNotNormalized[3];
-        bool retVal=currentMeshEngine->v_repMesh_getRayProxSensorOctreeDistanceIfSmaller(octreeInfo,_octreePCTM,&dist,lp.data,lvFar.data,cosAngle,_detectPoint,fast,frontFace,backFace,_triNormalNotNormalized,theOcclusionCheckCallback)!=0;
-        if (retVal)
-        {
-            detectPoint.set(_detectPoint);
-            triNormalNotNormalized.set(_triNormalNotNormalized);
-        }
-        return(retVal);
-    }
-    return(false);
-}
-
-bool CPluginContainer::mesh_getProxSensorOctreeDistanceIfSmaller(const void* octreeInfo,const C4X4Matrix& octreeRTM,float& dist,const std::vector<float>* planes,const std::vector<float>* planesOutside,float cosAngle,C3Vector& detectPoint,bool fast,bool frontFace,bool backFace,C3Vector& triNormalNotNormalized,void* theOcclusionCheckCallback)
-{
-    if (currentMeshEngine!=nullptr)
-    {
-        const float* _planes=nullptr;
-        int _planesSize=0;
-        if ((planes!=nullptr)&&(planes->size()!=0))
-        {
-            _planes=&(*planes)[0];
-            _planesSize=(int)planes->size();
-        }
-        const float* _planesOutside=nullptr;
-        int _planesOutsideSize=0;
-        if ((planesOutside!=nullptr)&&(planesOutside->size()!=0))
-        {
-            _planesOutside=&(*planesOutside)[0];
-            _planesOutsideSize=(int)planesOutside->size();
-        }
-        float _octreeRTM[12];
-        octreeRTM.copyToInterface(_octreeRTM);
-        return(currentMeshEngine->v_repMesh_getProxSensorOctreeDistanceIfSmaller(octreeInfo,_octreeRTM,&dist,_planes,_planesSize,_planesOutside,_planesOutsideSize,cosAngle,detectPoint.data,fast,frontFace,backFace,triNormalNotNormalized.data,theOcclusionCheckCallback)!=0);
-    }
-    return(false);
-}
-
-bool CPluginContainer::mesh_removePointCloudPointsFromOctree(void* pointCloudInfo,const C4X4Matrix& pointCloudPCTM,const void* octreeInfo,const C4X4Matrix& octreePCTM,int& removedCnt)
-{
-    float _pointCloudPCTM[12];
-    pointCloudPCTM.copyToInterface(_pointCloudPCTM);
-
-    float _octreePCTM[12];
-    octreePCTM.copyToInterface(_octreePCTM);
-
-    if (currentMeshEngine!=nullptr)
-        return(currentMeshEngine->v_repMesh_removePointCloudPointsFromOctree(pointCloudInfo,_pointCloudPCTM,octreeInfo,_octreePCTM,&removedCnt)!=0);
-    return(false);
+    return(retVal);
 }
 
 bool CPluginContainer::codeEditor_openModal(const char* initText,const char* properties,std::string& modifiedText,int* positionAndSize)
@@ -1881,8 +2220,11 @@ bool CPluginContainer::customUi_fileDialog(int type, const char *title, const ch
         char* res=currentCustomUi->_customUi_fileDialog(type,title,startPath,initName,extName,ext,native);
         if (res!=nullptr)
         {
-            files.assign(res);
-            retVal=true;
+            if (strlen(res)>0)
+            {
+                files.assign(res);
+                retVal=true;
+            }
             simReleaseBuffer_internal(res);
         }
     }
@@ -1894,6 +2236,8 @@ int* CPluginContainer::assimp_importShapes(const char* fileNames,int maxTextures
     int* retVal=nullptr;
     if (currentAssimp!=nullptr)
         retVal=currentAssimp->_assimp_importShapes(fileNames,maxTextures,scaling,upVector,options,shapeCount);
+    else
+        printf("Error in assimp_importShapes: plugin was not found.\n");
     return(retVal);
 }
 
@@ -1901,6 +2245,8 @@ void CPluginContainer::assimp_exportShapes(const int* shapeHandles,int shapeCoun
 {
     if (currentAssimp!=nullptr)
         currentAssimp->_assimp_exportShapes(shapeHandles,shapeCount,filename,format,scaling,upVector,options);
+    else
+        printf("Error in assimp_exportShapes: plugin was not found.\n");
 }
 
 int CPluginContainer::assimp_importMeshes(const char* fileNames,float scaling,int upVector,int options,float*** allVertices,int** verticesSizes,int*** allIndices,int** indicesSizes)
@@ -1908,6 +2254,8 @@ int CPluginContainer::assimp_importMeshes(const char* fileNames,float scaling,in
     int retVal=0;
     if (currentAssimp!=nullptr)
         retVal=currentAssimp->_assimp_importMeshes(fileNames,scaling,upVector,options,allVertices,verticesSizes,allIndices,indicesSizes);
+    else
+        printf("Error in assimp_importMeshes: plugin was not found.\n");
     return(retVal);
 }
 
@@ -1915,4 +2263,6 @@ void CPluginContainer::assimp_exportMeshes(int meshCnt,const float** allVertices
 {
     if (currentAssimp!=nullptr)
         currentAssimp->_assimp_exportMeshes(meshCnt,allVertices,verticesSizes,allIndices,indicesSizes,filename,format,scaling,upVector,options);
+    else
+        printf("Error in assimp_exportMeshes: plugin was not found.\n");
 }

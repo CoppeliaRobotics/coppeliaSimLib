@@ -1,14 +1,13 @@
 #pragma once
 
 #include "luaWrapper.h"
-#include "v_repTypes.h"
-#include "luaScriptParameters.h"
+#include "simTypes.h"
+#include "userParameters.h"
 #include "outsideCommandQueueForScript.h"
 #include "vMutex.h"
 #include "vThread.h"
 #include "customData.h"
 #include "interfaceStack.h"
-#include "luaScriptObjectBase.h"
 #include <random>
 
 #define DEFAULT_MAINSCRIPT_NAME "dltmscpt.txt"
@@ -16,7 +15,7 @@
 #define DEFAULT_THREADEDCHILDSCRIPT_NAME "dlttscpt.txt"
 #define DEFAULT_CUSTOMIZATIONSCRIPT_NAME "defaultCustomizationScript.txt"
 
-class CLuaScriptObject: public CLuaScriptObjectBase
+class CLuaScriptObject
 {
 public:
     CLuaScriptObject(int scriptTypeOrMinusOneForSerialization);
@@ -122,7 +121,7 @@ public:
     void getObjectCustomData_tempData(int header,char* data) const;
     bool getObjectCustomDataHeader_tempData(int index,int& header) const;
 
-    CLuaScriptParameters* getScriptParametersObject();
+    CUserParameters* getScriptParametersObject_backCompatibility();
 
     void setCustomizedMainScript(bool customized);
     bool isDefaultMainScript() const;
@@ -164,6 +163,7 @@ public:
     bool getContainsDynCallbackFunction() const;
     bool getContainsVisionCallbackFunction() const;
     bool getContainsTriggerCallbackFunction() const;
+    bool getContainsUserConfigCallbackFunction() const;
 
     VTHREAD_ID_TYPE getThreadedScriptThreadId() const;
 
@@ -200,6 +200,27 @@ protected:
     bool _prepareLuaStateAndCallScriptInitSectionIfNeeded();
     bool _checkIfMixingOldAndNewCallMethods();
 
+    void _insertScriptText(CLuaScriptObject* scriptObject,bool toFront,const char* txt);
+    bool _replaceScriptText(CLuaScriptObject* scriptObject,const char* oldTxt,const char* newTxt);
+    bool _replaceScriptText(CLuaScriptObject* scriptObject,const char* oldTxt1,const char* oldTxt2,const char* oldTxt3,const char* newTxt);
+    bool _replaceScriptTextKeepMiddleUnchanged(CLuaScriptObject* scriptObject,const char* oldTxtStart,const char* oldTxtEnd,const char* newTxtStart,const char* newTxtEnd);
+    bool _containsScriptText(CLuaScriptObject* scriptObject,const char* txt);
+    std::string extractScriptText(CLuaScriptObject* scriptObject,const char* startLine,const char* endLine,bool discardEndLine);
+    void _performNewApiAdjustments(CLuaScriptObject* scriptObject,bool forwardAdjustment);
+    std::string _replaceOldApi(const std::string& txt,bool forwardAdjustment);
+    int _countOccurences(const std::string& source,const char* word);
+    void _splitApiText(const std::string& txt,size_t pos,std::string& beforePart,std::string& apiWord,std::string& afterPart);
+    void _adjustScriptText1(CLuaScriptObject* scriptObject,bool doIt,bool doIt2);
+    void _adjustScriptText2(CLuaScriptObject* scriptObject,bool doIt);
+    void _adjustScriptText3(CLuaScriptObject* scriptObject,bool doIt);
+    void _adjustScriptText4(CLuaScriptObject* scriptObject,bool doIt);
+    void _adjustScriptText5(CLuaScriptObject* scriptObject,bool doIt);
+    void _adjustScriptText6(CLuaScriptObject* scriptObject,bool doIt);
+    void _adjustScriptText7(CLuaScriptObject* scriptObject,bool doIt);
+    void _adjustScriptText8(CLuaScriptObject* scriptObject,int adjust);
+    void _adjustScriptText9(CLuaScriptObject* scriptObject);
+    void _adjustScriptText10(CLuaScriptObject* scriptObject,bool doIt);
+    
     // Variables that need to be copied and serialized:
     int scriptID;
     int _scriptUniqueId;
@@ -220,7 +241,7 @@ protected:
     std::string _scriptTextExec; // the one getting executed!
     bool _externalScriptText;
 
-    CLuaScriptParameters* scriptParameters;
+    CUserParameters* _scriptParameters_backCompatibility;
     COutsideCommandQueueForScript* _outsideCommandQueue;
     CCustomData* _customObjectData;
     CCustomData* _customObjectData_tempData; // same as above, but is not serialized (but copied!)
@@ -249,6 +270,7 @@ protected:
     bool _containsDynCallbackFunction;
     bool _containsVisionCallbackFunction;
     bool _containsTriggerCallbackFunction;
+    bool _containsUserConfigCallbackFunction;
 
     int _messageReportingOverride;
 
@@ -279,5 +301,35 @@ protected:
     static VMutex _globalMutex;
     static std::vector<CLuaScriptObject*> toBeCalledByThread;
     static VTHREAD_RETURN_TYPE _startAddressForThreadedScripts(VTHREAD_ARGUMENT_TYPE lpData);
+    static std::map<std::string,std::string> _newApiMap;
 };
 
+struct SNewApiMapping
+{
+    std::string oldApi;
+    std::string newApi;
+};
+
+
+const extern SNewApiMapping _simApiMapping[];
+const extern SNewApiMapping _simBubbleApiMapping[];
+const extern SNewApiMapping _simK3ApiMapping[];
+const extern SNewApiMapping _simMTBApiMapping[];
+const extern SNewApiMapping _simOpenMeshApiMapping[];
+const extern SNewApiMapping _simSkeletonApiMapping[];
+const extern SNewApiMapping _simQHullApiMapping[];
+const extern SNewApiMapping _simRemoteApiApiMapping[];
+const extern SNewApiMapping _simRRS1ApiMapping[];
+const extern SNewApiMapping _simVisionApiMapping[];
+const extern SNewApiMapping _simCamApiMapping[];
+const extern SNewApiMapping _simJoyApiMapping[];
+const extern SNewApiMapping _simWiiApiMapping[];
+const extern SNewApiMapping _simURDFApiMapping[];
+const extern SNewApiMapping _simBWFApiMapping[];
+const extern SNewApiMapping _simUIApiMapping[];
+const extern SNewApiMapping _simROSApiMapping[];
+const extern SNewApiMapping _simICPApiMapping[];
+const extern SNewApiMapping _simOMPLApiMapping[];
+const extern SNewApiMapping _simSDFApiMapping[];
+const extern SNewApiMapping _simSurfRecApiMapping[];
+const extern SNewApiMapping _simxApiMapping[];

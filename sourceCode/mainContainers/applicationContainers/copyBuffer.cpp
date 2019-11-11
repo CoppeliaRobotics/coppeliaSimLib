@@ -1,10 +1,10 @@
 
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "copyBuffer.h"
 #include "tt.h"
 #include "geometric.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 //#include "vMessageBox.h"
 
@@ -305,7 +305,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene)
                                                     &constraintSolverCopy,
                                                     textureObjectCopy,
                                                     dynMaterialObjectCopy,
-                                                    true,VREP_PROGRAM_VERSION_NB,false);
+                                                    true,SIM_PROGRAM_VERSION_NB,false);
 
     CInterfaceStack stack;
     stack.pushTableOntoStack();
@@ -507,6 +507,12 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
         if (ar.setWritingMode())
             App::ct->environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(ar,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
     }
+    else
+    {
+        ar.xmlPushNewNode(SERX_MODEL_THUMBNAIL_INFO);
+        App::ct->environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(ar,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
+        ar.xmlPopNode();
+    }
     //------------------------------------------------------------
 
     if (ar.isBinary())
@@ -517,9 +523,15 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
         if (ar.setWritingMode())
             App::ct->environment->modelThumbnail_notSerializedHere.serialize(ar,false);
     }
+    else
+    {
+        ar.xmlPushNewNode(SERX_MODEL_THUMBNAIL);
+        App::ct->environment->modelThumbnail_notSerializedHere.serialize(ar,false);
+        ar.xmlPopNode();
+    }
 
     // DynMaterial objects:
-    // We only save this for backward compatibility, but not needed for V-REP's from 3.4.0 on:
+    // We only save this for backward compatibility, but not needed for CoppeliaSim's from 3.4.0 on:
     //------------------------------------------------------------
     if (ar.isBinary())
     {
@@ -547,6 +559,12 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
     {
         if (ar.isBinary())
             App::ct->textureCont->storeTextureObject(ar,textureObjectBuffer[i]);
+        else
+        {
+            ar.xmlPushNewNode(SERX_TEXTURE);
+            App::ct->textureCont->storeTextureObject(ar,textureObjectBuffer[i]);
+            ar.xmlPopNode();
+        }
     }
 
     // Now we store all vertices, indices, normals and edges (there might be duplicates, and we don't wanna waste disk space)
@@ -571,6 +589,12 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
     {
         if (ar.isBinary())
             App::ct->objCont->store3DObject(ar,objectBuffer[i]);
+        else
+        {
+            ar.xmlPushNewNode(SERX_SCENEOBJECT);
+            App::ct->objCont->store3DObject(ar,objectBuffer[i]);
+            ar.xmlPopNode();
+        }
     }
 
     // Here we store the collections:
@@ -584,6 +608,12 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
             if (ar.setWritingMode())
                 groupBuffer[i]->serialize(ar);
         }
+        else
+        {
+            ar.xmlPushNewNode(SERX_COLLECTION);
+            groupBuffer[i]->serialize(ar);
+            ar.xmlPopNode();
+        }
     }
     // Here we store the collision objects:
     for (size_t i=0;i<collisionBuffer.size();i++)
@@ -595,6 +625,12 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
             collisionBuffer[i]->serialize(ar);
             if (ar.setWritingMode())
                 collisionBuffer[i]->serialize(ar);
+        }
+        else
+        {
+            ar.xmlPushNewNode(SERX_COLLISION);
+            collisionBuffer[i]->serialize(ar);
+            ar.xmlPopNode();
         }
     }
     // Here we store the distance objects:
@@ -608,6 +644,12 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
             if (ar.setWritingMode())
                 distanceBuffer[i]->serialize(ar);
         }
+        else
+        {
+            ar.xmlPushNewNode(SERX_DISTANCE);
+            distanceBuffer[i]->serialize(ar);
+            ar.xmlPopNode();
+        }
     }
     // Here we store the ik objects:
     for (size_t i=0;i<ikGroupBuffer.size();i++)
@@ -619,6 +661,12 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
             ikGroupBuffer[i]->serialize(ar);
             if (ar.setWritingMode())
                 ikGroupBuffer[i]->serialize(ar);
+        }
+        else
+        {
+            ar.xmlPushNewNode(SERX_IK);
+            ikGroupBuffer[i]->serialize(ar);
+            ar.xmlPopNode();
         }
     }
     if (ar.isBinary())
@@ -661,6 +709,12 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
             luaScriptBuffer[i]->serialize(ar);
             if (ar.setWritingMode())
                 luaScriptBuffer[i]->serialize(ar);
+        }
+        else
+        {
+            ar.xmlPushNewNode(SERX_LUA_SCRIPT);
+            luaScriptBuffer[i]->serialize(ar);
+            ar.xmlPopNode();
         }
     }
     if (ar.isBinary())

@@ -8,11 +8,12 @@
 #include "tt.h"
 #include "threadPool.h"
 #include "pluginContainer.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vDateTime.h"
 #include "sceneObjectOperations.h"
 #include "addOperations.h"
 #include "rendering.h"
+#include "libLic.h"
 #ifdef SIM_WITH_GUI
     #include "qdlgprimitives.h"
     #include "qdlgslider.h"
@@ -26,7 +27,7 @@
     #include "qdlgtextureloadoptions.h"
     #include "qdlgheightfielddimension.h"
     #include "qdlgmodelproperties.h"
-    #include "qdlgscriptparameters.h"
+    #include "qdlguserparameters.h"
     #include "qdlgstopscripts.h"
     #include "vMessageBox.h"
     #include "qdlgprogress.h"
@@ -62,7 +63,7 @@ CUiThread::~CUiThread()
 #ifdef SIM_WITHOUT_QT_AT_ALL
 void CUiThread::processGuiEventsUntilQuit_noSignalSlots()
 {
-    _noSigSlotMutex.lock_simple();
+    _noSigSlotMutex.lock_simple("CUiThread::processGuiEventsUntilQuit_noSignalSlots");
     while (true)
     {
         _noSigSlotMutex.wait_simple();
@@ -83,7 +84,7 @@ bool CUiThread::executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadComma
     if (!VThread::isCurrentThreadTheUiThread())
     {
 #ifdef SIM_WITHOUT_QT_AT_ALL
-        _noSigSlotMutex.lock_simple();
+        _noSigSlotMutex.lock_simple("CUiThread::executeCommandViaUiThread");
         _noSigSlot_cmdIn=cmdIn;
         _noSigSlot_cmdOut=cmdOut;
         int cnt=_noSigSlot_cnter;
@@ -111,7 +112,25 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
 { // called by the UI thread.
     FUNCTION_DEBUG;
 
-    handleVerSpecExecuteCommandViaUiThread1(cmdIn,cmdOut);
+#ifdef SIM_WITH_GUI
+    if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen())&&(cmdIn->cmdId==PLUS_HVUD_CMD_UITHREADCMD) )
+    {
+        std::string txt(CLibLic::getStringVal(9));
+        if (txt.length()!=0)
+        {
+            if ( (!App::userSettings->doNotShowUpdateCheckMessage)&&(!App::userSettings->suppressStartupDialogs) )
+                App::uiThread->messageBox_informationSystemModal(App::mainWindow,strTranslate("Update information"),txt,VMESSAGEBOX_OKELI);
+            else
+                App::addStatusbarMessage(txt);
+        }
+    }
+
+    if (cmdIn->cmdId==PLUS_CVU_CMD_UITHREADCMD)
+    {
+        CLibLic::setHld(App::mainWindow);
+        CLibLic::run(6);
+    }
+#endif
 
     if ( (cmdIn->cmdId>PLUGIN_START_PLUGUITHREADCMD)&&(cmdIn->cmdId<PLUGIN_END_PLUGUITHREADCMD) )
     {
@@ -366,24 +385,24 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     }
     if ( (!App::isFullScreen())&&(App::mainWindow!=nullptr)&&(cmdIn->cmdId==OPEN_MODAL_SCRIPT_SIMULATION_PARAMETERS_UITHREADCMD) )
     {
-        CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(cmdIn->intParams[0]);
-        if (it!=nullptr)
+        C3DObject* object=App::ct->objCont->getObjectFromHandle(cmdIn->intParams[0]);
+        if (object!=nullptr)
         {
-            CQDlgScriptParameters theDialog(App::mainWindow);
-            theDialog.script=it;
+            CQDlgUserParameters theDialog(App::mainWindow);
+            theDialog.object=object;
             theDialog.refresh();
             theDialog.makeDialogModal(); // modifications are done in here directly
             // We however still need to report the changes to the SIM thread ressources:
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ALL_SCRIPTSIMULPARAMETERGUITRIGGEREDCMD;
-            cmd.intParams.push_back(it->getScriptID());
-            CLuaScriptParameters* sp=it->getScriptParametersObject();
-            for (size_t i=0;i<sp->scriptParamEntries.size();i++)
+            cmd.intParams.push_back(cmdIn->intParams[0]);
+            CUserParameters* sp=object->getUserScriptParameterObject();
+            for (size_t i=0;i<sp->userParamEntries.size();i++)
             {
-                cmd.intParams.push_back(sp->scriptParamEntries[i].properties);
-                cmd.stringParams.push_back(sp->scriptParamEntries[i].name);
-                cmd.stringParams.push_back(sp->scriptParamEntries[i].unit);
-                cmd.stringParams.push_back(sp->scriptParamEntries[i].value);
+                cmd.intParams.push_back(sp->userParamEntries[i].properties);
+                cmd.stringParams.push_back(sp->userParamEntries[i].name);
+                cmd.stringParams.push_back(sp->userParamEntries[i].unit);
+                cmd.stringParams.push_back(sp->userParamEntries[i].value);
             }
             App::appendSimulationThreadCommand(cmd);
         }

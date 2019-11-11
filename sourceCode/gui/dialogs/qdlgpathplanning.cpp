@@ -6,7 +6,7 @@
 #include "editboxdelegate.h"
 #include "qdlgpathplanningaddnew.h"
 #include "qdlgpathplanningparams.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 
 CQDlgPathPlanning::CQDlgPathPlanning(QWidget *parent) :
     CDlgEx(parent),

@@ -1,4 +1,3 @@
-
 // This file requires some serious refactoring!!
 
 #pragma once
@@ -16,19 +15,6 @@
 #define HIERARCHY_ICON_QUARTER_HEIGHT 4
 
 #define HIERARCHY_INTER_ICON_SPACING 4
-/*
-#define HIERARCHY_INTER_LINE_SPACE 36
-#define HIERARCHY_HALF_INTER_LINE_SPACE 18
-#define HIERARCHY_TEXT_CENTER_OFFSET (HIERARCHY_HALF_INTER_LINE_SPACE-8)
-#define HIERARCHY_ICON_WIDTH 40
-#define HIERARCHY_ICON_HEIGHT 32
-#define HIERARCHY_ICON_HALF_WIDTH 20
-#define HIERARCHY_ICON_HALF_HEIGHT 16
-#define HIERARCHY_ICON_QUARTER_WIDTH 10
-#define HIERARCHY_ICON_QUARTER_HEIGHT 8
-
-#define HIERARCHY_INTER_ICON_SPACING 8
-*/
 class CHierarchy;
 
 class CHierarchyElement  
@@ -55,7 +41,7 @@ public:
     std::vector<CHierarchyElement*> children;
 
 private:
-#ifdef KEYWORD__NOT_DEFINED_FORMELY_BR
+#ifdef KEYWORD__NOT_DEFINED_FORMELY_XR
     int _drawIcon_brm(CHierarchy* hier,int tPosX,int tPosY,C3DObject* it,int pictureID,bool drawIt,float transparencyFactor,bool forDragAndDrop);
 #else
     int _drawIcon_3DObject(CHierarchy* hier,int tPosX,int tPosY,C3DObject* it,int pictureID,bool drawIt,float transparencyFactor,bool forDragAndDrop);

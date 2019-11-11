@@ -2,14 +2,14 @@
 // This file requires some serious refactoring!
 
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "sView.h"
 #include "tt.h"
 #include "simulation.h"
 #include "sceneObjectOperations.h"
 #include "simulation.h"
 #include "addOperations.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "vDateTime.h"
 #include "proxSensorRoutine.h"
 #include "pluginContainer.h"
@@ -934,6 +934,49 @@ void CSView::serialize(CSer& ar)
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+        }
+    }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_int("linkedObjectHandle",linkedObjectID);
+
+            ar.xmlAddNode_int("renderMode",_renderingMode);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("perspective",perspectiveDisplay);
+            ar.xmlAddNode_bool("viewCanBeSwapped",_canSwapViewWithMainView);
+            ar.xmlAddNode_bool("viewCanBeClosed",_canBeClosed);
+            ar.xmlAddNode_bool("canBeShifted",_canBeShifted);
+            ar.xmlAddNode_bool("canBeResized",_canBeResized);
+            ar.xmlAddNode_bool("showEdges",_showEdges);
+            ar.xmlAddNode_bool("thickEdges",_thickEdges);
+            ar.xmlAddNode_bool("fitSceneToView",_fitSceneToView);
+            ar.xmlAddNode_bool("fitSelectionToView",_fitSelectionToView);
+            ar.xmlAddNode_bool("showInertias",_visualizeOnlyInertias);
+            ar.xmlPopNode();
+        }
+        else
+        {
+            ar.xmlGetNode_int("linkedObjectHandle",linkedObjectID);
+
+            ar.xmlGetNode_int("renderMode",_renderingMode);
+
+            if (ar.xmlPushChildNode("switches"))
+            {
+                ar.xmlGetNode_bool("perspective",perspectiveDisplay);
+                ar.xmlGetNode_bool("viewCanBeSwapped",_canSwapViewWithMainView);
+                ar.xmlGetNode_bool("viewCanBeClosed",_canBeClosed);
+                ar.xmlGetNode_bool("canBeShifted",_canBeShifted);
+                ar.xmlGetNode_bool("canBeResized",_canBeResized);
+                ar.xmlGetNode_bool("showEdges",_showEdges);
+                ar.xmlGetNode_bool("thickEdges",_thickEdges);
+                ar.xmlGetNode_bool("fitSceneToView",_fitSceneToView);
+                ar.xmlGetNode_bool("fitSelectionToView",_fitSelectionToView);
+                ar.xmlGetNode_bool("showInertias",_visualizeOnlyInertias);
+                ar.xmlPopNode();
             }
         }
     }

@@ -5,7 +5,7 @@
 
 struct SExtCache {
     int id;
-    long long int cache;
+    unsigned long long int cache;
 };
 
 struct SMovementCoherency {
@@ -57,26 +57,12 @@ private:
     static void _generateValidPairsFromGroupObject(const std::vector<C3DObject*>& group,C3DObject* obj,std::vector<C3DObject*>& pairs);
     static void _generateValidPairsFromGroupGroup(const std::vector<C3DObject*>& group1,const std::vector<C3DObject*>& group2,std::vector<C3DObject*>& pairs,bool collectionSelfDistanceCheck);
     static float _orderPairsAccordingToApproxBoundingBoxDistance(std::vector<C3DObject*>& pairs);
-    static bool _getCachedDistanceShapeShapeIfSmaller(CShape* shape1,CShape* shape2,float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
-    static bool _getCachedDistanceShapeDummyIfSmaller(CShape* shape,CDummy* dummy,float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
-    static bool _getCachedDistanceDummyShapeIfSmaller(CDummy* dummy,CShape* shape,float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
-    static bool _getCachedDistancePointCloudPointCloudIfSmaller(CPointCloud* ptCloud1,CPointCloud* ptCloud2,float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
-    static bool _getCachedDistancePointCloudDummyIfSmaller(CPointCloud* pointCloud,CDummy* dummy,float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
-    static bool _getCachedDistanceDummyPointCloudIfSmaller(CDummy* dummy,CPointCloud* pointCloud,float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
-    static bool _getCachedDistanceOctreeDummyIfSmaller(COctree* octree,CDummy* dummy,float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
-    static bool _getCachedDistanceDummyOctreeIfSmaller(CDummy* dummy,COctree* octree,float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
-    static bool _getCachedDistanceOctreePointCloudIfSmaller(COctree* octree,CPointCloud* pointCloud,float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
-    static bool _getCachedDistancePointCloudOctreeIfSmaller(CPointCloud* pointCloud,COctree* octree,float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
-    static bool _getCachedDistanceOctreeShapeIfSmaller(COctree* octree,CShape* shape,float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
-    static bool _getCachedDistanceShapeOctreeIfSmaller(CShape* shape,COctree* octree,float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
-    static bool _getCachedDistancePointCloudShapeIfSmaller(CPointCloud* pointCloud,CShape* shape,float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
-    static bool _getCachedDistanceShapePointCloudIfSmaller(CShape* shape,CPointCloud* pointCloud,float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
 
     static bool _getCachedDistanceIfSmaller(float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
     static bool _getCachedDistanceIfSmaller_pairs(std::vector<C3DObject*>& unorderedPairsCanBeModified,float& dist,float ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagObject1,bool overrideMeasurableFlagObject2,bool& cachedPairWasProcessed);
 
-    static long long int getExtendedCacheValue(int id);
-    static int insertExtendedCacheValue(long long int value);
+    static unsigned long long int getExtendedCacheValue(int id);
+    static int insertExtendedCacheValue(unsigned long long int value);
     static bool getOctreesHaveCoherentMovement(COctree* octree1,COctree* octree2);
     static bool _distanceCachingOff;
     static std::vector<SExtCache> _extendedCacheBuffer;

@@ -106,7 +106,7 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
             if (octree->getShowOctree()&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
             {
                 std::vector<float> corners;
-                CPluginContainer::mesh_getOctreeDebugCorners(octree->getOctreeInfo(),corners);
+                CPluginContainer::geomPlugin_getOctreeCornersFromOctree(octree->getOctreeInfo(),corners);
 
                 glBegin(GL_LINES);
                 glNormal3fv(normalVectorForLinesAndPoints.data);

@@ -8,7 +8,7 @@
 #include "editboxdelegate.h"
 #include "qdlgcolor.h"
 #include "qdlg2d3dgraphproperties.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include "app.h"
 #include "vMessageBox.h"
 

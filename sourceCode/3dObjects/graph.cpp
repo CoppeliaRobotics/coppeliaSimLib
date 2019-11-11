@@ -1,10 +1,10 @@
 #include "funcDebug.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "graph.h"
 #include "tt.h"
 #include "gV.h"
 #include "graphingRoutines.h"
-#include "v_repStrings.h"
+#include "simStrings.h"
 #include <boost/lexical_cast.hpp>
 #include "vVarious.h"
 #include "ttUtil.h"
@@ -808,6 +808,8 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
                         curveType=0;
                     else
                         curveType=1;
+                    if (!gr->getLabel())
+                        curveType+=4;
                     col[0]=gr->ambientColor[0];
                     col[1]=gr->ambientColor[1];
                     col[2]=gr->ambientColor[2];
@@ -863,6 +865,8 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
                         curveType=2;
                     else
                         curveType=2+1;
+                    if (!gr->getLabel())
+                        curveType+=4;
                     col[0]=gr->ambientColor[0];
                     col[1]=gr->ambientColor[1];
                     col[2]=gr->ambientColor[2];
@@ -932,6 +936,8 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
                         curveType=0;
                     else
                         curveType=1;
+                    if (!it->getLabel())
+                        curveType+=4;
 
                     while (getAbsIndexOfPosition(pos++,absIndex))
                     {
@@ -992,6 +998,8 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
                         curveType=2;
                     else
                         curveType=2+1;
+                    if (!gr->getLabel())
+                        curveType+=4;
                     col[0]=gr->ambientColor[0];
                     col[1]=gr->ambientColor[1];
                     col[2]=gr->ambientColor[2];
@@ -1068,6 +1076,8 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
                         curveType=0;
                     else
                         curveType=1;
+                    if (!it->getLabel())
+                        curveType+=4;
 
                     while (getAbsIndexOfPosition(pos++,absIndex))
                     {
@@ -1142,6 +1152,8 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
                         curveType=2;
                     else
                         curveType=2+1;
+                    if (!gr->getLabel())
+                        curveType+=4;
                     col[0]=gr->ambientColor[0];
                     col[1]=gr->ambientColor[1];
                     col[2]=gr->ambientColor[2];
@@ -1952,6 +1964,203 @@ void CGraph::serialize(CSer& ar)
             if (ar.getSerializationVersionThatWroteThisFile()<17)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
                 CTTUtil::scaleColorUp_(color.colors);
+            }
+        }
+    }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            ar.xmlAddNode_float("size",size);
+
+            ar.xmlPushNewNode("color");
+            if (exhaustiveXml)
+            {
+                ar.xmlPushNewNode("object");
+                color.serialize(ar,0);
+                ar.xmlPopNode();
+                ar.xmlAddNode_floats("background",backgroundColor,3);
+                ar.xmlAddNode_floats("text",textColor,3);
+            }
+            else
+            {
+                int rgb[3];
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(color.colors[l]*255.1f);
+                ar.xmlAddNode_ints("object",rgb,3);
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(backgroundColor[l]*255.1f);
+                ar.xmlAddNode_ints("background",rgb,3);
+                for (size_t l=0;l<3;l++)
+                    rgb[l]=int(textColor[l]*255.1f);
+                ar.xmlAddNode_ints("text",rgb,3);
+            }
+            ar.xmlPopNode();
+
+            ar.xmlAddNode_int("bufferSize",bufferSize);
+
+            if (exhaustiveXml)
+                ar.xmlAddNode_int("pointCount",numberOfPoints);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("cyclic",cyclic);
+            ar.xmlAddNode_bool("showXYZ",xYZPlanesDisplay);
+            ar.xmlAddNode_bool("showGrid",graphGrid);
+            ar.xmlAddNode_bool("showValues",graphValues);
+            ar.xmlAddNode_bool("explicitHandling",_explicitHandling);
+            ar.xmlPopNode();
+
+            if (exhaustiveXml)
+            {
+                std::vector<float> tmp;
+                for (int i=0;i<numberOfPoints;i++)
+                {
+                    int absIndex;
+                    getAbsIndexOfPosition(i,absIndex);
+                    tmp.push_back(times[absIndex]);
+                }
+                ar.xmlAddNode_floats("times",tmp);
+
+                for (size_t i=0;i<daten.size();i++)
+                {
+                    ar.xmlPushNewNode("dataStream");
+                    daten[i]->serialize(ar,this);
+                    ar.xmlPopNode();
+                }
+                for (size_t i=0;i<threeDPartners.size();i++)
+                {
+                    ar.xmlPushNewNode("3dCurve");
+                    threeDPartners[i]->serialize(ar);
+                    ar.xmlPopNode();
+                }
+                for (size_t i=0;i<twoDPartners.size();i++)
+                {
+                    ar.xmlPushNewNode("2dCurve");
+                    twoDPartners[i]->serialize(ar);
+                    ar.xmlPopNode();
+                }
+
+                for (size_t i=0;i<_staticCurves.size();i++)
+                {
+                    ar.xmlPushNewNode("staticCurve");
+                    _staticCurves[i]->serialize(ar);
+                    ar.xmlPopNode();
+                }
+            }
+        }
+        else
+        {
+            ar.xmlGetNode_float("size",size,exhaustiveXml);
+
+            if (ar.xmlPushChildNode("color",exhaustiveXml))
+            {
+                if (exhaustiveXml)
+                {
+                    if (ar.xmlPushChildNode("object"))
+                    {
+                        color.serialize(ar,0);
+                        ar.xmlPopNode();
+                    }
+                    ar.xmlGetNode_floats("background",backgroundColor,3);
+                    ar.xmlGetNode_floats("text",textColor,3);
+                }
+                else
+                {
+                    int rgb[3];
+                    if (ar.xmlGetNode_ints("object",rgb,3,exhaustiveXml))
+                        color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                    if (ar.xmlGetNode_ints("background",rgb,3,exhaustiveXml))
+                    {
+                        backgroundColor[0]=float(rgb[0])/255.1f;
+                        backgroundColor[1]=float(rgb[1])/255.1f;
+                        backgroundColor[2]=float(rgb[2])/255.1f;
+                    }
+                    if (ar.xmlGetNode_ints("text",rgb,3,exhaustiveXml))
+                    {
+                        textColor[0]=float(rgb[0])/255.1f;
+                        textColor[1]=float(rgb[1])/255.1f;
+                        textColor[2]=float(rgb[2])/255.1f;
+                    }
+                }
+                ar.xmlPopNode();
+            }
+            ar.xmlGetNode_int("bufferSize",bufferSize,exhaustiveXml);
+
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("pointCount",numberOfPoints);
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("cyclic",cyclic,exhaustiveXml);
+                ar.xmlGetNode_bool("showXYZ",xYZPlanesDisplay,exhaustiveXml);
+                ar.xmlGetNode_bool("showGrid",graphGrid,exhaustiveXml);
+                ar.xmlGetNode_bool("showValues",graphValues,exhaustiveXml);
+                ar.xmlGetNode_bool("explicitHandling",_explicitHandling,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+
+            times.clear();
+            if (exhaustiveXml)
+            {
+                ar.xmlGetNode_floats("times",times);
+
+                if (ar.xmlPushChildNode("dataStream",false))
+                {
+                    while (true)
+                    {
+                        CGraphData* it=new CGraphData();
+                        it->serialize(ar,this);
+                        daten.push_back(it);
+                        if (!ar.xmlPushSiblingNode("dataStream",false))
+                            break;
+                    }
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("3dCurve",false))
+                {
+                    while (true)
+                    {
+                        CGraphDataComb* it=new CGraphDataComb();
+                        it->serialize(ar);
+                        threeDPartners.push_back(it);
+                        if (!ar.xmlPushSiblingNode("3dCurve",false))
+                            break;
+                    }
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("2dCurve",false))
+                {
+                    while (true)
+                    {
+                        CGraphDataComb* it=new CGraphDataComb();
+                        it->serialize(ar);
+                        twoDPartners.push_back(it);
+                        if (!ar.xmlPushSiblingNode("2dCurve",false))
+                            break;
+                    }
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("staticCurve",false))
+                {
+                    while (true)
+                    {
+                        CStaticGraphCurve* it=new CStaticGraphCurve();
+                        it->serialize(ar);
+                        // Following 4 on 16/3/2017: duplicate names for static curves can cause problems
+                        std::string nm(it->getName());
+                        while (getStaticCurveFromName(it->getCurveType(),nm)!=nullptr)
+                            nm=tt::generateNewName_noDash(nm);
+                        it->setName(nm);
+                        _staticCurves.push_back(it);
+                        if (!ar.xmlPushSiblingNode("staticCurve",false))
+                            break;
+                    }
+                    ar.xmlPopNode();
+                }
             }
         }
     }

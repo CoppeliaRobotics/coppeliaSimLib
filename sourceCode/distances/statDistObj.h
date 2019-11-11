@@ -13,8 +13,8 @@ public:
     bool measure(float& dist,int theCaching[2]);
     void checkDistance(int triaIndex,C3Vector& a0,C3Vector& e0,C3Vector& e1,int triAIndex,C3Vector& A0,C3Vector& E0,C3Vector& E1);
 
-    C4X4Matrix shapeACTM;
-    C4X4Matrix shapeBCTM;
+    C7Vector shapeACTM;
+    C7Vector shapeBCTM;
     CShape* shapeA;
     CShape* shapeB;
     C3Vector ptOnShapeA;

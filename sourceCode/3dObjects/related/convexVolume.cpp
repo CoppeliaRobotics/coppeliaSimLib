@@ -1,9 +1,10 @@
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "convexVolume.h"
 #include "tt.h"
 #include "global.h"
 #include "4X4Matrix.h"
 #include "6Vector.h"
+#include <algorithm>
 
 CConvexVolume::CConvexVolume()
 {
@@ -325,6 +326,80 @@ void CConvexVolume::serialize(CSer& ar)
             //**************************************
         }
     }
+    else
+    {
+        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        if (ar.isStoring())
+        {
+            if (exhaustiveXml)
+                ar.xmlAddNode_enum("type",_volumeType,PYRAMID_TYPE_CONVEX_VOLUME,"pyramid",CYLINDER_TYPE_CONVEX_VOLUME,"cylinder",DISC_TYPE_CONVEX_VOLUME,"disc",CONE_TYPE_CONVEX_VOLUME,"cone",RAY_TYPE_CONVEX_VOLUME,"ray");
+
+            ar.xmlAddNode_float("offset",offset);
+            ar.xmlAddNode_float("range",range);
+            ar.xmlAddNode_2float("xySizeClose",xSize,ySize);
+            ar.xmlAddNode_2float("xySizeFar",xSizeFar,ySizeFar);
+            ar.xmlAddNode_2float("closeFarRadius",radius,radiusFar);
+            ar.xmlAddNode_float("angle",angle*180.0f/piValue_f);
+            ar.xmlAddNode_float("insideAngleScaling",insideAngleThing);
+            ar.xmlAddNode_2int("closeFarFaceCount",faceNumber,faceNumberFar);
+            ar.xmlAddNode_2int("closeFarSubdivisions",subdivisions,subdivisionsFar);
+            ar.xmlAddNode_float("smallestAllowedDistance",_smallestDistanceAllowed);
+
+            ar.xmlPushNewNode("switches");
+            ar.xmlAddNode_bool("smallestDistanceEnabled",_smallestDistanceEnabled);
+            ar.xmlPopNode();
+        }
+        else
+        {
+            if (exhaustiveXml)
+                ar.xmlGetNode_enum("type",_volumeType,true,"pyramid",PYRAMID_TYPE_CONVEX_VOLUME,"cylinder",CYLINDER_TYPE_CONVEX_VOLUME,"disc",DISC_TYPE_CONVEX_VOLUME,"cone",CONE_TYPE_CONVEX_VOLUME,"ray",RAY_TYPE_CONVEX_VOLUME);
+
+            float v,w;
+            int k,l;
+            if (ar.xmlGetNode_float("offset",v,exhaustiveXml))
+                setOffset(v,false);
+            if (ar.xmlGetNode_float("range",v,exhaustiveXml))
+                setRange(v,false);
+            if (ar.xmlGetNode_2float("xySizeClose",v,w,exhaustiveXml))
+            {
+                setXSize(v,false);
+                setYSize(w,false);
+            }
+            if (ar.xmlGetNode_2float("xySizeFar",v,w,exhaustiveXml))
+            {
+                setXSizeFar(v,false);
+                setYSizeFar(w,false);
+            }
+            if (ar.xmlGetNode_2float("closeFarRadius",v,w,exhaustiveXml))
+            {
+                setRadius(v,false);
+                setRadiusFar(w,false);
+            }
+            if (ar.xmlGetNode_float("angle",v,exhaustiveXml))
+                setAngle(v*piValue_f/180.0f,false);
+            if (ar.xmlGetNode_float("insideAngleScaling",v,exhaustiveXml))
+                setInsideAngleThing(v,false);
+            if (ar.xmlGetNode_2int("closeFarFaceCount",k,l,exhaustiveXml))
+            {
+                setFaceNumber(k,false);
+                setFaceNumberFar(l,false);
+            }
+            if (ar.xmlGetNode_2int("closeFarSubdivisions",k,l,exhaustiveXml))
+            {
+                setSubdivisions(k,false);
+                setSubdivisionsFar(l,false);
+            }
+            if (ar.xmlGetNode_float("smallestAllowedDistance",v,exhaustiveXml))
+                setSmallestDistanceAllowed(v,false);
+
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            {
+                ar.xmlGetNode_bool("smallestDistanceEnabled",_smallestDistanceEnabled,exhaustiveXml);
+                ar.xmlPopNode();
+            }
+            computeVolumes();
+        }
+    }
 }
 
 bool CConvexVolume::getVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
@@ -547,80 +622,86 @@ int CConvexVolume::getVolumeType()
     return(_volumeType);
 }
 
-void CConvexVolume::setOffset(float theOffset)
+void CConvexVolume::setOffset(float theOffset,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(-1000.0f,1000.0f,theOffset);
     offset=theOffset;
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-float CConvexVolume::getOffset()
+float CConvexVolume::getOffset() const
 {
     return(offset);
 }
 
-void CConvexVolume::setRange(float theRange)
+void CConvexVolume::setRange(float theRange,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(0.00001f,1000.0f,theRange);
     range=theRange;
     solveInterferences();
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-float CConvexVolume::getRange()
+float CConvexVolume::getRange() const
 {
     return(range);
 }
 
-void CConvexVolume::setXSize(float theXSize)
+void CConvexVolume::setXSize(float theXSize,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(0.00001f,1000.0f,theXSize);
     xSize=theXSize;
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-float CConvexVolume::getXSize()
+float CConvexVolume::getXSize() const
 {
     return(xSize);
 }
 
-void CConvexVolume::setYSize(float theYSize)
+void CConvexVolume::setYSize(float theYSize,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(0.00001f,1000.0f,theYSize);
     ySize=theYSize;
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-float CConvexVolume::getYSize()
+float CConvexVolume::getYSize() const
 {
     return(ySize);
 }
 
-void CConvexVolume::setXSizeFar(float theXSizeFar)
+void CConvexVolume::setXSizeFar(float theXSizeFar,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(0.00001f,1000.0f,theXSizeFar);
     xSizeFar=theXSizeFar;
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-float CConvexVolume::getXSizeFar()
+float CConvexVolume::getXSizeFar() const
 {
     return(xSizeFar);
 }
 
-void CConvexVolume::setYSizeFar(float theYSizeFar)
+void CConvexVolume::setYSizeFar(float theYSizeFar,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(0.00001f,1000.0f,theYSizeFar);
     ySizeFar=theYSizeFar;
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-float CConvexVolume::getYSizeFar()
+float CConvexVolume::getYSizeFar() const
 {
     return(ySizeFar);
 }
 
-void CConvexVolume::setRadius(float theRadius)
+void CConvexVolume::setRadius(float theRadius,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(0.0f,1000.0f,theRadius);
     if ( (_volumeType==DISC_TYPE_CONVEX_VOLUME)||(_volumeType==CONE_TYPE_CONVEX_VOLUME) )
@@ -635,27 +716,29 @@ void CConvexVolume::setRadius(float theRadius)
     }
     radius=theRadius;
     solveInterferences();
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-float CConvexVolume::getRadius()
+float CConvexVolume::getRadius() const
 {
     return(radius);
 }
 
-void CConvexVolume::setRadiusFar(float theRadiusFar)
+void CConvexVolume::setRadiusFar(float theRadiusFar,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(0.0f,1000.0f,theRadiusFar);
     radiusFar=theRadiusFar;
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-float CConvexVolume::getRadiusFar()
+float CConvexVolume::getRadiusFar() const
 {
     return(radiusFar);
 }
 
-void CConvexVolume::setAngle(float theAngle)
+void CConvexVolume::setAngle(float theAngle,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(0.001f*degToRad_f,piValTimes2_f,theAngle);
     if ( (_volumeType==DISC_TYPE_CONVEX_VOLUME)||(_volumeType==CONE_TYPE_CONVEX_VOLUME) )
@@ -667,10 +750,11 @@ void CConvexVolume::setAngle(float theAngle)
     }
     angle=theAngle;
     solveInterferences();
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-void CConvexVolume::setInsideAngleThing(float theAngle)
+void CConvexVolume::setInsideAngleThing(float theAngle,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(0.0f,0.999f,theAngle);
     if (theAngle<0.01f)
@@ -682,28 +766,31 @@ void CConvexVolume::setInsideAngleThing(float theAngle)
             angle=piValue_f;
     }
     solveInterferences();
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-void CConvexVolume::setSmallestDistanceEnabled(bool e)
+void CConvexVolume::setSmallestDistanceEnabled(bool e,bool recomputeVolume/*=true*/)
 {
     _smallestDistanceEnabled=e;
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-bool CConvexVolume::getSmallestDistanceEnabled()
+bool CConvexVolume::getSmallestDistanceEnabled() const
 {
     return(_smallestDistanceEnabled);
 }
 
-void CConvexVolume::setSmallestDistanceAllowed(float d)
+void CConvexVolume::setSmallestDistanceAllowed(float d,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(0.0001f,10.0f,d);
     _smallestDistanceAllowed=d;
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-float CConvexVolume::getSmallestDistanceAllowed()
+float CConvexVolume::getSmallestDistanceAllowed() const
 {
     return(_smallestDistanceAllowed);
 }
@@ -744,17 +831,17 @@ void CConvexVolume::solveInterferences()
     }
 }
 
-float CConvexVolume::getAngle()
+float CConvexVolume::getAngle() const
 {
     return(angle);
 }
 
-float CConvexVolume::getInsideAngleThing()
+float CConvexVolume::getInsideAngleThing() const
 {
     return(insideAngleThing);
 }
 
-void CConvexVolume::setFaceNumber(int theFaceNumber)
+void CConvexVolume::setFaceNumber(int theFaceNumber,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(1,PROXSENSOR_MAX_FACE_NUMBER,theFaceNumber);
     if (_volumeType==CYLINDER_TYPE_CONVEX_VOLUME)
@@ -767,48 +854,52 @@ void CConvexVolume::setFaceNumber(int theFaceNumber)
     if (_volumeType==CONE_TYPE_CONVEX_VOLUME)
         tt::limitValue(3,PROXSENSOR_MAX_FACE_NUMBER,theFaceNumber);
     faceNumber=theFaceNumber;
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-int CConvexVolume::getFaceNumber()
+int CConvexVolume::getFaceNumber() const
 {
     return(faceNumber);
 }
 
-void CConvexVolume::setFaceNumberFar(int theFaceNumberFar)
+void CConvexVolume::setFaceNumberFar(int theFaceNumberFar,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(1,PROXSENSOR_MAX_FACE_NUMBER,theFaceNumberFar);
     faceNumberFar=theFaceNumberFar;
     solveInterferences();
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-int CConvexVolume::getFaceNumberFar()
+int CConvexVolume::getFaceNumberFar() const
 {
     return(faceNumberFar);
 }
 
-void CConvexVolume::setSubdivisions(int theSubdivisions)
+void CConvexVolume::setSubdivisions(int theSubdivisions,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(0,PROXSENSOR_MAX_SUBDIVISIONS,theSubdivisions);
     subdivisions=theSubdivisions;
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-int CConvexVolume::getSubdivisions()
+int CConvexVolume::getSubdivisions() const
 {
     return(subdivisions);
 }
 
-void CConvexVolume::setSubdivisionsFar(int theSubdivisionsFar)
+void CConvexVolume::setSubdivisionsFar(int theSubdivisionsFar,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(0,PROXSENSOR_MAX_SUBDIVISIONS,theSubdivisionsFar);
     subdivisionsFar=theSubdivisionsFar;
     solveInterferences();
-    computeVolumes();
+    if (recomputeVolume)
+        computeVolumes();
 }
 
-int CConvexVolume::getSubdivisionsFar()
+int CConvexVolume::getSubdivisionsFar() const
 {
     return(subdivisionsFar);
 }

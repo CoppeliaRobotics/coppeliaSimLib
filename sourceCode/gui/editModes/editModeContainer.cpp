@@ -1,7 +1,7 @@
 #include "editModeContainer.h"
 #include "funcDebug.h"
 #include "app.h"
-#include "v_repStringTable.h"
+#include "simStringTable.h"
 #include "vMessageBox.h"
 
 CEditModeContainer::CEditModeContainer()

@@ -1,6 +1,6 @@
 #include "qdlginertiatensor.h"
 #include "ui_qdlginertiatensor.h"
-#include "v_rep_internal.h"
+#include "simInternal.h"
 #include "app.h"
 #include "tt.h"
 #include "gV.h"

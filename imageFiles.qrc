@@ -10,5 +10,6 @@
         <file>imageFiles/icon128Player.png</file>
         <file>imageFiles/icon128Pro.png</file>
         <file>imageFiles/icon128Reality.png</file>
+        <file>imageFiles/icon.png</file>
     </qresource>
 </RCC>
