@@ -586,7 +586,7 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
     cmd.intParams.clear();
     App::appendSimulationThreadCommand(cmd,2200); // was 200
 
-    if (CLibLic::getBoolVal(13))
+    if (CLibLic::getBoolVal(17))
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=PLUS_HFLM_CMD;

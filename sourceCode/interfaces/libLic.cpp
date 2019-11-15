@@ -272,6 +272,8 @@ bool CLibLic::getBoolVal(int w)
             return(false);
         if (w==16)
             return(SIM_FL==-1);
+        if (w==17)
+            return(false);
     }
     return(false);
 }
