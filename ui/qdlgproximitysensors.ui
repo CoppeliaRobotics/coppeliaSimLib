@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>430</width>
     <height>318</height>
    </rect>
   </property>
@@ -24,7 +24,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>211</width>
+     <width>281</width>
      <height>18</height>
     </rect>
    </property>
@@ -40,7 +40,7 @@
     <rect>
      <x>10</x>
      <y>35</y>
-     <width>361</width>
+     <width>411</width>
      <height>91</height>
     </rect>
    </property>
@@ -54,8 +54,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>121</width>
+      <y>25</y>
+      <width>131</width>
       <height>18</height>
      </rect>
     </property>
@@ -69,9 +69,9 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>20</y>
-      <width>91</width>
+      <x>140</x>
+      <y>25</y>
+      <width>111</width>
       <height>20</height>
      </rect>
     </property>
@@ -82,9 +82,9 @@
    <widget class="QComboBox" name="qqSensorTypeCombo">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>20</y>
-      <width>131</width>
+      <x>250</x>
+      <y>25</y>
+      <width>151</width>
       <height>18</height>
      </rect>
     </property>
@@ -92,9 +92,9 @@
    <widget class="QComboBox" name="qqEntityToDetect">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>40</y>
-      <width>221</width>
+      <x>140</x>
+      <y>45</y>
+      <width>261</width>
       <height>18</height>
      </rect>
     </property>
@@ -103,8 +103,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>121</width>
+      <y>45</y>
+      <width>131</width>
       <height>20</height>
      </rect>
     </property>
@@ -116,8 +116,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>151</width>
+      <y>65</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -134,9 +134,9 @@
    <widget class="QToolButton" name="qqAdjustDetectionParams">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>60</y>
-      <width>151</width>
+      <x>210</x>
+      <y>65</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -153,7 +153,7 @@
     <rect>
      <x>10</x>
      <y>170</y>
-     <width>361</width>
+     <width>411</width>
      <height>111</height>
     </rect>
    </property>
@@ -167,8 +167,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>161</width>
+      <y>65</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -182,9 +182,9 @@
    <widget class="QToolButton" name="qqActiveVolumeColor">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>60</y>
-      <width>161</width>
+      <x>210</x>
+      <y>65</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -199,8 +199,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
-      <width>161</width>
+      <y>85</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -214,9 +214,9 @@
    <widget class="QToolButton" name="qqMinDistColor">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>80</y>
-      <width>161</width>
+      <x>210</x>
+      <y>85</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -231,7 +231,36 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
+      <y>45</y>
+      <width>231</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Show vol. when not detecting</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>25</y>
+      <width>111</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Sens. pt size [m]</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqShowDetecting">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>25</y>
       <width>201</width>
       <height>18</height>
      </rect>
@@ -240,44 +269,15 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Show volume when not detecting</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
-      <y>20</y>
-      <width>101</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Sensing pt size [m]</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="qqShowDetecting">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>181</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Show volume when detecting</string>
+     <string>Show vol. when detecting</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="qqPointSize">
     <property name="geometry">
      <rect>
-      <x>295</x>
-      <y>20</y>
-      <width>56</width>
+      <x>320</x>
+      <y>25</y>
+      <width>76</width>
       <height>18</height>
      </rect>
     </property>
@@ -288,7 +288,7 @@
     <rect>
      <x>260</x>
      <y>130</y>
-     <width>111</width>
+     <width>161</width>
      <height>18</height>
     </rect>
    </property>
@@ -424,6 +424,15 @@
       <colorrole role="ToolTipText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
          <red>0</red>
          <green>0</green>
          <blue>0</blue>
@@ -567,6 +576,15 @@
         </color>
        </brush>
       </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
      </inactive>
      <disabled>
       <colorrole role="WindowText">
@@ -698,6 +716,15 @@
       <colorrole role="ToolTipText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
          <red>0</red>
          <green>0</green>
          <blue>0</blue>
@@ -719,7 +746,7 @@
     <rect>
      <x>260</x>
      <y>285</y>
-     <width>111</width>
+     <width>161</width>
      <height>18</height>
     </rect>
    </property>
@@ -855,6 +882,15 @@
       <colorrole role="ToolTipText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
          <red>0</red>
          <green>0</green>
          <blue>0</blue>
@@ -998,6 +1034,15 @@
         </color>
        </brush>
       </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
      </inactive>
      <disabled>
       <colorrole role="WindowText">
@@ -1129,6 +1174,15 @@
       <colorrole role="ToolTipText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
          <red>0</red>
          <green>0</green>
          <blue>0</blue>

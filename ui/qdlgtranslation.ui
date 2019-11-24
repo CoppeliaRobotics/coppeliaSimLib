@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
-    <height>170</height>
+    <width>430</width>
+    <height>191</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,15 +21,15 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>361</width>
-     <height>151</height>
+     <width>411</width>
+     <height>171</height>
     </rect>
    </property>
    <property name="tabShape">
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>3</number>
+    <number>1</number>
    </property>
    <property name="elideMode">
     <enum>Qt::ElideNone</enum>
@@ -49,12 +49,12 @@
       <rect>
        <x>10</x>
        <y>90</y>
-       <width>341</width>
-       <height>31</height>
+       <width>391</width>
+       <height>51</height>
       </rect>
      </property>
      <property name="text">
-      <string>Once the mouse button is down, use the ctrl-key for orthogonal directions. Use the shift-key for smaller step sizes.</string>
+      <string>Once the mouse button is down, use the ctrl-key for orthog. directions. Use the shift-key for smaller step sizes.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -63,9 +63,9 @@
     <widget class="QRadioButton" name="qqPosOwn">
      <property name="geometry">
       <rect>
-       <x>260</x>
+       <x>300</x>
        <y>10</y>
-       <width>91</width>
+       <width>101</width>
        <height>18</height>
       </rect>
      </property>
@@ -84,7 +84,7 @@
       <rect>
        <x>10</x>
        <y>60</y>
-       <width>81</width>
+       <width>121</width>
        <height>18</height>
       </rect>
      </property>
@@ -95,7 +95,7 @@
     <widget class="QCheckBox" name="qqPosZ">
      <property name="geometry">
       <rect>
-       <x>270</x>
+       <x>320</x>
        <y>60</y>
        <width>81</width>
        <height>18</height>
@@ -111,9 +111,9 @@
     <widget class="QComboBox" name="qqPosCombo">
      <property name="geometry">
       <rect>
-       <x>160</x>
+       <x>220</x>
        <y>40</y>
-       <width>111</width>
+       <width>141</width>
        <height>18</height>
       </rect>
      </property>
@@ -123,7 +123,7 @@
       <rect>
        <x>10</x>
        <y>40</y>
-       <width>151</width>
+       <width>211</width>
        <height>18</height>
       </rect>
      </property>
@@ -134,9 +134,9 @@
     <widget class="QCheckBox" name="qqPosX">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>130</x>
        <y>60</y>
-       <width>61</width>
+       <width>81</width>
        <height>18</height>
       </rect>
      </property>
@@ -150,7 +150,7 @@
     <widget class="QCheckBox" name="qqPosY">
      <property name="geometry">
       <rect>
-       <x>180</x>
+       <x>220</x>
        <y>60</y>
        <width>91</width>
        <height>18</height>
@@ -166,9 +166,9 @@
     <widget class="QRadioButton" name="qqPosParent">
      <property name="geometry">
       <rect>
-       <x>160</x>
+       <x>180</x>
        <y>10</y>
-       <width>91</width>
+       <width>111</width>
        <height>18</height>
       </rect>
      </property>
@@ -187,7 +187,7 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>81</width>
+       <width>91</width>
        <height>18</height>
       </rect>
      </property>
@@ -198,9 +198,9 @@
     <widget class="QRadioButton" name="qqPosWorld">
      <property name="geometry">
       <rect>
-       <x>90</x>
+       <x>100</x>
        <y>10</y>
-       <width>61</width>
+       <width>81</width>
        <height>18</height>
       </rect>
      </property>
@@ -222,7 +222,7 @@
     <widget class="QToolButton" name="qqCoordApplyPos">
      <property name="geometry">
       <rect>
-       <x>280</x>
+       <x>330</x>
        <y>40</y>
        <width>71</width>
        <height>58</height>
@@ -366,6 +366,15 @@
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </active>
        <inactive>
         <colorrole role="WindowText">
@@ -503,6 +512,15 @@
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </inactive>
        <disabled>
         <colorrole role="WindowText">
@@ -634,6 +652,15 @@
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -654,9 +681,9 @@ selection</string>
     <widget class="QToolButton" name="qqCoordApplyY">
      <property name="geometry">
       <rect>
-       <x>180</x>
+       <x>220</x>
        <y>60</y>
-       <width>91</width>
+       <width>101</width>
        <height>18</height>
       </rect>
      </property>
@@ -792,6 +819,15 @@ selection</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -935,6 +971,15 @@ selection</string>
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </inactive>
        <disabled>
         <colorrole role="WindowText">
@@ -1066,6 +1111,15 @@ selection</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -1085,9 +1139,9 @@ selection</string>
     <widget class="QLineEdit" name="qqCoordZ">
      <property name="geometry">
       <rect>
-       <x>90</x>
+       <x>100</x>
        <y>80</y>
-       <width>81</width>
+       <width>111</width>
        <height>18</height>
       </rect>
      </property>
@@ -1095,9 +1149,9 @@ selection</string>
     <widget class="QRadioButton" name="qqCoordParent">
      <property name="geometry">
       <rect>
-       <x>240</x>
+       <x>270</x>
        <y>10</y>
-       <width>101</width>
+       <width>131</width>
        <height>18</height>
       </rect>
      </property>
@@ -1116,7 +1170,7 @@ selection</string>
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>91</width>
+       <width>111</width>
        <height>18</height>
       </rect>
      </property>
@@ -1127,9 +1181,9 @@ selection</string>
     <widget class="QToolButton" name="qqCoordApplyX">
      <property name="geometry">
       <rect>
-       <x>180</x>
+       <x>220</x>
        <y>40</y>
-       <width>91</width>
+       <width>101</width>
        <height>18</height>
       </rect>
      </property>
@@ -1265,6 +1319,15 @@ selection</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -1408,6 +1471,15 @@ selection</string>
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </inactive>
        <disabled>
         <colorrole role="WindowText">
@@ -1539,6 +1611,15 @@ selection</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -1558,9 +1639,9 @@ selection</string>
     <widget class="QLineEdit" name="qqCoordX">
      <property name="geometry">
       <rect>
-       <x>90</x>
+       <x>100</x>
        <y>40</y>
-       <width>81</width>
+       <width>111</width>
        <height>18</height>
       </rect>
      </property>
@@ -1573,7 +1654,7 @@ selection</string>
       <rect>
        <x>10</x>
        <y>40</y>
-       <width>81</width>
+       <width>91</width>
        <height>18</height>
       </rect>
      </property>
@@ -1586,7 +1667,7 @@ selection</string>
       <rect>
        <x>10</x>
        <y>80</y>
-       <width>81</width>
+       <width>91</width>
        <height>18</height>
       </rect>
      </property>
@@ -1599,7 +1680,7 @@ selection</string>
       <rect>
        <x>10</x>
        <y>60</y>
-       <width>81</width>
+       <width>91</width>
        <height>18</height>
       </rect>
      </property>
@@ -1610,7 +1691,7 @@ selection</string>
     <widget class="QRadioButton" name="qqCoordWorld">
      <property name="geometry">
       <rect>
-       <x>110</x>
+       <x>130</x>
        <y>10</y>
        <width>121</width>
        <height>18</height>
@@ -1629,9 +1710,9 @@ selection</string>
     <widget class="QToolButton" name="qqCoordApplyZ">
      <property name="geometry">
       <rect>
-       <x>180</x>
+       <x>220</x>
        <y>80</y>
-       <width>91</width>
+       <width>101</width>
        <height>18</height>
       </rect>
      </property>
@@ -1767,6 +1848,15 @@ selection</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -1910,6 +2000,15 @@ selection</string>
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </inactive>
        <disabled>
         <colorrole role="WindowText">
@@ -2047,6 +2146,15 @@ selection</string>
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </disabled>
       </palette>
      </property>
@@ -2060,9 +2168,9 @@ selection</string>
     <widget class="QLineEdit" name="qqCoordY">
      <property name="geometry">
       <rect>
-       <x>90</x>
+       <x>100</x>
        <y>60</y>
-       <width>81</width>
+       <width>111</width>
        <height>18</height>
       </rect>
      </property>
@@ -2075,9 +2183,9 @@ selection</string>
     <widget class="QToolButton" name="qqTransfApplyPos">
      <property name="geometry">
       <rect>
-       <x>270</x>
+       <x>330</x>
        <y>40</y>
-       <width>81</width>
+       <width>71</width>
        <height>58</height>
       </rect>
      </property>
@@ -2219,6 +2327,15 @@ selection</string>
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </active>
        <inactive>
         <colorrole role="WindowText">
@@ -2356,6 +2473,15 @@ selection</string>
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </inactive>
        <disabled>
         <colorrole role="WindowText">
@@ -2487,6 +2613,15 @@ selection</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -2507,9 +2642,9 @@ selelection</string>
     <widget class="QRadioButton" name="qqTransfOwn">
      <property name="geometry">
       <rect>
-       <x>260</x>
+       <x>300</x>
        <y>10</y>
-       <width>91</width>
+       <width>101</width>
        <height>18</height>
       </rect>
      </property>
@@ -2528,7 +2663,7 @@ selelection</string>
       <rect>
        <x>10</x>
        <y>40</y>
-       <width>71</width>
+       <width>91</width>
        <height>18</height>
       </rect>
      </property>
@@ -2539,9 +2674,9 @@ selelection</string>
     <widget class="QLineEdit" name="qqTransfY">
      <property name="geometry">
       <rect>
-       <x>80</x>
+       <x>100</x>
        <y>60</y>
-       <width>81</width>
+       <width>111</width>
        <height>18</height>
       </rect>
      </property>
@@ -2551,7 +2686,7 @@ selelection</string>
       <rect>
        <x>10</x>
        <y>80</y>
-       <width>71</width>
+       <width>91</width>
        <height>18</height>
       </rect>
      </property>
@@ -2564,7 +2699,7 @@ selelection</string>
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>81</width>
+       <width>91</width>
        <height>18</height>
       </rect>
      </property>
@@ -2575,9 +2710,9 @@ selelection</string>
     <widget class="QRadioButton" name="qqTransfWorld">
      <property name="geometry">
       <rect>
-       <x>90</x>
+       <x>100</x>
        <y>10</y>
-       <width>71</width>
+       <width>81</width>
        <height>18</height>
       </rect>
      </property>
@@ -2594,9 +2729,9 @@ selelection</string>
     <widget class="QLineEdit" name="qqTransfZ">
      <property name="geometry">
       <rect>
-       <x>80</x>
+       <x>100</x>
        <y>80</y>
-       <width>81</width>
+       <width>111</width>
        <height>18</height>
       </rect>
      </property>
@@ -2606,7 +2741,7 @@ selelection</string>
       <rect>
        <x>10</x>
        <y>60</y>
-       <width>71</width>
+       <width>91</width>
        <height>18</height>
       </rect>
      </property>
@@ -2617,9 +2752,9 @@ selelection</string>
     <widget class="QLineEdit" name="qqTransfX">
      <property name="geometry">
       <rect>
-       <x>80</x>
+       <x>100</x>
        <y>40</y>
-       <width>81</width>
+       <width>111</width>
        <height>18</height>
       </rect>
      </property>
@@ -2627,9 +2762,9 @@ selelection</string>
     <widget class="QRadioButton" name="qqTransfParent">
      <property name="geometry">
       <rect>
-       <x>160</x>
+       <x>180</x>
        <y>10</y>
-       <width>101</width>
+       <width>121</width>
        <height>18</height>
       </rect>
      </property>
@@ -2646,9 +2781,9 @@ selelection</string>
     <widget class="QToolButton" name="qqTransfApplyPosX">
      <property name="geometry">
       <rect>
-       <x>170</x>
+       <x>220</x>
        <y>40</y>
-       <width>91</width>
+       <width>101</width>
        <height>18</height>
       </rect>
      </property>
@@ -2784,6 +2919,15 @@ selelection</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -2927,6 +3071,15 @@ selelection</string>
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </inactive>
        <disabled>
         <colorrole role="WindowText">
@@ -3058,6 +3211,15 @@ selelection</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -3077,9 +3239,9 @@ selelection</string>
     <widget class="QToolButton" name="qqTransfApplyPosY">
      <property name="geometry">
       <rect>
-       <x>170</x>
+       <x>220</x>
        <y>60</y>
-       <width>91</width>
+       <width>101</width>
        <height>18</height>
       </rect>
      </property>
@@ -3215,6 +3377,15 @@ selelection</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -3358,6 +3529,15 @@ selelection</string>
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </inactive>
        <disabled>
         <colorrole role="WindowText">
@@ -3489,6 +3669,15 @@ selelection</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -3508,9 +3697,9 @@ selelection</string>
     <widget class="QToolButton" name="qqTransfApplyPosZ">
      <property name="geometry">
       <rect>
-       <x>170</x>
+       <x>220</x>
        <y>80</y>
-       <width>91</width>
+       <width>101</width>
        <height>18</height>
       </rect>
      </property>
@@ -3646,6 +3835,15 @@ selelection</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -3789,6 +3987,15 @@ selelection</string>
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </inactive>
        <disabled>
         <colorrole role="WindowText">
@@ -3920,6 +4127,15 @@ selelection</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -3946,7 +4162,7 @@ selelection</string>
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>81</width>
+       <width>111</width>
        <height>18</height>
       </rect>
      </property>
@@ -3957,9 +4173,9 @@ selelection</string>
     <widget class="QRadioButton" name="qqScaleWorld">
      <property name="geometry">
       <rect>
-       <x>110</x>
+       <x>140</x>
        <y>10</y>
-       <width>71</width>
+       <width>111</width>
        <height>18</height>
       </rect>
      </property>
@@ -3976,9 +4192,9 @@ selelection</string>
     <widget class="QRadioButton" name="qqScaleParent">
      <property name="geometry">
       <rect>
-       <x>240</x>
+       <x>270</x>
        <y>10</y>
-       <width>101</width>
+       <width>121</width>
        <height>18</height>
       </rect>
      </property>
@@ -3995,9 +4211,9 @@ selelection</string>
     <widget class="QToolButton" name="qqTransfApplyScale">
      <property name="geometry">
       <rect>
-       <x>270</x>
+       <x>320</x>
        <y>40</y>
-       <width>81</width>
+       <width>71</width>
        <height>58</height>
       </rect>
      </property>
@@ -4139,6 +4355,15 @@ selelection</string>
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </active>
        <inactive>
         <colorrole role="WindowText">
@@ -4276,6 +4501,15 @@ selelection</string>
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </inactive>
        <disabled>
         <colorrole role="WindowText">
@@ -4407,6 +4641,15 @@ selelection</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -4427,9 +4670,9 @@ position</string>
     <widget class="QLineEdit" name="qqTransfSZ">
      <property name="geometry">
       <rect>
-       <x>70</x>
+       <x>90</x>
        <y>80</y>
-       <width>76</width>
+       <width>101</width>
        <height>18</height>
       </rect>
      </property>
@@ -4439,7 +4682,7 @@ position</string>
       <rect>
        <x>10</x>
        <y>80</y>
-       <width>61</width>
+       <width>81</width>
        <height>18</height>
       </rect>
      </property>
@@ -4452,7 +4695,7 @@ position</string>
       <rect>
        <x>10</x>
        <y>60</y>
-       <width>61</width>
+       <width>81</width>
        <height>18</height>
       </rect>
      </property>
@@ -4465,7 +4708,7 @@ position</string>
       <rect>
        <x>10</x>
        <y>40</y>
-       <width>61</width>
+       <width>81</width>
        <height>18</height>
       </rect>
      </property>
@@ -4476,9 +4719,9 @@ position</string>
     <widget class="QLineEdit" name="qqTransfSY">
      <property name="geometry">
       <rect>
-       <x>70</x>
+       <x>90</x>
        <y>60</y>
-       <width>76</width>
+       <width>101</width>
        <height>18</height>
       </rect>
      </property>
@@ -4486,9 +4729,9 @@ position</string>
     <widget class="QLineEdit" name="qqTransfSX">
      <property name="geometry">
       <rect>
-       <x>70</x>
+       <x>90</x>
        <y>40</y>
-       <width>76</width>
+       <width>101</width>
        <height>18</height>
       </rect>
      </property>
@@ -4499,9 +4742,9 @@ position</string>
     <widget class="QToolButton" name="qqTransfApplyScaleX">
      <property name="geometry">
       <rect>
-       <x>160</x>
+       <x>200</x>
        <y>40</y>
-       <width>101</width>
+       <width>111</width>
        <height>18</height>
       </rect>
      </property>
@@ -4637,6 +4880,15 @@ position</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -4780,6 +5032,15 @@ position</string>
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </inactive>
        <disabled>
         <colorrole role="WindowText">
@@ -4911,6 +5172,15 @@ position</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -4930,9 +5200,9 @@ position</string>
     <widget class="QToolButton" name="qqTransfApplyScaleY">
      <property name="geometry">
       <rect>
-       <x>160</x>
+       <x>200</x>
        <y>60</y>
-       <width>101</width>
+       <width>111</width>
        <height>18</height>
       </rect>
      </property>
@@ -5068,6 +5338,15 @@ position</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -5211,6 +5490,15 @@ position</string>
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </inactive>
        <disabled>
         <colorrole role="WindowText">
@@ -5342,6 +5630,15 @@ position</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -5361,9 +5658,9 @@ position</string>
     <widget class="QToolButton" name="qqTransfApplyScaleZ">
      <property name="geometry">
       <rect>
-       <x>160</x>
+       <x>200</x>
        <y>80</y>
-       <width>101</width>
+       <width>111</width>
        <height>18</height>
       </rect>
      </property>
@@ -5499,6 +5796,15 @@ position</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>
@@ -5642,6 +5948,15 @@ position</string>
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </inactive>
        <disabled>
         <colorrole role="WindowText">
@@ -5773,6 +6088,15 @@ position</string>
         <colorrole role="ToolTipText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="NoBrush">
+          <color alpha="128">
            <red>0</red>
            <green>0</green>
            <blue>0</blue>

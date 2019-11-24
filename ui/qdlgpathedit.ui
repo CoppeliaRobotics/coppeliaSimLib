@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>430</width>
     <height>439</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>361</width>
+     <width>411</width>
      <height>71</height>
     </rect>
    </property>
@@ -35,8 +35,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>161</width>
+      <y>25</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -50,8 +50,8 @@
    <widget class="QCheckBox" name="qqFlat">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>20</y>
+      <x>210</x>
+      <y>25</y>
       <width>161</width>
       <height>18</height>
      </rect>
@@ -66,8 +66,8 @@
    <widget class="QCheckBox" name="qqKeepXup">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>40</y>
+      <x>210</x>
+      <y>45</y>
       <width>161</width>
       <height>18</height>
      </rect>
@@ -83,8 +83,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>161</width>
+      <y>45</y>
+      <width>201</width>
       <height>18</height>
      </rect>
     </property>
@@ -101,7 +101,7 @@
     <rect>
      <x>10</x>
      <y>230</y>
-     <width>361</width>
+     <width>411</width>
      <height>171</height>
     </rect>
    </property>
@@ -114,9 +114,9 @@
    <widget class="QLineEdit" name="qqFactor1">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>20</y>
-      <width>56</width>
+      <x>320</x>
+      <y>25</y>
+      <width>81</width>
       <height>18</height>
      </rect>
     </property>
@@ -125,8 +125,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>181</width>
+      <y>25</y>
+      <width>311</width>
       <height>18</height>
      </rect>
     </property>
@@ -138,8 +138,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>181</width>
+      <y>45</y>
+      <width>311</width>
       <height>18</height>
      </rect>
     </property>
@@ -150,9 +150,9 @@
    <widget class="QLineEdit" name="qqFactor2">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>40</y>
-      <width>56</width>
+      <x>320</x>
+      <y>45</y>
+      <width>81</width>
       <height>18</height>
      </rect>
     </property>
@@ -160,9 +160,9 @@
    <widget class="QLineEdit" name="qqPointCount">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>60</y>
-      <width>56</width>
+      <x>320</x>
+      <y>65</y>
+      <width>81</width>
       <height>18</height>
      </rect>
     </property>
@@ -171,8 +171,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>141</width>
+      <y>65</y>
+      <width>311</width>
       <height>18</height>
      </rect>
     </property>
@@ -183,8 +183,8 @@
    <widget class="QLineEdit" name="qqVirtualDistance">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>80</y>
+      <x>320</x>
+      <y>85</y>
       <width>81</width>
       <height>18</height>
      </rect>
@@ -194,8 +194,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
-      <width>141</width>
+      <y>85</y>
+      <width>311</width>
       <height>18</height>
      </rect>
     </property>
@@ -206,9 +206,9 @@
    <widget class="QLineEdit" name="qqAuxFlags">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>100</y>
-      <width>56</width>
+      <x>320</x>
+      <y>105</y>
+      <width>81</width>
       <height>18</height>
      </rect>
     </property>
@@ -217,8 +217,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
-      <width>141</width>
+      <y>105</y>
+      <width>311</width>
       <height>18</height>
      </rect>
     </property>
@@ -230,8 +230,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>120</y>
-      <width>141</width>
+      <y>125</y>
+      <width>221</width>
       <height>18</height>
      </rect>
     </property>
@@ -242,8 +242,8 @@
    <widget class="QLineEdit" name="qqAuxChannel1">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>120</y>
+      <x>230</x>
+      <y>125</y>
       <width>81</width>
       <height>18</height>
      </rect>
@@ -252,8 +252,8 @@
    <widget class="QLineEdit" name="qqAuxChannel2">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>120</y>
+      <x>320</x>
+      <y>125</y>
       <width>81</width>
       <height>18</height>
      </rect>
@@ -262,8 +262,8 @@
    <widget class="QLineEdit" name="qqAuxChannel3">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>140</y>
+      <x>230</x>
+      <y>145</y>
       <width>81</width>
       <height>18</height>
      </rect>
@@ -272,8 +272,8 @@
    <widget class="QLineEdit" name="qqAuxChannel4">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>140</y>
+      <x>320</x>
+      <y>145</y>
       <width>81</width>
       <height>18</height>
      </rect>
@@ -283,8 +283,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>140</y>
-      <width>141</width>
+      <y>145</y>
+      <width>221</width>
       <height>18</height>
      </rect>
     </property>
@@ -298,7 +298,7 @@
     <rect>
      <x>10</x>
      <y>90</y>
-     <width>361</width>
+     <width>411</width>
      <height>71</height>
     </rect>
    </property>
@@ -312,8 +312,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>161</width>
+      <y>25</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -327,9 +327,9 @@
    <widget class="QToolButton" name="qqInvertSelection">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>20</y>
-      <width>161</width>
+      <x>210</x>
+      <y>25</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -344,8 +344,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>341</width>
+      <y>45</y>
+      <width>391</width>
       <height>18</height>
      </rect>
     </property>
@@ -359,7 +359,7 @@
     <rect>
      <x>10</x>
      <y>170</y>
-     <width>361</width>
+     <width>411</width>
      <height>51</height>
     </rect>
    </property>
@@ -373,8 +373,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>161</width>
+      <y>25</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -391,7 +391,7 @@
     <rect>
      <x>260</x>
      <y>410</y>
-     <width>111</width>
+     <width>161</width>
      <height>18</height>
     </rect>
    </property>
@@ -527,6 +527,15 @@
       <colorrole role="ToolTipText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
          <red>0</red>
          <green>0</green>
          <blue>0</blue>
@@ -670,6 +679,15 @@
         </color>
        </brush>
       </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
      </inactive>
      <disabled>
       <colorrole role="WindowText">
@@ -801,6 +819,15 @@
       <colorrole role="ToolTipText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
          <red>0</red>
          <green>0</green>
          <blue>0</blue>

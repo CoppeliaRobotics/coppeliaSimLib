@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>321</width>
+    <width>371</width>
     <height>168</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>35</y>
-     <width>301</width>
+     <width>351</width>
      <height>91</height>
     </rect>
    </property>
@@ -35,8 +35,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>51</width>
+      <y>25</y>
+      <width>111</width>
       <height>18</height>
      </rect>
     </property>
@@ -48,8 +48,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>51</width>
+      <y>45</y>
+      <width>111</width>
       <height>18</height>
      </rect>
     </property>
@@ -60,7 +60,7 @@
    <widget class="QLabel" name="qqEntity1">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>120</x>
       <y>20</y>
       <width>231</width>
       <height>18</height>
@@ -80,7 +80,7 @@
    <widget class="QLabel" name="qqEntity2">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>120</x>
       <y>40</y>
       <width>231</width>
       <height>18</height>
@@ -100,9 +100,9 @@
    <widget class="QLineEdit" name="qqDistance">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>60</y>
-      <width>56</width>
+      <x>200</x>
+      <y>65</y>
+      <width>76</width>
       <height>18</height>
      </rect>
     </property>
@@ -111,8 +111,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>131</width>
+      <y>65</y>
+      <width>181</width>
       <height>18</height>
      </rect>
     </property>
@@ -126,7 +126,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>151</width>
+     <width>221</width>
      <height>18</height>
     </rect>
    </property>
@@ -142,7 +142,7 @@
     <rect>
      <x>10</x>
      <y>130</y>
-     <width>301</width>
+     <width>351</width>
      <height>32</height>
     </rect>
    </property>

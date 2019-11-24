@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>430</width>
     <height>291</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>361</width>
+     <width>411</width>
      <height>271</height>
     </rect>
    </property>
@@ -52,7 +52,7 @@
      <rect>
       <x>10</x>
       <y>50</y>
-      <width>341</width>
+      <width>391</width>
       <height>101</height>
      </rect>
     </property>
@@ -62,7 +62,7 @@
      <rect>
       <x>10</x>
       <y>160</y>
-      <width>131</width>
+      <width>151</width>
       <height>18</height>
      </rect>
     </property>
@@ -76,7 +76,7 @@
    <widget class="QCheckBox" name="qqLinkPoints">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>230</x>
       <y>160</y>
       <width>131</width>
       <height>18</height>
@@ -94,7 +94,7 @@
      <rect>
       <x>10</x>
       <y>180</y>
-      <width>131</width>
+      <width>151</width>
       <height>18</height>
      </rect>
     </property>
@@ -108,9 +108,9 @@
    <widget class="QToolButton" name="qqAdjustColor">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>230</x>
       <y>180</y>
-      <width>121</width>
+      <width>151</width>
       <height>18</height>
      </rect>
     </property>
@@ -124,9 +124,9 @@
    <widget class="QToolButton" name="qqDuplicate">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>230</x>
       <y>200</y>
-      <width>121</width>
+      <width>151</width>
       <height>18</height>
      </rect>
     </property>
@@ -142,7 +142,7 @@
      <rect>
       <x>10</x>
       <y>240</y>
-      <width>91</width>
+      <width>111</width>
       <height>18</height>
      </rect>
     </property>
@@ -153,9 +153,9 @@
    <widget class="QLineEdit" name="qqWidth">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>130</x>
       <y>240</y>
-      <width>41</width>
+      <width>51</width>
       <height>18</height>
      </rect>
     </property>
@@ -163,7 +163,7 @@
    <widget class="QRadioButton" name="qqRelativeToGraph">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>230</x>
       <y>220</y>
       <width>141</width>
       <height>18</height>
@@ -182,7 +182,7 @@
    <widget class="QRadioButton" name="qqRelativeToWorld">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>230</x>
       <y>240</y>
       <width>141</width>
       <height>18</height>
@@ -203,7 +203,7 @@
      <rect>
       <x>10</x>
       <y>220</y>
-      <width>161</width>
+      <width>171</width>
       <height>18</height>
      </rect>
     </property>

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>430</width>
     <height>628</height>
    </rect>
   </property>
@@ -20,8 +20,8 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>35</y>
-     <width>361</width>
+     <y>30</y>
+     <width>411</width>
      <height>581</height>
     </rect>
    </property>
@@ -36,7 +36,7 @@
      <rect>
       <x>10</x>
       <y>140</y>
-      <width>171</width>
+      <width>201</width>
       <height>18</height>
      </rect>
     </property>
@@ -51,9 +51,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>341</width>
-      <height>111</height>
+      <y>25</y>
+      <width>391</width>
+      <height>101</height>
      </rect>
     </property>
     <property name="editTriggers">
@@ -71,7 +71,7 @@
      <rect>
       <x>10</x>
       <y>170</y>
-      <width>341</width>
+      <width>391</width>
       <height>211</height>
      </rect>
     </property>
@@ -86,7 +86,7 @@
       <rect>
        <x>10</x>
        <y>20</y>
-       <width>321</width>
+       <width>371</width>
        <height>151</height>
       </rect>
      </property>
@@ -100,8 +100,8 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>20</y>
-        <width>131</width>
+        <y>25</y>
+        <width>171</width>
         <height>18</height>
        </rect>
       </property>
@@ -119,8 +119,8 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>40</y>
-        <width>131</width>
+        <y>45</y>
+        <width>171</width>
         <height>18</height>
        </rect>
       </property>
@@ -138,8 +138,8 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>60</y>
-        <width>171</width>
+        <y>65</y>
+        <width>201</width>
         <height>18</height>
        </rect>
       </property>
@@ -157,8 +157,8 @@
       <property name="geometry">
        <rect>
         <x>30</x>
-        <y>80</y>
-        <width>131</width>
+        <y>85</y>
+        <width>171</width>
         <height>18</height>
        </rect>
       </property>
@@ -173,8 +173,8 @@
       <property name="geometry">
        <rect>
         <x>30</x>
-        <y>120</y>
-        <width>131</width>
+        <y>125</y>
+        <width>181</width>
         <height>18</height>
        </rect>
       </property>
@@ -189,8 +189,8 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>100</y>
-        <width>171</width>
+        <y>105</y>
+        <width>221</width>
         <height>18</height>
        </rect>
       </property>
@@ -210,7 +210,7 @@
       <rect>
        <x>10</x>
        <y>180</y>
-       <width>151</width>
+       <width>181</width>
        <height>18</height>
       </rect>
      </property>
@@ -224,9 +224,9 @@
     <widget class="QToolButton" name="qqSubtract">
      <property name="geometry">
       <rect>
-       <x>180</x>
+       <x>200</x>
        <y>180</y>
-       <width>151</width>
+       <width>181</width>
        <height>18</height>
       </rect>
      </property>
@@ -243,7 +243,7 @@
      <rect>
       <x>10</x>
       <y>390</y>
-      <width>341</width>
+      <width>391</width>
       <height>181</height>
      </rect>
     </property>
@@ -258,7 +258,7 @@
       <rect>
        <x>10</x>
        <y>140</y>
-       <width>321</width>
+       <width>371</width>
        <height>31</height>
       </rect>
      </property>
@@ -274,9 +274,9 @@ cuttable &amp;&amp; detectable properties</string>
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>20</y>
-       <width>321</width>
-       <height>116</height>
+       <y>25</y>
+       <width>371</width>
+       <height>111</height>
       </rect>
      </property>
      <property name="tabKeyNavigation">
@@ -296,7 +296,7 @@ cuttable &amp;&amp; detectable properties</string>
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>191</width>
+     <width>201</width>
      <height>18</height>
     </rect>
    </property>

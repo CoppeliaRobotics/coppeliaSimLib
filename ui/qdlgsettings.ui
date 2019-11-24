@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
-    <height>333</height>
+    <width>430</width>
+    <height>340</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>361</width>
+     <width>411</width>
      <height>71</height>
     </rect>
    </property>
@@ -35,8 +35,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>161</width>
+      <y>25</y>
+      <width>251</width>
       <height>18</height>
      </rect>
     </property>
@@ -47,9 +47,9 @@
    <widget class="QComboBox" name="translationStepSize">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>20</y>
-      <width>111</width>
+      <x>270</x>
+      <y>25</y>
+      <width>131</width>
       <height>18</height>
      </rect>
     </property>
@@ -58,8 +58,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>161</width>
+      <y>45</y>
+      <width>251</width>
       <height>18</height>
      </rect>
     </property>
@@ -70,9 +70,9 @@
    <widget class="QComboBox" name="rotationStepSize">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>40</y>
-      <width>111</width>
+      <x>270</x>
+      <y>45</y>
+      <width>131</width>
       <height>18</height>
      </rect>
     </property>
@@ -86,7 +86,7 @@
     <rect>
      <x>10</x>
      <y>90</y>
-     <width>361</width>
+     <width>411</width>
      <height>71</height>
     </rect>
    </property>
@@ -100,8 +100,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>251</width>
+      <y>25</y>
+      <width>311</width>
       <height>18</height>
      </rect>
     </property>
@@ -115,9 +115,9 @@
    <widget class="QLineEdit" name="removeIdenticalVerticesTolerance">
     <property name="geometry">
      <rect>
-      <x>260</x>
-      <y>20</y>
-      <width>56</width>
+      <x>325</x>
+      <y>25</y>
+      <width>76</width>
       <height>18</height>
      </rect>
     </property>
@@ -126,8 +126,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>191</width>
+      <y>45</y>
+      <width>221</width>
       <height>18</height>
      </rect>
     </property>
@@ -142,8 +142,8 @@
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>40</y>
-      <width>141</width>
+      <y>45</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -160,7 +160,7 @@
     <rect>
      <x>10</x>
      <y>170</y>
-     <width>361</width>
+     <width>411</width>
      <height>141</height>
     </rect>
    </property>
@@ -173,9 +173,9 @@
    <widget class="QCheckBox" name="worldReference">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>20</y>
-      <width>181</width>
+      <x>220</x>
+      <y>25</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -190,8 +190,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>291</width>
+      <y>45</y>
+      <width>391</width>
       <height>18</height>
      </rect>
     </property>
@@ -206,8 +206,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>171</width>
+      <y>25</y>
+      <width>201</width>
       <height>18</height>
      </rect>
     </property>
@@ -221,9 +221,9 @@
    <widget class="QCheckBox" name="hideConsole">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>60</y>
-      <width>181</width>
+      <x>220</x>
+      <y>65</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -238,8 +238,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>171</width>
+      <y>65</y>
+      <width>211</width>
       <height>18</height>
      </rect>
     </property>
@@ -255,7 +255,7 @@
      <rect>
       <x>10</x>
       <y>110</y>
-      <width>161</width>
+      <width>231</width>
       <height>18</height>
      </rect>
     </property>
@@ -270,8 +270,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
-      <width>171</width>
+      <y>85</y>
+      <width>391</width>
       <height>18</height>
      </rect>
     </property>
@@ -287,8 +287,8 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>310</y>
-     <width>361</width>
+     <y>315</y>
+     <width>411</width>
      <height>18</height>
     </rect>
    </property>

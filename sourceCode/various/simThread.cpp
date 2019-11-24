@@ -5658,10 +5658,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 stack.pushStringOntoStack("brCallIndex",0);
                 stack.pushNumberOntoStack(int(executeXrCallIndex));
                 stack.insertDataIntoStackTable();
-                App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_br,&stack,nullptr,nullptr);
-                App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_br,&stack,nullptr);
+                App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_xr,&stack,nullptr,nullptr);
+                App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_xr,&stack,nullptr);
                 if (App::ct->sandboxScript!=nullptr)
-                    App::ct->sandboxScript->runSandboxScript(sim_syscb_br,&stack,nullptr);
+                    App::ct->sandboxScript->runSandboxScript(sim_syscb_xr,&stack,nullptr);
             }
         }
 

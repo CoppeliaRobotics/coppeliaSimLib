@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
-    <height>389</height>
+    <width>430</width>
+    <height>397</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>361</width>
+     <width>411</width>
      <height>71</height>
     </rect>
    </property>
@@ -33,8 +33,8 @@
    <property name="geometry">
     <rect>
      <x>15</x>
-     <y>350</y>
-     <width>351</width>
+     <y>360</y>
+     <width>401</width>
      <height>32</height>
     </rect>
    </property>
@@ -47,7 +47,7 @@
     <rect>
      <x>10</x>
      <y>90</y>
-     <width>161</width>
+     <width>201</width>
      <height>111</height>
     </rect>
    </property>
@@ -61,8 +61,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>151</width>
+      <y>25</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -80,8 +80,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>151</width>
+      <y>45</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -99,8 +99,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>151</width>
+      <y>65</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -118,8 +118,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
-      <width>151</width>
+      <y>85</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -137,9 +137,9 @@
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
-     <x>190</x>
+     <x>220</x>
      <y>90</y>
-     <width>181</width>
+     <width>201</width>
      <height>111</height>
     </rect>
    </property>
@@ -153,8 +153,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>151</width>
+      <y>25</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -172,7 +172,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
+      <y>65</y>
       <width>151</width>
       <height>18</height>
      </rect>
@@ -191,7 +191,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
+      <y>45</y>
       <width>171</width>
       <height>18</height>
      </rect>
@@ -210,9 +210,9 @@
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
     <rect>
-     <x>200</x>
+     <x>220</x>
      <y>210</y>
-     <width>171</width>
+     <width>201</width>
      <height>91</height>
     </rect>
    </property>
@@ -226,8 +226,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>61</width>
+      <y>25</y>
+      <width>131</width>
       <height>18</height>
      </rect>
     </property>
@@ -238,8 +238,8 @@
    <widget class="QLineEdit" name="qqIdleFps">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>20</y>
+      <x>140</x>
+      <y>25</y>
       <width>56</width>
       <height>18</height>
      </rect>
@@ -251,13 +251,12 @@
     <rect>
      <x>10</x>
      <y>310</y>
-     <width>361</width>
-     <height>31</height>
+     <width>411</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="text">
-    <string>If your mouse doesn't operate as expected during object selection
-operations, make sure to load 'mouseTestScene' in your 'scenes'-folder.</string>
+    <string>If your mouse doesn't operate as expected during object selection operations, make sure to load 'mouseTestScene' in your 'scenes'-folder.</string>
    </property>
    <property name="wordWrap">
     <bool>true</bool>
@@ -268,7 +267,7 @@ operations, make sure to load 'mouseTestScene' in your 'scenes'-folder.</string>
     <rect>
      <x>10</x>
      <y>210</y>
-     <width>181</width>
+     <width>201</width>
      <height>91</height>
     </rect>
    </property>
@@ -282,8 +281,8 @@ operations, make sure to load 'mouseTestScene' in your 'scenes'-folder.</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>151</width>
+      <y>25</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -301,8 +300,8 @@ operations, make sure to load 'mouseTestScene' in your 'scenes'-folder.</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>151</width>
+      <y>65</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -320,8 +319,8 @@ operations, make sure to load 'mouseTestScene' in your 'scenes'-folder.</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>171</width>
+      <y>45</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>

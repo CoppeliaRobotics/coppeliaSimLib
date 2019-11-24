@@ -565,8 +565,6 @@
 #define IDS_STOP_SIMULATION_MENU_ITEM "Stop simulation"
 #define IDSN_SIMULATION_SETTINGS "Simulation settings"
 
-#define IDSN_INTERACTIVE_IK_DLG "Interactive IK dialog"
-
 // "ADD" menu item:
 // ****************************************************************************
 

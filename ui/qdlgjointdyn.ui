@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>430</width>
     <height>438</height>
    </rect>
   </property>
@@ -24,7 +24,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>361</width>
+     <width>411</width>
      <height>131</height>
     </rect>
    </property>
@@ -44,8 +44,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>161</width>
+      <y>45</y>
+      <width>261</width>
       <height>18</height>
      </rect>
     </property>
@@ -56,8 +56,8 @@
    <widget class="QLineEdit" name="qqTargetVelocity">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>40</y>
+      <x>320</x>
+      <y>45</y>
       <width>81</width>
       <height>18</height>
      </rect>
@@ -66,8 +66,8 @@
    <widget class="QLineEdit" name="qqMaxForce">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>60</y>
+      <x>320</x>
+      <y>65</y>
       <width>81</width>
       <height>18</height>
      </rect>
@@ -77,8 +77,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>161</width>
+      <y>65</y>
+      <width>291</width>
       <height>18</height>
      </rect>
     </property>
@@ -90,8 +90,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
-      <width>181</width>
+      <y>105</y>
+      <width>231</width>
       <height>18</height>
      </rect>
     </property>
@@ -106,8 +106,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
-      <width>221</width>
+      <y>85</y>
+      <width>381</width>
       <height>18</height>
      </rect>
     </property>
@@ -122,8 +122,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>161</width>
+      <y>25</y>
+      <width>211</width>
       <height>18</height>
      </rect>
     </property>
@@ -140,7 +140,7 @@
     <rect>
      <x>10</x>
      <y>175</y>
-     <width>361</width>
+     <width>411</width>
      <height>231</height>
     </rect>
    </property>
@@ -159,8 +159,8 @@
    <widget class="QLineEdit" name="qqVelocityUpperLimit">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>60</y>
+      <x>320</x>
+      <y>65</y>
       <width>81</width>
       <height>18</height>
      </rect>
@@ -169,8 +169,8 @@
    <widget class="QLineEdit" name="qqTargetPosition">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>40</y>
+      <x>320</x>
+      <y>45</y>
       <width>81</width>
       <height>18</height>
      </rect>
@@ -180,8 +180,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>181</width>
+      <y>45</y>
+      <width>271</width>
       <height>18</height>
      </rect>
     </property>
@@ -193,8 +193,8 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>100</y>
-      <width>161</width>
+      <y>105</y>
+      <width>271</width>
       <height>18</height>
      </rect>
     </property>
@@ -205,9 +205,9 @@
    <widget class="QLineEdit" name="qqP">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>100</y>
-      <width>56</width>
+      <x>320</x>
+      <y>105</y>
+      <width>81</width>
       <height>18</height>
      </rect>
     </property>
@@ -215,9 +215,9 @@
    <widget class="QLineEdit" name="qqI">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>120</y>
-      <width>56</width>
+      <x>320</x>
+      <y>125</y>
+      <width>81</width>
       <height>18</height>
      </rect>
     </property>
@@ -226,8 +226,8 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>120</y>
-      <width>161</width>
+      <y>125</y>
+      <width>261</width>
       <height>18</height>
      </rect>
     </property>
@@ -238,9 +238,9 @@
    <widget class="QLineEdit" name="qqD">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>140</y>
-      <width>56</width>
+      <x>320</x>
+      <y>145</y>
+      <width>81</width>
       <height>18</height>
      </rect>
     </property>
@@ -249,8 +249,8 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>140</y>
-      <width>161</width>
+      <y>145</y>
+      <width>261</width>
       <height>18</height>
      </rect>
     </property>
@@ -262,8 +262,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
-      <width>141</width>
+      <y>85</y>
+      <width>261</width>
       <height>18</height>
      </rect>
     </property>
@@ -280,9 +280,9 @@
    <widget class="QLineEdit" name="qqK">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>180</y>
-      <width>66</width>
+      <x>320</x>
+      <y>185</y>
+      <width>81</width>
       <height>18</height>
      </rect>
     </property>
@@ -291,8 +291,8 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>200</y>
-      <width>171</width>
+      <y>205</y>
+      <width>261</width>
       <height>18</height>
      </rect>
     </property>
@@ -304,8 +304,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>160</y>
-      <width>141</width>
+      <y>165</y>
+      <width>271</width>
       <height>18</height>
      </rect>
     </property>
@@ -322,9 +322,9 @@
    <widget class="QLineEdit" name="qqC">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>200</y>
-      <width>66</width>
+      <x>320</x>
+      <y>205</y>
+      <width>81</width>
       <height>18</height>
      </rect>
     </property>
@@ -333,8 +333,8 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>180</y>
-      <width>171</width>
+      <y>185</y>
+      <width>241</width>
       <height>18</height>
      </rect>
     </property>
@@ -346,8 +346,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>181</width>
+      <y>65</y>
+      <width>271</width>
       <height>18</height>
      </rect>
     </property>
@@ -359,8 +359,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>181</width>
+      <y>25</y>
+      <width>251</width>
       <height>18</height>
      </rect>
     </property>
@@ -377,7 +377,7 @@
     <rect>
      <x>260</x>
      <y>145</y>
-     <width>111</width>
+     <width>161</width>
      <height>18</height>
     </rect>
    </property>
@@ -835,7 +835,7 @@
     <rect>
      <x>260</x>
      <y>410</y>
-     <width>111</width>
+     <width>161</width>
      <height>18</height>
     </rect>
    </property>

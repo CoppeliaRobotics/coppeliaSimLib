@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>221</width>
+    <width>300</width>
     <height>196</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>111</width>
+     <width>211</width>
      <height>18</height>
     </rect>
    </property>
@@ -37,7 +37,7 @@
     <rect>
      <x>10</x>
      <y>35</y>
-     <width>201</width>
+     <width>281</width>
      <height>51</height>
     </rect>
    </property>
@@ -51,8 +51,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>61</width>
+      <y>25</y>
+      <width>101</width>
       <height>18</height>
      </rect>
     </property>
@@ -69,9 +69,9 @@
    <widget class="QRadioButton" name="qqExp">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>20</y>
-      <width>51</width>
+      <x>120</x>
+      <y>25</y>
+      <width>71</width>
       <height>18</height>
      </rect>
     </property>
@@ -88,9 +88,9 @@
    <widget class="QRadioButton" name="qqExp2">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>20</y>
-      <width>61</width>
+      <x>200</x>
+      <y>25</y>
+      <width>81</width>
       <height>18</height>
      </rect>
     </property>
@@ -110,7 +110,7 @@
     <rect>
      <x>10</x>
      <y>100</y>
-     <width>111</width>
+     <width>191</width>
      <height>18</height>
     </rect>
    </property>
@@ -121,9 +121,9 @@
   <widget class="QLineEdit" name="qqStartDistance">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>210</x>
      <y>100</y>
-     <width>56</width>
+     <width>76</width>
      <height>18</height>
     </rect>
    </property>
@@ -133,7 +133,7 @@
     <rect>
      <x>10</x>
      <y>120</y>
-     <width>111</width>
+     <width>191</width>
      <height>18</height>
     </rect>
    </property>
@@ -144,9 +144,9 @@
   <widget class="QLineEdit" name="qqEndDistance">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>210</x>
      <y>120</y>
-     <width>56</width>
+     <width>76</width>
      <height>18</height>
     </rect>
    </property>
@@ -154,9 +154,9 @@
   <widget class="QLineEdit" name="qqDensity">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>210</x>
      <y>140</y>
-     <width>56</width>
+     <width>76</width>
      <height>18</height>
     </rect>
    </property>
@@ -166,7 +166,7 @@
     <rect>
      <x>10</x>
      <y>140</y>
-     <width>111</width>
+     <width>191</width>
      <height>18</height>
     </rect>
    </property>
@@ -179,7 +179,7 @@
     <rect>
      <x>10</x>
      <y>170</y>
-     <width>151</width>
+     <width>180</width>
      <height>18</height>
     </rect>
    </property>

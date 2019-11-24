@@ -1130,13 +1130,6 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionObjectRotate,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionObjectRotate,OBJECT_ROTATE_NAVIGATION_CMD);
 
-#ifdef NEWIKFUNC
-        _toolbarActionIk=_toolbar1->addAction(QIcon(":/toolbarFiles/simulationSettings.png"),tr(IDSN_INTERACTIVE_IK_DLG));
-        _toolbarActionIk->setCheckable(true);
-        connect(_toolbarActionIk,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-        _signalMapper->setMapping(_toolbarActionIk,TOGGLE_INTERACTIVE_IK_DLG_CMD);
-#endif
-
         _toolbar1->addSeparator();
 
         _toolbarActionAssemble=_toolbar1->addAction(QIcon(":/toolbarFiles/assemble.png"),tr(IDSN_ASSEMBLE));
@@ -1184,20 +1177,20 @@ void CMainWindow::_createDefaultToolBars()
         _engineSelectCombo=new QComboBox();
 
         #ifdef WIN_SIM
-            _engineSelectCombo->setMinimumWidth(80);
-            _engineSelectCombo->setMaximumWidth(80);
+            _engineSelectCombo->setMinimumWidth(90);
+            _engineSelectCombo->setMaximumWidth(90);
             _engineSelectCombo->setMinimumHeight(24);
             _engineSelectCombo->setMaximumHeight(24);
         #endif
         #ifdef MAC_SIM
-            _engineSelectCombo->setMinimumWidth(85);
-            _engineSelectCombo->setMaximumWidth(85);
+            _engineSelectCombo->setMinimumWidth(95);
+            _engineSelectCombo->setMaximumWidth(95);
             _engineSelectCombo->setMinimumHeight(24);
             _engineSelectCombo->setMaximumHeight(24);
         #endif
         #ifdef LIN_SIM
-            _engineSelectCombo->setMinimumWidth(80);
-            _engineSelectCombo->setMaximumWidth(80);
+            _engineSelectCombo->setMinimumWidth(90);
+            _engineSelectCombo->setMaximumWidth(90);
             _engineSelectCombo->setMinimumHeight(24);
             _engineSelectCombo->setMaximumHeight(24);
         #endif
@@ -1896,10 +1889,6 @@ void CMainWindow::_actualizetoolbarButtonState()
             rot=editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode()==0;
         _toolbarActionObjectRotate->setEnabled(noUiNorMultishapeEditMode&&rot&&noSelector&&_toolbarButtonObjectRotateEnabled);
 
-        #ifdef NEWIKFUNC
-            _toolbarActionIk->setEnabled(noUiNorMultishapeEditMode&&noSelector);
-        #endif
-
         if (CLibLic::getBoolVal(11))
             _toolbarActionClickSelection->setEnabled(noSelector);
 
@@ -1943,10 +1932,6 @@ void CMainWindow::_actualizetoolbarButtonState()
 //       _toolbarActionCameraFly->setChecked((getMouseMode()&0x00ff)==sim_navigation_camerafly);
         _toolbarActionObjectShift->setChecked((getMouseMode()&0x00ff)==sim_navigation_objectshift);
         _toolbarActionObjectRotate->setChecked((getMouseMode()&0x00ff)==sim_navigation_objectrotate);
-
-        #ifdef NEWIKFUNC
-            _toolbarActionIk->setChecked(dlgCont->isVisible(INTERACTIVE_IK_DLG));
-        #endif
 
         if (CLibLic::getBoolVal(11))
             _toolbarActionClickSelection->setChecked((getMouseMode()&0x0300)==sim_navigation_clickselection);
@@ -2578,7 +2563,6 @@ void CMainWindow::closeTemporarilyDialogsForPageSelector()
         _closeDialogTemporarilyIfOpened(SETTINGS_DLG,_dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(SELECTION_DLG,_dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(SIMULATION_DLG,_dialogsClosedTemporarily_pageSelector);
-        _closeDialogTemporarilyIfOpened(INTERACTIVE_IK_DLG,_dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(ENVIRONMENT_DLG,_dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(COLLECTION_DLG,_dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(LUA_SCRIPT_DLG,_dialogsClosedTemporarily_pageSelector);
@@ -2631,7 +2615,6 @@ void CMainWindow::closeTemporarilyDialogsForViewSelector()
         _closeDialogTemporarilyIfOpened(SETTINGS_DLG,_dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(SELECTION_DLG,_dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(SIMULATION_DLG,_dialogsClosedTemporarily_viewSelector);
-        _closeDialogTemporarilyIfOpened(INTERACTIVE_IK_DLG,_dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(ENVIRONMENT_DLG,_dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(COLLECTION_DLG,_dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(LUA_SCRIPT_DLG,_dialogsClosedTemporarily_viewSelector);
@@ -2684,7 +2667,6 @@ void CMainWindow::closeTemporarilyDialogsForSceneSelector()
         _closeDialogTemporarilyIfOpened(SETTINGS_DLG,_dialogsClosedTemporarily_sceneSelector);
         _closeDialogTemporarilyIfOpened(SELECTION_DLG,_dialogsClosedTemporarily_sceneSelector);
         _closeDialogTemporarilyIfOpened(SIMULATION_DLG,_dialogsClosedTemporarily_sceneSelector);
-        _closeDialogTemporarilyIfOpened(INTERACTIVE_IK_DLG,_dialogsClosedTemporarily_sceneSelector);
         _closeDialogTemporarilyIfOpened(ENVIRONMENT_DLG,_dialogsClosedTemporarily_sceneSelector);
         _closeDialogTemporarilyIfOpened(COLLECTION_DLG,_dialogsClosedTemporarily_sceneSelector);
         _closeDialogTemporarilyIfOpened(LUA_SCRIPT_DLG,_dialogsClosedTemporarily_sceneSelector);
@@ -2755,7 +2737,6 @@ void CMainWindow::closeTemporarilyNonEditModeDialogs()
         _closeDialogTemporarilyIfOpened(SETTINGS_DLG,_dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(SELECTION_DLG,_dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(SIMULATION_DLG,_dialogsClosedTemporarily_editModes);
-        _closeDialogTemporarilyIfOpened(INTERACTIVE_IK_DLG,_dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(ENVIRONMENT_DLG,_dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(COLLECTION_DLG,_dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(LUA_SCRIPT_DLG,_dialogsClosedTemporarily_editModes);

@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>430</width>
     <height>201</height>
    </rect>
   </property>
@@ -30,7 +30,7 @@
     <rect>
      <x>10</x>
      <y>80</y>
-     <width>361</width>
+     <width>411</width>
      <height>111</height>
     </rect>
    </property>
@@ -44,8 +44,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>151</width>
+      <y>65</y>
+      <width>201</width>
       <height>18</height>
      </rect>
     </property>
@@ -60,8 +60,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
-      <width>151</width>
+      <y>85</y>
+      <width>181</width>
       <height>18</height>
      </rect>
     </property>
@@ -77,7 +77,7 @@
      <rect>
       <x>10</x>
       <y>40</y>
-      <width>181</width>
+      <width>231</width>
       <height>18</height>
      </rect>
     </property>
@@ -92,8 +92,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>111</width>
+      <y>25</y>
+      <width>231</width>
       <height>18</height>
      </rect>
     </property>
@@ -104,9 +104,9 @@
    <widget class="QLineEdit" name="qqShadingAngle">
     <property name="geometry">
      <rect>
-      <x>125</x>
-      <y>20</y>
-      <width>41</width>
+      <x>240</x>
+      <y>25</y>
+      <width>76</width>
       <height>18</height>
      </rect>
     </property>
@@ -114,9 +114,9 @@
    <widget class="QLineEdit" name="qqEdgesAngle">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>40</y>
-      <width>41</width>
+      <x>240</x>
+      <y>45</y>
+      <width>76</width>
       <height>18</height>
      </rect>
     </property>
@@ -124,9 +124,9 @@
    <widget class="QCheckBox" name="qqHiddenBorder">
     <property name="geometry">
      <rect>
-      <x>260</x>
-      <y>40</y>
-      <width>101</width>
+      <x>240</x>
+      <y>65</y>
+      <width>161</width>
       <height>18</height>
      </rect>
     </property>
@@ -143,7 +143,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>361</width>
+     <width>411</width>
      <height>51</height>
     </rect>
    </property>
@@ -157,8 +157,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>151</width>
+      <y>25</y>
+      <width>180</width>
       <height>18</height>
      </rect>
     </property>
@@ -172,9 +172,9 @@
    <widget class="QToolButton" name="qqTexture">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>20</y>
-      <width>151</width>
+      <x>220</x>
+      <y>25</y>
+      <width>180</width>
       <height>18</height>
      </rect>
     </property>

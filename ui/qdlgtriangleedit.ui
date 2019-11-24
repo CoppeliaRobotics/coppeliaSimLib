@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>430</width>
     <height>273</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>90</y>
-     <width>361</width>
+     <width>411</width>
      <height>111</height>
     </rect>
    </property>
@@ -35,8 +35,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
-      <width>161</width>
+      <y>85</y>
+      <width>190</width>
       <height>18</height>
      </rect>
     </property>
@@ -51,8 +51,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>161</width>
+      <y>25</y>
+      <width>190</width>
       <height>18</height>
      </rect>
     </property>
@@ -67,8 +67,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>161</width>
+      <y>45</y>
+      <width>190</width>
       <height>18</height>
      </rect>
     </property>
@@ -83,8 +83,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>161</width>
+      <y>65</y>
+      <width>190</width>
       <height>18</height>
      </rect>
     </property>
@@ -98,9 +98,9 @@
    <widget class="QToolButton" name="qqFlip">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>20</y>
-      <width>161</width>
+      <x>210</x>
+      <y>25</y>
+      <width>190</width>
       <height>18</height>
      </rect>
     </property>
@@ -117,7 +117,7 @@
     <rect>
      <x>10</x>
      <y>210</y>
-     <width>361</width>
+     <width>411</width>
      <height>51</height>
     </rect>
    </property>
@@ -131,8 +131,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>161</width>
+      <y>25</y>
+      <width>190</width>
       <height>18</height>
      </rect>
     </property>
@@ -149,7 +149,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>361</width>
+     <width>411</width>
      <height>71</height>
     </rect>
    </property>
@@ -163,8 +163,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>161</width>
+      <y>25</y>
+      <width>190</width>
       <height>18</height>
      </rect>
     </property>
@@ -178,9 +178,9 @@
    <widget class="QToolButton" name="qqInvertSelection">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>20</y>
-      <width>161</width>
+      <x>210</x>
+      <y>25</y>
+      <width>190</width>
       <height>18</height>
      </rect>
     </property>
@@ -195,8 +195,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>341</width>
+      <y>45</y>
+      <width>391</width>
       <height>18</height>
      </rect>
     </property>

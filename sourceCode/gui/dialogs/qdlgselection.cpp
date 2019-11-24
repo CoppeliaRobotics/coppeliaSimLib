@@ -53,6 +53,7 @@ void CQDlgSelection::refresh()
     tmp=std::string(IDS_MILLS)+": "+boost::lexical_cast<std::string>(App::ct->objCont->getMillNumberInSelection())+"/"+
         boost::lexical_cast<std::string>(App::ct->objCont->getMillNumberInSelection(&App::ct->objCont->objectList));
     ui->millsButton->setText(tmp.c_str());
+    ui->millsButton->setVisible(false);
     tmp=std::string(IDS_PATHS)+": "+boost::lexical_cast<std::string>(App::ct->objCont->getPathNumberInSelection())+"/"+
         boost::lexical_cast<std::string>(App::ct->objCont->getPathNumberInSelection(&App::ct->objCont->objectList));
     ui->pathsButton->setText(tmp.c_str());
@@ -65,6 +66,7 @@ void CQDlgSelection::refresh()
     tmp=std::string(IDS_MIRRORS)+": "+boost::lexical_cast<std::string>(App::ct->objCont->getMirrorNumberInSelection())+"/"+
         boost::lexical_cast<std::string>(App::ct->objCont->getMirrorNumberInSelection(&App::ct->objCont->objectList));
     ui->mirrorsButton->setText(tmp.c_str());
+    ui->mirrorsButton->setVisible(false);
 
     tmp.clear();
 

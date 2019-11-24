@@ -228,7 +228,6 @@ WITH_GUI {
     $$PWD/ui/qdlgselection.ui \
     $$PWD/ui/qdlgabout.ui \
     $$PWD/ui/qdlgsimulation.ui \
-    $$PWD/ui/qdlginteractiveik.ui \
     $$PWD/ui/qdlgcommonproperties.ui \
     $$PWD/ui/qdlgdetectableproperties.ui \
     $$PWD/ui/qdlgmodelproperties.ui \
@@ -265,7 +264,6 @@ WITH_GUI {
     $$PWD/ui/qdlgconstraintsolver.ui \
     $$PWD/ui/qdlgvisionsensors.ui \
     $$PWD/ui/qdlgimagecolor.ui \
-    $$PWD/ui/qdlgsimpleSearch.ui \
     $$PWD/ui/qdlgshapes.ui \
     $$PWD/ui/qdlgmultishapeedition.ui \
     $$PWD/ui/qdlgtextures.ui \
@@ -629,7 +627,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgselection.h \
         $$PWD/sourceCode/gui/dialogs/qdlgabout.h \
         $$PWD/sourceCode/gui/dialogs/qdlgsimulation.h \
-        $$PWD/sourceCode/gui/dialogs/qdlginteractiveik.h \
         $$PWD/sourceCode/gui/dialogs/qdlgcommonproperties.h \
         $$PWD/sourceCode/gui/dialogs/qdlgdetectableproperties.h \
         $$PWD/sourceCode/gui/dialogs/qdlgmodelproperties.h \
@@ -666,7 +663,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgconstraintsolver.h \
         $$PWD/sourceCode/gui/dialogs/qdlgvisionsensors.h \
         $$PWD/sourceCode/gui/dialogs/qdlgimagecolor.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimpleSearch.h \
         $$PWD/sourceCode/gui/dialogs/qdlgshapes.h \
         $$PWD/sourceCode/gui/dialogs/qdlgmultishapeedition.h \
         $$PWD/sourceCode/gui/dialogs/qdlgtextures.h \
@@ -1086,7 +1082,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgselection.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgabout.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgsimulation.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlginteractiveik.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgcommonproperties.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgdetectableproperties.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgmodelproperties.cpp \
@@ -1123,7 +1118,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgconstraintsolver.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgvisionsensors.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgimagecolor.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgsimpleSearch.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgshapes.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgmultishapeedition.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgtextures.cpp \

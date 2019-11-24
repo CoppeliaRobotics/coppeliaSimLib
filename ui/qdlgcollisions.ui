@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
-    <height>372</height>
+    <width>430</width>
+    <height>371</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>361</width>
+     <width>411</width>
      <height>351</height>
     </rect>
    </property>
@@ -39,7 +39,7 @@
      <rect>
       <x>10</x>
       <y>60</y>
-      <width>341</width>
+      <width>391</width>
       <height>181</height>
      </rect>
     </property>
@@ -55,8 +55,8 @@
      <rect>
       <x>10</x>
       <y>250</y>
-      <width>341</width>
-      <height>91</height>
+      <width>391</width>
+      <height>95</height>
      </rect>
     </property>
     <property name="title">
@@ -68,9 +68,9 @@
     <widget class="QCheckBox" name="qqColliderColorChanges">
      <property name="geometry">
       <rect>
-       <x>210</x>
-       <y>20</y>
-       <width>131</width>
+       <x>230</x>
+       <y>25</y>
+       <width>161</width>
        <height>18</height>
       </rect>
      </property>
@@ -85,8 +85,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>40</y>
-       <width>191</width>
+       <y>45</y>
+       <width>221</width>
        <height>18</height>
       </rect>
      </property>
@@ -94,15 +94,15 @@
       <enum>Qt::StrongFocus</enum>
      </property>
      <property name="text">
-      <string>Comp. coll. contour (shapes only)</string>
+      <string>Calc. coll. cont. (shapes only)</string>
      </property>
     </widget>
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>170</x>
-       <y>60</y>
-       <width>101</width>
+       <x>200</x>
+       <y>65</y>
+       <width>131</width>
        <height>18</height>
       </rect>
      </property>
@@ -114,8 +114,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>60</y>
-       <width>141</width>
+       <y>65</y>
+       <width>171</width>
        <height>18</height>
       </rect>
      </property>
@@ -130,8 +130,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>20</y>
-       <width>161</width>
+       <y>25</y>
+       <width>191</width>
        <height>18</height>
       </rect>
      </property>
@@ -145,8 +145,8 @@
     <widget class="QLineEdit" name="qqContourWidth">
      <property name="geometry">
       <rect>
-       <x>280</x>
-       <y>60</y>
+       <x>330</x>
+       <y>65</y>
        <width>56</width>
        <height>18</height>
       </rect>
@@ -155,9 +155,9 @@
     <widget class="QCheckBox" name="qqCollideeColorChanges">
      <property name="geometry">
       <rect>
-       <x>210</x>
-       <y>40</y>
-       <width>131</width>
+       <x>230</x>
+       <y>45</y>
+       <width>161</width>
        <height>18</height>
       </rect>
      </property>
@@ -174,7 +174,7 @@
      <rect>
       <x>10</x>
       <y>30</y>
-      <width>151</width>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -190,7 +190,7 @@
      <rect>
       <x>210</x>
       <y>30</y>
-      <width>141</width>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>

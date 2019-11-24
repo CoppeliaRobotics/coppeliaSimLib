@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>216</width>
+    <width>268</width>
     <height>109</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>101</width>
+     <width>131</width>
      <height>18</height>
     </rect>
    </property>
@@ -35,9 +35,9 @@
   <widget class="QCheckBox" name="qqInductive">
    <property name="geometry">
     <rect>
-     <x>120</x>
+     <x>140</x>
      <y>10</y>
-     <width>101</width>
+     <width>121</width>
      <height>18</height>
     </rect>
    </property>
@@ -51,9 +51,9 @@
   <widget class="QCheckBox" name="qqCapacitive">
    <property name="geometry">
     <rect>
-     <x>120</x>
+     <x>140</x>
      <y>30</y>
-     <width>101</width>
+     <width>121</width>
      <height>18</height>
     </rect>
    </property>
@@ -69,7 +69,7 @@
     <rect>
      <x>10</x>
      <y>30</y>
-     <width>101</width>
+     <width>131</width>
      <height>18</height>
     </rect>
    </property>
@@ -85,7 +85,7 @@
     <rect>
      <x>10</x>
      <y>50</y>
-     <width>101</width>
+     <width>131</width>
      <height>18</height>
     </rect>
    </property>
@@ -101,7 +101,7 @@
     <rect>
      <x>15</x>
      <y>75</y>
-     <width>191</width>
+     <width>241</width>
      <height>32</height>
     </rect>
    </property>

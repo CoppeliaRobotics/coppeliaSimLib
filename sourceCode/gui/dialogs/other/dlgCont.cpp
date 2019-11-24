@@ -68,7 +68,6 @@ void CDlgCont::initialize(QWidget* pWindow)
     dialogs.push_back(new CToolDlgWrapper(PATH_PLANNING_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(CONSTRAINT_SOLVER_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(SIMULATION_DLG,0));
-    dialogs.push_back(new CToolDlgWrapper(INTERACTIVE_IK_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(FOG_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(MATERIAL_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(LIGHTMATERIAL_DLG,0));
@@ -672,11 +671,6 @@ bool CDlgCont::processCommand(int commandID)
         if (commandID==TOGGLE_SIMULATION_DLG_CMD)
         {
             toggle(SIMULATION_DLG);
-            return(true);
-        }
-        if (commandID==TOGGLE_INTERACTIVE_IK_DLG_CMD)
-        {
-            toggle(INTERACTIVE_IK_DLG);
             return(true);
         }
         if (commandID==TOGGLE_AVI_RECORDER_DLG_CMD)

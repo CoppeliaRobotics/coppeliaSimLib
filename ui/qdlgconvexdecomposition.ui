@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>316</width>
+    <width>430</width>
     <height>539</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>500</y>
-     <width>291</width>
+     <width>411</width>
      <height>32</height>
     </rect>
    </property>
@@ -34,7 +34,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>271</width>
+     <width>401</width>
      <height>18</height>
     </rect>
    </property>
@@ -61,9 +61,9 @@
   <widget class="QLineEdit" name="qqMaxIterations">
    <property name="geometry">
     <rect>
-     <x>240</x>
+     <x>330</x>
      <y>30</y>
-     <width>56</width>
+     <width>75</width>
      <height>18</height>
     </rect>
    </property>
@@ -73,7 +73,7 @@
     <rect>
      <x>10</x>
      <y>60</y>
-     <width>291</width>
+     <width>411</width>
      <height>171</height>
     </rect>
    </property>
@@ -89,9 +89,9 @@
    <widget class="QLineEdit" name="qqTargetBlabla">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>100</y>
-      <width>56</width>
+      <x>320</x>
+      <y>105</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>
@@ -99,9 +99,9 @@
    <widget class="QLineEdit" name="qqMaxHullVertices">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>120</y>
-      <width>56</width>
+      <x>320</x>
+      <y>125</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>
@@ -110,8 +110,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>140</y>
-      <width>221</width>
+      <y>145</y>
+      <width>291</width>
       <height>18</height>
      </rect>
     </property>
@@ -123,8 +123,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>141</width>
+      <y>25</y>
+      <width>201</width>
       <height>18</height>
      </rect>
     </property>
@@ -139,7 +139,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
+      <y>65</y>
       <width>211</width>
       <height>18</height>
      </rect>
@@ -152,8 +152,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
-      <width>221</width>
+      <y>105</y>
+      <width>301</width>
       <height>18</height>
      </rect>
     </property>
@@ -164,9 +164,9 @@
    <widget class="QLineEdit" name="qqConnectDist">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>80</y>
-      <width>56</width>
+      <x>320</x>
+      <y>85</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>
@@ -174,9 +174,9 @@
    <widget class="QLineEdit" name="qqClusters">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>40</y>
-      <width>56</width>
+      <x>320</x>
+      <y>45</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>
@@ -184,9 +184,9 @@
    <widget class="QCheckBox" name="qqExtraFacesPoints">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>20</y>
-      <width>131</width>
+      <x>210</x>
+      <y>25</y>
+      <width>201</width>
       <height>18</height>
      </rect>
     </property>
@@ -200,9 +200,9 @@
    <widget class="QLineEdit" name="qqSmallClusterThreshold">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>140</y>
-      <width>56</width>
+      <x>320</x>
+      <y>145</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>
@@ -210,9 +210,9 @@
    <widget class="QLineEdit" name="qqConcavity">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>60</y>
-      <width>56</width>
+      <x>320</x>
+      <y>65</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>
@@ -221,8 +221,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
-      <width>221</width>
+      <y>85</y>
+      <width>301</width>
       <height>18</height>
      </rect>
     </property>
@@ -234,8 +234,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>120</y>
-      <width>221</width>
+      <y>125</y>
+      <width>301</width>
       <height>18</height>
      </rect>
     </property>
@@ -247,7 +247,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
+      <y>45</y>
       <width>221</width>
       <height>18</height>
      </rect>
@@ -262,7 +262,7 @@
     <rect>
      <x>10</x>
      <y>240</y>
-     <width>291</width>
+     <width>411</width>
      <height>251</height>
     </rect>
    </property>
@@ -278,9 +278,9 @@
    <widget class="QLineEdit" name="qqPlaneDownsampling">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>100</y>
-      <width>56</width>
+      <x>320</x>
+      <y>105</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>
@@ -288,9 +288,9 @@
    <widget class="QLineEdit" name="qqConvexHullDownsampling">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>120</y>
-      <width>56</width>
+      <x>320</x>
+      <y>125</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>
@@ -299,7 +299,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>140</y>
+      <y>145</y>
       <width>221</width>
       <height>18</height>
      </rect>
@@ -312,7 +312,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
+      <y>25</y>
       <width>141</width>
       <height>18</height>
      </rect>
@@ -328,7 +328,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
+      <y>65</y>
       <width>211</width>
       <height>18</height>
      </rect>
@@ -341,7 +341,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
+      <y>105</y>
       <width>221</width>
       <height>18</height>
      </rect>
@@ -353,9 +353,9 @@
    <widget class="QLineEdit" name="qqConcavity_2">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>80</y>
-      <width>56</width>
+      <x>320</x>
+      <y>85</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>
@@ -363,9 +363,9 @@
    <widget class="QLineEdit" name="qqResolution">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>40</y>
-      <width>56</width>
+      <x>320</x>
+      <y>45</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>
@@ -373,9 +373,9 @@
    <widget class="QCheckBox" name="qqVoxelBased">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>20</y>
-      <width>131</width>
+      <x>220</x>
+      <y>25</y>
+      <width>161</width>
       <height>18</height>
      </rect>
     </property>
@@ -389,9 +389,9 @@
    <widget class="QLineEdit" name="qqAlpha">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>140</y>
-      <width>56</width>
+      <x>320</x>
+      <y>145</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>
@@ -399,9 +399,9 @@
    <widget class="QLineEdit" name="qqDepth">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>60</y>
-      <width>56</width>
+      <x>320</x>
+      <y>65</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>
@@ -410,7 +410,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
+      <y>85</y>
       <width>221</width>
       <height>18</height>
      </rect>
@@ -423,8 +423,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>120</y>
-      <width>221</width>
+      <y>125</y>
+      <width>281</width>
       <height>18</height>
      </rect>
     </property>
@@ -436,7 +436,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
+      <y>45</y>
       <width>221</width>
       <height>18</height>
      </rect>
@@ -448,9 +448,9 @@
    <widget class="QLineEdit" name="qqGamma">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>180</y>
-      <width>56</width>
+      <x>320</x>
+      <y>185</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>
@@ -459,7 +459,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>180</y>
+      <y>185</y>
       <width>221</width>
       <height>18</height>
      </rect>
@@ -471,9 +471,9 @@
    <widget class="QLineEdit" name="qqBeta">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>160</y>
-      <width>56</width>
+      <x>320</x>
+      <y>165</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>
@@ -482,7 +482,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>160</y>
+      <y>165</y>
       <width>221</width>
       <height>18</height>
      </rect>
@@ -495,8 +495,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>200</y>
-      <width>221</width>
+      <y>205</y>
+      <width>301</width>
       <height>18</height>
      </rect>
     </property>
@@ -507,9 +507,9 @@
    <widget class="QLineEdit" name="qqMaxVerticesPerCh">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>200</y>
-      <width>56</width>
+      <x>320</x>
+      <y>205</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>
@@ -518,8 +518,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>220</y>
-      <width>221</width>
+      <y>225</y>
+      <width>301</width>
       <height>18</height>
      </rect>
     </property>
@@ -530,9 +530,9 @@
    <widget class="QLineEdit" name="qqMinVolumePerCh">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>220</y>
-      <width>56</width>
+      <x>320</x>
+      <y>225</y>
+      <width>75</width>
       <height>18</height>
      </rect>
     </property>

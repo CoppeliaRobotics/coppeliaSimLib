@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>430</width>
     <height>550</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>361</width>
+     <width>411</width>
      <height>131</height>
     </rect>
    </property>
@@ -35,8 +35,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>131</width>
+      <y>25</y>
+      <width>171</width>
       <height>18</height>
      </rect>
     </property>
@@ -51,8 +51,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>171</width>
+      <y>45</y>
+      <width>231</width>
       <height>18</height>
      </rect>
     </property>
@@ -67,8 +67,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>191</width>
+      <y>65</y>
+      <width>231</width>
       <height>18</height>
      </rect>
     </property>
@@ -82,9 +82,9 @@
    <widget class="QCheckBox" name="qqIgnoreForViewFitting">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>60</y>
-      <width>161</width>
+      <x>240</x>
+      <y>65</y>
+      <width>171</width>
       <height>18</height>
      </rect>
     </property>
@@ -98,9 +98,9 @@
    <widget class="QCheckBox" name="qqSelectInvisible">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>20</y>
-      <width>161</width>
+      <x>240</x>
+      <y>25</y>
+      <width>171</width>
       <height>18</height>
      </rect>
     </property>
@@ -114,9 +114,9 @@
    <widget class="QCheckBox" name="qqDepthInvisible">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>40</y>
-      <width>161</width>
+      <x>240</x>
+      <y>45</y>
+      <width>171</width>
       <height>18</height>
      </rect>
     </property>
@@ -131,8 +131,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
-      <width>91</width>
+      <y>105</y>
+      <width>131</width>
       <height>18</height>
      </rect>
     </property>
@@ -143,8 +143,8 @@
    <widget class="QLineEdit" name="qqExtensionString">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>100</y>
+      <x>150</x>
+      <y>105</y>
       <width>251</width>
       <height>18</height>
      </rect>
@@ -153,9 +153,9 @@
    <widget class="QCheckBox" name="qqCannotBeDeleted">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>80</y>
-      <width>141</width>
+      <x>240</x>
+      <y>85</y>
+      <width>171</width>
       <height>18</height>
      </rect>
     </property>
@@ -170,8 +170,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
-      <width>181</width>
+      <y>85</y>
+      <width>231</width>
       <height>18</height>
      </rect>
     </property>
@@ -188,7 +188,7 @@
     <rect>
      <x>10</x>
      <y>170</y>
-     <width>361</width>
+     <width>411</width>
      <height>91</height>
     </rect>
    </property>
@@ -201,8 +201,8 @@
    <widget class="QCheckBox" name="a_4">
     <property name="geometry">
      <rect>
-      <x>186</x>
-      <y>20</y>
+      <x>240</x>
+      <y>25</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -217,8 +217,8 @@
    <widget class="QCheckBox" name="a_14">
     <property name="geometry">
      <rect>
-      <x>224</x>
-      <y>40</y>
+      <x>278</x>
+      <y>45</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -233,8 +233,8 @@
    <widget class="QCheckBox" name="a_9">
     <property name="geometry">
      <rect>
-      <x>138</x>
-      <y>40</y>
+      <x>192</x>
+      <y>45</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -249,8 +249,8 @@
    <widget class="QCheckBox" name="a_6">
     <property name="geometry">
      <rect>
-      <x>224</x>
-      <y>20</y>
+      <x>278</x>
+      <y>25</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -265,8 +265,8 @@
    <widget class="QCheckBox" name="a_8">
     <property name="geometry">
      <rect>
-      <x>256</x>
-      <y>20</y>
+      <x>310</x>
+      <y>25</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -281,8 +281,8 @@
    <widget class="QCheckBox" name="a_13">
     <property name="geometry">
      <rect>
-      <x>208</x>
-      <y>40</y>
+      <x>262</x>
+      <y>45</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -297,8 +297,8 @@
    <widget class="QCheckBox" name="a_2">
     <property name="geometry">
      <rect>
-      <x>154</x>
-      <y>20</y>
+      <x>208</x>
+      <y>25</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -313,8 +313,8 @@
    <widget class="QCheckBox" name="a_3">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>20</y>
+      <x>224</x>
+      <y>25</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -329,8 +329,8 @@
    <widget class="QCheckBox" name="a_7">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>20</y>
+      <x>294</x>
+      <y>25</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -345,8 +345,8 @@
    <widget class="QCheckBox" name="a_12">
     <property name="geometry">
      <rect>
-      <x>186</x>
-      <y>40</y>
+      <x>240</x>
+      <y>45</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -361,8 +361,8 @@
    <widget class="QCheckBox" name="a_16">
     <property name="geometry">
      <rect>
-      <x>256</x>
-      <y>40</y>
+      <x>310</x>
+      <y>45</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -377,8 +377,8 @@
    <widget class="QCheckBox" name="a_10">
     <property name="geometry">
      <rect>
-      <x>154</x>
-      <y>40</y>
+      <x>208</x>
+      <y>45</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -393,8 +393,8 @@
    <widget class="QCheckBox" name="a_11">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>40</y>
+      <x>224</x>
+      <y>45</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -409,8 +409,8 @@
    <widget class="QCheckBox" name="a_1">
     <property name="geometry">
      <rect>
-      <x>138</x>
-      <y>20</y>
+      <x>192</x>
+      <y>25</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -425,8 +425,8 @@
    <widget class="QCheckBox" name="a_5">
     <property name="geometry">
      <rect>
-      <x>208</x>
-      <y>20</y>
+      <x>262</x>
+      <y>25</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -441,8 +441,8 @@
    <widget class="QCheckBox" name="a_15">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>40</y>
+      <x>294</x>
+      <y>45</y>
       <width>16</width>
       <height>18</height>
      </rect>
@@ -457,8 +457,8 @@
    <widget class="QComboBox" name="qqViewableObjects">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>60</y>
+      <x>190</x>
+      <y>65</y>
       <width>211</width>
       <height>18</height>
      </rect>
@@ -471,8 +471,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>131</width>
+      <y>25</y>
+      <width>171</width>
       <height>18</height>
      </rect>
     </property>
@@ -484,8 +484,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>121</width>
+      <y>65</y>
+      <width>161</width>
       <height>18</height>
      </rect>
     </property>
@@ -499,7 +499,7 @@
     <rect>
      <x>10</x>
      <y>390</y>
-     <width>361</width>
+     <width>411</width>
      <height>51</height>
     </rect>
    </property>
@@ -513,7 +513,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
+      <y>25</y>
       <width>191</width>
       <height>18</height>
      </rect>
@@ -528,9 +528,9 @@
    <widget class="QToolButton" name="qqEditModelProperties">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>20</y>
-      <width>151</width>
+      <x>210</x>
+      <y>25</y>
+      <width>190</width>
       <height>18</height>
      </rect>
     </property>
@@ -547,7 +547,7 @@
     <rect>
      <x>10</x>
      <y>290</y>
-     <width>361</width>
+     <width>411</width>
      <height>71</height>
     </rect>
    </property>
@@ -561,8 +561,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>101</width>
+      <y>25</y>
+      <width>121</width>
       <height>18</height>
      </rect>
     </property>
@@ -576,9 +576,9 @@
    <widget class="QCheckBox" name="qqMeasurable">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>20</y>
-      <width>91</width>
+      <x>130</x>
+      <y>25</y>
+      <width>111</width>
       <height>18</height>
      </rect>
     </property>
@@ -593,8 +593,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>101</width>
+      <y>45</y>
+      <width>121</width>
       <height>18</height>
      </rect>
     </property>
@@ -608,8 +608,8 @@
    <widget class="QCheckBox" name="qqCuttable">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>40</y>
+      <x>130</x>
+      <y>45</y>
       <width>201</width>
       <height>18</height>
      </rect>
@@ -624,9 +624,9 @@
    <widget class="QCheckBox" name="qqDetectable">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>20</y>
-      <width>81</width>
+      <x>240</x>
+      <y>25</y>
+      <width>101</width>
       <height>18</height>
      </rect>
     </property>
@@ -643,9 +643,9 @@
    <widget class="QToolButton" name="qqEditDetectableDetails">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>20</y>
-      <width>41</width>
+      <x>340</x>
+      <y>25</y>
+      <width>61</width>
       <height>18</height>
      </rect>
     </property>
@@ -662,7 +662,7 @@
     <rect>
      <x>10</x>
      <y>450</y>
-     <width>361</width>
+     <width>411</width>
      <height>91</height>
     </rect>
    </property>
@@ -676,8 +676,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>151</width>
+      <y>65</y>
+      <width>190</width>
       <height>18</height>
      </rect>
     </property>
@@ -691,9 +691,9 @@
    <widget class="QToolButton" name="qqAssembling">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>60</y>
-      <width>151</width>
+      <x>210</x>
+      <y>65</y>
+      <width>190</width>
       <height>18</height>
      </rect>
     </property>
@@ -708,8 +708,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>281</width>
+      <y>25</y>
+      <width>331</width>
       <height>18</height>
      </rect>
     </property>
@@ -723,8 +723,8 @@
    <widget class="QLineEdit" name="qqSelfCollisionIndicator">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>40</y>
+      <x>220</x>
+      <y>45</y>
       <width>56</width>
       <height>18</height>
      </rect>
@@ -734,8 +734,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>161</width>
+      <y>45</y>
+      <width>201</width>
       <height>18</height>
      </rect>
     </property>
@@ -747,9 +747,9 @@
   <widget class="QToolButton" name="qqApplyGeneralProperties">
    <property name="geometry">
     <rect>
-     <x>260</x>
+     <x>290</x>
      <y>145</y>
-     <width>111</width>
+     <width>130</width>
      <height>18</height>
     </rect>
    </property>
@@ -885,6 +885,15 @@
       <colorrole role="ToolTipText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
          <red>0</red>
          <green>0</green>
          <blue>0</blue>
@@ -1028,6 +1037,15 @@
         </color>
        </brush>
       </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
      </inactive>
      <disabled>
       <colorrole role="WindowText">
@@ -1159,6 +1177,15 @@
       <colorrole role="ToolTipText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
          <red>0</red>
          <green>0</green>
          <blue>0</blue>
@@ -1178,9 +1205,9 @@
   <widget class="QToolButton" name="qqApplyLayers">
    <property name="geometry">
     <rect>
-     <x>260</x>
+     <x>290</x>
      <y>265</y>
-     <width>111</width>
+     <width>130</width>
      <height>18</height>
     </rect>
    </property>
@@ -1316,6 +1343,15 @@
       <colorrole role="ToolTipText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
          <red>0</red>
          <green>0</green>
          <blue>0</blue>
@@ -1459,6 +1495,15 @@
         </color>
        </brush>
       </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
      </inactive>
      <disabled>
       <colorrole role="WindowText">
@@ -1590,6 +1635,15 @@
       <colorrole role="ToolTipText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
          <red>0</red>
          <green>0</green>
          <blue>0</blue>
@@ -1609,9 +1663,9 @@
   <widget class="QToolButton" name="qqApplySpecialProperties">
    <property name="geometry">
     <rect>
-     <x>260</x>
+     <x>290</x>
      <y>365</y>
-     <width>111</width>
+     <width>130</width>
      <height>18</height>
     </rect>
    </property>
@@ -1747,6 +1801,15 @@
       <colorrole role="ToolTipText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
          <red>0</red>
          <green>0</green>
          <blue>0</blue>
@@ -1890,6 +1953,15 @@
         </color>
        </brush>
       </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
      </inactive>
      <disabled>
       <colorrole role="WindowText">
@@ -2021,6 +2093,15 @@
       <colorrole role="ToolTipText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
          <red>0</red>
          <green>0</green>
          <blue>0</blue>

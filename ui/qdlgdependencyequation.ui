@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>339</width>
+    <width>422</width>
     <height>115</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>91</width>
+     <width>131</width>
      <height>18</height>
     </rect>
    </property>
@@ -32,9 +32,9 @@
   <widget class="QLineEdit" name="qqOffset">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>150</x>
      <y>10</y>
-     <width>81</width>
+     <width>100</width>
      <height>18</height>
     </rect>
    </property>
@@ -42,9 +42,9 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>190</x>
+     <x>270</x>
      <y>10</y>
-     <width>21</width>
+     <width>31</width>
      <height>18</height>
     </rect>
    </property>
@@ -58,9 +58,9 @@
   <widget class="QLineEdit" name="qqCoeff">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>150</x>
      <y>30</y>
-     <width>81</width>
+     <width>100</width>
      <height>18</height>
     </rect>
    </property>
@@ -68,9 +68,9 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>190</x>
+     <x>270</x>
      <y>30</y>
-     <width>21</width>
+     <width>31</width>
      <height>18</height>
     </rect>
    </property>
@@ -84,9 +84,9 @@
   <widget class="QComboBox" name="qqCombo">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>150</x>
      <y>50</y>
-     <width>231</width>
+     <width>261</width>
      <height>18</height>
     </rect>
    </property>
@@ -96,7 +96,7 @@
     <rect>
      <x>15</x>
      <y>80</y>
-     <width>311</width>
+     <width>391</width>
      <height>32</height>
     </rect>
    </property>

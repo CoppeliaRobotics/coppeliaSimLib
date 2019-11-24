@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>430</width>
     <height>404</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>270</x>
      <y>10</y>
-     <width>101</width>
+     <width>151</width>
      <height>18</height>
     </rect>
    </property>
@@ -37,7 +37,7 @@
     <rect>
      <x>10</x>
      <y>240</y>
-     <width>361</width>
+     <width>411</width>
      <height>151</height>
     </rect>
    </property>
@@ -51,8 +51,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>131</width>
+      <y>25</y>
+      <width>151</width>
       <height>18</height>
      </rect>
     </property>
@@ -66,9 +66,9 @@
    <widget class="QCheckBox" name="qqExecuteOnce">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>20</y>
-      <width>131</width>
+      <x>230</x>
+      <y>25</y>
+      <width>171</width>
       <height>18</height>
      </rect>
     </property>
@@ -83,8 +83,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>131</width>
+      <y>65</y>
+      <width>161</width>
       <height>18</height>
      </rect>
     </property>
@@ -95,9 +95,9 @@
    <widget class="QComboBox" name="qqAssociatedObjectCombo">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>60</y>
-      <width>211</width>
+      <x>170</x>
+      <y>65</y>
+      <width>231</width>
       <height>18</height>
      </rect>
     </property>
@@ -109,8 +109,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
-      <width>131</width>
+      <y>85</y>
+      <width>161</width>
       <height>18</height>
      </rect>
     </property>
@@ -121,9 +121,9 @@
    <widget class="QComboBox" name="qqExecutionOrder">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>80</y>
-      <width>211</width>
+      <x>170</x>
+      <y>85</y>
+      <width>231</width>
       <height>18</height>
      </rect>
     </property>
@@ -132,8 +132,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>131</width>
+      <y>45</y>
+      <width>211</width>
       <height>18</height>
      </rect>
     </property>
@@ -147,9 +147,9 @@
    <widget class="QComboBox" name="qqTreeTraversalDirection">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>100</y>
-      <width>211</width>
+      <x>170</x>
+      <y>105</y>
+      <width>231</width>
       <height>18</height>
      </rect>
     </property>
@@ -158,8 +158,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
-      <width>131</width>
+      <y>105</y>
+      <width>161</width>
       <height>18</height>
      </rect>
     </property>
@@ -170,9 +170,9 @@
    <widget class="QComboBox" name="qqDebugMode">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>120</y>
-      <width>211</width>
+      <x>170</x>
+      <y>125</y>
+      <width>231</width>
       <height>18</height>
      </rect>
     </property>
@@ -181,8 +181,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>120</y>
-      <width>131</width>
+      <y>125</y>
+      <width>161</width>
       <height>18</height>
      </rect>
     </property>
@@ -196,7 +196,7 @@
     <rect>
      <x>10</x>
      <y>40</y>
-     <width>361</width>
+     <width>411</width>
      <height>192</height>
     </rect>
    </property>
@@ -213,9 +213,9 @@
   <widget class="QComboBox" name="qqCombo">
    <property name="geometry">
     <rect>
-     <x>60</x>
+     <x>80</x>
      <y>10</y>
-     <width>161</width>
+     <width>181</width>
      <height>18</height>
     </rect>
    </property>
@@ -225,7 +225,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>41</width>
+     <width>71</width>
      <height>18</height>
     </rect>
    </property>

@@ -2280,9 +2280,9 @@ std::string CLuaScriptObject::getSystemCallbackString(int calltype,bool callTips
             r+="=()\nMain function of a threaded child script.";
         return(r);
     }
-    if (calltype==sim_syscb_br)
+    if (calltype==sim_syscb_xr)
     {
-        std::string r("sysCall_br");
+        std::string r("sysCall_xr");
         if (callTips)
             r+="=(...)\nCalled for XReality functionality.";
         return(r);
@@ -2337,7 +2337,7 @@ bool CLuaScriptObject::canCallSystemCallback(int scriptType,bool threaded,int ca
             return(true);
         if (callType==sim_syscb_afterinstanceswitch)
             return(true);
-        if (callType==sim_syscb_br)
+        if (callType==sim_syscb_xr)
             return(true);
         if (callType==sim_syscb_nonsimulation)
             return(true);
@@ -2380,7 +2380,7 @@ bool CLuaScriptObject::canCallSystemCallback(int scriptType,bool threaded,int ca
             return(true);
         if (callType==sim_syscb_afterinstanceswitch)
             return(true);
-        if (callType==sim_syscb_br)
+        if (callType==sim_syscb_xr)
             return(true);
         if (callType==sim_syscb_nonsimulation)
             return(true);
@@ -2427,7 +2427,7 @@ bool CLuaScriptObject::canCallSystemCallback(int scriptType,bool threaded,int ca
             return(true);
         if (callType==sim_syscb_afterinstanceswitch)
             return(true);
-        if (callType==sim_syscb_br)
+        if (callType==sim_syscb_xr)
             return(true);
         if (callType==sim_syscb_jointcallback)
             return(true);
@@ -2554,7 +2554,7 @@ std::vector<std::string> CLuaScriptObject::getAllSystemCallbackStrings(int scrip
                  sim_syscb_customcallback4,
                  sim_syscb_threadmain,
                  sim_syscb_userconfig,
-                 sim_syscb_br,
+                 sim_syscb_xr,
                  -1
             };
 
@@ -5817,7 +5817,7 @@ void CLuaScriptObject::_adjustScriptText3(CLuaScriptObject* scriptObject,bool do
             txt+="colorCorrectionFunction=function(_aShapeHandle_) \n";
             txt+="  local version=simGetIntegerParameter(sim_intparam_program_version) \n";
             txt+="  local revision=simGetIntegerParameter(sim_intparam_program_revision) \n";
-            txt+="  if (version<30104)and(revision<3) then \n";
+            txt+="  if (version==30103 and revision<3) or version<30103 then \n";
             txt+="      return _aShapeHandle_ \n";
             txt+="  end \n";
             txt+="  return '@backCompatibility1:'.._aShapeHandle_ \n";

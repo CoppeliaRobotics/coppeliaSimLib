@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>430</width>
     <height>460</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>361</width>
+     <width>411</width>
      <height>441</height>
     </rect>
    </property>
@@ -39,7 +39,7 @@
      <rect>
       <x>10</x>
       <y>60</y>
-      <width>341</width>
+      <width>391</width>
       <height>171</height>
      </rect>
     </property>
@@ -49,7 +49,7 @@
      <rect>
       <x>10</x>
       <y>240</y>
-      <width>341</width>
+      <width>391</width>
       <height>191</height>
      </rect>
     </property>
@@ -63,7 +63,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>20</y>
+       <y>25</y>
        <width>151</width>
        <height>18</height>
       </rect>
@@ -76,8 +76,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>40</y>
-       <width>141</width>
+       <y>45</y>
+       <width>181</width>
        <height>18</height>
       </rect>
      </property>
@@ -89,8 +89,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>60</y>
-       <width>141</width>
+       <y>65</y>
+       <width>191</width>
        <height>18</height>
       </rect>
      </property>
@@ -102,8 +102,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>80</y>
-       <width>141</width>
+       <y>85</y>
+       <width>181</width>
        <height>18</height>
       </rect>
      </property>
@@ -114,8 +114,8 @@
     <widget class="QLineEdit" name="qqIterations">
      <property name="geometry">
       <rect>
-       <x>150</x>
-       <y>40</y>
+       <x>220</x>
+       <y>45</y>
        <width>56</width>
        <height>18</height>
       </rect>
@@ -124,8 +124,8 @@
     <widget class="QLineEdit" name="qqInterpolation">
      <property name="geometry">
       <rect>
-       <x>150</x>
-       <y>60</y>
+       <x>220</x>
+       <y>65</y>
        <width>56</width>
        <height>18</height>
       </rect>
@@ -134,8 +134,8 @@
     <widget class="QLineEdit" name="qqDamping">
      <property name="geometry">
       <rect>
-       <x>150</x>
-       <y>80</y>
+       <x>220</x>
+       <y>85</y>
        <width>56</width>
        <height>18</height>
       </rect>
@@ -144,8 +144,8 @@
     <widget class="QLineEdit" name="qqLinearVariation">
      <property name="geometry">
       <rect>
-       <x>200</x>
-       <y>100</y>
+       <x>270</x>
+       <y>105</y>
        <width>56</width>
        <height>18</height>
       </rect>
@@ -155,8 +155,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>100</y>
-       <width>191</width>
+       <y>105</y>
+       <width>241</width>
        <height>18</height>
       </rect>
      </property>
@@ -168,8 +168,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>120</y>
-       <width>191</width>
+       <y>125</y>
+       <width>241</width>
        <height>18</height>
       </rect>
      </property>
@@ -180,8 +180,8 @@
     <widget class="QLineEdit" name="qqAngularVariation">
      <property name="geometry">
       <rect>
-       <x>200</x>
-       <y>120</y>
+       <x>270</x>
+       <y>125</y>
        <width>56</width>
        <height>18</height>
       </rect>
@@ -191,8 +191,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>140</y>
-       <width>191</width>
+       <y>145</y>
+       <width>241</width>
        <height>18</height>
       </rect>
      </property>
@@ -203,8 +203,8 @@
     <widget class="QLineEdit" name="qqLoopClosurePosTol">
      <property name="geometry">
       <rect>
-       <x>200</x>
-       <y>140</y>
+       <x>270</x>
+       <y>145</y>
        <width>56</width>
        <height>18</height>
       </rect>
@@ -214,8 +214,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>160</y>
-       <width>191</width>
+       <y>165</y>
+       <width>241</width>
        <height>18</height>
       </rect>
      </property>
@@ -226,8 +226,8 @@
     <widget class="QLineEdit" name="qqLoopClosureAngTol">
      <property name="geometry">
       <rect>
-       <x>200</x>
-       <y>160</y>
+       <x>270</x>
+       <y>165</y>
        <width>56</width>
        <height>18</height>
       </rect>
@@ -239,7 +239,7 @@
      <rect>
       <x>10</x>
       <y>30</y>
-      <width>141</width>
+      <width>181</width>
       <height>18</height>
      </rect>
     </property>

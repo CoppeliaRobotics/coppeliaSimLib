@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>430</width>
     <height>314</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>230</y>
-     <width>361</width>
+     <width>411</width>
      <height>71</height>
     </rect>
    </property>
@@ -35,7 +35,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
+      <y>25</y>
       <width>231</width>
       <height>18</height>
      </rect>
@@ -51,7 +51,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
+      <y>45</y>
       <width>231</width>
       <height>18</height>
      </rect>
@@ -69,7 +69,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>361</width>
+     <width>411</width>
      <height>131</height>
     </rect>
    </property>
@@ -83,8 +83,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
-      <width>171</width>
+      <y>85</y>
+      <width>251</width>
       <height>18</height>
      </rect>
     </property>
@@ -99,7 +99,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
+      <y>45</y>
       <width>271</width>
       <height>18</height>
      </rect>
@@ -111,8 +111,8 @@
    <widget class="QLineEdit" name="qqTimeStep">
     <property name="geometry">
      <rect>
-      <x>290</x>
-      <y>20</y>
+      <x>340</x>
+      <y>25</y>
       <width>56</width>
       <height>18</height>
      </rect>
@@ -121,8 +121,8 @@
    <widget class="QLineEdit" name="qqPauseTime">
     <property name="geometry">
      <rect>
-      <x>290</x>
-      <y>60</y>
+      <x>340</x>
+      <y>65</y>
       <width>56</width>
       <height>18</height>
      </rect>
@@ -131,8 +131,8 @@
    <widget class="QLineEdit" name="qqScriptExecutionPasses">
     <property name="geometry">
      <rect>
-      <x>290</x>
-      <y>40</y>
+      <x>340</x>
+      <y>45</y>
       <width>56</width>
       <height>18</height>
      </rect>
@@ -142,8 +142,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>251</width>
+      <y>65</y>
+      <width>331</width>
       <height>18</height>
      </rect>
     </property>
@@ -157,9 +157,9 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>20</y>
-      <width>71</width>
+      <x>250</x>
+      <y>25</y>
+      <width>91</width>
       <height>18</height>
      </rect>
     </property>
@@ -171,8 +171,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>191</width>
+      <y>25</y>
+      <width>201</width>
       <height>18</height>
      </rect>
     </property>
@@ -181,8 +181,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
-      <width>171</width>
+      <y>105</y>
+      <width>271</width>
       <height>18</height>
      </rect>
     </property>
@@ -199,7 +199,7 @@
     <rect>
      <x>10</x>
      <y>150</y>
-     <width>361</width>
+     <width>411</width>
      <height>71</height>
     </rect>
    </property>
@@ -218,8 +218,8 @@
    <widget class="QLineEdit" name="qqMultiplicationCoefficient">
     <property name="geometry">
      <rect>
-      <x>290</x>
-      <y>20</y>
+      <x>340</x>
+      <y>25</y>
       <width>56</width>
       <height>18</height>
      </rect>
@@ -228,9 +228,9 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>20</y>
-      <width>111</width>
+      <x>200</x>
+      <y>25</y>
+      <width>141</width>
       <height>18</height>
      </rect>
     </property>
@@ -242,7 +242,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
+      <y>45</y>
       <width>271</width>
       <height>18</height>
      </rect>
@@ -258,7 +258,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
+      <y>25</y>
       <width>121</width>
       <height>18</height>
      </rect>

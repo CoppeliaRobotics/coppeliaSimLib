@@ -1168,6 +1168,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.syscb_threadmain",sim_syscb_threadmain,true},
     {"sim.syscb_userconfig",sim_syscb_userconfig,true},
     {"sim.syscb_br",sim_syscb_br,true},
+    {"sim.syscb_xr",sim_syscb_xr,true},
     // script attributes:
     {"sim.customizationscriptattribute_activeduringsimulation",sim_customizationscriptattribute_activeduringsimulation,true},
     {"sim.scriptattribute_executionorder",sim_scriptattribute_executionorder,true},

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>430</width>
     <height>162</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>60</y>
-     <width>361</width>
+     <width>411</width>
      <height>91</height>
     </rect>
    </property>
@@ -35,8 +35,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>181</width>
+      <y>25</y>
+      <width>251</width>
       <height>18</height>
      </rect>
     </property>
@@ -50,9 +50,9 @@
    <widget class="QCheckBox" name="qqShowPathLine">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>20</y>
-      <width>161</width>
+      <x>260</x>
+      <y>25</y>
+      <width>151</width>
       <height>18</height>
      </rect>
     </property>
@@ -67,8 +67,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>191</width>
+      <y>45</y>
+      <width>251</width>
       <height>18</height>
      </rect>
     </property>
@@ -83,7 +83,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
+      <y>65</y>
       <width>101</width>
       <height>18</height>
      </rect>
@@ -96,8 +96,8 @@
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>60</y>
-      <width>56</width>
+      <y>65</y>
+      <width>66</width>
       <height>18</height>
      </rect>
     </property>
@@ -105,9 +105,9 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>60</y>
-      <width>121</width>
+      <x>190</x>
+      <y>65</y>
+      <width>141</width>
       <height>18</height>
      </rect>
     </property>
@@ -118,9 +118,9 @@
    <widget class="QLineEdit" name="qqControlPointSize">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>60</y>
-      <width>56</width>
+      <x>335</x>
+      <y>65</y>
+      <width>66</width>
       <height>18</height>
      </rect>
     </property>
@@ -128,9 +128,9 @@
    <widget class="QToolButton" name="qqAdjustColor">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>40</y>
-      <width>111</width>
+      <x>260</x>
+      <y>45</y>
+      <width>141</width>
       <height>18</height>
      </rect>
     </property>
@@ -145,9 +145,9 @@
   <widget class="QComboBox" name="qqDistanceCombo">
    <property name="geometry">
     <rect>
-     <x>120</x>
+     <x>140</x>
      <y>10</y>
-     <width>246</width>
+     <width>281</width>
      <height>18</height>
     </rect>
    </property>
@@ -157,7 +157,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>111</width>
+     <width>131</width>
      <height>18</height>
     </rect>
    </property>
@@ -170,7 +170,7 @@
     <rect>
      <x>10</x>
      <y>30</y>
-     <width>161</width>
+     <width>201</width>
      <height>18</height>
     </rect>
    </property>

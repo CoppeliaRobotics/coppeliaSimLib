@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>201</width>
+    <width>259</width>
     <height>195</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>130</y>
-     <width>111</width>
+     <width>131</width>
      <height>18</height>
     </rect>
    </property>
@@ -37,7 +37,7 @@
     <rect>
      <x>10</x>
      <y>50</y>
-     <width>181</width>
+     <width>241</width>
      <height>18</height>
     </rect>
    </property>
@@ -53,7 +53,7 @@
     <rect>
      <x>10</x>
      <y>30</y>
-     <width>181</width>
+     <width>241</width>
      <height>18</height>
     </rect>
    </property>
@@ -69,7 +69,7 @@
     <rect>
      <x>10</x>
      <y>110</y>
-     <width>111</width>
+     <width>121</width>
      <height>18</height>
     </rect>
    </property>
@@ -80,9 +80,9 @@
   <widget class="QLineEdit" name="qqShininess">
    <property name="geometry">
     <rect>
-     <x>135</x>
+     <x>175</x>
      <y>110</y>
-     <width>56</width>
+     <width>76</width>
      <height>18</height>
     </rect>
    </property>
@@ -92,7 +92,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>181</width>
+     <width>241</width>
      <height>18</height>
     </rect>
    </property>
@@ -106,9 +106,9 @@
   <widget class="QLineEdit" name="qqOpacity">
    <property name="geometry">
     <rect>
-     <x>135</x>
+     <x>175</x>
      <y>130</y>
-     <width>56</width>
+     <width>76</width>
      <height>18</height>
     </rect>
    </property>
@@ -118,7 +118,7 @@
     <rect>
      <x>10</x>
      <y>90</y>
-     <width>181</width>
+     <width>241</width>
      <height>18</height>
     </rect>
    </property>
@@ -134,7 +134,7 @@
     <rect>
      <x>10</x>
      <y>150</y>
-     <width>71</width>
+     <width>101</width>
      <height>18</height>
     </rect>
    </property>
@@ -145,9 +145,9 @@
   <widget class="QLineEdit" name="qqColorName">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>110</x>
      <y>150</y>
-     <width>111</width>
+     <width>141</width>
      <height>18</height>
     </rect>
    </property>
@@ -157,7 +157,7 @@
     <rect>
      <x>10</x>
      <y>70</y>
-     <width>181</width>
+     <width>241</width>
      <height>18</height>
     </rect>
    </property>
@@ -173,7 +173,7 @@
     <rect>
      <x>10</x>
      <y>170</y>
-     <width>61</width>
+     <width>101</width>
      <height>18</height>
     </rect>
    </property>
@@ -184,9 +184,9 @@
   <widget class="QLineEdit" name="qqExtensionString">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>110</x>
      <y>170</y>
-     <width>111</width>
+     <width>141</width>
      <height>18</height>
     </rect>
    </property>

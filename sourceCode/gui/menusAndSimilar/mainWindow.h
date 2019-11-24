@@ -221,10 +221,6 @@ private:
     QAction* _toolbarActionObjectShift;
     QAction* _toolbarActionObjectRotate;
 
-    #ifdef NEWIKFUNC
-        QAction* _toolbarActionIk;
-    #endif
-
     QAction* _toolbarActionClickSelection;
     QAction* _toolbarActionAssemble;
     QAction* _toolbarActionTransferDna;

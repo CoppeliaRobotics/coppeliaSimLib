@@ -7,7 +7,6 @@
 #include "qdlgavirecorder.h"
 #include "qdlgselection.h"
 #include "qdlgsimulation.h"
-#include "qdlginteractiveik.h"
 #include "qdlgcommonproperties.h"
 #include "qdlgenvironment.h"
 #include "qdlgcolor.h"
@@ -126,8 +125,6 @@ void CToolDlgWrapper::setVisible(bool visible,QWidget* parentWindow)
                 toolDialog=new CQDlgSelection(App::mainWindow);
             if (dialogType==SIMULATION_DLG)
                 toolDialog=new CQDlgSimulation(App::mainWindow);
-            if (dialogType==INTERACTIVE_IK_DLG)
-                toolDialog=new CQDlgInteractiveIk(App::mainWindow);
             if (dialogType==ENVIRONMENT_DLG)
                 toolDialog=new CQDlgEnvironment(App::mainWindow);
             if (dialogType==COLOR_DLG)

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>430</width>
     <height>400</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>141</width>
+     <width>181</width>
      <height>18</height>
     </rect>
    </property>
@@ -37,7 +37,7 @@
     <rect>
      <x>10</x>
      <y>35</y>
-     <width>361</width>
+     <width>411</width>
      <height>151</height>
     </rect>
    </property>
@@ -51,8 +51,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>181</width>
+      <y>25</y>
+      <width>211</width>
       <height>18</height>
      </rect>
     </property>
@@ -66,9 +66,9 @@
    <widget class="QCheckBox" name="qqNotCollidable">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>20</y>
-      <width>181</width>
+      <x>220</x>
+      <y>25</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -83,8 +83,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>181</width>
+      <y>45</y>
+      <width>211</width>
       <height>18</height>
      </rect>
     </property>
@@ -98,9 +98,9 @@
    <widget class="QCheckBox" name="qqNotRenderable">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>40</y>
-      <width>181</width>
+      <x>220</x>
+      <y>45</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -115,8 +115,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>181</width>
+      <y>65</y>
+      <width>211</width>
       <height>18</height>
      </rect>
     </property>
@@ -130,9 +130,9 @@
    <widget class="QCheckBox" name="qqNotDetectable">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>60</y>
-      <width>181</width>
+      <x>220</x>
+      <y>65</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -147,8 +147,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
-      <width>181</width>
+      <y>85</y>
+      <width>211</width>
       <height>18</height>
      </rect>
     </property>
@@ -162,9 +162,9 @@
    <widget class="QCheckBox" name="qqNotRespondable">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>80</y>
-      <width>181</width>
+      <x>220</x>
+      <y>85</y>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -179,8 +179,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
-      <width>341</width>
+      <y>105</y>
+      <width>401</width>
       <height>18</height>
      </rect>
     </property>
@@ -188,15 +188,15 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Model scripts are inactive (child scripts and customization scripts)</string>
+     <string>Model scripts are inactive (child  and customization scripts)</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="qqNotInsideModelBBox">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>120</y>
-      <width>341</width>
+      <y>125</y>
+      <width>401</width>
       <height>18</height>
      </rect>
     </property>
@@ -213,7 +213,7 @@
     <rect>
      <x>10</x>
      <y>200</y>
-     <width>361</width>
+     <width>411</width>
      <height>151</height>
     </rect>
    </property>
@@ -227,8 +227,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>341</width>
+      <y>25</y>
+      <width>391</width>
       <height>121</height>
      </rect>
     </property>
@@ -239,7 +239,7 @@
     <rect>
      <x>10</x>
      <y>360</y>
-     <width>361</width>
+     <width>411</width>
      <height>32</height>
     </rect>
    </property>

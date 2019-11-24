@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>430</width>
     <height>343</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>240</y>
-     <width>361</width>
+     <width>411</width>
      <height>71</height>
     </rect>
    </property>
@@ -35,8 +35,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>91</width>
+      <y>25</y>
+      <width>131</width>
       <height>18</height>
      </rect>
     </property>
@@ -47,9 +47,9 @@
    <widget class="QLineEdit" name="qqSize">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>20</y>
-      <width>56</width>
+      <x>140</x>
+      <y>25</y>
+      <width>76</width>
       <height>18</height>
      </rect>
     </property>
@@ -57,9 +57,9 @@
    <widget class="QToolButton" name="qqColorA">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>20</y>
-      <width>131</width>
+      <x>240</x>
+      <y>25</y>
+      <width>161</width>
       <height>18</height>
      </rect>
     </property>
@@ -73,9 +73,9 @@
    <widget class="QToolButton" name="qqColorB">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>40</y>
-      <width>131</width>
+      <x>240</x>
+      <y>45</y>
+      <width>161</width>
       <height>18</height>
      </rect>
     </property>
@@ -92,7 +92,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>361</width>
+     <width>411</width>
      <height>71</height>
     </rect>
    </property>
@@ -105,9 +105,9 @@
    <widget class="QRadioButton" name="qqAverage">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>20</y>
-      <width>151</width>
+      <x>230</x>
+      <y>25</y>
+      <width>171</width>
       <height>18</height>
      </rect>
     </property>
@@ -124,9 +124,9 @@
    <widget class="QRadioButton" name="qqMedian">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>40</y>
-      <width>151</width>
+      <x>230</x>
+      <y>45</y>
+      <width>171</width>
       <height>18</height>
      </rect>
     </property>
@@ -144,8 +144,8 @@
     <property name="geometry">
      <rect>
       <x>130</x>
-      <y>20</y>
-      <width>56</width>
+      <y>25</y>
+      <width>76</width>
       <height>18</height>
      </rect>
     </property>
@@ -154,8 +154,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>91</width>
+      <y>25</y>
+      <width>121</width>
       <height>18</height>
      </rect>
     </property>
@@ -169,7 +169,7 @@
     <rect>
      <x>10</x>
      <y>115</y>
-     <width>361</width>
+     <width>411</width>
      <height>91</height>
     </rect>
    </property>
@@ -183,8 +183,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>151</width>
+      <y>25</y>
+      <width>221</width>
       <height>18</height>
      </rect>
     </property>
@@ -198,8 +198,8 @@
    <widget class="QLineEdit" name="qqForceThreshold">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>20</y>
+      <x>320</x>
+      <y>25</y>
       <width>81</width>
       <height>18</height>
      </rect>
@@ -209,8 +209,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>151</width>
+      <y>45</y>
+      <width>221</width>
       <height>18</height>
      </rect>
     </property>
@@ -224,8 +224,8 @@
    <widget class="QLineEdit" name="qqTorqueThreshold">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>40</y>
+      <x>320</x>
+      <y>45</y>
       <width>81</width>
       <height>18</height>
      </rect>
@@ -234,8 +234,8 @@
    <widget class="QLineEdit" name="qqViolationCount">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>60</y>
+      <x>345</x>
+      <y>65</y>
       <width>56</width>
       <height>18</height>
      </rect>
@@ -245,8 +245,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
-      <width>231</width>
+      <y>65</y>
+      <width>341</width>
       <height>18</height>
      </rect>
     </property>
@@ -260,7 +260,7 @@
     <rect>
      <x>260</x>
      <y>315</y>
-     <width>111</width>
+     <width>161</width>
      <height>18</height>
     </rect>
    </property>
@@ -718,7 +718,7 @@
     <rect>
      <x>260</x>
      <y>85</y>
-     <width>111</width>
+     <width>161</width>
      <height>18</height>
     </rect>
    </property>
@@ -1176,7 +1176,7 @@
     <rect>
      <x>260</x>
      <y>210</y>
-     <width>111</width>
+     <width>161</width>
      <height>18</height>
     </rect>
    </property>
