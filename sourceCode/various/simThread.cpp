@@ -5655,6 +5655,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 stack.pushTableOntoStack();
                 stack.pushStringOntoStack("xrCallIndex",0);
                 stack.pushNumberOntoStack(int(executeXrCallIndex));
+                stack.insertDataIntoStackTable();
                 stack.pushStringOntoStack("brCallIndex",0);
                 stack.pushNumberOntoStack(int(executeXrCallIndex));
                 stack.insertDataIntoStackTable();

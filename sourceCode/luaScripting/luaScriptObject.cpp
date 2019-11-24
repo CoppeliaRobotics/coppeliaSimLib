@@ -3770,6 +3770,12 @@ int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfa
         // Push the function name onto the stack (will be automatically popped from stack after _luaPCall):
         std::string funcName(getSystemCallbackString(callType,false));
         luaWrap_lua_getglobal(L,funcName.c_str());
+        if ( (callType==sim_syscb_xr)&&(!luaWrap_lua_isfunction(L,-1)) )
+        {
+            luaWrap_lua_pop(L,1); // pop the function name
+            funcName="sysCall_br"; // for backward functionality
+            luaWrap_lua_getglobal(L,funcName.c_str());
+        }
         if (luaWrap_lua_isfunction(L,-1))
         { // ok, the function exists!
             // Push the arguments onto the stack (will be automatically popped from stack after _luaPCall):
