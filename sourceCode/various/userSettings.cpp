@@ -238,9 +238,9 @@ CUserSettings::CUserSettings()
     displayWorldReference=true;
     antiAliasing=false;
     displayBoundingBoxeWhenObjectSelected=true;
-    guiFontSize_Win=11;
-    guiFontSize_Mac=10;
-    guiFontSize_Linux=11; // 10; changed on 19/8/2015
+    guiFontSize_Win=-1; // 11-14 ok
+    guiFontSize_Mac=-1; // 10-13 ok
+    guiFontSize_Linux=-1; // 11-14 ok
     statusbarInitiallyVisible=CLibLic::getBoolVal(10);
     modelBrowserInitiallyVisible=true;
     sceneHierarchyInitiallyVisible=true;
@@ -608,9 +608,9 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_DISPLAY_WORLD_REF,displayWorldReference,"");
     c.addBoolean(_USR_ANTIALIASING,antiAliasing,"");
     c.addBoolean(_USR_DISPLAY_BOUNDING_BOXES,displayBoundingBoxeWhenObjectSelected,"");
-    c.addInteger(_USR_GUI_FONT_SIZE_WIN,guiFontSize_Win,"");
-    c.addInteger(_USR_GUI_FONT_SIZE_MAC,guiFontSize_Mac,"");
-    c.addInteger(_USR_GUI_FONT_SIZE_LINUX,guiFontSize_Linux,"");
+    c.addInteger(_USR_GUI_FONT_SIZE_WIN,guiFontSize_Win,"-1=default");
+    c.addInteger(_USR_GUI_FONT_SIZE_MAC,guiFontSize_Mac,"-1=default");
+    c.addInteger(_USR_GUI_FONT_SIZE_LINUX,guiFontSize_Linux,"-1=default");
     c.addBoolean(_USR_STATUSBAR_INITIALLY_VISIBLE,statusbarInitiallyVisible,"");
     c.addBoolean(_USR_MODELBROWSER_INITIALLY_VISIBLE,modelBrowserInitiallyVisible,"");
     c.addBoolean(_USR_SCENEHIERARCHY_INITIALLY_VISIBLE,sceneHierarchyInitiallyVisible,"");

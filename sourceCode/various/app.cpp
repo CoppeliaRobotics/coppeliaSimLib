@@ -364,13 +364,16 @@ App::App(bool headless)
 
     QFont f=QApplication::font();
     #ifdef WIN_SIM
-        f.setPixelSize(userSettings->guiFontSize_Win);
+        if (userSettings->guiFontSize_Win!=-1)
+            f.setPixelSize(userSettings->guiFontSize_Win);
     #endif
     #ifdef MAC_SIM
-        f.setPixelSize(userSettings->guiFontSize_Mac);
+        if (userSettings->guiFontSize_Mac!=-1)
+            f.setPixelSize(userSettings->guiFontSize_Mac);
     #endif
     #ifdef LIN_SIM
-        f.setPixelSize(userSettings->guiFontSize_Linux);
+        if (userSettings->guiFontSize_Linux!=-1)
+            f.setPixelSize(userSettings->guiFontSize_Linux);
     #endif
     QApplication::setFont(f);
     #ifdef LIN_SIM // make the groupbox frame visible on Linux
