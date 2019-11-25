@@ -240,7 +240,7 @@ CUserSettings::CUserSettings()
     displayBoundingBoxeWhenObjectSelected=true;
     guiFontSize_Win=-1; // 11-14 ok
     guiFontSize_Mac=-1; // 10-13 ok
-    guiFontSize_Linux=-1; // 11-14 ok
+    guiFontSize_Linux=13; // 11-14 ok, default is quite large
     statusbarInitiallyVisible=CLibLic::getBoolVal(10);
     modelBrowserInitiallyVisible=true;
     sceneHierarchyInitiallyVisible=true;
