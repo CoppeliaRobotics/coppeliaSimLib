@@ -238,7 +238,7 @@ CUserSettings::CUserSettings()
     displayWorldReference=true;
     antiAliasing=false;
     displayBoundingBoxeWhenObjectSelected=true;
-    guiFontSize_Win=-1; // 11-14 ok
+    guiFontSize_Win=13; // 11-14 ok
     guiFontSize_Mac=-1; // 10-13 ok
     guiFontSize_Linux=13; // 11-14 ok, default is quite large
     statusbarInitiallyVisible=CLibLic::getBoolVal(10);
