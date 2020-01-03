@@ -1,6 +1,9 @@
 *.bak
 *.user.*
 *.user
+*.o
+*.h
+libcoppeliaSim.*
 ui_qdlg*.h
 .qmake.stash
 .DS_Store

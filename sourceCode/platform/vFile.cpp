@@ -1,6 +1,8 @@
 #include "vFile.h"
 #include "simStringTable.h"
+#ifdef SIM_WITH_GUI
 #include <QMessageBox>
+#endif
 #include "simStrings.h"
 #include "vVarious.h"
 #include "vFileFinder.h"
