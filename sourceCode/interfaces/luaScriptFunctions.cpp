@@ -117,7 +117,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setJointPosition",_simSetJointPosition,                "number result=sim.setJointPosition(number objectHandle,number position)",true},
     {"sim.setJointTargetPosition",_simSetJointTargetPosition,    "number result=sim.setJointTargetPosition(number objectHandle,number targetPosition)",true},
     {"sim.getJointTargetPosition",_simGetJointTargetPosition,    "number result,number targetPosition=sim.getJointTargetPosition(number objectHandle)",true},
-    {"sim.setJointForce",_simSetJointForce,                      "number result=sim.setJointForce(number objectHandle,number forceOrTorque)",true},
+    {"sim.setJointMaxForce",_simSetJointMaxForce,                "number result=sim.setJointMaxForce(number objectHandle,number forceOrTorque)",true},
     {"sim.getPathPosition",_simGetPathPosition,                  "number position=sim.getPathPosition(number objectHandle)",true},
     {"sim.setPathPosition",_simSetPathPosition,                  "number result=sim.setPathPosition(number objectHandle,number position)",true},
     {"sim.getPathLength",_simGetPathLength,                      "number length=sim.getPathLength(number objectHandle)",true},
@@ -349,6 +349,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.rotateAroundAxis",_simRotateAroundAxis,                "table_12 matrixOut=sim.rotateAroundAxis(table_12 matrixIn,table_3 axis,table_3 axisPos,number angle)",true},
     {"sim.launchExecutable",_simLaunchExecutable,                "number result=sim.launchExecutable(string filename,string parameters='',number showStatus=1)",true},
     {"sim.getJointForce",_simGetJointForce,                      "number forceOrTorque=sim.getJointForce(number jointHandle)",true},
+    {"sim.getJointMaxForce",_simGetJointMaxForce,                "number forceOrTorque=sim.getJointMaxForce(number jointHandle)",true},
     {"sim.setIkGroupProperties",_simSetIkGroupProperties,        "number result=sim.setIkGroupProperties(number ikGroupHandle,number resolutionMethod,number maxIterations,number damping)",true},
     {"sim.setIkElementProperties",_simSetIkElementProperties,    "number result=sim.setIkElementProperties(number ikGroupHandle,number tipDummyHandle,number constraints,\ntable_2 precision=nil,table_2 weight=nil)",true},
     {"sim.isHandleValid",_simIsHandleValid,                      "number result=sim.isHandleValid(number generalObjectHandle,number generalObjectType=-1)",true},
@@ -486,7 +487,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.resumeThreads_legacy",_simResumeThreads_legacy,           "Deprecated",false},
     {"sim.getScriptSimulationParameter",_simGetScriptSimulationParameter,"Deprecated. Use 'sim.getUserParameter' instead",true},
     {"sim.setScriptSimulationParameter",_simSetScriptSimulationParameter,"Deprecated. Use 'sim.setUserParameter' instead",true},
-
+    {"sim.setJointForce",_simSetJointMaxForce,                   "Deprecated. Use 'sim.setJointMaxForce' instead",true},
 
     {"",nullptr,"",false}
 };
@@ -542,7 +543,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simSetJointPosition",_simSetJointPosition,                "Use the newer 'sim.setJointPosition' notation",false},
     {"simSetJointTargetPosition",_simSetJointTargetPosition,    "Use the newer 'sim.setJointTargetPosition' notation",false},
     {"simGetJointTargetPosition",_simGetJointTargetPosition,    "Use the newer 'sim.getJointTargetPosition' notation",false},
-    {"simSetJointForce",_simSetJointForce,                      "Use the newer 'sim.setJointForce' notation",false},
+    {"simSetJointForce",_simSetJointMaxForce,                   "Use the newer 'sim.setJointMaxForce' notation",false},
     {"simGetPathPosition",_simGetPathPosition,                  "Use the newer 'sim.getPathPosition' notation",false},
     {"simSetPathPosition",_simSetPathPosition,                  "Use the newer 'sim.setPathPosition' notation",false},
     {"simGetPathLength",_simGetPathLength,                      "Use the newer 'sim.getPathLength' notation",false},
@@ -6519,18 +6520,37 @@ int _simGetJointTargetPosition(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSetJointForce(luaWrap_lua_State* L)
+int _simSetJointMaxForce(luaWrap_lua_State* L)
 {
     LUA_API_FUNCTION_DEBUG;
-    LUA_START("sim.setJointForce");
+    LUA_START("sim.setJointMaxForce");
 
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simSetJointForce_internal(luaToInt(L,1),luaToFloat(L,2));
+        retVal=simSetJointMaxForce_internal(luaToInt(L,1),luaToFloat(L,2));
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
+}
+
+int _simGetJointMaxForce(luaWrap_lua_State* L)
+{
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.getJointMaxForce");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        float jointF[1];
+        if (simGetJointMaxForce_internal(luaToInt(L,1),jointF)>0)
+        {
+            luaWrap_lua_pushnumber(L,jointF[0]);
+            LUA_END(1);
+        }
+    }
+
+    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_END(0);
 }
 
 int _simGetPathPosition(luaWrap_lua_State* L)

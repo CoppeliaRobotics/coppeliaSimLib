@@ -169,9 +169,9 @@ SIM_DLLEXPORT simInt simGetJointTargetPosition(simInt objectHandle,simFloat* tar
 {
     return(simGetJointTargetPosition_internal(objectHandle,targetPosition));
 }
-SIM_DLLEXPORT simInt simSetJointForce(simInt objectHandle,simFloat forceOrTorque)
+SIM_DLLEXPORT simInt simSetJointMaxForce(simInt objectHandle,simFloat forceOrTorque)
 {
-    return(simSetJointForce_internal(objectHandle,forceOrTorque));
+    return(simSetJointMaxForce_internal(objectHandle,forceOrTorque));
 }
 SIM_DLLEXPORT simInt simGetPathPosition(simInt objectHandle,simFloat* position)
 {
@@ -1072,6 +1072,10 @@ SIM_DLLEXPORT simInt simRotateAroundAxis(const simFloat* matrixIn,const simFloat
 SIM_DLLEXPORT simInt simGetJointForce(simInt jointHandle,simFloat* forceOrTorque)
 {
     return(simGetJointForce_internal(jointHandle,forceOrTorque));
+}
+SIM_DLLEXPORT simInt simGetJointMaxForce(simInt jointHandle,simFloat* forceOrTorque)
+{
+    return(simGetJointMaxForce_internal(jointHandle,forceOrTorque));
 }
 SIM_DLLEXPORT simInt simSetArrayParameter(simInt parameter,const simVoid* arrayOfValues)
 {
@@ -2448,6 +2452,10 @@ SIM_DLLEXPORT simChar* simGetScriptSimulationParameter(simInt scriptHandle,const
 SIM_DLLEXPORT simInt simSetScriptSimulationParameter(simInt scriptHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength)
 {
     return(simSetScriptSimulationParameter_internal(scriptHandle,parameterName,parameterValue,parameterLength));
+}
+SIM_DLLEXPORT simInt simSetJointForce(simInt objectHandle,simFloat forceOrTorque)
+{
+    return(simSetJointMaxForce_internal(objectHandle,forceOrTorque));
 }
 // Deprecated end
 

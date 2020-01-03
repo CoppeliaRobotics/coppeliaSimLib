@@ -58,7 +58,7 @@ SIM_DLLEXPORT simInt simGetJointPosition(simInt objectHandle,simFloat* position)
 SIM_DLLEXPORT simInt simSetJointPosition(simInt objectHandle,simFloat position);
 SIM_DLLEXPORT simInt simSetJointTargetPosition(simInt objectHandle,simFloat targetPosition);
 SIM_DLLEXPORT simInt simGetJointTargetPosition(simInt objectHandle,simFloat* targetPosition);
-SIM_DLLEXPORT simInt simSetJointForce(simInt objectHandle,simFloat forceOrTorque);
+SIM_DLLEXPORT simInt simSetJointMaxForce(simInt objectHandle,simFloat forceOrTorque);
 SIM_DLLEXPORT simInt simGetPathPosition(simInt objectHandle,simFloat* position);
 SIM_DLLEXPORT simInt simSetPathPosition(simInt objectHandle,simFloat position);
 SIM_DLLEXPORT simInt simGetPathLength(simInt objectHandle,simFloat* length);
@@ -284,6 +284,7 @@ SIM_DLLEXPORT simInt simSetSimulationPassesPerRenderingPass(simInt p);
 SIM_DLLEXPORT simInt simGetRotationAxis(const simFloat* matrixStart,const simFloat* matrixGoal,simFloat* axis,simFloat* angle);
 SIM_DLLEXPORT simInt simRotateAroundAxis(const simFloat* matrixIn,const simFloat* axis,const simFloat* axisPos,simFloat angle,simFloat* matrixOut);
 SIM_DLLEXPORT simInt simGetJointForce(simInt jointHandle,simFloat* forceOrTorque);
+SIM_DLLEXPORT simInt simGetJointMaxForce(simInt jointHandle,simFloat* forceOrTorque);
 SIM_DLLEXPORT simInt simSetArrayParameter(simInt parameter,const simVoid* arrayOfValues);
 SIM_DLLEXPORT simInt simGetArrayParameter(simInt parameter,simVoid* arrayOfValues);
 SIM_DLLEXPORT simInt simSetIkGroupProperties(simInt ikGroupHandle,simInt resolutionMethod,simInt maxIterations,simFloat damping,void* reserved);
@@ -639,6 +640,7 @@ SIM_DLLEXPORT simInt simSetVisionSensorFilter(simInt visionSensorHandle,simInt f
 SIM_DLLEXPORT simInt simGetVisionSensorFilter(simInt visionSensorHandle,simInt filterIndex,simInt* options,simInt* pSizes,simUChar** bytes,simInt** ints,simFloat** floats,simUChar** custom);
 SIM_DLLEXPORT simChar* simGetScriptSimulationParameter(simInt scriptHandle,const simChar* parameterName,simInt* parameterLength);
 SIM_DLLEXPORT simInt simSetScriptSimulationParameter(simInt scriptHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength);
+SIM_DLLEXPORT simInt simSetJointForce(simInt objectHandle,simFloat forceOrTorque);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

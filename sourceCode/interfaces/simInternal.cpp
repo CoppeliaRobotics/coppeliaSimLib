@@ -2065,7 +2065,7 @@ simInt simGetJointTargetPosition_internal(simInt objectHandle,simFloat* targetPo
     return(-1);
 }
 
-simInt simSetJointForce_internal(simInt objectHandle,simFloat forceOrTorque)
+simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque)
 {
     C_API_FUNCTION_DEBUG;
 
@@ -2183,20 +2183,14 @@ simInt simGetJointTargetVelocity_internal(simInt objectHandle,simFloat* targetVe
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         if (!isJoint(__func__,objectHandle))
-        {
             return(-1);
-        }
         CJoint* it=App::ct->objCont->getJoint(objectHandle);
         if (it->getJointType()==sim_joint_spherical_subtype)
         {
@@ -12747,6 +12741,27 @@ simInt simGetJointForce_internal(simInt jointHandle,simFloat* forceOrTorque)
             return(1);
         }
         return(0);
+    }
+    CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetJointMaxForce_internal(simInt jointHandle,simFloat* forceOrTorque)
+{
+    C_API_FUNCTION_DEBUG;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,jointHandle))
+            return(-1);
+        if (!isJoint(__func__,jointHandle))
+            return(-1);
+        CJoint* it=App::ct->objCont->getJoint(jointHandle);
+        forceOrTorque[0]=it->getDynamicMotorMaximumForce();
+        return(1);
     }
     CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
