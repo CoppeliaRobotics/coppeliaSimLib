@@ -303,7 +303,7 @@ SIM_DLLEXPORT simFloat* simGetVisionSensorImage(simInt visionSensorHandle);
 SIM_DLLEXPORT simUChar* simGetVisionSensorCharImage(simInt visionSensorHandle,simInt* resolutionX,simInt* resolutionY);
 SIM_DLLEXPORT simInt simSetVisionSensorImage(simInt visionSensorHandle,const simFloat* image);
 SIM_DLLEXPORT simInt simSetVisionSensorCharImage(simInt visionSensorHandle,const simUChar* image);
-SIM_DLLEXPORT simFloat* simGetVisionSensorDepthBuffer(simInt visionSensorHandle);
+SIM_DLLEXPORT int simSetVisionSensorDepthBuffer(simInt visionSensorHandle,const float* depthBuffer);
 SIM_DLLEXPORT simInt simRMLPosition(simInt dofs,simDouble timeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxVelAccelJerk,const simBool* selection,const simDouble* targetPosVel,simDouble* newPosVelAccel,simVoid* auxData);
 SIM_DLLEXPORT simInt simRMLVelocity(simInt dofs,simDouble timeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxAccelJerk,const simBool* selection,const simDouble* targetVel,simDouble* newPosVelAccel,simVoid* auxData);
 SIM_DLLEXPORT simInt simRMLPos(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxVelAccelJerk,const simBool* selection,const simDouble* targetPosVel,simVoid* auxData);

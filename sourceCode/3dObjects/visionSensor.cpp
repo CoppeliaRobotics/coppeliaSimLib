@@ -705,6 +705,13 @@ bool CVisionSensor::setExternalCharImage(const unsigned char* img,bool imgIsGrey
     return(returnValue);
 }
 
+void CVisionSensor::setDepthBuffer(const float* img)
+{
+    int n=_resolutionX*_resolutionY;
+    for (int i=0;i<n;i++)
+        _depthBuffer[i]=img[i];
+}
+
 bool CVisionSensor::handleSensor()
 {
     FUNCTION_DEBUG;

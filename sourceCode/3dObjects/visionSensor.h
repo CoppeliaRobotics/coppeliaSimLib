@@ -87,6 +87,7 @@ public:
     float* checkSensorEx(int entityID,bool imageBuffer,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
     bool setExternalImage(const float* img,bool imgIsGreyScale,bool noProcessing);
     bool setExternalCharImage(const unsigned char* img,bool imgIsGreyScale,bool noProcessing);
+    void setDepthBuffer(const float* img);
 
     void setIgnoreRGBInfo(bool ignore);
     bool getIgnoreRGBInfo();

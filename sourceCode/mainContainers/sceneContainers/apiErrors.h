@@ -42,6 +42,7 @@
 #define SIM_ERROR_PATH_PLANNING_OBJECT_INEXISTANT           "Path planning object does not exist."
 #define SIM_ERROR_MOTION_PLANNING_OBJECT_INEXISTANT         "Motion planning object does not exist."
 #define SIM_ERROR_SCRIPT_INEXISTANT             "Script does not exist."
+#define SIM_ERROR_SCRIPT_NOT_INITIALIZED        "Script is not initialized (or has already ended)"
 #define SIM_ERROR_SPECIFIED_SCRIPT_IS_NOT_MAIN_OR_CHILD "Specified script is not a main nor a child script."
 #define SIM_ERROR_NO_ASSOCIATED_CHILD_SCRIPT_FOUND "No associated child script found."
 #define SIM_ERROR_PAGE_INEXISTANT               "Page does not exist."

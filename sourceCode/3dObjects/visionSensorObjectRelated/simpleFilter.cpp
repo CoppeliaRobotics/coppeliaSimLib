@@ -200,7 +200,6 @@ int CSimpleFilter::getFilterType()
 
 void CSimpleFilter::serialize(CSer& ar)
 {
-    printf("START SIMPLE\n");
     if (!ar.isStoring())
     {       // Loading
         int byteQuantity;
@@ -314,6 +313,8 @@ std::string CSimpleFilter::getCodeEquivalent()
         str=boost::str(boost::format("simVision.uniformImgToWorkImg(inData.handle,{%f,%f,%f})") % _floatParameters[0] % _floatParameters[1] % _floatParameters[2]);
     if (_filterType==sim_filtercomponent_tooutput_deprecated)
         str="simVision.workImgToSensorImg(inData.handle,false)";
+    if (_filterType==sim_filtercomponent_todepthoutput_deprecated)
+        str="simVision.workImgToSensorDepthMap(inData.handle,false)";
 
     if (_filterType==sim_filtercomponent_tobuffer1_deprecated)
         str="simVision.workImgToBuffer1(inData.handle)";

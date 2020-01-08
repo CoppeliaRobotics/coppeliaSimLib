@@ -13258,8 +13258,13 @@ simInt simSetVisionSensorImage_internal(simInt sensorHandle,const simFloat* imag
         }
         CVisionSensor* it=App::ct->objCont->getVisionSensor(objectHandle);
         int retVal=0;
-        if (it->setExternalImage(image,(handleFlags&sim_handleflag_greyscale)!=0,(handleFlags&sim_handleflag_rawvalue)!=0))
-            retVal=1;
+        if (handleFlags&sim_handleflag_depthbuffer)
+            it->setDepthBuffer(image);
+        else
+        {
+            if (it->setExternalImage(image,(handleFlags&sim_handleflag_greyscale)!=0,(handleFlags&sim_handleflag_rawvalue)!=0))
+                retVal=1;
+        }
         return(retVal);
     }
     CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);

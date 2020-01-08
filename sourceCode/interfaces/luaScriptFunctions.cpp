@@ -1234,6 +1234,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.handleflag_extended",sim_handleflag_extended,true},
     {"sim.handleflag_greyscale",sim_handleflag_greyscale,true},
     {"sim.handleflag_depthbuffermeters",sim_handleflag_depthbuffermeters,true},
+    {"sim.handleflag_depthbuffer",sim_handleflag_depthbuffer,true},
     {"sim.handleflag_keeporiginal",sim_handleflag_keeporiginal,true},
     {"sim.handleflag_codedstring",sim_handleflag_codedstring,true},
     {"sim.handleflag_model",sim_handleflag_model,true},
@@ -15754,77 +15755,82 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
 
         if (script!=nullptr)
         {
-            CInterfaceStack stack;
-            stack.buildFromLuaStack(L,3);
+            if (script->hasLuaState())
+            {
+                CInterfaceStack stack;
+                stack.buildFromLuaStack(L,3);
 
-            if (script->getThreadedExecutionIsUnderWay())
-            { // very special handling here!
-                if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
-                {
-                    int rr=script->callScriptFunctionEx(funcName.c_str(),&stack);
-                    if (rr>=0)
+                if (script->getThreadedExecutionIsUnderWay())
+                { // very special handling here!
+                    if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
                     {
-                        stack.buildOntoLuaStack(L,false);
-                        LUA_END(stack.getStackSize());
+                        int rr=script->callScriptFunctionEx(funcName.c_str(),&stack);
+                        if (rr>=0)
+                        {
+                            stack.buildOntoLuaStack(L,false);
+                            LUA_END(stack.getStackSize());
+                        }
+                        else
+                        {
+                            if (rr==-3)
+                                errorString=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
+                            if (rr==-2)
+                                errorString=SIM_ERROR_SCRIPT_FUNCTION_INEXISTANT;
+                            if (rr==-1)
+                                errorString=SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
+                        }
                     }
                     else
-                    {
-                        if (rr==-3)
-                            errorString=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
-                        if (rr==-2)
-                            errorString=SIM_ERROR_SCRIPT_FUNCTION_INEXISTANT;
-                        if (rr==-1)
-                            errorString=SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
+                    { // we have to execute that function via another thread!
+                        void* d[4];
+                        int callType=1;
+                        d[0]=&callType;
+                        d[1]=script;
+                        d[2]=(void*)funcName.c_str();
+                        d[3]=&stack;
+                        int retVal=CThreadPool::callRoutineViaSpecificThread(script->getThreadedScriptThreadId(),d);
+                        if (retVal>=0)
+                        {
+                            stack.buildOntoLuaStack(L,false);
+                            LUA_END(stack.getStackSize());
+                        }
+                        else
+                        {
+                            if (retVal==-3)
+                                errorString=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
+                            if (retVal==-2)
+                                errorString=SIM_ERROR_SCRIPT_FUNCTION_INEXISTANT;
+                            if (retVal==-1)
+                                errorString=SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
+                        }
                     }
                 }
                 else
-                { // we have to execute that function via another thread!
-                    void* d[4];
-                    int callType=1;
-                    d[0]=&callType;
-                    d[1]=script;
-                    d[2]=(void*)funcName.c_str();
-                    d[3]=&stack;
-                    int retVal=CThreadPool::callRoutineViaSpecificThread(script->getThreadedScriptThreadId(),d);
-                    if (retVal>=0)
-                    {
-                        stack.buildOntoLuaStack(L,false);
-                        LUA_END(stack.getStackSize());
+                {
+                    if (VThread::isCurrentThreadTheMainSimulationThread())
+                    { // For now we don't allow non-main threads to call non-threaded scripts!
+                        int rr=script->callScriptFunctionEx(funcName.c_str(),&stack);
+                        if (rr>=0)
+                        {
+                            stack.buildOntoLuaStack(L,false);
+                            LUA_END(stack.getStackSize());
+                        }
+                        else
+                        {
+                            if (rr==-3)
+                                errorString=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
+                            if (rr==-2)
+                                errorString=SIM_ERROR_SCRIPT_FUNCTION_INEXISTANT;
+                            if (rr==-1)
+                                errorString=SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
+                        }
                     }
                     else
-                    {
-                        if (retVal==-3)
-                            errorString=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
-                        if (retVal==-2)
-                            errorString=SIM_ERROR_SCRIPT_FUNCTION_INEXISTANT;
-                        if (retVal==-1)
-                            errorString=SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
-                    }
+                        errorString=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
                 }
             }
             else
-            {
-                if (VThread::isCurrentThreadTheMainSimulationThread())
-                { // For now we don't allow non-main threads to call non-threaded scripts!
-                    int rr=script->callScriptFunctionEx(funcName.c_str(),&stack);
-                    if (rr>=0)
-                    {
-                        stack.buildOntoLuaStack(L,false);
-                        LUA_END(stack.getStackSize());
-                    }
-                    else
-                    {
-                        if (rr==-3)
-                            errorString=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
-                        if (rr==-2)
-                            errorString=SIM_ERROR_SCRIPT_FUNCTION_INEXISTANT;
-                        if (rr==-1)
-                            errorString=SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
-                    }
-                }
-                else
-                    errorString=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
-            }
+                errorString=SIM_ERROR_SCRIPT_NOT_INITIALIZED;
         }
         else
             errorString=SIM_ERROR_SCRIPT_INEXISTANT;
