@@ -13249,13 +13249,9 @@ simInt simSetVisionSensorImage_internal(simInt sensorHandle,const simFloat* imag
         int handleFlags=sensorHandle&0xff00000;
         int objectHandle=sensorHandle&0xfffff;
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         if (!isVisionSensor(__func__,objectHandle))
-        {
             return(-1);
-        }
         CVisionSensor* it=App::ct->objCont->getVisionSensor(objectHandle);
         int retVal=0;
         if (handleFlags&sim_handleflag_depthbuffer)

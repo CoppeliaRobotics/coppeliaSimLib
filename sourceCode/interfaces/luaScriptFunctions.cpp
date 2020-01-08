@@ -5794,10 +5794,13 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
         int sensHandle=arg1&0xfffff;
         int valPerPix=3;
         bool noProcessing=false;
+        bool setDepthBufferInstead=false;
         if ((handleFlags&sim_handleflag_greyscale)!=0)
             valPerPix=1;
         if ((handleFlags&sim_handleflag_rawvalue)!=0)
             noProcessing=true;
+        if ((handleFlags&sim_handleflag_depthbuffer)!=0)
+            setDepthBufferInstead=true;
         C3DObject* it=App::ct->objCont->getObjectFromHandle(sensHandle);
         if (it!=nullptr)
         { // Ok we have a valid object
@@ -5811,17 +5814,34 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
                 if (luaWrap_lua_istable(L,2))
                 { // Ok we have a table. Now what size is it?
                     notTableNorString=false;
-                    // Now we check if the provided table has correct size:
-                    if (int(luaWrap_lua_objlen(L,2))>=res[0]*res[1]*valPerPix)
+                    if (setDepthBufferInstead)
                     {
-                        float* img=new float[res[0]*res[1]*valPerPix];
-                        getFloatsFromTable(L,2,res[0]*res[1]*valPerPix,img); // we do the operation directly without going through the c-api
-                        if (rendSens->setExternalImage(img,valPerPix==1,noProcessing))
+                        // Now we check if the provided table has correct size:
+                        if (int(luaWrap_lua_objlen(L,2))>=res[0]*res[1])
+                        {
+                            float* img=new float[res[0]*res[1]];
+                            getFloatsFromTable(L,2,res[0]*res[1],img);
+                            rendSens->setDepthBuffer(img);
                             retVal=1;
-                        delete[] img;
+                            delete[] img;
+                        }
+                        else
+                            errorString=SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG;
                     }
                     else
-                        errorString=SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG;
+                    {
+                        // Now we check if the provided table has correct size:
+                        if (int(luaWrap_lua_objlen(L,2))>=res[0]*res[1]*valPerPix)
+                        {
+                            float* img=new float[res[0]*res[1]*valPerPix];
+                            getFloatsFromTable(L,2,res[0]*res[1]*valPerPix,img); // we do the operation directly without going through the c-api
+                            if (rendSens->setExternalImage(img,valPerPix==1,noProcessing))
+                                retVal=1;
+                            delete[] img;
+                        }
+                        else
+                            errorString=SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG;
+                    }
                 }
                 if (luaWrap_lua_isstring(L,2))
                 { // Ok we have a string. Now what size is it?
@@ -5829,17 +5849,30 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
                     // Now we check if the provided string has correct size:
                     size_t dataLength;
                     char* data=(char*)luaWrap_lua_tolstring(L,2,&dataLength);
-                    if (int(dataLength)>=res[0]*res[1]*valPerPix)
+                    if (setDepthBufferInstead)
                     {
-                        float* img=new float[res[0]*res[1]*valPerPix];
-                        for (int i=0;i<res[0]*res[1]*valPerPix;i++)
-                            img[i]=float(data[i])/255.0f;
-                        if (rendSens->setExternalImage(img,valPerPix==1,noProcessing))
+                        if (int(dataLength)>=res[0]*res[1]*sizeof(float))
+                        {
+                            rendSens->setDepthBuffer((float*)data);
                             retVal=1;
-                        delete[] img;
+                        }
+                        else
+                            errorString=SIM_ERROR_ONE_STRING_SIZE_IS_WRONG;
                     }
                     else
-                        errorString=SIM_ERROR_ONE_STRING_SIZE_IS_WRONG;
+                    {
+                        if (int(dataLength)>=res[0]*res[1]*valPerPix)
+                        {
+                            float* img=new float[res[0]*res[1]*valPerPix];
+                            for (int i=0;i<res[0]*res[1]*valPerPix;i++)
+                                img[i]=float(data[i])/255.0f;
+                            if (rendSens->setExternalImage(img,valPerPix==1,noProcessing))
+                                retVal=1;
+                            delete[] img;
+                        }
+                        else
+                            errorString=SIM_ERROR_ONE_STRING_SIZE_IS_WRONG;
+                    }
                 }
                 if (notTableNorString)
                     errorString=SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG;
