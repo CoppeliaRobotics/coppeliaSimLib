@@ -350,7 +350,7 @@ std::string CSimpleFilter::getCodeEquivalent()
     if (_filterType==sim_filtercomponent_rotate_deprecated)
         str=boost::str(boost::format("simVision.rotateWorkImg(inData.handle,%f)") % _floatParameters[0]);
     if (_filterType==sim_filtercomponent_shift_deprecated)
-        str=boost::str(boost::format("simVision.shiftWorkImg(inData.handle,{%f,%f},%b)") % _floatParameters[0] % _floatParameters[1] % ((_byteParameters[0]&1)==0));
+        str=boost::str(boost::format("simVision.shiftWorkImg(inData.handle,{%f,%f},%s)") % _floatParameters[0] % _floatParameters[1] % ( ((_byteParameters[0]&1)==0) ? "true" : "false") );
     if (_filterType==sim_filtercomponent_resize_deprecated)
         str=boost::str(boost::format("simVision.resizeWorkImg(inData.handle,{%f,%f})") % _floatParameters[0] % _floatParameters[1]);
     if (_filterType==sim_filtercomponent_3x3filter_deprecated)
@@ -358,20 +358,20 @@ std::string CSimpleFilter::getCodeEquivalent()
     if (_filterType==sim_filtercomponent_5x5filter_deprecated)
         str=boost::str(boost::format("simVision.matrix5x5OnWorkImg(inData.handle,%i,%f,{%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f})") % _intParameters[0] % _floatParameters[25] % _floatParameters[0] % _floatParameters[1] % _floatParameters[2] % _floatParameters[3] % _floatParameters[4] % _floatParameters[5] % _floatParameters[6] % _floatParameters[7] % _floatParameters[8] % _floatParameters[9] % _floatParameters[10] % _floatParameters[11] % _floatParameters[12] % _floatParameters[13] % _floatParameters[14] % _floatParameters[15] % _floatParameters[16] % _floatParameters[17] % _floatParameters[18] % _floatParameters[19] % _floatParameters[20] % _floatParameters[21] % _floatParameters[22] % _floatParameters[23] % _floatParameters[24]);
     if (_filterType==sim_filtercomponent_rectangularcut_deprecated)
-        str=boost::str(boost::format("simVision.rectangularCutWorkImg(inData.handle,{%f,%f},%b)") % _floatParameters[0] % _floatParameters[1] % ((_byteParameters[0]&1)!=0));
+        str=boost::str(boost::format("simVision.rectangularCutWorkImg(inData.handle,{%f,%f},%s)") % _floatParameters[0] % _floatParameters[1] % ( ((_byteParameters[0]&1)!=0) ? "true" : "false"));
     if (_filterType==sim_filtercomponent_circularcut_deprecated)
-        str=boost::str(boost::format("simVision.circularCutWorkImg(inData.handle,%f,%b)") % _floatParameters[0] % ((_byteParameters[0]&1)!=0));
+        str=boost::str(boost::format("simVision.circularCutWorkImg(inData.handle,%f,%s)") % _floatParameters[0] % ( ((_byteParameters[0]&1)!=0) ? "true" : "false"));
 
     if (_filterType==sim_filtercomponent_normalize_deprecated)
         str="simVision.normalizeWorkImg(inData.handle)";
     if (_filterType==sim_filtercomponent_colorsegmentation_deprecated)
         str=boost::str(boost::format("simVision.colorSegmentationOnWorkImg(inData.handle,%f)") % _floatParameters[0]);
     if (_filterType==sim_filtercomponent_intensityscale_deprecated)
-        str=boost::str(boost::format("simVision.intensityScaleOnWorkImg(inData.handle,%f,%f,%b)") % _floatParameters[0] % _floatParameters[1]  % ((_intParameters[0]&1)==0));
+        str=boost::str(boost::format("simVision.intensityScaleOnWorkImg(inData.handle,%f,%f,%s)") % _floatParameters[0] % _floatParameters[1]  % ( ((_intParameters[0]&1)==0) ? "true" : "false"));
     if (_filterType==sim_filtercomponent_keeporremovecolors_deprecated)
-        str=boost::str(boost::format("simVision.selectiveColorOnWorkImg(inData.handle,{%f,%f,%f},{%f,%f,%f},%b,%b,%b)") % _floatParameters[0] % _floatParameters[1] % _floatParameters[2] % _floatParameters[3] % _floatParameters[4] % _floatParameters[5] % ((_byteParameters[0]&2)!=0) % ((_byteParameters[0]&1)!=0) % ((_byteParameters[0]&4)!=0));
+        str=boost::str(boost::format("simVision.selectiveColorOnWorkImg(inData.handle,{%f,%f,%f},{%f,%f,%f},%s,%s,%s)") % _floatParameters[0] % _floatParameters[1] % _floatParameters[2] % _floatParameters[3] % _floatParameters[4] % _floatParameters[5] % ( ((_byteParameters[0]&2)!=0) ? "true" : "false") % ( ((_byteParameters[0]&1)!=0) ? "true" : "false") % ( ((_byteParameters[0]&4)!=0) ? "true" : "false"));
     if (_filterType==sim_filtercomponent_scaleandoffsetcolors_deprecated)
-        str=boost::str(boost::format("simVision.scaleAndOffsetWorkImg(inData.handle,{%f,%f,%f},{%f,%f,%f},{%f,%f,%f},%b)") % _floatParameters[0] % _floatParameters[1] % _floatParameters[2] % _floatParameters[3] % _floatParameters[4] % _floatParameters[5] % _floatParameters[6] % _floatParameters[7] % _floatParameters[8] % ((_byteParameters[0]&2)!=0));
+        str=boost::str(boost::format("simVision.scaleAndOffsetWorkImg(inData.handle,{%f,%f,%f},{%f,%f,%f},{%f,%f,%f},%s)") % _floatParameters[0] % _floatParameters[1] % _floatParameters[2] % _floatParameters[3] % _floatParameters[4] % _floatParameters[5] % _floatParameters[6] % _floatParameters[7] % _floatParameters[8] % ( ((_byteParameters[0]&2)!=0) ? "true" : "false"));
 //    if (_filterType==sim_filtercomponent_correlationwithbuffer1)
 //
 
@@ -380,11 +380,11 @@ std::string CSimpleFilter::getCodeEquivalent()
     if (_filterType==sim_filtercomponent_edge_deprecated)
         str=boost::str(boost::format("simVision.edgeDetectionOnWorkImg(inData.handle,%f)") % _floatParameters[0]);
     if (_filterType==sim_filtercomponent_binary_deprecated)
-        str=boost::str(boost::format("local trig,packedPacket=simVision.binaryWorkImg(inData.handle,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%b) if trig then retVal.trigger=true end if packedPacket then retVal.packedPackets[#retVal.packedPackets+1]=packedPacket end") % _floatParameters[0] % _floatParameters[4] % _floatParameters[5] % _floatParameters[6] % _floatParameters[7] % _floatParameters[8] % _floatParameters[9] % _floatParameters[10] % _floatParameters[11] % _floatParameters[12] % ((_byteParameters[0]&4)!=0));
+        str=boost::str(boost::format("local trig,packedPacket=simVision.binaryWorkImg(inData.handle,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%s) if trig then retVal.trigger=true end if packedPacket then retVal.packedPackets[#retVal.packedPackets+1]=packedPacket end") % _floatParameters[0] % _floatParameters[4] % _floatParameters[5] % _floatParameters[6] % _floatParameters[7] % _floatParameters[8] % _floatParameters[9] % _floatParameters[10] % _floatParameters[11] % _floatParameters[12] % ( ((_byteParameters[0]&4)!=0) ? "true" : "false"));
     if (_filterType==sim_filtercomponent_blobextraction_deprecated)
-        str=boost::str(boost::format("local trig,packedPacket=simVision.blobDetectionOnWorkImg(inData.handle,%f,%f,%b) if trig then retVal.trigger=true end if packedPacket then retVal.packedPackets[#retVal.packedPackets+1]=packedPacket end") % _floatParameters[0] % _floatParameters[1] % ((_byteParameters[0]&1)!=0));
+        str=boost::str(boost::format("local trig,packedPacket=simVision.blobDetectionOnWorkImg(inData.handle,%f,%f,%s) if trig then retVal.trigger=true end if packedPacket then retVal.packedPackets[#retVal.packedPackets+1]=packedPacket end") % _floatParameters[0] % _floatParameters[1] % ( ((_byteParameters[0]&1)!=0) ? "true" : "false"));
     if (_filterType==sim_filtercomponent_imagetocoord_deprecated)
-        str=boost::str(boost::format("local trig,packedPacket=simVision.coordinatesFromWorkImg(inData.handle,{%i,%i},%b) if trig then retVal.trigger=true end if packedPacket then retVal.packedPackets[#retVal.packedPackets+1]=packedPacket end") % _intParameters[0] % _intParameters[1] % ((_byteParameters[0]&1)!=0));
+        str=boost::str(boost::format("local trig,packedPacket=simVision.coordinatesFromWorkImg(inData.handle,{%i,%i},%s) if trig then retVal.trigger=true end if packedPacket then retVal.packedPackets[#retVal.packedPackets+1]=packedPacket end") % _intParameters[0] % _intParameters[1] % ( ((_byteParameters[0]&1)!=0) ? "true" : "false"));
     if (_filterType==sim_filtercomponent_pixelchange_deprecated)
         str=boost::str(boost::format("local trig,packedPacket=simVision.changedPixelsOnWorkImg(inData.handle,%f) if trig then retVal.trigger=true end if packedPacket then retVal.packedPackets[#retVal.packedPackets+1]=packedPacket end") % _floatParameters[0]);
     if (_filterType==sim_filtercomponent_velodyne_deprecated)
