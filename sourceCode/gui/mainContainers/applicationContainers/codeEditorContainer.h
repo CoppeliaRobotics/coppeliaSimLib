@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <QString>
+#include "tinyxml2.h"
 
 struct SCodeEditor {
     int handle;
@@ -60,12 +61,12 @@ public:
     int getUniqueId(int handle);
     bool areSceneEditorsOpen() const;
     void sceneClosed(int sceneUniqueId);
-    static QString getXmlColorString(const char* colTxt,const int rgbCol[3]);
-    static QString getXmlColorString(const char* colTxt,int r,int g,int b);
-    static QString getKeywords(int scriptType,bool threaded);
-    static QString getFuncKeywords(int scriptType,bool threaded);
-    static QString getVarKeywords(int scriptType,bool threaded);
-    static QString translateXml(const char* oldXml,const char* callback);
+    static std::string getColorStr(const int rgbCol[3]);
+    static void getKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,int scriptType,bool threaded);
+    static void getFuncKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,int scriptType,bool threaded);
+    static void getVarKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,int scriptType,bool threaded);
+    static std::string translateXml(const char* oldXml,const char* callback);
+    static const char* toBoolStr(bool v);
 
 protected:
     std::vector<SCodeEditor> _allEditors;

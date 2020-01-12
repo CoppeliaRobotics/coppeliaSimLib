@@ -5,35 +5,36 @@
 #include "simStrings.h"
 #include "vVarious.h"
 #include "app.h"
-#include "tinyxml2.h"
 
 int CCodeEditorContainer::_nextUniqueId=0;
 
-QString CCodeEditorContainer::getXmlColorString(const char* colTxt,const int rgbCol[3])
+const char* CCodeEditorContainer::toBoolStr(bool v)
 {
-    return(getXmlColorString(colTxt,rgbCol[0],rgbCol[1],rgbCol[2]));
+    static const char _true[]="true";
+    static const char _false[]="false";
+    if (v)
+        return(_true);
+    return(_false);
 }
 
-QString CCodeEditorContainer::getXmlColorString(const char* colTxt,int r,int g,int b)
+std::string CCodeEditorContainer::getColorStr(const int rgbCol[3])
 {
-    QString retVal=QString("%1=\"%2 %3 %4\"").arg(colTxt).arg(r).arg(g).arg(b);
-    return(retVal);
+    QString retVal=QString("%1 %2 %3").arg(rgbCol[0]).arg(rgbCol[1]).arg(rgbCol[2]);
+    return(retVal.toStdString());
 }
 
-QString CCodeEditorContainer::getKeywords(int scriptType,bool threaded)
+void CCodeEditorContainer::getKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,int scriptType,bool threaded)
 {
-    QString retVal="<keywords1>";
-    retVal+=getFuncKeywords(scriptType,threaded);
-    retVal+="</keywords1>";
-    retVal+="<keywords2>";
-    retVal+=getVarKeywords(scriptType,threaded);
-    retVal+="</keywords2>";
-    return(retVal);
+    sim::tinyxml2::XMLElement* keywords1Node=doc->NewElement("keywords1");
+    parentNode->InsertEndChild(keywords1Node);
+    getFuncKeywords(doc,keywords1Node,scriptType,threaded);
+    sim::tinyxml2::XMLElement* keywords2Node=doc->NewElement("keywords2");
+    parentNode->InsertEndChild(keywords2Node);
+    getVarKeywords(doc,keywords2Node,scriptType,threaded);
 }
 
-QString CCodeEditorContainer::getFuncKeywords(int scriptType,bool threaded)
+void CCodeEditorContainer::getFuncKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,int scriptType,bool threaded)
 {
-    QString retVal;
     std::vector<std::string> t;
     std::map<std::string,bool> map;
     pushAllSimFunctionNamesThatStartSame_autoCompletionList("",t,map,scriptType,threaded);
@@ -54,29 +55,38 @@ QString CCodeEditorContainer::getFuncKeywords(int scriptType,bool threaded)
                 }
             }
         }
-        retVal+=QString("<item word=\"%1\" autocomplete=\"true\" calltip=\"%2\"/>").arg(t[i].c_str()).arg(tip.c_str());
+        sim::tinyxml2::XMLElement* itemNode=doc->NewElement("item");
+        parentNode->InsertEndChild(itemNode);
+        itemNode->SetAttribute("word",t[i].c_str());
+        itemNode->SetAttribute("autocomplete",toBoolStr(true));
+        itemNode->SetAttribute("calltip",tip.c_str());
     }
-    return(retVal);
 }
 
-QString CCodeEditorContainer::getVarKeywords(int scriptType,bool threaded)
+void CCodeEditorContainer::getVarKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,int scriptType,bool threaded)
 {
-    QString retVal;
     std::vector<std::string> t;
     std::map<std::string,bool> map;
     pushAllSimVariableNamesThatStartSame_autoCompletionList("",t,map);
     App::ct->luaCustomFuncAndVarContainer->pushAllVariableNamesThatStartSame_autoCompletionList("",t,map);
     std::sort(t.begin(),t.end());
     for (size_t i=0;i<t.size();i++)
-        retVal+=QString("<item word=\"%1\" autocomplete=\"true\"/>").arg(t[i].c_str());
-    return(retVal);
+    {
+        sim::tinyxml2::XMLElement* itemNode=doc->NewElement("item");
+        parentNode->InsertEndChild(itemNode);
+        itemNode->SetAttribute("word",t[i].c_str());
+        itemNode->SetAttribute("autocomplete",toBoolStr(true));
+    }
 }
 
-QString CCodeEditorContainer::translateXml(const char* oldXml,const char* callback)
+std::string CCodeEditorContainer::translateXml(const char* oldXml,const char* callback)
 {
-    QString retVal("<editor ");
+    sim::tinyxml2::XMLDocument xmlNewDoc;
+    sim::tinyxml2::XMLElement* editorNode=xmlNewDoc.NewElement("editor");
+    xmlNewDoc.InsertFirstChild(editorNode);
+
     if (strlen(callback)>0)
-        retVal+=QString(" on-close=\"%1\"").arg(callback);
+        editorNode->SetAttribute("on-close",callback);
     if (oldXml!=nullptr)
     {
         sim::tinyxml2::XMLDocument xmldoc;
@@ -86,61 +96,61 @@ QString CCodeEditorContainer::translateXml(const char* oldXml,const char* callba
             sim::tinyxml2::XMLElement* rootElement=xmldoc.FirstChildElement();
             const char* val=rootElement->Attribute("title");
             if (val!=nullptr)
-                retVal+=QString(" title=\"%1\"").arg(val);
+                editorNode->SetAttribute("title",val);
             val=rootElement->Attribute("editable");
             if (val!=nullptr)
-                retVal+=QString(" editable=\"%1\"").arg(val);
+                editorNode->SetAttribute("editable",val);
             val=rootElement->Attribute("searchable");
             if (val!=nullptr)
-                retVal+=QString(" searchable=\"%1\"").arg(val);
+                editorNode->SetAttribute("searchable",val);
             val=rootElement->Attribute("tabWidth");
             if (val!=nullptr)
-                retVal+=QString(" tab-width=\"%1\"").arg(val);
+                editorNode->SetAttribute("tab-width",val);
             val=rootElement->Attribute("textColor");
             if (val!=nullptr)
-                retVal+=QString(" text-col=\"%1\"").arg(val);
+                editorNode->SetAttribute("text-col",val);
             val=rootElement->Attribute("backgroundColor");
             if (val!=nullptr)
-                retVal+=QString(" background-col=\"%1\"").arg(val);
+                editorNode->SetAttribute("background-col",val);
             val=rootElement->Attribute("selectionColor");
             if (val!=nullptr)
-                retVal+=QString(" selection-col=\"%1\"").arg(val);
+                editorNode->SetAttribute("selection-col",val);
             val=rootElement->Attribute("size");
             if (val!=nullptr)
-                retVal+=QString(" size=\"%1\"").arg(val);
+                editorNode->SetAttribute("size",val);
             val=rootElement->Attribute("position");
             if (val!=nullptr)
-                retVal+=QString(" position=\"%1\"").arg(val);
+                editorNode->SetAttribute("position",val);
             val=rootElement->Attribute("isLua");
             if (val!=nullptr)
-                retVal+=QString(" is-lua=\"%1\"").arg(val);
+                editorNode->SetAttribute("is-lua",val);
             val=rootElement->Attribute("commentColor");
             if (val!=nullptr)
-                retVal+=QString(" comment-col=\"%1\"").arg(val);
+                editorNode->SetAttribute("comment-col",val);
             val=rootElement->Attribute("numberColor");
             if (val!=nullptr)
-                retVal+=QString(" number-col=\"%1\"").arg(val);
+                editorNode->SetAttribute("number-col",val);
             val=rootElement->Attribute("stringColor");
             if (val!=nullptr)
-                retVal+=QString(" string-col=\"%1\"").arg(val);
+                editorNode->SetAttribute("string-col",val);
             val=rootElement->Attribute("characterColor");
             if (val!=nullptr)
-                retVal+=QString(" character-col=\"%1\"").arg(val);
+                editorNode->SetAttribute("character-col",val);
             val=rootElement->Attribute("operatorColor");
             if (val!=nullptr)
-                retVal+=QString(" operator-col=\"%1\"").arg(val);
+                editorNode->SetAttribute("operator-col",val);
             val=rootElement->Attribute("identifierColor");
             if (val!=nullptr)
-                retVal+=QString(" identifier-col=\"%1\"").arg(val);
+                editorNode->SetAttribute("identifier-col",val);
             val=rootElement->Attribute("preprocessorColor");
             if (val!=nullptr)
-                retVal+=QString(" preprocessor-col=\"%1\"").arg(val);
+                editorNode->SetAttribute("preprocessor-col",val);
             val=rootElement->Attribute("wordColor");
             if (val!=nullptr)
-                retVal+=QString(" keyword3-col=\"%1\"").arg(val);
+                editorNode->SetAttribute("keyword3-col",val);
             val=rootElement->Attribute("word4Color");
             if (val!=nullptr)
-                retVal+=QString(" keyword4-col=\"%1\"").arg(val);
+                editorNode->SetAttribute("keyword4-col",val);
             bool csimKeywords=false;
             val=rootElement->Attribute("useCoppeliaSimKeywords");
             if (val!=nullptr)
@@ -152,9 +162,18 @@ QString CCodeEditorContainer::translateXml(const char* oldXml,const char* callba
                     csimKeywords=(strcmp(val,"true")==0);
             }
 
-            retVal+=" resizable=\"true\" placement=\"absolute\" font=\"Courier\" toolbar=\"false\" statusbar=\"false\"";
-            retVal+=" can-restart=\"false\" max-lines=\"0\" wrap-word=\"false\" closeable=\"true\"";
-            retVal+=" activate=\"false\" line-numbers=\"true\" tab-width=\"4\"";
+            editorNode->SetAttribute("resizable",toBoolStr(true));
+            editorNode->SetAttribute("placement","absolute");
+            editorNode->SetAttribute("font","Courier");
+            editorNode->SetAttribute("toolbar",toBoolStr(false));
+            editorNode->SetAttribute("statusbar",toBoolStr(false));
+            editorNode->SetAttribute("can-restart",toBoolStr(false));
+            editorNode->SetAttribute("max-lines",0);
+            editorNode->SetAttribute("wrap-word",toBoolStr(false));
+            editorNode->SetAttribute("closeable",toBoolStr(true));
+            editorNode->SetAttribute("activate",toBoolStr(false));
+            editorNode->SetAttribute("line-numbers",toBoolStr(true));
+            editorNode->SetAttribute("tab-width",4);
             int fontSize=12;
             #ifdef MAC_SIM
                 fontSize=16; // bigger fonts here
@@ -165,77 +184,80 @@ QString CCodeEditorContainer::translateXml(const char* oldXml,const char* callba
             if (App::sc>1)
                 fontSize*=2;
             #endif
-            retVal+=QString(" font-size=\"%1\"").arg(fontSize);
+            editorNode->SetAttribute("font-size",fontSize);
 
             sim::tinyxml2::XMLElement* keywords1=rootElement->FirstChildElement("keywords1");
             if (keywords1!=nullptr)
             {
                 val=keywords1->Attribute("color");
                 if (val!=nullptr)
-                    retVal+=QString(" keyword1-col=\"%1\"").arg(val);
+                    editorNode->SetAttribute("keyword1-col",val);
             }
             sim::tinyxml2::XMLElement* keywords2=rootElement->FirstChildElement("keywords2");
             if (keywords2!=nullptr)
             {
                 val=keywords2->Attribute("color");
                 if (val!=nullptr)
-                    retVal+=QString(" keyword2-col=\"%1\"").arg(val);
+                    editorNode->SetAttribute("keyword2-col",val);
             }
-            retVal+=">";
 
-            retVal+="<keywords1> ";
+            sim::tinyxml2::XMLElement* keywordsNode1=xmlNewDoc.NewElement("keywords1");
+            editorNode->InsertEndChild(keywordsNode1);
+
             if (keywords1!=nullptr)
             {
                 sim::tinyxml2::XMLElement* item=keywords1->FirstChildElement("item");
                 while (item!=nullptr)
                 {
-                    retVal+="<item ";
+                    sim::tinyxml2::XMLElement* itemNode=xmlNewDoc.NewElement("item");
+                    keywordsNode1->InsertEndChild(itemNode);
+
                     val=item->Attribute("word");
                     if (val!=nullptr)
-                        retVal+=QString(" word=\"%1\"").arg(val);
+                        itemNode->SetAttribute("word",val);
                     val=item->Attribute("autocomplete");
                     if (val!=nullptr)
-                        retVal+=QString(" autocomplete=\"%1\"").arg(val);
+                        itemNode->SetAttribute("autocomplete",val);
                     val=item->Attribute("calltip");
                     if (val!=nullptr)
-                        retVal+=QString(" calltip=\"%1\"").arg(val);
+                        itemNode->SetAttribute("calltip",val);
                     item=item->NextSiblingElement("item");
-                    retVal+=" />";
                 }
                 if (csimKeywords)
-                    retVal+=getFuncKeywords(sim_scripttype_childscript,false);
+                    getFuncKeywords(&xmlNewDoc,keywordsNode1,sim_scripttype_childscript,false);
             }
-            retVal+="</keywords1>";
 
-            retVal+="<keywords2> ";
+            sim::tinyxml2::XMLElement* keywordsNode2=xmlNewDoc.NewElement("keywords2");
+            editorNode->InsertEndChild(keywordsNode2);
+
             if (keywords2!=nullptr)
             {
                 sim::tinyxml2::XMLElement* item=keywords2->FirstChildElement("item");
                 while (item!=nullptr)
                 {
-                    retVal+="<item ";
+                    sim::tinyxml2::XMLElement* itemNode=xmlNewDoc.NewElement("item");
+                    keywordsNode2->InsertEndChild(itemNode);
+
                     val=item->Attribute("word");
                     if (val!=nullptr)
-                        retVal+=QString(" word=\"%1\"").arg(val);
+                        itemNode->SetAttribute("word",val);
                     val=item->Attribute("autocomplete");
                     if (val!=nullptr)
-                        retVal+=QString(" autocomplete=\"%1\"").arg(val);
+                        itemNode->SetAttribute("autocomplete",val);
                     val=item->Attribute("calltip");
                     if (val!=nullptr)
-                        retVal+=QString(" calltip=\"%1\"").arg(val);
+                        itemNode->SetAttribute("calltip",val);
                     item=item->NextSiblingElement("item");
-                    retVal+=" />";
                 }
                 if (csimKeywords)
-                    retVal+=getVarKeywords(sim_scripttype_childscript,false);
+                    getVarKeywords(&xmlNewDoc,keywordsNode2,sim_scripttype_childscript,false);
             }
-            retVal+="</keywords2>";
-            retVal+="</editor>";
         }
     }
-    else
-        retVal+="></editor>";
-    return(retVal);
+    sim::tinyxml2::XMLPrinter printer;
+    xmlNewDoc.Print(&printer);
+//  printf("%s\n",printer.CStr());
+    return(std::string(printer.CStr()));
 }
 
 CCodeEditorContainer::CCodeEditorContainer()
@@ -317,16 +339,29 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                 }
                 int posAndSize[4];
                 it->getPreviousEditionWindowPosAndSize(posAndSize);
-                QString xml;
-                xml+=QString("<editor title=\"%1\"").arg(it->getDescriptiveName().c_str());
-                xml+=QString(" position=\"%1 %2\" size=\"%3 %4\"").arg(posAndSize[0]).arg(posAndSize[1]).arg(posAndSize[2]).arg(posAndSize[3]);
-                xml+=" resizable=\"true\" closeable=\"true\" placement=\"absolute\" font=\"Courier\" toolbar=\"true\" statusbar=\"false\" wrap-word=\"false\"";
-                if ( (it->getScriptType()==sim_scripttype_mainscript)||it->getThreadedExecution() )
-                    xml+=" can-restart=\"false\"";
-                else
-                    xml+=" can-restart=\"true\"";
-                xml+=" max-lines=\"0\" activate=\"true\" editable=\"true\" searchable=\"true\" line-numbers=\"true\" tab-width=\"4\" is-lua=\"true\"";
-                xml+=QString(" lua-search-paths=\"%1\"").arg(it->getLuaSearchPath().c_str());
+
+                sim::tinyxml2::XMLDocument xmlDoc;
+                sim::tinyxml2::XMLElement* editorNode=xmlDoc.NewElement("editor");
+                xmlDoc.InsertFirstChild(editorNode);
+                editorNode->SetAttribute("title",it->getDescriptiveName().c_str());
+                editorNode->SetAttribute("position",QString("%1 %2").arg(posAndSize[0]).arg(posAndSize[1]).toStdString().c_str());
+                editorNode->SetAttribute("size",QString("%1 %2").arg(posAndSize[2]).arg(posAndSize[3]).toStdString().c_str());
+                editorNode->SetAttribute("resizable",toBoolStr(true));
+                editorNode->SetAttribute("closeable",toBoolStr(true));
+                editorNode->SetAttribute("placement","absolute");
+                editorNode->SetAttribute("font","Courier");
+                editorNode->SetAttribute("toolbar",toBoolStr(true));
+                editorNode->SetAttribute("statusbar",toBoolStr(false));
+                editorNode->SetAttribute("wrap-word",toBoolStr(false));
+                editorNode->SetAttribute("can-restart",toBoolStr(!( (it->getScriptType()==sim_scripttype_mainscript)||it->getThreadedExecution() )));
+                editorNode->SetAttribute("max-lines",0);
+                editorNode->SetAttribute("activate",toBoolStr(true));
+                editorNode->SetAttribute("editable",toBoolStr(true));
+                editorNode->SetAttribute("searchable",toBoolStr(true));
+                editorNode->SetAttribute("line-numbers",toBoolStr(true));
+                editorNode->SetAttribute("tab-width",4);
+                editorNode->SetAttribute("is-lua",toBoolStr(true));
+                editorNode->SetAttribute("lua-search-paths",it->getLuaSearchPath().c_str());
                 int fontSize=12;
                 #ifdef MAC_SIM
                     fontSize=16; // bigger fonts here
@@ -337,63 +372,67 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                 if (App::sc>1)
                     fontSize*=2;
                 #endif
-                xml+=QString(" font-size=\"%1\"").arg(fontSize);
-                xml+=getXmlColorString("text-col",0,0,0);
+                editorNode->SetAttribute("font-size",fontSize);
+                editorNode->SetAttribute("text-col","0 0 0");
                 if (it->getScriptType()==sim_scripttype_mainscript)
                 {
-                    xml+=getXmlColorString("background-col",App::userSettings->mainScriptColor_background);
-                    xml+=getXmlColorString("selection-col",App::userSettings->mainScriptColor_selection);
-                    xml+=getXmlColorString("comment-col",App::userSettings->mainScriptColor_comment);
-                    xml+=getXmlColorString("number-col",App::userSettings->mainScriptColor_number);
-                    xml+=getXmlColorString("string-col",App::userSettings->mainScriptColor_string);
-                    xml+=getXmlColorString("character-col",App::userSettings->mainScriptColor_character);
-                    xml+=getXmlColorString("operator-col",App::userSettings->mainScriptColor_operator);
-                    xml+=getXmlColorString("identifier-col",App::userSettings->mainScriptColor_identifier);
-                    xml+=getXmlColorString("preprocessor-col",App::userSettings->mainScriptColor_preprocessor);
-                    xml+=getXmlColorString("keyword1-col",App::userSettings->mainScriptColor_word2);
-                    xml+=getXmlColorString("keyword2-col",App::userSettings->mainScriptColor_word3);
-                    xml+=getXmlColorString("keyword3-col",App::userSettings->mainScriptColor_word);
-                    xml+=getXmlColorString("keyword4-col",App::userSettings->mainScriptColor_word4);
+                    editorNode->SetAttribute("background-col",getColorStr(App::userSettings->mainScriptColor_background).c_str());
+                    editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->mainScriptColor_selection).c_str());
+                    editorNode->SetAttribute("comment-col",getColorStr(App::userSettings->mainScriptColor_comment).c_str());
+                    editorNode->SetAttribute("number-col",getColorStr(App::userSettings->mainScriptColor_number).c_str());
+                    editorNode->SetAttribute("string-col",getColorStr(App::userSettings->mainScriptColor_string).c_str());
+                    editorNode->SetAttribute("character-col",getColorStr(App::userSettings->mainScriptColor_character).c_str());
+                    editorNode->SetAttribute("operator-col",getColorStr(App::userSettings->mainScriptColor_operator).c_str());
+                    editorNode->SetAttribute("identifier-col",getColorStr(App::userSettings->mainScriptColor_identifier).c_str());
+                    editorNode->SetAttribute("preprocessor-col",getColorStr(App::userSettings->mainScriptColor_preprocessor).c_str());
+                    editorNode->SetAttribute("keyword1-col",getColorStr(App::userSettings->mainScriptColor_word2).c_str());
+                    editorNode->SetAttribute("keyword2-col",getColorStr(App::userSettings->mainScriptColor_word3).c_str());
+                    editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->mainScriptColor_word).c_str());
+                    editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->mainScriptColor_word4).c_str());
                 }
                 if (it->getScriptType()==sim_scripttype_childscript)
                 {
                     if (it->getThreadedExecution())
                     {
-                        xml+=getXmlColorString("background-col",App::userSettings->threadedChildScriptColor_background);
-                        xml+=getXmlColorString("selection-col",App::userSettings->threadedChildScriptColor_selection);
-                        xml+=getXmlColorString("comment-col",App::userSettings->threadedChildScriptColor_comment);
-                        xml+=getXmlColorString("number-col",App::userSettings->threadedChildScriptColor_number);
-                        xml+=getXmlColorString("string-col",App::userSettings->threadedChildScriptColor_string);
-                        xml+=getXmlColorString("character-col",App::userSettings->threadedChildScriptColor_character);
-                        xml+=getXmlColorString("operator-col",App::userSettings->threadedChildScriptColor_operator);
-                        xml+=getXmlColorString("identifier-col",App::userSettings->threadedChildScriptColor_identifier);
-                        xml+=getXmlColorString("preprocessor-col",App::userSettings->threadedChildScriptColor_preprocessor);
-                        xml+=getXmlColorString("keyword1-col",App::userSettings->threadedChildScriptColor_word2);
-                        xml+=getXmlColorString("keyword2-col",App::userSettings->threadedChildScriptColor_word3);
-                        xml+=getXmlColorString("keyword3-col",App::userSettings->threadedChildScriptColor_word);
-                        xml+=getXmlColorString("keyword4-col",App::userSettings->threadedChildScriptColor_word4);
+                        editorNode->SetAttribute("background-col",getColorStr(App::userSettings->threadedChildScriptColor_background).c_str());
+                        editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->threadedChildScriptColor_selection).c_str());
+                        editorNode->SetAttribute("comment-col",getColorStr(App::userSettings->threadedChildScriptColor_comment).c_str());
+                        editorNode->SetAttribute("number-col",getColorStr(App::userSettings->threadedChildScriptColor_number).c_str());
+                        editorNode->SetAttribute("string-col",getColorStr(App::userSettings->threadedChildScriptColor_string).c_str());
+                        editorNode->SetAttribute("character-col",getColorStr(App::userSettings->threadedChildScriptColor_character).c_str());
+                        editorNode->SetAttribute("operator-col",getColorStr(App::userSettings->threadedChildScriptColor_operator).c_str());
+                        editorNode->SetAttribute("identifier-col",getColorStr(App::userSettings->threadedChildScriptColor_identifier).c_str());
+                        editorNode->SetAttribute("preprocessor-col",getColorStr(App::userSettings->threadedChildScriptColor_preprocessor).c_str());
+                        editorNode->SetAttribute("keyword1-col",getColorStr(App::userSettings->threadedChildScriptColor_word2).c_str());
+                        editorNode->SetAttribute("keyword2-col",getColorStr(App::userSettings->threadedChildScriptColor_word3).c_str());
+                        editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->threadedChildScriptColor_word).c_str());
+                        editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->threadedChildScriptColor_word4).c_str());
                     }
                     else
                     {
-                        xml+=getXmlColorString("background-col",App::userSettings->nonThreadedChildScriptColor_background);
-                        xml+=getXmlColorString("selection-col",App::userSettings->nonThreadedChildScriptColor_selection);
-                        xml+=getXmlColorString("comment-col",App::userSettings->nonThreadedChildScriptColor_comment);
-                        xml+=getXmlColorString("number-col",App::userSettings->nonThreadedChildScriptColor_number);
-                        xml+=getXmlColorString("string-col",App::userSettings->nonThreadedChildScriptColor_string);
-                        xml+=getXmlColorString("character-col",App::userSettings->nonThreadedChildScriptColor_character);
-                        xml+=getXmlColorString("operator-col",App::userSettings->nonThreadedChildScriptColor_operator);
-                        xml+=getXmlColorString("identifier-col",App::userSettings->nonThreadedChildScriptColor_identifier);
-                        xml+=getXmlColorString("preprocessor-col",App::userSettings->nonThreadedChildScriptColor_preprocessor);
-                        xml+=getXmlColorString("keyword1-col",App::userSettings->nonThreadedChildScriptColor_word2);
-                        xml+=getXmlColorString("keyword2-col",App::userSettings->nonThreadedChildScriptColor_word3);
-                        xml+=getXmlColorString("keyword3-col",App::userSettings->nonThreadedChildScriptColor_word);
-                        xml+=getXmlColorString("keyword4-col",App::userSettings->nonThreadedChildScriptColor_word4);
+                        editorNode->SetAttribute("background-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_background).c_str());
+                        editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_selection).c_str());
+                        editorNode->SetAttribute("comment-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_comment).c_str());
+                        editorNode->SetAttribute("number-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_number).c_str());
+                        editorNode->SetAttribute("string-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_string).c_str());
+                        editorNode->SetAttribute("character-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_character).c_str());
+                        editorNode->SetAttribute("operator-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_operator).c_str());
+                        editorNode->SetAttribute("identifier-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_identifier).c_str());
+                        editorNode->SetAttribute("preprocessor-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_preprocessor).c_str());
+                        editorNode->SetAttribute("keyword1-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word2).c_str());
+                        editorNode->SetAttribute("keyword2-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word3).c_str());
+                        editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word).c_str());
+                        editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word4).c_str());
                     }
                 }
-                xml+=">";
-                xml+=getKeywords(it->getScriptType(),it->getThreadedExecution());
-                xml+"</editor>";
-                retVal=CPluginContainer::codeEditor_open(it->getScriptText(),xml.toStdString().c_str());
+
+                getKeywords(&xmlDoc,editorNode,it->getScriptType(),it->getThreadedExecution());
+
+                sim::tinyxml2::XMLPrinter printer;
+                xmlDoc.Print(&printer);
+                //printf("%s\n",printer.CStr());
+
+                retVal=CPluginContainer::codeEditor_open(it->getScriptText(),printer.CStr());
                 SCodeEditor inf;
                 inf.handle=retVal;
                 inf.scriptHandle=scriptHandle;
@@ -448,12 +487,29 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
             {
                 int posAndSize[4];
                 it->getPreviousEditionWindowPosAndSize(posAndSize);
-                QString xml;
-                xml+=QString("<editor title=\"%1\"").arg(it->getDescriptiveName().c_str());
-                xml+=QString(" position=\"%1 %2\" size=\"%3 %4\"").arg(posAndSize[0]).arg(posAndSize[1]).arg(posAndSize[2]).arg(posAndSize[3]);
-                xml+=" resizable=\"true\" closeable=\"true\" placement=\"absolute\" font=\"Courier\" toolbar=\"true\" statusbar=\"false\" wrap-word=\"false\"";
-                xml+=" max-lines=\"0\" can-restart=\"true\"";
-                xml+=" activate=\"true\" editable=\"true\" searchable=\"true\" line-numbers=\"true\" tab-width=\"4\" is-lua=\"true\"";
+
+                sim::tinyxml2::XMLDocument xmlDoc;
+                sim::tinyxml2::XMLElement* editorNode=xmlDoc.NewElement("editor");
+                xmlDoc.InsertFirstChild(editorNode);
+                editorNode->SetAttribute("title",it->getDescriptiveName().c_str());
+                editorNode->SetAttribute("position",QString("%1 %2").arg(posAndSize[0]).arg(posAndSize[1]).toStdString().c_str());
+                editorNode->SetAttribute("size",QString("%1 %2").arg(posAndSize[2]).arg(posAndSize[3]).toStdString().c_str());
+                editorNode->SetAttribute("resizable",toBoolStr(true));
+                editorNode->SetAttribute("closeable",toBoolStr(true));
+                editorNode->SetAttribute("placement","absolute");
+                editorNode->SetAttribute("font","Courier");
+                editorNode->SetAttribute("toolbar",toBoolStr(true));
+                editorNode->SetAttribute("statusbar",toBoolStr(false));
+                editorNode->SetAttribute("wrap-word",toBoolStr(false));
+                editorNode->SetAttribute("can-restart",toBoolStr(true));
+                editorNode->SetAttribute("max-lines",0);
+                editorNode->SetAttribute("activate",toBoolStr(true));
+                editorNode->SetAttribute("editable",toBoolStr(true));
+                editorNode->SetAttribute("searchable",toBoolStr(true));
+                editorNode->SetAttribute("line-numbers",toBoolStr(true));
+                editorNode->SetAttribute("tab-width",4);
+                editorNode->SetAttribute("is-lua",toBoolStr(true));
+                editorNode->SetAttribute("lua-search-paths",it->getLuaSearchPath().c_str());
                 int fontSize=12;
                 #ifdef MAC_SIM
                     fontSize=16; // bigger fonts here
@@ -464,27 +520,29 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                 if (App::sc>1)
                     fontSize*=2;
                 #endif
-                xml+=QString(" lua-search-paths=\"%1\"").arg(it->getLuaSearchPath().c_str());
-                xml+=QString(" font-size=\"%1\"").arg(fontSize);
-                xml+=getXmlColorString("text-col",0,0,0);
-                xml+=getXmlColorString("background-col",App::userSettings->customizationScriptColor_background);
-                xml+=getXmlColorString("selection-col",App::userSettings->customizationScriptColor_selection);
-                xml+=getXmlColorString("comment-col",App::userSettings->customizationScriptColor_comment);
-                xml+=getXmlColorString("number-col",App::userSettings->customizationScriptColor_number);
-                xml+=getXmlColorString("string-col",App::userSettings->customizationScriptColor_string);
-                xml+=getXmlColorString("character-col",App::userSettings->customizationScriptColor_character);
-                xml+=getXmlColorString("operator-col",App::userSettings->customizationScriptColor_operator);
-                xml+=getXmlColorString("identifier-col",App::userSettings->customizationScriptColor_identifier);
-                xml+=getXmlColorString("preprocessor-col",App::userSettings->customizationScriptColor_preprocessor);
-                xml+=getXmlColorString("keyword1-col",App::userSettings->customizationScriptColor_word2);
-                xml+=getXmlColorString("keyword2-col",App::userSettings->customizationScriptColor_word3);
-                xml+=getXmlColorString("keyword3-col",App::userSettings->customizationScriptColor_word);
-                xml+=getXmlColorString("keyword4-col",App::userSettings->customizationScriptColor_word4);
+                editorNode->SetAttribute("font-size",fontSize);
+                editorNode->SetAttribute("text-col","0 0 0");
+                editorNode->SetAttribute("background-col",getColorStr(App::userSettings->customizationScriptColor_background).c_str());
+                editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->customizationScriptColor_selection).c_str());
+                editorNode->SetAttribute("comment-col",getColorStr(App::userSettings->customizationScriptColor_comment).c_str());
+                editorNode->SetAttribute("number-col",getColorStr(App::userSettings->customizationScriptColor_number).c_str());
+                editorNode->SetAttribute("string-col",getColorStr(App::userSettings->customizationScriptColor_string).c_str());
+                editorNode->SetAttribute("character-col",getColorStr(App::userSettings->customizationScriptColor_character).c_str());
+                editorNode->SetAttribute("operator-col",getColorStr(App::userSettings->customizationScriptColor_operator).c_str());
+                editorNode->SetAttribute("identifier-col",getColorStr(App::userSettings->customizationScriptColor_identifier).c_str());
+                editorNode->SetAttribute("preprocessor-col",getColorStr(App::userSettings->customizationScriptColor_preprocessor).c_str());
+                editorNode->SetAttribute("keyword1-col",getColorStr(App::userSettings->customizationScriptColor_word2).c_str());
+                editorNode->SetAttribute("keyword2-col",getColorStr(App::userSettings->customizationScriptColor_word3).c_str());
+                editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->customizationScriptColor_word).c_str());
+                editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->customizationScriptColor_word4).c_str());
 
-                xml+=">";
-                xml+=getKeywords(it->getScriptType(),it->getThreadedExecution());
-                xml+"</editor>";
-                retVal=CPluginContainer::codeEditor_open(it->getScriptText(),xml.toStdString().c_str());
+                getKeywords(&xmlDoc,editorNode,it->getScriptType(),it->getThreadedExecution());
+
+                sim::tinyxml2::XMLPrinter printer;
+                xmlDoc.Print(&printer);
+                //printf("%s\n",printer.CStr());
+
+                retVal=CPluginContainer::codeEditor_open(it->getScriptText(),printer.CStr());
                 SCodeEditor inf;
                 inf.handle=retVal;
                 inf.scriptHandle=scriptHandle;
@@ -532,21 +590,29 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
             if (backColor!=nullptr)
                 _backColor[i]=backColor[i];
         }
-        QString xml;
-        xml+=QString("<editor title=\"%1\"").arg(title);
-        xml+=QString(" position=\"%1 %2\" size=\"%3 %4\"").arg(_position[0]).arg(_position[1]).arg(_size[0]).arg(_size[1]);
-        xml+=" resizable=\"true\" placement=\"absolute\" font=\"Courier\" toolbar=\"false\" statusbar=\"false\"";
-        xml+=" can-restart=\"false\"";
-        xml+=QString(" max-lines=\"%1\"").arg(maxLines);
-        xml+=" activate=\"false\" editable=\"false\" searchable=\"false\" line-numbers=\"false\" tab-width=\"4\" is-lua=\"false\"";
-        if (mode&2)
-            xml+="  wrap-word=\"true\"";
-        else
-            xml+="  wrap-word=\"false\"";
-        if (mode&4)
-            xml+="  closeable=\"true\"";
-        else
-            xml+="  closeable=\"false\"";
+
+        sim::tinyxml2::XMLDocument xmlDoc;
+        sim::tinyxml2::XMLElement* editorNode=xmlDoc.NewElement("editor");
+        xmlDoc.InsertFirstChild(editorNode);
+        editorNode->SetAttribute("title",title);
+        editorNode->SetAttribute("position",QString("%1 %2").arg(_position[0]).arg(_position[1]).toStdString().c_str());
+        editorNode->SetAttribute("size",QString("%1 %2").arg(_size[0]).arg(_size[1]).toStdString().c_str());
+
+        editorNode->SetAttribute("resizable",toBoolStr(true));
+        editorNode->SetAttribute("closeable",toBoolStr((mode&4)!=0));
+        editorNode->SetAttribute("placement","absolute");
+        editorNode->SetAttribute("font","Courier");
+        editorNode->SetAttribute("toolbar",toBoolStr(false));
+        editorNode->SetAttribute("statusbar",toBoolStr(false));
+        editorNode->SetAttribute("wrap-word",toBoolStr((mode&2)!=0));
+        editorNode->SetAttribute("can-restart",toBoolStr(false));
+        editorNode->SetAttribute("max-lines",maxLines);
+        editorNode->SetAttribute("activate",toBoolStr(false));
+        editorNode->SetAttribute("editable",toBoolStr(false));
+        editorNode->SetAttribute("searchable",toBoolStr(false));
+        editorNode->SetAttribute("line-numbers",toBoolStr(false));
+        editorNode->SetAttribute("tab-width",4);
+        editorNode->SetAttribute("is-lua",toBoolStr(false));
         int fontSize=12;
         #ifdef MAC_SIM
             fontSize=16; // bigger fonts here
@@ -557,11 +623,15 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
         if (App::sc>1)
             fontSize*=2;
         #endif
-        xml+=QString(" font-size=\"%1\"").arg(fontSize);
-        xml+=getXmlColorString("text-col",_textColor);
-        xml+=getXmlColorString("background-col",_backColor);
-        xml+="></editor>";
-        retVal=CPluginContainer::codeEditor_open("",xml.toStdString().c_str());
+        editorNode->SetAttribute("font-size",fontSize);
+        editorNode->SetAttribute("text-col",getColorStr(_textColor).c_str());
+        editorNode->SetAttribute("background-col",getColorStr(_backColor).c_str());
+
+        sim::tinyxml2::XMLPrinter printer;
+        xmlDoc.Print(&printer);
+        //printf("%s\n",printer.CStr());
+
+        retVal=CPluginContainer::codeEditor_open("",printer.CStr());
         SCodeEditor inf;
         inf.handle=retVal;
         inf.scriptHandle=-1;
@@ -588,11 +658,11 @@ std::string CCodeEditorContainer::openModalTextEditor(const char* initText,const
     std::string retVal;
     if (CPluginContainer::isCodeEditorPluginAvailable())
     {
-        QString newXml;
+        std::string newXml;
         if (xml!=nullptr)
             newXml=translateXml(xml,"");
         int posAndSize[4];
-        CPluginContainer::codeEditor_openModal(initText,newXml.toStdString().c_str(),retVal,posAndSize);
+        CPluginContainer::codeEditor_openModal(initText,newXml.c_str(),retVal,posAndSize);
         if (windowSizeAndPos!=nullptr)
         {
             windowSizeAndPos[0]=posAndSize[2];
@@ -611,9 +681,9 @@ int CCodeEditorContainer::openTextEditor(const char* initText,const char* xml,co
     int retVal=-1;
     if (CPluginContainer::isCodeEditorPluginAvailable())
     {
-        QString newXml;
+        std::string newXml;
         newXml=translateXml(xml,callback);
-        retVal=CPluginContainer::codeEditor_open(initText,newXml.toStdString().c_str());
+        retVal=CPluginContainer::codeEditor_open(initText,newXml.c_str());
         SCodeEditor inf;
         inf.handle=retVal;
         inf.scriptHandle=-1;
