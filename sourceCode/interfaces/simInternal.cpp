@@ -5853,10 +5853,19 @@ simInt simAssociateScriptWithObject_internal(simInt scriptHandle,simInt associat
                     { // object does exist
                         if (it->getObjectIDThatScriptIsAttachedTo()==-1)
                         { // script not yet associated
+                            CLuaScriptObject* currentSimilarObj=nullptr;
                             if (it->getScriptType()==sim_scripttype_childscript)
+                                currentSimilarObj=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(associatedObjectHandle);
+                            if (it->getScriptType()==sim_scripttype_customizationscript)
+                                currentSimilarObj=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(associatedObjectHandle);
+                            if (currentSimilarObj==nullptr)
+                            {
                                 it->setObjectIDThatScriptIsAttachedTo(associatedObjectHandle);
-                            App::setLightDialogRefreshFlag();
-                            retVal=1;
+                                App::setLightDialogRefreshFlag();
+                                retVal=1;
+                            }
+                            else
+                                CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_OBJECT_ALREADY_ASSOCIATED_WITH_SCRIPT_TYPE);
                         }
                     }
                 }

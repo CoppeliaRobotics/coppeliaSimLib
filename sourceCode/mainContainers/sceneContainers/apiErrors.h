@@ -74,6 +74,7 @@
 #define SIM_ERROR_SCRIPT_NOT_TAGGED_FOR_EXPLICIT_HANDLING           "Script not tagged for explicit handling."
 #define SIM_ERROR_SCRIPT_WAS_DESTROYED          "Script was destroyed."
 #define SIM_ERROR_SCRIPT_NOT_CHILD_OR_CUSTOMIZATION_SCRIPT           "Script is not a child or customization script."
+#define SIM_ERROR_OBJECT_ALREADY_ASSOCIATED_WITH_SCRIPT_TYPE         "Object is already associated with such a script type."
 #define SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED           "Custom function could not be registered."
 #define SIM_ERROR_CUSTOM_LUA_VAR_COULD_NOT_BE_REGISTERED            "Custom variable could not be registered."
 #define SIM_ERROR_MAIN_WINDOW_NOT_INITIALIZED           "Main window not initialized."

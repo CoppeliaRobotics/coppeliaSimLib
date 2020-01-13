@@ -2513,6 +2513,7 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
         maxIterations=intParams[3];
         if (maxIterations<=0)
             maxIterations=4; // zero asks for default value
+        useHACD=true; // forgotten, fixed thanks to Patrick Gruener
         if (options&128)
         { // we have more parameters than usual (i.e. the V-HACD parameters):
             useHACD=false;
@@ -2528,7 +2529,6 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
             voxelBasedMode=!(options&512);
             maxVerticesPerCH=intParams[9];
             minVolumePerCH=floatParams[9];
-
         }
     }
     bool abortp=false;
