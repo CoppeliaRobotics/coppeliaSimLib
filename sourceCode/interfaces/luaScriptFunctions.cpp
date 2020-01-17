@@ -6120,26 +6120,40 @@ int _simGetObjectHandle(luaWrap_lua_State* L)
     LUA_START("sim.getObjectHandle");
 
     int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_string,0))
-    {
-        std::string name(luaWrap_lua_tostring(L,1));
-        size_t pos=name.find("@alt");
-        size_t pos2=name.find("@");
-        if (pos==std::string::npos)
-        { // handle retrieval via regular name
-            std::string n(name);
-            if (pos2!=std::string::npos)
-                n.assign(name.begin(),name.begin()+pos2);
-            if (suffixAdjustStringIfNeeded(functionName,true,L,n))
-            {
-                if (pos2!=std::string::npos)
-                    n=n+std::string(name.begin()+pos2,name.end());
-                quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
-                retVal=simGetObjectHandle_internal(n.c_str());
-            }
+
+    if (checkInputArguments(L,nullptr,lua_arg_number,0)) // do not output error if not string
+    { // argument sim.handle_self
+        if (luaWrap_lua_tointeger(L,1)==sim_handle_self)
+        {
+            int a=getCurrentScriptID(L);
+            retVal=simGetObjectAssociatedWithScript_internal(a);
         }
         else
-            retVal=simGetObjectHandle_internal(name.c_str()); // handle retrieval via alt name
+            errorString=SIM_ERROR_INVALID_ARGUMENT;
+    }
+    else
+    {
+        if (checkInputArguments(L,&errorString,lua_arg_string,0))
+        {
+            std::string name(luaWrap_lua_tostring(L,1));
+            size_t pos=name.find("@alt");
+            size_t pos2=name.find("@");
+            if (pos==std::string::npos)
+            { // handle retrieval via regular name
+                std::string n(name);
+                if (pos2!=std::string::npos)
+                    n.assign(name.begin(),name.begin()+pos2);
+                if (suffixAdjustStringIfNeeded(functionName,true,L,n))
+                {
+                    if (pos2!=std::string::npos)
+                        n=n+std::string(name.begin()+pos2,name.end());
+                    quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
+                    retVal=simGetObjectHandle_internal(n.c_str());
+                }
+            }
+            else
+                retVal=simGetObjectHandle_internal(name.c_str()); // handle retrieval via alt name
+        }
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!

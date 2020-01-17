@@ -4450,14 +4450,14 @@ simInt simSetStringParameter_internal(simInt parameter,const simChar* str)
             App::setApplicationArgument(parameter-sim_stringparam_app_arg1,str);
             return(1);
         }
-        if (parameter==sim_stringparam_additional_addonscript_firstscene)
+        if (parameter==sim_stringparam_additional_addonscript1)
         {
-            App::ct->addOnScriptContainer->setAdditionalAddOnScript(str);
+            App::setAdditionalAddOnScript1(str);
             return(1);
         }
-        if (parameter==sim_stringparam_additional_addonscript)
+        if (parameter==sim_stringparam_additional_addonscript2)
         {
-            App::ct->addOnScriptContainer->setAdditionalAddOnScript(str);
+            App::setAdditionalAddOnScript2(str);
             return(1);
         }
         if (parameter==sim_stringparam_job)

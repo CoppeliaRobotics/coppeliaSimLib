@@ -38,11 +38,6 @@ void CAddOnScriptContainer::simulationAboutToEnd()
         allAddOnScripts[i]->simulationAboutToEnd();
 }
 
-void CAddOnScriptContainer::setAdditionalAddOnScript(std::string scriptNameWithExtension)
-{
-    _additionalAddOnScriptAllScenes=scriptNameWithExtension;
-}
-
 CLuaScriptObject* CAddOnScriptContainer::getAddOnScriptFromID(int scriptID) const
 {
     for (size_t i=0;i<allAddOnScripts.size();i++)
@@ -119,13 +114,10 @@ int CAddOnScriptContainer::insertAddOnScripts()
 
     // Now the additional add-on scripts (this is enabled via command line options -a and -b:
     std::vector<std::string> additionalScripts;
-    if (_additionalAddOnScriptAllScenes.length()!=0)
-    {
-        additionalScripts.push_back(_additionalAddOnScriptAllScenes);
-        _additionalAddOnScriptAllScenes="";
-    }
-    if (_additionalAddOnScriptAllScenes.length()!=0)
-        additionalScripts.push_back(_additionalAddOnScriptAllScenes);
+    if (App::getAdditionalAddOnScript1().length()>0)
+        additionalScripts.push_back(App::getAdditionalAddOnScript1());
+    if (App::getAdditionalAddOnScript2().length()>0)
+        additionalScripts.push_back(App::getAdditionalAddOnScript2());
     for (size_t addScr=0;addScr<additionalScripts.size();addScr++)
     {
         std::string fp(additionalScripts[addScr]);

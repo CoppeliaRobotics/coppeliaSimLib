@@ -37,7 +37,6 @@ public:
 
     bool handleAddOnScriptExecution_beforeMainScript();
     int handleAddOnScriptExecution(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack);
-    void setAdditionalAddOnScript(std::string scriptNameWithExtension);
 
     std::vector<CLuaScriptObject*> allAddOnScripts;
     std::vector<std::string> allAddOnFunctionNames;
@@ -45,7 +44,4 @@ public:
 #ifdef SIM_WITH_GUI
     void addMenu(VMenu* menu);
 #endif
-
-protected:
-    std::string _additionalAddOnScriptAllScenes;
 };

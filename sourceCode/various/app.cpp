@@ -42,6 +42,8 @@ bool App::_canInitSimThread=false;
 bool App::_simulatorIsRunning=false;
 std::vector<std::string> App::_applicationArguments;
 std::map<std::string,std::string> App::_applicationNamedParams;
+std::string App::_additionalAddOnScript1;
+std::string App::_additionalAddOnScript2;
 volatile int App::_quitLevel=0;
 
 int App::sc=1;
@@ -446,6 +448,8 @@ App::~App()
 #endif // SIM_WITHOUT_QT_AT_ALL
     _applicationArguments.clear();
     _applicationNamedParams.clear();
+    _additionalAddOnScript1.clear();
+    _additionalAddOnScript2.clear();
 }
 
 bool App::wasInitSuccessful()
@@ -670,6 +674,26 @@ void App::setApplicationArgument(int index,std::string arg)
     }
     if (index<9)
         _applicationArguments[index]=arg;
+}
+
+void App::setAdditionalAddOnScript1(const char* script)
+{
+    _additionalAddOnScript1=script;
+}
+
+std::string App::getAdditionalAddOnScript1()
+{
+    return(_additionalAddOnScript1);
+}
+
+void App::setAdditionalAddOnScript2(const char* script)
+{
+    _additionalAddOnScript2=script;
+}
+
+std::string App::getAdditionalAddOnScript2()
+{
+    return(_additionalAddOnScript2);
 }
 
 std::string App::getApplicationNamedParam(const char* paramName)
