@@ -2,6 +2,7 @@
 
 #include "syncObject.h"
 #include "MyMath.h"
+#include <string>
 
 class CSceneObject;
 
