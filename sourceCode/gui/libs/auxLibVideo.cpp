@@ -63,7 +63,7 @@ void CAuxLibVideo::loadLibrary(bool headless)
                 msg+="\n    >sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev";
                 msg+="\n    if above fails, try first:";
                 msg+="\n    >sudo apt-get -f install";
-                msg+="\n");
+                msg+="\n";
                 #endif
                 App::logMsg(sim_verbosity_errors,msg.c_str());
             }
