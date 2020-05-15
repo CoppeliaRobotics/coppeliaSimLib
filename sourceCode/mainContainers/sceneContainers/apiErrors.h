@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 #ifndef WIN_SIM
     #include <pthread.h>
 #endif
