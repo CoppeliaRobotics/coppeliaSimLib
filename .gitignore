@@ -2,7 +2,6 @@
 *.user.*
 *.user
 *.o
-*.h
 libcoppeliaSim.*
 ui_qdlg*.h
 .qmake.stash
