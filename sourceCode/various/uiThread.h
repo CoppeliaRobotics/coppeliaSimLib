@@ -3,7 +3,7 @@
 #include "3Vector.h"
 #include "4Vector.h"
 #include "7Vector.h"
-#include "3DObject.h"
+#include "sceneObject.h"
 
 struct SUIThreadCommand
 {
@@ -60,8 +60,6 @@ enum {  OPEN_OR_CLOSE_UITHREADCMD=0,
         MAIN_WINDOW_VIEW_SELECTOR_DLG_REOPEN_MWUITHREADCMD,
         MAIN_WINDOW_PAGE_SELECTOR_DLG_CLOSE_MWUITHREADCMD,
         MAIN_WINDOW_PAGE_SELECTOR_DLG_REOPEN_MWUITHREADCMD,
-        MAIN_WINDOW_SCENE_SELECTOR_DLG_CLOSE_MWUITHREADCMD,
-        MAIN_WINDOW_SCENE_SELECTOR_DLG_REOPEN_MWUITHREADCMD,
         MAIN_WINDOW_SET_FULLSCREEN_MWTHREADCMD,
         MAIN_WINDOW_ACTIVATE_MWUITHREADCMD,
         MAIN_WINDOW_CLOSE_DLG_MWUITHREADCMD,
@@ -149,7 +147,6 @@ public:
 
 private:
     int _frameId;
-    bool _frame_bufferMainDisplayStateVariables;
     int _lastFrameId;
 
 #ifndef SIM_WITHOUT_QT_AT_ALL
@@ -170,7 +167,6 @@ private slots:
 public:
     int getLastFrameId();
     void setLastFrameId(int fid);
-    void requestSceneRender(bool bufferMainDisplayStateVariables); // not waiting
     void requestSceneRender_wait();
     int messageBox_api(int boxType,int buttons,const char* title,const char* message);
     bool messageBox_checkbox(void* parentWidget,const std::string& title,const std::string& message,const std::string& checkboxMessage);
@@ -191,11 +187,9 @@ private:
     unsigned short _messageBox(int type,void* parentWidget,const std::string& title,const std::string& message,unsigned short flags);
 
 signals:
-    void _requestSceneRender_wait(bool bufferMainDisplayStateVariables);
-    void _requestSceneRender(bool bufferMainDisplayStateVariables);
+    void _requestSceneRender_wait();
 
 private slots:
-    void __requestSceneRender(bool bufferMainDisplayStateVariables);
-    void __requestSceneRender_wait(bool bufferMainDisplayStateVariables);
+    void __requestSceneRender_wait();
 #endif
 };

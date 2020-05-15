@@ -52,7 +52,7 @@ void CQDlgCollections::refresh()
 
 void CQDlgCollections::refreshButtons()
 {
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     ui->qqNewCollection->setEnabled(noEditModeNoSim);
     ui->qqAllObjects->setEnabled((getAllowedOpType(0)==0)&&noEditModeNoSim);
@@ -80,11 +80,11 @@ int CQDlgCollections::getAllowedOpType(int desiredOp)
     bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
     if ((selGrp==-1)||(!noEditMode))
         return(-1);
-    int selSize=App::ct->objCont->getSelSize();
+    size_t selSize=App::currentWorld->sceneObjects->getSelectionCount();
     bool grSizeZero=true;
-    CRegCollection* it=App::ct->collections->getCollection(selGrp);
+    CCollection* it=App::currentWorld->collections->getObjectFromHandle(selGrp);
     if (it!=nullptr)
-        grSizeZero=(it->collectionObjects.size()==0);
+        grSizeZero=(it->getSceneObjectCountInCollection()==0);
     int opType=desiredOp;
     int impossibleTypes=0;
 
@@ -125,24 +125,24 @@ int CQDlgCollections::getAllowedOpType(int desiredOp)
 
 void CQDlgCollections::refreshSubGroupList()
 {
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
-    CRegCollection* it=App::ct->collections->getCollection(getSelectedGroupID());
+    CCollection* it=App::currentWorld->collections->getObjectFromHandle(getSelectedGroupID());
     ui->qqElementList->clear();
     ui->qqOverride->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqElementList->setEnabled((it!=nullptr)&&noEditModeNoSim);
     if (it!=nullptr)
     {
-        for (int i=0;i<int(it->subCollectionList.size());i++)
+        for (size_t i=0;i<it->getElementCount();i++)
         {
-            CRegCollectionEl* it2=it->subCollectionList[i];
+            CCollectionElement* it2=it->getElementFromIndex(i);
             if (it2!=nullptr)
             {
                 std::string signChar="+";
-                if (!it2->isAdditive())
+                if (!it2->getIsAdditive())
                     signChar="-";
                 std::string objName=" [";
-                C3DObject* theObj=App::ct->objCont->getObjectFromHandle(it2->getMainObject());
+                CSceneObject* theObj=App::currentWorld->sceneObjects->getObjectFromHandle(it2->getMainObject());
                 if (theObj!=nullptr)
                 {
                     objName=objName.append(theObj->getObjectName());
@@ -151,20 +151,20 @@ void CQDlgCollections::refreshSubGroupList()
                 else
                     objName=" [ - ]";
                 std::string tmp;
-                if (it2->getCollectionType()==GROUP_LOOSE)
+                if (it2->getElementType()==sim_collectionelement_loose)
                     tmp=signChar.append(IDS_LOOSE_OBJECT);
-                if (it2->getCollectionType()==GROUP_FROM_BASE_INCLUDED)
+                if (it2->getElementType()==sim_collectionelement_frombaseincluded)
                     tmp=signChar.append(IDS_FROM_OBJECT__INCL___UP);
-                if (it2->getCollectionType()==GROUP_FROM_BASE_EXCLUDED)
+                if (it2->getElementType()==sim_collectionelement_frombaseexcluded)
                     tmp=signChar.append(IDS_FROM_OBJECT__EXCL___UP);
-                if (it2->getCollectionType()==GROUP_FROM_TIP_INCLUDED)
+                if (it2->getElementType()==sim_collectionelement_fromtipincluded)
                     tmp=signChar.append(IDS_FROM_OBJECT__INCL___DOWN);
-                if (it2->getCollectionType()==GROUP_FROM_TIP_EXCLUDED)
+                if (it2->getElementType()==sim_collectionelement_fromtipexcluded)
                     tmp=signChar.append(IDS_FROM_OBJECT__EXCL___DOWN);
-                if (it2->getCollectionType()==GROUP_EVERYTHING)
+                if (it2->getElementType()==sim_collectionelement_all)
                     tmp=signChar.append(IDS_ALL_OBJECTS);
                 tmp=tmp.append(objName);
-                int id=it2->getSubCollectionID();
+                int id=it2->getElementHandle();
                 QListWidgetItem* itm=new QListWidgetItem(tmp.c_str());
                 itm->setData(Qt::UserRole,QVariant(id));
                 ui->qqElementList->addItem(itm);
@@ -203,14 +203,14 @@ void CQDlgCollections::selectGroup(int groupID)
 void CQDlgCollections::refreshGroupList()
 { // It is not good to clear all, then add everything again, because the selection state gets lost
             //  // 1. Remove all items that are not valid anymore, and update the existing ones (REMOVED)
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
     ui->qqCollectionList->clear();
     ui->qqCollectionList->setEnabled(noEditModeNoSim);
-    for (int i=0;i<int(App::ct->collections->allCollections.size());i++)
+    for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
     {
-        CRegCollection* it=App::ct->collections->allCollections[i];
+        CCollection* it=App::currentWorld->collections->getObjectFromIndex(i);
         std::string tmp=it->getCollectionName();
-        int id=it->getCollectionID();
+        int id=it->getCollectionHandle();
         QListWidgetItem* itm=new QListWidgetItem(tmp.c_str());
         itm->setData(Qt::UserRole,QVariant(id));
         itm->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsEnabled);
@@ -270,7 +270,7 @@ void CQDlgCollections::onDeletePressed()
             int grpID=getSelectedGroupID();
             if (grpID!=-1)
             {
-                CRegCollection* theGroup=App::ct->collections->getCollection(grpID);
+                CCollection* theGroup=App::currentWorld->collections->getObjectFromHandle(grpID);
                 if (theGroup!=nullptr)
                 {
                     QList<QListWidgetItem*> sel=ui->qqElementList->selectedItems();
@@ -297,11 +297,11 @@ void CQDlgCollections::on_qqVisualizeCollection_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         int grpID=getSelectedGroupID();
-        CRegCollection* coll=App::ct->collections->getCollection(grpID);
+        CCollection* coll=App::currentWorld->collections->getObjectFromHandle(grpID);
         SSimulationThreadCommand cmd;
         cmd.cmdId=SET_OBJECT_SELECTION_GUITRIGGEREDCMD;
-        for (size_t i=0;i<coll->collectionObjects.size();i++)
-            cmd.intParams.push_back(coll->collectionObjects[i]);
+        for (size_t i=0;i<coll->getSceneObjectCountInCollection();i++)
+            cmd.intParams.push_back(coll->getSceneObjectHandleFromIndex(i));
         App::appendSimulationThreadCommand(cmd);
     }
 }
@@ -313,15 +313,15 @@ void CQDlgCollections::on_qqCollectionList_itemChanged(QListWidgetItem *item)
         if (item!=nullptr)
         {
             std::string newName(item->text().toStdString());
-            CRegCollection* it=App::ct->collections->getCollection(item->data(Qt::UserRole).toInt());
+            CCollection* it=App::currentWorld->collections->getObjectFromHandle(item->data(Qt::UserRole).toInt());
             if ( (it!=nullptr)&&(newName!="") )
             {
                 if (it->getCollectionName()!=newName)
                 {
                     tt::removeIllegalCharacters(newName,true);
-                    if (App::ct->collections->getCollection(newName)==nullptr)
+                    if (App::currentWorld->collections->getObjectFromName(newName.c_str())==nullptr)
                     {
-                        App::appendSimulationThreadCommand(RENAME_COLLECTION_COLLECTIONGUITRIGGEREDCMD,it->getCollectionID(),-1,0.0,0.0,newName.c_str());
+                        App::appendSimulationThreadCommand(RENAME_COLLECTION_COLLECTIONGUITRIGGEREDCMD,it->getCollectionHandle(),-1,0.0,0.0,newName.c_str());
                         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                     }
                 }
@@ -412,14 +412,14 @@ void CQDlgCollections::doTheOperation(int opType,bool additive)
         int currentlySelGroup=getSelectedGroupID();
         if (currentlySelGroup!=-1)
         { // Only one item is selected
-            CRegCollection* it=App::ct->collections->getCollection(currentlySelGroup);
+            CCollection* it=App::currentWorld->collections->getObjectFromHandle(currentlySelGroup);
             if (it!=nullptr)
             { // Just in case
                 if (opType==0)
                 {
-                    if (it->collectionObjects.size()==0)
+                    if (it->getSceneObjectCountInCollection()==0)
                     { // "Everything"-tag can only be added to an empty collection (first position)
-                        App::appendSimulationThreadCommand(ADD_COLLECTION_ITEM_EVERYTHING_COLLECTIONGUITRIGGEREDCMD,it->getCollectionID());
+                        App::appendSimulationThreadCommand(ADD_COLLECTION_ITEM_EVERYTHING_COLLECTIONGUITRIGGEREDCMD,it->getCollectionHandle());
                         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                     }
                 }
@@ -427,21 +427,21 @@ void CQDlgCollections::doTheOperation(int opType,bool additive)
                 {
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=ADD_COLLECTION_ITEM_LOOS_COLLECTIONGUITRIGGEREDCMD;
-                    cmd.intParams.push_back(it->getCollectionID());
-                    for (int i=0;i<App::ct->objCont->getSelSize();i++)
-                        cmd.intParams.push_back(App::ct->objCont->getSelID(i));
+                    cmd.intParams.push_back(it->getCollectionHandle());
+                    for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+                        cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
                     cmd.boolParams.push_back(additive);
                     App::appendSimulationThreadCommand(cmd);
                     App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                 }
                 if (opType==2)
                 {
-                    C3DObject* lastSel=App::ct->objCont->getLastSelection_object();
+                    CSceneObject* lastSel=App::currentWorld->sceneObjects->getLastSelectionObject();
                     if (lastSel==nullptr)
                         return;
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=ADD_COLLECTION_ITEM_FROMBASE_COLLECTIONGUITRIGGEREDCMD;
-                    cmd.intParams.push_back(it->getCollectionID());
+                    cmd.intParams.push_back(it->getCollectionHandle());
                     cmd.intParams.push_back(lastSel->getObjectHandle());
                     cmd.boolParams.push_back(additive);
                     cmd.boolParams.push_back(baseInclusive);
@@ -450,12 +450,12 @@ void CQDlgCollections::doTheOperation(int opType,bool additive)
                 }
                 if (opType==3)
                 {
-                    C3DObject* lastSel=App::ct->objCont->getLastSelection_object();
+                    CSceneObject* lastSel=App::currentWorld->sceneObjects->getLastSelectionObject();
                     if (lastSel==nullptr)
                         return;
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=ADD_COLLECTION_ITEM_FROMTIP_COLLECTIONGUITRIGGEREDCMD;
-                    cmd.intParams.push_back(it->getCollectionID());
+                    cmd.intParams.push_back(it->getCollectionHandle());
                     cmd.intParams.push_back(lastSel->getObjectHandle());
                     cmd.boolParams.push_back(additive);
                     cmd.boolParams.push_back(tipInclusive);

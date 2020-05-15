@@ -50,20 +50,20 @@ char* CBroadcastData::receiveData(int receiverID,float simulationTime,int dataHe
     antennaConf1.setIdentity();
     if (_antennaHandle!=sim_handle_default)
     {
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(_antennaHandle);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_antennaHandle);
         if (it==nullptr)
             return(nullptr); // the emission antenna was destroyed!
-        antennaConf1=it->getCumulativeTransformationPart1();
+        antennaConf1=it->getCumulativeTransformation();
     }
 
     C3Vector antennaPos2;
     antennaPos2.clear();
     if (antennaHandle!=sim_handle_default)
     {
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(antennaHandle);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
         if (it==nullptr)
             return(nullptr); // that shouldn't happen!
-        antennaPos2=it->getCumulativeTransformationPart1().X;
+        antennaPos2=it->getCumulativeTransformation().X;
     }
 
     if ((_emitterID==receiverID)&&(_emitterID!=0)) // second part since 25/9/2012: from c/c++, emitter/receiver ID is always 0
@@ -78,16 +78,16 @@ char* CBroadcastData::receiveData(int receiverID,float simulationTime,int dataHe
     { // message not for everyone
         if (_receiverID==sim_handle_tree)
         { // we have to check if receiverID has a parent _emitterID:
-            CLuaScriptObject* rec=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(receiverID);
-            CLuaScriptObject* em=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_emitterID);
+            CLuaScriptObject* rec=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(receiverID);
+            CLuaScriptObject* em=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_emitterID);
             if ( (rec==nullptr)||(em==nullptr) )
                 return(nullptr);
             if (em->getScriptType()!=sim_scripttype_mainscript)
             {
                 if (rec->getScriptType()==sim_scripttype_mainscript)
                     return(nullptr);
-                C3DObject* recObj=App::ct->objCont->getObjectFromHandle(rec->getObjectIDThatScriptIsAttachedTo_child());
-                C3DObject* emObj=App::ct->objCont->getObjectFromHandle(em->getObjectIDThatScriptIsAttachedTo_child());
+                CSceneObject* recObj=App::currentWorld->sceneObjects->getObjectFromHandle(rec->getObjectIDThatScriptIsAttachedTo_child());
+                CSceneObject* emObj=App::currentWorld->sceneObjects->getObjectFromHandle(em->getObjectIDThatScriptIsAttachedTo_child());
                 bool found=false;
                 while (recObj!=nullptr)
                 {
@@ -96,7 +96,7 @@ char* CBroadcastData::receiveData(int receiverID,float simulationTime,int dataHe
                         found=true;
                         break;
                     }
-                    recObj=recObj->getParentObject();
+                    recObj=recObj->getParent();
                 }
                 if (!found)
                     return(nullptr);
@@ -104,16 +104,16 @@ char* CBroadcastData::receiveData(int receiverID,float simulationTime,int dataHe
         }
         if (_receiverID==sim_handle_chain)
         { // we have to check if _emitterID has a parent receiverID:
-            CLuaScriptObject* rec=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(receiverID);
-            CLuaScriptObject* em=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_emitterID);
+            CLuaScriptObject* rec=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(receiverID);
+            CLuaScriptObject* em=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_emitterID);
             if ( (rec==nullptr)||(em==nullptr) )
                 return(nullptr);
             if (rec->getScriptType()!=sim_scripttype_mainscript)
             {
                 if (em->getScriptType()==sim_scripttype_mainscript)
                     return(nullptr);
-                C3DObject* recObj=App::ct->objCont->getObjectFromHandle(rec->getObjectIDThatScriptIsAttachedTo_child());
-                C3DObject* emObj=App::ct->objCont->getObjectFromHandle(em->getObjectIDThatScriptIsAttachedTo_child());
+                CSceneObject* recObj=App::currentWorld->sceneObjects->getObjectFromHandle(rec->getObjectIDThatScriptIsAttachedTo_child());
+                CSceneObject* emObj=App::currentWorld->sceneObjects->getObjectFromHandle(em->getObjectIDThatScriptIsAttachedTo_child());
                 bool found=false;
                 while (emObj!=nullptr)
                 {
@@ -122,7 +122,7 @@ char* CBroadcastData::receiveData(int receiverID,float simulationTime,int dataHe
                         found=true;
                         break;
                     }
-                    emObj=emObj->getParentObject();
+                    emObj=emObj->getParent();
                 }
                 if (!found)
                     return(nullptr);

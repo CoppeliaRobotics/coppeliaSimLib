@@ -1,8 +1,8 @@
-
 #pragma once
 
 #include "luaCustomFunction.h"
 #include "luaCustomVariable.h"
+#include <map>
 
 class CLuaCustomFuncAndVarContainer
 {

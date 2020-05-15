@@ -1,19 +1,17 @@
-
 #pragma once
 
 #include "ptCloud_old.h"
-#include "mainCont.h"
 #include "7Vector.h"
 #include "vMutex.h"
 
-class CPointCloudContainer_old : public CMainCont
+class CViewableBase;
+
+class CPointCloudContainer_old
 {
 public:
     CPointCloudContainer_old();
     virtual ~CPointCloudContainer_old();
 
-    void emptySceneProcedure();
-    void simulationAboutToStart();
     void simulationEnded();
     void renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib);
     void renderYour3DStuff_transparent(CViewableBase* renderingObject,int displayAttrib);

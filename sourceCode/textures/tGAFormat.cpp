@@ -6,6 +6,7 @@
 #include "tt.h"
 #include <strstream>
 #include <fstream>
+#include "app.h"
 
 unsigned char* CTGAFormat::getRGBA(std::istream* inputStream,int size)
 {
@@ -59,7 +60,7 @@ unsigned char* CTGAFormat::getImageData(std::string name,int& resX,int& resY,boo
     std::ifstream* fileStream=new std::ifstream(name.c_str(),std::ios::in|std::ios::binary);
     if (fileStream->fail()) 
     {
-        printf("Texture could not be loaded! (getImageData#1)\n");
+        App::logMsg(sim_verbosity_errors,"texture could not be loaded! (getImageData#1).");
         delete fileStream;
         return(nullptr);
     }
@@ -206,7 +207,7 @@ unsigned char* CTGAFormat::getQ_ImageData(const std::string& fileAndPathName,int
     }
     catch(VFILE_EXCEPTION_TYPE e)
     {
-        printf("Failed loading resource: %s\n",fileAndPathName.c_str());
+        App::logMsg(sim_verbosity_errors,"failed loading resource: %s",fileAndPathName.c_str());
         VFile::reportAndHandleFileExceptionError(e);
     }
     return(retVal);

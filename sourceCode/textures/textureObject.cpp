@@ -448,10 +448,10 @@ void CTextureObject::serialize(CSer& ar)
             ar << nothing;
             ar.flush();
 
-            if (App::ct->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
+            if (App::currentWorld->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
             { // undo/redo serialization:
                 ar.storeDataName("Img");
-                ar << App::ct->undoBufferContainer->undoBufferArrays.addTextureBuffer(_textureBuffer,App::ct->undoBufferContainer->getNextBufferId());
+                ar << App::currentWorld->undoBufferContainer->undoBufferArrays.addTextureBuffer(_textureBuffer,App::currentWorld->undoBufferContainer->getNextBufferId());
                 ar.flush();
             }
             else
@@ -500,7 +500,7 @@ void CTextureObject::serialize(CSer& ar)
                         ar >> nothing;
                         _providedImageWasRGBA=SIM_IS_BIT_SET(nothing,0);
                     }
-                    if (App::ct->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
+                    if (App::currentWorld->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
                     { // undo/redo serialization
                         if (theName.compare("Img")==0)
                         {
@@ -508,7 +508,7 @@ void CTextureObject::serialize(CSer& ar)
                             ar >> byteQuantity;
                             int id;
                             ar >> id;
-                            App::ct->undoBufferContainer->undoBufferArrays.getTextureBuffer(id,_textureBuffer);
+                            App::currentWorld->undoBufferContainer->undoBufferArrays.getTextureBuffer(id,_textureBuffer);
                             _changedFlag=true;
                             _currentTextureContentUniqueId=_textureContentUniqueId++;
                         }

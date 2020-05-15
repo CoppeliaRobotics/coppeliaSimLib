@@ -1,21 +1,18 @@
-
 #pragma once
 
-#include "mainCont.h"
 #include "vThread.h"
 #include "ser.h"
 #ifdef SIM_WITH_GUI
 #include "vMenubar.h"
 #endif
 
-class CSimulation : public CMainCont
+class CSimulation
 {
 public:
     CSimulation();
     virtual ~CSimulation();
     void simulationAboutToStart();
     void simulationEnded();
-    void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
     void setUpDefaultValues();
     bool startOrResumeSimulation();
     bool stopSimulation();
@@ -54,10 +51,6 @@ public:
     bool goFasterOrSlower(int action);
     int getSpeedModifierIndexOffset();
     bool setSpeedModifierIndexOffset(int offset);
-    bool canToggleThreadedRendering();
-    void toggleThreadedRendering(bool noWarningMessage);
-    bool getThreadedRendering();
-    bool getThreadedRenderingIfSimulationWasRunning();
     int getSpeedModifier_forCalcPassPerRendering();
 
     void setSimulationTimeStep_raw_ns(quint64 dt);
@@ -131,9 +124,6 @@ private:
     quint64 _realTimeCorrection_ns;
 
     int _simulationStepCount;
-
-    bool _threadedRenderingToggle;
-    bool _threadedRenderingMessageShown;
 
     bool _displayedWarningAboutNonDefaultParameters;
     int _disableWarningsFlags;

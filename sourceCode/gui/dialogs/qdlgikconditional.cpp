@@ -39,13 +39,13 @@ void CQDlgIkConditional::refresh()
 
         ui->qqIkGroupCombo->clear();
         ui->qqIkGroupCombo->addItem(strTranslate(IDSN_PERFORM_ALWAYS),QVariant(-1));
-        for (size_t i=0;i<App::ct->ikGroups->ikGroups.size();i++)
+        for (size_t i=0;i<App::currentWorld->ikGroups->getObjectCount();i++)
         {
-            CikGroup* it=App::ct->ikGroups->ikGroups[i];
-            if (it->getObjectID()==ikGroup->getObjectID())
+            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromIndex(i);
+            if (it->getObjectHandle()==ikGroup->getObjectHandle())
                 break; // If no ik group comes before, we can't do anything!
             names.push_back(it->getObjectName());
-            ids.push_back(it->getObjectID());
+            ids.push_back(it->getObjectHandle());
         }
         tt::orderStrings(names,ids);
         for (int i=0;i<int(names.size());i++)

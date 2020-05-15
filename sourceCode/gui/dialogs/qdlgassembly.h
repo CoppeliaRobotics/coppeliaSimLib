@@ -3,7 +3,7 @@
 #define QDLGASSEMBLY_H
 
 #include "vDialog.h"
-#include "3DObject.h"
+#include "sceneObject.h"
 #include <QAbstractButton>
 
 namespace Ui {
@@ -23,7 +23,7 @@ public:
 
     void refresh();
 
-    C3DObject* obj;
+    CSceneObject* obj;
 private slots:
     void on_qqChildMatchValue_editingFinished();
 

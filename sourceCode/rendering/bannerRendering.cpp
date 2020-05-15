@@ -3,7 +3,7 @@
 
 #ifdef SIM_WITH_OPENGL
 
-void displayBanner(int objId,int options,const float* bckColor,const C7Vector& tr,const char* label,const CVisualParam& color,float height,const C4X4Matrix& cameraCTM,const int windowSize[2],float verticalViewSizeOrAngle,bool perspective)
+void displayBanner(int objId,int options,const float* bckColor,const C7Vector& tr,const char* label,const CColorObject& color,float height,const C4X4Matrix& cameraCTM,const int windowSize[2],float verticalViewSizeOrAngle,bool perspective)
 {
     if (options&(sim_banner_clickselectsparent+sim_banner_clicktriggersevent))
         glLoadName(objId+NON_OBJECT_PICKING_ID_BANNER_START); // But bitmap fonts cannot be picked!
@@ -25,7 +25,7 @@ void displayBanner(int objId,int options,const float* bckColor,const C7Vector& t
             ogl::drawBitmapTextBackgroundIntoScene(tr.X(0),tr.X(1),tr.X(2),label);
         }
 
-        ogl::setTextColor(std::max<float>(color.colors[0],color.colors[9]),std::max<float>(color.colors[1],color.colors[10]),std::max<float>(color.colors[2],color.colors[11]));
+        ogl::setTextColor(std::max<float>(color.getColorsPtr()[0],color.getColorsPtr()[9]),std::max<float>(color.getColorsPtr()[1],color.getColorsPtr()[10]),std::max<float>(color.getColorsPtr()[2],color.getColorsPtr()[11]));
         ogl::drawBitmapTextIntoScene(tr.X(0),tr.X(1),tr.X(2),label);
 
         glDepthRange(0.0f,1.0f);
@@ -34,9 +34,9 @@ void displayBanner(int objId,int options,const float* bckColor,const C7Vector& t
     else
     {
         if (options&(sim_banner_fullyfacingcamera+sim_banner_facingcamera))
-            ogl::drawOutlineText(label,tr,height,&cameraCTM,(options&sim_banner_overlay)!=0,(options&sim_banner_left)!=0,(options&sim_banner_right)!=0,(options&sim_banner_backfaceculling)!=0,color.colors,bckColor,(options&sim_banner_keepsamesize)!=0,windowSize[1],verticalViewSizeOrAngle,perspective,(options&sim_banner_fullyfacingcamera)!=0);
+            ogl::drawOutlineText(label,tr,height,&cameraCTM,(options&sim_banner_overlay)!=0,(options&sim_banner_left)!=0,(options&sim_banner_right)!=0,(options&sim_banner_backfaceculling)!=0,color.getColorsPtr(),bckColor,(options&sim_banner_keepsamesize)!=0,windowSize[1],verticalViewSizeOrAngle,perspective,(options&sim_banner_fullyfacingcamera)!=0);
         else
-            ogl::drawOutlineText(label,tr,height,nullptr,(options&sim_banner_overlay)!=0,(options&sim_banner_left)!=0,(options&sim_banner_right)!=0,(options&sim_banner_backfaceculling)!=0,color.colors,bckColor,(options&sim_banner_keepsamesize)!=0,windowSize[1],verticalViewSizeOrAngle,perspective,false);
+            ogl::drawOutlineText(label,tr,height,nullptr,(options&sim_banner_overlay)!=0,(options&sim_banner_left)!=0,(options&sim_banner_right)!=0,(options&sim_banner_backfaceculling)!=0,color.getColorsPtr(),bckColor,(options&sim_banner_keepsamesize)!=0,windowSize[1],verticalViewSizeOrAngle,perspective,false);
     }
 
     glLoadName(-1);
@@ -44,7 +44,7 @@ void displayBanner(int objId,int options,const float* bckColor,const C7Vector& t
 
 #else
 
-void displayBanner(int objId,int options,const float* bckColor,const C7Vector& tr,const char* label,const CVisualParam& color,float height,const C4X4Matrix& cameraCTM,const int windowSize[2],float verticalViewSizeOrAngle,bool perspective)
+void displayBanner(int objId,int options,const float* bckColor,const C7Vector& tr,const char* label,const CColorObject& color,float height,const C4X4Matrix& cameraCTM,const int windowSize[2],float verticalViewSizeOrAngle,bool perspective)
 {
 
 }

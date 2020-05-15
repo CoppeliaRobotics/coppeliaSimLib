@@ -26,7 +26,7 @@ bool CUndoBufferArrays::_areFloatBuffersSame(const std::vector<float>& buff1,con
         // ok, the first 20 elements are same. Chances that the rest is same are high
         bool different=false;
         for (int i=0;i<l;i++)
-            different|=(buff1[i]!=buff2[i]);
+            different=different||(buff1[i]!=buff2[i]);
         return(!different);
     }
     return(false);
@@ -48,7 +48,7 @@ bool CUndoBufferArrays::_areIntBuffersSame(const std::vector<int>& buff1,const s
         // ok, the first 20 elements are same. Chances that the rest is same are high
         bool different=false;
         for (int i=0;i<l;i++)
-            different|=(buff1[i]!=buff2[i]);
+            different=different||(buff1[i]!=buff2[i]);
         return(!different);
     }
     return(false);
@@ -70,7 +70,7 @@ bool CUndoBufferArrays::_areUCharBuffersSame(const std::vector<unsigned char>& b
         // ok, the first 20 elements are same. Chances that the rest is same are high
         bool different=false;
         for (int i=0;i<l;i++)
-            different|=(buff1[i]!=buff2[i]);
+            different=different||(buff1[i]!=buff2[i]);
         return(!different);
     }
     return(false);

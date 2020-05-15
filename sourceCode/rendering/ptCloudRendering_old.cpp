@@ -2,7 +2,7 @@
 #include "ptCloudRendering_old.h"
 
 #ifdef SIM_WITH_OPENGL
-void displayPtCloud_old(CPtCloud_old* ptCloud,C3DObject* it)
+void displayPtCloud_old(CPtCloud_old* ptCloud,CSceneObject* it)
 {
     glPushMatrix();
 
@@ -10,7 +10,7 @@ void displayPtCloud_old(CPtCloud_old* ptCloud,C3DObject* it)
 
     if (it!=nullptr)
     {
-        C7Vector tr=it->getCumulativeTransformationPart1_forDisplay(true);
+        C7Vector tr=it->getCumulativeTransformation();
         glTranslatef(tr.X(0),tr.X(1),tr.X(2));
         C4Vector axis=tr.Q.getAngleAndAxisNoChecking();
         glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
@@ -45,7 +45,7 @@ void displayPtCloud_old(CPtCloud_old* ptCloud,C3DObject* it)
 
 #else
 
-void displayPtCloud_old(CPtCloud_old* ptCloud,C3DObject* it)
+void displayPtCloud_old(CPtCloud_old* ptCloud,CSceneObject* it)
 {
 
 }

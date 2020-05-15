@@ -37,43 +37,11 @@ void displayContainerPageOverlay(const int* position,const int* size,int activeP
     glLoadIdentity ();
     glDisable(GL_DEPTH_TEST);
 
-    if (App::getEditModeType()==BUTTON_EDIT_MODE)
-    {
-        glEnable(GL_SCISSOR_TEST);
-        glViewport(position[0],position[1],size[0],size[1]);
-        glScissor(position[0],position[1],size[0],size[1]);
-        glClearColor(0.3f,0.3f,0.3f,1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        App::ct->globalGuiTextureCont->startTextureDisplay(CHECKED_BACKGROUND_PICTURE);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-        glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-        glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-
-        glTexEnvf (GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
-        glEnable(GL_TEXTURE_2D);
-        ogl::disableLighting_useWithCare(); // only temporarily
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f,0.0f);
-        glVertex3i(0,0,0);
-        glTexCoord2f(size[0]/16.0f,0.0f);
-        glVertex3i(size[0],0,0);
-        glTexCoord2f(size[0]/16.0f,size[1]/16.0f);
-        glVertex3i(size[0],size[1],0);
-        glTexCoord2f(0.0f,size[1]/16.0f);
-        glVertex3i(0,size[1],0);
-        glEnd();
-        glDisable(GL_TEXTURE_2D);
-        ogl::enableLighting_useWithCare();
-        App::ct->globalGuiTextureCont->endTextureDisplay();
-    }
-
     // Now we draw soft dialogs:
-    if (App::ct->buttonBlockContainer!=nullptr)
-        App::ct->buttonBlockContainer->displayAllBlocks(activePageIndex,focusObject);
+    if (App::currentWorld->buttonBlockContainer!=nullptr)
+        App::currentWorld->buttonBlockContainer->displayAllBlocks(activePageIndex,focusObject);
 
-    App::ct->calcInfo->printInformation();
+    App::worldContainer->calcInfo->printInformation();
 
     glEnable(GL_DEPTH_TEST);
 }
@@ -89,7 +57,7 @@ void displayContainerPageWatermark(const int* position,const int* size,int tagId
     ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorWhite);
     ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     ogl::disableLighting_useWithCare(); // only temporarily
-    App::ct->globalGuiTextureCont->startTextureDisplay(tagId);
+    App::worldContainer->globalGuiTextureCont->startTextureDisplay(tagId);
     glColor3f(1.0f, 1.0f, 1.0f);
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f,0.0f);
@@ -191,7 +159,7 @@ void displayPage(CSPage* page,int auxViewResizingAction,int viewIndexOfResizingA
 
         float txtCol[3]={0.2f,0.2f,0.2f};
         float* bkgrndCol=ogl::TITLE_BAR_COLOR;
-        C3DObject* itObj=App::ct->objCont->getObjectFromHandle(page->getView(i)->getLinkedObjectID());
+        CSceneObject* itObj=App::currentWorld->sceneObjects->getObjectFromHandle(page->getView(i)->getLinkedObjectID());
         std::string name("  Floating view (empty)");
         std::string altName(page->getView(i)->getAlternativeViewName());
         if (altName=="")

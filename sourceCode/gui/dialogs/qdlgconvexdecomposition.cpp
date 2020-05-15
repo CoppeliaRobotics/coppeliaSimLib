@@ -77,12 +77,16 @@ void CQDlgConvexDecomposition::refresh()
     ui->qqVoxelBased->setChecked(voxelBasedMode);
     ui->qqResolution->setText(tt::getIString(false,resolution).c_str());
     ui->qqDepth->setText(tt::getIString(false,depth).c_str());
+    ui->qqDepth->setVisible(false);
+    ui->depthLabel->setVisible(false);
     ui->qqConcavity_2->setText(tt::getFString(false,concavity,3).c_str());
     ui->qqPlaneDownsampling->setText(tt::getIString(false,planeDownsampling).c_str());
     ui->qqConvexHullDownsampling->setText(tt::getIString(false,convexHullDownsampling).c_str());
     ui->qqAlpha->setText(tt::getFString(false,alpha,3).c_str());
     ui->qqBeta->setText(tt::getFString(false,beta,3).c_str());
     ui->qqGamma->setText(tt::getFString(false,gamma,3).c_str());
+    ui->qqGamma->setVisible(false);
+    ui->gammaLabel->setVisible(false);
     ui->qqMaxVerticesPerCh->setText(tt::getIString(false,maxNumVerticesPerCH).c_str());
     ui->qqMinVolumePerCh->setText(tt::getEString(false,minVolumePerCH,3).c_str());
 }

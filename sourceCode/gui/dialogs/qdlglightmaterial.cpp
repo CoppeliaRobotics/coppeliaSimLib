@@ -10,8 +10,8 @@ CQDlgLightMaterial::CQDlgLightMaterial(QWidget *parent) :
 {
     _dlgType=LIGHTMATERIAL_DLG;
     ui->setupUi(this);
-    _lastSelectedObjectID=App::ct->objCont->getLastSelectionID();
-    _objectSelectionSize=App::ct->objCont->getSelSize();
+    _lastSelectedObjectID=App::currentWorld->sceneObjects->getLastSelectionHandle();
+    _objectSelectionSize=App::currentWorld->sceneObjects->getSelectionCount();
     if (App::mainWindow!=nullptr)
         App::mainWindow->dlgCont->close(COLOR_DLG);
 }
@@ -27,7 +27,7 @@ void CQDlgLightMaterial::refresh()
 {
     int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=spec, 4=emiss., 8=aux channels, 16=pulsation, 32=shininess, 64=opacity, 128=colorName, 256=ext. string
     App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
-    bool simStopped=App::ct->simulation->isSimulationStopped();
+    bool simStopped=App::currentWorld->simulation->isSimulationStopped();
     ui->qqDiffuseAdjust->setEnabled(simStopped&&(allowedParts&2));
     ui->qqSpecularAdjust->setEnabled(simStopped&&(allowedParts&4));
 }
@@ -41,11 +41,11 @@ bool CQDlgLightMaterial::needsDestruction()
 
 bool CQDlgLightMaterial::isLinkedDataValid()
 {
-    if (_lastSelectedObjectID!=App::ct->objCont->getLastSelectionID())
+    if (_lastSelectedObjectID!=App::currentWorld->sceneObjects->getLastSelectionHandle())
         return(false);
-    if (_objectSelectionSize!=App::ct->objCont->getSelSize())
+    if (_objectSelectionSize!=App::currentWorld->sceneObjects->getSelectionCount())
         return(false);
-    if (!App::ct->simulation->isSimulationStopped())
+    if (!App::currentWorld->simulation->isSimulationStopped())
         return(false);
     return(App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,nullptr)!=nullptr);
 }

@@ -24,17 +24,17 @@ void CQDlgSimulation::refresh()
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
     bool noEditMode=App::getEditModeType()==NO_EDIT_MODE;
-    bool noEditModeNoSim=noEditMode&&App::ct->simulation->isSimulationStopped();
-    bool custom=(App::ct->simulation->getDefaultSimulationParameterIndex()==5);
+    bool noEditModeNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
+    bool custom=(App::currentWorld->simulation->getDefaultSimulationParameterIndex()==5);
 
     ui->qqConfigCombo->setEnabled(noEditModeNoSim);
     ui->qqTimeStep->setEnabled(custom&&noEditModeNoSim);
     ui->qqFullscreen->setEnabled(noEditModeNoSim);
     ui->qqScriptExecutionPasses->setEnabled(custom&&noEditModeNoSim);
     ui->qqRealTime->setEnabled(noEditModeNoSim);
-    ui->qqCatchUp->setEnabled(noEditModeNoSim&&App::ct->simulation->getRealTimeSimulation());
-    ui->qqMultiplicationCoefficient->setEnabled(noEditModeNoSim&&App::ct->simulation->getRealTimeSimulation());
-    ui->qqPauseTime->setEnabled(noEditModeNoSim&&App::ct->simulation->getPauseAtSpecificTime());
+    ui->qqCatchUp->setEnabled(noEditModeNoSim&&App::currentWorld->simulation->getRealTimeSimulation());
+    ui->qqMultiplicationCoefficient->setEnabled(noEditModeNoSim&&App::currentWorld->simulation->getRealTimeSimulation());
+    ui->qqPauseTime->setEnabled(noEditModeNoSim&&App::currentWorld->simulation->getPauseAtSpecificTime());
     ui->qqPauseWhenTimeHigher->setEnabled(noEditModeNoSim);
     ui->qqPauseOnScriptError->setEnabled(noEditModeNoSim);
     ui->qqResetScene->setEnabled(noEditMode);
@@ -47,7 +47,7 @@ void CQDlgSimulation::refresh()
     ui->qqConfigCombo->addItem(strTranslate(IDSN_TIME_STEP_CONFIG_25),QVariant(3));
     ui->qqConfigCombo->addItem(strTranslate(IDSN_TIME_STEP_CONFIG_10),QVariant(4));
 
-    float dt=float(App::ct->simulation->getSimulationTimeStep_raw_ns(5))/1000.0f;
+    float dt=float(App::currentWorld->simulation->getSimulationTimeStep_raw_ns(5))/1000.0f;
     std::string txt("dt=");
     txt+=tt::FNb(0,dt,1,false);
     txt+=IDSN_TIME_STEP_CONFIG_CUSTOM;
@@ -55,27 +55,27 @@ void CQDlgSimulation::refresh()
 
     for (int i=0;i<ui->qqConfigCombo->count();i++)
     {
-        if (ui->qqConfigCombo->itemData(i).toInt()==App::ct->simulation->getDefaultSimulationParameterIndex())
+        if (ui->qqConfigCombo->itemData(i).toInt()==App::currentWorld->simulation->getDefaultSimulationParameterIndex())
         {
             ui->qqConfigCombo->setCurrentIndex(i);
             break;
         }
     }
 
-    ui->qqRealTime->setChecked(App::ct->simulation->getRealTimeSimulation());
-    ui->qqCatchUp->setChecked(App::ct->simulation->getCatchUpIfLate());
-    ui->qqTimeStep->setText(tt::getDString(false,double(App::ct->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0,4).c_str());
-    ui->qqFullscreen->setChecked(App::ct->simulation->getFullscreenAtSimulationStart());
+    ui->qqRealTime->setChecked(App::currentWorld->simulation->getRealTimeSimulation());
+    ui->qqCatchUp->setChecked(App::currentWorld->simulation->getCatchUpIfLate());
+    ui->qqTimeStep->setText(tt::getDString(false,double(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0,4).c_str());
+    ui->qqFullscreen->setChecked(App::currentWorld->simulation->getFullscreenAtSimulationStart());
 
-    ui->qqScriptExecutionPasses->setText(tt::getIString(false,App::ct->simulation->getSimulationPassesPerRendering_speedModified()).c_str());
-    ui->qqMultiplicationCoefficient->setText(tt::getDString(false,App::ct->simulation->getRealTimeCoefficient_speedModified(),2).c_str());
+    ui->qqScriptExecutionPasses->setText(tt::getIString(false,App::currentWorld->simulation->getSimulationPassesPerRendering_speedModified()).c_str());
+    ui->qqMultiplicationCoefficient->setText(tt::getDString(false,App::currentWorld->simulation->getRealTimeCoefficient_speedModified(),2).c_str());
 
-    ui->qqResetScene->setChecked(App::ct->simulation->getResetSceneAtSimulationEnd());
-    ui->qqRemoveNewObjects->setChecked(App::ct->simulation->getRemoveNewObjectsAtSimulationEnd());
+    ui->qqResetScene->setChecked(App::currentWorld->simulation->getResetSceneAtSimulationEnd());
+    ui->qqRemoveNewObjects->setChecked(App::currentWorld->simulation->getRemoveNewObjectsAtSimulationEnd());
 
-    ui->qqPauseTime->setText(tt::getDString(false,double(App::ct->simulation->getPauseTime_ns())/1000000.0,2).c_str());
-    ui->qqPauseWhenTimeHigher->setChecked(App::ct->simulation->getPauseAtSpecificTime());
-    ui->qqPauseOnScriptError->setChecked(App::ct->simulation->getPauseAtError());
+    ui->qqPauseTime->setText(tt::getDString(false,double(App::currentWorld->simulation->getPauseTime_ns())/1000000.0,2).c_str());
+    ui->qqPauseWhenTimeHigher->setChecked(App::currentWorld->simulation->getPauseAtSpecificTime());
+    ui->qqPauseOnScriptError->setChecked(App::currentWorld->simulation->getPauseAtError());
 
     selectLineEdit(lineEditToSelect);
     inMainRefreshRoutine=false;
@@ -87,7 +87,7 @@ void CQDlgSimulation::on_qqTimeStep_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::ct->simulation->isSimulationStopped())
+        if (App::currentWorld->simulation->isSimulationStopped())
         {
             bool ok;
             double newVal=ui->qqTimeStep->text().toDouble(&ok);
@@ -110,7 +110,7 @@ void CQDlgSimulation::on_qqScriptExecutionPasses_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::ct->simulation->isSimulationStopped())
+        if (App::currentWorld->simulation->isSimulationStopped())
         {
             bool ok;
             int newVal=ui->qqScriptExecutionPasses->text().toInt(&ok);
@@ -128,7 +128,7 @@ void CQDlgSimulation::on_qqRealTime_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::ct->simulation->isSimulationStopped())
+        if (App::currentWorld->simulation->isSimulationStopped())
         {
             App::appendSimulationThreadCommand(TOGGLE_REALTIME_SIMULATIONGUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -143,7 +143,7 @@ void CQDlgSimulation::on_qqMultiplicationCoefficient_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::ct->simulation->isSimulationStopped())
+        if (App::currentWorld->simulation->isSimulationStopped())
         {
             bool ok;
             double newVal=ui->qqMultiplicationCoefficient->text().toDouble(&ok);
@@ -161,7 +161,7 @@ void CQDlgSimulation::on_qqCatchUp_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::ct->simulation->isSimulationStopped())
+        if (App::currentWorld->simulation->isSimulationStopped())
         {
             App::appendSimulationThreadCommand(TOGGLE_TRYCATCHINGUP_SIMULATIONGUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -186,7 +186,7 @@ void CQDlgSimulation::on_qqPauseTime_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::ct->simulation->isSimulationStopped())
+        if (App::currentWorld->simulation->isSimulationStopped())
         {
             bool ok;
             double newVal=ui->qqPauseTime->text().toDouble(&ok);
@@ -239,7 +239,7 @@ void CQDlgSimulation::on_qqConfigCombo_currentIndexChanged(int index)
     {
         IF_UI_EVENT_CAN_READ_DATA
         {
-            if (App::ct->simulation->isSimulationStopped())
+            if (App::currentWorld->simulation->isSimulationStopped())
             {
                 int config=ui->qqConfigCombo->itemData(ui->qqConfigCombo->currentIndex()).toInt();
                 App::appendSimulationThreadCommand(SET_TIMESTEPSCHEME_SIMULATIONGUITRIGGEREDCMD,config);

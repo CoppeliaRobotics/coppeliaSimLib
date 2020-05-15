@@ -1,4 +1,3 @@
-
 #include "simInternal.h"
 #include "pointCloudContainer_old.h"
 #include "viewableBase.h"
@@ -9,25 +8,16 @@ CPointCloudContainer_old::CPointCloudContainer_old()
 }
 
 CPointCloudContainer_old::~CPointCloudContainer_old()
-{
+{ // beware, the current world could be nullptr
     removeAllObjects(false);
-}
-
-void CPointCloudContainer_old::simulationAboutToStart()
-{
-
 }
 
 void CPointCloudContainer_old::simulationEnded()
 {
     removeAllObjects(true);
-//  if (_initialValuesInitialized&&App::ct->simulation->getResetSceneAtSimulationEnd())
+//  if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
 //  {
 //  }
-}
-
-void CPointCloudContainer_old::emptySceneProcedure()
-{ // don't do anything here! (plugin or add-on might be using that functionality too) 
 }
 
 CPtCloud_old* CPointCloudContainer_old::getObject(int objectID)

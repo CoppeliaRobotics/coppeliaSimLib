@@ -22,7 +22,6 @@
         <file>toolbarFiles/collections.png</file>
         <file>toolbarFiles/commonProperties.png</file>
         <file>toolbarFiles/simulationSettings.png</file>
-        <file>toolbarFiles/2dElements.png</file>
         <file>toolbarFiles/aviRecorder.png</file>
         <file>toolbarFiles/modelBrowser.png</file>
         <file>toolbarFiles/sceneHierarchy.png</file>
@@ -35,13 +34,11 @@
         <file>toolbarFiles/dynamics.png</file>
         <file>toolbarFiles/pageSelector.png</file>
         <file>toolbarFiles/pathEdition.png</file>
-        <file>toolbarFiles/sceneSelector.png</file>
         <file>toolbarFiles/shapeEdition.png</file>
         <file>toolbarFiles/assemble.png</file>
         <file>toolbarFiles/disassemble.png</file>
         <file>toolbarFiles/transferDna.png</file>
         <file>toolbarFiles/pathPointCreation.png</file>
-        <file>toolbarFiles/threadedRendering.png</file>
         <file>toolbarFiles/toggleVisualization.png</file>
     </qresource>
 </RCC>

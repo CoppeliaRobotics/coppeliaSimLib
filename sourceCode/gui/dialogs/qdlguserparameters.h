@@ -2,7 +2,7 @@
 #define QDLGUSERPARAMETERS_H
 
 #include "vDialog.h"
-#include "3DObject.h"
+#include "sceneObject.h"
 #include <QListWidgetItem>
 #include <QAbstractButton>
 
@@ -29,7 +29,7 @@ public:
     void selectObjectInList(int objectID);
     bool inSelectionRoutine;
 
-    C3DObject* object;
+    CSceneObject* object;
 
 private slots:
     void onDeletePressed();

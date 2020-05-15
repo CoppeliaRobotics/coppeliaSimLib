@@ -31,30 +31,33 @@ int CInterfaceStack::getStackSize() const
     return((int)_stackObjects.size());
 }
 
-void CInterfaceStack::printContent(int cIndex) const
+void CInterfaceStack::printContent(int cIndex,std::string& buffer) const
 {
     if (cIndex<0)
     {
-        printf("STACK CONTENT:\n");
-        printf("--------------\n");
+        buffer="STACK CONTENT:\n";
+        buffer+="--------------\n";
         for (size_t i=0;i<_stackObjects.size();i++)
         {
-            printf("Item %i:\n",(int)i);
-            _stackObjects[i]->printContent(4);
+            buffer+="Item ";
+            buffer+=std::to_string(i);
+            buffer+=":\n";
+            _stackObjects[i]->printContent(4,buffer);
         }
-        printf("--------------\n");
+        buffer+="--------------";
     }
     else
     {
         if (cIndex<int(_stackObjects.size()))
         {
-            printf("STACK CONTENT at index %i:\n",cIndex);
-            printf("--------------\n");
-            _stackObjects[cIndex]->printContent(0);
-            printf("--------------\n");
+            buffer="STACK CONTENT at index ";
+            buffer+=std::to_string(cIndex);
+            buffer+=":\n--------------\n";
+            _stackObjects[cIndex]->printContent(0,buffer);
+            buffer+="--------------";
         }
         else
-            printf("STACK CONTENT: <invalid index>\n");
+            buffer="STACK CONTENT: <invalid index>";
     }
 }
 

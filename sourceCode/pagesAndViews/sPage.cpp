@@ -1,7 +1,6 @@
 
 // This file requires some serious refactoring!
 
-#include "funcDebug.h"
 #include "simInternal.h"
 #include "sPage.h"
 #include "global.h"
@@ -105,7 +104,7 @@ void CSPage::simulationEnded()
         }
     }
 
-    if (_initialValuesInitialized&&App::ct->simulation->getResetSceneAtSimulationEnd())
+    if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
     {
         // Make sure we restore floating view's initial positions and sizes:
         for (int i=getRegularViewCount();i<int(_allViews.size());i++)
@@ -185,7 +184,7 @@ void CSPage::announceObjectWillBeErased(int objectID)
             i++;
     }
 }
-void CSPage::performObjectLoadingMapping(std::vector<int>* map)
+void CSPage::performObjectLoadingMapping(const std::vector<int>* map)
 {
     for (int i=0;i<int(_allViews.size());i++)
         _allViews[i]->performObjectLoadingMapping(map);
@@ -811,7 +810,7 @@ void CSPage::serialize(CSer& ar)
 
 void CSPage::render()
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     displayPage(this,auxViewResizingAction,viewIndexOfResizingAction);
 }
 
@@ -877,7 +876,7 @@ bool CSPage::doubleClickActionForView(int viewIndex)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SWAP_VIEWS_CMD;
-            cmd.intParams.push_back(App::ct->pageContainer->getActivePageIndex());
+            cmd.intParams.push_back(App::currentWorld->pageContainer->getActivePageIndex());
             cmd.intParams.push_back(viewIndex);
             cmd.intParams.push_back(0);
             cmd.boolParams.push_back(false);
@@ -891,7 +890,7 @@ bool CSPage::doubleClickActionForView(int viewIndex)
             {
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SWAP_VIEWS_CMD;
-                cmd.intParams.push_back(App::ct->pageContainer->getActivePageIndex());
+                cmd.intParams.push_back(App::currentWorld->pageContainer->getActivePageIndex());
                 cmd.intParams.push_back(viewIndex);
                 cmd.intParams.push_back(0);
                 cmd.boolParams.push_back(false);

@@ -1,20 +1,15 @@
-
 #pragma once
 
-#include "visualParam.h"
-#include "mainCont.h"
+#include "colorObject.h"
 #include "viewableBase.h"
 
-class CMainSettings : public CMainCont 
+class CMainSettings 
 {
 public:
     CMainSettings();
     virtual ~CMainSettings();
     void serialize(CSer& ar);
     void setUpDefaultValues();
-    void simulationAboutToStart();
-    void simulationEnded();
-    void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
 
     void setScenePathAndName(const char* pathAndName);
     std::string getScenePathAndName() const;
@@ -30,7 +25,7 @@ public:
     int dynamicsODEStepSizeDivider_forBackwardCompatibility_03_01_2012;
     bool forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers;
 
-    CVisualParam collisionColor;
+    CColorObject collisionColor;
 
     bool ikCalculationEnabled;
     bool gcsCalculationEnabled;

@@ -7,7 +7,6 @@
 #include "ttUtil.h"
 #include "app.h"
 #include "toolBarCommand.h"
-#include "funcDebug.h"
 #include "rendering.h"
 #include "libLic.h"
 
@@ -26,7 +25,7 @@ COpenglWidget::COpenglWidget(QWidget *parent) : QOpenGLWidget(parent)
 COpenglWidget::COpenglWidget(QWidget *parent) : QGLWidget(QGLFormat((App::userSettings->stereoDist<=0.0f) ? (QGL::DoubleBuffer) : (QGL::StereoBuffers)),parent)
 #endif
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
 #ifdef USING_QOPENGLWIDGET
     if (App::userSettings->stereoDist>0.0f)
     {
@@ -64,7 +63,7 @@ COpenglWidget::~COpenglWidget()
 
 void COpenglWidget::initializeGL()
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
 #ifndef USING_QOPENGLWIDGET
     setAutoBufferSwap(false);
 #else
@@ -80,12 +79,12 @@ void COpenglWidget::makeContextCurrent()
 
 void COpenglWidget::paintEvent(QPaintEvent* event)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
 }
 
 void COpenglWidget::resizeEvent(QResizeEvent* rEvent)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
 #ifdef USING_QOPENGLWIDGET
     QOpenGLWidget::resizeEvent(rEvent);
 #endif
@@ -94,7 +93,7 @@ void COpenglWidget::resizeEvent(QResizeEvent* rEvent)
 
 void COpenglWidget::_resizeEvent(SMouseOrKeyboardOrResizeEvent e)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
 
     int x,y;
     _computeMousePos(e.x,e.y,x,y);
@@ -104,7 +103,7 @@ void COpenglWidget::_resizeEvent(SMouseOrKeyboardOrResizeEvent e)
 
 void COpenglWidget::paintGL()
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
 }
 
 void COpenglWidget::_setCtrlAndShiftKeyState(bool ctrlDown,bool shiftDown)
@@ -119,13 +118,13 @@ void COpenglWidget::_setCtrlAndShiftKeyState(bool ctrlDown,bool shiftDown)
 
 void COpenglWidget::mouseMoveEvent(QMouseEvent* mEvent)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(mEvent,3);
 }
 
 void COpenglWidget::_mouseMoveEvent(SMouseOrKeyboardOrResizeEvent e)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     int x,y;
     _computeMousePos(e.x,e.y,x,y);
     _setCtrlAndShiftKeyState(e.ctrlDown,e.shiftDown);
@@ -139,13 +138,13 @@ void COpenglWidget::_mouseMoveEvent(SMouseOrKeyboardOrResizeEvent e)
 
 void COpenglWidget::mousePressEvent(QMouseEvent* mEvent)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(mEvent,0);
 }
 
 void COpenglWidget::_mousePressEvent(SMouseOrKeyboardOrResizeEvent e)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
 
     int x,y;
     _computeMousePos(e.x,e.y,x,y);
@@ -201,7 +200,7 @@ void COpenglWidget::_mousePressEvent(SMouseOrKeyboardOrResizeEvent e)
                 if ( (App::userSettings->middleMouseButtonSwitchesModes)&&(!(App::isFullScreen())) )
                 {
                     bool noSelector=true;
-                    if (App::mainWindow->oglSurface->isSceneSelectionActive()||App::mainWindow->oglSurface->isPageSelectionActive()||App::mainWindow->oglSurface->isViewSelectionActive())
+                    if (App::mainWindow->oglSurface->isPageSelectionActive()||App::mainWindow->oglSurface->isViewSelectionActive())
                         noSelector=false;
                     if (noSelector)
                     {
@@ -229,13 +228,13 @@ void COpenglWidget::_mousePressEvent(SMouseOrKeyboardOrResizeEvent e)
 
 void COpenglWidget::mouseReleaseEvent(QMouseEvent* mEvent)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(mEvent,1);
 }
 
 void COpenglWidget::_mouseReleaseEvent(SMouseOrKeyboardOrResizeEvent e)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
 
     int x,y;
     _computeMousePos(e.x,e.y,x,y);
@@ -286,13 +285,13 @@ void COpenglWidget::_mouseReleaseEvent(SMouseOrKeyboardOrResizeEvent e)
 
 void COpenglWidget::mouseDoubleClickEvent(QMouseEvent* mEvent)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(mEvent,2);
 }
 
 void COpenglWidget::_mouseDoubleClickEvent(SMouseOrKeyboardOrResizeEvent e)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
 
     int x,y;
     _computeMousePos(e.x,e.y,x,y);
@@ -311,7 +310,7 @@ void COpenglWidget::_mouseDoubleClickEvent(SMouseOrKeyboardOrResizeEvent e)
                 if (App::userSettings->middleMouseButtonSwitchesModes)
                 {
                     bool noSelector=true;
-                    if (App::mainWindow->oglSurface->isSceneSelectionActive()||App::mainWindow->oglSurface->isPageSelectionActive()||App::mainWindow->oglSurface->isViewSelectionActive())
+                    if (App::mainWindow->oglSurface->isPageSelectionActive()||App::mainWindow->oglSurface->isViewSelectionActive())
                         noSelector=false;
                     if (noSelector)
                     {
@@ -333,13 +332,13 @@ void COpenglWidget::_mouseDoubleClickEvent(SMouseOrKeyboardOrResizeEvent e)
 
 void COpenglWidget::wheelEvent(QWheelEvent* wEvent)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(wEvent,4);
 }
 
 void COpenglWidget::_wheelEvent(SMouseOrKeyboardOrResizeEvent e)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
 
     int x,y;
     _computeMousePos(e.x,e.y,x,y);
@@ -366,38 +365,38 @@ bool COpenglWidget::focusNextPrevChild(bool next)
 
 void COpenglWidget::keyPressEvent(QKeyEvent* kEvent)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(kEvent,5);
 }
 
 void COpenglWidget::_keyPressEvent(SMouseOrKeyboardOrResizeEvent e)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     App::mainWindow->onKeyPress(e);
 }
 
 void COpenglWidget::keyReleaseEvent(QKeyEvent* kEvent)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(kEvent,6);
 }
 
 void COpenglWidget::_keyReleaseEvent(SMouseOrKeyboardOrResizeEvent e)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     App::mainWindow->onKeyRelease(e);
 }
 
 void COpenglWidget::_timer100ms_fire()
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     if (!CSimAndUiThreadSync::hasUiLockedResourcesForReadOrWrite())
         _handleMouseAndKeyboardAndResizeEvents(nullptr,8);
 }
 
 void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void* event,int t)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     if (event!=nullptr)
     {
         SMouseOrKeyboardOrResizeEvent e;

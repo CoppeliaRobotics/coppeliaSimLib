@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>520</height>
+    <height>382</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
      <x>10</x>
      <y>10</y>
      <width>411</width>
-     <height>501</height>
+     <height>361</height>
     </rect>
    </property>
    <property name="title">
@@ -106,7 +106,7 @@
       <x>10</x>
       <y>200</y>
       <width>391</width>
-      <height>291</height>
+      <height>151</height>
      </rect>
     </property>
     <property name="title">
@@ -134,27 +134,11 @@
       <string>Explicit handling</string>
      </property>
     </widget>
-    <widget class="QCheckBox" name="qqRedundant">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>45</y>
-       <width>201</width>
-       <height>18</height>
-      </rect>
-     </property>
-     <property name="focusPolicy">
-      <enum>Qt::StrongFocus</enum>
-     </property>
-     <property name="text">
-      <string>Mechanism is redundant</string>
-     </property>
-    </widget>
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>65</y>
+       <y>45</y>
        <width>121</width>
        <height>18</height>
       </rect>
@@ -167,7 +151,7 @@
      <property name="geometry">
       <rect>
        <x>130</x>
-       <y>65</y>
+       <y>45</y>
        <width>101</width>
        <height>18</height>
       </rect>
@@ -177,7 +161,7 @@
      <property name="geometry">
       <rect>
        <x>250</x>
-       <y>65</y>
+       <y>45</y>
        <width>81</width>
        <height>18</height>
       </rect>
@@ -190,7 +174,7 @@
      <property name="geometry">
       <rect>
        <x>330</x>
-       <y>65</y>
+       <y>45</y>
        <width>56</width>
        <height>18</height>
       </rect>
@@ -200,7 +184,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>85</y>
+       <y>65</y>
        <width>121</width>
        <height>18</height>
       </rect>
@@ -213,7 +197,7 @@
      <property name="geometry">
       <rect>
        <x>130</x>
-       <y>85</y>
+       <y>65</y>
        <width>56</width>
        <height>18</height>
       </rect>
@@ -223,7 +207,7 @@
      <property name="geometry">
       <rect>
        <x>210</x>
-       <y>45</y>
+       <y>65</y>
        <width>181</width>
        <height>18</height>
       </rect>
@@ -235,183 +219,11 @@
       <string>Ignore max. step sizes</string>
      </property>
     </widget>
-    <widget class="QGroupBox" name="groupBox_4">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>105</y>
-       <width>181</width>
-       <height>71</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Calculation weights</string>
-     </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-     <widget class="QLineEdit" name="qqWeightJointLimits">
-      <property name="geometry">
-       <rect>
-        <x>120</x>
-        <y>25</y>
-        <width>56</width>
-        <height>18</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_4">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>25</y>
-        <width>111</width>
-        <height>18</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Joint limits</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="qqWeightObstacleAvoidance">
-      <property name="geometry">
-       <rect>
-        <x>120</x>
-        <y>45</y>
-        <width>56</width>
-        <height>18</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_5">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>45</y>
-        <width>111</width>
-        <height>18</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Obst. avoid.</string>
-      </property>
-     </widget>
-    </widget>
-    <widget class="QGroupBox" name="groupBox_5">
-     <property name="geometry">
-      <rect>
-       <x>200</x>
-       <y>105</y>
-       <width>181</width>
-       <height>71</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Joint limit thresholds</string>
-     </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-     <widget class="QLineEdit" name="qqThresholdLinear">
-      <property name="geometry">
-       <rect>
-        <x>120</x>
-        <y>25</y>
-        <width>56</width>
-        <height>18</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_6">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>25</y>
-        <width>111</width>
-        <height>18</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Linear [m]</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="qqThresholdAngular">
-      <property name="geometry">
-       <rect>
-        <x>120</x>
-        <y>45</y>
-        <width>56</width>
-        <height>18</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_7">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>45</y>
-        <width>111</width>
-        <height>18</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Angular [deg]</string>
-      </property>
-     </widget>
-    </widget>
-    <widget class="QGroupBox" name="groupBox_6">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>180</y>
-       <width>371</width>
-       <height>71</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Various</string>
-     </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-     <widget class="QToolButton" name="qqEditConditional">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>25</y>
-        <width>271</width>
-        <height>18</height>
-       </rect>
-      </property>
-      <property name="focusPolicy">
-       <enum>Qt::StrongFocus</enum>
-      </property>
-      <property name="text">
-       <string>Edit conditional parameters</string>
-      </property>
-     </widget>
-     <widget class="QToolButton" name="qqEditObstacleAvoidance">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>45</y>
-        <width>271</width>
-        <height>18</height>
-       </rect>
-      </property>
-      <property name="focusPolicy">
-       <enum>Qt::StrongFocus</enum>
-      </property>
-      <property name="text">
-       <string>Edit obstacle avoidance parameters</string>
-      </property>
-     </widget>
-    </widget>
     <widget class="QToolButton" name="qqEditIkElements">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>260</y>
+       <y>120</y>
        <width>371</width>
        <height>18</height>
       </rect>
@@ -421,6 +233,22 @@
      </property>
      <property name="text">
       <string>Edit IK elements</string>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="qqEditConditional">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>90</y>
+       <width>181</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Edit conditional params</string>
      </property>
     </widget>
    </widget>
@@ -434,17 +262,11 @@
   <tabstop>qqDown</tabstop>
   <tabstop>qqGroupIsActive</tabstop>
   <tabstop>qqExplicitHandling</tabstop>
-  <tabstop>qqRedundant</tabstop>
-  <tabstop>qqIgnoreMaxStepSizes</tabstop>
   <tabstop>qqCalcMethodCombo</tabstop>
   <tabstop>qqDamping</tabstop>
   <tabstop>qqMaxIterations</tabstop>
-  <tabstop>qqWeightJointLimits</tabstop>
-  <tabstop>qqWeightObstacleAvoidance</tabstop>
-  <tabstop>qqThresholdLinear</tabstop>
-  <tabstop>qqThresholdAngular</tabstop>
+  <tabstop>qqIgnoreMaxStepSizes</tabstop>
   <tabstop>qqEditConditional</tabstop>
-  <tabstop>qqEditObstacleAvoidance</tabstop>
   <tabstop>qqEditIkElements</tabstop>
  </tabstops>
  <resources>

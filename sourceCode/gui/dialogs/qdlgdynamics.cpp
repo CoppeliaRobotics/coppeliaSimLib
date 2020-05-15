@@ -31,9 +31,9 @@ void CQDlgDynamics::refresh()
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
 
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
     bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
-    bool en=App::ct->dynamicsContainer->getDynamicsEnabled();
+    bool en=App::currentWorld->dynamicsContainer->getDynamicsEnabled();
 
     ui->qqEngineCombo->setEnabled(noEditModeNoSim&&en);
     ui->qqContactPoints->setEnabled(noEditMode&&en);
@@ -50,7 +50,7 @@ void CQDlgDynamics::refresh()
     ui->qqEngineCombo->addItem(strTranslate(IDS_VORTEX),3);
     ui->qqEngineCombo->addItem(strTranslate(IDS_NEWTON),4);
     int ver;
-    int eng=App::ct->dynamicsContainer->getDynamicEngineType(&ver);
+    int eng=App::currentWorld->dynamicsContainer->getDynamicEngineType(&ver);
     if ( (eng==sim_physics_bullet)&&(ver==0) )
         ui->qqEngineCombo->setCurrentIndex(0);
     if ( (eng==sim_physics_bullet)&&(ver==283) )
@@ -62,9 +62,9 @@ void CQDlgDynamics::refresh()
     if (eng==sim_physics_newton)
         ui->qqEngineCombo->setCurrentIndex(4);
 
-    ui->qqContactPoints->setChecked(App::ct->dynamicsContainer->getDisplayContactPoints());
+    ui->qqContactPoints->setChecked(App::currentWorld->dynamicsContainer->getDisplayContactPoints());
 
-    C3Vector accel(App::ct->dynamicsContainer->getGravity());
+    C3Vector accel(App::currentWorld->dynamicsContainer->getGravity());
     ui->qqGravityX->setText(tt::getEString(true,accel(0),2).c_str());
     ui->qqGravityY->setText(tt::getEString(true,accel(1),2).c_str());
     ui->qqGravityZ->setText(tt::getEString(true,accel(2),2).c_str());
@@ -130,29 +130,29 @@ void CQDlgDynamics::on_qqAdjustEngine_clicked()
         dlg.exec(); // items are set in here
         SSimulationThreadCommand cmd;
         cmd.cmdId=SET_ALLGLOBALPARAMS_DYNAMICSGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::ct->dynamicsContainer->getUseDynamicDefaultCalculationParameters());
+        cmd.intParams.push_back(App::currentWorld->dynamicsContainer->getUseDynamicDefaultCalculationParameters());
         std::vector<int> iParams;
         std::vector<float> fParams;
-        App::ct->dynamicsContainer->getBulletIntParams(iParams);
-        App::ct->dynamicsContainer->getBulletFloatParams(fParams);
+        App::currentWorld->dynamicsContainer->getBulletIntParams(iParams);
+        App::currentWorld->dynamicsContainer->getBulletFloatParams(fParams);
         cmd.intVectorParams.push_back(iParams);
         cmd.floatVectorParams.push_back(fParams);
         iParams.clear();
         fParams.clear();
-        App::ct->dynamicsContainer->getOdeIntParams(iParams);
-        App::ct->dynamicsContainer->getOdeFloatParams(fParams);
+        App::currentWorld->dynamicsContainer->getOdeIntParams(iParams);
+        App::currentWorld->dynamicsContainer->getOdeFloatParams(fParams);
         cmd.intVectorParams.push_back(iParams);
         cmd.floatVectorParams.push_back(fParams);
         iParams.clear();
         fParams.clear();
-        App::ct->dynamicsContainer->getVortexIntParams(iParams);
-        App::ct->dynamicsContainer->getVortexFloatParams(fParams);
+        App::currentWorld->dynamicsContainer->getVortexIntParams(iParams);
+        App::currentWorld->dynamicsContainer->getVortexFloatParams(fParams);
         cmd.intVectorParams.push_back(iParams);
         cmd.floatVectorParams.push_back(fParams);
         iParams.clear();
         fParams.clear();
-        App::ct->dynamicsContainer->getNewtonIntParams(iParams);
-        App::ct->dynamicsContainer->getNewtonFloatParams(fParams);
+        App::currentWorld->dynamicsContainer->getNewtonIntParams(iParams);
+        App::currentWorld->dynamicsContainer->getNewtonFloatParams(fParams);
         cmd.intVectorParams.push_back(iParams);
         cmd.floatVectorParams.push_back(fParams);
         iParams.clear();
@@ -173,7 +173,7 @@ void CQDlgDynamics::on_qqGravityX_editingFinished()
         float newVal=ui->qqGravityX->text().toFloat(&ok);
         if (ok)
         {
-            C3Vector vect=App::ct->dynamicsContainer->getGravity();
+            C3Vector vect=App::currentWorld->dynamicsContainer->getGravity();
             vect(0)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_GRAVITY_DYNAMICSGUITRIGGEREDCMD;
@@ -195,7 +195,7 @@ void CQDlgDynamics::on_qqGravityY_editingFinished()
         float newVal=ui->qqGravityY->text().toFloat(&ok);
         if (ok)
         {
-            C3Vector vect=App::ct->dynamicsContainer->getGravity();
+            C3Vector vect=App::currentWorld->dynamicsContainer->getGravity();
             vect(1)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_GRAVITY_DYNAMICSGUITRIGGEREDCMD;
@@ -217,7 +217,7 @@ void CQDlgDynamics::on_qqGravityZ_editingFinished()
         float newVal=ui->qqGravityZ->text().toFloat(&ok);
         if (ok)
         {
-            C3Vector vect=App::ct->dynamicsContainer->getGravity();
+            C3Vector vect=App::currentWorld->dynamicsContainer->getGravity();
             vect(2)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_GRAVITY_DYNAMICSGUITRIGGEREDCMD;

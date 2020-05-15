@@ -1,10 +1,8 @@
-#include "funcDebug.h"
 #include "confReaderAndWriter.h"
 #include "simInternal.h"
 #include "userSettings.h"
 #include "global.h"
 #include "threadPool.h"
-#include "debugLogFile.h"
 #include "tt.h"
 #include "easyLock.h"
 #include "vVarious.h"
@@ -63,10 +61,9 @@
 #define _USR_IDLE_FPS "idleFps"
 #define _USR_UNDO_REDO_MAX_BUFFER_SIZE "undoRedoMaxBufferSize"
 #define _USR_ALWAYS_SHOW_CONSOLE "alwaysShowConsole"
-#define _USR_DEBUG_INTERNAL_FUNCTION_ACCESS "debugInternalFunctionAccess"
-#define _USR_DEBUG_C_API_ACCESS "debugCApiAccess"
-#define _USR_DEBUG_LUA_API_ACCESS "debugLuaApiAccess"
-#define _USR_DEBUG_TO_FILE "sendDebugInformationToFile"
+#define _USR_VERBOSITY "verbosity"
+#define _USR_STATUSBAR_VERBOSITY "statusbarVerbosity"
+#define _USR_CONSOLE_MSGS_TO_FILE "consoleMsgsToFile"
 #define _USR_FORCE_BUG_FIX_REL_30002 "forceBugFix_rel30002"
 #define _USR_STATUSBAR_INITIALLY_VISIBLE "statusbarInitiallyVisible"
 #define _USR_MODELBROWSER_INITIALLY_VISIBLE "modelBrowserInitiallyVisible"
@@ -79,16 +76,14 @@
 #define _USR_NAVIGATION_BACKWARD_COMPATIBILITY_MODE "navigationBackwardCompatibility"
 #define _USR_COLOR_ADJUST_BACK_COMPATIBILITY "colorAdjust_backCompatibility"
 #define _USR_SPECIFIC_GPU_TWEAK "specificGpuTweak"
-#define _USR_ENABLE_OLD_CALC_MODULE_GUIS "enableOldCalcModuleGuis"
 #define _USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES "useAlternateSerialPortRoutines"
-#define _USR_ENABLE_OPENGL_BASED_CUSTOM_UI_EDITOR "enableOpenGlBasedCustomUiEditor"
+#define _USR_DISABLED_OPENGL_BASED_CUSTOM_UI "disableOpenGlBasedCustomUi"
 #define _USR_CHANGE_SCRIPT_CODE_NEW_API_NOTATION "changeScriptCodeForNewApiNotation"
 #define _USR_SUPPORT_OLD_API_NOTATION "supportOldApiNotation"
-#define _USR_ENABLE_OLD_MILL_OBJECTS "enableOldMillObjects"
 #define _USR_ENABLE_OLD_MIRROR_OBJECTS "enableOldMirrorObjects"
 
-
 #define _USR_ABORT_SCRIPT_EXECUTION_BUTTON "abortScriptExecutionButton"
+#define _USR_DARK_MODE "darkMode"
 #define _USR_RENDERING_SURFACE_VERTICAL_SHIFT "renderingSurfaceVShift"
 #define _USR_RENDERING_SURFACE_VERTICAL_RESIZE "renderingSurfaceVResize"
 #define _USR_ADDITIONAL_LUA_PATH "additionalLuaPath"
@@ -100,7 +95,6 @@
 #define _USR_DIRECTORY_FOR_REMOTE_API "defaultDirectoryForRemoteApiFiles"
 
 
-#define _USR_THREADED_RENDERING_DURING_SIMULATION "threadedRenderingDuringSimulation"
 #define _USR_OFFSCREEN_CONTEXT_TYPE "offscreenContextType"
 #define _USR_FBO_TYPE "fboType"
 #define _USR_FORCE_FBO_VIA_EXT "forceFboViaExt"
@@ -178,7 +172,6 @@
 #define _USR_DO_NOT_WRITE_PERSISTENT_DATA "doNotWritePersistentData"
 #define _USR_DO_NOT_SHOW_CRASH_RECOVERY_MESSAGE "doNotShowCrashRecoveryMessage"
 #define _USR_DO_NOT_SHOW_UPDATE_CHECK_MESSAGE "doNotShowUpdateCheckMessage"
-#define _USR_DO_NOT_SHOW_SCENE_SELECTION_THUMBNAILS "doNotShowSceneSelectionThumbnails"
 #define _USR_DO_NOT_SHOW_PROGRESS_BARS "doNotShowProgressBars"
 #define _USR_DO_NOT_SHOW_ACKNOWLEDGMENT_MESSAGES "doNotShowAcknowledgmentMessages"
 #define _USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR "doNotShowVideoCompressionLibraryLoadError"
@@ -205,11 +198,12 @@ CUserSettings::CUserSettings()
     // Debugging section:
     // *****************************
     alwaysShowConsole=false;
+    _overrideConsoleVerbosity="default";
+    _overrideStatusbarVerbosity="default";
 
     // Rendering section:
     // *****************************
     _idleFps=8;
-    threadedRenderingDuringSimulation=0; // keep 0, will otherwise lead to very frequent crashes!!
     desiredOpenGlMajor=-1; // default
     desiredOpenGlMinor=-1; // default
     offscreenContextType=-1; // default type
@@ -229,6 +223,7 @@ CUserSettings::CUserSettings()
 
     // Visual section:
     // *****************************
+    darkMode=false;
     renderingSurfaceVShift=0;
     renderingSurfaceVResize=0;
     scriptEditorFont=""; // default
@@ -344,7 +339,6 @@ CUserSettings::CUserSettings()
     // *****************************
     doNotShowCrashRecoveryMessage=false;
     doNotShowUpdateCheckMessage=false;
-    doNotShowSceneSelectionThumbnails=false;
     doNotShowProgressBars=false;
     doNotShowAcknowledgmentMessages=false;
     doNotShowVideoCompressionLibraryLoadError=false;
@@ -359,14 +353,11 @@ CUserSettings::CUserSettings()
     navigationBackwardCompatibility=false;
     colorAdjust_backCompatibility=1.0f; // default
     specificGpuTweak=false; // default
-    enableOldCalcModuleGuis=false; // default
     useAlternateSerialPortRoutines=false;
-    enableOpenGlBasedCustomUiEditor=false;
+    disableOpenGlBasedCustomUi=false;
     changeScriptCodeForNewApiNotation=1;
     _supportOldApiNotation=true;
-    enableOldMillObjects=false;
     enableOldMirrorObjects=false;
-
 
 
 
@@ -405,11 +396,6 @@ CUserSettings::CUserSettings()
     floatingLicensePort=20249;
     keepDongleOpen=false;
     xrTest=0;
-
-    // Other, not serialized:
-    groupSelectionColor.setDefaultValues();
-    groupSelectionColor.setColor(0.75f,0.0f,0.4f,sim_colorcomponent_ambient_diffuse);
-    groupSelectionColor.setColor(0.2f,0.0f,0.1f,sim_colorcomponent_emission);
 
     loadUserSettings();
 }
@@ -488,8 +474,8 @@ float CUserSettings::getRotationStepSize()
 void CUserSettings::setUndoRedoEnabled(bool isEnabled)
 {
     _undoRedoEnabled=isEnabled;
-    if (App::ct->undoBufferContainer!=nullptr)
-        App::ct->undoBufferContainer->emptySceneProcedure();
+    if (App::currentWorld->undoBufferContainer!=nullptr)
+        App::currentWorld->undoBufferContainer->emptySceneProcedure();
 }
 
 bool CUserSettings::getUndoRedoEnabled()
@@ -563,10 +549,9 @@ void CUserSettings::saveUserSettings()
     c.addRandomLine("// Debugging");
     c.addRandomLine("// =================================================");
     c.addBoolean(_USR_ALWAYS_SHOW_CONSOLE,alwaysShowConsole,"");
-    c.addBoolean(_USR_DEBUG_INTERNAL_FUNCTION_ACCESS,(CFuncDebug::getDebugMask()&1)!=0,"will also heavily slow down CoppeliaSim");
-    c.addBoolean(_USR_DEBUG_C_API_ACCESS,(CFuncDebug::getDebugMask()&2)!=0,"will also drastically slow down CoppeliaSim");
-    c.addBoolean(_USR_DEBUG_LUA_API_ACCESS,(CFuncDebug::getDebugMask()&4)!=0,"will also slow down CoppeliaSim");
-    c.addBoolean(_USR_DEBUG_TO_FILE,CDebugLogFile::getDebugToFile(),"if true, debug info is sent to debugLog.txt");
+    c.addString(_USR_VERBOSITY,_overrideConsoleVerbosity,"to override console verbosity setting, use any of: default (do not override), none, errors, warnings, msgs, loadinfos, infos, debug, trace, tracelua or traceall");
+    c.addString(_USR_STATUSBAR_VERBOSITY,_overrideStatusbarVerbosity,"to override statusbar verbosity setting, use any of: default (do not override), none, errors, warnings, msgs, loadinfos, infos, debug, trace, tracelua or traceall");
+    c.addBoolean(_USR_CONSOLE_MSGS_TO_FILE,App::getConsoleMsgToFile(),"if true, console messages are sent to debugLog.txt");
     c.addRandomLine("");
     c.addRandomLine("");
 
@@ -574,7 +559,6 @@ void CUserSettings::saveUserSettings()
     c.addRandomLine("// Rendering");
     c.addRandomLine("// =================================================");
     c.addInteger(_USR_IDLE_FPS,_idleFps,"");
-    c.addInteger(_USR_THREADED_RENDERING_DURING_SIMULATION,threadedRenderingDuringSimulation,"recommended to keep 0 (-1=disabled, 0=pre-enabled, 1=enabled).");
     c.addInteger(_USR_DESIRED_OPENGL_MAJOR,desiredOpenGlMajor,"recommended to keep -1.");
     c.addInteger(_USR_DESIRED_OPENGL_MINOR,desiredOpenGlMinor,"recommended to keep -1.");
     c.addInteger(_USR_OFFSCREEN_CONTEXT_TYPE,offscreenContextType,"recommended to keep -1 (-1=default, 0=Qt offscreen, 1=QGLWidget/QOpenGLWidget visible, 2=QGLWidget/QOpenGLWidget invisible).");
@@ -603,6 +587,7 @@ void CUserSettings::saveUserSettings()
 
     c.addRandomLine("// Visual");
     c.addRandomLine("// =================================================");
+    c.addBoolean(_USR_DARK_MODE,darkMode,"");
     c.addInteger(_USR_RENDERING_SURFACE_VERTICAL_SHIFT,renderingSurfaceVShift,"");
     c.addInteger(_USR_RENDERING_SURFACE_VERTICAL_RESIZE,renderingSurfaceVResize,"");
     c.addBoolean(_USR_DISPLAY_WORLD_REF,displayWorldReference,"");
@@ -725,7 +710,6 @@ void CUserSettings::saveUserSettings()
     c.addRandomLine("// =================================================");
     c.addBoolean(_USR_DO_NOT_SHOW_CRASH_RECOVERY_MESSAGE,doNotShowCrashRecoveryMessage,"");
     c.addBoolean(_USR_DO_NOT_SHOW_UPDATE_CHECK_MESSAGE,doNotShowUpdateCheckMessage,"");
-    c.addBoolean(_USR_DO_NOT_SHOW_SCENE_SELECTION_THUMBNAILS,doNotShowSceneSelectionThumbnails,"");
     c.addBoolean(_USR_DO_NOT_SHOW_PROGRESS_BARS,doNotShowProgressBars,"");
     c.addBoolean(_USR_DO_NOT_SHOW_ACKNOWLEDGMENT_MESSAGES,doNotShowAcknowledgmentMessages,"");
     c.addBoolean(_USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR,doNotShowVideoCompressionLibraryLoadError,"");
@@ -745,12 +729,10 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_NAVIGATION_BACKWARD_COMPATIBILITY_MODE,navigationBackwardCompatibility,"recommended to keep false.");
     c.addFloat(_USR_COLOR_ADJUST_BACK_COMPATIBILITY,colorAdjust_backCompatibility,"recommended to keep 1.0");
     c.addBoolean(_USR_SPECIFIC_GPU_TWEAK,specificGpuTweak,"");
-    c.addBoolean(_USR_ENABLE_OLD_CALC_MODULE_GUIS,enableOldCalcModuleGuis,"");
     c.addBoolean(_USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES,useAlternateSerialPortRoutines,"");
-    c.addBoolean(_USR_ENABLE_OPENGL_BASED_CUSTOM_UI_EDITOR,enableOpenGlBasedCustomUiEditor,"");
+    c.addBoolean(_USR_DISABLED_OPENGL_BASED_CUSTOM_UI,disableOpenGlBasedCustomUi,"");
     c.addInteger(_USR_CHANGE_SCRIPT_CODE_NEW_API_NOTATION,changeScriptCodeForNewApiNotation,"1=enabled, 0=disabled.");
     c.addBoolean(_USR_SUPPORT_OLD_API_NOTATION,_supportOldApiNotation,"");
-    c.addBoolean(_USR_ENABLE_OLD_MILL_OBJECTS,enableOldMillObjects,"");
     c.addBoolean(_USR_ENABLE_OLD_MIRROR_OBJECTS,enableOldMirrorObjects,"");
 
 
@@ -854,33 +836,39 @@ void CUserSettings::loadUserSettings()
     // Debugging section:
     // *****************************
     c.getBoolean(_USR_ALWAYS_SHOW_CONSOLE,alwaysShowConsole);
+    c.getString(_USR_VERBOSITY,_overrideConsoleVerbosity);
+    if (_overrideConsoleVerbosity.compare("default")!=0)
+    {
+        int l=App::getVerbosityLevelFromString(_overrideConsoleVerbosity.c_str());
+        if (l>=sim_verbosity_none)
+        {
+            App::setConsoleVerbosity(l);
+            App::logMsg(sim_verbosity_warnings,"console verbosity overridden to '%s' via system/usrset.txt.",_overrideConsoleVerbosity.c_str());
+        }
+        else
+            App::logMsg(sim_verbosity_errors,"unrecognized verbosity value in system/usrset.txt: %s.",_overrideConsoleVerbosity.c_str());
+    }
+    c.getString(_USR_STATUSBAR_VERBOSITY,_overrideStatusbarVerbosity);
+    if (_overrideStatusbarVerbosity.compare("default")!=0)
+    {
+        int l=App::getVerbosityLevelFromString(_overrideStatusbarVerbosity.c_str());
+        if (l>=sim_verbosity_none)
+        {
+            App::setStatusbarVerbosity(l);
+            App::logMsg(sim_verbosity_warnings,"statusbar verbosity overridden to '%s' via system/usrset.txt.",_overrideStatusbarVerbosity.c_str());
+        }
+        else
+            App::logMsg(sim_verbosity_errors,"unrecognized verbosity value in system/usrset.txt: %s.",_overrideStatusbarVerbosity.c_str());
+    }
     bool dummyBool=false;
-    int dummyInt=0;
-    if (c.getBoolean(_USR_DEBUG_INTERNAL_FUNCTION_ACCESS,dummyBool))
-    {
-        if (dummyBool)
-            dummyInt+=1;
-    }
-    if (c.getBoolean(_USR_DEBUG_C_API_ACCESS,dummyBool))
-    {
-        if (dummyBool)
-            dummyInt+=2;
-    }
-    if (c.getBoolean(_USR_DEBUG_LUA_API_ACCESS,dummyBool))
-    {
-        if (dummyBool)
-            dummyInt+=4;
-    }
-    CFuncDebug::setDebugMask(dummyInt);
-    if (c.getBoolean(_USR_DEBUG_TO_FILE,dummyBool))
-        CDebugLogFile::setDebugToFile(dummyBool);
+    if (c.getBoolean(_USR_CONSOLE_MSGS_TO_FILE,dummyBool))
+        App::setConsoleMsgToFile(dummyBool);
 
 
     // Rendering section:
     // *****************************
     c.getInteger(_USR_IDLE_FPS,_idleFps);
     setIdleFps(_idleFps);
-    c.getInteger(_USR_THREADED_RENDERING_DURING_SIMULATION,threadedRenderingDuringSimulation);
     c.getInteger(_USR_DESIRED_OPENGL_MAJOR,desiredOpenGlMajor);
     c.getInteger(_USR_DESIRED_OPENGL_MINOR,desiredOpenGlMinor);
     c.getInteger(_USR_OFFSCREEN_CONTEXT_TYPE,offscreenContextType);
@@ -904,6 +892,7 @@ void CUserSettings::loadUserSettings()
 
     // Visual section:
     // *****************************
+    c.getBoolean(_USR_DARK_MODE,darkMode);
     c.getInteger(_USR_RENDERING_SURFACE_VERTICAL_SHIFT,renderingSurfaceVShift);
     c.getInteger(_USR_RENDERING_SURFACE_VERTICAL_RESIZE,renderingSurfaceVResize);
     c.getBoolean(_USR_DISPLAY_WORLD_REF,displayWorldReference);
@@ -1020,7 +1009,6 @@ void CUserSettings::loadUserSettings()
     // *****************************
     c.getBoolean(_USR_DO_NOT_SHOW_CRASH_RECOVERY_MESSAGE,doNotShowCrashRecoveryMessage);
     c.getBoolean(_USR_DO_NOT_SHOW_UPDATE_CHECK_MESSAGE,doNotShowUpdateCheckMessage);
-    c.getBoolean(_USR_DO_NOT_SHOW_SCENE_SELECTION_THUMBNAILS,doNotShowSceneSelectionThumbnails);
     c.getBoolean(_USR_DO_NOT_SHOW_PROGRESS_BARS,doNotShowProgressBars);
     c.getBoolean(_USR_DO_NOT_SHOW_ACKNOWLEDGMENT_MESSAGES,doNotShowAcknowledgmentMessages);
     c.getBoolean(_USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR,doNotShowVideoCompressionLibraryLoadError);
@@ -1035,13 +1023,12 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_NAVIGATION_BACKWARD_COMPATIBILITY_MODE,navigationBackwardCompatibility);
     c.getFloat(_USR_COLOR_ADJUST_BACK_COMPATIBILITY,colorAdjust_backCompatibility);
     c.getBoolean(_USR_SPECIFIC_GPU_TWEAK,specificGpuTweak);
-    c.getBoolean(_USR_ENABLE_OLD_CALC_MODULE_GUIS,enableOldCalcModuleGuis);
     c.getBoolean(_USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES,useAlternateSerialPortRoutines);
-    c.getBoolean(_USR_ENABLE_OPENGL_BASED_CUSTOM_UI_EDITOR,enableOpenGlBasedCustomUiEditor);
+    c.getBoolean(_USR_DISABLED_OPENGL_BASED_CUSTOM_UI,disableOpenGlBasedCustomUi);
     c.getInteger(_USR_CHANGE_SCRIPT_CODE_NEW_API_NOTATION,changeScriptCodeForNewApiNotation);
     c.getBoolean(_USR_SUPPORT_OLD_API_NOTATION,_supportOldApiNotation);
-    c.getBoolean(_USR_ENABLE_OLD_MILL_OBJECTS,enableOldMillObjects);
     c.getBoolean(_USR_ENABLE_OLD_MIRROR_OBJECTS,enableOldMirrorObjects);
+
 
     // Various section:
     // *****************************

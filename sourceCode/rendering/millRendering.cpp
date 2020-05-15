@@ -12,7 +12,7 @@ void displayMill(CMill* mill,CViewableBase* renderingObject,int displayAttrib)
     if (displayAttrib&sim_displayattribute_renderpass)
         _displayBoundingBox(mill,displayAttrib,true,0.0);
 
-    C3Vector normalVectorForLinesAndPoints(mill->getCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
+    C3Vector normalVectorForLinesAndPoints(mill->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
     // Display the object:
     if (mill->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))

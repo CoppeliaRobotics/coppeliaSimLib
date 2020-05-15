@@ -1,12 +1,12 @@
 
 #pragma once
 
-#include "3DObject.h"
+#include "sceneObject.h"
 
 class CMemorizedConf  
 {
 public:
-    CMemorizedConf(C3DObject* theObject);
+    CMemorizedConf(CSceneObject* theObject);
     CMemorizedConf(); // default constructor for serialization from memory!
     virtual ~CMemorizedConf();
     void restore();

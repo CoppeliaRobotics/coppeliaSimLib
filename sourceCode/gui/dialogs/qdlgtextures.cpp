@@ -38,7 +38,7 @@ void CQDlgTextures::refresh()
     bool applyTexture3D;
     CGeometric* geom=nullptr;
     CTextureProperty* tp=App::getTexturePropertyPointerFromItem(_objType,_objID1,_objID2,nullptr,&applyTexture3D,nullptr,&geom);
-    bool simStopped=App::ct->simulation->isSimulationStopped();
+    bool simStopped=App::currentWorld->simulation->isSimulationStopped();
     bool usingFixedTextureCoordinates=false;
     bool foundTextureCoordinatesOnShape=false;
     bool forbidU=false;
@@ -166,7 +166,7 @@ void CQDlgTextures::refresh()
         std::string textureName=strTranslate(IDS_TEXTURE_NAME_NONE);
         if ((tp->getTextureObjectID()>=SIM_IDSTART_TEXTURE)&&(tp->getTextureObjectID()<=SIM_IDEND_TEXTURE))
         { // we have a static texture
-            CTextureObject* to=App::ct->textureCont->getObject(tp->getTextureObjectID());
+            CTextureObject* to=App::currentWorld->textureContainer->getObject(tp->getTextureObjectID());
             if (to!=nullptr)
             {
                 textureName=to->getObjectName();
@@ -179,7 +179,7 @@ void CQDlgTextures::refresh()
         }
         else
         { // we have a dynamic texture
-            CVisionSensor* rs=App::ct->objCont->getVisionSensor(tp->getTextureObjectID());
+            CVisionSensor* rs=App::currentWorld->sceneObjects->getVisionSensorFromHandle(tp->getTextureObjectID());
             if (rs!=nullptr)
             {
                 textureName=rs->getObjectName();
@@ -200,7 +200,7 @@ void CQDlgTextures::refresh()
     else
     {
         // Check if there are already existing textures:
-        ui->qqRemoveSelect->setEnabled( (App::ct->textureCont->getObjectAtIndex(0)!=nullptr)||(App::ct->objCont->visionSensorList.size()!=0) );
+        ui->qqRemoveSelect->setEnabled( (App::currentWorld->textureContainer->getObjectAtIndex(0)!=nullptr)||(App::currentWorld->sceneObjects->getVisionSensorCount()!=0) );
         if (foundTextureCoordinatesOnShape)
             ui->qqTextureCoordinates->setText(strTranslate(IDS_FROM_SHAPE_IMPORT));
         else
@@ -234,11 +234,11 @@ bool CQDlgTextures::needsDestruction()
 
 bool CQDlgTextures::isLinkedDataValid()
 {
-    if (!App::ct->simulation->isSimulationStopped())
+    if (!App::currentWorld->simulation->isSimulationStopped())
         return(false);
     if (_objType==TEXTURE_ID_SIMPLE_SHAPE)
     {
-        if (App::ct->objCont->getLastSelectionID()!=_objID1)
+        if (App::currentWorld->sceneObjects->getLastSelectionHandle()!=_objID1)
             return(false);
     }
     if (_objType==TEXTURE_ID_COMPOUND_SHAPE)
@@ -250,21 +250,21 @@ bool CQDlgTextures::isLinkedDataValid()
     }
     if (_objType==TEXTURE_ID_OPENGL_GUI_BACKGROUND)
     {
-        if (App::ct->buttonBlockContainer->getBlockInEdition()!=_objID1)
+        if (App::currentWorld->buttonBlockContainer->getBlockInEdition()!=_objID1)
             return(false);
-        if (App::ct->buttonBlockContainer->selectedButtons.size()>0)
+        if (App::currentWorld->buttonBlockContainer->selectedButtons.size()>0)
             return(false);
     }
     if (_objType==TEXTURE_ID_OPENGL_GUI_BUTTON)
     {
-        if (App::ct->buttonBlockContainer->getBlockInEdition()!=_objID1)
+        if (App::currentWorld->buttonBlockContainer->getBlockInEdition()!=_objID1)
             return(false);
-        CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(_objID1);
+        CButtonBlock* itBlock=App::currentWorld->buttonBlockContainer->getBlockWithID(_objID1);
         if (itBlock==nullptr)
             return(false);
-        if (App::ct->buttonBlockContainer->selectedButtons.size()<=0)
+        if (App::currentWorld->buttonBlockContainer->selectedButtons.size()<=0)
             return(false);
-        int butt=App::ct->buttonBlockContainer->selectedButtons[App::ct->buttonBlockContainer->selectedButtons.size()-1];
+        int butt=App::currentWorld->buttonBlockContainer->selectedButtons[App::currentWorld->buttonBlockContainer->selectedButtons.size()-1];
         VPoint size;
         itBlock->getBlockSize(size);
         CSoftButton* itButton=itBlock->getButtonAtPos(butt%size.x,butt/size.x);

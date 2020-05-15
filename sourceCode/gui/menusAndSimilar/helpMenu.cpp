@@ -1,4 +1,3 @@
-#include "funcDebug.h"
 #include "easyLock.h"
 #include "simInternal.h"
 #include "helpMenu.h"
@@ -14,10 +13,9 @@
 #include "qdlgabout.h"
 #include <QDesktopServices>
 #include <QUrl>
-#include "debugLogFile.h"
 #include "vMessageBox.h"
-#include "collisionRoutine.h"
-#include "distanceRoutine.h"
+#include "collisionRoutines.h"
+#include "distanceRoutines.h"
 #include "libLic.h"
 
 CHelpMenu::CHelpMenu()
@@ -45,11 +43,6 @@ void CHelpMenu::addMenu(VMenu* menu)
     if (CLibLic::getBoolVal(11))
     {
         VMenu* debugMenu=new VMenu();
-        debugMenu->appendMenuItem(true,CFuncDebug::getDebugMask()&1,SHOW_INTERNAL_FUNCTION_ACCESS_DEBUG_CMD,IDSN_SHOW_INTERNAL_FUNCTION_ACCESS_DEBUG_MENU_ITEM,true);
-        debugMenu->appendMenuItem(true,CFuncDebug::getDebugMask()&2,SHOW_C_API_ACCESS_DEBUG_CMD,IDSN_SHOW_C_API_ACCESS_DEBUG_MENU_ITEM,true);
-        debugMenu->appendMenuItem(true,CFuncDebug::getDebugMask()&4,SHOW_LUA_API_ACCESS_DEBUG_CMD,IDSN_SHOW_LUA_API_ACCESS_DEBUG_MENU_ITEM,true);
-        debugMenu->appendMenuItem(true,CDebugLogFile::getDebugToFile(),DEBUG_TO_FILE_DEBUG_CMD,IDSN_SEND_DEBUG_INFO_TO_FILE_MENU_ITEM,true);
-        debugMenu->appendMenuSeparator();
         debugMenu->appendMenuItem(true,!CViewableBase::getFrustumCullingEnabled(),DISABLE_FRUSTUM_CULLING_DEBUG_CMD,IDSN_DISABLE_FRUSTUM_CULLING_DEBUG_MENU_ITEM,true);
         debugMenu->appendMenuItem(true,!CDistanceRoutine::getDistanceCachingEnabled(),DISABLE_DISTANCE_CACHING_DEBUG_CMD,IDSN_DISABLE_DISTANCE_CACHING_DEBUG_MENU_ITEM,true);
         debugMenu->appendMenuItem(true,CShape::getDebugObbStructures(),VISUALIZE_OBB_STRUCTURE_DEBUG_CMD,IDSN_VISUALIZE_OBB_STRUCTURE_DEBUG_MENU_ITEM,true);
@@ -106,42 +99,6 @@ bool CHelpMenu::processCommand(int commandID)
             { // file doesn't exist.
                 App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_CREDITS),strTranslate(IDS_FILE_COULD_NOT_BE_FOUND_),VMESSAGEBOX_OKELI);
             }
-        }
-        return(true);
-    }
-    if (commandID==SHOW_INTERNAL_FUNCTION_ACCESS_DEBUG_CMD)
-    {
-        IF_UI_EVENT_CAN_READ_DATA_CMD("SHOW_INTERNAL_FUNCTION_ACCESS_DEBUG_CMD")
-        {
-            CFuncDebug::setDebugMask(CFuncDebug::getDebugMask()^1);
-            App::userSettings->saveUserSettings();
-        }
-        return(true);
-    }
-    if (commandID==SHOW_C_API_ACCESS_DEBUG_CMD)
-    {
-        IF_UI_EVENT_CAN_READ_DATA_CMD("SHOW_C_API_ACCESS_DEBUG_CMD")
-        {
-            CFuncDebug::setDebugMask(CFuncDebug::getDebugMask()^2);
-            App::userSettings->saveUserSettings();
-        }
-        return(true);
-    }
-    if (commandID==SHOW_LUA_API_ACCESS_DEBUG_CMD)
-    {
-        IF_UI_EVENT_CAN_READ_DATA_CMD("SHOW_LUA_API_ACCESS_DEBUG_CMD")
-        {
-            CFuncDebug::setDebugMask(CFuncDebug::getDebugMask()^4);
-            App::userSettings->saveUserSettings();
-        }
-        return(true);
-    }
-    if (commandID==DEBUG_TO_FILE_DEBUG_CMD)
-    {
-        IF_UI_EVENT_CAN_READ_DATA_CMD("DEBUG_TO_FILE_DEBUG_CMD")
-        {
-            CDebugLogFile::setDebugToFile(!CDebugLogFile::getDebugToFile());
-            App::userSettings->saveUserSettings();
         }
         return(true);
     }

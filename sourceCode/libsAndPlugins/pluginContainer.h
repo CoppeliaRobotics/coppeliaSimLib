@@ -3,6 +3,9 @@
 #include "vVarious.h"
 #include "4X4Matrix.h"
 #include <vector>
+#include "simTypes.h"
+
+typedef void (__cdecl *ptr_syncPlugin_msg)(const SSyncMsg* msg,const SSyncRt* rt);
 
 typedef  unsigned char (__cdecl *ptrStart)(void*,int);
 typedef  void (__cdecl *ptrEnd)(void);
@@ -124,6 +127,43 @@ typedef bool (__cdecl *ptr_geomPlugin_raySensorDetectMeshIfSmaller)(const float 
 typedef bool (__cdecl *ptr_geomPlugin_raySensorDetectOctreeIfSmaller)(const float rayStart[3],const float rayVect[3],const void* ocStruct,const float octreeTransformationRealtive[7],float* dist,float forbiddenDist,bool fast,bool frontDetection,bool backDetection,float maxAngle,float detectPt[3],float triN[3],bool* forbiddenDistTouched);
 typedef bool (__cdecl *ptr_geomPlugin_isPointInVolume)(const float* planesIn,int planesInSize,const float point[3]);
 
+typedef int (__cdecl *ptr_ikPlugin_createEnvironment)();
+typedef bool (__cdecl *ptr_ikPlugin_switchEnvironment)(int handle);
+typedef void (__cdecl *ptr_ikPlugin_eraseEnvironment)();
+typedef void (__cdecl *ptr_ikPlugin_eraseObject)(int objectHandle);
+typedef void (__cdecl *ptr_ikPlugin_setObjectParent)(int objectHandle,int parentObjectHandle);
+typedef int (__cdecl *ptr_ikPlugin_createDummy)();
+typedef void (__cdecl *ptr_ikPlugin_setLinkedDummy)(int dummyHandle,int linkedDummyHandle);
+typedef int (__cdecl *ptr_ikPlugin_createJoint)(int jointType);
+typedef void (__cdecl *ptr_ikPlugin_setJointMode)(int jointHandle,int jointMode);
+typedef void (__cdecl *ptr_ikPlugin_setJointInterval)(int jointHandle,bool cyclic,const float* intervalMinAndRange);
+typedef void (__cdecl *ptr_ikPlugin_setJointScrewPitch)(int jointHandle,float pitch);
+typedef void (__cdecl *ptr_ikPlugin_setJointIkWeight)(int jointHandle,float ikWeight);
+typedef void (__cdecl *ptr_ikPlugin_setJointMaxStepSize)(int jointHandle,float maxStepSize);
+typedef void (__cdecl *ptr_ikPlugin_setJointDependency)(int jointHandle,int dependencyJointHandle,float offset,float mult);
+typedef float (__cdecl *ptr_ikPlugin_getJointPosition)(int jointHandle);
+typedef void (__cdecl *ptr_ikPlugin_setJointPosition)(int jointHandle,float position);
+typedef void (__cdecl *ptr_ikPlugin_getSphericalJointQuaternion)(int jointHandle,float* quaternion);
+typedef void (__cdecl *ptr_ikPlugin_setSphericalJointQuaternion)(int jointHandle,const float* quaternion);
+typedef int (__cdecl *ptr_ikPlugin_createIkGroup)();
+typedef void (__cdecl *ptr_ikPlugin_eraseIkGroup)(int ikGroupHandle);
+typedef void (__cdecl *ptr_ikPlugin_setIkGroupFlags)(int ikGroupHandle,int flags);
+typedef void (__cdecl *ptr_ikPlugin_setIkGroupCalculation)(int ikGroupHandle,int method,float damping,int maxIterations);
+typedef int (__cdecl *ptr_ikPlugin_addIkElement)(int ikGroupHandle,int tipHandle);
+typedef void (__cdecl *ptr_ikPlugin_eraseIkElement)(int ikGroupHandle,int ikElementIndex);
+typedef void (__cdecl *ptr_ikPlugin_setIkElementFlags)(int ikGroupHandle,int ikElementIndex,int flags);
+typedef void (__cdecl *ptr_ikPlugin_setIkElementBase)(int ikGroupHandle,int ikElementIndex,int baseHandle,int constraintsBaseHandle);
+typedef void (__cdecl *ptr_ikPlugin_setIkElementConstraints)(int ikGroupHandle,int ikElementIndex,int constraints);
+typedef void (__cdecl *ptr_ikPlugin_setIkElementPrecision)(int ikGroupHandle,int ikElementIndex,float linearPrecision,float angularPrecision);
+typedef void (__cdecl *ptr_ikPlugin_setIkElementWeights)(int ikGroupHandle,int ikElementIndex,float linearWeight,float angularWeight);
+typedef int (__cdecl *ptr_ikPlugin_handleIkGroup)(int ikGroupHandle);
+typedef bool (__cdecl *ptr_ikPlugin_computeJacobian)(int ikGroupHandle,int options);
+typedef float* (__cdecl *ptr_ikPlugin_getJacobian)(int ikGroupHandle,int* matrixSize);
+typedef float (__cdecl *ptr_ikPlugin_getManipulability)(int ikGroupHandle);
+typedef char* (__cdecl *ptr_ikPlugin_getConfigForTipPose)(int ikGroupHandle,int jointCnt,const int* jointHandles,float thresholdDist,int maxIterations,int* result,float* retConfig,const float* metric,bool(*validationCallback)(float*),const int* jointOptions,const float* lowLimits,const float* ranges);
+typedef void (__cdecl *ptr_ikPlugin_getObjectLocalTransformation)(int objectHandle,float* pos,float* quat);
+typedef void (__cdecl *ptr_ikPlugin_setObjectLocalTransformation)(int objectHandle,const float* pos,const float* quat);
+
 typedef char* (__cdecl *ptrCodeEditor_openModal)(const char* initText,const char* properties,int* positionAndSize);
 typedef int (__cdecl *ptrCodeEditor_open)(const char* initText,const char* properties);
 typedef int (__cdecl *ptrCodeEditor_setText)(int handle,const char* text,int insertMode);
@@ -147,11 +187,18 @@ public:
     CPlugin(const char* filename,const char* pluginName);
     virtual ~CPlugin();
     int load();
+    void setConsoleVerbosity(int level);
+    int getConsoleVerbosity() const;
+    void setStatusbarVerbosity(int level);
+    int getStatusbarVerbosity() const;
+    std::string getName() const;
     void* sendEventCallbackMessage(int msg,int* auxVals,void* data,int retVals[4]);
 
     ptrStart startAddress;
     ptrEnd endAddress;
     ptrMessage messageAddress;
+
+    ptr_syncPlugin_msg syncPlugin_msg;
 
     ptr_dynPlugin_startSimulation dynPlugin_startSimulation;
     ptr_dynPlugin_endSimulation dynPlugin_endSimulation;
@@ -262,6 +309,43 @@ public:
     ptr_geomPlugin_raySensorDetectOctreeIfSmaller geomPlugin_raySensorDetectOctreeIfSmaller;
     ptr_geomPlugin_isPointInVolume geomPlugin_isPointInVolume;
 
+    ptr_ikPlugin_createEnvironment ikPlugin_createEnvironment;
+    ptr_ikPlugin_switchEnvironment ikPlugin_switchEnvironment;
+    ptr_ikPlugin_eraseEnvironment ikPlugin_eraseEnvironment;
+    ptr_ikPlugin_eraseObject ikPlugin_eraseObject;
+    ptr_ikPlugin_setObjectParent ikPlugin_setObjectParent;
+    ptr_ikPlugin_createDummy ikPlugin_createDummy;
+    ptr_ikPlugin_setLinkedDummy ikPlugin_setLinkedDummy;
+    ptr_ikPlugin_createJoint ikPlugin_createJoint;
+    ptr_ikPlugin_setJointMode ikPlugin_setJointMode;
+    ptr_ikPlugin_setJointInterval ikPlugin_setJointInterval;
+    ptr_ikPlugin_setJointScrewPitch ikPlugin_setJointScrewPitch;
+    ptr_ikPlugin_setJointIkWeight ikPlugin_setJointIkWeight;
+    ptr_ikPlugin_setJointMaxStepSize ikPlugin_setJointMaxStepSize;
+    ptr_ikPlugin_setJointDependency ikPlugin_setJointDependency;
+    ptr_ikPlugin_getJointPosition ikPlugin_getJointPosition;
+    ptr_ikPlugin_setJointPosition ikPlugin_setJointPosition;
+    ptr_ikPlugin_getSphericalJointQuaternion ikPlugin_getSphericalJointQuaternion;
+    ptr_ikPlugin_setSphericalJointQuaternion ikPlugin_setSphericalJointQuaternion;
+    ptr_ikPlugin_createIkGroup ikPlugin_createIkGroup;
+    ptr_ikPlugin_eraseIkGroup ikPlugin_eraseIkGroup;
+    ptr_ikPlugin_setIkGroupFlags ikPlugin_setIkGroupFlags;
+    ptr_ikPlugin_setIkGroupCalculation ikPlugin_setIkGroupCalculation;
+    ptr_ikPlugin_addIkElement ikPlugin_addIkElement;
+    ptr_ikPlugin_eraseIkElement ikPlugin_eraseIkElement;
+    ptr_ikPlugin_setIkElementFlags ikPlugin_setIkElementFlags;
+    ptr_ikPlugin_setIkElementBase ikPlugin_setIkElementBase;
+    ptr_ikPlugin_setIkElementConstraints ikPlugin_setIkElementConstraints;
+    ptr_ikPlugin_setIkElementPrecision ikPlugin_setIkElementPrecision;
+    ptr_ikPlugin_setIkElementWeights ikPlugin_setIkElementWeights;
+    ptr_ikPlugin_handleIkGroup ikPlugin_handleIkGroup;
+    ptr_ikPlugin_computeJacobian ikPlugin_computeJacobian;
+    ptr_ikPlugin_getJacobian ikPlugin_getJacobian;
+    ptr_ikPlugin_getManipulability ikPlugin_getManipulability;
+    ptr_ikPlugin_getConfigForTipPose ikPlugin_getConfigForTipPose;
+    ptr_ikPlugin_getObjectLocalTransformation ikPlugin_getObjectLocalTransformation;
+    ptr_ikPlugin_setObjectLocalTransformation ikPlugin_setObjectLocalTransformation;
+
     ptrCodeEditor_openModal _codeEditor_openModal;
     ptrCodeEditor_open _codeEditor_open;
     ptrCodeEditor_setText _codeEditor_setText;
@@ -277,13 +361,15 @@ public:
     ptrassimp_importMeshes _assimp_importMeshes;
     ptrassimp_exportMeshes _assimp_exportMeshes;
 
-    std::string name;
+    std::string _name;
     std::string _filename;
     unsigned char pluginVersion;
     int extendedVersionInt;
     std::string extendedVersionString;
     std::string buildDateString;
     int handle;
+    int _consoleVerbosity;
+    int _statusbarVerbosity;
     int _loadCount;
     WLibrary instance;
 };
@@ -298,10 +384,12 @@ public:
     static int addPlugin(const char* filename,const char* pluginName);
     static void* sendEventCallbackMessageToAllPlugins(int msg,int* auxVals,void* data,int retVals[4]);
     static void* sendEventCallbackMessageToOnePlugin(const char* pluginName,int msg,int* auxVals,void* data,int retVals[4]);
-    static CPlugin* getPluginFromName(const char* pluginName);
-    static CPlugin* getPluginFromIndex(int index);
-    static bool killPlugin(int handle);
     static int getPluginCount();
+    static CPlugin* getPluginFromIndex(size_t index);
+    static CPlugin* getPluginFromName(const char* pluginName,bool caseSensitive);
+    static CPlugin* getPluginFromHandle(int handle);
+    static bool unloadPlugin(int handle);
+    static void _removePlugin(int handle);
 
     static bool selectExtRenderer(int index);
     static bool extRenderer(int msg,void* data);
@@ -310,6 +398,9 @@ public:
     static bool hacd(void* data);
     static bool vhacd(void* data);
     static bool meshDecimator(void* data);
+
+    static std::vector<CPlugin*> _syncPlugins;
+    static void syncMsg(const SSyncMsg* msg,const SSyncRt* rt);
 
     // physics engines:
     static CPlugin* currentDynEngine;
@@ -455,6 +546,48 @@ public:
     // Volume-pt test
     static bool geomPlugin_isPointInVolume(const std::vector<float>& planesIn,const C3Vector& point);
     static bool geomPlugin_isPointInVolume1AndOutVolume2(const std::vector<float>& planesIn,const std::vector<float>& planesOut,const C3Vector& point);
+
+    // IK plugin:
+    static CPlugin* currentIkPlugin;
+    static int ikEnvironment;
+    static bool isIkPluginAvailable();
+    static void ikPlugin_emptyEnvironment();
+    //static void ikPlugin_createEnvironment();
+    //static void ikPlugin_eraseEnvironment();
+    static void ikPlugin_eraseObject(int objectHandle);
+    static void ikPlugin_setObjectParent(int objectHandle,int parentObjectHandle);
+    static int ikPlugin_createDummy();
+    static void ikPlugin_setLinkedDummy(int dummyHandle,int linkedDummyHandle);
+    static int ikPlugin_createJoint(int jointType);
+    static void ikPlugin_setJointMode(int jointHandle,int jointMode);
+    static void ikPlugin_setJointInterval(int jointHandle,bool cyclic,float jMin,float jRange);
+    static void ikPlugin_setJointScrewPitch(int jointHandle,float pitch);
+    static void ikPlugin_setJointIkWeight(int jointHandle,float ikWeight);
+    static void ikPlugin_setJointMaxStepSize(int jointHandle,float maxStepSize);
+    static void ikPlugin_setJointDependency(int jointHandle,int dependencyJointHandle,float offset,float mult);
+    static float ikPlugin_getJointPosition(int jointHandle);
+    static void ikPlugin_setJointPosition(int jointHandle,float position);
+    static C4Vector ikPlugin_getSphericalJointQuaternion(int jointHandle);
+    static void ikPlugin_setSphericalJointQuaternion(int jointHandle,const C4Vector& quaternion);
+    static int ikPlugin_createIkGroup();
+    static void ikPlugin_eraseIkGroup(int ikGroupHandle);
+    static void ikPlugin_setIkGroupFlags(int ikGroupHandle,int flags);
+    static void ikPlugin_setIkGroupCalculation(int ikGroupHandle,int method,float damping,int maxIterations);
+    static int ikPlugin_addIkElement(int ikGroupHandle,int tipHandle);
+    static void ikPlugin_eraseIkElement(int ikGroupHandle,int ikElementIndex);
+    static void ikPlugin_setIkElementFlags(int ikGroupHandle,int ikElementIndex,int flags);
+    static void ikPlugin_setIkElementBase(int ikGroupHandle,int ikElementIndex,int baseHandle,int constraintsBaseHandle);
+    static void ikPlugin_setIkElementConstraints(int ikGroupHandle,int ikElementIndex,int constraints);
+    static void ikPlugin_setIkElementPrecision(int ikGroupHandle,int ikElementIndex,float linearPrecision,float angularPrecision);
+    static void ikPlugin_setIkElementWeights(int ikGroupHandle,int ikElementIndex,float linearWeight,float angularWeight);
+    static int ikPlugin_handleIkGroup(int ikGroupHandle);
+    static bool ikPlugin_computeJacobian(int ikGroupHandle,int options);
+    static float* ikPlugin_getJacobian(int ikGroupHandle,int* matrixSize);
+    static float ikPlugin_getManipulability(int ikGroupHandle);
+    static int ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,float thresholdDist,int maxIterationsOrTimeInMs,float* retConfig,const float* metric,bool(*validationCallback)(float*),const int* jointOptions,const float* lowLimits,const float* ranges,std::string& errSting);
+    static int ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,float thresholdDist,int maxIterationsOrTimeInMs,float* retConfig,const float* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const float* lowLimits,const float* ranges,std::string& errSting);
+    static C7Vector ikPlugin_getObjectLocalTransformation(int objectHandle);
+    static void ikPlugin_setObjectLocalTransformation(int objectHandle,const C7Vector& tr);
 
     // code editor plugin:
     static CPlugin* currentCodeEditor;

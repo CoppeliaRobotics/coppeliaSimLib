@@ -10,6 +10,7 @@
 #include "environmentRendering.h"
 #include "base64.h"
 #include <boost/algorithm/string.hpp>
+#include "pluginContainer.h"
 
 int CEnvironment::_nextSceneUniqueID=0;
 bool CEnvironment::_shapeTexturesTemporarilyDisabled=false;
@@ -25,7 +26,7 @@ CEnvironment::CEnvironment()
 }
 
 CEnvironment::~CEnvironment()
-{
+{ // beware, the current world could be nullptr
 }
 
 void CEnvironment::generateNewUniquePersistentIdString()
@@ -124,8 +125,8 @@ void CEnvironment::setUpDefaultValues()
 
     wirelessEmissionVolumeColor.setColorsAllBlack();
     wirelessEmissionVolumeColor.setColor(1.0f,1.0f,0.0f,sim_colorcomponent_emission);
-    wirelessEmissionVolumeColor.translucid=true;
-    wirelessEmissionVolumeColor.transparencyFactor=0.2f;
+    wirelessEmissionVolumeColor.setTranslucid(true);
+    wirelessEmissionVolumeColor.setTransparencyFactor(0.2f);
     wirelessReceptionVolumeColor.setColorsAllBlack();
     wirelessReceptionVolumeColor.setColor(1.0f,1.0f,0.0f,sim_colorcomponent_emission);
 
@@ -244,25 +245,12 @@ void CEnvironment::setSceneLocked()
 {
     _sceneIsLocked=true;
     _requestFinalSave=false;
-//  App::ct->objCont->resetDialogRefreshFlags();
+//  App::currentWorld->objCont->resetDialogRefreshFlags();
 }
 
 bool CEnvironment::getSceneLocked() const
 {
     return(_sceneIsLocked);
-}
-
-void CEnvironment::simulationAboutToStart()
-{
-
-}
-
-void CEnvironment::simulationEnded()
-{
-//  if (_initialValuesInitialized&&App::ct->simulation->getResetSceneAtSimulationEnd())
-//  {
-//  }
-
 }
 
 void CEnvironment::setVisualizeWirelessEmitters(bool v)
@@ -838,10 +826,6 @@ void CEnvironment::serialize(CSer& ar)
     }
 }
 
-void CEnvironment::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
-{
-}
-
 void CEnvironment::setBackgroundColor(int viewSize[2])
 {
     displayBackground(viewSize,fogEnabled,fogBackgroundColor,backGroundColorDown,backGroundColor);
@@ -1008,7 +992,7 @@ bool CEnvironment::getShowPalletRepository()
 #ifdef SIM_WITH_GUI
 void CEnvironment::addLayoutMenu(VMenu* menu)
 { // GUI THREAD only
-    bool simStopped=App::ct->simulation->isSimulationStopped();
+    bool simStopped=App::currentWorld->simulation->isSimulationStopped();
     bool noEditMode=App::getEditModeType()==NO_EDIT_MODE;
     menu->appendMenuItem(noEditMode,false,XR_COMMAND_1_SCCMD+5,"General properties");
     menu->appendMenuItem(simStopped&&noEditMode,false,XR_COMMAND_1_SCCMD+0,"Actions");
@@ -1020,7 +1004,7 @@ void CEnvironment::addLayoutMenu(VMenu* menu)
 
 void CEnvironment::addJobsMenu(VMenu* menu)
 { // GUI THREAD only
-    bool enabled=App::ct->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE)&&_jobFuncEnabled;
+    bool enabled=App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE)&&_jobFuncEnabled;
     menu->appendMenuItem((_jobs.size()<99)&&enabled,false,XR_COMMAND_1_SCCMD+297,"Create new job");
     menu->appendMenuItem((_jobs.size()>1)&&enabled,false,XR_COMMAND_1_SCCMD+298,"Delete current job");
     menu->appendMenuItem(enabled,false,XR_COMMAND_1_SCCMD+299,"Rename current job");

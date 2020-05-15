@@ -1,4 +1,3 @@
-#include "funcDebug.h"
 #include "simConst.h"
 #include "meshRoutines.h"
 #include "meshManip.h"
@@ -7,6 +6,7 @@
 #include <stdio.h>
 #include "simInternal.h"
 #include <algorithm>
+#include "app.h"
 
 void CMeshRoutines::getEdgeFeatures(float* vertices,int verticesLength,int* indices,int indicesLength,
             std::vector<int>* theVertexIDs,std::vector<int>* theEdgeIDs,std::vector<int>* theFaceIDs,
@@ -253,7 +253,7 @@ bool CMeshRoutines::getConvexHull(const float* verticesIn,int verticesInLength,s
             }
         }
         else
-            printf("Qhull failed. Is the Qhull plugin loaded?\n");
+            App::logMsg(sim_verbosity_errors,"Qhull failed. Is the Qhull plugin loaded?");
         if (indicesOut==nullptr)
             break;
         if (verticesOut->size()<9)
@@ -367,7 +367,7 @@ bool CMeshRoutines::getDecimatedMesh(const std::vector<float>& verticesIn,const 
             }
         }
         else
-            printf("Mesh decimation failed. Is the OpenMesh plugin loaded?\n");
+            App::logMsg(sim_verbosity_errors,"mesh decimation failed. Is the OpenMesh plugin loaded?");
     }
     return(retVal);
 }
@@ -378,12 +378,12 @@ int CMeshRoutines::convexDecompose(const float* vertices,int verticesLength,cons
                                    std::vector<std::vector<float>*>& verticesList,std::vector<std::vector<int>*>& indicesList,
                                    size_t nClusters,double concavity,bool addExtraDistPoints,bool addFacesPoints,
                                    double ccConnectDist,size_t targetNTrianglesDecimatedMesh,size_t maxHullVertices,
-                                   double smallestClusterThreshold,bool useHACD,int resolution_VHACD,int depth_VHACD,float concavity_VHACD,
+                                   double smallestClusterThreshold,bool useHACD,int resolution_VHACD,int depth_VHACD_old,float concavity_VHACD,
                                    int planeDownsampling_VHACD,int convexHullDownsampling_VHACD,
-                                   float alpha_VHACD,float beta_VHACD,float gamma_VHACD,bool pca_VHACD,
+                                   float alpha_VHACD,float beta_VHACD,float gamma_VHACD_old,bool pca_VHACD,
                                    bool voxelBased_VHACD,int maxVerticesPerCH_VHACD,float minVolumePerCH_VHACD)
 { // 2 100 0 1 1 30 2000
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     void* data[30];
     int el=0;
     float** vertList=nullptr;
@@ -415,13 +415,13 @@ int CMeshRoutines::convexDecompose(const float* vertices,int verticesLength,cons
     else
     {
         data[4]=&resolution_VHACD;
-        data[5]=&depth_VHACD;
+        data[5]=&depth_VHACD_old;
         data[6]=&concavity_VHACD;
         data[7]=&planeDownsampling_VHACD;
         data[8]=&convexHullDownsampling_VHACD;
         data[9]=&alpha_VHACD;
         data[10]=&beta_VHACD;
-        data[11]=&gamma_VHACD;
+        data[11]=&gamma_VHACD_old;
         data[12]=&pca_VHACD;
         data[13]=&voxelBased_VHACD;
         data[14]=&maxVerticesPerCH_VHACD;

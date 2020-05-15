@@ -101,7 +101,6 @@ simInt simHandleDistance_internal(simInt distanceObjectHandle,simFloat* smallest
 simInt simReadDistance_internal(simInt distanceObjectHandle,simFloat* smallestDistance);
 simInt simHandleProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 simInt simReadProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
-simInt simHandleMill_internal(simInt millHandle,simFloat* removedSurfaceAndVolume);
 simInt simHandleIkGroup_internal(simInt ikGroupHandle);
 simInt simCheckIkGroup_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat* jointValues,const simInt* jointOptions);
 simInt simHandleDynamics_internal(simFloat deltaTime);
@@ -126,7 +125,6 @@ simInt simGetIkGroupHandle_internal(const simChar* ikGroupName);
 simInt simResetCollision_internal(simInt collisionObjectHandle);
 simInt simResetDistance_internal(simInt distanceObjectHandle);
 simInt simResetProximitySensor_internal(simInt sensorHandle);
-simInt simResetMill_internal(simInt millHandle);
 simInt simCheckProximitySensor_internal(simInt sensorHandle,simInt entityHandle,simFloat* detectedPoint);
 simInt simCheckProximitySensorEx_internal(simInt sensorHandle,simInt entityHandle,simInt detectionMode,simFloat detectionThreshold,simFloat maxAngle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 simInt simCheckProximitySensorEx2_internal(simInt sensorHandle,simFloat* vertexPointer,simInt itemType,simInt itemCount,simInt detectionMode,simFloat detectionThreshold,simFloat maxAngle,simFloat* detectedPoint,simFloat* normalVector);
@@ -194,8 +192,6 @@ simInt simRemoveParticleObject_internal(simInt objectHandle);
 simInt simAddParticleObjectItem_internal(simInt objectHandle,const simFloat* itemData);
 simFloat simGetObjectSizeFactor_internal(simInt objectHandle);
 simInt simAnnounceSceneContentChange_internal();
-simInt simResetMilling_internal(simInt objectHandle);
-simInt simApplyMilling_internal(simInt objectHandle);
 simInt simSetIntegerSignal_internal(const simChar* signalName,simInt signalValue);
 simInt simGetIntegerSignal_internal(const simChar* signalName,simInt* signalValue);
 simInt simClearIntegerSignal_internal(const simChar* signalName);
@@ -436,6 +432,7 @@ simInt simSetStringNamedParam_internal(const simChar* paramName,const simChar* s
 simChar* simGetStringNamedParam_internal(const simChar* paramName,simInt* paramLength);
 simChar* simGetUserParameter_internal(simInt objectHandle,const simChar* parameterName,simInt* parameterLength);
 simInt simSetUserParameter_internal(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength);
+simInt simAddLog_internal(const simChar* pluginName,simInt verbosityLevel,const simChar* logMsg);
 
 
 
@@ -479,7 +476,6 @@ simBool _simGetDynamicsFullRefreshFlag_internal(const simVoid* object);
 simVoid _simSetDynamicsFullRefreshFlag_internal(const simVoid* object,simBool flag);
 simVoid _simSetGeomProxyDynamicsFullRefreshFlag_internal(simVoid* geomData,simBool flag);
 simBool _simGetGeomProxyDynamicsFullRefreshFlag_internal(const simVoid* geomData);
-simBool _simGetParentFollowsDynamic_internal(const simVoid* shape);
 simVoid _simSetShapeDynamicVelocity_internal(simVoid* shape,const simFloat* linear,const simFloat* angular);
 simVoid _simGetAdditionalForceAndTorque_internal(const simVoid* shape,simFloat* force,simFloat* torque);
 simVoid _simClearAdditionalForceAndTorque_internal(const simVoid* shape);

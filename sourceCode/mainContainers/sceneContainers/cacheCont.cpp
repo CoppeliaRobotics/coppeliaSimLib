@@ -6,7 +6,7 @@ CCacheCont::CCacheCont()
 }
 
 CCacheCont::~CCacheCont()
-{
+{ // beware, the current world could be nullptr
 }
 
 int CCacheCont::_getPosition(int entity1,int entity2,bool& inverted,std::vector<int>& entityPairs,std::vector<int>& cacheDat)

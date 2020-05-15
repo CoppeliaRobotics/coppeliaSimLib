@@ -1959,19 +1959,6 @@ bool QtAbstractPropertyBrowser::addFactory(QtAbstractPropertyManager *abstractMa
         (*m_viewToManagerToFactory())[this].contains(abstractManager)) {
         unsetFactoryForManager(abstractManager);
     }
-/*
-    FUNCTION_INSIDE_DEBUG("a");
-    if (m_viewToManagerToFactory()->contains(this))
-    {
-        FUNCTION_INSIDE_DEBUG("b");
-        if ((*m_viewToManagerToFactory())[this].contains(abstractManager))
-        {
-        FUNCTION_INSIDE_DEBUG("c");
-            unsetFactoryForManager(abstractManager); // crash here
-            FUNCTION_INSIDE_DEBUG("d");
-        }
-    }
-*/
     (*m_managerToFactoryToViews())[abstractManager][abstractFactory].append(this);
     (*m_viewToManagerToFactory())[this][abstractManager] = abstractFactory;
 

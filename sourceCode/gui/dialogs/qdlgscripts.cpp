@@ -43,7 +43,7 @@ void CQDlgScripts::refresh()
 {
     inMainRefreshRoutine=true;
     bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
-    bool noEditModeAndNoSim=noEditMode&&App::ct->simulation->isSimulationStopped();
+    bool noEditModeAndNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
 
     ui->qqCombo->setEnabled(noEditMode);
     ui->qqCombo->clear();
@@ -64,7 +64,7 @@ void CQDlgScripts::refresh()
     ui->qqDebugMode->clear();
     ui->qqAssociatedObjectCombo->clear();
 
-    CLuaScriptObject* theScript=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getSelectedObjectID());
+    CLuaScriptObject* theScript=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getSelectedObjectID());
     ui->qqExecutionOrder->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqTreeTraversalDirection->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqDebugMode->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript)||(theScript->getScriptType()==sim_scripttype_mainscript) ));
@@ -97,14 +97,14 @@ void CQDlgScripts::refresh()
             ui->qqAssociatedObjectCombo->addItem(strTranslate(IDSN_NONE),QVariant(-1));
             std::vector<std::string> names;
             std::vector<int> ids;
-            for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
             {
-                C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
                 CLuaScriptObject* so=nullptr;
                 if (theScript->getScriptType()==sim_scripttype_childscript)
-                    so=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(it->getObjectHandle());
+                    so=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(it->getObjectHandle());
                 if (theScript->getScriptType()==sim_scripttype_customizationscript)
-                    so=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
+                    so=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
                 if ( (so==nullptr)||(so==theScript) )
                 {
                     names.push_back(it->getObjectName());
@@ -159,7 +159,7 @@ void CQDlgScripts::updateObjectsInList()
 
     if (scriptViewMode==0)
     { // Main and child scripts
-        CLuaScriptObject* it=App::ct->luaScriptContainer->getMainScript();
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getMainScript();
         if (it!=nullptr)
         {
             std::string tmp=it->getDescriptiveName();
@@ -170,9 +170,9 @@ void CQDlgScripts::updateObjectsInList()
             itm->setForeground(QColor(255,128,128)); // RED
             ui->qqScriptList->addItem(itm);
         }
-        for (int i=0;i<int(App::ct->luaScriptContainer->allScripts.size());i++)
+        for (int i=0;i<int(App::currentWorld->luaScriptContainer->allScripts.size());i++)
         {
-            it=App::ct->luaScriptContainer->allScripts[i];
+            it=App::currentWorld->luaScriptContainer->allScripts[i];
             int t=it->getScriptType();
             if (t==sim_scripttype_childscript)
             {
@@ -192,9 +192,9 @@ void CQDlgScripts::updateObjectsInList()
 
     if (scriptViewMode==1)
     { // Customization scripts
-        for (int i=0;i<int(App::ct->luaScriptContainer->allScripts.size());i++)
+        for (int i=0;i<int(App::currentWorld->luaScriptContainer->allScripts.size());i++)
         {
-            CLuaScriptObject* it=App::ct->luaScriptContainer->allScripts[i];
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->allScripts[i];
             int t=it->getScriptType();
             if (t==sim_scripttype_customizationscript)
             {
@@ -242,7 +242,7 @@ void CQDlgScripts::onDeletePressed()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if ( (focusWidget()==ui->qqScriptList)&&App::ct->simulation->isSimulationStopped() )
+        if ( (focusWidget()==ui->qqScriptList)&&App::currentWorld->simulation->isSimulationStopped() )
         {
             int scriptID=getSelectedObjectID();
             App::appendSimulationThreadCommand(DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD,scriptID);
@@ -264,7 +264,7 @@ void CQDlgScripts::on_qqAddNewScript_clicked()
             if (theDialog.scriptType==sim_scripttype_mainscript)
             {
                 scriptViewMode=0;
-                CLuaScriptObject* it=App::ct->luaScriptContainer->getMainScript();
+                CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getMainScript();
                 if (it!=nullptr)
                 {
                     if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDS_MAIN_SCRIPT),strTranslate(IDS_INFO_NO_MORE_THAN_ONE_MAIN_SCRIPT),VMESSAGEBOX_YES_NO))
@@ -312,9 +312,9 @@ void CQDlgScripts::on_qqScriptList_itemDoubleClicked(QListWidgetItem *item)
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        if ( (item!=nullptr)&&App::ct->simulation->isSimulationStopped() )
+        if ( (item!=nullptr)&&App::currentWorld->simulation->isSimulationStopped() )
         {
-            CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(item->data(Qt::UserRole).toInt());
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(item->data(Qt::UserRole).toInt());
             if (it!=nullptr)
             {
                 // Process the command via the simulation thread (delayed):

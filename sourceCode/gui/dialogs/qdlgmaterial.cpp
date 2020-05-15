@@ -12,8 +12,8 @@ CQDlgMaterial::CQDlgMaterial(QWidget *parent) :
     _dlgType=MATERIAL_DLG;
     ui->setupUi(this);
     inMainRefreshRoutine=false;
-    _lastSelectedObjectID=App::ct->objCont->getLastSelectionID();
-    _objectSelectionSize=App::ct->objCont->getSelSize();
+    _lastSelectedObjectID=App::currentWorld->sceneObjects->getLastSelectionHandle();
+    _objectSelectionSize=App::currentWorld->sceneObjects->getSelectionCount();
 
     if (App::mainWindow!=nullptr)
         App::mainWindow->dlgCont->close(COLOR_DLG);
@@ -30,8 +30,8 @@ void CQDlgMaterial::refresh()
 {
     inMainRefreshRoutine=true;
     int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-    CVisualParam* vc=App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
-    bool simStopped=App::ct->simulation->isSimulationStopped();
+    CColorObject* vc=App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
+    bool simStopped=App::currentWorld->simulation->isSimulationStopped();
     ui->qqAmbientAdjust->setEnabled(simStopped&&(allowedParts&1));
     ui->qqSpecularAdjust->setEnabled(simStopped&&(allowedParts&4));
     ui->qqEmissiveAdjust->setEnabled(simStopped&&(allowedParts&8));
@@ -43,14 +43,14 @@ void CQDlgMaterial::refresh()
     ui->qqExtensionString->setEnabled(simStopped&&(allowedParts&512));
 
     if (allowedParts&64)
-        ui->qqShininess->setText(tt::getIString(false,vc->shininess).c_str());
+        ui->qqShininess->setText(tt::getIString(false,vc->getShininess()).c_str());
     else
         ui->qqShininess->setText("");
     if (allowedParts&128)
     {
-        ui->qqOpacityEnable->setChecked(vc->translucid);
-        ui->qqOpacity->setEnabled(vc->translucid);
-        ui->qqOpacity->setText(tt::getFString(false,vc->transparencyFactor,2).c_str());
+        ui->qqOpacityEnable->setChecked(vc->getTranslucid());
+        ui->qqOpacity->setEnabled(vc->getTranslucid());
+        ui->qqOpacity->setText(tt::getFString(false,vc->getTransparencyFactor(),2).c_str());
     }
     else
     {
@@ -60,12 +60,12 @@ void CQDlgMaterial::refresh()
     }
 
     if (allowedParts&256)
-        ui->qqColorName->setText(vc->colorName.c_str());
+        ui->qqColorName->setText(vc->getColorName().c_str());
     else
         ui->qqColorName->setText("");
 
     if (allowedParts&512)
-        ui->qqExtensionString->setText(vc->extensionString.c_str());
+        ui->qqExtensionString->setText(vc->getExtensionString().c_str());
     else
         ui->qqExtensionString->setText("");
 
@@ -81,11 +81,11 @@ bool CQDlgMaterial::needsDestruction()
 
 bool CQDlgMaterial::isLinkedDataValid()
 {
-    if (_lastSelectedObjectID!=App::ct->objCont->getLastSelectionID())
+    if (_lastSelectedObjectID!=App::currentWorld->sceneObjects->getLastSelectionHandle())
         return(false);
-    if (_objectSelectionSize!=App::ct->objCont->getSelSize())
+    if (_objectSelectionSize!=App::currentWorld->sceneObjects->getSelectionCount())
         return(false);
-    if (!App::ct->simulation->isSimulationStopped())
+    if (!App::currentWorld->simulation->isSimulationStopped())
         return(false);
     return(App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,nullptr)!=nullptr);
 }
@@ -187,15 +187,15 @@ void CQDlgMaterial::on_qqPulsationAdjust_clicked()
         if (isLinkedDataValid())
         {
             int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-            CVisualParam* it=App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
+            CColorObject* it=App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
             if (allowedParts&32)
             {
                 CQDlgColorPulsation theDialog(this);
-                theDialog.pulsationEnabled=it->flash;
-                theDialog.pulsationRealTime=!it->useSimulationTime;
-                theDialog.pulsationFrequency=it->flashFrequency;
-                theDialog.pulsationPhase=it->flashPhase;
-                theDialog.pulsationRatio=it->flashRatio;
+                theDialog.pulsationEnabled=it->getFlash();
+                theDialog.pulsationRealTime=!it->getUseSimulationTime();
+                theDialog.pulsationFrequency=it->getFlashFrequency();
+                theDialog.pulsationPhase=it->getFlashPhase();
+                theDialog.pulsationRatio=it->getFlashRatio();
                 theDialog.refresh();
                 if (theDialog.makeDialogModal()!=VDIALOG_MODAL_RETURN_CANCEL)
                 {

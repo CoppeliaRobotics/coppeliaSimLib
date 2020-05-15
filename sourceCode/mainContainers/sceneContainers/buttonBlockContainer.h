@@ -1,8 +1,6 @@
-
 #pragma once
 
 #include "buttonBlock.h"
-#include "mainCont.h"
 #include "VPoint.h"
 #ifdef SIM_WITH_GUI
     #include "vMenubar.h"
@@ -11,7 +9,7 @@
 
 const int INFO_BOX_ROW_COUNT=20;
 
-class CButtonBlockContainer : public CMainCont
+class CButtonBlockContainer
 {
 public:
 
@@ -22,7 +20,6 @@ public:
     void updateInfoWindowColorStyle(int colorStyle);
     void simulationAboutToStart();
     void simulationEnded();
-    void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
 
     CButtonBlock* getButtonBlockWithID(int id);
     void removeAllBlocks(bool alsoSystemBlocks);
@@ -31,8 +28,8 @@ public:
 
     void insertBlock(CButtonBlock* theNewBlock,bool objectIsACopy);
     void insertBlockWithSuffixOffset(CButtonBlock* theNewBlock,bool objectIsACopy,int suffixOffset);
-    void getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix);
-    bool canSuffix1BeSetToSuffix2(int suffix1,int suffix2);
+    void getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix) const;
+    bool canSuffix1BeSetToSuffix2(int suffix1,int suffix2) const;
     void setSuffix1ToSuffix2(int suffix1,int suffix2);
 
     CButtonBlock* getBlockWithID(int id);
@@ -47,7 +44,7 @@ public:
     bool isInSelection(int pos);
     void setViewSizeAndPosition(int sX,int sY,int pX,int pY);
 
-    void a3DObjectWasSelected(int objID);
+    void aSceneObjectWasSelected(int objID);
     void sendBlockToFront(int blockID);
     int getNonSystemBlockCount();
     int getUnassociatedNonSystemBlockCount();

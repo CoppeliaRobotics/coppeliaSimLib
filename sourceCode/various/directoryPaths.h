@@ -1,7 +1,4 @@
-
 #pragma once
-
-#include "mainCont.h"
 
 class CDirectoryPaths 
 {

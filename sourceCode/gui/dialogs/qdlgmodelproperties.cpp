@@ -35,8 +35,6 @@ void CQDlgModelProperties::refresh()
     ui->qqNotCollidable->setChecked((ovProp&sim_modelproperty_not_collidable)!=0);
     ui->qqNotMeasurable->setChecked((ovProp&sim_modelproperty_not_measurable)!=0);
     ui->qqNotRenderable->setChecked((ovProp&sim_modelproperty_not_renderable)!=0);
-    ui->qqNotCuttable->setVisible(App::userSettings->enableOldMillObjects);
-    ui->qqNotCuttable->setChecked((ovProp&sim_modelproperty_not_cuttable)!=0);
     ui->qqNotDetectable->setChecked((ovProp&sim_modelproperty_not_detectable)!=0);
     ui->qqNotDynamic->setChecked((ovProp&sim_modelproperty_not_dynamic)!=0);
     ui->qqNotRespondable->setChecked((ovProp&sim_modelproperty_not_respondable)!=0);
@@ -52,10 +50,10 @@ void CQDlgModelProperties::on_qqSelectThumbnail_clicked()
     int modelBase=modelBaseObject->getObjectHandle();
     while (true)
     {
-        if (App::ct->environment->modelThumbnail_notSerializedHere.hasImage())
+        if (App::currentWorld->environment->modelThumbnail_notSerializedHere.hasImage())
         { // we already have a thumbnail!
             CQDlgModelThumbnailVisu dlg(this);
-            dlg.applyThumbnail(&App::ct->environment->modelThumbnail_notSerializedHere);
+            dlg.applyThumbnail(&App::currentWorld->environment->modelThumbnail_notSerializedHere);
             keepCurrentThumbnail=(dlg.makeDialogModal()!=VDIALOG_MODAL_RETURN_CANCEL);
         }
         if (!keepCurrentThumbnail)
@@ -67,7 +65,7 @@ void CQDlgModelProperties::on_qqSelectThumbnail_clicked()
             if (dlg.makeDialogModal()!=VDIALOG_MODAL_RETURN_CANCEL)
             {
                 // We first apply the thumbnail in the UI thread scene (needed), then post a message for the sim thread
-                App::ct->environment->modelThumbnail_notSerializedHere.copyFrom(&dlg.thumbnail);
+                App::currentWorld->environment->modelThumbnail_notSerializedHere.copyFrom(&dlg.thumbnail);
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_THUMBNAIL_GUITRIGGEREDCMD;
                 unsigned char* img=(unsigned char*)dlg.thumbnail.getPointerToUncompressedImage();
@@ -106,12 +104,6 @@ void CQDlgModelProperties::on_qqNotMeasurable_clicked()
 void CQDlgModelProperties::on_qqNotRenderable_clicked()
 {
     modelBaseObject->setLocalModelProperty(modelBaseObject->getLocalModelProperty()^sim_modelproperty_not_renderable);
-    refresh();
-}
-
-void CQDlgModelProperties::on_qqNotCuttable_clicked()
-{
-    modelBaseObject->setLocalModelProperty(modelBaseObject->getLocalModelProperty()^sim_modelproperty_not_cuttable);
     refresh();
 }
 

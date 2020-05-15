@@ -6,6 +6,7 @@
 #include "simConfig.h"
 #include <stdio.h>
 
+
 #ifdef SIM_WITHOUT_QT_AT_ALL
     #define IF_UI_EVENT_CAN_WRITE_DATA if(true)
     #define IF_UI_EVENT_CAN_WRITE_DATA_CMD(funcName) if(true)
@@ -48,23 +49,21 @@
     #define IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA  for(CSimAndUiThreadSync readData(__func__);readData.simOrUiThread_tryToLockForRead_cApi();)
 #endif // SIM_WITHOUT_QT_AT_ALL
 
-// Debug commands:
-#define FUNCTION_DEBUG CFuncDebug funcDebug(__func__,1)
-#define FUNCTION_INSIDE_DEBUG(theTExt) CFuncDebug::print(theTExt,1)
-#define C_API_FUNCTION_DEBUG CFuncDebug funcDebug(__func__,2)
-#define LUA_API_FUNCTION_DEBUG CFuncDebug funcDebug(__func__,4)
-#define MUST_BE_UI_THREAD
+// Trace commands:
+#define TRACE_C_API CFuncTrace funcTrace(__func__,sim_verbosity_traceall)
+#define TRACE_LUA_API CFuncTrace funcTrace(__func__,sim_verbosity_tracelua)
+#define TRACE_INTERNAL CFuncTrace funcTrace(__func__,sim_verbosity_traceall)
 
 // Resource lock command:
 #define EASYLOCK(mutex) CEasyLock easyLock(mutex,__func__)
 
 // Undo point announcements:
 #ifdef SIM_WITH_GUI
-    #define POST_SCENE_CHANGED_ANNOUNCEMENT(theTExt) if(VThread::isCurrentThreadTheUiThread()){SSimulationThreadCommand cmd;cmd.cmdId=999999;cmd.stringParams.push_back(theTExt);App::appendSimulationThreadCommand(cmd);}else{App::ct->undoBufferContainer->announceChange();}
-    #define POST_SCENE_CHANGED_CLEAR_REDO_BUFFER_ANNOUNCEMENT() if(VThread::isCurrentThreadTheUiThread()){SSimulationThreadCommand cmd;cmd.cmdId=999995;cmd.stringParams.push_back("");App::appendSimulationThreadCommand(cmd);}else{App::ct->undoBufferContainer->emptyRedoBuffer();}
-    #define POST_SCENE_CHANGED_GRADUAL_ANNOUNCEMENT(theTExt) if(VThread::isCurrentThreadTheUiThread()){SSimulationThreadCommand cmd;cmd.cmdId=999996;cmd.stringParams.push_back(theTExt);App::appendSimulationThreadCommand(cmd);}else{App::ct->undoBufferContainer->announceChangeGradual();}
-    #define POST_SCENE_CHANGED_START_ANNOUNCEMENT(theTExt) if(VThread::isCurrentThreadTheUiThread()){SSimulationThreadCommand cmd;cmd.cmdId=999997;cmd.stringParams.push_back(theTExt);App::appendSimulationThreadCommand(cmd);}else{App::ct->undoBufferContainer->announceChangeStart();}
-    #define POST_SCENE_CHANGED_END_ANNOUNCEMENT() if(VThread::isCurrentThreadTheUiThread()){SSimulationThreadCommand cmd;cmd.cmdId=999998;cmd.stringParams.push_back("");App::appendSimulationThreadCommand(cmd);}else{App::ct->undoBufferContainer->announceChangeEnd();}
+    #define POST_SCENE_CHANGED_ANNOUNCEMENT(theTExt) if(VThread::isCurrentThreadTheUiThread()){SSimulationThreadCommand cmd;cmd.cmdId=999999;cmd.stringParams.push_back(theTExt);App::appendSimulationThreadCommand(cmd);}else{App::currentWorld->undoBufferContainer->announceChange();}
+    #define POST_SCENE_CHANGED_CLEAR_REDO_BUFFER_ANNOUNCEMENT() if(VThread::isCurrentThreadTheUiThread()){SSimulationThreadCommand cmd;cmd.cmdId=999995;cmd.stringParams.push_back("");App::appendSimulationThreadCommand(cmd);}else{App::currentWorld->undoBufferContainer->emptyRedoBuffer();}
+    #define POST_SCENE_CHANGED_GRADUAL_ANNOUNCEMENT(theTExt) if(VThread::isCurrentThreadTheUiThread()){SSimulationThreadCommand cmd;cmd.cmdId=999996;cmd.stringParams.push_back(theTExt);App::appendSimulationThreadCommand(cmd);}else{App::currentWorld->undoBufferContainer->announceChangeGradual();}
+    #define POST_SCENE_CHANGED_START_ANNOUNCEMENT(theTExt) if(VThread::isCurrentThreadTheUiThread()){SSimulationThreadCommand cmd;cmd.cmdId=999997;cmd.stringParams.push_back(theTExt);App::appendSimulationThreadCommand(cmd);}else{App::currentWorld->undoBufferContainer->announceChangeStart();}
+    #define POST_SCENE_CHANGED_END_ANNOUNCEMENT() if(VThread::isCurrentThreadTheUiThread()){SSimulationThreadCommand cmd;cmd.cmdId=999998;cmd.stringParams.push_back("");App::appendSimulationThreadCommand(cmd);}else{App::currentWorld->undoBufferContainer->announceChangeEnd();}
 #else
     #define POST_SCENE_CHANGED_ANNOUNCEMENT(theTExt)
     #define POST_SCENE_CHANGED_CLEAR_REDO_BUFFER_ANNOUNCEMENT()

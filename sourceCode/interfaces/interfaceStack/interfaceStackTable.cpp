@@ -421,29 +421,33 @@ bool CInterfaceStackTable::_areAllValueThis(int what) const
     return(true);
 }
 
-void CInterfaceStackTable::printContent(int spaces) const
+void CInterfaceStackTable::printContent(int spaces,std::string& buffer) const
 {
     for (int i=0;i<spaces;i++)
-        printf(" ");
+        buffer+=" ";
     if (_isCircularRef)
-        printf("TABLE: <circular reference>\n");
+        buffer+="TABLE: <circular reference>\n";
     else
     {
         if (_tableObjects.size()==0)
-            printf("TABLE: <empty>\n");
+            buffer+="TABLE: <empty>\n";
         else
         {
             if (_isTableArray)
             {
-                printf("ARRAY TABLE (%i items, keys are omitted):\n",(int)_tableObjects.size()*2);
+                buffer+="ARRAY TABLE (";
+                buffer+=std::to_string((int)_tableObjects.size()*2);
+                buffer+=" items, keys are omitted):\n";
                 for (size_t i=0;i<_tableObjects.size();i++)
-                    _tableObjects[i]->printContent(spaces+4);
+                    _tableObjects[i]->printContent(spaces+4,buffer);
             }
             else
             {
-                printf("MAP TABLE (%i items, key and value):\n",(int)_tableObjects.size());
+                buffer+="MAP TABLE (";
+                buffer+=std::to_string((int)_tableObjects.size());
+                buffer+=" items, key and value):\n";
                 for (size_t i=0;i<_tableObjects.size();i++)
-                    _tableObjects[i]->printContent(spaces+4);
+                    _tableObjects[i]->printContent(spaces+4,buffer);
             }
         }
     }

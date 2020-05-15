@@ -18,7 +18,10 @@ CModelFolderWidget::CModelFolderWidget(CModelListWidget* modelListWidget,const c
     st+="QTreeView::branch:has-children:!has-siblings:closed,QTreeView::branch:closed:has-children:has-siblings{border-image: none;image: url(:/variousImageFiles/plus.png);}";
     st+="QTreeView::branch:open:has-children:!has-siblings,QTreeView::branch:open:has-children:has-siblings{border-image: none;image: url(:/variousImageFiles/minus.png);}";
     st+="QTreeView::branch:selected{background: palette(base);}";
-    st+="QTreeView::item:selected {background-color: #3d9dfe; color: #f1f1f1}";
+    if (App::userSettings->darkMode)
+        st+="QTreeView::item:selected {background: palette(base); color: #050505}";
+    else
+        st+="QTreeView::item:selected {background-color: #3d9dfe; color: #f1f1f1}";
     setStyleSheet(st.c_str());
 //    setHeaderHidden(true);
 

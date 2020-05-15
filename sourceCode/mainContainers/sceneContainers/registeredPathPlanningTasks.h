@@ -1,10 +1,8 @@
-
 #pragma once
 
 #include "pathPlanningTask_old.h"
-#include "mainCont.h"
 
-class CRegisteredPathPlanningTasks : public CMainCont 
+class CRegisteredPathPlanningTasks 
 {
 public:
     CRegisteredPathPlanningTasks();
@@ -12,7 +10,6 @@ public:
 
     void simulationAboutToStart();
     void simulationEnded();
-    void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
 
     void announceObjectWillBeErased(int objID);
     void announceCollectionWillBeErased(int groupID);
@@ -22,8 +19,8 @@ public:
     CPathPlanningTask* getObject(std::string objName);
     void addObject(CPathPlanningTask* aTask,bool objectIsACopy);
     void addObjectWithSuffixOffset(CPathPlanningTask* aTask,bool objectIsACopy,int suffixOffset);
-    void getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix);
-    bool canSuffix1BeSetToSuffix2(int suffix1,int suffix2);
+    void getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix) const;
+    bool canSuffix1BeSetToSuffix2(int suffix1,int suffix2) const;
     void setSuffix1ToSuffix2(int suffix1,int suffix2);
     bool removeObject(int objID);
 

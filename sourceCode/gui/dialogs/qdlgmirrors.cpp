@@ -32,15 +32,15 @@ void CQDlgMirrors::refresh()
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
     bool noEditMode=App::getEditModeType()==NO_EDIT_MODE;
-    bool noEditModeAndNoSim=noEditMode&&App::ct->simulation->isSimulationStopped();
+    bool noEditModeAndNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
 
-    CMirror* it=App::ct->objCont->getLastSelection_mirror();
+    CMirror* it=App::currentWorld->sceneObjects->getLastSelectionMirror();
 
     ui->qqDisableAllMirrors->setEnabled(noEditMode);
     ui->qqDisableAllClippingPlanes->setEnabled(noEditMode);
 
-    ui->qqDisableAllMirrors->setChecked(App::ct->mainSettings->mirrorsDisabled);
-    ui->qqDisableAllClippingPlanes->setChecked(App::ct->mainSettings->clippingPlanesDisabled);
+    ui->qqDisableAllMirrors->setChecked(App::currentWorld->mainSettings->mirrorsDisabled);
+    ui->qqDisableAllClippingPlanes->setChecked(App::currentWorld->mainSettings->clippingPlanesDisabled);
 
 
     ui->qqEnabled->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
@@ -74,13 +74,13 @@ void CQDlgMirrors::refresh()
             std::vector<int> ids;
 
             // Now collections:
-            for (int i=0;i<int(App::ct->collections->allCollections.size());i++)
+            for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
             {
-                CRegCollection* it=App::ct->collections->allCollections[i];
+                CCollection* it=App::currentWorld->collections->getObjectFromIndex(i);
                 std::string name(tt::decorateString("[",strTranslate(IDSN_COLLECTION),"] "));
                 name+=it->getCollectionName();
                 names.push_back(name);
-                ids.push_back(it->getCollectionID());
+                ids.push_back(it->getCollectionHandle());
             }
             tt::orderStrings(names,ids);
             for (int i=0;i<int(names.size());i++)
@@ -90,9 +90,9 @@ void CQDlgMirrors::refresh()
             ids.clear();
 
             // Now objects:
-            for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
             {
-                C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
                 std::string name(tt::decorateString("[",strTranslate(IDS_OBJECT),"] "));
                 name+=it->getObjectName();
                 names.push_back(name);
@@ -131,7 +131,7 @@ void CQDlgMirrors::on_qqEnabled_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_ENABLED_MIRRORGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_ENABLED_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -147,7 +147,7 @@ void CQDlgMirrors::on_qqWidth_editingFinished()
         float newVal=ui->qqWidth->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_WIDTH_MIRRORGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_WIDTH_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -164,7 +164,7 @@ void CQDlgMirrors::on_qqHeight_editingFinished()
         float newVal=ui->qqHeight->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_HEIGHT_MIRRORGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_HEIGHT_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -175,13 +175,13 @@ void CQDlgMirrors::on_qqColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CMirror* it=App::ct->objCont->getLastSelection_mirror();
+        CMirror* it=App::currentWorld->sceneObjects->getLastSelectionMirror();
         if (it!=nullptr)
         {
             if (it->getIsMirror())
-                CQDlgColor::displayDlg(COLOR_ID_MIRROR,App::ct->objCont->getLastSelectionID(),-1,0,App::mainWindow);
+                CQDlgColor::displayDlg(COLOR_ID_MIRROR,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,0,App::mainWindow);
             else
-                CQDlgMaterial::displayMaterialDlg(COLOR_ID_CLIPPINGPLANE,App::ct->objCont->getLastSelectionID(),-1,App::mainWindow);
+                CQDlgMaterial::displayMaterialDlg(COLOR_ID_CLIPPINGPLANE,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
         }
     }
 }
@@ -197,7 +197,7 @@ void CQDlgMirrors::on_qqReflectance_editingFinished()
         float newVal=ui->qqReflectance->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_REFLECTANCE_MIRRORGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_REFLECTANCE_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -208,7 +208,7 @@ void CQDlgMirrors::on_qqIsMirror_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(SET_MIRRORFUNC_MIRRORGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(SET_MIRRORFUNC_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -218,7 +218,7 @@ void CQDlgMirrors::on_qqIsClippingPlane_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(SET_CLIPPINGFUNC_MIRRORGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(SET_CLIPPINGFUNC_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -231,7 +231,7 @@ void CQDlgMirrors::on_qqEntityCombo_currentIndexChanged(int index)
         IF_UI_EVENT_CAN_READ_DATA
         {
             int objID=ui->qqEntityCombo->itemData(ui->qqEntityCombo->currentIndex()).toInt();
-            App::appendSimulationThreadCommand(SET_CLIPPINGENTITY_MIRRORGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),objID);
+            App::appendSimulationThreadCommand(SET_CLIPPINGENTITY_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),objID);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }

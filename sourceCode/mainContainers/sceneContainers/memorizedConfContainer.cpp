@@ -10,31 +10,16 @@ CMemorizedConfContainer::CMemorizedConfContainer()
 }
 
 CMemorizedConfContainer::~CMemorizedConfContainer()
-{
-    removeMemorized();  
-}
-
-void CMemorizedConfContainer::simulationAboutToStart()
-{
-
-}
-
-void CMemorizedConfContainer::simulationEnded()
-{
-
-}
-
-void CMemorizedConfContainer::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
-{
-
+{ // beware, the current world could be nullptr
+    removeMemorized();
 }
 
 void CMemorizedConfContainer::memorize()
 {
     removeMemorized();
-    for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
+    for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
     {
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
         if (it!=nullptr)
             configurations.push_back(new CMemorizedConf(it));
     }
@@ -68,7 +53,7 @@ bool CMemorizedConfContainer::isBufferEmpty()
 
 void CMemorizedConfContainer::removeMemorized()
 {
-    for (int i=0;i<int(configurations.size());i++)
+    for (size_t i=0;i<configurations.size();i++)
         delete configurations[i];
     configurations.clear();
 }
@@ -76,7 +61,7 @@ void CMemorizedConfContainer::removeMemorized()
 char* CMemorizedConfContainer::getObjectConfiguration(int objID)
 {
     std::vector<char> data;
-    C3DObject* it=App::ct->objCont->getObjectFromHandle(objID);
+    CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
     if (it==nullptr)
         return(nullptr);
     CMemorizedConf temp(it);
@@ -104,12 +89,12 @@ void CMemorizedConfContainer::setObjectConfiguration(const char* data)
 char* CMemorizedConfContainer::getConfigurationTree(int objID)
 {
     std::vector<char> data;
-    C3DObject* it=App::ct->objCont->getObjectFromHandle(objID);
-    std::vector<C3DObject*> sel;
+    CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
+    std::vector<CSceneObject*> sel;
     if (it==nullptr)
     { // We memorize everything:
-        for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
-            sel.push_back(App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]));
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
+            sel.push_back(App::currentWorld->sceneObjects->getObjectFromIndex(i));
     }
     else
     { // We memorize just the object and all its children:

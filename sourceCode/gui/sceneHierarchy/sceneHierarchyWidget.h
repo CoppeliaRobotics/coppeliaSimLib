@@ -4,7 +4,7 @@
 #include <QTreeWidget>
 #include <map>
 
-class C3DObject;
+class CSceneObject;
 
 class CSceneHierarchyWidget : public QTreeWidget
 {
@@ -21,8 +21,8 @@ public:
     void removeAll();
 
 private:
-    QTreeWidgetItem* _buildObject(C3DObject* it);
-    QTreeWidgetItem* _buildObjectWithHierarchy(C3DObject* it);
+    QTreeWidgetItem* _buildObject(CSceneObject* it);
+    QTreeWidgetItem* _buildObjectWithHierarchy(CSceneObject* it);
 
     std::map<int,QTreeWidgetItem*> _allTreeItems;
 

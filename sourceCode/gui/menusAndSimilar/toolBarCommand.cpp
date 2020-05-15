@@ -15,8 +15,8 @@ bool CToolBarCommand::processCommand(int commandID)
         {
             if (!VThread::isCurrentThreadTheUiThread())
             { // we are NOT in the UI thread. We execute the command now:
-                int pageIndex=App::ct->pageContainer->getActivePageIndex();
-                CSPage* page=App::ct->pageContainer->getPage(pageIndex);
+                int pageIndex=App::currentWorld->pageContainer->getActivePageIndex();
+                CSPage* page=App::currentWorld->pageContainer->getPage(pageIndex);
                 if (page!=nullptr)
                 {
                     int ind=page->getLastMouseDownViewIndex();
@@ -25,7 +25,7 @@ bool CToolBarCommand::processCommand(int commandID)
                     CSView* view=page->getView(ind);
                     if (view!=nullptr)
                     {
-                        CCamera* cam=App::ct->objCont->getCamera(view->getLinkedObjectID());
+                        CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(view->getLinkedObjectID());
                         if ( (cam!=nullptr) )
                         {
                             int viewSize[2];
@@ -169,7 +169,7 @@ bool CToolBarCommand::processCommand(int commandID)
     if (commandID==OBJECT_ROTATE_NAVIGATION_CMD)
     {
         bool rot=true;
-        if ( (App::ct->objCont!=nullptr)&&(App::mainWindow!=nullptr) )
+        if ( (App::currentWorld->sceneObjects!=nullptr)&&(App::mainWindow!=nullptr) )
             rot=App::mainWindow->editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode()==0;
         if ( (App::mainWindow!=nullptr)&&rot&&(!App::mainWindow->oglSurface->isScenePageOrViewSelectionActive()) )
         {
@@ -207,43 +207,6 @@ bool CToolBarCommand::processCommand(int commandID)
         }
         return(true);
     }
-    //-----------
-    if (commandID==SCENE_SELECTOR_CMD)
-    {
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=SCENE_SELECTOR_PHASE2_CMD;
-        if ( (App::mainWindow!=nullptr)&&(!App::userSettings->doNotShowSceneSelectionThumbnails) )
-        {
-            if (!App::mainWindow->oglSurface->isSceneSelectionActive())
-                App::mainWindow->prepareSceneThumbnail(cmd);
-            else
-                App::appendSimulationThreadCommand(cmd);
-        }
-        else
-            App::appendSimulationThreadCommand(cmd);
-        return(true);
-    }
-    if (commandID==SCENE_SELECTOR_PHASE2_CMD)
-    {
-        if (App::mainWindow!=nullptr)
-        {
-            if (!VThread::isCurrentThreadTheUiThread())
-            { // we are NOT in the UI thread. We execute the command now:
-                if (App::mainWindow->oglSurface->isSceneSelectionActive())
-                    App::mainWindow->oglSurface->setSceneSelectionActive(false);
-                else
-                    App::mainWindow->oglSurface->setSceneSelectionActive(true);
-            }
-            else
-            { // We are in the UI thread. Execute the command via the main thread:
-                SSimulationThreadCommand cmd;
-                cmd.cmdId=commandID;
-                App::appendSimulationThreadCommand(cmd);
-            }
-        }
-        return(true);
-    }
-    //-----------
 
     if (commandID==OBJECT_SELECTION_SELECTION_CMD)
     {
@@ -292,7 +255,7 @@ bool CToolBarCommand::processCommand(int commandID)
         {
             if (!VThread::isCurrentThreadTheUiThread())
             { // we are NOT in the UI thread. We execute the command now:
-                App::ct->objCont->deselectObjects();
+                App::currentWorld->sceneObjects->deselectObjects();
                 App::mainWindow->editModeContainer->deselectEditModeBuffer();
             }
             else
@@ -307,7 +270,7 @@ bool CToolBarCommand::processCommand(int commandID)
     if ( (commandID==SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD)||(commandID==SIMULATION_COMMANDS_PAUSE_SIMULATION_REQUEST_SCCMD)||(commandID==SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD) )
     {
         if ( (App::mainWindow!=nullptr)&&(!App::mainWindow->oglSurface->isScenePageOrViewSelectionActive()) )
-            App::ct->simulation->processCommand(commandID);
+            App::currentWorld->simulation->processCommand(commandID);
         return(true);
     }
 
@@ -315,9 +278,9 @@ bool CToolBarCommand::processCommand(int commandID)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (App::ct->pageContainer->getActivePageIndex()!=(commandID-VIEW_1_CMD))
+            if (App::currentWorld->pageContainer->getActivePageIndex()!=(commandID-VIEW_1_CMD))
             {
-                App::ct->pageContainer->setActivePage(commandID-VIEW_1_CMD);
+                App::currentWorld->pageContainer->setActivePage(commandID-VIEW_1_CMD);
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
                 std::string str(IDSNS_SWAPPED_TO_PAGE);
                 str+=" ";

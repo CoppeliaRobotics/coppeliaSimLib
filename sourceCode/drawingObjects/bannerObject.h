@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "visualParam.h"
+#include "colorObject.h"
 #include "4X4Matrix.h"
 
 class CBannerObject  
@@ -27,8 +27,8 @@ public:
     bool isVisible();
     bool toggleVisibility();
 
-    CVisualParam color;
-    CVisualParam backColor;
+    CColorObject color;
+    CColorObject backColor;
 
 protected:
     std::string _label;

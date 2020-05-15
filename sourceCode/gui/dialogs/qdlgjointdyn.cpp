@@ -31,10 +31,10 @@ void CQDlgJointDyn::cancelEvent()
 void CQDlgJointDyn::refresh()
 {
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
-    bool sel=App::ct->objCont->isLastSelectionAJoint();
-    bool bigSel=(App::ct->objCont->isLastSelectionAJoint()&&(App::ct->objCont->getJointNumberInSelection()>1));
+    bool sel=App::currentWorld->sceneObjects->isLastSelectionAJoint();
+    bool bigSel=(App::currentWorld->sceneObjects->isLastSelectionAJoint()&&(App::currentWorld->sceneObjects->getJointCountInSelection()>1));
     bool revolute=false;
     bool prismatic=false;
     bool spherical=false;
@@ -48,7 +48,7 @@ void CQDlgJointDyn::refresh()
     CJoint* it=nullptr;
     if (sel)
     {
-        it=App::ct->objCont->getLastSelection_joint();
+        it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         revolute=(it->getJointType()==sim_joint_revolute_subtype);
         prismatic=(it->getJointType()==sim_joint_prismatic_subtype);
         spherical=(it->getJointType()==sim_joint_spherical_subtype);
@@ -189,7 +189,7 @@ void CQDlgJointDyn::on_qqMotorEnabled_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_MOTORENABLED_JOINTDYNGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_MOTORENABLED_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -201,14 +201,14 @@ void CQDlgJointDyn::on_qqTargetVelocity_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint* it=App::ct->objCont->getLastSelection_joint();
+        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         float newVal=ui->qqTargetVelocity->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
                 newVal*=gv::userToAngularVel;
-            App::appendSimulationThreadCommand(SET_TARGETVELOCITY_JOINTDYNGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_TARGETVELOCITY_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -219,7 +219,7 @@ void CQDlgJointDyn::on_qqAdjustEngineProperties_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CJoint* it=App::ct->objCont->getLastSelection_joint();
+        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (it!=nullptr)
         {
             CPropBrowserEngineJoint dlg(this);// App::mainWindow);
@@ -272,7 +272,7 @@ void CQDlgJointDyn::on_qqMaxForce_editingFinished()
         float newVal=ui->qqMaxForce->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_MAXFORCE_JOINTDYNGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_MAXFORCE_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -285,9 +285,9 @@ void CQDlgJointDyn::on_qqApplyDynamicProperties_clicked()
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=APPLY_MOTORPARAMS_JOINTDYNGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::ct->objCont->getLastSelectionID());
-        for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
-            cmd.intParams.push_back(App::ct->objCont->getSelID(i));
+        cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount()-1;i++)
+            cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -298,7 +298,7 @@ void CQDlgJointDyn::on_qqControlEnabled_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_CTRLLOOP_JOINTDYNGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_CTRLLOOP_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -310,14 +310,14 @@ void CQDlgJointDyn::on_qqVelocityUpperLimit_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint* it=App::ct->objCont->getLastSelection_joint();
+        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         float newVal=ui->qqVelocityUpperLimit->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
                 newVal*=gv::userToRad;
-            App::appendSimulationThreadCommand(SET_UPPERVELLIMIT_JOINTDYNGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_UPPERVELLIMIT_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -330,14 +330,14 @@ void CQDlgJointDyn::on_qqTargetPosition_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint* it=App::ct->objCont->getLastSelection_joint();
+        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         float newVal=ui->qqTargetPosition->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
                 newVal*=gv::userToRad;
-            App::appendSimulationThreadCommand(SET_TARGETPOSITION_JOINTDYNGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_TARGETPOSITION_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -352,7 +352,7 @@ void CQDlgJointDyn::on_qqP_editingFinished()
     {
         bool ok;
         float newVal=ui->qqP->text().toFloat(&ok);
-        CJoint* it=App::ct->objCont->getLastSelection_joint();
+        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok&&(it!=nullptr))
         {
             float pp,ip,dp;
@@ -378,7 +378,7 @@ void CQDlgJointDyn::on_qqI_editingFinished()
     {
         bool ok;
         float newVal=ui->qqI->text().toFloat(&ok);
-        CJoint* it=App::ct->objCont->getLastSelection_joint();
+        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok&&(it!=nullptr))
         {
             float pp,ip,dp;
@@ -404,7 +404,7 @@ void CQDlgJointDyn::on_qqD_editingFinished()
     {
         bool ok;
         float newVal=ui->qqD->text().toFloat(&ok);
-        CJoint* it=App::ct->objCont->getLastSelection_joint();
+        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok&&(it!=nullptr))
         {
             float pp,ip,dp;
@@ -428,9 +428,9 @@ void CQDlgJointDyn::on_qqApplyControlParameters_clicked()
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=APPLY_CTRLPARAMS_JOINTDYNGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::ct->objCont->getLastSelectionID());
-        for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
-            cmd.intParams.push_back(App::ct->objCont->getSelID(i));
+        cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount()-1;i++)
+            cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -441,7 +441,7 @@ void CQDlgJointDyn::on_qqPositionControl_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint* it=App::ct->objCont->getLastSelection_joint();
+        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (it!=nullptr)
         {
             App::appendSimulationThreadCommand(SELECT_PIDCTRL_JOINTDYNGUITRIGGEREDCMD,it->getObjectHandle());
@@ -455,7 +455,7 @@ void CQDlgJointDyn::on_qqSpringControl_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint* it=App::ct->objCont->getLastSelection_joint();
+        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (it!=nullptr)
         {
             App::appendSimulationThreadCommand(SELECT_SPRINGDAMPERCTRL_JOINTDYNGUITRIGGEREDCMD,it->getObjectHandle());
@@ -471,7 +471,7 @@ void CQDlgJointDyn::on_qqK_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint* it=App::ct->objCont->getLastSelection_joint();
+        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         float newVal=ui->qqK->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
@@ -491,7 +491,7 @@ void CQDlgJointDyn::on_qqC_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint* it=App::ct->objCont->getLastSelection_joint();
+        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         float newVal=ui->qqC->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
@@ -509,7 +509,7 @@ void CQDlgJointDyn::on_qqMotorLockEnabled_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_LOCKMOTOR_JOINTDYNGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_LOCKMOTOR_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

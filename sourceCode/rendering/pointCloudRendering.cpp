@@ -15,7 +15,7 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
     if (displayAttrib&sim_displayattribute_renderpass)
         _displayBoundingBox(pointCloud,displayAttrib,true,cbrt(d(0)*d(1)*d(2))*0.6f);
 
-    C3Vector normalVectorForLinesAndPoints(pointCloud->getCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
+    C3Vector normalVectorForLinesAndPoints(pointCloud->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
     // Object display:
     if (pointCloud->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
@@ -46,11 +46,11 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
         std::vector<float>& _points=pointCloud->getPoints()[0];
         if (_points.size()>0)
         {
-            bool setOtherColor=(App::ct->collisions->getCollisionColor(pointCloud->getObjectHandle())!=0);
-            for (size_t i=0;i<App::ct->collections->allCollections.size();i++)
+            bool setOtherColor=(App::currentWorld->collisions->getCollisionColor(pointCloud->getObjectHandle())!=0);
+            for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
             {
-                if (App::ct->collections->allCollections[i]->isObjectInCollection(pointCloud->getObjectHandle()))
-                    setOtherColor|=(App::ct->collisions->getCollisionColor(App::ct->collections->allCollections[i]->getCollectionID())!=0);
+                if (App::currentWorld->collections->getObjectFromIndex(i)->isObjectInCollection(pointCloud->getObjectHandle()))
+                    setOtherColor|=(App::currentWorld->collisions->getCollisionColor(App::currentWorld->collections->getObjectFromIndex(i)->getCollectionHandle())!=0);
             }
 
             if (displayAttrib&sim_displayattribute_forvisionsensor)
@@ -59,7 +59,7 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
             if (!setOtherColor)
                 pointCloud->getColor()->makeCurrentColor(false);
             else
-                App::ct->mainSettings->collisionColor.makeCurrentColor(false);
+                App::currentWorld->mainSettings->collisionColor.makeCurrentColor(false);
 
             if (pointCloud->getShowOctree()&&(pointCloud->getPointCloudInfo()!=nullptr)&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
             {

@@ -31,8 +31,8 @@ void CQDlgCameras::refresh()
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
 
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped();
-    CCamera* it=App::ct->objCont->getLastSelection_camera();
+    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    CCamera* it=App::currentWorld->sceneObjects->getLastSelectionCamera();
 
     ui->qqAlongX->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqAlongY->setEnabled((it!=nullptr)&&noEditModeNoSim);
@@ -78,9 +78,9 @@ void CQDlgCameras::refresh()
         ui->qqTrackedCombo->addItem(strTranslate(IDSN_NONE),QVariant(-1));
         std::vector<std::string> names;
         std::vector<int> ids;
-        for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
         {
-            C3DObject* it2=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+            CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromIndex(i);
             if (it2!=it)
             {
                 names.push_back(it2->getObjectName());
@@ -175,7 +175,7 @@ void CQDlgCameras::on_qqPerspectiveProjectionAngle_editingFinished()
         if (ok)
         {
             float v=newVal*gv::userToRad;
-            App::appendSimulationThreadCommand(SET_VIEW_ANGLE_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,v);
+            App::appendSimulationThreadCommand(SET_VIEW_ANGLE_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,v);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -192,7 +192,7 @@ void CQDlgCameras::on_qqOrthographicProjectionSize_editingFinished()
         float newVal=ui->qqOrthographicProjectionSize->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_ORTHO_VIEW_SIZE_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_ORTHO_VIEW_SIZE_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -209,7 +209,7 @@ void CQDlgCameras::on_qqNearClipping_editingFinished()
         float newVal=ui->qqNearClipping->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_NEAR_CLIPPING_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_NEAR_CLIPPING_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -226,7 +226,7 @@ void CQDlgCameras::on_qqFarClipping_editingFinished()
         float newVal=ui->qqFarClipping->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_FAR_CLIPPING_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_FAR_CLIPPING_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -240,7 +240,7 @@ void CQDlgCameras::on_qqTrackedCombo_currentIndexChanged(int index)
         IF_UI_EVENT_CAN_WRITE_DATA
         {
             int objID=ui->qqTrackedCombo->itemData(ui->qqTrackedCombo->currentIndex()).toInt();
-            App::appendSimulationThreadCommand(SET_TRACKED_OBJECT_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),objID);
+            App::appendSimulationThreadCommand(SET_TRACKED_OBJECT_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),objID);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -251,7 +251,7 @@ void CQDlgCameras::on_qqShowFog_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_SHOWFOG_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_SHOWFOG_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -261,7 +261,7 @@ void CQDlgCameras::on_qqKeepHeadUp_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_KEEPHEADUP_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_KEEPHEADUP_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -271,7 +271,7 @@ void CQDlgCameras::on_qqManipProxy_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_USEPARENTASMANIPPROXY_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_USEPARENTASMANIPPROXY_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -281,7 +281,7 @@ void CQDlgCameras::on_qqAlongX_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_SHIFTALONGX_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_SHIFTALONGX_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -291,7 +291,7 @@ void CQDlgCameras::on_qqAlongY_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_SHIFTALONGY_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_SHIFTALONGY_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -301,7 +301,7 @@ void CQDlgCameras::on_qqAlongZ_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_SHIFTALONGZ_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_SHIFTALONGZ_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -311,7 +311,7 @@ void CQDlgCameras::on_qqFullRotation_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_FULLROTATION_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_FULLROTATION_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -321,7 +321,7 @@ void CQDlgCameras::on_qqTilting_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_TILTING_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_TILTING_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -331,7 +331,7 @@ void CQDlgCameras::on_qqColorA_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_CAMERA_A,App::ct->objCont->getLastSelectionID(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_CAMERA_A,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
     }
 }
 
@@ -339,7 +339,7 @@ void CQDlgCameras::on_qqColorB_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_CAMERA_B,App::ct->objCont->getLastSelectionID(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_CAMERA_B,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
     }
 }
 
@@ -353,7 +353,7 @@ void CQDlgCameras::on_qqSize_editingFinished()
         float newVal=ui->qqSize->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_SIZE_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_SIZE_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -365,7 +365,7 @@ void CQDlgCameras::on_qqLocalLights_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_LOCALLIGHTS_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_LOCALLIGHTS_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -375,7 +375,7 @@ void CQDlgCameras::on_qqAllowPicking_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_ALLOWPICKING_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_ALLOWPICKING_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -412,7 +412,7 @@ void CQDlgCameras::on_qqRenderModeCombo_currentIndexChanged(int index)
             }
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_RENDERMODE_CAMERAGUITRIGGEREDCMD;
-            cmd.intParams.push_back(App::ct->objCont->getLastSelectionID());
+            cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
             cmd.intParams.push_back(renderMode);
             cmd.boolParams.push_back(duringSim);
             cmd.boolParams.push_back(duringRec);

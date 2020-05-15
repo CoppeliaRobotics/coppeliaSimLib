@@ -43,7 +43,7 @@ public:
     int _colComponent;
     bool inRefreshPart;
     int _validityCheck1;
-    int _validityCheck2;
+    size_t _validityCheck2;
 
 private slots:
     void on_qqRedValue_editingFinished();

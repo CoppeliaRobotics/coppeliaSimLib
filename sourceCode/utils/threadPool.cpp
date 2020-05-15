@@ -1,9 +1,6 @@
-
 #include "threadPool.h"
-
 #include "app.h"
 #include "vDateTime.h"
-#include "debugLogFile.h"
 #include <boost/lexical_cast.hpp>
 
 #ifdef MAC_SIM
@@ -27,8 +24,6 @@ bool CThreadPool::_simulationEmergencyStopRequest=false;
 VTHREAD_START_ADDRESS CThreadPool::_threadStartAdd=nullptr;
 VMutex CThreadPool::_threadPoolMutex;
 
-bool CThreadPool::_showThreadSwitches=false;
-
 void* CThreadPool::_tmpData=nullptr;
 int CThreadPool::_tmpRetData=0;
 int CThreadPool::_inInterceptRoutine=0;
@@ -47,7 +42,6 @@ void CThreadPool::init()
     _simulationStopRequest=false;
     _simulationEmergencyStopRequest=false;
     _threadStartAdd=nullptr;
-    _showThreadSwitches=false;
     _tmpData=nullptr;
     _tmpRetData=0;
     _inInterceptRoutine=0;
@@ -72,28 +66,23 @@ VTHREAD_ID_TYPE CThreadPool::createNewThread(VTHREAD_START_ADDRESS threadStartAd
         _threadShouldNotSwitch_override=false;
 
     _threadStartAdd=threadStartAddress;
-    if (_showThreadSwitches)
-    {
-        std::string tmp("==* Launching thread (from threadID: ");
-        tmp+=boost::lexical_cast<std::string>((unsigned long)VThread::getCurrentThreadId());
-        tmp+=")\n";
-        CDebugLogFile::addDebugText(false,tmp.c_str());
-//      printf("Launching thread (from threadID: %lu)\n",(unsigned long)VThread::getCurrentThreadId());
-    }
+
+    std::string tmp("==* Launching thread (from threadID: ");
+    tmp+=boost::lexical_cast<std::string>((unsigned long)VThread::getCurrentThreadId());
+    tmp+=")";
+    App::logMsg(sim_verbosity_tracelua,tmp.c_str());
+
     VThread::launchThread(_intermediateThreadStartPoint,true);
     while (_threadStartAdd!=nullptr)
         VThread::sleep(1); // We wait until the thread could set its thread ID ************* TODO: don't use sleep!!!
     VTHREAD_ID_TYPE newID=(VTHREAD_ID_TYPE)_allThreadData[_allThreadData.size()-1]->threadID;
-    if (_showThreadSwitches)
-    {
-        std::string tmp("==* Thread was created with ID: ");
-        tmp+=boost::lexical_cast<std::string>((unsigned long)newID);
-        tmp+=" (from thread ID: ";
-        tmp+=boost::lexical_cast<std::string>((unsigned long)_threadQueue[_threadQueue.size()-1]);
-        tmp+=")\n";
-        CDebugLogFile::addDebugText(false,tmp.c_str());
-//      printf("Thread was created with ID: %lu (from thread ID: %lu)\n",(unsigned long)newID,(unsigned long)_threadQueue[_threadQueue.size()-1]);
-    }
+
+    tmp="==* Thread was created with ID: ";
+    tmp+=boost::lexical_cast<std::string>((unsigned long)newID);
+    tmp+=" (from thread ID: ";
+    tmp+=boost::lexical_cast<std::string>((unsigned long)_threadQueue[_threadQueue.size()-1]);
+    tmp+=")";
+    App::logMsg(sim_verbosity_tracelua,tmp.c_str());
     _unlock(0);
     return(newID);
 }
@@ -264,29 +253,24 @@ void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
                     int totalTimeInMs=VDateTime::getTimeDiffInMs(_threadStartTime[fql-1]);
                     _threadStartTime.pop_back();
                     _threadStartTime[fql-2]+=totalTimeInMs; // We have to "remove" the time spent in the called fiber!
-                    if (_showThreadSwitches)
-                    {
-                        std::string tmp("==< Switching backward from threadID: ");
-                        tmp+=boost::lexical_cast<std::string>((unsigned long)oldFiberID);
-                        tmp+=" to threadID: ";
-                        tmp+=boost::lexical_cast<std::string>((unsigned long)_allThreadData[i]->threadID);
-                        tmp+="\n";
-                        CDebugLogFile::addDebugText(false,tmp.c_str());
-//                      printf("Switching backward from threadID: %lu to threadID: %lu\n",(unsigned long)oldFiberID,(unsigned long)_allThreadData[i]->threadID);
-                    }
+
+                    std::string tmp("==< Switching backward from threadID: ");
+                    tmp+=boost::lexical_cast<std::string>((unsigned long)oldFiberID);
+                    tmp+=" to threadID: ";
+                    tmp+=boost::lexical_cast<std::string>((unsigned long)_allThreadData[i]->threadID);
+                    App::logMsg(sim_verbosity_tracelua,tmp.c_str());
+
                     _allThreadData[i]->threadWantsResumeFromYield=true; // We mark the next thread for resuming
                 }
                 else
                 { // Happens when a thread that used to be free running (or that still is) comes through here
                     _threadQueue.pop_back();
                     _threadStartTime.pop_back();
-                    if ( (it!=nullptr)&&(!it->threadShouldRunFreely)&&_showThreadSwitches)
+                    if ( (it!=nullptr)&&(!it->threadShouldRunFreely) )
                     {
                         std::string tmp("==< Switching backward from previously free-running thread with ID: ");
                         tmp+=boost::lexical_cast<std::string>((unsigned long)oldFiberID);
-                        tmp+="\n";
-                        CDebugLogFile::addDebugText(false,tmp.c_str());
-//                      printf("Switching backward from previously free-running thread with ID: %lu\n",(unsigned long)oldFiberID);
+                        App::logMsg(sim_verbosity_tracelua,tmp.c_str());
                     }
                 }
 
@@ -295,16 +279,14 @@ void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
                 {
                     it->threadSwitchShouldTriggerNoOtherThread=false; // We have to reset this one
                     // Now we wait here until this thread gets flagged as threadWantsResumeFromYield:
-                    if (_showThreadSwitches)
-                    {
-                        std::string tmp("==< Backward switch part, threadID ");
-                        tmp+=boost::lexical_cast<std::string>((unsigned long)it->threadID);
-                        tmp+=" (";
-                        tmp+=boost::lexical_cast<std::string>((unsigned long)VThread::getCurrentThreadId());
-                        tmp+=") is waiting...\n";
-                        CDebugLogFile::addDebugText(false,tmp.c_str());
-//                      printf("Backward switch part, threadID %lu (%lu) is waiting...\n",(unsigned long)it->threadID,(unsigned long)VThread::getCurrentThreadId());
-                    }
+
+                    std::string tmp("==< Backward switch part, threadID ");
+                    tmp+=boost::lexical_cast<std::string>((unsigned long)it->threadID);
+                    tmp+=" (";
+                    tmp+=boost::lexical_cast<std::string>((unsigned long)VThread::getCurrentThreadId());
+                    tmp+=") is waiting...";
+                    App::logMsg(sim_verbosity_tracelua,tmp.c_str());
+
                     while (!it->threadWantsResumeFromYield)
                     {
                         if (_threadToIntercept!=0)
@@ -319,16 +301,14 @@ void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
                         }
                         VThread::switchThread();
                     }
-                    if (_showThreadSwitches)
-                    {
-                        std::string tmp("==< Backward switch part, threadID ");
-                        tmp+=boost::lexical_cast<std::string>((unsigned long)it->threadID);
-                        tmp+=" (";
-                        tmp+=boost::lexical_cast<std::string>((unsigned long)VThread::getCurrentThreadId());
-                        tmp+=") NOT waiting anymore...\n";
-                        CDebugLogFile::addDebugText(false,tmp.c_str());
-//                      printf("Backward switch part, threadID %lu (%lu) NOT waiting anymore...\n",(unsigned long)it->threadID,(unsigned long)VThread::getCurrentThreadId());
-                    }
+
+                    tmp="==< Backward switch part, threadID ";
+                    tmp+=boost::lexical_cast<std::string>((unsigned long)it->threadID);
+                    tmp+=" (";
+                    tmp+=boost::lexical_cast<std::string>((unsigned long)VThread::getCurrentThreadId());
+                    tmp+=") NOT waiting anymore...";
+                    App::logMsg(sim_verbosity_tracelua,tmp.c_str());
+
                     // If we arrived here, it is because CThreadPool::switchToFiberOrThread was called for this thread from another thread
                     it->threadWantsResumeFromYield=false; // We reset it
                     // Now this thread resumes!
@@ -339,16 +319,13 @@ void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
             { // we switch forward to an auxiliary thread
                 _threadQueue.push_back(threadID);
                 _threadStartTime.push_back(VDateTime::getTimeInMs());
-                if (_showThreadSwitches)
-                {
-                    std::string tmp("==> Switching forward from threadID: ");
-                    tmp+=boost::lexical_cast<std::string>((unsigned long)_threadQueue[_threadQueue.size()-2]);
-                    tmp+=" to threadID: ";
-                    tmp+=boost::lexical_cast<std::string>((unsigned long)threadID);
-                    tmp+="\n";
-                    CDebugLogFile::addDebugText(false,tmp.c_str());
-//                  printf("Switching forward from threadID: %lu to threadID: %lu\n",(unsigned long)_threadQueue[_threadQueue.size()-2],(unsigned long)threadID);
-                }
+
+                std::string tmp("==> Switching forward from threadID: ");
+                tmp+=boost::lexical_cast<std::string>((unsigned long)_threadQueue[_threadQueue.size()-2]);
+                tmp+=" to threadID: ";
+                tmp+=boost::lexical_cast<std::string>((unsigned long)threadID);
+                App::logMsg(sim_verbosity_tracelua,tmp.c_str());
+
                 _allThreadData[i]->threadWantsResumeFromYield=true; // We mark the next thread for resuming
                 // We do not need to idle this thread since it is already flagged as such
                 CVThreadData* it=nullptr;
@@ -362,28 +339,24 @@ void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
                 }
                 // Now we wait here until this thread gets flagged as threadWantsResumeFromYield:
                 _unlock(3);
-                if (_showThreadSwitches)
-                {
-                    std::string tmp("==> Forward switch part, threadID ");
-                    tmp+=boost::lexical_cast<std::string>((unsigned long)it->threadID);
-                    tmp+=" (";
-                    tmp+=boost::lexical_cast<std::string>((unsigned long)VThread::getCurrentThreadId());
-                    tmp+=") is waiting...\n";
-                    CDebugLogFile::addDebugText(false,tmp.c_str());
-//                  printf("Forward switch part, threadID %lu (%lu) is waiting...\n",(unsigned long)it->threadID,(unsigned long)VThread::getCurrentThreadId());
-                }
+
+                tmp="==> Forward switch part, threadID ";
+                tmp+=boost::lexical_cast<std::string>((unsigned long)it->threadID);
+                tmp+=" (";
+                tmp+=boost::lexical_cast<std::string>((unsigned long)VThread::getCurrentThreadId());
+                tmp+=") is waiting...";
+                App::logMsg(sim_verbosity_tracelua,tmp.c_str());
+
                 while (!it->threadWantsResumeFromYield)
                     VThread::switchThread();
-                if (_showThreadSwitches)
-                {
-                    std::string tmp("==> Forward switch part, threadID ");
-                    tmp+=boost::lexical_cast<std::string>((unsigned long)it->threadID);
-                    tmp+=" (";
-                    tmp+=boost::lexical_cast<std::string>((unsigned long)VThread::getCurrentThreadId());
-                    tmp+=") NOT waiting anymore...\n";
-                    CDebugLogFile::addDebugText(false,tmp.c_str());
-//                  printf("Forward switch part, threadID %lu (%lu) NOT waiting anymore...\n",(unsigned long)it->threadID,(unsigned long)VThread::getCurrentThreadId());
-                }
+
+                tmp="==> Forward switch part, threadID ";
+                tmp+=boost::lexical_cast<std::string>((unsigned long)it->threadID);
+                tmp+=" (";
+                tmp+=boost::lexical_cast<std::string>((unsigned long)VThread::getCurrentThreadId());
+                tmp+=") NOT waiting anymore...";
+                App::logMsg(sim_verbosity_tracelua,tmp.c_str());
+
                 // If we arrived here, it is because CThreadPool::switchToFiberOrThread was called for this thread from another thread
                 it->threadWantsResumeFromYield=false; // We reset it
                 // Now this thread resumes!
@@ -497,14 +470,10 @@ void CThreadPool::_terminateThread()
         int fql=int(_threadQueue.size());
         if (VThread::areThreadIDsSame(_allThreadData[i]->threadID,_threadQueue[fql-1]))
         {
-            if (_showThreadSwitches)
-            {
-                std::string tmp("==q Terminating thread: ");
-                tmp+=boost::lexical_cast<std::string>((unsigned long)_allThreadData[i]->threadID);
-                tmp+="\n";
-                CDebugLogFile::addDebugText(false,tmp.c_str());
-//              printf("Terminating thread: %lu\n",(unsigned long)_allThreadData[i]->threadID);
-            }
+            std::string tmp("==q Terminating thread: ");
+            tmp+=boost::lexical_cast<std::string>((unsigned long)_allThreadData[i]->threadID);
+            App::logMsg(sim_verbosity_tracelua,tmp.c_str());
+
             _allThreadData[i]->threadID=VTHREAD_ID_DEAD; // To indicate we need clean-up
             nextThreadToSwitchTo=_threadQueue[fql-2]; // This will be the next thread we wanna switch to
             break;
@@ -542,14 +511,11 @@ VTHREAD_RETURN_TYPE CThreadPool::_intermediateThreadStartPoint(VTHREAD_ARGUMENT_
 
     // If we arrived here, it is because CThreadPool::switchToFiberOrThread was called for this thread from another thread
     it->threadWantsResumeFromYield=false; // We reset it
-    if (_showThreadSwitches)
-    {
-        std::string tmp("==* Inside new thread (threadID: ");
-        tmp+=boost::lexical_cast<std::string>((unsigned long)VThread::getCurrentThreadId());
-        tmp+=")\n";
-        CDebugLogFile::addDebugText(false,tmp.c_str());
-//      printf("Inside new thread (threadID: %lu)\n",(unsigned long)VThread::getCurrentThreadId());
-    }
+
+    std::string tmp("==* Inside new thread (threadID: ");
+    tmp+=boost::lexical_cast<std::string>((unsigned long)VThread::getCurrentThreadId());
+    tmp+=")";
+    App::logMsg(sim_verbosity_tracelua,tmp.c_str());
 
     startAdd(lpData);
 
@@ -606,13 +572,11 @@ int CThreadPool::handleThread_ifHasResumeLocation(VTHREAD_ID_TYPE theThread,bool
                         // Following is a special condition to support free-running mode:
                         if ( (!_allThreadData[i]->threadShouldRunFreely)&&(!_allThreadData[i]->threadSwitchShouldTriggerNoOtherThread) )
                         {
-                            if (_showThreadSwitches)
-                            {
-                                std::string tmp("==. In fiber/thread handling routine (fiberID/threadID: ");
-                                tmp+=boost::lexical_cast<std::string>((unsigned long)_threadQueue[_threadQueue.size()-1]);
-                                tmp+=")\n";
-                                CDebugLogFile::addDebugText(false,tmp.c_str());
-                            }
+                            std::string tmp("==. In fiber/thread handling routine (fiberID/threadID: ");
+                            tmp+=boost::lexical_cast<std::string>((unsigned long)_threadQueue[_threadQueue.size()-1]);
+                            tmp+=")";
+                            App::logMsg(sim_verbosity_tracelua,tmp.c_str());
+
                             _unlock(8);
                             switchToThread((VTHREAD_ID_TYPE)_allThreadData[i]->threadID);
                             _lock(8);
@@ -821,14 +785,11 @@ bool CThreadPool::setThreadFreeMode(bool freeMode)
                     nextThreadData=_allThreadData[i];
             }
 
-            if (_showThreadSwitches)
-            {
-                std::string tmp("==f Starting thread free-mode (threadID: ");
-                tmp+=boost::lexical_cast<std::string>((unsigned long)thisThreadData->threadID);
-                tmp+=")\n";
-                CDebugLogFile::addDebugText(false,tmp.c_str());
-//              printf("Starting thread free-mode (threadID: %lu)\n",(unsigned long)thisThreadData->threadID);
-            }
+            std::string tmp("==f Starting thread free-mode (threadID: ");
+            tmp+=boost::lexical_cast<std::string>((unsigned long)thisThreadData->threadID);
+            tmp+=")";
+            App::logMsg(sim_verbosity_tracelua,tmp.c_str());
+
             _threadQueue.pop_back();
             thisThreadData->freeModeSavedThreadStartTime=_threadStartTime[_threadStartTime.size()-1];
             _threadStartTime.pop_back();
@@ -836,14 +797,12 @@ bool CThreadPool::setThreadFreeMode(bool freeMode)
             thisThreadData->threadSwitchShouldTriggerNoOtherThread=true;
             nextThreadData->threadWantsResumeFromYield=true;
             _unlock(17);
-            if (_showThreadSwitches)
-            {
-                std::string tmp("==f Started thread free-mode (threadID: ");
-                tmp+=boost::lexical_cast<std::string>((unsigned long)thisThreadData->threadID);
-                tmp+=")\n";
-                CDebugLogFile::addDebugText(false,tmp.c_str());
-//              printf("Started thread free-mode (threadID: %lu)\n",(unsigned long)thisThreadData->threadID);
-            }
+
+            tmp="==f Started thread free-mode (threadID: ";
+            tmp+=boost::lexical_cast<std::string>((unsigned long)thisThreadData->threadID);
+            tmp+=")";
+            App::logMsg(sim_verbosity_tracelua,tmp.c_str());
+
             return(true);
         }
     }
@@ -859,48 +818,41 @@ bool CThreadPool::setThreadFreeMode(bool freeMode)
                     thisThreadData=_allThreadData[i];
             }
 
-            if (_showThreadSwitches)
-            {
-                std::string tmp("==e Ending thread free-mode (threadID: ");
-                tmp+=boost::lexical_cast<std::string>((unsigned long)thisThreadData->threadID);
-                tmp+=")\n";
-                CDebugLogFile::addDebugText(false,tmp.c_str());
-//              printf("Ending thread free-mode (threadID: %lu)\n",(unsigned long)thisThreadData->threadID);
-            }
+            std::string tmp("==e Ending thread free-mode (threadID: ");
+            tmp+=boost::lexical_cast<std::string>((unsigned long)thisThreadData->threadID);
+            tmp+=")";
+            App::logMsg(sim_verbosity_tracelua,tmp.c_str());
+
             thisThreadData->threadShouldRunFreely=false;
             _threadQueue.push_back((VTHREAD_ID_TYPE)thisThreadData->threadID);
             _threadStartTime.push_back((int)thisThreadData->freeModeSavedThreadStartTime);
             _unlock(17);
             switchBackToPreviousThread();
-            if (_showThreadSwitches)
-            {
-                std::string tmp("==e Ended thread free-mode (threadID: ");
-                tmp+=boost::lexical_cast<std::string>((unsigned long)thisThreadData->threadID);
-                tmp+=")\n";
-                CDebugLogFile::addDebugText(false,tmp.c_str());
-//              printf("Ended thread free-mode (threadID: %lu)\n",(unsigned long)thisThreadData->threadID);
-            }
+
+            tmp="==e Ended thread free-mode (threadID: ";
+            tmp+=boost::lexical_cast<std::string>((unsigned long)thisThreadData->threadID);
+            tmp+=")";
+            App::logMsg(sim_verbosity_tracelua,tmp.c_str());
+
             return(true);
         }
     }
 
-    if ( (!retVal)&&_showThreadSwitches )
+    if (!retVal)
     {
         if (freeMode)
         {
             std::string tmp("==x Failed starting thread free-mode (threadID: ");
             tmp+=boost::lexical_cast<std::string>((unsigned long)VThread::getCurrentThreadId());
-            tmp+=")\n";
-            CDebugLogFile::addDebugText(false,tmp.c_str());
-//          printf("Failed starting thread free-mode (threadID: %lu)\n",(unsigned long)VThread::getCurrentThreadId());
+            tmp+=")";
+            App::logMsg(sim_verbosity_tracelua,tmp.c_str());
         }
         else
         {
             std::string tmp("==x Failed stopping thread free-mode (threadID: ");
             tmp+=boost::lexical_cast<std::string>((unsigned long)VThread::getCurrentThreadId());
-            tmp+=")\n";
-            CDebugLogFile::addDebugText(false,tmp.c_str());
-//          printf("Failed stopping thread free-mode (threadID: %lu)\n",(unsigned long)VThread::getCurrentThreadId());
+            tmp+=")";
+            App::logMsg(sim_verbosity_tracelua,tmp.c_str());
         }
     }
 
@@ -931,16 +883,6 @@ bool CThreadPool::isThreadInFreeMode()
         retVal=true;
     _unlock(18);
     return(retVal);
-}
-
-bool CThreadPool::getShowThreadSwitches()
-{
-    return(_showThreadSwitches);
-}
-
-void CThreadPool::setShowThreadSwitches(bool show)
-{
-    _showThreadSwitches=show;
 }
 
 VTHREAD_RETURN_TYPE CThreadPool::_tmpCallback(VTHREAD_ARGUMENT_TYPE lpData)

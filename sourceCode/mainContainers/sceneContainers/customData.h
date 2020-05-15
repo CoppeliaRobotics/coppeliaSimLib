@@ -1,23 +1,17 @@
-
 #pragma once
 
-#include "mainCont.h"
 #include "ser.h"
 
-class CCustomData : public CMainCont 
+class CCustomData 
 {
 public:
     CCustomData();
     virtual ~CCustomData();
 
-    void simulationAboutToStart();
-    void simulationEnded();
-    void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
-
     void setData(int header,const char* data,int datLen);
     int getDataLength(int header);
-    void getData(int header,char* data);
-    bool getHeader(int index,int& header);
+    void getData(int header,char* data) const;
+    bool getHeader(int index,int& header) const;
 
     void removeData(int header);
     void removeAllData();

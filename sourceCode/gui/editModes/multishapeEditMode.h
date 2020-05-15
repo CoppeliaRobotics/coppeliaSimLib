@@ -17,7 +17,7 @@ public:
     bool isCurrentMultishapeGeometricComponentValid();
     CGeometric* getCurrentMultishapeGeometricComponent();
     CGeometric* getMultishapeGeometricComponentAtIndex(int index);
-    void displayAllGeometricComponents(CGeomProxy* geomData,int displayAttrib,CVisualParam* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling);
+    void displayAllGeometricComponents(CGeomProxy* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling);
 
     bool processCommand(int commandID);
 

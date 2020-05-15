@@ -36,9 +36,9 @@ void CQDlgUserParameters::okEvent()
 
 void CQDlgUserParameters::refresh()
 {
-    ui->qqAddNew->setEnabled(App::ct->simulation->isSimulationStopped());
-    ui->qqUp->setEnabled(App::ct->simulation->isSimulationStopped());
-    ui->qqDown->setEnabled(App::ct->simulation->isSimulationStopped());
+    ui->qqAddNew->setEnabled(App::currentWorld->simulation->isSimulationStopped());
+    ui->qqUp->setEnabled(App::currentWorld->simulation->isSimulationStopped());
+    ui->qqDown->setEnabled(App::currentWorld->simulation->isSimulationStopped());
     int selectedObjectID=getSelectedObjectID();
     if (!inSelectionRoutine)
     {
@@ -50,7 +50,7 @@ void CQDlgUserParameters::refresh()
 
 void CQDlgUserParameters::refreshPart2()
 {
-    bool noEditModeAndNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped();
+    bool noEditModeAndNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     ui->qqAddNew->setEnabled(noEditModeAndNoSim);
     CUserParameters* it=object->getUserScriptParameterObject();
@@ -88,7 +88,7 @@ void CQDlgUserParameters::on_qqAddNew_clicked()
     std::string name("defaultVariableName");
     std::string dummy;
     while (p->getParameterValue(name.c_str(),dummy))
-        name=tt::generateNewName_noDash(name);
+        name=tt::generateNewName_noHash(name);
     p->addParameterValue(name.c_str(),"defaultUnit","defaultValue",12);
     updateObjectsInList();
     selectObjectInList((int)p->userParamEntries.size()-1);
@@ -181,7 +181,7 @@ void CQDlgUserParameters::updateObjectsInList()
     CUserParameters* it=object->getUserScriptParameterObject();
     for (size_t i=0;i<it->userParamEntries.size();i++)
     {
-        if ( ((it->userParamEntries[i].properties&1)==0)||App::ct->simulation->isSimulationStopped() )
+        if ( ((it->userParamEntries[i].properties&1)==0)||App::currentWorld->simulation->isSimulationStopped() )
         {
             QListWidgetItem* itm=new QListWidgetItem(it->userParamEntries[i].name.c_str());
             itm->setData(Qt::UserRole,QVariant(int(i)));

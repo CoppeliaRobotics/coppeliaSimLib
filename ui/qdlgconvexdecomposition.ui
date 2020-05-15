@@ -324,7 +324,7 @@
      <string>PCA enabled</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_9">
+   <widget class="QLabel" name="depthLabel">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -455,7 +455,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="label_15">
+   <widget class="QLabel" name="gammaLabel">
     <property name="geometry">
      <rect>
       <x>10</x>

@@ -40,8 +40,8 @@ public:
 
     CLuaScriptObject* copyYourself();
     void serialize(CSer& ar);
-    void perform3DObjectLoadingMapping(std::vector<int>* map);
-    bool announce3DObjectWillBeErased(int objectID,bool copyBuffer);
+    void performSceneObjectLoadingMapping(const std::vector<int>* map);
+    bool announceSceneObjectWillBeErased(int objectID,bool copyBuffer);
     int flagScriptForRemoval();
     void setObjectIDThatScriptIsAttachedTo(int newObjectID);
     int getObjectIDThatScriptIsAttachedTo() const;

@@ -2,7 +2,7 @@
 #include "simInternal.h"
 #include "registeredPathPlanningTasks.h"
 #include "tt.h"
-#include "objCont.h"
+#include "sceneObjectContainer.h"
 #include "app.h"
 
 CRegisteredPathPlanningTasks::CRegisteredPathPlanningTasks()
@@ -11,9 +11,8 @@ CRegisteredPathPlanningTasks::CRegisteredPathPlanningTasks()
 }
 
 CRegisteredPathPlanningTasks::~CRegisteredPathPlanningTasks()
-{
+{ // beware, the current world could be nullptr
     removeAllTasks();
-
     // Following should not be needed!
     for (int i=0;i<int(_temporaryPathSearchObjects.size());i++)
         delete _temporaryPathSearchObjects[i];
@@ -133,7 +132,7 @@ CPathPlanningTask* CRegisteredPathPlanningTasks::getObject(std::string objName)
     return(nullptr);
 }
 
-void CRegisteredPathPlanningTasks::getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix)
+void CRegisteredPathPlanningTasks::getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix) const
 {
     minSuffix=-1;
     maxSuffix=-1;
@@ -155,7 +154,7 @@ void CRegisteredPathPlanningTasks::getMinAndMaxNameSuffixes(int& minSuffix,int& 
     }
 }
 
-bool CRegisteredPathPlanningTasks::canSuffix1BeSetToSuffix2(int suffix1,int suffix2)
+bool CRegisteredPathPlanningTasks::canSuffix1BeSetToSuffix2(int suffix1,int suffix2) const
 {
     for (int i=0;i<int(allObjects.size());i++)
     {
@@ -186,7 +185,7 @@ void CRegisteredPathPlanningTasks::setSuffix1ToSuffix2(int suffix1,int suffix2)
         if (s1==suffix1)
         {
             std::string name1(tt::getNameWithoutSuffixNumber(allObjects[i]->getObjectName().c_str(),true));
-            allObjects[i]->setObjectName(tt::generateNewName_dash(name1,suffix2+1));
+            allObjects[i]->setObjectName(tt::generateNewName_hash(name1,suffix2+1));
         }
     }
 }
@@ -201,11 +200,11 @@ void CRegisteredPathPlanningTasks::addObjectWithSuffixOffset(CPathPlanningTask* 
     // Does that name already exist?
     std::string theName=aTask->getObjectName();
     if (objectIsACopy)
-        theName=tt::generateNewName_dash(theName,suffixOffset);
+        theName=tt::generateNewName_hash(theName,suffixOffset);
     else
     {
         while (getObject(theName)!=nullptr)
-            theName=tt::generateNewName_noDash(theName);
+            theName=tt::generateNewName_noHash(theName);
     }
     aTask->setObjectName(theName);
 
@@ -231,11 +230,3 @@ bool CRegisteredPathPlanningTasks::removeObject(int objID)
     return(false);
 }
 
-void CRegisteredPathPlanningTasks::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
-{
-    if (displayAttrib&sim_displayattribute_renderpass)
-    {
-        for (size_t i=0;i<allObjects.size();i++)
-            allObjects[i]->renderYour3DStuff();
-    }
-}

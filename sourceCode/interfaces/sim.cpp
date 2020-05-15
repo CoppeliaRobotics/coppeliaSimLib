@@ -373,10 +373,6 @@ SIM_DLLEXPORT simInt simReadProximitySensor(simInt sensorHandle,simFloat* detect
 {
     return(simReadProximitySensor_internal(sensorHandle,detectedPoint,detectedObjectHandle,normalVector));
 }
-SIM_DLLEXPORT simInt simHandleMill(simInt millHandle,simFloat* removedSurfaceAndVolume)
-{
-    return(simHandleMill_internal(millHandle,removedSurfaceAndVolume));
-}
 SIM_DLLEXPORT simInt simHandleIkGroup(simInt ikGroupHandle)
 {
     return(simHandleIkGroup_internal(ikGroupHandle));
@@ -472,10 +468,6 @@ SIM_DLLEXPORT simInt simResetDistance(simInt distanceObjectHandle)
 SIM_DLLEXPORT simInt simResetProximitySensor(simInt sensorHandle)
 {
     return(simResetProximitySensor_internal(sensorHandle));
-}
-SIM_DLLEXPORT simInt simResetMill(simInt millHandle)
-{
-    return(simResetMill_internal(millHandle));
 }
 SIM_DLLEXPORT simInt simCheckProximitySensor(simInt sensorHandle,simInt entityHandle,simFloat* detectedPoint)
 {
@@ -744,14 +736,6 @@ SIM_DLLEXPORT simFloat simGetObjectSizeFactor(simInt objectHandle)
 SIM_DLLEXPORT simInt simAnnounceSceneContentChange()
 {
     return(simAnnounceSceneContentChange_internal());
-}
-SIM_DLLEXPORT simInt simResetMilling(simInt objectHandle)
-{
-    return(simResetMilling_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simApplyMilling(simInt objectHandle)
-{
-    return(simApplyMilling_internal(objectHandle));
 }
 SIM_DLLEXPORT simInt simSetIntegerSignal(const simChar* signalName,simInt signalValue)
 {
@@ -1725,6 +1709,11 @@ SIM_DLLEXPORT simInt simSetUserParameter(simInt objectHandle,const simChar* para
 {
     return(simSetUserParameter_internal(objectHandle,parameterName,parameterValue,parameterLength));
 }
+SIM_DLLEXPORT simInt simAddLog(const simChar* pluginName,simInt verbosityLevel,const simChar* logMsg)
+{
+    return(simAddLog_internal(pluginName,verbosityLevel,logMsg));
+}
+
 
 
 SIM_DLLEXPORT simInt _simGetContactCallbackCount()
@@ -1886,10 +1875,6 @@ SIM_DLLEXPORT simVoid _simSetGeomProxyDynamicsFullRefreshFlag(simVoid* geomData,
 SIM_DLLEXPORT simBool _simGetGeomProxyDynamicsFullRefreshFlag(const simVoid* geomData)
 {
     return(_simGetGeomProxyDynamicsFullRefreshFlag_internal(geomData));
-}
-SIM_DLLEXPORT simBool _simGetParentFollowsDynamic(const simVoid* shape)
-{
-    return(_simGetParentFollowsDynamic_internal(shape));
 }
 SIM_DLLEXPORT simVoid _simSetShapeDynamicVelocity(simVoid* shape,const simFloat* linear,const simFloat* angular)
 {
@@ -2456,6 +2441,26 @@ SIM_DLLEXPORT simInt simSetScriptSimulationParameter(simInt scriptHandle,const s
 SIM_DLLEXPORT simInt simSetJointForce(simInt objectHandle,simFloat forceOrTorque)
 {
     return(simSetJointMaxForce_internal(objectHandle,forceOrTorque));
+}
+SIM_DLLEXPORT simInt simHandleMill(simInt millHandle,simFloat* removedSurfaceAndVolume)
+{
+    return(-1);
+}
+SIM_DLLEXPORT simInt simResetMill(simInt millHandle)
+{
+    return(-1);
+}
+SIM_DLLEXPORT simInt simResetMilling(simInt objectHandle)
+{
+    return(-1);
+}
+SIM_DLLEXPORT simInt simApplyMilling(simInt objectHandle)
+{
+    return(-1);
+}
+SIM_DLLEXPORT simBool _simGetParentFollowsDynamic(const simVoid* shape)
+{
+    return(false);
 }
 // Deprecated end
 

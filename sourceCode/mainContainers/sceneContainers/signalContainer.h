@@ -1,17 +1,11 @@
-
 #pragma once
 
-#include "mainCont.h"
-
-class CSignalContainer : public CMainCont 
+class CSignalContainer 
 {
 public:
     CSignalContainer();
     virtual ~CSignalContainer();
-    void simulationAboutToStart();
     void simulationEnded();
-    void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
-    void emptySceneProcedure();
 
     void removeAllSignals(bool onlyThoseFromEmbeddedScripts);
 

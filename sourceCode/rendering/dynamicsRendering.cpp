@@ -150,7 +150,7 @@ void displayParticles(void** particlesPointer,int particlesCount,int displayAttr
     }
 }
 
-void displayContactPoints(int displayAttrib,const CVisualParam& contactPointColor,const float* pts,int cnt)
+void displayContactPoints(int displayAttrib,const CColorObject& contactPointColor,const float* pts,int cnt)
 {
     glDisable(GL_DEPTH_TEST);
     glLoadName(-1);
@@ -258,7 +258,7 @@ void displayParticles(void** particlesPointer,int particlesCount,int displayAttr
 
 }
 
-void displayContactPoints(int displayAttrib,const CVisualParam& contactPointColor,const float* pts,int cnt)
+void displayContactPoints(int displayAttrib,const CColorObject& contactPointColor,const float* pts,int cnt)
 {
 
 }

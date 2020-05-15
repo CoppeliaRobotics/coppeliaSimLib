@@ -1,18 +1,16 @@
-
 #pragma once
 
 #include "drawingObject.h"
-#include "mainCont.h"
 #include "7Vector.h"
 
-class CDrawingContainer : public CMainCont
+class CViewableBase;
+
+class CDrawingContainer
 {
 public:
     CDrawingContainer();
     virtual ~CDrawingContainer();
 
-    void emptySceneProcedure();
-    void simulationAboutToStart();
     void simulationEnded();
     void renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib);
     void renderYour3DStuff_transparent(CViewableBase* renderingObject,int displayAttrib);

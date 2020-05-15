@@ -32,19 +32,19 @@ void CQDlgDependencyEquation::refresh()
 { // dlg is modal
     inMainRefreshRoutine=true;
     bool dependencyPartActive=false;
-    CJoint* it=App::ct->objCont->getLastSelection_joint();
+    CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
     if (it!=nullptr)
         dependencyPartActive=((it->getJointMode()==sim_jointmode_dependent)||(it->getJointMode()==sim_jointmode_reserved_previously_ikdependent));
 
-    ui->qqOffset->setEnabled(dependencyPartActive&&(it->getDependencyJointID()!=-1));
-    ui->qqCoeff->setEnabled(dependencyPartActive&&(it->getDependencyJointID()!=-1));
+    ui->qqOffset->setEnabled(dependencyPartActive&&(it->getDependencyJointHandle()!=-1));
+    ui->qqCoeff->setEnabled(dependencyPartActive&&(it->getDependencyJointHandle()!=-1));
     ui->qqCombo->setEnabled(dependencyPartActive);
     ui->qqCombo->clear();
 
     if (it!=nullptr)
     {
-        ui->qqOffset->setText(tt::getEString(true,it->getDependencyJointFact(),3).c_str());
-        ui->qqCoeff->setText(tt::getEString(true,it->getDependencyJointCoeff(),3).c_str());
+        ui->qqOffset->setText(tt::getEString(true,it->getDependencyJointOffset(),3).c_str());
+        ui->qqCoeff->setText(tt::getEString(true,it->getDependencyJointMult(),3).c_str());
 
         ui->qqCombo->addItem(strTranslate(IDSN_NONE),QVariant(-1));
 
@@ -52,9 +52,9 @@ void CQDlgDependencyEquation::refresh()
         std::vector<int> ids;
 
         // Joints:
-        for (size_t i=0;i<App::ct->objCont->jointList.size();i++)
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
         {
-            CJoint* it2=App::ct->objCont->getJoint(App::ct->objCont->jointList[i]);
+            CJoint* it2=App::currentWorld->sceneObjects->getJointFromIndex(i);
             if ((it2!=it)&&(it2->getJointType()!=sim_joint_spherical_subtype))
             {
                 std::string name(tt::decorateString("[",strTranslate(IDSN_JOINT),"] "));
@@ -70,7 +70,7 @@ void CQDlgDependencyEquation::refresh()
         // Select current item:
         for (int i=0;i<ui->qqCombo->count();i++)
         {
-            if (ui->qqCombo->itemData(i).toInt()==it->getDependencyJointID())
+            if (ui->qqCombo->itemData(i).toInt()==it->getDependencyJointHandle())
             {
                 ui->qqCombo->setCurrentIndex(i);
                 break;
@@ -99,7 +99,7 @@ void CQDlgDependencyEquation::on_qqOffset_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint* it=App::ct->objCont->getLastSelection_joint();
+        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         float newVal=ui->qqOffset->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
@@ -118,12 +118,12 @@ void CQDlgDependencyEquation::on_qqCoeff_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint* it=App::ct->objCont->getLastSelection_joint();
+        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         float newVal=ui->qqCoeff->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
         {
-            it->setDependencyJointCoeff(newVal); // we also modify the ui resources (dlg is modal)
+            it->setDependencyJointMult(newVal); // we also modify the ui resources (dlg is modal)
             App::appendSimulationThreadCommand(SET_MULTFACT_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);
             // scene change announcement at the end of this modal dlg
         }
@@ -137,11 +137,11 @@ void CQDlgDependencyEquation::on_qqCombo_currentIndexChanged(int index)
     {
         IF_UI_EVENT_CAN_READ_DATA
         {
-            CJoint* it=App::ct->objCont->getLastSelection_joint();
+            CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
             int objID=ui->qqCombo->itemData(ui->qqCombo->currentIndex()).toInt();
             if (it!=nullptr)
             {
-                it->setDependencyJointID(objID); // we also modify the ui resources (dlg is modal)
+                it->setDependencyJointHandle(objID); // we also modify the ui resources (dlg is modal)
                 App::appendSimulationThreadCommand(SET_OTHERJOINT_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getObjectHandle(),objID);
                 // scene change announcement at the end of this modal dlg
             }

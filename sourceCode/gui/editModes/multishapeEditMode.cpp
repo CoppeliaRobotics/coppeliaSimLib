@@ -53,7 +53,7 @@ CGeometric* CMultishapeEditMode::getMultishapeGeometricComponentAtIndex(int inde
     return(_multishapeGeometricComponents[index]);
 }
 
-void CMultishapeEditMode::displayAllGeometricComponents(CGeomProxy* geomData,int displayAttrib,CVisualParam* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling)
+void CMultishapeEditMode::displayAllGeometricComponents(CGeomProxy* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling)
 {
     for (int i=0;i<int(_multishapeGeometricComponents.size());i++)
         _multishapeGeometricComponents[i]->display(geomData,displayAttrib,collisionColor,dynObjFlag_forVisualization,transparencyHandling,i==_multishapeGeometricComponentIndex);

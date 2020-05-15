@@ -8,23 +8,8 @@ CGhostObjectContainer::CGhostObjectContainer()
 }
 
 CGhostObjectContainer::~CGhostObjectContainer()
-{
+{ // beware, the current world could be nullptr
     removeGhost(-1,-1);
-}
-
-void CGhostObjectContainer::simulationAboutToStart()
-{
-
-}
-
-void CGhostObjectContainer::simulationEnded()
-{
-
-}
-
-void CGhostObjectContainer::emptySceneProcedure()
-{ // don't do anything here! (plugin or add-on might be using that functionality too)
-
 }
 
 int CGhostObjectContainer::addGhost(int theGroupId,int theObjectHandle,int theOptions,float theStartTime,float theEndTime,const float theColor[12])
@@ -61,7 +46,7 @@ int CGhostObjectContainer::addGhost(int theGroupId,int theObjectHandle,int theOp
     std::vector<CShape*> objsToAdd;
     for (size_t i=0;i<rootSel.size();i++)
     {
-        CShape* obj=App::ct->objCont->getShape(rootSel[i]);
+        CShape* obj=App::currentWorld->sceneObjects->getShapeFromHandle(rootSel[i]);
         if (obj!=nullptr)
             objsToAdd.push_back(obj);
     }
@@ -71,7 +56,7 @@ int CGhostObjectContainer::addGhost(int theGroupId,int theObjectHandle,int theOp
         CShape* obj=objsToAdd[i];
         if (obj->getShouldObjectBeDisplayed(-1,0)||(theOptions&8))
         { // only visible objects... unless we force it with bit3 (8)
-            CGhostObject* ghost=new CGhostObject(theGroupId,obj->getObjectHandle(),obj->getCumulativeTransformationPart1(),theOptions,theStartTime,theEndTime,theColor);
+            CGhostObject* ghost=new CGhostObject(theGroupId,obj->getObjectHandle(),obj->getCumulativeTransformation(),theOptions,theStartTime,theEndTime,theColor);
             ghost->ghostId=nextGhostId;
             retVal=nextGhostId;
             _allObjects.push_back(ghost);
@@ -207,10 +192,10 @@ void CGhostObjectContainer::announceObjectWillBeErased(int objID)
     }
 }
 
-void CGhostObjectContainer::performObjectLoadingMapping(std::vector<int>* map)
+void CGhostObjectContainer::performObjectLoadingMapping(const std::vector<int>* map)
 {
     for (size_t i=0;i<_allObjects.size();i++)
-        _allObjects[i]->objectHandle=App::ct->objCont->getLoadingMapping(map,_allObjects[i]->objectHandle);
+        _allObjects[i]->objectHandle=CWorld::getLoadingMapping(map,_allObjects[i]->objectHandle);
 }
 
 void CGhostObjectContainer::serialize(CSer& ar)
@@ -379,10 +364,10 @@ void CGhostObjectContainer::renderYour3DStuff_nonTransparent(CViewableBase* rend
 {
     if ((displayAttrib&sim_displayattribute_noghosts)==0)
     {
-        if (!App::ct->simulation->isSimulationStopped())
+        if (!App::currentWorld->simulation->isSimulationStopped())
         {
-            float simulationTime=float(App::ct->simulation->getSimulationTime_ns())/1000000.0f;
-            float realTime=float(App::ct->simulation->getSimulationTime_real_ns())/1000000.0f;
+            float simulationTime=float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f;
+            float realTime=float(App::currentWorld->simulation->getSimulationTime_real_ns())/1000000.0f;
             for (size_t i=0;i<_allObjects.size();i++)
             {
                 if (_allObjects[i]->transparencyFactor==0)
@@ -396,10 +381,10 @@ void CGhostObjectContainer::renderYour3DStuff_transparent(CViewableBase* renderi
 {
     if ((displayAttrib&sim_displayattribute_noghosts)==0)
     {
-        if (!App::ct->simulation->isSimulationStopped())
+        if (!App::currentWorld->simulation->isSimulationStopped())
         {
-            float simulationTime=float(App::ct->simulation->getSimulationTime_ns())/1000000.0f;
-            float realTime=float(App::ct->simulation->getSimulationTime_real_ns())/1000000.0f;
+            float simulationTime=float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f;
+            float realTime=float(App::currentWorld->simulation->getSimulationTime_real_ns())/1000000.0f;
             for (size_t i=0;i<_allObjects.size();i++)
             {
                 if (_allObjects[i]->transparencyFactor!=0)

@@ -6,4 +6,4 @@
 #ifdef SIM_WITH_OPENGL
 #endif
 
-void displayPtCloud_old(CPtCloud_old* ptCloud,C3DObject* it);
+void displayPtCloud_old(CPtCloud_old* ptCloud,CSceneObject* it);

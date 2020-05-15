@@ -4,7 +4,7 @@
 
 #include "dlgEx.h"
 #include "qdlgcolor.h"
-#include "visualParam.h"
+#include "colorObject.h"
 
 namespace Ui {
     class CQDlgMaterial;
@@ -32,7 +32,7 @@ public:
     int _objID1;
     int _objID2;
     int _lastSelectedObjectID;
-    int _objectSelectionSize;
+    size_t _objectSelectionSize;
 
     static void displayMaterialDlg(int objType,int objID1,int objID2,QWidget* theParentWindow);
     static void displayMaterialDlgModal(int objType,int objID1,int objID2,QWidget* theParentWindow);

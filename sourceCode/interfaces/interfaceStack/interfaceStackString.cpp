@@ -35,14 +35,17 @@ CInterfaceStackObject* CInterfaceStackString::copyYourself() const
     return(retVal);
 }
 
-void CInterfaceStackString::printContent(int spaces) const
+void CInterfaceStackString::printContent(int spaces,std::string& buffer) const
 {
     for (int i=0;i<spaces;i++)
-        printf(" ");
+        buffer+=" ";
     if (std::string(_value.c_str()).size()==_value.size())
-        printf("STRING: %s\n",_value.c_str());
+    {
+        buffer+="STRING: "+_value;
+        buffer+="\n";
+    }
     else
-        printf("STRING: <buffer data>\n");
+        buffer+"STRING: <buffer data>\n";
 }
 
 std::string CInterfaceStackString::getObjectData() const

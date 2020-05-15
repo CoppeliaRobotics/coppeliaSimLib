@@ -109,7 +109,6 @@ SIM_DLLEXPORT simInt simHandleDistance(simInt distanceObjectHandle,simFloat* sma
 SIM_DLLEXPORT simInt simReadDistance(simInt distanceObjectHandle,simFloat* smallestDistance);
 SIM_DLLEXPORT simInt simHandleProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 SIM_DLLEXPORT simInt simReadProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
-SIM_DLLEXPORT simInt simHandleMill(simInt millHandle,simFloat* removedSurfaceAndVolume);
 SIM_DLLEXPORT simInt simHandleIkGroup(simInt ikGroupHandle);
 SIM_DLLEXPORT simInt simCheckIkGroup(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat* jointValues,const simInt* jointOptions);
 SIM_DLLEXPORT simInt simHandleDynamics(simFloat deltaTime);
@@ -134,7 +133,6 @@ SIM_DLLEXPORT simInt simGetIkGroupHandle(const simChar* ikGroupName);
 SIM_DLLEXPORT simInt simResetCollision(simInt collisionObjectHandle);
 SIM_DLLEXPORT simInt simResetDistance(simInt distanceObjectHandle);
 SIM_DLLEXPORT simInt simResetProximitySensor(simInt sensorHandle);
-SIM_DLLEXPORT simInt simResetMill(simInt millHandle);
 SIM_DLLEXPORT simInt simCheckProximitySensor(simInt sensorHandle,simInt entityHandle,simFloat* detectedPoint);
 SIM_DLLEXPORT simInt simCheckProximitySensorEx(simInt sensorHandle,simInt entityHandle,simInt detectionMode,simFloat detectionThreshold,simFloat maxAngle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 SIM_DLLEXPORT simInt simCheckProximitySensorEx2(simInt sensorHandle,simFloat* vertexPointer,simInt itemType,simInt itemCount,simInt detectionMode,simFloat detectionThreshold,simFloat maxAngle,simFloat* detectedPoint,simFloat* normalVector);
@@ -202,8 +200,6 @@ SIM_DLLEXPORT simInt simRemoveParticleObject(simInt objectHandle);
 SIM_DLLEXPORT simInt simAddParticleObjectItem(simInt objectHandle,const simFloat* itemData);
 SIM_DLLEXPORT simFloat simGetObjectSizeFactor(simInt objectHandle);
 SIM_DLLEXPORT simInt simAnnounceSceneContentChange();
-SIM_DLLEXPORT simInt simResetMilling(simInt objectHandle);
-SIM_DLLEXPORT simInt simApplyMilling(simInt objectHandle);
 SIM_DLLEXPORT simInt simSetIntegerSignal(const simChar* signalName,simInt signalValue);
 SIM_DLLEXPORT simInt simGetIntegerSignal(const simChar* signalName,simInt* signalValue);
 SIM_DLLEXPORT simInt simClearIntegerSignal(const simChar* signalName);
@@ -446,6 +442,7 @@ SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simCh
 SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength);
 SIM_DLLEXPORT simChar* simGetUserParameter(simInt objectHandle,const simChar* parameterName,simInt* parameterLength);
 SIM_DLLEXPORT simInt simSetUserParameter(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength);
+SIM_DLLEXPORT simInt simAddLog(const simChar* pluginName,simInt verbosityLevel,const simChar* logMsg);
 
 
 
@@ -489,7 +486,6 @@ SIM_DLLEXPORT simBool _simGetDynamicsFullRefreshFlag(const simVoid* object);
 SIM_DLLEXPORT simVoid _simSetDynamicsFullRefreshFlag(const simVoid* object,simBool flag);
 SIM_DLLEXPORT simVoid _simSetGeomProxyDynamicsFullRefreshFlag(simVoid* geomData,simBool flag);
 SIM_DLLEXPORT simBool _simGetGeomProxyDynamicsFullRefreshFlag(const simVoid* geomData);
-SIM_DLLEXPORT simBool _simGetParentFollowsDynamic(const simVoid* shape);
 SIM_DLLEXPORT simVoid _simSetShapeDynamicVelocity(simVoid* shape,const simFloat* linear,const simFloat* angular);
 SIM_DLLEXPORT simVoid _simGetAdditionalForceAndTorque(const simVoid* shape,simFloat* force,simFloat* torque);
 SIM_DLLEXPORT simVoid _simClearAdditionalForceAndTorque(const simVoid* shape);
@@ -641,6 +637,11 @@ SIM_DLLEXPORT simInt simGetVisionSensorFilter(simInt visionSensorHandle,simInt f
 SIM_DLLEXPORT simChar* simGetScriptSimulationParameter(simInt scriptHandle,const simChar* parameterName,simInt* parameterLength);
 SIM_DLLEXPORT simInt simSetScriptSimulationParameter(simInt scriptHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength);
 SIM_DLLEXPORT simInt simSetJointForce(simInt objectHandle,simFloat forceOrTorque);
+SIM_DLLEXPORT simInt simHandleMill(simInt millHandle,simFloat* removedSurfaceAndVolume);
+SIM_DLLEXPORT simInt simResetMill(simInt millHandle);
+SIM_DLLEXPORT simInt simResetMilling(simInt objectHandle);
+SIM_DLLEXPORT simInt simApplyMilling(simInt objectHandle);
+SIM_DLLEXPORT simBool _simGetParentFollowsDynamic(const simVoid* shape);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

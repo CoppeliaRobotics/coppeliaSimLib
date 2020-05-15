@@ -9,9 +9,9 @@ void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib
     _commonStart(dummy,renderingObject,displayAttrib);
     // Bounding box display:
     if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(dummy,displayAttrib,true,dummy->getSize()*2.0f);
+        _displayBoundingBox(dummy,displayAttrib,true,dummy->getDummySize()*2.0f);
 
-    C3Vector normalVectorForLinesAndPoints(dummy->getCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
+    C3Vector normalVectorForLinesAndPoints(dummy->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
     // Object display:
     if (dummy->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
@@ -33,31 +33,31 @@ void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib
 
         _enableAuxClippingPlanes(dummy->getObjectHandle());
         if ((displayAttrib&sim_displayattribute_selected)==0)
-            ogl::drawReference(dummy->getSize()*2.0f,true,true,false,normalVectorForLinesAndPoints.data);
+            ogl::drawReference(dummy->getDummySize()*2.0f,true,true,false,normalVectorForLinesAndPoints.data);
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
             ogl::setMaterialColor(0.0f,0.6f,0.6f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
         else
         {
-            bool setOtherColor=(App::ct->collisions->getCollisionColor(dummy->getObjectHandle())!=0);
-            for (size_t i=0;i<App::ct->collections->allCollections.size();i++)
+            bool setOtherColor=(App::currentWorld->collisions->getCollisionColor(dummy->getObjectHandle())!=0);
+            for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
             {
-                if (App::ct->collections->allCollections[i]->isObjectInCollection(dummy->getObjectHandle()))
-                    setOtherColor|=(App::ct->collisions->getCollisionColor(App::ct->collections->allCollections[i]->getCollectionID())!=0);
+                if (App::currentWorld->collections->getObjectFromIndex(i)->isObjectInCollection(dummy->getObjectHandle()))
+                    setOtherColor|=(App::currentWorld->collisions->getCollisionColor(App::currentWorld->collections->getObjectFromIndex(i)->getCollectionHandle())!=0);
             }
             if (!setOtherColor)
-                dummy->getColor()->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
+                dummy->getDummyColor()->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
             else
-                App::ct->mainSettings->collisionColor.makeCurrentColor(false);
+                App::currentWorld->mainSettings->collisionColor.makeCurrentColor(false);
         }
         CDummy* linkedDummy=nullptr;
-        if (dummy->getLinkedDummyID()!=-1)
-            linkedDummy=App::ct->objCont->getDummy(dummy->getLinkedDummyID());
-        ogl::drawSphere(dummy->getSize()/2.0f,12,6,false);
+        if (dummy->getLinkedDummyHandle()!=-1)
+            linkedDummy=App::currentWorld->sceneObjects->getDummyFromHandle(dummy->getLinkedDummyHandle());
+        ogl::drawSphere(dummy->getDummySize()/2.0f,12,6,false);
         glDisable(GL_CULL_FACE);
         if (linkedDummy!=nullptr)
         {
-            C7Vector cumulBase(dummy->getCumulativeTransformation());
-            C7Vector cumulMobile(linkedDummy->getCumulativeTransformation());
+            C7Vector cumulBase(dummy->getFullCumulativeTransformation());
+            C7Vector cumulMobile(linkedDummy->getFullCumulativeTransformation());
             cumulMobile=cumulBase.getInverse()*cumulMobile;
             ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
             int _linkType=dummy->getLinkType();

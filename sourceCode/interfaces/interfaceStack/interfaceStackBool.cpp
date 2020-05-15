@@ -27,14 +27,14 @@ CInterfaceStackObject* CInterfaceStackBool::copyYourself() const
     return(retVal);
 }
 
-void CInterfaceStackBool::printContent(int spaces) const
+void CInterfaceStackBool::printContent(int spaces,std::string& buffer) const
 {
     for (int i=0;i<spaces;i++)
-        printf(" ");
+        buffer+=" ";
     if (_value)
-        printf("BOOL: true\n");
+        buffer+="BOOL: true\n";
     else
-        printf("BOOL: false\n");
+        buffer+="BOOL: false\n";
 }
 
 std::string CInterfaceStackBool::getObjectData() const

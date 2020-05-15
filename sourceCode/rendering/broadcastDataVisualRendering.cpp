@@ -13,7 +13,7 @@ void displayEmitterOrReceiver(CBroadcastDataVisual* it)
         glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
         float distances[11]={0.0f,0.001f*it->_actionRadius,0.00215f*it->_actionRadius,0.00462f*it->_actionRadius,0.01f*it->_actionRadius,0.0215f*it->_actionRadius,0.0462f*it->_actionRadius,0.1f*it->_actionRadius,0.215f*it->_actionRadius,0.462f*it->_actionRadius,it->_actionRadius};
 
-        App::ct->environment->wirelessEmissionVolumeColor.makeCurrentColor(false);
+        App::currentWorld->environment->wirelessEmissionVolumeColor.makeCurrentColor(false);
 
         int vertSubdiv=int(it->_emissionAngle1*24.0f/piValue_f);
         if (vertSubdiv>12)
@@ -71,7 +71,7 @@ void displayEmitterOrReceiver(CBroadcastDataVisual* it)
     }
     else
     {
-        App::ct->environment->wirelessReceptionVolumeColor.makeCurrentColor(false);
+        App::currentWorld->environment->wirelessReceptionVolumeColor.makeCurrentColor(false);
         unsigned short stipple=255;
         glLineStipple(1,stipple);
         glLineWidth(4.0f);

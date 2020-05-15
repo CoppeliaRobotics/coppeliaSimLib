@@ -11,19 +11,8 @@ CQDlgColor::CQDlgColor(QWidget *parent) :
     _dlgType=COLOR_DLG;
     ui->setupUi(this);
     inRefreshPart=false;
-    if (App::getEditModeType()!=BUTTON_EDIT_MODE)
-    {
-        _validityCheck1=App::ct->objCont->getLastSelectionID();
-        _validityCheck2=App::ct->objCont->getSelSize();
-    }
-    else
-    {
-        _validityCheck1=App::ct->buttonBlockContainer->getBlockInEdition();
-        if (App::ct->buttonBlockContainer->selectedButtons.size()!=0)
-            _validityCheck2=App::ct->buttonBlockContainer->selectedButtons[App::ct->buttonBlockContainer->selectedButtons.size()-1];
-        else
-            _validityCheck2=-1; // strange error
-    }
+    _validityCheck1=App::currentWorld->sceneObjects->getLastSelectionHandle();
+    _validityCheck2=App::currentWorld->sceneObjects->getSelectionCount();
 }
 
 CQDlgColor::~CQDlgColor()
@@ -141,23 +130,11 @@ void CQDlgColor::initializeDlg(int objType,int objID1,int objID2,int colComponen
 
 bool CQDlgColor::isLinkedDataValid()
 {
-    if (App::getEditModeType()!=BUTTON_EDIT_MODE)
-    {
-        if (_validityCheck1!=App::ct->objCont->getLastSelectionID())
-            return(false);
-        if (_validityCheck2!=App::ct->objCont->getSelSize())
-            return(false);
-    }
-    else
-    {
-        if (_validityCheck1!=App::ct->buttonBlockContainer->getBlockInEdition())
-            return(false);
-        if (App::ct->buttonBlockContainer->selectedButtons.size()==0)
-            return(false);
-        if (_validityCheck2!=App::ct->buttonBlockContainer->selectedButtons[App::ct->buttonBlockContainer->selectedButtons.size()-1])
-            return(false);
-    }
-    if (!App::ct->simulation->isSimulationStopped())
+    if (_validityCheck1!=App::currentWorld->sceneObjects->getLastSelectionHandle())
+        return(false);
+    if (_validityCheck2!=App::currentWorld->sceneObjects->getSelectionCount())
+        return(false);
+    if (!App::currentWorld->simulation->isSimulationStopped())
         return(false);
     return(App::getRGBPointerFromItem(_objType,_objID1,_objID2,_colComponent,nullptr)!=nullptr);
 }

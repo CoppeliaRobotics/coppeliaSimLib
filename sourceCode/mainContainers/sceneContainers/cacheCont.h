@@ -1,9 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "mainCont.h"
 
-class CCacheCont : CMainCont  
+class CCacheCont
 {
 public:
     CCacheCont();

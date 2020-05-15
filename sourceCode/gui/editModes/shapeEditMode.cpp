@@ -9,7 +9,7 @@
 #include "rendering.h"
 #include "tt.h"
 
-CShapeEditMode::CShapeEditMode(CShape* shape,int editModeType,CObjCont* objCont,CTextureContainer* textureCont,CUiThread* uiThread,bool identicalVerticesCheck,bool identicalTrianglesCheck,float identicalVerticesTolerance)
+CShapeEditMode::CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContainer* objCont,CTextureContainer* textureCont,CUiThread* uiThread,bool identicalVerticesCheck,bool identicalTrianglesCheck,float identicalVerticesTolerance)
 {
     _shape=shape;
     _editModeType=editModeType;
@@ -58,7 +58,7 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
 
     if (!cancelChanges)
     {
-        C7Vector oldTr(_shape->getCumulativeTransformationPart1());
+        C7Vector oldTr(_shape->getCumulativeTransformation());
         CGeomProxy* g=_shape->geomData;
         CGeometric* gc=(CGeometric*)g->geomInfo;
         gc->setPurePrimitiveType(sim_pure_primitive_none,1.0f,1.0f,1.0f); // disable the pure characteristic
@@ -1702,7 +1702,7 @@ void CShapeEditMode::makeShape()
     {   // Now we have to transform all vertices with the cumulative transform
         // matrix of the shape beeing edited:
         CShape* it=_shape;
-        C7Vector m(it->getCumulativeTransformation());
+        C7Vector m(it->getFullCumulativeTransformation());
         C3Vector v;
         for (int i=0;i<int(nVertices.size())/3;i++)
         {
@@ -1742,7 +1742,7 @@ void CShapeEditMode::makePrimitive(int what)
     {   // Now we have to transform all vertices with the cumulative transform
         // matrix of the shape beeing edited:
         CShape* it=_shape;
-        C7Vector m(it->getCumulativeTransformation());
+        C7Vector m(it->getFullCumulativeTransformation());
         C3Vector v;
         for (int i=0;i<int(nVertices.size())/3;i++)
         {
@@ -1821,7 +1821,7 @@ void CShapeEditMode::makeDummies()
     if (proceed)
     {
         CShape* it=_shape;
-        C7Vector tr(it->getCumulativeTransformation());
+        C7Vector tr(it->getFullCumulativeTransformation());
         for (int i=0;i<getEditModeBufferSize();i++)
         {
             int ind=editModeBuffer[i];
@@ -1855,7 +1855,7 @@ void CShapeEditMode::makePath()
         C3Vector v0(&_editionVertices[3*verticeInd[0]+0]);
         C3Vector v1(&_editionVertices[3*verticeInd[1]+0]);
         CSimplePathPoint* it=nullptr;
-        C7Vector sctm(shape->getCumulativeTransformation());
+        C7Vector sctm(shape->getFullCumulativeTransformation());
         C3Vector lastAddedPoint;
         if (sel.size()==1)
         { // We simply add the two points:
@@ -1994,8 +1994,8 @@ void CShapeEditMode::makePath()
         }
         newObject->pathContainer->enableActualization(true);
         newObject->pathContainer->actualizePath();
-        newObject->setObjectName_objectNotYetInScene("ExtractedPath");
-        newObject->setObjectAltName_objectNotYetInScene(tt::getObjectAltNameFromObjectName(newObject->getObjectName()));
+        newObject->setObjectName("ExtractedPath",true);
+        newObject->setObjectAltName(tt::getObjectAltNameFromObjectName(newObject->getObjectName()).c_str(),true);
         SSimulationThreadCommand cmd;
         cmd.cmdId=ADD_OBJECTTOSCENE_GUITRIGGEREDCMD;
         cmd.intParams.push_back(sim_object_path_type);

@@ -63,7 +63,7 @@ public:
     bool replaceStackMapStringValue(const std::string& fieldName,std::string val);
     std::string getBufferFromTable() const;
 
-    void printContent(int cIndex) const;
+    void printContent(int cIndex,std::string& buffer) const;
 
 protected:
     CInterfaceStackObject* _generateObjectFromLuaStack(luaWrap_lua_State* L,int index,std::map<void*,bool>& visitedTables);

@@ -12,7 +12,6 @@
 #include "qdlgvisionsensors.h"
 #include "qdlgshapes.h"
 #include "qdlgproximitysensors.h"
-#include "qdlgmills.h"
 #include "qdlgjoints.h"
 #include "qdlggraphs.h"
 #include "qdlgdetectionvolume.h"
@@ -94,7 +93,7 @@ void CQDlgObjectDialogContainer::refresh()
 
     }
 
-    C3DObject* sel=App::ct->objCont->getLastSelection_object();
+    CSceneObject* sel=App::currentWorld->sceneObjects->getLastSelectionObject();
     int editMode=App::getEditModeType();
     if (sel!=nullptr)
     {
@@ -120,8 +119,6 @@ void CQDlgObjectDialogContainer::refresh()
             title=strTranslate(IDSN_PATH);
         if (t==sim_object_visionsensor_type)
             title=strTranslate(IDSN_VISION_SENSOR);
-        if (t==sim_object_mill_type)
-            title=strTranslate(IDSN_MILL);
         if (t==sim_object_forcesensor_type)
             title=strTranslate(IDSN_FORCE_SENSOR);
         if (t==sim_object_light_type)
@@ -177,8 +174,6 @@ void CQDlgObjectDialogContainer::refresh()
                 pageDlgs[currentPage]=new CQDlgVisionSensors();
             if (objTypeDlg==sim_object_path_type)
                 pageDlgs[currentPage]=new CQDlgPaths();
-            if (objTypeDlg==sim_object_mill_type)
-                pageDlgs[currentPage]=new CQDlgMills();
             if (objTypeDlg==sim_object_forcesensor_type)
                 pageDlgs[currentPage]=new CQDlgForceSensors();
             if (objTypeDlg==sim_object_light_type)

@@ -102,38 +102,50 @@ void CPropBrowserEngineMaterial::show(QWidget* parentWindow)
     p_copyFromPredefined = variantManager->addProperty(QtVariantPropertyManager::enumTypeId(),"Apply predefined settings:");
     p_copyFromPredefined->setAttribute("enumNames", defMatTypeEnum);
     QtBrowserItem* anItem=addProperty(p_copyFromPredefined);
-    setBackgroundColor(anItem,QTPROPERTYBROWSER_COLOR_GREY);
+    if (App::userSettings->darkMode)
+        setBackgroundColor(anItem,QTPROPERTYBROWSER_COLOR_GREY_D);
+    else
+        setBackgroundColor(anItem,QTPROPERTYBROWSER_COLOR_GREY);
 
-//    p_materialName = variantManager->addProperty(QVariant::String,"Material name");
-//    anItem=addProperty(p_materialName);
-//    setBackgroundColor(anItem,QTPROPERTYBROWSER_COLOR_GREY);
 
     // Bullet:
     QtProperty *bulletGroup = variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),"Bullet properties");
     bulletGroup->theBrightness=140;
     bulletGroupItem=addProperty(bulletGroup);
-    setBackgroundColor(bulletGroupItem,QTPROPERTYBROWSER_COLOR_RED);
+    if (App::userSettings->darkMode)
+        setBackgroundColor(bulletGroupItem,QTPROPERTYBROWSER_COLOR_RED_D);
+    else
+        setBackgroundColor(bulletGroupItem,QTPROPERTYBROWSER_COLOR_RED);
     setExpanded(bulletGroupItem,_bulletPropertiesExpanded);
 
     // ODE::
     QtProperty *odeGroup = variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),"ODE properties");
     odeGroup->theBrightness=140;
     odeGroupItem=addProperty(odeGroup);
-    setBackgroundColor(odeGroupItem,QTPROPERTYBROWSER_COLOR_GREEN);
+    if (App::userSettings->darkMode)
+        setBackgroundColor(odeGroupItem,QTPROPERTYBROWSER_COLOR_GREEN_D);
+    else
+        setBackgroundColor(odeGroupItem,QTPROPERTYBROWSER_COLOR_GREEN);
     setExpanded(odeGroupItem,_odePropertiesExpanded);
 
     // Vortex:
     QtProperty *vortexGroup = variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),"Vortex properties");
     vortexGroup->theBrightness=140;
     vortexGroupItem=addProperty(vortexGroup);
-    setBackgroundColor(vortexGroupItem,QTPROPERTYBROWSER_COLOR_BLUE);
+    if (App::userSettings->darkMode)
+        setBackgroundColor(vortexGroupItem,QTPROPERTYBROWSER_COLOR_BLUE_D);
+    else
+        setBackgroundColor(vortexGroupItem,QTPROPERTYBROWSER_COLOR_BLUE);
     setExpanded(vortexGroupItem,_vortexPropertiesExpanded);
 
     // Newton:
     QtProperty *newtonGroup = variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),"Newton properties");
     newtonGroup->theBrightness=140;
     newtonGroupItem=addProperty(newtonGroup);
-    setBackgroundColor(newtonGroupItem,QTPROPERTYBROWSER_COLOR_PURPLE);
+    if (App::userSettings->darkMode)
+        setBackgroundColor(newtonGroupItem,QTPROPERTYBROWSER_COLOR_PURPLE_D);
+    else
+        setBackgroundColor(newtonGroupItem,QTPROPERTYBROWSER_COLOR_PURPLE);
     setExpanded(newtonGroupItem,_newtonPropertiesExpanded);
 
     // Bullet:
@@ -366,7 +378,7 @@ void CPropBrowserEngineMaterial::enableNotifications(bool enable)
 
 void CPropBrowserEngineMaterial::refresh()
 {
-    CShape* it=App::ct->objCont->getLastSelection_shape();
+    CShape* it=App::currentWorld->sceneObjects->getLastSelectionShape();
     CGeomWrap* geom=it->geomData->geomInfo;
     CDynMaterialObject* mat=it->getDynMaterial();
     bool editable=true;
@@ -799,7 +811,7 @@ void CPropBrowserEngineMaterial::catchPropertyChangesString(QtProperty *_prop, Q
 
 void CPropBrowserEngineMaterial::handlePropertyChanges(QtProperty *_prop)
 {
-    CShape* it=App::ct->objCont->getLastSelection_shape();
+    CShape* it=App::currentWorld->sceneObjects->getLastSelectionShape();
     CGeomWrap* geom=it->geomData->geomInfo;
     CDynMaterialObject* mat=it->getDynMaterial();
 

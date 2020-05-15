@@ -1,4 +1,3 @@
-
 #ifndef QDLGIK_H
 #define QDLGIK_H
 
@@ -53,8 +52,6 @@ public:
 
     void on_qqGroupIsActive_clicked();
 
-    void on_qqRedundant_clicked();
-
     void on_qqIgnoreMaxStepSizes_clicked();
 
     void on_qqCalcMethodCombo_currentIndexChanged(int index);
@@ -63,17 +60,7 @@ public:
 
     void on_qqMaxIterations_editingFinished();
 
-    void on_qqWeightJointLimits_editingFinished();
-
-    void on_qqWeightObstacleAvoidance_editingFinished();
-
-    void on_qqThresholdLinear_editingFinished();
-
-    void on_qqThresholdAngular_editingFinished();
-
     void on_qqEditConditional_clicked();
-
-    void on_qqEditObstacleAvoidance_clicked();
 
     void on_qqEditIkElements_clicked();
 

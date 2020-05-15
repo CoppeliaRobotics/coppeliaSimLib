@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>targaFiles/2delement.tga</file>
         <file>targaFiles/128x128folder.tga</file>
         <file>targaFiles/cur_alldir.tga</file>
         <file>targaFiles/cur_arrow.tga</file>
@@ -54,7 +53,6 @@
         <file>targaFiles/vertex.tga</file>
         <file>targaFiles/warning.tga</file>
         <file>targaFiles/world.tga</file>
-        <file>targaFiles/checkedbgd.tga</file>
         <file>targaFiles/camera.tga</file>
         <file>targaFiles/mirror.tga</file>
         <file>targaFiles/clipplane.tga</file>

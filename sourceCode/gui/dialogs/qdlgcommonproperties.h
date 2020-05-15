@@ -62,8 +62,6 @@ private slots:
 
     void on_qqRenderable_clicked();
 
-    void on_qqCuttable_clicked();
-
     void on_qqDetectable_clicked();
 
     void on_qqEditDetectableDetails_clicked();

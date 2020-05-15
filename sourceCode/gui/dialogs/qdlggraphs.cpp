@@ -53,16 +53,16 @@ void CQDlgGraphs::refresh()
 {
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeAndNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped();
+    bool noEditModeAndNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
-    bool sel=App::ct->objCont->isLastSelectionAGraph();
+    bool sel=App::currentWorld->sceneObjects->isLastSelectionAGraph();
 
     int streamId=-1;
     CGraph* it=nullptr;
     CGraphData* graphData=nullptr;
     if (sel)
     {
-        it=App::ct->objCont->getLastSelection_graph();
+        it=App::currentWorld->sceneObjects->getLastSelectionGraph();
         streamId=getSelectedObjectID();
         graphData=it->getGraphData(streamId);
     }
@@ -163,9 +163,9 @@ void CQDlgGraphs::updateObjectsInList()
     noListSelectionAllowed=true;
     ui->qqRecordingList->clear();
     noListSelectionAllowed=false;
-    if (!App::ct->objCont->isLastSelectionAGraph())
+    if (!App::currentWorld->sceneObjects->isLastSelectionAGraph())
         return;
-    CGraph* it=App::ct->objCont->getLastSelection_graph();
+    CGraph* it=App::currentWorld->sceneObjects->getLastSelectionGraph();
     noListSelectionAllowed=true;
     for (size_t i=0;i<it->daten.size();i++)
     {
@@ -230,7 +230,7 @@ void CQDlgGraphs::on_qqAddNewDataStream_clicked()
             int index=theDialog.box2Id;
             SSimulationThreadCommand cmd;
             cmd.cmdId=INSERT_DATASTREAM_GRAPHGUITRIGGEREDCMD;
-            cmd.intParams.push_back(App::ct->objCont->getLastSelectionID());
+            cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
             cmd.intParams.push_back(currentDataType);
             cmd.intParams.push_back(index);
             App::appendSimulationThreadCommand(cmd);
@@ -246,7 +246,7 @@ void CQDlgGraphs::onDeletePressed()
     {
         if (focusWidget()==ui->qqRecordingList)
         {
-            App::appendSimulationThreadCommand(REMOVE_DATASTREAM_GRAPHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),getSelectedObjectID());
+            App::appendSimulationThreadCommand(REMOVE_DATASTREAM_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -257,9 +257,9 @@ void CQDlgGraphs::on_qqRecordingList_itemSelectionChanged()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::ct->objCont->isLastSelectionAGraph())
+        if (!App::currentWorld->sceneObjects->isLastSelectionAGraph())
             return;
-        CGraph* it=App::ct->objCont->getLastSelection_graph();
+        CGraph* it=App::currentWorld->sceneObjects->getLastSelectionGraph();
         int objID=getSelectedObjectID();
         CGraphData* grData=it->getGraphData(objID);
         if (grData!=nullptr)
@@ -281,7 +281,7 @@ void CQDlgGraphs::on_qqRecordingList_itemChanged(QListWidgetItem *item)
     {
         if (item!=nullptr)
         {
-            App::appendSimulationThreadCommand(RENAME_DATASTREAM_GRAPHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),item->data(Qt::UserRole).toInt(),0.0,0.0,item->text().toStdString().c_str());
+            App::appendSimulationThreadCommand(RENAME_DATASTREAM_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),item->data(Qt::UserRole).toInt(),0.0,0.0,item->text().toStdString().c_str());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -292,7 +292,7 @@ void CQDlgGraphs::on_qqExplicitHandling_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_EXPLICITHANDLING_GRAPHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_EXPLICITHANDLING_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -302,7 +302,7 @@ void CQDlgGraphs::on_qqBufferIsCyclic_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_BUFFERCYCLIC_GRAPHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_BUFFERCYCLIC_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -312,7 +312,7 @@ void CQDlgGraphs::on_qqShowXYZPlanes_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_SHOWXYZPLANES_GRAPHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_SHOWXYZPLANES_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -328,7 +328,7 @@ void CQDlgGraphs::on_qqObjectSize_editingFinished()
         float newVal=ui->qqObjectSize->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_OBJECTSIZE_GRAPHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_OBJECTSIZE_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -345,7 +345,7 @@ void CQDlgGraphs::on_qqBufferSize_editingFinished()
         int newVal=ui->qqBufferSize->text().toInt(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_BUFFERSIZE_GRAPHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),newVal);
+            App::appendSimulationThreadCommand(SET_BUFFERSIZE_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -356,7 +356,7 @@ void CQDlgGraphs::on_qqRemoveAllStatics_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(REMOVE_ALLSTATICCURVES_GRAPHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(REMOVE_ALLSTATICCURVES_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -364,12 +364,12 @@ void CQDlgGraphs::on_qqRemoveAllStatics_clicked()
 
 void CQDlgGraphs::on_qqAdjustBackgroundColor_clicked()
 {
-    CQDlgColor::displayDlg(COLOR_ID_GRAPH_BACKGROUND,App::ct->objCont->getLastSelectionID(),-1,sim_colorcomponent_ambient_diffuse,App::mainWindow);
+    CQDlgColor::displayDlg(COLOR_ID_GRAPH_BACKGROUND,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,sim_colorcomponent_ambient_diffuse,App::mainWindow);
 }
 
 void CQDlgGraphs::on_qqAdjustGridColor_clicked()
 {
-    CQDlgColor::displayDlg(COLOR_ID_GRAPH_GRID,App::ct->objCont->getLastSelectionID(),-1,sim_colorcomponent_ambient_diffuse,App::mainWindow);
+    CQDlgColor::displayDlg(COLOR_ID_GRAPH_GRID,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,sim_colorcomponent_ambient_diffuse,App::mainWindow);
 }
 
 void CQDlgGraphs::on_qqTransformationCombo_currentIndexChanged(int index)
@@ -380,7 +380,7 @@ void CQDlgGraphs::on_qqTransformationCombo_currentIndexChanged(int index)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_VALUERAWSTATE_GRAPHGUITRIGGEREDCMD;
-            cmd.intParams.push_back(App::ct->objCont->getLastSelectionID());
+            cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.intParams.push_back(ui->qqTransformationCombo->itemData(ui->qqTransformationCombo->currentIndex()).toInt());
             App::appendSimulationThreadCommand(cmd);
@@ -400,7 +400,7 @@ void CQDlgGraphs::on_qqTransformationCoeff_editingFinished()
         float newVal=ui->qqTransformationCoeff->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_VALUEMULTIPLIER_GRAPHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),getSelectedObjectID(),newVal);
+            App::appendSimulationThreadCommand(SET_VALUEMULTIPLIER_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID(),newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -417,7 +417,7 @@ void CQDlgGraphs::on_qqTransformationOffset_editingFinished()
         float newVal=ui->qqTransformationOffset->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_VALUEOFFSET_GRAPHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),getSelectedObjectID(),newVal);
+            App::appendSimulationThreadCommand(SET_VALUEOFFSET_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID(),newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -436,7 +436,7 @@ void CQDlgGraphs::on_qqMovingAveragePeriod_editingFinished()
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_MOVINGAVERAGEPERIOD_GRAPHGUITRIGGEREDCMD;
-            cmd.intParams.push_back(App::ct->objCont->getLastSelectionID());
+            cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.intParams.push_back(newVal);
             App::appendSimulationThreadCommand(cmd);
@@ -450,7 +450,7 @@ void CQDlgGraphs::on_qqTimeGraphVisible_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_TIMEGRAPHVISIBLE_GRAPHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),getSelectedObjectID());
+        App::appendSimulationThreadCommand(TOGGLE_TIMEGRAPHVISIBLE_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -460,7 +460,7 @@ void CQDlgGraphs::on_qqShowLabel_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_TIMEGRAPHSHOWLABEL_GRAPHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),getSelectedObjectID());
+        App::appendSimulationThreadCommand(TOGGLE_TIMEGRAPHSHOWLABEL_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -470,7 +470,7 @@ void CQDlgGraphs::on_qqLinkPoints_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_TIMEGRAPHLINKPOINTS_GRAPHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),getSelectedObjectID());
+        App::appendSimulationThreadCommand(TOGGLE_TIMEGRAPHLINKPOINTS_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -480,12 +480,12 @@ void CQDlgGraphs::on_qqAdjustCurveColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CGraph* it=App::ct->objCont->getLastSelection_graph();
+        CGraph* it=App::currentWorld->sceneObjects->getLastSelectionGraph();
         if (it!=nullptr)
         {
             CGraphData* grData=it->getGraphData(getSelectedObjectID());
             if (grData!=nullptr)
-                CQDlgColor::displayDlg(COLOR_ID_GRAPH_TIMECURVE,App::ct->objCont->getLastSelectionID(),grData->getIdentifier(),sim_colorcomponent_ambient_diffuse,App::mainWindow);
+                CQDlgColor::displayDlg(COLOR_ID_GRAPH_TIMECURVE,App::currentWorld->sceneObjects->getLastSelectionHandle(),grData->getIdentifier(),sim_colorcomponent_ambient_diffuse,App::mainWindow);
         }
     }
 }
@@ -494,7 +494,7 @@ void CQDlgGraphs::on_qqDuplicateToStatic_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(DUPLICATE_TOSTATIC_GRAPHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),getSelectedObjectID());
+        App::appendSimulationThreadCommand(DUPLICATE_TOSTATIC_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -504,7 +504,7 @@ void CQDlgGraphs::on_qqEditXYGraphs_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CGraph* it=App::ct->objCont->getLastSelection_graph();
+        CGraph* it=App::currentWorld->sceneObjects->getLastSelectionGraph();
         if (it!=nullptr)
             CQDlg2D3DGraphProperties::display(it->getObjectHandle(),true,App::mainWindow);
     }
@@ -514,7 +514,7 @@ void CQDlgGraphs::on_qqEdit3DCurves_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CGraph* it=App::ct->objCont->getLastSelection_graph();
+        CGraph* it=App::currentWorld->sceneObjects->getLastSelectionGraph();
         if (it!=nullptr)
             CQDlg2D3DGraphProperties::display(it->getObjectHandle(),false,App::mainWindow);
     }

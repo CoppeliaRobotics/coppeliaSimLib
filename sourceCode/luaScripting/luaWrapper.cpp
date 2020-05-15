@@ -296,14 +296,14 @@ void loadExtLuaLibrary(bool useExternalLuaLibrary,bool headless)
             cmd.stringParams.push_back("Could not find or correctly load the external Lua library.\nReverting to the default library.");
             App::appendSimulationThreadCommand(cmd,5000);
         }
-        printf("Could not find or correctly load the external Lua library (simLua).\n");
+        App::logMsg(sim_verbosity_errors,"could not find or correctly load the external Lua library (simLua).");
     }
     else
     {
         if (useExternalLuaLibrary)
-            printf("Using the external Lua library (simLua).\n");
+            App::logMsg(sim_verbosity_loadinfos,"using the external Lua library (simLua).");
         else
-            printf("Using the default Lua library.\n");
+            App::logMsg(sim_verbosity_loadinfos,"using the default Lua library.");
     }
 }
 

@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-class C3DObject;
+class CSceneObject;
 
 class CPageSelector  
 {

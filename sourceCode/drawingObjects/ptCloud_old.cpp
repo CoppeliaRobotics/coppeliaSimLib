@@ -55,10 +55,10 @@ CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int objectHandle,int optio
     if (normals!=nullptr)
         _normals.assign(normals,normals+ptCnt*3);
 
-    C3DObject* it=App::ct->objCont->getObjectFromHandle(_objectHandle);
+    CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandle);
     if (it!=nullptr)
     {
-        C7Vector tr(it->getCumulativeTransformationPart1_forDisplay(true));
+        C7Vector tr(it->getCumulativeTransformation());
         C7Vector trInv(tr.getInverse());
         for (int i=0;i<ptCnt;i++)
         {
@@ -108,15 +108,15 @@ void CPtCloud_old::draw(int displayAttrib)
     if ( ((displayAttrib&sim_displayattribute_forvisionsensor)==0)||((_options&2)==0) )
     {
 #ifdef SIM_WITH_GUI
-        int currentPage=App::ct->pageContainer->getActivePageIndex();
+        int currentPage=App::currentWorld->pageContainer->getActivePageIndex();
         int p=1<<currentPage;
         if ( (_pageMask==0) || ((_pageMask&p)!=0) )
 #endif
         {
-            int currentLayers=App::ct->mainSettings->getActiveLayers();
+            int currentLayers=App::currentWorld->mainSettings->getActiveLayers();
             if ( ((currentLayers&_layerMask)!=0)&&(_vertices.size()!=0) )
             {
-                C3DObject* it=App::ct->objCont->getObjectFromHandle(_objectHandle);
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandle);
                 displayPtCloud_old(this,it);
             }
         }

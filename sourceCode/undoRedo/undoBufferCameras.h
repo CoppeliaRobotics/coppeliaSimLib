@@ -18,6 +18,7 @@ public:
     void preRestoreCameras();
     void restoreCameras();
     void storeCameras();
+    void releaseCameras();
 
 private:
     std::map<std::string,SCamBuff> _cameraBuffers;

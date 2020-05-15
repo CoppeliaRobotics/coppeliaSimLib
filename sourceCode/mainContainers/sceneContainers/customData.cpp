@@ -7,23 +7,8 @@ CCustomData::CCustomData()
 }
 
 CCustomData::~CCustomData()
-{
+{ // beware, the current world could be nullptr
     removeAllData();
-}
-
-void CCustomData::simulationAboutToStart()
-{
-
-}
-
-void CCustomData::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
-{
-
-}
-
-void CCustomData::simulationEnded()
-{
-
 }
 
 void CCustomData::serializeData(CSer &ar,const char* objectName,int scriptHandle)
@@ -219,7 +204,7 @@ int CCustomData::getDataLength(int header)
     return(0);
 }
 
-void CCustomData::getData(int header,char* data)
+void CCustomData::getData(int header,char* data) const
 {
     if (header==-1)
     { // new since 19/09/2011
@@ -241,7 +226,7 @@ void CCustomData::getData(int header,char* data)
     }
 }
 
-bool CCustomData::getHeader(int index,int& header)
+bool CCustomData::getHeader(int index,int& header) const
 {
     if (index>=int(head.size()))
         return(false);

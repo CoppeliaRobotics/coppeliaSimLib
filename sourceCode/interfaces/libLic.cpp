@@ -1,4 +1,5 @@
 #include "libLic.h"
+#include "app.h"
 #include "simConst.h"
 #include "ttUtil.h"
 #include "ser.h"
@@ -94,7 +95,7 @@ bool CLibLic::init()
     qtVer=QT_VERSION_STR;
 #endif
     if (_licPlugin_init!=nullptr)
-        return(_licPlugin_init(true,CLibLic::ver(),SIM_PROGRAM_VERSION_NB,SIM_PROGRAM_REVISION_NB,SIM_PROGRAM_VERSION,SIM_PROGRAM_REVISION,CTTUtil::dwordToString(CSer::SER_SERIALIZATION_VERSION).c_str(),SIM_COMPILER_STR,__DATE__,qtVer.c_str()));
+        return(_licPlugin_init(true,CLibLic::ver(),SIM_PROGRAM_VERSION_NB,SIM_PROGRAM_REVISION_NB,SIM_PROGRAM_VERSION,SIM_PROGRAM_REVISION,CTTUtil::dwordToString(CSer::SER_SERIALIZATION_VERSION).c_str(),SIM_COMPILER_STR,__DATE__,qtVer.c_str(),App::getConsoleVerbosity()));
     return(false);
 }
 
@@ -309,10 +310,9 @@ std::string CLibLic::getStringVal(int w)
     std::string retVal;
     if (w==3)
     {
-        retVal=boost::str(boost::format(" V%s %s\n") % SIM_PROGRAM_VERSION % SIM_PROGRAM_REVISION);
+        retVal=boost::str(boost::format(" V%s %s") % SIM_PROGRAM_VERSION % SIM_PROGRAM_REVISION);
         std::string v(CLibLic::getStringVal(2));
         retVal=v+retVal;
-        retVal="\n"+retVal;
     }
     else
     {

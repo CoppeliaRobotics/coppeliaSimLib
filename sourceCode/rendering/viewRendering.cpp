@@ -3,7 +3,7 @@
 
 #ifdef SIM_WITH_OPENGL
 
-void displayView(CSView* view,C3DObject* it,int mainWindowXPos,bool clipWithMainWindowXPos,bool drawText,bool passiveSubView)
+void displayView(CSView* view,CSceneObject* it,int mainWindowXPos,bool clipWithMainWindowXPos,bool drawText,bool passiveSubView)
 {
     int _viewPosition[2];
     int _viewSize[2];
@@ -51,7 +51,7 @@ void displayView(CSView* view,C3DObject* it,int mainWindowXPos,bool clipWithMain
 
 #else
 
-void displayView(CSView* view,C3DObject* it,int mainWindowXPos,bool clipWithMainWindowXPos,bool drawText,bool passiveSubView)
+void displayView(CSView* view,CSceneObject* it,int mainWindowXPos,bool clipWithMainWindowXPos,bool drawText,bool passiveSubView)
 {
 
 }

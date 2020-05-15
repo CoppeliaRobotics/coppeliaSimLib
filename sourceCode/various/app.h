@@ -5,7 +5,7 @@
 #include "directoryPaths.h"
 #include "userSettings.h"
 #include "vMutex.h"
-#include "mainContainer.h"
+#include "worldContainer.h"
 #ifndef SIM_WITHOUT_QT_AT_ALL
     #include "simQApp.h"
     #include "simAndUiThreadSync.h"
@@ -27,8 +27,8 @@ public:
     static void beep(int frequ=5000,int duration=1000);
     static void setApplicationName(const char* name);
     static std::string getApplicationName();
-    static void createMainContainer();
-    static void deleteMainContainer();
+    static void createWorldsContainer();
+    static void deleteWorldsContainer();
 
     static void run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(),bool launchSimThread);
     static void postExitRequest();
@@ -70,16 +70,29 @@ public:
     static bool isFullScreen(); // helper
     static void setFullScreen(bool f); // helper
 
-    static void addStatusbarMessage(const std::string& txt,bool scriptErrorMsg=false);
+    static bool logPluginMsg(const char* pluginName,int verbosityLevel,const char* logMsg);
+    static void logMsg(int verbosityLevel,const char* msg,const char* subStr1=nullptr,const char* subStr2=nullptr,const char* subStr3=nullptr);
+    static void logMsg(int verbosityLevel,const char* msg,int int1,int int2=0,int int3=0);
+    static int getConsoleVerbosity(const char* pluginName=nullptr);
+    static void setConsoleVerbosity(int v,const char* pluginName=nullptr);
+    static int getStatusbarVerbosity(const char* pluginName=nullptr);
+    static void setStatusbarVerbosity(int v,const char* pluginName=nullptr);
+    static bool getConsoleOrStatusbarVerbosityTriggered(int verbosityLevel);
+    static int getVerbosityLevelFromString(const char* verbosityStr);
+    static bool getConsoleMsgToFile();
+    static void setConsoleMsgToFile(bool f);
+
+    static void addStatusbarMessage(const std::string& txt,bool scriptErrorMsg=false,bool notToConsole=false);
     static void clearStatusbar();
 
     static float* getRGBPointerFromItem(int objType,int objID1,int objID2,int colComponent,std::string* auxDlgTitle);
-    static CVisualParam* getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts);
+    static CColorObject* getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts);
     static CTextureProperty* getTexturePropertyPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,bool* is3D,bool* valid,CGeometric** geom);
 
     static CDirectoryPaths* directories;
     static CUserSettings* userSettings;
-    static CMainContainer* ct;
+    static CWorldContainer* worldContainer;
+    static CWorld* currentWorld; // actually worldContainer->currentWorld
     static CUiThread* uiThread;
     static CSimThread* simThread;
 
@@ -87,7 +100,15 @@ public:
     static int sc;
 
 private:
+    static void _logMsg_noDecoration(int verbosityLevel,const char* msg,const char* subStr1=nullptr,const char* subStr2=nullptr,const char* subStr3=nullptr);
+    static void _logMsg_noDecoration(int verbosityLevel,const char* msg,int int1,int int2=0,int int3=0);
+    static void _logMsg(int verbosityLevel,const char* msg,bool forbidStatusbar,int consoleVerbosity=-1,int statusbarVerbosity=-1);
+    static std::string _getDecoratedLogMsg(const char* pluginName,int verbosityLevel,const char* msg);
     bool _initSuccessful;
+    static bool _consoleMsgsToFile;
+    static VFile* _consoleMsgsFile;
+    static VArchive* _consoleMsgsArchive;
+
     static bool _browserEnabled;
     static bool _canInitSimThread;
 
@@ -103,6 +124,8 @@ private:
     static std::map<std::string,std::string> _applicationNamedParams;
     static std::string _additionalAddOnScript1;
     static std::string _additionalAddOnScript2;
+    static int _consoleVerbosity;
+    static int _statusbarVerbosity;
 
     static volatile int _quitLevel;
 
@@ -126,3 +149,31 @@ public:
     static void setShowConsole(bool s);
 #endif
 };
+
+class CFuncTrace
+{
+public:
+    CFuncTrace(const char* functionName,int traceVerbosity)
+    {
+        if (App::getConsoleOrStatusbarVerbosityTriggered(traceVerbosity))
+        {
+            _txt=functionName;
+            _verbosity=traceVerbosity;
+            if (_verbosity==sim_verbosity_traceall)
+                _txt+=" (C)";
+            if (_verbosity==sim_verbosity_tracelua)
+                _txt+=" (Lua API)";
+            App::logMsg(_verbosity,(std::string("--> ")+_txt).c_str());
+        }
+    };
+    virtual ~CFuncTrace()
+    {
+        if (_txt.size()>0)
+            App::logMsg(_verbosity,(std::string("<-- ")+_txt).c_str());
+    };
+
+private:
+    std::string _txt;
+    int _verbosity;
+};
+

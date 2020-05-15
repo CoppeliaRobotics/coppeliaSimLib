@@ -89,9 +89,6 @@ public:
     static bool setThreadFreeMode(bool freeMode);
     static bool isThreadInFreeMode();
 
-    static bool getShowThreadSwitches();
-    static void setShowThreadSwitches(bool show);
-
 private:
     static void _lock(unsigned char debugInfo);
     static void _unlock(unsigned char debugInfo);
@@ -122,8 +119,6 @@ private:
     static int _processorCoreAffinity; // -1: os default, 0: all on same core, but any core, >0: affinity mask
     static int _lockStage;
     static bool _threadShouldNotSwitch_override;
-
-    static bool _showThreadSwitches;
 
     static VTHREAD_ID_TYPE _threadToIntercept;
     static VTHREAD_START_ADDRESS _threadInterceptCallback;

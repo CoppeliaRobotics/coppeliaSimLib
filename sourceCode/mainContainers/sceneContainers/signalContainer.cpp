@@ -8,7 +8,7 @@ CSignalContainer::CSignalContainer()
 }
 
 CSignalContainer::~CSignalContainer()
-{
+{ // beware, the current world could be nullptr
     removeAllSignals(false);
 }
 
@@ -20,21 +20,9 @@ void CSignalContainer::removeAllSignals(bool onlyThoseFromEmbeddedScripts)
     clearAllStringSignals(onlyThoseFromEmbeddedScripts);
 }
 
-void CSignalContainer::simulationAboutToStart()
-{
-}
-
 void CSignalContainer::simulationEnded()
 {
     removeAllSignals(true);
-}
-
-void CSignalContainer::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
-{
-}
-
-void CSignalContainer::emptySceneProcedure()
-{ // don't do anything here! (plugin or add-on might be using that functionality too) 
 }
 
 void CSignalContainer::setIntegerSignal(const char* signalName,int value,bool fromEmbeddedScript)

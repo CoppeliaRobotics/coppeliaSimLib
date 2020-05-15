@@ -14,7 +14,7 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
     if ( (displayAttrib&sim_displayattribute_renderpass)&&(!graph->getJustDrawCurves()) )
         _displayBoundingBox(graph,displayAttrib,true,size/2.0f);
 
-    C3Vector normalVectorForLinesAndPoints(graph->getCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
+    C3Vector normalVectorForLinesAndPoints(graph->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
     // Object display:
     if (graph->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
@@ -68,7 +68,7 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
 
         // Display the trajectories..
         ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
-        C7Vector thisInv(graph->getCumulativeTransformation_forDisplay((displayAttrib&sim_displayattribute_forvisionsensor)==0).getInverse());
+        C7Vector thisInv(graph->getFullCumulativeTransformation().getInverse());
 
         for (int i=0;i<int(graph->threeDPartners.size());i++)
         {
@@ -135,7 +135,7 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
                     }
                     if (ogl::buffer.size()>0)
                     {
-                        ogl::setMaterialColor(graph->threeDPartners[i]->curveColor.colors,ogl::colorBlack,graph->threeDPartners[i]->curveColor.colors+9);
+                        ogl::setMaterialColor(graph->threeDPartners[i]->curveColor.getColorsPtr(),ogl::colorBlack,graph->threeDPartners[i]->curveColor.getColorsPtr()+9);
                         if (graph->threeDPartners[i]->getLinkPoints())
                             ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,true,normalVectorForLinesAndPoints.data);
                         else

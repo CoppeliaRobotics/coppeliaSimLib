@@ -620,7 +620,12 @@ bool tt::extractCommaSeparatedWord(std::string& line,std::string& word)
     return(word.length()!=0);
 }
 
-int tt::getNameSuffixNumber(const char* name,bool dash)
+bool tt::isHashFree(const char* name)
+{
+    return(std::string(name).find('#')==std::string::npos);
+}
+
+int tt::getNameSuffixNumber(const char* name,bool hash)
 { // -1 means there is no suffix!!
     std::string n(name);
     // In case the string is empty:
@@ -638,14 +643,14 @@ int tt::getNameSuffixNumber(const char* name,bool dash)
         else
             aChar='a';
     }
-    if ((aChar!='#')&&dash) // 2009/02/04 (NEW COPY INDICATOR!)
+    if ((aChar!='#')&&hash) // 2009/02/04 (NEW COPY INDICATOR!)
         return(-1);
     if (oldNumber.length()==0)
         return(-1);
     return(atoi(oldNumber.c_str()));
 }
 
-std::string tt::getNameWithoutSuffixNumber(const char* name,bool dash)
+std::string tt::getNameWithoutSuffixNumber(const char* name,bool hash)
 {
     std::string n(name);
     if (n.length()==0)
@@ -660,7 +665,7 @@ std::string tt::getNameWithoutSuffixNumber(const char* name,bool dash)
         else
             aChar='a';
     }
-    if (dash)
+    if (hash)
     {
         if (aChar!='#')
             return(name);
@@ -669,12 +674,22 @@ std::string tt::getNameWithoutSuffixNumber(const char* name,bool dash)
     return(n);
 }
 
-std::string tt::generateNewName_dash(const std::string& name)
+std::string tt::generateNewName_hashOrNoHash(const std::string& name,bool hash)
 {
-    return(generateNewName_dash(name,1)); // increment by 1
+    std::string retVal;
+    if (hash)
+        retVal=generateNewName_hash(name);
+    else
+        retVal=generateNewName_noHash(name);
+    return(retVal);
 }
 
-std::string tt::generateNewName_dash(const std::string& name,int suffixOffset)
+std::string tt::generateNewName_hash(const std::string& name)
+{
+    return(generateNewName_hash(name,1)); // increment by 1
+}
+
+std::string tt::generateNewName_hash(const std::string& name,int suffixOffset)
 {
     int newNumber=getNameSuffixNumber(name.c_str(),true)+suffixOffset;
     std::string nameWithoutSuffix(getNameWithoutSuffixNumber(name.c_str(),true));
@@ -687,7 +702,7 @@ std::string tt::generateNewName_dash(const std::string& name,int suffixOffset)
     return(nameWithoutSuffix);
 }
 
-std::string tt::generateNewName_noDash(const std::string& name)
+std::string tt::generateNewName_noHash(const std::string& name)
 {
     int newNumber=getNameSuffixNumber(name.c_str(),false)+1;
     std::string nameWithoutSuffix(getNameWithoutSuffixNumber(name.c_str(),false));
@@ -696,7 +711,7 @@ std::string tt::generateNewName_noDash(const std::string& name)
     return(nameWithoutSuffix);
 }
 
-std::string tt::generateNewName_noDash(const std::string& name,int suffixOffset)
+std::string tt::generateNewName_noHash(const std::string& name,int suffixOffset)
 {
     int newNumber=getNameSuffixNumber(name.c_str(),false)+suffixOffset;
     std::string nameWithoutSuffix(getNameWithoutSuffixNumber(name.c_str(),false));
@@ -708,30 +723,30 @@ std::string tt::generateNewName_noDash(const std::string& name,int suffixOffset)
     return(nameWithoutSuffix);
 }
 
-bool tt::removeIllegalCharacters(std::string& text,bool allowOneDashFollowedByNumbers)
+bool tt::removeIllegalCharacters(std::string& text,bool allowOneHashFollowedByNumbers)
 {   // Illegal characters are replaced with underscore.
     // Permitted characters are: a-z, A-Z, 0-9, parenthesis and underscore
-    // If allowOneDashFollowedByNumbers is true, then one dash (not in first position) followed by a number are ok 
+    // If allowOneHashFollowedByNumbers is true, then one hash (not in first position) followed by a number are ok
     // Return value is true if something was modified
     bool retVal=false;
 
-    size_t dashPos=std::string::npos;
-    if (allowOneDashFollowedByNumbers)
+    size_t hashPos=std::string::npos;
+    if (allowOneHashFollowedByNumbers)
     {
-        dashPos=text.find('#');
-        if (dashPos!=std::string::npos)
+        hashPos=text.find('#');
+        if (hashPos!=std::string::npos)
         {
-            if ( (dashPos==0)||(dashPos==(text.length()-1)) )
-                dashPos=std::string::npos;
+            if ( (hashPos==0)||(hashPos==(text.length()-1)) )
+                hashPos=std::string::npos;
             else
             {
-                // Now check if there is a valid number after the dash:
-                if ((text[dashPos+1]=='0')&&(text.length()>dashPos+2)) // no leading zero allowed after the dash, unless last char
-                    dashPos=-1;
+                // Now check if there is a valid number after the hash:
+                if ((text[hashPos+1]=='0')&&(text.length()>hashPos+2)) // no leading zero allowed after the hash, unless last char
+                    hashPos=-1;
                 else
                 {
                     bool ok=true;
-                    for (int i=int(dashPos)+1;i<int(text.length());i++)
+                    for (int i=int(hashPos)+1;i<int(text.length());i++)
                     {
                         if ((text[i]<'0')||(text[i]>'9'))
                         {
@@ -740,9 +755,9 @@ bool tt::removeIllegalCharacters(std::string& text,bool allowOneDashFollowedByNu
                         }
                     }
                     if (ok)
-                        text[dashPos]='_'; // so that we don't generate falsly a 'true' return value
+                        text[hashPos]='_'; // so that we don't generate falsly a 'true' return value
                     else
-                        dashPos=-1;
+                        hashPos=-1;
                 }
             }
         }
@@ -765,8 +780,8 @@ bool tt::removeIllegalCharacters(std::string& text,bool allowOneDashFollowedByNu
             retVal=true;
         }
     }
-    if (dashPos!=std::string::npos)
-        text[dashPos]='#';
+    if (hashPos!=std::string::npos)
+        text[hashPos]='#';
     return(retVal);
 }
 

@@ -8,7 +8,6 @@
 #include "simStrings.h"
 #include "app.h"
 #include "vDateTime.h"
-#include "funcDebug.h"
 
 CLuaScriptContainer::CLuaScriptContainer()
 {
@@ -17,7 +16,7 @@ CLuaScriptContainer::CLuaScriptContainer()
 }
 
 CLuaScriptContainer::~CLuaScriptContainer()
-{
+{ // beware, the current world could be nullptr
     removeAllScripts();
     for (size_t i=0;i<_callbackStructureToDestroyAtEndOfSimulation_new.size();i++)
         delete _callbackStructureToDestroyAtEndOfSimulation_new[i];
@@ -47,7 +46,7 @@ void CLuaScriptContainer::simulationEnded()
     for (size_t i=0;i<_callbackStructureToDestroyAtEndOfSimulation_old.size();i++)
         delete _callbackStructureToDestroyAtEndOfSimulation_old[i];
     _callbackStructureToDestroyAtEndOfSimulation_old.clear();
-//  if (_initialValuesInitialized&&App::ct->simulation->getResetSceneAtSimulationEnd())
+//  if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
 //  {
 //  }
 }
@@ -56,11 +55,6 @@ void CLuaScriptContainer::simulationAboutToEnd()
 {
     for (size_t i=0;i<allScripts.size();i++)
         allScripts[i]->simulationAboutToEnd();
-}
-
-void CLuaScriptContainer::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
-{
-
 }
 
 void CLuaScriptContainer::addCallbackStructureObjectToDestroyAtTheEndOfSimulation_new(SScriptCallBack* object)
@@ -94,7 +88,7 @@ int CLuaScriptContainer::getCalledScriptsCountInThisSimulationStep(int scriptTyp
 
 int CLuaScriptContainer::removeDestroyedScripts(int scriptType)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     int retVal=0;
     for (int i=0;i<int(allScripts.size());i++)
     {
@@ -160,7 +154,7 @@ bool CLuaScriptContainer::isDynCallbackFunctionAvailable()
 
 void CLuaScriptContainer::removeAllScripts()
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     while (allScripts.size()>0)
     {
         CLuaScriptObject* it=allScripts[0];
@@ -184,7 +178,7 @@ void CLuaScriptContainer::announceObjectWillBeErased(int objectID)
     size_t i=0;
     while (i<allScripts.size())
     {
-        if (allScripts[i]->announce3DObjectWillBeErased(objectID,false))
+        if (allScripts[i]->announceSceneObjectWillBeErased(objectID,false))
         {
             if (removeScript(allScripts[i]->getScriptID()))
                 i=0; // ordering may have changed
@@ -211,7 +205,7 @@ bool CLuaScriptContainer::removeScript_safe(int scriptId)
 
 bool CLuaScriptContainer::removeScript(int scriptID)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     for (size_t i=0;i<allScripts.size();i++)
     {
         if (allScripts[i]->getScriptID()==scriptID)
@@ -220,7 +214,7 @@ bool CLuaScriptContainer::removeScript(int scriptID)
             it->killLuaState(); // should not be done in the destructor!
             allScripts.erase(allScripts.begin()+i);
             delete it;
-            App::ct->setModificationFlag(16384);
+            App::worldContainer->setModificationFlag(16384);
             break;
         }
     }
@@ -230,13 +224,13 @@ bool CLuaScriptContainer::removeScript(int scriptID)
 
 CLuaScriptObject* CLuaScriptContainer::getScriptFromID_alsoAddOnsAndSandbox(int scriptID) const
 {
-    CLuaScriptObject* retVal=App::ct->addOnScriptContainer->getAddOnScriptFromID(scriptID);
+    CLuaScriptObject* retVal=App::worldContainer->addOnScriptContainer->getAddOnScriptFromID(scriptID);
     if (retVal==nullptr)
     {
         if (retVal==nullptr)
             retVal=getScriptFromID_noAddOnsNorSandbox(scriptID);
-        if ( (retVal==nullptr)&&(App::ct->sandboxScript!=nullptr)&&(App::ct->sandboxScript->getScriptID()==scriptID) )
-            retVal=App::ct->sandboxScript;
+        if ( (retVal==nullptr)&&(App::worldContainer->sandboxScript!=nullptr)&&(App::worldContainer->sandboxScript->getScriptID()==scriptID) )
+            retVal=App::worldContainer->sandboxScript;
 
     }
     return(retVal);
@@ -308,7 +302,7 @@ int CLuaScriptContainer::insertScript(CLuaScriptObject* script)
         newID++;
     script->setScriptID(newID);
     allScripts.push_back(script);
-    App::ct->setModificationFlag(8192);
+    App::worldContainer->setModificationFlag(8192);
     return(newID);
 }
 
@@ -374,8 +368,8 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
 
 void CLuaScriptContainer::callChildMainCustomizationAddonSandboxScriptWithData(int callType,CInterfaceStack* inStack)
 {
-    FUNCTION_DEBUG;
-    if (!App::ct->simulation->isSimulationStopped())
+    TRACE_INTERNAL;
+    if (!App::currentWorld->simulation->isSimulationStopped())
     {
         CLuaScriptObject* script=getMainScript();
         if (script!=nullptr)
@@ -385,17 +379,17 @@ void CLuaScriptContainer::callChildMainCustomizationAddonSandboxScriptWithData(i
         }
     }
     handleCascadedScriptExecution(sim_scripttype_customizationscript,callType,inStack,nullptr,nullptr);
-    App::ct->addOnScriptContainer->handleAddOnScriptExecution(callType,inStack,nullptr);
-    if (App::ct->sandboxScript!=nullptr)
-        App::ct->sandboxScript->runSandboxScript(callType,inStack,nullptr);
+    App::worldContainer->addOnScriptContainer->handleAddOnScriptExecution(callType,inStack,nullptr);
+    if (App::worldContainer->sandboxScript!=nullptr)
+        App::worldContainer->sandboxScript->runSandboxScript(callType,inStack,nullptr);
 }
 
 void CLuaScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
 {
-    C3DObject* obj=App::ct->objCont->getObjectFromHandle(modelBase);
+    CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(modelBase);
     if (obj!=nullptr)
     {
-        std::vector<C3DObject*> toExplore;
+        std::vector<CSceneObject*> toExplore;
         toExplore.push_back(obj);
         while (toExplore.size()!=0)
         {
@@ -407,8 +401,8 @@ void CLuaScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
                 if (it->getCustomizationScriptCleanupBeforeSave())
                     it->killLuaState();
             }
-            for (size_t i=0;i<obj->childList.size();i++)
-                toExplore.push_back(obj->childList[i]);
+            for (size_t i=0;i<obj->getChildCount();i++)
+                toExplore.push_back(obj->getChildFromIndex(i));
         }
     }
     else
@@ -427,16 +421,16 @@ void CLuaScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
 
 int CLuaScriptContainer::_getScriptsToExecute(int scriptType,std::vector<CLuaScriptObject*>& scripts,std::vector<int>& uniqueIds) const
 {
-    std::vector<C3DObject*> orderFirst;
-    std::vector<C3DObject*> orderNormal;
-    std::vector<C3DObject*> orderLast;
-    std::vector<std::vector<C3DObject*>* > toHandle;
+    std::vector<CSceneObject*> orderFirst;
+    std::vector<CSceneObject*> orderNormal;
+    std::vector<CSceneObject*> orderLast;
+    std::vector<std::vector<CSceneObject*>* > toHandle;
     toHandle.push_back(&orderFirst);
     toHandle.push_back(&orderNormal);
     toHandle.push_back(&orderLast);
-    for (size_t i=0;i<App::ct->objCont->orphanList.size();i++)
+    for (size_t i=0;i<App::currentWorld->sceneObjects->getOrphanCount();i++)
     {
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->orphanList[i]);
+        CSceneObject* it=App::currentWorld->sceneObjects->getOrphanFromIndex(i);
         toHandle[it->getScriptExecutionOrder(scriptType)]->push_back(it);
     }
     for (size_t i=0;i<toHandle.size();i++)

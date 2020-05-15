@@ -66,23 +66,14 @@ void CViewSelector::render()
     viewSelectionSize[0]=1;
     viewSelectionSize[1]=1;
     // Compute grid size
-    for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
+    for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
     {
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
         if ((it->getObjectType()==sim_object_camera_type)&&((objectType==CAMERA_VIEW_SELECT_MODE)||(objectType==VIEWABLE_VIEW_SELECT_MODE)))
         {
             viewSelectionBuffer.push_back(it->getObjectHandle());
             viewSelectionBufferType.push_back(0); // This value has no importance for now
         }
-        /*
-        if ((it->getObjectType()==sim_object_graph_type)&&((objectType==GRAPH_VIEW_SELECT_MODE)||(objectType==VIEWABLE_VIEW_SELECT_MODE)))
-        {
-            viewSelectionBuffer.push_back(it->getID());
-            viewSelectionBufferType.push_back(0); // Time-graph
-            viewSelectionBuffer.push_back(it->getID());
-            viewSelectionBufferType.push_back(1); // XY-graph
-        }
-        */
         if ((it->getObjectType()==sim_object_visionsensor_type)&&((objectType==VISIONSENSOR_VIEW_SELECT_MODE)||(objectType==VIEWABLE_VIEW_SELECT_MODE)))
         {
             viewSelectionBuffer.push_back(it->getObjectHandle());
@@ -138,7 +129,7 @@ void CViewSelector::render()
             if ((l+viewSelectionSize[0]*k)<int(viewSelectionBuffer.size()))
             {
                 glEnable(GL_SCISSOR_TEST);  
-                C3DObject* it=App::ct->objCont->getObjectFromHandle(viewSelectionBuffer[l+viewSelectionSize[0]*k]);
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(viewSelectionBuffer[l+viewSelectionSize[0]*k]);
 
                 if (mouseOver==l+viewSelectionSize[0]*k)
                 {
@@ -316,13 +307,13 @@ void CViewSelector::leftMouseButtonUp(int x,int y)
     }
 }
 
-C3DObject* CViewSelector::getViewableObject(int x,int y)
+CSceneObject* CViewSelector::getViewableObject(int x,int y)
 {
     int pos[2]={x,y};
     int ind=getObjectIndexInViewSelection(pos);
     if (ind==-1)
         return(nullptr);
-    return(App::ct->objCont->getObjectFromHandle(viewSelectionBuffer[ind]));
+    return(App::currentWorld->sceneObjects->getObjectFromHandle(viewSelectionBuffer[ind]));
 }
 
 int CViewSelector::getCursor(int x,int y)
@@ -365,15 +356,14 @@ bool CViewSelector::processCommand(int commandID,int subViewIndex)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CSPage* view=App::ct->pageContainer->getPage(App::ct->pageContainer->getActivePageIndex());
+            CSPage* view=App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
             if (view==nullptr)
                 return(true);
             CSView* subView=view->getView(subViewIndex);
             if (subView==nullptr)
                 return(true);
-            int cameraNb=App::ct->objCont->getCameraNumberInSelection(&App::ct->objCont->objectList);
-//            int graphNb=App::ct->objCont->getGraphNumberInSelection(&App::ct->objCont->objectList);
-            int rendSensNb=App::ct->objCont->getVisionSensorNumberInSelection(&App::ct->objCont->objectList);
+            int cameraNb=App::currentWorld->sceneObjects->getCameraCount();
+            int rendSensNb=App::currentWorld->sceneObjects->getVisionSensorCount();
 
             if (cameraNb+rendSensNb>0)
                 App::mainWindow->oglSurface->startViewSelection(VIEWABLE_VIEW_SELECT_MODE,subViewIndex);

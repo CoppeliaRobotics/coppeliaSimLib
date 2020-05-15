@@ -63,9 +63,9 @@ void CSceneHierarchyWidget::rebuild()
     {
 
         removeAll();
-        for (size_t i=0;i<App::ct->objCont->orphanList.size();i++)
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getOrphanCount();i++)
         {
-            C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->orphanList[i]);
+            CSceneObject* it=App::currentWorld->sceneObjects->getOrphanFromIndex(i);
             QTreeWidgetItem* itm=_buildObjectWithHierarchy(it);
             insertTopLevelItem((int)i,itm);
         }
@@ -86,7 +86,7 @@ void CSceneHierarchyWidget::rebuild()
         {
             int id=it->first;
             QTreeWidgetItem* item=it->second;
-            if (App::ct->objCont->getObjectFromHandle(id)!=nullptr)
+            if (App::currentWorld->sceneObjects->getObjectFromHandle(id)!=nullptr)
                 _allTreeItems[it->first]=item;
             else
             {
@@ -105,19 +105,19 @@ void CSceneHierarchyWidget::rebuild()
         items.clear();
 
         // 2. Add items from new objects, from base to tip, and attach them directly:
-        std::vector<C3DObject*> toExplore;
-        for (size_t i=0;i<App::ct->objCont->orphanList.size();i++)
+        std::vector<CSceneObject*> toExplore;
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getOrphanCount();i++)
         {
-            C3DObject* obj=App::ct->objCont->getObjectFromHandle(App::ct->objCont->orphanList[i]);
+            CSceneObject* obj=App::currentWorld->sceneObjects->getOrphanFromIndex(i);
             toExplore.push_back(obj);
         }
         while (toExplore.size()>0)
         {
-            C3DObject* obj=toExplore[0];
+            CSceneObject* obj=toExplore[0];
             toExplore.erase(toExplore.begin());
-            for (size_t i=0;i<obj->childList.size();i++)
+            for (size_t i=0;i<obj->getChildCount();i++)
             {
-                C3DObject* child=obj->childList[i];
+                CSceneObject* child=obj->getChildFromIndex(i);
                 toExplore.push_back(child);
             }
             int id=obj->getObjectHandle();
@@ -126,7 +126,7 @@ void CSceneHierarchyWidget::rebuild()
             { // that object is new
                 QTreeWidgetItem* item=_buildObject(obj);
                 _allTreeItems[id]=item;
-                C3DObject* parent=obj->getParentObject();
+                CSceneObject* parent=obj->getParent();
                 if (parent==nullptr)
                     addTopLevelItem(item);
                 else
@@ -156,8 +156,8 @@ void CSceneHierarchyWidget::rebuild()
             if (present==handledLeaves.end())
             { // ok, item not yet handled
                 handledLeaves[id]=true;
-                C3DObject* obj=App::ct->objCont->getObjectFromHandle(id);
-                C3DObject* parentObj=obj->getParentObject();
+                CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(id);
+                CSceneObject* parentObj=obj->getParent();
                 QTreeWidgetItem* parentItem=item->parent();
                 if ( (parentObj!=nullptr)||(parentItem!=nullptr) )
                 {
@@ -211,15 +211,15 @@ void CSceneHierarchyWidget::refresh()
     _inRefreshRoutine=true;
     for (std::map<int,QTreeWidgetItem*>::iterator it=_allTreeItems.begin();it!=_allTreeItems.end();it++)
     {
-        C3DObject* obj=App::ct->objCont->getObjectFromHandle(it->first);
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->first);
         if (obj!=nullptr)
         {
             int data=0;
-            if (App::ct->objCont->isObjectSelected(it->first))
+            if (App::currentWorld->sceneObjects->isObjectSelected(it->first))
             {
-                it->second->setSelected(App::ct->objCont->isObjectSelected(it->first));
+                it->second->setSelected(App::currentWorld->sceneObjects->isObjectSelected(it->first));
                 data|=1;
-                if (App::ct->objCont->getLastSelectionID()==it->first)
+                if (App::currentWorld->sceneObjects->getLastSelectionHandle()==it->first)
                     data|=2;
             }
             else
@@ -233,11 +233,11 @@ void CSceneHierarchyWidget::refresh()
                     default: it->second->setBackgroundColor(0, QColor(255,255,255)); break;
                 }
             }
-            if ( ((obj->layer&App::ct->mainSettings->getActiveLayers())==0) || obj->isObjectPartOfInvisibleModel() )
+            if ( ((obj->getVisibilityLayer()&App::currentWorld->mainSettings->getActiveLayers())==0) || obj->isObjectPartOfInvisibleModel() )
                 data|=4;
             if (obj->getModelBase())
                 data|=8;
-            if ( ((obj->getLocalObjectProperty()&sim_objectproperty_collapsed)==0)&&(obj->childList.size()>0) )
+            if ( ((obj->getLocalObjectProperty()&sim_objectproperty_collapsed)==0)&&(obj->getChildCount()>0) )
             {
                 data|=16;
                 it->second->setExpanded(true);
@@ -266,7 +266,7 @@ void CSceneHierarchyWidget::removeAll()
     _allTreeItems.clear();
 }
 
-QTreeWidgetItem* CSceneHierarchyWidget::_buildObject(C3DObject* it)
+QTreeWidgetItem* CSceneHierarchyWidget::_buildObject(CSceneObject* it)
 {
     QTreeWidgetItem* item=new QTreeWidgetItem((QTreeWidget*)0,QStringList(it->getObjectName().c_str()));
     _allTreeItems[it->getObjectHandle()]=item;
@@ -283,14 +283,14 @@ QTreeWidgetItem* CSceneHierarchyWidget::_buildObject(C3DObject* it)
     return(item);
 }
 
-QTreeWidgetItem* CSceneHierarchyWidget::_buildObjectWithHierarchy(C3DObject* it)
+QTreeWidgetItem* CSceneHierarchyWidget::_buildObjectWithHierarchy(CSceneObject* it)
 {
     QTreeWidgetItem* item=_buildObject(it);
     _allTreeItems[it->getObjectHandle()]=item;
 
-    for (size_t i=0;i<it->childList.size();i++)
+    for (size_t i=0;i<it->getChildCount();i++)
     {
-        QTreeWidgetItem* child=_buildObjectWithHierarchy(it->childList[i]);
+        QTreeWidgetItem* child=_buildObjectWithHierarchy(it->getChildFromIndex(i));
         item->insertChild((int)i,child);
     }
     return(item);

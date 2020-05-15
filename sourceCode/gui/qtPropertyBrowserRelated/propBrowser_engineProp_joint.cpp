@@ -149,31 +149,46 @@ void CPropBrowserEngineJoint::show(QWidget* parentWindow)
     p_applyAllButton = buttonManager->addProperty("Apply all properties to selected joints");
     buttonManager->setValue(p_applyAllButton,"Apply");
     QtBrowserItem* anItem=addProperty(p_applyAllButton);
-    setBackgroundColor(anItem,QTPROPERTYBROWSER_COLOR_GREY);
+    if (App::userSettings->darkMode)
+        setBackgroundColor(anItem,QTPROPERTYBROWSER_COLOR_GREY_D);
+    else
+        setBackgroundColor(anItem,QTPROPERTYBROWSER_COLOR_GREY);
 
 
     QtVariantProperty *bulletGroup = variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),"Bullet properties");
     bulletGroup->theBrightness=140;
     bulletGroupItem=addProperty(bulletGroup);
-    setBackgroundColor(bulletGroupItem,QTPROPERTYBROWSER_COLOR_RED);
+    if (App::userSettings->darkMode)
+        setBackgroundColor(bulletGroupItem,QTPROPERTYBROWSER_COLOR_RED_D);
+    else
+        setBackgroundColor(bulletGroupItem,QTPROPERTYBROWSER_COLOR_RED);
     setExpanded(bulletGroupItem,_bulletPropertiesExpanded);
 
     QtProperty *odeGroup = variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),"ODE properties");
     odeGroup->theBrightness=140;
     odeGroupItem=addProperty(odeGroup);
-    setBackgroundColor(odeGroupItem,QTPROPERTYBROWSER_COLOR_GREEN);
+    if (App::userSettings->darkMode)
+        setBackgroundColor(odeGroupItem,QTPROPERTYBROWSER_COLOR_GREEN_D);
+    else
+        setBackgroundColor(odeGroupItem,QTPROPERTYBROWSER_COLOR_GREEN);
     setExpanded(odeGroupItem,_odePropertiesExpanded);
 
     QtProperty *vortexGroup = variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),"Vortex properties");
     vortexGroup->theBrightness=140;
     vortexGroupItem=addProperty(vortexGroup);
-    setBackgroundColor(vortexGroupItem,QTPROPERTYBROWSER_COLOR_BLUE);
+    if (App::userSettings->darkMode)
+        setBackgroundColor(vortexGroupItem,QTPROPERTYBROWSER_COLOR_BLUE_D);
+    else
+        setBackgroundColor(vortexGroupItem,QTPROPERTYBROWSER_COLOR_BLUE);
     setExpanded(vortexGroupItem,_vortexPropertiesExpanded);
 
     QtProperty *newtonGroup = variantManager->addProperty(QtVariantPropertyManager::groupTypeId(),"Newton properties");
     newtonGroup->theBrightness=140;
     newtonGroupItem=addProperty(newtonGroup);
-    setBackgroundColor(newtonGroupItem,QTPROPERTYBROWSER_COLOR_PURPLE);
+    if (App::userSettings->darkMode)
+        setBackgroundColor(newtonGroupItem,QTPROPERTYBROWSER_COLOR_PURPLE_D);
+    else
+        setBackgroundColor(newtonGroupItem,QTPROPERTYBROWSER_COLOR_PURPLE);
     setExpanded(newtonGroupItem,_newtonPropertiesExpanded);
 
     // Bullet properties:
@@ -261,14 +276,14 @@ void CPropBrowserEngineJoint::show(QWidget* parentWindow)
 
 
 
-    CJoint* it=App::ct->objCont->getLastSelection_joint();
+    CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
     QStringList jointNamesEnum;
     jointNamesEnum << "None";
     std::vector<std::string> names;
     std::vector<int> ids;
-    for (int i=0;i<int(App::ct->objCont->jointList.size());i++)
+    for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
     {
-        CJoint* it2=App::ct->objCont->getJoint(App::ct->objCont->jointList[i]);
+        CJoint* it2=App::currentWorld->sceneObjects->getJointFromIndex(i);
         if ( (it2!=it)&&(it2->getVortexDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
         {
             names.push_back(it2->getObjectName());
@@ -578,9 +593,9 @@ void CPropBrowserEngineJoint::show(QWidget* parentWindow)
     names.clear();
     ids.clear();
     jointNamesEnum << "None";
-    for (int i=0;i<int(App::ct->objCont->jointList.size());i++)
+    for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
     {
-        CJoint* it2=App::ct->objCont->getJoint(App::ct->objCont->jointList[i]);
+        CJoint* it2=App::currentWorld->sceneObjects->getJointFromIndex(i);
         if ( (it2!=it)&&(it2->getNewtonDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
         {
             names.push_back(it2->getObjectName());
@@ -624,10 +639,10 @@ void CPropBrowserEngineJoint::enableNotifications(bool enable)
 
 void CPropBrowserEngineJoint::refresh()
 {
-    CJoint* it=App::ct->objCont->getLastSelection_joint();
+    CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
 
     // Apply all button:
-    p_applyAllButton->setEnabled(App::ct->objCont->getJointNumberInSelection()>1);
+    p_applyAllButton->setEnabled(App::currentWorld->sceneObjects->getJointCountInSelection()>1);
 
     // Bullet property names:
     p_bulletNormalCFM->setPropertyName("Normal CFM");
@@ -858,9 +873,9 @@ void CPropBrowserEngineJoint::refresh()
 
     std::vector<std::string> depNames;
     std::vector<int> depIds;
-    for (int i=0;i<int(App::ct->objCont->jointList.size());i++)
+    for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
     {
-        CJoint* it2=App::ct->objCont->getJoint(App::ct->objCont->jointList[i]);
+        CJoint* it2=App::currentWorld->sceneObjects->getJointFromIndex(i);
         if ( (it2!=it)&&(it2->getVortexDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
         {
             depNames.push_back(it2->getObjectName());
@@ -932,7 +947,7 @@ void CPropBrowserEngineJoint::refresh()
         int depIndex=0; // this means "none"
         if (dependentJointId>=0)
         {
-            CJoint* aJoint=App::ct->objCont->getJoint(dependentJointId);
+            CJoint* aJoint=App::currentWorld->sceneObjects->getJointFromHandle(dependentJointId);
             if (aJoint!=nullptr)
             {
                 for (int i=0;i<int(depNames.size());i++)
@@ -1399,9 +1414,9 @@ void CPropBrowserEngineJoint::refresh()
 
     depNames.clear();
     depIds.clear();
-    for (int i=0;i<int(App::ct->objCont->jointList.size());i++)
+    for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
     {
-        CJoint* it2=App::ct->objCont->getJoint(App::ct->objCont->jointList[i]);
+        CJoint* it2=App::currentWorld->sceneObjects->getJointFromIndex(i);
         if ( (it2!=it)&&(it2->getNewtonDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
         {
             depNames.push_back(it2->getObjectName());
@@ -1416,7 +1431,7 @@ void CPropBrowserEngineJoint::refresh()
         int depIndex=0; // this means "none"
         if (newtonDependentJointId>=0)
         {
-            CJoint* aJoint=App::ct->objCont->getJoint(newtonDependentJointId);
+            CJoint* aJoint=App::currentWorld->sceneObjects->getJointFromHandle(newtonDependentJointId);
             if (aJoint!=nullptr)
             {
                 for (int i=0;i<int(depNames.size());i++)
@@ -1475,7 +1490,7 @@ void CPropBrowserEngineJoint::catchPropertyChangesString(QtProperty *_prop, QStr
 
 void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
 {
-    CJoint* it=App::ct->objCont->getLastSelection_joint();
+    CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
 
     float f;
 
@@ -1486,9 +1501,9 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
         SSimulationThreadCommand cmd;
         cmd.cmdId=APPLY_ALLENGINEPARAMS_JOINTDYNGUITRIGGEREDCMD;
         cmd.intParams.push_back(it->getObjectHandle());
-        for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount()-1;i++)
         {
-            CJoint* anotherJoint=App::ct->objCont->getJoint(App::ct->objCont->getSelID(i));
+            CJoint* anotherJoint=App::currentWorld->sceneObjects->getJointFromHandle(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             if (anotherJoint!=nullptr)
             {
                 cmd.intParams.push_back(anotherJoint->getObjectHandle());
@@ -1614,9 +1629,9 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
 
         std::vector<std::string> depNames;
         std::vector<int> depIds;
-        for (int i=0;i<int(App::ct->objCont->jointList.size());i++)
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
         {
-            CJoint* it2=App::ct->objCont->getJoint(App::ct->objCont->jointList[i]);
+            CJoint* it2=App::currentWorld->sceneObjects->getJointFromIndex(i);
             if ( (it2!=it)&&(it2->getVortexDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
             {
                 depNames.push_back(it2->getObjectName());
@@ -1975,9 +1990,9 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
 
         std::vector<std::string> depNames;
         std::vector<int> depIds;
-        for (int i=0;i<int(App::ct->objCont->jointList.size());i++)
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
         {
-            CJoint* it2=App::ct->objCont->getJoint(App::ct->objCont->jointList[i]);
+            CJoint* it2=App::currentWorld->sceneObjects->getJointFromIndex(i);
             if ( (it2!=it)&&(it2->getNewtonDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
             {
                 depNames.push_back(it2->getObjectName());

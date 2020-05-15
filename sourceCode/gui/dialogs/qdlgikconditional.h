@@ -24,7 +24,7 @@ public:
     void refresh();
 
     bool inMainRefreshRoutine;
-    CikGroup* ikGroup;
+    CIkGroup* ikGroup;
 
     int doOnFailOrSuccessOf;
     int ikResult;

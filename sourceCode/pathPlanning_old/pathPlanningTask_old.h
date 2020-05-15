@@ -20,8 +20,8 @@ public:
     CPathPlanningTask* copyYourself();
     void setDefaultValues();
     void serialize(CSer& ar);
-    void performObjectLoadingMapping(std::vector<int>* map);
-    void performCollectionLoadingMapping(std::vector<int>* map);
+    void performObjectLoadingMapping(const std::vector<int>* map);
+    void performCollectionLoadingMapping(const std::vector<int>* map);
     bool announceObjectWillBeErased(int objID,bool copyBuffer);
     bool announceCollectionWillBeErased(int groupID,bool copyBuffer);
     int getObjectID();

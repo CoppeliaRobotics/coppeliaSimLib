@@ -1,12 +1,10 @@
-
 #pragma once
 
-#include "mainCont.h"
 #include "luaScriptObject.h"
 #include "broadcastDataContainer.h"
 #include "simInternal.h"
 
-class CLuaScriptContainer : public CMainCont 
+class CLuaScriptContainer 
 {
 public:
     CLuaScriptContainer();
@@ -14,7 +12,6 @@ public:
     void simulationAboutToStart();
     void simulationEnded();
     void simulationAboutToEnd();
-    void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
     void removeAllScripts();
     void announceObjectWillBeErased(int objectID);
     bool removeScript_safe(int scriptId);

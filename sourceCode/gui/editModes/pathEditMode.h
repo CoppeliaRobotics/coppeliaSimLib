@@ -1,14 +1,13 @@
-
 #pragma once
 
 #include "path.h"
-#include "objCont.h"
+#include "sceneObjectContainer.h"
 #include "vMenubar.h"
 
 class CPathEditMode
 {
 public:
-    CPathEditMode(CPath* path,CObjCont* objCont);
+    CPathEditMode(CPath* path,CSceneObjectContainer* objCont);
     virtual ~CPathEditMode();
 
     void endEditMode(bool cancelChanges);
@@ -30,8 +29,8 @@ public:
 
     void makeDummies();
 
-    void addMenu(VMenu* menu,C3DObject* viewableObject);
-    bool processCommand(int commandID,C3DObject* viewableObject);
+    void addMenu(VMenu* menu,CSceneObject* viewableObject);
+    bool processCommand(int commandID,CSceneObject* viewableObject);
 
 private:
     void _copySelection(std::vector<int>* selection);
@@ -45,6 +44,6 @@ private:
     std::vector<CSimplePathPoint*> editBufferPathPointsCopy;
     CPath* _path;
     CPathCont* _editionPathCont;
-    CObjCont* _objCont;
+    CSceneObjectContainer* _objCont;
     std::vector<int> editModeBuffer;
 };

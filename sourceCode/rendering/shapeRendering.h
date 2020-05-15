@@ -8,6 +8,6 @@ void _displayTriangles(CGeometric* geometric,int geomModifCounter,CTextureProper
 #endif
 
 void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib);
-void displayGeometric(CGeometric* geometric,CGeomProxy* geomData,int displayAttrib,CVisualParam* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
+void displayGeometric(CGeometric* geometric,CGeomProxy* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
 void displayGeometric_colorCoded(CGeometric* geometric,CGeomProxy* geomData,int objectId,int displayAttrib);
 void displayGeometricGhost(CGeometric* geometric,CGeomProxy* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors);

@@ -1,22 +1,19 @@
-
 #pragma once
 
-#include "visualParam.h"
-#include "mainCont.h"
+#include "colorObject.h"
 #include "thumbnail.h"
 #ifdef SIM_WITH_GUI
     #include "vMenubar.h"
 #endif
 
 class CCamera;
+class CViewableBase;
 
-class CEnvironment : public CMainCont
+class CEnvironment
 {
 public:
     CEnvironment();
     virtual ~CEnvironment();
-    void simulationAboutToStart();
-    void simulationEnded();
 
     void setUpDefaultValues();
 
@@ -76,7 +73,6 @@ public:
     bool areNonAmbientLightsActive() const;
     void setNonAmbientLightsActive(bool a);
 
-    void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
     void setBackgroundColor(int viewSize[2]);
     void activateAmbientLight(bool a);
     void activateFogIfEnabled(CViewableBase* viewable,bool forDynamicContentOnly);
@@ -110,8 +106,8 @@ public:
     float backGroundColor[3];
     float backGroundColorDown[3];
     float ambientLightColor[3];
-    CVisualParam wirelessEmissionVolumeColor;
-    CVisualParam wirelessReceptionVolumeColor;
+    CColorObject wirelessEmissionVolumeColor;
+    CColorObject wirelessReceptionVolumeColor;
 
     CThumbnail modelThumbnail_notSerializedHere;
 

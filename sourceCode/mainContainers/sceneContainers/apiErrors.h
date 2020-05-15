@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include "mainCont.h"
 #ifndef WIN_SIM
     #include <pthread.h>
 #endif
@@ -37,6 +36,7 @@
 #define SIM_ERROR_IK_GROUP_INEXISTANT           "IK group does not exist."
 #define SIM_ERROR_IK_ELEMENT_INEXISTANT             "IK element does not exist."
 #define SIM_ERROR_INVALID_COLLISION_PAIRS       "Invalid collision pairs."
+#define SIM_ERROR_IK_PLUGIN_NOT_FOUND       "IK plugin was not found."
 #define SIM_ERROR_MECHANISM_INEXISTANT          "Mechanism does not exist."
 #define SIM_ERROR_BUFFER_INEXISTANT             "Buffer does not exist."
 #define SIM_ERROR_PATH_PLANNING_OBJECT_INEXISTANT           "Path planning object does not exist."
@@ -152,6 +152,7 @@
 #define SIM_ERROR_BAD_TEXTURE_COORD_SIZE "Bad texture coordinates size."
 #define SIM_ERROR_CANNOT_BE_COMPOUND_SHAPE "Shape cannot be a compound shape."
 #define SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND "Assimp plugin was not found."
+#define SIM_ERROR_INVALID_MODULE_INFO_TYPE "Invalid module info type."
 // Class is fully static
 class CApiErrors
 {

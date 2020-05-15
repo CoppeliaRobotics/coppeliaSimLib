@@ -210,9 +210,9 @@ void _drawPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matri
             {
                 if (!cols)
                 {
-                    glCols.push_back(drawingObject->color.colors[0]);
-                    glCols.push_back(drawingObject->color.colors[1]);
-                    glCols.push_back(drawingObject->color.colors[2]);
+                    glCols.push_back(drawingObject->color.getColorsPtr()[0]);
+                    glCols.push_back(drawingObject->color.getColorsPtr()[1]);
+                    glCols.push_back(drawingObject->color.getColorsPtr()[2]);
                 }
                 glCols.push_back(1.0f-_data[drawingObject->floatsPerItem*p+3+off]);
                 off++;
@@ -264,9 +264,9 @@ void _drawPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matri
             {
                 if (!cols)
                 {
-                    glCols.push_back(drawingObject->color.colors[0]);
-                    glCols.push_back(drawingObject->color.colors[1]);
-                    glCols.push_back(drawingObject->color.colors[2]);
+                    glCols.push_back(drawingObject->color.getColorsPtr()[0]);
+                    glCols.push_back(drawingObject->color.getColorsPtr()[1]);
+                    glCols.push_back(drawingObject->color.getColorsPtr()[2]);
                 }
                 glCols.push_back(1.0f-_data[drawingObject->floatsPerItem*p+3+off]);
                 off++;
@@ -742,7 +742,7 @@ void _drawLines(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix
             {
                 alpha=1.0f-_data[drawingObject->floatsPerItem*p+6+off+1];
                 ogl::setAlpha(alpha);
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,drawingObject->color.colors+3);
+                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,drawingObject->color.getColorsPtr()+3);
             }
 
             glBegin(GL_LINES);
@@ -806,7 +806,7 @@ void _drawLines(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix
             {
                 alpha=1.0f-_data[drawingObject->floatsPerItem*p+6+off];
                 ogl::setAlpha(alpha);
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,drawingObject->color.colors+3);
+                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,drawingObject->color.getColorsPtr()+3);
             }
 
             glNormal3fv(n.data);

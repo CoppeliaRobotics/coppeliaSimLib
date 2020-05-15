@@ -1,11 +1,10 @@
-#include "funcDebug.h"
 #include "simInternal.h"
-#include "undoBuffer.h"
+#include "app.h"
 #include <algorithm>
 
 CUndoBuffer::CUndoBuffer(const std::vector<char>& fullBuffer,int bufferId,CUndoBufferCameras* camBuff)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     buffer.insert(buffer.end(),fullBuffer.begin(),fullBuffer.end());
     _sameCountFromBeginning=0;
     _sameCountFromEnd=0;
@@ -15,7 +14,7 @@ CUndoBuffer::CUndoBuffer(const std::vector<char>& fullBuffer,int bufferId,CUndoB
 
 CUndoBuffer::~CUndoBuffer()
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     delete _cameraBuffers;
 }
 
@@ -31,7 +30,7 @@ int CUndoBuffer::getBufferId()
 
 bool CUndoBuffer::finalize(const std::vector<char>& previousFullBuffer)
 { // Return value false means: this buffer is exactly the same as "previousFullBuffer"
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     _sameCountFromBeginning=0;
     _sameCountFromEnd=0;
     int minBufferLength=std::min<int>(int(previousFullBuffer.size()),int(buffer.size()));
@@ -87,7 +86,7 @@ bool CUndoBuffer::finalize(const std::vector<char>& previousFullBuffer)
 
 void CUndoBuffer::getRestored(const std::vector<char>* previousFullBuffer,std::vector<char>& restoredBuffer)
 { // previousFullBuffer can be nullptr. In that case _sameCountFromBeginning and _sameCountFromEnd should be 0
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     restoredBuffer.clear();
     if (previousFullBuffer!=nullptr)
         restoredBuffer.insert(restoredBuffer.end(),previousFullBuffer->begin(),previousFullBuffer->begin()+_sameCountFromBeginning);
@@ -98,7 +97,7 @@ void CUndoBuffer::getRestored(const std::vector<char>* previousFullBuffer,std::v
 
 void CUndoBuffer::updateWithFullBuffer(const std::vector<char>& fullBuffer)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     _sameCountFromBeginning=0;
     _sameCountFromEnd=0;
     buffer.clear();

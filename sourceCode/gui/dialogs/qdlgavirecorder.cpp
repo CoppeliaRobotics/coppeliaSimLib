@@ -5,7 +5,6 @@
 #include "simStrings.h"
 #include "vVarious.h"
 #include "app.h"
-#include "funcDebug.h"
 
 CQDlgAviRecorder::CQDlgAviRecorder(QWidget *parent) :
       CDlgEx(parent),
@@ -27,7 +26,7 @@ void CQDlgAviRecorder::refresh()
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
 
     bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
-    bool noEditModeNoSim=noEditMode&&App::ct->simulation->isSimulationStopped();
+    bool noEditModeNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
 
     bool manualStarted=(App::mainWindow->simulationRecorder->getManualStart()&&App::mainWindow->simulationRecorder->getIsRecording());
     ui->recordNow->setEnabled((((!App::mainWindow->simulationRecorder->getIsRecording())&&(!App::mainWindow->simulationRecorder->getRecorderEnabled()))||manualStarted)&&noEditMode);
@@ -100,31 +99,21 @@ void CQDlgAviRecorder::on_launchAtSimulationStart_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if ((!App::mainWindow->simulationRecorder->getIsRecording())&&App::ct->simulation->isSimulationStopped() )
-        {
-            if (App::ct->simulation->getThreadedRendering()||App::ct->simulation->getThreadedRenderingIfSimulationWasRunning())
-                App::uiThread->messageBox_information(App::mainWindow,"Video Recorder","Cannot record while threaded rendering is enabled.",VMESSAGEBOX_OKELI);
-            else
-                App::mainWindow->simulationRecorder->setRecorderEnabled(!App::mainWindow->simulationRecorder->getRecorderEnabled());
-        }
+        if ((!App::mainWindow->simulationRecorder->getIsRecording())&&App::currentWorld->simulation->isSimulationStopped() )
+            App::mainWindow->simulationRecorder->setRecorderEnabled(!App::mainWindow->simulationRecorder->getRecorderEnabled());
         refresh();
     }
 }
 
 void CQDlgAviRecorder::on_recordNow_clicked()
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     IF_UI_EVENT_CAN_READ_DATA
     {
         if (!App::mainWindow->simulationRecorder->getIsRecording())
         {
-            if (App::ct->simulation->getThreadedRendering()||App::ct->simulation->getThreadedRenderingIfSimulationWasRunning())
-                App::uiThread->messageBox_information(App::mainWindow,"Video Recorder","Cannot start recording while threaded rendering is enabled.",VMESSAGEBOX_OKELI);
-            else
-            {
-                App::mainWindow->simulationRecorder->setRecorderEnabled(true);
-                App::mainWindow->simulationRecorder->startRecording(true);
-            }
+            App::mainWindow->simulationRecorder->setRecorderEnabled(true);
+            App::mainWindow->simulationRecorder->startRecording(true);
         }
         else
         {

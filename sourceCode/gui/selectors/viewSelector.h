@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-class C3DObject;
+class CSceneObject;
 
 class CViewSelector  
 {
@@ -21,7 +21,7 @@ public:
     void leftMouseButtonUp(int x,int y);
     void mouseMove(int x,int y,bool passiveAndFocused);
     int getCursor(int x,int y);
-    C3DObject* getViewableObject(int x,int y);
+    CSceneObject* getViewableObject(int x,int y);
     bool rightMouseButtonDown(int x,int y);
     void rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* mainWindow);
     bool leftMouseButtonDoubleClick(int x,int y,int selectionStatus);

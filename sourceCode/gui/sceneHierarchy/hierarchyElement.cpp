@@ -55,13 +55,13 @@ int CHierarchyElement::addYourChildren()
         std::vector<std::string> objNames;
         if ((objectID<0)&&isLocalWorld())
         { // this is the world!
-            for (size_t i=0;i<App::ct->objCont->objectList.size();i++)
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
             {
-                C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
 #ifdef KEYWORD__NOT_DEFINED_FORMELY_XR
                 if ((it->getParent()==nullptr)&&it->getModelBase()&&(!it->isObjectPartOfInvisibleModel()))
 #else
-                if (it->getParentObject()==nullptr)
+                if (it->getParent()==nullptr)
 #endif
                 {
                     objIDs.push_back(it->getObjectHandle());
@@ -78,16 +78,16 @@ int CHierarchyElement::addYourChildren()
             }
         }
         else
-        { // this is a 3DObject!
-            C3DObject* it=App::ct->objCont->getObjectFromHandle(objectID);
+        { // this is a scene object!
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectID);
             if (it!=nullptr)
             {
 #ifdef KEYWORD__NOT_DEFINED_FORMELY_XR
-                std::vector<C3DObject*> firstModelRelatives;
+                std::vector<CSceneObject*> firstModelRelatives;
                 retVal+=it->getFirstModelRelatives(firstModelRelatives,true);
                 for (size_t i=0;i<firstModelRelatives.size();i++)
                 {
-                    C3DObject* modl=firstModelRelatives[i];
+                    CSceneObject* modl=firstModelRelatives[i];
                     objIDs.push_back(modl->getID());
                     objNames.push_back(tt::getLowerUpperCaseString(modl->getName(),false));
                 }
@@ -99,14 +99,12 @@ int CHierarchyElement::addYourChildren()
                     children.push_back(aKid);
                 }
 #else
-                retVal+=int(it->childList.size());
-                for (int i=0;i<int(it->childList.size());i++)
+                retVal+=int(it->getChildCount());
+                for (size_t i=0;i<it->getChildCount();i++)
                 {
-                    if (it->childList[i]!=nullptr)
-                    {
-                        objIDs.push_back(it->childList[i]->getObjectHandle());
-                        objNames.push_back(tt::getLowerUpperCaseString(it->childList[i]->getObjectName(),false));
-                    }
+                    CSceneObject* child=it->getChildFromIndex(i);
+                    objIDs.push_back(child->getObjectHandle());
+                    objNames.push_back(tt::getLowerUpperCaseString(child->getObjectName(),false));
                 }
                 tt::orderStrings(objNames,objIDs);
                 for (int i=0;i<int(objIDs.size());i++)
@@ -129,7 +127,7 @@ int CHierarchyElement::getLinkedObjectID()
 }
 
 #ifdef KEYWORD__NOT_DEFINED_FORMELY_XR
-void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObjectID,bool& bright,bool dontDisplay,
+void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEditObjectID,bool& bright,bool dontDisplay,
         int renderingSize[2],int textPos[2],
         int indentNb,std::vector<int>* vertLines,int minRenderedPos[2],int maxRenderedPos[2],bool forDragAndDrop/*=false*/,int transparentForTreeObjects/*=-1*/,int dropID/*=-1*/,int worldClick/*=-9999*/)
 { // transparentForTreeObjects==-1: normal, transparentForTreeObjects==-2: transparent, otherwise transparent only for objID=transparentForTreeObjects
@@ -159,7 +157,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
     }
 
     bool textInside=(textPos[1]<renderingSize[1]+HIERARCHY_INTER_LINE_SPACE*App::sc);
-    C3DObject* it=App::ct->objCont->getObject(objectID);
+    CSceneObject* it=App::currentWorld->objCont->getObject(objectID);
     std::string theText;
     if (it!=nullptr)
         theText=it->getName();
@@ -186,26 +184,16 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
         }
         else
         {
-            if (App::ct->objCont->isObjectInSelection(objectID)&&textInside&&(!dontDisplay))
+            if (App::currentWorld->objCont->isObjectInSelection(objectID)&&textInside&&(!dontDisplay))
             {
-                if (App::ct->objCont->getLastSelection_object()==it)
+                if (App::currentWorld->objCont->getLastSelection_object()==it)
                     bgCol=ogl::HIERARCHY_AND_BROWSER_LAST_SELECTION_COLOR;
                 else
                 {
-                    if (App::ct->collections->isObjectInMarkedCollection(objectID))
-                    {
-                        if (bright)
-                            bgCol=ogl::HIERARCHY_COLLECTION_SELECTION_COLOR_BRIGHT;
-                        else
-                            bgCol=ogl::HIERARCHY_COLLECTION_SELECTION_COLOR_DARK;
-                    }
+                    if (bright)
+                        bgCol=ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_BRIGHT;
                     else
-                    {
-                        if (bright)
-                            bgCol=ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_BRIGHT;
-                        else
-                            bgCol=ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_DARK;
-                    }
+                        bgCol=ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_DARK;
                 }
                 inSelection=true;
                 hasAColor=true;
@@ -221,7 +209,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
                 {
                     if (isLocalWorld())
                     {
-                        if (!bright)
+                        if (App::userSettings->darkMode)
                             bgCol=ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_DARK;
                         else
                             bgCol=ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT;
@@ -235,7 +223,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
                 int colIndex=it->getHierarchyColorIndex();
                 if (colIndex==-1)
                 {
-                    if (!bright)
+                    if (App::userSettings->darkMode)
                         bgCol=ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_DARK;
                     else
                         bgCol=ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT;
@@ -287,7 +275,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
     }
     else
     { // for drag and drop only:
-        inSelection=App::ct->objCont->isObjectInSelection(objectID);
+        inSelection=App::currentWorld->objCont->isObjectInSelection(objectID);
     }
 
     int off=2;
@@ -344,7 +332,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
             tc=ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_VISIBLE;
 //        else
 //        {
-//            if ( (it!=nullptr)&&( ((it->layer&App::ct->mainSettings->getActiveLayers())==0)||it->isObjectPartOfInvisibleModel() ) )
+//            if ( (it!=nullptr)&&( ((it->layer&App::currentWorld->mainSettings->getActiveLayers())==0)||it->isObjectPartOfInvisibleModel() ) )
 //                tc=ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_INVISIBLE;
 //            else
 //                tc=ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_VISIBLE;
@@ -449,14 +437,14 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
             { // Vertical line going through (a T turned counter-clockwise)
  //               vertLines->push_back(indentNb);
  //               int txtYTmp=textPos[1];
-                el[i]->renderElement_3DObject(hier,labelEditObjectID,bright,dontDisplay,
+                el[i]->renderElement_sceneObject(hier,labelEditObjectID,bright,dontDisplay,
                                             renderingSize,textPos,indentCopy,
                                             vertLines,minRenderedPos,maxRenderedPos,forDragAndDrop,transparentForTreeObjects,dropID);
  /*
                 vertLines->erase(vertLines->end()-1);
                 if ((!dontDisplay)&&(!forDragAndDrop))
                 {
-                    C3DObject* childIt=App::ct->objCont->getObject(el[i]->getLinkedObjectID());
+                    CSceneObject* childIt=App::currentWorld->objCont->getObject(el[i]->getLinkedObjectID());
                     if (childIt->childList.size()==0)
                     {
                         ogl::drawSingle2dLine_i(xPosCopy+10*App::sc,txtYTmp+(HIERARCHY_TEXT_CENTER_OFFSET+HIERARCHY_HALF_INTER_LINE_SPACE)*App::sc,xPosCopy+10*App::sc,txtYTmp+(HIERARCHY_TEXT_CENTER_OFFSET-HIERARCHY_HALF_INTER_LINE_SPACE)*App::sc);
@@ -468,13 +456,13 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
             else
             { // Vertical line stopping in the middle (L)
 //                int txtYTmp=textPos[1];
-                el[i]->renderElement_3DObject(hier,labelEditObjectID,bright,dontDisplay,
+                el[i]->renderElement_sceneObject(hier,labelEditObjectID,bright,dontDisplay,
                                             renderingSize,textPos,indentCopy,
                                             vertLines,minRenderedPos,maxRenderedPos,forDragAndDrop,transparentForTreeObjects,dropID);
 /*
                 if ((!dontDisplay)&&(!forDragAndDrop))
                 {
-                    C3DObject* childIt=App::ct->objCont->getObject(el[i]->getLinkedObjectID());
+                    CSceneObject* childIt=App::currentWorld->objCont->getObject(el[i]->getLinkedObjectID());
                     if (childIt->childList.size()==0)
                     {
                         ogl::drawSingle2dLine_i(xPosCopy+10*App::sc,txtYTmp+(HIERARCHY_TEXT_CENTER_OFFSET+HIERARCHY_HALF_INTER_LINE_SPACE)*App::sc,xPosCopy+10*App::sc,txtYTmp+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);
@@ -489,7 +477,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
     }
 }
 #else
-void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObjectID,bool& bright,bool dontDisplay,
+void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEditObjectID,bool& bright,bool dontDisplay,
         int renderingSize[2],int textPos[2],
         int indentNb,std::vector<int>* vertLines,int minRenderedPos[2],int maxRenderedPos[2],bool forDragAndDrop/*=false*/,int transparentForTreeObjects/*=-1*/,int dropID/*=-1*/,int worldClick/*=-9999*/)
 { // transparentForTreeObjects==-1: normal, transparentForTreeObjects==-2: transparent, otherwise transparent only for objID=transparentForTreeObjects
@@ -519,7 +507,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
     }
 
     bool textInside=(textPos[1]<renderingSize[1]+HIERARCHY_INTER_LINE_SPACE*App::sc);
-    C3DObject* it=App::ct->objCont->getObjectFromHandle(objectID);
+    CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectID);
     std::string theText;
     if (it!=nullptr)
         theText=it->getObjectName();
@@ -546,26 +534,16 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
         }
         else
         {
-            if (App::ct->objCont->isObjectInSelection(objectID)&&textInside&&(!dontDisplay))
+            if (App::currentWorld->sceneObjects->isObjectInSelection(objectID)&&textInside&&(!dontDisplay))
             {
-                if (App::ct->objCont->getLastSelection_object()==it)
+                if (App::currentWorld->sceneObjects->getLastSelectionObject()==it)
                     bgCol=ogl::HIERARCHY_AND_BROWSER_LAST_SELECTION_COLOR;
                 else
                 {
-                    if (App::ct->collections->isObjectInMarkedCollection(objectID))
-                    {
-                        if (bright)
-                            bgCol=ogl::HIERARCHY_COLLECTION_SELECTION_COLOR_BRIGHT;
-                        else
-                            bgCol=ogl::HIERARCHY_COLLECTION_SELECTION_COLOR_DARK;
-                    }
+                    if (bright)
+                        bgCol=ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_BRIGHT;
                     else
-                    {
-                        if (bright)
-                            bgCol=ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_BRIGHT;
-                        else
-                            bgCol=ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_DARK;
-                    }
+                        bgCol=ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_DARK;
                 }
                 inSelection=true;
                 hasAColor=true;
@@ -581,7 +559,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
                 {
                     if (isLocalWorld())
                     {
-                        if (!bright)
+                        if (App::userSettings->darkMode)
                             bgCol=ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_DARK;
                         else
                             bgCol=ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT;
@@ -595,7 +573,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
                 int colIndex=it->getHierarchyColorIndex();
                 if (colIndex==-1)
                 {
-                    if (!bright)
+                    if (App::userSettings->darkMode)
                         bgCol=ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_DARK;
                     else
                         bgCol=ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT;
@@ -647,36 +625,36 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
     }
     else
     { // for drag and drop only:
-        inSelection=App::ct->objCont->isObjectInSelection(objectID);
+        inSelection=App::currentWorld->sceneObjects->isObjectInSelection(objectID);
     }
 
     int off=2;
     if (it!=nullptr)
     {
-        if (it->childList.size()!=0)
+        if (it->getChildCount()!=0)
         {
             if (it->getLocalObjectProperty()&sim_objectproperty_collapsed)
             {
                 int picture=PLUS_SIGN_TREE_PICTURE;
                 if (dontDisplay||(!textInside))
                     picture=NO_TREE_PICTURE;
-                _drawIcon_3DObject(hier,textPos[0]+off-5*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,it,picture,true,transparencyFactor,forDragAndDrop);
+                _drawIcon_sceneObject(hier,textPos[0]+off-5*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,it,picture,true,transparencyFactor,forDragAndDrop);
             }
             else
             {
                 int picture=MINUS_SIGN_TREE_PICTURE;
                 if (dontDisplay||(!textInside))
                     picture=NO_TREE_PICTURE;
-                _drawIcon_3DObject(hier,textPos[0]+off-5*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,it,picture,true,transparencyFactor,forDragAndDrop);
+                _drawIcon_sceneObject(hier,textPos[0]+off-5*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,it,picture,true,transparencyFactor,forDragAndDrop);
             }
         }
 
-        off=off+_drawIcon_3DObject(hier,textPos[0]+off+8*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,it,-1,!dontDisplay,transparencyFactor,forDragAndDrop);
+        off=off+_drawIcon_sceneObject(hier,textPos[0]+off+8*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,it,-1,!dontDisplay,transparencyFactor,forDragAndDrop);
     }
 
     if (objectID<0)
     { // For the world!
-        off=off+_drawIcon_3DObject(hier,textPos[0]+off-15*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,it,objectID,!dontDisplay,transparencyFactor,forDragAndDrop);
+        off=off+_drawIcon_sceneObject(hier,textPos[0]+off-15*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,it,objectID,!dontDisplay,transparencyFactor,forDragAndDrop);
         off-=24/App::sc; // tweaking
     }
 
@@ -704,7 +682,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
             tc=ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_VISIBLE;
         else
         {
-            if ( (it!=nullptr)&&( ((it->layer&App::ct->mainSettings->getActiveLayers())==0)||it->isObjectPartOfInvisibleModel() ) )
+            if ( (it!=nullptr)&&( ((it->getVisibilityLayer()&App::currentWorld->mainSettings->getActiveLayers())==0)||it->isObjectPartOfInvisibleModel() ) )
                 tc=ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_INVISIBLE;
             else
                 tc=ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_VISIBLE;
@@ -751,7 +729,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
     {
         bool hasScript=false;
         // Child scripts:
-        CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(it->getObjectHandle());
+        CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(it->getObjectHandle());
         if (script!=nullptr)
         {
             hasScript=true;
@@ -760,16 +738,16 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
                 if (script->getThreadedExecution())
                 {
                     if (script->getScriptIsDisabled()||((it->getCumulativeModelProperty()&sim_modelproperty_scripts_inactive)!=0))
-                        App::ct->globalGuiTextureCont->startTextureDisplay(SCRIPTDISABLED_THREADED_PICTURE);
+                        App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTDISABLED_THREADED_PICTURE);
                     else
-                        App::ct->globalGuiTextureCont->startTextureDisplay(SCRIPT_THREADED_PICTURE);
+                        App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPT_THREADED_PICTURE);
                 }
                 else
                 {
                     if (script->getScriptIsDisabled()||((it->getCumulativeModelProperty()&sim_modelproperty_scripts_inactive)!=0))
-                        App::ct->globalGuiTextureCont->startTextureDisplay(SCRIPTDISABLED_PICTURE);
+                        App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTDISABLED_PICTURE);
                     else
-                        App::ct->globalGuiTextureCont->startTextureDisplay(SCRIPT_PICTURE);
+                        App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPT_PICTURE);
                 }
                 _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
             }
@@ -785,9 +763,9 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
             {
                 
                 if (script->getScriptParametersObject()->userParamEntries.size()!=0)
-                    App::ct->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
+                    App::wc->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
                 else
-                    App::ct->globalGuiTextureCont->startTextureDisplay(SCRIPT_PARAMETERS_PICTURE);
+                    App::wc->globalGuiTextureCont->startTextureDisplay(SCRIPT_PARAMETERS_PICTURE);
                 _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
             }
             if (!forDragAndDrop)
@@ -801,16 +779,16 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
         }
 
         // Customization scripts:
-        CLuaScriptObject* customizationScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
+        CLuaScriptObject* customizationScript=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
         if (customizationScript!=nullptr)
         {
             hasScript=true;
             if (!dontDisplay)
             {
                 if (customizationScript->hasCustomizationScripAnyChanceToGetExecuted(false,false))
-                    App::ct->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPT_PICTURE);
+                    App::worldContainer->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPT_PICTURE);
                 else
-                    App::ct->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPTDISABLED_PICTURE);
+                    App::worldContainer->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPTDISABLED_PICTURE);
                 _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
             }
             if (!forDragAndDrop)
@@ -829,7 +807,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
             {
                 if (!dontDisplay)
                 {
-                    App::ct->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
+                    App::worldContainer->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
                     _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
                 }
                 if (!forDragAndDrop)
@@ -845,15 +823,15 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
     }
     else
     { // This is for the main script (pseudo object "world"):
-        CLuaScriptObject* script=App::ct->luaScriptContainer->getMainScript();
+        CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getMainScript();
         if (script!=nullptr)
         {
             if (!dontDisplay)
             {
                 if (script->isDefaultMainScript())
-                    App::ct->globalGuiTextureCont->startTextureDisplay(MAIN_SCRIPT_PICTURE);
+                    App::worldContainer->globalGuiTextureCont->startTextureDisplay(MAIN_SCRIPT_PICTURE);
                 else
-                    App::ct->globalGuiTextureCont->startTextureDisplay(MAIN_SCRIPT_CUSTOMIZED_PICTURE);
+                    App::worldContainer->globalGuiTextureCont->startTextureDisplay(MAIN_SCRIPT_CUSTOMIZED_PICTURE);
                 _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
             }
             if (!forDragAndDrop)
@@ -867,9 +845,9 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
             if (!dontDisplay)
             {
                 if (script->getScriptParametersObject()->userParamEntries.size()!=0)
-                    App::ct->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
+                    App::wc->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
                 else
-                    App::ct->globalGuiTextureCont->startTextureDisplay(SCRIPT_PARAMETERS_PICTURE);
+                    App::wc->globalGuiTextureCont->startTextureDisplay(SCRIPT_PARAMETERS_PICTURE);
                 _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
             }
             if (!forDragAndDrop)
@@ -899,7 +877,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
                 ic=DYNAMICS_PICTURE;
             if (simIconCode==sim_dynamicsimicon_objectisnotdynamicallyenabled)
                 ic=WARNING_PICTURE;
-            lineLastPos+=16*App::sc+_drawIcon_3DObject(hier,lineLastPos+24*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,it,ic,!dontDisplay,transparencyFactor,forDragAndDrop);
+            lineLastPos+=16*App::sc+_drawIcon_sceneObject(hier,lineLastPos+24*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,it,ic,!dontDisplay,transparencyFactor,forDragAndDrop);
             int mmm=std::max<int>(lineLastPos,textEndPosition);
 //          if (textEndPosition+lineLastPos>maxRenderedPos[0])
 //              maxRenderedPos[0]=textEndPosition+lineLastPos;
@@ -925,13 +903,13 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
         if (it->getModelBase())
         {
             ogl::drawSingle2dLine_i(textPos[0]+16*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,textPos[0]+20*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);
-            if ((it->childList.size()!=0)&&((it->getLocalObjectProperty()&sim_objectproperty_collapsed)==0))
+            if ((it->getChildCount()!=0)&&((it->getLocalObjectProperty()&sim_objectproperty_collapsed)==0))
                 ogl::drawSingle2dLine_i(textPos[0]+10*App::sc,textPos[1]+(HIERARCHY_TEXT_CENTER_OFFSET-CONST_VAL_6)*App::sc,textPos[0]+10*App::sc,textPos[1]+(HIERARCHY_TEXT_CENTER_OFFSET-HIERARCHY_INTER_LINE_SPACE)*App::sc);
         }
         else
         {
             ogl::drawSingle2dLine_i(textPos[0]+4*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,textPos[0]+20*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);
-            if ((it->childList.size()!=0)&&((it->getLocalObjectProperty()&sim_objectproperty_collapsed)==0))
+            if ((it->getChildCount()!=0)&&((it->getLocalObjectProperty()&sim_objectproperty_collapsed)==0))
                 ogl::drawSingle2dLine_i(textPos[0]+10*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,textPos[0]+10*App::sc,textPos[1]+(HIERARCHY_TEXT_CENTER_OFFSET-HIERARCHY_INTER_LINE_SPACE)*App::sc);
         }
     }
@@ -971,14 +949,14 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
             { // Vertical line going through (a T turned counter-clockwise)
                 vertLines->push_back(indentNb);
                 int txtYTmp=textPos[1];
-                el[i]->renderElement_3DObject(hier,labelEditObjectID,bright,dontDisplay,
+                el[i]->renderElement_sceneObject(hier,labelEditObjectID,bright,dontDisplay,
                                             renderingSize,textPos,indentCopy,
                                             vertLines,minRenderedPos,maxRenderedPos,forDragAndDrop,transparentForTreeObjects,dropID);
                 vertLines->erase(vertLines->end()-1);
                 if ((!dontDisplay)&&(!forDragAndDrop))
                 {
-                    C3DObject* childIt=App::ct->objCont->getObjectFromHandle(el[i]->getLinkedObjectID());
-                    if (childIt->childList.size()==0)
+                    CSceneObject* childIt=App::currentWorld->sceneObjects->getObjectFromHandle(el[i]->getLinkedObjectID());
+                    if (childIt->getChildCount()==0)
                     {
                         ogl::drawSingle2dLine_i(xPosCopy+10*App::sc,txtYTmp+(HIERARCHY_TEXT_CENTER_OFFSET+HIERARCHY_HALF_INTER_LINE_SPACE)*App::sc,xPosCopy+10*App::sc,txtYTmp+(HIERARCHY_TEXT_CENTER_OFFSET-HIERARCHY_HALF_INTER_LINE_SPACE)*App::sc);
                         ogl::drawSingle2dLine_i(xPosCopy+10*App::sc,txtYTmp+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,xPosCopy+17*App::sc,txtYTmp+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);
@@ -988,13 +966,13 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
             else
             { // Vertical line stopping in the middle (L)
                 int txtYTmp=textPos[1];
-                el[i]->renderElement_3DObject(hier,labelEditObjectID,bright,dontDisplay,
+                el[i]->renderElement_sceneObject(hier,labelEditObjectID,bright,dontDisplay,
                                             renderingSize,textPos,indentCopy,
                                             vertLines,minRenderedPos,maxRenderedPos,forDragAndDrop,transparentForTreeObjects,dropID);
                 if ((!dontDisplay)&&(!forDragAndDrop))
                 {
-                    C3DObject* childIt=App::ct->objCont->getObjectFromHandle(el[i]->getLinkedObjectID());
-                    if (childIt->childList.size()==0)
+                    CSceneObject* childIt=App::currentWorld->sceneObjects->getObjectFromHandle(el[i]->getLinkedObjectID());
+                    if (childIt->getChildCount()==0)
                     {
                         ogl::drawSingle2dLine_i(xPosCopy+10*App::sc,txtYTmp+(HIERARCHY_TEXT_CENTER_OFFSET+HIERARCHY_HALF_INTER_LINE_SPACE)*App::sc,xPosCopy+10*App::sc,txtYTmp+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);
                         ogl::drawSingle2dLine_i(xPosCopy+10*App::sc,txtYTmp+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,xPosCopy+17*App::sc,txtYTmp+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);
@@ -1008,7 +986,7 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
 #endif
 
 #ifdef KEYWORD__NOT_DEFINED_FORMELY_XR
-int CHierarchyElement::_drawIcon_brm(CHierarchy* hier,int tPosX,int tPosY,C3DObject* it,int pictureID,bool drawIt,float transparencyFactor,bool forDragAndDrop)
+int CHierarchyElement::_drawIcon_brm(CHierarchy* hier,int tPosX,int tPosY,CSceneObject* it,int pictureID,bool drawIt,float transparencyFactor,bool forDragAndDrop)
 //*
 { // pictureID is -1 by default. It is then ignored. The size of the icon is 16x16
     int retVal=0;
@@ -1018,7 +996,7 @@ int CHierarchyElement::_drawIcon_brm(CHierarchy* hier,int tPosX,int tPosY,C3DObj
         {
             if (drawIt)
             {
-                App::ct->globalGuiTextureCont->startTextureDisplay(pictureID);
+                App::wc->globalGuiTextureCont->startTextureDisplay(pictureID);
                 if ((it!=nullptr)&&(!forDragAndDrop))
                 {
                     if (((pictureID==PLUS_SIGN_TREE_PICTURE)||(pictureID==MINUS_SIGN_TREE_PICTURE)))
@@ -1059,7 +1037,7 @@ int CHierarchyElement::_drawIcon_brm(CHierarchy* hier,int tPosX,int tPosY,C3DObj
             {
                 if (it!=nullptr)
                 { // We have to draw a model icon before the object icon:
-                    App::ct->globalGuiTextureCont->startTextureDisplay(MODEL_TREE_PICTURE);
+                    App::wc->globalGuiTextureCont->startTextureDisplay(MODEL_TREE_PICTURE);
                     _drawTexturedIcon(tPosX+retVal,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
                     if (!forDragAndDrop)
                     {
@@ -1073,7 +1051,7 @@ int CHierarchyElement::_drawIcon_brm(CHierarchy* hier,int tPosX,int tPosY,C3DObj
 
                if (objectOrWorldIconID==WORLD_TREE_PICTURE)
                {
-                    App::ct->globalGuiTextureCont->startTextureDisplay(objectOrWorldIconID);
+                    App::wc->globalGuiTextureCont->startTextureDisplay(objectOrWorldIconID);
                     _drawTexturedIcon(tPosX+retVal,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
                }
                if (!forDragAndDrop)
@@ -1124,7 +1102,7 @@ int CHierarchyElement::_drawIcon_brm(CHierarchy* hier,int tPosX,int tPosY,C3DObj
     return(retVal);
 }
 #else
-int CHierarchyElement::_drawIcon_3DObject(CHierarchy* hier,int tPosX,int tPosY,C3DObject* it,int pictureID,bool drawIt,float transparencyFactor,bool forDragAndDrop)
+int CHierarchyElement::_drawIcon_sceneObject(CHierarchy* hier,int tPosX,int tPosY,CSceneObject* it,int pictureID,bool drawIt,float transparencyFactor,bool forDragAndDrop)
 { // pictureID is -1 by default. It is then ignored. The size of the icon is 16x16
     int retVal=0;
     if (pictureID!=NO_TREE_PICTURE)
@@ -1133,7 +1111,7 @@ int CHierarchyElement::_drawIcon_3DObject(CHierarchy* hier,int tPosX,int tPosY,C
         {
             if (drawIt)
             {
-                App::ct->globalGuiTextureCont->startTextureDisplay(pictureID);
+                App::worldContainer->globalGuiTextureCont->startTextureDisplay(pictureID);
                 if ((it!=nullptr)&&(!forDragAndDrop))
                 {
                     if (((pictureID==PLUS_SIGN_TREE_PICTURE)||(pictureID==MINUS_SIGN_TREE_PICTURE)))
@@ -1262,7 +1240,7 @@ int CHierarchyElement::_drawIcon_3DObject(CHierarchy* hier,int tPosX,int tPosY,C
             {
                 if ((it!=nullptr)&&it->getModelBase())
                 { // We have to draw a model icon before the object icon:
-                    App::ct->globalGuiTextureCont->startTextureDisplay(MODEL_TREE_PICTURE);
+                    App::worldContainer->globalGuiTextureCont->startTextureDisplay(MODEL_TREE_PICTURE);
                     _drawTexturedIcon(tPosX+retVal,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
                     if (!forDragAndDrop)
                     {
@@ -1273,7 +1251,7 @@ int CHierarchyElement::_drawIcon_3DObject(CHierarchy* hier,int tPosX,int tPosY,C
                 }
                 retVal+=(HIERARCHY_ICON_WIDTH+HIERARCHY_INTER_ICON_SPACING)*App::sc;
 
-                App::ct->globalGuiTextureCont->startTextureDisplay(objectOrWorldIconID);
+                App::worldContainer->globalGuiTextureCont->startTextureDisplay(objectOrWorldIconID);
                 _drawTexturedIcon(tPosX+retVal,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
                 if (!forDragAndDrop)
                 {
@@ -1364,16 +1342,6 @@ void CHierarchyElement::renderElement_editModeList(CHierarchy* hier,int labelEdi
         if (objectID==App::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex())
             selectedState=2;
     }
-    if (editModeType==BUTTON_EDIT_MODE)
-    {
-        if (objectID==App::ct->buttonBlockContainer->getBlockInEdition())
-            selectedState=2;
-        CButtonBlock* blk=App::ct->buttonBlockContainer->getBlockWithID(objectID);
-        if (blk!=nullptr)
-            theText=blk->getBlockName();
-        else
-            theText="ERROR";
-    }
     if ((selectedState!=0)&&textInside&&(!dontDisplay))
     {
         if (selectedState==2)
@@ -1394,7 +1362,7 @@ void CHierarchyElement::renderElement_editModeList(CHierarchy* hier,int labelEdi
     }
     else if (textInside&&(!dontDisplay))
     {
-        if (!bright)
+        if (App::userSettings->darkMode)
             ogl::setMaterialColor(sim_colorcomponent_emission,ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_DARK);
         else
             ogl::setMaterialColor(sim_colorcomponent_emission,ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT);
@@ -1421,8 +1389,6 @@ void CHierarchyElement::renderElement_editModeList(CHierarchy* hier,int labelEdi
         off=off+_drawIcon_editModeList(hier,textPos[0]+off+8*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,EDGE_PICTURE,!dontDisplay);
     if (editModeType==PATH_EDIT_MODE)
         off=off+_drawIcon_editModeList(hier,textPos[0]+off+8*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,PATH_POINT_PICTURE,!dontDisplay);
-    if (editModeType==BUTTON_EDIT_MODE)
-        off=off+_drawIcon_editModeList(hier,textPos[0]+off+8*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,BUTTON_BLOCK_PICTURE,!dontDisplay);
     if (editModeType==MULTISHAPE_EDIT_MODE)
     {
         if ( (objectID>=0)&&(objectID<App::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentsSize()) )
@@ -1477,7 +1443,7 @@ int CHierarchyElement::_drawIcon_editModeList(CHierarchy* hier,int tPosX,int tPo
         {
             if (drawIt)
             {
-                App::ct->globalGuiTextureCont->startTextureDisplay(pictureID);
+                App::worldContainer->globalGuiTextureCont->startTextureDisplay(pictureID);
                 _drawTexturedIcon(tPosX,tPosY,sizeX,sizeY,0.0f);
             }
             hier->objectIconPosition.push_back(tPosX);
@@ -1518,7 +1484,7 @@ void CHierarchyElement::_drawTexturedIcon(int tPosX,int tPosY,int sizeX,int size
     ogl::enableLighting_useWithCare();
     ogl::setBlending(false);
     glDisable(GL_ALPHA_TEST);
-    App::ct->globalGuiTextureCont->endTextureDisplay();
+    App::worldContainer->globalGuiTextureCont->endTextureDisplay();
 }
 
 bool CHierarchyElement::renderDummyElement(bool& bright,int renderingSize[2],int textPos[2])
@@ -1528,7 +1494,7 @@ bool CHierarchyElement::renderDummyElement(bool& bright,int renderingSize[2],int
         return(false);
     if (textPos[1]<renderingSize[1]+HIERARCHY_INTER_LINE_SPACE*App::sc)
     {
-        if (!bright)
+        if (App::userSettings->darkMode)
             ogl::setMaterialColor(sim_colorcomponent_emission,ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_DARK);
         else
             ogl::setMaterialColor(sim_colorcomponent_emission,ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT);
@@ -1558,7 +1524,7 @@ int CHierarchyElement::getNumberOfElements()
 bool CHierarchyElement::isLocalWorld()
 {
     if (objectID<0)
-        return(-App::ct->getCurrentInstanceIndex()-1==objectID);
+        return(-App::worldContainer->getCurrentWorldIndex()-1==objectID);
     return(false);
 }
 

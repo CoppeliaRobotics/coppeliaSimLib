@@ -6,7 +6,7 @@
 #define SIM_FL (-1)
 #endif
 
-typedef bool (__cdecl *ptr_licPlugin_init)(bool,int,int,int,const char*,const char*,const char*,const char*,const char*,const char*);
+typedef bool (__cdecl *ptr_licPlugin_init)(bool,int,int,int,const char*,const char*,const char*,const char*,const char*,const char*,int);
 typedef char* (__cdecl *ptr_licPlugin_getAboutStr)(char**);
 typedef void (__cdecl *ptr_licPlugin_handleBrFile)(int,char*);
 typedef int (__cdecl *ptr_licPlugin_handleReadOpenFile)(int,char*);

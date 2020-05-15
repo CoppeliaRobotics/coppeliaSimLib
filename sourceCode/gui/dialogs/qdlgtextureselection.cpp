@@ -33,9 +33,9 @@ void CQDlgTextureSelection::refresh()
 {
     ui->qqTextureList->clear();
     int itemCount=0;
-    while (App::ct->textureCont->getObjectAtIndex(itemCount)!=nullptr)
+    while (App::currentWorld->textureContainer->getObjectAtIndex(itemCount)!=nullptr)
     {
-        CTextureObject* it=App::ct->textureCont->getObjectAtIndex(itemCount);
+        CTextureObject* it=App::currentWorld->textureContainer->getObjectAtIndex(itemCount);
         std::string txt(it->getObjectName());
         int sx,sy;
         it->getTextureSize(sx,sy);
@@ -48,9 +48,9 @@ void CQDlgTextureSelection::refresh()
         ui->qqTextureList->addItem(itm);
         itemCount++;
     }
-    for (int i=0;i<int(App::ct->objCont->visionSensorList.size());i++)
+    for (size_t i=0;i<App::currentWorld->sceneObjects->getVisionSensorCount();i++)
     {
-        CVisionSensor* rs=App::ct->objCont->getVisionSensor(App::ct->objCont->visionSensorList[i]);
+        CVisionSensor* rs=App::currentWorld->sceneObjects->getVisionSensorFromIndex(i);
         std::string txt(rs->getObjectName());
         int s[2];
         rs->getRealResolution(s);

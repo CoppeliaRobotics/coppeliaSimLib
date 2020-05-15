@@ -7,7 +7,6 @@
 #include "simStrings.h"
 #include "app.h"
 #include "vDateTime.h"
-#include "funcDebug.h"
 
 CAddOnScriptContainer::CAddOnScriptContainer()
 {
@@ -103,10 +102,12 @@ int CAddOnScriptContainer::insertAddOnScripts()
                 if ( (at.compare(ADDON_SCRIPT_PREFIX1_AUTOSTART)==0)||(at.compare(ADDON_SCRIPT_PREFIX2_AUTOSTART)==0) )
                     defScript->setAddOnScriptAutoRun();
                 addOnsCount++;
-                printf("Add-on script '%s' was loaded.\n",foundItem->name.c_str());
+                App::logMsg(sim_verbosity_infos,"add-on script '%s' was loaded.",foundItem->name.c_str());
             }
             else
-                printf("Failed loading add-on script '%s'.\n",foundItem->name.c_str());
+            {
+                App::logMsg(sim_verbosity_errors,"failed loading add-on script '%s'.",foundItem->name.c_str());
+            }
         }
         cnt++;
         foundItem=finder.getFoundItem(cnt);
@@ -151,11 +152,11 @@ int CAddOnScriptContainer::insertAddOnScripts()
                 archive.close();
                 file.close();
                 addOnsCount++;
-                printf("Add-on script '%s' was loaded.\n",fileName_withExtension.c_str());
+                App::logMsg(sim_verbosity_infos,"add-on script '%s' was loaded.",fileName_withExtension.c_str());
             }
             catch(VFILE_EXCEPTION_TYPE e)
             {
-                printf("Failed loading add-on script '%s'.\n",fileName_withExtension.c_str());
+                App::logMsg(sim_verbosity_errors,"failed loading add-on script '%s'.",fileName_withExtension.c_str());
             }
         }
     }
@@ -236,7 +237,7 @@ int CAddOnScriptContainer::handleAddOnScriptExecution(int callType,CInterfaceSta
 
 bool CAddOnScriptContainer::removeScript(int scriptID)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     for (size_t i=0;i<allAddOnScripts.size();i++)
     {
         if (allAddOnScripts[i]->getScriptID()==scriptID)
@@ -321,7 +322,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                     }
                     catch(VFILE_EXCEPTION_TYPE e)
                     {
-    //                  printf("Failed loading add-on script '%s'.\n",foundItem->name.c_str());
+    //                  printf("CoppeliaSim error: failed loading add-on script '%s'.\n",foundItem->name.c_str());
     //                  VFile::reportAndHandleFileExceptionError(e);
                     }
                 }

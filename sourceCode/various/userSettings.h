@@ -1,7 +1,6 @@
 #pragma once
 
-#include "mainCont.h"
-#include "visualParam.h"
+#include "colorObject.h"
 
 class CUserSettings
 {
@@ -35,7 +34,8 @@ public:
 
     bool getSupportOldApiNotation();
 
-    CVisualParam groupSelectionColor;
+    std::string _overrideConsoleVerbosity;
+    std::string _overrideStatusbarVerbosity;
     bool displayWorldReference;
     bool useGlFinish;
     bool useGlFinish_visionSensors;
@@ -74,19 +74,17 @@ public:
     bool navigationBackwardCompatibility;
     float colorAdjust_backCompatibility;
     bool specificGpuTweak;
-    bool enableOldCalcModuleGuis;
     bool useAlternateSerialPortRoutines;
-    bool enableOpenGlBasedCustomUiEditor;
-    bool enableOldMillObjects;
+    bool disableOpenGlBasedCustomUi;
     bool enableOldMirrorObjects;
     bool displayBoundingBoxeWhenObjectSelected;
     bool antiAliasing;
     float dynamicActivityRange;
     int freeServerPortStart;
     int freeServerPortRange;
+    bool darkMode;
     int renderingSurfaceVShift;
     int renderingSurfaceVResize;
-    int threadedRenderingDuringSimulation;
     int offscreenContextType;
     int fboType;
     bool forceFboViaExt;
@@ -103,7 +101,6 @@ public:
     bool doNotWritePersistentData;
     bool doNotShowCrashRecoveryMessage;
     bool doNotShowUpdateCheckMessage;
-    bool doNotShowSceneSelectionThumbnails;
     bool doNotShowProgressBars;
     bool doNotShowAcknowledgmentMessages;
     bool doNotShowVideoCompressionLibraryLoadError;

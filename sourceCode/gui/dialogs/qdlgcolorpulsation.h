@@ -3,7 +3,7 @@
 #define QDLGCOLORPULSATION_H
 
 #include "vDialog.h"
-#include "3DObject.h"
+#include "sceneObject.h"
 
 namespace Ui {
     class CQDlgColorPulsation;

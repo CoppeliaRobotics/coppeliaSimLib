@@ -111,22 +111,6 @@
      <string>Model is not renderable</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="qqNotCuttable">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>65</y>
-      <width>211</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Model is not cuttable</string>
-    </property>
-   </widget>
    <widget class="QCheckBox" name="qqNotDetectable">
     <property name="geometry">
      <rect>
@@ -254,7 +238,6 @@
   <tabstop>qqNotCollidable</tabstop>
   <tabstop>qqNotMeasurable</tabstop>
   <tabstop>qqNotRenderable</tabstop>
-  <tabstop>qqNotCuttable</tabstop>
   <tabstop>qqNotDetectable</tabstop>
   <tabstop>qqNotDynamic</tabstop>
   <tabstop>qqNotRespondable</tabstop>

@@ -2,7 +2,7 @@
 #pragma once
 
 #include "shape.h"
-#include "objCont.h"
+#include "sceneObjectContainer.h"
 #include "textureContainer.h"
 #include "uiThread.h"
 #include "textureProperty.h"
@@ -12,7 +12,7 @@
 class CShapeEditMode
 {
 public:
-    CShapeEditMode(CShape* shape,int editModeType,CObjCont* objCont,CTextureContainer* textureCont,CUiThread* uiThread,bool identicalVerticesCheck,bool identicalTrianglesCheck,float identicalVerticesTolerance);
+    CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContainer* objCont,CTextureContainer* textureCont,CUiThread* uiThread,bool identicalVerticesCheck,bool identicalTrianglesCheck,float identicalVerticesTolerance);
     virtual ~CShapeEditMode();
 
     bool endEditMode(bool cancelChanges);
@@ -89,7 +89,7 @@ public:
 private:
     CShape* _shape;
     int _editModeType;
-    CObjCont* _objCont;
+    CSceneObjectContainer* _objCont;
     CTextureContainer* _textureCont;
     CUiThread* _uiThread;
 

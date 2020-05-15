@@ -143,8 +143,7 @@ void POSIX_handleFunc(int signal)
 
 bool handleSignal(int signal)
 {
-//    std::cout << "Handling signal " << signal << std::endl;
-    std::cout << "External exit request: " << signal << std::endl;
+    App::logMsg(sim_verbosity_loadinfos,"external exit request: %i",signal);
     SSimulationThreadCommand cmd;
     cmd.cmdId=FINAL_EXIT_REQUEST_CMD;
     App::appendSimulationThreadCommand(cmd);

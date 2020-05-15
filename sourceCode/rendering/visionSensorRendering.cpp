@@ -13,7 +13,7 @@ void displayVisionSensor(CVisionSensor* visionSensor,CViewableBase* renderingObj
     if (displayAttrib&sim_displayattribute_renderpass)
         _displayBoundingBox(visionSensor,displayAttrib,true,0.0);
 
-    C3Vector normalVectorForLinesAndPoints(visionSensor->getCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
+    C3Vector normalVectorForLinesAndPoints(visionSensor->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
     // Object display:
     if (visionSensor->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))

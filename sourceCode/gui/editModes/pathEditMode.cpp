@@ -4,7 +4,7 @@
 #include "simStringTable.h"
 #include "app.h"
 
-CPathEditMode::CPathEditMode(CPath* path,CObjCont* objCont)
+CPathEditMode::CPathEditMode(CPath* path,CSceneObjectContainer* objCont)
 {
     _editionPathCont=path->pathContainer->copyYourself();
     _path=path;
@@ -226,7 +226,7 @@ void CPathEditMode::_keepXAxisAndAlignZAxis(std::vector<int>* selection)
 {
     if (selection->size()>1)
     {
-        C7Vector ctm(_path->getCumulativeTransformationPart1());
+        C7Vector ctm(_path->getCumulativeTransformation());
         CSimplePathPoint* last=_editionPathCont->getSimplePathPoint((*selection)[selection->size()-1]);
         C3Vector zVect(last->getTransformation().getMatrix().M.axis[2]);
         C3X3Matrix posRot,negRot;
@@ -277,7 +277,7 @@ void CPathEditMode::_generatePath()
     }
 }
 
-void CPathEditMode::addMenu(VMenu* menu,C3DObject* viewableObject)
+void CPathEditMode::addMenu(VMenu* menu,CSceneObject* viewableObject)
 {
     int selSize=getEditModeBufferSize();
     int buffSize=(int)editBufferPathPointsCopy.size();
@@ -310,7 +310,7 @@ void CPathEditMode::addMenu(VMenu* menu,C3DObject* viewableObject)
     menu->appendMenuItem(true,false,ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD,IDS_LEAVE_EDIT_MODE_AND_APPLY_CHANGES_MENU_ITEM);
 }
 
-bool CPathEditMode::processCommand(int commandID,C3DObject* viewableObject)
+bool CPathEditMode::processCommand(int commandID,CSceneObject* viewableObject)
 {   // Return value is true if the command was successful
     bool retVal=true;
     if (commandID==PATH_EDIT_MODE_SELECT_ALL_PATH_POINTS_EMCMD)
@@ -367,8 +367,8 @@ bool CPathEditMode::processCommand(int commandID,C3DObject* viewableObject)
     {
         deselectEditModeBuffer();
         CSimplePathPoint* it=new CSimplePathPoint();
-        C7Vector pathInv(_path->getCumulativeTransformation().getInverse());
-        it->setTransformation(pathInv*viewableObject->getCumulativeTransformationPart1(),_editionPathCont->getAttributes());
+        C7Vector pathInv(_path->getFullCumulativeTransformation().getInverse());
+        it->setTransformation(pathInv*viewableObject->getCumulativeTransformation(),_editionPathCont->getAttributes());
         _editionPathCont->insertSimplePathPoint(it,_editionPathCont->getSimplePathPointCount());
         addItemToEditModeBuffer(_editionPathCont->getSimplePathPointCount()-1);
         _editionPathCont->actualizePath();
@@ -439,7 +439,7 @@ void CPathEditMode::makeDummies()
         cmd.cmdId=PATHEDIT_MAKEDUMMY_GUITRIGGEREDCMD;
         cmd.stringParams.push_back("ExtractedDummy");
         cmd.floatParams.push_back(0.02f); // so that we can see them over the ctrl pts!
-        cmd.transfParams.push_back(_path->getCumulativeTransformation()*it->getTransformation());
+        cmd.transfParams.push_back(_path->getFullCumulativeTransformation()*it->getTransformation());
         App::appendSimulationThreadCommand(cmd);
     }
     deselectEditModeBuffer();

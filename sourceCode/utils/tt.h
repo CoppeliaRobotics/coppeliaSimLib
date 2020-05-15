@@ -52,18 +52,20 @@ public:
 
 // Name handling and copy handling:
 //************************************************************
+    static std::string generateNewName_hashOrNoHash(const std::string& name,bool hash);
     // Following is for copied objects:
-    static std::string generateNewName_dash(const std::string& name);
-    static std::string generateNewName_dash(const std::string& name,int suffixOffset);
+    static std::string generateNewName_hash(const std::string& name);
+    static std::string generateNewName_hash(const std::string& name,int suffixOffset);
 
     // Following is for copied objects:
-    static std::string generateNewName_noDash(const std::string& name);
-    static std::string generateNewName_noDash(const std::string& name,int suffixOffset);
+    static std::string generateNewName_noHash(const std::string& name);
+    static std::string generateNewName_noHash(const std::string& name,int suffixOffset);
 
     // Following is for both:
-    static int getNameSuffixNumber(const char* name,bool dash);
-    static std::string getNameWithoutSuffixNumber(const char* name,bool dash);
-    static bool removeIllegalCharacters(std::string& text,bool allowOneDashFollowedByNumbers);  
+    static bool isHashFree(const char* name);
+    static int getNameSuffixNumber(const char* name,bool hash);
+    static std::string getNameWithoutSuffixNumber(const char* name,bool hash);
+    static bool removeIllegalCharacters(std::string& text,bool allowOneHashFollowedByNumbers);
     static bool removeAltNameIllegalCharacters(std::string& text);
     static std::string getObjectAltNameFromObjectName(const std::string& text);
 //************************************************************

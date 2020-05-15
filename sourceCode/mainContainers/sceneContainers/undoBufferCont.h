@@ -1,18 +1,13 @@
-
 #pragma once
 
-#include "mainCont.h"
 #include "undoBuffer.h"
 #include "undoBufferArrays.h"
 
-class CUndoBufferCont : public CMainCont
+class CUndoBufferCont
 {
 public:
     CUndoBufferCont();
     virtual ~CUndoBufferCont();
-    void simulationAboutToStart();
-    void simulationEnded();
-    void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
     void emptySceneProcedure();
     void memorizeStateIfNeeded();
 
@@ -35,16 +30,14 @@ public:
     int getNextBufferId();
 
     CUndoBufferArrays undoBufferArrays;
-private:
 
+private:
     CUndoBufferCameras* _getFullBuffer(int index,std::vector<char>& fullBuff);
     int _getUsedMemory();
     bool _isGoodToMemorizeUndoOrRedo();
     void _commonInit();
-
     void _rememberSelectionState();
     void _restoreSelectionState();
-
     int _currentStateIndex;
     std::vector<CUndoBuffer*> _buffers;
     bool _announceChangeStartCalled;

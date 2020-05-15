@@ -1,10 +1,8 @@
-
 #pragma once
 
-#include "mainCont.h"
 #include "3Vector.h"
 #include "ser.h"
-#include "visualParam.h"
+#include "colorObject.h"
 
 enum { /* Bullet global float params */
     simi_bullet_global_stepsize=0,
@@ -77,7 +75,9 @@ enum { /* Newton global bit params */
     simi_newton_global_highjointaccuracy=4,
 };
 
-class CDynamicsContainer : public CMainCont 
+class CViewableBase;
+
+class CDynamicsContainer 
 {
 public:
     CDynamicsContainer();
@@ -178,7 +178,7 @@ public:
     void getNewtonDefaultFloatParams(std::vector<float>& p,int defType);
     void getNewtonDefaultIntParams(std::vector<int>& p,int defType);
 
-    CVisualParam contactPointColor;
+    CColorObject contactPointColor;
 
 protected:
     void _resetWarningFlags();

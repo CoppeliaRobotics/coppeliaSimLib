@@ -1,8 +1,6 @@
-
 #include "simAndUiThreadSync.h"
 #include "app.h"
 #include "vDateTime.h"
-#include "debugLogFile.h"
 #include "tt.h"
 
 VSimUiMutex CSimAndUiThreadSync::_uiReadPermission;
@@ -38,8 +36,8 @@ CSimAndUiThreadSync::~CSimAndUiThreadSync()
         {
             _ui_readLevel--;
             _uiReadPermission.unlock(); // release the read permission for the UI thread
-            if (_showActivityInConsole)
-                CDebugLogFile::addDebugText(false,_getLevelsString("$$R ").c_str()," (GUI) 'unlock for read' (",_functionName.c_str(),")\n");
+//            if (_showActivityInConsole)
+//                CDebugLogFile::addDebugText(false,_getLevelsString("$$R ").c_str()," (GUI) 'unlock for read' (",_functionName.c_str(),")\n");
         }
     }
 
@@ -50,18 +48,9 @@ CSimAndUiThreadSync::~CSimAndUiThreadSync()
         {
             _ui_writeLevel--;
 
-            if (_ui_writeLevel==0)
-            { // following to avoid visual artifacts:
-                for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
-                {
-                    C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
-                    it->bufferMainDisplayStateVariables();
-                }
-            }
-
             _uiWritePermission.unlock(); // release the write permission for the UI thread
 
-            if (_showActivityInConsole)
+/*            if (_showActivityInConsole)
             {
                 CDebugLogFile::addDebugText(false,_getLevelsString("$$W ").c_str()," (GUI) 'unlock for write' (",_functionName.c_str(),")\n");
                 if (_ui_writeLevel==0)
@@ -70,7 +59,7 @@ CSimAndUiThreadSync::~CSimAndUiThreadSync()
                     outputNakedDebugMessage("$$W -------------------------------------------------------\n");
                     outputNakedDebugMessage("$$W\n");
                 }
-            }
+            }*/
         }
     }
 
@@ -78,7 +67,7 @@ CSimAndUiThreadSync::~CSimAndUiThreadSync()
     {
         _sim_writeLevel--;
         _uiReadPermission.unlock(); // release the write permission for the SIM thread (i.e. allow the UI thread to read again)
-        if (_showActivityInConsole)
+/*        if (_showActivityInConsole)
         {
             CDebugLogFile::addDebugText(false,_getLevelsString("$$S ").c_str()," (SIM) 'unlock for write' (",_functionName.c_str(),")\n");
             if (_sim_writeLevel==0)
@@ -87,7 +76,7 @@ CSimAndUiThreadSync::~CSimAndUiThreadSync()
                 outputNakedDebugMessage("$$S +++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
                 outputNakedDebugMessage("$$S\n");
             }
-        }
+        }*/
     }
 
     if (_lockType==3)
@@ -103,13 +92,13 @@ CSimAndUiThreadSync::~CSimAndUiThreadSync()
         _sim_writeLevel=_sim_writeLevel_temp;
         _sim_writeLevel_temp=0;
 
-        if (_showActivityInConsole)
+/*        if (_showActivityInConsole)
         {
             CDebugLogFile::addDebugText(false,_getLevelsString("$$T ").c_str()," (SIM) 'restore previous locks' (",_functionName.c_str(),")\n");
             outputNakedDebugMessage("$$T #######################################################\n");
             outputNakedDebugMessage("$$T #######################################################\n");
             outputNakedDebugMessage("$$T\n");
-        }
+        }*/
     }
 }
 
@@ -119,7 +108,7 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventRead(int maxTime)
 
     if (!VThread::isCurrentThreadTheUiThread())
     { // we are NOT in the UI thread. This is a bug!
-        CDebugLogFile::addDebugText(true,"$$$ERROR in uiThread_tryToLockForUiEventRead (",_functionName.c_str(),"): not called from the UI thread.\n");
+//        CDebugLogFile::addDebugText(true,"$$$ERROR in uiThread_tryToLockForUiEventRead (",_functionName.c_str(),"): not called from the UI thread.\n");
         App::beep();
     }
 
@@ -131,8 +120,8 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventRead(int maxTime)
 
     _lockFunctionResult=0; // means lock failed
 
-    if (_showActivityInConsole)
-        CDebugLogFile::addDebugText(false,_getLevelsString("$$R ").c_str()," (GUI) 'try to lock for read' (",_functionName.c_str(),")\n");
+//    if (_showActivityInConsole)
+//        CDebugLogFile::addDebugText(false,_getLevelsString("$$R ").c_str()," (GUI) 'try to lock for read' (",_functionName.c_str(),")\n");
 
     int startTime=VDateTime::getTimeInMs();
     int to=1;
@@ -163,17 +152,17 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventRead(int maxTime)
 
     if (_lockFunctionResult==1)
     { // the SIM thread doesn't write data. This means that the UI thread can read data.
-        if (_showActivityInConsole)
-            CDebugLogFile::addDebugText(false,_getLevelsString("$$R ").c_str()," (GUI) 'locked for read' (",_functionName.c_str(),")\n");
+//        if (_showActivityInConsole)
+//            CDebugLogFile::addDebugText(false,_getLevelsString("$$R ").c_str()," (GUI) 'locked for read' (",_functionName.c_str(),")\n");
     }
     else
     { // the SIM thread is writing data. This means that the UI thread CANNOT read data.
-        if (_showActivityInConsole||_showLockFailsInConsole)
+/*        if (_showActivityInConsole||_showLockFailsInConsole)
         {
             outputNakedDebugMessage("$$R >>>>>>>>>>>>>>>>>>>>>>>\n");
             CDebugLogFile::addDebugText(false,_getLevelsString("$$R ").c_str()," (GUI) 'could not lock for read' (",_functionName.c_str(),")\n");
             outputNakedDebugMessage("$$R >>>>>>>>>>>>>>>>>>>>>>>\n");
-        }
+        }*/
     }
 
     return(_lockFunctionResult>0);
@@ -184,7 +173,7 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventWrite(int maxTime)
     _lockType=1; // UI WRITE
     if (!VThread::isCurrentThreadTheUiThread())
     { // we are NOT in the UI thread. This is a bug!
-        CDebugLogFile::addDebugText(true,"$$$ERROR in uiThread_tryToLockForUiEventWrite (",_functionName.c_str(),"): not called from the UI thread.\n");
+//        CDebugLogFile::addDebugText(true,"$$$ERROR in uiThread_tryToLockForUiEventWrite (",_functionName.c_str(),"): not called from the UI thread.\n");
         App::beep();
     }
 
@@ -196,10 +185,10 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventWrite(int maxTime)
 
     _lockFunctionResult=0; // means lock failed
 
-    if (_showActivityInConsole)
+/*    if (_showActivityInConsole)
     {
         CDebugLogFile::addDebugText(false,_getLevelsString("$$W ").c_str()," (GUI) 'try to lock for write' (",_functionName.c_str(),")\n");
-    }
+    }*/
 
     _ui_writeRequest=true; // so that the SIM thread waits in specific code sections (if not already there)
 
@@ -224,7 +213,7 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventWrite(int maxTime)
     }
 
     _ui_writeRequest=false; // reset the write request
-
+/*
     if (_showActivityInConsole)
     {
         if (_lockFunctionResult>0)
@@ -237,8 +226,8 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventWrite(int maxTime)
             }
             CDebugLogFile::addDebugText(false,_getLevelsString("$$W ").c_str()," (GUI) 'locked for write' (",_functionName.c_str(),")\n");
         }
-    }
-    if (_showActivityInConsole||_showLockFailsInConsole)
+    }*/
+/*    if (_showActivityInConsole||_showLockFailsInConsole)
     {
         if (_lockFunctionResult<=0)
         {
@@ -246,7 +235,7 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventWrite(int maxTime)
             CDebugLogFile::addDebugText(false,_getLevelsString("$$W ").c_str()," (GUI) 'could not lock for write' (",_functionName.c_str(),")\n");
             outputNakedDebugMessage("$$W >>>>>>>>>>>>>>>>>>>>>>>\n");
         }
-    }
+    }*/
 
     return(_ui_writeLevel>0);
 }
@@ -257,7 +246,7 @@ void CSimAndUiThreadSync::simThread_lockForSimThreadWrite()
 
     if (VThread::isCurrentThreadTheUiThread())
     { // we are NOT in the UI thread. This is a bug!
-        CDebugLogFile::addDebugText(true,"$$SERROR in simThread_lockForSimThreadWrite (",_functionName.c_str(),"): called from a the UI thread.\n");
+//        CDebugLogFile::addDebugText(true,"$$SERROR in simThread_lockForSimThreadWrite (",_functionName.c_str(),"): called from a the UI thread.\n");
         App::beep();
     }
 
@@ -269,13 +258,13 @@ void CSimAndUiThreadSync::simThread_lockForSimThreadWrite()
 
     _lockFunctionResult=1; // lock in this function will always succeed (blocking)
 
-    if (_showActivityInConsole)
-        CDebugLogFile::addDebugText(false,_getLevelsString("$$S ").c_str()," (SIM) 'locking for write' (",_functionName.c_str(),")\n");
+//    if (_showActivityInConsole)
+//        CDebugLogFile::addDebugText(false,_getLevelsString("$$S ").c_str()," (SIM) 'locking for write' (",_functionName.c_str(),")\n");
 
     _uiReadPermission.lock(VSimUiMutex::nonUi);
     _sim_writeLevel++;
 
-    if (_showActivityInConsole)
+/*    if (_showActivityInConsole)
     {
         if (_sim_writeLevel==1)
         {
@@ -284,7 +273,7 @@ void CSimAndUiThreadSync::simThread_lockForSimThreadWrite()
             outputNakedDebugMessage("$$S +++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
         }
         CDebugLogFile::addDebugText(false,_getLevelsString("$$S ").c_str()," (SIM) 'locked for write' (",_functionName.c_str(),")\n");
-    }
+    }*/
 }
 
 bool CSimAndUiThreadSync::simOrUiThread_tryToLockForWrite_cApi()
@@ -326,7 +315,7 @@ bool CSimAndUiThreadSync::simThread_forbidUiThreadToWrite(bool blocking)
         _sim_readLevel++;
         if (_sim_readLevel!=1)
         { // should not happen!
-            CDebugLogFile::addDebugText(true,"$$SERROR in simThread_forbidUiThreadToWrite: multiple SIM read locks.\n");
+//            CDebugLogFile::addDebugText(true,"$$SERROR in simThread_forbidUiThreadToWrite: multiple SIM read locks.\n");
             App::beep();
         }
 
@@ -343,7 +332,7 @@ bool CSimAndUiThreadSync::simThread_forbidUiThreadToWrite(bool blocking)
             _sim_readLevel++;
             if (_sim_readLevel!=1)
             { // should not happen!
-                CDebugLogFile::addDebugText(true,"$$SERROR in simThread_forbidUiThreadToWrite: multiple SIM read locks.\n");
+//                CDebugLogFile::addDebugText(true,"$$SERROR in simThread_forbidUiThreadToWrite: multiple SIM read locks.\n");
                 App::beep();
             }
         }
@@ -356,7 +345,7 @@ void CSimAndUiThreadSync::simThread_allowUiThreadToWrite()
     _sim_readLevel--;
     if (_sim_readLevel!=0)
     { // should not happen!
-        CDebugLogFile::addDebugText(true,"$$SERROR in simThread_allowUiThreadToWrite: multiple SIM read locks.\n");
+//        CDebugLogFile::addDebugText(true,"$$SERROR in simThread_allowUiThreadToWrite: multiple SIM read locks.\n");
         App::beep();
     }
     _uiWritePermission.unlock();
@@ -368,7 +357,7 @@ void CSimAndUiThreadSync::simThread_temporarilyAllowUiThreadToReadAndWrite()
 
     if (VThread::isCurrentThreadTheUiThread())
     { // we are NOT in the UI thread. This is a bug!
-        CDebugLogFile::addDebugText(true,"$$T ERROR in simThread_temporarilyAllowUiThreadToReadAndWrite (",_functionName.c_str(),"): called from a the UI thread.\n");
+//        CDebugLogFile::addDebugText(true,"$$T ERROR in simThread_temporarilyAllowUiThreadToReadAndWrite (",_functionName.c_str(),"): called from a the UI thread.\n");
         App::beep();
     }
 
@@ -387,13 +376,13 @@ void CSimAndUiThreadSync::simThread_temporarilyAllowUiThreadToReadAndWrite()
     for (int i=0;i<_sim_readLevel_temp;i++)
         _uiWritePermission.unlock();
 
-    if (_showActivityInConsole)
+/*    if (_showActivityInConsole)
     {
         outputNakedDebugMessage("$$T\n");
         outputNakedDebugMessage("$$T #######################################################\n");
         outputNakedDebugMessage("$$T #######################################################\n");
         CDebugLogFile::addDebugText(false,_getLevelsString("$$T ").c_str()," (SIM) 'temporarily release locks' (",_functionName.c_str(),")\n");
-    }
+    }*/
 }
 
 bool CSimAndUiThreadSync::hasUiLockedResourcesForReadOrWrite()
@@ -416,14 +405,14 @@ std::string CSimAndUiThreadSync::_getLevelsString(const char* abr)
 
 void CSimAndUiThreadSync::outputDebugMessage(const char* callLocation,const char* msg)
 { // function is static!
-    if (_showActivityInConsole)
-        CDebugLogFile::addDebugText(false,_getLevelsString("$$$ ").c_str()," 'aux debug msg' (",callLocation,"): ",msg,"\n");
+//    if (_showActivityInConsole)
+//        CDebugLogFile::addDebugText(false,_getLevelsString("$$$ ").c_str()," 'aux debug msg' (",callLocation,"): ",msg,"\n");
 }
 
 void CSimAndUiThreadSync::outputNakedDebugMessage(const char* msg)
 { // function is static!
-    if (_showActivityInConsole)
-        CDebugLogFile::addDebugText(false,msg);
+//    if (_showActivityInConsole)
+//        CDebugLogFile::addDebugText(false,msg);
 }
 
 bool CSimAndUiThreadSync::getShowActivityInConsole()

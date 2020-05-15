@@ -12,23 +12,7 @@ CMainSettings::CMainSettings()
 }
 
 CMainSettings::~CMainSettings()
-{
-
-}
-
-void CMainSettings::simulationAboutToStart()
-{
-
-}
-
-void CMainSettings::simulationEnded()
-{
-
-}
-
-void CMainSettings::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
-{
-
+{ // beware, the current world could be nullptr
 }
 
 void CMainSettings::setUpDefaultValues()
@@ -183,17 +167,17 @@ void CMainSettings::serialize(CSer& ar)
 
                         bool bulletUseDefault=!SIM_IS_BIT_SET(dummy,0);
                         bool _displayContactPoints=SIM_IS_BIT_SET(dummy,2);
-                        App::ct->dynamicsContainer->setDisplayContactPoints(_displayContactPoints);
+                        App::currentWorld->dynamicsContainer->setDisplayContactPoints(_displayContactPoints);
                         bool odeUseDefault=!SIM_IS_BIT_SET(dummy,3);
                         proximitySensorsEnabled=SIM_IS_BIT_SET(dummy,5);
                         bool _dynamicODEUseQuickStep=!SIM_IS_BIT_SET(dummy,6);
                         statusBoxOpenState=SIM_IS_BIT_SET(dummy,7);
 
-                        App::ct->dynamicsContainer->setEngineBoolParam(sim_ode_global_quickstep,_dynamicODEUseQuickStep,true);
+                        App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_ode_global_quickstep,_dynamicODEUseQuickStep,true);
                         int _dynamicDefaultTypeCalculationParameters=1; // precise.
                         if ((!bulletUseDefault)||(!odeUseDefault))
                             _dynamicDefaultTypeCalculationParameters=4; // custom
-                        App::ct->dynamicsContainer->setUseDynamicDefaultCalculationParameters(_dynamicDefaultTypeCalculationParameters);
+                        App::currentWorld->dynamicsContainer->setUseDynamicDefaultCalculationParameters(_dynamicDefaultTypeCalculationParameters);
 
                         forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers=true;
                     }
@@ -204,8 +188,8 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> byteQuantity;
                         float _dynamicsBULLETStepSize,_dynamicsODEStepSize;
                         ar >> _dynamicsBULLETStepSize >> _dynamicsODEStepSize;
-                        App::ct->dynamicsContainer->setEngineFloatParam(sim_bullet_global_stepsize,_dynamicsBULLETStepSize,true);
-                        App::ct->dynamicsContainer->setEngineFloatParam(sim_ode_global_stepsize,_dynamicsODEStepSize,true);
+                        App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_bullet_global_stepsize,_dynamicsBULLETStepSize,true);
+                        App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_ode_global_stepsize,_dynamicsODEStepSize,true);
                     }
 
                     if (theName.compare("Ddi")==0)
@@ -214,7 +198,7 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> byteQuantity;
                         int _dynamicDefaultTypeCalculationParameters;
                         ar >> _dynamicDefaultTypeCalculationParameters;
-                        App::ct->dynamicsContainer->setUseDynamicDefaultCalculationParameters(_dynamicDefaultTypeCalculationParameters);
+                        App::currentWorld->dynamicsContainer->setUseDynamicDefaultCalculationParameters(_dynamicDefaultTypeCalculationParameters);
 
                     }
 
@@ -225,10 +209,10 @@ void CMainSettings::serialize(CSer& ar)
                         unsigned char dummy;
                         ar >> dummy;
                         bool _displayContactPoints=SIM_IS_BIT_SET(dummy,2);
-                        App::ct->dynamicsContainer->setDisplayContactPoints(_displayContactPoints);
+                        App::currentWorld->dynamicsContainer->setDisplayContactPoints(_displayContactPoints);
                         proximitySensorsEnabled=SIM_IS_BIT_SET(dummy,5);
                         bool _dynamicODEUseQuickStep=!SIM_IS_BIT_SET(dummy,6);
-                        App::ct->dynamicsContainer->setEngineBoolParam(sim_ode_global_quickstep,_dynamicODEUseQuickStep,true);
+                        App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_ode_global_quickstep,_dynamicODEUseQuickStep,true);
                         statusBoxOpenState=SIM_IS_BIT_SET(dummy,7);
                     }
                     if (theName.compare("Va5")==0)
@@ -267,7 +251,7 @@ void CMainSettings::serialize(CSer& ar)
                         visionSensorsEnabled=!SIM_IS_BIT_SET(dummy,5);
                         millsEnabled=!SIM_IS_BIT_SET(dummy,6);
                         bool _dynamicsEnabled=!SIM_IS_BIT_SET(dummy,7);
-                        App::ct->dynamicsContainer->setDynamicsEnabled(_dynamicsEnabled);
+                        App::currentWorld->dynamicsContainer->setDynamicsEnabled(_dynamicsEnabled);
                     }
                     if (theName.compare("Crc")==0)
                     {
@@ -299,7 +283,7 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> byteQuantity;
                         float _dynamicBULLETInternalScalingFactor;
                         ar >> _dynamicBULLETInternalScalingFactor;
-                        App::ct->dynamicsContainer->setEngineFloatParam(sim_bullet_global_internalscalingfactor,_dynamicBULLETInternalScalingFactor,true);
+                        App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_bullet_global_internalscalingfactor,_dynamicBULLETInternalScalingFactor,true);
                     }
                     if (theName.compare("Dcs")==0)
                     { // Keep for backward compatibility (27/11/2012)
@@ -307,7 +291,7 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> byteQuantity;
                         int _dynamicBULLETConstraintSolvingIterations;
                         ar >> _dynamicBULLETConstraintSolvingIterations;
-                        App::ct->dynamicsContainer->setEngineIntParam(sim_bullet_global_constraintsolvingiterations,_dynamicBULLETConstraintSolvingIterations,true);
+                        App::currentWorld->dynamicsContainer->setEngineIntParam(sim_bullet_global_constraintsolvingiterations,_dynamicBULLETConstraintSolvingIterations,true);
                     }
                     if (theName.compare("Gvy")==0)
                     { // Keep for backward compatibility (27/11/2012)
@@ -315,7 +299,7 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> byteQuantity;
                         C3Vector _gravity;
                         ar >> _gravity(0) >> _gravity(1) >> _gravity(2);
-                        App::ct->dynamicsContainer->setGravity(_gravity);
+                        App::currentWorld->dynamicsContainer->setGravity(_gravity);
                     }
                     if (theName.compare("Od1")==0)
                     { // for backward compatibility (3/1/2012)
@@ -324,10 +308,10 @@ void CMainSettings::serialize(CSer& ar)
                         float _dynamicODEInternalScalingFactor,_dynamicODEGlobalERP,_dynamicODEGlobalCFM;
                         int _dynamicODEConstraintSolvingIterations;
                         ar >> dynamicsODEStepSizeDivider_forBackwardCompatibility_03_01_2012 >> _dynamicODEInternalScalingFactor >> _dynamicODEConstraintSolvingIterations >> _dynamicODEGlobalERP >> _dynamicODEGlobalCFM;
-                        App::ct->dynamicsContainer->setEngineIntParam(sim_ode_global_constraintsolvingiterations,_dynamicODEConstraintSolvingIterations,true);
-                        App::ct->dynamicsContainer->setEngineFloatParam(sim_ode_global_internalscalingfactor,_dynamicODEInternalScalingFactor,true);
-                        App::ct->dynamicsContainer->setEngineFloatParam(sim_ode_global_erp,_dynamicODEGlobalERP,true);
-                        App::ct->dynamicsContainer->setEngineFloatParam(sim_ode_global_cfm,_dynamicODEGlobalCFM,true);
+                        App::currentWorld->dynamicsContainer->setEngineIntParam(sim_ode_global_constraintsolvingiterations,_dynamicODEConstraintSolvingIterations,true);
+                        App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_ode_global_internalscalingfactor,_dynamicODEInternalScalingFactor,true);
+                        App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_ode_global_erp,_dynamicODEGlobalERP,true);
+                        App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_ode_global_cfm,_dynamicODEGlobalCFM,true);
                     }
                     if (theName.compare("Od2")==0)
                     { // Keep for backward compatibility (27/11/2012)
@@ -336,10 +320,10 @@ void CMainSettings::serialize(CSer& ar)
                         float _dynamicODEInternalScalingFactor,_dynamicODEGlobalERP,_dynamicODEGlobalCFM;
                         int _dynamicODEConstraintSolvingIterations;
                         ar >> _dynamicODEInternalScalingFactor >> _dynamicODEConstraintSolvingIterations >> _dynamicODEGlobalERP >> _dynamicODEGlobalCFM;
-                        App::ct->dynamicsContainer->setEngineIntParam(sim_ode_global_constraintsolvingiterations,_dynamicODEConstraintSolvingIterations,true);
-                        App::ct->dynamicsContainer->setEngineFloatParam(sim_ode_global_internalscalingfactor,_dynamicODEInternalScalingFactor,true);
-                        App::ct->dynamicsContainer->setEngineFloatParam(sim_ode_global_erp,_dynamicODEGlobalERP,true);
-                        App::ct->dynamicsContainer->setEngineFloatParam(sim_ode_global_cfm,_dynamicODEGlobalCFM,true);
+                        App::currentWorld->dynamicsContainer->setEngineIntParam(sim_ode_global_constraintsolvingiterations,_dynamicODEConstraintSolvingIterations,true);
+                        App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_ode_global_internalscalingfactor,_dynamicODEInternalScalingFactor,true);
+                        App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_ode_global_erp,_dynamicODEGlobalERP,true);
+                        App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_ode_global_cfm,_dynamicODEGlobalCFM,true);
                     }
                     if (theName.compare("Deu")==0)
                     { // Keep for backward compatibility (27/11/2012)
@@ -347,7 +331,7 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> byteQuantity;
                         int _dynamicEngineToUse;
                         ar >> _dynamicEngineToUse;
-                        App::ct->dynamicsContainer->setDynamicEngineType(_dynamicEngineToUse,0);
+                        App::currentWorld->dynamicsContainer->setDynamicEngineType(_dynamicEngineToUse,0);
                     }
                     if (theName.compare("Bcm")==0)
                     { // Keep for backward compatibility (27/11/2012)
@@ -355,7 +339,7 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> byteQuantity;
                         float _dynamicBULLETCollisionMarginFactor;
                         ar >> _dynamicBULLETCollisionMarginFactor;
-                        App::ct->dynamicsContainer->setEngineFloatParam(sim_bullet_global_collisionmarginfactor,_dynamicBULLETCollisionMarginFactor,true);
+                        App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_bullet_global_collisionmarginfactor,_dynamicBULLETCollisionMarginFactor,true);
                     }
                     if (noHit)
                         ar.loadUnknownData();

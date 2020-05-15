@@ -29,7 +29,7 @@ void CQDlgInertiaTensor::okEvent()
 
 void CQDlgInertiaTensor::refresh()
 {
-    bool severalShapes=App::ct->objCont->getShapeNumberInSelection()>1;
+    bool severalShapes=App::currentWorld->sceneObjects->getShapeCountInSelection()>1;
     if (!severalShapes)
         applyToSelection=false;
     ui->qqI11->setText(tt::getEString(true,tensor[0],3).c_str());

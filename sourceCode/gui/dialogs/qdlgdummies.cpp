@@ -30,11 +30,11 @@ void CQDlgDummies::refresh()
 {
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
-    bool sel=App::ct->objCont->isLastSelectionADummy();
-    bool bigSel=(App::ct->objCont->getDummyNumberInSelection()>1);
-    CDummy* it=App::ct->objCont->getLastSelection_dummy();
+    bool sel=App::currentWorld->sceneObjects->isLastSelectionADummy();
+    bool bigSel=(App::currentWorld->sceneObjects->getDummyCountInSelection()>1);
+    CDummy* it=App::currentWorld->sceneObjects->getLastSelectionDummy();
 
     ui->qqSize->setEnabled(sel&&noEditModeNoSim);
     ui->qqColor->setEnabled(sel&&noEditModeNoSim);
@@ -42,7 +42,7 @@ void CQDlgDummies::refresh()
 
     ui->qqLinkedDummyCombo->setEnabled(sel&&noEditModeNoSim);
     ui->qqLinkedDummyCombo->clear();
-    ui->qqLinkTypeCombo->setEnabled(sel&&(it->getLinkedDummyID()!=-1)&&noEditModeNoSim);
+    ui->qqLinkTypeCombo->setEnabled(sel&&(it->getLinkedDummyHandle()!=-1)&&noEditModeNoSim);
     ui->qqLinkTypeCombo->clear();
 
     ui->qqfollowParentOrientation->setEnabled(sel&&noEditModeNoSim);
@@ -50,14 +50,14 @@ void CQDlgDummies::refresh()
 
     if (sel)
     {
-        ui->qqSize->setText(tt::getFString(false,it->getSize(),4).c_str());
+        ui->qqSize->setText(tt::getFString(false,it->getDummySize(),4).c_str());
 
         ui->qqLinkedDummyCombo->addItem(strTranslate(IDSN_NONE),QVariant(-1));
         std::vector<std::string> names;
         std::vector<int> ids;
-        for (int i=0;i<int(App::ct->objCont->dummyList.size());i++)
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getDummyCount();i++)
         {
-            CDummy* it2=App::ct->objCont->getDummy(App::ct->objCont->dummyList[i]);
+            CDummy* it2=App::currentWorld->sceneObjects->getDummyFromIndex(i);
             if (it2!=it)
             {
                 names.push_back(it2->getObjectName());
@@ -69,14 +69,14 @@ void CQDlgDummies::refresh()
             ui->qqLinkedDummyCombo->addItem(names[i].c_str(),QVariant(ids[i]));
         for (int i=0;i<ui->qqLinkedDummyCombo->count();i++)
         {
-            if (ui->qqLinkedDummyCombo->itemData(i).toInt()==it->getLinkedDummyID())
+            if (ui->qqLinkedDummyCombo->itemData(i).toInt()==it->getLinkedDummyHandle())
             {
                 ui->qqLinkedDummyCombo->setCurrentIndex(i);
                 break;
             }
         }
 
-        if (it->getLinkedDummyID()!=-1)
+        if (it->getLinkedDummyHandle()!=-1)
         {
             ui->qqLinkTypeCombo->addItem(strTranslate(IDS_DUMMY_LINK_TYPE_IK_TIP_TARGET),QVariant(sim_dummy_linktype_ik_tip_target));
             ui->qqLinkTypeCombo->addItem(strTranslate(IDS_DUMMY_LINK_TYPE_GCS_LOOP_CLOSURE),QVariant(sim_dummy_linktype_gcs_loop_closure));
@@ -143,7 +143,7 @@ void CQDlgDummies::on_qqSize_editingFinished()
     {
         bool ok;
         float newVal=ui->qqSize->text().toFloat(&ok);
-        App::appendSimulationThreadCommand(SET_SIZE_DUMMYGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+        App::appendSimulationThreadCommand(SET_SIZE_DUMMYGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -153,7 +153,7 @@ void CQDlgDummies::on_qqColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_DUMMY,App::ct->objCont->getLastSelectionID(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_DUMMY,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
     }
 }
 
@@ -161,14 +161,14 @@ void CQDlgDummies::on_qqApplyMainProperties_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CDummy* it=App::ct->objCont->getLastSelection_dummy();
+        CDummy* it=App::currentWorld->sceneObjects->getLastSelectionDummy();
         if (it!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=APPLY_VISUALPROP_DUMMYGUITRIGGEREDCMD;
-            cmd.intParams.push_back(App::ct->objCont->getLastSelectionID());
-            for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
-                cmd.intParams.push_back(App::ct->objCont->getSelID(i));
+            cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount()-1;i++)
+                cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -183,7 +183,7 @@ void CQDlgDummies::on_qqLinkedDummyCombo_currentIndexChanged(int index)
         IF_UI_EVENT_CAN_WRITE_DATA
         {
             int objID=ui->qqLinkedDummyCombo->itemData(ui->qqLinkedDummyCombo->currentIndex()).toInt();
-            App::appendSimulationThreadCommand(SET_LINKEDDUMMY_DUMMYGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),objID);
+            App::appendSimulationThreadCommand(SET_LINKEDDUMMY_DUMMYGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),objID);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -197,7 +197,7 @@ void CQDlgDummies::on_qqLinkTypeCombo_currentIndexChanged(int index)
         IF_UI_EVENT_CAN_WRITE_DATA
         {
             int dataID=ui->qqLinkTypeCombo->itemData(ui->qqLinkTypeCombo->currentIndex()).toInt();
-            App::appendSimulationThreadCommand(SET_LINKTYPE_DUMMYGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),dataID);
+            App::appendSimulationThreadCommand(SET_LINKTYPE_DUMMYGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),dataID);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -208,7 +208,7 @@ void CQDlgDummies::on_qqfollowParentOrientation_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_FOLLOWORIENTATION_DUMMYGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_FOLLOWORIENTATION_DUMMYGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -218,7 +218,7 @@ void CQDlgDummies::on_qqFollow_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_FOLLOWPOSITION_DUMMYGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_FOLLOWPOSITION_DUMMYGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -228,7 +228,7 @@ void CQDlgDummies::on_qqFree_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(SET_FREEORFIXEDONPATH_DUMMYGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),1);
+        App::appendSimulationThreadCommand(SET_FREEORFIXEDONPATH_DUMMYGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),1);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -238,7 +238,7 @@ void CQDlgDummies::on_qqFixed_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(SET_FREEORFIXEDONPATH_DUMMYGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),0);
+        App::appendSimulationThreadCommand(SET_FREEORFIXEDONPATH_DUMMYGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),0);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -252,7 +252,7 @@ void CQDlgDummies::on_qqOffset_editingFinished()
     {
         bool ok;
         float newVal=ui->qqOffset->text().toFloat(&ok);
-        App::appendSimulationThreadCommand(SET_OFFSET_DUMMYGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+        App::appendSimulationThreadCommand(SET_OFFSET_DUMMYGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -266,7 +266,7 @@ void CQDlgDummies::on_qqIncrement_editingFinished()
     {
         bool ok;
         float newVal=ui->qqIncrement->text().toFloat(&ok);
-        App::appendSimulationThreadCommand(SET_COPYINCREMENT_DUMMYGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+        App::appendSimulationThreadCommand(SET_COPYINCREMENT_DUMMYGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

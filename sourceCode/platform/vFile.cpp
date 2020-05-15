@@ -1,5 +1,8 @@
 #include "vFile.h"
 #include "simStringTable.h"
+#ifdef SIM_LIB
+#include "app.h"
+#endif
 #ifdef SIM_WITH_GUI
 #include <QMessageBox>
 #endif
@@ -115,7 +118,9 @@ void VFile::reportAndHandleFileExceptionError(VFILE_EXCEPTION_TYPE e)
     // stl file exceptions:
     QMessageBox::critical(nullptr,IDSN_FILE_EXCEPTION_ERROR,e.what());
 #endif
-    printf("File exception error: %s\n",e.what());
+#ifdef SIM_LIB
+    App::logMsg(sim_verbosity_errors,"file exception error: %s",e.what());
+#endif
 }
 
 void VFile::eraseFile(const std::string& filenameAndPath)

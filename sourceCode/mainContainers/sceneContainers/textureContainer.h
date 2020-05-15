@@ -1,26 +1,20 @@
-
 #pragma once
 
-#include "mainCont.h"
 #include "textureObject.h"
 
-class CTextureContainer : public CMainCont 
+class CTextureContainer 
 {
 public:
     CTextureContainer();
     virtual ~CTextureContainer();
-    void newSceneProcedure();
-    void simulationAboutToStart();
-    void simulationEnded();
-    void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
 
     CTextureObject* getObject(int objectID);
     CTextureObject* getObject(const char* objectName);
     CTextureObject* getObjectAtIndex(int index);
     int addObject(CTextureObject* anObject,bool objectIsACopy);
     int addObjectWithSuffixOffset(CTextureObject* anObject,bool objectIsACopy,int suffixOffset);
-    void getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix);
-    bool canSuffix1BeSetToSuffix2(int suffix1,int suffix2);
+    void getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix) const;
+    bool canSuffix1BeSetToSuffix2(int suffix1,int suffix2) const;
     void setSuffix1ToSuffix2(int suffix1,int suffix2);
     int getSameObjectID(CTextureObject* anObject);
     void removeObject(int objectID);

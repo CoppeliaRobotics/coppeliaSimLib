@@ -45,9 +45,9 @@ void CQDlgCollisions::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThread
 void CQDlgCollisions::refresh()
 {
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
-    ui->qqEnableAll->setChecked(App::ct->mainSettings->collisionDetectionEnabled);
+    ui->qqEnableAll->setChecked(App::currentWorld->mainSettings->collisionDetectionEnabled);
 
     if (!inSelectionRoutine)
     {
@@ -56,7 +56,7 @@ void CQDlgCollisions::refresh()
         selectObjectInList(selectedObjectID);
     }
 
-    CRegCollision* it=App::ct->collisions->getObject(getSelectedObjectID());
+    CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
     ui->qqComputeContour->setEnabled((it!=nullptr)&&it->canComputeCollisionContour()&&noEditModeNoSim);
 
     ui->qqAddNewObject->setEnabled(noEditModeNoSim);
@@ -87,14 +87,14 @@ void CQDlgCollisions::refresh()
 
 void CQDlgCollisions::updateObjectsInList()
 {
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
     ui->qqCollisionList->setEnabled(noEditModeNoSim);
     ui->qqCollisionList->clear();
-    for (size_t i=0;i<App::ct->collisions->collisionObjects.size();i++)
+    for (size_t i=0;i<App::currentWorld->collisions->getObjectCount();i++)
     {
-        CRegCollision* it=App::ct->collisions->collisionObjects[i];
-        std::string tmp=it->getObjectPartnersName();
-        int id=it->getObjectID();
+        CCollisionObject* it=App::currentWorld->collisions->getObjectFromIndex(i);
+        std::string tmp=it->getObjectDescriptiveName();
+        int id=it->getObjectHandle();
         QListWidgetItem* itm=new QListWidgetItem(tmp.c_str());
         itm->setData(Qt::UserRole,QVariant(id));
         itm->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsEnabled);
@@ -147,7 +147,7 @@ void CQDlgCollisions::on_qqCollisionList_itemSelectionChanged()
     IF_UI_EVENT_CAN_READ_DATA
     {
         int objID=getSelectedObjectID();
-        CRegCollision* coll=App::ct->collisions->getObject(objID);
+        CCollisionObject* coll=App::currentWorld->collisions->getObjectFromHandle(objID);
         if (coll!=nullptr)
             ((CEditBoxDelegate*)ui->qqCollisionList->itemDelegate())->initialText=coll->getObjectName();
         else
@@ -165,15 +165,15 @@ void CQDlgCollisions::on_qqCollisionList_itemChanged(QListWidgetItem *item)
         if (item!=nullptr)
         {
             std::string newName(item->text().toStdString());
-            CRegCollision* it=App::ct->collisions->getObject(item->data(Qt::UserRole).toInt());
+            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(item->data(Qt::UserRole).toInt());
             if ( (it!=nullptr)&&(newName!="") )
             {
                 if (it->getObjectName()!=newName)
                 {
                     tt::removeIllegalCharacters(newName,true);
-                    if (App::ct->collisions->getObject(newName)==nullptr)
+                    if (App::currentWorld->collisions->getObjectFromName(newName.c_str())==nullptr)
                     {
-                        App::appendSimulationThreadCommand(SET_OBJECTNAME_COLLISIONGUITRIGGEREDCMD,it->getObjectID(),-1,0.0,0.0,newName.c_str());
+                        App::appendSimulationThreadCommand(SET_OBJECTNAME_COLLISIONGUITRIGGEREDCMD,it->getObjectHandle(),-1,0.0,0.0,newName.c_str());
                         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                     }
                 }
@@ -222,10 +222,10 @@ void CQDlgCollisions::on_qqExplicitHandling_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CRegCollision* it=App::ct->collisions->getObject(getSelectedObjectID());
+        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
         {
-            App::appendSimulationThreadCommand(TOGGLE_EXPLICITHANDLING_COLLISIONGUITRIGGEREDCMD,it->getObjectID());
+            App::appendSimulationThreadCommand(TOGGLE_EXPLICITHANDLING_COLLISIONGUITRIGGEREDCMD,it->getObjectHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -236,10 +236,10 @@ void CQDlgCollisions::on_qqColliderColorChanges_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CRegCollision* it=App::ct->collisions->getObject(getSelectedObjectID());
+        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
         {
-            App::appendSimulationThreadCommand(TOGGLE_COLLIDERCOLORCHANGES_COLLISIONGUITRIGGEREDCMD,it->getObjectID());
+            App::appendSimulationThreadCommand(TOGGLE_COLLIDERCOLORCHANGES_COLLISIONGUITRIGGEREDCMD,it->getObjectHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -250,10 +250,10 @@ void CQDlgCollisions::on_qqComputeContour_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CRegCollision* it=App::ct->collisions->getObject(getSelectedObjectID());
+        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
         {
-            App::appendSimulationThreadCommand(TOGGLE_COLLISIONCONTOUR_COLLISIONGUITRIGGEREDCMD,it->getObjectID());
+            App::appendSimulationThreadCommand(TOGGLE_COLLISIONCONTOUR_COLLISIONGUITRIGGEREDCMD,it->getObjectHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -264,10 +264,10 @@ void CQDlgCollisions::on_qqCollideeColorChanges_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CRegCollision* it=App::ct->collisions->getObject(getSelectedObjectID());
+        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
         {
-            App::appendSimulationThreadCommand(TOGGLE_COLLIDEECOLORCHANGES_COLLISIONGUITRIGGEREDCMD,it->getObjectID());
+            App::appendSimulationThreadCommand(TOGGLE_COLLIDEECOLORCHANGES_COLLISIONGUITRIGGEREDCMD,it->getObjectHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -288,14 +288,14 @@ void CQDlgCollisions::on_qqContourWidth_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CRegCollision* it=App::ct->collisions->getObject(getSelectedObjectID());
+        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
         {
             bool ok;
             int newVal=ui->qqContourWidth->text().toInt(&ok);
             if (ok)
             {
-                App::appendSimulationThreadCommand(SET_CONTOURWIDTH_COLLISIONGUITRIGGEREDCMD,it->getObjectID(),newVal);
+                App::appendSimulationThreadCommand(SET_CONTOURWIDTH_COLLISIONGUITRIGGEREDCMD,it->getObjectHandle(),newVal);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
         }

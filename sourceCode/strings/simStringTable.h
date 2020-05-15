@@ -1,10 +1,6 @@
 #pragma once
 
 #define IDSN_DEBUG_MENU_ITEM "Debug"
-#define IDSN_SHOW_INTERNAL_FUNCTION_ACCESS_DEBUG_MENU_ITEM "Debug internal function access (will heavily slow down CoppeliaSim)"
-#define IDSN_SHOW_C_API_ACCESS_DEBUG_MENU_ITEM "Debug C API access (will drastically slow down CoppeliaSim)"
-#define IDSN_SHOW_LUA_API_ACCESS_DEBUG_MENU_ITEM "Debug Lua API access (will slow down CoppeliaSim)"
-#define IDSN_SEND_DEBUG_INFO_TO_FILE_MENU_ITEM "Send debug info to file (debugLog.txt)"
 #define IDSN_DISABLE_FRUSTUM_CULLING_DEBUG_MENU_ITEM "Disable frustum culling"
 #define IDSN_DISABLE_DISTANCE_CACHING_DEBUG_MENU_ITEM "Disable distance caching"
 #define IDSN_VISUALIZE_OBB_STRUCTURE_DEBUG_MENU_ITEM "Visualize prepared OBB calculation structures"
@@ -59,8 +55,6 @@
 #define IDSN_EXTERNAL_SCRIPT_EDITOR "External script editor"
 
 #define IDSN_TOGGLE_VISUALIZATION "Toggle visualization"
-#define IDSN_THREADED_RENDERING "Threaded rendering"
-#define IDSN_THREADED_RENDERING_WARNING "You have enabled the threaded rendering during simulation. It is recommended to keep this disabled for most situations, but you can always temporarily enable it via its dedicated toolbar button."
 
 #define IDSN_HIERARCHY_COLORING_MENU_ITEM "Hierarchy coloring"
 #define IDSN_HIERARCHY_COLORING_NONE_MENU_ITEM "None"
@@ -208,7 +202,6 @@
 
 #define IDSNS_MEMORIZING_OBJECT_CONFIGURATION "Memorizing object configuration (object position/orientation, joint parameter)..."
 #define IDSNS_RESTORING_OBJECT_CONFIGURATION "Restoring object configuration (object position/orientation, joint parameter)..."
-#define IDSNS_INITIALIZING_USER_INTERFACE_EDIT_MODE "Initializing OpenGl-based custom UI edit mode..."
 #define IDSNS_GROUPING_SELECTED_SHAPES "Grouping selected shapes..."
 #define IDSNS_UNGROUPING_SELECTED_SHAPES "Ungrouping selected shapes..."
 #define IDSNS_MERGING_SELECTED_SHAPES "Merging selected shapes..."
@@ -258,7 +251,6 @@
 
 
 #define IDSN_PAGE_SELECTOR "Page selector"      //addedOn 8/3/2012
-#define IDSN_SCENE_SELECTOR "Scene selector"    //addedOn 8/3/2012
 #define IDSN_SELECT_VIEWABLE_OBJECT "View selector..." //addedOn 9/3/2012
 #define IDSN_MODEL_SAVE_POSITION_OFFSET_INFO "Remember that the current X/Y position of your model will be the horizontal offset to the drop position during a drag-and-drop operation later."//addedOn 7/3/2012
 #define IDSN_DYNAMIC_CONTENT "Dynamics content" //addedOn 24/02/2012
@@ -269,7 +261,6 @@
 #define IDS_CLOSE_SCENE_MENU_ITEM "Close scene" //addedOn 4/3/2012
 #define IDS_SHAPE_EDITION_TOOLBAR_TIP "Toggle shape edit mode (make sure to have a single shape object selected)" //addedOn 11/3/2012
 #define IDS_PATH_EDITION_TOOLBAR_TIP "Toggle path edit mode (make sure to have a single path object selected)" //addedOn 11/3/2012
-#define IDS_2D_ELEMENTS_TIP         "Toggle OpenGl-based custom UI edit mode" //addedOn 11/3/2012
 #define IDSN_SHAPE_EDITION_MENU_ITEM "Shape edition" //addedOn 11/3/2012
 #define IDSN_PATH_EDITION_MENU_ITEM "Path edition" //addedOn 11/3/2012
 #define IDS_SHAPE_IS_NOT_SIMPLE_FOR_EDITION_INFO_MESSAGE "The shape you wish to edit is not a simple shape. Make sure you ungroup it before proceeding." //addedOn 11/3/2012
@@ -404,7 +395,6 @@
 #define IDSN_PROXIMITY_SENSOR "Proximity sensor"
 #define IDSN_PATH "Path"
 #define IDSN_VISION_SENSOR "Vision sensor"
-#define IDSN_MILL "Mill"
 #define IDSN_FORCE_SENSOR "Force sensor"
 #define IDSN_LIGHT "Light"
 #define IDSN_MIRROR "Mirror"
@@ -551,7 +541,6 @@
 #define IDS____TRIANGLE_EDIT_MODE " - TRIANGLE EDIT MODE"
 #define IDS____VERTEX_EDIT_MODE " - VERTEX EDIT MODE"
 #define IDS____EDGE_EDIT_MODE   " - EDGE EDIT MODE"
-#define IDS____2D_ELEMENT_EDIT_MODE " - OPENGL-BASED CUSTOM UI EDIT MODE"
 #define IDS____PATH_EDIT_MODE   " - PATH EDIT MODE"
 #define IDS____SIMULATION_RUNNING " - SIMULATION RUNNING"
 #define IDS____SIMULATION_PAUSED " - SIMULATION SUSPENDED"
@@ -830,12 +819,6 @@
 #define IDS_MAKE_PATH_WITH_SELECTED_EDGES_MENU_ITEM "Make path with selected edges"
 #define IDS_CIRCLE_TYPE_MENU_ITEM "Circle type"
 
-
-#define IDS_ENTER_2D_ELEMENT_EDIT_MODE_MENU_ITEM "Enter OpenGl-based custom UI edit mode"
-#define IDS_COPY_SELECTED_2D_ELEMENT_MENU_ITEM "Copy selected OpenGl-based custom UI"
-#define IDS_DELETE_SELECTED_2D_ELEMENT_MENU_ITEM "Delete selected OpenGl-based custom UI"
-#define IDS_CUT_SELECTED_2D_ELEMENT_MENU_ITEM "Cut selected OpenGl-based custom UI"
-
 #define IDS_EXECUTION_TIME      "Execution time"
 #define IDS_EDIT_MODES_MENU_ITEM "Edit modes"
 #define IDS_OVERALL_COLLISION_COUNT "Overall collision count"
@@ -1091,9 +1074,6 @@
 #define IDS_OBJECT_NOT_RENDERABLE_WARNING "The selected object has its 'renderable' property disabled. Make sure you enable this property (in the object common properties dialog) in order for this vision sensor to be operational."
 #define IDS_OBJECT_NOT_CUTTABLE_WARNING "The selected object has its 'cuttable' property disabled. Make sure you enable this property (in the object common properties dialog) in order for this mill to be operational."
 
-#define IDS_CUTTABLE_PROP       "Cuttable"
-#define IDS_CUTTABLE_BUT_NOT_SIMPLE_NON_PURE_SHAPE "Cuttable (shape must be simple && non-pure)"
-
 #define IDS_WARNING_WHEN_PURE_CONE_NOT_SUPPORTED "The scene contains one or several pure cones that cannot be simulated with currently selected dynamics engine. The cone(s) will be approximated by cylinders for this simulation."
 #define IDS_WARNING_ODE_NOT_USING_QUICKSTEP "You selected not to use the 'quickstep' method. This is only recommended for scenes with very little dynamic content, otherwise you might experience sudden crashes."
 #define IDS_WARNING_WHEN_PURE_HOLLOW_SHAPE_NOT_SUPPORTED "The scene contains one or several pure hollow shapes that cannot be simulated with currently selected dynamics engine. The pure shape(s) will be filled (i.e. non-hollow) for this simulation."
@@ -1231,9 +1211,6 @@
 
 #define IDS_IK_CALCULATION_TIME "Inverse kinematics: calculation time"
 #define IDS_IK_OVERALL_CALCULATION_TIME "Inverse kinematics: overall calculation time"
-
-#define IDS_GCS_CALCULATION_TIME "Constraint solver (deprecated): calculation time"
-#define IDS_GCS_OVERALL_CALCULATION_TIME "Constraint solver (deprecated): overall calculation time"
 
 #define IDS_MILL_CUT_SURFACE    "Mill (deprecated): cut surface"
 #define IDS_MILL_CUT_VOLUME     "Mill (deprecated): cut volume"

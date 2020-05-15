@@ -179,7 +179,8 @@ void QtPropertyEditorView::drawRow(QPainter *painter, const QStyleOptionViewItem
                 opt.palette.setColor(QPalette::AlternateBase, c.darker(110));
             }
         }
-    } else {
+    }
+    else {
         const QColor c = m_editorPrivate->calculatedBackgroundColor(m_editorPrivate->indexToBrowserItem(index));
         if (c.isValid()) {
             painter->fillRect(option.rect, c);

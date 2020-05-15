@@ -62,8 +62,8 @@ CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateToler
 
     if (tr!=0.0f)
     {
-        color.translucid=true;
-        color.transparencyFactor=1.0f-tr;
+        color.setTranslucid(true);
+        color.setTransparencyFactor(1.0f-tr);
     }
 
     _objectID=0;
@@ -99,7 +99,7 @@ CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateToler
         _sceneObjectID=-1;
     else
     {
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(sceneObjID);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sceneObjID);
         if (it!=nullptr)
             _sceneObjectID=sceneObjID;
     }
@@ -207,11 +207,11 @@ bool CDrawingObject::addItem(const float* itemData)
     trInv.setIdentity();
     if (_sceneObjectID>=0)
     {
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(_sceneObjectID);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectID);
         if (it==nullptr)
             _sceneObjectID=-2; // should normally never happen!
         else
-            trInv=it->getCumulativeTransformationPart1().getInverse();
+            trInv=it->getCumulativeTransformation().getInverse();
     }
 
     if ( (_duplicateTolerance>0.0f)&&(verticesPerItem==1) )
@@ -317,9 +317,9 @@ void CDrawingObject::getExportableMesh(std::vector<float>& vertices,std::vector<
     tr.setIdentity();
     if (_sceneObjectID>=0)
     {
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(_sceneObjectID);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectID);
         if (it!=nullptr)
-            tr=it->getCumulativeTransformationPart1();
+            tr=it->getCumulativeTransformation();
     }
     int tmp=_objectType&0x001f;
     if (tmp==sim_drawing_triangles)
@@ -430,15 +430,15 @@ void CDrawingObject::draw(bool overlay,bool transparentObject,int displayAttrib,
 
     if (_sceneObjectID>=0)
     {
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(_sceneObjectID);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectID);
         if (it==nullptr)
             _sceneObjectID=-2; // should normally never happen
         else
         {
-            tr=it->getCumulativeTransformationPart1();
+            tr=it->getCumulativeTransformation();
             if (_objectType&sim_drawing_followparentvisibility)
             {
-                if ( ((App::ct->mainSettings->getActiveLayers()&it->layer)==0)&&((displayAttrib&sim_displayattribute_ignorelayer)==0) )
+                if ( ((App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer())==0)&&((displayAttrib&sim_displayattribute_ignorelayer)==0) )
                     return; // not visible
                 if (it->isObjectPartOfInvisibleModel())
                     return; // not visible

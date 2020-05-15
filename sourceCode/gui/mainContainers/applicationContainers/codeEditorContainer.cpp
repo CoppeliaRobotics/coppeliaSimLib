@@ -38,19 +38,19 @@ void CCodeEditorContainer::getFuncKeywords(sim::tinyxml2::XMLDocument* doc,sim::
     std::vector<std::string> t;
     std::map<std::string,bool> map;
     pushAllSimFunctionNamesThatStartSame_autoCompletionList("",t,map,scriptType,threaded);
-    App::ct->luaCustomFuncAndVarContainer->pushAllFunctionNamesThatStartSame_autoCompletionList("",t,map);
+    App::worldContainer->luaCustomFuncAndVarContainer->pushAllFunctionNamesThatStartSame_autoCompletionList("",t,map);
     std::sort(t.begin(),t.end());
     for (size_t i=0;i<t.size();i++)
     {
         std::string tip(getSimFunctionCalltip(t[i].c_str(),scriptType,threaded,true));
         if (tip.size()==0)
         {
-            for (size_t j=0;j<App::ct->luaCustomFuncAndVarContainer->allCustomFunctions.size();j++)
+            for (size_t j=0;j<App::worldContainer->luaCustomFuncAndVarContainer->allCustomFunctions.size();j++)
             {
-                std::string n=App::ct->luaCustomFuncAndVarContainer->allCustomFunctions[j]->getFunctionName();
+                std::string n=App::worldContainer->luaCustomFuncAndVarContainer->allCustomFunctions[j]->getFunctionName();
                 if (n.compare(t[i].c_str())==0)
                 {
-                    tip=App::ct->luaCustomFuncAndVarContainer->allCustomFunctions[j]->getCallTips();
+                    tip=App::worldContainer->luaCustomFuncAndVarContainer->allCustomFunctions[j]->getCallTips();
                     break;
                 }
             }
@@ -68,7 +68,7 @@ void CCodeEditorContainer::getVarKeywords(sim::tinyxml2::XMLDocument* doc,sim::t
     std::vector<std::string> t;
     std::map<std::string,bool> map;
     pushAllSimVariableNamesThatStartSame_autoCompletionList("",t,map);
-    App::ct->luaCustomFuncAndVarContainer->pushAllVariableNamesThatStartSame_autoCompletionList("",t,map);
+    App::worldContainer->luaCustomFuncAndVarContainer->pushAllVariableNamesThatStartSame_autoCompletionList("",t,map);
     std::sort(t.begin(),t.end());
     for (size_t i=0;i<t.size();i++)
     {
@@ -271,7 +271,7 @@ CCodeEditorContainer::~CCodeEditorContainer()
 int CCodeEditorContainer::openScriptWithExternalEditor(int scriptHandle)
 {
     int retVal=-1;
-    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
     if (it!=nullptr)
     {
         std::string fname(it->getFilenameForExternalScriptEditor());
@@ -283,7 +283,7 @@ int CCodeEditorContainer::openScriptWithExternalEditor(int scriptHandle)
 
 int CCodeEditorContainer::open(const char* initText,const char* xml,int callingScriptHandle)
 {
-    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(callingScriptHandle);
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(callingScriptHandle);
     int retVal=-1;
     if (CPluginContainer::isCodeEditorPluginAvailable())
     {
@@ -294,7 +294,7 @@ int CCodeEditorContainer::open(const char* initText,const char* xml,int callingS
             inf.handle=retVal;
             inf.scriptHandle=-1;
             inf.callingScriptHandle=callingScriptHandle;
-            inf.sceneUniqueId=App::ct->environment->getSceneUniqueID();
+            inf.sceneUniqueId=App::currentWorld->environment->getSceneUniqueID();
             inf.openAcrossScenes=( (it->getScriptType()==sim_scripttype_sandboxscript)||(it->getScriptType()==sim_scripttype_addonscript) );
             inf.closeAtSimulationEnd=it->isSimulationScript();
             inf.systemVisibility=true;
@@ -307,19 +307,19 @@ int CCodeEditorContainer::open(const char* initText,const char* xml,int callingS
         }
     }
     else
-        printf("Code Editor plugin was not found.\n");
+        App::logMsg(sim_verbosity_errors,"code editor plugin was not found.");
     return(retVal);
 }
 
 int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScriptHandle)
 {
     int retVal=-1;
-    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
     if (it!=nullptr)
     {
         if (App::userSettings->externalScriptEditor.size()==0)
         {
-            int sceneId=App::ct->environment->getSceneUniqueID();
+            int sceneId=App::currentWorld->environment->getSceneUniqueID();
             for (size_t i=0;i<_allEditors.size();i++)
             {
                 if ( (_allEditors[i].scriptHandle==scriptHandle)&&(_allEditors[i].sceneUniqueId==sceneId) )
@@ -437,7 +437,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                 inf.handle=retVal;
                 inf.scriptHandle=scriptHandle;
                 inf.callingScriptHandle=callingScriptHandle;
-                inf.sceneUniqueId=App::ct->environment->getSceneUniqueID();
+                inf.sceneUniqueId=App::currentWorld->environment->getSceneUniqueID();
                 inf.openAcrossScenes=false;
                 inf.closeAtSimulationEnd=false;
                 inf.systemVisibility=true;
@@ -449,7 +449,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                 _allEditors.push_back(inf);
             }
             else
-                printf("Code Editor plugin was not found.\n");
+                App::logMsg(sim_verbosity_errors,"code editor plugin was not found.");
         }
         else
         {
@@ -474,13 +474,13 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
     int retVal=-1;
     if (App::userSettings->externalScriptEditor.size()==0)
     {
-        int sceneId=App::ct->environment->getSceneUniqueID();
+        int sceneId=App::currentWorld->environment->getSceneUniqueID();
         for (size_t i=0;i<_allEditors.size();i++)
         {
             if ( (_allEditors[i].scriptHandle==scriptHandle)&&(_allEditors[i].sceneUniqueId==sceneId) )
                 return(_allEditors[i].handle);
         }
-        CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
         if (CPluginContainer::isCodeEditorPluginAvailable())
         {
             if (it!=nullptr)
@@ -547,7 +547,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                 inf.handle=retVal;
                 inf.scriptHandle=scriptHandle;
                 inf.callingScriptHandle=callingScriptHandle;
-                inf.sceneUniqueId=App::ct->environment->getSceneUniqueID();
+                inf.sceneUniqueId=App::currentWorld->environment->getSceneUniqueID();
                 inf.openAcrossScenes=false;
                 inf.closeAtSimulationEnd=false;
                 inf.systemVisibility=true;
@@ -560,7 +560,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
             }
         }
         else
-            printf("Code Editor plugin was not found.\n");
+            App::logMsg(sim_verbosity_errors,"code editor plugin was not found.");
     }
     else
         retVal=openScriptWithExternalEditor(scriptHandle);
@@ -636,7 +636,7 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
         inf.handle=retVal;
         inf.scriptHandle=-1;
         inf.callingScriptHandle=callingScriptHandle;
-        inf.sceneUniqueId=App::ct->environment->getSceneUniqueID();
+        inf.sceneUniqueId=App::currentWorld->environment->getSceneUniqueID();
         inf.openAcrossScenes=((mode&16)>0);
         inf.closeAtSimulationEnd=((mode&1)>0);
         inf.systemVisibility=true;
@@ -649,7 +649,7 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
         _allEditors.push_back(inf);
     }
     else
-        printf("Code Editor plugin was not found.\n");
+        App::logMsg(sim_verbosity_errors,"code editor plugin was not found.");
     return(retVal);
 }
 
@@ -672,7 +672,7 @@ std::string CCodeEditorContainer::openModalTextEditor(const char* initText,const
         }
     }
     else
-        printf("Code Editor plugin was not found.\n");
+        App::logMsg(sim_verbosity_errors,"code editor plugin was not found.");
     return(retVal);
 }
 
@@ -688,7 +688,7 @@ int CCodeEditorContainer::openTextEditor(const char* initText,const char* xml,co
         inf.handle=retVal;
         inf.scriptHandle=-1;
         inf.callingScriptHandle=callingScriptHandle;
-        inf.sceneUniqueId=App::ct->environment->getSceneUniqueID();
+        inf.sceneUniqueId=App::currentWorld->environment->getSceneUniqueID();
         inf.openAcrossScenes=false;
         inf.closeAtSimulationEnd=isSimulationScript;
         inf.systemVisibility=true;
@@ -700,7 +700,7 @@ int CCodeEditorContainer::openTextEditor(const char* initText,const char* xml,co
         _allEditors.push_back(inf);
     }
     else
-        printf("Code Editor plugin was not found.\n");
+        App::logMsg(sim_verbosity_errors,"code editor plugin was not found.");
     return(retVal);
 }
 
@@ -713,7 +713,7 @@ bool CCodeEditorContainer::close(int handle,int posAndSize[4],std::string* txt,s
             if (callback!=nullptr)
                 callback[0]=_allEditors[i].callbackFunction;
             std::string _txt;
-            CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_allEditors[i].scriptHandle);
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_allEditors[i].scriptHandle);
             if (CPluginContainer::codeEditor_getText(handle,_txt,nullptr))
             {
                 if (txt!=nullptr)
@@ -722,7 +722,7 @@ bool CCodeEditorContainer::close(int handle,int posAndSize[4],std::string* txt,s
                 {
                     applyChanges(_allEditors[i].handle);
                     if (_allEditors[i].restartScriptWhenClosing)
-                        killLuaState(_allEditors[i].scriptHandle);
+                        killLuaState(_allEditors[i].scriptHandle); // this can also trigger closing of another editor, see below
                 }
             }
             int pas[4];
@@ -734,7 +734,16 @@ bool CCodeEditorContainer::close(int handle,int posAndSize[4],std::string* txt,s
                 for (size_t j=0;j<4;j++)
                     posAndSize[j]=pas[j];
             }
-            _allEditors.erase(_allEditors.begin()+i);
+
+            // Here we need to find the correct index again, ordering might have changed (see above):
+            for (size_t j=0;j<_allEditors.size();j++)
+            {
+                if (_allEditors[j].handle==handle)
+                {
+                    _allEditors.erase(_allEditors.begin()+j);
+                    break;
+                }
+            }
             return(true);
         }
     }
@@ -745,10 +754,10 @@ void CCodeEditorContainer::applyChanges(int handle) const
 {
     if (App::userSettings->externalScriptEditor.size()>0)
     {
-        for (size_t i=0;i<App::ct->luaScriptContainer->allScripts.size();i++)
-            App::ct->luaScriptContainer->allScripts[i]->fromFileToBuffer();
+        for (size_t i=0;i<App::currentWorld->luaScriptContainer->allScripts.size();i++)
+            App::currentWorld->luaScriptContainer->allScripts[i]->fromFileToBuffer();
     }
-    int sceneId=App::ct->environment->getSceneUniqueID();
+    int sceneId=App::currentWorld->environment->getSceneUniqueID();
     for (size_t i=0;i<_allEditors.size();i++)
     {
         if (_allEditors[i].sceneUniqueId==sceneId)
@@ -756,7 +765,7 @@ void CCodeEditorContainer::applyChanges(int handle) const
             if ( (_allEditors[i].handle==handle)||(handle==-1) )
             {
                 std::string _txt;
-                CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_allEditors[i].scriptHandle);
+                CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_allEditors[i].scriptHandle);
                 if (it!=nullptr)
                 {
                     if (CPluginContainer::codeEditor_getText(_allEditors[i].handle,_txt,nullptr))
@@ -776,7 +785,7 @@ bool CCodeEditorContainer::closeFromScriptHandle(int scriptHandle,int posAndSize
             if (_allEditors[i].scriptHandle==scriptHandle)
             {
                 std::string txt;
-                CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
+                CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
                 if (!ignoreChange)
                     applyChanges(_allEditors[i].handle);
                 int pas[4];
@@ -815,7 +824,7 @@ void CCodeEditorContainer::restartScript(int handle) const
         if (_allEditors[i].handle==handle)
         {
             std::string txt;
-            CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_allEditors[i].scriptHandle);
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_allEditors[i].scriptHandle);
             if (CPluginContainer::codeEditor_getText(handle,txt,nullptr))
             {
                 if ( (it!=nullptr)&&(!it->getThreadedExecution()) )
@@ -831,7 +840,7 @@ void CCodeEditorContainer::restartScript(int handle) const
 
 void CCodeEditorContainer::killLuaState(int scriptHandle) const
 {
-    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
     if ( (it!=nullptr)&&it->killLuaState() )
     {
         std::string msg(it->getDescriptiveName());
@@ -914,12 +923,12 @@ void CCodeEditorContainer::simulationAboutToStart() const
 {
     if (App::userSettings->externalScriptEditor.size()==0)
     {
-        int sceneId=App::ct->environment->getSceneUniqueID();
+        int sceneId=App::currentWorld->environment->getSceneUniqueID();
         for (size_t i=0;i<_allEditors.size();i++)
         {
             if ( (_allEditors[i].sceneUniqueId==sceneId)&&(_allEditors[i].scriptHandle>=0) )
             {
-                CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(_allEditors[i].scriptHandle);
+                CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(_allEditors[i].scriptHandle);
                 if ( (it!=nullptr)&&((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)) )
                     applyChanges(_allEditors[i].handle);
             }
@@ -931,7 +940,7 @@ void CCodeEditorContainer::simulationAboutToStart() const
 
 void CCodeEditorContainer::simulationAboutToEnd()
 {
-    int sceneId=App::ct->environment->getSceneUniqueID();
+    int sceneId=App::currentWorld->environment->getSceneUniqueID();
     for (int i=0;i<int(_allEditors.size());i++)
     {
         if ( (_allEditors[i].sceneUniqueId==sceneId)&&_allEditors[i].closeAtSimulationEnd )
@@ -950,7 +959,7 @@ void CCodeEditorContainer::saveOrCopyOperationAboutToHappen() const
 
 bool CCodeEditorContainer::areSceneEditorsOpen() const
 {
-    int sceneId=App::ct->environment->getSceneUniqueID();
+    int sceneId=App::currentWorld->environment->getSceneUniqueID();
     for (size_t i=0;i<_allEditors.size();i++)
     {
         if ( (_allEditors[i].sceneUniqueId==sceneId)&&(_allEditors[i].scriptHandle>=0) )
@@ -981,7 +990,7 @@ int CCodeEditorContainer::getUniqueId(int handle)
 
 void CCodeEditorContainer::sceneClosed(int sceneUniqueId)
 {
-    for (int i=0;i<int(_allEditors.size());i++)
+    for (size_t i=0;i<_allEditors.size();i++)
     {
         if ( (_allEditors[i].sceneUniqueId==sceneUniqueId)&&(!_allEditors[i].openAcrossScenes) )
         {
@@ -994,9 +1003,9 @@ void CCodeEditorContainer::sceneClosed(int sceneUniqueId)
 
 void CCodeEditorContainer::showOrHideAll(bool showState)
 {
-    if (App::ct->environment!=nullptr)
+    if (App::currentWorld->environment!=nullptr)
     {
-        int sceneId=App::ct->environment->getSceneUniqueID();
+        int sceneId=App::currentWorld->environment->getSceneUniqueID();
         for (size_t i=0;i<_allEditors.size();i++)
         {
             if ( (_allEditors[i].sceneUniqueId==sceneId)&&(!_allEditors[i].openAcrossScenes) )
@@ -1014,7 +1023,7 @@ void CCodeEditorContainer::showOrHideAll(bool showState)
 int CCodeEditorContainer::showOrHide(int handle,bool showState)
 {
     int retVal=-1;
-    int sceneId=App::ct->environment->getSceneUniqueID();
+    int sceneId=App::currentWorld->environment->getSceneUniqueID();
     for (size_t i=0;i<_allEditors.size();i++)
     {
         if (_allEditors[i].handle==handle)

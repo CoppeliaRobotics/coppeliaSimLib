@@ -54,7 +54,7 @@ void _displayForceSensor(CForceSensor* forceSensor,int displayAttrib,bool partOn
         ogl::drawCylinder(forceSensor->getSize(),forceSensor->getSize()*0.5f,16,0,true);
     else
     {
-        if (forceSensor->getDynamicSecondPartIsValid()&&(!App::ct->simulation->isSimulationStopped()))
+        if (forceSensor->getDynamicSecondPartIsValid()&&(!App::currentWorld->simulation->isSimulationStopped()))
         { // for dynamic mode
             C7Vector tr(forceSensor->getDynamicSecondPartLocalTransform());
             glTranslatef(tr.X(0),tr.X(1),tr.X(2));

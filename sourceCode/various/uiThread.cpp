@@ -1,4 +1,3 @@
-#include "funcDebug.h"
 #include "uiThread.h"
 #include "vThread.h"
 #include "app.h"
@@ -38,7 +37,6 @@
 CUiThread::CUiThread()
 {
     _frameId=0;
-    _frame_bufferMainDisplayStateVariables=false;
     _lastFrameId=0;
 
 #ifndef SIM_WITHOUT_QT_AT_ALL
@@ -49,10 +47,8 @@ CUiThread::CUiThread()
     _noSigSlot_cnter=0;
 #endif
 #ifdef SIM_WITH_GUI
-    // Queued:
-    connect(this,SIGNAL(_requestSceneRender(bool)),this,SLOT(__requestSceneRender(bool)),Qt::QueuedConnection);
     // Blocking:
-    connect(this,SIGNAL(_requestSceneRender_wait(bool)),this,SLOT(__requestSceneRender_wait(bool)),Qt::QueuedConnection);
+    connect(this,SIGNAL(_requestSceneRender_wait()),this,SLOT(__requestSceneRender_wait()),Qt::QueuedConnection);
 #endif
 }
 
@@ -80,7 +76,6 @@ void CUiThread::processGuiEventsUntilQuit_noSignalSlots()
 
 bool CUiThread::executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 { // Called by any thread
-    FUNCTION_DEBUG;
     if (!VThread::isCurrentThreadTheUiThread())
     {
 #ifdef SIM_WITHOUT_QT_AT_ALL
@@ -110,7 +105,6 @@ bool CUiThread::executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadComma
 
 void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 { // called by the UI thread.
-    FUNCTION_DEBUG;
 
 #ifdef SIM_WITH_GUI
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen())&&(cmdIn->cmdId==PLUS_HVUD_CMD_UITHREADCMD) )
@@ -137,7 +131,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
         if (cmdIn->cmdId==PLUGIN_LOAD_AND_START_PLUGUITHREADCMD)
             cmdOut->intParams.push_back(CPluginContainer::addPlugin(cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str()));
         if (cmdIn->cmdId==PLUGIN_STOP_AND_UNLOAD_PLUGUITHREADCMD)
-            cmdOut->boolParams.push_back(CPluginContainer::killPlugin(cmdIn->intParams[0]));
+            cmdOut->boolParams.push_back(CPluginContainer::unloadPlugin(cmdIn->intParams[0]));
     }
 
     if (cmdIn->cmdId==DESTROY_GL_TEXTURE_UITHREADCMD)
@@ -343,7 +337,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     if ( (!App::isFullScreen())&&(App::mainWindow!=nullptr)&&(cmdIn->cmdId==KEEP_THUMBNAIL_QUESTION_DLG_UITHREADCMD) )
     {
         CQDlgModelThumbnailVisu dlg;
-        dlg.applyThumbnail(&App::ct->environment->modelThumbnail_notSerializedHere);
+        dlg.applyThumbnail(&App::currentWorld->environment->modelThumbnail_notSerializedHere);
         cmdOut->boolParams.push_back(dlg.makeDialogModal()!=VDIALOG_MODAL_RETURN_CANCEL);
     }
 
@@ -356,7 +350,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
         if (dlg.makeDialogModal()!=VDIALOG_MODAL_RETURN_CANCEL)
         {
             // We first apply the thumbnail in the UI thread scene (needed), then post a message for the sim thread
-            App::ct->environment->modelThumbnail_notSerializedHere.copyFrom(&dlg.thumbnail);
+            App::currentWorld->environment->modelThumbnail_notSerializedHere.copyFrom(&dlg.thumbnail);
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_THUMBNAIL_GUITRIGGEREDCMD;
             unsigned char* img=(unsigned char*)dlg.thumbnail.getPointerToUncompressedImage();
@@ -385,7 +379,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     }
     if ( (!App::isFullScreen())&&(App::mainWindow!=nullptr)&&(cmdIn->cmdId==OPEN_MODAL_SCRIPT_SIMULATION_PARAMETERS_UITHREADCMD) )
     {
-        C3DObject* object=App::ct->objCont->getObjectFromHandle(cmdIn->intParams[0]);
+        CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(cmdIn->intParams[0]);
         if (object!=nullptr)
         {
             CQDlgUserParameters theDialog(App::mainWindow);
@@ -409,7 +403,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     }
     if ( (!App::isFullScreen())&&(App::mainWindow!=nullptr)&&(cmdIn->cmdId==OPEN_MODAL_MODEL_PROPERTIES_UITHREADCMD) )
     {
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(cmdIn->intParams[0]);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmdIn->intParams[0]);
         if (it!=nullptr)
         {
             CQDlgModelProperties theDialog(App::mainWindow);
@@ -497,14 +491,14 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
 
 #ifdef SIM_WITH_SERIAL
     if ( (cmdIn->cmdId>SERIAL_PORT_START_SPUITHREADCMD)&&(cmdIn->cmdId<SERIAL_PORT_END_SPUITHREADCMD) )
-        App::ct->serialPortContainer->executeCommand(cmdIn,cmdOut);
+        App::worldContainer->serialPortContainer->executeCommand(cmdIn,cmdOut);
 #endif
 
 }
 
 void CUiThread::showOrHideProgressBar(bool show,float pos,const char* txt)
 { // pos and txt can be omitted (then previously provided values will be used)
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
 #ifdef SIM_WITH_GUI
     if (App::userSettings->doNotShowProgressBars)
         return;
@@ -552,7 +546,7 @@ void CUiThread::showOrHideProgressBar(bool show,float pos,const char* txt)
 
 bool CUiThread::showOrHideEmergencyStop(bool show,const char* txt)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
 #ifdef SIM_WITH_GUI
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
@@ -603,31 +597,13 @@ bool CUiThread::showOrHideEmergencyStop(bool show,const char* txt)
 }
 
 #ifdef SIM_WITH_GUI
-void CUiThread::requestSceneRender(bool bufferMainDisplayStateVariables)
-{ // is called by the non-UI thread
-    FUNCTION_DEBUG;
-    if (App::mainWindow!=nullptr)
-    { // make sure we are not in headless mode
-        static int lastHere=VDateTime::getTimeInMs();
-        if (VDateTime::getTimeDiffInMs(lastHere)>33) // max 30 requ./sec
-        { // avoid flooding the UI thread with potentially thousands of render requests/seconds
-            _frame_bufferMainDisplayStateVariables=bufferMainDisplayStateVariables;
-            // bufferMainDisplayStateVariables is true when the UI thread holds the SIM thread (so the UI thread can modify the scene). The SIM thread still fires rendering signals with this set to true
-            _frameId++;
-            _requestSceneRender(bufferMainDisplayStateVariables);
-            lastHere=VDateTime::getTimeInMs();
-        }
-    }
-}
-
 void CUiThread::requestSceneRender_wait()
 { // is called by the non-UI thread
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     if (App::mainWindow!=nullptr)
     { // make sure we are not in headless mode
         _frameId++;
-        _frame_bufferMainDisplayStateVariables=false;
-        _requestSceneRender_wait(false);
+        _requestSceneRender_wait();
         while (_frameId!=_lastFrameId)
         {
             VThread::sleep(1);
@@ -637,27 +613,12 @@ void CUiThread::requestSceneRender_wait()
     }
 }
 
-void CUiThread::__requestSceneRender(bool bufferMainDisplayStateVariables)
-{ // is called by the UI thread. Check also __requestSceneRender_wait
-    FUNCTION_DEBUG;
+void CUiThread::__requestSceneRender_wait()
+{ // is called by the UI thread.
+    TRACE_INTERNAL;
     if ((_frameId!=_lastFrameId)&&(App::mainWindow!=nullptr))
     {
-        static int lastHere=VDateTime::getTimeInMs();
-        if (VDateTime::getTimeDiffInMs(lastHere)>10)
-        { // if many requests are comming in, or if the rendering takes time, leave some time to other tasks!
-            App::mainWindow->uiThread_renderScene(_frame_bufferMainDisplayStateVariables);
-            lastHere=VDateTime::getTimeInMs();
-        }
-        _lastFrameId=_frameId;
-    }
-}
-
-void CUiThread::__requestSceneRender_wait(bool bufferMainDisplayStateVariables)
-{ // is called by the UI thread. Check also __requestSceneRender
-    FUNCTION_DEBUG;
-    if ((_frameId!=_lastFrameId)&&(App::mainWindow!=nullptr))
-    {
-        App::mainWindow->uiThread_renderScene(_frame_bufferMainDisplayStateVariables);
+        App::mainWindow->uiThread_renderScene();
         _lastFrameId=_frameId;
     }
 }
@@ -674,7 +635,7 @@ void CUiThread::setLastFrameId(int fid)
 
 std::string CUiThread::getOpenOrSaveFileName_api(int mode,const char* title,const char* startPath,const char* initName,const char* extName,const char* ext)
 { // mode= 1: save, 0: load single, >1: load multiple
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     std::string retVal;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     {
@@ -725,7 +686,7 @@ std::string CUiThread::getOpenOrSaveFileName_api(int mode,const char* title,cons
 
 int CUiThread::messageBox_api(int boxType,int buttons,const char* title,const char* message)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     int retVal=sim_msgbox_return_error;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
@@ -778,37 +739,37 @@ int CUiThread::messageBox_api(int boxType,int buttons,const char* title,const ch
 
 unsigned short CUiThread::messageBox_informationSystemModal(void* parentWidget,const std::string& title,const std::string& message,unsigned short flags)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     return(_messageBox(4,parentWidget,title,message,flags));
 }
 
 unsigned short CUiThread::messageBox_information(void* parentWidget,const std::string& title,const std::string& message,unsigned short flags)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     return(_messageBox(0,parentWidget,title,message,flags));
 }
 
 unsigned short CUiThread::messageBox_question(void* parentWidget,const std::string& title,const std::string& message,unsigned short flags)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     return(_messageBox(1,parentWidget,title,message,flags));
 }
 
 unsigned short CUiThread::messageBox_warning(void* parentWidget,const std::string& title,const std::string& message,unsigned short flags)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     return(_messageBox(2,parentWidget,title,message,flags));
 }
 
 unsigned short CUiThread::messageBox_critical(void* parentWidget,const std::string& title,const std::string& message,unsigned short flags)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     return(_messageBox(3,parentWidget,title,message,flags));
 }
 
 unsigned short CUiThread::_messageBox(int type,void* parentWidget,const std::string& title,const std::string& message,unsigned short flags)
 { // type: 0=info, 1=question, 2=warning, 3=critical, 4=info, system modal
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     unsigned short retVal=VMESSAGEBOX_REPLY_ERROR;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
@@ -845,7 +806,7 @@ unsigned short CUiThread::_messageBox(int type,void* parentWidget,const std::str
 
 bool CUiThread::messageBox_checkbox(void* parentWidget,const std::string& title,const std::string& message,const std::string& checkboxMessage)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     bool retVal=false;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
@@ -878,7 +839,7 @@ bool CUiThread::messageBox_checkbox(void* parentWidget,const std::string& title,
 
 bool CUiThread::getOpenFileNames(std::vector<std::string>& files,void* parentWidget,unsigned short option,const std::string& title,const std::string& startPath,const std::string& initFilename,bool allowAnyFile,const std::string& extensionName,const std::string& extension1,const std::string& extension2,const std::string& extension3,const std::string& extension4,const std::string& extension5,const std::string& extension6,const std::string& extension7,const std::string& extension8,const std::string& extension9,const std::string& extension10)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     bool retVal=false;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
@@ -920,7 +881,7 @@ bool CUiThread::getOpenFileNames(std::vector<std::string>& files,void* parentWid
 
 void CUiThread::setFileDialogsNative(int n)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     if (VThread::isCurrentThreadTheUiThread())
     { // we are in the UI thread. We execute the command now:
         VFileDialog::setFileDialogNative(n);
@@ -937,7 +898,7 @@ void CUiThread::setFileDialogsNative(int n)
 
 std::string CUiThread::getOpenFileName(void* parentWidget,unsigned short option,const std::string& title,const std::string& startPath,const std::string& initFilename,bool allowAnyFile,const std::string& extensionName,const std::string& extension1,const std::string& extension2,const std::string& extension3,const std::string& extension4,const std::string& extension5,const std::string& extension6,const std::string& extension7,const std::string& extension8,const std::string& extension9,const std::string& extension10)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     std::string retVal;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
@@ -977,7 +938,7 @@ std::string CUiThread::getOpenFileName(void* parentWidget,unsigned short option,
 
 std::string CUiThread::getSaveFileName(void* parentWidget,unsigned short option,const std::string& title,const std::string& startPath,const std::string& initFilename,bool allowAnyFile,const std::string& extensionName,const std::string& extension1,const std::string& extension2,const std::string& extension3,const std::string& extension4,const std::string& extension5,const std::string& extension6,const std::string& extension7,const std::string& extension8,const std::string& extension9,const std::string& extension10)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     std::string retVal;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
@@ -1017,7 +978,7 @@ std::string CUiThread::getSaveFileName(void* parentWidget,unsigned short option,
 
 bool CUiThread::dialogInputGetFloat(void* parentWidget,const char* title,const char* msg,float def,float minV,float maxV,int decimals,float* outFloat)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     bool retVal=false;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
@@ -1051,7 +1012,7 @@ bool CUiThread::dialogInputGetFloat(void* parentWidget,const char* title,const c
 
 bool CUiThread::showPrimitiveShapeDialog(int type,const C3Vector* optionalSizesIn,C3Vector& sizes,int subdiv[3],int& faces,int& sides,int& discSubdiv,bool& smooth,int& openEnds,bool& dynamic,bool& pure,bool& cone,float& density,bool& negVolume,float& negVolumeScaling)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     bool retVal=false;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode

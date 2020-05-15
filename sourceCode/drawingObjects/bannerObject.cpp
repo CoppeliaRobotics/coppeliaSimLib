@@ -22,9 +22,12 @@ CBannerObject::CBannerObject(const char* label,int options,int sceneObjID,const 
     _createdFromScript=false;
     color.setColorsAllBlack();
     backColor.setColorsAllBlack();
-    backColor.colors[0]=1.0f;
-    backColor.colors[1]=1.0f;
-    backColor.colors[2]=1.0f;
+    float col[15];
+    backColor.getColors(col);
+    col[0]=1.0f;
+    col[1]=1.0f;
+    col[2]=1.0f;
+    backColor.setColors(col);
     if (labelCol!=nullptr)
     {
         color.setColor(labelCol+0,sim_colorcomponent_ambient_diffuse);
@@ -138,15 +141,15 @@ void CBannerObject::draw3DStuff(bool overlay,bool transparentObject,int displayA
         tr.setIdentity();
         if (_sceneObjectID>=0)
         {
-            C3DObject* it=App::ct->objCont->getObjectFromHandle(_sceneObjectID);
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectID);
             if (it==nullptr)
                 _sceneObjectID=-2; // should normally never happen
             else
             {
-                tr=it->getCumulativeTransformationPart1_forDisplay(true);
+                tr=it->getCumulativeTransformation();
                 if (_options&sim_banner_followparentvisibility)
                 {
-                    if ( ((App::ct->mainSettings->getActiveLayers()&it->layer)==0)&&((displayAttrib&sim_displayattribute_ignorelayer)==0) )
+                    if ( ((App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer())==0)&&((displayAttrib&sim_displayattribute_ignorelayer)==0) )
                         return; // not visible
                     if (it->isObjectPartOfInvisibleModel())
                         return; // not visible
@@ -159,7 +162,7 @@ void CBannerObject::draw3DStuff(bool overlay,bool transparentObject,int displayA
         tr*=_relativeConfig;
         float* bckColor=nullptr;
         if ((_options&sim_banner_nobackground)==0)
-            bckColor=backColor.colors;
+            bckColor=backColor.getColorsPtr();
 
         displayBanner(_objectID,_options,bckColor,tr,_label.c_str(),color,_height,cameraCTM,windowSize,verticalViewSizeOrAngle,perspective);
     }

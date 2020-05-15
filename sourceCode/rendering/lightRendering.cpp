@@ -29,15 +29,15 @@ void displayLight(CLight* light,CViewableBase* renderingObject,int displayAttrib
             glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
 
         _enableAuxClippingPlanes(light->getObjectHandle());
-        C3Vector normalizedAmbientColor(light->getColor(true)->colors);
+        C3Vector normalizedAmbientColor(light->getColor(true)->getColorsPtr());
         float m=std::max<float>(std::max<float>(normalizedAmbientColor(0),normalizedAmbientColor(1)),normalizedAmbientColor(2));
         if (m>0.00001f)
             normalizedAmbientColor/=m;
-        C3Vector normalizedDiffuseColor(light->getColor(true)->colors+3);
+        C3Vector normalizedDiffuseColor(light->getColor(true)->getColorsPtr()+3);
         m=std::max<float>(std::max<float>(normalizedDiffuseColor(0),normalizedDiffuseColor(1)),normalizedDiffuseColor(2));
         if (m>0.00001f)
             normalizedDiffuseColor/=m;
-        C3Vector normalizedSpecularColor(light->getColor(true)->colors+6);
+        C3Vector normalizedSpecularColor(light->getColor(true)->getColorsPtr()+6);
         m=std::max<float>(std::max<float>(normalizedSpecularColor(0),normalizedSpecularColor(1)),normalizedSpecularColor(2));
         if (m>0.00001f)
             normalizedSpecularColor/=m;
@@ -51,7 +51,7 @@ void displayLight(CLight* light,CViewableBase* renderingObject,int displayAttrib
         for (int i=0;i<3;i++)
         {
             if ((displayAttrib&sim_displayattribute_useauxcomponent)!=0)
-                lightEmission[i]=light->getColor(true)->colors[12+i];
+                lightEmission[i]=light->getColor(true)->getColorsPtr()[12+i];
             else
                 lightEmission[i]=normalizedAmbientColor(i);
         }

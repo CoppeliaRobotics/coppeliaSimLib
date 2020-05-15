@@ -9,25 +9,13 @@ CDrawingContainer::CDrawingContainer()
 }
 
 CDrawingContainer::~CDrawingContainer()
-{
+{ // beware, the current world could be nullptr
     removeAllObjects(false,true);
-}
-
-void CDrawingContainer::simulationAboutToStart()
-{
-
 }
 
 void CDrawingContainer::simulationEnded()
 {
     removeAllObjects(true,false);
-//  if (_initialValuesInitialized&&App::ct->simulation->getResetSceneAtSimulationEnd())
-//  {
-//  }
-}
-
-void CDrawingContainer::emptySceneProcedure()
-{ // don't do anything here! (plugin or add-on might be using that functionality too) 
 }
 
 CDrawingObject* CDrawingContainer::getObject(int objectID)
@@ -140,17 +128,17 @@ void CDrawingContainer::announceObjectWillBeErased(int objID)
 
 void CDrawingContainer::renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib)
 {
-    drawAll(false,false,displayAttrib,renderingObject->getCumulativeTransformation().getMatrix());
+    drawAll(false,false,displayAttrib,renderingObject->getFullCumulativeTransformation().getMatrix());
 }
 
 void CDrawingContainer::renderYour3DStuff_transparent(CViewableBase* renderingObject,int displayAttrib)
 {
-    drawAll(false,true,displayAttrib,renderingObject->getCumulativeTransformation().getMatrix());
+    drawAll(false,true,displayAttrib,renderingObject->getFullCumulativeTransformation().getMatrix());
 }
 
 void CDrawingContainer::renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib)
 {
-    drawAll(true,true,displayAttrib,renderingObject->getCumulativeTransformation().getMatrix());
+    drawAll(true,true,displayAttrib,renderingObject->getFullCumulativeTransformation().getMatrix());
 }
 
 void CDrawingContainer::drawAll(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM)

@@ -605,22 +605,6 @@
      <string>Renderable</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="qqCuttable">
-    <property name="geometry">
-     <rect>
-      <x>130</x>
-      <y>45</y>
-      <width>201</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Cuttable</string>
-    </property>
-   </widget>
    <widget class="QCheckBox" name="qqDetectable">
     <property name="geometry">
      <rect>
@@ -2156,7 +2140,6 @@
   <tabstop>qqDetectable</tabstop>
   <tabstop>qqEditDetectableDetails</tabstop>
   <tabstop>qqRenderable</tabstop>
-  <tabstop>qqCuttable</tabstop>
   <tabstop>qqApplySpecialProperties</tabstop>
   <tabstop>qqModelBase</tabstop>
   <tabstop>qqEditModelProperties</tabstop>

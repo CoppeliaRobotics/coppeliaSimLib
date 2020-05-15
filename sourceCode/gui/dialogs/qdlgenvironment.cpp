@@ -24,9 +24,9 @@ CQDlgEnvironment::~CQDlgEnvironment()
 void CQDlgEnvironment::refresh()
 {
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
-    ui->qqNextSaveIsDefinitive->setEnabled((!App::ct->environment->getSceneLocked())&&noEditModeNoSim);
+    ui->qqNextSaveIsDefinitive->setEnabled((!App::currentWorld->environment->getSceneLocked())&&noEditModeNoSim);
     ui->qqCleanUpHashNames->setEnabled(noEditModeNoSim);
     ui->qqExtensionString->setEnabled(noEditModeNoSim);
     ui->qqBackgroundColorUp->setEnabled(noEditModeNoSim);
@@ -41,16 +41,16 @@ void CQDlgEnvironment::refresh()
 //    ui->qqUserInterfaceTexturesDisabled->setEnabled(noEditModeNoSim);
     ui->qqAcknowledgments->setEnabled(noEditModeNoSim);
 
-    ui->qqMaxTriangleSize->setText(tt::getEString(false,App::ct->environment->getCalculationMaxTriangleSize(),2).c_str());
-    ui->qqMinRelTriangleSize->setText(tt::getFString(false,App::ct->environment->getCalculationMinRelTriangleSize(),3).c_str());
-    ui->qqSaveCalcStruct->setChecked(App::ct->environment->getSaveExistingCalculationStructures());
-    ui->qqShapeTexturesDisabled->setChecked(!App::ct->environment->getShapeTexturesEnabled());
-//    ui->qqUserInterfaceTexturesDisabled->setChecked(!App::ct->environment->get2DElementTexturesEnabled());
+    ui->qqMaxTriangleSize->setText(tt::getEString(false,App::currentWorld->environment->getCalculationMaxTriangleSize(),2).c_str());
+    ui->qqMinRelTriangleSize->setText(tt::getFString(false,App::currentWorld->environment->getCalculationMinRelTriangleSize(),3).c_str());
+    ui->qqSaveCalcStruct->setChecked(App::currentWorld->environment->getSaveExistingCalculationStructures());
+    ui->qqShapeTexturesDisabled->setChecked(!App::currentWorld->environment->getShapeTexturesEnabled());
+//    ui->qqUserInterfaceTexturesDisabled->setChecked(!App::currentWorld->environment->get2DElementTexturesEnabled());
 
-    ui->qqNextSaveIsDefinitive->setChecked(App::ct->environment->getRequestFinalSave());
+    ui->qqNextSaveIsDefinitive->setChecked(App::currentWorld->environment->getRequestFinalSave());
 
-    ui->qqExtensionString->setText(App::ct->environment->getExtensionString().c_str());
-    ui->qqAcknowledgments->setPlainText(App::ct->environment->getAcknowledgement().c_str());
+    ui->qqExtensionString->setText(App::currentWorld->environment->getExtensionString().c_str());
+    ui->qqAcknowledgments->setPlainText(App::currentWorld->environment->getAcknowledgement().c_str());
 
     selectLineEdit(lineEditToSelect);
 }
@@ -93,7 +93,7 @@ void CQDlgEnvironment::on_qqSaveCalcStruct_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::ct->environment->getSaveExistingCalculationStructures())
+        if (!App::currentWorld->environment->getSaveExistingCalculationStructures())
             App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_CALCULATION_STRUCTURE),strTranslate(IDS_SAVING_CALCULATION_STRUCTURE),VMESSAGEBOX_OKELI);
         App::appendSimulationThreadCommand(TOGGLE_SAVECALCSTRUCT_ENVIRONMENTGUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -112,7 +112,7 @@ void CQDlgEnvironment::on_qqNextSaveIsDefinitive_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::ct->environment->getRequestFinalSave())
+        if (!App::currentWorld->environment->getRequestFinalSave())
             App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_SCENE_LOCKING),strTranslate(IDS_SCENE_LOCKING_INFO),VMESSAGEBOX_OKELI);
         App::appendSimulationThreadCommand(TOGGLE_LOCKSCENE_ENVIRONMENTGUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);

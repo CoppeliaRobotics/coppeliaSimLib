@@ -1,9 +1,7 @@
-
 #pragma once
 
 #include "viewSelector.h"
 #include "pageSelector.h"
-#include "sceneSelector.h"
 #include "buttonBlock.h"
 #include "hierarchy.h"
 
@@ -31,7 +29,6 @@ public:
     unsigned char* render(int currentCursor,int mouseButtonState,int mousePos[2],int* frameResol);
     void setViewSelectionActive(bool isActive);
     void setPageSelectionActive(bool isActive);
-    void setSceneSelectionActive(bool isActive);
     void setHierarchySurfaceSizeAndPosition();
     void setViewSurfaceSizeAndPosition();
     void actualizeAllSurfacesSizeAndPosition();
@@ -48,12 +45,10 @@ public:
     void clearCaughtElements(int keepMask);
     bool isViewSelectionActive();
     bool isPageSelectionActive();
-    bool isSceneSelectionActive();
     bool isScenePageOrViewSelectionActive();
 
     CViewSelector* viewSelector;
     CPageSelector* pageSelector;
-    CSceneSelector* sceneSelector;
 
     CHierarchy* hierarchy;
 
@@ -61,7 +56,6 @@ public:
 
 private:
 
-    bool sceneSelectionActive;
     bool viewSelectionActive;
     bool pageSelectionActive;
     bool _hierarchyClosingButtonDown;

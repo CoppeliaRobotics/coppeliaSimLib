@@ -8,24 +8,16 @@ CBannerContainer::CBannerContainer()
 }
 
 CBannerContainer::~CBannerContainer()
-{
+{ // beware, the current world could be nullptr
     removeAllObjects(false);
-}
-
-void CBannerContainer::simulationAboutToStart()
-{
 }
 
 void CBannerContainer::simulationEnded()
 {
     removeAllObjects(true);
-//  if (_initialValuesInitialized&&App::ct->simulation->getResetSceneAtSimulationEnd())
+//  if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
 //  {
 //  }
-}
-
-void CBannerContainer::emptySceneProcedure()
-{ // don't do anything here! (plugin or add-on might be using that functionality too) 
 }
 
 CBannerObject* CBannerContainer::getObject(int objectID)
@@ -112,17 +104,17 @@ void CBannerContainer::announceObjectWillBeErased(int objID)
 
 void CBannerContainer::renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],float verticalViewSizeOrAngle,bool perspective)
 {
-    drawAll3DStuff(false,false,displayAttrib,renderingObject->getCumulativeTransformation().getMatrix(),windowSize,verticalViewSizeOrAngle,perspective);
+    drawAll3DStuff(false,false,displayAttrib,renderingObject->getFullCumulativeTransformation().getMatrix(),windowSize,verticalViewSizeOrAngle,perspective);
 }
 
 void CBannerContainer::renderYour3DStuff_transparent(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],float verticalViewSizeOrAngle,bool perspective)
 {
-    drawAll3DStuff(false,true,displayAttrib,renderingObject->getCumulativeTransformation().getMatrix(),windowSize,verticalViewSizeOrAngle,perspective);
+    drawAll3DStuff(false,true,displayAttrib,renderingObject->getFullCumulativeTransformation().getMatrix(),windowSize,verticalViewSizeOrAngle,perspective);
 }
 
 void CBannerContainer::renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],float verticalViewSizeOrAngle,bool perspective)
 {
-    drawAll3DStuff(true,true,displayAttrib,renderingObject->getCumulativeTransformation().getMatrix(),windowSize,verticalViewSizeOrAngle,perspective);
+    drawAll3DStuff(true,true,displayAttrib,renderingObject->getFullCumulativeTransformation().getMatrix(),windowSize,verticalViewSizeOrAngle,perspective);
 }
 
 void CBannerContainer::drawAll3DStuff(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM,int windowSize[2],float verticalViewSizeOrAngle,bool perspective)

@@ -685,7 +685,7 @@ int CSer::readOpenBinary(int& serializationVersion,unsigned short& coppeliaSimVe
 #ifdef SIM_WITH_GUI
             App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Serialization"),strTranslate(IDS_READING_NEWER_SERIALIZATION_FILE_WARNING),VMESSAGEBOX_OKELI);
 #else
-            printf("%s\n",IDS_READING_NEWER_SERIALIZATION_FILE_WARNING);
+            App::logMsg(sim_verbosity_warnings,"%s.",IDS_READING_NEWER_SERIALIZATION_FILE_WARNING);
 #endif
         }
     }
@@ -1514,7 +1514,7 @@ void CSer::xmlAddNode_double(const char* name,double val)
 bool CSer::xmlPushChildNode(const char* name,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlPushChildNode, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlPushChildNode, name: %s",name);
     xmlNode* node=nullptr;
     if (_xmlCurrentNode==nullptr)
         node=_xmlDocument.FirstChildElement(name);
@@ -1523,7 +1523,7 @@ bool CSer::xmlPushChildNode(const char* name,bool required/*=true*/)
     if (node==nullptr)
     {
         if (required)
-            printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+            App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
         return(false);
     }
     _xmlCurrentNode=node;
@@ -1534,7 +1534,7 @@ bool CSer::xmlPushChildNode(const char* name,bool required/*=true*/)
 bool CSer::xmlPushSiblingNode(const char* name,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlPushSiblingNode, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlPushSiblingNode, name: %s",name);
     if (_xmlCurrentNode!=nullptr)
     {
         xmlNode* node=_xmlCurrentNode->NextSiblingElement(name);
@@ -1547,7 +1547,7 @@ bool CSer::xmlPushSiblingNode(const char* name,bool required/*=true*/)
         }
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -1559,7 +1559,7 @@ bool CSer::xmlGetNode_nameAttribute(std::string& val,bool required/*=true*/)
     if (nm==nullptr)
     {
         if (required)
-            printf("XML read: missing attribute 'name'! (stack: %s)\n",xmlGetStackString().c_str());
+            App::logMsg(sim_verbosity_errors,"XML read: missing attribute 'name'! (stack: %s)",xmlGetStackString().c_str());
     }
     return(nm!=nullptr);
 }
@@ -1573,7 +1573,7 @@ bool CSer::xmlGetNode_idAttribute(int& val,bool required/*=true*/)
 bool CSer::xmlGetNode_bool(const char* name,bool& val,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_bool, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_bool, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -1585,14 +1585,14 @@ bool CSer::xmlGetNode_bool(const char* name,bool& val,bool required/*=true*/)
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_bools(const char* name,std::vector<bool>& vals,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_bools, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_bools, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -1612,7 +1612,7 @@ bool CSer::xmlGetNode_bools(const char* name,std::vector<bool>& vals,bool requir
                     else
                     {
                         if (required)
-                            printf("XML read: bad value(s) in node '%s'!\n",name);
+                            App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
                         vals.clear();
                         return(false);
                     }
@@ -1624,14 +1624,14 @@ bool CSer::xmlGetNode_bools(const char* name,std::vector<bool>& vals,bool requir
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_flags(const char* name,int& flags,int flagWhenTrue,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_flags, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_flags, name: %s",name);
     bool v;
     if (xmlGetNode_bool(name,v,required))
     {
@@ -1640,14 +1640,14 @@ bool CSer::xmlGetNode_flags(const char* name,int& flags,int flagWhenTrue,bool re
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_binFile(const char* name,std::vector<unsigned char>& buffer,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_binFile, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_binFile, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -1666,19 +1666,19 @@ bool CSer::xmlGetNode_binFile(const char* name,std::vector<unsigned char>& buffe
                 serObj.readClose();
                 return(true);
             }
-            printf("XML read: file '%s' can't be opened!\n",filename.c_str());
+            App::logMsg(sim_verbosity_errors,"XML read: file '%s' can't be opened!",filename.c_str());
             return(false);
         }
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_binFile(const char* name,std::string& buffer,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_binFile, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_binFile, name: %s",name);
     std::vector<unsigned char> buff;
     bool retVal=xmlGetNode_binFile(name,buff,required);
     if (retVal)
@@ -1693,7 +1693,7 @@ bool CSer::xmlGetNode_binFile(const char* name,std::string& buffer,bool required
 bool CSer::xmlGetNode_imageFile(const char* name,std::vector<unsigned char>& image,int* resX/*=nullptr*/,int* resY/*=nullptr*/,bool* rgba/*=nullptr*/,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_imageFile, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_imageFile, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -1745,19 +1745,19 @@ bool CSer::xmlGetNode_imageFile(const char* name,std::vector<unsigned char>& ima
                 }
                 return(retVal);
             }
-            printf("XML read: file '%s' can't be opened!\n",filename.c_str());
+            App::logMsg(sim_verbosity_errors,"XML read: file '%s' can't be opened!",filename.c_str());
             return(false);
         }
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_meshFile(const char* name,std::vector<float>& vertices,std::vector<int>& indices,std::vector<float>& normals,std::vector<unsigned char>& edges,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_meshFile, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_meshFile, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -1773,7 +1773,7 @@ bool CSer::xmlGetNode_meshFile(const char* name,std::vector<float>& vertices,std
                 int** _indices;
                 int* _indicesSizes;
                 if (!CPluginContainer::isAssimpPluginAvailable())
-                    printf("Error: assimp plugin was not found. CoppeliaSim will now crash.\n");
+                    App::logMsg(sim_verbosity_errors,"assimp plugin was not found. CoppeliaSim will now crash.");
                 int cnt=CPluginContainer::assimp_importMeshes(filename.c_str(),1.0f,1,16+256,&_vertices,&_verticesSizes,&_indices,&_indicesSizes);
                 if (cnt>0)
                 {
@@ -1825,19 +1825,19 @@ bool CSer::xmlGetNode_meshFile(const char* name,std::vector<float>& vertices,std
                 delete w;
                 return(true);
             }
-            printf("XML read: file '%s' can't be opened!\n",filename.c_str());
+            App::logMsg(sim_verbosity_errors,"XML read: file '%s' can't be opened!",filename.c_str());
             return(false);
         }
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 CSer* CSer::xmlGetNode_binFile(const char* name,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_binFile, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_binFile, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -1856,14 +1856,14 @@ CSer* CSer::xmlGetNode_binFile(const char* name,bool required/*=true*/)
         }
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(nullptr);
 }
 
 bool CSer::xmlGetNode_string(const char* name,std::string& val,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_string, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_string, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -1871,14 +1871,14 @@ bool CSer::xmlGetNode_string(const char* name,std::string& val,bool required/*=t
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_strings(const char* name,std::vector<std::string>& vals,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_strings, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_strings, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -1895,14 +1895,14 @@ bool CSer::xmlGetNode_strings(const char* name,std::vector<std::string>& vals,bo
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_enum(const char* name,int& val,bool required,const char* str1,int v1,const char* str2,int v2,const char* str3/*=nullptr*/,int v3/*=-1*/,const char* str4/*=nullptr*/,int v4/*=-1*/,const char* str5/*=nullptr*/,int v5/*=-1*/,const char* str6/*=nullptr*/,int v6/*=-1*/,const char* str7/*=nullptr*/,int v7/*=-1*/,const char* str8/*=nullptr*/,int v8/*=-1*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_enum, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_enum, name: %s",name);
     std::string tmp;
     bool f=false;
     bool retVal=false;
@@ -1956,7 +1956,7 @@ bool CSer::xmlGetNode_enum(const char* name,int& val,bool required,const char* s
     else
     {
         if (required)
-            printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+            App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     }
     return(retVal);
 }
@@ -1964,7 +1964,7 @@ bool CSer::xmlGetNode_enum(const char* name,int& val,bool required,const char* s
 bool CSer::xmlGetNode_enum(const char* name,int& val,bool required,const std::vector<int>& vals,const std::vector<std::string>& strings)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_enum, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_enum, name: %s",name);
     std::string tmp;
     bool f=false;
     bool retVal=false;
@@ -1987,7 +1987,7 @@ bool CSer::xmlGetNode_enum(const char* name,int& val,bool required,const std::ve
     else
     {
         if (required)
-            printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+            App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     }
     return(retVal);
 }
@@ -1995,7 +1995,7 @@ bool CSer::xmlGetNode_enum(const char* name,int& val,bool required,const std::ve
 bool CSer::xmlGetNode_int(const char* name,int& val,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_int, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_int, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -2011,27 +2011,27 @@ bool CSer::xmlGetNode_int(const char* name,int& val,bool required/*=true*/)
             catch (boost::bad_lexical_cast &)
             {
                 if (required)
-                    printf("XML read: bad value(s) in node '%s'!\n",name);
+                    App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
                 return(false);
             }
         }
         else
         {
             if (required)
-                printf("XML read: missing value(s) in node '%s'!\n",name);
+                App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
             return(false);
         }
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_2int(const char* name,int& val1,int& val2,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_2int, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_2int, name: %s",name);
     int vals[2];
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
@@ -2050,14 +2050,14 @@ bool CSer::xmlGetNode_2int(const char* name,int& val1,int& val2,bool required/*=
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        printf("XML read: bad value(s) in node '%s'!\n",name);
+                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
                     return(false);
                 }
             }
             else
             {
                 if (required)
-                    printf("XML read: missing value(s) in node '%s'!\n",name);
+                    App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
                 return(false);
             }
         }
@@ -2066,14 +2066,14 @@ bool CSer::xmlGetNode_2int(const char* name,int& val1,int& val2,bool required/*=
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_3int(const char* name,int& val1,int& val2,int& val3,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_3int, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_3int, name: %s",name);
     int vals[3];
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
@@ -2092,14 +2092,14 @@ bool CSer::xmlGetNode_3int(const char* name,int& val1,int& val2,int& val3,bool r
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        printf("XML read: bad value(s) in node '%s'!\n",name);
+                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
                     return(false);
                 }
             }
             else
             {
                 if (required)
-                    printf("XML read: missing value(s) in node '%s'!\n",name);
+                    App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
                 return(false);
             }
         }
@@ -2109,14 +2109,14 @@ bool CSer::xmlGetNode_3int(const char* name,int& val1,int& val2,int& val3,bool r
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_ints(const char* name,int* vals,int cnt,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_ints, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_ints, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -2134,28 +2134,28 @@ bool CSer::xmlGetNode_ints(const char* name,int* vals,int cnt,bool required/*=tr
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        printf("XML read: bad value(s) in node '%s'!\n",name);
+                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
                     return(false);
                 }
             }
             else
             {
                 if (required)
-                    printf("XML read: missing value(s) in node '%s'!\n",name);
+                    App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
                 return(false);
             }
         }
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_ints(const char* name,std::vector<int>& vals,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_ints, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_ints, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -2174,7 +2174,7 @@ bool CSer::xmlGetNode_ints(const char* name,std::vector<int>& vals,bool required
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        printf("XML read: bad value(s) in node '%s'!\n",name);
+                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
                     vals.clear();
                     return(false);
                 }
@@ -2185,14 +2185,14 @@ bool CSer::xmlGetNode_ints(const char* name,std::vector<int>& vals,bool required
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_uint(const char* name,unsigned int& val,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_uint, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_uint, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -2208,27 +2208,27 @@ bool CSer::xmlGetNode_uint(const char* name,unsigned int& val,bool required/*=tr
             catch (boost::bad_lexical_cast &)
             {
                 if (required)
-                    printf("XML read: bad value(s) in node '%s'!\n",name);
+                    App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
                 return(false);
             }
         }
         else
         {
             if (required)
-                printf("XML read: missing value(s) in node '%s'!\n",name);
+                App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
             return(false);
         }
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_ulonglong(const char* name,unsigned long long& val,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_ulonglong, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_ulonglong, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -2244,27 +2244,27 @@ bool CSer::xmlGetNode_ulonglong(const char* name,unsigned long long& val,bool re
             catch (boost::bad_lexical_cast &)
             {
                 if (required)
-                    printf("XML read: bad value(s) in node '%s'!\n",name);
+                    App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
                 return(false);
             }
         }
         else
         {
             if (required)
-                printf("XML read: missing value(s) in node '%s'!\n",name);
+                App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
             return(false);
         }
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_uchars(const char* name,std::vector<unsigned char>& vals,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_uchars, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_uchars, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -2283,7 +2283,7 @@ bool CSer::xmlGetNode_uchars(const char* name,std::vector<unsigned char>& vals,b
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        printf("XML read: bad value(s) in node '%s'!\n",name);
+                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
                     vals.clear();
                     return(false);
                 }
@@ -2294,7 +2294,7 @@ bool CSer::xmlGetNode_uchars(const char* name,std::vector<unsigned char>& vals,b
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -2302,7 +2302,7 @@ bool CSer::xmlGetNode_uchars(const char* name,std::vector<unsigned char>& vals,b
 bool CSer::xmlGetNode_float(const char* name,float& val,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_float, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_float, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -2318,27 +2318,27 @@ bool CSer::xmlGetNode_float(const char* name,float& val,bool required/*=true*/)
             catch (boost::bad_lexical_cast &)
             {
                 if (required)
-                    printf("XML read: bad value(s) in node '%s'!\n",name);
+                    App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
                 return(false);
             }
         }
         else
         {
             if (required)
-                printf("XML read: missing value(s) in node '%s'!\n",name);
+                App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
             return(false);
         }
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_2float(const char* name,float& val1,float& val2,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_2float, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_2float, name: %s",name);
     float vals[2];
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
@@ -2357,14 +2357,14 @@ bool CSer::xmlGetNode_2float(const char* name,float& val1,float& val2,bool requi
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        printf("XML read: bad value(s) in node '%s'!\n",name);
+                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
                     return(false);
                 }
             }
             else
             {
                 if (required)
-                    printf("XML read: missing value(s) in node '%s'!\n",name);
+                    App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
                 return(false);
             }
         }
@@ -2373,14 +2373,14 @@ bool CSer::xmlGetNode_2float(const char* name,float& val1,float& val2,bool requi
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_3float(const char* name,float& val1,float& val2,float& val3,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_3float, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_3float, name: %s",name);
     float vals[3];
     bool retVal=xmlGetNode_floats(name,vals,3,required);
     if (retVal)
@@ -2392,7 +2392,7 @@ bool CSer::xmlGetNode_3float(const char* name,float& val1,float& val2,float& val
     else
     {
         if (required)
-            printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+            App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     }
     return(retVal);
 }
@@ -2400,7 +2400,7 @@ bool CSer::xmlGetNode_3float(const char* name,float& val1,float& val2,float& val
 bool CSer::xmlGetNode_4float(const char* name,float& val1,float& val2,float& val3,float& val4,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_4float, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_4float, name: %s",name);
     float vals[4];
     bool retVal=xmlGetNode_floats(name,vals,4,required);
     if (retVal)
@@ -2413,7 +2413,7 @@ bool CSer::xmlGetNode_4float(const char* name,float& val1,float& val2,float& val
     else
     {
         if (required)
-            printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+            App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     }
     return(retVal);
 }
@@ -2421,7 +2421,7 @@ bool CSer::xmlGetNode_4float(const char* name,float& val1,float& val2,float& val
 bool CSer::xmlGetNode_floats(const char* name,float* vals,int cnt,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_floats, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_floats, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -2439,28 +2439,28 @@ bool CSer::xmlGetNode_floats(const char* name,float* vals,int cnt,bool required/
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        printf("XML read: bad value(s) in node '%s'!\n",name);
+                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
                     return(false);
                 }
             }
             else
             {
                 if (required)
-                    printf("XML read: missing value(s) in node '%s'!\n",name);
+                    App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
                 return(false);
             }
         }
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_floats(const char* name,std::vector<float>& vals,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_floats, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_floats, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -2479,7 +2479,7 @@ bool CSer::xmlGetNode_floats(const char* name,std::vector<float>& vals,bool requ
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        printf("XML read: bad value(s) in node '%s'!\n",name);
+                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
                     vals.clear();
                     return(false);
                 }
@@ -2490,14 +2490,14 @@ bool CSer::xmlGetNode_floats(const char* name,std::vector<float>& vals,bool requ
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 
 bool CSer::xmlGetNode_double(const char* name,double& val,bool required/*=true*/)
 {
     if (xmlDebug)
-        printf("XML read: xmlGetNode_double, name: %s\n",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_double, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -2513,20 +2513,20 @@ bool CSer::xmlGetNode_double(const char* name,double& val,bool required/*=true*/
             catch (boost::bad_lexical_cast &)
             {
                 if (required)
-                    printf("XML read: bad value(s) in node '%s'!\n",name);
+                    App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
                 return(false);
             }
         }
         else
         {
             if (required)
-                printf("XML read: missing value(s) in node '%s'!\n",name);
+                App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
             return(false);
         }
         return(true);
     }
     if (required)
-        printf("XML read: missing node '%s'! (stack: %s)\n",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
     return(false);
 }
 

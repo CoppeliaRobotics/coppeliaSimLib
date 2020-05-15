@@ -1,4 +1,3 @@
-
 #ifndef QDLGCALCDIALOGCONTAINER_H
 #define QDLGCALCDIALOGCONTAINER_H
 
@@ -25,8 +24,8 @@ public:
     int desiredPage;
     int topBorderWidth;
 
-    CDlgEx* pageDlgs[7];
-    int originalHeights[7];
+    CDlgEx* pageDlgs[4];
+    int originalHeights[4];
 
 
 private slots:
@@ -34,15 +33,9 @@ private slots:
 
     void on_qqDistance_clicked();
 
-    void on_qqPathPlanning_clicked();
-
     void on_qqIk_clicked();
 
-    void on_qqGcs_clicked();
-
     void on_qqDynamics_clicked();
-
-    void on_qqMotionPlanning_clicked();
 
 private:
     Ui::CQDlgCalcDialogContainer *ui;

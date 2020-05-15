@@ -24,7 +24,7 @@ CQDlgSettings::~CQDlgSettings()
 void CQDlgSettings::refresh()
 {
     bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
-    bool noSim=App::ct->simulation->isSimulationStopped();
+    bool noSim=App::currentWorld->simulation->isSimulationStopped();
     bool noEditModeAndNoSim=noEditMode&&noSim;
 
 #ifndef WIN_SIM
@@ -77,7 +77,7 @@ void CQDlgSettings::refresh()
     ui->hideConsole->setChecked(!App::userSettings->alwaysShowConsole);
     ui->qqAutoSave->setChecked(App::userSettings->autoSaveDelay!=0);
 
-    ui->qqAdjustOpenGl->setEnabled(App::ct->simulation->isSimulationStopped());
+    ui->qqAdjustOpenGl->setEnabled(App::currentWorld->simulation->isSimulationStopped());
 }
 
 void CQDlgSettings::on_translationStepSize_activated(int index)

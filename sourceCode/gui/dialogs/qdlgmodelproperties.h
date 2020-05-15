@@ -4,7 +4,7 @@
 
 #include <QAbstractButton>
 #include "vDialog.h"
-#include "3DObject.h"
+#include "sceneObject.h"
 
 namespace Ui {
     class CQDlgModelProperties;
@@ -23,7 +23,7 @@ public:
 
     void refresh();
 
-    C3DObject* modelBaseObject;
+    CSceneObject* modelBaseObject;
 
 private slots:
     void on_qqSelectThumbnail_clicked();
@@ -35,8 +35,6 @@ private slots:
     void on_qqNotMeasurable_clicked();
 
     void on_qqNotRenderable_clicked();
-
-    void on_qqNotCuttable_clicked();
 
     void on_qqNotDetectable_clicked();
 

@@ -10,15 +10,15 @@ COutsideCommandQueue::COutsideCommandQueue()
 }
 
 COutsideCommandQueue::~COutsideCommandQueue()
-{
+{ // beware, the current world could be nullptr
 }
 
 bool COutsideCommandQueue::addCommand(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const float aux2Vals[8],int aux2Count)
 { // the queue can't be bigger than 64! (for now)
     // Only for Lua now
     // For the Lua-API:
-    if (App::ct->luaScriptContainer!=nullptr)
-        App::ct->luaScriptContainer->addCommandToOutsideCommandQueues(commandID,auxVal1,auxVal2,auxVal3,auxVal4,aux2Vals,aux2Count);
+    if (App::currentWorld->luaScriptContainer!=nullptr)
+        App::currentWorld->luaScriptContainer->addCommandToOutsideCommandQueues(commandID,auxVal1,auxVal2,auxVal3,auxVal4,aux2Vals,aux2Count);
     return(true);
 }
 

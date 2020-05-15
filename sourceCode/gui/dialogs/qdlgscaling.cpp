@@ -39,8 +39,8 @@ void CQDlgScaling::refresh()
 void CQDlgScaling::_doTheScaling()
 {
     std::vector<int> sel;
-    for (int i=0;i<App::ct->objCont->getSelSize();i++)
-        sel.push_back(App::ct->objCont->getSelID(i));
+    for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+        sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
     SSimulationThreadCommand cmd;
     cmd.cmdId=SCALE_SCALINGGUITRIGGEREDCMD;
     cmd.intParams.assign(sel.begin(),sel.end());

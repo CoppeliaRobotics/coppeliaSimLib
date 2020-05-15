@@ -12,7 +12,7 @@ void displayProximitySensor(CProxSensor* proxSensor,CViewableBase* renderingObje
     if (displayAttrib&sim_displayattribute_renderpass)
         _displayBoundingBox(proxSensor,displayAttrib,true,0.0);
 
-    C3Vector normalVectorForLinesAndPoints(proxSensor->getCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
+    C3Vector normalVectorForLinesAndPoints(proxSensor->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
     // Display the object:
     if (proxSensor->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))

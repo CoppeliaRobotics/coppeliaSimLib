@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "3DObject.h"
+#include "sceneObject.h"
 #ifdef SIM_WITH_GUI
 #include "vMenubar.h"
 #endif
@@ -29,9 +29,9 @@ public:
                                         bool addFacesPoints,double maxConnectDist,size_t maxTrianglesInDecimatedMesh,
                                         size_t maxHullVertices,double smallClusterThreshold,
                                         bool individuallyConsiderMultishapeComponents,int maxIterations,
-                                        bool useHACD,int resolution_VHACD,int depth_VHACD,float concavity_VHACD,
+                                        bool useHACD,int resolution_VHACD,int depth_VHACD_old,float concavity_VHACD,
                                         int planeDownsampling_VHACD,int convexHullDownsampling_VHACD,
-                                        float alpha_VHACD,float beta_VHACD,float gamma_VHACD,bool pca_VHACD,
+                                        float alpha_VHACD,float beta_VHACD,float gamma_VHACD_old,bool pca_VHACD,
                                         bool voxelBased_VHACD,int maxVerticesPerCH_VHACD,float minVolumePerCH_VHACD);
     static int generateConvexHull(int shapeHandle);
     static int convexDecompose_apiVersion(int shapeHandle,int options,const int* intParams,const float* floatParams);

@@ -71,9 +71,11 @@ bool CLuaCustomFuncAndVarContainer::insertCustomFunction(CLuaCustomFunction* fun
 
     if ((function->getPluginName()=="")&&warningAboutFunctionNamesWithoutPlugin)
     {
-        printf("Warning: Detected a custom function name that is not formatted as\n");
-        printf("         funcName@pluginName: %s\n",function->getFunctionName().c_str());
-        printf("         Unloading this plugin dynamically might lead to a crash.\n");
+        std::string msg("detected a custom function name that is not formatted as");
+        msg+="\n         funcName@pluginName: ";
+        msg+=function->getFunctionName();
+        msg+="\n         Unloading this plugin dynamically might lead to a crash.";
+        App::logMsg(sim_verbosity_warnings,msg.c_str());
     }
 
     int newID=0;
@@ -198,7 +200,7 @@ bool CLuaCustomFuncAndVarContainer::insertCustomVariable(const char* fullVariabl
         }
         else
         { // register a stack variable
-            CInterfaceStack* stack=App::ct->interfaceStackContainer->getStack(stackHandle);
+            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
             if (stack==nullptr)
                 return(false);
             if (stack->getStackSize()<1)

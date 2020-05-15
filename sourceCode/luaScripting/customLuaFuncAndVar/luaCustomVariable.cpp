@@ -25,7 +25,7 @@ CLuaCustomVariable::CLuaCustomVariable(const char* theFullVariableName,const cha
 CLuaCustomVariable::~CLuaCustomVariable()
 {
     if (_variableStackValue!=0)
-        App::ct->interfaceStackContainer->destroyStack(_variableStackValue);
+        App::worldContainer->interfaceStackContainer->destroyStack(_variableStackValue);
 }
 
 bool CLuaCustomVariable::getHasAutoCompletion() const
@@ -55,7 +55,7 @@ void CLuaCustomVariable::pushVariableOntoLuaStack(luaWrap_lua_State* L,bool hand
         {
             if (!handleOnlyRequireAssignments)
             {
-                CInterfaceStack* stack=App::ct->interfaceStackContainer->getStack(_variableStackValue);
+                CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(_variableStackValue);
                 stack->buildOntoLuaStack(L,true);
                 luaWrap_lua_setglobal(L,_variableName.c_str());
             }

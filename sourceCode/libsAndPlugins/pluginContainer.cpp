@@ -1,16 +1,17 @@
 #include "app.h"
-#include "funcDebug.h"
 #include "pluginContainer.h"
 #include "simConst.h"
 #include "pathPlanningInterface.h"
 #include "easyLock.h"
 #include "simInternal.h"
 #include "ttUtil.h"
+#include "apiErrors.h"
+#include "collisionRoutines.h"
 
 CPlugin::CPlugin(const char* filename,const char* pluginName)
 {
     _filename=filename;
-    name=pluginName;
+    _name=pluginName;
     instance=nullptr;
     geomPlugin_createMesh=nullptr;
     _codeEditor_openModal=nullptr;
@@ -18,6 +19,8 @@ CPlugin::CPlugin(const char* filename,const char* pluginName)
     _assimp_importShapes=nullptr;
     _loadCount=1;
     extendedVersionInt=-1;
+    _consoleVerbosity=sim_verbosity_useglobal;
+    _statusbarVerbosity=sim_verbosity_useglobal;
 }
 
 CPlugin::~CPlugin()
@@ -26,12 +29,42 @@ CPlugin::~CPlugin()
         VVarious::closeLibrary(instance);
     if (geomPlugin_createMesh!=nullptr)
         CPluginContainer::currentGeomPlugin=nullptr;
+    if (ikPlugin_createEnvironment!=nullptr)
+    {
+        CPluginContainer::currentIkPlugin=nullptr;
+        CPluginContainer::ikEnvironment=-1;
+    }
     if (_codeEditor_openModal!=nullptr)
         CPluginContainer::currentCodeEditor=nullptr;
     if (_customUi_msgBox!=nullptr)
         CPluginContainer::currentCustomUi=nullptr;
     if (_assimp_importShapes!=nullptr)
         CPluginContainer::currentAssimp=nullptr;
+}
+
+void CPlugin::setConsoleVerbosity(int level)
+{
+    _consoleVerbosity=level;
+}
+
+int CPlugin::getConsoleVerbosity() const
+{
+    return(_consoleVerbosity);
+}
+
+void CPlugin::setStatusbarVerbosity(int level)
+{
+    _statusbarVerbosity=level;
+}
+
+int CPlugin::getStatusbarVerbosity() const
+{
+    return(_statusbarVerbosity);
+}
+
+std::string CPlugin::getName() const
+{
+    return(_name);
 }
 
 int CPlugin::load()
@@ -110,6 +143,8 @@ int CPlugin::load()
 
             if (pluginVersion!=0)
             {
+                syncPlugin_msg=(ptr_syncPlugin_msg)(VVarious::resolveLibraryFuncName(lib,"sync_msg"));
+
                 // For the dynamic plugins:
                 dynPlugin_startSimulation=(ptr_dynPlugin_startSimulation)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_startSimulation"));
                 dynPlugin_endSimulation=(ptr_dynPlugin_endSimulation)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_endSimulation"));
@@ -223,6 +258,51 @@ int CPlugin::load()
                 if (geomPlugin_createMesh!=nullptr)
                     CPluginContainer::currentGeomPlugin=this;
 
+                // For the IK plugin:
+                ikPlugin_createEnvironment=(ptr_ikPlugin_createEnvironment)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_createEnvironment"));
+                ikPlugin_switchEnvironment=(ptr_ikPlugin_switchEnvironment)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_switchEnvironment"));
+                ikPlugin_eraseEnvironment=(ptr_ikPlugin_eraseEnvironment)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_eraseEnvironment"));
+                ikPlugin_eraseObject=(ptr_ikPlugin_eraseObject)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_eraseObject"));
+                ikPlugin_setObjectParent=(ptr_ikPlugin_setObjectParent)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setObjectParent"));
+                ikPlugin_createDummy=(ptr_ikPlugin_createDummy)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_createDummy"));
+                ikPlugin_setLinkedDummy=(ptr_ikPlugin_setLinkedDummy)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setLinkedDummy"));
+                ikPlugin_createJoint=(ptr_ikPlugin_createJoint)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_createJoint"));
+                ikPlugin_setJointMode=(ptr_ikPlugin_setJointMode)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setJointMode"));
+                ikPlugin_setJointInterval=(ptr_ikPlugin_setJointInterval)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setJointInterval"));
+                ikPlugin_setJointScrewPitch=(ptr_ikPlugin_setJointScrewPitch)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setJointScrewPitch"));
+                ikPlugin_setJointIkWeight=(ptr_ikPlugin_setJointIkWeight)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setJointIkWeight"));
+                ikPlugin_setJointMaxStepSize=(ptr_ikPlugin_setJointMaxStepSize)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setJointMaxStepSize"));
+                ikPlugin_setJointDependency=(ptr_ikPlugin_setJointDependency)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setJointDependency"));
+                ikPlugin_getJointPosition=(ptr_ikPlugin_getJointPosition)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_getJointPosition"));
+                ikPlugin_setJointPosition=(ptr_ikPlugin_setJointPosition)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setJointPosition"));
+                ikPlugin_getSphericalJointQuaternion=(ptr_ikPlugin_getSphericalJointQuaternion)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_getSphericalJointQuaternion"));
+                ikPlugin_setSphericalJointQuaternion=(ptr_ikPlugin_setSphericalJointQuaternion)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setSphericalJointQuaternion"));
+                ikPlugin_createIkGroup=(ptr_ikPlugin_createIkGroup)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_createIkGroup"));
+                ikPlugin_eraseIkGroup=(ptr_ikPlugin_eraseIkGroup)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_eraseIkGroup"));
+                ikPlugin_setIkGroupFlags=(ptr_ikPlugin_setIkGroupFlags)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setIkGroupFlags"));
+                ikPlugin_setIkGroupCalculation=(ptr_ikPlugin_setIkGroupCalculation)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setIkGroupCalculation"));
+                ikPlugin_addIkElement=(ptr_ikPlugin_addIkElement)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_addIkElement"));
+                ikPlugin_eraseIkElement=(ptr_ikPlugin_eraseIkElement)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_eraseIkElement"));
+                ikPlugin_setIkElementFlags=(ptr_ikPlugin_setIkElementFlags)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setIkElementFlags"));
+                ikPlugin_setIkElementBase=(ptr_ikPlugin_setIkElementBase)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setIkElementBase"));
+                ikPlugin_setIkElementConstraints=(ptr_ikPlugin_setIkElementConstraints)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setIkElementConstraints"));
+                ikPlugin_setIkElementPrecision=(ptr_ikPlugin_setIkElementPrecision)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setIkElementPrecision"));
+                ikPlugin_setIkElementWeights=(ptr_ikPlugin_setIkElementWeights)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setIkElementWeights"));
+                ikPlugin_handleIkGroup=(ptr_ikPlugin_handleIkGroup)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_handleIkGroup"));
+                ikPlugin_computeJacobian=(ptr_ikPlugin_computeJacobian)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_computeJacobian"));
+                ikPlugin_getJacobian=(ptr_ikPlugin_getJacobian)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_getJacobian"));
+                ikPlugin_getManipulability=(ptr_ikPlugin_getManipulability)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_getManipulability"));
+                ikPlugin_getConfigForTipPose=(ptr_ikPlugin_getConfigForTipPose)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_getConfigForTipPose"));
+                ikPlugin_getObjectLocalTransformation=(ptr_ikPlugin_getObjectLocalTransformation)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_getObjectLocalTransformation"));
+                ikPlugin_setObjectLocalTransformation=(ptr_ikPlugin_setObjectLocalTransformation)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setObjectLocalTransformation"));
+                if (ikPlugin_createEnvironment!=nullptr)
+                {
+                    CPluginContainer::currentIkPlugin=this;
+                    CPluginContainer::ikEnvironment=CPluginContainer::currentIkPlugin->ikPlugin_createEnvironment();
+                    //App::currentWorld->rebuildAndConnectSynchronizationObjects(); // for the default scene
+                }
+
+
                 _codeEditor_openModal=(ptrCodeEditor_openModal)(VVarious::resolveLibraryFuncName(lib,"codeEditor_openModal"));
                 _codeEditor_open=(ptrCodeEditor_open)(VVarious::resolveLibraryFuncName(lib,"codeEditor_open"));
                 _codeEditor_setText=(ptrCodeEditor_setText)(VVarious::resolveLibraryFuncName(lib,"codeEditor_setText"));
@@ -269,6 +349,8 @@ void* CPlugin::sendEventCallbackMessage(int msg,int* auxVals,void* data,int retV
 
 int CPluginContainer::_nextHandle=0;
 std::vector<CPlugin*> CPluginContainer::_allPlugins;
+std::vector<CPlugin*> CPluginContainer::_syncPlugins;
+
 
 std::vector<std::string> CPluginContainer::_renderingpass_eventEnabledPluginNames;
 std::vector<std::string> CPluginContainer::_opengl_eventEnabledPluginNames;
@@ -291,9 +373,12 @@ ptrMeshDecimator CPluginContainer::_meshDecimatorAddress=nullptr;
 
 CPlugin* CPluginContainer::currentDynEngine=nullptr;
 CPlugin* CPluginContainer::currentGeomPlugin=nullptr;
+CPlugin* CPluginContainer::currentIkPlugin=nullptr;
 CPlugin* CPluginContainer::currentCodeEditor=nullptr;
 CPlugin* CPluginContainer::currentCustomUi=nullptr;
 CPlugin* CPluginContainer::currentAssimp=nullptr;
+
+int CPluginContainer::ikEnvironment=-1;
 
 VMutex _geomMutex;
 
@@ -307,16 +392,10 @@ CPluginContainer::~CPluginContainer()
 
 int CPluginContainer::addPlugin(const char* filename,const char* pluginName)
 {
-    FUNCTION_DEBUG;
-    if (filename[0]==0)
-    {       
-        CPathPlanningInterface::initializeFunctionsIfNeeded();
-        CPathPlanningInterface::setSystemPluginsLoadPhaseOver();
-        return(-1);
-    }
-    FUNCTION_INSIDE_DEBUG(pluginName);
+    TRACE_INTERNAL;
+    App::logMsg(sim_verbosity_debug,(std::string("addPlugin: ")+pluginName).c_str());
 
-    CPlugin* plug=getPluginFromName(pluginName);
+    CPlugin* plug=getPluginFromName(pluginName,true);
     if (plug!=nullptr)
     {
         plug->_loadCount++;
@@ -332,58 +411,103 @@ int CPluginContainer::addPlugin(const char* filename,const char* pluginName)
         delete plug;
         return(loadRes-1);
     }
+    if (plug->syncPlugin_msg!=nullptr)
+        _syncPlugins.push_back(plug);
     _nextHandle++;
     return(plug->handle);
 }
 
-CPlugin* CPluginContainer::getPluginFromName(const char* pluginName)
+CPlugin* CPluginContainer::getPluginFromName(const char* pluginName,bool caseSensitive)
 {
+    CPlugin* retVal=nullptr;
+    std::string thatPl(pluginName);
+    if (!caseSensitive)
+        std::transform(thatPl.begin(),thatPl.end(),thatPl.begin(),::tolower);
     for (size_t i=0;i<_allPlugins.size();i++)
     {
-        if (_allPlugins[i]->name==std::string(pluginName))
-            return(_allPlugins[i]);
+        std::string thisPl(_allPlugins[i]->_name);
+        if (!caseSensitive)
+            std::transform(thisPl.begin(),thisPl.end(),thisPl.begin(),::tolower);
+        if (thisPl.compare(thatPl)==0)
+        {
+            retVal=_allPlugins[i];
+            break;
+        }
     }
-    return(nullptr);
+    return(retVal);
 }
 
-CPlugin* CPluginContainer::getPluginFromIndex(int index)
+CPlugin* CPluginContainer::getPluginFromIndex(size_t index)
 {
-    if ((index<0)||(index>=int(_allPlugins.size())))
-        return(nullptr);
-    return(_allPlugins[index]);
+    CPlugin* retVal=nullptr;
+    if (index<_allPlugins.size())
+        retVal=_allPlugins[index];
+    return(retVal);
 }
 
-bool CPluginContainer::killPlugin(int handle)
+CPlugin* CPluginContainer::getPluginFromHandle(int handle)
 {
-    FUNCTION_DEBUG;
+    CPlugin* retVal=nullptr;
     for (size_t i=0;i<_allPlugins.size();i++)
     {
         if (_allPlugins[i]->handle==handle)
         {
-            FUNCTION_INSIDE_DEBUG(_allPlugins[i]->name.c_str());
-
-#ifdef SIM_WITH_GUI
-            if ( (App::mainWindow!=nullptr)&&(_allPlugins[i]->name.compare("CodeEditor")==0) )
-                App::mainWindow->codeEditorContainer->closeAll();
-#endif
-
-            if (_allPlugins[i]->_loadCount==1)
-            { // will unload it
-                _allPlugins[i]->endAddress();
-                std::string nm(_allPlugins[i]->name);
-                delete _allPlugins[i];
-                _allPlugins.erase(_allPlugins.begin()+i);
-                App::ct->luaCustomFuncAndVarContainer->announcePluginWasKilled(nm.c_str());
-                return(true);
-            }
-            else
-            { // cannot yet unload it... others might still depend on it!
-                _allPlugins[i]->_loadCount--;
-                return(false);
-            }
+            retVal=_allPlugins[i];
+            break;
         }
     }
-    return(false);
+    return(retVal);
+}
+
+void CPluginContainer::_removePlugin(int handle)
+{
+    for (size_t i=0;i<_allPlugins.size();i++)
+    {
+        if (_allPlugins[i]->handle==handle)
+        {
+            delete _allPlugins[i];
+            _allPlugins.erase(_allPlugins.begin()+i);
+            break;
+        }
+    }
+}
+
+bool CPluginContainer::unloadPlugin(int handle)
+{
+    TRACE_INTERNAL;
+    bool retVal=false;
+    CPlugin* it=getPluginFromHandle(handle);
+    if (it!=nullptr)
+    {
+        App::logMsg(sim_verbosity_debug,(std::string("unloadPlugin: ")+it->getName()).c_str());
+#ifdef SIM_WITH_GUI
+        if ( (App::mainWindow!=nullptr)&&(it->getName().compare("CodeEditor")==0) )
+            App::mainWindow->codeEditorContainer->closeAll();
+#endif
+
+        if (it->_loadCount==1)
+        { // will unload it
+            for (size_t j=0;j<_syncPlugins.size();j++)
+            {
+                if (_syncPlugins[j]==it)
+                {
+                    _syncPlugins.erase(_syncPlugins.begin()+j);
+                    break;
+                }
+            }
+            it->endAddress();
+            std::string nm(it->getName());
+            _removePlugin(handle);
+            App::worldContainer->luaCustomFuncAndVarContainer->announcePluginWasKilled(nm.c_str());
+            retVal=true;
+        }
+        else
+        { // cannot yet unload it... others might still depend on it!
+            it->_loadCount--;
+            return(false);
+        }
+    }
+    return(retVal);
 }
 
 int CPluginContainer::getPluginCount()
@@ -393,7 +517,7 @@ int CPluginContainer::getPluginCount()
 
 void* CPluginContainer::sendEventCallbackMessageToOnePlugin(const char* pluginName,int msg,int* auxVals,void* data,int retVals[4])
 {
-    CPlugin* plug=getPluginFromName(pluginName);
+    CPlugin* plug=getPluginFromName(pluginName,true);
     if (plug!=nullptr)
     {
         if (retVals!=nullptr)
@@ -508,7 +632,7 @@ void CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(int msg,int*
     {
         for (int i=0;i<int(vect->size());i++)
         {
-            CPlugin* plug=getPluginFromName(vect->at(i).c_str());
+            CPlugin* plug=getPluginFromName(vect->at(i).c_str(),true);
             if (plug!=nullptr)
             {
                 void* returnData=plug->messageAddress(msg,auxVals,data,retVals);
@@ -598,6 +722,12 @@ bool CPluginContainer::meshDecimator(void* data)
         return(true);
     }
     return(false);
+}
+
+void CPluginContainer::syncMsg(const SSyncMsg* msg,const SSyncRt* rt)
+{
+    for (size_t i=0;i<_syncPlugins.size();i++)
+        _syncPlugins[i]->syncPlugin_msg(msg,rt);
 }
 
 bool CPluginContainer::dyn_startSimulation(int engine,int version,const float floatParams[20],const int intParams[20])
@@ -729,6 +859,11 @@ int CPluginContainer::dyn_getEngineInfo(int* engine,int* data1,char* data2,char*
 bool CPluginContainer::isGeomPluginAvailable()
 {
     return(currentGeomPlugin!=nullptr);
+}
+
+bool CPluginContainer::isIkPluginAvailable()
+{
+    return(currentIkPlugin!=nullptr);
 }
 
 bool CPluginContainer::isCodeEditorPluginAvailable()
@@ -2140,6 +2275,289 @@ bool CPluginContainer::geomPlugin_isPointInVolume1AndOutVolume2(const std::vecto
     return(retVal);
 }
 
+void CPluginContainer::ikPlugin_emptyEnvironment()
+{
+    if (currentIkPlugin!=nullptr)
+    {
+        currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment);
+        currentIkPlugin->ikPlugin_eraseEnvironment();
+        ikEnvironment=currentIkPlugin->ikPlugin_createEnvironment();
+    }
+}
+
+/*
+void CPluginContainer::ikPlugin_createEnvironment()
+{
+    ikPlugin_eraseEnvironment();
+    if (currentIkPlugin!=nullptr)
+        ikEnvironment=currentIkPlugin->ikPlugin_createEnvironment();
+}
+
+void CPluginContainer::ikPlugin_eraseEnvironment()
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+    {
+        currentIkPlugin->ikPlugin_eraseEnvironment();
+        ikEnvironment=-1;
+    }
+}
+*/
+void CPluginContainer::ikPlugin_eraseObject(int objectHandle)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_eraseObject(objectHandle);
+}
+void CPluginContainer::ikPlugin_setObjectParent(int objectHandle,int parentObjectHandle)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setObjectParent(objectHandle,parentObjectHandle);
+}
+int CPluginContainer::ikPlugin_createDummy()
+{
+    int retVal=-1;
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        retVal=currentIkPlugin->ikPlugin_createDummy();
+    return(retVal);
+}
+void CPluginContainer::ikPlugin_setLinkedDummy(int dummyHandle,int linkedDummyHandle)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setLinkedDummy(dummyHandle,linkedDummyHandle);
+}
+int CPluginContainer::ikPlugin_createJoint(int jointType)
+{
+    int retVal=-1;
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        retVal=currentIkPlugin->ikPlugin_createJoint(jointType);
+    return(retVal);
+}
+void CPluginContainer::ikPlugin_setJointMode(int jointHandle,int jointMode)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setJointMode(jointHandle,jointMode);
+}
+void CPluginContainer::ikPlugin_setJointInterval(int jointHandle,bool cyclic,float jMin,float jRange)
+{
+    float mr[2]={jMin,jRange};
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setJointInterval(jointHandle,cyclic,mr);
+}
+void CPluginContainer::ikPlugin_setJointScrewPitch(int jointHandle,float pitch)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setJointScrewPitch(jointHandle,pitch);
+}
+void CPluginContainer::ikPlugin_setJointIkWeight(int jointHandle,float ikWeight)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setJointIkWeight(jointHandle,ikWeight);
+}
+void CPluginContainer::ikPlugin_setJointMaxStepSize(int jointHandle,float maxStepSize)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setJointMaxStepSize(jointHandle,maxStepSize);
+}
+void CPluginContainer::ikPlugin_setJointDependency(int jointHandle,int dependencyJointHandle,float offset,float mult)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setJointDependency(jointHandle,dependencyJointHandle,offset,mult);
+}
+float CPluginContainer::ikPlugin_getJointPosition(int jointHandle)
+{
+    float retVal=0.0f;
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        retVal=currentIkPlugin->ikPlugin_getJointPosition(jointHandle);
+    return(retVal);
+}
+void CPluginContainer::ikPlugin_setJointPosition(int jointHandle,float position)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setJointPosition(jointHandle,position);
+}
+C4Vector CPluginContainer::ikPlugin_getSphericalJointQuaternion(int jointHandle)
+{
+    C4Vector retVal;
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_getSphericalJointQuaternion(jointHandle,retVal.data);
+    return(retVal);
+}
+void CPluginContainer::ikPlugin_setSphericalJointQuaternion(int jointHandle,const C4Vector& quaternion)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setSphericalJointQuaternion(jointHandle,quaternion.data);
+}
+int CPluginContainer::ikPlugin_createIkGroup()
+{
+    int retVal=-1;
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        retVal=currentIkPlugin->ikPlugin_createIkGroup();
+    return(retVal);
+}
+void CPluginContainer::ikPlugin_eraseIkGroup(int ikGroupHandle)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_eraseIkGroup(ikGroupHandle);
+}
+void CPluginContainer::ikPlugin_setIkGroupFlags(int ikGroupHandle,int flags)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setIkGroupFlags(ikGroupHandle,flags);
+}
+void CPluginContainer::ikPlugin_setIkGroupCalculation(int ikGroupHandle,int method,float damping,int maxIterations)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setIkGroupCalculation(ikGroupHandle,method,damping,maxIterations);
+}
+int CPluginContainer::ikPlugin_addIkElement(int ikGroupHandle,int tipHandle)
+{
+    int retVal=-1;
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        retVal=currentIkPlugin->ikPlugin_addIkElement(ikGroupHandle,tipHandle);
+    return(retVal);
+}
+void CPluginContainer::ikPlugin_eraseIkElement(int ikGroupHandle,int ikElementIndex)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_eraseIkElement(ikGroupHandle,ikElementIndex);
+}
+void CPluginContainer::ikPlugin_setIkElementFlags(int ikGroupHandle,int ikElementIndex,int flags)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setIkElementFlags(ikGroupHandle,ikElementIndex,flags);
+}
+void CPluginContainer::ikPlugin_setIkElementBase(int ikGroupHandle,int ikElementIndex,int baseHandle,int constraintsBaseHandle)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setIkElementBase(ikGroupHandle,ikElementIndex,baseHandle,constraintsBaseHandle);
+}
+void CPluginContainer::ikPlugin_setIkElementConstraints(int ikGroupHandle,int ikElementIndex,int constraints)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setIkElementConstraints(ikGroupHandle,ikElementIndex,constraints);
+}
+void CPluginContainer::ikPlugin_setIkElementPrecision(int ikGroupHandle,int ikElementIndex,float linearPrecision,float angularPrecision)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setIkElementPrecision(ikGroupHandle,ikElementIndex,linearPrecision,angularPrecision);
+}
+void CPluginContainer::ikPlugin_setIkElementWeights(int ikGroupHandle,int ikElementIndex,float linearWeight,float angularWeight)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setIkElementWeights(ikGroupHandle,ikElementIndex,linearWeight,angularWeight);
+}
+int CPluginContainer::ikPlugin_handleIkGroup(int ikGroupHandle)
+{
+    int retVal=sim_ikresult_not_performed;
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        retVal=currentIkPlugin->ikPlugin_handleIkGroup(ikGroupHandle);
+    return(retVal);
+}
+bool CPluginContainer::ikPlugin_computeJacobian(int ikGroupHandle,int options)
+{
+    bool retVal=false;
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        retVal=currentIkPlugin->ikPlugin_computeJacobian(ikGroupHandle,options);
+    return(retVal);
+}
+float* CPluginContainer::ikPlugin_getJacobian(int ikGroupHandle,int* matrixSize)
+{
+    float* retVal=nullptr;
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        retVal=currentIkPlugin->ikPlugin_getJacobian(ikGroupHandle,matrixSize);
+    return(retVal);
+}
+float CPluginContainer::ikPlugin_getManipulability(int ikGroupHandle)
+{
+    float retVal=0.0f;
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        retVal=currentIkPlugin->ikPlugin_getManipulability(ikGroupHandle);
+    return(retVal);
+}
+int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,float thresholdDist,int maxIterationsOrTimeInMs,float* retConfig,const float* metric,bool(*validationCallback)(float*),const int* jointOptions,const float* lowLimits,const float* ranges,std::string& errString)
+{
+    int retVal=-1;
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+    {
+        char* errS=currentIkPlugin->ikPlugin_getConfigForTipPose(ikGroupHandle,jointCnt,jointHandles,thresholdDist,maxIterationsOrTimeInMs,&retVal,retConfig,metric,validationCallback,jointOptions,lowLimits,ranges);
+        if ( (retVal<0)&&(errS!=nullptr) )
+        {
+            errString=errS;
+            delete[] errS;
+        }
+    }
+    else
+        errString=SIM_ERROR_IK_PLUGIN_NOT_FOUND;
+    return(retVal);
+}
+
+static std::vector<int> _ikValidationCb_collisionPairs;
+static int _ikValidationCb_jointCnt;
+
+bool _validationCallback(float* conf)
+{
+    bool collisionFree=true;
+    for (size_t i=0;i<_ikValidationCb_collisionPairs.size()/2;i++)
+    {
+        int robot=_ikValidationCb_collisionPairs[2*i+0];
+        if (robot>=0)
+        {
+            int env=_ikValidationCb_collisionPairs[2*i+1];
+            if (env==sim_handle_all)
+                env=-1;
+            if (CCollisionRoutine::doEntitiesCollide(robot,env,nullptr,false,false,nullptr))
+            {
+                collisionFree=false;
+                break;
+            }
+        }
+    }
+    return(collisionFree);
+}
+
+int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,float thresholdDist,int maxIterationsOrTimeInMs,float* retConfig,const float* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const float* lowLimits,const float* ranges,std::string& errString)
+{
+    int retVal=-1;
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+    {
+        bool(*_validationCallback)(float*)=nullptr;
+        bool err=false;
+        if ( (collisionPairCnt>0)&&(collisionPairs!=nullptr) )
+        {
+            _ikValidationCb_jointCnt=jointCnt;
+            _ikValidationCb_collisionPairs.clear();
+            for (size_t i=0;i<size_t(collisionPairCnt);i++)
+            {
+                CSceneObject* eo1=App::currentWorld->sceneObjects->getObjectFromHandle(collisionPairs[2*i+0]);
+                CCollection* ec1=App::currentWorld->collections->getObjectFromHandle(collisionPairs[2*i+0]);
+                CSceneObject* eo2=App::currentWorld->sceneObjects->getObjectFromHandle(collisionPairs[2*i+1]);
+                CCollection* ec2=App::currentWorld->collections->getObjectFromHandle(collisionPairs[2*i+1]);
+                err=err||( ((eo1==nullptr)&&(ec1==nullptr)) || ((eo2==nullptr)&&(ec2==nullptr)&&(collisionPairs[2*i+1]!=sim_handle_all)) );
+                _ikValidationCb_collisionPairs.push_back(collisionPairs[2*i+0]);
+                _ikValidationCb_collisionPairs.push_back(collisionPairs[2*i+1]);
+            }
+            if (err)
+                errString=SIM_ERROR_INVALID_COLLISION_PAIRS;
+        }
+        if (!err)
+            retVal=ikPlugin_getConfigForTipPose(ikGroupHandle,jointCnt,jointHandles,thresholdDist,maxIterationsOrTimeInMs,retConfig,metric,_validationCallback,jointOptions,lowLimits,ranges,errString);
+    }
+    else
+        errString=SIM_ERROR_IK_PLUGIN_NOT_FOUND;
+    return(retVal);
+}
+C7Vector CPluginContainer::ikPlugin_getObjectLocalTransformation(int objectHandle)
+{
+    C7Vector tr;
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_getObjectLocalTransformation(objectHandle,tr.X.data,tr.Q.data);
+    return(tr);
+}
+void CPluginContainer::ikPlugin_setObjectLocalTransformation(int objectHandle,const C7Vector& tr)
+{
+    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+        currentIkPlugin->ikPlugin_setObjectLocalTransformation(objectHandle,tr.X.data,tr.Q.data);
+}
+
 bool CPluginContainer::codeEditor_openModal(const char* initText,const char* properties,std::string& modifiedText,int* positionAndSize)
 {
     bool retVal=false;
@@ -2237,7 +2655,7 @@ int* CPluginContainer::assimp_importShapes(const char* fileNames,int maxTextures
     if (currentAssimp!=nullptr)
         retVal=currentAssimp->_assimp_importShapes(fileNames,maxTextures,scaling,upVector,options,shapeCount);
     else
-        printf("Error in assimp_importShapes: plugin was not found.\n");
+        App::logMsg(sim_verbosity_errors,"simExtAssimp plugin was not found.");
     return(retVal);
 }
 
@@ -2246,7 +2664,7 @@ void CPluginContainer::assimp_exportShapes(const int* shapeHandles,int shapeCoun
     if (currentAssimp!=nullptr)
         currentAssimp->_assimp_exportShapes(shapeHandles,shapeCount,filename,format,scaling,upVector,options);
     else
-        printf("Error in assimp_exportShapes: plugin was not found.\n");
+        App::logMsg(sim_verbosity_errors,"simExtAssimp plugin was not found.");
 }
 
 int CPluginContainer::assimp_importMeshes(const char* fileNames,float scaling,int upVector,int options,float*** allVertices,int** verticesSizes,int*** allIndices,int** indicesSizes)
@@ -2255,7 +2673,7 @@ int CPluginContainer::assimp_importMeshes(const char* fileNames,float scaling,in
     if (currentAssimp!=nullptr)
         retVal=currentAssimp->_assimp_importMeshes(fileNames,scaling,upVector,options,allVertices,verticesSizes,allIndices,indicesSizes);
     else
-        printf("Error in assimp_importMeshes: plugin was not found.\n");
+        App::logMsg(sim_verbosity_errors,"simExtAssimp plugin was not found.");
     return(retVal);
 }
 
@@ -2264,5 +2682,5 @@ void CPluginContainer::assimp_exportMeshes(int meshCnt,const float** allVertices
     if (currentAssimp!=nullptr)
         currentAssimp->_assimp_exportMeshes(meshCnt,allVertices,verticesSizes,allIndices,indicesSizes,filename,format,scaling,upVector,options);
     else
-        printf("Error in assimp_exportMeshes: plugin was not found.\n");
+        App::logMsg(sim_verbosity_errors,"simExtAssimp plugin was not found.");
 }

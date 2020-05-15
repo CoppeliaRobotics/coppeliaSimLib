@@ -1,8 +1,5 @@
-
 #include "easyLock.h"
 #include "vThread.h"
-
-#include "debugLogFile.h"
 
 bool CEasyLock::_showActivity=false;
 
@@ -48,7 +45,7 @@ void CEasyLock::_unlock()
         }
         else
             arrow+="(GUI) (";
-        CDebugLogFile::addDebugText(false,arrow.c_str(),_functionName.c_str(),") 'easy locking'\n");
+        //CDebugLogFile::addDebugText(false,arrow.c_str(),_functionName.c_str(),") 'easy locking'\n");
     }
 
     _mutex->unlock();
@@ -65,7 +62,7 @@ void CEasyLock::_unlock()
         }
         else
             arrow+="(GUI) (";
-        CDebugLogFile::addDebugText(false,arrow.c_str(),_functionName.c_str(),") 'easy locked'\n");
+        //CDebugLogFile::addDebugText(false,arrow.c_str(),_functionName.c_str(),") 'easy locked'\n");
     }
 }
 
@@ -83,7 +80,7 @@ void CEasyLock::_lock()
         }
         else
             arrow+="(GUI) (";
-        CDebugLogFile::addDebugText(false,arrow.c_str(),_functionName.c_str(),") 'easy unlocking'\n");
+        //CDebugLogFile::addDebugText(false,arrow.c_str(),_functionName.c_str(),") 'easy unlocking'\n");
     }
 
     _mutex->lock((_functionName+" (from CEasyLock::_lock)").c_str());
@@ -100,7 +97,7 @@ void CEasyLock::_lock()
         }
         else
             arrow+="(GUI) (";
-        CDebugLogFile::addDebugText(false,arrow.c_str(),_functionName.c_str(),") 'easy unlocked'\n");
+        //CDebugLogFile::addDebugText(false,arrow.c_str(),_functionName.c_str(),") 'easy unlocked'\n");
     }
 }
 

@@ -38,31 +38,31 @@ void CQDlgRotation::refresh()
 {
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
     int editMode=App::getEditModeType();
-    int lastSelID=App::ct->objCont->getLastSelectionID();
+    int lastSelID=App::currentWorld->sceneObjects->getLastSelectionHandle();
     lastLastSelectionID=lastSelID;
 
     ui->tabWidget->setCurrentIndex(currentTab);
 
     if (editMode==NO_EDIT_MODE)
     {
-        bool sel=(App::ct->objCont->getSelSize()!=0);
-        bool bigSel=(App::ct->objCont->getSelSize()>1);
+        bool sel=(App::currentWorld->sceneObjects->getSelectionCount()!=0);
+        bool bigSel=(App::currentWorld->sceneObjects->getSelectionCount()>1);
         _enableCoordinatePart(sel,bigSel,true);
         _enableTransformationPart(sel,sel,true);
-        C3DObject* object=App::ct->objCont->getLastSelection_object();
+        CSceneObject* object=App::currentWorld->sceneObjects->getLastSelectionObject();
         if (sel&&(object!=nullptr))
         {
             // Coordinate part:
             C3Vector euler,pos;
             if (coordMode==0)
             {
-                euler=object->getCumulativeTransformationPart1().Q.getEulerAngles();
-                pos=object->getCumulativeTransformationPart1().X;
+                euler=object->getCumulativeTransformation().Q.getEulerAngles();
+                pos=object->getCumulativeTransformation().X;
             }
             else
             {
-                euler=object->getLocalTransformationPart1().Q.getEulerAngles();
-                pos=object->getLocalTransformationPart1().X;
+                euler=object->getLocalTransformation().Q.getEulerAngles();
+                pos=object->getLocalTransformation().X;
             }
             ui->qqCoordAlpha->setText(tt::getAngleEString(true,euler(0),4).c_str());
             ui->qqCoordBeta->setText(tt::getAngleEString(true,euler(1),4).c_str());
@@ -113,7 +113,7 @@ void CQDlgRotation::refresh()
             ui->qqOrCombo->addItem(tt::getAngleFString(false,30.0f*degToRad_f,1).c_str(),QVariant(30000));
             ui->qqOrCombo->addItem(tt::getAngleFString(false,45.0f*degToRad_f,1).c_str(),QVariant(45000));
 
-            if (App::ct->simulation->isSimulationStopped())
+            if (App::currentWorld->simulation->isSimulationStopped())
             {
                 if (object->getObjectRotationDisabledDuringNonSimulation())
                     _selectItemOfCombobox(ui->qqOrCombo,-1);
@@ -148,7 +148,7 @@ void CQDlgRotation::refresh()
         ui->qqOrCombo->clear();
 
 
-        if (editMode&(BUTTON_EDIT_MODE|TRIANGLE_EDIT_MODE|EDGE_EDIT_MODE))
+        if (editMode&(TRIANGLE_EDIT_MODE|EDGE_EDIT_MODE))
         {
             _enableCoordinatePart(false,false,true);
             _enableTransformationPart(false,false,true);
@@ -176,7 +176,7 @@ void CQDlgRotation::refresh()
                     int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
                     C3Vector pos(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind));
                     if (coordMode==0)
-                        pos=shape->getCumulativeTransformation()*pos;
+                        pos=shape->getFullCumulativeTransformation()*pos;
                     ui->qqCoordWorld->setChecked(coordMode==0);
                     ui->qqCoordParent->setChecked(coordMode==1);
                     // Transformation part:
@@ -202,7 +202,7 @@ void CQDlgRotation::refresh()
                         // Coordinate part:
                         C7Vector tr(pp->getTransformation());
                         if (coordMode==0)
-                            tr=path->getCumulativeTransformation()*tr;
+                            tr=path->getFullCumulativeTransformation()*tr;
                         C3Vector euler(tr.Q.getEulerAngles());
                         ui->qqCoordAlpha->setText(tt::getAngleEString(true,euler(0),4).c_str());
                         ui->qqCoordBeta->setText(tt::getAngleEString(true,euler(1),4).c_str());
@@ -298,18 +298,18 @@ bool CQDlgRotation::_setCoord_userUnit(float newValueInUserUnit,int index)
 {
     bool retVal=false;
     int editMode=App::getEditModeType();
-    C3DObject* object=App::ct->objCont->getLastSelection_object();
+    CSceneObject* object=App::currentWorld->sceneObjects->getLastSelectionObject();
     if ( (editMode==NO_EDIT_MODE)&&(object!=nullptr) )
     {
         C7Vector tr;
         if (coordMode==0)
-            tr=object->getCumulativeTransformationPart1();
+            tr=object->getCumulativeTransformation();
         else
-            tr=object->getLocalTransformationPart1();
+            tr=object->getLocalTransformation();
         tr=_getNewTransf(tr,newValueInUserUnit,index);
         SSimulationThreadCommand cmd;
         cmd.cmdId=SET_TRANSF_POSITIONTRANSLATIONGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::ct->objCont->getLastSelectionID());
+        cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
         cmd.intParams.push_back(coordMode);
         cmd.transfParams.push_back(tr);
         App::appendSimulationThreadCommand(cmd);
@@ -326,10 +326,10 @@ bool CQDlgRotation::_setCoord_userUnit(float newValueInUserUnit,int index)
         {
             C7Vector tr(pp->getTransformation());
             if (coordMode==0)
-                tr=path->getCumulativeTransformationPart1()*tr;
+                tr=path->getCumulativeTransformation()*tr;
             tr=_getNewTransf(tr,newValueInUserUnit,index);
             if (coordMode==0)
-                pp->setTransformation(path->getCumulativeTransformation().getInverse()*tr,pathCont->getAttributes());
+                pp->setTransformation(path->getFullCumulativeTransformation().getInverse()*tr,pathCont->getAttributes());
             else
                 pp->setTransformation(tr,pathCont->getAttributes());
             pathCont->actualizePath();
@@ -347,10 +347,10 @@ bool CQDlgRotation::_setCoord_userUnit(float newValueInUserUnit,int index)
             tr.setIdentity();
             tr.X=v;
             if (coordMode==0)
-                tr=shape->getCumulativeTransformationPart1()*tr;
+                tr=shape->getCumulativeTransformation()*tr;
             tr=_getNewTransf(tr,newValueInUserUnit,index);
             if (coordMode==0)
-                tr=shape->getCumulativeTransformation().getInverse()*tr;
+                tr=shape->getFullCumulativeTransformation().getInverse()*tr;
             App::mainWindow->editModeContainer->getShapeEditMode()->setEditionVertex(ind,tr.X);
         }
         retVal=true;
@@ -371,16 +371,16 @@ bool CQDlgRotation::_applyCoord()
 {
     bool retVal=false;
     int editMode=App::getEditModeType();
-    C3DObject* object=App::ct->objCont->getLastSelection_object();
-    int objSelSize=App::ct->objCont->getSelSize();
+    CSceneObject* object=App::currentWorld->sceneObjects->getLastSelectionObject();
+    size_t objSelSize=App::currentWorld->sceneObjects->getSelectionCount();
     int editObjSelSize=App::mainWindow->editModeContainer->getEditModeBufferSize();
     if ( (editMode==NO_EDIT_MODE)&&(object!=nullptr)&&(objSelSize>1) )
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=APPLY_OR_ORIENTATIONROTATIONGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::ct->objCont->getLastSelectionID());
-        for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
-            cmd.intParams.push_back(App::ct->objCont->getSelID(i));
+        cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount()-1;i++)
+            cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
         cmd.intParams.push_back(coordMode);
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -396,7 +396,7 @@ bool CQDlgRotation::_applyCoord()
         {
             C7Vector tr(pp->getTransformation());
             if (coordMode==0)
-                tr=path->getCumulativeTransformationPart1()*tr;
+                tr=path->getCumulativeTransformation()*tr;
             for (int i=0;i<editObjSelSize-1;i++)
             {
                 CSimplePathPoint* ppIt=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
@@ -404,10 +404,10 @@ bool CQDlgRotation::_applyCoord()
                 {
                     C7Vector trIt(ppIt->getTransformation());
                     if (coordMode==0)
-                        trIt=path->getCumulativeTransformationPart1()*trIt;
+                        trIt=path->getCumulativeTransformation()*trIt;
                     trIt.Q=tr.Q;
                     if (coordMode==0)
-                        trIt=path->getCumulativeTransformationPart1().getInverse()*trIt;
+                        trIt=path->getCumulativeTransformation().getInverse()*trIt;
                     ppIt->setTransformation(trIt,pathCont->getAttributes());
                 }
             }
@@ -426,7 +426,7 @@ bool CQDlgRotation::_applyCoord()
             tr.setIdentity();
             tr.X=v;
             if (coordMode==0)
-                tr=shape->getCumulativeTransformationPart1()*tr;
+                tr=shape->getCumulativeTransformation()*tr;
             for (int i=0;i<editObjSelSize-1;i++)
             {
                 ind=App::mainWindow->editModeContainer->getEditModeBufferValue(i);
@@ -434,10 +434,10 @@ bool CQDlgRotation::_applyCoord()
                 trIt.setIdentity();
                 trIt.X=App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind);
                 if (coordMode==0)
-                    trIt=shape->getCumulativeTransformationPart1()*trIt;
+                    trIt=shape->getCumulativeTransformation()*trIt;
                 trIt.Q=tr.Q;
                 if (coordMode==0)
-                    trIt=shape->getCumulativeTransformationPart1().getInverse()*trIt;
+                    trIt=shape->getCumulativeTransformation().getInverse()*trIt;
                 App::mainWindow->editModeContainer->getShapeEditMode()->setEditionVertex(ind,trIt.X);
             }
         }
@@ -450,7 +450,7 @@ bool CQDlgRotation::_applyTransformation(int axis)
 { // axis: 0-2, or -1 for all axes
     bool retVal=false;
     int editMode=App::getEditModeType();
-    int objSelSize=App::ct->objCont->getSelSize();
+    size_t objSelSize=App::currentWorld->sceneObjects->getSelectionCount();
     int editObjSelSize=App::mainWindow->editModeContainer->getEditModeBufferSize();
     if ( (editMode==NO_EDIT_MODE)&&(objSelSize>0) )
     {
@@ -465,8 +465,8 @@ bool CQDlgRotation::_applyTransformation(int axis)
             TX[axis]=rotAngles[axis];
         SSimulationThreadCommand cmd;
         cmd.cmdId=ROTATE_SELECTION_ORIENTATIONROTATIONGUITRIGGEREDCMD;
-        for (int i=0;i<App::ct->objCont->getSelSize();i++)
-            cmd.intParams.push_back(App::ct->objCont->getSelID(i));
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+            cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
         cmd.intParams.push_back(transfMode);
         cmd.floatParams.push_back(TX[0]);
         cmd.floatParams.push_back(TX[1]);
@@ -486,10 +486,10 @@ bool CQDlgRotation::_applyTransformation(int axis)
             {
                 C7Vector tr(pp->getTransformation());
                 if (transfMode==0)
-                    tr=path->getCumulativeTransformationPart1()*tr;
+                    tr=path->getCumulativeTransformation()*tr;
                 _transform(tr,transfMode==2,axis);
                 if (transfMode==0)
-                    tr=path->getCumulativeTransformationPart1().getInverse()*tr;
+                    tr=path->getCumulativeTransformation().getInverse()*tr;
                 pp->setTransformation(tr,pathCont->getAttributes());
             }
         }
@@ -508,10 +508,10 @@ bool CQDlgRotation::_applyTransformation(int axis)
                 int ind=App::mainWindow->editModeContainer->getEditModeBufferValue(i);
                 tr.X=App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind);
                 if (transfMode==0)
-                    tr=shape->getCumulativeTransformationPart1()*tr;
+                    tr=shape->getCumulativeTransformation()*tr;
                 _transform(tr,transfMode==2,axis);
                 if (transfMode==0)
-                    tr=shape->getCumulativeTransformationPart1().getInverse()*tr;
+                    tr=shape->getCumulativeTransformation().getInverse()*tr;
                 App::mainWindow->editModeContainer->getShapeEditMode()->setEditionVertex(ind,tr.X);
             }
         }
@@ -743,7 +743,7 @@ void CQDlgRotation::on_qqOrWorld_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(SET_ORRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),0);
+        App::appendSimulationThreadCommand(SET_ORRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),0);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -753,7 +753,7 @@ void CQDlgRotation::on_qqOrParent_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(SET_ORRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),1);
+        App::appendSimulationThreadCommand(SET_ORRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),1);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -763,7 +763,7 @@ void CQDlgRotation::on_qqOrOwn_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(SET_ORRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),2);
+        App::appendSimulationThreadCommand(SET_ORRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),2);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -773,12 +773,12 @@ void CQDlgRotation::on_qqOrA_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        C3DObject* object=App::ct->objCont->getLastSelection_object();
+        CSceneObject* object=App::currentWorld->sceneObjects->getLastSelectionObject();
         if (object!=nullptr)
         {
             int permission=object->getObjectManipulationModePermissions();
             permission=(permission&0x07)|0x08;
-            App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),permission);
+            App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),permission);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -789,12 +789,12 @@ void CQDlgRotation::on_qqOrB_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        C3DObject* object=App::ct->objCont->getLastSelection_object();
+        CSceneObject* object=App::currentWorld->sceneObjects->getLastSelectionObject();
         if (object!=nullptr)
         {
             int permission=object->getObjectManipulationModePermissions();
             permission=(permission&0x07)|0x10;
-            App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),permission);
+            App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),permission);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -805,12 +805,12 @@ void CQDlgRotation::on_qqOrG_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        C3DObject* object=App::ct->objCont->getLastSelection_object();
+        CSceneObject* object=App::currentWorld->sceneObjects->getLastSelectionObject();
         if (object!=nullptr)
         {
             int permission=object->getObjectManipulationModePermissions();
             permission=(permission&0x07)|0x20;
-            App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),permission);
+            App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),permission);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -821,7 +821,7 @@ void CQDlgRotation::on_qqOrCombo_activated(int index)
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(SET_ORSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,float(ui->qqOrCombo->itemData(index).toInt())*degToRad_f/1000.0f);
+        App::appendSimulationThreadCommand(SET_ORSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,float(ui->qqOrCombo->itemData(index).toInt())*degToRad_f/1000.0f);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

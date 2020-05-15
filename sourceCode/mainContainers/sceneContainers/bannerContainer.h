@@ -1,19 +1,17 @@
-
 #pragma once
 
 #include "bannerObject.h"
-#include "mainCont.h"
 #include "7Vector.h"
 #include "4X4Matrix.h"
 
-class CBannerContainer : public CMainCont
+class CViewableBase;
+
+class CBannerContainer
 {
 public:
     CBannerContainer();
     virtual ~CBannerContainer();
 
-    void emptySceneProcedure();
-    void simulationAboutToStart();
     void simulationEnded();
     void renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],float verticalViewSizeOrAngle,bool perspective);
     void renderYour3DStuff_transparent(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],float verticalViewSizeOrAngle,bool perspective);

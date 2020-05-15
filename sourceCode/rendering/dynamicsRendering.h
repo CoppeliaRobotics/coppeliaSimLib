@@ -9,4 +9,4 @@ void _drawSphere(int displayAttrib,const C3Vector& _currentPosition,float _size,
 #endif
 
 void displayParticles(void** particlesPointer,int particlesCount,int displayAttrib,const C4X4Matrix& cameraCTM,const float* cols,int objectType);
-void displayContactPoints(int displayAttrib,const CVisualParam& contactPointColor,const float* pts,int cnt);
+void displayContactPoints(int displayAttrib,const CColorObject& contactPointColor,const float* pts,int cnt);

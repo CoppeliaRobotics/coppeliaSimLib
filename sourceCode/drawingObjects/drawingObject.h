@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "visualParam.h"
+#include "colorObject.h"
 #include "4X4Matrix.h"
 #include "vMutex.h"
 
@@ -35,7 +35,7 @@ public:
 
     std::vector<float>* getDataPtr();
 
-    CVisualParam color;
+    CColorObject color;
 
     int verticesPerItem;
     int normalsPerItem;

@@ -77,7 +77,7 @@ CDynamicsContainer::CDynamicsContainer()
 }
 
 CDynamicsContainer::~CDynamicsContainer()
-{
+{ // beware, the current world could be nullptr
 }
 
 void CDynamicsContainer::simulationAboutToStart()
@@ -88,9 +88,9 @@ void CDynamicsContainer::simulationAboutToStart()
     removeWorld(); // not really needed
 
     // Following is just in case:
-    for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
+    for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
     {
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
         it->disableDynamicTreeForManipulation(false);
     }
 
@@ -104,9 +104,9 @@ void CDynamicsContainer::simulationEnded()
     removeWorld();
 
     // Following is because some shapes might have been disabled because below z=-1000 meters:
-    for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
+    for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
     {
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
         it->disableDynamicTreeForManipulation(false);
     }
     
@@ -144,11 +144,11 @@ bool CDynamicsContainer::getCurrentlyInDynamicsCalculations()
 
 void CDynamicsContainer::handleDynamics(float dt)
 {
-    App::ct->calcInfo->dynamicsStart();
+    App::worldContainer->calcInfo->dynamicsStart();
 
-    for (size_t i=0;i<App::ct->objCont->objectList.size();i++)
+    for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
     {
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
         if (it!=nullptr)
             it->setDynamicObjectFlag_forVisualization(0);
     }
@@ -157,14 +157,14 @@ void CDynamicsContainer::handleDynamics(float dt)
     if (getDynamicsEnabled())
     {
         _currentlyInDynamicsCalculations=true;
-        CPluginContainer::dyn_step(dt,float(App::ct->simulation->getSimulationTime_ns())/1000000.0f);
+        CPluginContainer::dyn_step(dt,float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f);
         _currentlyInDynamicsCalculations=false;
     }
 
     if (CPluginContainer::dyn_isDynamicContentAvailable())
-        App::ct->calcInfo->dynamicsEnd(CPluginContainer::dyn_getDynamicStepDivider(),true);
+        App::worldContainer->calcInfo->dynamicsEnd(CPluginContainer::dyn_getDynamicStepDivider(),true);
     else
-        App::ct->calcInfo->dynamicsEnd(0,false);
+        App::worldContainer->calcInfo->dynamicsEnd(0,false);
 }
 
 bool CDynamicsContainer::getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],float contactInfo[6])
@@ -198,9 +198,9 @@ void CDynamicsContainer::addWorldIfNotThere()
         floatParams[floatIndex++]=getGravityScalingFactorDyn();
         floatParams[floatIndex++]=App::userSettings->dynamicActivityRange;
 
-        intParams[intIndex++]=SIM_IDEND_3DOBJECT+1;
-        intParams[intIndex++]=SIM_IDSTART_3DOBJECT;
-        intParams[intIndex++]=SIM_IDEND_3DOBJECT;
+        intParams[intIndex++]=SIM_IDEND_SCENEOBJECT+1;
+        intParams[intIndex++]=SIM_IDSTART_SCENEOBJECT;
+        intParams[intIndex++]=SIM_IDEND_SCENEOBJECT;
 
         CPluginContainer::dyn_startSimulation(_dynamicEngineToUse,_dynamicEngineVersionToUse,floatParams,intParams);
     }
@@ -310,76 +310,79 @@ bool CDynamicsContainer::displayNonDefaultParameterWarningRequired()
 
 void CDynamicsContainer::displayWarningsIfNeeded()
 {
-    if ( (_pureSpheroidNotSupportedMark==1)&&((_tempDisabledWarnings&1)==0) )
+    if (App::getConsoleVerbosity()>=sim_verbosity_warnings)
     {
-#ifdef SIM_WITH_GUI
-        App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PURE_SPHEROID),strTranslate(IDS_WARNING_WHEN_PURE_SPHEROID_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
-#else
-        printf("%s\n",IDS_WARNING_WHEN_PURE_SPHEROID_NOT_SUPPORTED);
-#endif
-        _pureSpheroidNotSupportedMark++;
-    }
-    if ( (_pureConeNotSupportedMark==1)&&((_tempDisabledWarnings&2)==0) )
-    {
-#ifdef SIM_WITH_GUI
-        App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PURE_CONE),strTranslate(IDS_WARNING_WHEN_PURE_CONE_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
-#else
-        printf("%s\n",IDS_WARNING_WHEN_PURE_CONE_NOT_SUPPORTED);
-#endif
-        _pureConeNotSupportedMark++;
-    }
-    if ( (_pureHollowShapeNotSupportedMark==1)&&((_tempDisabledWarnings&4)==0) )
-    {
-#ifdef SIM_WITH_GUI
-        App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PURE_HOLLOW_SHAPES),strTranslate(IDS_WARNING_WHEN_PURE_HOLLOW_SHAPE_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
-#else
-        printf("%s\n",IDS_WARNING_WHEN_PURE_HOLLOW_SHAPE_NOT_SUPPORTED);
-#endif
-        _pureHollowShapeNotSupportedMark++;
-    }
-    if ( (_physicsEngineNotSupportedWarning==1)&&((_tempDisabledWarnings&8)==0) )
-    {
-        if (_dynamicEngineToUse==sim_physics_vortex)
+        if ( (_pureSpheroidNotSupportedMark==1)&&((_tempDisabledWarnings&1)==0) )
         {
-#ifdef WIN_SIM
     #ifdef SIM_WITH_GUI
-            App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
+            App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PURE_SPHEROID),strTranslate(IDS_WARNING_WHEN_PURE_SPHEROID_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
     #else
-            printf("%s\n",IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
+            App::logMsg("warning: %s",IDS_WARNING_WHEN_PURE_SPHEROID_NOT_SUPPORTED);
     #endif
-#endif
-#ifdef LIN_SIM
-    #ifdef SIM_WITH_GUI
-            App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
-    #else
-            printf("%s\n",IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
-    #endif
-#endif
-#ifdef MAC_SIM
-    #ifdef SIM_WITH_GUI
-            App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WHEN_VORTEX_NOT_YET_SUPPORTED),VMESSAGEBOX_OKELI);
-    #else
-            printf("%s\n",IDS_WARNING_WHEN_VORTEX_NOT_YET_SUPPORTED);
-    #endif
-#endif
+            _pureSpheroidNotSupportedMark++;
         }
-        else
-#ifdef SIM_WITH_GUI
-            App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
-#else
-            printf("%s\n",IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
-#endif
+        if ( (_pureConeNotSupportedMark==1)&&((_tempDisabledWarnings&2)==0) )
+        {
+    #ifdef SIM_WITH_GUI
+            App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PURE_CONE),strTranslate(IDS_WARNING_WHEN_PURE_CONE_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
+    #else
+            App::logMsg("warning: %s",IDS_WARNING_WHEN_PURE_CONE_NOT_SUPPORTED);
+    #endif
+            _pureConeNotSupportedMark++;
+        }
+        if ( (_pureHollowShapeNotSupportedMark==1)&&((_tempDisabledWarnings&4)==0) )
+        {
+    #ifdef SIM_WITH_GUI
+            App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PURE_HOLLOW_SHAPES),strTranslate(IDS_WARNING_WHEN_PURE_HOLLOW_SHAPE_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
+    #else
+            App::logMsg("warning: %s",IDS_WARNING_WHEN_PURE_HOLLOW_SHAPE_NOT_SUPPORTED);
+    #endif
+            _pureHollowShapeNotSupportedMark++;
+        }
+        if ( (_physicsEngineNotSupportedWarning==1)&&((_tempDisabledWarnings&8)==0) )
+        {
+            if (_dynamicEngineToUse==sim_physics_vortex)
+            {
+    #ifdef WIN_SIM
+        #ifdef SIM_WITH_GUI
+                App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
+        #else
+                App::logMsg("warning: %s",IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
+        #endif
+    #endif
+    #ifdef LIN_SIM
+        #ifdef SIM_WITH_GUI
+                App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
+        #else
+                App::logMsg("warning: %s",IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
+        #endif
+    #endif
+    #ifdef MAC_SIM
+        #ifdef SIM_WITH_GUI
+                App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WHEN_VORTEX_NOT_YET_SUPPORTED),VMESSAGEBOX_OKELI);
+        #else
+                App::logMsg("warning: %s",IDS_WARNING_WHEN_VORTEX_NOT_YET_SUPPORTED);
+        #endif
+    #endif
+            }
+            else
+    #ifdef SIM_WITH_GUI
+                App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
+    #else
+                App::logMsg("warning: %s",IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
+    #endif
 
-        _physicsEngineNotSupportedWarning++;
-    }
-    if ( (_newtonDynamicRandomMeshNotSupportedMark==1)&&((_tempDisabledWarnings&256)==0) )
-    {
-#ifdef SIM_WITH_GUI
-        App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_NEWTON_NON_CONVEX_MESH),strTranslate(IDS_WARNING_WITH_NEWTON_NON_CONVEX_DYNAMIC_MESH),VMESSAGEBOX_OKELI);
-#else
-        printf("%s\n",IDS_WARNING_WITH_NEWTON_NON_CONVEX_DYNAMIC_MESH);
-#endif
-        _newtonDynamicRandomMeshNotSupportedMark++;
+            _physicsEngineNotSupportedWarning++;
+        }
+        if ( (_newtonDynamicRandomMeshNotSupportedMark==1)&&((_tempDisabledWarnings&256)==0) )
+        {
+    #ifdef SIM_WITH_GUI
+            App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_NEWTON_NON_CONVEX_MESH),strTranslate(IDS_WARNING_WITH_NEWTON_NON_CONVEX_DYNAMIC_MESH),VMESSAGEBOX_OKELI);
+    #else
+            App::logMsg("warning: %s",IDS_WARNING_WITH_NEWTON_NON_CONVEX_DYNAMIC_MESH);
+    #endif
+            _newtonDynamicRandomMeshNotSupportedMark++;
+        }
     }
 }
 
@@ -421,7 +424,7 @@ int CDynamicsContainer::getUseDynamicDefaultCalculationParameters()
 
 bool CDynamicsContainer::setCurrentDynamicStepSize(float s)
 { // will modify the current engine's step size if setting is custom
-    if (App::ct->simulation->isSimulationStopped())
+    if (App::currentWorld->simulation->isSimulationStopped())
     {
         if (_dynamicEngineToUse==sim_physics_bullet)
             setEngineFloatParam(sim_bullet_global_stepsize,s,false);
@@ -451,7 +454,7 @@ float CDynamicsContainer::getCurrentDynamicStepSize()
 
 bool CDynamicsContainer::setCurrentIterationCount(int c)
 { // will modify the current engine's it. count if setting is custom
-    if (App::ct->simulation->isSimulationStopped())
+    if (App::currentWorld->simulation->isSimulationStopped())
     {
         if (_dynamicEngineToUse==sim_physics_bullet)
             setEngineIntParam(sim_bullet_global_constraintsolvingiterations,c,false);
@@ -1150,11 +1153,11 @@ void CDynamicsContainer::setDynamicsEnabled(bool e)
 {
     _dynamicsEnabled=e;
     if (!e)
-        App::ct->dynamicsContainer->removeWorld();
+        App::currentWorld->dynamicsContainer->removeWorld();
     else
     {
-        if (App::ct->simulation->isSimulationRunning())
-            App::ct->dynamicsContainer->addWorldIfNotThere();
+        if (App::currentWorld->simulation->isSimulationRunning())
+            App::currentWorld->dynamicsContainer->addWorldIfNotThere();
     }
 }
 
@@ -1630,7 +1633,7 @@ void CDynamicsContainer::renderYour3DStuff(CViewableBase* renderingObject,int di
             float* cols;
             int objectType;
             int particlesCount;
-            C4X4Matrix m(renderingObject->getCumulativeTransformation().getMatrix());
+            C4X4Matrix m(renderingObject->getFullCumulativeTransformation().getMatrix());
             void** particlesPointer=CPluginContainer::dyn_getParticles(index++,&particlesCount,&objectType,&cols);
             while (particlesCount!=-1)
             {

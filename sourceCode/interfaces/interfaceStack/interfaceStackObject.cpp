@@ -19,7 +19,7 @@ int CInterfaceStackObject::getObjectType() const
     return(_objectType);
 }
 
-void CInterfaceStackObject::printContent(int spaces) const
+void CInterfaceStackObject::printContent(int spaces,std::string& buffer) const
 {
 }
 

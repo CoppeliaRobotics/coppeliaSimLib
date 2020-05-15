@@ -13,9 +13,9 @@ public:
                                double concavity,bool addExtraDistPoints,bool addFacesPoints,
                                double ccConnectDist,size_t targetNTrianglesDecimatedMesh,
                                size_t maxHullVertices,double smallestClusterThreshold,
-                               bool useHACD,int resolution_VHACD,int depth_VHACD,float concavity_VHACD,
+                               bool useHACD,int resolution_VHACD,int depth_VHACD_old,float concavity_VHACD,
                                int planeDownsampling_VHACD,int convexHullDownsampling_VHACD,
-                               float alpha_VHACD,float beta_VHACD,float gamma_VHACD,bool pca_VHACD,
+                               float alpha_VHACD,float beta_VHACD,float gamma_VHACD_old,bool pca_VHACD,
                                bool voxelBased_VHACD,int maxVerticesPerCH_VHACD,float minVolumePerCH_VHACD);
 
     static void getEdgeFeatures(float* vertices,int verticesLength,int* indices,int indicesLength,

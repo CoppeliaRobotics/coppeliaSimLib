@@ -12,7 +12,7 @@ void displayPath(CPath* path,CViewableBase* renderingObject,int displayAttrib)
     if (displayAttrib&sim_displayattribute_renderpass)
         _displayBoundingBox(path,displayAttrib,true,path->pathContainer->getSquareSize()*2.0f);
 
-    C3Vector normalVectorForLinesAndPoints(path->getCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
+    C3Vector normalVectorForLinesAndPoints(path->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
     // Object display:
 #ifdef SIM_WITH_GUI

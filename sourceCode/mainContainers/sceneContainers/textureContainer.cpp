@@ -7,36 +7,16 @@
 
 CTextureContainer::CTextureContainer()
 {
-    newSceneProcedure();
 }
 
 CTextureContainer::~CTextureContainer()
-{
+{ // beware, the current world could be nullptr
     removeAllObjects();
-}
-
-void CTextureContainer::newSceneProcedure()
-{
-}
-
-void CTextureContainer::simulationAboutToStart()
-{
-
-}
-
-void CTextureContainer::simulationEnded()
-{
-
-}
-
-void CTextureContainer::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
-{
-
 }
 
 CTextureObject* CTextureContainer::getObject(int objectID)
 {
-    for (int i=0;i<int(_allTextureObjects.size());i++)
+    for (size_t i=0;i<_allTextureObjects.size();i++)
     {
         if (_allTextureObjects[i]->getObjectID()==objectID)
             return(_allTextureObjects[i]);
@@ -61,7 +41,7 @@ CTextureObject* CTextureContainer::getObjectAtIndex(int index)
     return(_allTextureObjects[index]);
 }
 
-void CTextureContainer::getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix)
+void CTextureContainer::getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix) const
 {
     minSuffix=-1;
     maxSuffix=-1;
@@ -83,7 +63,7 @@ void CTextureContainer::getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix)
     }
 }
 
-bool CTextureContainer::canSuffix1BeSetToSuffix2(int suffix1,int suffix2)
+bool CTextureContainer::canSuffix1BeSetToSuffix2(int suffix1,int suffix2) const
 {
     for (int i=0;i<int(_allTextureObjects.size());i++)
     {
@@ -114,7 +94,7 @@ void CTextureContainer::setSuffix1ToSuffix2(int suffix1,int suffix2)
         if (s1==suffix1)
         {
             std::string name1(tt::getNameWithoutSuffixNumber(_allTextureObjects[i]->getObjectName().c_str(),true));
-            _allTextureObjects[i]->setObjectName(tt::generateNewName_dash(name1,suffix2+1).c_str());
+            _allTextureObjects[i]->setObjectName(tt::generateNewName_hash(name1,suffix2+1).c_str());
         }
     }
 }
@@ -143,8 +123,8 @@ int CTextureContainer::addObjectWithSuffixOffset(CTextureObject* anObject,bool o
     std::string newName(anObject->getObjectName());
     while (getObject(newName.c_str())!=nullptr)
     {
-        // TEXTURE OBJECTS SHOULDn'T HAVE A DASHED NAME!!
-        newName=tt::generateNewName_noDash(newName);
+        // TEXTURE OBJECTS SHOULDn'T HAVE A HASHED NAME!!
+        newName=tt::generateNewName_noHash(newName);
     }
     anObject->setObjectName(newName.c_str());
     _allTextureObjects.push_back(anObject);
@@ -184,15 +164,18 @@ void CTextureContainer::clearAllDependencies()
 void CTextureContainer::updateAllDependencies()
 { // should not be called from "ct::objCont->addObjectsToSceneAndPerformMapping" routine!!
     clearAllDependencies();
-    App::ct->buttonBlockContainer->setTextureDependencies();
-    for (int i=0;i<int(App::ct->objCont->shapeList.size());i++)
-        App::ct->objCont->getShape(App::ct->objCont->shapeList[i])->geomData->setTextureDependencies(App::ct->objCont->shapeList[i]);
+    App::currentWorld->buttonBlockContainer->setTextureDependencies();
+    for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
+    {
+        CShape* sh=App::currentWorld->sceneObjects->getShapeFromIndex(i);
+        sh->geomData->setTextureDependencies(sh->getObjectHandle());
+    }
 }
 
 void CTextureContainer::announceGeneralObjectWillBeErased(int generalObjectID,int subID)
 {
-    int i=0;
-    while (i<int(_allTextureObjects.size()))
+    size_t i=0;
+    while (i<_allTextureObjects.size())
     {
         if (_allTextureObjects[i]->announceGeneralObjectWillBeErased(generalObjectID,subID))
         {

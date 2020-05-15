@@ -278,11 +278,20 @@ bool CImageLoaderSaver::save(const unsigned char* data,const int resolution[2],i
         {
             if ((options&1)==0)
             { // input img provided as rgb
-                bytesPerPixel=3;
-                format=QImage::Format_RGB888;
-                buff[3*(resolution[0]*j+i)+0]=data[3*(resolution[0]*(resolution[1]-j-1)+i)+0];
-                buff[3*(resolution[0]*j+i)+1]=data[3*(resolution[0]*(resolution[1]-j-1)+i)+1];
-                buff[3*(resolution[0]*j+i)+2]=data[3*(resolution[0]*(resolution[1]-j-1)+i)+2];
+                if ((options&2)==0)
+                {
+                    bytesPerPixel=3;
+                    format=QImage::Format_RGB888;
+                    buff[3*(resolution[0]*j+i)+0]=data[3*(resolution[0]*(resolution[1]-j-1)+i)+0];
+                    buff[3*(resolution[0]*j+i)+1]=data[3*(resolution[0]*(resolution[1]-j-1)+i)+1];
+                    buff[3*(resolution[0]*j+i)+2]=data[3*(resolution[0]*(resolution[1]-j-1)+i)+2];
+                }
+                else
+                {
+                    bytesPerPixel=1;
+                    format=QImage::Format_Grayscale8;
+                    buff[resolution[0]*j+i]=data[resolution[0]*(resolution[1]-j-1)+i];
+                }
             }
             else
             { // input img provided as rgba

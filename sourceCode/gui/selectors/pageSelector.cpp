@@ -64,7 +64,7 @@ void CPageSelector::render()
     viewSelectionSize[0]=1;
     viewSelectionSize[1]=1;
     // Compute grid size
-    int pageCnt=App::ct->pageContainer->getPageCount();
+    int pageCnt=App::currentWorld->pageContainer->getPageCount();
     if (pageCnt>8)
         pageCnt=8;
     if (pageCnt<2)
@@ -160,7 +160,7 @@ void CPageSelector::render()
                 glClear (GL_COLOR_BUFFER_BIT);
                 if (mouseOn!=l+viewSelectionSize[0]*k)
                 {
-                    CSPage* p=App::ct->pageContainer->getPage(pIndex);
+                    CSPage* p=App::currentWorld->pageContainer->getPage(pIndex);
                     if (p!=nullptr)
                     {
                         int psx,psy,ppx,ppy;
@@ -241,7 +241,7 @@ int CPageSelector::getPageIndexInViewSelection(int mousePos[2])
     }
     if ((pos[0]==-1)||(pos[1]==-1))
         return(-1);
-    int pCnt=App::ct->pageContainer->getPageCount();
+    int pCnt=App::currentWorld->pageContainer->getPageCount();
     if (pCnt>8)
         pCnt=8;
     if (pos[0]+viewSelectionSize[0]*pos[1]>=pCnt)

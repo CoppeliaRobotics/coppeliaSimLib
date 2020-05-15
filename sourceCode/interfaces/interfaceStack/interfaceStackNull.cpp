@@ -16,11 +16,11 @@ CInterfaceStackObject* CInterfaceStackNull::copyYourself() const
     return(retVal);
 }
 
-void CInterfaceStackNull::printContent(int spaces) const
+void CInterfaceStackNull::printContent(int spaces,std::string& buffer) const
 {
     for (int i=0;i<spaces;i++)
-        printf(" ");
-    printf("nullptr\n");
+        buffer+=" ";
+    buffer+="nullptr\n";
 }
 
 std::string CInterfaceStackNull::getObjectData() const

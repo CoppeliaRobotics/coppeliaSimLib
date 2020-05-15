@@ -1,4 +1,3 @@
-#include "funcDebug.h"
 #include "simInternal.h"
 #include "simulation.h"
 #include "graph.h"
@@ -25,7 +24,7 @@ CSimulation::CSimulation()
 }
 
 CSimulation::~CSimulation()
-{
+{ // beware, the current world could be nullptr
     setUpDefaultValues();
 }
 
@@ -58,7 +57,6 @@ void CSimulation::setUpDefaultValues()
     _removeNewObjectsAtSimulationEnd=true;
     _realTimeSimulation=false;
     _onlineMode=false;
-    _threadedRenderingToggle=false;
     _fullscreenAtSimulationStart=false;
 }
 
@@ -132,15 +130,13 @@ bool CSimulation::getDisplayWarningAboutNonDefaultParameters()
 }
 
 void CSimulation::simulationAboutToStart()
-{ // careful here: this is called by this through App::ct->simulationAboutToStart!!
+{ // careful here: this is called by this through App::wc->simulationAboutToStart!!
     _initialValuesInitialized=true;
     _initialPauseAtSpecificTime=_pauseAtSpecificTime;
     _speedModifierIndexOffset=0;
     _displayedWarningAboutNonDefaultParameters=false;
     _disableWarningsFlags=0;
     _dynamicContentVisualizationOnly=false;
-    _threadedRenderingToggle=false;
-    _threadedRenderingMessageShown=false;
     _desiredFasterOrSlowerSpeed=0;
     _stopRequestCounterAtSimulationStart=_stopRequestCounter;
     #ifdef SIM_WITH_GUI
@@ -153,8 +149,8 @@ void CSimulation::simulationAboutToStart()
 }
 
 void CSimulation::simulationEnded()
-{ // careful here: this is called by this through App::ct->simulationEnded!!
-    FUNCTION_DEBUG;
+{ // careful here: this is called by this through App::wc->simulationEnded!!
+    TRACE_INTERNAL;
 
     #ifdef SIM_WITH_GUI
         showAndHandleEmergencyStopButton(false,"");
@@ -173,7 +169,6 @@ void CSimulation::simulationEnded()
     }
     _speedModifierIndexOffset=0;
     _initialValuesInitialized=false;
-    _threadedRenderingToggle=false;
     _desiredFasterOrSlowerSpeed=0;
 
     #ifdef SIM_WITH_GUI
@@ -200,11 +195,6 @@ void CSimulation::setCatchUpIfLate(bool c)
 bool CSimulation::getCatchUpIfLate()
 {
     return(_catchUpIfLate);
-}
-
-void CSimulation::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
-{
-
 }
 
 bool CSimulation::getDynamicContentVisualizationOnly()
@@ -259,14 +249,14 @@ bool CSimulation::canGoFaster()
 
 bool CSimulation::startOrResumeSimulation()
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     if (isSimulationStopped())
     {
         App::setFullScreen(_fullscreenAtSimulationStart);
         CThreadPool::setSimulationEmergencyStop(false);
         CThreadPool::setRequestSimulationStop(false);
         CLuaScriptObject::emergencyStopButtonPressed=false;
-        App::ct->simulationAboutToStart();
+        App::currentWorld->simulationAboutToStart();
         _speedModifierIndexOffset=0;
         _pauseOnErrorRequested=false;
         _realTimeCorrection_ns=0;
@@ -283,7 +273,7 @@ bool CSimulation::startOrResumeSimulation()
     }
     else if (isSimulationPaused())
     {
-        App::ct->simulationAboutToResume();
+        App::currentWorld->simulationAboutToResume();
 
         _realTimeCorrection_ns=0;
         simulationState=sim_simulation_advancing_firstafterpause;
@@ -298,7 +288,7 @@ bool CSimulation::startOrResumeSimulation()
 
 bool CSimulation::stopSimulation()
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     if (simulationState!=sim_simulation_stopped)
         App::setFullScreen(false);
 
@@ -307,7 +297,7 @@ bool CSimulation::stopSimulation()
         return(true); // in this situation, we are stopping anyway!!
     if (simulationState==sim_simulation_paused)
     {
-        App::ct->simulationAboutToResume();
+        App::currentWorld->simulationAboutToResume();
 
         // Special case here: we have to change the state directly here (and not automatically in "advanceSimulationByOneStep")
         simulationState=sim_simulation_advancing_firstafterpause;
@@ -354,7 +344,7 @@ void CSimulation::adjustRealTimeTimer_ns(quint64 deltaTime)
 
 void CSimulation::advanceSimulationByOneStep()
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     if (!isSimulationRunning())
         return;
 
@@ -372,7 +362,7 @@ void CSimulation::advanceSimulationByOneStep()
         }
     }
 
-    App::ct->simulationAboutToStep();
+    App::currentWorld->simulationAboutToStep();
 
     _simulationStepCount++;
     if (_simulationStepCount==1)
@@ -412,7 +402,7 @@ void CSimulation::advanceSimulationByOneStep()
     else if (simulationState==sim_simulation_advancing_lastbeforepause)
     {
         simulationState=sim_simulation_paused;
-        App::ct->simulationPaused();
+        App::currentWorld->simulationPaused();
     }
     else if (simulationState==sim_simulation_advancing_firstafterpause)
     {
@@ -426,12 +416,12 @@ void CSimulation::advanceSimulationByOneStep()
     }
     else if (simulationState==sim_simulation_advancing_lastbeforestop)
     {
-        App::ct->simulationAboutToEnd();
+        App::currentWorld->simulationAboutToEnd();
         CThreadPool::setSimulationEmergencyStop(false);
         CThreadPool::setRequestSimulationStop(false);
         CLuaScriptObject::emergencyStopButtonPressed=false;
         simulationState=sim_simulation_stopped;
-        App::ct->simulationEnded(_removeNewObjectsAtSimulationEnd);
+        App::currentWorld->simulationEnded(_removeNewObjectsAtSimulationEnd);
     }
     while (_desiredFasterOrSlowerSpeed>0)
     {
@@ -700,74 +690,6 @@ bool CSimulation::setSpeedModifierIndexOffset(int offset)
     return(false);
 }
 
-
-bool CSimulation::canToggleThreadedRendering()
-{
-    #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-        {
-            if (App::mainWindow->simulationRecorder->getIsRecording())
-                return(false);
-        }
-    #endif
-    return(isSimulationRunning()&&(App::userSettings->threadedRenderingDuringSimulation>=0));
-}
-
-void CSimulation::toggleThreadedRendering(bool noWarningMessage)
-{ // should only be called by the NON-UI thread
-    #ifdef SIM_WITH_GUI
-        if (App::mainWindow==nullptr)
-            noWarningMessage=true;
-    #else
-        noWarningMessage=true;
-    #endif
-    _threadedRenderingToggle=!_threadedRenderingToggle;
-    if (getThreadedRenderingIfSimulationWasRunning())
-    {
-        #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->simulationRecorder->setRecorderEnabled(false); // video recorder not compatible with threaded rendering!
-        #endif
-    }
-    if (getThreadedRendering()&&(!_threadedRenderingMessageShown))
-    { // warning message
-        _threadedRenderingMessageShown=true;
-        if (!noWarningMessage)
-        {
-            CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
-            std::string val;
-            cont.readData("THREADEDRENDERING_WARNING_NO_SHOW",val);
-            int intVal=0;
-            tt::getValidInt(val,intVal);
-            if (intVal<3)
-            {
-                #ifdef SIM_WITH_GUI
-                    if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_THREADED_RENDERING,IDSN_THREADED_RENDERING_WARNING,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN_3X))
-                    {
-                        intVal++;
-                        val=tt::FNb(intVal);
-                        cont.writeData("THREADEDRENDERING_WARNING_NO_SHOW",val,!App::userSettings->doNotWritePersistentData);
-                    }
-                #endif
-            }
-        }
-    }
-    App::setToolbarRefreshFlag(); // will trigger a refresh
-}
-
-bool CSimulation::getThreadedRendering()
-{
-    return((!isSimulationStopped())&&getThreadedRenderingIfSimulationWasRunning());
-}
-
-bool CSimulation::getThreadedRenderingIfSimulationWasRunning()
-{
-    bool threaded=(App::userSettings->threadedRenderingDuringSimulation==1);
-    if (_threadedRenderingToggle)
-        threaded=!threaded;
-    return(threaded);
-}
-
 void CSimulation::incrementStopRequestCounter()
 {
     _stopRequestCounter++;
@@ -790,10 +712,10 @@ bool CSimulation::processCommand(int commandID)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
-            if (App::ct->simulation->isSimulationStopped()&&noEditMode )
+            if (App::currentWorld->simulation->isSimulationStopped()&&noEditMode )
             {
-                App::ct->simulation->setRealTimeSimulation(!App::ct->simulation->getRealTimeSimulation());
-                if (App::ct->simulation->getRealTimeSimulation())
+                App::currentWorld->simulation->setRealTimeSimulation(!App::currentWorld->simulation->getRealTimeSimulation());
+                if (App::currentWorld->simulation->getRealTimeSimulation())
                     App::addStatusbarMessage(IDSNS_TOGGLED_TO_REAL_TIME_MODE);
                 else
                     App::addStatusbarMessage(IDSNS_TOGGLED_TO_NON_REAL_TIME_MODE);
@@ -816,10 +738,10 @@ bool CSimulation::processCommand(int commandID)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
-            if (App::ct->simulation->isSimulationStopped()&&noEditMode )
+            if (App::currentWorld->simulation->isSimulationStopped()&&noEditMode )
             {
-                App::ct->simulation->setOnlineMode(!App::ct->simulation->getOnlineMode());
-                if (App::ct->simulation->getOnlineMode())
+                App::currentWorld->simulation->setOnlineMode(!App::currentWorld->simulation->getOnlineMode());
+                if (App::currentWorld->simulation->getOnlineMode())
                     App::addStatusbarMessage(IDSNS_TOGGLED_TO_ONLINE_MODE);
                 else
                     App::addStatusbarMessage(IDSNS_TOGGLED_TO_OFFLINE_MODE);
@@ -864,26 +786,6 @@ bool CSimulation::processCommand(int commandID)
         }
         return(true);
     }
-    if (commandID==SIMULATION_COMMANDS_THREADED_RENDERING_SCCMD)
-    {
-        if (App::mainWindow!=nullptr)
-        {
-            if (!App::mainWindow->simulationRecorder->getIsRecording())
-            {
-                if (!VThread::isCurrentThreadTheUiThread())
-                { // we are NOT in the UI thread. We execute the command now:
-                    toggleThreadedRendering(true);
-                }
-                else
-                { // We are in the UI thread. Execute the command via the main thread:
-                    SSimulationThreadCommand cmd;
-                    cmd.cmdId=commandID;
-                    App::appendSimulationThreadCommand(cmd);
-                }
-            }
-        }
-        return(true);
-    }
     if (commandID==SIMULATION_COMMANDS_TOGGLE_DYNAMIC_CONTENT_VISUALIZATION_SCCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
@@ -906,7 +808,7 @@ bool CSimulation::processCommand(int commandID)
         {
             if (!VThread::isCurrentThreadTheUiThread())
             { // we are NOT in the UI thread. We execute the command now:
-                App::ct->simulatorMessageQueue->addCommand(sim_message_simulation_start_resume_request,0,0,0,0,nullptr,0);
+                App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_start_resume_request,0,0,0,0,nullptr,0);
             }
             else
             { // We are in the UI thread. Execute the command via the main thread:
@@ -921,7 +823,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::ct->simulatorMessageQueue->addCommand(sim_message_simulation_pause_request,0,0,0,0,nullptr,0);
+            App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_pause_request,0,0,0,0,nullptr,0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -936,7 +838,7 @@ bool CSimulation::processCommand(int commandID)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             CThreadPool::forceAutomaticThreadSwitch_simulationEnding(); // 21/6/2014
-            App::ct->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request,0,0,0,0,nullptr,0);
+            App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request,0,0,0,0,nullptr,0);
             incrementStopRequestCounter();
         }
         else
@@ -951,7 +853,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::ct->dynamicsContainer->setDynamicEngineType(sim_physics_bullet,0);
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_bullet,0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -965,7 +867,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::ct->dynamicsContainer->setDynamicEngineType(sim_physics_bullet,283);
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_bullet,283);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -979,7 +881,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::ct->dynamicsContainer->setDynamicEngineType(sim_physics_ode,0);
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_ode,0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -993,7 +895,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::ct->dynamicsContainer->setDynamicEngineType(sim_physics_vortex,0);
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_vortex,0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1007,7 +909,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::ct->dynamicsContainer->setDynamicEngineType(sim_physics_newton,0);
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_newton,0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1328,7 +1230,7 @@ void CSimulation::serialize(CSer& ar)
 #ifdef SIM_WITH_GUI
 void CSimulation::showAndHandleEmergencyStopButton(bool showState,const char* scriptName)
 {
-    FUNCTION_DEBUG;
+    TRACE_INTERNAL;
     if (App::mainWindow!=nullptr)
     { // make sure we are not in headless mode
         bool res=App::uiThread->showOrHideEmergencyStop(showState,scriptName);
@@ -1351,13 +1253,11 @@ void CSimulation::showAndHandleEmergencyStopButton(bool showState,const char* sc
 void CSimulation::addMenu(VMenu* menu)
 {
     bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
-    bool simRunning=App::ct->simulation->isSimulationRunning();
-    bool simStopped=App::ct->simulation->isSimulationStopped();
-    bool simPaused=App::ct->simulation->isSimulationPaused();
-    bool canGoSlower=App::ct->simulation->canGoSlower();
-    bool canGoFaster=App::ct->simulation->canGoFaster();
-    bool canToggleThreadedRendering=App::ct->simulation->canToggleThreadedRendering();
-    bool getThreadedRenderingIfSimulationWasRunning=App::ct->simulation->getThreadedRenderingIfSimulationWasRunning();
+    bool simRunning=App::currentWorld->simulation->isSimulationRunning();
+    bool simStopped=App::currentWorld->simulation->isSimulationStopped();
+    bool simPaused=App::currentWorld->simulation->isSimulationPaused();
+    bool canGoSlower=App::currentWorld->simulation->canGoSlower();
+    bool canGoFaster=App::currentWorld->simulation->canGoFaster();
     if (simPaused)
         menu->appendMenuItem(App::mainWindow->getPlayViaGuiEnabled()&&noEditMode,false,SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD,IDS_RESUME_SIMULATION_MENU_ITEM);
     else
@@ -1367,11 +1267,11 @@ void CSimulation::addMenu(VMenu* menu)
     if (!CLibLic::getBoolVal(11))
     {
         menu->appendMenuSeparator();
-        menu->appendMenuItem(noEditMode&&simStopped,App::ct->simulation->getOnlineMode(),SIMULATION_COMMANDS_TOGGLE_ONLINE_SCCMD,IDSN_ONLINE_MODE,true);
+        menu->appendMenuItem(noEditMode&&simStopped,App::currentWorld->simulation->getOnlineMode(),SIMULATION_COMMANDS_TOGGLE_ONLINE_SCCMD,IDSN_ONLINE_MODE,true);
     }
     menu->appendMenuSeparator();
     int version;
-    int engine=App::ct->dynamicsContainer->getDynamicEngineType(&version);
+    int engine=App::currentWorld->dynamicsContainer->getDynamicEngineType(&version);
     menu->appendMenuItem(noEditMode&&simStopped,(engine==sim_physics_bullet)&&(version==0),SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_78_ENGINE_SCCMD,IDS_SWITCH_TO_BULLET_2_78_ENGINE_MENU_ITEM,true);
     menu->appendMenuItem(noEditMode&&simStopped,(engine==sim_physics_bullet)&&(version==283),SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_83_ENGINE_SCCMD,IDS_SWITCH_TO_BULLET_2_83_ENGINE_MENU_ITEM,true);
     menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_ode,SIMULATION_COMMANDS_TOGGLE_TO_ODE_ENGINE_SCCMD,IDS_SWITCH_TO_ODE_ENGINE_MENU_ITEM,true);
@@ -1380,11 +1280,10 @@ void CSimulation::addMenu(VMenu* menu)
     if (CLibLic::getBoolVal(11))
     {
         menu->appendMenuSeparator();
-        menu->appendMenuItem(noEditMode&&simStopped,App::ct->simulation->getRealTimeSimulation(),SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD,IDSN_REAL_TIME_SIMULATION,true);
+        menu->appendMenuItem(noEditMode&&simStopped,App::currentWorld->simulation->getRealTimeSimulation(),SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD,IDSN_REAL_TIME_SIMULATION,true);
         menu->appendMenuItem(canGoSlower,false,SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD,IDSN_SLOW_DOWN_SIMULATION);
         menu->appendMenuItem(canGoFaster,false,SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD,IDSN_SPEED_UP_SIMULATION);
-        menu->appendMenuItem(canToggleThreadedRendering,getThreadedRenderingIfSimulationWasRunning,SIMULATION_COMMANDS_THREADED_RENDERING_SCCMD,IDSN_THREADED_RENDERING,true);
-        menu->appendMenuItem(simRunning&&(!App::mainWindow->oglSurface->isSceneSelectionActive()||App::mainWindow->oglSurface->isPageSelectionActive()||App::mainWindow->oglSurface->isViewSelectionActive()),!App::mainWindow->getOpenGlDisplayEnabled(),SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD,IDSN_TOGGLE_VISUALIZATION,true);
+        menu->appendMenuItem(simRunning&&(!(App::mainWindow->oglSurface->isPageSelectionActive()||App::mainWindow->oglSurface->isViewSelectionActive())),!App::mainWindow->getOpenGlDisplayEnabled(),SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD,IDSN_TOGGLE_VISUALIZATION,true);
         menu->appendMenuSeparator();
         if (App::mainWindow!=nullptr)
             menu->appendMenuItem(true,App::mainWindow->dlgCont->isVisible(SIMULATION_DLG),TOGGLE_SIMULATION_DLG_CMD,IDSN_SIMULATION_SETTINGS,true);

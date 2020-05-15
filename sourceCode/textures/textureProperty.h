@@ -15,8 +15,8 @@ public:
     CTextureProperty* copyYourself();
     void serialize(CSer& ar);
     bool announceObjectWillBeErased(int objID);
-    void performObjectLoadingMapping(std::vector<int>* map);
-    void performTextureObjectLoadingMapping(std::vector<int>* map);
+    void performObjectLoadingMapping(const std::vector<int>* map);
+    void performTextureObjectLoadingMapping(const std::vector<int>* map);
     void addTextureDependencies(int objID,int objSubID);
     void scaleObject(float scalingFactor);
     void setInterpolateColors(bool ic);
@@ -27,6 +27,7 @@ public:
 
     int getTextureObjectID();
     CTextureObject* getTextureObject();
+    void transformToFixedTextureCoordinates(const C7Vector& transf,const std::vector<float>& vertices,const std::vector<int>& triangles);
     std::vector<float>* getTextureCoordinates(int objectStateId,const C7Vector& transf,const std::vector<float>& vertices,const std::vector<int>& triangles);
     std::vector<float>* getFixedTextureCoordinates();
     C7Vector getTextureRelativeConfig();

@@ -1,18 +1,13 @@
-
 #pragma once
 
 #include "memorizedConf.h"
-#include "mainCont.h"
 
-class CMemorizedConfContainer : public CMainCont 
+class CMemorizedConfContainer 
 {
 public:
     CMemorizedConfContainer();
     virtual ~CMemorizedConfContainer();
     void memorize();
-    void simulationAboutToStart();
-    void simulationEnded();
-    void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
     void restoreMemorized();
     void removeMemorized();
     bool isBufferEmpty();

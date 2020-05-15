@@ -29,12 +29,12 @@ void CQDlgPointclouds::refresh()
 {
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
     bool noEditMode=App::getEditModeType()==NO_EDIT_MODE;
-    bool noEditModeAndNoSim=noEditMode&&App::ct->simulation->isSimulationStopped();
+    bool noEditModeAndNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
 
-    bool sel=App::ct->objCont->isLastSelectionAPointCloud();
-    int objCnt=App::ct->objCont->getSelSize();
+    bool sel=App::currentWorld->sceneObjects->isLastSelectionAPointCloud();
+    size_t objCnt=App::currentWorld->sceneObjects->getSelectionCount();
     bool octreeStruct=false;
-    CPointCloud* it=App::ct->objCont->getLastSelection_pointCloud();
+    CPointCloud* it=App::currentWorld->sceneObjects->getLastSelectionPointCloud();
     if (sel)
         octreeStruct=!it->getDoNotUseCalculationStructure();
 
@@ -102,7 +102,7 @@ void CQDlgPointclouds::on_qqMaxCellSize_editingFinished()
         float newVal=ui->qqMaxCellSize->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_MAXVOXELSIZE_PTCLOUDGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_MAXVOXELSIZE_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -113,7 +113,7 @@ void CQDlgPointclouds::on_qqColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgColor::displayDlg(COLOR_ID_POINTCLOUD,App::ct->objCont->getLastSelectionID(),-1,0,App::mainWindow);
+        CQDlgColor::displayDlg(COLOR_ID_POINTCLOUD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,0,App::mainWindow);
     }
 }
 
@@ -121,7 +121,7 @@ void CQDlgPointclouds::on_qqShowOctree_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_SHOWOCTREE_PTCLOUDGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_SHOWOCTREE_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -131,7 +131,7 @@ void CQDlgPointclouds::on_qqRandomColors_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_RANDOMCOLORS_PTCLOUDGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_RANDOMCOLORS_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -147,7 +147,7 @@ void CQDlgPointclouds::on_qqPointSize_editingFinished()
         int newVal=ui->qqPointSize->text().toInt(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_PTSIZE_PTCLOUDGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),newVal);
+            App::appendSimulationThreadCommand(SET_PTSIZE_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -158,7 +158,7 @@ void CQDlgPointclouds::on_qqClear_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        App::appendSimulationThreadCommand(CLEAR_PTCLOUDGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(CLEAR_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -168,31 +168,31 @@ void CQDlgPointclouds::on_qqInsert_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CPointCloud* it=App::ct->objCont->getLastSelection_pointCloud();
+        CPointCloud* it=App::currentWorld->sceneObjects->getLastSelectionPointCloud();
         if (it!=nullptr)
         {
             std::vector<int> sel;
-            for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
-                sel.push_back(App::ct->objCont->getSelID(i));
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount()-1;i++)
+                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
 
             // Now keep only visible objects:
             std::vector<int> sel2;
             for (size_t i=0;i<sel.size();i++)
             {
-                C3DObject* it=App::ct->objCont->getObjectFromHandle(sel[i]);
-                if ( (!it->isObjectPartOfInvisibleModel())&&(App::ct->mainSettings->getActiveLayers()&it->layer) )
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
+                if ( (!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer()) )
                     sel2.push_back(sel[i]);
             }
             App::appendSimulationThreadCommand(SHOW_PROGRESSDLGGUITRIGGEREDCMD,-1,-1,0.0,0.0,"Inserting object(s) into point cloud...");
             SSimulationThreadCommand cmd;
             cmd.cmdId=INSERT_OBJECTS_PTCLOUDGUITRIGGEREDCMD;
-            cmd.intParams.push_back(App::ct->objCont->getLastSelectionID());
+            cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
             for (size_t i=0;i<sel2.size();i++)
                 cmd.intParams.push_back(sel2[i]);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(HIDE_PROGRESSDLGGUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(SET_OBJECT_SELECTION_GUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+            App::appendSimulationThreadCommand(SET_OBJECT_SELECTION_GUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -209,7 +209,7 @@ void CQDlgPointclouds::on_qqMaxPointCount_editingFinished()
         int newVal=ui->qqMaxPointCount->text().toInt(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_MAXPTCNT_PTCLOUDGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),newVal);
+            App::appendSimulationThreadCommand(SET_MAXPTCNT_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -226,7 +226,7 @@ void CQDlgPointclouds::on_qqBuildResolution_editingFinished()
         float newVal=ui->qqBuildResolution->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_BUILDRESOLUTION_PTCLOUDGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_BUILDRESOLUTION_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -237,12 +237,12 @@ void CQDlgPointclouds::on_qqNoOctreeStructure_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CPointCloud* it=App::ct->objCont->getLastSelection_pointCloud();
+        CPointCloud* it=App::currentWorld->sceneObjects->getLastSelectionPointCloud();
         if (it!=nullptr)
         {
             if (!it->getDoNotUseCalculationStructure())
                 App::uiThread->messageBox_warning(App::mainWindow,"Point cloud octree calculation structure","Be aware that when disabling the octree calculation structure, your point cloud will not be collidable, measurable nor detectable anymore. Also, some functionality might be limited in that case.",VMESSAGEBOX_OKELI);
-            App::appendSimulationThreadCommand(TOGGLE_USEOCTREE_PTCLOUDGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+            App::appendSimulationThreadCommand(TOGGLE_USEOCTREE_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -253,7 +253,7 @@ void CQDlgPointclouds::on_qqEmissiveColor_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_EMISSIVECOLOR_PTCLOUDGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+        App::appendSimulationThreadCommand(TOGGLE_EMISSIVECOLOR_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -269,7 +269,7 @@ void CQDlgPointclouds::on_qqDisplayRatio_editingFinished()
         float newVal=ui->qqDisplayRatio->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_DISPLAYRATIO_PTCLOUDGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_DISPLAYRATIO_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -280,31 +280,31 @@ void CQDlgPointclouds::on_qqSubtract_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CPointCloud* it=App::ct->objCont->getLastSelection_pointCloud();
+        CPointCloud* it=App::currentWorld->sceneObjects->getLastSelectionPointCloud();
         if (it!=nullptr)
         {
             std::vector<int> sel;
-            for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
-                sel.push_back(App::ct->objCont->getSelID(i));
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount()-1;i++)
+                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
 
             // Now keep only visible objects:
             std::vector<int> sel2;
             for (size_t i=0;i<sel.size();i++)
             {
-                C3DObject* it=App::ct->objCont->getObjectFromHandle(sel[i]);
-                if ( (!it->isObjectPartOfInvisibleModel())&&(App::ct->mainSettings->getActiveLayers()&it->layer) )
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
+                if ( (!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer()) )
                     sel2.push_back(sel[i]);
             }
             App::appendSimulationThreadCommand(SHOW_PROGRESSDLGGUITRIGGEREDCMD,-1,-1,0.0,0.0,"Subtracting object(s) from point cloud...");
             SSimulationThreadCommand cmd;
             cmd.cmdId=SUBTRACT_OBJECTS_PTCLOUDGUITRIGGEREDCMD;
-            cmd.intParams.push_back(App::ct->objCont->getLastSelectionID());
+            cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
             for (size_t i=0;i<sel2.size();i++)
                 cmd.intParams.push_back(sel2[i]);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(HIDE_PROGRESSDLGGUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(SET_OBJECT_SELECTION_GUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
+            App::appendSimulationThreadCommand(SET_OBJECT_SELECTION_GUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -321,7 +321,7 @@ void CQDlgPointclouds::on_qqSubtractionTolerance_editingFinished()
         float newVal=ui->qqSubtractionTolerance->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_SUBTRACTTOLERANCE_PTCLOUDGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_SUBTRACTTOLERANCE_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -338,7 +338,7 @@ void CQDlgPointclouds::on_qqInsertionTolerance_editingFinished()
         float newVal=ui->qqInsertionTolerance->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_INSERTTOLERANCE_PTCLOUDGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_INSERTTOLERANCE_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
