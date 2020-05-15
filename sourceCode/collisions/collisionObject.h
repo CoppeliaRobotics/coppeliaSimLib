@@ -38,7 +38,7 @@ public:
     CCollisionObject* copyYourself();
     int getCollisionColor(int entityHandle) const;
     bool canComputeCollisionContour() const;
-    std::string CCollisionObject::getObjectDescriptiveName() const;
+    std::string getObjectDescriptiveName() const;
 
     // Overridden from _CCollisionObject_:
     bool setObjectName(const char* newName,bool check);
