@@ -113,7 +113,7 @@ int CWorldContainer::createNewWorld()
 
     // Empty remote worlds:
     if (currentWorld!=nullptr)
-        currentWorld->sendSyncMsgEmptyWorld();
+        currentWorld->removeRemoteWorlds();
 
     // Create new world and switch to it:
     CWorld* w=new CWorld();
@@ -145,7 +145,7 @@ int CWorldContainer::createNewWorld()
 
     CSceneObject::incrementModelPropertyValidityNumber();
 
-    currentWorld->rebuildAndConnectSynchronizationObjects();
+    currentWorld->rebuildRemoteWorlds();
 
     return(_currentWorldIndex);
 }
@@ -199,7 +199,7 @@ int CWorldContainer::destroyCurrentWorld()
 #endif
 
     // Empty remote worlds:
-    currentWorld->sendSyncMsgEmptyWorld();
+    currentWorld->removeRemoteWorlds();
 
     // Destroy current world:
     currentWorld=nullptr;
@@ -238,7 +238,7 @@ int CWorldContainer::destroyCurrentWorld()
 
         CSceneObject::incrementModelPropertyValidityNumber();
 
-        currentWorld->rebuildAndConnectSynchronizationObjects();
+        currentWorld->rebuildRemoteWorlds();
     }
 
     return(_currentWorldIndex);
@@ -334,7 +334,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     currentWorld->pageContainer->clearAllLastMouseDownViewIndex();
 
     // Empty remote worlds:
-    currentWorld->sendSyncMsgEmptyWorld();
+    currentWorld->removeRemoteWorlds();
 
     // Switch worlds:
     _currentWorldIndex=newWorldIndex;
@@ -365,7 +365,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
 
     CSceneObject::incrementModelPropertyValidityNumber();
 
-    currentWorld->rebuildAndConnectSynchronizationObjects();
+    currentWorld->rebuildRemoteWorlds();
 
     return(true);
 }

@@ -291,7 +291,7 @@ void CCollectionContainer::_removeCollection(int collectionHandle)
 { // Overridden from _CCollectionContainer_
     CCollection* ig=getObjectFromHandle(collectionHandle);
     if (ig!=nullptr)
-        ig->removeSynchronizationObject();
+        ig->removeSynchronizationObject(false);
 
     _CCollectionContainer_::_removeCollection(collectionHandle);
 }
@@ -305,7 +305,7 @@ void CCollectionContainer::_addCollection(CCollection* collection)
 }
 
 void CCollectionContainer::buildUpdateAndPopulateSynchronizationObjects()
-{ // Overridden from CSyncObject
+{
     for (size_t i=0;i<getObjectCount();i++)
     {
         CCollection* it=getObjectFromIndex(i);
@@ -314,10 +314,19 @@ void CCollectionContainer::buildUpdateAndPopulateSynchronizationObjects()
 }
 
 void CCollectionContainer::connectSynchronizationObjects()
-{ // Overridden from CSyncObject
+{
     for (size_t i=0;i<getObjectCount();i++)
     {
         CCollection* it=getObjectFromIndex(i);
         it->connectSynchronizationObject();
+    }
+}
+
+void CCollectionContainer::removeSynchronizationObjects(bool localReferencesToItOnly)
+{
+    for (size_t i=0;i<getObjectCount();i++)
+    {
+        CCollection* it=getObjectFromIndex(i);
+        it->removeSynchronizationObject(localReferencesToItOnly);
     }
 }

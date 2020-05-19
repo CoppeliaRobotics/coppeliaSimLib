@@ -22,11 +22,6 @@ _CWorld_::~_CWorld_()
 {
 }
 
-void _CWorld_::sendSyncMsgEmptyWorld()
-{
-    sendVoid(sim_syncobj_world_empty);
-}
-
 void _CWorld_::setWorldHandle(int handle)
 {
     _worldHandle=handle;

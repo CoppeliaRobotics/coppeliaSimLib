@@ -70,6 +70,8 @@ public:
     static bool isFullScreen(); // helper
     static void setFullScreen(bool f); // helper
 
+    static std::string getLogFilter();
+    static void setLogFilter(const char* filter);
     static bool logPluginMsg(const char* pluginName,int verbosityLevel,const char* logMsg);
     static void logMsg(int verbosityLevel,const char* msg,const char* subStr1=nullptr,const char* subStr2=nullptr,const char* subStr3=nullptr);
     static void logMsg(int verbosityLevel,const char* msg,int int1,int int2=0,int int3=0);
@@ -103,6 +105,7 @@ private:
     static void _logMsg_noDecoration(int verbosityLevel,const char* msg,const char* subStr1=nullptr,const char* subStr2=nullptr,const char* subStr3=nullptr);
     static void _logMsg_noDecoration(int verbosityLevel,const char* msg,int int1,int int2=0,int int3=0);
     static void _logMsg(int verbosityLevel,const char* msg,bool forbidStatusbar,int consoleVerbosity=-1,int statusbarVerbosity=-1);
+    static bool _logFilter(const char* msg);
     static std::string _getDecoratedLogMsg(const char* pluginName,int verbosityLevel,const char* msg);
     bool _initSuccessful;
     static bool _consoleMsgsToFile;
@@ -126,6 +129,7 @@ private:
     static std::string _additionalAddOnScript2;
     static int _consoleVerbosity;
     static int _statusbarVerbosity;
+    static std::string _logFilterStr;
 
     static volatile int _quitLevel;
 

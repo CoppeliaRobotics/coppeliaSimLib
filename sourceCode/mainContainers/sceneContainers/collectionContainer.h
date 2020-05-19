@@ -11,9 +11,9 @@ public:
     CCollectionContainer();
     virtual ~CCollectionContainer();
 
-    // Overridden from CSyncObject
     void buildUpdateAndPopulateSynchronizationObjects();
     void connectSynchronizationObjects();
+    void removeSynchronizationObjects(bool localReferencesToItOnly);
 
     void simulationAboutToStart();
     void simulationEnded();

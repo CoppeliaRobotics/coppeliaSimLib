@@ -3177,14 +3177,14 @@ bool CSceneObjectContainer::_removeObject(int objectHandle)
     bool retVal=false;
     CSceneObject* ig=getObjectFromHandle(objectHandle);
     if (ig!=nullptr)
-        ig->removeSynchronizationObject();
+        ig->removeSynchronizationObject(false);
 
     retVal=_CSceneObjectContainer_::_removeObject(objectHandle);
     return(retVal);
 }
 
 void CSceneObjectContainer::buildUpdateAndPopulateSynchronizationObjects()
-{ // Overridden from CSyncObject
+{
     for (size_t i=0;i<getObjectCount();i++)
     {
         CSceneObject* it=getObjectFromIndex(i);
@@ -3193,10 +3193,19 @@ void CSceneObjectContainer::buildUpdateAndPopulateSynchronizationObjects()
 }
 
 void CSceneObjectContainer::connectSynchronizationObjects()
-{ // Overridden from CSyncObject
+{
     for (size_t i=0;i<getObjectCount();i++)
     {
         CSceneObject* it=getObjectFromIndex(i);
         it->connectSynchronizationObject();
+    }
+}
+
+void CSceneObjectContainer::removeSynchronizationObjects(bool localReferencesToItOnly)
+{
+    for (size_t i=0;i<getObjectCount();i++)
+    {
+        CSceneObject* it=getObjectFromIndex(i);
+        it->removeSynchronizationObject(localReferencesToItOnly);
     }
 }

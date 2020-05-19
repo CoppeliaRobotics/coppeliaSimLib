@@ -349,6 +349,34 @@ bool CIkElement::setOrientationWeight(float weight)
     return(_CIkElement_::setOrientationWeight(weight));
 }
 
+void CIkElement::setAllInvolvedJointsToIkPluginPositions() const
+{
+    if (_enabled)
+    {
+        CSceneObject* it=App::currentWorld->sceneObjects->getDummyFromHandle(_tipHandle);
+        CSceneObject* baseObj=App::currentWorld->sceneObjects->getObjectFromHandle(_baseHandle);
+        while ((it!=baseObj)&&(it!=nullptr))
+        {
+            it=it->getParent();
+            if ( (it!=nullptr)&&(it!=baseObj) )
+            {
+                if (it->getObjectType()==sim_object_joint_type)
+                {
+                    CJoint* joint=(CJoint*)it;
+                    if ( (joint->getJointMode()==sim_jointmode_ik)||(joint->getJointMode()==sim_jointmode_reserved_previously_ikdependent) )
+                    {
+                        int h=joint->getIkPluginCounterpartHandle();
+                        if (joint->getJointType()==sim_joint_spherical_subtype)
+                            joint->setSphericalTransformation(CPluginContainer::ikPlugin_getSphericalJointQuaternion(h));
+                        else
+                            joint->setPosition(CPluginContainer::ikPlugin_getJointPosition(h));
+                    }
+                }
+            }
+        }
+    }
+}
+
 void CIkElement::setAllInvolvedJointsToNewJointMode(int jointMode) const
 {
     CSceneObject* iterat=App::currentWorld->sceneObjects->getDummyFromHandle(_tipHandle);
@@ -818,16 +846,23 @@ void CIkElement::connectSynchronizationObject()
     }
 }
 
-void CIkElement::removeSynchronizationObject()
+void CIkElement::removeSynchronizationObject(bool localReferencesToItOnly)
 { // Overridden from CSyncObject
     if (getObjectCanSync())
     {
         setObjectCanSync(false);
 
-        // Delete remote IK element:
-        sendVoid(sim_syncobj_ikelement_delete);
+        if (!localReferencesToItOnly)
+        {
+            // Delete remote IK element:
+            sendVoid(sim_syncobj_ikelement_delete);
 
-        // Synchronize with IK plugin:
-        CPluginContainer::ikPlugin_eraseIkElement(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle);
+            // Synchronize with IK plugin:
+            if ( (_ikGroupPluginCounterpartHandle!=-1)&&(_ikElementPluginCounterpartHandle!=-1) )
+                CPluginContainer::ikPlugin_eraseIkElement(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle);
+        }
     }
+    // IK plugin part:
+    _ikGroupPluginCounterpartHandle=-1;
+    _ikElementPluginCounterpartHandle=-1;
 }

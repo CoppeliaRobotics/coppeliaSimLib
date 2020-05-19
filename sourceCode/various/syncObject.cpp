@@ -23,7 +23,7 @@ void CSyncObject::connectSynchronizationObject()
     printf("CoppeliaSim warning: CSyncObject::connectSynchronizationObject was not overridden!\n");
 }
 
-void CSyncObject::removeSynchronizationObject()
+void CSyncObject::removeSynchronizationObject(bool localReferencesToItOnly)
 {
     printf("CoppeliaSim warning: CSyncObject::removeSynchronizationObject was not overridden!\n");
 }

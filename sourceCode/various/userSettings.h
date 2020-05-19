@@ -36,6 +36,7 @@ public:
 
     std::string _overrideConsoleVerbosity;
     std::string _overrideStatusbarVerbosity;
+    std::string _logFilter;
     bool displayWorldReference;
     bool useGlFinish;
     bool useGlFinish_visionSensors;
@@ -77,6 +78,7 @@ public:
     bool useAlternateSerialPortRoutines;
     bool disableOpenGlBasedCustomUi;
     bool enableOldMirrorObjects;
+    bool useOldIk;
     bool displayBoundingBoxeWhenObjectSelected;
     bool antiAliasing;
     float dynamicActivityRange;

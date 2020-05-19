@@ -12,7 +12,7 @@ public:
     // Overridden from CSyncObject:
     void buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting);
     void connectSynchronizationObject();
-    void removeSynchronizationObject();
+    void removeSynchronizationObject(bool localReferencesToItOnly);
 
     void makeCurrentColor(bool useAuxiliaryComponent) const;
     void makeCurrentColor2(bool forceNonTransparent,bool useAuxiliaryComponent) const;

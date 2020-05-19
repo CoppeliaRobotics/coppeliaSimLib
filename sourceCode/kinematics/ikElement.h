@@ -15,7 +15,7 @@ public:
     // Overridden from CSyncObject:
     void buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting);
     void connectSynchronizationObject();
-    void removeSynchronizationObject();
+    void removeSynchronizationObject(bool localReferencesToItOnly);
 
     void initializeInitialValues(bool simulationIsRunning);
     void simulationEnded();
@@ -39,6 +39,7 @@ public:
     std::string getBaseLoadName() const;
     std::string getAltBaseLoadName() const;
 
+    void setAllInvolvedJointsToIkPluginPositions() const;
     void setAllInvolvedJointsToNewJointMode(int jointMode) const;
 
     // OLD_IK_FUNC:
@@ -46,13 +47,12 @@ public:
     void prepareIkEquations(float interpolFact);
     void removeIkEquations();
     void getError(const C4X4Matrix& m1,const C4X4Matrix& m2,float err[2],bool xC,bool yC,bool zC,bool abC,bool gC);
-
-    // OLD_IK_FUNC:
     CMatrix* matrix;
     CMatrix* matrix_correctJacobian;
     CMatrix* errorVector;
     std::vector<int>* rowJointHandles;
     std::vector<int>* rowJointStages;
+
 private:
     void _commonInit();
 

@@ -582,7 +582,7 @@ public:
     static void ikPlugin_setIkElementWeights(int ikGroupHandle,int ikElementIndex,float linearWeight,float angularWeight);
     static int ikPlugin_handleIkGroup(int ikGroupHandle);
     static bool ikPlugin_computeJacobian(int ikGroupHandle,int options);
-    static float* ikPlugin_getJacobian(int ikGroupHandle,int* matrixSize);
+    static CMatrix* ikPlugin_getJacobian(int ikGroupHandle);
     static float ikPlugin_getManipulability(int ikGroupHandle);
     static int ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,float thresholdDist,int maxIterationsOrTimeInMs,float* retConfig,const float* metric,bool(*validationCallback)(float*),const int* jointOptions,const float* lowLimits,const float* ranges,std::string& errSting);
     static int ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,float thresholdDist,int maxIterationsOrTimeInMs,float* retConfig,const float* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const float* lowLimits,const float* ranges,std::string& errSting);

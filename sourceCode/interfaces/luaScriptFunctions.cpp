@@ -1215,6 +1215,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.handleflag_keeporiginal",sim_handleflag_keeporiginal,true},
     {"sim.handleflag_codedstring",sim_handleflag_codedstring,true},
     {"sim.handleflag_wxyzquaternion",sim_handleflag_wxyzquaternion,true},
+    {"sim.handleflag_reljointbaseframe",sim_handleflag_reljointbaseframe,true},
     {"sim.handleflag_model",sim_handleflag_model,true},
     {"sim.handleflag_rawvalue",sim_handleflag_rawvalue,true},
     {"sim.handleflag_altname",sim_handleflag_altname,true},
@@ -1404,13 +1405,13 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_machine_id_legacy",sim_stringparam_machine_id_legacy,true},
     {"sim.stringparam_verbosity",sim_stringparam_verbosity,true},
     {"sim.stringparam_statusbarverbosity",sim_stringparam_statusbarverbosity,true},
+    {"sim.stringparam_logfilter",sim_stringparam_logfilter,true},
 
     // verbosity:
     {"sim.verbosity_useglobal",sim_verbosity_useglobal,true},
     {"sim.verbosity_none",sim_verbosity_none,true},
     {"sim.verbosity_errors",sim_verbosity_errors,true},
     {"sim.verbosity_warnings",sim_verbosity_warnings,true},
-    {"sim.verbosity_msgs",sim_verbosity_msgs,true},
     {"sim.verbosity_loadinfos",sim_verbosity_loadinfos,true},
     {"sim.verbosity_infos",sim_verbosity_infos,true},
     {"sim.verbosity_debug",sim_verbosity_debug,true},
@@ -6073,17 +6074,17 @@ int _simGetObjectHandle(luaWrap_lua_State* L)
 
     int retVal=-1; // means error
 
+    bool checkWithString=true;
     if (checkInputArguments(L,nullptr,lua_arg_number,0)) // do not output error if not string
     { // argument sim.handle_self
         if (luaWrap_lua_tointeger(L,1)==sim_handle_self)
         {
+            checkWithString=false;
             int a=getCurrentScriptID(L);
             retVal=simGetObjectAssociatedWithScript_internal(a);
         }
-        else
-            errorString=SIM_ERROR_INVALID_ARGUMENT;
     }
-    else
+    if (checkWithString)
     {
         if (checkInputArguments(L,&errorString,lua_arg_string,0))
         {

@@ -274,13 +274,13 @@ void CDistanceObjectContainer::_removeObject(int objectHandle)
 { // Overridden from _CDistanceObjectContainer_
     CDistanceObject* ig=getObjectFromHandle(objectHandle);
     if (ig!=nullptr)
-        ig->removeSynchronizationObject();
+        ig->removeSynchronizationObject(false);
 
     _CDistanceObjectContainer_::_removeObject(objectHandle);
 }
 
 void CDistanceObjectContainer::buildUpdateAndPopulateSynchronizationObjects()
-{ // Overridden from CSyncObject
+{
     for (size_t i=0;i<getObjectCount();i++)
     {
         CDistanceObject* it=getObjectFromIndex(i);
@@ -289,10 +289,19 @@ void CDistanceObjectContainer::buildUpdateAndPopulateSynchronizationObjects()
 }
 
 void CDistanceObjectContainer::connectSynchronizationObjects()
-{ // Overridden from CSyncObject
+{
     for (size_t i=0;i<getObjectCount();i++)
     {
         CDistanceObject* it=getObjectFromIndex(i);
         it->connectSynchronizationObject();
+    }
+}
+
+void CDistanceObjectContainer::removeSynchronizationObjects(bool localReferencesToItOnly)
+{
+    for (size_t i=0;i<getObjectCount();i++)
+    {
+        CDistanceObject* it=getObjectFromIndex(i);
+        it->removeSynchronizationObject(localReferencesToItOnly);
     }
 }

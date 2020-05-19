@@ -15,7 +15,7 @@ public:
     // Overridden from CSyncObject:
     void buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting);
     void connectSynchronizationObject();
-    void removeSynchronizationObject();
+    void removeSynchronizationObject(bool localReferencesToItOnly);
 
     void initializeInitialValues(bool simulationIsRunning);
     void simulationAboutToStart();
@@ -48,9 +48,9 @@ public:
 
     void setAllInvolvedJointsToNewJointMode(int jointMode) const;
 
+    int computeGroupIk(bool forMotionPlanning);
 
     // OLD_IK_FUNC:
-    int computeGroupIk(bool forMotionPlanning);
     bool computeOnlyJacobian(int options);
     float* getLastJacobianData(int matrixSize[2]);
     float* getLastManipulabilityValue(int matrixSize[2]);
@@ -73,6 +73,7 @@ private:
     void _setLastJacobian(CMatrix* j);
 
     // OLD_IK_FUNC:
+    int _computeGroupIk(bool forMotionPlanning,bool& applyNewValues);
     float _getDeterminant(const CMatrix& m,const std::vector<int>* activeRows,const std::vector<int>* activeColumns) const;
     void _resetTemporaryParameters();
     void _applyTemporaryParameters();

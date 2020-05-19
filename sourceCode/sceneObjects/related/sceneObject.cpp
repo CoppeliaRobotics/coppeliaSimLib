@@ -3989,19 +3989,24 @@ void CSceneObject::connectSynchronizationObject()
     }
 }
 
-void CSceneObject::removeSynchronizationObject()
+void CSceneObject::removeSynchronizationObject(bool localReferencesToItOnly)
 { // Overridden from CSyncObject
     if (getObjectCanSync())
     {
         setObjectCanSync(false);
 
-        // Delete remote object:
-        sendVoid(sim_syncobj_sceneobject_delete);
+        if (!localReferencesToItOnly)
+        {
+            // Delete remote object:
+            sendVoid(sim_syncobj_sceneobject_delete);
 
-        // Synchronize with IK plugin:
-        if (_ikPluginCounterpartHandle!=-1)
-            CPluginContainer::ikPlugin_eraseObject(_ikPluginCounterpartHandle);
+            // Synchronize with IK plugin:
+            if (_ikPluginCounterpartHandle!=-1)
+                CPluginContainer::ikPlugin_eraseObject(_ikPluginCounterpartHandle);
+        }
     }
+    // IK plugin part:
+    _ikPluginCounterpartHandle=-1;
 }
 
 size_t CSceneObject::getChildCount() const

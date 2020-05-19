@@ -220,7 +220,8 @@ protected:
     void _adjustScriptText8(CLuaScriptObject* scriptObject,int adjust);
     void _adjustScriptText9(CLuaScriptObject* scriptObject);
     void _adjustScriptText10(CLuaScriptObject* scriptObject,bool doIt);
-    
+    void _adjustScriptText11(CLuaScriptObject* scriptObject,bool doIt);
+
     // Variables that need to be copied and serialized:
     int scriptID;
     int _scriptUniqueId;

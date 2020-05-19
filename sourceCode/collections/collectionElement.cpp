@@ -230,13 +230,16 @@ void CCollectionElement::connectSynchronizationObject()
     }
 }
 
-void CCollectionElement::removeSynchronizationObject()
+void CCollectionElement::removeSynchronizationObject(bool localReferencesToItOnly)
 { // Overridden from CSyncObject
     if (getObjectCanSync())
     {
         setObjectCanSync(false);
 
-        // Delete remote collection element:
-        sendVoid(sim_syncobj_collectionelement_delete);
+        if (!localReferencesToItOnly)
+        {
+            // Delete remote collection element:
+            sendVoid(sim_syncobj_collectionelement_delete);
+        }
     }
 }

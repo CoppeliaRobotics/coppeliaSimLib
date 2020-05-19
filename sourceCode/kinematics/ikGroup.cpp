@@ -506,7 +506,7 @@ void CIkGroup::_removeIkElement(int ikElementHandle)
     {
         CIkElement* el=getIkElementFromHandle(ikElementHandle);
         if (el!=nullptr)
-            el->removeSynchronizationObject();
+            el->removeSynchronizationObject(false);
     }
 
     _CIkGroup_::_removeIkElement(ikElementHandle);
@@ -588,41 +588,84 @@ bool CIkGroup::computeOnlyJacobian(int options)
 
 int CIkGroup::computeGroupIk(bool forMotionPlanning)
 { // Return value is one of following: sim_ikresult_not_performed, sim_ikresult_success, sim_ikresult_fail
-    if (!_enabled)
-        return(sim_ikresult_not_performed); // That group is not active!
-    if (!forMotionPlanning)
+    int retVal=sim_ikresult_not_performed;
+    if (_enabled)
     {
-        if (_doOnFailOrSuccessOf!=-1)
-        { // Conditional execution part:
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(_doOnFailOrSuccessOf);
-            if (it!=nullptr)
-            {
-                if (_doOnPerformed)
+        bool doIt=true;
+        if (!forMotionPlanning)
+        {
+            if (_doOnFailOrSuccessOf!=-1)
+            { // Conditional execution part:
+                CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(_doOnFailOrSuccessOf);
+                if (it!=nullptr)
                 {
-                    if (it->getCalculationResult()==sim_ikresult_not_performed)
-                        return(sim_ikresult_not_performed);
-                    if (it->getCalculationResult()==sim_ikresult_success)
+                    if (_doOnPerformed)
                     {
-                        if (_doOnFail)
-                            return(sim_ikresult_not_performed);
+                        if (it->getCalculationResult()==sim_ikresult_not_performed)
+                            doIt=false;
+                        if (it->getCalculationResult()==sim_ikresult_success)
+                        {
+                            if (_doOnFail)
+                                doIt=false;
+                        }
+                        else
+                        {
+                            if (!_doOnFail)
+                                doIt=false;
+                        }
                     }
                     else
                     {
-                        if (!_doOnFail)
-                            return(sim_ikresult_not_performed);
+                        if (it->getCalculationResult()!=sim_ikresult_not_performed)
+                            doIt=false;
                     }
-                }
-                else
-                {
-                    if (it->getCalculationResult()!=sim_ikresult_not_performed)
-                        return(sim_ikresult_not_performed);
                 }
             }
         }
-    }
 
-    if (!forMotionPlanning)
-        App::worldContainer->calcInfo->inverseKinematicsStart();
+        if (doIt)
+        {
+            if (!forMotionPlanning)
+                App::worldContainer->calcInfo->inverseKinematicsStart();
+
+            if (App::userSettings->useOldIk||(!CPluginContainer::isIkPluginAvailable()))
+            {
+                bool applyNewValues=false;
+                retVal=_computeGroupIk(forMotionPlanning,applyNewValues);
+                if (applyNewValues)
+                    _applyTemporaryParameters();
+            }
+            else
+            {
+                retVal=CPluginContainer::ikPlugin_handleIkGroup(_ikPluginCounterpartHandle);
+                // do not check for success to apply values. Always apply them (the IK lib decides for that)
+                for (size_t i=0;i<getIkElementCount();i++)
+                {
+                    CIkElement* element=getIkElementFromIndex(i);
+                    element->setAllInvolvedJointsToIkPluginPositions();
+                }
+                if (!forMotionPlanning)
+                    _setLastJacobian(CPluginContainer::ikPlugin_getJacobian(_ikPluginCounterpartHandle));
+            }
+            /*
+            if (_lastJacobian!=nullptr)
+            {
+                printf("Last Jacobian: size: %i, %i\n",_lastJacobian->rows,_lastJacobian->cols);
+                for (size_t i=0;i<_lastJacobian->rows*_lastJacobian->cols;i++)
+                    printf("%i: %f\n",i,_lastJacobian->data[i]);
+                printf("-------------------\n");
+            }
+            */
+            if (!forMotionPlanning)
+                App::worldContainer->calcInfo->inverseKinematicsEnd();
+        }
+    }
+    return(retVal);
+}
+
+int CIkGroup::_computeGroupIk(bool forMotionPlanning,bool& applyNewValues)
+{ // Return value is one of following: sim_ikresult_not_performed, sim_ikresult_success, sim_ikresult_fail
+    applyNewValues=false;
     // Now we prepare a vector with all valid and active elements:
     std::vector<CIkElement*> validElements;
     validElements.reserve(getIkElementCount());
@@ -655,7 +698,7 @@ int CIkGroup::computeGroupIk(bool forMotionPlanning)
                         valid=true;
                 }
                 if ( (iterat!=base)&&(iterat!=nullptr)&&(iterat->getObjectType()==sim_object_joint_type) )
-                { 
+                {
                     if ( (((CJoint*)iterat)->getJointMode()==sim_jointmode_ik)||(((CJoint*)iterat)->getJointMode()==sim_jointmode_reserved_previously_ikdependent)||(((CJoint*)iterat)->getJointMode()==sim_jointmode_dependent) )
                         jointPresent=true;
                 }
@@ -672,11 +715,7 @@ int CIkGroup::computeGroupIk(bool forMotionPlanning)
     }
     // Now validElements contains all valid elements we have to use in the following computation!
     if (validElements.size()==0)
-    {
-        if (!forMotionPlanning)
-            App::worldContainer->calcInfo->inverseKinematicsEnd();
         return(sim_ikresult_fail); // Error!
-    }
 
     _resetTemporaryParameters();
 
@@ -741,7 +780,7 @@ int CIkGroup::computeGroupIk(bool forMotionPlanning)
     int returnValue=sim_ikresult_success;
     if (errorOccured)
         returnValue=sim_ikresult_fail;
-    bool setNewValues=(!errorOccured);
+    applyNewValues=(!errorOccured);
     for (int elementNumber=0;elementNumber<int(validElements.size());elementNumber++)
     {
         CIkElement* element=validElements[elementNumber];
@@ -752,15 +791,9 @@ int CIkGroup::computeGroupIk(bool forMotionPlanning)
             returnValue=sim_ikresult_fail;
             if ( (_restoreIfPositionNotReached&&(!posit))||
                 (_restoreIfOrientationNotReached&&(!orient)) )
-                setNewValues=false;
+                applyNewValues=false;
         }
     }
-
-    // We set all joint parameters:
-    if (setNewValues)
-        _applyTemporaryParameters();
-    if (!forMotionPlanning)
-        App::worldContainer->calcInfo->inverseKinematicsEnd();
     return(returnValue);
 }
 
@@ -858,7 +891,7 @@ int CIkGroup::performOnePass(std::vector<CIkElement*>* validElements,bool& limit
     mainMatrix.clear();
     mainMatrix_correctJacobian.clear();
     CMatrix mainErrorVector(numberOfRows,1);
-    
+
     // Now we fill in the main matrix and the main error vector:
     int currentRow=0;
     for (int elementNumber=0;elementNumber<int(validElements->size());elementNumber++)
@@ -931,7 +964,7 @@ int CIkGroup::performOnePass(std::vector<CIkElement*>* validElements,bool& limit
                 }
             }
             else
-            {               
+            {
                 mainErrorVector(currentRow,0)=interpolFact*(allJoints[i]->getPosition_useTempValues()-allJoints[i]->getDependencyJointOffset());
                 mainMatrix(currentRow,i)=-1.0f;
                 mainMatrix_correctJacobian(currentRow,i)=-1.0f;
@@ -963,7 +996,7 @@ int CIkGroup::performOnePass(std::vector<CIkElement*>* validElements,bool& limit
     if (!forMotionPlanning)
     {
         delete _lastJacobian;
-        _lastJacobian=new CMatrix(mainMatrix_correctJacobian); //mainMatrix);
+        _lastJacobian=new CMatrix(mainMatrix_correctJacobian);
     }
 
     if (_calculationMethod==sim_ik_pseudo_inverse_method)
@@ -1473,16 +1506,22 @@ void CIkGroup::connectSynchronizationObject()
     }
 }
 
-void CIkGroup::removeSynchronizationObject()
+void CIkGroup::removeSynchronizationObject(bool localReferencesToItOnly)
 { // Overridden from CSyncObject
     if (getObjectCanSync())
     {
         setObjectCanSync(false);
 
-        // Delete remote IK Group:
-        sendVoid(sim_syncobj_ikgroup_delete);
+        if (!localReferencesToItOnly)
+        {
+            // Delete remote IK Group:
+            sendVoid(sim_syncobj_ikgroup_delete);
 
-        // Synchronize with IK plugin:
-        CPluginContainer::ikPlugin_eraseIkGroup(_ikPluginCounterpartHandle);
+            // Synchronize with IK plugin:
+            if (_ikPluginCounterpartHandle!=-1)
+                CPluginContainer::ikPlugin_eraseIkGroup(_ikPluginCounterpartHandle);
+        }
     }
+    // IK plugin part:
+    _ikPluginCounterpartHandle=-1;
 }

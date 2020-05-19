@@ -2740,7 +2740,6 @@ bool CJoint::setPosition(float pos)
 void CJoint::_setPosition_send(float pos) const
 { // Overriden from _CJoint_
     _CJoint_::_setPosition_send(pos);
-
     // Synchronize with IK plugin:
     if ( (_ikPluginCounterpartHandle!=-1)&&(_jointType!=sim_joint_spherical_subtype) )
         CPluginContainer::ikPlugin_setJointPosition(_ikPluginCounterpartHandle,pos);

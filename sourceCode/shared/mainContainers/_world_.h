@@ -23,8 +23,6 @@ public:
 
     int getWorldHandle() const;
 
-    void sendSyncMsgEmptyWorld();
-
     virtual void setWorldHandle(int handle);
 
     virtual void initializeWorld();

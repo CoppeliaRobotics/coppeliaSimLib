@@ -280,13 +280,13 @@ void CCollisionObjectContainer::_removeObject(int objectHandle)
 { // Overridden from _CCollisionObjectContainer_
     CCollisionObject* ig=getObjectFromHandle(objectHandle);
     if (ig!=nullptr)
-        ig->removeSynchronizationObject();
+        ig->removeSynchronizationObject(false);
 
     _CCollisionObjectContainer_::_removeObject(objectHandle);
 }
 
 void CCollisionObjectContainer::buildUpdateAndPopulateSynchronizationObjects()
-{ // Overridden from CSyncObject
+{
     for (size_t i=0;i<getObjectCount();i++)
     {
         CCollisionObject* it=getObjectFromIndex(i);
@@ -295,10 +295,19 @@ void CCollisionObjectContainer::buildUpdateAndPopulateSynchronizationObjects()
 }
 
 void CCollisionObjectContainer::connectSynchronizationObjects()
-{ // Overridden from CSyncObject
+{
     for (size_t i=0;i<getObjectCount();i++)
     {
         CCollisionObject* it=getObjectFromIndex(i);
         it->connectSynchronizationObject();
+    }
+}
+
+void CCollisionObjectContainer::removeSynchronizationObjects(bool localReferencesToItOnly)
+{
+    for (size_t i=0;i<getObjectCount();i++)
+    {
+        CCollisionObject* it=getObjectFromIndex(i);
+        it->removeSynchronizationObject(localReferencesToItOnly);
     }
 }

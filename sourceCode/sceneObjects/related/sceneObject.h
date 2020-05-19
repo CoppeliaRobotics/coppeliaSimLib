@@ -39,7 +39,7 @@ public:
     // Overridden from CSyncObject:
     virtual void buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting);
     virtual void connectSynchronizationObject();
-    virtual void removeSynchronizationObject();
+    virtual void removeSynchronizationObject(bool localReferencesToItOnly);
 
     virtual void display(CViewableBase* renderingObject,int displayAttrib);
     virtual CSceneObject* copyYourself();

@@ -10,9 +10,9 @@ public:
     CDistanceObjectContainer();
     virtual ~CDistanceObjectContainer();
 
-    // Overridden from CSyncObject:
     void buildUpdateAndPopulateSynchronizationObjects();
     void connectSynchronizationObjects();
+    void removeSynchronizationObjects(bool localReferencesToItOnly);
 
     void simulationAboutToStart();
     void simulationEnded();

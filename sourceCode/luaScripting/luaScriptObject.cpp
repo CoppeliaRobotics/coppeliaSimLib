@@ -4832,6 +4832,7 @@ void CLuaScriptObject::serialize(CSer& ar)
             _adjustScriptText8(this,App::userSettings->changeScriptCodeForNewApiNotation);
             _adjustScriptText9(this);
             _adjustScriptText10(this,ar.getCoppeliaSimVersionThatWroteThisFile()<30401);
+            _adjustScriptText11(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40001);
             fromBufferToFile();
         }
     }
@@ -5985,4 +5986,16 @@ void CLuaScriptObject::_adjustScriptText10(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject," onclose=\""," on-close=\"");
     _replaceScriptText(scriptObject," onchange=\""," on-change=\"");
     _replaceScriptText(scriptObject," onclick=\""," on-click=\"");
+}
+
+void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool doIt)
+{ // A subtle bug was corrected in below function in CoppeliaSim4.0.1. Below to keep old code working as previously
+    if (!doIt)
+        return;
+    _replaceScriptText(scriptObject,"sim.getObjectOrientation(","__getObjectOrientation__(");
+    _replaceScriptText(scriptObject,"sim.setObjectOrientation(","__setObjectOrientation__(");
+    _replaceScriptText(scriptObject,"sim.getObjectPosition(","__getObjectPosition__(");
+    _replaceScriptText(scriptObject,"sim.setObjectPosition(","__setObjectPosition__(");
+    _replaceScriptText(scriptObject,"sim.getObjectQuaternion(","__getObjectQuaternion__(");
+    _replaceScriptText(scriptObject,"sim.setObjectQuaternion(","__setObjectQuaternion__(");
 }

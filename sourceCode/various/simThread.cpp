@@ -4425,14 +4425,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if (it!=nullptr)
                 {
                     int c=cmd.intParams[2];
-                    if ((c==sim_ik_x_constraint)||(c==sim_ik_y_constraint)||(c==sim_ik_z_constraint)||(c==sim_ik_gamma_constraint))
+//                    if ((c==sim_ik_x_constraint)||(c==sim_ik_y_constraint)||(c==sim_ik_z_constraint)||(c==sim_ik_gamma_constraint))
                         it->setConstraints(it->getConstraints()^c);
-                    if (c==sim_ik_alpha_beta_constraint)
-                    {
-                        it->setConstraints(it->getConstraints()^sim_ik_alpha_beta_constraint);
-                        if ((it->getConstraints()&(sim_ik_alpha_beta_constraint|sim_ik_gamma_constraint))==sim_ik_gamma_constraint)
-                            it->setConstraints(it->getConstraints()^sim_ik_gamma_constraint); // gamma constraint cannot be selected if alpha-beta constraint is not selected!
-                    }
+//                    if (c==sim_ik_alpha_beta_constraint)
+//                    {
+//                        it->setConstraints(it->getConstraints()^sim_ik_alpha_beta_constraint);
+//                        if ((it->getConstraints()&(sim_ik_alpha_beta_constraint|sim_ik_gamma_constraint))==sim_ik_gamma_constraint)
+//                            it->setConstraints(it->getConstraints()^sim_ik_gamma_constraint); // gamma constraint cannot be selected if alpha-beta constraint is not selected!
+//                    }
                 }
             }
         }

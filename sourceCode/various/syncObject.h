@@ -10,7 +10,7 @@ public:
 
     virtual void buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting);
     virtual void connectSynchronizationObject();
-    virtual void removeSynchronizationObject();
+    virtual void removeSynchronizationObject(bool localReferencesToItOnly);
 
     // Overridden from _CSyncObject_:
     virtual void sendVoid(unsigned char itemId) const;

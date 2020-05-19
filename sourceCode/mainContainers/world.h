@@ -28,11 +28,13 @@ public:
     CWorld();
     virtual ~CWorld();
 
+    void setEnableRemoteWorldsSync(bool enabled);
+    void rebuildRemoteWorlds();
+    void removeRemoteWorlds();
+
     void initializeWorld();
     void clearScene(bool notCalledFromUndoFunction);
     void deleteWorld();
-    void rebuildAndConnectSynchronizationObjects();
-    void setEnableSync(bool enabled);
 
     bool loadScene(CSer& ar,bool forUndoRedoOperation);
     void saveScene(CSer& ar);

@@ -37,6 +37,22 @@ CWorld::~CWorld()
 {
 }
 
+void CWorld::removeRemoteWorlds()
+{
+    // Remote worlds:
+    sendVoid(sim_syncobj_world_empty);
+
+    // IK plugin world:
+    CPluginContainer::ikPlugin_emptyEnvironment();
+
+    // Local references to remote worlds:
+    sceneObjects->removeSynchronizationObjects(true);
+    ikGroups->removeSynchronizationObjects(true);
+    collections->removeSynchronizationObjects(true);
+    collisions->removeSynchronizationObjects(true);
+    distances->removeSynchronizationObjects(true);
+}
+
 void CWorld::initializeWorld()
 {
     undoBufferContainer=new CUndoBufferCont();
@@ -159,12 +175,8 @@ void CWorld::deleteWorld()
     commTubeContainer=nullptr;
 }
 
-void CWorld::rebuildAndConnectSynchronizationObjects()
+void CWorld::rebuildRemoteWorlds()
 {
-    // Clear remote world:
-    CPluginContainer::ikPlugin_emptyEnvironment();
-    // SyncHere
-
     // Build remote world objects:
     sceneObjects->buildUpdateAndPopulateSynchronizationObjects();
     sceneObjects->connectSynchronizationObjects();
@@ -180,6 +192,11 @@ void CWorld::rebuildAndConnectSynchronizationObjects()
 
     distances->buildUpdateAndPopulateSynchronizationObjects();
     distances->connectSynchronizationObjects();
+
+    // selection state:
+    std::vector<int> sel(sceneObjects->getSelectedObjectHandlesPtr()[0]);
+    sceneObjects->deselectObjects();
+    sceneObjects->setSelectedObjectHandles(&sel);
 }
 
 bool CWorld::loadScene(CSer& ar,bool forUndoRedoOperation)
@@ -719,7 +736,7 @@ void CWorld::simulationEnded(bool removeNewObjects)
         App::worldContainer->sandboxScript->runSandboxScript(sim_syscb_aftersimulation,nullptr,nullptr);
 }
 
-void CWorld::setEnableSync(bool enabled)
+void CWorld::setEnableRemoteWorldsSync(bool enabled)
 {
     CSyncObject::setOverallSyncEnabled(enabled);
 }
@@ -760,7 +777,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     _prepareFastLoadingMapping(textureMapping);
 
 
-    setEnableSync(false); // do not trigger object creation in plugins, etc. when adding objects to world
+    setEnableRemoteWorldsSync(false); // do not trigger object creation in plugins, etc. when adding objects to world
 
     // We add all sceneObjects:
     sceneObjects->enableObjectActualization(false);
@@ -1015,14 +1032,6 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     }
     // ------------------------------------------------
 
-    // We select what was loaded if we have a model loaded through the GUI:
-    sceneObjects->deselectObjects();
-    if (model)
-    {
-        for (size_t i=0;i<loadedObjectList->size();i++)
-            sceneObjects->addObjectToSelection(loadedObjectList->at(i)->getObjectHandle());
-    }
-
     // Now display the load operation issues:
     if (_loadOperationIssuesToBeDisplayed.length()!=0)
     {
@@ -1046,29 +1055,40 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     _loadOperationIssuesToBeDisplayed.clear();
     _loadOperationIssuesToBeDisplayed_objectHandles.clear();
 
-    setEnableSync(true);
+    setEnableRemoteWorldsSync(true);
 
     for (size_t i=0;i<loadedObjectList->size();i++)
         loadedObjectList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
-    for (size_t i=0;i<loadedIkGroupList->size();i++)
-        loadedIkGroupList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
-    for (size_t i=0;i<loadedCollisionList->size();i++)
-        loadedCollisionList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
-    for (size_t i=0;i<loadedDistanceList->size();i++)
-        loadedDistanceList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
-    for (size_t i=0;i<loadedCollectionList->size();i++)
-        loadedCollectionList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
-
     for (size_t i=0;i<loadedObjectList->size();i++)
         loadedObjectList->at(i)->connectSynchronizationObject();
+
+    for (size_t i=0;i<loadedIkGroupList->size();i++)
+        loadedIkGroupList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
     for (size_t i=0;i<loadedIkGroupList->size();i++)
         loadedIkGroupList->at(i)->connectSynchronizationObject();
-    for (size_t i=0;i<loadedCollisionList->size();i++)
-        loadedCollisionList->at(i)->connectSynchronizationObject();
-    for (size_t i=0;i<loadedDistanceList->size();i++)
-        loadedDistanceList->at(i)->connectSynchronizationObject();
+
+    for (size_t i=0;i<loadedCollectionList->size();i++)
+        loadedCollectionList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
     for (size_t i=0;i<loadedCollectionList->size();i++)
         loadedCollectionList->at(i)->connectSynchronizationObject();
+
+    for (size_t i=0;i<loadedCollisionList->size();i++)
+        loadedCollisionList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
+    for (size_t i=0;i<loadedCollisionList->size();i++)
+        loadedCollisionList->at(i)->connectSynchronizationObject();
+
+    for (size_t i=0;i<loadedDistanceList->size();i++)
+        loadedDistanceList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
+    for (size_t i=0;i<loadedDistanceList->size();i++)
+        loadedDistanceList->at(i)->connectSynchronizationObject();
+
+    // We select what was loaded if we have a model loaded through the GUI:
+    sceneObjects->deselectObjects();
+    if (model)
+    {
+        for (size_t i=0;i<loadedObjectList->size();i++)
+            sceneObjects->addObjectToSelection(loadedObjectList->at(i)->getObjectHandle());
+    }
 }
 
 void CWorld::cleanupHashNames_allObjects(int suffix)
@@ -1672,7 +1692,8 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
 {
     bool retVal=true;
     bool isScene=(ar.getFileType()==CSer::filetype_csim_xml_simplescene_file);
-    setEnableSync(false);
+    removeRemoteWorlds();
+    setEnableRemoteWorldsSync(false);
     if ( isScene&&ar.xmlPushChildNode(SERX_ENVIRONMENT,false) )
     {
         environment->serialize(ar);
@@ -2009,8 +2030,8 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
             }
         }
     }
-    setEnableSync(true);
-    rebuildAndConnectSynchronizationObjects();
+    setEnableRemoteWorldsSync(true);
+    rebuildRemoteWorlds();
 
     return(retVal);
 }

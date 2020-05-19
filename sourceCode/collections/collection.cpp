@@ -414,7 +414,7 @@ void CCollection::_removeCollectionElementFromHandle(int collectionElementHandle
     {
         CCollectionElement* el=getElementFromHandle(collectionElementHandle);
         if (el!=nullptr)
-            el->removeSynchronizationObject();
+            el->removeSynchronizationObject(false);
     }
 
     _CCollection_::_removeCollectionElementFromHandle(collectionElementHandle);
@@ -453,13 +453,16 @@ void CCollection::connectSynchronizationObject()
     }
 }
 
-void CCollection::removeSynchronizationObject()
+void CCollection::removeSynchronizationObject(bool localReferencesToItOnly)
 { // Overridden from CSyncObject
     if (getObjectCanSync())
     {
         setObjectCanSync(false);
 
-        // Delete remote collection:
-        sendVoid(sim_syncobj_collection_delete);
+        if (!localReferencesToItOnly)
+        {
+            // Delete remote collection:
+            sendVoid(sim_syncobj_collection_delete);
+        }
     }
 }

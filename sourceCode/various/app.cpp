@@ -14,6 +14,7 @@
 #include "rendering.h"
 #include "libLic.h"
 #include "threadPool.h"
+#include <sstream>
 #include <boost/algorithm/string/replace.hpp>
 #ifdef SIM_WITH_GUI
     #include "auxLibVideo.h"
@@ -41,6 +42,7 @@ bool App::_browserEnabled=true;
 bool App::_canInitSimThread=false;
 int App::_consoleVerbosity=sim_verbosity_default;
 int App::_statusbarVerbosity=sim_verbosity_warnings;
+std::string App::_logFilterStr;
 
 
 bool App::_simulatorIsRunning=false;
@@ -1503,6 +1505,17 @@ void App::deleteMainWindow()
     mainWindow=nullptr;
 }
 
+
+std::string App::getLogFilter()
+{
+    return(_logFilterStr);
+}
+
+void App::setLogFilter(const char* filter)
+{
+    _logFilterStr=filter;
+}
+
 bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* logMsg)
 {
     bool retVal=false;
@@ -1532,16 +1545,21 @@ std::string App::_getDecoratedLogMsg(const char* pluginName,int verbosityLevel,c
     if (pluginName!=nullptr)
     {
         retVal=pluginName;
+        if (VThread::isCurrentThreadTheUiThread())
+            retVal+="(ui)";
         retVal+=": ";
     }
     else
-        retVal="CoppeliaSim: ";
+    {
+        if (VThread::isCurrentThreadTheUiThread())
+            retVal+="CoppeliaSim(ui): ";
+        else
+            retVal="CoppeliaSim: ";
+    }
     if (verbosityLevel==sim_verbosity_errors)
         retVal+="error: ";
     if (verbosityLevel==sim_verbosity_warnings)
         retVal+="warning: ";
-    if (verbosityLevel==sim_verbosity_msgs)
-        retVal+="msg: ";
     if (verbosityLevel==sim_verbosity_loadinfos)
         retVal+="loadinfo: ";
     if (verbosityLevel==sim_verbosity_infos)
@@ -1573,8 +1591,6 @@ int App::getVerbosityLevelFromString(const char* verbosityStr)
         retVal=sim_verbosity_errors;
     if (strcmp(verbosityStr,"warnings")==0)
         retVal=sim_verbosity_warnings;
-    if (strcmp(verbosityStr,"msgs")==0)
-        retVal=sim_verbosity_msgs;
     if (strcmp(verbosityStr,"loadinfos")==0)
         retVal=sim_verbosity_loadinfos;
     if (strcmp(verbosityStr,"infos")==0)
@@ -1633,41 +1649,78 @@ void App::_logMsg_noDecoration(int verbosityLevel,const char* msg,int int1,int i
     _logMsg(verbosityLevel,buff,false);
 }
 
-void App::_logMsg(int verbosityLevel,const char* msg,bool forbidStatusbar,int consoleVerbosity/*=-1*/,int statusbarVerbosity/*=-1*/)
+bool App::_logFilter(const char* msg)
 {
-    if (consoleVerbosity==-1)
-        consoleVerbosity=_consoleVerbosity;
-    if (consoleVerbosity>=verbosityLevel)
+    bool triggered=true;
+    if (_logFilterStr.size()>0)
     {
-        printf("%s\n",msg);
-        if (_consoleMsgsToFile)
+        std::string theMsg(msg);
+        std::istringstream isso(_logFilterStr);
+        std::string orBlock;
+        while (std::getline(isso,orBlock,'|'))
         {
-            if (_consoleMsgsFile==nullptr)
+            std::istringstream issa(orBlock);
+            std::string andWord;
+            triggered=true;
+            while (std::getline(issa,andWord,'&'))
             {
-                _consoleMsgsFile=new VFile("debugLog.txt",VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
-                _consoleMsgsArchive=new VArchive(_consoleMsgsFile,VArchive::STORE);
+                if (theMsg.find(andWord)==std::string::npos)
+                {
+                    triggered=false;
+                    break;
+                }
             }
-            for (size_t i=0;i<strlen(msg);i++)
-                (*_consoleMsgsArchive) << msg[i];
-            (*_consoleMsgsArchive) << ((unsigned char)13) << ((unsigned char)10);
-            _consoleMsgsFile->flush();
+            if (triggered)
+                break;
         }
     }
-    if (statusbarVerbosity==-1)
-        statusbarVerbosity=_statusbarVerbosity;
-    if ( (statusbarVerbosity>=verbosityLevel)&&(!forbidStatusbar)&&(uiThread!=nullptr)&&(simThread!=nullptr) )
+    return(!triggered);
+}
+
+void App::_logMsg(int verbosityLevel,const char* msg,bool forbidStatusbar,int consoleVerbosity/*=-1*/,int statusbarVerbosity/*=-1*/)
+{
+    static bool inside=false;
+    if (!inside)
     {
-        if (verbosityLevel>sim_verbosity_warnings)
-            addStatusbarMessage(msg,false,true);
-        else
+        inside=true;
+        if (!_logFilter(msg))
         {
-            std::string tmp("<font color='red'>");
-            if (verbosityLevel==sim_verbosity_warnings)
-                tmp="<font color='orange'>";
-            tmp+=msg;
-            tmp+="</font>@html";
-            addStatusbarMessage(tmp.c_str(),false,true);
+            if (consoleVerbosity==-1)
+                consoleVerbosity=_consoleVerbosity;
+            if (consoleVerbosity>=verbosityLevel)
+            {
+                printf("%s\n",msg);
+                if (_consoleMsgsToFile)
+                {
+                    if (_consoleMsgsFile==nullptr)
+                    {
+                        _consoleMsgsFile=new VFile("debugLog.txt",VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
+                        _consoleMsgsArchive=new VArchive(_consoleMsgsFile,VArchive::STORE);
+                    }
+                    for (size_t i=0;i<strlen(msg);i++)
+                        (*_consoleMsgsArchive) << msg[i];
+                    (*_consoleMsgsArchive) << ((unsigned char)13) << ((unsigned char)10);
+                    _consoleMsgsFile->flush();
+                }
+            }
+            if (statusbarVerbosity==-1)
+                statusbarVerbosity=_statusbarVerbosity;
+            if ( (statusbarVerbosity>=verbosityLevel)&&(!forbidStatusbar)&&(uiThread!=nullptr)&&(simThread!=nullptr) )
+            {
+                if (verbosityLevel>sim_verbosity_warnings)
+                    addStatusbarMessage(msg,false,true);
+                else
+                {
+                    std::string tmp("<font color='red'>");
+                    if (verbosityLevel==sim_verbosity_warnings)
+                        tmp="<font color='orange'>";
+                    tmp+=msg;
+                    tmp+="</font>@html";
+                    addStatusbarMessage(tmp.c_str(),false,true);
+                }
+            }
         }
+        inside=false;
     }
 }
 

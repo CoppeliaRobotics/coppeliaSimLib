@@ -225,13 +225,13 @@ void CIkGroupContainer::_removeIkGroup(int ikGroupHandle)
 { // Overridden from _CIkGroupContainer_
     CIkGroup* ig=getObjectFromHandle(ikGroupHandle);
     if (ig!=nullptr)
-        ig->removeSynchronizationObject();
+        ig->removeSynchronizationObject(false);
 
     _CIkGroupContainer_::_removeIkGroup(ikGroupHandle);
 }
 
 void CIkGroupContainer::buildUpdateAndPopulateSynchronizationObjects()
-{ // Overridden from CSyncObject
+{
     for (size_t i=0;i<getObjectCount();i++)
     {
         CIkGroup* it=getObjectFromIndex(i);
@@ -240,10 +240,19 @@ void CIkGroupContainer::buildUpdateAndPopulateSynchronizationObjects()
 }
 
 void CIkGroupContainer::connectSynchronizationObjects()
-{ // Overridden from CSyncObject
+{
     for (size_t i=0;i<getObjectCount();i++)
     {
         CIkGroup* it=getObjectFromIndex(i);
         it->connectSynchronizationObject();
+    }
+}
+
+void CIkGroupContainer::removeSynchronizationObjects(bool localReferencesToItOnly)
+{
+    for (size_t i=0;i<getObjectCount();i++)
+    {
+        CIkGroup* it=getObjectFromIndex(i);
+        it->removeSynchronizationObject(localReferencesToItOnly);
     }
 }

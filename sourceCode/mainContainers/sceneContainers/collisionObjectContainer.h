@@ -10,9 +10,9 @@ public:
     CCollisionObjectContainer();
     virtual ~CCollisionObjectContainer();
 
-    // Overridden from CSyncObject:
     void buildUpdateAndPopulateSynchronizationObjects();
     void connectSynchronizationObjects();
+    void removeSynchronizationObjects(bool localReferencesToItOnly);
 
     void simulationAboutToStart();
     void simulationEnded();

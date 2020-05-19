@@ -564,13 +564,16 @@ void CCollisionObject::connectSynchronizationObject()
     }
 }
 
-void CCollisionObject::removeSynchronizationObject()
+void CCollisionObject::removeSynchronizationObject(bool localReferencesToItOnly)
 { // Overridden from CSyncObject
     if (getObjectCanSync())
     {
         setObjectCanSync(false);
 
-        // Delete remote collision object:
-        sendVoid(sim_syncobj_collisionobject_delete);
+        if (!localReferencesToItOnly)
+        {
+            // Delete remote collision object:
+            sendVoid(sim_syncobj_collisionobject_delete);
+        }
     }
 }

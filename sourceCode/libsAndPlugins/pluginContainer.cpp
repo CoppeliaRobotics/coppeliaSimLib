@@ -299,7 +299,6 @@ int CPlugin::load()
                 {
                     CPluginContainer::currentIkPlugin=this;
                     CPluginContainer::ikEnvironment=CPluginContainer::currentIkPlugin->ikPlugin_createEnvironment();
-                    //App::currentWorld->rebuildAndConnectSynchronizationObjects(); // for the default scene
                 }
 
 
@@ -2459,11 +2458,21 @@ bool CPluginContainer::ikPlugin_computeJacobian(int ikGroupHandle,int options)
         retVal=currentIkPlugin->ikPlugin_computeJacobian(ikGroupHandle,options);
     return(retVal);
 }
-float* CPluginContainer::ikPlugin_getJacobian(int ikGroupHandle,int* matrixSize)
+CMatrix* CPluginContainer::ikPlugin_getJacobian(int ikGroupHandle)
 {
-    float* retVal=nullptr;
+    CMatrix* retVal=nullptr;
     if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        retVal=currentIkPlugin->ikPlugin_getJacobian(ikGroupHandle,matrixSize);
+    {
+        int matrixSize[2];
+        float* jc=currentIkPlugin->ikPlugin_getJacobian(ikGroupHandle,matrixSize);
+        retVal=new CMatrix(matrixSize[1],matrixSize[0]);
+        for (size_t r=0;r<matrixSize[1];r++)
+        {
+            for (size_t c=0;c<matrixSize[0];c++)
+                (retVal[0])(r,c)=jc[r*matrixSize[0]+c];
+        }
+        delete[] jc;
+    }
     return(retVal);
 }
 float CPluginContainer::ikPlugin_getManipulability(int ikGroupHandle)
@@ -2491,11 +2500,20 @@ int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCn
 }
 
 static std::vector<int> _ikValidationCb_collisionPairs;
-static int _ikValidationCb_jointCnt;
+static std::vector<int> _ikValidationCb_jointHandles;
 
 bool _validationCallback(float* conf)
 {
     bool collisionFree=true;
+    std::vector<float> memorized;
+    std::vector<CJoint*> joints;
+    for (size_t i=0;i<_ikValidationCb_jointHandles.size();i++)
+    {
+        CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(_ikValidationCb_jointHandles[i]);
+        joints.push_back(it);
+        memorized.push_back(it->getPosition());
+        it->setPosition(conf[i]);
+    }
     for (size_t i=0;i<_ikValidationCb_collisionPairs.size()/2;i++)
     {
         int robot=_ikValidationCb_collisionPairs[2*i+0];
@@ -2511,6 +2529,11 @@ bool _validationCallback(float* conf)
             }
         }
     }
+    for (size_t i=0;i<_ikValidationCb_jointHandles.size();i++)
+    {
+        CJoint* it=joints[i];
+        it->setPosition(memorized[i]);
+    }
     return(collisionFree);
 }
 
@@ -2519,11 +2542,11 @@ int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCn
     int retVal=-1;
     if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
     {
-        bool(*_validationCallback)(float*)=nullptr;
+        bool(*_validationCB)(float*)=nullptr;
         bool err=false;
         if ( (collisionPairCnt>0)&&(collisionPairs!=nullptr) )
         {
-            _ikValidationCb_jointCnt=jointCnt;
+            _ikValidationCb_jointHandles.assign(jointHandles,jointHandles+jointCnt);
             _ikValidationCb_collisionPairs.clear();
             for (size_t i=0;i<size_t(collisionPairCnt);i++)
             {
@@ -2535,11 +2558,12 @@ int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCn
                 _ikValidationCb_collisionPairs.push_back(collisionPairs[2*i+0]);
                 _ikValidationCb_collisionPairs.push_back(collisionPairs[2*i+1]);
             }
+            _validationCB=_validationCallback;
             if (err)
                 errString=SIM_ERROR_INVALID_COLLISION_PAIRS;
         }
         if (!err)
-            retVal=ikPlugin_getConfigForTipPose(ikGroupHandle,jointCnt,jointHandles,thresholdDist,maxIterationsOrTimeInMs,retConfig,metric,_validationCallback,jointOptions,lowLimits,ranges,errString);
+            retVal=ikPlugin_getConfigForTipPose(ikGroupHandle,jointCnt,jointHandles,thresholdDist,maxIterationsOrTimeInMs,retConfig,metric,_validationCB,jointOptions,lowLimits,ranges,errString);
     }
     else
         errString=SIM_ERROR_IK_PLUGIN_NOT_FOUND;

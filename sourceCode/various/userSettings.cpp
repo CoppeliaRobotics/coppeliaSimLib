@@ -63,6 +63,7 @@
 #define _USR_ALWAYS_SHOW_CONSOLE "alwaysShowConsole"
 #define _USR_VERBOSITY "verbosity"
 #define _USR_STATUSBAR_VERBOSITY "statusbarVerbosity"
+#define _USR_LOG_FILTER "logFilter"
 #define _USR_CONSOLE_MSGS_TO_FILE "consoleMsgsToFile"
 #define _USR_FORCE_BUG_FIX_REL_30002 "forceBugFix_rel30002"
 #define _USR_STATUSBAR_INITIALLY_VISIBLE "statusbarInitiallyVisible"
@@ -81,6 +82,7 @@
 #define _USR_CHANGE_SCRIPT_CODE_NEW_API_NOTATION "changeScriptCodeForNewApiNotation"
 #define _USR_SUPPORT_OLD_API_NOTATION "supportOldApiNotation"
 #define _USR_ENABLE_OLD_MIRROR_OBJECTS "enableOldMirrorObjects"
+#define _USR_USE_OLD_IK "useOldIk"
 
 #define _USR_ABORT_SCRIPT_EXECUTION_BUTTON "abortScriptExecutionButton"
 #define _USR_DARK_MODE "darkMode"
@@ -200,6 +202,7 @@ CUserSettings::CUserSettings()
     alwaysShowConsole=false;
     _overrideConsoleVerbosity="default";
     _overrideStatusbarVerbosity="default";
+    _logFilter="";
 
     // Rendering section:
     // *****************************
@@ -358,6 +361,7 @@ CUserSettings::CUserSettings()
     changeScriptCodeForNewApiNotation=1;
     _supportOldApiNotation=true;
     enableOldMirrorObjects=false;
+    useOldIk=false;
 
 
 
@@ -549,8 +553,9 @@ void CUserSettings::saveUserSettings()
     c.addRandomLine("// Debugging");
     c.addRandomLine("// =================================================");
     c.addBoolean(_USR_ALWAYS_SHOW_CONSOLE,alwaysShowConsole,"");
-    c.addString(_USR_VERBOSITY,_overrideConsoleVerbosity,"to override console verbosity setting, use any of: default (do not override), none, errors, warnings, msgs, loadinfos, infos, debug, trace, tracelua or traceall");
-    c.addString(_USR_STATUSBAR_VERBOSITY,_overrideStatusbarVerbosity,"to override statusbar verbosity setting, use any of: default (do not override), none, errors, warnings, msgs, loadinfos, infos, debug, trace, tracelua or traceall");
+    c.addString(_USR_VERBOSITY,_overrideConsoleVerbosity,"to override console verbosity setting, use any of: default (do not override), none, errors, warnings, loadinfos, infos, debug, trace, tracelua or traceall");
+    c.addString(_USR_STATUSBAR_VERBOSITY,_overrideStatusbarVerbosity,"to override statusbar verbosity setting, use any of: default (do not override), none, errors, warnings, loadinfos, infos, debug, trace, tracelua or traceall");
+    c.addString(_USR_LOG_FILTER,_logFilter,"leave empty for no filter. Filter format: txta1&txta2&...&txtaN|txtb1&txtb2&...&txtbN|...");
     c.addBoolean(_USR_CONSOLE_MSGS_TO_FILE,App::getConsoleMsgToFile(),"if true, console messages are sent to debugLog.txt");
     c.addRandomLine("");
     c.addRandomLine("");
@@ -734,7 +739,7 @@ void CUserSettings::saveUserSettings()
     c.addInteger(_USR_CHANGE_SCRIPT_CODE_NEW_API_NOTATION,changeScriptCodeForNewApiNotation,"1=enabled, 0=disabled.");
     c.addBoolean(_USR_SUPPORT_OLD_API_NOTATION,_supportOldApiNotation,"");
     c.addBoolean(_USR_ENABLE_OLD_MIRROR_OBJECTS,enableOldMirrorObjects,"");
-
+    c.addBoolean(_USR_USE_OLD_IK,useOldIk,"");
 
     c.addRandomLine("");
     c.addRandomLine("");
@@ -860,6 +865,9 @@ void CUserSettings::loadUserSettings()
         else
             App::logMsg(sim_verbosity_errors,"unrecognized verbosity value in system/usrset.txt: %s.",_overrideStatusbarVerbosity.c_str());
     }
+    c.getString(_USR_LOG_FILTER,_logFilter);
+    App::setLogFilter(_logFilter.c_str());
+
     bool dummyBool=false;
     if (c.getBoolean(_USR_CONSOLE_MSGS_TO_FILE,dummyBool))
         App::setConsoleMsgToFile(dummyBool);
@@ -1028,6 +1036,7 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_CHANGE_SCRIPT_CODE_NEW_API_NOTATION,changeScriptCodeForNewApiNotation);
     c.getBoolean(_USR_SUPPORT_OLD_API_NOTATION,_supportOldApiNotation);
     c.getBoolean(_USR_ENABLE_OLD_MIRROR_OBJECTS,enableOldMirrorObjects);
+    c.getBoolean(_USR_USE_OLD_IK,useOldIk);
 
 
     // Various section:

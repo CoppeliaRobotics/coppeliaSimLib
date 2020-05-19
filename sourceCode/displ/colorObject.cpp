@@ -607,13 +607,16 @@ void CColorObject::connectSynchronizationObject()
     }
 }
 
-void CColorObject::removeSynchronizationObject()
+void CColorObject::removeSynchronizationObject(bool localReferencesToItOnly)
 { // Overridden from CSyncObject
     if (getObjectCanSync())
     {
         setObjectCanSync(false);
 
-        // Delete remote object:
-        // not needed here
+        if (!localReferencesToItOnly)
+        {
+            // Delete remote object:
+            // not needed here
+        }
     }
 }

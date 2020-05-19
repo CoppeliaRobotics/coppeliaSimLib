@@ -1656,6 +1656,8 @@ simInt simGetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
+        int handleFlags=objectHandle&0xff00000;
+        objectHandle=objectHandle&0xfffff;
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -1677,7 +1679,11 @@ simInt simGetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
             tr=it->getCumulativeTransformation();
         else
         {
-            C7Vector relTr(relObj->getFullCumulativeTransformation());
+            C7Vector relTr;
+            if ( (handleFlags&sim_handleflag_reljointbaseframe)!=0)
+                relTr=relObj->getCumulativeTransformation();
+            else
+                relTr=relObj->getFullCumulativeTransformation();
             tr=relTr.getInverse()*it->getCumulativeTransformation();
         }
         tr.getMatrix().copyToInterface(matrix);
@@ -1696,6 +1702,8 @@ simInt simSetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
+        int handleFlags=objectHandle&0xff00000;
+        objectHandle=objectHandle&0xfffff;
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -1721,12 +1729,16 @@ simInt simSetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
             it->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
         C4X4Matrix m;
         m.copyFromInterface(matrix);
-        if (relativeToObjectHandle==-1)
+        CSceneObject* objRel=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        if (objRel==nullptr)
             App::currentWorld->sceneObjects->setObjectAbsolutePose(it->getObjectHandle(),m.getTransformation(),false);
         else
         {
-            CSceneObject* objRel=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
-            C7Vector relTr(objRel->getFullCumulativeTransformation());
+            C7Vector relTr;
+            if ( (handleFlags&sim_handleflag_reljointbaseframe)!=0)
+                relTr=objRel->getCumulativeTransformation();
+            else
+                relTr=objRel->getFullCumulativeTransformation();
             App::currentWorld->sceneObjects->setObjectAbsolutePose(it->getObjectHandle(),relTr*m.getTransformation(),false);
         }
         return(1);
@@ -1744,6 +1756,8 @@ simInt simGetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
+        int handleFlags=objectHandle&0xff00000;
+        objectHandle=objectHandle&0xfffff;
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -1759,20 +1773,26 @@ simInt simGetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
         }
+        CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         C7Vector tr;
-        if (relativeToObjectHandle==-1)
+        if (relObj==nullptr)
             tr=it->getCumulativeTransformation();
         else
         {
-            CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
-            if (it->getParent()==relObj)
-            { // special here, in order to not lose precision in a series of get/set
-                tr=it->getLocalTransformation();
-            }
-            else
+            if ( (handleFlags&sim_handleflag_reljointbaseframe)!=0)
             {
                 C7Vector relTr(relObj->getCumulativeTransformation());
                 tr=relTr.getInverse()*it->getCumulativeTransformation();
+            }
+            else
+            {
+                if (it->getParent()==relObj)
+                    tr=it->getLocalTransformation(); // in case of a series of get/set, not losing precision
+                else
+                {
+                    C7Vector relTr(relObj->getFullCumulativeTransformation());
+                    tr=relTr.getInverse()*it->getCumulativeTransformation();
+                }
             }
         }
         tr.X.copyTo(position);
@@ -1791,6 +1811,8 @@ simInt simSetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
+        int handleFlags=objectHandle&0xff00000;
+        objectHandle=objectHandle&0xfffff;
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -1814,18 +1836,12 @@ simInt simSetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
         }
         else
             it->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
-        if (relativeToObjectHandle==-1)
+        CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        if (relObj==nullptr)
             App::currentWorld->sceneObjects->setObjectAbsolutePosition(it->getObjectHandle(),C3Vector(position));
         else
         {
-            CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
-            if (it->getParent()==relObj)
-            { // special here, in order to not lose precision in a series of get/set
-                C7Vector tr(it->getLocalTransformation());
-                tr.X=position;
-                it->setLocalTransformation(tr);
-            }
-            else
+            if ( (handleFlags&sim_handleflag_reljointbaseframe)!=0)
             {
                 C7Vector absTr(it->getCumulativeTransformation());
                 C7Vector relTr(relObj->getCumulativeTransformation());
@@ -1833,6 +1849,24 @@ simInt simSetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
                 x.X.set(position);
                 absTr=relTr*x;
                 App::currentWorld->sceneObjects->setObjectAbsolutePosition(it->getObjectHandle(),absTr.X);
+            }
+            else
+            {
+                if (it->getParent()==relObj)
+                { // special here, in order to not lose precision in a series of get/set
+                    C7Vector tr(it->getLocalTransformation());
+                    tr.X=position;
+                    it->setLocalTransformation(tr);
+                }
+                else
+                {
+                    C7Vector absTr(it->getCumulativeTransformation());
+                    C7Vector relTr(relObj->getFullCumulativeTransformation());
+                    C7Vector x(relTr.getInverse()*absTr);
+                    x.X.set(position);
+                    absTr=relTr*x;
+                    App::currentWorld->sceneObjects->setObjectAbsolutePosition(it->getObjectHandle(),absTr.X);
+                }
             }
         }
         return(1);
@@ -1850,6 +1884,8 @@ simInt simGetObjectOrientation_internal(simInt objectHandle,simInt relativeToObj
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
+        int handleFlags=objectHandle&0xff00000;
+        objectHandle=objectHandle&0xfffff;
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -1865,14 +1901,22 @@ simInt simGetObjectOrientation_internal(simInt objectHandle,simInt relativeToObj
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
         }
+        CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         C7Vector tr;
-        if (relativeToObjectHandle==-1)
+        if (relObj==nullptr)
             tr=it->getCumulativeTransformation();
         else
         {
-            CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
-            C7Vector relTr(relObj->getCumulativeTransformation());
-            tr=relTr.getInverse()*it->getCumulativeTransformation();
+            if ( (handleFlags&sim_handleflag_reljointbaseframe)!=0)
+            {
+                C7Vector relTr(relObj->getCumulativeTransformation());
+                tr=relTr.getInverse()*it->getCumulativeTransformation();
+            }
+            else
+            {
+                C7Vector relTr(relObj->getFullCumulativeTransformation());
+                tr=relTr.getInverse()*it->getCumulativeTransformation();
+            }
         }
         C3Vector(tr.Q.getEulerAngles()).copyTo(eulerAngles);
         return(1);
@@ -1890,6 +1934,8 @@ simInt simSetObjectOrientation_internal(simInt objectHandle,simInt relativeToObj
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
+        int handleFlags=objectHandle&0xff00000;
+        objectHandle=objectHandle&0xfffff;
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -1913,13 +1959,17 @@ simInt simSetObjectOrientation_internal(simInt objectHandle,simInt relativeToObj
         }
         else
             it->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
-        if (relativeToObjectHandle==-1)
+        CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        if (relObj==nullptr)
             App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(),C3Vector(eulerAngles));
         else
         {
-            CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
             C7Vector absTr(it->getCumulativeTransformation());
-            C7Vector relTr(relObj->getCumulativeTransformation());
+            C7Vector relTr;
+            if ( (handleFlags&sim_handleflag_reljointbaseframe)!=0)
+                relTr=relObj->getCumulativeTransformation();
+            else
+                relTr=relObj->getFullCumulativeTransformation();
             C7Vector x(relTr.getInverse()*absTr);
             x.Q.setEulerAngles(eulerAngles);
             absTr=relTr*x;
@@ -4468,6 +4518,11 @@ simInt simSetStringParameter_internal(simInt parameter,const simChar* str)
                 return(1);
             return(0);
         }
+        if (parameter==sim_stringparam_logfilter)
+        {
+            App::setLogFilter(str);
+            return(1);
+        }
 
         CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(-1);
@@ -4553,6 +4608,11 @@ simChar* simGetStringParameter_internal(simInt parameter)
         {
             validParam=true;
             retVal=App::getApplicationArgument(parameter-sim_stringparam_app_arg1);
+        }
+        if (parameter==sim_stringparam_logfilter)
+        {
+            validParam=true;
+            retVal=App::getLogFilter();
         }
         if (validParam)
         {
@@ -7166,17 +7226,10 @@ simInt simSetUserParameter_internal(simInt objectHandle,const simChar* parameter
 }
 
 simInt simAddLog_internal(const simChar* pluginName,simInt verbosityLevel,const simChar* logMsg)
-{
-    TRACE_C_API;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (App::logPluginMsg(pluginName,verbosityLevel,logMsg))
-            return(1);
-        return(0);
-    }
-    CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
+{ // keep this as simple as possible (no trace, no thread checking). For now
+    if (App::logPluginMsg(pluginName,verbosityLevel,logMsg))
+        return(1);
+    return(0);
 }
 
 simInt simDisplayDialog_internal(const simChar* titleText,const simChar* mainText,simInt dialogType,const simChar* initialText,const simFloat* titleColors,const simFloat* dialogColors,simInt* elementHandle)
@@ -13714,20 +13767,26 @@ simInt simGetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
         }
+        CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         C7Vector tr;
-        if (relativeToObjectHandle==-1)
+        if (relObj==nullptr)
             tr=it->getCumulativeTransformation();
         else
         {
-            CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
-            if (it->getParent()==relObj)
-            { // special here, in order to not lose precision in a series of get/set
-                tr=it->getLocalTransformation();
-            }
-            else
+            if ((handleFlags&sim_handleflag_reljointbaseframe)!=0)
             {
                 C7Vector relTr(relObj->getCumulativeTransformation());
                 tr=relTr.getInverse()*it->getCumulativeTransformation();
+            }
+            else
+            {
+                if (it->getParent()==relObj)
+                    tr=it->getLocalTransformation(); // in case of a series get/set, not to lose precision
+                else
+                {
+                    C7Vector relTr(relObj->getFullCumulativeTransformation());
+                    tr=relTr.getInverse()*it->getCumulativeTransformation();
+                }
             }
         }
         if ((handleFlags&sim_handleflag_wxyzquaternion)!=0)
@@ -13782,7 +13841,8 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
         }
         else
             it->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
-        if (relativeToObjectHandle==-1)
+        CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        if (relObj==nullptr)
         {
             C4Vector q;
             if ((handleFlags&sim_handleflag_wxyzquaternion)!=0)
@@ -13798,8 +13858,7 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
         }
         else
         {
-            CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
-            if (it->getParent()==relObj)
+            if ( (it->getParent()==relObj)&&((handleFlags&sim_handleflag_reljointbaseframe)==0) )
             { // special here, in order to not lose precision in a series of get/set
                 C7Vector tr(it->getLocalTransformation());
                 if ((handleFlags&sim_handleflag_wxyzquaternion)!=0)
@@ -13816,7 +13875,11 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
             else
             {
                 C7Vector absTr(it->getCumulativeTransformation());
-                C7Vector relTr(relObj->getCumulativeTransformation());
+                C7Vector relTr;
+                if ( (handleFlags&sim_handleflag_reljointbaseframe)!=0)
+                    relTr=relObj->getCumulativeTransformation();
+                else
+                    relTr=relObj->getFullCumulativeTransformation();
                 C7Vector x(relTr.getInverse()*absTr);
                 if ((handleFlags&sim_handleflag_wxyzquaternion)!=0)
                     x.Q.setInternalData(quaternion);
@@ -15965,6 +16028,17 @@ simInt simGetConfigForTipPose_internal(simInt ikGroupHandle,simInt jointCnt,cons
     {
         if (!doesIKGroupExist(__func__,ikGroupHandle))
             return(-1);
+
+        if ( (!App::userSettings->useOldIk)&&CPluginContainer::isIkPluginAvailable() )
+        {
+            CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+            std::string errSting;
+            int retVal=CPluginContainer::ikPlugin_getConfigForTipPose(ikGroup->getIkPluginCounterpartHandle(),jointCnt,jointHandles,thresholdDist,-maxTimeInMs,retConfig,metric,collisionPairCnt,collisionPairs,jointOptions,lowLimits,ranges,errSting);
+            if (retVal==-1)
+                CApiErrors::setApiCallErrorMessage(__func__,errSting.c_str());
+            return(retVal);
+        }
+
         const float _defaultMetric[4]={1.0,1.0,1.0,0.1f};
         const float* theMetric=_defaultMetric;
         if (metric!=nullptr)
@@ -17286,7 +17360,7 @@ simInt simDebugStack_internal(simInt stackHandle,simInt cIndex)
         {
             std::string buffer;
             stack->printContent(cIndex,buffer);
-            App::logMsg(sim_verbosity_msgs,buffer.c_str());
+            App::logMsg(sim_verbosity_none,buffer.c_str());
             return(1);
         }
         CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);

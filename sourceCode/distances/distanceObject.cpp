@@ -502,13 +502,16 @@ void CDistanceObject::connectSynchronizationObject()
     }
 }
 
-void CDistanceObject::removeSynchronizationObject()
+void CDistanceObject::removeSynchronizationObject(bool localReferencesToItOnly)
 { // Overridden from CSyncObject
     if (getObjectCanSync())
     {
         setObjectCanSync(false);
 
-        // Delete remote distance object:
-        sendVoid(sim_syncobj_distanceobject_delete);
+        if (!localReferencesToItOnly)
+        {
+            // Delete remote distance object:
+            sendVoid(sim_syncobj_distanceobject_delete);
+        }
     }
 }
