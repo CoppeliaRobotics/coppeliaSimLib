@@ -1180,9 +1180,9 @@ void CSceneObjectContainer::objectGotNewParent(int objectHandle,int oldParentHan
 {
     if (_objectActualizationEnabled)
     {
-        // Update orphan list
-        if (newParentHandle==-1)
-        {
+        // Update orphan list:
+        if (oldParentHandle==-1)
+        { // object was an orphan, not anymore!
             for (size_t i=0;i<_orphanList.size();i++)
             {
                 if (_orphanList[i]==objectHandle)
@@ -1192,6 +1192,8 @@ void CSceneObjectContainer::objectGotNewParent(int objectHandle,int oldParentHan
                 }
             }
         }
+        if (newParentHandle==-1)
+            _orphanList.push_back(objectHandle); // object bacame an orphan
 
         // Rebuild collection information
         App::currentWorld->collections->actualizeAllCollections();

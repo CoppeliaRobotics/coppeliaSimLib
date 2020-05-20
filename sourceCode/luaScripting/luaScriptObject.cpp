@@ -5992,10 +5992,143 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
 { // A subtle bug was corrected in below function in CoppeliaSim4.0.1. Below to keep old code working as previously
     if (!doIt)
         return;
-    _replaceScriptText(scriptObject,"sim.getObjectOrientation(","__getObjectOrientation__(");
-    _replaceScriptText(scriptObject,"sim.setObjectOrientation(","__setObjectOrientation__(");
-    _replaceScriptText(scriptObject,"sim.getObjectPosition(","__getObjectPosition__(");
-    _replaceScriptText(scriptObject,"sim.setObjectPosition(","__setObjectPosition__(");
-    _replaceScriptText(scriptObject,"sim.getObjectQuaternion(","__getObjectQuaternion__(");
-    _replaceScriptText(scriptObject,"sim.setObjectQuaternion(","__setObjectQuaternion__(");
+
+    QString theScript;
+    bool addFunc=false;
+
+    theScript=(scriptObject->getScriptText());
+    theScript.replace(QRegularExpression("sim.getObjectOrientation\\(([^,]+),( *)-1( *)\\)"),"blabliblotemp(\\1,-1)");
+    scriptObject->setScriptText(theScript.toStdString().c_str());
+    addFunc=_replaceScriptText(scriptObject,"sim.getObjectOrientation(","__getObjectOrientation__(");
+    _replaceScriptText(scriptObject,"blabliblotemp","sim.getObjectOrientation");
+    if (addFunc)
+    {
+        printf("__getObjectOrientation__\n");
+        std::string txt;
+        txt+="function __getObjectOrientation__(a,b)\n";
+        txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
+        txt+="    if b==sim.handle_parent then\n";
+        txt+="        b=sim.getObjectParent(a)\n";
+        txt+="    end\n";
+        txt+="    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and (sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
+        txt+="        a=a+sim.handleflag_reljointbaseframe\n";
+        txt+="    end\n";
+        txt+="    return sim.getObjectOrientation(a,b)\n";
+        txt+="end\n\n";
+        _insertScriptText(scriptObject,true,txt.c_str());
+    }
+
+    theScript=(scriptObject->getScriptText());
+    theScript.replace(QRegularExpression("sim.setObjectOrientation\\(([^,]+),( *)-1( *),"),"blabliblotemp(\\1,-1,");
+    scriptObject->setScriptText(theScript.toStdString().c_str());
+    addFunc=_replaceScriptText(scriptObject,"sim.setObjectOrientation(","__setObjectOrientation__(");
+    _replaceScriptText(scriptObject,"blabliblotemp","sim.setObjectOrientation");
+    if (addFunc)
+    {
+        printf("__setObjectOrientation__\n");
+        std::string txt;
+        txt+="function __setObjectOrientation__(a,b,c)\n";
+        txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
+        txt+="    if b==sim.handle_parent then\n";
+        txt+="        b=sim.getObjectParent(a)\n";
+        txt+="    end\n";
+        txt+="    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and (sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
+        txt+="        a=a+sim.handleflag_reljointbaseframe\n";
+        txt+="    end\n";
+        txt+="    return sim.setObjectOrientation(a,b,c)\n";
+        txt+="end\n";
+        _insertScriptText(scriptObject,true,txt.c_str());
+    }
+
+    theScript=(scriptObject->getScriptText());
+    theScript.replace(QRegularExpression("sim.getObjectQuaternion\\(([^,]+),( *)-1( *)\\)"),"blabliblotemp(\\1,-1)");
+    theScript.replace(QRegularExpression("sim.getObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *)\\)"),"blabliblotemp(\\1,sim.handle_parent)");
+    scriptObject->setScriptText(theScript.toStdString().c_str());
+    addFunc=_replaceScriptText(scriptObject,"sim.getObjectQuaternion(","__getObjectQuaternion__(");
+    _replaceScriptText(scriptObject,"blabliblotemp","sim.getObjectQuaternion");
+    if (addFunc)
+    {
+        printf("__getObjectQuaternion__\n");
+        std::string txt;
+        txt+="function __getObjectQuaternion__(a,b)\n";
+        txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
+        txt+="    if b==sim.handle_parent then\n";
+        txt+="        b=sim.getObjectParent(a)\n";
+        txt+="    end\n";
+        txt+="    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and (sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
+        txt+="        a=a+sim.handleflag_reljointbaseframe\n";
+        txt+="    end\n";
+        txt+="    return sim.getObjectQuaternion(a,b)\n";
+        txt+="end\n";
+        _insertScriptText(scriptObject,true,txt.c_str());
+    }
+
+    theScript=(scriptObject->getScriptText());
+    theScript.replace(QRegularExpression("sim.setObjectQuaternion\\(([^,]+),( *)-1( *),"),"blabliblotemp(\\1,-1,");
+    theScript.replace(QRegularExpression("sim.setObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *),"),"blabliblotemp(\\1,sim.handle_parent,");
+    scriptObject->setScriptText(theScript.toStdString().c_str());
+    addFunc=_replaceScriptText(scriptObject,"sim.setObjectQuaternion(","__setObjectQuaternion__(");
+    _replaceScriptText(scriptObject,"blabliblotemp","sim.setObjectQuaternion");
+    if (addFunc)
+    {
+        printf("__setObjectQuaternion__\n");
+        std::string txt;
+        txt+="function __setObjectQuaternion__(a,b,c)\n";
+        txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
+        txt+="    if b==sim.handle_parent then\n";
+        txt+="        b=sim.getObjectParent(a)\n";
+        txt+="    end\n";
+        txt+="    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and (sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
+        txt+="        a=a+sim.handleflag_reljointbaseframe\n";
+        txt+="    end\n";
+        txt+="    return sim.setObjectQuaternion(a,b,c)\n";
+        txt+="end\n";
+        _insertScriptText(scriptObject,true,txt.c_str());
+    }
+
+    theScript=(scriptObject->getScriptText());
+    theScript.replace(QRegularExpression("sim.getObjectPosition\\(([^,]+),( *)-1( *)\\)"),"blabliblotemp(\\1,-1)");
+    theScript.replace(QRegularExpression("sim.getObjectPosition\\(([^,]+),( *)sim.handle_parent( *)\\)"),"blabliblotemp(\\1,sim.handle_parent)");
+    scriptObject->setScriptText(theScript.toStdString().c_str());
+    addFunc=_replaceScriptText(scriptObject,"sim.getObjectPosition(","__getObjectPosition__(");
+    _replaceScriptText(scriptObject,"blabliblotemp","sim.getObjectPosition");
+    if (addFunc)
+    {
+        printf("__getObjectPosition__\n");
+        std::string txt;
+        txt+="function __getObjectPosition__(a,b)\n";
+        txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
+        txt+="    if b==sim.handle_parent then\n";
+        txt+="        b=sim.getObjectParent(a)\n";
+        txt+="    end\n";
+        txt+="    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and (sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
+        txt+="        a=a+sim.handleflag_reljointbaseframe\n";
+        txt+="    end\n";
+        txt+="    return sim.getObjectPosition(a,b)\n";
+        txt+="end\n";
+        _insertScriptText(scriptObject,true,txt.c_str());
+    }
+
+    theScript=(scriptObject->getScriptText());
+    theScript.replace(QRegularExpression("sim.setObjectPosition\\(([^,]+),( *)-1( *),"),"blabliblotemp(\\1,-1,");
+    theScript.replace(QRegularExpression("sim.setObjectPosition\\(([^,]+),( *)sim.handle_parent( *),"),"blabliblotemp(\\1,sim.handle_parent,");
+    scriptObject->setScriptText(theScript.toStdString().c_str());
+    addFunc=_replaceScriptText(scriptObject,"sim.setObjectPosition(","__setObjectPosition__(");
+    _replaceScriptText(scriptObject,"blabliblotemp","sim.setObjectPosition");
+    if (addFunc)
+    {
+        printf("__setObjectPosition__\n");
+        std::string txt;
+        txt+="function __setObjectPosition__(a,b,c)\n";
+        txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
+        txt+="    if b==sim.handle_parent then\n";
+        txt+="        b=sim.getObjectParent(a)\n";
+        txt+="    end\n";
+        txt+="    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and (sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
+        txt+="        a=a+sim.handleflag_reljointbaseframe\n";
+        txt+="    end\n";
+        txt+="    return sim.setObjectPosition(a,b,c)\n";
+        txt+="end\n";
+        _insertScriptText(scriptObject,true,txt.c_str());
+    }
 }
