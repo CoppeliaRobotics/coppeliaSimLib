@@ -106,6 +106,7 @@ private:
     static void _logMsg_noDecoration(int verbosityLevel,const char* msg,int int1,int int2=0,int int3=0);
     static void _logMsg(int verbosityLevel,const char* msg,bool forbidStatusbar,int consoleVerbosity=-1,int statusbarVerbosity=-1);
     static bool _logFilter(const char* msg);
+    static std::string _getHtmlEscapedString(const char* str);
     static std::string _getDecoratedLogMsg(const char* pluginName,int verbosityLevel,const char* msg);
     bool _initSuccessful;
     static bool _consoleMsgsToFile;

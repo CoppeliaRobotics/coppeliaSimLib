@@ -5611,16 +5611,14 @@ void CLuaScriptObject::_adjustScriptText1(CLuaScriptObject* scriptObject,bool do
             txt+=" \n";
             _insertScriptText(scriptObject,true,txt.c_str());
 
-            txt="\n";
-            txt+="Compatibility issue with @@REPLACE@@\n";
-            txt+="Since CoppeliaSim 3.1.3, the functions simHandleChildScript and simHandleSensingChildScripts\n";
-            txt+="were replaced with simHandleChildScripts (i.e. with an additional 's'), which\n";
-            txt+="operates slightly differently. In addition to this, a new function was introduced that\n";
-            txt+="handles threaded child scripts: simLaunchThreadedChildScripts. For that reason, CoppeliaSim\n";
-            txt+="has automatically adjusted the customized main script. Make sure that everything\n";
-            txt+="still works as expected.\n";
-            txt+="\n";
-            CWorld::appendLoadOperationIssue(txt.c_str(),scriptObject->getScriptID());
+            txt="compatibility issue with @@REPLACE@@\n";
+            txt+="  Since CoppeliaSim 3.1.3, the functions simHandleChildScript and simHandleSensingChildScripts\n";
+            txt+="  were replaced with simHandleChildScripts (i.e. with an additional 's'), which\n";
+            txt+="  operates slightly differently. In addition to this, a new function was introduced that\n";
+            txt+="  handles threaded child scripts: simLaunchThreadedChildScripts. For that reason, CoppeliaSim\n";
+            txt+="  has automatically adjusted the customized main script. Make sure that everything\n";
+            txt+="  still works as expected.";
+            CWorld::appendLoadOperationIssue(sim_verbosity_warnings,txt.c_str(),scriptObject->getScriptID());
 
         }
         else
@@ -5639,16 +5637,14 @@ void CLuaScriptObject::_adjustScriptText1(CLuaScriptObject* scriptObject,bool do
             txt+=" \n";
             _insertScriptText(scriptObject,true,txt.c_str());
 
-            txt="\n";
-            txt+="Compatibility issue with @@REPLACE@@\n";
-            txt+="Since CoppeliaSim 3.1.3, the functions simHandleChildScript and simHandleSensingChildScripts\n";
-            txt+="were replaced with simHandleChildScripts (i.e. with an additional 's'), which\n";
-            txt+="operates slightly differently. In addition to this, a new function was introduced that\n";
-            txt+="handles threaded child scripts: simLaunchThreadedChildScripts. For that reason, CoppeliaSim\n";
-            txt+="tried to automatically adjusted the customized main script, but couldn't find the default\n";
-            txt+="main script normally located in system/dltmscpt.txt. Please manually adjust the main script.\n";
-            txt+="\n";
-            CWorld::appendLoadOperationIssue(txt.c_str(),scriptObject->getScriptID());
+            txt="compatibility issue with @@REPLACE@@\n";
+            txt+="  Since CoppeliaSim 3.1.3, the functions simHandleChildScript and simHandleSensingChildScripts\n";
+            txt+="  were replaced with simHandleChildScripts (i.e. with an additional 's'), which\n";
+            txt+="  operates slightly differently. In addition to this, a new function was introduced that\n";
+            txt+="  handles threaded child scripts: simLaunchThreadedChildScripts. For that reason, CoppeliaSim\n";
+            txt+="  tried to automatically adjusted the customized main script, but couldn't find the default\n";
+            txt+="  main script normally located in system/dltmscpt.txt. Please manually adjust the main script.";
+            CWorld::appendLoadOperationIssue(sim_verbosity_warnings,txt.c_str(),scriptObject->getScriptID());
         }
     }
     if (scriptObject->getScriptType()==sim_scripttype_childscript)
@@ -5742,14 +5738,12 @@ void CLuaScriptObject::_adjustScriptText1(CLuaScriptObject* scriptObject,bool do
 
                 if (_containsScriptText(scriptObject,"simHandleChildScript("))
                 { // output a warning
-                    txt="\n";
-                    txt+="Compatibility issue with @@REPLACE@@\n";
-                    txt+="Since CoppeliaSim 3.1.3, the function simHandleChildScript is not supported anymore.\n";
-                    txt+="It was replaced with simHandleChildScripts (i.e. with an additional 's'),\n";
-                    txt+="and operates slightly differently. CoppeliaSim has tried to automatically adjust\n";
-                    txt+="the script, but failed. Please correct this issue yourself by editing the script.\n";
-                    txt+="\n";
-                    CWorld::appendLoadOperationIssue(txt.c_str(),scriptObject->getScriptID());
+                    txt="Compatibility issue with @@REPLACE@@\n";
+                    txt+="  Since CoppeliaSim 3.1.3, the function simHandleChildScript is not supported anymore.\n";
+                    txt+="  It was replaced with simHandleChildScripts (i.e. with an additional 's'),\n";
+                    txt+="  and operates slightly differently. CoppeliaSim has tried to automatically adjust\n";
+                    txt+="  the script, but failed. Please correct this issue yourself by editing the script.";
+                    CWorld::appendLoadOperationIssue(sim_verbosity_warnings,txt.c_str(),scriptObject->getScriptID());
                 }
             }
         }
@@ -5757,15 +5751,13 @@ void CLuaScriptObject::_adjustScriptText1(CLuaScriptObject* scriptObject,bool do
         {
             if (_containsScriptText(scriptObject,"simHandleChildScript("))
             { // output a warning
-                std::string txt="\n";
-                txt+="Compatibility issue with @@REPLACE@@\n";
-                txt+="Since CoppeliaSim 3.1.3, the function simHandleChildScript is not supported anymore.\n";
-                txt+="It was replaced with simHandleChildScripts (i.e. with an additional 's'),\n";
-                txt+="and operates slightly differently. In addition to this, simhandleChildScripts\n";
-                txt+="cannot be called from threaded child scripts anymore. Please correct this issue\n";
-                txt+="yourself by editing the script.\n";
-                txt+="\n";
-                CWorld::appendLoadOperationIssue(txt.c_str(),scriptObject->getScriptID());
+                std::string txt="compatibility issue with @@REPLACE@@\n";
+                txt+="  Since CoppeliaSim 3.1.3, the function simHandleChildScript is not supported anymore.\n";
+                txt+="  It was replaced with simHandleChildScripts (i.e. with an additional 's'),\n";
+                txt+="  and operates slightly differently. In addition to this, simhandleChildScripts\n";
+                txt+="  cannot be called from threaded child scripts anymore. Please correct this issue\n";
+                txt+="  yourself by editing the script.";
+                CWorld::appendLoadOperationIssue(sim_verbosity_warnings,txt.c_str(),scriptObject->getScriptID());
             }
         }
     }
@@ -6003,7 +5995,7 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"blabliblotemp","sim.getObjectOrientation");
     if (addFunc)
     {
-        printf("__getObjectOrientation__\n");
+        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.getObjectOrientation with __getObjectOrientation__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptID());
         std::string txt;
         txt+="function __getObjectOrientation__(a,b)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
@@ -6025,7 +6017,7 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"blabliblotemp","sim.setObjectOrientation");
     if (addFunc)
     {
-        printf("__setObjectOrientation__\n");
+        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.setObjectOrientation with __setObjectOrientation__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptID());
         std::string txt;
         txt+="function __setObjectOrientation__(a,b,c)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
@@ -6048,7 +6040,7 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"blabliblotemp","sim.getObjectQuaternion");
     if (addFunc)
     {
-        printf("__getObjectQuaternion__\n");
+        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.getObjectQuaternion with __getObjectQuaternion__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptID());
         std::string txt;
         txt+="function __getObjectQuaternion__(a,b)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
@@ -6071,7 +6063,7 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"blabliblotemp","sim.setObjectQuaternion");
     if (addFunc)
     {
-        printf("__setObjectQuaternion__\n");
+        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.setObjectQuaternion with __setObjectQuaternion__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptID());
         std::string txt;
         txt+="function __setObjectQuaternion__(a,b,c)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
@@ -6094,7 +6086,7 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"blabliblotemp","sim.getObjectPosition");
     if (addFunc)
     {
-        printf("__getObjectPosition__\n");
+        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.getObjectPosition with __getObjectPosition__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptID());
         std::string txt;
         txt+="function __getObjectPosition__(a,b)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
@@ -6117,7 +6109,7 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"blabliblotemp","sim.setObjectPosition");
     if (addFunc)
     {
-        printf("__setObjectPosition__\n");
+        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.setObjectPosition with __setObjectPosition__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptID());
         std::string txt;
         txt+="function __setObjectPosition__(a,b,c)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";

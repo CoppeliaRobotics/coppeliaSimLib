@@ -22,6 +22,13 @@
 #include "undoBufferCont.h"
 #include "_world_.h"
 
+struct SLoadOperationIssue
+{
+    int verbosity;
+    std::string message;
+    int objectHandle;
+};
+
 class CWorld : public _CWorld_
 {
 public:
@@ -76,7 +83,7 @@ public:
 
     void exportIkContent(CExtIkSer& ar);
 
-    static void appendLoadOperationIssue(const char* text,int objectId);
+    static void appendLoadOperationIssue(int verbosity,const char* text,int objectId);
     static int getLoadingMapping(const std::vector<int>* map,int oldVal);
 
 
@@ -131,6 +138,5 @@ private:
     int _savedMouseMode;
     std::vector<int> _initialObjectUniqueIdentifiersForRemovingNewObjects;
 
-    static std::string _loadOperationIssuesToBeDisplayed;
-    static std::vector<int> _loadOperationIssuesToBeDisplayed_objectHandles;
+    static std::vector<SLoadOperationIssue> _loadOperationIssues;
 };

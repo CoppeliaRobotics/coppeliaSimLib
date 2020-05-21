@@ -892,16 +892,7 @@ void App::addStatusbarMessage(const std::string& txt,bool scriptErrorMsg/*=false
             else if (scriptErrorMsg)
             { // change color
                 html=true;
-                QString qstr(str.c_str());
-                qstr.replace("\n","*+-%NL%-+*");
-                qstr.replace(" ","*+-%S%-+*");
-                qstr.replace("\t","*+-%T%-+*");
-                qstr.toHtmlEscaped();
-                qstr.replace("*+-%NL%-+*","<br/>");
-                qstr.replace("*+-%S%-+*","&nbsp;");
-                qstr.replace("*+-%T%-+*","&nbsp;&nbsp;&nbsp;&nbsp;");
-                str="<font color='#c00'>"+qstr.toStdString();
-                str+="</font>";
+                str="<font color='#c00'>"+_getHtmlEscapedString(str.c_str())+"</font>";
             }
 
             if (mainWindow!=nullptr)
@@ -1649,6 +1640,19 @@ void App::_logMsg_noDecoration(int verbosityLevel,const char* msg,int int1,int i
     _logMsg(verbosityLevel,buff,false);
 }
 
+std::string App::_getHtmlEscapedString(const char* str)
+{
+    QString qstr(str);
+    qstr.replace("\n","*+-%NL%-+*");
+    qstr.replace(" ","*+-%S%-+*");
+    qstr.replace("\t","*+-%T%-+*");
+    qstr.toHtmlEscaped();
+    qstr.replace("*+-%NL%-+*","<br/>");
+    qstr.replace("*+-%S%-+*","&nbsp;");
+    qstr.replace("*+-%T%-+*","&nbsp;&nbsp;&nbsp;&nbsp;");
+    return(qstr.toStdString());
+}
+
 bool App::_logFilter(const char* msg)
 {
     bool triggered=true;
@@ -1714,7 +1718,7 @@ void App::_logMsg(int verbosityLevel,const char* msg,bool forbidStatusbar,int co
                     std::string tmp("<font color='red'>");
                     if (verbosityLevel==sim_verbosity_warnings)
                         tmp="<font color='orange'>";
-                    tmp+=msg;
+                    tmp+=_getHtmlEscapedString(msg);
                     tmp+="</font>@html";
                     addStatusbarMessage(tmp.c_str(),false,true);
                 }

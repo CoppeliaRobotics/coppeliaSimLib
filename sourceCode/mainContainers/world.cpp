@@ -5,8 +5,7 @@
 #include "tt.h"
 #include "app.h"
 
-std::string CWorld::_loadOperationIssuesToBeDisplayed;
-std::vector<int> CWorld::_loadOperationIssuesToBeDisplayed_objectHandles;
+std::vector<SLoadOperationIssue> CWorld::_loadOperationIssues;
 
 CWorld::CWorld()
 {
@@ -1033,27 +1032,19 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     // ------------------------------------------------
 
     // Now display the load operation issues:
-    if (_loadOperationIssuesToBeDisplayed.length()!=0)
+    for (size_t i=0;i<_loadOperationIssues.size();i++)
     {
-        size_t startPos=_loadOperationIssuesToBeDisplayed.find("@@REPLACE@@");
-        while (startPos!=std::string::npos)
-        {
-            int handle=_loadOperationIssuesToBeDisplayed_objectHandles[0];
-            std::string newTxt("NAME_NOT_FOUND");
-            int handle2=CWorld::getLoadingMapping(&luaScriptMapping,handle);
-            CLuaScriptObject* script=luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle2);
-            if (script!=nullptr)
-                newTxt=script->getShortDescriptiveName();
-            _loadOperationIssuesToBeDisplayed.replace(startPos,strlen("@@REPLACE@@"),newTxt);
-            _loadOperationIssuesToBeDisplayed_objectHandles.erase(_loadOperationIssuesToBeDisplayed_objectHandles.begin(),_loadOperationIssuesToBeDisplayed_objectHandles.begin()+1);
-            startPos=_loadOperationIssuesToBeDisplayed.find("@@REPLACE@@");
-        }
-        int h=simAuxiliaryConsoleOpen_internal("Load operation issues",30,4,nullptr,nullptr,nullptr,nullptr);
-        simAuxiliaryConsolePrint_internal(h,_loadOperationIssuesToBeDisplayed.c_str());
-
+        int handle=_loadOperationIssues[i].objectHandle;
+        std::string newTxt("NAME_NOT_FOUND");
+        int handle2=getLoadingMapping(&luaScriptMapping,handle);
+        CLuaScriptObject* script=luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle2);
+        if (script!=nullptr)
+            newTxt=script->getShortDescriptiveName();
+        QString msg(_loadOperationIssues[i].message.c_str());
+        msg.replace("@@REPLACE@@",newTxt.c_str());
+        App::logMsg(_loadOperationIssues[i].verbosity,msg.toStdString().c_str());
     }
-    _loadOperationIssuesToBeDisplayed.clear();
-    _loadOperationIssuesToBeDisplayed_objectHandles.clear();
+    appendLoadOperationIssue(-1,nullptr,-1); // clears it
 
     setEnableRemoteWorldsSync(true);
 
@@ -1204,7 +1195,7 @@ void CWorld::exportIkContent(CExtIkSer& ar)
 
 bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
 {
-    appendLoadOperationIssue(nullptr,-1); // clear
+    appendLoadOperationIssue(-1,nullptr,-1); // clear
 
     CGeometric::clearTempVerticesIndicesNormalsAndEdges();
     sceneObjects->deselectObjects();
@@ -1606,7 +1597,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
 
     CGeometric::clearTempVerticesIndicesNormalsAndEdges();
 
-    appendLoadOperationIssue(nullptr,-1); // clear
+    appendLoadOperationIssue(-1,nullptr,-1); // clear
 
     if (!isScene)
     {
@@ -2333,17 +2324,17 @@ void CWorld::_prepareFastLoadingMapping(std::vector<int>& map)
     }
 }
 
-void CWorld::appendLoadOperationIssue(const char* text,int objectId)
+void CWorld::appendLoadOperationIssue(int verbosity,const char* text,int objectId)
 {
     if (text==nullptr)
-    {
-        _loadOperationIssuesToBeDisplayed.clear();
-        _loadOperationIssuesToBeDisplayed_objectHandles.clear();
-    }
+        _loadOperationIssues.clear();
     else
     {
-        _loadOperationIssuesToBeDisplayed+=text;
-        _loadOperationIssuesToBeDisplayed_objectHandles.push_back(objectId);
+        SLoadOperationIssue issue;
+        issue.verbosity=verbosity;
+        issue.message=text;
+        issue.objectHandle=objectId;
+        _loadOperationIssues.push_back(issue);
     }
 }
 
