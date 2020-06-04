@@ -43,13 +43,11 @@ void CQDlgShapeDyn::refresh()
     bool lastSelIsNotStatic=false;
     bool lastSelIsConvex=false;
     CShape* it=App::currentWorld->sceneObjects->getLastSelectionShape();
-    CGeomProxy* geom=nullptr;
     if (sel)
     {
-        geom=it->geomData;
-        notHeightfield=(it->geomData->geomInfo->getPurePrimitiveType()!=sim_pure_primitive_heightfield);
+        notHeightfield=(it->getMeshWrapper()->getPurePrimitiveType()!=sim_pure_primitive_heightfield);
         lastSelIsNotStatic=!it->getShapeIsDynamicallyStatic();
-        lastSelIsConvex=geom->geomInfo->isConvex();
+        lastSelIsConvex=it->getMeshWrapper()->isConvex();
     }
 
     // Material properties:
@@ -117,12 +115,12 @@ void CQDlgShapeDyn::refresh()
     ui->qqSleepModeStart->setChecked(sel&&it->getStartInDynamicSleeping());
     if (sel)
     {
-        ui->qqMass->setText(tt::getEString(false,geom->geomInfo->getMass(),3).c_str());
-        C3Vector v(it->geomData->geomInfo->getPrincipalMomentsOfInertia());
+        ui->qqMass->setText(tt::getEString(false,it->getMeshWrapper()->getMass(),3).c_str());
+        C3Vector v(it->getMeshWrapper()->getPrincipalMomentsOfInertia());
         ui->qqIX->setText(tt::getEString(false,v(0),3).c_str());
         ui->qqIY->setText(tt::getEString(false,v(1),3).c_str());
         ui->qqIZ->setText(tt::getEString(false,v(2),3).c_str());
-        C4X4Matrix m(it->geomData->geomInfo->getLocalInertiaFrame().getMatrix());
+        C4X4Matrix m(it->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
         C3Vector e(m.M.getEulerAngles());
         ui->qqPX->setText(tt::getEString(true,m.X(0),3).c_str());
         ui->qqPY->setText(tt::getEString(true,m.X(1),3).c_str());
@@ -224,7 +222,7 @@ void CQDlgShapeDyn::on_qqRespondable_clicked()
         CShape* it=App::currentWorld->sceneObjects->getLastSelectionShape();
         if (it!=nullptr)
         {
-            if ((!it->getRespondable())&&(!it->geomData->geomInfo->isPure())&&(!it->geomData->geomInfo->isConvex()))
+            if ((!it->getRespondable())&&(!it->getMeshWrapper()->isPure())&&(!it->getMeshWrapper()->isConvex()))
                 App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Shape"),strTranslate(IDS_MAKING_NON_PURE_CONCAVE_SHAPE_RESPONDABLE_WARNING),VMESSAGEBOX_OKELI);
             App::appendSimulationThreadCommand(TOGGLE_RESPONDABLE_SHAPEDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -387,7 +385,7 @@ void CQDlgShapeDyn::on_qqIX_editingFinished()
         float newVal=ui->qqIX->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C3Vector v(shape->geomData->geomInfo->getPrincipalMomentsOfInertia());
+            C3Vector v(shape->getMeshWrapper()->getPrincipalMomentsOfInertia());
             v(0)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_PRINCIPALMOMENTOFINTERIA_SHAPEDYNGUITRIGGEREDCMD;
@@ -413,7 +411,7 @@ void CQDlgShapeDyn::on_qqIY_editingFinished()
         float newVal=ui->qqIY->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C3Vector v(shape->geomData->geomInfo->getPrincipalMomentsOfInertia());
+            C3Vector v(shape->getMeshWrapper()->getPrincipalMomentsOfInertia());
             v(1)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_PRINCIPALMOMENTOFINTERIA_SHAPEDYNGUITRIGGEREDCMD;
@@ -439,7 +437,7 @@ void CQDlgShapeDyn::on_qqIZ_editingFinished()
         float newVal=ui->qqIZ->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C3Vector v(shape->geomData->geomInfo->getPrincipalMomentsOfInertia());
+            C3Vector v(shape->getMeshWrapper()->getPrincipalMomentsOfInertia());
             v(2)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_PRINCIPALMOMENTOFINTERIA_SHAPEDYNGUITRIGGEREDCMD;
@@ -496,7 +494,7 @@ void CQDlgShapeDyn::on_qqPX_editingFinished()
         float newVal=ui->qqPX->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C7Vector tr(shape->geomData->geomInfo->getLocalInertiaFrame());
+            C7Vector tr(shape->getMeshWrapper()->getLocalInertiaFrame());
             tr.X(0)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
@@ -520,7 +518,7 @@ void CQDlgShapeDyn::on_qqPY_editingFinished()
         float newVal=ui->qqPY->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C7Vector tr(shape->geomData->geomInfo->getLocalInertiaFrame());
+            C7Vector tr(shape->getMeshWrapper()->getLocalInertiaFrame());
             tr.X(1)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
@@ -544,7 +542,7 @@ void CQDlgShapeDyn::on_qqPZ_editingFinished()
         float newVal=ui->qqPZ->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C7Vector tr(shape->geomData->geomInfo->getLocalInertiaFrame());
+            C7Vector tr(shape->getMeshWrapper()->getLocalInertiaFrame());
             tr.X(2)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
@@ -568,7 +566,7 @@ void CQDlgShapeDyn::on_qqAlpha_editingFinished()
         float newVal=ui->qqAlpha->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C4X4Matrix m(shape->geomData->geomInfo->getLocalInertiaFrame().getMatrix());
+            C4X4Matrix m(shape->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
             C3Vector e(m.M.getEulerAngles());
             e(0)=newVal*gv::userToRad;
             m.M.setEulerAngles(e);
@@ -594,7 +592,7 @@ void CQDlgShapeDyn::on_qqBeta_editingFinished()
         float newVal=ui->qqBeta->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C4X4Matrix m(shape->geomData->geomInfo->getLocalInertiaFrame().getMatrix());
+            C4X4Matrix m(shape->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
             C3Vector e(m.M.getEulerAngles());
             e(1)=newVal*gv::userToRad;
             m.M.setEulerAngles(e);
@@ -620,7 +618,7 @@ void CQDlgShapeDyn::on_qqGamma_editingFinished()
         float newVal=ui->qqGamma->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C4X4Matrix m(shape->geomData->geomInfo->getLocalInertiaFrame().getMatrix());
+            C4X4Matrix m(shape->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
             C3Vector e(m.M.getEulerAngles());
             e(2)=newVal*gv::userToRad;
             m.M.setEulerAngles(e);
@@ -659,13 +657,13 @@ void CQDlgShapeDyn::on_qqTensorMatrix_clicked()
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         CQDlgInertiaTensor theDialog(this);
 
-        C7Vector tr(shape->geomData->geomInfo->getLocalInertiaFrame()); // relative to the shape frame
+        C7Vector tr(shape->getMeshWrapper()->getLocalInertiaFrame()); // relative to the shape frame
         tr=shape->getFullCumulativeTransformation()*tr; // relative to the absolute frame!
         tr.X.clear(); // we just wanna reorient the inertia matrix, no shifting!
-        C3X3Matrix m(CGeomWrap::getNewTensor(shape->geomData->geomInfo->getPrincipalMomentsOfInertia(),tr));
+        C3X3Matrix m(CMeshWrapper::getNewTensor(shape->getMeshWrapper()->getPrincipalMomentsOfInertia(),tr));
         // m is now the absolute inertia tensor centered at the COM
         m.copyToInterface(theDialog.tensor);
-        C3Vector com(shape->geomData->geomInfo->getLocalInertiaFrame().X);
+        C3Vector com(shape->getMeshWrapper()->getLocalInertiaFrame().X);
         com*=shape->getFullCumulativeTransformation(); // relative to the absolute frame!
         com.copyTo(theDialog.com);
         theDialog.applyToSelection=false;
@@ -675,7 +673,7 @@ void CQDlgShapeDyn::on_qqTensorMatrix_clicked()
             m.copyFromInterface(theDialog.tensor);
             C4Vector rot;
             C3Vector pmoment;
-            CGeomWrap::findPrincipalMomentOfInertia(m,rot,pmoment);
+            CMeshWrapper::findPrincipalMomentOfInertia(m,rot,pmoment);
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
             {
                 CShape* a=App::currentWorld->sceneObjects->getShapeFromHandle(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
@@ -683,8 +681,8 @@ void CQDlgShapeDyn::on_qqTensorMatrix_clicked()
                 {
                     if ((a==shape)||theDialog.applyToSelection)
                     {
-                        a->geomData->geomInfo->setPrincipalMomentsOfInertia(pmoment);
-                        a->geomData->geomInfo->setLocalInertiaFrame(a->getFullCumulativeTransformation().getInverse()*C7Vector(rot,C3Vector(theDialog.com)));
+                        a->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
+                        a->getMeshWrapper()->setLocalInertiaFrame(a->getFullCumulativeTransformation().getInverse()*C7Vector(rot,C3Vector(theDialog.com)));
                     }
                 }
             }

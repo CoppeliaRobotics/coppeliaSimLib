@@ -3,7 +3,7 @@
 #include "vFileFinder.h"
 #include "imgLoaderSaver.h"
 #include "app.h"
-#include "libLic.h"
+#include "simFlavor.h"
 #include <QMimeData>
 #include <QScrollBar>
 
@@ -154,7 +154,7 @@ void CModelListWidget::setFolder(const char* folderPath)
             if (foundItem->isFile)
             { // Files
                 std::string filename(foundItem->name);
-                if (CLibLic::getBoolVal_str(0,filename.c_str()))
+                if (CSimFlavor::getBoolVal_str(0,filename.c_str()))
                 {
                     allModelNames.push_back(filename);
                     allModelCreationTimes.push_back((unsigned int)foundItem->lastWriteTime);

@@ -9,7 +9,7 @@
 #include "vDateTime.h"
 #include "pluginContainer.h"
 #include "simStrings.h"
-#include "libLic.h"
+#include "simFlavor.h"
 
 enum {NO_ONE=0,HIERARCHY_PART,VIEW_SELECTION_PART,PAGE_PART,
         HIERARCHY_RESIZING_PART,HIERARCHY_CLOSING_PART,BROWSER_PART,
@@ -371,7 +371,7 @@ void COglSurface::rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* main
     mouseRelativePosition[1]=y;
     mousePreviousRelativePosition[0]=mouseRelativePosition[0];
     mousePreviousRelativePosition[1]=mouseRelativePosition[1];
-    if (CLibLic::getBoolVal(3))
+    if (CSimFlavor::getBoolVal(3))
     {
         if (pageSelectionActive&&(pageSelector->getCaughtElements()&sim_right_button))
             pageSelector->rightMouseButtonUp(mouseRelativePosition[0],mouseRelativePosition[1],absX,absY,mainWindow);

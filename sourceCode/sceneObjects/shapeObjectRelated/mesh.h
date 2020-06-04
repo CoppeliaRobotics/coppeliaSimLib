@@ -1,31 +1,31 @@
 
 #pragma once
 
-#include "geomWrap.h"
+#include "meshWrapper.h"
 #include "textureProperty.h"
 
-class CGeometric : public CGeomWrap
+class CMesh : public CMeshWrapper
 {
 public:
-    CGeometric();
-    virtual ~CGeometric();
+    CMesh();
+    virtual ~CMesh();
 
-    void display(CGeomProxy* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
-    void display_colorCoded(CGeomProxy* geomData,int objectId,int displayAttrib);
-    void displayGhost(CGeomProxy* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors);
+    void display(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
+    void display_colorCoded(CShape* geomData,int objectId,int displayAttrib);
+    void displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors);
 
     void prepareVerticesIndicesNormalsAndEdgesForSerialization();
-    void display_extRenderer(CGeomProxy* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex);
+    void display_extRenderer(CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex);
     void performSceneObjectLoadingMapping(const std::vector<int>* map);
     void performTextureObjectLoadingMapping(const std::vector<int>* map);
     void announceSceneObjectWillBeErased(int objectID);
     void setTextureDependencies(int shapeID);
     bool getContainsTransparentComponents();
-    CGeometric* copyYourself();
+    CMesh* copyYourself();
     void scale(float xVal,float yVal,float zVal);
     int getPurePrimitiveType();
     void setPurePrimitiveType(int theType,float xOrDiameter,float y,float zOrHeight);
-    bool isGeometric();
+    bool isMesh();
     bool isPure();
     bool isConvex();
     bool checkIfConvex();
@@ -34,8 +34,8 @@ public:
     void getCumulativeMeshes(std::vector<float>& vertices,std::vector<int>* indices,std::vector<float>* normals);
     void setColor(const char* colorName,int colorComponent,const float* rgbData);
     bool getColor(const char* colorName,int colorComponent,float* rgbData);
-    void getAllShapeComponentsCumulative(std::vector<CGeometric*>& shapeComponentList); // needed by the dynamics routine
-    CGeometric* getShapeComponentAtIndex(int& index);
+    void getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList); // needed by the dynamics routine
+    CMesh* getShapeComponentAtIndex(int& index);
     void serialize(CSer& ar,const char* shapeName);
     void preMultiplyAllVerticeLocalFrames(const C7Vector& preTr);
     void flipFaces();
@@ -96,7 +96,7 @@ public:
     int* getEdgeBufferIdPtr();
 
 
-    void copyVisualAttributesTo(CGeometric* target);
+    void copyVisualAttributesTo(CMesh* target);
 
     // Following few routines in order not to save duplicate data:
     static void clearTempVerticesIndicesNormalsAndEdges();

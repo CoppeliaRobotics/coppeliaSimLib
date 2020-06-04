@@ -553,14 +553,14 @@ void CPath::_generatePathShape()
     CMeshManip::getNormals(&_pathShapeVertices,&_pathShapeIndices,&_pathShapeNormals);
 }
 
-bool CPath::getShape(CGeomProxy* geomObj[1],CShape* shapeObj[1])
+CShape* CPath::getShape() const
 {
-    bool retVal=false;
+    CShape* retVal=nullptr;
     if (_shapingEnabled&&(_pathShapeVertices.size()!=0))
     {
         std::vector<float> vert(_pathShapeVertices);
         C7Vector tr(getFullCumulativeTransformation());
-        for (int i=0;i<int(vert.size()/3);i++)
+        for (size_t i=0;i<vert.size()/3;i++)
         {
             C3Vector v(&vert[3*i]);
             v=tr*v;
@@ -569,11 +569,7 @@ bool CPath::getShape(CGeomProxy* geomObj[1],CShape* shapeObj[1])
             vert[3*i+2]=v(2);
         }
         std::vector<int> ind(_pathShapeIndices);
-        geomObj[0]=new CGeomProxy(nullptr,vert,ind,nullptr,nullptr);
-        shapeObj[0]=new CShape();
-        shapeObj[0]->setLocalTransformation(geomObj[0]->getCreationTransformation());
-        geomObj[0]->setCreationTransformation(C7Vector::identityTransformation);
-        retVal=true;
+        retVal=new CShape(nullptr,vert,ind,nullptr,nullptr);
     }
     return(retVal);
 }

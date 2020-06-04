@@ -55,7 +55,7 @@ public:
     void setMaxPointCountPerCell(int cnt);
     int getMaxPointCountPerCell() const;
     void insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,const unsigned char* optionalColors3,bool colorsAreIndividual);
-    void insertShape(const CShape* shape);
+    void insertShape(CShape* shape);
     void insertOctree(const COctree* octree);
     void insertDummy(const CDummy* dummy);
     void insertPointCloud(const CPointCloud* pointCloud);

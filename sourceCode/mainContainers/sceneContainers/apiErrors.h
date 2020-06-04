@@ -6,7 +6,6 @@
     #include <pthread.h>
 #endif
 
-#define SIM_API_CALL_NO_ERROR "No error."
 #define SIM_ERROR_SIMULATOR_NOT_INITIALIZED             "Simulator not initialized."
 #define SIM_ERRROR_EDIT_MODE_ACTIVE             "Edit mode is active."
 #define SIM_ERROR_CANNOT_SET_GET_PARAM_LAUNCH           "Cannot set/get parameter: simulator launch state is wrong."
@@ -154,6 +153,14 @@
 #define SIM_ERROR_CANNOT_BE_COMPOUND_SHAPE "Shape cannot be a compound shape."
 #define SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND "Assimp plugin was not found."
 #define SIM_ERROR_INVALID_MODULE_INFO_TYPE "Invalid module info type."
+
+
+struct SThreadAndMsg
+{
+    VTHREAD_ID_TYPE threadId;
+    std::string message;
+};
+
 // Class is fully static
 class CApiErrors
 {
@@ -161,46 +168,23 @@ public:
     CApiErrors();
     virtual ~CApiErrors();
 
-    static bool addNewThreadForErrorReporting(int scriptId_or_0ForCGui_or_1ForCNonGui);
-    static bool removeThreadFromErrorReporting();
-    static void pushLocation(int scriptId_or_0IfNoScript);
-    static void popLocation();
+    static void setCapiCallErrorMessage(const char* functionName,const char* errMsg);
+    static std::string getCapiCallErrorMessage();
+    static void clearCapiCallErrorMessage();
 
-    static void decorateLuaErrorMessage(const char* functionName,std::string& errMsg);
-    static void setLuaCallErrorMessage(const char* functionName,const char* errMsg); // call only from Lua
-    static void setLuaCallWarningMessage(const char* functionName,const char* warnMsg); // call only from Lua
-    static void setLuaCallErrorMessage_fromPlugin(const char* functionName,const char* errMsg); // call only indirectly from Lua via a plugin callback
-    static void setLuaCallWarningMessage_fromPlugin(const char* functionName,const char* warnMsg); // call only indirectly from Lua via a plugin callback
 
-    static void setApiCallErrorMessage(const char* functionName,const char* errMsg);
-    static std::string getApiCallErrorMessage();
-    static void clearApiCallErrorMessage();
-
-    static void setApiCallWarningMessage(const char* functionName,const char* warnMsg);
-    static std::string getApiCallWarningMessage();
-    static void clearApiCallWarningMessage();
-
-    static void setApiCallErrorReportMode(int mode);
-    static int getApiCallErrorReportMode();
-
-    static void clearCSideGeneratedLuaError();
-    static std::string getCSideGeneratedLuaError();
-    static std::string getCSideGeneratedLuaWarning();
+    static void clearThreadBasedFirstCapiErrorAndWarning();
+    static void setThreadBasedFirstCapiWarning(const char* msg);
+    static std::string getAndClearThreadBasedFirstCapiWarning();
+    static void setThreadBasedFirstCapiError(const char* msg);
+    static std::string getAndClearThreadBasedFirstCapiError();
 
 private:
-    static int _getCurrentLocation(bool onlyLuaLocation=false);
-    static int _getIndexFromCurrentThread();
+    static void _clearThreadBasedFirstCapiMsg(std::vector<SThreadAndMsg>& vect);
+    static void _setThreadBasedFirstCapiMsg(std::vector<SThreadAndMsg>& vect,const char* msg);
+    static std::string _getAndClearThreadBasedFirstCapiMsg(std::vector<SThreadAndMsg>& vect);
 
-
-    static std::vector<VTHREAD_ID_TYPE> _controllerLocation_threadIds;
-    static std::vector<std::vector<int> > _controllerLocation_locationStack;
-
-    static int _c_gui_errorReportMode;
-    static int _c_nonGui_errorReportMode;
-
-    static std::string _c_gui_lastError;
-    static std::string _c_nonGui_lastError;
-
-    static std::string _cSideGeneratedLuaError;
-    static std::vector<std::string> _cSideGeneratedLuaWarnings;
+    static std::string _c_lastError;
+    static std::vector<SThreadAndMsg> _threadBasedFirstCapiWarning;
+    static std::vector<SThreadAndMsg> _threadBasedFirstCapiError;
 };

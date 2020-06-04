@@ -13,7 +13,6 @@ public:
     std::string systemDirectory;
     std::string sceneDirectory;
     std::string modelDirectory;
-    std::string uiDirectory;
     std::string cadFormatDirectory;
     std::string textureDirectory;
     std::string videoDirectory;

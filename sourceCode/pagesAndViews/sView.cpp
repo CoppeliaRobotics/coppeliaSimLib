@@ -418,12 +418,12 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             if (_renderingMode==RENDERING_MODE_SOLID)
             {
                 _renderingMode=RENDERING_MODE_WIREFRAME_TRIANGLES;
-                App::addStatusbarMessage(IDSNS_NOW_IN_WIREFRAME_RENDERING_MODE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_WIREFRAME_RENDERING_MODE);
             }
             else
             {
                 _renderingMode=RENDERING_MODE_SOLID;
-                App::addStatusbarMessage(IDSNS_NOW_IN_SOLID_RENDERING_MODE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_SOLID_RENDERING_MODE);
             }
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
         }
@@ -444,9 +444,9 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             perspectiveDisplay=!perspectiveDisplay;
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             if (perspectiveDisplay)
-                App::addStatusbarMessage(IDSNS_NOW_IN_PERSPECTIVE_PROJECTION_MODE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_PERSPECTIVE_PROJECTION_MODE);
             else
-                App::addStatusbarMessage(IDSNS_NOW_IN_ORTHOGRAPHIC_PROJECTION_MODE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_ORTHOGRAPHIC_PROJECTION_MODE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -464,9 +464,9 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             _showEdges=!_showEdges;
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             if (_showEdges)
-                App::addStatusbarMessage(IDSNS_NOW_SHOWING_EDGES);
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_SHOWING_EDGES);
             else
-                App::addStatusbarMessage(IDSNS_NOW_HIDING_EDGES);
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_HIDING_EDGES);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -484,9 +484,9 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             _thickEdges=!_thickEdges;
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             if (_thickEdges)
-                App::addStatusbarMessage(IDSNS_EDGES_ARE_NOW_THICK);
+                App::logMsg(sim_verbosity_msgs,IDSNS_EDGES_ARE_NOW_THICK);
             else
-                App::addStatusbarMessage(IDSNS_EDGES_ARE_NOW_THIN);
+                App::logMsg(sim_verbosity_msgs,IDSNS_EDGES_ARE_NOW_THIN);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -504,9 +504,9 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             App::currentWorld->environment->setShapeTexturesEnabled(!App::currentWorld->environment->getShapeTexturesEnabled());
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             if (App::currentWorld->environment->getShapeTexturesEnabled())
-                App::addStatusbarMessage(IDSNS_SHAPE_TEXTURES_ENABLED);
+                App::logMsg(sim_verbosity_msgs,IDSNS_SHAPE_TEXTURES_ENABLED);
             else
-                App::addStatusbarMessage(IDSNS_SHAPE_TEXTURES_DISABLED);
+                App::logMsg(sim_verbosity_msgs,IDSNS_SHAPE_TEXTURES_DISABLED);
             App::setFullDialogRefreshFlag(); // so that env. dlg gets refreshed
         }
         else
@@ -526,9 +526,9 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             _visualizeOnlyInertias=!_visualizeOnlyInertias;
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             if (_visualizeOnlyInertias)
-                App::addStatusbarMessage(IDSNS_SHOWING_INERTIAS);
+                App::logMsg(sim_verbosity_msgs,IDSNS_SHOWING_INERTIAS);
             else
-                App::addStatusbarMessage(IDSNS_NOT_SHOWING_INERTIAS);
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOT_SHOWING_INERTIAS);
             App::setFullDialogRefreshFlag(); // so that env. dlg gets refreshed
         }
         else
@@ -549,9 +549,9 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             _xyGraphInAutoModeDuringSimulation=!_xyGraphInAutoModeDuringSimulation;
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             if (_xyGraphInAutoModeDuringSimulation)
-                App::addStatusbarMessage(IDSNS_NOW_IN_AUTO_MODE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_AUTO_MODE);
             else
-                App::addStatusbarMessage(IDSNS_AUTO_MODE_DISABLED);
+                App::logMsg(sim_verbosity_msgs,IDSNS_AUTO_MODE_DISABLED);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -569,9 +569,9 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             _timeGraphXInAutoModeDuringSimulation=!_timeGraphXInAutoModeDuringSimulation;
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             if (_timeGraphXInAutoModeDuringSimulation)
-                App::addStatusbarMessage(IDSNS_NOW_IN_AUTO_MODE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_AUTO_MODE);
             else
-                App::addStatusbarMessage(IDSNS_AUTO_MODE_DISABLED);
+                App::logMsg(sim_verbosity_msgs,IDSNS_AUTO_MODE_DISABLED);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -589,9 +589,9 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             _timeGraphYInAutoModeDuringSimulation=!_timeGraphYInAutoModeDuringSimulation;
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             if (_timeGraphYInAutoModeDuringSimulation)
-                App::addStatusbarMessage(IDSNS_NOW_IN_AUTO_MODE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_AUTO_MODE);
             else
-                App::addStatusbarMessage(IDSNS_AUTO_MODE_DISABLED);
+                App::logMsg(sim_verbosity_msgs,IDSNS_AUTO_MODE_DISABLED);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -609,9 +609,9 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             _xyGraphIsOneOneProportional=!_xyGraphIsOneOneProportional;
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             if (_xyGraphIsOneOneProportional)
-                App::addStatusbarMessage(IDSNS_KEEPING_PROPORTIONS_AT_1_1);
+                App::logMsg(sim_verbosity_msgs,IDSNS_KEEPING_PROPORTIONS_AT_1_1);
             else
-                App::addStatusbarMessage(IDSNS_PROPORTIONS_NOT_CONSTRAINED_ANYMORE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_PROPORTIONS_NOT_CONSTRAINED_ANYMORE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -629,9 +629,9 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             graphIsTimeGraph=!graphIsTimeGraph;
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             if (graphIsTimeGraph)
-                App::addStatusbarMessage(IDSNS_NOW_IN_TIME_GRAPH_MODE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_TIME_GRAPH_MODE);
             else
-                App::addStatusbarMessage(IDSNS_NOW_IN_XY_GRAPH_MODE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_XY_GRAPH_MODE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -655,7 +655,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
                 setDefaultValues();
                 linkedObjectID=sel[0];
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                App::addStatusbarMessage(IDSNS_NOW_LOOKING_THROUGH_SELECTED_CAMERA);
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_LOOKING_THROUGH_SELECTED_CAMERA);
             }
         }
         else
@@ -680,7 +680,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
                 setDefaultValues();
                 linkedObjectID=sel[0];
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                App::addStatusbarMessage(IDSNS_NOW_LOOKING_AT_SELECTED_GRAPH);
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_LOOKING_AT_SELECTED_GRAPH);
             }
         }
         else
@@ -705,7 +705,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
                 setDefaultValues();
                 linkedObjectID=sel[0];
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                App::addStatusbarMessage(IDSNS_NOW_LOOKING_AT_SELECTED_VISION_SENSOR);
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_LOOKING_AT_SELECTED_VISION_SENSOR);
             }
         }
         else
@@ -729,7 +729,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             {
                 camera->setTrackedObjectID(sel[0]);
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                App::addStatusbarMessage(IDSNS_CAMERA_NOW_TRACKING_SELECTED_OBJECT);
+                App::logMsg(sim_verbosity_msgs,IDSNS_CAMERA_NOW_TRACKING_SELECTED_OBJECT);
             }
         }
         else
@@ -750,7 +750,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             {
                 camera->setTrackedObjectID(-1);
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                App::addStatusbarMessage(IDSNS_CAMERA_NOW_NOT_TRACKING_ANY_OBJECT);
+                App::logMsg(sim_verbosity_msgs,IDSNS_CAMERA_NOW_NOT_TRACKING_ANY_OBJECT);
             }
         }
         else

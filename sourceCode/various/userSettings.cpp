@@ -7,7 +7,7 @@
 #include "easyLock.h"
 #include "vVarious.h"
 #include "app.h"
-#include "libLic.h"
+#include "simFlavor.h"
 #ifdef SIM_WITH_GUI
     #include "vDialog.h"
 #endif
@@ -49,7 +49,6 @@
 #define _USR_ORDER_HIERARCHY_ALPHABETICALLY "orderHierarchyAlphabetically"
 #define _USR_MAC_CHILD_DIALOG_TYPE "macChildDialogType"
 #define _USR_USE_EXTERNAL_LUA_LIBRARY "useExternalLuaLibrary"
-#define _USR_RAISE_ERROR_WITH_API_SCRIPT_FUNCTIONS "raiseErrorWithApiScriptFunctions"
 #define _USR_DESKTOP_RECORDING_INDEX "desktopRecordingIndex"
 #define _USR_DESKTOP_RECORDING_WIDTH "desktopRecordingWidth"
 #define _USR_DIRECTORY_FOR_SCRIPT_EDITOR "defaultDirectoryForExternalScriptEditor"
@@ -64,6 +63,7 @@
 #define _USR_VERBOSITY "verbosity"
 #define _USR_STATUSBAR_VERBOSITY "statusbarVerbosity"
 #define _USR_LOG_FILTER "logFilter"
+#define _USR_UNDECORATED_STATUSBAR_MSGS "undecoratedStatusbarMessages"
 #define _USR_CONSOLE_MSGS_TO_FILE "consoleMsgsToFile"
 #define _USR_FORCE_BUG_FIX_REL_30002 "forceBugFix_rel30002"
 #define _USR_STATUSBAR_INITIALLY_VISIBLE "statusbarInitiallyVisible"
@@ -82,6 +82,7 @@
 #define _USR_CHANGE_SCRIPT_CODE_NEW_API_NOTATION "changeScriptCodeForNewApiNotation"
 #define _USR_SUPPORT_OLD_API_NOTATION "supportOldApiNotation"
 #define _USR_ENABLE_OLD_MIRROR_OBJECTS "enableOldMirrorObjects"
+#define _USR_ALLOW_OLD_EDU_RELEASE "allowOldEduRelease"
 #define _USR_USE_OLD_IK "useOldIk"
 
 #define _USR_ABORT_SCRIPT_EXECUTION_BUTTON "abortScriptExecutionButton"
@@ -202,7 +203,8 @@ CUserSettings::CUserSettings()
     alwaysShowConsole=false;
     _overrideConsoleVerbosity="default";
     _overrideStatusbarVerbosity="default";
-    _logFilter="";
+    _consoleLogFilter="";
+    undecoratedStatusbarMessages=false;
 
     // Rendering section:
     // *****************************
@@ -239,7 +241,7 @@ CUserSettings::CUserSettings()
     guiFontSize_Win=13; // 11-14 ok
     guiFontSize_Mac=-1; // 10-13 ok
     guiFontSize_Linux=13; // 11-14 ok, default is quite large
-    statusbarInitiallyVisible=CLibLic::getBoolVal(10);
+    statusbarInitiallyVisible=CSimFlavor::getBoolVal(10);
     modelBrowserInitiallyVisible=true;
     sceneHierarchyInitiallyVisible=true;
     sceneHierarchyHiddenDuringSimulation=false;
@@ -361,6 +363,7 @@ CUserSettings::CUserSettings()
     changeScriptCodeForNewApiNotation=1;
     _supportOldApiNotation=true;
     enableOldMirrorObjects=false;
+    allowOldEduRelease=-1;
     useOldIk=false;
 
 
@@ -385,7 +388,6 @@ CUserSettings::CUserSettings()
     orderHierarchyAlphabetically=false;
     macChildDialogType=-1; // default
     useExternalLuaLibrary=false; //when using the LUA JIT, we get crashes because of other Lua modules (e.g. LuaSocket). Probably those other modules too need to be recompiled
-    raiseErrorWithApiScriptFunctions=true;
     additionalLuaPath="";
     desktopRecordingIndex=0;
     desktopRecordingWidth=-1;
@@ -504,7 +506,7 @@ void CUserSettings::setIdleFps(int fps)
 
 int CUserSettings::getAbortScriptExecutionTiming()
 {
-    if (!CLibLic::getBoolVal(11))
+    if (!CSimFlavor::getBoolVal(11))
         return(0);
     return(_abortScriptExecutionButton);
 }
@@ -553,9 +555,10 @@ void CUserSettings::saveUserSettings()
     c.addRandomLine("// Debugging");
     c.addRandomLine("// =================================================");
     c.addBoolean(_USR_ALWAYS_SHOW_CONSOLE,alwaysShowConsole,"");
-    c.addString(_USR_VERBOSITY,_overrideConsoleVerbosity,"to override console verbosity setting, use any of: default (do not override), none, errors, warnings, loadinfos, infos, debug, trace, tracelua or traceall");
-    c.addString(_USR_STATUSBAR_VERBOSITY,_overrideStatusbarVerbosity,"to override statusbar verbosity setting, use any of: default (do not override), none, errors, warnings, loadinfos, infos, debug, trace, tracelua or traceall");
-    c.addString(_USR_LOG_FILTER,_logFilter,"leave empty for no filter. Filter format: txta1&txta2&...&txtaN|txtb1&txtb2&...&txtbN|...");
+    c.addString(_USR_VERBOSITY,_overrideConsoleVerbosity,"to override console verbosity setting, use any of: default (do not override), none, errors, warnings, loadinfos, scripterrors, scriptwarnings, msgs, infos, debug, trace, tracelua or traceall");
+    c.addString(_USR_STATUSBAR_VERBOSITY,_overrideStatusbarVerbosity,"to override statusbar verbosity setting, use any of: default (do not override), none, errors, warnings, loadinfos, scripterrors, scriptwarnings, msgs, infos, debug, trace, tracelua or traceall");
+    c.addString(_USR_LOG_FILTER,_consoleLogFilter,"leave empty for no filter. Filter format: txta1&txta2&...&txtaN|txtb1&txtb2&...&txtbN|...");
+    c.addBoolean(_USR_UNDECORATED_STATUSBAR_MSGS,undecoratedStatusbarMessages,"");
     c.addBoolean(_USR_CONSOLE_MSGS_TO_FILE,App::getConsoleMsgToFile(),"if true, console messages are sent to debugLog.txt");
     c.addRandomLine("");
     c.addRandomLine("");
@@ -764,7 +767,6 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_ORDER_HIERARCHY_ALPHABETICALLY,orderHierarchyAlphabetically,"");
     c.addInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType,"-1=default.");
     c.addBoolean(_USR_USE_EXTERNAL_LUA_LIBRARY,useExternalLuaLibrary,"if true, will call all Lua functions via the simLua library ('simLua.dll', 'libsimLua.so' or 'libsimLua.dylib')");
-// do not advertise this option anymore... c.addBoolean(_USR_RAISE_ERROR_WITH_API_SCRIPT_FUNCTIONS,raiseErrorWithApiScriptFunctions,"");
     c.addString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath,"e.g. d:/myLuaRoutines");
     c.addInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex,"");
     c.addInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth,"-1=default.");
@@ -865,9 +867,10 @@ void CUserSettings::loadUserSettings()
         else
             App::logMsg(sim_verbosity_errors,"unrecognized verbosity value in system/usrset.txt: %s.",_overrideStatusbarVerbosity.c_str());
     }
-    c.getString(_USR_LOG_FILTER,_logFilter);
-    App::setLogFilter(_logFilter.c_str());
+    c.getString(_USR_LOG_FILTER,_consoleLogFilter);
+    App::setConsoleLogFilter(_consoleLogFilter.c_str());
 
+    c.getBoolean(_USR_UNDECORATED_STATUSBAR_MSGS,undecoratedStatusbarMessages);
     bool dummyBool=false;
     if (c.getBoolean(_USR_CONSOLE_MSGS_TO_FILE,dummyBool))
         App::setConsoleMsgToFile(dummyBool);
@@ -1036,6 +1039,7 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_CHANGE_SCRIPT_CODE_NEW_API_NOTATION,changeScriptCodeForNewApiNotation);
     c.getBoolean(_USR_SUPPORT_OLD_API_NOTATION,_supportOldApiNotation);
     c.getBoolean(_USR_ENABLE_OLD_MIRROR_OBJECTS,enableOldMirrorObjects);
+    c.getInteger(_USR_ALLOW_OLD_EDU_RELEASE,allowOldEduRelease);
     c.getBoolean(_USR_USE_OLD_IK,useOldIk);
 
 
@@ -1078,7 +1082,6 @@ void CUserSettings::loadUserSettings()
     #endif
 #endif
     c.getBoolean(_USR_USE_EXTERNAL_LUA_LIBRARY,useExternalLuaLibrary);
-    c.getBoolean(_USR_RAISE_ERROR_WITH_API_SCRIPT_FUNCTIONS,raiseErrorWithApiScriptFunctions);
     c.getString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath);
     c.getInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex);
     c.getInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth);

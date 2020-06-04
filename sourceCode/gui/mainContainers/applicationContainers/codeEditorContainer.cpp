@@ -845,7 +845,7 @@ void CCodeEditorContainer::killLuaState(int scriptHandle) const
     {
         std::string msg(it->getDescriptiveName());
         msg+=" was reset.";
-        App::addStatusbarMessage(msg,false);
+        App::logMsg(sim_verbosity_msgs,msg.c_str());
     }
 }
 

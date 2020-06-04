@@ -1,7 +1,5 @@
 #include "syncObject.h"
 #include "pluginContainer.h"
-//#include <typeinfo>
-//#define SYNC_DEBUG printf("SYNC_DEBUG: %s, %s\n",typeid(*this).name(),__func__);
 
 #define MSG_SEND_ENABLED
 

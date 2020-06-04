@@ -1,7 +1,7 @@
 #include "simInternal.h"
 #include "copyBuffer.h"
 #include "tt.h"
-#include "geometric.h"
+#include "mesh.h"
 #include "simStrings.h"
 #include "app.h"
 
@@ -435,7 +435,7 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
     }
     // ************************************************************
 
-    CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+    CMesh::clearTempVerticesIndicesNormalsAndEdges();
 
 
     //***************************************************
@@ -484,7 +484,7 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
             {
                 CShape* it=(CShape*)objectBuffer[i];
                 CDynMaterialObject* mat=it->getDynMaterial();
-                it->geomData->geomInfo->setDynMaterialId_OLD(dynObjId);
+                it->getMeshWrapper()->setDynMaterialId_OLD(dynObjId);
                 mat->setObjectID(dynObjId++);
                 ar.storeDataName(SER_DYNMATERIAL);
                 ar.setCountingMode();
@@ -512,7 +512,7 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
     // Now we store all vertices, indices, normals and edges (there might be duplicates, and we don't wanna waste disk space)
     if (ar.isBinary())
     {
-        CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+        CMesh::clearTempVerticesIndicesNormalsAndEdges();
         for (size_t i=0;i<objectBuffer.size();i++)
         {
             if (objectBuffer[i]->getObjectType()==sim_object_shape_type)
@@ -520,10 +520,10 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
         }
         ar.storeDataName(SER_VERTICESINDICESNORMALSEDGES);
         ar.setCountingMode();
-        CGeometric::serializeTempVerticesIndicesNormalsAndEdges(ar);
+        CMesh::serializeTempVerticesIndicesNormalsAndEdges(ar);
         if (ar.setWritingMode())
-            CGeometric::serializeTempVerticesIndicesNormalsAndEdges(ar);
-        CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+            CMesh::serializeTempVerticesIndicesNormalsAndEdges(ar);
+        CMesh::clearTempVerticesIndicesNormalsAndEdges();
     }
 
     // Now we store all sceneObjects:
@@ -664,7 +664,7 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
     // Now we copy the original content of the buffers back:
     _restoreBuffers_temp();
 
-    CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+    CMesh::clearTempVerticesIndicesNormalsAndEdges();
 }
 
 void CCopyBuffer::_backupBuffers_temp()

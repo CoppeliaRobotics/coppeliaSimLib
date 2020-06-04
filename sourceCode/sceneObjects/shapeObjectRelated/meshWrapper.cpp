@@ -1,12 +1,12 @@
 #include "simInternal.h"
-#include "geomWrap.h"
-#include "geometric.h"
+#include "meshWrapper.h"
+#include "mesh.h"
 #include "tt.h"
 #include "global.h"
 #include "viewableBase.h"
 #include "app.h"
 
-CGeomWrap::CGeomWrap()
+CMeshWrapper::CMeshWrapper()
 {
     _mass=1.0f;
     _name="sub__0";
@@ -20,76 +20,76 @@ CGeomWrap::CGeomWrap()
     _transformationsSinceGrouping.setIdentity();
 }
 
-CGeomWrap::~CGeomWrap()
+CMeshWrapper::~CMeshWrapper()
 {
     for (size_t i=0;i<childList.size();i++)
         delete childList[i];
 }
 
-C7Vector CGeomWrap::getTransformationsSinceGrouping()
+C7Vector CMeshWrapper::getTransformationsSinceGrouping()
 {
     return(_transformationsSinceGrouping);
 }
 
-void CGeomWrap::setTransformationsSinceGrouping(const C7Vector& tr)
+void CMeshWrapper::setTransformationsSinceGrouping(const C7Vector& tr)
 {
     _transformationsSinceGrouping=tr;
 }
 
-void CGeomWrap::display(CGeomProxy* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
+void CMeshWrapper::display(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->display(geomData,displayAttrib,collisionColor,dynObjFlag_forVisualization,transparencyHandling,multishapeEditSelected);
 }
 
-void CGeomWrap::display_extRenderer(CGeomProxy* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex)
+void CMeshWrapper::display_extRenderer(CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->display_extRenderer(geomData,displayAttrib,tr,shapeHandle,componentIndex);
 }
 
-void CGeomWrap::display_colorCoded(CGeomProxy* geomData,int objectId,int displayAttrib)
+void CMeshWrapper::display_colorCoded(CShape* geomData,int objectId,int displayAttrib)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->display_colorCoded(geomData,objectId,displayAttrib);
 }
 
-void CGeomWrap::displayGhost(CGeomProxy* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors)
+void CMeshWrapper::displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->displayGhost(geomData,displayAttrib,originalColors,backfaceCulling,transparency,newColors);
 }
 
-void CGeomWrap::performSceneObjectLoadingMapping(const std::vector<int>* map)
+void CMeshWrapper::performSceneObjectLoadingMapping(const std::vector<int>* map)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->performSceneObjectLoadingMapping(map);
 }
 
-void CGeomWrap::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void CMeshWrapper::performTextureObjectLoadingMapping(const std::vector<int>* map)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->performTextureObjectLoadingMapping(map);
 }
 
-void CGeomWrap::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
+void CMeshWrapper::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
 {
     _dynMaterialId_OLD=CWorld::getLoadingMapping(map,_dynMaterialId_OLD);
 }
 
-void CGeomWrap::announceSceneObjectWillBeErased(int objectID)
+void CMeshWrapper::announceSceneObjectWillBeErased(int objectID)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->announceSceneObjectWillBeErased(objectID);
 }
 
-void CGeomWrap::setTextureDependencies(int shapeID)
+void CMeshWrapper::setTextureDependencies(int shapeID)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->setTextureDependencies(shapeID);
 }
 
-int CGeomWrap::getTextureCount()
+int CMeshWrapper::getTextureCount()
 { // function has virtual/non-virtual counterpart!
     int retVal=0;
     for (size_t i=0;i<childList.size();i++)
@@ -97,7 +97,7 @@ int CGeomWrap::getTextureCount()
     return(retVal);
 }
 
-bool CGeomWrap::hasTextureThatUsesFixedTextureCoordinates()
+bool CMeshWrapper::hasTextureThatUsesFixedTextureCoordinates()
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
     {
@@ -107,19 +107,19 @@ bool CGeomWrap::hasTextureThatUsesFixedTextureCoordinates()
     return(false);
 }
 
-void CGeomWrap::removeAllTextures()
+void CMeshWrapper::removeAllTextures()
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->removeAllTextures();
 }
 
-void CGeomWrap::getColorStrings(std::string& colorStrings)
+void CMeshWrapper::getColorStrings(std::string& colorStrings)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->getColorStrings(colorStrings);
 }
 
-bool CGeomWrap::getContainsTransparentComponents()
+bool CMeshWrapper::getContainsTransparentComponents()
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
     {
@@ -129,47 +129,47 @@ bool CGeomWrap::getContainsTransparentComponents()
     return(false);
 }
 
-float CGeomWrap::getGouraudShadingAngle()
+float CMeshWrapper::getGouraudShadingAngle()
 { // function has virtual/non-virtual counterpart!
     return(childList[0]->getGouraudShadingAngle()); // we just return the first angle we encounter! Normally never used
 }
 
-void CGeomWrap::setGouraudShadingAngle(float angle)
+void CMeshWrapper::setGouraudShadingAngle(float angle)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->setGouraudShadingAngle(angle);
 }
 
-float CGeomWrap::getEdgeThresholdAngle()
+float CMeshWrapper::getEdgeThresholdAngle()
 { // function has virtual/non-virtual counterpart!
     return(childList[0]->getEdgeThresholdAngle()); // we just return the first angle we encounter! Normally never used
 }
 
-void CGeomWrap::setEdgeThresholdAngle(float angle)
+void CMeshWrapper::setEdgeThresholdAngle(float angle)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->setEdgeThresholdAngle(angle);
 }
 
-void CGeomWrap::setHideEdgeBorders(bool v)
+void CMeshWrapper::setHideEdgeBorders(bool v)
 {  // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->setHideEdgeBorders(v);
 }
 
-bool CGeomWrap::getHideEdgeBorders()
+bool CMeshWrapper::getHideEdgeBorders()
 {  // function has virtual/non-virtual counterpart!
     return(childList[0]->getHideEdgeBorders()); // we just return the first setting we encounter! Normally never used
 }
 
-CGeomWrap* CGeomWrap::copyYourself()
+CMeshWrapper* CMeshWrapper::copyYourself()
 { // function has virtual/non-virtual counterpart!
-    CGeomWrap* newIt=new CGeomWrap();
+    CMeshWrapper* newIt=new CMeshWrapper();
     copyWrapperInfos(newIt);
     return(newIt);
 }
 
-void CGeomWrap::copyWrapperInfos(CGeomWrap* target)
+void CMeshWrapper::copyWrapperInfos(CMeshWrapper* target)
 {
     target->_mass=_mass;
     target->_name=_name;
@@ -186,17 +186,17 @@ void CGeomWrap::copyWrapperInfos(CGeomWrap* target)
         target->childList.push_back(childList[i]->copyYourself());
 }
 
-void CGeomWrap::setMass(float m)
+void CMeshWrapper::setMass(float m)
 {
     _mass=tt::getLimitedFloat(0.000000001f,100000.0f,m);
 }
 
-float CGeomWrap::getMass()
+float CMeshWrapper::getMass()
 {
     return(_mass);
 }
 
-void CGeomWrap::setDefaultInertiaParams()
+void CMeshWrapper::setDefaultInertiaParams()
 {
     _localInertiaFrame.setIdentity();
     _principalMomentsOfInertia(0)=0.001f;
@@ -204,42 +204,42 @@ void CGeomWrap::setDefaultInertiaParams()
     _principalMomentsOfInertia(2)=0.001f;
 }
 
-void CGeomWrap::setName(std::string newName)
+void CMeshWrapper::setName(std::string newName)
 {
     _name=newName;
 }
 
-std::string CGeomWrap::getName()
+std::string CMeshWrapper::getName()
 {
     return(_name);
 }
 
-int CGeomWrap::getDynMaterialId_OLD()
+int CMeshWrapper::getDynMaterialId_OLD()
 {
     return(_dynMaterialId_OLD);
 }
 
-void CGeomWrap::setDynMaterialId_OLD(int id)
+void CMeshWrapper::setDynMaterialId_OLD(int id)
 {
     _dynMaterialId_OLD=id;
 }
 
-C7Vector CGeomWrap::getLocalInertiaFrame()
+C7Vector CMeshWrapper::getLocalInertiaFrame()
 {
     return (_localInertiaFrame);
 }
 
-void CGeomWrap::setLocalInertiaFrame(const C7Vector& li)
+void CMeshWrapper::setLocalInertiaFrame(const C7Vector& li)
 {
     _localInertiaFrame=li;
 }
 
-C3Vector CGeomWrap::getPrincipalMomentsOfInertia()
+C3Vector CMeshWrapper::getPrincipalMomentsOfInertia()
 {
     return (_principalMomentsOfInertia);
 }
 
-void CGeomWrap::setPrincipalMomentsOfInertia(const C3Vector& inertia)
+void CMeshWrapper::setPrincipalMomentsOfInertia(const C3Vector& inertia)
 {
     _principalMomentsOfInertia=inertia;
     _principalMomentsOfInertia(0)=tt::getLimitedFloat(0.0f,10000.0f,_principalMomentsOfInertia(0));
@@ -249,19 +249,19 @@ void CGeomWrap::setPrincipalMomentsOfInertia(const C3Vector& inertia)
         _principalMomentsOfInertia(0)=0.001f; // make sure we don't have a zero vector (problems with Bullet? and CoppeliaSim!)
 }
 
-void CGeomWrap::scale(float xVal,float yVal,float zVal)
+void CMeshWrapper::scale(float xVal,float yVal,float zVal)
 { // function has virtual/non-virtual counterpart!
     // iso-scaling for compound shapes!! (should normally already be xVal=yVal=zVal)
     scaleWrapperInfos(xVal,xVal,xVal);
 }
 
-void CGeomWrap::prepareVerticesIndicesNormalsAndEdgesForSerialization()
+void CMeshWrapper::prepareVerticesIndicesNormalsAndEdgesForSerialization()
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->prepareVerticesIndicesNormalsAndEdgesForSerialization();
 }
 
-void CGeomWrap::scaleWrapperInfos(float xVal,float yVal,float zVal)
+void CMeshWrapper::scaleWrapperInfos(float xVal,float yVal,float zVal)
 {
     scaleMassAndInertia(xVal,yVal,zVal);
 
@@ -279,7 +279,7 @@ void CGeomWrap::scaleWrapperInfos(float xVal,float yVal,float zVal)
         checkIfConvex();
 }
 
-void CGeomWrap::scaleMassAndInertia(float xVal,float yVal,float zVal)
+void CMeshWrapper::scaleMassAndInertia(float xVal,float yVal,float zVal)
 {
     _mass*=xVal*yVal*zVal;
     _principalMomentsOfInertia(0)*=yVal*zVal;
@@ -287,7 +287,7 @@ void CGeomWrap::scaleMassAndInertia(float xVal,float yVal,float zVal)
     _principalMomentsOfInertia(2)*=xVal*yVal;
 }
 
-void CGeomWrap::setPurePrimitiveType(int theType,float xOrDiameter,float y,float zOrHeight)
+void CMeshWrapper::setPurePrimitiveType(int theType,float xOrDiameter,float y,float zOrHeight)
 { // function has virtual/non-virtual counterpart!
     // Following added on 14/03/2011 because a compound shape composed by pure and non pure shapes would decompose as pure shapes with wrong orientation!
     if (theType==sim_pure_primitive_none)
@@ -298,27 +298,27 @@ void CGeomWrap::setPurePrimitiveType(int theType,float xOrDiameter,float y,float
     }
 }
 
-int CGeomWrap::getPurePrimitiveType()
+int CMeshWrapper::getPurePrimitiveType()
 { // function has virtual/non-virtual counterpart!
     return(childList[0]->getPurePrimitiveType()); // we just return the first type we encounter! Normally never used
 }
 
-bool CGeomWrap::isGeometric()
+bool CMeshWrapper::isMesh()
 { // function has virtual/non-virtual counterpart!
     return(false);
 }
 
-bool CGeomWrap::isPure()
+bool CMeshWrapper::isPure()
 { // function has virtual/non-virtual counterpart!
     return(childList[0]->isPure());
 }
 
-bool CGeomWrap::isConvex()
+bool CMeshWrapper::isConvex()
 { // function has virtual/non-virtual counterpart!
     return(_convex);
 }
 
-bool CGeomWrap::containsOnlyPureConvexShapes()
+bool CMeshWrapper::containsOnlyPureConvexShapes()
 { // function has virtual/non-virtual counterpart!
     bool retVal=true;
     for (size_t i=0;i<childList.size();i++)
@@ -328,7 +328,7 @@ bool CGeomWrap::containsOnlyPureConvexShapes()
     return(retVal);
 }
 
-bool CGeomWrap::checkIfConvex()
+bool CMeshWrapper::checkIfConvex()
 { // function has virtual/non-virtual counterpart!
     _convex=true;
     for (size_t i=0;i<childList.size();i++)
@@ -337,7 +337,7 @@ bool CGeomWrap::checkIfConvex()
     return(_convex);
 }
 
-void CGeomWrap::setConvex(bool convex)
+void CMeshWrapper::setConvex(bool convex)
 { // function has virtual/non-virtual counterpart!
     _convex=convex; // This is just for the wrapper!
     /* removed on 24/3/2013
@@ -353,19 +353,19 @@ void CGeomWrap::setConvex(bool convex)
         */
 }
 
-void CGeomWrap::getCumulativeMeshes(std::vector<float>& vertices,std::vector<int>* indices,std::vector<float>* normals)
+void CMeshWrapper::getCumulativeMeshes(std::vector<float>& vertices,std::vector<int>* indices,std::vector<float>* normals)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->getCumulativeMeshes(vertices,indices,normals);
 }
 
-void CGeomWrap::setColor(const char* colorName,int colorComponent,const float* rgbData)
+void CMeshWrapper::setColor(const char* colorName,int colorComponent,const float* rgbData)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->setColor(colorName,colorComponent,rgbData);
 }
 
-bool CGeomWrap::getColor(const char* colorName,int colorComponent,float* rgbData)
+bool CMeshWrapper::getColor(const char* colorName,int colorComponent,float* rgbData)
 { // function has virtual/non-virtual counterpart!
     bool retVal=false;
     for (size_t i=0;i<childList.size();i++)
@@ -373,20 +373,20 @@ bool CGeomWrap::getColor(const char* colorName,int colorComponent,float* rgbData
     return(retVal);
 }
 
-void CGeomWrap::getAllShapeComponentsCumulative(std::vector<CGeometric*>& shapeComponentList)
+void CMeshWrapper::getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList)
 {   // function has virtual/non-virtual counterpart!
     // needed by the dynamics routine. We return ALL shape components!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->getAllShapeComponentsCumulative(shapeComponentList);
 }
 
-CGeometric* CGeomWrap::getShapeComponentAtIndex(int& index)
+CMesh* CMeshWrapper::getShapeComponentAtIndex(int& index)
 { // function has virtual/non-virtual counterpart!
     if (index<0)
         return(nullptr);
     for (size_t i=0;i<childList.size();i++)
     {
-        CGeometric* retVal=childList[i]->getShapeComponentAtIndex(index);
+        CMesh* retVal=childList[i]->getShapeComponentAtIndex(index);
         if (retVal!=nullptr)
             return(retVal);
         if (index<0)
@@ -395,7 +395,7 @@ CGeometric* CGeomWrap::getShapeComponentAtIndex(int& index)
     return(nullptr);
 }
 
-void CGeomWrap::preMultiplyAllVerticeLocalFrames(const C7Vector& preTr)
+void CMeshWrapper::preMultiplyAllVerticeLocalFrames(const C7Vector& preTr)
 { // function has virtual/non-virtual counterpart!
 
     _transformationsSinceGrouping=preTr*_transformationsSinceGrouping;
@@ -405,19 +405,19 @@ void CGeomWrap::preMultiplyAllVerticeLocalFrames(const C7Vector& preTr)
         childList[i]->preMultiplyAllVerticeLocalFrames(preTr);
 }
 
-void CGeomWrap::flipFaces()
+void CMeshWrapper::flipFaces()
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->flipFaces();
     checkIfConvex();
 }
 
-void CGeomWrap::serialize(CSer& ar,const char* shapeName)
+void CMeshWrapper::serialize(CSer& ar,const char* shapeName)
 { // function has virtual/non-virtual counterpart!
     serializeWrapperInfos(ar,shapeName);
 }
 
-void CGeomWrap::serializeWrapperInfos(CSer& ar,const char* shapeName)
+void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
 {
     if (ar.isBinary())
     {
@@ -459,7 +459,7 @@ void CGeomWrap::serializeWrapperInfos(CSer& ar,const char* shapeName)
 
             for (size_t i=0;i<childList.size();i++)
             {
-                if (childList[i]->isGeometric())
+                if (childList[i]->isMesh())
                     ar.storeDataName("Geo");
                 else
                     ar.storeDataName("Wrp");
@@ -535,7 +535,7 @@ void CGeomWrap::serializeWrapperInfos(CSer& ar,const char* shapeName)
                     {
                         noHit=false;
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        CGeometric* it=new CGeometric();
+                        CMesh* it=new CMesh();
                         it->serialize(ar,shapeName);
                         childList.push_back(it);
                     }
@@ -543,7 +543,7 @@ void CGeomWrap::serializeWrapperInfos(CSer& ar,const char* shapeName)
                     {
                         noHit=false;
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        CGeomWrap* it=new CGeomWrap();
+                        CMeshWrapper* it=new CMeshWrapper();
                         it->serialize(ar,shapeName);
                         childList.push_back(it);
                     }
@@ -582,7 +582,7 @@ void CGeomWrap::serializeWrapperInfos(CSer& ar,const char* shapeName)
             for (size_t i=0;i<childList.size();i++)
             {
                 ar.xmlPushNewNode("child");
-                if (childList[i]->isGeometric())
+                if (childList[i]->isMesh())
                     ar.xmlPushNewNode("mesh");
                 else
                     ar.xmlPushNewNode("compound");
@@ -629,7 +629,7 @@ void CGeomWrap::serializeWrapperInfos(CSer& ar,const char* shapeName)
                     {
                         if (ar.xmlPushChildNode("mesh",false))
                         {
-                            CGeometric* it=new CGeometric();
+                            CMesh* it=new CMesh();
                             it->serialize(ar,shapeName);
                             childList.push_back(it);
                             ar.xmlPopNode();
@@ -638,7 +638,7 @@ void CGeomWrap::serializeWrapperInfos(CSer& ar,const char* shapeName)
                         {
                             if (ar.xmlPushChildNode("compound"))
                             {
-                                CGeomWrap* it=new CGeomWrap();
+                                CMeshWrapper* it=new CMeshWrapper();
                                 it->serialize(ar,shapeName);
                                 childList.push_back(it);
                                 ar.xmlPopNode();
@@ -656,7 +656,7 @@ void CGeomWrap::serializeWrapperInfos(CSer& ar,const char* shapeName)
 }
 
 
-void CGeomWrap::findPrincipalMomentOfInertia(const C3X3Matrix& tensor,C4Vector& rotation,C3Vector& principalMoments)
+void CMeshWrapper::findPrincipalMomentOfInertia(const C3X3Matrix& tensor,C4Vector& rotation,C3Vector& principalMoments)
 { // This routine is iterative and not elegant. But we do not need speed here anyway ;)
     C3X3Matrix rot;
     C3X3Matrix tens(tensor);
@@ -705,13 +705,13 @@ void CGeomWrap::findPrincipalMomentOfInertia(const C3X3Matrix& tensor,C4Vector& 
     rotation=rot.getQuaternion();
 }
 
-float CGeomWrap::_getTensorNonDiagonalMeasure(const C3X3Matrix& tensor)
+float CMeshWrapper::_getTensorNonDiagonalMeasure(const C3X3Matrix& tensor)
 {
     C3Vector v(tensor.axis[1](0),tensor.axis[2](0),tensor.axis[2](1));
     return(v*v);
 }
 
-C3X3Matrix CGeomWrap::getNewTensor(const C3Vector& principalMoments,const C7Vector& newFrame)
+C3X3Matrix CMeshWrapper::getNewTensor(const C3Vector& principalMoments,const C7Vector& newFrame)
 { // remember that we always work with a massless tensor. The tensor is multiplied with the mass in the dynamics module!
     C3X3Matrix tensor;
     tensor.clear();

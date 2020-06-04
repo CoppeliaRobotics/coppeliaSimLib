@@ -56,7 +56,7 @@ public:
     float getCellSizeForDisplay() const;
 
     void insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeToOctree,const unsigned char* optionalColors3,bool colorsAreIndividual,const unsigned int* optionalTags,unsigned int theTagWhenOptionalTagsIsNull);
-    void insertShape(const CShape* shape,unsigned int theTag);
+    void insertShape(CShape* shape,unsigned int theTag);
     void insertOctree(const COctree* octree,unsigned int theTag);
     void insertDummy(const CDummy* dummy,unsigned int theTag);
     void insertPointCloud(const CPointCloud* pointCloud,unsigned int theTag);
@@ -65,7 +65,7 @@ public:
     void insertObject(const CSceneObject* obj,unsigned int theTag);
 
     void subtractPoints(const float* pts,int ptsCnt,bool ptsAreRelativeToOctree);
-    void subtractShape(const CShape* shape);
+    void subtractShape(CShape* shape);
     void subtractOctree(const COctree* octree);
     void subtractDummy(const CDummy* dummy);
     void subtractPointCloud(const CPointCloud* pointCloud);

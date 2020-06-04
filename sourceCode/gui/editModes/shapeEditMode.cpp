@@ -1,6 +1,6 @@
 #include "shapeEditMode.h"
 #include "simConst.h"
-#include "geometric.h"
+#include "mesh.h"
 #include "global.h"
 #include "meshManip.h"
 #include "oGL.h"
@@ -24,11 +24,11 @@ CShapeEditMode::CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContai
     edgeMaxAngle=135.0f*degToRad_f;
     edgeDirectionChangeMaxAngle=45.0f*degToRad_f;
 
-    _shape->geomData->geomInfo->getCumulativeMeshes(_editionVertices,&_editionIndices,&_editionNormals);
-    _editionTextureProperty=((CGeometric*)_shape->geomData->geomInfo)->getTextureProperty();
+    _shape->getMeshWrapper()->getCumulativeMeshes(_editionVertices,&_editionIndices,&_editionNormals);
+    _editionTextureProperty=_shape->getSingleMesh()->getTextureProperty();
     if (_editionTextureProperty!=nullptr)
     {
-        if (!((CGeometric*)_shape->geomData->geomInfo)->getNonCalculatedTextureCoordinates(_editionTextureCoords))
+        if (!_shape->getSingleMesh()->getNonCalculatedTextureCoordinates(_editionTextureCoords))
             _editionTextureProperty=nullptr; // texture coordinates are calculated, so we don't care
     }
     if (_editionTextureProperty!=nullptr)
@@ -59,8 +59,7 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
     if (!cancelChanges)
     {
         C7Vector oldTr(_shape->getCumulativeTransformation());
-        CGeomProxy* g=_shape->geomData;
-        CGeometric* gc=(CGeometric*)g->geomInfo;
+        CMesh* gc=_shape->getSingleMesh();
         gc->setPurePrimitiveType(sim_pure_primitive_none,1.0f,1.0f,1.0f); // disable the pure characteristic
         CMeshManip::checkVerticesIndicesNormalsTexCoords(_editionVertices,_editionIndices,nullptr,&_editionTextureCoords,_identicalVerticesCheck,_identicalVerticesTolerance,_identicalTrianglesCheck);
 
@@ -68,7 +67,7 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
         { // The shape is not empty
             gc->setMesh(_editionVertices,_editionIndices,nullptr,C7Vector::identityTransformation); // will do the convectivity test
             gc->actualizeGouraudShadingAndVisibleEdges();
-            g->removeCollisionInformation();
+            _shape->removeMeshCalculationStructure();
             // handle textures:
             CTextureProperty* tp=gc->getTextureProperty();
             if (tp!=nullptr)

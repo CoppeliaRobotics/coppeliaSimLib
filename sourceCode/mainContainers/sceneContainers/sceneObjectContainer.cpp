@@ -5,7 +5,7 @@
 #include "fileOperations.h"
 #include "tt.h"
 #include "pluginContainer.h"
-#include "geometric.h"
+#include "mesh.h"
 
 CSceneObjectContainer::CSceneObjectContainer()
 {
@@ -500,7 +500,10 @@ void CSceneObjectContainer::setTextureDependencies()
     {
         CSceneObject* it=getObjectFromIndex(i);
         if (it->getObjectType()==sim_object_shape_type)
-            ((CShape*)it)->geomData->setTextureDependencies(it->getObjectHandle());
+        {
+            if (((CShape*)it)->getMeshWrapper()!=nullptr)
+                ((CShape*)it)->getMeshWrapper()->setTextureDependencies(it->getObjectHandle());
+        }
     }
 }
 
@@ -2556,7 +2559,7 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
             {
                 if (mass<0.0000001f)
                     mass=0.0000001f;
-                shape->geomData->geomInfo->setMass(mass);
+                shape->getMeshWrapper()->setMass(mass);
             }
 
             C3Vector pmoment(0.1f,0.1f,0.1f);
@@ -2617,7 +2620,7 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
                 m.axis[1](2)=inertia[4];
                 m.axis[2](2)=inertia[5];
                 m/=mass; // in CoppeliaSim we work with the "massless inertia"
-                CGeomWrap::findPrincipalMomentOfInertia(m,rot,pmoment);
+                CMeshWrapper::findPrincipalMomentOfInertia(m,rot,pmoment);
             }
             if (pmoment(0)<0.0000001f)
                 pmoment(0)=0.0000001f;
@@ -2625,8 +2628,8 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
                 pmoment(1)=0.0000001f;
             if (pmoment(2)<0.0000001f)
                 pmoment(0)=0.0000001f;
-            shape->geomData->geomInfo->setPrincipalMomentsOfInertia(pmoment);
-            shape->geomData->geomInfo->setLocalInertiaFrame(shape->getFullCumulativeTransformation().getInverse()*tr.getTransformation()*C7Vector(rot,com));
+            shape->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
+            shape->getMeshWrapper()->setLocalInertiaFrame(shape->getFullCumulativeTransformation().getInverse()*tr.getTransformation()*C7Vector(rot,com));
         }
         C7Vector tr(shape->getFullCumulativeTransformation());
         shape->acquireCommonPropertiesFromObject_simpleXMLLoading(dummy);
@@ -2638,7 +2641,7 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
 
         // We cannot decided of the position of the shape (the position is selected at the center of the shape)
         // But we can decide of the orientation of the shape (most of the time), so do it here (we simply reorient the shape's bounding box):
-        if ( (!shape->geomData->geomInfo->isPure())||(shape->isCompound()) )
+        if ( (!shape->getMeshWrapper()->isPure())||(shape->isCompound()) )
         {
             C7Vector oldAbsTr(shape->getCumulativeTransformation());
             C7Vector oldAbsTr2(dummy->getCumulativeTransformation().getInverse()*oldAbsTr);
@@ -2839,11 +2842,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
                     }
                     if (ok)
                     {
-                        CGeomProxy* geom=new CGeomProxy(nullptr,vertices,indices,nullptr,nullptr);
-                        retVal=new CShape();
-                        retVal->setLocalTransformation(geom->getCreationTransformation());
-                        geom->setCreationTransformation(C7Vector::identityTransformation);
-                        retVal->geomData=geom;
+                        retVal=new CShape(nullptr,vertices,indices,nullptr,nullptr);
                         addObjectToScene(retVal,false,true);
                     }
                 }
@@ -2943,25 +2942,25 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
     {
         float v;
         if (ar.xmlGetNode_float("shadingAngle",v,false))
-        {
-            ((CGeometric*)retVal->geomData->geomInfo)->setGouraudShadingAngle(v*piValue_f/180.0f);
-            ((CGeometric*)retVal->geomData->geomInfo)->setEdgeThresholdAngle(v*piValue_f/180.0f);
+        { // checkHere
+            retVal->getSingleMesh()->setGouraudShadingAngle(v*piValue_f/180.0f);
+            retVal->getSingleMesh()->setEdgeThresholdAngle(v*piValue_f/180.0f);
         }
         retVal->setVisibleEdges(false);
         bool b;
         if (ar.xmlGetNode_bool("culling",b,false))
             retVal->setCulling(b);
         if (ar.xmlGetNode_bool("wireframe",b,false))
-            ((CGeometric*)retVal->geomData->geomInfo)->setWireframe(b);
+            retVal->getSingleMesh()->setWireframe(b);
         if (ar.xmlPushChildNode("color",false))
         {
             int rgb[3];
             if (ar.xmlGetNode_ints("ambientDiffuse",rgb,3,false))
-                ((CGeometric*)retVal->geomData->geomInfo)->color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                retVal->getSingleMesh()->color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
             if (ar.xmlGetNode_ints("specular",rgb,3,false))
-                ((CGeometric*)retVal->geomData->geomInfo)->color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_specular);
+                retVal->getSingleMesh()->color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_specular);
             if (ar.xmlGetNode_ints("emission",rgb,3,false))
-                ((CGeometric*)retVal->geomData->geomInfo)->color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_emission);
+                retVal->getSingleMesh()->color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_emission);
             ar.xmlPopNode();
         }
         if (itemType==nullptr)
@@ -3036,8 +3035,8 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar,CShape* shape)
     ar.xmlAddNode_floats("initialLinearVelocity",shape->getInitialDynamicLinearVelocity().data,3);
     C3Vector vel(shape->getInitialDynamicAngularVelocity()*180.0f/piValue_f);
     ar.xmlAddNode_floats("initialAngularVelocity",vel.data,3);
-    ar.xmlAddNode_float("mass",shape->geomData->geomInfo->getMass());
-    C7Vector tr(shape->geomData->geomInfo->getLocalInertiaFrame());
+    ar.xmlAddNode_float("mass",shape->getMeshWrapper()->getMass());
+    C7Vector tr(shape->getMeshWrapper()->getLocalInertiaFrame());
 
     ar.xmlPushNewNode("localInertiaFrame");
     ar.xmlAddNode_floats("position",tr.X.data,3);
@@ -3046,7 +3045,7 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar,CShape* shape)
     ar.xmlAddNode_floats("euler",euler.data,3);
     ar.xmlPopNode();
 
-    ar.xmlAddNode_floats("principalMomentOfInertia",shape->geomData->geomInfo->getPrincipalMomentsOfInertia().data,3);
+    ar.xmlAddNode_floats("principalMomentOfInertia",shape->getMeshWrapper()->getPrincipalMomentsOfInertia().data,3);
     ar.xmlPushNewNode("switches");
     ar.xmlAddNode_bool("static",shape->getShapeIsDynamicallyStatic());
     ar.xmlAddNode_bool("respondable",shape->getRespondable());
@@ -3063,7 +3062,7 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar,CShape* shape)
 
 void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* originalShapeName,CShape* shape,const C7Vector& frame)
 {
-    CGeometric* geom=(CGeometric*)shape->geomData->geomInfo;
+    CMesh* geom=shape->getSingleMesh();
     if (geom->getPurePrimitiveType()==sim_pure_primitive_none)
     { // mesh
         ar.xmlPushNewNode("mesh");

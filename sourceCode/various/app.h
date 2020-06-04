@@ -70,11 +70,12 @@ public:
     static bool isFullScreen(); // helper
     static void setFullScreen(bool f); // helper
 
-    static std::string getLogFilter();
-    static void setLogFilter(const char* filter);
+    static std::string getConsoleLogFilter();
+    static void setConsoleLogFilter(const char* filter);
     static bool logPluginMsg(const char* pluginName,int verbosityLevel,const char* logMsg);
     static void logMsg(int verbosityLevel,const char* msg,const char* subStr1=nullptr,const char* subStr2=nullptr,const char* subStr3=nullptr);
     static void logMsg(int verbosityLevel,const char* msg,int int1,int int2=0,int int3=0);
+    static void logScriptMsg(const char* scriptName,int verbosityLevel,const char* msg);
     static int getConsoleVerbosity(const char* pluginName=nullptr);
     static void setConsoleVerbosity(int v,const char* pluginName=nullptr);
     static int getStatusbarVerbosity(const char* pluginName=nullptr);
@@ -83,13 +84,14 @@ public:
     static int getVerbosityLevelFromString(const char* verbosityStr);
     static bool getConsoleMsgToFile();
     static void setConsoleMsgToFile(bool f);
+    static bool isCurrentThreadTheUiThread();
 
-    static void addStatusbarMessage(const std::string& txt,bool scriptErrorMsg=false,bool notToConsole=false);
+    static void addStatusbarMessage(const std::string& txt,bool scriptErrorMsg=false);
     static void clearStatusbar();
 
     static float* getRGBPointerFromItem(int objType,int objID1,int objID2,int colComponent,std::string* auxDlgTitle);
     static CColorObject* getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts);
-    static CTextureProperty* getTexturePropertyPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,bool* is3D,bool* valid,CGeometric** geom);
+    static CTextureProperty* getTexturePropertyPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,bool* is3D,bool* valid,CMesh** geom);
 
     static CDirectoryPaths* directories;
     static CUserSettings* userSettings;
@@ -101,13 +103,14 @@ public:
     static int operationalUIParts;
     static int sc;
 
+    static void _logMsgToStatusbar(const char* msg,bool html);
+
 private:
-    static void _logMsg_noDecoration(int verbosityLevel,const char* msg,const char* subStr1=nullptr,const char* subStr2=nullptr,const char* subStr3=nullptr);
-    static void _logMsg_noDecoration(int verbosityLevel,const char* msg,int int1,int int2=0,int int3=0);
-    static void _logMsg(int verbosityLevel,const char* msg,bool forbidStatusbar,int consoleVerbosity=-1,int statusbarVerbosity=-1);
-    static bool _logFilter(const char* msg);
+    static void _logMsg(const char* originName,int verbosityLevel,const char* msg,const char* subStr1=nullptr,const char* subStr2=nullptr,const char* subStr3=nullptr);
+    static void _logMsg(const char* originName,int verbosityLevel,const char* msg,int int1,int int2=0,int int3=0);
+    static void _logMsg(const char* originName,int verbosityLevel,const char* msg,bool forbidStatusbar,int consoleVerbosity=-1,int statusbarVerbosity=-1);
+    static bool _consoleLogFilter(const char* msg);
     static std::string _getHtmlEscapedString(const char* str);
-    static std::string _getDecoratedLogMsg(const char* pluginName,int verbosityLevel,const char* msg);
     bool _initSuccessful;
     static bool _consoleMsgsToFile;
     static VFile* _consoleMsgsFile;
@@ -130,7 +133,7 @@ private:
     static std::string _additionalAddOnScript2;
     static int _consoleVerbosity;
     static int _statusbarVerbosity;
-    static std::string _logFilterStr;
+    static std::string _consoleLogFilterStr;
 
     static volatile int _quitLevel;
 

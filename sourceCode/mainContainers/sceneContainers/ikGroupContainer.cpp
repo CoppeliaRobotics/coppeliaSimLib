@@ -1,5 +1,4 @@
 #include "ikGroupContainer.h"
-#include "ikRoutines.h"
 #include "app.h"
 #include "tt.h"
 #include "simInternal.h"
@@ -199,7 +198,7 @@ int CIkGroupContainer::computeAllIkGroups(bool exceptExplicitHandling)
     {
         for (size_t i=0;i<getObjectCount();i++)
         {
-            if ((!exceptExplicitHandling)||(!getObjectFromIndex(i)->getExplicitHandling()))
+            if ( (!exceptExplicitHandling)||(!getObjectFromIndex(i)->getExplicitHandling()) )
             {
                 int stTime=VDateTime::getTimeInMs();
                 int res=0;

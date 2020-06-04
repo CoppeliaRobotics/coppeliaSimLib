@@ -6,7 +6,7 @@
 #include "simConst.h"
 #include "ser.h"
 #include "app.h"
-#include "libLic.h"
+#include "simFlavor.h"
 
 CQDlgAbout::CQDlgAbout(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE|Qt::CustomizeWindowHint|Qt::WindowTitleHint), // since Qt5.1: Tool --> Dialog
@@ -35,11 +35,11 @@ void CQDlgAbout::initializationEvent()
 {
     defaultDialogInitializationRoutine();
     QPixmap img;
-    img.load(CLibLic::getStringVal(1).c_str());
+    img.load(CSimFlavor::getStringVal(1).c_str());
     ui->splashImage->setPixmap(img);
     std::string windowTitle;
     std::string txt;
-    CLibLic::getAboutStr(windowTitle,txt);
+    CSimFlavor::getAboutStr(windowTitle,txt);
     setWindowTitle(windowTitle.c_str());
     ui->info->setText(txt.c_str());
 }

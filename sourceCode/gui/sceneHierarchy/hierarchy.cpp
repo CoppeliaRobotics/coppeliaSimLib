@@ -14,7 +14,7 @@
 #include "app.h"
 #include "vVarious.h"
 #include "vDateTime.h"
-#include "libLic.h"
+#include "simFlavor.h"
 
 const int SAFETY_BORDER_SIZE=20;
 const int CONST_VAL_40=40;
@@ -1306,7 +1306,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
         return(true);
     }
 
-    if ( CLibLic::getBoolVal(6)&&(App::getEditModeType()&(VERTEX_EDIT_MODE|PATH_EDIT_MODE)) )
+    if ( CSimFlavor::getBoolVal(6)&&(App::getEditModeType()&(VERTEX_EDIT_MODE|PATH_EDIT_MODE)) )
     {
         // Did we double-click the icon?
         int objID=getActionObjectID_icon(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
@@ -1540,9 +1540,9 @@ bool CHierarchy::processCommand(int commandID)
                     it->setLocalObjectProperty(it->getLocalObjectProperty()-sim_objectproperty_collapsed);
             }
             if (commandID==EXPAND_HIERARCHY_CMD)
-                App::addStatusbarMessage(IDSNS_HIERARCHY_EXPANDED);
+                App::logMsg(sim_verbosity_msgs,IDSNS_HIERARCHY_EXPANDED);
             else
-                App::addStatusbarMessage(IDSNS_HIERARCHY_COLLAPSED);
+                App::logMsg(sim_verbosity_msgs,IDSNS_HIERARCHY_COLLAPSED);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
         }
         else
@@ -1574,9 +1574,9 @@ bool CHierarchy::processCommand(int commandID)
                 }
             }
             if (commandID==EXPAND_HIERARCHY_CMD)
-                App::addStatusbarMessage(IDSNS_HIERARCHY_TREES_EXPANDED);
+                App::logMsg(sim_verbosity_msgs,IDSNS_HIERARCHY_TREES_EXPANDED);
             else
-                App::addStatusbarMessage(IDSNS_HIERARCHY_TREES_COLLAPSED);
+                App::logMsg(sim_verbosity_msgs,IDSNS_HIERARCHY_TREES_COLLAPSED);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
         }
         else

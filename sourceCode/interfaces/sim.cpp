@@ -305,10 +305,6 @@ SIM_DLLEXPORT simInt simSaveModel(int baseOfModelHandle,const simChar* filename)
 {
     return(simSaveModel_internal(baseOfModelHandle,filename));
 }
-SIM_DLLEXPORT simInt simAddStatusbarMessage(const simChar* message)
-{
-    return(simAddStatusbarMessage_internal(message));
-}
 SIM_DLLEXPORT simChar* simGetSimulatorMessage(simInt* messageID,simInt* auxiliaryData,simInt* returnedDataSize)
 {
     return(simGetSimulatorMessage_internal(messageID,auxiliaryData,returnedDataSize));
@@ -685,10 +681,6 @@ SIM_DLLEXPORT simInt simGetObjectUniqueIdentifier(simInt objectHandle,simInt* un
 {
     return(simGetObjectUniqueIdentifier_internal(objectHandle,uniqueIdentifier));
 }
-SIM_DLLEXPORT simInt simGetNameSuffix(const simChar* name)
-{
-    return(simGetNameSuffix_internal(name));
-}
 SIM_DLLEXPORT simInt simSendData(simInt targetID,simInt dataHeader,const simChar* dataName,const simChar* data,simInt dataLength,simInt antennaHandle,simFloat actionRadius,simFloat emissionAngle1,simFloat emissionAngle2,simFloat persistence)
 {
     return(simSendData_internal(targetID,dataHeader,dataName,data,dataLength,antennaHandle,actionRadius,emissionAngle1,emissionAngle2,persistence));
@@ -700,10 +692,6 @@ SIM_DLLEXPORT simChar* simReceiveData(simInt dataHeader,const simChar* dataName,
 SIM_DLLEXPORT simInt simSetGraphUserData(simInt graphHandle,const simChar* dataStreamName,simFloat data)
 {
     return(simSetGraphUserData_internal(graphHandle,dataStreamName,data));
-}
-SIM_DLLEXPORT simInt simSetNameSuffix(simInt nameSuffixNumber)
-{
-    return(simSetNameSuffix_internal(nameSuffixNumber));
 }
 SIM_DLLEXPORT simInt simAddDrawingObject(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission)
 {
@@ -2461,6 +2449,18 @@ SIM_DLLEXPORT simInt simApplyMilling(simInt objectHandle)
 SIM_DLLEXPORT simBool _simGetParentFollowsDynamic(const simVoid* shape)
 {
     return(false);
+}
+SIM_DLLEXPORT simInt simGetNameSuffix(const simChar* name)
+{
+    return(simGetNameSuffix_internal(name));
+}
+SIM_DLLEXPORT simInt simSetNameSuffix(simInt nameSuffixNumber)
+{
+    return(simSetNameSuffix_internal(nameSuffixNumber));
+}
+SIM_DLLEXPORT simInt simAddStatusbarMessage(const simChar* message)
+{
+    return(simAddStatusbarMessage_internal(message));
 }
 // Deprecated end
 

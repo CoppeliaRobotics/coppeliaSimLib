@@ -10,9 +10,9 @@
 #include "persistentDataContainer.h"
 #include "apiErrors.h"
 #include "luaWrapper.h"
-#include "geometric.h"
+#include "mesh.h"
 #include "rendering.h"
-#include "libLic.h"
+#include "simFlavor.h"
 #include "threadPool.h"
 #include <sstream>
 #include <boost/algorithm/string/replace.hpp>
@@ -41,8 +41,8 @@ bool App::_exitRequest=false;
 bool App::_browserEnabled=true;
 bool App::_canInitSimThread=false;
 int App::_consoleVerbosity=sim_verbosity_default;
-int App::_statusbarVerbosity=sim_verbosity_warnings;
-std::string App::_logFilterStr;
+int App::_statusbarVerbosity=sim_verbosity_msgs;
+std::string App::_consoleLogFilterStr;
 
 
 bool App::_simulatorIsRunning=false;
@@ -51,7 +51,7 @@ std::map<std::string,std::string> App::_applicationNamedParams;
 std::string App::_additionalAddOnScript1;
 std::string App::_additionalAddOnScript2;
 volatile int App::_quitLevel=0;
-bool App::_consoleMsgsToFile=true;
+bool App::_consoleMsgsToFile=false;
 VFile* App::_consoleMsgsFile=nullptr;
 VArchive* App::_consoleMsgsArchive=nullptr;
 
@@ -89,7 +89,6 @@ void App::simulationThreadInit()
     CThreadPool::init();
     _canInitSimThread=false;
     VThread::setSimulationMainThreadId();
-    CApiErrors::addNewThreadForErrorReporting(1);
     srand(VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
                                         // Remember that each thread starts with a same seed!!!
     App::simThread=new CSimThread();
@@ -145,7 +144,6 @@ void App::simulationThreadDestroy()
     delete App::simThread;
     App::simThread=nullptr;
 
-    CApiErrors::removeThreadFromErrorReporting();
     App::worldContainer->copyBuffer->clearBuffer(); // important, some objects in the buffer might still call the mesh plugin or similar
 
     #ifndef SIM_WITHOUT_QT_AT_ALL
@@ -278,8 +276,6 @@ bool App::getBrowserEnabled()
 App::App(bool headless)
 {
     TRACE_INTERNAL;
-
-    App::logMsg(sim_verbosity_loadinfos,"%s",CLibLic::getStringVal(3).c_str());
 
     uiThread=nullptr;
     _initSuccessful=false;
@@ -531,7 +527,7 @@ void App::beep(int frequ,int duration)
 
 void App::setApplicationName(const char* name)
 {
-    _applicationName=CLibLic::getStringVal(2);
+    _applicationName=CSimFlavor::getStringVal(2);
 }
 
 std::string App::getApplicationName()
@@ -584,7 +580,6 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
 { // We arrive here with a single thread: the UI thread!
     TRACE_INTERNAL;
     _exitRequest=false;
-    CApiErrors::addNewThreadForErrorReporting(0);
 #ifdef SIM_WITH_GUI
     if (mainWindow!=nullptr)
         mainWindow->setFocus(Qt::MouseFocusReason); // needed because at first Qt behaves strangely (really??)
@@ -627,12 +622,12 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
     cmd.intParams.clear();
     App::appendSimulationThreadCommand(cmd,2200); // was 200
 
-    if (CLibLic::getBoolVal(17))
+    if (CSimFlavor::getBoolVal(17))
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=PLUS_HFLM_CMD;
         App::appendSimulationThreadCommand(cmd,10000);
-        CLibLic::run(4);
+        CSimFlavor::run(4);
         cmd.cmdId=PLUS_CVU_CMD;
         App::appendSimulationThreadCommand(cmd,1500);
         cmd.cmdId=PLUS_HVUD_CMD;
@@ -644,6 +639,9 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
     appendSimulationThreadCommand(cmd,3000);
 #endif
 
+    if (CSimFlavor::getBoolVal(18))
+        postExitRequest();
+
     // The UI thread sits here during the whole application:
     _processGuiEventsUntilQuit();
 
@@ -652,7 +650,7 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
         mainWindow->codeEditorContainer->closeAll();
 #endif
 
-    CLibLic::run(5);
+    CSimFlavor::run(5);
 
     // Wait until the SIM thread ended:
     _quitLevel=2; // indicate to the SIM thread that the UI thread has left its exec
@@ -661,8 +659,6 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
 
     // Ok, we unload the plugins. This happens with the UI thread!
     _runDeinitializationCallback(deinitCallBack);
-
-    CApiErrors::removeThreadFromErrorReporting();
 
     deinitGl_ifNeeded();
     _simulatorIsRunning=false;
@@ -868,118 +864,57 @@ void App::setFullScreen(bool f)
 #endif
 }
 
-void App::addStatusbarMessage(const std::string& txt,bool scriptErrorMsg/*=false*/,bool notToConsole/*=false*/)
+void App::_logMsgToStatusbar(const char* msg,bool html)
 {
     if (!VThread::isCurrentThreadTheUiThread())
     { // we are NOT in the UI thread. We execute the command in a delayed manner:
         SUIThreadCommand cmdIn;
-        cmdIn.cmdId=ADD_STATUSBAR_MESSAGE_UITHREADCMD;
-        cmdIn.stringParams.push_back(txt);
-        cmdIn.boolParams.push_back(scriptErrorMsg);
+        cmdIn.cmdId=LOG_MSG_TO_STATUSBAR_UITHREADCMD;
+        cmdIn.stringParams.push_back(msg);
+        cmdIn.boolParams.push_back(html);
         uiThread->executeCommandViaUiThread(&cmdIn,nullptr);
     }
+#ifdef SIM_WITH_GUI
     else
     {
-        #ifdef SIM_WITH_GUI
-            std::string str(txt);
-            size_t p=str.rfind("@html");
-            bool html=false;
-            if ( (p!=std::string::npos)&&(p==str.size()-5) )
-            {
-                html=true;
-                str.assign(txt.begin(),txt.end()-5);
-            }
-            else if (scriptErrorMsg)
-            { // change color
-                html=true;
-                str="<font color='#c00'>"+_getHtmlEscapedString(str.c_str())+"</font>";
-            }
+        std::string str(msg);
 
-            if (mainWindow!=nullptr)
-            {
-                std::string txtCol(mainWindow->palette().windowText().color().name().toStdString());
-                if ((operationalUIParts&sim_gui_statusbar)&&(mainWindow->statusBar!=nullptr) )
-                {
-                    if (html)
-                    {
-                        str+="<font color="+txtCol+">"+" </font>"; // color is otherwise not reset
-                        mainWindow->statusBar->appendHtml(str.c_str());
-                    }
-                    else
-                        mainWindow->statusBar->appendPlainText(str.c_str());
-                    mainWindow->statusBar->moveCursor(QTextCursor::End);
-                    mainWindow->statusBar->verticalScrollBar()->setValue(mainWindow->statusBar->verticalScrollBar()->maximum());
-                    mainWindow->statusBar->ensureCursorVisible();
-                }
-            }
-        #endif
-        if ( (userSettings->redirectStatusbarMsgToConsoleInHeadlessMode||CLibLic::getBoolVal(0))&&(!notToConsole) )
+        if (mainWindow!=nullptr)
         {
-#ifdef SIM_WITH_GUI
-            if ( (mainWindow==nullptr)||CLibLic::getBoolVal(0) )
-#endif
+            std::string txtCol(mainWindow->palette().windowText().color().name().toStdString());
+            if ((operationalUIParts&sim_gui_statusbar)&&(mainWindow->statusBar!=nullptr) )
             {
-                #ifdef SIM_WITH_GUI
                 if (html)
-                {
-                    QTextDocument text;
-                    text.setHtml(str.c_str());
-                    std::string tmp("[statusbar]: ");
-                    tmp+=text.toPlainText().toStdString();
-                    _logMsg(sim_verbosity_loadinfos,tmp.c_str(),true);
-                }
+//                {
+//                    str+="<font color="+txtCol+">"+" </font>"; // color is otherwise not reset
+                    mainWindow->statusBar->appendHtml(str.c_str());
+//                }
                 else
-                #endif
-                {
-                    std::string tmp("[statusbar]: ");
-                    tmp+=txt;
-                    _logMsg(sim_verbosity_loadinfos,tmp.c_str(),true);
-                }
+                    mainWindow->statusBar->appendPlainText(str.c_str());
+                mainWindow->statusBar->moveCursor(QTextCursor::End);
+                mainWindow->statusBar->verticalScrollBar()->setValue(mainWindow->statusBar->verticalScrollBar()->maximum());
+                mainWindow->statusBar->ensureCursorVisible();
             }
         }
-#ifdef SIM_WITH_GUI
-        if ( (App::mainWindow!=nullptr)&&CLibLic::getBoolVal(1) )
-        {
-            std::string str2(txt);
-            static std::vector<std::string> lastMessages;
-            if (html)
-            {
-                QTextDocument text;
-                text.setHtml(str2.c_str());
-                lastMessages.push_back(text.toPlainText().toStdString());
-            }
-            else
-                lastMessages.push_back(str2);
-            if (lastMessages.size()>100)
-                lastMessages.erase(lastMessages.begin());
-
-            if (scriptErrorMsg)
-            {
-                static int cons=-1;
-                if (cons>=0)
-                {
-                    if (App::mainWindow->codeEditorContainer->getHandleFromUniqueId(cons)==-1)
-                        cons=-1;
-                }
-                if (cons==-1)
-                {
-                    int col[3]={255,204,0};
-                    int h=App::mainWindow->codeEditorContainer->openConsole("Please send this message/error",500,2+4+16,nullptr,nullptr,nullptr,col,-1);
-                    cons=App::mainWindow->codeEditorContainer->getUniqueId(h);
-                }
-                if (cons>=0)
-                {
-                    int h=App::mainWindow->codeEditorContainer->getHandleFromUniqueId(cons);
-                    std::string toAppend;
-                    for (size_t i=0;i<lastMessages.size();i++)
-                        toAppend+=lastMessages[i]+"\n";
-                    App::mainWindow->codeEditorContainer->appendText(h,toAppend.c_str());
-                    lastMessages.clear();
-                }
-            }
-        }
-#endif
     }
+#endif
+}
+
+void App::addStatusbarMessage(const std::string& txt,bool scriptErrorMsg/*=false*/)
+{
+    std::string str(txt);
+    if (scriptErrorMsg)
+    {
+        str="<font color='#c00'>"+_getHtmlEscapedString(str.c_str())+"</font>@html";
+        _logMsgToStatusbar(str.c_str(),true);
+
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=FLASH_STATUSBAR_UITHREADCMD;
+        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    }
+    else
+        _logMsgToStatusbar(str.c_str(),false);
 }
 
 void App::clearStatusbar()
@@ -993,13 +928,13 @@ void App::clearStatusbar()
     }
     else
     {
-        #ifdef SIM_WITH_GUI
-            if (mainWindow!=nullptr)
-            {
-                if ((operationalUIParts&sim_gui_statusbar)&&(mainWindow->statusBar!=nullptr) )
-                    mainWindow->statusBar->clear();
-            }
-        #endif
+    #ifdef SIM_WITH_GUI
+        if (mainWindow!=nullptr)
+        {
+            if ((operationalUIParts&sim_gui_statusbar)&&(mainWindow->statusBar!=nullptr) )
+                mainWindow->statusBar->clear();
+        }
+    #endif
     }
 }
 
@@ -1342,7 +1277,7 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _allowedParts[0]=1+4+8+16+32+64+128+256+512;
         CShape* it=currentWorld->sceneObjects->getShapeFromHandle(objID1);
         if ((it!=nullptr)&&(!it->isCompound()))
-            return(&((CGeometric*)it->geomData->geomInfo)->color);
+            return(&it->getSingleMesh()->color);
     }
     if (objType==COLOR_ID_SHAPE_GEOMETRY)
     {
@@ -1354,8 +1289,8 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
             CShape* it=currentWorld->sceneObjects->getShapeFromHandle(objID1);
             if ((it!=nullptr)&&it->isCompound())
             {
-                std::vector<CGeometric*> allGeometrics;
-                it->geomData->geomInfo->getAllShapeComponentsCumulative(allGeometrics);
+                std::vector<CMesh*> allGeometrics;
+                it->getMeshWrapper()->getAllShapeComponentsCumulative(allGeometrics);
                 if ((objID2>=0)&&(objID2<int(allGeometrics.size())))
                     return(&allGeometrics[objID2]->color);
             }
@@ -1367,16 +1302,16 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
     return(nullptr);
 }
 
-CTextureProperty* App::getTexturePropertyPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,bool* is3D,bool* valid,CGeometric** geom)
+CTextureProperty* App::getTexturePropertyPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,bool* is3D,bool* valid,CMesh** geom)
 { // auxDlgTitle, is3D, isValid and geom can be nullptr.
     std::string __auxDlgTitle;
     bool __is3D=false;
     bool __isValid=false;
-    CGeometric* __geom=nullptr;
+    CMesh* __geom=nullptr;
     std::string* _auxDlgTitle=&__auxDlgTitle;
     bool* _is3D=&__is3D;
     bool* _isValid=&__isValid;
-    CGeometric** _geom=&__geom;
+    CMesh** _geom=&__geom;
     if (auxDlgTitle!=nullptr)
         _auxDlgTitle=auxDlgTitle;
     if (is3D!=nullptr)
@@ -1395,7 +1330,7 @@ CTextureProperty* App::getTexturePropertyPointerFromItem(int objType,int objID1,
         if ( (it!=nullptr)&&(!it->isCompound()) )
         {
             _isValid[0]=true;
-            _geom[0]=((CGeometric*)it->geomData->geomInfo);
+            _geom[0]=it->getSingleMesh();
             return(_geom[0]->getTextureProperty());
         }
     }
@@ -1406,8 +1341,8 @@ CTextureProperty* App::getTexturePropertyPointerFromItem(int objType,int objID1,
         CShape* it=currentWorld->sceneObjects->getShapeFromHandle(objID1);
         if (it!=nullptr)
         {
-            std::vector<CGeometric*> allGeometrics;
-            it->geomData->geomInfo->getAllShapeComponentsCumulative(allGeometrics);
+            std::vector<CMesh*> allGeometrics;
+            it->getMeshWrapper()->getAllShapeComponentsCumulative(allGeometrics);
             if ((objID2>=0)&&(objID2<int(allGeometrics.size())))
             {
                 _isValid[0]=true;
@@ -1453,7 +1388,7 @@ void App::showSplashScreen()
     App::setShowConsole(false);
     QPixmap pixmap;
 
-    pixmap.load(CLibLic::getStringVal(1).c_str());
+    pixmap.load(CSimFlavor::getStringVal(1).c_str());
 
     QSplashScreen splash(pixmap,Qt::WindowStaysOnTopHint);
     splash.setMask(pixmap.mask());
@@ -1478,7 +1413,7 @@ void App::showSplashScreen()
 
 void App::setIcon()
 {
-    App::qtApp->setWindowIcon(QIcon(CLibLic::getStringVal(4).c_str()));
+    App::qtApp->setWindowIcon(QIcon(CSimFlavor::getStringVal(4).c_str()));
 }
 
 void App::createMainWindow()
@@ -1497,80 +1432,58 @@ void App::deleteMainWindow()
 }
 
 
-std::string App::getLogFilter()
+std::string App::getConsoleLogFilter()
 {
-    return(_logFilterStr);
+    return(_consoleLogFilterStr);
 }
 
-void App::setLogFilter(const char* filter)
+void App::setConsoleLogFilter(const char* filter)
 {
-    _logFilterStr=filter;
+    _consoleLogFilterStr=filter;
 }
 
 bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* logMsg)
 {
     bool retVal=false;
+
     CPlugin* it=CPluginContainer::getPluginFromName(pluginName,true);
-    if (it!=nullptr)
+    if ( (it!=nullptr)||(strcmp(pluginName,"CoppeliaSimClient")==0) )
     {
-        int consoleV=it->getConsoleVerbosity();
-        if (consoleV==sim_verbosity_useglobal)
-            consoleV=_consoleVerbosity;
-        int statusbarV=it->getStatusbarVerbosity();
-        if (statusbarV==sim_verbosity_useglobal)
-            statusbarV=_statusbarVerbosity;
-        if ( (consoleV>=verbosityLevel)||(statusbarV>=verbosityLevel) )
+        int realVerbosityLevel=verbosityLevel&0x0fff;
+        if (it!=nullptr)
         {
-            std::string plugN("simExt");
-            plugN+=pluginName;
-            _logMsg(verbosityLevel,_getDecoratedLogMsg(plugN.c_str(),verbosityLevel,logMsg).c_str(),false,consoleV,statusbarV);
+            int consoleV=it->getConsoleVerbosity();
+            if (consoleV==sim_verbosity_useglobal)
+                consoleV=_consoleVerbosity;
+            int statusbarV=it->getStatusbarVerbosity();
+            if (statusbarV==sim_verbosity_useglobal)
+                statusbarV=_statusbarVerbosity;
+            if ( (consoleV>=realVerbosityLevel)||(statusbarV>=realVerbosityLevel) )
+            {
+                std::string plugN("simExt");
+                plugN+=pluginName;
+                _logMsg(plugN.c_str(),verbosityLevel,logMsg,false,consoleV,statusbarV);
+            }
         }
+        else
+            _logMsg(pluginName,verbosityLevel,logMsg,false);
         retVal=true;
     }
     return(retVal);
 }
 
-std::string App::_getDecoratedLogMsg(const char* pluginName,int verbosityLevel,const char* msg)
-{
-    std::string retVal;
-    if (pluginName!=nullptr)
-    {
-        retVal=pluginName;
-        if (VThread::isCurrentThreadTheUiThread())
-            retVal+="(ui)";
-        retVal+=": ";
-    }
-    else
-    {
-        if (VThread::isCurrentThreadTheUiThread())
-            retVal+="CoppeliaSim(ui): ";
-        else
-            retVal="CoppeliaSim: ";
-    }
-    if (verbosityLevel==sim_verbosity_errors)
-        retVal+="error: ";
-    if (verbosityLevel==sim_verbosity_warnings)
-        retVal+="warning: ";
-    if (verbosityLevel==sim_verbosity_loadinfos)
-        retVal+="loadinfo: ";
-    if (verbosityLevel==sim_verbosity_infos)
-        retVal+="info: ";
-    if (verbosityLevel==sim_verbosity_debug)
-        retVal+="debug: ";
-    if (verbosityLevel==sim_verbosity_trace)
-        retVal+="trace: ";
-    if (verbosityLevel==sim_verbosity_tracelua)
-        retVal+="tracelua: ";
-    if (verbosityLevel==sim_verbosity_traceall)
-        retVal+="traceall: ";
-    retVal+=msg;
-    return(retVal);
-}
-
 void App::logMsg(int verbosityLevel,const char* msg,int int1,int int2/*=0*/,int int3/*=0*/)
 {
-    if ( (_consoleVerbosity>=verbosityLevel)||(_statusbarVerbosity>=verbosityLevel) )
-        _logMsg_noDecoration(verbosityLevel,_getDecoratedLogMsg(nullptr,verbosityLevel,msg).c_str(),int1,int2,int3);
+    int realVerbosityLevel=verbosityLevel&0x0fff;
+    if ( (_consoleVerbosity>=realVerbosityLevel)||(_statusbarVerbosity>=realVerbosityLevel) )
+        _logMsg(nullptr,verbosityLevel,msg,int1,int2,int3);
+}
+
+void App::logScriptMsg(const char* scriptName,int verbosityLevel,const char* msg)
+{
+    int realVerbosityLevel=verbosityLevel&0x0fff;
+    if ( (_consoleVerbosity>=realVerbosityLevel)||(_statusbarVerbosity>=realVerbosityLevel) )
+        _logMsg(scriptName,verbosityLevel,msg);
 }
 
 int App::getVerbosityLevelFromString(const char* verbosityStr)
@@ -1584,6 +1497,12 @@ int App::getVerbosityLevelFromString(const char* verbosityStr)
         retVal=sim_verbosity_warnings;
     if (strcmp(verbosityStr,"loadinfos")==0)
         retVal=sim_verbosity_loadinfos;
+    if (strcmp(verbosityStr,"scripterrors")==0)
+        retVal=sim_verbosity_scripterrors;
+    if (strcmp(verbosityStr,"scriptwarnings")==0)
+        retVal=sim_verbosity_scriptwarnings;
+    if (strcmp(verbosityStr,"msgs")==0)
+        retVal=sim_verbosity_msgs;
     if (strcmp(verbosityStr,"infos")==0)
         retVal=sim_verbosity_infos;
     if (strcmp(verbosityStr,"debug")==0)
@@ -1607,13 +1526,19 @@ void App::setConsoleMsgToFile(bool f)
     _consoleMsgsToFile=f;
 }
 
-void App::logMsg(int verbosityLevel,const char* msg,const char* subStr1/*=nullptr*/,const char* subStr2/*=nullptr*/,const char* subStr3/*=nullptr*/)
+bool App::isCurrentThreadTheUiThread()
 {
-    if ( (_consoleVerbosity>=verbosityLevel)||(_statusbarVerbosity>=verbosityLevel) )
-        _logMsg_noDecoration(verbosityLevel,_getDecoratedLogMsg(nullptr,verbosityLevel,msg).c_str(),subStr1,subStr2,subStr3);
+    return(VThread::isCurrentThreadTheUiThread());
 }
 
-void App::_logMsg_noDecoration(int verbosityLevel,const char* msg,const char* subStr1/*=nullptr*/,const char* subStr2/*=nullptr*/,const char* subStr3/*=nullptr*/)
+void App::logMsg(int verbosityLevel,const char* msg,const char* subStr1/*=nullptr*/,const char* subStr2/*=nullptr*/,const char* subStr3/*=nullptr*/)
+{
+    int realVerbosityLevel=verbosityLevel&0x0fff;
+    if ( (_consoleVerbosity>=realVerbosityLevel)||(_statusbarVerbosity>=realVerbosityLevel) )
+        _logMsg(nullptr,verbosityLevel,msg,subStr1,subStr2,subStr3);
+}
+
+void App::_logMsg(const char* originName,int verbosityLevel,const char* msg,const char* subStr1/*=nullptr*/,const char* subStr2/*=nullptr*/,const char* subStr3/*=nullptr*/)
 {
     char buff[2000];
     if (subStr1!=nullptr)
@@ -1630,19 +1555,21 @@ void App::_logMsg_noDecoration(int verbosityLevel,const char* msg,const char* su
     }
     else
         strcpy(buff,msg);
-    _logMsg(verbosityLevel,buff,false);
+    _logMsg(originName,verbosityLevel,buff,false);
 }
 
-void App::_logMsg_noDecoration(int verbosityLevel,const char* msg,int int1,int int2/*=0*/,int int3/*=0*/)
+void App::_logMsg(const char* originName,int verbosityLevel,const char* msg,int int1,int int2/*=0*/,int int3/*=0*/)
 {
     char buff[2000];
     snprintf(buff,sizeof(buff),msg,int1,int2,int3);
-    _logMsg(verbosityLevel,buff,false);
+    _logMsg(originName,verbosityLevel,buff,false);
 }
 
 std::string App::_getHtmlEscapedString(const char* str)
 {
     QString qstr(str);
+    qstr.replace("<","*+-%A%-+*");
+    qstr.replace(">","*+-%B%-+*");
     qstr.replace("\n","*+-%NL%-+*");
     qstr.replace(" ","*+-%S%-+*");
     qstr.replace("\t","*+-%T%-+*");
@@ -1650,16 +1577,18 @@ std::string App::_getHtmlEscapedString(const char* str)
     qstr.replace("*+-%NL%-+*","<br/>");
     qstr.replace("*+-%S%-+*","&nbsp;");
     qstr.replace("*+-%T%-+*","&nbsp;&nbsp;&nbsp;&nbsp;");
+    qstr.replace("*+-%A%-+*","&lt;");
+    qstr.replace("*+-%B%-+*","&gt;");
     return(qstr.toStdString());
 }
 
-bool App::_logFilter(const char* msg)
+bool App::_consoleLogFilter(const char* msg)
 {
     bool triggered=true;
-    if (_logFilterStr.size()>0)
+    if (_consoleLogFilterStr.size()>0)
     {
         std::string theMsg(msg);
-        std::istringstream isso(_logFilterStr);
+        std::istringstream isso(_consoleLogFilterStr);
         std::string orBlock;
         while (std::getline(isso,orBlock,'|'))
         {
@@ -1681,19 +1610,63 @@ bool App::_logFilter(const char* msg)
     return(!triggered);
 }
 
-void App::_logMsg(int verbosityLevel,const char* msg,bool forbidStatusbar,int consoleVerbosity/*=-1*/,int statusbarVerbosity/*=-1*/)
+void App::_logMsg(const char* originName,int verbosityLevel,const char* msg,bool forbidStatusbar,int consoleVerbosity/*=-1*/,int statusbarVerbosity/*=-1*/)
 {
     static bool inside=false;
     if (!inside)
     {
+        int realVerbosityLevel=verbosityLevel&0x0fff;
         inside=true;
-        if (!_logFilter(msg))
+        std::string header;
+        std::string message(msg);
+        bool decorateMsg=((verbosityLevel&sim_verbosity_undecorated)==0)&&((App::userSettings==nullptr)||(!App::userSettings->undecoratedStatusbarMessages));
+
+        if (originName!=nullptr)
+        { // plugin or script
+            header="[";
+            header+=originName;
+            header+=":";
+        }
+        else
+            header="[CoppeliaSim:";
+        if ( (realVerbosityLevel==sim_verbosity_errors)||(realVerbosityLevel==sim_verbosity_scripterrors) )
+            header+="error]   ";
+        if ( (realVerbosityLevel==sim_verbosity_warnings)||(realVerbosityLevel==sim_verbosity_scriptwarnings) )
+            header+="warning]   ";
+        if (realVerbosityLevel==sim_verbosity_loadinfos)
+            header+="loadinfo]   ";
+        if (realVerbosityLevel==sim_verbosity_msgs)
+            header+="msg]   ";
+        if (realVerbosityLevel==sim_verbosity_infos)
+            header+="info]   ";
+        if (realVerbosityLevel==sim_verbosity_debug)
+            header+="debug]   ";
+        if (realVerbosityLevel==sim_verbosity_trace)
+            header+="trace]   ";
+        if (realVerbosityLevel==sim_verbosity_tracelua)
+            header+="tracelua]   ";
+        if (realVerbosityLevel==sim_verbosity_traceall)
+            header+="traceall]   ";
+
+        // For backward compatibility with messages that already have HTML tags:
+        size_t p=message.rfind("@html");
+        if ( (p!=std::string::npos)&&(p==message.size()-5) )
+        { // stip HTML stuff off
+            message.assign(message.c_str(),message.c_str()+message.size()-5);
+            QTextDocument doc;
+            doc.setHtml(message.c_str());
+            message=doc.toPlainText().toStdString();
+        }
+
+        boost::replace_all(message,"\n","\n    ");
+        std::string consoleTxt(header+message+"\n");
+        if (!_consoleLogFilter(consoleTxt.c_str()))
         {
             if (consoleVerbosity==-1)
                 consoleVerbosity=_consoleVerbosity;
-            if (consoleVerbosity>=verbosityLevel)
+            if (consoleVerbosity>=realVerbosityLevel)
             {
-                printf("%s\n",msg);
+                printf(consoleTxt.c_str());
                 if (_consoleMsgsToFile)
                 {
                     if (_consoleMsgsFile==nullptr)
@@ -1701,28 +1674,39 @@ void App::_logMsg(int verbosityLevel,const char* msg,bool forbidStatusbar,int co
                         _consoleMsgsFile=new VFile("debugLog.txt",VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
                         _consoleMsgsArchive=new VArchive(_consoleMsgsFile,VArchive::STORE);
                     }
-                    for (size_t i=0;i<strlen(msg);i++)
-                        (*_consoleMsgsArchive) << msg[i];
+                    for (size_t i=0;i<consoleTxt.size();i++)
+                        (*_consoleMsgsArchive) << consoleTxt[i];
                     (*_consoleMsgsArchive) << ((unsigned char)13) << ((unsigned char)10);
                     _consoleMsgsFile->flush();
                 }
             }
-            if (statusbarVerbosity==-1)
-                statusbarVerbosity=_statusbarVerbosity;
-            if ( (statusbarVerbosity>=verbosityLevel)&&(!forbidStatusbar)&&(uiThread!=nullptr)&&(simThread!=nullptr) )
+        }
+        if (statusbarVerbosity==-1)
+            statusbarVerbosity=_statusbarVerbosity;
+        if ( (statusbarVerbosity>=realVerbosityLevel)&&(!forbidStatusbar)&&(uiThread!=nullptr)&&(simThread!=nullptr) )
+        {
+            header="<font color='grey'>"+_getHtmlEscapedString(header.c_str());
+            header+="</font>";
+            message=_getHtmlEscapedString(message.c_str());
+            if ( (realVerbosityLevel==sim_verbosity_errors)||(realVerbosityLevel==sim_verbosity_scripterrors) )
             {
-                if (verbosityLevel>sim_verbosity_warnings)
-                    addStatusbarMessage(msg,false,true);
-                else
+                message="<font color='red'>"+message;
+                if ((verbosityLevel&sim_verbosity_undecorated)==0)
                 {
-                    std::string tmp("<font color='red'>");
-                    if (verbosityLevel==sim_verbosity_warnings)
-                        tmp="<font color='orange'>";
-                    tmp+=_getHtmlEscapedString(msg);
-                    tmp+="</font>@html";
-                    addStatusbarMessage(tmp.c_str(),false,true);
+                    SUIThreadCommand cmdIn;
+                    SUIThreadCommand cmdOut;
+                    cmdIn.cmdId=FLASH_STATUSBAR_UITHREADCMD;
+                    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                 }
             }
+            else if ( (realVerbosityLevel==sim_verbosity_warnings)||(realVerbosityLevel==sim_verbosity_scriptwarnings) )
+                message="<font color='#D35400'>"+message;
+            else
+                message="<font color='#383838'>"+message;
+            message+="</font>";
+            if (decorateMsg)
+                message=header+message;
+            _logMsgToStatusbar(message.c_str(),true);
         }
         inside=false;
     }

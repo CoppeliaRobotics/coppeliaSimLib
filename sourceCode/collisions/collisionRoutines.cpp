@@ -142,15 +142,15 @@ bool CCollisionRoutine::_doesShapeCollideWithShape(CShape* shape1,CShape* shape2
         return(false);
 
     // Before building collision nodes, check if the shape's bounding boxes collide (new since 9/7/2014):
-    if ( (!shape1->isCollisionInformationInitialized())||(!shape2->isCollisionInformationInitialized()) )
+    if ( (!shape1->isMeshCalculationStructureInitialized())||(!shape2->isMeshCalculationStructureInitialized()) )
     {
-        if (!CPluginContainer::geomPlugin_getBoxBoxCollision(shape1->getFullCumulativeTransformation(),shape1->geomData->getBoundingBoxHalfSizes(),shape2->getFullCumulativeTransformation(),shape2->geomData->getBoundingBoxHalfSizes(),true))
+        if (!CPluginContainer::geomPlugin_getBoxBoxCollision(shape1->getFullCumulativeTransformation(),shape1->getBoundingBoxHalfSizes(),shape2->getFullCumulativeTransformation(),shape2->getBoundingBoxHalfSizes(),true))
             return(false);
     }
 
     // Build the collision nodes only when needed. So do it right here!
-    shape1->initializeCalculationStructureIfNeeded();
-    shape2->initializeCalculationStructureIfNeeded();
+    shape1->initializeMeshCalculationStructureIfNeeded();
+    shape2->initializeMeshCalculationStructureIfNeeded();
 
     return(shape1->doesShapeCollideWithShape(shape2,intersections));
 }
@@ -251,7 +251,7 @@ bool CCollisionRoutine::_areObjectBoundingBoxesOverlapping(CSceneObject* obj1,CS
         CSceneObject* obj=objs[cnt];
         if (obj->getObjectType()==sim_object_shape_type)
         {
-            halfSizes[cnt]=((CShape*)obj)->geomData->getBoundingBoxHalfSizes();
+            halfSizes[cnt]=((CShape*)obj)->getBoundingBoxHalfSizes();
             m[cnt]=obj->getFullCumulativeTransformation();
         }
         if (obj->getObjectType()==sim_object_dummy_type)
@@ -277,19 +277,19 @@ bool CCollisionRoutine::_doesOctreeCollideWithShape(COctree* octree,CShape* shap
         return(false);
 
     // Before building collision nodes, check if the shape's bounding boxes collide (new since 9/7/2014):
-    if (!shape->isCollisionInformationInitialized())
+    if (!shape->isMeshCalculationStructureInitialized())
     {
         if (!_areObjectBoundingBoxesOverlapping(octree,shape))
             return(false);
     }
 
     // Build the collision nodes only when needed. So do it right here!
-    shape->initializeCalculationStructureIfNeeded();
+    shape->initializeMeshCalculationStructureIfNeeded();
 
     // TODO_CACHING
     int meshCaching=-1;
     unsigned long long int ocCaching=0;
-    return(CPluginContainer::geomPlugin_getMeshOctreeCollision(shape->geomData->collInfo,shape->getFullCumulativeTransformation(),octree->getOctreeInfo(),octree->getFullCumulativeTransformation(),&meshCaching,&ocCaching));
+    return(CPluginContainer::geomPlugin_getMeshOctreeCollision(shape->_meshCalculationStructure,shape->getFullCumulativeTransformation(),octree->getOctreeInfo(),octree->getFullCumulativeTransformation(),&meshCaching,&ocCaching));
 }
 
 bool CCollisionRoutine::_doesOctreeCollideWithOctree(COctree* octree1,COctree* octree2,bool overrideOctree1CollidableFlag,bool overrideOctree2CollidableFlag)

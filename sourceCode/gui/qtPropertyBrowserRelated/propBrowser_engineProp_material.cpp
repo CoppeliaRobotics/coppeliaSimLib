@@ -379,7 +379,7 @@ void CPropBrowserEngineMaterial::enableNotifications(bool enable)
 void CPropBrowserEngineMaterial::refresh()
 {
     CShape* it=App::currentWorld->sceneObjects->getLastSelectionShape();
-    CGeomWrap* geom=it->geomData->geomInfo;
+    CMeshWrapper* geom=it->getMeshWrapper();
     CDynMaterialObject* mat=it->getDynMaterial();
     bool editable=true;
 
@@ -812,7 +812,7 @@ void CPropBrowserEngineMaterial::catchPropertyChangesString(QtProperty *_prop, Q
 void CPropBrowserEngineMaterial::handlePropertyChanges(QtProperty *_prop)
 {
     CShape* it=App::currentWorld->sceneObjects->getLastSelectionShape();
-    CGeomWrap* geom=it->geomData->geomInfo;
+    CMeshWrapper* geom=it->getMeshWrapper();
     CDynMaterialObject* mat=it->getDynMaterial();
 
     float f;

@@ -81,7 +81,7 @@
 #define IDSNS_LAST_SELECTION_IS_NOT_A_PATH "Last selection is not a path."
 #define IDSNS_CANNOT_PROCEED_NO_DYNAMIC_CONTENT_AVAILABLE "Cannot proceed, no dynamic content available!"
 #define IDSNS_FAILED_IS_THE_QHULL_PLUGIN_LOADED "Operation failed: is the Qhull plugin loaded?"
-#define IDSNS_OPERATION_FAILED "Operation failed."
+#define IDSNS_EXPORT_OPERATION_FAILED "Export operation failed."
 
 
 #define IDSNS_STARTING_TRIANGLE_EDIT_MODE "Starting triangle edit mode..."

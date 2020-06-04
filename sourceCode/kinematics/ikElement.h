@@ -42,7 +42,7 @@ public:
     void setAllInvolvedJointsToIkPluginPositions() const;
     void setAllInvolvedJointsToNewJointMode(int jointMode) const;
 
-    // OLD_IK_FUNC:
+#ifdef SUPPORT_OLD_IK
     void checkIfWithinTolerance(bool& position,bool& orientation,bool useTempValues);
     void prepareIkEquations(float interpolFact);
     void removeIkEquations();
@@ -52,7 +52,7 @@ public:
     CMatrix* errorVector;
     std::vector<int>* rowJointHandles;
     std::vector<int>* rowJointStages;
-
+#endif
 private:
     void _commonInit();
 

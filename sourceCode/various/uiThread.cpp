@@ -12,7 +12,7 @@
 #include "sceneObjectOperations.h"
 #include "addOperations.h"
 #include "rendering.h"
-#include "libLic.h"
+#include "simFlavor.h"
 #ifdef SIM_WITH_GUI
     #include "qdlgprimitives.h"
     #include "qdlgslider.h"
@@ -109,20 +109,19 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
 #ifdef SIM_WITH_GUI
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen())&&(cmdIn->cmdId==PLUS_HVUD_CMD_UITHREADCMD) )
     {
-        std::string txt(CLibLic::getStringVal(9));
+        std::string txt(CSimFlavor::getStringVal(9));
         if (txt.length()!=0)
         {
             if ( (!App::userSettings->doNotShowUpdateCheckMessage)&&(!App::userSettings->suppressStartupDialogs) )
                 App::uiThread->messageBox_informationSystemModal(App::mainWindow,strTranslate("Update information"),txt,VMESSAGEBOX_OKELI);
-            else
-                App::addStatusbarMessage(txt);
+            App::logMsg(sim_verbosity_msgs,txt.c_str());
         }
     }
 
     if (cmdIn->cmdId==PLUS_CVU_CMD_UITHREADCMD)
     {
-        CLibLic::setHld(App::mainWindow);
-        CLibLic::run(6);
+        CSimFlavor::setHld(App::mainWindow);
+        CSimFlavor::run(6);
     }
 #endif
 
@@ -314,8 +313,8 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
             App::mainWindow->editModeEnded();
     }
 
-    if (cmdIn->cmdId==ADD_STATUSBAR_MESSAGE_UITHREADCMD)
-        App::addStatusbarMessage(cmdIn->stringParams[0],cmdIn->boolParams[0]);
+    if (cmdIn->cmdId==LOG_MSG_TO_STATUSBAR_UITHREADCMD)
+        App::_logMsgToStatusbar(cmdIn->stringParams[0].c_str(),cmdIn->boolParams[0]);
     if ( (App::mainWindow!=nullptr)&&(cmdIn->cmdId==CLEAR_STATUSBAR_UITHREADCMD) )
         App::clearStatusbar();
 

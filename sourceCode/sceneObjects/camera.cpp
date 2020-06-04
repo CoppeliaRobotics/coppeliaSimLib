@@ -268,7 +268,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                 CShape* shape=(CShape*)it;
                 C7Vector trr(camTrInv*shape->getFullCumulativeTransformation());
                 std::vector<float> wvert;
-                shape->geomData->geomInfo->getCumulativeMeshes(wvert,nullptr,nullptr);
+                shape->getMeshWrapper()->getCumulativeMeshes(wvert,nullptr,nullptr);
                 for (int j=0;j<int(wvert.size())/3;j++)
                 {
                     C3Vector vq(&wvert[3*j+0]);

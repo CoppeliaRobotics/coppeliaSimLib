@@ -9,11 +9,11 @@
 std::vector<contactCallback>& getAllContactCallbacks();
 std::vector<jointCtrlCallback>& getAllJointCtrlCallbacks();
 
-void quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
-void enableCNameSuffixAdjustment();
-std::string getCNameSuffixAdjustedName(const char* name);
-void setCNameSuffixNumber(int number);
-int getCNameSuffixNumber();
+void quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
+void enableCNameSuffixAdjustment_OLD();
+std::string getCNameSuffixAdjustedName_OLD(const char* name);
+void setCNameSuffixNumber_OLD(int number);
+int getCNameSuffixNumber_OLD();
 
 simInt simRunSimulator_internal(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)(),simInt stopDelay,const simChar* sceneOrModelToLoad,bool launchSimThread);
 simVoid* simGetMainWindow_internal(simInt type);
@@ -84,7 +84,6 @@ simInt simCloseScene_internal();
 simInt simSaveScene_internal(const simChar* filename);
 simInt simLoadModel_internal(const simChar* filename);
 simInt simSaveModel_internal(int baseOfModelHandle,const simChar* filename);
-simInt simAddStatusbarMessage_internal(const simChar* message);
 simChar* simGetSimulatorMessage_internal(simInt* messageID,simInt* auxiliaryData,simInt* returnedDataSize);
 simInt simAddModuleMenuEntry_internal(const simChar* entryLabel,simInt itemCount,simInt* itemHandles);
 simInt simSetModuleMenuItemState_internal(simInt itemHandle,simInt state,const simChar* label);
@@ -179,11 +178,9 @@ simInt simScaleSelectedObjects_internal(simFloat scalingFactor,simBool scalePosi
 simInt simScaleObjects_internal(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo);
 simInt simDeleteSelectedObjects_internal();
 simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueIdentifier);
-simInt simGetNameSuffix_internal(const simChar* name);
 simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dataName,const simChar* data,simInt dataLength,simInt antennaHandle,simFloat actionRadius,simFloat emissionAngle1,simFloat emissionAngle2,simFloat persistence);
 simChar* simReceiveData_internal(simInt dataHeader,const simChar* dataName,simInt antennaHandle,simInt index,simInt* dataLength,simInt* senderID,simInt* dataHeaderR,simChar** dataNameR);
 simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* dataStreamName,simFloat data);
-simInt simSetNameSuffix_internal(simInt nameSuffixNumber);
 simInt simAddDrawingObject_internal(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission);
 simInt simRemoveDrawingObject_internal(simInt objectHandle);
 simInt simAddDrawingObjectItem_internal(simInt objectHandle,const simFloat* itemData);
@@ -622,6 +619,9 @@ simInt simSetVisionSensorFilter_internal(simInt visionSensorHandle,simInt filter
 simInt simGetVisionSensorFilter_internal(simInt visionSensorHandle,simInt filterIndex,simInt* options,simInt* pSizes,simUChar** bytes,simInt** ints,simFloat** floats,simUChar** custom);
 simChar* simGetScriptSimulationParameter_internal(simInt scriptHandle,const simChar* parameterName,simInt* parameterLength);
 simInt simSetScriptSimulationParameter_internal(simInt scriptHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength);
+simInt simGetNameSuffix_internal(const simChar* name);
+simInt simSetNameSuffix_internal(simInt nameSuffixNumber);
+simInt simAddStatusbarMessage_internal(const simChar* message);
 
 
 #endif // !defined(simInternal_INCLUDED_)

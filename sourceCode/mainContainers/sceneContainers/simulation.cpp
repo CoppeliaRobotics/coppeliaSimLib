@@ -9,7 +9,7 @@
 #include "simStrings.h"
 #include "vDateTime.h"
 #include "persistentDataContainer.h"
-#include "libLic.h"
+#include "simFlavor.h"
 
 const quint64 SIMULATION_DEFAULT_TIME_STEP_NS[5]={200000,100000,50000,25000,10000};
 const int SIMULATION_DEFAULT_PASSES_PER_RENDERING[5]={1,1,1,1,1};
@@ -716,9 +716,9 @@ bool CSimulation::processCommand(int commandID)
             {
                 App::currentWorld->simulation->setRealTimeSimulation(!App::currentWorld->simulation->getRealTimeSimulation());
                 if (App::currentWorld->simulation->getRealTimeSimulation())
-                    App::addStatusbarMessage(IDSNS_TOGGLED_TO_REAL_TIME_MODE);
+                    App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_REAL_TIME_MODE);
                 else
-                    App::addStatusbarMessage(IDSNS_TOGGLED_TO_NON_REAL_TIME_MODE);
+                    App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_NON_REAL_TIME_MODE);
                 App::setLightDialogRefreshFlag();
                 App::setToolbarRefreshFlag(); // will trigger a refresh
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
@@ -742,9 +742,9 @@ bool CSimulation::processCommand(int commandID)
             {
                 App::currentWorld->simulation->setOnlineMode(!App::currentWorld->simulation->getOnlineMode());
                 if (App::currentWorld->simulation->getOnlineMode())
-                    App::addStatusbarMessage(IDSNS_TOGGLED_TO_ONLINE_MODE);
+                    App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_ONLINE_MODE);
                 else
-                    App::addStatusbarMessage(IDSNS_TOGGLED_TO_OFFLINE_MODE);
+                    App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_OFFLINE_MODE);
                 App::setLightDialogRefreshFlag();
                 App::setToolbarRefreshFlag(); // will trigger a refresh
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
@@ -1264,7 +1264,7 @@ void CSimulation::addMenu(VMenu* menu)
         menu->appendMenuItem(App::mainWindow->getPlayViaGuiEnabled()&&noEditMode&&(!simRunning),false,SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD,IDS_START_SIMULATION_MENU_ITEM);
     menu->appendMenuItem(App::mainWindow->getPauseViaGuiEnabled()&&noEditMode&&simRunning,false,SIMULATION_COMMANDS_PAUSE_SIMULATION_REQUEST_SCCMD,IDS_PAUSE_SIMULATION_MENU_ITEM);
     menu->appendMenuItem(App::mainWindow->getStopViaGuiEnabled()&&noEditMode&&(!simStopped),false,SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD,IDS_STOP_SIMULATION_MENU_ITEM);
-    if (!CLibLic::getBoolVal(11))
+    if (!CSimFlavor::getBoolVal(11))
     {
         menu->appendMenuSeparator();
         menu->appendMenuItem(noEditMode&&simStopped,App::currentWorld->simulation->getOnlineMode(),SIMULATION_COMMANDS_TOGGLE_ONLINE_SCCMD,IDSN_ONLINE_MODE,true);
@@ -1277,7 +1277,7 @@ void CSimulation::addMenu(VMenu* menu)
     menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_ode,SIMULATION_COMMANDS_TOGGLE_TO_ODE_ENGINE_SCCMD,IDS_SWITCH_TO_ODE_ENGINE_MENU_ITEM,true);
     menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_vortex,SIMULATION_COMMANDS_TOGGLE_TO_VORTEX_ENGINE_SCCMD,IDS_SWITCH_TO_VORTEX_ENGINE_MENU_ITEM,true);
     menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_newton,SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD,IDS_SWITCH_TO_NEWTON_ENGINE_MENU_ITEM,true);
-    if (CLibLic::getBoolVal(11))
+    if (CSimFlavor::getBoolVal(11))
     {
         menu->appendMenuSeparator();
         menu->appendMenuItem(noEditMode&&simStopped,App::currentWorld->simulation->getRealTimeSimulation(),SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD,IDSN_REAL_TIME_SIMULATION,true);

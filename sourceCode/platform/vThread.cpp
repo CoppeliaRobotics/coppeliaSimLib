@@ -172,6 +172,13 @@ bool VThread::isCurrentThreadTheUiThread()
     return(areThreadIDsSame(_uiThreadId,getCurrentThreadId()));
 }
 
+bool VThread::isCurrentThreadNotTheUiThreadOrUiThreadNotYetSet()
+{
+    bool retVal=true;
+    if (_uiThreadIdSet)
+        retVal=!areThreadIDsSame(_uiThreadId,getCurrentThreadId());
+    return(retVal);
+}
 
 bool VThread::isCurrentThreadTheMainSimulationThread()
 {

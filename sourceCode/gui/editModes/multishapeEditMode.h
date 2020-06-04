@@ -15,14 +15,14 @@ public:
     int getMultishapeGeometricComponentIndex();
     void setMultishapeGeometricComponentIndex(int index);
     bool isCurrentMultishapeGeometricComponentValid();
-    CGeometric* getCurrentMultishapeGeometricComponent();
-    CGeometric* getMultishapeGeometricComponentAtIndex(int index);
-    void displayAllGeometricComponents(CGeomProxy* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling);
+    CMesh* getCurrentMultishapeGeometricComponent();
+    CMesh* getMultishapeGeometricComponentAtIndex(int index);
+    void displayAllGeometricComponents(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling);
 
     bool processCommand(int commandID);
 
 private:
     CShape* _shape;
-    std::vector<CGeometric*> _multishapeGeometricComponents;
+    std::vector<CMesh*> _multishapeGeometricComponents;
     int _multishapeGeometricComponentIndex;
 };

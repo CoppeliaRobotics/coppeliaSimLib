@@ -1,6 +1,6 @@
 #include "world.h"
 #include "pluginContainer.h"
-#include "geometric.h"
+#include "mesh.h"
 #include "ttUtil.h"
 #include "tt.h"
 #include "app.h"
@@ -280,7 +280,7 @@ void CWorld::saveScene(CSer& ar)
         {
             CShape* it=sceneObjects->getShapeFromIndex(i);
             CDynMaterialObject* mat=it->getDynMaterial();
-            it->geomData->geomInfo->setDynMaterialId_OLD(dynObjId);
+            it->getMeshWrapper()->setDynMaterialId_OLD(dynObjId);
             mat->setObjectID(dynObjId++);
             ar.storeDataName(SER_DYNMATERIAL);
             ar.setCountingMode();
@@ -295,7 +295,7 @@ void CWorld::saveScene(CSer& ar)
     //------------------------------------------------------------
     if (ar.isBinary())
     {
-        CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+        CMesh::clearTempVerticesIndicesNormalsAndEdges();
         for (size_t i=0;i<sceneObjects->getShapeCount();i++)
         {
             CShape* it=sceneObjects->getShapeFromIndex(i);
@@ -303,10 +303,10 @@ void CWorld::saveScene(CSer& ar)
         }
         ar.storeDataName(SER_VERTICESINDICESNORMALSEDGES);
         ar.setCountingMode();
-        CGeometric::serializeTempVerticesIndicesNormalsAndEdges(ar);
+        CMesh::serializeTempVerticesIndicesNormalsAndEdges(ar);
         if (ar.setWritingMode())
-            CGeometric::serializeTempVerticesIndicesNormalsAndEdges(ar);
-        CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+            CMesh::serializeTempVerticesIndicesNormalsAndEdges(ar);
+        CMesh::clearTempVerticesIndicesNormalsAndEdges();
     }
     //------------------------------------------------------------
 
@@ -555,7 +555,7 @@ void CWorld::saveScene(CSer& ar)
 
     if (ar.isBinary())
         ar.storeDataName(SER_END_OF_FILE);
-    CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+    CMesh::clearTempVerticesIndicesNormalsAndEdges();
 }
 
 bool CWorld::loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
@@ -631,8 +631,6 @@ void CWorld::simulationAboutToStart()
 
     App::setToolbarRefreshFlag();
     App::setFullDialogRefreshFlag();
-    if (SIM_PROGRAM_VERSION_NB==30500)
-        App::addStatusbarMessage("Warning: 'print()' now prints to the status bar, instead of the console (use 'print=printToConsole' to revert).");
 
 #ifdef SIM_WITH_GUI
     if (App::mainWindow!=nullptr)
@@ -790,7 +788,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         if (loadedObjectList->at(i)->getObjectType()==sim_object_shape_type)
         {
             CShape* shape=(CShape*)loadedObjectList->at(i);
-            int matId=shape->geomData->geomInfo->getDynMaterialId_OLD();
+            int matId=shape->getMeshWrapper()->getDynMaterialId_OLD();
             if ((fileSimVersion<30303)&&(matId>=0))
             { // for backward compatibility(29/10/2016), when the dyn material was stored separaterly and shared among shapes
                 for (size_t j=0;j<loadedDynMaterialObjectList.size();j++)
@@ -814,7 +812,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
                         mat->setEngineFloatParam(sim_bullet_body_friction,0.25f); // the new Bullet friction
                 }
             }
-            shape->geomData->geomInfo->setDynMaterialId_OLD(-1);
+            shape->getMeshWrapper()->setDynMaterialId_OLD(-1);
         }
     }
     _prepareFastLoadingMapping(objectMapping);
@@ -1197,7 +1195,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
 {
     appendLoadOperationIssue(-1,nullptr,-1); // clear
 
-    CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+    CMesh::clearTempVerticesIndicesNormalsAndEdges();
     sceneObjects->deselectObjects();
 
     std::vector<CSceneObject*> loadedObjectList;
@@ -1274,9 +1272,9 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 //------------------------------------------------------------
                 if (theName.compare(SER_VERTICESINDICESNORMALSEDGES)==0)
                 {
-                    CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+                    CMesh::clearTempVerticesIndicesNormalsAndEdges();
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CGeometric::serializeTempVerticesIndicesNormalsAndEdges(ar);
+                    CMesh::serializeTempVerticesIndicesNormalsAndEdges(ar);
                     noHit=false;
                 }
                 //------------------------------------------------------------
@@ -1378,20 +1376,13 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                     if ( (it->getScriptType()==sim_scripttype_jointctrlcallback_old)||(it->getScriptType()==sim_scripttype_generalcallback_old)||(it->getScriptType()==sim_scripttype_contactcallback_old) )
                     { // joint callback, contact callback and general callback scripts are not supported anymore since V3.6.1.rev2
                         std::string ml(it->getScriptText());
-                        std::string l;
-                        while (CTTUtil::extractLine(ml,l))
-                        {
-                            l="<font color='orange'>"+l;
-                            l+="</font>@html";
-                            App::addStatusbarMessage(l.c_str());
-                        }
                         if (it->getScriptType()==sim_scripttype_jointctrlcallback_old)
-                            App::addStatusbarMessage("<font color='red'>The file contains a joint control callback script, which is a script type that is not supported anymore (since CoppeliaSim V3.6.1 rev2). Use a joint callback function instead.</font>@html");
+                            ml="the file contains a joint control callback script, which is a script type that is not supported anymore (since CoppeliaSim V3.6.1 rev2).\nUse a joint callback function instead. Following the script content:\n"+ml;
                         if (it->getScriptType()==sim_scripttype_generalcallback_old)
-                            App::addStatusbarMessage("<font color='red'>The file contains a general callback script, which is a script type that is not supported anymore (since CoppeliaSim V3.6.1 rev2).</font>@html");
+                            ml="the file contains a general callback script, which is a script type that is not supported anymore (since CoppeliaSim V3.6.1 rev2):\n"+ml;
                         if (it->getScriptType()==sim_scripttype_contactcallback_old)
-                            App::addStatusbarMessage("<font color='red'>The file contains a contact callback script, which is a script type that is not supported anymore (since CoppeliaSim V3.6.1 rev2). Use a contact callback functions instead.</font>@html");
-                        App::addStatusbarMessage("<font color='red'>See above the content of the unsupported script</font>@html");
+                            ml="the file contains a contact callback script, which is a script type that is not supported anymore (since CoppeliaSim V3.6.1 rev2).\nUse a contact callback functions instead. Following the script content:\n"+ml;
+                        App::logMsg(sim_verbosity_errors,ml.c_str());
                         delete it;
                     }
                     else
@@ -1574,7 +1565,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
         }
     }
 
-    CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+    CMesh::clearTempVerticesIndicesNormalsAndEdges();
 
     int fileSimVersion=ar.getCoppeliaSimVersionThatWroteThisFile();
 
@@ -1595,7 +1586,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                                         loadedDynMaterialList,
                                         !isScene,fileSimVersion,forceModelAsCopy);
 
-    CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+    CMesh::clearTempVerticesIndicesNormalsAndEdges();
 
     appendLoadOperationIssue(-1,nullptr,-1); // clear
 

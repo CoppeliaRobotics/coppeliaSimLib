@@ -276,7 +276,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                 std::string txt(IDSNS_STARTING_ADDON_FUNCTION);
                 txt+=" ";
                 txt+=allAddOnFunctionNames[index];
-                App::addStatusbarMessage(txt.c_str());
+                App::logMsg(sim_verbosity_msgs,txt.c_str());
 
                 // execute the add-on function here!!
                 std::string fp1(App::directories->executableDirectory+"/");
@@ -326,7 +326,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
     //                  VFile::reportAndHandleFileExceptionError(e);
                     }
                 }
-                App::addStatusbarMessage(IDSNS_ENDED_ADDON_FUNCTION);
+                App::logMsg(sim_verbosity_msgs,IDSNS_ENDED_ADDON_FUNCTION);
             }
         }
         else
@@ -377,7 +377,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                 }
                 txt+=" ";
                 txt+=it->getAddOnName();
-                App::addStatusbarMessage(txt.c_str());
+                App::logMsg(sim_verbosity_msgs,txt.c_str());
             }
         }
         else

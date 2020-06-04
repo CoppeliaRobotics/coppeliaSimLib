@@ -195,7 +195,7 @@ float CDistanceRoutine::_getApproxBoundingBoxDistance(CSceneObject* obj1,CSceneO
         CSceneObject* obj=objs[cnt];
         if (obj->getObjectType()==sim_object_shape_type)
         {
-            halfSizes[cnt]=((CShape*)obj)->geomData->getBoundingBoxHalfSizes();
+            halfSizes[cnt]=((CShape*)obj)->getBoundingBoxHalfSizes();
             m[cnt]=obj->getFullCumulativeTransformation();
         }
         if (obj->getObjectType()==sim_object_dummy_type)
@@ -287,13 +287,13 @@ bool CDistanceRoutine::_getShapeDummyDistanceIfSmaller(CShape* shape,CDummy* dum
     if (bbDist>=dist)
         return(false);
 
-    shape->initializeCalculationStructureIfNeeded();
+    shape->initializeMeshCalculationStructureIfNeeded();
 
     C3Vector dummyPos(dummy->getFullCumulativeTransformation().X);
     C3Vector rayPart0;
     C3Vector rayPart1(dummyPos);
     int buffer=0;
-    if (CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(shape->geomData->collInfo,shape->getFullCumulativeTransformation(),dummyPos,dist,&rayPart0,&buffer))
+    if (CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(shape->_meshCalculationStructure,shape->getFullCumulativeTransformation(),dummyPos,dist,&rayPart0,&buffer))
     {
         rayPart0.copyTo(ray);
         rayPart1.copyTo(ray+3);
@@ -338,11 +338,11 @@ bool CDistanceRoutine::_getShapeShapeDistanceIfSmaller(CShape* shape1,CShape* sh
     if (bbDist>=dist)
         return(false);
 
-    shape1->initializeCalculationStructureIfNeeded();
-    shape2->initializeCalculationStructureIfNeeded();
+    shape1->initializeMeshCalculationStructureIfNeeded();
+    shape2->initializeMeshCalculationStructureIfNeeded();
 
     C3Vector minDistPt1,minDistPt2;
-    if (CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(shape1->geomData->collInfo,shape1->getFullCumulativeTransformation(),shape2->geomData->collInfo,shape2->getFullCumulativeTransformation(),dist,&minDistPt1,&minDistPt2,cache1+1,cache2+1))
+    if (CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(shape1->_meshCalculationStructure,shape1->getFullCumulativeTransformation(),shape2->_meshCalculationStructure,shape2->getFullCumulativeTransformation(),dist,&minDistPt1,&minDistPt2,cache1+1,cache2+1))
     {
         minDistPt1.getInternalData(ray+0);
         minDistPt2.getInternalData(ray+3);
@@ -419,12 +419,12 @@ bool CDistanceRoutine::_getOctreeShapeDistanceIfSmaller(COctree* octree,CShape* 
     if (bbDist>=dist)
         return(false);
 
-    shape->initializeCalculationStructureIfNeeded();
+    shape->initializeMeshCalculationStructureIfNeeded();
 
     unsigned long long int cache1V=getExtendedCacheValue(cache1[1]);
     C3Vector distPt1;
     C3Vector distPt2;
-    if (CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(shape->geomData->collInfo,shape->getFullCumulativeTransformation(),octree->getOctreeInfo(),octree->getFullCumulativeTransformation(),dist,&distPt2,&distPt1,cache2+1,&cache1V))
+    if (CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(shape->_meshCalculationStructure,shape->getFullCumulativeTransformation(),octree->getOctreeInfo(),octree->getFullCumulativeTransformation(),dist,&distPt2,&distPt1,cache2+1,&cache1V))
     {
         distPt1.getInternalData(ray+0);
         distPt2.getInternalData(ray+3);
@@ -561,12 +561,12 @@ bool CDistanceRoutine::_getPointCloudShapeDistanceIfSmaller(CPointCloud* pointCl
     if (bbDist>=dist)
         return(false);
 
-    shape->initializeCalculationStructureIfNeeded();
+    shape->initializeMeshCalculationStructureIfNeeded();
 
     unsigned long long int cache1V=getExtendedCacheValue(cache1[1]);
     C3Vector distPt1;
     C3Vector distPt2;
-    if (CPluginContainer::geomPlugin_getMeshPtcloudDistanceIfSmaller(shape->geomData->collInfo,shape->getFullCumulativeTransformation(),pointCloud->getPointCloudInfo(),pointCloud->getFullCumulativeTransformation(),dist,&distPt2,&distPt1,cache2+1,&cache1V))
+    if (CPluginContainer::geomPlugin_getMeshPtcloudDistanceIfSmaller(shape->_meshCalculationStructure,shape->getFullCumulativeTransformation(),pointCloud->getPointCloudInfo(),pointCloud->getFullCumulativeTransformation(),dist,&distPt2,&distPt1,cache2+1,&cache1V))
     {
         distPt1.getInternalData(ray+0);
         distPt2.getInternalData(ray+3);

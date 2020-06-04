@@ -2,8 +2,8 @@
 #include "shapeRendering.h"
 
 #ifdef SIM_WITH_OPENGL
-#include "geomWrap.h"
-#include "geometric.h"
+#include "meshWrapper.h"
+#include "mesh.h"
 #include "pluginContainer.h"
 
 void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib)
@@ -77,11 +77,11 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
             App::currentWorld->environment->setShapeTexturesEnabled(true);
             if (shape->getContainsTransparentComponent())
             {
-                App::mainWindow->editModeContainer->getMultishapeEditMode()->displayAllGeometricComponents(shape->geomData,displayAttrib,nullptr,0,2);
-                App::mainWindow->editModeContainer->getMultishapeEditMode()->displayAllGeometricComponents(shape->geomData,displayAttrib,nullptr,0,1);
+                App::mainWindow->editModeContainer->getMultishapeEditMode()->displayAllGeometricComponents(shape,displayAttrib,nullptr,0,2);
+                App::mainWindow->editModeContainer->getMultishapeEditMode()->displayAllGeometricComponents(shape,displayAttrib,nullptr,0,1);
             }
             else
-                App::mainWindow->editModeContainer->getMultishapeEditMode()->displayAllGeometricComponents(shape->geomData,displayAttrib,nullptr,0,0);
+                App::mainWindow->editModeContainer->getMultishapeEditMode()->displayAllGeometricComponents(shape,displayAttrib,nullptr,0,0);
             App::currentWorld->environment->setShapeTexturesEnabled(textEnabledSaved);
         }
         else
@@ -125,8 +125,8 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
             // Display the mass and inertia:
             if ((displayAttrib&sim_displayattribute_inertiaonly)!=0)
             {
-                C3Vector v(shape->geomData->getBoundingBoxHalfSizes()*2.0f);
-                _displayInertia(shape->geomData->geomInfo,sqrt(v*v),normalVectorForLinesAndPoints.data);
+                C3Vector v(shape->getBoundingBoxHalfSizes()*2.0f);
+                _displayInertia(shape->getMeshWrapper(),sqrt(v*v),normalVectorForLinesAndPoints.data);
                 otherColor.setDefaultValues();
                 otherColor.getColorsPtr()[0]=0.8f;
                 otherColor.getColorsPtr()[1]=0.8f;
@@ -134,7 +134,7 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
                 otherColorP=&otherColor;
             }
 
-            if (renderingObject->isObjectInsideView(shape->getFullCumulativeTransformation(),shape->geomData->getBoundingBoxHalfSizes()))
+            if (renderingObject->isObjectInsideView(shape->getFullCumulativeTransformation(),shape->getBoundingBoxHalfSizes()))
             { // the bounding box is inside of the view (at least some part of it!)
                 if ((displayAttrib&sim_displayattribute_colorcoded)==0)
                 { // normal visualization
@@ -142,30 +142,30 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
                     { // visualize OBB calculation structures
                         CColorObject fakeCol;
                         fakeCol.setDefaultValues();
-                        if (shape->geomData->isCollisionInformationInitialized())
+                        if (shape->isMeshCalculationStructureInitialized())
                         {
                             fakeCol.setColor(0.5f,0.1f,0.1f,0);
-                            shape->geomData->geomInfo->display(shape->geomData,(displayAttrib|sim_displayattribute_trianglewireframe)-sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicObjectFlag_forVisualization(),0,false);
+                            shape->getMeshWrapper()->display(shape,(displayAttrib|sim_displayattribute_trianglewireframe)-sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicObjectFlag_forVisualization(),0,false);
                         }
                         else
                         {
                             fakeCol.setColor(0.5f,0.5f,0.5f,0);
-                            shape->geomData->geomInfo->display(shape->geomData,displayAttrib|sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicObjectFlag_forVisualization(),0,false);
+                            shape->getMeshWrapper()->display(shape,displayAttrib|sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicObjectFlag_forVisualization(),0,false);
                         }
                     }
                     else
                     { // normal visualization
                         if (shape->getContainsTransparentComponent())
                         {
-                            shape->geomData->geomInfo->display(shape->geomData,displayAttrib,otherColorP,shape->getDynamicObjectFlag_forVisualization(),2,false);
-                            shape->geomData->geomInfo->display(shape->geomData,displayAttrib,otherColorP,shape->getDynamicObjectFlag_forVisualization(),1,false);
+                            shape->getMeshWrapper()->display(shape,displayAttrib,otherColorP,shape->getDynamicObjectFlag_forVisualization(),2,false);
+                            shape->getMeshWrapper()->display(shape,displayAttrib,otherColorP,shape->getDynamicObjectFlag_forVisualization(),1,false);
                         }
                         else
-                            shape->geomData->geomInfo->display(shape->geomData,displayAttrib,otherColorP,shape->getDynamicObjectFlag_forVisualization(),0,false);
+                            shape->getMeshWrapper()->display(shape,displayAttrib,otherColorP,shape->getDynamicObjectFlag_forVisualization(),0,false);
                     }
                 }
                 else
-                    shape->geomData->geomInfo->display_colorCoded(shape->geomData,shape->getObjectHandle(),displayAttrib); // color-coded visualization
+                    shape->getMeshWrapper()->display_colorCoded(shape,shape->getObjectHandle(),displayAttrib); // color-coded visualization
             }
             _disableAuxClippingPlanes();
         }
@@ -175,7 +175,7 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
     _commonFinish(shape,renderingObject);
 }
 
-void _displayInertia(CGeomWrap* geomWrap,float bboxDiagonal,const float normalVectorForPointsAndLines[3])
+void _displayInertia(CMeshWrapper* geomWrap,float bboxDiagonal,const float normalVectorForPointsAndLines[3])
 {
     C7Vector tr(geomWrap->getLocalInertiaFrame());
     glPushMatrix();
@@ -226,7 +226,7 @@ void _displayInertia(CGeomWrap* geomWrap,float bboxDiagonal,const float normalVe
     glPopMatrix();
 }
 
-void _displayTriangles(CGeometric* geometric,int geomModifCounter,CTextureProperty* tp)
+void _displayTriangles(CMesh* geometric,int geomModifCounter,CTextureProperty* tp)
 {
     if ((!App::currentWorld->environment->getShapeTexturesEnabled())||CEnvironment::getShapeTexturesTemporarilyDisabled())
         tp=nullptr;
@@ -251,7 +251,7 @@ void _displayTriangles(CGeometric* geometric,int geomModifCounter,CTextureProper
 }
 
 
-void displayGeometric(CGeometric* geometric,CGeomProxy* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
+void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
 {
 
     if (transparencyHandling!=0)
@@ -318,9 +318,9 @@ void displayGeometric(CGeometric* geometric,CGeomProxy* geomData,int displayAttr
                         glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
 
                     if ( (displayAttrib&sim_displayattribute_trianglewireframe)||(collisionColor!=nullptr)||(displayAttrib&sim_displayattribute_dynamiccontentonly)||(displayAttrib&sim_displayattribute_useauxcomponent)||(displayAttrib&sim_displayattribute_depthpass) )
-                        _displayTriangles(geometric,geomData->getGeomDataModificationCounter(),nullptr);
+                        _displayTriangles(geometric,geomData->getMeshModificationCounter(),nullptr);
                     else
-                        _displayTriangles(geometric,geomData->getGeomDataModificationCounter(),geometric->getTextureProperty());
+                        _displayTriangles(geometric,geomData->getMeshModificationCounter(),geometric->getTextureProperty());
 
                     if (displayAttrib&sim_displayattribute_trianglewireframe)
                         glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
@@ -352,7 +352,7 @@ void displayGeometric(CGeometric* geometric,CGeomProxy* geomData,int displayAttr
             if ((displayAttrib&sim_displayattribute_trianglewireframe)==0)
             {
                 glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
-                _displayTriangles(geometric,geomData->getGeomDataModificationCounter(),nullptr);
+                _displayTriangles(geometric,geomData->getMeshModificationCounter(),nullptr);
             }
             glDisable(GL_POLYGON_OFFSET_FILL);
             glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
@@ -361,7 +361,7 @@ void displayGeometric(CGeometric* geometric,CGeomProxy* geomData,int displayAttr
                 ogl::setMaterialColor(1.0f,1.0f,1.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f);
             else
                 ogl::setMaterialColor(0.0f,1.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f);
-            _displayTriangles(geometric,geomData->getGeomDataModificationCounter(),nullptr);
+            _displayTriangles(geometric,geomData->getMeshModificationCounter(),nullptr);
         }
 
         glDisable(GL_POLYGON_OFFSET_FILL);
@@ -430,7 +430,7 @@ void displayGeometric(CGeometric* geometric,CGeomProxy* geomData,int displayAttr
                 for (int pss=0;pss<2;pss++)
                 { // we have only a second pass if the inside color is different!
                     glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
-                    _displayTriangles(geometric,geomData->getGeomDataModificationCounter(),nullptr);
+                    _displayTriangles(geometric,geomData->getMeshModificationCounter(),nullptr);
                     glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
                     if (geometric->getInsideAndOutsideFacesSameColor_DEPRECATED()||geometric->getCulling())
                         break; // we leave here.. inside and outside colors are same
@@ -461,7 +461,7 @@ void displayGeometric(CGeometric* geometric,CGeomProxy* geomData,int displayAttr
             glEnable(GL_LINE_STIPPLE);
             ogl::setMaterialColor(0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,1.0f,0.0f,1.0f);
             glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
-            _displayTriangles(geometric,geomData->getGeomDataModificationCounter(),nullptr);
+            _displayTriangles(geometric,geomData->getMeshModificationCounter(),nullptr);
             glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
             glDisable(GL_LINE_STIPPLE);
             glLineWidth(1.0f);
@@ -473,7 +473,7 @@ void displayGeometric(CGeometric* geometric,CGeomProxy* geomData,int displayAttr
     glPopMatrix();
 }
 
-void displayGeometric_colorCoded(CGeometric* geometric,CGeomProxy* geomData,int objectId,int displayAttrib)
+void displayGeometric_colorCoded(CMesh* geometric,CShape* geomData,int objectId,int displayAttrib)
 {
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
@@ -500,7 +500,7 @@ void displayGeometric_colorCoded(CGeometric* geometric,CGeomProxy* geomData,int 
         _drawColorCodedTriangles(&_vertices[0],(int)_vertices.size()/3,&_indices[0],(int)_indices.size(),&_normals[0],geometric->getVertexBufferIdPtr(),geometric->getNormalBufferIdPtr());
     }
     else
-        _displayTriangles(geometric,geomData->getGeomDataModificationCounter(),nullptr);
+        _displayTriangles(geometric,geomData->getMeshModificationCounter(),nullptr);
     glDisable(GL_CULL_FACE);
 
     glFrontFace(GL_CCW);
@@ -508,7 +508,7 @@ void displayGeometric_colorCoded(CGeometric* geometric,CGeomProxy* geomData,int 
     glPopMatrix();
 }
 
-void displayGeometricGhost(CGeometric* geometric,CGeomProxy* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors)
+void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors)
 {
     if (originalColors)
     {
@@ -558,9 +558,9 @@ void displayGeometricGhost(CGeometric* geometric,CGeomProxy* geomData,int displa
                     glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
 
                 if ( (displayAttrib&sim_displayattribute_trianglewireframe)||(displayAttrib&sim_displayattribute_dynamiccontentonly)||(displayAttrib&sim_displayattribute_depthpass) )
-                    _displayTriangles(geometric,geomData->getGeomDataModificationCounter(),nullptr);
+                    _displayTriangles(geometric,geomData->getMeshModificationCounter(),nullptr);
                 else
-                    _displayTriangles(geometric,geomData->getGeomDataModificationCounter(),geometric->getTextureProperty());
+                    _displayTriangles(geometric,geomData->getMeshModificationCounter(),geometric->getTextureProperty());
 
                 if (displayAttrib&sim_displayattribute_trianglewireframe)
                     glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
@@ -631,7 +631,7 @@ void displayGeometricGhost(CGeometric* geometric,CGeomProxy* geomData,int displa
                 for (int pss=0;pss<2;pss++)
                 { // we have only a second pass if the inside color is different!
                     glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
-                    _displayTriangles(geometric,geomData->getGeomDataModificationCounter(),nullptr);
+                    _displayTriangles(geometric,geomData->getMeshModificationCounter(),nullptr);
                     glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
                     if (geometric->getInsideAndOutsideFacesSameColor_DEPRECATED()||geometric->getCulling())
                         break; // we leave here.. inside and outside colors are same
@@ -661,18 +661,18 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
 
 }
 
-void displayGeometric(CGeometric* geometric,CGeomProxy* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
+void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
 {
 
 }
 
-void displayGeometric_colorCoded(CGeometric* geometric,CGeomProxy* geomData,int objectId,int displayAttrib)
+void displayGeometric_colorCoded(CMesh* geometric,CShape* geomData,int objectId,int displayAttrib)
 {
 
 }
 
 
-void displayGeometricGhost(CGeometric* geometric,CGeomProxy* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors)
+void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors)
 {
 
 }

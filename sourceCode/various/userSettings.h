@@ -36,7 +36,8 @@ public:
 
     std::string _overrideConsoleVerbosity;
     std::string _overrideStatusbarVerbosity;
-    std::string _logFilter;
+    std::string _consoleLogFilter;
+    bool undecoratedStatusbarMessages;
     bool displayWorldReference;
     bool useGlFinish;
     bool useGlFinish_visionSensors;
@@ -57,7 +58,6 @@ public:
     bool orderHierarchyAlphabetically;
     int macChildDialogType;
     bool useExternalLuaLibrary;
-    bool raiseErrorWithApiScriptFunctions;
 
     int undoRedoLevelCount;
     int undoRedoMaxBufferSize;
@@ -78,6 +78,7 @@ public:
     bool useAlternateSerialPortRoutines;
     bool disableOpenGlBasedCustomUi;
     bool enableOldMirrorObjects;
+    int allowOldEduRelease;
     bool useOldIk;
     bool displayBoundingBoxeWhenObjectSelected;
     bool antiAliasing;

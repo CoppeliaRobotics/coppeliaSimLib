@@ -189,18 +189,18 @@ void COctree::insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeToOctr
     _readPositionsAndColorsAndSetDimensions();
 }
 
-void COctree::insertShape(const CShape* shape,unsigned int theTag)
+void COctree::insertShape(CShape* shape,unsigned int theTag)
 {
     TRACE_INTERNAL;
-    shape->geomData->initializeCalculationStructureIfNeeded();
+    shape->initializeMeshCalculationStructureIfNeeded();
 
     C7Vector octreeTr(getFullCumulativeTransformation());
     C7Vector shapeTr(((CShape*)shape)->getFullCumulativeTransformation());
     unsigned char cols[3]={(unsigned char)(color.getColorsPtr()[0]*255.1f),(unsigned char)(color.getColorsPtr()[1]*255.1f),(unsigned char)(color.getColorsPtr()[2]*255.1f)};
     if (_octreeInfo==nullptr)
-        _octreeInfo=CPluginContainer::geomPlugin_createOctreeFromMesh(shape->geomData->collInfo,shapeTr,&octreeTr,_cellSize,cols,theTag);
+        _octreeInfo=CPluginContainer::geomPlugin_createOctreeFromMesh(shape->_meshCalculationStructure,shapeTr,&octreeTr,_cellSize,cols,theTag);
     else
-        CPluginContainer::geomPlugin_insertMeshIntoOctree(_octreeInfo,octreeTr,shape->geomData->collInfo,shapeTr,cols,theTag);
+        CPluginContainer::geomPlugin_insertMeshIntoOctree(_octreeInfo,octreeTr,shape->_meshCalculationStructure,shapeTr,cols,theTag);
     _readPositionsAndColorsAndSetDimensions();
 }
 
@@ -304,16 +304,16 @@ void COctree::subtractPoints(const float* pts,int ptsCnt,bool ptsAreRelativeToOc
     _readPositionsAndColorsAndSetDimensions();
 }
 
-void COctree::subtractShape(const CShape* shape)
+void COctree::subtractShape(CShape* shape)
 {
     TRACE_INTERNAL;
     if (_octreeInfo!=nullptr)
     {
-        shape->geomData->initializeCalculationStructureIfNeeded();
+        shape->initializeMeshCalculationStructureIfNeeded();
 
         C4X4Matrix octreeM(getFullCumulativeTransformation().getMatrix());
         C4X4Matrix shapeM(((CShape*)shape)->getFullCumulativeTransformation().getMatrix());
-        if (CPluginContainer::geomPlugin_removeMeshFromOctree(_octreeInfo,octreeM,shape->geomData->collInfo,shapeM))
+        if (CPluginContainer::geomPlugin_removeMeshFromOctree(_octreeInfo,octreeM,shape->_meshCalculationStructure,shapeM))
         {
             CPluginContainer::geomPlugin_destroyOctree(_octreeInfo);
             _octreeInfo=nullptr;

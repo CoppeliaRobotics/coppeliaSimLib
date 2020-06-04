@@ -8,7 +8,7 @@
 #include "app.h"
 #include "toolBarCommand.h"
 #include "rendering.h"
-#include "libLic.h"
+#include "simFlavor.h"
 
 int disableWheelRotateForOne500ms=-1;
 int disableMouseMoveFor200ms=-1;
@@ -470,7 +470,7 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void* event,int t)
                 }
                 if (kEvent->matches(QKeySequence::SelectAll))
                 {
-                    if (CLibLic::getBoolVal(2))
+                    if (CSimFlavor::getBoolVal(2))
                     {
                         if (App::mainWindow->getOpenGlDisplayEnabled())
                             e.specialKey=CTRL_A_KEY;

@@ -4,7 +4,7 @@
 #include "gV.h"
 #include "oGL.h"
 #include "imgLoaderSaver.h"
-#include "geometric.h"
+#include "mesh.h"
 #include "qdlgtextureselection.h"
 #include "qdlgtextureloadoptions.h"
 #include "simStrings.h"
@@ -36,7 +36,7 @@ void CQDlgTextures::refresh()
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
     bool applyTexture3D;
-    CGeometric* geom=nullptr;
+    CMesh* geom=nullptr;
     CTextureProperty* tp=App::getTexturePropertyPointerFromItem(_objType,_objID1,_objID2,nullptr,&applyTexture3D,nullptr,&geom);
     bool simStopped=App::currentWorld->simulation->isSimulationStopped();
     bool usingFixedTextureCoordinates=false;

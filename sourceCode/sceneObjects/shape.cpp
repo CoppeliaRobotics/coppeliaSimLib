@@ -3,11 +3,13 @@
 #include "tt.h"
 #include "algos.h"
 #include "app.h"
-#include "geomWrap.h"
-#include "geometric.h"
+#include "meshWrapper.h"
+#include "mesh.h"
 #include "easyLock.h"
 #include "pluginContainer.h"
 #include "shapeRendering.h"
+#include "meshManip.h"
+#include "base64.h"
 
 bool CShape::_visualizeObbStructures=false;
 
@@ -24,14 +26,717 @@ void CShape::setDebugObbStructures(bool d)
 
 CShape::CShape()
 {
-    geomData=nullptr;
     commonInit();
+}
+
+CShape::CShape(const std::vector<float>& allHeights,int xSize,int ySize,float dx,float zSize)
+{
+    commonInit();
+
+    C7Vector newLocalTr;
+
+    std::vector<float> vert;
+    std::vector<int> ind;
+    float yPos=-float(ySize-1)*dx*0.5f;
+    for (int i=0;i<ySize;i++)
+    {
+        float xPos=-float(xSize-1)*dx*0.5f;
+        for (int j=0;j<xSize;j++)
+        {
+            vert.push_back(xPos);
+            vert.push_back(yPos);
+            vert.push_back(allHeights[i*xSize+j]);
+            xPos+=dx;
+        }
+        yPos+=dx;
+    }
+
+    for (int i=0;i<ySize-1;i++)
+    {
+        for (int j=0;j<xSize-1;j++)
+        {
+            ind.push_back((i+0)*xSize+(j+0));
+            ind.push_back((i+0)*xSize+(j+1));
+            ind.push_back((i+1)*xSize+(j+0));
+
+            ind.push_back((i+0)*xSize+(j+1));
+            ind.push_back((i+1)*xSize+(j+1));
+            ind.push_back((i+1)*xSize+(j+0));
+        }
+    }
+
+    newLocalTr=_acceptNewGeometry(vert,ind,nullptr,nullptr);
+
+    getMeshWrapper()->setPurePrimitiveType(sim_pure_primitive_heightfield,float(xSize-1)*dx,float(ySize-1)*dx,zSize);
+    std::vector<float> heightsInCorrectOrder;
+    for (int i=0;i<ySize;i++)
+    {
+        // Following doesn't work correctly somehow...
+        //for (int j=xSize-1;j>=0;j--)
+        //  heightsInCorrectOrder.push_back(allHeights[i*xSize+j]);
+        for (int j=0;j<xSize;j++)
+            heightsInCorrectOrder.push_back(allHeights[i*xSize+j]);
+    }
+    getSingleMesh()->setHeightfieldData(heightsInCorrectOrder,xSize,ySize);
+    setLocalTransformation(newLocalTr);
+}
+
+CShape::CShape(const C7Vector* transformation,const std::vector<float>& vert,const std::vector<int>& ind,const std::vector<float>* normals,const std::vector<float>* textCoord)
+{
+    commonInit();
+    setLocalTransformation(reinitMesh(transformation,vert,ind,normals,textCoord));
+}
+
+CShape::CShape(const C7Vector& transformation,CMeshWrapper* newGeomInfo)
+{
+    commonInit();
+    setLocalTransformation(reinitMesh2(transformation,newGeomInfo));
 }
 
 CShape::~CShape()
 {
-    delete geomData;
+    removeMeshCalculationStructure();
+    delete _mesh;
     delete _dynMaterial;
+}
+
+C7Vector CShape::reinitMesh(const C7Vector* transformation,const std::vector<float>& vert,const std::vector<int>& ind,const std::vector<float>* normals,const std::vector<float>* textCoord)
+{
+    C7Vector retVal;
+
+    std::vector<float>* norms=nullptr;
+    std::vector<float> _norms;
+    if (normals!=nullptr)
+    {
+        norms=&_norms;
+        _norms.assign(normals->begin(),normals->end());
+        // Make sure the normals are normalized:
+        for (size_t i=0;i<_norms.size()/3;i++)
+        {
+            C3Vector n(&_norms[3*i]);
+            n.normalize();
+            _norms[3*i+0]=n(0);
+            _norms[3*i+1]=n(1);
+            _norms[3*i+2]=n(2);
+        }
+    }
+
+    if (transformation==nullptr)
+        retVal=_acceptNewGeometry(vert,ind,textCoord,norms);
+    else
+    {
+        std::vector<float> wvert(vert);
+        for (size_t i=0;i<vert.size()/3;i++)
+        {
+            C3Vector v(&vert[3*i+0]);
+            v*=(*transformation);
+            wvert[3*i+0]=v(0);
+            wvert[3*i+1]=v(1);
+            wvert[3*i+2]=v(2);
+        }
+        C7Vector tr(*transformation);
+        for (size_t i=0;i<_norms.size()/3;i++)
+        {
+            C3Vector n(&_norms[3*i+0]);
+            n*=tr;
+            _norms[3*i+0]=n(0);
+            _norms[3*i+1]=n(1);
+            _norms[3*i+2]=n(2);
+        }
+        retVal=_acceptNewGeometry(wvert,ind,textCoord,norms);
+    }
+    actualizeContainsTransparentComponent();
+    return(retVal);
+}
+
+void CShape::setNewMesh(CMeshWrapper* newGeomInfo)
+{
+    removeMeshCalculationStructure();
+    delete _mesh;
+    _mesh=newGeomInfo;
+    _meshDynamicsFullRefreshFlag=true;
+    _meshModificationCounter++;
+    _computeMeshBoundingBox();
+    actualizeContainsTransparentComponent();
+    incrementMemorizedConfigurationValidCounter(); // so if we are running in a simulation, the shape doesn't get reset at its initial config
+}
+
+C7Vector CShape::reinitMesh2(const C7Vector& transformation,CMeshWrapper* newGeomInfo)
+{
+    C7Vector retVal;
+    retVal.setIdentity();
+    removeMeshCalculationStructure();
+    delete _mesh;
+    _meshDynamicsFullRefreshFlag=true;
+    _meshModificationCounter++;
+
+    newGeomInfo->preMultiplyAllVerticeLocalFrames(transformation);
+    _mesh=newGeomInfo;
+    std::vector<float> wvert;
+    std::vector<int> wind;
+    getMeshWrapper()->getCumulativeMeshes(wvert,&wind,nullptr);
+
+    // We align the bounding box:
+    if (wvert.size()!=0)
+    {
+        retVal=CAlgos::alignAndCenterGeometryAndGetTransformation(&wvert[0],(int)wvert.size(),&wind[0],(int)wind.size(),nullptr,0,true);
+        getMeshWrapper()->preMultiplyAllVerticeLocalFrames(retVal.getInverse());
+    }
+
+    _computeMeshBoundingBox();
+    actualizeContainsTransparentComponent();
+    return(retVal);
+}
+
+void CShape::invertFrontBack()
+{
+    getMeshWrapper()->flipFaces();
+    removeMeshCalculationStructure();// proximity sensors might check for the side!
+}
+
+C3Vector CShape::getBoundingBoxHalfSizes() const
+{
+    return(_meshBoundingBoxHalfSizes);
+}
+
+void CShape::_computeMeshBoundingBox()
+{
+    std::vector<float> visibleVertices;
+    _mesh->getCumulativeMeshes(visibleVertices,nullptr,nullptr);
+    for (size_t i=0;i<visibleVertices.size()/3;i++)
+    {
+        if (i==0)
+            _meshBoundingBoxHalfSizes.set(&visibleVertices[3*i+0]);
+        else
+            _meshBoundingBoxHalfSizes.keepMax(C3Vector(&visibleVertices[3*i+0]));
+    }
+}
+
+C7Vector CShape::_acceptNewGeometry(const std::vector<float>& vert,const std::vector<int>& ind,const std::vector<float>* textCoord,const std::vector<float>* norm)
+{
+    TRACE_INTERNAL;
+    C7Vector retVal;
+    retVal.setIdentity();
+
+    removeMeshCalculationStructure();
+
+    CMesh* newGeomInfo=new CMesh();
+    std::vector<float> wwert(vert);
+    std::vector<int> wwind(ind);
+
+    if (textCoord!=nullptr)
+        newGeomInfo->textureCoords_notCopiedNorSerialized.assign(textCoord->begin(),textCoord->end());
+    CMeshManip::removeNonReferencedVertices(wwert,wwind);
+    newGeomInfo->setMesh(wwert,wwind,norm,C7Vector::identityTransformation); // will do the convectivity test
+
+    newGeomInfo->color.setDefaultValues();
+    newGeomInfo->color.setColor(0.6f+0.4f*(float)(rand()/(float)RAND_MAX),0.6f+0.4f*(float)(rand()/(float)RAND_MAX),0.6f+0.4f*(float)(rand()/(float)RAND_MAX),sim_colorcomponent_ambient_diffuse);
+
+    if (_mesh!=nullptr)
+    {
+        if (getMeshWrapper()->isMesh())
+            getSingleMesh()->copyVisualAttributesTo(newGeomInfo); // copy a few properties (not all)
+    }
+
+    delete _mesh;
+    _mesh=newGeomInfo;
+
+    // We align the bounding box:
+    if (wwert.size()!=0)
+    {
+        std::vector<float> dummyVert(wwert);
+        std::vector<int> dummyInd(wwind);
+        retVal=CAlgos::alignAndCenterGeometryAndGetTransformation(&dummyVert[0],(int)dummyVert.size(),&dummyInd[0],(int)dummyInd.size(),nullptr,0,true);
+        getMeshWrapper()->preMultiplyAllVerticeLocalFrames(retVal.getInverse());
+    }
+
+    _computeMeshBoundingBox();
+    _meshModificationCounter++;
+    _meshDynamicsFullRefreshFlag=true;
+    return(retVal);
+}
+
+C7Vector CShape::_recomputeOrientation(C7Vector& m,bool alignWithMainAxis)
+{ // This routine will reorient the shape according to its main axis if
+  // alignWithMainAxis is true, and according to the world if false.
+  // Don't forget to recompute (not done here) the new local transformation
+  // matrices of the objects linked to that geometric resource!!
+  // Input m is the cumulative transf. if alignWithMainAxis==false
+  // Returned m is the new local transformation of this geometry
+
+    removeMeshCalculationStructure();
+
+    // 2. We set-up the absolute vertices and normal position/orientation:
+    getMeshWrapper()->preMultiplyAllVerticeLocalFrames(m);
+
+    // 3. We calculate the new orientation:
+    std::vector<float> visibleVertices;
+    std::vector<int> visibleIndices;
+    getMeshWrapper()->getCumulativeMeshes(visibleVertices,&visibleIndices,nullptr);
+    C7Vector tr;
+    if (visibleVertices.size()!=0)
+    {
+        tr=CAlgos::alignAndCenterGeometryAndGetTransformation(&visibleVertices[0],(int)visibleVertices.size(),&visibleIndices[0],(int)visibleIndices.size(),nullptr,0,alignWithMainAxis);
+    }
+    else
+        tr.setIdentity();
+
+    // 4. We apply it:
+    getMeshWrapper()->preMultiplyAllVerticeLocalFrames(tr.getInverse());
+
+    // 5. We recompute usual things:
+    _computeMeshBoundingBox();
+
+    _meshModificationCounter++;
+    return(tr);
+}
+
+
+C7Vector CShape::_recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& error)
+{ // This routine will reorient the tube shape according to its main axis
+  // Don't forget to recompute (not done here) the new local transformation
+  // matrices of the objects linked to that geometric resource!!
+  // Input m is the cumulative transf.
+  // Returned m is the new cumulative transformation of this geometry
+
+    error=false; // no error yet
+    C7Vector tr;
+
+    // 0. We set-up the absolute vertices and retrieve them:
+    getMeshWrapper()->preMultiplyAllVerticeLocalFrames(m);
+    std::vector<float> visibleVertices;
+    std::vector<int> visibleIndices;
+    getMeshWrapper()->getCumulativeMeshes(visibleVertices,&visibleIndices,nullptr);
+
+    // 1. We calculate the new orientation, based on the copy:
+    bool success;
+    if (tube)
+        success=_getTubeReferenceFrame(visibleVertices,tr);
+    else
+        success=_getCuboidReferenceFrame(visibleVertices,visibleIndices,tr);
+    if (!success)
+    {
+        error=true;
+        getMeshWrapper()->preMultiplyAllVerticeLocalFrames(m.getInverse()); // don't forget to make operation backward before leaving!
+        return(tr);
+    }
+
+    removeMeshCalculationStructure();
+
+    // 4. We have the desired orientation (tr.Q), we now calculate the position (should be the same or very very close to what we have in tr.X)
+    C7Vector trInv(tr.getInverse());
+    C3Vector maxV,minV;
+    for (size_t i=0;i<visibleVertices.size()/3;i++)
+    {
+        C3Vector v(&visibleVertices[3*i+0]);
+        v=trInv*v;
+        if (i==0)
+        {
+            maxV=v;
+            minV=v;
+        }
+        else
+        {
+            maxV.keepMax(v);
+            minV.keepMin(v);
+        }
+    }
+    C3Vector newCenter((maxV(0)+minV(0))*0.5f,(maxV(1)+minV(1))*0.5f,(maxV(2)+minV(2))*0.5f); // relative pos
+    newCenter=tr*newCenter; // now abs pos
+    tr.X=newCenter;
+
+    // 5. We have the new center. We set all vertices relative to tr!!
+    getMeshWrapper()->preMultiplyAllVerticeLocalFrames(tr.getInverse());
+
+    // 6. We recompute usual things:
+    _computeMeshBoundingBox();
+
+    _meshModificationCounter++;
+    return(tr);
+}
+
+bool CShape::_getTubeReferenceFrame(const std::vector<float>& v,C7Vector& tr)
+{
+    tr.setIdentity();
+    // 1) Do we have enough points?
+    if (v.size()/3<6)
+        return(false);
+    // 2) Get the longest distance:
+    int indexLeft=-1;
+    int indexRight=-1;
+    float longestDist=0.0f;
+    for (size_t i=0;i<v.size()/3;i++)
+    {
+        C3Vector pt1(&v[3*i+0]);
+        for (size_t j=i+1;j<v.size()/3;j++)
+        {
+            C3Vector pt2(&v[3*j+0]);
+            float l=(pt1-pt2).getLength();
+            if (l>longestDist)
+            {
+                longestDist=l;
+                indexLeft=int(i);
+                indexRight=int(j);
+            }
+        }
+    }
+    if (indexLeft==-1)
+        return(false); // all points are coincident!
+    // 3) For each of the 2 found points, find 1 closest neighbour that is not coincident:
+    C3Vector leftPt1(&v[3*indexLeft+0]);
+    C3Vector rightPt1(&v[3*indexRight+0]);
+    int indexLeft2=-1;
+    int indexRight2=-1;
+    float leftDist=SIM_MAX_FLOAT;
+    float rightDist=SIM_MAX_FLOAT;
+    for (size_t i=0;i<v.size()/3;i++)
+    {
+        C3Vector pt(&v[3*i+0]);
+        if (int(i)!=indexLeft)
+        {
+            float l=(pt-leftPt1).getLength();
+            if ( (l!=0.0f)&&(l<leftDist) )
+            {
+                leftDist=l;
+                indexLeft2=int(i);
+            }
+        }
+        if (i!=indexRight)
+        {
+            float l=(pt-rightPt1).getLength();
+            if ( (l!=0.0f)&&(l<rightDist) )
+            {
+                rightDist=l;
+                indexRight2=int(i);
+            }
+        }
+    }
+    if ((indexLeft2==-1)||(indexRight2==-1))
+        return(false); // error
+
+    // 4) For each of the 2 found segments, find 1 closest neighbour that forms a plane:
+    C3Vector leftPt2(&v[3*indexLeft2+0]);
+    C3Vector rightPt2(&v[3*indexRight2+0]);
+    int indexLeft3=-1;
+    int indexRight3=-1;
+    leftDist=SIM_MAX_FLOAT;
+    rightDist=SIM_MAX_FLOAT;
+    for (size_t i=0;i<v.size()/3;i++)
+    {
+        C3Vector pt(&v[3*i+0]);
+        if ( (int(i)!=indexLeft)&&(int(i)!=indexLeft2) )
+        {
+            float l1=(pt-leftPt1).getLength();
+            float l2=(pt-leftPt2).getLength();
+            if ( (l1!=0.0f)&&(l2!=0.0f)&&(l1<leftDist) )
+            {
+
+                float a=(leftPt1-pt).getAngle(leftPt2-pt);
+                if ( (a>1.0f*degToRad_f)&&(a<179.0f*degToRad_f) )
+                {
+                    leftDist=l1;
+                    indexLeft3=int(i);
+                }
+            }
+        }
+        if ((i!=indexRight)&&(i!=indexRight2))
+        {
+            float l1=(pt-rightPt1).getLength();
+            float l2=(pt-rightPt2).getLength();
+            if ( (l1!=0.0f)&&(l2!=0.0f)&&(l1<rightDist) )
+            {
+
+                float a=(rightPt1-pt).getAngle(rightPt2-pt);
+                if ( (a>1.0f*degToRad_f)&&(a<179.0f*degToRad_f) )
+                {
+                    rightDist=l1;
+                    indexRight3=i;
+                }
+            }
+        }
+    }
+    if ( (indexLeft3==-1)||(indexRight3==-1) )
+        return(false); // error
+
+    // 5) Prepare the normal vectory of the 2 tube endings (direction doesn't matter):
+    C3Vector leftPt3(&v[3*indexLeft3+0]);
+    C3Vector rightPt3(&v[3*indexRight3+0]);
+    C3Vector nLeft(((leftPt1-leftPt3)^(leftPt2-leftPt3)).getNormalized());
+    C3Vector nRight(((rightPt1-rightPt3)^(rightPt2-rightPt3)).getNormalized());
+    float a=nLeft.getAngle(nRight);
+    if ( (a>1.0f*degToRad_f)&&(a<179.0f*degToRad_f) )
+        return(false); // not precise enough
+
+    // 6) Now get all points at each endings that are within 2% of distance to the end planes (relative to the longest distances) and calculate the average positions:
+    C3Vector avgLeft,avgRight;
+    avgLeft.clear();
+    avgRight.clear();
+    float cntLeft=0.0f;
+    float cntRight=0.0f;
+    for (size_t i=0;i<v.size()/3;i++)
+    {
+        C3Vector pt(&v[3*i+0]);
+        C3Vector leftV(pt-leftPt1);
+        float d=fabs(leftV*nLeft);
+        if (d<longestDist*0.02f)
+        {
+            cntLeft+=1.0f;
+            avgLeft+=pt;
+        }
+
+        C3Vector rightV(pt-rightPt1);
+        d=fabs(rightV*nRight);
+        if (d<longestDist*0.02f)
+        {
+            cntRight+=1.0f;
+            avgRight+=pt;
+        }
+    }
+    if ( (cntLeft<3.99f)||(cntRight<3.99f) ) // at least 4 points at each ending! (extruded triangle doesn't work anyway because it is not centered in the bounding box)
+        return(false); // should not happen
+    avgLeft/=cntLeft;
+    avgRight/=cntRight;
+    C3Vector avgPos((avgLeft+avgRight)*0.5f);
+
+    // 7) now compute a transformation matrix!
+    C4X4Matrix m;
+    m.setIdentity();
+    m.X=avgPos;
+    m.M.axis[2]=(avgLeft-avgRight).getNormalized();
+    m.M.axis[0]=C3Vector(1.02f,1.33f,1.69f).getNormalized(); // just a random vector;
+    m.M.axis[1]=(m.M.axis[2]^m.M.axis[0]).getNormalized();
+    m.M.axis[0]=(m.M.axis[1]^m.M.axis[2]).getNormalized();
+    tr=m.getTransformation();
+
+    // 8) Last: check if the bounding box is centered (e.g. a triangle-cylinder (with 3 faces)
+    C3Vector maxV;
+    C3Vector minV;
+    C7Vector trInv(tr.getInverse());
+    for (size_t i=0;i<v.size()/3;i++)
+    {
+        C3Vector pt(&v[3*i+0]);
+        pt=trInv*pt;
+        if (i==0)
+        {
+            maxV=pt;
+            minV=pt;
+        }
+        else
+        {
+            maxV.keepMax(pt);
+            minV.keepMin(pt);
+        }
+    }
+    C3Vector dims(maxV(0)-minV(0),maxV(1)-minV(1),maxV(2)-minV(2));
+    C3Vector vars(fabs(maxV(0)+minV(0)),fabs(maxV(1)+minV(1)),fabs(maxV(2)+minV(2)));
+    for (size_t i=0;i<3;i++)
+    {
+        if (vars(i)/dims(1)>0.001f) // 0.1% tolerance relative to the box dimension
+            return(false); // the bounding box would not be centered!
+    }
+    return(true);
+}
+
+bool CShape::_getCuboidReferenceFrame(const std::vector<float>& v,const std::vector<int>& ind,C7Vector& tr)
+{
+    tr.setIdentity();
+    // 1) Do we have enough points?
+    if (v.size()/3<8)
+        return(false);
+    // 2) Get the biggest triangle (in surface)
+    int biggestTriIndex=-1;
+    float biggestTriSurface=0.0f;
+    C3Vector triangleN1;
+    for (int i=0;i<int(ind.size())/3;i++)
+    {
+        C3Vector pt1(&v[3*ind[3*i+0]+0]);
+        C3Vector pt2(&v[3*ind[3*i+1]+0]);
+        C3Vector pt3(&v[3*ind[3*i+2]+0]);
+        C3Vector v1(pt1-pt2);
+        C3Vector v2(pt1-pt3);
+        float s=(v1^v2).getLength();
+        if (s>biggestTriSurface)
+        {
+            biggestTriSurface=s;
+            biggestTriIndex=i;
+            triangleN1=(v1^v2).getNormalized();
+        }
+    }
+    if (biggestTriIndex==-1)
+        return(false);
+
+    // 3) Get the biggest triangle where the surface normal is perpendicular to the first triangle
+    int biggestTriIndex2=-1;
+    float biggestTriSurface2=0.0f;
+    C3Vector triangleN2;
+    for (int i=0;i<int(ind.size())/3;i++)
+    {
+        if (i!=biggestTriIndex)
+        {
+            C3Vector pt1(&v[3*ind[3*i+0]+0]);
+            C3Vector pt2(&v[3*ind[3*i+1]+0]);
+            C3Vector pt3(&v[3*ind[3*i+2]+0]);
+            C3Vector v1(pt1-pt2);
+            C3Vector v2(pt1-pt3);
+            float s=(v1^v2).getLength();
+            C3Vector n((v1^v2).getNormalized());
+            if ((s>biggestTriSurface2)&&(fabs(triangleN1*n)<0.0001f))
+            {
+                biggestTriSurface2=s;
+                biggestTriIndex2=i;
+                triangleN2=n;
+            }
+        }
+    }
+    if (biggestTriIndex2==-1)
+        return(false);
+
+
+    // 4) now compute a transformation matrix!
+    C4X4Matrix m;
+    m.setIdentity();
+    m.X.clear();
+    m.M.axis[0]=triangleN1;
+    m.M.axis[1]=triangleN2;
+    m.M.axis[2]=(m.M.axis[0]^m.M.axis[1]).getNormalized();
+
+    // 4) Get the center!
+    C3Vector maxV;
+    C3Vector minV;
+    C4X4Matrix mInv(m.getInverse());
+    for (int i=0;i<int(v.size())/3;i++)
+    {
+        C3Vector pt(&v[3*i+0]);
+        pt=mInv*pt;
+        if (i==0)
+        {
+            maxV=pt;
+            minV=pt;
+        }
+        else
+        {
+            maxV.keepMax(pt);
+            minV.keepMin(pt);
+        }
+    }
+    C3Vector avgPos((maxV(0)+minV(0))*0.5f,(maxV(1)+minV(1))*0.5f,(maxV(2)+minV(2))*0.5f);
+    avgPos=m*avgPos;
+    m.X=avgPos;
+
+    // 5) get the dimensions and reorient the frame to have z the longest dim, y the second longest
+    C3Vector dim(maxV(0)-minV(0),maxV(1)-minV(1),maxV(2)-minV(2));
+    C3X3Matrix rot;
+    rot.setIdentity();
+    float xDim=dim(0);
+    float yDim=dim(1);
+    if ((dim(0)>dim(1))&&(dim(0)>dim(2)))
+    {
+        rot.buildYRotation(piValD2_f);
+        xDim=dim(2);
+    }
+    if ((dim(1)>dim(0))&&(dim(1)>dim(2)))
+    {
+        rot.buildXRotation(piValD2_f);
+        yDim=dim(2);
+    }
+    m.M*=rot;
+    // z has the biggest dimension now
+    if (yDim<xDim)
+    {
+        rot.buildZRotation(piValD2_f);
+        m.M*=rot;
+    }
+    // ok, now we have z,y,x ordered from largest to smallest
+    tr=m.getTransformation();
+    return(true);
+}
+
+void CShape::scaleMesh(float xVal,float yVal,float zVal)
+{   // The geometric resource is scaled and the bounding box is recomputed.
+    float xp,yp,zp;
+    scaleMesh(xVal,yVal,zVal,xp,yp,zp);
+}
+
+void CShape::scaleMesh(float x,float y,float z,float& xp,float& yp,float& zp)
+{   // The geometric resource is scaled and the bounding box is recomputed.
+    // Normals are not recomputed if xVal==yVal==yVal
+    _meshDynamicsFullRefreshFlag=true; // make sure we refresh part of the dynamic world!
+    _meshModificationCounter++;
+    if (getMeshWrapper()->isPure())
+    { // we have some constraints in case we have a pure mesh (or several pure meshes in a group)
+        if (getMeshWrapper()->isMesh())
+        { // we have a pure mesh (non-group)
+            int purePrim=getSingleMesh()->getPurePrimitiveType();
+            if (purePrim==sim_pure_primitive_plane)
+                z=1.0f;
+            if (purePrim==sim_pure_primitive_disc)
+            {
+                z=1.0f;
+                y=x;
+            }
+            if (purePrim==sim_pure_primitive_spheroid)
+            {
+                y=x;
+                z=x;
+            }
+            if ( (purePrim==sim_pure_primitive_cylinder)||(purePrim==sim_pure_primitive_cone)||(purePrim==sim_pure_primitive_heightfield) )
+                y=x;
+        }
+    }
+    if (!getMeshWrapper()->isMesh())
+    { // we have a group. We do iso-scaling!
+        y=x;
+        z=x;
+    }
+
+    // Scale collision info if we have an isometric scaling:
+    if ( (x==y)&&(x==z)&&(_meshCalculationStructure!=nullptr) )
+        CPluginContainer::geomPlugin_scaleMesh(_meshCalculationStructure,x);
+    else
+        removeMeshCalculationStructure(); // we have to recompute it!
+
+    // Scale meshes and adjust textures:
+    getMeshWrapper()->scale(x,y,z);
+
+    // recompute the bounding box:
+    _computeMeshBoundingBox();
+
+    xp=x;
+    yp=y;
+    zp=z;
+}
+
+void CShape::setMeshDynamicsFullRefreshFlag(bool refresh)
+{
+    _meshDynamicsFullRefreshFlag=refresh;
+}
+
+bool CShape::getMeshDynamicsFullRefreshFlag()
+{
+    return(_meshDynamicsFullRefreshFlag);
+}
+
+int CShape::getMeshModificationCounter()
+{
+    return(_meshModificationCounter);
+}
+
+CMeshWrapper* CShape::getMeshWrapper() const
+{
+    return(_mesh);
+}
+
+CMesh* CShape::getSingleMesh() const
+{
+    CMesh* retVal=nullptr;
+    if (_mesh->isMesh())
+        retVal=(CMesh*)_mesh;
+    return(retVal);
+}
+
+void CShape::disconnectMesh()
+{
+    _mesh=nullptr;
 }
 
 CDynMaterialObject* CShape::getDynMaterial()
@@ -77,8 +782,7 @@ bool CShape::getRigidBodyWasAlreadyPutToSleepOnce()
 
 void CShape::actualizeContainsTransparentComponent()
 {
-    if (geomData!=nullptr) // important
-        _containsTransparentComponents=geomData->geomInfo->getContainsTransparentComponents();
+    _containsTransparentComponents=getMeshWrapper()->getContainsTransparentComponents();
 }
 
 bool CShape::getContainsTransparentComponent()
@@ -88,8 +792,7 @@ bool CShape::getContainsTransparentComponent()
 
 void CShape::prepareVerticesIndicesNormalsAndEdgesForSerialization()
 {
-    if (geomData!=nullptr)
-        geomData->prepareVerticesIndicesNormalsAndEdgesForSerialization();
+    getMeshWrapper()->prepareVerticesIndicesNormalsAndEdgesForSerialization();
 }
 
 void CShape::setShapeIsStaticAndNotRespondableButDynamicTag(bool f)
@@ -139,9 +842,9 @@ std::string CShape::getObjectTypeInfo() const
 
 std::string CShape::getObjectTypeInfoExtended() const
 {
-    if (geomData->geomInfo->isGeometric())
+    if (getMeshWrapper()->isMesh())
     {
-        int pureType=((CGeometric*)geomData->geomInfo)->getPurePrimitiveType();
+        int pureType=getSingleMesh()->getPurePrimitiveType();
         if (pureType==sim_pure_primitive_none)
             return("Shape (simple, non-pure)");
         if (pureType==sim_pure_primitive_plane)
@@ -161,7 +864,7 @@ std::string CShape::getObjectTypeInfoExtended() const
     }
     else
     {
-        if (!geomData->geomInfo->isPure())
+        if (!getMeshWrapper()->isPure())
             return("Shape (multishape, non-pure)");
         else
             return("Shape (multishape, pure)");
@@ -187,7 +890,7 @@ bool CShape::isPotentiallyRenderable() const
 
 bool CShape::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
 {
-    maxV=((CShape*)this)->geomData->getBoundingBoxHalfSizes();
+    maxV=getBoundingBoxHalfSizes();
     minV=maxV*-1.0f;
     return(true);
 }
@@ -220,6 +923,11 @@ void CShape::commonInit()
     _dynamicAngularVelocity.clear();
     _additionalForce.clear();
     _additionalTorque.clear();
+
+    _meshCalculationStructure=nullptr;
+    _mesh=nullptr;
+    _meshDynamicsFullRefreshFlag=true;
+    _meshModificationCounter=0;
 
     _dynMaterial=new CDynMaterialObject();
 }
@@ -318,33 +1026,33 @@ void CShape::setShapeIsDynamicallyStatic(bool sta)
 
 void CShape::setInsideAndOutsideFacesSameColor_DEPRECATED(bool s)
 {
-    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
-        ((CGeometric*)geomData->geomInfo)->setInsideAndOutsideFacesSameColor_DEPRECATED(s);
+    if (getMeshWrapper()->isMesh())
+        getSingleMesh()->setInsideAndOutsideFacesSameColor_DEPRECATED(s);
 }
 bool CShape::getInsideAndOutsideFacesSameColor_DEPRECATED()
 {
-    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
-        return(((CGeometric*)geomData->geomInfo)->getInsideAndOutsideFacesSameColor_DEPRECATED());
+    if (getMeshWrapper()->isMesh())
+        return(getSingleMesh()->getInsideAndOutsideFacesSameColor_DEPRECATED());
     return(true);
 }
 
 bool CShape::isCompound() const
 {
-    return(!geomData->geomInfo->isGeometric());
+    return(!getMeshWrapper()->isMesh());
 }
 
 int CShape::getEdgeWidth_DEPRECATED()
 {
-    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
-        return(((CGeometric*)geomData->geomInfo)->getEdgeWidth_DEPRECATED());
+    if (getMeshWrapper()->isMesh())
+        return(getSingleMesh()->getEdgeWidth_DEPRECATED());
     return(0);
 }
 
 void CShape::setEdgeWidth_DEPRECATED(int w)
 {
     w=tt::getLimitedInt(1,4,w);
-    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
-        ((CGeometric*)geomData->geomInfo)->setEdgeWidth_DEPRECATED(w);
+    if (getMeshWrapper()->isMesh())
+        getSingleMesh()->setEdgeWidth_DEPRECATED(w);
 }
 
 bool CShape::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
@@ -355,7 +1063,7 @@ bool CShape::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std
     {
         std::vector<float> visibleVertices;
         std::vector<int> visibleIndices;
-        geomData->geomInfo->getCumulativeMeshes(visibleVertices,&visibleIndices,nullptr);
+        getMeshWrapper()->getCumulativeMeshes(visibleVertices,&visibleIndices,nullptr);
 
         C7Vector m(getCumulativeTransformation());
         C3Vector v;
@@ -379,18 +1087,18 @@ void CShape::display_extRenderer(CViewableBase* renderingObject,int displayAttri
 {
     if (getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
-        if (renderingObject->isObjectInsideView(getFullCumulativeTransformation(),geomData->getBoundingBoxHalfSizes()))
+        if (renderingObject->isObjectInsideView(getFullCumulativeTransformation(),getBoundingBoxHalfSizes()))
         { // the bounding box is inside of the view (at least some part of it!)
             C7Vector tr=getCumulativeTransformation();
             int componentIndex=0;
-            geomData->geomInfo->display_extRenderer(geomData,displayAttrib,tr,_objectHandle,componentIndex);
+            getMeshWrapper()->display_extRenderer(this,displayAttrib,tr,_objectHandle,componentIndex);
         }
     }
 }
 
 void CShape::scaleObject(float scalingFactor)
 {   
-    geomData->scale(scalingFactor,scalingFactor,scalingFactor); // will set the geomObject dynamics full refresh flag!
+    scaleMesh(scalingFactor,scalingFactor,scalingFactor); // will set the geomObject dynamics full refresh flag!
     CSceneObject::scaleObject(scalingFactor);
     // We have to reconstruct a part of the dynamics world:
     _dynamicsFullRefreshFlag=true;
@@ -399,7 +1107,7 @@ void CShape::scaleObject(float scalingFactor)
 void CShape::scaleObjectNonIsometrically(float x,float y,float z)
 {
     float xp,yp,zp;
-    geomData->scale(x,y,z,xp,yp,zp); // will set the geomObject dynamics full refresh flag!
+    scaleMesh(x,y,z,xp,yp,zp); // will set the geomObject dynamics full refresh flag!
     CSceneObject::scaleObjectNonIsometrically(xp,yp,zp);
     // We have to reconstruct a part of the dynamics world:
     _dynamicsFullRefreshFlag=true;
@@ -413,7 +1121,8 @@ bool CShape::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
     // 'ct::objCont->getObject(objectHandle)'-call or similar
     // Return value true means 'this' has to be erased too!
     bool retVal=CSceneObject::announceObjectWillBeErased(objectHandle,copyBuffer);
-    geomData->announceSceneObjectWillBeErased(objectHandle); // for textures based on vision sensors
+    if (getMeshWrapper()!=nullptr)
+        getMeshWrapper()->announceSceneObjectWillBeErased(objectHandle); // for textures based on vision sensors
     return(retVal);
 }
 
@@ -441,7 +1150,7 @@ void CShape::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 void CShape::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
 { // New_Object_ID=map[Old_Object_ID]
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
-    geomData->performSceneObjectLoadingMapping(map);
+    getMeshWrapper()->performSceneObjectLoadingMapping(map);
 }
 void CShape::performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
@@ -463,13 +1172,13 @@ void CShape::performIkLoadingMapping(const std::vector<int>* map,bool loadingAmo
 void CShape::performTextureObjectLoadingMapping(const std::vector<int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
-    geomData->performTextureObjectLoadingMapping(map);
+    getMeshWrapper()->performTextureObjectLoadingMapping(map);
 }
 
 void CShape::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
-    geomData->geomInfo->performDynMaterialObjectLoadingMapping(map);
+    getMeshWrapper()->performDynMaterialObjectLoadingMapping(map);
 }
 
 void CShape::initializeInitialValues(bool simulationIsRunning)
@@ -522,11 +1231,44 @@ void CShape::serialize(CSer& ar)
         {   // Storing
             // Following tags are reserved (11/11/2012): Sco, Sc2, Eco, Ewt
 
-            ar.storeDataName("Ge2");
-            ar.setCountingMode();
-            geomData->serialize(ar,_objectName.c_str());
-            if (ar.setWritingMode())
-                geomData->serialize(ar,_objectName.c_str());
+            if (true)
+            { // keep until 2022 for back compatibility
+                ar.storeDataName("Ge2");
+                ar.setCountingMode();
+                _serializeBackCompatibility(ar);
+                if (ar.setWritingMode())
+                    _serializeBackCompatibility(ar);
+            }
+            else
+            { // following was previously located in CGeomProxy:
+                if (_mesh->isMesh())
+                    ar.storeDataName("Gst");
+                else
+                    ar.storeDataName("Gsg");
+                ar.setCountingMode();
+                _mesh->serialize(ar,_objectName.c_str());
+                if (ar.setWritingMode())
+                    _mesh->serialize(ar,_objectName.c_str());
+
+                // (if undo/redo under way, getSaveExistingCalculationStructuresTemp is false)
+                if (App::currentWorld->environment->getSaveExistingCalculationStructuresTemp()&&isMeshCalculationStructureInitialized())
+                {
+
+                    std::vector<unsigned char> serializationData;
+                    CPluginContainer::geomPlugin_getMeshSerializationData(_meshCalculationStructure,serializationData);
+                    ar.storeDataName("Coi");
+                    ar.setCountingMode(true);
+                    for (int i=0;i<serializationData.size();i++)
+                        ar << serializationData[i];
+                    ar.flush(false);
+                    if (ar.setWritingMode(true))
+                    {
+                        for (int i=0;i<serializationData.size();i++)
+                            ar << serializationData[i];
+                        ar.flush(false);
+                    }
+                }
+            }
 
             ar.storeDataName("Mat");
             ar.setCountingMode();
@@ -580,12 +1322,49 @@ void CShape::serialize(CSer& ar)
                 {
                     bool noHit=true;
                     if (theName.compare("Ge2")==0)
-                    {
+                    { // keep until 2024 for back compatibility
                         noHit=false;
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        geomData=new CGeomProxy();
-                        geomData->serialize(ar,_objectName.c_str());
-                        geomData->geomInfo->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
+                        _serializeBackCompatibility(ar);
+                        getMeshWrapper()->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
+                    }
+                    if (theName.compare("Gst")==0)
+                    { // geometric (not yet used, but so that old versions will be able to read this)
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        delete _mesh;
+                        _mesh=new CMesh();
+                        ((CMesh*)_mesh)->serialize(ar,_objectName.c_str());
+                        _computeMeshBoundingBox();
+                        getMeshWrapper()->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
+                    }
+                    if (theName.compare("Gsg")==0)
+                    { // geomWrap (not yet used, but so that old versions will be able to read this)
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        delete _mesh;
+                        _mesh=new CMeshWrapper();
+                        _mesh->serialize(ar,_objectName.c_str());
+                        _computeMeshBoundingBox();
+                        getMeshWrapper()->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
+                    }
+                    if (theName.compare("Coi")==0)
+                    { // (not yet used, but so that old versions will be able to read this)
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo never stores calc structures)
+
+                        std::vector<unsigned char> data;
+                        data.reserve(byteQuantity);
+                        unsigned char dummy;
+                        for (int i=0;i<byteQuantity;i++)
+                        {
+                            ar >> dummy;
+                            data.push_back(dummy);
+                        }
+                        std::vector<float> wvert;
+                        std::vector<int> wind;
+                        _mesh->getCumulativeMeshes(wvert,&wind,nullptr);
+                        _meshCalculationStructure=CPluginContainer::geomPlugin_getMeshFromSerializationData(&data[0]);
                     }
                     if (theName.compare("Mat")==0)
                     {
@@ -651,9 +1430,37 @@ void CShape::serialize(CSer& ar)
         { // for non-exhaustive, is done in CSceneObjectContainer
             if (ar.isStoring())
             {
-                ar.xmlPushNewNode("meshProxy");
-                geomData->serialize(ar,_objectName.c_str());
-                ar.xmlPopNode();
+                if (true)
+                { // keep until 2022 for back compatibility
+                    ar.xmlPushNewNode("meshProxy");
+                    _serializeBackCompatibility(ar);
+                    ar.xmlPopNode();
+                }
+                else
+                { // following previously located in geomProxy:
+                    ar.clearIncrementCounter();
+                    if (App::currentWorld->environment->getSaveExistingCalculationStructuresTemp()&&isMeshCalculationStructureInitialized())
+                    {
+                        std::vector<unsigned char> collInfoData;
+                        CPluginContainer::geomPlugin_getMeshSerializationData(_meshCalculationStructure,collInfoData);
+                        ar.xmlPushNewNode("calculationStructure");
+                        if (ar.xmlSaveDataInline(int(collInfoData.size())))
+                        {
+                            std::string str(base64_encode(&collInfoData[0],(unsigned int)collInfoData.size()));
+                            ar.xmlAddNode_string("data_base64Coded",str.c_str());
+                        }
+                        else
+                            ar.xmlAddNode_binFile("file",(std::string("calcStruct_")+_objectName).c_str(),&collInfoData[0],collInfoData.size());
+                        ar.xmlPopNode();
+                    }
+
+                    if (_mesh->isMesh())
+                        ar.xmlPushNewNode("mesh");
+                    else
+                        ar.xmlPushNewNode("compound");
+                    _mesh->serialize(ar,_objectName.c_str());
+                    ar.xmlPopNode();
+                }
 
                 ar.xmlPushNewNode("dynamics");
                 ar.xmlAddNode_int("respondableMask",_dynamicCollisionMask);
@@ -677,11 +1484,45 @@ void CShape::serialize(CSer& ar)
             }
             else
             {
-                if (ar.xmlPushChildNode("meshProxy"))
-                {
-                    geomData=new CGeomProxy();
-                    geomData->serialize(ar,_objectName.c_str());
+                bool meshProxyNotPresent=true;
+                if (ar.xmlPushChildNode("meshProxy",false))
+                { // keep until about 2024
+                    _serializeBackCompatibility(ar);
                     ar.xmlPopNode();
+                    meshProxyNotPresent=false;
+                }
+                if (ar.xmlPushChildNode("calculationStructure",false))
+                { // (not yet used, but so that old versions will be able to read this)
+                    std::string str;
+                    if (ar.xmlGetNode_string("data_base64Coded",str,false))
+                        str=base64_decode(str);
+                    else
+                        ar.xmlGetNode_binFile("file",str);
+
+                    std::vector<float> wvert;
+                    std::vector<int> wind;
+                    _mesh->getCumulativeMeshes(wvert,&wind,nullptr);
+                    _meshCalculationStructure=CPluginContainer::geomPlugin_getMeshFromSerializationData((unsigned char*)str.c_str());
+                    ar.xmlPopNode();
+                }
+                if (ar.xmlPushChildNode("mesh",false))
+                { // (not yet used, but so that old versions will be able to read this)
+                    delete _mesh;
+                    _mesh=new CMesh();
+                    ((CMesh*)_mesh)->serialize(ar,_objectName.c_str());
+                    ar.xmlPopNode();
+                    _computeMeshBoundingBox();
+                }
+                else
+                {
+                    if (ar.xmlPushChildNode("compound",meshProxyNotPresent))
+                    {  // (not yet used, but so that old versions will be able to read this)
+                        delete _mesh;
+                        _mesh=new CMeshWrapper();
+                        _mesh->serialize(ar,_objectName.c_str());
+                        ar.xmlPopNode();
+                        _computeMeshBoundingBox();
+                    }
                 }
 
                 if (ar.xmlPushChildNode("dynamics"))
@@ -715,6 +1556,160 @@ void CShape::serialize(CSer& ar)
     }
 }
 
+void CShape::_serializeBackCompatibility(CSer& ar)
+{
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            // geomInfo has to be stored before collInfo!!!
+            if (_mesh->isMesh())
+                ar.storeDataName("Gst");
+            else
+                ar.storeDataName("Gsg");
+            ar.setCountingMode();
+            _mesh->serialize(ar,_objectName.c_str());
+            if (ar.setWritingMode())
+                _mesh->serialize(ar,_objectName.c_str());
+
+            // (if undo/redo under way, getSaveExistingCalculationStructuresTemp is false)
+            if (App::currentWorld->environment->getSaveExistingCalculationStructuresTemp()&&isMeshCalculationStructureInitialized())
+            {
+
+                std::vector<unsigned char> serializationData;
+                CPluginContainer::geomPlugin_getMeshSerializationData(_meshCalculationStructure,serializationData);
+                ar.storeDataName("Coi");
+                ar.setCountingMode(true);
+                for (int i=0;i<serializationData.size();i++)
+                    ar << serializationData[i];
+                ar.flush(false);
+                if (ar.setWritingMode(true))
+                {
+                    for (int i=0;i<serializationData.size();i++)
+                        ar << serializationData[i];
+                    ar.flush(false);
+                }
+            }
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+
+                    if (theName.compare("Gst")==0)
+                    { // geometric
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        delete _mesh;
+                        _mesh=new CMesh();
+                        ((CMesh*)_mesh)->serialize(ar,_objectName.c_str());
+                    }
+                    if (theName.compare("Gsg")==0)
+                    { // geomWrap
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        delete _mesh;
+                        _mesh=new CMeshWrapper();
+                        _mesh->serialize(ar,_objectName.c_str());
+                    }
+
+                    if (theName.compare("Coi")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo never stores calc structures)
+
+                        std::vector<unsigned char> data;
+                        data.reserve(byteQuantity);
+                        unsigned char dummy;
+                        for (int i=0;i<byteQuantity;i++)
+                        {
+                            ar >> dummy;
+                            data.push_back(dummy);
+                        }
+                        std::vector<float> wvert;
+                        std::vector<int> wind;
+                        _mesh->getCumulativeMeshes(wvert,&wind,nullptr);
+                        _meshCalculationStructure=CPluginContainer::geomPlugin_getMeshFromSerializationData(&data[0]);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
+            _computeMeshBoundingBox();
+        }
+    }
+    else
+    {
+        if (ar.isStoring())
+        {
+            ar.clearIncrementCounter();
+            if (App::currentWorld->environment->getSaveExistingCalculationStructuresTemp()&&isMeshCalculationStructureInitialized())
+            {
+                std::vector<unsigned char> collInfoData;
+                CPluginContainer::geomPlugin_getMeshSerializationData(_meshCalculationStructure,collInfoData);
+                ar.xmlPushNewNode("calculationStructure");
+                if (ar.xmlSaveDataInline(int(collInfoData.size())))
+                {
+                    std::string str(base64_encode(&collInfoData[0],(unsigned int)collInfoData.size()));
+                    ar.xmlAddNode_string("data_base64Coded",str.c_str());
+                }
+                else
+                    ar.xmlAddNode_binFile("file",(std::string("calcStruct_")+_objectName).c_str(),&collInfoData[0],collInfoData.size());
+                ar.xmlPopNode();
+            }
+
+            if (_mesh->isMesh())
+                ar.xmlPushNewNode("mesh");
+            else
+                ar.xmlPushNewNode("compound");
+            _mesh->serialize(ar,_objectName.c_str());
+            ar.xmlPopNode();
+        }
+        else
+        {
+            if (ar.xmlPushChildNode("calculationStructure",false))
+            {
+                std::string str;
+                if (ar.xmlGetNode_string("data_base64Coded",str,false))
+                    str=base64_decode(str);
+                else
+                    ar.xmlGetNode_binFile("file",str);
+
+                std::vector<float> wvert;
+                std::vector<int> wind;
+                _mesh->getCumulativeMeshes(wvert,&wind,nullptr);
+                _meshCalculationStructure=CPluginContainer::geomPlugin_getMeshFromSerializationData((unsigned char*)str.c_str());
+                ar.xmlPopNode();
+            }
+            if (ar.xmlPushChildNode("mesh",false))
+            {
+                delete _mesh;
+                _mesh=new CMesh();
+                ((CMesh*)_mesh)->serialize(ar,_objectName.c_str());
+                ar.xmlPopNode();
+            }
+            else
+            {
+                if (ar.xmlPushChildNode("compound"))
+                {
+                    delete _mesh;
+                    _mesh=new CMeshWrapper();
+                    _mesh->serialize(ar,_objectName.c_str());
+                    ar.xmlPopNode();
+                }
+            }
+            _computeMeshBoundingBox();
+        }
+    }
+}
+
 void CShape::serializeWExtIk(CExtIkSer& ar)
 {
     CSceneObject::serializeWExtIk(ar);
@@ -723,34 +1718,34 @@ void CShape::serializeWExtIk(CExtIkSer& ar)
 
 void CShape::alignBoundingBoxWithMainAxis()
 {
-    reorientGeometry(0);
+    _reorientGeometry(0);
 }
 void CShape::alignBoundingBoxWithWorld()
 {
-    reorientGeometry(1);    
+    _reorientGeometry(1);
 }
 
 bool CShape::alignTubeBoundingBoxWithMainAxis()
 {
-    return(reorientGeometry(2));    
+    return(_reorientGeometry(2));
 }
 
 bool CShape::alignCuboidBoundingBoxWithMainAxis()
 {
-    return(reorientGeometry(3));    
+    return(_reorientGeometry(3));
 }
 
-bool CShape::reorientGeometry(int type)
+bool CShape::_reorientGeometry(int type)
 { // return value is the success state of the operation
     C7Vector m(getCumulativeTransformation());
     C7Vector mNew;
     bool error=false;
     if (type<2)
-        mNew=geomData->recomputeOrientation(m,type==0);
+        mNew=_recomputeOrientation(m,type==0);
     if (type==2)
-        mNew=geomData->recomputeTubeOrCuboidOrientation(m,true,error);
+        mNew=_recomputeTubeOrCuboidOrientation(m,true,error);
     if (type==3)
-        mNew=geomData->recomputeTubeOrCuboidOrientation(m,false,error);
+        mNew=_recomputeTubeOrCuboidOrientation(m,false,error);
 
     if (error)
         return(false);
@@ -773,78 +1768,83 @@ bool CShape::reorientGeometry(int type)
     return(true);
 }
 
-void CShape::removeCollisionInformation()
+void CShape::removeMeshCalculationStructure()
 {
-    geomData->removeCollisionInformation();
+    TRACE_INTERNAL;
+    if (_meshCalculationStructure!=nullptr)
+    {
+        CPluginContainer::geomPlugin_destroyMesh(_meshCalculationStructure);
+        _meshCalculationStructure=nullptr;
+    }
 }
 
-/*
-void CShape::initializeCollisionDetection()
+bool CShape::isMeshCalculationStructureInitialized()
 {
-    geomData->initializeCollisionInformation();
-}
-*/
-bool CShape::isCollisionInformationInitialized()
-{
-    return(geomData->isCollisionInformationInitialized());
+    return(_meshCalculationStructure!=nullptr);
 }
 
-
-void CShape::initializeCalculationStructureIfNeeded()
+void CShape::initializeMeshCalculationStructureIfNeeded()
 {
-    geomData->initializeCalculationStructureIfNeeded();
+    if ((_meshCalculationStructure==nullptr)&&(_mesh!=nullptr))
+    {
+        std::vector<float> wvert;
+        std::vector<int> wind;
+        _mesh->getCumulativeMeshes(wvert,&wind,nullptr);
+        float maxTriSize=App::currentWorld->environment->getCalculationMaxTriangleSize();
+        float minTriSize=(std::max<float>(std::max<float>(_meshBoundingBoxHalfSizes(0),_meshBoundingBoxHalfSizes(1)),_meshBoundingBoxHalfSizes(2)))*2.0f*App::currentWorld->environment->getCalculationMinRelTriangleSize();
+        if (maxTriSize<minTriSize)
+            maxTriSize=minTriSize;
+        _meshCalculationStructure=CPluginContainer::geomPlugin_createMesh(&wvert[0],(int)wvert.size(),&wind[0],(int)wind.size(),nullptr,maxTriSize,App::userSettings->triCountInOBB);
+    }
 }
 
 bool CShape::getCulling()
 {
-    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
-        return(((CGeometric*)geomData->geomInfo)->getCulling());
+    if (getMeshWrapper()->isMesh())
+        return(getSingleMesh()->getCulling());
     return(false);
 }
 
 void CShape::setCulling(bool culState)
 {
-    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
-        ((CGeometric*)geomData->geomInfo)->setCulling(culState);
+    if (getMeshWrapper()->isMesh())
+        getSingleMesh()->setCulling(culState);
 }
 
 bool CShape::getVisibleEdges()
 {
-    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
-        return(((CGeometric*)geomData->geomInfo)->getVisibleEdges());
+    if (getMeshWrapper()->isMesh())
+        return(getSingleMesh()->getVisibleEdges());
     return(false);
 }
 
 void CShape::setVisibleEdges(bool v)
 {
-    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
-        ((CGeometric*)geomData->geomInfo)->setVisibleEdges(v);
+    if (getMeshWrapper()->isMesh())
+        getSingleMesh()->setVisibleEdges(v);
 }
 
 bool CShape::getHideEdgeBorders()
 {
-    if (geomData!=nullptr)
-        return(geomData->geomInfo->getHideEdgeBorders());
-    return(false);
+    return(getMeshWrapper()->getHideEdgeBorders());
 }
 
 void CShape::setHideEdgeBorders(bool v)
 {
-    if (geomData!=nullptr)
-        geomData->geomInfo->setHideEdgeBorders(v);
+    getMeshWrapper()->setHideEdgeBorders(v);
 }
 
 bool CShape::getShapeWireframe()
 {
-    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
-        return(((CGeometric*)geomData->geomInfo)->getWireframe());
+    if (getMeshWrapper()->isMesh())
+        return(getSingleMesh()->getWireframe());
     return(false);
 }
 
 void CShape::setShapeWireframe(bool w)
 {
-    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
-        ((CGeometric*)geomData->geomInfo)->setWireframe(w);
+    if (getMeshWrapper()->isMesh())
+        getSingleMesh()->setWireframe(w);
 }
 
 bool CShape::doesShapeCollideWithShape(CShape* collidee,std::vector<float>* intersections)
@@ -855,7 +1855,7 @@ bool CShape::doesShapeCollideWithShape(CShape* collidee,std::vector<float>* inte
     std::vector<float>* _intersectP=nullptr;
     if (intersections!=nullptr)
         _intersectP=&_intersect;
-    if ( CPluginContainer::geomPlugin_getMeshMeshCollision(geomData->collInfo,getFullCumulativeTransformation(),collidee->geomData->collInfo,collidee->getFullCumulativeTransformation(),_intersectP,nullptr,nullptr))
+    if ( CPluginContainer::geomPlugin_getMeshMeshCollision(_meshCalculationStructure,getFullCumulativeTransformation(),collidee->_meshCalculationStructure,collidee->getFullCumulativeTransformation(),_intersectP,nullptr,nullptr))
     { // There was a collision
         if (intersections!=nullptr)
             intersections->insert(intersections->end(),_intersect.begin(),_intersect.end());
@@ -869,11 +1869,11 @@ bool CShape::getDistanceToDummy_IfSmaller(CDummy* dummy,float &dist,float ray[7]
     // If the distance is smaller than 'dist', 'dist' is replaced and the return value is true
     // If the distance is bigger, 'dist' doesn't change and the return value is false
     // Build the node only when needed. So do it right here!
-    initializeCalculationStructureIfNeeded();
+    initializeMeshCalculationStructureIfNeeded();
 
     C3Vector dummyPos(dummy->getFullCumulativeTransformation().X);
     C3Vector rayPart0;
-    if (CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(geomData->collInfo,getFullCumulativeTransformation(),dummyPos,dist,&rayPart0,&buffer))
+    if (CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(_meshCalculationStructure,getFullCumulativeTransformation(),dummyPos,dist,&rayPart0,&buffer))
     {
         rayPart0.getInternalData(ray+0);
         dummyPos.getInternalData(ray+3);
@@ -892,16 +1892,16 @@ bool CShape::getShapeShapeDistance_IfSmaller(CShape* it,float &dist,float ray[7]
     CShape* shapeB=it;
     C7Vector shapeATr=shapeA->getFullCumulativeTransformation();
     C7Vector shapeBTr=shapeB->getFullCumulativeTransformation();
-    shapeA->initializeCalculationStructureIfNeeded();
-    shapeB->initializeCalculationStructureIfNeeded();
+    shapeA->initializeMeshCalculationStructureIfNeeded();
+    shapeB->initializeMeshCalculationStructureIfNeeded();
     C3Vector ptOnShapeA;
     C3Vector ptOnShapeB;
 
     bool smaller=false;
-    if (CPluginContainer::geomPlugin_getMeshRootObbVolume(shapeA->geomData->collInfo)<CPluginContainer::geomPlugin_getMeshRootObbVolume(shapeB->geomData->collInfo))
-        smaller=CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(shapeA->geomData->collInfo,shapeATr,shapeB->geomData->collInfo,shapeBTr,dist,&ptOnShapeA,&ptOnShapeB,&buffer[0],&buffer[1]);
+    if (CPluginContainer::geomPlugin_getMeshRootObbVolume(shapeA->_meshCalculationStructure)<CPluginContainer::geomPlugin_getMeshRootObbVolume(shapeB->_meshCalculationStructure))
+        smaller=CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(shapeA->_meshCalculationStructure,shapeATr,shapeB->_meshCalculationStructure,shapeBTr,dist,&ptOnShapeA,&ptOnShapeB,&buffer[0],&buffer[1]);
     else
-        smaller=CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(shapeB->geomData->collInfo,shapeBTr,shapeA->geomData->collInfo,shapeATr,dist,&ptOnShapeB,&ptOnShapeA,&buffer[1],&buffer[0]);
+        smaller=CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(shapeB->_meshCalculationStructure,shapeBTr,shapeA->_meshCalculationStructure,shapeATr,dist,&ptOnShapeB,&ptOnShapeA,&buffer[1],&buffer[0]);
 
     if (smaller)
     {
@@ -926,8 +1926,13 @@ CSceneObject* CShape::copyYourself()
 {   
     CShape* newShape=(CShape*)CSceneObject::copyYourself();
 
-    if (geomData!=nullptr)
-        newShape->geomData=geomData->copyYourself();
+    if (_mesh!=nullptr)
+        newShape->_mesh=_mesh->copyYourself();
+
+    newShape->_meshBoundingBoxHalfSizes=_meshBoundingBoxHalfSizes;
+
+    if (_meshCalculationStructure!=nullptr)
+        newShape->_meshCalculationStructure=CPluginContainer::geomPlugin_copyMesh(_meshCalculationStructure);
 
     delete newShape->_dynMaterial;
     newShape->_dynMaterial=_dynMaterial->copyYourself();
@@ -951,19 +1956,14 @@ CSceneObject* CShape::copyYourself()
 
 void CShape::setColor(const char* colorName,int colorComponent,const float* rgbData)
 {
-    if (geomData!=nullptr)
-    {
-        geomData->geomInfo->setColor(colorName,colorComponent,rgbData);
-        if (colorComponent==sim_colorcomponent_transparency)
-            actualizeContainsTransparentComponent();
-    }
+    getMeshWrapper()->setColor(colorName,colorComponent,rgbData);
+    if (colorComponent==sim_colorcomponent_transparency)
+        actualizeContainsTransparentComponent();
 }
 
 bool CShape::getColor(const char* colorName,int colorComponent,float* rgbData)
 {
-    if (geomData!=nullptr)
-        return(geomData->geomInfo->getColor(colorName,colorComponent,rgbData));
-    return(false);
+    return(getMeshWrapper()->getColor(colorName,colorComponent,rgbData));
 }
 
 void CShape::display(CViewableBase* renderingObject,int displayAttrib)

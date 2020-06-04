@@ -92,7 +92,6 @@ SIM_DLLEXPORT simInt simCloseScene();
 SIM_DLLEXPORT simInt simSaveScene(const simChar* filename);
 SIM_DLLEXPORT simInt simLoadModel(const simChar* filename);
 SIM_DLLEXPORT simInt simSaveModel(simInt baseOfModelHandle,const simChar* filename);
-SIM_DLLEXPORT simInt simAddStatusbarMessage(const simChar* message);
 SIM_DLLEXPORT simChar* simGetSimulatorMessage(simInt* messageID,simInt* auxiliaryData,simInt* returnedDataSize);
 SIM_DLLEXPORT simInt simAddModuleMenuEntry(const simChar* entryLabel,simInt itemCount,simInt* itemHandles);
 SIM_DLLEXPORT simInt simSetModuleMenuItemState(simInt itemHandle,simInt state,const simChar* label);
@@ -187,11 +186,9 @@ SIM_DLLEXPORT simInt simScaleSelectedObjects(simFloat scalingFactor,simBool scal
 SIM_DLLEXPORT simInt simScaleObjects(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo);
 SIM_DLLEXPORT simInt simDeleteSelectedObjects();
 SIM_DLLEXPORT simInt simGetObjectUniqueIdentifier(simInt objectHandle,simInt* uniqueIdentifier);
-SIM_DLLEXPORT simInt simGetNameSuffix(const simChar* name);
 SIM_DLLEXPORT simInt simSendData(simInt targetID,simInt dataHeader,const simChar* dataName,const simChar* data,simInt dataLength,simInt antennaHandle,simFloat actionRadius,simFloat emissionAngle1,simFloat emissionAngle2,simFloat persistence);
 SIM_DLLEXPORT simChar* simReceiveData(simInt dataHeader,const simChar* dataName,simInt antennaHandle,simInt index,simInt* dataLength,simInt* senderID,simInt* dataHeaderR,simChar** dataNameR);
 SIM_DLLEXPORT simInt simSetGraphUserData(simInt graphHandle,const simChar* dataStreamName,simFloat data);
-SIM_DLLEXPORT simInt simSetNameSuffix(simInt nameSuffixNumber);
 SIM_DLLEXPORT simInt simAddDrawingObject(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission);
 SIM_DLLEXPORT simInt simRemoveDrawingObject(simInt objectHandle);
 SIM_DLLEXPORT simInt simAddDrawingObjectItem(simInt objectHandle,const simFloat* itemData);
@@ -642,6 +639,9 @@ SIM_DLLEXPORT simInt simResetMill(simInt millHandle);
 SIM_DLLEXPORT simInt simResetMilling(simInt objectHandle);
 SIM_DLLEXPORT simInt simApplyMilling(simInt objectHandle);
 SIM_DLLEXPORT simBool _simGetParentFollowsDynamic(const simVoid* shape);
+SIM_DLLEXPORT simInt simGetNameSuffix(const simChar* name);
+SIM_DLLEXPORT simInt simSetNameSuffix(simInt nameSuffixNumber);
+SIM_DLLEXPORT simInt simAddStatusbarMessage(const simChar* message);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

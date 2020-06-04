@@ -4,7 +4,7 @@
 #include "tt.h"
 #include "app.h"
 #include "simStrings.h"
-#include "libLic.h"
+#include "simFlavor.h"
 
 CButtonBlockContainer::CButtonBlockContainer(bool mainContainer)
 {
@@ -53,7 +53,7 @@ void CButtonBlockContainer::emptySceneProcedure(bool mainContainer)
     buttonsLocked=false;
 
 #ifdef SIM_WITH_GUI
-    if ( CLibLic::getBoolVal(4)&&(newSceneProcedurePasses==0)&&(!App::userSettings->disableOpenGlBasedCustomUi) )
+    if ( CSimFlavor::getBoolVal(4)&&(newSceneProcedurePasses==0)&&(!App::userSettings->disableOpenGlBasedCustomUi) )
     {
         if (mainContainer)
         {

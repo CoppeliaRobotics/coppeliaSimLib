@@ -1,4 +1,4 @@
-#include "geometric.h"
+#include "mesh.h"
 #include "global.h"
 #include "tt.h"
 #include "meshRoutines.h"
@@ -10,17 +10,17 @@
 #include "tt.h"
 #include "base64.h"
 
-int CGeometric::_nextUniqueID=0;
-unsigned int CGeometric::_extRendererUniqueObjectID=0;
-unsigned int CGeometric::_extRendererUniqueMeshID=0;
-unsigned int CGeometric::_extRendererUniqueTextureID=0;
+int CMesh::_nextUniqueID=0;
+unsigned int CMesh::_extRendererUniqueObjectID=0;
+unsigned int CMesh::_extRendererUniqueMeshID=0;
+unsigned int CMesh::_extRendererUniqueTextureID=0;
 
-std::vector<std::vector<float>*> CGeometric::_tempVertices;
-std::vector<std::vector<int>*> CGeometric::_tempIndices;
-std::vector<std::vector<float>*> CGeometric::_tempNormals;
-std::vector<std::vector<unsigned char>*> CGeometric::_tempEdges;
+std::vector<std::vector<float>*> CMesh::_tempVertices;
+std::vector<std::vector<int>*> CMesh::_tempIndices;
+std::vector<std::vector<float>*> CMesh::_tempNormals;
+std::vector<std::vector<unsigned char>*> CMesh::_tempEdges;
 
-CGeometric::CGeometric()
+CMesh::CMesh()
 {
     color.setDefaultValues();
     color.setColor(0.6f+0.4f*(float)(rand()/(float)RAND_MAX),0.6f+0.4f*(float)(rand()/(float)RAND_MAX),0.6f+0.4f*(float)(rand()/(float)RAND_MAX),sim_colorcomponent_ambient_diffuse);
@@ -59,7 +59,7 @@ CGeometric::CGeometric()
     _extRendererTextureId=0;
 }
 
-CGeometric::~CGeometric()
+CMesh::~CMesh()
 {
     decreaseVertexBufferRefCnt(_vertexBufferId);
     decreaseNormalBufferRefCnt(_normalBufferId);
@@ -67,7 +67,7 @@ CGeometric::~CGeometric()
     delete _textureProperty;
 }
 
-void CGeometric::display_extRenderer(CGeomProxy* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex)
+void CMesh::display_extRenderer(CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex)
 { // function has virtual/non-virtual counterpart!
     if (!_wireframe)
     {
@@ -185,7 +185,7 @@ void CGeometric::display_extRenderer(CGeomProxy* geomData,int displayAttrib,cons
         if (tp!=nullptr)
         {
             textured=true;
-            textureCoords=tp->getTextureCoordinates(geomData->getGeomDataModificationCounter(),_verticeLocalFrame,_vertices,_indices);
+            textureCoords=tp->getTextureCoordinates(geomData->getMeshModificationCounter(),_verticeLocalFrame,_vertices,_indices);
             if (textureCoords==nullptr)
                 return; // Should normally never happen
             data[9]=&(textureCoords[0])[0];
@@ -219,19 +219,19 @@ void CGeometric::display_extRenderer(CGeomProxy* geomData,int displayAttrib,cons
     componentIndex++;
 }
 
-void CGeometric::performSceneObjectLoadingMapping(const std::vector<int>* map)
+void CMesh::performSceneObjectLoadingMapping(const std::vector<int>* map)
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty!=nullptr)
         _textureProperty->performObjectLoadingMapping(map);
 }
 
-void CGeometric::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void CMesh::performTextureObjectLoadingMapping(const std::vector<int>* map)
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty!=nullptr)
         _textureProperty->performTextureObjectLoadingMapping(map);
 }
 
-void CGeometric::announceSceneObjectWillBeErased(int objectID)
+void CMesh::announceSceneObjectWillBeErased(int objectID)
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty!=nullptr)
     {
@@ -243,34 +243,34 @@ void CGeometric::announceSceneObjectWillBeErased(int objectID)
     }
 }
 
-void CGeometric::setTextureDependencies(int shapeID)
+void CMesh::setTextureDependencies(int shapeID)
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty!=nullptr)
         _textureProperty->addTextureDependencies(shapeID,_uniqueID);
 }
 
-int CGeometric::getTextureCount()
+int CMesh::getTextureCount()
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty!=nullptr)
         return(1);
     return(0);
 }
 
-bool CGeometric::hasTextureThatUsesFixedTextureCoordinates()
+bool CMesh::hasTextureThatUsesFixedTextureCoordinates()
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty!=nullptr)
         return(_textureProperty->getFixedCoordinates());
     return(false);
 }
 
-bool CGeometric::getContainsTransparentComponents()
+bool CMesh::getContainsTransparentComponents()
 { // function has virtual/non-virtual counterpart!
     return(color.getTranslucid()||insideColor_DEPRECATED.getTranslucid());
 }
 
-CGeometric* CGeometric::copyYourself()
+CMesh* CMesh::copyYourself()
 { // function has virtual/non-virtual counterpart!
-    CGeometric* newIt=new CGeometric();
+    CMesh* newIt=new CMesh();
     copyWrapperInfos(newIt);
 
     color.copyYourselfInto(&newIt->color);
@@ -317,7 +317,7 @@ CGeometric* CGeometric::copyYourself()
     return(newIt);
 }
 
-void CGeometric::scale(float xVal,float yVal,float zVal)
+void CMesh::scale(float xVal,float yVal,float zVal)
 { // function has virtual/non-virtual counterpart!
     // Following should not really be needed (normally already done by the calling function)
     //--------------------
@@ -381,7 +381,7 @@ void CGeometric::scale(float xVal,float yVal,float zVal)
     _edgeBufferId=-1;
 }
 
-void CGeometric::setMeshDataDirect(const std::vector<float>& vertices,const std::vector<int>& indices,const std::vector<float>& normals,const std::vector<unsigned char>& edges)
+void CMesh::setMeshDataDirect(const std::vector<float>& vertices,const std::vector<int>& indices,const std::vector<float>& normals,const std::vector<unsigned char>& edges)
 {
     _vertices.assign(vertices.begin(),vertices.end());
     _indices.assign(indices.begin(),indices.end());
@@ -398,7 +398,7 @@ void CGeometric::setMeshDataDirect(const std::vector<float>& vertices,const std:
     _edgeBufferId=-1;
 }
 
-void CGeometric::setMesh(const std::vector<float>& vertices,const std::vector<int>& indices,const std::vector<float>* normals,const C7Vector& transformation)
+void CMesh::setMesh(const std::vector<float>& vertices,const std::vector<int>& indices,const std::vector<float>* normals,const C7Vector& transformation)
 {
     _vertices.assign(vertices.begin(),vertices.end());
     _indices.assign(indices.begin(),indices.end());
@@ -422,7 +422,7 @@ void CGeometric::setMesh(const std::vector<float>& vertices,const std::vector<in
     _edgeBufferId=-1;
 }
 
-void CGeometric::setPurePrimitiveType(int theType,float xOrDiameter,float y,float zOrHeight)
+void CMesh::setPurePrimitiveType(int theType,float xOrDiameter,float y,float zOrHeight)
 { // function has virtual/non-virtual counterpart!
     _purePrimitive=theType;
     _purePrimitiveXSizeOrDiameter=xOrDiameter;
@@ -443,27 +443,27 @@ void CGeometric::setPurePrimitiveType(int theType,float xOrDiameter,float y,floa
         _purePrimitiveInsideScaling=0.0f; // no inside part!
 }
 
-int CGeometric::getPurePrimitiveType()
+int CMesh::getPurePrimitiveType()
 { // function has virtual/non-virtual counterpart!
     return(_purePrimitive);
 }
 
-bool CGeometric::isGeometric()
+bool CMesh::isMesh()
 { // function has virtual/non-virtual counterpart!
     return(true);
 }
 
-bool CGeometric::isPure()
+bool CMesh::isPure()
 { // function has virtual/non-virtual counterpart!
     return(_purePrimitive!=sim_pure_primitive_none);
 }
 
-bool CGeometric::isConvex()
+bool CMesh::isConvex()
 { // function has virtual/non-virtual counterpart!
     return(_convex);
 }
 
-bool CGeometric::containsOnlyPureConvexShapes()
+bool CMesh::containsOnlyPureConvexShapes()
 { // function has virtual/non-virtual counterpart!
     bool retVal=((_purePrimitive!=sim_pure_primitive_none)&&(_purePrimitive!=sim_pure_primitive_heightfield)&&(_purePrimitive!=sim_pure_primitive_plane)&&(_purePrimitive!=sim_pure_primitive_disc));
     if (retVal)
@@ -471,7 +471,7 @@ bool CGeometric::containsOnlyPureConvexShapes()
     return(retVal);
 }
 
-void CGeometric::setConvex(bool convex)
+void CMesh::setConvex(bool convex)
 { // function has virtual/non-virtual counterpart!
     _convex=convex;
 
@@ -488,9 +488,9 @@ void CGeometric::setConvex(bool convex)
         */
 }
 
-void CGeometric::getCumulativeMeshes(std::vector<float>& vertices,std::vector<int>* indices,std::vector<float>* normals)
+void CMesh::getCumulativeMeshes(std::vector<float>& vertices,std::vector<int>* indices,std::vector<float>* normals)
 { // function has virtual/non-virtual counterpart!
-    int offset=(int)vertices.size()/3;
+    size_t offset=vertices.size()/3;
     for (size_t i=0;i<_vertices.size()/3;i++)
     {
         C3Vector v(&_vertices[3*i]);
@@ -501,13 +501,13 @@ void CGeometric::getCumulativeMeshes(std::vector<float>& vertices,std::vector<in
     }
     if (indices!=nullptr)
     {
-        for (int i=0;i<int(_indices.size());i++)
-            indices->push_back(_indices[i]+offset);
+        for (size_t i=0;i<_indices.size();i++)
+            indices->push_back(_indices[i]+int(offset));
     }
     if (normals!=nullptr)
     {
         C4Vector rot(_verticeLocalFrame.Q);
-        for (int i=0;i<int(_normals.size())/3;i++)
+        for (size_t i=0;i<_normals.size()/3;i++)
         {
             C3Vector v(&_normals[3*i]);
             v=rot*v;
@@ -518,7 +518,7 @@ void CGeometric::getCumulativeMeshes(std::vector<float>& vertices,std::vector<in
     }
 }
 
-void CGeometric::setColor(const char* colorName,int colorComponent,const float* rgbData)
+void CMesh::setColor(const char* colorName,int colorComponent,const float* rgbData)
 { // function has virtual/non-virtual counterpart!
     if ( (colorName==nullptr)||(color.getColorName().compare(colorName)==0) )
     {
@@ -648,7 +648,7 @@ void CGeometric::setColor(const char* colorName,int colorComponent,const float* 
 
 }
 
-bool CGeometric::getColor(const char* colorName,int colorComponent,float* rgbData)
+bool CMesh::getColor(const char* colorName,int colorComponent,float* rgbData)
 { // function has virtual/non-virtual counterpart!
     if ( (colorName==nullptr)||(color.getColorName().compare(colorName)==0) )
     {
@@ -709,13 +709,13 @@ bool CGeometric::getColor(const char* colorName,int colorComponent,float* rgbDat
     return(false);
 }
 
-void CGeometric::getAllShapeComponentsCumulative(std::vector<CGeometric*>& shapeComponentList)
+void CMesh::getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList)
 {   // function has virtual/non-virtual counterpart!
     // needed by the dynamics routine. We return ALL shape components!
     shapeComponentList.push_back(this);
 }
 
-CGeometric* CGeometric::getShapeComponentAtIndex(int& index)
+CMesh* CMesh::getShapeComponentAtIndex(int& index)
 { // function has virtual/non-virtual counterpart!
     if (index<0)
         return(nullptr);
@@ -725,12 +725,12 @@ CGeometric* CGeometric::getShapeComponentAtIndex(int& index)
     return(nullptr);
 }
 
-int CGeometric::getUniqueID()
+int CMesh::getUniqueID()
 {
     return(_uniqueID);
 }
 
-void CGeometric::setHeightfieldData(const std::vector<float>& heights,int xCount,int yCount)
+void CMesh::setHeightfieldData(const std::vector<float>& heights,int xCount,int yCount)
 {
     _heightfieldHeights.clear();
     _heightfieldHeights.insert(_heightfieldHeights.end(),heights.begin(),heights.end());
@@ -738,7 +738,7 @@ void CGeometric::setHeightfieldData(const std::vector<float>& heights,int xCount
     _heightfieldYCount=yCount;
 }
 
-float* CGeometric::getHeightfieldData(int& xCount,int& yCount,float& minHeight,float& maxHeight)
+float* CMesh::getHeightfieldData(int& xCount,int& yCount,float& minHeight,float& maxHeight)
 {
     setHeightfieldDiamonds(0);
     if ( (_purePrimitive!=sim_pure_primitive_heightfield)||(_heightfieldHeights.size()==0) )
@@ -757,7 +757,7 @@ float* CGeometric::getHeightfieldData(int& xCount,int& yCount,float& minHeight,f
     return(&_heightfieldHeights[0]);
 }
 
-void CGeometric::setHeightfieldDiamonds(int d)
+void CMesh::setHeightfieldDiamonds(int d)
 { 
     if (_purePrimitive==sim_pure_primitive_heightfield)
     {
@@ -777,24 +777,24 @@ void CGeometric::setHeightfieldDiamonds(int d)
     }
 }
 
-void CGeometric::getPurePrimitiveSizes(C3Vector& s)
+void CMesh::getPurePrimitiveSizes(C3Vector& s)
 {
     s(0)=_purePrimitiveXSizeOrDiameter;
     s(1)=_purePrimitiveYSize;
     s(2)=_purePrimitiveZSizeOrHeight;
 }
 
-void CGeometric::setPurePrimitiveInsideScaling(float s)
+void CMesh::setPurePrimitiveInsideScaling(float s)
 {
     _purePrimitiveInsideScaling=tt::getLimitedFloat(0.0f,0.99999f,s);
 }
 
-float CGeometric::getPurePrimitiveInsideScaling()
+float CMesh::getPurePrimitiveInsideScaling()
 {
     return(_purePrimitiveInsideScaling);
 }
 
-void CGeometric::setConvexVisualAttributes()
+void CMesh::setConvexVisualAttributes()
 {
     _hideEdgeBorders=false;
     setGouraudShadingAngle(0.0f);
@@ -805,37 +805,37 @@ void CGeometric::setConvexVisualAttributes()
     _insideAndOutsideFacesSameColor_DEPRECATED=true;
 }
 
-CTextureProperty* CGeometric::getTextureProperty()
+CTextureProperty* CMesh::getTextureProperty()
 {
     return(_textureProperty);
 }
 
-void CGeometric::setTextureProperty(CTextureProperty* tp)
+void CMesh::setTextureProperty(CTextureProperty* tp)
 { // careful, this doesn't check if a _textureProperty already exists! Has to be done and destroyed outside!
     _textureProperty=tp;
 }
 
-void CGeometric::setInsideAndOutsideFacesSameColor_DEPRECATED(bool s)
+void CMesh::setInsideAndOutsideFacesSameColor_DEPRECATED(bool s)
 {
     _insideAndOutsideFacesSameColor_DEPRECATED=s;
 }
 
-bool CGeometric::getInsideAndOutsideFacesSameColor_DEPRECATED()
+bool CMesh::getInsideAndOutsideFacesSameColor_DEPRECATED()
 {
     return(_insideAndOutsideFacesSameColor_DEPRECATED);
 }
 
-bool CGeometric::getVisibleEdges()
+bool CMesh::getVisibleEdges()
 {
     return(_visibleEdges);
 }
 
-void CGeometric::setVisibleEdges(bool v)
+void CMesh::setVisibleEdges(bool v)
 {
     _visibleEdges=v;
 }
 
-void CGeometric::setHideEdgeBorders(bool v)
+void CMesh::setHideEdgeBorders(bool v)
 {
     if (_hideEdgeBorders!=v)
     {
@@ -844,43 +844,43 @@ void CGeometric::setHideEdgeBorders(bool v)
     }
 }
 
-bool CGeometric::getHideEdgeBorders()
+bool CMesh::getHideEdgeBorders()
 {
     return(_hideEdgeBorders);
 }
 
-int CGeometric::getEdgeWidth_DEPRECATED()
+int CMesh::getEdgeWidth_DEPRECATED()
 {
     return(_edgeWidth_DEPRERCATED);
 }
 
-void CGeometric::setEdgeWidth_DEPRECATED(int w)
+void CMesh::setEdgeWidth_DEPRECATED(int w)
 {
     w=tt::getLimitedInt(1,4,w);
     _edgeWidth_DEPRERCATED=w;
 }
 
-bool CGeometric::getCulling()
+bool CMesh::getCulling()
 {
     return(_culling);
 }
 
-void CGeometric::setCulling(bool c)
+void CMesh::setCulling(bool c)
 {
     _culling=c;
 }
 
-bool CGeometric::getDisplayInverted_DEPRECATED()
+bool CMesh::getDisplayInverted_DEPRECATED()
 {
     return(_displayInverted_DEPRECATED);
 }
 
-void CGeometric::setDisplayInverted_DEPRECATED(bool di)
+void CMesh::setDisplayInverted_DEPRECATED(bool di)
 {
     _displayInverted_DEPRECATED=di;
 }
 
-void CGeometric::copyVisualAttributesTo(CGeometric* target)
+void CMesh::copyVisualAttributesTo(CMesh* target)
 {
     color.copyYourselfInto(&target->color);
     insideColor_DEPRECATED.copyYourselfInto(&target->insideColor_DEPRECATED);
@@ -897,12 +897,12 @@ void CGeometric::copyVisualAttributesTo(CGeometric* target)
     target->_edgeThresholdAngle=_edgeThresholdAngle;
 }
 
-float CGeometric::getGouraudShadingAngle()
+float CMesh::getGouraudShadingAngle()
 { // function has virtual/non-virtual counterpart!
     return(_gouraudShadingAngle);
 }
 
-void CGeometric::setGouraudShadingAngle(float angle)
+void CMesh::setGouraudShadingAngle(float angle)
 { // function has virtual/non-virtual counterpart!
     tt::limitValue(0.0f,89.0f*degToRad_f,angle);
     if (_gouraudShadingAngle!=angle)
@@ -912,12 +912,12 @@ void CGeometric::setGouraudShadingAngle(float angle)
     }
 }
 
-float CGeometric::getEdgeThresholdAngle()
+float CMesh::getEdgeThresholdAngle()
 { // function has virtual/non-virtual counterpart!
     return(_edgeThresholdAngle);
 }
 
-void CGeometric::setEdgeThresholdAngle(float angle)
+void CMesh::setEdgeThresholdAngle(float angle)
 { // function has virtual/non-virtual counterpart!
     tt::limitValue(0.0f,89.0f*degToRad_f,angle);
     if (_edgeThresholdAngle!=angle)
@@ -927,63 +927,63 @@ void CGeometric::setEdgeThresholdAngle(float angle)
     }
 }
 
-void CGeometric::setWireframe(bool w)
+void CMesh::setWireframe(bool w)
 {
     _wireframe=w;
 }
 
-bool CGeometric::getWireframe()
+bool CMesh::getWireframe()
 {
     return(_wireframe);
 }
 
-C7Vector CGeometric::getVerticeLocalFrame()
+C7Vector CMesh::getVerticeLocalFrame()
 {
     return(_verticeLocalFrame);
 }
 
-void CGeometric::setVerticeLocalFrame(const C7Vector& tr)
+void CMesh::setVerticeLocalFrame(const C7Vector& tr)
 {
     _verticeLocalFrame=tr;
 }
 
-std::vector<float>* CGeometric::getVertices()
+std::vector<float>* CMesh::getVertices()
 {
     return(&_vertices);
 }
 
-std::vector<int>* CGeometric::getIndices()
+std::vector<int>* CMesh::getIndices()
 {
     return(&_indices);
 }
 
-std::vector<float>* CGeometric::getNormals()
+std::vector<float>* CMesh::getNormals()
 {
     return(&_normals);
 }
 
-std::vector<unsigned char>* CGeometric::getEdges()
+std::vector<unsigned char>* CMesh::getEdges()
 {
     return(&_edges);
 }
 
-int* CGeometric::getVertexBufferIdPtr()
+int* CMesh::getVertexBufferIdPtr()
 {
     return(&_vertexBufferId);
 }
 
-int* CGeometric::getNormalBufferIdPtr()
+int* CMesh::getNormalBufferIdPtr()
 {
     return(&_normalBufferId);
 }
 
-int* CGeometric::getEdgeBufferIdPtr()
+int* CMesh::getEdgeBufferIdPtr()
 {
     return(&_edgeBufferId);
 }
 
 
-void CGeometric::preMultiplyAllVerticeLocalFrames(const C7Vector& preTr)
+void CMesh::preMultiplyAllVerticeLocalFrames(const C7Vector& preTr)
 { // function has virtual/non-virtual counterpart!
 
     _transformationsSinceGrouping=preTr*_transformationsSinceGrouping;
@@ -995,13 +995,13 @@ void CGeometric::preMultiplyAllVerticeLocalFrames(const C7Vector& preTr)
         _textureProperty->adjustForFrameChange(preTr);
 }
 
-void CGeometric::removeAllTextures()
+void CMesh::removeAllTextures()
 { // function has virtual/non-virtual counterpart!
     delete _textureProperty;
     _textureProperty=nullptr;
 }
 
-void CGeometric::getColorStrings(std::string& colorStrings)
+void CMesh::getColorStrings(std::string& colorStrings)
 { // function has virtual/non-virtual counterpart!
     if ( (color.getColorName().length()>0)&&(colorStrings.find(color.getColorName())==std::string::npos) )
     {
@@ -1023,7 +1023,7 @@ void CGeometric::getColorStrings(std::string& colorStrings)
     }
 }
 
-void CGeometric::flipFaces()
+void CMesh::flipFaces()
 { // function has virtual/non-virtual counterpart!
     int save;
     float normSave;
@@ -1058,13 +1058,13 @@ void CGeometric::flipFaces()
     _vertexBufferId=-1;
 }
 
-void CGeometric::actualizeGouraudShadingAndVisibleEdges()
+void CMesh::actualizeGouraudShadingAndVisibleEdges()
 {
     _recomputeNormals();
     _computeVisibleEdges();
 }
 
-void CGeometric::_recomputeNormals()
+void CMesh::_recomputeNormals()
 {
     _normals.resize(3*_indices.size());
     float maxAngle=_gouraudShadingAngle;
@@ -1144,7 +1144,7 @@ void CGeometric::_recomputeNormals()
     _normalBufferId=-1;
 }
 
-void CGeometric::_computeVisibleEdges()
+void CMesh::_computeVisibleEdges()
 {
     if (_indices.size()==0)
         return;
@@ -1166,7 +1166,7 @@ void CGeometric::_computeVisibleEdges()
 }
 
 
-bool CGeometric::checkIfConvex()
+bool CMesh::checkIfConvex()
 { // function has virtual/non-virtual counterpart!
     _convex=CMeshRoutines::checkIfConvex(_vertices,_indices,0.015f); // 1.5% tolerance of the average bounding box side length
     setConvex(_convex);
@@ -1174,7 +1174,7 @@ bool CGeometric::checkIfConvex()
 }
 
 
-void CGeometric::_savePackedIntegers(CSer& ar,const std::vector<int>& data)
+void CMesh::_savePackedIntegers(CSer& ar,const std::vector<int>& data)
 {
     ar << int(data.size());
     int prevInd=0;
@@ -1217,7 +1217,7 @@ void CGeometric::_savePackedIntegers(CSer& ar,const std::vector<int>& data)
     }
 }
 
-void CGeometric::_loadPackedIntegers(CSer& ar,std::vector<int>& data)
+void CMesh::_loadPackedIntegers(CSer& ar,std::vector<int>& data)
 {
     int dataLength;
     ar >> dataLength;
@@ -1253,7 +1253,7 @@ void CGeometric::_loadPackedIntegers(CSer& ar,std::vector<int>& data)
     }
 }
 
-void CGeometric::clearTempVerticesIndicesNormalsAndEdges()
+void CMesh::clearTempVerticesIndicesNormalsAndEdges()
 {
     for (int i=0;i<int(_tempVertices.size());i++)
         delete _tempVertices[i];
@@ -1272,7 +1272,7 @@ void CGeometric::clearTempVerticesIndicesNormalsAndEdges()
     _tempEdges.clear();
 }
 
-void CGeometric::prepareVerticesIndicesNormalsAndEdgesForSerialization()
+void CMesh::prepareVerticesIndicesNormalsAndEdgesForSerialization()
 { // function has virtual/non-virtual counterpart!
     _tempVerticesIndexForSerialization=getBufferIndexOfVertices(_vertices);
     if (_tempVerticesIndexForSerialization==-1)
@@ -1291,7 +1291,7 @@ void CGeometric::prepareVerticesIndicesNormalsAndEdgesForSerialization()
         _tempEdgesIndexForSerialization=addEdgesToBufferAndReturnIndex(_edges);
 }
 
-void CGeometric::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
+void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
 {
     if (ar.isStoring())
     {       // Storing
@@ -1451,7 +1451,7 @@ void CGeometric::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
     }
 }
 
-int CGeometric::getBufferIndexOfVertices(const std::vector<float>& vert)
+int CMesh::getBufferIndexOfVertices(const std::vector<float>& vert)
 {
     int vertl=(int)vert.size();
     for (int i=0;i<int(_tempVertices.size());i++)
@@ -1475,7 +1475,7 @@ int CGeometric::getBufferIndexOfVertices(const std::vector<float>& vert)
     return(-1); // not found
 }
 
-int CGeometric::addVerticesToBufferAndReturnIndex(const std::vector<float>& vert)
+int CMesh::addVerticesToBufferAndReturnIndex(const std::vector<float>& vert)
 {
     std::vector<float>* nvert=new std::vector<float>;
     nvert->assign(vert.begin(),vert.end());
@@ -1483,14 +1483,14 @@ int CGeometric::addVerticesToBufferAndReturnIndex(const std::vector<float>& vert
     return((int)_tempVertices.size()-1);
 }
 
-void CGeometric::getVerticesFromBufferBasedOnIndex(int index,std::vector<float>& vert)
+void CMesh::getVerticesFromBufferBasedOnIndex(int index,std::vector<float>& vert)
 {
     vert.assign(_tempVertices[index]->begin(),_tempVertices[index]->end());
 }
 
 
 
-int CGeometric::getBufferIndexOfIndices(const std::vector<int>& ind)
+int CMesh::getBufferIndexOfIndices(const std::vector<int>& ind)
 {
     int indl=(int)ind.size();
     for (int i=0;i<int(_tempIndices.size());i++)
@@ -1514,7 +1514,7 @@ int CGeometric::getBufferIndexOfIndices(const std::vector<int>& ind)
     return(-1); // not found
 }
 
-int CGeometric::addIndicesToBufferAndReturnIndex(const std::vector<int>& ind)
+int CMesh::addIndicesToBufferAndReturnIndex(const std::vector<int>& ind)
 {
     std::vector<int>* nind=new std::vector<int>;
     nind->assign(ind.begin(),ind.end());
@@ -1522,12 +1522,12 @@ int CGeometric::addIndicesToBufferAndReturnIndex(const std::vector<int>& ind)
     return((int)_tempIndices.size()-1);
 }
 
-void CGeometric::getIndicesFromBufferBasedOnIndex(int index,std::vector<int>& ind)
+void CMesh::getIndicesFromBufferBasedOnIndex(int index,std::vector<int>& ind)
 {
     ind.assign(_tempIndices[index]->begin(),_tempIndices[index]->end());
 }
 
-int CGeometric::getBufferIndexOfNormals(const std::vector<float>& norm)
+int CMesh::getBufferIndexOfNormals(const std::vector<float>& norm)
 {
     int norml=(int)norm.size();
     for (int i=0;i<int(_tempNormals.size());i++)
@@ -1551,7 +1551,7 @@ int CGeometric::getBufferIndexOfNormals(const std::vector<float>& norm)
     return(-1); // not found
 }
 
-int CGeometric::addNormalsToBufferAndReturnIndex(const std::vector<float>& norm)
+int CMesh::addNormalsToBufferAndReturnIndex(const std::vector<float>& norm)
 {
     std::vector<float>* nnorm=new std::vector<float>;
     nnorm->assign(norm.begin(),norm.end());
@@ -1559,12 +1559,12 @@ int CGeometric::addNormalsToBufferAndReturnIndex(const std::vector<float>& norm)
     return((int)_tempNormals.size()-1);
 }
 
-void CGeometric::getNormalsFromBufferBasedOnIndex(int index,std::vector<float>& norm)
+void CMesh::getNormalsFromBufferBasedOnIndex(int index,std::vector<float>& norm)
 {
     norm.assign(_tempNormals[index]->begin(),_tempNormals[index]->end());
 }
 
-int CGeometric::getBufferIndexOfEdges(const std::vector<unsigned char>& edges)
+int CMesh::getBufferIndexOfEdges(const std::vector<unsigned char>& edges)
 {
     int edgesl=(int)edges.size();
     for (int i=0;i<int(_tempEdges.size());i++)
@@ -1588,7 +1588,7 @@ int CGeometric::getBufferIndexOfEdges(const std::vector<unsigned char>& edges)
     return(-1); // not found
 }
 
-int CGeometric::addEdgesToBufferAndReturnIndex(const std::vector<unsigned char>& edges)
+int CMesh::addEdgesToBufferAndReturnIndex(const std::vector<unsigned char>& edges)
 {
     std::vector<unsigned char>* nedges=new std::vector<unsigned char>;
     nedges->assign(edges.begin(),edges.end());
@@ -1596,12 +1596,12 @@ int CGeometric::addEdgesToBufferAndReturnIndex(const std::vector<unsigned char>&
     return((int)_tempEdges.size()-1);
 }
 
-void CGeometric::getEdgesFromBufferBasedOnIndex(int index,std::vector<unsigned char>& edges)
+void CMesh::getEdgesFromBufferBasedOnIndex(int index,std::vector<unsigned char>& edges)
 {
     edges.assign(_tempEdges[index]->begin(),_tempEdges[index]->end());
 }
 
-void CGeometric::serialize(CSer& ar,const char* shapeName)
+void CMesh::serialize(CSer& ar,const char* shapeName)
 { // function has virtual/non-virtual counterpart!
     serializeWrapperInfos(ar,shapeName);
     if (ar.isBinary())
@@ -2054,25 +2054,28 @@ void CGeometric::serialize(CSer& ar,const char* shapeName)
     }
 }
 
-void CGeometric::display(CGeomProxy* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
+void CMesh::display(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
 { // function has virtual/non-virtual counterpart!
 //    printf("%f, %f, %f, %f\n",_transformationsSinceGrouping.Q.data[0],_transformationsSinceGrouping.Q.data[1],_transformationsSinceGrouping.Q.data[2],_transformationsSinceGrouping.Q.data[3]);
+//    printf("GeomX: %f, %f, %f\n",_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
+    C3Vector e(_verticeLocalFrame.Q.getEulerAngles());
+//    printf("GeomE: %f, %f, %f\n",e(0),e(1),e(2));
     displayGeometric(this,geomData,displayAttrib,collisionColor,dynObjFlag_forVisualization,transparencyHandling,multishapeEditSelected);
 }
 
-void CGeometric::display_colorCoded(CGeomProxy* geomData,int objectId,int displayAttrib)
+void CMesh::display_colorCoded(CShape* geomData,int objectId,int displayAttrib)
 { // function has virtual/non-virtual counterpart!
     displayGeometric_colorCoded(this,geomData,objectId,displayAttrib);
 }
 
 
-void CGeometric::displayGhost(CGeomProxy* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors)
+void CMesh::displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors)
 { // function has virtual/non-virtual counterpart!
     displayGeometricGhost(this,geomData,displayAttrib,originalColors,backfaceCulling,transparency,newColors);
 }
 
 #ifdef SIM_WITH_GUI
-bool CGeometric::getNonCalculatedTextureCoordinates(std::vector<float>& texCoords)
+bool CMesh::getNonCalculatedTextureCoordinates(std::vector<float>& texCoords)
 {
     if (_textureProperty==nullptr)
         return(false);

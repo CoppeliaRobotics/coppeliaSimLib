@@ -1,9 +1,11 @@
 #include "simInternal.h"
 #include "ikElement.h"
-#include "ikRoutines.h"
 #include "app.h"
 #include "tt.h"
 #include "pluginContainer.h"
+#ifdef SUPPORT_OLD_IK
+#include "ikRoutines.h"
+#endif
 
 CIkElement::CIkElement()
 {
@@ -21,11 +23,13 @@ void CIkElement::_commonInit()
     _tipHandle=-1;
     _ikElementPluginCounterpartHandle=-1;
     _ikGroupPluginCounterpartHandle=-1;
+#ifdef SUPPORT_OLD_IK
     matrix=nullptr;
     matrix_correctJacobian=nullptr; // same as matrix, but the orientation parts are multiplied by IK_DIVISION_FACTOR
     errorVector=nullptr;
     rowJointHandles=nullptr;
     rowJointStages=nullptr;
+#endif
 }
 
 CIkElement::~CIkElement()
@@ -392,6 +396,189 @@ void CIkElement::setAllInvolvedJointsToNewJointMode(int jointMode) const
     }
 }
 
+void CIkElement::_setEnabled_send(bool e) const
+{ // Overridden from _CIkElement_
+    _CIkElement_::_setEnabled_send(e);
+
+    // Synchronize with IK plugin:
+    if (_ikElementPluginCounterpartHandle!=-1)
+    {
+        int flags=0;
+        if (e)
+            flags=flags|1;
+        CPluginContainer::ikPlugin_setIkElementFlags(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,flags);
+    }
+}
+
+void CIkElement::_setBase_send(int h) const
+{ // Overridden from _CIkElement_
+    _CIkElement_::_setBase_send(h);
+
+    // Synchronize with IK plugin:
+    if (_ikElementPluginCounterpartHandle!=-1)
+    {
+        int bh=-1;
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(h);
+        if (obj!=nullptr)
+            bh=obj->getIkPluginCounterpartHandle();
+        int abh=-1;
+        obj=App::currentWorld->sceneObjects->getObjectFromHandle(_constraintBaseHandle);
+        if (obj!=nullptr)
+            abh=obj->getIkPluginCounterpartHandle();
+        CPluginContainer::ikPlugin_setIkElementBase(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,bh,abh);
+    }
+}
+
+void CIkElement::_setAlternativeBaseForConstraints_send(int h) const
+{ // Overridden from _CIkElement_
+    _CIkElement_::_setAlternativeBaseForConstraints_send(h);
+
+    // Synchronize with IK plugin:
+    if (_ikElementPluginCounterpartHandle!=-1)
+    {
+        int bh=-1;
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(_baseHandle);
+        if (obj!=nullptr)
+            bh=obj->getIkPluginCounterpartHandle();
+        int abh=-1;
+        obj=App::currentWorld->sceneObjects->getObjectFromHandle(h);
+        if (obj!=nullptr)
+            abh=obj->getIkPluginCounterpartHandle();
+        CPluginContainer::ikPlugin_setIkElementBase(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,bh,abh);
+    }
+}
+
+void CIkElement::_setMinLinearPrecision_send(float f) const
+{ // Overridden from _CIkElement_
+    _CIkElement_::_setMinLinearPrecision_send(f);
+
+    // Synchronize with IK plugin:
+    if (_ikElementPluginCounterpartHandle!=-1)
+        CPluginContainer::ikPlugin_setIkElementPrecision(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,f,_minAngularPrecision);
+}
+
+void CIkElement::_setMinAngularPrecision_send(float f) const
+{ // Overridden from _CIkElement_
+    _CIkElement_::_setMinAngularPrecision_send(f);
+
+    // Synchronize with IK plugin:
+    if (_ikElementPluginCounterpartHandle!=-1)
+        CPluginContainer::ikPlugin_setIkElementPrecision(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,_minLinearPrecision,f);
+}
+
+void CIkElement::_setPositionWeight_send(float f) const
+{ // Overridden from _CIkElement_
+    _CIkElement_::_setPositionWeight_send(f);
+
+    // Synchronize with IK plugin:
+    if (_ikElementPluginCounterpartHandle!=-1)
+        CPluginContainer::ikPlugin_setIkElementWeights(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,f,_orientationWeight);
+}
+
+void CIkElement::_setOrientationWeight_send(float f) const
+{ // Overridden from _CIkElement_
+    _CIkElement_::_setOrientationWeight_send(f);
+
+    // Synchronize with IK plugin:
+    if (_ikElementPluginCounterpartHandle!=-1)
+        CPluginContainer::ikPlugin_setIkElementWeights(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,_positionWeight,f);
+}
+
+void CIkElement::_setConstraints_send(int c) const
+{ // Overridden from _CIkElement_
+    _CIkElement_::_setConstraints_send(c);
+
+    // Synchronize with IK plugin:
+    if (_ikElementPluginCounterpartHandle!=-1)
+        CPluginContainer::ikPlugin_setIkElementConstraints(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,c);
+}
+
+std::string CIkElement::getTipLoadName() const
+{
+    return(_tipLoadName);
+}
+
+std::string CIkElement::getBaseLoadName() const
+{
+    return(_baseLoadName);
+}
+
+std::string CIkElement::getAltBaseLoadName() const
+{
+    return(_altBaseLoadName);
+}
+
+void CIkElement::setIkGroupPluginCounterpartHandle(int h)
+{
+    _ikGroupPluginCounterpartHandle=h;
+}
+
+int CIkElement::getIkPluginCounterpartHandle() const
+{
+    return(_ikElementPluginCounterpartHandle);
+}
+
+void CIkElement::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting)
+{ // Overridden from CSyncObject
+    if (setObjectCanSync(true))
+    {
+        // Set routing:
+        SSyncRoute r;
+        r.objHandle=_objectHandle;
+        r.objType=sim_syncobj_ikelement;
+        setSyncMsgRouting(parentRouting,r);
+
+        // Build remote IK element:
+        sendInt32(_tipHandle,sim_syncobj_ikelement_create);
+
+        // Build remote IK element in IK plugin:
+        int counterpartHandle=-1;
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_tipHandle);
+        if (it!=nullptr)
+            counterpartHandle=it->getIkPluginCounterpartHandle();
+        _ikElementPluginCounterpartHandle=CPluginContainer::ikPlugin_addIkElement(_ikGroupPluginCounterpartHandle,counterpartHandle);
+
+        // Update remote IK element:
+        _setEnabled_send(_enabled);
+        _setBase_send(_baseHandle);
+        _setAlternativeBaseForConstraints_send(_constraintBaseHandle);
+        _setMinLinearPrecision_send(_minLinearPrecision);
+        _setMinAngularPrecision_send(_minAngularPrecision);
+        _setPositionWeight_send(_positionWeight);
+        _setOrientationWeight_send(_orientationWeight);
+        _setConstraints_send(_constraints);
+    }
+}
+
+void CIkElement::connectSynchronizationObject()
+{ // Overridden from CSyncObject
+    if (getObjectCanSync())
+    {
+    }
+}
+
+void CIkElement::removeSynchronizationObject(bool localReferencesToItOnly)
+{ // Overridden from CSyncObject
+    if (getObjectCanSync())
+    {
+        setObjectCanSync(false);
+
+        if (!localReferencesToItOnly)
+        {
+            // Delete remote IK element:
+            sendVoid(sim_syncobj_ikelement_delete);
+
+            // Synchronize with IK plugin:
+            if ( (_ikGroupPluginCounterpartHandle!=-1)&&(_ikElementPluginCounterpartHandle!=-1) )
+                CPluginContainer::ikPlugin_eraseIkElement(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle);
+        }
+    }
+    // IK plugin part:
+    _ikGroupPluginCounterpartHandle=-1;
+    _ikElementPluginCounterpartHandle=-1;
+}
+
+#ifdef SUPPORT_OLD_IK
 void CIkElement::checkIfWithinTolerance(bool& position,bool& orientation,bool useTempValues)
 { // OLD_IK_FUNC:
     position=true;
@@ -656,13 +843,13 @@ void CIkElement::getError(const C4X4Matrix& m1,const C4X4Matrix& m2,float err[2]
     C3Vector p(m1.X-m2.X);
 
     float xConstr=0.0f;
-    if (xC) 
+    if (xC)
         xConstr=1.0f;
     float yConstr=0.0f;
-    if (yC) 
+    if (yC)
         yConstr=1.0f;
     float zConstr=0.0f;
-    if (zC) 
+    if (zC)
         zConstr=1.0f;
     err[0]=sqrtf(p(0)*p(0)*xConstr+p(1)*p(1)*yConstr+p(2)*p(2)*zConstr);
 
@@ -684,185 +871,4 @@ void CIkElement::getError(const C4X4Matrix& m1,const C4X4Matrix& m2,float err[2]
     else
         err[1]=0.0f; // No orientation constraints!
 }
-
-void CIkElement::_setEnabled_send(bool e) const
-{ // Overridden from _CIkElement_
-    _CIkElement_::_setEnabled_send(e);
-
-    // Synchronize with IK plugin:
-    if (_ikElementPluginCounterpartHandle!=-1)
-    {
-        int flags=0;
-        if (e)
-            flags=flags|1;
-        CPluginContainer::ikPlugin_setIkElementFlags(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,flags);
-    }
-}
-
-void CIkElement::_setBase_send(int h) const
-{ // Overridden from _CIkElement_
-    _CIkElement_::_setBase_send(h);
-
-    // Synchronize with IK plugin:
-    if (_ikElementPluginCounterpartHandle!=-1)
-    {
-        int bh=-1;
-        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(h);
-        if (obj!=nullptr)
-            bh=obj->getIkPluginCounterpartHandle();
-        int abh=-1;
-        obj=App::currentWorld->sceneObjects->getObjectFromHandle(_constraintBaseHandle);
-        if (obj!=nullptr)
-            abh=obj->getIkPluginCounterpartHandle();
-        CPluginContainer::ikPlugin_setIkElementBase(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,bh,abh);
-    }
-}
-
-void CIkElement::_setAlternativeBaseForConstraints_send(int h) const
-{ // Overridden from _CIkElement_
-    _CIkElement_::_setAlternativeBaseForConstraints_send(h);
-
-    // Synchronize with IK plugin:
-    if (_ikElementPluginCounterpartHandle!=-1)
-    {
-        int bh=-1;
-        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(_baseHandle);
-        if (obj!=nullptr)
-            bh=obj->getIkPluginCounterpartHandle();
-        int abh=-1;
-        obj=App::currentWorld->sceneObjects->getObjectFromHandle(h);
-        if (obj!=nullptr)
-            abh=obj->getIkPluginCounterpartHandle();
-        CPluginContainer::ikPlugin_setIkElementBase(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,bh,abh);
-    }
-}
-
-void CIkElement::_setMinLinearPrecision_send(float f) const
-{ // Overridden from _CIkElement_
-    _CIkElement_::_setMinLinearPrecision_send(f);
-
-    // Synchronize with IK plugin:
-    if (_ikElementPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setIkElementPrecision(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,f,_minAngularPrecision);
-}
-
-void CIkElement::_setMinAngularPrecision_send(float f) const
-{ // Overridden from _CIkElement_
-    _CIkElement_::_setMinAngularPrecision_send(f);
-
-    // Synchronize with IK plugin:
-    if (_ikElementPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setIkElementPrecision(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,_minLinearPrecision,f);
-}
-
-void CIkElement::_setPositionWeight_send(float f) const
-{ // Overridden from _CIkElement_
-    _CIkElement_::_setPositionWeight_send(f);
-
-    // Synchronize with IK plugin:
-    if (_ikElementPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setIkElementWeights(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,f,_orientationWeight);
-}
-
-void CIkElement::_setOrientationWeight_send(float f) const
-{ // Overridden from _CIkElement_
-    _CIkElement_::_setOrientationWeight_send(f);
-
-    // Synchronize with IK plugin:
-    if (_ikElementPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setIkElementWeights(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,_positionWeight,f);
-}
-
-void CIkElement::_setConstraints_send(int c) const
-{ // Overridden from _CIkElement_
-    _CIkElement_::_setConstraints_send(c);
-
-    // Synchronize with IK plugin:
-    if (_ikElementPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setIkElementConstraints(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,c);
-}
-
-std::string CIkElement::getTipLoadName() const
-{
-    return(_tipLoadName);
-}
-
-std::string CIkElement::getBaseLoadName() const
-{
-    return(_baseLoadName);
-}
-
-std::string CIkElement::getAltBaseLoadName() const
-{
-    return(_altBaseLoadName);
-}
-
-void CIkElement::setIkGroupPluginCounterpartHandle(int h)
-{
-    _ikGroupPluginCounterpartHandle=h;
-}
-
-int CIkElement::getIkPluginCounterpartHandle() const
-{
-    return(_ikElementPluginCounterpartHandle);
-}
-
-void CIkElement::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting)
-{ // Overridden from CSyncObject
-    if (setObjectCanSync(true))
-    {
-        // Set routing:
-        SSyncRoute r;
-        r.objHandle=_objectHandle;
-        r.objType=sim_syncobj_ikelement;
-        setSyncMsgRouting(parentRouting,r);
-
-        // Build remote IK element:
-        sendInt32(_tipHandle,sim_syncobj_ikelement_create);
-
-        // Build remote IK element in IK plugin:
-        int counterpartHandle=-1;
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_tipHandle);
-        if (it!=nullptr)
-            counterpartHandle=it->getIkPluginCounterpartHandle();
-        _ikElementPluginCounterpartHandle=CPluginContainer::ikPlugin_addIkElement(_ikGroupPluginCounterpartHandle,counterpartHandle);
-
-        // Update remote IK element:
-        _setEnabled_send(_enabled);
-        _setBase_send(_baseHandle);
-        _setAlternativeBaseForConstraints_send(_constraintBaseHandle);
-        _setMinLinearPrecision_send(_minLinearPrecision);
-        _setMinAngularPrecision_send(_minAngularPrecision);
-        _setPositionWeight_send(_positionWeight);
-        _setOrientationWeight_send(_orientationWeight);
-        _setConstraints_send(_constraints);
-    }
-}
-
-void CIkElement::connectSynchronizationObject()
-{ // Overridden from CSyncObject
-    if (getObjectCanSync())
-    {
-    }
-}
-
-void CIkElement::removeSynchronizationObject(bool localReferencesToItOnly)
-{ // Overridden from CSyncObject
-    if (getObjectCanSync())
-    {
-        setObjectCanSync(false);
-
-        if (!localReferencesToItOnly)
-        {
-            // Delete remote IK element:
-            sendVoid(sim_syncobj_ikelement_delete);
-
-            // Synchronize with IK plugin:
-            if ( (_ikGroupPluginCounterpartHandle!=-1)&&(_ikElementPluginCounterpartHandle!=-1) )
-                CPluginContainer::ikPlugin_eraseIkElement(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle);
-        }
-    }
-    // IK plugin part:
-    _ikGroupPluginCounterpartHandle=-1;
-    _ikElementPluginCounterpartHandle=-1;
-}
+#endif

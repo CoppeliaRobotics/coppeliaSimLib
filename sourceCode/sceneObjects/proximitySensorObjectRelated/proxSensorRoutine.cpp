@@ -278,7 +278,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
     if (d>dist)
         return(-1);
 
-    shape->initializeCalculationStructureIfNeeded();
+    shape->initializeMeshCalculationStructureIfNeeded();
 
     int retVal=-1;
 
@@ -311,7 +311,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
             float _maxAngle=0.0f;
             if (angleLimitation)
                 _maxAngle=maxAngle;
-            bool result=CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(lp,lvFar,shape->geomData->collInfo,shapeITr,distTmp,sensor->convexVolume->getSmallestDistanceAllowed(),!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPtTmp,&triNormalNotNormalizedTmp,closeDetectionTriggered);
+            bool result=CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(lp,lvFar,shape->_meshCalculationStructure,shapeITr,distTmp,sensor->convexVolume->getSmallestDistanceAllowed(),!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPtTmp,&triNormalNotNormalizedTmp,closeDetectionTriggered);
             if ((closeDetectionTriggered!=nullptr)&&closeDetectionTriggered[0])
             { // We triggered the sensor in the forbiden zone
                 normalDetectionCnt=0;
@@ -349,7 +349,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
             float _maxAngle=0.0f;
             if (angleLimitation)
                 _maxAngle=maxAngle;
-            bool result=CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(lp,lvFar,shape->geomData->collInfo,shapeITr,dist,sensor->convexVolume->getSmallestDistanceAllowed(),!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized,closeDetectionTriggered);
+            bool result=CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(lp,lvFar,shape->_meshCalculationStructure,shapeITr,dist,sensor->convexVolume->getSmallestDistanceAllowed(),!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized,closeDetectionTriggered);
             if ((closeDetectionTriggered!=nullptr)&&closeDetectionTriggered[0])
                 retVal=-2; // We triggered the sensor in the forbiden zone: to inform the calling routine, we do following:
             else
@@ -363,7 +363,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
             float _maxAngle=0.0f;
             if (angleLimitation)
                 _maxAngle=maxAngle;
-            if (CPluginContainer::geomPlugin_volumeSensorDetectMeshIfSmaller(sensor->convexVolume->planesInside,sensor->convexVolume->planesOutside,shape->geomData->collInfo,shapeITr,dist,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized))
+            if (CPluginContainer::geomPlugin_volumeSensorDetectMeshIfSmaller(sensor->convexVolume->planesInside,sensor->convexVolume->planesOutside,shape->_meshCalculationStructure,shapeITr,dist,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized))
             {
                 if (sensor->convexVolume->getSmallestDistanceEnabled())
                 {
@@ -567,7 +567,7 @@ float CProxSensorRoutine::_getApproxPointObjectBoundingBoxDistance(const C3Vecto
 
     if (obj->getObjectType()==sim_object_shape_type)
     {
-        halfSize=((CShape*)obj)->geomData->getBoundingBoxHalfSizes();
+        halfSize=((CShape*)obj)->getBoundingBoxHalfSizes();
         tr=obj->getFullCumulativeTransformation();
     }
     if (obj->getObjectType()==sim_object_dummy_type)
@@ -597,7 +597,7 @@ bool CProxSensorRoutine::_doesSensorVolumeOverlapWithObjectBoundingBox(CProxSens
 
     if (obj->getObjectType()==sim_object_shape_type)
     {
-        objectHalfSize=((CShape*)obj)->geomData->getBoundingBoxHalfSizes();
+        objectHalfSize=((CShape*)obj)->getBoundingBoxHalfSizes();
         objectTr=obj->getFullCumulativeTransformation();
     }
     if (obj->getObjectType()==sim_object_dummy_type)

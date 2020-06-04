@@ -53,20 +53,17 @@ void CAuxLibVideo::loadLibrary(bool headless)
             if ( (!App::userSettings->doNotShowVideoCompressionLibraryLoadError)&&(!App::userSettings->suppressStartupDialogs) )
                 App::appendSimulationThreadCommand(cmd,5000);
             else
-                App::addStatusbarMessage(cmd.stringParams[1].c_str());
-            if (App::getConsoleVerbosity()>=sim_verbosity_errors)
-            {
-                std::string msg("could not find or correctly load the video compression library.");
-                #ifdef LIN_SIM
-                msg+="\n    Try following:";
-                msg+="\n";
-                msg+="\n    >sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev";
-                msg+="\n    if above fails, try first:";
-                msg+="\n    >sudo apt-get -f install";
-                msg+="\n";
-                #endif
-                App::logMsg(sim_verbosity_errors,msg.c_str());
-            }
+                App::logMsg(sim_verbosity_errors,cmd.stringParams[1].c_str());
+            std::string msg("could not find or correctly load the video compression library.");
+            #ifdef LIN_SIM
+            msg+="\n    Try following:";
+            msg+="\n";
+            msg+="\n    >sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev";
+            msg+="\n    if above fails, try first:";
+            msg+="\n    >sudo apt-get -f install";
+            msg+="\n";
+            #endif
+            App::logMsg(sim_verbosity_errors,msg.c_str());
         }
     }
     else

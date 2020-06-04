@@ -1,9 +1,7 @@
-
 #pragma once
 
 #include "sceneObject.h"
 #include "pathCont.h"
-#include "geomProxy.h"
 
 class CPath : public CSceneObject  
 {
@@ -63,7 +61,7 @@ public:
     int getShapingType();
     void setShapingThroughConvexHull(bool c);
     bool getShapingThroughConvexHull();
-    bool getShape(CGeomProxy* geomObj[1],CShape* shapeObj[1]);
+    CShape* getShape() const;
 
     void setShapingScaling(float s);
     float getShapingScaling() const;

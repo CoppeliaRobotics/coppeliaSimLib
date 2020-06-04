@@ -3,7 +3,7 @@
 #include "tt.h"
 #include "gV.h"
 #include "qdlgmaterial.h"
-#include "geometric.h"
+#include "mesh.h"
 #include "qdlgtextures.h"
 #include "qdlggeometry.h"
 #include "qdlgshapedyn.h"
@@ -75,12 +75,12 @@ void CQDlgShapes::refresh()
 
     if (ssel)
     {
-        ui->qqShadingAngle->setText(tt::getAngleFString(false,((CGeometric*)it->geomData->geomInfo)->getGouraudShadingAngle(),1).c_str());
-        ui->qqEdgesAngle->setText(tt::getAngleFString(false,((CGeometric*)it->geomData->geomInfo)->getEdgeThresholdAngle(),1).c_str());
-        ui->qqBackfaceCulling->setChecked(((CGeometric*)it->geomData->geomInfo)->getCulling());
-        ui->qqWireframe->setChecked(((CGeometric*)it->geomData->geomInfo)->getWireframe());
-        ui->qqShowEdges->setChecked(((CGeometric*)it->geomData->geomInfo)->getVisibleEdges());
-        ui->qqHiddenBorder->setChecked(((CGeometric*)it->geomData->geomInfo)->getHideEdgeBorders());
+        ui->qqShadingAngle->setText(tt::getAngleFString(false,it->getSingleMesh()->getGouraudShadingAngle(),1).c_str());
+        ui->qqEdgesAngle->setText(tt::getAngleFString(false,it->getSingleMesh()->getEdgeThresholdAngle(),1).c_str());
+        ui->qqBackfaceCulling->setChecked(it->getSingleMesh()->getCulling());
+        ui->qqWireframe->setChecked(it->getSingleMesh()->getWireframe());
+        ui->qqShowEdges->setChecked(it->getSingleMesh()->getVisibleEdges());
+        ui->qqHiddenBorder->setChecked(it->getSingleMesh()->getHideEdgeBorders());
     }
     else
     {

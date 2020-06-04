@@ -48,9 +48,11 @@ public:
 
     void setAllInvolvedJointsToNewJointMode(int jointMode) const;
 
-    int computeGroupIk(bool forMotionPlanning);
+    int computeGroupIk(bool independentComputation);
+    int getConfigForTipPose(int jointCnt,const int* jointHandles,float thresholdDist,int maxTimeInMs,float* retConfig,const float* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const float* lowLimits,const float* ranges,std::string& errorMsg);
+    int checkIkGroup(int jointCnt,const int* jointHandles,float* jointValues,const int* jointOptions);
+    int generateIkPath(int jointCnt,const int* jointHandles,int ptCnt,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,std::vector<float>& path);
 
-    // OLD_IK_FUNC:
     bool computeOnlyJacobian(int options);
     float* getLastJacobianData(int matrixSize[2]);
     float* getLastManipulabilityValue(int matrixSize[2]);
@@ -59,6 +61,8 @@ protected:
     // Overridden from _CIkGroup_:
     void _addIkElement(CIkElement* anElement);
     void _removeIkElement(int ikElementHandle);
+
+    float _getDeterminant(const CMatrix& m,const std::vector<int>* activeRows,const std::vector<int>* activeColumns) const;
 
 private:
     // Overridden from _CIkGroup_:
@@ -72,13 +76,15 @@ private:
 
     void _setLastJacobian(CMatrix* j);
 
-    // OLD_IK_FUNC:
-    int _computeGroupIk(bool forMotionPlanning,bool& applyNewValues);
-    float _getDeterminant(const CMatrix& m,const std::vector<int>* activeRows,const std::vector<int>* activeColumns) const;
+#ifdef SUPPORT_OLD_IK
+    bool _computeOnlyJacobian(int options);
+    int _getConfigForTipPose(int jointCnt,const int* jointHandles,float thresholdDist,int maxTimeInMs,float* retConfig,const float* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const float* lowLimits,const float* ranges);
+    int _computeGroupIk(bool independentComputation,bool& applyNewValues);
     void _resetTemporaryParameters();
     void _applyTemporaryParameters();
-    int performOnePass(std::vector<CIkElement*>* validElements,bool& limitOrAvoidanceNeedMoreCalculation,float interpolFact,bool forMotionPlanning);
+    int performOnePass(std::vector<CIkElement*>* validElements,bool& limitOrAvoidanceNeedMoreCalculation,float interpolFact,bool independentComputation);
     bool performOnePass_jacobianOnly(std::vector<CIkElement*>* validElements,int options);
+#endif
 
     std::string _uniquePersistentIdString;
     int _ikPluginCounterpartHandle;

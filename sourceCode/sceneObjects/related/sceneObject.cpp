@@ -18,7 +18,7 @@
 #include "sceneObject.h"
 #include "dummy.h"
 #include "global.h"
-#include "libLic.h"
+#include "simFlavor.h"
 #include "base64.h"
 #include <boost/algorithm/string.hpp>
 #include "pluginContainer.h"
@@ -531,7 +531,7 @@ int CSceneObject::getTreeDynamicProperty() // combination of sim_objdynprop_dyna
 int CSceneObject::getModelSelectionHandle(bool firstObject)
 { // firstObject is true by default
 #ifdef SIM_WITH_GUI
-    if (CLibLic::getBoolVal(9))
+    if (CSimFlavor::getBoolVal(9))
     {
         if ( (App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1)&&(App::mainWindow->getKeyDownState()&2) )
             return(getObjectHandle());
@@ -2706,7 +2706,7 @@ void CSceneObject::performObjectLoadingMapping(const std::vector<int>* map,bool 
 
 std::string CSceneObject::getDisplayName() const
 {
-    if (CLibLic::getBoolVal(8))
+    if (CSimFlavor::getBoolVal(8))
         return(_objectAltName);
     return(_objectName);
 }

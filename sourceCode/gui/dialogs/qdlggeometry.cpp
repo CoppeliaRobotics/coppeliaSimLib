@@ -2,7 +2,7 @@
 #include "ui_qdlggeometry.h"
 #include "tt.h"
 #include "gV.h"
-#include "geometric.h"
+#include "mesh.h"
 #include "simStringTable.h"
 #include "app.h"
 #include "vMessageBox.h"
@@ -36,7 +36,7 @@ void CQDlgGeometry::refresh()
     CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle);
     if (shape==nullptr)
         return;
-    bool g=!shape->geomData->geomInfo->isGeometric();
+    bool g=!shape->getMeshWrapper()->isMesh();
 
     ui->qqSizeX->setEnabled(noEditModeNoSim);
     ui->qqSizeY->setEnabled(noEditModeNoSim);
@@ -56,7 +56,7 @@ void CQDlgGeometry::refresh()
     ui->qqAlpha->setText(tt::getAngleFString(true,rotationVal[0],2).c_str());
     ui->qqBeta->setText(tt::getAngleFString(true,rotationVal[1],2).c_str());
     ui->qqGamma->setText(tt::getAngleFString(true,rotationVal[2],2).c_str());
-    bool canScaleFreely=(!g)&&(shape->geomData->geomInfo->getPurePrimitiveType()!=sim_pure_primitive_spheroid);
+    bool canScaleFreely=(!g)&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_pure_primitive_spheroid);
     ui->qqKeepProp->setChecked(keepProp||(!canScaleFreely));
     ui->qqKeepProp->setEnabled(canScaleFreely&&noEditModeNoSim);
     ui->qqAlpha->setEnabled(((!isPureShape)||g)&&noEditModeNoSim);
@@ -70,19 +70,19 @@ void CQDlgGeometry::refresh()
             shapeTypeText=IDSN_PURE_COMPOUND_SHAPE;
         else
         {
-            if (shape->geomData->geomInfo->getPurePrimitiveType()==sim_pure_primitive_heightfield)
+            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_heightfield)
                 shapeTypeText=IDSN_HEIGHTFIELD_SHAPE;
-            if (shape->geomData->geomInfo->getPurePrimitiveType()==sim_pure_primitive_plane)
+            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_plane)
                 shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_PLANE_;
-            if (shape->geomData->geomInfo->getPurePrimitiveType()==sim_pure_primitive_disc)
+            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_disc)
                 shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_DISC_;
-            if (shape->geomData->geomInfo->getPurePrimitiveType()==sim_pure_primitive_cuboid)
+            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_cuboid)
                 shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_CUBOID_;
-            if (shape->geomData->geomInfo->getPurePrimitiveType()==sim_pure_primitive_spheroid)
+            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_spheroid)
                 shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_SPHEROID_;
-            if (shape->geomData->geomInfo->getPurePrimitiveType()==sim_pure_primitive_cylinder)
+            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_cylinder)
                 shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_CYLINDER_;
-            if (shape->geomData->geomInfo->getPurePrimitiveType()==sim_pure_primitive_cone)
+            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_cone)
                 shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_CONE_;
         }
     }
@@ -141,12 +141,12 @@ void CQDlgGeometry::_initialize(int shapeHandle)
         titleText+="'";
         std::vector<float> wvert;
         std::vector<int> wind;
-        shape->geomData->geomInfo->getCumulativeMeshes(wvert,&wind,nullptr);
+        shape->getMeshWrapper()->getCumulativeMeshes(wvert,&wind,nullptr);
         vertexCount=(int)wvert.size()/3;
         triangleCount=(int)wind.size()/3;
-        isPureShape=shape->geomData->geomInfo->isPure();
-        isConvex=shape->geomData->geomInfo->isConvex();
-        isGroup=!shape->geomData->geomInfo->isGeometric();
+        isPureShape=shape->getMeshWrapper()->isPure();
+        isConvex=shape->getMeshWrapper()->isConvex();
+        isGroup=!shape->getMeshWrapper()->isMesh();
     }
     insideRefreshTriggered=true;
     refresh();
@@ -157,7 +157,7 @@ void CQDlgGeometry::_setCurrentSizes()
     CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle);
     if (shape!=nullptr)
     {
-        C3Vector bbhalfSizes(shape->geomData->getBoundingBoxHalfSizes());
+        C3Vector bbhalfSizes(shape->getBoundingBoxHalfSizes());
         sizeVal[0]=2.0f*bbhalfSizes(0);
         sizeVal[1]=2.0f*bbhalfSizes(1);
         sizeVal[2]=2.0f*bbhalfSizes(2);
@@ -214,7 +214,7 @@ void CQDlgGeometry::_readSize(int index)
             newVal=tt::getLimitedFloat(0.0001f,1000.0f,newVal);
             float sc=1.0f;
 
-            C3Vector bbhalfSizes(shape->geomData->getBoundingBoxHalfSizes());
+            C3Vector bbhalfSizes(shape->getBoundingBoxHalfSizes());
 
             if ((sizeVal[index]!=0.0f)&&(bbhalfSizes(index)!=0.0f)) // imagine we have a plane that has dims x*y*0!
 
@@ -231,12 +231,12 @@ void CQDlgGeometry::_readSize(int index)
                 sizeVal[index]=newVal;
             }
 
-            if (shape->geomData->geomInfo->isGeometric()&&(shape->geomData->geomInfo->getPurePrimitiveType()!=sim_pure_primitive_spheroid))
+            if (shape->getMeshWrapper()->isMesh()&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_pure_primitive_spheroid))
             {
-                if ( (shape->geomData->geomInfo->getPurePrimitiveType()==sim_pure_primitive_disc)||
-                    (shape->geomData->geomInfo->getPurePrimitiveType()==sim_pure_primitive_cylinder)||
-                    (shape->geomData->geomInfo->getPurePrimitiveType()==sim_pure_primitive_cone)||
-                    (shape->geomData->geomInfo->getPurePrimitiveType()==sim_pure_primitive_heightfield) )
+                if ( (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_disc)||
+                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_cylinder)||
+                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_cone)||
+                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_heightfield) )
                 {
                     if (index==0)
                         sizeVal[1]=sizeVal[0];
@@ -281,7 +281,7 @@ void CQDlgGeometry::_readScaling(int index)
         float newVal=ww[index]->text().toFloat(&ok);
         if (!keepProp)
         { // imagine we have a plane that has dims x*y*0!
-            C3Vector bbhalfSizes(shape->geomData->getBoundingBoxHalfSizes());
+            C3Vector bbhalfSizes(shape->getBoundingBoxHalfSizes());
             if (bbhalfSizes(index)==0.0f)
                 newVal=1.0f;
         }
@@ -303,12 +303,12 @@ void CQDlgGeometry::_readScaling(int index)
             else
                 scaleVal[index]=newVal;
 
-            if (shape->geomData->geomInfo->isGeometric()&&(shape->geomData->geomInfo->getPurePrimitiveType()!=sim_pure_primitive_spheroid))
+            if (shape->getMeshWrapper()->isMesh()&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_pure_primitive_spheroid))
             {
-                if ( (shape->geomData->geomInfo->getPurePrimitiveType()==sim_pure_primitive_disc)||
-                    (shape->geomData->geomInfo->getPurePrimitiveType()==sim_pure_primitive_cylinder)||
-                    (shape->geomData->geomInfo->getPurePrimitiveType()==sim_pure_primitive_cone)||
-                    (shape->geomData->geomInfo->getPurePrimitiveType()==sim_pure_primitive_heightfield) )
+                if ( (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_disc)||
+                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_cylinder)||
+                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_cone)||
+                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_heightfield) )
                 {
                     if (index==0)
                         scaleVal[1]=scaleVal[0];

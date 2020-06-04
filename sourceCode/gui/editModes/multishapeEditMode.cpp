@@ -1,11 +1,11 @@
 
 #include "multishapeEditMode.h"
-#include "geometric.h"
+#include "mesh.h"
 
 CMultishapeEditMode::CMultishapeEditMode(CShape* shape)
 {
     _shape=shape;
-    _shape->geomData->geomInfo->getAllShapeComponentsCumulative(_multishapeGeometricComponents);
+    _shape->getMeshWrapper()->getAllShapeComponentsCumulative(_multishapeGeometricComponents);
     _multishapeGeometricComponentIndex=-1;
 }
 
@@ -43,17 +43,17 @@ bool CMultishapeEditMode::isCurrentMultishapeGeometricComponentValid()
     return((_multishapeGeometricComponentIndex>=0)&&(_multishapeGeometricComponentIndex<int(_multishapeGeometricComponents.size())));
 }
 
-CGeometric* CMultishapeEditMode::getCurrentMultishapeGeometricComponent()
+CMesh* CMultishapeEditMode::getCurrentMultishapeGeometricComponent()
 {
     return(_multishapeGeometricComponents[_multishapeGeometricComponentIndex]);
 }
 
-CGeometric* CMultishapeEditMode::getMultishapeGeometricComponentAtIndex(int index)
+CMesh* CMultishapeEditMode::getMultishapeGeometricComponentAtIndex(int index)
 {
     return(_multishapeGeometricComponents[index]);
 }
 
-void CMultishapeEditMode::displayAllGeometricComponents(CGeomProxy* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling)
+void CMultishapeEditMode::displayAllGeometricComponents(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling)
 {
     for (int i=0;i<int(_multishapeGeometricComponents.size());i++)
         _multishapeGeometricComponents[i]->display(geomData,displayAttrib,collisionColor,dynObjFlag_forVisualization,transparencyHandling,i==_multishapeGeometricComponentIndex);

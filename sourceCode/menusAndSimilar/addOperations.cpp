@@ -3,10 +3,10 @@
 #include "tt.h"
 #include "meshRoutines.h"
 #include "sceneObjectOperations.h"
-#include "libLic.h"
+#include "simFlavor.h"
 #include "app.h"
 #include "meshManip.h"
-#include "geometric.h"
+#include "mesh.h"
 #include "simStrings.h"
 #include <boost/lexical_cast.hpp>
 
@@ -29,7 +29,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::addStatusbarMessage(IDSNS_ADDING_A_PRIMITIVE_SHAPE);
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_PRIMITIVE_SHAPE);
 
             CShape* newShape=addPrimitive_withDialog(commandID,nullptr);
             int shapeHandle=-1;
@@ -40,10 +40,10 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 App::currentWorld->sceneObjects->deselectObjects();
                 App::currentWorld->sceneObjects->selectObject(shapeHandle);
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                App::addStatusbarMessage(IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
             else
-                App::addStatusbarMessage(IDSNS_OPERATION_ABORTED);
+                App::logMsg(sim_verbosity_msgs,IDSNS_OPERATION_ABORTED);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -68,10 +68,10 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                     val=1;
                 if ((graph!=nullptr)&&(subView->getTrackedGraphCurveIndex()!=-1))
                 {
-                    App::addStatusbarMessage(IDSNS_ADDING_STATIC_DUPLICATE_OF_CURVE);
+                    App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_STATIC_DUPLICATE_OF_CURVE);
                     graph->makeCurveStatic(subView->getTrackedGraphCurveIndex(),val);
                     POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                    App::addStatusbarMessage(IDSNS_DONE);
+                    App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
                 }
             }
             else
@@ -98,9 +98,9 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 val=1;
             if ((graph!=nullptr)&&(subView->getTrackedGraphCurveIndex()!=-1))
             {
-                App::addStatusbarMessage(IDSNS_CURVE_DATA_COPIED_TO_CLIPBOARD);
+                App::logMsg(sim_verbosity_msgs,IDSNS_CURVE_DATA_COPIED_TO_CLIPBOARD);
                 graph->copyCurveToClipboard(subView->getTrackedGraphCurveIndex(),val);
-                App::addStatusbarMessage(IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
         }
 #endif
@@ -110,12 +110,12 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::addStatusbarMessage(IDSNS_ADDING_A_FLOATING_VIEW);
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_FLOATING_VIEW);
 #ifdef SIM_WITH_GUI
             App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex())->addFloatingView();
 #endif
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::addStatusbarMessage(IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -130,7 +130,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::addStatusbarMessage(IDSNS_ADDING_A_JOINT);
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_JOINT);
             CJoint* newObject=nullptr;
             if (commandID==ADD_COMMANDS_ADD_REVOLUTE_JOINT_ACCMD)
                 newObject=new CJoint(sim_joint_revolute_subtype);
@@ -141,7 +141,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::addStatusbarMessage(IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -167,14 +167,14 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             CLight* myNewLight=nullptr;
             if (commandID==ADD_COMMANDS_ADD_CAMERA_ACCMD)
             {
-                App::addStatusbarMessage(IDSNS_ADDING_A_CAMERA);
+                App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_CAMERA);
                 myNewCamera=new CCamera();
                 App::currentWorld->sceneObjects->addObjectToScene(myNewCamera,false,true);
-                App::addStatusbarMessage(IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
             else
             {
-                App::addStatusbarMessage(IDSNS_ADDING_A_LIGHT);
+                App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_LIGHT);
                 int tp;
                 if (commandID==ADD_COMMANDS_ADD_OMNI_LIGHT_ACCMD)
                     tp=sim_light_omnidirectional_subtype;
@@ -184,7 +184,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                     tp=sim_light_directional_subtype;
                 myNewLight=new CLight(tp);
                 App::currentWorld->sceneObjects->addObjectToScene(myNewLight,false,true);
-                App::addStatusbarMessage(IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
             CSceneObject* addedObject=myNewCamera;
             if (addedObject==nullptr)
@@ -236,14 +236,14 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::addStatusbarMessage(IDSNS_ADDING_A_MIRROR);
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_MIRROR);
             CMirror* newObject=new CMirror();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(newObject->getObjectHandle(),C3Vector(piValD2_f,0.0f,0.0f));
             App::currentWorld->sceneObjects->setObjectAbsolutePosition(newObject->getObjectHandle(),C3Vector(0.0f,0.0f,newObject->getMirrorHeight()*0.5f));
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::addStatusbarMessage(IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -257,12 +257,12 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::addStatusbarMessage(IDSNS_ADDING_A_DUMMY);
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_DUMMY);
             CDummy* newObject=new CDummy();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::addStatusbarMessage(IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -276,12 +276,12 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::addStatusbarMessage(IDSNS_ADDING_AN_OCTREE);
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_AN_OCTREE);
             COctree* newObject=new COctree();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::addStatusbarMessage(IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -295,7 +295,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::addStatusbarMessage(IDSNS_ADDING_A_POINTCLOUD);
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_POINTCLOUD);
             CPointCloud* newObject=new CPointCloud();
 /*
             std::vector<float> v;
@@ -313,7 +313,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::addStatusbarMessage(IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -327,7 +327,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::addStatusbarMessage(IDSNS_ADDING_A_PATH);
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_PATH);
             CPath* newObject=new CPath();
             CSimplePathPoint* it=new CSimplePathPoint();
             C7Vector trtmp(it->getTransformation());
@@ -346,7 +346,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 atr-=sim_pathproperty_endpoints_at_zero_deprecated;
             newObject->pathContainer->setAttributes(atr);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::addStatusbarMessage(IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -439,7 +439,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::addStatusbarMessage(IDSNS_ADDING_A_PATH);
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_PATH);
             CPath* newObject=new CPath();
             CSimplePathPoint* it=nullptr;
             float a=0.0f;
@@ -460,7 +460,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::addStatusbarMessage(IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -474,7 +474,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::addStatusbarMessage(IDSNS_ADDING_A_GRAPH);
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_GRAPH);
             CGraph* newObject=new CGraph();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
 
@@ -486,7 +486,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
 
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::addStatusbarMessage(IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -500,14 +500,14 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::addStatusbarMessage(IDSNS_ADDING_A_VISION_SENSOR);
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_VISION_SENSOR);
             CVisionSensor* newObject=new CVisionSensor();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             newObject->setLocalTransformation(C3Vector(0.0f,0.0f,newObject->getSize()(2)));
             newObject->setPerspectiveOperation(false);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::addStatusbarMessage(IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -521,14 +521,14 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::addStatusbarMessage(IDSNS_ADDING_A_VISION_SENSOR);
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_VISION_SENSOR);
             CVisionSensor* newObject=new CVisionSensor();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             newObject->setLocalTransformation(C3Vector(0.0f,0.0f,newObject->getSize()(2)));
             newObject->setPerspectiveOperation(true);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::addStatusbarMessage(IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -542,12 +542,12 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::addStatusbarMessage(IDSNS_ADDING_A_FORCE_SENSOR);
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_FORCE_SENSOR);
             CForceSensor* newObject=new CForceSensor();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::addStatusbarMessage(IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -562,7 +562,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::addStatusbarMessage(IDSNS_ADDING_A_PROXIMITY_SENSOR);
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_PROXIMITY_SENSOR);
             CProxSensor* newObject=new CProxSensor();
             int type=sim_proximitysensor_pyramid_subtype;
             if (commandID==ADD_COMMANDS_ADD_CYLINDER_PROXSENSOR_ACCMD)
@@ -581,7 +581,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::addStatusbarMessage(IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -633,7 +633,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             if (!cancel)
             {
                 App::uiThread->showOrHideProgressBar(true,-1,"Computing convex decomposed shape(s)...");
-                App::addStatusbarMessage(IDSNS_ADDING_CONVEX_DECOMPOSITION);
+                App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_CONVEX_DECOMPOSITION);
                 for (int obji=0;obji<int(sel.size());obji++)
                 {
                     CShape* oldShape=App::currentWorld->sceneObjects->getShapeFromHandle(sel[obji]);
@@ -649,11 +649,11 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                         {
                             // Get the mass and inertia info from the old shape:
                             C7Vector absCOM(oldShape->getFullCumulativeTransformation());
-                            absCOM=absCOM*oldShape->geomData->geomInfo->getLocalInertiaFrame();
-                            float mass=oldShape->geomData->geomInfo->getMass();
+                            absCOM=absCOM*oldShape->getMeshWrapper()->getLocalInertiaFrame();
+                            float mass=oldShape->getMeshWrapper()->getMass();
                             C7Vector absCOMNoShift(absCOM);
                             absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
-                            C3X3Matrix tensor(CGeomWrap::getNewTensor(oldShape->geomData->geomInfo->getPrincipalMomentsOfInertia(),absCOMNoShift));
+                            C3X3Matrix tensor(CMeshWrapper::getNewTensor(oldShape->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
 
                             // Fix the name and add the new shape to the new selection vector:
                             CShape* newShape=App::currentWorld->sceneObjects->getShapeFromHandle(newShapeHandle);
@@ -672,14 +672,14 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                             newSelection.push_back(newShapeHandle);
 
                             // Transfer the mass and inertia info to the new shape:
-                            newShape->geomData->geomInfo->setMass(mass);
+                            newShape->getMeshWrapper()->setMass(mass);
                             C4Vector rot;
                             C3Vector pmoi;
-                            CGeomWrap::findPrincipalMomentOfInertia(tensor,rot,pmoi);
-                            newShape->geomData->geomInfo->setPrincipalMomentsOfInertia(pmoi);
+                            CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,pmoi);
+                            newShape->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoi);
                             absCOM.Q=rot;
                             C7Vector relCOM(newShape->getFullCumulativeTransformation().getInverse()*absCOM);
-                            newShape->geomData->geomInfo->setLocalInertiaFrame(relCOM);
+                            newShape->getMeshWrapper()->setLocalInertiaFrame(relCOM);
                         }
                     }
                 }
@@ -690,7 +690,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 for (size_t i=0;i<newSelection.size();i++)
                     App::currentWorld->sceneObjects->addObjectToSelection(newSelection[i]);
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                App::addStatusbarMessage(IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
         }
         else
@@ -709,128 +709,33 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             std::vector<int> sel;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            std::vector<int> newSelection;
-            std::vector<int> tmp;
-            for (size_t i=0;i<sel.size();i++)
-                tmp.push_back(sel[i]);
-            CSceneObjectOperations::addRootObjectChildrenToSelection(tmp);
+            CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
 
             // Now keep only visible objects:
-            std::vector<int> rootSel;
-            for (int i=0;i<int(tmp.size());i++)
+            std::vector<CSceneObject*> inputObjects;
+            for (size_t i=0;i<sel.size();i++)
             {
-                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(tmp[i]);
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
                 if ( (it!=nullptr)&&(!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer()) )
-                    rootSel.push_back(tmp[i]);
+                    inputObjects.push_back(it);
             }
-
-
-            std::vector<float> allHullVertices;
-            allHullVertices.reserve(40000*3);
-            std::vector<bool> selectedDummies(App::currentWorld->sceneObjects->getHighestObjectHandle()+1,false);
 
             App::uiThread->showOrHideProgressBar(true,-1,"Computing convex hull...");
-            App::addStatusbarMessage(IDSNS_ADDING_CONVEX_HULL);
-            bool printQHullFail=false;
-            std::vector<CShape*> originalShapes;
-            int dummyCount=0;
-            for (int i=0;i<int(rootSel.size());i++)
-            {
-                CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(rootSel[i]);
-                if (it!=nullptr)
-                {
-                    C7Vector transf(it->getFullCumulativeTransformation());
-                    std::vector<float> vert;
-                    std::vector<float> vertD;
-                    std::vector<int> ind;
-                    it->geomData->geomInfo->getCumulativeMeshes(vertD,&ind,nullptr);
-                    originalShapes.push_back(it);
-                    for (int j=0;j<int(vertD.size())/3;j++)
-                    {
-                        C3Vector v(&vertD[3*j+0]);
-                        v=transf*v;
-                        allHullVertices.push_back(v(0));
-                        allHullVertices.push_back(v(1));
-                        allHullVertices.push_back(v(2));
-                    }
-                }
-                // here we take care of dummies
-                CDummy* dum=App::currentWorld->sceneObjects->getDummyFromHandle(rootSel[i]);
-                if (dum!=nullptr)
-                {
-                    if (!selectedDummies[dum->getObjectHandle()])
-                    {
-                        dummyCount++;
-                        C3Vector v(dum->getFullCumulativeTransformation().X);
-                        allHullVertices.push_back(v(0));
-                        allHullVertices.push_back(v(1));
-                        allHullVertices.push_back(v(2));
-                        selectedDummies[dum->getObjectHandle()]=true;
-                    }
-                }
-            }
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_CONVEX_HULL);
             App::currentWorld->sceneObjects->deselectObjects();
-            if (allHullVertices.size()!=0)
-            {
-                std::vector<float> hull;
-                std::vector<int> indices;
-                std::vector<float> normals;
-                if (CMeshRoutines::getConvexHull(&allHullVertices,&hull,&indices))
-                {
-                    CGeomProxy* geom=new CGeomProxy(nullptr,hull,indices,nullptr,nullptr);
-                    CShape* it=new CShape();
-                    it->setLocalTransformation(geom->getCreationTransformation());
-                    geom->setCreationTransformation(C7Vector::identityTransformation);
-                    it->geomData=geom;
-                    ((CGeometric*)geom->geomInfo)->setConvexVisualAttributes();
 
-                    // Set some visual parameters:
-                    ((CGeometric*)geom->geomInfo)->color.getColorsPtr()[0]=1.0f;
-                    ((CGeometric*)geom->geomInfo)->color.getColorsPtr()[1]=0.7f;
-                    ((CGeometric*)geom->geomInfo)->color.getColorsPtr()[2]=0.7f;
-                    ((CGeometric*)geom->geomInfo)->setEdgeThresholdAngle(0.0f);
-                    ((CGeometric*)geom->geomInfo)->setGouraudShadingAngle(0.0f);
-                    ((CGeometric*)geom->geomInfo)->setVisibleEdges(true);
-
-                    if ( (dummyCount==0)&&(originalShapes.size()==1) )
-                    { // Since we extracted the convex hull from a single shape, we take over the inertia and mass parameters
-                        // Get the mass and inertia info from the old shape:
-                        C7Vector absCOM(originalShapes[0]->getFullCumulativeTransformation());
-                        absCOM=absCOM*originalShapes[0]->geomData->geomInfo->getLocalInertiaFrame();
-                        float mass=originalShapes[0]->geomData->geomInfo->getMass();
-                        C7Vector absCOMNoShift(absCOM);
-                        absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
-                        C3X3Matrix tensor(CGeomWrap::getNewTensor(originalShapes[0]->geomData->geomInfo->getPrincipalMomentsOfInertia(),absCOMNoShift));
-
-                        // Transfer the mass and inertia info to the new shape:
-                        geom->geomInfo->setMass(mass);
-                        C4Vector rot;
-                        C3Vector pmoi;
-                        CGeomWrap::findPrincipalMomentOfInertia(tensor,rot,pmoi);
-                        geom->geomInfo->setPrincipalMomentsOfInertia(pmoi);
-                        absCOM.Q=rot;
-                        C7Vector relCOM(it->getFullCumulativeTransformation().getInverse()*absCOM);
-                        geom->geomInfo->setLocalInertiaFrame(relCOM);
-
-                    }
-                    else
-                        geom->geomInfo->setLocalInertiaFrame(C7Vector::identityTransformation);
-                    App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
-                    App::currentWorld->sceneObjects->addObjectToSelection(it->getObjectHandle());
-                }
-                else
-                    printQHullFail=true;
-            }
+            CShape* hull=addConvexHull(inputObjects,true);
 
             App::uiThread->showOrHideProgressBar(false);
 
-            if (printQHullFail)
-                App::addStatusbarMessage(IDSNS_FAILED_IS_THE_QHULL_PLUGIN_LOADED);
-            else
+            if (hull!=nullptr)
             {
+                App::currentWorld->sceneObjects->addObjectToSelection(hull->getObjectHandle());
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                App::addStatusbarMessage(IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
+            else
+                App::logMsg(sim_verbosity_errors,IDSNS_FAILED_IS_THE_QHULL_PLUGIN_LOADED);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -848,139 +753,43 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             std::vector<int> sel;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            std::vector<int> newSelection;
-            std::vector<int> tmp;
-            for (size_t i=0;i<sel.size();i++)
-                tmp.push_back(sel[i]);
-            CSceneObjectOperations::addRootObjectChildrenToSelection(tmp);
+            CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
 
-            // Now keep only visible shapes:
-            std::vector<int> rootSel;
-            for (int i=0;i<int(tmp.size());i++)
+            // Now keep only visible objects:
+            std::vector<CSceneObject*> inputObjects;
+            for (size_t i=0;i<sel.size();i++)
             {
-                CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(tmp[i]);
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
                 if ( (it!=nullptr)&&(!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer()) )
-                    rootSel.push_back(tmp[i]);
+                    inputObjects.push_back(it);
             }
             float grow=0.03f;
             bool doIt=true;
 #ifdef SIM_WITH_GUI
-            doIt=(rootSel.size()>0)&&App::uiThread->dialogInputGetFloat(App::mainWindow,"Convex hull","Inflation parameter",0.05f,0.001f,10.0f,3,&grow);
+            doIt=(inputObjects.size()>0)&&App::uiThread->dialogInputGetFloat(App::mainWindow,"Convex hull","Inflation parameter",0.05f,0.001f,10.0f,3,&grow);
 #endif
             App::currentWorld->sceneObjects->deselectObjects();
+
             if (doIt)
             {
                 App::uiThread->showOrHideProgressBar(true,-1,"Computing inflated convex hull...");
-                App::addStatusbarMessage(IDSNS_ADDING_CONVEX_HULL);
-                bool printQHullFail=true;
-                std::vector<int> newObjectHandles;
-                for (size_t shapeI=0;shapeI<rootSel.size();shapeI++)
-                {
-                    CShape* theShape=App::currentWorld->sceneObjects->getShapeFromHandle(rootSel[shapeI]);
-                    if (theShape!=nullptr)
-                    {
-                        C7Vector transf(theShape->getFullCumulativeTransformation());
-                        std::vector<float> vertD;
-                        std::vector<float> vert;
-                        std::vector<int> ind;
-                        theShape->geomData->geomInfo->getCumulativeMeshes(vertD,&ind,nullptr);
-                        for (size_t j=0;j<ind.size()/3;j++)
-                        {
-                            int indd[3]={ind[3*j+0],ind[3*j+1],ind[3*j+2]};
-                            C3Vector w[3]={C3Vector(&vertD[0]+3*indd[0]),C3Vector(&vertD[0]+3*indd[1]),C3Vector(&vertD[0]+3*indd[2])};
-                            C3Vector v12(w[0]-w[1]);
-                            C3Vector v13(w[0]-w[2]);
-                            C3Vector n(v12^v13);
-                            n.normalize();
-                            n*=grow;
-                            for (float k=-1.0;k<1.2f;k+=2.0)
-                            {
-                                for (int l=0;l<3;l++)
-                                {
-                                    C3Vector vv(w[l]+n*k);
-                                    vert.push_back(vv(0));
-                                    vert.push_back(vv(1));
-                                    vert.push_back(vv(2));
-                                }
-                            }
-                        }
-                        for (int j=0;j<int(vert.size())/3;j++)
-                        {
-                            C3Vector v(&vert[3*j+0]);
-                            v=transf*v;
-                            vert[3*j+0]=v(0);
-                            vert[3*j+1]=v(1);
-                            vert[3*j+2]=v(2);
-                        }
+                App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_CONVEX_HULL);
 
-                        std::vector<float> hull;
-                        std::vector<int> indices;
-                        if (CMeshRoutines::getConvexHull(&vert,&hull,&indices))
-                        {
-                            CGeomProxy* geom=new CGeomProxy(nullptr,hull,indices,nullptr,nullptr);
-                            CShape* it=new CShape();
-                            it->setLocalTransformation(geom->getCreationTransformation());
-                            geom->setCreationTransformation(C7Vector::identityTransformation);
-                            it->geomData=geom;
-                            ((CGeometric*)geom->geomInfo)->setConvexVisualAttributes();
+                CShape* hull=addInflatedConvexHull(inputObjects,grow);
 
-                            // Set some visual parameters:
-                            ((CGeometric*)geom->geomInfo)->color.getColorsPtr()[0]=1.0f;
-                            ((CGeometric*)geom->geomInfo)->color.getColorsPtr()[1]=0.7f;
-                            ((CGeometric*)geom->geomInfo)->color.getColorsPtr()[2]=0.7f;
-                            ((CGeometric*)geom->geomInfo)->setEdgeThresholdAngle(0.0f);
-                            ((CGeometric*)geom->geomInfo)->setGouraudShadingAngle(0.0f);
-                            ((CGeometric*)geom->geomInfo)->setVisibleEdges(true);
-
-                            // Since we extracted the convex hull from a single shape, we take over the inertia and mass parameters
-                            // Get the mass and inertia info from the old shape:
-                            C7Vector absCOM(theShape->getFullCumulativeTransformation());
-                            absCOM=absCOM*theShape->geomData->geomInfo->getLocalInertiaFrame();
-                            float mass=theShape->geomData->geomInfo->getMass();
-                            C7Vector absCOMNoShift(absCOM);
-                            absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
-                            C3X3Matrix tensor(CGeomWrap::getNewTensor(theShape->geomData->geomInfo->getPrincipalMomentsOfInertia(),absCOMNoShift));
-
-                            // Transfer the mass and inertia info to the new shape:
-                            geom->geomInfo->setMass(mass);
-                            C4Vector rot;
-                            C3Vector pmoi;
-                            CGeomWrap::findPrincipalMomentOfInertia(tensor,rot,pmoi);
-                            geom->geomInfo->setPrincipalMomentsOfInertia(pmoi);
-                            absCOM.Q=rot;
-                            C7Vector relCOM(it->getFullCumulativeTransformation().getInverse()*absCOM);
-                            geom->geomInfo->setLocalInertiaFrame(relCOM);
-                            App::currentWorld->sceneObjects->addObjectToScene(it,false,false);
-                            newObjectHandles.push_back(it->getObjectHandle());
-                            newSelection.push_back(it->getObjectHandle());
-                            printQHullFail=false;
-                        }
-                    }
-                }
                 App::uiThread->showOrHideProgressBar(false);
 
-                if (printQHullFail)
-                    App::addStatusbarMessage(IDSNS_FAILED_IS_THE_QHULL_PLUGIN_LOADED);
+                if (hull==nullptr)
+                    App::logMsg(sim_verbosity_errors,IDSNS_FAILED_IS_THE_QHULL_PLUGIN_LOADED);
                 else
                 {
-                    for (size_t i=0;i<newSelection.size();i++)
-                        App::currentWorld->sceneObjects->addObjectToSelection(newSelection[i]);
+                    App::currentWorld->sceneObjects->addObjectToSelection(hull->getObjectHandle());
                     POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                    App::addStatusbarMessage(IDSNS_DONE);
-                }
-
-                if (newObjectHandles.size()>0)
-                {
-                    CInterfaceStack stack;
-                    stack.pushTableOntoStack();
-                    stack.pushStringOntoStack("objectHandles",0);
-                    stack.pushIntArrayTableOntoStack(&newObjectHandles[0],(int)newObjectHandles.size());
-                    stack.insertDataIntoStackTable();
-                    App::currentWorld->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercreate,&stack);
+                    App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
                 }
             }
             else
-                App::addStatusbarMessage(IDSNS_ABORTED);
+                App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1038,33 +847,29 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         for (int i=0;i<divX*divY*6;i++)
             tt::addToFloatArray(&normals,0.0f,0.0f,1.0f);
 
-        CGeomProxy* geom=new CGeomProxy(nullptr,vertices,indices,nullptr,nullptr);
-        CShape* it=new CShape();
-        it->setLocalTransformation(geom->getCreationTransformation());
-        ((CGeometric*)geom->geomInfo)->color.setDefaultValues();
-        ((CGeometric*)geom->geomInfo)->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
-        ((CGeometric*)geom->geomInfo)->setVisibleEdges(true);
-        geom->setCreationTransformation(C7Vector::identityTransformation);
-        ((CGeometric*)geom->geomInfo)->setGouraudShadingAngle(20.0f*degToRad_f);
-        ((CGeometric*)geom->geomInfo)->setEdgeThresholdAngle(20.0f*degToRad_f);
-        it->geomData=geom;
+        CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        it->getSingleMesh()->color.setDefaultValues();
+        it->getSingleMesh()->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
+        it->getSingleMesh()->setVisibleEdges(true);
+        it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
+        it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         it->setObjectName(IDSOGL_PLANE,true);
         it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName()).c_str(),true);
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // we shift the plane so that it is above the floor
         it->alignBoundingBoxWithWorld();
         if (pure)
-            ((CGeometric*)geom->geomInfo)->setPurePrimitiveType(sim_pure_primitive_plane,sizes(0),sizes(1),0.0001f);
+            it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_plane,sizes(0),sizes(1),0.0001f);
         if (dynamic)
         {
             int propToRemove=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable_all|sim_objectspecialproperty_renderable;
             it->setLocalObjectSpecialProperty((it->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
             it->setRespondable(true);
             it->setShapeIsDynamicallyStatic(false);
-            ((CGeometric*)it->geomData->geomInfo)->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
+            it->getSingleMesh()->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
         }
-        geom->geomInfo->setMass(sizes(0)*sizes(1)*density*0.001f); // we assume 1mm thickness
-        geom->geomInfo->setPrincipalMomentsOfInertia(C3Vector(sizes(1)*sizes(1)/12.0f,sizes(0)*sizes(0)/12.0f,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0f));
+        it->getMeshWrapper()->setMass(sizes(0)*sizes(1)*density*0.001f); // we assume 1mm thickness
+        it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(sizes(1)*sizes(1)/12.0f,sizes(0)*sizes(0)/12.0f,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0f));
 
         // make sure that object rests, stacks and can be easily grasped:
         it->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
@@ -1098,42 +903,38 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             CMeshManip::mergeWith(&vertices,&indices,nullptr,&auxVert,&auxInd,nullptr);
         }
 
-        CGeomProxy* geom=new CGeomProxy(nullptr,vertices,indices,nullptr,nullptr);
-        CShape* it=new CShape();
-        it->setLocalTransformation(geom->getCreationTransformation());
-        ((CGeometric*)geom->geomInfo)->color.setDefaultValues();
-        ((CGeometric*)geom->geomInfo)->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
-        ((CGeometric*)geom->geomInfo)->setVisibleEdges(true);
-        geom->setCreationTransformation(C7Vector::identityTransformation);
-        ((CGeometric*)geom->geomInfo)->setGouraudShadingAngle(20.0f*degToRad_f);
-        ((CGeometric*)geom->geomInfo)->setEdgeThresholdAngle(20.0f*degToRad_f);
-        it->geomData=geom;
+        CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        it->getSingleMesh()->color.setDefaultValues();
+        it->getSingleMesh()->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
+        it->getSingleMesh()->setVisibleEdges(true);
+        it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
+        it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         it->setObjectName(IDSOGL_RECTANGLE,true);
         it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName()).c_str(),true);
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the rectangle so that it sits on the floor
         it->alignBoundingBoxWithWorld();
         if (pure)
-            ((CGeometric*)geom->geomInfo)->setPurePrimitiveType(sim_pure_primitive_cuboid,sizes(0),sizes(1),sizes(2));
+            it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_cuboid,sizes(0),sizes(1),sizes(2));
         if (dynamic)
         {
             int propToRemove=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable_all|sim_objectspecialproperty_renderable;
             it->setLocalObjectSpecialProperty((it->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
             it->setRespondable(true);
             it->setShapeIsDynamicallyStatic(false);
-            ((CGeometric*)it->geomData->geomInfo)->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
+            it->getSingleMesh()->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
         }
 
         if (negVolume)
         {
             // For now, keep a mass and moment of inertia as if the shape was not hollow!
-            ((CGeometric*)it->geomData->geomInfo)->setCulling(true);
-            ((CGeometric*)it->geomData->geomInfo)->flipFaces();
-            ((CGeometric*)it->geomData->geomInfo)->setPurePrimitiveInsideScaling(negVolumeScaling);
+            it->getSingleMesh()->setCulling(true);
+            it->getSingleMesh()->flipFaces();
+            it->getSingleMesh()->setPurePrimitiveInsideScaling(negVolumeScaling);
         }
 
-        geom->geomInfo->setMass(sizes(0)*sizes(1)*sizes(2)*density);
-        geom->geomInfo->setPrincipalMomentsOfInertia(C3Vector((sizes(1)*sizes(1)+sizes(2)*sizes(2))/12.0f,(sizes(0)*sizes(0)+sizes(2)*sizes(2))/12.0f,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0f));
+        it->getMeshWrapper()->setMass(sizes(0)*sizes(1)*sizes(2)*density);
+        it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((sizes(1)*sizes(1)+sizes(2)*sizes(2))/12.0f,(sizes(0)*sizes(0)+sizes(2)*sizes(2))/12.0f,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0f));
 
         // make sure that object rests, stacks and can be easily grasped:
         it->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
@@ -1167,47 +968,43 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             CMeshManip::mergeWith(&vertices,&indices,nullptr,&auxVert,&auxInd,nullptr);
         }
 
-        CGeomProxy* geom=new CGeomProxy(nullptr,vertices,indices,nullptr,nullptr);
-        CShape* it=new CShape();
-        it->setLocalTransformation(geom->getCreationTransformation());
-        ((CGeometric*)geom->geomInfo)->color.setDefaultValues();
-        ((CGeometric*)geom->geomInfo)->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
-        geom->setCreationTransformation(C7Vector::identityTransformation);
+        CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        it->getSingleMesh()->color.setDefaultValues();
+        it->getSingleMesh()->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
         if (smooth)
         {
-            ((CGeometric*)geom->geomInfo)->setGouraudShadingAngle(20.0f*degToRad_f);
-            ((CGeometric*)geom->geomInfo)->setEdgeThresholdAngle(20.0f*degToRad_f);
+            it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
+            it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         }
-        it->geomData=geom;
         it->setObjectName(IDSOGL_SPHERE,true);
         it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName()).c_str(),true);
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the sphere so that it sits on the floor
         it->alignBoundingBoxWithWorld();
         if (pure)
-            ((CGeometric*)geom->geomInfo)->setPurePrimitiveType(sim_pure_primitive_spheroid,sizes(0),sizes(1),sizes(2));
+            it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_spheroid,sizes(0),sizes(1),sizes(2));
         if (dynamic)
         {
             int propToRemove=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable_all|sim_objectspecialproperty_renderable;
             it->setLocalObjectSpecialProperty((it->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
             it->setRespondable(true);
             it->setShapeIsDynamicallyStatic(false);
-            ((CGeometric*)it->geomData->geomInfo)->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
+            it->getSingleMesh()->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
         }
         float avR=(sizes(0)+sizes(1)+sizes(2))/6.0f;
 
         if (negVolume)
         {
             // For now, keep a mass and moment of inertia as if the shape was not hollow!
-            ((CGeometric*)it->geomData->geomInfo)->setCulling(true);
-            ((CGeometric*)it->geomData->geomInfo)->flipFaces();
-            ((CGeometric*)it->geomData->geomInfo)->setPurePrimitiveInsideScaling(negVolumeScaling);
+            it->getSingleMesh()->setCulling(true);
+            it->getSingleMesh()->flipFaces();
+            it->getSingleMesh()->setPurePrimitiveInsideScaling(negVolumeScaling);
         }
 
-        geom->geomInfo->setMass((4.0f*piValue_f/3.0f)*avR*avR*avR*density);
-        geom->geomInfo->setPrincipalMomentsOfInertia(C3Vector(2.0f*avR*avR/5.0f,2.0f*avR*avR/5.0f,2.0f*avR*avR/5.0f));
+        it->getMeshWrapper()->setMass((4.0f*piValue_f/3.0f)*avR*avR*avR*density);
+        it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(2.0f*avR*avR/5.0f,2.0f*avR*avR/5.0f,2.0f*avR*avR/5.0f));
         float avr2=avR*2.0f;
-        geom->geomInfo->scaleMassAndInertia(sizes(0)/avr2,sizes(1)/avr2,sizes(2)/avr2);
+        it->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avr2,sizes(1)/avr2,sizes(2)/avr2);
 
         // make sure that object rests, stacks and can be easily grasped:
         it->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
@@ -1246,19 +1043,15 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         else
             CMeshRoutines::createCylinder(vertices,indices,C3Vector(xhSize*2.0f,yhSize*2.0f,zhSize*2.0f),sides,faces,discDiv,openEnds,cone);
 
-        CGeomProxy* geom=new CGeomProxy(nullptr,vertices,indices,nullptr,nullptr);
-        CShape* it=new CShape();
-        it->setLocalTransformation(geom->getCreationTransformation());
-        ((CGeometric*)geom->geomInfo)->color.setDefaultValues();
-        ((CGeometric*)geom->geomInfo)->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
-        ((CGeometric*)geom->geomInfo)->setVisibleEdges(true);
-        geom->setCreationTransformation(C7Vector::identityTransformation);
+        CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        it->getSingleMesh()->color.setDefaultValues();
+        it->getSingleMesh()->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
+        it->getSingleMesh()->setVisibleEdges(true);
         if (smooth)
         {
-            ((CGeometric*)geom->geomInfo)->setGouraudShadingAngle(20.0f*degToRad_f);
-            ((CGeometric*)geom->geomInfo)->setEdgeThresholdAngle(20.0f*degToRad_f);
+            it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
+            it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         }
-        it->geomData=geom;
         it->setObjectName(IDSOGL_CYLINDER,true);
         it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName()).c_str(),true);
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
@@ -1267,9 +1060,9 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         if (pure)
         {
             if (cone)
-                ((CGeometric*)geom->geomInfo)->setPurePrimitiveType(sim_pure_primitive_cone,sizes(0),sizes(1),sizes(2));
+                it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_cone,sizes(0),sizes(1),sizes(2));
             else
-                ((CGeometric*)geom->geomInfo)->setPurePrimitiveType(sim_pure_primitive_cylinder,sizes(0),sizes(1),sizes(2));
+                it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_cylinder,sizes(0),sizes(1),sizes(2));
         }
         if (dynamic)
         {
@@ -1277,7 +1070,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             it->setLocalObjectSpecialProperty((it->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
             it->setRespondable(true);
             it->setShapeIsDynamicallyStatic(false);
-            ((CGeometric*)it->geomData->geomInfo)->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
+            it->getSingleMesh()->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
         }
         float avR=(sizes(0)+sizes(1))/4.0f;
         float divider=1.0f;
@@ -1288,17 +1081,17 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         if (negVolume)
         {
             // For now, keep a mass and moment of inertia as if the shape was not hollow!
-            ((CGeometric*)it->geomData->geomInfo)->setCulling(true);
-            ((CGeometric*)it->geomData->geomInfo)->flipFaces();
-            ((CGeometric*)it->geomData->geomInfo)->setPurePrimitiveInsideScaling(negVolumeScaling);
+            it->getSingleMesh()->setCulling(true);
+            it->getSingleMesh()->flipFaces();
+            it->getSingleMesh()->setPurePrimitiveInsideScaling(negVolumeScaling);
         }
-        geom->geomInfo->setMass(piValue_f*avR*avR*divider*sizes(2)*density);
+        it->getMeshWrapper()->setMass(piValue_f*avR*avR*divider*sizes(2)*density);
         if (cone)
-            geom->geomInfo->setPrincipalMomentsOfInertia(C3Vector(3.0f*(0.25f*avR*avR+sizes(2)*sizes(2))/5.0f,3.0f*(0.25f*avR*avR+sizes(2)*sizes(2))/5.0f,3.0f*avR*avR/10.0f));
+            it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(3.0f*(0.25f*avR*avR+sizes(2)*sizes(2))/5.0f,3.0f*(0.25f*avR*avR+sizes(2)*sizes(2))/5.0f,3.0f*avR*avR/10.0f));
         else
-            geom->geomInfo->setPrincipalMomentsOfInertia(C3Vector((3.0f*avR*avR+sizes(2)*sizes(2))/12.0f,(3.0f*avR*avR+sizes(2)*sizes(2))/12.0f,avR*avR/2.0f));
+            it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((3.0f*avR*avR+sizes(2)*sizes(2))/12.0f,(3.0f*avR*avR+sizes(2)*sizes(2))/12.0f,avR*avR/2.0f));
         float avR2=avR*2.0f;
-        geom->geomInfo->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0f);
+        it->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0f);
 
         // make sure that object rests, stacks and can be easily grasped:
         it->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
@@ -1373,36 +1166,32 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             vertices[3*i+1]=p(1);
         }
 
-        CGeomProxy* geom=new CGeomProxy(nullptr,vertices,indices,nullptr,nullptr);
-        CShape* it=new CShape();
-        it->setLocalTransformation(geom->getCreationTransformation());
-        ((CGeometric*)geom->geomInfo)->color.setDefaultValues();
-        ((CGeometric*)geom->geomInfo)->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
-        ((CGeometric*)geom->geomInfo)->setVisibleEdges(true);
-        geom->setCreationTransformation(C7Vector::identityTransformation);
-        ((CGeometric*)geom->geomInfo)->setGouraudShadingAngle(20.0f*degToRad_f);
-        ((CGeometric*)geom->geomInfo)->setEdgeThresholdAngle(20.0f*degToRad_f);
-        it->geomData=geom;
+        CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        it->getSingleMesh()->color.setDefaultValues();
+        it->getSingleMesh()->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
+        it->getSingleMesh()->setVisibleEdges(true);
+        it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
+        it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         it->setObjectName(IDSOGL_DISC,true);
         it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName()).c_str(),true);
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // Now we shift the disc so it sits just above the floor
         it->alignBoundingBoxWithWorld();
         if (pure)
-            ((CGeometric*)geom->geomInfo)->setPurePrimitiveType(sim_pure_primitive_disc,sizes(0),sizes(1),0.0001f);
+            it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_disc,sizes(0),sizes(1),0.0001f);
         if (dynamic)
         {
             int propToRemove=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable_all|sim_objectspecialproperty_renderable;
             it->setLocalObjectSpecialProperty((it->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
             it->setRespondable(true);
             it->setShapeIsDynamicallyStatic(false);
-            ((CGeometric*)it->geomData->geomInfo)->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
+            it->getSingleMesh()->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
         }
         float avR=(sizes(0)+sizes(1))/4.0f;
-        geom->geomInfo->setMass(piValue_f*avR*avR*density*0.001f); // we assume 1mm thickness
-        geom->geomInfo->setPrincipalMomentsOfInertia(C3Vector(3.0f*(avR*avR)/12.0f,3.0f*(avR*avR)/12.0f,avR*avR/2.0f));
+        it->getMeshWrapper()->setMass(piValue_f*avR*avR*density*0.001f); // we assume 1mm thickness
+        it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(3.0f*(avR*avR)/12.0f,3.0f*(avR*avR)/12.0f,avR*avR/2.0f));
         float avR2=avR*2.0f;
-        geom->geomInfo->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0f);
+        it->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0f);
 
         // make sure that object rests, stacks and can be easily grasped:
         it->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
@@ -1411,6 +1200,168 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
     }
 
     return(nullptr);
+}
+
+CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& inputObjects,float margin)
+{
+    CShape* retVal=nullptr;
+    CShape* ch=addConvexHull(inputObjects,false);
+    if (ch!=nullptr)
+    {
+        C7Vector transf(ch->getFullCumulativeTransformation());
+        std::vector<float> vertD;
+        std::vector<float> vert;
+        std::vector<int> ind;
+        ch->getMeshWrapper()->getCumulativeMeshes(vertD,&ind,nullptr);
+        for (size_t j=0;j<ind.size()/3;j++)
+        {
+            int indd[3]={ind[3*j+0],ind[3*j+1],ind[3*j+2]};
+            C3Vector w[3]={C3Vector(&vertD[0]+3*indd[0]),C3Vector(&vertD[0]+3*indd[1]),C3Vector(&vertD[0]+3*indd[2])};
+            C3Vector v12(w[0]-w[1]);
+            C3Vector v13(w[0]-w[2]);
+            C3Vector n(v12^v13);
+            n.normalize();
+            n*=margin;
+            for (float k=-1.0;k<1.2f;k+=2.0)
+            {
+                for (int l=0;l<3;l++)
+                {
+                    C3Vector vv(w[l]+n*k);
+                    vert.push_back(vv(0));
+                    vert.push_back(vv(1));
+                    vert.push_back(vv(2));
+                }
+            }
+        }
+        for (size_t j=0;j<vert.size()/3;j++)
+        {
+            C3Vector v(&vert[3*j+0]);
+            v=transf*v;
+            vert[3*j+0]=v(0);
+            vert[3*j+1]=v(1);
+            vert[3*j+2]=v(2);
+        }
+
+        std::vector<float> hull;
+        std::vector<int> indices;
+        if (CMeshRoutines::getConvexHull(&vert,&hull,&indices))
+        {
+            retVal=new CShape(nullptr,hull,indices,nullptr,nullptr);
+            retVal->getSingleMesh()->setConvexVisualAttributes();
+            retVal->getSingleMesh()->color.getColorsPtr()[0]=1.0f;
+            retVal->getSingleMesh()->color.getColorsPtr()[1]=0.7f;
+            retVal->getSingleMesh()->color.getColorsPtr()[2]=0.7f;
+            retVal->getSingleMesh()->setEdgeThresholdAngle(0.0f);
+            retVal->getSingleMesh()->setGouraudShadingAngle(0.0f);
+            retVal->getSingleMesh()->setVisibleEdges(true);
+
+            // Since we extracted the convex hull from a single shape, we take over the inertia and mass parameters
+            // Get the mass and inertia info from the old shape:
+            C7Vector absCOM(ch->getFullCumulativeTransformation());
+            absCOM=absCOM*ch->getMeshWrapper()->getLocalInertiaFrame();
+            float mass=ch->getMeshWrapper()->getMass();
+            C7Vector absCOMNoShift(absCOM);
+            absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
+            C3X3Matrix tensor(CMeshWrapper::getNewTensor(ch->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
+
+            // Transfer the mass and inertia info to the new shape:
+            retVal->getMeshWrapper()->setMass(mass);
+            C4Vector rot;
+            C3Vector pmoi;
+            CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,pmoi);
+            retVal->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoi);
+            absCOM.Q=rot;
+            C7Vector relCOM(retVal->getFullCumulativeTransformation().getInverse()*absCOM);
+            retVal->getMeshWrapper()->setLocalInertiaFrame(relCOM);
+            App::currentWorld->sceneObjects->eraseObject(ch,false);
+            App::currentWorld->sceneObjects->addObjectToScene(retVal,false,true);
+        }
+        else
+            App::currentWorld->sceneObjects->eraseObject(ch,false);
+    }
+    return(retVal);
+}
+
+
+CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObjects,bool generateAfterCreateCallback)
+{
+    CShape* retVal=nullptr;
+
+    std::vector<float> allHullVertices;
+    CShape* oneShape=nullptr;
+    for (size_t i=0;i<inputObjects.size();i++)
+    {
+        CSceneObject* it=inputObjects[i];
+        if (it->getObjectType()==sim_object_shape_type)
+        {
+            CShape* shape=(CShape*)it;
+            oneShape=shape;
+            C7Vector transf(shape->getFullCumulativeTransformation());
+            std::vector<float> vert;
+            std::vector<float> vertD;
+            std::vector<int> ind;
+            shape->getMeshWrapper()->getCumulativeMeshes(vertD,&ind,nullptr);
+            for (size_t j=0;j<vertD.size()/3;j++)
+            {
+                C3Vector v(&vertD[3*j+0]);
+                v=transf*v;
+                allHullVertices.push_back(v(0));
+                allHullVertices.push_back(v(1));
+                allHullVertices.push_back(v(2));
+            }
+        }
+        if (it->getObjectType()==sim_object_dummy_type)
+        {
+            CDummy* dum=(CDummy*)it;
+            C3Vector v(dum->getFullCumulativeTransformation().X);
+            allHullVertices.push_back(v(0));
+            allHullVertices.push_back(v(1));
+            allHullVertices.push_back(v(2));
+        }
+    }
+    if (allHullVertices.size()!=0)
+    {
+        std::vector<float> hull;
+        std::vector<int> indices;
+        std::vector<float> normals;
+        if (CMeshRoutines::getConvexHull(&allHullVertices,&hull,&indices))
+        {
+            retVal=new CShape(nullptr,hull,indices,nullptr,nullptr);
+            retVal->setObjectName("convexHull",false);
+            retVal->getSingleMesh()->setConvexVisualAttributes();
+            retVal->getSingleMesh()->color.getColorsPtr()[0]=1.0f;
+            retVal->getSingleMesh()->color.getColorsPtr()[1]=0.7f;
+            retVal->getSingleMesh()->color.getColorsPtr()[2]=0.7f;
+            retVal->getSingleMesh()->setEdgeThresholdAngle(0.0f);
+            retVal->getSingleMesh()->setGouraudShadingAngle(0.0f);
+            retVal->getSingleMesh()->setVisibleEdges(true);
+
+            if ( (oneShape!=nullptr)&&(inputObjects.size()==1) )
+            { // Since we extracted the convex hull from a single shape, we take over the inertia and mass parameters
+                // Get the mass and inertia info from the old shape:
+                C7Vector absCOM(oneShape->getFullCumulativeTransformation());
+                absCOM=absCOM*oneShape->getMeshWrapper()->getLocalInertiaFrame();
+                float mass=oneShape->getMeshWrapper()->getMass();
+                C7Vector absCOMNoShift(absCOM);
+                absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
+                C3X3Matrix tensor(CMeshWrapper::getNewTensor(oneShape->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
+
+                // Transfer the mass and inertia info to the new shape:
+                retVal->getMeshWrapper()->setMass(mass);
+                C4Vector rot;
+                C3Vector pmoi;
+                CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,pmoi);
+                retVal->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoi);
+                absCOM.Q=rot;
+                C7Vector relCOM(retVal->getFullCumulativeTransformation().getInverse()*absCOM);
+                retVal->getMeshWrapper()->setLocalInertiaFrame(relCOM);
+            }
+            else
+                retVal->getMeshWrapper()->setLocalInertiaFrame(C7Vector::identityTransformation);
+            App::currentWorld->sceneObjects->addObjectToScene(retVal,false,generateAfterCreateCallback);
+        }
+    }
+    return(retVal);
 }
 
 #ifdef SIM_WITH_GUI
@@ -1461,7 +1412,7 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
             menu->appendMenuAndDetach(prim,true,IDS_PRIMITIVE_SHAPE_MENU_ITEM);
             itemsPresent=true;
 
-            if (CLibLic::getBoolVal(7))
+            if (CSimFlavor::getBoolVal(7))
             {
                 VMenu* joint=new VMenu();
                 joint->appendMenuItem(true,false,ADD_COMMANDS_ADD_REVOLUTE_JOINT_ACCMD,IDS_REVOLUTE_MENU_ITEM);
@@ -1479,12 +1430,12 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
 
         menu->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens,false,ADD_COMMANDS_ADD_CAMERA_ACCMD,IDS_CAMERA_MENU_ITEM);
 
-        if (CLibLic::getBoolVal(7)&&App::userSettings->enableOldMirrorObjects)
+        if (CSimFlavor::getBoolVal(7)&&App::userSettings->enableOldMirrorObjects)
             menu->appendMenuItem(true,false,ADD_COMMANDS_ADD_MIRROR_ACCMD,IDS_MIRROR_MENU_ITEM);
 
         itemsPresent=true;
 
-        if ( CLibLic::getBoolVal(7)&&(!onlyCamera) )
+        if ( CSimFlavor::getBoolVal(7)&&(!onlyCamera) )
         {
             VMenu* light=new VMenu();
             light->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens,false,ADD_COMMANDS_ADD_OMNI_LIGHT_ACCMD,IDS_OMNIDIRECTIONAL_MENU_ITEM);

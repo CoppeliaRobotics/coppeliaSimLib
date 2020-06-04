@@ -201,13 +201,13 @@ bool CSimRecorder::recordFrameIfNeeded(int resX,int resY,int posX,int posY)
                     _aviGenInitialized=(res!='e');
                     if (_aviGenInitialized)
                     {
-                        App::addStatusbarMessage(IDSNS_VIDEO_COMPRESSOR_INITIALIZED);
+                        App::logMsg(sim_verbosity_msgs,IDSNS_VIDEO_COMPRESSOR_INITIALIZED);
                         if (res=='w')
-                            App::addStatusbarMessage(IDSNS_VIDEO_USING_PADDING);
+                            App::logMsg(sim_verbosity_msgs,IDSNS_VIDEO_USING_PADDING);
                     }
                     else
                     {
-                        App::addStatusbarMessage(IDSNS_VIDEO_COMPRESSOR_FAILED_TO_INITIALIZE);
+                        App::logMsg(sim_verbosity_errors,IDSNS_VIDEO_COMPRESSOR_FAILED_TO_INITIALIZE);
                         App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Video Recorder"),strTranslate(IDSN_VIDEO_COMPRESSOR_FAILED_INITIALIZING_WARNING),VMESSAGEBOX_OKELI);
                     }
                     _initFailed=(!_aviGenInitialized);
@@ -340,7 +340,7 @@ void CSimRecorder::stopRecording(bool manualStop)
             std::string tmp(IDS_AVI_FILE_WAS_SAVED);
             tmp+=_filenameAndPathAndExtension+")";
 
-            App::addStatusbarMessage(tmp.c_str());
+            App::logMsg(sim_verbosity_msgs,tmp.c_str());
             if (_showSavedMessage)
                 App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_AVI_RECORDER),tmp,VMESSAGEBOX_OKELI);
             _showSavedMessage=true; // reset this flag

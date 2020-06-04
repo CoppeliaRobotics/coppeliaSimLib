@@ -3,7 +3,7 @@
 #include "global.h"
 #include "vVarious.h"
 #include "app.h"
-#include "libLic.h"
+#include "simFlavor.h"
 
 CDirectoryPaths::CDirectoryPaths()
 {
@@ -14,17 +14,23 @@ CDirectoryPaths::CDirectoryPaths()
     systemDirectory=executableDirectory+"/"+SIM_SYSTEM_DIRECTORY_NAME;
 #ifdef MAC_SIM
     // We are inside of the package!!!
-    sceneDirectory=executableDirectory+"/../../../"+CLibLic::getStringVal(13);// if scenes can't be found, it will use the last used directory somehow!
-    modelDirectory=executableDirectory+"/../../../"+CLibLic::getStringVal(14);
-    uiDirectory=executableDirectory+"/../../../";
+    /*
+    sceneDirectory=executableDirectory+"/../../../"+CSimFlavor::getStringVal(13);// if scenes can't be found, it will use the last used directory somehow!
+    modelDirectory=executableDirectory+"/../../../"+CSimFlavor::getStringVal(14);
     cadFormatDirectory=executableDirectory+"/../../../"+SIM_CADFILES_DIRECTORY_NAME;
     textureDirectory=executableDirectory+"/../../../";
     videoDirectory=executableDirectory+"/../../../";
     otherFilesDirectory=executableDirectory+"/../../../";
+    */
+    sceneDirectory=executableDirectory+"/../../Resources/"+CSimFlavor::getStringVal(13);// if scenes can't be found, it will use the last used directory somehow!
+    modelDirectory=executableDirectory+"/../../Resources/"+CSimFlavor::getStringVal(14);
+    cadFormatDirectory=executableDirectory+"/../../Resources/"+SIM_CADFILES_DIRECTORY_NAME;
+    textureDirectory=executableDirectory+"/../../Resources/";
+    videoDirectory=executableDirectory+"/../../Resources/";
+    otherFilesDirectory=executableDirectory+"/../../Resources/";
 #else
-    sceneDirectory=executableDirectory+"/"+CLibLic::getStringVal(13);// if scenes can't be found, it will use the last used directory somehow!
-    modelDirectory=executableDirectory+"/"+CLibLic::getStringVal(14);
-    uiDirectory=executableDirectory;
+    sceneDirectory=executableDirectory+"/"+CSimFlavor::getStringVal(13);// if scenes can't be found, it will use the last used directory somehow!
+    modelDirectory=executableDirectory+"/"+CSimFlavor::getStringVal(14);
     cadFormatDirectory=executableDirectory+"/"+SIM_CADFILES_DIRECTORY_NAME;
     textureDirectory=executableDirectory;
     videoDirectory=executableDirectory;

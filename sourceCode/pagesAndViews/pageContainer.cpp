@@ -13,7 +13,7 @@
 #include "simStrings.h"
 #include "app.h"
 #include "pageRendering.h"
-#include "libLic.h"
+#include "simFlavor.h"
 #ifdef SIM_WITH_GUI
     #include "toolBarCommand.h"
 #endif
@@ -350,7 +350,7 @@ bool CPageContainer::processCommand(int commandID,int viewIndex)
                 it=new CSPage(HORIZONTAL_1_PLUS_4_VIEWS);
             if (commandID==PAGE_CONT_FUNCTIONS_CREATE_VERTICAL_1_PLUS_4_VIEW_TYPE_PCCMD)
                 it=new CSPage(VERTICAL_1_PLUS_4_VIEWS);
-            App::addStatusbarMessage(IDSNS_CREATED_VIEWS);
+            App::logMsg(sim_verbosity_msgs,IDSNS_CREATED_VIEWS);
             if (it!=nullptr)
             {
                 it->setPageSizeAndPosition(_pageSize[0],_pageSize[1],_pagePosition[0],_pagePosition[1]);
@@ -389,7 +389,7 @@ void CPageContainer::renderCurrentPage(bool hideWatermark)
 
     if ( (!hideWatermark)&&(App::mainWindow!=nullptr)&&(!App::mainWindow->simulationRecorder->getIsRecording()) )
     {
-        int tagId=CLibLic::getIntVal(0);
+        int tagId=CSimFlavor::getIntVal(0);
         // if compiling CoppeliaSim yourself, and using the mesh calculation plugin, you must use the EDU_TAG below!
         if (tagId==0)
             displayContainerPageWatermark(_pagePosition,_pageSize,EDU_TAG);

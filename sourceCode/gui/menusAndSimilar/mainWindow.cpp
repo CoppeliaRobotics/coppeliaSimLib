@@ -26,7 +26,7 @@
 #include "vMessageBox.h"
 #include <boost/lexical_cast.hpp>
 #include "qdlgmessageandcheckbox.h"
-#include "libLic.h"
+#include "simFlavor.h"
 #include <QMimeData>
 #include <QDragEnterEvent>
 #include <QUrl>
@@ -120,7 +120,7 @@ CMainWindow::CMainWindow() : QMainWindow()
     modelListWidget->setMaximumWidth(170*4);
     modelListWidget->setMinimumWidth(180);
 
-    modelFolderWidget=new CModelFolderWidget(modelListWidget,"Model browser",App::directories->modelDirectory.c_str(),CLibLic::getStringVal(15).c_str());
+    modelFolderWidget=new CModelFolderWidget(modelListWidget,"Model browser",App::directories->modelDirectory.c_str(),CSimFlavor::getStringVal(15).c_str());
 
     #ifdef MAC_SIM
         if (modelFolderWidget->hasError())
@@ -911,7 +911,7 @@ void CMainWindow::createDefaultMenuBar()
 
         if (editModeContainer->getEditModeType()==NO_EDIT_MODE)
         {
-            if (CLibLic::getBoolVal(11))
+            if (CSimFlavor::getBoolVal(11))
             {
                 _addSystemMenu=new VMenu();
                 _menubar->appendMenuAndDetach(_addSystemMenu,menuBarEnabled,std::string(IDS_ADD_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
@@ -935,7 +935,7 @@ void CMainWindow::createDefaultMenuBar()
                 connect(customMenuBarItemContainer->_menuHandle->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowCustomMenu()));
             }
 
-            if (CLibLic::getBoolVal(11))
+            if (CSimFlavor::getBoolVal(11))
             {
                 _addOnSystemMenu=new VMenu();
                 _menubar->appendMenuAndDetach(_addOnSystemMenu,menuBarEnabled,std::string(IDS_ADDON_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
@@ -948,14 +948,14 @@ void CMainWindow::createDefaultMenuBar()
                 connect(_instancesSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowInstancesSystemMenu()));
             }
 
-            if (CLibLic::getBoolVal_int(0,App::userSettings->xrTest))
+            if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
             {
                 _layoutSystemMenu=new VMenu();
                 _menubar->appendMenuAndDetach(_layoutSystemMenu,menuBarEnabled,std::string(IDS_LAYOUT_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
                 connect(_layoutSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowLayoutSystemMenu()));
             }
 
-            if (CLibLic::getBoolVal_int(0,App::userSettings->xrTest))
+            if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
             {
                 _jobsSystemMenu=new VMenu();
                 _menubar->appendMenuAndDetach(_jobsSystemMenu,menuBarEnabled,std::string(IDS_JOBS_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
@@ -1010,7 +1010,7 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionCameraZoom,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionCameraZoom,CAMERA_ZOOM_NAVIGATION_CMD);
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
         {
             _toolbarActionCameraAngle=_toolbar1->addAction(QIcon(":/toolbarFiles/cameraAngle.png"),tr(IDS_TOOLBAR_TOOLTIP_CAMERA_OPENING_ANGLE));
             _toolbarActionCameraAngle->setCheckable(true);
@@ -1032,7 +1032,7 @@ void CMainWindow::_createDefaultToolBars()
 
         _toolbar1->addSeparator();
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
         {
             _toolbarActionClickSelection=_toolbar1->addAction(QIcon(":/toolbarFiles/clickSelection.png"),tr(IDS_TOOLBAR_TOOLTIP_CLICK_SELECTION));
             _toolbarActionClickSelection->setCheckable(true);
@@ -1057,7 +1057,7 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionAssemble,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionAssemble,SCENE_OBJECT_OPERATION_ASSEMBLE_SOOCMD);
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
         {
             _toolbarActionTransferDna=_toolbar1->addAction(QIcon(":/toolbarFiles/transferDna.png"),tr(IDSN_TRANSFER_DNA));
             _toolbarActionTransferDna->setCheckable(false);
@@ -1078,7 +1078,7 @@ void CMainWindow::_createDefaultToolBars()
         _signalMapper->setMapping(_toolbarActionRedo,SCENE_OBJECT_OPERATION_REDO_SOOCMD);
         _toolbar1->addSeparator();
 
-        if (CLibLic::getBoolVal_int(0,App::userSettings->xrTest))
+        if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
         {
             _toolbarActionVerify=_toolbar1->addAction(QIcon(":/toolbarFiles/verify.png"),tr(IDS_TOOLBAR_TOOLTIP_VERIFY));
             _toolbarActionVerify->setCheckable(false);
@@ -1086,7 +1086,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionVerify,XR_COMMAND_1_SCCMD+11);
         }
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
         {
             _toolbarActionDynamicContentVisualization=_toolbar1->addAction(QIcon(":/toolbarFiles/dynamics.png"),tr(IDS_TOOLBAR_TOOLTIP_VISUALIZE_DYNAMIC_CONTENT));
             _toolbarActionDynamicContentVisualization->setCheckable(true);
@@ -1124,7 +1124,7 @@ void CMainWindow::_createDefaultToolBars()
         _toolbar1->addWidget(_engineSelectCombo);
         connect(_engineSelectCombo,SIGNAL(activated(int)),this,SLOT(_engineSelectedViaToolbar(int)));
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
         {
             _enginePrecisionCombo=new QComboBox();
 
@@ -1157,7 +1157,7 @@ void CMainWindow::_createDefaultToolBars()
             connect(_enginePrecisionCombo,SIGNAL(activated(int)),this,SLOT(_enginePrecisionViaToolbar(int)));
         }
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
         {
             _timeStepConfigCombo=new QComboBox();
 
@@ -1212,7 +1212,7 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionStop,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionStop,SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD);
 
-        if (CLibLic::getBoolVal_int(0,App::userSettings->xrTest))
+        if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
         {
             _toolbarActionOnline=_toolbar1->addAction(QIcon(":/toolbarFiles/online.png"),tr(IDS_TOOLBAR_TOOLTIP_ONLINE));
             _toolbarActionOnline->setCheckable(true);
@@ -1220,7 +1220,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionOnline,SIMULATION_COMMANDS_TOGGLE_ONLINE_SCCMD);
         }
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
         {
             _toolbarActionRealTime=_toolbar1->addAction(QIcon(":/toolbarFiles/realTime.png"),tr(IDS_TOOLBAR_TOOLTIP_REALTIMESIMULATION));
             _toolbarActionRealTime->setCheckable(true);
@@ -1228,7 +1228,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionRealTime,SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD);
         }
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
         {
             _toolbarActionReduceSpeed=_toolbar1->addAction(QIcon(":/toolbarFiles/reduceSpeed.png"),tr(IDSN_SLOW_DOWN_SIMULATION));
             _toolbarActionReduceSpeed->setCheckable(false);
@@ -1236,7 +1236,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionReduceSpeed,SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD);
         }
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
         {
             _toolbarActionIncreaseSpeed=_toolbar1->addAction(QIcon(":/toolbarFiles/increaseSpeed.png"),tr(IDSN_SPEED_UP_SIMULATION));
             _toolbarActionIncreaseSpeed->setCheckable(false);
@@ -1266,7 +1266,7 @@ void CMainWindow::_createDefaultToolBars()
             _toolbar2->setMovable(false); // 14/7/2013: since Qt5.1.0 the toolbar looks just plain white when undocked under MacOS
         #endif
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
         {
             _toolbarActionSimulationSettings=_toolbar2->addAction(QIcon(":/toolbarFiles/simulationSettings.png"),tr(IDSN_SIMULATION_SETTINGS));
             _toolbarActionSimulationSettings->setCheckable(true);
@@ -1275,7 +1275,7 @@ void CMainWindow::_createDefaultToolBars()
             _toolbar2->addSeparator();
         }
 
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
         {
             _toolbarActionObjectProperties=_toolbar2->addAction(QIcon(":/toolbarFiles/commonProperties.png"),tr(IDSN_OBJECT_PROPERTIES_MENU_ITEM));
             _toolbarActionObjectProperties->setCheckable(true);
@@ -1283,7 +1283,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionObjectProperties,TOGGLE_OBJECT_DLG_CMD);
         }
 
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
         {
             _toolbarActionCalculationModules=_toolbar2->addAction(QIcon(":/toolbarFiles/calcmods.png"),tr(IDSN_CALCULATION_MODULE_PROPERTIES_MENU_ITEM));
             _toolbarActionCalculationModules->setCheckable(true);
@@ -1292,7 +1292,7 @@ void CMainWindow::_createDefaultToolBars()
             _toolbar2->addSeparator();
         }
 
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
         {
             _toolbarActionCollections=_toolbar2->addAction(QIcon(":/toolbarFiles/collections.png"),tr(IDSN_COLLECTIONS));
             _toolbarActionCollections->setCheckable(true);
@@ -1300,7 +1300,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionCollections,TOGGLE_COLLECTION_DLG_CMD);
         }
 
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
         {
             _toolbarActionScripts=_toolbar2->addAction(QIcon(":/toolbarFiles/scripts.png"),tr(IDSN_SCRIPTS));
             _toolbarActionScripts->setCheckable(true);
@@ -1308,7 +1308,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionScripts,TOGGLE_LUA_SCRIPT_DLG_CMD);
         }
 
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
         {
             _toolbarActionShapeEdition=_toolbar2->addAction(QIcon(":/toolbarFiles/shapeEdition.png"),tr(IDS_SHAPE_EDITION_TOOLBAR_TIP));
             _toolbarActionShapeEdition->setCheckable(true);
@@ -1316,7 +1316,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionShapeEdition,SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD);
         }
 
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
         {
             _toolbarActionPathEdition=_toolbar2->addAction(QIcon(":/toolbarFiles/pathEdition.png"),tr(IDS_PATH_EDITION_TOOLBAR_TIP));
             _toolbarActionPathEdition->setCheckable(true);
@@ -1326,7 +1326,7 @@ void CMainWindow::_createDefaultToolBars()
         }
 
 
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
         {
             _toolbarActionSelection=_toolbar2->addAction(QIcon(":/toolbarFiles/selection.png"),tr(IDSN_SELECTION_DIALOG));
             _toolbarActionSelection->setCheckable(true);
@@ -1339,7 +1339,7 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionModelBrowser,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionModelBrowser,TOGGLE_BROWSER_DLG_CMD);
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
         {
             _toolbarActionSceneHierarchy=_toolbar2->addAction(QIcon(":/toolbarFiles/sceneHierarchy.png"),tr(IDSN_SCENE_HIERARCHY));
             _toolbarActionSceneHierarchy->setCheckable(true);
@@ -1347,7 +1347,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionSceneHierarchy,TOGGLE_HIERARCHY_DLG_CMD);
         }
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
         {
             _toolbarActionLayers=_toolbar2->addAction(QIcon(":/toolbarFiles/layers.png"),tr(IDS_LAYERS));
             _toolbarActionLayers->setCheckable(true);
@@ -1361,7 +1361,7 @@ void CMainWindow::_createDefaultToolBars()
         _signalMapper->setMapping(_toolbarActionAviRecorder,TOGGLE_AVI_RECORDER_DLG_CMD);
 
         _toolbarActionUserSettings=_toolbar2->addAction(QIcon(":/toolbarFiles/userSettings.png"),tr(IDSN_USER_SETTINGS));
-        _toolbarActionUserSettings->setCheckable(CLibLic::getBoolVal(11));
+        _toolbarActionUserSettings->setCheckable(CSimFlavor::getBoolVal(11));
         connect(_toolbarActionUserSettings,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionUserSettings,TOGGLE_SETTINGS_DLG_CMD);
  
@@ -1402,11 +1402,11 @@ void CMainWindow::dragEnterEvent(QDragEnterEvent* dEvent)
                 if (extension.compare(SIM_SCENE_EXTENSION)==0)
                     sceneCnt++;
                 else
-                    sceneCnt+=CLibLic::getIntVal_str(1,extension.c_str());
+                    sceneCnt+=CSimFlavor::getIntVal_str(1,extension.c_str());
                 if (extension.compare(SIM_MODEL_EXTENSION)==0)
                     modelCnt++;
                 else
-                    modelCnt+=CLibLic::getIntVal_str(2,extension.c_str());
+                    modelCnt+=CSimFlavor::getIntVal_str(2,extension.c_str());
                 fileCnt++;
             }
             if ( (fileCnt==sceneCnt)&&(sceneCnt>0) )
@@ -1436,9 +1436,9 @@ void CMainWindow::dropEvent(QDropEvent* dEvent)
                     scenes.push_back(pathFile);
                 if (extension.compare(SIM_MODEL_EXTENSION)==0)
                     models.push_back(pathFile);
-                if (CLibLic::getIntVal_str(1,extension.c_str())==1)
+                if (CSimFlavor::getIntVal_str(1,extension.c_str())==1)
                     scenes.push_back(pathFile);
-                if (CLibLic::getIntVal_str(2,extension.c_str())==1)
+                if (CSimFlavor::getIntVal_str(2,extension.c_str())==1)
                     models.push_back(pathFile);
                 fileCnt++;
             }
@@ -1768,7 +1768,7 @@ void CMainWindow::_actualizetoolbarButtonState()
         _toolbarActionCameraShift->setEnabled(noSelector);
         _toolbarActionCameraRotate->setEnabled(noSelector);
         _toolbarActionCameraZoom->setEnabled(noSelector);
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionCameraAngle->setEnabled(noSelector);
         _toolbarActionCameraSizeToScreen->setEnabled(allowFitToView&&noSelector);
 //        _toolbarActionCameraFly->setEnabled(noSelector);
@@ -1779,7 +1779,7 @@ void CMainWindow::_actualizetoolbarButtonState()
             _toolbarActionAssemble->setIcon(QIcon(":/toolbarFiles/assemble.png"));
         _toolbarActionAssemble->setEnabled(assembleEnabled||disassembleEnabled);
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionTransferDna->setEnabled(transferDnaAllowed);
 
         _toolbarActionObjectShift->setEnabled(noUiNorMultishapeEditMode&&noSelector&&_toolbarButtonObjectShiftEnabled);
@@ -1788,32 +1788,32 @@ void CMainWindow::_actualizetoolbarButtonState()
             rot=editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode()==0;
         _toolbarActionObjectRotate->setEnabled(noUiNorMultishapeEditMode&&rot&&noSelector&&_toolbarButtonObjectRotateEnabled);
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionClickSelection->setEnabled(noSelector);
 
         _toolbarActionUndo->setEnabled(App::currentWorld->undoBufferContainer->canUndo()&&noSelector);
         _toolbarActionRedo->setEnabled(App::currentWorld->undoBufferContainer->canRedo()&&noSelector);
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionDynamicContentVisualization->setEnabled((!App::currentWorld->simulation->isSimulationStopped())&&noSelector);
 
         _engineSelectCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&App::currentWorld->dynamicsContainer->getDynamicsEnabled()&&noSelector);
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _enginePrecisionCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&App::currentWorld->dynamicsContainer->getDynamicsEnabled()&&noSelector);
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _timeStepConfigCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&noSelector);
-        if (CLibLic::getBoolVal_int(0,App::userSettings->xrTest))
+        if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
             _toolbarActionVerify->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&noSelector);
         _toolbarActionStart->setEnabled(_toolbarButtonPlayEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&(!App::currentWorld->simulation->isSimulationRunning())&&noSelector);
         _toolbarActionPause->setEnabled(_toolbarButtonPauseEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationRunning()&&noSelector);
         _toolbarActionStop->setEnabled(_toolbarButtonStopEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&(!App::currentWorld->simulation->isSimulationStopped())&&noSelector);
-        if (CLibLic::getBoolVal_int(0,App::userSettings->xrTest))
+        if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
             _toolbarActionOnline->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&noSelector);
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionRealTime->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&noSelector);
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionReduceSpeed->setEnabled(App::currentWorld->simulation->canGoSlower()&&noSelector);
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionIncreaseSpeed->setEnabled(App::currentWorld->simulation->canGoFaster()&&noSelector);
         _toolbarActionToggleVisualization->setEnabled(App::currentWorld->simulation->isSimulationRunning()&&noSelector);
 
@@ -1823,15 +1823,15 @@ void CMainWindow::_actualizetoolbarButtonState()
         _toolbarActionCameraShift->setChecked((getMouseMode()&0x00ff)==sim_navigation_camerashift);
         _toolbarActionCameraRotate->setChecked((getMouseMode()&0x00ff)==sim_navigation_camerarotate);
         _toolbarActionCameraZoom->setChecked((getMouseMode()&0x00ff)==sim_navigation_camerazoom);
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionCameraAngle->setChecked((getMouseMode()&0x00ff)==sim_navigation_cameraangle);
 //       _toolbarActionCameraFly->setChecked((getMouseMode()&0x00ff)==sim_navigation_camerafly);
         _toolbarActionObjectShift->setChecked((getMouseMode()&0x00ff)==sim_navigation_objectshift);
         _toolbarActionObjectRotate->setChecked((getMouseMode()&0x00ff)==sim_navigation_objectrotate);
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionClickSelection->setChecked((getMouseMode()&0x0300)==sim_navigation_clickselection);
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionDynamicContentVisualization->setChecked(App::currentWorld->simulation->getDynamicContentVisualizationOnly());
 
         int ver;
@@ -1847,7 +1847,7 @@ void CMainWindow::_actualizetoolbarButtonState()
         if (eng==sim_physics_newton)
             _engineSelectCombo->setCurrentIndex(4);
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
         {
             _enginePrecisionCombo->setCurrentIndex(App::currentWorld->dynamicsContainer->getUseDynamicDefaultCalculationParameters());
             if (App::currentWorld->simulation->isSimulationStopped())
@@ -1883,7 +1883,7 @@ void CMainWindow::_actualizetoolbarButtonState()
         _toolbarActionStart->setChecked(App::currentWorld->simulation->isSimulationRunning());
         _toolbarActionPause->setChecked(App::currentWorld->simulation->isSimulationPaused());
 
-        if (CLibLic::getBoolVal_int(0,App::userSettings->xrTest))
+        if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
         {
             _toolbarActionOnline->setChecked(App::currentWorld->simulation->getOnlineMode());
             if (App::currentWorld->simulation->getOnlineMode())
@@ -1891,7 +1891,7 @@ void CMainWindow::_actualizetoolbarButtonState()
             else
                 _toolbarActionOnline->setIcon(QIcon(":/toolbarFiles/online.png"));
         }
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionRealTime->setChecked(App::currentWorld->simulation->getRealTimeSimulation());
 
         _toolbarActionToggleVisualization->setChecked(!getOpenGlDisplayEnabled());
@@ -1899,58 +1899,58 @@ void CMainWindow::_actualizetoolbarButtonState()
     }
     if (_toolbar2!=nullptr)
     { // We enable/disable some buttons:
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionSimulationSettings->setEnabled(noEditMode&&noSelector);
 
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
             _toolbarActionObjectProperties->setEnabled(_toolbarButtonObjPropEnabled&&noEditMode&&noSelector);
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
             _toolbarActionCalculationModules->setEnabled(_toolbarButtonCalcModulesEnabled&&noEditMode&&noSelector);
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
             _toolbarActionCollections->setEnabled(noEditMode&&noSelector);
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
             _toolbarActionScripts->setEnabled(noEditMode&&noSelector);
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
             _toolbarActionShapeEdition->setEnabled((noSelector&&(selS==1)&&App::currentWorld->sceneObjects->isLastSelectionAShape()&&App::currentWorld->simulation->isSimulationStopped()&&(editModeContainer->getEditModeType()==NO_EDIT_MODE))||(editModeContainer->getEditModeType()&SHAPE_EDIT_MODE)||(editModeContainer->getEditModeType()&MULTISHAPE_EDIT_MODE));
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
             _toolbarActionPathEdition->setEnabled((noSelector&&(selS==1)&&App::currentWorld->sceneObjects->isLastSelectionAPath()&&App::currentWorld->simulation->isSimulationStopped()&&(editModeContainer->getEditModeType()==NO_EDIT_MODE))||(editModeContainer->getEditModeType()&PATH_EDIT_MODE));
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
             _toolbarActionSelection->setEnabled(noEditMode&&noSelector);
 
         _toolbarActionModelBrowser->setEnabled(noEditMode&&noSelector&&_toolbarButtonBrowserEnabled);
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionSceneHierarchy->setEnabled(noEditMode&&noSelector&&_toolbarButtonHierarchyEnabled&&((!App::userSettings->sceneHierarchyHiddenDuringSimulation)||App::currentWorld->simulation->isSimulationStopped()) );
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionLayers->setEnabled(true);
 
         _toolbarActionAviRecorder->setEnabled(noEditMode&&noSelector&&(CAuxLibVideo::video_recorderGetEncoderString!=nullptr));
         _toolbarActionUserSettings->setEnabled(noEditMode&&noSelector);
 
         // Now we check/uncheck some buttons:
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionSimulationSettings->setChecked(dlgCont->isVisible(SIMULATION_DLG));
 
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
             _toolbarActionObjectProperties->setChecked(dlgCont->isVisible(OBJECT_DLG));
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
             _toolbarActionCalculationModules->setChecked(dlgCont->isVisible(CALCULATION_DLG));
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
             _toolbarActionCollections->setChecked(dlgCont->isVisible(COLLECTION_DLG));
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
             _toolbarActionScripts->setChecked(dlgCont->isVisible(LUA_SCRIPT_DLG));
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
             _toolbarActionShapeEdition->setChecked(editModeContainer->getEditModeType()&SHAPE_EDIT_MODE);
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
             _toolbarActionPathEdition->setChecked(editModeContainer->getEditModeType()==PATH_EDIT_MODE);
-        if (CLibLic::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12))
             _toolbarActionSelection->setChecked(dlgCont->isVisible(SELECTION_DLG));
 
         _toolbarActionModelBrowser->setChecked(dlgCont->isVisible(BROWSER_DLG));
 
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionSceneHierarchy->setChecked(dlgCont->isVisible(HIERARCHY_DLG));
-        if (CLibLic::getBoolVal(11))
+        if (CSimFlavor::getBoolVal(11))
             _toolbarActionLayers->setChecked(dlgCont->isVisible(LAYERS_DLG));
 
         _toolbarActionAviRecorder->setChecked(dlgCont->isVisible(AVI_RECORDER_DLG));

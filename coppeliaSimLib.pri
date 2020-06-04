@@ -3,6 +3,11 @@ TEMPLATE = lib
 DEFINES += SIM_LIB
 
 CONFIG += shared debug_and_release
+CONFIG += SUPPORT_OLD_IK
+SUPPORT_OLD_IK {
+    DEFINES += SUPPORT_OLD_IK
+}
+
 !HEADLESS_TEST {
     CONFIG += WITH_GUI
     CONFIG += WITH_OPENGL # comment only if above line is commented
@@ -327,11 +332,14 @@ HEADERS += $$PWD/../programming/simMath/mathDefines.h \
 HEADERS += $$PWD/../programming/include/simConst.h \
     $$PWD/../programming/include/simTypes.h \
 
-HEADERS += $$PWD/sourceCode/kinematics/ikRoutines.h \
-    $$PWD/sourceCode/kinematics/ikGroup.h \
+HEADERS += $$PWD/sourceCode/kinematics/ikGroup.h \
     $$PWD/sourceCode/shared/kinematics/_ikGroup_.h \
     $$PWD/sourceCode/kinematics/ikElement.h \
-    $$PWD/sourceCode/shared/kinematics/_ikElement_.h \
+    $$PWD/sourceCode/shared/kinematics/_ikElement_.h
+
+SUPPORT_OLD_IK {
+    HEADERS += $$PWD/sourceCode/kinematics/ikRoutines.h
+}
 
 HEADERS += $$PWD/sourceCode/drawingObjects/bannerObject.h \
     $$PWD/sourceCode/drawingObjects/drawingObject.h \
@@ -390,9 +398,8 @@ HEADERS += $$PWD/sourceCode/sceneObjects/pathObjectRelated/bezierPathPoint.h \
     $$PWD/sourceCode/sceneObjects/pathObjectRelated/pathPoint.h \
     $$PWD/sourceCode/sceneObjects/pathObjectRelated/pathCont.h \
 
-HEADERS += $$PWD/sourceCode/sceneObjects/shapeObjectRelated/geometric.h \
-    $$PWD/sourceCode/sceneObjects/shapeObjectRelated/geomWrap.h \
-    $$PWD/sourceCode/sceneObjects/shapeObjectRelated/geomProxy.h \
+HEADERS += $$PWD/sourceCode/sceneObjects/shapeObjectRelated/mesh.h \
+    $$PWD/sourceCode/sceneObjects/shapeObjectRelated/meshWrapper.h \
     $$PWD/sourceCode/sceneObjects/shapeObjectRelated/volInt.h \
 
 HEADERS += $$PWD/sourceCode/backwardCompatibility/pathPlanning/pathPlanning.h \
@@ -488,7 +495,7 @@ HEADERS += $$PWD/sourceCode/interfaces/sim.h \
     $$PWD/sourceCode/interfaces/luaScriptFunctions.h \
     $$PWD/sourceCode/interfaces/pathPlanningInterface.h \
     $$PWD/sourceCode/interfaces/dummyClasses.h \
-    $$PWD/sourceCode/interfaces/libLic.h \
+    $$PWD/sourceCode/interfaces/simFlavor.h \
     
 HEADERS += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackObject.h \
@@ -758,11 +765,14 @@ SOURCES += $$PWD/../programming/simMath/Vector.cpp \
     $$PWD/../programming/simMath/3X3Matrix.cpp \
     $$PWD/../programming/simMath/3Vector.cpp \
 
-SOURCES += $$PWD/sourceCode/kinematics/ikRoutines.cpp \
-    $$PWD/sourceCode/kinematics/ikGroup.cpp \
+SOURCES += $$PWD/sourceCode/kinematics/ikGroup.cpp \
     $$PWD/sourceCode/shared/kinematics/_ikGroup_.cpp \
     $$PWD/sourceCode/kinematics/ikElement.cpp \
-    $$PWD/sourceCode/shared/kinematics/_ikElement_.cpp \
+    $$PWD/sourceCode/shared/kinematics/_ikElement_.cpp
+
+SUPPORT_OLD_IK {
+    SOURCES += $$PWD/sourceCode/kinematics/ikRoutines.cpp
+}
 
 SOURCES += $$PWD/sourceCode/drawingObjects/bannerObject.cpp \
     $$PWD/sourceCode/drawingObjects/drawingObject.cpp \
@@ -823,9 +833,8 @@ SOURCES += $$PWD/sourceCode/sceneObjects/pathObjectRelated/bezierPathPoint.cpp \
 
 SOURCES += $$PWD/sourceCode/sceneObjects/proximitySensorObjectRelated/proxSensorRoutine.cpp \
 
-SOURCES += $$PWD/sourceCode/sceneObjects/shapeObjectRelated/geometric.cpp \
-    $$PWD/sourceCode/sceneObjects/shapeObjectRelated/geomWrap.cpp \
-    $$PWD/sourceCode/sceneObjects/shapeObjectRelated/geomProxy.cpp \
+SOURCES += $$PWD/sourceCode/sceneObjects/shapeObjectRelated/mesh.cpp \
+    $$PWD/sourceCode/sceneObjects/shapeObjectRelated/meshWrapper.cpp \
     $$PWD/sourceCode/sceneObjects/shapeObjectRelated/volInt.cpp \
 
 
@@ -917,7 +926,10 @@ SOURCES += $$PWD/sourceCode/interfaces/sim.cpp \
     $$PWD/sourceCode/interfaces/simInternal.cpp \
     $$PWD/sourceCode/interfaces/luaScriptFunctions.cpp \
     $$PWD/sourceCode/interfaces/pathPlanningInterface.cpp \
-    $$PWD/sourceCode/interfaces/libLic.cpp \
+
+!SIM_PLUS {
+    SOURCES += $$PWD/sourceCode/interfaces/simFlavor.cpp
+}
 
 SOURCES += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.cpp \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackObject.cpp \

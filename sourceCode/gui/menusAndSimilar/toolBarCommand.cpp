@@ -285,7 +285,7 @@ bool CToolBarCommand::processCommand(int commandID)
                 std::string str(IDSNS_SWAPPED_TO_PAGE);
                 str+=" ";
                 str+=boost::lexical_cast<std::string>(commandID-VIEW_1_CMD+1)+".";
-                App::addStatusbarMessage(str.c_str());
+                App::logMsg(sim_verbosity_msgs,str.c_str());
             }
         }
         else

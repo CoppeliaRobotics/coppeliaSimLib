@@ -8,15 +8,14 @@
 
 class CViewableBase;
 class CShape;
-class CGeomProxy;
-class CGeometric;
+class CMesh;
 
-class CGeomWrap
+class CMeshWrapper
 {
 public:
 
-    CGeomWrap();
-    virtual ~CGeomWrap();
+    CMeshWrapper();
+    virtual ~CMeshWrapper();
 
     virtual void prepareVerticesIndicesNormalsAndEdgesForSerialization();
     virtual void performSceneObjectLoadingMapping(const std::vector<int>* map);
@@ -25,15 +24,15 @@ public:
     virtual void announceSceneObjectWillBeErased(int objectID);
     virtual void setTextureDependencies(int shapeID);
     virtual bool getContainsTransparentComponents();
-    virtual void displayGhost(CGeomProxy* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors);
-    virtual void display(CGeomProxy* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
-    virtual void display_extRenderer(CGeomProxy* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex);
-    virtual void display_colorCoded(CGeomProxy* geomData,int objectId,int displayAttrib);
-    virtual CGeomWrap* copyYourself();
+    virtual void displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors);
+    virtual void display(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
+    virtual void display_extRenderer(CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex);
+    virtual void display_colorCoded(CShape* geomData,int objectId,int displayAttrib);
+    virtual CMeshWrapper* copyYourself();
     virtual void scale(float xVal,float yVal,float zVal);
     virtual void setPurePrimitiveType(int theType,float xOrDiameter,float y,float zOrHeight);
     virtual int getPurePrimitiveType();
-    virtual bool isGeometric();
+    virtual bool isMesh();
     virtual bool isPure();
     virtual bool isConvex();
     virtual bool checkIfConvex();
@@ -42,8 +41,8 @@ public:
     virtual void getCumulativeMeshes(std::vector<float>& vertices,std::vector<int>* indices,std::vector<float>* normals);
     virtual void setColor(const char* colorName,int colorComponent,const float* rgbData);
     virtual bool getColor(const char* colorName,int colorComponent,float* rgbData);
-    virtual void getAllShapeComponentsCumulative(std::vector<CGeometric*>& shapeComponentList); // needed by the dynamics routine
-    virtual CGeometric* getShapeComponentAtIndex(int& index);
+    virtual void getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList); // needed by the dynamics routine
+    virtual CMesh* getShapeComponentAtIndex(int& index);
     virtual void serialize(CSer& ar,const char* shapeName);
     virtual void preMultiplyAllVerticeLocalFrames(const C7Vector& preTr);
     virtual void flipFaces();
@@ -61,7 +60,7 @@ public:
     void serializeWrapperInfos(CSer& ar,const char* shapeName);
     void scaleWrapperInfos(float xVal,float yVal,float zVal);
     void scaleMassAndInertia(float xVal,float yVal,float zVal);
-    void copyWrapperInfos(CGeomWrap* target);
+    void copyWrapperInfos(CMeshWrapper* target);
     void setDefaultInertiaParams();
     void setMass(float m);
     float getMass();
@@ -84,7 +83,7 @@ public:
     static void findPrincipalMomentOfInertia(const C3X3Matrix& tensor,C4Vector& rotation,C3Vector& principalMoments);
     static C3X3Matrix getNewTensor(const C3Vector& principalMoments,const C7Vector& newFrame);
 
-    std::vector<CGeomWrap*> childList;
+    std::vector<CMeshWrapper*> childList;
 
 protected:
     static float _getTensorNonDiagonalMeasure(const C3X3Matrix& tensor);

@@ -1,16 +1,40 @@
-
 #pragma once
 
 #include "sceneObject.h"
+#include "mesh.h"
 #include "dummy.h"
-#include "geomProxy.h"
 
 class CShape : public CSceneObject  
 {
 public:
 
     CShape();
+    CShape(const std::vector<float>& allHeights,int xSize,int ySize,float dx,float zSize); // heightfield
+    CShape(const C7Vector* transformation,const std::vector<float>& vert,const std::vector<int>& ind,const std::vector<float>* normals,const std::vector<float>* textCoord); // mesh
+    CShape(const C7Vector& transformation,CMeshWrapper* newGeomInfo);
     virtual ~CShape();
+
+    C7Vector reinitMesh(const C7Vector* transformation,const std::vector<float>& vert,const std::vector<int>& ind,const std::vector<float>* normals,const std::vector<float>* textCoord);
+    C7Vector reinitMesh2(const C7Vector& transformation,CMeshWrapper* newGeomInfo);
+    void setNewMesh(CMeshWrapper* newGeomInfo);
+    void invertFrontBack();
+    C3Vector getBoundingBoxHalfSizes() const;
+    void scaleMesh(float xVal,float yVal,float zVal);
+    void scaleMesh(float x,float y,float z,float& xp,float& yp,float& zp);
+
+    void setMeshDynamicsFullRefreshFlag(bool refresh);
+    bool getMeshDynamicsFullRefreshFlag();
+    int getMeshModificationCounter();
+    CMeshWrapper* getMeshWrapper() const;
+    CMesh* getSingleMesh() const;
+    void disconnectMesh();
+
+    void* _meshCalculationStructure;
+    C3Vector _meshBoundingBoxHalfSizes;
+    bool _meshDynamicsFullRefreshFlag;
+    int _meshModificationCounter;
+    CMeshWrapper* _mesh;
+
 
     // Following functions are inherited from CSceneObject
     void display(CViewableBase* renderingObject,int displayAttrib);
@@ -110,10 +134,9 @@ public:
     bool getDistanceToDummy_IfSmaller(CDummy* it,float &dist,float ray[7],int& buffer);
 
     // Collision detection functions
-    bool isCollisionInformationInitialized();
-//  void initializeCollisionDetection();
-    void initializeCalculationStructureIfNeeded();
-    void removeCollisionInformation();
+    bool isMeshCalculationStructureInitialized();
+    void initializeMeshCalculationStructureIfNeeded();
+    void removeMeshCalculationStructure();
     bool doesShapeCollideWithShape(CShape* collidee,std::vector<float>* intersections);
 
     // Bounding box functions
@@ -134,10 +157,16 @@ public:
     static bool getDebugObbStructures();
     static void setDebugObbStructures(bool d);
 
-    CGeomProxy* geomData;
 protected:
+    void _serializeBackCompatibility(CSer& ar);
+    C7Vector _acceptNewGeometry(const std::vector<float>& vert,const std::vector<int>& ind,const std::vector<float>* textCoord,const std::vector<float>* norm);
+    C7Vector _recomputeOrientation(C7Vector& m,bool alignWithMainAxis);
+    C7Vector _recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& error);
+    static bool _getTubeReferenceFrame(const std::vector<float>& v,C7Vector& tr);
+    static bool _getCuboidReferenceFrame(const std::vector<float>& v,const std::vector<int>& ind,C7Vector& tr);
+    void _computeMeshBoundingBox();
 
-    bool reorientGeometry(int type); // 0=main axis, 1=world, 2=tube, 3=cuboid
+    bool _reorientGeometry(int type); // 0=main axis, 1=world, 2=tube, 3=cuboid
 
     unsigned short _dynamicCollisionMask;
     CSceneObject* _lastParentForLocalGlobalRespondable;
@@ -166,4 +195,5 @@ protected:
     C3Vector _initialInitialDynamicLinearVelocity;
     C3Vector _initialInitialDynamicAngularVelocity;
     static bool _visualizeObbStructures;
+
 };

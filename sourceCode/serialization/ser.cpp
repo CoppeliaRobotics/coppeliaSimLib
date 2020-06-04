@@ -8,7 +8,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include "imgLoaderSaver.h"
 #include "pluginContainer.h"
-#include "libLic.h"
+#include "simFlavor.h"
 
 int CSer::SER_SERIALIZATION_VERSION=22; // 9 since 2008/09/01,
                                         // 10 since 2009/02/14,
@@ -31,7 +31,7 @@ int CSer::XML_XSERIALIZATION_VERSION=1;
 const bool xmlDebug=false;
 char CSer::getFileTypeFromName(const char* filename)
 {
-    return((char)CLibLic::getIntVal_str(0,filename));
+    return((char)CSimFlavor::getIntVal_str(0,filename));
 }
 
 CSer::CSer(const char* filename,char filetype)
@@ -158,7 +158,7 @@ void CSer::writeClose()
         // Now we write all the data:
         if (_compress)
         { // compressed. When changing compression method, then serialization version has to be incremented and older version won't be able to read newer versions anymore!
-            CLibLic::handleBrFile(_filetype,(char*)&_fileBuffer[0]);
+            CSimFlavor::handleBrFile(_filetype,(char*)&_fileBuffer[0]);
             // Hufmann:
             unsigned char* writeBuff=new unsigned char[_fileBuffer.size()+400]; // actually 384
             int outSize=Huffman_Compress(&_fileBuffer[0],writeBuff,(int)_fileBuffer.size());
@@ -262,7 +262,7 @@ void CSer::_writeBinaryHeader()
 
     // We write the compilation version: (since ser ver 13 (2009/07/21))
     int compilVer=-1;
-    int v=CLibLic::getIntVal(2);
+    int v=CSimFlavor::getIntVal(2);
     if (v==-1)
         compilVer=6;
     if (v==0)
@@ -291,7 +291,7 @@ void CSer::_writeBinaryHeader()
 
     // We write the license version that wrote this file and the CoppeliaSim version:
     unsigned int licenseType;
-    int lt=CLibLic::getIntVal(2);
+    int lt=CSimFlavor::getIntVal(2);
     if (lt==-1)
         licenseType=0x00006000;
     if (lt==0)
@@ -394,12 +394,11 @@ void CSer::_writeXmlHeader()
     xmlAddNode_string("filetype",str.c_str());
     xmlAddNode_comment(" 'xmlSerializationNb' tag: required. Set to 1 ",exhaustiveXml);
     xmlAddNode_int("xmlSerializationNb",XML_XSERIALIZATION_VERSION);
-    if ( (_filetype==filetype_csim_xml_xscene_file)||(_filetype==filetype_csim_xml_xmodel_file) )
-    {
-        xmlAddNode_int("prgFlavor",CLibLic::ver());
-        xmlAddNode_int("prgVer",SIM_PROGRAM_VERSION_NB);
-        xmlAddNode_int("prgRev",SIM_PROGRAM_REVISION_NB);
-    }
+
+    // Following not required for simple scenes/models:
+    xmlAddNode_int("prgFlavor",CSimFlavor::ver());
+    xmlAddNode_int("prgVer",SIM_PROGRAM_VERSION_NB);
+    xmlAddNode_int("prgRev",SIM_PROGRAM_REVISION_NB);
 }
 
 void CSer::_writeXmlFooter()
@@ -440,25 +439,28 @@ int CSer::_readXmlHeader(int& serializationVersion,unsigned short& coppeliaSimVe
             serializationVersion=-1;
             if (xmlGetNode_string("filetype",str))
             {
+                int tp=-1;
                 if (str.compare("simpleScene")==0)
-                    return(1);
+                    tp=0;
                 if (str.compare("simpleModel")==0)
-                    return(1);
-                if ( xmlGetNode_int("xmlSerializationNb",serializationVersion) && xmlGetNode_int("prgVer",prgVer) && xmlGetNode_int("prgRev",prgRev) )
+                    tp=0;
+                if (str.compare("exhaustiveScene")==0)
+                {
+                    _filetype=filetype_csim_xml_xscene_file;
+                    tp=1;
+                }
+                if (str.compare("exhaustiveModel")==0)
+                {
+                    _filetype=filetype_csim_xml_xmodel_file;
+                    tp=1;
+                }
+                if ( xmlGetNode_int("xmlSerializationNb",serializationVersion) && xmlGetNode_int("prgVer",prgVer,tp==1) && xmlGetNode_int("prgRev",prgRev,tp==1) )
                 {
                     coppeliaSimVersionThatWroteThis=prgVer;
                     revNumber=prgRev;
-                    if (str.compare("exhaustiveScene")==0)
-                    {
-                        _filetype=filetype_csim_xml_xscene_file;
-                        return(1);
-                    }
-                    if (str.compare("exhaustiveModel")==0)
-                    {
-                        _filetype=filetype_csim_xml_xmodel_file;
-                        return(1);
-                    }
                 }
+                if (tp>=0)
+                    return(1);
             }
         }
     }
@@ -718,7 +720,7 @@ int CSer::readOpenBinary(int& serializationVersion,unsigned short& coppeliaSimVe
                 _fileBuffer.push_back(uncompressedBuffer[i]);
             delete[] uncompressedBuffer;
 
-            return(CLibLic::handleReadOpenFile(_filetype,(char*)&_fileBuffer[0]));
+            return(CSimFlavor::handleReadOpenFile(_filetype,(char*)&_fileBuffer[0]));
         }
     }
     else

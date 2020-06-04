@@ -16,7 +16,7 @@
 #include "vMessageBox.h"
 #include "collisionRoutines.h"
 #include "distanceRoutines.h"
-#include "libLic.h"
+#include "simFlavor.h"
 
 CHelpMenu::CHelpMenu()
 {
@@ -31,16 +31,16 @@ CHelpMenu::~CHelpMenu()
 void CHelpMenu::addMenu(VMenu* menu)
 {
     std::string tmp;
-    tmp=CLibLic::getStringVal(5);
+    tmp=CSimFlavor::getStringVal(5);
     if (tmp.size()>0)
         menu->appendMenuItem(true,false,HELP_TOPICS_CMD,tmp.c_str());
-    tmp=CLibLic::getStringVal(6);
+    tmp=CSimFlavor::getStringVal(6);
     if (tmp.size()>0)
         menu->appendMenuItem(true,false,ABOUT_CMD,tmp.c_str());
-    tmp=CLibLic::getStringVal(7);
+    tmp=CSimFlavor::getStringVal(7);
     if (tmp.size()>0)
         menu->appendMenuItem(true,false,CREDITS_CMD,tmp.c_str());
-    if (CLibLic::getBoolVal(11))
+    if (CSimFlavor::getBoolVal(11))
     {
         VMenu* debugMenu=new VMenu();
         debugMenu->appendMenuItem(true,!CViewableBase::getFrustumCullingEnabled(),DISABLE_FRUSTUM_CULLING_DEBUG_CMD,IDSN_DISABLE_FRUSTUM_CULLING_DEBUG_MENU_ITEM,true);
@@ -48,10 +48,10 @@ void CHelpMenu::addMenu(VMenu* menu)
         debugMenu->appendMenuItem(true,CShape::getDebugObbStructures(),VISUALIZE_OBB_STRUCTURE_DEBUG_CMD,IDSN_VISUALIZE_OBB_STRUCTURE_DEBUG_MENU_ITEM,true);
         menu->appendMenuAndDetach(debugMenu,true,IDSN_DEBUG_MENU_ITEM);
     }
-    if ( CLibLic::getBoolVal(13)&&(!CLibLic::getBoolVal(14)) )
+    if ( CSimFlavor::getBoolVal(13)&&(!CSimFlavor::getBoolVal(14)) )
     {
         menu->appendMenuSeparator();
-        menu->appendMenuItem(true,false,EK_CMD,CLibLic::getStringVal(8).c_str());
+        menu->appendMenuItem(true,false,EK_CMD,CSimFlavor::getStringVal(8).c_str());
     }
 }
 
@@ -62,7 +62,8 @@ bool CHelpMenu::processCommand(int commandID)
         if (VThread::isCurrentThreadTheUiThread())
         { // We are in the UI thread. Execute the command via the main thread:
             #ifdef MAC_SIM
-                std::string tmp(App::directories->executableDirectory+"/../../../"+"helpFiles"+"/"+"index.html");
+//                std::string tmp(App::directories->executableDirectory+"/../../../"+"helpFiles"+"/"+"index.html");
+                std::string tmp(App::directories->executableDirectory+"/../../Resources/"+"helpFiles"+"/"+"index.html");
             #else
                 std::string tmp(App::directories->executableDirectory+"/"+"helpFiles"+"/"+"index.html");
             #endif
@@ -126,10 +127,10 @@ bool CHelpMenu::processCommand(int commandID)
         }
         return(true);
     }
-    if ( CLibLic::getBoolVal(13)&&(commandID==EK_CMD) )
+    if ( CSimFlavor::getBoolVal(13)&&(commandID==EK_CMD) )
     {
-        CLibLic::setHld(App::mainWindow);
-        CLibLic::ekd();
+        CSimFlavor::setHld(App::mainWindow);
+        CSimFlavor::ekd();
         return(true);
     }
     return(false);

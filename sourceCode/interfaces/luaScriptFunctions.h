@@ -79,20 +79,15 @@ float luaToFloat(luaWrap_lua_State* L,int pos);
 double luaToDouble(luaWrap_lua_State* L,int pos);
 bool luaToBool(luaWrap_lua_State* L,int pos);
 
-bool isHashFree(const std::string& functionName,const std::string& name);
-bool suffixAdjustStringIfNeeded(const std::string& functionName,bool outputError,luaWrap_lua_State* L,std::string& name);
-int getCurrentScriptID(luaWrap_lua_State* L);
+void suffixAdjustStringIfNeeded(luaWrap_lua_State* L,std::string& name);
+int getCurrentScriptHandle(luaWrap_lua_State* L);
 
 void getScriptTree_mainOr(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scriptHandles);
 void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std::vector<int>& scriptHandles);
 
-void luaApiCallWarning(const char* functionName,const char* message);
-bool _hasErrors(std::string& funcErrorString);
+void _reportWarningsIfNeeded(luaWrap_lua_State* L,const std::string& functionName,const std::string& warningString,bool cSideErrorOrWarningReporting);
+void _raiseErrorIfNeeded(luaWrap_lua_State* L,const std::string& functionName,const std::string& errorString,bool cSideErrorReporting);
 
-void memorizeLocation(luaWrap_lua_State* L);
-int getLocationIndex(VTHREAD_ID_TYPE threadID);
-void forgetLocation();
-std::string getLocationString();
 
 
 // Input argument checking:
@@ -215,7 +210,6 @@ extern int _simResetTracing(luaWrap_lua_State* L);
 extern int _simHandleTracing(luaWrap_lua_State* L);
 extern int _simResetGraph(luaWrap_lua_State* L);
 extern int _simHandleGraph(luaWrap_lua_State* L);
-extern int _simAddStatusbarMessage(luaWrap_lua_State* L);
 extern int _simGetLastError(luaWrap_lua_State* L);
 extern int _simGetObjects(luaWrap_lua_State* L);
 extern int _simRefreshDialogs(luaWrap_lua_State* L);
@@ -280,8 +274,6 @@ extern int _simDeleteSelectedObjects(luaWrap_lua_State* L);
 extern int _simScaleSelectedObjects(luaWrap_lua_State* L);
 extern int _simScaleObjects(luaWrap_lua_State* L);
 extern int _simGetObjectUniqueIdentifier(luaWrap_lua_State* L);
-extern int _simGetNameSuffix(luaWrap_lua_State* L);
-extern int _simSetNameSuffix(luaWrap_lua_State* L);
 extern int _simSetThreadAutomaticSwitch(luaWrap_lua_State* L);
 extern int _simGetThreadAutomaticSwitch(luaWrap_lua_State* L);
 extern int _simSetThreadSwitchTiming(luaWrap_lua_State* L);
@@ -555,6 +547,12 @@ extern int _simSetUserParameter(luaWrap_lua_State* L);
 extern int _simAddLog(luaWrap_lua_State* L);
 
 // DEPRECATED
+extern int _simAddStatusbarMessage(luaWrap_lua_State* L);
+extern int _simGetNameSuffix(luaWrap_lua_State* L);
+extern int _simSetNameSuffix(luaWrap_lua_State* L);
+extern int _simResetMill(luaWrap_lua_State* L);
+extern int _simHandleMill(luaWrap_lua_State* L);
+extern int _simResetMilling(luaWrap_lua_State* L);
 extern int _simOpenTextEditor(luaWrap_lua_State* L);
 extern int _simCloseTextEditor(luaWrap_lua_State* L);
 extern int _simGetMaterialId(luaWrap_lua_State* L);

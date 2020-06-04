@@ -17,51 +17,83 @@
 #include "sceneObjectOperations.h"
 
 #define LUA_START(funcName) \
-    CApiErrors::clearCSideGeneratedLuaError(); \
-    memorizeLocation(L); \
+    CApiErrors::clearThreadBasedFirstCapiErrorAndWarning(); \
     std::string functionName(funcName); \
-    std::string errorString;
+    std::string errorString; \
+    std::string warningString; \
+    bool cSideErrorOrWarningReporting=true;
+
+#define LUA_START_NO_CSIDE_ERROR(funcName) \
+    CApiErrors::clearThreadBasedFirstCapiErrorAndWarning(); \
+    std::string functionName(funcName); \
+    std::string errorString; \
+    std::string warningString; \
+    bool cSideErrorOrWarningReporting=false;
 
 #define LUA_END(p) \
     if (true) \
     { \
-        std::string warnings=CApiErrors::getCSideGeneratedLuaWarning(); \
-        while (warnings.size()>0) \
-        { \
-            CApiErrors::setLuaCallWarningMessage(functionName.c_str(),warnings.c_str()); \
-            warnings=CApiErrors::getCSideGeneratedLuaWarning(); \
-        } \
-        forgetLocation(); \
+        _reportWarningsIfNeeded(L,functionName,warningString,cSideErrorOrWarningReporting); \
         return(p); \
     } \
     else
 
-#define LUA_SET_OR_RAISE_ERROR() \
-if (_hasErrors(errorString)) \
-{ \
-    if (App::userSettings->raiseErrorWithApiScriptFunctions) \
-    { \
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L)); \
-        if ((it!=nullptr)&&((it->getErrorReportMode()&(sim_api_error_report|sim_api_error_output))!=0)) \
-        { \
-            CApiErrors::decorateLuaErrorMessage(functionName.c_str(),errorString); \
-            forgetLocation(); \
-            errorString+=it->errorWithCustomizationScript(); /*might temporarily disable the custom. script*/ \
-            luaWrap_lua_pushstring(L,errorString.c_str()); \
-            luaWrap_lua_error(L); \
-        } \
-    } \
-    else \
-    { \
-        CApiErrors::setLuaCallErrorMessage(functionName.c_str(),errorString.c_str()); \
-    } \
+void _reportWarningsIfNeeded(luaWrap_lua_State* L,const std::string& functionName,const std::string& warningString,bool cSideErrorOrWarningReporting)
+{
+    std::string warnStr(warningString);
+    if ( (warnStr.size()==0)&&cSideErrorOrWarningReporting )
+        warnStr=CApiErrors::getAndClearThreadBasedFirstCapiWarning();
+    if (warnStr.size()>0)
+    {
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
+        if (it!=nullptr)
+        {
+            int lineNumber=-1;
+            lineNumber=luaWrap_getCurrentCodeLine(L);
+            std::string msg;
+            msg+=std::to_string(lineNumber);
+            msg+=": ";
+            msg+=warnStr;
+            msg+=" (in function '";
+            msg+=functionName;
+            msg+="')";
+            if (App::userSettings->undecoratedStatusbarMessages)
+                it->prefixWithLuaLocationName(msg);
+            App::logScriptMsg(it->getShortDescriptiveName().c_str(),sim_verbosity_scriptwarnings,msg.c_str());
+        }
+    }
 }
 
-#define SIM_SCRIPT_NAME_SUFFIX "sim_script_name_suffix"
+void _raiseErrorIfNeeded(luaWrap_lua_State* L,const std::string& functionName,const std::string& errorString,bool cSideErrorOrWarningReporting)
+{
+    std::string errStr(errorString);
+    if ( (errStr.size()==0)&&cSideErrorOrWarningReporting )
+        errStr=CApiErrors::getAndClearThreadBasedFirstCapiError();
+    if (errStr.size()>0)
+    {
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
+        if (it!=nullptr)
+        {
+            it->setLastError(errStr.c_str());
+            int lineNumber=-1;
+            lineNumber=luaWrap_getCurrentCodeLine(L);
+            std::string msg;
+            msg+=std::to_string(lineNumber);
+            msg+=": ";
+            msg+=errStr;
+            msg+=" (in function '";
+            msg+=functionName;
+            msg+="')";
+            msg+=it->errorWithCustomizationScript(); /*might temporarily disable the custom. script*/
+            it->prefixWithLuaLocationName(msg);
+            luaWrap_lua_pushstring(L,msg.c_str());
+            luaWrap_lua_error(L);
+        }
+    }
+}
 
-std::vector<std::string> locations;
-std::vector<VTHREAD_ID_TYPE> threadIDs;
-VMutex memorizeLocationMutex;
+#define LUA_RAISE_ERROR_IF_NEEDED() _raiseErrorIfNeeded(L,functionName,errorString,cSideErrorOrWarningReporting)
+#define SIM_SCRIPT_NAME_SUFFIX "sim_script_name_suffix"
 
 std::vector<int> serialPortHandles;
 std::vector<std::string> serialPortLeftOverData;
@@ -96,8 +128,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.checkProximitySensor",_simCheckProximitySensor,        "number result,number distance,table_3 detectedPoint=sim.checkProximitySensor(number sensorHandle,number entityHandle)",true},
     {"sim.checkProximitySensorEx",_simCheckProximitySensorEx,    "number result,number distance,table_3 detectedPoint,number detectedObjectHandle,table_3 normalVector=\nsim.checkProximitySensorEx(number sensorHandle,number entityHandle,number mode,number threshold,number maxAngle)",true},
     {"sim.checkProximitySensorEx2",_simCheckProximitySensorEx2,  "number result,number distance,table_3 detectedPoint,table_3 normalVector=\nsim.checkProximitySensorEx2(number sensorHandle,table vertices,number itemType,number itemCount,number mode,number threshold,number maxAngle)",true},
-    {"sim.getNameSuffix",_simGetNameSuffix,                      "number suffix,string name=sim.getNameSuffix(string nameWithSuffix)",true},
-    {"sim.setNameSuffix",_simSetNameSuffix,                      "number result=sim.setNameSuffix(number nameSuffixNumber)",true},
     {"sim.getObjectHandle",_simGetObjectHandle,                  "number objectHandle=sim.getObjectHandle(string objectName)",true},
     {"sim.addScript",_simAddScript,                              "number scriptHandle=sim.addScript(number scriptType)",true},
     {"sim.associateScriptWithObject",_simAssociateScriptWithObject,"number result=sim.associateScriptWithObject(number scriptHandle,number objectHandle)",true},
@@ -139,8 +169,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getSimulatorMessage",_simGetSimulatorMessage,          "number messageID,table_4 auxiliaryData,table auxiliaryData2=sim.getSimulatorMessage()",true},
     {"sim.resetGraph",_simResetGraph,                            "number result=sim.resetGraph(number objectHandle)",true},
     {"sim.handleGraph",_simHandleGraph,                          "number result=sim.handleGraph(number objectHandle,number simulationTime)",true},
-    {"sim.addStatusbarMessage",_simAddStatusbarMessage,          "number result=sim.addStatusbarMessage(string message=nil)",true},
-    {"sim.getLastError",_simGetLastError,                        "string lastError=sim.getLastError()",true},
+    {"sim.getLastError",_simGetLastError,                        "string lastError=sim.getLastError([scriptHandle])",true},
     {"sim.getObjects",_simGetObjects,                            "number objectHandle=sim.getObjects(number index,number objectType)",true},
     {"sim.refreshDialogs",_simRefreshDialogs,                    "number result=sim.refreshDialogs(number refreshDegree)",true},
     {"sim.getModuleName",_simGetModuleName,                      "string moduleName,number version=sim.getModuleName(number index)",true},
@@ -458,7 +487,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.textEditorShow",_simTextEditorShow,                    "number res=sim.textEditorShow(number handle,boolean showState)",true},
     {"sim.textEditorGetInfo",_simTextEditorGetInfo,              "string text,table_2 pos,table_2 size,boolean visible=sim.textEditorGetInfo(number handle)",true},
     {"sim.setJointDependency",_simSetJointDependency,            "number res=sim.setJointDependency(number jointHandle,number masterJointHandle,number offset,number coefficient)",true},
-    {"sim.getStackTraceback",_simGetStackTraceback,              "string stacktraceback=sim.getStackTraceback()",true},
+    {"sim.getStackTraceback",_simGetStackTraceback,              "string stacktraceback=sim.getStackTraceback([number scriptHandle])",true},
     {"sim.setStringNamedParam",_simSetStringNamedParam,          "number result=sim.setStringNamedParam(string paramName,string stringParam)",true},
     {"sim.getStringNamedParam",_simGetStringNamedParam,          "string stringParam=sim.getStringNamedParam(string paramName)",true},
     {"sim.getUserParameter",_simGetUserParameter,"boolean/number/string parameterValue=sim.getUserParameter(number objectHandle,string parameterName,boolean forceStringReturn=false)",true},
@@ -472,6 +501,13 @@ const SLuaCommands simLuaCommands[]=
 
     // Add new commands here!
     // Then regenerate the notepad++ keywords and calltips
+
+    {"sim.addStatusbarMessage",_simAddStatusbarMessage,         "Deprecated. Use 'sim.addLog' instead",false},
+    {"sim.getNameSuffix",_simGetNameSuffix,                     "Deprecated",false},
+    {"sim.setNameSuffix",_simSetNameSuffix,                     "Deprecated",false},
+    {"sim.resetMill",_simResetMill,                             "Deprecated. Has no effect.",false},
+    {"sim.resetMilling",_simResetMilling,                       "Deprecated. Has no effect.",false},
+    {"sim.handleMill",_simHandleMill,                           "Deprecated. Has no effect.",false},
     {"sim.openTextEditor",_simOpenTextEditor,                    "Deprecated. Use 'sim.textEditorOpen' instead",false},
     {"sim.closeTextEditor",_simCloseTextEditor,                  "Deprecated. Use 'sim.textEditorClose' instead",false},
     {"simHandlePath",_simHandlePath,                                "Deprecated",false},
@@ -516,8 +552,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simCheckProximitySensor",_simCheckProximitySensor,        "Use the newer 'sim.checkProximitySensor' notation",false},
     {"simCheckProximitySensorEx",_simCheckProximitySensorEx,    "Use the newer 'sim.checkProximitySensorEx' notation",false},
     {"simCheckProximitySensorEx2",_simCheckProximitySensorEx2,  "Use the newer 'sim.checkProximitySensorEx2' notation",false},
-    {"simGetNameSuffix",_simGetNameSuffix,                      "Use the newer 'sim.getNameSuffix' notation",false},
-    {"simSetNameSuffix",_simSetNameSuffix,                      "Use the newer 'sim.setNameSuffix' notation",false},
     {"simGetObjectHandle",_simGetObjectHandle,                  "Use the newer 'sim.getObjectHandle' notation",false},
     {"simAddScript",_simAddScript,                              "Use the newer 'sim.addScript' notation",false},
     {"simAssociateScriptWithObject",_simAssociateScriptWithObject,"Use the newer 'sim.associateScriptWithObject' notation",false},
@@ -559,7 +593,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetSimulatorMessage",_simGetSimulatorMessage,          "Use the newer 'sim.getSimulatorMessage' notation",false},
     {"simResetGraph",_simResetGraph,                            "Use the newer 'sim.resetGraph' notation",false},
     {"simHandleGraph",_simHandleGraph,                          "Use the newer 'sim.handleGraph' notation",false},
-    {"simAddStatusbarMessage",_simAddStatusbarMessage,          "Use the newer 'sim.addStatusbarMessage' notation",false},
     {"simGetLastError",_simGetLastError,                        "Use the newer 'sim.getLastError' notation",false},
     {"simGetObjects",_simGetObjects,                            "Use the newer 'sim.getObjects' notation",false},
     {"simRefreshDialogs",_simRefreshDialogs,                    "Use the newer 'sim.refreshDialogs' notation",false},
@@ -858,6 +891,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetReferencedHandles",_simGetReferencedHandles,        "Use the newer 'sim.getReferencedHandles' notation",false},
     {"simGetGraphCurve",_simGetGraphCurve,                        "Use the newer 'sim.getGraphCurve' notation",false},
     {"simTest",_simTest,                                        "Use the newer 'sim.test' notation",false},
+    {"simAddStatusbarMessage",_simAddStatusbarMessage,          "Deprecated. Use 'sim.addLog' instead",false},
     // Following deprecated since 21/05/2017:
     {"simBoolOr16",_simBoolOr16,                                "Deprecated. Use sim.boolOr32 instead",false},
     {"simBoolAnd16",_simBoolAnd16,                              "Deprecated. Use sim.boolAnd32 instead",false},
@@ -959,6 +993,9 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simResetPath",_simResetPath,                                  "Deprecated",false},
     {"simResetJoint",_simResetJoint,                                "Deprecated",false},
     {"simGetMpConfigForTipPose",_simGetMpConfigForTipPose,          "Deprecated. Use sim.getConfigForTipPose instead",false},
+    // Following for backward compatibility (June 2020):
+    {"simGetNameSuffix",_simGetNameSuffix,                      "Deprecated.",false},
+    {"simSetNameSuffix",_simSetNameSuffix,                      "Deprecated.",false},
     // Following for backward compatibility (Dec 2015):
     {"simSetBooleanParameter",_simSetBoolParameter,                 "Deprecated. Use sim.setBoolParameter instead",false},
     {"simGetBooleanParameter",_simGetBoolParameter,                 "Deprecated. Use sim.getBoolParameter instead",false},
@@ -1405,7 +1442,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_machine_id_legacy",sim_stringparam_machine_id_legacy,true},
     {"sim.stringparam_verbosity",sim_stringparam_verbosity,true},
     {"sim.stringparam_statusbarverbosity",sim_stringparam_statusbarverbosity,true},
-    {"sim.stringparam_logfilter",sim_stringparam_logfilter,true},
+    {"sim.stringparam_logfilter",sim_stringparam_consolelogfilter,true},
 
     // verbosity:
     {"sim.verbosity_useglobal",sim_verbosity_useglobal,true},
@@ -1413,12 +1450,16 @@ const SLuaVariables simLuaVariables[]=
     {"sim.verbosity_errors",sim_verbosity_errors,true},
     {"sim.verbosity_warnings",sim_verbosity_warnings,true},
     {"sim.verbosity_loadinfos",sim_verbosity_loadinfos,true},
+    {"sim.verbosity_scripterrors",sim_verbosity_scripterrors,true},
+    {"sim.verbosity_scriptwarnings",sim_verbosity_scriptwarnings,true},
+    {"sim.verbosity_msgs",sim_verbosity_msgs,true},
     {"sim.verbosity_infos",sim_verbosity_infos,true},
     {"sim.verbosity_debug",sim_verbosity_debug,true},
     {"sim.verbosity_trace",sim_verbosity_trace,true},
     {"sim.verbosity_tracelua",sim_verbosity_tracelua,true},
     {"sim.verbosity_traceall",sim_verbosity_traceall,true},
     {"sim.verbosity_default",sim_verbosity_default,true},
+    {"sim.verbosity_undecorated",sim_verbosity_undecorated,true},
 
     // module info:
     {"sim.moduleinfo_extversionstr",sim_moduleinfo_extversionstr,true},
@@ -1534,12 +1575,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.jointmode_ikdependent",sim_jointmode_reserved_previously_ikdependent,true},
     {"sim.jointmode_dependent",sim_jointmode_dependent,true},
     {"sim.jointmode_force",sim_jointmode_force,true},
-    // verbosity
-    {"sim.verbosity_none",sim_verbosity_none,true},
-    {"sim.verbosity_errors",sim_verbosity_errors,true},
-    {"sim.verbosity_warnings",sim_verbosity_warnings,true},
-    {"sim.verbosity_infos",sim_verbosity_infos,true},
-    {"sim.verbosity_debug",sim_verbosity_debug,true},
     // file dialog styles
     {"sim.filedlg_type_load",sim_filedlg_type_load,true},
     {"sim.filedlg_type_save",sim_filedlg_type_save,true},
@@ -3027,70 +3062,12 @@ void clearSerialPortLeftOver(int portHandle)
 
 bool isObjectAssociatedWithThisThreadedChildScriptValid(luaWrap_lua_State* L)
 {
-    int id=getCurrentScriptID(L);
+    int id=getCurrentScriptHandle(L);
     CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(id);
     if (script==nullptr)
         return(false);
     int h=script->getObjectIDThatScriptIsAttachedTo_child();
     return(h!=-1);
-}
-
-void memorizeLocation(luaWrap_lua_State* L)
-{
-    memorizeLocationMutex.lock("luaScriptFunctions,memorizeLocation()");
-    VTHREAD_ID_TYPE threadID=VThread::getCurrentThreadId();
-    int index=getLocationIndex(threadID);
-    if (index==-1)
-    {
-        locations.push_back("");
-        threadIDs.push_back(threadID);
-        index=getLocationIndex(threadID);
-    }
-
-    std::string scriptName("");
-    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
-    if (it!=nullptr)
-        scriptName=it->getShortDescriptiveName();
-    int lineNumber=-1;
-    lineNumber=luaWrap_getCurrentCodeLine(L);
-    std::string msg("[string \"");
-    msg+=scriptName+"\"]:";
-    msg+=boost::lexical_cast<std::string>(lineNumber);
-    msg+=": ";
-    locations[index]=msg;
-    memorizeLocationMutex.unlock();
-}
-
-std::string getLocationString()
-{
-    VTHREAD_ID_TYPE threadID=VThread::getCurrentThreadId();
-    int index=getLocationIndex(threadID);
-    if (index==-1)
-        return("[string -unknown location]:?: "); // Should normally not happen!
-    return(locations[index]);
-}
-
-int getLocationIndex(VTHREAD_ID_TYPE threadID)
-{
-    for (int i=0;i<int(threadIDs.size());i++)
-    {
-        if (VThread::areThreadIDsSame(threadID,threadIDs[i]))
-            return(i);
-    }
-    return(-1);
-}
-
-void forgetLocation()
-{
-    memorizeLocationMutex.lock("luaScriptFunctions,forgetLocation()");
-    VTHREAD_ID_TYPE threadID=VThread::getCurrentThreadId();
-    int index=getLocationIndex(threadID);
-    if (index!=-1)
-    { // should always be the case!
-        locations.erase(locations.begin()+index);
-        threadIDs.erase(threadIDs.begin()+index);
-    }
-    memorizeLocationMutex.unlock();
 }
 
 void pushCorrectTypeOntoLuaStack(luaWrap_lua_State* L,const std::string& txt)
@@ -3134,7 +3111,7 @@ int getCorrectType(const std::string& txt)
 void getScriptTree(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scriptHandles)
 { // Returns all scripts that are built under the current one
     scriptHandles.clear();
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
 
     CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
     if (it!=nullptr)
@@ -3201,7 +3178,7 @@ void getScriptTree(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scri
 void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std::vector<int>& scriptHandles)
 { // Returns all script IDs that are parents (or grand-parents,grand-grand-parents, etc.) of the current one
     scriptHandles.clear();
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
 
     CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
 
@@ -3269,28 +3246,28 @@ std::string getAdditionalLuaSearchPath()
 {
     std::string retVal;
     retVal+=App::directories->executableDirectory;
-#ifdef MAC_SIM
-    // We are inside of the package!!!
-    retVal+="/../../../?.lua";
-#else
+//#ifdef MAC_SIM
+//    // We are inside of the package!!!
+//    retVal+="/../../../?.lua";
+//#else
     retVal+="/?.lua";
-#endif
+//#endif
     retVal+=";";
     retVal+=App::directories->executableDirectory;
-#ifdef MAC_SIM
-    // We are inside of the package!!!
-    retVal+="/../../../lua/?.lua";
-#else
+//#ifdef MAC_SIM
+//    // We are inside of the package!!!
+//    retVal+="/../../../lua/?.lua";
+//#else
     retVal+="/lua/?.lua";
 #endif
-    retVal+=";";
+//    retVal+=";";
     retVal+=App::directories->executableDirectory;
-#ifdef MAC_SIM
-    // We are inside of the package!!!
-    retVal+="/../../../bwf/?.lua";
-#else
+//#ifdef MAC_SIM
+//    // We are inside of the package!!!
+//    retVal+="/../../../bwf/?.lua";
+//#else
     retVal+="/bwf/?.lua";
-#endif
+//#endif
     if (App::currentWorld->mainSettings->getScenePathAndName().compare("")!=0)
     {
         retVal+=";";
@@ -3406,7 +3383,7 @@ void registerNewLuaFunctions(luaWrap_lua_State* L)
 void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
 {
     TRACE_INTERNAL;
-    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
     if (it==nullptr)
         return; // the script ID was not yet set
     int debugLevel=it->getDebugLevel();
@@ -3535,7 +3512,7 @@ void setNewLuaVariable(luaWrap_lua_State* L,const char* name,int identifier)
     luaWrap_luaL_dostring(L,tmp.c_str());
 }
 
-int getCurrentScriptID(luaWrap_lua_State* L)
+int getCurrentScriptHandle(luaWrap_lua_State* L)
 {
     luaWrap_lua_getglobal(L,"sim_current_script_id");
     int retVal=-1;
@@ -3936,40 +3913,21 @@ bool luaToBool(luaWrap_lua_State* L,int pos)
     return(luaWrap_lua_toboolean(L,pos)!=0);
 }
 
-bool suffixAdjustStringIfNeeded(const std::string& functionName,bool outputError,luaWrap_lua_State* L,std::string& name)
+void suffixAdjustStringIfNeeded(luaWrap_lua_State* L,std::string& name)
 {
-    if (name.length()==0) // This would be the main script in some functions. Added on 4/5/2017
-        return(true);
-    std::string suffTxt;
-    luaWrap_lua_getglobal(L,SIM_SCRIPT_NAME_SUFFIX);
-    if (luaWrap_lua_isstring(L,-1))
-        suffTxt=luaWrap_lua_tostring(L,-1);
-    luaWrap_lua_pop(L,1);
-
-    if (suffTxt=="")
-    { // we don't want adjustment (the script name doesn't have any '#')
-        // The special cases like "marci#" are handled on the C-API side!
-        return(true); // means no error
+    if ( (name.length()!=0)&&(name.find('#')==std::string::npos) )
+    { // Not the main script. Also, we didn't use the absolute object name notation, so we might need adjustment..
+        std::string suffTxt;
+        luaWrap_lua_getglobal(L,SIM_SCRIPT_NAME_SUFFIX);
+        if (luaWrap_lua_isstring(L,-1))
+            suffTxt=luaWrap_lua_tostring(L,-1);
+        luaWrap_lua_pop(L,1);
+        if (suffTxt!="")
+        {
+            name+="#";
+            name+=suffTxt;
+        }
     }
-
-    // We want suffix adjustment!
-    if (!isHashFree(functionName,name))
-    { // We have a hash in the name of the object we want the handle of
-        // We explicitely access the object (no name adjustment)
-        // The special cases like "marci#" are handled on the C-API side!
-        return(true); // no error
-    }
-
-    name+="#";
-    name+=suffTxt;
-    return(true);// no error
-}
-
-bool isHashFree(const std::string& functionName,const std::string& name)
-{
-    if (name.find('#')==std::string::npos)
-        return(true);
-    return(false);
 }
 
 int checkOneGeneralInputArgument(luaWrap_lua_State* L,int index,
@@ -4036,21 +3994,6 @@ int checkOneGeneralInputArgument(luaWrap_lua_State* L,int index,
             return(2);
         return(-1);
     }
-}
-
-bool _hasErrors(std::string& funcErrorString)
-{
-    if (funcErrorString.size()>0)
-        return(true);
-    funcErrorString=CApiErrors::getCSideGeneratedLuaError();
-    CApiErrors::clearCSideGeneratedLuaError();
-    return(funcErrorString.size()>0);
-}
-
-void luaApiCallWarning(const char* functionName,const char* message)
-{   // Those messages can be suppressed, since they are not a formatting (i.e. bad code) problem.
-    // Those messages are NOT saved (i.e. cannot be retrieved with simGetLastError since they are warnings, not errors)
-    CApiErrors::setApiCallWarningMessage(functionName,message);
 }
 
 bool checkOneInputArgument(luaWrap_lua_State* L,int index,int type,std::string* errStr)
@@ -4193,7 +4136,7 @@ int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,st
         suffix=luaWrap_lua_tostring(L,-1);
     luaWrap_lua_pop(L,1); // we correct the stack
     // Now we retrieve the object ID this script might be attached to:
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* itObj=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     int linkedObject=-1;
     if (itObj->getScriptType()==sim_scripttype_childscript)
@@ -4220,11 +4163,7 @@ int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,st
     cb->raiseErrorWithMessage=(char*)&raiseErrorMsg;
 
     // Now we can call the callback:
-    CApiErrors::pushLocation(1); // for correct error handling (i.e. assignement to the correct script and output)
-    itObj->setInsideCustomLuaFunction(true);
     func->callBackFunction_new(cb);
-    itObj->setInsideCustomLuaFunction(false);
-    CApiErrors::popLocation(); // for correct error handling (i.e. assignement to the correct script and output)
 
     bool dontDeleteStructureYet=false;
     while (cb->waitUntilZero!=0)
@@ -4244,7 +4183,7 @@ int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,st
     stack->buildOntoLuaStack(L,false);
 
     if (strlen(cb->raiseErrorWithMessage)!=0)
-        raiseErrorWithMsg+=cb->raiseErrorWithMessage;
+        raiseErrorWithMsg+=cb->raiseErrorWithMessage; // is this mechanism used?! We probably simply use simSetLastError..?
 
     // And we return the number of arguments:
     int outputArgCount=stack->getStackSize();
@@ -4283,7 +4222,7 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func)
         suffix=luaWrap_lua_tostring(L,-1);
     luaWrap_lua_pop(L,1); // we correct the stack
     // Now we retrieve the object ID this script might be attached to:
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* itObj=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     int linkedObject=-1;
     if (itObj->getScriptType()==sim_scripttype_childscript)
@@ -4368,13 +4307,7 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func)
         p->inputArgTypeAndSize[k]=inInfoVector[k];
 
     // Now we can call the callback:
-
-
-    CApiErrors::pushLocation(1); // for correct error handling (i.e. assignement to the correct script and output)
-    itObj->setInsideCustomLuaFunction(true);
     func->callBackFunction_old(p);
-    itObj->setInsideCustomLuaFunction(false);
-    CApiErrors::popLocation(); // for correct error handling (i.e. assignement to the correct script and output)
 
     bool dontDeleteStructureYet=false;
     while (p->waitUntilZero!=0)
@@ -4719,7 +4652,7 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
     int id=luaWrap_lua_tointeger(L,-1)-1;
     luaWrap_lua_pop(L,1); // we have to pop the pushed value to get the original stack state
     int outputArgCount=0;
-    for (int j=0;j<int(App::worldContainer->luaCustomFuncAndVarContainer->allCustomFunctions.size());j++)
+    for (size_t j=0;j<App::worldContainer->luaCustomFuncAndVarContainer->allCustomFunctions.size();j++)
     { // we now search for the callback to call:
         CLuaCustomFunction* it=App::worldContainer->luaCustomFuncAndVarContainer->allCustomFunctions[j];
         if (it->getFunctionID()==id)
@@ -4728,12 +4661,11 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
             App::logMsg(sim_verbosity_debug,(std::string("sim.genericFunctionHandler: ")+functionName).c_str());
             if (it->getPluginName().size()!=0)
             {
-                functionName+=" @ '";
+                functionName+="@simExt";
                 functionName+=it->getPluginName();
-                functionName+="' plugin";
             }
             else
-                functionName+=" @ <unknown plugin>";
+                functionName+="@plugin";
 
             if (it->getUsesStackToExchangeData())
                 outputArgCount=_genericFunctionHandler_new(L,it,errorString);
@@ -4743,7 +4675,7 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(outputArgCount);
 }
 
@@ -4756,7 +4688,7 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int callType=luaWrap_lua_tointeger(L,1);
-        int currentScriptID=getCurrentScriptID(L);
+        int currentScriptID=getCurrentScriptHandle(L);
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
         if (it!=nullptr)
         {
@@ -4773,7 +4705,7 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -4784,7 +4716,7 @@ int _simLaunchThreadedChildScripts(luaWrap_lua_State* L)
     LUA_START("sim.launchThreadedChildScripts");
 
     int retVal=-1; // means error
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
     if (it!=nullptr)
     {
@@ -4799,7 +4731,7 @@ int _simLaunchThreadedChildScripts(luaWrap_lua_State* L)
             errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -4813,7 +4745,7 @@ int _simGetScriptName(luaWrap_lua_State* L)
     {
         int a=luaToInt(L,1);
         if (a==sim_handle_self)
-            a=getCurrentScriptID(L);
+            a=getCurrentScriptHandle(L);
         char* name=simGetScriptName_internal(a);
         if (name!=nullptr)
         {
@@ -4823,7 +4755,7 @@ int _simGetScriptName(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -4832,10 +4764,10 @@ int _simGetScriptExecutionCount(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getScriptExecutionCount");
 
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,it->getNumberOfPasses());
     LUA_END(1);
 }
@@ -4845,13 +4777,13 @@ int _simIsScriptExecutionThreaded(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.isScriptExecutionThreaded");
 
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
     int retVal=0;
     if ((it!=nullptr)&&it->getThreadedExecution())
         retVal=1;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -4865,7 +4797,7 @@ int _simIsScriptRunningInThread(luaWrap_lua_State* L)
     if (VThread::isCurrentThreadTheMainSimulationThread())
         retVal=0;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -4880,11 +4812,11 @@ int _simGetObjectAssociatedWithScript(luaWrap_lua_State* L)
     {
         int a=luaToInt(L,1);
         if (a==sim_handle_self)
-            a=getCurrentScriptID(L);
+            a=getCurrentScriptHandle(L);
         retVal=simGetObjectAssociatedWithScript_internal(a);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -4898,7 +4830,7 @@ int _simGetScriptAssociatedWithObject(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simGetScriptAssociatedWithObject_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -4912,7 +4844,7 @@ int _simGetCustomizationScriptAssociatedWithObject(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simGetCustomizationScriptAssociatedWithObject_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -4924,7 +4856,7 @@ int _simOpenModule(luaWrap_lua_State* L)
 
     moduleCommonPart(L,sim_message_eventcallback_moduleopen,&errorString);
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(1);
 }
 int _simCloseModule(luaWrap_lua_State* L)
@@ -4934,17 +4866,17 @@ int _simCloseModule(luaWrap_lua_State* L)
 
     moduleCommonPart(L,sim_message_eventcallback_moduleclose,&errorString);
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(1);
 }
 
 int _simHandleModule(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.handleModule");
-
+    LUA_START_NO_CSIDE_ERROR("sim.handleModule");
     bool sensingPart=false;
     int res=checkOneGeneralInputArgument(L,2,lua_arg_bool,0,true,false,&errorString);
+
     if ( (res==0)||(res==2) )
     {
         if (res==2)
@@ -4957,7 +4889,7 @@ int _simHandleModule(luaWrap_lua_State* L)
     else
         luaWrap_lua_pushnumber(L,-1);
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(1);
 }
 
@@ -4971,7 +4903,7 @@ void moduleCommonPart(luaWrap_lua_State* L,int action,std::string* errorString)
         functionName="sim.closeModule";
     if ( (action==sim_message_eventcallback_modulehandle)||(action==sim_message_eventcallback_modulehandleinsensingpart) )
         functionName="sim.handleModule";
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if (it->getScriptType()!=sim_scripttype_mainscript)
     {
@@ -5027,7 +4959,7 @@ int _simBoolOr32(luaWrap_lua_State* L)
             errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -5051,7 +4983,7 @@ int _simBoolAnd32(luaWrap_lua_State* L)
             errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -5075,7 +5007,7 @@ int _simBoolXor32(luaWrap_lua_State* L)
             errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -5086,7 +5018,7 @@ int _simHandleDynamics(luaWrap_lua_State* L)
     LUA_START("sim.handleDynamics");
 
     int retVal=-1; // means error
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* itScrObj=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript) )
     {
@@ -5096,7 +5028,7 @@ int _simHandleDynamics(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT_OR_CHILD_SCRIPT;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5110,7 +5042,7 @@ int _simHandleIkGroup(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simHandleIkGroup_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5151,7 +5083,7 @@ int _simCheckIkGroup(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,-1);
     LUA_END(1);
 }
@@ -5181,7 +5113,7 @@ int _simHandleCollision(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5210,7 +5142,7 @@ int _simReadCollision(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5233,7 +5165,7 @@ int _simHandleDistance(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5256,7 +5188,7 @@ int _simReadDistance(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5284,7 +5216,7 @@ int _simHandleProximitySensor(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5312,7 +5244,7 @@ int _simReadProximitySensor(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5344,7 +5276,7 @@ int _simHandleVisionSensor(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5376,7 +5308,7 @@ int _simReadVisionSensor(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5390,7 +5322,7 @@ int _simResetCollision(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simResetCollision_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5404,7 +5336,7 @@ int _simResetDistance(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simResetDistance_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5418,7 +5350,7 @@ int _simResetProximitySensor(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simResetProximitySensor_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5432,7 +5364,7 @@ int _simResetVisionSensor(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simResetVisionSensor_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5456,7 +5388,7 @@ int _simCheckProximitySensor(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5484,7 +5416,7 @@ int _simCheckProximitySensorEx(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5530,7 +5462,7 @@ int _simCheckProximitySensorEx2(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5550,7 +5482,7 @@ int _simGetVisionSensorResolution(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -5642,7 +5574,7 @@ int _simGetVisionSensorImage(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -5730,7 +5662,7 @@ int _simGetVisionSensorCharImage(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -5837,7 +5769,7 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
             errorString=SIM_ERROR_OBJECT_INEXISTANT;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5891,7 +5823,7 @@ int _simSetVisionSensorCharImage(luaWrap_lua_State* L)
             errorString=SIM_ERROR_OBJECT_INEXISTANT;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -5972,7 +5904,7 @@ int _simGetVisionSensorDepthBuffer(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -6003,7 +5935,7 @@ int _simCheckVisionSensor(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6049,7 +5981,7 @@ int _simCheckVisionSensorEx(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -6062,7 +5994,7 @@ int _simGetObjects(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simGetObjects_internal(luaToInt(L,1),luaToInt(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6080,7 +6012,7 @@ int _simGetObjectHandle(luaWrap_lua_State* L)
         if (luaWrap_lua_tointeger(L,1)==sim_handle_self)
         {
             checkWithString=false;
-            int a=getCurrentScriptID(L);
+            int a=getCurrentScriptHandle(L);
             retVal=simGetObjectAssociatedWithScript_internal(a);
         }
     }
@@ -6090,26 +6022,23 @@ int _simGetObjectHandle(luaWrap_lua_State* L)
         {
             std::string name(luaWrap_lua_tostring(L,1));
             size_t pos=name.find("@alt");
-            size_t pos2=name.find("@");
             if (pos==std::string::npos)
             { // handle retrieval via regular name
                 std::string n(name);
+                size_t pos2=n.find("@"); // we might have some additional @, e.g. as in @silentError
                 if (pos2!=std::string::npos)
                     n.assign(name.begin(),name.begin()+pos2);
-                if (suffixAdjustStringIfNeeded(functionName,true,L,n))
-                {
-                    if (pos2!=std::string::npos)
-                        n=n+std::string(name.begin()+pos2,name.end());
-                    quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
-                    retVal=simGetObjectHandle_internal(n.c_str());
-                }
+                suffixAdjustStringIfNeeded(L,n);
+                if (pos2!=std::string::npos)
+                    n=n+std::string(name.begin()+pos2,name.end());
+                quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
+                retVal=simGetObjectHandle_internal(n.c_str());
             }
             else
                 retVal=simGetObjectHandle_internal(name.c_str()); // handle retrieval via alt name
         }
     }
-
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6126,7 +6055,7 @@ int _simAddScript(luaWrap_lua_State* L)
         retVal=simAddScript_internal(scriptType);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6144,7 +6073,7 @@ int _simAssociateScriptWithObject(luaWrap_lua_State* L)
         retVal=simAssociateScriptWithObject_internal(scriptHandle,objectHandle);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6162,7 +6091,7 @@ int _simSetScriptText(luaWrap_lua_State* L)
         retVal=simSetScriptText_internal(scriptHandle,scriptText.c_str());
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6175,31 +6104,29 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
 
     int retVal=-1; // means error
     if (luaWrap_lua_gettop(L)==0) // no arguments
-        retVal=getCurrentScriptID(L);
+        retVal=getCurrentScriptHandle(L);
     else
     {
         if (checkInputArguments(L,nullptr,lua_arg_nil,0)) // we don't output errors here!!
-            retVal=getCurrentScriptID(L); // nil argument
+            retVal=getCurrentScriptHandle(L); // nil argument
         else
         {
             if (checkInputArguments(L,nullptr,lua_arg_number,0))
             { // argument sim.handle_self
                 if (luaWrap_lua_tointeger(L,1)==sim_handle_self)
-                    retVal=getCurrentScriptID(L);
+                    retVal=getCurrentScriptHandle(L);
             }
             if ( (retVal==-1)&&checkInputArguments(L,&errorString,lua_arg_string,0) )
             { // string argument
                 std::string name(luaWrap_lua_tostring(L,1));
-                if (suffixAdjustStringIfNeeded(functionName,true,L,name))
-                {
-                    quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
-                    retVal=simGetScriptHandle_internal(name.c_str());
-                }
+                suffixAdjustStringIfNeeded(L,name);
+                quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
+                retVal=simGetScriptHandle_internal(name.c_str());
             }
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6217,16 +6144,14 @@ int _simGetIkGroupHandle(luaWrap_lua_State* L)
         std::string n(name);
         if (pos!=std::string::npos)
             n.assign(name.begin(),name.begin()+pos);
-        if (suffixAdjustStringIfNeeded(functionName,true,L,n))
-        {
-            if (pos!=std::string::npos)
-                n=n+std::string(name.begin()+pos,name.end());
-            quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
-            retVal=simGetIkGroupHandle_internal(n.c_str());
-        }
+        suffixAdjustStringIfNeeded(L,n);
+        if (pos!=std::string::npos)
+            n=n+std::string(name.begin()+pos,name.end());
+        quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
+        retVal=simGetIkGroupHandle_internal(n.c_str());
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6244,16 +6169,14 @@ int _simGetCollisionHandle(luaWrap_lua_State* L)
         std::string n(name);
         if (pos!=std::string::npos)
             n.assign(name.begin(),name.begin()+pos);
-        if (suffixAdjustStringIfNeeded(functionName,true,L,n))
-        {
-            if (pos!=std::string::npos)
-                n=n+std::string(name.begin()+pos,name.end());
-            quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
-            retVal=simGetCollisionHandle_internal(n.c_str());
-        }
+        suffixAdjustStringIfNeeded(L,n);
+        if (pos!=std::string::npos)
+            n=n+std::string(name.begin()+pos,name.end());
+        quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
+        retVal=simGetCollisionHandle_internal(n.c_str());
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6268,12 +6191,12 @@ int _simRemoveScript(luaWrap_lua_State* L)
     {
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
-            handle=getCurrentScriptID(L);
+            handle=getCurrentScriptHandle(L);
         if (sim_handle_all!=handle)
             retVal=simRemoveScript_internal(handle);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6291,16 +6214,14 @@ int _simGetDistanceHandle(luaWrap_lua_State* L)
         std::string n(name);
         if (pos!=std::string::npos)
             n.assign(name.begin(),name.begin()+pos);
-        if (suffixAdjustStringIfNeeded(functionName,true,L,n))
-        {
-            if (pos!=std::string::npos)
-                n=n+std::string(name.begin()+pos,name.end());
-            quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
-            retVal=simGetDistanceHandle_internal(n.c_str());
-        }
+        suffixAdjustStringIfNeeded(L,n);
+        if (pos!=std::string::npos)
+            n=n+std::string(name.begin()+pos,name.end());
+        quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
+        retVal=simGetDistanceHandle_internal(n.c_str());
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6318,16 +6239,14 @@ int _simGetCollectionHandle(luaWrap_lua_State* L)
         std::string n(name);
         if (pos!=std::string::npos)
             n.assign(name.begin(),name.begin()+pos);
-        if (suffixAdjustStringIfNeeded(functionName,true,L,n))
-        {
-            if (pos!=std::string::npos)
-                n=n+std::string(name.begin()+pos,name.end());
-            quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
-            retVal=simGetCollectionHandle_internal(n.c_str());
-        }
+        suffixAdjustStringIfNeeded(L,n);
+        if (pos!=std::string::npos)
+            n=n+std::string(name.begin()+pos,name.end());
+        quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
+        retVal=simGetCollectionHandle_internal(n.c_str());
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6341,7 +6260,7 @@ int _simRemoveCollection(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simRemoveCollection_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6355,7 +6274,7 @@ int _simEmptyCollection(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simEmptyCollection_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6375,7 +6294,7 @@ int _simGetObjectPosition(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -6394,7 +6313,7 @@ int _simGetObjectOrientation(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -6411,7 +6330,7 @@ int _simSetObjectPosition(luaWrap_lua_State* L)
         retVal=simSetObjectPosition_internal(luaToInt(L,1),luaToInt(L,2),coord);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6429,7 +6348,7 @@ int _simSetObjectOrientation(luaWrap_lua_State* L)
         retVal=simSetObjectOrientation_internal(luaToInt(L,1),luaToInt(L,2),coord);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6449,7 +6368,7 @@ int _simGetJointPosition(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -6462,7 +6381,7 @@ int _simSetJointPosition(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetJointPosition_internal(luaToInt(L,1),luaToFloat(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6476,7 +6395,7 @@ int _simSetJointTargetPosition(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetJointTargetPosition_internal(luaToInt(L,1),luaToFloat(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6496,7 +6415,7 @@ int _simGetJointTargetPosition(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -6509,7 +6428,7 @@ int _simSetJointMaxForce(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetJointMaxForce_internal(luaToInt(L,1),luaToFloat(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6529,7 +6448,7 @@ int _simGetJointMaxForce(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -6548,7 +6467,7 @@ int _simGetPathPosition(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -6561,7 +6480,7 @@ int _simSetPathPosition(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetPathPosition_internal(luaToInt(L,1),luaToFloat(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6581,7 +6500,7 @@ int _simGetPathLength(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -6594,7 +6513,7 @@ int _simSetJointTargetVelocity(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetJointTargetVelocity_internal(luaToInt(L,1),luaToFloat(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6614,7 +6533,7 @@ int _simGetJointTargetVelocity(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -6627,7 +6546,7 @@ int _simRefreshDialogs(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simRefreshDialogs_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6648,7 +6567,7 @@ int _simGetObjectName(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -6668,7 +6587,7 @@ int _simGetCollectionName(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -6690,7 +6609,7 @@ int _simGetModuleName(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -6706,7 +6625,7 @@ int _simGetSimulationTime(luaWrap_lua_State* L)
         LUA_END(1);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,-1);
     LUA_END(1);
 }
@@ -6721,7 +6640,7 @@ int _simGetSimulationState(luaWrap_lua_State* L)
 
     int retVal=simGetSimulationState_internal();
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6731,7 +6650,7 @@ int _simGetSystemTime(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getSystemTime");
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,simGetSystemTime_internal());
     LUA_END(1);
 }
@@ -6748,7 +6667,7 @@ int _simGetSystemTimeInMs(luaWrap_lua_State* L)
         LUA_END(1);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -6761,7 +6680,7 @@ int _simCheckCollision(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simCheckCollision_internal(luaToInt(L,1),luaToInt(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6785,7 +6704,7 @@ int _simCheckCollisionEx(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6809,7 +6728,7 @@ int _simCheckDistance(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6826,14 +6745,14 @@ int _simGetObjectConfiguration(luaWrap_lua_State* L)
             luaWrap_lua_pushnumber(L,-1);
         else
         {
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
             luaWrap_lua_pushnumber(L,it->setUserData(data));
         }
     }
     else
         luaWrap_lua_pushnumber(L,-1);
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(1);
 }
 
@@ -6845,7 +6764,7 @@ int _simSetObjectConfiguration(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
         char* data=(char*)it->getUserData(luaWrap_lua_tointeger(L,1));
         if (data!=nullptr)
             retVal=simSetObjectConfiguration_internal(data);
@@ -6853,7 +6772,7 @@ int _simSetObjectConfiguration(luaWrap_lua_State* L)
             errorString=SIM_ERROR_INVALID_HANDLE;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6864,7 +6783,7 @@ int _simGetConfigurationTree(luaWrap_lua_State* L)
     LUA_START("sim.getConfigurationTree");
 
     int retVal=-1;
-    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int id=luaToInt(L,1);
@@ -6883,7 +6802,7 @@ int _simGetConfigurationTree(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6896,7 +6815,7 @@ int _simSetConfigurationTree(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
         char* data=(char*)it->getUserData(luaWrap_lua_tointeger(L,1));
         if (data==nullptr)
             errorString=SIM_ERROR_INVALID_HANDLE;
@@ -6904,7 +6823,7 @@ int _simSetConfigurationTree(luaWrap_lua_State* L)
             retVal=simSetConfigurationTree_internal(data);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6914,15 +6833,22 @@ int _simGetLastError(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getLastError");
 
-    char* it=simGetLastError_internal();
+    int scriptHandle=-1;
+    if (luaWrap_lua_gettop(L)!=0)
+    {
+        if (checkInputArguments(L,&errorString,lua_arg_number,0))
+            scriptHandle=luaWrap_lua_tointeger(L,1);
+    }
+    else
+        scriptHandle=getCurrentScriptHandle(L);
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
     if (it!=nullptr)
     {
-        luaWrap_lua_pushstring(L,it);
-        simReleaseBuffer_internal(it);
+        luaWrap_lua_pushstring(L,it->getAndClearLastError().c_str());
         LUA_END(1);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -6931,7 +6857,7 @@ int _simGetSimulationTimeStep(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getSimulationTimeStep");
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,simGetSimulationTimeStep_internal());
     LUA_END(1);
 }
@@ -6944,7 +6870,7 @@ int _simGetSimulatorMessage(luaWrap_lua_State* L)
     int auxVals[4];
     float aux2Vals[8];
     int aux2Cnt;
-    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
     int commandID=it->extractCommandFromOutsideCommandQueue(auxVals,aux2Vals,aux2Cnt);
     if (commandID!=-1)
     {
@@ -6958,7 +6884,7 @@ int _simGetSimulatorMessage(luaWrap_lua_State* L)
         LUA_END(2);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,-1);
     LUA_END(1);
 }
@@ -6972,7 +6898,7 @@ int _simResetGraph(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simResetGraph_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -6986,37 +6912,7 @@ int _simHandleGraph(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simHandleGraph_internal(luaToInt(L,1),luaToFloat(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simAddStatusbarMessage(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.addStatusbarMessage");
-
-    int retVal=-1; // means error
-    if (luaWrap_lua_gettop(L)==0)
-    {
-        App::clearStatusbar();
-        retVal=1;
-    }
-    else
-    {
-        if (checkInputArguments(L,nullptr,lua_arg_nil,0))
-        {
-            App::clearStatusbar();
-            retVal=1;
-        }
-        else
-        {
-            if (checkInputArguments(L,&errorString,lua_arg_string,0))
-                retVal=simAddStatusbarMessage_internal(luaWrap_lua_tostring(L,1));
-        }
-    }
-
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7031,7 +6927,7 @@ int _simGetUserParameter(luaWrap_lua_State* L)
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
         {
-            handle=getCurrentScriptID(L);
+            handle=getCurrentScriptHandle(L);
             CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle);
             handle=it->getObjectIDThatScriptIsAttachedTo();
         }
@@ -7058,7 +6954,7 @@ int _simGetUserParameter(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7073,7 +6969,7 @@ int _simSetUserParameter(luaWrap_lua_State* L)
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
         {
-            handle=getCurrentScriptID(L);
+            handle=getCurrentScriptHandle(L);
             CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle);
             handle=it->getObjectIDThatScriptIsAttachedTo();
         }
@@ -7083,7 +6979,7 @@ int _simSetUserParameter(luaWrap_lua_State* L)
         retVal=simSetUserParameter_internal(handle,parameterName.c_str(),parameterValue,(int)parameterValueLength);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7093,14 +6989,27 @@ int _simAddLog(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.addLog");
 
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int v=luaWrap_lua_tointeger(L,1);
-        std::string msg(luaWrap_lua_tostring(L,2));
-        App::logMsg(v,msg.c_str());
+        int res=checkOneGeneralInputArgument(L,2,lua_arg_string,0,false,true,&errorString);
+        if (res>0)
+        {
+            if (res==1)
+                App::clearStatusbar();
+            else
+            {
+                std::string msg(luaWrap_lua_tostring(L,2));
+                CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
+                std::string nm("???");
+                if (it!=nullptr)
+                    nm=it->getShortDescriptiveName();
+                App::logScriptMsg(nm.c_str(),v,msg.c_str());
+            }
+        }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7112,7 +7021,7 @@ int _simStopSimulation(luaWrap_lua_State* L)
     int retVal=-1;// error
     retVal=simStopSimulation_internal();
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7125,7 +7034,7 @@ int _simPauseSimulation(luaWrap_lua_State* L)
     int retVal=-1;// error
     retVal=simPauseSimulation_internal();
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7138,7 +7047,7 @@ int _simStartSimulation(luaWrap_lua_State* L)
     int retVal=-1;// error
     retVal=simStartSimulation_internal();
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7158,7 +7067,7 @@ int _simGetObjectMatrix(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7175,7 +7084,7 @@ int _simSetObjectMatrix(luaWrap_lua_State* L)
         retVal=simSetObjectMatrix_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),arr);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7195,7 +7104,7 @@ int _simGetJointMatrix(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7212,7 +7121,7 @@ int _simSetSphericalJointMatrix(luaWrap_lua_State* L)
         retVal=simSetSphericalJointMatrix_internal(luaWrap_lua_tointeger(L,1),arr);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7225,7 +7134,7 @@ int _simBuildIdentityMatrix(luaWrap_lua_State* L)
     float arr[12];
     simBuildIdentityMatrix_internal(arr);
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     pushFloatTableOntoStack(L,12,arr);
     LUA_END(1);
 }
@@ -7243,7 +7152,7 @@ int _simCopyMatrix(luaWrap_lua_State* L)
         LUA_END(1);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7266,7 +7175,7 @@ int _simBuildMatrix(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7287,7 +7196,7 @@ int _simGetEulerAnglesFromMatrix(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7304,7 +7213,7 @@ int _simInvertMatrix(luaWrap_lua_State* L)
         insertFloatsIntoTableAlreadyOnStack(L,1,12,arr);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7328,7 +7237,7 @@ int _simMultiplyMatrices(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7351,7 +7260,7 @@ int _simInterpolateMatrices(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7373,7 +7282,7 @@ int _simMultiplyVector(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7386,7 +7295,7 @@ int _simGetObjectParent(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simGetObjectParent_internal(luaWrap_lua_tointeger(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7400,7 +7309,7 @@ int _simGetObjectChild(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simGetObjectChild_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7414,7 +7323,7 @@ int _simSetObjectParent(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_bool,0))
         retVal=simSetObjectParent_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),luaWrap_lua_toboolean(L,3));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7428,7 +7337,7 @@ int _simGetObjectType(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simGetObjectType_internal(luaWrap_lua_tointeger(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7442,7 +7351,7 @@ int _simGetJointType(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simGetJointType_internal(luaWrap_lua_tointeger(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7456,7 +7365,7 @@ int _simSetBoolParameter(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_bool,0))
         retVal=simSetBoolParameter_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_toboolean(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7476,7 +7385,7 @@ int _simGetBoolParameter(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7489,7 +7398,7 @@ int _simSetInt32Parameter(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetInt32Parameter_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7510,7 +7419,7 @@ int _simGetInt32Parameter(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7523,7 +7432,7 @@ int _simSetFloatParameter(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetFloatParameter_internal(luaWrap_lua_tointeger(L,1),luaToFloat(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7544,7 +7453,7 @@ int _simGetFloatParameter(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(1);
 }
 
@@ -7557,7 +7466,7 @@ int _simSetStringParameter(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
         retVal=simSetStringParameter_internal(luaToInt(L,1),luaWrap_lua_tostring(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7578,7 +7487,7 @@ int _simGetStringParameter(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7599,7 +7508,7 @@ int _simSetArrayParameter(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7624,7 +7533,7 @@ int _simGetArrayParameter(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7637,7 +7546,7 @@ int _simRemoveObject(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int objId=luaWrap_lua_tointeger(L,1);
-        int currentScriptID=getCurrentScriptID(L);
+        int currentScriptID=getCurrentScriptHandle(L);
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
         if (!it->getThreadedExecution())
             retVal=simRemoveObject_internal(objId);
@@ -7658,7 +7567,7 @@ int _simRemoveObject(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7672,7 +7581,7 @@ int _simRemoveModel(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int objId=luaWrap_lua_tointeger(L,1);
-        int currentScriptID=getCurrentScriptID(L);
+        int currentScriptID=getCurrentScriptHandle(L);
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
         if (!it->getThreadedExecution())
             retVal=simRemoveModel_internal(objId);
@@ -7710,7 +7619,7 @@ int _simRemoveModel(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7724,7 +7633,7 @@ int _simSetObjectName(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
         retVal=simSetObjectName_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tostring(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7738,7 +7647,7 @@ int _simSetCollectionName(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
         retVal=simSetCollectionName_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tostring(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7760,7 +7669,7 @@ int _simGetJointInterval(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7777,7 +7686,7 @@ int _simSetJointInterval(luaWrap_lua_State* L)
         retVal=simSetJointInterval_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_toboolean(L,2),interval);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7788,7 +7697,7 @@ int _simLoadScene(luaWrap_lua_State* L)
     LUA_START("sim.loadScene");
 
     int retVal=-1;// error
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if ( (script!=nullptr)&&((script->getScriptType()==sim_scripttype_addonfunction)||(script->getScriptType()==sim_scripttype_addonscript)||(script->getScriptType()==sim_scripttype_sandboxscript)) )
     {
@@ -7798,7 +7707,7 @@ int _simLoadScene(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_MUST_BE_CALLED_FROM_ADDON_OR_SANDBOX_SCRIPT;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7809,14 +7718,14 @@ int _simCloseScene(luaWrap_lua_State* L)
     LUA_START("sim.closeScene");
 
     int retVal=-1;// error
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if ( (script!=nullptr)&&((script->getScriptType()==sim_scripttype_addonfunction)||(script->getScriptType()==sim_scripttype_addonscript)||(script->getScriptType()==sim_scripttype_sandboxscript)) )
         retVal=simCloseScene_internal();
     else
         errorString=SIM_ERROR_MUST_BE_CALLED_FROM_ADDON_OR_SANDBOX_SCRIPT;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7830,7 +7739,7 @@ int _simSaveScene(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
         retVal=simSaveScene_internal(luaWrap_lua_tostring(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7912,7 +7821,7 @@ int _simLoadModel(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7964,7 +7873,7 @@ int _simSaveModel(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -7978,7 +7887,7 @@ int _simIsObjectInSelection(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simIsObjectInSelection_internal(luaWrap_lua_tointeger(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8037,7 +7946,7 @@ int _simAddObjectToSelection(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8084,7 +7993,7 @@ int _simRemoveObjectFromSelection(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8108,7 +8017,7 @@ int _simGetObjectSelection(luaWrap_lua_State* L)
         delete[] sel;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -8119,7 +8028,7 @@ int _simGetRealTimeSimulation(luaWrap_lua_State* L)
 
     int retVal=simGetRealTimeSimulation_internal();
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8154,7 +8063,7 @@ int _simLaunchExecutable(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8244,7 +8153,7 @@ int _simGetConfigForTipPose(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -8299,7 +8208,7 @@ int _simGenerateIkPath(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -8328,7 +8237,7 @@ int _simGetExtensionString(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -8346,7 +8255,7 @@ int _simComputeMassAndInertia(luaWrap_lua_State* L)
         retVal=simComputeMassAndInertia_internal(shapeHandle,density);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
@@ -8374,14 +8283,14 @@ int _simTextEditorOpen(luaWrap_lua_State* L)
         {
             const char* arg1=luaWrap_lua_tostring(L,1);
             const char* arg2=luaWrap_lua_tostring(L,2);
-            retVal=App::mainWindow->codeEditorContainer->open(arg1,arg2,getCurrentScriptID(L));
+            retVal=App::mainWindow->codeEditorContainer->open(arg1,arg2,getCurrentScriptHandle(L));
         }
     }
     else
         errorString="Code Editor plugin was not found.";
 #endif
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
@@ -8412,7 +8321,7 @@ int _simTextEditorClose(luaWrap_lua_State* L)
         errorString="Code Editor plugin was not found.";
 #endif
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -8438,7 +8347,7 @@ int _simTextEditorShow(luaWrap_lua_State* L)
         errorString="Code Editor plugin was not found.";
 #endif
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
@@ -8472,7 +8381,7 @@ int _simTextEditorGetInfo(luaWrap_lua_State* L)
         errorString="Code Editor plugin was not found.";
 #endif
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -8495,7 +8404,7 @@ int _simSetJointDependency(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
@@ -8505,10 +8414,19 @@ int _simGetStackTraceback(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getLastStackTraceback");
     std::string retVal;
-    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
+    int scriptHandle=-1;
+    if (luaWrap_lua_gettop(L)!=0)
+    {
+        if (checkInputArguments(L,&errorString,lua_arg_number,0))
+            scriptHandle=luaWrap_lua_tointeger(L,1);
+    }
+    else
+        scriptHandle=getCurrentScriptHandle(L);
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
     if (it!=nullptr)
-        retVal=it->getLastStackTraceback();
-//    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+        retVal=it->getAndClearLastStackTraceback();
+
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushstring(L,retVal.c_str());
     LUA_END(1);
 }
@@ -8530,7 +8448,7 @@ int _simSetStringNamedParam(luaWrap_lua_State* L)
             LUA_END(1);
         }
     }
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
@@ -8552,7 +8470,7 @@ int _simGetStringNamedParam(luaWrap_lua_State* L)
         }
         LUA_END(0);
     }
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -8565,7 +8483,7 @@ int _simSetNavigationMode(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simSetNavigationMode_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8578,7 +8496,7 @@ int _simGetNavigationMode(luaWrap_lua_State* L)
     int retVal=-1; //error
     retVal=simGetNavigationMode_internal();
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8592,7 +8510,7 @@ int _simSetPage(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simSetPage_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8605,7 +8523,7 @@ int _simGetPage(luaWrap_lua_State* L)
 
     retVal=simGetPage_internal();
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8629,7 +8547,7 @@ int _simCopyPasteObjects(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -8651,7 +8569,7 @@ int _simScaleObjects(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8687,65 +8605,8 @@ int _simGetObjectUniqueIdentifier(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
-}
-
-int _simGetNameSuffix(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getNameSuffix");
-
-    if (checkInputArguments(L,nullptr,lua_arg_nil,0))
-    { // we want the suffix of current script
-        std::string suffTxt;
-        int suffixNumber=-1;
-        luaWrap_lua_getglobal(L,SIM_SCRIPT_NAME_SUFFIX);
-        if (luaWrap_lua_isstring(L,-1))
-            suffTxt=luaWrap_lua_tostring(L,-1);
-        luaWrap_lua_pop(L,1);
-        if (suffTxt!="")
-            tt::getValidInt(suffTxt,suffixNumber);
-        luaWrap_lua_pushnumber(L,suffixNumber);
-        LUA_END(1);
-    }
-    if (checkInputArguments(L,&errorString,lua_arg_string,0))
-    { // we want the suffix of the provided name
-        std::string nameWithSuffix(luaWrap_lua_tostring(L,1));
-        std::string name(tt::getNameWithoutSuffixNumber(nameWithSuffix.c_str(),true));
-        int suffixNumber=tt::getNameSuffixNumber(nameWithSuffix.c_str(),true);
-        luaWrap_lua_pushnumber(L,suffixNumber);
-        luaWrap_lua_pushstring(L,name.c_str());
-        LUA_END(2);
-    }
-
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetNameSuffix(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setNameSuffix");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int nb=luaWrap_lua_tointeger(L,1);
-        std::string suffTxt("");
-        if (nb>=0)
-            suffTxt=tt::FNb(nb);
-        std::string tmp(SIM_SCRIPT_NAME_SUFFIX);
-        tmp+="='";
-        tmp+=suffTxt;
-        tmp+="'";
-        luaWrap_luaL_dostring(L,tmp.c_str());
-        retVal=1;
-    }
-
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
 }
 
 int _simSetThreadSwitchTiming(luaWrap_lua_State* L)
@@ -8762,7 +8623,7 @@ int _simSetThreadSwitchTiming(luaWrap_lua_State* L)
             retVal=0;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8781,7 +8642,7 @@ int _simSetThreadAutomaticSwitch(luaWrap_lua_State* L)
             retVal=0;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8808,7 +8669,7 @@ int _simSetThreadResumeLocation(luaWrap_lua_State* L)
             retVal=0;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8819,7 +8680,7 @@ int _simResumeThreads(luaWrap_lua_State* L)
     LUA_START("sim.resumeThreads");
 
     int retVal=-1;
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if (it->getScriptType()==sim_scripttype_mainscript)
     {
@@ -8841,7 +8702,7 @@ int _simResumeThreads(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8859,7 +8720,7 @@ int _simSwitchThread(luaWrap_lua_State* L)
     else
         retVal=0;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8898,7 +8759,7 @@ int _simCreateIkGroup(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8915,7 +8776,7 @@ int _simRemoveIkGroup(luaWrap_lua_State* L)
         retVal=simRemoveIkGroup_internal(handle);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8947,7 +8808,7 @@ int _simCreateIkElement(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8965,7 +8826,7 @@ int _simCreateCollection(luaWrap_lua_State* L)
         retVal=simCreateCollection_internal(collName.c_str(),options);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -8985,7 +8846,7 @@ int _simAddObjectToCollection(luaWrap_lua_State* L)
         retVal=simAddObjectToCollection_internal(collHandle,objHandle,what,options);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -9041,7 +8902,7 @@ int _simSaveImage(luaWrap_lua_State* L)
             errorString=SIM_ERROR_ONE_STRING_SIZE_IS_WRONG;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -9077,7 +8938,7 @@ int _simLoadImage(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -9122,7 +8983,7 @@ int _simGetScaledImage(luaWrap_lua_State* L)
             errorString=SIM_ERROR_ONE_STRING_SIZE_IS_WRONG;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -9153,7 +9014,7 @@ int _simTransformImage(luaWrap_lua_State* L)
             errorString=SIM_ERROR_ONE_STRING_SIZE_IS_WRONG;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -9186,7 +9047,7 @@ int _simGetQHull(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -9222,7 +9083,7 @@ int _simGetDecimatedMesh(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -9238,7 +9099,7 @@ int _simExportIk(luaWrap_lua_State* L)
         retVal=simExportIk_internal(pathAndFilename.c_str(),0,nullptr);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -9252,7 +9113,7 @@ int _simComputeJacobian(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simComputeJacobian_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),nullptr);
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -9312,7 +9173,7 @@ int _simPackInt32Table(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -9374,7 +9235,7 @@ int _simPackUInt32Table(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -9433,7 +9294,7 @@ int _simPackFloatTable(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -9496,7 +9357,7 @@ int _simPackDoubleTable(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -9552,7 +9413,7 @@ int _simPackUInt8Table(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -9609,7 +9470,7 @@ int _simPackUInt16Table(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -9672,7 +9533,7 @@ int _simUnpackInt32Table(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -9735,7 +9596,7 @@ int _simUnpackUInt32Table(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -9798,7 +9659,7 @@ int _simUnpackFloatTable(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -9865,7 +9726,7 @@ int _simUnpackDoubleTable(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -9916,7 +9777,7 @@ int _simUnpackUInt8Table(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -9977,7 +9838,7 @@ int _simUnpackUInt16Table(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -11161,7 +11022,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
             errorString=SIM_ERROR_INVALID_FORMAT;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -11226,7 +11087,7 @@ int _simCombineRgbImages(luaWrap_lua_State* L)
             errorString=SIM_ERROR_INVALID_DATA;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -11236,7 +11097,7 @@ int _simSendData(luaWrap_lua_State* L)
     LUA_START("sim.sendData");
 
     int retVal=-1;
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
     {
@@ -11347,7 +11208,7 @@ int _simSendData(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT_OR_CHILD_SCRIPT;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -11357,7 +11218,7 @@ int _simReceiveData(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.receiveData");
 
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
     {
@@ -11448,7 +11309,7 @@ int _simReceiveData(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT_OR_CHILD_SCRIPT;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -11466,7 +11327,7 @@ int _simSetGraphUserData(luaWrap_lua_State* L)
         retVal=simSetGraphUserData_internal(graphHandle,dataName.c_str(),data);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -11552,7 +11413,7 @@ int _simAddDrawingObject(luaWrap_lua_State* L)
                 retVal=simAddDrawingObject_internal(objType,size,duplicateTolerance,parentID,maxItemCount,ambient,nullptr,specular,emission);
                 if ( (retVal!=-1) )//&&((objType&sim_drawing_persistent)==0) )
                 { // following condition added on 2011/01/06 so as to not remove objects created from the c/c++ interface or from an add-on:
-                    int currentScriptID=getCurrentScriptID(L);
+                    int currentScriptID=getCurrentScriptHandle(L);
                     CLuaScriptObject* itScrObj=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
                     if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript) )
                     {
@@ -11568,7 +11429,7 @@ int _simAddDrawingObject(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -11584,7 +11445,7 @@ int _simRemoveDrawingObject(luaWrap_lua_State* L)
         int objectHandle=luaToInt(L,1);
         if (objectHandle==sim_handle_all)
         { // following condition added here on 2011/01/06 so as not to remove objects created from a c/c++ call or from add-on:
-            int currentScriptID=getCurrentScriptID(L);
+            int currentScriptID=getCurrentScriptHandle(L);
             CLuaScriptObject* itScrObj=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
             App::currentWorld->drawingCont->removeAllObjects((itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript),true);
             retVal=1;
@@ -11593,7 +11454,7 @@ int _simRemoveDrawingObject(luaWrap_lua_State* L)
             retVal=simRemoveDrawingObject_internal(objectHandle);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -11625,7 +11486,7 @@ int _simAddDrawingObjectItem(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -11737,7 +11598,7 @@ int _simAddParticleObject(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -11751,7 +11612,7 @@ int _simRemoveParticleObject(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simRemoveParticleObject_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -11780,7 +11641,7 @@ int _simAddParticleObjectItem(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -11794,7 +11655,7 @@ int _simGetObjectSizeFactor(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simGetObjectSizeFactor_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -11807,13 +11668,13 @@ int _simSetIntegerSignal(luaWrap_lua_State* L)
     int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
-        int currentScriptID=getCurrentScriptID(L);
+        int currentScriptID=getCurrentScriptHandle(L);
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
         App::currentWorld->signalContainer->setIntegerSignal(std::string(luaWrap_lua_tostring(L,1)).c_str(),luaToInt(L,2),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
         retVal=1;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -11833,7 +11694,7 @@ int _simGetIntegerSignal(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -11848,7 +11709,7 @@ int _simClearIntegerSignal(luaWrap_lua_State* L)
     {
         if (res!=2)
         {
-            int currentScriptID=getCurrentScriptID(L);
+            int currentScriptID=getCurrentScriptHandle(L);
             CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
             retVal=App::currentWorld->signalContainer->clearAllIntegerSignals((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
         }
@@ -11856,7 +11717,7 @@ int _simClearIntegerSignal(luaWrap_lua_State* L)
             retVal=simClearIntegerSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str());
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -11869,13 +11730,13 @@ int _simSetFloatSignal(luaWrap_lua_State* L)
     int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
-        int currentScriptID=getCurrentScriptID(L);
+        int currentScriptID=getCurrentScriptHandle(L);
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
         App::currentWorld->signalContainer->setFloatSignal(std::string(luaWrap_lua_tostring(L,1)).c_str(),luaToFloat(L,2),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
         retVal=1;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -11895,7 +11756,7 @@ int _simGetFloatSignal(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -11910,7 +11771,7 @@ int _simClearFloatSignal(luaWrap_lua_State* L)
     {
         if (res!=2)
         {
-            int currentScriptID=getCurrentScriptID(L);
+            int currentScriptID=getCurrentScriptHandle(L);
             CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
             retVal=App::currentWorld->signalContainer->clearAllFloatSignals((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
         }
@@ -11918,7 +11779,7 @@ int _simClearFloatSignal(luaWrap_lua_State* L)
             retVal=simClearFloatSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str());
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -11931,13 +11792,13 @@ int _simSetDoubleSignal(luaWrap_lua_State* L)
     int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
-        int currentScriptID=getCurrentScriptID(L);
+        int currentScriptID=getCurrentScriptHandle(L);
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
         App::currentWorld->signalContainer->setDoubleSignal(std::string(luaWrap_lua_tostring(L,1)).c_str(),luaToDouble(L,2),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
         retVal=1;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -11957,7 +11818,7 @@ int _simGetDoubleSignal(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -11972,7 +11833,7 @@ int _simClearDoubleSignal(luaWrap_lua_State* L)
     {
         if (res!=2)
         {
-            int currentScriptID=getCurrentScriptID(L);
+            int currentScriptID=getCurrentScriptHandle(L);
             CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
             retVal=App::currentWorld->signalContainer->clearAllDoubleSignals((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
         }
@@ -11980,7 +11841,7 @@ int _simClearDoubleSignal(luaWrap_lua_State* L)
             retVal=simClearDoubleSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str());
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -11995,13 +11856,13 @@ int _simSetStringSignal(luaWrap_lua_State* L)
     {
         size_t dataLength;
         char* data=(char*)luaWrap_lua_tolstring(L,2,&dataLength);
-        int currentScriptID=getCurrentScriptID(L);
+        int currentScriptID=getCurrentScriptHandle(L);
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
         App::currentWorld->signalContainer->setStringSignal(std::string(luaWrap_lua_tostring(L,1)).c_str(),std::string(data,dataLength),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
         retVal=1;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12023,7 +11884,7 @@ int _simGetStringSignal(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -12038,7 +11899,7 @@ int _simClearStringSignal(luaWrap_lua_State* L)
     {
         if (res!=2)
         {
-            int currentScriptID=getCurrentScriptID(L);
+            int currentScriptID=getCurrentScriptHandle(L);
             CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
             retVal=App::currentWorld->signalContainer->clearAllStringSignals((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
         }
@@ -12046,7 +11907,7 @@ int _simClearStringSignal(luaWrap_lua_State* L)
             retVal=simClearStringSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str());
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12067,7 +11928,7 @@ int _simGetSignalName(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -12121,7 +11982,7 @@ int _simWaitForSignal(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -12134,7 +11995,7 @@ int _simGetObjectProperty(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simGetObjectProperty_internal(luaWrap_lua_tointeger(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12148,7 +12009,7 @@ int _simSetObjectProperty(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetObjectProperty_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12162,7 +12023,7 @@ int _simGetObjectSpecialProperty(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simGetObjectSpecialProperty_internal(luaWrap_lua_tointeger(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12176,7 +12037,7 @@ int _simSetObjectSpecialProperty(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetObjectSpecialProperty_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12190,7 +12051,7 @@ int _simGetModelProperty(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simGetModelProperty_internal(luaWrap_lua_tointeger(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12204,7 +12065,7 @@ int _simSetModelProperty(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetModelProperty_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12394,7 +12255,7 @@ int _simMoveToObject(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -12520,7 +12381,7 @@ int _simFollowPath(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -12541,7 +12402,7 @@ int _simGetDataOnPath(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -12560,7 +12421,7 @@ int _simGetPositionOnPath(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -12579,7 +12440,7 @@ int _simGetOrientationOnPath(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -12600,7 +12461,7 @@ int _simGetClosestPositionOnPath(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -12683,7 +12544,7 @@ int _simWait(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -12707,7 +12568,7 @@ int _simReadForceSensor(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12721,7 +12582,7 @@ int _simBreakForceSensor(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simBreakForceSensor_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12748,7 +12609,7 @@ int _simGetLightParameters(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12792,7 +12653,7 @@ int _simSetLightParameters(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12815,7 +12676,7 @@ int _simGetVelocity(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -12837,7 +12698,7 @@ int _simGetObjectVelocity(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -12867,7 +12728,7 @@ int _simAddForceAndTorque(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12887,7 +12748,7 @@ int _simAddForce(luaWrap_lua_State* L)
         retVal=simAddForce_internal(luaToInt(L,1),r,f);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12901,7 +12762,7 @@ int _simSetExplicitHandling(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetExplicitHandling_internal(luaToInt(L,1),luaToInt(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12915,7 +12776,7 @@ int _simGetExplicitHandling(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simGetExplicitHandling_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12929,7 +12790,7 @@ int _simGetLinkDummy(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simGetLinkDummy_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -12943,7 +12804,7 @@ int _simSetLinkDummy(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetLinkDummy_internal(luaToInt(L,1),luaToInt(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13033,7 +12894,7 @@ int _simSetShapeColor(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13078,7 +12939,7 @@ int _simGetShapeColor(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13092,7 +12953,7 @@ int _simResetDynamicObject(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simResetDynamicObject_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13106,7 +12967,7 @@ int _simSetJointMode(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetJointMode_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13129,7 +12990,7 @@ int _simGetJointMode(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13150,7 +13011,7 @@ int _simSerialOpen(luaWrap_lua_State* L)
     }
 #endif
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13167,7 +13028,7 @@ int _simSerialClose(luaWrap_lua_State* L)
         retVal=simSerialClose_internal(luaToInt(L,1));
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13185,7 +13046,7 @@ int _simSerialSend(luaWrap_lua_State* L)
         retVal=simSerialSend_internal(luaToInt(L,1),data,(int)dataLength);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13320,7 +13181,7 @@ int _simSerialRead(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -13333,7 +13194,7 @@ int _simSerialCheck(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simSerialCheck_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13361,7 +13222,7 @@ int _simGetContactInfo(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -13388,7 +13249,7 @@ int _simSetThreadIsFree(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13402,12 +13263,12 @@ int _simTubeOpen(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_number,0))
     {
         std::string strTmp=luaWrap_lua_tostring(L,2);
-        int currentScriptID=getCurrentScriptID(L);
+        int currentScriptID=getCurrentScriptHandle(L);
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
         retVal=App::currentWorld->commTubeContainer->openTube(luaToInt(L,1),strTmp.c_str(),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript),luaToInt(L,3));
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13421,7 +13282,7 @@ int _simTubeClose(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simTubeClose_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13439,7 +13300,7 @@ int _simTubeWrite(luaWrap_lua_State* L)
         retVal=simTubeWrite_internal(luaToInt(L,1),data,(int)dataLength);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13458,7 +13319,7 @@ int _simTubeRead(luaWrap_lua_State* L)
             blocking=luaToBool(L,2);
         if (blocking)
         {
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
             if (it!=nullptr)
             {
                 if (!VThread::isCurrentThreadTheMainSimulationThread())
@@ -13496,7 +13357,7 @@ int _simTubeRead(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -13519,7 +13380,7 @@ int _simTubeStatus(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -13532,7 +13393,7 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0,lua_arg_number,0))
     {
         int mode=luaToInt(L,3);
-        int currentScriptID=getCurrentScriptID(L);
+        int currentScriptID=getCurrentScriptHandle(L);
         CLuaScriptObject* itScrObj=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
         if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript) )
         { // Add-ons and customization scripts do not have this restriction
@@ -13590,7 +13451,7 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13604,7 +13465,7 @@ int _simAuxiliaryConsoleClose(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simAuxiliaryConsoleClose_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13618,7 +13479,7 @@ int _simAuxiliaryConsoleShow(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_bool,0))
         retVal=simAuxiliaryConsoleShow_internal(luaToInt(L,1),luaToBool(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13638,7 +13499,7 @@ int _simAuxiliaryConsolePrint(luaWrap_lua_State* L)
             retVal=simAuxiliaryConsolePrint_internal(luaToInt(L,1),luaWrap_lua_tostring(L,2));
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13659,7 +13520,7 @@ int _simImportShape(luaWrap_lua_State* L)
         retVal=simImportShape_internal(fileType,pathAndFilename.c_str(),options,identicalVerticeTolerance,scalingFactor);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13727,7 +13588,7 @@ int _simImportMesh(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -13828,7 +13689,7 @@ int _simExportMesh(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13870,7 +13731,7 @@ int _simCreateMeshShape(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13900,7 +13761,7 @@ int _simGetShapeMesh(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -13931,7 +13792,7 @@ int _simCreatePureShape(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -13959,7 +13820,7 @@ int _simCreateHeightfieldShape(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14038,7 +13899,7 @@ int _simAddBanner(luaWrap_lua_State* L)
                 retVal=simAddBanner_internal(label.c_str(),size,options,positionAndEulerAngles,parentObjectHandle,labelColors,backgroundColors);
                 if (retVal!=-1)
                 { // following condition added on 2011/01/06 so as to not remove objects created from the c/c++ interface or an add-on:
-                    int currentScriptID=getCurrentScriptID(L);
+                    int currentScriptID=getCurrentScriptHandle(L);
                     CLuaScriptObject* itScrObj=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
                     CBannerObject* anObj=App::currentWorld->bannerCont->getObject(retVal);
                     if (anObj!=nullptr)
@@ -14048,7 +13909,7 @@ int _simAddBanner(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14071,7 +13932,7 @@ int _simRemoveBanner(luaWrap_lua_State* L)
             retVal=simRemoveBanner_internal(objectHandle);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14123,7 +13984,7 @@ int _simCreateJoint(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14151,7 +14012,7 @@ int _simCreateDummy(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14201,7 +14062,7 @@ int _simCreatePath(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14236,7 +14097,7 @@ int _simCreateProximitySensor(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14269,7 +14130,7 @@ int _simCreateForceSensor(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14302,7 +14163,7 @@ int _simCreateVisionSensor(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14316,7 +14177,7 @@ int _simFloatingViewAdd(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
         retVal=simFloatingViewAdd_internal(luaToFloat(L,1),luaToFloat(L,2),luaToFloat(L,3),luaToFloat(L,4),luaToInt(L,5));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14330,7 +14191,7 @@ int _simFloatingViewRemove(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simFloatingViewRemove_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14356,7 +14217,7 @@ int _simAdjustView(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14400,7 +14261,7 @@ int _simCameraFitToView(luaWrap_lua_State* L)
         delete[] objPtr;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14412,7 +14273,7 @@ int _simAnnounceSceneContentChange(luaWrap_lua_State* L)
 
     int retVal=simAnnounceSceneContentChange_internal();
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14435,7 +14296,7 @@ int _simGetObjectInt32Parameter(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14449,7 +14310,7 @@ int _simSetObjectInt32Parameter(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetObjectInt32Parameter_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14473,7 +14334,7 @@ int _simGetObjectFloatParameter(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14487,7 +14348,7 @@ int _simSetObjectFloatParameter(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetObjectFloatParameter_internal(luaToInt(L,1),luaToInt(L,2),luaToFloat(L,3));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14509,7 +14370,7 @@ int _simGetObjectStringParameter(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -14526,7 +14387,7 @@ int _simSetObjectStringParameter(luaWrap_lua_State* L)
         retVal=simSetObjectStringParameter_internal(luaToInt(L,1),luaToInt(L,2),data,(int)dataLength);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14552,7 +14413,7 @@ int _simGetRotationAxis(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -14577,7 +14438,7 @@ int _simRotateAroundAxis(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -14596,7 +14457,7 @@ int _simGetJointForce(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -14609,7 +14470,7 @@ int _simSetIkGroupProperties(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetIkGroupProperties_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3),luaToFloat(L,4),nullptr);
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14647,7 +14508,7 @@ int _simSetIkElementProperties(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14672,7 +14533,7 @@ int _simPersistentDataWrite(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14695,7 +14556,7 @@ int _simPersistentDataRead(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -14717,7 +14578,7 @@ int _simIsHandleValid(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14758,7 +14619,7 @@ int _simRMLPos(luaWrap_lua_State* L)
                         auxData[0]=1;
                         ((int*)(auxData+1))[0]=0;
 
-                        int currentScriptID=getCurrentScriptID(L);
+                        int currentScriptID=getCurrentScriptHandle(L);
                         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
                         if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript))
                             ((int*)(auxData+1))[0]=1; // destroy at simulation end!
@@ -14773,7 +14634,7 @@ int _simRMLPos(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14781,7 +14642,7 @@ int _simRMLPos(luaWrap_lua_State* L)
 int _simRMLStep(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.rMLStep");
+    LUA_START_NO_CSIDE_ERROR("sim.rMLStep");
 
     int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
@@ -14802,7 +14663,6 @@ int _simRMLStep(luaWrap_lua_State* L)
                 if (CPluginContainer::getPluginFromName("ReflexxesTypeII",true)!=nullptr)
                     CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeII",sim_message_eventcallback_rmlinfo,auxVals,nullptr,replyData);
             }
-//            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_rmlinfo,auxVals,nullptr,replyData);
             dofs=replyData[1];
         }
 
@@ -14824,7 +14684,7 @@ int _simRMLStep(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14841,7 +14701,7 @@ int _simRMLRemove(luaWrap_lua_State* L)
         retVal=simRMLRemove_internal(handle);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14883,7 +14743,7 @@ int _simRMLVel(luaWrap_lua_State* L)
                         auxData[0]=1;
                         ((int*)(auxData+1))[0]=0;
 
-                        int currentScriptID=getCurrentScriptID(L);
+                        int currentScriptID=getCurrentScriptHandle(L);
                         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
                         if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript))
                             ((int*)(auxData+1))[0]=1; // destroy at simulation end!
@@ -14899,7 +14759,7 @@ int _simRMLVel(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14920,7 +14780,7 @@ int _simGetObjectQuaternion(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -14937,7 +14797,7 @@ int _simSetObjectQuaternion(luaWrap_lua_State* L)
         retVal=simSetObjectQuaternion_internal(luaToInt(L,1),luaToInt(L,2),coord);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -14961,7 +14821,7 @@ int _simBuildMatrixQ(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -14982,14 +14842,14 @@ int _simGetQuaternionFromMatrix(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
 int _simRMLMoveToPosition(luaWrap_lua_State* L)
 { // can only be called from a script running in a thread!!
     TRACE_LUA_API;
-    LUA_START("sim.rMLMoveToPosition");
+    LUA_START_NO_CSIDE_ERROR("sim.rMLMoveToPosition");
 
     int retVal=-1;
     if (!VThread::isCurrentThreadTheMainSimulationThread())
@@ -15238,7 +15098,7 @@ int _simRMLMoveToPosition(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal); // error
     LUA_END(1);
 }
@@ -15246,7 +15106,7 @@ int _simRMLMoveToPosition(luaWrap_lua_State* L)
 int _simRMLMoveToJointPositions(luaWrap_lua_State* L)
 { // can only be called from a script running in a thread!!
     TRACE_LUA_API;
-    LUA_START("sim.rMLMoveToJointPositions");
+    LUA_START_NO_CSIDE_ERROR("sim.rMLMoveToJointPositions");
 
     int retVal=-1; //error
     if (!VThread::isCurrentThreadTheMainSimulationThread())
@@ -15562,7 +15422,7 @@ int _simRMLMoveToJointPositions(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal); // error
     LUA_END(1);
 }
@@ -15589,7 +15449,7 @@ int _simFileDialog(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -15608,7 +15468,7 @@ int _simMsgBox(luaWrap_lua_State* L)
         retVal=simMsgBox_internal(dlgType,dlgButtons,title.c_str(),message.c_str());
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -15628,7 +15488,7 @@ int _simLoadModule(luaWrap_lua_State* L)
             registerNewLuaFunctions(L); // otherwise we can only use the custom Lua functions that the plugin registers after this script has re-initialized!
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -15642,7 +15502,7 @@ int _simUnloadModule(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simUnloadModule_internal(luaWrap_lua_tointeger(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -15776,7 +15636,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
             errorString=SIM_ERROR_SCRIPT_INEXISTANT;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -15808,7 +15668,7 @@ int _simSetShapeMassAndInertia(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,result);
     LUA_END(1);
 }
@@ -15844,7 +15704,7 @@ int _simGetShapeMassAndInertia(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -15872,7 +15732,7 @@ int _simGroupShapes(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -15895,7 +15755,7 @@ int _simUngroupShape(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -15942,7 +15802,7 @@ int _simConvexDecompose(luaWrap_lua_State* L)
             retVal=simConvexDecompose_internal(shapeHandle,options,intParams,floatParams);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -15980,7 +15840,7 @@ int _simInsertPathCtrlPoints(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -15999,7 +15859,7 @@ int _simCutPathCtrlPoints(luaWrap_lua_State* L)
         retVal=simCutPathCtrlPoints_internal(pathHandle,startIndex,ptCnt);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16024,7 +15884,7 @@ int _simGetIkGroupMatrix(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -16058,7 +15918,7 @@ int _simAddGhost(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16111,7 +15971,7 @@ int _simModifyGhost(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16123,7 +15983,7 @@ int _simQuitSimulator(luaWrap_lua_State* L)
 
     simQuitSimulator_internal(false);
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -16134,7 +15994,7 @@ int _simGetThreadId(luaWrap_lua_State* L)
 
     int retVal=simGetThreadId_internal();
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16152,7 +16012,7 @@ int _simSetShapeMaterial(luaWrap_lua_State* L)
         retVal=simSetShapeMaterial_internal(shapeHandle,materialId);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16176,7 +16036,7 @@ int _simGetTextureId(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16253,7 +16113,7 @@ int _simReadTexture(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -16335,7 +16195,7 @@ int _simWriteTexture(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16422,7 +16282,7 @@ int _simCreateTexture(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal); // error
     LUA_END(1);
 }
@@ -16438,7 +16298,7 @@ int _simWriteCustomDataBlock(luaWrap_lua_State* L)
     {
         int objectHandle=luaToInt(L,1);
         if (objectHandle==sim_handle_self)
-            objectHandle=getCurrentScriptID(L);
+            objectHandle=getCurrentScriptHandle(L);
 
         std::string dataName(luaWrap_lua_tostring(L,2));
         int res;
@@ -16453,7 +16313,7 @@ int _simWriteCustomDataBlock(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16468,7 +16328,7 @@ int _simReadCustomDataBlock(luaWrap_lua_State* L)
     {
         int objectHandle=luaToInt(L,1);
         if (objectHandle==sim_handle_self)
-            objectHandle=getCurrentScriptID(L);
+            objectHandle=getCurrentScriptHandle(L);
 
         std::string dataName(luaWrap_lua_tostring(L,2));
         int dataLength;
@@ -16481,7 +16341,7 @@ int _simReadCustomDataBlock(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -16494,7 +16354,7 @@ int _simReadCustomDataBlockTags(luaWrap_lua_State* L)
     {
         int objectHandle=luaToInt(L,1);
         if (objectHandle==sim_handle_self)
-            objectHandle=getCurrentScriptID(L);
+            objectHandle=getCurrentScriptHandle(L);
 
         int tagCount;
         char* data=simReadCustomDataBlockTags_internal(objectHandle,&tagCount);
@@ -16514,7 +16374,7 @@ int _simReadCustomDataBlockTags(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -16530,7 +16390,7 @@ int _simAddPointCloud(luaWrap_lua_State* L)
         int layerMask=luaToInt(L,2);
         int objectHandle=luaToInt(L,3);
         int options=luaToInt(L,4);
-        int currentScriptID=getCurrentScriptID(L);
+        int currentScriptID=getCurrentScriptHandle(L);
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
         if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
             options=(options|1)-1; // cloud is automatically removed at the end of the simulation (i.e. is not persistent)
@@ -16583,7 +16443,7 @@ int _simAddPointCloud(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16601,7 +16461,7 @@ int _simModifyPointCloud(luaWrap_lua_State* L)
         retVal=simModifyPointCloud_internal(pointCloudHandle,operation,nullptr,nullptr);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16627,7 +16487,7 @@ int _simGetShapeGeomInfo(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16664,7 +16524,7 @@ int _simGetObjectsInTree(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -16682,7 +16542,7 @@ int _simSetObjectSizeValues(luaWrap_lua_State* L)
         retVal=simSetObjectSizeValues_internal(handle,s);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16703,7 +16563,7 @@ int _simGetObjectSizeValues(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -16729,7 +16589,7 @@ int _simScaleObject(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16773,7 +16633,7 @@ int _simSetShapeTexture(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16790,7 +16650,7 @@ int _simGetShapeTextureId(luaWrap_lua_State* L)
         retVal=simGetShapeTextureId_internal(handle);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16810,7 +16670,7 @@ int _simGetCollectionObjects(luaWrap_lua_State* L)
         LUA_END(1);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -16820,7 +16680,7 @@ int _simHandleCustomizationScripts(luaWrap_lua_State* L)
     LUA_START("sim.handleCustomizationScripts");
 
     int retVal=-1;
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* itScrObj=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
@@ -16838,7 +16698,7 @@ int _simHandleCustomizationScripts(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16849,7 +16709,7 @@ int _simHandleAddOnScripts(luaWrap_lua_State* L)
     LUA_START("sim.handleAddOnScripts");
 
     int retVal=-1;
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* itScrObj=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
@@ -16864,7 +16724,7 @@ int _simHandleAddOnScripts(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16874,7 +16734,7 @@ int _simHandleSandboxScript(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.handleSandboxScript");
 
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* itScrObj=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
@@ -16888,7 +16748,7 @@ int _simHandleSandboxScript(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -16902,7 +16762,7 @@ int _simSetScriptAttribute(luaWrap_lua_State* L)
     {
         int scriptID=luaToInt(L,1);
         if (scriptID==sim_handle_self)
-            scriptID=getCurrentScriptID(L);
+            scriptID=getCurrentScriptHandle(L);
         int attribID=luaToInt(L,2);
         int thirdArgType=lua_arg_number;
         if ( (attribID==sim_customizationscriptattribute_activeduringsimulation)||(attribID==sim_childscriptattribute_automaticcascadingcalls)||(attribID==sim_scriptattribute_enabled)||(attribID==sim_customizationscriptattribute_cleanupbeforesave) )
@@ -16921,7 +16781,7 @@ int _simSetScriptAttribute(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16935,7 +16795,7 @@ int _simGetScriptAttribute(luaWrap_lua_State* L)
     {
         int scriptID=luaToInt(L,1);
         if (scriptID==sim_handle_self)
-            scriptID=getCurrentScriptID(L);
+            scriptID=getCurrentScriptHandle(L);
         int attribID=luaToInt(L,2);
         int intVal;
         float floatVal;
@@ -16950,7 +16810,7 @@ int _simGetScriptAttribute(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -16968,7 +16828,7 @@ int _simReorientShapeBoundingBox(luaWrap_lua_State* L)
         retVal=simReorientShapeBoundingBox_internal(shapeHandle,relativeToHandle,0);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -16996,7 +16856,7 @@ int _simSetScriptVariable(luaWrap_lua_State* L)
             errorString=SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17019,7 +16879,7 @@ int _simGetEngineFloatParameter(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -17041,7 +16901,7 @@ int _simGetEngineInt32Parameter(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -17063,7 +16923,7 @@ int _simGetEngineBoolParameter(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -17081,7 +16941,7 @@ int _simSetEngineFloatParameter(luaWrap_lua_State* L)
         retVal=simSetEngineFloatParameter_internal(paramId,objectHandle,nullptr,paramVal);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17100,7 +16960,7 @@ int _simSetEngineInt32Parameter(luaWrap_lua_State* L)
         retVal=simSetEngineInt32Parameter_internal(paramId,objectHandle,nullptr,paramVal);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17119,7 +16979,7 @@ int _simSetEngineBoolParameter(luaWrap_lua_State* L)
         retVal=simSetEngineBoolParameter_internal(paramId,objectHandle,nullptr,paramVal);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17138,7 +16998,7 @@ int _simCreateOctree(luaWrap_lua_State* L)
         retVal=simCreateOctree_internal(voxelSize,options,pointSize,nullptr);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17158,7 +17018,7 @@ int _simCreatePointCloud(luaWrap_lua_State* L)
         retVal=simCreatePointCloud_internal(maxVoxelSize,maxPtCntPerVoxel,options,pointSize,nullptr);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17179,7 +17039,7 @@ int _simSetPointCloudOptions(luaWrap_lua_State* L)
         retVal=simSetPointCloudOptions_internal(handle,maxVoxelSize,maxPtCntPerVoxel,options,pointSize,nullptr);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17207,7 +17067,7 @@ int _simGetPointCloudOptions(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -17260,7 +17120,7 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17291,7 +17151,7 @@ int _simRemoveVoxelsFromOctree(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17341,7 +17201,7 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17377,7 +17237,7 @@ int _simRemovePointsFromPointCloud(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17413,7 +17273,7 @@ int _simIntersectPointsWithPointCloud(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17435,7 +17295,7 @@ int _simGetOctreeVoxels(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -17456,7 +17316,7 @@ int _simGetPointCloudPoints(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -17489,7 +17349,7 @@ int _simInsertObjectIntoOctree(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17508,7 +17368,7 @@ int _simSubtractObjectFromOctree(luaWrap_lua_State* L)
         retVal=simSubtractObjectFromOctree_internal(handle1,handle2,options,nullptr);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17552,7 +17412,7 @@ int _simInsertObjectIntoPointCloud(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17572,7 +17432,7 @@ int _simSubtractObjectFromPointCloud(luaWrap_lua_State* L)
         retVal=simSubtractObjectFromPointCloud_internal(handle1,handle2,options,tolerance,nullptr);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17606,7 +17466,7 @@ int _simCheckOctreePointOccupancy(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17632,7 +17492,7 @@ int _simPackTable(luaWrap_lua_State* L)
     else
         errorString.assign(SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS);
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -17654,7 +17514,7 @@ int _simUnpackTable(luaWrap_lua_State* L)
         errorString.assign(SIM_ERROR_INVALID_DATA);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -17664,7 +17524,7 @@ int _simHandleSimulationStart(luaWrap_lua_State* L)
     LUA_START("sim.handleSimulationStart");
 
     int retVal=-1;
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* itScrObj=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
@@ -17678,7 +17538,7 @@ int _simHandleSimulationStart(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17689,7 +17549,7 @@ int _simHandleSensingStart(luaWrap_lua_State* L)
     LUA_START("sim.handleSensingStart");
 
     int retVal=-1;
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* itScrObj=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
@@ -17710,7 +17570,7 @@ int _simHandleSensingStart(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17945,7 +17805,7 @@ int _simAuxFunc(luaWrap_lua_State* L)
         }
 #endif
     }
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -17975,7 +17835,7 @@ int _simSetReferencedHandles(luaWrap_lua_State* L)
             errorString=SIM_ERROR_INVALID_ARGUMENT;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -17997,7 +17857,7 @@ int _simGetReferencedHandles(luaWrap_lua_State* L)
             LUA_END(1);
         }
     }
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -18064,7 +17924,7 @@ int _simGetGraphCurve(luaWrap_lua_State* L)
         else
             errorString=SIM_ERROR_OBJECT_NOT_GRAPH;
     }
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -18088,7 +17948,7 @@ int _simGetGraphInfo(luaWrap_lua_State* L)
         else
             errorString=SIM_ERROR_OBJECT_NOT_GRAPH;
     }
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -18158,7 +18018,7 @@ int _simGetShapeViz(luaWrap_lua_State* L)
             LUA_END(1);
         }
     }
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -18187,7 +18047,7 @@ int _simExecuteScriptString(luaWrap_lua_State* L)
         LUA_END(s);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -18221,7 +18081,7 @@ int _simGetApiFunc(luaWrap_lua_State* L)
         LUA_END(1);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -18244,7 +18104,7 @@ int _simGetApiInfo(luaWrap_lua_State* L)
         LUA_END(0);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -18277,7 +18137,7 @@ int _simGetModuleInfo(luaWrap_lua_State* L)
         LUA_END(0);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -18305,7 +18165,7 @@ int _simSetModuleInfo(luaWrap_lua_State* L)
             errorString=SIM_ERROR_INVALID_MODULE_INFO_TYPE;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -18323,7 +18183,7 @@ int _simRegisterScriptFunction(luaWrap_lua_State* L)
         retVal=simRegisterScriptCallbackFunction_internal(funcNameAtPluginName.c_str(),ct.c_str(),nullptr);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -18340,7 +18200,7 @@ int _simRegisterScriptVariable(luaWrap_lua_State* L)
         retVal=simRegisterScriptVariable_internal(varNameAtPluginName,nullptr,0);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -18354,7 +18214,7 @@ int _simIsDeprecated(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
         retVal=simIsDeprecated_internal(luaWrap_lua_tostring(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -18379,7 +18239,7 @@ int _simGetPersistentDataTags(luaWrap_lua_State* L)
         simReleaseBuffer_internal(data);
         LUA_END(1);
     }
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -18388,7 +18248,7 @@ int _simGetRandom(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getRandom");
 
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if (it!=nullptr)
     {
@@ -18404,7 +18264,7 @@ int _simGetRandom(luaWrap_lua_State* L)
             LUA_END(1);
         }
     }
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -18414,6 +18274,25 @@ int _simGetRandom(luaWrap_lua_State* L)
 //****************************************************
 //****************************************************
 //****************************************************
+
+int _simResetMill(luaWrap_lua_State* L)
+{ // DEPRECATED since V4.0.1. has no effect anymore
+    LUA_START("sim.ResetMill");
+    LUA_END(0);
+}
+
+int _simHandleMill(luaWrap_lua_State* L)
+{ // DEPRECATED since V4.0.1. has no effect anymore
+    LUA_START("sim.HandleMill");
+    LUA_END(0);
+}
+
+int _simResetMilling(luaWrap_lua_State* L)
+{ // DEPRECATED since V4.0.1. has no effect anymore
+    LUA_START("sim.ResetMilling");
+    LUA_END(0);
+}
+
 
 int _simOpenTextEditor(luaWrap_lua_State* L)
 { // DEPRECATED since V3.6.0
@@ -18450,7 +18329,7 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
             else
             { // non-modal dlg
                 int handle=-1;
-                CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
+                CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
                 if (it!=nullptr)
                 {
                     std::string callbackFunction(luaWrap_lua_tostring(L,3));
@@ -18465,7 +18344,7 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -18491,7 +18370,7 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
 #endif
         if ( (res>0)&&(!ignoreCb) )
         {   // We call the callback directly from here:
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
             if (it!=nullptr)
             {
                 CInterfaceStack stack;
@@ -18505,7 +18384,7 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
         LUA_END(1);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -18516,7 +18395,7 @@ int _simHandleVarious(luaWrap_lua_State* L)
 
     int retVal=simHandleVarious_internal();
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -18526,7 +18405,7 @@ int _simGetMpConfigForTipPose(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simGetMpConfigForTipPose");
     errorString="Not supported anymore.";
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,-1);
     LUA_END(1);
 }
@@ -18541,7 +18420,7 @@ int _simResetPath(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simResetPath_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -18555,7 +18434,7 @@ int _simHandlePath(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simHandlePath_internal(luaToInt(L,1),luaToFloat(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -18569,7 +18448,7 @@ int _simResetJoint(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simResetJoint_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -18583,7 +18462,7 @@ int _simHandleJoint(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simHandleJoint_internal(luaToInt(L,1),luaToFloat(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -18593,9 +18472,9 @@ int _simResetTracing(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simResetTracing");
 
-    luaApiCallWarning(functionName.c_str(),SIM_ERROR_FUNCTION_DEPRECATED_AND_HAS_NO_EFFECT);
+    warningString=SIM_ERROR_FUNCTION_DEPRECATED_AND_HAS_NO_EFFECT;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -18604,9 +18483,9 @@ int _simHandleTracing(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simHandleTracing");
 
-    luaApiCallWarning(functionName.c_str(),SIM_ERROR_FUNCTION_DEPRECATED_AND_HAS_NO_EFFECT);
+    warningString=SIM_ERROR_FUNCTION_DEPRECATED_AND_HAS_NO_EFFECT;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -18886,7 +18765,7 @@ int _simMoveToPosition(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -19192,7 +19071,7 @@ int _simMoveToJointPositions(luaWrap_lua_State* L)
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -19207,7 +19086,7 @@ int _simSerialPortOpen(luaWrap_lua_State* L)
         retVal=App::worldContainer->serialPortContainer->serialPortOpen_old(true,luaToInt(L,1),luaToInt(L,2));
 #endif
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19221,7 +19100,7 @@ int _simSerialPortClose(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simSerialPortClose_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19239,7 +19118,7 @@ int _simSerialPortSend(luaWrap_lua_State* L)
         retVal=simSerialPortSend_internal(luaToInt(L,1),data,(int)dataLength);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19337,7 +19216,7 @@ int _simSerialPortRead(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -19346,7 +19225,7 @@ int _simGetInstanceIndex(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("");
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,0);
     LUA_END(1);
 }
@@ -19356,7 +19235,7 @@ int _simGetVisibleInstanceIndex(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("");
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,0);
     LUA_END(1);
 }
@@ -19379,7 +19258,7 @@ int _simGetSystemTimeInMilliseconds(luaWrap_lua_State* L)
         LUA_END(1);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -19388,7 +19267,7 @@ int _simLockInterface(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simLockInterface");
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,-1);
     LUA_END(1);
 }
@@ -19408,19 +19287,19 @@ int _simJointGetForce(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
 int _simRMLPosition(luaWrap_lua_State* L)
 { // DEPRECATED since release 3.1.2
     TRACE_LUA_API;
-    LUA_START("simRMLPosition");
+    LUA_START_NO_CSIDE_ERROR("simRMLPosition");
 
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* scr=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if (!scr->checkAndSetWarning_simRMLPosition_oldCompatibility_30_8_2014())
-        luaApiCallWarning(functionName.c_str(),"Function is deprecated. Use simRMLPos instead.");
+        warningString="Function is deprecated. Use simRMLPos instead.";
 
     int retVal=-43; //error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
@@ -19474,7 +19353,7 @@ int _simRMLPosition(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19484,10 +19363,10 @@ int _simRMLVelocity(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simRMLVelocity");
 
-    int currentScriptID=getCurrentScriptID(L);
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* scr=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if (!scr->checkAndSetWarning_simRMLVelocity_oldCompatibility_30_8_2014())
-        luaApiCallWarning(functionName.c_str(),"Function is deprecated. Use simRMLVel instead.");
+        warningString="Function is deprecated. Use simRMLVel instead.";
 
     int retVal=-43; //error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
@@ -19541,7 +19420,7 @@ int _simRMLVelocity(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19553,7 +19432,7 @@ int _simCopyPasteSelectedObjects(luaWrap_lua_State* L)
 
     int retVal=simCopyPasteSelectedObjects_internal();
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19563,7 +19442,7 @@ int _simFindIkPath(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simFindIkPath");
     errorString="Not supported anymore.";
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -19576,14 +19455,12 @@ int _simGetPathPlanningHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        if (suffixAdjustStringIfNeeded(functionName,true,L,name))
-        {
-            quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
-            retVal=simGetPathPlanningHandle_internal(name.c_str());
-        }
+        suffixAdjustStringIfNeeded(L,name);
+        quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
+        retVal=simGetPathPlanningHandle_internal(name.c_str());
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19690,7 +19567,7 @@ int _simSearchPath(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19709,7 +19586,7 @@ int _simInitializePathSearch(luaWrap_lua_State* L)
         retVal=simInitializePathSearch_internal(pathPlanningObjectHandle,maximumSearchTime,searchTimeStep);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19727,7 +19604,7 @@ int _simPerformPathSearchStep(luaWrap_lua_State* L)
         retVal=simPerformPathSearchStep_internal(temporaryPathSearchObjectHandle,abortSearch);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19761,7 +19638,7 @@ int _simGetInvertedMatrix(luaWrap_lua_State* L)
         LUA_END(1);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -19779,7 +19656,7 @@ int _simAddSceneCustomData(luaWrap_lua_State* L)
         retVal=simAddSceneCustomData_internal(headerNumber,data,(int)dataLength);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19808,7 +19685,7 @@ int _simGetSceneCustomData(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -19828,7 +19705,7 @@ int _simAddObjectCustomData(luaWrap_lua_State* L)
         retVal=simAddObjectCustomData_internal(objectHandle,headerNumber,data,(int)dataLength);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19859,7 +19736,7 @@ int _simGetObjectCustomData(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -19872,14 +19749,12 @@ int _simGetUIHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        if (suffixAdjustStringIfNeeded(functionName,true,L,name))
-        {
-            quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
-            retVal=simGetUIHandle_internal(name.c_str());
-        }
+        suffixAdjustStringIfNeeded(L,name);
+        quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
+        retVal=simGetUIHandle_internal(name.c_str());
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19893,7 +19768,7 @@ int _simGetUIProperty(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simGetUIProperty_internal(luaToInt(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19917,7 +19792,7 @@ int _simGetUIEventButton(luaWrap_lua_State* L)
         LUA_END(2);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19931,7 +19806,7 @@ int _simSetUIProperty(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetUIProperty_internal(luaToInt(L,1),luaToInt(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19951,7 +19826,7 @@ int _simGetUIButtonSize(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -19964,7 +19839,7 @@ int _simGetUIButtonProperty(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simGetUIButtonProperty_internal(luaToInt(L,1),luaToInt(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19978,7 +19853,7 @@ int _simSetUIButtonProperty(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetUIButtonProperty_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -19992,7 +19867,7 @@ int _simGetUISlider(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simGetUISlider_internal(luaToInt(L,1),luaToInt(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20006,7 +19881,7 @@ int _simSetUISlider(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetUISlider_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20044,7 +19919,7 @@ int _simSetUIButtonLabel(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20065,7 +19940,7 @@ int _simGetUIButtonLabel(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -20078,7 +19953,7 @@ int _simCreateUIButtonArray(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simCreateUIButtonArray_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20098,7 +19973,7 @@ int _simSetUIButtonArrayColor(luaWrap_lua_State* L)
         retVal=simSetUIButtonArrayColor_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),pos,col);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20112,7 +19987,7 @@ int _simDeleteUIButtonArray(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simDeleteUIButtonArray_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20149,7 +20024,7 @@ int _simCreateUI(luaWrap_lua_State* L)
         delete[] buttonHandles;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20169,7 +20044,7 @@ int _simCreateUIButton(luaWrap_lua_State* L)
         retVal=simCreateUIButton_internal(luaWrap_lua_tointeger(L,1),pos,size,luaWrap_lua_tointeger(L,4));
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20199,7 +20074,7 @@ int _simSaveUI(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20220,7 +20095,7 @@ int _simRemoveUI(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simRemoveUI_internal(luaWrap_lua_tointeger(L,1));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20240,7 +20115,7 @@ int _simGetUIPosition(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -20257,7 +20132,7 @@ int _simSetUIPosition(luaWrap_lua_State* L)
         retVal=simSetUIPosition_internal(luaToInt(L,1),position);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20299,7 +20174,7 @@ int _simSetUIButtonColor(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20309,20 +20184,20 @@ int _simHandleChildScript(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simHandleChildScript");
 
-    luaApiCallWarning(functionName.c_str(),"simHandleChildScript is deprecated. Use simHandleChildScripts instead.");
-    int currentScriptID=getCurrentScriptID(L);
+    warningString="function is deprecated. Use simHandleChildScripts instead.";
+    int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if (!it->checkAndSetWarningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014())
     {
         std::string title("Compatibility issue with ");
         title+=it->getShortDescriptiveName();
         std::string txt("The command simHandleChildScript is not supported anymore and was replaced&&n");
-        txt+="with simHandleChildScripts, which operates in a slightly different manner. Make sure to&&n";
+        txt+="with sim.handleChildScripts, which operates in a slightly different manner. Make sure to&&n";
         txt+="adjust this script manually.";
         simDisplayDialog_internal(title.c_str(),txt.c_str(),sim_dlgstyle_ok,"",nullptr,nullptr,nullptr);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -20331,7 +20206,7 @@ int _simHandleSensingChildScripts(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simHandleSensingChildScripts");
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -20355,7 +20230,7 @@ int _simBoolOr16(luaWrap_lua_State* L)
             errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20380,7 +20255,7 @@ int _simBoolAnd16(luaWrap_lua_State* L)
             errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20405,7 +20280,7 @@ int _simBoolXor16(luaWrap_lua_State* L)
             errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20419,7 +20294,7 @@ int _simScaleSelectedObjects(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_bool,0))
         retVal=simScaleSelectedObjects_internal(luaToFloat(L,1),luaToBool(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20431,7 +20306,7 @@ int _simDeleteSelectedObjects(luaWrap_lua_State* L)
 
     int retVal=simDeleteSelectedObjects_internal();
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20441,7 +20316,7 @@ int _simDelegateChildScriptExecution(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simDelegateChildScriptExecution");
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -20463,7 +20338,7 @@ int _simGetShapeVertex(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20488,7 +20363,7 @@ int _simGetShapeTriangle(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20505,7 +20380,7 @@ int _simGetMaterialId(luaWrap_lua_State* L)
         retVal=simGetMaterialId_internal(matName.c_str());
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20522,7 +20397,7 @@ int _simGetShapeMaterial(luaWrap_lua_State* L)
         retVal=simGetShapeMaterial_internal(shapeHandle);
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20537,7 +20412,7 @@ int _simReleaseScriptRawBuffer(luaWrap_lua_State* L)
     {
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
-            handle=getCurrentScriptID(L);
+            handle=getCurrentScriptHandle(L);
         if ( (handle!=sim_handle_tree)&&(handle!=sim_handle_chain) )
             retVal=simReleaseScriptRawBuffer_internal(handle,luaToInt(L,2));
         else
@@ -20552,7 +20427,7 @@ int _simReleaseScriptRawBuffer(luaWrap_lua_State* L)
         }
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20564,7 +20439,7 @@ int _simGetObjectSelectionSize(luaWrap_lua_State* L)
 
     int retVal=simGetObjectSelectionSize_internal();
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20576,7 +20451,7 @@ int _simGetObjectLastSelection(luaWrap_lua_State* L)
 
     int retVal=simGetObjectLastSelection_internal();
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20611,7 +20486,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
         {
-            handle=getCurrentScriptID(L);
+            handle=getCurrentScriptHandle(L);
             // Since this routine can also be called by customization scripts, check for that here:
             CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle);
             if (it->getScriptType()==sim_scripttype_customizationscript)
@@ -20718,7 +20593,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
             errorString=SIM_ERROR_NO_ASSOCIATED_CHILD_SCRIPT_FOUND;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -20734,7 +20609,7 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
         {
-            handle=getCurrentScriptID(L);
+            handle=getCurrentScriptHandle(L);
             // Since this routine can also be called by customization scripts, check for that here:
             CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle);
             if (it->getScriptType()==sim_scripttype_customizationscript)
@@ -20775,7 +20650,7 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
             errorString=SIM_ERROR_NO_ASSOCIATED_CHILD_SCRIPT_FOUND;
     }
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20785,7 +20660,7 @@ int _simHandleMechanism(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.handleMechanism");
     int retVal=-1; // means error
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
@@ -20799,7 +20674,102 @@ int _simSetPathTargetNominalVelocity(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetPathTargetNominalVelocity_internal(luaToInt(L,1),luaToFloat(L,2));
 
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetNameSuffix(luaWrap_lua_State* L)
+{ // DEPRECATED
+    TRACE_LUA_API;
+    LUA_START("sim.getNameSuffix");
+
+    if (checkInputArguments(L,nullptr,lua_arg_nil,0))
+    { // we want the suffix of current script
+        std::string suffTxt;
+        int suffixNumber=-1;
+        luaWrap_lua_getglobal(L,SIM_SCRIPT_NAME_SUFFIX);
+        if (luaWrap_lua_isstring(L,-1))
+            suffTxt=luaWrap_lua_tostring(L,-1);
+        luaWrap_lua_pop(L,1);
+        if (suffTxt!="")
+            tt::getValidInt(suffTxt,suffixNumber);
+        luaWrap_lua_pushnumber(L,suffixNumber);
+        LUA_END(1);
+    }
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
+    { // we want the suffix of the provided name
+        std::string nameWithSuffix(luaWrap_lua_tostring(L,1));
+        std::string name(tt::getNameWithoutSuffixNumber(nameWithSuffix.c_str(),true));
+        int suffixNumber=tt::getNameSuffixNumber(nameWithSuffix.c_str(),true);
+        luaWrap_lua_pushnumber(L,suffixNumber);
+        luaWrap_lua_pushstring(L,name.c_str());
+        LUA_END(2);
+    }
+
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetNameSuffix(luaWrap_lua_State* L)
+{ // DEPRECATED
+    TRACE_LUA_API;
+    LUA_START("sim.setNameSuffix");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int nb=luaWrap_lua_tointeger(L,1);
+        std::string suffTxt("");
+        if (nb>=0)
+            suffTxt=tt::FNb(nb);
+        std::string tmp(SIM_SCRIPT_NAME_SUFFIX);
+        tmp+="='";
+        tmp+=suffTxt;
+        tmp+="'";
+        luaWrap_luaL_dostring(L,tmp.c_str());
+        retVal=1;
+    }
+
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simAddStatusbarMessage(luaWrap_lua_State* L)
+{ // DEPRECATED
+    TRACE_LUA_API;
+    LUA_START("sim.addStatusbarMessage");
+
+    int retVal=-1; // means error
+    if (luaWrap_lua_gettop(L)==0)
+    {
+        App::clearStatusbar();
+        retVal=1;
+    }
+    else
+    {
+        if (checkInputArguments(L,nullptr,lua_arg_nil,0))
+        {
+            App::clearStatusbar();
+            retVal=1;
+        }
+        else
+        {
+            if (checkInputArguments(L,&errorString,lua_arg_string,0))
+            {
+                //retVal=simAddStatusbarMessage_internal(luaWrap_lua_tostring(L,1));
+                CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
+                if (it!=nullptr)
+                {
+                    App::logScriptMsg(it->getShortDescriptiveName().c_str(),sim_verbosity_msgs,luaWrap_lua_tostring(L,1));
+                    retVal=1;
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }

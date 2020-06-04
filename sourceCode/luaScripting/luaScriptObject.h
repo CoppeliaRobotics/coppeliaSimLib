@@ -75,7 +75,8 @@ public:
     int executeScriptString(const char* scriptString,CInterfaceStack* stack);
     int appendTableEntry(const char* arrayName,const char* keyName,const char* data,const int what[2]); // deprecated
 
-    void _displayScriptError(const char* errMsg,int errorType);
+    void prefixWithLuaLocationName(std::string& message);
+    void decomposeLuaMessage(const char* message,std::string& locationName,std::string& nakedMessage);
 
     bool killLuaState();
     bool hasLuaState() const;
@@ -138,15 +139,12 @@ public:
 
     int getScriptExecutionTimeInMs() const;
 
-    int getErrorReportMode() const;
-    void setErrorReportMode(int e);
-
     double getRandomDouble();
     void setRandomSeed(unsigned int s);
 
-    std::string getLastErrorString() const;
-    void setLastErrorString(const char* txt);
-    std::string getLastStackTraceback();
+    std::string getAndClearLastStackTraceback();
+    void setLastError(const char* err);
+    std::string getAndClearLastError();
 
     int getAddOnExecutionState() const;
 
@@ -154,9 +152,6 @@ public:
     int extractCommandFromOutsideCommandQueue(int auxVals[4],float aux2Vals[8],int& aux2Count);
 
     static bool emergencyStopButtonPressed;
-
-    void setInsideCustomLuaFunction(bool inside);
-    bool getInsideCustomLuaFunction() const;
 
     bool getContainsJointCallbackFunction() const;
     bool getContainsContactCallbackFunction() const;
@@ -185,6 +180,7 @@ public:
     static std::vector<std::string> getAllSystemCallbackStrings(int scriptType,bool threaded,bool callTips);
 
 protected:
+    void _displayScriptError(const char* errMsg,bool debugRoutine=false);
     bool _luaLoadBuffer(luaWrap_lua_State* luaState,const char* buff,size_t sz,const char* name);
     int _luaPCall(luaWrap_lua_State* luaState,int nargs,int nresult,int errfunc,const char* funcName);
 
@@ -252,7 +248,6 @@ protected:
     VTHREAD_ID_TYPE _threadedScript_associatedFiberOrThreadID;
     int _numberOfPasses;
     bool _threadedExecutionUnderWay;
-    int _insideCustomLuaFunction;
     bool _inExecutionNow;
     int _loadBufferResult;
 
@@ -262,9 +257,8 @@ protected:
     bool _custScriptDisabledDSim_compatibilityMode;
     bool _customizationScriptCleanupBeforeSave;
     int _timeOfPcallStart;
-    int _errorReportMode;
-    std::string _lastErrorString;
     std::string _lastStackTraceback;
+    std::string _lastError;
     bool _compatibilityModeOrFirstTimeCall_sysCallbacks;
     bool _containsJointCallbackFunction;
     bool _containsContactCallbackFunction;

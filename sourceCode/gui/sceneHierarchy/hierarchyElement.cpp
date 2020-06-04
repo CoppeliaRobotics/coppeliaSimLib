@@ -6,7 +6,7 @@
 #include "imgLoaderSaver.h"
 #include "app.h"
 #include "tt.h"
-#include "geometric.h"
+#include "mesh.h"
 #include <boost/lexical_cast.hpp>
 
 const int CONST_VAL_6=6;
@@ -1152,23 +1152,23 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy* hier,int tPosX,int tPos
                 {
                     if (((CShape*)it)->isCompound())
                     {
-                        if (((CShape*)it)->geomData->geomInfo->isPure())
+                        if (((CShape*)it)->getMeshWrapper()->isPure())
                             objectOrWorldIconID=PURE_MULTISHAPE_TREE_PICTURE;
-                        else if (((CShape*)it)->geomData->geomInfo->isConvex())
+                        else if (((CShape*)it)->getMeshWrapper()->isConvex())
                             objectOrWorldIconID=CONVEX_MULTISHAPE_TREE_PICTURE;
                         else
                             objectOrWorldIconID=MULTI_SHAPE_TREE_PICTURE;
                     }
                     else
                     {
-                        if (((CShape*)it)->geomData->geomInfo->isPure())
+                        if (((CShape*)it)->getMeshWrapper()->isPure())
                         {
-                            if (((CGeometric*)((CShape*)it)->geomData->geomInfo)->getPurePrimitiveType()==sim_pure_primitive_heightfield)
+                            if (((CShape*)it)->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_heightfield)
                                 objectOrWorldIconID=HEIGHTFIELD_SHAPE_TREE_PICTURE;
                             else
                                 objectOrWorldIconID=PURE_SHAPE_TREE_PICTURE;
                         }
-                        else if (((CShape*)it)->geomData->geomInfo->isConvex())
+                        else if (((CShape*)it)->getMeshWrapper()->isConvex())
                             objectOrWorldIconID=CONVEX_SHAPE_TREE_PICTURE;
                         else
                             objectOrWorldIconID=SIMPLE_SHAPE_TREE_PICTURE;
@@ -1393,7 +1393,7 @@ void CHierarchyElement::renderElement_editModeList(CHierarchy* hier,int labelEdi
     {
         if ( (objectID>=0)&&(objectID<App::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentsSize()) )
         {
-            CGeometric* geom=App::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentAtIndex(objectID);
+            CMesh* geom=App::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentAtIndex(objectID);
             int pic=0;
             if (geom->isPure())
                 pic=PURE_SHAPE_TREE_PICTURE;

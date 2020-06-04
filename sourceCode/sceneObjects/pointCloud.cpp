@@ -417,15 +417,15 @@ void CPointCloud::insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeTo
     _readPositionsAndColorsAndSetDimensions();
 }
 
-void CPointCloud::insertShape(const CShape* shape)
+void CPointCloud::insertShape(CShape* shape)
 {
     TRACE_INTERNAL;
     // We first build an octree from the shape, then insert the octree cube points:
-    ((CShape*)shape)->geomData->initializeCalculationStructureIfNeeded();
+    shape->initializeMeshCalculationStructureIfNeeded();
     C4X4Matrix m(getFullCumulativeTransformation().getMatrix());
     unsigned char dummyColor[3];
     const C7Vector tr(getFullCumulativeTransformation());
-    void* octree=CPluginContainer::geomPlugin_createOctreeFromMesh(shape->geomData->collInfo,shape->getFullCumulativeTransformation(),&tr,_buildResolution,dummyColor,0);
+    void* octree=CPluginContainer::geomPlugin_createOctreeFromMesh(shape->_meshCalculationStructure,shape->getFullCumulativeTransformation(),&tr,_buildResolution,dummyColor,0);
     std::vector<float> pts;
     CPluginContainer::geomPlugin_getOctreeVoxelPositions(octree,pts);
     CPluginContainer::geomPlugin_destroyOctree(octree);

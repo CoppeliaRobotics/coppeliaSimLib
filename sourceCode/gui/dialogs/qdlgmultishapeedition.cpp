@@ -2,13 +2,13 @@
 #include "ui_qdlgmultishapeedition.h"
 #include "tt.h"
 #include "gV.h"
-#include "geometric.h"
+#include "mesh.h"
 #include "qdlgtextures.h"
 #include "app.h"
 #include "simStrings.h"
 #include "qdlgmaterial.h"
 
-CGeometric* theGeom=nullptr;
+CMesh* theGeom=nullptr;
 
 CQDlgMultishapeEdition::CQDlgMultishapeEdition(QWidget *parent) :
     CDlgEx(parent),
