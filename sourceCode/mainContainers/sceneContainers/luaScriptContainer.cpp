@@ -311,7 +311,7 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
     if (scriptType!=sim_scripttype_childscript)
         threaded=false; // just to make sure
     int retVal=-1;
-    std::string filenameAndPath(App::directories->systemDirectory+"/");
+    std::string filenameAndPath(App::folders->getSystemPath()+"/");
 
     if (scriptType==sim_scripttype_mainscript)
         filenameAndPath+=DEFAULT_MAINSCRIPT_NAME;
@@ -323,11 +323,11 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
             filenameAndPath+=DEFAULT_NONTHREADEDCHILDSCRIPT_NAME;
     }
 
-    if (VFile::doesFileExist(filenameAndPath))
+    if (VFile::doesFileExist(filenameAndPath.c_str()))
     {
         try
         {
-            VFile file(filenameAndPath,VFile::READ|VFile::SHARE_DENY_NONE);
+            VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
             VArchive archive(&file,VArchive::LOAD);
             unsigned int archiveLength=(unsigned int)file.getLength();
             char* defaultScript=new char[archiveLength+1];

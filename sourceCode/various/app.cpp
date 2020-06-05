@@ -32,7 +32,7 @@ void (*_workThreadLoopCallback)();
 CUiThread* App::uiThread=nullptr;
 CSimThread* App::simThread=nullptr;
 CUserSettings* App::userSettings=nullptr;
-CDirectoryPaths* App::directories=nullptr;
+CFolderSystem* App::folders=nullptr;
 int App::operationalUIParts=0; // sim_gui_menubar,sim_gui_popupmenus,sim_gui_toolbar1,sim_gui_toolbar2, etc.
 std::string App::_applicationName="CoppeliaSim (Customized)";
 CWorldContainer* App::worldContainer=nullptr;
@@ -109,7 +109,7 @@ void App::simulationThreadInit()
 #endif
 
     App::worldContainer->sandboxScript=new CLuaScriptObject(sim_scripttype_sandboxscript);
-    App::worldContainer->sandboxScript->setScriptTextFromFile((App::directories->systemDirectory+"/"+"sndbxscpt.txt").c_str());
+    App::worldContainer->sandboxScript->setScriptTextFromFile((App::folders->getSystemPath()+"/"+"sndbxscpt.txt").c_str());
     App::worldContainer->sandboxScript->runSandboxScript(sim_syscb_init,nullptr,nullptr);
 }
 
@@ -283,7 +283,7 @@ App::App(bool headless)
 
 
     userSettings=new CUserSettings();
-    directories=new CDirectoryPaths();
+    folders=new CFolderSystem();
 
 #ifdef SIM_WITH_OPENGL
     // Following strange construction is to have a work-around for a bug
@@ -423,17 +423,17 @@ App::~App()
     // Remove any remaining auto-saved file:
     for (int i=1;i<30;i++)
     {
-        std::string testScene=App::directories->executableDirectory+"/";
+        std::string testScene=App::folders->getExecutablePath()+"/";
         testScene.append("AUTO_SAVED_INSTANCE_");
         testScene+=tt::FNb(i);
         testScene+=".";
         testScene+=SIM_SCENE_EXTENSION;
-        if (VFile::doesFileExist(testScene))
-            VFile::eraseFile(testScene);
+        if (VFile::doesFileExist(testScene.c_str()))
+            VFile::eraseFile(testScene.c_str());
     }
 
-    delete directories;
-    directories=nullptr;
+    delete folders;
+    folders=nullptr;
     delete userSettings;
     userSettings=nullptr;
     unloadExtLuaLibrary();
@@ -898,23 +898,6 @@ void App::_logMsgToStatusbar(const char* msg,bool html)
         }
     }
 #endif
-}
-
-void App::addStatusbarMessage(const std::string& txt,bool scriptErrorMsg/*=false*/)
-{
-    std::string str(txt);
-    if (scriptErrorMsg)
-    {
-        str="<font color='#c00'>"+_getHtmlEscapedString(str.c_str())+"</font>@html";
-        _logMsgToStatusbar(str.c_str(),true);
-
-        SUIThreadCommand cmdIn;
-        SUIThreadCommand cmdOut;
-        cmdIn.cmdId=FLASH_STATUSBAR_UITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-    }
-    else
-        _logMsgToStatusbar(str.c_str(),false);
 }
 
 void App::clearStatusbar()

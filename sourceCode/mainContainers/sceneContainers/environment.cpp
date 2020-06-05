@@ -327,7 +327,7 @@ int CEnvironment::getFogType() const
     return(fogType);
 }
 
-void CEnvironment::setAcknowledgement(const std::string& a)
+void CEnvironment::setAcknowledgement(const char* a)
 {
     _acknowledgement=a;
     if (_acknowledgement.length()>3000)
@@ -888,14 +888,18 @@ int CEnvironment::getJobCount()
     return(int(_jobs.size()));
 }
 
-int CEnvironment::getJobIndex(const std::string& name)
+int CEnvironment::getJobIndex(const char* name)
 {
-    for (int i=0;i<int(_jobs.size());i++)
+    int retVal=-1;
+    for (size_t i=0;i<_jobs.size();i++)
     {
         if (_jobs[i].compare(name)==0)
-            return(i);
+        {
+            retVal=int(i);
+            break;
+        }
     }
-    return(-1);
+    return(retVal);
 }
 
 std::string CEnvironment::getJobAtIndex(int index)
@@ -905,7 +909,7 @@ std::string CEnvironment::getJobAtIndex(int index)
     return("");
 }
 
-bool CEnvironment::createNewJob(std::string newName)
+bool CEnvironment::createNewJob(const char* newName)
 {
     if (getJobIndex(newName)==-1)
     {
@@ -920,7 +924,7 @@ bool CEnvironment::deleteCurrentJob()
 {
     if (_jobs.size()>1)
     {
-        int ind=getJobIndex(_currentJob);
+        int ind=getJobIndex(_currentJob.c_str());
         if (ind>=0)
         {
             _jobs.erase(_jobs.begin()+ind);
@@ -933,14 +937,15 @@ bool CEnvironment::deleteCurrentJob()
     return(false);
 }
 
-bool CEnvironment::renameCurrentJob(std::string newName)
+bool CEnvironment::renameCurrentJob(const char* newName)
 {
-    tt::removeIllegalCharacters(newName,false);
-    if (getJobIndex(newName)==-1)
+    std::string nn(newName);
+    tt::removeIllegalCharacters(nn,false);
+    if (getJobIndex(nn.c_str())==-1)
     {
-        int ind=getJobIndex(_currentJob);
-        _jobs[ind]=newName;
-        _currentJob=newName;
+        int ind=getJobIndex(_currentJob.c_str());
+        _jobs[ind]=nn;
+        _currentJob=nn;
         return(true);
     }
     return(false);

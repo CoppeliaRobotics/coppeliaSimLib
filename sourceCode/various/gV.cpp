@@ -85,25 +85,26 @@ std::string gv::getNullUnitStr()
     return("Null");
 }
 
-std::string gv::formatUnitStr(const std::string& txt,const std::string& s,bool inParenthesis,bool startWithSpace)
+std::string gv::formatUnitStr(const char* txt,const char* s,bool inParenthesis,bool startWithSpace)
 {
     std::string str(txt);
     if (startWithSpace)
         str+=" ";
     if (inParenthesis)
         str+="[";
-    for (int i=0;i<int(s.length());i++)
+    std::string ss(s);
+    for (size_t i=0;i<ss.length();i++)
     {
-        if (s[i]=='m')
+        if (ss[i]=='m')
             str+="m";
-        else if (s[i]=='s')
+        else if (ss[i]=='s')
             str+="s";
-        else if (s[i]=='k')
+        else if (ss[i]=='k')
             str+="kg";
-        else if (s[i]=='r')
+        else if (ss[i]=='r')
             str+="deg";
         else
-            str+=s[i];
+            str+=ss[i];
     }
     if (inParenthesis)
         str+="]";

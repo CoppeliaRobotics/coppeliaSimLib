@@ -258,7 +258,7 @@ void CPropBrowserEngineGeneral::refresh()
     p_bulletTimeStep->setEnabled(confIndex==4);
     p_bulletConstraintSolvType->setValue(App::currentWorld->dynamicsContainer->getEngineIntParam(sim_bullet_global_constraintsolvertype,nullptr));
     p_bulletConstraintSolvType->setEnabled(confIndex==4);
-    p_bulletConstraintSolvIterat->setValue(tt::intToString(App::currentWorld->dynamicsContainer->getEngineIntParam(sim_bullet_global_constraintsolvingiterations,nullptr)).c_str());
+    p_bulletConstraintSolvIterat->setValue(std::to_string(App::currentWorld->dynamicsContainer->getEngineIntParam(sim_bullet_global_constraintsolvingiterations,nullptr)).c_str());
     p_bulletConstraintSolvIterat->setEnabled(confIndex==4);
     p_bulletInternalScaling->setValue(tt::floatToEInfString(App::currentWorld->dynamicsContainer->getEngineFloatParam(sim_bullet_global_internalscalingfactor,nullptr),false).c_str());
     p_bulletInternalScaling->setEnabled(confIndex==4);
@@ -282,7 +282,7 @@ void CPropBrowserEngineGeneral::refresh()
     p_odeTimeStep->setEnabled(confIndex==4);
     p_odeQuickStep->setValue(App::currentWorld->dynamicsContainer->getEngineBoolParam(sim_ode_global_quickstep,nullptr));
     p_odeQuickStep->setEnabled(confIndex==4);
-    p_odeIterations->setValue(tt::intToString(App::currentWorld->dynamicsContainer->getEngineIntParam(sim_ode_global_constraintsolvingiterations,nullptr)).c_str());
+    p_odeIterations->setValue(std::to_string(App::currentWorld->dynamicsContainer->getEngineIntParam(sim_ode_global_constraintsolvingiterations,nullptr)).c_str());
     p_odeIterations->setEnabled((confIndex==4)&&App::currentWorld->dynamicsContainer->getEngineBoolParam(sim_ode_global_quickstep,nullptr));
     p_odeInternalScaling->setValue(tt::floatToEInfString(App::currentWorld->dynamicsContainer->getEngineFloatParam(sim_ode_global_internalscalingfactor,nullptr),false).c_str());
     p_odeInternalScaling->setEnabled(confIndex==4);

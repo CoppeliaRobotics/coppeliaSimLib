@@ -29,7 +29,7 @@ public:
     static std::string getBoolStateUnitStr();
     static std::string getUserUnitStr();
     static std::string getNullUnitStr();
-    static std::string formatUnitStr(const std::string& txt,const std::string& s,bool inParenthesis=true,bool startWithSpace=true);
+    static std::string formatUnitStr(const char* txt,const char* s,bool inParenthesis=true,bool startWithSpace=true);
 
     static float radToUser;
     static float userToRad;

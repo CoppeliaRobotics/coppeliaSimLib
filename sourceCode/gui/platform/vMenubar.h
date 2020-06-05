@@ -10,8 +10,8 @@ public:
     VMenu();
     virtual ~VMenu();
 
-    void appendMenuAndDetach(VMenu* childMenu,bool enabled,const std::string& label);
-    void appendMenuItem(bool enabled,bool checkMark,int commandID,const std::string& label,bool showCheckmarkSpot=false);
+    void appendMenuAndDetach(VMenu* childMenu,bool enabled,const char* label);
+    void appendMenuItem(bool enabled,bool checkMark,int commandID,const char* label,bool showCheckmarkSpot=false);
     void appendMenuSeparator();
     int trackPopupMenu();
     void clear();
@@ -30,8 +30,8 @@ public:
     VMenubar();
     virtual ~VMenubar();
 
-    void appendMenuAndDetach(VMenu* childMenu,bool enabled,const std::string& label);
-    void appendMenuItem(bool enabled,bool checkMark,int commandID,const std::string& label,bool showCheckmarkSpot=false);
+    void appendMenuAndDetach(VMenu* childMenu,bool enabled,const char* label);
+    void appendMenuItem(bool enabled,bool checkMark,int commandID,const char* label,bool showCheckmarkSpot=false);
     void appendMenuSeparator();
     void clear();
 

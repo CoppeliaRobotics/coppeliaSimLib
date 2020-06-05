@@ -84,7 +84,7 @@ void CLight::_commonInit()
         _objectName=IDSOGL_SPOTLIGHT;
     if (_lightType==sim_light_directional_subtype)
         _objectName=IDSOGL_DIRECTIONAL_LIGHT;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
 }
 
 bool CLight::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
@@ -172,7 +172,7 @@ void CLight::scaleObject(float scalingFactor)
     if (tt::getValueOfKey("fadeXDist@povray",_extensionString.c_str(),val))
     {
         float f;
-        if (tt::getValidFloat(val,f))
+        if (tt::getValidFloat(val.c_str(),f))
         {
             f*=scalingFactor;
             tt::insertKeyAndValue("fadeXDist@povray",tt::FNb(0,f,3,false).c_str(),_extensionString);

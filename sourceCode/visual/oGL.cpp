@@ -431,16 +431,17 @@ void ogl::drawRandom2dPoints(const float* pts,int ptsCnt,float zCoord)
     glEnd();
 }
 
-void ogl::drawBitmapTextTo3dPosition(const float pos[3],const std::string& txt,const float normalVectorForDiffuseComp[3])
+void ogl::drawBitmapTextTo3dPosition(const float pos[3],const char* txt,const float normalVectorForDiffuseComp[3])
 {
     drawBitmapTextTo3dPosition(pos[0],pos[1],pos[2],txt,normalVectorForDiffuseComp);
 }
 
-void ogl::drawBitmapTextTo3dPosition(float x,float y,float z,const std::string& txt,const float normalVectorForDiffuseComp[3])
+void ogl::drawBitmapTextTo3dPosition(float x,float y,float z,const char* txt,const float normalVectorForDiffuseComp[3])
 {
     if (oglFonts[fontIndex].fontBase==0)
         return;
-    if (txt.length()==0)
+    int l=strlen(txt);
+    if (l==0)
         return;
     if (normalVectorForDiffuseComp!=nullptr)
         glNormal3fv(normalVectorForDiffuseComp);
@@ -449,20 +450,21 @@ void ogl::drawBitmapTextTo3dPosition(float x,float y,float z,const std::string& 
     glRasterPos3f(x,y,z);
     glPushAttrib(GL_LIST_BIT);
     glListBase(oglFonts[fontIndex].fontBase);
-    glCallLists((GLsizei)txt.length(),GL_UNSIGNED_BYTE,txt.c_str());
+    glCallLists((GLsizei)l,GL_UNSIGNED_BYTE,txt);
     glPopAttrib();
 }
 
-void ogl::drawBitmapTextTo2dPosition(float posX,float posY,const std::string& txt)
+void ogl::drawBitmapTextTo2dPosition(float posX,float posY,const char* txt)
 {
     if (oglFonts[fontIndex].fontBase==0)
         return;
-    if (txt.length()==0)
+    int l=strlen(txt);
+    if (l==0)
         return;
     glRasterPos3f(posX,posY,0.0f);
     glPushAttrib(GL_LIST_BIT);
     glListBase(oglFonts[fontIndex].fontBase);
-    glCallLists((GLsizei)txt.length(),GL_UNSIGNED_BYTE,txt.c_str());
+    glCallLists((GLsizei)l,GL_UNSIGNED_BYTE,txt);
     glPopAttrib();
 }
 
@@ -941,16 +943,17 @@ void ogl::drawBitmapTextBackgroundIntoScene(float posX,float posY,float posZ,std
     }
 }
 
-void ogl::drawBitmapTextIntoScene(float posX,float posY,float posZ,const std::string& txt)
+void ogl::drawBitmapTextIntoScene(float posX,float posY,float posZ,const char* txt)
 {
     if (oglFonts[fontIndex].fontBase==0) 
         return;
-    if (txt.length()==0)
+    int l=strlen(txt);
+    if (l==0)
         return;
     glRasterPos3f(posX,posY,posZ);
     glPushAttrib(GL_LIST_BIT);
     glListBase(oglFonts[fontIndex].fontBase);
-    glCallLists((GLsizei)txt.length(),GL_UNSIGNED_BYTE,txt.c_str());
+    glCallLists((GLsizei)l,GL_UNSIGNED_BYTE,txt);
     glPopAttrib();
 }
 
@@ -967,12 +970,13 @@ void ogl::drawTexti(int posX,int posY,int posZ,std::string txt)
     glPopAttrib();
 }
 
-int ogl::getTextLengthInPixels(const std::string& txt)
+int ogl::getTextLengthInPixels(const char* txt)
 {
     if (oglFonts[fontIndex].fontBase==0)
         return(0);
     int width=0;
-    for (int i=0;i<int(txt.length());i++)
+    int l=strlen(txt);
+    for (int i=0;i<l;i++)
         width=width+oglFonts[fontIndex].fontWidths[(unsigned char)txt[i]];
     return(width);
 }
@@ -1049,7 +1053,7 @@ std::string ogl::getTextThatFitIntoPixelWidth(std::vector<std::string>& separate
             }
         }
         separateWords[0].erase(separateWords[0].begin(),separateWords[0].begin()+countToErase);
-        widths[0]=getTextLengthInPixels(separateWords[0]);
+        widths[0]=getTextLengthInPixels(separateWords[0].c_str());
         textCharCount_pixelWidth=width;
         return(retVal);
     }
@@ -1945,55 +1949,6 @@ int ogl::getRichTextInfo(std::string& text,std::vector<int>& iconsAndPos)
         i=text.find("&&",i);
     }
     return(iconCount);
-}
-
-int ogl::getMultilineTextInfo(const std::string& text,std::vector<std::string>& lines,int* textMaxWidth,int* textHeight,int* charHeight)
-{
-    if (oglFonts[fontIndex].fontBase==0)
-        return(0);
-    int fontHeight=oglFonts[fontIndex].fontHeight;
-    // How many lines?
-    lines.clear();
-    size_t i=text.find("&&n",0);
-    int lastFoundPos=-3;
-
-    int maxLineWidth=0;
-    std::vector<int> iconsAndPos;
-    while (i!=std::string::npos)
-    {
-        std::string lineTxt(text,lastFoundPos+3,i-(lastFoundPos+3));
-        std::string t(lineTxt);
-        int iconCount=getRichTextInfo(t,iconsAndPos);
-        int tWidth=iconCount*fontHeight;
-        for (int j=0;j<int(t.size());j++)
-            tWidth+=oglFonts[fontIndex].fontWidths[int(t[j])];
-        if (tWidth>maxLineWidth)
-            maxLineWidth=tWidth;
-        lines.push_back(lineTxt);
-        lastFoundPos=(int)i;
-        i=text.find("&&n",i+3);
-    }
-    std::string lineTxt;
-    if (lastFoundPos<0)
-        lineTxt=text; // Just one line
-    else
-        lineTxt=std::string(text,lastFoundPos+3,999999);
-    std::string t(lineTxt);
-    int iconCount=getRichTextInfo(t,iconsAndPos);
-    int tWidth=iconCount*fontHeight;
-    for (int j=0;j<int(t.size());j++)
-        tWidth+=oglFonts[fontIndex].fontWidths[int(t[j])];
-    if (tWidth>maxLineWidth)
-        maxLineWidth=tWidth;
-    lines.push_back(lineTxt);
-
-    if (textMaxWidth!=nullptr)
-        (*textMaxWidth)=maxLineWidth;
-    if (textHeight!=nullptr)
-        (*textHeight)=fontHeight*(int)lines.size();
-    if (charHeight!=nullptr)
-        (*charHeight)=fontHeight;
-    return((int)lines.size());
 }
 
 

@@ -13,7 +13,7 @@ CDummy::CDummy()
 {
     _visibilityLayer=DUMMY_LAYER;
     _objectName=IDSOGL_DUMMY;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
 
     _freeOnPathTrajectory=false;
     _virtualDistanceOffsetOnPath=0.0f;

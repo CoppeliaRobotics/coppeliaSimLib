@@ -60,7 +60,7 @@ void CButtonBlockContainer::emptySceneProcedure(bool mainContainer)
             if (App::operationalUIParts&sim_gui_infobar)
             {
                 // System block creation:
-                std::string fullPathAndFilename=App::directories->systemDirectory+"/";
+                std::string fullPathAndFilename=App::folders->getSystemPath()+"/";
                 fullPathAndFilename.append("sysnfo.ttb");
                 CButtonBlockContainer* cont=loadSystemButtonBlocks(fullPathAndFilename);
                 if (cont!=nullptr)
@@ -279,7 +279,7 @@ void CButtonBlockContainer::setSuffix1ToSuffix2(int suffix1,int suffix2)
         if (s1==suffix1)
         {
             std::string name1(tt::getNameWithoutSuffixNumber(allBlocks[i]->getBlockName().c_str(),true));
-            allBlocks[i]->setBlockName(tt::generateNewName_hash(name1,suffix2+1));
+            allBlocks[i]->setBlockName(tt::generateNewName_hash(name1.c_str(),suffix2+1));
         }
     }
 }
@@ -299,11 +299,11 @@ void CButtonBlockContainer::insertBlockWithSuffixOffset(CButtonBlock* theNewBloc
     // We check the name doesn't exist:
     std::string name=theNewBlock->getBlockName();
     if (objectIsACopy)
-        name=tt::generateNewName_hash(name,suffixOffset);
+        name=tt::generateNewName_hash(name.c_str(),suffixOffset);
     else
     {
         while (getBlockWithName(name)!=nullptr)
-            name=tt::generateNewName_noHash(name);
+            name=tt::generateNewName_noHash(name.c_str());
     }
     theNewBlock->setBlockName(name);
     // We finally add the block:
@@ -1145,7 +1145,7 @@ CSoftButton* CButtonBlockContainer::getInfoBoxButton(int index,int subIndex)
 CButtonBlockContainer* CButtonBlockContainer::loadSystemButtonBlocks(std::string fullPathAndFilename)
 {
     TRACE_INTERNAL;
-    if (VFile::doesFileExist(fullPathAndFilename))
+    if (VFile::doesFileExist(fullPathAndFilename.c_str()))
     {
         try
         {

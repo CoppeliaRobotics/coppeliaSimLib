@@ -36,9 +36,9 @@ void CIkGroupContainer::addIkGroupWithSuffixOffset(CIkGroup* anIkGroup,bool obje
     if (theName.length()==0)
         theName="IkGroup";
     if (objectIsACopy)
-        theName=tt::generateNewName_hash(theName,suffixOffset);
+        theName=tt::generateNewName_hash(theName.c_str(),suffixOffset);
     while (getObjectFromName(theName.c_str())!=nullptr)
-        theName=tt::generateNewName_hashOrNoHash(theName,objectIsACopy);
+        theName=tt::generateNewName_hashOrNoHash(theName.c_str(),objectIsACopy);
     anIkGroup->setObjectName(theName.c_str(),false);
 
     int handle=SIM_IDSTART_IKGROUP;
@@ -102,7 +102,7 @@ void CIkGroupContainer::setSuffix1ToSuffix2(int suffix1,int suffix2)
         if (s1==suffix1)
         {
             std::string name1(tt::getNameWithoutSuffixNumber(getObjectFromIndex(i)->getObjectName().c_str(),true));
-            getObjectFromIndex(i)->setObjectName(tt::generateNewName_hash(name1,suffix2+1).c_str(),false);
+            getObjectFromIndex(i)->setObjectName(tt::generateNewName_hash(name1.c_str(),suffix2+1).c_str(),false);
         }
     }
 }

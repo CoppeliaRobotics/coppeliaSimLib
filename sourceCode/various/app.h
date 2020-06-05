@@ -2,7 +2,7 @@
 
 #include "uiThread.h"
 #include "simThread.h"
-#include "directoryPaths.h"
+#include "folderSystem.h"
 #include "userSettings.h"
 #include "vMutex.h"
 #include "worldContainer.h"
@@ -85,15 +85,13 @@ public:
     static bool getConsoleMsgToFile();
     static void setConsoleMsgToFile(bool f);
     static bool isCurrentThreadTheUiThread();
-
-    static void addStatusbarMessage(const std::string& txt,bool scriptErrorMsg=false);
     static void clearStatusbar();
 
     static float* getRGBPointerFromItem(int objType,int objID1,int objID2,int colComponent,std::string* auxDlgTitle);
     static CColorObject* getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts);
     static CTextureProperty* getTexturePropertyPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,bool* is3D,bool* valid,CMesh** geom);
 
-    static CDirectoryPaths* directories;
+    static CFolderSystem* folders;
     static CUserSettings* userSettings;
     static CWorldContainer* worldContainer;
     static CWorld* currentWorld; // actually worldContainer->currentWorld

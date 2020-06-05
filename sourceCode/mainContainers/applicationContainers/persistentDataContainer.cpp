@@ -10,7 +10,7 @@ CPersistentDataContainer::CPersistentDataContainer()
     initializeWithDataFromFile();
 }
 
-CPersistentDataContainer::CPersistentDataContainer(const std::string& filename)
+CPersistentDataContainer::CPersistentDataContainer(const char* filename)
 {
     _filename=filename;
     initializeWithDataFromFile();
@@ -110,11 +110,11 @@ void CPersistentDataContainer::_readFromFile(std::vector<std::string>& dataNames
     dataNames.clear();
     dataValues.clear();
     std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+_filename.c_str());
-    if (VFile::doesFileExist(filenameAndPath))
+    if (VFile::doesFileExist(filenameAndPath.c_str()))
     {
         try
         {
-            VFile file(filenameAndPath,VFile::READ|VFile::SHARE_DENY_NONE);
+            VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
             VArchive archive(&file,VArchive::LOAD);
             _serialize(archive,dataNames,dataValues);
             archive.close();
@@ -132,7 +132,7 @@ void CPersistentDataContainer::_writeToFile(std::vector<std::string>& dataNames,
     std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+_filename.c_str());
     try
     {
-        VFile myFile(filenameAndPath,VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
+        VFile myFile(filenameAndPath.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
         VArchive archive(&myFile,VArchive::STORE);
         _serialize(archive,dataNames,dataValues);
         archive.close();

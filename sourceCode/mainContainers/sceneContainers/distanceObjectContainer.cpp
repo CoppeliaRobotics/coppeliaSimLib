@@ -78,7 +78,7 @@ void CDistanceObjectContainer::setSuffix1ToSuffix2(int suffix1,int suffix2)
         if (s1==suffix1)
         {
             std::string name1(tt::getNameWithoutSuffixNumber(getObjectFromIndex(i)->getObjectName().c_str(),true));
-            getObjectFromIndex(i)->setObjectName(tt::generateNewName_hash(name1,suffix2+1).c_str(),false);
+            getObjectFromIndex(i)->setObjectName(tt::generateNewName_hash(name1.c_str(),suffix2+1).c_str(),false);
         }
     }
 }
@@ -94,9 +94,9 @@ void CDistanceObjectContainer::addObjectWithSuffixOffset(CDistanceObject* newDis
     if (oName.length()==0)
         oName="Distance";
     if (objectIsACopy)
-        oName=tt::generateNewName_hash(oName,suffixOffset);
+        oName=tt::generateNewName_hash(oName.c_str(),suffixOffset);
     while (getObjectFromName(oName.c_str())!=nullptr)
-        oName=tt::generateNewName_hashOrNoHash(oName,objectIsACopy);
+        oName=tt::generateNewName_hashOrNoHash(oName.c_str(),objectIsACopy);
     newDistObj->setObjectName(oName.c_str(),false);
 
     int handle=SIM_IDSTART_DISTANCE;

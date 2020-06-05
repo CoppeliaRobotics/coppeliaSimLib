@@ -342,7 +342,7 @@ void CSimRecorder::stopRecording(bool manualStop)
 
             App::logMsg(sim_verbosity_msgs,tmp.c_str());
             if (_showSavedMessage)
-                App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_AVI_RECORDER),tmp,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_information(App::mainWindow,IDSN_AVI_RECORDER,tmp.c_str(),VMESSAGEBOX_OKELI);
             _showSavedMessage=true; // reset this flag
             App::setFullDialogRefreshFlag();
         }

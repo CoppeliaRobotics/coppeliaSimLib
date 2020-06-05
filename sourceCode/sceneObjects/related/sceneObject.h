@@ -202,7 +202,7 @@ public:
 
     bool isObjectPartOfInvisibleModel();
 
-    void setModelAcknowledgement(const std::string& a);
+    void setModelAcknowledgement(const char* a);
     std::string getModelAcknowledgement() const;
 
     void setIgnoredByViewFitting(bool ignored);

@@ -236,7 +236,7 @@ void CLuaCustomFuncAndVarContainer::appendAllVariableNames_spaceSeparated_keywor
     }
 }
 
-void CLuaCustomFuncAndVarContainer::pushAllFunctionNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m)
+void CLuaCustomFuncAndVarContainer::pushAllFunctionNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m)
 {
     std::string ttxt(txt);
     bool hasDot=(ttxt.find('.')!=std::string::npos);
@@ -245,12 +245,12 @@ void CLuaCustomFuncAndVarContainer::pushAllFunctionNamesThatStartSame_autoComple
         if (allCustomFunctions[i]->hasAutocompletion())
         {
             std::string n(allCustomFunctions[i]->getFunctionName());
-            if ((n.size()>=txt.size())&&(n.compare(0,txt.size(),txt)==0))
+            if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
             {
                 if (!hasDot)
                 {
                     size_t dp=n.find('.');
-                    if ( (dp!=std::string::npos)&&(txt.size()>0) )
+                    if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
                         n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                 }
                 std::map<std::string,bool>::iterator it=m.find(n);
@@ -264,7 +264,7 @@ void CLuaCustomFuncAndVarContainer::pushAllFunctionNamesThatStartSame_autoComple
     }
 }
 
-void CLuaCustomFuncAndVarContainer::pushAllVariableNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m)
+void CLuaCustomFuncAndVarContainer::pushAllVariableNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m)
 {
     std::string ttxt(txt);
     bool hasDot=(ttxt.find('.')!=std::string::npos);
@@ -273,12 +273,12 @@ void CLuaCustomFuncAndVarContainer::pushAllVariableNamesThatStartSame_autoComple
         if (allCustomVariables[i]->getHasAutoCompletion())
         {
             std::string n(allCustomVariables[i]->getVariableName());
-            if ((n.size()>=txt.size())&&(n.compare(0,txt.size(),txt)==0))
+            if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
             {
                 if (!hasDot)
                 {
                     size_t dp=n.find('.');
-                    if ( (dp!=std::string::npos)&&(txt.size()>0) )
+                    if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
                         n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                 }
                 std::map<std::string,bool>::iterator it=m.find(n);

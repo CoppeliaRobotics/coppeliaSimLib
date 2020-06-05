@@ -1279,7 +1279,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 //------------------------------------------------------------
 
-                CSceneObject* it=sceneObjects->readSceneObject(ar,theName,noHit);
+                CSceneObject* it=sceneObjects->readSceneObject(ar,theName.c_str(),noHit);
                 if (it!=nullptr)
                 {
                     loadedObjectList.push_back(it);
@@ -1446,9 +1446,8 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
         {
             while (true)
             {
-                std::string dummy1;
                 bool dummy2;
-                CSceneObject* it=sceneObjects->readSceneObject(ar,dummy1,dummy2);
+                CSceneObject* it=sceneObjects->readSceneObject(ar,"",dummy2);
                 if (it!=nullptr)
                     loadedObjectList.push_back(it);
                 if (!ar.xmlPushSiblingNode(SERX_SCENEOBJECT,false))
@@ -1802,7 +1801,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
         _objectTempNamesMap[it->getObjectTempName()]=it;
         std::string newObjName=it->getObjectTempName();
         if (objectIsACopy)
-            newObjName=tt::generateNewName_hash(newObjName,suffixOffset);
+            newObjName=tt::generateNewName_hash(newObjName.c_str(),suffixOffset);
         else
         {
             if (sceneObjects->getObjectFromName(newObjName.c_str())!=nullptr)
@@ -1830,7 +1829,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
                         break;
                     lastS=suffixes[i];
                 }
-                newObjName=tt::generateNewName_noHash(baseName,lastS+1+1);
+                newObjName=tt::generateNewName_noHash(baseName.c_str(),lastS+1+1);
             }
             // Following was too slow with many objects:
             //      while (getObject(newObjName)!=nullptr)
@@ -1866,7 +1865,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
                     break;
                 lastS=suffixes[i];
             }
-            newObjAltName=tt::generateNewName_noHash(baseAltName,lastS+1+1);
+            newObjAltName=tt::generateNewName_noHash(baseAltName.c_str(),lastS+1+1);
         }
         // Following was too slow with many objects:
         //      while (getObjectFromAltName(newObjAltName)!=nullptr)

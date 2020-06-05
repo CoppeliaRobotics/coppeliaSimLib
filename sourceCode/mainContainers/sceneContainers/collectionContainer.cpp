@@ -240,7 +240,7 @@ void CCollectionContainer::setSuffix1ToSuffix2(int suffix1,int suffix2)
         if (s1==suffix1)
         {
             std::string name1(tt::getNameWithoutSuffixNumber(getObjectFromIndex(i)->getCollectionName().c_str(),true));
-            getObjectFromIndex(i)->setCollectionName(tt::generateNewName_hash(name1,suffix2+1).c_str(),false);
+            getObjectFromIndex(i)->setCollectionName(tt::generateNewName_hash(name1.c_str(),suffix2+1).c_str(),false);
         }
     }
 }
@@ -256,9 +256,9 @@ void CCollectionContainer::addCollectionWithSuffixOffset(CCollection* collection
     if (theName.length()==0)
         theName="Collection";
     if (objectIsACopy)
-        theName=tt::generateNewName_hash(theName,suffixOffset);
+        theName=tt::generateNewName_hash(theName.c_str(),suffixOffset);
     while (getObjectFromName(theName.c_str())!=nullptr)
-        theName=tt::generateNewName_hashOrNoHash(theName,objectIsACopy);
+        theName=tt::generateNewName_hashOrNoHash(theName.c_str(),objectIsACopy);
     collection->setCollectionName(theName.c_str(),false);
 
     int handle=SIM_IDSTART_COLLECTION;

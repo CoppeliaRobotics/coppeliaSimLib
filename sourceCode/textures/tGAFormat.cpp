@@ -194,12 +194,12 @@ unsigned char* CTGAFormat::getV_ImageData(VArchive& inputStream,int& resX,int& r
     return(imageData);
 }
 
-unsigned char* CTGAFormat::getQ_ImageData(const std::string& fileAndPathName,int& resX,int& resY,bool& isRgba,unsigned char invisibleColor[3],int bitsPerPixel[1])
+unsigned char* CTGAFormat::getQ_ImageData(const char* fileAndPathName,int& resX,int& resY,bool& isRgba,unsigned char invisibleColor[3],int bitsPerPixel[1])
 {
     unsigned char* retVal=nullptr;
     try
     {
-        VFile file(fileAndPathName.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
+        VFile file(fileAndPathName,VFile::READ|VFile::SHARE_DENY_NONE);
         VArchive archive(&file,VArchive::LOAD);
         retVal=getV_ImageData(archive,resX,resY,isRgba,invisibleColor,bitsPerPixel);
         archive.close();
@@ -207,7 +207,7 @@ unsigned char* CTGAFormat::getQ_ImageData(const std::string& fileAndPathName,int
     }
     catch(VFILE_EXCEPTION_TYPE e)
     {
-        App::logMsg(sim_verbosity_errors,"failed loading resource: %s",fileAndPathName.c_str());
+        App::logMsg(sim_verbosity_errors,"failed loading resource: %s",fileAndPathName);
         VFile::reportAndHandleFileExceptionError(e);
     }
     return(retVal);

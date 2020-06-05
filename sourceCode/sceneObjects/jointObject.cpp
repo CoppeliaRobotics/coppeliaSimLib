@@ -55,14 +55,14 @@ CJoint::CJoint(int jointType)
         _dynamicMotorUpperLimitVelocity=0.0f;
         _maxAcceleration_DEPRECATED=60.0f*degToRad_f;
     }
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
 }
 
 void CJoint::_commonInit()
 {
     _visibilityLayer=JOINT_LAYER;
     _objectName=IDSOGL_JOINT;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
 
     _initialValuesInitialized=false;
     _cumulatedForceOrTorque=0.0f;

@@ -91,7 +91,7 @@ bool CSer::writeOpenBinary(bool compress)
          (_filetype==filetype_xr_bin_scene_file)||(_filetype==filetype_xr_bin_model_file)||
          (_filetype==filetype_csim_bin_thumbnails_file)||(_filetype==filetype_csim_bin_ui_file) )
     {
-        theFile=new VFile(_filename,VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE,true);
+        theFile=new VFile(_filename.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE,true);
         if (theFile->getFile()!=nullptr)
         {
             theArchive=new VArchive(theFile,VArchive::STORE);
@@ -130,7 +130,7 @@ bool CSer::writeOpenBinaryNoHeader(bool compress)
     _noHeader=true;
     if (_filetype==filetype_bin_file)
     {
-        theFile=new VFile(_filename,VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE,true);
+        theFile=new VFile(_filename.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE,true);
         if (theFile->getFile()!=nullptr)
         {
             theArchive=new VArchive(theFile,VArchive::STORE);
@@ -472,7 +472,7 @@ int CSer::readOpenBinaryNoHeader()
     _storing=false;
     if (_filetype==filetype_bin_file)
     {
-        theFile=new VFile(_filename,VFile::READ|VFile::SHARE_DENY_NONE);
+        theFile=new VFile(_filename.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
         if (theFile->getFile()!=nullptr)
         {
             theArchive=new VArchive(theFile,VArchive::LOAD);
@@ -510,7 +510,7 @@ int CSer::readOpenBinary(int& serializationVersion,unsigned short& coppeliaSimVe
     _storing=false;
     if ( (_filetype!=filetype_csim_bin_scene_buff)&&(_filetype!=filetype_csim_bin_model_buff) )
     {
-        theFile=new VFile(_filename,VFile::READ|VFile::SHARE_DENY_NONE);
+        theFile=new VFile(_filename.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
         if (theFile->getFile()!=nullptr)
             theArchive=new VArchive(theFile,VArchive::LOAD);
         else

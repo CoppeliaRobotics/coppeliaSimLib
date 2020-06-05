@@ -102,7 +102,7 @@ CMainWindow::CMainWindow() : QMainWindow()
     customMenuBarItemContainer=new CCustomMenuBarItemContainer();
     dlgCont=new CDlgCont(this);
 
-    simulationRecorder=new CSimRecorder(App::directories->videoDirectory.c_str());
+    simulationRecorder=new CSimRecorder(App::folders->getVideosPath().c_str());
     _mouseButtonsState=0;
     _keyDownState=0;
 
@@ -120,7 +120,7 @@ CMainWindow::CMainWindow() : QMainWindow()
     modelListWidget->setMaximumWidth(170*4);
     modelListWidget->setMinimumWidth(180);
 
-    modelFolderWidget=new CModelFolderWidget(modelListWidget,"Model browser",App::directories->modelDirectory.c_str(),CSimFlavor::getStringVal(15).c_str());
+    modelFolderWidget=new CModelFolderWidget(modelListWidget,"Model browser",App::folders->getModelsPath().c_str(),CSimFlavor::getStringVal(15).c_str());
 
     #ifdef MAC_SIM
         if (modelFolderWidget->hasError())
@@ -898,14 +898,14 @@ void CMainWindow::createDefaultMenuBar()
         if (editModeContainer->getEditModeType()==NO_EDIT_MODE)
         {
             _fileSystemMenu=new VMenu();
-            _menubar->appendMenuAndDetach(_fileSystemMenu,menuBarEnabled,std::string(IDS_FILE_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
+            _menubar->appendMenuAndDetach(_fileSystemMenu,menuBarEnabled,(std::string(IDS_FILE_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
             connect(_fileSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowFileSystemMenu()));
         }
 
         if (editModeContainer->getEditModeType()!=MULTISHAPE_EDIT_MODE)
         {
             _editSystemMenu=new VMenu();
-            _menubar->appendMenuAndDetach(_editSystemMenu,menuBarEnabled,std::string(IDS_EDIT_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
+            _menubar->appendMenuAndDetach(_editSystemMenu,menuBarEnabled,(std::string(IDS_EDIT_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
             connect(_editSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowEditSystemMenu()));
         }
 
@@ -914,51 +914,51 @@ void CMainWindow::createDefaultMenuBar()
             if (CSimFlavor::getBoolVal(11))
             {
                 _addSystemMenu=new VMenu();
-                _menubar->appendMenuAndDetach(_addSystemMenu,menuBarEnabled,std::string(IDS_ADD_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
+                _menubar->appendMenuAndDetach(_addSystemMenu,menuBarEnabled,(std::string(IDS_ADD_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
                 connect(_addSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowAddSystemMenu()));
             }
             _simulationSystemMenu=new VMenu();
-            _menubar->appendMenuAndDetach(_simulationSystemMenu,menuBarEnabled,std::string(IDS_SIMULATION_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
+            _menubar->appendMenuAndDetach(_simulationSystemMenu,menuBarEnabled,(std::string(IDS_SIMULATION_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
             connect(_simulationSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowSimulationSystemMenu()));
         }
 
         if (editModeContainer->getEditModeType()==NO_EDIT_MODE)
         {
             _windowSystemMenu=new VMenu();
-            _menubar->appendMenuAndDetach(_windowSystemMenu,menuBarEnabled,std::string(IDS_TOOLS_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
+            _menubar->appendMenuAndDetach(_windowSystemMenu,menuBarEnabled,(std::string(IDS_TOOLS_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
             connect(_windowSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowWindowSystemMenu()));
 
             if (customMenuBarItemContainer->allItems.size()!=0)
             { // Plugins
                 customMenuBarItemContainer->_menuHandle=new VMenu();
-                _menubar->appendMenuAndDetach(customMenuBarItemContainer->_menuHandle,menuBarEnabled,std::string(IDS_MODULES_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
+                _menubar->appendMenuAndDetach(customMenuBarItemContainer->_menuHandle,menuBarEnabled,(std::string(IDS_MODULES_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
                 connect(customMenuBarItemContainer->_menuHandle->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowCustomMenu()));
             }
 
             if (CSimFlavor::getBoolVal(11))
             {
                 _addOnSystemMenu=new VMenu();
-                _menubar->appendMenuAndDetach(_addOnSystemMenu,menuBarEnabled,std::string(IDS_ADDON_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
+                _menubar->appendMenuAndDetach(_addOnSystemMenu,menuBarEnabled,(std::string(IDS_ADDON_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
                 connect(_addOnSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowAddOnSystemMenu()));
             }
 
             {
                 _instancesSystemMenu=new VMenu();
-                _menubar->appendMenuAndDetach(_instancesSystemMenu,menuBarEnabled,std::string(IDS_INSTANCES_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
+                _menubar->appendMenuAndDetach(_instancesSystemMenu,menuBarEnabled,(std::string(IDS_INSTANCES_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
                 connect(_instancesSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowInstancesSystemMenu()));
             }
 
             if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
             {
                 _layoutSystemMenu=new VMenu();
-                _menubar->appendMenuAndDetach(_layoutSystemMenu,menuBarEnabled,std::string(IDS_LAYOUT_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
+                _menubar->appendMenuAndDetach(_layoutSystemMenu,menuBarEnabled,(std::string(IDS_LAYOUT_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
                 connect(_layoutSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowLayoutSystemMenu()));
             }
 
             if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
             {
                 _jobsSystemMenu=new VMenu();
-                _menubar->appendMenuAndDetach(_jobsSystemMenu,menuBarEnabled,std::string(IDS_JOBS_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
+                _menubar->appendMenuAndDetach(_jobsSystemMenu,menuBarEnabled,(std::string(IDS_JOBS_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
                 connect(_jobsSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowJobsSystemMenu()));
             }
         }
@@ -966,7 +966,7 @@ void CMainWindow::createDefaultMenuBar()
         if (editModeContainer->getEditModeType()==NO_EDIT_MODE)
         {
             _helpSystemMenu=new VMenu();
-            _menubar->appendMenuAndDetach(_helpSystemMenu,menuBarEnabled,std::string(IDS_HELP_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5);
+            _menubar->appendMenuAndDetach(_helpSystemMenu,menuBarEnabled,(std::string(IDS_HELP_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
             connect(_helpSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowHelpSystemMenu()));
         }
     }
@@ -1397,7 +1397,7 @@ void CMainWindow::dragEnterEvent(QDragEnterEvent* dEvent)
             for (int i=0;i<urlList.size()&&(i<100);++i)
             {
                 std::string pathFile=urlList.at(i).toLocalFile().toStdString();
-                std::string extension(VVarious::splitPath_fileExtension(pathFile));
+                std::string extension(VVarious::splitPath_fileExtension(pathFile.c_str()));
 
                 if (extension.compare(SIM_SCENE_EXTENSION)==0)
                     sceneCnt++;
@@ -1431,7 +1431,7 @@ void CMainWindow::dropEvent(QDropEvent* dEvent)
             for (int i=0;i<urlList.size()&&(i<100);++i)
             {
                 std::string pathFile=urlList.at(i).toLocalFile().toLocal8Bit().data();
-                std::string extension(VVarious::splitPath_fileExtension(pathFile));
+                std::string extension(VVarious::splitPath_fileExtension(pathFile.c_str()));
                 if (extension.compare(SIM_SCENE_EXTENSION)==0)
                     scenes.push_back(pathFile);
                 if (extension.compare(SIM_MODEL_EXTENSION)==0)

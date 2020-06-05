@@ -2,7 +2,7 @@
 #include "tt.h"
 
 
-CCommTube::CCommTube(int header,const std::string& identifier,int firstPartner,bool killAtSimulationEnd,int readBufferSize)
+CCommTube::CCommTube(int header,const char* identifier,int firstPartner,bool killAtSimulationEnd,int readBufferSize)
 {
     _header=header;
     _identifier=identifier;
@@ -150,9 +150,9 @@ bool CCommTube::isPartnerThere(int partner)
     return( (partner==_partner[0])||(partner==_partner[1]) );
 }
 
-bool CCommTube::isSameHeaderAndIdentifier(int header,const std::string& identifier)
+bool CCommTube::isSameHeaderAndIdentifier(int header,const char* identifier)
 {
-    return( (header==_header)&&(identifier.compare(_identifier)==0) );
+    return( (header==_header)&&(_identifier.compare(identifier)==0) );
 }
 
 int CCommTube::getTubeStatus(int tubeHandle,int& readBufferFill,int& writeBufferFill)

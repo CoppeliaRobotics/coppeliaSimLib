@@ -456,7 +456,7 @@ void CPropBrowserEngineMaterial::refresh()
     int o_maxContacts=mat->getEngineIntParam(sim_ode_body_maxcontacts,nullptr);
     p_odeFriction->setValue(tt::floatToEInfString(o_friction,false).c_str());
     p_odeFriction->setEnabled(editable);
-    p_odeMaxContacts->setValue(tt::intToString(o_maxContacts).c_str());
+    p_odeMaxContacts->setValue(std::to_string(o_maxContacts).c_str());
     p_odeMaxContacts->setEnabled(editable);
     p_odeSoftERP->setValue(tt::floatToEInfString(o_softErp,false).c_str());
     p_odeSoftERP->setEnabled(editable);
@@ -632,7 +632,7 @@ void CPropBrowserEngineMaterial::refresh()
     p_autoSleepAngSpeedThreshold->setEnabled(editable);
     p_autoSleepAngAccelThreshold->setValue(tt::floatToEInfString(autoSleep_angular_accel_threshold,false).c_str());
     p_autoSleepAngAccelThreshold->setEnabled(editable);
-    p_autoSleepStepsThreshold->setValue(tt::intToString(autoSleepStepLiveThreshold).c_str());
+    p_autoSleepStepsThreshold->setValue(std::to_string(autoSleepStepLiveThreshold).c_str());
     p_autoSleepStepsThreshold->setEnabled(editable);
 
     p_vortexFrictionModelLinPrim->setValue(frictionModel_primary_linearAxis);

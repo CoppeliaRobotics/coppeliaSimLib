@@ -1031,7 +1031,7 @@ void CSView::addMenu(VMenu* menu)
         {
             std::string tmp(IDS_DONT_TRACK_OBJECT__MENU_ITEM);
             tmp+=trkObj->getObjectName()+"'";
-            menu->appendMenuItem(true,false,VIEW_FUNCTIONS_DONT_TRACK_OBJECT_VFCMD,tmp);
+            menu->appendMenuItem(true,false,VIEW_FUNCTIONS_DONT_TRACK_OBJECT_VFCMD,tmp.c_str());
         }
         else
         {

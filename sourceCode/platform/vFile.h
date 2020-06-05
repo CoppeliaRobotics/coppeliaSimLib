@@ -14,15 +14,15 @@ typedef std::fstream WFile;
 class VFile  
 {
 public:
-    VFile(const std::string& filename,unsigned short flags,bool dontThrow=false);
-    VFile(const std::string& filename); // opens a Qt resource files
+    VFile(const char* filename,unsigned short flags,bool dontThrow=false);
+    VFile(const char* filename); // opens a Qt resource files
     virtual ~VFile();
 
     static void reportAndHandleFileExceptionError(VFILE_EXCEPTION_TYPE e);
-    static bool createFolder(const std::string& pathAndName);
-    static bool doesFileExist(const std::string& filenameAndPath);
-    static bool doesFolderExist(const std::string& foldernameAndPath); // no final slash!
-    static void eraseFile(const std::string& filenameAndPath);
+    static bool createFolder(const char* pathAndName);
+    static bool doesFileExist(const char* filenameAndPath);
+    static bool doesFolderExist(const char* foldernameAndPath); // no final slash!
+    static void eraseFile(const char* filenameAndPath);
     static int eraseFilesWithPrefix(const char* pathWithoutTerminalSlash,const char* prefix);
 
     quint64 getLength();
@@ -37,7 +37,7 @@ public:
     static unsigned short SHARE_DENY_NONE;
 
 private:
-    static bool _doesFileOrFolderExist(const std::string& filenameOrFoldernameAndPath,bool checkForFolder);
+    static bool _doesFileOrFolderExist(const char* filenameOrFoldernameAndPath,bool checkForFolder);
 
     std::string _pathAndFilename;
     WFile* _theFile;

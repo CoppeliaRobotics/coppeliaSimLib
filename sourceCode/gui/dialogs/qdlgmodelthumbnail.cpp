@@ -301,13 +301,13 @@ void CQDlgModelThumbnail::actualizeBitmap()
 
 void CQDlgModelThumbnail::on_qqFromFile_clicked()
 {
-    std::string tst(App::directories->textureDirectory);
-    std::string filenameAndPath=App::uiThread->getOpenFileName(this,0,"Loading texture...",tst,"",true,"Image files","tga","jpg","jpeg","png","gif","bmp","tiff");
+    std::string tst(App::folders->getTexturesPath());
+    std::string filenameAndPath=App::uiThread->getOpenFileName(this,0,"Loading texture...",tst.c_str(),"",true,"Image files","tga","jpg","jpeg","png","gif","bmp","tiff");
     if (filenameAndPath.length()!=0)
     {
-        if (VFile::doesFileExist(filenameAndPath))
+        if (VFile::doesFileExist(filenameAndPath.c_str()))
         {
-            App::appendSimulationThreadCommand(SET_CURRENTDIRECTORY_GUITRIGGEREDCMD,DIRECTORY_ID_TEXTURE,-1,0.0,0.0,App::directories->getPathFromFull(filenameAndPath).c_str());
+            App::appendSimulationThreadCommand(SET_CURRENTDIRECTORY_GUITRIGGEREDCMD,DIRECTORY_ID_TEXTURE,-1,0.0,0.0,App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
             int resX,resY,n;
             unsigned char* data=CImageLoaderSaver::load(filenameAndPath.c_str(),&resX,&resY,&n,0);
             if (n<3)

@@ -392,7 +392,7 @@ void CWorldContainer::getAllSceneNames(std::vector<std::string>& l) const
 {
     l.clear();
     for (size_t i=0;i<_worlds.size();i++)
-        l.push_back(VVarious::splitPath_fileBase(_worlds[i]->mainSettings->getScenePathAndName()));
+        l.push_back(VVarious::splitPath_fileBase(_worlds[i]->mainSettings->getScenePathAndName().c_str()));
 }
 
 #ifdef SIM_WITH_GUI
@@ -407,7 +407,7 @@ void CWorldContainer::addMenu(VMenu* menu)
         if (txt=="")
             txt="new scene";
         txt+=tt::decorateString(" (scene ",tt::FNb(int(i)+1),")");
-        menu->appendMenuItem(enabled,_currentWorldIndex==int(i),SWITCH_TOINSTANCEWITHTHUMBNAILSAVEINDEX0_GUIGUICMD+int(i),txt,true);
+        menu->appendMenuItem(enabled,_currentWorldIndex==int(i),SWITCH_TOINSTANCEWITHTHUMBNAILSAVEINDEX0_GUIGUICMD+int(i),txt.c_str(),true);
     }
 }
 

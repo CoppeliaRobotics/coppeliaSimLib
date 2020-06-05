@@ -35,7 +35,7 @@ public:
         int renderingSize[2],int textPos[2],int indentNb,int minRenderedPos[2],int maxRenderedPos[2],
         int selectedState,int editModeType);
     static bool renderDummyElement(bool& bright,int renderingSize[2],int textPos[2]);
-    void setSceneName(const std::string& sn);
+    void setSceneName(const char* sn);
     bool isLocalWorld();
 
     std::vector<CHierarchyElement*> children;

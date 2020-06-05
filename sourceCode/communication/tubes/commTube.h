@@ -7,7 +7,7 @@ class CCommTube
 {
 
 public:
-    CCommTube(int header,const std::string& identifier,int firstPartner,bool killAtSimulationEnd,int readBufferSize);
+    CCommTube(int header,const char* identifier,int firstPartner,bool killAtSimulationEnd,int readBufferSize);
     ~CCommTube();
 
     bool isConnected();
@@ -17,7 +17,7 @@ public:
     bool writeData(int partner,char* data,int dataSize); // data is not copied!
     char* readData(int partner,int& dataSize); // data is not copied!
     bool isPartnerThere(int partner);
-    bool isSameHeaderAndIdentifier(int header,const std::string& identifier);
+    bool isSameHeaderAndIdentifier(int header,const char* identifier);
     int getTubeStatus(int tubeHandle,int& readBufferFill,int& writeBufferFill); // -1: not existant, 0: not connected, 1: connected
 
 protected:

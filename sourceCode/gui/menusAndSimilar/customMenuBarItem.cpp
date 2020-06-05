@@ -32,14 +32,14 @@ void CCustomMenuBarItem::addMenus(VMenu* myMenu)
             if (_labels[i]=="")
                 prim->appendMenuSeparator();
             else
-                prim->appendMenuItem((_states[i]&2)!=0,(_states[i]&1)!=0,_commandIDs[i],_labels[i],(_states[i]&1)!=0);
+                prim->appendMenuItem((_states[i]&2)!=0,(_states[i]&1)!=0,_commandIDs[i],_labels[i].c_str(),(_states[i]&1)!=0);
         }
-        myMenu->appendMenuAndDetach(prim,true,_menuBarText);
+        myMenu->appendMenuAndDetach(prim,true,_menuBarText.c_str());
     }
     else
     {
         if (_commandIDs.size()!=0)
-            myMenu->appendMenuItem((_states[0]&2)!=0,(_states[0]&1)!=0,_commandIDs[0],_labels[0],(_states[0]&1)!=0);
+            myMenu->appendMenuItem((_states[0]&2)!=0,(_states[0]&1)!=0,_commandIDs[0],_labels[0].c_str(),(_states[0]&1)!=0);
     }
 }
 

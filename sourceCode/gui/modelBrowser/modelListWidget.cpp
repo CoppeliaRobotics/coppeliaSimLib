@@ -179,7 +179,7 @@ void CModelListWidget::setFolder(const char* folderPath)
         thmbFile+="/";
         thmbFile+=SIM_MODEL_THUMBNAILFILE_NAME;
         bool thumbnailFileExistsAndWasLoaded=false;
-        if (VFile::doesFileExist(thmbFile))
+        if (VFile::doesFileExist(thmbFile.c_str()))
         {
             CSer serObj(thmbFile.c_str(),CSer::filetype_csim_bin_thumbnails_file);
             int serializationVersion;

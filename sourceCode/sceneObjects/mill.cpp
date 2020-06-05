@@ -82,7 +82,7 @@ void CMill::commonInit()
     activeVolumeColor.setColor(1.0f,0.1f,0.1f,sim_colorcomponent_ambient_diffuse);
     _visibilityLayer=MILL_LAYER;
     _objectName="Mill";
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
 }
 
 void CMill::setExplicitHandling(bool setExplicit)

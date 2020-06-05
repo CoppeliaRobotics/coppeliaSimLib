@@ -24,7 +24,7 @@ CHierarchyElement::~CHierarchyElement()
     children.clear();
 }
 
-void CHierarchyElement::setSceneName(const std::string& sn)
+void CHierarchyElement::setSceneName(const char* sn)
 {
     if (sn=="")
         _sceneName="new scene";
@@ -658,9 +658,9 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
         off-=24/App::sc; // tweaking
     }
 
-    int textEndPosition=textPos[0]+off+ogl::getTextLengthInPixels(theText);
+    int textEndPosition=textPos[0]+off+ogl::getTextLengthInPixels(theText.c_str());
     if ( (labelEditObjectID==objectID)&&(objectID>=0) )
-        textEndPosition=textPos[0]+off+ogl::getTextLengthInPixels(hier->editionText)+16*App::sc;
+        textEndPosition=textPos[0]+off+ogl::getTextLengthInPixels(hier->editionText.c_str())+16*App::sc;
 
     if (!forDragAndDrop)
     {
@@ -1408,7 +1408,7 @@ void CHierarchyElement::renderElement_editModeList(CHierarchy* hier,int labelEdi
         }
     }
         
-    int textEndPosition=textPos[0]+off+ogl::getTextLengthInPixels(theText);
+    int textEndPosition=textPos[0]+off+ogl::getTextLengthInPixels(theText.c_str());
     hier->textPosition.push_back(textPos[0]);
     hier->textPosition.push_back(textPos[1]);
     hier->textPosition.push_back(textPos[0]+off);

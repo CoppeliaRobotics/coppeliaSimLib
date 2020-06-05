@@ -86,6 +86,7 @@ void CHierarchy::setRenderingSizeAndPosition(int xSize,int ySize,int xPos,int yP
     renderingPosition[1]=yPos-SAFETY_BORDER_SIZE*App::sc;
     refreshViewFlag=App::userSettings->hierarchyRefreshCnt; // Important, even if the size and position didn't change!
 }
+
 void CHierarchy::rebuildHierarchy()
 {
     for (size_t i=0;i<rootElements.size();i++)
@@ -110,7 +111,7 @@ void CHierarchy::rebuildHierarchy()
         CHierarchyElement* newEl=new CHierarchyElement(-App::worldContainer->getCurrentWorldIndex()-1);
         newEl->addYourChildren();
         std::string sceneName=App::currentWorld->mainSettings->getSceneName();
-        newEl->setSceneName(sceneName);
+        newEl->setSceneName(sceneName.c_str());
         rootElements.push_back(newEl);
     }
     if (App::getEditModeType()&VERTEX_EDIT_MODE)
@@ -1287,7 +1288,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
                     }
                 }
                 if (txt!="")
-                    App::uiThread->messageBox_information(App::mainWindow,strTranslate("Dynamic property"),txt,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_information(App::mainWindow,"Dynamic property",txt.c_str(),VMESSAGEBOX_OKELI);
             }
             return(true);
         }
@@ -1507,7 +1508,7 @@ void CHierarchy::setEditionLabel(std::string txt)
 
 void CHierarchy::drawEditionLabel(int textPosX,int textPosY)
 {
-    int buttonWidth=20+ogl::getTextLengthInPixels(editionText);
+    int buttonWidth=20+ogl::getTextLengthInPixels(editionText.c_str());
     VPoint p(textPosX-2+buttonWidth/2,textPosY+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);
     VPoint s(buttonWidth,HIERARCHY_INTER_LINE_SPACE*App::sc);
     float txtCol[3]={0.0f,0.0f,0.0f};

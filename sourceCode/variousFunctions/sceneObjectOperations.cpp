@@ -283,14 +283,14 @@ bool CSceneObjectOperations::processCommand(int commandID)
                                     if (App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(newObj->getObjectHandle())!=nullptr)
                                     { // we just try to keep the name suffix
                                         int oldSuffix=tt::getNameSuffixNumber(name.c_str(),true);
-                                        std::string newName(tt::generateNewName_hash(tt::getNameWithoutSuffixNumber(masterName.c_str(),true),oldSuffix));
+                                        std::string newName(tt::generateNewName_hash(tt::getNameWithoutSuffixNumber(masterName.c_str(),true).c_str(),oldSuffix));
                                         while (App::currentWorld->sceneObjects->getObjectFromName(newName.c_str())!=nullptr)
-                                            newName=tt::generateNewName_hash(newName);
+                                            newName=tt::generateNewName_hash(newName.c_str());
                                         newObj->setObjectName(newName.c_str(),true);
                                         //App::currentWorld->sceneObjects->renameObject(newObj->getObjectHandle(),newName.c_str());
-                                        newName=tt::getObjectAltNameFromObjectName(altName);
+                                        newName=tt::getObjectAltNameFromObjectName(altName.c_str());
                                         while (App::currentWorld->sceneObjects->getObjectFromAltName(newName.c_str())!=nullptr)
-                                            newName=tt::generateNewName_noHash(newName);
+                                            newName=tt::generateNewName_noHash(newName.c_str());
                                         newObj->setObjectAltName(newName.c_str(),true);
                                         //App::currentWorld->sceneObjects->altRenameObject(newObj->getObjectHandle(),newName.c_str());
                                     }
@@ -1751,7 +1751,7 @@ void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it,st
             CShape* newIt=new CShape(itCumulTransf,oldGeomInfo->childList[i]);
 
             newIt->setObjectName(oldGeomInfo->childList[i]->getName().c_str(),true);
-            newIt->setObjectAltName(tt::getObjectAltNameFromObjectName(newIt->getObjectName()).c_str(),true);
+            newIt->setObjectAltName(tt::getObjectAltNameFromObjectName(newIt->getObjectName().c_str()).c_str(),true);
             newIt->setDynMaterial(it->getDynMaterial()->copyYourself());
 
             App::currentWorld->sceneObjects->addObjectToScene(newIt,false,false);

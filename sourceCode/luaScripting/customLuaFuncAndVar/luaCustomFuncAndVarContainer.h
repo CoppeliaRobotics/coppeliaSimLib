@@ -27,8 +27,8 @@ public:
 
     void assignCustomVariables(luaWrap_lua_State* L,bool handleOnlyRequireAssignments);
     void appendAllVariableNames_spaceSeparated_keywordHighlight(std::string& v);
-    void pushAllFunctionNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m);
-    void pushAllVariableNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m);
+    void pushAllFunctionNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m);
+    void pushAllVariableNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m);
 
     bool isVariableNamePresent(const char* name);
     int isFuncOrConstDeprecated(const char* name);

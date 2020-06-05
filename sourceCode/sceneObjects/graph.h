@@ -50,9 +50,9 @@ public:
 
     // Various
     bool getGraphCurve(int graphType,int index,std::string& label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int& curveType,float col[3],float minMax[6]) const;
-    void curveToClipboard(int graphType,const std::string& curveName) const;
-    void curveToStatic(int graphType,const std::string& curveName);
-    void removeStaticCurve(int graphType,const std::string& curveName);
+    void curveToClipboard(int graphType,const char* curveName) const;
+    void curveToStatic(int graphType,const char* curveName);
+    void removeStaticCurve(int graphType,const char* curveName);
 
     void setSize(float theNewSize);
     float getSize() const;
@@ -113,7 +113,7 @@ public:
     float textColor[3];
 
 protected:
-    CStaticGraphCurve* getStaticCurveFromName(int type,const std::string& name);
+    CStaticGraphCurve* getStaticCurveFromName(int type,const char* name);
 
     // Variables which need to be serialized & copied
     CColorObject color;

@@ -88,7 +88,7 @@ void CQDlgUserParameters::on_qqAddNew_clicked()
     std::string name("defaultVariableName");
     std::string dummy;
     while (p->getParameterValue(name.c_str(),dummy))
-        name=tt::generateNewName_noHash(name);
+        name=tt::generateNewName_noHash(name.c_str());
     p->addParameterValue(name.c_str(),"defaultUnit","defaultValue",12);
     updateObjectsInList();
     selectObjectInList((int)p->userParamEntries.size()-1);

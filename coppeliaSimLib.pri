@@ -525,7 +525,7 @@ HEADERS += $$PWD/sourceCode/various/simConfig.h \
     $$PWD/sourceCode/various/uiThread.h \
     $$PWD/sourceCode/various/simThread.h \
     $$PWD/sourceCode/various/app.h \
-    $$PWD/sourceCode/various/directoryPaths.h \
+    $$PWD/sourceCode/various/folderSystem.h \
     $$PWD/sourceCode/various/dynMaterialObject.h \
     $$PWD/sourceCode/various/easyLock.h \
     $$PWD/sourceCode/various/ghostObject.h \
@@ -953,7 +953,7 @@ SOURCES += $$PWD/sourceCode/geometricAlgorithms/linMotionRoutines.cpp \
 SOURCES += $$PWD/sourceCode/various/gV.cpp \
     $$PWD/sourceCode/various/memorizedConf.cpp \
     $$PWD/sourceCode/various/userSettings.cpp \
-    $$PWD/sourceCode/various/directoryPaths.cpp \
+    $$PWD/sourceCode/various/folderSystem.cpp \
     $$PWD/sourceCode/various/uiThread.cpp \
     $$PWD/sourceCode/various/simThread.cpp \
     $$PWD/sourceCode/various/app.cpp \

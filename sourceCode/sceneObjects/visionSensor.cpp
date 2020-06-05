@@ -289,7 +289,7 @@ void CVisionSensor::commonInit()
     _objectManipulationModePermissions=0x013;
 
     _objectName=IDSOGL_VISION_U_SENSOR;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
 }
 
 void CVisionSensor::setUseExternalImage(bool u)

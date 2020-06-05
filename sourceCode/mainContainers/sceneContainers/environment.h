@@ -18,7 +18,7 @@ public:
     void setUpDefaultValues();
 
     void serialize(CSer& ar);
-    void setAcknowledgement(const std::string& a);
+    void setAcknowledgement(const char* a);
     std::string getAcknowledgement() const;
     void setVisualizeWirelessEmitters(bool v);
     bool getVisualizeWirelessEmitters() const;
@@ -87,11 +87,11 @@ public:
     std::string getCurrentJob() const;
     bool setCurrentJob(const char* jobName);
     int getJobCount();
-    int getJobIndex(const std::string& name);
+    int getJobIndex(const char* name);
     std::string getJobAtIndex(int index);
-    bool createNewJob(std::string newName);
+    bool createNewJob(const char* newName);
     bool deleteCurrentJob();
-    bool renameCurrentJob(std::string newName);
+    bool renameCurrentJob(const char* newName);
     bool switchJob(int index);
     bool getJobFunctionalityEnabled();
     void setJobFunctionalityEnabled(bool en);

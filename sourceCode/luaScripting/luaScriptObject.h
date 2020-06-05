@@ -203,9 +203,9 @@ protected:
     bool _containsScriptText(CLuaScriptObject* scriptObject,const char* txt);
     std::string extractScriptText(CLuaScriptObject* scriptObject,const char* startLine,const char* endLine,bool discardEndLine);
     void _performNewApiAdjustments(CLuaScriptObject* scriptObject,bool forwardAdjustment);
-    std::string _replaceOldApi(const std::string& txt,bool forwardAdjustment);
-    int _countOccurences(const std::string& source,const char* word);
-    void _splitApiText(const std::string& txt,size_t pos,std::string& beforePart,std::string& apiWord,std::string& afterPart);
+    std::string _replaceOldApi(const char* txt,bool forwardAdjustment);
+    int _countOccurences(const char* source,const char* word);
+    void _splitApiText(const char* txt,size_t pos,std::string& beforePart,std::string& apiWord,std::string& afterPart);
     void _adjustScriptText1(CLuaScriptObject* scriptObject,bool doIt,bool doIt2);
     void _adjustScriptText2(CLuaScriptObject* scriptObject,bool doIt);
     void _adjustScriptText3(CLuaScriptObject* scriptObject,bool doIt);

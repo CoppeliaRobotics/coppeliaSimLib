@@ -21,7 +21,7 @@ COctree::COctree()
     _visibilityLayer=OCTREE_LAYER;
     _localObjectSpecialProperty=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable_all|sim_objectspecialproperty_renderable;
     _objectName=IDSOGL_OCTREE;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
     _octreeInfo=nullptr;
     _showOctreeStructure=false;
     _useRandomColors=false;

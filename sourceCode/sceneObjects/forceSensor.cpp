@@ -54,7 +54,7 @@ void CForceSensor::commonInit()
     _visibilityLayer=FORCE_SENSOR_LAYER;
     _localObjectSpecialProperty=0;
     _objectName=IDSOGL_FORCE_SENSOR;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
 }
 
 CForceSensor::~CForceSensor()

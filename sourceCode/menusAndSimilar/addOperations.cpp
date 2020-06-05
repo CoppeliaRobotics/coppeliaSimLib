@@ -390,13 +390,13 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 {
                     if (!it->getEnableCustomizationScript())
                     { // we don't yet have a customization script
-                        std::string filenameAndPath(App::directories->systemDirectory+"/");
+                        std::string filenameAndPath(App::folders->getSystemPath()+"/");
                         filenameAndPath+=DEFAULT_CUSTOMIZATIONSCRIPT_NAME;
-                        if (VFile::doesFileExist(filenameAndPath))
+                        if (VFile::doesFileExist(filenameAndPath.c_str()))
                         {
                             try
                             {
-                                VFile file(filenameAndPath,VFile::READ|VFile::SHARE_DENY_NONE);
+                                VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
                                 VArchive archive(&file,VArchive::LOAD);
                                 unsigned int archiveLength=(unsigned int)file.getLength();
                                 char* defaultScript=new char[archiveLength+1];
@@ -663,7 +663,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                             while (App::currentWorld->sceneObjects->getObjectFromName(n.c_str())!=nullptr)
                                 n=baseN+boost::lexical_cast<std::string>(suff++);
                             newShape->setObjectName(n.c_str(),true);
-                            n=tt::getObjectAltNameFromObjectName(baseN);
+                            n=tt::getObjectAltNameFromObjectName(baseN.c_str());
                             suff=0;
                             while (App::currentWorld->sceneObjects->getObjectFromAltName(n.c_str())!=nullptr)
                                 n=baseN+boost::lexical_cast<std::string>(suff++);
@@ -854,7 +854,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
         it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         it->setObjectName(IDSOGL_PLANE,true);
-        it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName()).c_str(),true);
+        it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName().c_str()).c_str(),true);
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // we shift the plane so that it is above the floor
         it->alignBoundingBoxWithWorld();
@@ -910,7 +910,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
         it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         it->setObjectName(IDSOGL_RECTANGLE,true);
-        it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName()).c_str(),true);
+        it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName().c_str()).c_str(),true);
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the rectangle so that it sits on the floor
         it->alignBoundingBoxWithWorld();
@@ -977,7 +977,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         }
         it->setObjectName(IDSOGL_SPHERE,true);
-        it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName()).c_str(),true);
+        it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName().c_str()).c_str(),true);
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the sphere so that it sits on the floor
         it->alignBoundingBoxWithWorld();
@@ -1053,7 +1053,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         }
         it->setObjectName(IDSOGL_CYLINDER,true);
-        it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName()).c_str(),true);
+        it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName().c_str()).c_str(),true);
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->alignBoundingBoxWithWorld();
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // Now we shift the cylinder so it sits on the floor
@@ -1173,7 +1173,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
         it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         it->setObjectName(IDSOGL_DISC,true);
-        it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName()).c_str(),true);
+        it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName().c_str()).c_str(),true);
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // Now we shift the disc so it sits just above the floor
         it->alignBoundingBoxWithWorld();

@@ -23,7 +23,7 @@ CPointCloud::CPointCloud()
     _visibilityLayer=POINTCLOUD_LAYER;
     _localObjectSpecialProperty=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable_all|sim_objectspecialproperty_renderable;
     _objectName=IDSOGL_POINTCLOUD;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
     _pointCloudInfo=nullptr;
     _showOctreeStructure=false;
     _useRandomColors=false;

@@ -437,7 +437,7 @@ bool CInterfaceStack::getStackDoubleArray(double* array,int count) const
     return(table->getDoubleArray(array,count));
 }
 
-bool CInterfaceStack::getStackMapFloatArray(const std::string& fieldName,float* array,int count) const
+bool CInterfaceStack::getStackMapFloatArray(const char* fieldName,float* array,int count) const
 {
     const CInterfaceStackObject* obj=getStackMapObject(fieldName);
     if (obj!=nullptr)
@@ -452,7 +452,7 @@ bool CInterfaceStack::getStackMapFloatArray(const std::string& fieldName,float* 
     return(false);
 }
 
-CInterfaceStackObject* CInterfaceStack::getStackMapObject(const std::string& fieldName) const
+CInterfaceStackObject* CInterfaceStack::getStackMapObject(const char* fieldName) const
 {
     if (_stackObjects.size()==0)
         return(nullptr);
@@ -465,7 +465,7 @@ CInterfaceStackObject* CInterfaceStack::getStackMapObject(const std::string& fie
     return(table->getMapObject(fieldName));
 }
 
-bool CInterfaceStack::getStackMapBoolValue(const std::string& fieldName,bool& val) const
+bool CInterfaceStack::getStackMapBoolValue(const char* fieldName,bool& val) const
 {
     const CInterfaceStackObject* obj=getStackMapObject(fieldName);
     if (obj!=nullptr)
@@ -479,7 +479,7 @@ bool CInterfaceStack::getStackMapBoolValue(const std::string& fieldName,bool& va
     return(false);
 }
 
-bool CInterfaceStack::replaceStackMapBoolValue(const std::string& fieldName,bool val)
+bool CInterfaceStack::replaceStackMapBoolValue(const char* fieldName,bool val)
 {
     CInterfaceStackObject* obj=getStackMapObject(fieldName);
     if (obj!=nullptr)
@@ -493,7 +493,7 @@ bool CInterfaceStack::replaceStackMapBoolValue(const std::string& fieldName,bool
     return(false);
 }
 
-bool CInterfaceStack::getStackMapFloatValue(const std::string& fieldName,float& val) const
+bool CInterfaceStack::getStackMapFloatValue(const char* fieldName,float& val) const
 {
     double v;
     bool retVal=getStackMapDoubleValue(fieldName,v);
@@ -502,12 +502,12 @@ bool CInterfaceStack::getStackMapFloatValue(const std::string& fieldName,float& 
     return(retVal);
 }
 
-bool CInterfaceStack::replaceStackMapFloatValue(const std::string& fieldName,float val)
+bool CInterfaceStack::replaceStackMapFloatValue(const char* fieldName,float val)
 {
     return(replaceStackMapDoubleValue(fieldName,double(val)));
 }
 
-bool CInterfaceStack::getStackMapIntValue(const std::string& fieldName,int& val) const
+bool CInterfaceStack::getStackMapIntValue(const char* fieldName,int& val) const
 {
     double v;
     bool retVal=getStackMapDoubleValue(fieldName,v);
@@ -521,12 +521,12 @@ bool CInterfaceStack::getStackMapIntValue(const std::string& fieldName,int& val)
     return(retVal);
 }
 
-bool CInterfaceStack::replaceStackMapIntValue(const std::string& fieldName,int val)
+bool CInterfaceStack::replaceStackMapIntValue(const char* fieldName,int val)
 {
     return(replaceStackMapDoubleValue(fieldName,double(val)));
 }
 
-bool CInterfaceStack::getStackMapDoubleValue(const std::string& fieldName,double& val) const
+bool CInterfaceStack::getStackMapDoubleValue(const char* fieldName,double& val) const
 {
     const CInterfaceStackObject* obj=getStackMapObject(fieldName);
     if (obj!=nullptr)
@@ -540,7 +540,7 @@ bool CInterfaceStack::getStackMapDoubleValue(const std::string& fieldName,double
     return(false);
 }
 
-bool CInterfaceStack::replaceStackMapDoubleValue(const std::string& fieldName,double val)
+bool CInterfaceStack::replaceStackMapDoubleValue(const char* fieldName,double val)
 {
     CInterfaceStackObject* obj=getStackMapObject(fieldName);
     if (obj!=nullptr)
@@ -554,7 +554,7 @@ bool CInterfaceStack::replaceStackMapDoubleValue(const std::string& fieldName,do
     return(false);
 }
 
-bool CInterfaceStack::getStackMapStringValue(const std::string& fieldName,std::string& val) const
+bool CInterfaceStack::getStackMapStringValue(const char* fieldName,std::string& val) const
 {
     const CInterfaceStackObject* obj=getStackMapObject(fieldName);
     if (obj!=nullptr)
@@ -570,7 +570,7 @@ bool CInterfaceStack::getStackMapStringValue(const std::string& fieldName,std::s
     return(false);
 }
 
-bool CInterfaceStack::replaceStackMapStringValue(const std::string& fieldName,std::string val)
+bool CInterfaceStack::replaceStackMapStringValue(const char* fieldName,std::string val)
 {
     CInterfaceStackObject* obj=getStackMapObject(fieldName);
     if (obj!=nullptr)

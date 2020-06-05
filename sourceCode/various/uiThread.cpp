@@ -113,7 +113,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
         if (txt.length()!=0)
         {
             if ( (!App::userSettings->doNotShowUpdateCheckMessage)&&(!App::userSettings->suppressStartupDialogs) )
-                App::uiThread->messageBox_informationSystemModal(App::mainWindow,strTranslate("Update information"),txt,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_informationSystemModal(App::mainWindow,strTranslate("Update information"),txt.c_str(),VMESSAGEBOX_OKELI);
             App::logMsg(sim_verbosity_msgs,txt.c_str());
         }
     }
@@ -218,7 +218,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     }
 
     if (cmdIn->cmdId==COPY_TEXT_TO_CLIPBOARD_UITHREADCMD)
-        VVarious::copyTextToClipboard(cmdIn->stringParams[0]);
+        VVarious::copyTextToClipboard(cmdIn->stringParams[0].c_str());
 
     if ( (!App::isFullScreen())&&(App::mainWindow!=nullptr)&&(cmdIn->cmdId==DISPLAY_CONVEX_DECOMPOSITION_DIALOG_UITHREADCMD) )
     {
@@ -437,13 +437,13 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
 
 
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen())&&(cmdIn->cmdId==DISPLAY_MSG_WITH_CHECKBOX_UITHREADCMD) )
-        cmdOut->boolParams.push_back(messageBox_checkbox((QWidget*)cmdIn->objectParams[0],cmdIn->stringParams[0],cmdIn->stringParams[1],cmdIn->stringParams[2]));
+        cmdOut->boolParams.push_back(messageBox_checkbox((QWidget*)cmdIn->objectParams[0],cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str(),cmdIn->stringParams[2].c_str()));
 
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen())&&(cmdIn->cmdId==DISPLAY_MSGBOX_UITHREADCMD) )
-        cmdOut->uintParams.push_back(_messageBox(cmdIn->intParams[0],(QWidget*)cmdIn->objectParams[0],cmdIn->stringParams[0],cmdIn->stringParams[1],cmdIn->uintParams[0]));
+        cmdOut->uintParams.push_back(_messageBox(cmdIn->intParams[0],(QWidget*)cmdIn->objectParams[0],cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str(),cmdIn->uintParams[0]));
 
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen())&&(cmdIn->cmdId==DISPLAY_SAVE_DLG_UITHREADCMD) )
-        cmdOut->stringParams.push_back(getSaveFileName((QWidget*)cmdIn->objectParams[0],cmdIn->uintParams[0],cmdIn->stringParams[0],cmdIn->stringParams[1],cmdIn->stringParams[2],cmdIn->boolParams[0],cmdIn->stringParams[3],cmdIn->stringParams[4],cmdIn->stringParams[5],cmdIn->stringParams[6],cmdIn->stringParams[7],cmdIn->stringParams[8],cmdIn->stringParams[9],cmdIn->stringParams[10],cmdIn->stringParams[11],cmdIn->stringParams[12],cmdIn->stringParams[13]));
+        cmdOut->stringParams.push_back(getSaveFileName((QWidget*)cmdIn->objectParams[0],cmdIn->uintParams[0],cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str(),cmdIn->stringParams[2].c_str(),cmdIn->boolParams[0],cmdIn->stringParams[3].c_str(),cmdIn->stringParams[4].c_str(),cmdIn->stringParams[5].c_str(),cmdIn->stringParams[6].c_str(),cmdIn->stringParams[7].c_str(),cmdIn->stringParams[8].c_str(),cmdIn->stringParams[9].c_str(),cmdIn->stringParams[10].c_str(),cmdIn->stringParams[11].c_str(),cmdIn->stringParams[12].c_str(),cmdIn->stringParams[13].c_str()));
 
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen())&&(cmdIn->cmdId==DLG_INPUT_GET_FLOAT_UITHREADCMD) )
     {
@@ -452,10 +452,10 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     }
 
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen())&&(cmdIn->cmdId==DISPLAY_OPEN_DLG_UITHREADCMD) )
-        cmdOut->stringParams.push_back(getOpenFileName((QWidget*)cmdIn->objectParams[0],cmdIn->uintParams[0],cmdIn->stringParams[0],cmdIn->stringParams[1],cmdIn->stringParams[2],cmdIn->boolParams[0],cmdIn->stringParams[3],cmdIn->stringParams[4],cmdIn->stringParams[5],cmdIn->stringParams[6],cmdIn->stringParams[7],cmdIn->stringParams[8],cmdIn->stringParams[9],cmdIn->stringParams[10],cmdIn->stringParams[11],cmdIn->stringParams[12],cmdIn->stringParams[13]));
+        cmdOut->stringParams.push_back(getOpenFileName((QWidget*)cmdIn->objectParams[0],cmdIn->uintParams[0],cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str(),cmdIn->stringParams[2].c_str(),cmdIn->boolParams[0],cmdIn->stringParams[3].c_str(),cmdIn->stringParams[4].c_str(),cmdIn->stringParams[5].c_str(),cmdIn->stringParams[6].c_str(),cmdIn->stringParams[7].c_str(),cmdIn->stringParams[8].c_str(),cmdIn->stringParams[9].c_str(),cmdIn->stringParams[10].c_str(),cmdIn->stringParams[11].c_str(),cmdIn->stringParams[12].c_str(),cmdIn->stringParams[13].c_str()));
 
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen())&&(cmdIn->cmdId==DISPLAY_OPEN_DLG_MULTIFILE_UITHREADCMD) )
-        getOpenFileNames(cmdOut->stringParams,(QWidget*)cmdIn->objectParams[0],cmdIn->uintParams[0],cmdIn->stringParams[0],cmdIn->stringParams[1],cmdIn->stringParams[2],cmdIn->boolParams[0],cmdIn->stringParams[3],cmdIn->stringParams[4],cmdIn->stringParams[5],cmdIn->stringParams[6],cmdIn->stringParams[7],cmdIn->stringParams[8],cmdIn->stringParams[9],cmdIn->stringParams[10],cmdIn->stringParams[11],cmdIn->stringParams[12],cmdIn->stringParams[13]);
+        getOpenFileNames(cmdOut->stringParams,(QWidget*)cmdIn->objectParams[0],cmdIn->uintParams[0],cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str(),cmdIn->stringParams[2].c_str(),cmdIn->boolParams[0],cmdIn->stringParams[3].c_str(),cmdIn->stringParams[4].c_str(),cmdIn->stringParams[5].c_str(),cmdIn->stringParams[6].c_str(),cmdIn->stringParams[7].c_str(),cmdIn->stringParams[8].c_str(),cmdIn->stringParams[9].c_str(),cmdIn->stringParams[10].c_str(),cmdIn->stringParams[11].c_str(),cmdIn->stringParams[12].c_str(),cmdIn->stringParams[13].c_str());
 
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen())&&(cmdIn->cmdId==SET_FILEDIALOG_NATIVE_UITHREADCMD) )
         setFileDialogsNative(cmdIn->intParams[0]);
@@ -649,11 +649,11 @@ std::string CUiThread::getOpenOrSaveFileName_api(int mode,const char* title,cons
                 while (e.size()<10)
                     e.append("");
                 if (mode==sim_filedlg_type_load)
-                    retVal=VFileDialog::getOpenFileName(App::mainWindow,0,title,startPath,initName,false,extName,e[0].toStdString(),e[1].toStdString(),e[2].toStdString(),e[3].toStdString(),e[4].toStdString(),e[5].toStdString(),e[6].toStdString(),e[7].toStdString(),e[8].toStdString(),e[9].toStdString());
+                    retVal=VFileDialog::getOpenFileName(App::mainWindow,0,title,startPath,initName,false,extName,e[0].toStdString().c_str(),e[1].toStdString().c_str(),e[2].toStdString().c_str(),e[3].toStdString().c_str(),e[4].toStdString().c_str(),e[5].toStdString().c_str(),e[6].toStdString().c_str(),e[7].toStdString().c_str(),e[8].toStdString().c_str(),e[9].toStdString().c_str());
                 else
                 {
                     std::vector<std::string> files;
-                    VFileDialog::getOpenFileNames(files,App::mainWindow,0,title,startPath,initName,false,extName,e[0].toStdString(),e[1].toStdString(),e[2].toStdString(),e[3].toStdString(),e[4].toStdString(),e[5].toStdString(),e[6].toStdString(),e[7].toStdString(),e[8].toStdString(),e[9].toStdString());
+                    VFileDialog::getOpenFileNames(files,App::mainWindow,0,title,startPath,initName,false,extName,e[0].toStdString().c_str(),e[1].toStdString().c_str(),e[2].toStdString().c_str(),e[3].toStdString().c_str(),e[4].toStdString().c_str(),e[5].toStdString().c_str(),e[6].toStdString().c_str(),e[7].toStdString().c_str(),e[8].toStdString().c_str(),e[9].toStdString().c_str());
                     for (size_t i=0;i<files.size();i++)
                     {
                         retVal+=files[i];
@@ -736,37 +736,37 @@ int CUiThread::messageBox_api(int boxType,int buttons,const char* title,const ch
     return(retVal);
 }
 
-unsigned short CUiThread::messageBox_informationSystemModal(void* parentWidget,const std::string& title,const std::string& message,unsigned short flags)
+unsigned short CUiThread::messageBox_informationSystemModal(void* parentWidget,const char* title,const char* message,unsigned short flags)
 {
     TRACE_INTERNAL;
     return(_messageBox(4,parentWidget,title,message,flags));
 }
 
-unsigned short CUiThread::messageBox_information(void* parentWidget,const std::string& title,const std::string& message,unsigned short flags)
+unsigned short CUiThread::messageBox_information(void* parentWidget,const char* title,const char* message,unsigned short flags)
 {
     TRACE_INTERNAL;
     return(_messageBox(0,parentWidget,title,message,flags));
 }
 
-unsigned short CUiThread::messageBox_question(void* parentWidget,const std::string& title,const std::string& message,unsigned short flags)
+unsigned short CUiThread::messageBox_question(void* parentWidget,const char* title,const char* message,unsigned short flags)
 {
     TRACE_INTERNAL;
     return(_messageBox(1,parentWidget,title,message,flags));
 }
 
-unsigned short CUiThread::messageBox_warning(void* parentWidget,const std::string& title,const std::string& message,unsigned short flags)
+unsigned short CUiThread::messageBox_warning(void* parentWidget,const char* title,const char* message,unsigned short flags)
 {
     TRACE_INTERNAL;
     return(_messageBox(2,parentWidget,title,message,flags));
 }
 
-unsigned short CUiThread::messageBox_critical(void* parentWidget,const std::string& title,const std::string& message,unsigned short flags)
+unsigned short CUiThread::messageBox_critical(void* parentWidget,const char* title,const char* message,unsigned short flags)
 {
     TRACE_INTERNAL;
     return(_messageBox(3,parentWidget,title,message,flags));
 }
 
-unsigned short CUiThread::_messageBox(int type,void* parentWidget,const std::string& title,const std::string& message,unsigned short flags)
+unsigned short CUiThread::_messageBox(int type,void* parentWidget,const char* title,const char* message,unsigned short flags)
 { // type: 0=info, 1=question, 2=warning, 3=critical, 4=info, system modal
     TRACE_INTERNAL;
     unsigned short retVal=VMESSAGEBOX_REPLY_ERROR;
@@ -803,7 +803,7 @@ unsigned short CUiThread::_messageBox(int type,void* parentWidget,const std::str
     return(retVal);
 }
 
-bool CUiThread::messageBox_checkbox(void* parentWidget,const std::string& title,const std::string& message,const std::string& checkboxMessage)
+bool CUiThread::messageBox_checkbox(void* parentWidget,const char* title,const char* message,const char* checkboxMessage)
 {
     TRACE_INTERNAL;
     bool retVal=false;
@@ -836,7 +836,7 @@ bool CUiThread::messageBox_checkbox(void* parentWidget,const std::string& title,
     return(retVal);
 }
 
-bool CUiThread::getOpenFileNames(std::vector<std::string>& files,void* parentWidget,unsigned short option,const std::string& title,const std::string& startPath,const std::string& initFilename,bool allowAnyFile,const std::string& extensionName,const std::string& extension1,const std::string& extension2,const std::string& extension3,const std::string& extension4,const std::string& extension5,const std::string& extension6,const std::string& extension7,const std::string& extension8,const std::string& extension9,const std::string& extension10)
+bool CUiThread::getOpenFileNames(std::vector<std::string>& files,void* parentWidget,unsigned short option,const char* title,const char* startPath,const char* initFilename,bool allowAnyFile,const char* extensionName,const char* extension1,const char* extension2,const char* extension3,const char* extension4,const char* extension5,const char* extension6,const char* extension7,const char* extension8,const char* extension9,const char* extension10)
 {
     TRACE_INTERNAL;
     bool retVal=false;
@@ -895,7 +895,7 @@ void CUiThread::setFileDialogsNative(int n)
     }
 }
 
-std::string CUiThread::getOpenFileName(void* parentWidget,unsigned short option,const std::string& title,const std::string& startPath,const std::string& initFilename,bool allowAnyFile,const std::string& extensionName,const std::string& extension1,const std::string& extension2,const std::string& extension3,const std::string& extension4,const std::string& extension5,const std::string& extension6,const std::string& extension7,const std::string& extension8,const std::string& extension9,const std::string& extension10)
+std::string CUiThread::getOpenFileName(void* parentWidget,unsigned short option,const char* title,const char* startPath,const char* initFilename,bool allowAnyFile,const char* extensionName,const char* extension1,const char* extension2,const char* extension3,const char* extension4,const char* extension5,const char* extension6,const char* extension7,const char* extension8,const char* extension9,const char* extension10)
 {
     TRACE_INTERNAL;
     std::string retVal;
@@ -935,7 +935,7 @@ std::string CUiThread::getOpenFileName(void* parentWidget,unsigned short option,
     return(retVal);
 }
 
-std::string CUiThread::getSaveFileName(void* parentWidget,unsigned short option,const std::string& title,const std::string& startPath,const std::string& initFilename,bool allowAnyFile,const std::string& extensionName,const std::string& extension1,const std::string& extension2,const std::string& extension3,const std::string& extension4,const std::string& extension5,const std::string& extension6,const std::string& extension7,const std::string& extension8,const std::string& extension9,const std::string& extension10)
+std::string CUiThread::getSaveFileName(void* parentWidget,unsigned short option,const char* title,const char* startPath,const char* initFilename,bool allowAnyFile,const char* extensionName,const char* extension1,const char* extension2,const char* extension3,const char* extension4,const char* extension5,const char* extension6,const char* extension7,const char* extension8,const char* extension9,const char* extension10)
 {
     TRACE_INTERNAL;
     std::string retVal;

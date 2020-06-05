@@ -495,7 +495,7 @@ void _displayBoundingBox(CSceneObject* object,int displayAttrib,bool displRef,fl
             }
             App::currentWorld->environment->temporarilyDeactivateFog();
             ogl::drawSingle3dLine(corner.data,corner2.data,nullptr);
-            ogl::drawBitmapTextTo3dPosition(corner2.data,object->getDisplayName(),nullptr);
+            ogl::drawBitmapTextTo3dPosition(corner2.data,object->getDisplayName().c_str(),nullptr);
             App::currentWorld->environment->reactivateFogThatWasTemporarilyDisabled();
         }
         glLineWidth(1.0f);

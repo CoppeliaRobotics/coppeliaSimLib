@@ -21,42 +21,43 @@ VFileFinder::~VFileFinder()
 {
 }
 
-int VFileFinder::searchFilesWithExtension(const std::string& pathWithoutTerminalSlash,const std::string& extension)
+int VFileFinder::searchFilesWithExtension(const char* pathWithoutTerminalSlash,const char* extension)
 {
     return(_searchFilesOrFolders(pathWithoutTerminalSlash,extension,0));
 }
 
-int VFileFinder::searchFolders(const std::string& pathWithoutTerminalSlash)
+int VFileFinder::searchFolders(const char* pathWithoutTerminalSlash)
 {
     return(_searchFilesOrFolders(pathWithoutTerminalSlash,"",1));
 }
 
-int VFileFinder::searchFilesOrFolders(const std::string& pathWithoutTerminalSlash)
+int VFileFinder::searchFilesOrFolders(const char* pathWithoutTerminalSlash)
 {
     return(_searchFilesOrFolders(pathWithoutTerminalSlash,"",2));
 }
 
 
-int VFileFinder::_searchFilesOrFolders(const std::string& pathWithoutTerminalSlash,std::string extension,int mode)
+int VFileFinder::_searchFilesOrFolders(const char* pathWithoutTerminalSlash,const char* extension,int mode)
 { // mode=0 --> file, mode=1 --> folder, mode=2 --> file and folder
+    std::string theExtension(extension);
 #ifdef SIM_WITHOUT_QT_AT_ALL
     _searchResult.clear();
     DIR* dir;
     struct dirent* ent;
-    if ((dir=opendir(pathWithoutTerminalSlash.c_str()))!=nullptr)
+    if ((dir=opendir(pathWithoutTerminalSlash))!=nullptr)
     {
-        std::transform(extension.begin(),extension.end(),extension.begin(),::tolower);
+        std::transform(theExtension.begin(),theExtension.end(),theExtension.begin(),::tolower);
         while ((ent=readdir(dir))!=nullptr)
         {
             SFileOrFolder f;
             if ( ((ent->d_type==DT_DIR)&&(mode>0))||((ent->d_type==DT_REG)&&(mode!=1)) )
             {
                 bool goOn=true;
-                if ((mode==0)&&((extension.compare("*")!=0)))
+                if ((mode==0)&&((theExtension.compare("*")!=0)))
                 { // take into account the extension
                     std::string ext(VVarious::splitPath_fileExtension(ent->d_name));
                     std::transform(ext.begin(),ext.end(),ext.begin(),::tolower);
-                    goOn=(ext.compare(extension)==0);
+                    goOn=(ext.compare(theExtension)==0);
                 }
                 if (goOn)
                 {
@@ -83,17 +84,17 @@ int VFileFinder::_searchFilesOrFolders(const std::string& pathWithoutTerminalSla
     return(int(_searchResult.size()));
 #else
     _searchResult.clear();
-    QDir dir(QString::fromLocal8Bit(pathWithoutTerminalSlash.c_str()));
+    QDir dir(QString::fromLocal8Bit(pathWithoutTerminalSlash));
 
     if (mode==0)
     { // file
         dir.setFilter(QDir::Files|QDir::Hidden);//|QDir::NoSymLinks); 11/4/2013
         dir.setSorting(QDir::Name|QDir::IgnoreCase);
-        if (extension.length()!=0)
+        if (theExtension.length()!=0)
         {
             QStringList filters;
             std::string tmp("*.");
-            tmp+=extension;
+            tmp+=theExtension;
             filters << tmp.c_str();
             dir.setNameFilters(filters);
         }
@@ -136,7 +137,7 @@ int VFileFinder::countFiles(const char* pathWithoutTerminalSlash)
 {
     int cnt=0;
     VFileFinder finder;
-    finder.searchFilesOrFolders(std::string(pathWithoutTerminalSlash));
+    finder.searchFilesOrFolders(pathWithoutTerminalSlash);
     int index=0;
     SFileOrFolder* foundItem=finder.getFoundItem(index++);
     while (foundItem!=nullptr)
@@ -152,7 +153,7 @@ int VFileFinder::countFolders(const char* pathWithoutTerminalSlash)
 {
     int cnt=0;
     VFileFinder finder;
-    finder.searchFilesOrFolders(std::string(pathWithoutTerminalSlash));
+    finder.searchFilesOrFolders(pathWithoutTerminalSlash);
     int index=0;
     SFileOrFolder* foundItem=finder.getFoundItem(index++);
     while (foundItem!=nullptr)
@@ -172,7 +173,7 @@ int VFileFinder::countFilesWithPrefix(const char* pathWithoutTerminalSlash,const
 {
     int cnt=0;
     VFileFinder finder;
-    finder.searchFilesOrFolders(std::string(pathWithoutTerminalSlash));
+    finder.searchFilesOrFolders(pathWithoutTerminalSlash);
     int index=0;
     SFileOrFolder* foundItem=finder.getFoundItem(index++);
     while (foundItem!=nullptr)

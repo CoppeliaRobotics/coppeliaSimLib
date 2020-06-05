@@ -78,7 +78,7 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
 
     std::string newObjName=newObject->getObjectName();
     if (objectIsACopy)
-        newObjName=tt::generateNewName_hash(newObjName,suffixOffset);
+        newObjName=tt::generateNewName_hash(newObjName.c_str(),suffixOffset);
     else
     {
         if (getObjectFromName(newObjName.c_str())!=nullptr)
@@ -105,7 +105,7 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
                     break;
                 lastS=suffixes[i];
             }
-            newObjName=tt::generateNewName_noHash(baseName,lastS+1+1);
+            newObjName=tt::generateNewName_noHash(baseName.c_str(),lastS+1+1);
         }
         // Following was too slow with many objects:
         //      while (getObject(newObjName)!=nullptr)
@@ -140,7 +140,7 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
                 break;
             lastS=suffixes[i];
         }
-        newObjAltName=tt::generateNewName_noHash(baseAltName,lastS+1+1);
+        newObjAltName=tt::generateNewName_noHash(baseAltName.c_str(),lastS+1+1);
     }
     // Following was too slow with many objects:
     //      while (getObjectFromAltName(newObjAltName)!=nullptr)
@@ -488,7 +488,7 @@ void CSceneObjectContainer::setSuffix1ToSuffix2(int suffix1,int suffix2)
         {
             CSceneObject* obj=getObjectFromIndex(i);
             std::string name1(tt::getNameWithoutSuffixNumber(obj->getObjectName().c_str(),true));
-            obj->setObjectName(tt::generateNewName_hash(name1,suffix2+1).c_str(),true);
+            obj->setObjectName(tt::generateNewName_hash(name1.c_str(),suffix2+1).c_str(),true);
             //renameObject(getObjectFromIndex(i),tt::generateNewName_hash(name1,suffix2+1).c_str());
         }
     }
@@ -609,11 +609,12 @@ void CSceneObjectContainer::exportIkContent(CExtIkSer& ar)
     }
 }
 
-CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const std::string& theName,bool& noHit)
+CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,bool& noHit)
 {
     if (ar.isBinary())
     {
         int byteQuantity;
+        std::string theName(name);
         if (theName.compare(SER_SHAPE)==0)
         {
             ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
@@ -2807,7 +2808,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
             std::string filename(ar.getFilenamePath()+str);
             if (CPluginContainer::isAssimpPluginAvailable())
             {
-                if (VFile::doesFileExist(filename))
+                if (VFile::doesFileExist(filename.c_str()))
                 {
                     int cnt=0;
                     int* shapes=CPluginContainer::assimp_importShapes(filename.c_str(),512,1.0f,1,32+128+256,&cnt);

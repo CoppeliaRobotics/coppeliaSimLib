@@ -7,7 +7,7 @@ class CPersistentDataContainer
 {
 public:
     CPersistentDataContainer();
-    CPersistentDataContainer(const std::string& filename);
+    CPersistentDataContainer(const char* filename);
     virtual ~CPersistentDataContainer();
 
     int removeAllData();

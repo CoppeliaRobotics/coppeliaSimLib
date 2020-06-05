@@ -275,7 +275,7 @@ int CCodeEditorContainer::openScriptWithExternalEditor(int scriptHandle)
     if (it!=nullptr)
     {
         std::string fname(it->getFilenameForExternalScriptEditor());
-        VVarious::executeExternalApplication(App::userSettings->externalScriptEditor,fname.c_str(),App::directories->executableDirectory,VVARIOUS_SHOWNORMAL); // executable directory needed because otherwise the shellExecute command might switch directories!
+        VVarious::executeExternalApplication(App::userSettings->externalScriptEditor.c_str(),fname.c_str(),App::folders->getExecutablePath().c_str(),VVARIOUS_SHOWNORMAL); // executable directory needed because otherwise the shellExecute command might switch directories!
         retVal=scriptHandle;
     }
     return(retVal);

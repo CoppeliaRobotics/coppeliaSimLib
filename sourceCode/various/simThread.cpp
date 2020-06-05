@@ -407,11 +407,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (App::mainWindow!=nullptr)
             {
                 if (cmd.intParams[0]==sim_msgbox_type_info)
-                    App::uiThread->messageBox_information(App::mainWindow,cmd.stringParams[0],cmd.stringParams[1],VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_information(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI);
                 if (cmd.intParams[0]==sim_msgbox_type_warning)
-                    App::uiThread->messageBox_warning(App::mainWindow,cmd.stringParams[0],cmd.stringParams[1],VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI);
                 if (cmd.intParams[0]==sim_msgbox_type_critical)
-                    App::uiThread->messageBox_critical(App::mainWindow,cmd.stringParams[0],cmd.stringParams[1],VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI);
             }
         }
 
@@ -1242,7 +1242,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
             {
                 it->setLocalModelProperty(cmd.intParams[1]);
-                it->setModelAcknowledgement(cmd.stringParams[0]);
+                it->setModelAcknowledgement(cmd.stringParams[0].c_str());
             }
         }
 
@@ -1908,7 +1908,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SET_ACKNOWLEDGMENT_ENVIRONMENTGUITRIGGEREDCMD)
         {
-            App::currentWorld->environment->setAcknowledgement(cmd.stringParams[0]);
+            App::currentWorld->environment->setAcknowledgement(cmd.stringParams[0].c_str());
         }
         if (cmd.cmdId==CLEANUP_OBJNAMES_ENVIRONMENTGUITRIGGEREDCMD)
         {
@@ -3545,14 +3545,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 newScriptID=App::currentWorld->luaScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(scriptT,threaded);
             if (scriptT==sim_scripttype_customizationscript)
             {
-                std::string filenameAndPath(App::directories->systemDirectory+"/");
+                std::string filenameAndPath(App::folders->getSystemPath()+"/");
                 filenameAndPath+=DEFAULT_CUSTOMIZATIONSCRIPT_NAME;
                 std::string scriptInitText;
-                if (VFile::doesFileExist(filenameAndPath))
+                if (VFile::doesFileExist(filenameAndPath.c_str()))
                 {
                     try
                     {
-                        VFile file(filenameAndPath,VFile::READ|VFile::SHARE_DENY_NONE);
+                        VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
                         VArchive archive(&file,VArchive::LOAD);
                         unsigned int archiveLength=(unsigned int)file.getLength();
                         char* defaultScript=new char[archiveLength+1];
@@ -4668,8 +4668,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 std::string nn(App::currentWorld->environment->getCurrentJob());
                 while (true)
                 {
-                    nn=tt::generateNewName_noHash(nn);
-                    if (App::currentWorld->environment->getJobIndex(nn)==-1)
+                    nn=tt::generateNewName_noHash(nn.c_str());
+                    if (App::currentWorld->environment->getJobIndex(nn.c_str())==-1)
                         break;
                 }
                 SUIThreadCommand cmdIn;
@@ -4681,9 +4681,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     nn=cmdOut.stringParams[0];
                     tt::removeIllegalCharacters(nn,false);
-                    while (App::currentWorld->environment->getJobIndex(nn)!=-1)
-                        nn=tt::generateNewName_noHash(nn);
-                    if (App::currentWorld->environment->createNewJob(nn))
+                    while (App::currentWorld->environment->getJobIndex(nn.c_str())!=-1)
+                        nn=tt::generateNewName_noHash(nn.c_str());
+                    if (App::currentWorld->environment->createNewJob(nn.c_str()))
                         executeXrCallIndex=cmd.cmdId-XR_COMMAND_1_SCCMD;
                 }
             }
@@ -4706,9 +4706,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     tt::removeIllegalCharacters(nn,false);
                     if (nn.compare(App::currentWorld->environment->getCurrentJob())!=0)
                     {
-                        while (App::currentWorld->environment->getJobIndex(nn)!=-1)
-                            nn=tt::generateNewName_noHash(nn);
-                        if (App::currentWorld->environment->renameCurrentJob(nn))
+                        while (App::currentWorld->environment->getJobIndex(nn.c_str())!=-1)
+                            nn=tt::generateNewName_noHash(nn.c_str());
+                        if (App::currentWorld->environment->renameCurrentJob(nn.c_str()))
                             executeXrCallIndex=cmd.cmdId-XR_COMMAND_1_SCCMD;
                     }
                 }
@@ -4740,7 +4740,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CDummy* newDummy=new CDummy();
             newDummy->setObjectName(cmd.stringParams[0].c_str(),true);
-            newDummy->setObjectAltName(tt::getObjectAltNameFromObjectName(newDummy->getObjectName()).c_str(),true);
+            newDummy->setObjectAltName(tt::getObjectAltNameFromObjectName(newDummy->getObjectName().c_str()).c_str(),true);
             newDummy->setDummySize(cmd.floatParams[0]);
             App::currentWorld->sceneObjects->addObjectToScene(newDummy,false,true);
             newDummy->setLocalTransformation(cmd.transfParams[0]);
@@ -4758,7 +4758,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             newShape->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
             newShape->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
             newShape->setObjectName("Extracted_shape",true);
-            newShape->setObjectAltName(tt::getObjectAltNameFromObjectName(newShape->getObjectName()).c_str(),true);
+            newShape->setObjectAltName(tt::getObjectAltNameFromObjectName(newShape->getObjectName().c_str()).c_str(),true);
             App::currentWorld->sceneObjects->addObjectToScene(newShape,false,true);
             if (toid!=-1)
             {
@@ -4912,22 +4912,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
         if (cmd.cmdId==SET_CURRENTDIRECTORY_GUITRIGGEREDCMD)
         {
-            if (cmd.intParams[0]==DIRECTORY_ID_EXECUTABLE)
-                App::directories->executableDirectory=cmd.stringParams[0];
-            if (cmd.intParams[0]==DIRECTORY_ID_SYSTEM)
-                App::directories->systemDirectory=cmd.stringParams[0];
-            if (cmd.intParams[0]==DIRECTORY_ID_SCENE)
-                App::directories->sceneDirectory=cmd.stringParams[0];
-            if (cmd.intParams[0]==DIRECTORY_ID_MODEL)
-                App::directories->modelDirectory=cmd.stringParams[0];
-            if (cmd.intParams[0]==DIRECTORY_ID_CADFORMAT)
-                App::directories->cadFormatDirectory=cmd.stringParams[0];
             if (cmd.intParams[0]==DIRECTORY_ID_TEXTURE)
-                App::directories->textureDirectory=cmd.stringParams[0];
-            if (cmd.intParams[0]==DIRECTORY_ID_OTHER)
-                App::directories->otherFilesDirectory=cmd.stringParams[0];
-            if (cmd.intParams[0]==DIRECTORY_ID_REMOTEAPIFILETRANSFER)
-                App::directories->remoteApiFileTransferDirectory=cmd.stringParams[0];
+                App::folders->setTexturesPath(cmd.stringParams[0].c_str());
         }
         if (cmd.cmdId==SHOW_PROGRESSDLGGUITRIGGEREDCMD)
         {
@@ -5027,7 +5013,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
 
     if (cmd.cmdId==DISPLAY_ACKNOWLEDGMENT_MESSAGE_CMD)
-        App::uiThread->messageBox_information(App::mainWindow,cmd.stringParams[0],cmd.stringParams[1],VMESSAGEBOX_OKELI);
+        App::uiThread->messageBox_information(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI);
 
     if (cmd.cmdId==AUTO_SAVE_SCENE_CMD)
         _handleAutoSaveSceneCommand(cmd);
@@ -5145,7 +5131,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                     {
                         if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_question(App::mainWindow,CSimFlavor::getStringVal(11).c_str(),CSimFlavor::getStringVal(12).c_str(),VMESSAGEBOX_YES_NO))
                         {
-                            std::string testScene=App::directories->executableDirectory+"/";
+                            std::string testScene=App::folders->getExecutablePath()+"/";
                             testScene.append("AUTO_SAVED_INSTANCE_1.");
                             testScene+=SIM_SCENE_EXTENSION;
                             if (CFileOperations::loadScene(testScene.c_str(),false,false,false))
@@ -5156,12 +5142,12 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                             int instanceNb=2;
                             while (true)
                             {
-                                testScene=App::directories->executableDirectory+"/";
+                                testScene=App::folders->getExecutablePath()+"/";
                                 testScene.append("AUTO_SAVED_INSTANCE_");
                                 testScene+=tt::FNb(instanceNb);
                                 testScene+=".";
                                 testScene+=SIM_SCENE_EXTENSION;
-                                if (VFile::doesFileExist(testScene))
+                                if (VFile::doesFileExist(testScene.c_str()))
                                 {
                                     App::worldContainer->createNewWorld();
                                     if (CFileOperations::loadScene(testScene.c_str(),false,false,false))
@@ -5201,7 +5187,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                 if (VDateTime::getSecondsSince1970()>(App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970+App::userSettings->autoSaveDelay*60))
                 {
                     std::string savedLoc=App::currentWorld->mainSettings->getScenePathAndName();
-                    std::string testScene=App::directories->executableDirectory+"/";
+                    std::string testScene=App::folders->getExecutablePath()+"/";
                     testScene+="AUTO_SAVED_INSTANCE_";
                     testScene+=tt::FNb(App::worldContainer->getCurrentWorldIndex()+1);
                     testScene+=".";
@@ -5239,7 +5225,7 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
         std::string val;
         cont.readData("SIMSETTINGS_WARNING_NO_SHOW",val);
         int intVal=0;
-        tt::getValidInt(val,intVal);
+        tt::getValidInt(val.c_str(),intVal);
         if (intVal<3)
         {
             if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_SIMULATION_PARAMETERS,IDSN_NON_STANDARD_SIM_PARAMS_WARNING,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN_3X))
@@ -5265,7 +5251,7 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
         std::string val;
         cont.readData("NONPURESHAPEFORDYNAMICS_WARNING_NO_SHOW",val);
         int intVal=0;
-        tt::getValidInt(val,intVal);
+        tt::getValidInt(val.c_str(),intVal);
         if (intVal<3)
         {
             if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_DYNAMIC_CONTENT,IDSN_USING_NON_PURE_NON_CONVEX_SHAPES_FOR_DYNAMICS_WARNING,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN_3X))
@@ -5283,7 +5269,7 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
         std::string val;
         cont.readData("STATICSHAPEONTOPOFDYNAMICCONSTRUCTION_WARNING_NO_SHOW",val);
         int intVal=0;
-        tt::getValidInt(val,intVal);
+        tt::getValidInt(val.c_str(),intVal);
         if (intVal<3)
         {
             if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_DYNAMIC_CONTENT,IDSN_USING_STATIC_SHAPE_ON_TOP_OF_DYNAMIC_CONSTRUCTION_WARNING,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN_3X))

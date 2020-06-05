@@ -109,41 +109,7 @@ bool CTTUtil::extractLine(std::string& multiline,std::string& line)
     return(line.length()!=0);
 }
 
-std::string CTTUtil::intToString(int intVal)
-{
-    return(boost::lexical_cast<std::string>(intVal));
-}
-
-std::string CTTUtil::dwordToString(unsigned int dwordVal)
-{
-    return(boost::lexical_cast<std::string>(dwordVal));
-}
-
-std::string CTTUtil::dataToString(char* data,int startPos,int length)
-{
-    std::string retVal("");
-    for (int i=0;i<length;i++)
-        retVal+=data[startPos+i];
-    return(retVal);
-}
-
-void CTTUtil::stringToData(const std::string& str,char* data,int startPos)
-{
-    for (int i=0;i<int(str.length());i++)
-        data[startPos+i]=str[i];
-}
-
-std::string CTTUtil::getAdjustedString(const std::string& str,int length)
-{
-    std::string retString(str);
-    while (int(retString.length())<length)
-        retString+=' ';
-    while (int(retString.length())>length)
-        retString.erase(retString.end()-1);
-    return(retString);
-}
-
-std::string CTTUtil::getLightEncodedString(const std::string& ss)
+std::string CTTUtil::getLightEncodedString(const char* ss)
 { // ss can contain any char, also 0!
     std::string txt(ss);
     std::string s;
@@ -165,7 +131,7 @@ std::string CTTUtil::getLightEncodedString(const std::string& ss)
     return(s);
 }
 
-std::string CTTUtil::getLightDecodedString(const std::string& ss)
+std::string CTTUtil::getLightDecodedString(const char* ss)
 { // return string can contain any char, also 0!
     std::string txt(ss);
     std::string s;
@@ -228,45 +194,6 @@ std::string CTTUtil::getFormattedString(const char* a,const char* b,const char* 
         return(retVal);
     retVal+=h;
     return(retVal);
-}
-
-int CTTUtil::replaceWordInLine(std::string& line,const std::string& oldText,const std::string& newText)
-{
-    int retVal=0;
-    size_t p=0;
-    p=line.find(oldText,p);
-    while (p!=std::string::npos)
-    {
-        line.erase(line.begin()+p,line.begin()+p+oldText.length());
-        line.insert(line.begin()+p,newText.begin(),newText.end());
-        p=line.find(oldText,p+1);
-        retVal++;
-    }
-    return(retVal);
-}
-
-std::string CTTUtil::formatString(const std::string fmt, ...)
-{ // taken from http://stackoverflow.com/questions/2342162/stdstring-formatting-like-sprintf
-    // Courtesy of Erik Aronesty
-    int size = 512;
-    std::string str;
-    va_list ap;
-    while (1)
-    {
-        str.resize(size);
-        va_start(ap, fmt);
-        int n = vsnprintf((char *)str.c_str(), size, fmt.c_str(), ap);
-        va_end(ap);
-        if (n > -1 && n < size) {
-            str.resize(n);
-            return str;
-        }
-        if (n > -1)
-            size = n + 1;
-        else
-            size *= 2;
-    }
-    return str;
 }
 
 std::string CTTUtil::getLowerCaseString(const char* str)

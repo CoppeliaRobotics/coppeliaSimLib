@@ -24,7 +24,7 @@
 class VVarious  
 {
 public:
-    static bool executeExternalApplication(const std::string& file,const std::string& arguments,const std::string& switchToDirectory,int showFlag);
+    static bool executeExternalApplication(const char* file,const char* arguments,const char* switchToDirectory,int showFlag);
 
     static WLibrary openLibrary(const char* filename);
     static void closeLibrary(WLibrary lib);
@@ -33,16 +33,16 @@ public:
     static std::string getModulePath();
     static void removePathFinalSlashOrBackslash(std::string& pathWithOrWithoutFinalThing);
 
-    static std::string splitPath_path(const std::string& fullPathAndName);
-    static std::string splitPath_fileBase(const std::string& fullPathAndName);
-    static std::string splitPath_fileExtension(const std::string& fullPathAndName);
-    static std::string splitPath_fileBaseAndExtension(const std::string& fullPathAndName);
-    static bool isAbsolutePath(const std::string& pathAndOptionalFilename);
-    static bool copyTextToClipboard(const std::string& text);
+    static std::string splitPath_path(const char* fullPathAndName);
+    static std::string splitPath_fileBase(const char* fullPathAndName);
+    static std::string splitPath_fileExtension(const char* fullPathAndName);
+    static std::string splitPath_fileBaseAndExtension(const char* fullPathAndName);
+    static bool isAbsolutePath(const char* pathAndOptionalFilename);
+    static bool copyTextToClipboard(const char* text);
 
 #ifdef SIM_WITH_GUI
 public:
-    static bool openUrl(const std::string& url);
-    static bool openTextFile(const std::string& file);
+    static bool openUrl(const char* url);
+    static bool openTextFile(const char* file);
 #endif
 };

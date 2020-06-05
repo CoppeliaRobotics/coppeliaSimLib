@@ -1994,7 +1994,7 @@ void CShapeEditMode::makePath()
         newObject->pathContainer->enableActualization(true);
         newObject->pathContainer->actualizePath();
         newObject->setObjectName("ExtractedPath",true);
-        newObject->setObjectAltName(tt::getObjectAltNameFromObjectName(newObject->getObjectName()).c_str(),true);
+        newObject->setObjectAltName(tt::getObjectAltNameFromObjectName(newObject->getObjectName().c_str()).c_str(),true);
         SSimulationThreadCommand cmd;
         cmd.cmdId=ADD_OBJECTTOSCENE_GUITRIGGEREDCMD;
         cmd.intParams.push_back(sim_object_path_type);

@@ -19,7 +19,7 @@ unsigned short VFile::SHARE_EXCLUSIVE   =2;
 unsigned short VFile::READ              =4;
 unsigned short VFile::SHARE_DENY_NONE   =8;
 
-VFile::VFile(const std::string& filename,unsigned short flags,bool dontThrow)
+VFile::VFile(const char* filename,unsigned short flags,bool dontThrow)
 {
     _pathAndFilename=filename;
 #ifdef SIM_WITHOUT_QT_AT_ALL
@@ -35,7 +35,7 @@ VFile::VFile(const std::string& filename,unsigned short flags,bool dontThrow)
         openFlags|=std::ios_base::out|std::ios_base::trunc;
     if (flags&READ)
         openFlags|=std::ios_base::in;
-    _theFile=new WFile(filename.c_str(),openFlags);
+    _theFile=new WFile(filename,openFlags);
     std::exception dummyException;
     _fileLength=0;
     if (!_theFile->is_open())
@@ -56,7 +56,7 @@ VFile::VFile(const std::string& filename,unsigned short flags,bool dontThrow)
         }
     }
 #else
-    _theFile=new QFile(QString::fromLocal8Bit(filename.c_str()));
+    _theFile=new QFile(QString::fromLocal8Bit(filename));
     QFlags<QIODevice::OpenModeFlag> openFlags=0;
     if (flags&CREATE_WRITE)
         openFlags|=QIODevice::Truncate|QIODevice::WriteOnly;
@@ -66,7 +66,7 @@ VFile::VFile(const std::string& filename,unsigned short flags,bool dontThrow)
     // Create the path directories if needed (added on 13/6/2012 because of a bug report of Matthias F�ller):
     if (flags&CREATE_WRITE)
     {
-        QFileInfo pathInfo(QString::fromLocal8Bit(filename.c_str()));
+        QFileInfo pathInfo(QString::fromLocal8Bit(filename));
         QDir dir("");
         dir.mkpath(pathInfo.path());
     }
@@ -87,10 +87,10 @@ VFile::VFile(const std::string& filename,unsigned short flags,bool dontThrow)
 #endif
 }
 
-VFile::VFile(const std::string& filename)
+VFile::VFile(const char* filename)
 { // opens a Qt resource file
 #ifndef SIM_WITHOUT_QT_AT_ALL
-    _theFile=new QFile(QString::fromLocal8Bit(filename.c_str()));
+    _theFile=new QFile(QString::fromLocal8Bit(filename));
     std::exception dummyException;
     if (!_theFile->exists())
     {
@@ -123,14 +123,14 @@ void VFile::reportAndHandleFileExceptionError(VFILE_EXCEPTION_TYPE e)
 #endif
 }
 
-void VFile::eraseFile(const std::string& filenameAndPath)
+void VFile::eraseFile(const char* filenameAndPath)
 {
     try
     {
 #ifdef SIM_WITHOUT_QT_AT_ALL
-        std::remove(filenameAndPath.c_str());
+        std::remove(filenameAndPath);
 #else
-        QFile::remove(filenameAndPath.c_str());
+        QFile::remove(filenameAndPath);
 #endif
     }
     catch(VFILE_EXCEPTION_TYPE e)
@@ -140,21 +140,21 @@ void VFile::eraseFile(const std::string& filenameAndPath)
 }
 
 
-bool VFile::doesFileExist(const std::string& filenameAndPath)
+bool VFile::doesFileExist(const char* filenameAndPath)
 {
     return(_doesFileOrFolderExist(filenameAndPath,false));
 }
 
-bool VFile::doesFolderExist(const std::string& foldernameAndPath)
+bool VFile::doesFolderExist(const char* foldernameAndPath)
 {
     return(_doesFileOrFolderExist(foldernameAndPath,true));
 }
 
-bool VFile::_doesFileOrFolderExist(const std::string& filenameOrFoldernameAndPath,bool checkForFolder)
+bool VFile::_doesFileOrFolderExist(const char* filenameOrFoldernameAndPath,bool checkForFolder)
 {
 #ifdef SIM_WITHOUT_QT_AT_ALL
     struct stat info;
-    if (stat(filenameOrFoldernameAndPath.c_str(),&info)!=0)
+    if (stat(filenameOrFoldernameAndPath,&info)!=0)
         return(false); // actually means this cannot be accessed
     else
     {
@@ -165,7 +165,7 @@ bool VFile::_doesFileOrFolderExist(const std::string& filenameOrFoldernameAndPat
     }
     return(false);
 #else
-    QString dat(QString::fromLocal8Bit(filenameOrFoldernameAndPath.c_str()));
+    QString dat(QString::fromLocal8Bit(filenameOrFoldernameAndPath));
     if (checkForFolder)
     {
         QDir dir(dat);
@@ -179,11 +179,11 @@ bool VFile::_doesFileOrFolderExist(const std::string& filenameOrFoldernameAndPat
 #endif
 }
 
-bool VFile::createFolder(const std::string& pathAndName)
+bool VFile::createFolder(const char* pathAndName)
 {
 #ifdef SIM_WITHOUT_QT_AT_ALL
 #ifdef WIN_SIM
-    return(CreateDirectoryA(pathAndName.c_str(),nullptr)!=0);
+    return(CreateDirectoryA(pathAndName,nullptr)!=0);
 #else // WIN_SIM
     std::string tmp("mkdir -p ");
     tmp+=pathAndName;
@@ -192,7 +192,7 @@ bool VFile::createFolder(const std::string& pathAndName)
 #endif // WIN_SIM
 #else // SIM_WITHOUT_QT_AT_ALL
     QDir qdir("");
-    return(qdir.mkdir(QString::fromLocal8Bit(pathAndName.c_str())));
+    return(qdir.mkdir(QString::fromLocal8Bit(pathAndName)));
 #endif // SIM_WITHOUT_QT_AT_ALL
 }
 
@@ -236,7 +236,7 @@ int VFile::eraseFilesWithPrefix(const char* pathWithoutTerminalSlash,const char*
 {
     int cnt=0;
     VFileFinder finder;
-    finder.searchFilesOrFolders(std::string(pathWithoutTerminalSlash));
+    finder.searchFilesOrFolders(pathWithoutTerminalSlash);
     int index=0;
     SFileOrFolder* foundItem=finder.getFoundItem(index++);
     while (foundItem!=nullptr)
@@ -246,7 +246,7 @@ int VFile::eraseFilesWithPrefix(const char* pathWithoutTerminalSlash,const char*
             std::string filename(foundItem->name);
             if (filename.find(prefix)==0)
             {
-                eraseFile(foundItem->path);
+                eraseFile(foundItem->path.c_str());
                 cnt++;
             }
         }

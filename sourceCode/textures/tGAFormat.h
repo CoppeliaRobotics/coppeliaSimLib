@@ -18,5 +18,5 @@ public:
     static unsigned char* getV_RGBA(VArchive& inputStream,int size);
     static unsigned char* getV_RGB(VArchive& inputStream,int size,bool& isRgba,unsigned char invisibleColor[3]=nullptr);
     static unsigned char* getV_ImageData(VArchive& inputStream,int& resX,int& resY,bool& isRgba,unsigned char invisibleColor[3]=nullptr,int bitsPerPixel[1]=nullptr);
-    static unsigned char* getQ_ImageData(const std::string& fileAndPath,int& resX,int& resY,bool& isRgba,unsigned char invisibleColor[3]=nullptr,int bitsPerPixel[1]=nullptr);
+    static unsigned char* getQ_ImageData(const char* fileAndPath,int& resX,int& resY,bool& isRgba,unsigned char invisibleColor[3]=nullptr,int bitsPerPixel[1]=nullptr);
 };

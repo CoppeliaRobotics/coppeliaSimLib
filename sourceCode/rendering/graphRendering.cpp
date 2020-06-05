@@ -141,7 +141,7 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
                         else
                             ogl::drawRandom3dPoints(&ogl::buffer[0],(int)ogl::buffer.size()/3,normalVectorForLinesAndPoints.data);
                         if (graph->threeDPartners[i]->getLabel()&&(displayAttrib&sim_displayattribute_renderpass)&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
-                            ogl::drawBitmapTextTo3dPosition(&ogl::buffer[0],graph->threeDPartners[i]->getName(),normalVectorForLinesAndPoints.data);
+                            ogl::drawBitmapTextTo3dPosition(&ogl::buffer[0],graph->threeDPartners[i]->getName().c_str(),normalVectorForLinesAndPoints.data);
                     }
                     ogl::buffer.clear();
                     glDepthMask(GL_TRUE);
@@ -182,7 +182,7 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
                         else
                             ogl::drawRandom3dPoints(&ogl::buffer[0],(int)ogl::buffer.size()/3,normalVectorForLinesAndPoints.data);
                         if (it->getLabel()&&(displayAttrib&sim_displayattribute_renderpass)&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
-                            ogl::drawBitmapTextTo3dPosition(&ogl::buffer[0],it->getName()+" [STATIC]",normalVectorForLinesAndPoints.data);
+                            ogl::drawBitmapTextTo3dPosition(&ogl::buffer[0],(it->getName()+" [STATIC]").c_str(),normalVectorForLinesAndPoints.data);
                     }
                     ogl::buffer.clear();
                     glLineWidth(1.0f);

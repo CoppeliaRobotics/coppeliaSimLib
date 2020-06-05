@@ -37,8 +37,8 @@ void prepareNewLuaVariables_onlyRequire(luaWrap_lua_State* L);
 void prepareNewLuaVariables_noRequire(luaWrap_lua_State* L);
 void setNewLuaVariable(luaWrap_lua_State* L,const char* name,int identifier);
 
-void pushCorrectTypeOntoLuaStack(luaWrap_lua_State* L,const std::string& txt);
-int getCorrectType(const std::string& txt);
+void pushCorrectTypeOntoLuaStack(luaWrap_lua_State* L,const std::string& buff);
+int getCorrectType(const std::string& buff);
 
 bool readCustomFunctionDataFromStack(luaWrap_lua_State* L,int ind,int dataType,
                                      std::vector<char>& inBoolVector,
@@ -85,8 +85,8 @@ int getCurrentScriptHandle(luaWrap_lua_State* L);
 void getScriptTree_mainOr(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scriptHandles);
 void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std::vector<int>& scriptHandles);
 
-void _reportWarningsIfNeeded(luaWrap_lua_State* L,const std::string& functionName,const std::string& warningString,bool cSideErrorOrWarningReporting);
-void _raiseErrorIfNeeded(luaWrap_lua_State* L,const std::string& functionName,const std::string& errorString,bool cSideErrorReporting);
+void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* warningString,bool cSideErrorOrWarningReporting);
+void _raiseErrorIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* errorString,bool cSideErrorReporting);
 
 
 
@@ -114,8 +114,8 @@ void moduleCommonPart(luaWrap_lua_State* L,int action,std::string* errorString);
 
 void appendAllSimFunctionNames_spaceSeparated(std::string& keywords,int scriptType,bool scriptIsThreaded);
 void appendAllSimVariableNames_spaceSeparated(std::string& keywords);
-void pushAllSimFunctionNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m,int scriptType,bool scriptIsThreaded);
-void pushAllSimVariableNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m);
+void pushAllSimFunctionNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m,int scriptType,bool scriptIsThreaded);
+void pushAllSimVariableNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m);
 std::string getSimFunctionCalltip(const char* txt,int scriptType,bool scriptIsThreaded,bool forceDoNotSupportOldApi);
 int isFuncOrConstDeprecated(const char* txt);
 

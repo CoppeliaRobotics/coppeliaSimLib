@@ -50,7 +50,7 @@ CGraph::CGraph()
     textColor[2]=0.8f;
     _visibilityLayer=GRAPH_LAYER;
     _objectName=IDSOGL_GRAPH;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
 }
 
 CGraph::~CGraph()
@@ -266,7 +266,7 @@ int CGraph::addNewGraphData(CGraphData* graphData)
     // for instance.
     std::string theName=graphData->getName();
     while (getGraphData(theName)!=nullptr)
-        theName=tt::generateNewName_noHash(theName);
+        theName=tt::generateNewName_noHash(theName.c_str());
     graphData->setName(theName);
     int id=0;
     while (getGraphData(id)!=nullptr)
@@ -317,7 +317,7 @@ void CGraph::add2DPartners(CGraphDataComb* it)
 {
     std::string tmp=it->getName();
     while (getGraphData2D(tmp)!=nullptr)
-        tmp=tt::generateNewName_noHash(tmp);
+        tmp=tt::generateNewName_noHash(tmp.c_str());
     it->setName(tmp);
     int id=0;
     while (getGraphData2D(id)!=nullptr)
@@ -329,7 +329,7 @@ void CGraph::add3DPartners(CGraphDataComb* it)
 {
     std::string tmp=it->getName();
     while (getGraphData3D(tmp)!=nullptr)
-        tmp=tt::generateNewName_noHash(tmp);
+        tmp=tt::generateNewName_noHash(tmp.c_str());
     it->setName(tmp);
     int id=0;
     while (getGraphData3D(id)!=nullptr)
@@ -490,8 +490,8 @@ void CGraph::makeCurveStatic(int curveIndex,int dimensionIndex)
             if (timeValues.size()!=0)
             {
                 std::string nm(it->getName());
-                while (getStaticCurveFromName(0,nm)!=nullptr)
-                    nm=tt::generateNewName_noHash(nm);
+                while (getStaticCurveFromName(0,nm.c_str())!=nullptr)
+                    nm=tt::generateNewName_noHash(nm.c_str());
                 CStaticGraphCurve* curve=new CStaticGraphCurve(0,&timeValues,&staticValues,nullptr);
                 _staticCurves.push_back(curve);
                 curve->setName(nm);
@@ -548,8 +548,8 @@ void CGraph::makeCurveStatic(int curveIndex,int dimensionIndex)
             if (values0.size()!=0)
             {
                 std::string nm(it->getName());
-                while (getStaticCurveFromName(1,nm)!=nullptr)
-                    nm=tt::generateNewName_noHash(nm);
+                while (getStaticCurveFromName(1,nm.c_str())!=nullptr)
+                    nm=tt::generateNewName_noHash(nm.c_str());
                 CStaticGraphCurve* curve=new CStaticGraphCurve(1,&values0,&values1,nullptr);
                 _staticCurves.push_back(curve);
                 curve->setName(nm);
@@ -622,8 +622,8 @@ void CGraph::makeCurveStatic(int curveIndex,int dimensionIndex)
             if (values0.size()!=0)
             {
                 std::string nm(it->getName());
-                while (getStaticCurveFromName(2,nm)!=nullptr)
-                    nm=tt::generateNewName_noHash(nm);
+                while (getStaticCurveFromName(2,nm.c_str())!=nullptr)
+                    nm=tt::generateNewName_noHash(nm.c_str());
                 CStaticGraphCurve* curve=new CStaticGraphCurve(2,&values0,&values1,&values2);
                 _staticCurves.push_back(curve);
                 curve->setName(nm);
@@ -642,7 +642,7 @@ void CGraph::makeCurveStatic(int curveIndex,int dimensionIndex)
     }
 }
 
-CStaticGraphCurve* CGraph::getStaticCurveFromName(int type,const std::string& name)
+CStaticGraphCurve* CGraph::getStaticCurveFromName(int type,const char* name)
 {
     for (size_t i=0;i<_staticCurves.size();i++)
     {
@@ -1192,7 +1192,7 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
     return(false);
 }
 
-void CGraph::curveToClipboard(int graphType,const std::string& curveName) const
+void CGraph::curveToClipboard(int graphType,const char* curveName) const
 {
     std::string txt;
     if (graphType==0)
@@ -1301,7 +1301,7 @@ void CGraph::curveToClipboard(int graphType,const std::string& curveName) const
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 }
 
-void CGraph::curveToStatic(int graphType,const std::string& curveName)
+void CGraph::curveToStatic(int graphType,const char* curveName)
 {
     if (graphType==0)
     { // time graph curves:
@@ -1337,8 +1337,8 @@ void CGraph::curveToStatic(int graphType,const std::string& curveName)
             if (timeValues.size()!=0)
             {
                 std::string nm(it->getName());
-                while (getStaticCurveFromName(0,nm)!=nullptr)
-                    nm=tt::generateNewName_noHash(nm);
+                while (getStaticCurveFromName(0,nm.c_str())!=nullptr)
+                    nm=tt::generateNewName_noHash(nm.c_str());
                 CStaticGraphCurve* curve=new CStaticGraphCurve(0,&timeValues,&staticValues,nullptr);
                 _staticCurves.push_back(curve);
                 curve->setName(nm);
@@ -1403,8 +1403,8 @@ void CGraph::curveToStatic(int graphType,const std::string& curveName)
             if (values0.size()!=0)
             {
                 std::string nm(it->getName());
-                while (getStaticCurveFromName(1,nm)!=nullptr)
-                    nm=tt::generateNewName_noHash(nm);
+                while (getStaticCurveFromName(1,nm.c_str())!=nullptr)
+                    nm=tt::generateNewName_noHash(nm.c_str());
                 CStaticGraphCurve* curve=new CStaticGraphCurve(1,&values0,&values1,nullptr);
                 _staticCurves.push_back(curve);
                 curve->setName(nm);
@@ -1485,8 +1485,8 @@ void CGraph::curveToStatic(int graphType,const std::string& curveName)
             if (values0.size()!=0)
             {
                 std::string nm(it->getName());
-                while (getStaticCurveFromName(2,nm)!=nullptr)
-                    nm=tt::generateNewName_noHash(nm);
+                while (getStaticCurveFromName(2,nm.c_str())!=nullptr)
+                    nm=tt::generateNewName_noHash(nm.c_str());
                 CStaticGraphCurve* curve=new CStaticGraphCurve(2,&values0,&values1,&values2);
                 _staticCurves.push_back(curve);
                 curve->setName(nm);
@@ -1505,7 +1505,7 @@ void CGraph::curveToStatic(int graphType,const std::string& curveName)
     }
 }
 
-void CGraph::removeStaticCurve(int graphType,const std::string& curveName)
+void CGraph::removeStaticCurve(int graphType,const char* curveName)
 {
     for (size_t i=0;i<_staticCurves.size();i++)
     {
@@ -1902,8 +1902,8 @@ void CGraph::serialize(CSer& ar)
                         it->serialize(ar);
                         // Following 4 on 16/3/2017: duplicate names for static curves can cause problems
                         std::string nm(it->getName());
-                        while (getStaticCurveFromName(it->getCurveType(),nm)!=nullptr)
-                            nm=tt::generateNewName_noHash(nm);
+                        while (getStaticCurveFromName(it->getCurveType(),nm.c_str())!=nullptr)
+                            nm=tt::generateNewName_noHash(nm.c_str());
                         it->setName(nm);
                         _staticCurves.push_back(it);
                     }
@@ -2115,8 +2115,8 @@ void CGraph::serialize(CSer& ar)
                         it->serialize(ar);
                         // Following 4 on 16/3/2017: duplicate names for static curves can cause problems
                         std::string nm(it->getName());
-                        while (getStaticCurveFromName(it->getCurveType(),nm)!=nullptr)
-                            nm=tt::generateNewName_noHash(nm);
+                        while (getStaticCurveFromName(it->getCurveType(),nm.c_str())!=nullptr)
+                            nm=tt::generateNewName_noHash(nm.c_str());
                         it->setName(nm);
                         _staticCurves.push_back(it);
                         if (!ar.xmlPushSiblingNode("staticCurve",false))
@@ -2213,7 +2213,7 @@ void CGraph::copyCurveToClipboard(int curveIndex,int dimensionIndex)
             }
         }
     }
-    VVarious::copyTextToClipboard(txt);
+    VVarious::copyTextToClipboard(txt.c_str());
 }
 
 #ifdef SIM_WITH_GUI
@@ -2454,9 +2454,9 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
     { // Display of time graph curves here:
         ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
         std::string tmp(IDSOGL_TIME_GRAPH_CURVES_);
-        float tl=float(ogl::getTextLengthInPixels(tmp))*pixelSizeCoeff;
+        float tl=float(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
         ogl::setMaterialColor(sim_colorcomponent_emission,textColor);
-        ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp);
+        ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp.c_str());
         labelPos[1]=labelPos[1]-interline;
         for (int i=0;i<int(daten.size());i++)
         {
@@ -2507,8 +2507,8 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     if (it->getLabel())
                     {
                         tmp=it->getName()+" ("+CGraphingRoutines::getDataUnit(it)+")";
-                        float tl=float(ogl::getTextLengthInPixels(tmp))*pixelSizeCoeff;
-                        ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp);
+                        float tl=float(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
+                        ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp.c_str());
                         labelPos[1]=labelPos[1]-interline;
                     }
 
@@ -2665,8 +2665,8 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     if (it->getLabel())
                     {
                         tmp=it->getName()+" [STATIC]";
-                        float tl=float(ogl::getTextLengthInPixels(tmp))*pixelSizeCoeff;
-                        ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp);
+                        float tl=float(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
+                        ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp.c_str());
                         labelPos[1]-=interline;
                     }
                 }
@@ -2677,9 +2677,9 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
     { // Display of xy graph curves here:
         ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
         std::string tmp(IDSOGL_X_Y_GRAPH_CURVES_);
-        float tl=float(ogl::getTextLengthInPixels(tmp))*pixelSizeCoeff;
+        float tl=float(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
         ogl::setMaterialColor(sim_colorcomponent_emission,textColor);
-        ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp);
+        ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp.c_str());
         labelPos[1]=labelPos[1]-interline;
         for (int i=0;i<int(twoDPartners.size());i++)
         {
@@ -2752,8 +2752,8 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                         if ( (number1!=nullptr)&&(number2!=nullptr) )
                         {
                             tmp=it->getName()+" (x: "+CGraphingRoutines::getDataUnit(number1)+") (y: "+CGraphingRoutines::getDataUnit(number2)+")";
-                            float tl=float(ogl::getTextLengthInPixels(tmp))*pixelSizeCoeff;
-                            ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp);
+                            float tl=float(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
+                            ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp.c_str());
                             labelPos[1]=labelPos[1]-interline;
                         }
                     }
@@ -2930,8 +2930,8 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     if (it->getLabel())
                     {
                         tmp=it->getName()+" [STATIC]";
-                        float tl=float(ogl::getTextLengthInPixels(tmp))*pixelSizeCoeff;
-                        ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp);
+                        float tl=float(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
+                        ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp.c_str());
                         labelPos[1]=labelPos[1]-interline;
                     }
                 }
@@ -2980,11 +2980,11 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                         tmp=it->getName()+tmp;
                         float l0=r[0]*2.5f;
                         if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5f)
-                            l0=-r[0]*2.5f-graphSize[0]*float(ogl::getTextLengthInPixels(tmp))/float(windowSize[0]);
+                            l0=-r[0]*2.5f-graphSize[0]*float(ogl::getTextLengthInPixels(tmp.c_str()))/float(windowSize[0]);
                         float l1=r[1]*2.5f;
                         if (trackingValue[1]-graphPosition[1]>graphSize[1]*0.5f)
                             l1=-r[1]*2.5f;
-                        ogl::drawBitmapTextTo2dPosition(trackingValue[0]+l0,trackingValue[1]+l1,tmp);
+                        ogl::drawBitmapTextTo2dPosition(trackingValue[0]+l0,trackingValue[1]+l1,tmp.c_str());
                         ogl::setMaterialColor(sim_colorcomponent_emission,it->ambientColor);
                         if (markSelectedStreamSaved&&(subView!=nullptr))
                             subView->setTrackedGraphCurveIndex(trackingValueIndex);
@@ -2997,11 +2997,11 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                         tmp=it->getName()+tmp;
                         float l0=r[0]*2.5f;
                         if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5f)
-                            l0=-r[0]*2.5f-graphSize[0]*float(ogl::getTextLengthInPixels(tmp))/float(windowSize[0]);
+                            l0=-r[0]*2.5f-graphSize[0]*float(ogl::getTextLengthInPixels(tmp.c_str()))/float(windowSize[0]);
                         float l1=r[1]*2.5f;
                         if (trackingValue[1]-graphPosition[1]>graphSize[1]*0.5f)
                             l1=-r[1]*2.5f;
-                        ogl::drawBitmapTextTo2dPosition(trackingValue[0]+l0,trackingValue[1]+l1,tmp);
+                        ogl::drawBitmapTextTo2dPosition(trackingValue[0]+l0,trackingValue[1]+l1,tmp.c_str());
                         ogl::setMaterialColor(sim_colorcomponent_emission,it->ambientColor);
                     }
                 }
@@ -3015,11 +3015,11 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                         tmp=it->getName()+tmp;
                         float l0=r[0]*2.5f;
                         if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5f)
-                            l0=-r[0]*2.5f-graphSize[0]*float(ogl::getTextLengthInPixels(tmp))/float(windowSize[0]);
+                            l0=-r[0]*2.5f-graphSize[0]*float(ogl::getTextLengthInPixels(tmp.c_str()))/float(windowSize[0]);
                         float l1=r[1]*2.5f;
                         if (trackingValue[1]-graphPosition[1]>graphSize[1]*0.5f)
                             l1=-r[1]*2.5f;
-                        ogl::drawBitmapTextTo2dPosition(trackingValue[0]+l0,trackingValue[1]+l1,tmp);
+                        ogl::drawBitmapTextTo2dPosition(trackingValue[0]+l0,trackingValue[1]+l1,tmp.c_str());
                         ogl::setMaterialColor(sim_colorcomponent_emission,it->curveColor.getColorsPtr());
                         if (markSelectedStreamSaved&&(subView!=nullptr))
                             subView->setTrackedGraphCurveIndex(trackingValueIndex);
@@ -3032,11 +3032,11 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                         tmp=it->getName()+tmp;
                         float l0=r[0]*2.5f;
                         if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5f)
-                            l0=-r[0]*2.5f-graphSize[0]*float(ogl::getTextLengthInPixels(tmp))/float(windowSize[0]);
+                            l0=-r[0]*2.5f-graphSize[0]*float(ogl::getTextLengthInPixels(tmp.c_str()))/float(windowSize[0]);
                         float l1=r[1]*2.5f;
                         if (trackingValue[1]-graphPosition[1]>graphSize[1]*0.5f)
                             l1=-r[1]*2.5f;
-                        ogl::drawBitmapTextTo2dPosition(trackingValue[0]+l0,trackingValue[1]+l1,tmp);
+                        ogl::drawBitmapTextTo2dPosition(trackingValue[0]+l0,trackingValue[1]+l1,tmp.c_str());
                         ogl::setMaterialColor(sim_colorcomponent_emission,it->ambientColor);
                     }
                 }

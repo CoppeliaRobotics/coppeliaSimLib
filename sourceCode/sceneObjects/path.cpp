@@ -30,7 +30,7 @@ CPath::CPath()
     pathContainer=new CPathCont();
     setShapingType(1);
     _objectName=IDSOGL_PATH;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
 }
 
 CPath::~CPath()

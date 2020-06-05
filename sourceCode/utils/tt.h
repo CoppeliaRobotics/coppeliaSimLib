@@ -19,7 +19,6 @@ public:
     static std::string getIString(bool sign,int v);
 
     static bool stringToInt(const char* txt,int& a);
-    static std::string intToString(int a);
     static float floatToUserFloat(float f,float toUserConversion,bool minusValuesGiveInf);
     static float userFloatToFloat(float userFloat,float fromUserConversion,bool minusValuesGiveInf);
 
@@ -47,19 +46,19 @@ public:
     static double getLimitedDouble(double minValue,double maxValue,double value);
     static void limitValue(float minValue,float maxValue,float value[2]);
     static void limitValue(int minValue,int maxValue,int* value);
-    static bool getValidFloat(const std::string& text,float& value);
-    static bool getValidInt(const std::string& text,int& value);
+    static bool getValidFloat(const char* text,float& value);
+    static bool getValidInt(const char* text,int& value);
 
 // Name handling and copy handling:
 //************************************************************
-    static std::string generateNewName_hashOrNoHash(const std::string& name,bool hash);
+    static std::string generateNewName_hashOrNoHash(const char* name,bool hash);
     // Following is for copied objects:
-    static std::string generateNewName_hash(const std::string& name);
-    static std::string generateNewName_hash(const std::string& name,int suffixOffset);
+    static std::string generateNewName_hash(const char* name);
+    static std::string generateNewName_hash(const char* name,int suffixOffset);
 
     // Following is for copied objects:
-    static std::string generateNewName_noHash(const std::string& name);
-    static std::string generateNewName_noHash(const std::string& name,int suffixOffset);
+    static std::string generateNewName_noHash(const char* name);
+    static std::string generateNewName_noHash(const char* name,int suffixOffset);
 
     // Following is for both:
     static bool isHashFree(const char* name);
@@ -67,16 +66,14 @@ public:
     static std::string getNameWithoutSuffixNumber(const char* name,bool hash);
     static bool removeIllegalCharacters(std::string& text,bool allowOneHashFollowedByNumbers);
     static bool removeAltNameIllegalCharacters(std::string& text);
-    static std::string getObjectAltNameFromObjectName(const std::string& text);
+    static std::string getObjectAltNameFromObjectName(const char* text);
 //************************************************************
 
     static bool getValueOfKey(const char* key,const char* txt,std::string& value);
     static void removeKeyAndValue(const char* key,std::string& txt);
-    static void removeKeysWithEmptyValues(std::string& txt);
     static void insertKeyAndValue(const char* key,const char* value,std::string& txt);
     static int getAllKeyValuePairs(const char* txt,std::vector<std::string>& allKeys,std::vector<std::string>& allValues);
-    static std::string generateKeyValuePairs(const std::vector<std::string>& allKeys,const std::vector<std::string>& allValues);
-    static void appendKeyValuePair(std::string& txt,const std::string& key,const std::string& value);
+    static void appendKeyValuePair(std::string& txt,const char* key,const char* value);
     static int separateWords(const char* txt,char separationChar,std::vector<std::string>& words);
 
 
@@ -96,14 +93,11 @@ public:
 
     static std::string getLowerUpperCaseString(std::string str,bool upper);
 
-    static void getColorFromIntensity(float intensity,int colorTable,float col[3]);
-
     static int getLimitedInt(int minValue,int maxValue,int value);
     static void limitValue(int minValue,int maxValue,int &value);
     static float getLimitedFloat(float minValue,float maxValue,float value);
     static void limitValue(float minValue,float maxValue,float &value);
     static void limitDoubleValue(double minValue,double maxValue,double &value);
-    static void limit3ArrayValue(float minValue,float maxValue,float value[3]);
 
 private:
     static void _removeKeyAndValue(const char* key,std::string& txt);

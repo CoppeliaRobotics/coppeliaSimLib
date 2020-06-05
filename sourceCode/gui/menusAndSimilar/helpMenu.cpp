@@ -63,11 +63,11 @@ bool CHelpMenu::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             #ifdef MAC_SIM
 //                std::string tmp(App::directories->executableDirectory+"/../../../"+"helpFiles"+"/"+"index.html");
-                std::string tmp(App::directories->executableDirectory+"/../../Resources/"+"helpFiles"+"/"+"index.html");
+                std::string tmp(App::directories->executableDirectory+"/../Resources/"+"helpFiles"+"/"+"index.html");
             #else
-                std::string tmp(App::directories->executableDirectory+"/"+"helpFiles"+"/"+"index.html");
+                std::string tmp(App::folders->getExecutablePath()+"/"+"helpFiles"+"/"+"index.html");
             #endif
-            VVarious::openUrl(tmp);
+            VVarious::openUrl(tmp.c_str());
         }
         return(true);
     }
@@ -90,11 +90,11 @@ bool CHelpMenu::processCommand(int commandID)
             #ifdef MAC_SIM
                 std::string tmp(App::directories->executableDirectory+"/../../../"+"credits.txt");
             #else
-                std::string tmp(App::directories->executableDirectory+"/"+"credits.txt");
+                std::string tmp(App::folders->getExecutablePath()+"/"+"credits.txt");
             #endif
-            if (VFile::doesFileExist(tmp))
+            if (VFile::doesFileExist(tmp.c_str()))
             { // FILE is present!
-                VVarious::openTextFile(tmp);
+                VVarious::openTextFile(tmp.c_str());
             }
             else
             { // file doesn't exist.

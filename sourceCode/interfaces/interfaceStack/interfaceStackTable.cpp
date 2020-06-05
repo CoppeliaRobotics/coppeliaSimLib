@@ -145,11 +145,11 @@ bool CInterfaceStackTable::getDoubleArray(double* array,int count) const
     return(retVal);
 }
 
-CInterfaceStackObject* CInterfaceStackTable::getMapObject(const std::string& fieldName) const
+CInterfaceStackObject* CInterfaceStackTable::getMapObject(const char* fieldName) const
 {
     if (_isTableArray)
         return(nullptr);
-    size_t p=fieldName.find('.',0);
+    size_t p=std::string(fieldName).find('.',0);
     if (p==std::string::npos)
     {
         for (size_t i=0;i<_tableObjects.size()/2;i++)
@@ -166,8 +166,8 @@ CInterfaceStackObject* CInterfaceStackTable::getMapObject(const std::string& fie
     }
     else
     {
-        std::string tableName1(fieldName.begin(),fieldName.begin()+p);
-        std::string tableName2(fieldName.begin()+p+1,fieldName.end());
+        std::string tableName1(fieldName,fieldName+p);
+        std::string tableName2(fieldName+p+1);
         for (size_t i=0;i<_tableObjects.size()/2;i++)
         {
             CInterfaceStackObject* key=_tableObjects[2*i+0];
@@ -179,7 +179,7 @@ CInterfaceStackObject* CInterfaceStackTable::getMapObject(const std::string& fie
                 if (!theTable->isTableArray())
                 {
                     if (theKey.compare(tableName1)==0)
-                        return(theTable->getMapObject(tableName2));
+                        return(theTable->getMapObject(tableName2.c_str()));
                 }
             }
         }

@@ -9,7 +9,7 @@ public:
     virtual ~CCommTubeContainer();
     void simulationEnded();
 
-    int openTube(int header,const std::string& identifier,bool killAtSimulationEnd,int readBufferSize); // return value is the tube handle for this partner
+    int openTube(int header,const char* identifier,bool killAtSimulationEnd,int readBufferSize); // return value is the tube handle for this partner
     bool closeTube(int tubeHandle); // returns true if tube could be closed
 
     bool writeToTube_copyBuffer(int tubeHandle,const char* data,int dataLength);

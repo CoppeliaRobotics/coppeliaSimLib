@@ -218,13 +218,13 @@ void CQDlgShapes::on_qqDirtTexture_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        std::string tst(App::directories->textureDirectory);
-        std::string filenameAndPath=App::uiThread->getOpenFileName(this,0,"Loading texture...",tst,"",true,"Image files","tga","jpg","jpeg","png","gif","bmp","tiff");
+        std::string tst(App::folders->getTexturesPath());
+        std::string filenameAndPath=App::uiThread->getOpenFileName(this,0,"Loading texture...",tst.c_str(),"",true,"Image files","tga","jpg","jpeg","png","gif","bmp","tiff");
         if (filenameAndPath.length()!=0)
         {
-            if (VFile::doesFileExist(filenameAndPath))
+            if (VFile::doesFileExist(filenameAndPath.c_str()))
             {
-                App::directories->textureDirectory=App::directories->getPathFromFull(filenameAndPath);
+                App::folders->setTexturesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                 int resX,resY,n;
                 unsigned char* data=CImageLoaderSaver::load(filenameAndPath.c_str(),&resX,&resY,&n,0);
                 bool rgba=(n==4);
@@ -246,7 +246,7 @@ void CQDlgShapes::on_qqDirtTexture_clicked()
                     cmd.boolParams.push_back(rgba);
                     cmd.intParams.push_back(resX);
                     cmd.intParams.push_back(resY);
-                    cmd.stringParams.push_back(App::directories->getNameFromFull(filenameAndPath));
+                    cmd.stringParams.push_back(App::folders->getNameFromFull(filenameAndPath.c_str()));
                     App::appendSimulationThreadCommand(cmd);
                     App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                 }

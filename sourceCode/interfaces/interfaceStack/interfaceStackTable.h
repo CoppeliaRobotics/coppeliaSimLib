@@ -41,7 +41,7 @@ public:
     bool getIntArray(int* array,int count) const;
     bool getFloatArray(float* array,int count) const;
     bool getDoubleArray(double* array,int count) const;
-    CInterfaceStackObject* getMapObject(const std::string& fieldName) const;
+    CInterfaceStackObject* getMapObject(const char* fieldName) const;
 
     bool removeFromKey(const CInterfaceStackObject* keyToRemove);
 

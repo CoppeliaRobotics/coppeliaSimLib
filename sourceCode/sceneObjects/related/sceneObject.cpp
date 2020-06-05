@@ -279,7 +279,7 @@ bool CSceneObject::getIgnoredByViewFitting() const
     return(_ignoredByViewFitting);
 }
 
-void CSceneObject::setModelAcknowledgement(const std::string& a)
+void CSceneObject::setModelAcknowledgement(const char* a)
 {
     _modelAcknowledgement=a;
     if (_modelAcknowledgement.length()>3000)
@@ -1605,7 +1605,7 @@ bool CSceneObject::setObjectName(const char* newName,bool check)
             if (getObjectName()!=nm)
             {
                 while (App::currentWorld->sceneObjects->getObjectFromName(nm.c_str())!=nullptr)
-                    nm=tt::generateNewName_hashOrNoHash(nm,!tt::isHashFree(nm.c_str()));
+                    nm=tt::generateNewName_hashOrNoHash(nm.c_str(),!tt::isHashFree(nm.c_str()));
                 std::string oldName(_objectName);
                 diff=_CSceneObject_::setObjectName(nm.c_str(),check);
                 if (diff)
@@ -1633,7 +1633,7 @@ bool CSceneObject::setObjectAltName(const char* newName,bool check)
             if (getObjectName()!=nm)
             {
                 while (App::currentWorld->sceneObjects->getObjectFromAltName(nm.c_str())!=nullptr)
-                    nm=tt::generateNewName_noHash(nm);
+                    nm=tt::generateNewName_noHash(nm.c_str());
                 std::string oldName(_objectAltName);
                 diff=_CSceneObject_::setObjectAltName(nm.c_str(),check);
                 if (diff)
@@ -1919,12 +1919,12 @@ void CSceneObject::serialize(CSer& ar)
                         if (child==0)
                             _assemblyMatchValuesChild.push_back("default");
                         else
-                            _assemblyMatchValuesChild.push_back(tt::intToString(child));
+                            _assemblyMatchValuesChild.push_back(std::to_string(child));
                         _assemblyMatchValuesParent.clear();
                         if (parent==0)
                             _assemblyMatchValuesParent.push_back("default");
                         else
-                            _assemblyMatchValuesParent.push_back(tt::intToString(parent));
+                            _assemblyMatchValuesParent.push_back(std::to_string(parent));
                     }
                     if (theName.compare("Am2")==0)
                     {
@@ -1966,7 +1966,7 @@ void CSceneObject::serialize(CSer& ar)
                         ar >> byteQuantity;
                         ar >> _objectName;
                         if (!hasAltName)
-                            _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+                            _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
                         _objectTempName=_objectName;
                     }
                     if (theName.compare("Op2")==0)

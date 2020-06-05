@@ -136,7 +136,7 @@ bool CConfReaderAndWriter::getInteger(const char* variableName,int& variable)
     int ind=_getVariableIndex(variableName);
     if (ind==-1)
         return(false);
-    return(tt::getValidInt(_values[ind],variable));
+    return(tt::getValidInt(_values[ind].c_str(),variable));
 }
 
 bool CConfReaderAndWriter::getFloat(const char* variableName,float& variable)
@@ -144,7 +144,7 @@ bool CConfReaderAndWriter::getFloat(const char* variableName,float& variable)
     int ind=_getVariableIndex(variableName);
     if (ind==-1)
         return(false);
-    return(tt::getValidFloat(_values[ind],variable));
+    return(tt::getValidFloat(_values[ind].c_str(),variable));
 }
 
 bool CConfReaderAndWriter::getFloatVector3(const char* variableName,float variable[3])
@@ -158,7 +158,7 @@ bool CConfReaderAndWriter::getFloatVector3(const char* variableName,float variab
     if ( (cPos!=std::string::npos)&&(cPos>0)&&(cPos+1<v.length()) )
     {
         tmp.assign(v.begin(),v.begin()+cPos);
-        if (!tt::getValidFloat(tmp,variable[0]))
+        if (!tt::getValidFloat(tmp.c_str(),variable[0]))
             return(false);
         tmp.assign(v.begin()+cPos+1,v.end());
         v=tmp;
@@ -166,10 +166,10 @@ bool CConfReaderAndWriter::getFloatVector3(const char* variableName,float variab
         if ( (cPos!=std::string::npos)&&(cPos>0)&&(cPos+1<v.length()) )
         {
             tmp.assign(v.begin(),v.begin()+cPos);
-            if (!tt::getValidFloat(tmp,variable[1]))
+            if (!tt::getValidFloat(tmp.c_str(),variable[1]))
                 return(false);
             tmp.assign(v.begin()+cPos+1,v.end());
-            return(tt::getValidFloat(tmp,variable[2]));
+            return(tt::getValidFloat(tmp.c_str(),variable[2]));
         }
     }
     return(false);
@@ -186,7 +186,7 @@ bool CConfReaderAndWriter::getIntVector3(const char* variableName,int variable[3
     if ( (cPos!=std::string::npos)&&(cPos>0)&&(cPos+1<v.length()) )
     {
         tmp.assign(v.begin(),v.begin()+cPos);
-        if (!tt::getValidInt(tmp,variable[0]))
+        if (!tt::getValidInt(tmp.c_str(),variable[0]))
             return(false);
         tmp.assign(v.begin()+cPos+1,v.end());
         v=tmp;
@@ -194,10 +194,10 @@ bool CConfReaderAndWriter::getIntVector3(const char* variableName,int variable[3
         if ( (cPos!=std::string::npos)&&(cPos>0)&&(cPos+1<v.length()) )
         {
             tmp.assign(v.begin(),v.begin()+cPos);
-            if (!tt::getValidInt(tmp,variable[1]))
+            if (!tt::getValidInt(tmp.c_str(),variable[1]))
                 return(false);
             tmp.assign(v.begin()+cPos+1,v.end());
-            return(tt::getValidInt(tmp,variable[2]));
+            return(tt::getValidInt(tmp.c_str(),variable[2]));
         }
     }
     return(false);

@@ -185,7 +185,7 @@ void CRegisteredPathPlanningTasks::setSuffix1ToSuffix2(int suffix1,int suffix2)
         if (s1==suffix1)
         {
             std::string name1(tt::getNameWithoutSuffixNumber(allObjects[i]->getObjectName().c_str(),true));
-            allObjects[i]->setObjectName(tt::generateNewName_hash(name1,suffix2+1));
+            allObjects[i]->setObjectName(tt::generateNewName_hash(name1.c_str(),suffix2+1));
         }
     }
 }
@@ -200,11 +200,11 @@ void CRegisteredPathPlanningTasks::addObjectWithSuffixOffset(CPathPlanningTask* 
     // Does that name already exist?
     std::string theName=aTask->getObjectName();
     if (objectIsACopy)
-        theName=tt::generateNewName_hash(theName,suffixOffset);
+        theName=tt::generateNewName_hash(theName.c_str(),suffixOffset);
     else
     {
         while (getObject(theName)!=nullptr)
-            theName=tt::generateNewName_noHash(theName);
+            theName=tt::generateNewName_noHash(theName.c_str());
     }
     aTask->setObjectName(theName);
 

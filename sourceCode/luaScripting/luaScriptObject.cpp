@@ -2000,16 +2000,16 @@ CLuaScriptObject::~CLuaScriptObject()
     if (App::userSettings->externalScriptEditor.length()>0)
     {
         // destroy file
-        std::string fname=App::directories->extScriptEditorTempFileDirectory+"/";
+        std::string fname=App::folders->getExtScriptEditorTempPath()+"/";
         fname.append(_filenameForExternalScriptEditor);
-        if (VFile::doesFileExist(fname))
-            VFile::eraseFile(fname);
+        if (VFile::doesFileExist(fname.c_str()))
+            VFile::eraseFile(fname.c_str());
     }
 }
 
 std::string CLuaScriptObject::getFilenameForExternalScriptEditor() const
 {
-    std::string fname=App::directories->extScriptEditorTempFileDirectory+"/";
+    std::string fname=App::folders->getExtScriptEditorTempPath()+"/";
     fname.append(_filenameForExternalScriptEditor);
     return(fname);
 }
@@ -2018,7 +2018,7 @@ void CLuaScriptObject::fromFileToBuffer()
 {
     if (App::userSettings->externalScriptEditor.size()>0)
     { // read file
-        std::string fname=App::directories->extScriptEditorTempFileDirectory+"/";
+        std::string fname=App::folders->getExtScriptEditorTempPath()+"/";
         fname.append(_filenameForExternalScriptEditor);
 
         VFile myFile(fname.c_str(),VFile::READ|VFile::SHARE_DENY_NONE,true);
@@ -2042,7 +2042,7 @@ void CLuaScriptObject::fromBufferToFile() const
     { // write file
         if ( (App::currentWorld==nullptr)||(App::currentWorld->environment==nullptr)||(!App::currentWorld->environment->getSceneLocked()) )
         {
-            std::string fname=App::directories->extScriptEditorTempFileDirectory+"/";
+            std::string fname=App::folders->getExtScriptEditorTempPath()+"/";
             fname.append(_filenameForExternalScriptEditor);
 
             VFile myFile(fname.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE,true);
@@ -4658,9 +4658,9 @@ void CLuaScriptObject::serialize(CSer& ar)
                         { // We just loaded a main script text. Do we want to load the default main script instead?
                             if (_mainScriptIsDefaultMainScript)
                             { // Yes!
-                                std::string filenameAndPath(App::directories->systemDirectory+"/");
+                                std::string filenameAndPath(App::folders->getSystemPath()+"/");
                                 filenameAndPath+=DEFAULT_MAINSCRIPT_NAME;
-                                if (VFile::doesFileExist(filenameAndPath))
+                                if (VFile::doesFileExist(filenameAndPath.c_str()))
                                 {
                                     try
                                     {
@@ -4850,9 +4850,9 @@ void CLuaScriptObject::serialize(CSer& ar)
                 { // We just loaded a main script text. Do we want to load the default main script instead?
                     if (_mainScriptIsDefaultMainScript)
                     { // Yes!
-                        std::string filenameAndPath(App::directories->systemDirectory+"/");
+                        std::string filenameAndPath(App::folders->getSystemPath()+"/");
                         filenameAndPath+=DEFAULT_MAINSCRIPT_NAME;
-                        if (VFile::doesFileExist(filenameAndPath))
+                        if (VFile::doesFileExist(filenameAndPath.c_str()))
                         {
                             try
                             {
@@ -5176,13 +5176,9 @@ void CLuaScriptObject::_insertScriptText(CLuaScriptObject* scriptObject,bool toF
     */
 }
 
-std::string CLuaScriptObject::_replaceOldApi(const std::string& txt,bool forwardAdjustment)
+std::string CLuaScriptObject::_replaceOldApi(const char* txt,bool forwardAdjustment)
 { // recursive
-    size_t p=txt.find("sim");
-//    while ( forwardAdjustment&&(p!=std::string::npos)&&(p<txt.size()-3)&&(txt[p+3]=='.') )
-//    { // this is just to accelerate the search once we have done it already once (do not search words starting with "sim.")
-//        p=txt.find("sim",p+3);
-//    }
+    size_t p=std::string(txt).find("sim");
     if (p!=std::string::npos)
     {
         std::string beforePart;
@@ -5198,9 +5194,9 @@ std::string CLuaScriptObject::_replaceOldApi(const std::string& txt,bool forward
             if (it2!=_newApiMap.end())
                 apiWord=it2->second;
         }
-        return(beforePart+apiWord+_replaceOldApi(afterPart,forwardAdjustment));
+        return(beforePart+apiWord+_replaceOldApi(afterPart.c_str(),forwardAdjustment));
     }
-    return(txt);
+    return(std::string(txt));
 }
 
 void CLuaScriptObject::_performNewApiAdjustments(CLuaScriptObject* scriptObject,bool forwardAdjustment)
@@ -5265,7 +5261,7 @@ void CLuaScriptObject::_performNewApiAdjustments(CLuaScriptObject* scriptObject,
 
 
     std::string theScript(scriptObject->getScriptText());
-    theScript=_replaceOldApi(theScript,forwardAdjustment);
+    theScript=_replaceOldApi(theScript.c_str(),forwardAdjustment);
     scriptObject->setScriptText(theScript.c_str());
 
 /*
@@ -5434,22 +5430,23 @@ bool CLuaScriptObject::_containsScriptText(CLuaScriptObject* scriptObject,const 
     return(startPos!=std::string::npos);
 }
 
-int CLuaScriptObject::_countOccurences(const std::string& source,const char* word)
+int CLuaScriptObject::_countOccurences(const char* source,const char* word)
 {
     int cnt=0;
-    size_t pos=source.find(word,0);
+    std::string ssource(source);
+    size_t pos=ssource.find(word,0);
     while (pos!=std::string::npos)
     {
         cnt++;
-        pos=source.find(word,pos+1);
+        pos=ssource.find(word,pos+1);
     }
     return(cnt);
 }
 
-void CLuaScriptObject::_splitApiText(const std::string& txt,size_t pos,std::string& beforePart,std::string& apiWord,std::string& afterPart)
+void CLuaScriptObject::_splitApiText(const char* txt,size_t pos,std::string& beforePart,std::string& apiWord,std::string& afterPart)
 {
     size_t endPos;
-    for (size_t i=pos;i<txt.size();i++)
+    for (size_t i=pos;i<strlen(txt);i++)
     {
         char c=txt[i];
         if ( ((c>='0')&&(c<='9')) || ((c>='a')&&(c<='z')) || ((c>='A')&&(c<='Z')) || (c=='_') || (c=='.') )
@@ -5458,12 +5455,12 @@ void CLuaScriptObject::_splitApiText(const std::string& txt,size_t pos,std::stri
             break;
     }
     if (pos>0)
-        beforePart.assign(txt.begin(),txt.begin()+pos);
+        beforePart.assign(txt,txt+pos);
     else
         beforePart.clear();
-    apiWord.assign(txt.begin()+pos,txt.begin()+endPos);
-    if (endPos<txt.size())
-        afterPart.assign(txt.begin()+endPos,txt.end());
+    apiWord.assign(txt+pos,txt+endPos);
+    if (endPos<strlen(txt))
+        afterPart=txt+endPos;
     else
         afterPart.clear();
 }
@@ -5476,10 +5473,10 @@ void CLuaScriptObject::_adjustScriptText1(CLuaScriptObject* scriptObject,bool do
     if ( (scriptObject->getScriptType()==sim_scripttype_mainscript)&&(!scriptObject->isDefaultMainScript()) )
     {
         // We will comment out the customized main script, load the default main script, and display a message so the user knows what happened!!
-        std::string filenameAndPath(App::directories->systemDirectory+"/");
+        std::string filenameAndPath(App::folders->getSystemPath()+"/");
         filenameAndPath+=DEFAULT_MAINSCRIPT_NAME;
         std::string defaultMainScriptContent;
-        if (VFile::doesFileExist(filenameAndPath))
+        if (VFile::doesFileExist(filenameAndPath.c_str()))
         {
             try
             {

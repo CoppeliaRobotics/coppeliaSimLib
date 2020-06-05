@@ -75,12 +75,12 @@ std::string CMainSettings::getScenePathAndName() const
 
 std::string CMainSettings::getScenePath() const
 {
-    return(VVarious::splitPath_path(_scenePathAndName));
+    return(VVarious::splitPath_path(_scenePathAndName.c_str()));
 }
 
 std::string CMainSettings::getSceneName() const
 {
-    return(VVarious::splitPath_fileBase(_scenePathAndName));
+    return(VVarious::splitPath_fileBase(_scenePathAndName.c_str()));
 }
 
 std::string CMainSettings::getSceneNameForUi() const
@@ -92,7 +92,7 @@ std::string CMainSettings::getSceneNameForUi() const
 
 std::string CMainSettings::getSceneNameWithExt() const
 {
-    return(VVarious::splitPath_fileBaseAndExtension(_scenePathAndName));
+    return(VVarious::splitPath_fileBaseAndExtension(_scenePathAndName.c_str()));
 }
 
 void CMainSettings::serialize(CSer& ar)

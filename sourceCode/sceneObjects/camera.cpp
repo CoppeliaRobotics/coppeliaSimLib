@@ -772,7 +772,7 @@ void CCamera::commonInit()
     colorPart2.setColor(0.45f,0.45f,0.45f,sim_colorcomponent_ambient_diffuse);
 
     _objectName=IDSOGL_CAMERA;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
 }
 
 void CCamera::setCameraManipulationModePermissions(int p)

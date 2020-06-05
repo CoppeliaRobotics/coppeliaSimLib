@@ -80,7 +80,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 std::string ext[4];
                 for (int i=0;i<4;i++)
                     ext[i]=CSimFlavor::getStringVal_int(1,i);
-                std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,IDSN_LOADING_SCENE,App::directories->sceneDirectory,"",false,"Scenes",ext[0],ext[1],ext[2],ext[3]);
+                std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,IDSN_LOADING_SCENE,App::folders->getScenesPath().c_str(),"",false,"Scenes",ext[0].c_str(),ext[1].c_str(),ext[2].c_str(),ext[3].c_str());
 
                 if (filenameAndPath.length()!=0)
                 {
@@ -133,7 +133,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         break;
                 }
 
-                if (VFile::doesFileExist(filenameAndPath))
+                if (VFile::doesFileExist(filenameAndPath.c_str()))
                 {
                     App::setDefaultMouseMode();
                     App::worldContainer->createNewWorld();
@@ -166,7 +166,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             std::string ext[4];
             for (int i=0;i<4;i++)
                 ext[i]=CSimFlavor::getStringVal_int(2,i);
-            std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,IDSN_LOADING_MODEL,App::directories->modelDirectory,"",false,"Models",ext[0],ext[1],ext[2],ext[3]);
+            std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,IDSN_LOADING_MODEL,App::folders->getModelsPath().c_str(),"",false,"Models",ext[0].c_str(),ext[1].c_str(),ext[2].c_str(),ext[3].c_str());
 
             if (filenameAndPath.length()!=0)
                 loadModel(filenameAndPath.c_str(),true,true,true,nullptr,true,nullptr,false,false); // Undo things is in here.
@@ -197,11 +197,11 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             if (!App::currentWorld->environment->getSceneLocked())
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_EXPORTING_IK_CONTENT);
-                std::string tst(App::directories->otherFilesDirectory);
-                std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_EXPORTING_IK_CONTENT___),tst,"",false,"Coppelia Kinematics Content Files","ik");
+                std::string tst(App::folders->getOtherFilesPath());
+                std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_EXPORTING_IK_CONTENT___),tst.c_str(),"",false,"Coppelia Kinematics Content Files","ik");
                 if (filenameAndPath.length()!=0)
                 {
-                    App::directories->otherFilesDirectory=App::directories->getPathFromFull(filenameAndPath);
+                    App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                     if (apiExportIkContent(filenameAndPath.c_str(),true))
                         App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
                     else
@@ -262,7 +262,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         std::string val;
                         cont.readData("SIMSETTINGS_MODEL_SAVE_OFFSET_WARNING",val);
                         int intVal=0;
-                        tt::getValidInt(val,intVal);
+                        tt::getValidInt(val.c_str(),intVal);
                         if (intVal<1)
                         {
                             if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_MODEL,IDSN_MODEL_SAVE_POSITION_OFFSET_INFO,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN))
@@ -326,13 +326,13 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         {
                             std::string filenameAndPath;
                             if (ft==0)
-                                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_SAVING_MODEL___,App::directories->modelDirectory,"",false,"CoppeliaSim Model",SIM_MODEL_EXTENSION);
+                                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_SAVING_MODEL___,App::folders->getModelsPath().c_str(),"",false,"CoppeliaSim Model",SIM_MODEL_EXTENSION);
                             if (ft==1)
-                                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_SAVING_MODEL___,App::directories->modelDirectory,"",false,"XReality Model",SIM_XR_MODEL_EXTENSION);
+                                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_SAVING_MODEL___,App::folders->getModelsPath().c_str(),"",false,"XReality Model",SIM_XR_MODEL_EXTENSION);
                             if (ft==2)
-                                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_SAVING_MODEL___,App::directories->modelDirectory,"",false,"CoppeliaSim XML Model (exhaustive)",SIM_XML_MODEL_EXTENSION);
+                                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_SAVING_MODEL___,App::folders->getModelsPath().c_str(),"",false,"CoppeliaSim XML Model (exhaustive)",SIM_XML_MODEL_EXTENSION);
                             if (ft==3)
-                                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_SAVING_MODEL___,App::directories->modelDirectory,"",false,"CoppeliaSim XML Model (simple)",SIM_XML_MODEL_EXTENSION);
+                                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_SAVING_MODEL___,App::folders->getModelsPath().c_str(),"",false,"CoppeliaSim XML Model (simple)",SIM_XML_MODEL_EXTENSION);
 
                             if (filenameAndPath.length()!=0)
                             {
@@ -343,11 +343,11 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                                 {
                                     if ( (CSer::getFileTypeFromName(filenameAndPath.c_str())==CSer::filetype_csim_xml_xmodel_file)&&(App::userSettings->xmlExportSplitSize!=0) )
                                     {
-                                        std::string prefix(VVarious::splitPath_fileBase(filenameAndPath)+"_");
-                                        int cnt0=VFileFinder::countFiles(VVarious::splitPath_path(filenameAndPath).c_str());
-                                        int cnt1=VFileFinder::countFolders(VVarious::splitPath_path(filenameAndPath).c_str());
-                                        int cnt2=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath).c_str(),prefix.c_str());
-                                        int cnt3=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath).c_str(),(VVarious::splitPath_fileBase(filenameAndPath)+".").c_str());
+                                        std::string prefix(VVarious::splitPath_fileBase(filenameAndPath.c_str())+"_");
+                                        int cnt0=VFileFinder::countFiles(VVarious::splitPath_path(filenameAndPath.c_str()).c_str());
+                                        int cnt1=VFileFinder::countFolders(VVarious::splitPath_path(filenameAndPath.c_str()).c_str());
+                                        int cnt2=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath.c_str()).c_str(),prefix.c_str());
+                                        int cnt3=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath.c_str()).c_str(),(VVarious::splitPath_fileBase(filenameAndPath.c_str())+".").c_str());
                                         if ( (cnt2+cnt3!=cnt0)||(cnt1!=0) )
                                         {
                                             std::string msg("The scene/model will possibly be saved as several separate files, all with the '");
@@ -358,11 +358,11 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                                     }
                                     if (CSer::getFileTypeFromName(filenameAndPath.c_str())==CSer::filetype_csim_xml_simplemodel_file)
                                     {
-                                        std::string prefix(VVarious::splitPath_fileBase(filenameAndPath)+"_");
-                                        int cnt0=VFileFinder::countFiles(VVarious::splitPath_path(filenameAndPath).c_str());
-                                        int cnt1=VFileFinder::countFolders(VVarious::splitPath_path(filenameAndPath).c_str());
-                                        int cnt2=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath).c_str(),prefix.c_str());
-                                        int cnt3=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath).c_str(),(VVarious::splitPath_fileBase(filenameAndPath)+".").c_str());
+                                        std::string prefix(VVarious::splitPath_fileBase(filenameAndPath.c_str())+"_");
+                                        int cnt0=VFileFinder::countFiles(VVarious::splitPath_path(filenameAndPath.c_str()).c_str());
+                                        int cnt1=VFileFinder::countFolders(VVarious::splitPath_path(filenameAndPath.c_str()).c_str());
+                                        int cnt2=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath.c_str()).c_str(),prefix.c_str());
+                                        int cnt3=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath.c_str()).c_str(),(VVarious::splitPath_fileBase(filenameAndPath.c_str())+".").c_str());
                                         if ( (cnt2+cnt3!=cnt0)||(cnt1!=0) )
                                         {
                                             std::string msg("The scene/model will possibly be saved as several separate files, all with the '");
@@ -405,10 +405,10 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             {
                 App::logMsg(sim_verbosity_msgs,IDS_IMPORTING_MESH___);
                 App::currentWorld->sceneObjects->deselectObjects();
-                std::string tst(App::directories->cadFormatDirectory);
+                std::string tst(App::folders->getCadFilesPath());
 
                 std::vector<std::string> filenamesAndPaths;
-                if (App::uiThread->getOpenFileNames(filenamesAndPaths,App::mainWindow,0,IDS_IMPORTING_MESH___,tst,"",false,"Mesh files","obj","dxf","ply","stl","dae"))
+                if (App::uiThread->getOpenFileNames(filenamesAndPaths,App::mainWindow,0,IDS_IMPORTING_MESH___,tst.c_str(),"",false,"Mesh files","obj","dxf","ply","stl","dae"))
                 {
                     std::string files;
                     for (size_t i=0;i<filenamesAndPaths.size();i++)
@@ -437,13 +437,13 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_IMPORTING_PATH_FROM_CSV_FILE);
             App::currentWorld->sceneObjects->deselectObjects();
-            std::string tst(App::directories->cadFormatDirectory);
-            std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,strTranslate(IDS_IMPORTING_PATH_FROM_CSV_FILE),tst,"",false,"CSV Files","csv");
+            std::string tst(App::folders->getCadFilesPath());
+            std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,strTranslate(IDS_IMPORTING_PATH_FROM_CSV_FILE),tst.c_str(),"",false,"CSV Files","csv");
             if (filenameAndPath.length()!=0)
             {
-                if (VFile::doesFileExist(filenameAndPath))
+                if (VFile::doesFileExist(filenameAndPath.c_str()))
                 {
-                    if (_pathImportRoutine(filenameAndPath,true))
+                    if (_pathImportRoutine(filenameAndPath.c_str(),true))
                         App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
                     else
                         App::logMsg(sim_verbosity_errors,IDSNS_AN_ERROR_OCCURRED_DURING_THE_IMPORT_OPERATION);
@@ -466,14 +466,14 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_IMPORTING_HEIGHTFIELD_SHAPE);
             App::currentWorld->sceneObjects->deselectObjects();
-            std::string tst(App::directories->cadFormatDirectory);
-            std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,strTranslate(IDS_IMPORTING_HEIGHTFIELD___),tst,"",true,"Image, CSV and TXT files","tga","jpg","jpeg","png","gif","bmp","tiff","csv","txt");
+            std::string tst(App::folders->getCadFilesPath());
+            std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,strTranslate(IDS_IMPORTING_HEIGHTFIELD___),tst.c_str(),"",true,"Image, CSV and TXT files","tga","jpg","jpeg","png","gif","bmp","tiff","csv","txt");
 
             if (filenameAndPath.length()!=0)
             {
-                if (VFile::doesFileExist(filenameAndPath))
+                if (VFile::doesFileExist(filenameAndPath.c_str()))
                 {
-                    if (heightfieldImportRoutine(filenameAndPath))
+                    if (heightfieldImportRoutine(filenameAndPath.c_str()))
                         App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
                     else
                         App::logMsg(sim_verbosity_errors,IDSNS_AN_ERROR_OCCURRED_DURING_THE_IMPORT_OPERATION);
@@ -505,11 +505,11 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
                     if (0==App::currentWorld->sceneObjects->getShapeCountInSelection(&sel))
                         return(true); // Selection contains nothing that can be exported!
-                    std::string tst(App::directories->cadFormatDirectory);
-                    std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDSNS_EXPORTING_SHAPES),tst,"",false,"Mesh files","obj","ply","stl","dae");
+                    std::string tst(App::folders->getCadFilesPath());
+                    std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDSNS_EXPORTING_SHAPES),tst.c_str(),"",false,"Mesh files","obj","ply","stl","dae");
                     if (filenameAndPath.length()!=0)
                     {
-                        App::directories->cadFormatDirectory=App::directories->getPathFromFull(filenameAndPath);
+                        App::folders->setCadFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
 
                         CInterfaceStack stack;
                         stack.pushStringOntoStack(filenameAndPath.c_str(),0);
@@ -546,13 +546,13 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             App::currentWorld->simulation->stopSimulation();
             if (App::currentWorld->sceneObjects->getGraphCountInSelection(&sel)!=0)
             {
-                std::string tst(App::directories->otherFilesDirectory);
-                std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_SAVING_GRAPHS___),tst,"",false,"CSV Files","csv");
+                std::string tst(App::folders->getOtherFilesPath());
+                std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_SAVING_GRAPHS___),tst.c_str(),"",false,"CSV Files","csv");
                 if (filenameAndPath.length()!=0)
                 {
                     VFile myFile(filenameAndPath.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
                     VArchive ar(&myFile,VArchive::STORE);
-                    App::directories->otherFilesDirectory=App::directories->getPathFromFull(filenameAndPath);
+                    App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                     for (int i=0;i<int(sel.size());i++)
                     {
                         CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(sel[i]);
@@ -594,10 +594,10 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         titleString=strTranslate(IDS_EXPORTING_PATH___);
                     else
                         titleString=strTranslate(IDS_EXPORTING_PATH_BEZIER_CURVE___);
-                    std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,titleString,App::directories->executableDirectory,"",false,"CSV Files","csv");
+                    std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,titleString.c_str(),App::folders->getExecutablePath().c_str(),"",false,"CSV Files","csv");
                     if (filenameAndPath.length()!=0)
                     {
-                        _pathExportPoints(filenameAndPath,it->getObjectHandle(),cmd.cmdId==FILE_OPERATION_EXPORT_PATH_BEZIER_POINTS_FOCMD,true);
+                        _pathExportPoints(filenameAndPath.c_str(),it->getObjectHandle(),cmd.cmdId==FILE_OPERATION_EXPORT_PATH_BEZIER_POINTS_FOCMD,true);
                         App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
                     }
                     else
@@ -626,11 +626,11 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     int eng=App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr);
                     if (eng==sim_physics_ode)
                     {
-                        std::string tst(App::directories->otherFilesDirectory);
-                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_EXPORTING_DYNAMIC_CONTENT___),tst,"",false,"ODE Dynamics World Files","ode");
+                        std::string tst(App::folders->getOtherFilesPath());
+                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_EXPORTING_DYNAMIC_CONTENT___),tst.c_str(),"",false,"ODE Dynamics World Files","ode");
                         if (filenameAndPath.length()!=0)
                         {
-                            App::directories->otherFilesDirectory=App::directories->getPathFromFull(filenameAndPath);
+                            App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                             CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),0);
                             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
                         }
@@ -639,11 +639,11 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     }
                     if (eng==sim_physics_bullet)
                     {
-                        std::string tst(App::directories->otherFilesDirectory);
-                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_EXPORTING_DYNAMIC_CONTENT___),tst,"",false,"Bullet Dynamics World Files","bullet");
+                        std::string tst(App::folders->getOtherFilesPath());
+                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_EXPORTING_DYNAMIC_CONTENT___),tst.c_str(),"",false,"Bullet Dynamics World Files","bullet");
                         if (filenameAndPath.length()!=0)
                         {
-                            App::directories->otherFilesDirectory=App::directories->getPathFromFull(filenameAndPath);
+                            App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                             CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),App::userSettings->bulletSerializationBuffer);
                             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
                         }
@@ -652,11 +652,11 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     }
                     if (eng==sim_physics_vortex)
                     {
-                        std::string tst(App::directories->otherFilesDirectory);
-                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_EXPORTING_DYNAMIC_CONTENT___),tst,"",false,"Vortex Dynamics World Files","vortex");
+                        std::string tst(App::folders->getOtherFilesPath());
+                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_EXPORTING_DYNAMIC_CONTENT___),tst.c_str(),"",false,"Vortex Dynamics World Files","vortex");
                         if (filenameAndPath.length()!=0)
                         {
-                            App::directories->otherFilesDirectory=App::directories->getPathFromFull(filenameAndPath);
+                            App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                             CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),App::userSettings->bulletSerializationBuffer);
                             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
                         }
@@ -665,11 +665,11 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     }
                     if (eng==sim_physics_newton)
                     {
-                        std::string tst(App::directories->otherFilesDirectory);
-                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_EXPORTING_DYNAMIC_CONTENT___),tst,"",false,"Newton Dynamics World Files","newton");
+                        std::string tst(App::folders->getOtherFilesPath());
+                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_EXPORTING_DYNAMIC_CONTENT___),tst.c_str(),"",false,"Newton Dynamics World Files","newton");
                         if (filenameAndPath.length()!=0)
                         {
-                            App::directories->otherFilesDirectory=App::directories->getPathFromFull(filenameAndPath);
+                            App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                             CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),App::userSettings->bulletSerializationBuffer);
                             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
                         }
@@ -809,7 +809,7 @@ void CFileOperations::createNewScene(bool displayMessages,bool forceForNewInstan
     else
         App::currentWorld->simulation->stopSimulation();
     App::currentWorld->clearScene(true);
-    std::string fullPathAndFilename=App::directories->systemDirectory+"/";
+    std::string fullPathAndFilename=App::folders->getSystemPath()+"/";
     fullPathAndFilename+=CSimFlavor::getStringVal(16);
     loadScene(fullPathAndFilename.c_str(),false,false,false);
     App::currentWorld->mainSettings->setScenePathAndName("");//savedLoc;
@@ -861,7 +861,7 @@ void CFileOperations::closeScene(bool displayMessages,bool displayDialogs)
         else
         { // simply set-up an empty (default) scene
             std::string savedLoc=App::currentWorld->mainSettings->getScenePathAndName();
-            std::string fullPathAndFilename=App::directories->systemDirectory+"/";
+            std::string fullPathAndFilename=App::folders->getSystemPath()+"/";
             fullPathAndFilename+="dfltscn.";
             fullPathAndFilename+=SIM_SCENE_EXTENSION;
             loadScene(fullPathAndFilename.c_str(),false,false,false);
@@ -875,7 +875,7 @@ void CFileOperations::closeScene(bool displayMessages,bool displayDialogs)
     App::setRebuildHierarchyFlag();
 }
 
-bool CFileOperations::_pathImportRoutine(const std::string& pathName,bool displayDialogs)
+bool CFileOperations::_pathImportRoutine(const char* pathName,bool displayDialogs)
 { // Should only be called by the NON-UI thread
     bool retVal=false;
     if (VFile::doesFileExist(pathName))
@@ -884,7 +884,7 @@ bool CFileOperations::_pathImportRoutine(const std::string& pathName,bool displa
             App::uiThread->showOrHideProgressBar(true,-1,"Importing path...");
         try
         {
-            VFile file(pathName.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
+            VFile file(pathName,VFile::READ|VFile::SHARE_DENY_NONE);
             VArchive archive(&file,VArchive::LOAD);
             unsigned int currentPos=0;
             std::string line;
@@ -901,7 +901,7 @@ bool CFileOperations::_pathImportRoutine(const std::string& pathName,bool displa
                 float val;
                 while (tt::extractCommaSeparatedWord(line,word))
                 {
-                    if (tt::getValidFloat(word,val))
+                    if (tt::getValidFloat(word.c_str(),val))
                         data[cnt]=val;
                     else
                         break;
@@ -990,7 +990,7 @@ bool CFileOperations::_pathImportRoutine(const std::string& pathName,bool displa
                 newObject->pathContainer->enableActualization(true);
                 newObject->pathContainer->actualizePath();
                 newObject->setObjectName(IDSOGL_IMPORTEDPATH,true);
-                newObject->setObjectAltName(tt::getObjectAltNameFromObjectName(newObject->getObjectName()).c_str(),true);
+                newObject->setObjectAltName(tt::getObjectAltNameFromObjectName(newObject->getObjectName().c_str()).c_str(),true);
 
                 App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
                 App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
@@ -1010,7 +1010,7 @@ bool CFileOperations::_pathImportRoutine(const std::string& pathName,bool displa
     return(retVal);
 }
 
-bool CFileOperations::_pathExportPoints(const std::string& pathName,int pathID,bool bezierPoints,bool displayDialogs)
+bool CFileOperations::_pathExportPoints(const char* pathName,int pathID,bool bezierPoints,bool displayDialogs)
 {
     CPath* pathObject=App::currentWorld->sceneObjects->getPathFromHandle(pathID);
     if (pathObject==nullptr)
@@ -1020,7 +1020,7 @@ bool CFileOperations::_pathExportPoints(const std::string& pathName,int pathID,b
         App::uiThread->showOrHideProgressBar(true,-1,"Exporting path points...");
     try
     {
-        VFile myFile(pathName.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
+        VFile myFile(pathName,VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
         VArchive ar(&myFile,VArchive::STORE);
 
         CPathCont* it=pathObject->pathContainer;
@@ -1118,7 +1118,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
 
         App::currentWorld->mainSettings->setScenePathAndName(pathAndFilename);
         if (setCurrentDir)
-            App::directories->sceneDirectory=App::currentWorld->mainSettings->getScenePath();
+            App::folders->setScenesPath(App::currentWorld->mainSettings->getScenePath().c_str());
         if (CSimFlavor::getBoolVal_str(1,App::currentWorld->mainSettings->getScenePathAndName().c_str()))
             App::currentWorld->mainSettings->setScenePathAndName("");
 
@@ -1264,7 +1264,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
         App::currentWorld->sceneObjects->deselectObjects();
 
         if (setCurrentDir&&(pathAndFilename!=nullptr))
-            App::directories->modelDirectory=App::directories->getPathFromFull(pathAndFilename);
+            App::folders->setModelsPath(App::folders->getPathFromFull(pathAndFilename).c_str());
 
         if (displayDialogs)
             App::uiThread->showOrHideProgressBar(true,-1,"Loading model...");
@@ -1495,7 +1495,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
                 App::currentWorld->environment->generateNewUniquePersistentIdString();
 
             if (setCurrentDir)
-                App::directories->sceneDirectory=App::currentWorld->mainSettings->getScenePath();
+                App::folders->setScenesPath(App::currentWorld->mainSettings->getScenePath().c_str());
 
             std::string infoPrintOut(IDSN_SAVING_SCENE);
             infoPrintOut+=" (";
@@ -1573,7 +1573,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
             if (pathAndFilename!=nullptr)
             {
                 if (setCurrentDir)
-                    App::directories->modelDirectory=App::directories->getPathFromFull(pathAndFilename);
+                    App::folders->setModelsPath(App::folders->getPathFromFull(pathAndFilename).c_str());
                 infoPrintOut+=" (";
                 infoPrintOut+=std::string(pathAndFilename)+"). ";
             }
@@ -1658,7 +1658,7 @@ std::string CFileOperations::_getStringOfVersionAndLicenseThatTheFileWasWrittenW
     return(retStr);
 }
 
-bool CFileOperations::heightfieldImportRoutine(const std::string& pathName)
+bool CFileOperations::heightfieldImportRoutine(const char* pathName)
 {
     if (VFile::doesFileExist(pathName))
     {
@@ -1672,7 +1672,7 @@ bool CFileOperations::heightfieldImportRoutine(const std::string& pathName)
             if ((ext.compare("csv")!=0)&&(ext.compare("txt")!=0))
             { // from image file
                 int resX,resY,n;
-                unsigned char* data=CImageLoaderSaver::load(pathName.c_str(),&resX,&resY,&n,3);
+                unsigned char* data=CImageLoaderSaver::load(pathName,&resX,&resY,&n,3);
                 if (data!=nullptr)
                 {
                     if ( (resX>1)&&(resY>1) )
@@ -1705,7 +1705,7 @@ bool CFileOperations::heightfieldImportRoutine(const std::string& pathName)
             }
             else
             { // from csv or txt file:
-                VFile file(pathName.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
+                VFile file(pathName,VFile::READ|VFile::SHARE_DENY_NONE);
                 VArchive archive(&file,VArchive::LOAD);
                 unsigned int currentPos=0;
                 std::string line;
@@ -1717,7 +1717,7 @@ bool CFileOperations::heightfieldImportRoutine(const std::string& pathName)
                     {
                         tt::removeSpacesAtBeginningAndEnd(word);
                         float val;
-                        if (tt::getValidFloat(word,val))
+                        if (tt::getValidFloat(word.c_str(),val))
                             lineVect->push_back(val);
                         else
                             break;
@@ -1815,12 +1815,12 @@ int CFileOperations::apiAddHeightfieldToScene(int xSize,float pointSpacing,const
     shape->getSingleMesh()->color.setColor(0.25f,0.25f,0.25f,sim_colorcomponent_specular);
     std::string tempName(IDSOGL_HEIGHTFIELD);
     while (App::currentWorld->sceneObjects->getObjectFromName(tempName.c_str())!=nullptr)
-        tempName=tt::generateNewName_noHash(tempName);
+        tempName=tt::generateNewName_noHash(tempName.c_str());
     shape->setObjectName(tempName.c_str(),true);
     //App::currentWorld->sceneObjects->renameObject(shape->getObjectHandle(),tempName.c_str());
     tempName=tt::getObjectAltNameFromObjectName(IDSOGL_HEIGHTFIELD);
     while (App::currentWorld->sceneObjects->getObjectFromAltName(tempName.c_str())!=nullptr)
-        tempName=tt::generateNewName_noHash(tempName);
+        tempName=tt::generateNewName_noHash(tempName.c_str());
     shape->setObjectAltName(tempName.c_str(),true);
     //App::currentWorld->sceneObjects->altRenameObject(shape->getObjectHandle(),tempName.c_str());
 
@@ -1992,7 +1992,7 @@ void CFileOperations::addMenu(VMenu* menu)
     for (int i=0;i<10;i++)
     {
         if (recentScenes[i].length()>3)
-            recentSceneMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_OPEN_RECENT_SCENE0_FOCMD+i,VVarious::splitPath_fileBaseAndExtension(recentScenes[i]).c_str());
+            recentSceneMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_OPEN_RECENT_SCENE0_FOCMD+i,VVarious::splitPath_fileBaseAndExtension(recentScenes[i].c_str()).c_str());
     }
     menu->appendMenuAndDetach(recentSceneMenu,(recentScenesCnt>0)&&fileOpOk,IDS_OPEN_RECENT_SCENE_MENU_ITEM);
 
@@ -2062,7 +2062,7 @@ void CFileOperations::addMenu(VMenu* menu)
         VMenu* impMenu=new VMenu();
         impMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_IMPORT_MESH_FOCMD,IDS_IMPORT_MESH___MENU_ITEM);
         impMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_IMPORT_PATH_FOCMD,IDS_IMPORT_PATH___MENU_ITEM);
-        impMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_IMPORT_HEIGHTFIELD_FOCMD,std::string(IDSN_IMPORT_HEIGHTFIELD)+"...");
+        impMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_IMPORT_HEIGHTFIELD_FOCMD,(std::string(IDSN_IMPORT_HEIGHTFIELD)+"...").c_str());
         menu->appendMenuAndDetach(impMenu,true,IDSN_IMPORT_MENU_ITEM);
 
         VMenu* expMenu=new VMenu();
@@ -2125,13 +2125,13 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
             App::logMsg(sim_verbosity_msgs,infoPrintOut.c_str());
             std::string initPath;
             if (App::currentWorld->mainSettings->getScenePathAndName().size()==0)
-                initPath=App::directories->sceneDirectory;
+                initPath=App::folders->getScenesPath();
             else
                 initPath=App::currentWorld->mainSettings->getScenePath();
             std::string filenameAndPath;
             std::string sceneName(App::currentWorld->mainSettings->getScenePathAndName());
-            sceneName=VVarious::splitPath_fileBaseAndExtension(sceneName);
-            std::string ext=VVarious::splitPath_fileExtension(sceneName);
+            sceneName=VVarious::splitPath_fileBaseAndExtension(sceneName.c_str());
+            std::string ext=VVarious::splitPath_fileExtension(sceneName.c_str());
             std::transform(ext.begin(),ext.end(),ext.begin(),::tolower);
             if ( (filetype==CSer::filetype_csim_bin_scene_file)&&(ext.compare(SIM_SCENE_EXTENSION)!=0) )
                 sceneName="";
@@ -2143,13 +2143,13 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
                 sceneName="";
 
             if (filetype==CSer::filetype_csim_bin_scene_file)
-                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",IDSN_SAVING_SCENE,"..."),initPath,sceneName,false,"CoppeliaSim Scene",SIM_SCENE_EXTENSION);
+                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",IDSN_SAVING_SCENE,"...").c_str(),initPath.c_str(),sceneName.c_str(),false,"CoppeliaSim Scene",SIM_SCENE_EXTENSION);
             if (filetype==CSer::filetype_csim_xml_xscene_file)
-                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",IDSN_SAVING_SCENE,"..."),initPath,sceneName,false,"CoppeliaSim XML Scene (exhaustive)",SIM_XML_SCENE_EXTENSION);
+                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",IDSN_SAVING_SCENE,"...").c_str(),initPath.c_str(),sceneName.c_str(),false,"CoppeliaSim XML Scene (exhaustive)",SIM_XML_SCENE_EXTENSION);
             if (filetype==CSer::filetype_csim_xml_simplescene_file)
-                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",IDSN_SAVING_SCENE,"..."),initPath,sceneName,false,"CoppeliaSim XML Scene (simple)",SIM_XML_SCENE_EXTENSION);
+                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",IDSN_SAVING_SCENE,"...").c_str(),initPath.c_str(),sceneName.c_str(),false,"CoppeliaSim XML Scene (simple)",SIM_XML_SCENE_EXTENSION);
             if (filetype==CSer::filetype_xr_bin_scene_file)
-                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",IDSN_SAVING_SCENE,"..."),initPath,sceneName,false,"XReality Scene",SIM_XR_SCENE_EXTENSION);
+                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",IDSN_SAVING_SCENE,"...").c_str(),initPath.c_str(),sceneName.c_str(),false,"XReality Scene",SIM_XR_SCENE_EXTENSION);
 
             if (filenameAndPath.length()!=0)
             {
@@ -2158,11 +2158,11 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
                 {
                     if ( (filetype==CSer::filetype_csim_xml_xscene_file)&&(App::userSettings->xmlExportSplitSize!=0) )
                     {
-                        std::string prefix(VVarious::splitPath_fileBase(filenameAndPath)+"_");
-                        int cnt0=VFileFinder::countFiles(VVarious::splitPath_path(filenameAndPath).c_str());
-                        int cnt1=VFileFinder::countFolders(VVarious::splitPath_path(filenameAndPath).c_str());
-                        int cnt2=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath).c_str(),prefix.c_str());
-                        int cnt3=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath).c_str(),(VVarious::splitPath_fileBase(filenameAndPath)+".").c_str());
+                        std::string prefix(VVarious::splitPath_fileBase(filenameAndPath.c_str())+"_");
+                        int cnt0=VFileFinder::countFiles(VVarious::splitPath_path(filenameAndPath.c_str()).c_str());
+                        int cnt1=VFileFinder::countFolders(VVarious::splitPath_path(filenameAndPath.c_str()).c_str());
+                        int cnt2=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath.c_str()).c_str(),prefix.c_str());
+                        int cnt3=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath.c_str()).c_str(),(VVarious::splitPath_fileBase(filenameAndPath.c_str())+".").c_str());
                         if ( (cnt2+cnt3!=cnt0)||(cnt1!=0) )
                         {
                             std::string msg("The scene/model will possibly be saved as several separate files, all with the '");
@@ -2173,11 +2173,11 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
                     }
                     if (filetype==CSer::filetype_csim_xml_simplescene_file)
                     {
-                        std::string prefix(VVarious::splitPath_fileBase(filenameAndPath)+"_");
-                        int cnt0=VFileFinder::countFiles(VVarious::splitPath_path(filenameAndPath).c_str());
-                        int cnt1=VFileFinder::countFolders(VVarious::splitPath_path(filenameAndPath).c_str());
-                        int cnt2=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath).c_str(),prefix.c_str());
-                        int cnt3=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath).c_str(),(VVarious::splitPath_fileBase(filenameAndPath)+".").c_str());
+                        std::string prefix(VVarious::splitPath_fileBase(filenameAndPath.c_str())+"_");
+                        int cnt0=VFileFinder::countFiles(VVarious::splitPath_path(filenameAndPath.c_str()).c_str());
+                        int cnt1=VFileFinder::countFolders(VVarious::splitPath_path(filenameAndPath.c_str()).c_str());
+                        int cnt2=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath.c_str()).c_str(),prefix.c_str());
+                        int cnt3=VFileFinder::countFilesWithPrefix(VVarious::splitPath_path(filenameAndPath.c_str()).c_str(),(VVarious::splitPath_fileBase(filenameAndPath.c_str())+".").c_str());
                         if ( (cnt2+cnt3!=cnt0)||(cnt1!=0) )
                         {
                             std::string msg("The scene/model will possibly be saved as several separate files, all with the '");

@@ -34,7 +34,7 @@ void CCommTubeContainer::simulationEnded()
     }
 }
 
-int CCommTubeContainer::openTube(int header,const std::string& identifier,bool killAtSimulationEnd,int readBufferSize)
+int CCommTubeContainer::openTube(int header,const char* identifier,bool killAtSimulationEnd,int readBufferSize)
 { // return value is the tube handle for this partner
     // 1. Check if a related tube exists:
     int tubeIndex=-1;

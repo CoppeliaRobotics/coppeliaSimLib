@@ -73,7 +73,7 @@ int CAddOnScriptContainer::insertAddOnScripts()
 {
     int addOnsCount=0;
     VFileFinder finder;
-    finder.searchFilesWithExtension(App::directories->executableDirectory,ADDON_EXTENTION);
+    finder.searchFilesWithExtension(App::folders->getExecutablePath().c_str(),ADDON_EXTENTION);
     int cnt=0;
     SFileOrFolder* foundItem=finder.getFoundItem(cnt);
     while (foundItem!=nullptr)
@@ -89,7 +89,7 @@ int CAddOnScriptContainer::insertAddOnScripts()
             at=ADDON_SCRIPT_PREFIX2_NOAUTOSTART;
         if (at.size()>0)
         {
-            std::string fp(App::directories->executableDirectory+"/");
+            std::string fp(App::folders->getExecutablePath()+"/");
             fp+=foundItem->name;
             CLuaScriptObject* defScript=new CLuaScriptObject(sim_scripttype_addonscript);
             if (defScript->setScriptTextFromFile(fp.c_str()))
@@ -122,18 +122,18 @@ int CAddOnScriptContainer::insertAddOnScripts()
     for (size_t addScr=0;addScr<additionalScripts.size();addScr++)
     {
         std::string fp(additionalScripts[addScr]);
-        if (!VVarious::isAbsolutePath(fp))
+        if (!VVarious::isAbsolutePath(fp.c_str()))
         {
-            fp=App::directories->executableDirectory+"/";
+            fp=App::folders->getExecutablePath()+"/";
             fp+=additionalScripts[addScr];
         }
-        std::string fileName_noExtension(VVarious::splitPath_fileBase(fp));
-        std::string fileName_withExtension(VVarious::splitPath_fileBaseAndExtension(fp));
-        if (VFile::doesFileExist(fp))
+        std::string fileName_noExtension(VVarious::splitPath_fileBase(fp.c_str()));
+        std::string fileName_withExtension(VVarious::splitPath_fileBaseAndExtension(fp.c_str()));
+        if (VFile::doesFileExist(fp.c_str()))
         {
             try
             {
-                VFile file(fp,VFile::READ|VFile::SHARE_DENY_NONE);
+                VFile file(fp.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
                 VArchive archive(&file,VArchive::LOAD);
                 unsigned int archiveLength=(unsigned int)file.getLength();
                 char* script=new char[archiveLength+1];
@@ -168,7 +168,7 @@ int CAddOnScriptContainer::prepareAddOnFunctionNames()
 {
     int addOnsCount=0;
     VFileFinder finder;
-    finder.searchFilesWithExtension(App::directories->executableDirectory,ADDON_EXTENTION);
+    finder.searchFilesWithExtension(App::folders->getExecutablePath().c_str(),ADDON_EXTENTION);
     int cnt=0;
     SFileOrFolder* foundItem=finder.getFoundItem(cnt);
     while (foundItem!=nullptr)
@@ -279,29 +279,29 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                 App::logMsg(sim_verbosity_msgs,txt.c_str());
 
                 // execute the add-on function here!!
-                std::string fp1(App::directories->executableDirectory+"/");
+                std::string fp1(App::folders->getExecutablePath()+"/");
                 fp1+=ADDON_FUNCTION_PREFIX1;
                 fp1+=allAddOnFunctionNames[index];
                 fp1+=".";
                 fp1+=ADDON_EXTENTION;
-                std::string fp2(App::directories->executableDirectory+"/");
+                std::string fp2(App::folders->getExecutablePath()+"/");
                 fp2+=ADDON_FUNCTION_PREFIX2;
                 fp2+=allAddOnFunctionNames[index];
                 fp2+=".";
                 fp2+=ADDON_EXTENTION;
                 std::string fp;
-                if (VFile::doesFileExist(fp1))
+                if (VFile::doesFileExist(fp1.c_str()))
                     fp=fp1;
                 else
                 {
-                    if (VFile::doesFileExist(fp2))
+                    if (VFile::doesFileExist(fp2.c_str()))
                         fp=fp2;
                 }
                 if (fp.size()>0)
                 {
                     try
                     {
-                        VFile file(fp,VFile::READ|VFile::SHARE_DENY_NONE);
+                        VFile file(fp.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
                         VArchive archive(&file,VArchive::LOAD);
                         unsigned int archiveLength=(unsigned int)file.getLength();
                         char* script=new char[archiveLength+1];

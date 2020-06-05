@@ -12,17 +12,17 @@ VMenu::~VMenu()
     clear();
 }
 
-void VMenu::appendMenuAndDetach(VMenu* childMenu,bool enabled,const std::string& label)
+void VMenu::appendMenuAndDetach(VMenu* childMenu,bool enabled,const char* label)
 {
-    childMenu->_qMenu->setTitle(label.c_str());
+    childMenu->_qMenu->setTitle(label);
     childMenu->_qMenu->setEnabled(enabled);
     _qMenu->addMenu(childMenu->_qMenu);
     _children.push_back(childMenu);
 }
 
-void VMenu::appendMenuItem(bool enabled,bool checkMark,int commandID,const std::string& label,bool showCheckmarkSpot)
+void VMenu::appendMenuItem(bool enabled,bool checkMark,int commandID,const char* label,bool showCheckmarkSpot)
 {
-    QAction* action=_qMenu->addAction(label.c_str());
+    QAction* action=_qMenu->addAction(label);
     action->setEnabled(enabled);
     action->setCheckable(showCheckmarkSpot);
     action->setChecked(checkMark);
@@ -76,17 +76,17 @@ VMenubar::~VMenubar()
     clear();
 }
 
-void VMenubar::appendMenuAndDetach(VMenu* childMenu,bool enabled,const std::string& label)
+void VMenubar::appendMenuAndDetach(VMenu* childMenu,bool enabled,const char* label)
 {
-    childMenu->getQMenu()->setTitle(label.c_str());
+    childMenu->getQMenu()->setTitle(label);
     childMenu->getQMenu()->setEnabled(enabled);
     _qMenubar->addMenu(childMenu->getQMenu());
     _children.push_back(childMenu);
 }
 
-void VMenubar::appendMenuItem(bool enabled,bool checkMark,int commandID,const std::string& label,bool showCheckmarkSpot)
+void VMenubar::appendMenuItem(bool enabled,bool checkMark,int commandID,const char* label,bool showCheckmarkSpot)
 {
-    QAction* action=_qMenubar->addAction(label.c_str());
+    QAction* action=_qMenubar->addAction(label);
     action->setEnabled(enabled);
     action->setCheckable(showCheckmarkSpot);
     action->setChecked(checkMark);

@@ -94,7 +94,7 @@ void CTextureContainer::setSuffix1ToSuffix2(int suffix1,int suffix2)
         if (s1==suffix1)
         {
             std::string name1(tt::getNameWithoutSuffixNumber(_allTextureObjects[i]->getObjectName().c_str(),true));
-            _allTextureObjects[i]->setObjectName(tt::generateNewName_hash(name1,suffix2+1).c_str());
+            _allTextureObjects[i]->setObjectName(tt::generateNewName_hash(name1.c_str(),suffix2+1).c_str());
         }
     }
 }
@@ -124,7 +124,7 @@ int CTextureContainer::addObjectWithSuffixOffset(CTextureObject* anObject,bool o
     while (getObject(newName.c_str())!=nullptr)
     {
         // TEXTURE OBJECTS SHOULDn'T HAVE A HASHED NAME!!
-        newName=tt::generateNewName_noHash(newName);
+        newName=tt::generateNewName_noHash(newName.c_str());
     }
     anObject->setObjectName(newName.c_str());
     _allTextureObjects.push_back(anObject);

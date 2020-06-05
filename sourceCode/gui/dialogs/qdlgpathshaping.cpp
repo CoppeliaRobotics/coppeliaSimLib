@@ -266,7 +266,7 @@ bool CQDlgPathShaping::_extractOneFloat(std::string& txt,float& val)
     }
     if (!brokenOut)
         txt="";
-    if (!tt::getValidFloat(nb,val))
+    if (!tt::getValidFloat(nb.c_str(),val))
         val=0.0f;
     return(true);
 }

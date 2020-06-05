@@ -182,7 +182,7 @@ bool CCollection::setCollectionName(const char* newName,bool check)
             if (getCollectionName()!=nm)
             {
                 while (App::currentWorld->collections->getObjectFromName(nm.c_str())!=nullptr)
-                    nm=tt::generateNewName_hashOrNoHash(nm,!tt::isHashFree(nm.c_str()));
+                    nm=tt::generateNewName_hashOrNoHash(nm.c_str(),!tt::isHashFree(nm.c_str()));
                 diff=_CCollection_::setCollectionName(nm.c_str(),check);
             }
         }

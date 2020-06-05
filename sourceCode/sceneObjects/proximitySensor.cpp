@@ -193,7 +193,7 @@ void CProxSensor::commonInit()
 
     _visibilityLayer=PROXIMITY_SENSOR_LAYER;
     _objectName="Proximity_sensor";
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
 }
 
 void CProxSensor::setSensableType(int theType)

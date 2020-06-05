@@ -516,7 +516,7 @@ std::string getCNameSuffixAdjustedName_OLD(const char* name)
         if (cNameSuffixNumber_OLD>-1)
         {
             retVal=tt::getNameWithoutSuffixNumber(name,true);
-            retVal=tt::generateNewName_hash(retVal,cNameSuffixNumber_OLD+1);
+            retVal=tt::generateNewName_hash(retVal.c_str(),cNameSuffixNumber_OLD+1);
         }
     }
 
@@ -4542,7 +4542,7 @@ simChar* simGetStringParameter_internal(simInt parameter)
         if (parameter==sim_stringparam_application_path)
         {
             validParam=true;
-            retVal=App::directories->executableDirectory;
+            retVal=App::folders->getExecutablePath();
         }
         if (parameter==sim_stringparam_scene_path_and_name)
         {
@@ -4576,7 +4576,7 @@ simChar* simGetStringParameter_internal(simInt parameter)
         if (parameter==sim_stringparam_remoteapi_temp_file_dir)
         {
             validParam=true;
-            retVal=App::directories->remoteApiFileTransferDirectory;
+            retVal=App::folders->getRemoteApiTempPath();
         }
         if (parameter==sim_stringparam_video_filename)
         {
@@ -4774,7 +4774,7 @@ simInt simLoadModel_internal(const simChar* filename)
         if (forceAsCopy)
             nm.erase(nm.begin()+atCopyPos,nm.end());
 
-        if (!VFile::doesFileExist(nm))
+        if (!VFile::doesFileExist(nm.c_str()))
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_FILE_NOT_FOUND);
             return(-1);
@@ -10905,7 +10905,7 @@ simInt simGetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterI
                 if (tt::getValueOfKey("blurSamples@povray",extensionString.c_str(),val))
                 {
                     int samples;
-                    if (tt::getValidInt(val,samples))
+                    if (tt::getValidInt(val.c_str(),samples))
                         parameter[0]=samples;
                 }
                 retVal=1;
@@ -11003,7 +11003,7 @@ simInt simGetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterI
                 if (tt::getValueOfKey("blurSamples@povray",extensionString.c_str(),val))
                 {
                     int samples;
-                    if (tt::getValidInt(val,samples))
+                    if (tt::getValidInt(val.c_str(),samples))
                         parameter[0]=samples;
                 }
                 retVal=1;
@@ -11560,7 +11560,7 @@ simInt simGetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
                 if (tt::getValueOfKey("focalDist@povray",extensionString.c_str(),val))
                 {
                     float dist;
-                    if (tt::getValidFloat(val,dist))
+                    if (tt::getValidFloat(val.c_str(),dist))
                         parameter[0]=dist;
                 }
                 retVal=1;
@@ -11573,7 +11573,7 @@ simInt simGetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
                 if (tt::getValueOfKey("aperture@povray",extensionString.c_str(),val))
                 {
                     float ap;
-                    if (tt::getValidFloat(val,ap))
+                    if (tt::getValidFloat(val.c_str(),ap))
                         parameter[0]=ap;
                 }
                 retVal=1;
@@ -11882,7 +11882,7 @@ simInt simGetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
                 if (tt::getValueOfKey("focalDist@povray",extensionString.c_str(),val))
                 {
                     float dist;
-                    if (tt::getValidFloat(val,dist))
+                    if (tt::getValidFloat(val.c_str(),dist))
                         parameter[0]=dist;
                 }
                 retVal=1;
@@ -11895,7 +11895,7 @@ simInt simGetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
                 if (tt::getValueOfKey("aperture@povray",extensionString.c_str(),val))
                 {
                     float ap;
-                    if (tt::getValidFloat(val,ap))
+                    if (tt::getValidFloat(val.c_str(),ap))
                         parameter[0]=ap;
                 }
                 retVal=1;
@@ -14390,7 +14390,7 @@ simInt simCreateTexture_internal(const simChar* fileName,simInt options,const si
 
                     CTextureObject* textureObj=new CTextureObject(resX,resY);
                     textureObj->setImage(rgba,false,false,data); // keep false,false
-                    textureObj->setObjectName(App::directories->getNameFromFull(fileName).c_str());
+                    textureObj->setObjectName(App::folders->getNameFromFull(fileName).c_str());
                     delete[] data;
                     textureObj->addDependentObject(shape->getObjectHandle(),shape->getSingleMesh()->getUniqueID());
                     int texID=App::currentWorld->textureContainer->addObject(textureObj,false); // might erase the textureObj and return a similar object already present!!
@@ -14443,7 +14443,7 @@ simInt simCreateTexture_internal(const simChar* fileName,simInt options,const si
 
                 CTextureObject* textureObj=new CTextureObject(resolution[0],resolution[1]);
                 textureObj->setRandomContent();
-                textureObj->setObjectName(App::directories->getNameFromFull(fileName).c_str());
+                textureObj->setObjectName(App::folders->getNameFromFull(fileName).c_str());
                 textureObj->addDependentObject(shape->getObjectHandle(),shape->getSingleMesh()->getUniqueID());
                 int texID=App::currentWorld->textureContainer->addObject(textureObj,false); // might erase the textureObj and return a similar object already present!!
                 CTextureProperty* tp=new CTextureProperty(texID);
@@ -18312,13 +18312,13 @@ simChar* simGetApiFunc_internal(simInt scriptHandleOrType,const simChar* apiWord
             std::map<std::string,bool> map;
             if (funcs)
             {
-                pushAllSimFunctionNamesThatStartSame_autoCompletionList(apiW,t,map,scriptType,threaded);
-                App::worldContainer->luaCustomFuncAndVarContainer->pushAllFunctionNamesThatStartSame_autoCompletionList(apiW,t,map);
+                pushAllSimFunctionNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map,scriptType,threaded);
+                App::worldContainer->luaCustomFuncAndVarContainer->pushAllFunctionNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map);
             }
             if (vars)
             {
-                pushAllSimVariableNamesThatStartSame_autoCompletionList(apiW,t,map);
-                App::worldContainer->luaCustomFuncAndVarContainer->pushAllVariableNamesThatStartSame_autoCompletionList(apiW,t,map);
+                pushAllSimVariableNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map);
+                App::worldContainer->luaCustomFuncAndVarContainer->pushAllVariableNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map);
             }
             std::sort(t.begin(),t.end());
             std::string theWords;

@@ -33,12 +33,12 @@
 #define LUA_END(p) \
     if (true) \
     { \
-        _reportWarningsIfNeeded(L,functionName,warningString,cSideErrorOrWarningReporting); \
+        _reportWarningsIfNeeded(L,functionName.c_str(),warningString.c_str(),cSideErrorOrWarningReporting); \
         return(p); \
     } \
     else
 
-void _reportWarningsIfNeeded(luaWrap_lua_State* L,const std::string& functionName,const std::string& warningString,bool cSideErrorOrWarningReporting)
+void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* warningString,bool cSideErrorOrWarningReporting)
 {
     std::string warnStr(warningString);
     if ( (warnStr.size()==0)&&cSideErrorOrWarningReporting )
@@ -64,7 +64,7 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L,const std::string& functionNam
     }
 }
 
-void _raiseErrorIfNeeded(luaWrap_lua_State* L,const std::string& functionName,const std::string& errorString,bool cSideErrorOrWarningReporting)
+void _raiseErrorIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* errorString,bool cSideErrorOrWarningReporting)
 {
     std::string errStr(errorString);
     if ( (errStr.size()==0)&&cSideErrorOrWarningReporting )
@@ -92,7 +92,7 @@ void _raiseErrorIfNeeded(luaWrap_lua_State* L,const std::string& functionName,co
     }
 }
 
-#define LUA_RAISE_ERROR_IF_NEEDED() _raiseErrorIfNeeded(L,functionName,errorString,cSideErrorOrWarningReporting)
+#define LUA_RAISE_ERROR_IF_NEEDED() _raiseErrorIfNeeded(L,functionName.c_str(),errorString.c_str(),cSideErrorOrWarningReporting)
 #define SIM_SCRIPT_NAME_SUFFIX "sim_script_name_suffix"
 
 std::vector<int> serialPortHandles;
@@ -3070,9 +3070,9 @@ bool isObjectAssociatedWithThisThreadedChildScriptValid(luaWrap_lua_State* L)
     return(h!=-1);
 }
 
-void pushCorrectTypeOntoLuaStack(luaWrap_lua_State* L,const std::string& txt)
-{ // Pushes nil, false, true, number or string (in that order!!) onto the stack depending on the txt content!
-    int t=getCorrectType(txt);
+void pushCorrectTypeOntoLuaStack(luaWrap_lua_State* L,const std::string& buff)
+{ // Pushes nil, false, true, number or string (in that order!!) onto the stack depending on the buff content!
+    int t=getCorrectType(buff);
     if (t==0)
         luaWrap_lua_pushnil(L);
     if (t==1)
@@ -3082,28 +3082,28 @@ void pushCorrectTypeOntoLuaStack(luaWrap_lua_State* L,const std::string& txt)
     if (t==3)
     {
         float floatVal;
-        tt::getValidFloat(txt,floatVal);
+        tt::getValidFloat(buff.c_str(),floatVal);
         luaWrap_lua_pushnumber(L,floatVal);
     }
     if (t==4)
-        luaWrap_lua_pushlstring(L,txt.c_str(),txt.length());
+        luaWrap_lua_pushlstring(L,buff.c_str(),buff.length());
 }
 
-int getCorrectType(const std::string& txt)
-{ // returns 0=nil, 1=boolean false, 2=boolean true, 3=number or 4=string (in that order!!) depending on the txt content!
-    if (txt.length()!=0)
+int getCorrectType(const std::string& buff)
+{ // returns 0=nil, 1=boolean false, 2=boolean true, 3=number or 4=string (in that order!!) depending on the buff content!
+    if (buff.length()!=0)
     {
-        if (txt.length()!=strlen(txt.c_str()))
+        if (buff.length()!=strlen(buff.c_str()))
             return(4); // We have embedded zeros, this has definitively to be a string:
     }
-    if (strcmp(txt.c_str(),"nil")==0)
+    if (strcmp(buff.c_str(),"nil")==0)
         return(0);
-    if (strcmp(txt.c_str(),"false")==0)
+    if (strcmp(buff.c_str(),"false")==0)
         return(1);
-    if (strcmp(txt.c_str(),"true")==0)
+    if (strcmp(buff.c_str(),"true")==0)
         return(2);
     float floatVal;
-    if (tt::getValidFloat(txt,floatVal))
+    if (tt::getValidFloat(buff.c_str(),floatVal))
         return(3);
     return(4);
 }
@@ -3245,7 +3245,7 @@ void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std
 std::string getAdditionalLuaSearchPath()
 {
     std::string retVal;
-    retVal+=App::directories->executableDirectory;
+    retVal+=App::folders->getExecutablePath();
 //#ifdef MAC_SIM
 //    // We are inside of the package!!!
 //    retVal+="/../../../?.lua";
@@ -3253,15 +3253,15 @@ std::string getAdditionalLuaSearchPath()
     retVal+="/?.lua";
 //#endif
     retVal+=";";
-    retVal+=App::directories->executableDirectory;
+    retVal+=App::folders->getExecutablePath();
 //#ifdef MAC_SIM
 //    // We are inside of the package!!!
 //    retVal+="/../../../lua/?.lua";
 //#else
     retVal+="/lua/?.lua";
-#endif
+//#endif
 //    retVal+=";";
-    retVal+=App::directories->executableDirectory;
+    retVal+=App::folders->getExecutablePath();
 //#ifdef MAC_SIM
 //    // We are inside of the package!!!
 //    retVal+="/../../../bwf/?.lua";
@@ -4416,7 +4416,7 @@ void appendAllSimVariableNames_spaceSeparated(std::string& keywords)
     }
 }
 
-void pushAllSimFunctionNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m,int scriptType,bool scriptIsThreaded)
+void pushAllSimFunctionNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m,int scriptType,bool scriptIsThreaded)
 {
     std::string ttxt(txt);
     bool hasDot=(ttxt.find('.')!=std::string::npos);
@@ -4425,12 +4425,12 @@ void pushAllSimFunctionNamesThatStartSame_autoCompletionList(const std::string& 
         if (simLuaCommands[i].autoComplete)
         {
             std::string n(simLuaCommands[i].name);
-            if ((n.size()>=txt.size())&&(n.compare(0,txt.size(),txt)==0))
+            if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
             {
                 if (!hasDot)
                 {
                     size_t dp=n.find('.');
-                    if ( (dp!=std::string::npos)&&(txt.size()>0) )
+                    if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
                         n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                 }
                 std::map<std::string,bool>::iterator it=m.find(n);
@@ -4449,12 +4449,12 @@ void pushAllSimFunctionNamesThatStartSame_autoCompletionList(const std::string& 
             if (simLuaCommandsOldApi[i].autoComplete)
             {
                 std::string n(simLuaCommandsOldApi[i].name);
-                if ((n.size()>=txt.size())&&(n.compare(0,txt.size(),txt)==0))
+                if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
                 {
                     if (!hasDot)
                     {
                         size_t dp=n.find('.');
-                        if ( (dp!=std::string::npos)&&(txt.size()>0) )
+                        if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
                             n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                     }
                     std::map<std::string,bool>::iterator it=m.find(n);
@@ -4471,12 +4471,12 @@ void pushAllSimFunctionNamesThatStartSame_autoCompletionList(const std::string& 
     for (size_t i=0;i<sysCb.size();i++)
     {
         std::string n(sysCb[i]);
-        if ((n.size()>=txt.size())&&(n.compare(0,txt.size(),txt)==0))
+        if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
         {
             if (!hasDot)
             {
                 size_t dp=n.find('.');
-                if ( (dp!=std::string::npos)&&(txt.size()>0) )
+                if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
                     n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
             }
             std::map<std::string,bool>::iterator it=m.find(n);
@@ -4489,7 +4489,7 @@ void pushAllSimFunctionNamesThatStartSame_autoCompletionList(const std::string& 
     }
 }
 
-void pushAllSimVariableNamesThatStartSame_autoCompletionList(const std::string& txt,std::vector<std::string>& v,std::map<std::string,bool>& m)
+void pushAllSimVariableNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m)
 {
     std::string ttxt(txt);
     bool hasDot=(ttxt.find('.')!=std::string::npos);
@@ -4498,12 +4498,12 @@ void pushAllSimVariableNamesThatStartSame_autoCompletionList(const std::string& 
         if (simLuaVariables[i].autoComplete)
         {
             std::string n(simLuaVariables[i].name);
-            if ((n.size()>=txt.size())&&(n.compare(0,txt.size(),txt)==0))
+            if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
             {
                 if (!hasDot)
                 {
                     size_t dp=n.find('.');
-                    if ( (dp!=std::string::npos)&&(txt.size()>0) )
+                    if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
                         n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                 }
                 std::map<std::string,bool>::iterator it=m.find(n);
@@ -4522,12 +4522,12 @@ void pushAllSimVariableNamesThatStartSame_autoCompletionList(const std::string& 
             if (simLuaVariablesOldApi[i].autoComplete)
             {
                 std::string n(simLuaVariablesOldApi[i].name);
-                if ((n.size()>=txt.size())&&(n.compare(0,txt.size(),txt)==0))
+                if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
                 {
                     if (!hasDot)
                     {
                         size_t dp=n.find('.');
-                        if ( (dp!=std::string::npos)&&(txt.size()>0) )
+                        if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
                             n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                     }
                     std::map<std::string,bool>::iterator it=m.find(n);
@@ -7768,7 +7768,7 @@ int _simLoadModel(luaWrap_lua_State* L)
                 if (forceAsCopy)
                     path.erase(path.begin()+atCopyPos,path.end());
 
-                if (VFile::doesFileExist(path))
+                if (VFile::doesFileExist(path.c_str()))
                 {
                     if (CFileOperations::loadModel(path.c_str(),false,false,false,nullptr,false,nullptr,onlyThumbnails,forceAsCopy))
                     {
@@ -8057,7 +8057,7 @@ int _simLaunchExecutable(luaWrap_lua_State* L)
                 int sh=VVARIOUS_SHOWNORMAL;
                 if (showStatus==0)
                     sh=VVARIOUS_HIDE;
-                if (VVarious::executeExternalApplication(file,args,App::directories->executableDirectory,sh)) // executable directory needed because otherwise the shellExecute command might switch directories!
+                if (VVarious::executeExternalApplication(file.c_str(),args.c_str(),App::folders->getExecutablePath().c_str(),sh)) // executable directory needed because otherwise the shellExecute command might switch directories!
                     retVal=1;
             }
         }
@@ -12826,7 +12826,7 @@ int _simSetShapeColor(luaWrap_lua_State* L)
             if (txt.compare(0,20,"@backCompatibility1:")==0)
             {
                 txt.assign(txt.begin()+20,txt.end());
-                if (tt::getValidInt(txt,shapeHandle)) // try to extract the original number
+                if (tt::getValidInt(txt.c_str(),shapeHandle)) // try to extract the original number
                 {
                     correctColors=true;
                     ok=true;
@@ -17637,7 +17637,7 @@ int _simAuxFunc(luaWrap_lua_State* L)
                 CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
                 if (it!=nullptr)
                 {
-                    it->curveToClipboard(curveType,curveName);
+                    it->curveToClipboard(curveType,curveName.c_str());
                     LUA_END(0);
                 }
                 else
@@ -17654,7 +17654,7 @@ int _simAuxFunc(luaWrap_lua_State* L)
                 CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
                 if (it!=nullptr)
                 {
-                    it->curveToStatic(curveType,curveName);
+                    it->curveToStatic(curveType,curveName.c_str());
                     LUA_END(0);
                 }
                 else
@@ -17671,7 +17671,7 @@ int _simAuxFunc(luaWrap_lua_State* L)
                 CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
                 if (it!=nullptr)
                 {
-                    it->removeStaticCurve(curveType,curveName);
+                    it->removeStaticCurve(curveType,curveName.c_str());
                     LUA_END(0);
                 }
                 else
@@ -20573,7 +20573,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
                             if (t==3)
                             {
                                 float v;
-                                tt::getValidFloat(retParams[i],v);
+                                tt::getValidFloat(retParams[i].c_str(),v);
                                 stack.pushNumberOntoStack((double)v);
                             }
                             if (t==4)
@@ -20693,7 +20693,7 @@ int _simGetNameSuffix(luaWrap_lua_State* L)
             suffTxt=luaWrap_lua_tostring(L,-1);
         luaWrap_lua_pop(L,1);
         if (suffTxt!="")
-            tt::getValidInt(suffTxt,suffixNumber);
+            tt::getValidInt(suffTxt.c_str(),suffixNumber);
         luaWrap_lua_pushnumber(L,suffixNumber);
         LUA_END(1);
     }

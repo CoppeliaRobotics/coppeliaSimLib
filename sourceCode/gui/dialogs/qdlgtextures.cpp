@@ -506,11 +506,11 @@ void CQDlgTextures::on_qqLoad_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        std::string tst(App::directories->textureDirectory);
-        std::string filenameAndPath=App::uiThread->getOpenFileName(this,0,"Loading texture...",tst,"",true,"Image files","tga","jpg","jpeg","png","gif","bmp","tiff");
+        std::string tst(App::folders->getTexturesPath());
+        std::string filenameAndPath=App::uiThread->getOpenFileName(this,0,"Loading texture...",tst.c_str(),"",true,"Image files","tga","jpg","jpeg","png","gif","bmp","tiff");
         if (filenameAndPath.length()!=0)
         {
-            if (VFile::doesFileExist(filenameAndPath))
+            if (VFile::doesFileExist(filenameAndPath.c_str()))
             {
                 CQDlgTextureLoadOptions dlg(App::mainWindow);
                 dlg.refresh();
@@ -518,7 +518,7 @@ void CQDlgTextures::on_qqLoad_clicked()
                 int scaleTo=0;
                 if (dlg.scale)
                     scaleTo=dlg.scaleTo;
-                App::appendSimulationThreadCommand(SET_CURRENTDIRECTORY_GUITRIGGEREDCMD,DIRECTORY_ID_TEXTURE,-1,0.0,0.0,App::directories->getPathFromFull(filenameAndPath).c_str());
+                App::appendSimulationThreadCommand(SET_CURRENTDIRECTORY_GUITRIGGEREDCMD,DIRECTORY_ID_TEXTURE,-1,0.0,0.0,App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                 int resX,resY,n;
                 unsigned char* data=CImageLoaderSaver::load(filenameAndPath.c_str(),&resX,&resY,&n,0,scaleTo);
                 if ( (n<3)||(n>4) )
@@ -555,7 +555,7 @@ void CQDlgTextures::on_qqLoad_clicked()
                     cmd.intParams.push_back(resY);
                     cmd.intParams.push_back(n);
                     cmd.uint8Params.assign(data,data+n*resX*resY);
-                    cmd.stringParams.push_back(App::directories->getNameFromFull(filenameAndPath).c_str());
+                    cmd.stringParams.push_back(App::folders->getNameFromFull(filenameAndPath.c_str()).c_str());
                     App::appendSimulationThreadCommand(cmd);
                     App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                     App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
