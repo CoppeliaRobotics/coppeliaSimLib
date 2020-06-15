@@ -2027,7 +2027,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                     {
                         static bool alreadyShown=false;
                         if (!alreadyShown)
-                            App::uiThread->messageBox_information(App::mainWindow,"POV-Ray plugin",strTranslate("The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/simExtPovRay"),VMESSAGEBOX_OKELI);
+                            App::uiThread->messageBox_information(App::mainWindow,"POV-Ray plugin","The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/simExtPovRay",VMESSAGEBOX_OKELI);
                         alreadyShown=true;
                     }
                 }

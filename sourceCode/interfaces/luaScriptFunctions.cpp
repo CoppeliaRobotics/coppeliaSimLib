@@ -75,19 +75,21 @@ void _raiseErrorIfNeeded(luaWrap_lua_State* L,const char* functionName,const cha
         if (it!=nullptr)
         {
             it->setLastError(errStr.c_str());
-            int lineNumber=-1;
-            lineNumber=luaWrap_getCurrentCodeLine(L);
-            std::string msg;
-            msg+=std::to_string(lineNumber);
-            msg+=": ";
-            msg+=errStr;
-            msg+=" (in function '";
-            msg+=functionName;
-            msg+="')";
-            msg+=it->errorWithCustomizationScript(); /*might temporarily disable the custom. script*/
-            it->prefixWithLuaLocationName(msg);
-            luaWrap_lua_pushstring(L,msg.c_str());
-            luaWrap_lua_error(L);
+            if (it->getRaiseErrors_backCompatibility())
+            {
+                int lineNumber=-1;
+                lineNumber=luaWrap_getCurrentCodeLine(L);
+                std::string msg;
+                msg+=std::to_string(lineNumber);
+                msg+=": ";
+                msg+=errStr;
+                msg+=" (in function '";
+                msg+=functionName;
+                msg+="')";
+                it->prefixWithLuaLocationName(msg);
+                luaWrap_lua_pushstring(L,msg.c_str());
+                luaWrap_lua_error(L);
+            }
         }
     }
 }
@@ -1452,6 +1454,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.verbosity_loadinfos",sim_verbosity_loadinfos,true},
     {"sim.verbosity_scripterrors",sim_verbosity_scripterrors,true},
     {"sim.verbosity_scriptwarnings",sim_verbosity_scriptwarnings,true},
+    {"sim.verbosity_scriptinfos",sim_verbosity_scriptinfos,true},
     {"sim.verbosity_msgs",sim_verbosity_msgs,true},
     {"sim.verbosity_infos",sim_verbosity_infos,true},
     {"sim.verbosity_debug",sim_verbosity_debug,true},
@@ -3246,28 +3249,11 @@ std::string getAdditionalLuaSearchPath()
 {
     std::string retVal;
     retVal+=App::folders->getExecutablePath();
-//#ifdef MAC_SIM
-//    // We are inside of the package!!!
-//    retVal+="/../../../?.lua";
-//#else
-    retVal+="/?.lua";
-//#endif
-    retVal+=";";
+    retVal+="/?.lua;";
     retVal+=App::folders->getExecutablePath();
-//#ifdef MAC_SIM
-//    // We are inside of the package!!!
-//    retVal+="/../../../lua/?.lua";
-//#else
-    retVal+="/lua/?.lua";
-//#endif
-//    retVal+=";";
+    retVal+="/lua/?.lua;";
     retVal+=App::folders->getExecutablePath();
-//#ifdef MAC_SIM
-//    // We are inside of the package!!!
-//    retVal+="/../../../bwf/?.lua";
-//#else
     retVal+="/bwf/?.lua";
-//#endif
     if (App::currentWorld->mainSettings->getScenePathAndName().compare("")!=0)
     {
         retVal+=";";
@@ -3426,9 +3412,12 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
 
             if ( CThreadPool::getSimulationEmergencyStop() ) // No automatic yield when flagged for destruction!! ||it->getFlaggedForDestruction() )
             { // This is the only way a non-threaded script can yield. But threaded child scripts can also yield here
+                it->terminateScriptExecutionExternally();
+                /*
                 if (debugLevel!=sim_scriptdebug_none)
                     it->handleDebug("force_script_stop","C",true,true);
                 luaWrap_lua_yield(L,0);
+                */
                 return;
             }
             else
@@ -3437,9 +3426,12 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
                 { // returns true only after 1-2 seconds after the request arrived
                     if (!VThread::isCurrentThreadTheMainSimulationThread())
                     { // Here only threaded scripts can yield!
+                        it->terminateScriptExecutionExternally();
+                        /*
                         if (debugLevel!=sim_scriptdebug_none)
                             it->handleDebug("force_script_stop","C",true,true);
                         luaWrap_lua_yield(L,0);
+                        */
                         return;
                     }
                 }
@@ -3470,13 +3462,18 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
                         if (CLuaScriptObject::emergencyStopButtonPressed)
                         {
                             CLuaScriptObject::emergencyStopButtonPressed=false;
-                            if (it->getScriptType()==sim_scripttype_customizationscript)
-                                it->setCustomizationScriptIsTemporarilyDisabled(true); // stop it
+                            it->terminateScriptExecutionExternally();
+                            /*
+                            std::string tmp("?: script execution was terminated externally.");
+                            it->prefixWithLuaLocationName(tmp);
+                            it->_announceErrorWasRaisedAndDisableScript(tmp.c_str(),true);
                             if (it->getScriptType()==sim_scripttype_addonscript)
                                 it->flagForDestruction(); // stop it
+
                             if (debugLevel!=sim_scriptdebug_none)
                                 it->handleDebug("force_script_stop","C",true,true);
                             luaWrap_lua_yield(L,0);
+                            */
                         }
                     }
                     else
@@ -7396,7 +7393,24 @@ int _simSetInt32Parameter(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simSetInt32Parameter_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
+    {
+        int paramIndex=luaWrap_lua_tointeger(L,1);
+        int v=luaWrap_lua_tointeger(L,2);
+        if (paramIndex==sim_intparam_error_report_mode)
+        { // for backward compatibility (2020)
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
+            if (it!=nullptr)
+            {
+                bool r=true; // default
+                if ( (v&sim_api_error_report)==0 )
+                    r=false;
+                it->setRaiseErrors_backCompatibility(r);
+                retVal=1;
+            }
+        }
+        else
+            retVal=simSetInt32Parameter_internal(paramIndex,v);
+    }
 
     LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
@@ -7410,12 +7424,28 @@ int _simGetInt32Parameter(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int v;
-        int retVal=simGetInt32Parameter_internal(luaWrap_lua_tointeger(L,1),&v);
-        if (retVal!=-1)
+        int paramIndex=luaWrap_lua_tointeger(L,1);
+        if (paramIndex==sim_intparam_error_report_mode)
+        { // for backward compatibility (2020)
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
+            if (it!=nullptr)
+            {
+                int v=1; // default
+                if (!it->getRaiseErrors_backCompatibility())
+                    v=0;
+                luaWrap_lua_pushnumber(L,v);
+                LUA_END(1);
+            }
+        }
+        else
         {
-            luaWrap_lua_pushnumber(L,v);
-            LUA_END(1);
+            int v;
+            int retVal=simGetInt32Parameter_internal(paramIndex,&v);
+            if (retVal!=-1)
+            {
+                luaWrap_lua_pushnumber(L,v);
+                LUA_END(1);
+            }
         }
     }
 

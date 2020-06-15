@@ -33,16 +33,16 @@ void CQDlgEntityVsEntitySelection::initialize(int theMode)
     mode=theMode;
     if (theMode==0)
     { // collisions
-        setWindowTitle(strTranslate(IDSN_COLLISION_OBJECT_SELECTION_OF_ENTITIES));
+        setWindowTitle(IDSN_COLLISION_OBJECT_SELECTION_OF_ENTITIES);
         fillComboWithCollisionEntities(ui->qqEntity1,false);
         fillComboWithCollisionEntities(ui->qqEntity2,true);
     }
     if ((theMode==1)||(theMode==2))
     { // distances
         if (theMode==1)
-            setWindowTitle(strTranslate(IDSN_DISTANCE_OBJECT_SELECTION_OF_ENTITIES));
+            setWindowTitle(IDSN_DISTANCE_OBJECT_SELECTION_OF_ENTITIES);
         if (theMode==2)
-            setWindowTitle(strTranslate(IDSN_OBSTACLE_AVOIDANCE_SELECTION_OF_ENTITIES));
+            setWindowTitle(IDSN_OBSTACLE_AVOIDANCE_SELECTION_OF_ENTITIES);
         fillComboWithDistanceEntities(ui->qqEntity1,false);
         fillComboWithDistanceEntities(ui->qqEntity2,true);
     }
@@ -69,7 +69,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
 {
     combo->clear();
     if (insertAllAtBeginning)
-        combo->addItem(strTranslate(IDS_ALL_OTHER_COLLIDABLE_OBJECTS_IN_SCENE),QVariant(-1));
+        combo->addItem(IDS_ALL_OTHER_COLLIDABLE_OBJECTS_IN_SCENE,QVariant(-1));
 
     std::vector<std::string> names;
     std::vector<int> ids;
@@ -78,7 +78,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
     for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
     {
         CCollection* it=App::currentWorld->collections->getObjectFromIndex(i);
-        std::string name(tt::decorateString("[",strTranslate(IDSN_COLLECTION),"] "));
+        std::string name(tt::decorateString("[",IDSN_COLLECTION,"] "));
         name+=it->getCollectionName();
         names.push_back(name);
         ids.push_back(it->getCollectionHandle());
@@ -94,7 +94,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
     for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
     {
         CShape* it=App::currentWorld->sceneObjects->getShapeFromIndex(i);
-        std::string name(tt::decorateString("[",strTranslate(IDSN_SHAPE),"] "));
+        std::string name(tt::decorateString("[",IDSN_SHAPE,"] "));
         name+=it->getObjectName();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
@@ -110,7 +110,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
     for (size_t i=0;i<App::currentWorld->sceneObjects->getOctreeCount();i++)
     {
         COctree* it=App::currentWorld->sceneObjects->getOctreeFromIndex(i);
-        std::string name(tt::decorateString("[",strTranslate(IDSN_OCTREE),"] "));
+        std::string name(tt::decorateString("[",IDSN_OCTREE,"] "));
         name+=it->getObjectName();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
@@ -126,7 +126,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
     for (size_t i=0;i<App::currentWorld->sceneObjects->getPointCloudCount();i++)
     {
         CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromIndex(i);
-        std::string name(tt::decorateString("[",strTranslate(IDSN_POINTCLOUD),"] "));
+        std::string name(tt::decorateString("[",IDSN_POINTCLOUD,"] "));
         name+=it->getObjectName();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
@@ -142,7 +142,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
     for (size_t i=0;i<App::currentWorld->sceneObjects->getDummyCount();i++)
     {
         CDummy* it=App::currentWorld->sceneObjects->getDummyFromIndex(i);
-        std::string name(tt::decorateString("[",strTranslate(IDSN_DUMMY),"] "));
+        std::string name(tt::decorateString("[",IDSN_DUMMY,"] "));
         name+=it->getObjectName();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
@@ -159,7 +159,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
 {
     combo->clear();
     if (insertAllAtBeginning)
-        combo->addItem(strTranslate(IDS_ALL_OTHER_MEASURABLE_OBJECTS_IN_SCENE),QVariant(-1));
+        combo->addItem(IDS_ALL_OTHER_MEASURABLE_OBJECTS_IN_SCENE,QVariant(-1));
 
     std::vector<std::string> names;
     std::vector<int> ids;
@@ -168,7 +168,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
     for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
     {
         CCollection* it=App::currentWorld->collections->getObjectFromIndex(i);
-        std::string name(tt::decorateString("[",strTranslate(IDSN_COLLECTION),"] "));
+        std::string name(tt::decorateString("[",IDSN_COLLECTION,"] "));
         name+=it->getCollectionName();
         names.push_back(name);
         ids.push_back(it->getCollectionHandle());
@@ -184,7 +184,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
     for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
     {
         CShape* it=App::currentWorld->sceneObjects->getShapeFromIndex(i);
-        std::string name(tt::decorateString("[",strTranslate(IDSN_SHAPE),"] "));
+        std::string name(tt::decorateString("[",IDSN_SHAPE,"] "));
         name+=it->getObjectName();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
@@ -200,7 +200,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
     for (size_t i=0;i<App::currentWorld->sceneObjects->getOctreeCount();i++)
     {
         COctree* it=App::currentWorld->sceneObjects->getOctreeFromIndex(i);
-        std::string name(tt::decorateString("[",strTranslate(IDSN_OCTREE),"] "));
+        std::string name(tt::decorateString("[",IDSN_OCTREE,"] "));
         name+=it->getObjectName();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
@@ -216,7 +216,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
     for (size_t i=0;i<App::currentWorld->sceneObjects->getPointCloudCount();i++)
     {
         CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromIndex(i);
-        std::string name(tt::decorateString("[",strTranslate(IDSN_POINTCLOUD),"] "));
+        std::string name(tt::decorateString("[",IDSN_POINTCLOUD,"] "));
         name+=it->getObjectName();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
@@ -232,7 +232,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
     for (size_t i=0;i<App::currentWorld->sceneObjects->getDummyCount();i++)
     {
         CDummy* it=App::currentWorld->sceneObjects->getDummyFromIndex(i);
-        std::string name(tt::decorateString("[",strTranslate(IDSN_DUMMY),"] "));
+        std::string name(tt::decorateString("[",IDSN_DUMMY,"] "));
         name+=it->getObjectName();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
@@ -321,7 +321,7 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
             {
                 if (App::currentWorld->distances->getObjectFromIndex(i)->isSame(entity1,entity2))
                 {
-                    App::uiThread->messageBox_warning(this,strTranslate(IDSN_COLLISION_DISTANCE_OBJECT),strTranslate(IDS_SIMILAR_OBJECT_ALREADY_EXISTS),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(this,IDSN_COLLISION_DISTANCE_OBJECT,IDS_SIMILAR_OBJECT_ALREADY_EXISTS,VMESSAGEBOX_OKELI);
                     return(false);
                 }
             }
@@ -366,9 +366,9 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         if (displayWarning)
         {
             if (mode==1)
-                App::uiThread->messageBox_warning(this,strTranslate(IDSN_DISTANCE_OBJECT),strTranslate(IDS_OBJECTS_NOT_MEASURABLE_WARNING),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(this,IDSN_DISTANCE_OBJECT,IDS_OBJECTS_NOT_MEASURABLE_WARNING,VMESSAGEBOX_OKELI);
             if (mode==2)
-                App::uiThread->messageBox_warning(this,strTranslate(IDSN_AVOIDANCE_OBJECT),strTranslate(IDS_OBJECTS_NOT_MEASURABLE_WARNING),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(this,IDSN_AVOIDANCE_OBJECT,IDS_OBJECTS_NOT_MEASURABLE_WARNING,VMESSAGEBOX_OKELI);
         }
     }
     return(true);

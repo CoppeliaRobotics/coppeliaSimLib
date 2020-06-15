@@ -156,7 +156,7 @@ void CQDlgDataStreamSelection::refresh()
     }
 
     ui->qqItemCombo->clear();
-    ui->qqItemCombo->addItem(strTranslate(IDSN_NONE),QVariant(-1));
+    ui->qqItemCombo->addItem(IDSN_NONE,QVariant(-1));
 
     int w=ui->qqTypeCombo->itemData(ui->qqTypeCombo->currentIndex()).toInt();
 

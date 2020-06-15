@@ -317,11 +317,11 @@ void CQDlgModelThumbnail::on_qqFromFile_clicked()
             }
 
             if (data==nullptr)
-                App::uiThread->messageBox_critical(App::mainWindow,strTranslate("Thumbnail"),strTranslate(IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_critical(App::mainWindow,"Thumbnail",IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI);
             else
             {
                 if ( (resX!=128)||(resY!=128) )
-                    App::uiThread->messageBox_critical(App::mainWindow,strTranslate("Thumbnail"),strTranslate(IDS_THUMBNAILS_REQUIRE_128X128_RESOLUTION),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,"Thumbnail",IDS_THUMBNAILS_REQUIRE_128X128_RESOLUTION,VMESSAGEBOX_OKELI);
                 else
                 {
                     thumbnail.setUncompressedThumbnailImage((char*)data,n>3,true);

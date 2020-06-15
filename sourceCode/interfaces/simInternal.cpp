@@ -237,21 +237,15 @@ void simulatorInit()
 
     if (initialSceneOrModelToLoad.length()!=0)
     { // Here we double-clicked a CoppeliaSim file or dragged-and-dropped it onto this application
-        int l=int(initialSceneOrModelToLoad.length());
-        if ( (l>4)&&(initialSceneOrModelToLoad[l-4]=='.')&&(initialSceneOrModelToLoad[l-3]=='t')&&(initialSceneOrModelToLoad[l-2]=='t') )
+        if ( boost::algorithm::ends_with(initialSceneOrModelToLoad.c_str(),".ttt")||boost::algorithm::ends_with(initialSceneOrModelToLoad.c_str(),".simscene.xml") )
         {
-            simSetBoolParameter_internal(sim_boolparam_scene_and_model_load_messages,1);
-            if (initialSceneOrModelToLoad[l-1]=='t') // trying to load a scene?
-            {
-                if (simLoadScene_internal(initialSceneOrModelToLoad.c_str())==-1)
-                    App::logMsg(sim_verbosity_errors,"Scene could not be opened.");
-            }
-            if (initialSceneOrModelToLoad[l-1]=='m') // trying to load a model?
-            {
-                if (simLoadModel_internal(initialSceneOrModelToLoad.c_str())==-1)
-                    App::logMsg(sim_verbosity_errors,"Model could not be opened.");
-            }
-            simSetBoolParameter_internal(sim_boolparam_scene_and_model_load_messages,0);
+            if (simLoadScene_internal(initialSceneOrModelToLoad.c_str())==-1)
+                App::logMsg(sim_verbosity_errors,"scene could not be opened.");
+        }
+        if ( boost::algorithm::ends_with(initialSceneOrModelToLoad.c_str(),".ttm")||boost::algorithm::ends_with(initialSceneOrModelToLoad.c_str(),".simmodel.xml"))
+        {
+            if (simLoadModel_internal(initialSceneOrModelToLoad.c_str())==-1)
+                App::logMsg(sim_verbosity_errors,"model could not be opened.");
         }
     }
 }
@@ -15229,12 +15223,12 @@ simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
         int retVal=-1;
         if ( (attributeID==sim_customizationscriptattribute_activeduringsimulation)&&(it->getScriptType()==sim_scripttype_customizationscript) )
         {
-            it->setCustScriptDisabledDSim_compatibilityMode(intOrBoolVal==0);
+            it->setCustScriptDisabledDSim_compatibilityMode_DEPRECATED(intOrBoolVal==0);
             retVal=1;
         }
         if ( (attributeID==sim_customizationscriptattribute_cleanupbeforesave)&&(it->getScriptType()==sim_scripttype_customizationscript) )
         {
-            it->setCustomizationScriptCleanupBeforeSave(intOrBoolVal!=0);
+            it->setCustomizationScriptCleanupBeforeSave_DEPRECATED(intOrBoolVal!=0);
             retVal=1;
         }
         if (attributeID==sim_scriptattribute_executionorder)
@@ -15288,7 +15282,7 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
         int retVal=-1;
         if ( (attributeID==sim_customizationscriptattribute_activeduringsimulation)&&(it->getScriptType()==sim_scripttype_customizationscript) )
         {
-            if (it->getCustScriptDisabledDSim_compatibilityMode())
+            if (it->getCustScriptDisabledDSim_compatibilityMode_DEPRECATED())
                 intOrBoolVal[0]=0;
             else
                 intOrBoolVal[0]=1;
@@ -15296,7 +15290,7 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
         }
         if ( (attributeID==sim_customizationscriptattribute_cleanupbeforesave)&&(it->getScriptType()==sim_scripttype_customizationscript) )
         {
-            if (it->getCustomizationScriptCleanupBeforeSave())
+            if (it->getCustomizationScriptCleanupBeforeSave_DEPRECATED())
                 intOrBoolVal[0]=1;
             else
                 intOrBoolVal[0]=0;

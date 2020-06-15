@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>404</height>
+    <height>390</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,7 +38,7 @@
      <x>10</x>
      <y>240</y>
      <width>411</width>
-     <height>151</height>
+     <height>141</height>
     </rect>
    </property>
    <property name="title">
@@ -83,7 +83,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>65</y>
+      <y>50</y>
       <width>161</width>
       <height>18</height>
      </rect>
@@ -96,7 +96,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>65</y>
+      <y>50</y>
       <width>231</width>
       <height>18</height>
      </rect>
@@ -109,7 +109,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>85</y>
+      <y>70</y>
       <width>161</width>
       <height>18</height>
      </rect>
@@ -122,33 +122,17 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>85</y>
+      <y>70</y>
       <width>231</width>
       <height>18</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="qqDisableWithError">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>45</y>
-      <width>211</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Disable with error</string>
     </property>
    </widget>
    <widget class="QComboBox" name="qqTreeTraversalDirection">
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>105</y>
+      <y>90</y>
       <width>231</width>
       <height>18</height>
      </rect>
@@ -158,7 +142,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>105</y>
+      <y>90</y>
       <width>161</width>
       <height>18</height>
      </rect>
@@ -171,7 +155,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>125</y>
+      <y>110</y>
       <width>231</width>
       <height>18</height>
      </rect>
@@ -181,7 +165,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>125</y>
+      <y>110</y>
       <width>161</width>
       <height>18</height>
      </rect>
@@ -240,7 +224,6 @@
   <tabstop>qqScriptList</tabstop>
   <tabstop>qqDisabled</tabstop>
   <tabstop>qqExecuteOnce</tabstop>
-  <tabstop>qqDisableWithError</tabstop>
   <tabstop>qqAssociatedObjectCombo</tabstop>
   <tabstop>qqExecutionOrder</tabstop>
   <tabstop>qqTreeTraversalDirection</tabstop>

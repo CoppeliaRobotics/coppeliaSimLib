@@ -208,7 +208,7 @@ bool CSimRecorder::recordFrameIfNeeded(int resX,int resY,int posX,int posY)
                     else
                     {
                         App::logMsg(sim_verbosity_errors,IDSNS_VIDEO_COMPRESSOR_FAILED_TO_INITIALIZE);
-                        App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Video Recorder"),strTranslate(IDSN_VIDEO_COMPRESSOR_FAILED_INITIALIZING_WARNING),VMESSAGEBOX_OKELI);
+                        App::uiThread->messageBox_warning(App::mainWindow,"Video Recorder",IDSN_VIDEO_COMPRESSOR_FAILED_INITIALIZING_WARNING,VMESSAGEBOX_OKELI);
                     }
                     _initFailed=(!_aviGenInitialized);
                     if (!_initFailed)

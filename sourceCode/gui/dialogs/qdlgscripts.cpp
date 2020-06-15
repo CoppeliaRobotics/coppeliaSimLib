@@ -47,8 +47,8 @@ void CQDlgScripts::refresh()
 
     ui->qqCombo->setEnabled(noEditMode);
     ui->qqCombo->clear();
-    ui->qqCombo->addItem(strTranslate(IDS_SIMULATION_SCRIPTS),QVariant(0));
-    ui->qqCombo->addItem(strTranslate(IDS_CUSTOMIZATION_SCRIPTS),QVariant(1));
+    ui->qqCombo->addItem(IDS_SIMULATION_SCRIPTS,QVariant(0));
+    ui->qqCombo->addItem(IDS_CUSTOMIZATION_SCRIPTS,QVariant(1));
 
     ui->qqCombo->setCurrentIndex(scriptViewMode);
 
@@ -76,25 +76,25 @@ void CQDlgScripts::refresh()
     {
         if ( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) )
         {
-            ui->qqExecutionOrder->addItem(strTranslate(IDSN_FIRST),QVariant(sim_scriptexecorder_first));
-            ui->qqExecutionOrder->addItem(strTranslate(IDSN_NORMAL),QVariant(sim_scriptexecorder_normal));
-            ui->qqExecutionOrder->addItem(strTranslate(IDSN_LAST),QVariant(sim_scriptexecorder_last));
+            ui->qqExecutionOrder->addItem(IDSN_FIRST,QVariant(sim_scriptexecorder_first));
+            ui->qqExecutionOrder->addItem(IDSN_NORMAL,QVariant(sim_scriptexecorder_normal));
+            ui->qqExecutionOrder->addItem(IDSN_LAST,QVariant(sim_scriptexecorder_last));
             ui->qqExecutionOrder->setCurrentIndex(theScript->getExecutionOrder());
 
-            ui->qqTreeTraversalDirection->addItem(strTranslate(IDSN_REVERSE_TRAVERSAL),QVariant(sim_scripttreetraversal_reverse));
-            ui->qqTreeTraversalDirection->addItem(strTranslate(IDSN_FORWARD_TRAVERSAL),QVariant(sim_scripttreetraversal_forward));
-            ui->qqTreeTraversalDirection->addItem(strTranslate(IDSN_PARENT_TRAVERSAL),QVariant(sim_scripttreetraversal_parent));
+            ui->qqTreeTraversalDirection->addItem(IDSN_REVERSE_TRAVERSAL,QVariant(sim_scripttreetraversal_reverse));
+            ui->qqTreeTraversalDirection->addItem(IDSN_FORWARD_TRAVERSAL,QVariant(sim_scripttreetraversal_forward));
+            ui->qqTreeTraversalDirection->addItem(IDSN_PARENT_TRAVERSAL,QVariant(sim_scripttreetraversal_parent));
             ui->qqTreeTraversalDirection->setCurrentIndex(theScript->getTreeTraversalDirection());
 
-            ui->qqDebugMode->addItem(strTranslate(IDSN_SCRIPTDEBUG_NONE),QVariant(sim_scriptdebug_none));
-            ui->qqDebugMode->addItem(strTranslate(IDSN_SCRIPTDEBUG_SYSCALLS),QVariant(sim_scriptdebug_syscalls));
-            ui->qqDebugMode->addItem(strTranslate(IDSN_SCRIPTDEBUG_VARS_1SEC),QVariant(sim_scriptdebug_vars_interval));
-            ui->qqDebugMode->addItem(strTranslate(IDSN_SCRIPTDEBUG_ALLCALLS),QVariant(sim_scriptdebug_allcalls));
-            ui->qqDebugMode->addItem(strTranslate(IDSN_SCRIPTDEBUG_VARS),QVariant(sim_scriptdebug_vars));
-            ui->qqDebugMode->addItem(strTranslate(IDSN_SCRIPTDEBUG_FULL),QVariant(sim_scriptdebug_callsandvars));
+            ui->qqDebugMode->addItem(IDSN_SCRIPTDEBUG_NONE,QVariant(sim_scriptdebug_none));
+            ui->qqDebugMode->addItem(IDSN_SCRIPTDEBUG_SYSCALLS,QVariant(sim_scriptdebug_syscalls));
+            ui->qqDebugMode->addItem(IDSN_SCRIPTDEBUG_VARS_1SEC,QVariant(sim_scriptdebug_vars_interval));
+            ui->qqDebugMode->addItem(IDSN_SCRIPTDEBUG_ALLCALLS,QVariant(sim_scriptdebug_allcalls));
+            ui->qqDebugMode->addItem(IDSN_SCRIPTDEBUG_VARS,QVariant(sim_scriptdebug_vars));
+            ui->qqDebugMode->addItem(IDSN_SCRIPTDEBUG_FULL,QVariant(sim_scriptdebug_callsandvars));
             ui->qqDebugMode->setCurrentIndex(theScript->getDebugLevel());
 
-            ui->qqAssociatedObjectCombo->addItem(strTranslate(IDSN_NONE),QVariant(-1));
+            ui->qqAssociatedObjectCombo->addItem(IDSN_NONE,QVariant(-1));
             std::vector<std::string> names;
             std::vector<int> ids;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
@@ -129,23 +129,12 @@ void CQDlgScripts::refresh()
             }
         }
 
-        if (theScript->getScriptType()==sim_scripttype_customizationscript)
-            ui->qqDisabled->setChecked(theScript->getScriptIsDisabled()||theScript->getCustomizationScriptIsTemporarilyDisabled());
-        else
-            ui->qqDisabled->setChecked(theScript->getScriptIsDisabled());
-
-        ui->qqDisableWithError->setEnabled(theScript->getScriptType()==sim_scripttype_customizationscript);
-        if (theScript->getScriptType()==sim_scripttype_customizationscript)
-            ui->qqDisableWithError->setChecked(theScript->getDisableCustomizationScriptWithError());
-        else
-            ui->qqDisableWithError->setChecked(false);
+        ui->qqDisabled->setChecked(theScript->getScriptIsDisabled());
 
         ui->qqExecuteOnce->setChecked(theScript->getExecuteJustOnce());
     }
     else
     {
-        ui->qqDisableWithError->setEnabled(false);
-        ui->qqDisableWithError->setChecked(false);
         ui->qqDisabled->setChecked(false);
         ui->qqExecuteOnce->setChecked(false);
     }
@@ -267,7 +256,7 @@ void CQDlgScripts::on_qqAddNewScript_clicked()
                 CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getMainScript();
                 if (it!=nullptr)
                 {
-                    if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDS_MAIN_SCRIPT),strTranslate(IDS_INFO_NO_MORE_THAN_ONE_MAIN_SCRIPT),VMESSAGEBOX_YES_NO))
+                    if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDS_MAIN_SCRIPT,IDS_INFO_NO_MORE_THAN_ONE_MAIN_SCRIPT,VMESSAGEBOX_YES_NO))
                     {
                         App::appendSimulationThreadCommand(DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD,it->getScriptID());
                         App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_mainscript,0);
@@ -390,18 +379,6 @@ void CQDlgScripts::on_qqCombo_currentIndexChanged(int index)
             scriptViewMode=ui->qqCombo->itemData(ui->qqCombo->currentIndex()).toInt();
             refresh();
         }
-    }
-}
-
-void CQDlgScripts::on_qqDisableWithError_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        int scriptID=getSelectedObjectID();
-        App::appendSimulationThreadCommand(TOGGLE_DISABLE_CUSTOM_SCRIPT_WITH_ERROR_SCRIPTGUITRIGGEREDCMD,scriptID);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
     }
 }
 

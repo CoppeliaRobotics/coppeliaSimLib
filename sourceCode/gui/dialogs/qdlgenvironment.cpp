@@ -94,7 +94,7 @@ void CQDlgEnvironment::on_qqSaveCalcStruct_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         if (!App::currentWorld->environment->getSaveExistingCalculationStructures())
-            App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_CALCULATION_STRUCTURE),strTranslate(IDS_SAVING_CALCULATION_STRUCTURE),VMESSAGEBOX_OKELI);
+            App::uiThread->messageBox_information(App::mainWindow,IDSN_CALCULATION_STRUCTURE,IDS_SAVING_CALCULATION_STRUCTURE,VMESSAGEBOX_OKELI);
         App::appendSimulationThreadCommand(TOGGLE_SAVECALCSTRUCT_ENVIRONMENTGUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -113,7 +113,7 @@ void CQDlgEnvironment::on_qqNextSaveIsDefinitive_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         if (!App::currentWorld->environment->getRequestFinalSave())
-            App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_SCENE_LOCKING),strTranslate(IDS_SCENE_LOCKING_INFO),VMESSAGEBOX_OKELI);
+            App::uiThread->messageBox_information(App::mainWindow,IDSN_SCENE_LOCKING,IDS_SCENE_LOCKING_INFO,VMESSAGEBOX_OKELI);
         App::appendSimulationThreadCommand(TOGGLE_LOCKSCENE_ENVIRONMENTGUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

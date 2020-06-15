@@ -146,14 +146,14 @@ void CQDlgJoints::refresh()
         ui->qqDiameter->setText(tt::getFString(false,it->getDiameter(),3).c_str());
 
 
-        ui->qqJointModeCombo->addItem(strTranslate(IDSN_JOINT_IS_IN_PASSIVE_MODE),QVariant(sim_jointmode_passive));
-        ui->qqJointModeCombo->addItem(strTranslate(IDSN_JOINT_IS_IN_IK_MODE),QVariant(sim_jointmode_ik));
+        ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_PASSIVE_MODE,QVariant(sim_jointmode_passive));
+        ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_IK_MODE,QVariant(sim_jointmode_ik));
         if (!spherical)
         {
-            ui->qqJointModeCombo->addItem(strTranslate(IDSN_JOINT_IS_IN_DEPENDENT_MODE),QVariant(sim_jointmode_dependent));
-            ui->qqJointModeCombo->addItem(strTranslate(IDSN_JOINT_IS_IN_MOTION_MODE),QVariant(sim_jointmode_motion_deprecated));
+            ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_DEPENDENT_MODE,QVariant(sim_jointmode_dependent));
+            ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_MOTION_MODE,QVariant(sim_jointmode_motion_deprecated));
         }
-        ui->qqJointModeCombo->addItem(strTranslate(IDSN_JOINT_IS_IN_TORQUE_FORCE_MODE),QVariant(sim_jointmode_force));
+        ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_TORQUE_FORCE_MODE,QVariant(sim_jointmode_force));
         for (int i=0;i<ui->qqJointModeCombo->count();i++)
         {
             if (ui->qqJointModeCombo->itemData(i).toInt()==it->getJointMode())

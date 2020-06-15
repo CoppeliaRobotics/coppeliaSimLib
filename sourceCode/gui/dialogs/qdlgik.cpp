@@ -90,8 +90,8 @@ void CQDlgIk::refresh()
 
     if (it!=nullptr)
     {
-        ui->qqCalcMethodCombo->addItem(strTranslate(IDS_PSEUDO_INVERSE),QVariant(sim_ik_pseudo_inverse_method));
-        ui->qqCalcMethodCombo->addItem(strTranslate(IDS_DLS),QVariant(sim_ik_damped_least_squares_method));
+        ui->qqCalcMethodCombo->addItem(IDS_PSEUDO_INVERSE,QVariant(sim_ik_pseudo_inverse_method));
+        ui->qqCalcMethodCombo->addItem(IDS_DLS,QVariant(sim_ik_damped_least_squares_method));
         for (int i=0;i<ui->qqCalcMethodCombo->count();i++)
         {
             if (ui->qqCalcMethodCombo->itemData(i).toInt()==it->getCalculationMethod())
@@ -123,9 +123,9 @@ void CQDlgIk::updateObjectsInList()
     {
         CIkGroup* ikg=App::currentWorld->ikGroups->getObjectFromIndex(i);
         std::string txt=ikg->getObjectName();
-        txt+=strTranslate(" [containing ");
+        txt+=" [containing ";
         txt+=tt::FNb(0,int(ikg->getIkElementCount())).c_str();
-        txt+=strTranslate(" ik element(s)]");
+        txt+=" ik element(s)]";
         int objID=ikg->getObjectHandle();
         QListWidgetItem* itm=new QListWidgetItem(txt.c_str());
         itm->setData(Qt::UserRole,QVariant(objID));

@@ -46,7 +46,7 @@ void CQDlgDependencyEquation::refresh()
         ui->qqOffset->setText(tt::getEString(true,it->getDependencyJointOffset(),3).c_str());
         ui->qqCoeff->setText(tt::getEString(true,it->getDependencyJointMult(),3).c_str());
 
-        ui->qqCombo->addItem(strTranslate(IDSN_NONE),QVariant(-1));
+        ui->qqCombo->addItem(IDSN_NONE,QVariant(-1));
 
         std::vector<std::string> names;
         std::vector<int> ids;
@@ -57,7 +57,7 @@ void CQDlgDependencyEquation::refresh()
             CJoint* it2=App::currentWorld->sceneObjects->getJointFromIndex(i);
             if ((it2!=it)&&(it2->getJointType()!=sim_joint_spherical_subtype))
             {
-                std::string name(tt::decorateString("[",strTranslate(IDSN_JOINT),"] "));
+                std::string name(tt::decorateString("[",IDSN_JOINT,"] "));
                 name+=it2->getObjectName();
                 names.push_back(name);
                 ids.push_back(it2->getObjectHandle());

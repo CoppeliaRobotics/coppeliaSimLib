@@ -44,11 +44,11 @@ void CQDlgDynamics::refresh()
 
     ui->qqEnabled->setChecked(en);
     ui->qqEngineCombo->clear();
-    ui->qqEngineCombo->addItem(strTranslate(IDS_BULLET_2_78),0);
-    ui->qqEngineCombo->addItem(strTranslate(IDS_BULLET_2_83),1);
-    ui->qqEngineCombo->addItem(strTranslate(IDS_ODE),2);
-    ui->qqEngineCombo->addItem(strTranslate(IDS_VORTEX),3);
-    ui->qqEngineCombo->addItem(strTranslate(IDS_NEWTON),4);
+    ui->qqEngineCombo->addItem(IDS_BULLET_2_78,0);
+    ui->qqEngineCombo->addItem(IDS_BULLET_2_83,1);
+    ui->qqEngineCombo->addItem(IDS_ODE,2);
+    ui->qqEngineCombo->addItem(IDS_VORTEX,3);
+    ui->qqEngineCombo->addItem(IDS_NEWTON,4);
     int ver;
     int eng=App::currentWorld->dynamicsContainer->getDynamicEngineType(&ver);
     if ( (eng==sim_physics_bullet)&&(ver==0) )

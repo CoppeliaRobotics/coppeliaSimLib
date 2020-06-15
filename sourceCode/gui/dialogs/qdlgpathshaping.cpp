@@ -70,11 +70,11 @@ void CQDlgPathShaping::refresh()
         ui->qqMaxLength->setText(tt::getFString(false,it->getShapingElementMaxLength(),3).c_str());
         ui->qqScalingFactor->setText(tt::getFString(false,it->getShapingScaling(),3).c_str());
 
-        ui->qqTypeCombo->addItem(strTranslate(IDS_SHAPING_CIRCLE),QVariant(1));
-        ui->qqTypeCombo->addItem(strTranslate(IDS_SHAPING_SQUARE),QVariant(2));
-        ui->qqTypeCombo->addItem(strTranslate(IDS_SHAPING_HORIZONTAL_SEGMENT),QVariant(3));
-        ui->qqTypeCombo->addItem(strTranslate(IDS_SHAPING_VERTICAL_SEGMENT),QVariant(4));
-        ui->qqTypeCombo->addItem(strTranslate(IDS_SHAPING_USER_DEFINED),QVariant(0));
+        ui->qqTypeCombo->addItem(IDS_SHAPING_CIRCLE,QVariant(1));
+        ui->qqTypeCombo->addItem(IDS_SHAPING_SQUARE,QVariant(2));
+        ui->qqTypeCombo->addItem(IDS_SHAPING_HORIZONTAL_SEGMENT,QVariant(3));
+        ui->qqTypeCombo->addItem(IDS_SHAPING_VERTICAL_SEGMENT,QVariant(4));
+        ui->qqTypeCombo->addItem(IDS_SHAPING_USER_DEFINED,QVariant(0));
         for (int i=0;i<ui->qqTypeCombo->count();i++)
         {
             if (ui->qqTypeCombo->itemData(i).toInt()==it->getShapingType())

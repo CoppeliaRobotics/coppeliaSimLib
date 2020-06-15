@@ -73,7 +73,8 @@ public:
     static std::string getConsoleLogFilter();
     static void setConsoleLogFilter(const char* filter);
     static bool logPluginMsg(const char* pluginName,int verbosityLevel,const char* logMsg);
-    static void logMsg(int verbosityLevel,const char* msg,const char* subStr1=nullptr,const char* subStr2=nullptr,const char* subStr3=nullptr);
+    static void logMsg(int verbosityLevel,const char* msg);
+    static void logMsg(int verbosityLevel,const char* msg,const char* subStr1,const char* subStr2=nullptr,const char* subStr3=nullptr);
     static void logMsg(int verbosityLevel,const char* msg,int int1,int int2=0,int int3=0);
     static void logScriptMsg(const char* scriptName,int verbosityLevel,const char* msg);
     static int getConsoleVerbosity(const char* pluginName=nullptr);
@@ -104,9 +105,9 @@ public:
     static void _logMsgToStatusbar(const char* msg,bool html);
 
 private:
-    static void _logMsg(const char* originName,int verbosityLevel,const char* msg,const char* subStr1=nullptr,const char* subStr2=nullptr,const char* subStr3=nullptr);
+    static void _logMsg(const char* originName,int verbosityLevel,const char* msg,const char* subStr1,const char* subStr2=nullptr,const char* subStr3=nullptr);
     static void _logMsg(const char* originName,int verbosityLevel,const char* msg,int int1,int int2=0,int int3=0);
-    static void _logMsg(const char* originName,int verbosityLevel,const char* msg,bool forbidStatusbar,int consoleVerbosity=-1,int statusbarVerbosity=-1);
+    static void __logMsg(const char* originName,int verbosityLevel,const char* msg,int consoleVerbosity=-1,int statusbarVerbosity=-1);
     static bool _consoleLogFilter(const char* msg);
     static std::string _getHtmlEscapedString(const char* str);
     bool _initSuccessful;

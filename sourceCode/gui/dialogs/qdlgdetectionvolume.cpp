@@ -60,13 +60,13 @@ void CQDlgDetectionVolume::refresh()
         // The combo first:
         if (prox)
         {
-            ui->qqType->addItem(strTranslate(IDSN_RAY),QVariant(0));
-            ui->qqType->addItem(strTranslate(IDSN_RANDOMIZED_RAY),QVariant(1));
+            ui->qqType->addItem(IDSN_RAY,QVariant(0));
+            ui->qqType->addItem(IDSN_RANDOMIZED_RAY,QVariant(1));
         }
-        ui->qqType->addItem(strTranslate(IDSN_PYRAMID),QVariant(2));
-        ui->qqType->addItem(strTranslate(IDSN_CYLINDER),QVariant(3));
-        ui->qqType->addItem(strTranslate(IDSN_DISC),QVariant(4));
-        ui->qqType->addItem(strTranslate(IDSN_CONE),QVariant(5));
+        ui->qqType->addItem(IDSN_PYRAMID,QVariant(2));
+        ui->qqType->addItem(IDSN_CYLINDER,QVariant(3));
+        ui->qqType->addItem(IDSN_DISC,QVariant(4));
+        ui->qqType->addItem(IDSN_CONE,QVariant(5));
         // Select the current item:
         if (prox)
         {
@@ -100,7 +100,7 @@ void CQDlgDetectionVolume::refresh()
 
         if (prox)
         {
-            setWindowTitle(strTranslate(IDSN_DETECTION_VOLUME_PROPERTIES));
+            setWindowTitle(IDSN_DETECTION_VOLUME_PROPERTIES);
 
             ui->qqOffset->setEnabled(noEditModeNoSim);
             if ( (proxIt->getSensorType()==sim_proximitysensor_ray_subtype)&&proxIt->getRandomizedDetection() )
@@ -272,7 +272,7 @@ void CQDlgDetectionVolume::refresh()
 
         if (mill)
         {
-            setWindowTitle(strTranslate(IDSN_CUTTING_VOLUME_PROPERTIES));
+            setWindowTitle(IDSN_CUTTING_VOLUME_PROPERTIES);
             ui->qqInsideGap->setEnabled(false);
             ui->qqInsideGap->setText("");
             ui->qqSubdivisions->setEnabled(false);
@@ -417,7 +417,7 @@ void CQDlgDetectionVolume::refresh()
     }
     else
     {
-        setWindowTitle(strTranslate(IDSN_VOLUME_PROPERTIES));
+        setWindowTitle(IDSN_VOLUME_PROPERTIES);
         ui->qqOffset->setEnabled(false);
         ui->qqOffset->setText("");
         ui->qqRange->setEnabled(false);

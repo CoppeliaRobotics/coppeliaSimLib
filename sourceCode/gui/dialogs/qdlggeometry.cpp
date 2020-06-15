@@ -136,7 +136,7 @@ void CQDlgGeometry::_initialize(int shapeHandle)
     CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle);
     if (shape!=nullptr)
     {
-        titleText=strTranslate("Geometry associated with '");
+        titleText="Geometry associated with '";
         titleText+=shape->getObjectName();
         titleText+="'";
         std::vector<float> wvert;

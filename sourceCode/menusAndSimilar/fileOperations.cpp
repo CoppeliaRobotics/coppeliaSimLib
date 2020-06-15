@@ -198,7 +198,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_EXPORTING_IK_CONTENT);
                 std::string tst(App::folders->getOtherFilesPath());
-                std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_EXPORTING_IK_CONTENT___),tst.c_str(),"",false,"Coppelia Kinematics Content Files","ik");
+                std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_EXPORTING_IK_CONTENT___,tst.c_str(),"",false,"Coppelia Kinematics Content Files","ik");
                 if (filenameAndPath.length()!=0)
                 {
                     App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
@@ -211,7 +211,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
             }
             else
-                App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_EXPORT),strTranslate(IDS_SCENE_IS_LOCKED_WARNING),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXPORT,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI);
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -390,7 +390,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         App::logMsg(sim_verbosity_errors,IDSNS_CANNOT_PROCEED_SELECTION_IS_EMPTY);
                 }
                 else
-                    App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_MODEL),strTranslate(IDS_SCENE_IS_LOCKED_WARNING),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(App::mainWindow,IDSN_MODEL,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI);
             }
             else
                 App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -425,7 +425,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
             }
             else
-                App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_EXPORT),"Assimp plugin was not found, cannot import",VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_critical(App::mainWindow,IDSN_EXPORT,"Assimp plugin was not found, cannot import",VMESSAGEBOX_OKELI);
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -438,7 +438,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             App::logMsg(sim_verbosity_msgs,IDSNS_IMPORTING_PATH_FROM_CSV_FILE);
             App::currentWorld->sceneObjects->deselectObjects();
             std::string tst(App::folders->getCadFilesPath());
-            std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,strTranslate(IDS_IMPORTING_PATH_FROM_CSV_FILE),tst.c_str(),"",false,"CSV Files","csv");
+            std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,IDS_IMPORTING_PATH_FROM_CSV_FILE,tst.c_str(),"",false,"CSV Files","csv");
             if (filenameAndPath.length()!=0)
             {
                 if (VFile::doesFileExist(filenameAndPath.c_str()))
@@ -467,7 +467,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             App::logMsg(sim_verbosity_msgs,IDSNS_IMPORTING_HEIGHTFIELD_SHAPE);
             App::currentWorld->sceneObjects->deselectObjects();
             std::string tst(App::folders->getCadFilesPath());
-            std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,strTranslate(IDS_IMPORTING_HEIGHTFIELD___),tst.c_str(),"",true,"Image, CSV and TXT files","tga","jpg","jpeg","png","gif","bmp","tiff","csv","txt");
+            std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,IDS_IMPORTING_HEIGHTFIELD___,tst.c_str(),"",true,"Image, CSV and TXT files","tga","jpg","jpeg","png","gif","bmp","tiff","csv","txt");
 
             if (filenameAndPath.length()!=0)
             {
@@ -506,7 +506,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     if (0==App::currentWorld->sceneObjects->getShapeCountInSelection(&sel))
                         return(true); // Selection contains nothing that can be exported!
                     std::string tst(App::folders->getCadFilesPath());
-                    std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDSNS_EXPORTING_SHAPES),tst.c_str(),"",false,"Mesh files","obj","ply","stl","dae");
+                    std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDSNS_EXPORTING_SHAPES,tst.c_str(),"",false,"Mesh files","obj","ply","stl","dae");
                     if (filenameAndPath.length()!=0)
                     {
                         App::folders->setCadFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
@@ -526,10 +526,10 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
                 }
                 else
-                    App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_EXPORT),strTranslate(IDS_SCENE_IS_LOCKED_WARNING),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXPORT,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI);
             }
             else
-                App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_EXPORT),"Assimp plugin was not found, cannot export",VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_critical(App::mainWindow,IDSN_EXPORT,"Assimp plugin was not found, cannot export",VMESSAGEBOX_OKELI);
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -547,7 +547,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             if (App::currentWorld->sceneObjects->getGraphCountInSelection(&sel)!=0)
             {
                 std::string tst(App::folders->getOtherFilesPath());
-                std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_SAVING_GRAPHS___),tst.c_str(),"",false,"CSV Files","csv");
+                std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_SAVING_GRAPHS___,tst.c_str(),"",false,"CSV Files","csv");
                 if (filenameAndPath.length()!=0)
                 {
                     VFile myFile(filenameAndPath.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
@@ -591,9 +591,9 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     App::currentWorld->simulation->stopSimulation();
                     std::string titleString;
                     if (cmd.cmdId==FILE_OPERATION_EXPORT_PATH_SIMPLE_POINTS_FOCMD)
-                        titleString=strTranslate(IDS_EXPORTING_PATH___);
+                        titleString=IDS_EXPORTING_PATH___;
                     else
-                        titleString=strTranslate(IDS_EXPORTING_PATH_BEZIER_CURVE___);
+                        titleString=IDS_EXPORTING_PATH_BEZIER_CURVE___;
                     std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,titleString.c_str(),App::folders->getExecutablePath().c_str(),"",false,"CSV Files","csv");
                     if (filenameAndPath.length()!=0)
                     {
@@ -627,7 +627,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     if (eng==sim_physics_ode)
                     {
                         std::string tst(App::folders->getOtherFilesPath());
-                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_EXPORTING_DYNAMIC_CONTENT___),tst.c_str(),"",false,"ODE Dynamics World Files","ode");
+                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_EXPORTING_DYNAMIC_CONTENT___,tst.c_str(),"",false,"ODE Dynamics World Files","ode");
                         if (filenameAndPath.length()!=0)
                         {
                             App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
@@ -640,7 +640,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     if (eng==sim_physics_bullet)
                     {
                         std::string tst(App::folders->getOtherFilesPath());
-                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_EXPORTING_DYNAMIC_CONTENT___),tst.c_str(),"",false,"Bullet Dynamics World Files","bullet");
+                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_EXPORTING_DYNAMIC_CONTENT___,tst.c_str(),"",false,"Bullet Dynamics World Files","bullet");
                         if (filenameAndPath.length()!=0)
                         {
                             App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
@@ -653,7 +653,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     if (eng==sim_physics_vortex)
                     {
                         std::string tst(App::folders->getOtherFilesPath());
-                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_EXPORTING_DYNAMIC_CONTENT___),tst.c_str(),"",false,"Vortex Dynamics World Files","vortex");
+                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_EXPORTING_DYNAMIC_CONTENT___,tst.c_str(),"",false,"Vortex Dynamics World Files","vortex");
                         if (filenameAndPath.length()!=0)
                         {
                             App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
@@ -666,7 +666,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     if (eng==sim_physics_newton)
                     {
                         std::string tst(App::folders->getOtherFilesPath());
-                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_EXPORTING_DYNAMIC_CONTENT___),tst.c_str(),"",false,"Newton Dynamics World Files","newton");
+                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_EXPORTING_DYNAMIC_CONTENT___,tst.c_str(),"",false,"Newton Dynamics World Files","newton");
                         if (filenameAndPath.length()!=0)
                         {
                             App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
@@ -681,7 +681,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     App::logMsg(sim_verbosity_errors,IDSNS_CANNOT_PROCEED_NO_DYNAMIC_CONTENT_AVAILABLE);
             }
             else
-                App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_EXPORT),strTranslate(IDS_SCENE_IS_LOCKED_WARNING),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXPORT,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI);
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -714,7 +714,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             }
             if ((ei==App::worldContainer->getCurrentWorldIndex())&&(!displayed))
             {
-                if (VMESSAGEBOX_REPLY_OK==App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_EXIT),strTranslate(IDS_INSTANCE_STILL_IN_EDIT_MODE_MESSAGE),VMESSAGEBOX_OK_CANCEL))
+                if (VMESSAGEBOX_REPLY_OK==App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXIT,IDS_INSTANCE_STILL_IN_EDIT_MODE_MESSAGE,VMESSAGEBOX_OK_CANCEL))
                 {
                     if (App::mainWindow!=nullptr)
                         App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,nullptr);
@@ -725,7 +725,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             }
             if ((si==App::worldContainer->getCurrentWorldIndex())&&(!displayed))
             {
-                if (VMESSAGEBOX_REPLY_OK==App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_EXIT),strTranslate(IDS_SIMULATION_STILL_RUNNING_MESSAGE),VMESSAGEBOX_OK_CANCEL))
+                if (VMESSAGEBOX_REPLY_OK==App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXIT,IDS_SIMULATION_STILL_RUNNING_MESSAGE,VMESSAGEBOX_OK_CANCEL))
                     App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request,0,0,0,0,nullptr,0);
                 displayed=true;
             }
@@ -733,7 +733,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             {
                 unsigned short action=VMESSAGEBOX_REPLY_NO;
                 if (CSimFlavor::getBoolVal(16))
-                    action=App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_SAVE),strTranslate(IDS_WANNA_SAVE_THE_SCENE_WARNING),VMESSAGEBOX_YES_NO_CANCEL);
+                    action=App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_WANNA_SAVE_THE_SCENE_WARNING,VMESSAGEBOX_YES_NO_CANCEL);
                 if (action==VMESSAGEBOX_REPLY_YES)
                 {
                     if (_saveSceneWithDialogAndEverything()) // will call save as if needed!
@@ -749,19 +749,19 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             }
             if ((ei!=-1)&&(!displayed))
             {
-                App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_EXIT),strTranslate(IDS_ANOTHER_INSTANCE_STILL_IN_EDIT_MODE_MESSAGE),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXIT,IDS_ANOTHER_INSTANCE_STILL_IN_EDIT_MODE_MESSAGE,VMESSAGEBOX_OKELI);
                 App::worldContainer->switchToWorld(ei);
                 displayed=true;
             }
             if ((si!=-1)&&(!displayed))
             {
-                App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_EXIT),strTranslate(IDS_ANOTHER_SIMULATION_STILL_RUNNING_MESSAGE),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXIT,IDS_ANOTHER_SIMULATION_STILL_RUNNING_MESSAGE,VMESSAGEBOX_OKELI);
                 App::worldContainer->switchToWorld(si);
                 displayed=true;
             }
             if ((ci!=-1)&&(!displayed))
             {
-                if (VMESSAGEBOX_REPLY_CANCEL==App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_SAVE),strTranslate(IDS_ANOTHER_INSTANCE_STILL_NOT_SAVED_WANNA_LEAVE_ANYWAY_MESSAGE),VMESSAGEBOX_OK_CANCEL))
+                if (VMESSAGEBOX_REPLY_CANCEL==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_ANOTHER_INSTANCE_STILL_NOT_SAVED_WANNA_LEAVE_ANYWAY_MESSAGE,VMESSAGEBOX_OK_CANCEL))
                 {
                     App::worldContainer->switchToWorld(ci);
                     displayed=true;
@@ -831,7 +831,7 @@ void CFileOperations::closeScene(bool displayMessages,bool displayDialogs)
         {
             if (displayDialogs&&App::currentWorld->undoBufferContainer->isSceneSaveMaybeNeededFlagSet())
             {
-                action=App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_SAVE),strTranslate(IDS_WANNA_SAVE_THE_SCENE_WARNING),VMESSAGEBOX_YES_NO_CANCEL);
+                action=App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_WANNA_SAVE_THE_SCENE_WARNING,VMESSAGEBOX_YES_NO_CANCEL);
                 if (action==VMESSAGEBOX_REPLY_YES)
                 {
                     if (_saveSceneWithDialogAndEverything()) // will call save as if needed!
@@ -1175,7 +1175,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
             if (displayDialogs)
             {
                 App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_SERIALIZATION),strTranslate(IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE,VMESSAGEBOX_OKELI);
                 App::uiThread->showOrHideProgressBar(true);
             }
         }
@@ -1186,7 +1186,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
             if (displayDialogs)
             {
                 App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_SERIALIZATION),strTranslate(IDS_SERIALIZATION_VERSION_TOO_RECENT),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_TOO_RECENT,VMESSAGEBOX_OKELI);
                 App::uiThread->showOrHideProgressBar(true);
             }
         }
@@ -1197,7 +1197,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
             if (displayDialogs)
             {
                 App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_SERIALIZATION),strTranslate(IDS_COMPRESSION_SCHEME_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_COMPRESSION_SCHEME_NOT_SUPPORTED,VMESSAGEBOX_OKELI);
                 App::uiThread->showOrHideProgressBar(true);
             }
         }
@@ -1212,7 +1212,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
             if (displayMessages)
                 App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_OPENED);
             if ((csimVersionThatWroteThis>SIM_PROGRAM_VERSION_NB)&&displayDialogs&&(App::mainWindow!=nullptr))
-                App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_SCENE),strTranslate(IDS_SAVED_WITH_MORE_RECENT_VERSION_WARNING),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SAVED_WITH_MORE_RECENT_VERSION_WARNING,VMESSAGEBOX_OKELI);
             std::string acknowledgement(App::currentWorld->environment->getAcknowledgement());
             std::string tmp(acknowledgement);
             tt::removeSpacesAtBeginningAndEnd(tmp);
@@ -1320,7 +1320,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                 if (displayDialogs)
                 {
                     App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_SERIALIZATION),strTranslate(IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE,VMESSAGEBOX_OKELI);
                     App::uiThread->showOrHideProgressBar(true);
                 }
             }
@@ -1331,7 +1331,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                 if (displayDialogs)
                 {
                     App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_SERIALIZATION),strTranslate(IDS_SERIALIZATION_VERSION_TOO_RECENT),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_TOO_RECENT,VMESSAGEBOX_OKELI);
                     App::uiThread->showOrHideProgressBar(true);
                 }
             }
@@ -1342,7 +1342,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                 if (displayDialogs)
                 {
                     App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_SERIALIZATION),strTranslate(IDS_COMPRESSION_SCHEME_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_COMPRESSION_SCHEME_NOT_SUPPORTED,VMESSAGEBOX_OKELI);
                     App::uiThread->showOrHideProgressBar(true);
                 }
             }
@@ -1357,7 +1357,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                 if ((csimVersionThatWroteThis>SIM_PROGRAM_VERSION_NB)&&displayDialogs&&(App::mainWindow!=nullptr)&&(!onlyThumbnail))
                 {
                     App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_MODEL),strTranslate(IDS_MODEL_SAVED_WITH_MORE_RECENT_VERSION_WARNING),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(App::mainWindow,IDSN_MODEL,IDS_MODEL_SAVED_WITH_MORE_RECENT_VERSION_WARNING,VMESSAGEBOX_OKELI);
                     App::uiThread->showOrHideProgressBar(true);
                 }
     #endif
@@ -1524,7 +1524,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
             #ifdef SIM_WITH_GUI
                 if ((App::mainWindow!=nullptr)&&displayDialogs)
                 { // to avoid an error when saving a file that was opened while still attached to an email for instance
-                    App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_FILE_ACCESS),strTranslate(IDSN_ACCESS_TO_FILE_WAS_DENIED),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_FILE_ACCESS,IDSN_ACCESS_TO_FILE_WAS_DENIED,VMESSAGEBOX_OKELI);
                 }
             #endif
         }
@@ -1699,7 +1699,7 @@ bool CFileOperations::heightfieldImportRoutine(const char* pathName)
                 else
                 {
                     #ifdef SIM_WITH_GUI
-                        App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_IMPORT),strTranslate(IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED),VMESSAGEBOX_OKELI);
+                        App::uiThread->messageBox_critical(App::mainWindow,IDSN_IMPORT,IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI);
                     #endif
                 }
             }
@@ -2089,7 +2089,7 @@ bool CFileOperations::_saveSceneWithDialogAndEverything()
             retVal=_saveSceneAsWithDialogAndEverything(CSimFlavor::getIntVal(1));
         else
         {
-            if ( (!App::currentWorld->environment->getRequestFinalSave())||(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_SAVE),strTranslate(IDS_FINAL_SCENE_SAVE_WARNING),VMESSAGEBOX_YES_NO)) )
+            if ( (!App::currentWorld->environment->getRequestFinalSave())||(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_FINAL_SCENE_SAVE_WARNING,VMESSAGEBOX_YES_NO)) )
             {
                 if (App::currentWorld->environment->getRequestFinalSave())
                     App::currentWorld->environment->setSceneLocked();
@@ -2106,7 +2106,7 @@ bool CFileOperations::_saveSceneWithDialogAndEverything()
         }
     }
     else
-        App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_SCENE),strTranslate(IDS_SCENE_IS_LOCKED_WARNING),VMESSAGEBOX_OKELI);
+        App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI);
     return(retVal);
 }
 
@@ -2115,7 +2115,7 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
     bool retVal=false;
     if (!App::currentWorld->environment->getSceneLocked())
     {
-        if ( ((!App::currentWorld->environment->getRequestFinalSave())||(filetype==CSer::filetype_csim_bin_scene_file)) ||(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_SAVE),strTranslate(IDS_FINAL_SCENE_SAVE_WARNING),VMESSAGEBOX_YES_NO)) )
+        if ( ((!App::currentWorld->environment->getRequestFinalSave())||(filetype==CSer::filetype_csim_bin_scene_file)) ||(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_FINAL_SCENE_SAVE_WARNING,VMESSAGEBOX_YES_NO)) )
         {
             if (App::currentWorld->environment->getRequestFinalSave()&&(filetype!=CSer::filetype_csim_bin_scene_file))
                 App::currentWorld->environment->setSceneLocked();
@@ -2206,7 +2206,7 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
         }
     }
     else
-        App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_SCENE),strTranslate(IDS_SCENE_IS_LOCKED_WARNING),VMESSAGEBOX_OKELI);
+        App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI);
     return(retVal);
 }
 #endif

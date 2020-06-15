@@ -596,8 +596,11 @@ bool CSimulation::getPauseAtError()
 
 void CSimulation::pauseOnErrorRequested()
 {
-    if (_pauseAtError&&(!_requestToStop))
-        _pauseOnErrorRequested=true;
+    if (isSimulationRunning())
+    {
+        if (_pauseAtError&&(!_requestToStop))
+            _pauseOnErrorRequested=true;
+    }
 }
 
 /*

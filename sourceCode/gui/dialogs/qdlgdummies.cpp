@@ -52,7 +52,7 @@ void CQDlgDummies::refresh()
     {
         ui->qqSize->setText(tt::getFString(false,it->getDummySize(),4).c_str());
 
-        ui->qqLinkedDummyCombo->addItem(strTranslate(IDSN_NONE),QVariant(-1));
+        ui->qqLinkedDummyCombo->addItem(IDSN_NONE,QVariant(-1));
         std::vector<std::string> names;
         std::vector<int> ids;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getDummyCount();i++)
@@ -78,11 +78,11 @@ void CQDlgDummies::refresh()
 
         if (it->getLinkedDummyHandle()!=-1)
         {
-            ui->qqLinkTypeCombo->addItem(strTranslate(IDS_DUMMY_LINK_TYPE_IK_TIP_TARGET),QVariant(sim_dummy_linktype_ik_tip_target));
-            ui->qqLinkTypeCombo->addItem(strTranslate(IDS_DUMMY_LINK_TYPE_GCS_LOOP_CLOSURE),QVariant(sim_dummy_linktype_gcs_loop_closure));
-            ui->qqLinkTypeCombo->addItem(strTranslate(IDS_DUMMY_LINK_TYPE_GCS_TIP),QVariant(sim_dummy_linktype_gcs_tip));
-            ui->qqLinkTypeCombo->addItem(strTranslate(IDS_DUMMY_LINK_TYPE_GCS_TARGET),QVariant(sim_dummy_linktype_gcs_target));
-            ui->qqLinkTypeCombo->addItem(strTranslate(IDS_DUMMY_LINK_TYPE_DYNAMICS_LOOP_CLOSURE),QVariant(sim_dummy_linktype_dynamics_loop_closure));
+            ui->qqLinkTypeCombo->addItem(IDS_DUMMY_LINK_TYPE_IK_TIP_TARGET,QVariant(sim_dummy_linktype_ik_tip_target));
+            ui->qqLinkTypeCombo->addItem(IDS_DUMMY_LINK_TYPE_GCS_LOOP_CLOSURE,QVariant(sim_dummy_linktype_gcs_loop_closure));
+            ui->qqLinkTypeCombo->addItem(IDS_DUMMY_LINK_TYPE_GCS_TIP,QVariant(sim_dummy_linktype_gcs_tip));
+            ui->qqLinkTypeCombo->addItem(IDS_DUMMY_LINK_TYPE_GCS_TARGET,QVariant(sim_dummy_linktype_gcs_target));
+            ui->qqLinkTypeCombo->addItem(IDS_DUMMY_LINK_TYPE_DYNAMICS_LOOP_CLOSURE,QVariant(sim_dummy_linktype_dynamics_loop_closure));
             // Here we select the appropriate item:
             for (int i=0;i<ui->qqLinkTypeCombo->count();i++)
             {

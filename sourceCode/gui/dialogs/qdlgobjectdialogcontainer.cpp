@@ -30,7 +30,7 @@ CQDlgObjectDialogContainer::CQDlgObjectDialogContainer(QWidget *parent) :
     ui->setupUi(this);
     pageDlgs[0]=new CQDlgDummies();
     originalHeights[0]=pageDlgs[0]->size().height();
-    ui->qqObjectProp->setText(strTranslate(IDSN_DUMMY));
+    ui->qqObjectProp->setText(IDSN_DUMMY);
     objTypeDlg=sim_object_dummy_type;
 
     pageDlgs[1]=new CQDlgCommonProperties();
@@ -100,39 +100,39 @@ void CQDlgObjectDialogContainer::refresh()
         int t=sel->getObjectType();
         std::string title;
         if (t==sim_object_octree_type)
-            title=strTranslate(IDSN_OCTREE);
+            title=IDSN_OCTREE;
         if (t==sim_object_pointcloud_type)
-            title=strTranslate(IDSN_POINTCLOUD);
+            title=IDSN_POINTCLOUD;
         if (t==sim_object_mirror_type)
-            title=strTranslate(IDSN_MIRROR);
+            title=IDSN_MIRROR;
         if (t==sim_object_shape_type)
-            title=strTranslate(IDSN_SHAPE);
+            title=IDSN_SHAPE;
         if (t==sim_object_joint_type)
-            title=strTranslate(IDSN_JOINT);
+            title=IDSN_JOINT;
         if (t==sim_object_camera_type)
-            title=strTranslate(IDSN_CAMERA);
+            title=IDSN_CAMERA;
         if (t==sim_object_dummy_type)
-            title=strTranslate(IDSN_DUMMY);
+            title=IDSN_DUMMY;
         if (t==sim_object_proximitysensor_type)
-            title=strTranslate(IDSN_PROXIMITY_SENSOR);
+            title=IDSN_PROXIMITY_SENSOR;
         if (t==sim_object_path_type)
-            title=strTranslate(IDSN_PATH);
+            title=IDSN_PATH;
         if (t==sim_object_visionsensor_type)
-            title=strTranslate(IDSN_VISION_SENSOR);
+            title=IDSN_VISION_SENSOR;
         if (t==sim_object_forcesensor_type)
-            title=strTranslate(IDSN_FORCE_SENSOR);
+            title=IDSN_FORCE_SENSOR;
         if (t==sim_object_light_type)
-            title=strTranslate(IDSN_LIGHT);
+            title=IDSN_LIGHT;
         if (t==sim_object_graph_type)
-            title=strTranslate(IDSN_GRAPH);
+            title=IDSN_GRAPH;
         ui->qqObjectProp->setText(title.c_str());
     }
     else
     {
         if (editMode==PATH_EDIT_MODE)
-            ui->qqObjectProp->setText(strTranslate(IDSN_GRAPH));
+            ui->qqObjectProp->setText(IDSN_GRAPH);
         if (editMode&SHAPE_EDIT_MODE)
-            ui->qqObjectProp->setText(strTranslate(IDSN_SHAPE));
+            ui->qqObjectProp->setText(IDSN_SHAPE);
     }
 
     if ((currentPage==0)&&((sel!=nullptr)||(editMode==PATH_EDIT_MODE)||(editMode&SHAPE_EDIT_MODE)))

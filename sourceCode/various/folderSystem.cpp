@@ -7,55 +7,36 @@
 
 CFolderSystem::CFolderSystem()
 {
-    static std::string currentDir(VVarious::getModulePath());
-    _executablePath=currentDir;
-    _extScriptEditorTempPath=currentDir;
-    _remoteApiTempPath=currentDir;
-    _systemPath=_executablePath+"/"+SIM_SYSTEM_DIRECTORY_NAME;
+    _executablePath=VVarious::getModulePath();
+    VVarious::removePathFinalSlashOrBackslash(_executablePath);
 #ifdef MAC_SIM
-    // We are inside of the package!!!
-    /*
-    _scenesPath=_executablePath+"/../../../"+CSimFlavor::getStringVal(13);// if scenes can't be found, it will use the last used directory somehow!
-    _modelsPath=_executablePath+"/../../../"+CSimFlavor::getStringVal(14);
-    _cadFilesPath=_executablePath+"/../../../"+SIM_CADFILES_DIRECTORY_NAME;
-    _texturesPath=_executablePath+"/../../../";
-    _videosPath=_executablePath+"/../../../";
-    _otherFilesPath=_executablePath+"/../../../";
-    */
-    _scenesPath=_executablePath+"/../Resources/"+CSimFlavor::getStringVal(13);// if scenes can't be found, it will use the last used directory somehow!
-    _modelsPath=_executablePath+"/../Resources/"+CSimFlavor::getStringVal(14);
-    _cadFilesPath=_executablePath+"/../Resources/"+SIM_CADFILES_DIRECTORY_NAME;
-    _texturesPath=_executablePath+"/../Resources/";
-    _videosPath=_executablePath+"/../Resources/";
-    _otherFilesPath=_executablePath+"/../Resources/";
+    _resourcesPath=_executablePath+"/../Resources";
 #else
-    _scenesPath=_executablePath+"/"+CSimFlavor::getStringVal(13);// if scenes can't be found, it will use the last used directory somehow!
-    _modelsPath=_executablePath+"/"+CSimFlavor::getStringVal(14);
-    _cadFilesPath=_executablePath+"/"+SIM_CADFILES_DIRECTORY_NAME;
-    _texturesPath=_executablePath;
-    _videosPath=_executablePath;
-    _otherFilesPath=_executablePath;
+    _resourcesPath=_executablePath;
 #endif
+    _extScriptEditorTempPath=_executablePath;
+    _remoteApiTempPath=_executablePath;
+    _systemPath=_executablePath+"/"+SIM_SYSTEM_DIRECTORY_NAME;
+    _scenesPath=_resourcesPath+"/"+CSimFlavor::getStringVal(13);// if scenes can't be found, it will use the last used directory somehow!
+    _modelsPath=_resourcesPath+"/"+CSimFlavor::getStringVal(14);
+    _cadFilesPath=_resourcesPath+"/"+SIM_CADFILES_DIRECTORY_NAME;
+    _texturesPath=_resourcesPath;
+    _videosPath=_resourcesPath;
+    _otherFilesPath=_resourcesPath;
 
     if (App::userSettings->defaultDirectoryForScenes.length()!=0)
-        _scenesPath=App::userSettings->defaultDirectoryForScenes;
+        setScenesPath(App::userSettings->defaultDirectoryForScenes.c_str());
     if (App::userSettings->defaultDirectoryForModels.length()!=0)
-        _modelsPath=App::userSettings->defaultDirectoryForModels;
+        setModelsPath(App::userSettings->defaultDirectoryForModels.c_str());
     if (App::userSettings->defaultDirectoryForCadFiles.length()!=0)
-        _cadFilesPath=App::userSettings->defaultDirectoryForCadFiles;
+        setCadFilesPath(App::userSettings->defaultDirectoryForCadFiles.c_str());
     if (App::userSettings->defaultDirectoryForMiscFiles.length()!=0)
-        _otherFilesPath=App::userSettings->defaultDirectoryForMiscFiles;
+        setOtherFilesPath(App::userSettings->defaultDirectoryForMiscFiles.c_str());
     if (App::userSettings->defaultDirectoryForExternalScriptEditor.length()!=0)
-        _extScriptEditorTempPath=App::userSettings->defaultDirectoryForExternalScriptEditor;
+        setExtScriptEditorTempPath(App::userSettings->defaultDirectoryForExternalScriptEditor.c_str());
     if (App::userSettings->defaultDirectoryForRemoteApiFiles.length()!=0)
-        _remoteApiTempPath=App::userSettings->defaultDirectoryForRemoteApiFiles;
+        setRemoteApiTempPath(App::userSettings->defaultDirectoryForRemoteApiFiles.c_str());
 
-    VVarious::removePathFinalSlashOrBackslash(_scenesPath);
-    VVarious::removePathFinalSlashOrBackslash(_modelsPath);
-    VVarious::removePathFinalSlashOrBackslash(_cadFilesPath);
-    VVarious::removePathFinalSlashOrBackslash(_otherFilesPath);
-    VVarious::removePathFinalSlashOrBackslash(_extScriptEditorTempPath);
-    VVarious::removePathFinalSlashOrBackslash(_remoteApiTempPath);
 }
 
 CFolderSystem::~CFolderSystem()
@@ -81,6 +62,11 @@ std::string CFolderSystem::getExecutablePath() const
 std::string CFolderSystem::getSystemPath() const
 {
     return(_systemPath);
+}
+
+std::string CFolderSystem::getResourcesPath() const
+{
+    return(_resourcesPath);
 }
 
 std::string CFolderSystem::getScenesPath() const

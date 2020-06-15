@@ -41,11 +41,11 @@ void CQDlgSimulation::refresh()
     ui->qqRemoveNewObjects->setEnabled(noEditMode);
 
     ui->qqConfigCombo->clear();
-    ui->qqConfigCombo->addItem(strTranslate(IDSN_TIME_STEP_CONFIG_200),QVariant(0));
-    ui->qqConfigCombo->addItem(strTranslate(IDSN_TIME_STEP_CONFIG_100),QVariant(1));
-    ui->qqConfigCombo->addItem(strTranslate(IDSN_TIME_STEP_CONFIG_50),QVariant(2));
-    ui->qqConfigCombo->addItem(strTranslate(IDSN_TIME_STEP_CONFIG_25),QVariant(3));
-    ui->qqConfigCombo->addItem(strTranslate(IDSN_TIME_STEP_CONFIG_10),QVariant(4));
+    ui->qqConfigCombo->addItem(IDSN_TIME_STEP_CONFIG_200,QVariant(0));
+    ui->qqConfigCombo->addItem(IDSN_TIME_STEP_CONFIG_100,QVariant(1));
+    ui->qqConfigCombo->addItem(IDSN_TIME_STEP_CONFIG_50,QVariant(2));
+    ui->qqConfigCombo->addItem(IDSN_TIME_STEP_CONFIG_25,QVariant(3));
+    ui->qqConfigCombo->addItem(IDSN_TIME_STEP_CONFIG_10,QVariant(4));
 
     float dt=float(App::currentWorld->simulation->getSimulationTimeStep_raw_ns(5))/1000.0f;
     std::string txt("dt=");

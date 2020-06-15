@@ -737,14 +737,14 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
             {
                 if (script->getThreadedExecution())
                 {
-                    if (script->getScriptIsDisabled()||((it->getCumulativeModelProperty()&sim_modelproperty_scripts_inactive)!=0))
+                    if ((!script->getScriptEnabledAndNoErrorRaised())||((it->getCumulativeModelProperty()&sim_modelproperty_scripts_inactive)!=0))
                         App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTDISABLED_THREADED_PICTURE);
                     else
                         App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPT_THREADED_PICTURE);
                 }
                 else
                 {
-                    if (script->getScriptIsDisabled()||((it->getCumulativeModelProperty()&sim_modelproperty_scripts_inactive)!=0))
+                    if ((!script->getScriptEnabledAndNoErrorRaised())||((it->getCumulativeModelProperty()&sim_modelproperty_scripts_inactive)!=0))
                         App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTDISABLED_PICTURE);
                     else
                         App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPT_PICTURE);
@@ -785,7 +785,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
             hasScript=true;
             if (!dontDisplay)
             {
-                if (customizationScript->hasCustomizationScripAnyChanceToGetExecuted(false,false))
+                if ( customizationScript->hasCustomizationScripAnyChanceToGetExecuted(false,false)&&customizationScript->getScriptEnabledAndNoErrorRaised() )
                     App::worldContainer->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPT_PICTURE);
                 else
                     App::worldContainer->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPTDISABLED_PICTURE);

@@ -165,8 +165,8 @@ void CQDlgCommonProperties::refresh()
 
     if (ls!=nullptr)
     {
-        ui->qqViewableObjects->addItem(strTranslate(IDSN_ALL_CAMERAS_AND_VISION_SENSORS),QVariant(-1));
-        ui->qqViewableObjects->addItem(strTranslate(IDSN_NEVER_VISIBLE),QVariant(-2));
+        ui->qqViewableObjects->addItem(IDSN_ALL_CAMERAS_AND_VISION_SENSORS,QVariant(-1));
+        ui->qqViewableObjects->addItem(IDSN_NEVER_VISIBLE,QVariant(-2));
 
         std::vector<std::string> names;
         std::vector<int> ids;
@@ -175,7 +175,7 @@ void CQDlgCommonProperties::refresh()
         for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
         {
             CCollection* it2=App::currentWorld->collections->getObjectFromIndex(i);
-            std::string name(tt::decorateString("[",strTranslate(IDSN_COLLECTION),"] "));
+            std::string name(tt::decorateString("[",IDSN_COLLECTION,"] "));
             name+=it2->getCollectionName();
             names.push_back(name);
             ids.push_back(it2->getCollectionHandle());
@@ -190,7 +190,7 @@ void CQDlgCommonProperties::refresh()
         for (size_t i=0;i<App::currentWorld->sceneObjects->getCameraCount();i++)
         {
             CCamera* it2=App::currentWorld->sceneObjects->getCameraFromIndex(i);
-            std::string name(tt::decorateString("[",strTranslate(IDSN_CAMERA),"] "));
+            std::string name(tt::decorateString("[",IDSN_CAMERA,"] "));
             name+=it2->getObjectName();
             names.push_back(name);
             ids.push_back(it2->getObjectHandle());
@@ -205,7 +205,7 @@ void CQDlgCommonProperties::refresh()
         for (size_t i=0;i<App::currentWorld->sceneObjects->getVisionSensorCount();i++)
         {
             CVisionSensor* it2=App::currentWorld->sceneObjects->getVisionSensorFromIndex(i);
-            std::string name(tt::decorateString("[",strTranslate(IDSN_VISION_SENSOR),"] "));
+            std::string name(tt::decorateString("[",IDSN_VISION_SENSOR,"] "));
             name+=it2->getObjectName();
             names.push_back(name);
             ids.push_back(it2->getObjectHandle());
@@ -813,7 +813,7 @@ void CQDlgCommonProperties::on_qqUpdatable_clicked()
             int p=ls->getLocalObjectProperty();
             if (p&sim_objectproperty_canupdatedna)
             {
-                if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Updatable property"),strTranslate(IDSN_SURE_TO_DISABLE_UPDATABLE_WARNING),VMESSAGEBOX_YES_NO))
+                if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,"Updatable property",IDSN_SURE_TO_DISABLE_UPDATABLE_WARNING,VMESSAGEBOX_YES_NO))
                     App::appendSimulationThreadCommand(TOGGLE_CANTRANSFERDNA_COMMONPROPGUITRIGGEREDCMD,ls->getObjectHandle());
             }
             else

@@ -500,7 +500,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
                 { // simple shape
                     bool goOn=(getEditModeType()==NO_EDIT_MODE);
                     if (goOn&&(it->getMeshWrapper()->isPure()))
-                        goOn=(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_SHAPE_EDIT_MODE),strTranslate(IDS_SHAPE_IS_PURE_PRIMITIVE_INFO_MESSAGE),VMESSAGEBOX_YES_NO));
+                        goOn=(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SHAPE_EDIT_MODE,IDS_SHAPE_IS_PURE_PRIMITIVE_INFO_MESSAGE,VMESSAGEBOX_YES_NO));
                     if (goOn)
                     {
                         POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
@@ -930,7 +930,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             unsigned short res=0;
             if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD) )
-                res=App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_SHAPE_EDIT_MODE),strTranslate(IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES),VMESSAGEBOX_YES_NO_CANCEL);
+                res=App::uiThread->messageBox_information(App::mainWindow,IDSN_SHAPE_EDIT_MODE,IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES,VMESSAGEBOX_YES_NO_CANCEL);
             if (commandID==ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)
                 res=VMESSAGEBOX_REPLY_NO;
             if (commandID==ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)
@@ -1184,7 +1184,7 @@ bool CEditModeContainer::_processPathEditModeCommand(int commandID,CSceneObject*
         { // we are NOT in the UI thread. We execute the command now:
             bool proceed=true;
             if (_pathEditMode->getBezierPathPointCount()>50)
-                proceed=(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_PATH),strTranslate(IDS_LARGE_QUANTITY_OF_PATH_POINTS_WARNING),VMESSAGEBOX_YES_NO));
+                proceed=(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_PATH,IDS_LARGE_QUANTITY_OF_PATH_POINTS_WARNING,VMESSAGEBOX_YES_NO));
             if (_pathEditMode->getBezierPathPointCount()<2)
                 proceed=false;
             if (proceed)
@@ -1210,7 +1210,7 @@ bool CEditModeContainer::_processPathEditModeCommand(int commandID,CSceneObject*
         { // we are NOT in the UI thread. We execute the command now:
             unsigned short res=0;
             if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==PATH_EDIT_MODE_TOGGLE_ON_OFF_EMCMD) )
-                res=App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_PATH_EDIT_MODE),strTranslate(IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES),VMESSAGEBOX_YES_NO_CANCEL);
+                res=App::uiThread->messageBox_information(App::mainWindow,IDSN_PATH_EDIT_MODE,IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES,VMESSAGEBOX_YES_NO_CANCEL);
             if (commandID==ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)
                 res=VMESSAGEBOX_REPLY_NO;
             if (commandID==ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)

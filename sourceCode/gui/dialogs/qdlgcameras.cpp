@@ -75,7 +75,7 @@ void CQDlgCameras::refresh()
         ui->qqLocalLights->setChecked(it->getuseLocalLights());
         ui->qqAllowPicking->setChecked(it->getAllowPicking());
 
-        ui->qqTrackedCombo->addItem(strTranslate(IDSN_NONE),QVariant(-1));
+        ui->qqTrackedCombo->addItem(IDSN_NONE,QVariant(-1));
         std::vector<std::string> names;
         std::vector<int> ids;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)

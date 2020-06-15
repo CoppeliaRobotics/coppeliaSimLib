@@ -47,8 +47,6 @@ private slots:
 
     void on_qqCombo_currentIndexChanged(int index);
 
-    void on_qqDisableWithError_clicked();
-
     void on_qqTreeTraversalDirection_currentIndexChanged(int index);
 
     void on_qqDebugMode_currentIndexChanged(int index);

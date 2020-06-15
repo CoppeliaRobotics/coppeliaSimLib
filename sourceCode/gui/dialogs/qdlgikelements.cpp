@@ -211,18 +211,18 @@ void CQDlgIkElements::refresh()
         {
             CDummy* target=App::currentWorld->sceneObjects->getDummyFromHandle(tip->getLinkedDummyHandle());
             if (target==nullptr)
-                ui->qqTargetString->setText(strTranslate(IDS_WARNING_TIP_DUMMY_NOT_LINKED));
+                ui->qqTargetString->setText(IDS_WARNING_TIP_DUMMY_NOT_LINKED);
             else
             {
                 if (tip->getLinkType()!=sim_dummy_linktype_ik_tip_target)
-                    ui->qqTargetString->setText(strTranslate(IDS_WARNING_WRONG_DUMMY_LINK_TYPE));
+                    ui->qqTargetString->setText(IDS_WARNING_WRONG_DUMMY_LINK_TYPE);
                 else
                     ui->qqTargetString->setText(target->getObjectName().c_str());
             }
         }
 
         CDummy* tooltip=App::currentWorld->sceneObjects->getDummyFromHandle(it->getTipHandle());
-        ui->qqBaseCombo->addItem(strTranslate(IDSN_WORLD),QVariant(-1));
+        ui->qqBaseCombo->addItem(IDSN_WORLD,QVariant(-1));
         names.clear();
         ids.clear();
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
@@ -248,7 +248,7 @@ void CQDlgIkElements::refresh()
 
         names.clear();
         ids.clear();
-        ui->qqRelativeCombo->addItem(strTranslate(IDSN_SAME_AS_BASE),QVariant(-1));
+        ui->qqRelativeCombo->addItem(IDSN_SAME_AS_BASE,QVariant(-1));
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
         {
             CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromIndex(i);

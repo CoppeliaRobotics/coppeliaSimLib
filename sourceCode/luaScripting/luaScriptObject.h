@@ -17,6 +17,13 @@
 
 class CLuaScriptObject
 {
+    enum {
+        execState_uninitialized=-1,
+        execState_compilationError=0,
+        execState_initialized=1,
+        execState_runtimeError=2, // means the script is initialized too
+    };
+
 public:
     CLuaScriptObject(int scriptTypeOrMinusOneForSerialization);
     virtual ~CLuaScriptObject();
@@ -65,7 +72,7 @@ public:
     int runSandboxScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     bool runSandboxScript_beforeMainScript();
 
-
+    void terminateScriptExecutionExternally();
     void handleDebug(const char* funcName,const char* funcType,bool inCall,bool sysCall);
 
     int callScriptFunction(const char* functionName, SLuaCallBack* pdata);
@@ -103,8 +110,7 @@ public:
     int getScriptType() const;
     void setScriptIsDisabled(bool isDisabled);
     bool getScriptIsDisabled() const;
-    void setDisableCustomizationScriptWithError(bool d);
-    bool getDisableCustomizationScriptWithError() const;
+    bool getScriptEnabledAndNoErrorRaised() const;
     void setExecuteJustOnce(bool justOnce);
     bool getExecuteJustOnce() const;
 
@@ -127,17 +133,16 @@ public:
     void setCustomizedMainScript(bool customized);
     bool isDefaultMainScript() const;
 
-    std::string errorWithCustomizationScript();
-    void setCustomizationScriptIsTemporarilyDisabled(bool disabled);
-    bool getCustomizationScriptIsTemporarilyDisabled() const;
-    void setCustScriptDisabledDSim_compatibilityMode(bool disabled);
-    bool getCustScriptDisabledDSim_compatibilityMode() const;
-    void setCustomizationScriptCleanupBeforeSave(bool doIt);
-    bool getCustomizationScriptCleanupBeforeSave() const;
+    void setCustScriptDisabledDSim_compatibilityMode_DEPRECATED(bool disabled);
+    bool getCustScriptDisabledDSim_compatibilityMode_DEPRECATED() const;
+    void setCustomizationScriptCleanupBeforeSave_DEPRECATED(bool doIt);
+    bool getCustomizationScriptCleanupBeforeSave_DEPRECATED() const;
 
-    bool hasCustomizationScripAnyChanceToGetExecuted(bool whenSimulationRuns,bool forCleanUpSection) const;
+    bool hasCustomizationScripAnyChanceToGetExecuted(bool forCleanUpSection,bool whenSimulationRuns) const;
 
     int getScriptExecutionTimeInMs() const;
+    void setRaiseErrors_backCompatibility(bool raise);
+    bool getRaiseErrors_backCompatibility() const;
 
     double getRandomDouble();
     void setRandomSeed(unsigned int s);
@@ -180,7 +185,7 @@ public:
     static std::vector<std::string> getAllSystemCallbackStrings(int scriptType,bool threaded,bool callTips);
 
 protected:
-    void _displayScriptError(const char* errMsg,bool debugRoutine=false);
+    void _announceErrorWasRaisedAndDisableScript(const char* errMsg,bool runtimeError,bool debugRoutine=false);
     bool _luaLoadBuffer(luaWrap_lua_State* luaState,const char* buff,size_t sz,const char* name);
     int _luaPCall(luaWrap_lua_State* luaState,int nargs,int nresult,int errfunc,const char* funcName);
 
@@ -188,9 +193,8 @@ protected:
     int _runMainScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
     int _runNonThreadedChildScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     void _launchThreadedChildScriptNow();
-    int _runCustomizationScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int _runAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int _runScriptOrCallScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg);
+    int _runScriptOrCallScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     void _handleSimpleSysExCalls(int callType);
 
     bool _prepareLuaStateAndCallScriptInitSectionIfNeeded();
@@ -224,12 +228,13 @@ protected:
     int _scriptType; // sim_scriptproperty_mainscript, etc.
     bool _threadedExecution;
     bool _scriptIsDisabled;
+    int _executionState; // execState_uninitialized, etc.
     bool _executeJustOnce;
     bool _mainScriptIsDefaultMainScript;
-    bool _disableCustomizationScriptWithError;
     int _executionOrder;
     int _debugLevel;
     bool _inDebug;
+    bool _raiseErrors_backCompatibility;
     int _treeTraversalDirection;
     int _objectIDAttachedTo;
     bool _calledInThisSimulationStep;
@@ -253,9 +258,8 @@ protected:
 
     bool _flaggedForDestruction;
 
-    bool _customizationScriptIsTemporarilyDisabled;
-    bool _custScriptDisabledDSim_compatibilityMode;
-    bool _customizationScriptCleanupBeforeSave;
+    bool _custScriptDisabledDSim_compatibilityMode_DEPRECATED;
+    bool _customizationScriptCleanupBeforeSave_DEPRECATED;
     int _timeOfPcallStart;
     std::string _lastStackTraceback;
     std::string _lastError;
@@ -266,8 +270,7 @@ protected:
     bool _containsVisionCallbackFunction;
     bool _containsTriggerCallbackFunction;
     bool _containsUserConfigCallbackFunction;
-
-    int _messageReportingOverride;
+    void _printContext(const char* str,size_t p);
 
     VMutex _localMutex;
     std::string _addOnName;

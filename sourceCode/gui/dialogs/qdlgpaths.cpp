@@ -60,13 +60,13 @@ void CQDlgPaths::refresh()
         ui->qqLineSize->setText(tt::getIString(false,pathCont->getLineSize()).c_str());
         ui->qqControlPointSize->setText(tt::getFString(false,pathCont->getSquareSize(),3).c_str());
 
-        ui->qqDistanceCombo->addItem(strTranslate(IDS_PATH_LENGTH_CALC_DL),QVariant(sim_distcalcmethod_dl));
-        ui->qqDistanceCombo->addItem(strTranslate(IDS_PATH_LENGTH_CALC_DAC),QVariant(sim_distcalcmethod_dac));
-        ui->qqDistanceCombo->addItem(strTranslate(IDS_PATH_LENGTH_CALC_MAX_DL_DAC),QVariant(sim_distcalcmethod_max_dl_dac));
-        ui->qqDistanceCombo->addItem(strTranslate(IDS_PATH_LENGTH_CALC_DL_AND_DAC),QVariant(sim_distcalcmethod_dl_and_dac));
-        ui->qqDistanceCombo->addItem(strTranslate(IDS_PATH_LENGTH_CALC_SQRT_DL2_AND_DAC2),QVariant(sim_distcalcmethod_sqrt_dl2_and_dac2));
-        ui->qqDistanceCombo->addItem(strTranslate(IDS_PATH_LENGTH_CALC_DL_IF_NONZERO),QVariant(sim_distcalcmethod_dl_if_nonzero));
-        ui->qqDistanceCombo->addItem(strTranslate(IDS_PATH_LENGTH_CALC_DAC_IF_NONZERO),QVariant(sim_distcalcmethod_dac_if_nonzero));
+        ui->qqDistanceCombo->addItem(IDS_PATH_LENGTH_CALC_DL,QVariant(sim_distcalcmethod_dl));
+        ui->qqDistanceCombo->addItem(IDS_PATH_LENGTH_CALC_DAC,QVariant(sim_distcalcmethod_dac));
+        ui->qqDistanceCombo->addItem(IDS_PATH_LENGTH_CALC_MAX_DL_DAC,QVariant(sim_distcalcmethod_max_dl_dac));
+        ui->qqDistanceCombo->addItem(IDS_PATH_LENGTH_CALC_DL_AND_DAC,QVariant(sim_distcalcmethod_dl_and_dac));
+        ui->qqDistanceCombo->addItem(IDS_PATH_LENGTH_CALC_SQRT_DL2_AND_DAC2,QVariant(sim_distcalcmethod_sqrt_dl2_and_dac2));
+        ui->qqDistanceCombo->addItem(IDS_PATH_LENGTH_CALC_DL_IF_NONZERO,QVariant(sim_distcalcmethod_dl_if_nonzero));
+        ui->qqDistanceCombo->addItem(IDS_PATH_LENGTH_CALC_DAC_IF_NONZERO,QVariant(sim_distcalcmethod_dac_if_nonzero));
         for (int i=0;i<ui->qqDistanceCombo->count();i++)
         {
             if (ui->qqDistanceCombo->itemData(i).toInt()==pathCont->getPathLengthCalculationMethod())

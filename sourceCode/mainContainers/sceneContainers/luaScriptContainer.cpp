@@ -398,7 +398,7 @@ void CLuaScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
             CLuaScriptObject* it=getScriptFromObjectAttachedTo_customization(obj->getObjectHandle());
             if (it!=nullptr)
             {
-                if (it->getCustomizationScriptCleanupBeforeSave())
+                if (it->getCustomizationScriptCleanupBeforeSave_DEPRECATED())
                     it->killLuaState();
             }
             for (size_t i=0;i<obj->getChildCount();i++)
@@ -412,7 +412,7 @@ void CLuaScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
             CLuaScriptObject* it=allScripts[i];
             if (it->getScriptType()==sim_scripttype_customizationscript)
             {
-                if (it->getCustomizationScriptCleanupBeforeSave())
+                if (it->getCustomizationScriptCleanupBeforeSave_DEPRECATED())
                     it->killLuaState();
             }
         }

@@ -75,11 +75,11 @@ void CQDlgProximitySensors::refresh()
     {
         ui->qqPointSize->setText(tt::getFString(false,it->getSize(),3).c_str());
 
-        ui->qqSensorTypeCombo->addItem(strTranslate(IDS_DETECTABLE_ULTRASONIC),QVariant(sim_objectspecialproperty_detectable_ultrasonic));
-        ui->qqSensorTypeCombo->addItem(strTranslate(IDS_DETECTABLE_INFRARED),QVariant(sim_objectspecialproperty_detectable_infrared));
-        ui->qqSensorTypeCombo->addItem(strTranslate(IDS_DETECTABLE_LASER),QVariant(sim_objectspecialproperty_detectable_laser));
-        ui->qqSensorTypeCombo->addItem(strTranslate(IDS_DETECTABLE_INDUCTIVE),QVariant(sim_objectspecialproperty_detectable_inductive));
-        ui->qqSensorTypeCombo->addItem(strTranslate(IDS_DETECTABLE_CAPACITIVE),QVariant(sim_objectspecialproperty_detectable_capacitive));
+        ui->qqSensorTypeCombo->addItem(IDS_DETECTABLE_ULTRASONIC,QVariant(sim_objectspecialproperty_detectable_ultrasonic));
+        ui->qqSensorTypeCombo->addItem(IDS_DETECTABLE_INFRARED,QVariant(sim_objectspecialproperty_detectable_infrared));
+        ui->qqSensorTypeCombo->addItem(IDS_DETECTABLE_LASER,QVariant(sim_objectspecialproperty_detectable_laser));
+        ui->qqSensorTypeCombo->addItem(IDS_DETECTABLE_INDUCTIVE,QVariant(sim_objectspecialproperty_detectable_inductive));
+        ui->qqSensorTypeCombo->addItem(IDS_DETECTABLE_CAPACITIVE,QVariant(sim_objectspecialproperty_detectable_capacitive));
         for (int i=0;i<ui->qqSensorTypeCombo->count();i++)
         {
             if (ui->qqSensorTypeCombo->itemData(i).toInt()==it->getSensableType())
@@ -90,14 +90,14 @@ void CQDlgProximitySensors::refresh()
         }
 
 
-        ui->qqEntityToDetect->addItem(strTranslate(IDSN_ALL_DETECTABLE_OBJECTS_IN_SCENE),QVariant(-1));
+        ui->qqEntityToDetect->addItem(IDSN_ALL_DETECTABLE_OBJECTS_IN_SCENE,QVariant(-1));
         std::vector<std::string> names;
         std::vector<int> ids;
         // Now collections:
         for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
         {
             CCollection* it=App::currentWorld->collections->getObjectFromIndex(i);
-            std::string name(tt::decorateString("[",strTranslate(IDSN_COLLECTION),"] "));
+            std::string name(tt::decorateString("[",IDSN_COLLECTION,"] "));
             name+=it->getCollectionName();
             names.push_back(name);
             ids.push_back(it->getCollectionHandle());
@@ -113,7 +113,7 @@ void CQDlgProximitySensors::refresh()
         for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromIndex(i);
-            std::string name(tt::decorateString("[",strTranslate(IDSN_SHAPE),"] "));
+            std::string name(tt::decorateString("[",IDSN_SHAPE,"] "));
             name+=it->getObjectName();
             names.push_back(name);
             ids.push_back(it->getObjectHandle());
@@ -129,7 +129,7 @@ void CQDlgProximitySensors::refresh()
         for (size_t i=0;i<App::currentWorld->sceneObjects->getDummyCount();i++)
         {
             CDummy* it=App::currentWorld->sceneObjects->getDummyFromIndex(i);
-            std::string name(tt::decorateString("[",strTranslate(IDSN_DUMMY),"] "));
+            std::string name(tt::decorateString("[",IDSN_DUMMY,"] "));
             name+=it->getObjectName();
             names.push_back(name);
             ids.push_back(it->getObjectHandle());
@@ -274,7 +274,7 @@ void CQDlgProximitySensors::on_qqEntityToDetect_currentIndexChanged(int index)
                         displayWarning|=((it2->getLocalObjectSpecialProperty()&sim_objectspecialproperty_detectable_all)==0);
                 }
                 if (displayWarning)
-                    App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Scene object"),strTranslate(IDS_OBJECT_NOT_DETECTABLE_WARNING),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(App::mainWindow,"Scene object",IDS_OBJECT_NOT_DETECTABLE_WARNING,VMESSAGEBOX_OKELI);
             }
             App::appendSimulationThreadCommand(SET_ENTITYTODETECT_PROXSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),objID);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);

@@ -162,7 +162,7 @@ void CQDlgAviRecorder::on_selectLocation_clicked()
         {
 /*
             std::string initPath=App::directories->getPathFromFull(App::mainWindow->simulationRecorder->getFilenameAndPath());
-            std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDSN_AVI_FILE_LOCATION),initPath,App::mainWindow->simulationRecorder->getFilenameAndPath(),false,"Various","*");
+            std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDSN_AVI_FILE_LOCATION,initPath,App::mainWindow->simulationRecorder->getFilenameAndPath(),false,"Various","*");
             if (filenameAndPath.length()!=0)
             {
                 // Make sure we don't include the extension
@@ -173,7 +173,7 @@ void CQDlgAviRecorder::on_selectLocation_clicked()
             }
 */
             std::string initPath=App::mainWindow->simulationRecorder->getPath(nullptr);
-            std::string folder=App::uiThread->getOpenOrSaveFileName_api(sim_filedlg_type_folder,strTranslate(IDSN_AVI_FILE_LOCATION),initPath.c_str(),"","","");
+            std::string folder=App::uiThread->getOpenOrSaveFileName_api(sim_filedlg_type_folder,IDSN_AVI_FILE_LOCATION,initPath.c_str(),"","","");
             if (folder.length()!=0)
                 App::mainWindow->simulationRecorder->setPath(folder.c_str());
         }

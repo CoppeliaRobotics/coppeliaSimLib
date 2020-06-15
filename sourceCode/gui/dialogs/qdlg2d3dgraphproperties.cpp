@@ -72,12 +72,12 @@ void CQDlg2D3DGraphProperties::_initialize(int graphHandle,bool xyGraph)
         std::string txt;
         if (_xyGraph)
         {
-            ui->qqGroupBox->setTitle(strTranslate(IDSN_XY_CURVE_PROPERTIES));
+            ui->qqGroupBox->setTitle(IDSN_XY_CURVE_PROPERTIES);
             txt=IDSN_XY_CURVES;
         }
         else
         {
-            ui->qqGroupBox->setTitle(strTranslate(IDSN_3D_CURVE_PROPERTIES));
+            ui->qqGroupBox->setTitle(IDSN_3D_CURVE_PROPERTIES);
             txt=IDSN_3D_CURVES;
         }
         txt+=" (";

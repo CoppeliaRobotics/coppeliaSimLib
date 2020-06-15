@@ -1120,7 +1120,7 @@ void CMainWindow::_createDefaultToolBars()
         _engineSelectCombo->addItem(tr(IDS_ODE));
         _engineSelectCombo->addItem(tr(IDS_VORTEX));
         _engineSelectCombo->addItem(tr(IDS_NEWTON));
-        _engineSelectCombo->setToolTip(strTranslate(IDS_TOOLBAR_TOOLTIP_DYNAMICS_ENGINE));
+        _engineSelectCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_DYNAMICS_ENGINE);
         _toolbar1->addWidget(_engineSelectCombo);
         connect(_engineSelectCombo,SIGNAL(activated(int)),this,SLOT(_engineSelectedViaToolbar(int)));
 
@@ -1152,7 +1152,7 @@ void CMainWindow::_createDefaultToolBars()
             _enginePrecisionCombo->addItem(tr(IDSN_ENGINE_FAST));
             _enginePrecisionCombo->addItem(tr(IDSN_ENGINE_VERY_FAST));
             _enginePrecisionCombo->addItem(tr(IDSN_ENGINE_CUSTOM));
-            _enginePrecisionCombo->setToolTip(strTranslate(IDS_TOOLBAR_TOOLTIP_DYNAMICS_SETTINGS));
+            _enginePrecisionCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_DYNAMICS_SETTINGS);
             _toolbar1->addWidget(_enginePrecisionCombo);
             connect(_enginePrecisionCombo,SIGNAL(activated(int)),this,SLOT(_enginePrecisionViaToolbar(int)));
         }
@@ -1192,7 +1192,7 @@ void CMainWindow::_createDefaultToolBars()
             txt+=IDSN_TIME_STEP_CONFIG_CUSTOM;
             _timeStepConfigCombo->addItem(txt.c_str());
 
-            _timeStepConfigCombo->setToolTip(strTranslate(IDS_TOOLBAR_TOOLTIP_SIMULATION_TIME_STEP));
+            _timeStepConfigCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_SIMULATION_TIME_STEP);
             _toolbar1->addWidget(_timeStepConfigCombo);
             connect(_timeStepConfigCombo,SIGNAL(activated(int)),this,SLOT(_timeStepConfigViaToolbar(int)));
         }
@@ -1852,7 +1852,7 @@ void CMainWindow::_actualizetoolbarButtonState()
             _enginePrecisionCombo->setCurrentIndex(App::currentWorld->dynamicsContainer->getUseDynamicDefaultCalculationParameters());
             if (App::currentWorld->simulation->isSimulationStopped())
             {
-                _timeStepConfigCombo->setToolTip(strTranslate(IDS_TOOLBAR_TOOLTIP_SIMULATION_TIME_STEP));
+                _timeStepConfigCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_SIMULATION_TIME_STEP);
                 _timeStepConfigCombo->setItemText(0,tr(IDSN_TIME_STEP_CONFIG_200));
                 _timeStepConfigCombo->setItemText(1,tr(IDSN_TIME_STEP_CONFIG_100));
                 _timeStepConfigCombo->setItemText(2,tr(IDSN_TIME_STEP_CONFIG_50));
@@ -1870,7 +1870,7 @@ void CMainWindow::_actualizetoolbarButtonState()
             }
             else
             {
-                _timeStepConfigCombo->setToolTip(strTranslate(IDS_TOOLBAR_TOOLTIP_DT_SIMULATION_TIME_STEP_AND_PPF));
+                _timeStepConfigCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_DT_SIMULATION_TIME_STEP_AND_PPF);
                 float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000.0f);
                 std::string txt("dt=");
                 txt+=tt::FNb(0,dt,1,false);
@@ -1971,13 +1971,13 @@ void CMainWindow::_dropFilesIntoScene(const std::vector<std::string>& tttFiles,c
         if ( ((tttFiles.size()>0)&&(ttmFiles.size()==0))||((tttFiles.size()==0)&&(ttmFiles.size()>0)) )
         {
             if (editModeContainer->getEditModeType()!=NO_EDIT_MODE)
-                App::uiThread->messageBox_warning(this,strTranslate("Drag and drop"),strTranslate(IDS_END_EDIT_MODE_BEFORE_PROCEEDING),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(this,"Drag and drop",IDS_END_EDIT_MODE_BEFORE_PROCEEDING,VMESSAGEBOX_OKELI);
             else
             {
                 if (tttFiles.size()>0)
                 { // loading (a) scene(s):
                     if (!App::currentWorld->simulation->isSimulationStopped())
-                        App::uiThread->messageBox_warning(this,strTranslate("Drag and drop"),strTranslate(IDS_STOP_SIMULATION_BEFORE_PROCEEDING),VMESSAGEBOX_OKELI);
+                        App::uiThread->messageBox_warning(this,"Drag and drop",IDS_STOP_SIMULATION_BEFORE_PROCEEDING,VMESSAGEBOX_OKELI);
                     else
                     {
                         for (size_t i=0;i<tttFiles.size();i++)

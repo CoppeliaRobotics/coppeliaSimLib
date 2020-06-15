@@ -20,7 +20,6 @@
 #define SIM_CLEAR_BIT(var,bit) ((var) &= (~(1<<(bit))))
 #define SIM_TOGGLE_BIT(var,bit) ((var) ^= (1<<(bit)))
 #define SIM_SET_CLEAR_BIT(var,bit,on) ((on) ? SIM_SET_BIT((var),(bit)) : SIM_CLEAR_BIT((var),(bit)) )
-#define strTranslate(text) text
 #define QTPROPERTYBROWSER_COLOR_GREY QColor(244,244,244)
 #define QTPROPERTYBROWSER_COLOR_RED QColor(255,240,240)
 #define QTPROPERTYBROWSER_COLOR_GREEN QColor(240,255,240)

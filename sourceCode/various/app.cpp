@@ -1445,11 +1445,11 @@ bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* log
             {
                 std::string plugN("simExt");
                 plugN+=pluginName;
-                _logMsg(plugN.c_str(),verbosityLevel,logMsg,false,consoleV,statusbarV);
+                __logMsg(plugN.c_str(),verbosityLevel,logMsg,consoleV,statusbarV);
             }
         }
         else
-            _logMsg(pluginName,verbosityLevel,logMsg,false);
+            __logMsg(pluginName,verbosityLevel,logMsg);
         retVal=true;
     }
     return(retVal);
@@ -1466,7 +1466,7 @@ void App::logScriptMsg(const char* scriptName,int verbosityLevel,const char* msg
 {
     int realVerbosityLevel=verbosityLevel&0x0fff;
     if ( (_consoleVerbosity>=realVerbosityLevel)||(_statusbarVerbosity>=realVerbosityLevel) )
-        _logMsg(scriptName,verbosityLevel,msg);
+        __logMsg(scriptName,verbosityLevel,msg);
 }
 
 int App::getVerbosityLevelFromString(const char* verbosityStr)
@@ -1484,7 +1484,7 @@ int App::getVerbosityLevelFromString(const char* verbosityStr)
         retVal=sim_verbosity_scripterrors;
     if (strcmp(verbosityStr,"scriptwarnings")==0)
         retVal=sim_verbosity_scriptwarnings;
-    if (strcmp(verbosityStr,"msgs")==0)
+    if (strcmp(verbosityStr,"scriptinfos")==0)
         retVal=sim_verbosity_msgs;
     if (strcmp(verbosityStr,"infos")==0)
         retVal=sim_verbosity_infos;
@@ -1514,38 +1514,44 @@ bool App::isCurrentThreadTheUiThread()
     return(VThread::isCurrentThreadTheUiThread());
 }
 
-void App::logMsg(int verbosityLevel,const char* msg,const char* subStr1/*=nullptr*/,const char* subStr2/*=nullptr*/,const char* subStr3/*=nullptr*/)
+void App::logMsg(int verbosityLevel,const char* msg,const char* subStr1,const char* subStr2/*=nullptr*/,const char* subStr3/*=nullptr*/)
 {
     int realVerbosityLevel=verbosityLevel&0x0fff;
     if ( (_consoleVerbosity>=realVerbosityLevel)||(_statusbarVerbosity>=realVerbosityLevel) )
         _logMsg(nullptr,verbosityLevel,msg,subStr1,subStr2,subStr3);
 }
 
-void App::_logMsg(const char* originName,int verbosityLevel,const char* msg,const char* subStr1/*=nullptr*/,const char* subStr2/*=nullptr*/,const char* subStr3/*=nullptr*/)
+void App::logMsg(int verbosityLevel,const char* msg)
 {
-    char buff[2000];
-    if (subStr1!=nullptr)
+    int realVerbosityLevel=verbosityLevel&0x0fff;
+    if ( (_consoleVerbosity>=realVerbosityLevel)||(_statusbarVerbosity>=realVerbosityLevel) )
+        __logMsg(nullptr,verbosityLevel,msg);
+}
+
+void App::_logMsg(const char* originName,int verbosityLevel,const char* msg,const char* subStr1,const char* subStr2/*=nullptr*/,const char* subStr3/*=nullptr*/)
+{
+    size_t bs=strlen(msg)+200;
+    char* buff=new char[bs];
+    if (subStr2!=nullptr)
     {
-        if (subStr2!=nullptr)
-        {
-            if (subStr3!=nullptr)
-                snprintf(buff,sizeof(buff),msg,subStr1,subStr2,subStr3);
-            else
-                snprintf(buff,sizeof(buff),msg,subStr1,subStr2);
-        }
+        if (subStr3!=nullptr)
+            snprintf(buff,bs,msg,subStr1,subStr2,subStr3);
         else
-            snprintf(buff,sizeof(buff),msg,subStr1);
+            snprintf(buff,bs,msg,subStr1,subStr2);
     }
     else
-        strcpy(buff,msg);
-    _logMsg(originName,verbosityLevel,buff,false);
+        snprintf(buff,bs,msg,subStr1);
+    __logMsg(originName,verbosityLevel,buff);
+    delete[] buff;
 }
 
 void App::_logMsg(const char* originName,int verbosityLevel,const char* msg,int int1,int int2/*=0*/,int int3/*=0*/)
 {
-    char buff[2000];
-    snprintf(buff,sizeof(buff),msg,int1,int2,int3);
-    _logMsg(originName,verbosityLevel,buff,false);
+    size_t bs=strlen(msg)+200;
+    char* buff=new char[bs];
+    snprintf(buff,bs,msg,int1,int2,int3);
+    __logMsg(originName,verbosityLevel,buff);
+    delete[] buff;
 }
 
 std::string App::_getHtmlEscapedString(const char* str)
@@ -1593,7 +1599,7 @@ bool App::_consoleLogFilter(const char* msg)
     return(!triggered);
 }
 
-void App::_logMsg(const char* originName,int verbosityLevel,const char* msg,bool forbidStatusbar,int consoleVerbosity/*=-1*/,int statusbarVerbosity/*=-1*/)
+void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int consoleVerbosity/*=-1*/,int statusbarVerbosity/*=-1*/)
 {
     static bool inside=false;
     if (!inside)
@@ -1618,9 +1624,7 @@ void App::_logMsg(const char* originName,int verbosityLevel,const char* msg,bool
             header+="warning]   ";
         if (realVerbosityLevel==sim_verbosity_loadinfos)
             header+="loadinfo]   ";
-        if (realVerbosityLevel==sim_verbosity_msgs)
-            header+="msg]   ";
-        if (realVerbosityLevel==sim_verbosity_infos)
+        if ( (realVerbosityLevel==sim_verbosity_infos)||(realVerbosityLevel==sim_verbosity_scriptinfos) ) // also sim_verbosity_msgs, which is same as sim_verbosity_scriptinfos
             header+="info]   ";
         if (realVerbosityLevel==sim_verbosity_debug)
             header+="debug]   ";
@@ -1666,7 +1670,7 @@ void App::_logMsg(const char* originName,int verbosityLevel,const char* msg,bool
         }
         if (statusbarVerbosity==-1)
             statusbarVerbosity=_statusbarVerbosity;
-        if ( (statusbarVerbosity>=realVerbosityLevel)&&(!forbidStatusbar)&&(uiThread!=nullptr)&&(simThread!=nullptr) )
+        if ( (statusbarVerbosity>=realVerbosityLevel)&&(uiThread!=nullptr)&&(simThread!=nullptr) )
         {
             header="<font color='grey'>"+_getHtmlEscapedString(header.c_str());
             header+="</font>";

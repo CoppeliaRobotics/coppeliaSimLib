@@ -117,10 +117,10 @@ void CQDlgGraphs::refresh()
         ui->qqBufferSize->setText(tt::getIString(false,it->getBufferSize()).c_str());
 
         ui->qqTransformationCombo->clear();
-        ui->qqTransformationCombo->addItem(strTranslate(IDS_RAW),QVariant(DATA_STREAM_ORIGINAL));
-        ui->qqTransformationCombo->addItem(strTranslate(IDS_DERIVATIVE),QVariant(DATA_STREAM_DERIVATIVE));
-        ui->qqTransformationCombo->addItem(strTranslate(IDS_INTEGRAL),QVariant(DATA_STREAM_INTEGRAL));
-        ui->qqTransformationCombo->addItem(strTranslate(IDS_CUMULATIVE),QVariant(DATA_STREAM_CUMULATIVE));
+        ui->qqTransformationCombo->addItem(IDS_RAW,QVariant(DATA_STREAM_ORIGINAL));
+        ui->qqTransformationCombo->addItem(IDS_DERIVATIVE,QVariant(DATA_STREAM_DERIVATIVE));
+        ui->qqTransformationCombo->addItem(IDS_INTEGRAL,QVariant(DATA_STREAM_INTEGRAL));
+        ui->qqTransformationCombo->addItem(IDS_CUMULATIVE,QVariant(DATA_STREAM_CUMULATIVE));
 
         if (graphData!=nullptr)
         {

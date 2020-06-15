@@ -62,8 +62,7 @@ bool CHelpMenu::processCommand(int commandID)
         if (VThread::isCurrentThreadTheUiThread())
         { // We are in the UI thread. Execute the command via the main thread:
             #ifdef MAC_SIM
-//                std::string tmp(App::directories->executableDirectory+"/../../../"+"helpFiles"+"/"+"index.html");
-                std::string tmp(App::directories->executableDirectory+"/../Resources/"+"helpFiles"+"/"+"index.html");
+                std::string tmp(App::folders->getExecutablePath()+"/../Resources/"+"helpFiles"+"/"+"index.html");
             #else
                 std::string tmp(App::folders->getExecutablePath()+"/"+"helpFiles"+"/"+"index.html");
             #endif
@@ -87,18 +86,14 @@ bool CHelpMenu::processCommand(int commandID)
     {
         if (VThread::isCurrentThreadTheUiThread())
         { // We are in the UI thread. Execute the command via the main thread:
-            #ifdef MAC_SIM
-                std::string tmp(App::directories->executableDirectory+"/../../../"+"credits.txt");
-            #else
-                std::string tmp(App::folders->getExecutablePath()+"/"+"credits.txt");
-            #endif
+            std::string tmp(App::folders->getResourcesPath()+"/credits.txt");
             if (VFile::doesFileExist(tmp.c_str()))
             { // FILE is present!
                 VVarious::openTextFile(tmp.c_str());
             }
             else
             { // file doesn't exist.
-                App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_CREDITS),strTranslate(IDS_FILE_COULD_NOT_BE_FOUND_),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(App::mainWindow,IDSN_CREDITS,IDS_FILE_COULD_NOT_BE_FOUND_,VMESSAGEBOX_OKELI);
             }
         }
         return(true);

@@ -96,7 +96,7 @@ void CQDlgTextures::refresh()
 
                 ui->qqU->setText("");
                 ui->qqV->setText("");
-                ui->qqMapMode->addItem(strTranslate(IDSN_MAP_COORD_IMPORTED),QVariant(-1));
+                ui->qqMapMode->addItem(IDSN_MAP_COORD_IMPORTED,QVariant(-1));
             }
             else
             {
@@ -113,15 +113,15 @@ void CQDlgTextures::refresh()
             ui->qqRepeatU->setChecked(tp->getRepeatU());
             ui->qqRepeatV->setChecked(tp->getRepeatV());
 
-            ui->qqMapMode->addItem(strTranslate(IDSN_MAP_COORD_PROJECTION),QVariant(sim_texturemap_plane));
-            ui->qqMapMode->addItem(strTranslate(IDSN_MAP_COORD_CYLINDER),QVariant(sim_texturemap_cylinder));
-            ui->qqMapMode->addItem(strTranslate(IDSN_MAP_COORD_SPHERE),QVariant(sim_texturemap_sphere));
-            ui->qqMapMode->addItem(strTranslate(IDSN_MAP_COORD_CUBE),QVariant(sim_texturemap_cube));
+            ui->qqMapMode->addItem(IDSN_MAP_COORD_PROJECTION,QVariant(sim_texturemap_plane));
+            ui->qqMapMode->addItem(IDSN_MAP_COORD_CYLINDER,QVariant(sim_texturemap_cylinder));
+            ui->qqMapMode->addItem(IDSN_MAP_COORD_SPHERE,QVariant(sim_texturemap_sphere));
+            ui->qqMapMode->addItem(IDSN_MAP_COORD_CUBE,QVariant(sim_texturemap_cube));
 
-            ui->qqApplyMode->addItem(strTranslate(IDSN_TEXTURE_APPLY_MODE_MODULATE),QVariant(0));
-            ui->qqApplyMode->addItem(strTranslate(IDSN_TEXTURE_APPLY_MODE_DECAL),QVariant(1));
-            ui->qqApplyMode->addItem(strTranslate(IDSN_TEXTURE_APPLY_MODE_ADD),QVariant(2));
-// for now          ui->qqApplyMode->addItem(strTranslate(IDSN_TEXTURE_APPLY_MODE_BLEND),QVariant(3));
+            ui->qqApplyMode->addItem(IDSN_TEXTURE_APPLY_MODE_MODULATE,QVariant(0));
+            ui->qqApplyMode->addItem(IDSN_TEXTURE_APPLY_MODE_DECAL,QVariant(1));
+            ui->qqApplyMode->addItem(IDSN_TEXTURE_APPLY_MODE_ADD,QVariant(2));
+// for now          ui->qqApplyMode->addItem(IDSN_TEXTURE_APPLY_MODE_BLEND,QVariant(3));
             for (int i=0;i<ui->qqMapMode->count();i++)
             {
                 int mm=tp->getTextureMapMode();
@@ -161,9 +161,9 @@ void CQDlgTextures::refresh()
 
         ui->qqInterpolate->setChecked(tp->getInterpolateColors());
         ui->qqApplyMode->setCurrentIndex(tp->getApplyMode());
-        ui->qqRemoveSelect->setText(strTranslate(IDS_REMOVE_TEXTURE));
+        ui->qqRemoveSelect->setText(IDS_REMOVE_TEXTURE);
         ui->qqRemoveSelect->setEnabled(true);
-        std::string textureName=strTranslate(IDS_TEXTURE_NAME_NONE);
+        std::string textureName=IDS_TEXTURE_NAME_NONE;
         if ((tp->getTextureObjectID()>=SIM_IDSTART_TEXTURE)&&(tp->getTextureObjectID()<=SIM_IDEND_TEXTURE))
         { // we have a static texture
             CTextureObject* to=App::currentWorld->textureContainer->getObject(tp->getTextureObjectID());
@@ -174,7 +174,7 @@ void CQDlgTextures::refresh()
                 to->getTextureSize(sx,sy);
                 textureName+=" [";
                 textureName+=boost::lexical_cast<std::string>(sx)+"x"+boost::lexical_cast<std::string>(sy)+"] ";
-                textureName+=tt::decorateString(" (",strTranslate(IDSN_STATIC_TEXTURE),")");
+                textureName+=tt::decorateString(" (",IDSN_STATIC_TEXTURE,")");
             }
         }
         else
@@ -187,24 +187,24 @@ void CQDlgTextures::refresh()
                 rs->getRealResolution(s);
                 textureName+=" [";
                 textureName+=boost::lexical_cast<std::string>(s[0])+"x"+boost::lexical_cast<std::string>(s[1])+"] ";
-                textureName+=tt::decorateString(" (",strTranslate(IDSN_DYNAMIC_TEXTURE),")");
+                textureName+=tt::decorateString(" (",IDSN_DYNAMIC_TEXTURE,")");
             }
         }
         ui->qqTextureName->setText(textureName.c_str());
 
         if (foundTextureCoordinatesOnShape||usingFixedTextureCoordinates)
-            ui->qqTextureCoordinates->setText(strTranslate(IDS_FROM_SHAPE_IMPORT));
+            ui->qqTextureCoordinates->setText(IDS_FROM_SHAPE_IMPORT);
         else
-            ui->qqTextureCoordinates->setText(strTranslate(IDS_CALCULATED));
+            ui->qqTextureCoordinates->setText(IDS_CALCULATED);
     }
     else
     {
         // Check if there are already existing textures:
         ui->qqRemoveSelect->setEnabled( (App::currentWorld->textureContainer->getObjectAtIndex(0)!=nullptr)||(App::currentWorld->sceneObjects->getVisionSensorCount()!=0) );
         if (foundTextureCoordinatesOnShape)
-            ui->qqTextureCoordinates->setText(strTranslate(IDS_FROM_SHAPE_IMPORT));
+            ui->qqTextureCoordinates->setText(IDS_FROM_SHAPE_IMPORT);
         else
-            ui->qqTextureCoordinates->setText(strTranslate(IDS_TEXTURE_NAME_NONE)); // Actually just "none"
+            ui->qqTextureCoordinates->setText(IDS_TEXTURE_NAME_NONE); // Actually just "none"
 
         ui->qqX->setText("");
         ui->qqY->setText("");
@@ -218,8 +218,8 @@ void CQDlgTextures::refresh()
         ui->qqInterpolate->setChecked(false);
         ui->qqRepeatU->setChecked(false);
         ui->qqRepeatV->setChecked(false);
-        ui->qqTextureName->setText(strTranslate(IDS_TEXTURE_NAME_NONE));
-        ui->qqRemoveSelect->setText(strTranslate(IDS_SELECT_TEXTURE_FROM_EXISTING));
+        ui->qqTextureName->setText(IDS_TEXTURE_NAME_NONE);
+        ui->qqRemoveSelect->setText(IDS_SELECT_TEXTURE_FROM_EXISTING);
     }
     selectLineEdit(lineEditToSelect);
     inMainRefreshRoutine=false;
@@ -527,7 +527,7 @@ void CQDlgTextures::on_qqLoad_clicked()
                     data=nullptr;
                 }
                 if (data==nullptr)
-                    App::uiThread->messageBox_critical(App::mainWindow,strTranslate("Texture"),strTranslate(IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,"Texture",IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI);
                 else
                 {
                     // Check if the resolution is a power of 2:
@@ -545,7 +545,7 @@ void CQDlgTextures::on_qqLoad_clicked()
                         tmp/=2;
                     }
                     if ((oResX!=resX)||(oResY!=resY))
-                        App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Texture"),strTranslate(IDS_TEXTURE_RESOLUTION_NOT_POWER_OF_TWO_WARNING),VMESSAGEBOX_OKELI);
+                        App::uiThread->messageBox_warning(App::mainWindow,"Texture",IDS_TEXTURE_RESOLUTION_NOT_POWER_OF_TWO_WARNING,VMESSAGEBOX_OKELI);
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=LOAD_ANDAPPLY_TEXTUREGUITRIGGEREDCMD;
                     cmd.intParams.push_back(_objType);

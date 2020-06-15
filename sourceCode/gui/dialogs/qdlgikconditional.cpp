@@ -38,7 +38,7 @@ void CQDlgIkConditional::refresh()
         firstHere=false;
 
         ui->qqIkGroupCombo->clear();
-        ui->qqIkGroupCombo->addItem(strTranslate(IDSN_PERFORM_ALWAYS),QVariant(-1));
+        ui->qqIkGroupCombo->addItem(IDSN_PERFORM_ALWAYS,QVariant(-1));
         for (size_t i=0;i<App::currentWorld->ikGroups->getObjectCount();i++)
         {
             CIkGroup* it=App::currentWorld->ikGroups->getObjectFromIndex(i);
@@ -84,9 +84,9 @@ void CQDlgIkConditional::refresh()
 
     if (doOnFailOrSuccessOf!=-1)
     {
-        ui->qqIkResultCombo->addItem(strTranslate(IDSN_WAS_PERFORMED_AND_FAILED),QVariant(0));
-        ui->qqIkResultCombo->addItem(strTranslate(IDSN_WAS_PERFORMED_AND_SUCCEEDED),QVariant(1));
-        ui->qqIkResultCombo->addItem(strTranslate(IDSN_WAS_NOT_PERFORMED),QVariant(2));
+        ui->qqIkResultCombo->addItem(IDSN_WAS_PERFORMED_AND_FAILED,QVariant(0));
+        ui->qqIkResultCombo->addItem(IDSN_WAS_PERFORMED_AND_SUCCEEDED,QVariant(1));
+        ui->qqIkResultCombo->addItem(IDSN_WAS_NOT_PERFORMED,QVariant(2));
         ui->qqIkResultCombo->setCurrentIndex(ikResult);
     }
 

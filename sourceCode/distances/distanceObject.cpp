@@ -132,7 +132,7 @@ std::string CDistanceObject::getObjectDescriptiveName() const
         CCollection* it=App::currentWorld->collections->getObjectFromHandle(_entity1Handle);
         if (it!=nullptr)
         {
-            theName+=strTranslate(IDSN_COLLECTION);
+            theName+=IDSN_COLLECTION;
             theName+=":";
             theName+=it->getCollectionName();
         }
@@ -143,7 +143,7 @@ std::string CDistanceObject::getObjectDescriptiveName() const
         CCollection* it=App::currentWorld->collections->getObjectFromHandle(_entity2Handle);
         if (it!=nullptr)
         {
-            theName+=strTranslate(IDSN_COLLECTION);
+            theName+=IDSN_COLLECTION;
             theName+=":";
             theName+=it->getCollectionName();
         }
@@ -166,7 +166,7 @@ std::string CDistanceObject::getObjectDescriptiveName() const
             theName+=it->getObjectName();
         }
         else
-            theName+=strTranslate(IDS_ALL_OTHER_ENTITIES);
+            theName+=IDS_ALL_OTHER_ENTITIES;
     }
     theName=theName.append(")");
     return(theName);

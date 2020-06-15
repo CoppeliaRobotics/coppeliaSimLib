@@ -2673,7 +2673,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     geom->getCumulativeMeshes(wvert,&wind,nullptr);
                     if (geom->textureCoords_notCopiedNorSerialized.size()/2==wind.size())
                     { // we have texture coordinate data attached to the shape's geometry (was added during shape import)
-                        App::uiThread->messageBox_information(App::mainWindow,strTranslate("Texture coordinates"),strTranslate(IDS_USING_EXISTING_TEXTURE_COORDINATES),VMESSAGEBOX_OKELI);
+                        App::uiThread->messageBox_information(App::mainWindow,"Texture coordinates",IDS_USING_EXISTING_TEXTURE_COORDINATES,VMESSAGEBOX_OKELI);
                         tp->setFixedCoordinates(&geom->textureCoords_notCopiedNorSerialized);
                         geom->textureCoords_notCopiedNorSerialized.clear();
                     }
@@ -2733,7 +2733,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
                             if (geom->textureCoords_notCopiedNorSerialized.size()/2==wind.size())
                             { // we have texture coordinate data attached to the shape's geometry (was added during shape import)
-                                App::uiThread->messageBox_information(App::mainWindow,strTranslate("Texture coordinates"),strTranslate(IDS_USING_EXISTING_TEXTURE_COORDINATES),VMESSAGEBOX_OKELI);
+                                App::uiThread->messageBox_information(App::mainWindow,"Texture coordinates",IDS_USING_EXISTING_TEXTURE_COORDINATES,VMESSAGEBOX_OKELI);
                                 tp->setFixedCoordinates(&geom->textureCoords_notCopiedNorSerialized);
                                 geom->textureCoords_notCopiedNorSerialized.clear();
                             }
@@ -3592,30 +3592,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
             {
                 if (it->getScriptType()==sim_scripttype_customizationscript)
-                {
-                    if (it->getCustomizationScriptIsTemporarilyDisabled())
-                    {
-                        it->killLuaState();
-                        it->setCustomizationScriptIsTemporarilyDisabled(false);
-                    }
-                    else
-                    {
-                        it->killLuaState();
-                        it->setScriptIsDisabled(!it->getScriptIsDisabled());
-                    }
-                }
-                else
-                    it->setScriptIsDisabled(!it->getScriptIsDisabled());
-            }
-        }
-        if (cmd.cmdId==TOGGLE_DISABLE_CUSTOM_SCRIPT_WITH_ERROR_SCRIPTGUITRIGGEREDCMD)
-        {
-            int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptID);
-            if (it!=nullptr)
-            {
-                if (it->getScriptType()==sim_scripttype_customizationscript)
-                    it->setDisableCustomizationScriptWithError(!it->getDisableCustomizationScriptWithError());
+                    it->killLuaState();
+                it->setScriptIsDisabled(!it->getScriptIsDisabled());
             }
         }
         if (cmd.cmdId==TOGGLE_EXECUTEONCE_SCRIPTGUITRIGGEREDCMD)
@@ -3873,7 +3851,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if ((grData!=nullptr)&&(grData->getDataLength()!=0))
                 {
                     it->makeCurveStatic(cmd.intParams[1],0);
-                    App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_GRAPH_CURVE),strTranslate(IDSN_CURVE_WAS_DUPLICATED_TO_STATIC),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_information(App::mainWindow,IDSN_GRAPH_CURVE,IDSN_CURVE_WAS_DUPLICATED_TO_STATIC,VMESSAGEBOX_OKELI);
                 }
             }
         }
@@ -4024,7 +4002,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if (grDataComb!=nullptr)
                 {
                     it->makeCurveStatic(cmd.intParams[1],dim);
-                    App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_GRAPH_CURVE),strTranslate(IDSN_CURVE_WAS_DUPLICATED_TO_STATIC),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_information(App::mainWindow,IDSN_GRAPH_CURVE,IDSN_CURVE_WAS_DUPLICATED_TO_STATIC,VMESSAGEBOX_OKELI);
                 }
             }
         }
@@ -5239,10 +5217,10 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
 
     if (App::currentWorld->dynamicsContainer->displayVortexPluginIsDemoRequired())
 #ifdef WIN_SIM
-        App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_WINDOWS),VMESSAGEBOX_OKELI);
+        App::uiThread->messageBox_information(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_WINDOWS,VMESSAGEBOX_OKELI);
 #endif
 #ifdef LIN_SIM
-        App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_LINUX),VMESSAGEBOX_OKELI);
+        App::uiThread->messageBox_information(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_LINUX,VMESSAGEBOX_OKELI);
 #endif
 
     if (displayNonPureNonConvexShapeUseWarning)

@@ -117,15 +117,15 @@ void CQDlgVisionSensors::refresh()
         ui->qqIgnoreDepth->setChecked(s->getIgnoreDepthInfo());
         ui->qqIgnorePacket1->setChecked(!s->getComputeImageBasicStats());
 
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_VISIBLE_COMPONENTS),QVariant(sim_rendermode_opengl));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_AUXILIARY_CHANNELS),QVariant(sim_rendermode_auxchannels));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_COLOR_CODED_IDS),QVariant(sim_rendermode_colorcoded));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_RAY_TRACING),QVariant(sim_rendermode_povray));
-//        ui->qqRenderModeCombo->addItem(strTranslate(IDS_RAY_TRACING2),QVariant(4));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_EXTERNAL_RENDERER),QVariant(sim_rendermode_extrenderer));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_EXTERNAL_RENDERER_WINDOWED),QVariant(sim_rendermode_extrendererwindowed));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_OPENGL3),QVariant(sim_rendermode_opengl3));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_OPENGL3_WINDOWED),QVariant(sim_rendermode_opengl3windowed));
+        ui->qqRenderModeCombo->addItem(IDS_VISIBLE_COMPONENTS,QVariant(sim_rendermode_opengl));
+        ui->qqRenderModeCombo->addItem(IDS_AUXILIARY_CHANNELS,QVariant(sim_rendermode_auxchannels));
+        ui->qqRenderModeCombo->addItem(IDS_COLOR_CODED_IDS,QVariant(sim_rendermode_colorcoded));
+        ui->qqRenderModeCombo->addItem(IDS_RAY_TRACING,QVariant(sim_rendermode_povray));
+//        ui->qqRenderModeCombo->addItem(IDS_RAY_TRACING2,QVariant(4));
+        ui->qqRenderModeCombo->addItem(IDS_EXTERNAL_RENDERER,QVariant(sim_rendermode_extrenderer));
+        ui->qqRenderModeCombo->addItem(IDS_EXTERNAL_RENDERER_WINDOWED,QVariant(sim_rendermode_extrendererwindowed));
+        ui->qqRenderModeCombo->addItem(IDS_OPENGL3,QVariant(sim_rendermode_opengl3));
+        ui->qqRenderModeCombo->addItem(IDS_OPENGL3_WINDOWED,QVariant(sim_rendermode_opengl3windowed));
 
         // Select current item:
         for (int i=0;i<ui->qqRenderModeCombo->count();i++)
@@ -137,7 +137,7 @@ void CQDlgVisionSensors::refresh()
             }
         }
 
-        ui->qqEntityCombo->addItem(strTranslate(IDS_ALL_RENDERABLE_OBJECTS_IN_SCENE),QVariant(-1));
+        ui->qqEntityCombo->addItem(IDS_ALL_RENDERABLE_OBJECTS_IN_SCENE,QVariant(-1));
 
         std::vector<std::string> names;
         std::vector<int> ids;
@@ -146,7 +146,7 @@ void CQDlgVisionSensors::refresh()
         for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
         {
             CCollection* it=App::currentWorld->collections->getObjectFromIndex(i);
-            std::string name(tt::decorateString("[",strTranslate(IDSN_COLLECTION),"] "));
+            std::string name(tt::decorateString("[",IDSN_COLLECTION,"] "));
             name+=it->getCollectionName();
             names.push_back(name);
             ids.push_back(it->getCollectionHandle());
@@ -162,7 +162,7 @@ void CQDlgVisionSensors::refresh()
         for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromIndex(i);
-            std::string name(tt::decorateString("[",strTranslate(IDSN_SHAPE),"] "));
+            std::string name(tt::decorateString("[",IDSN_SHAPE,"] "));
             name+=it->getObjectName();
             names.push_back(name);
             ids.push_back(it->getObjectHandle());
@@ -178,7 +178,7 @@ void CQDlgVisionSensors::refresh()
         for (size_t i=0;i<App::currentWorld->sceneObjects->getPathCount();i++)
         {
             CPath* it=App::currentWorld->sceneObjects->getPathFromIndex(i);
-            std::string name(tt::decorateString("[",strTranslate(IDSN_PATH),"] "));
+            std::string name(tt::decorateString("[",IDSN_PATH,"] "));
             name+=it->getObjectName();
             names.push_back(name);
             ids.push_back(it->getObjectHandle());
@@ -194,7 +194,7 @@ void CQDlgVisionSensors::refresh()
         for (size_t i=0;i<App::currentWorld->sceneObjects->getGraphCount();i++)
         {
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromIndex(i);
-            std::string name(tt::decorateString("[",strTranslate(IDSN_GRAPH),"] "));
+            std::string name(tt::decorateString("[",IDSN_GRAPH,"] "));
             name+=it->getObjectName();
             names.push_back(name);
             ids.push_back(it->getObjectHandle());
@@ -407,7 +407,7 @@ void CQDlgVisionSensors::on_qqResX_editingFinished()
                         tmp/=2;
                     }
                     if (newVal!=r[0])
-                        App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Vision sensor"),strTranslate(IDS_VISION_SENSOR_RESOLUTION_NOT_POWER_OF_TWO_WARNING),VMESSAGEBOX_OKELI);
+                        App::uiThread->messageBox_warning(App::mainWindow,"Vision sensor",IDS_VISION_SENSOR_RESOLUTION_NOT_POWER_OF_TWO_WARNING,VMESSAGEBOX_OKELI);
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=SET_RESOLUTION_VISIONSENSORGUITRIGGEREDCMD;
                     cmd.intParams.push_back(it->getObjectHandle());
@@ -450,7 +450,7 @@ void CQDlgVisionSensors::on_qqResY_editingFinished()
                         tmp/=2;
                     }
                     if (newVal!=r[1])
-                        App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Vision sensor"),strTranslate(IDS_VISION_SENSOR_RESOLUTION_NOT_POWER_OF_TWO_WARNING),VMESSAGEBOX_OKELI);
+                        App::uiThread->messageBox_warning(App::mainWindow,"Vision sensor",IDS_VISION_SENSOR_RESOLUTION_NOT_POWER_OF_TWO_WARNING,VMESSAGEBOX_OKELI);
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=SET_RESOLUTION_VISIONSENSORGUITRIGGEREDCMD;
                     cmd.intParams.push_back(it->getObjectHandle());
@@ -665,7 +665,7 @@ void CQDlgVisionSensors::on_qqEntityCombo_currentIndexChanged(int index)
                         displayWarning|=((it2->getLocalObjectSpecialProperty()&sim_objectspecialproperty_renderable)==0);
                 }
                 if (displayWarning)
-                    App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Scene object"),strTranslate(IDS_OBJECT_NOT_RENDERABLE_WARNING),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(App::mainWindow,"Scene object",IDS_OBJECT_NOT_RENDERABLE_WARNING,VMESSAGEBOX_OKELI);
             }
             App::appendSimulationThreadCommand(SET_ENTITYTODETECT_VISIONSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),objID);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);

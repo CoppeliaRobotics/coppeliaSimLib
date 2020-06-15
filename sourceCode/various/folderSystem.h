@@ -11,6 +11,7 @@ public:
 
     std::string getExecutablePath() const;
     std::string getSystemPath() const;
+    std::string getResourcesPath() const;
     std::string getScenesPath() const;
     void setScenesPath(const char* path);
     std::string getModelsPath() const;
@@ -31,6 +32,7 @@ public:
 private:
     std::string _executablePath;
     std::string _systemPath;
+    std::string _resourcesPath;
     std::string _scenesPath;
     std::string _modelsPath;
     std::string _cadFilesPath;

@@ -331,7 +331,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                 {
                     if (it->isDefaultMainScript())
                     { // Display warning
-                        if (VMESSAGEBOX_REPLY_YES!=App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Main script"),strTranslate(IDS_MAINSCRIPT_EDITION_WARNING),VMESSAGEBOX_YES_NO))
+                        if (VMESSAGEBOX_REPLY_YES!=App::uiThread->messageBox_warning(App::mainWindow,"Main script",IDS_MAINSCRIPT_EDITION_WARNING,VMESSAGEBOX_YES_NO))
                             return(-1);
                         it->setCustomizedMainScript(true);
                         POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
@@ -457,7 +457,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
             {
                 if (it->isDefaultMainScript())
                 { // Display warning
-                    if (VMESSAGEBOX_REPLY_YES!=App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Main script"),strTranslate(IDS_MAINSCRIPT_EDITION_WARNING),VMESSAGEBOX_YES_NO))
+                    if (VMESSAGEBOX_REPLY_YES!=App::uiThread->messageBox_warning(App::mainWindow,"Main script",IDS_MAINSCRIPT_EDITION_WARNING,VMESSAGEBOX_YES_NO))
                         return(-1);
                     it->setCustomizedMainScript(true);
                     POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************

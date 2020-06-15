@@ -781,7 +781,7 @@ int CPathPlanningTask::performSteppedSearch()
                 { // we found a path!
                     if (_steppedSearchTemp_showProgressDlg)
                     {
-                        // App::uiThread->setProgressBarText(strTranslate(IDS_PATH_WAS_FOUND_),strTranslate(IDS_NOW_PERFORMING_POST_PROCESSING___),nullptr);
+                        // App::uiThread->setProgressBarText(IDS_PATH_WAS_FOUND_,IDS_NOW_PERFORMING_POST_PROCESSING___,nullptr);
                     }
                     _steppedSearchTemp_foundPathStatus=2; // we found a full path!
                     retVal=-2; // search not completely finished (we still have to smooth the path)
@@ -790,10 +790,10 @@ int CPathPlanningTask::performSteppedSearch()
                 { // we didn't yet find a path
                     if (_steppedSearchTemp_showProgressDlg)
                     { /*
-                        std::string txt(strTranslate(IDS_TIME_SPENT_SEARCHING_));
+                        std::string txt(IDS_TIME_SPENT_SEARCHING_);
                         txt+=" ";
                         txt+=tt::FNb(0,float(VDateTime::getTimeDiffInMs(_steppedSearchTemp_initTimeInMs))/1000.0f,1,false);
-                        std::string txt2=strTranslate(IDS_NB_OF_COLL_FREE_NODES_FOUND_);
+                        std::string txt2=IDS_NB_OF_COLL_FREE_NODES_FOUND_;
                         txt2+=" ";
                         txt2+=tt::FNb(0,CPathPlanningInterface::getPathNodeCount(p,true)+CPathPlanningInterface::getPathNodeCount(p,false),false);
                         App::uiThread->setProgressBarText(txt.c_str(),txt2.c_str(),nullptr); */
@@ -809,7 +809,7 @@ int CPathPlanningTask::performSteppedSearch()
                     {
                         if (_steppedSearchTemp_showProgressDlg)
                         {
-                            // App::uiThread->setProgressBarText(strTranslate(IDS_PARTIAL_PATH_WAS_FOUND_),strTranslate(IDS_NOW_PERFORMING_POST_PROCESSING___),nullptr);
+                            // App::uiThread->setProgressBarText(IDS_PARTIAL_PATH_WAS_FOUND_,IDS_NOW_PERFORMING_POST_PROCESSING___,nullptr);
                         }
                         _steppedSearchTemp_foundPathStatus=1; // we found a partial path!
                         retVal=-2; // search not completely finished (we still have to smooth the path)
@@ -870,7 +870,7 @@ int CPathPlanningTask::performSteppedSearch()
                 { // We found a path!
                     if (_steppedSearchTemp_showProgressDlg)
                     {
-                        // App::uiThread->setProgressBarText(strTranslate(IDS_PATH_WAS_FOUND_),strTranslate(IDS_NOW_PERFORMING_POST_PROCESSING___),nullptr);
+                        // App::uiThread->setProgressBarText(IDS_PATH_WAS_FOUND_,IDS_NOW_PERFORMING_POST_PROCESSING___,nullptr);
                     }
                     _steppedSearchTemp_foundPathStatus=2; // we found a full path!
                     retVal=-2; // search not completely finished (we still have to smooth the path)
@@ -879,10 +879,10 @@ int CPathPlanningTask::performSteppedSearch()
                 { // we didn't yet find a path
                     if (_steppedSearchTemp_showProgressDlg)
                     {/*
-                        std::string txt(strTranslate(IDS_TIME_SPENT_SEARCHING_));
+                        std::string txt(IDS_TIME_SPENT_SEARCHING_);
                         txt+=" ";
                         txt+=tt::FNb(0,float(VDateTime::getTimeDiffInMs(_steppedSearchTemp_initTimeInMs))/1000.0f,1,false);
-                        std::string txt2=strTranslate(IDS_NB_OF_COLL_FREE_NODES_FOUND_);
+                        std::string txt2=IDS_NB_OF_COLL_FREE_NODES_FOUND_;
                         txt2+=" ";
                         txt2+=tt::FNb(0,CPathPlanningInterface::getPathNodeCount(p,true)+CPathPlanningInterface::getPathNodeCount(p,false),false);
                         App::uiThread->setProgressBarText(txt.c_str(),txt2.c_str(),nullptr); */
@@ -898,7 +898,7 @@ int CPathPlanningTask::performSteppedSearch()
                     {
                         if (_steppedSearchTemp_showProgressDlg)
                         {
-                            // App::uiThread->setProgressBarText(strTranslate(IDS_PARTIAL_PATH_WAS_FOUND_),strTranslate(IDS_NOW_PERFORMING_POST_PROCESSING___),nullptr);
+                            // App::uiThread->setProgressBarText(IDS_PARTIAL_PATH_WAS_FOUND_,IDS_NOW_PERFORMING_POST_PROCESSING___,nullptr);
                         }
                         _steppedSearchTemp_foundPathStatus=1; // we found a partial path!
                         retVal=-2; // search not completely finished (we still have to smooth the path)

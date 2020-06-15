@@ -223,7 +223,7 @@ void CQDlgShapeDyn::on_qqRespondable_clicked()
         if (it!=nullptr)
         {
             if ((!it->getRespondable())&&(!it->getMeshWrapper()->isPure())&&(!it->getMeshWrapper()->isConvex()))
-                App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Shape"),strTranslate(IDS_MAKING_NON_PURE_CONCAVE_SHAPE_RESPONDABLE_WARNING),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(App::mainWindow,"Shape",IDS_MAKING_NON_PURE_CONCAVE_SHAPE_RESPONDABLE_WARNING,VMESSAGEBOX_OKELI);
             App::appendSimulationThreadCommand(TOGGLE_RESPONDABLE_SHAPEDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }

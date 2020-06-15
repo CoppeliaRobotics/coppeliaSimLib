@@ -68,7 +68,7 @@ void CQDlgMirrors::refresh()
         if (!it->getIsMirror())
         {
 
-            ui->qqEntityCombo->addItem(strTranslate(IDS_ALL_VISIBLE_OBJECTS_IN_SCENE),QVariant(-1));
+            ui->qqEntityCombo->addItem(IDS_ALL_VISIBLE_OBJECTS_IN_SCENE,QVariant(-1));
 
             std::vector<std::string> names;
             std::vector<int> ids;
@@ -77,7 +77,7 @@ void CQDlgMirrors::refresh()
             for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
             {
                 CCollection* it=App::currentWorld->collections->getObjectFromIndex(i);
-                std::string name(tt::decorateString("[",strTranslate(IDSN_COLLECTION),"] "));
+                std::string name(tt::decorateString("[",IDSN_COLLECTION,"] "));
                 name+=it->getCollectionName();
                 names.push_back(name);
                 ids.push_back(it->getCollectionHandle());
@@ -93,7 +93,7 @@ void CQDlgMirrors::refresh()
             for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-                std::string name(tt::decorateString("[",strTranslate(IDS_OBJECT),"] "));
+                std::string name(tt::decorateString("[",IDS_OBJECT,"] "));
                 name+=it->getObjectName();
                 names.push_back(name);
                 ids.push_back(it->getObjectHandle());

@@ -41,7 +41,7 @@ void CQDlgTextureSelection::refresh()
         it->getTextureSize(sx,sy);
         txt+=" [";
         txt+=boost::lexical_cast<std::string>(sx)+"x"+boost::lexical_cast<std::string>(sy)+"] ";
-        txt+=tt::decorateString(" (",strTranslate(IDSN_STATIC_TEXTURE),")");
+        txt+=tt::decorateString(" (",IDSN_STATIC_TEXTURE,")");
         QListWidgetItem* itm=new QListWidgetItem(txt.c_str());
         itm->setData(Qt::UserRole,QVariant(it->getObjectID()));
         itm->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
@@ -56,7 +56,7 @@ void CQDlgTextureSelection::refresh()
         rs->getRealResolution(s);
         txt+=" [";
         txt+=boost::lexical_cast<std::string>(s[0])+"x"+boost::lexical_cast<std::string>(s[1])+"] ";
-        txt+=tt::decorateString(" (",strTranslate(IDSN_DYNAMIC_TEXTURE),")");
+        txt+=tt::decorateString(" (",IDSN_DYNAMIC_TEXTURE,")");
         QListWidgetItem* itm=new QListWidgetItem(txt.c_str());
         itm->setData(Qt::UserRole,QVariant(rs->getObjectHandle()));
         itm->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);

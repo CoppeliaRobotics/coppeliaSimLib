@@ -30,10 +30,10 @@ void CQDlgInsertScript::okEvent()
 void CQDlgInsertScript::initialize()
 {
     ui->qqCombo->clear();
-    ui->qqCombo->addItem(strTranslate(IDS_MAIN_SCRIPT),QVariant(sim_scripttype_mainscript));
-    ui->qqCombo->addItem(strTranslate(IDS_CHILD_SCRIPT_UNTHREADED),QVariant(sim_scripttype_childscript));
-    ui->qqCombo->addItem(strTranslate(IDS_CHILD_SCRIPT_THREADED),QVariant(sim_scripttype_childscript|sim_scripttype_threaded));
-    ui->qqCombo->addItem(strTranslate(IDS_CUSTOMIZATION_SCRIPT),QVariant(sim_scripttype_customizationscript));
+    ui->qqCombo->addItem(IDS_MAIN_SCRIPT,QVariant(sim_scripttype_mainscript));
+    ui->qqCombo->addItem(IDS_CHILD_SCRIPT_UNTHREADED,QVariant(sim_scripttype_childscript));
+    ui->qqCombo->addItem(IDS_CHILD_SCRIPT_THREADED,QVariant(sim_scripttype_childscript|sim_scripttype_threaded));
+    ui->qqCombo->addItem(IDS_CUSTOMIZATION_SCRIPT,QVariant(sim_scripttype_customizationscript));
 }
 
 void CQDlgInsertScript::on_qqOkCancel_accepted()
