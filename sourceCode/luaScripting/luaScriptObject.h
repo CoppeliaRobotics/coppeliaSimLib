@@ -72,7 +72,7 @@ public:
     int runSandboxScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     bool runSandboxScript_beforeMainScript();
 
-    void terminateScriptExecutionExternally();
+    void terminateScriptExecutionExternally(bool generateErrorMsg);
     void handleDebug(const char* funcName,const char* funcType,bool inCall,bool sysCall);
 
     int callScriptFunction(const char* functionName, SLuaCallBack* pdata);

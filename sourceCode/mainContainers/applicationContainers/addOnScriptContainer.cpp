@@ -159,6 +159,8 @@ int CAddOnScriptContainer::insertAddOnScripts()
                 App::logMsg(sim_verbosity_errors,"failed loading add-on script '%s'.",fileName_withExtension.c_str());
             }
         }
+        else
+            App::logMsg(sim_verbosity_errors,"failed loading add-on script '%s'.",fileName_withExtension.c_str());
     }
 
     return(addOnsCount);

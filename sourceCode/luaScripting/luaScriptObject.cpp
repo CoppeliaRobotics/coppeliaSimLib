@@ -4432,11 +4432,14 @@ void CLuaScriptObject::decomposeLuaMessage(const char* message,std::string& loca
     }
 }
 
-void CLuaScriptObject::terminateScriptExecutionExternally()
+void CLuaScriptObject::terminateScriptExecutionExternally(bool generateErrorMsg)
 {
-    std::string tmp("?: script execution was terminated externally.");
-    prefixWithLuaLocationName(tmp);
-    _announceErrorWasRaisedAndDisableScript(tmp.c_str(),true);
+    if (generateErrorMsg)
+    {
+        std::string tmp("?: script execution was terminated externally.");
+        prefixWithLuaLocationName(tmp);
+        _announceErrorWasRaisedAndDisableScript(tmp.c_str(),true);
+    }
     if (getScriptType()==sim_scripttype_addonscript)
         flagForDestruction(); // stop it
     if (getDebugLevel()!=sim_scriptdebug_none)
@@ -5873,7 +5876,8 @@ void CLuaScriptObject::_printContext(const char* str,size_t p)
 
 void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool doIt)
 { // A subtle bug was corrected in below function in CoppeliaSim4.0.1. Below to keep old code working as previously
-/*
+
+    /*
     std::string s(scriptObject->getScriptText());
 
     size_t pf=0;
@@ -5912,6 +5916,7 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
         tp=s.find("error_report_mode",pf);
     }
 */
+
 
     if (!doIt)
         return;

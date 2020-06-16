@@ -3412,7 +3412,7 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
 
             if ( CThreadPool::getSimulationEmergencyStop() ) // No automatic yield when flagged for destruction!! ||it->getFlaggedForDestruction() )
             { // This is the only way a non-threaded script can yield. But threaded child scripts can also yield here
-                it->terminateScriptExecutionExternally();
+                it->terminateScriptExecutionExternally(true);
                 /*
                 if (debugLevel!=sim_scriptdebug_none)
                     it->handleDebug("force_script_stop","C",true,true);
@@ -3426,7 +3426,7 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
                 { // returns true only after 1-2 seconds after the request arrived
                     if (!VThread::isCurrentThreadTheMainSimulationThread())
                     { // Here only threaded scripts can yield!
-                        it->terminateScriptExecutionExternally();
+                        it->terminateScriptExecutionExternally(false);
                         /*
                         if (debugLevel!=sim_scriptdebug_none)
                             it->handleDebug("force_script_stop","C",true,true);
@@ -3462,7 +3462,7 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
                         if (CLuaScriptObject::emergencyStopButtonPressed)
                         {
                             CLuaScriptObject::emergencyStopButtonPressed=false;
-                            it->terminateScriptExecutionExternally();
+                            it->terminateScriptExecutionExternally(true);
                             /*
                             std::string tmp("?: script execution was terminated externally.");
                             it->prefixWithLuaLocationName(tmp);
@@ -18227,7 +18227,10 @@ int _simRegisterScriptVariable(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         const char* varNameAtPluginName=luaWrap_lua_tostring(L,1);
-        retVal=simRegisterScriptVariable_internal(varNameAtPluginName,nullptr,0);
+        if (checkOneGeneralInputArgument(L,2,lua_arg_string,0,true,false,&errorString)==2)
+            retVal=simRegisterScriptVariable_internal(varNameAtPluginName,luaWrap_lua_tostring(L,2),-1);
+        else
+            retVal=simRegisterScriptVariable_internal(varNameAtPluginName,nullptr,0);
     }
 
     LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!

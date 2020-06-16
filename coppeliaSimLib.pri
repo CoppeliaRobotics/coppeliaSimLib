@@ -73,6 +73,9 @@ WITH_SERIAL {
     equals(MSVC_VER,15.0){
         DEFINES += SIM_COMPILER_STR=\\\"MSVC2017\\\"
     }
+    equals(MSVC_VER,16.0){
+        DEFINES += SIM_COMPILER_STR=\\\"MSVC2019\\\"
+    }
 }
 
 *-g++* { #includes MinGW
