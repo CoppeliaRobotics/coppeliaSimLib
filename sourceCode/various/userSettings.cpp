@@ -62,6 +62,7 @@
 #define _USR_ALWAYS_SHOW_CONSOLE "alwaysShowConsole"
 #define _USR_VERBOSITY "verbosity"
 #define _USR_STATUSBAR_VERBOSITY "statusbarVerbosity"
+#define _USR_DIALOG_VERBOSITY "dialogVerbosity"
 #define _USR_LOG_FILTER "logFilter"
 #define _USR_UNDECORATED_STATUSBAR_MSGS "undecoratedStatusbarMessages"
 #define _USR_CONSOLE_MSGS_TO_FILE "consoleMsgsToFile"
@@ -178,7 +179,6 @@
 #define _USR_DO_NOT_SHOW_PROGRESS_BARS "doNotShowProgressBars"
 #define _USR_DO_NOT_SHOW_ACKNOWLEDGMENT_MESSAGES "doNotShowAcknowledgmentMessages"
 #define _USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR "doNotShowVideoCompressionLibraryLoadError"
-#define _USR_REDIRECT_STATUSBAR_MSG_TO_CONSOLE_IN_HEADLESS_MODE "redirectStatusbarMsgToConsoleInHeadlessMode"
 #define _USR_SUPPRESS_STARTUP_DIALOG "suppressStartupDialogs"
 #define _USR_SUPPRESS_XML_OVERWRITE_MSG "suppressXmlOverwriteMsg"
 
@@ -203,6 +203,7 @@ CUserSettings::CUserSettings()
     alwaysShowConsole=false;
     _overrideConsoleVerbosity="default";
     _overrideStatusbarVerbosity="default";
+    _overrideDialogVerbosity="default";
     _consoleLogFilter="";
     undecoratedStatusbarMessages=false;
 
@@ -347,7 +348,6 @@ CUserSettings::CUserSettings()
     doNotShowProgressBars=false;
     doNotShowAcknowledgmentMessages=false;
     doNotShowVideoCompressionLibraryLoadError=false;
-    redirectStatusbarMsgToConsoleInHeadlessMode=false;
     suppressStartupDialogs=false;
     suppressXmlOverwriteMsg=false;
 
@@ -558,6 +558,7 @@ void CUserSettings::saveUserSettings()
     c.addString(_USR_VERBOSITY,_overrideConsoleVerbosity,"to override console verbosity setting, use any of: default (do not override), none, errors, warnings, loadinfos, scripterrors, scriptwarnings, msgs, infos, debug, trace, tracelua or traceall");
     c.addString(_USR_STATUSBAR_VERBOSITY,_overrideStatusbarVerbosity,"to override statusbar verbosity setting, use any of: default (do not override), none, errors, warnings, loadinfos, scripterrors, scriptwarnings, msgs, infos, debug, trace, tracelua or traceall");
     c.addString(_USR_LOG_FILTER,_consoleLogFilter,"leave empty for no filter. Filter format: txta1&txta2&...&txtaN|txtb1&txtb2&...&txtbN|...");
+    c.addString(_USR_DIALOG_VERBOSITY,_overrideDialogVerbosity,"to override dialog verbosity setting, use any of: default (do not override), none, errors, warnings, questions or infos");
     c.addBoolean(_USR_UNDECORATED_STATUSBAR_MSGS,undecoratedStatusbarMessages,"");
     c.addBoolean(_USR_CONSOLE_MSGS_TO_FILE,App::getConsoleMsgToFile(),"if true, console messages are sent to debugLog.txt");
     c.addRandomLine("");
@@ -721,7 +722,6 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_DO_NOT_SHOW_PROGRESS_BARS,doNotShowProgressBars,"");
     c.addBoolean(_USR_DO_NOT_SHOW_ACKNOWLEDGMENT_MESSAGES,doNotShowAcknowledgmentMessages,"");
     c.addBoolean(_USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR,doNotShowVideoCompressionLibraryLoadError,"");
-    c.addBoolean(_USR_REDIRECT_STATUSBAR_MSG_TO_CONSOLE_IN_HEADLESS_MODE,redirectStatusbarMsgToConsoleInHeadlessMode,"");
     c.addBoolean(_USR_SUPPRESS_STARTUP_DIALOG,suppressStartupDialogs,"");
     c.addBoolean(_USR_SUPPRESS_XML_OVERWRITE_MSG,suppressXmlOverwriteMsg,"");
 
@@ -869,6 +869,19 @@ void CUserSettings::loadUserSettings()
     }
     c.getString(_USR_LOG_FILTER,_consoleLogFilter);
     App::setConsoleLogFilter(_consoleLogFilter.c_str());
+
+    c.getString(_USR_DIALOG_VERBOSITY,_overrideDialogVerbosity);
+    if (_overrideDialogVerbosity.compare("default")!=0)
+    {
+        int l=App::getVerbosityLevelFromString(_overrideDialogVerbosity.c_str());
+        if (l>=sim_verbosity_none)
+        {
+            App::setDlgVerbosity(l);
+            App::logMsg(sim_verbosity_warnings,"dialog verbosity overridden to '%s' via system/usrset.txt.",_overrideDialogVerbosity.c_str());
+        }
+        else
+            App::logMsg(sim_verbosity_errors,"unrecognized verbosity value in system/usrset.txt: %s.",_overrideDialogVerbosity.c_str());
+    }
 
     c.getBoolean(_USR_UNDECORATED_STATUSBAR_MSGS,undecoratedStatusbarMessages);
     bool dummyBool=false;
@@ -1023,7 +1036,6 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_DO_NOT_SHOW_PROGRESS_BARS,doNotShowProgressBars);
     c.getBoolean(_USR_DO_NOT_SHOW_ACKNOWLEDGMENT_MESSAGES,doNotShowAcknowledgmentMessages);
     c.getBoolean(_USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR,doNotShowVideoCompressionLibraryLoadError);
-    c.getBoolean(_USR_REDIRECT_STATUSBAR_MSG_TO_CONSOLE_IN_HEADLESS_MODE,redirectStatusbarMsgToConsoleInHeadlessMode);
     c.getBoolean(_USR_SUPPRESS_STARTUP_DIALOG,suppressStartupDialogs);
     c.getBoolean(_USR_SUPPRESS_XML_OVERWRITE_MSG,suppressXmlOverwriteMsg);
 

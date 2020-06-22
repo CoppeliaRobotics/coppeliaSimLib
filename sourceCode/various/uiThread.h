@@ -88,7 +88,6 @@ enum {  OPEN_OR_CLOSE_UITHREADCMD=0,
         PLUGIN_END_PLUGUITHREADCMD,
 
         DESTROY_GL_TEXTURE_UITHREADCMD,
-        DISPLAY_MSGBOX_API_UITHREADCMD,
         DISPLAY_FILE_DLG_UITHREADCMD,
         DISPLAY_MSG_WITH_CHECKBOX_UITHREADCMD,
         DISPLAY_MSGBOX_UITHREADCMD,
@@ -168,23 +167,22 @@ public:
     int getLastFrameId();
     void setLastFrameId(int fid);
     void requestSceneRender_wait();
-    int messageBox_api(int boxType,int buttons,const char* title,const char* message);
-    bool messageBox_checkbox(void* parentWidget,const char* title,const char* message,const char* checkboxMessage);
+    bool messageBox_checkbox(void* parentWidget,const char* title,const char* message,const char* checkboxMessage,bool isWarning);
     void setFileDialogsNative(int n);
     std::string getOpenFileName(void* parentWidget,unsigned short option,const char* title,const char* startPath,const char* initFilename,bool allowAnyFile,const char* extensionName,const char* extension1,const char* extension2="",const char* extension3="",const char* extension4="",const char* extension5="",const char* extension6="",const char* extension7="",const char* extension8="",const char* extension9="",const char* extension10="");
     bool getOpenFileNames(std::vector<std::string>& files,void* parentWidget,unsigned short option,const char* title,const char* startPath,const char* initFilename,bool allowAnyFile,const char* extensionName,const char* extension1,const char* extension2="",const char* extension3="",const char* extension4="",const char* extension5="",const char* extension6="",const char* extension7="",const char* extension8="",const char* extension9="",const char* extension10="");
     std::string getSaveFileName(void* parentWidget,unsigned short option,const char* title,const char* startPath,const char* initFilename,bool allowAnyFile,const char* extensionName,const char* extension1,const char* extension2="",const char* extension3="",const char* extension4="",const char* extension5="",const char* extension6="",const char* extension7="",const char* extension8="",const char* extension9="",const char* extension10="");
     std::string getOpenOrSaveFileName_api(int mode,const char* title,const char* startPath,const char* initName,const char* extName,const char* ext);
     bool showPrimitiveShapeDialog(int type,const C3Vector* optionalSizesIn,C3Vector& sizes,int subdiv[3],int& faces,int& sides,int& discSubdiv,bool& smooth,int& openEnds,bool& dynamic,bool& pure,bool& cone,float& density,bool& negVolume,float& negVolumeScaling);
-    unsigned short messageBox_informationSystemModal(void* parentWidget,const char* title,const char* message,unsigned short flags);
-    unsigned short messageBox_information(void* parentWidget,const char* title,const char* message,unsigned short flags);
-    unsigned short messageBox_question(void* parentWidget,const char* title,const char* message,unsigned short flags);
-    unsigned short messageBox_warning(void* parentWidget,const char* title,const char* message,unsigned short flags);
-    unsigned short messageBox_critical(void* parentWidget,const char* title,const char* message,unsigned short flags);
+    unsigned short messageBox_informationSystemModal(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer);
+    unsigned short messageBox_information(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer);
+    unsigned short messageBox_question(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer);
+    unsigned short messageBox_warning(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer);
+    unsigned short messageBox_critical(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer);
     bool dialogInputGetFloat(void* parentWidget,const char* title,const char* msg,float def,float minV,float maxV,int decimals,float* outFloat);
 
 private:
-    unsigned short _messageBox(int type,void* parentWidget,const char* title,const char* message,unsigned short flags);
+    unsigned short _messageBox(int type,void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer);
 
 signals:
     void _requestSceneRender_wait();

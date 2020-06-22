@@ -527,7 +527,7 @@ void CQDlgTextures::on_qqLoad_clicked()
                     data=nullptr;
                 }
                 if (data==nullptr)
-                    App::uiThread->messageBox_critical(App::mainWindow,"Texture",IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,"Texture",IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 else
                 {
                     // Check if the resolution is a power of 2:
@@ -545,7 +545,7 @@ void CQDlgTextures::on_qqLoad_clicked()
                         tmp/=2;
                     }
                     if ((oResX!=resX)||(oResY!=resY))
-                        App::uiThread->messageBox_warning(App::mainWindow,"Texture",IDS_TEXTURE_RESOLUTION_NOT_POWER_OF_TWO_WARNING,VMESSAGEBOX_OKELI);
+                        App::uiThread->messageBox_warning(App::mainWindow,"Texture",IDS_TEXTURE_RESOLUTION_NOT_POWER_OF_TWO_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=LOAD_ANDAPPLY_TEXTUREGUITRIGGEREDCMD;
                     cmd.intParams.push_back(_objType);

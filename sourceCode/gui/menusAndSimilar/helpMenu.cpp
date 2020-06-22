@@ -93,7 +93,7 @@ bool CHelpMenu::processCommand(int commandID)
             }
             else
             { // file doesn't exist.
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_CREDITS,IDS_FILE_COULD_NOT_BE_FOUND_,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(App::mainWindow,IDSN_CREDITS,IDS_FILE_COULD_NOT_BE_FOUND_,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             }
         }
         return(true);

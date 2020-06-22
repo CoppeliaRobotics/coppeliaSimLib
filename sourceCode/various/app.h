@@ -87,6 +87,8 @@ public:
     static void setConsoleMsgToFile(bool f);
     static bool isCurrentThreadTheUiThread();
     static void clearStatusbar();
+    static int getDlgVerbosity();
+    static void setDlgVerbosity(int v);
 
     static float* getRGBPointerFromItem(int objType,int objID1,int objID2,int colComponent,std::string* auxDlgTitle);
     static CColorObject* getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts);
@@ -132,6 +134,7 @@ private:
     static std::string _additionalAddOnScript2;
     static int _consoleVerbosity;
     static int _statusbarVerbosity;
+    static int _dlgVerbosity;
     static std::string _consoleLogFilterStr;
 
     static volatile int _quitLevel;

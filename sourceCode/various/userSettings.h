@@ -37,6 +37,7 @@ public:
     std::string _overrideConsoleVerbosity;
     std::string _overrideStatusbarVerbosity;
     std::string _consoleLogFilter;
+    std::string _overrideDialogVerbosity;
     bool undecoratedStatusbarMessages;
     bool displayWorldReference;
     bool useGlFinish;
@@ -107,7 +108,6 @@ public:
     bool doNotShowProgressBars;
     bool doNotShowAcknowledgmentMessages;
     bool doNotShowVideoCompressionLibraryLoadError;
-    bool redirectStatusbarMsgToConsoleInHeadlessMode;
     bool suppressStartupDialogs;
     bool suppressXmlOverwriteMsg;
 

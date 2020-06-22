@@ -274,7 +274,7 @@ void CQDlgProximitySensors::on_qqEntityToDetect_currentIndexChanged(int index)
                         displayWarning|=((it2->getLocalObjectSpecialProperty()&sim_objectspecialproperty_detectable_all)==0);
                 }
                 if (displayWarning)
-                    App::uiThread->messageBox_warning(App::mainWindow,"Scene object",IDS_OBJECT_NOT_DETECTABLE_WARNING,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(App::mainWindow,"Scene object",IDS_OBJECT_NOT_DETECTABLE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             }
             App::appendSimulationThreadCommand(SET_ENTITYTODETECT_PROXSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),objID);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);

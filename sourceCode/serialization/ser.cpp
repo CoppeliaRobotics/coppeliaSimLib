@@ -685,7 +685,7 @@ int CSer::readOpenBinary(int& serializationVersion,unsigned short& coppeliaSimVe
         if (serializationVersion>SER_SERIALIZATION_VERSION)
         { // we might have problems reading this (even if it should be supported). Some functions might not be available.
 #ifdef SIM_WITH_GUI
-            App::uiThread->messageBox_warning(App::mainWindow,"Serialization",IDS_READING_NEWER_SERIALIZATION_FILE_WARNING,VMESSAGEBOX_OKELI);
+            App::uiThread->messageBox_warning(App::mainWindow,"Serialization",IDS_READING_NEWER_SERIALIZATION_FILE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #else
             App::logMsg(sim_verbosity_warnings,"%s.",IDS_READING_NEWER_SERIALIZATION_FILE_WARNING);
 #endif

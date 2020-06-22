@@ -251,7 +251,7 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
     entity2=ui->qqEntity2->itemData(ui->qqEntity2->currentIndex()).toInt();
     if ((entity1==entity2)&&(entity1<=SIM_IDEND_SCENEOBJECT))
     { // error, we cannot check against itself if object
-        App::uiThread->messageBox_warning(this,IDSN_COLLISION_DISTANCE_OBJECT,IDS_CANNOT_CHECK_OBJECT_AGAINST_ITSELF,VMESSAGEBOX_OKELI);
+        App::uiThread->messageBox_warning(this,IDSN_COLLISION_DISTANCE_OBJECT,IDS_CANNOT_CHECK_OBJECT_AGAINST_ITSELF,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         return(false);
     }
     if (mode==0)
@@ -261,7 +261,7 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         {
             if (App::currentWorld->collisions->getObjectFromIndex(i)->isSame(entity1,entity2))
             {
-                App::uiThread->messageBox_warning(this,IDSN_COLLISION_DISTANCE_OBJECT,IDS_SIMILAR_OBJECT_ALREADY_EXISTS,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(this,IDSN_COLLISION_DISTANCE_OBJECT,IDS_SIMILAR_OBJECT_ALREADY_EXISTS,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 return(false);
             }
         }
@@ -292,7 +292,7 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         }
         if (invalidCombination)
         {
-            App::uiThread->messageBox_warning(this,IDSN_COLLISION_DISTANCE_OBJECT,IDS_INVALID_COLLISION_ITEM_COMBINATION,VMESSAGEBOX_OKELI);
+            App::uiThread->messageBox_warning(this,IDSN_COLLISION_DISTANCE_OBJECT,IDS_INVALID_COLLISION_ITEM_COMBINATION,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             return(false);
         }
 
@@ -310,7 +310,7 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
                 displayWarning|=((it->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_collidable)==0);
         }
         if (displayWarning)
-            App::uiThread->messageBox_warning(this,IDSN_COLLISION_OBJECT,IDS_OBJECTS_NOT_COLLIDABLE_WARNING,VMESSAGEBOX_OKELI);
+            App::uiThread->messageBox_warning(this,IDSN_COLLISION_OBJECT,IDS_OBJECTS_NOT_COLLIDABLE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     }
     if ((mode==1)||(mode==2))
     {
@@ -321,7 +321,7 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
             {
                 if (App::currentWorld->distances->getObjectFromIndex(i)->isSame(entity1,entity2))
                 {
-                    App::uiThread->messageBox_warning(this,IDSN_COLLISION_DISTANCE_OBJECT,IDS_SIMILAR_OBJECT_ALREADY_EXISTS,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(this,IDSN_COLLISION_DISTANCE_OBJECT,IDS_SIMILAR_OBJECT_ALREADY_EXISTS,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     return(false);
                 }
             }
@@ -346,7 +346,7 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         }
         if (invalidCombination)
         {
-            App::uiThread->messageBox_warning(this,IDSN_COLLISION_DISTANCE_OBJECT,IDS_INVALID_DISTANCE_ITEM_COMBINATION,VMESSAGEBOX_OKELI);
+            App::uiThread->messageBox_warning(this,IDSN_COLLISION_DISTANCE_OBJECT,IDS_INVALID_DISTANCE_ITEM_COMBINATION,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             return(false);
         }
 
@@ -366,9 +366,9 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         if (displayWarning)
         {
             if (mode==1)
-                App::uiThread->messageBox_warning(this,IDSN_DISTANCE_OBJECT,IDS_OBJECTS_NOT_MEASURABLE_WARNING,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(this,IDSN_DISTANCE_OBJECT,IDS_OBJECTS_NOT_MEASURABLE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             if (mode==2)
-                App::uiThread->messageBox_warning(this,IDSN_AVOIDANCE_OBJECT,IDS_OBJECTS_NOT_MEASURABLE_WARNING,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(this,IDSN_AVOIDANCE_OBJECT,IDS_OBJECTS_NOT_MEASURABLE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         }
     }
     return(true);

@@ -205,7 +205,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if ( (App::getConsoleVerbosity()>=sim_verbosity_trace)&&(!App::userSettings->suppressStartupDialogs) )
         {
 #ifdef SIM_WITH_GUI
-            App::uiThread->messageBox_information(App::mainWindow,"Tracing","Tracing is turned on: this might lead to drastic performance loss.",VMESSAGEBOX_OKELI);
+            App::uiThread->messageBox_information(App::mainWindow,"Tracing","Tracing is turned on: this might lead to drastic performance loss.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #else
             App::logMsg(sim_verbosity_warnings,"tracing is turned on: this might lead to drastic performance loss.");
 #endif
@@ -407,11 +407,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (App::mainWindow!=nullptr)
             {
                 if (cmd.intParams[0]==sim_msgbox_type_info)
-                    App::uiThread->messageBox_information(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_information(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 if (cmd.intParams[0]==sim_msgbox_type_warning)
-                    App::uiThread->messageBox_warning(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 if (cmd.intParams[0]==sim_msgbox_type_critical)
-                    App::uiThread->messageBox_critical(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             }
         }
 
@@ -2673,7 +2673,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     geom->getCumulativeMeshes(wvert,&wind,nullptr);
                     if (geom->textureCoords_notCopiedNorSerialized.size()/2==wind.size())
                     { // we have texture coordinate data attached to the shape's geometry (was added during shape import)
-                        App::uiThread->messageBox_information(App::mainWindow,"Texture coordinates",IDS_USING_EXISTING_TEXTURE_COORDINATES,VMESSAGEBOX_OKELI);
+                        App::uiThread->messageBox_information(App::mainWindow,"Texture coordinates",IDS_USING_EXISTING_TEXTURE_COORDINATES,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                         tp->setFixedCoordinates(&geom->textureCoords_notCopiedNorSerialized);
                         geom->textureCoords_notCopiedNorSerialized.clear();
                     }
@@ -2733,7 +2733,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
                             if (geom->textureCoords_notCopiedNorSerialized.size()/2==wind.size())
                             { // we have texture coordinate data attached to the shape's geometry (was added during shape import)
-                                App::uiThread->messageBox_information(App::mainWindow,"Texture coordinates",IDS_USING_EXISTING_TEXTURE_COORDINATES,VMESSAGEBOX_OKELI);
+                                App::uiThread->messageBox_information(App::mainWindow,"Texture coordinates",IDS_USING_EXISTING_TEXTURE_COORDINATES,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                                 tp->setFixedCoordinates(&geom->textureCoords_notCopiedNorSerialized);
                                 geom->textureCoords_notCopiedNorSerialized.clear();
                             }
@@ -3851,7 +3851,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if ((grData!=nullptr)&&(grData->getDataLength()!=0))
                 {
                     it->makeCurveStatic(cmd.intParams[1],0);
-                    App::uiThread->messageBox_information(App::mainWindow,IDSN_GRAPH_CURVE,IDSN_CURVE_WAS_DUPLICATED_TO_STATIC,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_information(App::mainWindow,IDSN_GRAPH_CURVE,IDSN_CURVE_WAS_DUPLICATED_TO_STATIC,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 }
             }
         }
@@ -4002,7 +4002,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if (grDataComb!=nullptr)
                 {
                     it->makeCurveStatic(cmd.intParams[1],dim);
-                    App::uiThread->messageBox_information(App::mainWindow,IDSN_GRAPH_CURVE,IDSN_CURVE_WAS_DUPLICATED_TO_STATIC,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_information(App::mainWindow,IDSN_GRAPH_CURVE,IDSN_CURVE_WAS_DUPLICATED_TO_STATIC,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 }
             }
         }
@@ -4991,7 +4991,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
 
     if (cmd.cmdId==DISPLAY_ACKNOWLEDGMENT_MESSAGE_CMD)
-        App::uiThread->messageBox_information(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI);
+        App::uiThread->messageBox_information(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 
     if (cmd.cmdId==AUTO_SAVE_SCENE_CMD)
         _handleAutoSaveSceneCommand(cmd);
@@ -5107,7 +5107,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                 {
                     if ( (!App::userSettings->doNotShowCrashRecoveryMessage)&&(!App::userSettings->suppressStartupDialogs) )
                     {
-                        if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_question(App::mainWindow,CSimFlavor::getStringVal(11).c_str(),CSimFlavor::getStringVal(12).c_str(),VMESSAGEBOX_YES_NO))
+                        if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_question(App::mainWindow,CSimFlavor::getStringVal(11).c_str(),CSimFlavor::getStringVal(12).c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_NO))
                         {
                             std::string testScene=App::folders->getExecutablePath()+"/";
                             testScene.append("AUTO_SAVED_INSTANCE_1.");
@@ -5206,7 +5206,7 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
         tt::getValidInt(val.c_str(),intVal);
         if (intVal<3)
         {
-            if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_SIMULATION_PARAMETERS,IDSN_NON_STANDARD_SIM_PARAMS_WARNING,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN_3X))
+            if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_SIMULATION_PARAMETERS,IDSN_NON_STANDARD_SIM_PARAMS_WARNING,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN_3X,true))
             {
                 intVal++;
                 val=tt::FNb(intVal);
@@ -5217,10 +5217,10 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
 
     if (App::currentWorld->dynamicsContainer->displayVortexPluginIsDemoRequired())
 #ifdef WIN_SIM
-        App::uiThread->messageBox_information(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_WINDOWS,VMESSAGEBOX_OKELI);
+        App::uiThread->messageBox_information(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_WINDOWS,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #endif
 #ifdef LIN_SIM
-        App::uiThread->messageBox_information(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_LINUX,VMESSAGEBOX_OKELI);
+        App::uiThread->messageBox_information(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_LINUX,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #endif
 
     if (displayNonPureNonConvexShapeUseWarning)
@@ -5232,7 +5232,7 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
         tt::getValidInt(val.c_str(),intVal);
         if (intVal<3)
         {
-            if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_DYNAMIC_CONTENT,IDSN_USING_NON_PURE_NON_CONVEX_SHAPES_FOR_DYNAMICS_WARNING,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN_3X))
+            if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_DYNAMIC_CONTENT,IDSN_USING_NON_PURE_NON_CONVEX_SHAPES_FOR_DYNAMICS_WARNING,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN_3X,true))
             {
                 intVal++;
                 val=tt::FNb(intVal);
@@ -5250,7 +5250,7 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
         tt::getValidInt(val.c_str(),intVal);
         if (intVal<3)
         {
-            if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_DYNAMIC_CONTENT,IDSN_USING_STATIC_SHAPE_ON_TOP_OF_DYNAMIC_CONSTRUCTION_WARNING,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN_3X))
+            if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_DYNAMIC_CONTENT,IDSN_USING_STATIC_SHAPE_ON_TOP_OF_DYNAMIC_CONSTRUCTION_WARNING,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN_3X,true))
             {
                 intVal++;
                 val=tt::FNb(intVal);

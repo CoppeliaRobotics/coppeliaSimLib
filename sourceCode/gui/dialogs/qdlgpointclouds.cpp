@@ -241,7 +241,7 @@ void CQDlgPointclouds::on_qqNoOctreeStructure_clicked()
         if (it!=nullptr)
         {
             if (!it->getDoNotUseCalculationStructure())
-                App::uiThread->messageBox_warning(App::mainWindow,"Point cloud octree calculation structure","Be aware that when disabling the octree calculation structure, your point cloud will not be collidable, measurable nor detectable anymore. Also, some functionality might be limited in that case.",VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(App::mainWindow,"Point cloud octree calculation structure","Be aware that when disabling the octree calculation structure, your point cloud will not be collidable, measurable nor detectable anymore. Also, some functionality might be limited in that case.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             App::appendSimulationThreadCommand(TOGGLE_USEOCTREE_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

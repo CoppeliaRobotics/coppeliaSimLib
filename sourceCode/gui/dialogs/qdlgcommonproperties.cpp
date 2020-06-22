@@ -813,7 +813,7 @@ void CQDlgCommonProperties::on_qqUpdatable_clicked()
             int p=ls->getLocalObjectProperty();
             if (p&sim_objectproperty_canupdatedna)
             {
-                if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,"Updatable property",IDSN_SURE_TO_DISABLE_UPDATABLE_WARNING,VMESSAGEBOX_YES_NO))
+                if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,"Updatable property",IDSN_SURE_TO_DISABLE_UPDATABLE_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES))
                     App::appendSimulationThreadCommand(TOGGLE_CANTRANSFERDNA_COMMONPROPGUITRIGGEREDCMD,ls->getObjectHandle());
             }
             else

@@ -147,7 +147,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 }
                 else
                 { // file does not exist anymore
-                    App::uiThread->messageBox_information(App::mainWindow,"Open Recent Scene","File does not exist anymore.",VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_information(App::mainWindow,"Open Recent Scene","File does not exist anymore.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     _removeFromRecentlyOpenedScenes(filenameAndPath);
                 }
             }
@@ -211,7 +211,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
             }
             else
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXPORT,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXPORT,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -265,7 +265,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         tt::getValidInt(val.c_str(),intVal);
                         if (intVal<1)
                         {
-                            if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_MODEL,IDSN_MODEL_SAVE_POSITION_OFFSET_INFO,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN))
+                            if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_MODEL,IDSN_MODEL_SAVE_POSITION_OFFSET_INFO,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN,false))
                             {
                                 intVal++;
                                 val=tt::FNb(intVal);
@@ -353,7 +353,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                                             std::string msg("The scene/model will possibly be saved as several separate files, all with the '");
                                             msg+=prefix;
                                             msg+="' prefix. Existing files with the same prefix will be erased or overwritten. To avoid this, it is recommended to either save XML scenes/models in individual folders, or to set the 'xmlExportSplitSize' variable in 'system/usrset.txt' to 0 to generate a single file.\n(this warning can be disabled via the 'suppressXmlOverwriteMsg' variable in 'system/usrset.txt')\n\nProceed anyway?";
-                                            abort=(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,msg.c_str(),VMESSAGEBOX_YES_NO));
+                                            abort=(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,msg.c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
                                         }
                                     }
                                     if (CSer::getFileTypeFromName(filenameAndPath.c_str())==CSer::filetype_csim_xml_simplemodel_file)
@@ -368,7 +368,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                                             std::string msg("The scene/model will possibly be saved as several separate files, all with the '");
                                             msg+=prefix;
                                             msg+="' prefix. Existing files with the same prefix will be erased or overwritten. To avoid this, it is recommended to save XML scenes/models in individual folders.\n(this warning can be disabled via the 'suppressXmlOverwriteMsg' variable in 'system/usrset.txt')\n\nProceed anyway?";
-                                            abort=(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,msg.c_str(),VMESSAGEBOX_YES_NO));
+                                            abort=(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,msg.c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
                                         }
                                     }
                                 }
@@ -390,7 +390,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         App::logMsg(sim_verbosity_errors,IDSNS_CANNOT_PROCEED_SELECTION_IS_EMPTY);
                 }
                 else
-                    App::uiThread->messageBox_warning(App::mainWindow,IDSN_MODEL,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(App::mainWindow,IDSN_MODEL,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             }
             else
                 App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -425,7 +425,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
             }
             else
-                App::uiThread->messageBox_critical(App::mainWindow,IDSN_EXPORT,"Assimp plugin was not found, cannot import",VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_critical(App::mainWindow,IDSN_EXPORT,"Assimp plugin was not found, cannot import",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -526,10 +526,10 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
                 }
                 else
-                    App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXPORT,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXPORT,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             }
             else
-                App::uiThread->messageBox_critical(App::mainWindow,IDSN_EXPORT,"Assimp plugin was not found, cannot export",VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_critical(App::mainWindow,IDSN_EXPORT,"Assimp plugin was not found, cannot export",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -681,7 +681,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     App::logMsg(sim_verbosity_errors,IDSNS_CANNOT_PROCEED_NO_DYNAMIC_CONTENT_AVAILABLE);
             }
             else
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXPORT,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXPORT,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -714,7 +714,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             }
             if ((ei==App::worldContainer->getCurrentWorldIndex())&&(!displayed))
             {
-                if (VMESSAGEBOX_REPLY_OK==App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXIT,IDS_INSTANCE_STILL_IN_EDIT_MODE_MESSAGE,VMESSAGEBOX_OK_CANCEL))
+                if (VMESSAGEBOX_REPLY_OK==App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXIT,IDS_INSTANCE_STILL_IN_EDIT_MODE_MESSAGE,VMESSAGEBOX_OK_CANCEL,VMESSAGEBOX_REPLY_OK))
                 {
                     if (App::mainWindow!=nullptr)
                         App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,nullptr);
@@ -725,7 +725,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             }
             if ((si==App::worldContainer->getCurrentWorldIndex())&&(!displayed))
             {
-                if (VMESSAGEBOX_REPLY_OK==App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXIT,IDS_SIMULATION_STILL_RUNNING_MESSAGE,VMESSAGEBOX_OK_CANCEL))
+                if (VMESSAGEBOX_REPLY_OK==App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXIT,IDS_SIMULATION_STILL_RUNNING_MESSAGE,VMESSAGEBOX_OK_CANCEL,VMESSAGEBOX_REPLY_OK))
                     App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request,0,0,0,0,nullptr,0);
                 displayed=true;
             }
@@ -733,7 +733,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             {
                 unsigned short action=VMESSAGEBOX_REPLY_NO;
                 if (CSimFlavor::getBoolVal(16))
-                    action=App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_WANNA_SAVE_THE_SCENE_WARNING,VMESSAGEBOX_YES_NO_CANCEL);
+                    action=App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_WANNA_SAVE_THE_SCENE_WARNING,VMESSAGEBOX_YES_NO_CANCEL,VMESSAGEBOX_REPLY_NO);
                 if (action==VMESSAGEBOX_REPLY_YES)
                 {
                     if (_saveSceneWithDialogAndEverything()) // will call save as if needed!
@@ -749,19 +749,19 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             }
             if ((ei!=-1)&&(!displayed))
             {
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXIT,IDS_ANOTHER_INSTANCE_STILL_IN_EDIT_MODE_MESSAGE,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXIT,IDS_ANOTHER_INSTANCE_STILL_IN_EDIT_MODE_MESSAGE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 App::worldContainer->switchToWorld(ei);
                 displayed=true;
             }
             if ((si!=-1)&&(!displayed))
             {
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXIT,IDS_ANOTHER_SIMULATION_STILL_RUNNING_MESSAGE,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXIT,IDS_ANOTHER_SIMULATION_STILL_RUNNING_MESSAGE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 App::worldContainer->switchToWorld(si);
                 displayed=true;
             }
             if ((ci!=-1)&&(!displayed))
             {
-                if (VMESSAGEBOX_REPLY_CANCEL==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_ANOTHER_INSTANCE_STILL_NOT_SAVED_WANNA_LEAVE_ANYWAY_MESSAGE,VMESSAGEBOX_OK_CANCEL))
+                if (VMESSAGEBOX_REPLY_CANCEL==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_ANOTHER_INSTANCE_STILL_NOT_SAVED_WANNA_LEAVE_ANYWAY_MESSAGE,VMESSAGEBOX_OK_CANCEL,VMESSAGEBOX_REPLY_OK))
                 {
                     App::worldContainer->switchToWorld(ci);
                     displayed=true;
@@ -831,7 +831,7 @@ void CFileOperations::closeScene(bool displayMessages,bool displayDialogs)
         {
             if (displayDialogs&&App::currentWorld->undoBufferContainer->isSceneSaveMaybeNeededFlagSet())
             {
-                action=App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_WANNA_SAVE_THE_SCENE_WARNING,VMESSAGEBOX_YES_NO_CANCEL);
+                action=App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_WANNA_SAVE_THE_SCENE_WARNING,VMESSAGEBOX_YES_NO_CANCEL,VMESSAGEBOX_REPLY_NO);
                 if (action==VMESSAGEBOX_REPLY_YES)
                 {
                     if (_saveSceneWithDialogAndEverything()) // will call save as if needed!
@@ -1097,7 +1097,7 @@ bool CFileOperations::_pathExportPoints(const char* pathName,int pathID,bool bez
 bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir)
 {
     TRACE_INTERNAL;
-    if (App::isFullScreen()||App::userSettings->doNotShowAcknowledgmentMessages)
+    if (App::isFullScreen()||App::userSettings->doNotShowAcknowledgmentMessages||(App::getDlgVerbosity()<sim_verbosity_infos))
         displayDialogs=false;
 
     if (strlen(pathAndFilename)==0)
@@ -1153,7 +1153,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
             if (displayDialogs)
             {
                 App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,"The file does not seem to be a valid scene file.",VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,"The file does not seem to be a valid scene file.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 App::uiThread->showOrHideProgressBar(true);
             }
         }
@@ -1175,7 +1175,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
             if (displayDialogs)
             {
                 App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 App::uiThread->showOrHideProgressBar(true);
             }
         }
@@ -1186,7 +1186,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
             if (displayDialogs)
             {
                 App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_TOO_RECENT,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_TOO_RECENT,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 App::uiThread->showOrHideProgressBar(true);
             }
         }
@@ -1197,7 +1197,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
             if (displayDialogs)
             {
                 App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_COMPRESSION_SCHEME_NOT_SUPPORTED,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_COMPRESSION_SCHEME_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 App::uiThread->showOrHideProgressBar(true);
             }
         }
@@ -1212,7 +1212,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
             if (displayMessages)
                 App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_OPENED);
             if ((csimVersionThatWroteThis>SIM_PROGRAM_VERSION_NB)&&displayDialogs&&(App::mainWindow!=nullptr))
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SAVED_WITH_MORE_RECENT_VERSION_WARNING,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SAVED_WITH_MORE_RECENT_VERSION_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             std::string acknowledgement(App::currentWorld->environment->getAcknowledgement());
             std::string tmp(acknowledgement);
             tt::removeSpacesAtBeginningAndEnd(tmp);
@@ -1254,7 +1254,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
 bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::string* acknowledgmentPointerInReturn,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail,bool forceModelAsCopy)
 { // if acknowledgment is nullptr, then acknowledgments are directly displayed here!
     TRACE_INTERNAL;
-    if (App::isFullScreen()||App::userSettings->doNotShowAcknowledgmentMessages)
+    if (App::isFullScreen()||App::userSettings->doNotShowAcknowledgmentMessages||(App::getDlgVerbosity()<sim_verbosity_infos))
         displayDialogs=false;
     int result=-3;
     CSimFlavor::run(2);
@@ -1298,7 +1298,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                 if (displayDialogs)
                 {
                     App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,"The file does not seem to be a valid model file.",VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,"The file does not seem to be a valid model file.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     App::uiThread->showOrHideProgressBar(true);
                 }
             }
@@ -1320,7 +1320,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                 if (displayDialogs)
                 {
                     App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     App::uiThread->showOrHideProgressBar(true);
                 }
             }
@@ -1331,7 +1331,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                 if (displayDialogs)
                 {
                     App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_TOO_RECENT,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_TOO_RECENT,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     App::uiThread->showOrHideProgressBar(true);
                 }
             }
@@ -1342,7 +1342,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                 if (displayDialogs)
                 {
                     App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_COMPRESSION_SCHEME_NOT_SUPPORTED,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_COMPRESSION_SCHEME_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     App::uiThread->showOrHideProgressBar(true);
                 }
             }
@@ -1357,7 +1357,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                 if ((csimVersionThatWroteThis>SIM_PROGRAM_VERSION_NB)&&displayDialogs&&(App::mainWindow!=nullptr)&&(!onlyThumbnail))
                 {
                     App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_warning(App::mainWindow,IDSN_MODEL,IDS_MODEL_SAVED_WITH_MORE_RECENT_VERSION_WARNING,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(App::mainWindow,IDSN_MODEL,IDS_MODEL_SAVED_WITH_MORE_RECENT_VERSION_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     App::uiThread->showOrHideProgressBar(true);
                 }
     #endif
@@ -1524,7 +1524,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
             #ifdef SIM_WITH_GUI
                 if ((App::mainWindow!=nullptr)&&displayDialogs)
                 { // to avoid an error when saving a file that was opened while still attached to an email for instance
-                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_FILE_ACCESS,IDSN_ACCESS_TO_FILE_WAS_DENIED,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_FILE_ACCESS,IDSN_ACCESS_TO_FILE_WAS_DENIED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 }
             #endif
         }
@@ -1699,7 +1699,7 @@ bool CFileOperations::heightfieldImportRoutine(const char* pathName)
                 else
                 {
                     #ifdef SIM_WITH_GUI
-                        App::uiThread->messageBox_critical(App::mainWindow,IDSN_IMPORT,IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI);
+                        App::uiThread->messageBox_critical(App::mainWindow,IDSN_IMPORT,IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     #endif
                 }
             }
@@ -2089,7 +2089,7 @@ bool CFileOperations::_saveSceneWithDialogAndEverything()
             retVal=_saveSceneAsWithDialogAndEverything(CSimFlavor::getIntVal(1));
         else
         {
-            if ( (!App::currentWorld->environment->getRequestFinalSave())||(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_FINAL_SCENE_SAVE_WARNING,VMESSAGEBOX_YES_NO)) )
+            if ( (!App::currentWorld->environment->getRequestFinalSave())||(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_FINAL_SCENE_SAVE_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES)) )
             {
                 if (App::currentWorld->environment->getRequestFinalSave())
                     App::currentWorld->environment->setSceneLocked();
@@ -2106,7 +2106,7 @@ bool CFileOperations::_saveSceneWithDialogAndEverything()
         }
     }
     else
-        App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI);
+        App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     return(retVal);
 }
 
@@ -2115,7 +2115,7 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
     bool retVal=false;
     if (!App::currentWorld->environment->getSceneLocked())
     {
-        if ( ((!App::currentWorld->environment->getRequestFinalSave())||(filetype==CSer::filetype_csim_bin_scene_file)) ||(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_FINAL_SCENE_SAVE_WARNING,VMESSAGEBOX_YES_NO)) )
+        if ( ((!App::currentWorld->environment->getRequestFinalSave())||(filetype==CSer::filetype_csim_bin_scene_file)) ||(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_FINAL_SCENE_SAVE_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES)) )
         {
             if (App::currentWorld->environment->getRequestFinalSave()&&(filetype!=CSer::filetype_csim_bin_scene_file))
                 App::currentWorld->environment->setSceneLocked();
@@ -2168,7 +2168,7 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
                             std::string msg("The scene/model will possibly be saved as several separate files, all with the '");
                             msg+=prefix;
                             msg+="' prefix. Existing files with the same prefix will be erased or overwritten. To avoid this, it is recommended to either save XML scenes/models in individual folders, or to set the 'xmlExportSplitSize' variable in 'system/usrset.txt' to 0 to generate a single file.\n(this warning can be disabled via the 'suppressXmlOverwriteMsg' variable in 'system/usrset.txt')\n\nProceed anyway?";
-                            abort=(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,msg.c_str(),VMESSAGEBOX_YES_NO));
+                            abort=(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,msg.c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
                         }
                     }
                     if (filetype==CSer::filetype_csim_xml_simplescene_file)
@@ -2183,7 +2183,7 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
                             std::string msg("The scene/model will possibly be saved as several separate files, all with the '");
                             msg+=prefix;
                             msg+="' prefix. Existing files with the same prefix will be erased or overwritten. To avoid this, it is recommended to save XML scenes/models in individual folders.\n(this warning can be disabled via the 'suppressXmlOverwriteMsg' variable in 'system/usrset.txt')\n\nProceed anyway?";
-                            abort=(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,msg.c_str(),VMESSAGEBOX_YES_NO));
+                            abort=(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,msg.c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
                         }
                     }
                 }
@@ -2206,7 +2206,7 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
         }
     }
     else
-        App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI);
+        App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     return(retVal);
 }
 #endif

@@ -256,7 +256,7 @@ void CQDlgScripts::on_qqAddNewScript_clicked()
                 CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getMainScript();
                 if (it!=nullptr)
                 {
-                    if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDS_MAIN_SCRIPT,IDS_INFO_NO_MORE_THAN_ONE_MAIN_SCRIPT,VMESSAGEBOX_YES_NO))
+                    if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDS_MAIN_SCRIPT,IDS_INFO_NO_MORE_THAN_ONE_MAIN_SCRIPT,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES))
                     {
                         App::appendSimulationThreadCommand(DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD,it->getScriptID());
                         App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_mainscript,0);

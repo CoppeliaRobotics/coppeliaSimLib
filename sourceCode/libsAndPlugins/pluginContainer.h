@@ -602,7 +602,7 @@ public:
     // Custom UI plugin:
     static CPlugin* currentCustomUi;
     static bool isCustomUiPluginAvailable();
-    static int customUi_msgBox(int type, int buttons, const char *title, const char *message);
+    static int customUi_msgBox(int type, int buttons, const char *title, const char *message,int defaultAnswer);
     static bool customUi_fileDialog(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native,std::string& files);
 
     // Assimp plugin:

@@ -113,7 +113,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
         if (txt.length()!=0)
         {
             if ( (!App::userSettings->doNotShowUpdateCheckMessage)&&(!App::userSettings->suppressStartupDialogs) )
-                App::uiThread->messageBox_informationSystemModal(App::mainWindow,"Update information",txt.c_str(),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_informationSystemModal(App::mainWindow,"Update information",txt.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             App::logMsg(sim_verbosity_msgs,txt.c_str());
         }
     }
@@ -423,9 +423,6 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     if ( (App::mainWindow!=nullptr)&&(cmdIn->cmdId>MAIN_WINDOW_START_MWUITHREADCMD)&&(cmdIn->cmdId<MAIN_WINDOW_END_MWUITHREADCMD) )
         App::mainWindow->executeCommand(cmdIn,cmdOut);
 
-    if ( (!App::isFullScreen())&&(App::mainWindow!=nullptr)&&(cmdIn->cmdId==DISPLAY_MSGBOX_API_UITHREADCMD) )
-        cmdOut->intParams.push_back(messageBox_api(cmdIn->intParams[0],cmdIn->intParams[1],cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str()));
-
     if ( (!App::isFullScreen())&&(App::mainWindow!=nullptr)&&(cmdIn->cmdId==DISPLAY_FILE_DLG_UITHREADCMD) )
         cmdOut->stringParams.push_back(getOpenOrSaveFileName_api(cmdIn->intParams[0],cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str(),cmdIn->stringParams[2].c_str(),cmdIn->stringParams[3].c_str(),cmdIn->stringParams[4].c_str()));
 
@@ -437,10 +434,10 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
 
 
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen())&&(cmdIn->cmdId==DISPLAY_MSG_WITH_CHECKBOX_UITHREADCMD) )
-        cmdOut->boolParams.push_back(messageBox_checkbox((QWidget*)cmdIn->objectParams[0],cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str(),cmdIn->stringParams[2].c_str()));
+        cmdOut->boolParams.push_back(messageBox_checkbox((QWidget*)cmdIn->objectParams[0],cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str(),cmdIn->stringParams[2].c_str(),cmdIn->boolParams[0]));
 
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen())&&(cmdIn->cmdId==DISPLAY_MSGBOX_UITHREADCMD) )
-        cmdOut->uintParams.push_back(_messageBox(cmdIn->intParams[0],(QWidget*)cmdIn->objectParams[0],cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str(),cmdIn->uintParams[0]));
+        cmdOut->uintParams.push_back(_messageBox(cmdIn->intParams[0],(QWidget*)cmdIn->objectParams[0],cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str(),cmdIn->uintParams[0],cmdIn->uintParams[1]));
 
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen())&&(cmdIn->cmdId==DISPLAY_SAVE_DLG_UITHREADCMD) )
         cmdOut->stringParams.push_back(getSaveFileName((QWidget*)cmdIn->objectParams[0],cmdIn->uintParams[0],cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str(),cmdIn->stringParams[2].c_str(),cmdIn->boolParams[0],cmdIn->stringParams[3].c_str(),cmdIn->stringParams[4].c_str(),cmdIn->stringParams[5].c_str(),cmdIn->stringParams[6].c_str(),cmdIn->stringParams[7].c_str(),cmdIn->stringParams[8].c_str(),cmdIn->stringParams[9].c_str(),cmdIn->stringParams[10].c_str(),cmdIn->stringParams[11].c_str(),cmdIn->stringParams[12].c_str(),cmdIn->stringParams[13].c_str()));
@@ -499,7 +496,7 @@ void CUiThread::showOrHideProgressBar(bool show,float pos,const char* txt)
 { // pos and txt can be omitted (then previously provided values will be used)
     TRACE_INTERNAL;
 #ifdef SIM_WITH_GUI
-    if (App::userSettings->doNotShowProgressBars)
+    if ( App::userSettings->doNotShowProgressBars||(App::getDlgVerbosity()<sim_verbosity_infos) )
         return;
     static float p=0.0f;
     static std::string t("");
@@ -683,90 +680,37 @@ std::string CUiThread::getOpenOrSaveFileName_api(int mode,const char* title,cons
     return(retVal);
 }
 
-int CUiThread::messageBox_api(int boxType,int buttons,const char* title,const char* message)
+unsigned short CUiThread::messageBox_informationSystemModal(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
-    int retVal=sim_msgbox_return_error;
-    if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
-    { // make sure we are not in headless mode
-        if (VThread::isCurrentThreadTheUiThread())
-        { // we are in the UI thread. We execute the command now:
-            int buts=VMESSAGEBOX_OKELI;
-            if (buttons==sim_msgbox_buttons_ok)
-                buts=VMESSAGEBOX_OKELI;
-            if (buttons==sim_msgbox_buttons_yesno)
-                buts=VMESSAGEBOX_YES_NO;
-            if (buttons==sim_msgbox_buttons_yesnocancel)
-                buts=VMESSAGEBOX_YES_NO_CANCEL;
-            if (buttons==sim_msgbox_buttons_okcancel)
-                buts=VMESSAGEBOX_OK_CANCEL;
-
-            unsigned short returned=999;
-            if (boxType==sim_msgbox_type_info)
-                returned=messageBox_information(App::mainWindow,title,message,buts);
-            if (boxType==sim_msgbox_type_question)
-                returned=messageBox_question(App::mainWindow,title,message,buts);
-            if (boxType==sim_msgbox_type_warning)
-                returned=messageBox_warning(App::mainWindow,title,message,buts);
-            if (boxType==sim_msgbox_type_critical)
-                returned=messageBox_critical(App::mainWindow,title,message,buts);
-
-            if (returned==VMESSAGEBOX_REPLY_CANCEL)
-                retVal=sim_msgbox_return_cancel;
-            if (returned==VMESSAGEBOX_REPLY_NO)
-                retVal=sim_msgbox_return_no;
-            if (returned==VMESSAGEBOX_REPLY_YES)
-                retVal=sim_msgbox_return_yes;
-            if (returned==VMESSAGEBOX_REPLY_OK)
-                retVal=sim_msgbox_return_ok;
-        }
-        else
-        { // We are NOT in the UI thread. We execute the command via the UI thread:
-            SUIThreadCommand cmdIn;
-            SUIThreadCommand cmdOut;
-            cmdIn.cmdId=DISPLAY_MSGBOX_API_UITHREADCMD;
-            cmdIn.intParams.push_back(boxType);
-            cmdIn.intParams.push_back(buttons);
-            cmdIn.stringParams.push_back(title);
-            cmdIn.stringParams.push_back(message);
-            executeCommandViaUiThread(&cmdIn,&cmdOut);
-            retVal=cmdOut.intParams[0];
-        }
-    }
-    return(retVal);
+    return(_messageBox(4,parentWidget,title,message,flags,defaultAnswer));
 }
 
-unsigned short CUiThread::messageBox_informationSystemModal(void* parentWidget,const char* title,const char* message,unsigned short flags)
+unsigned short CUiThread::messageBox_information(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
-    return(_messageBox(4,parentWidget,title,message,flags));
+    return(_messageBox(0,parentWidget,title,message,flags,defaultAnswer));
 }
 
-unsigned short CUiThread::messageBox_information(void* parentWidget,const char* title,const char* message,unsigned short flags)
+unsigned short CUiThread::messageBox_question(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
-    return(_messageBox(0,parentWidget,title,message,flags));
+    return(_messageBox(1,parentWidget,title,message,flags,defaultAnswer));
 }
 
-unsigned short CUiThread::messageBox_question(void* parentWidget,const char* title,const char* message,unsigned short flags)
+unsigned short CUiThread::messageBox_warning(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
-    return(_messageBox(1,parentWidget,title,message,flags));
+    return(_messageBox(2,parentWidget,title,message,flags,defaultAnswer));
 }
 
-unsigned short CUiThread::messageBox_warning(void* parentWidget,const char* title,const char* message,unsigned short flags)
+unsigned short CUiThread::messageBox_critical(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
-    return(_messageBox(2,parentWidget,title,message,flags));
+    return(_messageBox(3,parentWidget,title,message,flags,defaultAnswer));
 }
 
-unsigned short CUiThread::messageBox_critical(void* parentWidget,const char* title,const char* message,unsigned short flags)
-{
-    TRACE_INTERNAL;
-    return(_messageBox(3,parentWidget,title,message,flags));
-}
-
-unsigned short CUiThread::_messageBox(int type,void* parentWidget,const char* title,const char* message,unsigned short flags)
+unsigned short CUiThread::_messageBox(int type,void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer)
 { // type: 0=info, 1=question, 2=warning, 3=critical, 4=info, system modal
     TRACE_INTERNAL;
     unsigned short retVal=VMESSAGEBOX_REPLY_ERROR;
@@ -775,15 +719,15 @@ unsigned short CUiThread::_messageBox(int type,void* parentWidget,const char* ti
         if (VThread::isCurrentThreadTheUiThread())
         { // we are in the UI thread. We execute the command now:
             if (type==0)
-                retVal=VMessageBox::information((QWidget*)parentWidget,title,message,flags);
+                retVal=VMessageBox::information((QWidget*)parentWidget,title,message,flags,defaultAnswer);
             if (type==1)
-                retVal=VMessageBox::question((QWidget*)parentWidget,title,message,flags);
+                retVal=VMessageBox::question((QWidget*)parentWidget,title,message,flags,defaultAnswer);
             if (type==2)
-                retVal=VMessageBox::warning((QWidget*)parentWidget,title,message,flags);
+                retVal=VMessageBox::warning((QWidget*)parentWidget,title,message,flags,defaultAnswer);
             if (type==3)
-                retVal=VMessageBox::critical((QWidget*)parentWidget,title,message,flags);
+                retVal=VMessageBox::critical((QWidget*)parentWidget,title,message,flags,defaultAnswer);
             if (type==4)
-                retVal=VMessageBox::informationSystemModal((QWidget*)parentWidget,title,message,flags);
+                retVal=VMessageBox::informationSystemModal((QWidget*)parentWidget,title,message,flags,defaultAnswer);
         }
         else
         { // We are NOT in the UI thread. We execute the command via the UI thread:
@@ -795,6 +739,7 @@ unsigned short CUiThread::_messageBox(int type,void* parentWidget,const char* ti
             cmdIn.stringParams.push_back(title);
             cmdIn.stringParams.push_back(message);
             cmdIn.uintParams.push_back(flags);
+            cmdIn.uintParams.push_back(defaultAnswer);
             executeCommandViaUiThread(&cmdIn,&cmdOut);
             if (cmdOut.uintParams.size()>0)
                 retVal=cmdOut.uintParams[0];
@@ -803,7 +748,7 @@ unsigned short CUiThread::_messageBox(int type,void* parentWidget,const char* ti
     return(retVal);
 }
 
-bool CUiThread::messageBox_checkbox(void* parentWidget,const char* title,const char* message,const char* checkboxMessage)
+bool CUiThread::messageBox_checkbox(void* parentWidget,const char* title,const char* message,const char* checkboxMessage,bool isWarning)
 {
     TRACE_INTERNAL;
     bool retVal=false;
@@ -811,13 +756,21 @@ bool CUiThread::messageBox_checkbox(void* parentWidget,const char* title,const c
     { // make sure we are not in headless mode
         if (VThread::isCurrentThreadTheUiThread())
         { // we are in the UI thread. We execute the command now:
-            CQDlgMessageAndCheckbox dlg((QWidget*)parentWidget);
-            dlg.title=title;
-            dlg.text=message;
-            dlg.checkbox=checkboxMessage;
-            dlg.refresh();
-            dlg.makeDialogModal();
-            retVal=dlg.checkboxState;
+            int v=sim_verbosity_infos;
+            if (isWarning)
+                v=sim_verbosity_warnings;
+            if (App::getDlgVerbosity()>=v)
+            {
+                CQDlgMessageAndCheckbox dlg((QWidget*)parentWidget);
+                dlg.title=title;
+                dlg.text=message;
+                dlg.checkbox=checkboxMessage;
+                dlg.refresh();
+                dlg.makeDialogModal();
+                retVal=dlg.checkboxState;
+            }
+            else
+                retVal=false;
         }
         else
         { // We are NOT in the UI thread. We execute the command via the UI thread:
@@ -828,6 +781,7 @@ bool CUiThread::messageBox_checkbox(void* parentWidget,const char* title,const c
             cmdIn.stringParams.push_back(title);
             cmdIn.stringParams.push_back(message);
             cmdIn.stringParams.push_back(checkboxMessage);
+            cmdIn.boolParams.push_back(isWarning);
             executeCommandViaUiThread(&cmdIn,&cmdOut);
             if (cmdOut.boolParams.size()>0)
                 retVal=cmdOut.boolParams[0];

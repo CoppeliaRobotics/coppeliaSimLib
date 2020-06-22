@@ -2646,11 +2646,24 @@ int CPluginContainer::codeEditor_close(int handle,int* positionAndSize)
     return(retVal);
 }
 
-int CPluginContainer::customUi_msgBox(int type, int buttons, const char *title, const char *message)
+int CPluginContainer::customUi_msgBox(int type, int buttons, const char *title, const char *message,int defaultAnswer)
 {
     int retVal=-1;
     if (currentCustomUi!=nullptr)
-        retVal=currentCustomUi->_customUi_msgBox(type,buttons,title,message);
+    {
+        retVal=defaultAnswer;
+        bool doIt=false;
+        if (type==sim_msgbox_type_info)
+            doIt=(App::getDlgVerbosity()>=sim_verbosity_infos);
+        if (type==sim_msgbox_type_question)
+            doIt=(App::getDlgVerbosity()>=sim_verbosity_questions);
+        if (type==sim_msgbox_type_warning)
+            doIt=(App::getDlgVerbosity()>=sim_verbosity_warnings);
+        if (type==sim_msgbox_type_critical)
+            doIt=(App::getDlgVerbosity()>=sim_verbosity_errors);
+        if (doIt)
+            retVal=currentCustomUi->_customUi_msgBox(type,buttons,title,message);
+    }
     return(retVal);
 }
 

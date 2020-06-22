@@ -447,7 +447,7 @@ void CPropBrowserEngineGeneral::handlePropertyChanges(QtProperty *_prop)
         bool b=((QtVariantProperty*)_prop)->value().toBool();
         App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_ode_global_quickstep,b,true);
         if (!b)
-            App::uiThread->messageBox_warning(this,IDS_ODE,IDS_WARNING_ODE_NOT_USING_QUICKSTEP,VMESSAGEBOX_OKELI);
+            App::uiThread->messageBox_warning(this,IDS_ODE,IDS_WARNING_ODE_NOT_USING_QUICKSTEP,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     }
     if (_prop==p_odeIterations)
     {

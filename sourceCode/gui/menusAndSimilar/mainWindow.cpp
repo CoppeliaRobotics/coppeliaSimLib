@@ -1971,13 +1971,13 @@ void CMainWindow::_dropFilesIntoScene(const std::vector<std::string>& tttFiles,c
         if ( ((tttFiles.size()>0)&&(ttmFiles.size()==0))||((tttFiles.size()==0)&&(ttmFiles.size()>0)) )
         {
             if (editModeContainer->getEditModeType()!=NO_EDIT_MODE)
-                App::uiThread->messageBox_warning(this,"Drag and drop",IDS_END_EDIT_MODE_BEFORE_PROCEEDING,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_warning(this,"Drag and drop",IDS_END_EDIT_MODE_BEFORE_PROCEEDING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             else
             {
                 if (tttFiles.size()>0)
                 { // loading (a) scene(s):
                     if (!App::currentWorld->simulation->isSimulationStopped())
-                        App::uiThread->messageBox_warning(this,"Drag and drop",IDS_STOP_SIMULATION_BEFORE_PROCEEDING,VMESSAGEBOX_OKELI);
+                        App::uiThread->messageBox_warning(this,"Drag and drop",IDS_STOP_SIMULATION_BEFORE_PROCEEDING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     else
                     {
                         for (size_t i=0;i<tttFiles.size();i++)

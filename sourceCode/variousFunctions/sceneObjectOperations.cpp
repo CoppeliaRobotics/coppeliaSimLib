@@ -1210,11 +1210,11 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 POST_SCENE_CHANGED_END_ANNOUNCEMENT(); // ************************** UNDO thingy **************************
 #ifdef SIM_WITH_GUI
                 if (informThatPurePrimitivesWereNotChanged)
-                    App::uiThread->messageBox_warning(App::mainWindow,"Alignment",IDS_INFORM_PURE_PRIMITIVES_COULD_NOT_BE_REORIENTED,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(App::mainWindow,"Alignment",IDS_INFORM_PURE_PRIMITIVES_COULD_NOT_BE_REORIENTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 if (tubeFail)
-                    App::uiThread->messageBox_warning(App::mainWindow,"Alignment",IDSN_INFORM_SHAPE_COULD_NOT_BE_REORIENTED_ALONG_TUBE,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(App::mainWindow,"Alignment",IDSN_INFORM_SHAPE_COULD_NOT_BE_REORIENTED_ALONG_TUBE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 if (cuboidFail)
-                    App::uiThread->messageBox_warning(App::mainWindow,"Alignment",IDSN_INFORM_SHAPE_COULD_NOT_BE_REORIENTED_ALONG_CUBOID,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(App::mainWindow,"Alignment",IDSN_INFORM_SHAPE_COULD_NOT_BE_REORIENTED_ALONG_CUBOID,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #endif
             }
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
@@ -1432,7 +1432,7 @@ void CSceneObjectOperations::pasteCopyBuffer(bool displayMessages)
     {
 #ifdef SIM_WITH_GUI
         if (displayMessages)
-            App::uiThread->messageBox_warning(App::mainWindow,"Paste",IDS_SCENE_IS_LOCKED_CANNOT_PASTE_WARNING,VMESSAGEBOX_OKELI);
+            App::uiThread->messageBox_warning(App::mainWindow,"Paste",IDS_SCENE_IS_LOCKED_CANNOT_PASTE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #endif
     }
     else
@@ -1503,7 +1503,7 @@ int CSceneObjectOperations::groupSelection(std::vector<int>* selection,bool show
 #ifdef SIM_WITH_GUI
         if (showMessages)
         {
-            if (VMESSAGEBOX_REPLY_YES!=App::uiThread->messageBox_warning(App::mainWindow,IDSN_GROUPING,IDS_GROUPING_PURE_AND_NON_PURE_SHAPES_PROCEED_INFO_MESSAGE,VMESSAGEBOX_YES_NO))
+            if (VMESSAGEBOX_REPLY_YES!=App::uiThread->messageBox_warning(App::mainWindow,IDSN_GROUPING,IDS_GROUPING_PURE_AND_NON_PURE_SHAPES_PROCEED_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES))
                 return(-1); // we abort
         }
 #endif
@@ -1515,7 +1515,7 @@ int CSceneObjectOperations::groupSelection(std::vector<int>* selection,bool show
         {
 #ifdef SIM_WITH_GUI
             if (showMessages)
-                App::uiThread->messageBox_critical(App::mainWindow,IDS_GROUPING_MERGING_MENU_ITEM,IDS_GROUPING_HEIGHTFIELDS_ERROR_MESSAGE,VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_critical(App::mainWindow,IDS_GROUPING_MERGING_MENU_ITEM,IDS_GROUPING_HEIGHTFIELDS_ERROR_MESSAGE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #endif
             return(-1); // we abort, heightfields cannot be grouped
         }
@@ -1802,7 +1802,7 @@ bool CSceneObjectOperations::mergeSelection(std::vector<int>* selection,bool sho
                 if (it->getMeshWrapper()->isPure())
                 {
 #ifdef SIM_WITH_GUI
-                    if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_MERGING,IDS_MERGING_SOME_PURE_SHAPES_PROCEED_INFO_MESSAGE,VMESSAGEBOX_YES_NO))
+                    if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_MERGING,IDS_MERGING_SOME_PURE_SHAPES_PROCEED_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES))
                         break;
                     return(false); // we abort
 #else
@@ -1826,7 +1826,7 @@ bool CSceneObjectOperations::mergeSelection(std::vector<int>* selection,bool sho
 #ifdef SIM_WITH_GUI
                 if (showMessages)
                 {
-                    if ( (!textureWarningOutput)&&(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_MERGING,IDS_MERGING_OR_DIVIDING_REMOVES_TEXTURES_PROCEED_INFO_MESSAGE,VMESSAGEBOX_YES_NO)) )
+                    if ( (!textureWarningOutput)&&(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_MERGING,IDS_MERGING_OR_DIVIDING_REMOVES_TEXTURES_PROCEED_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES)) )
                         return(false); // we abort
                 }
 #endif
@@ -1964,7 +1964,7 @@ void CSceneObjectOperations::divideSelection(std::vector<int>* selection,bool sh
         }
     }
 #ifdef SIM_WITH_GUI
-    if ( showMessages&&textureWarningOutput&&(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,"Dividing",IDS_MERGING_OR_DIVIDING_REMOVES_TEXTURES_PROCEED_INFO_MESSAGE,VMESSAGEBOX_YES_NO)) )
+    if ( showMessages&&textureWarningOutput&&(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,"Dividing",IDS_MERGING_OR_DIVIDING_REMOVES_TEXTURES_PROCEED_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES)) )
         return; // we abort
 #endif
 

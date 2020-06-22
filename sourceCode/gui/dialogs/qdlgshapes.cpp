@@ -234,7 +234,7 @@ void CQDlgShapes::on_qqDirtTexture_clicked()
                     data=nullptr;
                 }
                 if (data==nullptr)
-                    App::uiThread->messageBox_critical(App::mainWindow,"Texture",IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,"Texture",IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 else
                 {
                     SSimulationThreadCommand cmd;

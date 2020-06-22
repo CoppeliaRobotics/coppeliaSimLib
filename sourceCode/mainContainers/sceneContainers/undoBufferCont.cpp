@@ -222,7 +222,7 @@ bool CUndoBufferCont::memorizeState()
         static bool displayedMessage=false;
         if (!displayedMessage)
         {
-            if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,"Undo / redo",IDS_INFO_UNDO_REDO_TAKES_TOO_LONG,VMESSAGEBOX_YES_NO))
+            if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,"Undo / redo",IDS_INFO_UNDO_REDO_TAKES_TOO_LONG,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_NO))
                 App::userSettings->setUndoRedoEnabled(false);
             displayedMessage=true;
         }
@@ -300,7 +300,7 @@ void CUndoBufferCont::undo()
 
     if (App::mainWindow->codeEditorContainer->areSceneEditorsOpen())
     {
-        App::uiThread->messageBox_information(App::mainWindow,IDSN_UNDO_REDO,IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE,VMESSAGEBOX_OKELI);
+        App::uiThread->messageBox_information(App::mainWindow,IDSN_UNDO_REDO,IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         return;
     }
     _inUndoRoutineNow=true;
@@ -373,7 +373,7 @@ void CUndoBufferCont::redo()
         return; // we are in headless mode
     if (App::mainWindow->codeEditorContainer->areSceneEditorsOpen())
     {
-        App::uiThread->messageBox_information(App::mainWindow,IDSN_UNDO_REDO,IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE,VMESSAGEBOX_OKELI);
+        App::uiThread->messageBox_information(App::mainWindow,IDSN_UNDO_REDO,IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         return;
     }
     // 2. We go forward:

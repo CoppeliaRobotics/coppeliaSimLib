@@ -208,7 +208,7 @@ bool CSimRecorder::recordFrameIfNeeded(int resX,int resY,int posX,int posY)
                     else
                     {
                         App::logMsg(sim_verbosity_errors,IDSNS_VIDEO_COMPRESSOR_FAILED_TO_INITIALIZE);
-                        App::uiThread->messageBox_warning(App::mainWindow,"Video Recorder",IDSN_VIDEO_COMPRESSOR_FAILED_INITIALIZING_WARNING,VMESSAGEBOX_OKELI);
+                        App::uiThread->messageBox_warning(App::mainWindow,"Video Recorder",IDSN_VIDEO_COMPRESSOR_FAILED_INITIALIZING_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     }
                     _initFailed=(!_aviGenInitialized);
                     if (!_initFailed)
@@ -342,7 +342,7 @@ void CSimRecorder::stopRecording(bool manualStop)
 
             App::logMsg(sim_verbosity_msgs,tmp.c_str());
             if (_showSavedMessage)
-                App::uiThread->messageBox_information(App::mainWindow,IDSN_AVI_RECORDER,tmp.c_str(),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_information(App::mainWindow,IDSN_AVI_RECORDER,tmp.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             _showSavedMessage=true; // reset this flag
             App::setFullDialogRefreshFlag();
         }

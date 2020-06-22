@@ -407,7 +407,7 @@ void CQDlgVisionSensors::on_qqResX_editingFinished()
                         tmp/=2;
                     }
                     if (newVal!=r[0])
-                        App::uiThread->messageBox_warning(App::mainWindow,"Vision sensor",IDS_VISION_SENSOR_RESOLUTION_NOT_POWER_OF_TWO_WARNING,VMESSAGEBOX_OKELI);
+                        App::uiThread->messageBox_warning(App::mainWindow,"Vision sensor",IDS_VISION_SENSOR_RESOLUTION_NOT_POWER_OF_TWO_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=SET_RESOLUTION_VISIONSENSORGUITRIGGEREDCMD;
                     cmd.intParams.push_back(it->getObjectHandle());
@@ -450,7 +450,7 @@ void CQDlgVisionSensors::on_qqResY_editingFinished()
                         tmp/=2;
                     }
                     if (newVal!=r[1])
-                        App::uiThread->messageBox_warning(App::mainWindow,"Vision sensor",IDS_VISION_SENSOR_RESOLUTION_NOT_POWER_OF_TWO_WARNING,VMESSAGEBOX_OKELI);
+                        App::uiThread->messageBox_warning(App::mainWindow,"Vision sensor",IDS_VISION_SENSOR_RESOLUTION_NOT_POWER_OF_TWO_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=SET_RESOLUTION_VISIONSENSORGUITRIGGEREDCMD;
                     cmd.intParams.push_back(it->getObjectHandle());
@@ -665,7 +665,7 @@ void CQDlgVisionSensors::on_qqEntityCombo_currentIndexChanged(int index)
                         displayWarning|=((it2->getLocalObjectSpecialProperty()&sim_objectspecialproperty_renderable)==0);
                 }
                 if (displayWarning)
-                    App::uiThread->messageBox_warning(App::mainWindow,"Scene object",IDS_OBJECT_NOT_RENDERABLE_WARNING,VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_warning(App::mainWindow,"Scene object",IDS_OBJECT_NOT_RENDERABLE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             }
             App::appendSimulationThreadCommand(SET_ENTITYTODETECT_VISIONSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),objID);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);

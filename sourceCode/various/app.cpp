@@ -42,6 +42,7 @@ bool App::_browserEnabled=true;
 bool App::_canInitSimThread=false;
 int App::_consoleVerbosity=sim_verbosity_default;
 int App::_statusbarVerbosity=sim_verbosity_msgs;
+int App::_dlgVerbosity=sim_verbosity_infos;
 std::string App::_consoleLogFilterStr;
 
 
@@ -1480,6 +1481,8 @@ int App::getVerbosityLevelFromString(const char* verbosityStr)
         retVal=sim_verbosity_warnings;
     if (strcmp(verbosityStr,"loadinfos")==0)
         retVal=sim_verbosity_loadinfos;
+    if (strcmp(verbosityStr,"questions")==0)
+        retVal=sim_verbosity_questions;
     if (strcmp(verbosityStr,"scripterrors")==0)
         retVal=sim_verbosity_scripterrors;
     if (strcmp(verbosityStr,"scriptwarnings")==0)
@@ -1697,6 +1700,16 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         }
         inside=false;
     }
+}
+
+int App::getDlgVerbosity()
+{ // sim_verbosity_none, etc.
+    return(_dlgVerbosity);
+}
+
+void App::setDlgVerbosity(int v)
+{ // sim_verbosity_none, etc.
+    _dlgVerbosity=v;
 }
 
 int App::getConsoleVerbosity(const char* pluginName/*=nullptr*/)

@@ -845,7 +845,7 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
         if (it->announceObjectWillBeErased(objectID,true))
         { // We should never enter here since one obj destruction cannot trigger another obj destruction (anymore, no more versatiles!) 
 #ifdef SIM_WITH_GUI
-            App::uiThread->messageBox_critical(App::mainWindow,IDSNOTR_APPLICATION_ERROR,IDSNOTR_STRANGE_ERROR7,VMESSAGEBOX_OKELI);
+            App::uiThread->messageBox_critical(App::mainWindow,IDSNOTR_APPLICATION_ERROR,IDSNOTR_STRANGE_ERROR7,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #else
             App::logMsg(sim_verbosity_errors,"%s",IDSNOTR_STRANGE_ERROR7);
 #endif

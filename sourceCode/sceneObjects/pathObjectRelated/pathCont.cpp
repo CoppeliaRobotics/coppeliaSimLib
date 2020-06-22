@@ -237,7 +237,7 @@ bool CPathCont::_getBezierPointsForVirtualDistance(double& l,int& index0,int& in
         }
     }
 #ifdef SIM_WITH_GUI
-    App::uiThread->messageBox_critical(App::mainWindow,IDSNOTR_APPLICATION_ERROR,IDSNOTR_STRANGE_ERROR6,VMESSAGEBOX_OKELI);
+    App::uiThread->messageBox_critical(App::mainWindow,IDSNOTR_APPLICATION_ERROR,IDSNOTR_STRANGE_ERROR6,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #endif
     return(false);
 }

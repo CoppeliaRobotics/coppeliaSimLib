@@ -1288,7 +1288,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
                     }
                 }
                 if (txt!="")
-                    App::uiThread->messageBox_information(App::mainWindow,"Dynamic property",txt.c_str(),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_information(App::mainWindow,"Dynamic property",txt.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             }
             return(true);
         }

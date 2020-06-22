@@ -3837,6 +3837,11 @@ simInt simSetInt32Parameter_internal(simInt parameter,simInt intState)
         App::setStatusbarVerbosity(intState);
         return(1);
     }
+    if (parameter==sim_intparam_dlgverbosity)
+    { // called by client app when lib not yet initialized
+        App::setDlgVerbosity(intState);
+        return(1);
+    }
     if (parameter==sim_intparam_error_report_mode)
     { // keep for backward compatibility
         return(1);
@@ -3848,6 +3853,17 @@ simInt simSetInt32Parameter_internal(simInt parameter,simInt intState)
         {
             App::userSettings->setNextFreeServerPortToUse(intState);
             return(1);
+        }
+        if (parameter==sim_intparam_videoencoder_index)
+        {
+#ifdef SIM_WITH_GUI
+            if ( (App::mainWindow!=nullptr)&&(App::mainWindow->simulationRecorder!=nullptr) )
+            {
+                App::mainWindow->simulationRecorder->setEncoderIndex(intState);
+                return(1);
+            }
+#endif
+            return(0);
         }
         if (parameter==sim_intparam_current_page)
         {
@@ -4029,6 +4045,11 @@ simInt simGetInt32Parameter_internal(simInt parameter,simInt* intState)
         if (parameter==sim_intparam_verbosity)
         {
             intState[0]=App::getConsoleVerbosity();
+            return(1);
+        }
+        if (parameter==sim_intparam_dlgverbosity)
+        {
+            intState[0]=App::getDlgVerbosity();
             return(1);
         }
         if (parameter==sim_intparam_statusbarverbosity)
@@ -4315,6 +4336,17 @@ simInt simGetInt32Parameter_internal(simInt parameter,simInt* intState)
             intState[0]=App::userSettings->getNextFreeServerPortToUse();
             return(1);
         }
+        if (parameter==sim_intparam_videoencoder_index)
+        {
+#ifdef SIM_WITH_GUI
+            if ( (App::mainWindow!=nullptr)&&(App::mainWindow->simulationRecorder!=nullptr) )
+            {
+                intState[0]=App::mainWindow->simulationRecorder->getEncoderIndex();
+                return(1);
+            }
+#endif
+            return(0);
+        }
         if (parameter==sim_intparam_server_port_range)
         {
             intState[0]=App::userSettings->freeServerPortRange;
@@ -4424,52 +4456,41 @@ simInt simGetFloatParameter_internal(simInt parameter,simFloat* floatState)
 
 simInt simSetStringParameter_internal(simInt parameter,const simChar* str)
 {
-    if (parameter==sim_stringparam_verbosity)
+    if ( (parameter==sim_stringparam_verbosity)||(parameter==sim_stringparam_statusbarverbosity)||(parameter==sim_stringparam_dlgverbosity) )
     { // called by client app when lib not yet initialized
-        if (strcmp(str,"none")==0)
-            App::setConsoleVerbosity(sim_verbosity_none);
+        int v=sim_verbosity_none;
         if (strcmp(str,"errors")==0)
-            App::setConsoleVerbosity(sim_verbosity_errors);
+            v=sim_verbosity_errors;
         if (strcmp(str,"warnings")==0)
-            App::setConsoleVerbosity(sim_verbosity_warnings);
+            v=sim_verbosity_warnings;
         if (strcmp(str,"loadinfos")==0)
-            App::setConsoleVerbosity(sim_verbosity_loadinfos);
+            v=sim_verbosity_loadinfos;
+        if (strcmp(str,"questions")==0)
+            v=sim_verbosity_questions;
+        if (strcmp(str,"scripterrors")==0)
+            v=sim_verbosity_scripterrors;
+        if (strcmp(str,"scriptwarnings")==0)
+            v=sim_verbosity_scriptwarnings;
+        if (strcmp(str,"scriptinfos")==0)
+            v=sim_verbosity_scriptinfos;
         if (strcmp(str,"msgs")==0)
-            App::setConsoleVerbosity(sim_verbosity_msgs);
+            v=sim_verbosity_msgs;
         if (strcmp(str,"infos")==0)
-            App::setConsoleVerbosity(sim_verbosity_infos);
+            v=sim_verbosity_infos;
         if (strcmp(str,"debug")==0)
-            App::setConsoleVerbosity(sim_verbosity_debug);
+            v=sim_verbosity_debug;
         if (strcmp(str,"trace")==0)
-            App::setConsoleVerbosity(sim_verbosity_trace);
+            v=sim_verbosity_trace;
         if (strcmp(str,"tracelua")==0)
-            App::setConsoleVerbosity(sim_verbosity_tracelua);
+            v=sim_verbosity_tracelua;
         if (strcmp(str,"traceall")==0)
-            App::setConsoleVerbosity(sim_verbosity_traceall);
-        return(1);
-    }
-    if (parameter==sim_stringparam_statusbarverbosity)
-    { // called by client app when lib not yet initialized
-        if (strcmp(str,"none")==0)
-            App::setStatusbarVerbosity(sim_verbosity_none);
-        if (strcmp(str,"errors")==0)
-            App::setStatusbarVerbosity(sim_verbosity_errors);
-        if (strcmp(str,"warnings")==0)
-            App::setStatusbarVerbosity(sim_verbosity_warnings);
-        if (strcmp(str,"loadinfos")==0)
-            App::setStatusbarVerbosity(sim_verbosity_loadinfos);
-        if (strcmp(str,"msgs")==0)
-            App::setStatusbarVerbosity(sim_verbosity_msgs);
-        if (strcmp(str,"infos")==0)
-            App::setStatusbarVerbosity(sim_verbosity_infos);
-        if (strcmp(str,"debug")==0)
-            App::setStatusbarVerbosity(sim_verbosity_debug);
-        if (strcmp(str,"trace")==0)
-            App::setStatusbarVerbosity(sim_verbosity_trace);
-        if (strcmp(str,"tracelua")==0)
-            App::setStatusbarVerbosity(sim_verbosity_tracelua);
-        if (strcmp(str,"traceall")==0)
-            App::setStatusbarVerbosity(sim_verbosity_traceall);
+            v=sim_verbosity_traceall;
+        if (parameter==sim_stringparam_verbosity)
+            App::setConsoleVerbosity(v);
+        if (parameter==sim_stringparam_statusbarverbosity)
+            App::setConsoleVerbosity(v);
+        if (parameter==sim_stringparam_dlgverbosity)
+            App::setDlgVerbosity(v);
         return(1);
     }
     TRACE_C_API;
@@ -13802,15 +13823,13 @@ simChar* simFileDialog_internal(simInt mode,const simChar* title,const simChar* 
 simInt simMsgBox_internal(simInt dlgType,simInt buttons,const simChar* title,const simChar* message)
 {
     TRACE_C_API;
-#ifdef SIM_WITH_GUI
     if (!isSimulatorInitialized(__func__))
         return(-1);
-    int retVal=CPluginContainer::customUi_msgBox(dlgType,buttons,title,message);
-//    int retVal=App::uiThread->messageBox_api(dlgType,buttons,title,message);
-    return(retVal);
-#else
-    return(-1);
+    int retVal=sim_msgbox_return_ok;
+#ifdef SIM_WITH_GUI
+    retVal=CPluginContainer::customUi_msgBox(dlgType,buttons,title,message,sim_msgbox_return_ok);
 #endif
+    return(retVal);
 }
 
 simInt simSetShapeMassAndInertia_internal(simInt shapeHandle,simFloat mass,const simFloat* inertiaMatrix,const simFloat* centerOfMass,const simFloat* transformation)

@@ -1374,6 +1374,8 @@ const SLuaVariables simLuaVariables[]=
     {"sim.intparam_program_full_version",sim_intparam_program_full_version,true},
     {"sim.intparam_verbosity",sim_intparam_verbosity,true},
     {"sim.intparam_statusbarverbosity",sim_intparam_statusbarverbosity,true},
+    {"sim.intparam_dlgverbosity",sim_intparam_dlgverbosity,true},
+    {"sim.intparam_videoencoderindex",sim_intparam_videoencoder_index,true},
     {"sim.intparam_compilation_version",sim_intparam_compilation_version,true},
     {"sim.intparam_current_page",sim_intparam_current_page,true},
     {"sim.intparam_flymode_camera_handle",sim_intparam_flymode_camera_handle,true},
@@ -1444,6 +1446,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_machine_id_legacy",sim_stringparam_machine_id_legacy,true},
     {"sim.stringparam_verbosity",sim_stringparam_verbosity,true},
     {"sim.stringparam_statusbarverbosity",sim_stringparam_statusbarverbosity,true},
+    {"sim.stringparam_dlgverbosity",sim_stringparam_dlgverbosity,true},
     {"sim.stringparam_logfilter",sim_stringparam_consolelogfilter,true},
 
     // verbosity:
@@ -1452,6 +1455,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.verbosity_errors",sim_verbosity_errors,true},
     {"sim.verbosity_warnings",sim_verbosity_warnings,true},
     {"sim.verbosity_loadinfos",sim_verbosity_loadinfos,true},
+    {"sim.verbosity_questions",sim_verbosity_questions,true},
     {"sim.verbosity_scripterrors",sim_verbosity_scripterrors,true},
     {"sim.verbosity_scriptwarnings",sim_verbosity_scriptwarnings,true},
     {"sim.verbosity_scriptinfos",sim_verbosity_scriptinfos,true},
