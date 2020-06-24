@@ -26,8 +26,8 @@ VFile::VFile(const char* filename,unsigned short flags,bool dontThrow)
     if (flags&CREATE_WRITE)
     { // Create the path directories if needed
         std::string f(VVarious::splitPath_path(filename));
-        if (!doesFolderExist(f))
-            createFolder(f);
+        if (!doesFolderExist(f.c_str()))
+            createFolder(f.c_str());
     }
 
     std::ios_base::openmode openFlags=std::ios_base::binary;

@@ -10,6 +10,7 @@
 #include "apiErrors.h"
 #include "pluginContainer.h"
 #include <boost/algorithm/string.hpp>
+#include "ttUtil.h"
 
 int CLuaScriptObject::_scriptUniqueCounter=-1;
 bool CLuaScriptObject::emergencyStopButtonPressed=false;
@@ -5921,12 +5922,12 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
     if (!doIt)
         return;
 
-    QString theScript;
+    std::string theScript;
     bool addFunc=false;
 
     theScript=(scriptObject->getScriptText());
-    theScript.replace(QRegularExpression("sim.getObjectOrientation\\(([^,]+),( *)-1( *)\\)"),"blabliblotemp(\\1,-1)");
-    scriptObject->setScriptText(theScript.toStdString().c_str());
+    CTTUtil::regexReplace(theScript,"sim.getObjectOrientation\\(([^,]+),( *)-1( *)\\)","blabliblotemp($1,-1)");
+    scriptObject->setScriptText(theScript.c_str());
     addFunc=_replaceScriptText(scriptObject,"sim.getObjectOrientation(","__getObjectOrientation__(");
     _replaceScriptText(scriptObject,"blabliblotemp","sim.getObjectOrientation");
     if (addFunc)
@@ -5946,9 +5947,9 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
         _insertScriptText(scriptObject,true,txt.c_str());
     }
 
-    theScript=(scriptObject->getScriptText());
-    theScript.replace(QRegularExpression("sim.setObjectOrientation\\(([^,]+),( *)-1( *),"),"blabliblotemp(\\1,-1,");
-    scriptObject->setScriptText(theScript.toStdString().c_str());
+    theScript=scriptObject->getScriptText();
+    CTTUtil::regexReplace(theScript,"sim.setObjectOrientation\\(([^,]+),( *)-1( *),","blabliblotemp($1,-1,");
+    scriptObject->setScriptText(theScript.c_str());
     addFunc=_replaceScriptText(scriptObject,"sim.setObjectOrientation(","__setObjectOrientation__(");
     _replaceScriptText(scriptObject,"blabliblotemp","sim.setObjectOrientation");
     if (addFunc)
@@ -5968,10 +5969,10 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
         _insertScriptText(scriptObject,true,txt.c_str());
     }
 
-    theScript=(scriptObject->getScriptText());
-    theScript.replace(QRegularExpression("sim.getObjectQuaternion\\(([^,]+),( *)-1( *)\\)"),"blabliblotemp(\\1,-1)");
-    theScript.replace(QRegularExpression("sim.getObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *)\\)"),"blabliblotemp(\\1,sim.handle_parent)");
-    scriptObject->setScriptText(theScript.toStdString().c_str());
+    theScript=scriptObject->getScriptText();
+    CTTUtil::regexReplace(theScript,"sim.getObjectQuaternion\\(([^,]+),( *)-1( *)\\)","blabliblotemp($1,-1)");
+    CTTUtil::regexReplace(theScript,"sim.getObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *)\\)","blabliblotemp($1,sim.handle_parent)");
+    scriptObject->setScriptText(theScript.c_str());
     addFunc=_replaceScriptText(scriptObject,"sim.getObjectQuaternion(","__getObjectQuaternion__(");
     _replaceScriptText(scriptObject,"blabliblotemp","sim.getObjectQuaternion");
     if (addFunc)
@@ -5991,10 +5992,10 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
         _insertScriptText(scriptObject,true,txt.c_str());
     }
 
-    theScript=(scriptObject->getScriptText());
-    theScript.replace(QRegularExpression("sim.setObjectQuaternion\\(([^,]+),( *)-1( *),"),"blabliblotemp(\\1,-1,");
-    theScript.replace(QRegularExpression("sim.setObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *),"),"blabliblotemp(\\1,sim.handle_parent,");
-    scriptObject->setScriptText(theScript.toStdString().c_str());
+    theScript=scriptObject->getScriptText();
+    CTTUtil::regexReplace(theScript,"sim.setObjectQuaternion\\(([^,]+),( *)-1( *),","blabliblotemp($1,-1,");
+    CTTUtil::regexReplace(theScript,"sim.setObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *),","blabliblotemp($1,sim.handle_parent,");
+    scriptObject->setScriptText(theScript.c_str());
     addFunc=_replaceScriptText(scriptObject,"sim.setObjectQuaternion(","__setObjectQuaternion__(");
     _replaceScriptText(scriptObject,"blabliblotemp","sim.setObjectQuaternion");
     if (addFunc)
@@ -6014,10 +6015,10 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
         _insertScriptText(scriptObject,true,txt.c_str());
     }
 
-    theScript=(scriptObject->getScriptText());
-    theScript.replace(QRegularExpression("sim.getObjectPosition\\(([^,]+),( *)-1( *)\\)"),"blabliblotemp(\\1,-1)");
-    theScript.replace(QRegularExpression("sim.getObjectPosition\\(([^,]+),( *)sim.handle_parent( *)\\)"),"blabliblotemp(\\1,sim.handle_parent)");
-    scriptObject->setScriptText(theScript.toStdString().c_str());
+    theScript=scriptObject->getScriptText();
+    CTTUtil::regexReplace(theScript,"sim.getObjectPosition\\(([^,]+),( *)-1( *)\\)","blabliblotemp($1,-1)");
+    CTTUtil::regexReplace(theScript,"sim.getObjectPosition\\(([^,]+),( *)sim.handle_parent( *)\\)","blabliblotemp($1,sim.handle_parent)");
+    scriptObject->setScriptText(theScript.c_str());
     addFunc=_replaceScriptText(scriptObject,"sim.getObjectPosition(","__getObjectPosition__(");
     _replaceScriptText(scriptObject,"blabliblotemp","sim.getObjectPosition");
     if (addFunc)
@@ -6037,10 +6038,10 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
         _insertScriptText(scriptObject,true,txt.c_str());
     }
 
-    theScript=(scriptObject->getScriptText());
-    theScript.replace(QRegularExpression("sim.setObjectPosition\\(([^,]+),( *)-1( *),"),"blabliblotemp(\\1,-1,");
-    theScript.replace(QRegularExpression("sim.setObjectPosition\\(([^,]+),( *)sim.handle_parent( *),"),"blabliblotemp(\\1,sim.handle_parent,");
-    scriptObject->setScriptText(theScript.toStdString().c_str());
+    theScript=scriptObject->getScriptText();
+    CTTUtil::regexReplace(theScript,"sim.setObjectPosition\\(([^,]+),( *)-1( *),","blabliblotemp($1,-1,");
+    CTTUtil::regexReplace(theScript,"sim.setObjectPosition\\(([^,]+),( *)sim.handle_parent( *),","blabliblotemp($1,sim.handle_parent,");
+    scriptObject->setScriptText(theScript.c_str());
     addFunc=_replaceScriptText(scriptObject,"sim.setObjectPosition(","__setObjectPosition__(");
     _replaceScriptText(scriptObject,"blabliblotemp","sim.setObjectPosition");
     if (addFunc)

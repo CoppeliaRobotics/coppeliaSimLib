@@ -25,4 +25,6 @@ public:
     static std::string encode64(const std::string &data);
     static std::string generateUniqueString();
     static std::string generateUniqueReadableString();
+    static void replaceSubstring(std::string& str,const char* subStr,const char* replacementSubStr);
+    static void regexReplace(std::string& str,const char* regexStr,const char* regexReplacementSubStr);
 };

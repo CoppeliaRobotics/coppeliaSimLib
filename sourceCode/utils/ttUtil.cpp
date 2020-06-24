@@ -4,6 +4,7 @@
 #include <boost/format.hpp>
 #include "base64.h"
 #include "vDateTime.h"
+#include <regex>
 
 void CTTUtil::lightBinaryEncode(char* data,int length)
 { // Very simple!
@@ -283,3 +284,26 @@ std::string CTTUtil::generateUniqueReadableString()
     std::transform(str.begin(),str.end(),str.begin(),::toupper);
     return(str);
 }
+
+void CTTUtil::replaceSubstring(std::string& str,const char* subStr,const char* replacementSubStr)
+{
+    size_t index=0;
+    size_t str1L=strlen(subStr);
+    size_t str2L=strlen(replacementSubStr);
+    while (true)
+    {
+        index=str.find(subStr,index);
+        if (index==std::string::npos)
+            break;
+        str.replace(index,str1L,replacementSubStr);
+        index+=str2L;
+    }
+}
+
+void CTTUtil::regexReplace(std::string& str,const char* regexStr,const char* regexReplacementSubStr)
+{
+    str=std::regex_replace(str,std::regex(regexStr),regexReplacementSubStr);
+}
+
+
+

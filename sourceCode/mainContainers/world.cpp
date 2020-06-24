@@ -1038,9 +1038,9 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         CLuaScriptObject* script=luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle2);
         if (script!=nullptr)
             newTxt=script->getShortDescriptiveName();
-        QString msg(_loadOperationIssues[i].message.c_str());
-        msg.replace("@@REPLACE@@",newTxt.c_str());
-        App::logMsg(_loadOperationIssues[i].verbosity,msg.toStdString().c_str());
+        std::string msg(_loadOperationIssues[i].message);
+        CTTUtil::replaceSubstring(msg,"@@REPLACE@@",newTxt.c_str());
+        App::logMsg(_loadOperationIssues[i].verbosity,msg.c_str());
     }
     appendLoadOperationIssue(-1,nullptr,-1); // clears it
 

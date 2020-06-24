@@ -18,6 +18,12 @@ unsigned short VMessageBox::informationSystemModal(QWidget* parent,const char* t
         flags|=VMESSAGEBOX_INFO_TYPE;
         retVal=_displayBox(parent,title,message,flags);
     }
+    else
+    {
+        std::string str("from suppressed dialog box: ");
+        str+=message;
+        App::logMsg(sim_verbosity_infos,str.c_str());
+    }
     return(retVal);
 }
 
@@ -28,6 +34,12 @@ unsigned short VMessageBox::information(QWidget* parent,const char* title,const 
     {
         flags|=VMESSAGEBOX_APP_MODAL|VMESSAGEBOX_INFO_TYPE;
         retVal=_displayBox(parent,title,message,flags);
+    }
+    else
+    {
+        std::string str("from suppressed dialog box: ");
+        str+=message;
+        App::logMsg(sim_verbosity_infos,str.c_str());
     }
     return(retVal);
 }
@@ -40,6 +52,12 @@ unsigned short VMessageBox::question(QWidget* parent,const char* title,const cha
         flags|=VMESSAGEBOX_APP_MODAL|VMESSAGEBOX_QUESTION_TYPE;
         retVal=_displayBox(parent,title,message,flags);
     }
+    else
+    {
+        std::string str("from suppressed dialog box: ");
+        str+=message;
+        App::logMsg(sim_verbosity_warnings,str.c_str());
+    }
     return(retVal);
 }
 
@@ -51,6 +69,12 @@ unsigned short VMessageBox::warning(QWidget* parent,const char* title,const char
         flags|=VMESSAGEBOX_APP_MODAL|VMESSAGEBOX_WARNING_TYPE;
         retVal=_displayBox(parent,title,message,flags);
     }
+    else
+    {
+        std::string str("from suppressed dialog box: ");
+        str+=message;
+        App::logMsg(sim_verbosity_warnings,str.c_str());
+    }
     return(retVal);
 }
 
@@ -61,6 +85,12 @@ unsigned short VMessageBox::critical(QWidget* parent,const char* title,const cha
     {
         flags|=VMESSAGEBOX_APP_MODAL|VMESSAGEBOX_CRITICAL_TYPE;
         retVal=_displayBox(parent,title,message,flags);
+    }
+    else
+    {
+        std::string str("from suppressed dialog box: ");
+        str+=message;
+        App::logMsg(sim_verbosity_errors,str.c_str());
     }
     return(retVal);
 }

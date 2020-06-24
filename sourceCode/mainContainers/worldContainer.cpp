@@ -329,9 +329,10 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     cmdIn.cmdId=INSTANCE_ABOUT_TO_CHANGE_UITHREADCMD;
     cmdIn.intParams.push_back(newWorldIndex);
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-#endif
 
     currentWorld->pageContainer->clearAllLastMouseDownViewIndex();
+#endif
+
 
     // Empty remote worlds:
     currentWorld->removeRemoteWorlds();

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.11)
-project(v_rep)
+project(coppeliaSim)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -62,9 +62,11 @@ if(MSVC)
     set(CMAKE_CXXFLAGS "${CMAKE_CXXFLAGS} -wd4101") # "unreferenced local variable"
 
     if(MSVC_VERSION EQUAL 1900)
-        add_definitions(-DVREP_COMPILER_STR=\"MSVC2015\")
+        add_definitions(-DSIM_COMPILER_STR=\"MSVC2015\")
     elseif(MSVC_VERSION GREATER 1900 AND MSVC_VERSION LESS 1920)
-        add_definitions(-DVREP_COMPILER_STR=\"MSVC2017\")
+        add_definitions(-DSIM_COMPILER_STR=\"MSVC2017\")
+    else
+        add_definitions(-DSIM_COMPILER_STR=\"MSVC2019\")
     endif()
 else()
     set(CMAKE_CXXFLAGS_DEBUG "${CMAKE_CXXFLAGS_DEBUG} -O0 -g -ggdb")
@@ -79,45 +81,50 @@ else()
     set(CMAKE_CXXFLAGS "${CMAKE_CXXFLAGS} -Wno-narrowing")
     if(APPLE)
         set(CMAKE_CXXFLAGS "${CMAKE_CXXFLAGS} -mmacosx-version-min=10.7")
-        add_definitions(-DVREP_COMPILER_STR=\"Clang\")
+        add_definitions(-DSIM_COMPILER_STR=\"Clang\")
     else()
-        add_definitions(-DVREP_COMPILER_STR=\"GCC\")
+        add_definitions(-DSIM_COMPILER_STR=\"GCC\")
     endif()
     # XXX: why don't we simply use CMAKE_CXX_COMPILER_ID?
 endif()
 
 if(WIN32)
-    add_definitions(-DWIN_VREP)
+    add_definitions(-DWIN_SIM)
 elseif(APPLE)
-    add_definitions(-DMAC_VREP)
+    add_definitions(-DMAC_SIM)
 elseif(UNIX)
-    add_definitions(-DLIN_VREP)
+    add_definitions(-DLIN_SIM)
 endif()
 
 include_directories(sourceCode)
-include_directories(sourceCode/inverseKinematics/geomConstraintSolver)
-include_directories(sourceCode/inverseKinematics/ik)
-include_directories(sourceCode/shared/sharedBufferFunctions)
+include_directories(sourceCode/shared)
+include_directories(sourceCode/kinematics)
+include_directories(sourceCode/shared/kinematics)
 include_directories(sourceCode/communication)
 include_directories(sourceCode/communication/tubes)
 include_directories(sourceCode/communication/wireless)
 include_directories(sourceCode/drawingObjects)
 include_directories(sourceCode/platform)
 include_directories(sourceCode/collections)
+include_directories(sourceCode/shared/collections)
 include_directories(sourceCode/collisions)
+include_directories(sourceCode/shared/collisions)
 include_directories(sourceCode/distances)
+include_directories(sourceCode/shared/distances)
 include_directories(sourceCode/pathPlanning_old)
-include_directories(sourceCode/motionPlanning_old)
-include_directories(sourceCode/3dObjects)
-include_directories(sourceCode/3dObjects/related)
-include_directories(sourceCode/3dObjects/graphObjectRelated)
-include_directories(sourceCode/3dObjects/millObjectRelated)
-include_directories(sourceCode/3dObjects/pathObjectRelated)
-include_directories(sourceCode/3dObjects/proximitySensorObjectRelated)
-include_directories(sourceCode/3dObjects/shapeObjectRelated)
-include_directories(sourceCode/3dObjects/visionSensorObjectRelated)
+include_directories(sourceCode/sceneObjects)
+include_directories(sourceCode/shared/sceneObjects)
+include_directories(sourceCode/sceneObjects/related)
+include_directories(sourceCode/shared/sceneObjects/related)
+include_directories(sourceCode/sceneObjects/graphObjectRelated)
+include_directories(sourceCode/sceneObjects/pathObjectRelated)
+include_directories(sourceCode/sceneObjects/proximitySensorObjectRelated)
+include_directories(sourceCode/sceneObjects/shapeObjectRelated)
+include_directories(sourceCode/sceneObjects/visionSensorObjectRelated)
 include_directories(sourceCode/mainContainers)
+include_directories(sourceCode/shared/mainContainers)
 include_directories(sourceCode/mainContainers/sceneContainers)
+include_directories(sourceCode/shared/mainContainers/sceneContainers)
 include_directories(sourceCode/mainContainers/applicationContainers)
 include_directories(sourceCode/luaScripting)
 include_directories(sourceCode/luaScripting/customLuaFuncAndVar)
@@ -131,19 +138,19 @@ include_directories(sourceCode/menusAndSimilar)
 include_directories(sourceCode/variousFunctions)
 include_directories(sourceCode/geometricAlgorithms)
 include_directories(sourceCode/various)
+include_directories(sourceCode/shared/various)
 include_directories(sourceCode/libsAndPlugins)
 include_directories(sourceCode/visual)
+include_directories(sourceCode/displ)
+include_directories(sourceCode/shared/displ)
 include_directories(sourceCode/utils)
-include_directories(sourceCode/sharedBufferFunctions)
 include_directories(sourceCode/backwardCompatibility/pathPlanning)
-include_directories(sourceCode/backwardCompatibility/motionPlanning)
 include_directories(sourceCode/customUserInterfaces)
 include_directories(sourceCode/undoRedo)
 include_directories(sourceCode/rendering)
 include_directories(../programming/include)
-include_directories(../programming/v_repMath)
+include_directories(../programming/simMath)
 
-include_directories(sourceCode/verSpec)
 
 if(WITH_SERIAL)
     include_directories(sourceCode/communication/serialPort)
@@ -176,7 +183,8 @@ if(WITH_GUI)
         toolbarFiles.qrc
         variousImageFiles.qrc
         iconFiles.qrc
-        imageFiles_vrep.qrc
+        imageFiles.qrc
+        qdarkstyle/style.qrc
     )
 endif()
 
@@ -188,7 +196,6 @@ if(WITH_GUI)
         ui/qdlgselection.ui
         ui/qdlgabout.ui
         ui/qdlgsimulation.ui
-        ui/qdlginteractiveik.ui
         ui/qdlgcommonproperties.ui
         ui/qdlgdetectableproperties.ui
         ui/qdlgmodelproperties.ui
@@ -218,34 +225,12 @@ if(WITH_GUI)
         ui/qdlgdummies.ui
         ui/qdlgoctrees.ui
         ui/qdlgpointclouds.ui
-        ui/qdlgscriptparameters.ui
+        ui/qdlguserparameters.ui
         ui/qdlgforcesensors.ui
         ui/qdlgprimitives.ui
         ui/qdlgconvexdecomposition.ui
-        ui/qdlgconstraintsolver.ui
         ui/qdlgvisionsensors.ui
         ui/qdlgimagecolor.ui
-        ui/qdlgsimpleSearch.ui
-        ui/qdlgfilters.ui
-        ui/qdlgsimplefilter_rotate.ui
-        ui/qdlgsimplefilter_uniformImage.ui
-        ui/qdlgsimplefilter_shift.ui
-        ui/qdlgsimplefilter_scaleCols.ui
-        ui/qdlgsimplefilter_resize.ui
-        ui/qdlgsimplefilter_coordExtraction.ui
-        ui/qdlgsimplefilter_velodyne.ui
-        ui/qdlgsimplefilter_pixelChange.ui
-        ui/qdlgsimplefilter_rectangularCut.ui
-        ui/qdlgsimplefilter_keepRemoveCols.ui
-        ui/qdlgsimplefilter_intensityScale.ui
-        ui/qdlgsimplefilter_edge.ui
-        ui/qdlgsimplefilter_correlation.ui
-        ui/qdlgsimplefilter_colorSegmentation.ui
-        ui/qdlgsimplefilter_circularCut.ui
-        ui/qdlgsimplefilter_blob.ui
-        ui/qdlgsimplefilter_binary.ui
-        ui/qdlgsimplefilter_5x5.ui
-        ui/qdlgsimplefilter_3x3.ui
         ui/qdlgshapes.ui
         ui/qdlgmultishapeedition.ui
         ui/qdlgtextures.ui
@@ -255,7 +240,6 @@ if(WITH_GUI)
         ui/qdlgdetectionvolume.ui
         ui/qdlgproximitysensors.ui
         ui/qdlgproxsensdetectionparam.ui
-        ui/qdlgmills.ui
         ui/qdlgobjectdialogcontainer.ui
         ui/qdlgshapeeditioncontainer.ui
         ui/qdlgcalcdialogcontainer.ui
@@ -273,18 +257,6 @@ if(WITH_GUI)
         ui/qdlgik.ui
         ui/qdlgikelements.ui
         ui/qdlgikconditional.ui
-        ui/qdlgikavoidance.ui
-        ui/qdlgui.ui
-        ui/qdlguidialogcontainer.ui
-        ui/qdlguibuttons.ui
-        ui/qdlgnewui.ui
-        ui/qdlguirolledup.ui
-        ui/qdlgpathplanning.ui
-        ui/qdlgmotionplanning.ui
-        ui/qdlgpathplanningparams.ui
-        ui/qdlgmotionplanningjoints.ui
-        ui/qdlgworkspacemetric.ui
-        ui/qdlgpathplanningaddnew.ui
         ui/qdlgpaths.ui
         ui/qdlgpathshaping.ui
         ui/qdlgmessageandcheckbox.ui
@@ -300,44 +272,27 @@ if(WITH_GUI)
 endif()
 
 set(SOURCES ${SOURCES}
-    ../programming/v_repMath/Vector.cpp
-    ../programming/v_repMath/MyMath.cpp
-    ../programming/v_repMath/MMatrix.cpp
-    ../programming/v_repMath/7Vector.cpp
-    ../programming/v_repMath/6X6Matrix.cpp
-    ../programming/v_repMath/6Vector.cpp
-    ../programming/v_repMath/4X4Matrix.cpp
-    ../programming/v_repMath/4X4FullMatrix.cpp
-    ../programming/v_repMath/4Vector.cpp
-    ../programming/v_repMath/3X3Matrix.cpp
-    ../programming/v_repMath/3Vector.cpp
+    ../programming/simMath/Vector.cpp
+    ../programming/simMath/MyMath.cpp
+    ../programming/simMath/MMatrix.cpp
+    ../programming/simMath/7Vector.cpp
+    ../programming/simMath/6X6Matrix.cpp
+    ../programming/simMath/6Vector.cpp
+    ../programming/simMath/4X4Matrix.cpp
+    ../programming/simMath/4X4FullMatrix.cpp
+    ../programming/simMath/4Vector.cpp
+    ../programming/simMath/3X3Matrix.cpp
+    ../programming/simMath/3Vector.cpp
 
-    sourceCode/inverseKinematics/geomConstraintSolver/iKObject.cpp
-    sourceCode/inverseKinematics/geomConstraintSolver/iKObjCont.cpp
-    sourceCode/inverseKinematics/geomConstraintSolver/iKMesh.cpp
-    sourceCode/inverseKinematics/geomConstraintSolver/iKJoint.cpp
-    sourceCode/inverseKinematics/geomConstraintSolver/iKGraphObject.cpp
-    sourceCode/inverseKinematics/geomConstraintSolver/iKGraphObjCont.cpp
-    sourceCode/inverseKinematics/geomConstraintSolver/iKGraphNode.cpp
-    sourceCode/inverseKinematics/geomConstraintSolver/iKGraphJoint.cpp
-    sourceCode/inverseKinematics/geomConstraintSolver/iKDummy.cpp
-    sourceCode/inverseKinematics/geomConstraintSolver/iKChainCont.cpp
-    sourceCode/inverseKinematics/geomConstraintSolver/iKChain.cpp
-    sourceCode/inverseKinematics/geomConstraintSolver/geometricConstraintSolverInt.cpp
-    sourceCode/inverseKinematics/geomConstraintSolver/geometricConstraintSolver.cpp
+    sourceCode/kinematics/ikGroup.cpp
+    sourceCode/shared/kinematics/_ikGroup_.cpp
+    sourceCode/kinematics/ikElement.cpp
+    sourceCode/shared/kinematics/_ikElement_.cpp
 
-    sourceCode/inverseKinematics/ik/ikRoutine.cpp
-    sourceCode/inverseKinematics/ik/ikGroup.cpp
-    sourceCode/inverseKinematics/ik/ikEl.cpp
-
-    sourceCode/shared/sharedBufferFunctions/sharedFloatVector.cpp
-    sourceCode/shared/sharedBufferFunctions/sharedIntVector.cpp
-    sourceCode/shared/sharedBufferFunctions/sharedUCharVector.cpp
+    sourceCode/kinematics/ikRoutines.cpp
 
     sourceCode/drawingObjects/bannerObject.cpp
-    sourceCode/drawingObjects/drawingObject2D.cpp
     sourceCode/drawingObjects/drawingObject.cpp
-    sourceCode/drawingObjects/drawingContainer2D.cpp
     sourceCode/drawingObjects/ptCloud_old.cpp
 
     sourceCode/platform/vVarious.cpp
@@ -348,62 +303,63 @@ set(SOURCES ${SOURCES}
     sourceCode/platform/vDateTime.cpp
     sourceCode/platform/vArchive.cpp
 
-    sourceCode/collections/regCollectionEl.cpp
-    sourceCode/collections/regCollection.cpp
+    sourceCode/collections/collectionElement.cpp
+    sourceCode/shared/collections/_collectionElement_.cpp
+    sourceCode/collections/collection.cpp
+    sourceCode/shared/collections/_collection_.cpp
 
-    sourceCode/collisions/regCollision.cpp
-    sourceCode/collisions/collisionRoutine.cpp
+    sourceCode/collisions/collisionObject.cpp
+    sourceCode/shared/collisions/_collisionObject_.cpp
+    sourceCode/collisions/collisionRoutines.cpp
 
-    sourceCode/distances/regDist.cpp
-    sourceCode/distances/distanceRoutine.cpp
-    sourceCode/distances/statDistObj.cpp
+    sourceCode/distances/distanceObject.cpp
+    sourceCode/shared/distances/_distanceObject_.cpp
+    sourceCode/distances/distanceRoutines.cpp
 
-    sourceCode/3dObjects/related/3DObject.cpp
-    sourceCode/3dObjects/related/convexVolume.cpp
-    sourceCode/3dObjects/related/viewableBase.cpp
+    sourceCode/sceneObjects/related/sceneObject.cpp
+    sourceCode/shared/sceneObjects/related/_sceneObject_.cpp
+    sourceCode/sceneObjects/related/convexVolume.cpp
+    sourceCode/sceneObjects/related/viewableBase.cpp
 
-    sourceCode/3dObjects/jointObject.cpp
-    sourceCode/3dObjects/camera.cpp
-    sourceCode/3dObjects/dummy.cpp
-    sourceCode/3dObjects/octree.cpp
-    sourceCode/3dObjects/pointCloud.cpp
-    sourceCode/3dObjects/forceSensor.cpp
-    sourceCode/3dObjects/graph.cpp
-    sourceCode/3dObjects/light.cpp
-    sourceCode/3dObjects/mirror.cpp
-    sourceCode/3dObjects/mill.cpp
-    sourceCode/3dObjects/path.cpp
-    sourceCode/3dObjects/proximitySensor.cpp
-    sourceCode/3dObjects/shape.cpp
-    sourceCode/3dObjects/visionSensor.cpp
+    sourceCode/sceneObjects/jointObject.cpp
+    sourceCode/shared/sceneObjects/_jointObject_.cpp
+    sourceCode/sceneObjects/camera.cpp
+    sourceCode/sceneObjects/dummy.cpp
+    sourceCode/shared/sceneObjects/_dummy_.cpp
+    sourceCode/sceneObjects/octree.cpp
+    sourceCode/sceneObjects/pointCloud.cpp
+    sourceCode/sceneObjects/forceSensor.cpp
+    sourceCode/sceneObjects/graph.cpp
+    sourceCode/sceneObjects/light.cpp
+    sourceCode/sceneObjects/mirror.cpp
+    sourceCode/sceneObjects/mill.cpp
+    sourceCode/sceneObjects/path.cpp
+    sourceCode/sceneObjects/proximitySensor.cpp
+    sourceCode/sceneObjects/shape.cpp
+    sourceCode/sceneObjects/visionSensor.cpp
 
-    sourceCode/3dObjects/graphObjectRelated/graphingRoutines.cpp
-    sourceCode/3dObjects/graphObjectRelated/graphDataComb.cpp
-    sourceCode/3dObjects/graphObjectRelated/graphData.cpp
-    sourceCode/3dObjects/graphObjectRelated/staticGraphCurve.cpp
+    sourceCode/sceneObjects/graphObjectRelated/graphingRoutines.cpp
+    sourceCode/sceneObjects/graphObjectRelated/graphDataComb.cpp
+    sourceCode/sceneObjects/graphObjectRelated/graphData.cpp
+    sourceCode/sceneObjects/graphObjectRelated/staticGraphCurve.cpp
 
-    sourceCode/3dObjects/millObjectRelated/cuttingRoutine.cpp
+    sourceCode/sceneObjects/pathObjectRelated/bezierPathPoint.cpp
+    sourceCode/sceneObjects/pathObjectRelated/simplePathPoint.cpp
+    sourceCode/sceneObjects/pathObjectRelated/pathPoint.cpp
+    sourceCode/sceneObjects/pathObjectRelated/pathCont.cpp
 
-    sourceCode/3dObjects/pathObjectRelated/bezierPathPoint.cpp
-    sourceCode/3dObjects/pathObjectRelated/simplePathPoint.cpp
-    sourceCode/3dObjects/pathObjectRelated/pathPoint.cpp
-    sourceCode/3dObjects/pathObjectRelated/pathCont.cpp
+    sourceCode/sceneObjects/proximitySensorObjectRelated/proxSensorRoutine.cpp
 
-    sourceCode/3dObjects/proximitySensorObjectRelated/proxSensorRoutine.cpp
+    sourceCode/sceneObjects/shapeObjectRelated/mesh.cpp
+    sourceCode/sceneObjects/shapeObjectRelated/meshWrapper.cpp
+    sourceCode/sceneObjects/shapeObjectRelated/volInt.cpp
 
-    sourceCode/3dObjects/shapeObjectRelated/geometric.cpp
-    sourceCode/3dObjects/shapeObjectRelated/geomWrap.cpp
-    sourceCode/3dObjects/shapeObjectRelated/geomProxy.cpp
-    sourceCode/3dObjects/shapeObjectRelated/volInt.cpp
 
     sourceCode/backwardCompatibility/pathPlanning/pathPlanning.cpp
     sourceCode/backwardCompatibility/pathPlanning/holonomicPathPlanning.cpp
     sourceCode/backwardCompatibility/pathPlanning/holonomicPathNode.cpp
     sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathPlanning.cpp
     sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathNode.cpp
-    sourceCode/backwardCompatibility/motionPlanning/mpPhase1Node.cpp
-    sourceCode/backwardCompatibility/motionPlanning/mpPhase2Node.cpp
-    sourceCode/backwardCompatibility/motionPlanning/mpObject.cpp
 
     sourceCode/communication/tubes/commTube.cpp
 
@@ -411,7 +367,10 @@ set(SOURCES ${SOURCES}
     sourceCode/communication/wireless/broadcastData.cpp
     sourceCode/communication/wireless/broadcastDataVisual.cpp
 
-    sourceCode/mainContainers/mainContainer.cpp
+    sourceCode/mainContainers/worldContainer.cpp
+    sourceCode/shared/mainContainers/_worldContainer_.cpp
+    sourceCode/mainContainers/world.cpp
+    sourceCode/shared/mainContainers/_world_.cpp
 
     sourceCode/mainContainers/sceneContainers/bannerContainer.cpp
     sourceCode/mainContainers/sceneContainers/drawingContainer.cpp
@@ -419,21 +378,23 @@ set(SOURCES ${SOURCES}
     sourceCode/mainContainers/sceneContainers/simulation.cpp
     sourceCode/mainContainers/sceneContainers/signalContainer.cpp
     sourceCode/mainContainers/sceneContainers/registeredPathPlanningTasks.cpp
-    sourceCode/mainContainers/sceneContainers/registeredMotionPlanningTasks.cpp
-    sourceCode/mainContainers/sceneContainers/registerediks.cpp
-    sourceCode/mainContainers/sceneContainers/registeredCollections.cpp
-    sourceCode/mainContainers/sceneContainers/registeredDistances.cpp
-    sourceCode/mainContainers/sceneContainers/registeredCollisions.cpp
+    sourceCode/mainContainers/sceneContainers/ikGroupContainer.cpp
+    sourceCode/shared/mainContainers/sceneContainers/_ikGroupContainer_.cpp
+    sourceCode/mainContainers/sceneContainers/collectionContainer.cpp
+    sourceCode/shared/mainContainers/sceneContainers/_collectionContainer_.cpp
+    sourceCode/mainContainers/sceneContainers/distanceObjectContainer.cpp
+    sourceCode/shared/mainContainers/sceneContainers/_distanceObjectContainer_.cpp
+    sourceCode/mainContainers/sceneContainers/collisionObjectContainer.cpp
+    sourceCode/shared/mainContainers/sceneContainers/_collisionObjectContainer_.cpp
     sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp
-    sourceCode/mainContainers/sceneContainers/objCont.cpp
+    sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp
+    sourceCode/shared/mainContainers/sceneContainers/_sceneObjectContainer_.cpp
     sourceCode/mainContainers/sceneContainers/memorizedConfContainer.cpp
     sourceCode/mainContainers/sceneContainers/mainSettings.cpp
-    sourceCode/mainContainers/sceneContainers/mainCont.cpp
     sourceCode/mainContainers/sceneContainers/luaScriptContainer.cpp
     sourceCode/mainContainers/sceneContainers/environment.cpp
     sourceCode/mainContainers/sceneContainers/dynamicsContainer.cpp
     sourceCode/mainContainers/sceneContainers/customData.cpp
-    sourceCode/mainContainers/sceneContainers/constraintSolverContainer.cpp
     sourceCode/mainContainers/sceneContainers/commTubeContainer.cpp
     sourceCode/mainContainers/sceneContainers/cacheCont.cpp
     sourceCode/mainContainers/sceneContainers/apiErrors.cpp
@@ -449,15 +410,12 @@ set(SOURCES ${SOURCES}
     sourceCode/mainContainers/applicationContainers/interfaceStackContainer.cpp
     sourceCode/mainContainers/applicationContainers/addOnScriptContainer.cpp
 
-    sourceCode/3dObjects/visionSensorObjectRelated/imageProcess.cpp
-    sourceCode/3dObjects/visionSensorObjectRelated/simpleFilter.cpp
-    sourceCode/3dObjects/visionSensorObjectRelated/composedFilter.cpp
+    sourceCode/sceneObjects/visionSensorObjectRelated/simpleFilter.cpp
+    sourceCode/sceneObjects/visionSensorObjectRelated/composedFilter.cpp
 
     sourceCode/pathPlanning_old/pathPlanningTask_old.cpp
 
-    sourceCode/motionPlanning_old/motionPlanningTask_old.cpp
-
-    sourceCode/luaScripting/luaScriptParameters.cpp
+    sourceCode/luaScripting/userParameters.cpp
     sourceCode/luaScripting/luaScriptObject.cpp
     sourceCode/luaScripting/outsideCommandQueueForScript.cpp
     sourceCode/luaScripting/luaWrapper.cpp
@@ -477,15 +435,16 @@ set(SOURCES ${SOURCES}
     sourceCode/textures/textureProperty.cpp
 
     sourceCode/serialization/ser.cpp
-    sourceCode/serialization/xmlSer.cpp
     sourceCode/serialization/extIkSer.cpp
     sourceCode/serialization/huffman.c
     sourceCode/serialization/tinyxml2.cpp
 
-    sourceCode/interfaces/v_rep.cpp
-    sourceCode/interfaces/v_rep_internal.cpp
+    sourceCode/interfaces/sim.cpp
+    sourceCode/interfaces/simInternal.cpp
     sourceCode/interfaces/luaScriptFunctions.cpp
     sourceCode/interfaces/pathPlanningInterface.cpp
+
+    sourceCode/interfaces/simFlavor.cpp
 
     sourceCode/interfaces/interfaceStack/interfaceStack.cpp
     sourceCode/interfaces/interfaceStack/interfaceStackObject.cpp
@@ -509,17 +468,16 @@ set(SOURCES ${SOURCES}
     sourceCode/various/gV.cpp
     sourceCode/various/memorizedConf.cpp
     sourceCode/various/userSettings.cpp
-    sourceCode/various/directoryPaths.cpp
-    sourceCode/various/constraintSolverObject.cpp
+    sourceCode/various/folderSystem.cpp
     sourceCode/various/uiThread.cpp
     sourceCode/various/simThread.cpp
     sourceCode/various/app.cpp
     sourceCode/various/dynMaterialObject.cpp
     sourceCode/various/easyLock.cpp
-    sourceCode/various/funcDebug.cpp
     sourceCode/various/ghostObject.cpp
-    sourceCode/various/debugLogFile.cpp
     sourceCode/various/sigHandler.cpp
+    sourceCode/various/syncObject.cpp
+    sourceCode/shared/various/_syncObject_.cpp
 
     sourceCode/undoRedo/undoBufferArrays.cpp
     sourceCode/undoRedo/undoBuffer.cpp
@@ -542,14 +500,12 @@ set(SOURCES ${SOURCES}
     sourceCode/rendering/shapeRendering.cpp
     sourceCode/rendering/ghostRendering.cpp
     sourceCode/rendering/drawingObjectRendering.cpp
-    sourceCode/rendering/drawingObject2DRendering.cpp
     sourceCode/rendering/ptCloudRendering_old.cpp
     sourceCode/rendering/collisionContourRendering.cpp
     sourceCode/rendering/distanceRendering.cpp
     sourceCode/rendering/bannerRendering.cpp
     sourceCode/rendering/thumbnailRendering.cpp
     sourceCode/rendering/pathPlanningTaskRendering_old.cpp
-    sourceCode/rendering/motionPlanningTaskRendering_old.cpp
     sourceCode/rendering/broadcastDataVisualRendering.cpp
     sourceCode/rendering/dynamicsRendering.cpp
     sourceCode/rendering/environmentRendering.cpp
@@ -558,7 +514,9 @@ set(SOURCES ${SOURCES}
 
     sourceCode/libsAndPlugins/pluginContainer.cpp
 
-    sourceCode/visual/visualParam.cpp
+    sourceCode/displ/colorObject.cpp
+    sourceCode/shared/displ/_colorObject_.cpp
+
     sourceCode/visual/thumbnail.cpp
 
     sourceCode/utils/threadPool.cpp
@@ -577,7 +535,7 @@ if(WITH_QT)
         sourceCode/platform/wThread.cpp
 
         sourceCode/various/simAndUiThreadSync.cpp
-        sourceCode/various/vrepQApp.cpp
+        sourceCode/various/simQApp.cpp
     )
 endif()
 
@@ -593,9 +551,9 @@ endif()
 
 if(WITH_OPENGL)
     set(SOURCES ${SOURCES}
-        sourceCode/3dObjects/visionSensorObjectRelated/offscreenGlContext.cpp
-        sourceCode/3dObjects/visionSensorObjectRelated/frameBufferObject.cpp
-        sourceCode/3dObjects/visionSensorObjectRelated/visionSensorGlStuff.cpp
+        sourceCode/sceneObjects/visionSensorObjectRelated/offscreenGlContext.cpp
+        sourceCode/sceneObjects/visionSensorObjectRelated/frameBufferObject.cpp
+        sourceCode/sceneObjects/visionSensorObjectRelated/visionSensorGlStuff.cpp
 
         sourceCode/visual/oGL.cpp
         sourceCode/visual/oglExt.cpp
@@ -612,7 +570,6 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/qdlgselection.cpp
         sourceCode/gui/dialogs/qdlgabout.cpp
         sourceCode/gui/dialogs/qdlgsimulation.cpp
-        sourceCode/gui/dialogs/qdlginteractiveik.cpp
         sourceCode/gui/dialogs/qdlgcommonproperties.cpp
         sourceCode/gui/dialogs/qdlgdetectableproperties.cpp
         sourceCode/gui/dialogs/qdlgmodelproperties.cpp
@@ -642,35 +599,12 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/qdlgdummies.cpp
         sourceCode/gui/dialogs/qdlgoctrees.cpp
         sourceCode/gui/dialogs/qdlgpointclouds.cpp
-        sourceCode/gui/dialogs/qdlgscriptparameters.cpp
+        sourceCode/gui/dialogs/qdlguserparameters.cpp
         sourceCode/gui/dialogs/qdlgforcesensors.cpp
         sourceCode/gui/dialogs/qdlgprimitives.cpp
         sourceCode/gui/dialogs/qdlgconvexdecomposition.cpp
-        sourceCode/gui/dialogs/qdlgconstraintsolver.cpp
         sourceCode/gui/dialogs/qdlgvisionsensors.cpp
         sourceCode/gui/dialogs/qdlgimagecolor.cpp
-        sourceCode/gui/dialogs/qdlgsimpleSearch.cpp
-        sourceCode/gui/dialogs/qdlgfilters.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_rotate.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_uniformImage.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_shift.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_coordExtraction.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_velodyne.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_pixelChange.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_scaleCols.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_resize.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_rectangularCut.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_keepRemoveCols.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_intensityScale.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_edge.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_correlation.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_colorSegmentation.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_circularCut.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_blob.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_binary.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_5x5.cpp
-        sourceCode/gui/dialogs/qdlgsimplefilter_3x3.cpp
         sourceCode/gui/dialogs/qdlgshapes.cpp
         sourceCode/gui/dialogs/qdlgmultishapeedition.cpp
         sourceCode/gui/dialogs/qdlgtextures.cpp
@@ -680,7 +614,6 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/qdlgdetectionvolume.cpp
         sourceCode/gui/dialogs/qdlgproximitysensors.cpp
         sourceCode/gui/dialogs/qdlgproxsensdetectionparam.cpp
-        sourceCode/gui/dialogs/qdlgmills.cpp
         sourceCode/gui/dialogs/qdlgobjectdialogcontainer.cpp
         sourceCode/gui/dialogs/qdlgshapeeditioncontainer.cpp
         sourceCode/gui/dialogs/qdlgcalcdialogcontainer.cpp
@@ -698,18 +631,6 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/qdlgik.cpp
         sourceCode/gui/dialogs/qdlgikelements.cpp
         sourceCode/gui/dialogs/qdlgikconditional.cpp
-        sourceCode/gui/dialogs/qdlgikavoidance.cpp
-        sourceCode/gui/dialogs/qdlgui.cpp
-        sourceCode/gui/dialogs/qdlguidialogcontainer.cpp
-        sourceCode/gui/dialogs/qdlguibuttons.cpp
-        sourceCode/gui/dialogs/qdlgnewui.cpp
-        sourceCode/gui/dialogs/qdlguirolledup.cpp
-        sourceCode/gui/dialogs/qdlgpathplanning.cpp
-        sourceCode/gui/dialogs/qdlgmotionplanning.cpp
-        sourceCode/gui/dialogs/qdlgpathplanningparams.cpp
-        sourceCode/gui/dialogs/qdlgmotionplanningjoints.cpp
-        sourceCode/gui/dialogs/qdlgworkspacemetric.cpp
-        sourceCode/gui/dialogs/qdlgpathplanningaddnew.cpp
         sourceCode/gui/dialogs/qdlgpaths.cpp
         sourceCode/gui/dialogs/qdlgpathshaping.cpp
         sourceCode/gui/dialogs/qdlgmessageandcheckbox.cpp
@@ -743,7 +664,7 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/other/toolDlgWrapper.cpp
         sourceCode/gui/dialogs/other/dlgEx.cpp
         sourceCode/gui/dialogs/other/dlgCont.cpp
-        sourceCode/gui/dialogs/other/qvrep_openglwidget.cpp
+        sourceCode/gui/dialogs/other/qsim_openglwidget.cpp
 
         sourceCode/gui/platform/vMessageBox.cpp
         sourceCode/gui/platform/vMenubar.cpp
@@ -759,7 +680,6 @@ if(WITH_GUI)
         sourceCode/gui/editModes/shapeEditMode.cpp
         sourceCode/gui/editModes/multishapeEditMode.cpp
         sourceCode/gui/editModes/pathEditMode.cpp
-        sourceCode/gui/editModes/uiEditMode.cpp
         sourceCode/gui/editModes/edgeCont.cpp
         sourceCode/gui/editModes/pathPointManipulation.cpp
 
@@ -774,7 +694,6 @@ if(WITH_GUI)
 
         sourceCode/gui/selectors/pageSelector.cpp
         sourceCode/gui/selectors/viewSelector.cpp
-        sourceCode/gui/selectors/sceneSelector.cpp
 
         sourceCode/gui/menusAndSimilar/toolBarCommand.cpp
         sourceCode/gui/menusAndSimilar/customMenuBarItemContainer.cpp
@@ -789,26 +708,26 @@ if(WITH_GUI)
     )
 endif()
 
-add_library(v_rep SHARED ${SOURCES})
-target_link_libraries(v_rep ${BOOST_LIBRARIES})
-target_link_libraries(v_rep ${LUA_LIBRARIES})
+add_library(coppeliaSim SHARED ${SOURCES})
+target_link_libraries(coppeliaSim ${BOOST_LIBRARIES})
+target_link_libraries(coppeliaSim ${LUA_LIBRARIES})
 if(WITH_QT)
-    target_link_libraries(v_rep Qt5::Core)
+    target_link_libraries(coppeliaSim Qt5::Core)
 endif()
 if(WITH_GUI)
-    target_link_libraries(v_rep Qt5::Gui)
-    target_link_libraries(v_rep Qt5::Widgets)
+    target_link_libraries(coppeliaSim Qt5::Gui)
+    target_link_libraries(coppeliaSim Qt5::Widgets)
 endif()
 if(WITH_OPENGL)
-    target_link_libraries(v_rep OpenGL::GL)
-    target_link_libraries(v_rep Qt5::Gui)
-    target_link_libraries(v_rep Qt5::OpenGL)
+    target_link_libraries(coppeliaSim OpenGL::GL)
+    target_link_libraries(coppeliaSim Qt5::Gui)
+    target_link_libraries(coppeliaSim Qt5::OpenGL)
 endif()
 if(WITH_SERIAL)
-    target_link_libraries(v_rep Qt5::SerialPort)
+    target_link_libraries(coppeliaSim Qt5::SerialPort)
 endif()
 if(WIN32)
-    target_link_libraries(v_rep
+    target_link_libraries(coppeliaSim
         -lwinmm
         -lShell32
         -lopengl32

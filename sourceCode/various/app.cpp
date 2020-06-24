@@ -1365,57 +1365,6 @@ CTextureProperty* App::getTexturePropertyPointerFromItem(int objType,int objID1,
     return(nullptr);
 }
 
-
-#ifdef SIM_WITH_GUI
-void App::showSplashScreen()
-{
-    App::setShowConsole(false);
-    QPixmap pixmap;
-
-    pixmap.load(CSimFlavor::getStringVal(1).c_str());
-
-    QSplashScreen splash(pixmap,Qt::WindowStaysOnTopHint);
-    splash.setMask(pixmap.mask());
-    QString txt("Version ");
-    txt+=SIM_PROGRAM_VERSION;
-    txt+=" ";
-    txt+=SIM_PROGRAM_REVISION;
-    txt+=", Built ";
-    txt+=__DATE__;
-    splash.showMessage(txt,Qt::AlignLeft|Qt::AlignBottom);
-    splash.show();
-    int ct=VDateTime::getTimeInMs();
-    while (VDateTime::getTimeDiffInMs(ct)<2000)
-    {
-        splash.raise();
-        App::qtApp->processEvents();
-        VThread::sleep(1);
-    }
-    splash.hide();
-    App::setShowConsole(true);
-}
-
-void App::setIcon()
-{
-    App::qtApp->setWindowIcon(QIcon(CSimFlavor::getStringVal(4).c_str()));
-}
-
-void App::createMainWindow()
-{
-    TRACE_INTERNAL;
-    mainWindow=new CMainWindow();
-    mainWindow->initializeWindow();
-    setShowConsole(userSettings->alwaysShowConsole);
-}
-
-void App::deleteMainWindow()
-{
-    TRACE_INTERNAL;
-    delete mainWindow;
-    mainWindow=nullptr;
-}
-
-
 std::string App::getConsoleLogFilter()
 {
     return(_consoleLogFilterStr);
@@ -1559,19 +1508,23 @@ void App::_logMsg(const char* originName,int verbosityLevel,const char* msg,int 
 
 std::string App::_getHtmlEscapedString(const char* str)
 {
-    QString qstr(str);
-    qstr.replace("<","*+-%A%-+*");
-    qstr.replace(">","*+-%B%-+*");
-    qstr.replace("\n","*+-%NL%-+*");
-    qstr.replace(" ","*+-%S%-+*");
-    qstr.replace("\t","*+-%T%-+*");
+    std::string s(str);
+    CTTUtil::replaceSubstring(s,"<","*+-%A%-+*");
+    CTTUtil::replaceSubstring(s,">","*+-%B%-+*");
+    CTTUtil::replaceSubstring(s,"\n","*+-%NL%-+*");
+    CTTUtil::replaceSubstring(s," ","*+-%S%-+*");
+    CTTUtil::replaceSubstring(s,"\t","*+-%T%-+*");
+#ifndef SIM_WITHOUT_QT_AT_ALL
+    QString qstr(s);
     qstr.toHtmlEscaped();
-    qstr.replace("*+-%NL%-+*","<br/>");
-    qstr.replace("*+-%S%-+*","&nbsp;");
-    qstr.replace("*+-%T%-+*","&nbsp;&nbsp;&nbsp;&nbsp;");
-    qstr.replace("*+-%A%-+*","&lt;");
-    qstr.replace("*+-%B%-+*","&gt;");
-    return(qstr.toStdString());
+    s=qstr.toStdString();
+#endif
+    CTTUtil::replaceSubstring(s,"*+-%NL%-+*","<br/>");
+    CTTUtil::replaceSubstring(s,"*+-%S%-+*","&nbsp;");
+    CTTUtil::replaceSubstring(s,"*+-%T%-+*","&nbsp;&nbsp;&nbsp;&nbsp;");
+    CTTUtil::replaceSubstring(s,"*+-%A%-+*","&lt;");
+    CTTUtil::replaceSubstring(s,"*+-%B%-+*","&gt;");
+    return(s);
 }
 
 bool App::_consoleLogFilter(const char* msg)
@@ -1641,11 +1594,13 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         // For backward compatibility with messages that already have HTML tags:
         size_t p=message.rfind("@html");
         if ( (p!=std::string::npos)&&(p==message.size()-5) )
-        { // stip HTML stuff off
+        { // strip HTML stuff off
             message.assign(message.c_str(),message.c_str()+message.size()-5);
+#ifndef SIM_WITHOUT_QT_AT_ALL
             QTextDocument doc;
             doc.setHtml(message.c_str());
             message=doc.toPlainText().toStdString();
+#endif
         }
 
         boost::replace_all(message,"\n","\n    ");
@@ -1769,6 +1724,55 @@ void App::setStatusbarVerbosity(int v,const char* pluginName/*=nullptr*/)
 bool App::getConsoleOrStatusbarVerbosityTriggered(int verbosityLevel)
 {
     return( (_consoleVerbosity>=verbosityLevel)||(_statusbarVerbosity>=verbosityLevel) );
+}
+
+#ifdef SIM_WITH_GUI
+void App::showSplashScreen()
+{
+    App::setShowConsole(false);
+    QPixmap pixmap;
+
+    pixmap.load(CSimFlavor::getStringVal(1).c_str());
+
+    QSplashScreen splash(pixmap,Qt::WindowStaysOnTopHint);
+    splash.setMask(pixmap.mask());
+    QString txt("Version ");
+    txt+=SIM_PROGRAM_VERSION;
+    txt+=" ";
+    txt+=SIM_PROGRAM_REVISION;
+    txt+=", Built ";
+    txt+=__DATE__;
+    splash.showMessage(txt,Qt::AlignLeft|Qt::AlignBottom);
+    splash.show();
+    int ct=VDateTime::getTimeInMs();
+    while (VDateTime::getTimeDiffInMs(ct)<2000)
+    {
+        splash.raise();
+        App::qtApp->processEvents();
+        VThread::sleep(1);
+    }
+    splash.hide();
+    App::setShowConsole(true);
+}
+
+void App::setIcon()
+{
+    App::qtApp->setWindowIcon(QIcon(CSimFlavor::getStringVal(4).c_str()));
+}
+
+void App::createMainWindow()
+{
+    TRACE_INTERNAL;
+    mainWindow=new CMainWindow();
+    mainWindow->initializeWindow();
+    setShowConsole(userSettings->alwaysShowConsole);
+}
+
+void App::deleteMainWindow()
+{
+    TRACE_INTERNAL;
+    delete mainWindow;
+    mainWindow=nullptr;
 }
 
 void App::setShowConsole(bool s)

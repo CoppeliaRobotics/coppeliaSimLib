@@ -317,7 +317,7 @@ void CDynamicsContainer::displayWarningsIfNeeded()
     #ifdef SIM_WITH_GUI
             App::uiThread->messageBox_warning(App::mainWindow,IDSN_PURE_SPHEROID,IDS_WARNING_WHEN_PURE_SPHEROID_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     #else
-            App::logMsg("warning: %s",IDS_WARNING_WHEN_PURE_SPHEROID_NOT_SUPPORTED);
+            App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_PURE_SPHEROID_NOT_SUPPORTED);
     #endif
             _pureSpheroidNotSupportedMark++;
         }
@@ -326,7 +326,7 @@ void CDynamicsContainer::displayWarningsIfNeeded()
     #ifdef SIM_WITH_GUI
             App::uiThread->messageBox_warning(App::mainWindow,IDSN_PURE_CONE,IDS_WARNING_WHEN_PURE_CONE_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     #else
-            App::logMsg("warning: %s",IDS_WARNING_WHEN_PURE_CONE_NOT_SUPPORTED);
+            App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_PURE_CONE_NOT_SUPPORTED);
     #endif
             _pureConeNotSupportedMark++;
         }
@@ -335,7 +335,7 @@ void CDynamicsContainer::displayWarningsIfNeeded()
     #ifdef SIM_WITH_GUI
             App::uiThread->messageBox_warning(App::mainWindow,IDSN_PURE_HOLLOW_SHAPES,IDS_WARNING_WHEN_PURE_HOLLOW_SHAPE_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     #else
-            App::logMsg("warning: %s",IDS_WARNING_WHEN_PURE_HOLLOW_SHAPE_NOT_SUPPORTED);
+            App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_PURE_HOLLOW_SHAPE_NOT_SUPPORTED);
     #endif
             _pureHollowShapeNotSupportedMark++;
         }
@@ -347,21 +347,21 @@ void CDynamicsContainer::displayWarningsIfNeeded()
         #ifdef SIM_WITH_GUI
                 App::uiThread->messageBox_warning(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         #else
-                App::logMsg("warning: %s",IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
+                App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
         #endif
     #endif
     #ifdef LIN_SIM
         #ifdef SIM_WITH_GUI
                 App::uiThread->messageBox_warning(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         #else
-                App::logMsg("warning: %s",IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
+                App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
         #endif
     #endif
     #ifdef MAC_SIM
         #ifdef SIM_WITH_GUI
                 App::uiThread->messageBox_warning(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WHEN_VORTEX_NOT_YET_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         #else
-                App::logMsg("warning: %s",IDS_WARNING_WHEN_VORTEX_NOT_YET_SUPPORTED);
+                App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_VORTEX_NOT_YET_SUPPORTED);
         #endif
     #endif
             }
@@ -369,7 +369,7 @@ void CDynamicsContainer::displayWarningsIfNeeded()
     #ifdef SIM_WITH_GUI
                 App::uiThread->messageBox_warning(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     #else
-                App::logMsg("warning: %s",IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
+                App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
     #endif
 
             _physicsEngineNotSupportedWarning++;
@@ -379,7 +379,7 @@ void CDynamicsContainer::displayWarningsIfNeeded()
     #ifdef SIM_WITH_GUI
             App::uiThread->messageBox_warning(App::mainWindow,IDSN_NEWTON_NON_CONVEX_MESH,IDS_WARNING_WITH_NEWTON_NON_CONVEX_DYNAMIC_MESH,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     #else
-            App::logMsg("warning: %s",IDS_WARNING_WITH_NEWTON_NON_CONVEX_DYNAMIC_MESH);
+            App::logMsg(sim_verbosity_warnings,IDS_WARNING_WITH_NEWTON_NON_CONVEX_DYNAMIC_MESH);
     #endif
             _newtonDynamicRandomMeshNotSupportedMark++;
         }

@@ -72,7 +72,7 @@ bool tt::stringToFloat(const char* txt,float& f,bool allowNegativeValue,bool inf
             f=-FLT_MAX;//FLT_MIN;
             return(true);
         }
-        return(getValidFloat(str,f));
+        return(getValidFloat(str.c_str(),f));
     }
     else
     {
@@ -105,7 +105,7 @@ bool tt::stringToFloat(const char* txt,float& f,bool allowNegativeValue,bool inf
             f=0.0f;
             return(true);
         }
-        bool ok=getValidFloat(str,f);
+        bool ok=getValidFloat(str.c_str(),f);
         if (ok&&(f<0.0))
             f=0.0;
         return(ok);

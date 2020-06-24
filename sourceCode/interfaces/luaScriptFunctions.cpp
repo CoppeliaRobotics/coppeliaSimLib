@@ -3417,30 +3417,18 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
             if ( CThreadPool::getSimulationEmergencyStop() ) // No automatic yield when flagged for destruction!! ||it->getFlaggedForDestruction() )
             { // This is the only way a non-threaded script can yield. But threaded child scripts can also yield here
                 it->terminateScriptExecutionExternally(true);
-                /*
-                if (debugLevel!=sim_scriptdebug_none)
-                    it->handleDebug("force_script_stop","C",true,true);
-                luaWrap_lua_yield(L,0);
-                */
                 return;
             }
-            else
-            {
-                if (CThreadPool::getSimulationStopRequestedAndActivated())
-                { // returns true only after 1-2 seconds after the request arrived
-                    if (!VThread::isCurrentThreadTheMainSimulationThread())
-                    { // Here only threaded scripts can yield!
-                        it->terminateScriptExecutionExternally(false);
-                        /*
-                        if (debugLevel!=sim_scriptdebug_none)
-                            it->handleDebug("force_script_stop","C",true,true);
-                        luaWrap_lua_yield(L,0);
-                        */
-                        return;
-                    }
+#endif
+            if (CThreadPool::getSimulationStopRequestedAndActivated())
+            { // returns true only after 1-2 seconds after the request arrived
+                if (!VThread::isCurrentThreadTheMainSimulationThread())
+                { // Here only threaded scripts can yield!
+                    it->terminateScriptExecutionExternally(false);
+                    return;
                 }
             }
-#endif
+
             if (!VThread::isCurrentThreadTheMainSimulationThread())
             {
                 if (CThreadPool::isSwitchBackToPreviousThreadNeeded())
@@ -3467,17 +3455,6 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
                         {
                             CLuaScriptObject::emergencyStopButtonPressed=false;
                             it->terminateScriptExecutionExternally(true);
-                            /*
-                            std::string tmp("?: script execution was terminated externally.");
-                            it->prefixWithLuaLocationName(tmp);
-                            it->_announceErrorWasRaisedAndDisableScript(tmp.c_str(),true);
-                            if (it->getScriptType()==sim_scripttype_addonscript)
-                                it->flagForDestruction(); // stop it
-
-                            if (debugLevel!=sim_scriptdebug_none)
-                                it->handleDebug("force_script_stop","C",true,true);
-                            luaWrap_lua_yield(L,0);
-                            */
                         }
                     }
                     else
