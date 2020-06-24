@@ -5,6 +5,7 @@
 #include "vArchive.h"
 #include "ttUtil.h"
 #include "vDateTime.h"
+#include <string.h>
 #ifdef WIN_SIM
     #include <Windows.h>
     #include <Shellapi.h>

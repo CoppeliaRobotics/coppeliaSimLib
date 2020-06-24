@@ -7,6 +7,7 @@
 #include "ttUtil.h"
 #include "apiErrors.h"
 #include "collisionRoutines.h"
+#include <algorithm>
 
 CPlugin::CPlugin(const char* filename,const char* pluginName)
 {

@@ -1,18 +1,16 @@
-CFLAGS =  -DSIM_WITHOUT_QT_AT_ALL -Wall -fPIC -static
+CFLAGS =  -DSIM_WITHOUT_QT_AT_ALL -DSIM_LIB -Wall -fPIC -static
 
 OS = $(shell uname -s)
 ifeq ($(OS), Linux)
-	CFLAGS += -D__linux -DLIN_SIM -include simMainHeader.h -I/usr/include/lua5.1 -DSIM_COMPILER_STR=\"gcc\"
-	CFLAGS += -DQT_VREP_64BIT
+	CFLAGS += -D__linux -DLIN_SIM -include simMainHeader.h -DSIM_COMPILER_STR=\"gcc\"
 	EXT = so
 else
-	CFLAGS += -D__APPLE__ -DMAC_SIM -include simMainHeader.h -I/usr/include/lua5.1 -DSIM_COMPILER_STR=\"Clang\"
-	CFLAGS += -DQT_VREP_64BIT
+	CFLAGS += -D__APPLE__ -DMAC_SIM -include simMainHeader.h -DSIM_COMPILER_STR=\"Clang\"
 	EXT = dylib
 endif
 
 CFLAGS += -std=c++11
-CFLAGS += -I../../lua5_1_4_Linux26g4_64_lib/include
+CFLAGS += -I/usr/include/lua5.1
 
 CFLAGS += -IsourceCode
 CFLAGS += -IsourceCode/shared
@@ -212,7 +210,7 @@ all:
 	gcc $(CFLAGS) -c sourceCode/textures/textureProperty.cpp -o textureProperty.o
 	gcc $(CFLAGS) -c sourceCode/serialization/ser.cpp -o ser.o
 	gcc $(CFLAGS) -c sourceCode/serialization/extIkSer.cpp -o extIkSer.o
-  	gcc $(CFLAGS) -c sourceCode/serialization/huffman.c -o huffman.o
+	gcc $(CFLAGS) -c sourceCode/serialization/huffman.c -o huffman.o
 	gcc $(CFLAGS) -c sourceCode/serialization/tinyxml2.cpp -o tinyxml2.o
 	gcc $(CFLAGS) -c sourceCode/interfaces/sim.cpp -o sim.o
 	gcc $(CFLAGS) -c sourceCode/interfaces/simInternal.cpp -o simInternal.o

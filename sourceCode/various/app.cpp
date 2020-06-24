@@ -1515,7 +1515,7 @@ std::string App::_getHtmlEscapedString(const char* str)
     CTTUtil::replaceSubstring(s," ","*+-%S%-+*");
     CTTUtil::replaceSubstring(s,"\t","*+-%T%-+*");
 #ifndef SIM_WITHOUT_QT_AT_ALL
-    QString qstr(s);
+    QString qstr(s.c_str());
     qstr.toHtmlEscaped();
     s=qstr.toStdString();
 #endif

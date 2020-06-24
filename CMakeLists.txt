@@ -1,16 +1,19 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.9.0)
 project(coppeliaSim)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_MACOSX_RPATH 1)
 
+set(CMAKE_AUTOUIC_SEARCH_PATHS ui)
 set(WITH_QT true CACHE BOOL "Enable Qt")
+
 if(WITH_QT)
     set(WITH_GUI true CACHE BOOL "Enable gui")
     set(WITH_OPENGL true CACHE BOOL "Enable OpenGL")
-    set(WITH_SERIAL true CACHE BOOL "Enable serial")
+    set(WITH_SERIAL false)
 else()
     unset(WITH_GUI CACHE)
     unset(WITH_OPENGL CACHE)
@@ -27,6 +30,8 @@ find_package(Boost REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${LUA_INCLUDE_DIR})
+
+add_definitions(-DSIM_LIB)
 
 if(WITH_GUI)
     find_package(Qt5Widgets REQUIRED)
@@ -53,6 +58,7 @@ else()
 endif()
 
 if(MSVC)
+    add_definitions(/FI"simMainHeader.h")
     set(CMAKE_CXXFLAGS "${CMAKE_CXXFLAGS} -fp:precise")
     set(CMAKE_CXXFLAGS_RELEASE "${CMAKE_CXXFLAGS_RELEASE} -O2")
 
@@ -65,10 +71,11 @@ if(MSVC)
         add_definitions(-DSIM_COMPILER_STR=\"MSVC2015\")
     elseif(MSVC_VERSION GREATER 1900 AND MSVC_VERSION LESS 1920)
         add_definitions(-DSIM_COMPILER_STR=\"MSVC2017\")
-    else
+    else()
         add_definitions(-DSIM_COMPILER_STR=\"MSVC2019\")
     endif()
 else()
+    add_definitions(-include simMainHeader.h)
     set(CMAKE_CXXFLAGS_DEBUG "${CMAKE_CXXFLAGS_DEBUG} -O0 -g -ggdb")
     set(CMAKE_CXXFLAGS_RELEASE "${CMAKE_CXXFLAGS_RELEASE} -O3")
     set(CMAKE_CXXFLAGS "${CMAKE_CXXFLAGS} -Wall")
@@ -188,86 +195,150 @@ if(WITH_GUI)
     )
 endif()
 
+
 if(WITH_GUI)
     set(SOURCES ${SOURCES}
-        ui/qdlgsettings.ui
-        ui/qdlglayers.ui
-        ui/qdlgavirecorder.ui
-        ui/qdlgselection.ui
-        ui/qdlgabout.ui
-        ui/qdlgsimulation.ui
-        ui/qdlgcommonproperties.ui
-        ui/qdlgdetectableproperties.ui
-        ui/qdlgmodelproperties.ui
-        ui/qdlgassembly.ui
-        ui/qdlgslider.ui
-        ui/qdlgslider2.ui
-        ui/qdlginertiatensor.ui
-        ui/qdlgmodelthumbnailvisu.ui
-        ui/qdlgmodelthumbnail.ui
-        ui/qdlgenvironment.ui
-        ui/qdlgcolor.ui
-        ui/qdlgmaterial.ui
-        ui/qdlglightmaterial.ui
-        ui/qdlgcolorpulsation.ui
-        ui/qdlgfog.ui
-        ui/qdlgcollections.ui
-        ui/qdlgcollisions.ui
-        ui/qdlgdistances.ui
-        ui/qdlgentityvsentityselection.ui
-        ui/qdlgscripts.ui
-        ui/qdlginsertscript.ui
-        ui/qdlgdynamics.ui
-        ui/qdlgscaling.ui
-        ui/qdlgcameras.ui
-        ui/qdlglights.ui
-        ui/qdlgmirrors.ui
-        ui/qdlgdummies.ui
-        ui/qdlgoctrees.ui
-        ui/qdlgpointclouds.ui
-        ui/qdlguserparameters.ui
-        ui/qdlgforcesensors.ui
-        ui/qdlgprimitives.ui
-        ui/qdlgconvexdecomposition.ui
-        ui/qdlgvisionsensors.ui
-        ui/qdlgimagecolor.ui
-        ui/qdlgshapes.ui
-        ui/qdlgmultishapeedition.ui
-        ui/qdlgtextures.ui
-        ui/qdlgtextureselection.ui
-        ui/qdlggeometry.ui
-        ui/qdlgshapedyn.ui
-        ui/qdlgdetectionvolume.ui
-        ui/qdlgproximitysensors.ui
-        ui/qdlgproxsensdetectionparam.ui
-        ui/qdlgobjectdialogcontainer.ui
-        ui/qdlgshapeeditioncontainer.ui
-        ui/qdlgcalcdialogcontainer.ui
-        ui/qdlgheightfielddimension.ui
-        ui/qdlgstopscripts.ui
-        ui/qdlgtextureloadoptions.ui
-        ui/qdlgprogress.ui
-        ui/qdlgjoints.ui
-        ui/qdlgdependencyequation.ui
-        ui/qdlgjointdyn.ui
-        ui/qdlggraphs.ui
-        ui/qdlgdatastreamselection.ui
-        ui/qdlg2d3dgraphproperties.ui
-        ui/qdlgaddgraphcurve.ui
-        ui/qdlgik.ui
-        ui/qdlgikelements.ui
-        ui/qdlgikconditional.ui
-        ui/qdlgpaths.ui
-        ui/qdlgpathshaping.ui
-        ui/qdlgmessageandcheckbox.ui
-        ui/qdlgopenglsettings.ui
-        ui/qdlgtriangleedit.ui
-        ui/qdlgvertexedit.ui
-        ui/qdlgedgeedit.ui
-        ui/qdlgpathedit.ui
-        ui/qdlgtranslation.ui
-        ui/qdlgrotation.ui
-        ui/qdlgtranslationrotationcont.ui
+        sourceCode/gui/dialogs/qdlgsettings.cpp
+        sourceCode/gui/dialogs/qdlglayers.cpp
+        sourceCode/gui/dialogs/qdlgavirecorder.cpp
+        sourceCode/gui/dialogs/qdlgselection.cpp
+        sourceCode/gui/dialogs/qdlgabout.cpp
+        sourceCode/gui/dialogs/qdlgsimulation.cpp
+        sourceCode/gui/dialogs/qdlgcommonproperties.cpp
+        sourceCode/gui/dialogs/qdlgdetectableproperties.cpp
+        sourceCode/gui/dialogs/qdlgmodelproperties.cpp
+        sourceCode/gui/dialogs/qdlgassembly.cpp
+        sourceCode/gui/dialogs/qdlgslider.cpp
+        sourceCode/gui/dialogs/qdlgslider2.cpp
+        sourceCode/gui/dialogs/qdlginertiatensor.cpp
+        sourceCode/gui/dialogs/qdlgmodelthumbnailvisu.cpp
+        sourceCode/gui/dialogs/qdlgmodelthumbnail.cpp
+        sourceCode/gui/dialogs/qdlgenvironment.cpp
+        sourceCode/gui/dialogs/qdlgcolor.cpp
+        sourceCode/gui/dialogs/qdlgmaterial.cpp
+        sourceCode/gui/dialogs/qdlglightmaterial.cpp
+        sourceCode/gui/dialogs/qdlgcolorpulsation.cpp
+        sourceCode/gui/dialogs/qdlgfog.cpp
+        sourceCode/gui/dialogs/qdlgcollections.cpp
+        sourceCode/gui/dialogs/qdlgcollisions.cpp
+        sourceCode/gui/dialogs/qdlgdistances.cpp
+        sourceCode/gui/dialogs/qdlgentityvsentityselection.cpp
+        sourceCode/gui/dialogs/qdlgscripts.cpp
+        sourceCode/gui/dialogs/qdlginsertscript.cpp
+        sourceCode/gui/dialogs/qdlgdynamics.cpp
+        sourceCode/gui/dialogs/qdlgscaling.cpp
+        sourceCode/gui/dialogs/qdlgcameras.cpp
+        sourceCode/gui/dialogs/qdlglights.cpp
+        sourceCode/gui/dialogs/qdlgmirrors.cpp
+        sourceCode/gui/dialogs/qdlgdummies.cpp
+        sourceCode/gui/dialogs/qdlgoctrees.cpp
+        sourceCode/gui/dialogs/qdlgpointclouds.cpp
+        sourceCode/gui/dialogs/qdlguserparameters.cpp
+        sourceCode/gui/dialogs/qdlgforcesensors.cpp
+        sourceCode/gui/dialogs/qdlgprimitives.cpp
+        sourceCode/gui/dialogs/qdlgconvexdecomposition.cpp
+        sourceCode/gui/dialogs/qdlgvisionsensors.cpp
+        sourceCode/gui/dialogs/qdlgimagecolor.cpp
+        sourceCode/gui/dialogs/qdlgshapes.cpp
+        sourceCode/gui/dialogs/qdlgmultishapeedition.cpp
+        sourceCode/gui/dialogs/qdlgtextures.cpp
+        sourceCode/gui/dialogs/qdlgtextureselection.cpp
+        sourceCode/gui/dialogs/qdlggeometry.cpp
+        sourceCode/gui/dialogs/qdlgshapedyn.cpp
+        sourceCode/gui/dialogs/qdlgdetectionvolume.cpp
+        sourceCode/gui/dialogs/qdlgproximitysensors.cpp
+        sourceCode/gui/dialogs/qdlgproxsensdetectionparam.cpp
+        sourceCode/gui/dialogs/qdlgobjectdialogcontainer.cpp
+        sourceCode/gui/dialogs/qdlgshapeeditioncontainer.cpp
+        sourceCode/gui/dialogs/qdlgcalcdialogcontainer.cpp
+        sourceCode/gui/dialogs/qdlgheightfielddimension.cpp
+        sourceCode/gui/dialogs/qdlgstopscripts.cpp
+        sourceCode/gui/dialogs/qdlgtextureloadoptions.cpp
+        sourceCode/gui/dialogs/qdlgprogress.cpp
+        sourceCode/gui/dialogs/qdlgjoints.cpp
+        sourceCode/gui/dialogs/qdlgdependencyequation.cpp
+        sourceCode/gui/dialogs/qdlgjointdyn.cpp
+        sourceCode/gui/dialogs/qdlggraphs.cpp
+        sourceCode/gui/dialogs/qdlgdatastreamselection.cpp
+        sourceCode/gui/dialogs/qdlg2d3dgraphproperties.cpp
+        sourceCode/gui/dialogs/qdlgaddgraphcurve.cpp
+        sourceCode/gui/dialogs/qdlgik.cpp
+        sourceCode/gui/dialogs/qdlgikelements.cpp
+        sourceCode/gui/dialogs/qdlgikconditional.cpp
+        sourceCode/gui/dialogs/qdlgpaths.cpp
+        sourceCode/gui/dialogs/qdlgpathshaping.cpp
+        sourceCode/gui/dialogs/qdlgmessageandcheckbox.cpp
+        sourceCode/gui/dialogs/qdlgopenglsettings.cpp
+        sourceCode/gui/dialogs/qdlgtriangleedit.cpp
+        sourceCode/gui/dialogs/qdlgvertexedit.cpp
+        sourceCode/gui/dialogs/qdlgedgeedit.cpp
+        sourceCode/gui/dialogs/qdlgpathedit.cpp
+        sourceCode/gui/dialogs/qdlgtranslation.cpp
+        sourceCode/gui/dialogs/qdlgrotation.cpp
+        sourceCode/gui/dialogs/qdlgtranslationrotationcont.cpp
+
+        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtbuttonpropertybrowser.cpp
+        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qteditorfactory.cpp
+        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtgroupboxpropertybrowser.cpp
+        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtpropertybrowser.cpp
+        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtpropertybrowserutils.cpp
+        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtpropertymanager.cpp
+        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qttreepropertybrowser.cpp
+        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtvariantproperty.cpp
+
+        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles/buttoneditfactory.cpp
+        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles/buttoneditmanager.cpp
+        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles/pushbuttonedit.cpp
+
+        sourceCode/gui/qtPropertyBrowserRelated/propBrowser_engineProp_material.cpp
+        sourceCode/gui/qtPropertyBrowserRelated/propBrowser_engineProp_general.cpp
+        sourceCode/gui/qtPropertyBrowserRelated/propBrowser_engineProp_joint.cpp
+
+        sourceCode/gui/dialogs/other/editboxdelegate.cpp
+        sourceCode/gui/dialogs/other/toolDlgWrapper.cpp
+        sourceCode/gui/dialogs/other/dlgEx.cpp
+        sourceCode/gui/dialogs/other/dlgCont.cpp
+        sourceCode/gui/dialogs/other/qsim_openglwidget.cpp
+
+        sourceCode/gui/platform/vMessageBox.cpp
+        sourceCode/gui/platform/vMenubar.cpp
+        sourceCode/gui/platform/vFileDialog.cpp
+        sourceCode/gui/platform/vDialog.cpp
+
+        sourceCode/gui/mainContainers/sceneContainers/oglSurface.cpp
+
+        sourceCode/gui/mainContainers/applicationContainers/globalGuiTextureContainer.cpp
+        sourceCode/gui/mainContainers/applicationContainers/codeEditorContainer.cpp
+
+        sourceCode/gui/editModes/editModeContainer.cpp
+        sourceCode/gui/editModes/shapeEditMode.cpp
+        sourceCode/gui/editModes/multishapeEditMode.cpp
+        sourceCode/gui/editModes/pathEditMode.cpp
+        sourceCode/gui/editModes/edgeCont.cpp
+        sourceCode/gui/editModes/pathPointManipulation.cpp
+
+        sourceCode/gui/sceneHierarchy/hierarchy.cpp
+        sourceCode/gui/sceneHierarchy/hierarchyElement.cpp
+        sourceCode/gui/sceneHierarchy/sceneHierarchyWidget.cpp
+        sourceCode/gui/sceneHierarchy/sceneHierarchyItemDelegate.cpp
+
+        sourceCode/gui/modelBrowser/modelFolderWidget.cpp
+        sourceCode/gui/modelBrowser/modelListWidget.cpp
+        sourceCode/gui/modelBrowser/modelListWidgetBase.cpp
+
+        sourceCode/gui/selectors/pageSelector.cpp
+        sourceCode/gui/selectors/viewSelector.cpp
+
+        sourceCode/gui/menusAndSimilar/toolBarCommand.cpp
+        sourceCode/gui/menusAndSimilar/customMenuBarItemContainer.cpp
+        sourceCode/gui/menusAndSimilar/customMenuBarItem.cpp
+        sourceCode/gui/menusAndSimilar/mainWindow.cpp
+        sourceCode/gui/menusAndSimilar/statusBar.cpp
+        sourceCode/gui/menusAndSimilar/helpMenu.cpp
+
+        sourceCode/gui/various/simRecorder.cpp
+
+        sourceCode/gui/libs/auxLibVideo.cpp
     )
 endif()
 
@@ -562,151 +633,6 @@ if(WITH_OPENGL)
     )
 endif()
 
-if(WITH_GUI)
-    set(SOURCES ${SOURCES}
-        sourceCode/gui/dialogs/qdlgsettings.cpp
-        sourceCode/gui/dialogs/qdlglayers.cpp
-        sourceCode/gui/dialogs/qdlgavirecorder.cpp
-        sourceCode/gui/dialogs/qdlgselection.cpp
-        sourceCode/gui/dialogs/qdlgabout.cpp
-        sourceCode/gui/dialogs/qdlgsimulation.cpp
-        sourceCode/gui/dialogs/qdlgcommonproperties.cpp
-        sourceCode/gui/dialogs/qdlgdetectableproperties.cpp
-        sourceCode/gui/dialogs/qdlgmodelproperties.cpp
-        sourceCode/gui/dialogs/qdlgassembly.cpp
-        sourceCode/gui/dialogs/qdlgslider.cpp
-        sourceCode/gui/dialogs/qdlgslider2.cpp
-        sourceCode/gui/dialogs/qdlginertiatensor.cpp
-        sourceCode/gui/dialogs/qdlgmodelthumbnailvisu.cpp
-        sourceCode/gui/dialogs/qdlgmodelthumbnail.cpp
-        sourceCode/gui/dialogs/qdlgenvironment.cpp
-        sourceCode/gui/dialogs/qdlgcolor.cpp
-        sourceCode/gui/dialogs/qdlgmaterial.cpp
-        sourceCode/gui/dialogs/qdlglightmaterial.cpp
-        sourceCode/gui/dialogs/qdlgcolorpulsation.cpp
-        sourceCode/gui/dialogs/qdlgfog.cpp
-        sourceCode/gui/dialogs/qdlgcollections.cpp
-        sourceCode/gui/dialogs/qdlgcollisions.cpp
-        sourceCode/gui/dialogs/qdlgdistances.cpp
-        sourceCode/gui/dialogs/qdlgentityvsentityselection.cpp
-        sourceCode/gui/dialogs/qdlgscripts.cpp
-        sourceCode/gui/dialogs/qdlginsertscript.cpp
-        sourceCode/gui/dialogs/qdlgdynamics.cpp
-        sourceCode/gui/dialogs/qdlgscaling.cpp
-        sourceCode/gui/dialogs/qdlgcameras.cpp
-        sourceCode/gui/dialogs/qdlglights.cpp
-        sourceCode/gui/dialogs/qdlgmirrors.cpp
-        sourceCode/gui/dialogs/qdlgdummies.cpp
-        sourceCode/gui/dialogs/qdlgoctrees.cpp
-        sourceCode/gui/dialogs/qdlgpointclouds.cpp
-        sourceCode/gui/dialogs/qdlguserparameters.cpp
-        sourceCode/gui/dialogs/qdlgforcesensors.cpp
-        sourceCode/gui/dialogs/qdlgprimitives.cpp
-        sourceCode/gui/dialogs/qdlgconvexdecomposition.cpp
-        sourceCode/gui/dialogs/qdlgvisionsensors.cpp
-        sourceCode/gui/dialogs/qdlgimagecolor.cpp
-        sourceCode/gui/dialogs/qdlgshapes.cpp
-        sourceCode/gui/dialogs/qdlgmultishapeedition.cpp
-        sourceCode/gui/dialogs/qdlgtextures.cpp
-        sourceCode/gui/dialogs/qdlgtextureselection.cpp
-        sourceCode/gui/dialogs/qdlggeometry.cpp
-        sourceCode/gui/dialogs/qdlgshapedyn.cpp
-        sourceCode/gui/dialogs/qdlgdetectionvolume.cpp
-        sourceCode/gui/dialogs/qdlgproximitysensors.cpp
-        sourceCode/gui/dialogs/qdlgproxsensdetectionparam.cpp
-        sourceCode/gui/dialogs/qdlgobjectdialogcontainer.cpp
-        sourceCode/gui/dialogs/qdlgshapeeditioncontainer.cpp
-        sourceCode/gui/dialogs/qdlgcalcdialogcontainer.cpp
-        sourceCode/gui/dialogs/qdlgheightfielddimension.cpp
-        sourceCode/gui/dialogs/qdlgstopscripts.cpp
-        sourceCode/gui/dialogs/qdlgtextureloadoptions.cpp
-        sourceCode/gui/dialogs/qdlgprogress.cpp
-        sourceCode/gui/dialogs/qdlgjoints.cpp
-        sourceCode/gui/dialogs/qdlgdependencyequation.cpp
-        sourceCode/gui/dialogs/qdlgjointdyn.cpp
-        sourceCode/gui/dialogs/qdlggraphs.cpp
-        sourceCode/gui/dialogs/qdlgdatastreamselection.cpp
-        sourceCode/gui/dialogs/qdlg2d3dgraphproperties.cpp
-        sourceCode/gui/dialogs/qdlgaddgraphcurve.cpp
-        sourceCode/gui/dialogs/qdlgik.cpp
-        sourceCode/gui/dialogs/qdlgikelements.cpp
-        sourceCode/gui/dialogs/qdlgikconditional.cpp
-        sourceCode/gui/dialogs/qdlgpaths.cpp
-        sourceCode/gui/dialogs/qdlgpathshaping.cpp
-        sourceCode/gui/dialogs/qdlgmessageandcheckbox.cpp
-        sourceCode/gui/dialogs/qdlgopenglsettings.cpp
-        sourceCode/gui/dialogs/qdlgtriangleedit.cpp
-        sourceCode/gui/dialogs/qdlgvertexedit.cpp
-        sourceCode/gui/dialogs/qdlgedgeedit.cpp
-        sourceCode/gui/dialogs/qdlgpathedit.cpp
-        sourceCode/gui/dialogs/qdlgtranslation.cpp
-        sourceCode/gui/dialogs/qdlgrotation.cpp
-        sourceCode/gui/dialogs/qdlgtranslationrotationcont.cpp
-
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtbuttonpropertybrowser.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qteditorfactory.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtgroupboxpropertybrowser.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtpropertybrowser.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtpropertybrowserutils.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtpropertymanager.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qttreepropertybrowser.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtvariantproperty.cpp
-
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles/buttoneditfactory.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles/buttoneditmanager.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles/pushbuttonedit.cpp
-
-        sourceCode/gui/qtPropertyBrowserRelated/propBrowser_engineProp_material.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/propBrowser_engineProp_general.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/propBrowser_engineProp_joint.cpp
-
-        sourceCode/gui/dialogs/other/editboxdelegate.cpp
-        sourceCode/gui/dialogs/other/toolDlgWrapper.cpp
-        sourceCode/gui/dialogs/other/dlgEx.cpp
-        sourceCode/gui/dialogs/other/dlgCont.cpp
-        sourceCode/gui/dialogs/other/qsim_openglwidget.cpp
-
-        sourceCode/gui/platform/vMessageBox.cpp
-        sourceCode/gui/platform/vMenubar.cpp
-        sourceCode/gui/platform/vFileDialog.cpp
-        sourceCode/gui/platform/vDialog.cpp
-
-        sourceCode/gui/mainContainers/sceneContainers/oglSurface.cpp
-
-        sourceCode/gui/mainContainers/applicationContainers/globalGuiTextureContainer.cpp
-        sourceCode/gui/mainContainers/applicationContainers/codeEditorContainer.cpp
-
-        sourceCode/gui/editModes/editModeContainer.cpp
-        sourceCode/gui/editModes/shapeEditMode.cpp
-        sourceCode/gui/editModes/multishapeEditMode.cpp
-        sourceCode/gui/editModes/pathEditMode.cpp
-        sourceCode/gui/editModes/edgeCont.cpp
-        sourceCode/gui/editModes/pathPointManipulation.cpp
-
-        sourceCode/gui/sceneHierarchy/hierarchy.cpp
-        sourceCode/gui/sceneHierarchy/hierarchyElement.cpp
-        sourceCode/gui/sceneHierarchy/sceneHierarchyWidget.cpp
-        sourceCode/gui/sceneHierarchy/sceneHierarchyItemDelegate.cpp
-
-        sourceCode/gui/modelBrowser/modelFolderWidget.cpp
-        sourceCode/gui/modelBrowser/modelListWidget.cpp
-        sourceCode/gui/modelBrowser/modelListWidgetBase.cpp
-
-        sourceCode/gui/selectors/pageSelector.cpp
-        sourceCode/gui/selectors/viewSelector.cpp
-
-        sourceCode/gui/menusAndSimilar/toolBarCommand.cpp
-        sourceCode/gui/menusAndSimilar/customMenuBarItemContainer.cpp
-        sourceCode/gui/menusAndSimilar/customMenuBarItem.cpp
-        sourceCode/gui/menusAndSimilar/mainWindow.cpp
-        sourceCode/gui/menusAndSimilar/statusBar.cpp
-        sourceCode/gui/menusAndSimilar/helpMenu.cpp
-
-        sourceCode/gui/various/simRecorder.cpp
-
-        sourceCode/gui/libs/auxLibVideo.cpp
-    )
-endif()
 
 add_library(coppeliaSim SHARED ${SOURCES})
 target_link_libraries(coppeliaSim ${BOOST_LIBRARIES})
