@@ -4493,6 +4493,12 @@ simInt simSetStringParameter_internal(simInt parameter,const simChar* str)
             App::setDlgVerbosity(v);
         return(1);
     }
+
+    if (parameter==sim_stringparam_startupscriptstring)
+    { // called by client app when lib not yet initialized
+        App::setStartupScriptString(str);
+        return(1);
+    }
     TRACE_C_API;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA

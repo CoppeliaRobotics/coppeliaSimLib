@@ -89,6 +89,7 @@ public:
     static void clearStatusbar();
     static int getDlgVerbosity();
     static void setDlgVerbosity(int v);
+    static void setStartupScriptString(const char* str);
 
     static float* getRGBPointerFromItem(int objType,int objID1,int objID2,int colComponent,std::string* auxDlgTitle);
     static CColorObject* getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts);
@@ -136,6 +137,7 @@ private:
     static int _statusbarVerbosity;
     static int _dlgVerbosity;
     static std::string _consoleLogFilterStr;
+    static std::string _startupScriptString;
 
     static volatile int _quitLevel;
 

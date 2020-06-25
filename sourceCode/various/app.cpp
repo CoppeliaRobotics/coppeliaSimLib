@@ -44,6 +44,7 @@ int App::_consoleVerbosity=sim_verbosity_default;
 int App::_statusbarVerbosity=sim_verbosity_msgs;
 int App::_dlgVerbosity=sim_verbosity_infos;
 std::string App::_consoleLogFilterStr;
+std::string App::_startupScriptString;
 
 
 bool App::_simulatorIsRunning=false;
@@ -112,6 +113,11 @@ void App::simulationThreadInit()
     App::worldContainer->sandboxScript=new CLuaScriptObject(sim_scripttype_sandboxscript);
     App::worldContainer->sandboxScript->setScriptTextFromFile((App::folders->getSystemPath()+"/"+"sndbxscpt.txt").c_str());
     App::worldContainer->sandboxScript->runSandboxScript(sim_syscb_init,nullptr,nullptr);
+    if (_startupScriptString.size()>0)
+    {
+        App::worldContainer->sandboxScript->executeScriptString(_startupScriptString.c_str(),nullptr);
+        _startupScriptString.clear();
+    }
 }
 
 // Following simulation thread split into 'simulationThreadInit', 'simulationThreadDestroy' and 'simulationThreadLoop' is courtesy of Stephen James:
@@ -480,6 +486,11 @@ App::~App()
         _consoleMsgsFile=nullptr;
     }
     _consoleMsgsToFile=false;
+    _startupScriptString.clear();
+    _consoleLogFilterStr.clear();
+    _consoleVerbosity=sim_verbosity_default;
+    _statusbarVerbosity=sim_verbosity_msgs;
+    _dlgVerbosity=sim_verbosity_infos;
 }
 
 bool App::wasInitSuccessful()
@@ -1665,6 +1676,11 @@ int App::getDlgVerbosity()
 void App::setDlgVerbosity(int v)
 { // sim_verbosity_none, etc.
     _dlgVerbosity=v;
+}
+
+void App::setStartupScriptString(const char* str)
+{
+    _startupScriptString=str;
 }
 
 int App::getConsoleVerbosity(const char* pluginName/*=nullptr*/)
