@@ -6,6 +6,7 @@
 #include "pluginContainer.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include "vVarious.h"
 #include "vDateTime.h"
 #include "app.h"
@@ -48,15 +49,24 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
         if (it!=nullptr)
         {
+            bool omitFunc=false;
+            if (boost::algorithm::ends_with(warnStr,"@omitFunc"))
+            {
+                omitFunc=true;
+                warnStr.erase(warnStr.end()-9,warnStr.end());
+            }
             int lineNumber=-1;
             lineNumber=luaWrap_getCurrentCodeLine(L);
             std::string msg;
             msg+=std::to_string(lineNumber);
             msg+=": ";
             msg+=warnStr;
-            msg+=" (in function '";
-            msg+=functionName;
-            msg+="')";
+            if (!omitFunc)
+            {
+                msg+=" (in function '";
+                msg+=functionName;
+                msg+="')";
+            }
             if (App::userSettings->undecoratedStatusbarMessages)
                 it->prefixWithLuaLocationName(msg);
             App::logScriptMsg(it->getShortDescriptiveName().c_str(),sim_verbosity_scriptwarnings,msg.c_str());
@@ -74,6 +84,12 @@ void _raiseErrorIfNeeded(luaWrap_lua_State* L,const char* functionName,const cha
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
         if (it!=nullptr)
         {
+            bool omitFunc=false;
+            if (boost::algorithm::ends_with(errStr,"@omitFunc"))
+            {
+                omitFunc=true;
+                errStr.erase(errStr.end()-9,errStr.end());
+            }
             it->setLastError(errStr.c_str());
             if (it->getRaiseErrors_backCompatibility())
             {
@@ -83,9 +99,12 @@ void _raiseErrorIfNeeded(luaWrap_lua_State* L,const char* functionName,const cha
                 msg+=std::to_string(lineNumber);
                 msg+=": ";
                 msg+=errStr;
-                msg+=" (in function '";
-                msg+=functionName;
-                msg+="')";
+                if (!omitFunc)
+                {
+                    msg+=" (in function '";
+                    msg+=functionName;
+                    msg+="')";
+                }
                 it->prefixWithLuaLocationName(msg);
                 luaWrap_lua_pushstring(L,msg.c_str());
                 luaWrap_lua_error(L);
@@ -6978,11 +6997,21 @@ int _simAddLog(luaWrap_lua_State* L)
             else
             {
                 std::string msg(luaWrap_lua_tostring(L,2));
-                CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
-                std::string nm("???");
-                if (it!=nullptr)
-                    nm=it->getShortDescriptiveName();
-                App::logScriptMsg(nm.c_str(),v,msg.c_str());
+                if ( (v!=sim_verbosity_warnings)&&(v!=sim_verbosity_scriptwarnings)&&(v!=sim_verbosity_errors)&&(v!=sim_verbosity_scripterrors) )
+                {
+                    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
+                    std::string nm("???");
+                    if (it!=nullptr)
+                        nm=it->getShortDescriptiveName();
+                    App::logScriptMsg(nm.c_str(),v,msg.c_str());
+                }
+                else
+                {
+                    if ( (v==sim_verbosity_errors)||(v==sim_verbosity_scripterrors) )
+                        errorString=msg+"@omitFunc";
+                    if ( (v==sim_verbosity_warnings)||(v==sim_verbosity_scriptwarnings) )
+                        warningString=msg+"@omitFunc";
+                }
             }
         }
     }

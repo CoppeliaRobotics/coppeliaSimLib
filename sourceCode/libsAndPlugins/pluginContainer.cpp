@@ -2466,13 +2466,16 @@ CMatrix* CPluginContainer::ikPlugin_getJacobian(int ikGroupHandle)
     {
         int matrixSize[2];
         float* jc=currentIkPlugin->ikPlugin_getJacobian(ikGroupHandle,matrixSize);
-        retVal=new CMatrix(matrixSize[1],matrixSize[0]);
-        for (size_t r=0;r<matrixSize[1];r++)
+        if (jc!=nullptr)
         {
-            for (size_t c=0;c<matrixSize[0];c++)
-                (retVal[0])(r,c)=jc[r*matrixSize[0]+c];
+            retVal=new CMatrix(matrixSize[1],matrixSize[0]);
+            for (size_t r=0;r<matrixSize[1];r++)
+            {
+                for (size_t c=0;c<matrixSize[0];c++)
+                    (retVal[0])(r,c)=jc[r*matrixSize[0]+c];
+            }
+            delete[] jc;
         }
-        delete[] jc;
     }
     return(retVal);
 }

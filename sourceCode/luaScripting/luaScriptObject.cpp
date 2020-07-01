@@ -4722,6 +4722,7 @@ void CLuaScriptObject::serialize(CSer& ar)
             _adjustScriptText9(this);
             _adjustScriptText10(this,ar.getCoppeliaSimVersionThatWroteThisFile()<30401);
             _adjustScriptText11(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40001);
+            _adjustScriptText12(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40100);
             fromBufferToFile();
         }
     }
@@ -6061,3 +6062,23 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
         _insertScriptText(scriptObject,true,txt.c_str());
     }
 }
+
+void CLuaScriptObject::_adjustScriptText12(CLuaScriptObject* scriptObject,bool doIt)
+{   // ROS2 functions:
+    if (!doIt)
+        return;
+    _replaceScriptText(scriptObject,"simROS2.serviceClientTreatUInt8ArrayAsString","simROS2.clientTreatUInt8ArrayAsString");
+    _replaceScriptText(scriptObject,"simROS2.serviceServerTreatUInt8ArrayAsString","simROS2.serviceTreatUInt8ArrayAsString");
+    _replaceScriptText(scriptObject,"simROS2.subscriberTreatUInt8ArrayAsString","simROS2.subscriptionTreatUInt8ArrayAsString");
+    _replaceScriptText(scriptObject,"simROS2.imageTransportShutdownSubscriber","simROS2.imageTransportShutdownSubscription");
+    _replaceScriptText(scriptObject,"simROS2.imageTransportSubscribe","simROS2.imageTransportCreateSubscription");
+    _replaceScriptText(scriptObject,"simROS2.imageTransportAdvertise","simROS2.imageTransportCreatePublisher");
+    _replaceScriptText(scriptObject,"simROS2.shutdownServiceServer","simROS2.shutdownService");
+    _replaceScriptText(scriptObject,"simROS2.shutdownServiceClient","simROS2.shutdownClient");
+    _replaceScriptText(scriptObject,"simROS2.shutdownSubscriber","simROS2.shutdownSubscription");
+    _replaceScriptText(scriptObject,"simROS2.advertiseService","simROS2.createService");
+    _replaceScriptText(scriptObject,"simROS2.serviceClient","simROS2.createClient");
+    _replaceScriptText(scriptObject,"simROS2.subscribe","simROS2.createSubscription");
+    _replaceScriptText(scriptObject,"simROS2.advertise","simROS2.createPublisher");
+}
+

@@ -293,24 +293,7 @@ App::App(bool headless)
     folders=new CFolderSystem();
 
 #ifdef SIM_WITH_OPENGL
-    // Following strange construction is to have a work-around for a bug
-    // on Qt5.5 (at least on Windows) where the application would only
-    // show a black color for the openGl content when started from
-    // QtCreator, or do very slow rendering. When starting from Qt Creator,
-    // add following command-line:
-    // coppeliaSim.exe -gCALLED_FROM_QTCREATOR
-    bool fromQtCreator=false;
-    for (int i=0;i<9;i++)
-    {
-        std::string s(App::getApplicationArgument(i));
-        if (s.compare("CALLED_FROM_QTCREATOR")==0)
-        {
-            fromQtCreator=true;
-            break;
-        }
-    }
-    if (!fromQtCreator)
-        QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);
+    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);
 #endif
 
 #ifdef SIM_WITH_GUI
