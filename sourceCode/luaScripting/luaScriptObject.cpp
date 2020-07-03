@@ -4450,9 +4450,16 @@ void CLuaScriptObject::terminateScriptExecutionExternally(bool generateErrorMsg)
 
 void CLuaScriptObject::_announceErrorWasRaisedAndDisableScript(const char* errMsg,bool runtimeError,bool debugRoutine/*=false*/)
 { // errMsg is in the form: xxxx:lineNb: msg
-    std::string msg(errMsg);
-    if (msg.find("attempt to yield across metamethod/C-call boundary")==std::string::npos)
+    std::string errM(errMsg);
+    if (errM.find("attempt to yield across metamethod/C-call boundary")==std::string::npos)
     { // silent error when breaking out of a threaded child script at simulation end
+        int verb=sim_verbosity_scripterrors;
+        size_t fp=errM.find("@errorToConsole");
+        if (fp!=std::string::npos)
+        {
+            errM.erase(errM.begin()+fp,errM.begin()+fp+15);
+            verb=sim_verbosity_errors;
+        }
         if (runtimeError)
             _executionState=execState_runtimeError;
         else
@@ -4461,9 +4468,9 @@ void CLuaScriptObject::_announceErrorWasRaisedAndDisableScript(const char* errMs
             App::currentWorld->simulation->pauseOnErrorRequested();
         std::string name;
         std::string msg;
-        decomposeLuaMessage(errMsg,name,msg);
+        decomposeLuaMessage(errM.c_str(),name,msg);
         if (App::userSettings->undecoratedStatusbarMessages)
-            msg=errMsg; // we need to keep the origin in the message
+            msg=errM; // we need to keep the origin in the message
         if (debugRoutine)
         {
             size_t p=msg.find(": ");
@@ -4471,9 +4478,9 @@ void CLuaScriptObject::_announceErrorWasRaisedAndDisableScript(const char* errMs
                 msg.insert(p+2,"[in debug routine] ");
         }
 
-        App::logScriptMsg(name.c_str(),sim_verbosity_scripterrors,msg.c_str());
+        App::logScriptMsg(name.c_str(),verb,msg.c_str());
 
-        _lastStackTraceback=errMsg;
+        _lastStackTraceback=errM;
     }
 }
 

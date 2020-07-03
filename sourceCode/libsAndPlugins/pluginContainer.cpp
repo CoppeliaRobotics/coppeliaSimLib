@@ -15,6 +15,7 @@ CPlugin::CPlugin(const char* filename,const char* pluginName)
     _name=pluginName;
     instance=nullptr;
     geomPlugin_createMesh=nullptr;
+    ikPlugin_createEnvironment=nullptr;
     _codeEditor_openModal=nullptr;
     _customUi_msgBox=nullptr;
     _assimp_importShapes=nullptr;

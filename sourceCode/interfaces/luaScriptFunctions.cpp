@@ -49,11 +49,18 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
         if (it!=nullptr)
         {
+            int verb=sim_verbosity_scriptwarnings;
             bool omitFunc=false;
-            if (boost::algorithm::ends_with(warnStr,"@omitFunc"))
+            if (boost::algorithm::ends_with(warnStr,"@omitFuncW"))
             {
                 omitFunc=true;
-                warnStr.erase(warnStr.end()-9,warnStr.end());
+                verb=sim_verbosity_warnings;
+                warnStr.erase(warnStr.end()-10,warnStr.end());
+            }
+            if (boost::algorithm::ends_with(warnStr,"@omitFuncSw"))
+            {
+                omitFunc=true;
+                warnStr.erase(warnStr.end()-11,warnStr.end());
             }
             int lineNumber=-1;
             lineNumber=luaWrap_getCurrentCodeLine(L);
@@ -69,7 +76,7 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const
             }
             if (App::userSettings->undecoratedStatusbarMessages)
                 it->prefixWithLuaLocationName(msg);
-            App::logScriptMsg(it->getShortDescriptiveName().c_str(),sim_verbosity_scriptwarnings,msg.c_str());
+            App::logScriptMsg(it->getShortDescriptiveName().c_str(),verb,msg.c_str());
         }
     }
 }
@@ -85,10 +92,16 @@ void _raiseErrorIfNeeded(luaWrap_lua_State* L,const char* functionName,const cha
         if (it!=nullptr)
         {
             bool omitFunc=false;
-            if (boost::algorithm::ends_with(errStr,"@omitFunc"))
+            if (boost::algorithm::ends_with(errStr,"@omitFuncE"))
             {
                 omitFunc=true;
-                errStr.erase(errStr.end()-9,errStr.end());
+                errStr.erase(errStr.end()-10,errStr.end());
+                errStr+="@errorToConsole";
+            }
+            if (boost::algorithm::ends_with(errStr,"@omitFuncSe"))
+            {
+                omitFunc=true;
+                errStr.erase(errStr.end()-11,errStr.end());
             }
             it->setLastError(errStr.c_str());
             if (it->getRaiseErrors_backCompatibility())
@@ -7007,10 +7020,14 @@ int _simAddLog(luaWrap_lua_State* L)
                 }
                 else
                 {
-                    if ( (v==sim_verbosity_errors)||(v==sim_verbosity_scripterrors) )
-                        errorString=msg+"@omitFunc";
-                    if ( (v==sim_verbosity_warnings)||(v==sim_verbosity_scriptwarnings) )
-                        warningString=msg+"@omitFunc";
+                    if (v==sim_verbosity_errors)
+                        errorString=msg+"@omitFuncE";
+                    if (v==sim_verbosity_scripterrors)
+                        errorString=msg+"@omitFuncSe";
+                    if (v==sim_verbosity_warnings)
+                        warningString=msg+"@omitFuncW";
+                    if (v==sim_verbosity_scriptwarnings)
+                        warningString=msg+"@omitFuncSw";
                 }
             }
         }
