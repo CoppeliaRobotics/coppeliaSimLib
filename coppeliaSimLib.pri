@@ -10,7 +10,7 @@ SUPPORT_OLD_IK {
     DEFINES += SUPPORT_OLD_IK
 }
 
-HEADLESS {
+!HEADLESS {
     CONFIG += WITH_GUI
     CONFIG += WITH_OPENGL # comment only if above line is commented
     CONFIG += WITH_SERIAL
