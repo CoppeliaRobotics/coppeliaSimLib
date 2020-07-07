@@ -39,7 +39,7 @@ CUiThread::CUiThread()
     _frameId=0;
     _lastFrameId=0;
 
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     connect(this,SIGNAL(_executeCommandViaUiThread(SUIThreadCommand*,SUIThreadCommand*)),this,SLOT(__executeCommandViaUiThread(SUIThreadCommand*,SUIThreadCommand*)),Qt::BlockingQueuedConnection);
 #else
     _noSigSlot_cmdIn=nullptr;
@@ -56,7 +56,7 @@ CUiThread::~CUiThread()
 {
 }
 
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 void CUiThread::processGuiEventsUntilQuit_noSignalSlots()
 {
     _noSigSlotMutex.lock_simple("CUiThread::processGuiEventsUntilQuit_noSignalSlots");
@@ -78,7 +78,7 @@ bool CUiThread::executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadComma
 { // Called by any thread
     if (!VThread::isCurrentThreadTheUiThread())
     {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
         _noSigSlotMutex.lock_simple("CUiThread::executeCommandViaUiThread");
         _noSigSlot_cmdIn=cmdIn;
         _noSigSlot_cmdOut=cmdOut;

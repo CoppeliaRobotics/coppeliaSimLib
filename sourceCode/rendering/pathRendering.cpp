@@ -1,4 +1,3 @@
-
 #include "pathRendering.h"
 
 #ifdef SIM_WITH_OPENGL
@@ -18,7 +17,7 @@ void displayPath(CPath* path,CViewableBase* renderingObject,int displayAttrib)
 #ifdef SIM_WITH_GUI
     if ( path->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib)||( (App::mainWindow!=nullptr)&&(App::mainWindow->editModeContainer->getEditModePath()==path) ) )
 #else
-    if (path->getShouldObjectBeDisplayed(renderingObject->getID(),displayAttrib))
+    if (path->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
 #endif
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)

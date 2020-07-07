@@ -1291,18 +1291,19 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
     }
     else
     {
-#ifdef SIM_WITH_GUI
         if (!_extRenderer_prepareView(_renderMode-sim_rendermode_povray))
         {
+#ifdef SIM_WITH_GUI
             if (_renderMode==sim_rendermode_povray)
             {
                 static bool alreadyShown=false;
                 if (!alreadyShown)
                     App::uiThread->messageBox_information(App::mainWindow,"POV-Ray plugin","The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/simExtPovRay",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                App::logMsg(sim_verbosity_errors,"the POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/simExtPovRay");
                 alreadyShown=true;
             }
-        }
 #endif
+        }
         _extRenderer_prepareLights();
         _extRenderer_prepareMirrors();
     }

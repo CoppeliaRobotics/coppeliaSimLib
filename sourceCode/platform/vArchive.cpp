@@ -5,7 +5,7 @@ unsigned short VArchive::STORE=1;
 
 VArchive::VArchive(VFile* file,unsigned short flag)
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     _theFile=file;
     _loading=((flag&1)==0);
 #else
@@ -20,7 +20,7 @@ VArchive::VArchive(VFile* file,unsigned short flag)
 
 VArchive::~VArchive()
 {
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     delete _theArchive;
 #endif
 }

@@ -6,7 +6,7 @@
 #include "userSettings.h"
 #include "vMutex.h"
 #include "worldContainer.h"
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     #include "simQApp.h"
     #include "simAndUiThreadSync.h"
 #endif
@@ -141,7 +141,7 @@ private:
 
     static volatile int _quitLevel;
 
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
 public:
     static CSimQApp* qtApp;
 

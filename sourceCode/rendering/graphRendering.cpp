@@ -1,4 +1,3 @@
-
 #include "graphRendering.h"
 
 #ifdef SIM_WITH_OPENGL

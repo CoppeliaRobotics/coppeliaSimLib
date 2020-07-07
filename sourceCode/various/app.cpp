@@ -26,7 +26,9 @@
         #include <QStyleFactory>
     #endif
 #endif
-
+#ifdef SIM_WITH_QT
+    #include <QTextDocument>
+#endif
 void (*_workThreadLoopCallback)();
 
 CUiThread* App::uiThread=nullptr;
@@ -59,7 +61,7 @@ VArchive* App::_consoleMsgsArchive=nullptr;
 
 
 int App::sc=1;
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     CSimQApp* App::qtApp=nullptr;
     int App::_qApp_argc=1;
     char App::_qApp_arg0[]={"CoppeliaSim"};
@@ -94,7 +96,7 @@ void App::simulationThreadInit()
     srand(VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
                                         // Remember that each thread starts with a same seed!!!
     App::simThread=new CSimThread();
-    #ifndef SIM_WITHOUT_QT_AT_ALL
+    #ifdef SIM_WITH_QT
         CSimAndUiThreadSync::simThread_forbidUiThreadToWrite(true); // lock initially...
     #endif
 
@@ -136,7 +138,7 @@ void App::simulationThreadDestroy()
 
     App::setQuitLevel(1);
 
-    #ifdef SIM_WITHOUT_QT_AT_ALL
+    #ifndef SIM_WITH_QT
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=NO_SIGNAL_SLOT_EXIT_UITHREADCMD;
@@ -153,7 +155,7 @@ void App::simulationThreadDestroy()
 
     App::worldContainer->copyBuffer->clearBuffer(); // important, some objects in the buffer might still call the mesh plugin or similar
 
-    #ifndef SIM_WITHOUT_QT_AT_ALL
+    #ifdef SIM_WITH_QT
         CSimAndUiThreadSync::simThread_allowUiThreadToWrite(); // ...finally unlock
     #endif
 
@@ -306,7 +308,7 @@ App::App(bool headless)
     }
 #endif
 
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     qtApp=new CSimQApp(_qApp_argc,_qApp_argv);
 #endif
 
@@ -317,11 +319,11 @@ App::App(bool headless)
     QSurfaceFormat::setDefaultFormat(format);
 #endif
 
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     qRegisterMetaType<std::string>("std::string");
 #endif
 
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
 #ifdef SIM_WITH_GUI
     Q_INIT_RESOURCE(targaFiles);
     Q_INIT_RESOURCE(toolbarFiles);
@@ -432,7 +434,7 @@ App::~App()
     CAuxLibVideo::unloadLibrary();
 #endif
 
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     if (qtApp!=nullptr)
     {
         #ifdef SIM_WITH_GUI
@@ -454,7 +456,7 @@ App::~App()
         */
         qtApp=nullptr;
     }
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
     _applicationArguments.clear();
     _applicationNamedParams.clear();
     _additionalAddOnScript1.clear();
@@ -592,7 +594,7 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
 
     if (launchSimThread)
     {
-        #ifdef SIM_WITHOUT_QT_AT_ALL
+        #ifndef SIM_WITH_QT
             VThread::launchThread(_workThread,false);
         #else
             VThread::launchSimpleThread(_workThread);
@@ -661,7 +663,7 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
 
 void App::_processGuiEventsUntilQuit()
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     uiThread->processGuiEventsUntilQuit_noSignalSlots();
 #else
     qtApp->exec();
@@ -1508,7 +1510,7 @@ std::string App::_getHtmlEscapedString(const char* str)
     CTTUtil::replaceSubstring(s,"\n","*+-%NL%-+*");
     CTTUtil::replaceSubstring(s," ","*+-%S%-+*");
     CTTUtil::replaceSubstring(s,"\t","*+-%T%-+*");
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     QString qstr(s.c_str());
     qstr.toHtmlEscaped();
     s=qstr.toStdString();
@@ -1590,10 +1592,12 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         if ( (p!=std::string::npos)&&(p==message.size()-5) )
         { // strip HTML stuff off
             message.assign(message.c_str(),message.c_str()+message.size()-5);
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
             QTextDocument doc;
             doc.setHtml(message.c_str());
             message=doc.toPlainText().toStdString();
+#else
+// TODO_SIM_WITH_QT
 #endif
         }
 

@@ -1,4 +1,3 @@
-
 #include "environmentRendering.h"
 
 #ifdef SIM_WITH_OPENGL

@@ -123,7 +123,7 @@ enum {  OPEN_OR_CLOSE_UITHREADCMD=0,
         MENUBAR_COLOR_UITHREADCMD,
      };
 
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 class CUiThread
 {
 #else
@@ -140,7 +140,7 @@ public:
     void showOrHideProgressBar(bool show,float pos=999.0f,const char* txt=nullptr);
     bool showOrHideEmergencyStop(bool show,const char* txt);
 
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     void processGuiEventsUntilQuit_noSignalSlots();
 #endif
 
@@ -148,7 +148,7 @@ private:
     int _frameId;
     int _lastFrameId;
 
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
 signals:
     void _executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
 

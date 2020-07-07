@@ -1,4 +1,3 @@
-
 #include "pathPlanningTaskRendering_old.h"
 
 #ifdef SIM_WITH_OPENGL

@@ -32,7 +32,7 @@ enum {  NO_COMMAND_FROMUI_TOSIM_CMD=100000, // Always start at 100000!!!!
         // 999995-999999 for UNDO point announcements
 };
 
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 class CSimThread
 {
 #else

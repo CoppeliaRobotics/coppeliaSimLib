@@ -1,6 +1,5 @@
-
 #include "imgLoaderSaver.h"
-#ifdef SIM_WITH_GUI
+#ifdef SIM_WITH_QT
     #include "tGAFormat.h"
     #include "stb_image.h"
     #include "ttUtil.h"
@@ -13,7 +12,7 @@
 
 unsigned char* CImageLoaderSaver::load(const char* filename,int* resX,int* resY,int* colorComponents,int desiredColorComponents,int scaleTo)
 { // scaleTo is 0 by default (no scaling). ScaleTo should be a power of 2!
-#ifdef SIM_WITH_GUI
+#ifdef SIM_WITH_QT
     std::string ext(CTTUtil::getLowerCaseString(VVarious::splitPath_fileExtension(filename).c_str()));
     unsigned char* data=nullptr;
     if ((ext.compare("tga")==0)||(ext.compare("gif")==0))
@@ -99,7 +98,7 @@ unsigned char* CImageLoaderSaver::load(const char* filename,int* resX,int* resY,
 
 unsigned char* CImageLoaderSaver::loadQTgaImageData(const char* fileAndPath,int& resX,int& resY,bool& rgba,unsigned char invisibleColor[3],int bitsPerPixel[1])
 {
-#ifdef SIM_WITH_GUI
+#ifdef SIM_WITH_QT
     unsigned char* data=CTGAFormat::getQ_ImageData(fileAndPath,resX,resY,rgba,invisibleColor,bitsPerPixel);
     return(data);
 #else
@@ -109,7 +108,7 @@ unsigned char* CImageLoaderSaver::loadQTgaImageData(const char* fileAndPath,int&
 
 unsigned char* CImageLoaderSaver::getScaledImage(const unsigned char* originalImg,int colorComponents,int originalX,int originalY,int newX,int newY)
 {
-#ifdef SIM_WITH_GUI
+#ifdef SIM_WITH_QT
     QImage::Format f=QImage::Format_RGB888;
     unsigned char* im=new unsigned char[originalX*originalY*colorComponents];
     if (colorComponents==4)
@@ -195,7 +194,7 @@ bool CImageLoaderSaver::transformImage(unsigned char* img,int resX,int resY,int 
 
 unsigned char* CImageLoaderSaver::getScaledImage(const unsigned char* originalImg,const int resolIn[2],int resolOut[2],int options)
 {
-#ifdef SIM_WITH_GUI
+#ifdef SIM_WITH_QT
     int compIn=3;
     int compOut=3;
     if (options&1)
@@ -267,7 +266,7 @@ unsigned char* CImageLoaderSaver::getScaledImage(const unsigned char* originalIm
 bool CImageLoaderSaver::save(const unsigned char* data,const int resolution[2],int options,const char* filename,int quality,std::string* buffer)
 {
     bool retVal=false;
-#ifdef SIM_WITH_GUI
+#ifdef SIM_WITH_QT
     unsigned char *buff=nullptr;
     QImage::Format format=QImage::Format_ARGB32;
     buff=new unsigned char[4*resolution[0]*resolution[1]];
@@ -327,7 +326,7 @@ bool CImageLoaderSaver::save(const unsigned char* data,const int resolution[2],i
 unsigned char* CImageLoaderSaver::load(int resolution[2],int options,const char* filename,void* reserved)
 {
     unsigned char* retVal=nullptr;
-#ifdef SIM_WITH_GUI
+#ifdef SIM_WITH_QT
     QImage image;
     bool loadRes=false;
     if (reserved!=nullptr)

@@ -2,7 +2,7 @@
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
 #include <QString>
 #else
 #include <algorithm>
@@ -45,7 +45,7 @@ struct filestruct_C
 
 bool tt::stringToFloat(const char* txt,float& f,bool allowNegativeValue,bool infGivesMinusOne)
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     std::string str(txt);
     if (allowNegativeValue)
     {
@@ -183,7 +183,7 @@ bool tt::stringToFloat(const char* txt,float& f,bool allowNegativeValue,bool inf
 
 std::string tt::getEString(bool sign,float f,int precision)
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     std::stringstream s;
     s.precision(precision);
     s.setf(std::ios::scientific, std::ios::floatfield );
@@ -206,7 +206,7 @@ std::string tt::getEString(bool sign,float f,int precision)
 
 std::string tt::getFString(bool sign,float f,int precision)
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     std::stringstream s;
     s.precision(precision);
     s.setf(std::ios::fixed, std::ios::floatfield );
@@ -225,7 +225,7 @@ std::string tt::getFString(bool sign,float f,int precision)
 
 std::string tt::getDString(bool sign,double f,int precision)
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     std::stringstream s;
     s.precision(precision);
     s.setf(std::ios::fixed, std::ios::floatfield );
@@ -254,7 +254,7 @@ std::string tt::getAngleFString(bool sign,float angleInRad,int precision)
 
 std::string tt::getIString(bool sign,int v)
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     std::stringstream s;
     s << v;
     std::string str(s.str());
@@ -278,7 +278,7 @@ std::string tt::floatToEInfString(float f,bool canBeNegative)
         return("Infinity");
     if (f==-FLT_MAX) //FLT_MIN)
         return("-Infinity");
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     return(getEString(false,f,4));
 #else
     QString str;
@@ -289,7 +289,7 @@ std::string tt::floatToEInfString(float f,bool canBeNegative)
 
 bool tt::stringToInt(const char* txt,int& a)
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     return(getValidInt(txt,a));
 #else
     QString str(txt);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "vMutex.h"
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     #include <QTime>
     #include <QThread>
 #endif
@@ -16,7 +16,7 @@ class VThread
 public:
     static void launchThread(VTHREAD_START_ADDRESS startAddress,bool followMainThreadAffinity);
     static void endThread();
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     static void launchSimpleThread(SIMPLE_VTHREAD_START_ADDRESS startAddress);
 #endif
     static void endSimpleThread();

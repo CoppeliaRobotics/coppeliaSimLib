@@ -1,4 +1,3 @@
-
 #include "rendering.h"
 
 #ifdef SIM_WITH_OPENGL

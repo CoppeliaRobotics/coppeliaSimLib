@@ -1,4 +1,3 @@
-
 #include "proximitySensorRendering.h"
 
 #ifdef SIM_WITH_OPENGL

@@ -1,4 +1,3 @@
-
 #include "app.h"
 
 #ifdef SIM_WITH_OPENGL

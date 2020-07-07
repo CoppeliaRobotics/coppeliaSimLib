@@ -1,4 +1,3 @@
-
 #include "lightRendering.h"
 
 #ifdef SIM_WITH_OPENGL

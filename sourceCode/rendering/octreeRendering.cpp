@@ -1,4 +1,3 @@
-
 #include "octreeRendering.h"
 
 #ifdef SIM_WITH_OPENGL

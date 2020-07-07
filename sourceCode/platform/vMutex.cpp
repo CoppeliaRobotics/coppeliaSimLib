@@ -1,6 +1,6 @@
 #include "vMutex.h"
 
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 VMutex::VMutex()
 {
     _lockLevel=0;
@@ -14,15 +14,15 @@ VMutex::VMutex()
     pthread_cond_init (&_simpleWaitCondition,0);
 #endif // WIN_SIM
 }
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
 VMutex::VMutex() : _recursiveMutex(QMutex::Recursive), _simpleMutex(QMutex::NonRecursive)
 {
 }
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 
 VMutex::~VMutex()
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 #ifdef WIN_SIM // WIN_SIM
     DeleteCriticalSection(&_simpleMutex);
     DeleteCriticalSection(&_recursiveMutex);
@@ -31,7 +31,7 @@ VMutex::~VMutex()
     pthread_mutex_destroy(&_recursiveMutex);
     pthread_cond_destroy(&_simpleWaitCondition);
 #endif // WIN_SIM
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 }
 
 // Recursive here:
@@ -42,7 +42,7 @@ void VMutex::lock(const char* location)
 //        _location=location;
 //        printf("VMutex: %s\n",location);
     }
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 #ifdef WIN_SIM
     EnterCriticalSection(&_recursiveMutex);
 #else // WIN_SIM
@@ -61,14 +61,14 @@ void VMutex::lock(const char* location)
     _lockLevel=1;
     __su(_simpleMutex);
 #endif // WIN_SIM
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
     _recursiveMutex.lock();
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 }
 
 bool VMutex::tryLock()
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 #ifdef WIN_SIM
     return(TryEnterCriticalSection(&_recursiveMutex)!=0);
 #else // WIN_SIM
@@ -94,9 +94,9 @@ bool VMutex::tryLock()
     else
         return(false);
 #endif // WIN_SIM
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
     return(_recursiveMutex.tryLock(0));
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 }
 
 void VMutex::unlock()
@@ -106,7 +106,7 @@ void VMutex::unlock()
         printf("VMutex::unlock: %s\n",_location.c_str());
         _location.clear();
     }
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 #ifdef WIN_SIM
     LeaveCriticalSection(&_recursiveMutex);
 #else // WIN_SIM
@@ -120,9 +120,9 @@ void VMutex::unlock()
     else
         __su(_simpleMutex);
 #endif // WIN_SIM
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
     _recursiveMutex.unlock();
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 }
 
 
@@ -134,25 +134,25 @@ void VMutex::lock_simple(const char* location)
 //        _location=location;
 //        printf("VMutex: %s\n",location);
     }
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     __sl(_simpleMutex);
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
     _simpleMutex.lock();
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 }
 
 bool VMutex::tryLock_simple()
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 #ifdef WIN_SIM
     return(TryEnterCriticalSection(&_simpleMutex)!=0);
 //  return(WaitForSingleObject(_simpleMutex,0)==WAIT_OBJECT_0);
 #else // WIN_SIM
     return(pthread_mutex_lock(&_simpleMutex)!=-1);
 #endif // WIN_SIM
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
     return(_simpleMutex.tryLock(0));
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 }
 
 void VMutex::unlock_simple()
@@ -162,20 +162,20 @@ void VMutex::unlock_simple()
         printf("VMutex::unlock_simple: %s\n",_location.c_str());
         _location.clear();
     }
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     __su(_simpleMutex);
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
     _simpleMutex.unlock();
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 }
 
 void VMutex::wait_simple()
 { // make sure lock_simple was called before!
     if (_location.size()>0)
         printf("VMutex::wait_simple (start): %s\n",_location.c_str());
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 #ifdef WIN_SIM
-    // TODO_SIM_WITHOUT_QT_AT_ALL
+    // TODO_SIM_WITH_QT
     // This routine works, but should be rewritten with OS-specific mechanisms
     int id=_nextWaitConditionId++;
     int nid=_nextWaitConditionId; // nid just to avoid having to always lock and go through the vector
@@ -205,30 +205,30 @@ void VMutex::wait_simple()
 #else // WIN_SIM
     pthread_cond_wait(&_simpleWaitCondition,&_simpleMutex);
 #endif // WIN_SIM
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
     _simpleWaitCondition.wait(&_simpleMutex);
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
     if (_location.size()>0)
         printf("VMutex::wait_simple (end): %s\n",_location.c_str());
 }
 
 void VMutex::wakeAll_simple()
 { // make sure lock_simple was called before!
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 #ifdef WIN_SIM
-    // TODO_SIM_WITHOUT_QT_AT_ALL
+    // TODO_SIM_WITH_QT
     // This routine works, but should be rewritten with OS-specific mechanisms
     _nextWaitConditionId++;
     _simpleWaitCondition.clear();
 #else // WIN_SIM
     pthread_cond_broadcast(&_simpleWaitCondition);
 #endif // WIN_SIM
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
     _simpleWaitCondition.wakeAll();
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 }
 
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 bool VMutex::_areThreadIDsSame(VTHREAD_ID_TYPE threadA,VTHREAD_ID_TYPE threadB)
 {
 #ifdef WIN_SIM
@@ -278,4 +278,4 @@ void VMutex::__su(WMutex mutex)
     pthread_mutex_unlock(&mutex);
 #endif // WIN_SIM
 }
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif

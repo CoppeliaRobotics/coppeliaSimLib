@@ -1,4 +1,3 @@
-
 #include "thumbnailRendering.h"
 
 #ifdef SIM_WITH_OPENGL

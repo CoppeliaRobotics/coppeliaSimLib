@@ -1,4 +1,3 @@
-
 #include "bannerRendering.h"
 
 #ifdef SIM_WITH_OPENGL

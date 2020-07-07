@@ -1,6 +1,6 @@
 #include "vFileFinder.h"
 #include "vVarious.h"
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
 #include <QDateTime>
 #include <QDir>
 #else
@@ -40,7 +40,7 @@ int VFileFinder::searchFilesOrFolders(const char* pathWithoutTerminalSlash)
 int VFileFinder::_searchFilesOrFolders(const char* pathWithoutTerminalSlash,const char* extension,int mode)
 { // mode=0 --> file, mode=1 --> folder, mode=2 --> file and folder
     std::string theExtension(extension);
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     _searchResult.clear();
     DIR* dir;
     struct dirent* ent;
@@ -68,7 +68,6 @@ int VFileFinder::_searchFilesOrFolders(const char* pathWithoutTerminalSlash,cons
                     fileAndPath+='/';
                     fileAndPath+=ent->d_name;
 #ifdef WIN_SIM
-                    // TODO_SIM_WITHOUT_QT_AT_ALL
                     f.lastWriteTime=0;
 #else // WIN_SIM
                     struct stat attrib;

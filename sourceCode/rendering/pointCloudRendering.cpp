@@ -1,4 +1,3 @@
-
 #include "pointCloudRendering.h"
 
 #ifdef SIM_WITH_OPENGL

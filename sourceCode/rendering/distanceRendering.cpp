@@ -1,4 +1,3 @@
-
 #include "distanceRendering.h"
 #include "tt.h"
 #include "gV.h"

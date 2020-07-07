@@ -1,4 +1,3 @@
-
 #include "drawingObjectRendering.h"
 
 #ifdef SIM_WITH_OPENGL

@@ -32,13 +32,14 @@
     #include <QSplashScreen>
 #endif
 #ifdef WIN_SIM
+    #include <windows.h>
     #include <dbghelp.h>
 #else
     #include <execinfo.h>
     #include <signal.h>
 #endif
 
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     #ifdef WIN_SIM
         #include "_dirent.h"
     #else
@@ -47,7 +48,7 @@
 #else
     VMutex _lockForExtLockList;
     std::vector<CSimAndUiThreadSync*> _extLockList;
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 
 bool cNameSuffixAdjustmentTemporarilyDisabled_OLD=false;
 int cNameSuffixNumber_OLD=-1;
@@ -73,7 +74,7 @@ void simulatorInit()
     App::logMsg(sim_verbosity_loadinfos,"simulator launched.");
     std::vector<std::string> theNames;
     std::vector<std::string> theDirAndNames;
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     char curDirAndFile[2048];
     #ifdef WIN_SIM
         GetModuleFileNameA(NULL,curDirAndFile,2000);
@@ -140,7 +141,7 @@ void simulatorInit()
         }
         closedir(dir);
     }
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
 
     {
         QDir dir(applicationDir.c_str());
@@ -210,7 +211,7 @@ void simulatorInit()
         }
     }
 
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 
      // Load the system plugins first:
     for (size_t i=0;i<theNames.size();i++)
@@ -981,6 +982,9 @@ void _segHandler(int sig)
 #endif
 simInt simRunSimulator_internal(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)(),simInt stopDelay,const simChar* sceneOrModelToLoad,bool launchSimThread)
 {
+    char* def_ext = NULL;
+    def_ext = "Hello";
+
     firstSimulationStopDelay=stopDelay;
     initialSceneOrModelToLoad=sceneOrModelToLoad;
     if ( (options&sim_autostart)!=0 )
@@ -1034,7 +1038,7 @@ simInt simRunSimulator_internal(const simChar* applicationName,simInt options,si
         delete applicationBasicInitialization;
         return(0);
     }
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     if (launchSimThread)
     {
         QFileInfo pathInfo(QCoreApplication::applicationFilePath());
@@ -4092,7 +4096,7 @@ simInt simGetInt32Parameter_internal(simInt parameter,simInt* intState)
         if (parameter==sim_intparam_qt_version)
         {
             intState[0]=0;
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
             intState[0]=(QT_VERSION>>16)*10000+((QT_VERSION>>8)&255)*100+(QT_VERSION&255)*1;
 #endif
             return(1);
@@ -14141,7 +14145,7 @@ simInt simLockResources_internal(simInt lockType,simInt reserved)
         return(-1);
     }
 
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     CSimAndUiThreadSync* obj=new CSimAndUiThreadSync(__func__);
     bool res=false;
     int retVal=-1; // fail
@@ -14175,7 +14179,7 @@ simInt simUnlockResources_internal(simInt lockHandle)
         return(-1);
     }
 
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     int retVal=0;
     { // scope parenthesis are important here!
         EASYLOCK(_lockForExtLockList);
@@ -14193,7 +14197,7 @@ simInt simUnlockResources_internal(simInt lockHandle)
     return(retVal);
 #else
     return(1);
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 }
 
 simInt simEnableEventCallback_internal(simInt eventCallbackType,const simChar* plugin,simInt reserved)

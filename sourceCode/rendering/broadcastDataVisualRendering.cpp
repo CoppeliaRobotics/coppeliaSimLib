@@ -1,4 +1,3 @@
-
 #include "broadcastDataVisualRendering.h"
 
 #ifdef SIM_WITH_OPENGL

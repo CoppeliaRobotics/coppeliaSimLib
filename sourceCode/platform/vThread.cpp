@@ -4,7 +4,7 @@
     #include <Windows.h>
     #include <process.h>
 #endif
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     #include "wThread.h"
 #endif
 
@@ -82,12 +82,12 @@ void VThread::endThread()
 
 void VThread::endSimpleThread()
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     endThread();
 #endif
 }
 
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
 void VThread::launchSimpleThread(SIMPLE_VTHREAD_START_ADDRESS startAddress)
 {
     _lock.lock_simple("VThread::launchSimpleThread");
@@ -123,8 +123,8 @@ int VThread::getThreadId_apiQueried()
 int VThread::getCoreCount()
 {
     int retVal=0;
-#ifdef SIM_WITHOUT_QT_AT_ALL
-    retVal=1; // TODO_SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
+    retVal=1; // TODO_SIM_WITH_QT
 #else
     retVal=QThread::idealThreadCount();
 #endif

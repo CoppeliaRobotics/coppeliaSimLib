@@ -1,4 +1,3 @@
-
 #include "ghostRendering.h"
 
 #ifdef SIM_WITH_OPENGL

@@ -9,7 +9,7 @@
 #include "simStrings.h"
 #include "vVarious.h"
 #include "vFileFinder.h"
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
@@ -22,7 +22,7 @@ unsigned short VFile::SHARE_DENY_NONE   =8;
 VFile::VFile(const char* filename,unsigned short flags,bool dontThrow)
 {
     _pathAndFilename=filename;
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     if (flags&CREATE_WRITE)
     { // Create the path directories if needed
         std::string f(VVarious::splitPath_path(filename));
@@ -89,7 +89,7 @@ VFile::VFile(const char* filename,unsigned short flags,bool dontThrow)
 
 VFile::VFile(const char* filename)
 { // opens a Qt resource file
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     _theFile=new QFile(QString::fromLocal8Bit(filename));
     std::exception dummyException;
     if (!_theFile->exists())
@@ -101,7 +101,7 @@ VFile::VFile(const char* filename)
 
 VFile::~VFile()
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     if (_theFile!=nullptr)
     {
         _theFile->close();
@@ -127,7 +127,7 @@ void VFile::eraseFile(const char* filenameAndPath)
 {
     try
     {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
         std::remove(filenameAndPath);
 #else
         QFile::remove(filenameAndPath);
@@ -152,7 +152,7 @@ bool VFile::doesFolderExist(const char* foldernameAndPath)
 
 bool VFile::_doesFileOrFolderExist(const char* filenameOrFoldernameAndPath,bool checkForFolder)
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     struct stat info;
     if (stat(filenameOrFoldernameAndPath,&info)!=0)
         return(false); // actually means this cannot be accessed
@@ -181,7 +181,7 @@ bool VFile::_doesFileOrFolderExist(const char* filenameOrFoldernameAndPath,bool 
 
 bool VFile::createFolder(const char* pathAndName)
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 #ifdef WIN_SIM
     return(CreateDirectoryA(pathAndName,nullptr)!=0);
 #else // WIN_SIM
@@ -190,15 +190,15 @@ bool VFile::createFolder(const char* pathAndName)
     system(tmp.c_str());
     return(true);
 #endif // WIN_SIM
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
     QDir qdir("");
     return(qdir.mkdir(QString::fromLocal8Bit(pathAndName)));
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 }
 
 quint64 VFile::getLength()
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     return(_fileLength);
 #else
     return(_theFile->size());
@@ -223,7 +223,7 @@ std::string VFile::getPathAndFilename()
 
 bool VFile::flush()
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     _theFile->flush();
     return(true);
 #else

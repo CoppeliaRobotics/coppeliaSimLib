@@ -1,5 +1,5 @@
 #include "vDateTime.h"
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
 #include <QDateTime>
 #include <QElapsedTimer>
 #endif
@@ -53,7 +53,7 @@ int VDateTime::getTimeDiffInMs(int oldTime,int newTime)
 
 quint64 VDateTime::getSecondsSince1970()
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     return(std::time(0));
 #else
     QDateTime now=QDateTime::currentDateTime();
@@ -63,7 +63,7 @@ quint64 VDateTime::getSecondsSince1970()
 
 void VDateTime::getYearMonthDayHourMinuteSecond(int* year,int* month,int* day,int* hour,int* minute,int* second)
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     time_t now=std::time(0);
     tm *ltm=std::localtime(&now);
     if (year!=nullptr)
@@ -98,7 +98,7 @@ void VDateTime::getYearMonthDayHourMinuteSecond(int* year,int* month,int* day,in
 
 int VDateTime::getDaysTo(int year_before,int month_before,int day_before,int year_after,int month_after,int day_after)
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     tm tmp;
     tmp.tm_year=year_before-1900;
     tmp.tm_mon=month_before-1;
@@ -120,7 +120,7 @@ int VDateTime::getDaysTo(int year_before,int month_before,int day_before,int yea
 
 int VDateTime::_getTimeWithStartInMs_viaQt(bool& success)
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     success=false;
     return(0);
 #else

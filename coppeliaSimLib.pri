@@ -3,41 +3,44 @@ TEMPLATE = lib
 DEFINES += SIM_LIB
 
 CONFIG += shared debug_and_release
+CONFIG += WITH_QT # can be compiled without Qt, but then it should be headless, and some functionality won't be there, check TODO_SIM_WITH_QT
 CONFIG += SUPPORT_OLD_IK
+
 SUPPORT_OLD_IK {
     DEFINES += SUPPORT_OLD_IK
 }
 
-!HEADLESS_TEST {
+HEADLESS {
     CONFIG += WITH_GUI
     CONFIG += WITH_OPENGL # comment only if above line is commented
-    CONFIG += WITH_QT # comment only if above 2 lines are commented. Without Qt uses some sub-optimal routines for now, check TODO_SIM_WITHOUT_QT_AT_ALL
     CONFIG += WITH_SERIAL
 }
+
 CONFIG(debug,debug|release) {
     CONFIG += force_debug_info
 }
 
 QT += printsupport
 
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0
+
 WITH_GUI {
     QT      += widgets
     DEFINES += SIM_WITH_GUI
-    DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0
     RESOURCES += $$PWD/targaFiles.qrc
     RESOURCES += $$PWD/toolbarFiles.qrc
     RESOURCES += $$PWD/variousImageFiles.qrc
     RESOURCES += $$PWD/iconFiles.qrc
     RESOURCES += $$PWD/imageFiles.qrc
     RESOURCES += $$PWD/qdarkstyle/style.qrc
+} else {
+    QT -= gui
 }
 
 WITH_OPENGL {
     QT      += opengl
     #QT      += 3dcore 3drender 3dinput 3dextras
     DEFINES += SIM_WITH_OPENGL
-} else {
-    QT -= gui
 }
 
 WITH_SERIAL {
@@ -45,8 +48,9 @@ WITH_SERIAL {
     DEFINES += SIM_WITH_SERIAL
 }
 
-!WITH_QT {
-    DEFINES += SIM_WITHOUT_QT_AT_ALL
+WITH_QT {
+    DEFINES += SIM_WITH_QT
+} else {
     QT -= core
 }
 

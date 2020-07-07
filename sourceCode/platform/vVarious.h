@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     #include <QLibrary>
     typedef QLibrary* WLibrary;
     typedef void* WLibraryFunc;

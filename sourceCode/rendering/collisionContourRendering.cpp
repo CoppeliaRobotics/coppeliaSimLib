@@ -1,4 +1,3 @@
-
 #include "collisionContourRendering.h"
 
 #ifdef SIM_WITH_OPENGL

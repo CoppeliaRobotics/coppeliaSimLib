@@ -17,15 +17,15 @@
     #include <QClipboard>
     #include <QDesktopServices>
 #endif
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     #include <QUrl>
     #include <QProcess>
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
     #ifndef WIN_SIM
         #include <dlfcn.h>
         #include <stdlib.h>
     #endif
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 
 bool VVarious::executeExternalApplication(const char* file,const char* arguments,const char* switchToDirectory,int showFlag)
 {
@@ -46,7 +46,7 @@ bool VVarious::executeExternalApplication(const char* file,const char* arguments
     }
     return (reinterpret_cast<long long>(ShellExecuteA(nullptr,"open",cmd.c_str(),arguments,nullptr,sh))>32);
 #else // WIN_SIM
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     std::string cmd(file);
     if (strlen(file)>0)
     {
@@ -156,8 +156,8 @@ void VVarious::removePathFinalSlashOrBackslash(std::string& pathWithOrWithoutFin
 std::string VVarious::splitPath_path(const char* fullPathAndName)
 {   // returns the absolute path, without a final / or backslash
     std::string retVal;
-#ifdef SIM_WITHOUT_QT_AT_ALL
-    // TODO_SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
+    // TODO_SIM_WITH_QT
     // This routine should be rewritten with OS-specific mechanisms
     retVal=fullPathAndName;
     while ( (retVal.size()>0)&&(retVal[retVal.size()-1]!='/')&&(retVal[retVal.size()-1]!='\\') )
@@ -190,8 +190,8 @@ std::string VVarious::splitPath_path(const char* fullPathAndName)
 std::string VVarious::splitPath_fileBaseAndExtension(const char* fullPathAndName)
 { // returns the filename including extension
     std::string retVal;
-#ifdef SIM_WITHOUT_QT_AT_ALL
-    // TODO_SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
+    // TODO_SIM_WITH_QT
     // This routine should be rewritten with OS-specific mechanisms
     std::string tmp(fullPathAndName);
     while ( (tmp.size()>0)&&(tmp[tmp.size()-1]!='/')&&(tmp[tmp.size()-1]!='\\')&&(tmp[tmp.size()-1]!=':') )
@@ -210,8 +210,8 @@ std::string VVarious::splitPath_fileBaseAndExtension(const char* fullPathAndName
 std::string VVarious::splitPath_fileBase(const char* fullPathAndName)
 {   // returns the base of a filename, without path or extension. for xxx/yyy/zzz.a.b.c will return zzz.a.b
     std::string retVal;
-#ifdef SIM_WITHOUT_QT_AT_ALL
-    // TODO_SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
+    // TODO_SIM_WITH_QT
     // This routine should be rewritten with OS-specific mechanisms
     retVal=splitPath_fileBaseAndExtension(fullPathAndName);
     std::string tmp(retVal);
@@ -235,8 +235,8 @@ std::string VVarious::splitPath_fileBase(const char* fullPathAndName)
 std::string VVarious::splitPath_fileExtension(const char* fullPathAndName)
 {   // returns the filename extension (without '.')
     std::string retVal;
-#ifdef SIM_WITHOUT_QT_AT_ALL
-    // TODO_SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
+    // TODO_SIM_WITH_QT
     // This routine should be rewritten with OS-specific mechanisms
     std::string tmp(fullPathAndName);
     bool hadDot=false;
@@ -261,8 +261,8 @@ std::string VVarious::splitPath_fileExtension(const char* fullPathAndName)
 
 bool VVarious::isAbsolutePath(const char* pathAndOptionalFilename)
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
-    // TODO_SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
+    // TODO_SIM_WITH_QT
     // This routine should be rewritten with OS-specific mechanisms
 #ifdef WIN_SIM
     if (strlen(pathAndOptionalFilename)==0)
@@ -279,21 +279,21 @@ bool VVarious::isAbsolutePath(const char* pathAndOptionalFilename)
         return(false);
     return(pathAndOptionalFilename[0]=='/');
 #endif // WIN_SIM
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
     QFileInfo pathInfo(QString::fromLocal8Bit(pathAndOptionalFilename));
     return(pathInfo.isAbsolute());
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 }
 
 WLibrary VVarious::openLibrary(const char* filename)
 { // here we have the extension in the filename (.dll, .so or .dylib)
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 #ifdef WIN_SIM
     return LoadLibraryA(filename);
 #else
     return dlopen(filename,RTLD_LAZY);
 #endif
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
     WLibrary lib=new QLibrary(filename);
     if (!lib->load())
     {
@@ -301,30 +301,30 @@ WLibrary VVarious::openLibrary(const char* filename)
         lib=nullptr;
     }
     return(lib);
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 }
 
 void VVarious::closeLibrary(WLibrary lib)
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 #ifdef WIN_SIM
     if (lib!=0)
         FreeLibrary(lib);
 #else
         dlclose(lib);
 #endif
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
     if (lib!=nullptr)
     {
         lib->unload();
         delete lib;
     }
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 }
 
 WLibraryFunc VVarious::resolveLibraryFuncName(WLibrary lib,const char* funcName)
 {
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
 #ifdef WIN_SIM
     if (lib!=nullptr)
         return GetProcAddress(lib,funcName);
@@ -332,10 +332,10 @@ WLibraryFunc VVarious::resolveLibraryFuncName(WLibrary lib,const char* funcName)
     if (lib!=nullptr)
         return dlsym(lib,funcName);
 #endif
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
     if (lib!=nullptr)
         return((void*)lib->resolve(funcName));
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
     return(nullptr);
 }
 

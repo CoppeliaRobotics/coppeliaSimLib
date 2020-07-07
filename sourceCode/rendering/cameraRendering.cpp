@@ -1,4 +1,3 @@
-
 #include "cameraRendering.h"
 
 #ifdef SIM_WITH_OPENGL

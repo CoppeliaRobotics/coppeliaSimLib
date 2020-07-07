@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     #define IF_UI_EVENT_CAN_WRITE_DATA if(true)
     #define IF_UI_EVENT_CAN_WRITE_DATA_CMD(funcName) if(true)
     #define IF_UI_EVENT_CAN_READ_DATA if(true)
@@ -47,7 +47,7 @@
     // on the other hand doesn't need to obtain read access to the shared resources (by default)!)
 
     #define IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA  for(CSimAndUiThreadSync readData(__func__);readData.simOrUiThread_tryToLockForRead_cApi();)
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 
 // Trace commands:
 #define TRACE_C_API CFuncTrace funcTrace(__func__,sim_verbosity_traceall)
@@ -119,7 +119,7 @@
 #define VTHREAD_ARGUMENT_TYPE void*
 #define VTHREAD_ID_DEAD 0
 
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     typedef VTHREAD_START_ADDRESS SIMPLE_VTHREAD_START_ADDRESS;
     #define SIMPLE_VTHREAD_RETURN_TYPE VTHREAD_RETURN_TYPE
     #define SIMPLE_VTHREAD_RETURN_VAL VTHREAD_RETURN_VAL

@@ -2,12 +2,12 @@
 
 #include <string>
 
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
     #include <QMutex>
     #include <QWaitCondition>
     typedef QMutex WMutex;
     typedef QWaitCondition WWaitCondition;
-#else // SIM_WITHOUT_QT_AT_ALL
+#else
     #include <vector>
     #ifdef WIN_SIM
         #include <Windows.h>
@@ -18,7 +18,7 @@
         typedef pthread_mutex_t WMutex;
         typedef pthread_cond_t WWaitCondition;
     #endif // WIN_SIM
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 
 class VMutex
 {
@@ -41,7 +41,7 @@ public:
     void wakeAll_simple();
 
 private:
-#ifdef SIM_WITHOUT_QT_AT_ALL
+#ifndef SIM_WITH_QT
     bool _areThreadIDsSame(VTHREAD_ID_TYPE threadA,VTHREAD_ID_TYPE threadB);
     VTHREAD_ID_TYPE _getCurrentThreadId();
     void _switchThread();
@@ -53,7 +53,7 @@ private:
 #ifdef WIN_SIM
     int _nextWaitConditionId;
 #endif // WIN_SIM
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
 
     WMutex _recursiveMutex;
     WMutex _simpleMutex;

@@ -41,7 +41,7 @@ void CSimThread::setRenderingAllowed(bool a)
 void CSimThread::executeMessages()
 {
     TRACE_INTERNAL;
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_QT
 #ifdef SIM_WITH_GUI
     int triggerType=_prepareSceneForRenderIfNeeded();
 #endif
@@ -77,7 +77,7 @@ void CSimThread::executeMessages()
     CSimAndUiThreadSync::outputNakedDebugMessage("$$W *******************************************************\n");
     CSimAndUiThreadSync::outputNakedDebugMessage("$$W *******************************************************\n");
     CSimAndUiThreadSync::outputNakedDebugMessage("$$W\n");
-#endif // SIM_WITHOUT_QT_AT_ALL
+#endif
     // Handle delayed commands:
     _handleSimulationThreadCommands();
 }
