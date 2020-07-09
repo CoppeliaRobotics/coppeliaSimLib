@@ -18,7 +18,7 @@ public:
         threadShouldRunFreely=false;
         threadSwitchShouldTriggerNoOtherThread=false;
         threadResumeLocationAndOrder=1; // see below (but 1 is default)
-        threadShouldNotSwitch=false; // can be used to avoid switching between two consecutive commands that need sequential execution
+        threadShouldNotSwitch=0; // can be used to avoid switching between two consecutive commands that need sequential execution
         allowToExecuteAgainInThisSimulationStep=false; // when scripts are forward-relocated for resume, we want to execute them a second time in the same simulation step
     }
     virtual ~CVThreadData()
@@ -35,7 +35,7 @@ public:
     volatile bool threadSwitchShouldTriggerNoOtherThread;
     volatile int freeModeSavedThreadStartTime;
     volatile unsigned char threadResumeLocationAndOrder;
-    volatile bool threadShouldNotSwitch;
+    volatile int threadShouldNotSwitch;
     volatile bool allowToExecuteAgainInThisSimulationStep;
 };
 
