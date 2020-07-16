@@ -16,11 +16,6 @@ public:
     int getParentCount();
 
 private:
-    void _pushFloatToData(float d,std::vector<char>& data);
-    float _popFloatFromData(std::vector<char>& data);
-    void _pushIntToData(int d,std::vector<char>& data);
-    int _popIntFromData(std::vector<char>& data);
-
     // General 3D objects:
     C7Vector configuration;
     int uniqueID;

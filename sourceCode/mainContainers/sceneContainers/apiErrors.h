@@ -153,6 +153,7 @@
 #define SIM_ERROR_CANNOT_BE_COMPOUND_SHAPE "Shape cannot be a compound shape."
 #define SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND "Assimp plugin was not found."
 #define SIM_ERROR_INVALID_MODULE_INFO_TYPE "Invalid module info type."
+#define SIM_ERROR_COULD_NOT_SET_PARAMETER "Could not set parameter."
 
 
 struct SThreadAndMsg

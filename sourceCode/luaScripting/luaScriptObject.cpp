@@ -1993,7 +1993,6 @@ CLuaScriptObject::~CLuaScriptObject()
 {
     TRACE_INTERNAL;
     killLuaState(); // should already have been done outside of the destructor!
-    clearAllUserData();
     delete _scriptParameters_backCompatibility;
     delete _outsideCommandQueue;
     delete _customObjectData;
@@ -2767,12 +2766,9 @@ void CLuaScriptObject::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
     if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript) )
     {
-//        if (_scriptParameters_backCompatibility!=nullptr)
-//            _scriptParameters_backCompatibility->simulationEnded();
         if (_outsideCommandQueue!=nullptr)
             _outsideCommandQueue->simulationEnded();
         _scriptTextExec.clear();
-        clearAllUserData();
         if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
         {
 
@@ -4266,57 +4262,9 @@ bool CLuaScriptObject::killLuaState()
     return(retVal);
 }
 
-int CLuaScriptObject::setUserData(char* data)
-{
-    _userData.push_back(data);
-    int id=0;
-    for (int i=0;i<int(_userDataIds.size());i++)
-    {
-        if (_userDataIds[i]==id)
-        {
-            id++;
-            i=-1; // we need to restart the search from the beginning!
-        }
-    }
-    _userDataIds.push_back(id);
-    return(id);
-}
-
-char* CLuaScriptObject::getUserData(int id) const
-{
-    for (size_t i=0;i<_userDataIds.size();i++)
-    {
-        if (_userDataIds[i]==id)
-            return(_userData[i]);
-    }
-    return(nullptr);
-}
-
 std::string CLuaScriptObject::getLuaSearchPath() const
 {
     return(getAdditionalLuaSearchPath());
-}
-
-void CLuaScriptObject::releaseUserData(int id)
-{
-    for (int i=0;i<int(_userDataIds.size());i++)
-    {
-        if (_userDataIds[i]==id)
-        {
-            delete[] _userData[i];
-            _userData.erase(_userData.begin()+i);
-            _userDataIds.erase(_userDataIds.begin()+i);
-            break;
-        }
-    }
-}
-
-void CLuaScriptObject::clearAllUserData()
-{
-    for (int i=0;i<int(_userData.size());i++)
-        delete[] _userData[i];
-    _userData.clear();
-    _userDataIds.clear();
 }
 
 CLuaScriptObject* CLuaScriptObject::copyYourself()

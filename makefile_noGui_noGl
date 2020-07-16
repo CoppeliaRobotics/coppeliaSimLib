@@ -171,7 +171,6 @@ all:
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp -o outsideCommandQueue.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp -o sceneObjectContainer.o
 	gcc $(CFLAGS) -c sourceCode/shared/mainContainers/sceneContainers/_sceneObjectContainer_.cpp -o _sceneObjectContainer_.o
-	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/memorizedConfContainer.cpp -o memorizedConfContainer.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/mainSettings.cpp -o mainSettings.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/luaScriptContainer.cpp -o luaScriptContainer.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/environment.cpp -o environment.o

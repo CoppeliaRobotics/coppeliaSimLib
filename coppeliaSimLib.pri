@@ -442,7 +442,6 @@ HEADERS += $$PWD/sourceCode/mainContainers/sceneContainers/drawingContainer.h \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_collisionObjectContainer_.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/sceneObjectContainer.h \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_sceneObjectContainer_.h \
-    $$PWD/sourceCode/mainContainers/sceneContainers/memorizedConfContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/mainSettings.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/luaScriptContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/environment.h \
@@ -879,7 +878,6 @@ SOURCES += $$PWD/sourceCode/mainContainers/sceneContainers/bannerContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_sceneObjectContainer_.cpp \
-    $$PWD/sourceCode/mainContainers/sceneContainers/memorizedConfContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/mainSettings.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/luaScriptContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/environment.cpp \

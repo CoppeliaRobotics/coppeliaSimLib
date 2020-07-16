@@ -305,5 +305,39 @@ void CTTUtil::regexReplace(std::string& str,const char* regexStr,const char* reg
     str=std::regex_replace(str,std::regex(regexStr),regexReplacementSubStr);
 }
 
+void CTTUtil::pushFloatToBuffer(float d,std::vector<char>& data)
+{
+    for (size_t i=0;i<sizeof(float);i++)
+        data.push_back(((char*)&d)[i]);
+}
+
+float CTTUtil::popFloatFromBuffer(std::vector<char>& data)
+{
+    float d;
+    for (size_t i=0;i<sizeof(float);i++)
+    {
+        ((char*)&d)[sizeof(float)-1-i]=data[data.size()-1];
+        data.pop_back();
+    }
+    return(d);
+}
+
+void CTTUtil::pushIntToBuffer(int d,std::vector<char>& data)
+{
+    for (size_t i=0;i<sizeof(int);i++)
+        data.push_back(((char*)&d)[i]);
+}
+
+int CTTUtil::popIntFromBuffer(std::vector<char>& data)
+{
+    int d;
+    for (size_t i=0;i<sizeof(int);i++)
+    {
+        ((char*)&d)[sizeof(int)-1-i]=data[data.size()-1];
+        data.pop_back();
+    }
+    return(d);
+}
+
 
 

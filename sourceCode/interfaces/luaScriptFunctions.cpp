@@ -156,33 +156,33 @@ const SLuaCommands simLuaCommands[]=
     {"sim.readDistance",_simReadDistance,                        "number result,number smallestDistance=sim.readDistance(number distanceObjectHandle)",true},
     {"sim.handleProximitySensor",_simHandleProximitySensor,      "number result,number distance,table_3 detectedPoint,number detectedObjectHandle,table_3 normalVector=\nsim.handleProximitySensor(number sensorHandle)",true},
     {"sim.readProximitySensor",_simReadProximitySensor,          "number result,number distance,table_3 detectedPoint,number detectedObjectHandle,table_3 normalVector=\nsim.readProximitySensor(number sensorHandle)",true},
-    {"sim.resetCollision",_simResetCollision,                    "number result=sim.resetCollision(number collisionObjectHandle)",true},
-    {"sim.resetDistance",_simResetDistance,                      "number result=sim.resetDistance(number distanceObjectHandle)",true},
-    {"sim.resetProximitySensor",_simResetProximitySensor,        "number result=sim.resetProximitySensor(number objectHandle)",true},
+    {"sim.resetCollision",_simResetCollision,                    "sim.resetCollision(number collisionObjectHandle)",true},
+    {"sim.resetDistance",_simResetDistance,                      "sim.resetDistance(number distanceObjectHandle)",true},
+    {"sim.resetProximitySensor",_simResetProximitySensor,        "sim.resetProximitySensor(number objectHandle)",true},
     {"sim.checkProximitySensor",_simCheckProximitySensor,        "number result,number distance,table_3 detectedPoint=sim.checkProximitySensor(number sensorHandle,number entityHandle)",true},
     {"sim.checkProximitySensorEx",_simCheckProximitySensorEx,    "number result,number distance,table_3 detectedPoint,number detectedObjectHandle,table_3 normalVector=\nsim.checkProximitySensorEx(number sensorHandle,number entityHandle,number mode,number threshold,number maxAngle)",true},
     {"sim.checkProximitySensorEx2",_simCheckProximitySensorEx2,  "number result,number distance,table_3 detectedPoint,table_3 normalVector=\nsim.checkProximitySensorEx2(number sensorHandle,table vertices,number itemType,number itemCount,number mode,number threshold,number maxAngle)",true},
     {"sim.getObjectHandle",_simGetObjectHandle,                  "number objectHandle=sim.getObjectHandle(string objectName)",true},
     {"sim.addScript",_simAddScript,                              "number scriptHandle=sim.addScript(number scriptType)",true},
-    {"sim.associateScriptWithObject",_simAssociateScriptWithObject,"number result=sim.associateScriptWithObject(number scriptHandle,number objectHandle)",true},
-    {"sim.setScriptText",_simSetScriptText,                      "number result=sim.setScriptText(number scriptHandle,string scriptText)",true},
+    {"sim.associateScriptWithObject",_simAssociateScriptWithObject,"sim.associateScriptWithObject(number scriptHandle,number objectHandle)",true},
+    {"sim.setScriptText",_simSetScriptText,                      "sim.setScriptText(number scriptHandle,string scriptText)",true},
     {"sim.getScriptHandle",_simGetScriptHandle,                  "number scriptHandle=sim.getScriptHandle(string scriptName=nil)",true},
     {"sim.getCollectionHandle",_simGetCollectionHandle,          "number collectionHandle=sim.getCollectionHandle(string collectionName)",true},
-    {"sim.removeCollection",_simRemoveCollection,                "number result=sim.removeCollection(number collectionHandle)",true},
-    {"sim.emptyCollection",_simEmptyCollection,                  "number result=sim.emptyCollection(number collectionHandle)",true},
+    {"sim.removeCollection",_simRemoveCollection,                "sim.removeCollection(number collectionHandle)",true},
+    {"sim.emptyCollection",_simEmptyCollection,                  "sim.emptyCollection(number collectionHandle)",true},
     {"sim.getObjectPosition",_simGetObjectPosition,              "table_3 position=sim.getObjectPosition(number objectHandle,number relativeToObjectHandle)",true},
     {"sim.getObjectOrientation",_simGetObjectOrientation,        "table_3 eulerAngles=sim.getObjectOrientation(number objectHandle,number relativeToObjectHandle)",true},
-    {"sim.setObjectPosition",_simSetObjectPosition,              "number result=sim.setObjectPosition(number objectHandle,number relativeToObjectHandle,table_3 position)",true},
-    {"sim.setObjectOrientation",_simSetObjectOrientation,        "number result=sim.setObjectOrientation(number objectHandle,number relativeToObjectHandle,table_3 eulerAngles)",true},
+    {"sim.setObjectPosition",_simSetObjectPosition,              "sim.setObjectPosition(number objectHandle,number relativeToObjectHandle,table_3 position)",true},
+    {"sim.setObjectOrientation",_simSetObjectOrientation,        "sim.setObjectOrientation(number objectHandle,number relativeToObjectHandle,table_3 eulerAngles)",true},
     {"sim.getJointPosition",_simGetJointPosition,                "number position=sim.getJointPosition(number objectHandle)",true},
-    {"sim.setJointPosition",_simSetJointPosition,                "number result=sim.setJointPosition(number objectHandle,number position)",true},
-    {"sim.setJointTargetPosition",_simSetJointTargetPosition,    "number result=sim.setJointTargetPosition(number objectHandle,number targetPosition)",true},
+    {"sim.setJointPosition",_simSetJointPosition,                "sim.setJointPosition(number objectHandle,number position)",true},
+    {"sim.setJointTargetPosition",_simSetJointTargetPosition,    "sim.setJointTargetPosition(number objectHandle,number targetPosition)",true},
     {"sim.getJointTargetPosition",_simGetJointTargetPosition,    "number result,number targetPosition=sim.getJointTargetPosition(number objectHandle)",true},
-    {"sim.setJointMaxForce",_simSetJointMaxForce,                "number result=sim.setJointMaxForce(number objectHandle,number forceOrTorque)",true},
+    {"sim.setJointMaxForce",_simSetJointMaxForce,                "sim.setJointMaxForce(number objectHandle,number forceOrTorque)",true},
     {"sim.getPathPosition",_simGetPathPosition,                  "number position=sim.getPathPosition(number objectHandle)",true},
-    {"sim.setPathPosition",_simSetPathPosition,                  "number result=sim.setPathPosition(number objectHandle,number position)",true},
+    {"sim.setPathPosition",_simSetPathPosition,                  "sim.setPathPosition(number objectHandle,number position)",true},
     {"sim.getPathLength",_simGetPathLength,                      "number length=sim.getPathLength(number objectHandle)",true},
-    {"sim.setJointTargetVelocity",_simSetJointTargetVelocity,    "number result=sim.setJointTargetVelocity(number objectHandle,number targetVelocity)",true},
+    {"sim.setJointTargetVelocity",_simSetJointTargetVelocity,    "sim.setJointTargetVelocity(number objectHandle,number targetVelocity)",true},
     {"sim.getJointTargetVelocity",_simGetJointTargetVelocity,    "number targetVelocity=sim.getJointTargetVelocity(number objectHandle)",true},
     {"sim.getObjectName",_simGetObjectName,                      "string objectName=sim.getObjectName(number objectHandle)",true},
     {"sim.getCollectionName",_simGetCollectionName,              "string collectionName=sim.getCollectionName(number collectionHandle)",true},
@@ -196,92 +196,92 @@ const SLuaCommands simLuaCommands[]=
     {"sim.checkCollisionEx",_simCheckCollisionEx,                "number segmentCount,table segmentData=sim.checkCollisionEx(number entity1Handle,number entity2Handle)",true},
     {"sim.checkDistance",_simCheckDistance,                      "number result,table_7 distanceData=sim.checkDistance(number entity1Handle,number entity2Handle,number threshold)",true},
     {"sim.getObjectConfiguration",_simGetObjectConfiguration,    "number rawBufferHandle=sim.getObjectConfiguration(number objectHandle)",true},
-    {"sim.setObjectConfiguration",_simSetObjectConfiguration,    "number result=sim.setObjectConfiguration(number rawBufferHandle)",true},
+    {"sim.setObjectConfiguration",_simSetObjectConfiguration,    "sim.setObjectConfiguration(number rawBufferHandle)",true},
     {"sim.getConfigurationTree",_simGetConfigurationTree,        "number rawBufferHandle=sim.getConfigurationTree(number objectHandle)",true},
-    {"sim.setConfigurationTree",_simSetConfigurationTree,        "number result=sim.setConfigurationTree(number rawBufferHandle)",true},
+    {"sim.setConfigurationTree",_simSetConfigurationTree,        "sim.setConfigurationTree(number rawBufferHandle)",true},
     {"sim.getSimulationTimeStep",_simGetSimulationTimeStep,      "number timeStep=sim.getSimulationTimeStep()",true},
     {"sim.getSimulatorMessage",_simGetSimulatorMessage,          "number messageID,table_4 auxiliaryData,table auxiliaryData2=sim.getSimulatorMessage()",true},
-    {"sim.resetGraph",_simResetGraph,                            "number result=sim.resetGraph(number objectHandle)",true},
-    {"sim.handleGraph",_simHandleGraph,                          "number result=sim.handleGraph(number objectHandle,number simulationTime)",true},
+    {"sim.resetGraph",_simResetGraph,                            "sim.resetGraph(number objectHandle)",true},
+    {"sim.handleGraph",_simHandleGraph,                          "sim.handleGraph(number objectHandle,number simulationTime)",true},
     {"sim.getLastError",_simGetLastError,                        "string lastError=sim.getLastError([scriptHandle])",true},
     {"sim.getObjects",_simGetObjects,                            "number objectHandle=sim.getObjects(number index,number objectType)",true},
     {"sim.refreshDialogs",_simRefreshDialogs,                    "number result=sim.refreshDialogs(number refreshDegree)",true},
     {"sim.getModuleName",_simGetModuleName,                      "string moduleName,number version=sim.getModuleName(number index)",true},
     {"sim.getIkGroupHandle",_simGetIkGroupHandle,                "number ikGroupHandle=sim.getIkGroupHandle(string ikGroupName)",true},
-    {"sim.removeScript",_simRemoveScript,                        "number result=sim.removeScript(number scriptHandle)",true},
+    {"sim.removeScript",_simRemoveScript,                        "sim.removeScript(number scriptHandle)",true},
     {"sim.getCollisionHandle",_simGetCollisionHandle,            "number collisionObjectHandle=sim.getCollisionHandle(string collisionObjectName)",true},
     {"sim.getDistanceHandle",_simGetDistanceHandle,              "number distanceObjectHandle=sim.getDistanceHandle(string distanceObjectName)",true},
     {"sim.stopSimulation",_simStopSimulation,                    "number result=sim.stopSimulation()",true},
     {"sim.pauseSimulation",_simPauseSimulation,                  "number result=sim.pauseSimulation()",true},
     {"sim.startSimulation",_simStartSimulation,                  "number result=sim.startSimulation()",true},
     {"sim.getObjectMatrix",_simGetObjectMatrix,                  "table_12 matrix=sim.getObjectMatrix(number objectHandle,number relativeToObjectHandle)",true},
-    {"sim.setObjectMatrix",_simSetObjectMatrix,                  "number result=sim.setObjectMatrix(number objectHandle,number relativeToObjectHandle,table_12 matrix)",true},
+    {"sim.setObjectMatrix",_simSetObjectMatrix,                  "sim.setObjectMatrix(number objectHandle,number relativeToObjectHandle,table_12 matrix)",true},
     {"sim.getJointMatrix",_simGetJointMatrix,                    "table_12 matrix=sim.getJointMatrix(number objectHandle)",true},
-    {"sim.setSphericalJointMatrix",_simSetSphericalJointMatrix,  "number result=sim.setSphericalJointMatrix(number objectHandle,table_12 matrix",true},
+    {"sim.setSphericalJointMatrix",_simSetSphericalJointMatrix,  "sim.setSphericalJointMatrix(number objectHandle,table_12 matrix",true},
     {"sim.buildIdentityMatrix",_simBuildIdentityMatrix,          "table_12 matrix=sim.buildIdentityMatrix()",true},
     {"sim.copyMatrix",_simCopyMatrix,                            "table_12 matrix=sim.copyMatrix(table_12 matrixToCopy)",true},
     {"sim.buildMatrix",_simBuildMatrix,                          "table_12 matrix=sim.buildMatrix(table_3 position,table_3 eulerAngles)",true},
     {"sim.getEulerAnglesFromMatrix",_simGetEulerAnglesFromMatrix,"table_3 eulerAngles=sim.getEulerAnglesFromMatrix(table_12 matrix)",true},
-    {"sim.invertMatrix",_simInvertMatrix,                        "number result=sim.invertMatrix(table_12 matrix)",true},
+    {"sim.invertMatrix",_simInvertMatrix,                        "sim.invertMatrix(table_12 matrix)",true},
     {"sim.multiplyMatrices",_simMultiplyMatrices,                "table_12 resultMatrix=sim.multiplyMatrices(table_12 matrixIn1,table_12 matrixIn2)",true},
     {"sim.interpolateMatrices",_simInterpolateMatrices,          "table_12 resultMatrix=sim.interpolateMatrices(table_12 matrixIn1,table_12 matrixIn2,number interpolFactor)",true},
     {"sim.multiplyVector",_simMultiplyVector,                    "table_3 resultVector=sim.multiplyVector(table_12 matrix,table_3 vector)",true},
     {"sim.getObjectChild",_simGetObjectChild,                    "number childObjectHandle=sim.getObjectChild(number objectHandle,number index)",true},
     {"sim.getObjectParent",_simGetObjectParent,                  "number parentObjectHandle=sim.getObjectParent(number objectHandle)",true},
-    {"sim.setObjectParent",_simSetObjectParent,                  "number result=sim.setObjectParent(number objectHandle,number parentObjectHandle,boolean keepInPlace)",true},
+    {"sim.setObjectParent",_simSetObjectParent,                  "sim.setObjectParent(number objectHandle,number parentObjectHandle,boolean keepInPlace)",true},
     {"sim.getObjectType",_simGetObjectType,                      "number objectType=sim.getObjectType(number objectHandle)",true},
     {"sim.getJointType",_simGetJointType,                        "number jointType=sim.getJointType(number objectHandle)",true},
-    {"sim.setBoolParameter",_simSetBoolParameter,                "number result=sim.setBoolParameter(number parameter,boolean boolState)",true},
+    {"sim.setBoolParameter",_simSetBoolParameter,                "sim.setBoolParameter(number parameter,boolean boolState)",true},
     {"sim.getBoolParameter",_simGetBoolParameter,                "boolean boolState=sim.getBoolParameter(number parameter)",true},
-    {"sim.setInt32Parameter",_simSetInt32Parameter,              "number result=sim.setInt32Parameter(number parameter,number intState)",true},
+    {"sim.setInt32Parameter",_simSetInt32Parameter,              "sim.setInt32Parameter(number parameter,number intState)",true},
     {"sim.getInt32Parameter",_simGetInt32Parameter,              "number intState=sim.getInt32Parameter(number parameter)",true},
-    {"sim.setFloatParameter",_simSetFloatParameter,              "number result=sim.setFloatParameter(number parameter,number floatState)",true},
+    {"sim.setFloatParameter",_simSetFloatParameter,              "sim.setFloatParameter(number parameter,number floatState)",true},
     {"sim.getFloatParameter",_simGetFloatParameter,              "number floatState=sim.getFloatParameter(number parameter)",true},
-    {"sim.setStringParameter",_simSetStringParameter,            "number result=sim.setStringParameter(number parameter,string stringState)",true},
+    {"sim.setStringParameter",_simSetStringParameter,            "sim.setStringParameter(number parameter,string stringState)",true},
     {"sim.getStringParameter",_simGetStringParameter,            "string stringState=sim.getStringParameter(number parameter)",true},
-    {"sim.setArrayParameter",_simSetArrayParameter,              "number result=sim.setArrayParameter(number parameter,table arrayOfValues)",true},
+    {"sim.setArrayParameter",_simSetArrayParameter,              "sim.setArrayParameter(number parameter,table arrayOfValues)",true},
     {"sim.getArrayParameter",_simGetArrayParameter,              "table arrayOfValues=sim.getArrayParameter(number parameter)",true},
-    {"sim.setObjectName",_simSetObjectName,                      "number result=sim.setObjectName(number objectHandle,string objectName)",true},
-    {"sim.setCollectionName",_simSetCollectionName,              "number result=sim.setCollectionName(number collectionHandle,string collectionName)",true},
+    {"sim.setObjectName",_simSetObjectName,                      "sim.setObjectName(number objectHandle,string objectName)",true},
+    {"sim.setCollectionName",_simSetCollectionName,              "sim.setCollectionName(number collectionHandle,string collectionName)",true},
     {"sim.getJointInterval",_simGetJointInterval,                "boolean cyclic,table_2 interval=sim.getJointInterval(number objectHandle)",true},
-    {"sim.setJointInterval",_simSetJointInterval,                "number result=sim.setJointInterval(number objectHandle,boolean cyclic,table_2 interval)",true},
-    {"sim.loadScene",_simLoadScene,                              "number result=sim.loadScene(string filename)",true},
+    {"sim.setJointInterval",_simSetJointInterval,                "sim.setJointInterval(number objectHandle,boolean cyclic,table_2 interval)",true},
+    {"sim.loadScene",_simLoadScene,                              "sim.loadScene(string filename)",true},
     {"sim.closeScene",_simCloseScene,                            "number result=sim.closeScene()",true},
-    {"sim.saveScene",_simSaveScene,                              "number result=sim.saveScene(string filename)",true},
+    {"sim.saveScene",_simSaveScene,                              "sim.saveScene(string filename)",true},
     {"sim.loadModel",_simLoadModel,                              "number objectHandle=sim.loadModel(string filename)",true},
-    {"sim.saveModel",_simSaveModel,                              "number result=sim.saveModel(number modelBaseHandle,string filename)",true},
+    {"sim.saveModel",_simSaveModel,                              "string buffer=sim.saveModel(number modelBaseHandle,string filename=nil)",true},
     {"sim.isObjectInSelection",_simIsObjectInSelection,          "number selectionState=sim.isObjectInSelection(number objectHandle)",true},
-    {"sim.addObjectToSelection",_simAddObjectToSelection,        "number result=sim.addObjectToSelection(number what,number objectHandle)\nnumber result=sim.addObjectToSelection(table objectHandles)",true},
-    {"sim.removeObjectFromSelection",_simRemoveObjectFromSelection,"number result=sim.removeObjectFromSelection(number what,number objectHandle)\nnumber result=sim.removeObjectFromSelection(table objectHandles)",true},
+    {"sim.addObjectToSelection",_simAddObjectToSelection,        "sim.addObjectToSelection(number what,number objectHandle)\nnumber result=sim.addObjectToSelection(table objectHandles)",true},
+    {"sim.removeObjectFromSelection",_simRemoveObjectFromSelection,"sim.removeObjectFromSelection(number what,number objectHandle)\nnumber result=sim.removeObjectFromSelection(table objectHandles)",true},
     {"sim.getObjectSelection",_simGetObjectSelection,            "table selectedObjectHandles=sim.getObjectSelection()",true},
     {"sim.getRealTimeSimulation",_simGetRealTimeSimulation,      "number result=sim.getRealTimeSimulation()",true},
-    {"sim.setNavigationMode",_simSetNavigationMode,              "number result=sim.setNavigationMode(number navigationMode)",true},
+    {"sim.setNavigationMode",_simSetNavigationMode,              "sim.setNavigationMode(number navigationMode)",true},
     {"sim.getNavigationMode",_simGetNavigationMode,              "number navigationMode=sim.getNavigationMode()",true},
-    {"sim.setPage",_simSetPage,                                  "number result=sim.setPage(number pageIndex)",true},
+    {"sim.setPage",_simSetPage,                                  "sim.setPage(number pageIndex)",true},
     {"sim.getPage",_simGetPage,                                  "number pageIndex=sim.getPage()",true},
     {"sim.copyPasteObjects",_simCopyPasteObjects,                "table copiedObjectHandles=sim.copyPasteObjects(table objectHandles,number options)",true},
-    {"sim.scaleObjects",_simScaleObjects,                        "number result=sim.scaleObjects(table objectHandles,number scalingFactor,boolean scalePositionsToo)",true},
+    {"sim.scaleObjects",_simScaleObjects,                        "sim.scaleObjects(table objectHandles,number scalingFactor,boolean scalePositionsToo)",true},
     {"sim.getObjectUniqueIdentifier",_simGetObjectUniqueIdentifier,"number uniqueIdentifier=sim.getObjectUniqueIdentifier(number objectHandle)\ntable uniqueIdentifiers=sim.getObjectUniqueIdentifier(sim_handle_all)",true},
     {"sim.setThreadAutomaticSwitch",_simSetThreadAutomaticSwitch,"number result=sim.setThreadAutomaticSwitch(boolean automaticSwitch)",true},
     {"sim.getThreadAutomaticSwitch",_simGetThreadAutomaticSwitch,"boolean result=sim.getThreadAutomaticSwitch()",true},
     {"sim.setThreadSwitchTiming",_simSetThreadSwitchTiming,      "number result=sim.setThreadSwitchTiming(number deltaTimeInMilliseconds)",true},
     {"sim.setThreadResumeLocation",_simSetThreadResumeLocation,  "number result=sim.setThreadResumeLocation(number location,number priority)",true},
     {"sim.resumeThreads",_simResumeThreads,                      "number count=sim.resumeThreads(number location)",true},
-    {"sim.switchThread",_simSwitchThread,                        "number result=sim.switchThread()",true},
+    {"sim.switchThread",_simSwitchThread,                        "sim.switchThread()",true},
     {"sim.createIkGroup",_simCreateIkGroup,                      "number ikGroupHandle=sim.createIkGroup(number options,table intParams=nil,table floatParams=nil)",true},
-    {"sim.removeIkGroup",_simRemoveIkGroup,                      "number result=sim.removeIkGroup(number ikGroupHandle)",true},
-    {"sim.createIkElement",_simCreateIkElement,                  "number result=sim.createIkElement(number ikGroupHandle,number options,table intParams,table floatParams=nil)",true},
+    {"sim.removeIkGroup",_simRemoveIkGroup,                      "sim.removeIkGroup(number ikGroupHandle)",true},
+    {"sim.createIkElement",_simCreateIkElement,                  "sim.createIkElement(number ikGroupHandle,number options,table intParams,table floatParams=nil)",true},
     {"sim.createCollection",_simCreateCollection,                "number collectionHandle=sim.createCollection(string collectionName,number options)",true},
-    {"sim.addObjectToCollection",_simAddObjectToCollection,      "number result=sim.addObjectToCollection(number collectionHandle,number objectHandle,number what,number options)",true},
-    {"sim.saveImage",_simSaveImage,                              "number result=sim.saveImage(string image,table_2 resolution,number options,string filename,number quality)",true},
+    {"sim.addObjectToCollection",_simAddObjectToCollection,      "sim.addObjectToCollection(number collectionHandle,number objectHandle,number what,number options)",true},
+    {"sim.saveImage",_simSaveImage,                              "string buffer=sim.saveImage(string image,table_2 resolution,number options,string filename,number quality)",true},
     {"sim.loadImage",_simLoadImage,                              "string image,table_2 resolution=sim.loadImage(number options,string filename)",true},
     {"sim.getScaledImage",_simGetScaledImage,                    "string imageOut,table_2 effectiveResolutionOut=sim.getScaledImage(string imageIn,table_2 resolutionIn,\ntable_2 desiredResolutionOut,number options)",true},
-    {"sim.transformImage",_simTransformImage,                    "number result=sim.transformImage(string image,table_2 resolution,number options)",true},
+    {"sim.transformImage",_simTransformImage,                    "sim.transformImage(string image,table_2 resolution,number options)",true},
     {"sim.getQHull",_simGetQHull,                                "table verticesOut,table indicesOut=sim.getQHull(table verticesIn)",true},
     {"sim.getDecimatedMesh",_simGetDecimatedMesh,                "table verticesOut,table indicesOut=sim.getDecimatedMesh(table verticesIn,table indicesIn,number decimationPercentage)",true},
     {"sim.exportIk",_simExportIk,                                "number result=sim.exportIk(string pathAndFilename)",true},
-    {"sim.computeJacobian",_simComputeJacobian,                  "number result=sim.computeJacobian(number ikGroupHandle,number options)",true},
-    {"sim.sendData",_simSendData,                                "number result=sim.sendData(number targetID,number dataHeader,string dataName,string data,number antennaHandle=sim_handle_self,\nnumber actionRadius=100,number emissionAngle1=3.1415,number emissionAngle2=6.283,number persistence=0)",true},
+    {"sim.computeJacobian",_simComputeJacobian,                  "sim.computeJacobian(number ikGroupHandle,number options)",true},
+    {"sim.sendData",_simSendData,                                "sim.sendData(number targetID,number dataHeader,string dataName,string data,number antennaHandle=sim_handle_self,\nnumber actionRadius=100,number emissionAngle1=3.1415,number emissionAngle2=6.283,number persistence=0)",true},
     {"sim.receiveData",_simReceiveData,                          "string data,number senderID,number dataHeader,string dataName=sim.receiveData(number dataHeader=-1,string dataName=nil,\nnumber antennaHandle=sim_handle_self,number index=-1)",true},
     {"sim.packInt32Table",_simPackInt32Table,                    "string data=sim.packInt32Table(table int32Numbers,number startInt32Index=0,number int32Count=0)",true},
     {"sim.packUInt32Table",_simPackUInt32Table,                  "string data=sim.packUInt32Table(table uint32Numbers,number startUInt32Index=0,number uint32Count=0)",true},
@@ -301,39 +301,39 @@ const SLuaCommands simLuaCommands[]=
     {"sim.combineRgbImages",_simCombineRgbImages,                "string outImg=sim.combineRgbImages(string img1,table_2 img1Res,string img2,table_2 img2Res,number operation)",true},
     {"sim.getVelocity",_simGetVelocity,                          "table_3 linearVelocity,table_3 angularVelocity=sim.getVelocity(number shapeHandle)",true},
     {"sim.getObjectVelocity",_simGetObjectVelocity,              "table_3 linearVelocity,table_3 angularVelocity=sim.getObjectVelocity(number objectHandle)",true},
-    {"sim.addForceAndTorque",_simAddForceAndTorque,              "number result=sim.addForceAndTorque(number shapeHandle,table_3 force=nil,table_3 torque=nil)",true},
-    {"sim.addForce",_simAddForce,                                "number result=sim.addForce(number shapeHandle,table_3 position,table_3 force)",true},
-    {"sim.setExplicitHandling",_simSetExplicitHandling,          "number result=sim.setExplicitHandling(number generalObjectHandle,number explicitHandlingFlags)",true},
+    {"sim.addForceAndTorque",_simAddForceAndTorque,              "sim.addForceAndTorque(number shapeHandle,table_3 force=nil,table_3 torque=nil)",true},
+    {"sim.addForce",_simAddForce,                                "sim.addForce(number shapeHandle,table_3 position,table_3 force)",true},
+    {"sim.setExplicitHandling",_simSetExplicitHandling,          "sim.setExplicitHandling(number generalObjectHandle,number explicitHandlingFlags)",true},
     {"sim.getExplicitHandling",_simGetExplicitHandling,          "number explicitHandlingFlags=sim.getExplicitHandling(number generalObjectHandle)",true},
     {"sim.setGraphUserData",_simSetGraphUserData,                "number result=sim.setGraphUserData(number graphHandle,string dataStreamName,number data)",true},
     {"sim.addDrawingObject",_simAddDrawingObject,                "number drawingObjectHandle=sim.addDrawingObject(number objectType,number size,number duplicateTolerance,\nnumber parentObjectHandle,number maxItemCount,table_3 ambient_diffuse=nil,nil,table_3 specular=nil,\ntable_3 emission=nil)",true},
-    {"sim.removeDrawingObject",_simRemoveDrawingObject,          "number result=sim.removeDrawingObject(number drawingObjectHandle)",true},
+    {"sim.removeDrawingObject",_simRemoveDrawingObject,          "sim.removeDrawingObject(number drawingObjectHandle)",true},
     {"sim.addDrawingObjectItem",_simAddDrawingObjectItem,        "number result=sim.addDrawingObjectItem(number drawingObjectHandle,table itemData)",true},
     {"sim.addParticleObject",_simAddParticleObject,              "number particleObjectHandle=sim.addParticleObject(number objectType,number size,number density,table params,number lifeTime,\nnumber maxItemCount,table_3 ambient_diffuse=nil,nil,table_3 specular=nil,table_3 emission=nil)",true},
-    {"sim.removeParticleObject",_simRemoveParticleObject,        "number result=sim.removeParticleObject(number particleObjectHandle)",true},
-    {"sim.addParticleObjectItem",_simAddParticleObjectItem,      "number result=sim.addParticleObjectItem(number particleObjectHandle,table itemData)",true},
+    {"sim.removeParticleObject",_simRemoveParticleObject,        "sim.removeParticleObject(number particleObjectHandle)",true},
+    {"sim.addParticleObjectItem",_simAddParticleObjectItem,      "sim.addParticleObjectItem(number particleObjectHandle,table itemData)",true},
     {"sim.getObjectSizeFactor",_simGetObjectSizeFactor,          "number sizeFactor=sim.getObjectSizeFactor(number ObjectHandle)",true},
-    {"sim.setIntegerSignal",_simSetIntegerSignal,                "number result=sim.setIntegerSignal(string signalName,number signalValue)",true},
+    {"sim.setIntegerSignal",_simSetIntegerSignal,                "sim.setIntegerSignal(string signalName,number signalValue)",true},
     {"sim.getIntegerSignal",_simGetIntegerSignal,                "number signalValue=sim.getIntegerSignal(string signalName)",true},
     {"sim.clearIntegerSignal",_simClearIntegerSignal,            "number clearCount=sim.clearIntegerSignal(string signalName)",true},
     {"sim.setFloatSignal",_simSetFloatSignal,                    "number result=sim.setFloatSignal(string signalName,number signalValue)",true},
     {"sim.getFloatSignal",_simGetFloatSignal,                    "number signalValue=sim.getFloatSignal(string signalName)",true},
     {"sim.clearFloatSignal",_simClearFloatSignal,                "number clearCount=sim.clearFloatSignal(string signalName)",true},
-    {"sim.setDoubleSignal",_simSetDoubleSignal,                  "number result=sim.setDoubleSignal(string signalName,number signalValue)",true},
+    {"sim.setDoubleSignal",_simSetDoubleSignal,                  "sim.setDoubleSignal(string signalName,number signalValue)",true},
     {"sim.getDoubleSignal",_simGetDoubleSignal,                  "number signalValue=sim.getDoubleSignal(string signalName)",true},
     {"sim.clearDoubleSignal",_simClearDoubleSignal,              "number clearCount=sim.clearDoubleSignal(string signalName)",true},
-    {"sim.setStringSignal",_simSetStringSignal,                  "number result=sim.setStringSignal(string signalName,string signalValue)",true},
+    {"sim.setStringSignal",_simSetStringSignal,                  "sim.setStringSignal(string signalName,string signalValue)",true},
     {"sim.getStringSignal",_simGetStringSignal,                  "string signalValue=sim.getStringSignal(string signalName)",true},
     {"sim.clearStringSignal",_simClearStringSignal,              "number clearCount=sim.clearStringSignal(string signalName)",true},
     {"sim.getSignalName",_simGetSignalName,                      "string signalName=sim.getSignalName(number signalIndex,number signalType)",true},
     {"sim.waitForSignal",_simWaitForSignal,                      "number/string signalValue=sim.waitForSignal(string signalName)",true},
-    {"sim.persistentDataWrite",_simPersistentDataWrite,          "number result=sim.persistentDataWrite(string dataTag,string dataValue,number options=0)",true},
+    {"sim.persistentDataWrite",_simPersistentDataWrite,          "sim.persistentDataWrite(string dataTag,string dataValue,number options=0)",true},
     {"sim.persistentDataRead",_simPersistentDataRead,            "string dataValue=sim.persistentDataRead(string dataTag)",true},
-    {"sim.setObjectProperty",_simSetObjectProperty,              "number result=sim.setObjectProperty(number objectHandle,number property)",true},
+    {"sim.setObjectProperty",_simSetObjectProperty,              "sim.setObjectProperty(number objectHandle,number property)",true},
     {"sim.getObjectProperty",_simGetObjectProperty,              "number property=sim.getObjectProperty(number objectHandle)",true},
-    {"sim.setObjectSpecialProperty",_simSetObjectSpecialProperty,"number result=sim.setObjectSpecialProperty(number objectHandle,number property)",true},
+    {"sim.setObjectSpecialProperty",_simSetObjectSpecialProperty,"sim.setObjectSpecialProperty(number objectHandle,number property)",true},
     {"sim.getObjectSpecialProperty",_simGetObjectSpecialProperty,"number property=sim.getObjectSpecialProperty(number objectHandle)",true},
-    {"sim.setModelProperty",_simSetModelProperty,                "number result=sim.setModelProperty(number objectHandle,number property)",true},
+    {"sim.setModelProperty",_simSetModelProperty,                "sim.setModelProperty(number objectHandle,number property)",true},
     {"sim.getModelProperty",_simGetModelProperty,                "number property=sim.getModelProperty(number objectHandle)",true},
     {"sim.moveToPosition",_simMoveToPosition,                    "number deltaTimeLeft=sim.moveToPosition(number objectHandle,number relativeToObjectHandle,table_3 position,table_3 orientation,\nnumber velocity,number accel,table_2 distCalcMethod)",true},
     {"sim.moveToObject",_simMoveToObject,                        "number deltaTimeLeft=sim.moveToObject(number objectHandle,number targetObjectHandle,number positionAndOrOrientation,\nnumber relativeDistanceOnPath,number velocity,number accel)",true},
@@ -345,26 +345,26 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getOrientationOnPath",_simGetOrientationOnPath,        "table_3 eulerAngles=sim.getOrientationOnPath(number pathHandle,number relativeDistance)",true},
     {"sim.getClosestPositionOnPath",_simGetClosestPositionOnPath,"number positionOnPath=sim.getClosestPositionOnPath(number pathHandle,table_3 positionRelativeToPathFrame)",true},
     {"sim.readForceSensor",_simReadForceSensor,                  "number result,table_3 forceVector,table_3 torqueVector=sim.readForceSensor(number objectHandle)",true},
-    {"sim.breakForceSensor",_simBreakForceSensor,                "number result=sim.breakForceSensor(number objectHandle)",true},
+    {"sim.breakForceSensor",_simBreakForceSensor,                "sim.breakForceSensor(number objectHandle)",true},
     {"sim.getLightParameters",_simGetLightParameters,            "number state,table_3 zero,table_3 diffusePart,table_3 specular=sim.getLightParameters(number lightHandle)",true},
-    {"sim.setLightParameters",_simSetLightParameters,            "number result=sim.setLightParameters(number lightHandle,number state,nil,table_3 diffusePart,table_3 specularPart)",true},
+    {"sim.setLightParameters",_simSetLightParameters,            "sim.setLightParameters(number lightHandle,number state,nil,table_3 diffusePart,table_3 specularPart)",true},
     {"sim.getLinkDummy",_simGetLinkDummy,                        "number linkDummyHandle=sim.getLinkDummy(number dummyHandle)",true},
-    {"sim.setLinkDummy",_simSetLinkDummy,                        "number result=sim.setLinkDummy(number dummyHandle,number linkDummyHandle)",true},
-    {"sim.setShapeColor",_simSetShapeColor,                      "number result=sim.setShapeColor(number shapeHandle,string colorName,number colorComponent,table_3 rgbData)",true},
+    {"sim.setLinkDummy",_simSetLinkDummy,                        "sim.setLinkDummy(number dummyHandle,number linkDummyHandle)",true},
+    {"sim.setShapeColor",_simSetShapeColor,                      "sim.setShapeColor(number shapeHandle,string colorName,number colorComponent,table_3 rgbData)",true},
     {"sim.getShapeColor",_simGetShapeColor,                      "number result,table_3 rgbData=sim.getShapeColor(number shapeHandle,string colorName,number colorComponent)",true},
-    {"sim.resetDynamicObject",_simResetDynamicObject,            "number result=sim.resetDynamicObject(number objectHandle)",true},
-    {"sim.setJointMode",_simSetJointMode,                        "number result=sim.setJointMode(number jointHandle,number jointMode,number options)",true},
+    {"sim.resetDynamicObject",_simResetDynamicObject,            "sim.resetDynamicObject(number objectHandle)",true},
+    {"sim.setJointMode",_simSetJointMode,                        "sim.setJointMode(number jointHandle,number jointMode,number options)",true},
     {"sim.getJointMode",_simGetJointMode,                        "number jointMode,number options=sim.getJointMode(number jointHandle)",true},
     {"sim.serialOpen",_simSerialOpen,                            "number portHandle=sim.serialOpen(string portString,number baudRate)",true},
-    {"sim.serialClose",_simSerialClose,                          "number result=sim.serialClose(number portHandle)",true},
+    {"sim.serialClose",_simSerialClose,                          "sim.serialClose(number portHandle)",true},
     {"sim.serialSend",_simSerialSend,                            "number charsSent=sim.serialSend(number portHandle,string data)",true},
     {"sim.serialRead",_simSerialRead,                            "string data=sim.serialRead(number portHandle,number dataLengthToRead,boolean blockingOperation,\nstring closingString='',number timeout=0)",true},
     {"sim.serialCheck",_simSerialCheck,                          "number byteCount=sim.serialCheck(number portHandle)",true},
     {"sim.getContactInfo",_simGetContactInfo,                    "table_2 collidingObjects,table_3 collisionPoint,table_3 reactionForce,table_3 normalVector=sim.getContactInfo(number dynamicPass,\nnumber objectHandle,number index)",true},
-    {"sim.setThreadIsFree",_simSetThreadIsFree,                  "number result=sim.setThreadIsFree(boolean freeMode)",true},
+    {"sim.setThreadIsFree",_simSetThreadIsFree,                  "sim.setThreadIsFree(boolean freeMode)",true},
     {"sim.tubeOpen",_simTubeOpen,                                "number tubeHandle=sim.tubeOpen(number dataHeader,string dataName,number readBufferSize)",true},
-    {"sim.tubeClose",_simTubeClose,                              "number result=sim.tubeClose(number tubeHandle)",true},
-    {"sim.tubeWrite",_simTubeWrite,                              "number result=sim.tubeWrite(number tubeHandle,string data)",true},
+    {"sim.tubeClose",_simTubeClose,                              "sim.tubeClose(number tubeHandle)",true},
+    {"sim.tubeWrite",_simTubeWrite,                              "sim.tubeWrite(number tubeHandle,string data)",true},
     {"sim.tubeRead",_simTubeRead,                                "string data=sim.tubeRead(number tubeHandle,boolean blockingOperation=false)",true},
     {"sim.tubeStatus",_simTubeStatus,                            "number status,number readPacketsCount,number writePacketsCount=sim.tubeStatus(number tubeHandle)",true},
     {"sim.auxiliaryConsoleOpen",_simAuxiliaryConsoleOpen,        "number consoleHandle=sim.auxiliaryConsoleOpen(string title,number maxLines,number mode,table_2 position=nil,table_2 size=nil,\ntable_3 textColor=nil,table_3 backgroundColor=nil)",true},
@@ -373,20 +373,20 @@ const SLuaCommands simLuaCommands[]=
     {"sim.auxiliaryConsoleShow",_simAuxiliaryConsoleShow,        "number result=sim.auxiliaryConsoleShow(number consoleHandle,Boolean showState)",true},
     {"sim.importShape",_simImportShape,                          "number shapeHandle=sim.importShape(number fileformat,string pathAndFilename,number options,number identicalVerticeTolerance\n,number scalingFactor)",true},
     {"sim.importMesh",_simImportMesh,                            "table_of_table vertices,table_of_table indices=sim.importMesh(number fileformat,string pathAndFilename,\nnumber options,number identicalVerticeTolerance,number scalingFactor)",true},
-    {"sim.exportMesh",_simExportMesh,                            "number result=sim.exportMesh(number fileformat,string pathAndFilename,number options,number scalingFactor,\ntable_of_table vertices,table_of_table indices)",true},
+    {"sim.exportMesh",_simExportMesh,                            "sim.exportMesh(number fileformat,string pathAndFilename,number options,number scalingFactor,\ntable_of_table vertices,table_of_table indices)",true},
     {"sim.createMeshShape",_simCreateMeshShape,                  "number objectHandle=sim.createMeshShape(number options,number shadingAngle,table vertices,table indices)",true},
     {"sim.getShapeMesh",_simGetShapeMesh,                        "table vertices,table indices,table normals=sim.getShapeMesh(number shapeHandle)",true},
     {"sim.createPureShape",_simCreatePureShape,                  "number objectHandle=sim.createPureShape(number primitiveType,number options,table_3 sizes,number mass,table_2 precision=nil)",true},
     {"sim.createHeightfieldShape",_simCreateHeightfieldShape,    "number objectHandle=sim.createHeightfieldShape(number options,number shadingAngle,number xPointCount,\nnumber yPointCount,number xSize,table heights)",true},
     {"sim.addBanner",_simAddBanner,                              "number bannerID=sim.addBanner(string label,number size,number options,table_6 positionAndEulerAngles=nil,\nnumber parentObjectHandle=nil,table_12 labelColors=nil,table_12 backgroundColors=nil)",true},
-    {"sim.removeBanner",_simRemoveBanner,                        "number result=sim.removeBanner(number bannerID)",true},
+    {"sim.removeBanner",_simRemoveBanner,                        "sim.removeBanner(number bannerID)",true},
     {"sim.createJoint",_simCreateJoint,                          "number jointHandle=sim.createJoint(number jointType,number jointMode,number options,table_2 sizes=nil,\ntable_12 colorA=nil,table_12 colorB=nil)",true},
     {"sim.createDummy",_simCreateDummy,                          "number dummyHandle=sim.createDummy(number size,table_12 color=nil)",true},
     {"sim.createProximitySensor",_simCreateProximitySensor,      "number sensorHandle=sim.createProximitySensor(number sensorType,number subType,number options,table_8 intParams,\ntable_15 floatParams,table_48 color=nil)",true},
     {"sim.createPath",_simCreatePath,                            "number pathHandle=sim.createPath(number attributes,table_3 intParams=nil,table_3 floatParams=nil,table_12 color=nil)",true},
     {"sim.createForceSensor",_simCreateForceSensor,              "number sensorHandle=sim.createForceSensor(number options,table_5 intParams,table_5 floatParams,table_24 color=nil)",true},
     {"sim.createVisionSensor",_simCreateVisionSensor,            "number sensorHandle=sim.createVisionSensor(number options,table_4 intParams,table_11 floatParams,table_48 color=nil)",true},
-    {"sim.insertPathCtrlPoints",_simInsertPathCtrlPoints,        "number result=sim.insertPathCtrlPoints(number pathHandle,number options,number startIndex,number ptCnt,table ptData)",true},
+    {"sim.insertPathCtrlPoints",_simInsertPathCtrlPoints,        "sim.insertPathCtrlPoints(number pathHandle,number options,number startIndex,number ptCnt,table ptData)",true},
     {"sim.cutPathCtrlPoints",_simCutPathCtrlPoints,              "number result=sim.cutPathCtrlPoints(number pathHandle,number startIndex,number ptCnt)",true},
     {"sim.getIkGroupMatrix",_simGetIkGroupMatrix,                "table matrix,table_2 matrixSize=sim.getIkGroupMatrix(number ikGroupHandle,number options)",true},
     {"sim.floatingViewAdd",_simFloatingViewAdd,                  "number floatingViewHandle=sim.floatingViewAdd(number posX,number posY,number sizeX,number sizeY,number options)",true},
@@ -395,22 +395,22 @@ const SLuaCommands simLuaCommands[]=
     {"sim.cameraFitToView",_simCameraFitToView,                  "number result=sim.cameraFitToView(number viewHandleOrIndex,table objectHandles=nil,simInt options=0,simFloat scaling=1)",true},
     {"sim.announceSceneContentChange",_simAnnounceSceneContentChange,"number result=sim.announceSceneContentChange()",true},
     {"sim.getObjectInt32Parameter",_simGetObjectInt32Parameter,  "number result,number parameter=sim.getObjectInt32Parameter(number objectHandle,number parameterID)",true},
-    {"sim.setObjectInt32Parameter",_simSetObjectInt32Parameter,  "number result=sim.setObjectInt32Parameter(number objectHandle,number parameterID,number parameter)",true},
+    {"sim.setObjectInt32Parameter",_simSetObjectInt32Parameter,  "sim.setObjectInt32Parameter(number objectHandle,number parameterID,number parameter)",true},
     {"sim.getObjectFloatParameter",_simGetObjectFloatParameter,  "number result,number parameter=sim.getObjectFloatParameter(number objectHandle,number parameterID)",true},
-    {"sim.setObjectFloatParameter",_simSetObjectFloatParameter,  "number result=sim.setObjectFloatParameter(number objectHandle,number parameterID,number parameter)",true},
+    {"sim.setObjectFloatParameter",_simSetObjectFloatParameter,  "sim.setObjectFloatParameter(number objectHandle,number parameterID,number parameter)",true},
     {"sim.getObjectStringParameter",_simGetObjectStringParameter,"string parameter=sim.getObjectStringParameter(number objectHandle,number parameterID)",true},
-    {"sim.setObjectStringParameter",_simSetObjectStringParameter,"number result=sim.setObjectStringParameter(number objectHandle,number parameterID,string parameter)",true},
+    {"sim.setObjectStringParameter",_simSetObjectStringParameter,"sim.setObjectStringParameter(number objectHandle,number parameterID,string parameter)",true},
     {"sim.getRotationAxis",_simGetRotationAxis,                  "table_3 axis,number angle=sim.getRotationAxis(table_12 matrixStart,table_12 matrixGoal)",true},
     {"sim.rotateAroundAxis",_simRotateAroundAxis,                "table_12 matrixOut=sim.rotateAroundAxis(table_12 matrixIn,table_3 axis,table_3 axisPos,number angle)",true},
-    {"sim.launchExecutable",_simLaunchExecutable,                "number result=sim.launchExecutable(string filename,string parameters='',number showStatus=1)",true},
+    {"sim.launchExecutable",_simLaunchExecutable,                "sim.launchExecutable(string filename,string parameters='',number showStatus=1)",true},
     {"sim.getJointForce",_simGetJointForce,                      "number forceOrTorque=sim.getJointForce(number jointHandle)",true},
     {"sim.getJointMaxForce",_simGetJointMaxForce,                "number forceOrTorque=sim.getJointMaxForce(number jointHandle)",true},
-    {"sim.setIkGroupProperties",_simSetIkGroupProperties,        "number result=sim.setIkGroupProperties(number ikGroupHandle,number resolutionMethod,number maxIterations,number damping)",true},
-    {"sim.setIkElementProperties",_simSetIkElementProperties,    "number result=sim.setIkElementProperties(number ikGroupHandle,number tipDummyHandle,number constraints,\ntable_2 precision=nil,table_2 weight=nil)",true},
+    {"sim.setIkGroupProperties",_simSetIkGroupProperties,        "sim.setIkGroupProperties(number ikGroupHandle,number resolutionMethod,number maxIterations,number damping)",true},
+    {"sim.setIkElementProperties",_simSetIkElementProperties,    "sim.setIkElementProperties(number ikGroupHandle,number tipDummyHandle,number constraints,\ntable_2 precision=nil,table_2 weight=nil)",true},
     {"sim.isHandleValid",_simIsHandleValid,                      "number result=sim.isHandleValid(number generalObjectHandle,number generalObjectType=-1)",true},
     {"sim.getObjectQuaternion",_simGetObjectQuaternion,          "table_4 quaternion=sim.getObjectQuaternion(number objectHandle,number relativeToObjectHandle)",true},
-    {"sim.setObjectQuaternion",_simSetObjectQuaternion,          "number result=sim.setObjectQuaternion(number objectHandle,number relativeToObjectHandle,table_4 quaternion)",true},
-    {"sim.setShapeMassAndInertia",_simSetShapeMassAndInertia,    "number result=sim.setShapeMassAndInertia(number shapeHandle,number mass,table_9 inertiaMatrix,table_3 centerOfMass,\ntable_12 transformation=nil)",true},
+    {"sim.setObjectQuaternion",_simSetObjectQuaternion,          "sim.setObjectQuaternion(number objectHandle,number relativeToObjectHandle,table_4 quaternion)",true},
+    {"sim.setShapeMassAndInertia",_simSetShapeMassAndInertia,    "sim.setShapeMassAndInertia(number shapeHandle,number mass,table_9 inertiaMatrix,table_3 centerOfMass,\ntable_12 transformation=nil)",true},
     {"sim.getShapeMassAndInertia",_simGetShapeMassAndInertia,    "number mass,table_9 inertiaMatrix,table_3 centerOfMass=sim.getShapeMassAndInertia(number shapeHandle,table_12 transformation=nil)",true},
     {"sim.groupShapes",_simGroupShapes,                          "number shapeHandle=sim.groupShapes(table shapeHandles)",true},
     {"sim.ungroupShape",_simUngroupShape,                        "table simpleShapeHandles=sim.ungroupShape(number shapeHandle)",true},
@@ -419,35 +419,35 @@ const SLuaCommands simLuaCommands[]=
     {"sim.modifyGhost",_simModifyGhost,                          "number result=sim.modifyGhost(number ghostGroup,number ghostId,number operation,number floatValue,number options=nil,\nnumber optionsMask=nil,table colorOrTransformation=nil)",true},
     {"sim.quitSimulator",_simQuitSimulator,                      "sim.quitSimulator()",true},
     {"sim.getThreadId",_simGetThreadId,                          "number threadId=sim.getThreadId()",true},
-    {"sim.setShapeMaterial",_simSetShapeMaterial,                "number result=sim.setShapeMaterial(number shapeHandle,number materialIdOrShapeHandle)",true},
+    {"sim.setShapeMaterial",_simSetShapeMaterial,                "sim.setShapeMaterial(number shapeHandle,number materialIdOrShapeHandle)",true},
     {"sim.getTextureId",_simGetTextureId,                        "number textureId,table_2 resolution=sim.getTextureId(string textureName)",true},
     {"sim.readTexture",_simReadTexture,                          "string textureData=sim.readTexture(number textureId,number options,number posX=0,number posY=0,number sizeX=0,number sizeY=0)",true},
-    {"sim.writeTexture",_simWriteTexture,                        "number result=sim.writeTexture(number textureId,number options,string textureData,number posX=0,number posY=0,number sizeX=0,\nnumber sizeY=0,number interpol=0)",true},
+    {"sim.writeTexture",_simWriteTexture,                        "sim.writeTexture(number textureId,number options,string textureData,number posX=0,number posY=0,number sizeX=0,\nnumber sizeY=0,number interpol=0)",true},
     {"sim.createTexture",_simCreateTexture,                      "number shapeHandle,number textureId,table_2 resolution=sim.createTexture(string fileName,number options,table_2 planeSizes=nil,\ntable_2 scalingUV=nil,table_2 xy_g=nil,number fixedResolution=0,table_2 resolution=nil}",true},
-    {"sim.writeCustomDataBlock",_simWriteCustomDataBlock,        "number result=sim.writeCustomDataBlock(number objectHandle,string tagName,string data)",true},
+    {"sim.writeCustomDataBlock",_simWriteCustomDataBlock,        "sim.writeCustomDataBlock(number objectHandle,string tagName,string data)",true},
     {"sim.readCustomDataBlock",_simReadCustomDataBlock,          "string data=sim.readCustomDataBlock(number objectHandle,string tagName)",true},
     {"sim.readCustomDataBlockTags",_simReadCustomDataBlockTags,  "table tags=sim.readCustomDataBlockTags(number objectHandle)",true},
     {"sim.addPointCloud",_simAddPointCloud,                      "number pointCloudHandle=sim.addPointCloud(number pageMask,number layerMask,number objectHandle,number options,number pointSize,\ntable pointCoordinates,table_12 defaultColors=nil,table pointColors=nil,table pointNormals=nil)",true},
     {"sim.modifyPointCloud",_simModifyPointCloud,                "number result=sim.modifyPointCloud(number pointCloudHandle,number operation)",true},
     {"sim.getShapeGeomInfo",_simGetShapeGeomInfo,                "number result,number pureType,table_4 dimensions=sim.getShapeGeomInfo(number shapeHandle)",true},
     {"sim.getObjectsInTree",_simGetObjectsInTree,                "table objects=sim.getObjectsInTree(number treeBaseHandle,number objectType=sim_handle_all,number options=0)",true},
-    {"sim.setObjectSizeValues",_simSetObjectSizeValues,          "number result=sim.setObjectSizeValues(number objectHandle,table_3 sizeValues)",true},
+    {"sim.setObjectSizeValues",_simSetObjectSizeValues,          "sim.setObjectSizeValues(number objectHandle,table_3 sizeValues)",true},
     {"sim.getObjectSizeValues",_simGetObjectSizeValues,          "table_3 sizeValues=sim.getObjectSizeValues(number objectHandle)",true},
-    {"sim.scaleObject",_simScaleObject,                          "number result=sim.scaleObject(number objectHandle,number xScale,number yScale,number zScale,number options=0)",true},
-    {"sim.setShapeTexture",_simSetShapeTexture,                  "number result=sim.setShapeTexture(number shapeHandle,number textureId,number mappingMode,number options,table_2 uvScaling,\ntable_3 position=nil,table_3 orientation=nil)",true},
+    {"sim.scaleObject",_simScaleObject,                          "sim.scaleObject(number objectHandle,number xScale,number yScale,number zScale,number options=0)",true},
+    {"sim.setShapeTexture",_simSetShapeTexture,                  "sim.setShapeTexture(number shapeHandle,number textureId,number mappingMode,number options,table_2 uvScaling,\ntable_3 position=nil,table_3 orientation=nil)",true},
     {"sim.getShapeTextureId",_simGetShapeTextureId,              "number textureId=sim.getShapeTextureId(number shapeHandle)",true},
     {"sim.getCollectionObjects",_simGetCollectionObjects,        "table objectHandles=sim.getCollectionObjects(number collectionHandle)",true},
     {"sim.handleCustomizationScripts",_simHandleCustomizationScripts,"number count=sim.handleCustomizationScripts(number callType)",true},
     {"sim.handleAddOnScripts",_simHandleAddOnScripts,            "number count=sim.handleAddOnScripts(number callType)",true},
     {"sim.handleSandboxScript",_simHandleSandboxScript,          "sim.handleSandboxScript(number callType)",true},
-    {"sim.setScriptAttribute",_simSetScriptAttribute,            "number result=sim.setScriptAttribute(number scriptHandle,number attributeID,number/boolean attribute)",true},
+    {"sim.setScriptAttribute",_simSetScriptAttribute,            "sim.setScriptAttribute(number scriptHandle,number attributeID,number/boolean attribute)",true},
     {"sim.getScriptAttribute",_simGetScriptAttribute,            "number/boolean attribute=sim.getScriptAttribute(number scriptHandle,number attributeID)",true},
     {"sim.handleChildScripts",_simHandleChildScripts,            "number executedScriptCount=sim.handleChildScripts(number callType,...(objects to be passed))",true},
     {"sim.launchThreadedChildScripts",_simLaunchThreadedChildScripts,"number launchCount=sim.launchThreadedChildScripts()",true},
     {"sim.reorientShapeBoundingBox",_simReorientShapeBoundingBox,"number result=sim.reorientShapeBoundingBox(number shapeHandle,number relativeToHandle)",true},
     {"sim.handleVisionSensor",_simHandleVisionSensor,            "number detectionCount,table auxiliaryValuesPacket1,table auxiliaryValuesPacket2,etc.=sim.handleVisionSensor(number sensorHandle)",true},
     {"sim.readVisionSensor",_simReadVisionSensor,                "number result,table auxiliaryValues=sim.readVisionSensor(number sensorHandle)",true},
-    {"sim.resetVisionSensor",_simResetVisionSensor,              "number result=sim.resetVisionSensor(number sensorHandle)",true},
+    {"sim.resetVisionSensor",_simResetVisionSensor,              "sim.resetVisionSensor(number sensorHandle)",true},
     {"sim.getVisionSensorResolution",_simGetVisionSensorResolution,"table_2 resolution=sim.getVisionSensorResolution(number sensorHandle)",true},
     {"sim.getVisionSensorImage",_simGetVisionSensorImage,        "table/string imageBuffer=sim.getVisionSensorImage(number sensorHandle,number posX=0,number posY=0,number sizeX=0,\nnumber sizeY=0,number returnType=0)",true},
     {"sim.setVisionSensorImage",_simSetVisionSensorImage,        "number result=sim.setVisionSensorImage(number sensorHandle,table imageBuffer)\nnumber result=sim.setVisionSensorImage(number sensorHandle,string imageBuffer)",true},
@@ -459,7 +459,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.rmlPos",_simRMLPos,                                    "number handle=sim.rmlPos(number dofs,number smallestTimeStep,number flags,table currentPosVelAccel,table maxVelAccelJerk,\ntable selection,table targetPosVel)",true},
     {"sim.rmlVel",_simRMLVel,                                    "number handle=sim.rmlVel(number dofs,number smallestTimeStep,number flags,table currentPosVelAccel,table maxAccelJerk,\ntable selection,table targetVel)",true},
     {"sim.rmlStep",_simRMLStep,                                  "number result,table newPosVelAccel,number synchronizationTime=sim.rmlStep(number handle,number timeStep)",true},
-    {"sim.rmlRemove",_simRMLRemove,                              "number result=sim.rmlRemove(number handle)",true},
+    {"sim.rmlRemove",_simRMLRemove,                              "sim.rmlRemove(number handle)",true},
     {"sim.rmlMoveToPosition",_simRMLMoveToPosition,              "number result,table_3 newPos,table_4 newQuaternion,table_4 newVel,table_4 newAccel,number timeLeft=sim.rmlMoveToPosition(number objectHandle,\nnumber relativeToObjectHandle,number flags,table_4 currentVel,table_4 currentAccel,table_4 maxVel,table_4 maxAccel,table_4 maxJerk,\ntable_3 targetPosition,table_4 targetQuaternion,table_4 targetVel)",true},
     {"sim.rmlMoveToJointPositions",_simRMLMoveToJointPositions,  "number result,table newPos,table newVel,table newAccel,number timeLeft=sim.rmlMoveToJointPositions(table jointHandles,number flags,\ntable currentVel,table currentAccel,table maxVel,table maxAccel,table maxJerk,table targetPos,table targetVel,table direction=nil)",true},
     {"sim.buildMatrixQ",_simBuildMatrixQ,                        "table_12 matrix=sim.buildMatrixQ(table_3 position,table_4 quaternion)",true},
@@ -473,16 +473,16 @@ const SLuaCommands simLuaCommands[]=
     {"sim.generateIkPath",_simGenerateIkPath,                    "table path=sim.generateIkPath(number ikGroupHandle,table jointHandles,number ptCnt,\ntable collisionPairs=nil,table jointOptions=nil)",true},
     {"sim.getExtensionString",_simGetExtensionString,            "string theString=sim.getExtensionString(number objectHandle,number index,string key=nil)",true},
     {"sim.computeMassAndInertia",_simComputeMassAndInertia,      "number result=sim.computeMassAndInertia(number shapeHandle,number density)",true},
-    {"sim.setScriptVariable",_simSetScriptVariable,              "number result=sim.setScriptVariable(string variableNameAtScriptName,number scriptHandleOrType,variable)",true},
+    {"sim.setScriptVariable",_simSetScriptVariable,              "sim.setScriptVariable(string variableNameAtScriptName,number scriptHandleOrType,variable)",true},
     {"sim.getEngineFloatParameter",_simGetEngineFloatParameter,  "number floatParam=sim.getEngineFloatParameter(number paramId,number objectHandle)",true},
     {"sim.getEngineInt32Parameter",_simGetEngineInt32Parameter,  "number int32Param=sim.getEngineInt32Parameter(number paramId,number objectHandle)",true},
     {"sim.getEngineBoolParameter",_simGetEngineBoolParameter,    "boolean boolParam=sim.getEngineBoolParameter(number paramId,number objectHandle)",true},
-    {"sim.setEngineFloatParameter",_simSetEngineFloatParameter,  "number result=sim.setEngineFloatParameter(number paramId,number objectHandle,number floatParam)",true},
-    {"sim.setEngineInt32Parameter",_simSetEngineInt32Parameter,  "number result=sim.setEngineInt32Parameter(number paramId,number objectHandle,number int32Param)",true},
-    {"sim.setEngineBoolParameter",_simSetEngineBoolParameter,    "number result=sim.setEngineBoolParameter(number paramId,number objectHandle,boolean boolParam)",true},
+    {"sim.setEngineFloatParameter",_simSetEngineFloatParameter,  "sim.setEngineFloatParameter(number paramId,number objectHandle,number floatParam)",true},
+    {"sim.setEngineInt32Parameter",_simSetEngineInt32Parameter,  "sim.setEngineInt32Parameter(number paramId,number objectHandle,number int32Param)",true},
+    {"sim.setEngineBoolParameter",_simSetEngineBoolParameter,    "sim.setEngineBoolParameter(number paramId,number objectHandle,boolean boolParam)",true},
     {"sim.createOctree",_simCreateOctree,                        "number handle=sim.createOctree(number voxelSize,number options,number pointSize)",true},
     {"sim.createPointCloud",_simCreatePointCloud,                "number handle=sim.createPointCloud(number maxVoxelSize,number maxPtCntPerVoxel,number options,number pointSize)",true},
-    {"sim.setPointCloudOptions",_simSetPointCloudOptions,        "number result=sim.setPointCloudOptions(number pointCloudHandle,number maxVoxelSize,\nnumber maxPtCntPerVoxel,number options,number pointSize)",true},
+    {"sim.setPointCloudOptions",_simSetPointCloudOptions,        "sim.setPointCloudOptions(number pointCloudHandle,number maxVoxelSize,\nnumber maxPtCntPerVoxel,number options,number pointSize)",true},
     {"sim.getPointCloudOptions",_simGetPointCloudOptions,        "number maxVoxelSize,number maxPtCntPerVoxel,number options,number pointSize=\nsim.getPointCloudOptions(number pointCloudHandle)",true},
     {"sim.insertVoxelsIntoOctree",_simInsertVoxelsIntoOctree,    "number totalVoxelCnt=sim.insertVoxelsIntoOctree(number octreeHandle,number options,table points,table color=nil,table tag=nil)",true},
     {"sim.removeVoxelsFromOctree",_simRemoveVoxelsFromOctree,    "number totalVoxelCnt=sim.removeVoxelsFromOctree(number octreeHandle,number options,table points)",true},
@@ -498,10 +498,10 @@ const SLuaCommands simLuaCommands[]=
     {"sim.checkOctreePointOccupancy",_simCheckOctreePointOccupancy,"number result,number tag,number locationLow,number locationHigh=sim.checkOctreePointOccupancy(number octreeHandle,number options,table points)",true},
     {"sim.setVisionSensorFilter",_simSetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",true},
     {"sim.getVisionSensorFilter",_simGetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",true},
-    {"sim.handleSimulationStart",_simHandleSimulationStart,      "number result=sim.handleSimulationStart()",true},
-    {"sim.handleSensingStart",_simHandleSensingStart,            "number result=sim.handleSensingStart()",true},
+    {"sim.handleSimulationStart",_simHandleSimulationStart,      "sim.handleSimulationStart()",true},
+    {"sim.handleSensingStart",_simHandleSensingStart,            "sim.handleSensingStart()",true},
     {"sim.auxFunc",_simAuxFunc,                                  "... =sim.auxFunc(...)",true},
-    {"sim.setReferencedHandles",_simSetReferencedHandles,        "number result=sim.setReferencedHandles(number objectHandle,table referencedHandles)",true},
+    {"sim.setReferencedHandles",_simSetReferencedHandles,        "sim.setReferencedHandles(number objectHandle,table referencedHandles)",true},
     {"sim.getReferencedHandles",_simGetReferencedHandles,        "table referencedHandles=sim.getReferencedHandles(number objectHandle)",true},
     {"sim.getGraphCurve",_simGetGraphCurve,                      "string label,number curveType,table curveColor,table xData,table yData,table zData,table minMax=\nsim.getGraphCurve(number graphHandle,number graphType,number curveIndex)",true},
     {"sim.getGraphInfo",_simGetGraphInfo,                        "number bitCoded,table_3 bgColor,table_3 fgColor=sim.getGraphInfo(number graphHandle)",true},
@@ -518,15 +518,15 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getRandom",_simGetRandom,                              "number randomNumber=sim.getRandom(number seed=nil)",true},
     {"sim.textEditorOpen",_simTextEditorOpen,                    "number handle=sim.textEditorOpen(string initText,string properties)",true},
     {"sim.textEditorClose",_simTextEditorClose,                  "string text,table_2 pos,table_2 size=sim.textEditorClose(number handle)",true},
-    {"sim.textEditorShow",_simTextEditorShow,                    "number res=sim.textEditorShow(number handle,boolean showState)",true},
+    {"sim.textEditorShow",_simTextEditorShow,                    "sim.textEditorShow(number handle,boolean showState)",true},
     {"sim.textEditorGetInfo",_simTextEditorGetInfo,              "string text,table_2 pos,table_2 size,boolean visible=sim.textEditorGetInfo(number handle)",true},
-    {"sim.setJointDependency",_simSetJointDependency,            "number res=sim.setJointDependency(number jointHandle,number masterJointHandle,number offset,number coefficient)",true},
+    {"sim.setJointDependency",_simSetJointDependency,            "sim.setJointDependency(number jointHandle,number masterJointHandle,number offset,number coefficient)",true},
     {"sim.getStackTraceback",_simGetStackTraceback,              "string stacktraceback=sim.getStackTraceback([number scriptHandle])",true},
     {"sim.setStringNamedParam",_simSetStringNamedParam,          "number result=sim.setStringNamedParam(string paramName,string stringParam)",true},
     {"sim.getStringNamedParam",_simGetStringNamedParam,          "string stringParam=sim.getStringNamedParam(string paramName)",true},
-    {"sim.getUserParameter",_simGetUserParameter,"boolean/number/string parameterValue=sim.getUserParameter(number objectHandle,string parameterName,boolean forceStringReturn=false)",true},
-    {"sim.setUserParameter",_simSetUserParameter,"number result=sim.setUserParameter(number objectHandle,string parameterName,string parameterValue)",true},
-    {"sim.addLog",_simAddLog,"sim.addLog(number verbosityLevel,string logMessage)",true},
+    {"sim.getUserParameter",_simGetUserParameter,                "boolean/number/string parameterValue=sim.getUserParameter(number objectHandle,string parameterName,boolean forceStringReturn=false)",true},
+    {"sim.setUserParameter",_simSetUserParameter,                "sim.setUserParameter(number objectHandle,string parameterName,string parameterValue)",true},
+    {"sim.addLog",_simAddLog,                                    "sim.addLog(number verbosityLevel,string logMessage)",true},
 
 
     {"sim.test",_simTest,                                        "test function - shouldn't be used",true},
@@ -1287,6 +1287,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.handleflag_codedstring",sim_handleflag_codedstring,true},
     {"sim.handleflag_wxyzquaternion",sim_handleflag_wxyzquaternion,true},
     {"sim.handleflag_reljointbaseframe",sim_handleflag_reljointbaseframe,true},
+    {"sim.handleflag_abscoords",sim_handleflag_abscoords,true},
     {"sim.handleflag_model",sim_handleflag_model,true},
     {"sim.handleflag_rawvalue",sim_handleflag_rawvalue,true},
     {"sim.handleflag_altname",sim_handleflag_altname,true},
@@ -6751,19 +6752,17 @@ int _simGetObjectConfiguration(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         char* data=simGetObjectConfiguration_internal(luaToInt(L,1));
-        if (data==nullptr)
-            luaWrap_lua_pushnumber(L,-1);
-        else
+        if (data!=nullptr)
         {
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
-            luaWrap_lua_pushnumber(L,it->setUserData(data));
+            int dataSize=((int*)data)[0]+4;
+            luaWrap_lua_pushlstring(L,data,dataSize);
+            delete[] data;
+            LUA_END(1);
         }
     }
-    else
-        luaWrap_lua_pushnumber(L,-1);
 
     LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simSetObjectConfiguration(luaWrap_lua_State* L)
@@ -6772,14 +6771,11 @@ int _simSetObjectConfiguration(luaWrap_lua_State* L)
     LUA_START("sim.setObjectConfiguration");
 
     int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
-        char* data=(char*)it->getUserData(luaWrap_lua_tointeger(L,1));
-        if (data!=nullptr)
-            retVal=simSetObjectConfiguration_internal(data);
-        else
-            errorString=SIM_ERROR_INVALID_HANDLE;
+        size_t l;
+        const char* data=luaWrap_lua_tolstring(L,1,&l);
+        retVal=simSetObjectConfiguration_internal(data);
     }
 
     LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
@@ -6792,7 +6788,6 @@ int _simGetConfigurationTree(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getConfigurationTree");
 
-    int retVal=-1;
     CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
@@ -6808,13 +6803,17 @@ int _simGetConfigurationTree(luaWrap_lua_State* L)
         {
             char* data=simGetConfigurationTree_internal(id);
             if (data!=nullptr)
-                retVal=it->setUserData(data);
+            {
+                int dataSize=((int*)data)[0]+4;
+                luaWrap_lua_pushlstring(L,data,dataSize);
+                delete[] data;
+                LUA_END(1);
+            }
         }
     }
 
     LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simSetConfigurationTree(luaWrap_lua_State* L)
@@ -6823,14 +6822,11 @@ int _simSetConfigurationTree(luaWrap_lua_State* L)
     LUA_START("sim.setConfigurationTree");
 
     int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
-        char* data=(char*)it->getUserData(luaWrap_lua_tointeger(L,1));
-        if (data==nullptr)
-            errorString=SIM_ERROR_INVALID_HANDLE;
-        else
-            retVal=simSetConfigurationTree_internal(data);
+        size_t l;
+        const char* data=luaWrap_lua_tolstring(L,1,&l);
+        retVal=simSetConfigurationTree_internal(data);
     }
 
     LUA_RAISE_ERROR_IF_NEEDED(); // we might never return from this!

@@ -21,7 +21,6 @@ CWorld::CWorld()
     pathPlanning=nullptr;
     luaScriptContainer=nullptr;
     textureContainer=nullptr;
-    configurationContainer=nullptr;
     simulation=nullptr;
     customSceneData=nullptr;
     customSceneData_tempData=nullptr;
@@ -58,7 +57,6 @@ void CWorld::initializeWorld()
     outsideCommandQueue=new COutsideCommandQueue();
     buttonBlockContainer=new CButtonBlockContainer(true);
     simulation=new CSimulation();
-    configurationContainer=new CMemorizedConfContainer();
     textureContainer=new CTextureContainer();
     luaScriptContainer=new CLuaScriptContainer();
 
@@ -93,7 +91,6 @@ void CWorld::clearScene(bool notCalledFromUndoFunction)
     // Important to empty objects first (since objCont->announce....willBeErase
     // might be called for already destroyed objects!)
     sceneObjects->removeSceneDependencies();
-    configurationContainer->removeMemorized();
     collections->removeAllCollections();
     collections->setUpDefaultValues();
     ikGroups->removeAllIkGroups();
@@ -117,7 +114,6 @@ void CWorld::clearScene(bool notCalledFromUndoFunction)
 
     customSceneData->removeAllData();
     customSceneData_tempData->removeAllData();
-    configurationContainer->removeMemorized();
     if (notCalledFromUndoFunction)
         mainSettings->setUpDefaultValues();
     cacheData->clearCache();
@@ -129,8 +125,6 @@ void CWorld::deleteWorld()
     simulation->setOnlineMode(false); // disable online mode before deleting
     delete undoBufferContainer;
     undoBufferContainer=nullptr;
-    delete configurationContainer;
-    configurationContainer=nullptr;
     delete luaScriptContainer;
     luaScriptContainer=nullptr;
     delete dynamicsContainer;

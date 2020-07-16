@@ -1,7 +1,7 @@
-
 #include "memorizedConf.h"
 #include "app.h"
 #include "simInternal.h"
+#include "ttUtil.h"
 
 CMemorizedConf::CMemorizedConf(CSceneObject* theObject)
 {
@@ -73,76 +73,35 @@ bool CMemorizedConf::doesStillExist()
 void CMemorizedConf::serializeToMemory(std::vector<char>& data)
 {
     if (objectType==sim_object_path_type)
-    {
-        _pushFloatToData(position,data);
-    }
+        CTTUtil::pushFloatToBuffer(position,data);
     if (objectType==sim_object_joint_type)
     {
-        _pushFloatToData(position,data);
+        CTTUtil::pushFloatToBuffer(position,data);
         for (int i=0;i<4;i++)
-            _pushFloatToData(sphericalJointOrientation(i),data);
+            CTTUtil::pushFloatToBuffer(sphericalJointOrientation(i),data);
     }
-    _pushIntToData(objectType,data);
+    CTTUtil::pushIntToBuffer(objectType,data);
     for (int i=0;i<7;i++)
-        _pushFloatToData(configuration(i),data);
-    _pushIntToData(uniqueID,data);
-    _pushIntToData(memorizedConfigurationValidCounter,data);
-    _pushIntToData(parentUniqueID,data);
+        CTTUtil::pushFloatToBuffer(configuration(i),data);
+    CTTUtil::pushIntToBuffer(uniqueID,data);
+    CTTUtil::pushIntToBuffer(memorizedConfigurationValidCounter,data);
+    CTTUtil::pushIntToBuffer(parentUniqueID,data);
 }
 
 void CMemorizedConf::serializeFromMemory(std::vector<char>& data)
 {
-    parentUniqueID=_popIntFromData(data);
-    memorizedConfigurationValidCounter=_popIntFromData(data);
-    uniqueID=_popIntFromData(data);
+    parentUniqueID=CTTUtil::popIntFromBuffer(data);
+    memorizedConfigurationValidCounter=CTTUtil::popIntFromBuffer(data);
+    uniqueID=CTTUtil::popIntFromBuffer(data);
     for (int i=0;i<7;i++)
-        configuration(6-i)=_popFloatFromData(data);
-    objectType=_popIntFromData(data);
+        configuration(6-i)=CTTUtil::popFloatFromBuffer(data);
+    objectType=CTTUtil::popIntFromBuffer(data);
     if (objectType==sim_object_joint_type)
     {
         for (int i=0;i<4;i++)
-            sphericalJointOrientation(3-i)=_popFloatFromData(data);
-        position=_popFloatFromData(data);
+            sphericalJointOrientation(3-i)=CTTUtil::popFloatFromBuffer(data);
+        position=CTTUtil::popFloatFromBuffer(data);
     }
     if (objectType==sim_object_path_type)
-    {
-        position=_popFloatFromData(data);
-    }
+        position=CTTUtil::popFloatFromBuffer(data);
 }
-
-void CMemorizedConf::_pushFloatToData(float d,std::vector<char>& data)
-{
-    for (int i=0;i<4;i++)
-        data.push_back(((char*)&d)[i]);
-}
-
-float CMemorizedConf::_popFloatFromData(std::vector<char>& data)
-{
-    float d;
-    for (int i=0;i<4;i++)
-    {
-        ((char*)&d)[3-i]=data[data.size()-1];
-        data.pop_back();
-    }
-    return(d);
-}
-
-void CMemorizedConf::_pushIntToData(int d,std::vector<char>& data)
-{
-    for (int i=0;i<4;i++)
-        data.push_back(((char*)&d)[i]);
-}
-
-int CMemorizedConf::_popIntFromData(std::vector<char>& data)
-{
-    int d;
-    for (int i=0;i<4;i++)
-    {
-        ((char*)&d)[3-i]=data[data.size()-1];
-        data.pop_back();
-    }
-    return(d);
-}
-
-
-

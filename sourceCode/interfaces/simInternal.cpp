@@ -23,6 +23,7 @@
 #include "apiErrors.h"
 #include "sigHandler.h"
 #include "luaScriptFunctions.h"
+#include "memorizedConf.h"
 #include <algorithm>
 #include <iostream>
 #include "tinyxml2.h"
@@ -6611,23 +6612,40 @@ simChar* simGetConfigurationTree_internal(simInt objectHandle)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(nullptr);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (objectHandle!=sim_handle_all)
         {
             if (!doesObjectExist(__func__,objectHandle))
-            {
                 return(nullptr);
-            }
         }
         if (objectHandle==sim_handle_all)
             objectHandle=-1;
-        char* retVal=App::currentWorld->configurationContainer->getConfigurationTree(objectHandle);
-        return(retVal);
+
+        std::vector<char> data;
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        std::vector<CSceneObject*> sel;
+        if (it==nullptr)
+        { // We memorize everything:
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
+                sel.push_back(App::currentWorld->sceneObjects->getObjectFromIndex(i));
+        }
+        else
+        { // We memorize just the object and all its children:
+            it->getAllObjectsRecursive(&sel,true,true);
+        }
+        for (size_t i=0;i<sel.size();i++)
+        {
+            CMemorizedConf temp(sel[i]);
+            temp.serializeToMemory(data);
+        }
+        char* retBuffer=new char[data.size()+sizeof(int)];
+        ((int*)retBuffer)[0]=int(data.size());
+        for (size_t i=0;i<data.size();i++)
+            retBuffer[sizeof(int)+i]=data[i];
+        return(retBuffer);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
@@ -6638,13 +6656,34 @@ simInt simSetConfigurationTree_internal(const simChar* data)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        App::currentWorld->configurationContainer->setConfigurationTree(data);
+        if (data!=nullptr)
+        {
+            int l=((int*)data)[0];
+            std::vector<char> arr;
+            for (int i=0;i<l;i++)
+                arr.push_back(data[i+sizeof(int)]);
+            std::vector<CMemorizedConf*> allConfs;
+            std::vector<int> parentCount;
+            std::vector<int> index;
+            while (arr.size()!=0)
+            {
+                CMemorizedConf* temp=new CMemorizedConf();
+                temp->serializeFromMemory(arr);
+                parentCount.push_back(temp->getParentCount());
+                index.push_back((int)index.size());
+                allConfs.push_back(temp);
+            }
+            tt::orderAscending(parentCount,index);
+            for (size_t i=0;i<index.size();i++)
+            {
+                allConfs[index[i]]->restore();
+                delete allConfs[index[i]];
+            }
+        }
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -6656,18 +6695,26 @@ simChar* simGetObjectConfiguration_internal(simInt objectHandle)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(nullptr);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(nullptr);
+
+        std::vector<char> data;
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        if (it!=nullptr)
+        {
+            CMemorizedConf temp(it);
+            temp.serializeToMemory(data);
+            char* retBuffer=new char[data.size()+sizeof(int)];
+            ((int*)retBuffer)[0]=int(data.size());
+            for (size_t i=0;i<data.size();i++)
+                retBuffer[sizeof(int)+i]=data[i];
+            return(retBuffer);
         }
-        char* retVal=App::currentWorld->configurationContainer->getObjectConfiguration(objectHandle);
-        return(retVal);
+        return(nullptr);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
@@ -6678,13 +6725,20 @@ simInt simSetObjectConfiguration_internal(const simChar* data)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        App::currentWorld->configurationContainer->setObjectConfiguration(data);
+        if (data!=nullptr)
+        {
+            std::vector<char> arr;
+            int l=((int*)data)[0];
+            for (int i=0;i<l;i++)
+                arr.push_back(data[i+sizeof(int)]);
+            CMemorizedConf temp;
+            temp.serializeFromMemory(arr);
+            temp.restore();
+        }
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -7336,107 +7390,6 @@ simInt simGetPage_internal()
     return(-1);
 }
 
-
-simChar* simGetScriptRawBuffer_internal(simInt scriptHandle,simInt bufferHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(nullptr);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
-        if (it==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
-            return(nullptr);
-        }
-        char* buffer=(char*)it->getUserData(bufferHandle);
-        if (buffer==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_BUFFER_INEXISTANT);
-            return(nullptr);
-        }
-        return(buffer);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(nullptr);
-}
-
-simInt simSetScriptRawBuffer_internal(simInt scriptHandle,const simChar* buffer,simInt bufferSize)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
-        if (it==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
-            return(-1);
-        }
-        char* bufferCopy=new char[bufferSize];
-        for (int i=0;i<bufferSize;i++)
-            bufferCopy[i]=buffer[i];
-        int retVal=it->setUserData(bufferCopy);
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simInt simReleaseScriptRawBuffer_internal(simInt scriptHandle,simInt bufferHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        if (scriptHandle==sim_handle_all)
-        {
-            for (int i=0;i<int(App::currentWorld->luaScriptContainer->allScripts.size());i++)
-            {
-                CLuaScriptObject* it=App::currentWorld->luaScriptContainer->allScripts[i];
-                it->clearAllUserData();
-            }
-            return(1);
-        }
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
-        if (scriptHandle==sim_handle_main_script)
-            it=App::currentWorld->luaScriptContainer->getMainScript();
-        if (it==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
-            return(-1);
-        }
-        if (bufferHandle==sim_handle_all)
-        {
-            it->clearAllUserData();
-            return(1);
-        }
-        char* buffer=(char*)it->getUserData(bufferHandle);
-        if (buffer==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_BUFFER_INEXISTANT);
-            return(-1);
-        }
-        it->releaseUserData(bufferHandle);
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
 simInt simCopyPasteObjects_internal(simInt* objectHandles,simInt objectCount,simInt options)
 {
     TRACE_C_API;
@@ -7749,9 +7702,7 @@ simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* dataStream
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isGraph(__func__,graphHandle))
-        {
             return(-1);
-        }
         CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
         CGraphData* stream=it->getGraphData(dataStreamName);
         if (stream==nullptr)
@@ -11165,9 +11116,7 @@ simInt simSetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterI
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -11449,6 +11398,8 @@ simInt simSetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterI
                 retVal=1;
             }
         }
+        if (retVal==0)
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_SET_PARAMETER);
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -12298,6 +12249,8 @@ simInt simSetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
                 retVal=1;
             }
         }
+        if (retVal==0)
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_SET_PARAMETER);
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -12401,6 +12354,8 @@ simInt simSetObjectStringParameter_internal(simInt objectHandle,simInt parameter
                 }
             }
         }
+        if (retVal==0)
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_SET_PARAMETER);
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -15778,9 +15733,7 @@ simInt simExportIk_internal(const simChar* pathAndFilename,simInt reserved1,simV
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -21533,3 +21486,17 @@ simInt simAddStatusbarMessage_internal(const simChar* message)
     return(-1);
 }
 
+simChar* simGetScriptRawBuffer_internal(simInt scriptHandle,simInt bufferHandle)
+{ // DEPRECATED in 2020
+    return(nullptr);
+}
+
+simInt simSetScriptRawBuffer_internal(simInt scriptHandle,const simChar* buffer,simInt bufferSize)
+{ // DEPRECATED in 2020
+    return(-1);
+}
+
+simInt simReleaseScriptRawBuffer_internal(simInt scriptHandle,simInt bufferHandle)
+{ // DEPRECATED in 2020
+    return(-1);
+}

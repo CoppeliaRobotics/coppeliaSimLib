@@ -90,11 +90,7 @@ public:
     bool isSimulationScript() const;
     int getNumberOfPasses() const;
     void setNumberOfPasses(int p);
-    int setUserData(char* data);
-    char* getUserData(int id) const;
     std::string getLuaSearchPath() const;
-    void releaseUserData(int id);
-    void clearAllUserData();
     void setThreadedExecution(bool threadedExec);
     bool getThreadedExecution() const;
     bool getThreadedExecutionIsUnderWay() const;
@@ -278,9 +274,6 @@ protected:
     int _addOn_executionState;
     std::mt19937 _randGen;
 
-
-    std::vector<char*> _userData;
-    std::vector<int> _userDataIds;
 
     bool _initialValuesInitialized;
 

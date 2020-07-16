@@ -460,7 +460,6 @@ set(SOURCES ${SOURCES}
     sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp
     sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp
     sourceCode/shared/mainContainers/sceneContainers/_sceneObjectContainer_.cpp
-    sourceCode/mainContainers/sceneContainers/memorizedConfContainer.cpp
     sourceCode/mainContainers/sceneContainers/mainSettings.cpp
     sourceCode/mainContainers/sceneContainers/luaScriptContainer.cpp
     sourceCode/mainContainers/sceneContainers/environment.cpp

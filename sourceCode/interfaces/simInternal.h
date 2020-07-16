@@ -170,9 +170,6 @@ simInt simRegisterScriptVariable_internal(const simChar* varNameAtPluginName,con
 simInt simSetJointTargetVelocity_internal(simInt objectHandle,simFloat targetVelocity);
 simInt simGetJointTargetVelocity_internal(simInt objectHandle,simFloat* targetVelocity);
 simInt simSetPathTargetNominalVelocity_internal(simInt objectHandle,simFloat targetNominalVelocity);
-simChar* simGetScriptRawBuffer_internal(simInt scriptHandle,simInt bufferHandle);
-simInt simSetScriptRawBuffer_internal(simInt scriptHandle,const simChar* buffer,simInt bufferSize);
-simInt simReleaseScriptRawBuffer_internal(simInt scriptHandle,simInt bufferHandle);
 simInt simCopyPasteObjects_internal(simInt* objectHandles,simInt objectCount,simInt options);
 simInt simScaleSelectedObjects_internal(simFloat scalingFactor,simBool scalePositionsToo);
 simInt simScaleObjects_internal(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo);
@@ -622,6 +619,9 @@ simInt simSetScriptSimulationParameter_internal(simInt scriptHandle,const simCha
 simInt simGetNameSuffix_internal(const simChar* name);
 simInt simSetNameSuffix_internal(simInt nameSuffixNumber);
 simInt simAddStatusbarMessage_internal(const simChar* message);
+simChar* simGetScriptRawBuffer_internal(simInt scriptHandle,simInt bufferHandle);
+simInt simSetScriptRawBuffer_internal(simInt scriptHandle,const simChar* buffer,simInt bufferSize);
+simInt simReleaseScriptRawBuffer_internal(simInt scriptHandle,simInt bufferHandle);
 
 
 #endif // !defined(simInternal_INCLUDED_)

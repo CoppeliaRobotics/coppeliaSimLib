@@ -649,18 +649,6 @@ SIM_DLLEXPORT simInt simSetPathTargetNominalVelocity(simInt objectHandle,simFloa
 {
     return(simSetPathTargetNominalVelocity_internal(objectHandle,targetNominalVelocity));
 }
-SIM_DLLEXPORT simChar* simGetScriptRawBuffer(simInt scriptHandle,simInt bufferHandle)
-{
-    return(simGetScriptRawBuffer_internal(scriptHandle,bufferHandle));
-}
-SIM_DLLEXPORT simInt simSetScriptRawBuffer(simInt scriptHandle,const simChar* buffer,simInt bufferSize)
-{
-    return(simSetScriptRawBuffer_internal(scriptHandle,buffer,bufferSize));
-}
-SIM_DLLEXPORT simInt simReleaseScriptRawBuffer(simInt scriptHandle,simInt bufferHandle)
-{
-    return(simReleaseScriptRawBuffer_internal(scriptHandle,bufferHandle));
-}
 SIM_DLLEXPORT simInt simCopyPasteObjects(simInt* objectHandles,simInt objectCount,simInt options)
 {
     return(simCopyPasteObjects_internal(objectHandles,objectCount,options));
@@ -2461,6 +2449,18 @@ SIM_DLLEXPORT simInt simSetNameSuffix(simInt nameSuffixNumber)
 SIM_DLLEXPORT simInt simAddStatusbarMessage(const simChar* message)
 {
     return(simAddStatusbarMessage_internal(message));
+}
+SIM_DLLEXPORT simChar* simGetScriptRawBuffer(simInt scriptHandle,simInt bufferHandle)
+{
+    return(simGetScriptRawBuffer_internal(scriptHandle,bufferHandle));
+}
+SIM_DLLEXPORT simInt simSetScriptRawBuffer(simInt scriptHandle,const simChar* buffer,simInt bufferSize)
+{
+    return(simSetScriptRawBuffer_internal(scriptHandle,buffer,bufferSize));
+}
+SIM_DLLEXPORT simInt simReleaseScriptRawBuffer(simInt scriptHandle,simInt bufferHandle)
+{
+    return(simReleaseScriptRawBuffer_internal(scriptHandle,bufferHandle));
 }
 // Deprecated end
 

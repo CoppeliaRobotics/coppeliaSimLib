@@ -178,9 +178,6 @@ SIM_DLLEXPORT simInt simRegisterScriptVariable(const simChar* varNameAtPluginNam
 SIM_DLLEXPORT simInt simSetJointTargetVelocity(simInt objectHandle,simFloat targetVelocity);
 SIM_DLLEXPORT simInt simGetJointTargetVelocity(simInt objectHandle,simFloat* targetVelocity);
 SIM_DLLEXPORT simInt simSetPathTargetNominalVelocity(simInt objectHandle,simFloat targetNominalVelocity);
-SIM_DLLEXPORT simChar* simGetScriptRawBuffer(simInt scriptHandle,simInt bufferHandle);
-SIM_DLLEXPORT simInt simSetScriptRawBuffer(simInt scriptHandle,const simChar* buffer,simInt bufferSize);
-SIM_DLLEXPORT simInt simReleaseScriptRawBuffer(simInt scriptHandle,simInt bufferHandle);
 SIM_DLLEXPORT simInt simCopyPasteObjects(simInt* objectHandles,simInt objectCount,simInt options);
 SIM_DLLEXPORT simInt simScaleSelectedObjects(simFloat scalingFactor,simBool scalePositionsToo);
 SIM_DLLEXPORT simInt simScaleObjects(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo);
@@ -642,6 +639,9 @@ SIM_DLLEXPORT simBool _simGetParentFollowsDynamic(const simVoid* shape);
 SIM_DLLEXPORT simInt simGetNameSuffix(const simChar* name);
 SIM_DLLEXPORT simInt simSetNameSuffix(simInt nameSuffixNumber);
 SIM_DLLEXPORT simInt simAddStatusbarMessage(const simChar* message);
+SIM_DLLEXPORT simChar* simGetScriptRawBuffer(simInt scriptHandle,simInt bufferHandle);
+SIM_DLLEXPORT simInt simSetScriptRawBuffer(simInt scriptHandle,const simChar* buffer,simInt bufferSize);
+SIM_DLLEXPORT simInt simReleaseScriptRawBuffer(simInt scriptHandle,simInt bufferHandle);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

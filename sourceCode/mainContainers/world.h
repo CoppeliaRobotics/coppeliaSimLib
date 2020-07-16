@@ -4,7 +4,6 @@
 #include "environment.h"
 #include "pageContainer.h"
 #include "mainSettings.h"
-#include "memorizedConfContainer.h"
 #include "simulation.h"
 #include "buttonBlockContainer.h"
 #include "outsideCommandQueue.h"
@@ -99,7 +98,6 @@ public:
     CRegisteredPathPlanningTasks* pathPlanning;
     CLuaScriptContainer* luaScriptContainer;
     CTextureContainer* textureContainer;
-    CMemorizedConfContainer* configurationContainer;
     CSimulation* simulation;
     CCustomData* customSceneData;
     CCustomData* customSceneData_tempData; // same as above, but not serialized!
