@@ -86,7 +86,7 @@ void getScriptTree_mainOr(luaWrap_lua_State* L,bool selfIncluded,std::vector<int
 void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std::vector<int>& scriptHandles);
 
 void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* warningString,bool cSideErrorOrWarningReporting);
-void _raiseErrorIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* errorString,bool cSideErrorReporting);
+void _raiseErrorOrYieldIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* errorString,bool cSideErrorReporting);
 
 
 

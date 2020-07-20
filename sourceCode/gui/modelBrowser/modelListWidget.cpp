@@ -10,7 +10,7 @@
 CModelListWidget::CModelListWidget() : CModelListWidgetBase()
 {
     setViewMode(QListView::IconMode);
-    setGridSize(QSize(160,160));
+    setGridSize(QSize(160,180));
     setIconSize(QSize(128,128));
 
     setWrapping(true);

@@ -1,4 +1,3 @@
-
 #include "modelListWidgetBase.h"
 #include <QScrollBar>
 
