@@ -1328,7 +1328,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                     //************************************************
                     if (mainSettings->forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers)
                     { // This needs to be done AFTER simulation settings are loaded!
-                        float step=float(simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f;
+                        float step=float(simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
                         float bulletStepSize=step/float(mainSettings->dynamicsBULLETStepSizeDivider_forBackwardCompatibility_03_01_2012);
                         float odeStepSize=step/float(mainSettings->dynamicsODEStepSizeDivider_forBackwardCompatibility_03_01_2012);
                         if (fabs(step-0.05f)>0.002f)

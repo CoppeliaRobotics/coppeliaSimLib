@@ -1250,7 +1250,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==SET_TIMESTEP_SIMULATIONGUITRIGGEREDCMD)
         {
             if (App::currentWorld->simulation->isSimulationStopped())
-                App::currentWorld->simulation->setSimulationTimeStep_raw_ns(cmd.uint64Params[0]);
+                App::currentWorld->simulation->setSimulationTimeStep_raw_us(cmd.uint64Params[0]);
         }
         if (cmd.cmdId==SET_PPF_SIMULATIONGUITRIGGEREDCMD)
         {
@@ -1280,7 +1280,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==SET_PAUSETIME_SIMULATIONGUITRIGGEREDCMD)
         {
             if (App::currentWorld->simulation->isSimulationStopped())
-                App::currentWorld->simulation->setPauseTime_ns(cmd.uint64Params[0]);
+                App::currentWorld->simulation->setPauseTime_us(cmd.uint64Params[0]);
         }
         if (cmd.cmdId==TOGGLE_PAUSEATERROR_SIMULATIONGUITRIGGEREDCMD)
         {

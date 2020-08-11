@@ -157,7 +157,7 @@ void CDynamicsContainer::handleDynamics(float dt)
     if (getDynamicsEnabled())
     {
         _currentlyInDynamicsCalculations=true;
-        CPluginContainer::dyn_step(dt,float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f);
+        CPluginContainer::dyn_step(dt,float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f);
         _currentlyInDynamicsCalculations=false;
     }
 

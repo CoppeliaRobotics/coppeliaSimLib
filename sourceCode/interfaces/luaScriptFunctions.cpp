@@ -11248,10 +11248,10 @@ int _simSendData(luaWrap_lua_State* L)
                                 emissionAngle2=tt::getLimitedFloat(0.0f,piValTimes2_f,emissionAngle2);
                                 persistence=tt::getLimitedFloat(0.0f,99999999999999.9f,persistence);
                                 if (persistence==0.0f)
-                                    persistence=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())*1.5f/1000000.0f;
+                                    persistence=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())*1.5f/1000000.0f;
 
                                 App::currentWorld->luaScriptContainer->broadcastDataContainer.broadcastData(currentScriptID,targetID,dataHeader,dataName,
-                                    float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f+persistence,actionRadius,antennaHandle,
+                                    float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+persistence,actionRadius,antennaHandle,
                                     emissionAngle1,emissionAngle2,data,(int)dataLength);
                                 retVal=1;
                             }
@@ -11350,7 +11350,7 @@ int _simReceiveData(luaWrap_lua_State* L)
             int theDataLength;
             int theSenderID;
             std::string theDataName;
-            char* data0=App::currentWorld->luaScriptContainer->broadcastDataContainer.receiveData(currentScriptID,float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f,
+            char* data0=App::currentWorld->luaScriptContainer->broadcastDataContainer.receiveData(currentScriptID,float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f,
                     dataHeader,dataName,antennaHandle,theDataLength,index,theSenderID,theDataHeader,theDataName);
             if (data0!=nullptr)
             {
@@ -12211,18 +12211,18 @@ int _simMoveToObject(luaWrap_lua_State* L)
                     C7Vector startTr(object->getCumulativeTransformation());
                     float currentVel=0.0f;
                     CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                    float lastTime=float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f+threadData->usedMovementTime;
+                    float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+threadData->usedMovementTime;
                     float vdl=1.0f;
                     // vld is the totalvirtual distance
                     float currentPos=0.0f;
 
                     bool movementFinished=false;
-                    float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f; // this is the time left if we leave here
+                    float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f; // this is the time left if we leave here
                     float previousLL=0.0f;
                     bool err=false;
                     while ( (!movementFinished)&&(vdl!=0.0f) )
                     {
-                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f;
+                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
                         dt=currentTime-lastTime;
                         lastTime=currentTime;
 
@@ -12311,7 +12311,7 @@ int _simMoveToObject(luaWrap_lua_State* L)
                     if (!err)
                     {
                         // The movement finished. Now add the time used:
-                        threadData->usedMovementTime=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f-dt;
+                        threadData->usedMovementTime=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f-dt;
                         luaWrap_lua_pushnumber(L,dt); // success (deltaTime left)
                         LUA_END(1);
                     }
@@ -12386,19 +12386,19 @@ int _simFollowPath(luaWrap_lua_State* L)
                     double pos=posOnPath*bezierPathLength;
                     float vel=0.0f;
                     CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                    float lastTime=float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f+threadData->usedMovementTime;
+                    float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+threadData->usedMovementTime;
                     bool movementFinished=(bezierPathLength==0.0f);
-                    float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f; // this is the time left if we leave here
+                    float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f; // this is the time left if we leave here
                     bool err=false;
                     while (!movementFinished)
                     {
                         if ((App::currentWorld->sceneObjects->getObjectFromHandle(objID)!=object)||(App::currentWorld->sceneObjects->getPathFromHandle(pathID)!=path) ) // make sure the objects are still valid (running in a thread)
                         {
-                            dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f;
+                            dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
                             break;
                         }
 
-                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f;
+                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
                         dt=currentTime-lastTime;
                         lastTime=currentTime;
                         if (accel==0.0f)
@@ -12445,7 +12445,7 @@ int _simFollowPath(luaWrap_lua_State* L)
                     if (!err)
                     {
                         // The movement finished. Now add the time used:
-                        threadData->usedMovementTime=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f-dt;
+                        threadData->usedMovementTime=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f-dt;
                         luaWrap_lua_pushnumber(L,dt); // success
                         LUA_END(1);
                     }
@@ -12585,12 +12585,12 @@ int _simWait(luaWrap_lua_State* L)
                 else
                 { // simulation time wait
                     CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                    float startTime=float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f+threadData->usedMovementTime;
+                    float startTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+threadData->usedMovementTime;
                     float overshootTime=0.0f;
                     bool err=false;
                     while (true)
                     {
-                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f;
+                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
                         float diff=currentTime-startTime;
                         if (diff>=deltaTime)
                         {
@@ -15120,7 +15120,7 @@ int _simRMLMoveToPosition(luaWrap_lua_State* L)
                     int rmlHandle=simRMLPos_internal(4,0.0001,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,nullptr);
                     while (!movementFinished)
                     {
-                        double dt=double(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0;
+                        double dt=double(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0;
                         int rmlRes=simRMLStep_internal(rmlHandle,dt,newPosVelAccel,auxData,nullptr);
                         it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                         if ((rmlRes<0)||(it==nullptr))
@@ -15418,7 +15418,7 @@ int _simRMLMoveToJointPositions(luaWrap_lua_State* L)
                 int rmlHandle=simRMLPos_internal(dofs,0.0001,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,nullptr);
                 while (!movementFinished)
                 {
-                    double dt=double(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0;
+                    double dt=double(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0;
                     int rmlRes=simRMLStep_internal(rmlHandle,dt,newPosVelAccel,auxData,nullptr);
                     if (rmlRes<0)
                         movementFinished=true; // error
@@ -17610,7 +17610,7 @@ int _simHandleSimulationStart(luaWrap_lua_State* L)
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
         // Following is for velocity measurement (initial):
-        float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f;
+        float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
             App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(dt);
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
@@ -17642,7 +17642,7 @@ int _simHandleSensingStart(luaWrap_lua_State* L)
         }
 
         // Following is for velocity measurement:
-        float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f;
+        float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
             App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(dt);
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
@@ -18707,7 +18707,7 @@ int _simMoveToPosition(luaWrap_lua_State* L)
                     targetTr.Q.setEulerAngles(eulerTarget[0],eulerTarget[1],eulerTarget[2]);
                 float currentVel=0.0f;
                 CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                float lastTime=float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f+threadData->usedMovementTime;
+                float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+threadData->usedMovementTime;
 
                 float dl=(targetTr.X-startTr.X).getLength();
                 float da=targetTr.Q.getAngleBetweenQuaternions(startTr.Q)*angleToLinearCoeff;
@@ -18737,7 +18737,7 @@ int _simMoveToPosition(luaWrap_lua_State* L)
                 // vld is the totalvirtual distance
                 float currentPos=0.0f;
                 bool movementFinished=false;
-                float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f; // this is the time left if we leave here
+                float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f; // this is the time left if we leave here
 
                 if (vdl==0.0f)
                 { // if the path length is 0 (the two positions might still be not-coincident, depending on the calculation method!)
@@ -18765,7 +18765,7 @@ int _simMoveToPosition(luaWrap_lua_State* L)
                 bool err=false;
                 while (!movementFinished)
                 {
-                    float currentTime=float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f;
+                    float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
                     dt=currentTime-lastTime;
                     lastTime=currentTime;
 
@@ -18844,7 +18844,7 @@ int _simMoveToPosition(luaWrap_lua_State* L)
                 if (!err)
                 {
                     // The movement finished. Now add the time used:
-                    threadData->usedMovementTime=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f-dt;
+                    threadData->usedMovementTime=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f-dt;
                     luaWrap_lua_pushnumber(L,dt); // success (deltaTime left)
                     LUA_END(1);
                 }
@@ -19003,16 +19003,16 @@ int _simMoveToJointPositions(luaWrap_lua_State* L)
                         }
                     }
                     CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                    float lastTime=float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f+threadData->usedMovementTime;
+                    float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+threadData->usedMovementTime;
                     bool movementFinished=false;
-                    float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f; // this is the time left if we leave here
+                    float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f; // this is the time left if we leave here
 
                     if (maxVirtualDist==0.0f)
                         movementFinished=true;
                     bool err=true;
                     while (!movementFinished)
                     {
-                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f;
+                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
                         dt=currentTime-lastTime;
                         float minTimeLeft=dt;
                         lastTime=currentTime;
@@ -19143,7 +19143,7 @@ int _simMoveToJointPositions(luaWrap_lua_State* L)
                         }
                     }
                     // The movement finished. Now add the time used:
-                    threadData->usedMovementTime=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f-dt;
+                    threadData->usedMovementTime=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f-dt;
                     if (!err)
                         luaWrap_lua_pushnumber(L,dt); // success (deltaTime left)
 

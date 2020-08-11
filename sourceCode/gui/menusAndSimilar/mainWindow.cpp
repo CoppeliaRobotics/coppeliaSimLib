@@ -711,7 +711,7 @@ void CMainWindow::refreshDialogs_uiThread()
         else
         { // We display the simulation time instead:
             title=IDS____SIMULATION_TIME__;
-            title+=gv::getHourMinuteSecondMilisecondStr(float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f);
+            title+=gv::getHourMinuteSecondMilisecondStr(float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f);
         }
         title+=" (";
         title+=tt::FNb(0,_fps,1,false);
@@ -1186,7 +1186,7 @@ void CMainWindow::_createDefaultToolBars()
             _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_25));
             _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_10));
 
-            float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns(5))/1000.0f);
+            float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us(5))/1000.0f);
             std::string txt("dt=");
             txt+=tt::FNb(0,dt,1,false);
             txt+=IDSN_TIME_STEP_CONFIG_CUSTOM;
@@ -1860,7 +1860,7 @@ void CMainWindow::_actualizetoolbarButtonState()
                 _timeStepConfigCombo->setItemText(4,tr(IDSN_TIME_STEP_CONFIG_10));
 
     //          _timeStepConfigCombo->setItemText(5,tr(IDSN_TIME_STEP_CONFIG_CUSTOM));
-                float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns(5))/1000.0f);
+                float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us(5))/1000.0f);
                 std::string txt("dt=");
                 txt+=tt::FNb(0,dt,1,false);
                 txt+=IDSN_TIME_STEP_CONFIG_CUSTOM;
@@ -1871,7 +1871,7 @@ void CMainWindow::_actualizetoolbarButtonState()
             else
             {
                 _timeStepConfigCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_DT_SIMULATION_TIME_STEP_AND_PPF);
-                float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000.0f);
+                float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000.0f);
                 std::string txt("dt=");
                 txt+=tt::FNb(0,dt,1,false);
                 txt+=" ms, ppf=";

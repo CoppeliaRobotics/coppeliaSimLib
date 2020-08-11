@@ -366,8 +366,8 @@ void CGhostObjectContainer::renderYour3DStuff_nonTransparent(CViewableBase* rend
     {
         if (!App::currentWorld->simulation->isSimulationStopped())
         {
-            float simulationTime=float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f;
-            float realTime=float(App::currentWorld->simulation->getSimulationTime_real_ns())/1000000.0f;
+            float simulationTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
+            float realTime=float(App::currentWorld->simulation->getSimulationTime_real_us())/1000000.0f;
             for (size_t i=0;i<_allObjects.size();i++)
             {
                 if (_allObjects[i]->transparencyFactor==0)
@@ -383,8 +383,8 @@ void CGhostObjectContainer::renderYour3DStuff_transparent(CViewableBase* renderi
     {
         if (!App::currentWorld->simulation->isSimulationStopped())
         {
-            float simulationTime=float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f;
-            float realTime=float(App::currentWorld->simulation->getSimulationTime_real_ns())/1000000.0f;
+            float simulationTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
+            float realTime=float(App::currentWorld->simulation->getSimulationTime_real_us())/1000000.0f;
             for (size_t i=0;i<_allObjects.size();i++)
             {
                 if (_allObjects[i]->transparencyFactor!=0)

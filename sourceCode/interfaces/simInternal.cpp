@@ -3997,14 +3997,14 @@ simInt simGetUInt64Parameter_internal(simInt parameter,simUInt64* intState)
         {
             if (App::currentWorld->simulation==nullptr)
                 return(-1);
-            intState[0]=App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns();
+            intState[0]=App::currentWorld->simulation->getSimulationTimeStep_speedModified_us()*1000;
             return(1);
         }
         if (parameter==sim_uint64param_simulation_time_ns)
         {
             if (App::currentWorld->simulation==nullptr)
                 return(-1);
-            intState[0]=App::currentWorld->simulation->getSimulationTime_ns();
+            intState[0]=App::currentWorld->simulation->getSimulationTime_us()*1000;
             return(1);
         }
         CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PARAMETER);
@@ -4376,7 +4376,7 @@ simInt simSetFloatParameter_internal(simInt parameter,simFloat floatState)
                 return(-1);
             if (App::currentWorld->simulation->isSimulationStopped())
             {
-                App::currentWorld->simulation->setSimulationTimeStep_raw_ns(quint64(floatState*1000000.0f));
+                App::currentWorld->simulation->setSimulationTimeStep_raw_us(quint64(floatState*1000000.0f));
                 return(1);
             }
             return(0);
@@ -4426,7 +4426,7 @@ simInt simGetFloatParameter_internal(simInt parameter,simFloat* floatState)
         {
             if (App::currentWorld->simulation==nullptr)
                 return(-1);
-            floatState[0]=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f;
+            floatState[0]=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
             return(1);
         }
         if (parameter==sim_floatparam_stereo_distance)
@@ -4664,7 +4664,7 @@ simFloat simGetSimulationTime_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        float retVal=float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f;
+        float retVal=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5531,7 +5531,7 @@ simInt simHandleMainScript_internal()
         {
             App::worldContainer->calcInfo->simulationPassStart();
 
-            App::currentWorld->luaScriptContainer->broadcastDataContainer.removeTimedOutObjects(float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f); // remove invalid elements
+            App::currentWorld->luaScriptContainer->broadcastDataContainer.removeTimedOutObjects(float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f); // remove invalid elements
             CThreadPool::prepareAllThreadsForResume_calledBeforeMainScript();
 
             retVal=it->runMainScript(-1,nullptr,nullptr,nullptr);
@@ -6784,7 +6784,7 @@ simInt simSetSimulationTimeStep_internal(simFloat timeStep)
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
             return(-1);
         }
-        App::currentWorld->simulation->setSimulationTimeStep_raw_ns(quint64(timeStep*1000000.0f));
+        App::currentWorld->simulation->setSimulationTimeStep_raw_us(quint64(timeStep*1000000.0f));
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -6802,7 +6802,7 @@ simFloat simGetSimulationTimeStep_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        float retVal=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f;
+        float retVal=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -6844,7 +6844,7 @@ simInt simAdjustRealTimeTimer_internal(simInt instanceIndex,simFloat deltaTime)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        App::currentWorld->simulation->adjustRealTimeTimer_ns(quint64(deltaTime*1000000.0f));
+        App::currentWorld->simulation->adjustRealTimeTimer_us(quint64(deltaTime*1000000.0f));
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -7612,10 +7612,10 @@ simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dat
         emissionAngle2=tt::getLimitedFloat(0.0f,piValTimes2_f,emissionAngle2);
         persistence=tt::getLimitedFloat(0.0f,99999999999999.9f,persistence);
         if (persistence==0.0f)
-            persistence=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())*1.5f/1000000.0f;
+            persistence=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())*1.5f/1000000.0f;
         std::string datN(dataName);
         App::currentWorld->luaScriptContainer->broadcastDataContainer.broadcastData(0,targetID,dataHeader,datN,
-                        float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f+persistence,actionRadius,antennaHandle,
+                        float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+persistence,actionRadius,antennaHandle,
                         emissionAngle1,emissionAngle2,data,dataLength);
         return(1);
     }
@@ -7663,7 +7663,7 @@ simChar* simReceiveData_internal(simInt dataHeader,const simChar* dataName,simIn
         int theSenderID;
         int theDataHeader;
         std::string theDataName;
-        char* data0=App::currentWorld->luaScriptContainer->broadcastDataContainer.receiveData(0,float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f,
+        char* data0=App::currentWorld->luaScriptContainer->broadcastDataContainer.receiveData(0,float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f,
                 dataHeader,datNm,antennaHandle,dataLength[0],theIndex,theSenderID,theDataHeader,theDataName);
         char* retData=nullptr;
         if (data0!=nullptr)
@@ -7872,7 +7872,7 @@ simInt simAddParticleObjectItem_internal(simInt objectHandle,const simFloat* ite
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal=-1;
-        if (CPluginContainer::dyn_addParticleObjectItem(objectHandle,itemData,float(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f)!=0)
+        if (CPluginContainer::dyn_addParticleObjectItem(objectHandle,itemData,float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f)!=0)
             retVal=1;
         else
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT);
@@ -19545,7 +19545,7 @@ simInt simHandleVarious_internal()
         }
 
         // Following is for velocity measurement:
-        float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f;
+        float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
             App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(dt);
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)

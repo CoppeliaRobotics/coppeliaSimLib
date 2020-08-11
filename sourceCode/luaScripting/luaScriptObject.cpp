@@ -4952,7 +4952,7 @@ void CLuaScriptObject::handleDebug(const char* funcName,const char* funcType,boo
                     luaWrap_lua_rawseti(L,-2,5);
                     luaWrap_lua_pushboolean(L,sysCall);
                     luaWrap_lua_rawseti(L,-2,6);
-                    luaWrap_lua_pushnumber(L,double(App::currentWorld->simulation->getSimulationTime_ns())/1000000.0f);
+                    luaWrap_lua_pushnumber(L,double(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f);
                     luaWrap_lua_rawseti(L,-2,7);
 
                     if (luaWrap_lua_pcall(L,1,0,0)!=0)

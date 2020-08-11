@@ -47,7 +47,7 @@ void CQDlgSimulation::refresh()
     ui->qqConfigCombo->addItem(IDSN_TIME_STEP_CONFIG_25,QVariant(3));
     ui->qqConfigCombo->addItem(IDSN_TIME_STEP_CONFIG_10,QVariant(4));
 
-    float dt=float(App::currentWorld->simulation->getSimulationTimeStep_raw_ns(5))/1000.0f;
+    float dt=float(App::currentWorld->simulation->getSimulationTimeStep_raw_us(5))/1000.0f;
     std::string txt("dt=");
     txt+=tt::FNb(0,dt,1,false);
     txt+=IDSN_TIME_STEP_CONFIG_CUSTOM;
@@ -64,7 +64,7 @@ void CQDlgSimulation::refresh()
 
     ui->qqRealTime->setChecked(App::currentWorld->simulation->getRealTimeSimulation());
     ui->qqCatchUp->setChecked(App::currentWorld->simulation->getCatchUpIfLate());
-    ui->qqTimeStep->setText(tt::getDString(false,double(App::currentWorld->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0,4).c_str());
+    ui->qqTimeStep->setText(tt::getDString(false,double(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0,4).c_str());
     ui->qqFullscreen->setChecked(App::currentWorld->simulation->getFullscreenAtSimulationStart());
 
     ui->qqScriptExecutionPasses->setText(tt::getIString(false,App::currentWorld->simulation->getSimulationPassesPerRendering_speedModified()).c_str());
@@ -73,7 +73,7 @@ void CQDlgSimulation::refresh()
     ui->qqResetScene->setChecked(App::currentWorld->simulation->getResetSceneAtSimulationEnd());
     ui->qqRemoveNewObjects->setChecked(App::currentWorld->simulation->getRemoveNewObjectsAtSimulationEnd());
 
-    ui->qqPauseTime->setText(tt::getDString(false,double(App::currentWorld->simulation->getPauseTime_ns())/1000000.0,2).c_str());
+    ui->qqPauseTime->setText(tt::getDString(false,double(App::currentWorld->simulation->getPauseTime_us())/1000000.0,2).c_str());
     ui->qqPauseWhenTimeHigher->setChecked(App::currentWorld->simulation->getPauseAtSpecificTime());
     ui->qqPauseOnScriptError->setChecked(App::currentWorld->simulation->getPauseAtError());
 
