@@ -22,7 +22,7 @@
 *                                                      *
 *******************************************************/
 
-// Code adapted by Coppelia Robotics GmbH
+// Code adapted by Coppelia Robotics AG
 
 #pragma once
 

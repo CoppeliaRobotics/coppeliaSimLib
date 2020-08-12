@@ -1,7 +1,7 @@
 // SerialPort.cpp (original name: CSerial.cpp)
 // Original by Tom Archer and Rick Leinecker as found on CODEGURU:
 // http://www.codeguru.com/cpp/i-n/network/serialcommunications/article.php/c2503/CSerial--A-C-Class-for-Serial-Communications.htm
-// Slightly modified/adapted by Coppelia Robotics GmbH
+// Slightly modified/adapted by Coppelia Robotics AG
 
 #include "serialPortWin.h"
 

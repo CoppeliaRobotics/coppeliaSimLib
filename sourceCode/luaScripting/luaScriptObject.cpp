@@ -4711,14 +4711,11 @@ void CLuaScriptObject::serialize(CSer& ar)
 
             std::string tmp(_scriptText.c_str());
             boost::replace_all(tmp,"\r\n","\n");
-            ar.xmlAddNode_string("scriptText",tmp.c_str());
+            ar.xmlAddNode_comment(" 'scriptText' tag: best to use it with a CDATA section for readability ",exhaustiveXml);
+            ar.xmlAddNode_cdata("scriptText",tmp.c_str());
 
             if (exhaustiveXml)
             {
-//                ar.xmlPushNewNode("scriptParameters");
-//                _scriptParameters_backCompatibility->serialize(ar);
-//                ar.xmlPopNode();
-
                 if (_customObjectData!=nullptr)
                 {
                     ar.xmlPushNewNode("customData");
@@ -4755,7 +4752,7 @@ void CLuaScriptObject::serialize(CSer& ar)
             if (exhaustiveXml)
                 ar.xmlGetNode_int("debugLevel",_debugLevel);
 
-            if (ar.xmlGetNode_string("scriptText",_scriptText,exhaustiveXml))
+            if (ar.xmlGetNode_cdata("scriptText",_scriptText,exhaustiveXml))
             {
                 if (_scriptType==sim_scripttype_mainscript)
                 { // We just loaded a main script text. Do we want to load the default main script instead?

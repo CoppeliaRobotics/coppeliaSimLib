@@ -410,8 +410,34 @@ std::string CSer::_getNodeText(const xmlNode* node) const
 {
     std::string retVal;
     const char* txt=node->GetText();
+
     if (txt!=nullptr)
         retVal=txt;
+    return(retVal);
+}
+
+std::string CSer::_getNodeCdataText(const xmlNode* node) const
+{
+    std::string retVal;
+    const sim::tinyxml2::XMLNode* _node=node->FirstChild();
+    while(_node!=nullptr)
+    {
+        const sim::tinyxml2::XMLText* txt=_node->ToText();
+        if (txt!=nullptr)
+        {
+            std::string tx(_node->Value());
+            if (txt->CData())
+            {
+                if ( (tx.size()>1)&&(tx[0]=='\n')&&(tx[tx.size()-1]=='\n') )
+                {
+                    tx.erase(tx.begin(),tx.begin()+1);
+                    tx.erase(tx.end()-1,tx.end());
+                }
+            }
+            retVal+=tx;
+        }
+        _node=_node->NextSibling();
+    }
     return(retVal);
 }
 
@@ -1319,6 +1345,33 @@ void CSer::xmlAddNode_strings(const char* name,const std::vector<std::string>& v
     node->InsertEndChild(txt);
 }
 
+void CSer::xmlAddNode_cdata(const char* name,const char* str)
+{
+    xmlNode* node=_xmlDocument.NewElement(name);
+    _xmlCurrentNode->InsertEndChild(node);
+
+    std::string s(str);
+    size_t p0=0;
+    size_t p1=s.find("]]>",p0);
+    while (p1!=std::string::npos)
+    {
+        std::string _s(s.begin()+p0,s.begin()+p1);
+        _s="\n"+_s+"\n";
+        sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(_s.c_str());
+        txt->SetCData(true);
+        node->InsertEndChild(txt);
+        sim::tinyxml2::XMLText* txt2=_xmlDocument.NewText("]]>");
+        node->InsertEndChild(txt2);
+        p0=p1+3;
+        p1=s.find("]]>",p0);
+    }
+    std::string _s(s.begin()+p0,s.end());
+    _s="\n"+_s+"\n";
+    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(_s.c_str());
+    txt->SetCData(true);
+    node->InsertEndChild(txt);
+}
+
 void CSer::xmlAddNode_enum(const char* name,int val,int v1,const char* str1,int v2,const char* str2,int v3/*=-1*/,const char* str3/*=nullptr*/,int v4/*=-1*/,const char* str4/*=nullptr*/,int v5/*=-1*/,const char* str5/*=nullptr*/,int v6/*=-1*/,const char* str6/*=nullptr*/,int v7/*=-1*/,const char* str7/*=nullptr*/,int v8/*=-1*/,const char* str8/*=nullptr*/)
 {
     std::string tmp;
@@ -1894,6 +1947,21 @@ bool CSer::xmlGetNode_strings(const char* name,std::vector<std::string>& vals,bo
             else
                 break;
         }
+        return(true);
+    }
+    if (required)
+        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+    return(false);
+}
+
+bool CSer::xmlGetNode_cdata(const char* name,std::string& val,bool required/*=true*/)
+{
+    if (xmlDebug)
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_cdata, name: %s",name);
+    const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
+    if (node!=nullptr)
+    {
+        val=_getNodeCdataText(node);
         return(true);
     }
     if (required)

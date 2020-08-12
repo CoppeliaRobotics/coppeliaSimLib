@@ -36,7 +36,7 @@
             confined to function main().  Thanks to 
             Chris Hecker.
 
-    28 July 2015 Code adapted by Coppelia Robotics GmbH
+    28 July 2015 Code adapted by Coppelia Robotics AG
 
 */
 

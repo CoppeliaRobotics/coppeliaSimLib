@@ -1,4 +1,4 @@
-// Linux/Mac part Written by Maciej Szymanski on behalf of Coppelia Robotics GmbH
+// Linux/Mac part Written by Maciej Szymanski on behalf of Coppelia Robotics AG
 
 #include "serial_win_mac_linux.h"
 #include "serialPortWin.h"

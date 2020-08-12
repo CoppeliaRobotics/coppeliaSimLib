@@ -13,7 +13,7 @@
 #define SIM_MODEL_THUMBNAILFILE_NAME "simModelThumbnails.ttmt"
 #define SIM_WEBPAGE_ADDRESS_TXT "www.coppeliarobotics.com"
 #define SIM_WEBPAGE_EMAIL_TXT "info@coppeliarobotics.com"
-#define SIM_COMPANY_NAME_TXT "Coppelia Robotics GmbH"
+#define SIM_COMPANY_NAME_TXT "Coppelia Robotics AG"
 #define _SECURE_SCL 0 // Disables the bound check for vectors (a bit faster)
 #define SIM_IS_BIT_SET(var,bit) (((var) & (1<<(bit)))!=0)
 #define SIM_SET_BIT(var,bit) ((var) |= (1<<(bit)))
