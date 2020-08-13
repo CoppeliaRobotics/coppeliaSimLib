@@ -18270,50 +18270,45 @@ simChar* simGetApiFunc_internal(simInt scriptHandleOrType,const simChar* apiWord
         }
         else
             scriptType=scriptHandleOrType;
-        if ( (scriptType>=0) )//&&(strlen(apiWord)>0) )
+        std::string apiW(apiWord);
+        bool funcs=true;
+        bool vars=true;
+        if (apiW.size()>0)
         {
-            std::string apiW(apiWord);
-            bool funcs=true;
-            bool vars=true;
-            if (apiW.size()>0)
+            if ( (apiW[0]=='+')||(apiW[0]=='-') )
             {
-                if ( (apiW[0]=='+')||(apiW[0]=='-') )
-                {
-                    vars=(apiW[0]!='+');
-                    funcs=(apiW[0]!='-');
-                    apiW.erase(0,1);
-                }
+                vars=(apiW[0]!='+');
+                funcs=(apiW[0]!='-');
+                apiW.erase(0,1);
             }
-            std::vector<std::string> t;
-            std::map<std::string,bool> map;
-            if (funcs)
-            {
-                pushAllSimFunctionNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map,scriptType,threaded);
-                App::worldContainer->luaCustomFuncAndVarContainer->pushAllFunctionNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map);
-            }
-            if (vars)
-            {
-                pushAllSimVariableNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map);
-                App::worldContainer->luaCustomFuncAndVarContainer->pushAllVariableNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map);
-            }
-            std::sort(t.begin(),t.end());
-            std::string theWords;
-            for (int i=0;i<int(t.size());i++)
-            {
-                theWords+=t[i];
-                if (i!=int(t.size()-1))
-                    theWords+=' ';
-            }
-            char* buff=nullptr;
-            if (theWords.size()>0)
-            {
-                buff=new char[theWords.size()+1];
-                strcpy(buff,theWords.c_str());
-            }
-            return(buff);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENTS);
-        return(nullptr);
+        std::vector<std::string> t;
+        std::map<std::string,bool> map;
+        if (funcs)
+        {
+            pushAllSimFunctionNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map,scriptType,threaded);
+            App::worldContainer->luaCustomFuncAndVarContainer->pushAllFunctionNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map);
+        }
+        if (vars)
+        {
+            pushAllSimVariableNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map);
+            App::worldContainer->luaCustomFuncAndVarContainer->pushAllVariableNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map);
+        }
+        std::sort(t.begin(),t.end());
+        std::string theWords;
+        for (int i=0;i<int(t.size());i++)
+        {
+            theWords+=t[i];
+            if (i!=int(t.size()-1))
+                theWords+=' ';
+        }
+        char* buff=nullptr;
+        if (theWords.size()>0)
+        {
+            buff=new char[theWords.size()+1];
+            strcpy(buff,theWords.c_str());
+        }
+        return(buff);
     }
 
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -18339,7 +18334,7 @@ simChar* simGetApiInfo_internal(simInt scriptHandleOrType,const simChar* apiWord
         }
         else
             scriptType=scriptHandleOrType;
-        if ( (scriptType>=0)&&(strlen(apiWord)>0) )
+        if (strlen(apiWord)>0)
         {
             std::string tip(getSimFunctionCalltip(apiWord,scriptType,threaded,true));
             if (tip.size()==0)

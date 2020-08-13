@@ -254,7 +254,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.loadModel",_simLoadModel,                              "number objectHandle=sim.loadModel(string filename)",true},
     {"sim.saveModel",_simSaveModel,                              "string buffer=sim.saveModel(number modelBaseHandle,string filename=nil)",true},
     {"sim.isObjectInSelection",_simIsObjectInSelection,          "number selectionState=sim.isObjectInSelection(number objectHandle)",true},
-    {"sim.addObjectToSelection",_simAddObjectToSelection,        "sim.addObjectToSelection(number what,number objectHandle)\nnumber result=sim.addObjectToSelection(table objectHandles)",true},
+    {"sim.addObjectToSelection",_simAddObjectToSelection,        "sim.addObjectToSelection(number what,number objectHandle)\nsim.addObjectToSelection(table objectHandles)",true},
     {"sim.removeObjectFromSelection",_simRemoveObjectFromSelection,"sim.removeObjectFromSelection(number what,number objectHandle)\nnumber result=sim.removeObjectFromSelection(table objectHandles)",true},
     {"sim.getObjectSelection",_simGetObjectSelection,            "table selectedObjectHandles=sim.getObjectSelection()",true},
     {"sim.getRealTimeSimulation",_simGetRealTimeSimulation,      "number result=sim.getRealTimeSimulation()",true},
