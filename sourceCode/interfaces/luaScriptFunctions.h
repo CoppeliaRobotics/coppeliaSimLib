@@ -447,8 +447,6 @@ extern int _simRMLMoveToPosition(luaWrap_lua_State* L);
 extern int _simRMLMoveToJointPositions(luaWrap_lua_State* L);
 extern int _simGetObjectQuaternion(luaWrap_lua_State* L);
 extern int _simSetObjectQuaternion(luaWrap_lua_State* L);
-extern int _simSetShapeMassAndInertia(luaWrap_lua_State* L);
-extern int _simGetShapeMassAndInertia(luaWrap_lua_State* L);
 extern int _simGroupShapes(luaWrap_lua_State* L);
 extern int _simUngroupShape(luaWrap_lua_State* L);
 extern int _simConvexDecompose(luaWrap_lua_State* L);
@@ -545,6 +543,10 @@ extern int _simGetStringNamedParam(luaWrap_lua_State* L);
 extern int _simGetUserParameter(luaWrap_lua_State* L);
 extern int _simSetUserParameter(luaWrap_lua_State* L);
 extern int _simAddLog(luaWrap_lua_State* L);
+extern int _simGetShapeMass(luaWrap_lua_State* L);
+extern int _simSetShapeMass(luaWrap_lua_State* L);
+extern int _simGetShapeInertia(luaWrap_lua_State* L);
+extern int _simSetShapeInertia(luaWrap_lua_State* L);
 
 // DEPRECATED
 extern int _simAddStatusbarMessage(luaWrap_lua_State* L);
@@ -608,3 +610,5 @@ extern int _simGetPathPlanningHandle(luaWrap_lua_State* L);
 extern int _simSearchPath(luaWrap_lua_State* L);
 extern int _simInitializePathSearch(luaWrap_lua_State* L);
 extern int _simPerformPathSearchStep(luaWrap_lua_State* L);
+extern int _simSetShapeMassAndInertia(luaWrap_lua_State* L);
+extern int _simGetShapeMassAndInertia(luaWrap_lua_State* L);

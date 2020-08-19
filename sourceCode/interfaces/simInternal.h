@@ -293,8 +293,6 @@ simInt simRMLRemove_internal(simInt handle);
 simChar* simFileDialog_internal(simInt mode,const simChar* title,const simChar* startPath,const simChar* initName,const simChar* extName,const simChar* ext);
 simInt simMsgBox_internal(simInt dlgType,simInt buttons,const simChar* title,const simChar* message);
 simInt simCreateDummy_internal(simFloat size,const simFloat* color);
-simInt simSetShapeMassAndInertia_internal(simInt shapeHandle,simFloat mass,const simFloat* inertiaMatrix,const simFloat* centerOfMass,const simFloat* transformation);
-simInt simGetShapeMassAndInertia_internal(simInt shapeHandle,simFloat* mass,simFloat* inertiaMatrix,simFloat* centerOfMass,const simFloat* transformation);
 simInt simGroupShapes_internal(const simInt* shapeHandles,simInt shapeCount);
 simInt* simUngroupShape_internal(simInt shapeHandle,simInt* shapeCount);
 simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
@@ -427,6 +425,10 @@ simChar* simGetStringNamedParam_internal(const simChar* paramName,simInt* paramL
 simChar* simGetUserParameter_internal(simInt objectHandle,const simChar* parameterName,simInt* parameterLength);
 simInt simSetUserParameter_internal(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength);
 simInt simAddLog_internal(const simChar* pluginName,simInt verbosityLevel,const simChar* logMsg);
+simInt simGetShapeMass_internal(simInt shapeHandle,simFloat* mass);
+simInt simSetShapeMass_internal(simInt shapeHandle,simFloat mass);
+simInt simGetShapeInertia_internal(simInt shapeHandle,simFloat* inertiaMatrix,simFloat* transformationMatrix);
+simInt simSetShapeInertia_internal(simInt shapeHandle,const simFloat* inertiaMatrix,const simFloat* transformationMatrix);
 
 
 
@@ -622,6 +624,8 @@ simInt simAddStatusbarMessage_internal(const simChar* message);
 simChar* simGetScriptRawBuffer_internal(simInt scriptHandle,simInt bufferHandle);
 simInt simSetScriptRawBuffer_internal(simInt scriptHandle,const simChar* buffer,simInt bufferSize);
 simInt simReleaseScriptRawBuffer_internal(simInt scriptHandle,simInt bufferHandle);
+simInt simSetShapeMassAndInertia_internal(simInt shapeHandle,simFloat mass,const simFloat* inertiaMatrix,const simFloat* centerOfMass,const simFloat* transformation);
+simInt simGetShapeMassAndInertia_internal(simInt shapeHandle,simFloat* mass,simFloat* inertiaMatrix,simFloat* centerOfMass,const simFloat* transformation);
 
 
 #endif // !defined(simInternal_INCLUDED_)

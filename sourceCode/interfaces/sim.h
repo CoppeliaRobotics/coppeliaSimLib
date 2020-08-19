@@ -303,8 +303,6 @@ SIM_DLLEXPORT simInt simRMLRemove(simInt handle);
 SIM_DLLEXPORT simChar* simFileDialog(simInt mode,const simChar* title,const simChar* startPath,const simChar* initName,const simChar* extName,const simChar* ext);
 SIM_DLLEXPORT simInt simMsgBox(simInt dlgType,simInt buttons,const simChar* title,const simChar* message);
 SIM_DLLEXPORT simInt simCreateDummy(simFloat size,const simFloat* color);
-SIM_DLLEXPORT simInt simSetShapeMassAndInertia(simInt shapeHandle,simFloat mass,const simFloat* inertiaMatrix,const simFloat* centerOfMass,const simFloat* transformation);
-SIM_DLLEXPORT simInt simGetShapeMassAndInertia(simInt shapeHandle,simFloat* mass,simFloat* inertiaMatrix,simFloat* centerOfMass,const simFloat* transformation);
 SIM_DLLEXPORT simInt simGroupShapes(const simInt* shapeHandles,simInt shapeCount);
 SIM_DLLEXPORT simInt* simUngroupShape(simInt shapeHandle,simInt* shapeCount);
 SIM_DLLEXPORT simInt simCreateProximitySensor(simInt sensorType,simInt subType,simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
@@ -437,6 +435,10 @@ SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* p
 SIM_DLLEXPORT simChar* simGetUserParameter(simInt objectHandle,const simChar* parameterName,simInt* parameterLength);
 SIM_DLLEXPORT simInt simSetUserParameter(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength);
 SIM_DLLEXPORT simInt simAddLog(const simChar* pluginName,simInt verbosityLevel,const simChar* logMsg);
+SIM_DLLEXPORT simInt simGetShapeMass(simInt shapeHandle,simFloat* mass);
+SIM_DLLEXPORT simInt simSetShapeMass(simInt shapeHandle,simFloat mass);
+SIM_DLLEXPORT simInt simGetShapeInertia(simInt shapeHandle,simFloat* inertiaMatrix,simFloat* transformationMatrix);
+SIM_DLLEXPORT simInt simSetShapeInertia(simInt shapeHandle,const simFloat* inertiaMatrix,const simFloat* transformationMatrix);
 
 
 
@@ -642,6 +644,8 @@ SIM_DLLEXPORT simInt simAddStatusbarMessage(const simChar* message);
 SIM_DLLEXPORT simChar* simGetScriptRawBuffer(simInt scriptHandle,simInt bufferHandle);
 SIM_DLLEXPORT simInt simSetScriptRawBuffer(simInt scriptHandle,const simChar* buffer,simInt bufferSize);
 SIM_DLLEXPORT simInt simReleaseScriptRawBuffer(simInt scriptHandle,simInt bufferHandle);
+SIM_DLLEXPORT simInt simSetShapeMassAndInertia(simInt shapeHandle,simFloat mass,const simFloat* inertiaMatrix,const simFloat* centerOfMass,const simFloat* transformation);
+SIM_DLLEXPORT simInt simGetShapeMassAndInertia(simInt shapeHandle,simFloat* mass,simFloat* inertiaMatrix,simFloat* centerOfMass,const simFloat* transformation);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

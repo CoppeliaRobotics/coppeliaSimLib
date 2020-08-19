@@ -220,7 +220,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getObjectMatrix",_simGetObjectMatrix,                  "table_12 matrix=sim.getObjectMatrix(number objectHandle,number relativeToObjectHandle)",true},
     {"sim.setObjectMatrix",_simSetObjectMatrix,                  "sim.setObjectMatrix(number objectHandle,number relativeToObjectHandle,table_12 matrix)",true},
     {"sim.getJointMatrix",_simGetJointMatrix,                    "table_12 matrix=sim.getJointMatrix(number objectHandle)",true},
-    {"sim.setSphericalJointMatrix",_simSetSphericalJointMatrix,  "sim.setSphericalJointMatrix(number objectHandle,table_12 matrix",true},
+    {"sim.setSphericalJointMatrix",_simSetSphericalJointMatrix,  "sim.setSphericalJointMatrix(number objectHandle,table_12 matrix)",true},
     {"sim.buildIdentityMatrix",_simBuildIdentityMatrix,          "table_12 matrix=sim.buildIdentityMatrix()",true},
     {"sim.copyMatrix",_simCopyMatrix,                            "table_12 matrix=sim.copyMatrix(table_12 matrixToCopy)",true},
     {"sim.buildMatrix",_simBuildMatrix,                          "table_12 matrix=sim.buildMatrix(table_3 position,table_3 eulerAngles)",true},
@@ -413,8 +413,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.isHandleValid",_simIsHandleValid,                      "number result=sim.isHandleValid(number generalObjectHandle,number generalObjectType=-1)",true},
     {"sim.getObjectQuaternion",_simGetObjectQuaternion,          "table_4 quaternion=sim.getObjectQuaternion(number objectHandle,number relativeToObjectHandle)",true},
     {"sim.setObjectQuaternion",_simSetObjectQuaternion,          "sim.setObjectQuaternion(number objectHandle,number relativeToObjectHandle,table_4 quaternion)",true},
-    {"sim.setShapeMassAndInertia",_simSetShapeMassAndInertia,    "sim.setShapeMassAndInertia(number shapeHandle,number mass,table_9 inertiaMatrix,table_3 centerOfMass,\ntable_12 transformation=nil)",true},
-    {"sim.getShapeMassAndInertia",_simGetShapeMassAndInertia,    "number mass,table_9 inertiaMatrix,table_3 centerOfMass=sim.getShapeMassAndInertia(number shapeHandle,table_12 transformation=nil)",true},
     {"sim.groupShapes",_simGroupShapes,                          "number shapeHandle=sim.groupShapes(table shapeHandles)",true},
     {"sim.ungroupShape",_simUngroupShape,                        "table simpleShapeHandles=sim.ungroupShape(number shapeHandle)",true},
     {"sim.convexDecompose",_simConvexDecompose,                  "number shapeHandle=sim.convexDecompose(number shapeHandle,number options,table_4 intParams,table_3 floatParams)",true},
@@ -426,7 +424,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getTextureId",_simGetTextureId,                        "number textureId,table_2 resolution=sim.getTextureId(string textureName)",true},
     {"sim.readTexture",_simReadTexture,                          "string textureData=sim.readTexture(number textureId,number options,number posX=0,number posY=0,number sizeX=0,number sizeY=0)",true},
     {"sim.writeTexture",_simWriteTexture,                        "sim.writeTexture(number textureId,number options,string textureData,number posX=0,number posY=0,number sizeX=0,\nnumber sizeY=0,number interpol=0)",true},
-    {"sim.createTexture",_simCreateTexture,                      "number shapeHandle,number textureId,table_2 resolution=sim.createTexture(string fileName,number options,table_2 planeSizes=nil,\ntable_2 scalingUV=nil,table_2 xy_g=nil,number fixedResolution=0,table_2 resolution=nil}",true},
+    {"sim.createTexture",_simCreateTexture,                      "number shapeHandle,number textureId,table_2 resolution=sim.createTexture(string fileName,number options,table_2 planeSizes=nil,\ntable_2 scalingUV=nil,table_2 xy_g=nil,number fixedResolution=0,table_2 resolution=nil)",true},
     {"sim.writeCustomDataBlock",_simWriteCustomDataBlock,        "sim.writeCustomDataBlock(number objectHandle,string tagName,string data)",true},
     {"sim.readCustomDataBlock",_simReadCustomDataBlock,          "string data=sim.readCustomDataBlock(number objectHandle,string tagName)",true},
     {"sim.readCustomDataBlockTags",_simReadCustomDataBlockTags,  "table tags=sim.readCustomDataBlockTags(number objectHandle)",true},
@@ -530,7 +528,10 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getUserParameter",_simGetUserParameter,                "boolean/number/string parameterValue=sim.getUserParameter(number objectHandle,string parameterName,boolean forceStringReturn=false)",true},
     {"sim.setUserParameter",_simSetUserParameter,                "sim.setUserParameter(number objectHandle,string parameterName,string parameterValue)",true},
     {"sim.addLog",_simAddLog,                                    "sim.addLog(number verbosityLevel,string logMessage)",true},
-
+    {"sim.getShapeMass",_simGetShapeMass,                        "number mass=sim.getShapeMassAndInertia(number shapeHandle)",true},
+    {"sim.setShapeMass",_simSetShapeMass,                        "sim.setShapeMass(number shapeHandle,number mass)",true},
+    {"sim.getShapeInertia",_simGetShapeInertia,                  "table_9 inertiaMatrix,table_12 transformationMatrix=sim.getShapeInertia(number shapeHandle)",true},
+    {"sim.setShapeInertia",_simSetShapeInertia,                  "sim.setShapeInertia(number shapeHandle,table_9 inertiaMatrix,table_12 transformationMatrix)",true},
 
     {"sim.test",_simTest,                                        "test function - shouldn't be used",true},
 
@@ -554,6 +555,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setJointForce",_simSetJointMaxForce,                   "Deprecated. Use 'sim.setJointMaxForce' instead",false},
     {"sim.handleMechanism",_simHandleMechanism,                  "Deprecated. Has no effect.",false},
     {"sim.setPathTargetNominalVelocity",_simSetPathTargetNominalVelocity,"Deprecated",false},
+    {"sim.getShapeMassAndInertia",_simGetShapeMassAndInertia,    "Deprecated. Use 'sim.getShapeMass' and/or 'sim.getShapeInertia' instead",false},
+    {"sim.setShapeMassAndInertia",_simSetShapeMassAndInertia,    "Deprecated. Use 'sim.setShapeMass' and/or 'sim.setShapeInertia' instead",false},
 
     {"",nullptr,"",false}
 };
@@ -832,8 +835,8 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simIsHandleValid",_simIsHandleValid,                      "Use the newer 'sim.isHandleValid' notation",false},
     {"simGetObjectQuaternion",_simGetObjectQuaternion,          "Use the newer 'sim.getObjectQuaternion' notation",false},
     {"simSetObjectQuaternion",_simSetObjectQuaternion,          "Use the newer 'sim.setObjectQuaternion' notation",false},
-    {"simSetShapeMassAndInertia",_simSetShapeMassAndInertia,    "Use the newer 'sim.setShapeMassAndInertia' notation",false},
-    {"simGetShapeMassAndInertia",_simGetShapeMassAndInertia,    "Use the newer 'sim.getShapeMassAndInertia' notation",false},
+    {"simSetShapeMassAndInertia",_simSetShapeMassAndInertia,    "Deprecated. Use 'sim.setShapeMass' and/or 'sim.setShapeInertia' instead",false},
+    {"simGetShapeMassAndInertia",_simGetShapeMassAndInertia,    "Deprecated. Use 'sim.getShapeMass' and/or 'sim.getShapeInertia' instead",false},
     {"simGroupShapes",_simGroupShapes,                          "Use the newer 'sim.groupShapes' notation",false},
     {"simUngroupShape",_simUngroupShape,                        "Use the newer 'sim.ungroupShape' notation",false},
     {"simConvexDecompose",_simConvexDecompose,                  "Use the newer 'sim.convexDecompose' notation",false},
@@ -15721,68 +15724,79 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSetShapeMassAndInertia(luaWrap_lua_State* L)
+int _simGetShapeMass(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setShapeMassAndInertia");
-
-    int result=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,9,lua_arg_number,3))
-    {
-        int handle=luaWrap_lua_tointeger(L,1);
-        float mass=luaToFloat(L,2);
-        float inertiaMatrix[9];
-        getFloatsFromTable(L,3,9,inertiaMatrix);
-        float centerOfMass[3];
-        getFloatsFromTable(L,4,3,centerOfMass);
-        float* transf=nullptr;
-        float transformation[12];
-        int res=checkOneGeneralInputArgument(L,5,lua_arg_number,12,true,true,&errorString);
-        if (res>=0)
-        {
-            if (res==2)
-            {
-                getFloatsFromTable(L,5,12,transformation);
-                transf=transformation;
-            }
-            result=simSetShapeMassAndInertia_internal(handle,mass,inertiaMatrix,centerOfMass,transf);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,result);
-    LUA_END(1);
-}
-
-int _simGetShapeMassAndInertia(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getShapeMassAndInertia");
+    LUA_START("sim.getShapeMass");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int handle=luaWrap_lua_tointeger(L,1);
-        float* transf=nullptr;
-        float transformation[12];
-        int res=checkOneGeneralInputArgument(L,2,lua_arg_number,12,true,true,&errorString);
-        if (res>=0)
+        float mass;
+        int result=simGetShapeMass_internal(handle,&mass);
+        if (result!=-1)
         {
-            if (res==2)
-            {
-                getFloatsFromTable(L,2,12,transformation);
-                transf=transformation;
-            }
-            float mass;
-            float inertiaMatrix[9];
-            float centerOfMass[3];
-            int result=simGetShapeMassAndInertia_internal(handle,&mass,inertiaMatrix,centerOfMass,transf);
-            if (result==-1)
-                luaWrap_lua_pushnil(L);
             luaWrap_lua_pushnumber(L,mass);
-            pushFloatTableOntoStack(L,9,inertiaMatrix);
-            pushFloatTableOntoStack(L,3,centerOfMass);
-            LUA_END(3);
+            LUA_END(1);
         }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetShapeMass(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setShapeMass");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        int handle=luaWrap_lua_tointeger(L,1);
+        float mass=luaToFloat(L,2);
+        simSetShapeMass_internal(handle,mass);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetShapeInertia(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getShapeInertia");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int handle=luaWrap_lua_tointeger(L,1);
+        float inertiaMatrix[9];
+        float transformation[12];
+        int result=simGetShapeInertia_internal(handle,inertiaMatrix,transformation);
+        if (result!=-1)
+        {
+            pushFloatTableOntoStack(L,9,inertiaMatrix);
+            pushFloatTableOntoStack(L,12,transformation);
+            LUA_END(2);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetShapeInertia(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setShapeInertia");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,9,lua_arg_number,12))
+    {
+        int handle=luaWrap_lua_tointeger(L,1);
+        float inertiaMatrix[9];
+        getFloatsFromTable(L,2,9,inertiaMatrix);
+        float transformation[12];
+        getFloatsFromTable(L,3,12,transformation);
+        simSetShapeInertia_internal(handle,inertiaMatrix,transformation);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -20873,5 +20887,73 @@ int _simAddStatusbarMessage(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
+}
+
+int _simSetShapeMassAndInertia(luaWrap_lua_State* L)
+{ // DEPRECATED
+    TRACE_LUA_API;
+    LUA_START("sim.setShapeMassAndInertia");
+
+    int result=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,9,lua_arg_number,3))
+    {
+        int handle=luaWrap_lua_tointeger(L,1);
+        float mass=luaToFloat(L,2);
+        float inertiaMatrix[9];
+        getFloatsFromTable(L,3,9,inertiaMatrix);
+        float centerOfMass[3];
+        getFloatsFromTable(L,4,3,centerOfMass);
+        float* transf=nullptr;
+        float transformation[12];
+        int res=checkOneGeneralInputArgument(L,5,lua_arg_number,12,true,true,&errorString);
+        if (res>=0)
+        {
+            if (res==2)
+            {
+                getFloatsFromTable(L,5,12,transformation);
+                transf=transformation;
+            }
+            result=simSetShapeMassAndInertia_internal(handle,mass,inertiaMatrix,centerOfMass,transf);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,result);
+    LUA_END(1);
+}
+
+int _simGetShapeMassAndInertia(luaWrap_lua_State* L)
+{ // DEPRECATED
+    TRACE_LUA_API;
+    LUA_START("sim.getShapeMassAndInertia");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int handle=luaWrap_lua_tointeger(L,1);
+        float* transf=nullptr;
+        float transformation[12];
+        int res=checkOneGeneralInputArgument(L,2,lua_arg_number,12,true,true,&errorString);
+        if (res>=0)
+        {
+            if (res==2)
+            {
+                getFloatsFromTable(L,2,12,transformation);
+                transf=transformation;
+            }
+            float mass;
+            float inertiaMatrix[9];
+            float centerOfMass[3];
+            int result=simGetShapeMassAndInertia_internal(handle,&mass,inertiaMatrix,centerOfMass,transf);
+            if (result==-1)
+                luaWrap_lua_pushnil(L);
+            luaWrap_lua_pushnumber(L,mass);
+            pushFloatTableOntoStack(L,9,inertiaMatrix);
+            pushFloatTableOntoStack(L,3,centerOfMass);
+            LUA_END(3);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 

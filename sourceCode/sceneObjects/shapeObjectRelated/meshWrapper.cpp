@@ -5,6 +5,8 @@
 #include "global.h"
 #include "viewableBase.h"
 #include "app.h"
+#include <Eigen/Eigenvalues>
+#include <iostream>
 
 CMeshWrapper::CMeshWrapper()
 {
@@ -657,7 +659,35 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
 
 
 void CMeshWrapper::findPrincipalMomentOfInertia(const C3X3Matrix& tensor,C4Vector& rotation,C3Vector& principalMoments)
-{ // This routine is iterative and not elegant. But we do not need speed here anyway ;)
+{
+    //*
+    Eigen::Matrix3f m;
+    m(0,0)=tensor(0,0);
+    m(1,1)=tensor(1,1);
+    m(2,2)=tensor(2,2);
+    m(0,1)=tensor(0,1);
+    m(1,0)=tensor(0,1);
+    m(0,2)=tensor(0,2);
+    m(2,0)=tensor(0,2);
+    m(1,2)=tensor(1,2);
+    m(2,1)=tensor(1,2);
+    Eigen::EigenSolver<Eigen::Matrix3f> es(m);
+    Eigen::Vector3cf eigenVals=es.eigenvalues();
+    principalMoments.set(eigenVals(0).real(),eigenVals(1).real(),eigenVals(2).real());
+    Eigen::Vector3cf eigenVect1=es.eigenvectors().col(0);
+    C3Vector eVect1(eigenVect1(0).real(),eigenVect1(1).real(),eigenVect1(2).real());
+    Eigen::Vector3cf eigenVect2=es.eigenvectors().col(1);
+    C3Vector eVect2(eigenVect2(0).real(),eigenVect2(1).real(),eigenVect2(2).real());
+    Eigen::Vector3cf eigenVect3=es.eigenvectors().col(2);
+    C3Vector eVect3(eigenVect3(0).real(),eigenVect3(1).real(),eigenVect3(2).real());
+    C3X3Matrix matr;
+    matr.axis[0]=eVect1;
+    matr.axis[1]=eVect2;
+    matr.axis[2]=eVect3;
+    rotation=matr.getQuaternion();
+    //*/
+    /*
+    // This routine is iterative and not elegant. But we do not need speed here anyway
     C3X3Matrix rot;
     C3X3Matrix tens(tensor);
     rot.setIdentity();
@@ -703,6 +733,7 @@ void CMeshWrapper::findPrincipalMomentOfInertia(const C3X3Matrix& tensor,C4Vecto
     principalMoments(1)=tens.axis[1](1);
     principalMoments(2)=tens.axis[2](2);
     rotation=rot.getQuaternion();
+    //*/
 }
 
 float CMeshWrapper::_getTensorNonDiagonalMeasure(const C3X3Matrix& tensor)

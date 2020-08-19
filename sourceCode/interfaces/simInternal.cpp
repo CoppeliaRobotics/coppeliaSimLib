@@ -13797,7 +13797,27 @@ simInt simMsgBox_internal(simInt dlgType,simInt buttons,const simChar* title,con
     return(retVal);
 }
 
-simInt simSetShapeMassAndInertia_internal(simInt shapeHandle,simFloat mass,const simFloat* inertiaMatrix,const simFloat* centerOfMass,const simFloat* transformation)
+simInt simGetShapeMass_internal(simInt shapeHandle,simFloat* mass)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!isShape(__func__,shapeHandle))
+            return(-1);
+        CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+
+        mass[0]=it->getMeshWrapper()->getMass();
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetShapeMass_internal(simInt shapeHandle,simFloat mass)
 {
     TRACE_C_API;
 
@@ -13812,31 +13832,7 @@ simInt simSetShapeMassAndInertia_internal(simInt shapeHandle,simFloat mass,const
 
         if (mass<0.0000001f)
             mass=0.0000001f;
-        C3X3Matrix m;
-        m.copyFromInterface(inertiaMatrix);
-        m.axis[0](1)=m.axis[1](0);
-        m.axis[0](2)=m.axis[2](0);
-        m.axis[1](2)=m.axis[2](1);
-        m/=mass; // in CoppeliaSim we work with the "massless inertia"
         it->getMeshWrapper()->setMass(mass);
-        C3Vector com(centerOfMass);
-        C4X4Matrix tr;
-        if (transformation==nullptr)
-            tr.setIdentity();
-        else
-            tr.copyFromInterface(transformation);
-
-        C4Vector rot;
-        C3Vector pmoment;
-        CMeshWrapper::findPrincipalMomentOfInertia(m,rot,pmoment);
-        if (pmoment(0)<0.0000001f)
-            pmoment(0)=0.0000001f;
-        if (pmoment(1)<0.0000001f)
-            pmoment(1)=0.0000001f;
-        if (pmoment(2)<0.0000001f)
-            pmoment(0)=0.0000001f;
-        it->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
-        it->getMeshWrapper()->setLocalInertiaFrame(it->getFullCumulativeTransformation().getInverse()*tr.getTransformation()*C7Vector(rot,com));
         it->setDynamicsFullRefreshFlag(true);
         return(1);
     }
@@ -13844,7 +13840,7 @@ simInt simSetShapeMassAndInertia_internal(simInt shapeHandle,simFloat mass,const
     return(-1);
 }
 
-simInt simGetShapeMassAndInertia_internal(simInt shapeHandle,simFloat* mass,simFloat* inertiaMatrix,simFloat* centerOfMass,const simFloat* transformation)
+simInt simGetShapeInertia_internal(simInt shapeHandle,simFloat* inertiaMatrix,simFloat* transformationMatrix)
 {
     TRACE_C_API;
 
@@ -13857,20 +13853,60 @@ simInt simGetShapeMassAndInertia_internal(simInt shapeHandle,simFloat* mass,simF
             return(-1);
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
 
-        mass[0]=it->getMeshWrapper()->getMass();
-        //float mmm=it->geomInfo->getMass();
+        C4X4Matrix tr(it->getMeshWrapper()->getLocalInertiaFrame());
+        tr.copyToInterface(transformationMatrix);
 
-        C7Vector tr(it->getFullCumulativeTransformation()*it->getMeshWrapper()->getLocalInertiaFrame());
-        C4X4Matrix ref;
-        if (transformation==nullptr)
-            ref.setIdentity();
-        else
-            ref.copyFromInterface(transformation);
-        C3X3Matrix m(CMeshWrapper::getNewTensor(it->getMeshWrapper()->getPrincipalMomentsOfInertia(),ref.getTransformation().getInverse()*tr));
-        m*=mass[0]; // in CoppeliaSim we work with the "massless inertia"
+        C3X3Matrix m;
+        m.clear();
+        m.axis[0](0)=it->getMeshWrapper()->getPrincipalMomentsOfInertia()(0);
+        m.axis[1](1)=it->getMeshWrapper()->getPrincipalMomentsOfInertia()(1);
+        m.axis[2](2)=it->getMeshWrapper()->getPrincipalMomentsOfInertia()(2);
+        m*=it->getMeshWrapper()->getMass(); // in CoppeliaSim we work with the "massless inertia"
         m.copyToInterface(inertiaMatrix);
-        (ref.getTransformation().getInverse()*tr).X.copyTo(centerOfMass);
 
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetShapeInertia_internal(simInt shapeHandle,const simFloat* inertiaMatrix,const simFloat* transformationMatrix)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!isShape(__func__,shapeHandle))
+            return(-1);
+        CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+
+        C4X4Matrix tr;
+        tr.copyFromInterface(transformationMatrix);
+
+        C3X3Matrix m;
+        m.copyFromInterface(inertiaMatrix);
+        m.axis[0](1)=m.axis[1](0);
+        m.axis[0](2)=m.axis[2](0);
+        m.axis[1](2)=m.axis[2](1);
+        m/=it->getMeshWrapper()->getMass(); // in CoppeliaSim we work with the "massless inertia"
+
+        C7Vector corr;
+        corr.setIdentity();
+        C3Vector pmoment;
+        CMeshWrapper::findPrincipalMomentOfInertia(m,corr.Q,pmoment);
+
+        if (pmoment(0)<0.0000001f)
+            pmoment(0)=0.0000001f;
+        if (pmoment(1)<0.0000001f)
+            pmoment(1)=0.0000001f;
+        if (pmoment(2)<0.0000001f)
+            pmoment(0)=0.0000001f;
+        it->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
+        it->getMeshWrapper()->setLocalInertiaFrame(tr.getTransformation()*corr);
+        it->setDynamicsFullRefreshFlag(true);
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -21495,3 +21531,84 @@ simInt simReleaseScriptRawBuffer_internal(simInt scriptHandle,simInt bufferHandl
 { // DEPRECATED in 2020
     return(-1);
 }
+
+simInt simSetShapeMassAndInertia_internal(simInt shapeHandle,simFloat mass,const simFloat* inertiaMatrix,const simFloat* centerOfMass,const simFloat* transformation)
+{ // DEPRECATED in 2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!isShape(__func__,shapeHandle))
+            return(-1);
+        CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+
+        if (mass<0.0000001f)
+            mass=0.0000001f;
+        C3X3Matrix m;
+        m.copyFromInterface(inertiaMatrix);
+        m.axis[0](1)=m.axis[1](0);
+        m.axis[0](2)=m.axis[2](0);
+        m.axis[1](2)=m.axis[2](1);
+        m/=mass; // in CoppeliaSim we work with the "massless inertia"
+        it->getMeshWrapper()->setMass(mass);
+        C3Vector com(centerOfMass);
+        C4X4Matrix tr;
+        if (transformation==nullptr)
+            tr.setIdentity();
+        else
+            tr.copyFromInterface(transformation);
+
+        C4Vector rot;
+        C3Vector pmoment;
+        CMeshWrapper::findPrincipalMomentOfInertia(m,rot,pmoment);
+        if (pmoment(0)<0.0000001f)
+            pmoment(0)=0.0000001f;
+        if (pmoment(1)<0.0000001f)
+            pmoment(1)=0.0000001f;
+        if (pmoment(2)<0.0000001f)
+            pmoment(0)=0.0000001f;
+        it->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
+        it->getMeshWrapper()->setLocalInertiaFrame(it->getFullCumulativeTransformation().getInverse()*tr.getTransformation()*C7Vector(rot,com));
+        it->setDynamicsFullRefreshFlag(true);
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetShapeMassAndInertia_internal(simInt shapeHandle,simFloat* mass,simFloat* inertiaMatrix,simFloat* centerOfMass,const simFloat* transformation)
+{ // DEPRECATED in 2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!isShape(__func__,shapeHandle))
+            return(-1);
+        CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+
+        mass[0]=it->getMeshWrapper()->getMass();
+        //float mmm=it->geomInfo->getMass();
+
+        C7Vector tr(it->getFullCumulativeTransformation()*it->getMeshWrapper()->getLocalInertiaFrame());
+        C4X4Matrix ref;
+        if (transformation==nullptr)
+            ref.setIdentity();
+        else
+            ref.copyFromInterface(transformation);
+        C3X3Matrix m(CMeshWrapper::getNewTensor(it->getMeshWrapper()->getPrincipalMomentsOfInertia(),ref.getTransformation().getInverse()*tr));
+        m*=mass[0]; // in CoppeliaSim we work with the "massless inertia"
+        m.copyToInterface(inertiaMatrix);
+        (ref.getTransformation().getInverse()*tr).X.copyTo(centerOfMass);
+
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+

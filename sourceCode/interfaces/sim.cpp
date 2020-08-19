@@ -1149,14 +1149,6 @@ SIM_DLLEXPORT simInt simCreateDummy(simFloat size,const simFloat* color)
 {
     return(simCreateDummy_internal(size,color));
 }
-SIM_DLLEXPORT simInt simSetShapeMassAndInertia(simInt shapeHandle,simFloat mass,const simFloat* inertiaMatrix,const simFloat* centerOfMass,const simFloat* transformation)
-{
-    return(simSetShapeMassAndInertia_internal(shapeHandle,mass,inertiaMatrix,centerOfMass,transformation));
-}
-SIM_DLLEXPORT simInt simGetShapeMassAndInertia(simInt shapeHandle,simFloat* mass,simFloat* inertiaMatrix,simFloat* centerOfMass,const simFloat* transformation)
-{
-    return(simGetShapeMassAndInertia_internal(shapeHandle,mass,inertiaMatrix,centerOfMass,transformation));
-}
 SIM_DLLEXPORT simInt simGroupShapes(const simInt* shapeHandles,simInt shapeCount)
 {
     return(simGroupShapes_internal(shapeHandles,shapeCount));
@@ -1688,6 +1680,22 @@ SIM_DLLEXPORT simInt simSetUserParameter(simInt objectHandle,const simChar* para
 SIM_DLLEXPORT simInt simAddLog(const simChar* pluginName,simInt verbosityLevel,const simChar* logMsg)
 {
     return(simAddLog_internal(pluginName,verbosityLevel,logMsg));
+}
+SIM_DLLEXPORT simInt simGetShapeMass(simInt shapeHandle,simFloat* mass)
+{
+    return(simGetShapeMass_internal(shapeHandle,mass));
+}
+SIM_DLLEXPORT simInt simSetShapeMass(simInt shapeHandle,simFloat mass)
+{
+    return(simSetShapeMass_internal(shapeHandle,mass));
+}
+SIM_DLLEXPORT simInt simGetShapeInertia(simInt shapeHandle,simFloat* inertiaMatrix,simFloat* transformationMatrix)
+{
+    return(simGetShapeInertia_internal(shapeHandle,inertiaMatrix,transformationMatrix));
+}
+SIM_DLLEXPORT simInt simSetShapeInertia(simInt shapeHandle,const simFloat* inertiaMatrix,const simFloat* transformationMatrix)
+{
+    return(simSetShapeInertia_internal(shapeHandle,inertiaMatrix,transformationMatrix));
 }
 
 
@@ -2461,6 +2469,14 @@ SIM_DLLEXPORT simInt simSetScriptRawBuffer(simInt scriptHandle,const simChar* bu
 SIM_DLLEXPORT simInt simReleaseScriptRawBuffer(simInt scriptHandle,simInt bufferHandle)
 {
     return(simReleaseScriptRawBuffer_internal(scriptHandle,bufferHandle));
+}
+SIM_DLLEXPORT simInt simSetShapeMassAndInertia(simInt shapeHandle,simFloat mass,const simFloat* inertiaMatrix,const simFloat* centerOfMass,const simFloat* transformation)
+{
+    return(simSetShapeMassAndInertia_internal(shapeHandle,mass,inertiaMatrix,centerOfMass,transformation));
+}
+SIM_DLLEXPORT simInt simGetShapeMassAndInertia(simInt shapeHandle,simFloat* mass,simFloat* inertiaMatrix,simFloat* centerOfMass,const simFloat* transformation)
+{
+    return(simGetShapeMassAndInertia_internal(shapeHandle,mass,inertiaMatrix,centerOfMass,transformation));
 }
 // Deprecated end
 
