@@ -255,9 +255,11 @@ void simulatorInit()
 void simulatorDeinit()
 {
     // Unload all plugins:
-    for (size_t i=0;i<pluginHandles.size();i++)
-        simUnloadModule_internal(pluginHandles[i]);
-    pluginHandles.clear();
+    while (pluginHandles.size()>0)
+    {
+        simUnloadModule_internal(pluginHandles[pluginHandles.size()-1]);
+        pluginHandles.pop_back();
+    }
     App::logMsg(sim_verbosity_loadinfos,"simulator ended.");
 }
 

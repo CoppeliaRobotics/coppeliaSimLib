@@ -373,7 +373,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.auxiliaryConsoleOpen",_simAuxiliaryConsoleOpen,        "number consoleHandle=sim.auxiliaryConsoleOpen(string title,number maxLines,number mode,table_2 position=nil,table_2 size=nil,\ntable_3 textColor=nil,table_3 backgroundColor=nil)",true},
     {"sim.auxiliaryConsoleClose",_simAuxiliaryConsoleClose,      "number result=sim.auxiliaryConsoleClose(number consoleHandle)",true},
     {"sim.auxiliaryConsolePrint",_simAuxiliaryConsolePrint,      "number result=sim.auxiliaryConsolePrint(number consoleHandle,string text)",true},
-    {"sim.auxiliaryConsoleShow",_simAuxiliaryConsoleShow,        "number result=sim.auxiliaryConsoleShow(number consoleHandle,Boolean showState)",true},
+    {"sim.auxiliaryConsoleShow",_simAuxiliaryConsoleShow,        "number result=sim.auxiliaryConsoleShow(number consoleHandle,boolean showState)",true},
     {"sim.importShape",_simImportShape,                          "number shapeHandle=sim.importShape(number fileformat,string pathAndFilename,number options,number identicalVerticeTolerance\n,number scalingFactor)",true},
     {"sim.importMesh",_simImportMesh,                            "table_of_table vertices,table_of_table indices=sim.importMesh(number fileformat,string pathAndFilename,\nnumber options,number identicalVerticeTolerance,number scalingFactor)",true},
     {"sim.exportMesh",_simExportMesh,                            "sim.exportMesh(number fileformat,string pathAndFilename,number options,number scalingFactor,\ntable_of_table vertices,table_of_table indices)",true},
