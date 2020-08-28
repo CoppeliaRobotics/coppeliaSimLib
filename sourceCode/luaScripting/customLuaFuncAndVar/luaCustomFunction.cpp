@@ -57,12 +57,14 @@ bool CLuaCustomFunction::hasCalltipsAndSyntaxHighlighing() const
 
 bool CLuaCustomFunction::hasAutocompletion() const
 {
-    return( (callTips.length()>0)&&(hasCallback()||_functionIsDefinedInScript) );
+//    return( (callTips.length()>0)&&(hasCallback()||_functionIsDefinedInScript) );
+    return(callTips.length()>0);
 }
 
 bool CLuaCustomFunction::isDeprecated() const
 {
-    return( (callTips.length()==0)||( (!hasCallback())&&(!_functionIsDefinedInScript) ) );
+//    return( (callTips.length()==0)||( (!hasCallback())&&(!_functionIsDefinedInScript) ) );
+    return(callTips.length()==0);
 }
 
 void CLuaCustomFunction::registerCustomLuaFunction(luaWrap_lua_State* L,luaWrap_lua_CFunction func) const

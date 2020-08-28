@@ -245,6 +245,7 @@ void CLuaCustomFuncAndVarContainer::pushAllFunctionNamesThatStartSame_autoComple
         if (allCustomFunctions[i]->hasAutocompletion())
         {
             std::string n(allCustomFunctions[i]->getFunctionName());
+
             if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
             {
                 if (!hasDot)
