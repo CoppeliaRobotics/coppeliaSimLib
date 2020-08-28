@@ -2009,6 +2009,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             {
                 ar.xmlGetNode_floats("position",_verticeLocalFrame.X.data,3);
                 ar.xmlGetNode_floats("quaternion",_verticeLocalFrame.Q.data,4);
+                _verticeLocalFrame.Q.normalize(); // just in case
                 ar.xmlPopNode();
             }
 

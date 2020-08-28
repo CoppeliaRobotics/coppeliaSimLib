@@ -675,6 +675,7 @@ void CTextureProperty::serialize(CSer& ar)
             {
                 ar.xmlGetNode_floats("position",_textureRelativeConfig.X.data,3);
                 ar.xmlGetNode_floats("quaternion",_textureRelativeConfig.Q.data,4);
+                _textureRelativeConfig.Q.normalize(); // just in case
                 ar.xmlPopNode();
             }
 

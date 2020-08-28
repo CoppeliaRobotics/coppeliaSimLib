@@ -607,6 +607,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                     {
                         ar.xmlGetNode_floats("position",_localInertiaFrame.X.data,3);
                         ar.xmlGetNode_floats("quaternion",_localInertiaFrame.Q.data,4);
+                        _localInertiaFrame.Q.normalize(); // just in case
                         ar.xmlGetNode_floats("principalMomentsOfInertia",_principalMomentsOfInertia.data,3);
                         ar.xmlPopNode();
                     }
@@ -617,6 +618,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                 {
                     ar.xmlGetNode_floats("position",_transformationsSinceGrouping.X.data,3);
                     ar.xmlGetNode_floats("quaternion",_transformationsSinceGrouping.Q.data,4);
+                    _transformationsSinceGrouping.Q.normalize(); // just in case
                     ar.xmlPopNode();
                 }
 

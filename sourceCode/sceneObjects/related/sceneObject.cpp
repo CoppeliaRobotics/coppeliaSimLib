@@ -2437,7 +2437,10 @@ void CSceneObject::serialize(CSer& ar)
                     tr.setIdentity();
                     ar.xmlGetNode_floats("position",tr.X.data,3,exhaustiveXml);
                     if (exhaustiveXml)
+                    {
                         ar.xmlGetNode_floats("quaternion",tr.Q.data,4);
+                        tr.Q.normalize(); // just in case
+                    }
                     else
                     {
                         C3Vector euler;
@@ -2459,6 +2462,7 @@ void CSceneObject::serialize(CSer& ar)
                     {
                         ar.xmlGetNode_floats("position",_assemblingLocalTransformation.X.data,3);
                         ar.xmlGetNode_floats("quaternion",_assemblingLocalTransformation.Q.data,4);
+                        _assemblingLocalTransformation.Q.normalize(); // just in case
                         ar.xmlPopNode();
                     }
                     if (ar.xmlPushChildNode("matchValues"))

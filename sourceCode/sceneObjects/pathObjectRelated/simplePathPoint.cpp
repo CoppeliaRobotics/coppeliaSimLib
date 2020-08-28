@@ -180,7 +180,10 @@ void CSimplePathPoint::serialize(CSer& ar)
             {
                 ar.xmlGetNode_floats("position",_transformation.X.data,3,exhaustiveXml);
                 if (exhaustiveXml)
+                {
                     ar.xmlGetNode_floats("quaternion",_transformation.Q.data,4);
+                    _transformation.Q.normalize(); // just in case
+                }
                 else
                 {
                     C3Vector euler;

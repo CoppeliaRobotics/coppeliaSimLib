@@ -346,6 +346,7 @@ void CGhostObjectContainer::serialize(CSer& ar)
                     {
                         ar.xmlGetNode_floats("position",go->tr.X.data,3);
                         ar.xmlGetNode_floats("quaternion",go->tr.Q.data,4);
+                        go->tr.Q.normalize(); // just in case
                         ar.xmlPopNode();
                     }
 

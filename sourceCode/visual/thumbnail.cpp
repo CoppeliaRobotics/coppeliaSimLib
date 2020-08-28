@@ -263,6 +263,7 @@ void  CThumbnail::serializeAdditionalModelInfos(CSer& ar,C7Vector& modelTr,C3Vec
             {
                 ar.xmlGetNode_floats("position",modelTr.X.data,3);
                 ar.xmlGetNode_floats("quaternion",modelTr.Q.data,4);
+                modelTr.Q.normalize(); // just in case
                 ar.xmlPopNode();
             }
 
