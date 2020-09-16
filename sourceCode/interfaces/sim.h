@@ -429,7 +429,8 @@ SIM_DLLEXPORT simInt simIsDeprecated(const simChar* funcOrConst);
 SIM_DLLEXPORT simChar* simGetPersistentDataTags(simInt* tagCount);
 SIM_DLLEXPORT simInt simEventNotification(const simChar* event);
 SIM_DLLEXPORT simInt simApplyTexture(simInt shapeHandle,const simFloat* textureCoordinates,simInt textCoordSize,const simUChar* texture,const simInt* textureResolution,simInt options);
-SIM_DLLEXPORT simInt simSetJointDependency(simInt jointHandle,simInt masterJointHandle,simFloat offset,simFloat coeff);
+SIM_DLLEXPORT simInt simSetJointDependency(simInt jointHandle,simInt masterJointHandle,simFloat offset,simFloat multCoeff);
+SIM_DLLEXPORT simInt simGetJointDependency(simInt jointHandle,simInt* masterJointHandle,simFloat* offset,simFloat* multCoeff);
 SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simChar* stringParam,simInt paramLength);
 SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength);
 SIM_DLLEXPORT simChar* simGetUserParameter(simInt objectHandle,const simChar* parameterName,simInt* parameterLength);
@@ -439,6 +440,7 @@ SIM_DLLEXPORT simInt simGetShapeMass(simInt shapeHandle,simFloat* mass);
 SIM_DLLEXPORT simInt simSetShapeMass(simInt shapeHandle,simFloat mass);
 SIM_DLLEXPORT simInt simGetShapeInertia(simInt shapeHandle,simFloat* inertiaMatrix,simFloat* transformationMatrix);
 SIM_DLLEXPORT simInt simSetShapeInertia(simInt shapeHandle,const simFloat* inertiaMatrix,const simFloat* transformationMatrix);
+SIM_DLLEXPORT simInt simIsDynamicallyEnabled(simInt objectHandle);
 
 
 

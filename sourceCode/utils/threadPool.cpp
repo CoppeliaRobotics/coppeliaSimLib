@@ -7,8 +7,6 @@
     #include <curses.h>
 #endif
 
-#define STOP_REQUEST_DELAY_IN_MS 1000
-
 VTHREAD_ID_TYPE CThreadPool::_threadToIntercept=0;
 VTHREAD_START_ADDRESS CThreadPool::_threadInterceptCallback=nullptr;
 int CThreadPool::_threadInterceptIndex=0;
@@ -747,7 +745,7 @@ bool CThreadPool::getSimulationStopRequestedAndActivated()
 
     bool retVal=false;
     if (_simulationStopRequest)
-        retVal=VDateTime::getTimeDiffInMs(_simulationStopRequestTime)>STOP_REQUEST_DELAY_IN_MS;
+        retVal=VDateTime::getTimeDiffInMs(_simulationStopRequestTime)>=App::userSettings->threadedScriptsStoppingGraceTime;
     _unlock(15);
     return(retVal);
 }

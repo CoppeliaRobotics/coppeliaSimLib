@@ -27,8 +27,7 @@
 #define SER_VISIONSENSOR                "RSN"
 #define SER_OCTREE                      "OCT"
 #define SER_POINTCLOUD                  "PTC"
-#define SER_VERSATILE_OLD               "VRE"
-//#define SER_GEOMETRIC_OLD             "GEO" // RESERVED TAG
+//#define SER_GEOMETRIC_OLD             "GEO" reserved tag
 #define SER_TEXTURE                     "TEX"
 #define SER_DYNMATERIAL                 "DMA"
 #define SER_COLLECTION                  "GRP"
@@ -43,17 +42,17 @@
 #define SER_MILL                        "MIL"
 #define SER_FORCESENSOR                 "FSE"
 #define SER_PATH_PLANNING               "PPL"
-#define SER_MOTION_PLANNING_OLD         "MPL"
+// #define SER_MOTION_PLANNING_OLD         "MPL" reserved tag
 #define SER_SETTINGS                    "SET"
 #define SER_DYNAMICS                    "DYN"
 #define SER_BUTTON_BLOCK_OLD            "BBK"
 #define SER_LUA_SCRIPT                  "LST"
 #define SER_SCENE_CUSTOM_DATA           "CDS"
 #define SER_OBJECT_CUSTOM_DATA          "CDO"
-#define SER_GEOMETRIC_CONSTRAINT_OBJECT_OLD "GCO"
+//#define SER_GEOMETRIC_CONSTRAINT_OBJECT_OLD "GCO" reserved tag
 #define SER_SIMULATION                  "SIM"
-#define SER_MODEL_ACKNOWLEDGEMENTOLD_20100714       "MAC"
-#define SER_MODEL_THUMBNAIL_OLD_COMPATIBILITY_2012_03_06                "MTB" // for backward compatibility
+// #define SER_MODEL_ACKNOWLEDGEMENTOLD_20100714       "MAC" reserved tag
+// #define SER_MODEL_THUMBNAIL_OLD_COMPATIBILITY_2012_03_06                "MTB" reserved tag
 #define SER_MODEL_THUMBNAIL             "MTC"
 #define SER_MODEL_THUMBNAIL_INFO        "BBC"
 #define SER_VERTICESINDICESNORMALSEDGES "VIN"
@@ -1012,8 +1011,6 @@ enum {
     SWAP_VIEWS_CMD,
     MODEL_BROWSER_DRAG_AND_DROP_CMD,
     OPEN_DRAG_AND_DROP_SCENE_CMD,
-    DISPLAY_ACKNOWLEDGMENT_MESSAGE_CMD,
-    POSTPONE_PROCESSING_THIS_LOOP_CMD,
     TOGGLE_EXPAND_COLLAPSE_HIERARCHY_OBJECT_CMD,
     ADD_OR_REMOVE_TO_FROM_OBJECT_SELECTION_CMD,
     OPEN_SCRIPT_EDITOR_CMD,

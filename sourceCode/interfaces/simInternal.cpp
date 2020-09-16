@@ -4807,7 +4807,7 @@ simInt simLoadModel_internal(const simChar* filename)
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_FILE_NOT_FOUND);
             return(-1);
         }
-        if (!CFileOperations::loadModel(nm.c_str(),outputSceneOrModelLoadMessagesWithApiCall,outputSceneOrModelLoadMessagesWithApiCall,false,nullptr,true,nullptr,false,forceAsCopy))
+        if (!CFileOperations::loadModel(nm.c_str(),outputSceneOrModelLoadMessagesWithApiCall,outputSceneOrModelLoadMessagesWithApiCall,false,true,nullptr,false,forceAsCopy))
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_MODEL_COULD_NOT_BE_READ);
             return(-1);
@@ -11628,6 +11628,16 @@ simInt simGetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
                 if (ok)
                     retVal=1;
             }
+            if (parameterID==sim_jointfloatparam_screw_pitch)
+            {
+                parameter[0]=joint->getScrewPitch();
+                retVal=1;
+            }
+            if (parameterID==sim_jointfloatparam_step_size)
+            {
+                parameter[0]=joint->getMaxStepSize();
+                retVal=1;
+            }
             if ((parameterID>=sim_jointfloatparam_intrinsic_x)&&(parameterID<=sim_jointfloatparam_intrinsic_qw))
             {
                 C7Vector trFull(joint->getFullLocalTransformation());
@@ -12051,6 +12061,16 @@ simInt simSetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
             if (parameterID==sim_jointfloatparam_vortex_dep_offset)
             {
                 if (joint->setEngineFloatParam(sim_vortex_joint_dependencyoffset,parameter))
+                    retVal=1;
+            }
+            if (parameterID==sim_jointfloatparam_screw_pitch)
+            {
+                if (joint->setScrewPitch(parameter))
+                    retVal=1;
+            }
+            if (parameterID==sim_jointfloatparam_step_size)
+            {
+                if (joint->setMaxStepSize(parameter))
                     retVal=1;
             }
         }
@@ -13910,6 +13930,46 @@ simInt simSetShapeInertia_internal(simInt shapeHandle,const simFloat* inertiaMat
         it->getMeshWrapper()->setLocalInertiaFrame(tr.getTransformation()*corr);
         it->setDynamicsFullRefreshFlag(true);
         return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simIsDynamicallyEnabled_internal(simInt objectHandle)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        int retVal=0;
+        if (it->getDynamicSimulationIconCode()==sim_dynamicsimicon_objectisdynamicallysimulated)
+            retVal=1;
+        /*
+        if (it->getObjectType()==sim_object_shape_type)
+        {
+            if (((CShape*)it)->xxxxx())
+                retVal=1;
+        }
+        if (it->getObjectType()==sim_object_joint_type)
+        {
+            float dummyVal;
+            if (((CJoint*)it)->getDynamicForceOrTorque(dummyVal,false))
+                retVal=1;
+        }
+        if (it->getObjectType()==sim_object_forcesensor_type)
+        {
+            C3Vector dummyVal;
+            if (((CForceSensor*)it)->getDynamicForces(dummyVal,false))
+                retVal=1;
+        }
+        */
+        return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
@@ -15821,7 +15881,7 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
             script=App::worldContainer->sandboxScript;
         if (scriptHandleOrType==sim_scripttype_addonscript)
             script=App::worldContainer->addOnScriptContainer->getAddOnScriptFromName(scriptName.c_str());
-        if (scriptHandleOrType==sim_scripttype_childscript)
+        if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==(sim_scripttype_childscript|sim_scripttype_threaded)) )
         {
             int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
             script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
@@ -18670,7 +18730,7 @@ simInt simApplyTexture_internal(simInt shapeHandle,const simFloat* textureCoordi
     return(retVal);
 }
 
-simInt simSetJointDependency_internal(simInt jointHandle,simInt masterJointHandle,simFloat offset,simFloat coeff)
+simInt simSetJointDependency_internal(simInt jointHandle,simInt masterJointHandle,simFloat offset,simFloat multCoeff)
 {
     TRACE_C_API;
     int retVal=-1;
@@ -18689,11 +18749,35 @@ simInt simSetJointDependency_internal(simInt jointHandle,simInt masterJointHandl
                 if (joint->getDependencyJointHandle()==masterJointHandle)
                 {
                     joint->setDependencyJointOffset(offset);
-                    joint->setDependencyJointMult(coeff);
+                    joint->setDependencyJointMult(multCoeff);
                     retVal=0;
                     return(retVal);
                 }
             }
+        }
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(retVal);
+}
+
+simInt simGetJointDependency_internal(simInt jointHandle,simInt* masterJointHandle,simFloat* offset,simFloat* multCoeff)
+{
+    TRACE_C_API;
+    int retVal=-1;
+
+    if (!isSimulatorInitialized(__func__))
+        return(retVal);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (isJoint(__func__,jointHandle))
+        {
+            CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
+            masterJointHandle[0]=joint->getDependencyJointHandle();
+            offset[0]=joint->getDependencyJointOffset();
+            multCoeff[0]=joint->getDependencyJointMult();
+            retVal=0;
+            return(retVal);
         }
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -21312,7 +21396,7 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
                 funcName=funcNameAtScriptName;
             if (scriptHandleOrType==sim_scripttype_mainscript)
                 script=App::currentWorld->luaScriptContainer->getMainScript();
-            if (scriptHandleOrType==sim_scripttype_childscript)
+            if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==(sim_scripttype_childscript|sim_scripttype_threaded)) )
             {
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
                 script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);

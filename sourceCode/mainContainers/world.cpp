@@ -1240,28 +1240,6 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                     hasThumbnail=true;
                 }
 
-                if (theName.compare(SER_MODEL_THUMBNAIL_OLD_COMPATIBILITY_2012_03_06)==0)
-                { // For backward compatibility (6/3/2012) Takes care of files reaching back to 25/7/2010
-                    ar >> byteQuantity;
-                    int l;
-                    ar >> l;
-                    char t;
-                    std::vector<char> modelThumbnailBuffer;
-                    for (int i=0;i<l;i++)
-                    {
-                        ar >> t;
-                        modelThumbnailBuffer.push_back(t);
-                    }
-                    if (modelThumbnailBuffer.size()!=0)
-                        environment->modelThumbnail_notSerializedHere.setCompressedThumbnailImage(&modelThumbnailBuffer[0]);
-                    else
-                        environment->modelThumbnail_notSerializedHere.clearThumbnailImage();
-                    noHit=false;
-                    if (justLoadThumbnail)
-                        return(true);
-                    hasThumbnail=true;
-                }
-
                 // Handle the heavy data here so we don't have duplicates (vertices, indices, normals and edges):
                 //------------------------------------------------------------
                 if (theName.compare(SER_VERTICESINDICESNORMALSEDGES)==0)

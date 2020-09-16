@@ -92,6 +92,8 @@ void CQDlgIk::refresh()
     {
         ui->qqCalcMethodCombo->addItem(IDS_PSEUDO_INVERSE,QVariant(sim_ik_pseudo_inverse_method));
         ui->qqCalcMethodCombo->addItem(IDS_DLS,QVariant(sim_ik_damped_least_squares_method));
+        ui->qqCalcMethodCombo->addItem(IDS_JACOBIAN_TRANSPOSE,QVariant(sim_ik_jacobian_transpose_method));
+        ui->qqCalcMethodCombo->addItem(IDS_UNDAMPED_PSEUDO_INVERSE,QVariant(sim_ik_undamped_pseudo_inverse_method));
         for (int i=0;i<ui->qqCalcMethodCombo->count();i++)
         {
             if (ui->qqCalcMethodCombo->itemData(i).toInt()==it->getCalculationMethod())

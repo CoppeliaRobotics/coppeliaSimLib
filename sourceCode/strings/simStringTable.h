@@ -430,7 +430,9 @@
 
 // IK functionality:
 #define IDS_PSEUDO_INVERSE      "Pseudo inverse"
-#define IDS_DLS                 "DLS"
+#define IDS_DLS                 "Damped least squares"
+#define IDS_UNDAMPED_PSEUDO_INVERSE      "Undamped pseudo inverse"
+#define IDS_JACOBIAN_TRANSPOSE  "Jacobian transpose"
 #define IDSN_WORLD "World"
 #define IDSN_SAME_AS_BASE "Same as base"
 #define IDSN_PERFORM_ALWAYS "Perform always"
@@ -696,9 +698,6 @@
 #define IDS_SIMILAR_OBJECT_ALREADY_EXISTS "A similar object already exists"
 #define IDS_INVALID_COLLISION_ITEM_COMBINATION "The item combination is invalid (i.e. cannot collide)"
 #define IDS_INVALID_DISTANCE_ITEM_COMBINATION "The item combination is invalid (i.e. cannot be measured)"
-
-#define IDS_SCENE_CONTENT_ACKNOWLEDGMENTS "Scene content acknowledgments / information"
-#define IDS_MODEL_CONTENT_ACKNOWLEDGMENTS "Model content acknowledgments / information"
 
 #define IDS_COPY_SELECTED_OBJECTS_MENU_ITEM "Copy selected objects"
 #define IDS_PASTE_BUFFER_MENU_ITEM "Paste buffer"

@@ -169,7 +169,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,IDSN_LOADING_MODEL,App::folders->getModelsPath().c_str(),"",false,"Models",ext[0].c_str(),ext[1].c_str(),ext[2].c_str(),ext[3].c_str());
 
             if (filenameAndPath.length()!=0)
-                loadModel(filenameAndPath.c_str(),true,true,true,nullptr,true,nullptr,false,false); // Undo things is in here.
+                loadModel(filenameAndPath.c_str(),true,true,true,true,nullptr,false,false); // Undo things is in here.
             else
                 App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
         }
@@ -785,7 +785,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CFileOperations::loadModel(cmd.stringParams[0].c_str(),true,cmd.boolParams[0],false,nullptr,cmd.boolParams[1],nullptr,false,false);
+            CFileOperations::loadModel(cmd.stringParams[0].c_str(),true,cmd.boolParams[0],false,cmd.boolParams[1],nullptr,false,false);
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread:
@@ -1213,21 +1213,14 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
                 App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_OPENED);
             if ((csimVersionThatWroteThis>SIM_PROGRAM_VERSION_NB)&&displayDialogs&&(App::mainWindow!=nullptr))
                 App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SAVED_WITH_MORE_RECENT_VERSION_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-            std::string acknowledgement(App::currentWorld->environment->getAcknowledgement());
-            std::string tmp(acknowledgement);
-            tt::removeSpacesAtBeginningAndEnd(tmp);
-            if (displayDialogs&&(App::mainWindow!=nullptr))
+            if (displayMessages)
             {
-                if (tmp.length()!=0)
+                std::string acknowledgement(App::currentWorld->environment->getAcknowledgement());
+                tt::removeSpacesAtBeginningAndEnd(acknowledgement);
+                if (acknowledgement.length()!=0)
                 {
-                    SSimulationThreadCommand cmd;
-                    cmd.cmdId=POSTPONE_PROCESSING_THIS_LOOP_CMD;
-                    cmd.intParams.push_back(3);
-                    App::appendSimulationThreadCommand(cmd);
-                    cmd.cmdId=DISPLAY_ACKNOWLEDGMENT_MESSAGE_CMD;
-                    cmd.stringParams.push_back(IDS_SCENE_CONTENT_ACKNOWLEDGMENTS);
-                    cmd.stringParams.push_back(acknowledgement);
-                    App::appendSimulationThreadCommand(cmd);
+                    acknowledgement="Scene content acknowledgement / infos:\n"+acknowledgement;
+                    App::logMsg(sim_verbosity_scriptinfos,acknowledgement.c_str());
                 }
             }
 #endif
@@ -1251,8 +1244,8 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
     return(result==1);
 }
 
-bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::string* acknowledgmentPointerInReturn,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail,bool forceModelAsCopy)
-{ // if acknowledgment is nullptr, then acknowledgments are directly displayed here!
+bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail,bool forceModelAsCopy)
+{
     TRACE_INTERNAL;
     if (App::isFullScreen()||App::userSettings->doNotShowAcknowledgmentMessages||(App::getDlgVerbosity()<sim_verbosity_infos))
         displayDialogs=false;
@@ -1260,7 +1253,6 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
     CSimFlavor::run(2);
     if ((pathAndFilename==nullptr)||VFile::doesFileExist(pathAndFilename))
     {
-        std::string theAcknowledgement;
         App::currentWorld->sceneObjects->deselectObjects();
 
         if (setCurrentDir&&(pathAndFilename!=nullptr))
@@ -1364,31 +1356,22 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                 if (!onlyThumbnail)
                 {
                     std::string acknowledgement;
-                    std::string tmp;
                     // now we search for the model base that contains the acknowledgment:
                     std::vector<CSceneObject*> loadedObjects;
                     App::currentWorld->sceneObjects->getSelectedObjects(loadedObjects);
-                    for (int obba=0;obba<int(loadedObjects.size());obba++)
+                    for (size_t obba=0;obba<loadedObjects.size();obba++)
                     {
                         if (loadedObjects[obba]->getParent()==nullptr)
                         {
                             acknowledgement=loadedObjects[obba]->getModelAcknowledgement();
-                            tmp=acknowledgement;
-                            tt::removeSpacesAtBeginningAndEnd(tmp);
+                            tt::removeSpacesAtBeginningAndEnd(acknowledgement);
                             break;
                         }
                     }
-
-                    if (tmp.length()!=0)
+                    if (displayMessages&&(acknowledgement.length()!=0))
                     {
-                        if (acknowledgmentPointerInReturn==nullptr)
-                        {
-
-                            if (displayMessages)
-                                theAcknowledgement=acknowledgement;
-                        }
-                        else
-                            acknowledgmentPointerInReturn[0]=acknowledgement;
+                        acknowledgement="Model acknowledgement / infos:\n"+acknowledgement;
+                        App::logMsg(sim_verbosity_scriptinfos,acknowledgement.c_str());
                     }
                 }
             }
@@ -1423,19 +1406,6 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
         {
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
         }
-#ifdef SIM_WITH_GUI
-        if ((theAcknowledgement.length()!=0)&&displayDialogs&&(App::mainWindow!=nullptr))
-        {
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=POSTPONE_PROCESSING_THIS_LOOP_CMD;
-            cmd.intParams.push_back(3);
-            App::appendSimulationThreadCommand(cmd);
-            cmd.cmdId=DISPLAY_ACKNOWLEDGMENT_MESSAGE_CMD;
-            cmd.stringParams.push_back(IDS_MODEL_CONTENT_ACKNOWLEDGMENTS);
-            cmd.stringParams.push_back(theAcknowledgement);
-            App::appendSimulationThreadCommand(cmd);
-        }
-#endif
     }
     else
     {

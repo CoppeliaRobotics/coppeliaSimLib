@@ -4678,6 +4678,7 @@ void CLuaScriptObject::serialize(CSer& ar)
             _adjustScriptText10(this,ar.getCoppeliaSimVersionThatWroteThisFile()<30401);
             _adjustScriptText11(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40001);
             _adjustScriptText12(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40100);
+            _adjustScriptText13(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40200);
             fromBufferToFile();
         }
     }
@@ -6034,3 +6035,25 @@ void CLuaScriptObject::_adjustScriptText12(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"simROS2.advertise","simROS2.createPublisher");
 }
 
+void CLuaScriptObject::_adjustScriptText13(CLuaScriptObject* scriptObject,bool doIt)
+{   // for release 4.2.0:
+    if (!doIt)
+        return;
+    if (_scriptType!=sim_scripttype_mainscript)
+        _replaceScriptText(scriptObject,"sim.getSimulationState()~=sim.simulation_advancing_abouttostop","true");
+    _replaceScriptText(scriptObject,"sim.getObjectAssociatedWithScript(sim.handle_self)","sim.getObjectHandle(sim.handle_self)");
+/*
+    if (_containsScriptText(scriptObject,"sim.rmlMove"))
+        printf("Contains sim.rmlMove...\n");
+    if (_containsScriptText(scriptObject,"sim.getIk"))
+        printf("Contains sim.getIk...\n");
+    if (_containsScriptText(scriptObject,"simMoveToPosition"))
+        printf("Contains simMoveToPosition...\n");
+    if (_containsScriptText(scriptObject,"simMoveToObject"))
+        printf("Contains simMoveToObject...\n");
+    if (_containsScriptText(scriptObject,"simFollowPath"))
+        printf("Contains simFollowPath...\n");
+    if (_containsScriptText(scriptObject,"simMoveToJointPositions"))
+        printf("Contains simMoveToJointPositions...\n");
+*/
+}

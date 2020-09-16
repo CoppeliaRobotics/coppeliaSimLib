@@ -244,8 +244,8 @@ void CIkGroup::serialize(CSer &ar)
 
             ar.xmlAddNode_int("maxIterations",_maxIterations);
 
-            ar.xmlAddNode_comment(" 'calculationMethod' tag: can be 'pseudoInverse', 'dls' or 'jacobianTranspose' ",exhaustiveXml);
-            ar.xmlAddNode_enum("calculationMethod",_calculationMethod,sim_ik_pseudo_inverse_method,"pseudoInverse",sim_ik_damped_least_squares_method,"dls",sim_ik_jacobian_transpose_method,"jacobianTranspose");
+            ar.xmlAddNode_comment(" 'calculationMethod' tag: can be 'pseudoInverse', 'dls', 'jacobianTranspose' or 'upi' ",exhaustiveXml);
+            ar.xmlAddNode_enum("calculationMethod",_calculationMethod,sim_ik_pseudo_inverse_method,"pseudoInverse",sim_ik_damped_least_squares_method,"dls",sim_ik_jacobian_transpose_method,"jacobianTranspose",sim_ik_undamped_pseudo_inverse_method,"upi");
             ar.xmlAddNode_float("dlsFactor",_dampingFactor);
 
             ar.xmlPushNewNode("switches");
@@ -292,7 +292,7 @@ void CIkGroup::serialize(CSer &ar)
 
             ar.xmlGetNode_int("maxIterations",_maxIterations,exhaustiveXml);
 
-            ar.xmlGetNode_enum("calculationMethod",_calculationMethod,exhaustiveXml,"pseudoInverse",sim_ik_pseudo_inverse_method,"dls",sim_ik_damped_least_squares_method,"jacobianTranspose",sim_ik_jacobian_transpose_method);
+            ar.xmlGetNode_enum("calculationMethod",_calculationMethod,exhaustiveXml,"pseudoInverse",sim_ik_pseudo_inverse_method,"dls",sim_ik_damped_least_squares_method,"jacobianTranspose",sim_ik_jacobian_transpose_method,"upi",sim_ik_undamped_pseudo_inverse_method);
             ar.xmlGetNode_float("dlsFactor",_dampingFactor,exhaustiveXml);
 
             if (ar.xmlPushChildNode("switches",exhaustiveXml))
@@ -469,7 +469,7 @@ bool CIkGroup::setMaxIterations(int maxIter)
 bool CIkGroup::setCalculationMethod(int theMethod)
 { // Overridden from _CIkGroup_
     bool diff=false;
-    if ( (theMethod==sim_ik_pseudo_inverse_method)||(theMethod==sim_ik_damped_least_squares_method)||(theMethod==sim_ik_jacobian_transpose_method) )
+    if ( (theMethod==sim_ik_pseudo_inverse_method)||(theMethod==sim_ik_damped_least_squares_method)||(theMethod==sim_ik_jacobian_transpose_method)||(theMethod==sim_ik_undamped_pseudo_inverse_method) )
         diff=_CIkGroup_::setCalculationMethod(theMethod);
     return(diff);
 }

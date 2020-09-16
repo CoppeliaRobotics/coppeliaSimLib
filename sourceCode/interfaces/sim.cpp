@@ -1657,9 +1657,13 @@ SIM_DLLEXPORT simInt simApplyTexture(simInt shapeHandle,const simFloat* textureC
 {
     return(simApplyTexture_internal(shapeHandle,textureCoordinates,textCoordSize,texture,textureResolution,options));
 }
-SIM_DLLEXPORT simInt simSetJointDependency(simInt jointHandle,simInt masterJointHandle,simFloat offset,simFloat coeff)
+SIM_DLLEXPORT simInt simSetJointDependency(simInt jointHandle,simInt masterJointHandle,simFloat offset,simFloat multCoeff)
 {
-    return(simSetJointDependency_internal(jointHandle,masterJointHandle,offset,coeff));
+    return(simSetJointDependency_internal(jointHandle,masterJointHandle,offset,multCoeff));
+}
+SIM_DLLEXPORT simInt simGetJointDependency(simInt jointHandle,simInt* masterJointHandle,simFloat* offset,simFloat* multCoeff)
+{
+    return(simGetJointDependency_internal(jointHandle,masterJointHandle,offset,multCoeff));
 }
 SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simChar* stringParam,simInt paramLength)
 {
@@ -1696,6 +1700,10 @@ SIM_DLLEXPORT simInt simGetShapeInertia(simInt shapeHandle,simFloat* inertiaMatr
 SIM_DLLEXPORT simInt simSetShapeInertia(simInt shapeHandle,const simFloat* inertiaMatrix,const simFloat* transformationMatrix)
 {
     return(simSetShapeInertia_internal(shapeHandle,inertiaMatrix,transformationMatrix));
+}
+SIM_DLLEXPORT simInt simIsDynamicallyEnabled(simInt objectHandle)
+{
+    return(simIsDynamicallyEnabled_internal(objectHandle));
 }
 
 

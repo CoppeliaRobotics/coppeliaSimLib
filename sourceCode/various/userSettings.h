@@ -81,6 +81,7 @@ public:
     bool enableOldMirrorObjects;
     int allowOldEduRelease;
     bool useOldIk;
+    int threadedScriptsStoppingGraceTime;
     bool displayBoundingBoxeWhenObjectSelected;
     bool antiAliasing;
     float dynamicActivityRange;

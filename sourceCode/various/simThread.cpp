@@ -120,16 +120,6 @@ void CSimThread::_handleSimulationThreadCommands()
             {
                 _executeSimulationThreadCommand(cmd);
                 _simulationThreadCommands.erase(_simulationThreadCommands.begin());
-
-                if (cmd.cmdId==POSTPONE_PROCESSING_THIS_LOOP_CMD)
-                {
-                    if (cmd.intParams[0]>1)
-                    {
-                        cmd.intParams[0]--;
-                        _simulationThreadCommands.insert(_simulationThreadCommands.begin(),cmd);
-                    }
-                    break;
-                }
             }
         }
         // Now append the delayed commands:
@@ -487,7 +477,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
         if (cmd.cmdId==MODEL_BROWSER_DRAG_AND_DROP_CMD)
         {
-            CFileOperations::loadModel(cmd.stringParams[0].c_str(),true,true,false,nullptr,false,nullptr,false,false);
+            CFileOperations::loadModel(cmd.stringParams[0].c_str(),true,true,false,false,nullptr,false,false);
             if (App::currentWorld->sceneObjects->getSelectionCount()==1)
             { // we could have several model bases (in the old fileformat)
                 CSceneObject* obj=App::currentWorld->sceneObjects->getLastSelectionObject();
@@ -4989,9 +4979,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         CFileOperations::loadScene(cmd.stringParams[0].c_str(),true,cmd.boolParams[0],false);
         App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
     }
-
-    if (cmd.cmdId==DISPLAY_ACKNOWLEDGMENT_MESSAGE_CMD)
-        App::uiThread->messageBox_information(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 
     if (cmd.cmdId==AUTO_SAVE_SCENE_CMD)
         _handleAutoSaveSceneCommand(cmd);

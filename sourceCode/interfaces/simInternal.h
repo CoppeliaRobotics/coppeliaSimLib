@@ -419,7 +419,8 @@ simInt simIsDeprecated_internal(const simChar* funcOrConst);
 simChar* simGetPersistentDataTags_internal(simInt* tagCount);
 simInt simEventNotification_internal(const simChar* event);
 simInt simApplyTexture_internal(simInt shapeHandle,const simFloat* textureCoordinates,simInt textCoordSize,const simUChar* texture,const simInt* textureResolution,simInt options);
-simInt simSetJointDependency_internal(simInt jointHandle,simInt masterJointHandle,simFloat offset,simFloat coeff);
+simInt simSetJointDependency_internal(simInt jointHandle,simInt masterJointHandle,simFloat offset,simFloat multCoeff);
+simInt simGetJointDependency_internal(simInt jointHandle,simInt* masterJointHandle,simFloat* offset,simFloat* multCoeff);
 simInt simSetStringNamedParam_internal(const simChar* paramName,const simChar* stringParam,simInt paramLength);
 simChar* simGetStringNamedParam_internal(const simChar* paramName,simInt* paramLength);
 simChar* simGetUserParameter_internal(simInt objectHandle,const simChar* parameterName,simInt* parameterLength);
@@ -429,6 +430,7 @@ simInt simGetShapeMass_internal(simInt shapeHandle,simFloat* mass);
 simInt simSetShapeMass_internal(simInt shapeHandle,simFloat mass);
 simInt simGetShapeInertia_internal(simInt shapeHandle,simFloat* inertiaMatrix,simFloat* transformationMatrix);
 simInt simSetShapeInertia_internal(simInt shapeHandle,const simFloat* inertiaMatrix,const simFloat* transformationMatrix);
+simInt simIsDynamicallyEnabled_internal(simInt objectHandle);
 
 
 
