@@ -7085,9 +7085,7 @@ simInt simResetGraph_internal(simInt graphHandle)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -7103,11 +7101,11 @@ simInt simResetGraph_internal(simInt graphHandle)
         else
         { // explicit handling
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
-            if (!it->getExplicitHandling())
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
-                return(-1);
-            }
+//            if (!it->getExplicitHandling())
+//            {
+//                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+//                return(-1);
+//            }
             it->resetGraph();
         }
         return(1);
