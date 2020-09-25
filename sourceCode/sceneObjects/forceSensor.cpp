@@ -25,7 +25,7 @@ void CForceSensor::commonInit()
     _torqueThresholdEnabled=false;
     _consecutiveThresholdViolationsForBreaking=10;
     _currentThresholdViolationCount=0;
-    bool _stillAutomaticallyBreaking=false;
+    _stillAutomaticallyBreaking=false;
 
     // Dynamic values:
     _dynamicSecondPartIsValid=false;

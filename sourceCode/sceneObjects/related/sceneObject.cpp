@@ -2082,6 +2082,13 @@ void CSceneObject::serialize(CSer& ar)
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                         _userScriptParameters=new CUserParameters();
                         _userScriptParameters->serialize(ar);
+                        if (_userScriptParameters->userParamEntries.size()==0)
+                        {
+                            delete _userScriptParameters;
+                            _userScriptParameters=nullptr;
+                        }
+                        //else
+                        //    printf("Object %s has user params\n",_objectName.c_str());
                     }
                     if (theName.compare("Crh")==0)
                     {

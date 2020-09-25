@@ -1619,6 +1619,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
             script->setScriptText(t.c_str());
         }
     }
+
     // Following for backward compatibility (Lua script parameters are now attached to objects, and not scripts anymore):
     for (size_t i=0;i<loadedLuaScriptList.size();i++)
     {

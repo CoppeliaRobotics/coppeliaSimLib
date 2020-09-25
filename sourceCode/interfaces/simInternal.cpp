@@ -6574,9 +6574,7 @@ simInt simCheckDistance_internal(simInt entity1Handle,simInt entity2Handle,simFl
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6589,9 +6587,7 @@ simInt simCheckDistance_internal(simInt entity1Handle,simInt entity2Handle,simFl
             entity2Handle=-1;
 
         if (!App::currentWorld->mainSettings->distanceCalculationEnabled)
-        {
             return(0);
-        }
 
         int buffer[4];
         App::currentWorld->cacheData->getCacheDataDist(entity1Handle,entity2Handle,buffer);
@@ -6600,9 +6596,7 @@ simInt simCheckDistance_internal(simInt entity1Handle,simInt entity2Handle,simFl
         bool result=CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(entity1Handle,entity2Handle,threshold,distanceData,buffer,buffer+2,true,true);
         App::currentWorld->cacheData->setCacheDataDist(entity1Handle,entity2Handle,buffer);
         if (result)
-        {
             return(1);
-        }
         return(0);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);

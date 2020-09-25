@@ -105,6 +105,23 @@ bool VVarious::executeExternalApplication(const char* file,const char* arguments
     return(QProcess::startDetached(cmd,strList,QString::fromLocal8Bit(switchToDirectory),nullptr));
 #endif
 #endif // WIN_SIM
+    /*
+    boost::process::opstream sin;
+    boost::process::ipstream sout;
+    boost::filesystem::path program;
+    if (true)//in->useSearchPath)
+        program = boost::process::search_path(file);
+    else
+        program = file;
+    boost::process::child child(program, arguments, boost::process::std_in = sin, boost::process::std_out > sout);
+    sin << "";
+    sin.flush();
+    sin.pipe().close();
+    child.wait();
+    printf("ExitCode: %i\n",child.exit_code());
+    std::string s(std::istreambuf_iterator<char>(sout), {});
+    printf("Ret: %s\n",s.c_str());
+    */
 }
 
 std::string VVarious::getModulePath()

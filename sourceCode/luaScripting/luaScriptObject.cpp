@@ -3954,6 +3954,10 @@ int CLuaScriptObject::callScriptFunctionEx(const char* functionName,CInterfaceSt
         return(retVal);
     retVal=-2;
 
+    if ( (_executionState==execState_compilationError)||(_executionState==execState_runtimeError) )
+        return(-1);
+
+
     int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
 
     std::string tmp("sim_current_script_id=");
@@ -6056,4 +6060,46 @@ void CLuaScriptObject::_adjustScriptText13(CLuaScriptObject* scriptObject,bool d
     if (_containsScriptText(scriptObject,"simMoveToJointPositions"))
         printf("Contains simMoveToJointPositions...\n");
 */
+
+//    _replaceScriptText(scriptObject,"retVal=sim.getScriptSimulationParameter(sim.getScriptAssociatedWithObject(h),name)","retVal=''");
+/*
+    _replaceScriptText(scriptObject,"sim.getScriptSimulationParameter(sim.handle_self,","readSetting(model,");
+    _replaceScriptText(scriptObject,"sim.setScriptSimulationParameter(sim.handle_self,","writeSetting(model,");
+    _replaceScriptText(scriptObject,"sim.getScriptSimulationParameter(sim.getScriptAssociatedWithObject(output),","readSetting(output,");
+    _replaceScriptText(scriptObject,"sim.setScriptSimulationParameter(sim.getScriptAssociatedWithObject(output),","writeSetting(output,");
+    _replaceScriptText(scriptObject,"sim.getScriptSimulationParameter(sim.getScriptAssociatedWithObject(outputS),","readSetting(outputS,");
+    _replaceScriptText(scriptObject,"sim.setScriptSimulationParameter(sim.getScriptAssociatedWithObject(outputS),","writeSetting(outputS,");
+
+    const char* txt="function readSetting(h,name)\n\
+    local retVal\n\
+    local data=sim.readCustomDataBlock(h,'settings')\n\
+    if data then\n\
+        data=sim.unpackTable(data)\n\
+        if data[name]~=nil then\n\
+            retVal=data[name]\n\
+        end\n\
+    end\n\
+    if retVal==nil then\n\
+        retVal=sim.getScriptSimulationParameter(sim.getScriptAssociatedWithObject(h),name)\n\
+        if not data then\n\
+            data={}\n\
+        end\n\
+        data[name]=retVal\n\
+        sim.writeCustomDataBlock(h,'settings',sim.packTable(data))\n\
+    end\n\
+    return retVal\n\
+end\n\
+\n\
+function writeSetting(h,name,value)\n\
+    local data=sim.readCustomDataBlock(h,'settings')\n\
+    if not data then\n\
+        data={}\n\
+    else\n\
+        data=sim.unpackTable(data)\n\
+    end\n\
+    data[name]=value\n\
+    sim.writeCustomDataBlock(h,'settings',sim.packTable(data))\n\
+end\n\n";
+    _insertScriptText(scriptObject,true,txt);
+    //*/
 }

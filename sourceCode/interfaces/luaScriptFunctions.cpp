@@ -16,6 +16,8 @@
 #include "ttUtil.h"
 #include "imgLoaderSaver.h"
 #include "sceneObjectOperations.h"
+#include "collisionRoutines.h"
+#include "distanceRoutines.h"
 
 #define LUA_START(funcName) \
     CApiErrors::clearThreadBasedFirstCapiErrorAndWarning(); \
@@ -195,9 +197,9 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getSimulationState",_simGetSimulationState,            "number simulationState=sim.getSimulationState()",true},
     {"sim.getSystemTime",_simGetSystemTime,                      "number systemTime=sim.getSystemTime()",true},
     {"sim.getSystemTimeInMs",_simGetSystemTimeInMs,              "number systemTimeOrTimeDiff=sim.getSystemTimeInMs(number previousTime)",true},
-    {"sim.checkCollision",_simCheckCollision,                    "number result=sim.checkCollision(number entity1Handle,number entity2Handle)",true},
+    {"sim.checkCollision",_simCheckCollision,                    "number result,table_2 collidingObjects=sim.checkCollision(number entity1Handle,number entity2Handle)",true},
     {"sim.checkCollisionEx",_simCheckCollisionEx,                "number segmentCount,table segmentData=sim.checkCollisionEx(number entity1Handle,number entity2Handle)",true},
-    {"sim.checkDistance",_simCheckDistance,                      "number result,table_7 distanceData=sim.checkDistance(number entity1Handle,number entity2Handle,number threshold)",true},
+    {"sim.checkDistance",_simCheckDistance,                      "number result,table_7 distanceData,table_2 objectHandlePair=sim.checkDistance(number entity1Handle,number entity2Handle,number threshold=0)",true},
     {"sim.getObjectConfiguration",_simGetObjectConfiguration,    "number rawBufferHandle=sim.getObjectConfiguration(number objectHandle)",true},
     {"sim.setObjectConfiguration",_simSetObjectConfiguration,    "sim.setObjectConfiguration(number rawBufferHandle)",true},
     {"sim.getConfigurationTree",_simGetConfigurationTree,        "number rawBufferHandle=sim.getConfigurationTree(number objectHandle)",true},
@@ -4146,6 +4148,30 @@ bool checkInputArguments(luaWrap_lua_State* L,std::string* errStr,
     return(true);
 }
 
+bool doesEntityExist(luaWrap_lua_State* L,std::string* errStr,int identifier)
+{
+    if (identifier>=SIM_IDSTART_COLLECTION)
+    {
+        if (App::currentWorld->collections->getObjectFromHandle(identifier)==nullptr)
+        {
+            if (errStr!=nullptr)
+                errStr[0]=SIM_ERROR_ENTITY_INEXISTANT;
+            return(false);
+        }
+        return(true);
+    }
+    else
+    {
+        if (App::currentWorld->sceneObjects->getObjectFromHandle(identifier)==nullptr)
+        {
+            if (errStr!=nullptr)
+                errStr[0]=SIM_ERROR_ENTITY_INEXISTANT;
+            return(false);
+        }
+        return(true);
+    }
+}
+
 int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,std::string& raiseErrorWithMsg)
 {
     TRACE_LUA_API;
@@ -6700,13 +6726,35 @@ int _simCheckCollision(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.checkCollision");
 
-    int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simCheckCollision_internal(luaToInt(L,1),luaToInt(L,2));
+    {
+        int entity1Handle=luaToInt(L,1);
+        int entity2Handle=luaToInt(L,2);
+        if (doesEntityExist(L,&errorString,entity1Handle))
+        {
+            if ( (entity2Handle==sim_handle_all)||doesEntityExist(L,&errorString,entity2Handle) )
+            {
+                if (entity2Handle==sim_handle_all)
+                    entity2Handle=-1;
+
+                if (App::currentWorld->mainSettings->collisionDetectionEnabled)
+                {
+                    int collidingIds[2];
+                    if (CCollisionRoutine::doEntitiesCollide(entity1Handle,entity2Handle,nullptr,true,true,collidingIds))
+                    {
+                        luaWrap_lua_pushnumber(L,1);
+                        pushIntTableOntoStack(L,2,collidingIds);
+                        LUA_END(2);
+                    }
+                }
+                luaWrap_lua_pushnumber(L,0);
+                LUA_END(1);
+            }
+        }
+    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simCheckCollisionEx(luaWrap_lua_State* L)
@@ -6738,23 +6786,50 @@ int _simCheckDistance(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.checkDistance");
 
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        float distanceData[7];
-
-        retVal=simCheckDistance_internal(luaToInt(L,1),luaToInt(L,2),luaToFloat(L,3),distanceData);
-        if (retVal==1)
+        int entity1Handle=luaToInt(L,1);
+        int entity2Handle=luaToInt(L,2);
+        int res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,true,&errorString);
+        if (res>=0)
         {
-            luaWrap_lua_pushnumber(L,1);
-            pushFloatTableOntoStack(L,7,distanceData);
-            LUA_END(2);
+            float threshold=-1.0f;
+            if (res==2)
+                threshold=luaToFloat(L,3);
+            if (doesEntityExist(L,&errorString,entity1Handle))
+            {
+                if ( (entity2Handle==sim_handle_all)||doesEntityExist(L,&errorString,entity2Handle) )
+                {
+                    if (entity2Handle==sim_handle_all)
+                        entity2Handle=-1;
+
+                    if (App::currentWorld->mainSettings->distanceCalculationEnabled)
+                    {
+                        int buffer[4];
+                        App::currentWorld->cacheData->getCacheDataDist(entity1Handle,entity2Handle,buffer);
+                        if (threshold<=0.0f)
+                            threshold=SIM_MAX_FLOAT;
+                        float distanceData[7];
+                        bool result=CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(entity1Handle,entity2Handle,threshold,distanceData,buffer,buffer+2,true,true);
+                        App::currentWorld->cacheData->setCacheDataDist(entity1Handle,entity2Handle,buffer);
+                        if (result)
+                        {
+                            luaWrap_lua_pushnumber(L,1);
+                            pushFloatTableOntoStack(L,7,distanceData);
+                            int tb[2]={buffer[0],buffer[2]};
+                            pushIntTableOntoStack(L,2,tb);
+                            LUA_END(3);
+                        }
+                    }
+                    luaWrap_lua_pushnumber(L,0);
+                    LUA_END(1);
+                }
+            }
         }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simGetObjectConfiguration(luaWrap_lua_State* L)
@@ -12437,6 +12512,7 @@ int _simWait(luaWrap_lua_State* L)
                             break;
                         }
                         CThreadPool::switchBackToPreviousThread();
+//                        luaWrap_lua_yield(L,0); // does a long jump and never returns
                         if (CThreadPool::getSimulationStopRequestedAndActivated())
                         {
                             errorString="@yield"; // yield will be triggered at end of this function
