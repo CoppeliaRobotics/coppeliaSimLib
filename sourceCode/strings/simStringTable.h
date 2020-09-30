@@ -363,7 +363,7 @@
 #define IDSN_CONE "Cone"
 
 #define IDSN_OBJECT_PROPERTIES_MENU_ITEM "Scene object properties"
-#define IDSN_CALCULATION_MODULE_PROPERTIES_MENU_ITEM "Calculation module properties"
+#define IDSN_DYNAMICS_PROPERTIES_MENU_ITEM "Dynamics properties"
 #define IDSN_ALL_CUTTABLE_OBJECTS_IN_SCENE "all cuttable objects in the scene"
 #define IDSN_ALL_DETECTABLE_OBJECTS_IN_SCENE "all detectable objects in the scene"
 #define IDSN_NONE "none"
@@ -380,10 +380,14 @@
 
 // Joint functionality:
 #define IDSN_JOINT_IS_IN_PASSIVE_MODE "Passive mode"
-#define IDSN_JOINT_IS_IN_IK_MODE "Inverse kinematics mode"
 #define IDSN_JOINT_IS_IN_DEPENDENT_MODE "Dependent mode"
-#define IDSN_JOINT_IS_IN_MOTION_MODE "Motion mode (DEPRECATED)"
 #define IDSN_JOINT_IS_IN_TORQUE_FORCE_MODE "Torque/force mode"
+#define IDSN_JOINT_IS_IN_HYBRID_PASSIVE_MODE "Hybrid passive mode (deprecated)"
+#define IDSN_JOINT_IS_IN_IK_MODE "IK mode (deprecated)"
+#define IDSN_JOINT_IS_IN_HYBRID_IK_MODE "Hybrid IK mode (deprecated)"
+#define IDSN_JOINT_IS_IN_HYBRID_DEPENDENT_MODE "Hybrid dependent mode (deprecated)"
+#define IDSN_JOINT_IS_IN_MOTION_MODE "Motion mode (deprecated)"
+#define IDSN_JOINT_IS_IN_HYBRID_MOTION_MODE "Hybrid motion mode (deprecated)"
 
 // Entities:
 #define IDSN_COLLECTION "Collection"
@@ -1056,11 +1060,10 @@
 #define IDSN_SURE_TO_DISABLE_UPDATABLE_WARNING "The operation you are about to perform will definitely disassociate this object/model from its siblings (i.e. this object/model will be independent, and you won't be able to re-associate it with its former siblings). Are you sure you want to proceed?"
 
 #define IDS_DUMMY_LINK_TYPE_DYNAMICS_LOOP_CLOSURE "Dynamics, overlap constraint"
-#define IDS_DUMMY_LINK_TYPE_DYNAMICS_FORCE_CONSTRAINT "Dynamics, force constraint"
 #define IDS_DUMMY_LINK_TYPE_GCS_LOOP_CLOSURE "GCS, overlap constraint (deprecated)"
 #define IDS_DUMMY_LINK_TYPE_GCS_TIP "GCS, tip (deprecated)"
 #define IDS_DUMMY_LINK_TYPE_GCS_TARGET "GCS, target (deprecated)"
-#define IDS_DUMMY_LINK_TYPE_IK_TIP_TARGET "IK, tip-target"
+#define IDS_DUMMY_LINK_TYPE_IK_TIP_TARGET "IK, tip-target (deprecated)"
 #define IDS_WARNING_TIP_DUMMY_NOT_LINKED "tip dummy is not linked!"
 #define IDS_WARNING_WRONG_DUMMY_LINK_TYPE "wrong dummy link type!"
 

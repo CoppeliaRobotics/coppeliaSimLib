@@ -42,17 +42,6 @@ public:
     void setAllInvolvedJointsToIkPluginPositions() const;
     void setAllInvolvedJointsToNewJointMode(int jointMode) const;
 
-#ifdef SUPPORT_OLD_IK
-    void checkIfWithinTolerance(bool& position,bool& orientation,bool useTempValues);
-    void prepareIkEquations(float interpolFact);
-    void removeIkEquations();
-    void getError(const C4X4Matrix& m1,const C4X4Matrix& m2,float err[2],bool xC,bool yC,bool zC,bool abC,bool gC);
-    CMatrix* matrix;
-    CMatrix* matrix_correctJacobian;
-    CMatrix* errorVector;
-    std::vector<int>* rowJointHandles;
-    std::vector<int>* rowJointStages;
-#endif
 private:
     void _commonInit();
 

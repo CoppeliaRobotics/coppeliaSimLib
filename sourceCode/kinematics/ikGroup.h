@@ -76,16 +76,6 @@ private:
 
     void _setLastJacobian(CMatrix* j);
 
-#ifdef SUPPORT_OLD_IK
-    bool _computeOnlyJacobian(int options);
-    int _getConfigForTipPose(int jointCnt,const int* jointHandles,float thresholdDist,int maxTimeInMs,float* retConfig,const float* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const float* lowLimits,const float* ranges);
-    int _computeGroupIk(bool independentComputation,bool& applyNewValues);
-    void _resetTemporaryParameters();
-    void _applyTemporaryParameters();
-    int performOnePass(std::vector<CIkElement*>* validElements,bool& limitOrAvoidanceNeedMoreCalculation,float interpolFact,bool independentComputation);
-    bool performOnePass_jacobianOnly(std::vector<CIkElement*>* validElements,int options);
-#endif
-
     std::string _uniquePersistentIdString;
     int _ikPluginCounterpartHandle;
     int _calcTimeInMs;

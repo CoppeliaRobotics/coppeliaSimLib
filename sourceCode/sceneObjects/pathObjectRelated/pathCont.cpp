@@ -5,6 +5,7 @@
 #include "linMotionRoutines.h"
 #include "simStrings.h"
 #include "app.h"
+#include "vVarious.h"
 #ifdef SIM_WITH_OPENGL
 #include "oGL.h"
 #endif
@@ -872,6 +873,60 @@ int CPathCont::getBezierPathPointCount()
 {
     return((int)_bezierPathPoints.size());
 }
+
+void CPathCont::copyPointsToClipboard()
+{
+  //  bla
+    std::string txt="path={";
+    for (size_t i=0;i<_bezierPathPoints.size();i++)
+    {
+        txt+="{";
+        C7Vector tr(_bezierPathPoints[i]->getTransformation());
+        for (size_t j=0;j<3;j++)
+            txt+=tt::getEString(false,tr(j),4)+",";
+        float q[4];
+        tr.Q.getInternalData(q,true);
+        for (size_t j=0;j<4;j++)
+        {
+            txt+=tt::getEString(false,q[j],4)+",";;
+            if (j<3)
+                txt+=",";
+        }
+        txt+="}";
+    }
+    txt+="}";
+    printf(txt.c_str());
+    VVarious::copyTextToClipboard(txt.c_str());
+/*
+    void setTransformation(const C7Vector& tr,int attributes);
+    C7Vector getTransformation();
+    void setMaxRelAbsVelocity(float t);
+    float getMaxRelAbsVelocity();
+    void setOnSpotDistance(float d);
+    float getOnSpotDistance();
+    void setAuxFlags(unsigned short f);
+    unsigned short getAuxFlags();
+    void setAuxChannels(const float c[4]);
+    void getAuxChannels(float c[4]);
+
+protected:
+    C7Vector _transformation;
+    float _maxRelAbsVelocity;
+    float _onSpotDistance;
+    unsigned short _auxFlags;
+    float _auxChannels[4];
+
+    float cumulativeLength;
+    float segmentLength;
+    float cumulativeAngle;
+    float segmentAngleVariation;
+    float cumulativeOnSpotDistance;
+    float segmentOnSpotDistance;
+    float virtualSegmentLength;
+    float virtualCumulativeLength;
+*/
+}
+
 
 CBezierPathPoint* CPathCont::_addBezierPathPoint(const C7Vector& transf,float maxRelAbsVelocity,float onSpotDistance,unsigned short auxFlags,const float auxChannels[4])
 {

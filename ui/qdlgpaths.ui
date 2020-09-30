@@ -184,6 +184,25 @@
     <bool>true</bool>
    </property>
   </widget>
+  <widget class="QToolButton" name="qqCopyToClipboard">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>50</y>
+     <width>201</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Copy path points to clipboard</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>qqDistanceCombo</tabstop>

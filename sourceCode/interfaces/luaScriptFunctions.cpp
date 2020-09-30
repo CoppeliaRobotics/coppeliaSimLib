@@ -52,30 +52,15 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const
         if (it!=nullptr)
         {
             int verb=sim_verbosity_scriptwarnings;
-            bool omitFunc=false;
-            if (boost::algorithm::ends_with(warnStr,"@omitFuncW"))
-            {
-                omitFunc=true;
-                verb=sim_verbosity_warnings;
-                warnStr.erase(warnStr.end()-10,warnStr.end());
-            }
-            if (boost::algorithm::ends_with(warnStr,"@omitFuncSw"))
-            {
-                omitFunc=true;
-                warnStr.erase(warnStr.end()-11,warnStr.end());
-            }
             int lineNumber=-1;
             lineNumber=luaWrap_getCurrentCodeLine(L);
             std::string msg;
             msg+=std::to_string(lineNumber);
             msg+=": ";
             msg+=warnStr;
-            if (!omitFunc)
-            {
-                msg+=" (in function '";
-                msg+=functionName;
-                msg+="')";
-            }
+            msg+=" (in function '";
+            msg+=functionName;
+            msg+="')";
             if (App::userSettings->undecoratedStatusbarMessages)
                 it->prefixWithLuaLocationName(msg);
             App::logScriptMsg(it->getShortDescriptiveName().c_str(),verb,msg.c_str());
@@ -95,18 +80,6 @@ void _raiseErrorOrYieldIfNeeded(luaWrap_lua_State* L,const char* functionName,co
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
         if (it==nullptr)
             return;
-        bool omitFunc=false;
-        if (boost::algorithm::ends_with(errStr,"@omitFuncE"))
-        {
-            omitFunc=true;
-            errStr.erase(errStr.end()-10,errStr.end());
-            errStr+="@errorToConsole";
-        }
-        if (boost::algorithm::ends_with(errStr,"@omitFuncSe"))
-        {
-            omitFunc=true;
-            errStr.erase(errStr.end()-11,errStr.end());
-        }
         it->setLastError(errStr.c_str());
         if (!it->getRaiseErrors_backCompatibility())
             return;
@@ -116,12 +89,9 @@ void _raiseErrorOrYieldIfNeeded(luaWrap_lua_State* L,const char* functionName,co
         msg+=std::to_string(lineNumber);
         msg+=": ";
         msg+=errStr;
-        if (!omitFunc)
-        {
-            msg+=" (in function '";
-            msg+=functionName;
-            msg+="')";
-        }
+        msg+=" (in function '";
+        msg+=functionName;
+        msg+="')";
         it->prefixWithLuaLocationName(msg);
         luaWrap_lua_pushstring(L,msg.c_str());
     }
@@ -153,8 +123,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.boolAnd32",_simBoolAnd32,                              "number result=sim.boolAnd32(number value1,number value2)",true},
     {"sim.boolXor32",_simBoolXor32,                              "number result=sim.boolXor32(number value1,number value2)",true},
     {"sim.handleDynamics",_simHandleDynamics,                    "number result=sim.handleDynamics(number deltaTime)",true},
-    {"sim.handleIkGroup",_simHandleIkGroup,                      "number performedIkGroupCalculationCount=sim.handleIkGroup(number ikGroupHandle)",true},
-    {"sim.checkIkGroup",_simCheckIkGroup,                        "number ikCalculationResult,table jointValues=sim.checkIkGroup(number ikGroupHandle,table jointHandles,table jointOptions=nil)",true},
     {"sim.handleCollision",_simHandleCollision,                  "number collisionCount,table_2 collidingObjectHandles=sim.handleCollision(number collisionObjectHandle)",true},
     {"sim.readCollision",_simReadCollision,                      "number collisionState,table_2 collidingObjectHandles=sim.readCollision(number collisionObjectHandle)",true},
     {"sim.handleDistance",_simHandleDistance,                    "number result,number smallestDistance=sim.handleDistance(number distanceObjectHandle)",true},
@@ -212,7 +180,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getObjects",_simGetObjects,                            "number objectHandle=sim.getObjects(number index,number objectType)",true},
     {"sim.refreshDialogs",_simRefreshDialogs,                    "number result=sim.refreshDialogs(number refreshDegree)",true},
     {"sim.getModuleName",_simGetModuleName,                      "string moduleName,number version=sim.getModuleName(number index)",true},
-    {"sim.getIkGroupHandle",_simGetIkGroupHandle,                "number ikGroupHandle=sim.getIkGroupHandle(string ikGroupName)",true},
     {"sim.removeScript",_simRemoveScript,                        "sim.removeScript(number scriptHandle)",true},
     {"sim.getCollisionHandle",_simGetCollisionHandle,            "number collisionObjectHandle=sim.getCollisionHandle(string collisionObjectName)",true},
     {"sim.getDistanceHandle",_simGetDistanceHandle,              "number distanceObjectHandle=sim.getDistanceHandle(string distanceObjectName)",true},
@@ -273,9 +240,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setThreadResumeLocation",_simSetThreadResumeLocation,  "number result=sim.setThreadResumeLocation(number location,number priority)",true},
     {"sim.resumeThreads",_simResumeThreads,                      "number count=sim.resumeThreads(number location)",true},
     {"sim._switchThread",_simSwitchThread,                        "sim._switchThread()",false},
-    {"sim.createIkGroup",_simCreateIkGroup,                      "number ikGroupHandle=sim.createIkGroup(number options,table intParams=nil,table floatParams=nil)",true},
-    {"sim.removeIkGroup",_simRemoveIkGroup,                      "sim.removeIkGroup(number ikGroupHandle)",true},
-    {"sim.createIkElement",_simCreateIkElement,                  "sim.createIkElement(number ikGroupHandle,number options,table intParams,table floatParams=nil)",true},
     {"sim.createCollection",_simCreateCollection,                "number collectionHandle=sim.createCollection(string collectionName,number options)",true},
     {"sim.addObjectToCollection",_simAddObjectToCollection,      "sim.addObjectToCollection(number collectionHandle,number objectHandle,number what,number options)",true},
     {"sim.saveImage",_simSaveImage,                              "string buffer=sim.saveImage(string image,table_2 resolution,number options,string filename,number quality)",true},
@@ -284,8 +248,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.transformImage",_simTransformImage,                    "sim.transformImage(string image,table_2 resolution,number options)",true},
     {"sim.getQHull",_simGetQHull,                                "table verticesOut,table indicesOut=sim.getQHull(table verticesIn)",true},
     {"sim.getDecimatedMesh",_simGetDecimatedMesh,                "table verticesOut,table indicesOut=sim.getDecimatedMesh(table verticesIn,table indicesIn,number decimationPercentage)",true},
-    {"sim.exportIk",_simExportIk,                                "number result=sim.exportIk(string pathAndFilename)",true},
-    {"sim.computeJacobian",_simComputeJacobian,                  "sim.computeJacobian(number ikGroupHandle,number options)",true},
     {"sim.sendData",_simSendData,                                "sim.sendData(number targetID,number dataHeader,string dataName,string data,number antennaHandle=sim_handle_self,\nnumber actionRadius=100,number emissionAngle1=3.1415,number emissionAngle2=6.283,number persistence=0)",true},
     {"sim.receiveData",_simReceiveData,                          "string data,number senderID,number dataHeader,string dataName=sim.receiveData(number dataHeader=-1,string dataName=nil,\nnumber antennaHandle=sim_handle_self,number index=-1)",true},
     {"sim.packInt32Table",_simPackInt32Table,                    "string data=sim.packInt32Table(table int32Numbers,number startInt32Index=0,number int32Count=0)",true},
@@ -391,7 +353,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.createVisionSensor",_simCreateVisionSensor,            "number sensorHandle=sim.createVisionSensor(number options,table_4 intParams,table_11 floatParams,table_48 color=nil)",true},
     {"sim.insertPathCtrlPoints",_simInsertPathCtrlPoints,        "sim.insertPathCtrlPoints(number pathHandle,number options,number startIndex,number ptCnt,table ptData)",true},
     {"sim.cutPathCtrlPoints",_simCutPathCtrlPoints,              "number result=sim.cutPathCtrlPoints(number pathHandle,number startIndex,number ptCnt)",true},
-    {"sim.getIkGroupMatrix",_simGetIkGroupMatrix,                "table matrix,table_2 matrixSize=sim.getIkGroupMatrix(number ikGroupHandle,number options)",true},
     {"sim.floatingViewAdd",_simFloatingViewAdd,                  "number floatingViewHandle=sim.floatingViewAdd(number posX,number posY,number sizeX,number sizeY,number options)",true},
     {"sim.floatingViewRemove",_simFloatingViewRemove,            "number result=sim.floatingViewRemove(number floatingViewHandle)",true},
     {"sim.adjustView",_simAdjustView,                            "number result=sim.adjustView(number viewHandleOrIndex,number associatedViewableObjectHandle,number options,string viewLabel=nil)",true},
@@ -408,8 +369,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.launchExecutable",_simLaunchExecutable,                "sim.launchExecutable(string filename,string parameters='',number showStatus=1)",true},
     {"sim.getJointForce",_simGetJointForce,                      "number forceOrTorque=sim.getJointForce(number jointHandle)",true},
     {"sim.getJointMaxForce",_simGetJointMaxForce,                "number forceOrTorque=sim.getJointMaxForce(number jointHandle)",true},
-    {"sim.setIkGroupProperties",_simSetIkGroupProperties,        "sim.setIkGroupProperties(number ikGroupHandle,number resolutionMethod,number maxIterations,number damping)",true},
-    {"sim.setIkElementProperties",_simSetIkElementProperties,    "sim.setIkElementProperties(number ikGroupHandle,number tipDummyHandle,number constraints,\ntable_2 precision=nil,table_2 weight=nil)",true},
     {"sim.isHandleValid",_simIsHandleValid,                      "number result=sim.isHandleValid(number generalObjectHandle,number generalObjectType=-1)",true},
     {"sim.getObjectQuaternion",_simGetObjectQuaternion,          "table_4 quaternion=sim.getObjectQuaternion(number objectHandle,number relativeToObjectHandle)",true},
     {"sim.setObjectQuaternion",_simSetObjectQuaternion,          "sim.setObjectQuaternion(number objectHandle,number relativeToObjectHandle,table_4 quaternion)",true},
@@ -468,8 +427,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.loadModule",_simLoadModule,                            "number pluginHandle=sim.loadModule(string filenameAndPath,string pluginName)",true},
     {"sim.unloadModule",_simUnloadModule,                        "number result=sim.unloadModule(number pluginHandle)",true},
     {"sim.callScriptFunction",_simCallScriptFunction,            "...=sim.callScriptFunction(string functionNameAtScriptName,number scriptHandleOrType,...)",true},
-    {"sim.getConfigForTipPose",_simGetConfigForTipPose,          "table jointPositions=sim.getConfigForTipPose(number ikGroupHandle,table jointHandles,number distanceThreshold,number maxTimeInMs,\ntable_4 metric=nil,table collisionPairs=nil,table jointOptions=nil,\ntable lowLimits=nil,table ranges=nil)",true},
-    {"sim.generateIkPath",_simGenerateIkPath,                    "table path=sim.generateIkPath(number ikGroupHandle,table jointHandles,number ptCnt,\ntable collisionPairs=nil,table jointOptions=nil)",true},
     {"sim.getExtensionString",_simGetExtensionString,            "string theString=sim.getExtensionString(number objectHandle,number index,string key=nil)",true},
     {"sim.computeMassAndInertia",_simComputeMassAndInertia,      "number result=sim.computeMassAndInertia(number shapeHandle,number density)",true},
     {"sim.setScriptVariable",_simSetScriptVariable,              "sim.setScriptVariable(string variableNameAtScriptName,number scriptHandleOrType,variable)",true},
@@ -561,6 +518,19 @@ const SLuaCommands simLuaCommands[]=
     {"sim.rmlMoveToJointPositions",_simRMLMoveToJointPositions,  "Deprecated. Use 'sim.moveToConfig' instead",false},
     {"sim.moveToPosition",_simMoveToPosition,                    "Deprecated. Use 'sim.moveToPose' instead",false},
     {"sim.moveToObject",_simMoveToObject,                        "Deprecated. Use 'sim.moveToPose' instead",false},
+    {"sim.checkIkGroup",_simCheckIkGroup,                        "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"sim.createIkGroup",_simCreateIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"sim.removeIkGroup",_simRemoveIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"sim.createIkElement",_simCreateIkElement,                  "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"sim.exportIk",_simExportIk,                                "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"sim.computeJacobian",_simComputeJacobian,                  "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"sim.getConfigForTipPose",_simGetConfigForTipPose,          "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"sim.generateIkPath",_simGenerateIkPath,                    "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"sim.getIkGroupHandle",_simGetIkGroupHandle,                "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"sim.getIkGroupMatrix",_simGetIkGroupMatrix,                "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"sim.handleIkGroup",_simHandleIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"sim.setIkGroupProperties",_simSetIkGroupProperties,        "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"sim.setIkElementProperties",_simSetIkElementProperties,    "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
 
     {"",nullptr,"",false}
 };
@@ -582,8 +552,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simBoolAnd32",_simBoolAnd32,                              "Use the newer 'sim.boolAnd32' notation",false},
     {"simBoolXor32",_simBoolXor32,                              "Use the newer 'sim.boolXor32' notation",false},
     {"simHandleDynamics",_simHandleDynamics,                    "Use the newer 'sim.handleDynamics' notation",false},
-    {"simHandleIkGroup",_simHandleIkGroup,                      "Use the newer 'sim.handleIkGroup' notation",false},
-    {"simCheckIkGroup",_simCheckIkGroup,                        "Use the newer 'sim.checkIkGroup' notation",false},
     {"simHandleCollision",_simHandleCollision,                  "Use the newer 'sim.handleCollision' notation",false},
     {"simReadCollision",_simReadCollision,                      "Use the newer 'sim.readCollision' notation",false},
     {"simHandleDistance",_simHandleDistance,                    "Use the newer 'sim.handleDistance' notation",false},
@@ -641,7 +609,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetObjects",_simGetObjects,                            "Use the newer 'sim.getObjects' notation",false},
     {"simRefreshDialogs",_simRefreshDialogs,                    "Use the newer 'sim.refreshDialogs' notation",false},
     {"simGetModuleName",_simGetModuleName,                      "Use the newer 'sim.getModuleName' notation",false},
-    {"simGetIkGroupHandle",_simGetIkGroupHandle,                "Use the newer 'sim.getIkGroupHandle' notation",false},
     {"simRemoveScript",_simRemoveScript,                        "Use the newer 'sim.removeScript' notation",false},
     {"simGetCollisionHandle",_simGetCollisionHandle,            "Use the newer 'sim.getCollisionHandle' notation",false},
     {"simGetDistanceHandle",_simGetDistanceHandle,              "Use the newer 'sim.getDistanceHandle' notation",false},
@@ -701,9 +668,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simSetThreadResumeLocation",_simSetThreadResumeLocation,  "Use the newer 'sim.setThreadResumeLocation' notation",false},
     {"simResumeThreads",_simResumeThreads,                      "Use the newer 'sim.resumeThreads' notation",false},
     {"simSwitchThread",_simSwitchThread,                        "Use the newer 'sim.switchThread' notation",false},
-    {"simCreateIkGroup",_simCreateIkGroup,                      "Use the newer 'sim.createIkGroup' notation",false},
-    {"simRemoveIkGroup",_simRemoveIkGroup,                      "Use the newer 'sim.removeIkGroup' notation",false},
-    {"simCreateIkElement",_simCreateIkElement,                  "Use the newer 'sim.createIkElement' notation",false},
     {"simCreateCollection",_simCreateCollection,                "Use the newer 'sim.createCollection' notation",false},
     {"simAddObjectToCollection",_simAddObjectToCollection,      "Use the newer 'sim.addObjectToCollection' notation",false},
     {"simSaveImage",_simSaveImage,                              "Use the newer 'sim.saveImage' notation",false},
@@ -712,8 +676,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simTransformImage",_simTransformImage,                    "Use the newer 'sim.transformImage' notation",false},
     {"simGetQHull",_simGetQHull,                                "Use the newer 'sim.getQHull' notation",false},
     {"simGetDecimatedMesh",_simGetDecimatedMesh,                "Use the newer 'sim.getDecimatedMesh' notation",false},
-    {"simExportIk",_simExportIk,                                "Use the newer 'sim.exportIk' notation",false},
-    {"simComputeJacobian",_simComputeJacobian,                  "Use the newer 'sim.computeJacobian' notation",false},
     {"simSendData",_simSendData,                                "Use the newer 'sim.sendData' notation",false},
     {"simReceiveData",_simReceiveData,                          "Use the newer 'sim.receiveData' notation",false},
     {"simPackInt32Table",_simPackInt32Table,                    "Use the newer 'sim.packInt32Table' notation",false},
@@ -818,7 +780,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simCreateVisionSensor",_simCreateVisionSensor,            "Use the newer 'sim.createVisionSensor' notation",false},
     {"simInsertPathCtrlPoints",_simInsertPathCtrlPoints,        "Use the newer 'sim.insertPathCtrlPoints' notation",false},
     {"simCutPathCtrlPoints",_simCutPathCtrlPoints,              "Use the newer 'sim.cutPathCtrlPoints' notation",false},
-    {"simGetIkGroupMatrix",_simGetIkGroupMatrix,                "Use the newer 'sim.getIkGroupMatrix' notation",false},
     {"simFloatingViewAdd",_simFloatingViewAdd,                  "Use the newer 'sim.floatingViewAdd' notation",false},
     {"simFloatingViewRemove",_simFloatingViewRemove,            "Use the newer 'sim.floatingViewRemove' notation",false},
     {"simAdjustView",_simAdjustView,                            "Use the newer 'sim.adjustView' notation",false},
@@ -834,8 +795,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simRotateAroundAxis",_simRotateAroundAxis,                "Use the newer 'sim.rotateAroundAxis' notation",false},
     {"simLaunchExecutable",_simLaunchExecutable,                "Use the newer 'sim.launchExecutable' notation",false},
     {"simGetJointForce",_simGetJointForce,                      "Use the newer 'sim.getJointForce' notation",false},
-    {"simSetIkGroupProperties",_simSetIkGroupProperties,        "Use the newer 'sim.setIkGroupProperties' notation",false},
-    {"simSetIkElementProperties",_simSetIkElementProperties,    "Use the newer 'sim.setIkElementProperties' notation",false},
     {"simIsHandleValid",_simIsHandleValid,                      "Use the newer 'sim.isHandleValid' notation",false},
     {"simGetObjectQuaternion",_simGetObjectQuaternion,          "Use the newer 'sim.getObjectQuaternion' notation",false},
     {"simSetObjectQuaternion",_simSetObjectQuaternion,          "Use the newer 'sim.setObjectQuaternion' notation",false},
@@ -896,8 +855,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simLoadModule",_simLoadModule,                            "Use the newer 'sim.loadModule' notation",false},
     {"simUnloadModule",_simUnloadModule,                        "Use the newer 'sim.unloadModule' notation",false},
     {"simCallScriptFunction",_simCallScriptFunction,            "Use the newer 'sim.callScriptFunction' notation",false},
-    {"simGetConfigForTipPose",_simGetConfigForTipPose,          "Use the newer 'sim.getConfigForTipPose' notation",false},
-    {"simGenerateIkPath",_simGenerateIkPath,                    "Use the newer 'sim.generateIkPath' notation",false},
     {"simGetExtensionString",_simGetExtensionString,            "Use the newer 'sim.getExtensionString' notation",false},
     {"simComputeMassAndInertia",_simComputeMassAndInertia,      "Use the newer 'sim.computeMassAndInertia' notation",false},
     {"simSetScriptVariable",_simSetScriptVariable,              "Use the newer 'sim.setScriptVariable' notation",false},
@@ -1067,6 +1024,22 @@ const SLuaCommands simLuaCommandsOldApi[]=
     // Following for backward compatibility (deprecated since 23/5/2014):
     {"simRMLPosition",_simRMLPosition,                              "Deprecated. Use sim.rmlPos instead",false},
     {"simRMLVelocity",_simRMLVelocity,                              "Deprecated. Use sim.rmlVel instead",false},
+
+    {"simCheckIkGroup",_simCheckIkGroup,                        "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simCreateIkGroup",_simCreateIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simRemoveIkGroup",_simRemoveIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simCreateIkElement",_simCreateIkElement,                  "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simExportIk",_simExportIk,                                "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simComputeJacobian",_simComputeJacobian,                  "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simGetConfigForTipPose",_simGetConfigForTipPose,          "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simGenerateIkPath",_simGenerateIkPath,                    "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simGetIkGroupHandle",_simGetIkGroupHandle,                "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simGetIkGroupMatrix",_simGetIkGroupMatrix,                "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simHandleIkGroup",_simHandleIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simSetIkGroupProperties",_simSetIkGroupProperties,        "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simSetIkElementProperties",_simSetIkElementProperties,    "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+
+
     {"",nullptr,"",false}
 };
 
@@ -1112,28 +1085,9 @@ const SLuaVariables simLuaVariables[]=
     {"sim.appobj_collision_type",sim_appobj_collision_type,true},
     {"sim.appobj_distance_type",sim_appobj_distance_type,true},
     {"sim.appobj_simulation_type",sim_appobj_simulation_type,true},
-    {"sim.appobj_ik_type",sim_appobj_ik_type,true},
     {"sim.appobj_collection_type",sim_appobj_collection_type,true},
-    {"sim.appobj_2delement_type",sim_appobj_ui_type,true},  // for backward compatibility
-    {"sim.appobj_ui_type",sim_appobj_ui_type,true},
     {"sim.appobj_script_type",sim_appobj_script_type,true},
-    {"sim.appobj_pathplanning_type",sim_appobj_pathplanning_type,true},
     {"sim.appobj_texture_type",sim_appobj_texture_type,true},
-    // IK calculation methods:
-    {"sim.ik_pseudo_inverse_method",sim_ik_pseudo_inverse_method,true},
-    {"sim.ik_damped_least_squares_method",sim_ik_damped_least_squares_method,true},
-    {"sim.ik_jacobian_transpose_method",sim_ik_jacobian_transpose_method,true},
-    {"sim.ik_undamped_pseudo_inverse_method",sim_ik_undamped_pseudo_inverse_method,true},
-    // IK constraints:
-    {"sim.ik_x_constraint",sim_ik_x_constraint,true},
-    {"sim.ik_y_constraint",sim_ik_y_constraint,true},
-    {"sim.ik_z_constraint",sim_ik_z_constraint,true},
-    {"sim.ik_alpha_beta_constraint",sim_ik_alpha_beta_constraint,true},
-    {"sim.ik_gamma_constraint",sim_ik_gamma_constraint,true},
-    // IK calculation results:
-    {"sim.ikresult_not_performed",sim_ikresult_not_performed,true},
-    {"sim.ikresult_success",sim_ikresult_success,true},
-    {"sim.ikresult_fail",sim_ikresult_fail,true},
     // Simulation messages:
     {"sim.message_ui_button_state_change",sim_message_ui_button_state_change,true},
     {"sim.message_model_loaded",sim_message_model_loaded,true},
@@ -1364,8 +1318,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.boolparam_console_visible",sim_boolparam_console_visible,true},
     {"sim.boolparam_collision_handling_enabled",sim_boolparam_collision_handling_enabled,true},
     {"sim.boolparam_distance_handling_enabled",sim_boolparam_distance_handling_enabled,true},
-    {"sim.boolparam_ik_handling_enabled",sim_boolparam_ik_handling_enabled,true},
-    {"sim.boolparam_gcs_handling_enabled",sim_boolparam_gcs_handling_enabled,true},
     {"sim.boolparam_dynamics_handling_enabled",sim_boolparam_dynamics_handling_enabled,true},
     {"sim.boolparam_proximity_sensor_handling_enabled",sim_boolparam_proximity_sensor_handling_enabled,true},
     {"sim.boolparam_vision_sensor_handling_enabled",sim_boolparam_vision_sensor_handling_enabled,true},
@@ -1622,8 +1574,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.particle_water",sim_particle_water,true},
     // joint modes
     {"sim.jointmode_passive",sim_jointmode_passive,true},
-    {"sim.jointmode_ik",sim_jointmode_ik,true},
-    {"sim.jointmode_ikdependent",sim_jointmode_reserved_previously_ikdependent,true},
     {"sim.jointmode_dependent",sim_jointmode_dependent,true},
     {"sim.jointmode_force",sim_jointmode_force,true},
     // file dialog styles
@@ -1663,11 +1613,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.pure_primitive_heightfield",sim_pure_primitive_heightfield,true},
     // dummy-dummy link types
     {"sim.dummy_linktype_dynamics_loop_closure",sim_dummy_linktype_dynamics_loop_closure,true},
-    {"sim.dummy_linktype_dynamics_force_constraint",sim_dummy_linktype_dynamics_force_constraint,true},
-    {"sim.dummy_linktype_gcs_loop_closure",sim_dummy_linktype_gcs_loop_closure,true},
-    {"sim.dummy_linktype_gcs_tip",sim_dummy_linktype_gcs_tip,true},
-    {"sim.dummy_linktype_gcs_target",sim_dummy_linktype_gcs_target,true},
-    {"sim.dummy_linktype_ik_tip_target",sim_dummy_linktype_ik_tip_target,true},
     // color components
     {"sim.colorcomponent_ambient",sim_colorcomponent_ambient,true},
     {"sim.colorcomponent_ambient_diffuse",sim_colorcomponent_ambient_diffuse,true},
@@ -1754,7 +1699,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.jointfloatparam_upper_limit",sim_jointfloatparam_upper_limit,true},
     {"sim.jointfloatparam_kc_k",sim_jointfloatparam_kc_k,true},
     {"sim.jointfloatparam_kc_c",sim_jointfloatparam_kc_c,true},
-    {"sim.jointfloatparam_ik_weight",sim_jointfloatparam_ik_weight,true},
     {"sim.jointfloatparam_error_x",sim_jointfloatparam_error_x,true},
     {"sim.jointfloatparam_error_y",sim_jointfloatparam_error_y,true},
     {"sim.jointfloatparam_error_z",sim_jointfloatparam_error_z,true},
@@ -1768,7 +1712,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.jointfloatparam_vortex_dep_multiplication",sim_jointfloatparam_vortex_dep_multiplication,true},
     {"sim.jointfloatparam_vortex_dep_offset",sim_jointfloatparam_vortex_dep_offset,true},
     {"sim.jointfloatparam_screw_pitch",sim_jointfloatparam_screw_pitch,true},
-    {"sim.jointfloatparam_step_size",sim_jointfloatparam_step_size,true},
     // shapes
     {"sim.shapefloatparam_init_velocity_x",sim_shapefloatparam_init_velocity_x,true},
     {"sim.shapefloatparam_init_velocity_y",sim_shapefloatparam_init_velocity_y,true},
@@ -2120,8 +2063,41 @@ const SLuaVariables simLuaVariables[]=
     {"sim.rml_recompute_trajectory",simrml_recompute_trajectory,true},
     {"sim.rml_disable_extremum_motion_states_calc",simrml_disable_extremum_motion_states_calc,true},
     {"sim.rml_keep_current_vel_if_fallback_strategy",simrml_keep_current_vel_if_fallback_strategy,true},
-    // Add new constants here!
-    // Then regenerate the notepad++ keywords and calltips
+
+
+    // deprecated!
+    {"sim.jointmode_ik",sim_jointmode_ik_deprecated,false},
+    {"sim.jointmode_ikdependent",sim_jointmode_reserved_previously_ikdependent,false},
+    {"sim.appobj_ik_type",sim_appobj_ik_type,false},
+    // IK calculation methods:
+    {"sim.ik_pseudo_inverse_method",sim_ik_pseudo_inverse_method,false},
+    {"sim.ik_damped_least_squares_method",sim_ik_damped_least_squares_method,false},
+    {"sim.ik_jacobian_transpose_method",sim_ik_jacobian_transpose_method,false},
+    {"sim.ik_undamped_pseudo_inverse_method",sim_ik_undamped_pseudo_inverse_method,false},
+    // IK constraints:
+    {"sim.ik_x_constraint",sim_ik_x_constraint,false},
+    {"sim.ik_y_constraint",sim_ik_y_constraint,false},
+    {"sim.ik_z_constraint",sim_ik_z_constraint,false},
+    {"sim.ik_alpha_beta_constraint",sim_ik_alpha_beta_constraint,false},
+    {"sim.ik_gamma_constraint",sim_ik_gamma_constraint,false},
+    // IK calculation results:
+    {"sim.ikresult_not_performed",sim_ikresult_not_performed,false},
+    {"sim.ikresult_success",sim_ikresult_success,false},
+    {"sim.ikresult_fail",sim_ikresult_fail,false},
+
+    {"sim.dummy_linktype_gcs_loop_closure",sim_dummy_linktype_gcs_loop_closure,false},
+    {"sim.dummy_linktype_gcs_tip",sim_dummy_linktype_gcs_tip,false},
+    {"sim.dummy_linktype_gcs_target",sim_dummy_linktype_gcs_target,false},
+    {"sim.dummy_linktype_ik_tip_target",sim_dummy_linktype_ik_tip_target,false},
+    {"sim.dummy_linktype_dynamics_force_constraint",sim_dummy_linktype_dynamics_force_constraint,false},
+    {"sim.jointfloatparam_step_size",sim_jointfloatparam_step_size,false},
+    {"sim.jointfloatparam_ik_weight",sim_jointfloatparam_ik_weight,false},
+    {"sim.boolparam_ik_handling_enabled",sim_boolparam_ik_handling_enabled,false},
+    {"sim.boolparam_gcs_handling_enabled",sim_boolparam_gcs_handling_enabled,false},
+    {"sim.appobj_2delement_type",sim_appobj_ui_type,false},  // for backward compatibility
+    {"sim.appobj_ui_type",sim_appobj_ui_type,false},
+    {"sim.appobj_pathplanning_type",sim_appobj_pathplanning_type,false},
+
     {"",-1}
 };
 
@@ -2588,7 +2564,7 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim_particle_emissioncolor",sim_particle_emissioncolor,false},
     {"sim_particle_water",sim_particle_water,false},
     {"sim_jointmode_passive",sim_jointmode_passive,false},
-    {"sim_jointmode_ik",sim_jointmode_ik,false},
+    {"sim_jointmode_ik",sim_jointmode_ik_deprecated,false},
     {"sim_jointmode_ikdependent",sim_jointmode_reserved_previously_ikdependent,false},
     {"sim_jointmode_dependent",sim_jointmode_dependent,false},
     {"sim_jointmode_force",sim_jointmode_force,false},
@@ -5083,62 +5059,6 @@ int _simHandleDynamics(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simHandleIkGroup(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.handleIkGroup");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simHandleIkGroup_internal(luaToInt(L,1));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simCheckIkGroup(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.checkIkGroup");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        if (luaWrap_lua_istable(L,2))
-        {
-            int jointCnt=(int)luaWrap_lua_objlen(L,2);
-            int* handles=new int[jointCnt];
-            getIntsFromTable(L,2,jointCnt,handles);
-            float* values=new float[jointCnt];
-
-            int res=checkOneGeneralInputArgument(L,3,lua_arg_number,jointCnt,true,true,&errorString);
-            if (res>=0)
-            {
-                int* jointOptionsP=nullptr;
-                std::vector<int> jointOptions;
-                if (res==2)
-                {
-                    jointOptions.resize(jointCnt);
-                    getIntsFromTable(L,3,jointCnt,&jointOptions[0]);
-                    jointOptionsP=&jointOptions[0];
-                }
-
-                int retVal=simCheckIkGroup_internal(luaToInt(L,1),jointCnt,handles,values,jointOptionsP);
-                luaWrap_lua_pushnumber(L,retVal);
-                pushFloatTableOntoStack(L,jointCnt,values);
-                delete[] values;
-                delete[] handles;
-                LUA_END(2);
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,-1);
-    LUA_END(1);
-}
-
-
 int _simHandleCollision(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -6181,31 +6101,6 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetIkGroupHandle(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getIkGroupHandle");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_string,0))
-    {
-        std::string name(luaWrap_lua_tostring(L,1));
-        size_t pos=name.find("@");
-        std::string n(name);
-        if (pos!=std::string::npos)
-            n.assign(name.begin(),name.begin()+pos);
-        suffixAdjustStringIfNeeded(L,n);
-        if (pos!=std::string::npos)
-            n=n+std::string(name.begin()+pos,name.end());
-        quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
-        retVal=simGetIkGroupHandle_internal(n.c_str());
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
 int _simGetCollisionHandle(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -7094,25 +6989,11 @@ int _simAddLog(luaWrap_lua_State* L)
             else
             {
                 std::string msg(luaWrap_lua_tostring(L,2));
-                if ( (v!=sim_verbosity_warnings)&&(v!=sim_verbosity_scriptwarnings)&&(v!=sim_verbosity_errors)&&(v!=sim_verbosity_scripterrors) )
-                {
-                    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
-                    std::string nm("???");
-                    if (it!=nullptr)
-                        nm=it->getShortDescriptiveName();
-                    App::logScriptMsg(nm.c_str(),v,msg.c_str());
-                }
-                else
-                {
-                    if (v==sim_verbosity_errors)
-                        errorString=msg+"@omitFuncE";
-                    if (v==sim_verbosity_scripterrors)
-                        errorString=msg+"@omitFuncSe";
-                    if (v==sim_verbosity_warnings)
-                        warningString=msg+"@omitFuncW";
-                    if (v==sim_verbosity_scriptwarnings)
-                        warningString=msg+"@omitFuncSw";
-                }
+                CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
+                std::string nm("???");
+                if (it!=nullptr)
+                    nm=it->getShortDescriptiveName();
+                App::logScriptMsg(nm.c_str(),v,msg.c_str());
             }
         }
     }
@@ -8209,150 +8090,6 @@ int _simLaunchExecutable(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetConfigForTipPose(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getConfigForTipPose");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,1,lua_arg_number,0,lua_arg_number,0))
-    {
-        int ikGroupHandle=luaWrap_lua_tointeger(L,1);
-        std::vector<int> jointHandles;
-        int jointCnt=int(luaWrap_lua_objlen(L,2));
-        jointHandles.resize(jointCnt);
-        getIntsFromTable(L,2,jointCnt,&jointHandles[0]);
-        float thresholdDist=luaWrap_lua_tonumber(L,3);
-        int maxTimeInMs=luaWrap_lua_tointeger(L,4);
-        float metric[4]={1.0,1.0,1.0,0.1f};
-        int res=checkOneGeneralInputArgument(L,5,lua_arg_number,4,true,true,&errorString);
-        if (res>=0)
-        {
-            if (res==2)
-                getFloatsFromTable(L,5,4,metric);
-            int collisionPairCnt=0;
-            std::vector<int> _collisionPairs;
-            int* collisionPairs=nullptr;
-            res=checkOneGeneralInputArgument(L,6,lua_arg_number,-1,true,true,&errorString);
-            if (res>=0)
-            {
-                if (res==2)
-                {
-                    collisionPairCnt=int(luaWrap_lua_objlen(L,6))/2;
-                    if (collisionPairCnt>0)
-                    {
-                        _collisionPairs.resize(collisionPairCnt*2);
-                        getIntsFromTable(L,6,collisionPairCnt*2,&_collisionPairs[0]);
-                        collisionPairs=&_collisionPairs[0];
-                    }
-                }
-                std::vector<int> _jointOptions;
-                int* jointOptions=nullptr;
-                res=checkOneGeneralInputArgument(L,7,lua_arg_number,jointCnt,true,true,&errorString);
-                if (res>=0)
-                {
-                    if (res==2)
-                    {
-                        _jointOptions.resize(jointCnt);
-                        getIntsFromTable(L,7,jointCnt,&_jointOptions[0]);
-                        jointOptions=&_jointOptions[0];
-                    }
-
-                    res=checkOneGeneralInputArgument(L,8,lua_arg_number,jointCnt,true,true,&errorString);
-                    if (res>=0)
-                    {
-                        std::vector<float> _lowLimits;
-                        _lowLimits.resize(jointCnt);
-                        std::vector<float> _ranges;
-                        _ranges.resize(jointCnt);
-                        float* lowLimits=nullptr;
-                        float* ranges=nullptr;
-                        if (res==2)
-                        {
-                            getFloatsFromTable(L,8,jointCnt,&_lowLimits[0]);
-                            lowLimits=&_lowLimits[0];
-                        }
-                        res=checkOneGeneralInputArgument(L,9,lua_arg_number,jointCnt,lowLimits==nullptr,lowLimits==nullptr,&errorString);
-                        if (res>=0)
-                        {
-                            if (res==2)
-                            {
-                                getFloatsFromTable(L,9,jointCnt,&_ranges[0]);
-                                ranges=&_ranges[0];
-                            }
-                            std::vector<float> foundConfig;
-                            foundConfig.resize(jointCnt);
-                            res=simGetConfigForTipPose_internal(ikGroupHandle,jointCnt,&jointHandles[0],thresholdDist,maxTimeInMs,&foundConfig[0],metric,collisionPairCnt,collisionPairs,jointOptions,lowLimits,ranges,nullptr);
-                            if (res>0)
-                            {
-                                pushFloatTableOntoStack(L,jointCnt,&foundConfig[0]);
-                                LUA_END(1);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGenerateIkPath(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.generateIkPath");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,1,lua_arg_number,0))
-    {
-        int ikGroupHandle=luaWrap_lua_tointeger(L,1);
-        std::vector<int> jointHandles;
-        int jointCnt=int(luaWrap_lua_objlen(L,2));
-        jointHandles.resize(jointCnt);
-        getIntsFromTable(L,2,jointCnt,&jointHandles[0]);
-        int ptCnt=luaWrap_lua_tonumber(L,3);
-        int res=checkOneGeneralInputArgument(L,4,lua_arg_number,-1,true,true,&errorString);
-        if (res>=0)
-        {
-            int collisionPairCnt=0;
-            std::vector<int> _collisionPairs;
-            int* collisionPairs=nullptr;
-            if (res==2)
-            {
-                collisionPairCnt=int(luaWrap_lua_objlen(L,4))/2;
-                if (collisionPairCnt>0)
-                {
-                    _collisionPairs.resize(collisionPairCnt*2);
-                    getIntsFromTable(L,4,collisionPairCnt*2,&_collisionPairs[0]);
-                    collisionPairs=&_collisionPairs[0];
-                }
-            }
-            res=checkOneGeneralInputArgument(L,5,lua_arg_number,jointCnt,true,true,&errorString);
-            if (res>=0)
-            {
-                std::vector<int> _jointOptions;
-                int* jointOptions=nullptr;
-                if (res==2)
-                {
-                    _jointOptions.resize(jointCnt);
-                    getIntsFromTable(L,5,jointCnt,&_jointOptions[0]);
-                    jointOptions=&_jointOptions[0];
-                }
-                float* path=simGenerateIkPath_internal(ikGroupHandle,jointCnt,&jointHandles[0],ptCnt,collisionPairCnt,collisionPairs,jointOptions,nullptr);
-                if (path!=nullptr)
-                {
-                    pushFloatTableOntoStack(L,jointCnt*ptCnt,path);
-                    simReleaseBuffer_internal((char*)path);
-                    LUA_END(1);
-                }
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
 int _simGetExtensionString(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -8892,94 +8629,6 @@ int _simSwitchThread(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simCreateIkGroup(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.createIkGroup");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int options=luaToInt(L,1);
-        int res=checkOneGeneralInputArgument(L,2,lua_arg_number,2,true,true,&errorString);
-        if (res>=0)
-        {
-            int intParams[2];
-            int* intP=nullptr;
-            if (res==2)
-            {
-                getIntsFromTable(L,2,2,intParams);
-                intP=intParams;
-            }
-            res=checkOneGeneralInputArgument(L,3,lua_arg_number,4,true,true,&errorString);
-            if (res>=0)
-            {
-                float floatParams[4];
-                float* floatP=nullptr;
-                if (res==2)
-                {
-                    getFloatsFromTable(L,3,4,floatParams);
-                    floatP=floatParams;
-                }
-                retVal=simCreateIkGroup_internal(options,intP,floatP,nullptr);
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simRemoveIkGroup(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.removeIkGroup");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int handle=luaToInt(L,1);
-        retVal=simRemoveIkGroup_internal(handle);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simCreateIkElement(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.createIkElement");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,4))
-    {
-        int ikGroup=luaToInt(L,1);
-        int options=luaToInt(L,2);
-        int intParams[4];
-        getIntsFromTable(L,3,4,intParams);
-
-        int res=checkOneGeneralInputArgument(L,4,lua_arg_number,4,true,true,&errorString);
-        if (res>=0)
-        {
-            float floatParams[4];
-            float* floatP=nullptr;
-            if (res==2)
-            {
-                getFloatsFromTable(L,4,4,floatParams);
-                floatP=floatParams;
-            }
-            retVal=simCreateIkElement_internal(ikGroup,options,intParams,floatP,nullptr);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
 int _simCreateCollection(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -9252,37 +8901,6 @@ int _simGetDecimatedMesh(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
-}
-
-int _simExportIk(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.exportIk");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_string,0))
-    {
-        std::string pathAndFilename(luaWrap_lua_tostring(L,1));
-        retVal=simExportIk_internal(pathAndFilename.c_str(),0,nullptr);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simComputeJacobian(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.computeJacobian");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simComputeJacobian_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),nullptr);
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
 }
 
 int _simPackInt32Table(luaWrap_lua_State* L)
@@ -14457,58 +14075,6 @@ int _simGetJointForce(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSetIkGroupProperties(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setIkGroupProperties");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-        retVal=simSetIkGroupProperties_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3),luaToFloat(L,4),nullptr);
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simSetIkElementProperties(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setIkElementProperties");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-    {
-        int res=checkOneGeneralInputArgument(L,4,lua_arg_number,2,true,true,&errorString);
-        if (res>=0)
-        {
-            float* precision=nullptr;
-            float prec[2];
-            if (res==2)
-            {
-                getFloatsFromTable(L,4,2,prec);
-                precision=prec;
-            }
-            res=checkOneGeneralInputArgument(L,5,lua_arg_number,2,true,true,&errorString);
-            if (res>=0)
-            {
-                float* weight=nullptr;
-                float w[2];
-                if (res==2)
-                {
-                    getFloatsFromTable(L,5,2,w);
-                    weight=w;
-                }
-                retVal=simSetIkElementProperties_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3),precision,weight,nullptr);
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
 int _simPersistentDataWrite(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -15310,29 +14876,6 @@ int _simCutPathCtrlPoints(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-
-int _simGetIkGroupMatrix(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getIkGroupMatrix");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        int ikGroupHandle=luaToInt(L,1);
-        int options=luaToInt(L,2);
-        int matrixSize[2];
-        float* data=simGetIkGroupMatrix_internal(ikGroupHandle,options,matrixSize);
-        if (data!=nullptr)
-        {
-            pushFloatTableOntoStack(L,matrixSize[0]*matrixSize[1],data);
-            pushIntTableOntoStack(L,2,matrixSize);
-            LUA_END(2);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
 
 int _simAddGhost(luaWrap_lua_State* L)
 {
@@ -17473,30 +17016,36 @@ int _simExecuteScriptString(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.executeScriptString");
 
-    int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
         std::string strAndScriptName(luaWrap_lua_tostring(L,1));
         int scriptHandleOrType=luaWrap_lua_tointeger(L,2);
         CInterfaceStack* stack=new CInterfaceStack();
         int stackHandle=App::worldContainer->interfaceStackContainer->addStack(stack);
-        retVal=simExecuteScriptString_internal(scriptHandleOrType,strAndScriptName.c_str(),stackHandle);
-        luaWrap_lua_pushnumber(L,retVal);
-        int s=1;
-        if (stack->getStackSize()>0)
+        int retVal=simExecuteScriptString_internal(scriptHandleOrType,strAndScriptName.c_str(),stackHandle);
+        if (retVal>=0)
         {
-            //stack->printContent(-1);
-            stack->buildOntoLuaStack(L,false);//true);
-            s+=stack->getStackSize();//s++;
+            luaWrap_lua_pushnumber(L,retVal);
+            int s=1;
+            if (stack->getStackSize()>0)
+            {
+                stack->buildOntoLuaStack(L,false);//true);
+                s+=stack->getStackSize();
+            }
+            App::worldContainer->interfaceStackContainer->destroyStack(stackHandle);
+            LUA_END(s);
         }
-        App::worldContainer->interfaceStackContainer->destroyStack(stackHandle);
-        LUA_END(s);
+        else
+        {
+//            if (errorString.size()==0)
+//                errorString=SIM_ERROR_OPERATION_FAILED;
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
+
 
 int _simGetApiFunc(luaWrap_lua_State* L)
 {
@@ -21084,3 +20633,422 @@ int _simMoveToObject(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
+
+int _simCheckIkGroup(luaWrap_lua_State* L)
+{ // deprecated on 29.09.2020
+    TRACE_LUA_API;
+    LUA_START("sim.checkIkGroup");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        if (luaWrap_lua_istable(L,2))
+        {
+            int jointCnt=(int)luaWrap_lua_objlen(L,2);
+            int* handles=new int[jointCnt];
+            getIntsFromTable(L,2,jointCnt,handles);
+            float* values=new float[jointCnt];
+
+            int res=checkOneGeneralInputArgument(L,3,lua_arg_number,jointCnt,true,true,&errorString);
+            if (res>=0)
+            {
+                int* jointOptionsP=nullptr;
+                std::vector<int> jointOptions;
+                if (res==2)
+                {
+                    jointOptions.resize(jointCnt);
+                    getIntsFromTable(L,3,jointCnt,&jointOptions[0]);
+                    jointOptionsP=&jointOptions[0];
+                }
+
+                int retVal=simCheckIkGroup_internal(luaToInt(L,1),jointCnt,handles,values,jointOptionsP);
+                luaWrap_lua_pushnumber(L,retVal);
+                pushFloatTableOntoStack(L,jointCnt,values);
+                delete[] values;
+                delete[] handles;
+                LUA_END(2);
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,-1);
+    LUA_END(1);
+}
+
+int _simCreateIkGroup(luaWrap_lua_State* L)
+{ // DEPRECATED ON 29.09.2020
+    TRACE_LUA_API;
+    LUA_START("sim.createIkGroup");
+
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int options=luaToInt(L,1);
+        int res=checkOneGeneralInputArgument(L,2,lua_arg_number,2,true,true,&errorString);
+        if (res>=0)
+        {
+            int intParams[2];
+            int* intP=nullptr;
+            if (res==2)
+            {
+                getIntsFromTable(L,2,2,intParams);
+                intP=intParams;
+            }
+            res=checkOneGeneralInputArgument(L,3,lua_arg_number,4,true,true,&errorString);
+            if (res>=0)
+            {
+                float floatParams[4];
+                float* floatP=nullptr;
+                if (res==2)
+                {
+                    getFloatsFromTable(L,3,4,floatParams);
+                    floatP=floatParams;
+                }
+                retVal=simCreateIkGroup_internal(options,intP,floatP,nullptr);
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simRemoveIkGroup(luaWrap_lua_State* L)
+{ // DEPRECATED ON 29.09.2020
+    TRACE_LUA_API;
+    LUA_START("sim.removeIkGroup");
+
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int handle=luaToInt(L,1);
+        retVal=simRemoveIkGroup_internal(handle);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simCreateIkElement(luaWrap_lua_State* L)
+{ // DEPRECATED ON 29.09.2020
+    TRACE_LUA_API;
+    LUA_START("sim.createIkElement");
+
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,4))
+    {
+        int ikGroup=luaToInt(L,1);
+        int options=luaToInt(L,2);
+        int intParams[4];
+        getIntsFromTable(L,3,4,intParams);
+
+        int res=checkOneGeneralInputArgument(L,4,lua_arg_number,4,true,true,&errorString);
+        if (res>=0)
+        {
+            float floatParams[4];
+            float* floatP=nullptr;
+            if (res==2)
+            {
+                getFloatsFromTable(L,4,4,floatParams);
+                floatP=floatParams;
+            }
+            retVal=simCreateIkElement_internal(ikGroup,options,intParams,floatP,nullptr);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simExportIk(luaWrap_lua_State* L)
+{ // deprecated on 29.09.2020
+    TRACE_LUA_API;
+    LUA_START("sim.exportIk");
+
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
+    {
+        std::string pathAndFilename(luaWrap_lua_tostring(L,1));
+        retVal=simExportIk_internal(pathAndFilename.c_str(),0,nullptr);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simComputeJacobian(luaWrap_lua_State* L)
+{ // deprecated on 29.09.2020
+    TRACE_LUA_API;
+    LUA_START("sim.computeJacobian");
+
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+        retVal=simComputeJacobian_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),nullptr);
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetConfigForTipPose(luaWrap_lua_State* L)
+{ // deprecated on 29.09.2020
+    TRACE_LUA_API;
+    LUA_START("sim.getConfigForTipPose");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,1,lua_arg_number,0,lua_arg_number,0))
+    {
+        int ikGroupHandle=luaWrap_lua_tointeger(L,1);
+        std::vector<int> jointHandles;
+        int jointCnt=int(luaWrap_lua_objlen(L,2));
+        jointHandles.resize(jointCnt);
+        getIntsFromTable(L,2,jointCnt,&jointHandles[0]);
+        float thresholdDist=luaWrap_lua_tonumber(L,3);
+        int maxTimeInMs=luaWrap_lua_tointeger(L,4);
+        float metric[4]={1.0,1.0,1.0,0.1f};
+        int res=checkOneGeneralInputArgument(L,5,lua_arg_number,4,true,true,&errorString);
+        if (res>=0)
+        {
+            if (res==2)
+                getFloatsFromTable(L,5,4,metric);
+            int collisionPairCnt=0;
+            std::vector<int> _collisionPairs;
+            int* collisionPairs=nullptr;
+            res=checkOneGeneralInputArgument(L,6,lua_arg_number,-1,true,true,&errorString);
+            if (res>=0)
+            {
+                if (res==2)
+                {
+                    collisionPairCnt=int(luaWrap_lua_objlen(L,6))/2;
+                    if (collisionPairCnt>0)
+                    {
+                        _collisionPairs.resize(collisionPairCnt*2);
+                        getIntsFromTable(L,6,collisionPairCnt*2,&_collisionPairs[0]);
+                        collisionPairs=&_collisionPairs[0];
+                    }
+                }
+                std::vector<int> _jointOptions;
+                int* jointOptions=nullptr;
+                res=checkOneGeneralInputArgument(L,7,lua_arg_number,jointCnt,true,true,&errorString);
+                if (res>=0)
+                {
+                    if (res==2)
+                    {
+                        _jointOptions.resize(jointCnt);
+                        getIntsFromTable(L,7,jointCnt,&_jointOptions[0]);
+                        jointOptions=&_jointOptions[0];
+                    }
+
+                    res=checkOneGeneralInputArgument(L,8,lua_arg_number,jointCnt,true,true,&errorString);
+                    if (res>=0)
+                    {
+                        std::vector<float> _lowLimits;
+                        _lowLimits.resize(jointCnt);
+                        std::vector<float> _ranges;
+                        _ranges.resize(jointCnt);
+                        float* lowLimits=nullptr;
+                        float* ranges=nullptr;
+                        if (res==2)
+                        {
+                            getFloatsFromTable(L,8,jointCnt,&_lowLimits[0]);
+                            lowLimits=&_lowLimits[0];
+                        }
+                        res=checkOneGeneralInputArgument(L,9,lua_arg_number,jointCnt,lowLimits==nullptr,lowLimits==nullptr,&errorString);
+                        if (res>=0)
+                        {
+                            if (res==2)
+                            {
+                                getFloatsFromTable(L,9,jointCnt,&_ranges[0]);
+                                ranges=&_ranges[0];
+                            }
+                            std::vector<float> foundConfig;
+                            foundConfig.resize(jointCnt);
+                            res=simGetConfigForTipPose_internal(ikGroupHandle,jointCnt,&jointHandles[0],thresholdDist,maxTimeInMs,&foundConfig[0],metric,collisionPairCnt,collisionPairs,jointOptions,lowLimits,ranges,nullptr);
+                            if (res>0)
+                            {
+                                pushFloatTableOntoStack(L,jointCnt,&foundConfig[0]);
+                                LUA_END(1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGenerateIkPath(luaWrap_lua_State* L)
+{ // deprecated on 29.09.2020
+    TRACE_LUA_API;
+    LUA_START("sim.generateIkPath");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,1,lua_arg_number,0))
+    {
+        int ikGroupHandle=luaWrap_lua_tointeger(L,1);
+        std::vector<int> jointHandles;
+        int jointCnt=int(luaWrap_lua_objlen(L,2));
+        jointHandles.resize(jointCnt);
+        getIntsFromTable(L,2,jointCnt,&jointHandles[0]);
+        int ptCnt=luaWrap_lua_tonumber(L,3);
+        int res=checkOneGeneralInputArgument(L,4,lua_arg_number,-1,true,true,&errorString);
+        if (res>=0)
+        {
+            int collisionPairCnt=0;
+            std::vector<int> _collisionPairs;
+            int* collisionPairs=nullptr;
+            if (res==2)
+            {
+                collisionPairCnt=int(luaWrap_lua_objlen(L,4))/2;
+                if (collisionPairCnt>0)
+                {
+                    _collisionPairs.resize(collisionPairCnt*2);
+                    getIntsFromTable(L,4,collisionPairCnt*2,&_collisionPairs[0]);
+                    collisionPairs=&_collisionPairs[0];
+                }
+            }
+            res=checkOneGeneralInputArgument(L,5,lua_arg_number,jointCnt,true,true,&errorString);
+            if (res>=0)
+            {
+                std::vector<int> _jointOptions;
+                int* jointOptions=nullptr;
+                if (res==2)
+                {
+                    _jointOptions.resize(jointCnt);
+                    getIntsFromTable(L,5,jointCnt,&_jointOptions[0]);
+                    jointOptions=&_jointOptions[0];
+                }
+                float* path=simGenerateIkPath_internal(ikGroupHandle,jointCnt,&jointHandles[0],ptCnt,collisionPairCnt,collisionPairs,jointOptions,nullptr);
+                if (path!=nullptr)
+                {
+                    pushFloatTableOntoStack(L,jointCnt*ptCnt,path);
+                    simReleaseBuffer_internal((char*)path);
+                    LUA_END(1);
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetIkGroupHandle(luaWrap_lua_State* L)
+{ // deprecated on 29.09.2020
+    TRACE_LUA_API;
+    LUA_START("sim.getIkGroupHandle");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
+    {
+        std::string name(luaWrap_lua_tostring(L,1));
+        size_t pos=name.find("@");
+        std::string n(name);
+        if (pos!=std::string::npos)
+            n.assign(name.begin(),name.begin()+pos);
+        suffixAdjustStringIfNeeded(L,n);
+        if (pos!=std::string::npos)
+            n=n+std::string(name.begin()+pos,name.end());
+        quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
+        retVal=simGetIkGroupHandle_internal(n.c_str());
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetIkGroupMatrix(luaWrap_lua_State* L)
+{ // deprecated on 29.09.2020
+    TRACE_LUA_API;
+    LUA_START("sim.getIkGroupMatrix");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        int ikGroupHandle=luaToInt(L,1);
+        int options=luaToInt(L,2);
+        int matrixSize[2];
+        float* data=simGetIkGroupMatrix_internal(ikGroupHandle,options,matrixSize);
+        if (data!=nullptr)
+        {
+            pushFloatTableOntoStack(L,matrixSize[0]*matrixSize[1],data);
+            pushIntTableOntoStack(L,2,matrixSize);
+            LUA_END(2);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simHandleIkGroup(luaWrap_lua_State* L)
+{ // deprecated on 29.09.2020
+    TRACE_LUA_API;
+    LUA_START("sim.handleIkGroup");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        retVal=simHandleIkGroup_internal(luaToInt(L,1));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simSetIkGroupProperties(luaWrap_lua_State* L)
+{ // deprecated on 29.09.2020
+    TRACE_LUA_API;
+    LUA_START("sim.setIkGroupProperties");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+        retVal=simSetIkGroupProperties_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3),luaToFloat(L,4),nullptr);
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simSetIkElementProperties(luaWrap_lua_State* L)
+{ // deprecated on 29.09.2020
+    TRACE_LUA_API;
+    LUA_START("sim.setIkElementProperties");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+    {
+        int res=checkOneGeneralInputArgument(L,4,lua_arg_number,2,true,true,&errorString);
+        if (res>=0)
+        {
+            float* precision=nullptr;
+            float prec[2];
+            if (res==2)
+            {
+                getFloatsFromTable(L,4,2,prec);
+                precision=prec;
+            }
+            res=checkOneGeneralInputArgument(L,5,lua_arg_number,2,true,true,&errorString);
+            if (res>=0)
+            {
+                float* weight=nullptr;
+                float w[2];
+                if (res==2)
+                {
+                    getFloatsFromTable(L,5,2,w);
+                    weight=w;
+                }
+                retVal=simSetIkElementProperties_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3),precision,weight,nullptr);
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+

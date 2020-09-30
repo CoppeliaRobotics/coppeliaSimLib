@@ -10,7 +10,7 @@ _CDummy_::_CDummy_()
     _assignedToParentPath=false;
     _assignedToParentPathOrientation=false;
     _linkedDummyHandle=-1;
-    _linkType=sim_dummy_linktype_ik_tip_target;
+    _linkType=sim_dummy_linktype_dynamics_loop_closure;
 }
 
 _CDummy_::~_CDummy_()

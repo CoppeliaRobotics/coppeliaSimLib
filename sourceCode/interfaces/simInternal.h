@@ -100,8 +100,6 @@ simInt simHandleDistance_internal(simInt distanceObjectHandle,simFloat* smallest
 simInt simReadDistance_internal(simInt distanceObjectHandle,simFloat* smallestDistance);
 simInt simHandleProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 simInt simReadProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
-simInt simHandleIkGroup_internal(simInt ikGroupHandle);
-simInt simCheckIkGroup_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat* jointValues,const simInt* jointOptions);
 simInt simHandleDynamics_internal(simFloat deltaTime);
 simInt simGetScriptHandle_internal(const simChar* scriptName);
 simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText);
@@ -120,7 +118,6 @@ simInt simRemoveScript_internal(simInt scriptHandle);
 simInt simRefreshDialogs_internal(simInt refreshDegree);
 simInt simGetCollisionHandle_internal(const simChar* collisionObjectName);
 simInt simGetDistanceHandle_internal(const simChar* distanceObjectName);
-simInt simGetIkGroupHandle_internal(const simChar* ikGroupName);
 simInt simResetCollision_internal(simInt collisionObjectHandle);
 simInt simResetDistance_internal(simInt distanceObjectHandle);
 simInt simResetProximitySensor_internal(simInt sensorHandle);
@@ -267,8 +264,6 @@ simInt simGetJointForce_internal(simInt jointHandle,simFloat* forceOrTorque);
 simInt simGetJointMaxForce_internal(simInt jointHandle,simFloat* forceOrTorque);
 simInt simSetArrayParameter_internal(simInt parameter,const simVoid* arrayOfValues);
 simInt simGetArrayParameter_internal(simInt parameter,simVoid* arrayOfValues);
-simInt simSetIkGroupProperties_internal(simInt ikGroupHandle,simInt resolutionMethod,simInt maxIterations,simFloat damping,void* reserved);
-simInt simSetIkElementProperties_internal(simInt ikGroupHandle,simInt tipDummyHandle,simInt constraints,const simFloat* precision,const simFloat* weight,void* reserved);
 simInt simCameraFitToView_internal(simInt viewHandleOrIndex,simInt objectCount,const simInt* objectHandles,simInt options,simFloat scaling);
 simInt simPersistentDataWrite_internal(const simChar* dataTag,const simChar* dataValue,simInt dataLength,simInt options);
 simChar* simPersistentDataRead_internal(const simChar* dataTag,simInt* dataLength);
@@ -302,7 +297,6 @@ simInt simConvexDecompose_internal(simInt shapeHandle,simInt options,const simIn
 simInt simCreatePath_internal(simInt attributes,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
 simInt simInsertPathCtrlPoints_internal(simInt pathHandle,simInt options,simInt startIndex,simInt ptCnt,const simVoid* ptData);
 simInt simCutPathCtrlPoints_internal(simInt pathHandle,simInt startIndex,simInt ptCnt);
-simFloat* simGetIkGroupMatrix_internal(simInt ikGroupHandle,simInt options,simInt* matrixSize);
 simInt simAddGhost_internal(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color);
 simInt simModifyGhost_internal(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation);
 simVoid simQuitSimulator_internal(simBool ignoredArgument);
@@ -332,9 +326,6 @@ simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
 simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal);
 simInt simReorientShapeBoundingBox_internal(simInt shapeHandle,simInt relativeToHandle,simInt reservedSetToZero);
 simInt simSwitchThread_internal();
-simInt simCreateIkGroup_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved);
-simInt simRemoveIkGroup_internal(simInt ikGroupHandle);
-simInt simCreateIkElement_internal(simInt ikGroupHandle,simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved);
 simInt simCreateCollection_internal(const simChar* collectionName,simInt options);
 simInt simAddObjectToCollection_internal(simInt collectionHandle,simInt objectHandle,simInt what,simInt options);
 simInt simSaveImage_internal(const simUChar* image,const simInt* resolution,simInt options,const simChar* filename,simInt quality,simVoid* reserved);
@@ -343,11 +334,7 @@ simUChar* simGetScaledImage_internal(const simUChar* imageIn,const simInt* resol
 simInt simTransformImage_internal(simUChar* image,const simInt* resolution,simInt options,const simFloat* floatParams,const simInt* intParams,simVoid* reserved);
 simInt simGetQHull_internal(const simFloat* inVertices,simInt inVerticesL,simFloat** verticesOut,simInt* verticesOutL,simInt** indicesOut,simInt* indicesOutL,simInt reserved1,const simFloat* reserved2);
 simInt simGetDecimatedMesh_internal(const simFloat* inVertices,simInt inVerticesL,const simInt* inIndices,simInt inIndicesL,simFloat** verticesOut,simInt* verticesOutL,simInt** indicesOut,simInt* indicesOutL,simFloat decimationPercent,simInt reserved1,const simFloat* reserved2);
-simInt simExportIk_internal(const simChar* pathAndFilename,simInt reserved1,simVoid* reserved2);
 simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar* functionNameAtScriptName,simInt stackId);
-simInt simComputeJacobian_internal(simInt ikGroupHandle,simInt options,simVoid* reserved);
-simInt simGetConfigForTipPose_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat thresholdDist,simInt maxTimeInMs,simFloat* retConfig,const simFloat* metric,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,const simFloat* lowLimits,const simFloat* ranges,simVoid* reserved);
-simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simInt ptCnt,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,simVoid* reserved);
 simChar* simGetExtensionString_internal(simInt objectHandle,simInt index,const char* key);
 simInt simComputeMassAndInertia_internal(simInt shapeHandle,simFloat density);
 simInt simCreateStack_internal();
@@ -628,6 +615,19 @@ simInt simSetScriptRawBuffer_internal(simInt scriptHandle,const simChar* buffer,
 simInt simReleaseScriptRawBuffer_internal(simInt scriptHandle,simInt bufferHandle);
 simInt simSetShapeMassAndInertia_internal(simInt shapeHandle,simFloat mass,const simFloat* inertiaMatrix,const simFloat* centerOfMass,const simFloat* transformation);
 simInt simGetShapeMassAndInertia_internal(simInt shapeHandle,simFloat* mass,simFloat* inertiaMatrix,simFloat* centerOfMass,const simFloat* transformation);
+simInt simCheckIkGroup_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat* jointValues,const simInt* jointOptions);
+simInt simCreateIkGroup_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved);
+simInt simRemoveIkGroup_internal(simInt ikGroupHandle);
+simInt simCreateIkElement_internal(simInt ikGroupHandle,simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved);
+simInt simExportIk_internal(const simChar* pathAndFilename,simInt reserved1,simVoid* reserved2);
+simInt simComputeJacobian_internal(simInt ikGroupHandle,simInt options,simVoid* reserved);
+simInt simGetConfigForTipPose_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat thresholdDist,simInt maxTimeInMs,simFloat* retConfig,const simFloat* metric,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,const simFloat* lowLimits,const simFloat* ranges,simVoid* reserved);
+simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simInt ptCnt,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,simVoid* reserved);
+simInt simGetIkGroupHandle_internal(const simChar* ikGroupName);
+simFloat* simGetIkGroupMatrix_internal(simInt ikGroupHandle,simInt options,simInt* matrixSize);
+simInt simHandleIkGroup_internal(simInt ikGroupHandle);
+simInt simSetIkGroupProperties_internal(simInt ikGroupHandle,simInt resolutionMethod,simInt maxIterations,simFloat damping,void* reserved);
+simInt simSetIkElementProperties_internal(simInt ikGroupHandle,simInt tipDummyHandle,simInt constraints,const simFloat* precision,const simFloat* weight,void* reserved);
 
 
 #endif // !defined(simInternal_INCLUDED_)

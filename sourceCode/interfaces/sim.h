@@ -108,8 +108,6 @@ SIM_DLLEXPORT simInt simHandleDistance(simInt distanceObjectHandle,simFloat* sma
 SIM_DLLEXPORT simInt simReadDistance(simInt distanceObjectHandle,simFloat* smallestDistance);
 SIM_DLLEXPORT simInt simHandleProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 SIM_DLLEXPORT simInt simReadProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
-SIM_DLLEXPORT simInt simHandleIkGroup(simInt ikGroupHandle);
-SIM_DLLEXPORT simInt simCheckIkGroup(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat* jointValues,const simInt* jointOptions);
 SIM_DLLEXPORT simInt simHandleDynamics(simFloat deltaTime);
 SIM_DLLEXPORT simInt simGetScriptHandle(const simChar* scriptName);
 SIM_DLLEXPORT simInt simSetScriptText(simInt scriptHandle,const simChar* scriptText);
@@ -128,7 +126,6 @@ SIM_DLLEXPORT simInt simRemoveScript(simInt scriptHandle);
 SIM_DLLEXPORT simInt simRefreshDialogs(simInt refreshDegree);
 SIM_DLLEXPORT simInt simGetCollisionHandle(const simChar* collisionObjectName);
 SIM_DLLEXPORT simInt simGetDistanceHandle(const simChar* distanceObjectName);
-SIM_DLLEXPORT simInt simGetIkGroupHandle(const simChar* ikGroupName);
 SIM_DLLEXPORT simInt simResetCollision(simInt collisionObjectHandle);
 SIM_DLLEXPORT simInt simResetDistance(simInt distanceObjectHandle);
 SIM_DLLEXPORT simInt simResetProximitySensor(simInt sensorHandle);
@@ -277,8 +274,6 @@ SIM_DLLEXPORT simInt simGetJointForce(simInt jointHandle,simFloat* forceOrTorque
 SIM_DLLEXPORT simInt simGetJointMaxForce(simInt jointHandle,simFloat* forceOrTorque);
 SIM_DLLEXPORT simInt simSetArrayParameter(simInt parameter,const simVoid* arrayOfValues);
 SIM_DLLEXPORT simInt simGetArrayParameter(simInt parameter,simVoid* arrayOfValues);
-SIM_DLLEXPORT simInt simSetIkGroupProperties(simInt ikGroupHandle,simInt resolutionMethod,simInt maxIterations,simFloat damping,void* reserved);
-SIM_DLLEXPORT simInt simSetIkElementProperties(simInt ikGroupHandle,simInt tipDummyHandle,simInt constraints,const simFloat* precision,const simFloat* weight,void* reserved);
 SIM_DLLEXPORT simInt simCameraFitToView(simInt viewHandleOrIndex,simInt objectCount,const simInt* objectHandles,simInt options,simFloat scaling);
 SIM_DLLEXPORT simInt simPersistentDataWrite(const simChar* dataName,const simChar* dataValue,simInt dataLength,simInt options);
 SIM_DLLEXPORT simChar* simPersistentDataRead(const simChar* dataName,simInt* dataLength);
@@ -312,7 +307,6 @@ SIM_DLLEXPORT simInt simConvexDecompose(simInt shapeHandle,simInt options,const 
 SIM_DLLEXPORT simInt simCreatePath(simInt attributes,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
 SIM_DLLEXPORT simInt simInsertPathCtrlPoints(simInt pathHandle,simInt options,simInt startIndex,simInt ptCnt,const simVoid* ptData);
 SIM_DLLEXPORT simInt simCutPathCtrlPoints(simInt pathHandle,simInt startIndex,simInt ptCnt);
-SIM_DLLEXPORT simFloat* simGetIkGroupMatrix(simInt ikGroupHandle,simInt options,simInt* matrixSize);
 SIM_DLLEXPORT simInt simAddGhost(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color);
 SIM_DLLEXPORT simInt simModifyGhost(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation);
 SIM_DLLEXPORT simVoid simQuitSimulator(simBool ignoredArgument);
@@ -342,9 +336,6 @@ SIM_DLLEXPORT simInt simSetScriptAttribute(simInt scriptHandle,simInt attributeI
 SIM_DLLEXPORT simInt simGetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal);
 SIM_DLLEXPORT simInt simReorientShapeBoundingBox(simInt shapeHandle,simInt relativeToHandle,simInt reservedSetToZero);
 SIM_DLLEXPORT simInt simSwitchThread();
-SIM_DLLEXPORT simInt simCreateIkGroup(simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved);
-SIM_DLLEXPORT simInt simRemoveIkGroup(simInt ikGroupHandle);
-SIM_DLLEXPORT simInt simCreateIkElement(simInt ikGroupHandle,simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved);
 SIM_DLLEXPORT simInt simCreateCollection(const simChar* collectionName,simInt options);
 SIM_DLLEXPORT simInt simAddObjectToCollection(simInt collectionHandle,simInt objectHandle,simInt what,simInt options);
 SIM_DLLEXPORT simInt simSaveImage(const simUChar* image,const simInt* resolution,simInt options,const simChar* filename,simInt quality,simVoid* reserved);
@@ -353,11 +344,7 @@ SIM_DLLEXPORT simUChar* simGetScaledImage(const simUChar* imageIn,const simInt* 
 SIM_DLLEXPORT simInt simTransformImage(simUChar* image,const simInt* resolution,simInt options,const simFloat* floatParams,const simInt* intParams,simVoid* reserved);
 SIM_DLLEXPORT simInt simGetQHull(const simFloat* inVertices,simInt inVerticesL,simFloat** verticesOut,simInt* verticesOutL,simInt** indicesOut,simInt* indicesOutL,simInt reserved1,const simFloat* reserved2);
 SIM_DLLEXPORT simInt simGetDecimatedMesh(const simFloat* inVertices,simInt inVerticesL,const simInt* inIndices,simInt inIndicesL,simFloat** verticesOut,simInt* verticesOutL,simInt** indicesOut,simInt* indicesOutL,simFloat decimationPercent,simInt reserved1,const simFloat* reserved2);
-SIM_DLLEXPORT simInt simExportIk(const simChar* pathAndFilename,simInt reserved1,simVoid* reserved2);
 SIM_DLLEXPORT simInt simCallScriptFunctionEx(simInt scriptHandleOrType,const simChar* functionNameAtScriptName,simInt stackId);
-SIM_DLLEXPORT simInt simComputeJacobian(simInt ikGroupHandle,simInt options,simVoid* reserved);
-SIM_DLLEXPORT simInt simGetConfigForTipPose(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat thresholdDist,simInt maxTimeInMs,simFloat* retConfig,const simFloat* metric,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,const simFloat* lowLimits,const simFloat* ranges,simVoid* reserved);
-SIM_DLLEXPORT simFloat* simGenerateIkPath(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simInt ptCnt,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,simVoid* reserved);
 SIM_DLLEXPORT simChar* simGetExtensionString(simInt objectHandle,simInt index,const char* key);
 SIM_DLLEXPORT simInt simComputeMassAndInertia(simInt shapeHandle,simFloat density);
 SIM_DLLEXPORT simInt simCreateStack();
@@ -648,6 +635,19 @@ SIM_DLLEXPORT simInt simSetScriptRawBuffer(simInt scriptHandle,const simChar* bu
 SIM_DLLEXPORT simInt simReleaseScriptRawBuffer(simInt scriptHandle,simInt bufferHandle);
 SIM_DLLEXPORT simInt simSetShapeMassAndInertia(simInt shapeHandle,simFloat mass,const simFloat* inertiaMatrix,const simFloat* centerOfMass,const simFloat* transformation);
 SIM_DLLEXPORT simInt simGetShapeMassAndInertia(simInt shapeHandle,simFloat* mass,simFloat* inertiaMatrix,simFloat* centerOfMass,const simFloat* transformation);
+SIM_DLLEXPORT simInt simCheckIkGroup(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat* jointValues,const simInt* jointOptions);
+SIM_DLLEXPORT simInt simCreateIkGroup(simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved);
+SIM_DLLEXPORT simInt simRemoveIkGroup(simInt ikGroupHandle);
+SIM_DLLEXPORT simInt simCreateIkElement(simInt ikGroupHandle,simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved);
+SIM_DLLEXPORT simInt simExportIk(const simChar* pathAndFilename,simInt reserved1,simVoid* reserved2);
+SIM_DLLEXPORT simInt simComputeJacobian(simInt ikGroupHandle,simInt options,simVoid* reserved);
+SIM_DLLEXPORT simInt simGetConfigForTipPose(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat thresholdDist,simInt maxTimeInMs,simFloat* retConfig,const simFloat* metric,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,const simFloat* lowLimits,const simFloat* ranges,simVoid* reserved);
+SIM_DLLEXPORT simFloat* simGenerateIkPath(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simInt ptCnt,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,simVoid* reserved);
+SIM_DLLEXPORT simInt simGetIkGroupHandle(const simChar* ikGroupName);
+SIM_DLLEXPORT simFloat* simGetIkGroupMatrix(simInt ikGroupHandle,simInt options,simInt* matrixSize);
+SIM_DLLEXPORT simInt simHandleIkGroup(simInt ikGroupHandle);
+SIM_DLLEXPORT simInt simSetIkGroupProperties(simInt ikGroupHandle,simInt resolutionMethod,simInt maxIterations,simFloat damping,void* reserved);
+SIM_DLLEXPORT simInt simSetIkElementProperties(simInt ikGroupHandle,simInt tipDummyHandle,simInt constraints,const simFloat* precision,const simFloat* weight,void* reserved);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

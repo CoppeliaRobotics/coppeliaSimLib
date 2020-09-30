@@ -214,3 +214,13 @@ void CQDlgPaths::on_qqShowShapingDialog_clicked()
             App::mainWindow->dlgCont->toggle(PATH_SHAPING_DLG);
     }
 }
+
+void CQDlgPaths::on_qqCopyToClipboard_clicked()
+{
+    IF_UI_EVENT_CAN_READ_DATA
+    {
+        CPathCont* pathCont=getPathCont();
+        if (pathCont!=nullptr)
+            App::appendSimulationThreadCommand(COPY_TO_CLIPBOARD_PATHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+    }
+}

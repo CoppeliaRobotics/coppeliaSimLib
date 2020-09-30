@@ -4,11 +4,6 @@ DEFINES += SIM_LIB
 
 CONFIG += shared debug_and_release
 CONFIG += WITH_QT # can be compiled without Qt, but then it should be headless, and some functionality won't be there, check TODO_SIM_WITH_QT
-CONFIG += SUPPORT_OLD_IK
-
-SUPPORT_OLD_IK {
-    DEFINES += SUPPORT_OLD_IK
-}
 
 !HEADLESS {
     CONFIG += WITH_GUI
@@ -344,10 +339,6 @@ HEADERS += $$PWD/sourceCode/kinematics/ikGroup.h \
     $$PWD/sourceCode/shared/kinematics/_ikGroup_.h \
     $$PWD/sourceCode/kinematics/ikElement.h \
     $$PWD/sourceCode/shared/kinematics/_ikElement_.h
-
-SUPPORT_OLD_IK {
-    HEADERS += $$PWD/sourceCode/kinematics/ikRoutines.h
-}
 
 HEADERS += $$PWD/sourceCode/drawingObjects/bannerObject.h \
     $$PWD/sourceCode/drawingObjects/drawingObject.h \
@@ -776,10 +767,6 @@ SOURCES += $$PWD/sourceCode/kinematics/ikGroup.cpp \
     $$PWD/sourceCode/shared/kinematics/_ikGroup_.cpp \
     $$PWD/sourceCode/kinematics/ikElement.cpp \
     $$PWD/sourceCode/shared/kinematics/_ikElement_.cpp
-
-SUPPORT_OLD_IK {
-    SOURCES += $$PWD/sourceCode/kinematics/ikRoutines.cpp
-}
 
 SOURCES += $$PWD/sourceCode/drawingObjects/bannerObject.cpp \
     $$PWD/sourceCode/drawingObjects/drawingObject.cpp \

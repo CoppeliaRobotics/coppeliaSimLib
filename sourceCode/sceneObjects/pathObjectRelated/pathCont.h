@@ -30,6 +30,7 @@ public:
     CBezierPathPoint* getBezierPathPoint(int position);
     int getSimplePathPointCount();
     int getBezierPathPointCount();
+    void copyPointsToClipboard();
 
     void enableActualization(bool enable);
     void actualizePath();

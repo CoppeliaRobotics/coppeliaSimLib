@@ -114,12 +114,13 @@ void _CIkGroupContainer_::_shiftIkGroup_send(int ikGroupHandle,bool shiftUp)
     int h=ikGroupHandle;
     if (!shiftUp)
         h=-1-h;
-    sendInt32(h,sim_syncobj_ikgroupcont_shift);
-
+// notReplicatedAnymoreSinceOldFunc    sendInt32(h,sim_syncobj_ikgroupcont_shift);
 }
 
 void _CIkGroupContainer_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)
 { // Overridden from _CSyncObject_
+// notReplicatedAnymoreSinceOldFunc
+/*
     if (routing[0].objType==sim_syncobj_ikgroup)
     {
         if (routing[0].objHandle!=-1)
@@ -160,4 +161,5 @@ void _CIkGroupContainer_::synchronizationMsg(std::vector<SSyncRoute>& routing,co
             }
         }
     }
+    */
 }

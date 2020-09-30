@@ -19,6 +19,8 @@ _CIkElement_::~_CIkElement_()
 
 void _CIkElement_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)
 { // Overridden from _CSyncObject_
+// notReplicatedAnymoreSinceOldFunc
+    /*
     if (msg.msg==sim_syncobj_ikelement_enabled)
     {
         setEnabled(((bool*)msg.data)[0]);
@@ -59,6 +61,7 @@ void _CIkElement_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSy
         setConstraints(((int*)msg.data)[0]);
         return;
     }
+    */
 }
 
 bool _CIkElement_::setObjectHandle(int newHandle)
@@ -88,7 +91,7 @@ bool _CIkElement_::setEnabled(bool isEnabled)
 
 void _CIkElement_::_setEnabled_send(bool e) const
 {
-    sendBool(e,sim_syncobj_ikelement_enabled);
+// notReplicatedAnymoreSinceOldFunc    sendBool(e,sim_syncobj_ikelement_enabled);
 }
 
 bool _CIkElement_::getEnabled() const
@@ -123,7 +126,7 @@ bool _CIkElement_::setBase(int newBase)
 
 void _CIkElement_::_setBase_send(int h) const
 {
-    sendInt32(h,sim_syncobj_ikelement_basehandle);
+// notReplicatedAnymoreSinceOldFunc   sendInt32(h,sim_syncobj_ikelement_basehandle);
 }
 
 int _CIkElement_::getBase() const
@@ -146,7 +149,7 @@ bool _CIkElement_::setAlternativeBaseForConstraints(int b)
 
 void _CIkElement_::_setAlternativeBaseForConstraints_send(int h) const
 {
-    sendInt32(h,sim_syncobj_ikelement_constrbasehandle);
+// notReplicatedAnymoreSinceOldFunc    sendInt32(h,sim_syncobj_ikelement_constrbasehandle);
 }
 
 int _CIkElement_::getAlternativeBaseForConstraints() const
@@ -169,7 +172,7 @@ bool _CIkElement_::setMinLinearPrecision(float prec)
 
 void _CIkElement_::_setMinLinearPrecision_send(float f) const
 {
-    sendFloat(f,sim_syncobj_ikelement_linprecision);
+// notReplicatedAnymoreSinceOldFunc    sendFloat(f,sim_syncobj_ikelement_linprecision);
 }
 
 float _CIkElement_::getMinLinearPrecision() const
@@ -192,7 +195,7 @@ bool _CIkElement_::setMinAngularPrecision(float prec)
 
 void _CIkElement_::_setMinAngularPrecision_send(float f) const
 {
-    sendFloat(f,sim_syncobj_ikelement_angprecision);
+// notReplicatedAnymoreSinceOldFunc    sendFloat(f,sim_syncobj_ikelement_angprecision);
 }
 
 float _CIkElement_::getMinAngularPrecision() const
@@ -215,7 +218,7 @@ bool _CIkElement_::setPositionWeight(float weight)
 
 void _CIkElement_::_setPositionWeight_send(float f) const
 {
-    sendFloat(f,sim_syncobj_ikelement_linweight);
+// notReplicatedAnymoreSinceOldFunc    sendFloat(f,sim_syncobj_ikelement_linweight);
 }
 
 float _CIkElement_::getPositionWeight() const
@@ -238,7 +241,7 @@ bool _CIkElement_::setOrientationWeight(float weight)
 
 void _CIkElement_::_setOrientationWeight_send(float f) const
 {
-    sendFloat(f,sim_syncobj_ikelement_angweight);
+// notReplicatedAnymoreSinceOldFunc    sendFloat(f,sim_syncobj_ikelement_angweight);
 }
 
 float _CIkElement_::getOrientationWeight() const
@@ -261,7 +264,7 @@ bool _CIkElement_::setConstraints(int constr)
 
 void _CIkElement_::_setConstraints_send(int c) const
 {
-    sendInt32(c,sim_syncobj_ikelement_constraints);
+// notReplicatedAnymoreSinceOldFunc    sendInt32(c,sim_syncobj_ikelement_constraints);
 }
 
 int _CIkElement_::getConstraints() const

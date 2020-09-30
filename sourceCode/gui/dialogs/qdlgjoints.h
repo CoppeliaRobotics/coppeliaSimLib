@@ -35,15 +35,9 @@ private slots:
 
     void on_qqPosition_editingFinished();
 
-    void on_qqIkWeight_editingFinished();
-
-    void on_qqMaxStepSize_editingFinished();
-
     void on_qqApplyConfig_clicked();
 
     void on_qqJointModeCombo_currentIndexChanged(int index);
-
-    void on_qqHybrid_clicked();
 
     void on_qqApplyMode_clicked();
 

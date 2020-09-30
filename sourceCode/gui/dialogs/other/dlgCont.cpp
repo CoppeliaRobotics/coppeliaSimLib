@@ -310,7 +310,7 @@ void CDlgCont::addMenu(VMenu* menu)
     if ( (CSimFlavor::getIntVal(2)==-1)||(CSimFlavor::getIntVal(2)==1)||(CSimFlavor::getIntVal(2)==2) )
     {
         menu->appendMenuItem(App::mainWindow->getObjPropToggleViaGuiEnabled()&&noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(OBJECT_DLG),TOGGLE_OBJECT_DLG_CMD,IDSN_OBJECT_PROPERTIES_MENU_ITEM,true);
-        menu->appendMenuItem(App::mainWindow->getCalcModulesToggleViaGuiEnabled()&&noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(CALCULATION_DLG),TOGGLE_CALCULATION_DLG_CMD,IDSN_CALCULATION_MODULE_PROPERTIES_MENU_ITEM,true);
+        menu->appendMenuItem(App::mainWindow->getCalcModulesToggleViaGuiEnabled()&&noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(CALCULATION_DLG),TOGGLE_CALCULATION_DLG_CMD,IDSN_DYNAMICS_PROPERTIES_MENU_ITEM,true);
         menu->appendMenuSeparator();
         menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(LUA_SCRIPT_DLG),TOGGLE_LUA_SCRIPT_DLG_CMD,IDSN_SCRIPTS,true);
         menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(COLLECTION_DLG),TOGGLE_COLLECTION_DLG_CMD,IDSN_COLLECTIONS,true);

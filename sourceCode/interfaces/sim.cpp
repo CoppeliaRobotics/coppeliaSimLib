@@ -369,14 +369,6 @@ SIM_DLLEXPORT simInt simReadProximitySensor(simInt sensorHandle,simFloat* detect
 {
     return(simReadProximitySensor_internal(sensorHandle,detectedPoint,detectedObjectHandle,normalVector));
 }
-SIM_DLLEXPORT simInt simHandleIkGroup(simInt ikGroupHandle)
-{
-    return(simHandleIkGroup_internal(ikGroupHandle));
-}
-SIM_DLLEXPORT simInt simCheckIkGroup(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat* jointValues,const simInt* jointOptions)
-{
-    return(simCheckIkGroup_internal(ikGroupHandle,jointCnt,jointHandles,jointValues,jointOptions));
-}
 SIM_DLLEXPORT simInt simHandleDynamics(simFloat deltaTime)
 {
     return(simHandleDynamics_internal(deltaTime));
@@ -448,10 +440,6 @@ SIM_DLLEXPORT simInt simGetCollisionHandle(const simChar* collisionObjectName)
 SIM_DLLEXPORT simInt simGetDistanceHandle(const simChar* distanceObjectName)
 {
     return(simGetDistanceHandle_internal(distanceObjectName));
-}
-SIM_DLLEXPORT simInt simGetIkGroupHandle(const simChar* ikGroupName)
-{
-    return(simGetIkGroupHandle_internal(ikGroupName));
 }
 SIM_DLLEXPORT simInt simResetCollision(simInt collisionObjectHandle)
 {
@@ -1045,14 +1033,6 @@ SIM_DLLEXPORT simInt simGetArrayParameter(simInt parameter,simVoid* arrayOfValue
 {
     return(simGetArrayParameter_internal(parameter,arrayOfValues));
 }
-SIM_DLLEXPORT simInt simSetIkGroupProperties(simInt ikGroupHandle,simInt resolutionMethod,simInt maxIterations,simFloat damping,void* reserved)
-{
-    return(simSetIkGroupProperties_internal(ikGroupHandle,resolutionMethod,maxIterations,damping,reserved));
-}
-SIM_DLLEXPORT simInt simSetIkElementProperties(simInt ikGroupHandle,simInt tipDummyHandle,simInt constraints,const simFloat* precision,const simFloat* weight,void* reserved)
-{
-    return(simSetIkElementProperties_internal(ikGroupHandle,tipDummyHandle,constraints,precision,weight,reserved));
-}
 SIM_DLLEXPORT simInt simCameraFitToView(simInt viewHandleOrIndex,simInt objectCount,const simInt* objectHandles,simInt options,simFloat scaling)
 {
     return(simCameraFitToView_internal(viewHandleOrIndex,objectCount,objectHandles,options,scaling));
@@ -1185,10 +1165,6 @@ SIM_DLLEXPORT simInt simCutPathCtrlPoints(simInt pathHandle,simInt startIndex,si
 {
     return(simCutPathCtrlPoints_internal(pathHandle,startIndex,ptCnt));
 }
-SIM_DLLEXPORT simFloat* simGetIkGroupMatrix(simInt ikGroupHandle,simInt options,simInt* matrixSize)
-{
-    return(simGetIkGroupMatrix_internal(ikGroupHandle,options,matrixSize));
-}
 SIM_DLLEXPORT simInt simAddGhost(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color)
 {
     return(simAddGhost_internal(ghostGroup,objectHandle,options,startTime,endTime,color));
@@ -1305,19 +1281,6 @@ SIM_DLLEXPORT simInt simSwitchThread()
 {
     return(simSwitchThread_internal());
 }
-
-SIM_DLLEXPORT simInt simCreateIkGroup(simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
-{
-    return(simCreateIkGroup_internal(options,intParams,floatParams,reserved));
-}
-SIM_DLLEXPORT simInt simRemoveIkGroup(simInt ikGroupHandle)
-{
-    return(simRemoveIkGroup_internal(ikGroupHandle));
-}
-SIM_DLLEXPORT simInt simCreateIkElement(simInt ikGroupHandle,simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
-{
-    return(simCreateIkElement_internal(ikGroupHandle,options,intParams,floatParams,reserved));
-}
 SIM_DLLEXPORT simInt simCreateCollection(const simChar* collectionName,simInt options)
 {
     return(simCreateCollection_internal(collectionName,options));
@@ -1352,25 +1315,9 @@ SIM_DLLEXPORT simInt simGetDecimatedMesh(const simFloat* inVertices,simInt inVer
 {
     return(simGetDecimatedMesh_internal(inVertices,inVerticesL,inIndices,inIndicesL,verticesOut,verticesOutL,indicesOut,indicesOutL,decimationPercent,reserved1,reserved2));
 }
-SIM_DLLEXPORT simInt simExportIk(const simChar* pathAndFilename,simInt reserved1,simVoid* reserved2)
-{
-    return(simExportIk_internal(pathAndFilename,reserved1,reserved2));
-}
 SIM_DLLEXPORT simInt simCallScriptFunctionEx(simInt scriptHandleOrType,const simChar* functionNameAtScriptName,simInt stackId)
 {
     return(simCallScriptFunctionEx_internal(scriptHandleOrType,functionNameAtScriptName,stackId));
-}
-SIM_DLLEXPORT simInt simComputeJacobian(simInt ikGroupHandle,simInt options,simVoid* reserved)
-{
-    return(simComputeJacobian_internal(ikGroupHandle,options,reserved));
-}
-SIM_DLLEXPORT simInt simGetConfigForTipPose(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat thresholdDist,simInt maxTimeInMs,simFloat* retConfig,const simFloat* metric,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,const simFloat* lowLimits,const simFloat* ranges,simVoid* reserved)
-{
-    return(simGetConfigForTipPose_internal(ikGroupHandle,jointCnt,jointHandles,thresholdDist,maxTimeInMs,retConfig,metric,collisionPairCnt,collisionPairs,jointOptions,lowLimits,ranges,reserved));
-}
-SIM_DLLEXPORT simFloat* simGenerateIkPath(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simInt ptCnt,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,simVoid* reserved)
-{
-    return(simGenerateIkPath_internal(ikGroupHandle,jointCnt,jointHandles,ptCnt,collisionPairCnt,collisionPairs,jointOptions,reserved));
 }
 SIM_DLLEXPORT simChar* simGetExtensionString(simInt objectHandle,simInt index,const char* key)
 {
@@ -2485,6 +2432,58 @@ SIM_DLLEXPORT simInt simSetShapeMassAndInertia(simInt shapeHandle,simFloat mass,
 SIM_DLLEXPORT simInt simGetShapeMassAndInertia(simInt shapeHandle,simFloat* mass,simFloat* inertiaMatrix,simFloat* centerOfMass,const simFloat* transformation)
 {
     return(simGetShapeMassAndInertia_internal(shapeHandle,mass,inertiaMatrix,centerOfMass,transformation));
+}
+SIM_DLLEXPORT simInt simCheckIkGroup(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat* jointValues,const simInt* jointOptions)
+{
+    return(simCheckIkGroup_internal(ikGroupHandle,jointCnt,jointHandles,jointValues,jointOptions));
+}
+SIM_DLLEXPORT simInt simCreateIkGroup(simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
+{
+    return(simCreateIkGroup_internal(options,intParams,floatParams,reserved));
+}
+SIM_DLLEXPORT simInt simRemoveIkGroup(simInt ikGroupHandle)
+{
+    return(simRemoveIkGroup_internal(ikGroupHandle));
+}
+SIM_DLLEXPORT simInt simCreateIkElement(simInt ikGroupHandle,simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
+{
+    return(simCreateIkElement_internal(ikGroupHandle,options,intParams,floatParams,reserved));
+}
+SIM_DLLEXPORT simInt simExportIk(const simChar* pathAndFilename,simInt reserved1,simVoid* reserved2)
+{
+    return(simExportIk_internal(pathAndFilename,reserved1,reserved2));
+}
+SIM_DLLEXPORT simInt simComputeJacobian(simInt ikGroupHandle,simInt options,simVoid* reserved)
+{
+    return(simComputeJacobian_internal(ikGroupHandle,options,reserved));
+}
+SIM_DLLEXPORT simInt simGetConfigForTipPose(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat thresholdDist,simInt maxTimeInMs,simFloat* retConfig,const simFloat* metric,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,const simFloat* lowLimits,const simFloat* ranges,simVoid* reserved)
+{
+    return(simGetConfigForTipPose_internal(ikGroupHandle,jointCnt,jointHandles,thresholdDist,maxTimeInMs,retConfig,metric,collisionPairCnt,collisionPairs,jointOptions,lowLimits,ranges,reserved));
+}
+SIM_DLLEXPORT simFloat* simGenerateIkPath(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simInt ptCnt,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,simVoid* reserved)
+{
+    return(simGenerateIkPath_internal(ikGroupHandle,jointCnt,jointHandles,ptCnt,collisionPairCnt,collisionPairs,jointOptions,reserved));
+}
+SIM_DLLEXPORT simInt simGetIkGroupHandle(const simChar* ikGroupName)
+{
+    return(simGetIkGroupHandle_internal(ikGroupName));
+}
+SIM_DLLEXPORT simFloat* simGetIkGroupMatrix(simInt ikGroupHandle,simInt options,simInt* matrixSize)
+{
+    return(simGetIkGroupMatrix_internal(ikGroupHandle,options,matrixSize));
+}
+SIM_DLLEXPORT simInt simHandleIkGroup(simInt ikGroupHandle)
+{
+    return(simHandleIkGroup_internal(ikGroupHandle));
+}
+SIM_DLLEXPORT simInt simSetIkGroupProperties(simInt ikGroupHandle,simInt resolutionMethod,simInt maxIterations,simFloat damping,void* reserved)
+{
+    return(simSetIkGroupProperties_internal(ikGroupHandle,resolutionMethod,maxIterations,damping,reserved));
+}
+SIM_DLLEXPORT simInt simSetIkElementProperties(simInt ikGroupHandle,simInt tipDummyHandle,simInt constraints,const simFloat* precision,const simFloat* weight,void* reserved)
+{
+    return(simSetIkElementProperties_internal(ikGroupHandle,tipDummyHandle,constraints,precision,weight,reserved));
 }
 // Deprecated end
 

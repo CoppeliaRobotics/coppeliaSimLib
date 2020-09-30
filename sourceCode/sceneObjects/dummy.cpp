@@ -361,7 +361,7 @@ void CDummy::serialize(CSer& ar)
                 ar.xmlAddNode_string("linkedDummy",str.c_str());
             }
 
-            ar.xmlAddNode_comment(" 'linkType' tag: can be 'dynamics_loopClosure', 'dynamics_forceConstraint' or 'ik_tipTarget' ",exhaustiveXml);
+            ar.xmlAddNode_comment(" 'linkType' tag: can be 'dynamics_loopClosure'' ",exhaustiveXml);
             ar.xmlAddNode_enum("linkType",_linkType,sim_dummy_linktype_dynamics_loop_closure,"dynamics_loopClosure",sim_dummy_linktype_dynamics_force_constraint,"dynamics_forceConstraint",sim_dummy_linktype_ik_tip_target,"ik_tipTarget");
 
             if (exhaustiveXml)

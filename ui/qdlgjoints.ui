@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>463</height>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
      <x>10</x>
      <y>10</y>
      <width>411</width>
-     <height>131</height>
+     <height>91</height>
     </rect>
    </property>
    <property name="title">
@@ -139,60 +139,14 @@
      <string>Position [xxx]</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="qqIkWeight">
-    <property name="geometry">
-     <rect>
-      <x>335</x>
-      <y>85</y>
-      <width>71</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_8">
-    <property name="geometry">
-     <rect>
-      <x>185</x>
-      <y>85</y>
-      <width>151</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>IK calculation weight</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqMaxStepSize">
-    <property name="geometry">
-     <rect>
-      <x>335</x>
-      <y>105</y>
-      <width>71</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="qqStepSizeLabel">
-    <property name="geometry">
-     <rect>
-      <x>185</x>
-      <y>105</y>
-      <width>151</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Max. step size [xxx]</string>
-    </property>
-   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>180</y>
+     <y>140</y>
      <width>411</width>
-     <height>71</height>
+     <height>51</height>
     </rect>
    </property>
    <property name="title">
@@ -211,27 +165,11 @@
      </rect>
     </property>
    </widget>
-   <widget class="QCheckBox" name="qqHybrid">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>25</y>
-      <width>191</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Hybrid operation</string>
-    </property>
-   </widget>
    <widget class="QToolButton" name="qqAdjustDependency">
     <property name="geometry">
      <rect>
       <x>205</x>
-      <y>45</y>
+      <y>25</y>
       <width>201</width>
       <height>18</height>
      </rect>
@@ -248,7 +186,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>400</y>
+     <y>340</y>
      <width>411</width>
      <height>51</height>
     </rect>
@@ -283,7 +221,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>290</y>
+     <y>230</y>
      <width>411</width>
      <height>71</height>
     </rect>
@@ -377,7 +315,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>150</y>
+     <y>110</y>
      <width>161</width>
      <height>18</height>
     </rect>
@@ -835,7 +773,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>260</y>
+     <y>200</y>
      <width>161</width>
      <height>18</height>
     </rect>
@@ -1293,7 +1231,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>370</y>
+     <y>310</y>
      <width>161</width>
      <height>18</height>
     </rect>
@@ -1754,11 +1692,8 @@
   <tabstop>qqMinimum</tabstop>
   <tabstop>qqRange</tabstop>
   <tabstop>qqPosition</tabstop>
-  <tabstop>qqIkWeight</tabstop>
-  <tabstop>qqMaxStepSize</tabstop>
   <tabstop>qqApplyConfig</tabstop>
   <tabstop>qqJointModeCombo</tabstop>
-  <tabstop>qqHybrid</tabstop>
   <tabstop>qqAdjustDependency</tabstop>
   <tabstop>qqApplyMode</tabstop>
   <tabstop>qqLength</tabstop>

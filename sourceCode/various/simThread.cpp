@@ -2959,18 +2959,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     it->setDynamicMotorPositionControlTargetPosition(cmd.floatParams[0]);
             }
         }
-        if (cmd.cmdId==SET_IKWEIGHT_JOINTGUITRIGGEREDCMD)
-        {
-            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-                it->setIkWeight(cmd.floatParams[0]);
-        }
-        if (cmd.cmdId==SET_MAXSTEPSIZE_JOINTGUITRIGGEREDCMD)
-        {
-            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-                it->setMaxStepSize(cmd.floatParams[0]);
-        }
         if (cmd.cmdId==APPLY_CONFIGPARAMS_JOINTGUITRIGGEREDCMD)
         {
             CJoint* last=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
@@ -2997,13 +2985,18 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setJointMode(cmd.intParams[1]);
-        }
-        if (cmd.cmdId==TOGGLE_HYBRID_JOINTGUITRIGGEREDCMD)
-        {
-            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-                it->setHybridFunctionality(!it->getHybridFunctionality());
+            {
+                if ((cmd.intParams[1]&sim_jointmode_hybrid_deprecated)!=0)
+                {
+                    it->setJointMode(cmd.intParams[1]-sim_jointmode_hybrid_deprecated);
+                    it->setHybridFunctionality(true);
+                }
+                else
+                {
+                    it->setJointMode(cmd.intParams[1]);
+                    it->setHybridFunctionality(false);
+                }
+            }
         }
         if (cmd.cmdId==APPLY_MODEPARAMS_JOINTGUITRIGGEREDCMD)
         {
@@ -3236,7 +3229,15 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if ((it!=nullptr)&&(it->pathContainer!=nullptr))
                 it->pathContainer->setPathLengthCalculationMethod(cmd.intParams[1]);
         }
-
+        if (cmd.cmdId==COPY_TO_CLIPBOARD_PATHGUITRIGGEREDCMD)
+        {
+            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            if ((it!=nullptr)&&(it->pathContainer!=nullptr))
+            {
+                it->pathContainer->copyPointsToClipboard();
+                App::logMsg(sim_verbosity_scriptinfos,"Path points copied to clipboard.");
+            }
+        }
 
         if (cmd.cmdId==TOGGLE_SHAPINGENABLED_PATHSHAPINGGUITRIGGEREDCMD)
         {

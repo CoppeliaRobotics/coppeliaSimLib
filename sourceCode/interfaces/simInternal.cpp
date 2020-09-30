@@ -5358,65 +5358,6 @@ simInt simReadProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoi
 }
 
 
-simInt simHandleIkGroup_internal(simInt ikGroupHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if ( (ikGroupHandle!=sim_handle_all)&&(ikGroupHandle!=sim_handle_all_except_explicit) )
-        {
-            if (!doesIKGroupExist(__func__,ikGroupHandle))
-                return(-1);
-        }
-        int returnValue=0;
-        if (ikGroupHandle<0)
-            returnValue=App::currentWorld->ikGroups->computeAllIkGroups(ikGroupHandle==sim_handle_all_except_explicit);
-        else
-        { // explicit handling
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
-            if (!it->getExplicitHandling())
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
-                return(-1);
-            }
-            returnValue=it->computeGroupIk(false);
-        }
-        return(returnValue);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simCheckIkGroup_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat* jointValues,const simInt* jointOptions)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesIKGroupExist(__func__,ikGroupHandle))
-            return(-1);
-        int retVal=-1;
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
-        int r=it->checkIkGroup(jointCnt,jointHandles,jointValues,jointOptions);
-        if (r==-1)
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
-        if (r==-2)
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLES);
-        if (r>=sim_ikresult_not_performed)
-            retVal=r;
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
 simInt simHandleDynamics_internal(simFloat deltaTime)
 {
     TRACE_C_API;
@@ -5973,103 +5914,6 @@ simInt simGetDistanceHandle_internal(const simChar* distanceObjectName)
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
-
-simInt simGetIkGroupHandle_internal(const simChar* ikGroupName)
-{
-    TRACE_C_API;
-
-    size_t silentErrorPos=std::string(ikGroupName).find("@silentError");
-    std::string nm(ikGroupName);
-    if (silentErrorPos!=std::string::npos)
-        nm.erase(nm.begin()+silentErrorPos,nm.end());
-
-    std::string ikGroupNameAdjusted=getCNameSuffixAdjustedName_OLD(nm.c_str());
-    enableCNameSuffixAdjustment_OLD();
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromName(ikGroupNameAdjusted.c_str());
-        if (it==nullptr)
-        {
-            if (silentErrorPos==std::string::npos)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
-            return(-1);
-        }
-        int retVal=it->getObjectHandle();
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simSetIkGroupProperties_internal(simInt ikGroupHandle,simInt resolutionMethod,simInt maxIterations,simFloat damping,void* reserved)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
-        if (it==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
-            return(-1);
-        }
-        it->setCalculationMethod(resolutionMethod);
-        it->setMaxIterations(maxIterations);
-        it->setDampingFactor(damping);
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simSetIkElementProperties_internal(simInt ikGroupHandle,simInt tipDummyHandle,simInt constraints,const simFloat* precision,const simFloat* weight,void* reserved)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
-        if (it==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
-            return(-1);
-        }
-        if (!isDummy(__func__,tipDummyHandle))
-            return(-1);
-        CIkElement* el=it->getIkElementFromTipHandle(tipDummyHandle);
-        if (el==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_ELEMENT_INEXISTANT);
-            return(-1);
-        }
-        el->setConstraints(constraints);
-        if (precision!=nullptr)
-        {
-            el->setMinLinearPrecision(precision[0]);
-            el->setMinAngularPrecision(precision[1]);
-        }
-        if (weight!=nullptr)
-        {
-            el->setPositionWeight(weight[0]);
-            el->setOrientationWeight(weight[1]);
-        }
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
 
 simInt simResetCollision_internal(simInt collisionObjectHandle)
 {
@@ -10174,33 +10018,6 @@ simInt simCutPathCtrlPoints_internal(simInt pathHandle,simInt startIndex,simInt 
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
-
-simFloat* simGetIkGroupMatrix_internal(simInt ikGroupHandle,simInt options,simInt* matrixSize)
-{ 
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
-        if (it==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
-            return(nullptr);
-        }
-        float* retData=nullptr;
-        if (options==0)
-            retData=it->getLastJacobianData(matrixSize);
-        if (options==1)
-            retData=it->getLastManipulabilityValue(matrixSize);
-        return(retData);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(nullptr);
-}
-
 
 simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color)
 {
@@ -15462,102 +15279,6 @@ simInt simSwitchThread_internal()
     return(0);
 }
 
-simInt simCreateIkGroup_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        CIkGroup* ikGroup=new CIkGroup();
-        ikGroup->setObjectName("IK_Group",false);
-        App::currentWorld->ikGroups->addIkGroup(ikGroup,false);
-        ikGroup->setEnabled((options&1)==0);
-        ikGroup->setRestoreIfPositionNotReached((options&4)!=0);
-        ikGroup->setRestoreIfOrientationNotReached((options&8)!=0);
-        ikGroup->setIgnoreMaxStepSizes((options&16)==0);
-        ikGroup->setExplicitHandling((options&32)!=0);
-        if (intParams!=nullptr)
-        {
-            ikGroup->setCalculationMethod(intParams[0]);
-            ikGroup->setMaxIterations(intParams[1]);
-        }
-        if (floatParams!=nullptr)
-            ikGroup->setDampingFactor(floatParams[0]);
-        return(ikGroup->getObjectHandle());
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simInt simRemoveIkGroup_internal(simInt ikGroupHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
-        if (it==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
-            return(-1);
-        }
-        App::currentWorld->ikGroups->removeIkGroup(it->getObjectHandle());
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simInt simCreateIkElement_internal(simInt ikGroupHandle,simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
-        if (it==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
-            return(-1);
-        }
-        int tip=intParams[0];
-        int base=intParams[1];
-        int constrBase=intParams[2];
-        int constraints=intParams[3];
-        if (!isDummy(__func__,tip))
-            return(-1);
-        if (App::currentWorld->sceneObjects->getObjectFromHandle(base)==nullptr)
-            base=-1;
-        if (App::currentWorld->sceneObjects->getObjectFromHandle(constrBase)==nullptr)
-            constrBase=-1;
-        CIkElement* ikEl=new CIkElement(tip);
-        ikEl->setEnabled((options&1)==0);
-        ikEl->setBase(base);
-        ikEl->setAlternativeBaseForConstraints(constrBase);
-        ikEl->setConstraints(constraints);
-        if (floatParams!=nullptr)
-        {
-            ikEl->setMinLinearPrecision(floatParams[0]);
-            ikEl->setMinAngularPrecision(floatParams[1]);
-            ikEl->setPositionWeight(floatParams[2]);
-            ikEl->setOrientationWeight(floatParams[3]);
-        }
-        it->addIkElement(ikEl);
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
 simInt simCreateCollection_internal(const simChar* collectionName,simInt options)
 {
     TRACE_C_API;
@@ -15818,28 +15539,6 @@ simInt simGetDecimatedMesh_internal(const simFloat* inVertices,simInt inVertices
     return(-1);
 }
 
-simInt simExportIk_internal(const simChar* pathAndFilename,simInt reserved1,simVoid* reserved2)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int retVal=0;
-        if (App::currentWorld->simulation->isSimulationStopped())
-        {
-            if (CFileOperations::apiExportIkContent(pathAndFilename,false))
-                retVal=1;
-        }
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-
 simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar* functionNameAtScriptName,simInt stackId)
 {
     TRACE_C_API;
@@ -15951,256 +15650,6 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
     App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
 
     return(-1);
-}
-
-simInt simComputeJacobian_internal(simInt ikGroupHandle,simInt options,simVoid* reserved)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesIKGroupExist(__func__,ikGroupHandle))
-            return(-1);
-        int returnValue=-1;
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
-        if (it->computeOnlyJacobian(options))
-            returnValue=0;
-        return(returnValue);
-    }
-
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simGetConfigForTipPose_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat thresholdDist,simInt maxTimeInMs,simFloat* retConfig,const simFloat* metric,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,const simFloat* lowLimits,const simFloat* ranges,simVoid* reserved)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesIKGroupExist(__func__,ikGroupHandle))
-            return(-1);
-
-        CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
-        std::string err;
-        int retVal=ikGroup->getConfigForTipPose(jointCnt,jointHandles,thresholdDist,maxTimeInMs,retConfig,metric,collisionPairCnt,collisionPairs,jointOptions,lowLimits,ranges,err);
-        if (retVal<0)
-            CApiErrors::setCapiCallErrorMessage(__func__,err.c_str());
-        return(retVal);
-    }
-
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simInt ptCnt,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,simVoid* reserved)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesIKGroupExist(__func__,ikGroupHandle))
-            return(nullptr);
-        std::vector<CJoint*> joints;
-        CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
-        bool err=false;
-        for (int i=0;i<jointCnt;i++)
-        {
-            CJoint* aJoint=App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
-            if (aJoint==nullptr)
-                err=true;
-            else
-                joints.push_back(aJoint);
-        }
-        if (err)
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLES);
-        std::vector<CDummy*> tips;
-        std::vector<CDummy*> targets;
-        std::vector<C7Vector> startTrs;
-        std::vector<C7Vector> goalTrs;
-        if (!err)
-        {
-            if (ikGroup->getIkElementCount()>0)
-            {
-                for (size_t i=0;i<ikGroup->getIkElementCount();i++)
-                {
-                    CIkElement* ikElement=ikGroup->getIkElementFromIndex(i);
-                    CDummy* tip=App::currentWorld->sceneObjects->getDummyFromHandle(ikElement->getTipHandle());
-                    CDummy* target=App::currentWorld->sceneObjects->getDummyFromHandle(ikElement->getTargetHandle());
-                    if ((tip==nullptr)||(target==nullptr))
-                        err=true;
-                    tips.push_back(tip);
-                    targets.push_back(target);
-                    startTrs.push_back(tip->getFullCumulativeTransformation());
-                    goalTrs.push_back(target->getFullCumulativeTransformation());
-                }
-            }
-            else
-            {
-                err=true;
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_ELEMENT_INEXISTANT);
-            }
-        }
-        if (!err)
-        {
-            if (ptCnt<2)
-            {
-                err=true;
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
-            }
-        }
-        if ( (!err)&&(collisionPairCnt>0)&&(collisionPairs!=nullptr) )
-        {
-            for (int i=0;i<collisionPairCnt;i++)
-            {
-                if (collisionPairs[2*i+0]!=-1)
-                {
-                    if (!doesCollectionExist(__func__,collisionPairs[2*i+0]))
-                        err=true;
-                    else
-                    {
-                        if (collisionPairs[2*i+1]!=sim_handle_all)
-                        {
-                            if (!doesCollectionExist(__func__,collisionPairs[2*i+1]))
-                                err=true;
-                        }
-                    }
-                }
-            }
-        }
-        if (!err)
-        {
-            // Save joint positions/modes (all of them, just in case)
-            std::vector<CJoint*> sceneJoints;
-            std::vector<float> initSceneJointValues;
-            std::vector<int> initSceneJointModes;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
-            {
-                CJoint* aj=App::currentWorld->sceneObjects->getJointFromIndex(i);
-                sceneJoints.push_back(aj);
-                initSceneJointValues.push_back(aj->getPosition());
-                initSceneJointModes.push_back(aj->getJointMode());
-            }
-
-            ikGroup->setAllInvolvedJointsToNewJointMode(sim_jointmode_passive);
-
-            bool ikGroupWasActive=ikGroup->getEnabled();
-            if (!ikGroupWasActive)
-                ikGroup->setEnabled(true);
-
-            // It can happen that some IK elements get deactivated when the user provided wrong handles, so save the activation state:
-            std::vector<bool> enabledElements;
-            for (size_t i=0;i<ikGroup->getIkElementCount();i++)
-            {
-                CIkElement* ikElement=ikGroup->getIkElementFromIndex(i);
-                enabledElements.push_back(ikElement->getEnabled());
-            }
-
-            // Set the correct mode for the joints involved:
-            for (int i=0;i<jointCnt;i++)
-            {
-                if ( (jointOptions==nullptr)||((jointOptions[i]&1)==0) )
-                    joints[i]->setJointMode_noDynMotorTargetPosCorrection(sim_jointmode_ik);
-                else
-                    joints[i]->setJointMode_noDynMotorTargetPosCorrection(sim_jointmode_dependent);
-            }
-
-            // do the calculation:
-            float t=0.0;
-            float dt=1.0/(ptCnt-1);
-            bool failed=false;
-            std::vector<float> thePath;
-            for (int iterCnt=0;iterCnt<ptCnt;iterCnt++)
-            {
-                for (size_t el=0;el<ikGroup->getIkElementCount();el++)
-                { // set all targets to an interpolated pose
-                    C7Vector tr;
-                    tr.buildInterpolation(startTrs[el],goalTrs[el],t);
-                    targets[el]->setAbsoluteTransformation(tr);
-                }
-
-                // Try to perform IK:
-                if (sim_ikresult_success==ikGroup->computeGroupIk(true))
-                {
-                    bool colliding=false;
-                    if ( (collisionPairCnt>0)&&(collisionPairs!=nullptr) )
-                    { // we need to check if this state collides:
-                        for (int i=0;i<collisionPairCnt;i++)
-                        {
-                            if (collisionPairs[2*i+0]>=0)
-                            {
-                                int env=collisionPairs[2*i+1];
-                                if (env==sim_handle_all)
-                                    env=-1;
-                                if (CCollisionRoutine::doEntitiesCollide(collisionPairs[2*i+0],env,nullptr,false,false,nullptr))
-                                {
-                                    colliding=true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (!colliding)
-                    { // we save this path point
-                        for (int i=0;i<jointCnt;i++)
-                            thePath.push_back(joints[i]->getPosition());
-                    }
-                    else
-                        failed=true;
-                }
-                else
-                    failed=true;
-                if (failed)
-                    break;
-                t+=dt;
-            }
-
-            if (!ikGroupWasActive)
-                ikGroup->setEnabled(false);
-
-            // Restore the IK element activation state:
-            for (size_t i=0;i<ikGroup->getIkElementCount();i++)
-            {
-                CIkElement* ikElement=ikGroup->getIkElementFromIndex(i);
-                ikElement->setEnabled(enabledElements[i]);
-            }
-
-            // Restore joint positions/modes:
-            for (size_t i=0;i<sceneJoints.size();i++)
-            {
-                if (sceneJoints[i]->getPosition()!=initSceneJointValues[i])
-                    sceneJoints[i]->setPosition(initSceneJointValues[i]);
-                if (sceneJoints[i]->getJointMode()!=initSceneJointModes[i])
-                    sceneJoints[i]->setJointMode_noDynMotorTargetPosCorrection(initSceneJointModes[i]);
-            }
-
-            // Restore target dummies:
-            for (size_t el=0;el<ikGroup->getIkElementCount();el++)
-                targets[el]->setAbsoluteTransformation(goalTrs[el]);
-
-            if (!failed)
-            {
-                float* retVal=new float[jointCnt*ptCnt];
-                for (int i=0;i<jointCnt*ptCnt;i++)
-                    retVal[i]=thePath[i];
-                return(retVal);
-            }
-            return(nullptr);
-        }
-        return(nullptr);
-    }
-
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(nullptr);
 }
 
 simChar* simGetExtensionString_internal(simInt objectHandle,simInt index,const char* key)
@@ -18328,8 +17777,11 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
                 }
             }
 
-            if (retVal==-1)
+            if (retVal!=0)
+            {
                 CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OPERATION_FAILED);
+                retVal=-1;
+            }
             return(retVal);
         }
 
@@ -21684,6 +21136,554 @@ simInt simGetShapeMassAndInertia_internal(simInt shapeHandle,simFloat* mass,simF
         m.copyToInterface(inertiaMatrix);
         (ref.getTransformation().getInverse()*tr).X.copyTo(centerOfMass);
 
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simCheckIkGroup_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat* jointValues,const simInt* jointOptions)
+{ // deprecated on 29.09.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesIKGroupExist(__func__,ikGroupHandle))
+            return(-1);
+        int retVal=-1;
+        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        int r=it->checkIkGroup(jointCnt,jointHandles,jointValues,jointOptions);
+        if (r==-1)
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+        if (r==-2)
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLES);
+        if (r>=sim_ikresult_not_performed)
+            retVal=r;
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simCreateIkGroup_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
+{ // deprecated on 29.09.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CIkGroup* ikGroup=new CIkGroup();
+        ikGroup->setObjectName("IK_Group",false);
+        App::currentWorld->ikGroups->addIkGroup(ikGroup,false);
+        ikGroup->setEnabled((options&1)==0);
+        ikGroup->setRestoreIfPositionNotReached((options&4)!=0);
+        ikGroup->setRestoreIfOrientationNotReached((options&8)!=0);
+        ikGroup->setIgnoreMaxStepSizes((options&16)==0);
+        ikGroup->setExplicitHandling((options&32)!=0);
+        if (intParams!=nullptr)
+        {
+            ikGroup->setCalculationMethod(intParams[0]);
+            ikGroup->setMaxIterations(intParams[1]);
+        }
+        if (floatParams!=nullptr)
+            ikGroup->setDampingFactor(floatParams[0]);
+        return(ikGroup->getObjectHandle());
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simRemoveIkGroup_internal(simInt ikGroupHandle)
+{ // deprecated on 29.09.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
+            return(-1);
+        }
+        App::currentWorld->ikGroups->removeIkGroup(it->getObjectHandle());
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simCreateIkElement_internal(simInt ikGroupHandle,simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
+{ // deprecated on 29.09.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
+            return(-1);
+        }
+        int tip=intParams[0];
+        int base=intParams[1];
+        int constrBase=intParams[2];
+        int constraints=intParams[3];
+        if (!isDummy(__func__,tip))
+            return(-1);
+        if (App::currentWorld->sceneObjects->getObjectFromHandle(base)==nullptr)
+            base=-1;
+        if (App::currentWorld->sceneObjects->getObjectFromHandle(constrBase)==nullptr)
+            constrBase=-1;
+        CIkElement* ikEl=new CIkElement(tip);
+        ikEl->setEnabled((options&1)==0);
+        ikEl->setBase(base);
+        ikEl->setAlternativeBaseForConstraints(constrBase);
+        ikEl->setConstraints(constraints);
+        if (floatParams!=nullptr)
+        {
+            ikEl->setMinLinearPrecision(floatParams[0]);
+            ikEl->setMinAngularPrecision(floatParams[1]);
+            ikEl->setPositionWeight(floatParams[2]);
+            ikEl->setOrientationWeight(floatParams[3]);
+        }
+        it->addIkElement(ikEl);
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simExportIk_internal(const simChar* pathAndFilename,simInt reserved1,simVoid* reserved2)
+{ // deprecated on 29.09.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal=0;
+        if (App::currentWorld->simulation->isSimulationStopped())
+        {
+            if (CFileOperations::apiExportIkContent(pathAndFilename,false))
+                retVal=1;
+        }
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simComputeJacobian_internal(simInt ikGroupHandle,simInt options,simVoid* reserved)
+{ // deprecated on 29.09.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesIKGroupExist(__func__,ikGroupHandle))
+            return(-1);
+        int returnValue=-1;
+        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        if (it->computeOnlyJacobian(options))
+            returnValue=0;
+        return(returnValue);
+    }
+
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetConfigForTipPose_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat thresholdDist,simInt maxTimeInMs,simFloat* retConfig,const simFloat* metric,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,const simFloat* lowLimits,const simFloat* ranges,simVoid* reserved)
+{ // deprecated on 29.09.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesIKGroupExist(__func__,ikGroupHandle))
+            return(-1);
+
+        CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        std::string err;
+        int retVal=ikGroup->getConfigForTipPose(jointCnt,jointHandles,thresholdDist,maxTimeInMs,retConfig,metric,collisionPairCnt,collisionPairs,jointOptions,lowLimits,ranges,err);
+        if (retVal<0)
+            CApiErrors::setCapiCallErrorMessage(__func__,err.c_str());
+        return(retVal);
+    }
+
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simInt ptCnt,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,simVoid* reserved)
+{ // deprecated on 29.09.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesIKGroupExist(__func__,ikGroupHandle))
+            return(nullptr);
+        std::vector<CJoint*> joints;
+        CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        bool err=false;
+        for (int i=0;i<jointCnt;i++)
+        {
+            CJoint* aJoint=App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
+            if (aJoint==nullptr)
+                err=true;
+            else
+                joints.push_back(aJoint);
+        }
+        if (err)
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLES);
+        std::vector<CDummy*> tips;
+        std::vector<CDummy*> targets;
+        std::vector<C7Vector> startTrs;
+        std::vector<C7Vector> goalTrs;
+        if (!err)
+        {
+            if (ikGroup->getIkElementCount()>0)
+            {
+                for (size_t i=0;i<ikGroup->getIkElementCount();i++)
+                {
+                    CIkElement* ikElement=ikGroup->getIkElementFromIndex(i);
+                    CDummy* tip=App::currentWorld->sceneObjects->getDummyFromHandle(ikElement->getTipHandle());
+                    CDummy* target=App::currentWorld->sceneObjects->getDummyFromHandle(ikElement->getTargetHandle());
+                    if ((tip==nullptr)||(target==nullptr))
+                        err=true;
+                    tips.push_back(tip);
+                    targets.push_back(target);
+                    startTrs.push_back(tip->getFullCumulativeTransformation());
+                    goalTrs.push_back(target->getFullCumulativeTransformation());
+                }
+            }
+            else
+            {
+                err=true;
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_ELEMENT_INEXISTANT);
+            }
+        }
+        if (!err)
+        {
+            if (ptCnt<2)
+            {
+                err=true;
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
+            }
+        }
+        if ( (!err)&&(collisionPairCnt>0)&&(collisionPairs!=nullptr) )
+        {
+            for (int i=0;i<collisionPairCnt;i++)
+            {
+                if (collisionPairs[2*i+0]!=-1)
+                {
+                    if (!doesCollectionExist(__func__,collisionPairs[2*i+0]))
+                        err=true;
+                    else
+                    {
+                        if (collisionPairs[2*i+1]!=sim_handle_all)
+                        {
+                            if (!doesCollectionExist(__func__,collisionPairs[2*i+1]))
+                                err=true;
+                        }
+                    }
+                }
+            }
+        }
+        if (!err)
+        {
+            // Save joint positions/modes (all of them, just in case)
+            std::vector<CJoint*> sceneJoints;
+            std::vector<float> initSceneJointValues;
+            std::vector<int> initSceneJointModes;
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
+            {
+                CJoint* aj=App::currentWorld->sceneObjects->getJointFromIndex(i);
+                sceneJoints.push_back(aj);
+                initSceneJointValues.push_back(aj->getPosition());
+                initSceneJointModes.push_back(aj->getJointMode());
+            }
+
+            ikGroup->setAllInvolvedJointsToNewJointMode(sim_jointmode_passive);
+
+            bool ikGroupWasActive=ikGroup->getEnabled();
+            if (!ikGroupWasActive)
+                ikGroup->setEnabled(true);
+
+            // It can happen that some IK elements get deactivated when the user provided wrong handles, so save the activation state:
+            std::vector<bool> enabledElements;
+            for (size_t i=0;i<ikGroup->getIkElementCount();i++)
+            {
+                CIkElement* ikElement=ikGroup->getIkElementFromIndex(i);
+                enabledElements.push_back(ikElement->getEnabled());
+            }
+
+            // Set the correct mode for the joints involved:
+            for (int i=0;i<jointCnt;i++)
+            {
+                if ( (jointOptions==nullptr)||((jointOptions[i]&1)==0) )
+                    joints[i]->setJointMode_noDynMotorTargetPosCorrection(sim_jointmode_ik_deprecated);
+                else
+                    joints[i]->setJointMode_noDynMotorTargetPosCorrection(sim_jointmode_dependent);
+            }
+
+            // do the calculation:
+            float t=0.0;
+            float dt=1.0/(ptCnt-1);
+            bool failed=false;
+            std::vector<float> thePath;
+            for (int iterCnt=0;iterCnt<ptCnt;iterCnt++)
+            {
+                for (size_t el=0;el<ikGroup->getIkElementCount();el++)
+                { // set all targets to an interpolated pose
+                    C7Vector tr;
+                    tr.buildInterpolation(startTrs[el],goalTrs[el],t);
+                    targets[el]->setAbsoluteTransformation(tr);
+                }
+
+                // Try to perform IK:
+                if (sim_ikresult_success==ikGroup->computeGroupIk(true))
+                {
+                    bool colliding=false;
+                    if ( (collisionPairCnt>0)&&(collisionPairs!=nullptr) )
+                    { // we need to check if this state collides:
+                        for (int i=0;i<collisionPairCnt;i++)
+                        {
+                            if (collisionPairs[2*i+0]>=0)
+                            {
+                                int env=collisionPairs[2*i+1];
+                                if (env==sim_handle_all)
+                                    env=-1;
+                                if (CCollisionRoutine::doEntitiesCollide(collisionPairs[2*i+0],env,nullptr,false,false,nullptr))
+                                {
+                                    colliding=true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (!colliding)
+                    { // we save this path point
+                        for (int i=0;i<jointCnt;i++)
+                            thePath.push_back(joints[i]->getPosition());
+                    }
+                    else
+                        failed=true;
+                }
+                else
+                    failed=true;
+                if (failed)
+                    break;
+                t+=dt;
+            }
+
+            if (!ikGroupWasActive)
+                ikGroup->setEnabled(false);
+
+            // Restore the IK element activation state:
+            for (size_t i=0;i<ikGroup->getIkElementCount();i++)
+            {
+                CIkElement* ikElement=ikGroup->getIkElementFromIndex(i);
+                ikElement->setEnabled(enabledElements[i]);
+            }
+
+            // Restore joint positions/modes:
+            for (size_t i=0;i<sceneJoints.size();i++)
+            {
+                if (sceneJoints[i]->getPosition()!=initSceneJointValues[i])
+                    sceneJoints[i]->setPosition(initSceneJointValues[i]);
+                if (sceneJoints[i]->getJointMode()!=initSceneJointModes[i])
+                    sceneJoints[i]->setJointMode_noDynMotorTargetPosCorrection(initSceneJointModes[i]);
+            }
+
+            // Restore target dummies:
+            for (size_t el=0;el<ikGroup->getIkElementCount();el++)
+                targets[el]->setAbsoluteTransformation(goalTrs[el]);
+
+            if (!failed)
+            {
+                float* retVal=new float[jointCnt*ptCnt];
+                for (int i=0;i<jointCnt*ptCnt;i++)
+                    retVal[i]=thePath[i];
+                return(retVal);
+            }
+            return(nullptr);
+        }
+        return(nullptr);
+    }
+
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simGetIkGroupHandle_internal(const simChar* ikGroupName)
+{ // deprecated on 29.09.2020
+    TRACE_C_API;
+
+    size_t silentErrorPos=std::string(ikGroupName).find("@silentError");
+    std::string nm(ikGroupName);
+    if (silentErrorPos!=std::string::npos)
+        nm.erase(nm.begin()+silentErrorPos,nm.end());
+
+    std::string ikGroupNameAdjusted=getCNameSuffixAdjustedName_OLD(nm.c_str());
+    enableCNameSuffixAdjustment_OLD();
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromName(ikGroupNameAdjusted.c_str());
+        if (it==nullptr)
+        {
+            if (silentErrorPos==std::string::npos)
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
+            return(-1);
+        }
+        int retVal=it->getObjectHandle();
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simFloat* simGetIkGroupMatrix_internal(simInt ikGroupHandle,simInt options,simInt* matrixSize)
+{ // deprecated on 29.09.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
+            return(nullptr);
+        }
+        float* retData=nullptr;
+        if (options==0)
+            retData=it->getLastJacobianData(matrixSize);
+        if (options==1)
+            retData=it->getLastManipulabilityValue(matrixSize);
+        return(retData);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simHandleIkGroup_internal(simInt ikGroupHandle)
+{ // deprecated on 29.09.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if ( (ikGroupHandle!=sim_handle_all)&&(ikGroupHandle!=sim_handle_all_except_explicit) )
+        {
+            if (!doesIKGroupExist(__func__,ikGroupHandle))
+                return(-1);
+        }
+        int returnValue=0;
+        if (ikGroupHandle<0)
+            returnValue=App::currentWorld->ikGroups->computeAllIkGroups(ikGroupHandle==sim_handle_all_except_explicit);
+        else
+        { // explicit handling
+            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+            if (!it->getExplicitHandling())
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                return(-1);
+            }
+            returnValue=it->computeGroupIk(false);
+        }
+        return(returnValue);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetIkGroupProperties_internal(simInt ikGroupHandle,simInt resolutionMethod,simInt maxIterations,simFloat damping,void* reserved)
+{ // deprecated on 29.09.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+    {
+        return(-1);
+    }
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
+            return(-1);
+        }
+        it->setCalculationMethod(resolutionMethod);
+        it->setMaxIterations(maxIterations);
+        it->setDampingFactor(damping);
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetIkElementProperties_internal(simInt ikGroupHandle,simInt tipDummyHandle,simInt constraints,const simFloat* precision,const simFloat* weight,void* reserved)
+{ // deprecated on 29.09.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
+            return(-1);
+        }
+        if (!isDummy(__func__,tipDummyHandle))
+            return(-1);
+        CIkElement* el=it->getIkElementFromTipHandle(tipDummyHandle);
+        if (el==nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_ELEMENT_INEXISTANT);
+            return(-1);
+        }
+        el->setConstraints(constraints);
+        if (precision!=nullptr)
+        {
+            el->setMinLinearPrecision(precision[0]);
+            el->setMinAngularPrecision(precision[1]);
+        }
+        if (weight!=nullptr)
+        {
+            el->setPositionWeight(weight[0]);
+            el->setOrientationWeight(weight[1]);
+        }
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);

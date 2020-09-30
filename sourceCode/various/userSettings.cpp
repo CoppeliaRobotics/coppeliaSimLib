@@ -80,11 +80,11 @@
 #define _USR_SPECIFIC_GPU_TWEAK "specificGpuTweak"
 #define _USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES "useAlternateSerialPortRoutines"
 #define _USR_DISABLED_OPENGL_BASED_CUSTOM_UI "disableOpenGlBasedCustomUi"
+#define _USR_SHOW_OLD_CALC_MODULES_DLGS "showOldCalcModuleDlgs"
 #define _USR_CHANGE_SCRIPT_CODE_NEW_API_NOTATION "changeScriptCodeForNewApiNotation"
 #define _USR_SUPPORT_OLD_API_NOTATION "supportOldApiNotation"
 #define _USR_ENABLE_OLD_MIRROR_OBJECTS "enableOldMirrorObjects"
 #define _USR_ALLOW_OLD_EDU_RELEASE "allowOldEduRelease"
-#define _USR_USE_OLD_IK "useOldIk"
 #define _USR_THREADED_SCRIPTS_GRACE_TIME "threadedScriptsStoppingGraceTime"
 
 #define _USR_ABORT_SCRIPT_EXECUTION_BUTTON "abortScriptExecutionButton"
@@ -361,11 +361,11 @@ CUserSettings::CUserSettings()
     specificGpuTweak=false; // default
     useAlternateSerialPortRoutines=false;
     disableOpenGlBasedCustomUi=false;
+    showOldCalcModuleDlgs=false;
     changeScriptCodeForNewApiNotation=1;
     _supportOldApiNotation=true;
     enableOldMirrorObjects=false;
     allowOldEduRelease=-1;
-    useOldIk=false;
     threadedScriptsStoppingGraceTime=0;
 
 
@@ -740,11 +740,13 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_SPECIFIC_GPU_TWEAK,specificGpuTweak,"");
     c.addBoolean(_USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES,useAlternateSerialPortRoutines,"");
     c.addBoolean(_USR_DISABLED_OPENGL_BASED_CUSTOM_UI,disableOpenGlBasedCustomUi,"");
+    c.addBoolean(_USR_SHOW_OLD_CALC_MODULES_DLGS,showOldCalcModuleDlgs,"");
     c.addInteger(_USR_CHANGE_SCRIPT_CODE_NEW_API_NOTATION,changeScriptCodeForNewApiNotation,"1=enabled, 0=disabled.");
     c.addBoolean(_USR_SUPPORT_OLD_API_NOTATION,_supportOldApiNotation,"");
     c.addBoolean(_USR_ENABLE_OLD_MIRROR_OBJECTS,enableOldMirrorObjects,"");
-    c.addBoolean(_USR_USE_OLD_IK,useOldIk,"");
     c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");
+
+
 
 
     c.addRandomLine("");
@@ -1051,11 +1053,11 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_SPECIFIC_GPU_TWEAK,specificGpuTweak);
     c.getBoolean(_USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES,useAlternateSerialPortRoutines);
     c.getBoolean(_USR_DISABLED_OPENGL_BASED_CUSTOM_UI,disableOpenGlBasedCustomUi);
+    c.getBoolean(_USR_SHOW_OLD_CALC_MODULES_DLGS,showOldCalcModuleDlgs);
     c.getInteger(_USR_CHANGE_SCRIPT_CODE_NEW_API_NOTATION,changeScriptCodeForNewApiNotation);
     c.getBoolean(_USR_SUPPORT_OLD_API_NOTATION,_supportOldApiNotation);
     c.getBoolean(_USR_ENABLE_OLD_MIRROR_OBJECTS,enableOldMirrorObjects);
     c.getInteger(_USR_ALLOW_OLD_EDU_RELEASE,allowOldEduRelease);
-    c.getBoolean(_USR_USE_OLD_IK,useOldIk);
     c.getInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime);
 
 

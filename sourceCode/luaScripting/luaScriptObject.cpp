@@ -3950,97 +3950,96 @@ int CLuaScriptObject::callScriptFunctionEx(const char* functionName,CInterfaceSt
 { // retVal: -3: could not initialize script, -2: function does not exist, -1: error in function, 0:ok
     int retVal=-3;
 
-    if (!_prepareLuaStateAndCallScriptInitSectionIfNeeded())
-        return(retVal);
-    retVal=-2;
+    if ( (L!=nullptr) && (!_scriptIsDisabled) && (_executionState==execState_initialized) )
+    {
+        //if (!_prepareLuaStateAndCallScriptInitSectionIfNeeded())
+        //    return(retVal);
+        retVal=-2;
 
-    if ( (_executionState==execState_compilationError)||(_executionState==execState_runtimeError) )
-        return(-1);
+        int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
 
+        std::string tmp("sim_current_script_id=");
+        tmp+=boost::lexical_cast<std::string>(getScriptID());
+        tmp+="\nsim_call_type=-1";
+        luaWrap_luaL_dostring(L,tmp.c_str());
 
-    int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
-
-    std::string tmp("sim_current_script_id=");
-    tmp+=boost::lexical_cast<std::string>(getScriptID());
-    tmp+="\nsim_call_type=-1";
-    luaWrap_luaL_dostring(L,tmp.c_str());
-
-    // Push the function name onto the stack (will be automatically popped from stack after _luaPCall):
-    std::string func(functionName);
-    size_t ppos=func.find('.');
-    bool notFunction=false;
-    if (ppos==std::string::npos)
-        luaWrap_lua_getglobal(L,func.c_str()); // in case we have a global function:
-    else
-    { // in case we have a function that is not global
-        std::string globalVar(func.begin(),func.begin()+ppos);
-        luaWrap_lua_getglobal(L,globalVar.c_str());
-        if (luaWrap_lua_istable(L,-1))
-        {
-            func.assign(func.begin()+ppos+1,func.end());
-            size_t ppos=func.find('.');
-            while (ppos!=std::string::npos)
+        // Push the function name onto the stack (will be automatically popped from stack after _luaPCall):
+        std::string func(functionName);
+        size_t ppos=func.find('.');
+        bool notFunction=false;
+        if (ppos==std::string::npos)
+            luaWrap_lua_getglobal(L,func.c_str()); // in case we have a global function:
+        else
+        { // in case we have a function that is not global
+            std::string globalVar(func.begin(),func.begin()+ppos);
+            luaWrap_lua_getglobal(L,globalVar.c_str());
+            if (luaWrap_lua_istable(L,-1))
             {
-                std::string var(func.begin(),func.begin()+ppos);
-                luaWrap_lua_getfield(L,-1,var.c_str());
-                luaWrap_lua_remove(L,-2);
-                func.erase(func.begin(),func.begin()+ppos+1);
-                ppos=func.find('.');
-                if (!luaWrap_lua_istable(L,-1))
+                func.assign(func.begin()+ppos+1,func.end());
+                size_t ppos=func.find('.');
+                while (ppos!=std::string::npos)
                 {
-                    notFunction=true;
-                    break;
+                    std::string var(func.begin(),func.begin()+ppos);
+                    luaWrap_lua_getfield(L,-1,var.c_str());
+                    luaWrap_lua_remove(L,-2);
+                    func.erase(func.begin(),func.begin()+ppos+1);
+                    ppos=func.find('.');
+                    if (!luaWrap_lua_istable(L,-1))
+                    {
+                        notFunction=true;
+                        break;
+                    }
+                }
+                if (!notFunction)
+                {
+                    luaWrap_lua_getfield(L,-1,func.c_str());
+                    luaWrap_lua_remove(L,-2);
                 }
             }
-            if (!notFunction)
-            {
-                luaWrap_lua_getfield(L,-1,func.c_str());
-                luaWrap_lua_remove(L,-2);
+            else
+                notFunction=true;
+        }
+
+        if ( (!notFunction)&&luaWrap_lua_isfunction(L,-1) )
+        {
+            retVal=-1;
+            // Push the arguments onto the stack (will be automatically popped from stack after _luaPCall):
+            int inputArgs=stack->getStackSize();
+
+            if (inputArgs!=0)
+                stack->buildOntoLuaStack(L,false);
+
+            stack->clear();
+
+            luaWrap_lua_getglobal(L,"debug");
+            luaWrap_lua_getfield(L,-1,"traceback");
+            luaWrap_lua_remove(L,-2);
+            int argCnt=inputArgs;
+            int errindex=-argCnt-2;
+            luaWrap_lua_insert(L,errindex);
+
+            if (_luaPCall(L,argCnt,luaWrapGet_LUA_MULTRET(),errindex,functionName)!=0)
+            { // a runtime error occurred!
+                std::string errMsg;
+                if (luaWrap_lua_isstring(L,-1))
+                    errMsg=std::string(luaWrap_lua_tostring(L,-1));
+                else
+                    errMsg="(error unknown)";
+                luaWrap_lua_pop(L,1); // pop error from stack
+                _announceErrorWasRaisedAndDisableScript(errMsg.c_str(),true);
+            }
+            else
+            { // return values:
+                int currentTop=luaWrap_lua_gettop(L);
+
+                int numberOfArgs=currentTop-oldTop-1; // the first arg is linked to the debug mechanism
+                stack->buildFromLuaStack(L,oldTop+1+1,numberOfArgs); // the first arg is linked to the debug mechanism
+                retVal=0;
             }
         }
-        else
-            notFunction=true;
+
+        luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
     }
-
-    if ( (!notFunction)&&luaWrap_lua_isfunction(L,-1) )
-    {
-        retVal=-1;
-        // Push the arguments onto the stack (will be automatically popped from stack after _luaPCall):
-        int inputArgs=stack->getStackSize();
-
-        if (inputArgs!=0)
-            stack->buildOntoLuaStack(L,false);
-
-        stack->clear();
-
-        luaWrap_lua_getglobal(L,"debug");
-        luaWrap_lua_getfield(L,-1,"traceback");
-        luaWrap_lua_remove(L,-2);
-        int argCnt=inputArgs;
-        int errindex=-argCnt-2;
-        luaWrap_lua_insert(L,errindex);
-
-        if (_luaPCall(L,argCnt,luaWrapGet_LUA_MULTRET(),errindex,functionName)!=0)
-        { // a runtime error occurred!
-            std::string errMsg;
-            if (luaWrap_lua_isstring(L,-1))
-                errMsg=std::string(luaWrap_lua_tostring(L,-1));
-            else
-                errMsg="(error unknown)";
-            luaWrap_lua_pop(L,1); // pop error from stack
-            _announceErrorWasRaisedAndDisableScript(errMsg.c_str(),true);
-        }
-        else
-        { // return values:
-            int currentTop=luaWrap_lua_gettop(L);
-
-            int numberOfArgs=currentTop-oldTop-1; // the first arg is linked to the debug mechanism
-            stack->buildFromLuaStack(L,oldTop+1+1,numberOfArgs); // the first arg is linked to the debug mechanism
-            retVal=0;
-        }
-    }
-
-    luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
     return(retVal);
 }
 
@@ -4148,51 +4147,85 @@ int CLuaScriptObject::clearScriptVariable(const char* variableName)
 }
 
 int CLuaScriptObject::executeScriptString(const char* scriptString,CInterfaceStack* stack)
-{
-    int retVal=-1;
-    if (!_prepareLuaStateAndCallScriptInitSectionIfNeeded())
-        return(retVal);
+{ // retVal: -2: script not initialized, is disabled, or had previously an error, -1: string caused an error, 0: string didn't cause an error
+    int retVal=-2;
 
-//    std::string tmp("sim_current_script_id=");
+    if ( (L!=nullptr) && (!_scriptIsDisabled) && (_executionState==execState_initialized) )
+    {
+        retVal=-1;
+        int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
 
-//    CApiErrors::
-    int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
+        bool firstCall=(_timeOfPcallStart==-1);
+        if (firstCall)
+            _timeOfPcallStart=VDateTime::getTimeInMs();
 
-    std::string theString("return ");
-    theString+=scriptString;
-    bool firstCall=(_timeOfPcallStart==-1);
-    if (firstCall)
-        _timeOfPcallStart=VDateTime::getTimeInMs();
-    if (0!=luaWrap_luaL_dostring(L,theString.c_str()))
-    { // 'return theStringToExecute' failed to execute. Let's simply execute 'theStringToExecute'
-        int intermediateTop=luaWrap_lua_gettop(L);
-        if (0==luaWrap_luaL_dostring(L,scriptString))
-            retVal=0; // ok, that worked.
-        // Now build the return value or error onto the stack
 
-        if (stack!=nullptr)
+        std::string theString("return ");
+        theString+=scriptString;
+        int loadBufferRes=luaWrap_luaL_loadbuffer(L,theString.c_str(),theString.size(),scriptString);
+        if (loadBufferRes!=0)
         {
-            stack->clear();
-            if (luaWrap_lua_gettop(L)>intermediateTop)
-//                stack->buildFromLuaStack(L,intermediateTop+1,1);
-                stack->buildFromLuaStack(L,intermediateTop+1,luaWrap_lua_gettop(L)-intermediateTop);
+            luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
+            loadBufferRes=luaWrap_luaL_loadbuffer(L,scriptString,strlen(scriptString),scriptString);
         }
-    }
-    else
-    { // ok, let's see what we have in return:
-        if (stack!=nullptr)
+        if (loadBufferRes==0)
         {
-            stack->clear();
-            if (luaWrap_lua_gettop(L)>oldTop)
-//                stack->buildFromLuaStack(L,oldTop+1,1);
-                stack->buildFromLuaStack(L,oldTop+1,luaWrap_lua_gettop(L)-oldTop);
+            int intTop=luaWrap_lua_gettop(L);
+            if (luaWrap_lua_pcall(L,0,luaWrapGet_LUA_MULTRET(),0))
+            { // a runtime error occurred!
+                std::string errMsg;
+                if (luaWrap_lua_isstring(L,-1))
+                    errMsg=std::string(luaWrap_lua_tostring(L,-1));
+                else
+                    errMsg="(error unknown)";
+                if (stack!=nullptr)
+                {
+                    stack->clear();
+                    stack->pushStringOntoStack(errMsg.c_str(),0);
+                }
+            }
+            else
+            {
+                int currentTop=luaWrap_lua_gettop(L);
+                int numberOfArgs=currentTop-oldTop;
+                if (stack!=nullptr)
+                    stack->buildFromLuaStack(L,currentTop-numberOfArgs+1,numberOfArgs);
+                retVal=0;
+            }
         }
-        retVal=0;
-    }
-    if (firstCall)
-        _timeOfPcallStart=-1;
+/*
+        std::string theString("return ");
+        theString+=scriptString;
+        if (0!=luaWrap_luaL_dostring(L,theString.c_str()))
+        { // 'return theStringToExecute' failed to execute. Let's simply execute 'theStringToExecute'
+            int intermediateTop=luaWrap_lua_gettop(L);
+            if (0==luaWrap_luaL_dostring(L,scriptString))
+                retVal=0; // ok, that worked without an error
 
-    luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
+            // Now build the return value or error onto the stack
+            if (stack!=nullptr)
+            {
+                stack->clear();
+                if (luaWrap_lua_gettop(L)>intermediateTop)
+                    stack->buildFromLuaStack(L,intermediateTop+1,luaWrap_lua_gettop(L)-intermediateTop);
+            }
+        }
+        else
+        { // ok, let's see what we have in return:
+            if (stack!=nullptr)
+            {
+                stack->clear();
+                if (luaWrap_lua_gettop(L)>oldTop)
+                    stack->buildFromLuaStack(L,oldTop+1,luaWrap_lua_gettop(L)-oldTop);
+            }
+            retVal=0;
+        }
+        //*/
+
+        if (firstCall)
+            _timeOfPcallStart=-1;
+        luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
+    }
     return(retVal);
 }
 
@@ -4406,12 +4439,6 @@ void CLuaScriptObject::_announceErrorWasRaisedAndDisableScript(const char* errMs
     if (errM.find("attempt to yield across metamethod/C-call boundary")==std::string::npos)
     { // silent error when breaking out of a threaded child script at simulation end
         int verb=sim_verbosity_scripterrors;
-        size_t fp=errM.find("@errorToConsole");
-        if (fp!=std::string::npos)
-        {
-            errM.erase(errM.begin()+fp,errM.begin()+fp+15);
-            verb=sim_verbosity_errors;
-        }
         if (runtimeError)
             _executionState=execState_runtimeError;
         else

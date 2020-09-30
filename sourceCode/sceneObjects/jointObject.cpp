@@ -2103,8 +2103,8 @@ void CJoint::serialize(CSer& ar)
                 mult=180.0f/piValue_f;
             ar.xmlAddNode_comment(" 'type' tag: can be 'revolute', 'prismatic' or 'spherical' ",exhaustiveXml);
             ar.xmlAddNode_enum("type",_jointType,sim_joint_revolute_subtype,"revolute",sim_joint_prismatic_subtype,"prismatic",sim_joint_spherical_subtype,"spherical");
-            ar.xmlAddNode_comment(" 'mode' tag: can be 'passive', 'ik', 'dependent' or 'force' ",exhaustiveXml);
-            ar.xmlAddNode_enum("mode",_jointMode,sim_jointmode_passive,"passive",sim_jointmode_ik,"ik",sim_jointmode_dependent,"dependent",sim_jointmode_force,"force");
+            ar.xmlAddNode_comment(" 'mode' tag: can be 'passive', 'dependent' or 'force' ",exhaustiveXml);
+            ar.xmlAddNode_enum("mode",_jointMode,sim_jointmode_passive,"passive",sim_jointmode_ik_deprecated,"ik",sim_jointmode_dependent,"dependent",sim_jointmode_force,"force");
 
             ar.xmlAddNode_float("minPosition",_jointMinPosition*mult);
             ar.xmlAddNode_float("range",_jointPositionRange*mult);
@@ -2289,7 +2289,7 @@ void CJoint::serialize(CSer& ar)
                     mult=piValue_f/180.0f;
             }
 
-            ar.xmlGetNode_enum("mode",_jointMode,exhaustiveXml,"passive",sim_jointmode_passive,"ik",sim_jointmode_ik,"dependent",sim_jointmode_dependent,"force",sim_jointmode_force);
+            ar.xmlGetNode_enum("mode",_jointMode,exhaustiveXml,"passive",sim_jointmode_passive,"ik",sim_jointmode_ik_deprecated,"dependent",sim_jointmode_dependent,"force",sim_jointmode_force);
 
             if (ar.xmlGetNode_float("minPosition",_jointMinPosition,exhaustiveXml))
             {
@@ -2605,7 +2605,7 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int theMode)
         App::currentWorld->sceneObjects->actualizeObjectInformation();
         md=theMode;
     }
-    if (theMode==sim_jointmode_ik)
+    if (theMode==sim_jointmode_ik_deprecated)
     {
         App::currentWorld->sceneObjects->actualizeObjectInformation();
         md=theMode;

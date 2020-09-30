@@ -1285,7 +1285,7 @@ void CMainWindow::_createDefaultToolBars()
 
         if (CSimFlavor::getBoolVal(12))
         {
-            _toolbarActionCalculationModules=_toolbar2->addAction(QIcon(":/toolbarFiles/calcmods.png"),tr(IDSN_CALCULATION_MODULE_PROPERTIES_MENU_ITEM));
+            _toolbarActionCalculationModules=_toolbar2->addAction(QIcon(":/toolbarFiles/calcmods.png"),tr(IDSN_DYNAMICS_PROPERTIES_MENU_ITEM));
             _toolbarActionCalculationModules->setCheckable(true);
             connect(_toolbarActionCalculationModules,SIGNAL(triggered()),_signalMapper,SLOT(map()));
             _signalMapper->setMapping(_toolbarActionCalculationModules,TOGGLE_CALCULATION_DLG_CMD);

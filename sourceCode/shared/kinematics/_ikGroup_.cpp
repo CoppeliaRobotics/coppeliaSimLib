@@ -61,6 +61,8 @@ size_t _CIkGroup_::getIkElementCount() const
 
 void _CIkGroup_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)
 { // Overridden from _CSyncObject_
+// notReplicatedAnymoreSinceOldFunc
+    /*
     if (routing.size()>0)
     {
         if (routing[0].objType==sim_syncobj_ikelement)
@@ -150,6 +152,7 @@ void _CIkGroup_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSync
             return;
         }
     }
+    */
 }
 
 void _CIkGroup_::_addIkElement(CIkElement* anElement)
@@ -198,7 +201,7 @@ bool _CIkGroup_::setExplicitHandling(bool explicitHandling)
 
 void _CIkGroup_::_setExplicitHandling_send(bool b) const
 {
-    sendBool(b,sim_syncobj_ikgroup_explicit);
+// notReplicatedAnymoreSinceOldFunc    sendBool(b,sim_syncobj_ikgroup_explicit);
 }
 
 bool _CIkGroup_::getExplicitHandling() const
@@ -221,7 +224,7 @@ bool _CIkGroup_::setEnabled(bool enable)
 
 void _CIkGroup_::_setEnabled_send(bool e) const
 {
-    sendBool(e,sim_syncobj_ikgroup_enabled);
+// notReplicatedAnymoreSinceOldFunc    sendBool(e,sim_syncobj_ikgroup_enabled);
 }
 
 bool _CIkGroup_::getEnabled() const
@@ -244,7 +247,7 @@ bool _CIkGroup_::setMaxIterations(int maxIter)
 
 void _CIkGroup_::_setMaxIterations_send(int it) const
 {
-    sendInt32(it,sim_syncobj_ikgroup_maxiterations);
+// notReplicatedAnymoreSinceOldFunc    sendInt32(it,sim_syncobj_ikgroup_maxiterations);
 }
 
 int _CIkGroup_::getMaxIterations() const
@@ -267,7 +270,7 @@ bool _CIkGroup_::setCalculationMethod(int theMethod)
 
 void _CIkGroup_::_setCalculationMethod_send(int m) const
 {
-    sendInt32(m,sim_syncobj_ikgroup_calcmethod);
+// notReplicatedAnymoreSinceOldFunc    sendInt32(m,sim_syncobj_ikgroup_calcmethod);
 }
 
 int _CIkGroup_::getCalculationMethod() const
@@ -290,7 +293,7 @@ bool _CIkGroup_::setDampingFactor(float theFactor)
 
 void _CIkGroup_::_setDampingFactor_send(float f) const
 {
-    sendFloat(f,sim_syncobj_ikgroup_damping);
+// notReplicatedAnymoreSinceOldFunc    sendFloat(f,sim_syncobj_ikgroup_damping);
 }
 
 float _CIkGroup_::getDampingFactor() const
@@ -313,7 +316,7 @@ bool _CIkGroup_::setIgnoreMaxStepSizes(bool ignore)
 
 void _CIkGroup_::_setIgnoreMaxStepSizes_send(bool e) const
 {
-    sendBool(e,sim_syncobj_ikgroup_ignoremaxstepsize);
+// notReplicatedAnymoreSinceOldFunc    sendBool(e,sim_syncobj_ikgroup_ignoremaxstepsize);
 }
 
 bool _CIkGroup_::getIgnoreMaxStepSizes() const
@@ -336,7 +339,7 @@ bool _CIkGroup_::setRestoreIfPositionNotReached(bool active)
 
 void _CIkGroup_::_setRestoreIfPositionNotReached_send(bool e) const
 {
-    sendBool(e,sim_syncobj_ikgroup_restoreifposnotreached);
+// notReplicatedAnymoreSinceOldFunc    sendBool(e,sim_syncobj_ikgroup_restoreifposnotreached);
 }
 
 bool _CIkGroup_::getRestoreIfPositionNotReached() const
@@ -359,7 +362,7 @@ bool _CIkGroup_::setRestoreIfOrientationNotReached(bool active)
 
 void _CIkGroup_::_setRestoreIfOrientationNotReached_send(bool e) const
 {
-    sendBool(e,sim_syncobj_ikgroup_restoreiforientnotreached);
+// notReplicatedAnymoreSinceOldFunc    sendBool(e,sim_syncobj_ikgroup_restoreiforientnotreached);
 }
 
 bool _CIkGroup_::getRestoreIfOrientationNotReached() const
@@ -382,7 +385,7 @@ bool _CIkGroup_::setDoOnFailOrSuccessOf(int groupID,bool check)
 
 void _CIkGroup_::_setDoOnFailOrSuccessOf_send(int h) const
 {
-    sendInt32(h,sim_syncobj_ikgroup_doonfailorsuccessof);
+// notReplicatedAnymoreSinceOldFunc    sendInt32(h,sim_syncobj_ikgroup_doonfailorsuccessof);
 }
 
 int _CIkGroup_::getDoOnFailOrSuccessOf() const
@@ -405,7 +408,7 @@ bool _CIkGroup_::setDoOnFail(bool onFail)
 
 void _CIkGroup_::_setDoOnFail_send(bool e) const
 {
-    sendBool(e,sim_syncobj_ikgroup_doonfail);
+// notReplicatedAnymoreSinceOldFunc    sendBool(e,sim_syncobj_ikgroup_doonfail);
 }
 
 bool _CIkGroup_::getDoOnFail() const
@@ -428,7 +431,7 @@ bool _CIkGroup_::setDoOnPerformed(bool turnOn)
 
 void _CIkGroup_::_setDoOnPerformed_send(bool e) const
 {
-    sendBool(e,sim_syncobj_ikgroup_doonperformed);
+// notReplicatedAnymoreSinceOldFunc    sendBool(e,sim_syncobj_ikgroup_doonperformed);
 }
 
 bool _CIkGroup_::getDoOnPerformed() const
@@ -451,7 +454,7 @@ bool _CIkGroup_::setObjectName(const char* newName,bool check)
 
 void _CIkGroup_::_setObjectName_send(const char* nm) const
 {
-    sendString(nm,sim_syncobj_ikgroup_setobjectname);
+// notReplicatedAnymoreSinceOldFunc    sendString(nm,sim_syncobj_ikgroup_setobjectname);
 }
 
 std::string _CIkGroup_::getObjectName() const

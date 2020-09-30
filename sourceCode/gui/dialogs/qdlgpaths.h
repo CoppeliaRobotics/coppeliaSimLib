@@ -43,6 +43,8 @@ private slots:
 
     void on_qqShowShapingDialog_clicked();
 
+    void on_qqCopyToClipboard_clicked();
+
 private:
     Ui::CQDlgPaths *ui;
 };

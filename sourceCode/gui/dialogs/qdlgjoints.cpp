@@ -55,14 +55,12 @@ void CQDlgJoints::refresh()
         ui->qqPosMinLabel->setText("Pos. min. [m]");
         ui->qqPosRangeLabel->setText("Pos. range [m]");
         ui->qqPosLabel->setText("Position [m]");
-        ui->qqStepSizeLabel->setText("Max. step size [m]");
     }
     else
     {
         ui->qqPosMinLabel->setText("Pos. min. [deg]");
         ui->qqPosRangeLabel->setText("Pos. range [deg]");
         ui->qqPosLabel->setText("Position [deg]");
-        ui->qqStepSizeLabel->setText("Max. step size [deg]");
     }
 
     ui->qqCyclic->setEnabled(sel&&revolute&&noEditModeNoSim);
@@ -73,13 +71,10 @@ void CQDlgJoints::refresh()
     else
         ui->qqRange->setEnabled(sel&&(!it->getPositionIsCyclic())&&noEditModeNoSim);
     ui->qqPosition->setEnabled(sel&&(!spherical));
-    ui->qqIkWeight->setEnabled(sel&&noEditModeNoSim);
-    ui->qqMaxStepSize->setEnabled(sel&&noEditModeNoSim);
     ui->qqApplyConfig->setEnabled(sel&&bigSel&&noEditModeNoSim);
 
     ui->qqJointModeCombo->setEnabled(sel&&noEditModeNoSim);
     ui->qqJointModeCombo->clear();
-    ui->qqHybrid->setEnabled(sel&&noEditModeNoSim&&(it->getJointMode()!=sim_jointmode_force)&&(!spherical));
     ui->qqApplyMode->setEnabled(sel&&bigSel&&noEditModeNoSim);
 
     ui->qqAdjustDependency->setEnabled(sel&&noEditModeNoSim&&((it->getJointMode()==sim_jointmode_dependent)||(it->getJointMode()==sim_jointmode_reserved_previously_ikdependent)));
@@ -93,7 +88,6 @@ void CQDlgJoints::refresh()
     ui->qqApplyAppearance->setEnabled(sel&&bigSel&&noEditModeNoSim);
 
     ui->qqCyclic->setChecked(sel&&revolute&&it->getPositionIsCyclic());
-    ui->qqHybrid->setChecked(sel&&it->getHybridFunctionality());
 
     if (sel)
     {
@@ -120,10 +114,7 @@ void CQDlgJoints::refresh()
             ui->qqMinimum->setText(tt::getEString(true,it->getPositionIntervalMin(),3).c_str());
             ui->qqRange->setText(tt::getEString(false,it->getPositionIntervalRange(),3).c_str());
             ui->qqPosition->setText(tt::getEString(true,it->getPosition(),3).c_str());
-            ui->qqMaxStepSize->setText(tt::getEString(false,it->getMaxStepSize(),2).c_str());
         }
-        else
-            ui->qqMaxStepSize->setText(tt::getAngleEString(false,it->getMaxStepSize(),2).c_str());
 
 
         if (spherical)
@@ -142,21 +133,60 @@ void CQDlgJoints::refresh()
             ui->qqLength->setText(tt::getFString(false,it->getLength(),3).c_str());
         }
 
-        ui->qqIkWeight->setText(tt::getFString(false,it->getIKWeight(),2).c_str());
         ui->qqDiameter->setText(tt::getFString(false,it->getDiameter(),3).c_str());
 
-
         ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_PASSIVE_MODE,QVariant(sim_jointmode_passive));
-        ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_IK_MODE,QVariant(sim_jointmode_ik));
+        if ( ( (it->getJointMode()==sim_jointmode_passive)&&(it->getHybridFunctionality()) )||App::userSettings->showOldCalcModuleDlgs )
+            ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_HYBRID_PASSIVE_MODE,QVariant(sim_jointmode_passive|sim_jointmode_hybrid_deprecated));
+
+        if (!spherical)
+        {
+            ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_DEPENDENT_MODE,QVariant(sim_jointmode_dependent));
+            if ( ( (it->getJointMode()==sim_jointmode_dependent)&&(it->getHybridFunctionality()) )||App::userSettings->showOldCalcModuleDlgs )
+                ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_HYBRID_DEPENDENT_MODE,QVariant(sim_jointmode_dependent|sim_jointmode_hybrid_deprecated));
+        }
+
+        if ( (it->getJointMode()==sim_jointmode_ik_deprecated)||App::userSettings->showOldCalcModuleDlgs )
+        {
+            if (App::userSettings->showOldCalcModuleDlgs)
+            {
+                ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_IK_MODE,QVariant(sim_jointmode_ik_deprecated));
+                ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_HYBRID_IK_MODE,QVariant(sim_jointmode_ik_deprecated|sim_jointmode_hybrid_deprecated));
+            }
+            else
+            {
+                if (it->getHybridFunctionality())
+                    ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_HYBRID_IK_MODE,QVariant(sim_jointmode_ik_deprecated|sim_jointmode_hybrid_deprecated));
+                else
+                    ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_IK_MODE,QVariant(sim_jointmode_ik_deprecated));
+            }
+        }
+
+        ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_TORQUE_FORCE_MODE,QVariant(sim_jointmode_force));
+
+        if ( (!spherical)&&(it->getJointMode()==sim_jointmode_motion_deprecated) )
+        {
+            if (it->getHybridFunctionality())
+                ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_HYBRID_MOTION_MODE,QVariant(sim_jointmode_motion_deprecated|sim_jointmode_hybrid_deprecated));
+            else
+                ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_MOTION_MODE,QVariant(sim_jointmode_motion_deprecated));
+        }
+/*
+        ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_PASSIVE_MODE,QVariant(sim_jointmode_passive));
+        ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_IK_MODE,QVariant(sim_jointmode_ik_deprecated));
         if (!spherical)
         {
             ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_DEPENDENT_MODE,QVariant(sim_jointmode_dependent));
             ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_MOTION_MODE,QVariant(sim_jointmode_motion_deprecated));
         }
         ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_TORQUE_FORCE_MODE,QVariant(sim_jointmode_force));
+        */
         for (int i=0;i<ui->qqJointModeCombo->count();i++)
         {
-            if (ui->qqJointModeCombo->itemData(i).toInt()==it->getJointMode())
+            int val=0;
+            if (it->getHybridFunctionality())
+                val=sim_jointmode_hybrid_deprecated;
+            if (ui->qqJointModeCombo->itemData(i).toInt()==(it->getJointMode()|val))
             {
                 ui->qqJointModeCombo->setCurrentIndex(i);
                 break;
@@ -170,8 +200,6 @@ void CQDlgJoints::refresh()
         ui->qqMinimum->setText("");
         ui->qqRange->setText("");
         ui->qqPosition->setText("");
-        ui->qqIkWeight->setText("");
-        ui->qqMaxStepSize->setText("");
         ui->qqLength->setText("");
         ui->qqDiameter->setText("");
     }
@@ -271,43 +299,6 @@ void CQDlgJoints::on_qqPosition_editingFinished()
     }
 }
 
-void CQDlgJoints::on_qqIkWeight_editingFinished()
-{
-    if (!ui->qqIkWeight->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        bool ok;
-        float newVal=ui->qqIkWeight->text().toFloat(&ok);
-        if (ok)
-        {
-            App::appendSimulationThreadCommand(SET_IKWEIGHT_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgJoints::on_qqMaxStepSize_editingFinished()
-{
-    if (!ui->qqMaxStepSize->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        bool ok;
-        float newVal=ui->qqMaxStepSize->text().toFloat(&ok);
-        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
-        if (ok&&(it!=nullptr))
-        {
-            if (it->getJointType()!=sim_joint_prismatic_subtype)
-                newVal*=gv::userToRad;
-            App::appendSimulationThreadCommand(SET_MAXSTEPSIZE_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
 void CQDlgJoints::on_qqApplyConfig_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
@@ -334,16 +325,6 @@ void CQDlgJoints::on_qqJointModeCombo_currentIndexChanged(int index)
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
-    }
-}
-
-void CQDlgJoints::on_qqHybrid_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        App::appendSimulationThreadCommand(TOGGLE_HYBRID_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 

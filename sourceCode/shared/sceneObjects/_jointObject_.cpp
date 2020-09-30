@@ -11,7 +11,7 @@ _CJoint_::_CJoint_()
     _sphericalTransformation.setIdentity();
     _jointPosition=0.0f;
 
-    _jointMode=sim_jointmode_ik;
+    _jointMode=sim_jointmode_passive;
     _dependencyJointHandle=-1;
     _dependencyJointMult=1.0f;
     _dependencyJointOffset=0.0f;
