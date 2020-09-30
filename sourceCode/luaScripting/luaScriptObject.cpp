@@ -4193,6 +4193,19 @@ int CLuaScriptObject::executeScriptString(const char* scriptString,CInterfaceSta
                 retVal=0;
             }
         }
+        else
+        { // A compilation error occurred!
+            std::string errMsg;
+            if (luaWrap_lua_isstring(L,-1))
+                errMsg=std::string(luaWrap_lua_tostring(L,-1));
+            else
+                errMsg="(error unknown)";
+            if (stack!=nullptr)
+            {
+                stack->clear();
+                stack->pushStringOntoStack(errMsg.c_str(),0);
+            }
+        }
 /*
         std::string theString("return ");
         theString+=scriptString;
