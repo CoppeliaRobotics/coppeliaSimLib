@@ -137,7 +137,7 @@ bool CThreadPool::getThreadSwitchTiming(int& timeInMs)
     return(retVal);
 }
 
-bool CThreadPool::setThreadAutomaticSwitch(bool switchIsAutomatic)
+bool CThreadPool::setThreadAutomaticSwitchForbidLevel(int forbidLevel)
 {
     if (_inInterceptRoutine>0)
         return(false);
@@ -151,17 +151,8 @@ bool CThreadPool::setThreadAutomaticSwitch(bool switchIsAutomatic)
         {
             if (VThread::areThreadIDsSame(_allThreadData[i]->threadID,fID))
             {
-                if (switchIsAutomatic)
-                {
-                    if (_allThreadData[i]->threadShouldNotSwitch>0)
-                        _allThreadData[i]->threadShouldNotSwitch--;
-                    retVal=true;
-                }
-                else
-                {
-                    _allThreadData[i]->threadShouldNotSwitch++;
-                    retVal=true;
-                }
+                _allThreadData[i]->threadShouldNotSwitch=forbidLevel;
+                retVal=true;
                 break;
             }
         }

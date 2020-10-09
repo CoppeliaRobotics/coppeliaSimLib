@@ -136,19 +136,19 @@ void CQDlgJoints::refresh()
         ui->qqDiameter->setText(tt::getFString(false,it->getDiameter(),3).c_str());
 
         ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_PASSIVE_MODE,QVariant(sim_jointmode_passive));
-        if ( ( (it->getJointMode()==sim_jointmode_passive)&&(it->getHybridFunctionality()) )||App::userSettings->showOldCalcModuleDlgs )
+        if ( ( (it->getJointMode()==sim_jointmode_passive)&&(it->getHybridFunctionality()) )||App::userSettings->showOldDlgs )
             ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_HYBRID_PASSIVE_MODE,QVariant(sim_jointmode_passive|sim_jointmode_hybrid_deprecated));
 
         if (!spherical)
         {
             ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_DEPENDENT_MODE,QVariant(sim_jointmode_dependent));
-            if ( ( (it->getJointMode()==sim_jointmode_dependent)&&(it->getHybridFunctionality()) )||App::userSettings->showOldCalcModuleDlgs )
+            if ( ( (it->getJointMode()==sim_jointmode_dependent)&&(it->getHybridFunctionality()) )||App::userSettings->showOldDlgs )
                 ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_HYBRID_DEPENDENT_MODE,QVariant(sim_jointmode_dependent|sim_jointmode_hybrid_deprecated));
         }
 
-        if ( (it->getJointMode()==sim_jointmode_ik_deprecated)||App::userSettings->showOldCalcModuleDlgs )
+        if ( (it->getJointMode()==sim_jointmode_ik_deprecated)||App::userSettings->showOldDlgs )
         {
-            if (App::userSettings->showOldCalcModuleDlgs)
+            if (App::userSettings->showOldDlgs)
             {
                 ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_IK_MODE,QVariant(sim_jointmode_ik_deprecated));
                 ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_HYBRID_IK_MODE,QVariant(sim_jointmode_ik_deprecated|sim_jointmode_hybrid_deprecated));

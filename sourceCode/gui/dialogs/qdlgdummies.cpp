@@ -48,6 +48,9 @@ void CQDlgDummies::refresh()
     ui->qqfollowParentOrientation->setEnabled(sel&&noEditModeNoSim);
     ui->qqFollow->setEnabled(sel&&noEditModeNoSim);
 
+    ui->qqTrajectoryGroup->setVisible(App::userSettings->showOldDlgs);
+
+
     if (sel)
     {
         ui->qqSize->setText(tt::getFString(false,it->getDummySize(),4).c_str());
@@ -80,7 +83,7 @@ void CQDlgDummies::refresh()
         {
             ui->qqLinkTypeCombo->addItem(IDS_DUMMY_LINK_TYPE_DYNAMICS_LOOP_CLOSURE,QVariant(sim_dummy_linktype_dynamics_loop_closure));
             // Following for backward compatibility:
-            if ( (it->getLinkType()==sim_dummy_linktype_ik_tip_target)||App::userSettings->showOldCalcModuleDlgs )
+            if ( (it->getLinkType()==sim_dummy_linktype_ik_tip_target)||App::userSettings->showOldDlgs )
                 ui->qqLinkTypeCombo->addItem(IDS_DUMMY_LINK_TYPE_IK_TIP_TARGET,QVariant(sim_dummy_linktype_ik_tip_target));
             if (it->getLinkType()==sim_dummy_linktype_gcs_loop_closure)
                 ui->qqLinkTypeCombo->addItem(IDS_DUMMY_LINK_TYPE_GCS_LOOP_CLOSURE,QVariant(sim_dummy_linktype_gcs_loop_closure));

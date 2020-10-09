@@ -2110,69 +2110,6 @@ simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque)
     return(-1);
 }
 
-simInt simGetPathPosition_internal(simInt objectHandle,simFloat* position)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,objectHandle))
-            return(-1);
-        if (!isPath(__func__,objectHandle))
-            return(-1);
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
-        position[0]=float(it->pathContainer->getPosition());
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simSetPathPosition_internal(simInt objectHandle,simFloat position)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,objectHandle))
-            return(-1);
-        if (!isPath(__func__,objectHandle))
-            return(-1);
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
-        it->pathContainer->setPosition(position);
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simGetPathLength_internal(simInt objectHandle,simFloat* length)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,objectHandle))
-            return(-1);
-        if (!isPath(__func__,objectHandle))
-            return(-1);
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
-        length[0]=it->pathContainer->getBezierVirtualPathLength();
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
 simInt simSetJointTargetVelocity_internal(simInt objectHandle,simFloat targetVelocity)
 {
     TRACE_C_API;
@@ -5728,7 +5665,7 @@ simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,
         scriptProperty[0]=it->getScriptType();
         associatedObjectHandle[0]=it->getObjectIDThatScriptIsAttachedTo_child();
         if (it->getThreadedExecution())
-            scriptProperty[0]|=sim_scripttype_threaded;
+            scriptProperty[0]|=sim_scripttype_threaded_old;
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5801,13 +5738,16 @@ simInt simAddScript_internal(simInt scriptProperty)
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int scriptType=scriptProperty;
-        if (scriptProperty&sim_scripttype_threaded)
-            scriptType=scriptProperty-sim_scripttype_threaded;
+        if (scriptProperty&sim_scripttype_threaded_old)
+            scriptType=scriptProperty-sim_scripttype_threaded_old;
         CLuaScriptObject* it=new CLuaScriptObject(scriptType);
-        if (scriptProperty&sim_scripttype_threaded)
+        if (App::userSettings->makeOldThreadedScriptsAvailable)
         {
-            it->setThreadedExecution(true);
-            it->setExecuteJustOnce(true);
+            if (scriptProperty&sim_scripttype_threaded_old)
+            {
+                it->setThreadedExecution(true);
+                it->setExecuteJustOnce(true);
+            }
         }
         int retVal=App::currentWorld->luaScriptContainer->insertScript(it);
         App::setFullDialogRefreshFlag();
@@ -7400,133 +7340,6 @@ simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueI
     return(-1);
 }
 
-simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dataName,const simChar* data,simInt dataLength,simInt antennaHandle,simFloat actionRadius,simFloat emissionAngle1,simFloat emissionAngle2,simFloat persistence)
-{
-    TRACE_C_API;
-
-    if (App::currentWorld->simulation->getSimulationState()==sim_simulation_stopped)
-    {
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if ( (targetID!=0)&&(targetID!=sim_handle_all) )
-        {
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(targetID);
-            if (it==nullptr)
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_TARGET_HANDLE);
-                return(-1);
-            }
-        }
-        if (dataHeader<0)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA_HEADER);
-            return(-1);
-        }
-        if (strlen(dataName)<1)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA_NAME);
-            return(-1);
-        }
-        if (dataLength<1)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA);
-            return(-1);
-        }
-        if (antennaHandle!=sim_handle_default)
-        {
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
-            if (it==nullptr)
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ANTENNA_HANDLE);
-                return(-1);
-            }
-        }
-        actionRadius=tt::getLimitedFloat(0.0f,SIM_MAX_FLOAT,actionRadius);
-        emissionAngle1=tt::getLimitedFloat(0.0f,piValue_f,emissionAngle1);
-        emissionAngle2=tt::getLimitedFloat(0.0f,piValTimes2_f,emissionAngle2);
-        persistence=tt::getLimitedFloat(0.0f,99999999999999.9f,persistence);
-        if (persistence==0.0f)
-            persistence=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())*1.5f/1000000.0f;
-        std::string datN(dataName);
-        App::currentWorld->luaScriptContainer->broadcastDataContainer.broadcastData(0,targetID,dataHeader,datN,
-                        float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+persistence,actionRadius,antennaHandle,
-                        emissionAngle1,emissionAngle2,data,dataLength);
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simChar* simReceiveData_internal(simInt dataHeader,const simChar* dataName,simInt antennaHandle,simInt index,simInt* dataLength,simInt* senderID,simInt* dataHeaderR,simChar** dataNameR)
-{
-    TRACE_C_API;
-
-    if (App::currentWorld->simulation->getSimulationState()==sim_simulation_stopped)
-    {
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
-        return(nullptr);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (dataHeader<0)
-            dataHeader=-1;
-        if (dataName!=nullptr)
-        {
-            if (strlen(dataName)<1)
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA_NAME);
-                return(nullptr);
-            }
-        }
-        if (antennaHandle!=sim_handle_default)
-        {
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
-            if (it==nullptr)
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ANTENNA_HANDLE);
-                return(nullptr);
-            }
-        }
-        if (index<0)
-            index=-1;
-        std::string datNm;
-        if (dataName!=nullptr)
-            datNm=dataName;
-        int theIndex=index;
-        int theSenderID;
-        int theDataHeader;
-        std::string theDataName;
-        char* data0=App::currentWorld->luaScriptContainer->broadcastDataContainer.receiveData(0,float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f,
-                dataHeader,datNm,antennaHandle,dataLength[0],theIndex,theSenderID,theDataHeader,theDataName);
-        char* retData=nullptr;
-        if (data0!=nullptr)
-        {
-            retData=new char[dataLength[0]];
-            for (int i=0;i<dataLength[0];i++)
-                retData[i]=data0[i];
-            if (senderID!=nullptr)
-                senderID[0]=theSenderID;
-            if (dataHeaderR!=nullptr)
-                dataHeaderR[0]=theDataHeader;
-            if (dataNameR!=nullptr)
-            {
-                dataNameR[0]=new char[theDataName.length()+1];
-                for (int i=0;i<int(theDataName.length());i++)
-                    dataNameR[0][i]=theDataName[i];
-                dataNameR[0][theDataName.length()]=0; // terminal zero
-            }
-        }
-        return(retData);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(nullptr);
-}
-
 simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* dataStreamName,simFloat data)
 {
     TRACE_C_API;
@@ -8163,194 +7976,6 @@ simInt simGetModelProperty_internal(simInt objectHandle)
         else
             retVal=sim_modelproperty_not_model;
         return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simGetDataOnPath_internal(simInt pathHandle,simFloat relativeDistance,simInt dataType,simInt* intData,simFloat* floatData)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,pathHandle))
-            return(-1);
-        if (!isPath(__func__,pathHandle))
-            return(-1);
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
-        float auxChannels[4];
-        int auxFlags;
-        if (dataType==0)
-        {
-            if (relativeDistance>-0.5f)
-            { // regular use of the function
-                if (it->pathContainer->getAuxDataOnBezierCurveAtNormalizedVirtualDistance(relativeDistance,auxFlags,auxChannels))
-                {
-                    intData[0]=auxFlags;
-                    for (int i=0;i<4;i++)
-                        floatData[i]=auxChannels[i];
-                    return(1);
-                }
-                else
-                {
-                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_EMPTY);
-                    return(-1);
-                }
-            }
-            else
-            { // We are working with indices pointing on ctrl points. index=-(relativeDistance+1.0)
-                CSimplePathPoint* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5f));
-                if (ctrlPt!=nullptr)
-                {
-                    intData[0]=ctrlPt->getAuxFlags();
-                    ctrlPt->getAuxChannels(floatData);
-                    return(1);
-                }
-                else
-                {
-                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CTRL_PT);
-                    return(-1);
-                }
-            }
-        }
-        else
-            return(-1);
-
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-
-simInt simGetPositionOnPath_internal(simInt pathHandle,simFloat relativeDistance,simFloat* position)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,pathHandle))
-            return(-1);
-        if (!isPath(__func__,pathHandle))
-            return(-1);
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
-        C7Vector tr;
-
-        if (relativeDistance>-0.5f)
-        { // regular use of the function
-            if (it->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(relativeDistance,tr))
-            {
-                tr=it->getCumulativeTransformation()*tr;
-                tr.X.copyTo(position);
-                return(1);
-            }
-            else
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_EMPTY);
-                return(-1);
-            }
-        }
-        else
-        { // We are working with indices pointing on ctrl points. index=-(relativeDistance+1.0)
-            CSimplePathPoint* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5f));
-            if (ctrlPt!=nullptr)
-            {
-                tr=ctrlPt->getTransformation();
-                tr=it->getCumulativeTransformation()*tr;
-                tr.X.copyTo(position);
-                return(1);
-            }
-            else
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CTRL_PT);
-                return(-1);
-            }
-        }
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simGetOrientationOnPath_internal(simInt pathHandle,simFloat relativeDistance,simFloat* eulerAngles)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,pathHandle))
-            return(-1);
-        if (!isPath(__func__,pathHandle))
-            return(-1);
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
-        C7Vector tr;
-        if (relativeDistance>-0.5f)
-        { // regular use of the function
-            if (it->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(relativeDistance,tr))
-            {
-                tr=it->getCumulativeTransformation()*tr;
-                C3Vector(tr.Q.getEulerAngles()).copyTo(eulerAngles);
-                return(1);
-            }
-            else
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_EMPTY);
-                return(-1);
-            }
-        }
-        else
-        { // We are working with indices pointing on ctrl points. index=-(relativeDistance+1.0)
-            CSimplePathPoint* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5f));
-            if (ctrlPt!=nullptr)
-            {
-                tr=ctrlPt->getTransformation();
-                tr=it->getCumulativeTransformation()*tr;
-                C3Vector(tr.Q.getEulerAngles()).copyTo(eulerAngles);
-                return(1);
-            }
-            else
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CTRL_PT);
-                return(-1);
-            }
-        }
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simGetClosestPositionOnPath_internal(simInt pathHandle,simFloat* absolutePosition,simFloat* pathPosition)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,pathHandle))
-            return(-1);
-        if (!isPath(__func__,pathHandle))
-            return(-1);
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
-        C3Vector p(absolutePosition);
-        if (it->pathContainer->getPositionOnPathClosestTo(p,*pathPosition))
-        {
-            float pl=it->pathContainer->getBezierVirtualPathLength();
-            if (pl!=0.0f)
-                *pathPosition/=pl;
-            return(1);
-        }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_EMPTY);
-        return(-1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
@@ -9230,9 +8855,7 @@ simInt simSerialRead_internal(simInt portHandle,simChar* buffer,simInt dataLengt
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
     int retVal=-1;
 #ifdef SIM_WITH_SERIAL
     std::string data;
@@ -9280,137 +8903,6 @@ simInt simGetContactInfo_internal(simInt dynamicPass,simInt objectHandle,simInt 
         int retVal=0;
         if (App::currentWorld->dynamicsContainer->getContactForce(dynamicPass,objectHandle,index,objectHandles,contactInfo)!=0)
             retVal=1;
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simSetThreadIsFree_internal(simBool freeMode)
-{
-    TRACE_C_API;
-
-    if (VThread::isCurrentThreadTheMainSimulationThread())
-    {
-
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_CANNOT_BE_CALLED_FROM_MAIN_THREAD);
-        return(-1);
-    }
-    if (CThreadPool::setThreadFreeMode(freeMode!=0))
-        return(1);
-    return(0);
-}
-
-
-simInt simTubeOpen_internal(simInt dataHeader,const simChar* dataName,simInt readBufferSize,simBool notUsedButKeepFalse)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int retVal;
-        retVal=App::currentWorld->commTubeContainer->openTube(dataHeader,dataName,false,readBufferSize);
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simTubeClose_internal(simInt tubeHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int retVal=0;
-        if (tubeHandle&1)
-        { // not used anymore
-        }
-        else
-        {
-            if (App::currentWorld->commTubeContainer->closeTube(tubeHandle))
-                retVal=1;
-        }
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simTubeWrite_internal(simInt tubeHandle,const simChar* data,simInt dataLength)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int retVal=0;
-        if (tubeHandle&1)
-        { // not used anymore
-        }
-        else
-        {
-            if (App::currentWorld->commTubeContainer->writeToTube_copyBuffer(tubeHandle,data,dataLength))
-                retVal=1;
-        }
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simChar* simTubeRead_internal(simInt tubeHandle,simInt* dataLength)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(nullptr);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        char* retVal;
-        retVal=App::currentWorld->commTubeContainer->readFromTube_bufferNotCopied(tubeHandle,dataLength[0]);
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(nullptr);
-}
-
-simInt simTubeStatus_internal(simInt tubeHandle,simInt* readPacketsCount,simInt* writePacketsCount)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int readP=0;
-        int writeP=0;
-        int retVal;
-        retVal=App::currentWorld->commTubeContainer->getTubeStatus(tubeHandle,readP,writeP);
-        if (readPacketsCount!=nullptr)
-            readPacketsCount[0]=readP;
-        if (writePacketsCount!=nullptr)
-            writePacketsCount[0]=writeP;
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -9885,135 +9377,6 @@ simInt simCreateDummy_internal(simFloat size,const simFloat* color)
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         int retVal=it->getObjectHandle();
         return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simInt simCreatePath_internal(simInt attributes,const simInt* intParams,const simFloat* floatParams,const simFloat* color)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        CPath* newObject=new CPath();
-        App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-        if (attributes!=-1)
-            newObject->pathContainer->setAttributes(attributes);
-
-        if (intParams!=nullptr)
-        {
-            newObject->pathContainer->setLineSize(intParams[0]);
-            newObject->pathContainer->setPathLengthCalculationMethod(intParams[1]);
-        }
-
-        if (floatParams!=nullptr)
-        {
-            newObject->pathContainer->setSquareSize(floatParams[0]);
-            newObject->pathContainer->setAngleVarToDistanceCoeff(floatParams[1]);
-            newObject->pathContainer->setOnSpotDistanceToDistanceCoeff(floatParams[2]);
-        }
-
-        if (color!=nullptr)
-        {
-            newObject->pathContainer->_lineColor.setColor(color+0,sim_colorcomponent_ambient_diffuse);
-            newObject->pathContainer->_lineColor.setColor(color+6,sim_colorcomponent_specular);
-            newObject->pathContainer->_lineColor.setColor(color+9,sim_colorcomponent_emission);
-        }
-
-        int retVal=newObject->getObjectHandle();
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simInt simInsertPathCtrlPoints_internal(simInt pathHandle,simInt options,simInt startIndex,simInt ptCnt,const simVoid* ptData)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
-        if (path==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_INEXISTANT);
-            return(-1);
-        }
-
-        path->pathContainer->enableActualization(false);
-        int fiCnt=11;
-        if (options&2)
-            fiCnt=16;
-
-        for (int i=0;i<ptCnt;i++)
-        {
-            CSimplePathPoint* pt=new CSimplePathPoint();
-            C7Vector tr(C4Vector(((float*)ptData)[fiCnt*i+3],((float*)ptData)[fiCnt*i+4],((float*)ptData)[fiCnt*i+5]),C3Vector(((float*)ptData)+fiCnt*i+0));
-            pt->setTransformation(tr,path->pathContainer->getAttributes());
-            pt->setMaxRelAbsVelocity(((float*)ptData)[fiCnt*i+6]);
-            pt->setOnSpotDistance(((float*)ptData)[fiCnt*i+7]);
-            pt->setBezierPointCount(((int*)ptData)[fiCnt*i+8]);
-            pt->setBezierFactors(((float*)ptData)[fiCnt*i+9],((float*)ptData)[fiCnt*i+10]);
-            if (options&2)
-            {
-                pt->setAuxFlags(((int*)ptData)[fiCnt*i+11]);
-                pt->setAuxChannels(((float*)ptData)+fiCnt*i+12);
-            }
-            path->pathContainer->insertSimplePathPoint(pt,startIndex+i);
-        }
-        if (options&1)
-            path->pathContainer->setAttributes(path->pathContainer->getAttributes()|sim_pathproperty_closed_path);
-        else
-            path->pathContainer->setAttributes((path->pathContainer->getAttributes()|sim_pathproperty_closed_path)-sim_pathproperty_closed_path);
-        path->pathContainer->enableActualization(true);
-        path->pathContainer->actualizePath();
-        App::setFullDialogRefreshFlag();
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simInt simCutPathCtrlPoints_internal(simInt pathHandle,simInt startIndex,simInt ptCnt)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
-        if (path==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_INEXISTANT);
-            return(-1);
-        }
-        if ((startIndex<0)||(ptCnt<0))
-            path->pathContainer->removeAllSimplePathPoints();
-        else
-        {
-            path->pathContainer->enableActualization(false);
-            for (int i=0;i<ptCnt;i++)
-                path->pathContainer->removeSimplePathPoint(startIndex);
-            path->pathContainer->enableActualization(true);
-            path->pathContainer->actualizePath();
-        }
-        App::setFullDialogRefreshFlag();
-        return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
@@ -15214,7 +14577,7 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
         {
             intOrBoolVal[0]=it->getScriptType();
             if (it->getThreadedExecution())
-                intOrBoolVal[0]|=sim_scripttype_threaded;
+                intOrBoolVal[0]|=sim_scripttype_threaded_old;
             retVal=1;
         }
         return(retVal);
@@ -15572,7 +14935,7 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
             script=App::worldContainer->sandboxScript;
         if (scriptHandleOrType==sim_scripttype_addonscript)
             script=App::worldContainer->addOnScriptContainer->getAddOnScriptFromName(scriptName.c_str());
-        if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==(sim_scripttype_childscript|sim_scripttype_threaded)) )
+        if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==(sim_scripttype_childscript|sim_scripttype_threaded_old)) )
         {
             int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
             script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
@@ -20840,7 +20203,7 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
                 funcName=funcNameAtScriptName;
             if (scriptHandleOrType==sim_scripttype_mainscript)
                 script=App::currentWorld->luaScriptContainer->getMainScript();
-            if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==(sim_scripttype_childscript|sim_scripttype_threaded)) )
+            if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==(sim_scripttype_childscript|sim_scripttype_threaded_old)) )
             {
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
                 script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
@@ -21687,6 +21050,643 @@ simInt simSetIkElementProperties_internal(simInt ikGroupHandle,simInt tipDummyHa
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetThreadIsFree_internal(simBool freeMode)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (VThread::isCurrentThreadTheMainSimulationThread())
+    {
+
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_CANNOT_BE_CALLED_FROM_MAIN_THREAD);
+        return(-1);
+    }
+    if (CThreadPool::setThreadFreeMode(freeMode!=0))
+        return(1);
+    return(0);
+}
+
+simInt simTubeOpen_internal(simInt dataHeader,const simChar* dataName,simInt readBufferSize,simBool notUsedButKeepFalse)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+    {
+        return(-1);
+    }
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal;
+        retVal=App::currentWorld->commTubeContainer->openTube(dataHeader,dataName,false,readBufferSize);
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simTubeClose_internal(simInt tubeHandle)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+    {
+        return(-1);
+    }
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal=0;
+        if (tubeHandle&1)
+        { // not used anymore
+        }
+        else
+        {
+            if (App::currentWorld->commTubeContainer->closeTube(tubeHandle))
+                retVal=1;
+        }
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simTubeWrite_internal(simInt tubeHandle,const simChar* data,simInt dataLength)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+    {
+        return(-1);
+    }
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal=0;
+        if (tubeHandle&1)
+        { // not used anymore
+        }
+        else
+        {
+            if (App::currentWorld->commTubeContainer->writeToTube_copyBuffer(tubeHandle,data,dataLength))
+                retVal=1;
+        }
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simChar* simTubeRead_internal(simInt tubeHandle,simInt* dataLength)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+    {
+        return(nullptr);
+    }
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        char* retVal;
+        retVal=App::currentWorld->commTubeContainer->readFromTube_bufferNotCopied(tubeHandle,dataLength[0]);
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simTubeStatus_internal(simInt tubeHandle,simInt* readPacketsCount,simInt* writePacketsCount)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+    {
+        return(-1);
+    }
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int readP=0;
+        int writeP=0;
+        int retVal;
+        retVal=App::currentWorld->commTubeContainer->getTubeStatus(tubeHandle,readP,writeP);
+        if (readPacketsCount!=nullptr)
+            readPacketsCount[0]=readP;
+        if (writePacketsCount!=nullptr)
+            writePacketsCount[0]=writeP;
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dataName,const simChar* data,simInt dataLength,simInt antennaHandle,simFloat actionRadius,simFloat emissionAngle1,simFloat emissionAngle2,simFloat persistence)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (App::currentWorld->simulation->getSimulationState()==sim_simulation_stopped)
+    {
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
+        return(-1);
+    }
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if ( (targetID!=0)&&(targetID!=sim_handle_all) )
+        {
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(targetID);
+            if (it==nullptr)
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_TARGET_HANDLE);
+                return(-1);
+            }
+        }
+        if (dataHeader<0)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA_HEADER);
+            return(-1);
+        }
+        if (strlen(dataName)<1)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA_NAME);
+            return(-1);
+        }
+        if (dataLength<1)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
+        if (antennaHandle!=sim_handle_default)
+        {
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
+            if (it==nullptr)
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ANTENNA_HANDLE);
+                return(-1);
+            }
+        }
+        actionRadius=tt::getLimitedFloat(0.0f,SIM_MAX_FLOAT,actionRadius);
+        emissionAngle1=tt::getLimitedFloat(0.0f,piValue_f,emissionAngle1);
+        emissionAngle2=tt::getLimitedFloat(0.0f,piValTimes2_f,emissionAngle2);
+        persistence=tt::getLimitedFloat(0.0f,99999999999999.9f,persistence);
+        if (persistence==0.0f)
+            persistence=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())*1.5f/1000000.0f;
+        std::string datN(dataName);
+        App::currentWorld->luaScriptContainer->broadcastDataContainer.broadcastData(0,targetID,dataHeader,datN,
+                        float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+persistence,actionRadius,antennaHandle,
+                        emissionAngle1,emissionAngle2,data,dataLength);
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simChar* simReceiveData_internal(simInt dataHeader,const simChar* dataName,simInt antennaHandle,simInt index,simInt* dataLength,simInt* senderID,simInt* dataHeaderR,simChar** dataNameR)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (App::currentWorld->simulation->getSimulationState()==sim_simulation_stopped)
+    {
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
+        return(nullptr);
+    }
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (dataHeader<0)
+            dataHeader=-1;
+        if (dataName!=nullptr)
+        {
+            if (strlen(dataName)<1)
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA_NAME);
+                return(nullptr);
+            }
+        }
+        if (antennaHandle!=sim_handle_default)
+        {
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
+            if (it==nullptr)
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ANTENNA_HANDLE);
+                return(nullptr);
+            }
+        }
+        if (index<0)
+            index=-1;
+        std::string datNm;
+        if (dataName!=nullptr)
+            datNm=dataName;
+        int theIndex=index;
+        int theSenderID;
+        int theDataHeader;
+        std::string theDataName;
+        char* data0=App::currentWorld->luaScriptContainer->broadcastDataContainer.receiveData(0,float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f,
+                dataHeader,datNm,antennaHandle,dataLength[0],theIndex,theSenderID,theDataHeader,theDataName);
+        char* retData=nullptr;
+        if (data0!=nullptr)
+        {
+            retData=new char[dataLength[0]];
+            for (int i=0;i<dataLength[0];i++)
+                retData[i]=data0[i];
+            if (senderID!=nullptr)
+                senderID[0]=theSenderID;
+            if (dataHeaderR!=nullptr)
+                dataHeaderR[0]=theDataHeader;
+            if (dataNameR!=nullptr)
+            {
+                dataNameR[0]=new char[theDataName.length()+1];
+                for (int i=0;i<int(theDataName.length());i++)
+                    dataNameR[0][i]=theDataName[i];
+                dataNameR[0][theDataName.length()]=0; // terminal zero
+            }
+        }
+        return(retData);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simGetDataOnPath_internal(simInt pathHandle,simFloat relativeDistance,simInt dataType,simInt* intData,simFloat* floatData)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,pathHandle))
+            return(-1);
+        if (!isPath(__func__,pathHandle))
+            return(-1);
+        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
+        float auxChannels[4];
+        int auxFlags;
+        if (dataType==0)
+        {
+            if (relativeDistance>-0.5f)
+            { // regular use of the function
+                if (it->pathContainer->getAuxDataOnBezierCurveAtNormalizedVirtualDistance(relativeDistance,auxFlags,auxChannels))
+                {
+                    intData[0]=auxFlags;
+                    for (int i=0;i<4;i++)
+                        floatData[i]=auxChannels[i];
+                    return(1);
+                }
+                else
+                {
+                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_EMPTY);
+                    return(-1);
+                }
+            }
+            else
+            { // We are working with indices pointing on ctrl points. index=-(relativeDistance+1.0)
+                CSimplePathPoint* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5f));
+                if (ctrlPt!=nullptr)
+                {
+                    intData[0]=ctrlPt->getAuxFlags();
+                    ctrlPt->getAuxChannels(floatData);
+                    return(1);
+                }
+                else
+                {
+                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CTRL_PT);
+                    return(-1);
+                }
+            }
+        }
+        else
+            return(-1);
+
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+
+simInt simGetPositionOnPath_internal(simInt pathHandle,simFloat relativeDistance,simFloat* position)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,pathHandle))
+            return(-1);
+        if (!isPath(__func__,pathHandle))
+            return(-1);
+        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
+        C7Vector tr;
+
+        if (relativeDistance>-0.5f)
+        { // regular use of the function
+            if (it->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(relativeDistance,tr))
+            {
+                tr=it->getCumulativeTransformation()*tr;
+                tr.X.copyTo(position);
+                return(1);
+            }
+            else
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_EMPTY);
+                return(-1);
+            }
+        }
+        else
+        { // We are working with indices pointing on ctrl points. index=-(relativeDistance+1.0)
+            CSimplePathPoint* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5f));
+            if (ctrlPt!=nullptr)
+            {
+                tr=ctrlPt->getTransformation();
+                tr=it->getCumulativeTransformation()*tr;
+                tr.X.copyTo(position);
+                return(1);
+            }
+            else
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CTRL_PT);
+                return(-1);
+            }
+        }
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetOrientationOnPath_internal(simInt pathHandle,simFloat relativeDistance,simFloat* eulerAngles)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,pathHandle))
+            return(-1);
+        if (!isPath(__func__,pathHandle))
+            return(-1);
+        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
+        C7Vector tr;
+        if (relativeDistance>-0.5f)
+        { // regular use of the function
+            if (it->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(relativeDistance,tr))
+            {
+                tr=it->getCumulativeTransformation()*tr;
+                C3Vector(tr.Q.getEulerAngles()).copyTo(eulerAngles);
+                return(1);
+            }
+            else
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_EMPTY);
+                return(-1);
+            }
+        }
+        else
+        { // We are working with indices pointing on ctrl points. index=-(relativeDistance+1.0)
+            CSimplePathPoint* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5f));
+            if (ctrlPt!=nullptr)
+            {
+                tr=ctrlPt->getTransformation();
+                tr=it->getCumulativeTransformation()*tr;
+                C3Vector(tr.Q.getEulerAngles()).copyTo(eulerAngles);
+                return(1);
+            }
+            else
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CTRL_PT);
+                return(-1);
+            }
+        }
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetClosestPositionOnPath_internal(simInt pathHandle,simFloat* absolutePosition,simFloat* pathPosition)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,pathHandle))
+            return(-1);
+        if (!isPath(__func__,pathHandle))
+            return(-1);
+        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
+        C3Vector p(absolutePosition);
+        if (it->pathContainer->getPositionOnPathClosestTo(p,*pathPosition))
+        {
+            float pl=it->pathContainer->getBezierVirtualPathLength();
+            if (pl!=0.0f)
+                *pathPosition/=pl;
+            return(1);
+        }
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_EMPTY);
+        return(-1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetPathPosition_internal(simInt objectHandle,simFloat* position)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        if (!isPath(__func__,objectHandle))
+            return(-1);
+        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
+        position[0]=float(it->pathContainer->getPosition());
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetPathPosition_internal(simInt objectHandle,simFloat position)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        if (!isPath(__func__,objectHandle))
+            return(-1);
+        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
+        it->pathContainer->setPosition(position);
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetPathLength_internal(simInt objectHandle,simFloat* length)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        if (!isPath(__func__,objectHandle))
+            return(-1);
+        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
+        length[0]=it->pathContainer->getBezierVirtualPathLength();
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simCreatePath_internal(simInt attributes,const simInt* intParams,const simFloat* floatParams,const simFloat* color)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+    {
+        return(-1);
+    }
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CPath* newObject=new CPath();
+        App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
+        if (attributes!=-1)
+            newObject->pathContainer->setAttributes(attributes);
+
+        if (intParams!=nullptr)
+        {
+            newObject->pathContainer->setLineSize(intParams[0]);
+            newObject->pathContainer->setPathLengthCalculationMethod(intParams[1]);
+        }
+
+        if (floatParams!=nullptr)
+        {
+            newObject->pathContainer->setSquareSize(floatParams[0]);
+            newObject->pathContainer->setAngleVarToDistanceCoeff(floatParams[1]);
+            newObject->pathContainer->setOnSpotDistanceToDistanceCoeff(floatParams[2]);
+        }
+
+        if (color!=nullptr)
+        {
+            newObject->pathContainer->_lineColor.setColor(color+0,sim_colorcomponent_ambient_diffuse);
+            newObject->pathContainer->_lineColor.setColor(color+6,sim_colorcomponent_specular);
+            newObject->pathContainer->_lineColor.setColor(color+9,sim_colorcomponent_emission);
+        }
+
+        int retVal=newObject->getObjectHandle();
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simInsertPathCtrlPoints_internal(simInt pathHandle,simInt options,simInt startIndex,simInt ptCnt,const simVoid* ptData)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+    {
+        return(-1);
+    }
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
+        if (path==nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_INEXISTANT);
+            return(-1);
+        }
+
+        path->pathContainer->enableActualization(false);
+        int fiCnt=11;
+        if (options&2)
+            fiCnt=16;
+
+        for (int i=0;i<ptCnt;i++)
+        {
+            CSimplePathPoint* pt=new CSimplePathPoint();
+            C7Vector tr(C4Vector(((float*)ptData)[fiCnt*i+3],((float*)ptData)[fiCnt*i+4],((float*)ptData)[fiCnt*i+5]),C3Vector(((float*)ptData)+fiCnt*i+0));
+            pt->setTransformation(tr,path->pathContainer->getAttributes());
+            pt->setMaxRelAbsVelocity(((float*)ptData)[fiCnt*i+6]);
+            pt->setOnSpotDistance(((float*)ptData)[fiCnt*i+7]);
+            pt->setBezierPointCount(((int*)ptData)[fiCnt*i+8]);
+            pt->setBezierFactors(((float*)ptData)[fiCnt*i+9],((float*)ptData)[fiCnt*i+10]);
+            if (options&2)
+            {
+                pt->setAuxFlags(((int*)ptData)[fiCnt*i+11]);
+                pt->setAuxChannels(((float*)ptData)+fiCnt*i+12);
+            }
+            path->pathContainer->insertSimplePathPoint(pt,startIndex+i);
+        }
+        if (options&1)
+            path->pathContainer->setAttributes(path->pathContainer->getAttributes()|sim_pathproperty_closed_path);
+        else
+            path->pathContainer->setAttributes((path->pathContainer->getAttributes()|sim_pathproperty_closed_path)-sim_pathproperty_closed_path);
+        path->pathContainer->enableActualization(true);
+        path->pathContainer->actualizePath();
+        App::setFullDialogRefreshFlag();
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simCutPathCtrlPoints_internal(simInt pathHandle,simInt startIndex,simInt ptCnt)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+    {
+        return(-1);
+    }
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
+        if (path==nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_INEXISTANT);
+            return(-1);
+        }
+        if ((startIndex<0)||(ptCnt<0))
+            path->pathContainer->removeAllSimplePathPoints();
+        else
+        {
+            path->pathContainer->enableActualization(false);
+            for (int i=0;i<ptCnt;i++)
+                path->pathContainer->removeSimplePathPoint(startIndex);
+            path->pathContainer->enableActualization(true);
+            path->pathContainer->actualizePath();
+        }
+        App::setFullDialogRefreshFlag();
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 

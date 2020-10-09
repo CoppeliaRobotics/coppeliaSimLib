@@ -876,7 +876,6 @@ int CPathCont::getBezierPathPointCount()
 
 void CPathCont::copyPointsToClipboard()
 {
-  //  bla
     std::string txt="path={";
     for (size_t i=0;i<_bezierPathPoints.size();i++)
     {
@@ -888,43 +887,55 @@ void CPathCont::copyPointsToClipboard()
         tr.Q.getInternalData(q,true);
         for (size_t j=0;j<4;j++)
         {
-            txt+=tt::getEString(false,q[j],4)+",";;
+            txt+=tt::getEString(false,q[j],4);
             if (j<3)
                 txt+=",";
         }
         txt+="}";
+        if (i<_bezierPathPoints.size()-1)
+            txt+=",";
     }
     txt+="}";
-    printf(txt.c_str());
-    VVarious::copyTextToClipboard(txt.c_str());
-/*
-    void setTransformation(const C7Vector& tr,int attributes);
-    C7Vector getTransformation();
-    void setMaxRelAbsVelocity(float t);
-    float getMaxRelAbsVelocity();
-    void setOnSpotDistance(float d);
-    float getOnSpotDistance();
-    void setAuxFlags(unsigned short f);
-    unsigned short getAuxFlags();
-    void setAuxChannels(const float c[4]);
-    void getAuxChannels(float c[4]);
+    App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
 
-protected:
-    C7Vector _transformation;
-    float _maxRelAbsVelocity;
-    float _onSpotDistance;
-    unsigned short _auxFlags;
-    float _auxChannels[4];
+    txt="virtualDistances={";
+    for (size_t i=0;i<_bezierPathPoints.size();i++)
+    {
+        txt+=tt::getEString(false,_bezierPathPoints[i]->getOnSpotDistance(),4);
+        if (i<_bezierPathPoints.size()-1)
+            txt+=",";
+    }
+    txt+="}";
+    App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
 
-    float cumulativeLength;
-    float segmentLength;
-    float cumulativeAngle;
-    float segmentAngleVariation;
-    float cumulativeOnSpotDistance;
-    float segmentOnSpotDistance;
-    float virtualSegmentLength;
-    float virtualCumulativeLength;
-*/
+    txt="auxFlags={";
+    for (size_t i=0;i<_bezierPathPoints.size();i++)
+    {
+        txt+=tt::getIString(false,_bezierPathPoints[i]->getAuxFlags());
+        if (i<_bezierPathPoints.size()-1)
+            txt+=",";
+    }
+    txt+="}";
+    App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
+
+    txt="auxChannels={";
+    for (size_t i=0;i<_bezierPathPoints.size();i++)
+    {
+        txt+="{";
+        float c[4];
+        _bezierPathPoints[i]->getAuxChannels(c);
+        for (size_t j=0;j<4;j++)
+        {
+            txt+=tt::getEString(false,c[j],4);
+            if (j<3)
+                txt+=",";
+        }
+        txt+="}";
+        if (i<_bezierPathPoints.size()-1)
+            txt+=",";
+    }
+    txt+="}";
+    App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
 }
 
 

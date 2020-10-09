@@ -71,6 +71,7 @@ void CQDlgScripts::refresh()
     ui->qqAssociatedObjectCombo->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqDisabled->setEnabled((theScript!=nullptr)&&noEditMode&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqExecuteOnce->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&(theScript->getScriptType()==sim_scripttype_childscript)&&theScript->getThreadedExecution());
+    ui->qqExecuteOnce->setVisible(App::userSettings->makeOldThreadedScriptsAvailable);
 
     if (theScript!=nullptr)
     {
@@ -250,7 +251,7 @@ void CQDlgScripts::on_qqAddNewScript_clicked()
         theDialog.initialize();
         if (theDialog.makeDialogModal()!=VDIALOG_MODAL_RETURN_CANCEL)
         {
-            if (theDialog.scriptType==sim_scripttype_mainscript)
+            if (theDialog.scriptType==0)
             {
                 scriptViewMode=0;
                 CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getMainScript();
@@ -265,17 +266,22 @@ void CQDlgScripts::on_qqAddNewScript_clicked()
                 else
                     App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_mainscript,0);
             }
-            if (theDialog.scriptType==sim_scripttype_childscript)
+            if (theDialog.scriptType==1)
             {
                 scriptViewMode=0;
                 App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_childscript,0);
             }
-            if (theDialog.scriptType==(sim_scripttype_childscript|sim_scripttype_threaded))
+            if (theDialog.scriptType==2)
             {
                 scriptViewMode=0;
                 App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_childscript,1);
             }
-            if (theDialog.scriptType==sim_scripttype_customizationscript)
+            if (theDialog.scriptType==3)
+            {
+                scriptViewMode=0;
+                App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_childscript,2);
+            }
+            if (theDialog.scriptType==4)
             {
                 scriptViewMode=1;
                 App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_customizationscript,0);

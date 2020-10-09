@@ -28,8 +28,6 @@ private slots:
 
     void on_dummiesButton_clicked();
 
-    void on_millsButton_clicked();
-
     void on_camerasButton_clicked();
 
     void on_lightsButton_clicked();
@@ -49,8 +47,6 @@ private slots:
     void on_clearSelectionButton_clicked();
 
     void on_invertSelectionButton_clicked();
-
-    void on_mirrorsButton_clicked();
 
     void on_octreesButton_clicked();
 

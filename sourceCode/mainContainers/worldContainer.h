@@ -38,6 +38,13 @@ public:
     bool isWorldSwitchingLocked() const;
     void getAllSceneNames(std::vector<std::string>& l) const;
 
+    void simulationAboutToStart();
+    void simulationPaused();
+    void simulationAboutToResume();
+    void simulationAboutToStep();
+    void simulationAboutToEnd();
+    void simulationEnded(bool removeNewObjects);
+
     CCopyBuffer* copyBuffer;
     CPersistentDataContainer* persistentDataContainer;
     CSimulatorMessageQueue* simulatorMessageQueue;

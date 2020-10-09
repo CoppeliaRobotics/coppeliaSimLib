@@ -256,7 +256,7 @@ bool CSimulation::startOrResumeSimulation()
         CThreadPool::setSimulationEmergencyStop(false);
         CThreadPool::setRequestSimulationStop(false);
         CLuaScriptObject::emergencyStopButtonPressed=false;
-        App::currentWorld->simulationAboutToStart();
+        App::worldContainer->simulationAboutToStart();
         _speedModifierIndexOffset=0;
         _pauseOnErrorRequested=false;
         _realTimeCorrection_us=0;
@@ -273,7 +273,7 @@ bool CSimulation::startOrResumeSimulation()
     }
     else if (isSimulationPaused())
     {
-        App::currentWorld->simulationAboutToResume();
+        App::worldContainer->simulationAboutToResume();
 
         _realTimeCorrection_us=0;
         simulationState=sim_simulation_advancing_firstafterpause;
@@ -297,7 +297,7 @@ bool CSimulation::stopSimulation()
         return(true); // in this situation, we are stopping anyway!!
     if (simulationState==sim_simulation_paused)
     {
-        App::currentWorld->simulationAboutToResume();
+        App::worldContainer->simulationAboutToResume();
 
         // Special case here: we have to change the state directly here (and not automatically in "advanceSimulationByOneStep")
         simulationState=sim_simulation_advancing_firstafterpause;
@@ -362,7 +362,7 @@ void CSimulation::advanceSimulationByOneStep()
         }
     }
 
-    App::currentWorld->simulationAboutToStep();
+    App::worldContainer->simulationAboutToStep();
 
     _simulationStepCount++;
     if (_simulationStepCount==1)
@@ -402,7 +402,7 @@ void CSimulation::advanceSimulationByOneStep()
     else if (simulationState==sim_simulation_advancing_lastbeforepause)
     {
         simulationState=sim_simulation_paused;
-        App::currentWorld->simulationPaused();
+        App::worldContainer->simulationPaused();
     }
     else if (simulationState==sim_simulation_advancing_firstafterpause)
     {
@@ -416,12 +416,12 @@ void CSimulation::advanceSimulationByOneStep()
     }
     else if (simulationState==sim_simulation_advancing_lastbeforestop)
     {
-        App::currentWorld->simulationAboutToEnd();
+        App::worldContainer->simulationAboutToEnd();
         CThreadPool::setSimulationEmergencyStop(false);
         CThreadPool::setRequestSimulationStop(false);
         CLuaScriptObject::emergencyStopButtonPressed=false;
         simulationState=sim_simulation_stopped;
-        App::currentWorld->simulationEnded(_removeNewObjectsAtSimulationEnd);
+        App::worldContainer->simulationEnded(_removeNewObjectsAtSimulationEnd);
     }
     while (_desiredFasterOrSlowerSpeed>0)
     {

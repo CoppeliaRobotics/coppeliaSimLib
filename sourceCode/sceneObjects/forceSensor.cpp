@@ -471,8 +471,6 @@ std::string CForceSensor::getObjectTypeInfo() const
 }
 std::string CForceSensor::getObjectTypeInfoExtended() const
 {
-    if (_forceSensorIsBroken)
-        return(IDSOGL_FORCE_SENSOR_BROKEN);
     return(IDSOGL_FORCE_SENSOR);
 }
 bool CForceSensor::isPotentiallyCollidable() const

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>255</height>
+    <height>235</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
      <x>10</x>
      <y>10</y>
      <width>411</width>
-     <height>191</height>
+     <height>171</height>
     </rect>
    </property>
    <property name="title">
@@ -52,25 +52,6 @@
      <rect>
       <x>210</x>
       <y>25</y>
-      <width>190</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>PushButton</string>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="millsButton">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>145</y>
       <width>190</width>
       <height>18</height>
      </rect>
@@ -213,24 +194,8 @@
    <widget class="QToolButton" name="pathsButton">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>105</y>
-      <width>190</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>PushButton</string>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="mirrorsButton">
-    <property name="geometry">
-     <rect>
       <x>10</x>
-      <y>165</y>
+      <y>145</y>
       <width>190</width>
       <height>18</height>
      </rect>
@@ -245,8 +210,8 @@
    <widget class="QToolButton" name="octreesButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>145</y>
+      <x>210</x>
+      <y>125</y>
       <width>190</width>
       <height>18</height>
      </rect>
@@ -262,7 +227,7 @@
     <property name="geometry">
      <rect>
       <x>210</x>
-      <y>125</y>
+      <y>105</y>
       <width>190</width>
       <height>18</height>
      </rect>
@@ -279,7 +244,7 @@
    <property name="geometry">
     <rect>
      <x>15</x>
-     <y>210</y>
+     <y>190</y>
      <width>201</width>
      <height>18</height>
     </rect>
@@ -295,7 +260,7 @@
    <property name="geometry">
     <rect>
      <x>220</x>
-     <y>210</y>
+     <y>190</y>
      <width>201</width>
      <height>18</height>
     </rect>
@@ -311,7 +276,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>230</y>
+     <y>210</y>
      <width>411</width>
      <height>18</height>
     </rect>
@@ -331,12 +296,10 @@
   <tabstop>proximitySensorsButton</tabstop>
   <tabstop>jointsButton</tabstop>
   <tabstop>forceSensorsButton</tabstop>
-  <tabstop>pathsButton</tabstop>
-  <tabstop>graphsButton</tabstop>
   <tabstop>pointCloudsButton</tabstop>
+  <tabstop>graphsButton</tabstop>
   <tabstop>octreesButton</tabstop>
-  <tabstop>millsButton</tabstop>
-  <tabstop>mirrorsButton</tabstop>
+  <tabstop>pathsButton</tabstop>
   <tabstop>clearSelectionButton</tabstop>
   <tabstop>invertSelectionButton</tabstop>
  </tabstops>

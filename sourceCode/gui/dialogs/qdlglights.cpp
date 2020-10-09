@@ -34,6 +34,7 @@ void CQDlgLights::refresh()
 
     ui->qqEnabled->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqLocal->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqLocal->setVisible(App::userSettings->showOldDlgs);
     ui->qqSize->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqLightColor->setEnabled((it!=nullptr)&&noEditModeNoSim);
 

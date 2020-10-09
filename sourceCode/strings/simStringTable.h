@@ -157,7 +157,7 @@
 #define IDSNS_ADDING_A_CAMERA "Adding a camera..."
 #define IDSNS_ADDING_A_LIGHT "Adding a light..."
 #define IDSNS_ADDING_A_DUMMY "Adding a dummy..."
-#define IDSNS_ADDING_AN_OCTREE "Adding an octree..."
+#define IDSNS_ADDING_AN_OCTREE "Adding an OC tree..."
 #define IDSNS_ADDING_A_POINTCLOUD "Adding a point cloud..."
 #define IDSNS_ADDING_A_MIRROR "Adding a mirror..."
 #define IDSNS_ADDING_A_PATH "Adding a path..."
@@ -402,7 +402,7 @@
 #define IDSN_FORCE_SENSOR "Force sensor"
 #define IDSN_LIGHT "Light"
 #define IDSN_MIRROR "Mirror"
-#define IDSN_OCTREE "Octree"
+#define IDSN_OCTREE "OC tree"
 #define IDSN_POINTCLOUD "Point cloud"
 #define IDSN_GRAPH "Graph"
 
@@ -425,7 +425,7 @@
 #define IDS_PATHS               "Paths"
 #define IDS_MILLS               "Mills"
 #define IDS_MIRRORS             "Mirrors"
-#define IDS_OCTREES             "Octrees"
+#define IDS_OCTREES             "OC trees"
 #define IDS_POINTCLOUDS         "Point clouds"
 #define IDS_TOTAL_SELECTED_OBJECTS       "Total selected objects"
 #define IDS_TOTAL_VERTICES      "Total vertices"
@@ -590,7 +590,7 @@
 #define IDS_DIRECTIONAL_MENU_ITEM "Directional"
 
 #define IDS_DUMMY_MENU_ITEM     "Dummy"
-#define IDS_OCTREE_MENU_ITEM     "Octree"
+#define IDS_OCTREE_MENU_ITEM     "OC tree"
 #define IDS_POINTCLOUD_MENU_ITEM     "Point cloud"
 
 #define IDS_GRAPH_MENU_ITEM     "Graph"
@@ -1229,6 +1229,6 @@
 
 #define IDS_SIMULATION__TIME    "Simulation: time"
 #define IDS_SIMULATION_PASS_EXECUTION_TIME "Simulation pass: execution time"
-#define IDS_CHILD_SCRIPT_EXECUTION_TIME "Child scripts: execution time"
+#define IDS_MAIN_SCRIPT_EXECUTION_TIME "Main script: execution time"
 #define IDS_VARIOUS__USER_DEFINED "Various: user-defined"
 // ***********************************************************************************************

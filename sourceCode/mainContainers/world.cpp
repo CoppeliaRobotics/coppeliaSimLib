@@ -648,8 +648,6 @@ void CWorld::simulationAboutToResume()
 
 void CWorld::simulationAboutToStep()
 {
-    App::worldContainer->calcInfo->formatInfo();
-    App::worldContainer->calcInfo->resetInfo();
     _simulationAboutToStep();
 }
 
@@ -1326,19 +1324,26 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName.compare(SER_COLLECTION)==0)
                 {
+                    if (App::userSettings->xrTest==123456789)
+                        App::logMsg(sim_verbosity_errors,"Contains collections...");
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                     CCollection* it=new CCollection();
                     it->serialize(ar);
                     loadedCollectionList.push_back(it);
                     noHit=false;
                 }
-                if ( (theName.compare(SER_BUTTON_BLOCK_OLD)==0)&&(!App::userSettings->disableOpenGlBasedCustomUi) )
+                if (theName.compare(SER_BUTTON_BLOCK_OLD)==0)
                 {
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CButtonBlock* it=new CButtonBlock(1,1,10,10,0);
-                    it->serialize(ar);
-                    loadedButtonBlockList.push_back(it);
-                    noHit=false;
+                    if (App::userSettings->xrTest==123456789)
+                        App::logMsg(sim_verbosity_errors,"Contains old custom UIs...");
+                    if (!App::userSettings->disableOpenGlBasedCustomUi)
+                    {
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        CButtonBlock* it=new CButtonBlock(1,1,10,10,0);
+                        it->serialize(ar);
+                        loadedButtonBlockList.push_back(it);
+                        noHit=false;
+                    }
                 }
                 if (theName.compare(SER_LUA_SCRIPT)==0)
                 {
@@ -1369,6 +1374,8 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName.compare(SER_COLLISION)==0)
                 {
+                    if (App::userSettings->xrTest==123456789)
+                        App::logMsg(sim_verbosity_errors,"Contains collision objects...");
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                     CCollisionObject* it=new CCollisionObject();
                     it->serialize(ar);
@@ -1377,6 +1384,8 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName.compare(SER_DISTANCE)==0)
                 {
+                    if (App::userSettings->xrTest==123456789)
+                        App::logMsg(sim_verbosity_errors,"Contains distance objects...");
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                     CDistanceObject* it=new CDistanceObject();
                     it->serialize(ar);
@@ -1385,6 +1394,8 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName.compare(SER_IK)==0)
                 {
+                    if (App::userSettings->xrTest==123456789)
+                        App::logMsg(sim_verbosity_errors,"Contains IK objects...");
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                     CIkGroup* it=new CIkGroup();
                     it->serialize(ar);
@@ -1393,6 +1404,8 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName==SER_PATH_PLANNING)
                 {
+                    if (App::userSettings->xrTest==123456789)
+                        App::logMsg(sim_verbosity_errors,"Contains path planning objects...");
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                     CPathPlanningTask* it=new CPathPlanningTask();
                     it->serialize(ar);
@@ -1703,7 +1716,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
     }
 
     if ( isScene&&(luaScriptContainer->getMainScript()==nullptr) )
-        luaScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_mainscript,false);
+        luaScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_mainscript,false,false);
 
     CCamera* mainCam=nullptr;
 

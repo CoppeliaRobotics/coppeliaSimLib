@@ -1316,7 +1316,7 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionShapeEdition,SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD);
         }
 
-        if (CSimFlavor::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12)&&App::userSettings->showOldDlgs)
         {
             _toolbarActionPathEdition=_toolbar2->addAction(QIcon(":/toolbarFiles/pathEdition.png"),tr(IDS_PATH_EDITION_TOOLBAR_TIP));
             _toolbarActionPathEdition->setCheckable(true);
@@ -1912,7 +1912,7 @@ void CMainWindow::_actualizetoolbarButtonState()
             _toolbarActionScripts->setEnabled(noEditMode&&noSelector);
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionShapeEdition->setEnabled((noSelector&&(selS==1)&&App::currentWorld->sceneObjects->isLastSelectionAShape()&&App::currentWorld->simulation->isSimulationStopped()&&(editModeContainer->getEditModeType()==NO_EDIT_MODE))||(editModeContainer->getEditModeType()&SHAPE_EDIT_MODE)||(editModeContainer->getEditModeType()&MULTISHAPE_EDIT_MODE));
-        if (CSimFlavor::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12)&&App::userSettings->showOldDlgs)
             _toolbarActionPathEdition->setEnabled((noSelector&&(selS==1)&&App::currentWorld->sceneObjects->isLastSelectionAPath()&&App::currentWorld->simulation->isSimulationStopped()&&(editModeContainer->getEditModeType()==NO_EDIT_MODE))||(editModeContainer->getEditModeType()&PATH_EDIT_MODE));
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionSelection->setEnabled(noEditMode&&noSelector);
@@ -1941,7 +1941,7 @@ void CMainWindow::_actualizetoolbarButtonState()
             _toolbarActionScripts->setChecked(dlgCont->isVisible(LUA_SCRIPT_DLG));
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionShapeEdition->setChecked(editModeContainer->getEditModeType()&SHAPE_EDIT_MODE);
-        if (CSimFlavor::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12)&&App::userSettings->showOldDlgs)
             _toolbarActionPathEdition->setChecked(editModeContainer->getEditModeType()==PATH_EDIT_MODE);
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionSelection->setChecked(dlgCont->isVisible(SELECTION_DLG));

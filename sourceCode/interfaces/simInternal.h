@@ -51,9 +51,6 @@ simInt simSetJointPosition_internal(simInt objectHandle,simFloat position);
 simInt simSetJointTargetPosition_internal(simInt objectHandle,simFloat targetPosition);
 simInt simGetJointTargetPosition_internal(simInt objectHandle,simFloat* targetPosition);
 simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque);
-simInt simGetPathPosition_internal(simInt objectHandle,simFloat* position);
-simInt simSetPathPosition_internal(simInt objectHandle,simFloat position);
-simInt simGetPathLength_internal(simInt objectHandle,simFloat* length);
 simInt simGetJointMatrix_internal(simInt objectHandle,simFloat* matrix);
 simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* matrix);
 simInt simGetJointInterval_internal(simInt objectHandle,simBool* cyclic,simFloat* interval);
@@ -172,8 +169,6 @@ simInt simScaleSelectedObjects_internal(simFloat scalingFactor,simBool scalePosi
 simInt simScaleObjects_internal(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo);
 simInt simDeleteSelectedObjects_internal();
 simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueIdentifier);
-simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dataName,const simChar* data,simInt dataLength,simInt antennaHandle,simFloat actionRadius,simFloat emissionAngle1,simFloat emissionAngle2,simFloat persistence);
-simChar* simReceiveData_internal(simInt dataHeader,const simChar* dataName,simInt antennaHandle,simInt index,simInt* dataLength,simInt* senderID,simInt* dataHeaderR,simChar** dataNameR);
 simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* dataStreamName,simFloat data);
 simInt simAddDrawingObject_internal(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission);
 simInt simRemoveDrawingObject_internal(simInt objectHandle);
@@ -200,10 +195,6 @@ simInt simSetObjectProperty_internal(simInt objectHandle,simInt prop);
 simInt simGetObjectProperty_internal(simInt objectHandle);
 simInt simSetObjectSpecialProperty_internal(simInt objectHandle,simInt prop);
 simInt simGetObjectSpecialProperty_internal(simInt objectHandle);
-simInt simGetPositionOnPath_internal(simInt pathHandle,simFloat relativeDistance,simFloat* position);
-simInt simGetOrientationOnPath_internal(simInt pathHandle,simFloat relativeDistance,simFloat* eulerAngles);
-simInt simGetDataOnPath_internal(simInt pathHandle,simFloat relativeDistance,simInt dataType,simInt* intData,simFloat* floatData);
-simInt simGetClosestPositionOnPath_internal(simInt pathHandle,simFloat* absolutePosition,simFloat* pathPosition);
 simInt simReadForceSensor_internal(simInt objectHandle,simFloat* forceVector,simFloat* torqueVector);
 simInt simBreakForceSensor_internal(simInt objectHandle);
 simInt simGetShapeVertex_internal(simInt shapeHandle,simInt groupElementIndex,simInt vertexIndex,simFloat* relativePosition);
@@ -231,12 +222,6 @@ simInt simSerialSend_internal(simInt portHandle,const simChar* data,simInt dataL
 simInt simSerialRead_internal(simInt portHandle,simChar* buffer,simInt dataLengthToRead);
 simInt simSerialCheck_internal(simInt portHandle);
 simInt simGetContactInfo_internal(simInt dynamicPass,simInt objectHandle,simInt index,simInt* objectHandles,simFloat* contactInfo);
-simInt simSetThreadIsFree_internal(simBool freeMode);
-simInt simTubeOpen_internal(simInt dataHeader,const simChar* dataName,simInt readBufferSize,simBool notUsedButKeepZero);
-simInt simTubeClose_internal(simInt tubeHandle);
-simInt simTubeWrite_internal(simInt tubeHandle,const simChar* data,simInt dataLength);
-simChar* simTubeRead_internal(simInt tubeHandle,simInt* dataLength);
-simInt simTubeStatus_internal(simInt tubeHandle,simInt* readPacketsCount,simInt* writePacketsCount);
 simInt simAuxiliaryConsoleOpen_internal(const simChar* title,simInt maxLines,simInt mode,const simInt* position,const simInt* size,const simFloat* textColor,const simFloat* backgroundColor);
 simInt simAuxiliaryConsoleClose_internal(simInt consoleHandle);
 simInt simAuxiliaryConsoleShow_internal(simInt consoleHandle,simBool showState);
@@ -294,9 +279,6 @@ simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt
 simInt simCreateForceSensor_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
 simInt simCreateVisionSensor_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
 simInt simConvexDecompose_internal(simInt shapeHandle,simInt options,const simInt* intParams,const simFloat* floatParams);
-simInt simCreatePath_internal(simInt attributes,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
-simInt simInsertPathCtrlPoints_internal(simInt pathHandle,simInt options,simInt startIndex,simInt ptCnt,const simVoid* ptData);
-simInt simCutPathCtrlPoints_internal(simInt pathHandle,simInt startIndex,simInt ptCnt);
 simInt simAddGhost_internal(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color);
 simInt simModifyGhost_internal(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation);
 simVoid simQuitSimulator_internal(simBool ignoredArgument);
@@ -628,6 +610,24 @@ simFloat* simGetIkGroupMatrix_internal(simInt ikGroupHandle,simInt options,simIn
 simInt simHandleIkGroup_internal(simInt ikGroupHandle);
 simInt simSetIkGroupProperties_internal(simInt ikGroupHandle,simInt resolutionMethod,simInt maxIterations,simFloat damping,void* reserved);
 simInt simSetIkElementProperties_internal(simInt ikGroupHandle,simInt tipDummyHandle,simInt constraints,const simFloat* precision,const simFloat* weight,void* reserved);
+simInt simSetThreadIsFree_internal(simBool freeMode);
+simInt simTubeOpen_internal(simInt dataHeader,const simChar* dataName,simInt readBufferSize,simBool notUsedButKeepZero);
+simInt simTubeClose_internal(simInt tubeHandle);
+simInt simTubeWrite_internal(simInt tubeHandle,const simChar* data,simInt dataLength);
+simChar* simTubeRead_internal(simInt tubeHandle,simInt* dataLength);
+simInt simTubeStatus_internal(simInt tubeHandle,simInt* readPacketsCount,simInt* writePacketsCount);
+simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dataName,const simChar* data,simInt dataLength,simInt antennaHandle,simFloat actionRadius,simFloat emissionAngle1,simFloat emissionAngle2,simFloat persistence);
+simChar* simReceiveData_internal(simInt dataHeader,const simChar* dataName,simInt antennaHandle,simInt index,simInt* dataLength,simInt* senderID,simInt* dataHeaderR,simChar** dataNameR);
+simInt simGetPositionOnPath_internal(simInt pathHandle,simFloat relativeDistance,simFloat* position);
+simInt simGetOrientationOnPath_internal(simInt pathHandle,simFloat relativeDistance,simFloat* eulerAngles);
+simInt simGetDataOnPath_internal(simInt pathHandle,simFloat relativeDistance,simInt dataType,simInt* intData,simFloat* floatData);
+simInt simGetClosestPositionOnPath_internal(simInt pathHandle,simFloat* absolutePosition,simFloat* pathPosition);
+simInt simGetPathPosition_internal(simInt objectHandle,simFloat* position);
+simInt simSetPathPosition_internal(simInt objectHandle,simFloat position);
+simInt simGetPathLength_internal(simInt objectHandle,simFloat* length);
+simInt simCreatePath_internal(simInt attributes,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
+simInt simInsertPathCtrlPoints_internal(simInt pathHandle,simInt options,simInt startIndex,simInt ptCnt,const simVoid* ptData);
+simInt simCutPathCtrlPoints_internal(simInt pathHandle,simInt startIndex,simInt ptCnt);
 
 
 #endif // !defined(simInternal_INCLUDED_)

@@ -284,6 +284,8 @@ void CGhostObjectContainer::serialize(CSer& ar)
                         ar.loadUnknownData();
                 }
             }
+            if ( (_allObjects.size()!=0)&&(App::userSettings->xrTest==123456789) )
+                App::logMsg(sim_verbosity_errors,"Contains ghosts...");
         }
     }
     else

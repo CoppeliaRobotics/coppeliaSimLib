@@ -44,6 +44,7 @@ void CQDlgCameras::refresh()
     ui->qqFullRotation->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqKeepHeadUp->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqLocalLights->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqLocalLights->setVisible(App::userSettings->showOldDlgs);
     ui->qqAllowPicking->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqManipProxy->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqPerspectiveProjectionAngle->setEnabled((it!=nullptr)&&noEditModeNoSim);

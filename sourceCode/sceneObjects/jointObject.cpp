@@ -1828,6 +1828,8 @@ void CJoint::serialize(CSer& ar)
                         _dynamicMotorControlLoopEnabled=SIM_IS_BIT_SET(dummy,5);
                         _jointHasHybridFunctionality=SIM_IS_BIT_SET(dummy,6);
                         _dynamicMotorPositionControl_torqueModulation=SIM_IS_BIT_SET(dummy,7);
+                        if ( _jointHasHybridFunctionality&&(App::userSettings->xrTest==123456789) )
+                            App::logMsg(sim_verbosity_errors,"Joint has hybrid functionality...");
                     }
                     if (theName.compare("Vaa")==0)
                     {
@@ -1845,6 +1847,11 @@ void CJoint::serialize(CSer& ar)
                         ar >> _jointMode;
                         if (_jointMode==sim_jointmode_reserved_previously_ikdependent)
                             _jointMode=sim_jointmode_dependent; // since 4/7/2014 there is no more an ikdependent mode (ikdependent and dependent are treated as same)
+                        if (App::userSettings->xrTest==123456789)
+                        {
+                            if ( (_jointMode!=sim_jointmode_passive)&&(_jointMode!=sim_jointmode_dependent)&&(_jointMode!=sim_jointmode_force) )
+                                App::logMsg(sim_verbosity_errors,"Joint has deprecated mode...");
+                        }
                     }
                     if (theName.compare("Jdt")==0)
                     {

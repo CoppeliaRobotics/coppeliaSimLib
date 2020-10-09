@@ -12,7 +12,7 @@
 CLuaScriptContainer::CLuaScriptContainer()
 {
     _inMainScriptNow=0;
-    insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_mainscript,false);
+    insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_mainscript,false,false);
 }
 
 CLuaScriptContainer::~CLuaScriptContainer()
@@ -69,19 +69,29 @@ void CLuaScriptContainer::addCallbackStructureObjectToDestroyAtTheEndOfSimulatio
 void CLuaScriptContainer::resetScriptFlagCalledInThisSimulationStep()
 {
     for (size_t i=0;i<allScripts.size();i++)
-        allScripts[i]->setCalledInThisSimulationStep(false);
+        allScripts[i]->resetCalledInThisSimulationStep();
 }
 
-int CLuaScriptContainer::getCalledScriptsCountInThisSimulationStep(int scriptType)
+int CLuaScriptContainer::getCalledScriptsCountInThisSimulationStep(bool onlySimulationScripts)
 {
     int cnt=0;
     for (size_t i=0;i<allScripts.size();i++)
     {
-        bool threaded=(scriptType==(sim_scripttype_childscript|sim_scripttype_threaded));
-        if (threaded)
-            scriptType=sim_scripttype_childscript;
-        if ( (allScripts[i]->getScriptType()==scriptType)&&(allScripts[i]->getThreadedExecution()==threaded)&&allScripts[i]->getCalledInThisSimulationStep() )
-            cnt++;
+        if (allScripts[i]->getCalledInThisSimulationStep())
+        {
+            if (onlySimulationScripts)
+            {
+                if (allScripts[i]->getScriptType()==sim_scripttype_mainscript)
+                    cnt++;
+                if (allScripts[i]->getScriptType()==sim_scripttype_childscript)
+                {
+                    if (!allScripts[i]->getThreadedExecution()) // ignore old threaded scripts
+                        cnt++;
+                }
+            }
+            else
+                cnt++;
+        }
     }
     return(cnt);
 }
@@ -306,10 +316,10 @@ int CLuaScriptContainer::insertScript(CLuaScriptObject* script)
     return(newID);
 }
 
-int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptType,bool threaded)
+int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptType,bool threaded,bool oldThreadedScript)
 { 
     if (scriptType!=sim_scripttype_childscript)
-        threaded=false; // just to make sure
+        oldThreadedScript=false; // just to make sure
     int retVal=-1;
     std::string filenameAndPath(App::folders->getSystemPath()+"/");
 
@@ -317,10 +327,15 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
         filenameAndPath+=DEFAULT_MAINSCRIPT_NAME;
     if (scriptType==sim_scripttype_childscript)
     {
-        if (threaded)
-            filenameAndPath+=DEFAULT_THREADEDCHILDSCRIPT_NAME;
+        if (oldThreadedScript)
+            filenameAndPath+=DEFAULT_THREADEDCHILDSCRIPTOLD_NAME;
         else
-            filenameAndPath+=DEFAULT_NONTHREADEDCHILDSCRIPT_NAME;
+        {
+            if (threaded)
+                filenameAndPath+=DEFAULT_THREADEDCHILDSCRIPT_NAME;
+            else
+                filenameAndPath+=DEFAULT_NONTHREADEDCHILDSCRIPT_NAME;
+        }
     }
 
     if (VFile::doesFileExist(filenameAndPath.c_str()))
@@ -337,9 +352,11 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
             CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
             retVal=insertScript(defScript);
             defScript->setScriptText(defaultScript);
-            defScript->setThreadedExecution(threaded);
-            if (threaded)
+            if (oldThreadedScript)
+            {
+                defScript->setThreadedExecution(true);
                 defScript->setExecuteJustOnce(true);
+            }
             delete[] defaultScript;     
             archive.close();
             file.close();
@@ -351,7 +368,11 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
             CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
             retVal=insertScript(defScript);
             defScript->setScriptText(defaultMessage);
-            defScript->setThreadedExecution(threaded);
+            if (oldThreadedScript)
+            {
+                defScript->setThreadedExecution(true);
+                defScript->setExecuteJustOnce(true);
+            }
         }
     }
     else
@@ -360,7 +381,11 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
         CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
         retVal=insertScript(defScript);
         defScript->setScriptText(defaultMessage);
-        defScript->setThreadedExecution(threaded);
+        if (oldThreadedScript)
+        {
+            defScript->setThreadedExecution(true);
+            defScript->setExecuteJustOnce(true);
+        }
     }
     App::setLightDialogRefreshFlag();
     return(retVal);

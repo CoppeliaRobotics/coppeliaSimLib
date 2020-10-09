@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>350</height>
+    <height>352</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -142,7 +142,7 @@
     </property>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="groupBox_3">
+  <widget class="QGroupBox" name="qqTrajectoryGroup">
    <property name="geometry">
     <rect>
      <x>10</x>

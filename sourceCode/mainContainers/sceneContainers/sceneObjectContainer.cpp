@@ -657,6 +657,8 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_MIRROR)==0)
         {
+            if (App::userSettings->xrTest==123456789)
+                App::logMsg(sim_verbosity_errors,"Contains mirrors...");
             ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
             CMirror* myNewObject=new CMirror();
             myNewObject->serialize(ar);
@@ -705,6 +707,8 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_PATH)==0)
         {
+            if (App::userSettings->xrTest==123456789)
+                App::logMsg(sim_verbosity_errors,"Contains path objects...");
             ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
             CPath* myNewObject=new CPath();
             myNewObject->serialize(ar);
@@ -713,6 +717,8 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_MILL)==0)
         {
+            if (App::userSettings->xrTest==123456789)
+                App::logMsg(sim_verbosity_errors,"Contains mills...");
             ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
             CMill* myNewObject=new CMill();
             myNewObject->serialize(ar);

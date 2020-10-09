@@ -101,7 +101,6 @@ void _raiseErrorOrYieldIfNeeded(luaWrap_lua_State* L,const char* functionName,co
 }
 
 #define LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED() _raiseErrorOrYieldIfNeeded(L,functionName.c_str(),errorString.c_str(),cSideErrorOrWarningReporting)
-#define LUA_RAISE_ERROR_OR_YIELD() _raiseErrorOrYieldIfNeeded(L,functionName.c_str(),errorString.c_str(),cSideErrorOrWarningReporting); LUA_END(0)
 #define SIM_SCRIPT_NAME_SUFFIX "sim_script_name_suffix"
 
 std::vector<int> serialPortHandles;
@@ -113,9 +112,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getObjectAssociatedWithScript",_simGetObjectAssociatedWithScript,"number objectHandle=sim.getObjectAssociatedWithScript(number scriptHandle)",true},
     {"sim.getScriptAssociatedWithObject",_simGetScriptAssociatedWithObject,"number scriptHandle=sim.getScriptAssociatedWithObject(number objectHandle)",true},
     {"sim.getCustomizationScriptAssociatedWithObject",_simGetCustomizationScriptAssociatedWithObject,"number scriptHandle=sim.getCustomizationScriptAssociatedWithObject(number objectHandle)",true},
-    {"sim.getScriptExecutionCount",_simGetScriptExecutionCount,  "number executionCount=sim.getScriptExecutionCount()",true},
-    {"sim.isScriptExecutionThreaded",_simIsScriptExecutionThreaded,"number result=sim.isScriptExecutionThreaded()",true},
-    {"sim.isScriptRunningInThread",_simIsScriptRunningInThread,  "number result=sim.isScriptRunningInThread()",true},
     {"sim.openModule",_simOpenModule,                            "number result=sim.openModule(sim_handle_all)\nnumber result=sim.openModule(string moduleName)",true},
     {"sim.closeModule",_simCloseModule,                          "number result=sim.closeModule(sim_handle_all)\nnumber result=sim.closeModule(string moduleName)",true},
     {"sim.handleModule",_simHandleModule,                        "number result=sim.handleModule(sim_handle_all)\nnumber result=sim.handleModule(string moduleName)",true},
@@ -152,9 +148,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setJointTargetPosition",_simSetJointTargetPosition,    "sim.setJointTargetPosition(number objectHandle,number targetPosition)",true},
     {"sim.getJointTargetPosition",_simGetJointTargetPosition,    "number result,number targetPosition=sim.getJointTargetPosition(number objectHandle)",true},
     {"sim.setJointMaxForce",_simSetJointMaxForce,                "sim.setJointMaxForce(number objectHandle,number forceOrTorque)",true},
-    {"sim.getPathPosition",_simGetPathPosition,                  "number position=sim.getPathPosition(number objectHandle)",true},
-    {"sim.setPathPosition",_simSetPathPosition,                  "sim.setPathPosition(number objectHandle,number position)",true},
-    {"sim.getPathLength",_simGetPathLength,                      "number length=sim.getPathLength(number objectHandle)",true},
     {"sim.setJointTargetVelocity",_simSetJointTargetVelocity,    "sim.setJointTargetVelocity(number objectHandle,number targetVelocity)",true},
     {"sim.getJointTargetVelocity",_simGetJointTargetVelocity,    "number targetVelocity=sim.getJointTargetVelocity(number objectHandle)",true},
     {"sim.getObjectName",_simGetObjectName,                      "string objectName=sim.getObjectName(number objectHandle)",true},
@@ -234,12 +227,12 @@ const SLuaCommands simLuaCommands[]=
     {"sim.copyPasteObjects",_simCopyPasteObjects,                "table copiedObjectHandles=sim.copyPasteObjects(table objectHandles,number options)",true},
     {"sim.scaleObjects",_simScaleObjects,                        "sim.scaleObjects(table objectHandles,number scalingFactor,boolean scalePositionsToo)",true},
     {"sim.getObjectUniqueIdentifier",_simGetObjectUniqueIdentifier,"number uniqueIdentifier=sim.getObjectUniqueIdentifier(number objectHandle)\ntable uniqueIdentifiers=sim.getObjectUniqueIdentifier(sim_handle_all)",true},
-    {"sim.setThreadAutomaticSwitch",_simSetThreadAutomaticSwitch,"number result=sim.setThreadAutomaticSwitch(boolean automaticSwitch)",true},
+    {"sim.setThreadAutomaticSwitch",_simSetThreadAutomaticSwitch,"number autoSwitchForbidLevel=sim.setThreadAutomaticSwitch(boolean automaticSwitch/number forbidLevel)",true},
     {"sim.getThreadAutomaticSwitch",_simGetThreadAutomaticSwitch,"boolean result=sim.getThreadAutomaticSwitch()",true},
-    {"sim.setThreadSwitchTiming",_simSetThreadSwitchTiming,      "number result=sim.setThreadSwitchTiming(number deltaTimeInMilliseconds)",true},
-    {"sim.setThreadResumeLocation",_simSetThreadResumeLocation,  "number result=sim.setThreadResumeLocation(number location,number priority)",true},
-    {"sim.resumeThreads",_simResumeThreads,                      "number count=sim.resumeThreads(number location)",true},
-    {"sim._switchThread",_simSwitchThread,                        "sim._switchThread()",false},
+    {"sim._isThreadSwitchingAllowed",_simIsThreadSwitchingAllowed,"boolean allowed=sim._isThreadSwitchingAllowed()",false},
+    {"sim._setThreadSwitchingAllowed",_simSetThreadSwitchingAllowed,"number forbidLevel=sim._setThreadSwitchingAllowed(boolean allowed/number forbidLevel)",false},
+    {"sim.setThreadSwitchTiming",_simSetThreadSwitchTiming,      "sim.setThreadSwitchTiming(number deltaTimeInMilliseconds)",true},
+    {"sim._switchThread",_simSwitchThread,                       "sim._switchThread()",false},
     {"sim.createCollection",_simCreateCollection,                "number collectionHandle=sim.createCollection(string collectionName,number options)",true},
     {"sim.addObjectToCollection",_simAddObjectToCollection,      "sim.addObjectToCollection(number collectionHandle,number objectHandle,number what,number options)",true},
     {"sim.saveImage",_simSaveImage,                              "string buffer=sim.saveImage(string image,table_2 resolution,number options,string filename,number quality)",true},
@@ -248,8 +241,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.transformImage",_simTransformImage,                    "sim.transformImage(string image,table_2 resolution,number options)",true},
     {"sim.getQHull",_simGetQHull,                                "table verticesOut,table indicesOut=sim.getQHull(table verticesIn)",true},
     {"sim.getDecimatedMesh",_simGetDecimatedMesh,                "table verticesOut,table indicesOut=sim.getDecimatedMesh(table verticesIn,table indicesIn,number decimationPercentage)",true},
-    {"sim.sendData",_simSendData,                                "sim.sendData(number targetID,number dataHeader,string dataName,string data,number antennaHandle=sim_handle_self,\nnumber actionRadius=100,number emissionAngle1=3.1415,number emissionAngle2=6.283,number persistence=0)",true},
-    {"sim.receiveData",_simReceiveData,                          "string data,number senderID,number dataHeader,string dataName=sim.receiveData(number dataHeader=-1,string dataName=nil,\nnumber antennaHandle=sim_handle_self,number index=-1)",true},
     {"sim.packInt32Table",_simPackInt32Table,                    "string data=sim.packInt32Table(table int32Numbers,number startInt32Index=0,number int32Count=0)",true},
     {"sim.packUInt32Table",_simPackUInt32Table,                  "string data=sim.packUInt32Table(table uint32Numbers,number startUInt32Index=0,number uint32Count=0)",true},
     {"sim.packFloatTable",_simPackFloatTable,                    "string data=sim.packFloatTable(table floatNumbers,number startFloatIndex=0,number floatCount=0)",true},
@@ -293,7 +284,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getStringSignal",_simGetStringSignal,                  "string signalValue=sim.getStringSignal(string signalName)",true},
     {"sim.clearStringSignal",_simClearStringSignal,              "number clearCount=sim.clearStringSignal(string signalName)",true},
     {"sim.getSignalName",_simGetSignalName,                      "string signalName=sim.getSignalName(number signalIndex,number signalType)",true},
-    {"sim.waitForSignal",_simWaitForSignal,                      "number/string signalValue=sim.waitForSignal(string signalName)",true},
     {"sim.persistentDataWrite",_simPersistentDataWrite,          "sim.persistentDataWrite(string dataTag,string dataValue,number options=0)",true},
     {"sim.persistentDataRead",_simPersistentDataRead,            "string dataValue=sim.persistentDataRead(string dataTag)",true},
     {"sim.setObjectProperty",_simSetObjectProperty,              "sim.setObjectProperty(number objectHandle,number property)",true},
@@ -302,13 +292,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getObjectSpecialProperty",_simGetObjectSpecialProperty,"number property=sim.getObjectSpecialProperty(number objectHandle)",true},
     {"sim.setModelProperty",_simSetModelProperty,                "sim.setModelProperty(number objectHandle,number property)",true},
     {"sim.getModelProperty",_simGetModelProperty,                "number property=sim.getModelProperty(number objectHandle)",true},
-    {"sim.followPath",_simFollowPath,                            "number deltaTimeLeft=sim.followPath(number objectHandle,number pathHandle,number positionAndOrOrientation,\nnumber relativeDistanceOnPath,number velocity,number accel)",true},
-    {"sim.moveToJointPositions",_simMoveToJointPositions,        "number deltaTimeLeft=sim.moveToJointPositions(table jointHandles,table jointPositions,number/table velocity,\nnumber/table accel,number angleToLinearCoeff)",true},
-    {"sim.wait",_simWait,                                        "number deltaTimeLeft=sim.wait(number deltaTime,boolean simulationTime=true)",true},
-    {"sim.getDataOnPath",_simGetDataOnPath,                      "number auxFlags,table_4 auxChannels=sim.getDataOnPath(number pathHandle,number relativeDistance)",true},
-    {"sim.getPositionOnPath",_simGetPositionOnPath,              "table_3 position=sim.getPositionOnPath(number pathHandle,number relativeDistance)",true},
-    {"sim.getOrientationOnPath",_simGetOrientationOnPath,        "table_3 eulerAngles=sim.getOrientationOnPath(number pathHandle,number relativeDistance)",true},
-    {"sim.getClosestPositionOnPath",_simGetClosestPositionOnPath,"number positionOnPath=sim.getClosestPositionOnPath(number pathHandle,table_3 positionRelativeToPathFrame)",true},
     {"sim.readForceSensor",_simReadForceSensor,                  "number result,table_3 forceVector,table_3 torqueVector=sim.readForceSensor(number objectHandle)",true},
     {"sim.breakForceSensor",_simBreakForceSensor,                "sim.breakForceSensor(number objectHandle)",true},
     {"sim.getLightParameters",_simGetLightParameters,            "number state,table_3 zero,table_3 diffusePart,table_3 specular=sim.getLightParameters(number lightHandle)",true},
@@ -320,18 +303,12 @@ const SLuaCommands simLuaCommands[]=
     {"sim.resetDynamicObject",_simResetDynamicObject,            "sim.resetDynamicObject(number objectHandle)",true},
     {"sim.setJointMode",_simSetJointMode,                        "sim.setJointMode(number jointHandle,number jointMode,number options)",true},
     {"sim.getJointMode",_simGetJointMode,                        "number jointMode,number options=sim.getJointMode(number jointHandle)",true},
-    {"sim.serialOpen",_simSerialOpen,                            "number portHandle=sim.serialOpen(string portString,number baudRate)",true},
-    {"sim.serialClose",_simSerialClose,                          "sim.serialClose(number portHandle)",true},
+    {"sim._serialOpen",_simSerialOpen,                           "",false}, // partially implemented in sim.lua
+    {"sim._serialClose",_simSerialClose,                         "",false}, // partially implemented in sim.lua
     {"sim.serialSend",_simSerialSend,                            "number charsSent=sim.serialSend(number portHandle,string data)",true},
-    {"sim.serialRead",_simSerialRead,                            "string data=sim.serialRead(number portHandle,number dataLengthToRead,boolean blockingOperation,\nstring closingString='',number timeout=0)",true},
+    {"sim._serialRead",_simSerialRead,                           "",false}, // partially implemented in sim.lua
     {"sim.serialCheck",_simSerialCheck,                          "number byteCount=sim.serialCheck(number portHandle)",true},
     {"sim.getContactInfo",_simGetContactInfo,                    "table_2 collidingObjects,table_3 collisionPoint,table_3 reactionForce,table_3 normalVector=sim.getContactInfo(number dynamicPass,\nnumber objectHandle,number index)",true},
-    {"sim.setThreadIsFree",_simSetThreadIsFree,                  "sim.setThreadIsFree(boolean freeMode)",true},
-    {"sim.tubeOpen",_simTubeOpen,                                "number tubeHandle=sim.tubeOpen(number dataHeader,string dataName,number readBufferSize)",true},
-    {"sim.tubeClose",_simTubeClose,                              "sim.tubeClose(number tubeHandle)",true},
-    {"sim.tubeWrite",_simTubeWrite,                              "sim.tubeWrite(number tubeHandle,string data)",true},
-    {"sim.tubeRead",_simTubeRead,                                "string data=sim.tubeRead(number tubeHandle,boolean blockingOperation=false)",true},
-    {"sim.tubeStatus",_simTubeStatus,                            "number status,number readPacketsCount,number writePacketsCount=sim.tubeStatus(number tubeHandle)",true},
     {"sim.auxiliaryConsoleOpen",_simAuxiliaryConsoleOpen,        "number consoleHandle=sim.auxiliaryConsoleOpen(string title,number maxLines,number mode,table_2 position=nil,table_2 size=nil,\ntable_3 textColor=nil,table_3 backgroundColor=nil)",true},
     {"sim.auxiliaryConsoleClose",_simAuxiliaryConsoleClose,      "number result=sim.auxiliaryConsoleClose(number consoleHandle)",true},
     {"sim.auxiliaryConsolePrint",_simAuxiliaryConsolePrint,      "number result=sim.auxiliaryConsolePrint(number consoleHandle,string text)",true},
@@ -348,11 +325,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.createJoint",_simCreateJoint,                          "number jointHandle=sim.createJoint(number jointType,number jointMode,number options,table_2 sizes=nil,\ntable_12 colorA=nil,table_12 colorB=nil)",true},
     {"sim.createDummy",_simCreateDummy,                          "number dummyHandle=sim.createDummy(number size,table_12 color=nil)",true},
     {"sim.createProximitySensor",_simCreateProximitySensor,      "number sensorHandle=sim.createProximitySensor(number sensorType,number subType,number options,table_8 intParams,\ntable_15 floatParams,table_48 color=nil)",true},
-    {"sim.createPath",_simCreatePath,                            "number pathHandle=sim.createPath(number attributes,table_3 intParams=nil,table_3 floatParams=nil,table_12 color=nil)",true},
     {"sim.createForceSensor",_simCreateForceSensor,              "number sensorHandle=sim.createForceSensor(number options,table_5 intParams,table_5 floatParams,table_24 color=nil)",true},
     {"sim.createVisionSensor",_simCreateVisionSensor,            "number sensorHandle=sim.createVisionSensor(number options,table_4 intParams,table_11 floatParams,table_48 color=nil)",true},
-    {"sim.insertPathCtrlPoints",_simInsertPathCtrlPoints,        "sim.insertPathCtrlPoints(number pathHandle,number options,number startIndex,number ptCnt,table ptData)",true},
-    {"sim.cutPathCtrlPoints",_simCutPathCtrlPoints,              "number result=sim.cutPathCtrlPoints(number pathHandle,number startIndex,number ptCnt)",true},
     {"sim.floatingViewAdd",_simFloatingViewAdd,                  "number floatingViewHandle=sim.floatingViewAdd(number posX,number posY,number sizeX,number sizeY,number options)",true},
     {"sim.floatingViewRemove",_simFloatingViewRemove,            "number result=sim.floatingViewRemove(number floatingViewHandle)",true},
     {"sim.adjustView",_simAdjustView,                            "number result=sim.adjustView(number viewHandleOrIndex,number associatedViewableObjectHandle,number options,string viewLabel=nil)",true},
@@ -403,7 +377,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setScriptAttribute",_simSetScriptAttribute,            "sim.setScriptAttribute(number scriptHandle,number attributeID,number/boolean attribute)",true},
     {"sim.getScriptAttribute",_simGetScriptAttribute,            "number/boolean attribute=sim.getScriptAttribute(number scriptHandle,number attributeID)",true},
     {"sim.handleChildScripts",_simHandleChildScripts,            "number executedScriptCount=sim.handleChildScripts(number callType,...(objects to be passed))",true},
-    {"sim.launchThreadedChildScripts",_simLaunchThreadedChildScripts,"number launchCount=sim.launchThreadedChildScripts()",true},
     {"sim.reorientShapeBoundingBox",_simReorientShapeBoundingBox,"number result=sim.reorientShapeBoundingBox(number shapeHandle,number relativeToHandle)",true},
     {"sim.handleVisionSensor",_simHandleVisionSensor,            "number detectionCount,table auxiliaryValuesPacket1,table auxiliaryValuesPacket2,etc.=sim.handleVisionSensor(number sensorHandle)",true},
     {"sim.readVisionSensor",_simReadVisionSensor,                "number result,table auxiliaryValues=sim.readVisionSensor(number sensorHandle)",true},
@@ -494,9 +467,7 @@ const SLuaCommands simLuaCommands[]=
 
 
 
-    // Add new commands here!
-    // Then regenerate the notepad++ keywords and calltips
-
+    // deprecated
     {"sim.addStatusbarMessage",_simAddStatusbarMessage,         "Deprecated. Use 'sim.addLog' instead",false},
     {"sim.getNameSuffix",_simGetNameSuffix,                     "Deprecated",false},
     {"sim.setNameSuffix",_simSetNameSuffix,                     "Deprecated",false},
@@ -514,10 +485,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setPathTargetNominalVelocity",_simSetPathTargetNominalVelocity,"Deprecated",false},
     {"sim.getShapeMassAndInertia",_simGetShapeMassAndInertia,    "Deprecated. Use 'sim.getShapeMass' and/or 'sim.getShapeInertia' instead",false},
     {"sim.setShapeMassAndInertia",_simSetShapeMassAndInertia,    "Deprecated. Use 'sim.setShapeMass' and/or 'sim.setShapeInertia' instead",false},
-    {"sim.rmlMoveToPosition",_simRMLMoveToPosition,              "Deprecated. Use 'sim.moveToPose' instead",false},
-    {"sim.rmlMoveToJointPositions",_simRMLMoveToJointPositions,  "Deprecated. Use 'sim.moveToConfig' instead",false},
-    {"sim.moveToPosition",_simMoveToPosition,                    "Deprecated. Use 'sim.moveToPose' instead",false},
-    {"sim.moveToObject",_simMoveToObject,                        "Deprecated. Use 'sim.moveToPose' instead",false},
     {"sim.checkIkGroup",_simCheckIkGroup,                        "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
     {"sim.createIkGroup",_simCreateIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
     {"sim.removeIkGroup",_simRemoveIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
@@ -531,6 +498,39 @@ const SLuaCommands simLuaCommands[]=
     {"sim.handleIkGroup",_simHandleIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
     {"sim.setIkGroupProperties",_simSetIkGroupProperties,        "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
     {"sim.setIkElementProperties",_simSetIkElementProperties,    "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"sim.setThreadIsFree",_simSetThreadIsFree,                  "Deprecated. Has no effect.",false},
+    {"sim._tubeRead",_simTubeRead,                               "",false},
+    {"sim.tubeOpen",_simTubeOpen,                                "Deprecated. Use signals or custom data blocks instead",false},
+    {"sim.tubeClose",_simTubeClose,                              "Deprecated. Use signals or custom data blocks instead",false},
+    {"sim.tubeWrite",_simTubeWrite,                              "Deprecated. Use signals or custom data blocks instead",false},
+    {"sim.tubeStatus",_simTubeStatus,                            "Deprecated. Use signals or custom data blocks instead",false},
+    {"sim.sendData",_simSendData,                                "Deprecated. Use signals or custom data blocks instead",false},
+    {"sim.receiveData",_simReceiveData,                          "Deprecated. Use signals or custom data blocks instead",false},
+
+    {"sim.moveToPosition",_simMoveToPosition,                    "Deprecated. Use 'sim.moveToPose' instead",false},
+    {"sim.moveToObject",_simMoveToObject,                        "Deprecated. Use 'sim.moveToPose' instead",false},
+    {"sim.followPath",_simFollowPath,                            "Deprecated. Use 'sim.rmlPos' and 'sim.rmlStep' instead",false},
+    {"sim.moveToJointPositions",_simMoveToJointPositions,        "Deprecated. Use 'sim.moveToConfig' instead",false},
+    {"sim.getPathPosition",_simGetPathPosition,                  "Deprecated",false},
+    {"sim.setPathPosition",_simSetPathPosition,                  "Deprecated",false},
+    {"sim.getPathLength",_simGetPathLength,                      "Deprecated",false},
+    {"sim.getDataOnPath",_simGetDataOnPath,                      "Deprecated",false},
+    {"sim.getPositionOnPath",_simGetPositionOnPath,              "Deprecated",false},
+    {"sim.getOrientationOnPath",_simGetOrientationOnPath,        "Deprecated",false},
+    {"sim.getClosestPositionOnPath",_simGetClosestPositionOnPath,"Deprecated",false},
+    {"sim.createPath",_simCreatePath,                            "Deprecated",false},
+    {"sim.insertPathCtrlPoints",_simInsertPathCtrlPoints,        "Deprecated",false},
+    {"sim.cutPathCtrlPoints",_simCutPathCtrlPoints,              "Deprecated",false},
+    {"sim.getScriptExecutionCount",_simGetScriptExecutionCount,  "Deprecated",false},
+    {"sim.isScriptExecutionThreaded",_simIsScriptExecutionThreaded,"Deprecated",false},
+    {"sim.isScriptRunningInThread",_simIsScriptRunningInThread,  "Deprecated",false},
+    {"sim.setThreadResumeLocation",_simSetThreadResumeLocation,  "Deprecated",false},
+    {"sim.resumeThreads",_simResumeThreads,                      "Deprecated",false},
+    {"sim.launchThreadedChildScripts",_simLaunchThreadedChildScripts,"Deprecated",false},
+    // {"sim.rmlMoveToPosition",_simRMLMoveToPosition,              "Deprecated. Use 'sim.moveToPose' instead",false},
+    //{"sim.rmlMoveToJointPositions",_simRMLMoveToJointPositions,  "Deprecated. Use 'sim.moveToConfig' instead",false},
+    //{"sim.wait",_simWait,                                        "number deltaTimeLeft=sim.wait(number deltaTime,boolean simulationTime=true)",true},
+    //{"sim.waitForSignal",_simWaitForSignal,                      "number/string signalValue=sim.waitForSignal(string signalName)",true},
 
     {"",nullptr,"",false}
 };
@@ -542,9 +542,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetObjectAssociatedWithScript",_simGetObjectAssociatedWithScript,"Use the newer 'sim.getObjectAssociatedWithScript' notation",false},
     {"simGetScriptAssociatedWithObject",_simGetScriptAssociatedWithObject,"Use the newer 'sim.getScriptAssociatedWithObject' notation",false},
     {"simGetCustomizationScriptAssociatedWithObject",_simGetCustomizationScriptAssociatedWithObject,"Use the newer 'sim.getCustomizationScriptAssociatedWithObject' notation",false},
-    {"simGetScriptExecutionCount",_simGetScriptExecutionCount,  "Use the newer 'sim.getScriptExecutionCount' notation",false},
-    {"simIsScriptExecutionThreaded",_simIsScriptExecutionThreaded,"Use the newer 'sim.isScriptExecutionThreaded' notation",false},
-    {"simIsScriptRunningInThread",_simIsScriptRunningInThread,  "Use the newer 'sim.isScriptRunningInThread' notation",false},
     {"simOpenModule",_simOpenModule,                            "Use the newer 'sim.openModule' notation",false},
     {"simCloseModule",_simCloseModule,                          "Use the newer 'sim.closeModule' notation",false},
     {"simHandleModule",_simHandleModule,                        "Use the newer 'sim.handleModule' notation",false},
@@ -581,9 +578,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simSetJointTargetPosition",_simSetJointTargetPosition,    "Use the newer 'sim.setJointTargetPosition' notation",false},
     {"simGetJointTargetPosition",_simGetJointTargetPosition,    "Use the newer 'sim.getJointTargetPosition' notation",false},
     {"simSetJointForce",_simSetJointMaxForce,                   "Use the newer 'sim.setJointMaxForce' notation",false},
-    {"simGetPathPosition",_simGetPathPosition,                  "Use the newer 'sim.getPathPosition' notation",false},
-    {"simSetPathPosition",_simSetPathPosition,                  "Use the newer 'sim.setPathPosition' notation",false},
-    {"simGetPathLength",_simGetPathLength,                      "Use the newer 'sim.getPathLength' notation",false},
     {"simSetJointTargetVelocity",_simSetJointTargetVelocity,    "Use the newer 'sim.setJointTargetVelocity' notation",false},
     {"simGetJointTargetVelocity",_simGetJointTargetVelocity,    "Use the newer 'sim.getJointTargetVelocity' notation",false},
     {"simGetObjectName",_simGetObjectName,                      "Use the newer 'sim.getObjectName' notation",false},
@@ -665,8 +659,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simSetThreadAutomaticSwitch",_simSetThreadAutomaticSwitch,"Use the newer 'sim.setThreadAutomaticSwitch' notation",false},
     {"simGetThreadAutomaticSwitch",_simGetThreadAutomaticSwitch,"Use the newer 'sim.getThreadAutomaticSwitch' notation",false},
     {"simSetThreadSwitchTiming",_simSetThreadSwitchTiming,      "Use the newer 'sim.setThreadSwitchTiming' notation",false},
-    {"simSetThreadResumeLocation",_simSetThreadResumeLocation,  "Use the newer 'sim.setThreadResumeLocation' notation",false},
-    {"simResumeThreads",_simResumeThreads,                      "Use the newer 'sim.resumeThreads' notation",false},
     {"simSwitchThread",_simSwitchThread,                        "Use the newer 'sim.switchThread' notation",false},
     {"simCreateCollection",_simCreateCollection,                "Use the newer 'sim.createCollection' notation",false},
     {"simAddObjectToCollection",_simAddObjectToCollection,      "Use the newer 'sim.addObjectToCollection' notation",false},
@@ -676,8 +668,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simTransformImage",_simTransformImage,                    "Use the newer 'sim.transformImage' notation",false},
     {"simGetQHull",_simGetQHull,                                "Use the newer 'sim.getQHull' notation",false},
     {"simGetDecimatedMesh",_simGetDecimatedMesh,                "Use the newer 'sim.getDecimatedMesh' notation",false},
-    {"simSendData",_simSendData,                                "Use the newer 'sim.sendData' notation",false},
-    {"simReceiveData",_simReceiveData,                          "Use the newer 'sim.receiveData' notation",false},
     {"simPackInt32Table",_simPackInt32Table,                    "Use the newer 'sim.packInt32Table' notation",false},
     {"simPackUInt32Table",_simPackUInt32Table,                  "Use the newer 'sim.packUInt32Table' notation",false},
     {"simPackFloatTable",_simPackFloatTable,                    "Use the newer 'sim.packFloatTable' notation",false},
@@ -718,7 +708,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetStringSignal",_simGetStringSignal,                  "Use the newer 'sim.getStringSignal' notation",false},
     {"simClearStringSignal",_simClearStringSignal,              "Use the newer 'sim.clearStringSignal' notation",false},
     {"simGetSignalName",_simGetSignalName,                      "Use the newer 'sim.getSignalName' notation",false},
-    {"simWaitForSignal",_simWaitForSignal,                      "Use the newer 'sim.waitForSignal' notation",false},
     {"simPersistentDataWrite",_simPersistentDataWrite,          "Use the newer 'sim.persistentDataWrite' notation",false},
     {"simPersistentDataRead",_simPersistentDataRead,            "Use the newer 'sim.persistentDataRead' notation",false},
     {"simSetObjectProperty",_simSetObjectProperty,              "Use the newer 'sim.setObjectProperty' notation",false},
@@ -727,15 +716,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetObjectSpecialProperty",_simGetObjectSpecialProperty,"Use the newer 'sim.getObjectSpecialProperty' notation",false},
     {"simSetModelProperty",_simSetModelProperty,                "Use the newer 'sim.setModelProperty' notation",false},
     {"simGetModelProperty",_simGetModelProperty,                "Use the newer 'sim.getModelProperty' notation",false},
-    {"simMoveToPosition",_simMoveToPosition,                    "Deprecated. Use 'sim.moveToPose' instead",false},
-    {"simMoveToObject",_simMoveToObject,                        "Deprecated. Use 'sim.moveToPose' instead",false},
-    {"simFollowPath",_simFollowPath,                            "Use the newer 'sim.followPath' notation",false},
-    {"simMoveToJointPositions",_simMoveToJointPositions,        "Use the newer 'sim.moveToJointPositions' notation",false},
-    {"simWait",_simWait,                                        "Use the newer 'sim.wait' notation",false},
-    {"simGetDataOnPath",_simGetDataOnPath,                      "Use the newer 'sim.getDataOnPath' notation",false},
-    {"simGetPositionOnPath",_simGetPositionOnPath,              "Use the newer 'sim.getPositionOnPath' notation",false},
-    {"simGetOrientationOnPath",_simGetOrientationOnPath,        "Use the newer 'sim.getOrientationOnPath' notation",false},
-    {"simGetClosestPositionOnPath",_simGetClosestPositionOnPath,"Use the newer 'sim.getClosestPositionOnPath' notation",false},
     {"simReadForceSensor",_simReadForceSensor,                  "Use the newer 'sim.readForceSensor' notation",false},
     {"simBreakForceSensor",_simBreakForceSensor,                "Use the newer 'sim.breakForceSensor' notation",false},
     {"simGetLightParameters",_simGetLightParameters,            "Use the newer 'sim.getLightParameters' notation",false},
@@ -747,18 +727,9 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simResetDynamicObject",_simResetDynamicObject,            "Use the newer 'sim.resetDynamicObject' notation",false},
     {"simSetJointMode",_simSetJointMode,                        "Use the newer 'sim.setJointMode' notation",false},
     {"simGetJointMode",_simGetJointMode,                        "Use the newer 'sim.getJointMode' notation",false},
-    {"simSerialOpen",_simSerialOpen,                            "Use the newer 'sim.serialOpen' notation",false},
-    {"simSerialClose",_simSerialClose,                          "Use the newer 'sim.serialClose' notation",false},
     {"simSerialSend",_simSerialSend,                            "Use the newer 'sim.serialSend' notation",false},
-    {"simSerialRead",_simSerialRead,                            "Use the newer 'sim.serialRead' notation",false},
     {"simSerialCheck",_simSerialCheck,                          "Use the newer 'sim.serialCheck' notation",false},
     {"simGetContactInfo",_simGetContactInfo,                    "Use the newer 'sim.getContactInfo' notation",false},
-    {"simSetThreadIsFree",_simSetThreadIsFree,                  "Use the newer 'sim.setThreadIsFree' notation",false},
-    {"simTubeOpen",_simTubeOpen,                                "Use the newer 'sim.tubeOpen' notation",false},
-    {"simTubeClose",_simTubeClose,                              "Use the newer 'sim.tubeClose' notation",false},
-    {"simTubeWrite",_simTubeWrite,                              "Use the newer 'sim.tubeWrite' notation",false},
-    {"simTubeRead",_simTubeRead,                                "Use the newer 'sim.tubeRead' notation",false},
-    {"simTubeStatus",_simTubeStatus,                            "Use the newer 'sim.tubeStatus' notation",false},
     {"simAuxiliaryConsoleOpen",_simAuxiliaryConsoleOpen,        "Use the newer 'sim.auxiliaryConsoleOpen' notation",false},
     {"simAuxiliaryConsoleClose",_simAuxiliaryConsoleClose,      "Use the newer 'sim.auxiliaryConsoleClose' notation",false},
     {"simAuxiliaryConsolePrint",_simAuxiliaryConsolePrint,      "Use the newer 'sim.auxiliaryConsolePrint' notation",false},
@@ -775,11 +746,8 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simCreateJoint",_simCreateJoint,                          "Use the newer 'sim.createJoint' notation",false},
     {"simCreateDummy",_simCreateDummy,                          "Use the newer 'sim.createDummy' notation",false},
     {"simCreateProximitySensor",_simCreateProximitySensor,      "Use the newer 'sim.createProximitySensor' notation",false},
-    {"simCreatePath",_simCreatePath,                            "Use the newer 'sim.createPath' notation",false},
     {"simCreateForceSensor",_simCreateForceSensor,              "Use the newer 'sim.createForceSensor' notation",false},
     {"simCreateVisionSensor",_simCreateVisionSensor,            "Use the newer 'sim.createVisionSensor' notation",false},
-    {"simInsertPathCtrlPoints",_simInsertPathCtrlPoints,        "Use the newer 'sim.insertPathCtrlPoints' notation",false},
-    {"simCutPathCtrlPoints",_simCutPathCtrlPoints,              "Use the newer 'sim.cutPathCtrlPoints' notation",false},
     {"simFloatingViewAdd",_simFloatingViewAdd,                  "Use the newer 'sim.floatingViewAdd' notation",false},
     {"simFloatingViewRemove",_simFloatingViewRemove,            "Use the newer 'sim.floatingViewRemove' notation",false},
     {"simAdjustView",_simAdjustView,                            "Use the newer 'sim.adjustView' notation",false},
@@ -829,7 +797,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simSetScriptAttribute",_simSetScriptAttribute,            "Use the newer 'sim.setScriptAttribute' notation",false},
     {"simGetScriptAttribute",_simGetScriptAttribute,            "Use the newer 'sim.getScriptAttribute' notation",false},
     {"simHandleChildScripts",_simHandleChildScripts,            "Use the newer 'sim.handleChildScripts' notation",false},
-    {"simLaunchThreadedChildScripts",_simLaunchThreadedChildScripts,"Use the newer 'sim.launchThreadedChildScripts' notation",false},
     {"simReorientShapeBoundingBox",_simReorientShapeBoundingBox,"Use the newer 'sim.reorientShapeBoundingBox' notation",false},
     {"simHandleVisionSensor",_simHandleVisionSensor,            "Use the newer 'sim.handleVisionSensor' notation",false},
     {"simReadVisionSensor",_simReadVisionSensor,                "Use the newer 'sim.readVisionSensor' notation",false},
@@ -846,8 +813,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simRMLVel",_simRMLVel,                                    "Use the newer 'sim.rmlVel' notation",false},
     {"simRMLStep",_simRMLStep,                                  "Use the newer 'sim.rmlStep' notation",false},
     {"simRMLRemove",_simRMLRemove,                              "Use the newer 'sim.rmlRemove' notation",false},
-    {"simRMLMoveToPosition",_simRMLMoveToPosition,              "Deprecated. Use 'sim.moveToPose' instead",false},
-    {"simRMLMoveToJointPositions",_simRMLMoveToJointPositions,  "Deprecated. Use 'sim.moveToConfig' instead",false},
     {"simBuildMatrixQ",_simBuildMatrixQ,                        "Use the newer 'sim.buildMatrixQ' notation",false},
     {"simGetQuaternionFromMatrix",_simGetQuaternionFromMatrix,  "Use the newer 'sim.getQuaternionFromMatrix' notation",false},
     {"simFileDialog",_simFileDialog,                            "Use the newer 'sim.fileDialog' notation",false},
@@ -1006,11 +971,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetFloatingParameter",_simGetFloatParameter,               "Deprecated. Use sim.getFloatParameter instead",false},
     {"simGetObjectIntParameter",_simGetObjectInt32Parameter,        "Deprecated. Use sim.getObjectInt32Parameter instead",false},
     {"simSetObjectIntParameter",_simSetObjectInt32Parameter,        "Deprecated. Use sim.setObjectInt32Parameter instead",false},
-    // Following for backward compatibility (10/04/2012):
-    {"simSerialPortOpen",_simSerialPortOpen,                        "Deprecated. Use sim.serialOpen instead",false},
-    {"simSerialPortClose",_simSerialPortClose,                      "Deprecated. Use sim.serialClose instead",false},
-    {"simSerialPortSend",_simSerialPortSend,                        "Deprecated. Use sim.serialSend instead",false},
-    {"simSerialPortRead",_simSerialPortRead,                        "Deprecated. Use sim.serialRead instead",false},
     // Following for backward compatibility:
     {"simHandleRenderingSensor",_simHandleVisionSensor,             "Deprecated. Use sim.handleVisionSensor instead",false},
     {"simReadRenderingSensor",_simReadVisionSensor,                 "Deprecated. Use sim.readVisionSensor instead",false},
@@ -1038,6 +998,45 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simHandleIkGroup",_simHandleIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
     {"simSetIkGroupProperties",_simSetIkGroupProperties,        "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
     {"simSetIkElementProperties",_simSetIkElementProperties,    "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simTubeRead",_simTubeRead,                                "Deprecated. Use signals or custom data blocks instead",false},
+    {"simTubeOpen",_simTubeOpen,                                "Deprecated. Use signals or custom data blocks instead",false},
+    {"simTubeClose",_simTubeClose,                              "Deprecated. Use signals or custom data blocks instead",false},
+    {"simTubeWrite",_simTubeWrite,                              "Deprecated. Use signals or custom data blocks instead",false},
+    {"simTubeStatus",_simTubeStatus,                            "Deprecated. Use signals or custom data blocks instead",false},
+    {"simSendData",_simSendData,                                "Deprecated. Use signals or custom data blocks instead",false},
+    {"simReceiveData",_simReceiveData,                          "Deprecated. Use signals or custom data blocks instead",false},
+    {"simMoveToPosition",_simMoveToPosition,                    "Deprecated. Use 'sim.moveToPose' instead",false},
+    {"simMoveToObject",_simMoveToObject,                        "Deprecated. Use 'sim.moveToPose' instead",false},
+    {"simFollowPath",_simFollowPath,                            "Deprecated. Use 'sim.rmlPos' and 'sim.rmlStep' instead",false},
+    {"simMoveToJointPositions",_simMoveToJointPositions,        "Deprecated. Use 'sim.moveToConfig' instead",false},
+    {"simGetPathPosition",_simGetPathPosition,                  "Deprecated",false},
+    {"simSetPathPosition",_simSetPathPosition,                  "Deprecated",false},
+    {"simGetPathLength",_simGetPathLength,                      "Deprecated",false},
+    {"simGetDataOnPath",_simGetDataOnPath,                      "Deprecated",false},
+    {"simGetPositionOnPath",_simGetPositionOnPath,              "Deprecated",false},
+    {"simGetOrientationOnPath",_simGetOrientationOnPath,        "Deprecated",false},
+    {"simGetClosestPositionOnPath",_simGetClosestPositionOnPath,"Deprecated",false},
+    {"simCreatePath",_simCreatePath,                            "Deprecated",false},
+    {"simInsertPathCtrlPoints",_simInsertPathCtrlPoints,        "Deprecated",false},
+    {"simCutPathCtrlPoints",_simCutPathCtrlPoints,              "Deprecated",false},
+    {"simGetScriptExecutionCount",_simGetScriptExecutionCount,  "Deprecated",false},
+    {"simIsScriptExecutionThreaded",_simIsScriptExecutionThreaded,"Deprecated",false},
+    {"simIsScriptRunningInThread",_simIsScriptRunningInThread,  "Deprecated",false},
+    {"simSetThreadResumeLocation",_simSetThreadResumeLocation,  "Deprecated",false},
+    {"simResumeThreads",_simResumeThreads,                      "Deprecated",false},
+    {"simLaunchThreadedChildScripts",_simLaunchThreadedChildScripts,"Deprecated",false},
+    //{"simRMLMoveToPosition",_simRMLMoveToPosition,              "Deprecated. Use 'sim.moveToPose' instead",false},
+    //{"simRMLMoveToJointPositions",_simRMLMoveToJointPositions,  "Deprecated. Use 'sim.moveToConfig' instead",false},
+    //{"simWait",_simWait,                                        "Use the newer 'sim.wait' notation",false},
+    //{"simWaitForSignal",_simWaitForSignal,                      "Use the newer 'sim.waitForSignal' notation",false},
+    //{"simSetThreadIsFree",_simSetThreadIsFree,                  "Use the newer 'sim.setThreadIsFree' notation",false},
+    //{"simSerialRead",_simSerialRead,                            "Use the newer 'sim.serialRead' notation",false},
+    //{"simSerialOpen",_simSerialOpen,                            "Use the newer 'sim.serialOpen' notation",false},
+    //{"simSerialClose",_simSerialClose,                          "Use the newer 'sim.serialClose' notation",false},
+    //{"simSerialPortOpen",_simSerialPortOpen,                        "Deprecated. Use sim.serialOpen instead",false},
+    //{"simSerialPortClose",_simSerialPortClose,                      "Deprecated. Use sim.serialClose instead",false},
+    //{"simSerialPortSend",_simSerialPortSend,                        "Deprecated. Use sim.serialSend instead",false},
+    //{"simSerialPortRead",_simSerialPortRead,                        "Deprecated. Use sim.serialRead instead",false},
 
 
     {"",nullptr,"",false}
@@ -1147,7 +1146,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.scripttype_addonfunction",sim_scripttype_addonfunction,true},
     {"sim.scripttype_customizationscript",sim_scripttype_customizationscript,true},
     {"sim.scripttype_sandboxscript",sim_scripttype_sandboxscript,true},
-    {"sim.scripttype_threaded",sim_scripttype_threaded,true},
     // System callbacks
     {"sim.syscb_init",sim_syscb_init,true},
     {"sim.syscb_cleanup",sim_syscb_cleanup,true},
@@ -2097,6 +2095,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.appobj_2delement_type",sim_appobj_ui_type,false},  // for backward compatibility
     {"sim.appobj_ui_type",sim_appobj_ui_type,false},
     {"sim.appobj_pathplanning_type",sim_appobj_pathplanning_type,false},
+    {"sim.scripttype_threaded",sim_scripttype_threaded_old,false},
 
     {"",-1}
 };
@@ -2241,7 +2240,7 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim_scripttype_addonscript",sim_scripttype_addonscript,false},
     {"sim_scripttype_addonfunction",sim_scripttype_addonfunction,false},
     {"sim_scripttype_customizationscript",sim_scripttype_customizationscript,false},
-    {"sim_scripttype_threaded",sim_scripttype_threaded,false},
+    {"sim_scripttype_threaded",sim_scripttype_threaded_old,false},
     {"sim_mainscriptcall_initialization",sim_syscb_init,false},
     {"sim_mainscriptcall_cleanup",sim_syscb_cleanup,false},
     {"sim_mainscriptcall_regular",sim_syscb_actuation,false},
@@ -3053,7 +3052,7 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"",-1,false}
 };
 
-
+/*
 void insertSerialPortLeftOver(int portHandle,std::string leftOver)
 {
     serialPortHandles.push_back(portHandle);
@@ -3088,7 +3087,7 @@ void clearSerialPortLeftOver(int portHandle)
         }
     }
 }
-
+*/
 bool isObjectAssociatedWithThisThreadedChildScriptValid(luaWrap_lua_State* L)
 {
     int id=getCurrentScriptHandle(L);
@@ -3462,8 +3461,6 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
                         it->handleDebug("thread_automatic_switch","C",false,true);
                 }
             }
-//            printf("Status: %i\n",luaWrap_lua_status(L));
-//            luaWrap_lua_yield(L,0); // does a long jump and never returns
         }
         else
         { // non-simulation scripts (i.e. add-ons and customization scripts)
@@ -3487,6 +3484,16 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
             }
 #endif
         }
+        //*
+        luaWrap_luaL_dostring(L,"return coroutine.running()");
+        if (!luaWrap_lua_isnil(L,-1))
+        {
+            luaWrap_lua_pop(L,1);
+            if (it->shouldAutoYield())
+                return luaWrap_lua_yield(L,0); // does a long jump and never returns
+        }
+        luaWrap_lua_pop(L,1);
+        //*/
     }
 }
 
@@ -4724,37 +4731,8 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
                 inStack.buildFromLuaStack(L,2);
                 int startT=VDateTime::getTimeInMs();
                 retVal=App::currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,callType,&inStack,nullptr,nullptr);
-                App::worldContainer->calcInfo->addChildScriptCalcTime(VDateTime::getTimeInMs()-startT,false);
-                if (callType==sim_syscb_sensing)
-                    App::worldContainer->calcInfo->addChildScriptExecCnt(App::currentWorld->luaScriptContainer->getCalledScriptsCountInThisSimulationStep(sim_scripttype_childscript),false);
             }
         }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simLaunchThreadedChildScripts(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.launchThreadedChildScripts");
-
-    int retVal=-1; // means error
-    int currentScriptID=getCurrentScriptHandle(L);
-    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
-    if (it!=nullptr)
-    {
-        if (it->getScriptType()==sim_scripttype_mainscript)
-        {
-            int startT=VDateTime::getTimeInMs();
-            retVal=App::currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript|sim_scripttype_threaded,sim_scriptthreadresume_launch,nullptr,nullptr,nullptr);
-            App::worldContainer->calcInfo->addChildScriptCalcTime(VDateTime::getTimeInMs()-startT,true);
-            App::worldContainer->calcInfo->addChildScriptExecCnt(retVal,true);
-        }
-        else
-            errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -4783,49 +4761,6 @@ int _simGetScriptName(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
-}
-
-int _simGetScriptExecutionCount(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getScriptExecutionCount");
-
-    int currentScriptID=getCurrentScriptHandle(L);
-    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,it->getNumberOfPasses());
-    LUA_END(1);
-}
-
-int _simIsScriptExecutionThreaded(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.isScriptExecutionThreaded");
-
-    int currentScriptID=getCurrentScriptHandle(L);
-    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
-    int retVal=0;
-    if ((it!=nullptr)&&it->getThreadedExecution())
-        retVal=1;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simIsScriptRunningInThread(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.isScriptRunningInThread");
-
-    int retVal=1;
-    if (VThread::isCurrentThreadTheMainSimulationThread())
-        retVal=0;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
 }
 
 int _simGetObjectAssociatedWithScript(luaWrap_lua_State* L)
@@ -6389,58 +6324,6 @@ int _simGetJointMaxForce(luaWrap_lua_State* L)
         if (simGetJointMaxForce_internal(luaToInt(L,1),jointF)>0)
         {
             luaWrap_lua_pushnumber(L,jointF[0]);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGetPathPosition(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getPathPosition");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        float pathVal[1];
-        if (simGetPathPosition_internal(luaToInt(L,1),pathVal)!=-1)
-        {
-            luaWrap_lua_pushnumber(L,pathVal[0]);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetPathPosition(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setPathPosition");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simSetPathPosition_internal(luaToInt(L,1),luaToFloat(L,2));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simGetPathLength(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getPathLength");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        float pathLen[1];
-        if (simGetPathLength_internal(luaToInt(L,1),pathLen)!=-1)
-        {
-            luaWrap_lua_pushnumber(L,pathLen[0]);
             LUA_END(1);
         }
     }
@@ -8518,18 +8401,19 @@ int _simSetThreadSwitchTiming(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.setThreadSwitchTiming");
 
-    int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        if (CThreadPool::setThreadSwitchTiming(luaWrap_lua_tointeger(L,1)))
-            retVal=1;
-        else
-            retVal=0;
+        int timeInMs=luaWrap_lua_tointeger(L,1);
+        int currentScriptID=getCurrentScriptHandle(L);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+        if (it!=nullptr)
+            it->setDelayForAutoYielding(timeInMs);
+
+        CThreadPool::setThreadSwitchTiming(timeInMs);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simSetThreadAutomaticSwitch(luaWrap_lua_State* L)
@@ -8537,77 +8421,49 @@ int _simSetThreadAutomaticSwitch(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.setThreadAutomaticSwitch");
 
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_bool,0))
+    if (luaWrap_lua_gettop(L)>0)
     {
-        if (CThreadPool::setThreadAutomaticSwitch(luaToBool(L,1)))
-            retVal=1;
-        else
-            retVal=0;
+        int currentScriptID=getCurrentScriptHandle(L);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+        if (it!=nullptr)
+        {
+            int retVal;
+            if (luaWrap_lua_isnumber(L,1))
+            {
+                int a=luaWrap_lua_tointeger(L,1);
+                retVal=it->changeAutoYieldingForbidLevel(a,true);
+            }
+            else
+            {
+                bool allow=luaWrap_lua_toboolean(L,1);
+                if (allow)
+                    retVal=it->changeAutoYieldingForbidLevel(-1,false);
+                else
+                    retVal=it->changeAutoYieldingForbidLevel(1,false);
+            }
+            CThreadPool::setThreadAutomaticSwitchForbidLevel(it->getAutoYieldingForbidLevel());
+            luaWrap_lua_pushnumber(L,retVal);
+            LUA_END(1);
+        }
     }
+    else
+        errorString=SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simGetThreadAutomaticSwitch(luaWrap_lua_State* L)
 { // doesn't generate an error
     TRACE_LUA_API;
     LUA_START("sim.getThreadAutomaticSwitch");
-    luaWrap_lua_pushboolean(L,CThreadPool::getThreadAutomaticSwitch());
-    LUA_END(1);
-}
-
-int _simSetThreadResumeLocation(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setThreadResumeLocation");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        if (CThreadPool::setThreadResumeLocation(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2)))
-            retVal=1;
-        else
-            retVal=0;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simResumeThreads(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.resumeThreads");
-
-    int retVal=-1;
     int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-    if (it->getScriptType()==sim_scripttype_mainscript)
-    {
-        if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        {
-            int loc=luaWrap_lua_tointeger(L,1);
+    bool retVal=false;
+    if (it!=nullptr)
+        retVal=(it->getAutoYieldingForbidLevel()==0);
 
-            int startT=VDateTime::getTimeInMs();
-            retVal=App::currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript|sim_scripttype_threaded,loc,nullptr,nullptr,nullptr);
-            // Following line important: when erasing a running threaded script object, with above cascaded
-            // call, the thread will never resume nor be able to end. Next line basically runs all
-            // that were not yet ran:
-            retVal+=CThreadPool::handleAllThreads_withResumeLocation(loc);
-
-            App::worldContainer->calcInfo->addChildScriptCalcTime(VDateTime::getTimeInMs()-startT,true);
-            App::worldContainer->calcInfo->addChildScriptExecCnt(retVal,true);
-        }
-    }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
+    luaWrap_lua_pushboolean(L,retVal); //CThreadPool::getThreadAutomaticSwitch());
     LUA_END(1);
 }
 
@@ -8618,6 +8474,7 @@ int _simSwitchThread(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim._switchThread");
 
+    // Ignores whether thread switching is allowed or not (happens on the sim.lua side)
     int retVal=-1;
     if (CThreadPool::switchBackToPreviousThread())
         retVal=1;
@@ -8627,6 +8484,59 @@ int _simSwitchThread(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
+}
+
+int _simIsThreadSwitchingAllowed(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim._isThreadSwitchingAllowed");
+
+    int currentScriptID=getCurrentScriptHandle(L);
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+    if (it!=nullptr)
+    {
+        luaWrap_lua_pushboolean(L,it->canManualYield());
+        LUA_END(1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetThreadSwitchingAllowed(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim._setThreadSwitchingAllowed");
+
+    if (luaWrap_lua_gettop(L)>0)
+    {
+        int currentScriptID=getCurrentScriptHandle(L);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+        if (it!=nullptr)
+        {
+            int retVal;
+            if (luaWrap_lua_isnumber(L,1))
+            {
+                int a=luaWrap_lua_tointeger(L,1);
+                retVal=it->changeOverallYieldingForbidLevel(a,true);
+            }
+            else
+            {
+                bool allow=luaWrap_lua_toboolean(L,1);
+                int a=1;
+                if (allow)
+                    a=-1;
+                retVal=it->changeOverallYieldingForbidLevel(a,false);
+            }
+            luaWrap_lua_pushnumber(L,retVal);
+            LUA_END(1);
+        }
+    }
+    else
+        errorString=SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 
 int _simCreateCollection(luaWrap_lua_State* L)
@@ -10876,227 +10786,6 @@ int _simCombineRgbImages(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSendData(luaWrap_lua_State* L)
-{ // can be called from the main script or from child scripts
-    TRACE_LUA_API;
-    LUA_START("sim.sendData");
-
-    int retVal=-1;
-    int currentScriptID=getCurrentScriptHandle(L);
-    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-    if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
-    {
-        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_string,0,lua_arg_string,0))
-        {
-            int targetID=luaWrap_lua_tointeger(L,1);
-            if ( (targetID<=0)&&(targetID!=sim_handle_all)&&(targetID!=sim_handle_tree)&&(targetID!=sim_handle_chain) )
-                errorString=SIM_ERROR_INVALID_TARGET_HANDLE;
-            else
-            {
-                int dataHeader=luaWrap_lua_tointeger(L,2);
-                if (dataHeader<0)
-                    errorString=SIM_ERROR_INVALID_DATA_HEADER;
-                else
-                {
-                    std::string dataName(luaWrap_lua_tostring(L,3));
-                    if ( (dataName.length()==0)||(dataName.find(char(0))!=std::string::npos) )
-                        errorString=SIM_ERROR_INVALID_DATA_NAME;
-                    else
-                    {
-                        size_t dataLength;
-                        char* data=(char*)luaWrap_lua_tolstring(L,4,&dataLength);
-                        if (dataLength<1)
-                            errorString=SIM_ERROR_INVALID_DATA;
-                        else
-                        {
-                            // Following are default values:
-                            int antennaHandle=sim_handle_self;
-                            float actionRadius=100.0f;
-                            float emissionAngle1=piValue_f;
-                            float emissionAngle2=piValTimes2_f;
-                            float persistence=0.0f;
-                            bool err=false;
-                            int res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
-                            if (res==2)
-                                antennaHandle=luaWrap_lua_tointeger(L,5);
-                            err=err||((res!=0)&&(res!=2));
-                            if (!err)
-                            {
-                                if ( (antennaHandle<0)&&(antennaHandle!=sim_handle_default)&&((antennaHandle!=sim_handle_self)||(it->getScriptType()!=sim_scripttype_childscript)) )
-                                {
-                                    errorString=SIM_ERROR_INVALID_ANTENNA_HANDLE;
-                                    err=true;
-                                }
-                                else
-                                {
-                                    if (antennaHandle==sim_handle_self)
-                                        antennaHandle=it->getObjectIDThatScriptIsAttachedTo_child();
-                                    if (antennaHandle!=sim_handle_default)
-                                    {
-                                        CSceneObject* ant=App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
-                                        if (ant==nullptr)
-                                        {
-                                            errorString=SIM_ERROR_INVALID_ANTENNA_HANDLE;
-                                            err=true;
-                                        }
-                                    }
-                                }
-                            }
-                            if (!err)
-                            {
-                                int res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,false,&errorString);
-                                if (res==2)
-                                    actionRadius=luaToFloat(L,6);
-                                err=err||((res!=0)&&(res!=2));
-                            }
-                            if (!err)
-                            {
-                                int res=checkOneGeneralInputArgument(L,7,lua_arg_number,0,true,false,&errorString);
-                                if (res==2)
-                                    emissionAngle1=luaToFloat(L,7);
-                                err=err||((res!=0)&&(res!=2));
-                            }
-                            if (!err)
-                            {
-                                int res=checkOneGeneralInputArgument(L,8,lua_arg_number,0,true,false,&errorString);
-                                if (res==2)
-                                    emissionAngle2=luaToFloat(L,8);
-                                err=err||((res!=0)&&(res!=2));
-                            }
-                            if (!err)
-                            {
-                                int res=checkOneGeneralInputArgument(L,9,lua_arg_number,0,true,false,&errorString);
-                                if (res==2)
-                                    persistence=luaToFloat(L,9);
-                                err=err||((res!=0)&&(res!=2));
-                            }
-                            if (!err)
-                            {
-                                actionRadius=tt::getLimitedFloat(0.0f,SIM_MAX_FLOAT,actionRadius);
-                                emissionAngle1=tt::getLimitedFloat(0.0f,piValue_f,emissionAngle1);
-                                emissionAngle2=tt::getLimitedFloat(0.0f,piValTimes2_f,emissionAngle2);
-                                persistence=tt::getLimitedFloat(0.0f,99999999999999.9f,persistence);
-                                if (persistence==0.0f)
-                                    persistence=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())*1.5f/1000000.0f;
-
-                                App::currentWorld->luaScriptContainer->broadcastDataContainer.broadcastData(currentScriptID,targetID,dataHeader,dataName,
-                                    float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+persistence,actionRadius,antennaHandle,
-                                    emissionAngle1,emissionAngle2,data,(int)dataLength);
-                                retVal=1;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT_OR_CHILD_SCRIPT;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simReceiveData(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.receiveData");
-
-    int currentScriptID=getCurrentScriptHandle(L);
-    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-    if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
-    {
-        int dataHeader=-1;
-        std::string dataName;
-        int antennaHandle=sim_handle_self;
-        int index=-1;
-        bool err=false;
-        int res=checkOneGeneralInputArgument(L,1,lua_arg_number,0,true,false,&errorString);
-        if (res==2)
-        {
-            dataHeader=luaWrap_lua_tointeger(L,1);
-            if (dataHeader<0)
-                dataHeader=-1;
-        }
-        err=err||((res!=0)&&(res!=2));
-        if (!err)
-        {
-            int res=checkOneGeneralInputArgument(L,2,lua_arg_string,0,true,true,&errorString);
-            if (res==2)
-            {
-                dataName=luaWrap_lua_tostring(L,2);
-                if (dataName.length()<1)
-                {
-                    errorString=SIM_ERROR_INVALID_DATA_NAME;
-                    err=true;
-                }
-            }
-            err=err||(res<0);
-        }
-        if (!err)
-        {
-            int res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,false,&errorString);
-            if (res==2)
-            {
-                antennaHandle=luaWrap_lua_tointeger(L,3);
-                if ( (antennaHandle<0)&&(antennaHandle!=sim_handle_default)&&((antennaHandle!=sim_handle_self)||(it->getScriptType()!=sim_scripttype_childscript)) )
-                {
-                    errorString=SIM_ERROR_INVALID_ANTENNA_HANDLE;
-                    err=true;
-                }
-            }
-            err=err||((res!=0)&&(res!=2));
-            if (!err)
-            {
-                if (antennaHandle==sim_handle_self)
-                    antennaHandle=it->getObjectIDThatScriptIsAttachedTo_child();
-                if (antennaHandle!=sim_handle_default)
-                {
-                    CSceneObject* ant=App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
-                    if (ant==nullptr)
-                    {
-                        errorString=SIM_ERROR_INVALID_ANTENNA_HANDLE;
-                        err=true;
-                    }
-                }
-            }
-        }
-        if (!err)
-        {
-            int res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
-            if (res==2)
-            {
-                index=luaWrap_lua_tointeger(L,4);
-                if (index<0)
-                    index=-1;
-            }
-            err=err||((res!=0)&&(res!=2));
-        }
-        if (!err)
-        {
-            int theDataHeader;
-            int theDataLength;
-            int theSenderID;
-            std::string theDataName;
-            char* data0=App::currentWorld->luaScriptContainer->broadcastDataContainer.receiveData(currentScriptID,float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f,
-                    dataHeader,dataName,antennaHandle,theDataLength,index,theSenderID,theDataHeader,theDataName);
-            if (data0!=nullptr)
-            {
-                luaWrap_lua_pushlstring(L,data0,theDataLength);
-                luaWrap_lua_pushnumber(L,theSenderID);
-                luaWrap_lua_pushnumber(L,theDataHeader);
-                luaWrap_lua_pushstring(L,theDataName.c_str());
-                LUA_END(4);
-            }
-        }
-    }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT_OR_CHILD_SCRIPT;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
 
 int _simSetGraphUserData(luaWrap_lua_State* L)
 {
@@ -11717,63 +11406,6 @@ int _simGetSignalName(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simWaitForSignal(luaWrap_lua_State* L)
-{ // can only be called from a script running in a thread!!
-    TRACE_LUA_API;
-    LUA_START("sim.waitForSignal");
-
-    if (!VThread::isCurrentThreadTheMainSimulationThread())
-    {
-        if (checkInputArguments(L,&errorString,lua_arg_string,0))
-        {
-            std::string signalName(luaWrap_lua_tostring(L,1));
-            int intVal;
-            bool signalPresent=false;
-
-            CSignalContainer* sigCont=nullptr;
-            sigCont=App::currentWorld->signalContainer;
-
-            while (!signalPresent)
-            {
-                if (sigCont->getIntegerSignal(signalName.c_str(),intVal))
-                {
-                    luaWrap_lua_pushnumber(L,intVal);
-                    signalPresent=true;
-                    LUA_END(1);
-                }
-                float floatVal;
-                if ( (!signalPresent)&&(sigCont->getFloatSignal(signalName.c_str(),floatVal)) )
-                {
-                    luaWrap_lua_pushnumber(L,floatVal);
-                    signalPresent=true;
-                    LUA_END(1);
-                }
-                std::string strVal;
-                if ( (!signalPresent)&&(sigCont->getStringSignal(signalName.c_str(),strVal)) )
-                {
-                    luaWrap_lua_pushstring(L,strVal.c_str());
-                    signalPresent=true;
-                    LUA_END(1);
-                }
-                if (!signalPresent)
-                {
-                    CThreadPool::switchBackToPreviousThread();
-                    if (CThreadPool::getSimulationStopRequestedAndActivated())
-                    {
-                        errorString="@yield"; // yield will be triggered at end of this function
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
 int _simGetObjectProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -11856,303 +11488,6 @@ int _simSetModelProperty(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
-}
-
-int _simFollowPath(luaWrap_lua_State* L)
-{ // can only be called from a script running in a thread!!
-    TRACE_LUA_API;
-    LUA_START("sim.followPath");
-
-    if (!VThread::isCurrentThreadTheMainSimulationThread())
-    {
-        if (!(CThreadPool::getSimulationStopRequested()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L))))
-        { // Important to first check if we are supposed to leave the thread!!
-            if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-            { // Those are the arguments that are always required! (the rest can be ignored or set to nil!
-                int objID=luaWrap_lua_tointeger(L,1);
-                int pathID=luaWrap_lua_tointeger(L,2);
-                float posOnPath=luaToFloat(L,4);
-                int positionAndOrOrientation=abs(luaToInt(L,3));
-                if (positionAndOrOrientation==0)
-                    positionAndOrOrientation=1;
-                float maxVelocity=luaToFloat(L,5);
-                CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
-                CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(pathID);
-                float accel=0.0f; // means infinite accel!! (default value)
-                bool foundError=false;
-                if ((!foundError)&&(object==nullptr))
-                {
-                    errorString=SIM_ERROR_OBJECT_INEXISTANT;
-                    foundError=true;
-                }
-                if ((!foundError)&&(path==nullptr))
-                {
-                    errorString=SIM_ERROR_PATH_INEXISTANT;
-                    foundError=true;
-                }
-                if (!foundError)
-                {
-                    if (path->pathContainer->getAttributes()&sim_pathproperty_closed_path)
-                    {
-                        if (posOnPath<0.0f)
-                            posOnPath=0.0f;
-                    }
-                    else
-                        posOnPath=tt::getLimitedFloat(0.0f,1.0f,posOnPath);
-                }
-
-                // Now check the optional arguments:
-                int res;
-                if (!foundError) // Accel argument:
-                {
-                    res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,true,&errorString);
-                    if (res==2)
-                    { // get the data
-                        accel=fabs(luaToFloat(L,6));
-                    }
-                    foundError=(res==-1);
-                }
-                if (!foundError)
-                { // do the job here!
-                    float bezierPathLength=path->pathContainer->getBezierVirtualPathLength();
-                    double pos=posOnPath*bezierPathLength;
-                    float vel=0.0f;
-                    CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                    float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+threadData->usedMovementTime;
-                    bool movementFinished=(bezierPathLength==0.0f);
-                    float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f; // this is the time left if we leave here
-                    bool err=false;
-                    while (!movementFinished)
-                    {
-                        if ((App::currentWorld->sceneObjects->getObjectFromHandle(objID)!=object)||(App::currentWorld->sceneObjects->getPathFromHandle(pathID)!=path) ) // make sure the objects are still valid (running in a thread)
-                        {
-                            dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
-                            break;
-                        }
-
-                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
-                        dt=currentTime-lastTime;
-                        lastTime=currentTime;
-                        if (accel==0.0f)
-                        { // Means infinite acceleration
-                            path->pathContainer->handlePath_keepObjectUnchanged(dt,pos,vel,maxVelocity,1.0f,false,true);
-                        }
-                        else
-                        {
-                            path->pathContainer->handlePath_keepObjectUnchanged(dt,pos,vel,maxVelocity,accel,false,false);
-                        }
-
-                        // Now check if we are within tolerances:
-                        if ( ((fabs(pos-bezierPathLength)<=0.00001f)&&(maxVelocity>=0.0f)) || ((fabs(pos-0.0f)<=0.00001f)&&(maxVelocity<=0.0f)) )
-                            movementFinished=true;
-
-                        // Set the new configuration of the object:
-                        float ll=float(pos/bezierPathLength);
-                        C7Vector newAbs;
-                        if (path->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(ll,newAbs))
-                        {
-                            newAbs=path->getCumulativeTransformation()*newAbs;
-                            C7Vector parentInv(object->getFullParentCumulativeTransformation().getInverse());
-                            C7Vector currAbs(object->getCumulativeTransformation());
-                            if ((positionAndOrOrientation&1)==0)
-                                newAbs.X=currAbs.X;
-                            if ((positionAndOrOrientation&2)==0)
-                                newAbs.Q=currAbs.Q;
-                            object->setLocalTransformation(parentInv*newAbs);
-                        }
-                        else
-                            movementFinished=true;
-
-                        if (!movementFinished)
-                        {
-                            CThreadPool::switchBackToPreviousThread();
-                            if (CThreadPool::getSimulationStopRequestedAndActivated()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L)))
-                            {
-                                errorString="@yield"; // yield will be triggered at end of this function
-                                err=true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!err)
-                    {
-                        // The movement finished. Now add the time used:
-                        threadData->usedMovementTime=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f-dt;
-                        luaWrap_lua_pushnumber(L,dt); // success
-                        LUA_END(1);
-                    }
-                }
-            }
-        }
-    }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGetDataOnPath(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getDataOnPath");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        int auxFlags;
-        float auxChannels[4];
-        if (simGetDataOnPath_internal(luaToInt(L,1),luaToFloat(L,2),0,&auxFlags,auxChannels)==1)
-        {
-            luaWrap_lua_pushnumber(L,auxFlags);
-            pushFloatTableOntoStack(L,4,auxChannels);
-            LUA_END(2);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGetPositionOnPath(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getPositionOnPath");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        float coord[3];
-        if (simGetPositionOnPath_internal(luaToInt(L,1),luaToFloat(L,2),coord)==1)
-        {
-            pushFloatTableOntoStack(L,3,coord);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGetOrientationOnPath(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getOrientationOnPath");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        float coord[3];
-        if (simGetOrientationOnPath_internal(luaToInt(L,1),luaToFloat(L,2),coord)==1)
-        {
-            pushFloatTableOntoStack(L,3,coord);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGetClosestPositionOnPath(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getClosestPositionOnPath");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,3))
-    {
-        float coord[3];
-        getFloatsFromTable(L,2,3,coord);
-        float dist=0.0f;
-        if (simGetClosestPositionOnPath_internal(luaToInt(L,1),coord,&dist)!=-1)
-        {
-            luaWrap_lua_pushnumber(L,dist);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-
-int _simWait(luaWrap_lua_State* L)
-{ // can only be called from a script running in a thread!!
-    TRACE_LUA_API;
-    LUA_START("sim.wait");
-
-    if (!VThread::isCurrentThreadTheMainSimulationThread())
-    {
-        if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        {
-            float deltaTime=luaToFloat(L,1);
-            int res=checkOneGeneralInputArgument(L,2,lua_arg_bool,0,true,false,&errorString);
-            if (res!=-1)
-            {
-                bool simulationTime=true;
-                if (res==2)
-                    simulationTime=luaToBool(L,2);
-                if (!simulationTime)
-                { // real-time wait
-                    CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                    int startTime=VDateTime::getTimeInMs();
-                    bool err=false;
-                    while (true)
-                    {
-                        float diff=float(VDateTime::getTimeDiffInMs(startTime))/1000.0f;
-                        if (diff>=deltaTime)
-                            break;
-                        CThreadPool::switchBackToPreviousThread();
-                        if (CThreadPool::getSimulationStopRequestedAndActivated())
-                        {
-                            errorString="@yield"; // yield will be triggered at end of this function
-                            err=true;
-                            break;
-                        }
-                    }
-                    threadData->usedMovementTime=0.0f; // important!
-                    if (!err)
-                    {
-                        luaWrap_lua_pushnumber(L,0.0f); // success (deltaTime left)
-                        LUA_END(1);
-                    }
-                }
-                else
-                { // simulation time wait
-                    CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                    float startTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+threadData->usedMovementTime;
-                    float overshootTime=0.0f;
-                    bool err=false;
-                    while (true)
-                    {
-                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
-                        float diff=currentTime-startTime;
-                        if (diff>=deltaTime)
-                        {
-                            overshootTime=diff-deltaTime; // this is the "overshoot" time!
-                            break;
-                        }
-                        CThreadPool::switchBackToPreviousThread();
-//                        luaWrap_lua_yield(L,0); // does a long jump and never returns
-                        if (CThreadPool::getSimulationStopRequestedAndActivated())
-                        {
-                            errorString="@yield"; // yield will be triggered at end of this function
-                            err=true;
-                            break;
-                        }
-                    }
-                    threadData->usedMovementTime=overshootTime; // important!
-                    if (!err)
-                    {
-                        luaWrap_lua_pushnumber(L,-overshootTime); // success (deltaTime left)
-                        LUA_END(1);
-                    }
-                }
-            }
-        }
-    }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
 }
 
 int _simReadForceSensor(luaWrap_lua_State* L)
@@ -12605,7 +11940,7 @@ int _simGetJointMode(luaWrap_lua_State* L)
 int _simSerialOpen(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.serialOpen");
+    LUA_START("sim._serialOpen");
 
     int retVal=-1; // means error
 #ifdef SIM_WITH_SERIAL
@@ -12626,18 +11961,13 @@ int _simSerialOpen(luaWrap_lua_State* L)
 int _simSerialClose(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.serialClose");
+    LUA_START("sim._serialClose");
 
-    int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        clearSerialPortLeftOver(luaToInt(L,1));
-        retVal=simSerialClose_internal(luaToInt(L,1));
-    }
+        simSerialClose_internal(luaToInt(L,1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simSerialSend(luaWrap_lua_State* L)
@@ -12661,133 +11991,17 @@ int _simSerialSend(luaWrap_lua_State* L)
 int _simSerialRead(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.serialRead");
+    LUA_START("sim._serialRead");
 
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_bool,0))
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        bool blocking=luaToBool(L,3);
-        std::string closingString="";
-        float timeOut=0.0f;
-        unsigned int maxLength=(unsigned int)luaToInt(L,2);
-        std::string fullDataRead;
-        bool err=false;
-        if (blocking)
+        size_t maxLength=(size_t)luaToInt(L,2);
+        std::string data;
+        data.resize(maxLength);
+        int nb=simSerialRead_internal(luaToInt(L,1),(char*)data.c_str(),(int)maxLength);
+        if (nb>0)
         {
-            if (!VThread::isCurrentThreadTheMainSimulationThread())
-            {
-                int res=checkOneGeneralInputArgument(L,4,lua_arg_string,0,true,true,&errorString);
-                if (res==2)
-                {
-                    size_t dataLength;
-                    char* data=(char*)luaWrap_lua_tolstring(L,4,&dataLength);
-                    closingString.assign(data,dataLength);
-                }
-                if (res!=-1)
-                {
-                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
-                    if (res==2)
-                        timeOut=luaToFloat(L,5);
-                    if (res!=-1)
-                    {
-                        int startTime=VDateTime::getTimeInMs();
-                        std::string leftOver=retrieveSerialPortLeftOver(luaToInt(L,1));
-                        fullDataRead=leftOver;
-                        unsigned int closingCheckedIndex=0;
-                        char* data=new char[maxLength-leftOver.length()];
-                        unsigned int csl=(unsigned int)closingString.length();
-                        while (true)
-                        {
-                            // 1. Check in what we already have:
-                            if ( (csl>0)&&(closingCheckedIndex+csl<=fullDataRead.length()) )
-                            {
-                                bool foundTheString=false;
-                                for (unsigned int j=closingCheckedIndex;j<=fullDataRead.length()-csl;j++)
-                                {
-                                    bool same=true;
-                                    for (unsigned int i=0;i<csl;i++)
-                                    {
-                                        if (fullDataRead[j+i]!=closingString[i])
-                                        {
-                                            same=false;
-                                            break;
-                                        }
-                                    }
-                                    if (same)
-                                    {
-                                        std::string rest(fullDataRead.begin()+j+csl,fullDataRead.end());
-                                        fullDataRead.assign(fullDataRead.begin(),fullDataRead.begin()+j);
-                                        insertSerialPortLeftOver(luaToInt(L,1),rest);
-                                        foundTheString=true;
-                                        break;
-                                    }
-                                }
-                                if (foundTheString)
-                                    break;
-                                closingCheckedIndex=(unsigned int)fullDataRead.length()-csl+1;
-                            }
-                            // 2. Did we already read enough?
-                            if (fullDataRead.length()>=maxLength)
-                            { // yes
-                                if (fullDataRead.length()==maxLength)
-                                    break;
-                                std::string rest(fullDataRead.begin()+maxLength,fullDataRead.end());
-                                fullDataRead.assign(fullDataRead.begin(),fullDataRead.begin()+maxLength);
-                                insertSerialPortLeftOver(luaToInt(L,1),rest);
-                                break;
-                            }
-                            else
-                            { // no
-                                int nb=simSerialRead_internal(luaToInt(L,1),data,(int)maxLength-(int)fullDataRead.length());
-                                if (nb<0)
-                                    break; // error
-                                std::string partString(data,nb);
-                                fullDataRead+=partString;
-                            }
-
-                            bool leaveHere=false;
-                            if (maxLength>fullDataRead.length())
-                            {
-                                CThreadPool::switchBackToPreviousThread();
-                                if (CThreadPool::getSimulationStopRequestedAndActivated())
-                                {
-                                    errorString="@yield"; // yield will be triggered at end of this function
-                                    err=true;
-                                    leaveHere=true;
-                                }
-                            }
-                            if ( (timeOut>0.0000001f)&&((float(VDateTime::getTimeDiffInMs(startTime))/1000.0f)>timeOut) )
-                                leaveHere=true;
-
-                            if (leaveHere)
-                            {
-                                insertSerialPortLeftOver(luaToInt(L,1),fullDataRead);
-                                fullDataRead.clear();
-                                break;
-                            }
-                        }
-                        delete[] data;
-                    }
-                }
-            }
-            else
-                errorString=SIM_ERROR_BLOCKING_OPERATION_ONLY_FROM_THREAD;
-        }
-        else
-        {
-            std::string leftOver=retrieveSerialPortLeftOver(luaToInt(L,1));
-            char* data=new char[maxLength-leftOver.length()];
-            int nb=simSerialRead_internal(luaToInt(L,1),data,(int)maxLength-(int)leftOver.length());
-            if (nb>0)
-            { // no error
-                std::string nextData(data,nb);
-                fullDataRead=leftOver+nextData;
-            }
-            delete[] data;
-        }
-
-        if ( (!err)&&(fullDataRead.length()>0) )
-        {
-            luaWrap_lua_pushlstring(L,fullDataRead.c_str(),fullDataRead.length());
+            luaWrap_lua_pushlstring(L,data.c_str(),nb);
             LUA_END(1);
         }
     }
@@ -12830,167 +12044,6 @@ int _simGetContactInfo(luaWrap_lua_State* L)
             pushFloatTableOntoStack(L,3,contactInfo+3);
             pushFloatTableOntoStack(L,3,contactInfo+6);
             LUA_END(4);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetThreadIsFree(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setThreadIsFree");
-
-    int retVal=-1;
-    if (!VThread::isCurrentThreadTheMainSimulationThread())
-    {
-        bool result=false;
-        if (checkInputArguments(L,nullptr,lua_arg_bool,0))
-        {
-            result=CThreadPool::setThreadFreeMode(luaToBool(L,1));
-            if (result)
-                retVal=1;
-            else
-                retVal=0;
-        }
-        else
-            errorString=SIM_ERROR_INVALID_ARGUMENT;
-    }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simTubeOpen(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.tubeOpen");
-
-    int retVal=-1; // Error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_number,0))
-    {
-        std::string strTmp=luaWrap_lua_tostring(L,2);
-        int currentScriptID=getCurrentScriptHandle(L);
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-        retVal=App::currentWorld->commTubeContainer->openTube(luaToInt(L,1),strTmp.c_str(),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript),luaToInt(L,3));
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simTubeClose(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.tubeClose");
-
-    int retVal=-1; // Error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simTubeClose_internal(luaToInt(L,1));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simTubeWrite(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.tubeWrite");
-
-    int retVal=-1; // Error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
-    {
-        size_t dataLength;
-        char* data=(char*)luaWrap_lua_tolstring(L,2,&dataLength);
-        retVal=simTubeWrite_internal(luaToInt(L,1),data,(int)dataLength);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simTubeRead(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.tubeRead");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int dataLength;
-        bool blocking=false;
-        int res=checkOneGeneralInputArgument(L,2,lua_arg_bool,0,true,false,&errorString);
-        if (res==2)
-            blocking=luaToBool(L,2);
-        if (blocking)
-        {
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptHandle(L));
-            if (it!=nullptr)
-            {
-                if (!VThread::isCurrentThreadTheMainSimulationThread())
-                {
-                    char* data=simTubeRead_internal(luaToInt(L,1),&dataLength);
-                    while (data==nullptr)
-                    {
-                        // Now wait here until a button was pressed! (or the simulation is aborted)
-                        CThreadPool::switchBackToPreviousThread();
-                        if (CThreadPool::getSimulationStopRequestedAndActivated())
-                        {
-                            errorString="@yield"; // yield will be triggered at end of this function
-                            break;
-                        }
-                        data=simTubeRead_internal(luaToInt(L,1),&dataLength);
-                    }
-
-                    if (data!=nullptr)
-                    {
-                        luaWrap_lua_pushlstring(L,(const char*)data,dataLength);
-                        delete[] data;
-                        LUA_END(1);
-                    }
-                }
-                else
-                    errorString=SIM_ERROR_BLOCKING_OPERATION_ONLY_FROM_THREAD;
-            }
-        }
-        else
-        {
-            char* data=simTubeRead_internal(luaToInt(L,1),&dataLength);
-            if (data)
-            {
-                luaWrap_lua_pushlstring(L,(const char*)data,dataLength);
-                delete[] data;
-                LUA_END(1);
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simTubeStatus(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.tubeStatus");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int readSize;
-        int writeSize;
-        int status=simTubeStatus_internal(luaToInt(L,1),&readSize,&writeSize);
-        if (status>=0)
-        {
-            luaWrap_lua_pushnumber(L,status);
-            luaWrap_lua_pushnumber(L,readSize);
-            luaWrap_lua_pushnumber(L,writeSize);
-            LUA_END(3);
         }
     }
 
@@ -13623,56 +12676,6 @@ int _simCreateDummy(luaWrap_lua_State* L)
                 color=c;
             }
             retVal=simCreateDummy_internal(size,color);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simCreatePath(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.createPath");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int attribs=luaToInt(L,1);
-        int* intP=nullptr;
-        float* floatP=nullptr;
-        int intParams[3];
-        float floatParams[3];
-        float* color=nullptr;
-        float c[12];
-        int res=checkOneGeneralInputArgument(L,2,lua_arg_number,3,true,true,&errorString);
-        if (res>=0)
-        {
-            if (res==2)
-            {
-                getIntsFromTable(L,2,3,intParams);
-                intP=intParams;
-            }
-            res=checkOneGeneralInputArgument(L,3,lua_arg_number,3,true,true,&errorString);
-            if (res>=0)
-            {
-                if (res==2)
-                {
-                    getFloatsFromTable(L,3,3,floatParams);
-                    floatP=floatParams;
-                }
-                res=checkOneGeneralInputArgument(L,4,lua_arg_number,12,true,true,&errorString);
-                if (res>=0)
-                {
-                    if (res==2)
-                    {
-                        getFloatsFromTable(L,4,12,c);
-                        color=c;
-                    }
-                    retVal=simCreatePath_internal(attribs,intP,floatP,color);
-                }
-            }
         }
     }
 
@@ -14812,63 +13815,6 @@ int _simConvexDecompose(luaWrap_lua_State* L)
         floatParams[4]=0.0f;
         if (goOn)
             retVal=simConvexDecompose_internal(shapeHandle,options,intParams,floatParams);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simInsertPathCtrlPoints(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.insertPathCtrlPoints");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-    {
-        int pathHandle=luaToInt(L,1);
-        int options=luaToInt(L,2);
-        int startIndex=luaToInt(L,3);
-        int ptCnt=luaToInt(L,4);
-        int floatOrIntCountPerPoint=11;
-        if (options&2)
-            floatOrIntCountPerPoint=16;
-
-        int res=checkOneGeneralInputArgument(L,5,lua_arg_number,ptCnt*floatOrIntCountPerPoint,false,false,&errorString);
-        if (res==2)
-        {
-            float* data=new float[ptCnt*floatOrIntCountPerPoint];
-            getFloatsFromTable(L,5,ptCnt*floatOrIntCountPerPoint,data);
-            for (int i=0;i<ptCnt;i++)
-                ((int*)(data+floatOrIntCountPerPoint*i+8))[0]=int(data[floatOrIntCountPerPoint*i+8]+0.5f);
-            if (options&2)
-            {
-                for (int i=0;i<ptCnt;i++)
-                    ((int*)(data+floatOrIntCountPerPoint*i+11))[0]=int(data[floatOrIntCountPerPoint*i+11]+0.5f);
-            }
-            retVal=simInsertPathCtrlPoints_internal(pathHandle,options,startIndex,ptCnt,data);
-            delete[] data;
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simCutPathCtrlPoints(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.cutPathCtrlPoints");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-    {
-        int pathHandle=luaToInt(L,1);
-        int startIndex=luaToInt(L,2);
-        int ptCnt=luaToInt(L,3);
-        retVal=simCutPathCtrlPoints_internal(pathHandle,startIndex,ptCnt);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -18084,156 +17030,6 @@ int _simMoveToJointPositions(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSerialPortOpen(luaWrap_lua_State* L)
-{ // DEPRECATED For backward compatibility (10/04/2012)
-    TRACE_LUA_API;
-    LUA_START("simSerialPortOpen");
-
-    int retVal=-1; // means error
-#ifdef SIM_WITH_SERIAL
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=App::worldContainer->serialPortContainer->serialPortOpen_old(true,luaToInt(L,1),luaToInt(L,2));
-#endif
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simSerialPortClose(luaWrap_lua_State* L)
-{ // DEPRECATED For backward compatibility (10/04/2012)
-    TRACE_LUA_API;
-    LUA_START("simSerialPortClose");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simSerialPortClose_internal(luaToInt(L,1));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simSerialPortSend(luaWrap_lua_State* L)
-{ // DEPRECATED For backward compatibility (10/04/2012)
-    TRACE_LUA_API;
-    LUA_START("simSerialPortSend");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
-    {
-        size_t dataLength;
-        char* data=(char*)luaWrap_lua_tolstring(L,2,&dataLength);
-        retVal=simSerialPortSend_internal(luaToInt(L,1),data,(int)dataLength);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simSerialPortRead(luaWrap_lua_State* L)
-{ // DEPRECATED For backward compatibility (10/04/2012)
-    TRACE_LUA_API;
-    LUA_START("simSerialPortRead");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_bool,0))
-    {
-        bool blocking=luaToBool(L,3);
-        std::string closingString="";
-        float timeOut=0.0f;
-        bool err=false;
-        if (blocking)
-        {
-            if (!VThread::isCurrentThreadTheMainSimulationThread())
-            {
-                int res=checkOneGeneralInputArgument(L,4,lua_arg_string,0,true,true,&errorString);
-                if (res==2)
-                {
-                    size_t dataLength;
-                    char* data=(char*)luaWrap_lua_tolstring(L,4,&dataLength);
-                    closingString.assign(data,dataLength);
-                }
-                if (res!=-1)
-                {
-                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
-                    if (res==2)
-                        timeOut=luaToFloat(L,5);
-                    if (res!=-1)
-                        err=true;
-                }
-                else
-                    err=true;
-            }
-            else
-            {
-                errorString=SIM_ERROR_BLOCKING_OPERATION_ONLY_FROM_THREAD;
-                err=true;
-            }
-        }
-        if (!err)
-        {
-            int maxLength=luaToInt(L,2);
-            char* data=new char[maxLength];
-            int dataRead=0;
-            bool err=false;
-            if (blocking)
-            {
-                int startTime=VDateTime::getTimeInMs();
-                while (maxLength>dataRead)
-                {
-                    int nb=simSerialPortRead_internal(luaToInt(L,1),data+dataRead,maxLength-dataRead);
-                    if (nb<0)
-                        break; // error
-                    dataRead+=nb;
-                    int csl=int(closingString.length());
-                    if ( (csl!=0)&&(dataRead>=csl) )
-                    { // Break if we find the closing signature:
-                        bool same=true;
-                        for (int i=0;i<csl;i++)
-                        {
-                            if (data[dataRead-csl+i]!=closingString[i])
-                            {
-                                same=false;
-                                break;
-                            }
-                        }
-                        if (same)
-                        {
-                            dataRead-=csl;
-                            break;
-                        }
-                    }
-                    if (maxLength>dataRead)
-                    {
-                        CThreadPool::switchBackToPreviousThread();
-                        if (CThreadPool::getSimulationStopRequestedAndActivated())
-                        {
-                            errorString="@yield"; // yield will be triggered at end of this function
-                            err=true;
-                            break;
-                        }
-                    }
-                    if ( (timeOut>0.0000001f)&&((float(VDateTime::getTimeDiffInMs(startTime))/1000.0f)>timeOut) )
-                        break;
-                }
-            }
-            else
-                dataRead=simSerialPortRead_internal(luaToInt(L,1),data,maxLength);
-            if ( (dataRead>0)&&(!err) )
-            {
-                luaWrap_lua_pushlstring(L,(const char*)data,dataRead);
-                delete[] data;
-                LUA_END(1);
-            }
-            delete[] data;
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
 int _simGetInstanceIndex(luaWrap_lua_State* L)
 { // DEPRECATED
     TRACE_LUA_API;
@@ -18510,11 +17306,12 @@ int _simSearchPath(luaWrap_lua_State* L)
             else
             {
                 retVal=0;
-                if (VThread::isCurrentThreadTheMainSimulationThread())
+                //if (VThread::isCurrentThreadTheMainSimulationThread())
                 { // non-threaded
                     if (it->performSearch(false,maximumSearchTime))
                         retVal=1;
                 }
+                /*
                 else
                 { // threaded call:
                     CPathPlanningTask* oldIt=it;
@@ -18578,6 +17375,7 @@ int _simSearchPath(luaWrap_lua_State* L)
                         }
                     }
                 }
+                */
             }
         }
     }
@@ -19857,586 +18655,6 @@ int _simGetShapeMassAndInertia(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simRMLMoveToPosition(luaWrap_lua_State* L)
-{ // DEPRECATED on 08.09.2020
-    TRACE_LUA_API;
-    LUA_START_NO_CSIDE_ERROR("sim.rMLMoveToPosition");
-
-    int retVal=-1;
-    if (!VThread::isCurrentThreadTheMainSimulationThread())
-    {
-        if (checkInputArguments(L,nullptr,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-        { // the 3 first types are ok!
-            int objectHandle=luaToInt(L,1);
-            int relativeToObjectHandle=luaToInt(L,2);
-            int flags=luaToInt(L,3);
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            CSceneObject* relativeIt=nullptr;
-            bool relParentError=false;
-            if (relativeToObjectHandle!=-1)
-            {
-                if (relativeToObjectHandle==sim_handle_parent)
-                    relativeIt=it->getParent();
-                else
-                {
-                    relativeIt=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
-                    relParentError=(relativeIt==nullptr);
-                }
-            }
-            if ( (it==nullptr)||((relativeIt==nullptr)&&relParentError) )
-                errorString=SIM_ERROR_OBJECT_INEXISTANT;
-            else
-            {
-                C7Vector startPose(it->getCumulativeTransformation());
-                C7Vector tr;
-                tr.setIdentity();
-                if (relativeIt!=nullptr)
-                    tr=relativeIt->getCumulativeTransformation();
-                C7Vector trInv(tr.getInverse());
-                startPose=trInv*startPose;
-                C7Vector goalPose(startPose); // if we specify nil for the goal pos/quat we use the same as start
-
-                double currentVel[4]={0.0,0.0,0.0,0.0};
-                double currentAccel[4]={0.0,0.0,0.0,0.0};
-                double maxVel[4];
-                double maxAccel[4];
-                double maxJerk[4];
-                double targetVel[4]={0.0,0.0,0.0,0.0};
-                bool argError=false;
-
-                // currentVel
-                int res=checkOneGeneralInputArgument(L,4,lua_arg_number,4,false,true,&errorString);
-                if ((!argError)&&(res<1))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                        getDoublesFromTable(L,4,4,currentVel);
-                }
-
-                // currentAccel
-                res=checkOneGeneralInputArgument(L,5,lua_arg_number,4,false,true,&errorString);
-                if ((!argError)&&(res<1))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                        getDoublesFromTable(L,5,4,currentAccel);
-                }
-
-                // maxVel
-                res=checkOneGeneralInputArgument(L,6,lua_arg_number,4,false,false,&errorString);
-                if ((!argError)&&(res<2))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                        getDoublesFromTable(L,6,4,maxVel);
-                }
-
-                // maxAccel
-                res=checkOneGeneralInputArgument(L,7,lua_arg_number,4,false,false,&errorString);
-                if ((!argError)&&(res<2))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                        getDoublesFromTable(L,7,4,maxAccel);
-                }
-
-                // maxJerk
-                res=checkOneGeneralInputArgument(L,8,lua_arg_number,4,false,false,&errorString);
-                if ((!argError)&&(res<2))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                        getDoublesFromTable(L,8,4,maxJerk);
-                }
-
-                // targetPos
-                res=checkOneGeneralInputArgument(L,9,lua_arg_number,3,false,true,&errorString);
-                if ((!argError)&&(res<1))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                    {
-                        float dummy[3];
-                        getFloatsFromTable(L,9,3,dummy);
-                        goalPose.X.set(dummy);
-                    }
-                }
-
-                // targetQuat
-                res=checkOneGeneralInputArgument(L,10,lua_arg_number,4,false,true,&errorString);
-                if ((!argError)&&(res<1))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                    {
-                        float dummy[4];
-                        getFloatsFromTable(L,10,4,dummy);
-                        goalPose.Q(0)=dummy[3];
-                        goalPose.Q(1)=dummy[0];
-                        goalPose.Q(2)=dummy[1];
-                        goalPose.Q(3)=dummy[2];
-                    }
-                }
-
-                // targetVel
-                res=checkOneGeneralInputArgument(L,11,lua_arg_number,4,false,true,&errorString);
-                if ((!argError)&&(res<1))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                        getDoublesFromTable(L,11,4,targetVel);
-                }
-
-                if (!argError)
-                {
-                    float matrStart[12];
-                    float matrGoal[12];
-                    float axis[3];
-                    float angle;
-                    float quat[4];
-                    quat[0]=startPose.Q(1);
-                    quat[1]=startPose.Q(2);
-                    quat[2]=startPose.Q(3);
-                    quat[3]=startPose.Q(0);
-                    simBuildMatrixQ_internal(startPose.X.data,quat,matrStart);
-                    quat[0]=goalPose.Q(1);
-                    quat[1]=goalPose.Q(2);
-                    quat[2]=goalPose.Q(3);
-                    quat[3]=goalPose.Q(0);
-                    simBuildMatrixQ_internal(goalPose.X.data,quat,matrGoal);
-                    simGetRotationAxis_internal(matrStart,matrGoal,axis,&angle);
-                    unsigned char auxData[9];
-                    auxData[0]=1;
-                    double currentPosVelAccel[3*4];
-                    currentPosVelAccel[0+0]=(double)startPose.X(0);
-                    currentPosVelAccel[0+1]=(double)startPose.X(1);
-                    currentPosVelAccel[0+2]=(double)startPose.X(2);
-                    currentPosVelAccel[0+3]=0.0;
-                    for (int i=0;i<4;i++)
-                        currentPosVelAccel[4+i]=currentVel[i];
-                    for (int i=0;i<4;i++)
-                        currentPosVelAccel[8+i]=currentAccel[i];
-
-                    double maxVelAccelJerk[3*4];
-                    for (int i=0;i<4;i++)
-                        maxVelAccelJerk[0+i]=maxVel[i];
-                    for (int i=0;i<4;i++)
-                        maxVelAccelJerk[4+i]=maxAccel[i];
-                    for (int i=0;i<4;i++)
-                        maxVelAccelJerk[8+i]=maxJerk[i];
-
-                    unsigned char selection[4]={1,1,1,1};
-
-                    double targetPosVel[2*4];
-                    targetPosVel[0+0]=(double)goalPose.X(0);
-                    targetPosVel[0+1]=(double)goalPose.X(1);
-                    targetPosVel[0+2]=(double)goalPose.X(2);
-                    targetPosVel[0+3]=(double)angle;
-                    for (int i=0;i<4;i++)
-                        targetPosVel[4+i]=targetVel[i];
-
-                    double newPosVelAccel[3*4];
-                    bool movementFinished=false;
-
-
-                    int rmlHandle=simRMLPos_internal(4,0.0001,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,nullptr);
-                    while (!movementFinished)
-                    {
-                        double dt=double(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0;
-                        int rmlRes=simRMLStep_internal(rmlHandle,dt,newPosVelAccel,auxData,nullptr);
-                        it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-                        if ((rmlRes<0)||(it==nullptr))
-                            movementFinished=true; // error
-                        else
-                        {
-                            movementFinished=(rmlRes==1);
-                            // Set the current position/orientation:
-                            for (int i=0;i<3*4;i++)
-                                currentPosVelAccel[i]=newPosVelAccel[i];
-                            C7Vector currentPose;
-                            currentPose.X(0)=(float)currentPosVelAccel[0];
-                            currentPose.X(1)=(float)currentPosVelAccel[1];
-                            currentPose.X(2)=(float)currentPosVelAccel[2];
-                            float matrOut[12];
-                            float axisPos[3]={0.0f,0.0f,0.0f};
-                            simRotateAroundAxis_internal(matrStart,axis,axisPos,(float)currentPosVelAccel[3],matrOut);
-                            simGetQuaternionFromMatrix_internal(matrOut,quat);
-                            currentPose.Q(0)=quat[3];
-                            currentPose.Q(1)=quat[0];
-                            currentPose.Q(2)=quat[1];
-                            currentPose.Q(3)=quat[2];
-                            currentPose=tr*currentPose;
-                            it->setAbsoluteTransformation(currentPose);
-
-                            if (movementFinished)
-                            {
-                                CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                                threadData->usedMovementTime=(float)(((double*)(auxData+1))[0]);
-                                luaWrap_lua_pushnumber(L,1);
-                                pushDoubleTableOntoStack(L,3,newPosVelAccel);
-                                pushFloatTableOntoStack(L,4,quat);
-                                pushDoubleTableOntoStack(L,4,newPosVelAccel+4);
-                                pushDoubleTableOntoStack(L,4,newPosVelAccel+8);
-                                luaWrap_lua_pushnumber(L,dt-((double*)(auxData+1))[0]);
-                                simRMLRemove_internal(rmlHandle);
-                                LUA_END(6);
-                            }
-
-                            if (!movementFinished)
-                            {
-                                CThreadPool::switchBackToPreviousThread();
-                                if (CThreadPool::getSimulationStopRequestedAndActivated()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L)))
-                                {
-                                    errorString="@yield"; // yield will be triggered at end of this function
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    simRMLRemove_internal(rmlHandle);
-                }
-            }
-        }
-    }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal); // error
-    LUA_END(1);
-}
-
-int _simRMLMoveToJointPositions(luaWrap_lua_State* L)
-{ // DEPRECATED on 08.09.2020
-    TRACE_LUA_API;
-    LUA_START_NO_CSIDE_ERROR("sim.rMLMoveToJointPositions");
-
-    int retVal=-1; //error
-    if (!VThread::isCurrentThreadTheMainSimulationThread())
-    {
-        if (!( (!luaWrap_lua_istable(L,1))||(luaWrap_lua_objlen(L,1)<1) ))
-        {
-            int dofs=(int)luaWrap_lua_objlen(L,1);
-            int flags=-1;
-            int* jointHandles=new int[dofs];
-            double* currentVel=new double[dofs];
-            double* currentAccel=new double[dofs];
-            double* maxVel=new double[dofs];
-            double* maxAccel=new double[dofs];
-            double* maxJerk=new double[dofs];
-            double* targetPos=new double[dofs];
-            double* targetVel=new double[dofs];
-            int* direction=new int[dofs];
-            for (int i=0;i<dofs;i++)
-            {
-                currentVel[i]=0.0;
-                currentAccel[i]=0.0;
-                maxVel[i]=0.0;
-                maxAccel[i]=0.0;
-                maxJerk[i]=0.0;
-                targetPos[i]=0.0;
-                targetVel[i]=0.0;
-                direction[i]=0;
-            }
-            bool argError=false;
-
-            // jointHandles
-            int res=checkOneGeneralInputArgument(L,1,lua_arg_number,dofs,false,false,&errorString);
-            if ((!argError)&&(res<2))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getIntsFromTable(L,1,dofs,jointHandles);
-            }
-            if (!argError)
-            { // check if all joint handles are ok:
-                for (int i=0;i<dofs;i++)
-                {
-                    CJoint* act=App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
-                    if (act==nullptr)
-                        argError=true;
-                }
-                if (argError)
-                    errorString=SIM_ERROR_FOUND_INVALID_HANDLES;
-            }
-
-            // flags
-            res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,false,false,&errorString);
-            if ((!argError)&&(res<2))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    flags=luaToInt(L,2);
-            }
-
-            // currentVel
-            res=checkOneGeneralInputArgument(L,3,lua_arg_number,dofs,false,true,&errorString);
-            if ((!argError)&&(res<1))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getDoublesFromTable(L,3,dofs,currentVel);
-            }
-
-            // currentAccel
-            res=checkOneGeneralInputArgument(L,4,lua_arg_number,dofs,false,true,&errorString);
-            if ((!argError)&&(res<1))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getDoublesFromTable(L,4,dofs,currentAccel);
-            }
-
-            // maxVel
-            res=checkOneGeneralInputArgument(L,5,lua_arg_number,dofs,false,false,&errorString);
-            if ((!argError)&&(res<2))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getDoublesFromTable(L,5,dofs,maxVel);
-            }
-
-            // maxAccel
-            res=checkOneGeneralInputArgument(L,6,lua_arg_number,dofs,false,false,&errorString);
-            if ((!argError)&&(res<2))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getDoublesFromTable(L,6,dofs,maxAccel);
-            }
-
-            // maxJerk
-            res=checkOneGeneralInputArgument(L,7,lua_arg_number,dofs,false,false,&errorString);
-            if ((!argError)&&(res<2))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getDoublesFromTable(L,7,dofs,maxJerk);
-            }
-
-            // targetPos
-            res=checkOneGeneralInputArgument(L,8,lua_arg_number,dofs,false,false,&errorString);
-            if ((!argError)&&(res<2))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getDoublesFromTable(L,8,dofs,targetPos);
-            }
-
-            // targetVel
-            res=checkOneGeneralInputArgument(L,9,lua_arg_number,dofs,false,true,&errorString);
-            if ((!argError)&&(res<1))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getDoublesFromTable(L,9,dofs,targetVel);
-            }
-
-            res=checkOneGeneralInputArgument(L,10,lua_arg_number,dofs,true,true,&errorString);
-            if ((!argError)&&(res<0))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getIntsFromTable(L,10,dofs,direction);
-            }
-
-            if (!argError)
-            {
-                unsigned char auxData[9];
-                auxData[0]=1;
-                double* currentPosVelAccel=new double[3*dofs];
-                double* newPosVelAccel=new double[3*dofs];
-                double* maxVelAccelJerk=new double[3*dofs];
-                double* targetPosVel=new double[2*dofs];
-                unsigned char* selection=new unsigned char[dofs];
-                for (int i=0;i<dofs;i++)
-                {
-                    CJoint* act=App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
-                    if (act!=nullptr) // should always pass!
-                    {
-                        selection[i]=1;
-                        float ps=act->getPosition();
-                        if ( (act->getJointType()==sim_joint_revolute_subtype)&&act->getPositionIsCyclic() )
-                        {
-                            if (direction[i]==0)
-                            { // smallest movement:
-                                float dx=targetPos[i]-ps;
-                                while (dx>=piValTimes2_f)
-                                {
-                                    ps+=piValTimes2_f;
-                                    dx=targetPos[i]-ps;
-                                }
-                                while (dx<0.0f)
-                                {
-                                    ps-=piValTimes2_f;
-                                    dx=targetPos[i]-ps;
-                                }
-                                float b=ps+piValTimes2_f;
-                                if (fabs(targetPos[i]-b)<fabs(targetPos[i]-ps))
-                                    ps=b;
-                            }
-                            if (direction[i]>0)
-                            { // positive direction:
-                                float dx=targetPos[i]-ps;
-                                while (dx<piValTimes2_f*float(direction[i]-1))
-                                {
-                                    ps-=piValTimes2_f;
-                                    dx=targetPos[i]-ps;
-                                }
-                                while (dx>=piValTimes2_f*float(direction[i]))
-                                {
-                                    ps+=piValTimes2_f;
-                                    dx=targetPos[i]-ps;
-                                }
-                            }
-                            if (direction[i]<0)
-                            { // negative direction:
-                                float dx=targetPos[i]-ps;
-                                while (dx>-piValTimes2_f*float(-direction[i]-1))
-                                {
-                                    ps+=piValTimes2_f;
-                                    dx=targetPos[i]-ps;
-                                }
-                                while (dx<=-piValTimes2_f*float(-direction[i]))
-                                {
-                                    ps-=piValTimes2_f;
-                                    dx=targetPos[i]-ps;
-                                }
-                            }
-                            currentPosVelAccel[0*dofs+i]=ps;
-                        }
-                        else
-                            currentPosVelAccel[0*dofs+i]=ps;
-                    }
-                    else
-                        selection[i]=0;
-
-                    currentPosVelAccel[1*dofs+i]=currentVel[i];
-                    currentPosVelAccel[2*dofs+i]=currentAccel[i];
-
-                    maxVelAccelJerk[0*dofs+i]=maxVel[i];
-                    maxVelAccelJerk[1*dofs+i]=maxAccel[i];
-                    maxVelAccelJerk[2*dofs+i]=maxJerk[i];
-
-                    targetPosVel[0*dofs+i]=targetPos[i];
-                    targetPosVel[1*dofs+i]=targetVel[i];
-
-                    selection[i]=1;
-                }
-
-                bool movementFinished=false;
-
-
-                int rmlHandle=simRMLPos_internal(dofs,0.0001,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,nullptr);
-                while (!movementFinished)
-                {
-                    double dt=double(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0;
-                    int rmlRes=simRMLStep_internal(rmlHandle,dt,newPosVelAccel,auxData,nullptr);
-                    if (rmlRes<0)
-                        movementFinished=true; // error
-                    else
-                    {
-                        movementFinished=(rmlRes==1);
-                        // Set the current positions:
-                        for (int i=0;i<3*dofs;i++)
-                            currentPosVelAccel[i]=newPosVelAccel[i];
-                        for (int i=0;i<dofs;i++)
-                        {
-                            CJoint* act=App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
-                            if ( (act!=nullptr)&&(act->getJointType()!=sim_joint_spherical_subtype) )
-                            { // might have been destroyed in the mean time
-                                if ( (act->getJointMode()==sim_jointmode_force)&&((act->getCumulativeModelProperty()&sim_modelproperty_not_dynamic)==0) )
-                                    act->setDynamicMotorPositionControlTargetPosition((float)currentPosVelAccel[0*dofs+i]);
-                                else
-                                    act->setPosition((float)currentPosVelAccel[0*dofs+i]);
-                            }
-                        }
-
-                        if (movementFinished)
-                        {
-                            CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                            threadData->usedMovementTime=(float)(((double*)(auxData+1))[0]);
-                            luaWrap_lua_pushnumber(L,1);
-                            pushDoubleTableOntoStack(L,dofs,newPosVelAccel+0*dofs);
-                            pushDoubleTableOntoStack(L,dofs,newPosVelAccel+1*dofs);
-                            pushDoubleTableOntoStack(L,dofs,newPosVelAccel+2*dofs);
-                            luaWrap_lua_pushnumber(L,dt-((double*)(auxData+1))[0]);
-
-                            delete[] currentPosVelAccel;
-                            delete[] newPosVelAccel;
-                            delete[] maxVelAccelJerk;
-                            delete[] targetPosVel;
-                            delete[] selection;
-
-                            delete[] jointHandles;
-                            delete[] currentVel;
-                            delete[] currentAccel;
-                            delete[] maxVel;
-                            delete[] maxAccel;
-                            delete[] maxJerk;
-                            delete[] targetPos;
-                            delete[] targetVel;
-                            simRMLRemove_internal(rmlHandle);
-                            LUA_END(5);
-                        }
-
-                        if (!movementFinished)
-                        {
-                            CThreadPool::switchBackToPreviousThread();
-                            if (CThreadPool::getSimulationStopRequestedAndActivated()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L)))
-                            {
-                                errorString="@yield"; // yield will be triggered at end of this function
-                                break;
-                            }
-                        }
-                    }
-                }
-                simRMLRemove_internal(rmlHandle);
-
-                delete[] currentPosVelAccel;
-                delete[] newPosVelAccel;
-                delete[] maxVelAccelJerk;
-                delete[] targetPosVel;
-                delete[] selection;
-            }
-
-            delete[] jointHandles;
-            delete[] currentVel;
-            delete[] currentAccel;
-            delete[] maxVel;
-            delete[] maxAccel;
-            delete[] maxJerk;
-            delete[] targetPos;
-            delete[] targetVel;
-        }
-        else
-            errorString=SIM_ERROR_INVALID_FIRST_ARGUMENT;
-    }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal); // error
-    LUA_END(1);
-}
 
 int _simMoveToObject(luaWrap_lua_State* L)
 { // Deprecated on 08.09.2020
@@ -21052,3 +19270,1850 @@ int _simSetIkElementProperties(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
+int _simSetThreadIsFree(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.setThreadIsFree");
+
+    int retVal=0;
+    /*
+    int retVal=-1;
+    if (!VThread::isCurrentThreadTheMainSimulationThread())
+    {
+        bool result=false;
+        if (checkInputArguments(L,nullptr,lua_arg_bool,0))
+        {
+            result=CThreadPool::setThreadFreeMode(luaToBool(L,1));
+            if (result)
+                retVal=1;
+            else
+                retVal=0;
+        }
+        else
+            errorString=SIM_ERROR_INVALID_ARGUMENT;
+    }
+    else
+        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
+    */
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simTubeRead(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim._tubeRead");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int dataLength;
+        char* data=simTubeRead_internal(luaToInt(L,1),&dataLength);
+        if (data)
+        {
+            luaWrap_lua_pushlstring(L,(const char*)data,dataLength);
+            delete[] data;
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simTubeOpen(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.tubeOpen");
+
+    int retVal=-1; // Error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_number,0))
+    {
+        std::string strTmp=luaWrap_lua_tostring(L,2);
+        int currentScriptID=getCurrentScriptHandle(L);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+        retVal=App::currentWorld->commTubeContainer->openTube(luaToInt(L,1),strTmp.c_str(),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript),luaToInt(L,3));
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simTubeClose(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.tubeClose");
+
+    int retVal=-1; // Error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        retVal=simTubeClose_internal(luaToInt(L,1));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simTubeWrite(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.tubeWrite");
+
+    int retVal=-1; // Error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
+    {
+        size_t dataLength;
+        char* data=(char*)luaWrap_lua_tolstring(L,2,&dataLength);
+        retVal=simTubeWrite_internal(luaToInt(L,1),data,(int)dataLength);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simTubeStatus(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.tubeStatus");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int readSize;
+        int writeSize;
+        int status=simTubeStatus_internal(luaToInt(L,1),&readSize,&writeSize);
+        if (status>=0)
+        {
+            luaWrap_lua_pushnumber(L,status);
+            luaWrap_lua_pushnumber(L,readSize);
+            luaWrap_lua_pushnumber(L,writeSize);
+            LUA_END(3);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSendData(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.sendData");
+
+    int retVal=-1;
+    int currentScriptID=getCurrentScriptHandle(L);
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+    if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
+    {
+        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_string,0,lua_arg_string,0))
+        {
+            int targetID=luaWrap_lua_tointeger(L,1);
+            if ( (targetID<=0)&&(targetID!=sim_handle_all)&&(targetID!=sim_handle_tree)&&(targetID!=sim_handle_chain) )
+                errorString=SIM_ERROR_INVALID_TARGET_HANDLE;
+            else
+            {
+                int dataHeader=luaWrap_lua_tointeger(L,2);
+                if (dataHeader<0)
+                    errorString=SIM_ERROR_INVALID_DATA_HEADER;
+                else
+                {
+                    std::string dataName(luaWrap_lua_tostring(L,3));
+                    if ( (dataName.length()==0)||(dataName.find(char(0))!=std::string::npos) )
+                        errorString=SIM_ERROR_INVALID_DATA_NAME;
+                    else
+                    {
+                        size_t dataLength;
+                        char* data=(char*)luaWrap_lua_tolstring(L,4,&dataLength);
+                        if (dataLength<1)
+                            errorString=SIM_ERROR_INVALID_DATA;
+                        else
+                        {
+                            // Following are default values:
+                            int antennaHandle=sim_handle_self;
+                            float actionRadius=100.0f;
+                            float emissionAngle1=piValue_f;
+                            float emissionAngle2=piValTimes2_f;
+                            float persistence=0.0f;
+                            bool err=false;
+                            int res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
+                            if (res==2)
+                                antennaHandle=luaWrap_lua_tointeger(L,5);
+                            err=err||((res!=0)&&(res!=2));
+                            if (!err)
+                            {
+                                if ( (antennaHandle<0)&&(antennaHandle!=sim_handle_default)&&((antennaHandle!=sim_handle_self)||(it->getScriptType()!=sim_scripttype_childscript)) )
+                                {
+                                    errorString=SIM_ERROR_INVALID_ANTENNA_HANDLE;
+                                    err=true;
+                                }
+                                else
+                                {
+                                    if (antennaHandle==sim_handle_self)
+                                        antennaHandle=it->getObjectIDThatScriptIsAttachedTo_child();
+                                    if (antennaHandle!=sim_handle_default)
+                                    {
+                                        CSceneObject* ant=App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
+                                        if (ant==nullptr)
+                                        {
+                                            errorString=SIM_ERROR_INVALID_ANTENNA_HANDLE;
+                                            err=true;
+                                        }
+                                    }
+                                }
+                            }
+                            if (!err)
+                            {
+                                int res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,false,&errorString);
+                                if (res==2)
+                                    actionRadius=luaToFloat(L,6);
+                                err=err||((res!=0)&&(res!=2));
+                            }
+                            if (!err)
+                            {
+                                int res=checkOneGeneralInputArgument(L,7,lua_arg_number,0,true,false,&errorString);
+                                if (res==2)
+                                    emissionAngle1=luaToFloat(L,7);
+                                err=err||((res!=0)&&(res!=2));
+                            }
+                            if (!err)
+                            {
+                                int res=checkOneGeneralInputArgument(L,8,lua_arg_number,0,true,false,&errorString);
+                                if (res==2)
+                                    emissionAngle2=luaToFloat(L,8);
+                                err=err||((res!=0)&&(res!=2));
+                            }
+                            if (!err)
+                            {
+                                int res=checkOneGeneralInputArgument(L,9,lua_arg_number,0,true,false,&errorString);
+                                if (res==2)
+                                    persistence=luaToFloat(L,9);
+                                err=err||((res!=0)&&(res!=2));
+                            }
+                            if (!err)
+                            {
+                                actionRadius=tt::getLimitedFloat(0.0f,SIM_MAX_FLOAT,actionRadius);
+                                emissionAngle1=tt::getLimitedFloat(0.0f,piValue_f,emissionAngle1);
+                                emissionAngle2=tt::getLimitedFloat(0.0f,piValTimes2_f,emissionAngle2);
+                                persistence=tt::getLimitedFloat(0.0f,99999999999999.9f,persistence);
+                                if (persistence==0.0f)
+                                    persistence=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())*1.5f/1000000.0f;
+
+                                App::currentWorld->luaScriptContainer->broadcastDataContainer.broadcastData(currentScriptID,targetID,dataHeader,dataName,
+                                    float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+persistence,actionRadius,antennaHandle,
+                                    emissionAngle1,emissionAngle2,data,(int)dataLength);
+                                retVal=1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT_OR_CHILD_SCRIPT;
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simReceiveData(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.receiveData");
+
+    int currentScriptID=getCurrentScriptHandle(L);
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+    if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
+    {
+        int dataHeader=-1;
+        std::string dataName;
+        int antennaHandle=sim_handle_self;
+        int index=-1;
+        bool err=false;
+        int res=checkOneGeneralInputArgument(L,1,lua_arg_number,0,true,false,&errorString);
+        if (res==2)
+        {
+            dataHeader=luaWrap_lua_tointeger(L,1);
+            if (dataHeader<0)
+                dataHeader=-1;
+        }
+        err=err||((res!=0)&&(res!=2));
+        if (!err)
+        {
+            int res=checkOneGeneralInputArgument(L,2,lua_arg_string,0,true,true,&errorString);
+            if (res==2)
+            {
+                dataName=luaWrap_lua_tostring(L,2);
+                if (dataName.length()<1)
+                {
+                    errorString=SIM_ERROR_INVALID_DATA_NAME;
+                    err=true;
+                }
+            }
+            err=err||(res<0);
+        }
+        if (!err)
+        {
+            int res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,false,&errorString);
+            if (res==2)
+            {
+                antennaHandle=luaWrap_lua_tointeger(L,3);
+                if ( (antennaHandle<0)&&(antennaHandle!=sim_handle_default)&&((antennaHandle!=sim_handle_self)||(it->getScriptType()!=sim_scripttype_childscript)) )
+                {
+                    errorString=SIM_ERROR_INVALID_ANTENNA_HANDLE;
+                    err=true;
+                }
+            }
+            err=err||((res!=0)&&(res!=2));
+            if (!err)
+            {
+                if (antennaHandle==sim_handle_self)
+                    antennaHandle=it->getObjectIDThatScriptIsAttachedTo_child();
+                if (antennaHandle!=sim_handle_default)
+                {
+                    CSceneObject* ant=App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
+                    if (ant==nullptr)
+                    {
+                        errorString=SIM_ERROR_INVALID_ANTENNA_HANDLE;
+                        err=true;
+                    }
+                }
+            }
+        }
+        if (!err)
+        {
+            int res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
+            if (res==2)
+            {
+                index=luaWrap_lua_tointeger(L,4);
+                if (index<0)
+                    index=-1;
+            }
+            err=err||((res!=0)&&(res!=2));
+        }
+        if (!err)
+        {
+            int theDataHeader;
+            int theDataLength;
+            int theSenderID;
+            std::string theDataName;
+            char* data0=App::currentWorld->luaScriptContainer->broadcastDataContainer.receiveData(currentScriptID,float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f,
+                    dataHeader,dataName,antennaHandle,theDataLength,index,theSenderID,theDataHeader,theDataName);
+            if (data0!=nullptr)
+            {
+                luaWrap_lua_pushlstring(L,data0,theDataLength);
+                luaWrap_lua_pushnumber(L,theSenderID);
+                luaWrap_lua_pushnumber(L,theDataHeader);
+                luaWrap_lua_pushstring(L,theDataName.c_str());
+                LUA_END(4);
+            }
+        }
+    }
+    else
+        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT_OR_CHILD_SCRIPT;
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simFollowPath(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.followPath");
+
+    if (!VThread::isCurrentThreadTheMainSimulationThread())
+    {
+        if (!(CThreadPool::getSimulationStopRequested()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L))))
+        { // Important to first check if we are supposed to leave the thread!!
+            if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+            { // Those are the arguments that are always required! (the rest can be ignored or set to nil!
+                int objID=luaWrap_lua_tointeger(L,1);
+                int pathID=luaWrap_lua_tointeger(L,2);
+                float posOnPath=luaToFloat(L,4);
+                int positionAndOrOrientation=abs(luaToInt(L,3));
+                if (positionAndOrOrientation==0)
+                    positionAndOrOrientation=1;
+                float maxVelocity=luaToFloat(L,5);
+                CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
+                CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(pathID);
+                float accel=0.0f; // means infinite accel!! (default value)
+                bool foundError=false;
+                if ((!foundError)&&(object==nullptr))
+                {
+                    errorString=SIM_ERROR_OBJECT_INEXISTANT;
+                    foundError=true;
+                }
+                if ((!foundError)&&(path==nullptr))
+                {
+                    errorString=SIM_ERROR_PATH_INEXISTANT;
+                    foundError=true;
+                }
+                if (!foundError)
+                {
+                    if (path->pathContainer->getAttributes()&sim_pathproperty_closed_path)
+                    {
+                        if (posOnPath<0.0f)
+                            posOnPath=0.0f;
+                    }
+                    else
+                        posOnPath=tt::getLimitedFloat(0.0f,1.0f,posOnPath);
+                }
+
+                // Now check the optional arguments:
+                int res;
+                if (!foundError) // Accel argument:
+                {
+                    res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,true,&errorString);
+                    if (res==2)
+                    { // get the data
+                        accel=fabs(luaToFloat(L,6));
+                    }
+                    foundError=(res==-1);
+                }
+                if (!foundError)
+                { // do the job here!
+                    float bezierPathLength=path->pathContainer->getBezierVirtualPathLength();
+                    double pos=posOnPath*bezierPathLength;
+                    float vel=0.0f;
+                    CVThreadData* threadData=CThreadPool::getCurrentThreadData();
+                    float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+threadData->usedMovementTime;
+                    bool movementFinished=(bezierPathLength==0.0f);
+                    float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f; // this is the time left if we leave here
+                    bool err=false;
+                    while (!movementFinished)
+                    {
+                        if ((App::currentWorld->sceneObjects->getObjectFromHandle(objID)!=object)||(App::currentWorld->sceneObjects->getPathFromHandle(pathID)!=path) ) // make sure the objects are still valid (running in a thread)
+                        {
+                            dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
+                            break;
+                        }
+
+                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
+                        dt=currentTime-lastTime;
+                        lastTime=currentTime;
+                        if (accel==0.0f)
+                        { // Means infinite acceleration
+                            path->pathContainer->handlePath_keepObjectUnchanged(dt,pos,vel,maxVelocity,1.0f,false,true);
+                        }
+                        else
+                        {
+                            path->pathContainer->handlePath_keepObjectUnchanged(dt,pos,vel,maxVelocity,accel,false,false);
+                        }
+
+                        // Now check if we are within tolerances:
+                        if ( ((fabs(pos-bezierPathLength)<=0.00001f)&&(maxVelocity>=0.0f)) || ((fabs(pos-0.0f)<=0.00001f)&&(maxVelocity<=0.0f)) )
+                            movementFinished=true;
+
+                        // Set the new configuration of the object:
+                        float ll=float(pos/bezierPathLength);
+                        C7Vector newAbs;
+                        if (path->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(ll,newAbs))
+                        {
+                            newAbs=path->getCumulativeTransformation()*newAbs;
+                            C7Vector parentInv(object->getFullParentCumulativeTransformation().getInverse());
+                            C7Vector currAbs(object->getCumulativeTransformation());
+                            if ((positionAndOrOrientation&1)==0)
+                                newAbs.X=currAbs.X;
+                            if ((positionAndOrOrientation&2)==0)
+                                newAbs.Q=currAbs.Q;
+                            object->setLocalTransformation(parentInv*newAbs);
+                        }
+                        else
+                            movementFinished=true;
+
+                        if (!movementFinished)
+                        {
+                            CThreadPool::switchBackToPreviousThread();
+                            if (CThreadPool::getSimulationStopRequestedAndActivated()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L)))
+                            {
+                                errorString="@yield"; // yield will be triggered at end of this function
+                                err=true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!err)
+                    {
+                        // The movement finished. Now add the time used:
+                        threadData->usedMovementTime=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f-dt;
+                        luaWrap_lua_pushnumber(L,dt); // success
+                        LUA_END(1);
+                    }
+                }
+            }
+        }
+    }
+    else
+        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetDataOnPath(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.getDataOnPath");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        int auxFlags;
+        float auxChannels[4];
+        if (simGetDataOnPath_internal(luaToInt(L,1),luaToFloat(L,2),0,&auxFlags,auxChannels)==1)
+        {
+            luaWrap_lua_pushnumber(L,auxFlags);
+            pushFloatTableOntoStack(L,4,auxChannels);
+            LUA_END(2);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetPositionOnPath(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.getPositionOnPath");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        float coord[3];
+        if (simGetPositionOnPath_internal(luaToInt(L,1),luaToFloat(L,2),coord)==1)
+        {
+            pushFloatTableOntoStack(L,3,coord);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetOrientationOnPath(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.getOrientationOnPath");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        float coord[3];
+        if (simGetOrientationOnPath_internal(luaToInt(L,1),luaToFloat(L,2),coord)==1)
+        {
+            pushFloatTableOntoStack(L,3,coord);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetClosestPositionOnPath(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.getClosestPositionOnPath");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,3))
+    {
+        float coord[3];
+        getFloatsFromTable(L,2,3,coord);
+        float dist=0.0f;
+        if (simGetClosestPositionOnPath_internal(luaToInt(L,1),coord,&dist)!=-1)
+        {
+            luaWrap_lua_pushnumber(L,dist);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetPathPosition(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.getPathPosition");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        float pathVal[1];
+        if (simGetPathPosition_internal(luaToInt(L,1),pathVal)!=-1)
+        {
+            luaWrap_lua_pushnumber(L,pathVal[0]);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetPathPosition(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.setPathPosition");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+        retVal=simSetPathPosition_internal(luaToInt(L,1),luaToFloat(L,2));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetPathLength(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.getPathLength");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        float pathLen[1];
+        if (simGetPathLength_internal(luaToInt(L,1),pathLen)!=-1)
+        {
+            luaWrap_lua_pushnumber(L,pathLen[0]);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simInsertPathCtrlPoints(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.insertPathCtrlPoints");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+    {
+        int pathHandle=luaToInt(L,1);
+        int options=luaToInt(L,2);
+        int startIndex=luaToInt(L,3);
+        int ptCnt=luaToInt(L,4);
+        int floatOrIntCountPerPoint=11;
+        if (options&2)
+            floatOrIntCountPerPoint=16;
+
+        int res=checkOneGeneralInputArgument(L,5,lua_arg_number,ptCnt*floatOrIntCountPerPoint,false,false,&errorString);
+        if (res==2)
+        {
+            float* data=new float[ptCnt*floatOrIntCountPerPoint];
+            getFloatsFromTable(L,5,ptCnt*floatOrIntCountPerPoint,data);
+            for (int i=0;i<ptCnt;i++)
+                ((int*)(data+floatOrIntCountPerPoint*i+8))[0]=int(data[floatOrIntCountPerPoint*i+8]+0.5f);
+            if (options&2)
+            {
+                for (int i=0;i<ptCnt;i++)
+                    ((int*)(data+floatOrIntCountPerPoint*i+11))[0]=int(data[floatOrIntCountPerPoint*i+11]+0.5f);
+            }
+            retVal=simInsertPathCtrlPoints_internal(pathHandle,options,startIndex,ptCnt,data);
+            delete[] data;
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simCutPathCtrlPoints(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.cutPathCtrlPoints");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+    {
+        int pathHandle=luaToInt(L,1);
+        int startIndex=luaToInt(L,2);
+        int ptCnt=luaToInt(L,3);
+        retVal=simCutPathCtrlPoints_internal(pathHandle,startIndex,ptCnt);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simCreatePath(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.createPath");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int attribs=luaToInt(L,1);
+        int* intP=nullptr;
+        float* floatP=nullptr;
+        int intParams[3];
+        float floatParams[3];
+        float* color=nullptr;
+        float c[12];
+        int res=checkOneGeneralInputArgument(L,2,lua_arg_number,3,true,true,&errorString);
+        if (res>=0)
+        {
+            if (res==2)
+            {
+                getIntsFromTable(L,2,3,intParams);
+                intP=intParams;
+            }
+            res=checkOneGeneralInputArgument(L,3,lua_arg_number,3,true,true,&errorString);
+            if (res>=0)
+            {
+                if (res==2)
+                {
+                    getFloatsFromTable(L,3,3,floatParams);
+                    floatP=floatParams;
+                }
+                res=checkOneGeneralInputArgument(L,4,lua_arg_number,12,true,true,&errorString);
+                if (res>=0)
+                {
+                    if (res==2)
+                    {
+                        getFloatsFromTable(L,4,12,c);
+                        color=c;
+                    }
+                    retVal=simCreatePath_internal(attribs,intP,floatP,color);
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetScriptExecutionCount(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.getScriptExecutionCount");
+
+    int currentScriptID=getCurrentScriptHandle(L);
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,it->getNumberOfPasses());
+    LUA_END(1);
+}
+
+int _simIsScriptExecutionThreaded(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.isScriptExecutionThreaded");
+
+    int currentScriptID=getCurrentScriptHandle(L);
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
+    int retVal=0;
+    if ((it!=nullptr)&&it->getThreadedExecution())
+        retVal=1;
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simIsScriptRunningInThread(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.isScriptRunningInThread");
+
+    int retVal=1;
+    if (VThread::isCurrentThreadTheMainSimulationThread())
+        retVal=0;
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simSetThreadResumeLocation(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.setThreadResumeLocation");
+
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        if (CThreadPool::setThreadResumeLocation(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2)))
+            retVal=1;
+        else
+            retVal=0;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simResumeThreads(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.resumeThreads");
+
+    int retVal=-1;
+    int currentScriptID=getCurrentScriptHandle(L);
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+    if (it->getScriptType()==sim_scripttype_mainscript)
+    {
+        if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        {
+            int loc=luaWrap_lua_tointeger(L,1);
+
+            int startT=VDateTime::getTimeInMs();
+            retVal=App::currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript|sim_scripttype_threaded_old,loc,nullptr,nullptr,nullptr);
+            // Following line important: when erasing a running threaded script object, with above cascaded
+            // call, the thread will never resume nor be able to end. Next line basically runs all
+            // that were not yet ran:
+            retVal+=CThreadPool::handleAllThreads_withResumeLocation(loc);
+        }
+    }
+    else
+        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simLaunchThreadedChildScripts(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.launchThreadedChildScripts");
+
+    int retVal=-1; // means error
+    int currentScriptID=getCurrentScriptHandle(L);
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
+    if (it!=nullptr)
+    {
+        if (it->getScriptType()==sim_scripttype_mainscript)
+        {
+            int startT=VDateTime::getTimeInMs();
+            retVal=App::currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript|sim_scripttype_threaded_old,sim_scriptthreadresume_launch,nullptr,nullptr,nullptr);
+        }
+        else
+            errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+
+
+/*
+int _simWait(luaWrap_lua_State* L)
+{ // can only be called from a script running in a thread!!
+    TRACE_LUA_API;
+    LUA_START("sim.wait");
+
+    if (!VThread::isCurrentThreadTheMainSimulationThread())
+    {
+        if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        {
+            float deltaTime=luaToFloat(L,1);
+            int res=checkOneGeneralInputArgument(L,2,lua_arg_bool,0,true,false,&errorString);
+            if (res!=-1)
+            {
+                bool simulationTime=true;
+                if (res==2)
+                    simulationTime=luaToBool(L,2);
+                if (!simulationTime)
+                { // real-time wait
+                    CVThreadData* threadData=CThreadPool::getCurrentThreadData();
+                    int startTime=VDateTime::getTimeInMs();
+                    bool err=false;
+                    while (true)
+                    {
+                        float diff=float(VDateTime::getTimeDiffInMs(startTime))/1000.0f;
+                        if (diff>=deltaTime)
+                            break;
+                        CThreadPool::switchBackToPreviousThread();
+                        if (CThreadPool::getSimulationStopRequestedAndActivated())
+                        {
+                            errorString="@yield"; // yield will be triggered at end of this function
+                            err=true;
+                            break;
+                        }
+                    }
+                    threadData->usedMovementTime=0.0f; // important!
+                    if (!err)
+                    {
+                        luaWrap_lua_pushnumber(L,0.0f); // success (deltaTime left)
+                        LUA_END(1);
+                    }
+                }
+                else
+                { // simulation time wait
+                    CVThreadData* threadData=CThreadPool::getCurrentThreadData();
+                    float startTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+threadData->usedMovementTime;
+                    float overshootTime=0.0f;
+                    bool err=false;
+                    while (true)
+                    {
+                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
+                        float diff=currentTime-startTime;
+                        if (diff>=deltaTime)
+                        {
+                            overshootTime=diff-deltaTime; // this is the "overshoot" time!
+                            break;
+                        }
+                        CThreadPool::switchBackToPreviousThread();
+//                        luaWrap_lua_yield(L,0); // does a long jump and never returns
+                        if (CThreadPool::getSimulationStopRequestedAndActivated())
+                        {
+                            errorString="@yield"; // yield will be triggered at end of this function
+                            err=true;
+                            break;
+                        }
+                    }
+                    threadData->usedMovementTime=overshootTime; // important!
+                    if (!err)
+                    {
+                        luaWrap_lua_pushnumber(L,-overshootTime); // success (deltaTime left)
+                        LUA_END(1);
+                    }
+                }
+            }
+        }
+    }
+    else
+        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simWaitForSignal(luaWrap_lua_State* L)
+{ // can only be called from a script running in a thread!!
+    TRACE_LUA_API;
+    LUA_START("sim.waitForSignal");
+
+    if (!VThread::isCurrentThreadTheMainSimulationThread())
+    {
+        if (checkInputArguments(L,&errorString,lua_arg_string,0))
+        {
+            std::string signalName(luaWrap_lua_tostring(L,1));
+            int intVal;
+            bool signalPresent=false;
+
+            CSignalContainer* sigCont=nullptr;
+            sigCont=App::currentWorld->signalContainer;
+
+            while (!signalPresent)
+            {
+                if (sigCont->getIntegerSignal(signalName.c_str(),intVal))
+                {
+                    luaWrap_lua_pushnumber(L,intVal);
+                    signalPresent=true;
+                    LUA_END(1);
+                }
+                float floatVal;
+                if ( (!signalPresent)&&(sigCont->getFloatSignal(signalName.c_str(),floatVal)) )
+                {
+                    luaWrap_lua_pushnumber(L,floatVal);
+                    signalPresent=true;
+                    LUA_END(1);
+                }
+                std::string strVal;
+                if ( (!signalPresent)&&(sigCont->getStringSignal(signalName.c_str(),strVal)) )
+                {
+                    luaWrap_lua_pushstring(L,strVal.c_str());
+                    signalPresent=true;
+                    LUA_END(1);
+                }
+                if (!signalPresent)
+                {
+                    CThreadPool::switchBackToPreviousThread();
+                    if (CThreadPool::getSimulationStopRequestedAndActivated())
+                    {
+                        errorString="@yield"; // yield will be triggered at end of this function
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    else
+        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSerialRead(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.serialRead");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_bool,0))
+    {
+        bool blocking=luaToBool(L,3);
+        std::string closingString="";
+        float timeOut=0.0f;
+        unsigned int maxLength=(unsigned int)luaToInt(L,2);
+        std::string fullDataRead;
+        bool err=false;
+        if (blocking)
+        {
+            if (!VThread::isCurrentThreadTheMainSimulationThread())
+            {
+                int res=checkOneGeneralInputArgument(L,4,lua_arg_string,0,true,true,&errorString);
+                if (res==2)
+                {
+                    size_t dataLength;
+                    char* data=(char*)luaWrap_lua_tolstring(L,4,&dataLength);
+                    closingString.assign(data,dataLength);
+                }
+                if (res!=-1)
+                {
+                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
+                    if (res==2)
+                        timeOut=luaToFloat(L,5);
+                    if (res!=-1)
+                    {
+                        int startTime=VDateTime::getTimeInMs();
+                        std::string leftOver=retrieveSerialPortLeftOver(luaToInt(L,1));
+                        fullDataRead=leftOver;
+                        unsigned int closingCheckedIndex=0;
+                        char* data=new char[maxLength-leftOver.length()];
+                        unsigned int csl=(unsigned int)closingString.length();
+                        while (true)
+                        {
+                            // 1. Check in what we already have:
+                            if ( (csl>0)&&(closingCheckedIndex+csl<=fullDataRead.length()) )
+                            {
+                                bool foundTheString=false;
+                                for (unsigned int j=closingCheckedIndex;j<=fullDataRead.length()-csl;j++)
+                                {
+                                    bool same=true;
+                                    for (unsigned int i=0;i<csl;i++)
+                                    {
+                                        if (fullDataRead[j+i]!=closingString[i])
+                                        {
+                                            same=false;
+                                            break;
+                                        }
+                                    }
+                                    if (same)
+                                    {
+                                        std::string rest(fullDataRead.begin()+j+csl,fullDataRead.end());
+                                        fullDataRead.assign(fullDataRead.begin(),fullDataRead.begin()+j);
+                                        insertSerialPortLeftOver(luaToInt(L,1),rest);
+                                        foundTheString=true;
+                                        break;
+                                    }
+                                }
+                                if (foundTheString)
+                                    break;
+                                closingCheckedIndex=(unsigned int)fullDataRead.length()-csl+1;
+                            }
+                            // 2. Did we already read enough?
+                            if (fullDataRead.length()>=maxLength)
+                            { // yes
+                                if (fullDataRead.length()==maxLength)
+                                    break;
+                                std::string rest(fullDataRead.begin()+maxLength,fullDataRead.end());
+                                fullDataRead.assign(fullDataRead.begin(),fullDataRead.begin()+maxLength);
+                                insertSerialPortLeftOver(luaToInt(L,1),rest);
+                                break;
+                            }
+                            else
+                            { // no
+                                int nb=simSerialRead_internal(luaToInt(L,1),data,(int)maxLength-(int)fullDataRead.length());
+                                if (nb<0)
+                                    break; // error
+                                std::string partString(data,nb);
+                                fullDataRead+=partString;
+                            }
+
+                            bool leaveHere=false;
+                            if (maxLength>fullDataRead.length())
+                            {
+                                CThreadPool::switchBackToPreviousThread();
+                                if (CThreadPool::getSimulationStopRequestedAndActivated())
+                                {
+                                    errorString="@yield"; // yield will be triggered at end of this function
+                                    err=true;
+                                    leaveHere=true;
+                                }
+                            }
+                            if ( (timeOut>0.0000001f)&&((float(VDateTime::getTimeDiffInMs(startTime))/1000.0f)>timeOut) )
+                                leaveHere=true;
+
+                            if (leaveHere)
+                            {
+                                insertSerialPortLeftOver(luaToInt(L,1),fullDataRead);
+                                fullDataRead.clear();
+                                break;
+                            }
+                        }
+                        delete[] data;
+                    }
+                }
+            }
+            else
+                errorString=SIM_ERROR_BLOCKING_OPERATION_ONLY_FROM_THREAD;
+        }
+        else
+        {
+            std::string leftOver=retrieveSerialPortLeftOver(luaToInt(L,1));
+            char* data=new char[maxLength-leftOver.length()];
+            int nb=simSerialRead_internal(luaToInt(L,1),data,(int)maxLength-(int)leftOver.length());
+            if (nb>0)
+            { // no error
+                std::string nextData(data,nb);
+                fullDataRead=leftOver+nextData;
+            }
+            delete[] data;
+        }
+
+        if ( (!err)&&(fullDataRead.length()>0) )
+        {
+            luaWrap_lua_pushlstring(L,fullDataRead.c_str(),fullDataRead.length());
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSerialPortOpen(luaWrap_lua_State* L)
+{ // DEPRECATED For backward compatibility (10/04/2012)
+    TRACE_LUA_API;
+    LUA_START("simSerialPortOpen");
+
+    int retVal=-1; // means error
+#ifdef SIM_WITH_SERIAL
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+        retVal=App::worldContainer->serialPortContainer->serialPortOpen_old(true,luaToInt(L,1),luaToInt(L,2));
+#endif
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simSerialPortClose(luaWrap_lua_State* L)
+{ // DEPRECATED For backward compatibility (10/04/2012)
+    TRACE_LUA_API;
+    LUA_START("simSerialPortClose");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        retVal=simSerialPortClose_internal(luaToInt(L,1));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simSerialPortSend(luaWrap_lua_State* L)
+{ // DEPRECATED For backward compatibility (10/04/2012)
+    TRACE_LUA_API;
+    LUA_START("simSerialPortSend");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
+    {
+        size_t dataLength;
+        char* data=(char*)luaWrap_lua_tolstring(L,2,&dataLength);
+        retVal=simSerialPortSend_internal(luaToInt(L,1),data,(int)dataLength);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simSerialPortRead(luaWrap_lua_State* L)
+{ // DEPRECATED For backward compatibility (10/04/2012)
+    TRACE_LUA_API;
+    LUA_START("simSerialPortRead");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_bool,0))
+    {
+        bool blocking=luaToBool(L,3);
+        std::string closingString="";
+        float timeOut=0.0f;
+        bool err=false;
+        if (blocking)
+        {
+            if (!VThread::isCurrentThreadTheMainSimulationThread())
+            {
+                int res=checkOneGeneralInputArgument(L,4,lua_arg_string,0,true,true,&errorString);
+                if (res==2)
+                {
+                    size_t dataLength;
+                    char* data=(char*)luaWrap_lua_tolstring(L,4,&dataLength);
+                    closingString.assign(data,dataLength);
+                }
+                if (res!=-1)
+                {
+                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
+                    if (res==2)
+                        timeOut=luaToFloat(L,5);
+                    if (res!=-1)
+                        err=true;
+                }
+                else
+                    err=true;
+            }
+            else
+            {
+                errorString=SIM_ERROR_BLOCKING_OPERATION_ONLY_FROM_THREAD;
+                err=true;
+            }
+        }
+        if (!err)
+        {
+            int maxLength=luaToInt(L,2);
+            char* data=new char[maxLength];
+            int dataRead=0;
+            bool err=false;
+            if (blocking)
+            {
+                int startTime=VDateTime::getTimeInMs();
+                while (maxLength>dataRead)
+                {
+                    int nb=simSerialPortRead_internal(luaToInt(L,1),data+dataRead,maxLength-dataRead);
+                    if (nb<0)
+                        break; // error
+                    dataRead+=nb;
+                    int csl=int(closingString.length());
+                    if ( (csl!=0)&&(dataRead>=csl) )
+                    { // Break if we find the closing signature:
+                        bool same=true;
+                        for (int i=0;i<csl;i++)
+                        {
+                            if (data[dataRead-csl+i]!=closingString[i])
+                            {
+                                same=false;
+                                break;
+                            }
+                        }
+                        if (same)
+                        {
+                            dataRead-=csl;
+                            break;
+                        }
+                    }
+                    if (maxLength>dataRead)
+                    {
+                        CThreadPool::switchBackToPreviousThread();
+                        if (CThreadPool::getSimulationStopRequestedAndActivated())
+                        {
+                            errorString="@yield"; // yield will be triggered at end of this function
+                            err=true;
+                            break;
+                        }
+                    }
+                    if ( (timeOut>0.0000001f)&&((float(VDateTime::getTimeDiffInMs(startTime))/1000.0f)>timeOut) )
+                        break;
+                }
+            }
+            else
+                dataRead=simSerialPortRead_internal(luaToInt(L,1),data,maxLength);
+            if ( (dataRead>0)&&(!err) )
+            {
+                luaWrap_lua_pushlstring(L,(const char*)data,dataRead);
+                delete[] data;
+                LUA_END(1);
+            }
+            delete[] data;
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simRMLMoveToJointPositions(luaWrap_lua_State* L)
+{ // DEPRECATED on 08.09.2020
+    TRACE_LUA_API;
+    LUA_START_NO_CSIDE_ERROR("sim.rmlMoveToJointPositions");
+
+    int retVal=-1; //error
+    if (!VThread::isCurrentThreadTheMainSimulationThread())
+    {
+        if (!( (!luaWrap_lua_istable(L,1))||(luaWrap_lua_objlen(L,1)<1) ))
+        {
+            int dofs=(int)luaWrap_lua_objlen(L,1);
+            int flags=-1;
+            int* jointHandles=new int[dofs];
+            double* currentVel=new double[dofs];
+            double* currentAccel=new double[dofs];
+            double* maxVel=new double[dofs];
+            double* maxAccel=new double[dofs];
+            double* maxJerk=new double[dofs];
+            double* targetPos=new double[dofs];
+            double* targetVel=new double[dofs];
+            int* direction=new int[dofs];
+            for (int i=0;i<dofs;i++)
+            {
+                currentVel[i]=0.0;
+                currentAccel[i]=0.0;
+                maxVel[i]=0.0;
+                maxAccel[i]=0.0;
+                maxJerk[i]=0.0;
+                targetPos[i]=0.0;
+                targetVel[i]=0.0;
+                direction[i]=0;
+            }
+            bool argError=false;
+
+            // jointHandles
+            int res=checkOneGeneralInputArgument(L,1,lua_arg_number,dofs,false,false,&errorString);
+            if ((!argError)&&(res<2))
+                argError=true;
+            else
+            {
+                if (res==2)
+                    getIntsFromTable(L,1,dofs,jointHandles);
+            }
+            if (!argError)
+            { // check if all joint handles are ok:
+                for (int i=0;i<dofs;i++)
+                {
+                    CJoint* act=App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
+                    if (act==nullptr)
+                        argError=true;
+                }
+                if (argError)
+                    errorString=SIM_ERROR_FOUND_INVALID_HANDLES;
+            }
+
+            // flags
+            res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,false,false,&errorString);
+            if ((!argError)&&(res<2))
+                argError=true;
+            else
+            {
+                if (res==2)
+                    flags=luaToInt(L,2);
+            }
+
+            // currentVel
+            res=checkOneGeneralInputArgument(L,3,lua_arg_number,dofs,false,true,&errorString);
+            if ((!argError)&&(res<1))
+                argError=true;
+            else
+            {
+                if (res==2)
+                    getDoublesFromTable(L,3,dofs,currentVel);
+            }
+
+            // currentAccel
+            res=checkOneGeneralInputArgument(L,4,lua_arg_number,dofs,false,true,&errorString);
+            if ((!argError)&&(res<1))
+                argError=true;
+            else
+            {
+                if (res==2)
+                    getDoublesFromTable(L,4,dofs,currentAccel);
+            }
+
+            // maxVel
+            res=checkOneGeneralInputArgument(L,5,lua_arg_number,dofs,false,false,&errorString);
+            if ((!argError)&&(res<2))
+                argError=true;
+            else
+            {
+                if (res==2)
+                    getDoublesFromTable(L,5,dofs,maxVel);
+            }
+
+            // maxAccel
+            res=checkOneGeneralInputArgument(L,6,lua_arg_number,dofs,false,false,&errorString);
+            if ((!argError)&&(res<2))
+                argError=true;
+            else
+            {
+                if (res==2)
+                    getDoublesFromTable(L,6,dofs,maxAccel);
+            }
+
+            // maxJerk
+            res=checkOneGeneralInputArgument(L,7,lua_arg_number,dofs,false,false,&errorString);
+            if ((!argError)&&(res<2))
+                argError=true;
+            else
+            {
+                if (res==2)
+                    getDoublesFromTable(L,7,dofs,maxJerk);
+            }
+
+            // targetPos
+            res=checkOneGeneralInputArgument(L,8,lua_arg_number,dofs,false,false,&errorString);
+            if ((!argError)&&(res<2))
+                argError=true;
+            else
+            {
+                if (res==2)
+                    getDoublesFromTable(L,8,dofs,targetPos);
+            }
+
+            // targetVel
+            res=checkOneGeneralInputArgument(L,9,lua_arg_number,dofs,false,true,&errorString);
+            if ((!argError)&&(res<1))
+                argError=true;
+            else
+            {
+                if (res==2)
+                    getDoublesFromTable(L,9,dofs,targetVel);
+            }
+
+            res=checkOneGeneralInputArgument(L,10,lua_arg_number,dofs,true,true,&errorString);
+            if ((!argError)&&(res<0))
+                argError=true;
+            else
+            {
+                if (res==2)
+                    getIntsFromTable(L,10,dofs,direction);
+            }
+
+            if (!argError)
+            {
+                unsigned char auxData[9];
+                auxData[0]=1;
+                double* currentPosVelAccel=new double[3*dofs];
+                double* newPosVelAccel=new double[3*dofs];
+                double* maxVelAccelJerk=new double[3*dofs];
+                double* targetPosVel=new double[2*dofs];
+                unsigned char* selection=new unsigned char[dofs];
+                for (int i=0;i<dofs;i++)
+                {
+                    CJoint* act=App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
+                    if (act!=nullptr) // should always pass!
+                    {
+                        selection[i]=1;
+                        float ps=act->getPosition();
+                        if ( (act->getJointType()==sim_joint_revolute_subtype)&&act->getPositionIsCyclic() )
+                        {
+                            if (direction[i]==0)
+                            { // smallest movement:
+                                float dx=targetPos[i]-ps;
+                                while (dx>=piValTimes2_f)
+                                {
+                                    ps+=piValTimes2_f;
+                                    dx=targetPos[i]-ps;
+                                }
+                                while (dx<0.0f)
+                                {
+                                    ps-=piValTimes2_f;
+                                    dx=targetPos[i]-ps;
+                                }
+                                float b=ps+piValTimes2_f;
+                                if (fabs(targetPos[i]-b)<fabs(targetPos[i]-ps))
+                                    ps=b;
+                            }
+                            if (direction[i]>0)
+                            { // positive direction:
+                                float dx=targetPos[i]-ps;
+                                while (dx<piValTimes2_f*float(direction[i]-1))
+                                {
+                                    ps-=piValTimes2_f;
+                                    dx=targetPos[i]-ps;
+                                }
+                                while (dx>=piValTimes2_f*float(direction[i]))
+                                {
+                                    ps+=piValTimes2_f;
+                                    dx=targetPos[i]-ps;
+                                }
+                            }
+                            if (direction[i]<0)
+                            { // negative direction:
+                                float dx=targetPos[i]-ps;
+                                while (dx>-piValTimes2_f*float(-direction[i]-1))
+                                {
+                                    ps+=piValTimes2_f;
+                                    dx=targetPos[i]-ps;
+                                }
+                                while (dx<=-piValTimes2_f*float(-direction[i]))
+                                {
+                                    ps-=piValTimes2_f;
+                                    dx=targetPos[i]-ps;
+                                }
+                            }
+                            currentPosVelAccel[0*dofs+i]=ps;
+                        }
+                        else
+                            currentPosVelAccel[0*dofs+i]=ps;
+                    }
+                    else
+                        selection[i]=0;
+
+                    currentPosVelAccel[1*dofs+i]=currentVel[i];
+                    currentPosVelAccel[2*dofs+i]=currentAccel[i];
+
+                    maxVelAccelJerk[0*dofs+i]=maxVel[i];
+                    maxVelAccelJerk[1*dofs+i]=maxAccel[i];
+                    maxVelAccelJerk[2*dofs+i]=maxJerk[i];
+
+                    targetPosVel[0*dofs+i]=targetPos[i];
+                    targetPosVel[1*dofs+i]=targetVel[i];
+
+                    selection[i]=1;
+                }
+
+                bool movementFinished=false;
+
+
+                int rmlHandle=simRMLPos_internal(dofs,0.0001,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,nullptr);
+                while (!movementFinished)
+                {
+                    double dt=double(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0;
+                    int rmlRes=simRMLStep_internal(rmlHandle,dt,newPosVelAccel,auxData,nullptr);
+                    if (rmlRes<0)
+                        movementFinished=true; // error
+                    else
+                    {
+                        movementFinished=(rmlRes==1);
+                        // Set the current positions:
+                        for (int i=0;i<3*dofs;i++)
+                            currentPosVelAccel[i]=newPosVelAccel[i];
+                        for (int i=0;i<dofs;i++)
+                        {
+                            CJoint* act=App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
+                            if ( (act!=nullptr)&&(act->getJointType()!=sim_joint_spherical_subtype) )
+                            { // might have been destroyed in the mean time
+                                if ( (act->getJointMode()==sim_jointmode_force)&&((act->getCumulativeModelProperty()&sim_modelproperty_not_dynamic)==0) )
+                                    act->setDynamicMotorPositionControlTargetPosition((float)currentPosVelAccel[0*dofs+i]);
+                                else
+                                    act->setPosition((float)currentPosVelAccel[0*dofs+i]);
+                            }
+                        }
+
+                        if (movementFinished)
+                        {
+                            CVThreadData* threadData=CThreadPool::getCurrentThreadData();
+                            threadData->usedMovementTime=(float)(((double*)(auxData+1))[0]);
+                            luaWrap_lua_pushnumber(L,1);
+                            pushDoubleTableOntoStack(L,dofs,newPosVelAccel+0*dofs);
+                            pushDoubleTableOntoStack(L,dofs,newPosVelAccel+1*dofs);
+                            pushDoubleTableOntoStack(L,dofs,newPosVelAccel+2*dofs);
+                            luaWrap_lua_pushnumber(L,dt-((double*)(auxData+1))[0]);
+
+                            delete[] currentPosVelAccel;
+                            delete[] newPosVelAccel;
+                            delete[] maxVelAccelJerk;
+                            delete[] targetPosVel;
+                            delete[] selection;
+
+                            delete[] jointHandles;
+                            delete[] currentVel;
+                            delete[] currentAccel;
+                            delete[] maxVel;
+                            delete[] maxAccel;
+                            delete[] maxJerk;
+                            delete[] targetPos;
+                            delete[] targetVel;
+                            simRMLRemove_internal(rmlHandle);
+                            LUA_END(5);
+                        }
+
+                        if (!movementFinished)
+                        {
+                            CThreadPool::switchBackToPreviousThread();
+                            if (CThreadPool::getSimulationStopRequestedAndActivated()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L)))
+                            {
+                                errorString="@yield"; // yield will be triggered at end of this function
+                                break;
+                            }
+                        }
+                    }
+                }
+                simRMLRemove_internal(rmlHandle);
+
+                delete[] currentPosVelAccel;
+                delete[] newPosVelAccel;
+                delete[] maxVelAccelJerk;
+                delete[] targetPosVel;
+                delete[] selection;
+            }
+
+            delete[] jointHandles;
+            delete[] currentVel;
+            delete[] currentAccel;
+            delete[] maxVel;
+            delete[] maxAccel;
+            delete[] maxJerk;
+            delete[] targetPos;
+            delete[] targetVel;
+        }
+        else
+            errorString=SIM_ERROR_INVALID_FIRST_ARGUMENT;
+    }
+    else
+        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal); // error
+    LUA_END(1);
+}
+
+int _simRMLMoveToPosition(luaWrap_lua_State* L)
+{ // DEPRECATED on 08.09.2020
+    TRACE_LUA_API;
+    LUA_START_NO_CSIDE_ERROR("sim.rmlMoveToPosition");
+
+    int retVal=-1;
+    if (!VThread::isCurrentThreadTheMainSimulationThread())
+    {
+        if (checkInputArguments(L,nullptr,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+        { // the 3 first types are ok!
+            int objectHandle=luaToInt(L,1);
+            int relativeToObjectHandle=luaToInt(L,2);
+            int flags=luaToInt(L,3);
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            CSceneObject* relativeIt=nullptr;
+            bool relParentError=false;
+            if (relativeToObjectHandle!=-1)
+            {
+                if (relativeToObjectHandle==sim_handle_parent)
+                    relativeIt=it->getParent();
+                else
+                {
+                    relativeIt=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+                    relParentError=(relativeIt==nullptr);
+                }
+            }
+            if ( (it==nullptr)||((relativeIt==nullptr)&&relParentError) )
+                errorString=SIM_ERROR_OBJECT_INEXISTANT;
+            else
+            {
+                C7Vector startPose(it->getCumulativeTransformation());
+                C7Vector tr;
+                tr.setIdentity();
+                if (relativeIt!=nullptr)
+                    tr=relativeIt->getCumulativeTransformation();
+                C7Vector trInv(tr.getInverse());
+                startPose=trInv*startPose;
+                C7Vector goalPose(startPose); // if we specify nil for the goal pos/quat we use the same as start
+
+                double currentVel[4]={0.0,0.0,0.0,0.0};
+                double currentAccel[4]={0.0,0.0,0.0,0.0};
+                double maxVel[4];
+                double maxAccel[4];
+                double maxJerk[4];
+                double targetVel[4]={0.0,0.0,0.0,0.0};
+                bool argError=false;
+
+                // currentVel
+                int res=checkOneGeneralInputArgument(L,4,lua_arg_number,4,false,true,&errorString);
+                if ((!argError)&&(res<1))
+                    argError=true;
+                else
+                {
+                    if (res==2)
+                        getDoublesFromTable(L,4,4,currentVel);
+                }
+
+                // currentAccel
+                res=checkOneGeneralInputArgument(L,5,lua_arg_number,4,false,true,&errorString);
+                if ((!argError)&&(res<1))
+                    argError=true;
+                else
+                {
+                    if (res==2)
+                        getDoublesFromTable(L,5,4,currentAccel);
+                }
+
+                // maxVel
+                res=checkOneGeneralInputArgument(L,6,lua_arg_number,4,false,false,&errorString);
+                if ((!argError)&&(res<2))
+                    argError=true;
+                else
+                {
+                    if (res==2)
+                        getDoublesFromTable(L,6,4,maxVel);
+                }
+
+                // maxAccel
+                res=checkOneGeneralInputArgument(L,7,lua_arg_number,4,false,false,&errorString);
+                if ((!argError)&&(res<2))
+                    argError=true;
+                else
+                {
+                    if (res==2)
+                        getDoublesFromTable(L,7,4,maxAccel);
+                }
+
+                // maxJerk
+                res=checkOneGeneralInputArgument(L,8,lua_arg_number,4,false,false,&errorString);
+                if ((!argError)&&(res<2))
+                    argError=true;
+                else
+                {
+                    if (res==2)
+                        getDoublesFromTable(L,8,4,maxJerk);
+                }
+
+                // targetPos
+                res=checkOneGeneralInputArgument(L,9,lua_arg_number,3,false,true,&errorString);
+                if ((!argError)&&(res<1))
+                    argError=true;
+                else
+                {
+                    if (res==2)
+                    {
+                        float dummy[3];
+                        getFloatsFromTable(L,9,3,dummy);
+                        goalPose.X.set(dummy);
+                    }
+                }
+
+                // targetQuat
+                res=checkOneGeneralInputArgument(L,10,lua_arg_number,4,false,true,&errorString);
+                if ((!argError)&&(res<1))
+                    argError=true;
+                else
+                {
+                    if (res==2)
+                    {
+                        float dummy[4];
+                        getFloatsFromTable(L,10,4,dummy);
+                        goalPose.Q(0)=dummy[3];
+                        goalPose.Q(1)=dummy[0];
+                        goalPose.Q(2)=dummy[1];
+                        goalPose.Q(3)=dummy[2];
+                    }
+                }
+
+                // targetVel
+                res=checkOneGeneralInputArgument(L,11,lua_arg_number,4,false,true,&errorString);
+                if ((!argError)&&(res<1))
+                    argError=true;
+                else
+                {
+                    if (res==2)
+                        getDoublesFromTable(L,11,4,targetVel);
+                }
+
+                if (!argError)
+                {
+                    float matrStart[12];
+                    float matrGoal[12];
+                    float axis[3];
+                    float angle;
+                    float quat[4];
+                    quat[0]=startPose.Q(1);
+                    quat[1]=startPose.Q(2);
+                    quat[2]=startPose.Q(3);
+                    quat[3]=startPose.Q(0);
+                    simBuildMatrixQ_internal(startPose.X.data,quat,matrStart);
+                    quat[0]=goalPose.Q(1);
+                    quat[1]=goalPose.Q(2);
+                    quat[2]=goalPose.Q(3);
+                    quat[3]=goalPose.Q(0);
+                    simBuildMatrixQ_internal(goalPose.X.data,quat,matrGoal);
+                    simGetRotationAxis_internal(matrStart,matrGoal,axis,&angle);
+                    unsigned char auxData[9];
+                    auxData[0]=1;
+                    double currentPosVelAccel[3*4];
+                    currentPosVelAccel[0+0]=(double)startPose.X(0);
+                    currentPosVelAccel[0+1]=(double)startPose.X(1);
+                    currentPosVelAccel[0+2]=(double)startPose.X(2);
+                    currentPosVelAccel[0+3]=0.0;
+                    for (int i=0;i<4;i++)
+                        currentPosVelAccel[4+i]=currentVel[i];
+                    for (int i=0;i<4;i++)
+                        currentPosVelAccel[8+i]=currentAccel[i];
+
+                    double maxVelAccelJerk[3*4];
+                    for (int i=0;i<4;i++)
+                        maxVelAccelJerk[0+i]=maxVel[i];
+                    for (int i=0;i<4;i++)
+                        maxVelAccelJerk[4+i]=maxAccel[i];
+                    for (int i=0;i<4;i++)
+                        maxVelAccelJerk[8+i]=maxJerk[i];
+
+                    unsigned char selection[4]={1,1,1,1};
+
+                    double targetPosVel[2*4];
+                    targetPosVel[0+0]=(double)goalPose.X(0);
+                    targetPosVel[0+1]=(double)goalPose.X(1);
+                    targetPosVel[0+2]=(double)goalPose.X(2);
+                    targetPosVel[0+3]=(double)angle;
+                    for (int i=0;i<4;i++)
+                        targetPosVel[4+i]=targetVel[i];
+
+                    double newPosVelAccel[3*4];
+                    bool movementFinished=false;
+
+
+                    int rmlHandle=simRMLPos_internal(4,0.0001,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,nullptr);
+                    while (!movementFinished)
+                    {
+                        double dt=double(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0;
+                        int rmlRes=simRMLStep_internal(rmlHandle,dt,newPosVelAccel,auxData,nullptr);
+                        it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+                        if ((rmlRes<0)||(it==nullptr))
+                            movementFinished=true; // error
+                        else
+                        {
+                            movementFinished=(rmlRes==1);
+                            // Set the current position/orientation:
+                            for (int i=0;i<3*4;i++)
+                                currentPosVelAccel[i]=newPosVelAccel[i];
+                            C7Vector currentPose;
+                            currentPose.X(0)=(float)currentPosVelAccel[0];
+                            currentPose.X(1)=(float)currentPosVelAccel[1];
+                            currentPose.X(2)=(float)currentPosVelAccel[2];
+                            float matrOut[12];
+                            float axisPos[3]={0.0f,0.0f,0.0f};
+                            simRotateAroundAxis_internal(matrStart,axis,axisPos,(float)currentPosVelAccel[3],matrOut);
+                            simGetQuaternionFromMatrix_internal(matrOut,quat);
+                            currentPose.Q(0)=quat[3];
+                            currentPose.Q(1)=quat[0];
+                            currentPose.Q(2)=quat[1];
+                            currentPose.Q(3)=quat[2];
+                            currentPose=tr*currentPose;
+                            it->setAbsoluteTransformation(currentPose);
+
+                            if (movementFinished)
+                            {
+                                CVThreadData* threadData=CThreadPool::getCurrentThreadData();
+                                threadData->usedMovementTime=(float)(((double*)(auxData+1))[0]);
+                                luaWrap_lua_pushnumber(L,1);
+                                pushDoubleTableOntoStack(L,3,newPosVelAccel);
+                                pushFloatTableOntoStack(L,4,quat);
+                                pushDoubleTableOntoStack(L,4,newPosVelAccel+4);
+                                pushDoubleTableOntoStack(L,4,newPosVelAccel+8);
+                                luaWrap_lua_pushnumber(L,dt-((double*)(auxData+1))[0]);
+                                simRMLRemove_internal(rmlHandle);
+                                LUA_END(6);
+                            }
+
+                            if (!movementFinished)
+                            {
+                                CThreadPool::switchBackToPreviousThread();
+                                if (CThreadPool::getSimulationStopRequestedAndActivated()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L)))
+                                {
+                                    errorString="@yield"; // yield will be triggered at end of this function
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    simRMLRemove_internal(rmlHandle);
+                }
+            }
+        }
+    }
+    else
+        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal); // error
+    LUA_END(1);
+}
+*/

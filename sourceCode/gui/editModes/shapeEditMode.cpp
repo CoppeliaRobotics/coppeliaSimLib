@@ -1844,33 +1844,27 @@ void CShapeEditMode::makePath()
     for (int i=0;i<getEditModeBufferSize();i++)
         sel.push_back(editModeBuffer[i]);
     CShape* shape=_shape;
+
+    std::vector<float> relPathPts;
+
     if (sel.size()>0)
     { // Only consecutive edges will be used! NOOOO! (modified on 2009/03/14)
-        CPath* newObject=new CPath();
-        newObject->pathContainer->enableActualization(false);
         int verticeInd[2];
         verticeInd[0]=_edgeCont.allEdges[2*sel[0]+0];
         verticeInd[1]=_edgeCont.allEdges[2*sel[0]+1];
         C3Vector v0(&_editionVertices[3*verticeInd[0]+0]);
         C3Vector v1(&_editionVertices[3*verticeInd[1]+0]);
-        CSimplePathPoint* it=nullptr;
         C7Vector sctm(shape->getFullCumulativeTransformation());
         C3Vector lastAddedPoint;
         if (sel.size()==1)
         { // We simply add the two points:
-            it=new CSimplePathPoint();
-            it->setBezierPointCount(1);
-            C7Vector trtmp(it->getTransformation());
-            trtmp.X=sctm*v0;
-            it->setTransformation(trtmp,newObject->pathContainer->getAttributes());
-            newObject->pathContainer->addSimplePathPoint(it);
-            it=new CSimplePathPoint();
-            it->setBezierPointCount(1);
-            trtmp=it->getTransformation();
+            relPathPts.push_back(v0(0));
+            relPathPts.push_back(v0(1));
+            relPathPts.push_back(v0(2));
             lastAddedPoint=v1;
-            trtmp.X=sctm*v1;
-            it->setTransformation(trtmp,newObject->pathContainer->getAttributes());
-            newObject->pathContainer->addSimplePathPoint(it);
+            relPathPts.push_back(v1(0));
+            relPathPts.push_back(v1(1));
+            relPathPts.push_back(v1(2));
         }
         else
         {
@@ -1883,36 +1877,24 @@ void CShapeEditMode::makePath()
                 { // We have to add the two first points:
                     if ( (in0==verticeInd[0])||(in1==verticeInd[0]) )
                     {
-                        it=new CSimplePathPoint();
-                        it->setBezierPointCount(1);
-                        C7Vector trtmp(it->getTransformation());
-                        trtmp.X=sctm*v1;
-                        it->setTransformation(trtmp,newObject->pathContainer->getAttributes());
-                        newObject->pathContainer->addSimplePathPoint(it);
-                        it=new CSimplePathPoint();
-                        it->setBezierPointCount(1);
-                        trtmp=it->getTransformation();
+                        relPathPts.push_back(v1(0));
+                        relPathPts.push_back(v1(1));
+                        relPathPts.push_back(v1(2));
                         lastAddedPoint=v0;
-                        trtmp.X=sctm*v0;
-                        it->setTransformation(trtmp,newObject->pathContainer->getAttributes());
-                        newObject->pathContainer->addSimplePathPoint(it);
+                        relPathPts.push_back(v0(0));
+                        relPathPts.push_back(v0(1));
+                        relPathPts.push_back(v0(2));
                         firstPointIndex=verticeInd[1];
                     }
                     else
                     {
-                        it=new CSimplePathPoint();
-                        it->setBezierPointCount(1);
-                        C7Vector trtmp(it->getTransformation());
-                        trtmp.X=sctm*v0;
-                        it->setTransformation(trtmp,newObject->pathContainer->getAttributes());
-                        newObject->pathContainer->addSimplePathPoint(it);
-                        it=new CSimplePathPoint();
-                        it->setBezierPointCount(1);
-                        trtmp=it->getTransformation();
+                        relPathPts.push_back(v0(0));
+                        relPathPts.push_back(v0(1));
+                        relPathPts.push_back(v0(2));
                         lastAddedPoint=v1;
-                        trtmp.X=sctm*v1;
-                        it->setTransformation(trtmp,newObject->pathContainer->getAttributes());
-                        newObject->pathContainer->addSimplePathPoint(it);
+                        relPathPts.push_back(v1(0));
+                        relPathPts.push_back(v1(1));
+                        relPathPts.push_back(v1(2));
                         firstPointIndex=verticeInd[0];
                     }
                 }
@@ -1920,34 +1902,22 @@ void CShapeEditMode::makePath()
                 if ( (in0==verticeInd[0])||(in0==verticeInd[1]) )
                 { // We have to add in1
                     if ( (in1==firstPointIndex)&&(i==int(sel.size())-1) )
-                    { // we make a closed path only if the is the last edge!
-                        newObject->pathContainer->setAttributes(newObject->pathContainer->getAttributes()|sim_pathproperty_closed_path);
-                        break;
-                    }
+                        break; // actually closed
                     C3Vector v(&_editionVertices[3*in1+0]);
-                    it=new CSimplePathPoint();
-                    it->setBezierPointCount(1);
-                    C7Vector trtmp(it->getTransformation());
                     lastAddedPoint=v;
-                    trtmp.X=sctm*v;
-                    it->setTransformation(trtmp,newObject->pathContainer->getAttributes());
-                    newObject->pathContainer->addSimplePathPoint(it);
+                    relPathPts.push_back(v(0));
+                    relPathPts.push_back(v(1));
+                    relPathPts.push_back(v(2));
                 }
                 else if ( (in1==verticeInd[0])||(in1==verticeInd[1]) )
                 { // We have to add in0
                     if ( (in0==firstPointIndex)&&(i==int(sel.size())-1) )
-                    { // we make a closed path only if the is the last edge!
-                        newObject->pathContainer->setAttributes(newObject->pathContainer->getAttributes()|sim_pathproperty_closed_path);
-                        break;
-                    }
+                        break; // actually closed
                     C3Vector v(&_editionVertices[3*in0+0]);
-                    it=new CSimplePathPoint();
-                    it->setBezierPointCount(1);
-                    C7Vector trtmp(it->getTransformation());
                     lastAddedPoint=v;
-                    trtmp.X=sctm*v;
-                    it->setTransformation(trtmp,newObject->pathContainer->getAttributes());
-                    newObject->pathContainer->addSimplePathPoint(it);
+                    relPathPts.push_back(v(0));
+                    relPathPts.push_back(v(1));
+                    relPathPts.push_back(v(2));
                 }
                 else
                 { // Following replaces the break command (since 2009/03/14)
@@ -1966,40 +1936,58 @@ void CShapeEditMode::makePath()
                         w1=v;
                     }
                     // the first one:
-                    it=new CSimplePathPoint();
-                    it->setBezierPointCount(1);
-                    C7Vector trtmp(it->getTransformation());
                     lastAddedPoint=w0;
-                    trtmp.X=sctm*w0;
-                    it->setTransformation(trtmp,newObject->pathContainer->getAttributes());
-                    newObject->pathContainer->addSimplePathPoint(it);
+                    relPathPts.push_back(w0(0));
+                    relPathPts.push_back(w0(1));
+                    relPathPts.push_back(w0(2));
                     // Now the second one:
                     if ( (in1==firstPointIndex)&&(i==int(sel.size())-1) )
-                    { // we make a closed path only if the is the last edge!
-                        newObject->pathContainer->setAttributes(newObject->pathContainer->getAttributes()|sim_pathproperty_closed_path);
-                        break;
-                    }
-                    it=new CSimplePathPoint();
-                    it->setBezierPointCount(1);
-                    trtmp=it->getTransformation();
+                        break; // actually closed
                     lastAddedPoint=w1;
-                    trtmp.X=sctm*w1;
-                    it->setTransformation(trtmp,newObject->pathContainer->getAttributes());
-                    newObject->pathContainer->addSimplePathPoint(it);
+                    relPathPts.push_back(w1(0));
+                    relPathPts.push_back(w1(1));
+                    relPathPts.push_back(w1(2));
                 }
                 verticeInd[0]=in0;
                 verticeInd[1]=in1;
             }
         }
-        newObject->pathContainer->enableActualization(true);
-        newObject->pathContainer->actualizePath();
-        newObject->setObjectName("ExtractedPath",true);
-        newObject->setObjectAltName(tt::getObjectAltNameFromObjectName(newObject->getObjectName().c_str()).c_str(),true);
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=ADD_OBJECTTOSCENE_GUITRIGGEREDCMD;
-        cmd.intParams.push_back(sim_object_path_type);
-        cmd.objectParams.push_back(newObject);
-        App::appendSimulationThreadCommand(cmd);
         editModeBuffer.clear();
+
+        std::string txt="relPath={";
+        for (size_t i=0;i<relPathPts.size()/3;i++)
+        {
+            txt+="{";
+            for (size_t j=0;j<3;j++)
+            {
+                txt+=tt::getEString(false,relPathPts[3*i+j],4);
+                if (j!=2)
+                    txt+=",";
+            }
+            txt+="}";
+            if (i<(relPathPts.size()/3)-1)
+                txt+=",";
+        }
+        txt+="}";
+        App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
+
+        txt="absPath={";
+        for (size_t i=0;i<relPathPts.size()/3;i++)
+        {
+            txt+="{";
+            for (size_t j=0;j<3;j++)
+            {
+                C3Vector v(&relPathPts[3*i+0]);
+                v=sctm*v;
+                txt+=tt::getEString(false,v(j),4);
+                if (j!=2)
+                    txt+=",";
+            }
+            txt+="}";
+            if (i<(relPathPts.size()/3)-1)
+                txt+=",";
+        }
+        txt+="}";
+        App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
     }
 }

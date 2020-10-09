@@ -152,7 +152,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QLabel" name="label_3">
+  <widget class="QLabel" name="qqLabel">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -197,10 +197,10 @@
     <enum>Qt::StrongFocus</enum>
    </property>
    <property name="text">
-    <string>Copy path points to clipboard</string>
+    <string>Copy path points to statusbar</string>
    </property>
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
   </widget>
  </widget>

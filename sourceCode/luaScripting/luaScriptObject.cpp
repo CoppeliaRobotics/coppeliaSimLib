@@ -1981,11 +1981,14 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
     {
         scriptID=SIM_IDSTART_SANDBOXSCRIPT;
         L=initializeNewLuaState(getScriptSuffixNumberString().c_str(),_debugLevel);
+        _calledInThisSimulationStep=false;
         _raiseErrors_backCompatibility=true;
         _randGen.seed(123456);
         std::string tmp("sim_current_script_id=");
         tmp+=boost::lexical_cast<std::string>(getScriptID());
         luaWrap_luaL_dostring(L,tmp.c_str());
+        _delayForAutoYielding=2;
+        _forbidAutoYieldingLevel=0;
     }
 }
 
@@ -2035,6 +2038,64 @@ void CLuaScriptObject::fromFileToBuffer()
         }
     }
 }
+
+bool CLuaScriptObject::shouldAutoYield()
+{
+    bool retVal=false;
+    if ( (_forbidAutoYieldingLevel==0)&&(_forbidOverallYieldingLevel==0) )
+        retVal=VDateTime::getTimeDiffInMs(_timeForNextAutoYielding)>0;
+    if (retVal)
+        _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
+    return(retVal);
+}
+
+bool CLuaScriptObject::canManualYield() const
+{
+    return(_forbidOverallYieldingLevel==0);
+}
+
+void CLuaScriptObject::setDelayForAutoYielding(int d)
+{
+    if (d<0)
+        d=0;
+    if (d>10000)
+        d=10000;
+    _delayForAutoYielding=d;
+}
+
+int CLuaScriptObject::changeAutoYieldingForbidLevel(int dx,bool absolute)
+{
+    int retVal=_forbidAutoYieldingLevel;
+    if (absolute)
+        _forbidAutoYieldingLevel=dx;
+    else
+    {
+        _forbidAutoYieldingLevel+=dx;
+        if (_forbidAutoYieldingLevel<0)
+            _forbidAutoYieldingLevel=0;
+    }
+    return(retVal);
+}
+
+int CLuaScriptObject::getAutoYieldingForbidLevel() const
+{
+    return(_forbidAutoYieldingLevel);
+}
+
+int CLuaScriptObject::changeOverallYieldingForbidLevel(int dx,bool absolute)
+{
+    int retVal=_forbidOverallYieldingLevel;
+    if (absolute)
+        _forbidOverallYieldingLevel=dx;
+    else
+    {
+        _forbidOverallYieldingLevel+=dx;
+        if (_forbidOverallYieldingLevel<0)
+            _forbidOverallYieldingLevel=0;
+    }
+    return(retVal);
+}
+
 
 void CLuaScriptObject::fromBufferToFile() const
 {
@@ -2984,9 +3045,9 @@ std::string CLuaScriptObject::getDescriptiveName() const
         if (_scriptType==sim_scripttype_childscript)
         {
             if (_threadedExecution)
-                retVal+="Threaded child script";
+                retVal+="Child script, threaded (deprecated, backward compatibility version)";
             else
-                retVal+="Non-threaded child script";
+                retVal+="Child script";
         }
         else
             retVal+="Customization script";
@@ -3208,9 +3269,9 @@ void CLuaScriptObject::setNumberOfPasses(int p)
     _numberOfPasses=p;
 }
 
-void CLuaScriptObject::setCalledInThisSimulationStep(bool c)
+void CLuaScriptObject::resetCalledInThisSimulationStep()
 {
-    _calledInThisSimulationStep=c;
+    _calledInThisSimulationStep=false;
 }
 
 bool CLuaScriptObject::getCalledInThisSimulationStep() const
@@ -3223,20 +3284,16 @@ int CLuaScriptObject::runMainScript(int optionalCallType,const CInterfaceStack* 
     TRACE_INTERNAL;
     if (functionPresent!=nullptr)
         functionPresent[0]=true; // we only return false if we know for sure the function is not there (if the script contains an error, we can't know for sure)
-    App::currentWorld->luaScriptContainer->resetScriptFlagCalledInThisSimulationStep();
 
     int retVal=sim_script_no_error;
     if (!CThreadPool::getSimulationEmergencyStop())
     {
         if (!_scriptIsDisabled)
-        {
-            int startT=VDateTime::getTimeInMs();
             retVal=_runMainScript(optionalCallType,inStack,outStack,functionPresent);
-            App::worldContainer->calcInfo->setMainScriptExecutionTime(VDateTime::getTimeInMs()-startT);
-        }
     }
     else
         CThreadPool::handleAllThreads_withResumeLocation(-1); // Added on 24/02/2011 (important, otherwise threads might never resume!!!)
+
     return(retVal);
 }
 
@@ -3249,6 +3306,9 @@ int CLuaScriptObject::_runMainScript(int optionalCallType,const CInterfaceStack*
 
     if (optionalCallType==-1)
     {
+        App::currentWorld->luaScriptContainer->resetScriptFlagCalledInThisSimulationStep();
+        int startT=VDateTime::getTimeInMs();
+
         if (App::currentWorld->simulation->getSimulationState()==sim_simulation_advancing_firstafterstop)
             retVal|=_runMainScriptNow(sim_syscb_init,inStack,outStack,nullptr);
 
@@ -3262,18 +3322,15 @@ int CLuaScriptObject::_runMainScript(int optionalCallType,const CInterfaceStack*
 
         if (App::currentWorld->simulation->getSimulationState()==sim_simulation_advancing_lastbeforestop)
             retVal|=_runMainScriptNow(sim_syscb_cleanup,inStack,outStack,nullptr);
+
+        App::worldContainer->calcInfo->setMainScriptExecutionTime(VDateTime::getTimeInMs()-startT);
+        App::worldContainer->calcInfo->setSimulationScriptExecCount(App::currentWorld->luaScriptContainer->getCalledScriptsCountInThisSimulationStep(true));
     }
     else
     {
         if (!_compatibilityModeOrFirstTimeCall_sysCallbacks)
             retVal|=_runMainScriptNow(optionalCallType,inStack,outStack,functionPresent); // this only supported with the new calling method
     }
-
-    // Here we have to prepare the error message for the info box:
-    std::string tmpTxt;
-    if (retVal&(sim_script_lua_error|sim_script_call_error))
-        tmpTxt="&&fg930(script error)";
-    App::worldContainer->calcInfo->setMainScriptMessage(tmpTxt.c_str());
     return(retVal);
 }
 
@@ -3340,17 +3397,23 @@ bool CLuaScriptObject::launchThreadedChildScript()
     toBeCalledByThread.push_back(this);
     _globalMutex.unlock();
     _threadedScript_associatedFiberOrThreadID=CThreadPool::createNewThread(_startAddressForThreadedScripts);
-    CThreadPool::switchToThread(_threadedScript_associatedFiberOrThreadID);
     _calledInThisSimulationStep=true;
+    CThreadPool::switchToThread(_threadedScript_associatedFiberOrThreadID);
     return(true);
 }
 
 void CLuaScriptObject::_launchThreadedChildScriptNow()
 {
     TRACE_INTERNAL;
+    _executionState=execState_initialized;
+    _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
+    _forbidOverallYieldingLevel=0;
+
     if (L==nullptr)
     {
         L=initializeNewLuaState(getScriptSuffixNumberString().c_str(),_debugLevel);
+        _forbidAutoYieldingLevel=0;
+        _calledInThisSimulationStep=false;
         _raiseErrors_backCompatibility=true;
         _randGen.seed(123456);
     }
@@ -3498,8 +3561,18 @@ void CLuaScriptObject::_handleSimpleSysExCalls(int callType)
 
 int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
 { // retval: -2: compil error, -1: runtimeError, 0: function not there, 1: ok
-    if ( (_executionState==execState_compilationError)||((_executionState==execState_runtimeError)&&(callType!=sim_syscb_cleanup)) )
+
+//    if ( (_executionState==execState_compilationError)||((_executionState==execState_runtimeError)&&(callType!=sim_syscb_cleanup)) )
+//        return(0); // if compilation previously failed, call nothing. If an error occured previously, allow only cleanup
+    _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
+    _forbidOverallYieldingLevel=0;
+
+    if (callType==sim_syscb_init)
+        _executionState=execState_initialized;
+
+    if ( (_executionState!=execState_initialized)&&((_executionState==execState_uninitialized)||(callType!=sim_syscb_cleanup)) )
         return(0); // if compilation previously failed, call nothing. If an error occured previously, allow only cleanup
+
     int retVal;
     if (_scriptTextExec.size()==0)
     {
@@ -3509,8 +3582,11 @@ int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfa
     if (L==nullptr)
     {
         L=initializeNewLuaState(getScriptSuffixNumberString().c_str(),_debugLevel);
+        _calledInThisSimulationStep=false;
         _raiseErrors_backCompatibility=true;
         _randGen.seed(123456);
+        _delayForAutoYielding=2;
+        _forbidAutoYieldingLevel=0;
         if (_checkIfMixingOldAndNewCallMethods())
         {
             std::string msg(getShortDescriptiveName());
@@ -3644,6 +3720,7 @@ int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfa
                 luaWrap_lua_pop(L,1); // pop error from stack
                 _announceErrorWasRaisedAndDisableScript(errMsg.c_str(),true);
                 retVal=-1;
+                _calledInThisSimulationStep=true;
             }
             else
             { // return values:
@@ -3797,7 +3874,7 @@ int CLuaScriptObject::callScriptFunction(const char* functionName,SLuaCallBack* 
 
     if (!_prepareLuaStateAndCallScriptInitSectionIfNeeded())
         return(retVal);
-
+    changeOverallYieldingForbidLevel(1,false);
     int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
 
     // New since 7/3/2016:
@@ -3943,13 +4020,14 @@ int CLuaScriptObject::callScriptFunction(const char* functionName,SLuaCallBack* 
         retVal=0;
     }
     luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
+    changeOverallYieldingForbidLevel(-1,false);
     return(retVal);
 }
 
 int CLuaScriptObject::callScriptFunctionEx(const char* functionName,CInterfaceStack* stack)
 { // retVal: -3: could not initialize script, -2: function does not exist, -1: error in function, 0:ok
     int retVal=-3;
-
+    changeOverallYieldingForbidLevel(1,false);
     if ( (L!=nullptr) && (!_scriptIsDisabled) && (_executionState==execState_initialized) )
     {
         //if (!_prepareLuaStateAndCallScriptInitSectionIfNeeded())
@@ -4040,6 +4118,7 @@ int CLuaScriptObject::callScriptFunctionEx(const char* functionName,CInterfaceSt
 
         luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
     }
+    changeOverallYieldingForbidLevel(-1,false);
     return(retVal);
 }
 
@@ -4149,7 +4228,7 @@ int CLuaScriptObject::clearScriptVariable(const char* variableName)
 int CLuaScriptObject::executeScriptString(const char* scriptString,CInterfaceStack* stack)
 { // retVal: -2: script not initialized, is disabled, or had previously an error, -1: string caused an error, 0: string didn't cause an error
     int retVal=-2;
-
+    changeOverallYieldingForbidLevel(1,false);
     if ( (L!=nullptr) && (!_scriptIsDisabled) && (_executionState==execState_initialized) )
     {
         retVal=-1;
@@ -4239,6 +4318,7 @@ int CLuaScriptObject::executeScriptString(const char* scriptString,CInterfaceSta
             _timeOfPcallStart=-1;
         luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
     }
+    changeOverallYieldingForbidLevel(-1,false);
     return(retVal);
 }
 
@@ -4658,6 +4738,11 @@ void CLuaScriptObject::serialize(CSer& ar)
                         executeInSensingPhase_oldCompatibility_7_8_2014=SIM_IS_BIT_SET(nothing,5);
                         backwardCompatibility_7_8_2014=!SIM_IS_BIT_SET(nothing,6);
                         backwardCompatibility_13_8_2014=!SIM_IS_BIT_SET(nothing,7);
+                        if (_threadedExecution)
+                        {
+                            if (App::userSettings->xrTest==123456789)
+                                App::logMsg(sim_verbosity_errors,"Contains a threaded script...");
+                        }
                     }
                     if (theName=="Va3")
                     {
@@ -4723,6 +4808,14 @@ void CLuaScriptObject::serialize(CSer& ar)
             _adjustScriptText11(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40001);
             _adjustScriptText12(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40100);
             _adjustScriptText13(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40200);
+            if ( _threadedExecution&&(!App::userSettings->makeOldThreadedScriptsAvailable) )
+            {
+                if (_convertThreadedScriptToCoroutine(this))
+                {
+                    _threadedExecution=false;
+                    _executeJustOnce=false;
+                }
+            }
             fromBufferToFile();
         }
     }
@@ -6086,60 +6179,269 @@ void CLuaScriptObject::_adjustScriptText13(CLuaScriptObject* scriptObject,bool d
     if (_scriptType!=sim_scripttype_mainscript)
         _replaceScriptText(scriptObject,"sim.getSimulationState()~=sim.simulation_advancing_abouttostop","true");
     _replaceScriptText(scriptObject,"sim.getObjectAssociatedWithScript(sim.handle_self)","sim.getObjectHandle(sim.handle_self)");
-/*
-    if (_containsScriptText(scriptObject,"sim.rmlMove"))
-        printf("Contains sim.rmlMove...\n");
-    if (_containsScriptText(scriptObject,"sim.getIk"))
-        printf("Contains sim.getIk...\n");
-    if (_containsScriptText(scriptObject,"simMoveToPosition"))
-        printf("Contains simMoveToPosition...\n");
-    if (_containsScriptText(scriptObject,"simMoveToObject"))
-        printf("Contains simMoveToObject...\n");
-    if (_containsScriptText(scriptObject,"simFollowPath"))
-        printf("Contains simFollowPath...\n");
-    if (_containsScriptText(scriptObject,"simMoveToJointPositions"))
-        printf("Contains simMoveToJointPositions...\n");
-*/
 
-//    _replaceScriptText(scriptObject,"retVal=sim.getScriptSimulationParameter(sim.getScriptAssociatedWithObject(h),name)","retVal=''");
-/*
-    _replaceScriptText(scriptObject,"sim.getScriptSimulationParameter(sim.handle_self,","readSetting(model,");
-    _replaceScriptText(scriptObject,"sim.setScriptSimulationParameter(sim.handle_self,","writeSetting(model,");
-    _replaceScriptText(scriptObject,"sim.getScriptSimulationParameter(sim.getScriptAssociatedWithObject(output),","readSetting(output,");
-    _replaceScriptText(scriptObject,"sim.setScriptSimulationParameter(sim.getScriptAssociatedWithObject(output),","writeSetting(output,");
-    _replaceScriptText(scriptObject,"sim.getScriptSimulationParameter(sim.getScriptAssociatedWithObject(outputS),","readSetting(outputS,");
-    _replaceScriptText(scriptObject,"sim.setScriptSimulationParameter(sim.getScriptAssociatedWithObject(outputS),","writeSetting(outputS,");
+    if ( (App::userSettings->xrTest==123456789)&&(_scriptType!=sim_scripttype_mainscript) )
+    {
+        if (_containsScriptText(scriptObject," thread"))
+            App::logMsg(sim_verbosity_errors,"Contains the word 'thread'");
+        if (_containsScriptText(scriptObject," Thread"))
+            App::logMsg(sim_verbosity_errors,"Contains the word 'Thread'");
+        if (_containsScriptText(scriptObject,"sim.rmlMove"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.rmlMove...");
+        if (_containsScriptText(scriptObject,"sim.getIk"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getIk...");
+        if (_containsScriptText(scriptObject,"sim.getScriptSimulationParameter"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getScriptSimulationParameter...");
+        if (_containsScriptText(scriptObject,"sim.setScriptSimulationParameter"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.setScriptSimulationParameter...");
+        if (_containsScriptText(scriptObject,"sim.tube"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.tube...");
+        if (_containsScriptText(scriptObject,"sim.addStatusbarMessage"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.addStatusbarMessage...");
+        if (_containsScriptText(scriptObject,"sim.getNameSuffix"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getNameSuffix...");
+        if (_containsScriptText(scriptObject,"sim.setNameSuffix"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.setNameSuffix...");
+        if (_containsScriptText(scriptObject,"sim.resetMill"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.resetMill...");
+        if (_containsScriptText(scriptObject,"sim.handleMill"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.handleMill...");
+        if (_containsScriptText(scriptObject,"sim.resetMilling"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.resetMilling...");
+        if (_containsScriptText(scriptObject,"sim.openTextEditor"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.openTextEditor...");
+        if (_containsScriptText(scriptObject,"sim.closeTextEditor"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.closeTextEditor...");
+        if (_containsScriptText(scriptObject,"simGetMaterialId"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetMaterialId...");
+        if (_containsScriptText(scriptObject,"simGetShapeMaterial"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetShapeMaterial...");
+        if (_containsScriptText(scriptObject,"simHandleVarious"))
+            App::logMsg(sim_verbosity_errors,"Contains simHandleVarious...");
+        if (_containsScriptText(scriptObject,"simGetInstanceIndex"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetInstanceIndex...");
+        if (_containsScriptText(scriptObject,"simGetVisibleInstanceIndex"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetVisibleInstanceIndex...");
+        if (_containsScriptText(scriptObject,"simResetPath"))
+            App::logMsg(sim_verbosity_errors,"Contains simResetPath...");
+        if (_containsScriptText(scriptObject,"simHandlePath"))
+            App::logMsg(sim_verbosity_errors,"Contains simHandlePath...");
+        if (_containsScriptText(scriptObject,"simResetJoint"))
+            App::logMsg(sim_verbosity_errors,"Contains simResetJoint...");
+        if (_containsScriptText(scriptObject,"simHandleJoint"))
+            App::logMsg(sim_verbosity_errors,"Contains simHandleJoint...");
+        if (_containsScriptText(scriptObject,"simGetInvertedMatrix"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetInvertedMatrix...");
+        if (_containsScriptText(scriptObject,"simAddSceneCustomData"))
+            App::logMsg(sim_verbosity_errors,"Contains simAddSceneCustomData...");
+        if (_containsScriptText(scriptObject,"simGetSceneCustomData"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetSceneCustomData...");
+        if (_containsScriptText(scriptObject,"simAddObjectCustomData"))
+            App::logMsg(sim_verbosity_errors,"Contains simAddObjectCustomData...");
+        if (_containsScriptText(scriptObject,"simGetObjectCustomData"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetObjectCustomData...");
+        if (_containsScriptText(scriptObject,"sim.setVisionSensorFilter"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.setVisionSensorFilter...");
+        if (_containsScriptText(scriptObject,"sim.getVisionSensorFilter"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getVisionSensorFilter...");
+        if (_containsScriptText(scriptObject,"sim.handleMechanism"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.handleMechanism...");
+        if (_containsScriptText(scriptObject,"sim.setPathTargetNominalVelocity"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.setPathTargetNominalVelocity...");
+        if (_containsScriptText(scriptObject,"sim.setShapeMassAndInertia"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.setShapeMassAndInertia...");
+        if (_containsScriptText(scriptObject,"sim.getShapeMassAndInertia"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getShapeMassAndInertia...");
+        if (_containsScriptText(scriptObject,"sim.checkIkGroup"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.checkIkGroup...");
+        if (_containsScriptText(scriptObject,"sim.handleIkGroup"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.handleIkGroup...");
+        if (_containsScriptText(scriptObject,"sim.createIkGroup"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.createIkGroup...");
+        if (_containsScriptText(scriptObject,"sim.removeIkGroup"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.removeIkGroup...");
+        if (_containsScriptText(scriptObject,"sim.createIkElement"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.createIkElement...");
+        if (_containsScriptText(scriptObject,"sim.exportIk"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.exportIk...");
+        if (_containsScriptText(scriptObject,"sim.computeJacobian"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.computeJacobian...");
+        if (_containsScriptText(scriptObject,"sim.getConfigForTipPose"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getConfigForTipPose...");
+        if (_containsScriptText(scriptObject,"sim.generateIkPath"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.generateIkPath...");
+        if (_containsScriptText(scriptObject,"sim.getIkGroupHandle"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getIkGroupHandle...");
+        if (_containsScriptText(scriptObject,"sim.getIkGroupMatrix"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getIkGroupMatrix...");
+        if (_containsScriptText(scriptObject,"sim.setIkGroupProperties"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.setIkGroupProperties...");
+        if (_containsScriptText(scriptObject,"sim.setIkElementProperties"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.setIkElementProperties...");
+        if (_containsScriptText(scriptObject,"sim.setThreadIsFree"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.setThreadIsFree...");
+        if (_containsScriptText(scriptObject,"simSetUIPosition"))
+            App::logMsg(sim_verbosity_errors,"Contains simSetUIPosition...");
+        if (_containsScriptText(scriptObject,"simGetUIPosition"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetUIPosition...");
+        if (_containsScriptText(scriptObject,"simGetUIHandle"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetUIHandle...");
+        if (_containsScriptText(scriptObject,"simGetUIProperty"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetUIProperty...");
+        if (_containsScriptText(scriptObject,"simSetUIProperty"))
+            App::logMsg(sim_verbosity_errors,"Contains simSetUIProperty...");
+        if (_containsScriptText(scriptObject,"simGetUIEventButton"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetUIEventButton...");
+        if (_containsScriptText(scriptObject,"simGetUIButtonProperty"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetUIButtonProperty...");
+        if (_containsScriptText(scriptObject,"simSetUIButtonProperty"))
+            App::logMsg(sim_verbosity_errors,"Contains simSetUIButtonProperty...");
+        if (_containsScriptText(scriptObject,"simGetUIButtonSize"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetUIButtonSize...");
+        if (_containsScriptText(scriptObject,"simSetUIButtonLabel"))
+            App::logMsg(sim_verbosity_errors,"Contains simSetUIButtonLabel...");
+        if (_containsScriptText(scriptObject,"simGetUIButtonLabel"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetUIButtonLabel...");
+        if (_containsScriptText(scriptObject,"simSetUISlider"))
+            App::logMsg(sim_verbosity_errors,"Contains simSetUISlider...");
+        if (_containsScriptText(scriptObject,"simGetUISlider"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetUISlider...");
+        if (_containsScriptText(scriptObject,"simCreateUIButtonArray"))
+            App::logMsg(sim_verbosity_errors,"Contains simCreateUIButtonArray...");
+        if (_containsScriptText(scriptObject,"simSetUIButtonArrayColor"))
+            App::logMsg(sim_verbosity_errors,"Contains simSetUIButtonArrayColor...");
+        if (_containsScriptText(scriptObject,"simDeleteUIButtonArray"))
+            App::logMsg(sim_verbosity_errors,"Contains simDeleteUIButtonArray...");
+        if (_containsScriptText(scriptObject,"simCreateUI"))
+            App::logMsg(sim_verbosity_errors,"Contains simCreateUI...");
+        if (_containsScriptText(scriptObject,"simCreateUIButton"))
+            App::logMsg(sim_verbosity_errors,"Contains simCreateUIButton...");
+        if (_containsScriptText(scriptObject,"simLoadUI"))
+            App::logMsg(sim_verbosity_errors,"Contains simLoadUI...");
+        if (_containsScriptText(scriptObject,"simSaveUI"))
+            App::logMsg(sim_verbosity_errors,"Contains simSaveUI...");
+        if (_containsScriptText(scriptObject,"simRemoveUI"))
+            App::logMsg(sim_verbosity_errors,"Contains simRemoveUI...");
+        if (_containsScriptText(scriptObject,"simSetUIButtonColor"))
+            App::logMsg(sim_verbosity_errors,"Contains simSetUIButtonColor...");
+        if (_containsScriptText(scriptObject,"simHandleChildScript"))
+            App::logMsg(sim_verbosity_errors,"Contains simHandleChildScript...");
+        if (_containsScriptText(scriptObject,"simSearchPath"))
+            App::logMsg(sim_verbosity_errors,"Contains simSearchPath...");
+        if (_containsScriptText(scriptObject,"simInitializePathSearch"))
+            App::logMsg(sim_verbosity_errors,"Contains simInitializePathSearch...");
+        if (_containsScriptText(scriptObject,"simPerformPathSearchStep"))
+            App::logMsg(sim_verbosity_errors,"Contains simPerformPathSearchStep...");
+        if (_containsScriptText(scriptObject,"sim.sendData"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.sendData...");
+        if (_containsScriptText(scriptObject,"sim.receiveData"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.receiveData...");
+        if (_containsScriptText(scriptObject,"simSerialPortOpen"))
+            App::logMsg(sim_verbosity_errors,"Contains simSerialPortOpen...");
+        if (_containsScriptText(scriptObject,"simSerialPortClose"))
+            App::logMsg(sim_verbosity_errors,"Contains simSerialPortClose...");
+        if (_containsScriptText(scriptObject,"simSerialPortSend"))
+            App::logMsg(sim_verbosity_errors,"Contains simSerialPortSend...");
+        if (_containsScriptText(scriptObject,"simSerialPortRead"))
+            App::logMsg(sim_verbosity_errors,"Contains simSerialPortRead...");
+        if (_containsScriptText(scriptObject,"sim.rmlMoveToJointPositions"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.rmlMoveToJointPositions...");
+        if (_containsScriptText(scriptObject,"simRMLMoveToJointPositions"))
+            App::logMsg(sim_verbosity_errors,"Contains simRMLMoveToJointPositions...");
+        if (_containsScriptText(scriptObject,"sim.rmlMoveToPosition"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.rmlMoveToPosition...");
+        if (_containsScriptText(scriptObject,"simRMLMoveToPosition"))
+            App::logMsg(sim_verbosity_errors,"Contains simRMLMoveToPosition...");
 
-    const char* txt="function readSetting(h,name)\n\
-    local retVal\n\
-    local data=sim.readCustomDataBlock(h,'settings')\n\
-    if data then\n\
-        data=sim.unpackTable(data)\n\
-        if data[name]~=nil then\n\
-            retVal=data[name]\n\
-        end\n\
-    end\n\
-    if retVal==nil then\n\
-        retVal=sim.getScriptSimulationParameter(sim.getScriptAssociatedWithObject(h),name)\n\
-        if not data then\n\
-            data={}\n\
-        end\n\
-        data[name]=retVal\n\
-        sim.writeCustomDataBlock(h,'settings',sim.packTable(data))\n\
-    end\n\
-    return retVal\n\
+        if (_containsScriptText(scriptObject,"sim.getScriptExecutionCount"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getScriptExecutionCount...");
+        if (_containsScriptText(scriptObject,"sim.isScriptRunningInThread"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.isScriptRunningInThread...");
+        if (_containsScriptText(scriptObject,"sim.isScriptExecutionThreaded"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.isScriptExecutionThreaded...");
+        if (_containsScriptText(scriptObject,"sim.setThreadResumeLocation"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.setThreadResumeLocation...");
+        if (_containsScriptText(scriptObject,"sim.resumeThreads"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.resumeThreads...");
+        if (_containsScriptText(scriptObject,"sim.launchThreadedChildScripts"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.launchThreadedChildScripts...");
+        if (_containsScriptText(scriptObject,"simGetScriptExecutionCount"))
+            App::logMsg(sim_verbosity_errors,"Contains simGetScriptExecutionCount...");
+        if (_containsScriptText(scriptObject,"simIsScriptExecutionThreaded"))
+            App::logMsg(sim_verbosity_errors,"Contains simIsScriptExecutionThreaded...");
+        if (_containsScriptText(scriptObject,"simIsScriptRunningInThread"))
+            App::logMsg(sim_verbosity_errors,"Contains simIsScriptRunningInThread...");
+        if (_containsScriptText(scriptObject,"simSetThreadResumeLocation"))
+            App::logMsg(sim_verbosity_errors,"Contains simSetThreadResumeLocation...");
+        if (_containsScriptText(scriptObject,"simResumeThreads"))
+            App::logMsg(sim_verbosity_errors,"Contains simResumeThreads...");
+        if (_containsScriptText(scriptObject,"simLaunchThreadedChildScripts"))
+            App::logMsg(sim_verbosity_errors,"Contains simLaunchThreadedChildScripts...");
+
+
+        //************************************************************
+        // Scripts containing following should remain handled in threaded mode:
+        if (_containsScriptText(scriptObject,"simMoveToPosition"))
+            App::logMsg(sim_verbosity_errors,"Contains simMoveToPosition...");
+        if (_containsScriptText(scriptObject,"sim.moveToPosition"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.moveToPosition...");
+        if (_containsScriptText(scriptObject,"simMoveToObject"))
+            App::logMsg(sim_verbosity_errors,"Contains simMoveToObject...");
+        if (_containsScriptText(scriptObject,"sim.moveToObject"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.moveToObject...");
+        if (_containsScriptText(scriptObject,"simFollowPath"))
+            App::logMsg(sim_verbosity_errors,"Contains simFollowPath...");
+        if (_containsScriptText(scriptObject,"sim.followPath"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.followPath...");
+        if (_containsScriptText(scriptObject,"simMoveToJointPositions"))
+            App::logMsg(sim_verbosity_errors,"Contains simMoveToJointPositions...");
+        if (_containsScriptText(scriptObject,"sim.moveToJointPositions"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.moveToJointPositions...");
+        //************************************************************
+    }
+}
+
+bool CLuaScriptObject::_convertThreadedScriptToCoroutine(CLuaScriptObject* scriptObject)
+{ // try to transform the threaded script into a non-threaded script with coroutines:
+    bool retVal=false;
+    if (_containsScriptText(scriptObject,"sysCall_threadmain"))
+    {
+        retVal=true;
+        // Below functions are deprecated and won't work in a non-threaded script running a coroutine:
+        if (_containsScriptText(scriptObject,"simMoveToPosition"))
+            retVal=false;
+        if (_containsScriptText(scriptObject,"sim.moveToPosition"))
+            retVal=false;
+        if (_containsScriptText(scriptObject,"simMoveToObject"))
+            retVal=false;
+        if (_containsScriptText(scriptObject,"sim.moveToObject"))
+            retVal=false;
+        if (_containsScriptText(scriptObject,"simFollowPath"))
+            retVal=false;
+        if (_containsScriptText(scriptObject,"sim.followPath"))
+            retVal=false;
+        if (_containsScriptText(scriptObject,"simMoveToJointPositions"))
+            retVal=false;
+        if (_containsScriptText(scriptObject,"sim.moveToJointPositions"))
+            retVal=false;
+        if (retVal)
+        {
+            _replaceScriptText(scriptObject,"sysCall_threadmain","coroutineMain");
+            std::string txt="function sysCall_init()\n\
+    corout=coroutine.create(coroutineMain)\n\
 end\n\
 \n\
-function writeSetting(h,name,value)\n\
-    local data=sim.readCustomDataBlock(h,'settings')\n\
-    if not data then\n\
-        data={}\n\
-    else\n\
-        data=sim.unpackTable(data)\n\
-    end\n\
-    data[name]=value\n\
-    sim.writeCustomDataBlock(h,'settings',sim.packTable(data))\n\
-end\n\n";
-    _insertScriptText(scriptObject,true,txt);
-    //*/
+function sysCall_actuation()\n\
+    if coroutine.status(corout)~='dead' then\n\
+        local ok,errorMsg=coroutine.resume(corout)\n\
+        if errorMsg then\n\
+            error(errorMsg)\n\
+        end\n";
+             if (!_executeJustOnce)
+                txt+="    else\n        corout=coroutine.create(coroutineMain)\n";
+             txt+="    end\nend\n\n";
+            _insertScriptText(scriptObject,true,txt.c_str());
+        }
+    }
+    return retVal;
 }

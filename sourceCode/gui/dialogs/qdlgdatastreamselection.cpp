@@ -109,12 +109,14 @@ void CQDlgDataStreamSelection::refresh()
         addElementToCombobox(ui->qqTypeCombo,GRAPH_SCENEOBJECT_FORCESENSOR_POSITION_ERROR);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_SCENEOBJECT_FORCESENSOR_ORIENTATION_ERROR);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_SCENEOBJECT_FORCESENSOR_BROKEN);
+/*
         addElementToCombobox(ui->qqTypeCombo,GRAPH_SCENEOBJECT_MILL_CUT_SURFACE);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_SCENEOBJECT_MILL_CUT_VOLUME);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_SCENEOBJECT_MILL_CALCULATION_TIME);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_NOOBJECT_MILL_OVERALL_CUT_SURFACE);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_NOOBJECT_MILL_OVERALL_CUT_VOLUME);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_NOOBJECT_MILL_OVERALL_CALCULATION_TIME);
+        */
         addElementToCombobox(ui->qqTypeCombo,GRAPH_SCENEOBJECT_JOINT_POSITION);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_SCENEOBJECT_JOINT_VELOCITY);
 
@@ -122,6 +124,7 @@ void CQDlgDataStreamSelection::refresh()
         addElementToCombobox(ui->qqTypeCombo,GRAPH_SCENEOBJECT_JOINT_DYN_POSITION_ERROR);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_SCENEOBJECT_JOINT_DYN_ORIENTATION_ERROR);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_SCENEOBJECT_JOINT_DYN_FORCE_OR_TORQUE);
+/*
         addElementToCombobox(ui->qqTypeCombo,GRAPH_SCENEOBJECT_PATH_POSITION);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_SCENEOBJECT_PATH_POSITION_LINEAR_COMPONENT);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_SCENEOBJECT_PATH_POSITION_ANGULAR_COMPONENT);
@@ -146,10 +149,11 @@ void CQDlgDataStreamSelection::refresh()
         addElementToCombobox(ui->qqTypeCombo,GRAPH_NOOBJECT_DISTANCE_OVERALL_CALCULATION_TIME);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_IK_CALCULATION_TIME);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_NOOBJECT_IK_OVERALL_CALCULATION_TIME);
+        */
         addElementToCombobox(ui->qqTypeCombo,GRAPH_NOOBJECT_DYNAMICS_OVERALL_CALCULATION_TIME);
-        addElementToCombobox(ui->qqTypeCombo,GRAPH_NOOBJECT_WORK_THREADS_EXECUTION_TIME);
+//        addElementToCombobox(ui->qqTypeCombo,GRAPH_NOOBJECT_WORK_THREADS_EXECUTION_TIME);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_NOOBJECT_RENDERING_TIME);
-        addElementToCombobox(ui->qqTypeCombo,GRAPH_NOOBJECT_CHILDSCRIPT_EXECUTION_TIME);
+//        addElementToCombobox(ui->qqTypeCombo,GRAPH_NOOBJECT_MAINSCRIPT_EXECUTION_TIME);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_NOOBJECT_SIMULATIONPASS_EXECUTION_TIME);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_NOOBJECT_TIME);
         addElementToCombobox(ui->qqTypeCombo,GRAPH_NOOBJECT_USER_DEFINED);

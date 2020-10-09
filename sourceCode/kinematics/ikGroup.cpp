@@ -572,9 +572,6 @@ int CIkGroup::computeGroupIk(bool independentComputation)
 
         if (doIt)
         {
-            if (!independentComputation)
-                App::worldContainer->calcInfo->inverseKinematicsStart();
-
             retVal=CPluginContainer::ikPlugin_handleIkGroup(_ikPluginCounterpartHandle);
             // do not check for success to apply values. Always apply them (the IK lib decides for that)
             for (size_t i=0;i<getIkElementCount();i++)
@@ -593,8 +590,6 @@ int CIkGroup::computeGroupIk(bool independentComputation)
                 printf("-------------------\n");
             }
             */
-            if (!independentComputation)
-                App::worldContainer->calcInfo->inverseKinematicsEnd();
         }
     }
     return(retVal);

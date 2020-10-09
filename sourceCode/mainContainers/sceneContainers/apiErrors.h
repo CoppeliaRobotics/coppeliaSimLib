@@ -29,7 +29,7 @@
 #define SIM_ERROR_OBJECT_NOT_PATH           "Object is not a path."
 #define SIM_ERROR_OBJECT_NOT_LIGHT          "Object is not a light."
 #define SIM_ERROR_OBJECT_NOT_DUMMY          "Object is not a dummy."
-#define SIM_ERROR_OBJECT_NOT_OCTREE             "Object is not an octree."
+#define SIM_ERROR_OBJECT_NOT_OCTREE             "Object is not an OC tree."
 #define SIM_ERROR_OBJECT_NOT_POINTCLOUD         "Object is not a point cloud."
 #define SIM_ERROR_UI_INEXISTANT             "UI does not exist."
 #define SIM_ERROR_UI_BUTTON_INEXISTANT          "UI button does not exist."

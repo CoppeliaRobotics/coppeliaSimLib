@@ -59,9 +59,6 @@ SIM_DLLEXPORT simInt simSetJointPosition(simInt objectHandle,simFloat position);
 SIM_DLLEXPORT simInt simSetJointTargetPosition(simInt objectHandle,simFloat targetPosition);
 SIM_DLLEXPORT simInt simGetJointTargetPosition(simInt objectHandle,simFloat* targetPosition);
 SIM_DLLEXPORT simInt simSetJointMaxForce(simInt objectHandle,simFloat forceOrTorque);
-SIM_DLLEXPORT simInt simGetPathPosition(simInt objectHandle,simFloat* position);
-SIM_DLLEXPORT simInt simSetPathPosition(simInt objectHandle,simFloat position);
-SIM_DLLEXPORT simInt simGetPathLength(simInt objectHandle,simFloat* length);
 SIM_DLLEXPORT simInt simGetJointMatrix(simInt objectHandle,simFloat* matrix);
 SIM_DLLEXPORT simInt simSetSphericalJointMatrix(simInt objectHandle,const simFloat* matrix);
 SIM_DLLEXPORT simInt simGetJointInterval(simInt objectHandle,simBool* cyclic,simFloat* interval);
@@ -180,8 +177,6 @@ SIM_DLLEXPORT simInt simScaleSelectedObjects(simFloat scalingFactor,simBool scal
 SIM_DLLEXPORT simInt simScaleObjects(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo);
 SIM_DLLEXPORT simInt simDeleteSelectedObjects();
 SIM_DLLEXPORT simInt simGetObjectUniqueIdentifier(simInt objectHandle,simInt* uniqueIdentifier);
-SIM_DLLEXPORT simInt simSendData(simInt targetID,simInt dataHeader,const simChar* dataName,const simChar* data,simInt dataLength,simInt antennaHandle,simFloat actionRadius,simFloat emissionAngle1,simFloat emissionAngle2,simFloat persistence);
-SIM_DLLEXPORT simChar* simReceiveData(simInt dataHeader,const simChar* dataName,simInt antennaHandle,simInt index,simInt* dataLength,simInt* senderID,simInt* dataHeaderR,simChar** dataNameR);
 SIM_DLLEXPORT simInt simSetGraphUserData(simInt graphHandle,const simChar* dataStreamName,simFloat data);
 SIM_DLLEXPORT simInt simAddDrawingObject(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission);
 SIM_DLLEXPORT simInt simRemoveDrawingObject(simInt objectHandle);
@@ -208,10 +203,6 @@ SIM_DLLEXPORT simInt simSetObjectProperty(simInt objectHandle,simInt prop);
 SIM_DLLEXPORT simInt simGetObjectProperty(simInt objectHandle);
 SIM_DLLEXPORT simInt simSetObjectSpecialProperty(simInt objectHandle,simInt prop);
 SIM_DLLEXPORT simInt simGetObjectSpecialProperty(simInt objectHandle);
-SIM_DLLEXPORT simInt simGetPositionOnPath(simInt pathHandle,simFloat relativeDistance,simFloat* position);
-SIM_DLLEXPORT simInt simGetDataOnPath(simInt pathHandle,simFloat relativeDistance,simInt dataType,simInt* intData,simFloat* floatData);
-SIM_DLLEXPORT simInt simGetOrientationOnPath(simInt pathHandle,simFloat relativeDistance,simFloat* eulerAngles);
-SIM_DLLEXPORT simInt simGetClosestPositionOnPath(simInt pathHandle,simFloat* absolutePosition,simFloat* pathPosition);
 SIM_DLLEXPORT simInt simReadForceSensor(simInt objectHandle,simFloat* forceVector,simFloat* torqueVector);
 SIM_DLLEXPORT simInt simBreakForceSensor(simInt objectHandle);
 SIM_DLLEXPORT simInt simGetShapeVertex(simInt shapeHandle,simInt groupElementIndex,simInt vertexIndex,simFloat* relativePosition);
@@ -239,12 +230,6 @@ SIM_DLLEXPORT simInt simSerialSend(simInt portHandle,const simChar* data,simInt 
 SIM_DLLEXPORT simInt simSerialRead(simInt portHandle,simChar* buffer,simInt dataLengthToRead);
 SIM_DLLEXPORT simInt simSerialCheck(simInt portHandle);
 SIM_DLLEXPORT simInt simGetContactInfo(simInt dynamicPass,simInt objectHandle,simInt index,simInt* objectHandles,simFloat* contactInfo);
-SIM_DLLEXPORT simInt simSetThreadIsFree(simBool freeMode);
-SIM_DLLEXPORT simInt simTubeOpen(simInt dataHeader,const simChar* dataName,simInt readBufferSize,simBool notUsedButKeepZero);
-SIM_DLLEXPORT simInt simTubeClose(simInt tubeHandle);
-SIM_DLLEXPORT simInt simTubeWrite(simInt tubeHandle,const simChar* data,simInt dataLength);
-SIM_DLLEXPORT simChar* simTubeRead(simInt tubeHandle,simInt* dataLength);
-SIM_DLLEXPORT simInt simTubeStatus(simInt tubeHandle,simInt* readPacketsCount,simInt* writePacketsCount);
 SIM_DLLEXPORT simInt simAuxiliaryConsoleOpen(const simChar* title,simInt maxLines,simInt mode,const simInt* position,const simInt* size,const simFloat* textColor,const simFloat* backgroundColor);
 SIM_DLLEXPORT simInt simAuxiliaryConsoleClose(simInt consoleHandle);
 SIM_DLLEXPORT simInt simAuxiliaryConsoleShow(simInt consoleHandle,simBool showState);
@@ -304,9 +289,6 @@ SIM_DLLEXPORT simInt simCreateProximitySensor(simInt sensorType,simInt subType,s
 SIM_DLLEXPORT simInt simCreateForceSensor(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
 SIM_DLLEXPORT simInt simCreateVisionSensor(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
 SIM_DLLEXPORT simInt simConvexDecompose(simInt shapeHandle,simInt options,const simInt* intParams,const simFloat* floatParams);
-SIM_DLLEXPORT simInt simCreatePath(simInt attributes,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
-SIM_DLLEXPORT simInt simInsertPathCtrlPoints(simInt pathHandle,simInt options,simInt startIndex,simInt ptCnt,const simVoid* ptData);
-SIM_DLLEXPORT simInt simCutPathCtrlPoints(simInt pathHandle,simInt startIndex,simInt ptCnt);
 SIM_DLLEXPORT simInt simAddGhost(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color);
 SIM_DLLEXPORT simInt simModifyGhost(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation);
 SIM_DLLEXPORT simVoid simQuitSimulator(simBool ignoredArgument);
@@ -648,6 +630,24 @@ SIM_DLLEXPORT simFloat* simGetIkGroupMatrix(simInt ikGroupHandle,simInt options,
 SIM_DLLEXPORT simInt simHandleIkGroup(simInt ikGroupHandle);
 SIM_DLLEXPORT simInt simSetIkGroupProperties(simInt ikGroupHandle,simInt resolutionMethod,simInt maxIterations,simFloat damping,void* reserved);
 SIM_DLLEXPORT simInt simSetIkElementProperties(simInt ikGroupHandle,simInt tipDummyHandle,simInt constraints,const simFloat* precision,const simFloat* weight,void* reserved);
+SIM_DLLEXPORT simInt simSetThreadIsFree(simBool freeMode);
+SIM_DLLEXPORT simInt simTubeOpen(simInt dataHeader,const simChar* dataName,simInt readBufferSize,simBool notUsedButKeepZero);
+SIM_DLLEXPORT simInt simTubeClose(simInt tubeHandle);
+SIM_DLLEXPORT simInt simTubeWrite(simInt tubeHandle,const simChar* data,simInt dataLength);
+SIM_DLLEXPORT simChar* simTubeRead(simInt tubeHandle,simInt* dataLength);
+SIM_DLLEXPORT simInt simTubeStatus(simInt tubeHandle,simInt* readPacketsCount,simInt* writePacketsCount);
+SIM_DLLEXPORT simInt simSendData(simInt targetID,simInt dataHeader,const simChar* dataName,const simChar* data,simInt dataLength,simInt antennaHandle,simFloat actionRadius,simFloat emissionAngle1,simFloat emissionAngle2,simFloat persistence);
+SIM_DLLEXPORT simChar* simReceiveData(simInt dataHeader,const simChar* dataName,simInt antennaHandle,simInt index,simInt* dataLength,simInt* senderID,simInt* dataHeaderR,simChar** dataNameR);
+SIM_DLLEXPORT simInt simGetPositionOnPath(simInt pathHandle,simFloat relativeDistance,simFloat* position);
+SIM_DLLEXPORT simInt simGetDataOnPath(simInt pathHandle,simFloat relativeDistance,simInt dataType,simInt* intData,simFloat* floatData);
+SIM_DLLEXPORT simInt simGetOrientationOnPath(simInt pathHandle,simFloat relativeDistance,simFloat* eulerAngles);
+SIM_DLLEXPORT simInt simGetClosestPositionOnPath(simInt pathHandle,simFloat* absolutePosition,simFloat* pathPosition);
+SIM_DLLEXPORT simInt simGetPathPosition(simInt objectHandle,simFloat* position);
+SIM_DLLEXPORT simInt simSetPathPosition(simInt objectHandle,simFloat position);
+SIM_DLLEXPORT simInt simGetPathLength(simInt objectHandle,simFloat* length);
+SIM_DLLEXPORT simInt simCreatePath(simInt attributes,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
+SIM_DLLEXPORT simInt simInsertPathCtrlPoints(simInt pathHandle,simInt options,simInt startIndex,simInt ptCnt,const simVoid* ptData);
+SIM_DLLEXPORT simInt simCutPathCtrlPoints(simInt pathHandle,simInt startIndex,simInt ptCnt);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

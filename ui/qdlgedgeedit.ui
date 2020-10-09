@@ -44,7 +44,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Extract path</string>
+     <string>Copy to statusbar</string>
     </property>
    </widget>
   </widget>

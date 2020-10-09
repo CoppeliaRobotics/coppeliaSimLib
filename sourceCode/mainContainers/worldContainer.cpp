@@ -461,3 +461,37 @@ bool CWorldContainer::processGuiCommand(int commandID)
 }
 
 #endif
+
+void CWorldContainer::simulationAboutToStart()
+{
+    calcInfo->simulationAboutToStart();
+    currentWorld->simulationAboutToStart();
+}
+
+void CWorldContainer::simulationPaused()
+{
+    currentWorld->simulationPaused();
+}
+
+void CWorldContainer::simulationAboutToResume()
+{
+    currentWorld->simulationAboutToResume();
+}
+
+void CWorldContainer::simulationAboutToStep()
+{
+    calcInfo->simulationAboutToStep();
+    currentWorld->simulationAboutToStep();
+}
+
+void CWorldContainer::simulationAboutToEnd()
+{
+    currentWorld->simulationAboutToEnd();
+}
+
+void CWorldContainer::simulationEnded(bool removeNewObjects)
+{
+    currentWorld->simulationEnded(removeNewObjects);
+    calcInfo->simulationEnded();
+}
+

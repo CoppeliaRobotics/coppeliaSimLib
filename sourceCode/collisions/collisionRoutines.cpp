@@ -24,7 +24,6 @@ bool CCollisionRoutine::doEntitiesCollide(int entity1ID,int entity2ID,std::vecto
         if ( (collection2==nullptr)&&(entity2ID!=-1) )
             return(false);
     }
-    App::worldContainer->calcInfo->collisionDetectionStart();
     bool collisionResult=false;
     if (object1!=nullptr)
     { // Here we have an object against..
@@ -124,7 +123,6 @@ bool CCollisionRoutine::doEntitiesCollide(int entity1ID,int entity2ID,std::vecto
             }
         }
     }
-    App::worldContainer->calcInfo->collisionDetectionEnd(collisionResult);
     return(collisionResult);
 }
 

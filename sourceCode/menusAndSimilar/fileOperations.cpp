@@ -2040,7 +2040,8 @@ void CFileOperations::addMenu(VMenu* menu)
         expMenu->appendMenuItem(fileOpOk&&(graphNumber!=0),false,FILE_OPERATION_EXPORT_GRAPHS_FOCMD,IDS_EXPORT_SELECTED_GRAPHS_MENU_ITEM);
         expMenu->appendMenuItem(fileOpOk&&(pathNumber==1)&&(selItems==1),false,FILE_OPERATION_EXPORT_PATH_SIMPLE_POINTS_FOCMD,IDS_EXPORT_SELECTED_PATH_MENU_ITEM);
         expMenu->appendMenuItem(fileOpOk&&(pathNumber==1)&&(selItems==1),false,FILE_OPERATION_EXPORT_PATH_BEZIER_POINTS_FOCMD,IDS_EXPORT_SELECTED_PATH_BEZIER_CURVE_MENU_ITEM);
-        expMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_EXPORT_IK_CONTENT_FOCMD,IDS_EXPORT_IK_CONTENT_MENU_ITEM);
+        if (App::userSettings->showOldDlgs)
+            expMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_EXPORT_IK_CONTENT_FOCMD,IDS_EXPORT_IK_CONTENT_MENU_ITEM);
         bool canExportDynamicContent=CPluginContainer::dyn_isDynamicContentAvailable()!=0;
         expMenu->appendMenuItem(canExportDynamicContent,false,FILE_OPERATION_EXPORT_DYNAMIC_CONTENT_FOCMD,IDSN_EXPORT_DYNAMIC_CONTENT);
         menu->appendMenuAndDetach(expMenu,true,IDSN_EXPORT_MENU_ITEM);

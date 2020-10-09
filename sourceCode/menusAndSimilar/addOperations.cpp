@@ -356,13 +356,13 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         }
         return(true);
     }
-    if ((commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_NON_THREADED_CHILD_SCRIPT_ACCMD)||(commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD))
+    if ((commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_NON_THREADED_CHILD_SCRIPT_ACCMD)||(commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD)||(commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_OLDTHREADED_CHILD_SCRIPT_ACCMD))
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (App::currentWorld->sceneObjects->getSelectionCount()==1)
             {
-                int scriptID=App::currentWorld->luaScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_childscript,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD);
+                int scriptID=App::currentWorld->luaScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_childscript,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_OLDTHREADED_CHILD_SCRIPT_ACCMD);
                 CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptID);
                 if (script!=nullptr)
                     script->setObjectIDThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
@@ -1472,14 +1472,20 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
 
             menu->appendMenuItem(true,false,ADD_COMMANDS_ADD_FORCE_SENSOR_ACCMD,IDSN_FORCE_SENSOR);
 
-            VMenu* pathM=new VMenu();
-            pathM->appendMenuItem(true,false,ADD_COMMANDS_ADD_PATH_SEGMENT_ACCMD,IDS_SEGMENT_TYPE_MENU_ITEM);
-            pathM->appendMenuItem(true,false,ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD,IDS_CIRCLE_TYPE_MENU_ITEM);
-            menu->appendMenuAndDetach(pathM,true,IDSN_PATH);
+
+            if (App::userSettings->showOldDlgs)
+            {
+                VMenu* pathM=new VMenu();
+                pathM->appendMenuItem(true,false,ADD_COMMANDS_ADD_PATH_SEGMENT_ACCMD,IDS_SEGMENT_TYPE_MENU_ITEM);
+                pathM->appendMenuItem(true,false,ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD,IDS_CIRCLE_TYPE_MENU_ITEM);
+                menu->appendMenuAndDetach(pathM,true,IDSN_PATH);
+            }
 
             VMenu* childScript=new VMenu();
             childScript->appendMenuItem(true,false,ADD_COMMANDS_ADD_AND_ASSOCIATE_NON_THREADED_CHILD_SCRIPT_ACCMD,IDS_NON_THREADED_MENU_ITEM);
             childScript->appendMenuItem(true,false,ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD,IDS_THREADED_MENU_ITEM);
+            if (App::userSettings->makeOldThreadedScriptsAvailable)
+                childScript->appendMenuItem(true,false,ADD_COMMANDS_ADD_AND_ASSOCIATE_OLDTHREADED_CHILD_SCRIPT_ACCMD,"Threaded (deprecated, backward compatibility version)");
 
             menu->appendMenuAndDetach(childScript,canAddChildScript,IDS_ASSOCIATED_CHILD_SCRIPT_MENU_ITEM);
 

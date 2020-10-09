@@ -14,7 +14,7 @@ CQDlgCalcDialogContainer::CQDlgCalcDialogContainer(QWidget *parent) :
     ui->setupUi(this);
 
     topBorderWidth=0;
-    if (App::userSettings->showOldCalcModuleDlgs)
+    if (App::userSettings->showOldDlgs)
     {
         topBorderWidth=35;
         QRect geom=ui->qqGroupBox->geometry();
@@ -27,7 +27,7 @@ CQDlgCalcDialogContainer::CQDlgCalcDialogContainer(QWidget *parent) :
         setWindowTitle("Dynamics");
     }
 
-    if (App::userSettings->showOldCalcModuleDlgs)
+    if (App::userSettings->showOldDlgs)
     {
         pageDlgs[0]=new CQDlgCollisions();
         originalHeights[0]=pageDlgs[0]->size().height();
@@ -56,7 +56,7 @@ CQDlgCalcDialogContainer::CQDlgCalcDialogContainer(QWidget *parent) :
     bl=new QVBoxLayout();
     bl->setContentsMargins(0,topBorderWidth,0,0);
     setLayout(bl);
-    if (App::userSettings->showOldCalcModuleDlgs)
+    if (App::userSettings->showOldDlgs)
     {
         bl->addWidget(pageDlgs[0]);
         bl->addWidget(pageDlgs[1]);
@@ -86,7 +86,7 @@ void CQDlgCalcDialogContainer::dialogCallbackFunc(const SUIThreadCommand* cmdIn,
 
 void CQDlgCalcDialogContainer::refresh()
 {
-    if (App::userSettings->showOldCalcModuleDlgs)
+    if (App::userSettings->showOldDlgs)
     {
         ui->qqCollision->setChecked(desiredPage==0);
         ui->qqDistance->setChecked(desiredPage==1);
@@ -114,7 +114,7 @@ void CQDlgCalcDialogContainer::on_qqCollision_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::userSettings->showOldCalcModuleDlgs)
+        if (App::userSettings->showOldDlgs)
         {
             desiredPage=0;
             refresh();
@@ -126,7 +126,7 @@ void CQDlgCalcDialogContainer::on_qqDistance_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::userSettings->showOldCalcModuleDlgs)
+        if (App::userSettings->showOldDlgs)
         {
             desiredPage=1;
             refresh();
@@ -138,7 +138,7 @@ void CQDlgCalcDialogContainer::on_qqIk_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::userSettings->showOldCalcModuleDlgs)
+        if (App::userSettings->showOldDlgs)
         {
             desiredPage=2;
             refresh();
@@ -150,7 +150,7 @@ void CQDlgCalcDialogContainer::on_qqDynamics_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::userSettings->showOldCalcModuleDlgs)
+        if (App::userSettings->showOldDlgs)
             desiredPage=3;
         else
             desiredPage=0;

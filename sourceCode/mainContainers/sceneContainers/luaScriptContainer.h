@@ -27,7 +27,7 @@ public:
     bool doesScriptWithUniqueIdExist(int id) const;
 
     void killAllSimulationLuaStates();
-    int insertDefaultScript_mainAndChildScriptsOnly(int scriptType,bool threaded);
+    int insertDefaultScript_mainAndChildScriptsOnly(int scriptType,bool threaded,bool oldThreadedScript);
     void setInMainScriptNow(bool launched,int startTimeInMs);
     bool getInMainScriptNow() const;
     int getMainScriptExecTimeInMs() const;
@@ -35,7 +35,7 @@ public:
 
     int removeDestroyedScripts(int scriptType);
     void resetScriptFlagCalledInThisSimulationStep();
-    int getCalledScriptsCountInThisSimulationStep(int scriptType);
+    int getCalledScriptsCountInThisSimulationStep(bool onlySimulationScripts);
 
     void addCallbackStructureObjectToDestroyAtTheEndOfSimulation_new(SScriptCallBack* object);
     void addCallbackStructureObjectToDestroyAtTheEndOfSimulation_old(SLuaCallBack* object);

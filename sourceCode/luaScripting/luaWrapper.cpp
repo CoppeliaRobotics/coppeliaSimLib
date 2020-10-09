@@ -49,7 +49,6 @@ typedef void (__cdecl *pluaLib_lua_setglobal)(luaWrap_lua_State* L,const char* n
 typedef void (__cdecl *pluaLib_lua_getfield)(luaWrap_lua_State* L,int idx,const char* name);
 typedef void (__cdecl *pluaLib_lua_setfield)(luaWrap_lua_State* L,int idx,const char* name);
 typedef void (__cdecl *pluaLib_lua_yield)(luaWrap_lua_State* L,int nresults);
-typedef int (__cdecl *pluaLib_lua_status)(luaWrap_lua_State* L);
 typedef int (__cdecl *pluaLib_luaL_dostring)(luaWrap_lua_State* L,const char* str);
 typedef void (__cdecl *pluaLib_lua_getglobal)(luaWrap_lua_State* L,const char* str);
 typedef void (__cdecl *pluaLib_lua_pop)(luaWrap_lua_State* L,int n);
@@ -113,7 +112,6 @@ pluaLib_lua_setglobal luaLib_lua_setglobal;
 pluaLib_lua_getfield luaLib_lua_getfield;
 pluaLib_lua_setfield luaLib_lua_setfield;
 pluaLib_lua_yield luaLib_lua_yield;
-pluaLib_lua_status luaLib_lua_status;
 pluaLib_luaL_dostring luaLib_luaL_dostring;
 pluaLib_lua_getglobal luaLib_lua_getglobal;
 pluaLib_lua_pop luaLib_lua_pop;
@@ -185,7 +183,6 @@ bool _getLibProcAddresses()
     luaLib_lua_getfield=(pluaLib_lua_getfield)(_getProcAddress("luaLib_lua_getfield"));
     luaLib_lua_setfield=(pluaLib_lua_setfield)(_getProcAddress("luaLib_lua_setfield"));
     luaLib_lua_yield=(pluaLib_lua_yield)(_getProcAddress("luaLib_lua_yield"));
-    luaLib_lua_status=(pluaLib_lua_status)(_getProcAddress("luaLib_lua_status"));
     luaLib_luaL_dostring=(pluaLib_luaL_dostring)(_getProcAddress("luaLib_luaL_dostring"));
     luaLib_lua_getglobal=(pluaLib_lua_getglobal)(_getProcAddress("luaLib_lua_getglobal"));
     luaLib_lua_pop=(pluaLib_lua_pop)(_getProcAddress("luaLib_lua_pop"));
@@ -249,7 +246,6 @@ bool _getLibProcAddresses()
     if (luaLib_lua_getfield==nullptr) return false;
     if (luaLib_lua_setfield==nullptr) return false;
     if (luaLib_lua_yield==nullptr) return false;
-    if (luaLib_lua_status==nullptr) return false;
     if (luaLib_luaL_dostring==nullptr) return false;
     if (luaLib_lua_getglobal==nullptr) return false;
     if (luaLib_lua_pop==nullptr) return false;
@@ -647,16 +643,6 @@ void luaWrap_lua_yield(luaWrap_lua_State* L,int nresults)
         luaLib_lua_yield(L,nresults);
     else
         lua_yield((lua_State*)L,nresults);
-}
-
-int luaWrap_lua_status(luaWrap_lua_State* L)
-{
-    int retVal;
-    if (lib!=nullptr)
-        retVal=luaLib_lua_status(L);
-    else
-        retVal=lua_status((lua_State*)L);
-    return(retVal);
 }
 
 int luaWrap_luaL_dostring(luaWrap_lua_State* L,const char* str)

@@ -13,6 +13,7 @@
 #define DEFAULT_MAINSCRIPT_NAME "dltmscpt.txt"
 #define DEFAULT_NONTHREADEDCHILDSCRIPT_NAME "dltcscpt.txt"
 #define DEFAULT_THREADEDCHILDSCRIPT_NAME "dlttscpt.txt"
+#define DEFAULT_THREADEDCHILDSCRIPTOLD_NAME "dlttscptbkcomp.txt"
 #define DEFAULT_CUSTOMIZATIONSCRIPT_NAME "defaultCustomizationScript.txt"
 
 class CLuaScriptObject
@@ -60,7 +61,7 @@ public:
     bool setScriptTextFromFile(const char* filename);
     const char* getScriptText();
 
-    void setCalledInThisSimulationStep(bool c);
+    void resetCalledInThisSimulationStep();
     bool getCalledInThisSimulationStep() const;
 
     int runMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
@@ -175,6 +176,13 @@ public:
     void fromFileToBuffer(); // when using an external editor
     void fromBufferToFile() const;
 
+    bool shouldAutoYield();
+    bool canManualYield() const;
+    void setDelayForAutoYielding(int d);
+    int changeAutoYieldingForbidLevel(int dx,bool absolute);
+    int getAutoYieldingForbidLevel() const;
+    int changeOverallYieldingForbidLevel(int dx,bool absolute);
+
     static bool canCallSystemCallback(int scriptType,bool threaded,int callType);
     static std::string getSystemCallbackString(int calltype,bool callTips);
     static std::string getSystemCallbackExString(int calltype);
@@ -219,6 +227,7 @@ protected:
     void _adjustScriptText11(CLuaScriptObject* scriptObject,bool doIt);
     void _adjustScriptText12(CLuaScriptObject* scriptObject,bool doIt);
     void _adjustScriptText13(CLuaScriptObject* scriptObject,bool doIt);
+    bool _convertThreadedScriptToCoroutine(CLuaScriptObject* scriptObject);
 
     // Variables that need to be copied and serialized:
     int scriptID;
@@ -235,7 +244,13 @@ protected:
     bool _raiseErrors_backCompatibility;
     int _treeTraversalDirection;
     int _objectIDAttachedTo;
+
     bool _calledInThisSimulationStep;
+
+    int _timeForNextAutoYielding;
+    int _delayForAutoYielding;
+    int _forbidAutoYieldingLevel;
+    int _forbidOverallYieldingLevel;
 
     std::string _scriptText;
     std::string _scriptTextExec; // the one getting executed!

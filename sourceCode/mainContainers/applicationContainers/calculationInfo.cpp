@@ -1,4 +1,3 @@
-
 #include "calculationInfo.h"
 #include "app.h"
 #include "gV.h"
@@ -11,24 +10,7 @@
 
 CCalculationInfo::CCalculationInfo()
 {
-    _threadedScriptCount=0;
-
-    _scriptTxt[0]="";
-    _scriptTxt[1]="";
-    _collTxt[0]="";
-    _collTxt[1]="";
-    _distTxt[0]="";
-    _distTxt[1]="";
-    _sensTxt[0]="";
-    _sensTxt[1]="";
-    _visionSensTxt[0]="";
-    _visionSensTxt[1]="";
-    _ikTxt[0]="";
-    _ikTxt[1]="";
-    _millTxt[0]="";
-    _millTxt[1]="";
-    _dynamicsTxt[0]="";
-    _dynamicsTxt[1]="";
+    resetInfo(true);
 }
 
 CCalculationInfo::~CCalculationInfo()
@@ -37,102 +19,57 @@ CCalculationInfo::~CCalculationInfo()
 
 void CCalculationInfo::simulationAboutToStart()
 {
-    resetInfo();
+    resetInfo(true);
+}
+
+void CCalculationInfo::simulationAboutToStep()
+{
+    formatInfo();
+    resetInfo(false);
 }
 
 void CCalculationInfo::simulationEnded()
 {
-    resetInfo();
+    resetInfo(true);
 }
 
-void CCalculationInfo::resetInfo()
+void CCalculationInfo::resetInfo(bool clearDisp)
 {
-    _collCalcCount=0;
-    _collDetectCount=0;
-    _collCalcDuration=0;
-    _distCalcCount=0;
-    _distCalcDuration=0;
     _sensCalcCount=0;
     _sensDetectCount=0;
     _sensCalcDuration=0;
     _rendSensCalcCount=0;
     _rendSensDetectCount=0;
     _rendSensCalcDuration=0;
-    _ikCalcCount=0;
-    _ikCalcDuration=0;
-    _mainScriptExecuted=false;
     _mainScriptDuration=0;
-    _mainScriptMessage="";
-    _regularScriptDuration=0;
-    _regularScriptCount=0;
-    _threadedScriptDuration=0;
-    _threadedScriptCount=0;
+    _simulationScriptExecCount=0;
     _simulationPassDuration=0;
 
     _dynamicsCalcPasses=0;
     _dynamicsCalcDuration=0;
 
     _renderingDuration=0;
-
-    _millCalcCount=0;
-    _millRemovedSurface=0.0f;
-    _millRemovedVolume=0.0f;
-    _millCalcDuration=0;
+    if (clearDisp)
+    {
+        _scriptTxt[0]="";
+        _scriptTxt[1]="";
+        _sensTxt[0]="";
+        _sensTxt[1]="";
+        _visionSensTxt[0]="";
+        _visionSensTxt[1]="";
+        _dynamicsTxt[0]="";
+        _dynamicsTxt[1]="";
+    }
 }
 
 void CCalculationInfo::formatInfo()
 {
     // Script functionality:
-    if (_mainScriptExecuted)
-    {
-        _scriptTxt[0]="Simulation scripts called/resumed";
-        _scriptTxt[1]="main: 1 (";
-    }
-    else
-    {
-        _scriptTxt[0]="&&fg930Main script not called";
-        _scriptTxt[1]="main: 0 (";
-    }
-    _scriptTxt[1]+=boost::lexical_cast<std::string>(_mainScriptDuration);
-    _scriptTxt[1]+=" ms), non-threaded: ";
-    _scriptTxt[1]+=boost::lexical_cast<std::string>(_regularScriptCount)+" (";
-    _scriptTxt[1]+=boost::lexical_cast<std::string>(_regularScriptDuration)+" ms), running threads: ";
-    _scriptTxt[1]+=boost::lexical_cast<std::string>(_threadedScriptCount);
+    _scriptTxt[0]="Simulation scripts called";
+    _scriptTxt[1]=boost::lexical_cast<std::string>(_simulationScriptExecCount);
     _scriptTxt[1]+=" (";
-    _scriptTxt[1]+=boost::lexical_cast<std::string>(_threadedScriptDuration)+" ms) ";
-    _scriptTxt[1]+=_mainScriptMessage;
-
-    // Collision detection:
-    if (CPluginContainer::isGeomPluginAvailable())
-    {
-        if (!App::currentWorld->mainSettings->collisionDetectionEnabled)
-            _collTxt[0]="&&fg930Collision handling disabled";
-        else
-            _collTxt[0]="Collision handling enabled";
-    }
-    else
-        _collTxt[0]="&&fg930'Geometric' plugin not found";
-
-    _collTxt[1]="Calculations: ";
-    _collTxt[1]+=boost::lexical_cast<std::string>(_collCalcCount)+", detections: ";
-    _collTxt[1]+=boost::lexical_cast<std::string>(_collDetectCount)+" (";
-    _collTxt[1]+=boost::lexical_cast<std::string>(_collCalcDuration)+" ms)";
-
-    // Distance calculation:
-    if (CPluginContainer::isGeomPluginAvailable())
-    {
-        if (!App::currentWorld->mainSettings->distanceCalculationEnabled)
-            _distTxt[0]="&&fg930Distance handling disabled";
-        else
-            _distTxt[0]="Distance handling enabled";
-    }
-    else
-        _distTxt[0]="&&fg930'Geometric' plugin not found";
-
-    _distTxt[1]="Calculations: ";
-    _distTxt[1]+=boost::lexical_cast<std::string>(_distCalcCount)+" (";
-    _distTxt[1]+=boost::lexical_cast<std::string>(_distCalcDuration)+" ms)";
-
+    _scriptTxt[1]+=boost::lexical_cast<std::string>(_mainScriptDuration);
+    _scriptTxt[1]+=" ms)";
 
     // Proximity sensor calculation:
     if (CPluginContainer::isGeomPluginAvailable())
@@ -159,15 +96,6 @@ void CCalculationInfo::formatInfo()
     _visionSensTxt[1]+=boost::lexical_cast<std::string>(_rendSensCalcCount)+", detections: ";
     _visionSensTxt[1]+=boost::lexical_cast<std::string>(_rendSensDetectCount)+" (";
     _visionSensTxt[1]+=boost::lexical_cast<std::string>(_rendSensCalcDuration)+" ms)";
-
-    // IK calculation:
-    if (!App::currentWorld->mainSettings->ikCalculationEnabled)
-        _ikTxt[0]="&&fg930IK group handling disabled";
-    else
-        _ikTxt[0]="IK group handling enabled";
-    _ikTxt[1]="Calculations: ";
-    _ikTxt[1]+=boost::lexical_cast<std::string>(_ikCalcCount)+" (";
-    _ikTxt[1]+=boost::lexical_cast<std::string>(_ikCalcDuration)+" ms)";
 
     // Dynamics calculation:
     if (!App::currentWorld->dynamicsContainer->getDynamicsEnabled())
@@ -205,24 +133,9 @@ void CCalculationInfo::formatInfo()
         _dynamicsTxt[1]+="0 (no dynamic content)";
 }
 
-float CCalculationInfo::getCollisionCalculationTime()
-{
-    return(float(_collCalcDuration)*0.001f);
-}
-
-float CCalculationInfo::getDistanceCalculationTime()
-{
-    return(float(_distCalcDuration)*0.001f);
-}
-
 float CCalculationInfo::getProximitySensorCalculationTime()
 {
     return(float(_sensCalcDuration)*0.001f);
-}
-
-float CCalculationInfo::getMillingCalculationTime()
-{
-    return(float(_millCalcDuration)*0.001f);
 }
 
 float CCalculationInfo::getVisionSensorCalculationTime()
@@ -230,14 +143,9 @@ float CCalculationInfo::getVisionSensorCalculationTime()
     return(float(_rendSensCalcDuration)*0.001f);
 }
 
-float CCalculationInfo::getIkCalculationTime()
+float CCalculationInfo::getMainScriptExecutionTime()
 {
-    return(float(_ikCalcDuration)*0.001f);
-}
-
-float CCalculationInfo::getChildScriptExecutionTime()
-{
-    return(float(_regularScriptDuration+_threadedScriptDuration)*0.001f);
+    return(float(_mainScriptDuration)*0.001f);
 }
 
 float CCalculationInfo::getDynamicsCalculationTime()
@@ -255,31 +163,14 @@ float CCalculationInfo::getRenderingDuration()
     return(float(_renderingDuration)*0.001f);
 }
 
-void CCalculationInfo::addChildScriptCalcTime(int duration,bool threaded)
-{
-    if (!threaded)
-        _regularScriptDuration+=duration;
-    else
-        _threadedScriptDuration+=duration;
-}
-
-void CCalculationInfo::addChildScriptExecCnt(int cnt,bool threaded)
-{
-    if (!threaded)
-        _regularScriptCount+=cnt;
-    else
-        _threadedScriptCount+=cnt;
-}
-
 void CCalculationInfo::setMainScriptExecutionTime(int duration)
 {
-    _mainScriptExecuted=true;
     _mainScriptDuration=duration;
 }
 
-void CCalculationInfo::setMainScriptMessage(const char* msg)
+void CCalculationInfo::setSimulationScriptExecCount(int cnt)
 {
-    _mainScriptMessage=msg;
+    _simulationScriptExecCount=cnt;
 }
 
 void CCalculationInfo::simulationPassStart()
@@ -290,30 +181,6 @@ void CCalculationInfo::simulationPassStart()
 void CCalculationInfo::simulationPassEnd()
 {
     _simulationPassDuration+=VDateTime::getTimeDiffInMs(_simulationPassStartTime);
-}
-
-void CCalculationInfo::collisionDetectionStart()
-{
-    _collStartTime=VDateTime::getTimeInMs();
-}
-
-void CCalculationInfo::collisionDetectionEnd(bool detected)
-{
-    _collCalcCount++;
-    if (detected)
-        _collDetectCount++;
-    _collCalcDuration+=VDateTime::getTimeDiffInMs(_collStartTime);
-}
-
-void CCalculationInfo::distanceCalculationStart()
-{
-    _distStartTime=VDateTime::getTimeInMs();
-}
-
-void CCalculationInfo::distanceCalculationEnd()
-{
-    _distCalcCount++;
-    _distCalcDuration+=VDateTime::getTimeDiffInMs(_distStartTime);
 }
 
 void CCalculationInfo::proximitySensorSimulationStart()
@@ -342,17 +209,6 @@ void CCalculationInfo::visionSensorSimulationEnd(bool detected)
     _rendSensCalcDuration+=VDateTime::getTimeDiffInMs(_rendSensStartTime);
 }
 
-void CCalculationInfo::inverseKinematicsStart()
-{
-    _ikStartTime=VDateTime::getTimeInMs();
-}
-
-void CCalculationInfo::inverseKinematicsEnd()
-{
-    _ikCalcCount++;
-    _ikCalcDuration+=VDateTime::getTimeDiffInMs(_ikStartTime);
-}
-
 void CCalculationInfo::renderingStart()
 {
     _renderingStartTime=VDateTime::getTimeInMs();
@@ -378,19 +234,6 @@ void CCalculationInfo::dynamicsEnd(int calcPasses,bool dynamicContent)
     _dynamicsCalcPasses=calcPasses;
     _dynamicsCalcDuration+=VDateTime::getTimeDiffInMs(_dynamicsStartTime);
     _dynamicsContentAvailable=dynamicContent;
-}
-
-void CCalculationInfo::millSimulationStart()
-{
-    _millStartTime=VDateTime::getTimeInMs();
-}
-
-void CCalculationInfo::millSimulationEnd(float surfaceRemoved,float volumeRemoved)
-{
-    _millCalcCount++;
-    _millRemovedSurface+=surfaceRemoved;
-    _millRemovedVolume+=volumeRemoved;
-    _millCalcDuration+=VDateTime::getTimeDiffInMs(_millStartTime);
 }
 
 #ifdef SIM_WITH_GUI
@@ -576,12 +419,6 @@ void CCalculationInfo::printInformation()
             // Script functionality:
             App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label=_scriptTxt[0];
             App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=_scriptTxt[1];
-            // Collision detection:
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label=_collTxt[0];
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=_collTxt[1];
-            // Distance calculation:
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label=_distTxt[0];
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=_distTxt[1];
             // Proximity sensor simulation:
             App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label=_sensTxt[0];
             App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=_sensTxt[1];
@@ -589,15 +426,9 @@ void CCalculationInfo::printInformation()
             // Vision sensor simulation:
             App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label=_visionSensTxt[0];
             App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=_visionSensTxt[1];
-            // IK calculation:
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label=_ikTxt[0];
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=_ikTxt[1];
             // Dynamics calculation:
             App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label=_dynamicsTxt[0];
             App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=_dynamicsTxt[1];
-            // Milling calculation:
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label=_millTxt[0];
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=_millTxt[1];
         }
     }
 }

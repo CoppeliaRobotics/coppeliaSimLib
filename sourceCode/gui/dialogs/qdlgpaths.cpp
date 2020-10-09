@@ -50,6 +50,14 @@ void CQDlgPaths::refresh()
     ui->qqShowShapingDialog->setEnabled(sel&&noEditModeNoSim);
     ui->qqShowShapingDialog->setChecked(CQDlgPathShaping::showWindow);
 
+
+    ui->qqLabel->setVisible(App::userSettings->showOldDlgs);
+    ui->qqDistanceCombo->setVisible(App::userSettings->showOldDlgs);
+    ui->qqShowShapingDialog->setVisible(App::userSettings->showOldDlgs);
+    ui->groupBox->setVisible(App::userSettings->showOldDlgs);
+    ui->qqCopyToClipboard->setVisible(!App::userSettings->showOldDlgs);
+    ui->qqCopyToClipboard->setEnabled(sel&&noEditModeNoSim);
+
     ui->qqShowOrientation->setChecked((pathCont!=nullptr)&&((pathCont->getAttributes()&sim_pathproperty_show_orientation)!=0));
     ui->qqShowPathLine->setChecked((pathCont!=nullptr)&&((pathCont->getAttributes()&sim_pathproperty_show_line)!=0));
     ui->qqShowPosition->setChecked((pathCont!=nullptr)&&((pathCont->getAttributes()&sim_pathproperty_show_position)!=0));

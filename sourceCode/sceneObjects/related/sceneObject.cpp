@@ -1521,7 +1521,7 @@ int CSceneObject::getScriptExecutionOrder(int scriptType) const
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
         if (it!=nullptr)
         {
-            if ( it->getThreadedExecution()==((scriptType&sim_scripttype_threaded)!=0) )
+            if ( it->getThreadedExecution()==((scriptType&sim_scripttype_threaded_old)!=0) )
                 return(it->getExecutionOrder());
         }
     }
@@ -1539,7 +1539,7 @@ int CSceneObject::getScriptsToExecute(int scriptType,int parentTraversalDirectio
         attachedScript=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
         if (attachedScript!=nullptr)
         {
-            if ( attachedScript->getThreadedExecution()!=((scriptType&sim_scripttype_threaded)!=0) )
+            if ( attachedScript->getThreadedExecution()!=((scriptType&sim_scripttype_threaded_old)!=0) )
                 attachedScript=nullptr;
         }
     }
@@ -2087,8 +2087,11 @@ void CSceneObject::serialize(CSer& ar)
                             delete _userScriptParameters;
                             _userScriptParameters=nullptr;
                         }
-                        //else
-                        //    printf("Object %s has user params\n",_objectName.c_str());
+                        else
+                        {
+                            if (App::userSettings->xrTest==123456789)
+                                App::logMsg(sim_verbosity_errors,"Contains script simulation parameters...");
+                        }
                     }
                     if (theName.compare("Crh")==0)
                     {

@@ -324,7 +324,7 @@ std::string CGraphingRoutines::getDataUnit(CGraphData* it)
         (dType==GRAPH_NOOBJECT_DYNAMICS_OVERALL_CALCULATION_TIME)||
         (dType==GRAPH_NOOBJECT_WORK_THREADS_EXECUTION_TIME)||
         (dType==GRAPH_NOOBJECT_RENDERING_TIME)||
-        (dType==GRAPH_NOOBJECT_CHILDSCRIPT_EXECUTION_TIME)||
+        (dType==GRAPH_NOOBJECT_MAINSCRIPT_EXECUTION_TIME)||
         (dType==GRAPH_NOOBJECT_SIMULATIONPASS_EXECUTION_TIME) )
     {
         if ((it->getDerivativeIntegralAndCumulative()==DATA_STREAM_ORIGINAL)||(it->getDerivativeIntegralAndCumulative()==DATA_STREAM_CUMULATIVE))
@@ -748,8 +748,8 @@ bool CGraphingRoutines::getDataName(int dataIndex,std::string& dataName)
         dataName=IDS_WORK_THREADS_EXECUTION_TIME;
     if (dataIndex==GRAPH_NOOBJECT_RENDERING_TIME)
         dataName=IDS_RENDERING_TIME;
-    if (dataIndex==GRAPH_NOOBJECT_CHILDSCRIPT_EXECUTION_TIME)
-        dataName=IDS_CHILD_SCRIPT_EXECUTION_TIME;
+    if (dataIndex==GRAPH_NOOBJECT_MAINSCRIPT_EXECUTION_TIME)
+        dataName=IDS_MAIN_SCRIPT_EXECUTION_TIME;
     if (dataIndex==GRAPH_NOOBJECT_SIMULATIONPASS_EXECUTION_TIME)
         dataName=IDS_SIMULATION_PASS_EXECUTION_TIME;
 
@@ -777,7 +777,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
     {
         if (dataIndex==GRAPH_NOOBJECT_IK_OVERALL_CALCULATION_TIME)
         {
-            value=App::worldContainer->calcInfo->getIkCalculationTime();
+            value=0.0f;//App::worldContainer->calcInfo->getIkCalculationTime();
             return(true);
         }
         if (dataIndex==GRAPH_NOOBJECT_DYNAMICS_OVERALL_CALCULATION_TIME)
@@ -785,9 +785,9 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
             value=App::worldContainer->calcInfo->getDynamicsCalculationTime();
             return(true);
         }
-        if (dataIndex==GRAPH_NOOBJECT_CHILDSCRIPT_EXECUTION_TIME)
+        if (dataIndex==GRAPH_NOOBJECT_MAINSCRIPT_EXECUTION_TIME)
         {
-            value=App::worldContainer->calcInfo->getChildScriptExecutionTime();
+            value=App::worldContainer->calcInfo->getMainScriptExecutionTime();
             return(true);
         }
         if (dataIndex==GRAPH_NOOBJECT_RENDERING_TIME)
@@ -820,12 +820,12 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
         }
         if (dataIndex==GRAPH_NOOBJECT_COLLISION_OVERALL_CALCULATION_TIME)
         {
-            value=App::worldContainer->calcInfo->getCollisionCalculationTime();
+            value=0.0f;//App::worldContainer->calcInfo->getCollisionCalculationTime();
             return(true);
         }
         if (dataIndex==GRAPH_NOOBJECT_DISTANCE_OVERALL_CALCULATION_TIME)
         {
-            value=App::worldContainer->calcInfo->getDistanceCalculationTime();
+            value=0.0f;//App::worldContainer->calcInfo->getDistanceCalculationTime();
             return(true);
         }
         if (dataIndex==GRAPH_NOOBJECT_PROXSENSOR_OVERALL_CALCULATION_TIME)
@@ -840,7 +840,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
         }
         if (dataIndex==GRAPH_NOOBJECT_MILL_OVERALL_CALCULATION_TIME)
         {
-            value=App::worldContainer->calcInfo->getMillingCalculationTime();
+            value=0.0f;//App::worldContainer->calcInfo->getMillingCalculationTime();
             return(true);
         }
         if ( (dataIndex==GRAPH_NOOBJECT_MILL_OVERALL_CUT_SURFACE)||
@@ -1579,7 +1579,7 @@ bool CGraphingRoutines::getGraphObjectName(int dataIndex,int objectID,std::strin
         objName=IDS_OVERALL_CUT_VOLUME;
         return(true);
     }
-    if (dataIndex==GRAPH_NOOBJECT_CHILDSCRIPT_EXECUTION_TIME)
+    if (dataIndex==GRAPH_NOOBJECT_MAINSCRIPT_EXECUTION_TIME)
     {
         objName=IDS_EXECUTION_TIME;
         return(true);

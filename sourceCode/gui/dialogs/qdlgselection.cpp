@@ -50,23 +50,16 @@ void CQDlgSelection::refresh()
     tmp=std::string(IDS_GRAPHS)+": "+boost::lexical_cast<std::string>(App::currentWorld->sceneObjects->getGraphCountInSelection())+"/"+
         boost::lexical_cast<std::string>(App::currentWorld->sceneObjects->getGraphCount());
     ui->graphsButton->setText(tmp.c_str());
-    tmp=std::string(IDS_MILLS)+": "+boost::lexical_cast<std::string>(App::currentWorld->sceneObjects->getMillCountInSelection())+"/"+
-        boost::lexical_cast<std::string>(App::currentWorld->sceneObjects->getMillCount());
-    ui->millsButton->setText(tmp.c_str());
-    ui->millsButton->setVisible(false);
     tmp=std::string(IDS_PATHS)+": "+boost::lexical_cast<std::string>(App::currentWorld->sceneObjects->getPathCountInSelection())+"/"+
         boost::lexical_cast<std::string>(App::currentWorld->sceneObjects->getPathCount());
     ui->pathsButton->setText(tmp.c_str());
+    ui->pathsButton->setVisible(App::userSettings->showOldDlgs);
     tmp=std::string(IDS_OCTREES)+": "+boost::lexical_cast<std::string>(App::currentWorld->sceneObjects->getOctreeCountInSelection())+"/"+
         boost::lexical_cast<std::string>(App::currentWorld->sceneObjects->getOctreeCount());
     ui->octreesButton->setText(tmp.c_str());
     tmp=std::string(IDS_POINTCLOUDS)+": "+boost::lexical_cast<std::string>(App::currentWorld->sceneObjects->getPointCloudCountInSelection())+"/"+
         boost::lexical_cast<std::string>(App::currentWorld->sceneObjects->getPointCloudCount());
     ui->pointCloudsButton->setText(tmp.c_str());
-    tmp=std::string(IDS_MIRRORS)+": "+boost::lexical_cast<std::string>(App::currentWorld->sceneObjects->getMirrorCountInSelection())+"/"+
-        boost::lexical_cast<std::string>(App::currentWorld->sceneObjects->getMirrorCount());
-    ui->mirrorsButton->setText(tmp.c_str());
-    ui->mirrorsButton->setVisible(false);
 
     tmp.clear();
 
@@ -83,11 +76,9 @@ void CQDlgSelection::refresh()
     ui->proximitySensorsButton->setEnabled(objEnabled);
     ui->renderingSensorsButton->setEnabled(objEnabled);
     ui->forceSensorsButton->setEnabled(objEnabled);
-    ui->millsButton->setEnabled(objEnabled);
     ui->dummiesButton->setEnabled(objEnabled);
     ui->graphsButton->setEnabled(objEnabled);
     ui->pathsButton->setEnabled(objEnabled);
-    ui->mirrorsButton->setEnabled(objEnabled);
     ui->octreesButton->setEnabled(objEnabled);
     ui->pointCloudsButton->setEnabled(objEnabled);
 
@@ -137,17 +128,6 @@ void CQDlgSelection::on_dummiesButton_clicked()
         list.clear();
         for (size_t i=0;i<App::currentWorld->sceneObjects->getDummyCount();i++)
             list.push_back(App::currentWorld->sceneObjects->getDummyFromIndex(i)->getObjectHandle());
-        processIt();
-    }
-}
-
-void CQDlgSelection::on_millsButton_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        list.clear();
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getMillCount();i++)
-            list.push_back(App::currentWorld->sceneObjects->getMillFromIndex(i)->getObjectHandle());
         processIt();
     }
 }
@@ -236,17 +216,6 @@ void CQDlgSelection::on_pathsButton_clicked()
         list.clear();
         for (size_t i=0;i<App::currentWorld->sceneObjects->getPathCount();i++)
             list.push_back(App::currentWorld->sceneObjects->getPathFromIndex(i)->getObjectHandle());
-        processIt();
-    }
-}
-
-void CQDlgSelection::on_mirrorsButton_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        list.clear();
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getMirrorCount();i++)
-            list.push_back(App::currentWorld->sceneObjects->getMirrorFromIndex(i)->getObjectHandle());
         processIt();
     }
 }

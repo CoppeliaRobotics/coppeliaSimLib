@@ -55,6 +55,7 @@ void CQDlgVisionSensors::refresh()
     ui->qqExplicitHandling->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqExternalInput->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqLocalLights->setEnabled(isSensor&&noEditModeAndNoSim);
+    ui->qqLocalLights->setVisible(App::userSettings->showOldDlgs);
 
     ui->qqShowFog->setEnabled(isSensor&&noEditModeAndNoSim);
 

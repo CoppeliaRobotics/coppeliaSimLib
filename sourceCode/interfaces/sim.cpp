@@ -173,18 +173,6 @@ SIM_DLLEXPORT simInt simSetJointMaxForce(simInt objectHandle,simFloat forceOrTor
 {
     return(simSetJointMaxForce_internal(objectHandle,forceOrTorque));
 }
-SIM_DLLEXPORT simInt simGetPathPosition(simInt objectHandle,simFloat* position)
-{
-    return(simGetPathPosition_internal(objectHandle,position));
-}
-SIM_DLLEXPORT simInt simSetPathPosition(simInt objectHandle,simFloat position)
-{
-    return(simSetPathPosition_internal(objectHandle,position));
-}
-SIM_DLLEXPORT simInt simGetPathLength(simInt objectHandle,simFloat* length)
-{
-    return(simGetPathLength_internal(objectHandle,length));
-}
 SIM_DLLEXPORT simInt simGetJointMatrix(simInt objectHandle,simFloat* matrix)
 {
     return(simGetJointMatrix_internal(objectHandle,matrix));
@@ -657,10 +645,6 @@ SIM_DLLEXPORT simInt simGetObjectUniqueIdentifier(simInt objectHandle,simInt* un
 {
     return(simGetObjectUniqueIdentifier_internal(objectHandle,uniqueIdentifier));
 }
-SIM_DLLEXPORT simInt simSendData(simInt targetID,simInt dataHeader,const simChar* dataName,const simChar* data,simInt dataLength,simInt antennaHandle,simFloat actionRadius,simFloat emissionAngle1,simFloat emissionAngle2,simFloat persistence)
-{
-    return(simSendData_internal(targetID,dataHeader,dataName,data,dataLength,antennaHandle,actionRadius,emissionAngle1,emissionAngle2,persistence));
-}
 SIM_DLLEXPORT simChar* simReceiveData(simInt dataHeader,const simChar* dataName,simInt antennaHandle,simInt index,simInt* dataLength,simInt* senderID,simInt* dataHeaderR,simChar** dataNameR)
 {
     return(simReceiveData_internal(dataHeader,dataName,antennaHandle,index,dataLength,senderID,dataHeaderR,dataNameR));
@@ -769,22 +753,6 @@ SIM_DLLEXPORT simInt simGetObjectSpecialProperty(simInt objectHandle)
 {
     return(simGetObjectSpecialProperty_internal(objectHandle));
 }
-SIM_DLLEXPORT simInt simGetPositionOnPath(simInt pathHandle,simFloat relativeDistance,simFloat* position)
-{
-    return(simGetPositionOnPath_internal(pathHandle,relativeDistance,position));
-}
-SIM_DLLEXPORT simInt simGetOrientationOnPath(simInt pathHandle,simFloat relativeDistance,simFloat* eulerAngles)
-{
-    return(simGetOrientationOnPath_internal(pathHandle,relativeDistance,eulerAngles));
-}
-SIM_DLLEXPORT simInt simGetDataOnPath(simInt pathHandle,simFloat relativeDistance,simInt dataType,simInt* intData,simFloat* floatData)
-{
-    return(simGetDataOnPath_internal(pathHandle,relativeDistance,dataType,intData,floatData));
-}
-SIM_DLLEXPORT simInt simGetClosestPositionOnPath(simInt pathHandle,simFloat* absolutePosition,simFloat* pathPosition)
-{
-    return(simGetClosestPositionOnPath_internal(pathHandle,absolutePosition,pathPosition));
-}
 SIM_DLLEXPORT simInt simReadForceSensor(simInt objectHandle,simFloat* forceVector,simFloat* torqueVector)
 {
     return(simReadForceSensor_internal(objectHandle,forceVector,torqueVector));
@@ -892,30 +860,6 @@ SIM_DLLEXPORT simInt simSerialCheck(simInt portHandle)
 SIM_DLLEXPORT simInt simGetContactInfo(simInt dynamicPass,simInt objectHandle,simInt index,simInt* objectHandles,simFloat* contactInfo)
 {
     return(simGetContactInfo_internal(dynamicPass,objectHandle,index,objectHandles,contactInfo));
-}
-SIM_DLLEXPORT simInt simSetThreadIsFree(simBool freeMode)
-{
-    return(simSetThreadIsFree_internal(freeMode));
-}
-SIM_DLLEXPORT simInt simTubeOpen(simInt dataHeader,const simChar* dataName,simInt readBufferSize,simBool notUsedButKeepZero)
-{
-    return(simTubeOpen_internal(dataHeader,dataName,readBufferSize,notUsedButKeepZero));
-}
-SIM_DLLEXPORT simInt simTubeClose(simInt tubeHandle)
-{
-    return(simTubeClose_internal(tubeHandle));
-}
-SIM_DLLEXPORT simInt simTubeWrite(simInt tubeHandle,const simChar* data,simInt dataLength)
-{
-    return(simTubeWrite_internal(tubeHandle,data,dataLength));
-}
-SIM_DLLEXPORT simChar* simTubeRead(simInt tubeHandle,simInt* dataLength)
-{
-    return(simTubeRead_internal(tubeHandle,dataLength));
-}
-SIM_DLLEXPORT simInt simTubeStatus(simInt tubeHandle,simInt* readPacketsCount,simInt* writePacketsCount)
-{
-    return(simTubeStatus_internal(tubeHandle,readPacketsCount,writePacketsCount));
 }
 SIM_DLLEXPORT simInt simAuxiliaryConsoleOpen(const simChar* title,simInt maxLines,simInt mode,const simInt* position,const simInt* size,const simFloat* textColor,const simFloat* backgroundColor)
 {
@@ -1152,18 +1096,6 @@ SIM_DLLEXPORT simInt simCreateVisionSensor(simInt options,const simInt* intParam
 SIM_DLLEXPORT simInt simConvexDecompose(simInt shapeHandle,simInt options,const simInt* intParams,const simFloat* floatParams)
 {
     return(simConvexDecompose_internal(shapeHandle,options,intParams,floatParams));
-}
-SIM_DLLEXPORT simInt simCreatePath(simInt attributes,const simInt* intParams,const simFloat* floatParams,const simFloat* color)
-{
-    return(simCreatePath_internal(attributes,intParams,floatParams,color));
-}
-SIM_DLLEXPORT simInt simInsertPathCtrlPoints(simInt pathHandle,simInt options,simInt startIndex,simInt ptCnt,const simVoid* ptData)
-{
-    return(simInsertPathCtrlPoints_internal(pathHandle,options,startIndex,ptCnt,ptData));
-}
-SIM_DLLEXPORT simInt simCutPathCtrlPoints(simInt pathHandle,simInt startIndex,simInt ptCnt)
-{
-    return(simCutPathCtrlPoints_internal(pathHandle,startIndex,ptCnt));
 }
 SIM_DLLEXPORT simInt simAddGhost(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color)
 {
@@ -2484,6 +2416,74 @@ SIM_DLLEXPORT simInt simSetIkGroupProperties(simInt ikGroupHandle,simInt resolut
 SIM_DLLEXPORT simInt simSetIkElementProperties(simInt ikGroupHandle,simInt tipDummyHandle,simInt constraints,const simFloat* precision,const simFloat* weight,void* reserved)
 {
     return(simSetIkElementProperties_internal(ikGroupHandle,tipDummyHandle,constraints,precision,weight,reserved));
+}
+SIM_DLLEXPORT simInt simSetThreadIsFree(simBool freeMode)
+{
+    return(simSetThreadIsFree_internal(freeMode));
+}
+SIM_DLLEXPORT simInt simTubeOpen(simInt dataHeader,const simChar* dataName,simInt readBufferSize,simBool notUsedButKeepZero)
+{
+    return(simTubeOpen_internal(dataHeader,dataName,readBufferSize,notUsedButKeepZero));
+}
+SIM_DLLEXPORT simInt simTubeClose(simInt tubeHandle)
+{
+    return(simTubeClose_internal(tubeHandle));
+}
+SIM_DLLEXPORT simInt simTubeWrite(simInt tubeHandle,const simChar* data,simInt dataLength)
+{
+    return(simTubeWrite_internal(tubeHandle,data,dataLength));
+}
+SIM_DLLEXPORT simChar* simTubeRead(simInt tubeHandle,simInt* dataLength)
+{
+    return(simTubeRead_internal(tubeHandle,dataLength));
+}
+SIM_DLLEXPORT simInt simTubeStatus(simInt tubeHandle,simInt* readPacketsCount,simInt* writePacketsCount)
+{
+    return(simTubeStatus_internal(tubeHandle,readPacketsCount,writePacketsCount));
+}
+SIM_DLLEXPORT simInt simSendData(simInt targetID,simInt dataHeader,const simChar* dataName,const simChar* data,simInt dataLength,simInt antennaHandle,simFloat actionRadius,simFloat emissionAngle1,simFloat emissionAngle2,simFloat persistence)
+{
+    return(simSendData_internal(targetID,dataHeader,dataName,data,dataLength,antennaHandle,actionRadius,emissionAngle1,emissionAngle2,persistence));
+}
+SIM_DLLEXPORT simInt simGetPositionOnPath(simInt pathHandle,simFloat relativeDistance,simFloat* position)
+{
+    return(simGetPositionOnPath_internal(pathHandle,relativeDistance,position));
+}
+SIM_DLLEXPORT simInt simGetOrientationOnPath(simInt pathHandle,simFloat relativeDistance,simFloat* eulerAngles)
+{
+    return(simGetOrientationOnPath_internal(pathHandle,relativeDistance,eulerAngles));
+}
+SIM_DLLEXPORT simInt simGetDataOnPath(simInt pathHandle,simFloat relativeDistance,simInt dataType,simInt* intData,simFloat* floatData)
+{
+    return(simGetDataOnPath_internal(pathHandle,relativeDistance,dataType,intData,floatData));
+}
+SIM_DLLEXPORT simInt simGetClosestPositionOnPath(simInt pathHandle,simFloat* absolutePosition,simFloat* pathPosition)
+{
+    return(simGetClosestPositionOnPath_internal(pathHandle,absolutePosition,pathPosition));
+}
+SIM_DLLEXPORT simInt simGetPathPosition(simInt objectHandle,simFloat* position)
+{
+    return(simGetPathPosition_internal(objectHandle,position));
+}
+SIM_DLLEXPORT simInt simSetPathPosition(simInt objectHandle,simFloat position)
+{
+    return(simSetPathPosition_internal(objectHandle,position));
+}
+SIM_DLLEXPORT simInt simGetPathLength(simInt objectHandle,simFloat* length)
+{
+    return(simGetPathLength_internal(objectHandle,length));
+}
+SIM_DLLEXPORT simInt simCreatePath(simInt attributes,const simInt* intParams,const simFloat* floatParams,const simFloat* color)
+{
+    return(simCreatePath_internal(attributes,intParams,floatParams,color));
+}
+SIM_DLLEXPORT simInt simInsertPathCtrlPoints(simInt pathHandle,simInt options,simInt startIndex,simInt ptCnt,const simVoid* ptData)
+{
+    return(simInsertPathCtrlPoints_internal(pathHandle,options,startIndex,ptCnt,ptData));
+}
+SIM_DLLEXPORT simInt simCutPathCtrlPoints(simInt pathHandle,simInt startIndex,simInt ptCnt)
+{
+    return(simCutPathCtrlPoints_internal(pathHandle,startIndex,ptCnt));
 }
 // Deprecated end
 

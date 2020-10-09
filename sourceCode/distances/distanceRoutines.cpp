@@ -96,7 +96,6 @@ bool CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(int entity1ID,int ent
             return(false);
     }
 
-    App::worldContainer->calcInfo->distanceCalculationStart();
     if (object1!=nullptr)
     { // We have an object against...
         if (object2!=nullptr)
@@ -180,7 +179,6 @@ bool CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(int entity1ID,int ent
             }
         }
     }
-    App::worldContainer->calcInfo->distanceCalculationEnd();
     return(returnValue);
 }
 

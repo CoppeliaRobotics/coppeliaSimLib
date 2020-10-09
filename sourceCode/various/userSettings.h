@@ -78,7 +78,8 @@ public:
     bool specificGpuTweak;
     bool useAlternateSerialPortRoutines;
     bool disableOpenGlBasedCustomUi;
-    bool showOldCalcModuleDlgs;
+    bool showOldDlgs;
+    bool makeOldThreadedScriptsAvailable;
     bool enableOldMirrorObjects;
     int allowOldEduRelease;
     int threadedScriptsStoppingGraceTime;

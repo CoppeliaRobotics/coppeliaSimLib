@@ -3530,10 +3530,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptT=cmd.intParams[0];
-            bool threaded=cmd.intParams[1]!=0;
+            bool threaded=cmd.intParams[1]==1;
+            bool oldThreaded=cmd.intParams[1]==2;
             int newScriptID=-1;
             if ((scriptT==sim_scripttype_mainscript)||(scriptT==sim_scripttype_childscript))
-                newScriptID=App::currentWorld->luaScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(scriptT,threaded);
+                newScriptID=App::currentWorld->luaScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(scriptT,threaded,oldThreaded);
             if (scriptT==sim_scripttype_customizationscript)
             {
                 std::string filenameAndPath(App::folders->getSystemPath()+"/");

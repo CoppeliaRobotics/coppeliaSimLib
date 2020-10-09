@@ -50,7 +50,7 @@ public:
     static bool getThreadSwitchTiming(int& timeInMs);
 
     static int callRoutineViaSpecificThread(VTHREAD_ID_TYPE theThread,void* data);
-    static bool setThreadAutomaticSwitch(bool switchIsAutomatic);
+    static bool setThreadAutomaticSwitchForbidLevel(int forbidLevel);
     static bool getThreadAutomaticSwitch();
 
     static bool setThreadResumeLocation(int location,int order);
