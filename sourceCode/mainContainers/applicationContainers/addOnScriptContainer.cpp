@@ -367,7 +367,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                     it->runAddOn(sim_syscb_aos_resume,nullptr,nullptr);
                     txt=IDSNS_RESUMED_ADDON_SCRIPT;
                 }
-                if (st==sim_syscb_aos_run)
+                if (st==sim_syscb_aos_run_old)
                 {
                     it->runAddOn(sim_syscb_aos_suspend,nullptr,nullptr);
                     txt=IDSNS_PAUSED_ADDON_SCRIPT;
@@ -419,11 +419,11 @@ void CAddOnScriptContainer::addMenu(VMenu* menu)
             txt=it->getAddOnName();
             if (st==sim_syscb_aos_suspend)
                 txt+=" (suspended)";
-            if (st==sim_syscb_aos_run)
+            if (st==sim_syscb_aos_run_old)
                 txt+=" (running)";
             if (st==sim_syscb_init)
                 txt+=" (stopped)";
-            menu->appendMenuItem(true,st==sim_syscb_aos_run,id,txt.c_str(),true);
+            menu->appendMenuItem(true,st==sim_syscb_aos_run_old,id,txt.c_str(),true);
             id++;
         }
     }

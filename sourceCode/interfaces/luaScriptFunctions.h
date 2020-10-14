@@ -122,7 +122,6 @@ int isFuncOrConstDeprecated(const char* txt);
 
 
 int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,std::string& raiseErrorWithMsg);
-int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func);
 
 
 const extern SLuaCommands simLuaCommands[];
@@ -269,8 +268,8 @@ extern int _simSetThreadAutomaticSwitch(luaWrap_lua_State* L);
 extern int _simGetThreadAutomaticSwitch(luaWrap_lua_State* L);
 extern int _simSetThreadSwitchTiming(luaWrap_lua_State* L);
 extern int _simSwitchThread(luaWrap_lua_State* L);
-extern int _simIsThreadSwitchingAllowed(luaWrap_lua_State* L);
-extern int _simSetThreadSwitchingAllowed(luaWrap_lua_State* L);
+extern int _simGetThreadSwitchAllowed(luaWrap_lua_State* L);
+extern int _simSetThreadSwitchAllowed(luaWrap_lua_State* L);
 extern int _simCreateCollection(luaWrap_lua_State* L);
 extern int _simAddObjectToCollection(luaWrap_lua_State* L);
 extern int _simSaveImage(luaWrap_lua_State* L);
@@ -410,7 +409,6 @@ extern int _simFindIkPath(luaWrap_lua_State* L);
 extern int _simAddGhost(luaWrap_lua_State* L);
 extern int _simModifyGhost(luaWrap_lua_State* L);
 extern int _simQuitSimulator(luaWrap_lua_State* L);
-extern int _simGetThreadId(luaWrap_lua_State* L);
 extern int _simSetShapeMaterial(luaWrap_lua_State* L);
 extern int _simGetTextureId(luaWrap_lua_State* L);
 extern int _simReadTexture(luaWrap_lua_State* L);
@@ -495,8 +493,6 @@ extern int _simGetJointDependency(luaWrap_lua_State* L);
 extern int _simGetStackTraceback(luaWrap_lua_State* L);
 extern int _simSetStringNamedParam(luaWrap_lua_State* L);
 extern int _simGetStringNamedParam(luaWrap_lua_State* L);
-extern int _simGetUserParameter(luaWrap_lua_State* L);
-extern int _simSetUserParameter(luaWrap_lua_State* L);
 extern int _simAddLog(luaWrap_lua_State* L);
 extern int _simGetShapeMass(luaWrap_lua_State* L);
 extern int _simSetShapeMass(luaWrap_lua_State* L);
@@ -505,6 +501,7 @@ extern int _simSetShapeInertia(luaWrap_lua_State* L);
 extern int _simIsDynamicallyEnabled(luaWrap_lua_State* L);
 
 // DEPRECATED
+int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func);
 extern int _simAddStatusbarMessage(luaWrap_lua_State* L);
 extern int _simGetNameSuffix(luaWrap_lua_State* L);
 extern int _simSetNameSuffix(luaWrap_lua_State* L);
@@ -609,6 +606,9 @@ extern int _simIsScriptRunningInThread(luaWrap_lua_State* L);
 extern int _simSetThreadResumeLocation(luaWrap_lua_State* L);
 extern int _simResumeThreads(luaWrap_lua_State* L);
 extern int _simLaunchThreadedChildScripts(luaWrap_lua_State* L);
+extern int _simGetThreadId(luaWrap_lua_State* L);
+extern int _simGetUserParameter(luaWrap_lua_State* L);
+extern int _simSetUserParameter(luaWrap_lua_State* L);
 //extern int _simRMLMoveToPosition(luaWrap_lua_State* L);
 //extern int _simRMLMoveToJointPositions(luaWrap_lua_State* L);
 //extern int _simWait(luaWrap_lua_State* L);

@@ -1109,18 +1109,6 @@ SIM_DLLEXPORT simVoid simQuitSimulator(simBool ignoredArgument)
 {
     simQuitSimulator_internal(ignoredArgument);
 }
-SIM_DLLEXPORT simInt simGetThreadId()
-{
-    return(simGetThreadId_internal());
-}
-SIM_DLLEXPORT simInt simLockResources(simInt lockType,simInt reserved)
-{
-    return(simLockResources_internal(lockType,reserved));
-}
-SIM_DLLEXPORT simInt simUnlockResources(simInt lockHandle)
-{
-    return(simUnlockResources_internal(lockHandle));
-}
 SIM_DLLEXPORT simInt simEnableEventCallback(simInt eventCallbackType,const simChar* plugin,simInt reserved)
 {
     return(simEnableEventCallback_internal(eventCallbackType,plugin,reserved));
@@ -1208,10 +1196,6 @@ SIM_DLLEXPORT simInt simGetScriptAttribute(simInt scriptHandle,simInt attributeI
 SIM_DLLEXPORT simInt simReorientShapeBoundingBox(simInt shapeHandle,simInt relativeToHandle,simInt reservedSetToZero)
 {
     return(simReorientShapeBoundingBox_internal(shapeHandle,relativeToHandle,reservedSetToZero));
-}
-SIM_DLLEXPORT simInt simSwitchThread()
-{
-    return(simSwitchThread_internal());
 }
 SIM_DLLEXPORT simInt simCreateCollection(const simChar* collectionName,simInt options)
 {
@@ -1551,14 +1535,6 @@ SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simCh
 SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength)
 {
     return(simGetStringNamedParam_internal(paramName,paramLength));
-}
-SIM_DLLEXPORT simChar* simGetUserParameter(simInt objectHandle,const simChar* parameterName,simInt* parameterLength)
-{
-    return(simGetUserParameter_internal(objectHandle,parameterName,parameterLength));
-}
-SIM_DLLEXPORT simInt simSetUserParameter(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength)
-{
-    return(simSetUserParameter_internal(objectHandle,parameterName,parameterValue,parameterLength));
 }
 SIM_DLLEXPORT simInt simAddLog(const simChar* pluginName,simInt verbosityLevel,const simChar* logMsg)
 {
@@ -2484,6 +2460,30 @@ SIM_DLLEXPORT simInt simInsertPathCtrlPoints(simInt pathHandle,simInt options,si
 SIM_DLLEXPORT simInt simCutPathCtrlPoints(simInt pathHandle,simInt startIndex,simInt ptCnt)
 {
     return(simCutPathCtrlPoints_internal(pathHandle,startIndex,ptCnt));
+}
+SIM_DLLEXPORT simInt simGetThreadId()
+{
+    return(simGetThreadId_internal());
+}
+SIM_DLLEXPORT simInt simSwitchThread()
+{
+    return(simSwitchThread_internal());
+}
+SIM_DLLEXPORT simInt simLockResources(simInt lockType,simInt reserved)
+{
+    return(simLockResources_internal(lockType,reserved));
+}
+SIM_DLLEXPORT simInt simUnlockResources(simInt lockHandle)
+{
+    return(simUnlockResources_internal(lockHandle));
+}
+SIM_DLLEXPORT simChar* simGetUserParameter(simInt objectHandle,const simChar* parameterName,simInt* parameterLength)
+{
+    return(simGetUserParameter_internal(objectHandle,parameterName,parameterLength));
+}
+SIM_DLLEXPORT simInt simSetUserParameter(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength)
+{
+    return(simSetUserParameter_internal(objectHandle,parameterName,parameterValue,parameterLength));
 }
 // Deprecated end
 

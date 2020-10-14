@@ -5427,8 +5427,8 @@ simInt simHandleMainScript_internal()
         retVal=sim_script_main_script_not_called; // this should not generate an error
     }
 
-    // Handle add-on execution (during non-simulation, it happens elsewhere!):
-    App::worldContainer->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_aos_run,nullptr,nullptr);
+    // Following for backward compatibility:
+    App::worldContainer->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_aos_run_old,nullptr,nullptr);
 
     return(retVal);
 }
@@ -6914,69 +6914,6 @@ simChar* simGetModuleName_internal(simInt index,simUChar* moduleVersion)
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
-}
-
-simChar* simGetUserParameter_internal(simInt objectHandle,const simChar* parameterName,simInt* parameterLength)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,objectHandle))
-            return(nullptr);
-        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-        CUserParameters* uso=obj->getUserScriptParameterObject();
-        if (uso!=nullptr)
-        {
-            std::string parameterValue;
-            if (uso->getParameterValue(parameterName,parameterValue))
-            {
-                char* retVal=new char[parameterValue.length()+1];
-                for (size_t i=0;i<parameterValue.length();i++)
-                    retVal[i]=parameterValue[i];
-                retVal[parameterValue.length()]=0;
-                parameterLength[0]=(int)parameterValue.length();
-                return(retVal);
-            }
-        }
-        return(nullptr);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(nullptr);
-}
-
-simInt simSetUserParameter_internal(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,objectHandle))
-            return(-1);
-        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-        CUserParameters* uso=obj->getUserScriptParameterObject();
-        bool s=false;
-        if (uso==nullptr)
-        {
-            uso=new CUserParameters();
-            s=true;
-        }
-        if (std::string(parameterName).compare("@enable")==0)
-            uso->addParameterValue("exampleParameter","string","Hello World!",strlen("Hello World!"));
-        else
-            uso->setParameterValue(parameterName,parameterValue,parameterLength);
-        if (s)
-            obj->setUserScriptParameterObject(uso);
-        return(0);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
 }
 
 simInt simAddLog_internal(const simChar* pluginName,simInt verbosityLevel,const simChar* logMsg)
@@ -9175,16 +9112,33 @@ simInt simCreateMeshShape_internal(simInt options,simFloat shadingAngle,const si
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        std::vector<float> vert(vertices,vertices+verticesSize);
-        std::vector<int> ind(indices,indices+indicesSize);
-        CShape* shape=new CShape(nullptr,vert,ind,nullptr,nullptr);
-        shape->getSingleMesh()->setGouraudShadingAngle(shadingAngle);
-        shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
-        shape->getMeshWrapper()->setLocalInertiaFrame(C7Vector::identityTransformation);
-        shape->setCulling((options&1)!=0);
-        shape->setVisibleEdges((options&2)!=0);
-        App::currentWorld->sceneObjects->addObjectToScene(shape,false,true);
-        return(shape->getObjectHandle());
+        bool badIndices=false;
+        for (int i=0;i<indicesSize;i++)
+        {
+            if ( (indices[i]<0)||(indices[i]>=verticesSize/3) )
+            {
+                badIndices=true;
+                break;
+            }
+        }
+        if (!badIndices)
+        {
+            std::vector<float> vert(vertices,vertices+verticesSize);
+            std::vector<int> ind(indices,indices+indicesSize);
+            CShape* shape=new CShape(nullptr,vert,ind,nullptr,nullptr);
+            shape->getSingleMesh()->setGouraudShadingAngle(shadingAngle);
+            shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
+            shape->getMeshWrapper()->setLocalInertiaFrame(C7Vector::identityTransformation);
+            shape->setCulling((options&1)!=0);
+            shape->setVisibleEdges((options&2)!=0);
+            App::currentWorld->sceneObjects->addObjectToScene(shape,false,true);
+            return(shape->getObjectHandle());
+        }
+        else
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INDICES_CONTAIN_ILLEGAL_VALUES);
+            return(-1);
+        }
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
@@ -13353,78 +13307,6 @@ simVoid simQuitSimulator_internal(simBool ignoredArgument)
     App::appendSimulationThreadCommand(cmd);
 }
 
-simInt simGetThreadId_internal()
-{
-    TRACE_C_API;
-
-    int retVal=VThread::getThreadId_apiQueried();
-    return(retVal); // 0=GUI thread, 1=main sim thread, 2-n=aux. sim threads
-}
-
-simInt simLockResources_internal(simInt lockType,simInt reserved)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-#ifdef SIM_WITH_QT
-    CSimAndUiThreadSync* obj=new CSimAndUiThreadSync(__func__);
-    bool res=false;
-    int retVal=-1; // fail
-    if (lockType==sim_lock_ui_wants_to_read)
-        res=obj->uiThread_tryToLockForUiEventRead(5);
-    if (lockType==sim_lock_ui_wants_to_write)
-        res=obj->uiThread_tryToLockForUiEventWrite(800);
-    if (lockType==sim_lock_nonui_wants_to_write)
-    {
-        obj->simThread_lockForSimThreadWrite();
-        res=true;
-    }
-    if (res)
-    {
-        EASYLOCK(_lockForExtLockList);
-        retVal=obj->getObjectHandle();
-        _extLockList.push_back(obj);
-    }
-    return(retVal);
-#else
-    return(0);
-#endif
-}
-
-simInt simUnlockResources_internal(simInt lockHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-#ifdef SIM_WITH_QT
-    int retVal=0;
-    { // scope parenthesis are important here!
-        EASYLOCK(_lockForExtLockList);
-        for (int i=0;i<int(_extLockList.size());i++)
-        {
-            if (_extLockList[i]->getObjectHandle()==lockHandle)
-            {
-                delete _extLockList[i];
-                _extLockList.erase(_extLockList.begin()+i);
-                retVal=1;
-                break;
-            }
-        }
-    }
-    return(retVal);
-#else
-    return(1);
-#endif
-}
-
 simInt simEnableEventCallback_internal(simInt eventCallbackType,const simChar* plugin,simInt reserved)
 {
     TRACE_C_API;
@@ -14629,17 +14511,6 @@ simInt simReorientShapeBoundingBox_internal(simInt shapeHandle,simInt relativeTo
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
-}
-
-simInt simSwitchThread_internal()
-{
-    TRACE_C_API;
-    if (CThreadPool::getThreadAutomaticSwitch())
-    { // Important: when a script forbids thread switching, we don't want that a plugin switches anyways
-        if (CThreadPool::switchBackToPreviousThread())
-            return(1);
-    }
-    return(0);
 }
 
 simInt simCreateCollection_internal(const simChar* collectionName,simInt options)
@@ -21687,6 +21558,148 @@ simInt simCutPathCtrlPoints_internal(simInt pathHandle,simInt startIndex,simInt 
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simGetThreadId_internal()
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    int retVal=VThread::getThreadId_apiQueried();
+    return(retVal); // 0=GUI thread, 1=main sim thread, 2-n=aux. sim threads
+}
+
+simInt simSwitchThread_internal()
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+    if (CThreadPool::getThreadAutomaticSwitch())
+    { // Important: when a script forbids thread switching, we don't want that a plugin switches anyways
+        if (CThreadPool::switchBackToPreviousThread())
+            return(1);
+    }
+    return(0);
+}
+
+simInt simLockResources_internal(simInt lockType,simInt reserved)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+#ifdef SIM_WITH_QT
+    CSimAndUiThreadSync* obj=new CSimAndUiThreadSync(__func__);
+    bool res=false;
+    int retVal=-1; // fail
+    if (lockType==sim_lock_ui_wants_to_read)
+        res=obj->uiThread_tryToLockForUiEventRead(5);
+    if (lockType==sim_lock_ui_wants_to_write)
+        res=obj->uiThread_tryToLockForUiEventWrite(800);
+    if (lockType==sim_lock_nonui_wants_to_write)
+    {
+        obj->simThread_lockForSimThreadWrite();
+        res=true;
+    }
+    if (res)
+    {
+        EASYLOCK(_lockForExtLockList);
+        retVal=obj->getObjectHandle();
+        _extLockList.push_back(obj);
+    }
+    return(retVal);
+#else
+    return(0);
+#endif
+}
+
+simInt simUnlockResources_internal(simInt lockHandle)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+#ifdef SIM_WITH_QT
+    int retVal=0;
+    { // scope parenthesis are important here!
+        EASYLOCK(_lockForExtLockList);
+        for (int i=0;i<int(_extLockList.size());i++)
+        {
+            if (_extLockList[i]->getObjectHandle()==lockHandle)
+            {
+                delete _extLockList[i];
+                _extLockList.erase(_extLockList.begin()+i);
+                retVal=1;
+                break;
+            }
+        }
+    }
+    return(retVal);
+#else
+    return(1);
+#endif
+}
+
+simChar* simGetUserParameter_internal(simInt objectHandle,const simChar* parameterName,simInt* parameterLength)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(nullptr);
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CUserParameters* uso=obj->getUserScriptParameterObject();
+        if (uso!=nullptr)
+        {
+            std::string parameterValue;
+            if (uso->getParameterValue(parameterName,parameterValue))
+            {
+                char* retVal=new char[parameterValue.length()+1];
+                for (size_t i=0;i<parameterValue.length();i++)
+                    retVal[i]=parameterValue[i];
+                retVal[parameterValue.length()]=0;
+                parameterLength[0]=(int)parameterValue.length();
+                return(retVal);
+            }
+        }
+        return(nullptr);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simSetUserParameter_internal(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength)
+{ // deprecated on 01.10.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CUserParameters* uso=obj->getUserScriptParameterObject();
+        bool s=false;
+        if (uso==nullptr)
+        {
+            uso=new CUserParameters();
+            s=true;
+        }
+        if (std::string(parameterName).compare("@enable")==0)
+            uso->addParameterValue("exampleParameter","string","Hello World!",strlen("Hello World!"));
+        else
+            uso->setParameterValue(parameterName,parameterValue,parameterLength);
+        if (s)
+            obj->setUserScriptParameterObject(uso);
+        return(0);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 

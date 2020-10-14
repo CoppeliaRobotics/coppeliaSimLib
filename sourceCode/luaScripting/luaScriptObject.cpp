@@ -2251,7 +2251,7 @@ std::string CLuaScriptObject::getSystemCallbackString(int calltype,bool callTips
             r+="()\nCalled just after objects were created.";
         return(r);
     }
-    if (calltype==sim_syscb_aos_run)
+    if (calltype==sim_syscb_aos_run_old)
     {
         std::string r("sysCall_addOnScriptRun");
         if (callTips)
@@ -2355,103 +2355,27 @@ std::string CLuaScriptObject::getSystemCallbackExString(int calltype)
     return("");
 }
 
-bool CLuaScriptObject::canCallSystemCallback(int scriptType,bool threaded,int callType)
+bool CLuaScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int callType)
 {
     if (scriptType==-1)
         return(true);
-    if (scriptType==sim_scripttype_sandboxscript)
-    {
-        if (callType==sim_syscb_init)
+
+    if ( threadedOld&&(scriptType==sim_scripttype_childscript) )
+    { // for backward compatibility
+        if (callType==sim_syscb_threadmain)
             return(true);
         if (callType==sim_syscb_cleanup)
             return(true);
-        if (callType==sim_syscb_beforesimulation)
+        if (callType==sim_syscb_vision)
             return(true);
-        if (callType==sim_syscb_aftersimulation)
-            return(true);
-        if (callType==sim_syscb_suspend)
-            return(true);
-        if (callType==sim_syscb_resume)
-            return(true);
-        if (callType==sim_syscb_beforecopy)
-            return(true);
-        if (callType==sim_syscb_aftercopy)
-            return(true);
-        if (callType==sim_syscb_beforedelete)
-            return(true);
-        if (callType==sim_syscb_afterdelete)
-            return(true);
-        if (callType==sim_syscb_aftercreate)
-            return(true);
-        if (callType==sim_syscb_beforeinstanceswitch)
-            return(true);
-        if (callType==sim_syscb_afterinstanceswitch)
-            return(true);
-        if (callType==sim_syscb_xr)
-            return(true);
-        if (callType==sim_syscb_nonsimulation)
-            return(true);
-        if (callType==sim_syscb_beforemainscript)
-            return(true);
-        if (callType==sim_syscb_suspended)
+        if (callType==sim_syscb_trigger)
             return(true);
     }
-    if (scriptType==sim_scripttype_addonscript)
-    {
+    else
+    { // For all script types (except for the old threaded scripts):
         if (callType==sim_syscb_init)
             return(true);
         if (callType==sim_syscb_cleanup)
-            return(true);
-        if (callType==sim_syscb_aos_run)
-            return(true);
-        if (callType==sim_syscb_aos_suspend)
-            return(true);
-        if (callType==sim_syscb_aos_resume)
-            return(true);
-        if (callType==sim_syscb_beforesimulation)
-            return(true);
-        if (callType==sim_syscb_aftersimulation)
-            return(true);
-        if (callType==sim_syscb_suspend)
-            return(true);
-        if (callType==sim_syscb_resume)
-            return(true);
-        if (callType==sim_syscb_beforecopy)
-            return(true);
-        if (callType==sim_syscb_aftercopy)
-            return(true);
-        if (callType==sim_syscb_beforedelete)
-            return(true);
-        if (callType==sim_syscb_afterdelete)
-            return(true);
-        if (callType==sim_syscb_aftercreate)
-            return(true);
-        if (callType==sim_syscb_beforeinstanceswitch)
-            return(true);
-        if (callType==sim_syscb_afterinstanceswitch)
-            return(true);
-        if (callType==sim_syscb_xr)
-            return(true);
-        if (callType==sim_syscb_nonsimulation)
-            return(true);
-        if (callType==sim_syscb_beforemainscript)
-            return(true);
-        if (callType==sim_syscb_suspended)
-            return(true);
-    }
-    if (scriptType==sim_scripttype_customizationscript)
-    {
-        if (callType==sim_syscb_init)
-            return(true);
-        if (callType==sim_syscb_cleanup)
-            return(true);
-        if (callType==sim_syscb_nonsimulation)
-            return(true);
-        if (callType==sim_syscb_beforemainscript)
-            return(true);
-        if (callType==sim_syscb_beforesimulation)
-            return(true);
-        if (callType==sim_syscb_aftersimulation)
             return(true);
         if (callType==sim_syscb_actuation)
             return(true);
@@ -2473,12 +2397,38 @@ bool CLuaScriptObject::canCallSystemCallback(int scriptType,bool threaded,int ca
             return(true);
         if (callType==sim_syscb_aftercreate)
             return(true);
+    }
+    if ( (scriptType==sim_scripttype_sandboxscript)||(scriptType==sim_scripttype_addonscript)||(scriptType==sim_scripttype_customizationscript) )
+    {
+        if (callType==sim_syscb_nonsimulation)
+            return(true);
+        if (callType==sim_syscb_beforesimulation)
+            return(true);
+        if (callType==sim_syscb_aftersimulation)
+            return(true);
+        if (callType==sim_syscb_beforemainscript)
+            return(true);
         if (callType==sim_syscb_beforeinstanceswitch)
             return(true);
         if (callType==sim_syscb_afterinstanceswitch)
             return(true);
+    }
+    if (scriptType!=sim_scripttype_childscript)
+    {
         if (callType==sim_syscb_xr)
             return(true);
+    }
+    if (scriptType==sim_scripttype_addonscript)
+    {
+        if (callType==sim_syscb_aos_run_old) // for backward compatibility
+            return(true);
+        if (callType==sim_syscb_aos_suspend)
+            return(true);
+        if (callType==sim_syscb_aos_resume)
+            return(true);
+    }
+    if ( (scriptType==sim_scripttype_customizationscript)||((!threadedOld)&&(scriptType==sim_scripttype_childscript)) )
+    {
         if (callType==sim_syscb_jointcallback)
             return(true);
         if (callType==sim_syscb_vision)
@@ -2493,80 +2443,6 @@ bool CLuaScriptObject::canCallSystemCallback(int scriptType,bool threaded,int ca
             return(true);
         if ( (callType>=sim_syscb_customcallback1)&&(callType<=sim_syscb_customcallback4) )
             return(true);
-    }
-    if (scriptType==sim_scripttype_mainscript)
-    {
-        if (callType==sim_syscb_init)
-            return(true);
-        if (callType==sim_syscb_cleanup)
-            return(true);
-        if (callType==sim_syscb_actuation)
-            return(true);
-        if (callType==sim_syscb_sensing)
-            return(true);
-        if (callType==sim_syscb_suspend)
-            return(true);
-        if (callType==sim_syscb_suspended)
-            return(true);
-        if (callType==sim_syscb_resume)
-            return(true);
-        if (callType==sim_syscb_beforecopy)
-            return(true);
-        if (callType==sim_syscb_aftercopy)
-            return(true);
-        if (callType==sim_syscb_beforedelete)
-            return(true);
-        if (callType==sim_syscb_afterdelete)
-            return(true);
-        if (callType==sim_syscb_aftercreate)
-            return(true);
-    }
-    if (scriptType==sim_scripttype_childscript)
-    {
-        if (callType==sim_syscb_cleanup)
-            return(true);
-        if (callType==sim_syscb_vision)
-            return(true);
-        if (callType==sim_syscb_trigger)
-            return(true);
-        if (threaded)
-        {
-            if (callType==sim_syscb_threadmain)
-                return(true);
-        }
-        else
-        {
-            if (callType==sim_syscb_init)
-                return(true);
-            if (callType==sim_syscb_actuation)
-                return(true);
-            if (callType==sim_syscb_sensing)
-                return(true);
-            if (callType==sim_syscb_suspend)
-                return(true);
-            if (callType==sim_syscb_suspended)
-                return(true);
-            if (callType==sim_syscb_resume)
-                return(true);
-            if (callType==sim_syscb_beforecopy)
-                return(true);
-            if (callType==sim_syscb_aftercopy)
-                return(true);
-            if (callType==sim_syscb_beforedelete)
-                return(true);
-            if (callType==sim_syscb_afterdelete)
-                return(true);
-            if (callType==sim_syscb_aftercreate)
-                return(true);
-            if (callType==sim_syscb_jointcallback)
-                return(true);
-            if (callType==sim_syscb_contactcallback)
-                return(true);
-            if (callType==sim_syscb_dyncallback)
-                return(true);
-            if ( (callType>=sim_syscb_customcallback1)&&(callType<=sim_syscb_customcallback4) )
-                return(true);
-        }
     }
     return(false);
 }
@@ -2592,7 +2468,7 @@ std::vector<std::string> CLuaScriptObject::getAllSystemCallbackStrings(int scrip
                  sim_syscb_beforedelete,
                  sim_syscb_afterdelete,
                  sim_syscb_aftercreate,
-                 sim_syscb_aos_run,
+                 sim_syscb_aos_run_old, // for backward compatibility
                  sim_syscb_aos_suspend,
                  sim_syscb_aos_resume,
                  sim_syscb_jointcallback,
@@ -3776,20 +3652,20 @@ int CLuaScriptObject::runAddOn(int callType,const CInterfaceStack* inStack,CInte
     {
         if ( (callType==sim_syscb_init)||(_addOn_executionState==-1) ) // second arg. is for auto-run
         {
-            if ( (_addOn_executionState!=-1)||(callType==sim_syscb_init)||(callType==sim_syscb_aos_run)||(callType==sim_syscb_nonsimulation)||(callType==sim_syscb_beforemainscript) )
+            if ( (_addOn_executionState!=-1)||(callType==sim_syscb_init)||(callType==sim_syscb_aos_run_old)||(callType==sim_syscb_nonsimulation)||(callType==sim_syscb_beforemainscript) )
                 retVal=_runAddOn(sim_syscb_init,inStack,outStack);
         }
     }
     else
     { // ok, the add-on was already initialized. We can run it, suspend it, restart it, or kill it (and a few others):
-        if ( (callType==sim_syscb_aos_run)||(callType==sim_syscb_nonsimulation)||(callType==sim_syscb_beforemainscript) )
+        if ( (callType==sim_syscb_aos_run_old)||(callType==sim_syscb_nonsimulation)||(callType==sim_syscb_beforemainscript) )
         {
             if (_addOn_executionState!=sim_syscb_aos_suspend) // when suspended, we first need to unsuspend it
                 retVal=_runAddOn(callType,inStack,outStack);
         }
         else if (callType==sim_syscb_aos_suspend)
         {
-            if ( (_addOn_executionState==sim_syscb_aos_run)||(_addOn_executionState==sim_syscb_nonsimulation)||(_addOn_executionState==sim_syscb_beforemainscript) ) // only when running
+            if ( (_addOn_executionState==sim_syscb_aos_run_old)||(_addOn_executionState==sim_syscb_nonsimulation)||(_addOn_executionState==sim_syscb_beforemainscript) ) // only when running
                 retVal=_runAddOn(callType,inStack,outStack);
         }
         else if (callType==sim_syscb_aos_resume)
@@ -3828,7 +3704,7 @@ int CLuaScriptObject::_runAddOn(int callType,const CInterfaceStack* inStack,CInt
         retVal=_runScriptOrCallScriptFunction(callType,inStack,outStackProxy);
     if (retVal>-2)
     {
-        if ( (callType==sim_syscb_init)||(callType==sim_syscb_cleanup)||(callType==sim_syscb_aos_run)||(callType==sim_syscb_aos_suspend)||(callType==sim_syscb_aos_resume) )
+        if ( (callType==sim_syscb_init)||(callType==sim_syscb_cleanup)||(callType==sim_syscb_aos_run_old)||(callType==sim_syscb_aos_suspend)||(callType==sim_syscb_aos_resume) )
             _addOn_executionState=callType;
     }
     if ( (outStackProxy->getStackSize()>0)&&(callType!=sim_syscb_cleanup) )

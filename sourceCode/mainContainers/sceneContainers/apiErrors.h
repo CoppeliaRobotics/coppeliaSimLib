@@ -112,6 +112,7 @@
 #define SIM_ERROR_CANNOT_DIVIDE_COMPOUND_SHAPE "Cannot divide compound shape."
 #define SIM_ERROR_MATERIAL_INEXISTANT           "Material does not exist."
 #define SIM_ERROR_TEXTURE_INEXISTANT            "Texture does not exist."
+#define SIM_ERROR_INDICES_CONTAIN_ILLEGAL_VALUES            "Indices contain illegal values."
 
 #define SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS "The function requires more arguments."
 #define SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG "One of the function's argument type is not correct."

@@ -183,7 +183,7 @@ public:
     int getAutoYieldingForbidLevel() const;
     int changeOverallYieldingForbidLevel(int dx,bool absolute);
 
-    static bool canCallSystemCallback(int scriptType,bool threaded,int callType);
+    static bool canCallSystemCallback(int scriptType,bool threadedOld,int callType);
     static std::string getSystemCallbackString(int calltype,bool callTips);
     static std::string getSystemCallbackExString(int calltype);
     static std::vector<std::string> getAllSystemCallbackStrings(int scriptType,bool threaded,bool callTips);

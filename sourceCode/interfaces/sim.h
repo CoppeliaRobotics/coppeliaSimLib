@@ -292,9 +292,6 @@ SIM_DLLEXPORT simInt simConvexDecompose(simInt shapeHandle,simInt options,const 
 SIM_DLLEXPORT simInt simAddGhost(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color);
 SIM_DLLEXPORT simInt simModifyGhost(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation);
 SIM_DLLEXPORT simVoid simQuitSimulator(simBool ignoredArgument);
-SIM_DLLEXPORT simInt simGetThreadId();
-SIM_DLLEXPORT simInt simLockResources(simInt lockType,simInt reserved);
-SIM_DLLEXPORT simInt simUnlockResources(simInt lockHandle);
 SIM_DLLEXPORT simInt simEnableEventCallback(simInt eventCallbackType,const simChar* plugin,simInt reserved);
 SIM_DLLEXPORT simInt simSetShapeMaterial(simInt shapeHandle,simInt materialIdOrShapeHandle);
 SIM_DLLEXPORT simInt simGetTextureId(const simChar* textureName,simInt* resolution);
@@ -317,7 +314,6 @@ SIM_DLLEXPORT simInt* simGetCollectionObjects(simInt collectionHandle,simInt* ob
 SIM_DLLEXPORT simInt simSetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal);
 SIM_DLLEXPORT simInt simGetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal);
 SIM_DLLEXPORT simInt simReorientShapeBoundingBox(simInt shapeHandle,simInt relativeToHandle,simInt reservedSetToZero);
-SIM_DLLEXPORT simInt simSwitchThread();
 SIM_DLLEXPORT simInt simCreateCollection(const simChar* collectionName,simInt options);
 SIM_DLLEXPORT simInt simAddObjectToCollection(simInt collectionHandle,simInt objectHandle,simInt what,simInt options);
 SIM_DLLEXPORT simInt simSaveImage(const simUChar* image,const simInt* resolution,simInt options,const simChar* filename,simInt quality,simVoid* reserved);
@@ -402,8 +398,6 @@ SIM_DLLEXPORT simInt simSetJointDependency(simInt jointHandle,simInt masterJoint
 SIM_DLLEXPORT simInt simGetJointDependency(simInt jointHandle,simInt* masterJointHandle,simFloat* offset,simFloat* multCoeff);
 SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simChar* stringParam,simInt paramLength);
 SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength);
-SIM_DLLEXPORT simChar* simGetUserParameter(simInt objectHandle,const simChar* parameterName,simInt* parameterLength);
-SIM_DLLEXPORT simInt simSetUserParameter(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength);
 SIM_DLLEXPORT simInt simAddLog(const simChar* pluginName,simInt verbosityLevel,const simChar* logMsg);
 SIM_DLLEXPORT simInt simGetShapeMass(simInt shapeHandle,simFloat* mass);
 SIM_DLLEXPORT simInt simSetShapeMass(simInt shapeHandle,simFloat mass);
@@ -648,6 +642,12 @@ SIM_DLLEXPORT simInt simGetPathLength(simInt objectHandle,simFloat* length);
 SIM_DLLEXPORT simInt simCreatePath(simInt attributes,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
 SIM_DLLEXPORT simInt simInsertPathCtrlPoints(simInt pathHandle,simInt options,simInt startIndex,simInt ptCnt,const simVoid* ptData);
 SIM_DLLEXPORT simInt simCutPathCtrlPoints(simInt pathHandle,simInt startIndex,simInt ptCnt);
+SIM_DLLEXPORT simInt simGetThreadId();
+SIM_DLLEXPORT simInt simSwitchThread();
+SIM_DLLEXPORT simInt simLockResources(simInt lockType,simInt reserved);
+SIM_DLLEXPORT simInt simUnlockResources(simInt lockHandle);
+SIM_DLLEXPORT simChar* simGetUserParameter(simInt objectHandle,const simChar* parameterName,simInt* parameterLength);
+SIM_DLLEXPORT simInt simSetUserParameter(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

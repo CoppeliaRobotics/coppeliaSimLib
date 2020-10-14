@@ -190,7 +190,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.invertMatrix",_simInvertMatrix,                        "sim.invertMatrix(table_12 matrix)",true},
     {"sim.multiplyMatrices",_simMultiplyMatrices,                "table_12 resultMatrix=sim.multiplyMatrices(table_12 matrixIn1,table_12 matrixIn2)",true},
     {"sim.interpolateMatrices",_simInterpolateMatrices,          "table_12 resultMatrix=sim.interpolateMatrices(table_12 matrixIn1,table_12 matrixIn2,number interpolFactor)",true},
-    {"sim.multiplyVector",_simMultiplyVector,                    "table_3 resultVector=sim.multiplyVector(table_12 matrix,table_3 vector)",true},
+    {"sim.multiplyVector",_simMultiplyVector,                    "table_3n resultVector=sim.multiplyVector(table_12 matrix,table_3n vector)",true},
     {"sim.getObjectChild",_simGetObjectChild,                    "number childObjectHandle=sim.getObjectChild(number objectHandle,number index)",true},
     {"sim.getObjectParent",_simGetObjectParent,                  "number parentObjectHandle=sim.getObjectParent(number objectHandle)",true},
     {"sim.setObjectParent",_simSetObjectParent,                  "sim.setObjectParent(number objectHandle,number parentObjectHandle,boolean keepInPlace)",true},
@@ -229,8 +229,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getObjectUniqueIdentifier",_simGetObjectUniqueIdentifier,"number uniqueIdentifier=sim.getObjectUniqueIdentifier(number objectHandle)\ntable uniqueIdentifiers=sim.getObjectUniqueIdentifier(sim_handle_all)",true},
     {"sim.setThreadAutomaticSwitch",_simSetThreadAutomaticSwitch,"number autoSwitchForbidLevel=sim.setThreadAutomaticSwitch(boolean automaticSwitch/number forbidLevel)",true},
     {"sim.getThreadAutomaticSwitch",_simGetThreadAutomaticSwitch,"boolean result=sim.getThreadAutomaticSwitch()",true},
-    {"sim._isThreadSwitchingAllowed",_simIsThreadSwitchingAllowed,"boolean allowed=sim._isThreadSwitchingAllowed()",false},
-    {"sim._setThreadSwitchingAllowed",_simSetThreadSwitchingAllowed,"number forbidLevel=sim._setThreadSwitchingAllowed(boolean allowed/number forbidLevel)",false},
+    {"sim.getThreadSwitchAllowed",_simGetThreadSwitchAllowed,    "boolean allowed=sim.getThreadSwitchAllowed()",true},
+    {"sim.setThreadSwitchAllowed",_simSetThreadSwitchAllowed,    "number forbidLevel=sim.setThreadSwitchAllowed(boolean allowed/number forbidLevel)",true},
     {"sim.setThreadSwitchTiming",_simSetThreadSwitchTiming,      "sim.setThreadSwitchTiming(number deltaTimeInMilliseconds)",true},
     {"sim._switchThread",_simSwitchThread,                       "sim._switchThread()",false},
     {"sim.createCollection",_simCreateCollection,                "number collectionHandle=sim.createCollection(string collectionName,number options)",true},
@@ -425,8 +425,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.insertObjectIntoPointCloud",_simInsertObjectIntoPointCloud,"number totalPointCnt=sim.insertObjectIntoPointCloud(number pointCloudHandle,\nnumber objectHandle,number options,number gridSize,table color=nil,number duplicateTolerance=nil)",true},
     {"sim.subtractObjectFromPointCloud",_simSubtractObjectFromPointCloud,    "number totalPointCnt=sim.subtractObjectFromPointCloud(number pointCloudHandle,number objectHandle,number options,number tolerance)",true},
     {"sim.checkOctreePointOccupancy",_simCheckOctreePointOccupancy,"number result,number tag,number locationLow,number locationHigh=sim.checkOctreePointOccupancy(number octreeHandle,number options,table points)",true},
-    {"sim.setVisionSensorFilter",_simSetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",true},
-    {"sim.getVisionSensorFilter",_simGetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",true},
     {"sim.handleSimulationStart",_simHandleSimulationStart,      "sim.handleSimulationStart()",true},
     {"sim.handleSensingStart",_simHandleSensingStart,            "sim.handleSensingStart()",true},
     {"sim.auxFunc",_simAuxFunc,                                  "... =sim.auxFunc(...)",true},
@@ -454,8 +452,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getStackTraceback",_simGetStackTraceback,              "string stacktraceback=sim.getStackTraceback([number scriptHandle])",true},
     {"sim.setStringNamedParam",_simSetStringNamedParam,          "number result=sim.setStringNamedParam(string paramName,string stringParam)",true},
     {"sim.getStringNamedParam",_simGetStringNamedParam,          "string stringParam=sim.getStringNamedParam(string paramName)",true},
-    {"sim.getUserParameter",_simGetUserParameter,                "boolean/number/string parameterValue=sim.getUserParameter(number objectHandle,string parameterName,boolean forceStringReturn=false)",true},
-    {"sim.setUserParameter",_simSetUserParameter,                "sim.setUserParameter(number objectHandle,string parameterName,string parameterValue)",true},
     {"sim.addLog",_simAddLog,                                    "sim.addLog(number verbosityLevel,string logMessage)",true},
     {"sim.getShapeMass",_simGetShapeMass,                        "number mass=sim.getShapeMassAndInertia(number shapeHandle)",true},
     {"sim.setShapeMass",_simSetShapeMass,                        "sim.setShapeMass(number shapeHandle,number mass)",true},
@@ -527,6 +523,10 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setThreadResumeLocation",_simSetThreadResumeLocation,  "Deprecated",false},
     {"sim.resumeThreads",_simResumeThreads,                      "Deprecated",false},
     {"sim.launchThreadedChildScripts",_simLaunchThreadedChildScripts,"Deprecated",false},
+    {"sim.getUserParameter",_simGetUserParameter,                "Deprecated. Use 'sim.readCustomDataBlock' instead",false},
+    {"sim.setUserParameter",_simSetUserParameter,                "Deprecated. Use 'sim.writeCustomDataBlock' instead",false},
+    {"sim.setVisionSensorFilter",_simSetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",false},
+    {"sim.getVisionSensorFilter",_simGetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",false},
     // {"sim.rmlMoveToPosition",_simRMLMoveToPosition,              "Deprecated. Use 'sim.moveToPose' instead",false},
     //{"sim.rmlMoveToJointPositions",_simRMLMoveToJointPositions,  "Deprecated. Use 'sim.moveToConfig' instead",false},
     //{"sim.wait",_simWait,                                        "number deltaTimeLeft=sim.wait(number deltaTime,boolean simulationTime=true)",true},
@@ -1162,7 +1162,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.syscb_afterinstanceswitch",sim_syscb_afterinstanceswitch,true},
     {"sim.syscb_beforecopy",sim_syscb_beforecopy,true},
     {"sim.syscb_aftercopy",sim_syscb_aftercopy,true},
-    {"sim.syscb_aos_run",sim_syscb_aos_run,true},
     {"sim.syscb_aos_suspend",sim_syscb_aos_suspend,true},
     {"sim.syscb_aos_resume",sim_syscb_aos_resume,true},
     {"sim.syscb_jointcallback",sim_syscb_jointcallback,true},
@@ -2112,7 +2111,6 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim.childscriptcall_actuation",sim_syscb_actuation,false},
     {"sim.childscriptcall_sensing",sim_syscb_sensing,false},
     {"sim.addonscriptcall_initialization",sim_syscb_init,false},
-    {"sim.addonscriptcall_run",sim_syscb_aos_run,false},
     {"sim.addonscriptcall_suspend",sim_syscb_aos_suspend,false},
     {"sim.addonscriptcall_restarting",sim_syscb_aos_resume,false},
     {"sim.addonscriptcall_cleanup",sim_syscb_cleanup,false},
@@ -2262,7 +2260,6 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim_customizationscriptcall_lastbeforeinstanceswitch",sim_syscb_beforeinstanceswitch,false},
     {"sim_customizationscriptcall_firstafterinstanceswitch",sim_syscb_afterinstanceswitch,false},
     {"sim_addonscriptcall_initialization",sim_syscb_init,false},
-    {"sim_addonscriptcall_run",sim_syscb_aos_run,false},
     {"sim_addonscriptcall_suspend",sim_syscb_aos_suspend,false},
     {"sim_addonscriptcall_restarting",sim_syscb_aos_resume,false},
     {"sim_addonscriptcall_cleanup",sim_syscb_cleanup,false},
@@ -3049,6 +3046,9 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim_boolparam_joint_motion_handling_enabled",sim_boolparam_joint_motion_handling_enabled_deprecated,false},
     {"sim_boolparam_path_motion_handling_enabled",sim_boolparam_path_motion_handling_enabled_deprecated,false},
     {"sim_jointmode_motion",sim_jointmode_motion_deprecated,false},
+    {"sim.syscb_aos_run",sim_syscb_aos_run_old,false},
+    {"sim.addonscriptcall_run",sim_syscb_aos_run_old,false},
+    {"sim_addonscriptcall_run",sim_syscb_aos_run_old,false},
     {"",-1,false}
 };
 
@@ -4200,7 +4200,7 @@ int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,st
 
     bool dontDeleteStructureYet=false;
     while (cb->waitUntilZero!=0)
-    { // todo: What happens to a main script caught in here?! check (and fix) later
+    { // backward compatibility (for real threads)
         if (!CThreadPool::switchBackToPreviousThread())
             break;
         if (CThreadPool::getSimulationStopRequestedAndActivated())
@@ -4228,184 +4228,6 @@ int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,st
     else
         delete cb;
     App::worldContainer->interfaceStackContainer->destroyStack(stackId);
-    return(outputArgCount);
-}
-
-int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func)
-{
-    TRACE_LUA_API;
-    // We first read all arguments from the stack
-    std::vector<char> inBoolVector;
-    std::vector<int> inIntVector;
-    std::vector<float> inFloatVector;
-    std::vector<double> inDoubleVector;
-    std::vector<std::string> inStringVector;
-    std::vector<std::string> inCharVector;
-    std::vector<int> inInfoVector;
-    for (int i=0;i<int(func->inputArgTypes.size());i++)
-    {
-        if (!readCustomFunctionDataFromStack(L,i+1,func->inputArgTypes[i],inBoolVector,inIntVector,inFloatVector,inDoubleVector,inStringVector,inCharVector,inInfoVector))
-            break;
-    }
-
-    // We retrieve the suffix:
-    std::string suffix("");
-    luaWrap_lua_getglobal(L,SIM_SCRIPT_NAME_SUFFIX);
-    if (luaWrap_lua_isstring(L,-1))
-        suffix=luaWrap_lua_tostring(L,-1);
-    luaWrap_lua_pop(L,1); // we correct the stack
-    // Now we retrieve the object ID this script might be attached to:
-    int currentScriptID=getCurrentScriptHandle(L);
-    CLuaScriptObject* itObj=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-    int linkedObject=-1;
-    if (itObj->getScriptType()==sim_scripttype_childscript)
-    {
-        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(itObj->getObjectIDThatScriptIsAttachedTo_child());
-        if (obj!=nullptr)
-            linkedObject=obj->getObjectHandle();
-    }
-    if (itObj->getScriptType()==sim_scripttype_customizationscript)
-    {
-        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(itObj->getObjectIDThatScriptIsAttachedTo_customization());
-        if (obj!=nullptr)
-            linkedObject=obj->getObjectHandle();
-    }
-    // We prepare the callback structure:
-    SLuaCallBack* p=new SLuaCallBack;
-    p->objectID=linkedObject;
-    p->scriptID=currentScriptID;
-    p->inputBool=nullptr;
-    p->inputInt=nullptr;
-    p->inputFloat=nullptr;
-    p->inputDouble=nullptr;
-    p->inputChar=nullptr;
-    p->inputCharBuff=nullptr;
-    p->inputArgCount=0;
-    p->inputArgTypeAndSize=nullptr;
-    p->outputBool=nullptr;
-    p->outputInt=nullptr;
-    p->outputFloat=nullptr;
-    p->outputDouble=nullptr;
-    p->outputChar=nullptr;
-    p->outputCharBuff=nullptr;
-    p->outputArgCount=0;
-    p->outputArgTypeAndSize=nullptr;
-    p->waitUntilZero=0;
-    // Now we prepare the input buffers:
-    p->inputBool=new unsigned char[inBoolVector.size()];
-    p->inputInt=new int[inIntVector.size()];
-    p->inputFloat=new float[inFloatVector.size()];
-    p->inputDouble=new double[inDoubleVector.size()];
-    int charCnt=0;
-    for (size_t k=0;k<inStringVector.size();k++)
-        charCnt+=(int)inStringVector[k].length()+1; // terminal 0
-    p->inputChar=new char[charCnt];
-
-    int charBuffCnt=0;
-    for (size_t k=0;k<inCharVector.size();k++)
-        charBuffCnt+=(int)inCharVector[k].length();
-    p->inputCharBuff=new char[charBuffCnt];
-
-    p->inputArgCount=(int)inInfoVector.size()/2;
-    p->inputArgTypeAndSize=new int[inInfoVector.size()];
-    // We fill the input buffers:
-    for (int k=0;k<int(inBoolVector.size());k++)
-        p->inputBool[k]=inBoolVector[k];
-    for (int k=0;k<int(inIntVector.size());k++)
-        p->inputInt[k]=inIntVector[k];
-    for (int k=0;k<int(inFloatVector.size());k++)
-        p->inputFloat[k]=inFloatVector[k];
-    for (int k=0;k<int(inDoubleVector.size());k++)
-        p->inputDouble[k]=inDoubleVector[k];
-    charCnt=0;
-    for (int k=0;k<int(inStringVector.size());k++)
-    {
-        for (int l=0;l<int(inStringVector[k].length());l++)
-            p->inputChar[charCnt+l]=inStringVector[k][l];
-        charCnt+=(int)inStringVector[k].length();
-        // terminal 0:
-        p->inputChar[charCnt]=0;
-        charCnt++;
-    }
-
-    charBuffCnt=0;
-    for (int k=0;k<int(inCharVector.size());k++)
-    {
-        for (int l=0;l<int(inCharVector[k].length());l++)
-            p->inputCharBuff[charBuffCnt+l]=inCharVector[k][l];
-        charBuffCnt+=(int)inCharVector[k].length();
-    }
-
-    for (int k=0;k<int(inInfoVector.size());k++)
-        p->inputArgTypeAndSize[k]=inInfoVector[k];
-
-    // Now we can call the callback:
-    func->callBackFunction_old(p);
-
-    bool dontDeleteStructureYet=false;
-    while (p->waitUntilZero!=0)
-    { // todo: What happens to a main script caught in here?! check (and fix) later
-        if (!CThreadPool::switchBackToPreviousThread())
-            break;
-        if (CThreadPool::getSimulationStopRequestedAndActivated())
-        { // give a chance to the c app to set the waitUntilZero to zero! (above turns true only 1-2 secs after the stop request arrived)
-            // Following: the extension module might still write 0 into that position to signal "no more waiting" in
-            // case this while loop got interrupted by a stop request.
-            dontDeleteStructureYet=true;
-            break;
-        }
-    }
-
-    // We first delete the input buffers:
-    delete[] p->inputBool;
-    delete[] p->inputInt;
-    delete[] p->inputFloat;
-    delete[] p->inputDouble;
-    delete[] p->inputChar;
-    delete[] p->inputCharBuff;
-    delete[] p->inputArgTypeAndSize;
-    // Now we have to build the returned data onto the stack:
-    if (p->outputArgCount!=0)
-    {
-        int boolPt=0;
-        int intPt=0;
-        int floatPt=0;
-        int doublePt=0;
-        int stringPt=0;
-        int stringBuffPt=0;
-        for (int i=0;i<p->outputArgCount;i++)
-        {
-            writeCustomFunctionDataOntoStack(L,p->outputArgTypeAndSize[2*i+0],p->outputArgTypeAndSize[2*i+1],
-                p->outputBool,boolPt,
-                p->outputInt,intPt,
-                p->outputFloat,floatPt,
-                p->outputDouble,doublePt,
-                p->outputChar,stringPt,
-                p->outputCharBuff,stringBuffPt);
-        }
-    }
-    // We now delete the output buffers:
-    delete[] p->outputBool;
-    delete[] p->outputInt;
-    delete[] p->outputFloat;
-    delete[] p->outputDouble;
-    delete[] p->outputChar;
-    delete[] p->outputCharBuff;
-    delete[] p->outputArgTypeAndSize;
-    // And we return the number of arguments:
-    int outputArgCount=p->outputArgCount;
-    if (dontDeleteStructureYet)
-    {   // We cannot yet delete the structure because an extension module might still write '0' into
-        // p->waitUntilZero!! We delete the structure at the end of the simulation.
-        App::currentWorld->luaScriptContainer->addCallbackStructureObjectToDestroyAtTheEndOfSimulation_old(p);
-    }
-    else
-        delete p;
-    if (outputArgCount==0)
-    {
-        luaWrap_lua_pushnil(L);
-        outputArgCount=1;
-    }
     return(outputArgCount);
 }
 
@@ -6789,73 +6611,6 @@ int _simHandleGraph(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetUserParameter(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getUserParameter");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
-    {
-        int handle=luaWrap_lua_tointeger(L,1);
-        if (handle==sim_handle_self)
-        {
-            handle=getCurrentScriptHandle(L);
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle);
-            handle=it->getObjectIDThatScriptIsAttachedTo();
-        }
-        bool returnString=false;
-        int ret=checkOneGeneralInputArgument(L,3,lua_arg_bool,0,true,false,&errorString);
-        if ((ret==0)||(ret==2))
-        {
-            if (ret==2)
-                returnString=luaToBool(L,3);
-            std::string parameterName(luaWrap_lua_tostring(L,2));
-            int l;
-            char* p=simGetUserParameter_internal(handle,parameterName.c_str(),&l);
-            if (p!=nullptr)
-            {
-                std::string a;
-                a.assign(p,l);
-                if (returnString)
-                    luaWrap_lua_pushlstring(L,a.c_str(),a.length());
-                else
-                    pushCorrectTypeOntoLuaStack(L,a);
-                simReleaseBuffer_internal(p);
-                LUA_END(1);
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetUserParameter(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setUserParameter");
-
-    int retVal=-1;// error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_string,0))
-    {
-        int handle=luaWrap_lua_tointeger(L,1);
-        if (handle==sim_handle_self)
-        {
-            handle=getCurrentScriptHandle(L);
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle);
-            handle=it->getObjectIDThatScriptIsAttachedTo();
-        }
-        std::string parameterName(luaWrap_lua_tostring(L,2));
-        size_t parameterValueLength;
-        char* parameterValue=(char*)luaWrap_lua_tolstring(L,3,&parameterValueLength);
-        retVal=simSetUserParameter_internal(handle,parameterName.c_str(),parameterValue,(int)parameterValueLength);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
 int _simAddLog(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -7143,15 +6898,22 @@ int _simMultiplyVector(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,12,lua_arg_number,3))
     {
-        float m[12];
-        float vect[3];
-        getFloatsFromTable(L,1,12,m);
-        getFloatsFromTable(L,2,3,vect);
-        if (simTransformVector_internal(m,vect)!=-1)
+        float matr[12];
+        std::vector<float> vect;
+        size_t cnt=luaWrap_lua_objlen(L,2)/3;
+        vect.resize(cnt*3);
+        getFloatsFromTable(L,1,12,matr);
+        getFloatsFromTable(L,2,cnt*3,&vect[0]);
+
+        C4X4Matrix m;
+        m.copyFromInterface(matr);
+        for (size_t i=0;i<cnt;i++)
         {
-            pushFloatTableOntoStack(L,3,vect);
-            LUA_END(1);
+            C3Vector v(&vect[3*i]);
+            (m*v).copyTo(&vect[3*i]);
         }
+        pushFloatTableOntoStack(L,3*cnt,&vect[0]);
+        LUA_END(1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -8467,29 +8229,31 @@ int _simGetThreadAutomaticSwitch(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-
-
 int _simSwitchThread(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim._switchThread");
 
-    // Ignores whether thread switching is allowed or not (happens on the sim.lua side)
     int retVal=-1;
-    if (CThreadPool::switchBackToPreviousThread())
-        retVal=1;
-    else
-        retVal=0;
+    int currentScriptID=getCurrentScriptHandle(L);
+    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+    if ((it!=nullptr)&&(it->canManualYield()))
+    {
+        if (CThreadPool::switchBackToPreviousThread())
+            retVal=1;
+        else
+            retVal=0;
+    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
 }
 
-int _simIsThreadSwitchingAllowed(luaWrap_lua_State* L)
+int _simGetThreadSwitchAllowed(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim._isThreadSwitchingAllowed");
+    LUA_START("sim.getThreadSwitchAllowed");
 
     int currentScriptID=getCurrentScriptHandle(L);
     CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
@@ -8503,10 +8267,10 @@ int _simIsThreadSwitchingAllowed(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSetThreadSwitchingAllowed(luaWrap_lua_State* L)
+int _simSetThreadSwitchAllowed(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim._setThreadSwitchingAllowed");
+    LUA_START("sim.setThreadSwitchAllowed");
 
     if (luaWrap_lua_gettop(L)>0)
     {
@@ -13920,18 +13684,6 @@ int _simQuitSimulator(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
-}
-
-int _simGetThreadId(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getThreadId");
-
-    int retVal=simGetThreadId_internal();
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
 }
 
 int _simSetShapeMaterial(luaWrap_lua_State* L)
@@ -20104,6 +19856,263 @@ int _simLaunchThreadedChildScripts(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
+}
+
+int _simGetThreadId(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.getThreadId");
+
+    int retVal=simGetThreadId_internal();
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetUserParameter(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.getUserParameter");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
+    {
+        int handle=luaWrap_lua_tointeger(L,1);
+        if (handle==sim_handle_self)
+        {
+            handle=getCurrentScriptHandle(L);
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle);
+            handle=it->getObjectIDThatScriptIsAttachedTo();
+        }
+        bool returnString=false;
+        int ret=checkOneGeneralInputArgument(L,3,lua_arg_bool,0,true,false,&errorString);
+        if ((ret==0)||(ret==2))
+        {
+            if (ret==2)
+                returnString=luaToBool(L,3);
+            std::string parameterName(luaWrap_lua_tostring(L,2));
+            int l;
+            char* p=simGetUserParameter_internal(handle,parameterName.c_str(),&l);
+            if (p!=nullptr)
+            {
+                std::string a;
+                a.assign(p,l);
+                if (returnString)
+                    luaWrap_lua_pushlstring(L,a.c_str(),a.length());
+                else
+                    pushCorrectTypeOntoLuaStack(L,a);
+                simReleaseBuffer_internal(p);
+                LUA_END(1);
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetUserParameter(luaWrap_lua_State* L)
+{ // deprecated on 01.10.2020
+    TRACE_LUA_API;
+    LUA_START("sim.setUserParameter");
+
+    int retVal=-1;// error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_string,0))
+    {
+        int handle=luaWrap_lua_tointeger(L,1);
+        if (handle==sim_handle_self)
+        {
+            handle=getCurrentScriptHandle(L);
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle);
+            handle=it->getObjectIDThatScriptIsAttachedTo();
+        }
+        std::string parameterName(luaWrap_lua_tostring(L,2));
+        size_t parameterValueLength;
+        char* parameterValue=(char*)luaWrap_lua_tolstring(L,3,&parameterValueLength);
+        retVal=simSetUserParameter_internal(handle,parameterName.c_str(),parameterValue,(int)parameterValueLength);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func)
+{ // deprecated around 2015
+    TRACE_LUA_API;
+    // We first read all arguments from the stack
+    std::vector<char> inBoolVector;
+    std::vector<int> inIntVector;
+    std::vector<float> inFloatVector;
+    std::vector<double> inDoubleVector;
+    std::vector<std::string> inStringVector;
+    std::vector<std::string> inCharVector;
+    std::vector<int> inInfoVector;
+    for (int i=0;i<int(func->inputArgTypes.size());i++)
+    {
+        if (!readCustomFunctionDataFromStack(L,i+1,func->inputArgTypes[i],inBoolVector,inIntVector,inFloatVector,inDoubleVector,inStringVector,inCharVector,inInfoVector))
+            break;
+    }
+
+    // We retrieve the suffix:
+    std::string suffix("");
+    luaWrap_lua_getglobal(L,SIM_SCRIPT_NAME_SUFFIX);
+    if (luaWrap_lua_isstring(L,-1))
+        suffix=luaWrap_lua_tostring(L,-1);
+    luaWrap_lua_pop(L,1); // we correct the stack
+    // Now we retrieve the object ID this script might be attached to:
+    int currentScriptID=getCurrentScriptHandle(L);
+    CLuaScriptObject* itObj=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+    int linkedObject=-1;
+    if (itObj->getScriptType()==sim_scripttype_childscript)
+    {
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(itObj->getObjectIDThatScriptIsAttachedTo_child());
+        if (obj!=nullptr)
+            linkedObject=obj->getObjectHandle();
+    }
+    if (itObj->getScriptType()==sim_scripttype_customizationscript)
+    {
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(itObj->getObjectIDThatScriptIsAttachedTo_customization());
+        if (obj!=nullptr)
+            linkedObject=obj->getObjectHandle();
+    }
+    // We prepare the callback structure:
+    SLuaCallBack* p=new SLuaCallBack;
+    p->objectID=linkedObject;
+    p->scriptID=currentScriptID;
+    p->inputBool=nullptr;
+    p->inputInt=nullptr;
+    p->inputFloat=nullptr;
+    p->inputDouble=nullptr;
+    p->inputChar=nullptr;
+    p->inputCharBuff=nullptr;
+    p->inputArgCount=0;
+    p->inputArgTypeAndSize=nullptr;
+    p->outputBool=nullptr;
+    p->outputInt=nullptr;
+    p->outputFloat=nullptr;
+    p->outputDouble=nullptr;
+    p->outputChar=nullptr;
+    p->outputCharBuff=nullptr;
+    p->outputArgCount=0;
+    p->outputArgTypeAndSize=nullptr;
+    p->waitUntilZero=0;
+    // Now we prepare the input buffers:
+    p->inputBool=new unsigned char[inBoolVector.size()];
+    p->inputInt=new int[inIntVector.size()];
+    p->inputFloat=new float[inFloatVector.size()];
+    p->inputDouble=new double[inDoubleVector.size()];
+    int charCnt=0;
+    for (size_t k=0;k<inStringVector.size();k++)
+        charCnt+=(int)inStringVector[k].length()+1; // terminal 0
+    p->inputChar=new char[charCnt];
+
+    int charBuffCnt=0;
+    for (size_t k=0;k<inCharVector.size();k++)
+        charBuffCnt+=(int)inCharVector[k].length();
+    p->inputCharBuff=new char[charBuffCnt];
+
+    p->inputArgCount=(int)inInfoVector.size()/2;
+    p->inputArgTypeAndSize=new int[inInfoVector.size()];
+    // We fill the input buffers:
+    for (int k=0;k<int(inBoolVector.size());k++)
+        p->inputBool[k]=inBoolVector[k];
+    for (int k=0;k<int(inIntVector.size());k++)
+        p->inputInt[k]=inIntVector[k];
+    for (int k=0;k<int(inFloatVector.size());k++)
+        p->inputFloat[k]=inFloatVector[k];
+    for (int k=0;k<int(inDoubleVector.size());k++)
+        p->inputDouble[k]=inDoubleVector[k];
+    charCnt=0;
+    for (int k=0;k<int(inStringVector.size());k++)
+    {
+        for (int l=0;l<int(inStringVector[k].length());l++)
+            p->inputChar[charCnt+l]=inStringVector[k][l];
+        charCnt+=(int)inStringVector[k].length();
+        // terminal 0:
+        p->inputChar[charCnt]=0;
+        charCnt++;
+    }
+
+    charBuffCnt=0;
+    for (int k=0;k<int(inCharVector.size());k++)
+    {
+        for (int l=0;l<int(inCharVector[k].length());l++)
+            p->inputCharBuff[charBuffCnt+l]=inCharVector[k][l];
+        charBuffCnt+=(int)inCharVector[k].length();
+    }
+
+    for (int k=0;k<int(inInfoVector.size());k++)
+        p->inputArgTypeAndSize[k]=inInfoVector[k];
+
+    // Now we can call the callback:
+    func->callBackFunction_old(p);
+
+    bool dontDeleteStructureYet=false;
+    while (p->waitUntilZero!=0)
+    { // backward compatibility (for real threads)
+        if (!CThreadPool::switchBackToPreviousThread())
+            break;
+        if (CThreadPool::getSimulationStopRequestedAndActivated())
+        { // give a chance to the c app to set the waitUntilZero to zero! (above turns true only 1-2 secs after the stop request arrived)
+            // Following: the extension module might still write 0 into that position to signal "no more waiting" in
+            // case this while loop got interrupted by a stop request.
+            dontDeleteStructureYet=true;
+            break;
+        }
+    }
+
+    // We first delete the input buffers:
+    delete[] p->inputBool;
+    delete[] p->inputInt;
+    delete[] p->inputFloat;
+    delete[] p->inputDouble;
+    delete[] p->inputChar;
+    delete[] p->inputCharBuff;
+    delete[] p->inputArgTypeAndSize;
+    // Now we have to build the returned data onto the stack:
+    if (p->outputArgCount!=0)
+    {
+        int boolPt=0;
+        int intPt=0;
+        int floatPt=0;
+        int doublePt=0;
+        int stringPt=0;
+        int stringBuffPt=0;
+        for (int i=0;i<p->outputArgCount;i++)
+        {
+            writeCustomFunctionDataOntoStack(L,p->outputArgTypeAndSize[2*i+0],p->outputArgTypeAndSize[2*i+1],
+                p->outputBool,boolPt,
+                p->outputInt,intPt,
+                p->outputFloat,floatPt,
+                p->outputDouble,doublePt,
+                p->outputChar,stringPt,
+                p->outputCharBuff,stringBuffPt);
+        }
+    }
+    // We now delete the output buffers:
+    delete[] p->outputBool;
+    delete[] p->outputInt;
+    delete[] p->outputFloat;
+    delete[] p->outputDouble;
+    delete[] p->outputChar;
+    delete[] p->outputCharBuff;
+    delete[] p->outputArgTypeAndSize;
+    // And we return the number of arguments:
+    int outputArgCount=p->outputArgCount;
+    if (dontDeleteStructureYet)
+    {   // We cannot yet delete the structure because an extension module might still write '0' into
+        // p->waitUntilZero!! We delete the structure at the end of the simulation.
+        App::currentWorld->luaScriptContainer->addCallbackStructureObjectToDestroyAtTheEndOfSimulation_old(p);
+    }
+    else
+        delete p;
+    if (outputArgCount==0)
+    {
+        luaWrap_lua_pushnil(L);
+        outputArgCount=1;
+    }
+    return(outputArgCount);
 }
 
 

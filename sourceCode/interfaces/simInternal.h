@@ -282,9 +282,6 @@ simInt simConvexDecompose_internal(simInt shapeHandle,simInt options,const simIn
 simInt simAddGhost_internal(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color);
 simInt simModifyGhost_internal(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation);
 simVoid simQuitSimulator_internal(simBool ignoredArgument);
-simInt simGetThreadId_internal();
-simInt simLockResources_internal(simInt lockType,simInt reserved);
-simInt simUnlockResources_internal(simInt lockHandle);
 simInt simEnableEventCallback_internal(simInt eventCallbackType,const simChar* plugin,simInt reserved);
 simInt simSetShapeMaterial_internal(simInt shapeHandle,simInt materialIdOrShapeHandle);
 simInt simGetTextureId_internal(const simChar* textureName,simInt* resolution);
@@ -307,7 +304,6 @@ simInt* simGetCollectionObjects_internal(simInt collectionHandle,simInt* objectC
 simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal);
 simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal);
 simInt simReorientShapeBoundingBox_internal(simInt shapeHandle,simInt relativeToHandle,simInt reservedSetToZero);
-simInt simSwitchThread_internal();
 simInt simCreateCollection_internal(const simChar* collectionName,simInt options);
 simInt simAddObjectToCollection_internal(simInt collectionHandle,simInt objectHandle,simInt what,simInt options);
 simInt simSaveImage_internal(const simUChar* image,const simInt* resolution,simInt options,const simChar* filename,simInt quality,simVoid* reserved);
@@ -392,8 +388,6 @@ simInt simSetJointDependency_internal(simInt jointHandle,simInt masterJointHandl
 simInt simGetJointDependency_internal(simInt jointHandle,simInt* masterJointHandle,simFloat* offset,simFloat* multCoeff);
 simInt simSetStringNamedParam_internal(const simChar* paramName,const simChar* stringParam,simInt paramLength);
 simChar* simGetStringNamedParam_internal(const simChar* paramName,simInt* paramLength);
-simChar* simGetUserParameter_internal(simInt objectHandle,const simChar* parameterName,simInt* parameterLength);
-simInt simSetUserParameter_internal(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength);
 simInt simAddLog_internal(const simChar* pluginName,simInt verbosityLevel,const simChar* logMsg);
 simInt simGetShapeMass_internal(simInt shapeHandle,simFloat* mass);
 simInt simSetShapeMass_internal(simInt shapeHandle,simFloat mass);
@@ -628,6 +622,12 @@ simInt simGetPathLength_internal(simInt objectHandle,simFloat* length);
 simInt simCreatePath_internal(simInt attributes,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
 simInt simInsertPathCtrlPoints_internal(simInt pathHandle,simInt options,simInt startIndex,simInt ptCnt,const simVoid* ptData);
 simInt simCutPathCtrlPoints_internal(simInt pathHandle,simInt startIndex,simInt ptCnt);
+simInt simGetThreadId_internal();
+simInt simSwitchThread_internal();
+simInt simLockResources_internal(simInt lockType,simInt reserved);
+simInt simUnlockResources_internal(simInt lockHandle);
+simChar* simGetUserParameter_internal(simInt objectHandle,const simChar* parameterName,simInt* parameterLength);
+simInt simSetUserParameter_internal(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength);
 
 
 #endif // !defined(simInternal_INCLUDED_)

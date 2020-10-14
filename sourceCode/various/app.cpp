@@ -180,7 +180,6 @@ void App::simulationThreadLoop()
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
-    // Handle customization script execution:
     if ( App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
     {
         App::currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_nonsimulation,nullptr,nullptr,nullptr);
@@ -213,7 +212,7 @@ void App::simulationThreadLoop()
 
     // Keep for backward compatibility:
     if (!App::currentWorld->simulation->isSimulationRunning()) // when simulation is running, we handle the add-on scripts after the main script was called
-        App::worldContainer->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_aos_run,nullptr,nullptr);
+        App::worldContainer->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_aos_run_old,nullptr,nullptr);
 
     #ifdef SIM_WITH_GUI
             App::currentWorld->simulation->showAndHandleEmergencyStopButton(false,""); // 10/10/2015
