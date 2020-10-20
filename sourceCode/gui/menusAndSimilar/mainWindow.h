@@ -206,7 +206,6 @@ private:
     QAction* _toolbarActionCameraZoom;
     QAction* _toolbarActionCameraAngle;
     QAction* _toolbarActionCameraSizeToScreen;
-//    QAction* _toolbarActionCameraFly;
     QAction* _toolbarActionObjectShift;
     QAction* _toolbarActionObjectRotate;
 
@@ -236,7 +235,6 @@ private:
     QAction* _toolbarActionScripts;
     QAction* _toolbarActionShapeEdition;
     QAction* _toolbarActionPathEdition;
-    QAction* _toolbarActionSelection;
     QAction* _toolbarActionModelBrowser;
     QAction* _toolbarActionSceneHierarchy;
     QAction* _toolbarActionLayers;

@@ -119,7 +119,6 @@ public:
     int getLocalObjectProperty() const;
     int getCumulativeObjectProperty();
     void setModelBase(bool m);
-    bool getModelBase() const;
 
     void setObjectManipulationModePermissions(int p);
     int getObjectManipulationModePermissions() const;
@@ -271,7 +270,7 @@ public:
     virtual bool setParent(CSceneObject* newParent,bool keepObjectInPlace);
 
     int getObjectType() const;
-    int getFirstModelRelatives(std::vector<CSceneObject*>& firstModelRelatives,bool visibleModelsOnly) const;
+    void getFirstModelRelatives(std::vector<CSceneObject*>& firstModelRelatives,bool visibleModelsOnly) const;
     int countFirstModelRelatives(bool visibleModelsOnly) const;
     std::string getObjectTempName() const;
     std::string getObjectTempAltName() const;

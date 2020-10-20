@@ -132,23 +132,6 @@ bool CToolBarCommand::processCommand(int commandID)
         }
         return(true);
     }
-    if (commandID==CAMERA_FLY_NAVIGATION_CMD)
-    {
-        if (!App::mainWindow->oglSurface->isScenePageOrViewSelectionActive())
-        {
-            if (!VThread::isCurrentThreadTheUiThread())
-            { // we are NOT in the UI thread. We execute the command now:
-                App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_camerafly);
-            }
-            else
-            { // We are in the UI thread. Execute the command via the main thread:
-                SSimulationThreadCommand cmd;
-                cmd.cmdId=commandID;
-                App::appendSimulationThreadCommand(cmd);
-            }
-        }
-        return(true);
-    }
     if (commandID==OBJECT_SHIFT_NAVIGATION_CMD)
     {
         if (!App::mainWindow->oglSurface->isScenePageOrViewSelectionActive())

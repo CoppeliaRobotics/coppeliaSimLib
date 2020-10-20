@@ -945,7 +945,7 @@ SIM_DLLEXPORT simChar* simGetObjectStringParameter(simInt objectHandle,simInt pa
 {
     return(simGetObjectStringParameter_internal(objectHandle,parameterID,parameterLength));
 }
-SIM_DLLEXPORT simInt simSetObjectStringParameter(simInt objectHandle,simInt parameterID,simChar* parameter,simInt parameterLength)
+SIM_DLLEXPORT simInt simSetObjectStringParameter(simInt objectHandle,simInt parameterID,const simChar* parameter,simInt parameterLength)
 {
     return(simSetObjectStringParameter_internal(objectHandle,parameterID,parameter,parameterLength));
 }

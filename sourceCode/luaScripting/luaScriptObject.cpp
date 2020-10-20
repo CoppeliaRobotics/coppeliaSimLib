@@ -4248,6 +4248,7 @@ bool CLuaScriptObject::killLuaState()
             if (!wasInMainScript)
                 App::currentWorld->luaScriptContainer->setInMainScriptNow(false,0);
         }
+        App::worldContainer->scriptStateAboutToBeDestroyed(scriptID);
         luaWrap_lua_close(L);
         L=nullptr;
     }

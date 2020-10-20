@@ -433,8 +433,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CToolBarCommand::processCommand(cmd.cmdId);
         if (cmd.cmdId==CAMERA_ANGLE_NAVIGATION_CMD)
             CToolBarCommand::processCommand(cmd.cmdId);
-        if (cmd.cmdId==CAMERA_FLY_NAVIGATION_CMD)
-            CToolBarCommand::processCommand(cmd.cmdId);
         if (cmd.cmdId==OBJECT_SHIFT_NAVIGATION_CMD)
             CToolBarCommand::processCommand(cmd.cmdId);
         if (cmd.cmdId==OBJECT_ROTATE_NAVIGATION_CMD)

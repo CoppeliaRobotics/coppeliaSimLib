@@ -1023,13 +1023,6 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionCameraSizeToScreen,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionCameraSizeToScreen,CAMERA_SHIFT_TO_FRAME_SELECTION_CMD);
 
-/*
-        _toolbarActionCameraFly=_toolbar1->addAction(QIcon(":/toolbarFiles/cameraFly.png"),tr(IDS_TOOLBAR_TOOLTIP_CAMERA_FLY));
-        _toolbarActionCameraFly->setCheckable(true);
-        connect(_toolbarActionCameraFly,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-        _signalMapper->setMapping(_toolbarActionCameraFly,CAMERA_FLY_NAVIGATION_CMD);
-        */
-
         _toolbar1->addSeparator();
 
         if (CSimFlavor::getBoolVal(11))
@@ -1323,15 +1316,6 @@ void CMainWindow::_createDefaultToolBars()
             connect(_toolbarActionPathEdition,SIGNAL(triggered()),_signalMapper,SLOT(map()));
             _signalMapper->setMapping(_toolbarActionPathEdition,PATH_EDIT_MODE_TOGGLE_ON_OFF_EMCMD);
             _toolbar2->addSeparator();
-        }
-
-
-        if (CSimFlavor::getBoolVal(12))
-        {
-            _toolbarActionSelection=_toolbar2->addAction(QIcon(":/toolbarFiles/selection.png"),tr(IDSN_SELECTION_DIALOG));
-            _toolbarActionSelection->setCheckable(true);
-            connect(_toolbarActionSelection,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionSelection,TOGGLE_SELECTION_DLG_CMD);
         }
 
         _toolbarActionModelBrowser=_toolbar2->addAction(QIcon(":/toolbarFiles/modelBrowser.png"),tr(IDSN_MODEL_BROWSER));
@@ -1771,7 +1755,6 @@ void CMainWindow::_actualizetoolbarButtonState()
         if (CSimFlavor::getBoolVal(11))
             _toolbarActionCameraAngle->setEnabled(noSelector);
         _toolbarActionCameraSizeToScreen->setEnabled(allowFitToView&&noSelector);
-//        _toolbarActionCameraFly->setEnabled(noSelector);
 
         if (disassembleEnabled)
             _toolbarActionAssemble->setIcon(QIcon(":/toolbarFiles/disassemble.png"));
@@ -1825,7 +1808,6 @@ void CMainWindow::_actualizetoolbarButtonState()
         _toolbarActionCameraZoom->setChecked((getMouseMode()&0x00ff)==sim_navigation_camerazoom);
         if (CSimFlavor::getBoolVal(11))
             _toolbarActionCameraAngle->setChecked((getMouseMode()&0x00ff)==sim_navigation_cameraangle);
-//       _toolbarActionCameraFly->setChecked((getMouseMode()&0x00ff)==sim_navigation_camerafly);
         _toolbarActionObjectShift->setChecked((getMouseMode()&0x00ff)==sim_navigation_objectshift);
         _toolbarActionObjectRotate->setChecked((getMouseMode()&0x00ff)==sim_navigation_objectrotate);
 
@@ -1914,8 +1896,6 @@ void CMainWindow::_actualizetoolbarButtonState()
             _toolbarActionShapeEdition->setEnabled((noSelector&&(selS==1)&&App::currentWorld->sceneObjects->isLastSelectionAShape()&&App::currentWorld->simulation->isSimulationStopped()&&(editModeContainer->getEditModeType()==NO_EDIT_MODE))||(editModeContainer->getEditModeType()&SHAPE_EDIT_MODE)||(editModeContainer->getEditModeType()&MULTISHAPE_EDIT_MODE));
         if (CSimFlavor::getBoolVal(12)&&App::userSettings->showOldDlgs)
             _toolbarActionPathEdition->setEnabled((noSelector&&(selS==1)&&App::currentWorld->sceneObjects->isLastSelectionAPath()&&App::currentWorld->simulation->isSimulationStopped()&&(editModeContainer->getEditModeType()==NO_EDIT_MODE))||(editModeContainer->getEditModeType()&PATH_EDIT_MODE));
-        if (CSimFlavor::getBoolVal(12))
-            _toolbarActionSelection->setEnabled(noEditMode&&noSelector);
 
         _toolbarActionModelBrowser->setEnabled(noEditMode&&noSelector&&_toolbarButtonBrowserEnabled);
 
@@ -1943,8 +1923,6 @@ void CMainWindow::_actualizetoolbarButtonState()
             _toolbarActionShapeEdition->setChecked(editModeContainer->getEditModeType()&SHAPE_EDIT_MODE);
         if (CSimFlavor::getBoolVal(12)&&App::userSettings->showOldDlgs)
             _toolbarActionPathEdition->setChecked(editModeContainer->getEditModeType()==PATH_EDIT_MODE);
-        if (CSimFlavor::getBoolVal(12))
-            _toolbarActionSelection->setChecked(dlgCont->isVisible(SELECTION_DLG));
 
         _toolbarActionModelBrowser->setChecked(dlgCont->isVisible(BROWSER_DLG));
 
@@ -2437,7 +2415,6 @@ void CMainWindow::closeTemporarilyDialogsForPageSelector()
         if (codeEditorContainer!=nullptr)
             codeEditorContainer->showOrHideAll(false);
         _closeDialogTemporarilyIfOpened(SETTINGS_DLG,_dialogsClosedTemporarily_pageSelector);
-        _closeDialogTemporarilyIfOpened(SELECTION_DLG,_dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(SIMULATION_DLG,_dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(ENVIRONMENT_DLG,_dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(COLLECTION_DLG,_dialogsClosedTemporarily_pageSelector);
@@ -2489,7 +2466,6 @@ void CMainWindow::closeTemporarilyDialogsForViewSelector()
         if (codeEditorContainer!=nullptr)
             codeEditorContainer->showOrHideAll(false);
         _closeDialogTemporarilyIfOpened(SETTINGS_DLG,_dialogsClosedTemporarily_viewSelector);
-        _closeDialogTemporarilyIfOpened(SELECTION_DLG,_dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(SIMULATION_DLG,_dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(ENVIRONMENT_DLG,_dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(COLLECTION_DLG,_dialogsClosedTemporarily_viewSelector);
@@ -2559,7 +2535,6 @@ void CMainWindow::closeTemporarilyNonEditModeDialogs()
         if (codeEditorContainer!=nullptr)
             codeEditorContainer->showOrHideAll(false);
         _closeDialogTemporarilyIfOpened(SETTINGS_DLG,_dialogsClosedTemporarily_editModes);
-        _closeDialogTemporarilyIfOpened(SELECTION_DLG,_dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(SIMULATION_DLG,_dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(ENVIRONMENT_DLG,_dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(COLLECTION_DLG,_dialogsClosedTemporarily_editModes);

@@ -498,7 +498,6 @@
 
 
 #define IDSN_SCRIPTS   "Scripts"
-#define IDSN_SELECTION "Selection"
 
 #define IDSN_ENVIRONMENT "Environment"
 #define IDSN_SHAPE_TEXTURES_ENABLED "Shape textures enabled"
@@ -965,7 +964,6 @@
 #define IDS_TOOLBAR_TOOLTIP_CAMERA_ZOOM "Camera shift"
 #define IDS_TOOLBAR_TOOLTIP_OBJECT_SHIFT "Object/item shift"
 #define IDS_TOOLBAR_TOOLTIP_OBJECT_ROTATE "Object/item rotate"
-#define IDS_TOOLBAR_TOOLTIP_CAMERA_FLY "Camera fly"
 
 #define IDS_TOOLBAR_TOOLTIP_DYNAMICS_ENGINE "Dynamics engine"
 #define IDS_TOOLBAR_TOOLTIP_DYNAMICS_SETTINGS "Dynamics settings"
@@ -980,7 +978,6 @@
 #define IDS_TOOLBAR_TOOLTIP_ONLINE "Toggle online mode"
 #define IDS_TOOLBAR_TOOLTIP_VERIFY "Verify layout"
 #define IDS_TOOLBAR_TOOLTIP_SWITCH_TO_PAGE "Switch to a different page"
-#define IDSN_SELECTION_DIALOG "Selection"
 
 #define IDSN_PURE_SPHEROID "Pure spheroid"
 #define IDSN_PURE_CONE "Pure cone"

@@ -540,6 +540,7 @@ void CUiThread::showOrHideProgressBar(bool show,float pos,const char* txt)
 #endif
 }
 
+/*
 bool CUiThread::showOrHideEmergencyStop(bool show,const char* txt)
 {
     TRACE_INTERNAL;
@@ -590,6 +591,85 @@ bool CUiThread::showOrHideEmergencyStop(bool show,const char* txt)
     }
 #endif
     return(false);
+}
+*/
+
+bool CUiThread::showOrHideEmergencyStop(bool show,const char* txt)
+{
+    TRACE_INTERNAL;
+    bool retVal=false; // button was pressed
+#ifdef SIM_WITH_GUI
+    if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
+    { // make sure we are not in headless mode
+        static CQDlgStopScripts* _emergencyStopDlg=nullptr;
+        if (show)
+        {
+            if (_emergencyStopDlg==nullptr)
+            { // need to show it
+                if (VThread::isCurrentThreadTheUiThread())
+                {
+                    CQDlgStopScripts::stopScriptNow=false;
+                    _emergencyStopDlg=new CQDlgStopScripts(App::mainWindow);
+                    _emergencyStopDlg->setScriptName(txt);
+                    _emergencyStopDlg->show();
+                }
+                else
+                { // We are NOT in the UI thread. We execute the command via the UI thread:
+                    SUIThreadCommand cmdIn;
+                    SUIThreadCommand cmdOut;
+                    cmdIn.cmdId=SHOW_HIDE_EMERGENCY_STOP_BUTTON_UITHREADCMD;
+                    cmdIn.boolParams.push_back(show);
+                    cmdIn.stringParams.push_back(txt);
+                    executeCommandViaUiThread(&cmdIn,&cmdOut);
+                }
+            }
+            else
+            { // already showing it
+                retVal=CQDlgStopScripts::stopScriptNow;
+                if (retVal)
+                { // hide the dlg
+                    if (VThread::isCurrentThreadTheUiThread())
+                    {
+                        delete _emergencyStopDlg;
+                        _emergencyStopDlg=nullptr;
+                        CQDlgStopScripts::stopScriptNow=false;
+                    }
+                    else
+                    {
+                        SUIThreadCommand cmdIn;
+                        SUIThreadCommand cmdOut;
+                        cmdIn.cmdId=SHOW_HIDE_EMERGENCY_STOP_BUTTON_UITHREADCMD;
+                        cmdIn.boolParams.push_back(false);
+                        cmdIn.stringParams.push_back("");
+                        executeCommandViaUiThread(&cmdIn,&cmdOut);
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (_emergencyStopDlg!=nullptr)
+            {
+                if (VThread::isCurrentThreadTheUiThread())
+                {
+                    delete _emergencyStopDlg;
+                    _emergencyStopDlg=nullptr;
+                    CQDlgStopScripts::stopScriptNow=false;
+                }
+                else
+                {
+                    SUIThreadCommand cmdIn;
+                    SUIThreadCommand cmdOut;
+                    cmdIn.cmdId=SHOW_HIDE_EMERGENCY_STOP_BUTTON_UITHREADCMD;
+                    cmdIn.boolParams.push_back(false);
+                    cmdIn.stringParams.push_back("");
+                    executeCommandViaUiThread(&cmdIn,&cmdOut);
+                }
+            }
+        }
+    }
+#endif
+    return(retVal);
 }
 
 #ifdef SIM_WITH_GUI

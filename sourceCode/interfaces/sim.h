@@ -251,7 +251,7 @@ SIM_DLLEXPORT simInt simSetObjectInt32Parameter(simInt objectHandle,simInt param
 SIM_DLLEXPORT simInt simGetObjectFloatParameter(simInt objectHandle,simInt parameterID,simFloat* parameter);
 SIM_DLLEXPORT simInt simSetObjectFloatParameter(simInt objectHandle,simInt parameterID,simFloat parameter);
 SIM_DLLEXPORT simChar* simGetObjectStringParameter(simInt objectHandle,simInt parameterID,simInt* parameterLength);
-SIM_DLLEXPORT simInt simSetObjectStringParameter(simInt objectHandle,simInt parameterID,simChar* parameter,simInt parameterLength);
+SIM_DLLEXPORT simInt simSetObjectStringParameter(simInt objectHandle,simInt parameterID,const simChar* parameter,simInt parameterLength);
 SIM_DLLEXPORT simInt simSetSimulationPassesPerRenderingPass(simInt p);
 SIM_DLLEXPORT simInt simGetRotationAxis(const simFloat* matrixStart,const simFloat* matrixGoal,simFloat* axis,simFloat* angle);
 SIM_DLLEXPORT simInt simRotateAroundAxis(const simFloat* matrixIn,const simFloat* axis,const simFloat* axisPos,simFloat angle,simFloat* matrixOut);

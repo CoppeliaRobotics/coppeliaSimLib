@@ -1173,7 +1173,6 @@ bool CSView::mouseWheel(int deltaZ,int x,int y)
                 }
                 previousRl=rl;
                 lastTime=ct;
-
                 C4X4Matrix local(((CCamera*)it)->getFullLocalTransformation().getMatrix());
                 C4X4Matrix localNew(local);
                 localNew.X-=localNew.M.axis[2]*0.01f*(((CCamera*)it)->getNearClippingPlane()/0.05f)*fact*float(deltaZ)/120.0f; // Added *(((CCamera*)it)->getNearClippingPlane()/0.05f) on 23/02/2011 to make smaller displacements when near clip. plane is closer
@@ -2294,121 +2293,5 @@ void CSView::cameraAndObjectMotion()
         }
     }
     // ****************************************************************************
-
-    // Camera fly...
-    // ****************************************************************************
-    if ((navigationMode==sim_navigation_camerafly)&&(camera->getCameraManipulationModePermissions()&0x008))
-    {
-        int ct=VDateTime::getTimeInMs();
-        static int currentEventID=-4;
-        static int lastTime;
-        static float velocity;
-        static float rotX;
-        static float rotY;
-        static float rotXVel;
-        static float rotYVel;
-        static int downX,downY;
-        static C4X4Matrix travelDir;
-        static bool previousTranslateMode=false;
-        if (eventID!=currentEventID)
-        {
-            currentEventID=eventID;
-            lastTime=VDateTime::getTimeInMs();
-            velocity=0.15f;
-            rotX=0.0f;
-            rotY=0.0f;
-            rotXVel=0.0f;
-            rotYVel=0.0f;
-            downX=mouseDownPosition.x;
-            downY=mouseDownPosition.y;
-            travelDir=camera->getCumulativeTransformation();
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->setFlyModeCameraHandle(camera->getObjectHandle());
-        }
-        bool translateMode=((App::mainWindow!=nullptr)&&((App::mainWindow->getKeyDownState()&3)==3));
-        if (translateMode!=previousTranslateMode)
-        {
-            downX=mousePosition.x;
-            downY=mousePosition.y;
-        }
-        previousTranslateMode=translateMode;
-
-        float dt=float(VDateTime::getTimeDiffInMs(lastTime))/1000.0f;
-        lastTime=ct;
-
-        if (fabs(dt)>0.0001f)
-        {
-            float dx=-0.08f*float(mousePosition.x-downX)/float(activeWinSize.x);
-            float dy=0.08f*float(mousePosition.y-downY)/float(activeWinSize.y);
-            C4X4Matrix m(travelDir);
-            C3Vector xDir((C3Vector::unitZVector^m.M.axis[2]).getNormalized());
-            C3Vector yDir((m.M.axis[2]^xDir));
-            float accelX=0.0f;
-            float accelY=0.0f;
-            if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&16))
-                accelX=0.5f;
-            if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&32))
-                accelX=-0.5f;
-            if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&4))
-                accelY=-0.5f;
-            if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&8))
-                accelY=0.5f;
-            if ((accelX==0.0f)&&(rotXVel!=0.0f))
-                accelX=-std::min<float>(0.5f,fabs(rotXVel)/dt)*rotXVel/fabs(rotXVel);
-            if ((accelY==0.0f)&&(rotYVel!=0.0f))
-                accelY=-std::min<float>(0.5f,fabs(rotYVel)/dt)*rotYVel/fabs(rotYVel);
-            rotXVel+=dt*accelX;
-            rotYVel+=dt*accelY;
-            if (rotXVel!=0.0f)
-                rotXVel=std::min<float>(fabs(rotXVel),0.55f)*rotXVel/fabs(rotXVel);
-            if (rotYVel!=0.0f)
-                rotYVel=std::min<float>(fabs(rotYVel),0.55f)*rotYVel/fabs(rotYVel);
-            rotX+=dt*rotXVel;
-            rotY+=dt*rotYVel;
-            if (translateMode)
-            {
-                m.X+=(m.M.axis[2]*velocity*dt)+(xDir*velocity*dt*dx*50.0f)+(yDir*velocity*dt*dy*50.0f);
-            }
-            else
-            {
-                if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1))
-                    velocity-=dt*0.5f;
-                if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))
-                    velocity+=dt*0.5f;
-                if ((velocity<0.0001f)&&(velocity>=0.0f))
-                    velocity=0.0001f;
-                if ((velocity>-0.0001f)&&(velocity<0.0f))
-                    velocity=-0.0001f;
-                m.X+=m.M.axis[2]*velocity*dt;
-                C3Vector v(((m.M.axis[2]*fabs(velocity)*dt)+(xDir*fabs(velocity)*dt*dx)+(yDir*fabs(velocity)*dt*dy)).getNormalized());
-                C3Vector w(((m.M.axis[2]*fabs(velocity)*dt)+(xDir*fabs(velocity)*dt*dx)).getNormalized());
-                if (fabs(v*C3Vector::unitZVector)>0.99f)
-                    v=w;
-                m.M.axis[2]=v;
-                m.M.axis[0]=(C3Vector::unitZVector^m.M.axis[2]).getNormalized();
-                m.M.axis[1]=m.M.axis[2]^m.M.axis[0];
-            }
-            C4X4Matrix newCameraPos(m);
-            C3X3Matrix rot;
-            rot.buildXRotation(-rotY);
-            newCameraPos.M*=rot;
-            rot.buildZRotation(rotX);
-            newCameraPos.M=rot*newCameraPos.M;
-
-            C7Vector local(camera->getLocalTransformation());
-            C7Vector local1(camera->getFullParentCumulativeTransformation().getInverse()*newCameraPos.getTransformation());
-            camera->setLocalTransformation(local1);
-            if (cameraParentProxy!=nullptr)
-            { // We manipulate the parent object instead:
-                C7Vector local1(camera->getFullLocalTransformation());
-                camera->setLocalTransformation(local); // we reset to initial
-                cameraParentProxy->setLocalTransformation(cameraParentProxy->getFullLocalTransformation()*local1*local.getInverse());
-            }
-            travelDir=m;
-        }
-
-    }
-    // ****************************************************************************
-
 }
 #endif

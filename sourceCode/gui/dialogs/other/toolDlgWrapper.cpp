@@ -5,7 +5,6 @@
 #include "qdlgsettings.h"
 #include "qdlglayers.h"
 #include "qdlgavirecorder.h"
-#include "qdlgselection.h"
 #include "qdlgsimulation.h"
 #include "qdlgcommonproperties.h"
 #include "qdlgenvironment.h"
@@ -118,8 +117,6 @@ void CToolDlgWrapper::setVisible(bool visible,QWidget* parentWindow)
                 toolDialog=new CQDlgLayers(App::mainWindow);
             if (dialogType==AVI_RECORDER_DLG)
                 toolDialog=new CQDlgAviRecorder(App::mainWindow);
-            if (dialogType==SELECTION_DLG)
-                toolDialog=new CQDlgSelection(App::mainWindow);
             if (dialogType==SIMULATION_DLG)
                 toolDialog=new CQDlgSimulation(App::mainWindow);
             if (dialogType==ENVIRONMENT_DLG)

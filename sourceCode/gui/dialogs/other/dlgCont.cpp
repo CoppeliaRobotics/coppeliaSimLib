@@ -49,7 +49,6 @@ void CDlgCont::initialize(QWidget* pWindow)
     dialogs.push_back(new CToolDlgWrapper(FORCE_SENSOR_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(GRAPH_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(SETTINGS_DLG,0));
-    dialogs.push_back(new CToolDlgWrapper(SELECTION_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(COLLECTION_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(ENVIRONMENT_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(COLLISION_DLG,0));
@@ -314,7 +313,6 @@ void CDlgCont::addMenu(VMenu* menu)
         menu->appendMenuSeparator();
         menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(LUA_SCRIPT_DLG),TOGGLE_LUA_SCRIPT_DLG_CMD,IDSN_SCRIPTS,true);
         menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(COLLECTION_DLG),TOGGLE_COLLECTION_DLG_CMD,IDSN_COLLECTIONS,true);
-        menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(SELECTION_DLG),TOGGLE_SELECTION_DLG_CMD,IDSN_SELECTION,true);
         menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(ENVIRONMENT_DLG),TOGGLE_ENVIRONMENT_DLG_CMD,IDSN_ENVIRONMENT,true);
         menu->appendMenuItem(noShapePathEditModeNoSelector&&App::mainWindow->getBrowserToggleViaGuiEnabled(),App::getBrowserEnabled(),TOGGLE_BROWSER_DLG_CMD,IDSN_MODEL_BROWSER,true);
         menu->appendMenuItem(App::mainWindow->getHierarchyToggleViaGuiEnabled(),App::mainWindow->oglSurface->isHierarchyEnabled(),TOGGLE_HIERARCHY_DLG_CMD,IDSN_SCENE_HIERARCHY,true);
@@ -523,11 +521,6 @@ bool CDlgCont::processCommand(int commandID)
         if (commandID==TOGGLE_COLLISION_DLG_CMD)
         {
             toggle(COLLISION_DLG);
-            return(true);
-        }
-        if (commandID==TOGGLE_SELECTION_DLG_CMD)
-        {
-            toggle(SELECTION_DLG);
             return(true);
         }
         if (commandID==TOGGLE_SHAPE_DLG_CMD)

@@ -79,7 +79,6 @@ float luaToFloat(luaWrap_lua_State* L,int pos);
 double luaToDouble(luaWrap_lua_State* L,int pos);
 bool luaToBool(luaWrap_lua_State* L,int pos);
 
-void suffixAdjustStringIfNeeded(luaWrap_lua_State* L,std::string& name);
 int getCurrentScriptHandle(luaWrap_lua_State* L);
 
 void getScriptTree_mainOr(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scriptHandles);

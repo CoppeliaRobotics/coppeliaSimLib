@@ -9,11 +9,12 @@
 std::vector<contactCallback>& getAllContactCallbacks();
 std::vector<jointCtrlCallback>& getAllJointCtrlCallbacks();
 
-void quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
-void enableCNameSuffixAdjustment_OLD();
-std::string getCNameSuffixAdjustedName_OLD(const char* name);
 void setCNameSuffixNumber_OLD(int number);
 int getCNameSuffixNumber_OLD();
+
+void setCurrentScriptHandle_cSide(int h);
+std::string getIndexAdjustedObjectName(const char* nm);
+
 
 simInt simRunSimulator_internal(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)(),simInt stopDelay,const simChar* sceneOrModelToLoad,bool launchSimThread);
 simVoid* simGetMainWindow_internal(simInt type);
@@ -241,7 +242,7 @@ simInt simSetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterI
 simInt simGetObjectFloatParameter_internal(simInt objectHandle,simInt parameterID,simFloat* parameter);
 simInt simSetObjectFloatParameter_internal(simInt objectHandle,simInt parameterID,simFloat parameter);
 simChar* simGetObjectStringParameter_internal(simInt objectHandle,simInt parameterID,simInt* parameterLength);
-simInt simSetObjectStringParameter_internal(simInt objectHandle,simInt parameterID,simChar* parameter,simInt parameterLength);
+simInt simSetObjectStringParameter_internal(simInt objectHandle,simInt parameterID,const simChar* parameter,simInt parameterLength);
 simInt simSetSimulationPassesPerRenderingPass_internal(simInt p);
 simInt simGetRotationAxis_internal(const simFloat* matrixStart,const simFloat* matrixGoal,simFloat* axis,simFloat* angle);
 simInt simRotateAroundAxis_internal(const simFloat* matrixIn,const simFloat* axis,const simFloat* axisPos,simFloat angle,simFloat* matrixOut);

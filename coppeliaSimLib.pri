@@ -241,7 +241,6 @@ WITH_GUI {
     FORMS += $$PWD/ui/qdlgsettings.ui \
     $$PWD/ui/qdlglayers.ui \
     $$PWD/ui/qdlgavirecorder.ui \
-    $$PWD/ui/qdlgselection.ui \
     $$PWD/ui/qdlgabout.ui \
     $$PWD/ui/qdlgsimulation.ui \
     $$PWD/ui/qdlgcommonproperties.ui \
@@ -610,7 +609,6 @@ WITH_OPENGL {
 WITH_GUI {
     HEADERS += $$PWD/sourceCode/gui/dialogs/qdlglayers.h \
         $$PWD/sourceCode/gui/dialogs/qdlgavirecorder.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgselection.h \
         $$PWD/sourceCode/gui/dialogs/qdlgabout.h \
         $$PWD/sourceCode/gui/dialogs/qdlgsimulation.h \
         $$PWD/sourceCode/gui/dialogs/qdlgcommonproperties.h \
@@ -1037,7 +1035,6 @@ WITH_GUI {
     SOURCES += $$PWD/sourceCode/gui/dialogs/qdlgsettings.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlglayers.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgavirecorder.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgselection.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgabout.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgsimulation.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgcommonproperties.cpp \

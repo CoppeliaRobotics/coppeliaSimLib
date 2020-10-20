@@ -414,11 +414,6 @@ void CSceneObject::setModelBase(bool m)
     incrementModelPropertyValidityNumber();
 }
 
-bool CSceneObject::getModelBase() const
-{
-    return(_modelBase);
-}
-
 void CSceneObject::setLocalObjectProperty(int p)
 {
     _localObjectProperty=p;
@@ -2290,6 +2285,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.xmlAddNode_bool("depthInvisible",_localObjectProperty&sim_objectproperty_depthinvisible);
             ar.xmlAddNode_bool("cannotDelete",_localObjectProperty&sim_objectproperty_cannotdelete);
             ar.xmlAddNode_bool("cannotDeleteDuringSimulation",_localObjectProperty&sim_objectproperty_cannotdeleteduringsim);
+            ar.xmlAddNode_bool("hiddenModelChild",_localObjectProperty&sim_objectproperty_hierarchyhiddenmodelchild);
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("localObjectSpecialProperty");
@@ -2503,6 +2499,7 @@ void CSceneObject::serialize(CSer& ar)
                     ar.xmlGetNode_flags("depthInvisible",_localObjectProperty,sim_objectproperty_depthinvisible,exhaustiveXml);
                     ar.xmlGetNode_flags("cannotDelete",_localObjectProperty,sim_objectproperty_cannotdelete,exhaustiveXml);
                     ar.xmlGetNode_flags("cannotDeleteDuringSimulation",_localObjectProperty,sim_objectproperty_cannotdeleteduringsim,exhaustiveXml);
+                    ar.xmlGetNode_flags("hiddenModelChild",_localObjectProperty,sim_objectproperty_hierarchyhiddenmodelchild,exhaustiveXml);
                     ar.xmlPopNode();
                 }
 
@@ -3110,24 +3107,19 @@ bool CSceneObject::setParent(CSceneObject* newParent,bool keepObjectInPlace)
     return(retVal);
 }
 
-int CSceneObject::getFirstModelRelatives(std::vector<CSceneObject*>& firstModelRelatives,bool visibleModelsOnly) const
+void CSceneObject::getFirstModelRelatives(std::vector<CSceneObject*>& firstModelRelatives,bool visibleModelsOnly) const
 {
-    int cnt=0;
     for (size_t i=0;i<getChildCount();i++)
     {
         CSceneObject* child=getChildFromIndex(i);
         if (child->getModelBase())
         {
             if (!child->isObjectPartOfInvisibleModel())
-            {
                 firstModelRelatives.push_back(child);
-                cnt++;
-            }
         }
         else
-            cnt+=child->getFirstModelRelatives(firstModelRelatives,visibleModelsOnly);
+            child->getFirstModelRelatives(firstModelRelatives,visibleModelsOnly);
     }
-    return(cnt);
 }
 
 int CSceneObject::countFirstModelRelatives(bool visibleModelsOnly) const

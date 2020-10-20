@@ -3,7 +3,6 @@
         <file>toolbarFiles/verify.png</file>
         <file>toolbarFiles/cameraShift.png</file>
         <file>toolbarFiles/cameraAngle.png</file>
-        <file>toolbarFiles/cameraFly.png</file>
         <file>toolbarFiles/cameraRotate.png</file>
         <file>toolbarFiles/cameraZoom.png</file>
         <file>toolbarFiles/objectRotate.png</file>
@@ -26,7 +25,6 @@
         <file>toolbarFiles/modelBrowser.png</file>
         <file>toolbarFiles/sceneHierarchy.png</file>
         <file>toolbarFiles/scripts.png</file>
-        <file>toolbarFiles/selection.png</file>
         <file>toolbarFiles/userSettings.png</file>
         <file>toolbarFiles/layers.png</file>
         <file>toolbarFiles/cameraResize.png</file>

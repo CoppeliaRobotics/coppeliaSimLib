@@ -22,7 +22,7 @@ class CHierarchyElement
 public:
     CHierarchyElement(int theObjectID);
     virtual ~CHierarchyElement();
-    int addYourChildren();
+    void addYourChildren();
     int getLinkedObjectID();
     int getNumberOfElements();
     int computeNumberOfElements();

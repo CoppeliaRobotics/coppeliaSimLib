@@ -28,6 +28,7 @@
 #include <iostream>
 #include "tinyxml2.h"
 #include "simFlavor.h"
+#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #ifdef SIM_WITH_GUI
     #include <QSplashScreen>
@@ -53,6 +54,8 @@
 
 bool cNameSuffixAdjustmentTemporarilyDisabled_OLD=false;
 int cNameSuffixNumber_OLD=-1;
+int _currentScriptHandle=-1;
+
 bool outputSceneOrModelLoadMessagesWithApiCall=false;
 bool fullModelCopyFromApi=true;
 bool waitingForTrigger=false;
@@ -494,33 +497,39 @@ std::vector<jointCtrlCallback>& getAllJointCtrlCallbacks()
     return(allJointCtrlCallbacks);
 }
 
-void quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD()
+void setCurrentScriptHandle_cSide(int h)
 {
-    cNameSuffixAdjustmentTemporarilyDisabled_OLD=true;
+    _currentScriptHandle=h;
 }
 
-void enableCNameSuffixAdjustment_OLD()
+std::string getIndexAdjustedObjectName(const char* nm)
 {
-    cNameSuffixAdjustmentTemporarilyDisabled_OLD=false;
-}
-
-std::string getCNameSuffixAdjustedName_OLD(const char* name)
-{
-    if (strlen(name)==0)
-        return("");
-    std::string retVal(name);
-    if ((!cNameSuffixAdjustmentTemporarilyDisabled_OLD)&&(retVal.find('#')==std::string::npos))
-    { // Lua script calls never enter here
-        if (cNameSuffixNumber_OLD>-1)
-        {
-            retVal=tt::getNameWithoutSuffixNumber(name,true);
-            retVal=tt::generateNewName_hash(retVal.c_str(),cNameSuffixNumber_OLD+1);
-        }
-    }
-
-    if (retVal.length()!=0)
+    std::string retVal;
+    if (strlen(nm)!=0)
     {
-        if (retVal[retVal.length()-1]=='#')
+        retVal=nm;
+        if ( (_currentScriptHandle!=-1)&&(retVal.find('#')==std::string::npos) )
+        { // e.g. "myObject42"
+            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_currentScriptHandle);
+            if (script!=nullptr)
+            {
+                int objHandle=script->getObjectIDThatScriptIsAttachedTo();
+                if (objHandle!=-1)
+                {
+                    CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
+                    if (obj!=nullptr)
+                    {
+                        int scriptIndex=tt::getNameSuffixNumber(obj->getObjectName().c_str(),true);
+                        if (scriptIndex!=-1)
+                        { // e.g. scriptIndex==0 --> script attached to object "xxx#0"
+                            retVal+="#";
+                            retVal+=boost::lexical_cast<std::string>(scriptIndex);
+                        }
+                    }
+                }
+            }
+        }
+        if ( (retVal.length()!=0)&&(retVal[retVal.length()-1]=='#') ) // e.g. "myObject#"
             retVal.erase(retVal.end()-1);
     }
     return(retVal);
@@ -1212,9 +1221,8 @@ simInt simGetObjectHandle_internal(const simChar* objectName)
             nm.erase(nm.begin()+firstAtPos,nm.end());
         if (altPos==std::string::npos)
         { // handle retrieval via regular name
-            std::string objectNameAdjusted=getCNameSuffixAdjustedName_OLD(nm.c_str());
-            enableCNameSuffixAdjustment_OLD();
-            it=App::currentWorld->sceneObjects->getObjectFromName(objectNameAdjusted.c_str());
+            nm=getIndexAdjustedObjectName(nm.c_str());
+            it=App::currentWorld->sceneObjects->getObjectFromName(nm.c_str());
         }
         else
             it=App::currentWorld->sceneObjects->getObjectFromAltName(nm.c_str()); // handle retrieval via alt name
@@ -1479,8 +1487,7 @@ simInt simGetCollectionHandle_internal(const simChar* collectionName)
     if (silentErrorPos!=std::string::npos)
         nm.erase(nm.begin()+silentErrorPos,nm.end());
 
-    std::string collectionNameAdjusted=getCNameSuffixAdjustedName_OLD(nm.c_str());
-    enableCNameSuffixAdjustment_OLD();
+    std::string collectionNameAdjusted=getIndexAdjustedObjectName(nm.c_str());
     if (!isSimulatorInitialized(__func__))
         return(-1);
 
@@ -4432,7 +4439,7 @@ simInt simSetStringParameter_internal(simInt parameter,const simChar* str)
         if (parameter==sim_stringparam_verbosity)
             App::setConsoleVerbosity(v);
         if (parameter==sim_stringparam_statusbarverbosity)
-            App::setConsoleVerbosity(v);
+            App::setStatusbarVerbosity(v);
         if (parameter==sim_stringparam_dlgverbosity)
             App::setDlgVerbosity(v);
         return(1);
@@ -5333,11 +5340,7 @@ simInt simGetScriptHandle_internal(const simChar* targetAtScriptName)
         scriptName.assign(targetAtScriptNm.begin()+p+1,targetAtScriptNm.end());
         targetName.assign(targetAtScriptNm.begin(),targetAtScriptNm.begin()+p);
     }
-
-
-
-    std::string scriptNameAdjusted=getCNameSuffixAdjustedName_OLD(scriptName.c_str());
-    enableCNameSuffixAdjustment_OLD();
+    std::string scriptNameAdjusted=getIndexAdjustedObjectName(scriptName.c_str());
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5804,8 +5807,7 @@ simInt simGetCollisionHandle_internal(const simChar* collisionObjectName)
     if (silentErrorPos!=std::string::npos)
         nm.erase(nm.begin()+silentErrorPos,nm.end());
 
-    std::string collisionObjectNameAdjusted=getCNameSuffixAdjustedName_OLD(nm.c_str());
-    enableCNameSuffixAdjustment_OLD();
+    std::string collisionObjectNameAdjusted=getIndexAdjustedObjectName(nm.c_str());
     if (!isSimulatorInitialized(__func__))
         return(-1);
 
@@ -5834,8 +5836,7 @@ simInt simGetDistanceHandle_internal(const simChar* distanceObjectName)
     if (silentErrorPos!=std::string::npos)
         nm.erase(nm.begin()+silentErrorPos,nm.end());
 
-    std::string distanceObjectNameAdjusted=getCNameSuffixAdjustedName_OLD(nm.c_str());
-    enableCNameSuffixAdjustment_OLD();
+    std::string distanceObjectNameAdjusted=getIndexAdjustedObjectName(nm.c_str());
     if (!isSimulatorInitialized(__func__))
         return(-1);
 
@@ -7793,9 +7794,7 @@ simInt simSetObjectProperty_internal(simInt objectHandle,simInt prop)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         it->setLocalObjectProperty(prop);
         return(1);
@@ -11468,7 +11467,7 @@ simChar* simGetObjectStringParameter_internal(simInt objectHandle,simInt paramet
     return(nullptr);
 }
 
-simInt simSetObjectStringParameter_internal(simInt objectHandle,simInt parameterID,simChar* parameter,simInt parameterLength)
+simInt simSetObjectStringParameter_internal(simInt objectHandle,simInt parameterID,const simChar* parameter,simInt parameterLength)
 {
     TRACE_C_API;
 
@@ -18525,8 +18524,7 @@ simInt simGetPathPlanningHandle_internal(const simChar* pathPlanningObjectName)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
 
-    std::string pathPlanningObjectNameAdjusted=getCNameSuffixAdjustedName_OLD(pathPlanningObjectName);
-    enableCNameSuffixAdjustment_OLD();
+    std::string pathPlanningObjectNameAdjusted=getIndexAdjustedObjectName(pathPlanningObjectName);
     if (!isSimulatorInitialized(__func__))
         return(-1);
 
@@ -19459,8 +19457,7 @@ simInt simGetUIHandle_internal(const simChar* elementName)
 {
     TRACE_C_API;
 
-    std::string elementNameAdjusted=getCNameSuffixAdjustedName_OLD(elementName);
-    enableCNameSuffixAdjustment_OLD();
+    std::string elementNameAdjusted=getIndexAdjustedObjectName(elementName);
     if (!isSimulatorInitialized(__func__))
         return(-1);
 
@@ -20778,8 +20775,7 @@ simInt simGetIkGroupHandle_internal(const simChar* ikGroupName)
     if (silentErrorPos!=std::string::npos)
         nm.erase(nm.begin()+silentErrorPos,nm.end());
 
-    std::string ikGroupNameAdjusted=getCNameSuffixAdjustedName_OLD(nm.c_str());
-    enableCNameSuffixAdjustment_OLD();
+    std::string ikGroupNameAdjusted=getIndexAdjustedObjectName(nm.c_str());
     if (!isSimulatorInitialized(__func__))
         return(-1);
 

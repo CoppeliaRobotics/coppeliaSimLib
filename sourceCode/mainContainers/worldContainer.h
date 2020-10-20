@@ -44,6 +44,7 @@ public:
     void simulationAboutToStep();
     void simulationAboutToEnd();
     void simulationEnded(bool removeNewObjects);
+    void scriptStateAboutToBeDestroyed(int scriptHandle);
 
     CCopyBuffer* copyBuffer;
     CPersistentDataContainer* persistentDataContainer;

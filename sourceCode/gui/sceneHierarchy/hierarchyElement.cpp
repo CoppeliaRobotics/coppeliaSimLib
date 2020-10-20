@@ -46,9 +46,8 @@ CHierarchyElement* CHierarchyElement::getElementLinkedWithObject(int objID)
     return(nullptr);
 }
 
-int CHierarchyElement::addYourChildren()
-{ // returns the total number of children
-    int retVal=0;
+void CHierarchyElement::addYourChildren()
+{
     if (App::getEditModeType()==NO_EDIT_MODE)
     {
         std::vector<int> objIDs;
@@ -71,9 +70,8 @@ int CHierarchyElement::addYourChildren()
             tt::orderStrings(objNames,objIDs);
             for (size_t i=0;i<objIDs.size();i++)
             {
-                retVal++;
                 CHierarchyElement* aKid=new CHierarchyElement(objIDs[i]);
-                retVal+=aKid->addYourChildren();
+                aKid->addYourChildren();
                 children.push_back(aKid);
             }
         }
@@ -84,7 +82,7 @@ int CHierarchyElement::addYourChildren()
             {
 #ifdef KEYWORD__NOT_DEFINED_FORMELY_XR
                 std::vector<CSceneObject*> firstModelRelatives;
-                retVal+=it->getFirstModelRelatives(firstModelRelatives,true);
+                it->getFirstModelRelatives(firstModelRelatives,true);
                 for (size_t i=0;i<firstModelRelatives.size();i++)
                 {
                     CSceneObject* modl=firstModelRelatives[i];
@@ -95,22 +93,24 @@ int CHierarchyElement::addYourChildren()
                 for (size_t i=0;i<objIDs.size();i++)
                 {
                     CHierarchyElement* aKid=new CHierarchyElement(objIDs[i]);
-                    retVal+=aKid->addYourChildren();
+                    aKid->addYourChildren();
                     children.push_back(aKid);
                 }
 #else
-                retVal+=int(it->getChildCount());
                 for (size_t i=0;i<it->getChildCount();i++)
                 {
                     CSceneObject* child=it->getChildFromIndex(i);
-                    objIDs.push_back(child->getObjectHandle());
-                    objNames.push_back(tt::getLowerUpperCaseString(child->getObjectName(),false));
+                    if (!child->hiddenInSceneHierarchy())
+                    {
+                        objIDs.push_back(child->getObjectHandle());
+                        objNames.push_back(tt::getLowerUpperCaseString(child->getObjectName(),false));
+                    }
                 }
                 tt::orderStrings(objNames,objIDs);
                 for (int i=0;i<int(objIDs.size());i++)
                 {
                     CHierarchyElement* aKid=new CHierarchyElement(objIDs[i]);
-                    retVal+=aKid->addYourChildren();
+                    aKid->addYourChildren();
                     children.push_back(aKid);
                 }
 #endif
@@ -118,7 +118,6 @@ int CHierarchyElement::addYourChildren()
         }
     }
     // Nothing needed for the various edit modes (for now!)
-    return(retVal);
 }
 
 int CHierarchyElement::getLinkedObjectID()
@@ -631,7 +630,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
     int off=2;
     if (it!=nullptr)
     {
-        if (it->getChildCount()!=0)
+        if (children.size()!=0) //-//
         {
             if (it->getLocalObjectProperty()&sim_objectproperty_collapsed)
             {
@@ -901,15 +900,15 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
     if ((!dontDisplay)&&(!forDragAndDrop)&&(it!=nullptr))
     { // Following for the line element(s) just left of scene object icons:
         if (it->getModelBase())
-        {
+        { //-//
             ogl::drawSingle2dLine_i(textPos[0]+16*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,textPos[0]+20*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);
-            if ((it->getChildCount()!=0)&&((it->getLocalObjectProperty()&sim_objectproperty_collapsed)==0))
+            if ((children.size()!=0)&&((it->getLocalObjectProperty()&sim_objectproperty_collapsed)==0))
                 ogl::drawSingle2dLine_i(textPos[0]+10*App::sc,textPos[1]+(HIERARCHY_TEXT_CENTER_OFFSET-CONST_VAL_6)*App::sc,textPos[0]+10*App::sc,textPos[1]+(HIERARCHY_TEXT_CENTER_OFFSET-HIERARCHY_INTER_LINE_SPACE)*App::sc);
         }
         else
-        {
+        { //-//
             ogl::drawSingle2dLine_i(textPos[0]+4*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,textPos[0]+20*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);
-            if ((it->getChildCount()!=0)&&((it->getLocalObjectProperty()&sim_objectproperty_collapsed)==0))
+            if ((children.size()!=0)&&((it->getLocalObjectProperty()&sim_objectproperty_collapsed)==0))
                 ogl::drawSingle2dLine_i(textPos[0]+10*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,textPos[0]+10*App::sc,textPos[1]+(HIERARCHY_TEXT_CENTER_OFFSET-HIERARCHY_INTER_LINE_SPACE)*App::sc);
         }
     }
@@ -955,8 +954,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
                 vertLines->erase(vertLines->end()-1);
                 if ((!dontDisplay)&&(!forDragAndDrop))
                 {
-                    CSceneObject* childIt=App::currentWorld->sceneObjects->getObjectFromHandle(el[i]->getLinkedObjectID());
-                    if (childIt->getChildCount()==0)
+                    if (el[i]->children.size()==0) //-//
                     {
                         ogl::drawSingle2dLine_i(xPosCopy+10*App::sc,txtYTmp+(HIERARCHY_TEXT_CENTER_OFFSET+HIERARCHY_HALF_INTER_LINE_SPACE)*App::sc,xPosCopy+10*App::sc,txtYTmp+(HIERARCHY_TEXT_CENTER_OFFSET-HIERARCHY_HALF_INTER_LINE_SPACE)*App::sc);
                         ogl::drawSingle2dLine_i(xPosCopy+10*App::sc,txtYTmp+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,xPosCopy+17*App::sc,txtYTmp+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);
@@ -971,8 +969,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
                                             vertLines,minRenderedPos,maxRenderedPos,forDragAndDrop,transparentForTreeObjects,dropID);
                 if ((!dontDisplay)&&(!forDragAndDrop))
                 {
-                    CSceneObject* childIt=App::currentWorld->sceneObjects->getObjectFromHandle(el[i]->getLinkedObjectID());
-                    if (childIt->getChildCount()==0)
+                    if (el[i]->children.size()==0) //-//
                     {
                         ogl::drawSingle2dLine_i(xPosCopy+10*App::sc,txtYTmp+(HIERARCHY_TEXT_CENTER_OFFSET+HIERARCHY_HALF_INTER_LINE_SPACE)*App::sc,xPosCopy+10*App::sc,txtYTmp+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);
                         ogl::drawSingle2dLine_i(xPosCopy+10*App::sc,txtYTmp+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,xPosCopy+17*App::sc,txtYTmp+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);

@@ -101,7 +101,7 @@ void _raiseErrorOrYieldIfNeeded(luaWrap_lua_State* L,const char* functionName,co
 }
 
 #define LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED() _raiseErrorOrYieldIfNeeded(L,functionName.c_str(),errorString.c_str(),cSideErrorOrWarningReporting)
-#define SIM_SCRIPT_NAME_SUFFIX "sim_script_name_suffix"
+#define SIM_SCRIPT_NAME_INDEX "__HIDDEN__.sim_script_name_index"
 
 std::vector<int> serialPortHandles;
 std::vector<std::string> serialPortLeftOverData;
@@ -1124,6 +1124,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.objectproperty_depthinvisible",sim_objectproperty_depthinvisible,true},
     {"sim.objectproperty_cannotdelete",sim_objectproperty_cannotdelete,true},
     {"sim.objectproperty_cannotdeleteduringsim",sim_objectproperty_cannotdeleteduringsim,true},
+    {"sim.objectproperty_hierarchyhiddenmodelchild",sim_objectproperty_hierarchyhiddenmodelchild,true},
     // Simulation status:
     {"sim.simulation_stopped",sim_simulation_stopped,true},
     {"sim.simulation_paused",sim_simulation_paused,true},
@@ -1501,7 +1502,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.navigation_camerazoom",sim_navigation_camerazoom,true},
     {"sim.navigation_cameratilt",sim_navigation_cameratilt,true},
     {"sim.navigation_cameraangle",sim_navigation_cameraangle,true},
-    {"sim.navigation_camerafly",sim_navigation_camerafly,true},
     {"sim.navigation_objectshift",sim_navigation_objectshift,true},
     {"sim.navigation_objectrotate",sim_navigation_objectrotate,true},
     {"sim.navigation_createpathpoint",sim_navigation_createpathpoint,true},
@@ -2095,6 +2095,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.appobj_ui_type",sim_appobj_ui_type,false},
     {"sim.appobj_pathplanning_type",sim_appobj_pathplanning_type,false},
     {"sim.scripttype_threaded",sim_scripttype_threaded_old,false},
+    {"sim.navigation_camerafly",sim_navigation_camerafly_old,false},
 
     {"",-1}
 };
@@ -2494,7 +2495,6 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim_navigation_camerazoom",sim_navigation_camerazoom,false},
     {"sim_navigation_cameratilt",sim_navigation_cameratilt,false},
     {"sim_navigation_cameraangle",sim_navigation_cameraangle,false},
-    {"sim_navigation_camerafly",sim_navigation_camerafly,false},
     {"sim_navigation_objectshift",sim_navigation_objectshift,false},
     {"sim_navigation_objectrotate",sim_navigation_objectrotate,false},
     {"sim_navigation_createpathpoint",sim_navigation_createpathpoint,false},
@@ -3049,6 +3049,7 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim.syscb_aos_run",sim_syscb_aos_run_old,false},
     {"sim.addonscriptcall_run",sim_syscb_aos_run_old,false},
     {"sim_addonscriptcall_run",sim_syscb_aos_run_old,false},
+    {"sim_navigation_camerafly",sim_navigation_camerafly_old,false},
     {"",-1,false}
 };
 
@@ -3327,7 +3328,7 @@ luaWrap_lua_State* initializeNewLuaState(const char* scriptSuffixNumberString,in
     prepareNewLuaVariables_noRequire(L);
 
     // Here we have the name prefix thing:
-    std::string tmp(SIM_SCRIPT_NAME_SUFFIX);
+    std::string tmp(SIM_SCRIPT_NAME_INDEX);
     tmp+="='";
     tmp+=scriptSuffixNumberString;
     tmp+="'";
@@ -3428,11 +3429,8 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
 #ifdef SIM_WITH_GUI
             if (App::userSettings->getAbortScriptExecutionTiming()!=0)
             {
-                bool doIt=( (App::currentWorld->luaScriptContainer->getMainScriptExecTimeInMs()>(App::userSettings->getAbortScriptExecutionTiming()*1000))&&App::currentWorld->luaScriptContainer->getInMainScriptNow() );
-                if ( (App::mainWindow!=nullptr)&&(App::mainWindow->openglWidget->getModelDragAndDropInfo()==nullptr) )
-                { // Otherwise can get very slow somehow
-                    App::currentWorld->simulation->showAndHandleEmergencyStopButton(doIt,it->getShortDescriptiveName().c_str());
-                }
+                if ( (App::currentWorld->luaScriptContainer->getMainScriptExecTimeInMs()>(App::userSettings->getAbortScriptExecutionTiming()*1000))&&App::currentWorld->luaScriptContainer->getInMainScriptNow() )
+                    App::currentWorld->simulation->showAndHandleEmergencyStopButton(true,it->getShortDescriptiveName().c_str());
             }
 
             if ( CThreadPool::getSimulationEmergencyStop() ) // No automatic yield when flagged for destruction!! ||it->getFlaggedForDestruction() )
@@ -3467,24 +3465,20 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
 #ifdef SIM_WITH_GUI
             if (App::userSettings->getAbortScriptExecutionTiming()!=0)
             {
-                if ( (App::mainWindow!=nullptr)&&(App::mainWindow->openglWidget->getModelDragAndDropInfo()==nullptr) )
-                { // Otherwise can get very slow somehow
-                    if ( it->getScriptExecutionTimeInMs()>(App::userSettings->getAbortScriptExecutionTiming()*1000) )
+                if ( it->getScriptExecutionTimeInMs()>(App::userSettings->getAbortScriptExecutionTiming()*1000) )
+                {
+                    App::currentWorld->simulation->showAndHandleEmergencyStopButton(true,it->getShortDescriptiveName().c_str());
+                    if (CLuaScriptObject::emergencyStopButtonPressed)
                     {
-                        App::currentWorld->simulation->showAndHandleEmergencyStopButton(true,it->getShortDescriptiveName().c_str());
-                        if (CLuaScriptObject::emergencyStopButtonPressed)
-                        {
-                            CLuaScriptObject::emergencyStopButtonPressed=false;
-                            it->terminateScriptExecutionExternally(true);
-                        }
+                        CLuaScriptObject::emergencyStopButtonPressed=false;
+                        it->terminateScriptExecutionExternally(true);
                     }
-                    else
-                        App::currentWorld->simulation->showAndHandleEmergencyStopButton(false,"");
                 }
+                else
+                    App::currentWorld->simulation->showAndHandleEmergencyStopButton(false,"");
             }
 #endif
         }
-        //*
         luaWrap_luaL_dostring(L,"return coroutine.running()");
         if (!luaWrap_lua_isnil(L,-1))
         {
@@ -3493,7 +3487,6 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
                 return luaWrap_lua_yield(L,0); // does a long jump and never returns
         }
         luaWrap_lua_pop(L,1);
-        //*/
     }
 }
 
@@ -3922,23 +3915,6 @@ bool luaToBool(luaWrap_lua_State* L,int pos)
     return(luaWrap_lua_toboolean(L,pos)!=0);
 }
 
-void suffixAdjustStringIfNeeded(luaWrap_lua_State* L,std::string& name)
-{
-    if ( (name.length()!=0)&&(name.find('#')==std::string::npos) )
-    { // Not the main script. Also, we didn't use the absolute object name notation, so we might need adjustment..
-        std::string suffTxt;
-        luaWrap_lua_getglobal(L,SIM_SCRIPT_NAME_SUFFIX);
-        if (luaWrap_lua_isstring(L,-1))
-            suffTxt=luaWrap_lua_tostring(L,-1);
-        luaWrap_lua_pop(L,1);
-        if (suffTxt!="")
-        {
-            name+="#";
-            name+=suffTxt;
-        }
-    }
-}
-
 int checkOneGeneralInputArgument(luaWrap_lua_State* L,int index,
                            int type,int cnt_orZeroIfNotTable,bool optional,bool nilInsteadOfTypeAndCountAllowed,std::string* errStr)
 { // return -1 means error, 0 means data is missing, 1 means data is nil, 2 means data is ok
@@ -4164,7 +4140,7 @@ int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,st
 
     // We retrieve the suffix:
     std::string suffix("");
-    luaWrap_lua_getglobal(L,SIM_SCRIPT_NAME_SUFFIX);
+    luaWrap_lua_getglobal(L,SIM_SCRIPT_NAME_INDEX);
     if (luaWrap_lua_isstring(L,-1))
         suffix=luaWrap_lua_tostring(L,-1);
     luaWrap_lua_pop(L,1); // we correct the stack
@@ -5748,21 +5724,9 @@ int _simGetObjectHandle(luaWrap_lua_State* L)
         if (checkInputArguments(L,&errorString,lua_arg_string,0))
         {
             std::string name(luaWrap_lua_tostring(L,1));
-            size_t pos=name.find("@alt");
-            if (pos==std::string::npos)
-            { // handle retrieval via regular name
-                std::string n(name);
-                size_t pos2=n.find("@"); // we might have some additional @, e.g. as in @silentError
-                if (pos2!=std::string::npos)
-                    n.assign(name.begin(),name.begin()+pos2);
-                suffixAdjustStringIfNeeded(L,n);
-                if (pos2!=std::string::npos)
-                    n=n+std::string(name.begin()+pos2,name.end());
-                quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
-                retVal=simGetObjectHandle_internal(n.c_str());
-            }
-            else
-                retVal=simGetObjectHandle_internal(name.c_str()); // handle retrieval via alt name
+            setCurrentScriptHandle_cSide(getCurrentScriptHandle(L)); // important for automatic name adjustment
+            retVal=simGetObjectHandle_internal(name.c_str());
+            setCurrentScriptHandle_cSide(-1);
         }
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5846,9 +5810,9 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
             if ( (retVal==-1)&&checkInputArguments(L,&errorString,lua_arg_string,0) )
             { // string argument
                 std::string name(luaWrap_lua_tostring(L,1));
-                suffixAdjustStringIfNeeded(L,name);
-                quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
+                setCurrentScriptHandle_cSide(getCurrentScriptHandle(L)); // important for automatic name adjustment
                 retVal=simGetScriptHandle_internal(name.c_str());
+                setCurrentScriptHandle_cSide(-1);
             }
         }
     }
@@ -5867,15 +5831,9 @@ int _simGetCollisionHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        size_t pos=name.find("@");
-        std::string n(name);
-        if (pos!=std::string::npos)
-            n.assign(name.begin(),name.begin()+pos);
-        suffixAdjustStringIfNeeded(L,n);
-        if (pos!=std::string::npos)
-            n=n+std::string(name.begin()+pos,name.end());
-        quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
-        retVal=simGetCollisionHandle_internal(n.c_str());
+        setCurrentScriptHandle_cSide(getCurrentScriptHandle(L)); // important for automatic name adjustment
+        retVal=simGetCollisionHandle_internal(name.c_str());
+        setCurrentScriptHandle_cSide(-1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5912,15 +5870,9 @@ int _simGetDistanceHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        size_t pos=name.find("@");
-        std::string n(name);
-        if (pos!=std::string::npos)
-            n.assign(name.begin(),name.begin()+pos);
-        suffixAdjustStringIfNeeded(L,n);
-        if (pos!=std::string::npos)
-            n=n+std::string(name.begin()+pos,name.end());
-        quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
-        retVal=simGetDistanceHandle_internal(n.c_str());
+        setCurrentScriptHandle_cSide(getCurrentScriptHandle(L)); // important for automatic name adjustment
+        retVal=simGetDistanceHandle_internal(name.c_str());
+        setCurrentScriptHandle_cSide(-1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5937,15 +5889,9 @@ int _simGetCollectionHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        size_t pos=name.find("@");
-        std::string n(name);
-        if (pos!=std::string::npos)
-            n.assign(name.begin(),name.begin()+pos);
-        suffixAdjustStringIfNeeded(L,n);
-        if (pos!=std::string::npos)
-            n=n+std::string(name.begin()+pos,name.end());
-        quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
-        retVal=simGetCollectionHandle_internal(n.c_str());
+        setCurrentScriptHandle_cSide(getCurrentScriptHandle(L)); // important for automatic name adjustment
+        retVal=simGetCollectionHandle_internal(name.c_str());
+        setCurrentScriptHandle_cSide(-1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -17017,9 +16963,9 @@ int _simGetPathPlanningHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        suffixAdjustStringIfNeeded(L,name);
-        quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
+        setCurrentScriptHandle_cSide(getCurrentScriptHandle(L)); // important for automatic name adjustment
         retVal=simGetPathPlanningHandle_internal(name.c_str());
+        setCurrentScriptHandle_cSide(-1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -17314,9 +17260,9 @@ int _simGetUIHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        suffixAdjustStringIfNeeded(L,name);
-        quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
+        setCurrentScriptHandle_cSide(getCurrentScriptHandle(L)); // important for automatic name adjustment
         retVal=simGetUIHandle_internal(name.c_str());
+        setCurrentScriptHandle_cSide(-1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -18253,7 +18199,7 @@ int _simGetNameSuffix(luaWrap_lua_State* L)
     { // we want the suffix of current script
         std::string suffTxt;
         int suffixNumber=-1;
-        luaWrap_lua_getglobal(L,SIM_SCRIPT_NAME_SUFFIX);
+        luaWrap_lua_getglobal(L,SIM_SCRIPT_NAME_INDEX);
         if (luaWrap_lua_isstring(L,-1))
             suffTxt=luaWrap_lua_tostring(L,-1);
         luaWrap_lua_pop(L,1);
@@ -18288,7 +18234,7 @@ int _simSetNameSuffix(luaWrap_lua_State* L)
         std::string suffTxt("");
         if (nb>=0)
             suffTxt=tt::FNb(nb);
-        std::string tmp(SIM_SCRIPT_NAME_SUFFIX);
+        std::string tmp(SIM_SCRIPT_NAME_INDEX);
         tmp+="='";
         tmp+=suffTxt;
         tmp+="'";
@@ -18917,15 +18863,9 @@ int _simGetIkGroupHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        size_t pos=name.find("@");
-        std::string n(name);
-        if (pos!=std::string::npos)
-            n.assign(name.begin(),name.begin()+pos);
-        suffixAdjustStringIfNeeded(L,n);
-        if (pos!=std::string::npos)
-            n=n+std::string(name.begin()+pos,name.end());
-        quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment_OLD();
-        retVal=simGetIkGroupHandle_internal(n.c_str());
+        setCurrentScriptHandle_cSide(getCurrentScriptHandle(L)); // important for automatic name adjustment
+        retVal=simGetIkGroupHandle_internal(name.c_str());
+        setCurrentScriptHandle_cSide(-1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -19956,7 +19896,7 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func)
 
     // We retrieve the suffix:
     std::string suffix("");
-    luaWrap_lua_getglobal(L,SIM_SCRIPT_NAME_SUFFIX);
+    luaWrap_lua_getglobal(L,SIM_SCRIPT_NAME_INDEX);
     if (luaWrap_lua_isstring(L,-1))
         suffix=luaWrap_lua_tostring(L,-1);
     luaWrap_lua_pop(L,1); // we correct the stack

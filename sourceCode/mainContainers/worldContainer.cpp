@@ -495,3 +495,8 @@ void CWorldContainer::simulationEnded(bool removeNewObjects)
     calcInfo->simulationEnded();
 }
 
+void CWorldContainer::scriptStateAboutToBeDestroyed(int scriptHandle)
+{
+}
+
+
