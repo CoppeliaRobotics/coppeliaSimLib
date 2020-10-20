@@ -14,6 +14,7 @@ if(WITH_QT)
     set(WITH_GUI true CACHE BOOL "Enable gui")
     set(WITH_OPENGL true CACHE BOOL "Enable OpenGL")
     set(WITH_SERIAL false)
+    add_definitions(-DSIM_WITH_QT)
 else()
     unset(WITH_GUI CACHE)
     unset(WITH_OPENGL CACHE)
@@ -25,11 +26,16 @@ endif()
 
 find_package(Qt5PrintSupport REQUIRED)
 
-find_package(Lua REQUIRED)
+find_package(Lua 5.1 EXACT REQUIRED)
+find_package(Eigen3)
 find_package(Boost REQUIRED)
 
-include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${LUA_INCLUDE_DIR})
+
+if(NOT EIGEN_FOUND)
+    set(EIGEN_INCLUDE_DIR /usr/local/include/eigen3 CACHE STRING "Eigen include path")
+endif()
+include_directories(${EIGEN_INCLUDE_DIR})
 
 add_definitions(-DSIM_LIB)
 
@@ -185,7 +191,7 @@ endif()
 set(SOURCES "")
 
 if(WITH_GUI)
-    set(SOURCES ${SOURCES}
+    list(APPEND SOURCES
         targaFiles.qrc
         toolbarFiles.qrc
         variousImageFiles.qrc
@@ -197,11 +203,10 @@ endif()
 
 
 if(WITH_GUI)
-    set(SOURCES ${SOURCES}
+    list(APPEND SOURCES
         sourceCode/gui/dialogs/qdlgsettings.cpp
         sourceCode/gui/dialogs/qdlglayers.cpp
         sourceCode/gui/dialogs/qdlgavirecorder.cpp
-        sourceCode/gui/dialogs/qdlgselection.cpp
         sourceCode/gui/dialogs/qdlgabout.cpp
         sourceCode/gui/dialogs/qdlgsimulation.cpp
         sourceCode/gui/dialogs/qdlgcommonproperties.cpp
@@ -342,7 +347,7 @@ if(WITH_GUI)
     )
 endif()
 
-set(SOURCES ${SOURCES}
+list(APPEND SOURCES
     ../programming/simMath/Vector.cpp
     ../programming/simMath/MyMath.cpp
     ../programming/simMath/MMatrix.cpp
@@ -359,8 +364,6 @@ set(SOURCES ${SOURCES}
     sourceCode/shared/kinematics/_ikGroup_.cpp
     sourceCode/kinematics/ikElement.cpp
     sourceCode/shared/kinematics/_ikElement_.cpp
-
-    sourceCode/kinematics/ikRoutines.cpp
 
     sourceCode/drawingObjects/bannerObject.cpp
     sourceCode/drawingObjects/drawingObject.cpp
@@ -600,7 +603,7 @@ set(SOURCES ${SOURCES}
 )
 
 if(WITH_QT)
-    set(SOURCES ${SOURCES}
+    list(APPEND SOURCES
         sourceCode/platform/vSimUiMutex.cpp
         sourceCode/platform/wThread.cpp
 
@@ -610,7 +613,7 @@ if(WITH_QT)
 endif()
 
 if(WITH_SERIAL)
-    set(SOURCES ${SOURCES}
+    list(APPEND SOURCES
         sourceCode/mainContainers/applicationContainers/serialPortContainer.cpp
 
         sourceCode/communication/serialPort/serialPort.cpp
@@ -620,7 +623,7 @@ if(WITH_SERIAL)
 endif()
 
 if(WITH_OPENGL)
-    set(SOURCES ${SOURCES}
+    list(APPEND SOURCES
         sourceCode/sceneObjects/visionSensorObjectRelated/offscreenGlContext.cpp
         sourceCode/sceneObjects/visionSensorObjectRelated/frameBufferObject.cpp
         sourceCode/sceneObjects/visionSensorObjectRelated/visionSensorGlStuff.cpp
@@ -634,7 +637,7 @@ endif()
 
 
 add_library(coppeliaSim SHARED ${SOURCES})
-target_link_libraries(coppeliaSim ${BOOST_LIBRARIES})
+target_link_libraries(coppeliaSim Boost::boost)
 target_link_libraries(coppeliaSim ${LUA_LIBRARIES})
 if(WITH_QT)
     target_link_libraries(coppeliaSim Qt5::Core)
