@@ -79,7 +79,7 @@ WITH_QT {
 
 *-g++* { #includes MinGW
     CONFIG(debug,debug|release) {
-        QMAKE_CXXFLAGS += -g -ggdb
+        QMAKE_CXXFLAGS += -O0 -g -ggdb
     } else {
         QMAKE_CFLAGS += -O3
         QMAKE_CXXFLAGS += -O3

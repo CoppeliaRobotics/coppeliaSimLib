@@ -813,9 +813,18 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
         {
             int oglDebugTimeNow=VDateTime::getTimeInMs();
             App::logMsg(sim_verbosity_debug,"openGl debug --> glFinish (%i, %i): %i",App::userSettings->useGlFinish,App::userSettings->vsync,VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
-            App::logMsg(sim_verbosity_debug,"openGl debug --> VENDOR:%s",(char*)glGetString(GL_VENDOR));
-            App::logMsg(sim_verbosity_debug,"openGl debug --> RENDERER:%s",(char*)glGetString(GL_RENDERER));
-            App::logMsg(sim_verbosity_debug,"openGl debug --> VERSION:%s",(char*)glGetString(GL_VERSION));
+            std::string tmp="(none given)";
+            if (glGetString(GL_VENDOR)!=nullptr)
+                tmp=(char*)glGetString(GL_VENDOR);
+            App::logMsg(sim_verbosity_debug,"openGl debug --> VENDOR:%s",tmp.c_str());
+            tmp="(none given)";
+            if (glGetString(GL_RENDERER)!=nullptr)
+                tmp=(char*)glGetString(GL_RENDERER);
+            App::logMsg(sim_verbosity_debug,"openGl debug --> RENDERER:%s",tmp.c_str());
+            tmp="(none given)";
+            if (glGetString(GL_VERSION)!=nullptr)
+                tmp=(char*)glGetString(GL_VERSION);
+            App::logMsg(sim_verbosity_debug,"openGl debug --> VERSION:%s",tmp.c_str());
             oglDebugTime=oglDebugTimeNow;
         }
     }

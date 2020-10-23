@@ -54,12 +54,21 @@ void initGl_ifNeeded()
 
     ogl::loadOutlineFont(SIMOUTLINEFONT_ARIAL_INT,SIMOUTLINEFONT_ARIAL_FLOAT);
 
-    std::string glVer("OpenGL ");
-    glVer+=(char*)glGetString(GL_VENDOR);
+    std::string glVer("OpenGL: ");
+    std::string tmp="(none given)";
+    if (glGetString(GL_VENDOR)!=nullptr)
+        tmp=(char*)glGetString(GL_VENDOR);
+    glVer+=tmp.c_str();
     glVer+=", Renderer: ";
-    glVer+=(char*)glGetString(GL_RENDERER);
+    tmp="(none given)";
+    if (glGetString(GL_RENDERER)!=nullptr)
+        tmp=(char*)glGetString(GL_RENDERER);
+    glVer+=tmp.c_str();
     glVer+=", Version: ";
-    glVer+=(char*)glGetString(GL_VERSION);
+    tmp="(none given)";
+    if (glGetString(GL_VERSION)!=nullptr)
+        tmp=(char*)glGetString(GL_VERSION);
+    glVer+=tmp.c_str();
     App::logMsg(sim_verbosity_loadinfos,glVer.c_str());
 }
 
