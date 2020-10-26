@@ -25,7 +25,7 @@
 #endif //_WIN32
 bool handleSignal(int signal);
 
-SignalHandler::SignalHandler(int mask) : _mask(mask)
+SignalHandler::SignalHandler(int mask) : _mask(mask), _restoremask(0)
 {
 #ifdef _WIN32
     SetConsoleCtrlHandler(WIN32_handleFunc, TRUE);
@@ -40,8 +40,22 @@ SignalHandler::SignalHandler(int mask) : _mask(mask)
             g_registry.insert(logical);
 #else
             int sig = POSIX_logicalToPhysical(logical);
+#ifdef LEGACY_POSIX_SIGNAL
             bool failed = signal(sig, POSIX_handleFunc) == SIG_ERR;
             (void)failed; // Silence the warning in non _DEBUG; TODO: something better
+            _restoremask |= logical;
+#else
+            struct sigaction sa, sa_old;
+            std::memset(&sa, 0, sizeof(sa));
+            sa.sa_handler = POSIX_handleFunc;
+            sigfillset(&sa.sa_mask);
+            sigaction(sig, NULL, &sa_old);
+            if (sa_old.sa_handler == SIG_DFL)
+            {
+                sigaction(sig, &sa, NULL);
+                _restoremask |= logical;
+            }
+#endif
 #endif //_WIN32
         }
     }
@@ -55,9 +69,18 @@ SignalHandler::~SignalHandler()
     for (int i=0;i<numSignals;i++)
     {
         int logical = 0x1 << i;
-        if (_mask & logical)
+        if (_restoremask & logical)
         {
-            signal(POSIX_logicalToPhysical(logical), SIG_DFL);
+            int sig = POSIX_logicalToPhysical(logical);
+#ifdef LEGACY_POSIX_SIGNAL
+            signal(sig, SIG_DFL);
+#else
+            struct sigaction sa;
+            std::memset(&sa, 0, sizeof(sa));
+            sa.sa_handler = SIG_DFL;
+            sigfillset(&sa.sa_mask);
+            sigaction(sig, &sa, NULL);
+#endif
         }
     }
 #endif //_WIN32

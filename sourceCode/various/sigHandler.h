@@ -23,5 +23,6 @@ public:
 //    static bool handleSignal(int signal);
 
 private:
-    int _mask;
+    int _mask; // mask of signals we want to set
+    int _restoremask; // mask of signals that have been effectively set
 };
