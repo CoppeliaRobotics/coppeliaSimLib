@@ -15,6 +15,7 @@
 #include "simFlavor.h"
 #include "threadPool.h"
 #include <sstream>
+#include <iomanip>
 #include <boost/algorithm/string/replace.hpp>
 #ifdef SIM_WITH_GUI
     #include "auxLibVideo.h"
@@ -1550,58 +1551,101 @@ bool App::_consoleLogFilter(const char* msg)
     return(!triggered);
 }
 
+static std::string replaceVars(const std::string &format, const std::map<std::string,std::string> &vars)
+{
+    std::string msg;
+    size_t last=0;
+    while (last<format.length())
+    {
+        size_t posOpen=format.find("{",last);
+        size_t posClose=format.find("}",posOpen);
+        if (posOpen!=std::string::npos&&posClose!=std::string::npos)
+        {
+            msg+=format.substr(last,posOpen-last);
+            auto key=format.substr(posOpen+1,posClose-posOpen-1);
+            auto it=vars.find(key);
+            if (it!=vars.end()) msg+=it->second;
+            last=posClose+1;
+        }
+        else break;
+    }
+    if(last<format.length())
+        msg+=format.substr(last,std::string::npos);
+    return msg;
+}
+
 void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int consoleVerbosity/*=-1*/,int statusbarVerbosity/*=-1*/)
 {
     static bool inside=false;
+    static int64_t lastTime=0;
     if (!inside)
     {
         int realVerbosityLevel=verbosityLevel&0x0fff;
         inside=true;
-        std::string header;
-        std::string message(msg);
+
         bool decorateMsg=((verbosityLevel&sim_verbosity_undecorated)==0)&&((App::userSettings==nullptr)||(!App::userSettings->undecoratedStatusbarMessages));
-
-        if (originName!=nullptr)
-        { // plugin or script
-            header="[";
-            header+=originName;
-            header+=":";
+        static std::string consoleLogFormat,statusbarLogFormat;
+        if (consoleLogFormat.empty())
+        {
+            auto f=std::getenv("COPPELIASIM_CONSOLE_LOG_FORMAT");
+            consoleLogFormat=f?f:"[{origin}:{verbosity}]   {message}";
         }
-        else
-            header="[CoppeliaSim:";
+        if (statusbarLogFormat.empty())
+        {
+            auto f=std::getenv("COPPELIASIM_STATUSBAR_LOG_FORMAT");
+            statusbarLogFormat=f?f:"<font color='grey'>[{origin}:{verbosity}]</font>    <font color='{color}'>{message}</font>";
+        }
+
+        std::map<std::string,std::string> vars;
+        vars["message"]=msg;
+        vars["origin"]=originName?originName:"CoppeliaSim";
+        vars["verbosity"]="unknown";
+        vars["color"]="#383838";
+        int64_t t=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        std::stringstream ss; ss<<std::fixed<<std::setprecision(3)<<0.001*t;
+        vars["time"]=ss.str();
+        std::stringstream ss1; ss1<<std::fixed<<std::setprecision(3)<<0.001*(t-lastTime);
+        vars["delta"]=ss1.str();
+        lastTime=t;
+
         if ( (realVerbosityLevel==sim_verbosity_errors)||(realVerbosityLevel==sim_verbosity_scripterrors) )
-            header+="error]   ";
+        {   vars["verbosity"]="error"; vars["color"]="red"; }
         if ( (realVerbosityLevel==sim_verbosity_warnings)||(realVerbosityLevel==sim_verbosity_scriptwarnings) )
-            header+="warning]   ";
+        {   vars["verbosity"]="warning"; vars["color"]="#D35400"; }
         if (realVerbosityLevel==sim_verbosity_loadinfos)
-            header+="loadinfo]   ";
+            vars["verbosity"]="loadinfo";
         if ( (realVerbosityLevel==sim_verbosity_infos)||(realVerbosityLevel==sim_verbosity_scriptinfos) ) // also sim_verbosity_msgs, which is same as sim_verbosity_scriptinfos
-            header+="info]   ";
+            vars["verbosity"]="info";
         if (realVerbosityLevel==sim_verbosity_debug)
-            header+="debug]   ";
+            vars["verbosity"]="debug";
         if (realVerbosityLevel==sim_verbosity_trace)
-            header+="trace]   ";
+            vars["verbosity"]="trace";
         if (realVerbosityLevel==sim_verbosity_tracelua)
-            header+="tracelua]   ";
+            vars["verbosity"]="tracelua";
         if (realVerbosityLevel==sim_verbosity_traceall)
-            header+="traceall]   ";
+            vars["verbosity"]="traceall";
 
-        // For backward compatibility with messages that already have HTML tags:
-        size_t p=message.rfind("@html");
-        if ( (p!=std::string::npos)&&(p==message.size()-5) )
-        { // strip HTML stuff off
-            message.assign(message.c_str(),message.c_str()+message.size()-5);
+        {
+            std::string message(msg);
+            // For backward compatibility with messages that already have HTML tags:
+            size_t p=message.rfind("@html");
+            if ( (p!=std::string::npos)&&(p==message.size()-5) )
+            { // strip HTML stuff off
+                message.assign(message.c_str(),message.c_str()+message.size()-5);
 #ifdef SIM_WITH_QT
-            QTextDocument doc;
-            doc.setHtml(message.c_str());
-            message=doc.toPlainText().toStdString();
+                QTextDocument doc;
+                doc.setHtml(message.c_str());
+                message=doc.toPlainText().toStdString();
 #else
-// TODO_SIM_WITH_QT
+    // TODO_SIM_WITH_QT
 #endif
+            }
+            vars["message"]=message;
         }
 
-        boost::replace_all(message,"\n","\n    ");
-        std::string consoleTxt(header+message+"\n");
+        boost::replace_all(vars["message"],"\n","\n    ");
+
+        std::string consoleTxt(replaceVars(consoleLogFormat,vars)+"\n");
         if (!_consoleLogFilter(consoleTxt.c_str()))
         {
             if (consoleVerbosity==-1)
@@ -1627,12 +1671,9 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
             statusbarVerbosity=_statusbarVerbosity;
         if ( (statusbarVerbosity>=realVerbosityLevel)&&(uiThread!=nullptr)&&(simThread!=nullptr) )
         {
-            header="<font color='grey'>"+_getHtmlEscapedString(header.c_str());
-            header+="</font>";
-            message=_getHtmlEscapedString(message.c_str());
+            vars["message"]=_getHtmlEscapedString(vars["message"].c_str());
             if ( (realVerbosityLevel==sim_verbosity_errors)||(realVerbosityLevel==sim_verbosity_scripterrors) )
             {
-                message="<font color='red'>"+message;
                 if ((verbosityLevel&sim_verbosity_undecorated)==0)
                 {
                     SUIThreadCommand cmdIn;
@@ -1641,14 +1682,12 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
                     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                 }
             }
-            else if ( (realVerbosityLevel==sim_verbosity_warnings)||(realVerbosityLevel==sim_verbosity_scriptwarnings) )
-                message="<font color='#D35400'>"+message;
-            else
-                message="<font color='#383838'>"+message;
-            message+="</font>";
+            std::string statusbarTxt;
             if (decorateMsg)
-                message=header+message;
-            _logMsgToStatusbar(message.c_str(),true);
+                statusbarTxt=replaceVars(statusbarLogFormat,vars);
+            else
+                statusbarTxt=vars["message"];
+            _logMsgToStatusbar(statusbarTxt.c_str(),true);
         }
         inside=false;
     }
