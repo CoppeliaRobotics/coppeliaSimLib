@@ -994,9 +994,6 @@ void _segHandler(int sig)
 #endif
 simInt simRunSimulator_internal(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)(),simInt stopDelay,const simChar* sceneOrModelToLoad,bool launchSimThread)
 {
-    char* def_ext = NULL;
-    def_ext = "Hello";
-
     firstSimulationStopDelay=stopDelay;
     initialSceneOrModelToLoad=sceneOrModelToLoad;
     if ( (options&sim_autostart)!=0 )

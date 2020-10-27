@@ -272,7 +272,10 @@ bool oglExt::_isFboAvailable(bool& viaExt)
 #ifndef MAC_SIM
     const char* gl_version=(const char*)(glGetString(GL_VERSION));
     if (gl_version==nullptr)
-        return(false);
+    {
+        viaExt=false;
+        return(true);
+    }
 //  printf("glVersion: %s\n",gl_version);
 /*
     printf("glVersion: %s\n",gl_version);
