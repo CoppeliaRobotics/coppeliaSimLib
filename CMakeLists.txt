@@ -716,10 +716,10 @@ if(WITH_SERIAL)
 endif()
 if(WIN32)
     target_link_libraries(coppeliaSim
-        -lwinmm
-        -lShell32
-        -lopengl32
-        -luser32
-        -lDbghelp
+        winmm
+        Shell32
+        opengl32
+        user32
+        Dbghelp
     )
 endif()
