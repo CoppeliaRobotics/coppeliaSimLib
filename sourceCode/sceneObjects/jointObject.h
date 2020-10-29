@@ -57,7 +57,7 @@ public:
     bool setLength(float l);
     bool setDiameter(float d);
     bool setScrewPitch(float pitch);
-    bool setDependencyJointHandle(int depJointID);
+    bool setDependencyMasterJointHandle(int depJointID);
     bool setDependencyJointMult(float coeff);
     bool setDependencyJointOffset(float off);
     bool setIkWeight(float newWeight);

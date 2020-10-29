@@ -410,7 +410,7 @@ void CSceneObjectContainer::actualizeObjectInformation()
                 {
                     if ((anAct->getJointMode()==sim_jointmode_dependent)||(anAct->getJointMode()==sim_jointmode_reserved_previously_ikdependent))
                     {
-                        if (anAct->getDependencyJointHandle()==it->getObjectHandle())
+                        if (anAct->getDependencyMasterJointHandle()==it->getObjectHandle())
                             joints.push_back(anAct);
                     }
                 }

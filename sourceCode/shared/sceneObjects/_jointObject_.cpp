@@ -12,7 +12,7 @@ _CJoint_::_CJoint_()
     _jointPosition=0.0f;
 
     _jointMode=sim_jointmode_passive;
-    _dependencyJointHandle=-1;
+    _dependencyMasterJointHandle=-1;
     _dependencyJointMult=1.0f;
     _dependencyJointOffset=0.0f;
 
@@ -260,7 +260,7 @@ void _CJoint_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMs
 
             if (msg.msg==sim_syncobj_joint_dependencyhandle)
             {
-                setDependencyJointHandle(((int*)msg.data)[0]);
+                setDependencyMasterJointHandle(((int*)msg.data)[0]);
                 return;
             }
             if (msg.msg==sim_syncobj_joint_mode)
@@ -490,13 +490,13 @@ void _CJoint_::_setLength_send(float l) const
     sendFloat(l,sim_syncobj_joint_length);
 }
 
-bool _CJoint_::setDependencyJointHandle(int depJointID)
+bool _CJoint_::setDependencyMasterJointHandle(int depJointID)
 {
-    bool diff=(_dependencyJointHandle!=depJointID);
+    bool diff=(_dependencyMasterJointHandle!=depJointID);
     if (diff)
     {
         if (getObjectCanChange())
-            _dependencyJointHandle=depJointID;
+            _dependencyMasterJointHandle=depJointID;
         if (getObjectCanSync())
             _setDependencyJointHandle_send(depJointID);
     }
@@ -1418,9 +1418,9 @@ int _CJoint_::getJointMode() const
     return(_jointMode);
 }
 
-int _CJoint_::getDependencyJointHandle() const
+int _CJoint_::getDependencyMasterJointHandle() const
 {
-    return(_dependencyJointHandle);
+    return(_dependencyMasterJointHandle);
 }
 
 float _CJoint_::getDependencyJointMult() const

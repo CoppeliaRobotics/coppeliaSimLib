@@ -2919,7 +2919,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setDependencyJointHandle(cmd.intParams[1]);
+                it->setDependencyMasterJointHandle(cmd.intParams[1]);
         }
 
 

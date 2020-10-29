@@ -448,12 +448,12 @@ void CJoint::setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp)
     _rectifyDependentJoints(false);
 }
 
-bool CJoint::setDependencyJointHandle(int depJointID)
+bool CJoint::setDependencyMasterJointHandle(int depJointID)
 { // Overridden from _CJoint_
     bool retVal=false;
     if ( (_jointType!=sim_joint_spherical_subtype)&&(getJointMode()==sim_jointmode_dependent) )
     {
-        retVal=_CJoint_::setDependencyJointHandle(depJointID);
+        retVal=_CJoint_::setDependencyMasterJointHandle(depJointID);
         if (depJointID==-1)
             App::currentWorld->sceneObjects->actualizeObjectInformation();
         else
@@ -461,14 +461,14 @@ bool CJoint::setDependencyJointHandle(int depJointID)
             // We now check for an illegal loop:
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(depJointID);
             CJoint* iterat=it;
-            while (iterat->getDependencyJointHandle()!=-1)
+            while (iterat->getDependencyMasterJointHandle()!=-1)
             {
                 if (iterat->getJointMode()!=_jointMode)
                     break; // We might have a loop, but it is interupted by another jointMode!! (e.g. IK dependency VS direct dependency)
-                int joint=iterat->getDependencyJointHandle();
+                int joint=iterat->getDependencyMasterJointHandle();
                 if (joint==getObjectHandle())
                 { // We have an illegal loop! We disable it:
-                    iterat->setDependencyJointHandle(-1);
+                    iterat->setDependencyMasterJointHandle(-1);
                     break;
                 }
                 iterat=App::currentWorld->sceneObjects->getJointFromHandle(joint);
@@ -515,7 +515,7 @@ void CJoint::_setDependencyJointMult_send(float coeff) const
     if (_ikPluginCounterpartHandle!=-1)
     {
         int dep=-1;
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_dependencyJointHandle);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_dependencyMasterJointHandle);
         if (it!=nullptr)
             dep=it->getIkPluginCounterpartHandle();
         CPluginContainer::ikPlugin_setJointDependency(_ikPluginCounterpartHandle,dep,_dependencyJointOffset,coeff);
@@ -542,7 +542,7 @@ void CJoint::_setDependencyJointOffset_send(float off) const
     if (_ikPluginCounterpartHandle!=-1)
     {
         int dep=-1;
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_dependencyJointHandle);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_dependencyMasterJointHandle);
         if (it!=nullptr)
             dep=it->getIkPluginCounterpartHandle();
         CPluginContainer::ikPlugin_setJointDependency(_ikPluginCounterpartHandle,dep,_dependencyJointOffset,_dependencyJointMult);
@@ -1450,13 +1450,13 @@ void CJoint::_setPositionIsCyclic_send(bool isCyclic) const
 void CJoint::removeSceneDependencies()
 {
     CSceneObject::removeSceneDependencies();
-    _CJoint_::setDependencyJointHandle(-1);
+    _CJoint_::setDependencyMasterJointHandle(-1);
 }
 
 CSceneObject* CJoint::copyYourself()
 {
     CJoint* newJoint=(CJoint*)CSceneObject::copyYourself();
-    newJoint->_dependencyJointHandle=_dependencyJointHandle; // important for copy operations connections
+    newJoint->_dependencyMasterJointHandle=_dependencyMasterJointHandle; // important for copy operations connections
     newJoint->_dependencyJointMult=_dependencyJointMult;
     newJoint->_dependencyJointOffset=_dependencyJointOffset;
 
@@ -1669,7 +1669,7 @@ void CJoint::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Jdt");
-            ar << _dependencyJointHandle << _dependencyJointMult << _dependencyJointOffset;
+            ar << _dependencyMasterJointHandle << _dependencyJointMult << _dependencyJointOffset;
             ar.flush();
 
             ar.storeDataName("Jm2");
@@ -1857,7 +1857,7 @@ void CJoint::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _dependencyJointHandle >> _dependencyJointMult >> _dependencyJointOffset;
+                        ar >> _dependencyMasterJointHandle >> _dependencyJointMult >> _dependencyJointOffset;
                     }
                     if (theName.compare("Jtt")==0)
                     {
@@ -2168,11 +2168,11 @@ void CJoint::serialize(CSer& ar)
 
             ar.xmlPushNewNode("dependency");
             if (exhaustiveXml)
-                ar.xmlAddNode_int("jointHandle",_dependencyJointHandle);
+                ar.xmlAddNode_int("jointHandle",_dependencyMasterJointHandle);
             else
             {
                 std::string str;
-                CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyJointHandle);
+                CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
                 if (it!=nullptr)
                     str=it->getObjectName();
                 ar.xmlAddNode_string("dependentJoint",str.c_str());
@@ -2376,7 +2376,7 @@ void CJoint::serialize(CSer& ar)
             if (ar.xmlPushChildNode("dependency",exhaustiveXml))
             {
                 if (exhaustiveXml)
-                    ar.xmlGetNode_int("jointHandle",_dependencyJointHandle);
+                    ar.xmlGetNode_int("jointHandle",_dependencyMasterJointHandle);
                 else
                     ar.xmlGetNode_string("dependentJoint",_dependencyJointLoadName,exhaustiveXml);
                 ar.xmlGetNode_float("offset_m_or_rad",_dependencyJointOffset,exhaustiveXml);
@@ -2535,7 +2535,7 @@ void CJoint::serializeWExtIk(CExtIkSer& ar)
 
     ar.writeInt(_jointMode);
 
-    ar.writeInt(_dependencyJointHandle);
+    ar.writeInt(_dependencyMasterJointHandle);
     ar.writeFloat(_dependencyJointMult);
     ar.writeFloat(_dependencyJointOffset);
 }
@@ -2543,7 +2543,7 @@ void CJoint::serializeWExtIk(CExtIkSer& ar)
 void CJoint::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
 { // New_Object_ID=map[Old_Object_ID]
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
-    _dependencyJointHandle=CWorld::getLoadingMapping(map,_dependencyJointHandle);
+    _dependencyMasterJointHandle=CWorld::getLoadingMapping(map,_dependencyMasterJointHandle);
     // following few for dyn joint dep, so that the correct object handle is set
     std::vector<int> ip;
     getVortexIntParams(ip);
@@ -2729,9 +2729,9 @@ bool CJoint::setPosition(float pos)
     if ( (_jointMode==sim_jointmode_dependent)||(_jointMode==sim_jointmode_reserved_previously_ikdependent) )
     {
         float linked=0.0f;
-        if (_dependencyJointHandle!=-1)
+        if (_dependencyMasterJointHandle!=-1)
         {
-            CJoint* anAct=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyJointHandle);
+            CJoint* anAct=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
             if (anAct!=nullptr)
                 linked=_dependencyJointMult*anAct->getPosition();
         }
@@ -2767,9 +2767,9 @@ void CJoint::setPosition_useTempValues(float pos)
     if ( (_jointMode==sim_jointmode_dependent)||(_jointMode==sim_jointmode_reserved_previously_ikdependent) )
     {
         float linked=0.0f;
-        if (_dependencyJointHandle!=-1)
+        if (_dependencyMasterJointHandle!=-1)
         {
-            CJoint* anAct=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyJointHandle);
+            CJoint* anAct=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
             if (anAct!=nullptr)
                 linked=_dependencyJointMult*anAct->getPosition_useTempValues();
         }
@@ -2965,8 +2965,8 @@ bool CJoint::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
     // 'ct::objCont->getObject(objectHandle)'-call or similar
     // Return value true means 'this' has to be erased too!
     bool retVal=CSceneObject::announceObjectWillBeErased(objectHandle,copyBuffer);
-    if (_dependencyJointHandle==objectHandle)
-        _CJoint_::setDependencyJointHandle(-1);
+    if (_dependencyMasterJointHandle==objectHandle)
+        _CJoint_::setDependencyMasterJointHandle(-1);
     if (_vortexIntParams[5]==objectHandle) // that's the Vortex dependency joint
     {
         std::vector<int> ip;
@@ -3029,7 +3029,7 @@ void CJoint::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSync
         _setDiameter_send(_diameter);
         _setLength_send(_length);
         _setScrewPitch_send(_screwPitch);
-        // _setDependencyJointHandle_send(_dependencyJointHandle);
+        // _setDependencyJointHandle_send(_dependencyMasterJointHandle);
         // _setDependencyJointMult_send(_dependencyJointMult);
         // _setDependencyJointOffset_send(_dependencyJointOffset);
         _setIkWeight_send(_ikWeight);
@@ -3072,7 +3072,7 @@ void CJoint::connectSynchronizationObject()
     {
         CSceneObject::connectSynchronizationObject();
 
-        _setDependencyJointHandle_send(_dependencyJointHandle);
+        _setDependencyJointHandle_send(_dependencyMasterJointHandle);
         _setDependencyJointMult_send(_dependencyJointMult);
         _setDependencyJointOffset_send(_dependencyJointOffset);
     }

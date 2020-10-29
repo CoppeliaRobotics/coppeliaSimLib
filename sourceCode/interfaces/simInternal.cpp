@@ -17419,8 +17419,8 @@ simInt simSetJointDependency_internal(simInt jointHandle,simInt masterJointHandl
             if ( (masterJointHandle==-1)||isJoint(__func__,masterJointHandle) )
             {
                 CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
-                joint->setDependencyJointHandle(masterJointHandle);
-                if (joint->getDependencyJointHandle()==masterJointHandle)
+                joint->setDependencyMasterJointHandle(masterJointHandle);
+                if (joint->getDependencyMasterJointHandle()==masterJointHandle)
                 {
                     joint->setDependencyJointOffset(offset);
                     joint->setDependencyJointMult(multCoeff);
@@ -17447,7 +17447,7 @@ simInt simGetJointDependency_internal(simInt jointHandle,simInt* masterJointHand
         if (isJoint(__func__,jointHandle))
         {
             CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
-            masterJointHandle[0]=joint->getDependencyJointHandle();
+            masterJointHandle[0]=joint->getDependencyMasterJointHandle();
             offset[0]=joint->getDependencyJointOffset();
             multCoeff[0]=joint->getDependencyJointMult();
             retVal=0;

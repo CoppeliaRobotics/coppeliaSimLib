@@ -1948,7 +1948,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
             {
                 std::map<std::string,CSceneObject*>::const_iterator it=_objectTempNamesMap.find(joint->getDependencyJointLoadName());
                 if (it!=_objectTempNamesMap.end())
-                    joint->setDependencyJointHandle(it->second->getObjectHandle());
+                    joint->setDependencyMasterJointHandle(it->second->getObjectHandle());
             }
         }
         // Handle camera tracking:

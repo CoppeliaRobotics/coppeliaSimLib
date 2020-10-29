@@ -197,7 +197,7 @@ public:
     float getIKWeight() const;
     float getMaxStepSize() const;
     int getJointMode() const;
-    int getDependencyJointHandle() const;
+    int getDependencyMasterJointHandle() const;
     float getDependencyJointMult() const;
     float getDependencyJointOffset() const;
     void getDynamicMotorPositionControlParameters(float& p_param,float& i_param,float& d_param) const;
@@ -213,7 +213,7 @@ public:
     virtual bool setDiameter(float d);
     virtual bool setLength(float l);
     virtual bool setScrewPitch(float pitch);
-    virtual bool setDependencyJointHandle(int depJointID);
+    virtual bool setDependencyMasterJointHandle(int depJointID);
     virtual bool setDependencyJointMult(float coeff);
     virtual bool setDependencyJointOffset(float off);
     virtual bool setIkWeight(float newWeight);
@@ -295,7 +295,7 @@ protected:
     float _maxStepSize;
     float _ikWeight;
     int _jointMode;
-    int _dependencyJointHandle;
+    int _dependencyMasterJointHandle;
     float _dependencyJointMult;
     float _dependencyJointOffset;
 

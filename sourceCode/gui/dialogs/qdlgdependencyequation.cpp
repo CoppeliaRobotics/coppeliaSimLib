@@ -36,8 +36,8 @@ void CQDlgDependencyEquation::refresh()
     if (it!=nullptr)
         dependencyPartActive=((it->getJointMode()==sim_jointmode_dependent)||(it->getJointMode()==sim_jointmode_reserved_previously_ikdependent));
 
-    ui->qqOffset->setEnabled(dependencyPartActive&&(it->getDependencyJointHandle()!=-1));
-    ui->qqCoeff->setEnabled(dependencyPartActive&&(it->getDependencyJointHandle()!=-1));
+    ui->qqOffset->setEnabled(dependencyPartActive&&(it->getDependencyMasterJointHandle()!=-1));
+    ui->qqCoeff->setEnabled(dependencyPartActive&&(it->getDependencyMasterJointHandle()!=-1));
     ui->qqCombo->setEnabled(dependencyPartActive);
     ui->qqCombo->clear();
 
@@ -70,7 +70,7 @@ void CQDlgDependencyEquation::refresh()
         // Select current item:
         for (int i=0;i<ui->qqCombo->count();i++)
         {
-            if (ui->qqCombo->itemData(i).toInt()==it->getDependencyJointHandle())
+            if (ui->qqCombo->itemData(i).toInt()==it->getDependencyMasterJointHandle())
             {
                 ui->qqCombo->setCurrentIndex(i);
                 break;
@@ -141,7 +141,7 @@ void CQDlgDependencyEquation::on_qqCombo_currentIndexChanged(int index)
             int objID=ui->qqCombo->itemData(ui->qqCombo->currentIndex()).toInt();
             if (it!=nullptr)
             {
-                it->setDependencyJointHandle(objID); // we also modify the ui resources (dlg is modal)
+                it->setDependencyMasterJointHandle(objID); // we also modify the ui resources (dlg is modal)
                 App::appendSimulationThreadCommand(SET_OTHERJOINT_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getObjectHandle(),objID);
                 // scene change announcement at the end of this modal dlg
             }
