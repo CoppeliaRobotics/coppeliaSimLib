@@ -186,8 +186,6 @@
 
 #define _USR_SCRIPT_EDITOR_FONT "scriptEditorFont"
 #define _USR_SCRIPT_EDITOR_FONT_SIZE "scriptEditorFontSize"
-#define _USR_AUX_CONSOLE_FONT "auxConsoleFont"
-#define _USR_AUX_CONSOLE_FONT_SIZE "auxConsoleFontSize"
 
 #define _USR_CONNECTION_ADDRESS "conParam1"
 #define _USR_CONNECTION_PORT "conParam2"
@@ -236,8 +234,6 @@ CUserSettings::CUserSettings()
     renderingSurfaceVResize=0;
     scriptEditorFont=""; // default
     scriptEditorFontSize=-1; // default
-    auxConsoleFont=""; // default
-    auxConsoleFontSize=-1; // default
     displayWorldReference=true;
     antiAliasing=false;
     displayBoundingBoxeWhenObjectSelected=true;
@@ -586,7 +582,7 @@ void CUserSettings::saveUserSettings()
     c.addInteger(_USR_VSYNC,vsync,"recommended to keep at 0. Graphic card dependent.");
     c.addBoolean(_USR_DEBUG_OPENGL,debugOpenGl,"");
     c.addFloat(_USR_STEREO_DIST,stereoDist,"0=no stereo, otherwise the intra occular distance (0.0635 for the human eyes).");
-    c.addInteger(_USR_HIGH_RES_DISPLAY,highResDisplay,"-1=automatic, 0=disabled, 1=enabled.");
+    c.addInteger(_USR_HIGH_RES_DISPLAY,highResDisplay,"-1=none, 2=enabled, 1=special.");
     c.addBoolean(_USR_NO_EDGES_WHEN_MOUSE_DOWN,noEdgesWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
     c.addBoolean(_USR_NO_TEXTURES_WHEN_MOUSE_DOWN,noTexturesWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
     c.addBoolean(_USR_NO_CUSTOM_UIS_WHEN_MOUSE_DOWN,noCustomUisWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
@@ -615,8 +611,6 @@ void CUserSettings::saveUserSettings()
 
     c.addString(_USR_SCRIPT_EDITOR_FONT,scriptEditorFont,"empty=default.");
     c.addInteger(_USR_SCRIPT_EDITOR_FONT_SIZE,scriptEditorFontSize,"-1=default.");
-    c.addString(_USR_AUX_CONSOLE_FONT,auxConsoleFont,"empty=default");
-    c.addInteger(_USR_AUX_CONSOLE_FONT_SIZE,auxConsoleFontSize,"-1=default.");
 
     c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_BACKGROUND,mainScriptColor_background,"");
     c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_SELECTION,mainScriptColor_selection,"");
@@ -947,8 +941,6 @@ void CUserSettings::loadUserSettings()
 
     c.getString(_USR_SCRIPT_EDITOR_FONT,scriptEditorFont);
     c.getInteger(_USR_SCRIPT_EDITOR_FONT_SIZE,scriptEditorFontSize);
-    c.getString(_USR_AUX_CONSOLE_FONT,auxConsoleFont);
-    c.getInteger(_USR_AUX_CONSOLE_FONT_SIZE,auxConsoleFontSize);
 
     c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_BACKGROUND,mainScriptColor_background);
     c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_SELECTION,mainScriptColor_selection);

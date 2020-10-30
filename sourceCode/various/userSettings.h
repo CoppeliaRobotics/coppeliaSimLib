@@ -115,8 +115,6 @@ public:
 
     std::string scriptEditorFont;
     int scriptEditorFontSize;
-    std::string auxConsoleFont;
-    int auxConsoleFontSize;
 
     std::string additionalLuaPath;
 

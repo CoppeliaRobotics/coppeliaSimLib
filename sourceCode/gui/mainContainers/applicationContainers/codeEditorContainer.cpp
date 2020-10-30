@@ -180,10 +180,10 @@ std::string CCodeEditorContainer::translateXml(const char* oldXml,const char* ca
             #endif
             if (App::userSettings->scriptEditorFontSize!=-1)
                 fontSize=App::userSettings->scriptEditorFontSize;
-            #ifndef MAC_SIM
-            if (App::sc>1)
-                fontSize*=2;
-            #endif
+//            #ifndef MAC_SIM
+//            if (App::sc>1)
+//                fontSize*=2;
+//            #endif
             editorNode->SetAttribute("font-size",fontSize);
 
             sim::tinyxml2::XMLElement* keywords1=rootElement->FirstChildElement("keywords1");
@@ -368,10 +368,10 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                 #endif
                 if (App::userSettings->scriptEditorFontSize!=-1)
                     fontSize=App::userSettings->scriptEditorFontSize;
-                #ifndef MAC_SIM
-                if (App::sc>1)
-                    fontSize*=2;
-                #endif
+//                #ifndef MAC_SIM
+//                if (App::sc>1)
+//                    fontSize*=2;
+//                #endif
                 editorNode->SetAttribute("font-size",fontSize);
                 editorNode->SetAttribute("text-col","0 0 0");
                 if (it->getScriptType()==sim_scripttype_mainscript)
@@ -516,10 +516,10 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                 #endif
                 if (App::userSettings->scriptEditorFontSize!=-1)
                     fontSize=App::userSettings->scriptEditorFontSize;
-                #ifndef MAC_SIM
-                if (App::sc>1)
-                    fontSize*=2;
-                #endif
+//                #ifndef MAC_SIM
+//                if (App::sc>1)
+//                    fontSize*=2;
+//                #endif
                 editorNode->SetAttribute("font-size",fontSize);
                 editorNode->SetAttribute("text-col","0 0 0");
                 editorNode->SetAttribute("background-col",getColorStr(App::userSettings->customizationScriptColor_background).c_str());
@@ -619,10 +619,10 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
         #endif
         if (App::userSettings->scriptEditorFontSize!=-1)
             fontSize=App::userSettings->scriptEditorFontSize;
-        #ifndef MAC_SIM
-        if (App::sc>1)
-            fontSize*=2;
-        #endif
+//        #ifndef MAC_SIM
+//        if (App::sc>1)
+//            fontSize*=2;
+//        #endif
         editorNode->SetAttribute("font-size",fontSize);
         editorNode->SetAttribute("text-col",getColorStr(_textColor).c_str());
         editorNode->SetAttribute("background-col",getColorStr(_backColor).c_str());
