@@ -298,12 +298,15 @@ App::App(bool headless)
 #endif
 
 #ifdef SIM_WITH_GUI
-    if (userSettings->highResDisplay!=-1)
+    if (userSettings->highResDisplay==1)
     {
-        std::string sf("1.0");
-        if (userSettings->highResDisplay!=0)
-            sf="2.0";
-        qputenv("QT_SCALE_FACTOR",sf.c_str());
+        qputenv("QT_SCALE_FACTOR","1.0");
+        App::sc=2;
+    }
+    if (userSettings->highResDisplay==2)
+    {
+        qputenv("QT_AUTO_SCREEN_SCALE_FACTOR","1");
+        App::sc=2;
     }
 #endif
 
@@ -346,26 +349,6 @@ App::App(bool headless)
 #ifdef WIN_SIM
     #ifdef SIM_WITH_GUI
         CSimQApp::setStyle(QStyleFactory::create("Fusion")); // Probably most compatible. Other platforms: best in native (other styles have problems)!
-
-        /*
-            QPalette pal;
-            pal.setColor(QPalette::Window,QColor(50,50,50));
-            pal.setColor(QPalette::WindowText,Qt::white);
-            pal.setColor(QPalette::Button,QColor(50,50,50));
-            pal.setColor(QPalette::ButtonText,Qt::white);
-            pal.setColor(QPalette::Text,Qt::white);
-            pal.setColor(QPalette::BrightText,Qt::red);
-            pal.setColor(QPalette::Highlight,QColor(40, 140, 220));
-            pal.setColor(QPalette::HighlightedText,Qt::black);
-            pal.setColor(QPalette::Link,QColor(40, 140, 220));
-            pal.setColor(QPalette::Base,QColor(30,30,30));
-            pal.setColor(QPalette::AlternateBase,QColor(50,50,50));
-            pal.setColor(QPalette::ToolTipText,Qt::white);
-            pal.setColor(QPalette::ToolTipBase,Qt::white);
-            qtApp->setPalette(pal);
-            qtApp->setStyleSheet("QToolTip{color:white;background-color:#3080E0;border:1px solid white;}");
-            qtApp->setStyleSheet("QToolButton:checked{background-color:#606060;border:1px solid #808080;}");
-        //*/
     #endif
 #endif
 

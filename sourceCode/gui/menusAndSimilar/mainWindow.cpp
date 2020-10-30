@@ -96,8 +96,6 @@ CMainWindow::CMainWindow() : QMainWindow()
     for (int i=0;i<App::worldContainer->getWorldCount();i++)
         newInstanceAboutToBeCreated();
 
-    if ( (App::userSettings->highResDisplay==1)||((devicePixelRatio()>1.2f)&&(App::userSettings->highResDisplay==-1)) )
-        App::sc=2;
 
     customMenuBarItemContainer=new CCustomMenuBarItemContainer();
     dlgCont=new CDlgCont(this);
