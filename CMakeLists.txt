@@ -26,15 +26,71 @@ endif()
 
 find_package(Qt5PrintSupport REQUIRED)
 
-find_package(Lua 5.1 EXACT REQUIRED)
+find_package(Lua 5.1 EXACT QUIET)
+if(NOT LUA_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(lua51src
+        URL https://www.lua.org/ftp/lua-5.1.5.tar.gz
+        SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/lua
+    )
+    if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/lua/src/lapi.c")
+        message(STATUS "Downloading lua-5.1.5 source...")
+        FetchContent_Populate(lua51src)
+    endif()
+    add_library(lua51 STATIC
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lapi.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lauxlib.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lbaselib.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lcode.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/ldblib.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/ldebug.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/ldo.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/ldump.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lfunc.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lgc.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/linit.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/liolib.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/llex.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lmathlib.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lmem.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/loadlib.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lobject.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lopcodes.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/loslib.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lparser.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lstate.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lstring.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lstrlib.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/ltable.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/ltablib.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/ltm.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lua.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lundump.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lvm.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lzio.c
+        ${CMAKE_CURRENT_BINARY_DIR}/lua/src/print.c
+    )
+    set(LUA_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/lua/src)
+    set(LUA_LIBRARIES $<TARGET_FILE:lua51>)
+endif()
+
 find_package(Eigen3)
+if(NOT EIGEN_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(eigen3src
+        URL https://gitlab.com/libeigen/eigen/-/archive/3.3.8/eigen-3.3.8.tar.gz
+        SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/eigen3
+    )
+    if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/eigen3/Eigen/Sparse")
+        message(STATUS "Downloading eigen-3.3.8 source...")
+        FetchContent_Populate(eigen3src)
+    endif()
+    set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/eigen3)
+endif()
+
 find_package(Boost REQUIRED)
 
 include_directories(${LUA_INCLUDE_DIR})
-
-if(NOT EIGEN_FOUND)
-    set(EIGEN_INCLUDE_DIR /usr/local/include/eigen3 CACHE STRING "Eigen include path")
-endif()
 include_directories(${EIGEN_INCLUDE_DIR})
 
 add_definitions(-DSIM_LIB)
@@ -638,6 +694,10 @@ endif()
 
 add_library(coppeliaSim SHARED ${SOURCES})
 target_link_libraries(coppeliaSim Boost::boost)
+if(NOT LUA_FOUND)
+    # trigger the build of lua51, if not found in the system
+    add_dependencies(coppeliaSim lua51)
+endif()
 target_link_libraries(coppeliaSim ${LUA_LIBRARIES})
 if(WITH_QT)
     target_link_libraries(coppeliaSim Qt5::Core)
@@ -656,10 +716,10 @@ if(WITH_SERIAL)
 endif()
 if(WIN32)
     target_link_libraries(coppeliaSim
-        -lwinmm
-        -lShell32
-        -lopengl32
-        -luser32
-        -lDbghelp
+        winmm
+        Shell32
+        opengl32
+        user32
+        Dbghelp
     )
 endif()
