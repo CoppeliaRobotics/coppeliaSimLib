@@ -30,8 +30,6 @@ CGraph::CGraph()
     for (int i=0;i<bufferSize;i++)
         times.push_back(0.0f);
 
-    _initialValuesInitialized=false;
-
     _localObjectSpecialProperty=0; // actually also renderable, but turned off by default!
     cyclic=true;
     xYZPlanesDisplay=true;
@@ -1711,30 +1709,29 @@ void CGraph::resetGraph()
         daten[i]->resetData(bufferSize);
 }
 
-void CGraph::initializeInitialValues(bool simulationIsRunning)
+void CGraph::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    CSceneObject::initializeInitialValues(simulationIsRunning);
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
-    {
-        _initialExplicitHandling=_explicitHandling;
+    CSceneObject::initializeInitialValues(simulationAlreadyRunning);
+    _initialExplicitHandling=_explicitHandling;
+    if (simulationAlreadyRunning&&(!_explicitHandling))
         resetGraph();
-    }
 }
 
 void CGraph::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
     CSceneObject::simulationAboutToStart();
 }
 
 void CGraph::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
-    if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+    if (_initialValuesInitialized)
     {
-        _explicitHandling=_initialExplicitHandling;
+        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+        {
+            _explicitHandling=_initialExplicitHandling;
+        }
     }
-    _initialValuesInitialized=false;
     CSceneObject::simulationEnded();
 }
 

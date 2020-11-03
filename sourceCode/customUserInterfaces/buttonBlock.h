@@ -48,7 +48,7 @@ public:
     void getRollupMin(VPoint& rollupMinVal);
     void setRollupMax(VPoint rollupMaxVal);
     void getRollupMax(VPoint& rollupMaxVal);
-    void initializeInitialValues(bool simulationIsRunning);
+    void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
     void simulationEnded();
     void setBlockID(int newBlockID);

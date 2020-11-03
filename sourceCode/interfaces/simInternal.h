@@ -206,8 +206,8 @@ simInt simGetVelocity_internal(simInt shapeHandle,simFloat* linearVelocity,simFl
 simInt simGetObjectVelocity_internal(simInt objectHandle,simFloat* linearVelocity,simFloat* angularVelocity);
 simInt simAddForceAndTorque_internal(simInt shapeHandle,const simFloat* force,const simFloat* torque);
 simInt simAddForce_internal(simInt shapeHandle,const simFloat* position,const simFloat* force);
-simInt simSetExplicitHandling_internal(simInt generalObjectHandle,int explicitFlags);
-simInt simGetExplicitHandling_internal(simInt generalObjectHandle);
+simInt simSetExplicitHandling_internal(simInt objectHandle,int explicitFlags);
+simInt simGetExplicitHandling_internal(simInt objectHandle);
 simInt simGetLinkDummy_internal(simInt dummyHandle);
 simInt simSetLinkDummy_internal(simInt dummyHandle,simInt linkedDummyHandle);
 simInt simSetModelProperty_internal(simInt objectHandle,simInt modelProperty);

@@ -12,7 +12,7 @@ public:
     CSPage(int thePageType);
     virtual ~CSPage();
     void render();
-    void initializeInitialValues(bool simulationIsRunning,int initializeOnlyForThisNewObject);
+    void initializeInitialValues(bool simulationAlreadyRunning,int initializeOnlyForThisNewObject);
     void simulationEnded();
     void serialize(CSer& ar);
     bool setPageType(int newType);

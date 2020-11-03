@@ -72,15 +72,12 @@ int CSoftButton::getAttributes()
     return(_buttonAttributes);
 }
 
-void CSoftButton::initializeInitialValues(bool simulationIsRunning)
+void CSoftButton::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
-    {
-        _initialSimulation_label=label;
-        _initialSimulation_buttonAttributes=_buttonAttributes;
-        _initialSimulation_sliderPos=sliderPos;
-    }
+    _initialValuesInitialized=true;
+    _initialSimulation_label=label;
+    _initialSimulation_buttonAttributes=_buttonAttributes;
+    _initialSimulation_sliderPos=sliderPos;
 }
 
 void CSoftButton::simulationEnded()

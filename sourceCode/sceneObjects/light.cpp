@@ -53,7 +53,6 @@ bool CLight::isPotentiallyRenderable() const
 
 void CLight::_commonInit()
 {
-    _initialValuesInitialized=false;
     setObjectType(sim_object_light_type);
     _lightSize=0.10f;
     _spotExponent=5;
@@ -343,29 +342,27 @@ void CLight::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
 
-void CLight::initializeInitialValues(bool simulationIsRunning)
+void CLight::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    CSceneObject::initializeInitialValues(simulationIsRunning);
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
-    {
-        _initialLightActive=lightActive;
-    }
+    CSceneObject::initializeInitialValues(simulationAlreadyRunning);
+    _initialLightActive=lightActive;
 }
 
 void CLight::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
     CSceneObject::simulationAboutToStart();
 }
 
 void CLight::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
-    if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+    if (_initialValuesInitialized)
     {
-        lightActive=_initialLightActive;
+        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+        {
+            lightActive=_initialLightActive;
+        }
     }
-    _initialValuesInitialized=false;
     CSceneObject::simulationEnded();
 }
 

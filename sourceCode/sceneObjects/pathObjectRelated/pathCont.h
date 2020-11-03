@@ -15,7 +15,7 @@ public:
 
     void serialize(CSer& ar);
     CPathCont* copyYourself();
-    void initializeInitialValues(bool simulationIsRunning);
+    void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationEnded();
 
 

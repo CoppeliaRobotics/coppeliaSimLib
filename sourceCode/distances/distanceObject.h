@@ -15,7 +15,7 @@ public:
     void removeSynchronizationObject(bool localReferencesToItOnly);
 
     void displayDistanceSegment();
-    void initializeInitialValues(bool simulationIsRunning);
+    void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
     void simulationEnded();
 

@@ -2667,19 +2667,15 @@ bool CLuaScriptObject::getExecuteJustOnce() const
     return(_executeJustOnce);
 }
 
-void CLuaScriptObject::initializeInitialValues(bool simulationIsRunning)
+void CLuaScriptObject::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript) )
     {
-        _initialValuesInitialized=simulationIsRunning;
-        if (simulationIsRunning)
-        {
-
-        }
+        _initialValuesInitialized=true;
 //        if (_scriptParameters_backCompatibility!=nullptr)
 //            _scriptParameters_backCompatibility->initializeInitialValues(simulationIsRunning);
         if (_outsideCommandQueue!=nullptr)
-            _outsideCommandQueue->initializeInitialValues(simulationIsRunning);
+            _outsideCommandQueue->initializeInitialValues(simulationAlreadyRunning);
     }
 }
 
@@ -2690,7 +2686,7 @@ void CLuaScriptObject::simulationAboutToStart()
         killLuaState(); // should already be reset! (should have been done in simulationEnded routine)
         _numberOfPasses=0;
         _automaticCascadingCallsDisabled_OLD=false;
-        initializeInitialValues(true);
+        initializeInitialValues(false);
         _warningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014=false;
         _warning_simRMLPosition_oldCompatibility_30_8_2014=false;
         _warning_simRMLVelocity_oldCompatibility_30_8_2014=false;

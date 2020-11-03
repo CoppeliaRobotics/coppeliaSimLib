@@ -11,21 +11,18 @@ CUserParameters::~CUserParameters()
 {
 }
 
-void CUserParameters::initializeInitialValues(bool simulationIsRunning)
+void CUserParameters::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     clearInitialParameters();
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
+    _initialValuesInitialized=true;
+    for (size_t i=0;i<userParamEntries.size();i++)
     {
-        for (size_t i=0;i<userParamEntries.size();i++)
-        {
-            SUserParamEntry e;
-            e.name=userParamEntries[i].name;
-            e.unit=userParamEntries[i].unit;
-            e.value=userParamEntries[i].value;
-            e.properties=userParamEntries[i].properties;
-            _initialUserParamEntries.push_back(e);
-        }
+        SUserParamEntry e;
+        e.name=userParamEntries[i].name;
+        e.unit=userParamEntries[i].unit;
+        e.value=userParamEntries[i].value;
+        e.properties=userParamEntries[i].properties;
+        _initialUserParamEntries.push_back(e);
     }
 }
 

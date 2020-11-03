@@ -32,7 +32,7 @@ public:
     float getSliderPos();
     void setVertical(bool isVertical);
     bool getVertical();
-    void initializeInitialValues(bool simulationIsRunning);
+    void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationEnded();
 
     int getButtonType();

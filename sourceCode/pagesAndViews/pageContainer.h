@@ -16,7 +16,7 @@ public:
     void simulationEnded();
 
     void emptySceneProcedure();
-    void initializeInitialValues(bool simulationIsRunning,int initializeOnlyForThisNewObject);
+    void initializeInitialValues(bool simulationAlreadyRunning,int initializeOnlyForThisNewObject);
     void removeAllPages();
     void setUpDefaultPages(bool createASingleView=false);
     void announceObjectWillBeErased(int objectID);

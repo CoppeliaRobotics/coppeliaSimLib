@@ -793,13 +793,13 @@ SIM_DLLEXPORT simInt simAddForce(simInt shapeHandle,const simFloat* position,con
 {
     return(simAddForce_internal(shapeHandle,position,force));
 }
-SIM_DLLEXPORT simInt simSetExplicitHandling(simInt generalObjectHandle,int explicitFlags)
+SIM_DLLEXPORT simInt simSetExplicitHandling(simInt objectHandle,int explicitFlags)
 {
-    return(simSetExplicitHandling_internal(generalObjectHandle,explicitFlags));
+    return(simSetExplicitHandling_internal(objectHandle,explicitFlags));
 }
-SIM_DLLEXPORT simInt simGetExplicitHandling(simInt generalObjectHandle)
+SIM_DLLEXPORT simInt simGetExplicitHandling(simInt objectHandle)
 {
-    return(simGetExplicitHandling_internal(generalObjectHandle));
+    return(simGetExplicitHandling_internal(objectHandle));
 }
 SIM_DLLEXPORT simInt simGetLinkDummy(simInt dummyHandle)
 {

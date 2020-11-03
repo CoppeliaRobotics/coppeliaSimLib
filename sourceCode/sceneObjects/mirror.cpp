@@ -41,7 +41,6 @@ bool CMirror::isPotentiallyRenderable() const
 
 void CMirror::_commonInit()
 {
-    _initialValuesInitialized=false;
     setObjectType(sim_object_mirror_type);
     _mirrorWidth=0.5f;
     _mirrorHeight=1.0f;
@@ -290,30 +289,27 @@ void CMirror::performDynMaterialObjectLoadingMapping(const std::vector<int>* map
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
 
-void CMirror::initializeInitialValues(bool simulationIsRunning)
+void CMirror::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    CSceneObject::initializeInitialValues(simulationIsRunning);
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
-    {
-        _initialMirrorActive=_active;
-    }
+    CSceneObject::initializeInitialValues(simulationAlreadyRunning);
+    _initialMirrorActive=_active;
 }
-
 
 void CMirror::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
     CSceneObject::simulationAboutToStart();
 }
 
 void CMirror::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
-    if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+    if (_initialValuesInitialized)
     {
-        _active=_initialMirrorActive;
+        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+        {
+            _active=_initialMirrorActive;
+        }
     }
-    _initialValuesInitialized=false;
     CSceneObject::simulationEnded();
 }
 

@@ -15,7 +15,7 @@ public:
     CSView(int theLinkedObjectID);
     virtual ~CSView();
     void render(int mainWindowXPos,bool clipWithMainWindowXPos,bool drawText,bool passiveSubView);
-    void initializeInitialValues(bool simulationIsRunning);
+    void initializeInitialValues(bool simulationAlreadyRunning);
     bool simulationEnded();
     void setDefaultValues();
     int getLinkedObjectID() const;

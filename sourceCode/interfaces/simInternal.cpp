@@ -6868,9 +6868,7 @@ simInt simResetGraph_internal(simInt graphHandle)
         if ( (graphHandle!=sim_handle_all)&&(graphHandle!=sim_handle_all_except_explicit) )
         {
             if (!isGraph(__func__,graphHandle))
-            {
                 return(-1);
-            }
         }
         if (graphHandle<0)
             CGraphingRoutines::resetAllGraphs(graphHandle==sim_handle_all_except_explicit);
@@ -8309,24 +8307,22 @@ simInt simAddForce_internal(simInt shapeHandle,const simFloat* position,const si
 }
 
 
-simInt simSetExplicitHandling_internal(simInt generalObjectHandle,int explicitFlags)
+simInt simSetExplicitHandling_internal(simInt objectHandle,int explicitFlags)
 {
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if ( (generalObjectHandle>=SIM_IDSTART_SCENEOBJECT)&&(generalObjectHandle<SIM_IDEND_SCENEOBJECT) )
+        if ( (objectHandle>=SIM_IDSTART_SCENEOBJECT)&&(objectHandle<SIM_IDEND_SCENEOBJECT) )
         { // scene objects
-            if (!doesObjectExist(__func__,generalObjectHandle))
+            if (!doesObjectExist(__func__,objectHandle))
             {
                 return(-1);
             }
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(generalObjectHandle);
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
             if (it->getObjectType()==sim_object_joint_type)
             { // Joints
                 ((CJoint*)it)->setExplicitHandling_DEPRECATED(explicitFlags&1);
@@ -8358,60 +8354,39 @@ simInt simSetExplicitHandling_internal(simInt generalObjectHandle,int explicitFl
                 return(1);
             }
         }
-        if ( (generalObjectHandle>=SIM_IDSTART_COLLISION)&&(generalObjectHandle<SIM_IDEND_COLLISION) )
+        // Following for backward compatibility (03.11.2020)
+        // -------------------------------------------------------
+        if ( (objectHandle>=SIM_IDSTART_COLLISION)&&(objectHandle<SIM_IDEND_COLLISION) )
         { // collision objects
-            if (!doesCollisionObjectExist(__func__,generalObjectHandle))
+            if (!doesCollisionObjectExist(__func__,objectHandle))
             {
                 return(-1);
             }
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(generalObjectHandle);
+            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(objectHandle);
             it->setExplicitHandling(explicitFlags&1);
             return(1);
         }
-        if ( (generalObjectHandle>=SIM_IDSTART_DISTANCE)&&(generalObjectHandle<SIM_IDEND_DISTANCE) )
+        if ( (objectHandle>=SIM_IDSTART_DISTANCE)&&(objectHandle<SIM_IDEND_DISTANCE) )
         { // distance objects
-            if (!doesDistanceObjectExist(__func__,generalObjectHandle))
+            if (!doesDistanceObjectExist(__func__,objectHandle))
             {
                 return(-1);
             }
-            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(generalObjectHandle);
+            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(objectHandle);
             it->setExplicitHandling(explicitFlags&1);
             return(1);
         }
-        if ( (generalObjectHandle>=SIM_IDSTART_IKGROUP)&&(generalObjectHandle<SIM_IDEND_IKGROUP) )
+        if ( (objectHandle>=SIM_IDSTART_IKGROUP)&&(objectHandle<SIM_IDEND_IKGROUP) )
         { // IK objects
-            if (!doesIKGroupExist(__func__,generalObjectHandle))
+            if (!doesIKGroupExist(__func__,objectHandle))
             {
                 return(-1);
             }
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(generalObjectHandle);
+            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(objectHandle);
             it->setExplicitHandling(explicitFlags&1);
             return(1);
         }
-        if ( (generalObjectHandle>=SIM_IDSTART_COLLECTION)&&(generalObjectHandle<SIM_IDEND_COLLECTION) )
-        { // collection objects
-
-        }
-        if ( (generalObjectHandle>=SIM_IDSTART_2DELEMENT)&&(generalObjectHandle<SIM_IDEND_2DELEMENT) )
-        { // UI objects
-
-        }
-        if ( (generalObjectHandle>=SIM_IDSTART_LUASCRIPT)&&(generalObjectHandle<SIM_IDEND_LUASCRIPT) )
-        { // Script objects
-
-        }
-        if ( (generalObjectHandle>=SIM_IDSTART_PATHPLANNINGTASK)&&(generalObjectHandle<SIM_IDEND_PATHPLANNINGTASK) )
-        { // Path planning objects
-
-        }
-        if ( (generalObjectHandle>=SIM_IDSTART_TEXTURE)&&(generalObjectHandle<SIM_IDEND_TEXTURE) )
-        { // Texture objects
-
-        }
-        if ( (generalObjectHandle>=SIM_IDSTART_DYNMATERIAL_OLD)&&(generalObjectHandle<SIM_IDEND_DYNMATERIAL_OLD) )
-        { // Dyn material objects
-
-        }
+        // -------------------------------------------------------
         CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
         return(-1);
     }
@@ -8419,24 +8394,22 @@ simInt simSetExplicitHandling_internal(simInt generalObjectHandle,int explicitFl
     return(-1);
 }
 
-simInt simGetExplicitHandling_internal(simInt generalObjectHandle)
+simInt simGetExplicitHandling_internal(simInt objectHandle)
 {
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if ( (generalObjectHandle>=SIM_IDSTART_SCENEOBJECT)&&(generalObjectHandle<SIM_IDEND_SCENEOBJECT) )
+        if ( (objectHandle>=SIM_IDSTART_SCENEOBJECT)&&(objectHandle<SIM_IDEND_SCENEOBJECT) )
         { // scene objects
-            if (!doesObjectExist(__func__,generalObjectHandle))
+            if (!doesObjectExist(__func__,objectHandle))
             {
                 return(-1);
             }
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(generalObjectHandle);
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
             if (it->getObjectType()==sim_object_joint_type)
             { // Joints
                 bool exp=((CJoint*)it)->getExplicitHandling_DEPRECATED();
@@ -8468,60 +8441,39 @@ simInt simGetExplicitHandling_internal(simInt generalObjectHandle)
                 return(exp);
             }
         }
-        if ( (generalObjectHandle>=SIM_IDSTART_COLLISION)&&(generalObjectHandle<SIM_IDEND_COLLISION) )
+        // Following for backward compatibility (03.11.2020)
+        // -------------------------------------------------------
+        if ( (objectHandle>=SIM_IDSTART_COLLISION)&&(objectHandle<SIM_IDEND_COLLISION) )
         { // collision objects
-            if (!doesCollisionObjectExist(__func__,generalObjectHandle))
+            if (!doesCollisionObjectExist(__func__,objectHandle))
             {
                 return(-1);
             }
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(generalObjectHandle);
+            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(objectHandle);
             bool exp=it->getExplicitHandling();
             return(exp);
         }
-        if ( (generalObjectHandle>=SIM_IDSTART_DISTANCE)&&(generalObjectHandle<SIM_IDEND_DISTANCE) )
+        if ( (objectHandle>=SIM_IDSTART_DISTANCE)&&(objectHandle<SIM_IDEND_DISTANCE) )
         { // distance objects
-            if (!doesDistanceObjectExist(__func__,generalObjectHandle))
+            if (!doesDistanceObjectExist(__func__,objectHandle))
             {
                 return(-1);
             }
-            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(generalObjectHandle);
+            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(objectHandle);
             bool exp=it->getExplicitHandling();
             return(exp);
         }
-        if ( (generalObjectHandle>=SIM_IDSTART_IKGROUP)&&(generalObjectHandle<SIM_IDEND_IKGROUP) )
+        if ( (objectHandle>=SIM_IDSTART_IKGROUP)&&(objectHandle<SIM_IDEND_IKGROUP) )
         { // IK objects
-            if (!doesIKGroupExist(__func__,generalObjectHandle))
+            if (!doesIKGroupExist(__func__,objectHandle))
             {
                 return(-1);
             }
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(generalObjectHandle);
+            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(objectHandle);
             bool exp=it->getExplicitHandling();
             return(exp);
         }
-        if ( (generalObjectHandle>=SIM_IDSTART_COLLECTION)&&(generalObjectHandle<SIM_IDEND_COLLECTION) )
-        { // collection objects
-
-        }
-        if ( (generalObjectHandle>=SIM_IDSTART_2DELEMENT)&&(generalObjectHandle<SIM_IDEND_2DELEMENT) )
-        { // UI objects
-
-        }
-        if ( (generalObjectHandle>=SIM_IDSTART_LUASCRIPT)&&(generalObjectHandle<SIM_IDEND_LUASCRIPT) )
-        { // Script objects
-
-        }
-        if ( (generalObjectHandle>=SIM_IDSTART_PATHPLANNINGTASK)&&(generalObjectHandle<SIM_IDEND_PATHPLANNINGTASK) )
-        { // Path planning objects
-
-        }
-        if ( (generalObjectHandle>=SIM_IDSTART_TEXTURE)&&(generalObjectHandle<SIM_IDEND_TEXTURE) )
-        { // Texture objects
-
-        }
-        if ( (generalObjectHandle>=SIM_IDSTART_DYNMATERIAL_OLD)&&(generalObjectHandle<SIM_IDEND_DYNMATERIAL_OLD) )
-        { // Dyn material objects
-
-        }
+        // -------------------------------------------------------
         CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
         return(-1);
     }

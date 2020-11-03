@@ -13,7 +13,7 @@ public:
     virtual ~CPathPlanningTask();
 
     void renderYour3DStuff();
-    void initializeInitialValues(bool simulationIsRunning);
+    void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
     void simulationEnded();
 

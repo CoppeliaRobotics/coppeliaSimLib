@@ -1847,25 +1847,25 @@ float CPathCont::getSquareSize()
     return(_squareSize);
 }
 
-void CPathCont::initializeInitialValues(bool simulationIsRunning)
+void CPathCont::initializeInitialValues(bool simulationAlreadyRunning)
 {
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
-    {   
-        _initialPosition=float(_position);
-        _nominalVelocity=0.0f;
-        _initialNominalVelocity=_nominalVelocity;
-        _initialTargetNominalVelocity=_targetNominalVelocity;
-    }
+    _initialValuesInitialized=true;
+    _initialPosition=float(_position);
+    _nominalVelocity=0.0f;
+    _initialNominalVelocity=_nominalVelocity;
+    _initialTargetNominalVelocity=_targetNominalVelocity;
 }
 
 void CPathCont::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
-    if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+    if (_initialValuesInitialized)
     {
-        _position=_initialPosition;
-        _nominalVelocity=_initialNominalVelocity;
-        _targetNominalVelocity=_initialTargetNominalVelocity; 
+        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+        {
+            _position=_initialPosition;
+            _nominalVelocity=_initialNominalVelocity;
+            _targetNominalVelocity=_initialTargetNominalVelocity;
+        }
     }
     _initialValuesInitialized=false;
 }

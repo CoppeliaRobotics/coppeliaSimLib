@@ -63,7 +63,7 @@ CSceneObject::CSceneObject()
 
 
     _dynamicsTemporarilyDisabled=false;
-    _initialValuesInitializedMain=false;
+    _initialValuesInitialized=false;
     _initialConfigurationMemorized=false;
     _objectTranslationDisabledDuringSimulation=false;
     _objectTranslationDisabledDuringNonSimulation=false;
@@ -1260,10 +1260,10 @@ void CSceneObject::simulationAboutToStart()
 {
 }
 
-void CSceneObject::initializeInitialValues(bool simulationIsRunning)
+void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     _dynamicSimulationIconCode=sim_dynamicsimicon_none;
-    _initialValuesInitializedMain=simulationIsRunning;
+    _initialValuesInitialized=true;
     _localModelProperty=(_localModelProperty|sim_modelproperty_not_reset)-sim_modelproperty_not_reset;
     incrementModelPropertyValidityNumber();
     _dynamicObjectFlag_forVisualization=0;
@@ -1274,24 +1274,21 @@ void CSceneObject::initializeInitialValues(bool simulationIsRunning)
     _measuredLinearVelocity_velocityMeasurement.clear();
     _previousPositionOrientationIsValid=false;
     if (_userScriptParameters!=nullptr)
-        _userScriptParameters->initializeInitialValues(simulationIsRunning);
+        _userScriptParameters->initializeInitialValues(simulationAlreadyRunning);
 //    _previousAbsTransf_velocityMeasurement=getCumulativeTransformationPart1();
 
-    if (simulationIsRunning)
-    {
-        // this section is special and reserved to local configuration restoration!
-        //********************************
-        _initialConfigurationMemorized=true;
-        _initialMemorizedConfigurationValidCounter=_memorizedConfigurationValidCounter;
-        _initialParentUniqueID=-1; // -1 means there was no parent at begin
-        CSceneObject* p=getParent();
-        if (p!=nullptr)
-            _initialParentUniqueID=p->getUniqueID();
-        _initialLocalTransformationPart1=_localTransformation;
-        //********************************
+    // this section is special and reserved to local configuration restoration!
+    //********************************
+    _initialConfigurationMemorized=true;
+    _initialMemorizedConfigurationValidCounter=_memorizedConfigurationValidCounter;
+    _initialParentUniqueID=-1; // -1 means there was no parent at begin
+    CSceneObject* p=getParent();
+    if (p!=nullptr)
+        _initialParentUniqueID=p->getUniqueID();
+    _initialLocalTransformationPart1=_localTransformation;
+    //********************************
 
-        _initialMainPropertyOverride=_localModelProperty;
-    }
+    _initialMainPropertyOverride=_localModelProperty;
 }
 
 void CSceneObject::simulationEnded()
@@ -1300,35 +1297,38 @@ void CSceneObject::simulationEnded()
     _dynamicObjectFlag_forVisualization=0;
     if (_userScriptParameters!=nullptr)
         _userScriptParameters->simulationEnded();
-    if (_initialValuesInitializedMain&&App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+    if (_initialValuesInitialized)
     {
-        if (_initialConfigurationMemorized)
-        { // this section is special and reserved to local configuration restoration!
-            if (_initialMemorizedConfigurationValidCounter==_memorizedConfigurationValidCounter)
-            { // the object wasn't resized/didn't change frame
-                int puid=-1;
-                CSceneObject* p=getParent();
-                if (p!=nullptr)
-                    puid=p->getUniqueID();
-                // Changed following on 24/04/2011 (because we also wanna reset the parenting to the initial state!)
-                if (puid!=_initialParentUniqueID)
-                { // Not sure following instructions are not problematic here.
-                    CSceneObject* oldParent=App::currentWorld->sceneObjects->getObjectFromUniqueId(_initialParentUniqueID);
-                    if ( (oldParent!=nullptr)||(_initialParentUniqueID==-1) )
-                    {
-                        // Inverted following 2 lines on 24/2/2012:
-                        setParent(oldParent,true);
-                        setLocalTransformation(_initialLocalTransformationPart1);
+        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+        {
+            if (_initialConfigurationMemorized)
+            { // this section is special and reserved to local configuration restoration!
+                if (_initialMemorizedConfigurationValidCounter==_memorizedConfigurationValidCounter)
+                { // the object wasn't resized/didn't change frame
+                    int puid=-1;
+                    CSceneObject* p=getParent();
+                    if (p!=nullptr)
+                        puid=p->getUniqueID();
+                    // Changed following on 24/04/2011 (because we also wanna reset the parenting to the initial state!)
+                    if (puid!=_initialParentUniqueID)
+                    { // Not sure following instructions are not problematic here.
+                        CSceneObject* oldParent=App::currentWorld->sceneObjects->getObjectFromUniqueId(_initialParentUniqueID);
+                        if ( (oldParent!=nullptr)||(_initialParentUniqueID==-1) )
+                        {
+                            // Inverted following 2 lines on 24/2/2012:
+                            setParent(oldParent,true);
+                            setLocalTransformation(_initialLocalTransformationPart1);
+                        }
                     }
+                    else
+                        setLocalTransformation(_initialLocalTransformationPart1);
                 }
-                else
-                    setLocalTransformation(_initialLocalTransformationPart1);
+                _localModelProperty=_initialMainPropertyOverride;
+                _initialConfigurationMemorized=false;
             }
-            _localModelProperty=_initialMainPropertyOverride;
-            _initialConfigurationMemorized=false;
         }
     }
-    _initialValuesInitializedMain=false;
+    _initialValuesInitialized=false;
 }
 
 bool CSceneObject::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const

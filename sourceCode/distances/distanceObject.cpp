@@ -44,18 +44,15 @@ void CDistanceObject::_commonInit()
     _calcTimeInMs=0;
 }
 
-void CDistanceObject::initializeInitialValues(bool simulationIsRunning)
+void CDistanceObject::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
-    {
-        _initialExplicitHandling=_explicitHandling;
-    }
+    _initialValuesInitialized=true;
+    _initialExplicitHandling=_explicitHandling;
 }
 
 void CDistanceObject::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
 }
 
 void CDistanceObject::simulationEnded()

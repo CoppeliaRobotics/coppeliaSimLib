@@ -64,7 +64,6 @@ void CJoint::_commonInit()
     _objectName=IDSOGL_JOINT;
     _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
 
-    _initialValuesInitialized=false;
     _cumulatedForceOrTorque=0.0f;
     _cumulativeForceOrTorqueTmp=0.0f;
     _lastForceOrTorque_dynStep=0.0f;
@@ -567,83 +566,83 @@ void CJoint::measureJointVelocity(float dt)
     }
 }
 
-void CJoint::initializeInitialValues(bool simulationIsRunning)
+void CJoint::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    CSceneObject::initializeInitialValues(simulationIsRunning);
-    _initialValuesInitialized=simulationIsRunning;
+    if (_objectName.compare("j")==0)
+        printf("init\n");
+    CSceneObject::initializeInitialValues(simulationAlreadyRunning);
     _dynamicSecondPartIsValid=false; // do the same as for force sensors here?! (if the joint is copied while apart, paste it apart too!)
     _previousJointPositionIsValid=false;
     _measuredJointVelocity_velocityMeasurement=0.0f;
     _previousJointPosition_velocityMeasurement=0.0f;
-    if (simulationIsRunning)
-    {
-        _initialPosition=_jointPosition;
-        _initialSphericalJointTransformation=_sphericalTransformation;
+    _initialPosition=_jointPosition;
+    _initialSphericalJointTransformation=_sphericalTransformation;
 
-        _initialDynamicMotorEnabled=_dynamicMotorEnabled;
-        _initialDynamicMotorTargetVelocity=_dynamicMotorTargetVelocity;
-        _initialDynamicMotorLockModeWhenInVelocityControl=_dynamicLockModeWhenInVelocityControl;
-        _initialDynamicMotorUpperLimitVelocity=_dynamicMotorUpperLimitVelocity;
-        _initialDynamicMotorMaximumForce=_dynamicMotorMaximumForce;
+    _initialDynamicMotorEnabled=_dynamicMotorEnabled;
+    _initialDynamicMotorTargetVelocity=_dynamicMotorTargetVelocity;
+    _initialDynamicMotorLockModeWhenInVelocityControl=_dynamicLockModeWhenInVelocityControl;
+    _initialDynamicMotorUpperLimitVelocity=_dynamicMotorUpperLimitVelocity;
+    _initialDynamicMotorMaximumForce=_dynamicMotorMaximumForce;
 
-        _initialDynamicMotorControlLoopEnabled=_dynamicMotorControlLoopEnabled;
-        _initialDynamicMotorPositionControl_P=_dynamicMotorPositionControl_P;
-        _initialDynamicMotorPositionControl_I=_dynamicMotorPositionControl_I;
-        _initialDynamicMotorPositionControl_D=_dynamicMotorPositionControl_D;
-        _initialDynamicMotorSpringControl_K=_dynamicMotorSpringControl_K;
-        _initialDynamicMotorSpringControl_C=_dynamicMotorSpringControl_C;
-        _initialTargetPosition=_dynamicMotorPositionControl_targetPosition;
+    _initialDynamicMotorControlLoopEnabled=_dynamicMotorControlLoopEnabled;
+    _initialDynamicMotorPositionControl_P=_dynamicMotorPositionControl_P;
+    _initialDynamicMotorPositionControl_I=_dynamicMotorPositionControl_I;
+    _initialDynamicMotorPositionControl_D=_dynamicMotorPositionControl_D;
+    _initialDynamicMotorSpringControl_K=_dynamicMotorSpringControl_K;
+    _initialDynamicMotorSpringControl_C=_dynamicMotorSpringControl_C;
+    _initialTargetPosition=_dynamicMotorPositionControl_targetPosition;
 
-        _initialJointMode=_jointMode;
-        _initialHybridOperation=_jointHasHybridFunctionality;
+    _initialJointMode=_jointMode;
+    _initialHybridOperation=_jointHasHybridFunctionality;
 
-        _averageForceOrTorqueValid=false;
-        _cumulatedForceOrTorque=0.0f;
-        _lastForceOrTorqueValid_dynStep=false;
-        _lastForceOrTorque_dynStep=0.0f;
-        _cumulativeForceOrTorqueTmp=0.0f;
+    _averageForceOrTorqueValid=false;
+    _cumulatedForceOrTorque=0.0f;
+    _lastForceOrTorqueValid_dynStep=false;
+    _lastForceOrTorque_dynStep=0.0f;
+    _cumulativeForceOrTorqueTmp=0.0f;
 
-        _jointPositionForMotionHandling_DEPRECATED=_jointPosition;
-        _velocity_DEPRECATED=0.0f;
-        _initialVelocity_DEPRECATED=_velocity_DEPRECATED;
-        _initialTargetVelocity_DEPRECATED=_targetVelocity_DEPRECATED;
-        _initialExplicitHandling_DEPRECATED=_explicitHandling_DEPRECATED;
-    }
+    _jointPositionForMotionHandling_DEPRECATED=_jointPosition;
+    _velocity_DEPRECATED=0.0f;
+    _initialVelocity_DEPRECATED=_velocity_DEPRECATED;
+    _initialTargetVelocity_DEPRECATED=_targetVelocity_DEPRECATED;
+    _initialExplicitHandling_DEPRECATED=_explicitHandling_DEPRECATED;
 }
 
 void CJoint::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
     CSceneObject::simulationAboutToStart();
 }
 
 void CJoint::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
-    if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+    if (_initialValuesInitialized)
     {
-        _CJoint_::setPosition(_initialPosition);
-        _CJoint_::setSphericalTransformation(_initialSphericalJointTransformation);
+        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+        {
+            _CJoint_::setPosition(_initialPosition);
+            _CJoint_::setSphericalTransformation(_initialSphericalJointTransformation);
 
-        _CJoint_::setEnableDynamicMotor(_initialDynamicMotorEnabled);
-        _CJoint_::setDynamicMotorTargetVelocity(_initialDynamicMotorTargetVelocity);
-        _CJoint_::setDynamicMotorLockModeWhenInVelocityControl(_initialDynamicMotorLockModeWhenInVelocityControl);
-        _CJoint_::setDynamicMotorUpperLimitVelocity(_initialDynamicMotorUpperLimitVelocity);
-        _CJoint_::setDynamicMotorMaximumForce(_initialDynamicMotorMaximumForce);
+            _CJoint_::setEnableDynamicMotor(_initialDynamicMotorEnabled);
+            _CJoint_::setDynamicMotorTargetVelocity(_initialDynamicMotorTargetVelocity);
+            _CJoint_::setDynamicMotorLockModeWhenInVelocityControl(_initialDynamicMotorLockModeWhenInVelocityControl);
+            _CJoint_::setDynamicMotorUpperLimitVelocity(_initialDynamicMotorUpperLimitVelocity);
+            _CJoint_::setDynamicMotorMaximumForce(_initialDynamicMotorMaximumForce);
 
-        _CJoint_::setEnableDynamicMotorControlLoop(_initialDynamicMotorControlLoopEnabled);
-        _CJoint_::setDynamicMotorPositionControlParameters(_initialDynamicMotorPositionControl_P,_initialDynamicMotorPositionControl_I,_initialDynamicMotorPositionControl_D);
-        _CJoint_::setDynamicMotorSpringControlParameters(_initialDynamicMotorSpringControl_K,_initialDynamicMotorSpringControl_C);
-        _CJoint_::setDynamicMotorPositionControlTargetPosition(_initialTargetPosition);
+            _CJoint_::setEnableDynamicMotorControlLoop(_initialDynamicMotorControlLoopEnabled);
+            _CJoint_::setDynamicMotorPositionControlParameters(_initialDynamicMotorPositionControl_P,_initialDynamicMotorPositionControl_I,_initialDynamicMotorPositionControl_D);
+            _CJoint_::setDynamicMotorSpringControlParameters(_initialDynamicMotorSpringControl_K,_initialDynamicMotorSpringControl_C);
+            _CJoint_::setDynamicMotorPositionControlTargetPosition(_initialTargetPosition);
 
-        _CJoint_::setJointMode(_initialJointMode);
-        _CJoint_::setHybridFunctionality(_initialHybridOperation);
+            _CJoint_::setJointMode(_initialJointMode);
+            _CJoint_::setHybridFunctionality(_initialHybridOperation);
 
-        _explicitHandling_DEPRECATED=_initialExplicitHandling_DEPRECATED;
-        _velocity_DEPRECATED=_initialVelocity_DEPRECATED;
-        _targetVelocity_DEPRECATED=_initialTargetVelocity_DEPRECATED;
+            _explicitHandling_DEPRECATED=_initialExplicitHandling_DEPRECATED;
+            _velocity_DEPRECATED=_initialVelocity_DEPRECATED;
+            _targetVelocity_DEPRECATED=_initialTargetVelocity_DEPRECATED;
+        }
     }
     _CJoint_::setDynamicSecondPartIsValid(false);
-    _initialValuesInitialized=false;
 
     _averageForceOrTorqueValid=false;
     _cumulatedForceOrTorque=0.0f;

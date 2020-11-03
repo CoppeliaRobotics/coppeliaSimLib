@@ -16,7 +16,6 @@ CForceSensor::CForceSensor()
 void CForceSensor::commonInit()
 {
     _objectType=sim_object_forcesensor_type;
-    _initialValuesInitialized=false;
     _forceSensorIsBroken=false;
 
     _forceThreshold=100.0f;
@@ -417,32 +416,23 @@ float CForceSensor::getDynamicOrientationError() const
     return(retVal);
 }
 
-void CForceSensor::initializeInitialValues(bool simulationIsRunning)
+void CForceSensor::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    CSceneObject::initializeInitialValues(simulationIsRunning);
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
-    {
-        _filteredDynamicForces.clear();
-        _filteredDynamicTorques.clear();
-        _currentThresholdViolationCount=0;
-        _filteredValuesAreValid=false;
-        _lastForceAndTorqueValid_dynStep=false;
-        _cumulatedForces.clear();
-        _cumulatedTorques.clear();
-        _cumulativeForcesTmp.clear();
-        _cumulativeTorquesTmp.clear();
-    }
-    else
-    {
-        _dynamicSecondPartIsValid=false;
-        _forceSensorIsBroken=false;
-    }
+    CSceneObject::initializeInitialValues(simulationAlreadyRunning);
+    _filteredDynamicForces.clear();
+    _filteredDynamicTorques.clear();
+    _currentThresholdViolationCount=0;
+    _filteredValuesAreValid=false;
+    _lastForceAndTorqueValid_dynStep=false;
+    _cumulatedForces.clear();
+    _cumulatedTorques.clear();
+    _cumulativeForcesTmp.clear();
+    _cumulativeTorquesTmp.clear();
 }
 
 void CForceSensor::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
     _dynamicSecondPartIsValid=false;
     _forceSensorIsBroken=false;
     CSceneObject::simulationAboutToStart();
@@ -450,12 +440,14 @@ void CForceSensor::simulationAboutToStart()
 
 void CForceSensor::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
-    if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+    if (_initialValuesInitialized)
     {
+        if ( App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+        {
+        }
     }
     _dynamicSecondPartIsValid=false;
     _forceSensorIsBroken=false;
-    _initialValuesInitialized=false;
     _filteredValuesAreValid=false;
     _lastForceAndTorqueValid_dynStep=false;
     _cumulatedForces.clear();

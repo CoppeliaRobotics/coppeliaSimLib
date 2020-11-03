@@ -17,7 +17,6 @@ CPath::CPath()
     _visibilityLayer=PATH_LAYER;
     _explicitHandling=false;
     _shapingEnabled=false;
-    _initialValuesInitialized=false;
     _shapingScaling=1.0f;
     _shapingFollowFullOrientation=false;
     _shapingConvexHull=false;
@@ -384,31 +383,29 @@ bool CPath::isPotentiallyRenderable() const
     return(true);
 }
 
-void CPath::initializeInitialValues(bool simulationIsRunning)
+void CPath::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    CSceneObject::initializeInitialValues(simulationIsRunning);
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
-    {
-        _initialExplicitHandling=_explicitHandling;
-    }
+    CSceneObject::initializeInitialValues(simulationAlreadyRunning);
+    _initialExplicitHandling=_explicitHandling;
     if (pathContainer!=nullptr)
-        pathContainer->initializeInitialValues(simulationIsRunning);
+        pathContainer->initializeInitialValues(simulationAlreadyRunning);
 }
 
 void CPath::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
     CSceneObject::simulationAboutToStart();
 }
 
 void CPath::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
-    if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+    if (_initialValuesInitialized)
     {
-        _explicitHandling=_initialExplicitHandling;
+        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+        {
+            _explicitHandling=_initialExplicitHandling;
+        }
     }
-    _initialValuesInitialized=false;
     if (pathContainer!=nullptr)
         pathContainer->simulationEnded();
     CSceneObject::simulationEnded();

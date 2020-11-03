@@ -26,7 +26,7 @@ CIkElement::~CIkElement()
 {
 }
 
-void CIkElement::initializeInitialValues(bool simulationIsRunning)
+void CIkElement::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
 }
 

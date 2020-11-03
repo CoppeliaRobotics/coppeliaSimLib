@@ -17,7 +17,7 @@ public:
     void connectSynchronizationObject();
     void removeSynchronizationObject(bool localReferencesToItOnly);
 
-    void initializeInitialValues(bool simulationIsRunning);
+    void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
     void simulationEnded();
     CIkGroup* copyYourself() const;

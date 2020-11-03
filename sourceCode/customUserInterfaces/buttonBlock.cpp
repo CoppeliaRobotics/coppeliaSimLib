@@ -484,26 +484,23 @@ void CButtonBlock::getRollupMax(VPoint& rollupMaxVal)
     rollupMaxVal=rollupMax;
 }
 
-void CButtonBlock::initializeInitialValues(bool simulationIsRunning)
+void CButtonBlock::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     if (objectIDAttachedTo!=-1)
     {
-        _initialValuesInitialized=simulationIsRunning;
+        _initialValuesInitialized=true;
         for (int i=0;i<int(allButtons.size());i++)
-            allButtons[i]->initializeInitialValues(simulationIsRunning);
-        if (simulationIsRunning)
-        {
-            _initialAttributes=_attributes;
-            _initialPos[0]=desiredBlockPosition.x;
-            _initialPos[1]=desiredBlockPosition.y;
-        }
+            allButtons[i]->initializeInitialValues(simulationAlreadyRunning);
+        _initialAttributes=_attributes;
+        _initialPos[0]=desiredBlockPosition.x;
+        _initialPos[1]=desiredBlockPosition.y;
     }
 }
 
 void CButtonBlock::simulationAboutToStart()
 { 
     if (objectIDAttachedTo!=-1)
-        initializeInitialValues(true);
+        initializeInitialValues(false);
 }
 
 void CButtonBlock::simulationEnded()

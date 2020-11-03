@@ -84,17 +84,13 @@ CPathPlanningTask* CPathPlanningTask::getOriginalTask()
     return(_originalTask_useWhenCopied);
 }
 
-void CPathPlanningTask::initializeInitialValues(bool simulationIsRunning)
+void CPathPlanningTask::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    //_initialValuesInitialized=simulationIsRunning;
-    //if (simulationIsRunning)
-    //{
-    //}
 }
 
 void CPathPlanningTask::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
 }
 
 void CPathPlanningTask::simulationEnded()

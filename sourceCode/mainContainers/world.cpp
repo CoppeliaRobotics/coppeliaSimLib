@@ -975,27 +975,30 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
 */
 
 //************ We need to initialize all object types (also because an object copied during simulation hasn't the simulationEnded routine called!)
-    bool simulationRunning=!simulation->isSimulationStopped();
-    for (size_t i=0;i<loadedObjectList->size();i++)
-        loadedObjectList->at(i)->initializeInitialValues(simulationRunning);
-    for (size_t i=0;i<loadedButtonBlockList->size();i++)
-        loadedButtonBlockList->at(i)->initializeInitialValues(simulationRunning);
-    for (size_t i=0;i<loadedCollisionList->size();i++)
-        loadedCollisionList->at(i)->initializeInitialValues(simulationRunning);
-    for (size_t i=0;i<loadedDistanceList->size();i++)
-        loadedDistanceList->at(i)->initializeInitialValues(simulationRunning);
-    for (size_t i=0;i<loadedCollectionList->size();i++)
-        loadedCollectionList->at(i)->initializeInitialValues(simulationRunning);
-    for (size_t i=0;i<loadedIkGroupList->size();i++)
-        loadedIkGroupList->at(i)->initializeInitialValues(simulationRunning);
-    for (size_t i=0;i<loadedPathPlanningTaskList->size();i++)
-        loadedPathPlanningTaskList->at(i)->initializeInitialValues(simulationRunning);
-    for (size_t i=0;i<loadedLuaScriptList->size();i++)
-        loadedLuaScriptList->at(i)->initializeInitialValues(simulationRunning);
+    bool simulationAlreadyRunning=!simulation->isSimulationStopped();
+    if (simulationAlreadyRunning)
+    {
+        for (size_t i=0;i<loadedObjectList->size();i++)
+            loadedObjectList->at(i)->initializeInitialValues(simulationAlreadyRunning);
+        for (size_t i=0;i<loadedButtonBlockList->size();i++)
+            loadedButtonBlockList->at(i)->initializeInitialValues(simulationAlreadyRunning);
+        for (size_t i=0;i<loadedCollisionList->size();i++)
+            loadedCollisionList->at(i)->initializeInitialValues(simulationAlreadyRunning);
+        for (size_t i=0;i<loadedDistanceList->size();i++)
+            loadedDistanceList->at(i)->initializeInitialValues(simulationAlreadyRunning);
+        for (size_t i=0;i<loadedCollectionList->size();i++)
+            loadedCollectionList->at(i)->initializeInitialValues(simulationAlreadyRunning);
+        for (size_t i=0;i<loadedIkGroupList->size();i++)
+            loadedIkGroupList->at(i)->initializeInitialValues(simulationAlreadyRunning);
+        for (size_t i=0;i<loadedPathPlanningTaskList->size();i++)
+            loadedPathPlanningTaskList->at(i)->initializeInitialValues(simulationAlreadyRunning);
+        for (size_t i=0;i<loadedLuaScriptList->size();i++)
+            loadedLuaScriptList->at(i)->initializeInitialValues(simulationAlreadyRunning);
 
-    // Here we call the initializeInitialValues for all pages & views
-    for (size_t i=0;i<loadedObjectList->size();i++)
-        pageContainer->initializeInitialValues(simulationRunning,loadedObjectList->at(i)->getObjectHandle());
+        // Here we call the initializeInitialValues for all pages & views
+        for (size_t i=0;i<loadedObjectList->size();i++)
+            pageContainer->initializeInitialValues(simulationAlreadyRunning,loadedObjectList->at(i)->getObjectHandle());
+    }
 //**************************************************************************************
 
     // Here make sure that referenced objects still exists (when keeping original references):

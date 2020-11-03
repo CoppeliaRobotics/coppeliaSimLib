@@ -15,17 +15,14 @@ CCollection::~CCollection()
 {
 }
 
-void CCollection::initializeInitialValues(bool simulationIsRunning)
+void CCollection::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    //_initialValuesInitialized=simulationIsRunning;
-    //if (simulationIsRunning)
-    //{
-    //}
+    //_initialValuesInitialized=true;
 }
 
 void CCollection::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
 }
 
 void CCollection::simulationEnded()

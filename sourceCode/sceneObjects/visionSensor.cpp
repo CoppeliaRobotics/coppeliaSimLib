@@ -238,8 +238,6 @@ void CVisionSensor::commonInit()
     _renderMode=sim_rendermode_opengl; // visible
     _attributesForRendering=DEFAULT_RENDERING_ATTRIBUTES;
 
-    _initialValuesInitialized=false;
-
     _useExternalImage=false;
     _useSameBackgroundAsEnvironment=true;
 
@@ -1927,10 +1925,9 @@ void CVisionSensor::performDynMaterialObjectLoadingMapping(const std::vector<int
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
 
-void CVisionSensor::initializeInitialValues(bool simulationIsRunning)
+void CVisionSensor::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    CSceneObject::initializeInitialValues(simulationIsRunning);
-    _initialValuesInitialized=simulationIsRunning;
+    CSceneObject::initializeInitialValues(simulationAlreadyRunning);
     for (int i=0;i<3;i++)
     {
         sensorResult.sensorDataRed[i]=0;
@@ -1943,31 +1940,38 @@ void CVisionSensor::initializeInitialValues(bool simulationIsRunning)
     sensorResult.sensorWasTriggered=false;
     sensorResult.sensorResultIsValid=false;
     sensorResult.calcTimeInMs=0;
-    if (simulationIsRunning)
-        _initialExplicitHandling=_explicitHandling;
+    _initialExplicitHandling=_explicitHandling;
+    /*
     else
     {
 #ifdef SIM_WITH_OPENGL
         _removeGlContextAndFboAndTextureObjectIfNeeded();
 #endif
     }
+    */
 }
 
 
 void CVisionSensor::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
     CSceneObject::simulationAboutToStart();
 }
 
 void CVisionSensor::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
+/*
 #ifdef SIM_WITH_OPENGL
     _removeGlContextAndFboAndTextureObjectIfNeeded();
 #endif
-    if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
-        _explicitHandling=_initialExplicitHandling;
-    _initialValuesInitialized=false;
+*/
+    if (_initialValuesInitialized)
+    {
+        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+        {
+            _explicitHandling=_initialExplicitHandling;
+        }
+    }
     CSceneObject::simulationEnded();
 }
 

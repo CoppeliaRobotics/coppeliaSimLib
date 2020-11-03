@@ -16,7 +16,7 @@ public:
     CUserParameters();
     virtual ~CUserParameters();
 
-    void initializeInitialValues(bool simulationIsRunning);
+    void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationEnded();
 
     void clearInitialParameters();

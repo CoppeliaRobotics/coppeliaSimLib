@@ -46,41 +46,38 @@ bool CSPage::isViewValid(CSView* v) const
     return(false);
 }
 
-void CSPage::initializeInitialValues(bool simulationIsRunning,int initializeOnlyForThisNewObject)
+void CSPage::initializeInitialValues(bool simulationAlreadyRunning,int initializeOnlyForThisNewObject)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     for (size_t i=0;i<_allViews.size();i++)
     {
         int loID=_allViews[i]->getLinkedObjectID();
         if ((initializeOnlyForThisNewObject==-1)||((loID!=-1)&&(loID==initializeOnlyForThisNewObject)))
-            _allViews[i]->initializeInitialValues(simulationIsRunning);
+            _allViews[i]->initializeInitialValues(simulationAlreadyRunning);
     }
     if (initializeOnlyForThisNewObject==-1)
     {
-        _initialValuesInitialized=simulationIsRunning;
-        if (simulationIsRunning)
+        _initialValuesInitialized=true;
+        // make sure we memorize the floating view sizes and positions:
+        _initialAuxViewSizesAndPos.clear();
+        _initialAuxViewUniqueIDs.clear();
+        for (int i=getRegularViewCount();i<int(_allViews.size());i++)
         {
-            // make sure we memorize the floating view sizes and positions:
-            _initialAuxViewSizesAndPos.clear();
-            _initialAuxViewUniqueIDs.clear();
-            for (int i=getRegularViewCount();i<int(_allViews.size());i++)
-            {
-                _initialAuxViewSizesAndPos.push_back(_allViewAuxSizesAndPos[4*i+0]);
-                _initialAuxViewSizesAndPos.push_back(_allViewAuxSizesAndPos[4*i+1]);
-                _initialAuxViewSizesAndPos.push_back(_allViewAuxSizesAndPos[4*i+2]);
-                _initialAuxViewSizesAndPos.push_back(_allViewAuxSizesAndPos[4*i+3]);
-                _initialAuxViewUniqueIDs.push_back(_allViews[i]->getUniqueID());
-            }
+            _initialAuxViewSizesAndPos.push_back(_allViewAuxSizesAndPos[4*i+0]);
+            _initialAuxViewSizesAndPos.push_back(_allViewAuxSizesAndPos[4*i+1]);
+            _initialAuxViewSizesAndPos.push_back(_allViewAuxSizesAndPos[4*i+2]);
+            _initialAuxViewSizesAndPos.push_back(_allViewAuxSizesAndPos[4*i+3]);
+            _initialAuxViewUniqueIDs.push_back(_allViews[i]->getUniqueID());
         }
     }
     else
     { // this was called for a specific object!
-        if (_initialValuesInitialized&&simulationIsRunning)
+        if (_initialValuesInitialized)
         {
             for (int i=getRegularViewCount();i<int(_allViews.size());i++)
             {
                 if (_allViews[i]->getLinkedObjectID()==initializeOnlyForThisNewObject)
                 {
-                    _allViews[i]->initializeInitialValues(simulationIsRunning);
+                    _allViews[i]->initializeInitialValues(simulationAlreadyRunning);
                     _initialAuxViewSizesAndPos.push_back(_allViewAuxSizesAndPos[4*i+0]);
                     _initialAuxViewSizesAndPos.push_back(_allViewAuxSizesAndPos[4*i+1]);
                     _initialAuxViewSizesAndPos.push_back(_allViewAuxSizesAndPos[4*i+2]);

@@ -72,8 +72,6 @@ void CMill::commonInit()
     _milledVolume=0.0f;
     _milledObjectCount=0;
 
-    _initialValuesInitialized=false;
-
     _objectManipulationModePermissions=0x013;
 
     passiveVolumeColor.setDefaultValues();
@@ -215,29 +213,27 @@ void CMill::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
 
-void CMill::initializeInitialValues(bool simulationIsRunning)
+void CMill::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    CSceneObject::initializeInitialValues(simulationIsRunning);
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
-    {
-        _initialExplicitHandling=_explicitHandling;
-    }
+    CSceneObject::initializeInitialValues(simulationAlreadyRunning);
+    _initialExplicitHandling=_explicitHandling;
 }
 
 void CMill::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
     CSceneObject::simulationAboutToStart();
 }
 
 void CMill::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
-    if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+    if (_initialValuesInitialized)
     {
-        _explicitHandling=_initialExplicitHandling;
+        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+        {
+            _explicitHandling=_initialExplicitHandling;
+        }
     }
-    _initialValuesInitialized=false;
     CSceneObject::simulationEnded();
 }
 

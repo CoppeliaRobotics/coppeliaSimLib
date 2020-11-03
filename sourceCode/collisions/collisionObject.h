@@ -15,7 +15,7 @@ public:
     void removeSynchronizationObject(bool localReferencesToItOnly);
 
     void displayCollisionContour();
-    void initializeInitialValues(bool simulationIsRunning);
+    void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
     void simulationEnded();
 

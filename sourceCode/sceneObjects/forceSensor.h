@@ -31,7 +31,7 @@ public:
     void performDynMaterialObjectLoadingMapping(const std::vector<int>* map);
     void simulationAboutToStart();
     void simulationEnded();
-    void initializeInitialValues(bool simulationIsRunning);
+    void initializeInitialValues(bool simulationAlreadyRunning);
     bool getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const;
     bool getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const;
     bool getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const;
@@ -88,8 +88,6 @@ public:
 protected:
     void _computeFilteredValues();
     void _handleSensorBreaking();
-    // Variables needed for the reset procedure of the joint. Do not serialize
-    bool _initialValuesInitialized;
 
     bool _dynamicSecondPartIsValid;
     float _forceThreshold;

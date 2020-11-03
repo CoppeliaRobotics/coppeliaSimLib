@@ -903,7 +903,6 @@ bool CShape::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
 void CShape::commonInit()
 {
     setObjectType(sim_object_shape_type);
-    _initialValuesInitialized=false;
     _containsTransparentComponents=false;
     _startInDynamicSleeping=false;
     _shapeIsDynamicallyStatic=true;
@@ -1181,39 +1180,37 @@ void CShape::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
     getMeshWrapper()->performDynMaterialObjectLoadingMapping(map);
 }
 
-void CShape::initializeInitialValues(bool simulationIsRunning)
+void CShape::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    CSceneObject::initializeInitialValues(simulationIsRunning);
+    CSceneObject::initializeInitialValues(simulationAlreadyRunning);
     _dynamicLinearVelocity.clear();
     _dynamicAngularVelocity.clear();
     _additionalForce.clear();
     _additionalTorque.clear();
 
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
-    {
-        _initialInitialDynamicLinearVelocity=_initialDynamicLinearVelocity;
-        _initialInitialDynamicAngularVelocity=_initialDynamicAngularVelocity;
-    }
+    _initialInitialDynamicLinearVelocity=_initialDynamicLinearVelocity;
+    _initialInitialDynamicAngularVelocity=_initialDynamicAngularVelocity;
 
     actualizeContainsTransparentComponent(); // added on 2010/11/22 to correct at least each time a simulation starts, when those values where not set correctly
 }
 
 void CShape::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
     _rigidBodyWasAlreadyPutToSleepOnce=false;
     CSceneObject::simulationAboutToStart();
 }
 
 void CShape::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
-    if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+    if (_initialValuesInitialized)
     {
-        _initialDynamicLinearVelocity=_initialInitialDynamicLinearVelocity;
-        _initialDynamicAngularVelocity=_initialInitialDynamicAngularVelocity;
+        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+        {
+            _initialDynamicLinearVelocity=_initialInitialDynamicLinearVelocity;
+            _initialDynamicAngularVelocity=_initialInitialDynamicAngularVelocity;
+        }
     }
-    _initialValuesInitialized=false;
 
     _dynamicLinearVelocity.clear();
     _dynamicAngularVelocity.clear();

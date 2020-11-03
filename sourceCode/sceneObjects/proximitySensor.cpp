@@ -161,8 +161,6 @@ void CProxSensor::commonInit()
     closestObjectMode=true;
     normalCheck=false;
     allowedNormal=45.0f*degToRad_f;
-//    _checkOcclusions=true;
-    _initialValuesInitialized=false;
     _hideDetectionRay=false;
 
     _randomizedDetection=false;
@@ -360,29 +358,27 @@ void CProxSensor::performDynMaterialObjectLoadingMapping(const std::vector<int>*
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
 
-void CProxSensor::initializeInitialValues(bool simulationIsRunning)
+void CProxSensor::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    CSceneObject::initializeInitialValues(simulationIsRunning);
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
-    {
-        _initialExplicitHandling=explicitHandling;
-    }
+    CSceneObject::initializeInitialValues(simulationAlreadyRunning);
+    _initialExplicitHandling=explicitHandling;
 }
 
 void CProxSensor::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
     CSceneObject::simulationAboutToStart();
 }
 
 void CProxSensor::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
-    if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+    if (_initialValuesInitialized)
     {
-        explicitHandling=_initialExplicitHandling;
+        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+        {
+            explicitHandling=_initialExplicitHandling;
+        }
     }
-    _initialValuesInitialized=false;
     CSceneObject::simulationEnded();
 }
 

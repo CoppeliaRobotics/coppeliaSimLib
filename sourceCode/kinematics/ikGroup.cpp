@@ -26,20 +26,17 @@ CIkGroup::~CIkGroup()
     delete _lastJacobian;
 }
 
-void CIkGroup::initializeInitialValues(bool simulationIsRunning)
+void CIkGroup::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     for (size_t i=0;i<getIkElementCount();i++)
-        getIkElementFromIndex(i)->initializeInitialValues(simulationIsRunning);
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
-    {
-        _initialExplicitHandling=_explicitHandling;
-    }
+        getIkElementFromIndex(i)->initializeInitialValues(simulationAlreadyRunning);
+    _initialValuesInitialized=true;
+    _initialExplicitHandling=_explicitHandling;
 }
 
 void CIkGroup::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
 }
 
 void CIkGroup::simulationEnded()

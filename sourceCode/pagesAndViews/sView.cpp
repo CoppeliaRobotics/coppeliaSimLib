@@ -31,18 +31,15 @@ CSView::~CSView()
 {
 
 }
-void CSView::initializeInitialValues(bool simulationIsRunning)
+void CSView::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
-    {
-        _initialPerspectiveDisplay=perspectiveDisplay;
-        _initialShowEdges=_showEdges;
-        _initialThickEdges=_thickEdges;
-        _initialVisualizeOnlyInertias=_visualizeOnlyInertias;
-        _initialRenderingMode=_renderingMode;
-        _initialGraphIsTimeGraph=graphIsTimeGraph;
-    }
+    _initialValuesInitialized=true;
+    _initialPerspectiveDisplay=perspectiveDisplay;
+    _initialShowEdges=_showEdges;
+    _initialThickEdges=_thickEdges;
+    _initialVisualizeOnlyInertias=_visualizeOnlyInertias;
+    _initialRenderingMode=_renderingMode;
+    _initialGraphIsTimeGraph=graphIsTimeGraph;
 }
 
 bool CSView::simulationEnded()

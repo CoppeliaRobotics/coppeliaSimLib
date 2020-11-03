@@ -213,8 +213,8 @@ SIM_DLLEXPORT simInt simGetVelocity(simInt shapeHandle,simFloat* linearVelocity,
 SIM_DLLEXPORT simInt simGetObjectVelocity(simInt objectHandle,simFloat* linearVelocity,simFloat* angularVelocity);
 SIM_DLLEXPORT simInt simAddForceAndTorque(simInt shapeHandle,const simFloat* force,const simFloat* torque);
 SIM_DLLEXPORT simInt simAddForce(simInt shapeHandle,const simFloat* position,const simFloat* force);
-SIM_DLLEXPORT simInt simSetExplicitHandling(simInt generalObjectHandle,int explicitFlags);
-SIM_DLLEXPORT simInt simGetExplicitHandling(simInt generalObjectHandle);
+SIM_DLLEXPORT simInt simSetExplicitHandling(simInt objectHandle,int explicitFlags);
+SIM_DLLEXPORT simInt simGetExplicitHandling(simInt objectHandle);
 SIM_DLLEXPORT simInt simGetLinkDummy(simInt dummyHandle);
 SIM_DLLEXPORT simInt simSetLinkDummy(simInt dummyHandle,simInt linkedDummyHandle);
 SIM_DLLEXPORT simInt simSetModelProperty(simInt objectHandle,simInt modelProperty);

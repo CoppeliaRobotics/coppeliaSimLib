@@ -41,18 +41,15 @@ void CCollisionObject::_commonInit()
     _contourColor.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_emission);
 }
 
-void CCollisionObject::initializeInitialValues(bool simulationIsRunning)
+void CCollisionObject::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
-    {
-        _initialExplicitHandling=_explicitHandling;
-    }
+    _initialValuesInitialized=true;
+    _initialExplicitHandling=_explicitHandling;
 }
 
 void CCollisionObject::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
 }
 
 void CCollisionObject::simulationEnded()

@@ -34,7 +34,7 @@ public:
     void performDynMaterialObjectLoadingMapping(const std::vector<int>* map);
     void simulationAboutToStart();
     void simulationEnded();
-    void initializeInitialValues(bool simulationIsRunning);
+    void initializeInitialValues(bool simulationAlreadyRunning);
     bool getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const;
     bool getSensingVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const;
     void getSensingVolumeOBB(C7Vector& tr,C3Vector& halfSizes);
@@ -149,7 +149,6 @@ protected:
     std::vector<C3Vector> _randomizedVectors;
     std::vector<float> _randomizedVectorDetectionStates;
 
-    bool _initialValuesInitialized;
     bool _initialExplicitHandling;
 
     bool _hideDetectionRay;

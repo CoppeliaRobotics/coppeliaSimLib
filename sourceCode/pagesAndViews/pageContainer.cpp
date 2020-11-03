@@ -52,23 +52,20 @@ int CPageContainer::getPageCount() const
     return(PAGES_COUNT);
 }
 
-void CPageContainer::initializeInitialValues(bool simulationIsRunning,int initializeOnlyForThisNewObject)
+void CPageContainer::initializeInitialValues(bool simulationAlreadyRunning,int initializeOnlyForThisNewObject)
 {
-    _initialValuesInitialized=simulationIsRunning;
-    if (simulationIsRunning)
-    {
-        _initialActivePageIndex=_activePageIndex;
-    }
+    _initialValuesInitialized=true;
+    _initialActivePageIndex=_activePageIndex;
     for (int i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)
-            _allPages[i]->initializeInitialValues(simulationIsRunning,initializeOnlyForThisNewObject);
+            _allPages[i]->initializeInitialValues(simulationAlreadyRunning,initializeOnlyForThisNewObject);
     }
 }
 
 void CPageContainer::simulationAboutToStart()
 {
-    initializeInitialValues(true,-1);
+    initializeInitialValues(false,-1);
 }
 
 void CPageContainer::simulationEnded()

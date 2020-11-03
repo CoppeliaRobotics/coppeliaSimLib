@@ -14,7 +14,7 @@ COutsideCommandQueueForScript::~COutsideCommandQueueForScript()
 {
 }
 
-void COutsideCommandQueueForScript::initializeInitialValues(bool simulationIsRunning)
+void COutsideCommandQueueForScript::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     commands.clear();
     auxValues.clear();

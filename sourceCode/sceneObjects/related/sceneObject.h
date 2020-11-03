@@ -64,7 +64,7 @@ public:
 
     virtual void simulationAboutToStart();
     virtual void simulationEnded();
-    virtual void initializeInitialValues(bool simulationIsRunning);
+    virtual void initializeInitialValues(bool simulationAlreadyRunning);
     virtual bool getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const;
     virtual bool getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const;
     virtual bool getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const;
@@ -351,7 +351,7 @@ protected:
 
     // Other variables
     int _mechanismID; // don't serialize!
-    bool _initialValuesInitializedMain;
+    bool _initialValuesInitialized;
     bool _initialConfigurationMemorized;
     int _initialParentUniqueID;
     int _initialMainPropertyOverride;

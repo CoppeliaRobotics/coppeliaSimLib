@@ -29,7 +29,7 @@ public:
     CLuaScriptObject(int scriptTypeOrMinusOneForSerialization);
     virtual ~CLuaScriptObject();
 
-    void initializeInitialValues(bool simulationIsRunning);
+    void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
     void simulationAboutToEnd();
     void simulationEnded();

@@ -680,22 +680,25 @@ void COctree::performDynMaterialObjectLoadingMapping(const std::vector<int>* map
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
 
-void COctree::initializeInitialValues(bool simulationIsRunning)
+void COctree::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    CSceneObject::initializeInitialValues(simulationIsRunning);
+    CSceneObject::initializeInitialValues(simulationAlreadyRunning);
 }
 
 void COctree::simulationAboutToStart()
 {
-    initializeInitialValues(true);
+    initializeInitialValues(false);
     CSceneObject::simulationAboutToStart();
 }
 
 void COctree::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
-//  if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
-//  {
-//  }
+    if (_initialValuesInitialized)
+    {
+        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+        {
+        }
+    }
     CSceneObject::simulationEnded();
 }
 

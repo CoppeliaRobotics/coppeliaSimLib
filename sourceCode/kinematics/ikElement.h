@@ -17,7 +17,7 @@ public:
     void connectSynchronizationObject();
     void removeSynchronizationObject(bool localReferencesToItOnly);
 
-    void initializeInitialValues(bool simulationIsRunning);
+    void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationEnded();
     CIkElement* copyYourself() const;
     void serialize(CSer& ar);
