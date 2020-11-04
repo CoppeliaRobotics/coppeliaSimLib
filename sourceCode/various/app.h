@@ -90,6 +90,8 @@ public:
     static int getDlgVerbosity();
     static void setDlgVerbosity(int v);
     static void setStartupScriptString(const char* str);
+    static void setExitCode(int c);
+    static int getExitCode();
 
     static float* getRGBPointerFromItem(int objType,int objID1,int objID2,int colComponent,std::string* auxDlgTitle);
     static CColorObject* getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts);
@@ -136,6 +138,7 @@ private:
     static int _consoleVerbosity;
     static int _statusbarVerbosity;
     static int _dlgVerbosity;
+    static int _exitCode;
     static std::string _consoleLogFilterStr;
     static std::string _startupScriptString;
 

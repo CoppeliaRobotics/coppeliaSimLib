@@ -4681,7 +4681,7 @@ void CLuaScriptObject::serialize(CSer& ar)
             _adjustScriptText11(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40001);
             _adjustScriptText12(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40100);
             _adjustScriptText13(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40200);
-            if ( _threadedExecution&&(!App::userSettings->makeOldThreadedScriptsAvailable) )
+            if ( _threadedExecution&&(App::userSettings->xrTest==123456789) ) //(!App::userSettings->makeOldThreadedScriptsAvailable) )
             {
                 if (_convertThreadedScriptToCoroutine(this))
                 {

@@ -46,6 +46,7 @@ bool App::_canInitSimThread=false;
 int App::_consoleVerbosity=sim_verbosity_default;
 int App::_statusbarVerbosity=sim_verbosity_msgs;
 int App::_dlgVerbosity=sim_verbosity_infos;
+int App::_exitCode=0;
 std::string App::_consoleLogFilterStr;
 std::string App::_startupScriptString;
 
@@ -382,6 +383,7 @@ App::App(bool headless)
     srand(VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
                                         // Remember that each thread starts with a same seed!!!
     _initSuccessful=true;
+    _exitCode=0;
 }
 
 App::~App()
@@ -1689,6 +1691,16 @@ void App::setDlgVerbosity(int v)
 void App::setStartupScriptString(const char* str)
 {
     _startupScriptString=str;
+}
+
+void App::setExitCode(int c)
+{
+    _exitCode=c;
+}
+
+int App::getExitCode()
+{
+    return(_exitCode);
 }
 
 int App::getConsoleVerbosity(const char* pluginName/*=nullptr*/)

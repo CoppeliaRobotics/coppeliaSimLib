@@ -3790,6 +3790,11 @@ simInt simSetInt32Parameter_internal(simInt parameter,simInt intState)
         App::setDlgVerbosity(intState);
         return(1);
     }
+    if (parameter==sim_intparam_exitcode)
+    {
+        App::setExitCode(intState);
+        return(1);
+    }
     if (parameter==sim_intparam_error_report_mode)
     { // keep for backward compatibility
         return(1);
@@ -3993,6 +3998,11 @@ simInt simGetInt32Parameter_internal(simInt parameter,simInt* intState)
         if (parameter==sim_intparam_verbosity)
         {
             intState[0]=App::getConsoleVerbosity();
+            return(1);
+        }
+        if (parameter==sim_intparam_exitcode)
+        {
+            intState[0]=App::getExitCode();
             return(1);
         }
         if (parameter==sim_intparam_dlgverbosity)
@@ -6133,7 +6143,13 @@ simInt simLoadModule_internal(const simChar* filenameAndPath,const simChar* plug
     cmdIn.stringParams.push_back(filenameAndPath);
     cmdIn.stringParams.push_back(pluginName);
     App::logMsg(sim_verbosity_loadinfos,"plugin '%s': loading...",pluginName);
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    if (VThread::isCurrentThreadTheUiThread())
+        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    else
+    {
+        SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING; // Needed when a plugin is loaded on-the-fly
+        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    }
     int handle=cmdOut.intParams[0];
     if (handle==-3)
     {
@@ -6170,7 +6186,13 @@ simInt simUnloadModule_internal(simInt pluginhandle)
         cmdIn.cmdId=PLUGIN_STOP_AND_UNLOAD_PLUGUITHREADCMD;
         cmdIn.intParams.push_back(pluginhandle);
         App::logMsg(sim_verbosity_loadinfos,"plugin '%s': unloading...",nm.c_str());
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        if (VThread::isCurrentThreadTheUiThread())
+            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        else
+        {
+            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING; // Needed when a plugin is unloaded on-the-fly
+            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        }
         App::logMsg(sim_verbosity_loadinfos,"plugin '%s': done.",nm.c_str());
         if (cmdOut.boolParams[0])
             retVal=1;

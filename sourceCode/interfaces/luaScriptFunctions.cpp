@@ -1369,6 +1369,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.intparam_verbosity",sim_intparam_verbosity,true},
     {"sim.intparam_statusbarverbosity",sim_intparam_statusbarverbosity,true},
     {"sim.intparam_dlgverbosity",sim_intparam_dlgverbosity,true},
+    {"sim.intparam_exitcode",sim_intparam_exitcode,true},
     {"sim.intparam_videoencoderindex",sim_intparam_videoencoder_index,true},
     {"sim.intparam_compilation_version",sim_intparam_compilation_version,true},
     {"sim.intparam_current_page",sim_intparam_current_page,true},

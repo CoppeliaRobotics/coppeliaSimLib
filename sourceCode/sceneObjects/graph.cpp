@@ -1713,7 +1713,7 @@ void CGraph::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
     _initialExplicitHandling=_explicitHandling;
-    if (simulationAlreadyRunning&&(!_explicitHandling))
+    if (!_explicitHandling)
         resetGraph();
 }
 
