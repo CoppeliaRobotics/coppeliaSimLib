@@ -19,6 +19,7 @@ QT += printsupport
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0
 #DEFINES += OLD_LUA51
+DEFINE += LUA_STACK_COMPATIBILITY_MODE # 06.11.2020
 
 WITH_GUI {
     QT      += widgets
@@ -500,6 +501,7 @@ HEADERS += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackNull.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackBool.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackNumber.h \
+    $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackInteger.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackString.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackTable.h \
 
@@ -928,6 +930,7 @@ SOURCES += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.cpp \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackNull.cpp \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackBool.cpp \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackNumber.cpp \
+    $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackInteger.cpp \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackString.cpp \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackTable.cpp \
 

@@ -1,7 +1,7 @@
-
 #include "interfaceStackObject.h"
 #include "interfaceStackNull.h"
 #include "interfaceStackNumber.h"
+#include "interfaceStackInteger.h"
 #include "interfaceStackBool.h"
 #include "interfaceStackString.h"
 #include "interfaceStackTable.h"
@@ -48,6 +48,11 @@ CInterfaceStackObject* CInterfaceStackObject::createFromDataStatic(const char* d
     if (t==STACK_OBJECT_NUMBER)
     {
         obj=new CInterfaceStackNumber(0.0);
+        retOffset+=obj->createFromData(data+retOffset);
+    }
+    if (t==STACK_OBJECT_INTEGER)
+    {
+        obj=new CInterfaceStackInteger(0);
         retOffset+=obj->createFromData(data+retOffset);
     }
     if (t==STACK_OBJECT_BOOL)

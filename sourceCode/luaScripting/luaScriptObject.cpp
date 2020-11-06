@@ -3705,10 +3705,9 @@ int CLuaScriptObject::_runAddOn(int callType,const CInterfaceStack* inStack,CInt
     {
         CInterfaceStack* outStackCopy=outStackProxy->copyYourself();
         outStackCopy->moveStackItemToTop(0);
-        double retNb;
-        if (outStackCopy->getStackNumberValue(retNb))
+        int r;
+        if (outStackCopy->getStackIntValue(r))
         {
-            int r=int(retNb+0.01);
             if ( (r==sim_syscb_cleanup)||(r==sim_syscb_init) ) // second part is for backward compatibility
                 killLuaState(); // we want to run the clean-up procedure
         }

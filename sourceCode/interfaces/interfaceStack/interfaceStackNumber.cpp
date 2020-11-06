@@ -1,4 +1,3 @@
-
 #include "interfaceStackNumber.h"
 
 CInterfaceStackNumber::CInterfaceStackNumber(double theValue)

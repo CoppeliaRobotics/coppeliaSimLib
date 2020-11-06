@@ -6927,10 +6927,9 @@ simInt simDisplayDialog_internal(const simChar* titleText,const simChar* mainTex
             stack->pushStringOntoStack(initialText,0);
         int stackId=App::worldContainer->interfaceStackContainer->addStack(stack);
         simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.displayDialog",stackId);
-        double d;
-        stack->getStackNumberValue(d);
+        int retVal;
+        stack->getStackIntValue(retVal);
         App::worldContainer->interfaceStackContainer->destroyStack(stackId);
-        int retVal=int(d);
         return(retVal);
 #else
         return(1);
@@ -6954,10 +6953,9 @@ simInt simGetDialogResult_internal(simInt genericDialogHandle)
         stack->pushNumberOntoStack(genericDialogHandle);
         int stackId=App::worldContainer->interfaceStackContainer->addStack(stack);
         simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.getDialogResult",stackId);
-        double d;
-        stack->getStackNumberValue(d);
+        int retVal;
+        stack->getStackIntValue(retVal);
         App::worldContainer->interfaceStackContainer->destroyStack(stackId);
-        int retVal=int(d);
         return(retVal);
 #else
         return(sim_dlgret_cancel);
@@ -7013,10 +7011,7 @@ simInt simEndDialog_internal(simInt genericDialogHandle)
         stack->pushNumberOntoStack(genericDialogHandle);
         int stackId=App::worldContainer->interfaceStackContainer->addStack(stack);
         simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.endDialog",stackId);
-        double d;
-        stack->getStackNumberValue(d);
         App::worldContainer->interfaceStackContainer->destroyStack(stackId);
-        int retVal=int(d);
 #endif
         return(1);
     }
@@ -15394,10 +15389,10 @@ simInt simGetStackInt32Value_internal(simInt stackHandle,simInt* numberValue)
         {
             if (stack->getStackSize()>0)
             {
-                double v;
-                if (stack->getStackNumberValue(v))
+                int v;
+                if (stack->getStackIntValue(v))
                 {
-                    numberValue[0]=(int)v;
+                    numberValue[0]=v;
                     return(1);
                 }
                 return(0);
@@ -15427,10 +15422,10 @@ simInt simGetStackFloatValue_internal(simInt stackHandle,simFloat* numberValue)
         {
             if (stack->getStackSize()>0)
             {
-                double v;
-                if (stack->getStackNumberValue(v))
+                float v;
+                if (stack->getStackFloatValue(v))
                 {
-                    numberValue[0]=(float)v;
+                    numberValue[0]=v;
                     return(1);
                 }
                 return(0);
@@ -15461,7 +15456,7 @@ simInt simGetStackDoubleValue_internal(simInt stackHandle,simDouble* numberValue
             if (stack->getStackSize()>0)
             {
                 double v;
-                if (stack->getStackNumberValue(v))
+                if (stack->getStackDoubleValue(v))
                 {
                     numberValue[0]=v;
                     return(1);

@@ -2,6 +2,7 @@
 #include "interfaceStackNull.h"
 #include "interfaceStackBool.h"
 #include "interfaceStackNumber.h"
+#include "interfaceStackInteger.h"
 #include "interfaceStackString.h"
 #include "interfaceStackTable.h"
 #include <algorithm> // std::sort, etc.
@@ -62,6 +63,8 @@ bool CInterfaceStackTable::getUCharArray(unsigned char* array,int count) const
         int t=_tableObjects[i]->getObjectType();
         if (t==STACK_OBJECT_NUMBER)
             array[i]=(unsigned char)((CInterfaceStackNumber*)_tableObjects[i])->getValue();
+        else if (t==STACK_OBJECT_INTEGER)
+            array[i]=(unsigned char)((CInterfaceStackInteger*)_tableObjects[i])->getValue();
         else
         {
             array[i]=0;
@@ -86,6 +89,8 @@ bool CInterfaceStackTable::getIntArray(int* array,int count) const
         int t=_tableObjects[i]->getObjectType();
         if (t==STACK_OBJECT_NUMBER)
             array[i]=(int)((CInterfaceStackNumber*)_tableObjects[i])->getValue();
+        else if (t==STACK_OBJECT_INTEGER)
+            array[i]=(int)((CInterfaceStackInteger*)_tableObjects[i])->getValue();
         else
         {
             array[i]=0;
@@ -110,6 +115,8 @@ bool CInterfaceStackTable::getFloatArray(float* array,int count) const
         int t=_tableObjects[i]->getObjectType();
         if (t==STACK_OBJECT_NUMBER)
             array[i]=(float)((CInterfaceStackNumber*)_tableObjects[i])->getValue();
+        else if (t==STACK_OBJECT_INTEGER)
+            array[i]=(float)((CInterfaceStackInteger*)_tableObjects[i])->getValue();
         else
         {
             array[i]=0.0;
@@ -134,6 +141,8 @@ bool CInterfaceStackTable::getDoubleArray(double* array,int count) const
         int t=_tableObjects[i]->getObjectType();
         if (t==STACK_OBJECT_NUMBER)
             array[i]=((CInterfaceStackNumber*)_tableObjects[i])->getValue();
+        else if (t==STACK_OBJECT_INTEGER)
+            array[i]=((CInterfaceStackInteger*)_tableObjects[i])->getValue();
         else
         {
             array[i]=0.0;
@@ -219,6 +228,18 @@ bool CInterfaceStackTable::removeFromKey(const CInterfaceStackObject* keyToRemov
                 return(true);
             }
         }
+        if ( (key->getObjectType()==STACK_OBJECT_INTEGER)&&(keyToRemove->getObjectType()==STACK_OBJECT_INTEGER) )
+        {
+            luaWrap_lua_Integer theKey1(((CInterfaceStackInteger*)key)->getValue());
+            luaWrap_lua_Integer theKey2(((CInterfaceStackInteger*)keyToRemove)->getValue());
+            if (theKey1==theKey2)
+            {
+                delete key;
+                delete obj;
+                _tableObjects.erase(_tableObjects.begin()+2*i,_tableObjects.begin()+2*i+2);
+                return(true);
+            }
+        }
         if ( (key->getObjectType()==STACK_OBJECT_BOOL)&&(keyToRemove->getObjectType()==STACK_OBJECT_BOOL) )
         {
             double theKey1(((CInterfaceStackBool*)key)->getValue());
@@ -254,6 +275,13 @@ void CInterfaceStackTable::appendMapObject(CInterfaceStackObject* obj,double key
     _tableObjects.push_back(obj);
 }
 
+void CInterfaceStackTable::appendMapObject(CInterfaceStackObject* obj,luaWrap_lua_Integer key)
+{
+    _isTableArray=false;
+    _tableObjects.push_back(new CInterfaceStackInteger(key));
+    _tableObjects.push_back(obj);
+}
+
 void CInterfaceStackTable::appendMapObject(CInterfaceStackObject* obj,bool key)
 {
     _isTableArray=false;
@@ -268,9 +296,17 @@ void CInterfaceStackTable::appendArrayOrMapObject(CInterfaceStackObject* obj,CIn
     bool valueInserted=false;
     if (_isTableArray)
     {
-        if (key->getObjectType()==STACK_OBJECT_NUMBER)
+        if ( (key->getObjectType()==STACK_OBJECT_NUMBER)||(key->getObjectType()==STACK_OBJECT_INTEGER) )
         {
-            int ind=(int)((CInterfaceStackNumber*)key)->getValue();
+            luaWrap_lua_Integer ind;
+            if (key->getObjectType()==STACK_OBJECT_NUMBER)
+            {
+                ind=(luaWrap_lua_Integer)((CInterfaceStackNumber*)key)->getValue();
+                if ( ((double)ind)!=((CInterfaceStackNumber*)key)->getValue() )
+                    ind=-1; // this can't be an array, not a round index
+            }
+            else
+                ind=((CInterfaceStackInteger*)key)->getValue();
             if (int(_tableObjects.size())+1==ind)
             {
                 _tableObjects.push_back(obj);
@@ -285,7 +321,7 @@ void CInterfaceStackTable::appendArrayOrMapObject(CInterfaceStackObject* obj,CIn
         { // we need to convert the table to a map representation:
             size_t l=_tableObjects.size();
             for (size_t i=0;i<l;i++)
-                _tableObjects.insert(_tableObjects.begin()+2*i,new CInterfaceStackNumber((double)(i+1)));
+                _tableObjects.insert(_tableObjects.begin()+2*i,new CInterfaceStackInteger(i+1));
         }
         _isTableArray=false;
         removeFromKey(key); // first remove a possibly existing object with the same key
@@ -301,7 +337,7 @@ CInterfaceStackObject* CInterfaceStackTable::getArrayItemAtIndex(int ind) const
     return(_tableObjects[ind]);
 }
 
-CInterfaceStackObject* CInterfaceStackTable::getMapItemAtIndex(int ind,std::string& stringKey,double& numberKey,bool& boolKey,int& keyType) const
+CInterfaceStackObject* CInterfaceStackTable::getMapItemAtIndex(int ind,std::string& stringKey,double& numberKey,luaWrap_lua_Integer& integerKey,bool& boolKey,int& keyType) const
 {
     if ( (_isTableArray)||(ind>=(int)_tableObjects.size()/2) )
         return(nullptr);
@@ -315,6 +351,11 @@ CInterfaceStackObject* CInterfaceStackTable::getMapItemAtIndex(int ind,std::stri
     {
         CInterfaceStackNumber* keyObj=(CInterfaceStackNumber*)_tableObjects[2*ind+0];
         numberKey=keyObj->getValue();
+    }
+    if (keyType==STACK_OBJECT_INTEGER)
+    {
+        CInterfaceStackInteger* keyObj=(CInterfaceStackInteger*)_tableObjects[2*ind+0];
+        integerKey=keyObj->getValue();
     }
     if (keyType==STACK_OBJECT_STRING)
     {
@@ -347,7 +388,7 @@ void CInterfaceStackTable::setUCharArray(const unsigned char* array,int l)
     _tableObjects.clear();
     _isTableArray=true;
     for (int i=0;i<l;i++)
-        _tableObjects.push_back(new CInterfaceStackNumber((double)array[i]));
+        _tableObjects.push_back(new CInterfaceStackInteger(array[i]));
 }
 
 void CInterfaceStackTable::setIntArray(const int* array,int l)
@@ -355,7 +396,7 @@ void CInterfaceStackTable::setIntArray(const int* array,int l)
     _tableObjects.clear();
     _isTableArray=true;
     for (int i=0;i<l;i++)
-        _tableObjects.push_back(new CInterfaceStackNumber((double)array[i]));
+        _tableObjects.push_back(new CInterfaceStackInteger(array[i]));
 }
 
 void CInterfaceStackTable::setFloatArray(const float* array,int l)
@@ -385,20 +426,22 @@ int CInterfaceStackTable::getTableInfo(int infoType) const
         return(sim_stack_table_map);
     }
     int retVal=0;
-    if ( (infoType==1)&&_areAllValueThis(STACK_OBJECT_NULL) )
+    if ( (infoType==1)&&_areAllValueThis(STACK_OBJECT_NULL,false) )
         retVal=1;
-    if ( (infoType==2)&&_areAllValueThis(STACK_OBJECT_NUMBER) )
+    if ( (infoType==2)&&_areAllValueThis(STACK_OBJECT_NUMBER,true) )
         retVal=1;
-    if ( (infoType==3)&&_areAllValueThis(STACK_OBJECT_BOOL) )
+    if ( (infoType==3)&&_areAllValueThis(STACK_OBJECT_BOOL,false) )
         retVal=1;
-    if ( (infoType==4)&&_areAllValueThis(STACK_OBJECT_STRING) )
+    if ( (infoType==4)&&_areAllValueThis(STACK_OBJECT_STRING,false) )
         retVal=1;
-    if ( (infoType==5)&&_areAllValueThis(STACK_OBJECT_TABLE) )
+    if ( (infoType==5)&&_areAllValueThis(STACK_OBJECT_TABLE,false) )
+        retVal=1;
+    if ( (infoType==6)&&_areAllValueThis(STACK_OBJECT_INTEGER,false) )
         retVal=1;
     return(retVal);
 }
 
-bool CInterfaceStackTable::_areAllValueThis(int what) const
+bool CInterfaceStackTable::_areAllValueThis(int what,bool integerAndDoubleTolerant) const
 {
     if (_tableObjects.size()==0)
         return(true);
@@ -406,16 +449,32 @@ bool CInterfaceStackTable::_areAllValueThis(int what) const
     {
         for (size_t i=0;i<_tableObjects.size();i++)
         {
-            if (_tableObjects[i]->getObjectType()!=what)
-                return(false);
+            if ( integerAndDoubleTolerant&&((what==STACK_OBJECT_NUMBER)||(what=STACK_OBJECT_INTEGER)) )
+            {
+                if ( (_tableObjects[i]->getObjectType()!=STACK_OBJECT_NUMBER)&&(_tableObjects[i]->getObjectType()!=STACK_OBJECT_INTEGER) )
+                    return(false);
+            }
+            else
+            {
+                if (_tableObjects[i]->getObjectType()!=what)
+                    return(false);
+            }
         }
     }
     else
     {
         for (size_t i=0;i<_tableObjects.size()/2;i++)
         {
-            if (_tableObjects[2*i+1]->getObjectType()!=what)
-                return(false);
+            if ( integerAndDoubleTolerant&&((what==STACK_OBJECT_NUMBER)||(what=STACK_OBJECT_INTEGER)) )
+            {
+                if ( (_tableObjects[2*i+1]->getObjectType()!=STACK_OBJECT_NUMBER)&&(_tableObjects[2*i+1]->getObjectType()!=STACK_OBJECT_INTEGER) )
+                    return(false);
+            }
+            else
+            {
+                if (_tableObjects[2*i+1]->getObjectType()!=what)
+                    return(false);
+            }
         }
     }
     return(true);
@@ -484,6 +543,7 @@ std::string CInterfaceStackTable::getObjectData() const
         int boolFalse=-1;
         int boolTrue=-1;
         std::vector<std::pair<double,int>> numberKeys;
+        std::vector<std::pair<luaWrap_lua_Integer,int>> integerKeys;
         std::vector<std::pair<std::string,int>> stringKeys;
         for (int i=0;i<int(_tableObjects.size()/2);i++)
         {
@@ -497,6 +557,8 @@ std::string CInterfaceStackTable::getObjectData() const
             }
             else if (key->getObjectType()==STACK_OBJECT_NUMBER)
                 numberKeys.push_back(std::make_pair(((CInterfaceStackNumber*)key)->getValue(),i));
+            else if (key->getObjectType()==STACK_OBJECT_INTEGER)
+                integerKeys.push_back(std::make_pair(((CInterfaceStackInteger*)key)->getValue(),i));
             else if (key->getObjectType()==STACK_OBJECT_STRING)
                 stringKeys.push_back(std::make_pair(((CInterfaceStackString*)key)->getValue(nullptr),i));
             else
@@ -523,10 +585,19 @@ std::string CInterfaceStackTable::getObjectData() const
             retVal+=_tableObjects[2*boolTrue+1]->getObjectData();
         }
         std::sort(numberKeys.begin(),numberKeys.end());
+        std::sort(integerKeys.begin(),integerKeys.end());
         std::sort(stringKeys.begin(),stringKeys.end());
         for (size_t i=0;i<numberKeys.size();i++)
         {
             int ind=numberKeys[i].second;
+            retVal.push_back((char)_tableObjects[2*ind+0]->getObjectType());
+            retVal+=_tableObjects[2*ind+0]->getObjectData();
+            retVal.push_back((char)_tableObjects[2*ind+1]->getObjectType());
+            retVal+=_tableObjects[2*ind+1]->getObjectData();
+        }
+        for (size_t i=0;i<integerKeys.size();i++)
+        {
+            int ind=integerKeys[i].second;
             retVal.push_back((char)_tableObjects[2*ind+0]->getObjectType());
             retVal+=_tableObjects[2*ind+0]->getObjectData();
             retVal.push_back((char)_tableObjects[2*ind+1]->getObjectType());
@@ -585,6 +656,8 @@ bool CInterfaceStackTable::checkCreateFromData(const char* data,unsigned int& w,
             res=CInterfaceStackNull::checkCreateFromData(data+w,v,l-w);
         if (t==STACK_OBJECT_NUMBER)
             res=CInterfaceStackNumber::checkCreateFromData(data+w,v,l-w);
+        if (t==STACK_OBJECT_INTEGER)
+            res=CInterfaceStackInteger::checkCreateFromData(data+w,v,l-w);
         if (t==STACK_OBJECT_BOOL)
             res=CInterfaceStackBool::checkCreateFromData(data+w,v,l-w);
         if (t==STACK_OBJECT_STRING)

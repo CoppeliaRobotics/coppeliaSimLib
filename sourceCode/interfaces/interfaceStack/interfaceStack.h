@@ -25,6 +25,7 @@ public:
     void pushNullOntoStack();
     void pushBoolOntoStack(bool v);
     void pushNumberOntoStack(double v);
+    void pushIntegerOntoStack(luaWrap_lua_Integer v);
     void pushStringOntoStack(const char* str,int l);
     void pushUCharArrayTableOntoStack(const unsigned char* arr,int l);
     void pushIntArrayTableOntoStack(const int* arr,int l);
@@ -40,7 +41,12 @@ public:
     void popStackValue(int cnt);
     bool moveStackItemToTop(int cIndex);
     bool getStackBoolValue(bool& theValue) const;
-    bool getStackNumberValue(double& theValue) const;
+    bool getStackStrictNumberValue(double& theValue) const;
+    bool getStackStrictIntegerValue(luaWrap_lua_Integer& theValue) const;
+    bool getStackDoubleValue(double& theValue) const;
+    bool getStackFloatValue(float& theValue) const;
+    bool getStackLongIntValue(luaWrap_lua_Integer& theValue) const;
+    bool getStackIntValue(int& theValue) const;
     bool getStackStringValue(std::string& theValue) const;
     bool isStackValueNull() const;
     int getStackTableInfo(int infoType) const;
@@ -51,8 +57,11 @@ public:
     bool unfoldStackTable();
     CInterfaceStackObject* getStackMapObject(const char* fieldName) const;
     bool getStackMapBoolValue(const char* fieldName,bool& val) const;
+    bool getStackMapStrictNumberValue(const char* fieldName,double& val) const;
+    bool getStackMapStrictIntegerValue(const char* fieldName,luaWrap_lua_Integer& val) const;
     bool getStackMapDoubleValue(const char* fieldName,double& val) const;
     bool getStackMapFloatValue(const char* fieldName,float& val) const;
+    bool getStackMapLongIntValue(const char* fieldName,luaWrap_lua_Integer& val) const;
     bool getStackMapIntValue(const char* fieldName,int& val) const;
     bool getStackMapStringValue(const char* fieldName,std::string& val) const;
     bool getStackMapFloatArray(const char* fieldName,float* array,int count) const;

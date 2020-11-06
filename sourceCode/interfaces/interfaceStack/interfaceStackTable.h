@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "interfaceStackObject.h"
@@ -23,7 +22,7 @@ public:
     void setCircularRef();
 
     CInterfaceStackObject* getArrayItemAtIndex(int ind) const;
-    CInterfaceStackObject* getMapItemAtIndex(int ind,std::string& stringKey,double& numberKey,bool& boolKey,int& keyType) const;
+    CInterfaceStackObject* getMapItemAtIndex(int ind,std::string& stringKey,double& numberKey,luaWrap_lua_Integer& integerKey,bool& boolKey,int& keyType) const;
     void getAllObjectsAndClearTable(std::vector<CInterfaceStackObject*>& allObjs);
 
     void setUCharArray(const unsigned char* array,int l);
@@ -33,6 +32,7 @@ public:
 
     void appendArrayObject(CInterfaceStackObject* obj);
     void appendMapObject(CInterfaceStackObject* obj,const char* key);
+    void appendMapObject(CInterfaceStackObject* obj,luaWrap_lua_Integer key);
     void appendMapObject(CInterfaceStackObject* obj,double key);
     void appendMapObject(CInterfaceStackObject* obj,bool key);
     void appendArrayOrMapObject(CInterfaceStackObject* obj,CInterfaceStackObject* key);
@@ -48,7 +48,7 @@ public:
     int getTableInfo(int infoType) const;
 
 protected:
-    bool _areAllValueThis(int what) const;
+    bool _areAllValueThis(int what,bool integerAndDoubleTolerant) const;
 
     std::vector<CInterfaceStackObject*> _tableObjects;
     bool _isTableArray;

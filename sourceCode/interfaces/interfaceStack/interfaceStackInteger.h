@@ -2,11 +2,11 @@
 
 #include "interfaceStackObject.h"
 
-class CInterfaceStackNumber : public CInterfaceStackObject
+class CInterfaceStackInteger : public CInterfaceStackObject
 {
 public:
-    CInterfaceStackNumber(double theValue);
-    virtual ~CInterfaceStackNumber();
+    CInterfaceStackInteger(luaWrap_lua_Integer theValue);
+    virtual ~CInterfaceStackInteger();
 
     CInterfaceStackObject* copyYourself() const;
     void printContent(int spaces,std::string& buffer) const;
@@ -14,9 +14,9 @@ public:
     unsigned int createFromData(const char* data);
     static bool checkCreateFromData(const char* data,unsigned int& w,unsigned int l);
 
-    double getValue() const;
-    void setValue(double theValue);
+    luaWrap_lua_Integer getValue() const;
+    void setValue(luaWrap_lua_Integer theValue);
 
 protected:
-    double _value;
+    luaWrap_lua_Integer _value;
 };
