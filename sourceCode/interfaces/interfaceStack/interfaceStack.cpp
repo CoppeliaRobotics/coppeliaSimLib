@@ -215,7 +215,7 @@ CInterfaceStackTable* CInterfaceStack::_generateTableMapFromLuaStack(luaWrap_lua
 CInterfaceStackTable* CInterfaceStack::_generateTableArrayFromLuaStack(luaWrap_lua_State* L,int index,std::map<void*,bool>& visitedTables)
 { // there must be a table at the given index.
     CInterfaceStackTable* table=new CInterfaceStackTable();
-    int arraySize=int(luaWrap_lua_objlen(L,index));
+    int arraySize=int(luaWrap_lua_rawlen(L,index));
     for (int i=0;i<arraySize;i++)
     {
         // Push the element i+1 of the table to the top of Lua's stack:
@@ -257,7 +257,7 @@ CInterfaceStackObject* CInterfaceStack::_generateObjectFromLuaStack(luaWrap_lua_
         {
             visitedTables[p]=true;
             int tableValueCnt=_countLuaStackTableEntries(L,index);
-            int arraySize=int(luaWrap_lua_objlen(L,index));
+            int arraySize=int(luaWrap_lua_rawlen(L,index));
             if (tableValueCnt==arraySize)
             { // we have an array (or keys that go from "1" to arraySize):
                 table=_generateTableArrayFromLuaStack(L,index,visitedTables);

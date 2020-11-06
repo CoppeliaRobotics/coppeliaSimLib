@@ -9,10 +9,8 @@
 std::vector<contactCallback>& getAllContactCallbacks();
 std::vector<jointCtrlCallback>& getAllJointCtrlCallbacks();
 
-void setCNameSuffixNumber_OLD(int number);
-int getCNameSuffixNumber_OLD();
-
-void setCurrentScriptHandle_cSide(int h);
+void setCurrentScriptNameIndex_cSide(int number);
+int getCurrentScriptNameIndex_cSide();
 std::string getIndexAdjustedObjectName(const char* nm);
 
 

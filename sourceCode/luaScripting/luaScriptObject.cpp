@@ -1980,7 +1980,7 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
     if (_scriptType==sim_scripttype_sandboxscript)
     {
         scriptID=SIM_IDSTART_SANDBOXSCRIPT;
-        L=initializeNewLuaState(getScriptSuffixNumberString().c_str(),_debugLevel);
+        L=initializeNewLuaState(getScriptNameIndexNumber(),_debugLevel);
         _calledInThisSimulationStep=false;
         _raiseErrors_backCompatibility=true;
         _randGen.seed(123456);
@@ -2987,18 +2987,16 @@ void CLuaScriptObject::setAddOnName(const char* name)
     _addOnName=name;
 }
 
-std::string CLuaScriptObject::getScriptSuffixNumberString() const
+int CLuaScriptObject::getScriptNameIndexNumber() const
 {
-    CSceneObject* it=nullptr;
+    int retVal=-1;
     if ( (_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
-        it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectIDAttachedTo);
-    if (it==nullptr)
-        return("");
-    int suffNb=tt::getNameSuffixNumber(it->getObjectName().c_str(),true);
-    std::string suffix("");
-    if (suffNb!=-1)
-        suffix=boost::lexical_cast<std::string>(suffNb);
-    return(suffix);
+    {
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectIDAttachedTo);
+        if (it!=nullptr)
+            retVal=tt::getNameSuffixNumber(it->getObjectName().c_str(),true);
+    }
+    return(retVal);
 }
 
 std::string CLuaScriptObject::getScriptPseudoName() const
@@ -3283,7 +3281,7 @@ void CLuaScriptObject::_launchThreadedChildScriptNow()
 
     if (L==nullptr)
     {
-        L=initializeNewLuaState(getScriptSuffixNumberString().c_str(),_debugLevel);
+        L=initializeNewLuaState(getScriptNameIndexNumber(),_debugLevel);
         _forbidAutoYieldingLevel=0;
         _calledInThisSimulationStep=false;
         _raiseErrors_backCompatibility=true;
@@ -3453,7 +3451,7 @@ int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfa
     }
     if (L==nullptr)
     {
-        L=initializeNewLuaState(getScriptSuffixNumberString().c_str(),_debugLevel);
+        L=initializeNewLuaState(getScriptNameIndexNumber(),_debugLevel);
         _calledInThisSimulationStep=false;
         _raiseErrors_backCompatibility=true;
         _randGen.seed(123456);
@@ -4857,7 +4855,7 @@ int CLuaScriptObject::appendTableEntry(const char* arrayName,const char* keyName
     // The table where we want to append a value:
     luaWrap_lua_getglobal(L,arrayName);
     int theTablePos=luaWrap_lua_gettop(L);
-    int theTableLength=int(luaWrap_lua_objlen(L,theTablePos));
+    int theTableLength=int(luaWrap_lua_rawlen(L,theTablePos));
 
     // Do we want to simply insert the value, or do we want to insert a keyed value?
     if ( (keyName==nullptr)||(strlen(keyName)==0) )
@@ -4956,7 +4954,7 @@ void CLuaScriptObject::handleDebug(const char* funcName,const char* funcType,boo
                     luaWrap_lua_rawseti(L,-2,3);
                     luaWrap_lua_pushboolean(L,inCall);
                     luaWrap_lua_rawseti(L,-2,4);
-                    luaWrap_lua_pushnumber(L,_debugLevel);
+                    luaWrap_lua_pushinteger(L,_debugLevel);
                     luaWrap_lua_rawseti(L,-2,5);
                     luaWrap_lua_pushboolean(L,sysCall);
                     luaWrap_lua_rawseti(L,-2,6);
@@ -6055,6 +6053,21 @@ void CLuaScriptObject::_adjustScriptText13(CLuaScriptObject* scriptObject,bool d
 
     if ( (App::userSettings->xrTest==123456789)&&(_scriptType!=sim_scripttype_mainscript) )
     {
+        const char txt1[]="function sysCall_actuation()\n\
+    if coroutine.status(corout)~='dead' then\n\
+        local ok,errorMsg=coroutine.resume(corout)\n\
+        if errorMsg then\n\
+            error(errorMsg)\n\
+        end\n";
+        const char txt2[]="function sysCall_actuation()\n\
+    if coroutine.status(corout)~='dead' then\n\
+        local ok,errorMsg=coroutine.resume(corout)\n\
+        if errorMsg then\n\
+            error(debug.traceback(corout,errorMsg),2)\n\
+        end\n";
+        _replaceScriptText(scriptObject,txt1,txt2);
+
+
         if (_containsScriptText(scriptObject," thread"))
             App::logMsg(sim_verbosity_errors,"Contains the word 'thread'");
         if (_containsScriptText(scriptObject," Thread"))
@@ -6308,7 +6321,7 @@ function sysCall_actuation()\n\
     if coroutine.status(corout)~='dead' then\n\
         local ok,errorMsg=coroutine.resume(corout)\n\
         if errorMsg then\n\
-            error(errorMsg)\n\
+            error(debug.traceback(corout,errorMsg),2)\n\
         end\n";
              if (!_executeJustOnce)
                 txt+="    else\n        corout=coroutine.create(coroutineMain)\n";

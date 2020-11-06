@@ -41,7 +41,7 @@ public:
 
     std::string getDescriptiveName() const;
     std::string getShortDescriptiveName() const;
-    std::string getScriptSuffixNumberString() const;
+    int getScriptNameIndexNumber() const;
     std::string getScriptPseudoName() const;
     void setAddOnName(const char* name);
     std::string getAddOnName() const;

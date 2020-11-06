@@ -18,6 +18,7 @@ CONFIG(debug,debug|release) {
 QT += printsupport
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0
+#DEFINES += OLD_LUA51
 
 WITH_GUI {
     QT      += widgets

@@ -32,6 +32,11 @@ struct luaWrap_lua_Debug
 
 typedef void luaWrap_lua_State;
 typedef double luaWrap_lua_Number;
+#ifdef OLD_LUA51
+typedef ptrdiff_t luaWrap_lua_Integer;
+#else
+typedef long long int luaWrap_lua_Integer;
+#endif
 typedef void (*luaWrap_lua_Hook) (luaWrap_lua_State* L,luaWrap_lua_Debug* ar);
 typedef int (*luaWrap_lua_CFunction) (luaWrap_lua_State* L);
 
@@ -47,17 +52,22 @@ int luaWrapGet_LUA_MASKRET();
 int luaWrapGet_LUA_HOOKCOUNT();
 int luaWrapGet_LUA_HOOKCALL();
 int luaWrapGet_LUA_HOOKRET();
+#ifdef OLD_LUA51
 int luaWrapGet_LUA_GLOBALSINDEX();
+#else
+int luaWrapGet_LUA_REGISTRYINDEX();
+int luaWrapGet_LUA_RIDX_GLOBALS();
+#endif
 
 luaWrap_lua_State* luaWrap_luaL_newstate();
 void luaWrap_lua_close(luaWrap_lua_State* L);
 void luaWrap_luaL_openlibs(luaWrap_lua_State* L);
-int luaWrap_lua_sethook(luaWrap_lua_State* L,luaWrap_lua_Hook func,int mask,int cnt);
+void luaWrap_lua_sethook(luaWrap_lua_State* L,luaWrap_lua_Hook func,int mask,int cnt);
 void luaWrap_lua_register(luaWrap_lua_State* L,const char* name,luaWrap_lua_CFunction func);
-void luaWrap_lua_pushnumber(luaWrap_lua_State* L,luaWrap_lua_Number n);
 void luaWrap_lua_pushnil(luaWrap_lua_State* L);
 void luaWrap_lua_pushboolean(luaWrap_lua_State* L,int b);
-void luaWrap_lua_pushinteger(luaWrap_lua_State* L,int n);
+void luaWrap_lua_pushinteger(luaWrap_lua_State* L,luaWrap_lua_Integer n);
+void luaWrap_lua_pushnumber(luaWrap_lua_State* L,luaWrap_lua_Number n);
 void luaWrap_lua_pushstring(luaWrap_lua_State* L,const char* str);
 void luaWrap_lua_pushlstring(luaWrap_lua_State* L,const char* str,size_t l);
 void luaWrap_lua_pushcclosure(luaWrap_lua_State* L,luaWrap_lua_CFunction func,int n);
@@ -87,7 +97,7 @@ void luaWrap_lua_getglobal(luaWrap_lua_State* L,const char* str);
 void luaWrap_lua_pop(luaWrap_lua_State* L,int n);
 int luaWrap_lua_gettop(luaWrap_lua_State* L);
 void luaWrap_lua_settop(luaWrap_lua_State* L,int idx);
-size_t luaWrap_lua_objlen(luaWrap_lua_State* L,int idx);
+size_t luaWrap_lua_rawlen(luaWrap_lua_State* L,int idx);
 void luaWrap_lua_rawgeti(luaWrap_lua_State* L,int idx,int n);
 void luaWrap_lua_rawseti(luaWrap_lua_State* L,int idx,int n);
 void luaWrap_lua_newtable(luaWrap_lua_State* L);

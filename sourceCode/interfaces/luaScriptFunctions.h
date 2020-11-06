@@ -29,7 +29,7 @@ struct SLuaVariables
 };
 
 
-luaWrap_lua_State* initializeNewLuaState(const char* scriptSuffixNumberString,int debugLevel);
+luaWrap_lua_State* initializeNewLuaState(int scriptNameIndex,int debugLevel);
 std::string getAdditionalLuaSearchPath();
 void registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char const* const functionName,luaWrap_lua_CFunction functionCallback);
 void registerNewLuaFunctions(luaWrap_lua_State* L);
@@ -80,6 +80,8 @@ double luaToDouble(luaWrap_lua_State* L,int pos);
 bool luaToBool(luaWrap_lua_State* L,int pos);
 
 int getCurrentScriptHandle(luaWrap_lua_State* L);
+void setScriptNameIndex(luaWrap_lua_State* L,int index);
+int getScriptNameIndex(luaWrap_lua_State* L);
 
 void getScriptTree_mainOr(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scriptHandles);
 void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std::vector<int>& scriptHandles);

@@ -75,11 +75,17 @@ void CLuaCustomFunction::registerCustomLuaFunction(luaWrap_lua_State* L,luaWrap_
         if (p!=std::string::npos)
         { // this is the new notation, e.g. simUI.create()
             std::string prefix(functionName.begin(),functionName.begin()+p);
-
-            luaWrap_lua_pushnumber(L,functionID+1);
+#ifdef OLD_LUA51
+            luaWrap_lua_pushinteger(L,functionID+1);
             luaWrap_lua_pushcclosure(L,func,1);
             luaWrap_lua_setfield(L,luaWrapGet_LUA_GLOBALSINDEX(),"__iuafkjsdgoi158zLK");
-
+#else
+            luaWrap_lua_rawgeti(L,luaWrapGet_LUA_REGISTRYINDEX(),luaWrapGet_LUA_RIDX_GLOBALS()); // table of globals
+            luaWrap_lua_pushinteger(L,functionID+1);
+            luaWrap_lua_pushcclosure(L,func,1);
+            luaWrap_lua_setfield(L,-2,"__iuafkjsdgoi158zLK");
+            luaWrap_lua_pop(L,1); // pop table of globals
+#endif
             std::string tmp("if not ");
             tmp+=prefix;
             tmp+=" then ";
@@ -91,9 +97,17 @@ void CLuaCustomFunction::registerCustomLuaFunction(luaWrap_lua_State* L,luaWrap_
         }
         else
         {
-            luaWrap_lua_pushnumber(L,functionID+1);
+#ifdef OLD_LUA51
+            luaWrap_lua_pushinteger(L,functionID+1);
             luaWrap_lua_pushcclosure(L,func,1);
             luaWrap_lua_setfield(L,luaWrapGet_LUA_GLOBALSINDEX(),functionName.c_str());
+#else
+            luaWrap_lua_rawgeti(L,luaWrapGet_LUA_REGISTRYINDEX(),luaWrapGet_LUA_RIDX_GLOBALS()); // table of globals
+            luaWrap_lua_pushinteger(L,functionID+1);
+            luaWrap_lua_pushcclosure(L,func,1);
+            luaWrap_lua_setfield(L,-2,functionName.c_str());
+            luaWrap_lua_pop(L,1); // pop table of globals
+#endif
         }
     }
 }

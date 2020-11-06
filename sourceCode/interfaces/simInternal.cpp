@@ -52,9 +52,7 @@
     std::vector<CSimAndUiThreadSync*> _extLockList;
 #endif
 
-bool cNameSuffixAdjustmentTemporarilyDisabled_OLD=false;
-int cNameSuffixNumber_OLD=-1;
-int _currentScriptHandle=-1;
+int _currentScriptNameIndex=-1;
 
 bool outputSceneOrModelLoadMessagesWithApiCall=false;
 bool fullModelCopyFromApi=true;
@@ -497,36 +495,18 @@ std::vector<jointCtrlCallback>& getAllJointCtrlCallbacks()
     return(allJointCtrlCallbacks);
 }
 
-void setCurrentScriptHandle_cSide(int h)
-{
-    _currentScriptHandle=h;
-}
-
 std::string getIndexAdjustedObjectName(const char* nm)
 {
     std::string retVal;
     if (strlen(nm)!=0)
     {
         retVal=nm;
-        if ( (_currentScriptHandle!=-1)&&(retVal.find('#')==std::string::npos) )
+        if (retVal.find('#')==std::string::npos)
         { // e.g. "myObject42"
-            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_currentScriptHandle);
-            if (script!=nullptr)
-            {
-                int objHandle=script->getObjectIDThatScriptIsAttachedTo();
-                if (objHandle!=-1)
-                {
-                    CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
-                    if (obj!=nullptr)
-                    {
-                        int scriptIndex=tt::getNameSuffixNumber(obj->getObjectName().c_str(),true);
-                        if (scriptIndex!=-1)
-                        { // e.g. scriptIndex==0 --> script attached to object "xxx#0"
-                            retVal+="#";
-                            retVal+=boost::lexical_cast<std::string>(scriptIndex);
-                        }
-                    }
-                }
+            if (_currentScriptNameIndex!=-1)
+            { // for backward compatibility
+                retVal+="#";
+                retVal+=boost::lexical_cast<std::string>(_currentScriptNameIndex);
             }
         }
         if ( (retVal.length()!=0)&&(retVal[retVal.length()-1]=='#') ) // e.g. "myObject#"
@@ -535,14 +515,14 @@ std::string getIndexAdjustedObjectName(const char* nm)
     return(retVal);
 }
 
-void setCNameSuffixNumber_OLD(int number)
+void setCurrentScriptNameIndex_cSide(int number)
 {
-    cNameSuffixNumber_OLD=number;
+    _currentScriptNameIndex=number;
 }
 
-int getCNameSuffixNumber_OLD()
+int getCurrentScriptNameIndex_cSide()
 {
-    return(cNameSuffixNumber_OLD);
+    return(_currentScriptNameIndex);
 }
 
 bool isSimulatorInitialized(const char* functionName)
@@ -6003,31 +5983,20 @@ simInt simCheckProximitySensorEx_internal(simInt sensorHandle,simInt entityHandl
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,sensorHandle))
-        {
             return(-1);
-        }
         if (!isSensor(__func__,sensorHandle))
-        {
             return(-1);
-        }
         if ( (entityHandle!=sim_handle_all)&&(!doesEntityExist(__func__,entityHandle)) )
-        {
             return(-1);
-        }
         if (entityHandle==sim_handle_all)
             entityHandle=-1;
-
         if (!App::currentWorld->mainSettings->proximitySensorsEnabled)
-        {
             return(0);
-        }
 
         bool frontFace=SIM_IS_BIT_SET(detectionMode,0);
         bool backFace=SIM_IS_BIT_SET(detectionMode,1);
@@ -6596,9 +6565,7 @@ simFloat simGetSimulationTimeStep_internal()
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1.0f);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -20209,7 +20176,7 @@ simInt simGetNameSuffix_internal(const simChar* name)
     if (name!=nullptr)
         suffixNumber=tt::getNameSuffixNumber(name,true);
     else
-        suffixNumber=getCNameSuffixNumber_OLD();
+        suffixNumber=getCurrentScriptNameIndex_cSide();
     return(suffixNumber);
 }
 
@@ -20219,7 +20186,7 @@ simInt simSetNameSuffix_internal(simInt nameSuffixNumber)
 
     if (nameSuffixNumber<-1)
         nameSuffixNumber=-1;
-    setCNameSuffixNumber_OLD(nameSuffixNumber);
+    setCurrentScriptNameIndex_cSide(nameSuffixNumber);
     return(1);
 }
 
