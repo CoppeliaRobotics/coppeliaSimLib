@@ -171,7 +171,6 @@ SIM_DLLEXPORT simInt simRegisterScriptCallbackFunction(const simChar* funcNameAt
 SIM_DLLEXPORT simInt simRegisterScriptVariable(const simChar* varNameAtPluginName,const simChar* varValue,simInt stackHandle);
 SIM_DLLEXPORT simInt simSetJointTargetVelocity(simInt objectHandle,simFloat targetVelocity);
 SIM_DLLEXPORT simInt simGetJointTargetVelocity(simInt objectHandle,simFloat* targetVelocity);
-SIM_DLLEXPORT simInt simSetPathTargetNominalVelocity(simInt objectHandle,simFloat targetNominalVelocity);
 SIM_DLLEXPORT simInt simCopyPasteObjects(simInt* objectHandles,simInt objectCount,simInt options);
 SIM_DLLEXPORT simInt simScaleSelectedObjects(simFloat scalingFactor,simBool scalePositionsToo);
 SIM_DLLEXPORT simInt simScaleObjects(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo);
@@ -648,6 +647,7 @@ SIM_DLLEXPORT simInt simLockResources(simInt lockType,simInt reserved);
 SIM_DLLEXPORT simInt simUnlockResources(simInt lockHandle);
 SIM_DLLEXPORT simChar* simGetUserParameter(simInt objectHandle,const simChar* parameterName,simInt* parameterLength);
 SIM_DLLEXPORT simInt simSetUserParameter(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength);
+SIM_DLLEXPORT simInt simSetPathTargetNominalVelocity(simInt objectHandle,simFloat targetNominalVelocity);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

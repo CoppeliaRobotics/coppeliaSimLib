@@ -261,10 +261,10 @@ void CInterfaceStackTable::appendArrayObject(CInterfaceStackObject* obj)
     _tableObjects.push_back(obj);
 }
 
-void CInterfaceStackTable::appendMapObject(CInterfaceStackObject* obj,const char* key)
+void CInterfaceStackTable::appendMapObject(CInterfaceStackObject* obj,const char* key,size_t l)
 {
     _isTableArray=false;
-    _tableObjects.push_back(new CInterfaceStackString(key,0));
+    _tableObjects.push_back(new CInterfaceStackString(key,l));
     _tableObjects.push_back(obj);
 }
 
@@ -360,7 +360,10 @@ CInterfaceStackObject* CInterfaceStackTable::getMapItemAtIndex(int ind,std::stri
     if (keyType==STACK_OBJECT_STRING)
     {
         CInterfaceStackString* keyObj=(CInterfaceStackString*)_tableObjects[2*ind+0];
-        stringKey=keyObj->getValue(nullptr);
+        int l;
+        const char* c=keyObj->getValue(&l);
+        if (l>0)
+            stringKey.assign(c,c+l);
     }
     return(_tableObjects[2*ind+1]);
 }
@@ -436,8 +439,6 @@ int CInterfaceStackTable::getTableInfo(int infoType) const
         retVal=1;
     if ( (infoType==5)&&_areAllValueThis(STACK_OBJECT_TABLE,false) )
         retVal=1;
-    if ( (infoType==6)&&_areAllValueThis(STACK_OBJECT_INTEGER,false) )
-        retVal=1;
     return(retVal);
 }
 
@@ -449,7 +450,7 @@ bool CInterfaceStackTable::_areAllValueThis(int what,bool integerAndDoubleTolera
     {
         for (size_t i=0;i<_tableObjects.size();i++)
         {
-            if ( integerAndDoubleTolerant&&((what==STACK_OBJECT_NUMBER)||(what=STACK_OBJECT_INTEGER)) )
+            if ( integerAndDoubleTolerant&&((what==STACK_OBJECT_NUMBER)||(what==STACK_OBJECT_INTEGER)) )
             {
                 if ( (_tableObjects[i]->getObjectType()!=STACK_OBJECT_NUMBER)&&(_tableObjects[i]->getObjectType()!=STACK_OBJECT_INTEGER) )
                     return(false);
@@ -465,7 +466,7 @@ bool CInterfaceStackTable::_areAllValueThis(int what,bool integerAndDoubleTolera
     {
         for (size_t i=0;i<_tableObjects.size()/2;i++)
         {
-            if ( integerAndDoubleTolerant&&((what==STACK_OBJECT_NUMBER)||(what=STACK_OBJECT_INTEGER)) )
+            if ( integerAndDoubleTolerant&&((what==STACK_OBJECT_NUMBER)||(what==STACK_OBJECT_INTEGER)) )
             {
                 if ( (_tableObjects[2*i+1]->getObjectType()!=STACK_OBJECT_NUMBER)&&(_tableObjects[2*i+1]->getObjectType()!=STACK_OBJECT_INTEGER) )
                     return(false);
@@ -533,7 +534,14 @@ std::string CInterfaceStackTable::getObjectData() const
     {
         for (size_t i=0;i<_tableObjects.size();i++)
         {
+#ifdef LUA_STACK_COMPATIBILITY_MODE
+            if (_tableObjects[i]->getObjectType()==STACK_OBJECT_INTEGER)
+                retVal.push_back((char)STACK_OBJECT_NUMBER);
+            else
+                retVal.push_back((char)_tableObjects[i]->getObjectType());
+#else
             retVal.push_back((char)_tableObjects[i]->getObjectType());
+#endif
             retVal+=_tableObjects[i]->getObjectData();
         }
     }
@@ -558,7 +566,11 @@ std::string CInterfaceStackTable::getObjectData() const
             else if (key->getObjectType()==STACK_OBJECT_NUMBER)
                 numberKeys.push_back(std::make_pair(((CInterfaceStackNumber*)key)->getValue(),i));
             else if (key->getObjectType()==STACK_OBJECT_INTEGER)
+#ifdef LUA_STACK_COMPATIBILITY_MODE
+                numberKeys.push_back(std::make_pair((double)((CInterfaceStackInteger*)key)->getValue(),i));
+#else
                 integerKeys.push_back(std::make_pair(((CInterfaceStackInteger*)key)->getValue(),i));
+#endif
             else if (key->getObjectType()==STACK_OBJECT_STRING)
                 stringKeys.push_back(std::make_pair(((CInterfaceStackString*)key)->getValue(nullptr),i));
             else
@@ -566,22 +578,47 @@ std::string CInterfaceStackTable::getObjectData() const
                 retVal.push_back((char)key->getObjectType());
                 retVal+=key->getObjectData();
                 CInterfaceStackObject* obj=_tableObjects[2*i+1];
+#ifdef LUA_STACK_COMPATIBILITY_MODE
+                if (obj->getObjectType()==STACK_OBJECT_INTEGER)
+                    retVal.push_back(STACK_OBJECT_NUMBER);
+                else
+                    retVal.push_back((char)obj->getObjectType());
+#else
                 retVal.push_back((char)obj->getObjectType());
+#endif
                 retVal+=obj->getObjectData();
             }
         }
+
+
+
+
         if (boolFalse>=0)
-        {
-            retVal.push_back((char)_tableObjects[2*boolFalse+0]->getObjectType());
+        { // the key is 'false'
+            retVal.push_back((char)STACK_OBJECT_BOOL);
             retVal+=_tableObjects[2*boolFalse+0]->getObjectData();
+#ifdef LUA_STACK_COMPATIBILITY_MODE
+            if (_tableObjects[2*boolFalse+1]->getObjectType()==STACK_OBJECT_INTEGER)
+                retVal.push_back((char)STACK_OBJECT_NUMBER);
+            else
+                retVal.push_back((char)_tableObjects[2*boolFalse+1]->getObjectType());
+#else
             retVal.push_back((char)_tableObjects[2*boolFalse+1]->getObjectType());
+#endif
             retVal+=_tableObjects[2*boolFalse+1]->getObjectData();
         }
         if (boolTrue>=0)
-        {
-            retVal.push_back((char)_tableObjects[2*boolTrue+0]->getObjectType());
+        { // the key is 'true'
+            retVal.push_back((char)STACK_OBJECT_BOOL);
             retVal+=_tableObjects[2*boolTrue+0]->getObjectData();
+#ifdef LUA_STACK_COMPATIBILITY_MODE
+            if (_tableObjects[2*boolTrue+1]->getObjectType()==STACK_OBJECT_INTEGER)
+                retVal.push_back((char)STACK_OBJECT_NUMBER);
+            else
+                retVal.push_back((char)_tableObjects[2*boolTrue+1]->getObjectType());
+#else
             retVal.push_back((char)_tableObjects[2*boolTrue+1]->getObjectType());
+#endif
             retVal+=_tableObjects[2*boolTrue+1]->getObjectData();
         }
         std::sort(numberKeys.begin(),numberKeys.end());
@@ -590,25 +627,46 @@ std::string CInterfaceStackTable::getObjectData() const
         for (size_t i=0;i<numberKeys.size();i++)
         {
             int ind=numberKeys[i].second;
-            retVal.push_back((char)_tableObjects[2*ind+0]->getObjectType());
+            retVal.push_back((char)STACK_OBJECT_NUMBER);
             retVal+=_tableObjects[2*ind+0]->getObjectData();
+#ifdef LUA_STACK_COMPATIBILITY_MODE
+            if (_tableObjects[2*ind+1]->getObjectType()==STACK_OBJECT_INTEGER)
+                retVal.push_back((char)STACK_OBJECT_NUMBER);
+            else
+                retVal.push_back((char)_tableObjects[2*ind+1]->getObjectType());
+#else
             retVal.push_back((char)_tableObjects[2*ind+1]->getObjectType());
+#endif
             retVal+=_tableObjects[2*ind+1]->getObjectData();
         }
         for (size_t i=0;i<integerKeys.size();i++)
         {
             int ind=integerKeys[i].second;
-            retVal.push_back((char)_tableObjects[2*ind+0]->getObjectType());
+            retVal.push_back((char)STACK_OBJECT_INTEGER);
             retVal+=_tableObjects[2*ind+0]->getObjectData();
+#ifdef LUA_STACK_COMPATIBILITY_MODE
+            if (_tableObjects[2*ind+1]->getObjectType()==STACK_OBJECT_INTEGER)
+                retVal.push_back((char)STACK_OBJECT_NUMBER);
+            else
+                retVal.push_back((char)_tableObjects[2*ind+1]->getObjectType());
+#else
             retVal.push_back((char)_tableObjects[2*ind+1]->getObjectType());
+#endif
             retVal+=_tableObjects[2*ind+1]->getObjectData();
         }
         for (size_t i=0;i<stringKeys.size();i++)
         {
             int ind=stringKeys[i].second;
-            retVal.push_back((char)_tableObjects[2*ind+0]->getObjectType());
+            retVal.push_back((char)STACK_OBJECT_STRING);
             retVal+=_tableObjects[2*ind+0]->getObjectData();
+#ifdef LUA_STACK_COMPATIBILITY_MODE
+            if (_tableObjects[2*ind+1]->getObjectType()==STACK_OBJECT_INTEGER)
+                retVal.push_back((char)STACK_OBJECT_NUMBER);
+            else
+                retVal.push_back((char)_tableObjects[2*ind+1]->getObjectType());
+#else
             retVal.push_back((char)_tableObjects[2*ind+1]->getObjectType());
+#endif
             retVal+=_tableObjects[2*ind+1]->getObjectData();
         }
     }

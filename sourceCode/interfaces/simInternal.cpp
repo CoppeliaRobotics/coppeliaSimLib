@@ -2152,33 +2152,6 @@ simInt simGetJointTargetVelocity_internal(simInt objectHandle,simFloat* targetVe
     return(-1);
 }
 
-simInt simSetPathTargetNominalVelocity_internal(simInt objectHandle,simFloat targetNominalVelocity)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,objectHandle))
-        {
-            return(-1);
-        }
-        if (!isPath(__func__,objectHandle))
-        {
-            return(-1);
-        }
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
-        it->pathContainer->setTargetNominalVelocity(targetNominalVelocity);
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
 simInt simGetJointMatrix_internal(simInt objectHandle,simFloat* matrix)
 {
     TRACE_C_API;
@@ -15023,7 +14996,7 @@ simInt simPushInt32OntoStack_internal(simInt stackHandle,simInt value)
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushNumberOntoStack((double)value);
+            stack->pushIntegerOntoStack(value);
             return(1);
         }
         CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
@@ -21627,6 +21600,27 @@ simInt simSetUserParameter_internal(simInt objectHandle,const simChar* parameter
         if (s)
             obj->setUserScriptParameterObject(uso);
         return(0);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetPathTargetNominalVelocity_internal(simInt objectHandle,simFloat targetNominalVelocity)
+{ // deprecated probably around 2015 or earlier
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        if (!isPath(__func__,objectHandle))
+            return(-1);
+        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
+        it->pathContainer->setTargetNominalVelocity(targetNominalVelocity);
+        return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);

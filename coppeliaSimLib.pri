@@ -19,7 +19,7 @@ QT += printsupport
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0
 #DEFINES += OLD_LUA51
-DEFINE += LUA_STACK_COMPATIBILITY_MODE # 06.11.2020
+DEFINES += LUA_STACK_COMPATIBILITY_MODE # 06.11.2020, will avoid using Lua INTEGER values at interfaces (using DOUBLE type instead)
 
 WITH_GUI {
     QT      += widgets

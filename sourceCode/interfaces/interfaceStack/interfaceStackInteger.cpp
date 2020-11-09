@@ -38,9 +38,16 @@ void CInterfaceStackInteger::printContent(int spaces,std::string& buffer) const
 std::string CInterfaceStackInteger::getObjectData() const
 {
     std::string retVal;
+#ifdef LUA_STACK_COMPATIBILITY_MODE
+    double v=(double)_value;
+    char* tmp=(char*)(&v);
+    for (size_t i=0;i<sizeof(v);i++)
+        retVal.push_back(tmp[i]);
+#else
     char* tmp=(char*)(&_value);
     for (size_t i=0;i<sizeof(_value);i++)
         retVal.push_back(tmp[i]);
+#endif
     return(retVal);
 }
 

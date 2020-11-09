@@ -4221,7 +4221,14 @@ int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,st
             break;
         }
     }
-
+    /*
+    if (func->getFunctionName().compare("simUI.getPosition")==0)
+    {
+        std::string buff;
+        stack->printContent(-1,buff);
+        printf("%s\n",buff.c_str());
+    }
+    */
     // Now we have to build the returned data onto the stack:
     stack->buildOntoLuaStack(L,false);
 
@@ -7768,6 +7775,7 @@ int _simTest(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.test");
+
     //int r=handleVerSpec_test(L);
     //if (r>=0)
     //    LUA_END(r);

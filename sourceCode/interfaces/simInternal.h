@@ -162,7 +162,6 @@ simInt simRegisterScriptCallbackFunction_internal(const simChar* funcNameAtPlugi
 simInt simRegisterScriptVariable_internal(const simChar* varNameAtPluginName,const simChar* varValue,simInt stackHandle);
 simInt simSetJointTargetVelocity_internal(simInt objectHandle,simFloat targetVelocity);
 simInt simGetJointTargetVelocity_internal(simInt objectHandle,simFloat* targetVelocity);
-simInt simSetPathTargetNominalVelocity_internal(simInt objectHandle,simFloat targetNominalVelocity);
 simInt simCopyPasteObjects_internal(simInt* objectHandles,simInt objectCount,simInt options);
 simInt simScaleSelectedObjects_internal(simFloat scalingFactor,simBool scalePositionsToo);
 simInt simScaleObjects_internal(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo);
@@ -627,6 +626,7 @@ simInt simLockResources_internal(simInt lockType,simInt reserved);
 simInt simUnlockResources_internal(simInt lockHandle);
 simChar* simGetUserParameter_internal(simInt objectHandle,const simChar* parameterName,simInt* parameterLength);
 simInt simSetUserParameter_internal(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength);
+simInt simSetPathTargetNominalVelocity_internal(simInt objectHandle,simFloat targetNominalVelocity);
 
 
 #endif // !defined(simInternal_INCLUDED_)

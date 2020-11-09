@@ -621,10 +621,6 @@ SIM_DLLEXPORT simInt simGetJointTargetVelocity(simInt objectHandle,simFloat* tar
 {
     return(simGetJointTargetVelocity_internal(objectHandle,targetVelocity));
 }
-SIM_DLLEXPORT simInt simSetPathTargetNominalVelocity(simInt objectHandle,simFloat targetNominalVelocity)
-{
-    return(simSetPathTargetNominalVelocity_internal(objectHandle,targetNominalVelocity));
-}
 SIM_DLLEXPORT simInt simCopyPasteObjects(simInt* objectHandles,simInt objectCount,simInt options)
 {
     return(simCopyPasteObjects_internal(objectHandles,objectCount,options));
@@ -2484,6 +2480,10 @@ SIM_DLLEXPORT simChar* simGetUserParameter(simInt objectHandle,const simChar* pa
 SIM_DLLEXPORT simInt simSetUserParameter(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength)
 {
     return(simSetUserParameter_internal(objectHandle,parameterName,parameterValue,parameterLength));
+}
+SIM_DLLEXPORT simInt simSetPathTargetNominalVelocity(simInt objectHandle,simFloat targetNominalVelocity)
+{
+    return(simSetPathTargetNominalVelocity_internal(objectHandle,targetNominalVelocity));
 }
 // Deprecated end
 

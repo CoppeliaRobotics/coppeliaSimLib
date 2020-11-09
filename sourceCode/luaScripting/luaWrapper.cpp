@@ -73,6 +73,9 @@ typedef int (__cdecl *pluaLib_getCurrentCodeLine)(luaWrap_lua_State* L);
 typedef void (__cdecl *pluaLib_lua_settable)(luaWrap_lua_State* L,int idx);
 typedef int (__cdecl *pluaLib_lua_next)(luaWrap_lua_State* L,int idx);
 typedef int (__cdecl *pluaLib_lua_type)(luaWrap_lua_State* L,int idx);
+#ifndef OLD_LUA51
+typedef int (__cdecl *pluaLib_lua_isinteger)(luaWrap_lua_State* L,int idx);
+#endif
 typedef int (__cdecl *pluaLib_lua_error)(luaWrap_lua_State* L);
 
 
@@ -141,6 +144,9 @@ pluaLib_getCurrentCodeLine luaLib_getCurrentCodeLine;
 pluaLib_lua_settable luaLib_lua_settable;
 pluaLib_lua_next luaLib_lua_next;
 pluaLib_lua_type luaLib_lua_type;
+#ifndef OLD_LUA51
+pluaLib_lua_isinteger luaLib_lua_isinteger;
+#endif
 pluaLib_lua_error luaLib_lua_error;
 
 WLibrary lib;
@@ -217,6 +223,9 @@ bool _getLibProcAddresses()
     luaLib_lua_settable=(pluaLib_lua_settable)(_getProcAddress("luaLib_lua_settable"));
     luaLib_lua_next=(pluaLib_lua_next)(_getProcAddress("luaLib_lua_next"));
     luaLib_lua_type=(pluaLib_lua_type)(_getProcAddress("luaLib_lua_type"));
+#ifndef OLD_LUA51
+    luaLib_lua_isinteger=(pluaLib_lua_isinteger)(_getProcAddress("luaLib_lua_isinteger"));
+#endif
     luaLib_lua_error=(pluaLib_lua_error)(_getProcAddress("luaLib_lua_error"));
 
 
@@ -285,6 +294,9 @@ bool _getLibProcAddresses()
     if (luaLib_lua_settable==nullptr) return false;
     if (luaLib_lua_next==nullptr) return false;
     if (luaLib_lua_type==nullptr) return false;
+#ifndef OLD_LUA51
+    if (luaLib_lua_isinteger==nullptr) return false;
+#endif
     if (luaLib_lua_error==nullptr) return false;
 
     return true;
@@ -839,7 +851,18 @@ int luaWrap_lua_stype(luaWrap_lua_State* L,int idx)
     if (t==LUA_TNIL)
         return(STACK_OBJECT_NULL);
     if (t==LUA_TNUMBER)
-        return(STACK_OBJECT_NUMBER);
+    {
+        int intT=0;
+#ifndef OLD_LUA51
+        if (lib!=nullptr)
+            intT=luaLib_lua_isinteger(L,idx);
+        else
+            intT=lua_isinteger((lua_State*)L,idx);
+#endif
+        if (intT==0)
+            return(STACK_OBJECT_NUMBER);
+        return(STACK_OBJECT_INTEGER);
+    }
     if (t==LUA_TBOOLEAN)
         return(STACK_OBJECT_BOOL);
     if (t==LUA_TSTRING)

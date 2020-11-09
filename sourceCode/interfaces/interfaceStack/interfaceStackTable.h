@@ -31,7 +31,7 @@ public:
     void setDoubleArray(const double* array,int l);
 
     void appendArrayObject(CInterfaceStackObject* obj);
-    void appendMapObject(CInterfaceStackObject* obj,const char* key);
+    void appendMapObject(CInterfaceStackObject* obj,const char* key,size_t l);
     void appendMapObject(CInterfaceStackObject* obj,luaWrap_lua_Integer key);
     void appendMapObject(CInterfaceStackObject* obj,double key);
     void appendMapObject(CInterfaceStackObject* obj,bool key);

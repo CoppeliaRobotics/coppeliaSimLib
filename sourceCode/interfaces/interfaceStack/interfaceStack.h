@@ -65,11 +65,6 @@ public:
     bool getStackMapIntValue(const char* fieldName,int& val) const;
     bool getStackMapStringValue(const char* fieldName,std::string& val) const;
     bool getStackMapFloatArray(const char* fieldName,float* array,int count) const;
-    bool replaceStackMapBoolValue(const char* fieldName,bool val);
-    bool replaceStackMapDoubleValue(const char* fieldName,double val);
-    bool replaceStackMapFloatValue(const char* fieldName,float val);
-    bool replaceStackMapIntValue(const char* fieldName,int val);
-    bool replaceStackMapStringValue(const char* fieldName,std::string val);
     std::string getBufferFromTable() const;
 
     void printContent(int cIndex,std::string& buffer) const;
