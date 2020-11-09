@@ -26,18 +26,18 @@ endif()
 
 find_package(Qt5PrintSupport REQUIRED)
 
-find_package(Lua 5.1 EXACT QUIET)
+find_package(Lua 5.3 EXACT QUIET)
 if(NOT LUA_FOUND)
     include(FetchContent)
-    FetchContent_Declare(lua51src
-        URL https://www.lua.org/ftp/lua-5.1.5.tar.gz
+    FetchContent_Declare(luasrc
+        URL https://www.lua.org/ftp/lua-5.3.6.tar.gz
         SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/lua
     )
     if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/lua/src/lapi.c")
-        message(STATUS "Downloading lua-5.1.5 source...")
-        FetchContent_Populate(lua51src)
+        message(STATUS "Downloading lua source...")
+        FetchContent_Populate(luasrc)
     endif()
-    add_library(lua51 STATIC
+    add_library(lua STATIC
         ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lapi.c
         ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lauxlib.c
         ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lbaselib.c
@@ -71,7 +71,7 @@ if(NOT LUA_FOUND)
         ${CMAKE_CURRENT_BINARY_DIR}/lua/src/print.c
     )
     set(LUA_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/lua/src)
-    set(LUA_LIBRARIES $<TARGET_FILE:lua51>)
+    set(LUA_LIBRARIES $<TARGET_FILE:lua>)
 endif()
 
 find_package(Eigen3)
@@ -151,6 +151,7 @@ else()
     if(APPLE)
         set(CMAKE_CXXFLAGS "${CMAKE_CXXFLAGS} -mmacosx-version-min=10.7")
         add_definitions(-DSIM_COMPILER_STR=\"Clang\")
+        add_definitions(-DGL_SILENCE_DEPRECATION)
     else()
         add_definitions(-DSIM_COMPILER_STR=\"GCC\")
     endif()
@@ -695,8 +696,8 @@ endif()
 add_library(coppeliaSim SHARED ${SOURCES})
 target_link_libraries(coppeliaSim Boost::boost)
 if(NOT LUA_FOUND)
-    # trigger the build of lua51, if not found in the system
-    add_dependencies(coppeliaSim lua51)
+    # trigger the build of lua, if not found in the system
+    add_dependencies(coppeliaSim lua)
 endif()
 target_link_libraries(coppeliaSim ${LUA_LIBRARIES})
 if(WITH_QT)
