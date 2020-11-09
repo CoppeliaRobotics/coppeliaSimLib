@@ -581,6 +581,7 @@ list(APPEND SOURCES
     sourceCode/interfaces/interfaceStack/interfaceStackNull.cpp
     sourceCode/interfaces/interfaceStack/interfaceStackBool.cpp
     sourceCode/interfaces/interfaceStack/interfaceStackNumber.cpp
+    sourceCode/interfaces/interfaceStack/interfaceStackInteger.cpp
     sourceCode/interfaces/interfaceStack/interfaceStackString.cpp
     sourceCode/interfaces/interfaceStack/interfaceStackTable.cpp
 
