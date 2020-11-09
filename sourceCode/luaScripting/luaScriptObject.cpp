@@ -4354,39 +4354,11 @@ bool CLuaScriptObject::_checkIfMixingOldAndNewCallMethods()
     return ( (_scriptText.find("sim_call_type")!=std::string::npos)&&(_scriptText.find("sysCall_")!=std::string::npos) );
 }
 
-void CLuaScriptObject::prefixWithLuaLocationName(std::string& message)
-{
-    std::string loc("[string \"");
-    loc+=getShortDescriptiveName()+"\"]:";
-    message=loc+message;
-}
-
-void CLuaScriptObject::decomposeLuaMessage(const char* message,std::string& locationName,std::string& nakedMessage)
-{   // message can be of the form:
-    // [string "objectName@scriptType"]:lineNb: msg
-    // c:/coppeliaSim/lua/sim.lua:lineNb: msg
-    locationName="???";
-    nakedMessage=message;
-    if (nakedMessage.find("[string \"")==0)
-    {
-        size_t p=nakedMessage.find(":");
-        locationName.assign(nakedMessage.begin()+9,nakedMessage.begin()+p-2);
-        nakedMessage.erase(nakedMessage.begin(),nakedMessage.begin()+p+1);
-    }
-    else
-    {
-        size_t p=nakedMessage.find(":",3);
-        locationName.assign(nakedMessage.begin(),nakedMessage.begin()+p);
-        nakedMessage.erase(nakedMessage.begin(),nakedMessage.begin()+p+1);
-    }
-}
-
 void CLuaScriptObject::terminateScriptExecutionExternally(bool generateErrorMsg)
 {
     if (generateErrorMsg)
     {
         std::string tmp("?: script execution was terminated externally.");
-        prefixWithLuaLocationName(tmp);
         _announceErrorWasRaisedAndDisableScript(tmp.c_str(),true);
     }
     if (getScriptType()==sim_scripttype_addonscript)
@@ -4399,7 +4371,8 @@ void CLuaScriptObject::terminateScriptExecutionExternally(bool generateErrorMsg)
 void CLuaScriptObject::_announceErrorWasRaisedAndDisableScript(const char* errMsg,bool runtimeError,bool debugRoutine/*=false*/)
 { // errMsg is in the form: xxxx:lineNb: msg
     std::string errM(errMsg);
-    if (errM.find("attempt to yield across metamethod/C-call boundary")==std::string::npos)
+    if (true)//errM.find("attempt to yield across metamethod/C-call boundary")==std::string::npos)
+        // attempt to yield from outside a coroutine
     { // silent error when breaking out of a threaded child script at simulation end
         int verb=sim_verbosity_scripterrors;
         if (runtimeError)
@@ -4408,11 +4381,9 @@ void CLuaScriptObject::_announceErrorWasRaisedAndDisableScript(const char* errMs
             _executionState=execState_compilationError;
         if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
             App::currentWorld->simulation->pauseOnErrorRequested();
-        std::string name;
-        std::string msg;
-        decomposeLuaMessage(errM.c_str(),name,msg);
-        if (App::userSettings->undecoratedStatusbarMessages)
-            msg=errM; // we need to keep the origin in the message
+
+        std::string name(getShortDescriptiveName());
+        std::string msg(errM);
         if (debugRoutine)
         {
             size_t p=msg.find(": ");

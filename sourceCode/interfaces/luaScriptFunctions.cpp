@@ -61,8 +61,6 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const
             msg+=" (in function '";
             msg+=functionName;
             msg+="')";
-            if (App::userSettings->undecoratedStatusbarMessages)
-                it->prefixWithLuaLocationName(msg);
             App::logScriptMsg(it->getShortDescriptiveName().c_str(),verb,msg.c_str());
         }
     }
@@ -92,7 +90,6 @@ void _raiseErrorOrYieldIfNeeded(luaWrap_lua_State* L,const char* functionName,co
         msg+=" (in function '";
         msg+=functionName;
         msg+="')";
-        it->prefixWithLuaLocationName(msg);
         luaWrap_lua_pushstring(L,msg.c_str());
     }
     if (strcmp(errorString,"@yield")==0)
@@ -3498,8 +3495,9 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
         }
         luaWrap_lua_pop(L,1);
 #else
-        luaWrap_luaL_dostring(L,"return coroutine.isyieldable()");
-        if (luaWrap_lua_toboolean(L,-1))
+//        luaWrap_luaL_dostring(L,"return coroutine.isyieldable()");
+        luaWrap_luaL_dostring(L,"return coroutine.running()"); // sec. ret. val. is false --> can yield
+        if (!luaWrap_lua_toboolean(L,-1))
         {
             if (it->shouldAutoYield())
             {

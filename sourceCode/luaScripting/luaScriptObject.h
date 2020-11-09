@@ -83,9 +83,6 @@ public:
     int executeScriptString(const char* scriptString,CInterfaceStack* stack);
     int appendTableEntry(const char* arrayName,const char* keyName,const char* data,const int what[2]); // deprecated
 
-    void prefixWithLuaLocationName(std::string& message);
-    void decomposeLuaMessage(const char* message,std::string& locationName,std::string& nakedMessage);
-
     bool killLuaState();
     bool hasLuaState() const;
     bool isSimulationScript() const;
