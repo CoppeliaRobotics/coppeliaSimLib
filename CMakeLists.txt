@@ -26,15 +26,15 @@ endif()
 
 find_package(Qt5PrintSupport REQUIRED)
 
-find_package(Lua 5.1 EXACT QUIET)
+find_package(Lua 5.3 EXACT QUIET)
 if(NOT LUA_FOUND)
     include(FetchContent)
     FetchContent_Declare(lua51src
-        URL https://www.lua.org/ftp/lua-5.1.5.tar.gz
+        URL https://www.lua.org/ftp/lua-5.3.6.tar.gz
         SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/lua
     )
     if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/lua/src/lapi.c")
-        message(STATUS "Downloading lua-5.1.5 source...")
+        message(STATUS "Downloading lua source...")
         FetchContent_Populate(lua51src)
     endif()
     add_library(lua51 STATIC
