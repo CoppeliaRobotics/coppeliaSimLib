@@ -4371,8 +4371,7 @@ void CLuaScriptObject::terminateScriptExecutionExternally(bool generateErrorMsg)
 void CLuaScriptObject::_announceErrorWasRaisedAndDisableScript(const char* errMsg,bool runtimeError,bool debugRoutine/*=false*/)
 { // errMsg is in the form: xxxx:lineNb: msg
     std::string errM(errMsg);
-    if (true)//errM.find("attempt to yield across metamethod/C-call boundary")==std::string::npos)
-        // attempt to yield from outside a coroutine
+    if ( (errM.find("attempt to yield across metamethod/C-call boundary")==std::string::npos)&&(errM.find("attempt to yield from outside a coroutine")==std::string::npos) )
     { // silent error when breaking out of a threaded child script at simulation end
         int verb=sim_verbosity_scripterrors;
         if (runtimeError)

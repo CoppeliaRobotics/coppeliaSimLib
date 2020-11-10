@@ -3486,18 +3486,11 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
 #ifdef OLD_LUA51
         luaWrap_luaL_dostring(L,"return coroutine.running()");
         if (!luaWrap_lua_isnil(L,-1))
-        {
-            if (it->shouldAutoYield())
-            {
-                luaWrap_lua_pop(L,1);
-                return luaWrap_lua_yield(L,0); // does a long jump and never returns
-            }
-        }
-        luaWrap_lua_pop(L,1);
 #else
 //        luaWrap_luaL_dostring(L,"return coroutine.isyieldable()");
         luaWrap_luaL_dostring(L,"return coroutine.running()"); // sec. ret. val. is false --> can yield
         if (!luaWrap_lua_toboolean(L,-1))
+#endif
         {
             if (it->shouldAutoYield())
             {
@@ -3506,7 +3499,6 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
             }
         }
         luaWrap_lua_pop(L,1);
-#endif
     }
 }
 
