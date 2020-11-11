@@ -34,12 +34,10 @@
     bool cSideErrorOrWarningReporting=false;
 
 #define LUA_END(p) \
-    if (true) \
-    { \
+    do { \
         _reportWarningsIfNeeded(L,functionName.c_str(),warningString.c_str(),cSideErrorOrWarningReporting); \
         return(p); \
-    } \
-    else
+    } while(0)
 
 void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* warningString,bool cSideErrorOrWarningReporting)
 {

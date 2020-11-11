@@ -29,14 +29,14 @@ typedef void (__cdecl *pluaLib_lua_register)(luaWrap_lua_State* L,const char* na
 typedef void (__cdecl *pluaLib_lua_pushnumber)(luaWrap_lua_State* L,luaWrap_lua_Number n);
 typedef void (__cdecl *pluaLib_lua_pushnil)(luaWrap_lua_State* L);
 typedef void (__cdecl *pluaLib_lua_pushboolean)(luaWrap_lua_State* L,int b);
-typedef void (__cdecl *pluaLib_lua_pushinteger)(luaWrap_lua_State* L,int n);
+typedef void (__cdecl *pluaLib_lua_pushinteger)(luaWrap_lua_State* L,luaWrap_lua_Integer n);
 typedef void (__cdecl *pluaLib_lua_pushstring)(luaWrap_lua_State* L,const char* str);
 typedef void (__cdecl *pluaLib_lua_pushlstring)(luaWrap_lua_State* L,const char* str,size_t l);
 typedef void (__cdecl *pluaLib_lua_pushcclosure)(luaWrap_lua_State* L,luaWrap_lua_CFunction func,int n);
 typedef void (__cdecl *pluaLib_lua_pushvalue)(luaWrap_lua_State* L,int idx);
 typedef void (__cdecl *pluaLib_lua_pushcfunction)(luaWrap_lua_State* L,luaWrap_lua_CFunction func);
 typedef void (__cdecl *pluaLib_lua_createtable)(luaWrap_lua_State* L,int narr, int nrec);
-typedef int (__cdecl *pluaLib_lua_tointeger)(luaWrap_lua_State* L,int idx);
+typedef luaWrap_lua_Integer (__cdecl *pluaLib_lua_tointeger)(luaWrap_lua_State* L,int idx);
 typedef luaWrap_lua_Number (__cdecl *pluaLib_lua_tonumber)(luaWrap_lua_State* L,int idx);
 typedef int (__cdecl *pluaLib_lua_toboolean)(luaWrap_lua_State* L,int idx);
 typedef const void* (__cdecl *pluaLib_lua_topointer)(luaWrap_lua_State* L,int idx);
@@ -59,7 +59,7 @@ typedef void (__cdecl *pluaLib_lua_getglobal)(luaWrap_lua_State* L,const char* s
 typedef void (__cdecl *pluaLib_lua_pop)(luaWrap_lua_State* L,int n);
 typedef int (__cdecl *pluaLib_lua_gettop)(luaWrap_lua_State* L);
 typedef void (__cdecl *pluaLib_lua_settop)(luaWrap_lua_State* L,int idx);
-typedef size_t (__cdecl *pluaLib_lua_objlen)(luaWrap_lua_State* L,int idx);
+typedef size_t (__cdecl *pluaLib_lua_rawlen)(luaWrap_lua_State* L,int idx);
 typedef void (__cdecl *pluaLib_lua_rawgeti)(luaWrap_lua_State* L,int idx,int n);
 typedef void (__cdecl *pluaLib_lua_rawseti)(luaWrap_lua_State* L,int idx,int n);
 typedef void (__cdecl *pluaLib_lua_newtable)(luaWrap_lua_State* L);
@@ -130,7 +130,7 @@ pluaLib_lua_getglobal luaLib_lua_getglobal;
 pluaLib_lua_pop luaLib_lua_pop;
 pluaLib_lua_gettop luaLib_lua_gettop;
 pluaLib_lua_settop luaLib_lua_settop;
-pluaLib_lua_objlen luaLib_lua_rawlen;
+pluaLib_lua_rawlen luaLib_lua_rawlen;
 pluaLib_lua_rawgeti luaLib_lua_rawgeti;
 pluaLib_lua_rawseti luaLib_lua_rawseti;
 pluaLib_lua_newtable luaLib_lua_newtable;
@@ -209,7 +209,7 @@ bool _getLibProcAddresses()
     luaLib_lua_pop=(pluaLib_lua_pop)(_getProcAddress("luaLib_lua_pop"));
     luaLib_lua_gettop=(pluaLib_lua_gettop)(_getProcAddress("luaLib_lua_gettop"));
     luaLib_lua_settop=(pluaLib_lua_settop)(_getProcAddress("luaLib_lua_settop"));
-    luaLib_lua_rawlen=(pluaLib_lua_objlen)(_getProcAddress("luaLib_lua_rawlen"));
+    luaLib_lua_rawlen=(pluaLib_lua_rawlen)(_getProcAddress("luaLib_lua_rawlen"));
     luaLib_lua_rawgeti=(pluaLib_lua_rawgeti)(_getProcAddress("luaLib_lua_rawgeti"));
     luaLib_lua_rawseti=(pluaLib_lua_rawseti)(_getProcAddress("luaLib_lua_rawseti"));
     luaLib_lua_newtable=(pluaLib_lua_newtable)(_getProcAddress("luaLib_lua_newtable"));
@@ -563,11 +563,11 @@ void luaWrap_lua_createtable(luaWrap_lua_State* L,int narr, int nrec)
         lua_createtable((lua_State*)L,narr,nrec);
 }
 
-int luaWrap_lua_tointeger(luaWrap_lua_State* L,int idx)
+luaWrap_lua_Integer luaWrap_lua_tointeger(luaWrap_lua_State* L,int idx)
 {
     if (lib!=nullptr)
         return(luaLib_lua_tointeger(L,idx));
-    return((int)lua_tointeger((lua_State*)L,idx));
+    return(lua_tointeger((lua_State*)L,idx));
 }
 
 luaWrap_lua_Number luaWrap_lua_tonumber(luaWrap_lua_State* L,int idx)
