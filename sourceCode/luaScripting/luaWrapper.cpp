@@ -2,12 +2,6 @@
 #include "vVarious.h"
 #include "app.h"
 
-extern "C" {
-    #include "lua.h"
-    #include "lauxlib.h"
-    #include "lualib.h"
-}
-
 typedef int (__cdecl *pluaLibGet_LUA_MULTRET)(void);
 typedef int (__cdecl *pluaLibGet_LUA_MASKCOUNT)(void);
 typedef int (__cdecl *pluaLibGet_LUA_MASKCALL)(void);
@@ -566,8 +560,22 @@ void luaWrap_lua_createtable(luaWrap_lua_State* L,int narr, int nrec)
 luaWrap_lua_Integer luaWrap_lua_tointeger(luaWrap_lua_State* L,int idx)
 {
     if (lib!=nullptr)
+    {
+#ifdef OLD_LUA51
         return(luaLib_lua_tointeger(L,idx));
+#else
+        if (luaLib_lua_isinteger(L,idx))
+            return(luaLib_lua_tointeger(L,idx));
+        return((luaWrap_lua_Integer)luaLib_lua_tonumber(L,idx));
+#endif
+    }
+#ifdef OLD_LUA51
     return(lua_tointeger((lua_State*)L,idx));
+#else
+    if (lua_isinteger((lua_State*)L,idx))
+        return(lua_tointeger((lua_State*)L,idx));
+    return((luaWrap_lua_Integer)lua_tonumber((lua_State*)L,idx));
+#endif
 }
 
 luaWrap_lua_Number luaWrap_lua_tonumber(luaWrap_lua_State* L,int idx)

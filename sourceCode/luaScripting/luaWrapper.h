@@ -1,5 +1,10 @@
 #pragma once
 
+extern "C" {
+    #include "lua.h"
+    #include "lauxlib.h"
+    #include "lualib.h"
+}
 
 enum {  STACK_OBJECT_NULL=0,
         STACK_OBJECT_NUMBER,
@@ -32,12 +37,8 @@ struct luaWrap_lua_Debug
 };
 
 typedef void luaWrap_lua_State;
-typedef double luaWrap_lua_Number;
-#ifdef OLD_LUA51
-typedef ptrdiff_t luaWrap_lua_Integer;
-#else
-typedef long long int luaWrap_lua_Integer;
-#endif
+typedef lua_Number luaWrap_lua_Number;
+typedef lua_Integer luaWrap_lua_Integer;
 typedef void (*luaWrap_lua_Hook) (luaWrap_lua_State* L,luaWrap_lua_Debug* ar);
 typedef int (*luaWrap_lua_CFunction) (luaWrap_lua_State* L);
 
