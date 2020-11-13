@@ -85,7 +85,6 @@ int CSimFlavor::getIntVal_str(int w,const char* n)
         ext+=SIM_MODEL_EXTENSION;
         if (boost::algorithm::ends_with(n,ext.c_str()))
             return(CSer::filetype_csim_bin_model_file);
-        return(CSer::filetype_unspecified_file);
         ext=".";
         ext+=SIM_XML_SCENE_EXTENSION;
         if (boost::algorithm::ends_with(n,ext.c_str()))
@@ -94,6 +93,7 @@ int CSimFlavor::getIntVal_str(int w,const char* n)
         ext+=SIM_XML_MODEL_EXTENSION;
         if (boost::algorithm::ends_with(n,ext.c_str()))
             return(CSer::filetype_csim_xml_simplemodel_file);
+        return(CSer::filetype_unspecified_file);
     }
     if (w==1)
         return(0);

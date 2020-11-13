@@ -2499,7 +2499,7 @@ void CSceneObject::serialize(CSer& ar)
                     ar.xmlGetNode_flags("depthInvisible",_localObjectProperty,sim_objectproperty_depthinvisible,exhaustiveXml);
                     ar.xmlGetNode_flags("cannotDelete",_localObjectProperty,sim_objectproperty_cannotdelete,exhaustiveXml);
                     ar.xmlGetNode_flags("cannotDeleteDuringSimulation",_localObjectProperty,sim_objectproperty_cannotdeleteduringsim,exhaustiveXml);
-                    ar.xmlGetNode_flags("hiddenModelChild",_localObjectProperty,sim_objectproperty_hierarchyhiddenmodelchild,exhaustiveXml);
+                    ar.xmlGetNode_flags("hiddenModelChild",_localObjectProperty,sim_objectproperty_hierarchyhiddenmodelchild,false); // new flag
                     ar.xmlPopNode();
                 }
 
