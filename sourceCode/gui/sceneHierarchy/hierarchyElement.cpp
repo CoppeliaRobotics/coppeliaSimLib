@@ -827,10 +827,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
         {
             if (!dontDisplay)
             {
-                if (script->isDefaultMainScript())
-                    App::worldContainer->globalGuiTextureCont->startTextureDisplay(MAIN_SCRIPT_PICTURE);
-                else
-                    App::worldContainer->globalGuiTextureCont->startTextureDisplay(MAIN_SCRIPT_CUSTOMIZED_PICTURE);
+                App::worldContainer->globalGuiTextureCont->startTextureDisplay(MAIN_SCRIPT_PICTURE);
                 _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
             }
             if (!forDragAndDrop)

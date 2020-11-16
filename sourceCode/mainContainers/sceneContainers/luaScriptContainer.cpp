@@ -324,7 +324,12 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
     std::string filenameAndPath(App::folders->getSystemPath()+"/");
 
     if (scriptType==sim_scripttype_mainscript)
-        filenameAndPath+=DEFAULT_MAINSCRIPT_NAME;
+    {
+        CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
+        retVal=insertScript(defScript);
+        defScript->setScriptText(DEFAULT_MAINSCRIPT_CODE);
+        filenameAndPath="";
+    }
     if (scriptType==sim_scripttype_childscript)
     {
         if (oldThreadedScript)
@@ -338,32 +343,47 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
         }
     }
 
-    if (VFile::doesFileExist(filenameAndPath.c_str()))
+    if (filenameAndPath.size()>0)
     {
-        try
+        if (VFile::doesFileExist(filenameAndPath.c_str()))
         {
-            VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
-            VArchive archive(&file,VArchive::LOAD);
-            unsigned int archiveLength=(unsigned int)file.getLength();
-            char* defaultScript=new char[archiveLength+1];
-            for (int i=0;i<int(archiveLength);i++)
-                archive >> defaultScript[i];
-            defaultScript[archiveLength]=0;
-            CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
-            retVal=insertScript(defScript);
-            defScript->setScriptText(defaultScript);
-            if (oldThreadedScript)
+            try
             {
-                defScript->setThreadedExecution(true);
-                defScript->setExecuteJustOnce(true);
+                VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
+                VArchive archive(&file,VArchive::LOAD);
+                unsigned int archiveLength=(unsigned int)file.getLength();
+                char* defaultScript=new char[archiveLength+1];
+                for (int i=0;i<int(archiveLength);i++)
+                    archive >> defaultScript[i];
+                defaultScript[archiveLength]=0;
+                CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
+                retVal=insertScript(defScript);
+                defScript->setScriptText(defaultScript);
+                if (oldThreadedScript)
+                {
+                    defScript->setThreadedExecution(true);
+                    defScript->setExecuteJustOnce(true);
+                }
+                delete[] defaultScript;
+                archive.close();
+                file.close();
             }
-            delete[] defaultScript;     
-            archive.close();
-            file.close();
+            catch(VFILE_EXCEPTION_TYPE e)
+            {
+                VFile::reportAndHandleFileExceptionError(e);
+                char defaultMessage[]="Default script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
+                CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
+                retVal=insertScript(defScript);
+                defScript->setScriptText(defaultMessage);
+                if (oldThreadedScript)
+                {
+                    defScript->setThreadedExecution(true);
+                    defScript->setExecuteJustOnce(true);
+                }
+            }
         }
-        catch(VFILE_EXCEPTION_TYPE e)
+        else
         {
-            VFile::reportAndHandleFileExceptionError(e);
             char defaultMessage[]="Default script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
             CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
             retVal=insertScript(defScript);
@@ -373,18 +393,6 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
                 defScript->setThreadedExecution(true);
                 defScript->setExecuteJustOnce(true);
             }
-        }
-    }
-    else
-    {
-        char defaultMessage[]="Default script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
-        CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
-        retVal=insertScript(defScript);
-        defScript->setScriptText(defaultMessage);
-        if (oldThreadedScript)
-        {
-            defScript->setThreadedExecution(true);
-            defScript->setExecuteJustOnce(true);
         }
     }
     App::setLightDialogRefreshFlag();

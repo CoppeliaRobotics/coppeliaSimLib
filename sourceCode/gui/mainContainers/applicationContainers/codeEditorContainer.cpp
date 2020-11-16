@@ -327,16 +327,6 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
             }
             if (CPluginContainer::isCodeEditorPluginAvailable())
             {
-                if (it->getScriptType()==sim_scripttype_mainscript)
-                {
-                    if (it->isDefaultMainScript())
-                    { // Display warning
-                        if (VMESSAGEBOX_REPLY_YES!=App::uiThread->messageBox_warning(App::mainWindow,"Main script",IDS_MAINSCRIPT_EDITION_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES))
-                            return(-1);
-                        it->setCustomizedMainScript(true);
-                        POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
-                    }
-                }
                 int posAndSize[4];
                 it->getPreviousEditionWindowPosAndSize(posAndSize);
 
@@ -452,19 +442,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                 App::logMsg(sim_verbosity_errors,"code editor plugin was not found.");
         }
         else
-        {
-            if (it->getScriptType()==sim_scripttype_mainscript)
-            {
-                if (it->isDefaultMainScript())
-                { // Display warning
-                    if (VMESSAGEBOX_REPLY_YES!=App::uiThread->messageBox_warning(App::mainWindow,"Main script",IDS_MAINSCRIPT_EDITION_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES))
-                        return(-1);
-                    it->setCustomizedMainScript(true);
-                    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
-                }
-            }
             retVal=openScriptWithExternalEditor(scriptHandle);
-        }
     }
     return(retVal);
 }

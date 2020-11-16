@@ -107,9 +107,6 @@ CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
     dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/mscript.tga",xres,yres,rgba,nullptr);
     addObject(MAIN_SCRIPT_PICTURE,xres,yres,rgba,false,true,dat);
     delete[] dat;
-    dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/mcscript.tga",xres,yres,rgba,nullptr);
-    addObject(MAIN_SCRIPT_CUSTOMIZED_PICTURE,xres,yres,rgba,false,true,dat);
-    delete[] dat;
     dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/script.tga",xres,yres,rgba,nullptr);
     addObject(SCRIPT_PICTURE,xres,yres,rgba,false,true,dat);
     delete[] dat;

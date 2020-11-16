@@ -10,7 +10,7 @@
 #include "interfaceStack.h"
 #include <random>
 
-#define DEFAULT_MAINSCRIPT_NAME "dltmscpt.txt"
+#define DEFAULT_MAINSCRIPT_CODE "-- The main script is not supposed to be modified, except in special cases.\nrequire('defaultMainScript')"
 #define DEFAULT_NONTHREADEDCHILDSCRIPT_NAME "dltcscpt.txt"
 #define DEFAULT_THREADEDCHILDSCRIPT_NAME "dlttscpt.txt"
 #define DEFAULT_THREADEDCHILDSCRIPTOLD_NAME "dlttscptbkcomp.txt"
@@ -124,9 +124,6 @@ public:
 
     CUserParameters* getScriptParametersObject_backCompatibility();
 
-    void setCustomizedMainScript(bool customized);
-    bool isDefaultMainScript() const;
-
     void setCustScriptDisabledDSim_compatibilityMode_DEPRECATED(bool disabled);
     bool getCustScriptDisabledDSim_compatibilityMode_DEPRECATED() const;
     void setCustomizationScriptCleanupBeforeSave_DEPRECATED(bool doIt);
@@ -234,7 +231,7 @@ protected:
     bool _scriptIsDisabled;
     int _executionState; // execState_uninitialized, etc.
     bool _executeJustOnce;
-    bool _mainScriptIsDefaultMainScript;
+    bool _mainScriptIsDefaultMainScript_old; // 16.11.2020
     int _executionOrder;
     int _debugLevel;
     bool _inDebug;

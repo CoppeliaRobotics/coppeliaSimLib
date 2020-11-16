@@ -1930,7 +1930,7 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
     _automaticCascadingCallsDisabled_OLD=false;
     _threadedExecutionUnderWay=false;
     _flaggedForDestruction=false;
-    _mainScriptIsDefaultMainScript=true;
+    _mainScriptIsDefaultMainScript_old=false;
     _executionOrder=sim_scriptexecorder_normal;
     _debugLevel=0;
     _inDebug=false;
@@ -2789,20 +2789,6 @@ int CLuaScriptObject::getTreeTraversalDirection() const
     return(_treeTraversalDirection);
 }
 
-void CLuaScriptObject::setCustomizedMainScript(bool customized)
-{
-    if (_scriptType==sim_scripttype_mainscript)
-    {
-        _mainScriptIsDefaultMainScript=!customized;
-        App::setFullDialogRefreshFlag();
-    }
-}
-
-bool CLuaScriptObject::isDefaultMainScript() const
-{
-    return(_mainScriptIsDefaultMainScript);
-}
-
 void CLuaScriptObject::setScriptIsDisabled(bool isDisabled)
 {
     _scriptIsDisabled=isDisabled;
@@ -2906,12 +2892,7 @@ std::string CLuaScriptObject::getDescriptiveName() const
 {
     std::string retVal;
     if (_scriptType==sim_scripttype_mainscript)
-    {
-        if (_mainScriptIsDefaultMainScript)
-            retVal+="Main script (default)";
-        else
-            retVal+="Main script (customized)";
-    }
+        retVal+="Main script";
     if ( (_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
     {
         if (_scriptType==sim_scripttype_childscript)
@@ -4413,7 +4394,7 @@ void CLuaScriptObject::serialize(CSer& ar)
             SIM_SET_CLEAR_BIT(nothing,0,_threadedExecution);
             SIM_SET_CLEAR_BIT(nothing,1,_scriptIsDisabled);
             // RESERVED
-            SIM_SET_CLEAR_BIT(nothing,3,!_mainScriptIsDefaultMainScript);
+            SIM_SET_CLEAR_BIT(nothing,3,true); // used to be (!defaultMainScript). 16.11.2020
             SIM_SET_CLEAR_BIT(nothing,4,_executeJustOnce);
             // RESERVED!!
             SIM_SET_CLEAR_BIT(nothing,6,true); // this indicates we have the 'almost' new script execution engine (since V3.1.3)
@@ -4531,39 +4512,8 @@ void CLuaScriptObject::serialize(CSer& ar)
                         }
                         justLoadedCustomScriptBuffer=true;
                     }
-                    if (justLoadedCustomScriptBuffer)
-                    { // We just loaded the script text.
-                        if (_scriptType==sim_scripttype_mainscript)
-                        { // We just loaded a main script text. Do we want to load the default main script instead?
-                            if (_mainScriptIsDefaultMainScript)
-                            { // Yes!
-                                std::string filenameAndPath(App::folders->getSystemPath()+"/");
-                                filenameAndPath+=DEFAULT_MAINSCRIPT_NAME;
-                                if (VFile::doesFileExist(filenameAndPath.c_str()))
-                                {
-                                    try
-                                    {
-                                        VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
-                                        VArchive archive2(&file,VArchive::LOAD);
-                                        unsigned int archiveLength=(unsigned int)file.getLength();
-                                        // We replace current script with a default main script
-                                        _scriptText.resize(archiveLength,' ');
-                                        for (unsigned int i=0;i<archiveLength;i++)
-                                            archive2 >> _scriptText[i];
-                                        archive2.close();
-                                        file.close();
-                                    }
-                                    catch(VFILE_EXCEPTION_TYPE e)
-                                    {
-                                        VFile::reportAndHandleFileExceptionError(e);
-                                        // Removed following line on 2010/03/03: even if the default main script is not there, we might still want the default main script next time (if there maybe).
-                                        // Following line also causes problems when converting to a new fileformat!
-                                        // _mainScriptIsDefaultMainScript=false; // We couldn't find the default main script, we turn this one into a customized main script!
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    if (justLoadedCustomScriptBuffer&&(_scriptType==sim_scripttype_mainscript)&&_mainScriptIsDefaultMainScript_old) // old, keep for backward compatibility. 16.11.2020
+                        _scriptText=DEFAULT_MAINSCRIPT_CODE;
                     if (theName=="Va2")
                     {
                         noHit=false;
@@ -4572,8 +4522,7 @@ void CLuaScriptObject::serialize(CSer& ar)
                         ar >> nothing;
                         _threadedExecution=SIM_IS_BIT_SET(nothing,0);
                         _scriptIsDisabled=SIM_IS_BIT_SET(nothing,1);
-                        // RESERVED
-                        _mainScriptIsDefaultMainScript=!SIM_IS_BIT_SET(nothing,3);
+                        _mainScriptIsDefaultMainScript_old=!SIM_IS_BIT_SET(nothing,3);
                         _executeJustOnce=SIM_IS_BIT_SET(nothing,4);
                         executeInSensingPhase_oldCompatibility_7_8_2014=SIM_IS_BIT_SET(nothing,5);
                         backwardCompatibility_7_8_2014=!SIM_IS_BIT_SET(nothing,6);
@@ -4600,17 +4549,6 @@ void CLuaScriptObject::serialize(CSer& ar)
                         delete _scriptParameters_backCompatibility;
                         _scriptParameters_backCompatibility=new CUserParameters();
                         _scriptParameters_backCompatibility->serialize(ar);
-                        /*
-                        if (_scriptType==sim_scripttype_mainscript)
-                        { // We just loaded a main script. Do we want to load the default main script parameters instead?
-                            if (_mainScriptIsDefaultMainScript)
-                            { // Yes!
-                                // For now we just clear all parameters! (in future we might load default  parameters)
-                                delete _scriptParameters_backCompatibility;
-                                _scriptParameters_backCompatibility=new CUserParameters();
-                            }
-                        }
-                        */
                     }
 
                     if (theName.compare("Coc")==0)
@@ -4676,8 +4614,6 @@ void CLuaScriptObject::serialize(CSer& ar)
             if ( exhaustiveXml||(_scriptType==sim_scripttype_childscript) )
                 ar.xmlAddNode_bool("threadedExecution",_threadedExecution);
             ar.xmlAddNode_bool("enabled",!_scriptIsDisabled);
-            if (exhaustiveXml)
-                ar.xmlAddNode_bool("isDefaultMainScript",_mainScriptIsDefaultMainScript);
             if ( exhaustiveXml||(_scriptType==sim_scripttype_childscript) )
                 ar.xmlAddNode_bool("executeOnce",_executeJustOnce);
             ar.xmlPopNode();
@@ -4719,7 +4655,7 @@ void CLuaScriptObject::serialize(CSer& ar)
                 if (ar.xmlGetNode_bool("enabled",_scriptIsDisabled,exhaustiveXml))
                     _scriptIsDisabled=!_scriptIsDisabled;
                 if (exhaustiveXml)
-                    ar.xmlGetNode_bool("isDefaultMainScript",_mainScriptIsDefaultMainScript);
+                    ar.xmlGetNode_bool("isDefaultMainScript",_mainScriptIsDefaultMainScript_old);
                 if ( exhaustiveXml||(_scriptType==sim_scripttype_childscript) )
                     ar.xmlGetNode_bool("executeOnce",_executeJustOnce,exhaustiveXml);
                 ar.xmlPopNode();
@@ -4730,45 +4666,11 @@ void CLuaScriptObject::serialize(CSer& ar)
             if (exhaustiveXml)
                 ar.xmlGetNode_int("debugLevel",_debugLevel);
 
-            if (ar.xmlGetNode_cdata("scriptText",_scriptText,exhaustiveXml))
-            {
-                if (_scriptType==sim_scripttype_mainscript)
-                { // We just loaded a main script text. Do we want to load the default main script instead?
-                    if (_mainScriptIsDefaultMainScript)
-                    { // Yes!
-                        std::string filenameAndPath(App::folders->getSystemPath()+"/");
-                        filenameAndPath+=DEFAULT_MAINSCRIPT_NAME;
-                        if (VFile::doesFileExist(filenameAndPath.c_str()))
-                        {
-                            try
-                            {
-                                VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
-                                VArchive archive2(&file,VArchive::LOAD);
-                                unsigned int archiveLength=(unsigned int)file.getLength();
-                                // We replace current script with a default main script
-                                _scriptText.resize(archiveLength,' ');
-                                for (unsigned int i=0;i<archiveLength;i++)
-                                    archive2 >> _scriptText[i];
-                                archive2.close();
-                                file.close();
-                            }
-                            catch(VFILE_EXCEPTION_TYPE e)
-                            {
-                                VFile::reportAndHandleFileExceptionError(e);
-                            }
-                        }
-                    }
-                }
-            }
+            if (ar.xmlGetNode_cdata("scriptText",_scriptText,exhaustiveXml)&&(_scriptType==sim_scripttype_mainscript)&&_mainScriptIsDefaultMainScript_old) // for backward compatibility 16.11.2020
+                _scriptText=DEFAULT_MAINSCRIPT_CODE;
 
             if (exhaustiveXml)
             {
-//                if (ar.xmlPushChildNode("scriptParameters"))
-//                {
-//                    _scriptParameters_backCompatibility->serialize(ar);
-//                    ar.xmlPopNode();
-//                }
-
                 if (ar.xmlPushChildNode("customData",false))
                 {
                     _customObjectData=new CCustomData();
@@ -5356,109 +5258,27 @@ void CLuaScriptObject::_adjustScriptText1(CLuaScriptObject* scriptObject,bool do
     if (!doIt)
         return;
     // here we have to adjust for the new script execution engine (since V3.1.3):
-    if ( (scriptObject->getScriptType()==sim_scripttype_mainscript)&&(!scriptObject->isDefaultMainScript()) )
+    if ( (scriptObject->getScriptType()==sim_scripttype_mainscript)&&(!scriptObject->_mainScriptIsDefaultMainScript_old) )
     {
-        // We will comment out the customized main script, load the default main script, and display a message so the user knows what happened!!
-        std::string filenameAndPath(App::folders->getSystemPath()+"/");
-        filenameAndPath+=DEFAULT_MAINSCRIPT_NAME;
-        std::string defaultMainScriptContent;
-        if (VFile::doesFileExist(filenameAndPath.c_str()))
-        {
-            try
-            {
-                VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
-                VArchive archive2(&file,VArchive::LOAD);
-                unsigned int archiveLength=(unsigned int)file.getLength();
-                char dummy;
-                for (int i=0;i<int(archiveLength);i++)
-                {
-                    archive2 >> dummy;
-                    defaultMainScriptContent+=dummy;
-                }
-                archive2.close();
-                file.close();
-            }
-            catch(VFILE_EXCEPTION_TYPE e)
-            {
-                VFile::reportAndHandleFileExceptionError(e);
-                defaultMainScriptContent="";
-            }
-        }
         std::string txt;
-
-        // Comment out the old script:
+        txt+=DEFAULT_MAINSCRIPT_CODE;
+        txt+="\n";
         txt+=" \n";
         txt+=" \n";
         txt+="------------------------------------------------------------------------------ \n";
         txt+="-- Following main script automatically commented out by CoppeliaSim to guarantee \n";
         txt+="-- compatibility with CoppeliaSim 3.1.3 and later: \n";
         txt+=" \n";
-        txt+="--[[ \n";
+        txt+="--[=[ \n";
         txt+=" \n";
         _insertScriptText(scriptObject,true,txt.c_str());
         txt="";
         txt+="\n";
         txt+=" \n";
         txt+=" \n";
-        txt+="--]] \n";
+        txt+="--]=] \n";
         txt+="------------------------------------------------------------------------------ \n";
         _insertScriptText(scriptObject,false,txt.c_str());
-
-        if (defaultMainScriptContent.size()>200)
-        {
-            // Insert the default main script:
-            _insertScriptText(scriptObject,true,defaultMainScriptContent.c_str());
-            // Insert some message to the user:
-            txt="";
-            txt+="------------------------------------------------------------------------------ \n";
-            txt+="-- The main script was automatically adjusted by CoppeliaSim to guarantee compatibility \n";
-            txt+="-- with CoppeliaSim 3.1.3 and later. You will find the original main script \n";
-            txt+="-- commented out below \n";
-            txt+="if (sim_call_type==sim.syscb_init) then \n";
-            txt+="  simSetScriptAttribute(sim_handle_self,sim_scriptattribute_executioncount,-1) \n";
-            txt+="  local theTxt='The main script of this scene was customized (which is anyway not recommended),&&nand probably not compatible with CoppeliaSim release 3.1.3 and later. For that reason,&&nthe main script was replaced with the default main script. If your scene does not run&&nas expected, have a look at the main script code. '\n";
-            txt+="  local h=simDisplayDialog('Compatibility issue',theTxt,sim_dlgstyle_ok,false,'',{0.8,0,0,0,0,0},{0.5,0,0,1,1,1}) \n";
-            txt+="end \n";
-            txt+="------------------------------------------------------------------------------ \n";
-            txt+=" \n";
-            txt+=" \n";
-            _insertScriptText(scriptObject,true,txt.c_str());
-
-            txt="compatibility issue with @@REPLACE@@\n";
-            txt+="  Since CoppeliaSim 3.1.3, the functions simHandleChildScript and simHandleSensingChildScripts\n";
-            txt+="  were replaced with simHandleChildScripts (i.e. with an additional 's'), which\n";
-            txt+="  operates slightly differently. In addition to this, a new function was introduced that\n";
-            txt+="  handles threaded child scripts: simLaunchThreadedChildScripts. For that reason, CoppeliaSim\n";
-            txt+="  has automatically adjusted the customized main script. Make sure that everything\n";
-            txt+="  still works as expected.";
-            CWorld::appendLoadOperationIssue(sim_verbosity_warnings,txt.c_str(),scriptObject->getScriptID());
-
-        }
-        else
-        { // there was a problem loading the default main script.
-            // Insert some message to the user:
-            txt="";
-            txt+="------------------------------------------------------------------------------ \n";
-            txt+="-- Please manually adjust the customized main script \n";
-            txt+="if (sim_call_type==sim.syscb_init) then \n";
-            txt+="  simSetScriptAttribute(sim_handle_self,sim_scriptattribute_executioncount,-1) \n";
-            txt+="  local theTxt='Please manually adjust the main script!!'\n";
-            txt+="  local h=simDisplayDialog('Compatibility issue',theTxt,sim_dlgstyle_ok,false,'',{0.8,0,0,0,0,0},{0.5,0,0,1,1,1}) \n";
-            txt+="end \n";
-            txt+="------------------------------------------------------------------------------ \n";
-            txt+=" \n";
-            txt+=" \n";
-            _insertScriptText(scriptObject,true,txt.c_str());
-
-            txt="compatibility issue with @@REPLACE@@\n";
-            txt+="  Since CoppeliaSim 3.1.3, the functions simHandleChildScript and simHandleSensingChildScripts\n";
-            txt+="  were replaced with simHandleChildScripts (i.e. with an additional 's'), which\n";
-            txt+="  operates slightly differently. In addition to this, a new function was introduced that\n";
-            txt+="  handles threaded child scripts: simLaunchThreadedChildScripts. For that reason, CoppeliaSim\n";
-            txt+="  tried to automatically adjusted the customized main script, but couldn't find the default\n";
-            txt+="  main script normally located in system/dltmscpt.txt. Please manually adjust the main script.";
-            CWorld::appendLoadOperationIssue(sim_verbosity_warnings,txt.c_str(),scriptObject->getScriptID());
-        }
     }
     if (scriptObject->getScriptType()==sim_scripttype_childscript)
     {
