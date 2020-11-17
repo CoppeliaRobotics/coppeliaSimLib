@@ -15065,7 +15065,7 @@ simInt simPushStringOntoStack_internal(simInt stackHandle,const simChar* value,s
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushStringOntoStack(value,stringSize);
+            stack->pushStringOntoStack(value,size_t(stringSize));
             return(1);
         }
         CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);

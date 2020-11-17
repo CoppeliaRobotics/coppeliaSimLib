@@ -2203,7 +2203,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
                             {
                                 CInterfaceStackString* buff=(CInterfaceStackString*)obj2;
                                 std::vector<float> data;
-                                int l;
+                                size_t l;
                                 buff->getValue(&l);
                                 data.assign((float*)buff->getValue(nullptr),((float*)buff->getValue(nullptr))+l/4);
                                 sensorAuxiliaryResult.push_back(data);

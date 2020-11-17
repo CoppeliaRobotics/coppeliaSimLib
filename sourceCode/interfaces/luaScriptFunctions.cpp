@@ -7763,10 +7763,6 @@ int _simTest(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.test");
-
-    //int r=handleVerSpec_test(L);
-    //if (r>=0)
-    //    LUA_END(r);
     LUA_END(0);
 }
 
@@ -16047,7 +16043,7 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
             if (it!=nullptr)
             {
                 CInterfaceStack stack;
-                stack.pushStringOntoStack(txt.c_str(),int(txt.size()));
+                stack.pushStringOntoStack(txt.c_str(),txt.size());
                 stack.pushIntArrayTableOntoStack(posAndSize+0,2);
                 stack.pushIntArrayTableOntoStack(posAndSize+2,2);
                 it->callScriptFunctionEx(cb.c_str(),&stack);

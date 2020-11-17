@@ -15,7 +15,6 @@ public:
     static bool checkCreateFromData(const char* data,unsigned int& w,unsigned int l);
 
     double getValue() const;
-    void setValue(double theValue);
 
 protected:
     double _value;

@@ -360,7 +360,7 @@ CInterfaceStackObject* CInterfaceStackTable::getMapItemAtIndex(int ind,std::stri
     if (keyType==STACK_OBJECT_STRING)
     {
         CInterfaceStackString* keyObj=(CInterfaceStackString*)_tableObjects[2*ind+0];
-        int l;
+        size_t l;
         const char* c=keyObj->getValue(&l);
         if (l>0)
             stringKey.assign(c,c+l);

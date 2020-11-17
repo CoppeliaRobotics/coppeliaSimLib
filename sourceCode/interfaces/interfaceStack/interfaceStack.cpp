@@ -183,7 +183,7 @@ bool CInterfaceStack::getStackStringValue(std::string& theValue) const
         CInterfaceStackObject* it=_stackObjects[_stackObjects.size()-1];
         if (it->getObjectType()==STACK_OBJECT_STRING)
         {
-            int l;
+            size_t l;
             const char* p=((CInterfaceStackString*)it)->getValue(&l);
             theValue.assign(p,p+l);
             return(true);
@@ -337,7 +337,7 @@ CInterfaceStackObject* CInterfaceStack::_generateObjectFromLuaStack(luaWrap_lua_
     {
         size_t l;
         const char* c=luaWrap_lua_tolstring(L,index,&l);
-        return(new CInterfaceStackString(c,(int)l));
+        return(new CInterfaceStackString(c,l));
     }
     else if (t==STACK_OBJECT_TABLE)
     { // this part is more tricky:
@@ -447,7 +447,7 @@ void CInterfaceStack::_pushOntoLuaStack(luaWrap_lua_State* L,CInterfaceStackObje
         luaWrap_lua_pushinteger(L,((CInterfaceStackInteger*)obj)->getValue());
     else if (t==STACK_OBJECT_STRING)
     {
-        int l;
+        size_t l;
         const char* str=((CInterfaceStackString*)obj)->getValue(&l);
         luaWrap_lua_pushlstring(L,str,l);
     }
@@ -675,7 +675,7 @@ bool CInterfaceStack::getStackMapStringValue(const char* fieldName,std::string& 
     {
         if (obj->getObjectType()==STACK_OBJECT_STRING)
         {
-            int l;
+            size_t l;
             const char* vv=((CInterfaceStackString*)obj)->getValue(&l);
             val.assign(vv,vv+l);
             return(true);
@@ -730,7 +730,7 @@ void CInterfaceStack::pushIntegerOntoStack(luaWrap_lua_Integer v)
     _stackObjects.push_back(new CInterfaceStackInteger(v));
 }
 
-void CInterfaceStack::pushStringOntoStack(const char* str,int l)
+void CInterfaceStack::pushStringOntoStack(const char* str,size_t l)
 {
     _stackObjects.push_back(new CInterfaceStackString(str,l));
 }

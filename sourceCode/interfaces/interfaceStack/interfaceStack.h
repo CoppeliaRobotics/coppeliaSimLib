@@ -26,7 +26,7 @@ public:
     void pushBoolOntoStack(bool v);
     void pushNumberOntoStack(double v);
     void pushIntegerOntoStack(luaWrap_lua_Integer v);
-    void pushStringOntoStack(const char* str,int l);
+    void pushStringOntoStack(const char* str,size_t l);
     void pushUCharArrayTableOntoStack(const unsigned char* arr,int l);
     void pushIntArrayTableOntoStack(const int* arr,int l);
     void pushFloatArrayTableOntoStack(const float* arr,int l);

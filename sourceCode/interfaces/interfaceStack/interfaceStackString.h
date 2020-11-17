@@ -6,7 +6,7 @@
 class CInterfaceStackString : public CInterfaceStackObject
 {
 public:
-    CInterfaceStackString(const char* str,int l);
+    CInterfaceStackString(const char* str,size_t l);
     virtual ~CInterfaceStackString();
 
     CInterfaceStackObject* copyYourself() const;
@@ -15,8 +15,7 @@ public:
     unsigned int createFromData(const char* data);
     static bool checkCreateFromData(const char* data,unsigned int& w,unsigned int l);
 
-    const char* getValue(int* l) const;
-    void setValue(const char* str,int l);
+    const char* getValue(size_t* l) const;
 
 protected:
     std::string _value;

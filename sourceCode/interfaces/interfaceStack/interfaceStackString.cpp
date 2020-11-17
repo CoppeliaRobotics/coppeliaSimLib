@@ -1,37 +1,31 @@
-
 #include "interfaceStackString.h"
 
-CInterfaceStackString::CInterfaceStackString(const char* str,int l)
+CInterfaceStackString::CInterfaceStackString(const char* str,size_t l)
 {
     _objectType=STACK_OBJECT_STRING;
-    if (l==0)
+    if (str!=nullptr)
     {
-        if (str!=nullptr)
+        if (l==0)
             _value.assign(str);
+        else
+            _value.assign(str,str+l);
     }
-    else
-        _value.assign(str,str+l);
 }
 
 CInterfaceStackString::~CInterfaceStackString()
 {
 }
 
-const char* CInterfaceStackString::getValue(int* l) const
+const char* CInterfaceStackString::getValue(size_t* l) const
 {
     if (l!=nullptr)
-        l[0]=(int)_value.size();
+        l[0]=_value.size();
     return(_value.c_str());
-}
-
-void CInterfaceStackString::setValue(const char* str,int l)
-{
-    _value.assign(str,str+l);
 }
 
 CInterfaceStackObject* CInterfaceStackString::copyYourself() const
 {
-    CInterfaceStackString* retVal=new CInterfaceStackString(_value.c_str(),(int)_value.length());
+    CInterfaceStackString* retVal=new CInterfaceStackString(_value.c_str(),_value.size());
     return(retVal);
 }
 

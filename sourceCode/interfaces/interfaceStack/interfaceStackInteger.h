@@ -15,7 +15,6 @@ public:
     static bool checkCreateFromData(const char* data,unsigned int& w,unsigned int l);
 
     luaWrap_lua_Integer getValue() const;
-    void setValue(luaWrap_lua_Integer theValue);
 
 protected:
     luaWrap_lua_Integer _value;

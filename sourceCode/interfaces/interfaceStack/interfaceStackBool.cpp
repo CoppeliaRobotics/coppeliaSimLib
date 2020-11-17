@@ -16,11 +16,6 @@ bool CInterfaceStackBool::getValue() const
     return(_value);
 }
 
-void CInterfaceStackBool::setValue(bool theValue)
-{
-    _value=theValue;
-}
-
 CInterfaceStackObject* CInterfaceStackBool::copyYourself() const
 {
     CInterfaceStackBool* retVal=new CInterfaceStackBool(_value);

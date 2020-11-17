@@ -15,11 +15,6 @@ luaWrap_lua_Integer CInterfaceStackInteger::getValue() const
     return(_value);
 }
 
-void CInterfaceStackInteger::setValue(luaWrap_lua_Integer theValue)
-{
-    _value=theValue;
-}
-
 CInterfaceStackObject* CInterfaceStackInteger::copyYourself() const
 {
     CInterfaceStackInteger* retVal=new CInterfaceStackInteger(_value);
