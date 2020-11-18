@@ -9,6 +9,7 @@ set(CMAKE_MACOSX_RPATH 1)
 
 set(CMAKE_AUTOUIC_SEARCH_PATHS ui)
 set(WITH_QT true CACHE BOOL "Enable Qt")
+set(INSTALL_DIR "" CACHE PATH "If specified, it will used as install destination")
 
 if(WITH_QT)
     set(WITH_GUI true CACHE BOOL "Enable gui")
@@ -727,4 +728,13 @@ if(WIN32)
         user32
         Dbghelp
     )
+endif()
+
+if(INSTALL_DIR)
+    if(NOT EXISTS "${INSTALL_DIR}")
+        message(FATAL_ERROR "'${INSTALL_DIR}' does not exist")
+    elseif(NOT IS_DIRECTORY "${INSTALL_DIR}")
+        message(FATAL_ERROR "'${INSTALL_DIR}' is not a directory")
+    endif()
+    install(TARGETS coppeliaSim DESTINATION "${INSTALL_DIR}")
 endif()
