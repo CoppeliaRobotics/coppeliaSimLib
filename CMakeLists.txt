@@ -11,6 +11,8 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS ui)
 set(WITH_QT true CACHE BOOL "Enable Qt")
 set(INSTALL_DIR "" CACHE PATH "If specified, it will used as install destination")
 
+message(STATUS "INSTALL_DIR: ${INSTALL_DIR}")
+
 if(WITH_QT)
     set(WITH_GUI true CACHE BOOL "Enable gui")
     set(WITH_OPENGL true CACHE BOOL "Enable OpenGL")
