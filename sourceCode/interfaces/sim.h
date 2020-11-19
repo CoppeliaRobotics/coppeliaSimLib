@@ -41,11 +41,6 @@ SIM_DLLEXPORT simInt simRemoveModel(simInt objectHandle);
 SIM_DLLEXPORT simChar* simGetObjectName(simInt objectHandle);
 SIM_DLLEXPORT simInt simGetObjects(simInt index,simInt objectType);
 SIM_DLLEXPORT simInt simSetObjectName(simInt objectHandle,const simChar* objectName);
-SIM_DLLEXPORT simInt simGetCollectionHandle(const simChar* collectionName);
-SIM_DLLEXPORT simInt simRemoveCollection(simInt collectionHandle);
-SIM_DLLEXPORT simInt simEmptyCollection(simInt collectionHandle);
-SIM_DLLEXPORT simChar* simGetCollectionName(simInt collectionHandle);
-SIM_DLLEXPORT simInt simSetCollectionName(simInt collectionHandle,const simChar* collectionName);
 SIM_DLLEXPORT simInt simGetObjectMatrix(simInt objectHandle,simInt relativeToObjectHandle,simFloat* matrix);
 SIM_DLLEXPORT simInt simSetObjectMatrix(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* matrix);
 SIM_DLLEXPORT simInt simGetObjectPosition(simInt objectHandle,simInt relativeToObjectHandle,simFloat* position);
@@ -309,12 +304,13 @@ SIM_DLLEXPORT simInt simGetObjectSizeValues(simInt objectHandle,simFloat* sizeVa
 SIM_DLLEXPORT simInt simScaleObject(simInt objectHandle,simFloat xScale,simFloat yScale,simFloat zScale,simInt options);
 SIM_DLLEXPORT simInt simSetShapeTexture(simInt shapeHandle,simInt textureId,simInt mappingMode,simInt options,const simFloat* uvScaling,const simFloat* position,const simFloat* orientation);
 SIM_DLLEXPORT simInt simGetShapeTextureId(simInt shapeHandle);
+SIM_DLLEXPORT simInt simAddCollection(simInt options);
+SIM_DLLEXPORT simInt simAddItemToCollection(simInt collectionHandle,simInt objectHandle,simInt what,simInt options);
+SIM_DLLEXPORT simInt simDestroyCollection(simInt collectionHandle);
 SIM_DLLEXPORT simInt* simGetCollectionObjects(simInt collectionHandle,simInt* objectCount);
 SIM_DLLEXPORT simInt simSetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal);
 SIM_DLLEXPORT simInt simGetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal);
 SIM_DLLEXPORT simInt simReorientShapeBoundingBox(simInt shapeHandle,simInt relativeToHandle,simInt reservedSetToZero);
-SIM_DLLEXPORT simInt simCreateCollection(const simChar* collectionName,simInt options);
-SIM_DLLEXPORT simInt simAddObjectToCollection(simInt collectionHandle,simInt objectHandle,simInt what,simInt options);
 SIM_DLLEXPORT simInt simSaveImage(const simUChar* image,const simInt* resolution,simInt options,const simChar* filename,simInt quality,simVoid* reserved);
 SIM_DLLEXPORT simUChar* simLoadImage(simInt* resolution,simInt options,const simChar* filename,simVoid* reserved);
 SIM_DLLEXPORT simUChar* simGetScaledImage(const simUChar* imageIn,const simInt* resolutionIn,simInt* resolutionOut,simInt options,simVoid* reserved);
@@ -648,6 +644,13 @@ SIM_DLLEXPORT simInt simUnlockResources(simInt lockHandle);
 SIM_DLLEXPORT simChar* simGetUserParameter(simInt objectHandle,const simChar* parameterName,simInt* parameterLength);
 SIM_DLLEXPORT simInt simSetUserParameter(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength);
 SIM_DLLEXPORT simInt simSetPathTargetNominalVelocity(simInt objectHandle,simFloat targetNominalVelocity);
+SIM_DLLEXPORT simInt simGetCollectionHandle(const simChar* collectionName);
+SIM_DLLEXPORT simInt simRemoveCollection(simInt collectionHandle);
+SIM_DLLEXPORT simInt simEmptyCollection(simInt collectionHandle);
+SIM_DLLEXPORT simChar* simGetCollectionName(simInt collectionHandle);
+SIM_DLLEXPORT simInt simSetCollectionName(simInt collectionHandle,const simChar* collectionName);
+SIM_DLLEXPORT simInt simCreateCollection(const simChar* collectionName,simInt options);
+SIM_DLLEXPORT simInt simAddObjectToCollection(simInt collectionHandle,simInt objectHandle,simInt what,simInt options);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

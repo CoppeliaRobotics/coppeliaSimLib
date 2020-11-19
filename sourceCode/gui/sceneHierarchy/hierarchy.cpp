@@ -1144,15 +1144,15 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
     int scriptID=getScriptActionObjectID(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
     if (scriptID!=-1)
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptID);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptID);
         if (it!=nullptr)
         {
             bool openScriptEditor=true;
             int auxData[4]={-1,-1,-1,-1};
             if (it->getScriptType()==sim_scripttype_childscript)
-                auxData[0]=it->getObjectIDThatScriptIsAttachedTo_child();
+                auxData[0]=it->getObjectHandleThatScriptIsAttachedTo_child();
             if (it->getScriptType()==sim_scripttype_customizationscript)
-                auxData[0]=it->getObjectIDThatScriptIsAttachedTo_customization();
+                auxData[0]=it->getObjectHandleThatScriptIsAttachedTo_customization();
             int retVals[4]={-1,-1,-1,-1};
             void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scripticondblclick,auxData,nullptr,retVals);
             delete[] (char*)returnVal;
@@ -1162,7 +1162,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
                 // Process the command via the simulation thread (delayed):
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=OPEN_SCRIPT_EDITOR_CMD;
-                cmd.intParams.push_back(it->getScriptID());
+                cmd.intParams.push_back(it->getScriptHandle());
                 App::appendSimulationThreadCommand(cmd);
             }
         }

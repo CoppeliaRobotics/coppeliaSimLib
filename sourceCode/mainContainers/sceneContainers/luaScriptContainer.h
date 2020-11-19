@@ -13,17 +13,17 @@ public:
     void simulationEnded();
     void simulationAboutToEnd();
     void removeAllScripts();
-    void announceObjectWillBeErased(int objectID);
-    bool removeScript_safe(int scriptId);
-    bool removeScript(int scriptID);
+    void announceObjectWillBeErased(int scriptHandle);
+    bool removeScript_safe(int scriptHandle);
+    bool removeScript(int scriptHandle);
     int insertScript(CLuaScriptObject* script);
-    CLuaScriptObject* getScriptFromID_alsoAddOnsAndSandbox(int scriptID) const;
-    CLuaScriptObject* getScriptFromID_noAddOnsNorSandbox(int scriptID) const;
+    CLuaScriptObject* getScriptFromHandle_alsoAddOnsAndSandbox(int scriptHandle) const;
+    CLuaScriptObject* getScriptFromHandle_noAddOnsNorSandbox(int scriptHandle) const;
     CLuaScriptObject* getMainScript() const;
-    CLuaScriptObject* getScriptFromObjectAttachedTo_child(int threeDObjectID) const;
-    CLuaScriptObject* getScriptFromObjectAttachedTo_customization(int threeDObjectID) const;
+    CLuaScriptObject* getScriptFromObjectAttachedTo_child(int objectHandle) const;
+    CLuaScriptObject* getScriptFromObjectAttachedTo_customization(int objectHandle) const;
 
-    int getScriptsFromObjectAttachedTo(int threeDObjectID,std::vector<CLuaScriptObject*>& scripts) const;
+    int getScriptsFromObjectAttachedTo(int objectHandle,std::vector<CLuaScriptObject*>& scripts) const;
     bool doesScriptWithUniqueIdExist(int id) const;
 
     void killAllSimulationLuaStates();

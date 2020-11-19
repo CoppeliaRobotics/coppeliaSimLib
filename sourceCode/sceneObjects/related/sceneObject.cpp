@@ -1389,9 +1389,9 @@ void CSceneObject::setEnableCustomizationScript(bool c,const char* scriptContent
     {
 #ifdef SIM_WITH_GUI
         if (App::mainWindow!=nullptr)
-            App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptID(),nullptr,true);
+            App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
 #endif
-        App::currentWorld->luaScriptContainer->removeScript(script->getScriptID());
+        App::currentWorld->luaScriptContainer->removeScript(script->getScriptHandle());
     }
 
     if (c)
@@ -1400,7 +1400,7 @@ void CSceneObject::setEnableCustomizationScript(bool c,const char* scriptContent
         if (scriptContent)
             script->setScriptText(scriptContent);
         App::currentWorld->luaScriptContainer->insertScript(script);
-        script->setObjectIDThatScriptIsAttachedTo(getObjectHandle());
+        script->setObjectHandleThatScriptIsAttachedTo(getObjectHandle());
     }
 }
 

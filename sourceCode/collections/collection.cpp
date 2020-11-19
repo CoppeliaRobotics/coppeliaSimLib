@@ -5,10 +5,11 @@
 #include "ttUtil.h"
 #include "global.h"
 
-CCollection::CCollection()
+CCollection::CCollection(int creatorHandle)
 {
+    _creatorHandle=creatorHandle;
     _overridesObjectMainProperties=false;
-    _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
+    _uniquePersistentIdString=CTTUtil::generateUniqueReadableString();
 }
 
 CCollection::~CCollection()
@@ -45,19 +46,17 @@ bool CCollection::isObjectInCollection(int objectHandle) const
 
 void CCollection::addCollectionElement(CCollectionElement* collectionElement)
 {
-    bool full=(getElementCount()!=0);
     int i=0;
     while (getElementFromHandle(i)!=nullptr)
         i++;
     collectionElement->setElementHandle(i);
     _addCollectionElement(collectionElement);
-    actualizeCollection(full);
+    actualizeCollection();
     App::setFullDialogRefreshFlag();
 }
 
-bool CCollection::actualizeCollection(bool full)
-{   // return value false means that this collection is empty and should be removed. Full is true by default!
-    App::setLightDialogRefreshFlag();
+bool CCollection::actualizeCollection()
+{   // return value false means that this collection is empty
     bool retVal=false;
     size_t i=0;
     // First we remove all collection elements which are not valid anymore:
@@ -67,10 +66,7 @@ bool CCollection::actualizeCollection(bool full)
         if (it==nullptr)
         {
             if (getElementFromIndex(i)->getElementType()!=sim_collectionelement_all)
-            {
                 _CCollection_::_removeCollectionElementFromHandle(getElementFromIndex(i)->getElementHandle());
-                i=0;
-            }
             else
                 i++;
         }
@@ -78,8 +74,8 @@ bool CCollection::actualizeCollection(bool full)
             i++;
     }
     // Now we have to take care of the GROUP_EVERYTHING type:
-    if (full)
-    {
+    if (_creatorHandle==-2)
+    { // only for old collections (i.e. those created via the GUI)
         bool removeAll=true;
         for (size_t i=0;i<getElementCount();i++)
         {
@@ -111,8 +107,13 @@ void CCollection::removeCollectionElementFromHandle(int collectionElementHandle)
     actualizeCollection();
 }
 
+bool CCollection::announceScriptStateWillBeErased(int scriptHandle)
+{ // Return value true means that this collection needs to be erased
+    return(_creatorHandle==scriptHandle);
+}
+
 bool CCollection::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
-{ // Return value true means that this collection is empty and should be removed
+{ // Return value true means that this collection is empty
     bool retVal=false;
     size_t i=0;
     size_t initialSubGroupListSize=getElementCount();
@@ -198,7 +199,7 @@ void CCollection::performObjectLoadingMapping(const std::vector<int>* map)
 
 CCollection* CCollection::copyYourself() const
 {
-    CCollection* newCollection=new CCollection();
+    CCollection* newCollection=new CCollection(-2);
     newCollection->_collectionHandle=_collectionHandle; // important for copy operations connections
     newCollection->_collectionName=_collectionName;
     for (size_t i=0;i<getElementCount();i++)
@@ -212,7 +213,12 @@ void CCollection::emptyCollection()
     while (getElementCount()>0)
         _CCollection_::_removeCollectionElementFromHandle(getElementFromIndex(0)->getElementHandle());
     _collectionObjects.clear(); // added on 14/10/2016 (was forgotten)
-    actualizeCollection(true); // we keep this collection alive
+    actualizeCollection();
+}
+
+int CCollection::getCreatorHandle() const
+{
+    return(_creatorHandle);
 }
 
 std::string CCollection::getUniquePersistentIdString() const

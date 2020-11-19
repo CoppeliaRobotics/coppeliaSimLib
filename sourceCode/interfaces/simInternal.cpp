@@ -53,6 +53,7 @@
 #endif
 
 int _currentScriptNameIndex=-1;
+int _currentScriptHandle=-1;
 
 bool outputSceneOrModelLoadMessagesWithApiCall=false;
 bool fullModelCopyFromApi=true;
@@ -515,9 +516,10 @@ std::string getIndexAdjustedObjectName(const char* nm)
     return(retVal);
 }
 
-void setCurrentScriptNameIndex_cSide(int number)
+void setCurrentScriptInfo_cSide(int scriptHandle,int scriptNameIndex)
 {
-    _currentScriptNameIndex=number;
+    _currentScriptHandle=scriptHandle;
+    _currentScriptNameIndex=scriptNameIndex;
 }
 
 int getCurrentScriptNameIndex_cSide()
@@ -1448,180 +1450,6 @@ simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName)
             //App::currentWorld->sceneObjects->renameObject(it->getObjectHandle(),text.c_str());
             App::setFullDialogRefreshFlag();
         }
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-
-}
-
-simInt simGetCollectionHandle_internal(const simChar* collectionName)
-{
-    TRACE_C_API;
-
-    size_t silentErrorPos=std::string(collectionName).find("@silentError");
-    std::string nm(collectionName);
-    if (silentErrorPos!=std::string::npos)
-        nm.erase(nm.begin()+silentErrorPos,nm.end());
-
-    std::string collectionNameAdjusted=getIndexAdjustedObjectName(nm.c_str());
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        CCollection* it=App::currentWorld->collections->getObjectFromName(collectionNameAdjusted.c_str());
-        if (it==nullptr)
-        {
-            if (silentErrorPos==std::string::npos)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
-            return(-1);
-        }
-        int retVal=it->getCollectionHandle();
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simRemoveCollection_internal(simInt collectionHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        std::vector<int> memSel;
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-            memSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-
-        if (collectionHandle==sim_handle_all)
-        {
-            App::currentWorld->sceneObjects->deselectObjects();
-            for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
-                App::currentWorld->collections->addCollectionToSelection(App::currentWorld->collections->getObjectFromIndex(i)->getCollectionHandle());
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            App::currentWorld->sceneObjects->deselectObjects();
-            App::currentWorld->sceneObjects->eraseSeveralObjects(sel,true);
-            App::currentWorld->collections->removeAllCollections();
-            // Restore previous' selection state:
-            for (size_t i=0;i<memSel.size();i++)
-                App::currentWorld->sceneObjects->addObjectToSelection(memSel[i]);
-            return(1);
-        }
-        else
-        {
-            CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
-            if (it==nullptr)
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
-                return(-1);
-            }
-            App::currentWorld->sceneObjects->deselectObjects();
-            App::currentWorld->collections->addCollectionToSelection(it->getCollectionHandle());
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            App::currentWorld->sceneObjects->deselectObjects();
-            App::currentWorld->sceneObjects->eraseSeveralObjects(sel,true);
-            App::currentWorld->collections->removeCollection(collectionHandle);
-            // Restore previous' selection state:
-            for (size_t i=0;i<memSel.size();i++)
-                App::currentWorld->sceneObjects->addObjectToSelection(memSel[i]);
-            return(1);
-        }
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simInt simEmptyCollection_internal(simInt collectionHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        if (collectionHandle==sim_handle_all)
-        {
-            for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
-                App::currentWorld->collections->getObjectFromIndex(i)->emptyCollection();
-            return(1);
-        }
-        CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
-        if (it==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
-            return(-1);
-        }
-        it->emptyCollection();
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simChar* simGetCollectionName_internal(simInt collectionHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesCollectionExist(__func__,collectionHandle))
-            return(nullptr);
-        CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
-        char* retVal=new char[it->getCollectionName().length()+1];
-        for (unsigned int i=0;i<it->getCollectionName().length();i++)
-            retVal[i]=it->getCollectionName()[i];
-        retVal[it->getCollectionName().length()]=0;
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(nullptr);
-}
-
-simInt simSetCollectionName_internal(simInt collectionHandle,const simChar* collectionName)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        if (!doesCollectionExist(__func__,collectionHandle))
-            return(-1);
-        CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
-        std::string originalText(collectionName);
-        if (originalText.length()>127)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
-            return(-1);
-        }
-        std::string text(collectionName);
-        tt::removeIllegalCharacters(text,true);
-        if (originalText!=text)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
-            return(-1);
-        }
-        if (it->getCollectionName().compare(text)==0)
-            return(1);
-        if (App::currentWorld->collections->getObjectFromName(text.c_str())!=nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
-            return(-1);
-        }
-        it->setCollectionName(originalText.c_str(),true);
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -5332,7 +5160,7 @@ simInt simGetScriptHandle_internal(const simChar* targetAtScriptName)
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_WAS_DESTROYED);
             return(-1);
         }
-        int retVal=it->getScriptID();
+        int retVal=it->getScriptHandle();
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5410,7 +5238,7 @@ simInt simResetScript_internal(simInt scriptHandle)
             App::currentWorld->luaScriptContainer->killAllSimulationLuaStates();
             return(1);
         }
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5432,7 +5260,7 @@ simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5466,7 +5294,7 @@ const simChar* simGetScriptText_internal(simInt scriptHandle)
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCENE_LOCKED);
             return(nullptr);
         }
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5502,7 +5330,7 @@ simInt simGetScript_internal(simInt index)
             return(-1);
         }
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->allScripts[index];
-        int retVal=it->getScriptID();
+        int retVal=it->getScriptHandle();
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5523,7 +5351,7 @@ simInt simGetScriptAssociatedWithObject_internal(simInt objectHandle)
         CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objectHandle);
         if (it==nullptr)
             return(-1);
-        int retVal=it->getScriptID();
+        int retVal=it->getScriptHandle();
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5550,7 +5378,7 @@ simInt simGetCustomizationScriptAssociatedWithObject_internal(simInt objectHandl
         {
             return(-1);
         }
-        int retVal=it->getScriptID();
+        int retVal=it->getScriptHandle();
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5566,7 +5394,7 @@ simInt simGetObjectAssociatedWithScript_internal(simInt scriptHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5574,9 +5402,9 @@ simInt simGetObjectAssociatedWithScript_internal(simInt scriptHandle)
         }
         int retVal=-1;
         if (it->getScriptType()==sim_scripttype_childscript)
-                retVal=it->getObjectIDThatScriptIsAttachedTo_child();
+                retVal=it->getObjectHandleThatScriptIsAttachedTo_child();
         if (it->getScriptType()==sim_scripttype_customizationscript)
-                retVal=it->getObjectIDThatScriptIsAttachedTo_customization();
+                retVal=it->getObjectHandleThatScriptIsAttachedTo_customization();
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5592,7 +5420,7 @@ simChar* simGetScriptName_internal(simInt scriptHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5619,14 +5447,14 @@ simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(-1);
         }
         scriptProperty[0]=it->getScriptType();
-        associatedObjectHandle[0]=it->getObjectIDThatScriptIsAttachedTo_child();
+        associatedObjectHandle[0]=it->getObjectHandleThatScriptIsAttachedTo_child();
         if (it->getThreadedExecution())
             scriptProperty[0]|=sim_scripttype_threaded_old;
         return(1);
@@ -5645,14 +5473,14 @@ simInt simAssociateScriptWithObject_internal(simInt scriptHandle,simInt associat
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal=-1;
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptHandle);
         if (it!=nullptr)
         {
             if ( (it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_customizationscript) )
             {
                 if (associatedObjectHandle==-1)
                 { // remove association
-                    it->setObjectIDThatScriptIsAttachedTo(-1);
+                    it->setObjectHandleThatScriptIsAttachedTo(-1);
                     App::setLightDialogRefreshFlag();
                     retVal=1;
                 }
@@ -5660,7 +5488,7 @@ simInt simAssociateScriptWithObject_internal(simInt scriptHandle,simInt associat
                 { // set association
                     if (doesObjectExist(__func__,associatedObjectHandle))
                     { // object does exist
-                        if (it->getObjectIDThatScriptIsAttachedTo()==-1)
+                        if (it->getObjectHandleThatScriptIsAttachedTo()==-1)
                         { // script not yet associated
                             CLuaScriptObject* currentSimilarObj=nullptr;
                             if (it->getScriptType()==sim_scripttype_childscript)
@@ -5669,7 +5497,7 @@ simInt simAssociateScriptWithObject_internal(simInt scriptHandle,simInt associat
                                 currentSimilarObj=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(associatedObjectHandle);
                             if (currentSimilarObj==nullptr)
                             {
-                                it->setObjectIDThatScriptIsAttachedTo(associatedObjectHandle);
+                                it->setObjectHandleThatScriptIsAttachedTo(associatedObjectHandle);
                                 App::setLightDialogRefreshFlag();
                                 retVal=1;
                             }
@@ -5740,7 +5568,7 @@ simInt simRemoveScript_internal(simInt scriptHandle)
             App::setFullDialogRefreshFlag();
             return(1);
         }
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -11615,7 +11443,7 @@ simInt simIsHandleValid_internal(simInt generalObjectHandle,simInt generalObject
         {
             return(1);
         }
-        if (((generalObjectType==-1)||(generalObjectType==sim_appobj_script_type))&&(App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(generalObjectHandle)!=nullptr))
+        if (((generalObjectType==-1)||(generalObjectType==sim_appobj_script_type))&&(App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(generalObjectHandle)!=nullptr))
         {
             return(1);
         }
@@ -13534,7 +13362,7 @@ simInt simWriteCustomDataBlock_internal(simInt objectHandle,const simChar* tagNa
             dataSize=0;
         if (objectHandle>=SIM_IDSTART_LUASCRIPT)
         { // here we have a script
-            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(objectHandle);
+            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(objectHandle);
             if (script!=nullptr)
             { // here we have a script
                 if (useTempBuffer)
@@ -13713,7 +13541,7 @@ simChar* simReadCustomDataBlock_internal(simInt objectHandle,const simChar* tagN
             useTempBuffer=((tagName[0]=='@')&&(tagName[1]=='t')&&(tagName[2]=='m')&&(tagName[3]=='p'));
         if (objectHandle>=SIM_IDSTART_LUASCRIPT)
         { // here we have a script
-            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(objectHandle);
+            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(objectHandle);
             if (script!=nullptr)
             {
                 if (useTempBuffer)
@@ -13818,7 +13646,7 @@ simChar* simReadCustomDataBlockTags_internal(simInt objectHandle,simInt* tagCoun
         std::vector<std::string> allTags;
         if (objectHandle>=SIM_IDSTART_LUASCRIPT)
         { // here we have a script
-            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(objectHandle);
+            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(objectHandle);
             if (script!=nullptr)
             {
                 int l=script->getObjectCustomDataLength_tempData(356248756);
@@ -14221,14 +14049,105 @@ simInt simSetShapeTexture_internal(simInt shapeHandle,simInt textureId,simInt ma
     return(-1);
 }
 
+simInt simAddCollection_internal(simInt options)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int scriptHandle=-1; // means won't automatically be destroyed
+        CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(_currentScriptHandle);
+        if ( (script!=nullptr)&&(script->getScriptType()!=sim_scripttype_addonscript)&&(script->getScriptType()!=sim_scripttype_sandboxscript) )
+            scriptHandle=_currentScriptHandle;
+        CCollection* it=new CCollection(scriptHandle);
+        it->setCollectionName("___col___",false); // is actually not used anymore
+        App::currentWorld->collections->addCollection(it,false);
+        it->setOverridesObjectMainProperties((options&1)!=0);
+        return(it->getCollectionHandle());
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simAddItemToCollection_internal(simInt collectionHandle,simInt objectHandle,simInt what,simInt options)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (!doesCollectionExist(__func__,collectionHandle))
+            return(-1);
+        CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
+        if (what!=sim_handle_all)
+        {
+            if (!doesObjectExist(__func__,objectHandle))
+                return(-1);
+        }
+        CCollectionElement* el=nullptr;
+        if (what==sim_handle_all)
+            el=new CCollectionElement(-1,sim_collectionelement_all,true);
+        if (what==sim_handle_single)
+            el=new CCollectionElement(objectHandle,sim_collectionelement_loose,(options&1)==0);
+        if (what==sim_handle_tree)
+        {
+            int what=sim_collectionelement_frombaseincluded;
+            if ((options&2)!=0)
+                what=sim_collectionelement_frombaseexcluded;
+            el=new CCollectionElement(objectHandle,what,(options&1)==0);
+        }
+        if (what==sim_handle_chain)
+        {
+            int what=sim_collectionelement_fromtipincluded;
+            if ((options&2)!=0)
+                what=sim_collectionelement_fromtipexcluded;
+            el=new CCollectionElement(objectHandle,what,(options&1)==0);
+        }
+        if (el==nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
+            return(-1);
+        }
+        it->addCollectionElement(el);
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simDestroyCollection_internal(simInt collectionHandle)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
+            return(-1);
+        }
+        App::currentWorld->collections->removeCollection(collectionHandle);
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
 simInt* simGetCollectionObjects_internal(simInt collectionHandle,simInt* objectCount)
 {
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(nullptr);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -14255,7 +14174,7 @@ simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -14314,7 +14233,7 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -14413,109 +14332,6 @@ simInt simReorientShapeBoundingBox_internal(simInt shapeHandle,simInt relativeTo
         else
             return(0);
         return(1); // success
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simInt simCreateCollection_internal(const simChar* collectionName,simInt options)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        std::string originalText;
-        if (collectionName!=nullptr)
-            originalText=collectionName;
-        if (originalText.length()!=0)
-        {
-            if ( (originalText.length()<=0)||(originalText.length()>127) )
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
-                return(-1);
-            }
-            std::string text(collectionName);
-            tt::removeIllegalCharacters(text,true);
-            if (originalText!=text)
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
-                return(-1);
-            }
-            if (App::currentWorld->collections->getObjectFromName(text.c_str())!=nullptr)
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
-                return(-1);
-            }
-        }
-        else
-            originalText="collection"; // default name
-
-        CCollection* it=new CCollection();
-        it->setCollectionName(originalText.c_str(),false);
-        App::currentWorld->collections->addCollection(it,false);
-        it->setOverridesObjectMainProperties((options&1)!=0);
-        return(it->getCollectionHandle());
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simInt simAddObjectToCollection_internal(simInt collectionHandle,simInt objectHandle,simInt what,simInt options)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        if (!doesCollectionExist(__func__,collectionHandle))
-        {
-            return(-1);
-        }
-        CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
-        if (what!=sim_handle_all)
-        {
-            if (!doesObjectExist(__func__,objectHandle))
-            {
-                return(-1);
-            }
-        }
-        CCollectionElement* el=nullptr;
-        if (what==sim_handle_all)
-        {
-            el=new CCollectionElement(-1,sim_collectionelement_all,true);
-        }
-        if (what==sim_handle_single)
-        {
-            el=new CCollectionElement(objectHandle,sim_collectionelement_loose,(options&1)==0);
-        }
-        if (what==sim_handle_tree)
-        {
-            int what=sim_collectionelement_frombaseincluded;
-            if ((options&2)!=0)
-                what=sim_collectionelement_frombaseexcluded;
-            el=new CCollectionElement(objectHandle,what,(options&1)==0);
-        }
-        if (what==sim_handle_chain)
-        {
-            int what=sim_collectionelement_fromtipincluded;
-            if ((options&2)!=0)
-                what=sim_collectionelement_fromtipexcluded;
-            el=new CCollectionElement(objectHandle,what,(options&1)==0);
-        }
-        if (el==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
-            return(-1);
-        }
-        it->addCollectionElement(el);
-        return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
@@ -14691,7 +14507,7 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
             funcName.assign(funcNameAtScriptName.begin(),funcNameAtScriptName.begin()+p);
         else
             funcName=funcNameAtScriptName;
-        script=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandleOrType);
+        script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
     }
     else
     { // script is identified by a script type and sometimes also a script name
@@ -15710,7 +15526,7 @@ simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* va
                 variableName.assign(varNameAtScriptName.begin(),varNameAtScriptName.begin()+p);
             else
                 variableName=varNameAtScriptName;
-            script=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandleOrType);
+            script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
         }
         else
         {
@@ -16843,7 +16659,7 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
                 stringToExecute.assign(strAtScriptName.begin(),strAtScriptName.begin()+p);
             else
                 stringToExecute=strAtScriptName;
-            script=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandleOrType);
+            script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
         }
         else
         {
@@ -16942,7 +16758,7 @@ simChar* simGetApiFunc_internal(simInt scriptHandleOrType,const simChar* apiWord
         bool threaded=false;
         if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
-            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandleOrType);
+            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
             if (script!=nullptr)
             {
                 scriptType=script->getScriptType();
@@ -17006,7 +16822,7 @@ simChar* simGetApiInfo_internal(simInt scriptHandleOrType,const simChar* apiWord
         bool threaded=false;
         if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
-            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandleOrType);
+            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
             if (script!=nullptr)
             {
                 scriptType=script->getScriptType();
@@ -18719,7 +18535,7 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
                 arrayName.assign(arrNameAtScriptName.begin(),arrNameAtScriptName.begin()+p);
             else
                 arrayName=arrNameAtScriptName;
-            script=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandleOrType);
+            script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
         }
         else
         {
@@ -18807,7 +18623,7 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
             variableName.assign(varNameAtScriptName.begin(),varNameAtScriptName.begin()+p);
         else
             variableName=varNameAtScriptName;
-        script=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandleOrType);
+        script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
     }
     else
     {
@@ -19959,7 +19775,7 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
             funcName.assign(funcNameAtScriptName.begin(),funcNameAtScriptName.begin()+p);
         else
             funcName=funcNameAtScriptName;
-        script=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandleOrType);
+        script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
     }
     else
     { // script is identified by a script type and sometimes also a script name
@@ -20066,12 +19882,12 @@ simChar* simGetScriptSimulationParameter_internal(simInt scriptHandle,const simC
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptHandle);
         CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(scriptHandle);
         if ( (it!=nullptr)||(obj!=nullptr) )
         {
             if (obj==nullptr)
-                obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo());
+                obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo());
             if (obj!=nullptr)
             {
                 CUserParameters* uso=obj->getUserScriptParameterObject();
@@ -20106,13 +19922,13 @@ simInt simSetScriptSimulationParameter_internal(simInt scriptHandle,const simCha
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptHandle);
         CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(scriptHandle);
         int retVal=-1;
         if ( (it!=nullptr)||(obj!=nullptr) )
         {
             if (obj==nullptr)
-                obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo());
+                obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo());
             if (obj!=nullptr)
             {
                 retVal=0;
@@ -20154,7 +19970,7 @@ simInt simSetNameSuffix_internal(simInt nameSuffixNumber)
 
     if (nameSuffixNumber<-1)
         nameSuffixNumber=-1;
-    setCurrentScriptNameIndex_cSide(nameSuffixNumber);
+    setCurrentScriptInfo_cSide(_currentScriptHandle,nameSuffixNumber);
     return(1);
 }
 
@@ -20970,7 +20786,7 @@ simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dat
     {
         if ( (targetID!=0)&&(targetID!=sim_handle_all) )
         {
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(targetID);
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(targetID);
             if (it==nullptr)
             {
                 CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_TARGET_HANDLE);
@@ -21623,6 +21439,283 @@ simInt simSetPathTargetNominalVelocity_internal(simInt objectHandle,simFloat tar
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetCollectionHandle_internal(const simChar* collectionName)
+{ // deprecated on 17.11.2020
+    TRACE_C_API;
+
+    size_t silentErrorPos=std::string(collectionName).find("@silentError");
+    std::string nm(collectionName);
+    if (silentErrorPos!=std::string::npos)
+        nm.erase(nm.begin()+silentErrorPos,nm.end());
+
+    std::string collectionNameAdjusted=getIndexAdjustedObjectName(nm.c_str());
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CCollection* it=App::currentWorld->collections->getObjectFromName(collectionNameAdjusted.c_str());
+        if (it==nullptr)
+        {
+            if (silentErrorPos==std::string::npos)
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
+            return(-1);
+        }
+        int retVal=it->getCollectionHandle();
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simRemoveCollection_internal(simInt collectionHandle)
+{ // deprecated on 17.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        std::vector<int> memSel;
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+            memSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+
+        if (collectionHandle==sim_handle_all)
+        {
+            App::currentWorld->sceneObjects->deselectObjects();
+            for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
+                App::currentWorld->collections->addCollectionToSelection(App::currentWorld->collections->getObjectFromIndex(i)->getCollectionHandle());
+            std::vector<int> sel;
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            App::currentWorld->sceneObjects->deselectObjects();
+            App::currentWorld->sceneObjects->eraseSeveralObjects(sel,true);
+            App::currentWorld->collections->removeAllCollections();
+            // Restore previous' selection state:
+            for (size_t i=0;i<memSel.size();i++)
+                App::currentWorld->sceneObjects->addObjectToSelection(memSel[i]);
+            return(1);
+        }
+        else
+        {
+            CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
+            if (it==nullptr)
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
+                return(-1);
+            }
+            App::currentWorld->sceneObjects->deselectObjects();
+            App::currentWorld->collections->addCollectionToSelection(it->getCollectionHandle());
+            std::vector<int> sel;
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            App::currentWorld->sceneObjects->deselectObjects();
+            App::currentWorld->sceneObjects->eraseSeveralObjects(sel,true);
+            App::currentWorld->collections->removeCollection(collectionHandle);
+            // Restore previous' selection state:
+            for (size_t i=0;i<memSel.size();i++)
+                App::currentWorld->sceneObjects->addObjectToSelection(memSel[i]);
+            return(1);
+        }
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simEmptyCollection_internal(simInt collectionHandle)
+{ // deprecated on 17.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (collectionHandle==sim_handle_all)
+        {
+            for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
+                App::currentWorld->collections->getObjectFromIndex(i)->emptyCollection();
+            return(1);
+        }
+        CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
+            return(-1);
+        }
+        it->emptyCollection();
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simChar* simGetCollectionName_internal(simInt collectionHandle)
+{ // deprecated on 17.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesCollectionExist(__func__,collectionHandle))
+            return(nullptr);
+        CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
+        char* retVal=new char[it->getCollectionName().length()+1];
+        for (unsigned int i=0;i<it->getCollectionName().length();i++)
+            retVal[i]=it->getCollectionName()[i];
+        retVal[it->getCollectionName().length()]=0;
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simSetCollectionName_internal(simInt collectionHandle,const simChar* collectionName)
+{ // deprecated on 17.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (!doesCollectionExist(__func__,collectionHandle))
+            return(-1);
+        CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
+        std::string originalText(collectionName);
+        if (originalText.length()>127)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
+            return(-1);
+        }
+        std::string text(collectionName);
+        tt::removeIllegalCharacters(text,true);
+        if (originalText!=text)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
+            return(-1);
+        }
+        if (it->getCollectionName().compare(text)==0)
+            return(1);
+        if (App::currentWorld->collections->getObjectFromName(text.c_str())!=nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
+            return(-1);
+        }
+        it->setCollectionName(originalText.c_str(),true);
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+
+}
+
+simInt simCreateCollection_internal(const simChar* collectionName,simInt options)
+{ // deprecated on 17.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        std::string originalText;
+        if (collectionName!=nullptr)
+            originalText=collectionName;
+        if (originalText.length()!=0)
+        {
+            if ( (originalText.length()<=0)||(originalText.length()>127) )
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
+                return(-1);
+            }
+            std::string text(collectionName);
+            tt::removeIllegalCharacters(text,true);
+            if (originalText!=text)
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
+                return(-1);
+            }
+            if (App::currentWorld->collections->getObjectFromName(text.c_str())!=nullptr)
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
+                return(-1);
+            }
+        }
+        else
+            originalText="collection"; // default name
+
+        CCollection* it=new CCollection(-2);
+        it->setCollectionName(originalText.c_str(),false);
+        App::currentWorld->collections->addCollection(it,false);
+        it->setOverridesObjectMainProperties((options&1)!=0);
+        return(it->getCollectionHandle());
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simAddObjectToCollection_internal(simInt collectionHandle,simInt objectHandle,simInt what,simInt options)
+{ // deprecated on 17.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+    {
+        return(-1);
+    }
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (!doesCollectionExist(__func__,collectionHandle))
+        {
+            return(-1);
+        }
+        CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
+        if (what!=sim_handle_all)
+        {
+            if (!doesObjectExist(__func__,objectHandle))
+            {
+                return(-1);
+            }
+        }
+        CCollectionElement* el=nullptr;
+        if (what==sim_handle_all)
+        {
+            el=new CCollectionElement(-1,sim_collectionelement_all,true);
+        }
+        if (what==sim_handle_single)
+        {
+            el=new CCollectionElement(objectHandle,sim_collectionelement_loose,(options&1)==0);
+        }
+        if (what==sim_handle_tree)
+        {
+            int what=sim_collectionelement_frombaseincluded;
+            if ((options&2)!=0)
+                what=sim_collectionelement_frombaseexcluded;
+            el=new CCollectionElement(objectHandle,what,(options&1)==0);
+        }
+        if (what==sim_handle_chain)
+        {
+            int what=sim_collectionelement_fromtipincluded;
+            if ((options&2)!=0)
+                what=sim_collectionelement_fromtipexcluded;
+            el=new CCollectionElement(objectHandle,what,(options&1)==0);
+        }
+        if (el==nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
+            return(-1);
+        }
+        it->addCollectionElement(el);
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 

@@ -31,9 +31,17 @@ void CCopyBuffer::clearBuffer()
     for (size_t i=0;i<objectBuffer.size();i++)
         delete objectBuffer[i];
     objectBuffer.clear();
-    for (size_t i=0;i<groupBuffer.size();i++)
-        delete groupBuffer[i];
-    groupBuffer.clear();
+    for (size_t i=0;i<luaScriptBuffer.size();i++)
+        delete luaScriptBuffer[i];
+    luaScriptBuffer.clear();
+    for (size_t i=0;i<textureObjectBuffer.size();i++)
+        delete textureObjectBuffer[i];
+    textureObjectBuffer.clear();
+
+    // Old:
+    for (size_t i=0;i<collectionBuffer.size();i++)
+        delete collectionBuffer[i];
+    collectionBuffer.clear();
     for (size_t i=0;i<collisionBuffer.size();i++)
         delete collisionBuffer[i];
     collisionBuffer.clear();
@@ -49,12 +57,6 @@ void CCopyBuffer::clearBuffer()
     for (size_t i=0;i<buttonBlockBuffer.size();i++)
         delete buttonBlockBuffer[i];
     buttonBlockBuffer.clear();
-    for (size_t i=0;i<luaScriptBuffer.size();i++)
-        delete luaScriptBuffer[i];
-    luaScriptBuffer.clear();
-    for (size_t i=0;i<textureObjectBuffer.size();i++)
-        delete textureObjectBuffer[i];
-    textureObjectBuffer.clear();
 }
 
 void CCopyBuffer::clearMemorizedBuffer()
@@ -62,9 +64,17 @@ void CCopyBuffer::clearMemorizedBuffer()
     for (size_t i=0;i<objectBuffer_memorized.size();i++)
         delete objectBuffer_memorized[i];
     objectBuffer_memorized.clear();
-    for (size_t i=0;i<groupBuffer_memorized.size();i++)
-        delete groupBuffer_memorized[i];
-    groupBuffer_memorized.clear();
+    for (size_t i=0;i<luaScriptBuffer_memorized.size();i++)
+        delete luaScriptBuffer_memorized[i];
+    luaScriptBuffer_memorized.clear();
+    for (size_t i=0;i<textureObjectBuffer_memorized.size();i++)
+        delete textureObjectBuffer_memorized[i];
+    textureObjectBuffer_memorized.clear();
+
+    // Old:
+    for (size_t i=0;i<collectionBuffer_memorized.size();i++)
+        delete collectionBuffer_memorized[i];
+    collectionBuffer_memorized.clear();
     for (size_t i=0;i<collisionBuffer_memorized.size();i++)
         delete collisionBuffer_memorized[i];
     collisionBuffer_memorized.clear();
@@ -80,50 +90,24 @@ void CCopyBuffer::clearMemorizedBuffer()
     for (size_t i=0;i<buttonBlockBuffer_memorized.size();i++)
         delete buttonBlockBuffer_memorized[i];
     buttonBlockBuffer_memorized.clear();
-    for (size_t i=0;i<luaScriptBuffer_memorized.size();i++)
-        delete luaScriptBuffer_memorized[i];
-    luaScriptBuffer_memorized.clear();
-    for (size_t i=0;i<textureObjectBuffer_memorized.size();i++)
-        delete textureObjectBuffer_memorized[i];
-    textureObjectBuffer_memorized.clear();
 }
 
 void CCopyBuffer::memorizeBuffer()
 {
     // 1. We delete previously memorized objects:
-    for (size_t i=0;i<objectBuffer_memorized.size();i++)
-        delete objectBuffer_memorized[i];
-    objectBuffer_memorized.clear();
-    for (size_t i=0;i<groupBuffer_memorized.size();i++)
-        delete groupBuffer_memorized[i];
-    groupBuffer_memorized.clear();
-    for (size_t i=0;i<collisionBuffer_memorized.size();i++)
-        delete collisionBuffer_memorized[i];
-    collisionBuffer_memorized.clear();
-    for (size_t i=0;i<distanceBuffer_memorized.size();i++)
-        delete distanceBuffer_memorized[i];
-    distanceBuffer_memorized.clear();
-    for (size_t i=0;i<ikGroupBuffer_memorized.size();i++)
-        delete ikGroupBuffer_memorized[i];
-    ikGroupBuffer_memorized.clear();
-    for (size_t i=0;i<pathPlanningTaskBuffer_memorized.size();i++)
-        delete pathPlanningTaskBuffer_memorized[i];
-    pathPlanningTaskBuffer_memorized.clear();
-    for (size_t i=0;i<buttonBlockBuffer_memorized.size();i++)
-        delete buttonBlockBuffer_memorized[i];
-    buttonBlockBuffer_memorized.clear();
-    for (size_t i=0;i<luaScriptBuffer_memorized.size();i++)
-        delete luaScriptBuffer_memorized[i];
-    luaScriptBuffer_memorized.clear();
-    for (size_t i=0;i<textureObjectBuffer_memorized.size();i++)
-        delete textureObjectBuffer_memorized[i];
-    textureObjectBuffer_memorized.clear();
+    clearMemorizedBuffer();
 
     // 2. we copy all objects to the memorized buffer:
     for (size_t i=0;i<objectBuffer.size();i++)
         objectBuffer_memorized.push_back(objectBuffer[i]->copyYourself());
-    for (size_t i=0;i<groupBuffer.size();i++)
-        groupBuffer_memorized.push_back(groupBuffer[i]->copyYourself());
+    for (size_t i=0;i<luaScriptBuffer.size();i++)
+        luaScriptBuffer_memorized.push_back(luaScriptBuffer[i]->copyYourself());
+    for (size_t i=0;i<textureObjectBuffer.size();i++)
+        textureObjectBuffer_memorized.push_back(textureObjectBuffer[i]->copyYourself());
+
+    // Old:
+    for (size_t i=0;i<collectionBuffer.size();i++)
+        collectionBuffer_memorized.push_back(collectionBuffer[i]->copyYourself());
     for (size_t i=0;i<collisionBuffer.size();i++)
         collisionBuffer_memorized.push_back(collisionBuffer[i]->copyYourself());
     for (size_t i=0;i<distanceBuffer.size();i++)
@@ -134,10 +118,6 @@ void CCopyBuffer::memorizeBuffer()
         pathPlanningTaskBuffer_memorized.push_back(pathPlanningTaskBuffer[i]->copyYourself());
     for (size_t i=0;i<buttonBlockBuffer.size();i++)
         buttonBlockBuffer_memorized.push_back(buttonBlockBuffer[i]->copyYourself());
-    for (size_t i=0;i<luaScriptBuffer.size();i++)
-        luaScriptBuffer_memorized.push_back(luaScriptBuffer[i]->copyYourself());
-    for (size_t i=0;i<textureObjectBuffer.size();i++)
-        textureObjectBuffer_memorized.push_back(textureObjectBuffer[i]->copyYourself());
 
     _bufferIsFromLockedScene_memorized=_bufferIsFromLockedScene;
 }
@@ -149,8 +129,14 @@ void CCopyBuffer::restoreBuffer()
     // 2. We copy all memorized objects to the buffer:
     for (size_t i=0;i<objectBuffer_memorized.size();i++)
         objectBuffer.push_back(objectBuffer_memorized[i]->copyYourself());
-    for (size_t i=0;i<groupBuffer_memorized.size();i++)
-        groupBuffer.push_back(groupBuffer_memorized[i]->copyYourself());
+    for (size_t i=0;i<luaScriptBuffer_memorized.size();i++)
+        luaScriptBuffer.push_back(luaScriptBuffer_memorized[i]->copyYourself());
+    for (size_t i=0;i<textureObjectBuffer_memorized.size();i++)
+        textureObjectBuffer.push_back(textureObjectBuffer_memorized[i]->copyYourself());
+
+    // Old:
+    for (size_t i=0;i<collectionBuffer_memorized.size();i++)
+        collectionBuffer.push_back(collectionBuffer_memorized[i]->copyYourself());
     for (size_t i=0;i<collisionBuffer_memorized.size();i++)
         collisionBuffer.push_back(collisionBuffer_memorized[i]->copyYourself());
     for (size_t i=0;i<distanceBuffer_memorized.size();i++)
@@ -161,10 +147,6 @@ void CCopyBuffer::restoreBuffer()
         pathPlanningTaskBuffer.push_back(pathPlanningTaskBuffer_memorized[i]->copyYourself());
     for (size_t i=0;i<buttonBlockBuffer_memorized.size();i++)
         buttonBlockBuffer.push_back(buttonBlockBuffer_memorized[i]->copyYourself());
-    for (size_t i=0;i<luaScriptBuffer_memorized.size();i++)
-        luaScriptBuffer.push_back(luaScriptBuffer_memorized[i]->copyYourself());
-    for (size_t i=0;i<textureObjectBuffer_memorized.size();i++)
-        textureObjectBuffer.push_back(textureObjectBuffer_memorized[i]->copyYourself());
 
     _bufferIsFromLockedScene=_bufferIsFromLockedScene_memorized;
 }
@@ -172,7 +154,7 @@ void CCopyBuffer::restoreBuffer()
 int CCopyBuffer::pasteBuffer(bool intoLockedScene)
 { // return -1 means the operation cannot procceed because the scene is not locked (but buffer is), 0=empty buffer, 1=successful
     // This function is very similar to a model-loading operation:
-    // Everything is inserted (sceneObjects, groups, etc. ) and then
+    // Everything is inserted (sceneObjects, collections, etc. ) and then
     // the mapping is performed
     TRACE_INTERNAL;
     if (isBufferEmpty())
@@ -186,58 +168,42 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene)
     _copyIsForPasting=true;
     // First we need to copy the copy-buffers:
     std::vector<CSceneObject*> objectCopy;
-    objectCopy.reserve(objectBuffer.size());
-    objectCopy.clear();
     for (size_t i=0;i<objectBuffer.size();i++)
         objectCopy.push_back(objectBuffer[i]->copyYourself());
 
-    std::vector<CCollection*> groupCopy;
-    groupCopy.reserve(groupBuffer.size());
-    groupCopy.clear();
-    for (size_t i=0;i<groupBuffer.size();i++)
-        groupCopy.push_back(groupBuffer[i]->copyYourself());
-
-    std::vector<CCollisionObject*> collisionCopy;
-    collisionCopy.reserve(collisionBuffer.size());
-    collisionCopy.clear();
-    for (size_t i=0;i<collisionBuffer.size();i++)
-        collisionCopy.push_back(collisionBuffer[i]->copyYourself());
-
-    std::vector<CDistanceObject*> distanceCopy;
-    distanceCopy.reserve(distanceBuffer.size());
-    distanceCopy.clear();
-    for (size_t i=0;i<distanceBuffer.size();i++)
-        distanceCopy.push_back(distanceBuffer[i]->copyYourself());
-
-    std::vector<CIkGroup*> ikGroupCopy;
-    ikGroupCopy.reserve(ikGroupBuffer.size());
-    ikGroupCopy.clear();
-    for (size_t i=0;i<ikGroupBuffer.size();i++)
-        ikGroupCopy.push_back(ikGroupBuffer[i]->copyYourself());
-
-    std::vector<CPathPlanningTask*> pathPlanningTaskCopy;
-    pathPlanningTaskCopy.reserve(pathPlanningTaskBuffer.size());
-    pathPlanningTaskCopy.clear();
-    for (size_t i=0;i<pathPlanningTaskBuffer.size();i++)
-        pathPlanningTaskCopy.push_back(pathPlanningTaskBuffer[i]->copyYourself());
-
-    std::vector<CButtonBlock*> buttonBlockCopy;
-    buttonBlockCopy.reserve(buttonBlockBuffer.size());
-    buttonBlockCopy.clear();
-    for (size_t i=0;i<buttonBlockBuffer.size();i++)
-        buttonBlockCopy.push_back(buttonBlockBuffer[i]->copyYourself());
-
     std::vector<CLuaScriptObject*> luaScriptCopy;
-    luaScriptCopy.reserve(luaScriptBuffer.size());
-    luaScriptCopy.clear();
     for (size_t i=0;i<luaScriptBuffer.size();i++)
         luaScriptCopy.push_back(luaScriptBuffer[i]->copyYourself());
 
     std::vector<CTextureObject*> textureObjectCopy;
-    textureObjectCopy.reserve(textureObjectBuffer.size());
-    textureObjectCopy.clear();
     for (size_t i=0;i<textureObjectBuffer.size();i++)
         textureObjectCopy.push_back(textureObjectBuffer[i]->copyYourself());
+
+
+    // Old:
+    std::vector<CCollection*> collectionCopy;
+    for (size_t i=0;i<collectionBuffer.size();i++)
+        collectionCopy.push_back(collectionBuffer[i]->copyYourself());
+
+    std::vector<CCollisionObject*> collisionCopy;
+    for (size_t i=0;i<collisionBuffer.size();i++)
+        collisionCopy.push_back(collisionBuffer[i]->copyYourself());
+
+    std::vector<CDistanceObject*> distanceCopy;
+    for (size_t i=0;i<distanceBuffer.size();i++)
+        distanceCopy.push_back(distanceBuffer[i]->copyYourself());
+
+    std::vector<CIkGroup*> ikGroupCopy;
+    for (size_t i=0;i<ikGroupBuffer.size();i++)
+        ikGroupCopy.push_back(ikGroupBuffer[i]->copyYourself());
+
+    std::vector<CPathPlanningTask*> pathPlanningTaskCopy;
+    for (size_t i=0;i<pathPlanningTaskBuffer.size();i++)
+        pathPlanningTaskCopy.push_back(pathPlanningTaskBuffer[i]->copyYourself());
+
+    std::vector<CButtonBlock*> buttonBlockCopy;
+    for (size_t i=0;i<buttonBlockBuffer.size();i++)
+        buttonBlockCopy.push_back(buttonBlockBuffer[i]->copyYourself());
 
     _copyIsForPasting=false;
     
@@ -248,7 +214,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene)
 
     // And we add everything to the scene:
     App::currentWorld->addGeneralObjectsToWorldAndPerformMappings(&objectCopy,
-                                                    &groupCopy,
+                                                    &collectionCopy,
                                                     &collisionCopy,
                                                     &distanceCopy,
                                                     &ikGroupCopy,
@@ -284,7 +250,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
 {   
     TRACE_INTERNAL;
     // We copy the current selection in a way that the copied data (sceneObjects,
-    // Groups, collisions, etc.) is self-consistent: Should the entire scene be
+    // collections, collisions, etc.) is self-consistent: Should the entire scene be
     // cleared, then the buffer could be inserted into the scene without any
     // modification (except for different object handles).
 
@@ -363,10 +329,23 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
             objectBuffer[i]->setParentHandle_forSerializationOnly(-1);
     }
 
-//--------------------------- other object copy -------------------------------------------
-// Here we have to copy (entirely) all collision, distances, groups and iks and path planning objects:
+    // Other object copy:
+    for (size_t i=0;i<App::currentWorld->luaScriptContainer->allScripts.size();i++)
+    { // Copy only child scripts or customization scripts:
+        int st=App::currentWorld->luaScriptContainer->allScripts[i]->getScriptType();
+        if ( ( (st==sim_scripttype_childscript)||(st==sim_scripttype_customizationscript) )&&(App::currentWorld->luaScriptContainer->allScripts[i]->getObjectHandleThatScriptIsAttachedTo()!=-1) )
+            luaScriptBuffer.push_back(App::currentWorld->luaScriptContainer->allScripts[i]->copyYourself());
+    }
+    for (size_t i=0;i<App::currentWorld->textureContainer->_allTextureObjects.size();i++)
+        textureObjectBuffer.push_back(App::currentWorld->textureContainer->_allTextureObjects[i]->copyYourself());
+
+    // Old:
     for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
-        groupBuffer.push_back(App::currentWorld->collections->getObjectFromIndex(i)->copyYourself());
+    { // copy old the old collections (i.e. those that were created via the GUI):
+        CCollection* coll=App::currentWorld->collections->getObjectFromIndex(i);
+        if (coll->getCreatorHandle()==-2)
+            collectionBuffer.push_back(coll->copyYourself());
+    }
     for (size_t i=0;i<App::currentWorld->collisions->getObjectCount();i++)
         collisionBuffer.push_back(App::currentWorld->collisions->getObjectFromIndex(i)->copyYourself());
     for (size_t i=0;i<App::currentWorld->distances->getObjectCount();i++)
@@ -376,28 +355,11 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
     for (size_t i=0;i<App::currentWorld->pathPlanning->allObjects.size();i++)
         pathPlanningTaskBuffer.push_back(App::currentWorld->pathPlanning->allObjects[i]->copyYourself());
     for (size_t i=0;i<App::currentWorld->buttonBlockContainer->allBlocks.size();i++)
-    { // only copying non-system blocks and blocks that might be attached to sceneObjects:
+    {
         if ( ((App::currentWorld->buttonBlockContainer->allBlocks[i]->getAttributes()&sim_ui_property_systemblock)==0)&&(App::currentWorld->buttonBlockContainer->allBlocks[i]->getObjectIDAttachedTo()!=-1) )
             buttonBlockBuffer.push_back(App::currentWorld->buttonBlockContainer->allBlocks[i]->copyYourself());
     }
-    for (size_t i=0;i<App::currentWorld->luaScriptContainer->allScripts.size();i++)
-    { // Copy only child scripts or customization scripts:
-        if (App::currentWorld->luaScriptContainer->allScripts[i]->getScriptType()==sim_scripttype_childscript)
-        { // don't copy the unassociated scripts:
-            if (App::currentWorld->luaScriptContainer->allScripts[i]->getObjectIDThatScriptIsAttachedTo_child()!=-1)
-                luaScriptBuffer.push_back(App::currentWorld->luaScriptContainer->allScripts[i]->copyYourself());
-        }
-        if (App::currentWorld->luaScriptContainer->allScripts[i]->getScriptType()==sim_scripttype_customizationscript)
-        { // don't copy the unassociated scripts:
-            if (App::currentWorld->luaScriptContainer->allScripts[i]->getObjectIDThatScriptIsAttachedTo_customization()!=-1)
-                luaScriptBuffer.push_back(App::currentWorld->luaScriptContainer->allScripts[i]->copyYourself());
-        }
-    }
-    for (size_t i=0;i<App::currentWorld->textureContainer->_allTextureObjects.size();i++)
-        textureObjectBuffer.push_back(App::currentWorld->textureContainer->_allTextureObjects[i]->copyYourself());
 
-
-// Here we prepare the rendering order and a vector containing unselected objects:
     std::vector<int> unselected;
     for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
     {
@@ -405,7 +367,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
         if (!App::currentWorld->sceneObjects->isObjectInSelection(obj->getObjectHandle(),sel))
             unselected.push_back(obj->getObjectHandle());
     }
-//----------------------------------------------------------------------------------------- 
+
     // Now we make sure the linked info is consistent: we announce to the selected objects
     // (in the copy buffer) that all unselected objects will be erased:
     // This will in turn also erase general objects (which might trigger other object erase)
@@ -415,7 +377,6 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
 
 void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vector& modelTr,C3Vector& modelBBSize,float modelNonDefaultTranslationStepSize)
 {
-
     // This is used when saving a model. When saving a model, we basically perform
     // the same operations as for copying a selection. Since we will make use of the
     // copy buffers, we have to save them first (in case they are not empty) in
@@ -539,21 +500,22 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
         }
     }
 
+    // Old:
     // Here we store the collections:
-    for (size_t i=0;i<groupBuffer.size();i++)
+    for (size_t i=0;i<collectionBuffer.size();i++)
     {
         if (ar.isBinary())
         {
             ar.storeDataName(SER_COLLECTION);
             ar.setCountingMode();
-            groupBuffer[i]->serialize(ar);
+            collectionBuffer[i]->serialize(ar);
             if (ar.setWritingMode())
-                groupBuffer[i]->serialize(ar);
+                collectionBuffer[i]->serialize(ar);
         }
         else
         {
             ar.xmlPushNewNode(SERX_COLLECTION);
-            groupBuffer[i]->serialize(ar);
+            collectionBuffer[i]->serialize(ar);
             ar.xmlPopNode();
         }
     }
@@ -635,6 +597,8 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
             }
         }
     }
+
+
     // Here we store the script objects:
     for (size_t i=0;i<luaScriptBuffer.size();i++)
     {
@@ -671,8 +635,14 @@ void CCopyBuffer::_backupBuffers_temp()
 {
     objectBuffer_tempSer.assign(objectBuffer.begin(),objectBuffer.end());
     objectBuffer.clear();
-    groupBuffer_tempSer.assign(groupBuffer.begin(),groupBuffer.end());
-    groupBuffer.clear();
+    luaScriptBuffer_tempSer.assign(luaScriptBuffer.begin(),luaScriptBuffer.end());
+    luaScriptBuffer.clear();
+    textureObjectBuffer_tempSer.assign(textureObjectBuffer.begin(),textureObjectBuffer.end());
+    textureObjectBuffer.clear();
+
+    // Old:
+    collectionBuffer_tempSer.assign(collectionBuffer.begin(),collectionBuffer.end());
+    collectionBuffer.clear();
     collisionBuffer_tempSer.assign(collisionBuffer.begin(),collisionBuffer.end());
     collisionBuffer.clear();
     distanceBuffer_tempSer.assign(distanceBuffer.begin(),distanceBuffer.end());
@@ -683,18 +653,20 @@ void CCopyBuffer::_backupBuffers_temp()
     pathPlanningTaskBuffer.clear();
     buttonBlockBuffer_tempSer.assign(buttonBlockBuffer.begin(),buttonBlockBuffer.end());
     buttonBlockBuffer.clear();
-    luaScriptBuffer_tempSer.assign(luaScriptBuffer.begin(),luaScriptBuffer.end());
-    luaScriptBuffer.clear();
-    textureObjectBuffer_tempSer.assign(textureObjectBuffer.begin(),textureObjectBuffer.end());
-    textureObjectBuffer.clear();
 }
 
 void CCopyBuffer::_restoreBuffers_temp()
 {
     objectBuffer.assign(objectBuffer_tempSer.begin(),objectBuffer_tempSer.end());
     objectBuffer_tempSer.clear();
-    groupBuffer.assign(groupBuffer_tempSer.begin(),groupBuffer_tempSer.end());
-    groupBuffer_tempSer.clear();
+    luaScriptBuffer.assign(luaScriptBuffer_tempSer.begin(),luaScriptBuffer_tempSer.end());
+    luaScriptBuffer_tempSer.clear();
+    textureObjectBuffer.assign(textureObjectBuffer_tempSer.begin(),textureObjectBuffer_tempSer.end());
+    textureObjectBuffer_tempSer.clear();
+
+    // Old:
+    collectionBuffer.assign(collectionBuffer_tempSer.begin(),collectionBuffer_tempSer.end());
+    collectionBuffer_tempSer.clear();
     collisionBuffer.assign(collisionBuffer_tempSer.begin(),collisionBuffer_tempSer.end());
     collisionBuffer_tempSer.clear();
     distanceBuffer.assign(distanceBuffer_tempSer.begin(),distanceBuffer_tempSer.end());
@@ -705,10 +677,6 @@ void CCopyBuffer::_restoreBuffers_temp()
     pathPlanningTaskBuffer_tempSer.clear();
     buttonBlockBuffer.assign(buttonBlockBuffer_tempSer.begin(),buttonBlockBuffer_tempSer.end());
     buttonBlockBuffer_tempSer.clear();
-    luaScriptBuffer.assign(luaScriptBuffer_tempSer.begin(),luaScriptBuffer_tempSer.end());
-    luaScriptBuffer_tempSer.clear();
-    textureObjectBuffer.assign(textureObjectBuffer_tempSer.begin(),textureObjectBuffer_tempSer.end());
-    textureObjectBuffer_tempSer.clear();
 }
 
 void CCopyBuffer::_eraseObjectInBuffer(int objectID)
@@ -725,97 +693,14 @@ void CCopyBuffer::_eraseObjectInBuffer(int objectID)
     }
 }
 
-void CCopyBuffer::_erase2DElementInBuffer(int objectID)
-{
-    _announce2DElementWillBeErased(objectID);
-    for (size_t i=0;i<buttonBlockBuffer.size();i++)
-    {
-        if (buttonBlockBuffer[i]->getBlockID()==objectID)
-        {
-            delete buttonBlockBuffer[i];
-            buttonBlockBuffer.erase(buttonBlockBuffer.begin()+i);
-            break;
-        }
-    }
-}
-
 void CCopyBuffer::_eraseLuaScriptInBuffer(int objectID)
 {
     for (size_t i=0;i<luaScriptBuffer.size();i++)
     {
-        if (luaScriptBuffer[i]->getScriptID()==objectID)
+        if (luaScriptBuffer[i]->getScriptHandle()==objectID)
         {
             delete luaScriptBuffer[i];
             luaScriptBuffer.erase(luaScriptBuffer.begin()+i);
-            break;
-        }
-    }
-}
-
-void CCopyBuffer::_erasePathPlanningTaskInBuffer(int objectID)
-{
-    for (size_t i=0;i<pathPlanningTaskBuffer.size();i++)
-    {
-        if (pathPlanningTaskBuffer[i]->getObjectID()==objectID)
-        {
-            delete pathPlanningTaskBuffer[i];
-            pathPlanningTaskBuffer.erase(pathPlanningTaskBuffer.begin()+i);
-            break;
-        }
-    }
-}
-
-void CCopyBuffer::_eraseCollisionInBuffer(int objectID)
-{
-    _announceCollisionWillBeErased(objectID);
-    for (size_t i=0;i<collisionBuffer.size();i++)
-    {
-        if (collisionBuffer[i]->getObjectHandle()==objectID)
-        {
-            delete collisionBuffer[i];
-            collisionBuffer.erase(collisionBuffer.begin()+i);
-            break;
-        }
-    }
-}
-
-void CCopyBuffer::_eraseDistanceInBuffer(int objectID)
-{
-    _announceDistanceWillBeErased(objectID);
-    for (size_t i=0;i<distanceBuffer.size();i++)
-    {
-        if (distanceBuffer[i]->getObjectHandle()==objectID)
-        {
-            delete distanceBuffer[i];
-            distanceBuffer.erase(distanceBuffer.begin()+i);
-            break;
-        }
-    }
-}
-
-void CCopyBuffer::_eraseCollectionInBuffer(int objectID)
-{
-    _announceGroupWillBeErased(objectID);
-    for (size_t i=0;i<groupBuffer.size();i++)
-    {
-        if (groupBuffer[i]->getCollectionHandle()==objectID)
-        {
-            delete groupBuffer[i];
-            groupBuffer.erase(groupBuffer.begin()+i);
-            break;
-        }
-    }
-}
-
-void CCopyBuffer::_eraseIkObjectInBuffer(int objectID)
-{
-    _announceIkGroupWillBeErased(objectID);
-    for (size_t i=0;i<ikGroupBuffer.size();i++)
-    {
-        if (ikGroupBuffer[i]->getObjectHandle()==objectID)
-        {
-            delete ikGroupBuffer[i];
-            ikGroupBuffer.erase(ikGroupBuffer.begin()+i);
             break;
         }
     }
@@ -829,6 +714,89 @@ void CCopyBuffer::_eraseTextureObjectInBuffer(int objectID)
         {
             delete textureObjectBuffer[i];
             textureObjectBuffer.erase(textureObjectBuffer.begin()+i);
+            break;
+        }
+    }
+}
+
+void CCopyBuffer::_erase2DElementInBuffer(int objectID)
+{ // Old
+    _announce2DElementWillBeErased(objectID);
+    for (size_t i=0;i<buttonBlockBuffer.size();i++)
+    {
+        if (buttonBlockBuffer[i]->getBlockID()==objectID)
+        {
+            delete buttonBlockBuffer[i];
+            buttonBlockBuffer.erase(buttonBlockBuffer.begin()+i);
+            break;
+        }
+    }
+}
+
+void CCopyBuffer::_erasePathPlanningTaskInBuffer(int objectID)
+{ // Old
+    for (size_t i=0;i<pathPlanningTaskBuffer.size();i++)
+    {
+        if (pathPlanningTaskBuffer[i]->getObjectID()==objectID)
+        {
+            delete pathPlanningTaskBuffer[i];
+            pathPlanningTaskBuffer.erase(pathPlanningTaskBuffer.begin()+i);
+            break;
+        }
+    }
+}
+
+void CCopyBuffer::_eraseCollisionInBuffer(int objectID)
+{ // Old
+    _announceCollisionWillBeErased(objectID);
+    for (size_t i=0;i<collisionBuffer.size();i++)
+    {
+        if (collisionBuffer[i]->getObjectHandle()==objectID)
+        {
+            delete collisionBuffer[i];
+            collisionBuffer.erase(collisionBuffer.begin()+i);
+            break;
+        }
+    }
+}
+
+void CCopyBuffer::_eraseDistanceInBuffer(int objectID)
+{ // Old
+    _announceDistanceWillBeErased(objectID);
+    for (size_t i=0;i<distanceBuffer.size();i++)
+    {
+        if (distanceBuffer[i]->getObjectHandle()==objectID)
+        {
+            delete distanceBuffer[i];
+            distanceBuffer.erase(distanceBuffer.begin()+i);
+            break;
+        }
+    }
+}
+
+void CCopyBuffer::_eraseCollectionInBuffer(int objectID)
+{ // Old
+    _announceCollectionWillBeErased(objectID);
+    for (size_t i=0;i<collectionBuffer.size();i++)
+    {
+        if (collectionBuffer[i]->getCollectionHandle()==objectID)
+        {
+            delete collectionBuffer[i];
+            collectionBuffer.erase(collectionBuffer.begin()+i);
+            break;
+        }
+    }
+}
+
+void CCopyBuffer::_eraseIkObjectInBuffer(int objectID)
+{ // Old
+    _announceIkGroupWillBeErased(objectID);
+    for (size_t i=0;i<ikGroupBuffer.size();i++)
+    {
+        if (ikGroupBuffer[i]->getObjectHandle()==objectID)
+        {
+            delete ikGroupBuffer[i];
+            ikGroupBuffer.erase(ikGroupBuffer.begin()+i);
             break;
         }
     }
@@ -857,12 +825,12 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
     }
 
     i=0;
-    while (i<buttonBlockBuffer.size())
+    while (i<luaScriptBuffer.size())
     {
-        CButtonBlock* it=buttonBlockBuffer[i];
-        if (it->announceSceneObjectWillBeErased(objectID,true)||(it->getObjectIDAttachedTo()==-1))
+        CLuaScriptObject* it=luaScriptBuffer[i];
+        if (it->announceSceneObjectWillBeErased(objectID,true))
         {
-            _erase2DElementInBuffer(it->getBlockID());
+            _eraseLuaScriptInBuffer(it->getScriptHandle());
             i=0; // Ordering may have changed!
         }
         else
@@ -870,12 +838,26 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
     }
 
     i=0;
-    while (i<luaScriptBuffer.size())
+    while (i<textureObjectBuffer.size())
     {
-        CLuaScriptObject* it=luaScriptBuffer[i];
-        if (it->announceSceneObjectWillBeErased(objectID,true))
+        CTextureObject* it=textureObjectBuffer[i];
+        if (it->announceGeneralObjectWillBeErased(objectID,-1))
         {
-            _eraseLuaScriptInBuffer(it->getScriptID());
+            _eraseTextureObjectInBuffer(it->getObjectID());
+            i=0; // Ordering may have changed!
+        }
+        else
+            i++;
+    }
+
+    // Old:
+    i=0;
+    while (i<buttonBlockBuffer.size())
+    {
+        CButtonBlock* it=buttonBlockBuffer[i];
+        if (it->announceSceneObjectWillBeErased(objectID,true)||(it->getObjectIDAttachedTo()==-1))
+        {
+            _erase2DElementInBuffer(it->getBlockID());
             i=0; // Ordering may have changed!
         }
         else
@@ -921,12 +903,10 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
             i++;
     }
     
-    // Now objects that could trigger other destructions:
-
     i=0;
-    while (i<groupBuffer.size())
+    while (i<collectionBuffer.size())
     {
-        CCollection* it=groupBuffer[i];
+        CCollection* it=collectionBuffer[i];
         if (it->announceObjectWillBeErased(objectID,true))
         {
             _eraseCollectionInBuffer(it->getCollectionHandle());
@@ -948,33 +928,18 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
         else
             i++;
     }
-
-    i=0;
-    while (i<textureObjectBuffer.size())
-    {
-        CTextureObject* it=textureObjectBuffer[i];
-        if (it->announceGeneralObjectWillBeErased(objectID,-1))
-        {
-            _eraseTextureObjectInBuffer(it->getObjectID());
-            i=0; // Ordering may have changed!
-        }
-        else
-            i++;
-    }
-
-    // The dynMaterialObjectBuffer doesn't need to be handled here (uses a different method and was already handled)
 }
 
-void CCopyBuffer::_announceGroupWillBeErased(int groupID)
-{
+void CCopyBuffer::_announceCollectionWillBeErased(int collectionID)
+{ // Old
     for (size_t i=0;i<objectBuffer.size();i++)
-        objectBuffer[i]->announceCollectionWillBeErased(groupID,true); // this never triggers scene object destruction!
+        objectBuffer[i]->announceCollectionWillBeErased(collectionID,true); // this never triggers scene object destruction!
 
     size_t i=0;
     while (i<collisionBuffer.size())
     {
         CCollisionObject* it=collisionBuffer[i];
-        if (it->announceCollectionWillBeErased(groupID,true))
+        if (it->announceCollectionWillBeErased(collectionID,true))
         {
             _eraseCollisionInBuffer(it->getObjectHandle());
             i=0; // Ordering may have changed
@@ -987,7 +952,7 @@ void CCopyBuffer::_announceGroupWillBeErased(int groupID)
     while (i<distanceBuffer.size())
     {
         CDistanceObject* it=distanceBuffer[i];
-        if (it->announceCollectionWillBeErased(groupID,true))
+        if (it->announceCollectionWillBeErased(collectionID,true))
         {
             _eraseDistanceInBuffer(it->getObjectHandle());
             i=0; // Ordering may have changed
@@ -1000,7 +965,7 @@ void CCopyBuffer::_announceGroupWillBeErased(int groupID)
     while (i<pathPlanningTaskBuffer.size())
     {
         CPathPlanningTask* it=pathPlanningTaskBuffer[i];
-        if (it->announceCollectionWillBeErased(groupID,true))
+        if (it->announceCollectionWillBeErased(collectionID,true))
         {
             _erasePathPlanningTaskInBuffer(it->getObjectID());
             i=0; // Ordering may have changed
@@ -1012,7 +977,7 @@ void CCopyBuffer::_announceGroupWillBeErased(int groupID)
 
 
 void CCopyBuffer::_announceIkGroupWillBeErased(int ikGroupID)
-{
+{ // Old
     for (size_t i=0;i<objectBuffer.size();i++)
         objectBuffer[i]->announceIkObjectWillBeErased(ikGroupID,true); // this never triggers scene object destruction!
 
@@ -1031,19 +996,19 @@ void CCopyBuffer::_announceIkGroupWillBeErased(int ikGroupID)
 }
 
 void CCopyBuffer::_announceCollisionWillBeErased(int collisionID)
-{
+{ // Old
     for (size_t i=0;i<objectBuffer.size();i++)
         objectBuffer[i]->announceCollisionWillBeErased(collisionID,true); // this never triggers scene object destruction!
 }
 
 void CCopyBuffer::_announceDistanceWillBeErased(int distanceID)
-{
+{ // Old
     for (size_t i=0;i<objectBuffer.size();i++)
         objectBuffer[i]->announceDistanceWillBeErased(distanceID,true); // this never triggers scene object destruction!
 }
 
 void CCopyBuffer::_announce2DElementWillBeErased(int elementID)
-{
+{ // Old
     size_t i=0;
     while (i<textureObjectBuffer.size())
     {

@@ -20,6 +20,7 @@ public:
     void newScene();
     void actualizeAllCollections();
     void announceObjectWillBeErased(int objectHandle);
+    void announceScriptStateWillBeErased(int scriptHandle);
     void setUpDefaultValues();
     void removeAllCollections();
 
@@ -29,9 +30,6 @@ public:
     bool canSuffix1BeSetToSuffix2(int suffix1,int suffix2) const;
     void setSuffix1ToSuffix2(int suffix1,int suffix2);
     void removeCollection(int collectionHandle);
-
-    bool getShapesAndDummiesFromCollection(int collectionHandle,std::vector<CSceneObject*>* objInCollection,int propMask,bool pathPlanningRoutineCalling) const;
-    bool getShapesAndVolumesFromCollection(int collectionHandle,std::vector<CSceneObject*>* objInCollection,int propMask,bool pathPlanningRoutineCalling) const;
 
     void getCollidableObjectsFromCollection(int collectionHandle,std::vector<CSceneObject*>& objects) const;
     void getMeasurableObjectsFromCollection(int collectionHandle,std::vector<CSceneObject*>& objects) const;

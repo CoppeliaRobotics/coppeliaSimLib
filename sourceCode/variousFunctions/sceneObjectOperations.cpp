@@ -998,9 +998,9 @@ bool CSceneObjectOperations::processCommand(int commandID)
             {
 #ifdef SIM_WITH_GUI
                 if (App::mainWindow!=nullptr)
-                    App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptID(),nullptr,true);
+                    App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
 #endif
-                App::currentWorld->luaScriptContainer->removeScript(script->getScriptID());
+                App::currentWorld->luaScriptContainer->removeScript(script->getScriptHandle());
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
                 App::setFullDialogRefreshFlag();
             }
@@ -1024,9 +1024,9 @@ bool CSceneObjectOperations::processCommand(int commandID)
             {
 #ifdef SIM_WITH_GUI
                 if (App::mainWindow!=nullptr)
-                    App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptID(),nullptr,true);
+                    App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
 #endif
-                App::currentWorld->luaScriptContainer->removeScript(script->getScriptID());
+                App::currentWorld->luaScriptContainer->removeScript(script->getScriptHandle());
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
                 App::setFullDialogRefreshFlag();
             }

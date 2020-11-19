@@ -101,26 +101,6 @@ SIM_DLLEXPORT simInt simSetObjectName(simInt objectHandle,const simChar* objectN
 {
     return(simSetObjectName_internal(objectHandle,objectName));
 }
-SIM_DLLEXPORT simInt simGetCollectionHandle(const simChar* collectionName)
-{
-    return(simGetCollectionHandle_internal(collectionName));
-}
-SIM_DLLEXPORT simInt simRemoveCollection(simInt collectionHandle)
-{
-    return(simRemoveCollection_internal(collectionHandle));
-}
-SIM_DLLEXPORT simInt simEmptyCollection(simInt collectionHandle)
-{
-    return(simEmptyCollection_internal(collectionHandle));
-}
-SIM_DLLEXPORT simChar* simGetCollectionName(simInt collectionHandle)
-{
-    return(simGetCollectionName_internal(collectionHandle));
-}
-SIM_DLLEXPORT simInt simSetCollectionName(simInt collectionHandle,const simChar* collectionName)
-{
-    return(simSetCollectionName_internal(collectionHandle,collectionName));
-}
 SIM_DLLEXPORT simInt simGetObjectMatrix(simInt objectHandle,simInt relativeToObjectHandle,simFloat* matrix)
 {
     return(simGetObjectMatrix_internal(objectHandle,relativeToObjectHandle,matrix));
@@ -1177,6 +1157,18 @@ SIM_DLLEXPORT simInt simGetShapeTextureId(simInt shapeHandle)
 {
     return(simGetShapeTextureId_internal(shapeHandle));
 }
+SIM_DLLEXPORT simInt simAddCollection(simInt options)
+{
+    return(simAddCollection_internal(options));
+}
+SIM_DLLEXPORT simInt simAddItemToCollection(simInt collectionHandle,simInt objectHandle,simInt what,simInt options)
+{
+    return(simAddItemToCollection_internal(collectionHandle,objectHandle,what,options));
+}
+SIM_DLLEXPORT simInt simDestroyCollection(simInt collectionHandle)
+{
+    return(simDestroyCollection_internal(collectionHandle));
+}
 SIM_DLLEXPORT simInt* simGetCollectionObjects(simInt collectionHandle,simInt* objectCount)
 {
     return(simGetCollectionObjects_internal(collectionHandle,objectCount));
@@ -1192,14 +1184,6 @@ SIM_DLLEXPORT simInt simGetScriptAttribute(simInt scriptHandle,simInt attributeI
 SIM_DLLEXPORT simInt simReorientShapeBoundingBox(simInt shapeHandle,simInt relativeToHandle,simInt reservedSetToZero)
 {
     return(simReorientShapeBoundingBox_internal(shapeHandle,relativeToHandle,reservedSetToZero));
-}
-SIM_DLLEXPORT simInt simCreateCollection(const simChar* collectionName,simInt options)
-{
-    return(simCreateCollection_internal(collectionName,options));
-}
-SIM_DLLEXPORT simInt simAddObjectToCollection(simInt collectionHandle,simInt objectHandle,simInt what,simInt options)
-{
-    return(simAddObjectToCollection_internal(collectionHandle,objectHandle,what,options));
 }
 SIM_DLLEXPORT simInt simSaveImage(const simUChar* image,const simInt* resolution,simInt options,const simChar* filename,simInt quality,simVoid* reserved)
 {
@@ -2484,6 +2468,34 @@ SIM_DLLEXPORT simInt simSetUserParameter(simInt objectHandle,const simChar* para
 SIM_DLLEXPORT simInt simSetPathTargetNominalVelocity(simInt objectHandle,simFloat targetNominalVelocity)
 {
     return(simSetPathTargetNominalVelocity_internal(objectHandle,targetNominalVelocity));
+}
+SIM_DLLEXPORT simInt simGetCollectionHandle(const simChar* collectionName)
+{
+    return(simGetCollectionHandle_internal(collectionName));
+}
+SIM_DLLEXPORT simInt simRemoveCollection(simInt collectionHandle)
+{
+    return(simRemoveCollection_internal(collectionHandle));
+}
+SIM_DLLEXPORT simInt simEmptyCollection(simInt collectionHandle)
+{
+    return(simEmptyCollection_internal(collectionHandle));
+}
+SIM_DLLEXPORT simChar* simGetCollectionName(simInt collectionHandle)
+{
+    return(simGetCollectionName_internal(collectionHandle));
+}
+SIM_DLLEXPORT simInt simSetCollectionName(simInt collectionHandle,const simChar* collectionName)
+{
+    return(simSetCollectionName_internal(collectionHandle,collectionName));
+}
+SIM_DLLEXPORT simInt simCreateCollection(const simChar* collectionName,simInt options)
+{
+    return(simCreateCollection_internal(collectionName,options));
+}
+SIM_DLLEXPORT simInt simAddObjectToCollection(simInt collectionHandle,simInt objectHandle,simInt what,simInt options)
+{
+    return(simAddObjectToCollection_internal(collectionHandle,objectHandle,what,options));
 }
 // Deprecated end
 

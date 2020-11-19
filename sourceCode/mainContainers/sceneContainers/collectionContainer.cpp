@@ -32,12 +32,27 @@ void CCollectionContainer::announceObjectWillBeErased(int objectHandle)
     size_t i=0;
     while (i<getObjectCount())
     {
-        // position could be changed after a call to announceObject...
-        if (getObjectFromIndex(i)->announceObjectWillBeErased(objectHandle,false))
+        CCollection* coll=getObjectFromIndex(i);
+        if (coll->announceObjectWillBeErased(objectHandle,false))
         {
-            removeCollection(getObjectFromIndex(i)->getCollectionHandle()); // This will call announceCollectionWillBeErased!!
-            i=0; // We never know. The ordering may have changed!
+            if (coll->getCreatorHandle()==-2) // Only old-type collections will be removed (those created via the GUI)
+                removeCollection(coll->getCollectionHandle()); // This will call announceCollectionWillBeErased!!
+            else
+                i++;
         }
+        else
+            i++;
+    }
+}
+
+void CCollectionContainer::announceScriptStateWillBeErased(int scriptHandle)
+{
+    size_t i=0;
+    while (i<getObjectCount())
+    {
+        CCollection* coll=getObjectFromIndex(i);
+        if (coll->announceScriptStateWillBeErased(scriptHandle))
+            removeCollection(coll->getCollectionHandle()); // This will call announceCollectionWillBeErased!!
         else
             i++;
     }
@@ -48,68 +63,17 @@ void CCollectionContainer::actualizeAllCollections()
     size_t i=0;
     while (i<getObjectCount())
     {
-        if (!getObjectFromIndex(i)->actualizeCollection())
+        CCollection* coll=getObjectFromIndex(i);
+        if (!coll->actualizeCollection())
         {
-            removeCollection(getObjectFromIndex(i)->getCollectionHandle());
-            i=0; // We start at 0 again. The ordering may have changed in removeGroup
+            if (coll->getCreatorHandle()==-2) // Only old-type collections will be removed (those created via the GUI)
+                removeCollection(coll->getCollectionHandle());
+            else
+                i++;
         }
         else
             i++;
     }
-}
-
-bool CCollectionContainer::getShapesAndVolumesFromCollection(int collectionHandle,std::vector<CSceneObject*>* objInCollection,int propMask,bool pathPlanningRoutineCalling) const
-{ // If propMask==-1, then object main properties are not checked an all objects are taken!
-    pathPlanningRoutineCalling=false; // OLD_PATH_PLANNING_REMOVE
-    CCollection* theGroup=getObjectFromHandle(collectionHandle);
-    if (theGroup==nullptr)
-        return(false);
-    objInCollection->clear();
-    bool overridePropertyFlag=theGroup->getOverridesObjectMainProperties();
-    for (size_t i=0;i<theGroup->getSceneObjectCountInCollection();i++)
-    {
-        CSceneObject* anObject=App::currentWorld->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
-        if (anObject!=nullptr)
-        {
-            if ( (anObject->getCumulativeObjectSpecialProperty()&propMask)||(propMask==-1)||overridePropertyFlag )
-            {
-                if ( ((!pathPlanningRoutineCalling)||((anObject->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_pathplanning_ignored)==0))||overridePropertyFlag ) // condition added on 2010/08/25
-                {
-                    if (anObject->getObjectType()==sim_object_shape_type)
-                        objInCollection->push_back(anObject);
-                }
-            }
-        }
-    }
-    return(true);
-}
-
-bool CCollectionContainer::getShapesAndDummiesFromCollection(int collectionHandle,std::vector<CSceneObject*>* objInCollection,int propMask,bool pathPlanningRoutineCalling) const
-{ // If propMask==-1, then object main properties are not checked an all objects are taken!
-    pathPlanningRoutineCalling=false; // OLD_PATH_PLANNING_REMOVE
-    CCollection* theGroup=getObjectFromHandle(collectionHandle);
-    if (theGroup==nullptr)
-        return(false);
-    objInCollection->clear();
-    bool overridePropertyFlag=theGroup->getOverridesObjectMainProperties();
-    for (size_t i=0;i<theGroup->getSceneObjectCountInCollection();i++)
-    {
-        CSceneObject* anObject=App::currentWorld->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
-        if (anObject!=nullptr)
-        {
-            if ( (anObject->getCumulativeObjectSpecialProperty()&propMask)||(propMask==-1)||overridePropertyFlag )
-            {
-                if ( ((!pathPlanningRoutineCalling)||((anObject->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_pathplanning_ignored)==0))||overridePropertyFlag ) // condition added on 2010/08/25
-                {
-                    if (anObject->getObjectType()==sim_object_shape_type)
-                        objInCollection->push_back(anObject);
-                    if (anObject->getObjectType()==sim_object_dummy_type)
-                        objInCollection->push_back(anObject);
-                }
-            }
-        }
-    }
-    return(true);
 }
 
 void CCollectionContainer::getCollidableObjectsFromCollection(int collectionHandle,std::vector<CSceneObject*>& objects) const

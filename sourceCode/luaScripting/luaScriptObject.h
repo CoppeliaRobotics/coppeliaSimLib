@@ -34,9 +34,9 @@ public:
     void simulationAboutToEnd();
     void simulationEnded();
 
-    int getScriptID() const;
+    int getScriptHandle() const;
     int getScriptUniqueID() const;
-    void setScriptID(int newID);
+    void setScriptHandle(int newHandle);
     bool isSceneScript() const;
 
     std::string getDescriptiveName() const;
@@ -49,12 +49,12 @@ public:
     CLuaScriptObject* copyYourself();
     void serialize(CSer& ar);
     void performSceneObjectLoadingMapping(const std::vector<int>* map);
-    bool announceSceneObjectWillBeErased(int objectID,bool copyBuffer);
+    bool announceSceneObjectWillBeErased(int objectHandle,bool copyBuffer);
     int flagScriptForRemoval();
-    void setObjectIDThatScriptIsAttachedTo(int newObjectID);
-    int getObjectIDThatScriptIsAttachedTo() const;
-    int getObjectIDThatScriptIsAttachedTo_child() const; // for child scripts
-    int getObjectIDThatScriptIsAttachedTo_customization() const; // for customization scripts
+    void setObjectHandleThatScriptIsAttachedTo(int newObjectHandle);
+    int getObjectHandleThatScriptIsAttachedTo() const;
+    int getObjectHandleThatScriptIsAttachedTo_child() const; // for child scripts
+    int getObjectHandleThatScriptIsAttachedTo_customization() const; // for customization scripts
 
 
     void setScriptText(const char* scriptTxt);
@@ -224,7 +224,7 @@ protected:
     bool _convertThreadedScriptToCoroutine(CLuaScriptObject* scriptObject);
 
     // Variables that need to be copied and serialized:
-    int scriptID;
+    int _scriptHandle;
     int _scriptUniqueId;
     int _scriptType; // sim_scriptproperty_mainscript, etc.
     bool _threadedExecution;
@@ -237,7 +237,7 @@ protected:
     bool _inDebug;
     bool _raiseErrors_backCompatibility;
     int _treeTraversalDirection;
-    int _objectIDAttachedTo;
+    int _objectHandleAttachedTo;
 
     bool _calledInThisSimulationStep;
 

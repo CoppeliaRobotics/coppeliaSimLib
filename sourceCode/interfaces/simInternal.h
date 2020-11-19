@@ -9,7 +9,7 @@
 std::vector<contactCallback>& getAllContactCallbacks();
 std::vector<jointCtrlCallback>& getAllJointCtrlCallbacks();
 
-void setCurrentScriptNameIndex_cSide(int number);
+void setCurrentScriptInfo_cSide(int scriptHandle,int scriptNameIndex);
 int getCurrentScriptNameIndex_cSide();
 std::string getIndexAdjustedObjectName(const char* nm);
 
@@ -32,11 +32,6 @@ simInt simRemoveModel_internal(simInt objectHandle);
 simChar* simGetObjectName_internal(simInt objectHandle);
 simInt simGetObjects_internal(simInt index,simInt objectType);
 simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName);
-simInt simGetCollectionHandle_internal(const simChar* collectionName);
-simInt simRemoveCollection_internal(simInt collectionHandle);
-simInt simEmptyCollection_internal(simInt collectionHandle);
-simChar* simGetCollectionName_internal(simInt collectionHandle);
-simInt simSetCollectionName_internal(simInt collectionHandle,const simChar* collectionName);
 simInt simGetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHandle,simFloat* matrix);
 simInt simSetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* matrix);
 simInt simGetObjectPosition_internal(simInt objectHandle,simInt relativeToObjectHandle,simFloat* position);
@@ -298,12 +293,13 @@ simInt simGetObjectSizeValues_internal(simInt objectHandle,simFloat* sizeValues)
 simInt simScaleObject_internal(simInt objectHandle,simFloat xScale,simFloat yScale,simFloat zScale,simInt options);
 simInt simSetShapeTexture_internal(simInt shapeHandle,simInt textureId,simInt mappingMode,simInt options,const simFloat* uvScaling,const simFloat* position,const simFloat* orientation);
 simInt simGetShapeTextureId_internal(simInt shapeHandle);
+simInt simAddCollection_internal(simInt options);
+simInt simAddItemToCollection_internal(simInt collectionHandle,simInt objectHandle,simInt what,simInt options);
+simInt simDestroyCollection_internal(simInt collectionHandle);
 simInt* simGetCollectionObjects_internal(simInt collectionHandle,simInt* objectCount);
 simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal);
 simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal);
 simInt simReorientShapeBoundingBox_internal(simInt shapeHandle,simInt relativeToHandle,simInt reservedSetToZero);
-simInt simCreateCollection_internal(const simChar* collectionName,simInt options);
-simInt simAddObjectToCollection_internal(simInt collectionHandle,simInt objectHandle,simInt what,simInt options);
 simInt simSaveImage_internal(const simUChar* image,const simInt* resolution,simInt options,const simChar* filename,simInt quality,simVoid* reserved);
 simUChar* simLoadImage_internal(simInt* resolution,simInt options,const simChar* filename,simVoid* reserved);
 simUChar* simGetScaledImage_internal(const simUChar* imageIn,const simInt* resolutionIn,simInt* resolutionOut,simInt options,simVoid* reserved);
@@ -627,6 +623,13 @@ simInt simUnlockResources_internal(simInt lockHandle);
 simChar* simGetUserParameter_internal(simInt objectHandle,const simChar* parameterName,simInt* parameterLength);
 simInt simSetUserParameter_internal(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength);
 simInt simSetPathTargetNominalVelocity_internal(simInt objectHandle,simFloat targetNominalVelocity);
+simInt simGetCollectionHandle_internal(const simChar* collectionName);
+simInt simRemoveCollection_internal(simInt collectionHandle);
+simInt simEmptyCollection_internal(simInt collectionHandle);
+simChar* simGetCollectionName_internal(simInt collectionHandle);
+simInt simSetCollectionName_internal(simInt collectionHandle,const simChar* collectionName);
+simInt simCreateCollection_internal(const simChar* collectionName,simInt options);
+simInt simAddObjectToCollection_internal(simInt collectionHandle,simInt objectHandle,simInt what,simInt options);
 
 
 #endif // !defined(simInternal_INCLUDED_)

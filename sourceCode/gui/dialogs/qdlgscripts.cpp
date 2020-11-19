@@ -64,7 +64,7 @@ void CQDlgScripts::refresh()
     ui->qqDebugMode->clear();
     ui->qqAssociatedObjectCombo->clear();
 
-    CLuaScriptObject* theScript=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getSelectedObjectID());
+    CLuaScriptObject* theScript=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(getSelectedObjectID());
     ui->qqExecutionOrder->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqTreeTraversalDirection->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqDebugMode->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript)||(theScript->getScriptType()==sim_scripttype_mainscript) ));
@@ -117,9 +117,9 @@ void CQDlgScripts::refresh()
                 ui->qqAssociatedObjectCombo->addItem(names[i].c_str(),QVariant(ids[i]));
             int objIdAttached=-1;
             if (theScript->getScriptType()==sim_scripttype_childscript)
-                objIdAttached=theScript->getObjectIDThatScriptIsAttachedTo_child();
+                objIdAttached=theScript->getObjectHandleThatScriptIsAttachedTo_child();
             if (theScript->getScriptType()==sim_scripttype_customizationscript)
-                objIdAttached=theScript->getObjectIDThatScriptIsAttachedTo_customization();
+                objIdAttached=theScript->getObjectHandleThatScriptIsAttachedTo_customization();
             for (int i=0;i<ui->qqAssociatedObjectCombo->count();i++)
             {
                 if (ui->qqAssociatedObjectCombo->itemData(i).toInt()==objIdAttached)
@@ -153,7 +153,7 @@ void CQDlgScripts::updateObjectsInList()
         if (it!=nullptr)
         {
             std::string tmp=it->getDescriptiveName();
-            int id=it->getScriptID();
+            int id=it->getScriptHandle();
             QListWidgetItem* itm=new QListWidgetItem(tmp.c_str());
             itm->setData(Qt::UserRole,QVariant(id));
             itm->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
@@ -167,7 +167,7 @@ void CQDlgScripts::updateObjectsInList()
             if (t==sim_scripttype_childscript)
             {
                 std::string tmp=it->getDescriptiveName();
-                int id=it->getScriptID();
+                int id=it->getScriptHandle();
                 QListWidgetItem* itm=new QListWidgetItem(tmp.c_str());
                 itm->setData(Qt::UserRole,QVariant(id));
                 itm->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
@@ -189,7 +189,7 @@ void CQDlgScripts::updateObjectsInList()
             if (t==sim_scripttype_customizationscript)
             {
                 std::string tmp=it->getDescriptiveName();
-                int id=it->getScriptID();
+                int id=it->getScriptHandle();
                 QListWidgetItem* itm=new QListWidgetItem(tmp.c_str());
                 itm->setData(Qt::UserRole,QVariant(id));
                 itm->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
@@ -259,7 +259,7 @@ void CQDlgScripts::on_qqAddNewScript_clicked()
                 {
                     if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDS_MAIN_SCRIPT,IDS_INFO_NO_MORE_THAN_ONE_MAIN_SCRIPT,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES))
                     {
-                        App::appendSimulationThreadCommand(DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD,it->getScriptID());
+                        App::appendSimulationThreadCommand(DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD,it->getScriptHandle());
                         App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_mainscript,0);
                     }
                 }
@@ -309,13 +309,13 @@ void CQDlgScripts::on_qqScriptList_itemDoubleClicked(QListWidgetItem *item)
     {
         if ( (item!=nullptr)&&App::currentWorld->simulation->isSimulationStopped() )
         {
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(item->data(Qt::UserRole).toInt());
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(item->data(Qt::UserRole).toInt());
             if (it!=nullptr)
             {
                 // Process the command via the simulation thread (delayed):
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=OPEN_SCRIPT_EDITOR_CMD;
-                cmd.intParams.push_back(it->getScriptID());
+                cmd.intParams.push_back(it->getScriptHandle());
                 App::appendSimulationThreadCommand(cmd);
             }
         }

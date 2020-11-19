@@ -5,7 +5,7 @@
 class CCollection : public _CCollection_
 {
 public:
-    CCollection();
+    CCollection(int creatorHandle);
     virtual ~CCollection();
 
     // Overridden from CSyncObject:
@@ -17,15 +17,17 @@ public:
     void simulationAboutToStart();
     void simulationEnded();
 
-    bool actualizeCollection(bool full=true);
+    bool actualizeCollection();
     bool isObjectInCollection(int objectHandle) const;
     void addCollectionElement(CCollectionElement* collectionElement);
     void removeCollectionElementFromHandle(int collectionElementHandle);
     void serialize(CSer& ar);
     void performObjectLoadingMapping(const std::vector<int>* map);
     bool announceObjectWillBeErased(int objectHandle,bool copyBuffer);
+    bool announceScriptStateWillBeErased(int scriptHandle);
     CCollection* copyYourself() const;
     void emptyCollection();
+    int getCreatorHandle() const;
 
     // Overridden from _CCollection_:
     bool setCollectionName(const char* newName,bool check);
@@ -45,6 +47,7 @@ protected:
 private:
     void _updateCollectionObjects_(const std::vector<int>& sceneObjectHandles);
 
+    int _creatorHandle; // -2: old gui items, -1: c-side, otherwise script handle
     std::string _uniquePersistentIdString;
     std::vector<int> _collectionObjects;
     std::string _collectionLoadName;

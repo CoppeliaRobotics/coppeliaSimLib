@@ -488,22 +488,26 @@ void CWorld::saveScene(CSer& ar)
         ar.xmlPopNode();
     }
 
-    // We serialize all collections:
+    // We serialize all OLD collections (those that were created via the GUI or via simCreateCollection):
     for (size_t i=0;i<collections->getObjectCount();i++)
     {
-        if (ar.isBinary())
+        CCollection* coll=collections->getObjectFromIndex(i);
+        if (coll->getCreatorHandle()==-2)
         {
-            ar.storeDataName(SER_COLLECTION);
-            ar.setCountingMode();
-            collections->getObjectFromIndex(i)->serialize(ar);
-            if (ar.setWritingMode())
-                collections->getObjectFromIndex(i)->serialize(ar);
-        }
-        else
-        {
-            ar.xmlPushNewNode(SERX_COLLECTION);
-            collections->getObjectFromIndex(i)->serialize(ar);
-            ar.xmlPopNode();
+            if (ar.isBinary())
+            {
+                ar.storeDataName(SER_COLLECTION);
+                ar.setCountingMode();
+                coll->serialize(ar);
+                if (ar.setWritingMode())
+                    collections->getObjectFromIndex(i)->serialize(ar);
+            }
+            else
+            {
+                ar.xmlPushNewNode(SERX_COLLECTION);
+                coll->serialize(ar);
+                ar.xmlPopNode();
+            }
         }
     }
 
@@ -725,6 +729,11 @@ void CWorld::simulationEnded(bool removeNewObjects)
         App::worldContainer->sandboxScript->runSandboxScript(sim_syscb_aftersimulation,nullptr,nullptr);
 }
 
+void CWorld::announceScriptStateWillBeErased(int scriptHandle)
+{
+    collections->announceScriptStateWillBeErased(scriptHandle);
+}
+
 void CWorld::setEnableRemoteWorldsSync(bool enabled)
 {
     CSyncObject::setOverallSyncEnabled(enabled);
@@ -879,9 +888,9 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     std::vector<int> luaScriptMapping;
     for (size_t i=0;i<loadedLuaScriptList->size();i++)
     {
-        luaScriptMapping.push_back(loadedLuaScriptList->at(i)->getScriptID()); // Old ID
+        luaScriptMapping.push_back(loadedLuaScriptList->at(i)->getScriptHandle()); // Old ID
         luaScriptContainer->insertScript(loadedLuaScriptList->at(i));
-        luaScriptMapping.push_back(loadedLuaScriptList->at(i)->getScriptID()); // New ID
+        luaScriptMapping.push_back(loadedLuaScriptList->at(i)->getScriptHandle()); // New ID
     }
     _prepareFastLoadingMapping(luaScriptMapping);
 
@@ -1030,7 +1039,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         int handle=_loadOperationIssues[i].objectHandle;
         std::string newTxt("NAME_NOT_FOUND");
         int handle2=getLoadingMapping(&luaScriptMapping,handle);
-        CLuaScriptObject* script=luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle2);
+        CLuaScriptObject* script=luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(handle2);
         if (script!=nullptr)
             newTxt=script->getShortDescriptiveName();
         std::string msg(_loadOperationIssues[i].message);
@@ -1326,11 +1335,11 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                     noHit=false;
                 }
                 if (theName.compare(SER_COLLECTION)==0)
-                {
+                { // for backward compatibility 18.11.2020
                     if (App::userSettings->xrTest==123456789)
                         App::logMsg(sim_verbosity_errors,"Contains collections...");
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CCollection* it=new CCollection();
+                    CCollection* it=new CCollection(-2);
                     it->serialize(ar);
                     loadedCollectionList.push_back(it);
                     noHit=false;
@@ -1515,10 +1524,10 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
             ar.xmlPopNode();
         }
         if (ar.xmlPushChildNode(SERX_COLLECTION,false))
-        {
+        { // for backward compatibility 18.11.2020
             while (true)
             {
-                CCollection* it=new CCollection();
+                CCollection* it=new CCollection(-2);
                 it->serialize(ar);
                 loadedCollectionList.push_back(it);
                 if (!ar.xmlPushSiblingNode(SERX_COLLECTION,false))
@@ -1608,7 +1617,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 txt=std::string("function sysCall_init()\nend\n\n")+txt;
                 script=new CLuaScriptObject(sim_scripttype_customizationscript);
                 luaScriptContainer->insertScript(script);
-                script->setObjectIDThatScriptIsAttachedTo(it->getObjectHandle());
+                script->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
             }
             std::string t(script->getScriptText());
             t=txt+t;
@@ -1628,7 +1637,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 txt=std::string("function sysCall_init()\nend\n\n")+txt;
                 script=new CLuaScriptObject(sim_scripttype_customizationscript);
                 luaScriptContainer->insertScript(script);
-                script->setObjectIDThatScriptIsAttachedTo(it->getObjectHandle());
+                script->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
             }
             std::string t(script->getScriptText());
             t=txt+t;
@@ -1639,11 +1648,11 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
     // Following for backward compatibility (Lua script parameters are now attached to objects, and not scripts anymore):
     for (size_t i=0;i<loadedLuaScriptList.size();i++)
     {
-        CLuaScriptObject* script=luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(loadedLuaScriptList[i]->getScriptID());
+        CLuaScriptObject* script=luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(loadedLuaScriptList[i]->getScriptHandle());
         if (script!=nullptr)
         {
             CUserParameters* params=script->getScriptParametersObject_backCompatibility();
-            int obj=script->getObjectIDThatScriptIsAttachedTo_child();
+            int obj=script->getObjectHandleThatScriptIsAttachedTo_child();
             CSceneObject* theObj=sceneObjects->getObjectFromHandle(obj);
             if ( (theObj!=nullptr)&&(params!=nullptr) )
             {
@@ -1691,10 +1700,10 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
     std::vector<CCollection*> allLoadedCollections;
     std::map<std::string,CCollection*> _collectionLoadNamesMap;
     if (ar.xmlPushChildNode(SERX_COLLECTION,false))
-    {
+    { // for backward compatibility 18.11.2020
         while (true)
         {
-            CCollection* it=new CCollection();
+            CCollection* it=new CCollection(-2);
             it->serialize(ar);
             allLoadedCollections.push_back(it);
             _collectionLoadNamesMap[it->getCollectionLoadName()]=it;
@@ -1754,13 +1763,13 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
                 {
                     hasAScriptAttached=true;
                     luaScriptContainer->insertScript(childScript);
-                    childScript->setObjectIDThatScriptIsAttachedTo(it->getObjectHandle());
+                    childScript->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
                 }
                 if (customizationScript!=nullptr)
                 {
                     hasAScriptAttached=true;
                     luaScriptContainer->insertScript(customizationScript);
-                    customizationScript->setObjectIDThatScriptIsAttachedTo(it->getObjectHandle());
+                    customizationScript->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
                 }
                 simpleXmlObjects.erase(simpleXmlObjects.begin()+i);
             }
@@ -1885,7 +1894,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
         if (it->getElementCount()>0)
         {
             collections->addCollectionWithSuffixOffset(it,objectIsACopy,suffixOffset);
-            it->actualizeCollection(true);
+            it->actualizeCollection();
         }
         else
         {

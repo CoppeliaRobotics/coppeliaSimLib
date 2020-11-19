@@ -1915,9 +1915,9 @@ const SNewApiMapping _simxApiMapping[]=
 
 CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
 {
-    scriptID=SIM_IDSTART_LUASCRIPT;
+    _scriptHandle=SIM_IDSTART_LUASCRIPT;
     _scriptUniqueId=_scriptUniqueCounter++;
-    _objectIDAttachedTo=-1;
+    _objectHandleAttachedTo=-1;
 
     _scriptText="";
     _scriptTextExec="";
@@ -1979,14 +1979,11 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
 
     if (_scriptType==sim_scripttype_sandboxscript)
     {
-        scriptID=SIM_IDSTART_SANDBOXSCRIPT;
-        L=initializeNewLuaState(getScriptNameIndexNumber(),_debugLevel);
+        _scriptHandle=SIM_IDSTART_SANDBOXSCRIPT;
+        L=initializeNewLuaState(_scriptHandle,getScriptNameIndexNumber(),_debugLevel);
         _calledInThisSimulationStep=false;
         _raiseErrors_backCompatibility=true;
         _randGen.seed(123456);
-        std::string tmp("sim_current_script_id=");
-        tmp+=boost::lexical_cast<std::string>(getScriptID());
-        luaWrap_luaL_dostring(L,tmp.c_str());
         _delayForAutoYielding=2;
         _forbidAutoYieldingLevel=0;
     }
@@ -2746,7 +2743,7 @@ bool CLuaScriptObject::hasCustomizationScripAnyChanceToGetExecuted(bool forClean
     CSceneObject* obj=nullptr;
     if (_scriptType==sim_scripttype_customizationscript)
     {
-        obj=App::currentWorld->sceneObjects->getObjectFromHandle(getObjectIDThatScriptIsAttachedTo_customization());
+        obj=App::currentWorld->sceneObjects->getObjectFromHandle(getObjectHandleThatScriptIsAttachedTo_customization());
         if (!App::userSettings->runCustomizationScripts)
             return(false);
         if (whenSimulationRuns&&_custScriptDisabledDSim_compatibilityMode_DEPRECATED&&_compatibilityModeOrFirstTimeCall_sysCallbacks)
@@ -2868,9 +2865,9 @@ const char* CLuaScriptObject::getScriptText()
     return(_scriptText.c_str());
 }
 
-int CLuaScriptObject::getScriptID() const
+int CLuaScriptObject::getScriptHandle() const
 {
-    return(scriptID);
+    return(_scriptHandle);
 }
 
 int CLuaScriptObject::getScriptUniqueID() const
@@ -2878,9 +2875,9 @@ int CLuaScriptObject::getScriptUniqueID() const
     return(_scriptUniqueId);
 }
 
-void CLuaScriptObject::setScriptID(int newID)
-{ // careful with that function!
-    scriptID=newID;
+void CLuaScriptObject::setScriptHandle(int newHandle)
+{
+    _scriptHandle=newHandle;
 }
 
 bool CLuaScriptObject::isSceneScript() const
@@ -2904,7 +2901,7 @@ std::string CLuaScriptObject::getDescriptiveName() const
         }
         else
             retVal+="Customization script";
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectIDAttachedTo);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
         if (it==nullptr)
             retVal+=" (unassociated)";
         else
@@ -2938,7 +2935,7 @@ std::string CLuaScriptObject::getShortDescriptiveName() const
         retVal+="mainScript";
     if ( (_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
     {
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectIDAttachedTo);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
         if (it==nullptr)
             retVal+="???";
         else
@@ -2973,7 +2970,7 @@ int CLuaScriptObject::getScriptNameIndexNumber() const
     int retVal=-1;
     if ( (_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
     {
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectIDAttachedTo);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
         if (it!=nullptr)
             retVal=tt::getNameSuffixNumber(it->getObjectName().c_str(),true);
     }
@@ -2984,7 +2981,7 @@ std::string CLuaScriptObject::getScriptPseudoName() const
 {
     if ( (_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
     {
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectIDAttachedTo);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
         if (it!=nullptr)
             return(it->getObjectName());
     }
@@ -3017,25 +3014,25 @@ bool CLuaScriptObject::getThreadedExecutionIsUnderWay() const
 void CLuaScriptObject::performSceneObjectLoadingMapping(const std::vector<int>* map)
 {
     if (App::currentWorld->sceneObjects!=nullptr)
-        _objectIDAttachedTo=CWorld::getLoadingMapping(map,_objectIDAttachedTo);
+        _objectHandleAttachedTo=CWorld::getLoadingMapping(map,_objectHandleAttachedTo);
 }
 
-bool CLuaScriptObject::announceSceneObjectWillBeErased(int objectID,bool copyBuffer)
-{ // script will be erased if attached to objectID (if threaded simulation is not running!)
+bool CLuaScriptObject::announceSceneObjectWillBeErased(int objectHandle,bool copyBuffer)
+{ // script will be erased if attached to objectHandle (if threaded simulation is not running!)
     bool retVal=false;
     if (copyBuffer)
-        retVal=(_objectIDAttachedTo==objectID);
+        retVal=(_objectHandleAttachedTo==objectHandle);
     else
     {
         bool closeCodeEditor=false;
-        if (_objectIDAttachedTo==objectID)
+        if (_objectHandleAttachedTo==objectHandle)
         {
             if (_scriptType==sim_scripttype_childscript)
             {
                 closeCodeEditor=true;
                 if (!App::currentWorld->simulation->isSimulationStopped()) // Removed the if(_threadedExecution()) thing on 2008/12/08
                 { // threaded scripts cannot be directly erased, since the Lua state needs to be cleared in the thread that created it
-                    _objectIDAttachedTo=-1; // This is for a potential threaded simulation running
+                    _objectHandleAttachedTo=-1; // This is for a potential threaded simulation running
                     _flaggedForDestruction=true;
                     retVal=!_inExecutionNow; // from false to !_inExecutionNow on 8/9/2016
                 }
@@ -3053,7 +3050,7 @@ bool CLuaScriptObject::announceSceneObjectWillBeErased(int objectID,bool copyBuf
         {
 #ifdef SIM_WITH_GUI
             if (App::mainWindow!=nullptr)
-                App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptID,_previousEditionWindowPosAndSize,true);
+                App::mainWindow->codeEditorContainer->closeFromScriptHandle(_scriptHandle,_previousEditionWindowPosAndSize,true);
 #endif
         }
     }
@@ -3064,7 +3061,7 @@ int CLuaScriptObject::flagScriptForRemoval()
 { // retVal: 0--> cannot be removed, 1 --> will be removed in a delayed manner, 2--> can be removed now
 #ifdef SIM_WITH_GUI
     if (App::mainWindow!=nullptr)
-        App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptID,_previousEditionWindowPosAndSize,true);
+        App::mainWindow->codeEditorContainer->closeFromScriptHandle(_scriptHandle,_previousEditionWindowPosAndSize,true);
 #endif
 
     if (App::currentWorld->simulation->isSimulationStopped())
@@ -3080,34 +3077,34 @@ int CLuaScriptObject::flagScriptForRemoval()
     return(0);
 }
 
-int CLuaScriptObject::getObjectIDThatScriptIsAttachedTo_child() const
+int CLuaScriptObject::getObjectHandleThatScriptIsAttachedTo_child() const
 {
     if (_scriptType==sim_scripttype_childscript)
-        return(_objectIDAttachedTo);
+        return(_objectHandleAttachedTo);
     return(-1);
 }
 
-int CLuaScriptObject::getObjectIDThatScriptIsAttachedTo_customization() const
+int CLuaScriptObject::getObjectHandleThatScriptIsAttachedTo_customization() const
 {
     if (_scriptType==sim_scripttype_customizationscript)
-        return(_objectIDAttachedTo);
+        return(_objectHandleAttachedTo);
     return(-1);
 }
 
-int CLuaScriptObject::getObjectIDThatScriptIsAttachedTo() const
+int CLuaScriptObject::getObjectHandleThatScriptIsAttachedTo() const
 {
-    return(_objectIDAttachedTo);
+    return(_objectHandleAttachedTo);
 }
 
-void CLuaScriptObject::setObjectIDThatScriptIsAttachedTo(int newObjectID)
+void CLuaScriptObject::setObjectHandleThatScriptIsAttachedTo(int newObjectHandle)
 {
-    if (newObjectID!=-1)
+    if (newObjectHandle!=-1)
     {
         if ( (_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
-            _objectIDAttachedTo=newObjectID;
+            _objectHandleAttachedTo=newObjectHandle;
     }
     else
-        _objectIDAttachedTo=-1;
+        _objectHandleAttachedTo=-1;
 }
 
 int CLuaScriptObject::getNumberOfPasses() const
@@ -3262,7 +3259,7 @@ void CLuaScriptObject::_launchThreadedChildScriptNow()
 
     if (L==nullptr)
     {
-        L=initializeNewLuaState(getScriptNameIndexNumber(),_debugLevel);
+        L=initializeNewLuaState(_scriptHandle,getScriptNameIndexNumber(),_debugLevel);
         _forbidAutoYieldingLevel=0;
         _calledInThisSimulationStep=false;
         _raiseErrors_backCompatibility=true;
@@ -3270,10 +3267,7 @@ void CLuaScriptObject::_launchThreadedChildScriptNow()
     }
     int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
 
-    std::string tmp("sim_current_script_id=");
-    tmp+=boost::lexical_cast<std::string>(getScriptID());
-    tmp+="\nsim_call_type=-1"; // for backward compatibility
-    luaWrap_luaL_dostring(L,tmp.c_str());
+    luaWrap_luaL_dostring(L,"sim_call_type=-1"); // for backward compatibility
 
     if (_luaLoadBuffer(L,_scriptTextExec.c_str(),_scriptTextExec.size(),getShortDescriptiveName().c_str()))
     {
@@ -3432,7 +3426,7 @@ int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfa
     }
     if (L==nullptr)
     {
-        L=initializeNewLuaState(getScriptNameIndexNumber(),_debugLevel);
+        L=initializeNewLuaState(_scriptHandle,getScriptNameIndexNumber(),_debugLevel);
         _calledInThisSimulationStep=false;
         _raiseErrors_backCompatibility=true;
         _randGen.seed(123456);
@@ -3450,9 +3444,7 @@ int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfa
     int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
     if (_compatibilityModeOrFirstTimeCall_sysCallbacks)
     {
-        std::string tmp("sim_current_script_id=");
-        tmp+=boost::lexical_cast<std::string>(getScriptID());
-        tmp+="\nsim_call_type="; // for backward compatibility
+        std::string tmp("sim_call_type="); // for backward compatibility
         tmp+=boost::lexical_cast<std::string>(callType);
         luaWrap_luaL_dostring(L,tmp.c_str());
         if (_luaLoadBuffer(L,_scriptTextExec.c_str(),_scriptTextExec.size(),getShortDescriptiveName().c_str()))
@@ -3727,11 +3719,7 @@ int CLuaScriptObject::callScriptFunction(const char* functionName,SLuaCallBack* 
     changeOverallYieldingForbidLevel(1,false);
     int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
 
-    // New since 7/3/2016:
-    std::string tmp("sim_current_script_id=");
-    tmp+=boost::lexical_cast<std::string>(getScriptID());
-    tmp+="\nsim_call_type=-1";
-    luaWrap_luaL_dostring(L,tmp.c_str());
+    luaWrap_luaL_dostring(L,"sim_call_type=-1"); // for backward compatibility
 
     // Push the function name onto the stack (will be automatically popped from stack after _luaPCall):
     std::string func(functionName);
@@ -3886,10 +3874,7 @@ int CLuaScriptObject::callScriptFunctionEx(const char* functionName,CInterfaceSt
 
         int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
 
-        std::string tmp("sim_current_script_id=");
-        tmp+=boost::lexical_cast<std::string>(getScriptID());
-        tmp+="\nsim_call_type=-1";
-        luaWrap_luaL_dostring(L,tmp.c_str());
+        luaWrap_luaL_dostring(L,"sim_call_type=-1"); // for backward compatibility
 
         // Push the function name onto the stack (will be automatically popped from stack after _luaPCall):
         std::string func(functionName);
@@ -4222,7 +4207,7 @@ bool CLuaScriptObject::killLuaState()
             if (!wasInMainScript)
                 App::currentWorld->luaScriptContainer->setInMainScriptNow(false,0);
         }
-        App::worldContainer->scriptStateAboutToBeDestroyed(scriptID);
+        App::worldContainer->announceScriptStateWillBeErased(_scriptHandle);
         luaWrap_lua_close(L);
         L=nullptr;
     }
@@ -4251,8 +4236,8 @@ std::string CLuaScriptObject::getLuaSearchPath() const
 CLuaScriptObject* CLuaScriptObject::copyYourself()
 {
     CLuaScriptObject* it=new CLuaScriptObject(_scriptType);
-    it->scriptID=scriptID;
-    it->_objectIDAttachedTo=_objectIDAttachedTo;
+    it->_scriptHandle=_scriptHandle;
+    it->_objectHandleAttachedTo=_objectHandleAttachedTo;
     it->_threadedExecution=_threadedExecution;
     it->_scriptIsDisabled=_scriptIsDisabled;
     it->_executionOrder=_executionOrder;
@@ -4385,7 +4370,7 @@ void CLuaScriptObject::serialize(CSer& ar)
         if (ar.isStoring())
         {       // Storing
             ar.storeDataName("Si2");
-            ar << scriptID << _objectIDAttachedTo << _scriptType;
+            ar << _scriptHandle << _objectHandleAttachedTo << _scriptType;
             ar.flush();
 
             // Keep following close to the beginning!
@@ -4439,7 +4424,7 @@ void CLuaScriptObject::serialize(CSer& ar)
 
             // keep a while so that older versions can read this. 11.06.2019, V3.6.1 is current
             ar.storeDataName("Coc");
-            ar << _objectIDAttachedTo;
+            ar << _objectHandleAttachedTo;
             ar.flush();
 
             if (_customObjectData!=nullptr)
@@ -4473,7 +4458,7 @@ void CLuaScriptObject::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> scriptID >> _objectIDAttachedTo >> _scriptType;
+                        ar >> _scriptHandle >> _objectHandleAttachedTo >> _scriptType;
                     }
 
                     if (theName.compare("Ttd")==0)
@@ -4558,7 +4543,7 @@ void CLuaScriptObject::serialize(CSer& ar)
                         int v;
                         ar >> v;
                         if (v>=0)
-                            _objectIDAttachedTo=v;
+                            _objectHandleAttachedTo=v;
                     }
                     if (theName.compare("Cod")==0)
                     {
@@ -4604,8 +4589,8 @@ void CLuaScriptObject::serialize(CSer& ar)
         {
             if (exhaustiveXml)
             {
-                ar.xmlAddNode_int("handle",scriptID);
-                ar.xmlAddNode_int("objectHandle",_objectIDAttachedTo);
+                ar.xmlAddNode_int("handle",_scriptHandle);
+                ar.xmlAddNode_int("objectHandle",_objectHandleAttachedTo);
 
                 ar.xmlAddNode_enum("type",_scriptType,sim_scripttype_mainscript,"mainScript",sim_scripttype_childscript,"childScript",sim_scripttype_customizationscript,"customizationScript");
             }
@@ -4633,7 +4618,7 @@ void CLuaScriptObject::serialize(CSer& ar)
                 if (_customObjectData!=nullptr)
                 {
                     ar.xmlPushNewNode("customData");
-                    _customObjectData->serializeData(ar,nullptr,scriptID);
+                    _customObjectData->serializeData(ar,nullptr,_scriptHandle);
                     ar.xmlPopNode();
                 }
             }
@@ -4642,8 +4627,8 @@ void CLuaScriptObject::serialize(CSer& ar)
         {
             if (exhaustiveXml)
             {
-                ar.xmlGetNode_int("handle",scriptID);
-                ar.xmlGetNode_int("objectHandle",_objectIDAttachedTo);
+                ar.xmlGetNode_int("handle",_scriptHandle);
+                ar.xmlGetNode_int("objectHandle",_objectHandleAttachedTo);
 
                 ar.xmlGetNode_enum("type",_scriptType,true,"mainScript",sim_scripttype_mainscript,"childScript",sim_scripttype_childscript,"customizationScript",sim_scripttype_customizationscript);
             }
@@ -5376,7 +5361,7 @@ void CLuaScriptObject::_adjustScriptText1(CLuaScriptObject* scriptObject,bool do
                     txt+="  It was replaced with simHandleChildScripts (i.e. with an additional 's'),\n";
                     txt+="  and operates slightly differently. CoppeliaSim has tried to automatically adjust\n";
                     txt+="  the script, but failed. Please correct this issue yourself by editing the script.";
-                    CWorld::appendLoadOperationIssue(sim_verbosity_warnings,txt.c_str(),scriptObject->getScriptID());
+                    CWorld::appendLoadOperationIssue(sim_verbosity_warnings,txt.c_str(),scriptObject->getScriptHandle());
                 }
             }
         }
@@ -5390,7 +5375,7 @@ void CLuaScriptObject::_adjustScriptText1(CLuaScriptObject* scriptObject,bool do
                 txt+="  and operates slightly differently. In addition to this, simhandleChildScripts\n";
                 txt+="  cannot be called from threaded child scripts anymore. Please correct this issue\n";
                 txt+="  yourself by editing the script.";
-                CWorld::appendLoadOperationIssue(sim_verbosity_warnings,txt.c_str(),scriptObject->getScriptID());
+                CWorld::appendLoadOperationIssue(sim_verbosity_warnings,txt.c_str(),scriptObject->getScriptHandle());
             }
         }
     }
@@ -5683,7 +5668,7 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"blabliblotemp","sim.getObjectOrientation");
     if (addFunc)
     {
-        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.getObjectOrientation with __getObjectOrientation__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptID());
+        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.getObjectOrientation with __getObjectOrientation__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
         std::string txt;
         txt+="function __getObjectOrientation__(a,b)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
@@ -5705,7 +5690,7 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"blabliblotemp","sim.setObjectOrientation");
     if (addFunc)
     {
-        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.setObjectOrientation with __setObjectOrientation__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptID());
+        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.setObjectOrientation with __setObjectOrientation__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
         std::string txt;
         txt+="function __setObjectOrientation__(a,b,c)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
@@ -5728,7 +5713,7 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"blabliblotemp","sim.getObjectQuaternion");
     if (addFunc)
     {
-        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.getObjectQuaternion with __getObjectQuaternion__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptID());
+        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.getObjectQuaternion with __getObjectQuaternion__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
         std::string txt;
         txt+="function __getObjectQuaternion__(a,b)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
@@ -5751,7 +5736,7 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"blabliblotemp","sim.setObjectQuaternion");
     if (addFunc)
     {
-        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.setObjectQuaternion with __setObjectQuaternion__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptID());
+        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.setObjectQuaternion with __setObjectQuaternion__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
         std::string txt;
         txt+="function __setObjectQuaternion__(a,b,c)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
@@ -5774,7 +5759,7 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"blabliblotemp","sim.getObjectPosition");
     if (addFunc)
     {
-        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.getObjectPosition with __getObjectPosition__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptID());
+        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.getObjectPosition with __getObjectPosition__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
         std::string txt;
         txt+="function __getObjectPosition__(a,b)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
@@ -5797,7 +5782,7 @@ void CLuaScriptObject::_adjustScriptText11(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"blabliblotemp","sim.setObjectPosition");
     if (addFunc)
     {
-        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.setObjectPosition with __setObjectPosition__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptID());
+        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.setObjectPosition with __setObjectPosition__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
         std::string txt;
         txt+="function __setObjectPosition__(a,b,c)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";

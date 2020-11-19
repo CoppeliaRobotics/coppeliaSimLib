@@ -322,7 +322,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 if (App::getEditModeType()==NO_EDIT_MODE)
                 {
-                    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(cmd.intParams[0]);
+                    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(cmd.intParams[0]);
                     if ((it!=nullptr)&&(App::mainWindow!=nullptr))
                     {
                         if (it->getScriptType()==sim_scripttype_customizationscript)
@@ -621,7 +621,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==NEW_COLLECTION_COLLECTIONGUITRIGGEREDCMD)
         {
-            CCollection* newGroup=new CCollection();
+            CCollection* newGroup=new CCollection(-2);
             newGroup->setCollectionName(IDSOGL_COLLECTION,false);
             App::currentWorld->collections->addCollection(newGroup,false);
             // Now select the new collection in the UI. We need to post it so that it arrives after the dialog refresh!:
@@ -3501,7 +3501,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptID);
+            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptID);
             if (script!=nullptr)
             {
                 if ((script->getScriptType()==sim_scripttype_mainscript)||(script->getScriptType()==sim_scripttype_childscript))
@@ -3512,7 +3512,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
                 else if (script->getScriptType()==sim_scripttype_customizationscript)
                 {
-                    int objID=script->getObjectIDThatScriptIsAttachedTo_customization();
+                    int objID=script->getObjectHandleThatScriptIsAttachedTo_customization();
                     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
                     if (it!=nullptr)
                         it->setEnableCustomizationScript(false,nullptr);
@@ -3578,7 +3578,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==TOGGLE_DISABLED_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptID);
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptID);
             if (it!=nullptr)
             {
                 if (it->getScriptType()==sim_scripttype_customizationscript)
@@ -3589,7 +3589,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==TOGGLE_EXECUTEONCE_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptID);
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptID);
             if ((it!=nullptr)&&it->getThreadedExecution())
                 it->setExecuteJustOnce(!it->getExecuteJustOnce());
         }
@@ -3597,7 +3597,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             int scriptID=cmd.intParams[0];
             int objID=cmd.intParams[1];
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptID);
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptID);
             CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
             if (it!=nullptr)
             {
@@ -3608,13 +3608,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         // Check if the object doesn't already have a script attached:
                         if (App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objID)==nullptr)
                         {
-                            it->setObjectIDThatScriptIsAttachedTo(objID);
+                            it->setObjectHandleThatScriptIsAttachedTo(objID);
                             App::worldContainer->setModificationFlag(8192); // script added flag
                         }
                     }
                     else
                     {
-                        it->setObjectIDThatScriptIsAttachedTo(-1);
+                        it->setObjectHandleThatScriptIsAttachedTo(-1);
                         App::worldContainer->setModificationFlag(16384); // script deleted flag
                     }
                 }
@@ -3625,13 +3625,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         // Check if the object doesn't already have a script attached:
                         if (App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objID)==nullptr)
                         {
-                            it->setObjectIDThatScriptIsAttachedTo(objID);
+                            it->setObjectHandleThatScriptIsAttachedTo(objID);
                             App::worldContainer->setModificationFlag(8192); // script added flag
                         }
                     }
                     else
                     {
-                        it->setObjectIDThatScriptIsAttachedTo(-1);
+                        it->setObjectHandleThatScriptIsAttachedTo(-1);
                         App::worldContainer->setModificationFlag(16384); // script deleted flag
                     }
                 }
@@ -3640,21 +3640,21 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==SET_EXECORDER_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptID);
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptID);
             if (it!=nullptr)
                 it->setExecutionOrder(cmd.intParams[1]);
         }
         if (cmd.cmdId==SET_TREETRAVERSALDIR_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptID);
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptID);
             if (it!=nullptr)
                 it->setTreeTraversalDirection(cmd.intParams[1]);
         }
         if (cmd.cmdId==SET_DEBUGMODE_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptID);
+            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptID);
             if (it!=nullptr)
                 it->setDebugLevel(cmd.intParams[1]);
         }

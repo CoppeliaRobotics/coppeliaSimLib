@@ -754,7 +754,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
             {
                 hier->scriptIconPosition.push_back(tPosX+localOffset);
                 hier->scriptIconPosition.push_back(tPosY);
-                hier->scriptIconPosition.push_back(script->getScriptID());
+                hier->scriptIconPosition.push_back(script->getScriptHandle());
             }
             localOffset+=HIERARCHY_ICON_WIDTH*App::sc;
             /*
@@ -771,7 +771,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
             {
                 hier->scriptParametersIconPosition.push_back(tPosX+localOffset);
                 hier->scriptParametersIconPosition.push_back(tPosY);
-                hier->scriptParametersIconPosition.push_back(script->getScriptID());
+                hier->scriptParametersIconPosition.push_back(script->getScriptHandle());
             }
             localOffset+=(HIERARCHY_ICON_WIDTH+HIERARCHY_INTER_ICON_SPACING)*App::sc;
             */
@@ -794,7 +794,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
             {
                 hier->scriptIconPosition.push_back(tPosX+localOffset);
                 hier->scriptIconPosition.push_back(tPosY);
-                hier->scriptIconPosition.push_back(customizationScript->getScriptID());
+                hier->scriptIconPosition.push_back(customizationScript->getScriptHandle());
             }
             localOffset+=HIERARCHY_ICON_WIDTH*App::sc;
         }
@@ -834,7 +834,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
             {
                 hier->scriptIconPosition.push_back(tPosX+localOffset);
                 hier->scriptIconPosition.push_back(tPosY);
-                hier->scriptIconPosition.push_back(script->getScriptID());
+                hier->scriptIconPosition.push_back(script->getScriptHandle());
             }
             localOffset+=HIERARCHY_ICON_WIDTH*App::sc;
             /*
@@ -850,7 +850,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
             {
                 hier->scriptParametersIconPosition.push_back(tPosX+localOffset);
                 hier->scriptParametersIconPosition.push_back(tPosY);
-                hier->scriptParametersIconPosition.push_back(script->getScriptID());
+                hier->scriptParametersIconPosition.push_back(script->getScriptHandle());
             }
             localOffset+=(HIERARCHY_ICON_WIDTH+HIERARCHY_INTER_ICON_SPACING)*App::sc;
             */

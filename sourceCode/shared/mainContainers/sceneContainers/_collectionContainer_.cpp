@@ -86,7 +86,7 @@ void _CCollectionContainer_::synchronizationMsg(std::vector<SSyncRoute>& routing
             {
                 if ( (msg.msg==sim_syncobj_collection_create)&&(routing.size()==1) ) // check also size (some msgs have same ids in different scopes)
                 {
-                    collection=new CCollection();
+                    collection=new CCollection(-2);
                     collection->setCollectionHandle(routing[0].objHandle);
                     _addCollection(collection);
                 }

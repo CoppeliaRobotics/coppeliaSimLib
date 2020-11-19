@@ -41,7 +41,7 @@ CLuaScriptObject* CAddOnScriptContainer::getAddOnScriptFromID(int scriptID) cons
 {
     for (size_t i=0;i<allAddOnScripts.size();i++)
     {
-        if (allAddOnScripts[i]->getScriptID()==scriptID)
+        if (allAddOnScripts[i]->getScriptHandle()==scriptID)
             return(allAddOnScripts[i]);
     }
     return(nullptr);
@@ -60,13 +60,13 @@ CLuaScriptObject* CAddOnScriptContainer::getAddOnScriptFromName(const char* name
 int CAddOnScriptContainer::insertScript(CLuaScriptObject* script)
 {
     // We make sure the id is unique:
-    int newID=SIM_IDSTART_ADDONSCRIPT;
-    while (getAddOnScriptFromID(newID)!=nullptr)
-        newID++;
-    script->setScriptID(newID);
+    int newHandle=SIM_IDSTART_ADDONSCRIPT;
+    while (getAddOnScriptFromID(newHandle)!=nullptr)
+        newHandle++;
+    script->setScriptHandle(newHandle);
     allAddOnScripts.push_back(script);
 
-    return(newID);
+    return(newHandle);
 }
 
 int CAddOnScriptContainer::insertAddOnScripts()
@@ -248,7 +248,7 @@ bool CAddOnScriptContainer::removeScript(int scriptID)
     TRACE_INTERNAL;
     for (size_t i=0;i<allAddOnScripts.size();i++)
     {
-        if (allAddOnScripts[i]->getScriptID()==scriptID)
+        if (allAddOnScripts[i]->getScriptHandle()==scriptID)
         {
             CLuaScriptObject* it=allAddOnScripts[i];
             it->killLuaState(); // should not be done in the destructor!

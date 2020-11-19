@@ -183,14 +183,14 @@ void CLuaScriptContainer::killAllSimulationLuaStates()
     }
 }
 
-void CLuaScriptContainer::announceObjectWillBeErased(int objectID)
+void CLuaScriptContainer::announceObjectWillBeErased(int scriptHandle)
 { // Never called from copy buffer!
     size_t i=0;
     while (i<allScripts.size())
     {
-        if (allScripts[i]->announceSceneObjectWillBeErased(objectID,false))
+        if (allScripts[i]->announceSceneObjectWillBeErased(scriptHandle,false))
         {
-            if (removeScript(allScripts[i]->getScriptID()))
+            if (removeScript(allScripts[i]->getScriptHandle()))
                 i=0; // ordering may have changed
             else
                 i++;
@@ -200,25 +200,25 @@ void CLuaScriptContainer::announceObjectWillBeErased(int objectID)
     }
 }
 
-bool CLuaScriptContainer::removeScript_safe(int scriptId)
+bool CLuaScriptContainer::removeScript_safe(int scriptHandle)
 { // removal may happen in a delayed fashion
-    CLuaScriptObject* it=getScriptFromID_noAddOnsNorSandbox(scriptId);
+    CLuaScriptObject* it=getScriptFromHandle_noAddOnsNorSandbox(scriptHandle);
     if (it==nullptr)
         return(false);
     int res=it->flagScriptForRemoval();
     if (res==0)
         return(false);
     if (res==2)
-        removeScript(scriptId);
+        removeScript(scriptHandle);
     return(true);
 }
 
-bool CLuaScriptContainer::removeScript(int scriptID)
+bool CLuaScriptContainer::removeScript(int scriptHandle)
 {
     TRACE_INTERNAL;
     for (size_t i=0;i<allScripts.size();i++)
     {
-        if (allScripts[i]->getScriptID()==scriptID)
+        if (allScripts[i]->getScriptHandle()==scriptHandle)
         {
             CLuaScriptObject* it=allScripts[i];
             it->killLuaState(); // should not be done in the destructor!
@@ -232,26 +232,26 @@ bool CLuaScriptContainer::removeScript(int scriptID)
     return(true);
 }
 
-CLuaScriptObject* CLuaScriptContainer::getScriptFromID_alsoAddOnsAndSandbox(int scriptID) const
+CLuaScriptObject* CLuaScriptContainer::getScriptFromHandle_alsoAddOnsAndSandbox(int scriptHandle) const
 {
-    CLuaScriptObject* retVal=App::worldContainer->addOnScriptContainer->getAddOnScriptFromID(scriptID);
+    CLuaScriptObject* retVal=App::worldContainer->addOnScriptContainer->getAddOnScriptFromID(scriptHandle);
     if (retVal==nullptr)
     {
         if (retVal==nullptr)
-            retVal=getScriptFromID_noAddOnsNorSandbox(scriptID);
-        if ( (retVal==nullptr)&&(App::worldContainer->sandboxScript!=nullptr)&&(App::worldContainer->sandboxScript->getScriptID()==scriptID) )
+            retVal=getScriptFromHandle_noAddOnsNorSandbox(scriptHandle);
+        if ( (retVal==nullptr)&&(App::worldContainer->sandboxScript!=nullptr)&&(App::worldContainer->sandboxScript->getScriptHandle()==scriptHandle) )
             retVal=App::worldContainer->sandboxScript;
 
     }
     return(retVal);
 }
 
-CLuaScriptObject* CLuaScriptContainer::getScriptFromID_noAddOnsNorSandbox(int scriptID) const
+CLuaScriptObject* CLuaScriptContainer::getScriptFromHandle_noAddOnsNorSandbox(int scriptHandle) const
 {
     CLuaScriptObject* retVal=nullptr;
     for (size_t i=0;i<allScripts.size();i++)
     {
-        if (allScripts[i]->getScriptID()==scriptID)
+        if (allScripts[i]->getScriptHandle()==scriptHandle)
         {
             retVal=allScripts[i];
             break;
@@ -260,35 +260,35 @@ CLuaScriptObject* CLuaScriptContainer::getScriptFromID_noAddOnsNorSandbox(int sc
     return(retVal);
 }
 
-CLuaScriptObject* CLuaScriptContainer::getScriptFromObjectAttachedTo_child(int threeDObjectID) const
+CLuaScriptObject* CLuaScriptContainer::getScriptFromObjectAttachedTo_child(int objectHandle) const
 { // used for child scripts
-    if (threeDObjectID<0)
+    if (objectHandle<0)
         return(nullptr); // 10/1/2016
     for (size_t i=0;i<allScripts.size();i++)
     {
-        if (allScripts[i]->getObjectIDThatScriptIsAttachedTo_child()==threeDObjectID)
+        if (allScripts[i]->getObjectHandleThatScriptIsAttachedTo_child()==objectHandle)
             return(allScripts[i]);
     }
     return(nullptr);
 }
 
-CLuaScriptObject* CLuaScriptContainer::getScriptFromObjectAttachedTo_customization(int threeDObjectID) const
+CLuaScriptObject* CLuaScriptContainer::getScriptFromObjectAttachedTo_customization(int objectHandle) const
 { // used for customization scripts
     for (size_t i=0;i<allScripts.size();i++)
     {
-        if (allScripts[i]->getObjectIDThatScriptIsAttachedTo_customization()==threeDObjectID)
+        if (allScripts[i]->getObjectHandleThatScriptIsAttachedTo_customization()==objectHandle)
             return(allScripts[i]);
     }
     return(nullptr);
 }
 
-int CLuaScriptContainer::getScriptsFromObjectAttachedTo(int threeDObjectID,std::vector<CLuaScriptObject*>& scripts) const
+int CLuaScriptContainer::getScriptsFromObjectAttachedTo(int objectHandle,std::vector<CLuaScriptObject*>& scripts) const
 {
     scripts.clear();
-    CLuaScriptObject* it=getScriptFromObjectAttachedTo_child(threeDObjectID);
+    CLuaScriptObject* it=getScriptFromObjectAttachedTo_child(objectHandle);
     if (it!=nullptr)
         scripts.push_back(it);
-    it=getScriptFromObjectAttachedTo_customization(threeDObjectID);
+    it=getScriptFromObjectAttachedTo_customization(objectHandle);
     if (it!=nullptr)
         scripts.push_back(it);
     return(int(scripts.size()));
@@ -307,13 +307,13 @@ CLuaScriptObject* CLuaScriptContainer::getMainScript() const
 int CLuaScriptContainer::insertScript(CLuaScriptObject* script)
 {
     // We make sure the id is unique:
-    int newID=SIM_IDSTART_LUASCRIPT;
-    while (getScriptFromID_noAddOnsNorSandbox(newID)!=nullptr)
-        newID++;
-    script->setScriptID(newID);
+    int newHandle=SIM_IDSTART_LUASCRIPT;
+    while (getScriptFromHandle_noAddOnsNorSandbox(newHandle)!=nullptr)
+        newHandle++;
+    script->setScriptHandle(newHandle);
     allScripts.push_back(script);
     App::worldContainer->setModificationFlag(8192);
-    return(newID);
+    return(newHandle);
 }
 
 int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptType,bool threaded,bool oldThreadedScript)
@@ -580,7 +580,7 @@ int CLuaScriptContainer::getScriptSimulationParameter_mainAndChildScriptsOnly(in
     {
         if (!allScripts[i]->getFlaggedForDestruction())
         {
-            if ( (scriptHandle==allScripts[i]->getScriptID())||
+            if ( (scriptHandle==allScripts[i]->getScriptHandle())||
                 (scriptHandle==sim_handle_all)||
                 ( (scriptHandle==sim_handle_main_script)&&(allScripts[i]->getScriptType()==sim_scripttype_mainscript) ) )
             {
@@ -603,7 +603,7 @@ int CLuaScriptContainer::setScriptSimulationParameter_mainAndChildScriptsOnly(in
     {
         if (!allScripts[i]->getFlaggedForDestruction())
         {
-            if ( (scriptHandle==allScripts[i]->getScriptID())||
+            if ( (scriptHandle==allScripts[i]->getScriptHandle())||
                 (scriptHandle==sim_handle_all)||
                 ( (scriptHandle==sim_handle_main_script)&&(allScripts[i]->getScriptType()==sim_scripttype_mainscript) ) )
             {
