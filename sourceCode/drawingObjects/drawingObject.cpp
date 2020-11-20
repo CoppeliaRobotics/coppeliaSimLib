@@ -5,26 +5,6 @@
 #include "easyLock.h"
 #include "drawingObjectRendering.h"
 
-bool CDrawingObject::getCreatedFromScript() const
-{
-    return(_createdFromScript);
-}
-
-void CDrawingObject::setCreatedFromScript(bool c)
-{
-    _createdFromScript=c;
-}
-
-bool CDrawingObject::getPersistent() const
-{
-    return(_persistent);
-}
-
-void CDrawingObject::setPersistent(bool c)
-{
-    _persistent=c;
-}
-
 float CDrawingObject::getSize() const
 {
     return(_size);
@@ -47,10 +27,9 @@ std::vector<float>* CDrawingObject::getDataPtr()
     return(&_data);
 }
 
-CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateTolerance,int sceneObjID,int maxItemCount,bool createdFromScript)
+CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateTolerance,int sceneObjID,int maxItemCount,int creatorHandle)
 {
-    _persistent=false;
-    _createdFromScript=createdFromScript;
+    _creatorHandle=creatorHandle;
     float tr=0.0f;
     if (theObjectType&sim_drawing_50percenttransparency)
         tr+=0.5f;
@@ -300,6 +279,11 @@ void CDrawingObject::_setItemSizes()
 bool CDrawingObject::announceObjectWillBeErased(int objID)
 {
     return(_sceneObjectID==objID);
+}
+
+bool CDrawingObject::announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
+{
+    return( (!sceneSwitchPersistentScript)&&(_creatorHandle==scriptHandle) );
 }
 
 bool CDrawingObject::canMeshBeExported() const

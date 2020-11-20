@@ -44,7 +44,7 @@ public:
     void simulationAboutToStep();
     void simulationAboutToEnd();
     void simulationEnded(bool removeNewObjects);
-    void announceScriptStateWillBeErased(int scriptHandle);
+    void announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
 
     CCopyBuffer* copyBuffer;
     CPersistentDataContainer* persistentDataContainer;

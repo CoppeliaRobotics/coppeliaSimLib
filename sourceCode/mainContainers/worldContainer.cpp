@@ -495,9 +495,9 @@ void CWorldContainer::simulationEnded(bool removeNewObjects)
     calcInfo->simulationEnded();
 }
 
-void CWorldContainer::announceScriptStateWillBeErased(int scriptHandle)
+void CWorldContainer::announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
 {
-    currentWorld->announceScriptStateWillBeErased(scriptHandle);
+    currentWorld->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
 }
 
 

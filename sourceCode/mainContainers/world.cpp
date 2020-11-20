@@ -729,9 +729,11 @@ void CWorld::simulationEnded(bool removeNewObjects)
         App::worldContainer->sandboxScript->runSandboxScript(sim_syscb_aftersimulation,nullptr,nullptr);
 }
 
-void CWorld::announceScriptStateWillBeErased(int scriptHandle)
+void CWorld::announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
 {
-    collections->announceScriptStateWillBeErased(scriptHandle);
+    collections->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
+    signalContainer->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
+    drawingCont->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
 }
 
 void CWorld::setEnableRemoteWorldsSync(bool enabled)

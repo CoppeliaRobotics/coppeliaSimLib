@@ -94,10 +94,6 @@ SIM_DLLEXPORT simInt simRemoveObjectFromSelection(simInt what,simInt objectHandl
 SIM_DLLEXPORT simInt simGetObjectSelectionSize();
 SIM_DLLEXPORT simInt simGetObjectLastSelection();
 SIM_DLLEXPORT simInt simGetObjectSelection(simInt* objectHandles);
-SIM_DLLEXPORT simInt simHandleCollision(simInt collisionObjectHandle);
-SIM_DLLEXPORT simInt simReadCollision(simInt collisionObjectHandle);
-SIM_DLLEXPORT simInt simHandleDistance(simInt distanceObjectHandle,simFloat* smallestDistance);
-SIM_DLLEXPORT simInt simReadDistance(simInt distanceObjectHandle,simFloat* smallestDistance);
 SIM_DLLEXPORT simInt simHandleProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 SIM_DLLEXPORT simInt simReadProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 SIM_DLLEXPORT simInt simHandleDynamics(simFloat deltaTime);
@@ -116,10 +112,6 @@ SIM_DLLEXPORT simInt simResetScript(simInt scriptHandle);
 SIM_DLLEXPORT simInt simAddScript(simInt scriptProperty);
 SIM_DLLEXPORT simInt simRemoveScript(simInt scriptHandle);
 SIM_DLLEXPORT simInt simRefreshDialogs(simInt refreshDegree);
-SIM_DLLEXPORT simInt simGetCollisionHandle(const simChar* collisionObjectName);
-SIM_DLLEXPORT simInt simGetDistanceHandle(const simChar* distanceObjectName);
-SIM_DLLEXPORT simInt simResetCollision(simInt collisionObjectHandle);
-SIM_DLLEXPORT simInt simResetDistance(simInt distanceObjectHandle);
 SIM_DLLEXPORT simInt simResetProximitySensor(simInt sensorHandle);
 SIM_DLLEXPORT simInt simCheckProximitySensor(simInt sensorHandle,simInt entityHandle,simFloat* detectedPoint);
 SIM_DLLEXPORT simInt simCheckProximitySensorEx(simInt sensorHandle,simInt entityHandle,simInt detectionMode,simFloat detectionThreshold,simFloat maxAngle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
@@ -305,7 +297,7 @@ SIM_DLLEXPORT simInt simScaleObject(simInt objectHandle,simFloat xScale,simFloat
 SIM_DLLEXPORT simInt simSetShapeTexture(simInt shapeHandle,simInt textureId,simInt mappingMode,simInt options,const simFloat* uvScaling,const simFloat* position,const simFloat* orientation);
 SIM_DLLEXPORT simInt simGetShapeTextureId(simInt shapeHandle);
 SIM_DLLEXPORT simInt simAddCollection(simInt options);
-SIM_DLLEXPORT simInt simAddItemToCollection(simInt collectionHandle,simInt objectHandle,simInt what,simInt options);
+SIM_DLLEXPORT simInt simAddItemToCollection(simInt collectionHandle,simInt what,simInt objectHandle,simInt options);
 SIM_DLLEXPORT simInt simDestroyCollection(simInt collectionHandle);
 SIM_DLLEXPORT simInt* simGetCollectionObjects(simInt collectionHandle,simInt* objectCount);
 SIM_DLLEXPORT simInt simSetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal);
@@ -651,6 +643,14 @@ SIM_DLLEXPORT simChar* simGetCollectionName(simInt collectionHandle);
 SIM_DLLEXPORT simInt simSetCollectionName(simInt collectionHandle,const simChar* collectionName);
 SIM_DLLEXPORT simInt simCreateCollection(const simChar* collectionName,simInt options);
 SIM_DLLEXPORT simInt simAddObjectToCollection(simInt collectionHandle,simInt objectHandle,simInt what,simInt options);
+SIM_DLLEXPORT simInt simGetCollisionHandle(const simChar* collisionObjectName);
+SIM_DLLEXPORT simInt simGetDistanceHandle(const simChar* distanceObjectName);
+SIM_DLLEXPORT simInt simResetCollision(simInt collisionObjectHandle);
+SIM_DLLEXPORT simInt simResetDistance(simInt distanceObjectHandle);
+SIM_DLLEXPORT simInt simHandleCollision(simInt collisionObjectHandle);
+SIM_DLLEXPORT simInt simReadCollision(simInt collisionObjectHandle);
+SIM_DLLEXPORT simInt simHandleDistance(simInt distanceObjectHandle,simFloat* smallestDistance);
+SIM_DLLEXPORT simInt simReadDistance(simInt distanceObjectHandle,simFloat* smallestDistance);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

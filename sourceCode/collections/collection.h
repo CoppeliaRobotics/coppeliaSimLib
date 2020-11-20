@@ -24,7 +24,7 @@ public:
     void serialize(CSer& ar);
     void performObjectLoadingMapping(const std::vector<int>* map);
     bool announceObjectWillBeErased(int objectHandle,bool copyBuffer);
-    bool announceScriptStateWillBeErased(int scriptHandle);
+    bool announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
     CCollection* copyYourself() const;
     void emptyCollection();
     int getCreatorHandle() const;

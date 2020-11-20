@@ -4167,6 +4167,11 @@ bool CLuaScriptObject::isSimulationScript() const
     return( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript) );
 }
 
+bool CLuaScriptObject::isSceneSwitchPersistentScript() const
+{
+    return( (_scriptType==sim_scripttype_sandboxscript)||(_scriptType==sim_scripttype_addonscript) );
+}
+
 bool CLuaScriptObject::killLuaState()
 {
     bool retVal=(L!=nullptr);
@@ -4207,7 +4212,7 @@ bool CLuaScriptObject::killLuaState()
             if (!wasInMainScript)
                 App::currentWorld->luaScriptContainer->setInMainScriptNow(false,0);
         }
-        App::worldContainer->announceScriptStateWillBeErased(_scriptHandle);
+        App::worldContainer->announceScriptStateWillBeErased(_scriptHandle,isSimulationScript(),isSceneSwitchPersistentScript());
         luaWrap_lua_close(L);
         L=nullptr;
     }
@@ -6012,6 +6017,37 @@ void CLuaScriptObject::_adjustScriptText13(CLuaScriptObject* scriptObject,bool d
             App::logMsg(sim_verbosity_errors,"Contains sim.rmlMoveToPosition...");
         if (_containsScriptText(scriptObject,"simRMLMoveToPosition"))
             App::logMsg(sim_verbosity_errors,"Contains simRMLMoveToPosition...");
+
+        if (_containsScriptText(scriptObject,"sim.getCollectionHandle"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getCollectionHandle...");
+        if (_containsScriptText(scriptObject,"sim.createCollection"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.createCollection...");
+        if (_containsScriptText(scriptObject,"sim.addObjectToCollection"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.addObjectToCollection...");
+        if (_containsScriptText(scriptObject,"sim.emptyCollection"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.emptyCollection...");
+        if (_containsScriptText(scriptObject,"sim.removeCollection"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.removeCollection...");
+        if (_containsScriptText(scriptObject,"sim.getCollectionName"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getCollectionName...");
+        if (_containsScriptText(scriptObject,"sim.setCollectionName"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.setCollectionName...");
+        if (_containsScriptText(scriptObject,"sim.getCollisionHandle"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getCollisionHandle...");
+        if (_containsScriptText(scriptObject,"sim.handleCollision"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.handleCollision...");
+        if (_containsScriptText(scriptObject,"sim.readCollision"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.readCollision...");
+        if (_containsScriptText(scriptObject,"sim.resetCollision"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.resetCollision...");
+        if (_containsScriptText(scriptObject,"sim.getDistanceHandle"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getDistanceHandle...");
+        if (_containsScriptText(scriptObject,"sim.handleDistance"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.handleDistance...");
+        if (_containsScriptText(scriptObject,"sim.readDistance"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.readDistance...");
+        if (_containsScriptText(scriptObject,"sim.resetDistance"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.resetDistance...");
 
         if (_containsScriptText(scriptObject,"sim.getScriptExecutionCount"))
             App::logMsg(sim_verbosity_errors,"Contains sim.getScriptExecutionCount...");

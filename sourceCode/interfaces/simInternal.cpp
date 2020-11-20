@@ -4821,131 +4821,6 @@ simInt simGetObjectSelection_internal(simInt* objectHandles)
     return(-1);
 }
 
-simInt simHandleCollision_internal(simInt collisionObjectHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if ( (collisionObjectHandle!=sim_handle_all)&&(collisionObjectHandle!=sim_handle_all_except_explicit) )
-        {
-            if (!doesCollisionObjectExist(__func__,collisionObjectHandle))
-            {
-                return(-1);
-            }
-        }
-        int colCnt=0;
-        if (collisionObjectHandle<0)
-            colCnt=App::currentWorld->collisions->handleAllCollisions(collisionObjectHandle==sim_handle_all_except_explicit); // implicit handling
-        else
-        { // explicit handling
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
-            if (!it->getExplicitHandling())
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
-                return(-1);
-            }
-            if (it->handleCollision())
-                colCnt++;
-        }
-        return(colCnt);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simReadCollision_internal(simInt collisionObjectHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesCollisionObjectExist(__func__,collisionObjectHandle))
-        {
-            return(-1);
-        }
-        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
-        int retVal=it->readCollision(nullptr);
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simHandleDistance_internal(simInt distanceObjectHandle,simFloat* smallestDistance)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if ( (distanceObjectHandle!=sim_handle_all)&&(distanceObjectHandle!=sim_handle_all_except_explicit) )
-        {
-            if (!doesDistanceObjectExist(__func__,distanceObjectHandle))
-                return(-1);
-        }
-        float d;
-        if (distanceObjectHandle<0)
-            d=App::currentWorld->distances->handleAllDistances(distanceObjectHandle==sim_handle_all_except_explicit); // implicit handling
-        else
-        { // explicit handling
-            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
-            if (!it->getExplicitHandling())
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
-                return(-1);
-            }
-            d=it->handleDistance();
-        }
-        if (d>=0.0f)
-        {
-            if (smallestDistance!=nullptr)
-                smallestDistance[0]=d;
-            return(1);
-        }
-        else
-            return(0);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simReadDistance_internal(simInt distanceObjectHandle,simFloat* smallestDistance)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesDistanceObjectExist(__func__,distanceObjectHandle))
-            return(-1);
-        float d;
-        CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
-        d=it->readDistance();
-        if (d>=0.0f)
-        {
-            smallestDistance[0]=d;
-            return(1);
-        }
-        smallestDistance[0]=SIM_MAX_FLOAT; // new for V3.3.2 rev2
-        return(0); // from -1 to 0 for V3.3.2 rev2
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
 simInt simHandleProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector)
 {
     TRACE_C_API;
@@ -5583,136 +5458,6 @@ simInt simRemoveScript_internal(simInt scriptHandle)
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simInt simGetCollisionHandle_internal(const simChar* collisionObjectName)
-{
-    TRACE_C_API;
-
-    size_t silentErrorPos=std::string(collisionObjectName).find("@silentError");
-    std::string nm(collisionObjectName);
-    if (silentErrorPos!=std::string::npos)
-        nm.erase(nm.begin()+silentErrorPos,nm.end());
-
-    std::string collisionObjectNameAdjusted=getIndexAdjustedObjectName(nm.c_str());
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        CCollisionObject* it=App::currentWorld->collisions->getObjectFromName(collisionObjectNameAdjusted.c_str());
-        if (it==nullptr)
-        {
-            if (silentErrorPos==std::string::npos)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COLLISION_INEXISTANT);
-            return(-1);
-        }
-        int retVal=it->getObjectHandle();
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simGetDistanceHandle_internal(const simChar* distanceObjectName)
-{
-    TRACE_C_API;
-
-    size_t silentErrorPos=std::string(distanceObjectName).find("@silentError");
-    std::string nm(distanceObjectName);
-    if (silentErrorPos!=std::string::npos)
-        nm.erase(nm.begin()+silentErrorPos,nm.end());
-
-    std::string distanceObjectNameAdjusted=getIndexAdjustedObjectName(nm.c_str());
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        CDistanceObject* it=App::currentWorld->distances->getObjectFromName(distanceObjectNameAdjusted.c_str());
-        if (it==nullptr)
-        {
-            if (silentErrorPos==std::string::npos)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_DISTANCE_INEXISTANT);
-            return(-1);
-        }
-        int retVal=it->getObjectHandle();
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simResetCollision_internal(simInt collisionObjectHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if ( (collisionObjectHandle!=sim_handle_all)&&(collisionObjectHandle!=sim_handle_all_except_explicit) )
-        {
-            if (!doesCollisionObjectExist(__func__,collisionObjectHandle))
-            {
-                return(-1);
-            }
-        }
-        if (collisionObjectHandle<0)
-            App::currentWorld->collisions->resetAllCollisions(collisionObjectHandle==sim_handle_all_except_explicit);
-        else
-        { // Explicit handling
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
-            if (!it->getExplicitHandling())
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
-                return(-1);
-            }
-            it->clearCollisionResult();
-        }
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simResetDistance_internal(simInt distanceObjectHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if ( (distanceObjectHandle!=sim_handle_all)&&(distanceObjectHandle!=sim_handle_all_except_explicit) )
-        {
-            if (!doesDistanceObjectExist(__func__,distanceObjectHandle))
-            {
-                return(-1);
-            }
-        }
-        if (distanceObjectHandle<0)
-            App::currentWorld->distances->resetAllDistances(distanceObjectHandle==sim_handle_all_except_explicit);
-        else
-        { // Explicit handling
-            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
-            if (!it->getExplicitHandling())
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
-                return(-1);
-            }
-            it->clearDistanceResult();
-        }
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7096,20 +6841,19 @@ simInt simAddDrawingObject_internal(simInt objectType,simFloat size,simFloat dup
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (parentObjectHandle!=-1)
         {
             if (!doesObjectExist(__func__,parentObjectHandle))
-            {
                 return(-1);
-            }
         }
-        CDrawingObject* it=new CDrawingObject(objectType,size,duplicateTolerance,parentObjectHandle,maxItemCount,false);
+        int creatorHandle=-1;
+        if ( (objectType&sim_drawing_persistent)==0 )
+            creatorHandle=_currentScriptHandle;
+        CDrawingObject* it=new CDrawingObject(objectType,size,duplicateTolerance,parentObjectHandle,maxItemCount,creatorHandle);
         if (ambient_diffuse!=nullptr)
             it->color.setColor(ambient_diffuse,sim_colorcomponent_ambient_diffuse);
         if (specular!=nullptr)
@@ -7137,7 +6881,7 @@ simInt simRemoveDrawingObject_internal(simInt objectHandle)
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (objectHandle==sim_handle_all)
-            App::currentWorld->drawingCont->removeAllObjects(false,true);
+            App::currentWorld->drawingCont->removeAllObjects();
         else
         {
             CDrawingObject* it=App::currentWorld->drawingCont->getObject(objectHandle);
@@ -7297,7 +7041,7 @@ simInt simSetIntegerSignal_internal(const simChar* signalName,simInt signalValue
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        App::currentWorld->signalContainer->setIntegerSignal(signalName,signalValue,false);
+        App::currentWorld->signalContainer->setIntegerSignal(signalName,signalValue,_currentScriptHandle);
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -7336,7 +7080,7 @@ simInt simClearIntegerSignal_internal(const simChar* signalName)
         int retVal;
 
         if (signalName==nullptr)
-            retVal=App::currentWorld->signalContainer->clearAllIntegerSignals(false);
+            retVal=App::currentWorld->signalContainer->clearAllIntegerSignals();
         else
             retVal=App::currentWorld->signalContainer->clearIntegerSignal(signalName);
 
@@ -7355,7 +7099,7 @@ simInt simSetFloatSignal_internal(const simChar* signalName,simFloat signalValue
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        App::currentWorld->signalContainer->setFloatSignal(signalName,signalValue,false);
+        App::currentWorld->signalContainer->setFloatSignal(signalName,signalValue,_currentScriptHandle);
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -7394,7 +7138,7 @@ simInt simClearFloatSignal_internal(const simChar* signalName)
         int retVal;
 
         if (signalName==nullptr)
-            retVal=App::currentWorld->signalContainer->clearAllFloatSignals(false);
+            retVal=App::currentWorld->signalContainer->clearAllFloatSignals();
         else
             retVal=App::currentWorld->signalContainer->clearFloatSignal(signalName);
 
@@ -7413,7 +7157,7 @@ simInt simSetDoubleSignal_internal(const simChar* signalName,simDouble signalVal
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        App::currentWorld->signalContainer->setDoubleSignal(signalName,signalValue,false);
+        App::currentWorld->signalContainer->setDoubleSignal(signalName,signalValue,_currentScriptHandle);
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -7452,7 +7196,7 @@ simInt simClearDoubleSignal_internal(const simChar* signalName)
         int retVal;
 
         if (signalName==nullptr)
-            retVal=App::currentWorld->signalContainer->clearAllDoubleSignals(false);
+            retVal=App::currentWorld->signalContainer->clearAllDoubleSignals();
         else
             retVal=App::currentWorld->signalContainer->clearDoubleSignal(signalName);
 
@@ -7471,7 +7215,7 @@ simInt simSetStringSignal_internal(const simChar* signalName,const simChar* sign
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        App::currentWorld->signalContainer->setStringSignal(signalName,std::string(signalValue,stringLength),false);
+        App::currentWorld->signalContainer->setStringSignal(signalName,std::string(signalValue,stringLength),_currentScriptHandle);
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -7516,7 +7260,7 @@ simInt simClearStringSignal_internal(const simChar* signalName)
         int retVal;
 
         if (signalName==nullptr)
-            retVal=App::currentWorld->signalContainer->clearAllStringSignals(false);
+            retVal=App::currentWorld->signalContainer->clearAllStringSignals();
         else
             retVal=App::currentWorld->signalContainer->clearStringSignal(signalName);
 
@@ -7535,7 +7279,7 @@ simChar* simGetSignalName_internal(simInt signalIndex,simInt signalType)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if ( (signalType!=0)&&(signalType!=1)&&(signalType!=2) )
+        if ( (signalType!=0)&&(signalType!=1)&&(signalType!=2)&&(signalType!=3) )
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
             return(nullptr);
@@ -7549,6 +7293,8 @@ simChar* simGetSignalName_internal(simInt signalIndex,simInt signalType)
             res=App::currentWorld->signalContainer->getFloatSignalNameAtIndex(signalIndex,sigName);
         if (signalType==2)
             res=App::currentWorld->signalContainer->getStringSignalNameAtIndex(signalIndex,sigName);
+        if (signalType==3)
+            res=App::currentWorld->signalContainer->getDoubleSignalNameAtIndex(signalIndex,sigName);
 
         if (res)
         {
@@ -14058,11 +13804,7 @@ simInt simAddCollection_internal(simInt options)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        int scriptHandle=-1; // means won't automatically be destroyed
-        CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(_currentScriptHandle);
-        if ( (script!=nullptr)&&(script->getScriptType()!=sim_scripttype_addonscript)&&(script->getScriptType()!=sim_scripttype_sandboxscript) )
-            scriptHandle=_currentScriptHandle;
-        CCollection* it=new CCollection(scriptHandle);
+        CCollection* it=new CCollection(_currentScriptHandle);
         it->setCollectionName("___col___",false); // is actually not used anymore
         App::currentWorld->collections->addCollection(it,false);
         it->setOverridesObjectMainProperties((options&1)!=0);
@@ -14072,7 +13814,7 @@ simInt simAddCollection_internal(simInt options)
     return(-1);
 }
 
-simInt simAddItemToCollection_internal(simInt collectionHandle,simInt objectHandle,simInt what,simInt options)
+simInt simAddItemToCollection_internal(simInt collectionHandle,simInt what,simInt objectHandle,simInt options)
 {
     TRACE_C_API;
 
@@ -21716,6 +21458,253 @@ simInt simAddObjectToCollection_internal(simInt collectionHandle,simInt objectHa
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simHandleCollision_internal(simInt collisionObjectHandle)
+{ // deprecated on 20.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if ( (collisionObjectHandle!=sim_handle_all)&&(collisionObjectHandle!=sim_handle_all_except_explicit) )
+        {
+            if (!doesCollisionObjectExist(__func__,collisionObjectHandle))
+            {
+                return(-1);
+            }
+        }
+        int colCnt=0;
+        if (collisionObjectHandle<0)
+            colCnt=App::currentWorld->collisions->handleAllCollisions(collisionObjectHandle==sim_handle_all_except_explicit); // implicit handling
+        else
+        { // explicit handling
+            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
+            if (!it->getExplicitHandling())
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                return(-1);
+            }
+            if (it->handleCollision())
+                colCnt++;
+        }
+        return(colCnt);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simReadCollision_internal(simInt collisionObjectHandle)
+{ // deprecated on 20.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+    {
+        return(-1);
+    }
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesCollisionObjectExist(__func__,collisionObjectHandle))
+        {
+            return(-1);
+        }
+        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
+        int retVal=it->readCollision(nullptr);
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simHandleDistance_internal(simInt distanceObjectHandle,simFloat* smallestDistance)
+{ // deprecated on 20.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if ( (distanceObjectHandle!=sim_handle_all)&&(distanceObjectHandle!=sim_handle_all_except_explicit) )
+        {
+            if (!doesDistanceObjectExist(__func__,distanceObjectHandle))
+                return(-1);
+        }
+        float d;
+        if (distanceObjectHandle<0)
+            d=App::currentWorld->distances->handleAllDistances(distanceObjectHandle==sim_handle_all_except_explicit); // implicit handling
+        else
+        { // explicit handling
+            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
+            if (!it->getExplicitHandling())
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                return(-1);
+            }
+            d=it->handleDistance();
+        }
+        if (d>=0.0f)
+        {
+            if (smallestDistance!=nullptr)
+                smallestDistance[0]=d;
+            return(1);
+        }
+        else
+            return(0);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simReadDistance_internal(simInt distanceObjectHandle,simFloat* smallestDistance)
+{ // deprecated on 20.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesDistanceObjectExist(__func__,distanceObjectHandle))
+            return(-1);
+        float d;
+        CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
+        d=it->readDistance();
+        if (d>=0.0f)
+        {
+            smallestDistance[0]=d;
+            return(1);
+        }
+        smallestDistance[0]=SIM_MAX_FLOAT; // new for V3.3.2 rev2
+        return(0); // from -1 to 0 for V3.3.2 rev2
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetCollisionHandle_internal(const simChar* collisionObjectName)
+{ // deprecated on 20.11.2020
+    TRACE_C_API;
+
+    size_t silentErrorPos=std::string(collisionObjectName).find("@silentError");
+    std::string nm(collisionObjectName);
+    if (silentErrorPos!=std::string::npos)
+        nm.erase(nm.begin()+silentErrorPos,nm.end());
+
+    std::string collisionObjectNameAdjusted=getIndexAdjustedObjectName(nm.c_str());
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CCollisionObject* it=App::currentWorld->collisions->getObjectFromName(collisionObjectNameAdjusted.c_str());
+        if (it==nullptr)
+        {
+            if (silentErrorPos==std::string::npos)
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COLLISION_INEXISTANT);
+            return(-1);
+        }
+        int retVal=it->getObjectHandle();
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetDistanceHandle_internal(const simChar* distanceObjectName)
+{ // deprecated on 20.11.2020
+    TRACE_C_API;
+
+    size_t silentErrorPos=std::string(distanceObjectName).find("@silentError");
+    std::string nm(distanceObjectName);
+    if (silentErrorPos!=std::string::npos)
+        nm.erase(nm.begin()+silentErrorPos,nm.end());
+
+    std::string distanceObjectNameAdjusted=getIndexAdjustedObjectName(nm.c_str());
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CDistanceObject* it=App::currentWorld->distances->getObjectFromName(distanceObjectNameAdjusted.c_str());
+        if (it==nullptr)
+        {
+            if (silentErrorPos==std::string::npos)
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_DISTANCE_INEXISTANT);
+            return(-1);
+        }
+        int retVal=it->getObjectHandle();
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simResetCollision_internal(simInt collisionObjectHandle)
+{ // deprecated on 20.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if ( (collisionObjectHandle!=sim_handle_all)&&(collisionObjectHandle!=sim_handle_all_except_explicit) )
+        {
+            if (!doesCollisionObjectExist(__func__,collisionObjectHandle))
+                return(-1);
+        }
+        if (collisionObjectHandle<0)
+            App::currentWorld->collisions->resetAllCollisions(collisionObjectHandle==sim_handle_all_except_explicit);
+        else
+        { // Explicit handling
+            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
+            if (!it->getExplicitHandling())
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                return(-1);
+            }
+            it->clearCollisionResult();
+        }
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simResetDistance_internal(simInt distanceObjectHandle)
+{ // deprecated on 20.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if ( (distanceObjectHandle!=sim_handle_all)&&(distanceObjectHandle!=sim_handle_all_except_explicit) )
+        {
+            if (!doesDistanceObjectExist(__func__,distanceObjectHandle))
+                return(-1);
+        }
+        if (distanceObjectHandle<0)
+            App::currentWorld->distances->resetAllDistances(distanceObjectHandle==sim_handle_all_except_explicit);
+        else
+        { // Explicit handling
+            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
+            if (!it->getExplicitHandling())
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                return(-1);
+            }
+            it->clearDistanceResult();
+        }
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 

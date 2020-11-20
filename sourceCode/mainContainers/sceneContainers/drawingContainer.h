@@ -12,6 +12,7 @@ public:
     virtual ~CDrawingContainer();
 
     void simulationEnded();
+    void removeAllObjects();
     void renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib);
     void renderYour3DStuff_transparent(CViewableBase* renderingObject,int displayAttrib);
     void renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib);
@@ -19,8 +20,8 @@ public:
     void drawObjectsParentedWith(bool overlay,bool transparentObject,int parentObjectID,int displayAttrib,const C4X4Matrix& cameraCTM);
     int addObject(CDrawingObject* it);
     CDrawingObject* getObject(int objectID);
-    void removeAllObjects(bool onlyThoseCreatedFromScripts,bool alsoPersistentObjects);
     void announceObjectWillBeErased(int objID);
+    void announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
     void removeObject(int objectID);
     void adjustForFrameChange(int objectID,const C7Vector& preCorrection);
     void adjustForScaling(int objectID,float xScale,float yScale,float zScale);

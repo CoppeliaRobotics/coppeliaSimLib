@@ -52,7 +52,6 @@ public:
     void simulationAboutToStep();
     void simulationAboutToEnd();
     void simulationEnded(bool removeNewObjects);
-    void announceScriptStateWillBeErased(int scriptHandle);
 
 
     void addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject*>* loadedObjectList,
@@ -74,6 +73,9 @@ public:
     void renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],float verticalViewSizeOrAngle,bool perspective);
 
     void announceObjectWillBeErased(int objectHandle);
+    void announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
+
+    // Old:
     void announceIkGroupWillBeErased(int ikGroupHandle);
     void announceCollectionWillBeErased(int collectionHandle);
     void announceCollisionWillBeErased(int collisionHandle);
@@ -88,15 +90,11 @@ public:
 
 
     CUndoBufferCont* undoBufferContainer;
-    CCommTubeContainer* commTubeContainer;
     CSignalContainer* signalContainer;
     CDynamicsContainer* dynamicsContainer;
-    COutsideCommandQueue* outsideCommandQueue;
-    CButtonBlockContainer* buttonBlockContainer;
     CEnvironment* environment;
     CPageContainer* pageContainer;
     CMainSettings* mainSettings;
-    CRegisteredPathPlanningTasks* pathPlanning;
     CLuaScriptContainer* luaScriptContainer;
     CTextureContainer* textureContainer;
     CSimulation* simulation;
@@ -104,9 +102,15 @@ public:
     CCustomData* customSceneData_tempData; // same as above, but not serialized!
     CCacheCont* cacheData;
     CDrawingContainer* drawingCont;
+
+    // Old:
+    CRegisteredPathPlanningTasks* pathPlanning;
     CPointCloudContainer_old* pointCloudCont;
     CGhostObjectContainer* ghostObjectCont;
+    CCommTubeContainer* commTubeContainer;
     CBannerContainer* bannerCont;
+    COutsideCommandQueue* outsideCommandQueue;
+    CButtonBlockContainer* buttonBlockContainer;
 
 private:
     bool _loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize);

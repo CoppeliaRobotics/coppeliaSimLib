@@ -85,10 +85,6 @@ simInt simRemoveObjectFromSelection_internal(simInt what,simInt objectHandle);
 simInt simGetObjectSelectionSize_internal();
 simInt simGetObjectLastSelection_internal();
 simInt simGetObjectSelection_internal(simInt* objectHandles);
-simInt simHandleCollision_internal(simInt collisionObjectHandle);
-simInt simReadCollision_internal(simInt collisionObjectHandle);
-simInt simHandleDistance_internal(simInt distanceObjectHandle,simFloat* smallestDistance);
-simInt simReadDistance_internal(simInt distanceObjectHandle,simFloat* smallestDistance);
 simInt simHandleProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 simInt simReadProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 simInt simHandleDynamics_internal(simFloat deltaTime);
@@ -107,10 +103,6 @@ simInt simResetScript_internal(simInt scriptHandle);
 simInt simAddScript_internal(simInt scriptProperty);
 simInt simRemoveScript_internal(simInt scriptHandle);
 simInt simRefreshDialogs_internal(simInt refreshDegree);
-simInt simGetCollisionHandle_internal(const simChar* collisionObjectName);
-simInt simGetDistanceHandle_internal(const simChar* distanceObjectName);
-simInt simResetCollision_internal(simInt collisionObjectHandle);
-simInt simResetDistance_internal(simInt distanceObjectHandle);
 simInt simResetProximitySensor_internal(simInt sensorHandle);
 simInt simCheckProximitySensor_internal(simInt sensorHandle,simInt entityHandle,simFloat* detectedPoint);
 simInt simCheckProximitySensorEx_internal(simInt sensorHandle,simInt entityHandle,simInt detectionMode,simFloat detectionThreshold,simFloat maxAngle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
@@ -294,7 +286,7 @@ simInt simScaleObject_internal(simInt objectHandle,simFloat xScale,simFloat ySca
 simInt simSetShapeTexture_internal(simInt shapeHandle,simInt textureId,simInt mappingMode,simInt options,const simFloat* uvScaling,const simFloat* position,const simFloat* orientation);
 simInt simGetShapeTextureId_internal(simInt shapeHandle);
 simInt simAddCollection_internal(simInt options);
-simInt simAddItemToCollection_internal(simInt collectionHandle,simInt objectHandle,simInt what,simInt options);
+simInt simAddItemToCollection_internal(simInt collectionHandle,simInt what,simInt objectHandle,simInt options);
 simInt simDestroyCollection_internal(simInt collectionHandle);
 simInt* simGetCollectionObjects_internal(simInt collectionHandle,simInt* objectCount);
 simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal);
@@ -630,6 +622,14 @@ simChar* simGetCollectionName_internal(simInt collectionHandle);
 simInt simSetCollectionName_internal(simInt collectionHandle,const simChar* collectionName);
 simInt simCreateCollection_internal(const simChar* collectionName,simInt options);
 simInt simAddObjectToCollection_internal(simInt collectionHandle,simInt objectHandle,simInt what,simInt options);
+simInt simGetCollisionHandle_internal(const simChar* collisionObjectName);
+simInt simGetDistanceHandle_internal(const simChar* distanceObjectName);
+simInt simResetCollision_internal(simInt collisionObjectHandle);
+simInt simResetDistance_internal(simInt distanceObjectHandle);
+simInt simHandleCollision_internal(simInt collisionObjectHandle);
+simInt simReadCollision_internal(simInt collisionObjectHandle);
+simInt simHandleDistance_internal(simInt distanceObjectHandle,simFloat* smallestDistance);
+simInt simReadDistance_internal(simInt distanceObjectHandle,simFloat* smallestDistance);
 
 
 #endif // !defined(simInternal_INCLUDED_)

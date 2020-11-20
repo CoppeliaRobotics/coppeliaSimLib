@@ -115,14 +115,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.boolAnd32",_simBoolAnd32,                              "number result=sim.boolAnd32(number value1,number value2)",true},
     {"sim.boolXor32",_simBoolXor32,                              "number result=sim.boolXor32(number value1,number value2)",true},
     {"sim.handleDynamics",_simHandleDynamics,                    "number result=sim.handleDynamics(number deltaTime)",true},
-    {"sim.handleCollision",_simHandleCollision,                  "number collisionCount,table_2 collidingObjectHandles=sim.handleCollision(number collisionObjectHandle)",true},
-    {"sim.readCollision",_simReadCollision,                      "number collisionState,table_2 collidingObjectHandles=sim.readCollision(number collisionObjectHandle)",true},
-    {"sim.handleDistance",_simHandleDistance,                    "number result,number smallestDistance=sim.handleDistance(number distanceObjectHandle)",true},
-    {"sim.readDistance",_simReadDistance,                        "number result,number smallestDistance=sim.readDistance(number distanceObjectHandle)",true},
     {"sim.handleProximitySensor",_simHandleProximitySensor,      "number result,number distance,table_3 detectedPoint,number detectedObjectHandle,table_3 normalVector=\nsim.handleProximitySensor(number sensorHandle)",true},
     {"sim.readProximitySensor",_simReadProximitySensor,          "number result,number distance,table_3 detectedPoint,number detectedObjectHandle,table_3 normalVector=\nsim.readProximitySensor(number sensorHandle)",true},
-    {"sim.resetCollision",_simResetCollision,                    "sim.resetCollision(number collisionObjectHandle)",true},
-    {"sim.resetDistance",_simResetDistance,                      "sim.resetDistance(number distanceObjectHandle)",true},
     {"sim.resetProximitySensor",_simResetProximitySensor,        "sim.resetProximitySensor(number objectHandle)",true},
     {"sim.checkProximitySensor",_simCheckProximitySensor,        "number result,number distance,table_3 detectedPoint=sim.checkProximitySensor(number sensorHandle,number entityHandle)",true},
     {"sim.checkProximitySensorEx",_simCheckProximitySensorEx,    "number result,number distance,table_3 detectedPoint,number detectedObjectHandle,table_3 normalVector=\nsim.checkProximitySensorEx(number sensorHandle,number entityHandle,number mode,number threshold,number maxAngle)",true},
@@ -166,8 +160,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.refreshDialogs",_simRefreshDialogs,                    "number result=sim.refreshDialogs(number refreshDegree)",true},
     {"sim.getModuleName",_simGetModuleName,                      "string moduleName,number version=sim.getModuleName(number index)",true},
     {"sim.removeScript",_simRemoveScript,                        "sim.removeScript(number scriptHandle)",true},
-    {"sim.getCollisionHandle",_simGetCollisionHandle,            "number collisionObjectHandle=sim.getCollisionHandle(string collisionObjectName)",true},
-    {"sim.getDistanceHandle",_simGetDistanceHandle,              "number distanceObjectHandle=sim.getDistanceHandle(string distanceObjectName)",true},
     {"sim.stopSimulation",_simStopSimulation,                    "number result=sim.stopSimulation()",true},
     {"sim.pauseSimulation",_simPauseSimulation,                  "number result=sim.pauseSimulation()",true},
     {"sim.startSimulation",_simStartSimulation,                  "number result=sim.startSimulation()",true},
@@ -263,7 +255,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setIntegerSignal",_simSetIntegerSignal,                "sim.setIntegerSignal(string signalName,number signalValue)",true},
     {"sim.getIntegerSignal",_simGetIntegerSignal,                "number signalValue=sim.getIntegerSignal(string signalName)",true},
     {"sim.clearIntegerSignal",_simClearIntegerSignal,            "number clearCount=sim.clearIntegerSignal(string signalName)",true},
-    {"sim.setFloatSignal",_simSetFloatSignal,                    "number result=sim.setFloatSignal(string signalName,number signalValue)",true},
+    {"sim.setFloatSignal",_simSetFloatSignal,                    "sim.setFloatSignal(string signalName,number signalValue)",true},
     {"sim.getFloatSignal",_simGetFloatSignal,                    "number signalValue=sim.getFloatSignal(string signalName)",true},
     {"sim.clearFloatSignal",_simClearFloatSignal,                "number clearCount=sim.clearFloatSignal(string signalName)",true},
     {"sim.setDoubleSignal",_simSetDoubleSignal,                  "sim.setDoubleSignal(string signalName,number signalValue)",true},
@@ -361,7 +353,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getShapeTextureId",_simGetShapeTextureId,              "number textureId=sim.getShapeTextureId(number shapeHandle)",true},
     {"sim.addCollection",_simAddCollection,                      "number collectionHandle=sim.addCollection(number options)",true},
     {"sim.destroyCollection",_simDestroyCollection,              "sim.destroyCollection(number collectionHandle)",true},
-    {"sim.addItemToCollection",_simAddItemToCollection,          "sim.addItemToCollection(number collectionHandle,number objectHandle,number what,number options)",true},
+    {"sim.addItemToCollection",_simAddItemToCollection,          "sim.addItemToCollection(number collectionHandle,number what,number objectHandle,number options)",true},
     {"sim.getCollectionObjects",_simGetCollectionObjects,        "table objectHandles=sim.getCollectionObjects(number collectionHandle)",true},
     {"sim.handleCustomizationScripts",_simHandleCustomizationScripts,"number count=sim.handleCustomizationScripts(number callType)",true},
     {"sim.handleAddOnScripts",_simHandleAddOnScripts,            "number count=sim.handleAddOnScripts(number callType)",true},
@@ -526,6 +518,14 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setCollectionName",_simSetCollectionName,              "Deprecated",false},
     {"sim.createCollection",_simCreateCollection,                "Deprecated. Use 'sim.addCollection' instead",false},
     {"sim.addObjectToCollection",_simAddObjectToCollection,      "Deprecated. Use 'sim.addItemToCollection' instead",false},
+    {"sim.getCollisionHandle",_simGetCollisionHandle,            "Deprecated. Use 'sim.checkCollision' instead",false},
+    {"sim.getDistanceHandle",_simGetDistanceHandle,              "Deprecated. Use 'sim.checkDistance' instead",false},
+    {"sim.handleCollision",_simHandleCollision,                  "Deprecated. Use 'sim.checkCollision' instead",false},
+    {"sim.readCollision",_simReadCollision,                      "Deprecated. Use 'sim.checkCollision' instead",false},
+    {"sim.handleDistance",_simHandleDistance,                    "Deprecated. Use 'sim.checkDistance' instead",false},
+    {"sim.readDistance",_simReadDistance,                        "Deprecated. Use 'sim.checkDistance' instead",false},
+    {"sim.resetCollision",_simResetCollision,                    "Deprecated",false},
+    {"sim.resetDistance",_simResetDistance,                      "Deprecated",false},
     // {"sim.rmlMoveToPosition",_simRMLMoveToPosition,              "Deprecated. Use 'sim.moveToPose' instead",false},
     //{"sim.rmlMoveToJointPositions",_simRMLMoveToJointPositions,  "Deprecated. Use 'sim.moveToConfig' instead",false},
     //{"sim.wait",_simWait,                                        "number deltaTimeLeft=sim.wait(number deltaTime,boolean simulationTime=true)",true},
@@ -548,14 +548,8 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simBoolAnd32",_simBoolAnd32,                              "Use the newer 'sim.boolAnd32' notation",false},
     {"simBoolXor32",_simBoolXor32,                              "Use the newer 'sim.boolXor32' notation",false},
     {"simHandleDynamics",_simHandleDynamics,                    "Use the newer 'sim.handleDynamics' notation",false},
-    {"simHandleCollision",_simHandleCollision,                  "Use the newer 'sim.handleCollision' notation",false},
-    {"simReadCollision",_simReadCollision,                      "Use the newer 'sim.readCollision' notation",false},
-    {"simHandleDistance",_simHandleDistance,                    "Use the newer 'sim.handleDistance' notation",false},
-    {"simReadDistance",_simReadDistance,                        "Use the newer 'sim.readDistance' notation",false},
     {"simHandleProximitySensor",_simHandleProximitySensor,      "Use the newer 'sim.handleProximitySensor' notation",false},
     {"simReadProximitySensor",_simReadProximitySensor,          "Use the newer 'sim.readProximitySensor' notation",false},
-    {"simResetCollision",_simResetCollision,                    "Use the newer 'sim.resetCollision' notation",false},
-    {"simResetDistance",_simResetDistance,                      "Use the newer 'sim.resetDistance' notation",false},
     {"simResetProximitySensor",_simResetProximitySensor,        "Use the newer 'sim.resetProximitySensor' notation",false},
     {"simCheckProximitySensor",_simCheckProximitySensor,        "Use the newer 'sim.checkProximitySensor' notation",false},
     {"simCheckProximitySensorEx",_simCheckProximitySensorEx,    "Use the newer 'sim.checkProximitySensorEx' notation",false},
@@ -599,8 +593,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simRefreshDialogs",_simRefreshDialogs,                    "Use the newer 'sim.refreshDialogs' notation",false},
     {"simGetModuleName",_simGetModuleName,                      "Use the newer 'sim.getModuleName' notation",false},
     {"simRemoveScript",_simRemoveScript,                        "Use the newer 'sim.removeScript' notation",false},
-    {"simGetCollisionHandle",_simGetCollisionHandle,            "Use the newer 'sim.getCollisionHandle' notation",false},
-    {"simGetDistanceHandle",_simGetDistanceHandle,              "Use the newer 'sim.getDistanceHandle' notation",false},
     {"simStopSimulation",_simStopSimulation,                    "Use the newer 'sim.stopSimulation' notation",false},
     {"simPauseSimulation",_simPauseSimulation,                  "Use the newer 'sim.pauseSimulation' notation",false},
     {"simStartSimulation",_simStartSimulation,                  "Use the newer 'sim.startSimulation' notation",false},
@@ -1024,6 +1016,14 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simSetCollectionName",_simSetCollectionName,              "Deprecated",false},
     {"simCreateCollection",_simCreateCollection,                "Deprecated. Use 'sim.addCollection' instead",false},
     {"simAddObjectToCollection",_simAddObjectToCollection,      "Deprecated. Use 'sim.addItemToCollection' instead",false},
+    {"simHandleDistance",_simHandleDistance,                    "Deprecated. Use 'sim.checkDistance' instead",false},
+    {"simReadDistance",_simReadDistance,                        "Deprecated. Use 'sim.checkDistance' instead",false},
+    {"simHandleCollision",_simHandleCollision,                  "Deprecated. Use 'sim.checkCollision' instead",false},
+    {"simReadCollision",_simReadCollision,                      "Deprecated. Use 'sim.checkCollision' instead",false},
+    {"simResetCollision",_simResetCollision,                    "Deprecated",false},
+    {"simResetDistance",_simResetDistance,                      "Deprecated",false},
+    {"simGetCollisionHandle",_simGetCollisionHandle,            "Deprecated. Use 'sim.checkCollision' instead",false},
+    {"simGetDistanceHandle",_simGetDistanceHandle,              "Deprecated. Use 'sim.checkDistance' instead",false},
     //{"simRMLMoveToPosition",_simRMLMoveToPosition,              "Deprecated. Use 'sim.moveToPose' instead",false},
     //{"simRMLMoveToJointPositions",_simRMLMoveToJointPositions,  "Deprecated. Use 'sim.moveToConfig' instead",false},
     //{"simWait",_simWait,                                        "Use the newer 'sim.wait' notation",false},
@@ -4835,110 +4835,6 @@ int _simHandleDynamics(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simHandleCollision(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.handleCollision");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int objHandle=luaToInt(L,1);
-        retVal=simHandleCollision_internal(objHandle);
-        if ( (retVal>0)&&(objHandle>=0) )
-        {
-            int collObjHandles[2];
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(objHandle);
-            if (it!=nullptr)
-            {
-                it->readCollision(collObjHandles);
-                luaWrap_lua_pushinteger(L,retVal);
-                pushIntTableOntoStack(L,2,collObjHandles);
-                LUA_END(2);
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simReadCollision(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.readCollision");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int objHandle=luaToInt(L,1);
-        retVal=simReadCollision_internal(objHandle);
-        if (retVal>0)
-        {
-            int collObjHandles[2];
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(objHandle);
-            if (it!=nullptr)
-            {
-                it->readCollision(collObjHandles);
-                luaWrap_lua_pushinteger(L,retVal);
-                pushIntTableOntoStack(L,2,collObjHandles);
-                LUA_END(2);
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simHandleDistance(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.handleDistance");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        float d;
-        retVal=simHandleDistance_internal(luaToInt(L,1),&d);
-        if (retVal==1)
-        {
-            luaWrap_lua_pushinteger(L,retVal);
-            luaWrap_lua_pushnumber(L,d);
-            LUA_END(2);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simReadDistance(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.readDistance");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        float d;
-        retVal=simReadDistance_internal(luaToInt(L,1),&d);
-        if (retVal==1)
-        {
-            luaWrap_lua_pushinteger(L,retVal);
-            luaWrap_lua_pushnumber(L,d);
-            LUA_END(2);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
 int _simHandleProximitySensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -5053,34 +4949,6 @@ int _simReadVisionSensor(luaWrap_lua_State* L)
             LUA_END(1+tableCount);
         }
     }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simResetCollision(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.resetCollision");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simResetCollision_internal(luaToInt(L,1));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simResetDistance(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.resetDistance");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simResetDistance_internal(luaToInt(L,1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -5866,25 +5734,6 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetCollisionHandle(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getCollisionHandle");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_string,0))
-    {
-        std::string name(luaWrap_lua_tostring(L,1));
-        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-        retVal=simGetCollisionHandle_internal(name.c_str());
-        setCurrentScriptInfo_cSide(-1,-1);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
 int _simRemoveScript(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -5898,25 +5747,6 @@ int _simRemoveScript(luaWrap_lua_State* L)
             handle=getScriptHandle(L);
         if (sim_handle_all!=handle)
             retVal=simRemoveScript_internal(handle);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simGetDistanceHandle(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getDistanceHandle");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_string,0))
-    {
-        std::string name(luaWrap_lua_tostring(L,1));
-        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-        retVal=simGetDistanceHandle_internal(name.c_str());
-        setCurrentScriptInfo_cSide(-1,-1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -10516,21 +10346,9 @@ int _simAddDrawingObject(luaWrap_lua_State* L)
             }
             if (okToGo)
             {
+                setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                 retVal=simAddDrawingObject_internal(objType,size,duplicateTolerance,parentID,maxItemCount,ambient,nullptr,specular,emission);
-                if ( (retVal!=-1) )//&&((objType&sim_drawing_persistent)==0) )
-                { // following condition added on 2011/01/06 so as to not remove objects created from the c/c++ interface or from an add-on:
-                    int currentScriptID=getScriptHandle(L);
-                    CLuaScriptObject* itScrObj=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(currentScriptID);
-                    if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript) )
-                    {
-                        CDrawingObject* anObj=App::currentWorld->drawingCont->getObject(retVal);
-                        if (anObj!=nullptr)
-                        {
-                            anObj->setCreatedFromScript(true);
-                            anObj->setPersistent((objType&sim_drawing_persistent)!=0);
-                        }
-                    }
-                }
+                setCurrentScriptInfo_cSide(-1,-1);
             }
         }
     }
@@ -10553,7 +10371,7 @@ int _simRemoveDrawingObject(luaWrap_lua_State* L)
         { // following condition added here on 2011/01/06 so as not to remove objects created from a c/c++ call or from add-on:
             int currentScriptID=getScriptHandle(L);
             CLuaScriptObject* itScrObj=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(currentScriptID);
-            App::currentWorld->drawingCont->removeAllObjects((itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript),true);
+            App::currentWorld->drawingCont->removeAllObjects();
             retVal=1;
         }
         else
@@ -10774,10 +10592,9 @@ int _simSetIntegerSignal(luaWrap_lua_State* L)
     int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
-        int currentScriptID=getScriptHandle(L);
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(currentScriptID);
-        App::currentWorld->signalContainer->setIntegerSignal(std::string(luaWrap_lua_tostring(L,1)).c_str(),luaToInt(L,2),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
-        retVal=1;
+        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        retVal=simSetIntegerSignal_internal(luaWrap_lua_tostring(L,1),luaToInt(L,2));
+        setCurrentScriptInfo_cSide(-1,-1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -10814,13 +10631,9 @@ int _simClearIntegerSignal(luaWrap_lua_State* L)
     if (res>=0)
     {
         if (res!=2)
-        {
-            int currentScriptID=getScriptHandle(L);
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(currentScriptID);
-            retVal=App::currentWorld->signalContainer->clearAllIntegerSignals((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
-        }
+            retVal=simClearIntegerSignal_internal(nullptr); // actually deprecated. No need for that
         else
-            retVal=simClearIntegerSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str());
+            retVal=simClearIntegerSignal_internal(luaWrap_lua_tostring(L,1));
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -10836,10 +10649,9 @@ int _simSetFloatSignal(luaWrap_lua_State* L)
     int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
-        int currentScriptID=getScriptHandle(L);
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(currentScriptID);
-        App::currentWorld->signalContainer->setFloatSignal(std::string(luaWrap_lua_tostring(L,1)).c_str(),luaToFloat(L,2),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
-        retVal=1;
+        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        retVal=simSetFloatSignal_internal(luaWrap_lua_tostring(L,1),luaToFloat(L,2));
+        setCurrentScriptInfo_cSide(-1,-1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -10876,13 +10688,9 @@ int _simClearFloatSignal(luaWrap_lua_State* L)
     if (res>=0)
     {
         if (res!=2)
-        {
-            int currentScriptID=getScriptHandle(L);
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(currentScriptID);
-            retVal=App::currentWorld->signalContainer->clearAllFloatSignals((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
-        }
+            retVal=simClearFloatSignal_internal(nullptr); // actually deprecated. No need for that
         else
-            retVal=simClearFloatSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str());
+            retVal=simClearFloatSignal_internal(luaWrap_lua_tostring(L,1));
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -10898,10 +10706,9 @@ int _simSetDoubleSignal(luaWrap_lua_State* L)
     int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
-        int currentScriptID=getScriptHandle(L);
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(currentScriptID);
-        App::currentWorld->signalContainer->setDoubleSignal(std::string(luaWrap_lua_tostring(L,1)).c_str(),luaToDouble(L,2),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
-        retVal=1;
+        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        retVal=simSetDoubleSignal_internal(luaWrap_lua_tostring(L,1),luaToDouble(L,2));
+        setCurrentScriptInfo_cSide(-1,-1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -10938,13 +10745,9 @@ int _simClearDoubleSignal(luaWrap_lua_State* L)
     if (res>=0)
     {
         if (res!=2)
-        {
-            int currentScriptID=getScriptHandle(L);
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(currentScriptID);
-            retVal=App::currentWorld->signalContainer->clearAllDoubleSignals((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
-        }
+            retVal=simClearDoubleSignal_internal(nullptr); // actually deprecated. No need for that
         else
-            retVal=simClearDoubleSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str());
+            retVal=simClearDoubleSignal_internal(luaWrap_lua_tostring(L,1));
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -10961,11 +10764,10 @@ int _simSetStringSignal(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0))
     {
         size_t dataLength;
-        char* data=(char*)luaWrap_lua_tolstring(L,2,&dataLength);
-        int currentScriptID=getScriptHandle(L);
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(currentScriptID);
-        App::currentWorld->signalContainer->setStringSignal(std::string(luaWrap_lua_tostring(L,1)).c_str(),std::string(data,dataLength),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
-        retVal=1;
+        const char* data=luaWrap_lua_tolstring(L,2,&dataLength);
+        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        retVal=simSetStringSignal_internal(luaWrap_lua_tostring(L,1),data,int(dataLength));
+        setCurrentScriptInfo_cSide(-1,-1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -11004,13 +10806,9 @@ int _simClearStringSignal(luaWrap_lua_State* L)
     if (res>=0)
     {
         if (res!=2)
-        {
-            int currentScriptID=getScriptHandle(L);
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(currentScriptID);
-            retVal=App::currentWorld->signalContainer->clearAllStringSignals((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
-        }
+            retVal=simClearStringSignal_internal(nullptr);
         else
-            retVal=simClearStringSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str());
+            retVal=simClearStringSignal_internal(luaWrap_lua_tostring(L,1));
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -14240,7 +14038,7 @@ int _simAddItemToCollection(luaWrap_lua_State* L)
         int objHandle=luaToInt(L,2);
         int what=luaToInt(L,3);
         int options=luaToInt(L,4);
-        simAddItemToCollection_internal(collHandle,objHandle,what,options);
+        simAddItemToCollection_internal(collHandle,what,objHandle,options);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -20122,6 +19920,176 @@ int _simGetCollectionName(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
+}
+
+int _simHandleCollision(luaWrap_lua_State* L)
+{ // deprecated on 20.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.handleCollision");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int objHandle=luaToInt(L,1);
+        retVal=simHandleCollision_internal(objHandle);
+        if ( (retVal>0)&&(objHandle>=0) )
+        {
+            int collObjHandles[2];
+            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(objHandle);
+            if (it!=nullptr)
+            {
+                it->readCollision(collObjHandles);
+                luaWrap_lua_pushinteger(L,retVal);
+                pushIntTableOntoStack(L,2,collObjHandles);
+                LUA_END(2);
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simReadCollision(luaWrap_lua_State* L)
+{ // deprecated on 20.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.readCollision");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int objHandle=luaToInt(L,1);
+        retVal=simReadCollision_internal(objHandle);
+        if (retVal>0)
+        {
+            int collObjHandles[2];
+            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(objHandle);
+            if (it!=nullptr)
+            {
+                it->readCollision(collObjHandles);
+                luaWrap_lua_pushinteger(L,retVal);
+                pushIntTableOntoStack(L,2,collObjHandles);
+                LUA_END(2);
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simHandleDistance(luaWrap_lua_State* L)
+{ // deprecated on 20.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.handleDistance");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        float d;
+        retVal=simHandleDistance_internal(luaToInt(L,1),&d);
+        if (retVal==1)
+        {
+            luaWrap_lua_pushinteger(L,retVal);
+            luaWrap_lua_pushnumber(L,d);
+            LUA_END(2);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simReadDistance(luaWrap_lua_State* L)
+{ // deprecated on 20.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.readDistance");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        float d;
+        retVal=simReadDistance_internal(luaToInt(L,1),&d);
+        if (retVal==1)
+        {
+            luaWrap_lua_pushinteger(L,retVal);
+            luaWrap_lua_pushnumber(L,d);
+            LUA_END(2);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetCollisionHandle(luaWrap_lua_State* L)
+{ // deprecated on 20.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.getCollisionHandle");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
+    {
+        std::string name(luaWrap_lua_tostring(L,1));
+        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        retVal=simGetCollisionHandle_internal(name.c_str());
+        setCurrentScriptInfo_cSide(-1,-1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetDistanceHandle(luaWrap_lua_State* L)
+{ // deprecated on 20.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.getDistanceHandle");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
+    {
+        std::string name(luaWrap_lua_tostring(L,1));
+        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        retVal=simGetDistanceHandle_internal(name.c_str());
+        setCurrentScriptInfo_cSide(-1,-1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simResetCollision(luaWrap_lua_State* L)
+{ // deprecated on 20.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.resetCollision");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        retVal=simResetCollision_internal(luaToInt(L,1));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simResetDistance(luaWrap_lua_State* L)
+{ // deprecated on 20.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.resetDistance");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        retVal=simResetDistance_internal(luaToInt(L,1));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
 }
 
 /*

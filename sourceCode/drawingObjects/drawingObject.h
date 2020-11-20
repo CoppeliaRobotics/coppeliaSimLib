@@ -8,7 +8,7 @@
 class CDrawingObject  
 {
 public:
-    CDrawingObject(int theObjectType,float size,float duplicateTolerance,int sceneObjID,int maxItemCount,bool createdFromScript);
+    CDrawingObject(int theObjectType,float size,float duplicateTolerance,int sceneObjID,int maxItemCount,int creatorHandle);
     virtual ~CDrawingObject();
 
     void draw(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM);
@@ -17,6 +17,7 @@ public:
     bool addItem(const float* itemData);
     int getObjectType() const;
     bool announceObjectWillBeErased(int objID);
+    bool announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
     void adjustForFrameChange(const C7Vector& preCorrection);
     void adjustForScaling(float xScale,float yScale,float zScale);
 
@@ -24,10 +25,6 @@ public:
     void getExportableMesh(std::vector<float>& vertices,std::vector<int>& indices) const;
 
     int getSceneObjectID() const;
-    bool getCreatedFromScript() const;
-    void setCreatedFromScript(bool c);
-    bool getPersistent() const;
-    void setPersistent(bool c);
 
     float getSize() const;
     int getMaxItemCount() const;
@@ -60,8 +57,7 @@ protected:
     int _maxItemCount;
     int _startItem;
     float _duplicateTolerance;
-    bool _createdFromScript;
-    bool _persistent;
+    int _creatorHandle;
 
     VMutex _objectMutex;
 

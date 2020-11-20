@@ -86,6 +86,7 @@ public:
     bool killLuaState();
     bool hasLuaState() const;
     bool isSimulationScript() const;
+    bool isSceneSwitchPersistentScript() const;
     int getNumberOfPasses() const;
     void setNumberOfPasses(int p);
     std::string getLuaSearchPath() const;

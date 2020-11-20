@@ -313,22 +313,6 @@ SIM_DLLEXPORT simInt simGetObjectSelection(simInt* objectHandles)
 {
     return(simGetObjectSelection_internal(objectHandles));
 }
-SIM_DLLEXPORT simInt simHandleCollision(simInt collisionObjectHandle)
-{
-    return(simHandleCollision_internal(collisionObjectHandle));
-}
-SIM_DLLEXPORT simInt simReadCollision(simInt collisionObjectHandle)
-{
-    return(simReadCollision_internal(collisionObjectHandle));
-}
-SIM_DLLEXPORT simInt simHandleDistance(simInt distanceObjectHandle,simFloat* smallestDistance)
-{
-    return(simHandleDistance_internal(distanceObjectHandle,smallestDistance));
-}
-SIM_DLLEXPORT simInt simReadDistance(simInt distanceObjectHandle,simFloat* smallestDistance)
-{
-    return(simReadDistance_internal(distanceObjectHandle,smallestDistance));
-}
 SIM_DLLEXPORT simInt simHandleProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector)
 {
     return(simHandleProximitySensor_internal(sensorHandle,detectedPoint,detectedObjectHandle,normalVector));
@@ -400,22 +384,6 @@ SIM_DLLEXPORT simInt simRemoveScript(simInt scriptHandle)
 SIM_DLLEXPORT simInt simRefreshDialogs(simInt refreshDegree)
 {
     return(simRefreshDialogs_internal(refreshDegree));
-}
-SIM_DLLEXPORT simInt simGetCollisionHandle(const simChar* collisionObjectName)
-{
-    return(simGetCollisionHandle_internal(collisionObjectName));
-}
-SIM_DLLEXPORT simInt simGetDistanceHandle(const simChar* distanceObjectName)
-{
-    return(simGetDistanceHandle_internal(distanceObjectName));
-}
-SIM_DLLEXPORT simInt simResetCollision(simInt collisionObjectHandle)
-{
-    return(simResetCollision_internal(collisionObjectHandle));
-}
-SIM_DLLEXPORT simInt simResetDistance(simInt distanceObjectHandle)
-{
-    return(simResetDistance_internal(distanceObjectHandle));
 }
 SIM_DLLEXPORT simInt simResetProximitySensor(simInt sensorHandle)
 {
@@ -1161,9 +1129,9 @@ SIM_DLLEXPORT simInt simAddCollection(simInt options)
 {
     return(simAddCollection_internal(options));
 }
-SIM_DLLEXPORT simInt simAddItemToCollection(simInt collectionHandle,simInt objectHandle,simInt what,simInt options)
+SIM_DLLEXPORT simInt simAddItemToCollection(simInt collectionHandle,simInt what,simInt objectHandle,simInt options)
 {
-    return(simAddItemToCollection_internal(collectionHandle,objectHandle,what,options));
+    return(simAddItemToCollection_internal(collectionHandle,what,objectHandle,options));
 }
 SIM_DLLEXPORT simInt simDestroyCollection(simInt collectionHandle)
 {
@@ -2496,6 +2464,38 @@ SIM_DLLEXPORT simInt simCreateCollection(const simChar* collectionName,simInt op
 SIM_DLLEXPORT simInt simAddObjectToCollection(simInt collectionHandle,simInt objectHandle,simInt what,simInt options)
 {
     return(simAddObjectToCollection_internal(collectionHandle,objectHandle,what,options));
+}
+SIM_DLLEXPORT simInt simGetCollisionHandle(const simChar* collisionObjectName)
+{
+    return(simGetCollisionHandle_internal(collisionObjectName));
+}
+SIM_DLLEXPORT simInt simGetDistanceHandle(const simChar* distanceObjectName)
+{
+    return(simGetDistanceHandle_internal(distanceObjectName));
+}
+SIM_DLLEXPORT simInt simResetCollision(simInt collisionObjectHandle)
+{
+    return(simResetCollision_internal(collisionObjectHandle));
+}
+SIM_DLLEXPORT simInt simResetDistance(simInt distanceObjectHandle)
+{
+    return(simResetDistance_internal(distanceObjectHandle));
+}
+SIM_DLLEXPORT simInt simHandleCollision(simInt collisionObjectHandle)
+{
+    return(simHandleCollision_internal(collisionObjectHandle));
+}
+SIM_DLLEXPORT simInt simReadCollision(simInt collisionObjectHandle)
+{
+    return(simReadCollision_internal(collisionObjectHandle));
+}
+SIM_DLLEXPORT simInt simHandleDistance(simInt distanceObjectHandle,simFloat* smallestDistance)
+{
+    return(simHandleDistance_internal(distanceObjectHandle,smallestDistance));
+}
+SIM_DLLEXPORT simInt simReadDistance(simInt distanceObjectHandle,simFloat* smallestDistance)
+{
+    return(simReadDistance_internal(distanceObjectHandle,smallestDistance));
 }
 // Deprecated end
 

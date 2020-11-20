@@ -953,7 +953,7 @@ int CPathPlanningTask::performSteppedSearch()
             float* fromGoal=CPathPlanningInterface::getSearchTree(_steppedSearchTemp_theTask,&fromGoalC,false);
             if (fromStart!=nullptr)
             {
-                CDrawingObject* it=new CDrawingObject(sim_drawing_lines,1.0f,0.0f,-1,1000000,false);
+                CDrawingObject* it=new CDrawingObject(sim_drawing_lines,1.0f,0.0f,-1,1000000,-1);
                 it->color.setColor(1.0f,0.0f,0.0f,sim_colorcomponent_ambient_diffuse);
                 for (int i=0;i<fromStartC;i++)
                     it->addItem(fromStart+6*i);
@@ -961,7 +961,7 @@ int CPathPlanningTask::performSteppedSearch()
             }
             if (fromGoal!=nullptr)
             {
-                CDrawingObject* it=new CDrawingObject(sim_drawing_lines,1.0f,0.0f,-1,1000000,false);
+                CDrawingObject* it=new CDrawingObject(sim_drawing_lines,1.0f,0.0f,-1,1000000,-1);
                 it->color.setColor(0.0f,0.0f,1.0f,sim_colorcomponent_ambient_diffuse);
                 for (int i=0;i<fromGoalC;i++)
                     it->addItem(fromGoal+6*i);

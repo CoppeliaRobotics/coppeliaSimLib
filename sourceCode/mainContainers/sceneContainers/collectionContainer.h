@@ -20,7 +20,7 @@ public:
     void newScene();
     void actualizeAllCollections();
     void announceObjectWillBeErased(int objectHandle);
-    void announceScriptStateWillBeErased(int scriptHandle);
+    void announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
     void setUpDefaultValues();
     void removeAllCollections();
 

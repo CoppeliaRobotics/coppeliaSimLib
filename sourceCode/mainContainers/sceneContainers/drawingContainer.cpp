@@ -9,18 +9,21 @@ CDrawingContainer::CDrawingContainer()
 }
 
 CDrawingContainer::~CDrawingContainer()
-{ // beware, the current world could be nullptr
-    removeAllObjects(false,true);
+{
+    for (size_t i=0;i<_allObjects.size();i++)
+    {
+        delete _allObjects[i];
+        _allObjects.erase(_allObjects.begin()+i);
+    }
 }
 
 void CDrawingContainer::simulationEnded()
 {
-    removeAllObjects(true,false);
 }
 
 CDrawingObject* CDrawingContainer::getObject(int objectID)
 {
-    for (int i=0;i<int(_allObjects.size());i++)
+    for (size_t i=0;i<_allObjects.size();i++)
     {
         if (_allObjects[i]->getObjectID()==objectID)
             return(_allObjects[i]);
@@ -41,27 +44,10 @@ int CDrawingContainer::addObject(CDrawingObject* it)
     return(newID);
 }
 
-void CDrawingContainer::removeAllObjects(bool onlyThoseCreatedFromScripts,bool alsoPersistentObjects)
-{
-    EASYLOCK(_objectMutex);
-    for (size_t i=0;i<_allObjects.size();i++)
-    {
-        if ( (!onlyThoseCreatedFromScripts)||_allObjects[i]->getCreatedFromScript() )
-        {
-            if (alsoPersistentObjects||(!_allObjects[i]->getPersistent()))
-            {
-                delete _allObjects[i];
-                _allObjects.erase(_allObjects.begin()+i);
-                i--; // reprocess this position
-            }
-        }
-    }
-}
-
 void CDrawingContainer::removeObject(int objectID)
 {
     EASYLOCK(_objectMutex);
-    for (int i=0;i<int(_allObjects.size());i++)
+    for (size_t i=0;i<_allObjects.size();i++)
     {
         if (_allObjects[i]->getObjectID()==objectID)
         {
@@ -94,7 +80,7 @@ bool CDrawingContainer::getExportableMeshAtIndex(int parentObjectID,int index,st
 
 void CDrawingContainer::adjustForFrameChange(int objectID,const C7Vector& preCorrection)
 {
-    for (int i=0;i<int(_allObjects.size());i++)
+    for (size_t i=0;i<_allObjects.size();i++)
     {
         if (_allObjects[i]->getSceneObjectID()==objectID)
             _allObjects[i]->adjustForFrameChange(preCorrection);
@@ -103,20 +89,41 @@ void CDrawingContainer::adjustForFrameChange(int objectID,const C7Vector& preCor
 
 void CDrawingContainer::adjustForScaling(int objectID,float xScale,float yScale,float zScale)
 {
-    for (int i=0;i<int(_allObjects.size());i++)
+    for (size_t i=0;i<_allObjects.size();i++)
     {
         if (_allObjects[i]->getSceneObjectID()==objectID)
             _allObjects[i]->adjustForScaling(xScale,yScale,zScale);
     }
 }
 
+void CDrawingContainer::removeAllObjects()
+{
+    for (size_t i=0;i<_allObjects.size();i++)
+        delete _allObjects[i];
+    _allObjects.clear();
+}
 
 void CDrawingContainer::announceObjectWillBeErased(int objID)
 { // Never called from copy buffer!
-    int i=0;
-    while (i<int(_allObjects.size()))
+    size_t i=0;
+    while (i<_allObjects.size())
     {
         if (_allObjects[i]->announceObjectWillBeErased(objID))
+        {
+            delete _allObjects[i];
+            _allObjects.erase(_allObjects.begin()+i);
+        }
+        else
+            i++;
+    }
+}
+
+void CDrawingContainer::announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
+{
+    size_t i=0;
+    while (i<_allObjects.size())
+    {
+        if (_allObjects[i]->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript))
         {
             delete _allObjects[i];
             _allObjects.erase(_allObjects.begin()+i);

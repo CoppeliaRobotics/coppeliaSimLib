@@ -8,24 +8,53 @@ CSignalContainer::CSignalContainer()
 }
 
 CSignalContainer::~CSignalContainer()
-{ // beware, the current world could be nullptr
-    removeAllSignals(false);
+{
 }
 
-void CSignalContainer::removeAllSignals(bool onlyThoseFromEmbeddedScripts)
+void CSignalContainer::announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
 {
-    clearAllIntegerSignals(onlyThoseFromEmbeddedScripts);
-    clearAllFloatSignals(onlyThoseFromEmbeddedScripts);
-    clearAllDoubleSignals(onlyThoseFromEmbeddedScripts);
-    clearAllStringSignals(onlyThoseFromEmbeddedScripts);
+    if (!sceneSwitchPersistentScript)
+    {
+        size_t i=0;
+        while (i<_intSignalCreatorHandles.size())
+        {
+            if (_intSignalCreatorHandles[i]==scriptHandle)
+                clearIntegerSignal(_intSignalNames[i].c_str());
+            else
+                i++;
+        }
+        i=0;
+        while (i<_floatSignalCreatorHandles.size())
+        {
+            if (_floatSignalCreatorHandles[i]==scriptHandle)
+                clearFloatSignal(_floatSignalNames[i].c_str());
+            else
+                i++;
+        }
+        i=0;
+        while (i<_doubleSignalCreatorHandles.size())
+        {
+            if (_doubleSignalCreatorHandles[i]==scriptHandle)
+                clearDoubleSignal(_doubleSignalNames[i].c_str());
+            else
+                i++;
+        }
+        i=0;
+        while (i<_stringSignalCreatorHandles.size())
+        {
+            if (_stringSignalCreatorHandles[i]==scriptHandle)
+                clearStringSignal(_stringSignalNames[i].c_str());
+            else
+                i++;
+        }
+    }
 }
 
 void CSignalContainer::simulationEnded()
 {
-    removeAllSignals(true);
 }
 
-void CSignalContainer::setIntegerSignal(const char* signalName,int value,bool fromEmbeddedScript)
+void CSignalContainer::setIntegerSignal(const char* signalName,int value,int creatorHandle)
 {
     if ((signalName==nullptr)||(strlen(signalName)==0))
         return;
@@ -34,7 +63,7 @@ void CSignalContainer::setIntegerSignal(const char* signalName,int value,bool fr
     {
         _intSignalNames.push_back(signalName);
         _intSignalValues.push_back(value);
-        _intSignalEmbScriptCreated.push_back(fromEmbeddedScript);
+        _intSignalCreatorHandles.push_back(creatorHandle);
     }
     else
         _intSignalValues[index]=value;
@@ -68,38 +97,23 @@ int CSignalContainer::clearIntegerSignal(const char* signalName)
     {
         _intSignalNames.erase(_intSignalNames.begin()+index);
         _intSignalValues.erase(_intSignalValues.begin()+index);
-        _intSignalEmbScriptCreated.erase(_intSignalEmbScriptCreated.begin()+index);
+        _intSignalCreatorHandles.erase(_intSignalCreatorHandles.begin()+index);
         return(1);
     }
     return(0);
 }
 
-int CSignalContainer::clearAllIntegerSignals(bool onlyThoseFromEmbeddedScripts)
+int CSignalContainer::clearAllIntegerSignals()
 {
     int retVal=0;
-    if (!onlyThoseFromEmbeddedScripts)
-    {
-        retVal=int(_intSignalNames.size());
-        _intSignalNames.clear();
-        _intSignalValues.clear();
-        _intSignalEmbScriptCreated.clear();
-    }
-    else
-    {
-        for (int i=0;i<int(_intSignalNames.size());i++)
-        {
-            if (_intSignalEmbScriptCreated[i])
-            {
-                clearIntegerSignal(_intSignalNames[i].c_str());
-                retVal++;
-                i=-1; // ordering might have changed
-            }
-        }
-    }
+    retVal=int(_intSignalNames.size());
+    _intSignalNames.clear();
+    _intSignalValues.clear();
+    _intSignalCreatorHandles.clear();
     return(retVal);
 }
 
-void CSignalContainer::setFloatSignal(const char* signalName,float value,bool fromEmbeddedScript)
+void CSignalContainer::setFloatSignal(const char* signalName,float value,int creatorHandle)
 {
     if ((signalName==nullptr)||(strlen(signalName)==0))
         return;
@@ -108,7 +122,7 @@ void CSignalContainer::setFloatSignal(const char* signalName,float value,bool fr
     {
         _floatSignalNames.push_back(signalName);
         _floatSignalValues.push_back(value);
-        _floatSignalEmbScriptCreated.push_back(fromEmbeddedScript);
+        _floatSignalCreatorHandles.push_back(creatorHandle);
     }
     else
         _floatSignalValues[index]=value;
@@ -142,38 +156,22 @@ int CSignalContainer::clearFloatSignal(const char* signalName)
     {
         _floatSignalNames.erase(_floatSignalNames.begin()+index);
         _floatSignalValues.erase(_floatSignalValues.begin()+index);
-        _floatSignalEmbScriptCreated.erase(_floatSignalEmbScriptCreated.begin()+index);
+        _floatSignalCreatorHandles.erase(_floatSignalCreatorHandles.begin()+index);
         return(1);
     }
     return(0);
 }
 
-int CSignalContainer::clearAllFloatSignals(bool onlyThoseFromEmbeddedScripts)
+int CSignalContainer::clearAllFloatSignals()
 {
-    int retVal=0;
-    if (!onlyThoseFromEmbeddedScripts)
-    {
-        retVal=int(_floatSignalNames.size());
-        _floatSignalNames.clear();
-        _floatSignalValues.clear();
-        _floatSignalEmbScriptCreated.clear();
-    }
-    else
-    {
-        for (int i=0;i<int(_floatSignalNames.size());i++)
-        {
-            if (_floatSignalEmbScriptCreated[i])
-            {
-                clearFloatSignal(_floatSignalNames[i].c_str());
-                retVal++;
-                i=-1; // ordering might have changed
-            }
-        }
-    }
+    int retVal=int(_floatSignalNames.size());
+    _floatSignalNames.clear();
+    _floatSignalValues.clear();
+    _floatSignalCreatorHandles.clear();
     return(retVal);
 }
 
-void CSignalContainer::setDoubleSignal(const char* signalName,double value,bool fromEmbeddedScript)
+void CSignalContainer::setDoubleSignal(const char* signalName,double value,int creatorHandle)
 {
     if ((signalName==nullptr)||(strlen(signalName)==0))
         return;
@@ -182,7 +180,7 @@ void CSignalContainer::setDoubleSignal(const char* signalName,double value,bool 
     {
         _doubleSignalNames.push_back(signalName);
         _doubleSignalValues.push_back(value);
-        _doubleSignalEmbScriptCreated.push_back(fromEmbeddedScript);
+        _doubleSignalCreatorHandles.push_back(creatorHandle);
     }
     else
         _doubleSignalValues[index]=value;
@@ -216,38 +214,22 @@ int CSignalContainer::clearDoubleSignal(const char* signalName)
     {
         _doubleSignalNames.erase(_doubleSignalNames.begin()+index);
         _doubleSignalValues.erase(_doubleSignalValues.begin()+index);
-        _doubleSignalEmbScriptCreated.erase(_doubleSignalEmbScriptCreated.begin()+index);
+        _doubleSignalCreatorHandles.erase(_doubleSignalCreatorHandles.begin()+index);
         return(1);
     }
     return(0);
 }
 
-int CSignalContainer::clearAllDoubleSignals(bool onlyThoseFromEmbeddedScripts)
+int CSignalContainer::clearAllDoubleSignals()
 {
-    int retVal=0;
-    if (!onlyThoseFromEmbeddedScripts)
-    {
-        retVal=int(_doubleSignalNames.size());
-        _doubleSignalNames.clear();
-        _doubleSignalValues.clear();
-        _doubleSignalEmbScriptCreated.clear();
-    }
-    else
-    {
-        for (int i=0;i<int(_doubleSignalNames.size());i++)
-        {
-            if (_doubleSignalEmbScriptCreated[i])
-            {
-                clearDoubleSignal(_doubleSignalNames[i].c_str());
-                retVal++;
-                i=-1; // ordering might have changed
-            }
-        }
-    }
+    int retVal=int(_doubleSignalNames.size());
+    _doubleSignalNames.clear();
+    _doubleSignalValues.clear();
+    _doubleSignalCreatorHandles.clear();
     return(retVal);
 }
 
-void CSignalContainer::setStringSignal(const char* signalName,const std::string& value,bool fromEmbeddedScript)
+void CSignalContainer::setStringSignal(const char* signalName,const std::string& value,int creatorHandle)
 {
     if ((signalName==nullptr)||(strlen(signalName)==0))
         return;
@@ -256,7 +238,7 @@ void CSignalContainer::setStringSignal(const char* signalName,const std::string&
     {
         _stringSignalNames.push_back(signalName);
         _stringSignalValues.push_back(value);
-        _stringSignalEmbScriptCreated.push_back(fromEmbeddedScript);
+        _stringSignalCreatorHandles.push_back(creatorHandle);
     }
     else
         _stringSignalValues[index]=value;
@@ -290,74 +272,58 @@ int CSignalContainer::clearStringSignal(const char* signalName)
     {
         _stringSignalNames.erase(_stringSignalNames.begin()+index);
         _stringSignalValues.erase(_stringSignalValues.begin()+index);
-        _stringSignalEmbScriptCreated.erase(_stringSignalEmbScriptCreated.begin()+index);
+        _stringSignalCreatorHandles.erase(_stringSignalCreatorHandles.begin()+index);
         return(1);
     }
     return(0);
 }
 
-int CSignalContainer::clearAllStringSignals(bool onlyThoseFromEmbeddedScripts)
+int CSignalContainer::clearAllStringSignals()
 {
-    int retVal=0;
-    if (!onlyThoseFromEmbeddedScripts)
-    {
-        retVal=int(_stringSignalNames.size());
-        _stringSignalNames.clear();
-        _stringSignalValues.clear();
-        _stringSignalEmbScriptCreated.clear();
-    }
-    else
-    {
-        for (int i=0;i<int(_stringSignalNames.size());i++)
-        {
-            if (_stringSignalEmbScriptCreated[i])
-            {
-                clearStringSignal(_stringSignalNames[i].c_str());
-                retVal++;
-                i=-1; // ordering might have changed
-            }
-        }
-    }
+    int retVal=int(_stringSignalNames.size());
+    _stringSignalNames.clear();
+    _stringSignalValues.clear();
+    _stringSignalCreatorHandles.clear();
     return(retVal);
 
 }
 
 int CSignalContainer::_getIntegerSignalIndex(const char* signalName)
 {
-    for (int i=0;i<int(_intSignalNames.size());i++)
+    for (size_t i=0;i<_intSignalNames.size();i++)
     {
         if (_intSignalNames[i].compare(signalName)==0)
-            return(i);
+            return(int(i));
     }
     return(-1);
 }
 
 int CSignalContainer::_getFloatSignalIndex(const char* signalName)
 {
-    for (int i=0;i<int(_floatSignalNames.size());i++)
+    for (size_t i=0;i<_floatSignalNames.size();i++)
     {
         if (_floatSignalNames[i].compare(signalName)==0)
-            return(i);
+            return(int(i));
     }
     return(-1);
 }
 
 int CSignalContainer::_getDoubleSignalIndex(const char* signalName)
 {
-    for (int i=0;i<int(_doubleSignalNames.size());i++)
+    for (size_t i=0;i<_doubleSignalNames.size();i++)
     {
         if (_doubleSignalNames[i].compare(signalName)==0)
-            return(i);
+            return(int(i));
     }
     return(-1);
 }
 
 int CSignalContainer::_getStringSignalIndex(const char* signalName)
 {
-    for (int i=0;i<int(_stringSignalNames.size());i++)
+    for (size_t i=0;i<_stringSignalNames.size();i++)
     {
         if (_stringSignalNames[i].compare(signalName)==0)
-            return(i);
+            return(int(i));
     }
     return(-1);
 }
