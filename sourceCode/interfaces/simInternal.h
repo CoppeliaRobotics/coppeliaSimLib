@@ -137,6 +137,12 @@ simInt simAdjustView_internal(simInt viewHandleOrIndex,simInt associatedViewable
 simInt simSetLastError_internal(const simChar* funcName,const simChar* errorMessage);
 simInt simHandleGraph_internal(simInt graphHandle,simFloat simulationTime);
 simInt simResetGraph_internal(simInt graphHandle);
+simInt simAddGraphDataStream_internal(simInt graphHandle,const simChar* streamName,const simChar* unitStr,simInt options,const simFloat* color,simFloat cyclicRange);
+simInt simDestroyGraphCurve_internal(simInt graphHandle,simInt curveId);
+simInt simSetGraphDataStreamTransformation_internal(simInt graphHandle,simInt streamId,simInt trType,simFloat mult,simFloat off,simInt movingAvgPeriod);
+simInt simDuplicateGraphCurveToStatic_internal(simInt graphHandle,simInt curveId,const simChar* curveName);
+simInt simAddGraphCurve_internal(simInt graphHandle,simInt dim,const simInt* streamIds,const simFloat* defaultValues,const simChar* curveName,const simChar* unitStr,simInt options,const simFloat* color,simInt curveWidth);
+simInt simSetGraphDataStreamValue_internal(simInt graphHandle,simInt streamId,simFloat value);
 simInt simSetNavigationMode_internal(simInt navigationMode);
 simInt simGetNavigationMode_internal();
 simInt simSetPage_internal(simInt index);
@@ -154,7 +160,6 @@ simInt simScaleSelectedObjects_internal(simFloat scalingFactor,simBool scalePosi
 simInt simScaleObjects_internal(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo);
 simInt simDeleteSelectedObjects_internal();
 simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueIdentifier);
-simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* dataStreamName,simFloat data);
 simInt simAddDrawingObject_internal(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission);
 simInt simRemoveDrawingObject_internal(simInt objectHandle);
 simInt simAddDrawingObjectItem_internal(simInt objectHandle,const simFloat* itemData);
@@ -218,8 +223,6 @@ simInt simCreateMeshShape_internal(simInt options,simFloat shadingAngle,const si
 simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision);
 simInt simCreateHeightfieldShape_internal(simInt options,simFloat shadingAngle,simInt xPointCount,simInt yPointCount,simFloat xSize,const simFloat* heights);
 simInt simGetShapeMesh_internal(simInt shapeHandle,simFloat** vertices,simInt* verticesSize,simInt** indices,simInt* indicesSize,simFloat** normals);
-simInt simAddBanner_internal(const simChar* label,simFloat size,simInt options,const simFloat* positionAndEulerAngles,simInt parentObjectHandle,const simFloat* labelColors,const simFloat* backgroundColors);
-simInt simRemoveBanner_internal(simInt bannerID);
 simInt simCreateJoint_internal(simInt jointType,simInt jointMode,simInt options,const simFloat* sizes,const simFloat* colorA,const simFloat* colorB);
 simInt simGetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterID,simInt* parameter);
 simInt simSetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterID,simInt parameter);
@@ -264,8 +267,6 @@ simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt
 simInt simCreateForceSensor_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
 simInt simCreateVisionSensor_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
 simInt simConvexDecompose_internal(simInt shapeHandle,simInt options,const simInt* intParams,const simFloat* floatParams);
-simInt simAddGhost_internal(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color);
-simInt simModifyGhost_internal(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation);
 simVoid simQuitSimulator_internal(simBool ignoredArgument);
 simInt simEnableEventCallback_internal(simInt eventCallbackType,const simChar* plugin,simInt reserved);
 simInt simSetShapeMaterial_internal(simInt shapeHandle,simInt materialIdOrShapeHandle);
@@ -276,8 +277,6 @@ simInt simCreateTexture_internal(const simChar* fileName,simInt options,const si
 simInt simWriteCustomDataBlock_internal(simInt objectHandle,const simChar* tagName,const simChar* data,simInt dataSize);
 simChar* simReadCustomDataBlock_internal(simInt objectHandle,const simChar* tagName,simInt* dataSize);
 simChar* simReadCustomDataBlockTags_internal(simInt objectHandle,simInt* tagCount);
-simInt simAddPointCloud_internal(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals);
-simInt simModifyPointCloud_internal(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam);
 simInt simGetShapeGeomInfo_internal(simInt shapeHandle,simInt* intData,simFloat* floatData,simVoid* reserved);
 simInt* simGetObjectsInTree_internal(simInt treeBaseHandle,simInt objectType,simInt options,simInt* objectCount);
 simInt simSetObjectSizeValues_internal(simInt objectHandle,const simFloat* sizeValues);
@@ -630,6 +629,13 @@ simInt simHandleCollision_internal(simInt collisionObjectHandle);
 simInt simReadCollision_internal(simInt collisionObjectHandle);
 simInt simHandleDistance_internal(simInt distanceObjectHandle,simFloat* smallestDistance);
 simInt simReadDistance_internal(simInt distanceObjectHandle,simFloat* smallestDistance);
+simInt simAddBanner_internal(const simChar* label,simFloat size,simInt options,const simFloat* positionAndEulerAngles,simInt parentObjectHandle,const simFloat* labelColors,const simFloat* backgroundColors);
+simInt simRemoveBanner_internal(simInt bannerID);
+simInt simAddGhost_internal(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color);
+simInt simModifyGhost_internal(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation);
+simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* dataStreamName,simFloat data);
+simInt simAddPointCloud_internal(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals);
+simInt simModifyPointCloud_internal(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam);
 
 
 #endif // !defined(simInternal_INCLUDED_)

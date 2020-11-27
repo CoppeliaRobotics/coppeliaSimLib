@@ -621,6 +621,24 @@ int luaWrap_lua_isnumber(luaWrap_lua_State* L,int idx)
     return(lua_isnumber((lua_State*)L,idx));
 }
 
+int luaWrap_lua_isinteger(luaWrap_lua_State* L,int idx)
+{
+#ifdef OLD_LUA51
+    if (luaWrap_lua_isnumber(L,idx))
+    {
+        lua_Number d=luaWrap_lua_tonumber(L,idx);
+        lua_Integer v=(lua_Integer)d;
+        return(d==(luaNumber)v);
+    }
+    return(false);
+#else
+    if (lib!=nullptr)
+        return(luaLib_lua_isinteger(L,idx));
+    return(lua_isinteger((lua_State*)L,idx));
+#endif
+
+}
+
 int luaWrap_lua_isstring(luaWrap_lua_State* L,int idx)
 {
     if (lib!=nullptr)

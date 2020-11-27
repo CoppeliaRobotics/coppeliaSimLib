@@ -1,7 +1,7 @@
 #include "graphRendering.h"
 
 #ifdef SIM_WITH_OPENGL
-#include "graphingRoutines.h"
+#include "graphingRoutines_old.h"
 
 void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib)
 { // This is a quite ugly routine which requires refactoring!
@@ -76,9 +76,9 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
                 if ( (graph->getJustDrawCurves()&&graph->threeDPartners[i]->getVisibleOnTopOfEverything()) ||
                     ((!graph->getJustDrawCurves())&&(!graph->threeDPartners[i]->getVisibleOnTopOfEverything())) )
                 {
-                    CGraphData* part0=graph->getGraphData(graph->threeDPartners[i]->data[0]);
-                    CGraphData* part1=graph->getGraphData(graph->threeDPartners[i]->data[1]);
-                    CGraphData* part2=graph->getGraphData(graph->threeDPartners[i]->data[2]);
+                    CGraphData_old* part0=graph->getGraphData(graph->threeDPartners[i]->data[0]);
+                    CGraphData_old* part1=graph->getGraphData(graph->threeDPartners[i]->data[1]);
+                    CGraphData_old* part2=graph->getGraphData(graph->threeDPartners[i]->data[2]);
                     int pos=0;
                     int absIndex;
                     float point[3];
@@ -92,11 +92,11 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
                     bool cyclic0,cyclic1,cyclic2;
                     float range0,range1,range2;
                     if (part0!=nullptr)
-                        CGraphingRoutines::getCyclicAndRangeValues(part0,cyclic0,range0);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(part0,cyclic0,range0);
                     if (part1!=nullptr)
-                        CGraphingRoutines::getCyclicAndRangeValues(part1,cyclic1,range1);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(part1,cyclic1,range1);
                     if (part2!=nullptr)
-                        CGraphingRoutines::getCyclicAndRangeValues(part2,cyclic2,range2);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(part2,cyclic2,range2);
 
                     ogl::buffer.clear();
                     while (graph->getAbsIndexOfPosition(pos++,absIndex))
@@ -158,7 +158,7 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
             {
                 if (graph->_staticCurves[i]->getCurveType()==2)
                 {
-                    CStaticGraphCurve* it=graph->_staticCurves[i];
+                    CStaticGraphCurve_old* it=graph->_staticCurves[i];
                     glLineWidth(it->getCurveWidth());
                     glPointSize(it->getCurveWidth());
                     glLineStipple(1,0xE187);

@@ -2,7 +2,7 @@
 #include "ui_qdlg2d3dgraphproperties.h"
 #include "gV.h"
 #include "tt.h"
-#include "graphingRoutines.h"
+#include "graphingRoutines_old.h"
 #include <QShortcut>
 #include "editboxdelegate.h"
 #include "qdlgcolor.h"
@@ -144,7 +144,7 @@ void CQDlg2D3DGraphProperties::refresh()
 
 
     CGraph* it=App::currentWorld->sceneObjects->getLastSelectionGraph();
-    CGraphDataComb* graphData=nullptr;
+    CGraphDataComb_old* graphData=nullptr;
     int graphDataId=getSelectedObjectID();
     if (_xyGraph)
         graphData=it->getGraphData2D(graphDataId);
@@ -190,7 +190,7 @@ void CQDlg2D3DGraphProperties::updateObjectsInList()
     {
         for (size_t i=0;i<it->twoDPartners.size();i++)
         {
-            CGraphDataComb* aa=it->twoDPartners[i];
+            CGraphDataComb_old* aa=it->twoDPartners[i];
             std::string tmp(aa->getName());
             tmp+=" [";
             if (aa->data[0]==-1)
@@ -212,7 +212,7 @@ void CQDlg2D3DGraphProperties::updateObjectsInList()
     {
         for (size_t i=0;i<it->threeDPartners.size();i++)
         {
-            CGraphDataComb* aa=it->threeDPartners[i];
+            CGraphDataComb_old* aa=it->threeDPartners[i];
 
             std::string tmp(aa->getName());
             tmp+=" [";
@@ -290,7 +290,7 @@ void CQDlg2D3DGraphProperties::on_qqList_itemSelectionChanged()
     {
         CGraph* it=App::currentWorld->sceneObjects->getLastSelectionGraph();
         int objID=getSelectedObjectID();
-        CGraphDataComb* grData;
+        CGraphDataComb_old* grData;
         if (_xyGraph)
             grData=it->getGraphData2D(objID);
         else

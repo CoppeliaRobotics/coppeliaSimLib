@@ -149,8 +149,6 @@
 #define IDSNS_KEEPING_CONTROL_POINT_X_AXIS_AND_ALIGNING_CONTROL_POINT_Z_AXIS_WITH_LAST_SELECTION "Keeping control point's x axis and aligning control point's z axis with last selection..."
 #define IDSNS_GENERATING_NEW_PATH "Generating new path..."
 #define IDSNS_ADDING_A_PRIMITIVE_SHAPE "Adding a primitive shape..."
-#define IDSNS_ADDING_STATIC_DUPLICATE_OF_CURVE "Adding static duplicate of curve..."
-#define IDSNS_CURVE_DATA_COPIED_TO_CLIPBOARD "Copying curve data to clipboard..."
 #define IDSNS_ADDING_A_FLOATING_VIEW "Adding a floating view..."
 
 #define IDSNS_ADDING_A_JOINT "Adding a joint..."
@@ -913,8 +911,6 @@
 #define IDS_ASSOCIATED_CUSTOMIZATION_SCRIPT_MENU_ITEM "Associated customization script"
 
 #define IDS_APPEND_NEW_PATH_POINT_FROM_CAMERA_MENU_ITEM "Append new control point from camera configuration"
-#define IDS_MAKE_CURVE_STATIC_MENU_ITEM "Static duplicate of curve"
-#define IDS_COPY_CURVE_TO_CLIPBOARD "Curve to clipboard"
 #define IDS_EMPTY_LAST_SELECTED_PATH_MENU_ITEM "Empty path"
 
 

@@ -2,7 +2,7 @@
 #include "graph.h"
 #include "tt.h"
 #include "gV.h"
-#include "graphingRoutines.h"
+#include "graphingRoutines_old.h"
 #include "simStrings.h"
 #include <boost/lexical_cast.hpp>
 #include "vVarious.h"
@@ -97,20 +97,20 @@ bool CGraph::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
     C7Vector thisInv(getFullCumulativeTransformation().getInverse());
     for (int i=0;i<int(threeDPartners.size());i++)
     {
-        const CGraphData* part0=getGraphData(threeDPartners[i]->data[0]);
-        const CGraphData* part1=getGraphData(threeDPartners[i]->data[1]);
-        const CGraphData* part2=getGraphData(threeDPartners[i]->data[2]);
+        const CGraphData_old* part0=getGraphData(threeDPartners[i]->data[0]);
+        const CGraphData_old* part1=getGraphData(threeDPartners[i]->data[1]);
+        const CGraphData_old* part2=getGraphData(threeDPartners[i]->data[2]);
         int pos=0;
         int absIndex;
         float point[3];
         bool cyclic0,cyclic1,cyclic2;
         float range0,range1,range2;
         if (part0!=nullptr)    
-            CGraphingRoutines::getCyclicAndRangeValues(part0,cyclic0,range0);
+            CGraphingRoutines_old::getCyclicAndRangeValues(part0,cyclic0,range0);
         if (part1!=nullptr)    
-            CGraphingRoutines::getCyclicAndRangeValues(part1,cyclic1,range1);
+            CGraphingRoutines_old::getCyclicAndRangeValues(part1,cyclic1,range1);
         if (part2!=nullptr)    
-            CGraphingRoutines::getCyclicAndRangeValues(part2,cyclic2,range2);
+            CGraphingRoutines_old::getCyclicAndRangeValues(part2,cyclic2,range2);
         while (getAbsIndexOfPosition(pos++,absIndex))
         {
             bool dataIsValid=true;
@@ -149,7 +149,7 @@ bool CGraph::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
     // Static 3D curves now:
     for (int i=0;i<int(_staticCurves.size());i++)
     {
-        CStaticGraphCurve* it=_staticCurves[i];
+        CStaticGraphCurve_old* it=_staticCurves[i];
         if (it->getCurveType()==2)
         {
             for (int j=0;j<int(it->values.size()/3);j++)
@@ -203,7 +203,7 @@ int CGraph::get3DCurveCount() const
     return((int)threeDPartners.size());
 }
 
-CGraphData* CGraph::getGraphData(int id) const
+CGraphData_old* CGraph::getGraphData(int id) const
 {
     for (size_t i=0;i<daten.size();i++)
     {
@@ -212,7 +212,7 @@ CGraphData* CGraph::getGraphData(int id) const
     }
     return(nullptr);
 }
-CGraphData* CGraph::getGraphData(std::string theName) const
+CGraphData_old* CGraph::getGraphData(std::string theName) const
 {
     for (size_t i=0;i<daten.size();i++)
     {
@@ -221,7 +221,7 @@ CGraphData* CGraph::getGraphData(std::string theName) const
     }
     return(nullptr);
 }
-CGraphDataComb* CGraph::getGraphData3D(int id) const
+CGraphDataComb_old* CGraph::getGraphData3D(int id) const
 {
     for (size_t i=0;i<threeDPartners.size();i++)
     {
@@ -230,7 +230,7 @@ CGraphDataComb* CGraph::getGraphData3D(int id) const
     }
     return(nullptr);
 }
-CGraphDataComb* CGraph::getGraphData3D(std::string theName) const
+CGraphDataComb_old* CGraph::getGraphData3D(std::string theName) const
 {
     for (size_t i=0;i<threeDPartners.size();i++)
     {
@@ -239,7 +239,7 @@ CGraphDataComb* CGraph::getGraphData3D(std::string theName) const
     }
     return(nullptr);
 }
-CGraphDataComb* CGraph::getGraphData2D(int id) const
+CGraphDataComb_old* CGraph::getGraphData2D(int id) const
 {
     for (size_t i=0;i<twoDPartners.size();i++)
     {
@@ -248,7 +248,7 @@ CGraphDataComb* CGraph::getGraphData2D(int id) const
     }
     return(nullptr);
 }
-CGraphDataComb* CGraph::getGraphData2D(std::string theName) const
+CGraphDataComb_old* CGraph::getGraphData2D(std::string theName) const
 {
     for (size_t i=0;i<twoDPartners.size();i++)
     {
@@ -258,7 +258,196 @@ CGraphDataComb* CGraph::getGraphData2D(std::string theName) const
     return(nullptr);
 }
 
-int CGraph::addNewGraphData(CGraphData* graphData)
+
+
+CGraphDataStream* CGraph::getGraphDataStream(int id) const
+{
+    CGraphDataStream* retVal=nullptr;
+    for (size_t i=0;i<_dataStreams.size();i++)
+    {
+        if (_dataStreams[i]->getId()==id)
+        {
+            retVal=_dataStreams[i];
+            break;
+        }
+    }
+    return(retVal);
+}
+
+CGraphDataStream* CGraph::getGraphDataStream(const char* name,bool staticStream) const
+{
+    CGraphDataStream* retVal=nullptr;
+    for (size_t i=0;i<_dataStreams.size();i++)
+    {
+        if ( (_dataStreams[i]->getStreamName().compare(name)==0)&&(_dataStreams[i]->getIsStatic()==staticStream) )
+        {
+            retVal=_dataStreams[i];
+            break;
+        }
+    }
+    return(retVal);
+}
+
+void CGraph::getGraphDataStreamsFromIds(const int ids[3],CGraphDataStream* streams[3]) const
+{
+    for (size_t i=0;i<3;i++)
+    {
+        streams[i]=nullptr;
+        if (ids[i]!=-1)
+            streams[i]=getGraphDataStream(ids[i]);
+    }
+}
+
+CGraphCurve* CGraph::getGraphCurve(int id) const
+{
+    CGraphCurve* retVal=nullptr;
+    for (size_t i=0;i<_curves.size();i++)
+    {
+        if (_curves[i]->getId()==id)
+        {
+            retVal=_curves[i];
+            break;
+        }
+    }
+    return(retVal);
+}
+
+CGraphCurve* CGraph::getGraphCurve(const char* name,bool staticCurve) const
+{
+    CGraphCurve* retVal=nullptr;
+    for (size_t i=0;i<_curves.size();i++)
+    {
+        if ( (_curves[i]->getCurveName().compare(name)==0)&&(_curves[i]->getIsStatic()==staticCurve) )
+        {
+            retVal=_curves[i];
+            break;
+        }
+    }
+    return(retVal);
+}
+
+int CGraph::addOrUpdateDataStream(CGraphDataStream* dataStream)
+{
+    int retVal=-1; // error, curve already exists and is static
+    CGraphDataStream* stream=getGraphDataStream(dataStream->getStreamName().c_str(),true);
+    if (stream==nullptr)
+    {
+        stream=getGraphDataStream(dataStream->getStreamName().c_str(),false);
+        if (stream!=nullptr)
+        { // such a stream already exists
+            stream->setBasics(dataStream->getUnitStr().c_str(),dataStream->getOptions(),dataStream->getColorPtr(),dataStream->getCyclicRange());
+            delete dataStream;
+        }
+        else
+        {
+            int id=0;
+            while (getGraphDataStream(id)!=nullptr)
+                id++;
+            dataStream->setId(id);
+            _dataStreams.push_back(dataStream);
+            dataStream->reset(bufferSize);
+            stream=dataStream;
+        }
+        retVal=stream->getId();
+    }
+    return(retVal);
+}
+
+int CGraph::addOrUpdateCurve(CGraphCurve* curve)
+{
+    int retVal=-1; // error, static curve with same name already exists
+    CGraphCurve* theCurve=getGraphCurve(curve->getCurveName().c_str(),true);
+    if (theCurve==nullptr)
+    {
+        theCurve=getGraphCurve(curve->getCurveName().c_str(),false);
+        std::vector<int> allStreamIds;
+        getAllStreamIds(allStreamIds);
+        curve->updateStreamIds(allStreamIds);
+        if (theCurve!=nullptr)
+        { // such a curve already exists
+            theCurve->setBasics(curve->getDim(),curve->getStreamIdsPtr(),curve->getDefaultValsPtr(),curve->getUnitStr().c_str(),curve->getOptions(),curve->getColorPtr(),curve->getCurveWidth());
+            delete curve;
+        }
+        else
+        {
+            int id=10000;
+            while (getGraphCurve(id)!=nullptr)
+                id++;
+            curve->setId(id);
+            _curves.push_back(curve);
+            theCurve=curve;
+        }
+        retVal=theCurve->getId();
+    }
+    return(retVal);
+}
+
+bool CGraph::setDataStreamTransformation(int streamId,int trType,float mult,float off,int movAvgPeriod)
+{
+    CGraphDataStream* stream=getGraphDataStream(streamId);
+    if (stream!=nullptr)
+    {
+        if (stream->setTransformation(trType,mult,off,movAvgPeriod))
+            stream->reset(bufferSize);
+    }
+    return(stream!=nullptr);
+}
+
+bool CGraph::setNextValueToInsert(int streamId,float v)
+{
+    CGraphDataStream* stream=getGraphDataStream(streamId);
+    if (stream!=nullptr)
+        stream->setNextValueToInsert(v);
+    return(stream!=nullptr);
+}
+
+bool CGraph::removeGraphDataStream(int id)
+{
+    bool retVal=false;
+    for (size_t i=0;i<_dataStreams.size();i++)
+    {
+        if (_dataStreams[i]->getId()==id)
+        {
+            delete _dataStreams[i];
+            _dataStreams.erase(_dataStreams.begin()+i);
+            retVal=true;
+            break;
+        }
+    }
+
+    // Update dependent curves:
+    std::vector<int> allStreamIds;
+    getAllStreamIds(allStreamIds);
+    for (size_t i=0;i<_curves.size();i++)
+        _curves[i]->updateStreamIds(allStreamIds);
+
+    return(retVal);
+}
+
+bool CGraph::removeGraphCurve(int id)
+{
+    bool retVal=false;
+    for (size_t i=0;i<_curves.size();i++)
+    {
+        if (_curves[i]->getId()==id)
+        {
+            delete _curves[i];
+            _curves.erase(_curves.begin()+i);
+            retVal=true;
+            break;
+        }
+    }
+    return(retVal);
+}
+
+void CGraph::getAllStreamIds(std::vector<int>& allStreamIds)
+{
+    allStreamIds.clear();
+    for (size_t i=0;i<_dataStreams.size();i++)
+        allStreamIds.push_back(_dataStreams[i]->getId());
+}
+
+int CGraph::addNewGraphData(CGraphData_old* graphData)
 {   // Returns the graphData identifier
     // We don't care if already present, because we could scale one but not the other
     // for instance.
@@ -311,7 +500,7 @@ void CGraph::remove3DPartners(int id)
         }
     }
 }
-void CGraph::add2DPartners(CGraphDataComb* it)
+void CGraph::add2DPartners(CGraphDataComb_old* it)
 {
     std::string tmp=it->getName();
     while (getGraphData2D(tmp)!=nullptr)
@@ -323,7 +512,7 @@ void CGraph::add2DPartners(CGraphDataComb* it)
     it->setIdentifier(id);
     twoDPartners.push_back(it);
 }
-void CGraph::add3DPartners(CGraphDataComb* it)
+void CGraph::add3DPartners(CGraphDataComb_old* it)
 {
     std::string tmp=it->getName();
     while (getGraphData3D(tmp)!=nullptr)
@@ -359,12 +548,16 @@ void CGraph::addNextPoint(float time)
         numberOfPoints++;
     }
     times[nextEntryPosition]=time;
+    for (size_t i=0;i<_dataStreams.size();i++)
+        _dataStreams[i]->insertNextValue(nextEntryPosition,nextEntryPosition==startingPoint,times);
+
+    // Old:
     C7Vector m(getCumulativeTransformation());
-    for (int i=0;i<int(daten.size());i++)
+    for (size_t i=0;i<daten.size();i++)
     {
         bool cyclic;
         float range;
-        CGraphingRoutines::getCyclicAndRangeValues(daten[i],cyclic,range);
+        CGraphingRoutines_old::getCyclicAndRangeValues(daten[i],cyclic,range);
         daten[i]->setValue(&m,nextEntryPosition,nextEntryPosition==startingPoint,cyclic,range,times);
         // Here we have to handle a special case: GRAPH_VARIOUS_TIME
         if (daten[i]->getDataType()==GRAPH_NOOBJECT_TIME)
@@ -412,25 +605,25 @@ CSceneObject* CGraph::copyYourself()
     newGraph->numberOfPoints=numberOfPoints;
     newGraph->startingPoint=startingPoint;
     newGraph->xYZPlanesDisplay=xYZPlanesDisplay;
-    newGraph->times.reserve(times.size());
-    newGraph->times.clear();
-    for (int i=0;i<int(times.size());i++)
-        newGraph->times.push_back(times[i]);
-    newGraph->daten.reserve(daten.size());
+    newGraph->times.assign(times.begin(),times.end());
+
+    for (size_t i=0;i<_dataStreams.size();i++)
+        newGraph->_dataStreams.push_back(_dataStreams[i]->copyYourself());
+
+    // Old:
+    // ----------------
     newGraph->daten.clear();
     for (int i=0;i<int(daten.size());i++)
         newGraph->daten.push_back(daten[i]->copyYourself());
-    newGraph->threeDPartners.reserve(threeDPartners.size());
     newGraph->threeDPartners.clear();
     for (int i=0;i<int(threeDPartners.size());i++)
         newGraph->threeDPartners.push_back(threeDPartners[i]->copyYourself());
-    newGraph->twoDPartners.reserve(twoDPartners.size());
     newGraph->twoDPartners.clear();
     for (int i=0;i<int(twoDPartners.size());i++)
         newGraph->twoDPartners.push_back(twoDPartners[i]->copyYourself());
-
     for (int i=0;i<int(_staticCurves.size());i++)
         newGraph->_staticCurves.push_back(_staticCurves[i]->copyYourself());
+    // ----------------
 
     newGraph->backgroundColor[0]=backgroundColor[0];
     newGraph->backgroundColor[1]=backgroundColor[1];
@@ -455,6 +648,26 @@ int CGraph::getTrackingValueIndex() const
 
 void CGraph::removeAllStatics()
 {
+    size_t i=0;
+    while (i<_dataStreams.size())
+    {
+        CGraphDataStream* str=_dataStreams[i];
+        if (str->getIsStatic())
+            removeGraphDataStream(str->getId());
+        else
+            i++;
+    }
+    i=0;
+    while (i<_curves.size())
+    {
+        CGraphCurve* curve=_curves[i];
+        if (curve->getIsStatic())
+            removeGraphCurve(curve->getId());
+        else
+            i++;
+    }
+
+    // Old:
     for (size_t i=0;i<_staticCurves.size();i++)
         delete _staticCurves[i];
     _staticCurves.clear();
@@ -468,13 +681,13 @@ void CGraph::makeCurveStatic(int curveIndex,int dimensionIndex)
         {
             std::vector<float> timeValues;
             std::vector<float> staticValues;
-            CGraphData* it=daten[curveIndex];
+            CGraphData_old* it=daten[curveIndex];
             int pos=0;
             int absIndex;
             float yVal,xVal;
             bool cyclic;
             float range;
-            CGraphingRoutines::getCyclicAndRangeValues(it,cyclic,range);
+            CGraphingRoutines_old::getCyclicAndRangeValues(it,cyclic,range);
             while (getAbsIndexOfPosition(pos++,absIndex))
             {
                 xVal=times[absIndex];
@@ -490,7 +703,7 @@ void CGraph::makeCurveStatic(int curveIndex,int dimensionIndex)
                 std::string nm(it->getName());
                 while (getStaticCurveFromName(0,nm.c_str())!=nullptr)
                     nm=tt::generateNewName_noHash(nm.c_str());
-                CStaticGraphCurve* curve=new CStaticGraphCurve(0,&timeValues,&staticValues,nullptr);
+                CStaticGraphCurve_old* curve=new CStaticGraphCurve_old(0,&timeValues,&staticValues,nullptr);
                 _staticCurves.push_back(curve);
                 curve->setName(nm);
                 curve->setLabel(it->getLabel());
@@ -507,18 +720,18 @@ void CGraph::makeCurveStatic(int curveIndex,int dimensionIndex)
         {
             std::vector<float> values0;
             std::vector<float> values1;
-            CGraphDataComb* it=twoDPartners[curveIndex];
+            CGraphDataComb_old* it=twoDPartners[curveIndex];
             int pos=0;
             int absIndex;
             float val[3];
-            CGraphData* number1=getGraphData(it->data[0]);
-            CGraphData* number2=getGraphData(it->data[1]);
+            CGraphData_old* number1=getGraphData(it->data[0]);
+            CGraphData_old* number2=getGraphData(it->data[1]);
             bool cyclic1,cyclic2;
             float range1,range2;
             if (number1!=nullptr)  
-                CGraphingRoutines::getCyclicAndRangeValues(number1,cyclic1,range1);
+                CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
             if (number2!=nullptr)  
-                CGraphingRoutines::getCyclicAndRangeValues(number2,cyclic2,range2);
+                CGraphingRoutines_old::getCyclicAndRangeValues(number2,cyclic2,range2);
 
             while (getAbsIndexOfPosition(pos++,absIndex))
             {
@@ -548,7 +761,7 @@ void CGraph::makeCurveStatic(int curveIndex,int dimensionIndex)
                 std::string nm(it->getName());
                 while (getStaticCurveFromName(1,nm.c_str())!=nullptr)
                     nm=tt::generateNewName_noHash(nm.c_str());
-                CStaticGraphCurve* curve=new CStaticGraphCurve(1,&values0,&values1,nullptr);
+                CStaticGraphCurve_old* curve=new CStaticGraphCurve_old(1,&values0,&values1,nullptr);
                 _staticCurves.push_back(curve);
                 curve->setName(nm);
                 curve->setLabel(it->getLabel());
@@ -569,21 +782,21 @@ void CGraph::makeCurveStatic(int curveIndex,int dimensionIndex)
             std::vector<float> values0;
             std::vector<float> values1;
             std::vector<float> values2;
-            CGraphDataComb* it=threeDPartners[curveIndex];
+            CGraphDataComb_old* it=threeDPartners[curveIndex];
             int pos=0;
             int absIndex;
             float val[3];
-            CGraphData* number1=getGraphData(it->data[0]);
-            CGraphData* number2=getGraphData(it->data[1]);
-            CGraphData* number3=getGraphData(it->data[2]);
+            CGraphData_old* number1=getGraphData(it->data[0]);
+            CGraphData_old* number2=getGraphData(it->data[1]);
+            CGraphData_old* number3=getGraphData(it->data[2]);
             bool cyclic1,cyclic2,cyclic3;
             float range1,range2,range3;
             if (number1!=nullptr)  
-                CGraphingRoutines::getCyclicAndRangeValues(number1,cyclic1,range1);
+                CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
             if (number2!=nullptr)  
-                CGraphingRoutines::getCyclicAndRangeValues(number2,cyclic2,range2);
+                CGraphingRoutines_old::getCyclicAndRangeValues(number2,cyclic2,range2);
             if (number3!=nullptr)  
-                CGraphingRoutines::getCyclicAndRangeValues(number3,cyclic3,range3);
+                CGraphingRoutines_old::getCyclicAndRangeValues(number3,cyclic3,range3);
 
             while (getAbsIndexOfPosition(pos++,absIndex))
             {
@@ -622,7 +835,7 @@ void CGraph::makeCurveStatic(int curveIndex,int dimensionIndex)
                 std::string nm(it->getName());
                 while (getStaticCurveFromName(2,nm.c_str())!=nullptr)
                     nm=tt::generateNewName_noHash(nm.c_str());
-                CStaticGraphCurve* curve=new CStaticGraphCurve(2,&values0,&values1,&values2);
+                CStaticGraphCurve_old* curve=new CStaticGraphCurve_old(2,&values0,&values1,&values2);
                 _staticCurves.push_back(curve);
                 curve->setName(nm);
                 curve->setLabel(it->getLabel());
@@ -640,11 +853,11 @@ void CGraph::makeCurveStatic(int curveIndex,int dimensionIndex)
     }
 }
 
-CStaticGraphCurve* CGraph::getStaticCurveFromName(int type,const char* name)
+CStaticGraphCurve_old* CGraph::getStaticCurveFromName(int type,const char* name)
 {
     for (size_t i=0;i<_staticCurves.size();i++)
     {
-        CStaticGraphCurve* it=_staticCurves[i];
+        CStaticGraphCurve_old* it=_staticCurves[i];
         if (it->getCurveType()==type)
         {
             if (it->getName().compare(name)==0)
@@ -744,8 +957,8 @@ void CGraph::exportGraphData(VArchive &ar)
     ar.writeString(tmp);
     for (int k=0;k<int(daten.size());k++)
     {
-        CGraphData* gr=daten[k];
-        tmp=gr->getName()+" ("+CGraphingRoutines::getDataUnit(gr)+")";
+        CGraphData_old* gr=daten[k];
+        tmp=gr->getName()+" ("+CGraphingRoutines_old::getDataUnit(gr)+")";
         if (k<(int(daten.size())-1))
             tmp+=",";
         ar.writeString(tmp);
@@ -765,10 +978,10 @@ void CGraph::exportGraphData(VArchive &ar)
         ar.writeString(tmp);
         for (int k=0;k<int(daten.size());k++)
         {
-            CGraphData* gr=daten[k];
+            CGraphData_old* gr=daten[k];
             bool cyclic;
             float range;
-            CGraphingRoutines::getCyclicAndRangeValues(gr,cyclic,range);
+            CGraphingRoutines_old::getCyclicAndRangeValues(gr,cyclic,range);
             bool dataIsValid=getData(gr,absIndex,value,cyclic,range,true);
             if (dataIsValid)
                 tmp=tt::FNb(0,value,6,false);
@@ -785,18 +998,63 @@ void CGraph::exportGraphData(VArchive &ar)
     ar << (unsigned char)10;
 }
 
-bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int& curveType,float col[3],float minMax[6]) const
+bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int& curveType,float col[3],float minMax[6]) const
 {
+    if (graphType==0)
+    { // time curves (dyn then static curves)
+        for (size_t i=0;i<_dataStreams.size();i++)
+        {
+            if (_dataStreams[i]->getCurveData(false,&index,startingPoint,numberOfPoints,times,&label,xVals,yVals,zVals,&curveType,col,minMax))
+                return(true);
+        }
+        for (size_t i=0;i<_dataStreams.size();i++)
+        {
+            if (_dataStreams[i]->getCurveData(true,&index,startingPoint,numberOfPoints,times,&label,xVals,yVals,zVals,&curveType,col,minMax))
+                return(true);
+        }
+    }
+    if (graphType==1)
+    { // x/y curves (dyn then static curves)
+        for (size_t i=0;i<_curves.size();i++)
+        {
+            CGraphDataStream* streams[3];
+            getGraphDataStreamsFromIds(_curves[i]->getStreamIdsPtr(),streams);
+            if (_curves[i]->getCurveData_xy(streams,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,yVals,zVals,&curveType,col,minMax))
+                return(true);
+        }
+        for (size_t i=0;i<_curves.size();i++)
+        {
+            if (_curves[i]->getCurveData_xy(nullptr,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,yVals,zVals,&curveType,col,minMax))
+                return(true);
+        }
+    }
+    if (graphType==2)
+    { // xyz curves (dyn then static curves)
+        for (size_t i=0;i<_curves.size();i++)
+        {
+            CGraphDataStream* streams[3];
+            getGraphDataStreamsFromIds(_curves[i]->getStreamIdsPtr(),streams);
+            if (_curves[i]->getCurveData_xyz(streams,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,yVals,zVals,&curveType,col,minMax))
+                return(true);
+        }
+        for (size_t i=0;i<_curves.size();i++)
+        {
+            if (_curves[i]->getCurveData_xyz(nullptr,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,yVals,zVals,&curveType,col,minMax))
+                return(true);
+        }
+    }
+
+    // Old, Gui-created curves:
     if (graphType==0)
     { // time
         for (size_t ind=0;ind<daten.size();ind++)
         {
-            CGraphData* gr=daten[ind];
+            CGraphData_old* gr=daten[ind];
             if (gr->getVisible())
             {
                 if (index==0)
                 {
-                    label=gr->getName()+" ("+CGraphingRoutines::getDataUnit(gr)+")";
+                    label=gr->getName()+" ("+CGraphingRoutines_old::getDataUnit(gr)+")";
                     if (gr->getLinkPoints())
                         curveType=0;
                     else
@@ -815,7 +1073,7 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
                         float yVal;
                         bool cyclic;
                         float range;
-                        CGraphingRoutines::getCyclicAndRangeValues(gr,cyclic,range);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(gr,cyclic,range);
                         bool dataIsValid=getData(gr,absIndex,yVal,cyclic,range,true);
                         if (dataIsValid)
                         {
@@ -848,7 +1106,7 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
         }
         for (size_t ind=0;ind<_staticCurves.size();ind++)
         {
-            CStaticGraphCurve* gr=_staticCurves[ind];
+            CStaticGraphCurve_old* gr=_staticCurves[ind];
             if (gr->getCurveType()==0)
             { // time
                 if (index==0)
@@ -897,7 +1155,7 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
     { // x/y
         for (size_t ind=0;ind<twoDPartners.size();ind++)
         {
-            CGraphDataComb* it=twoDPartners[ind];
+            CGraphDataComb_old* it=twoDPartners[ind];
             if (it->getVisible())
             {
                 if (index==0)
@@ -908,21 +1166,21 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
                     int pos=0;
                     int absIndex;
                     float val[3];
-                    CGraphData* number1=getGraphData(it->data[0]);
-                    CGraphData* number2=getGraphData(it->data[1]);
+                    CGraphData_old* number1=getGraphData(it->data[0]);
+                    CGraphData_old* number2=getGraphData(it->data[1]);
                     bool cyclic1,cyclic2;
                     float range1,range2;
                     if (number1!=nullptr)
-                        CGraphingRoutines::getCyclicAndRangeValues(number1,cyclic1,range1);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
                     if (number2!=nullptr)
-                        CGraphingRoutines::getCyclicAndRangeValues(number2,cyclic2,range2);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(number2,cyclic2,range2);
                     label=it->getName()+" (x: ";
                     if (number1!=nullptr)
-                        label+=CGraphingRoutines::getDataUnit(number1)+") (y: ";
+                        label+=CGraphingRoutines_old::getDataUnit(number1)+") (y: ";
                     else
                         label+="0.0) (y: ";
                     if (number2!=nullptr)
-                        label+=CGraphingRoutines::getDataUnit(number2)+")";
+                        label+=CGraphingRoutines_old::getDataUnit(number2)+")";
                     else
                         label+="0.0)";
                     if (it->getLinkPoints())
@@ -981,7 +1239,7 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
 
         for (size_t ind=0;ind<_staticCurves.size();ind++)
         {
-            CStaticGraphCurve* gr=_staticCurves[ind];
+            CStaticGraphCurve_old* gr=_staticCurves[ind];
             if (gr->getCurveType()==1)
             { // x/y
                 if (index==0)
@@ -1030,7 +1288,7 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
     { // x/y/z
         for (size_t ind=0;ind<threeDPartners.size();ind++)
         {
-            CGraphDataComb* it=threeDPartners[ind];
+            CGraphDataComb_old* it=threeDPartners[ind];
             if (it->getVisible())
             {
                 if (index==0)
@@ -1041,28 +1299,28 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
                     int pos=0;
                     int absIndex;
                     float val[3];
-                    CGraphData* number1=getGraphData(it->data[0]);
-                    CGraphData* number2=getGraphData(it->data[1]);
-                    CGraphData* number3=getGraphData(it->data[2]);
+                    CGraphData_old* number1=getGraphData(it->data[0]);
+                    CGraphData_old* number2=getGraphData(it->data[1]);
+                    CGraphData_old* number3=getGraphData(it->data[2]);
                     bool cyclic1,cyclic2,cyclic3;
                     float range1,range2,range3;
                     if (number1!=nullptr)
-                        CGraphingRoutines::getCyclicAndRangeValues(number1,cyclic1,range1);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
                     if (number2!=nullptr)
-                        CGraphingRoutines::getCyclicAndRangeValues(number2,cyclic2,range2);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(number2,cyclic2,range2);
                     if (number3!=nullptr)
-                        CGraphingRoutines::getCyclicAndRangeValues(number3,cyclic3,range3);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(number3,cyclic3,range3);
                     label=it->getName()+" (x: ";
                     if (number1!=nullptr)
-                        label+=CGraphingRoutines::getDataUnit(number1)+") (y: ";
+                        label+=CGraphingRoutines_old::getDataUnit(number1)+") (y: ";
                     else
                         label+="0.0) (y: ";
                     if (number2!=nullptr)
-                        label+=CGraphingRoutines::getDataUnit(number2)+") (z: ";
+                        label+=CGraphingRoutines_old::getDataUnit(number2)+") (z: ";
                     else
                         label+="0.0) (z: ";
                     if (number3!=nullptr)
-                        label+=CGraphingRoutines::getDataUnit(number3)+")";
+                        label+=CGraphingRoutines_old::getDataUnit(number3)+")";
                     else
                         label+="0.0)";
                     if (it->getLinkPoints())
@@ -1135,7 +1393,7 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
 
         for (size_t ind=0;ind<_staticCurves.size();ind++)
         {
-            CStaticGraphCurve* gr=_staticCurves[ind];
+            CStaticGraphCurve_old* gr=_staticCurves[ind];
             if (gr->getCurveType()==2)
             { // x/y/z
                 if (index==0)
@@ -1192,10 +1450,60 @@ bool CGraph::getGraphCurve(int graphType,int index,std::string& label,std::vecto
 
 void CGraph::curveToClipboard(int graphType,const char* curveName) const
 {
+    std::vector<float> xVals;
+    std::vector<float> yVals;
+    std::vector<float> zVals;
+    if (graphType==0)
+    { // time curves, non-static
+        CGraphDataStream* stream=getGraphDataStream(curveName,false);
+        if (stream!=nullptr)
+            stream->getCurveData(false,nullptr,startingPoint,numberOfPoints,times,nullptr,xVals,yVals,zVals,nullptr,nullptr,nullptr);
+    }
+    if (graphType==3)
+    { // time curves, static
+        CGraphDataStream* stream=getGraphDataStream((std::string(curveName)+" [STATIC]").c_str(),true);
+        if (stream!=nullptr)
+            stream->getCurveData(true,nullptr,startingPoint,numberOfPoints,times,nullptr,xVals,yVals,zVals,nullptr,nullptr,nullptr);
+    }
+    if (graphType==1)
+    { // x/y curves, non-static
+        CGraphCurve* curve=getGraphCurve(curveName,false);
+        if (curve!=nullptr)
+        {
+            CGraphDataStream* streams[3];
+            getGraphDataStreamsFromIds(curve->getStreamIdsPtr(),streams);
+            curve->getCurveData_xy(streams,nullptr,bufferSize,startingPoint,numberOfPoints,nullptr,xVals,yVals,zVals,nullptr,nullptr,nullptr);
+        }
+    }
+    if (graphType==4)
+    { // x/y curves, static
+        CGraphCurve* curve=getGraphCurve((std::string(curveName)+" [STATIC]").c_str(),true);
+        if (curve!=nullptr)
+            curve->getCurveData_xy(nullptr,nullptr,bufferSize,startingPoint,numberOfPoints,nullptr,xVals,yVals,zVals,nullptr,nullptr,nullptr);
+    }
+    if (xVals.size()>0)
+    {
+        std::string txt;
+        for (size_t i=0;i<xVals.size();i++)
+        {
+            txt+=boost::lexical_cast<std::string>(xVals[i])+char(9);
+            txt+=boost::lexical_cast<std::string>(yVals[i])+char(13);
+            txt+=char(10);
+        }
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=COPY_TEXT_TO_CLIPBOARD_UITHREADCMD;
+        cmdIn.stringParams.push_back(txt);
+        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        return;
+    }
+
+
+    // Old:
     std::string txt;
     if (graphType==0)
     { // time graph curves:
-        CGraphData* it=nullptr;
+        CGraphData_old* it=nullptr;
         for (size_t ind=0;ind<daten.size();ind++)
         {
             if (daten[ind]->getName().compare(curveName)==0)
@@ -1211,7 +1519,7 @@ void CGraph::curveToClipboard(int graphType,const char* curveName) const
             float yVal,xVal;
             bool cyclic;
             float range;
-            CGraphingRoutines::getCyclicAndRangeValues(it,cyclic,range);
+            CGraphingRoutines_old::getCyclicAndRangeValues(it,cyclic,range);
             while (getAbsIndexOfPosition(pos++,absIndex))
             {
                 xVal=times[absIndex];
@@ -1227,7 +1535,7 @@ void CGraph::curveToClipboard(int graphType,const char* curveName) const
     }
     if (graphType==1)
     { // x/y graph curves:
-        CGraphDataComb* it=nullptr;
+        CGraphDataComb_old* it=nullptr;
         for (size_t ind=0;ind<twoDPartners.size();ind++)
         {
             if (twoDPartners[ind]->getName().compare(curveName)==0)
@@ -1241,14 +1549,14 @@ void CGraph::curveToClipboard(int graphType,const char* curveName) const
             int pos=0;
             int absIndex;
             float val[3];
-            CGraphData* number1=getGraphData(it->data[0]);
-            CGraphData* number2=getGraphData(it->data[1]);
+            CGraphData_old* number1=getGraphData(it->data[0]);
+            CGraphData_old* number2=getGraphData(it->data[1]);
             bool cyclic1,cyclic2;
             float range1,range2;
             if (number1!=nullptr)
-                CGraphingRoutines::getCyclicAndRangeValues(number1,cyclic1,range1);
+                CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
             if (number2!=nullptr)
-                CGraphingRoutines::getCyclicAndRangeValues(number2,cyclic2,range2);
+                CGraphingRoutines_old::getCyclicAndRangeValues(number2,cyclic2,range2);
 
             while (getAbsIndexOfPosition(pos++,absIndex))
             {
@@ -1280,7 +1588,7 @@ void CGraph::curveToClipboard(int graphType,const char* curveName) const
     { // static time and xy graph curves:
         for (size_t i=0;i<_staticCurves.size();i++)
         {
-            CStaticGraphCurve* it=_staticCurves[i];
+            CStaticGraphCurve_old* it=_staticCurves[i];
             if ( (it->getCurveType()==graphType-3)&&(it->getName().compare(curveName)==0) )
             {
                 for (size_t j=0;j<it->values.size()/2;j++)
@@ -1299,11 +1607,57 @@ void CGraph::curveToClipboard(int graphType,const char* curveName) const
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 }
 
+int CGraph::duplicateCurveToStatic(int curveId,const char* curveName)
+{
+    int retVal=-1;
+    CGraphDataStream* stream=getGraphDataStream(curveId);
+    if ( (stream!=nullptr)&&(!stream->getIsStatic()) )
+    {
+        std::string nm(curveName);
+        while (getGraphDataStream((nm+" [STATIC]").c_str(),true)!=nullptr)
+            nm=tt::generateNewName_noHash(nm.c_str());
+        CGraphDataStream* staticStream=stream->copyYourself();
+        staticStream->setStreamName((nm+" [STATIC]").c_str());
+        staticStream->makeStatic(startingPoint,numberOfPoints,times);
+        retVal=addOrUpdateDataStream(staticStream);
+    }
+    else
+    {
+        CGraphCurve* curve=getGraphCurve(curveId);
+        if ( (curve!=nullptr)&&(!curve->getIsStatic()) )
+        {
+            std::string nm(curveName);
+            while (getGraphCurve((nm+" [STATIC]").c_str(),true)!=nullptr)
+                nm=tt::generateNewName_noHash(nm.c_str());
+            CGraphCurve* staticCurve=curve->copyYourself();
+            staticCurve->setCurveName((nm+" [STATIC]").c_str());
+            CGraphDataStream* streams[3];
+            getGraphDataStreamsFromIds(staticCurve->getStreamIdsPtr(),streams);
+            staticCurve->makeStatic(streams,bufferSize,startingPoint,numberOfPoints);
+            retVal=addOrUpdateCurve(staticCurve);
+        }
+    }
+}
+
 void CGraph::curveToStatic(int graphType,const char* curveName)
 {
     if (graphType==0)
+    { // time, non-static
+        CGraphDataStream* stream=getGraphDataStream(curveName,false);
+        if (stream!=nullptr)
+            duplicateCurveToStatic(stream->getId(),stream->getStreamName().c_str());
+    }
+    if (graphType==1)
+    { // xy, non-static
+        CGraphCurve* curve=getGraphCurve(curveName,false);
+        if (curve!=nullptr)
+            duplicateCurveToStatic(curve->getId(),curve->getCurveName().c_str());
+    }
+
+    // Old:
+    if (graphType==0)
     { // time graph curves:
-        CGraphData* it=nullptr;
+        CGraphData_old* it=nullptr;
         for (size_t ind=0;ind<daten.size();ind++)
         {
             if (daten[ind]->getName().compare(curveName)==0)
@@ -1321,7 +1675,7 @@ void CGraph::curveToStatic(int graphType,const char* curveName)
             float yVal,xVal;
             bool cyclic;
             float range;
-            CGraphingRoutines::getCyclicAndRangeValues(it,cyclic,range);
+            CGraphingRoutines_old::getCyclicAndRangeValues(it,cyclic,range);
             while (getAbsIndexOfPosition(pos++,absIndex))
             {
                 xVal=times[absIndex];
@@ -1337,7 +1691,7 @@ void CGraph::curveToStatic(int graphType,const char* curveName)
                 std::string nm(it->getName());
                 while (getStaticCurveFromName(0,nm.c_str())!=nullptr)
                     nm=tt::generateNewName_noHash(nm.c_str());
-                CStaticGraphCurve* curve=new CStaticGraphCurve(0,&timeValues,&staticValues,nullptr);
+                CStaticGraphCurve_old* curve=new CStaticGraphCurve_old(0,&timeValues,&staticValues,nullptr);
                 _staticCurves.push_back(curve);
                 curve->setName(nm);
                 curve->setLabel(it->getLabel());
@@ -1350,7 +1704,7 @@ void CGraph::curveToStatic(int graphType,const char* curveName)
     }
     if (graphType==1)
     { // x/y graph curves:
-        CGraphDataComb* it=nullptr;
+        CGraphDataComb_old* it=nullptr;
         for (size_t ind=0;ind<twoDPartners.size();ind++)
         {
             if (twoDPartners[ind]->getName().compare(curveName)==0)
@@ -1366,14 +1720,14 @@ void CGraph::curveToStatic(int graphType,const char* curveName)
             int pos=0;
             int absIndex;
             float val[3];
-            CGraphData* number1=getGraphData(it->data[0]);
-            CGraphData* number2=getGraphData(it->data[1]);
+            CGraphData_old* number1=getGraphData(it->data[0]);
+            CGraphData_old* number2=getGraphData(it->data[1]);
             bool cyclic1,cyclic2;
             float range1,range2;
             if (number1!=nullptr)
-                CGraphingRoutines::getCyclicAndRangeValues(number1,cyclic1,range1);
+                CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
             if (number2!=nullptr)
-                CGraphingRoutines::getCyclicAndRangeValues(number2,cyclic2,range2);
+                CGraphingRoutines_old::getCyclicAndRangeValues(number2,cyclic2,range2);
 
             while (getAbsIndexOfPosition(pos++,absIndex))
             {
@@ -1403,7 +1757,7 @@ void CGraph::curveToStatic(int graphType,const char* curveName)
                 std::string nm(it->getName());
                 while (getStaticCurveFromName(1,nm.c_str())!=nullptr)
                     nm=tt::generateNewName_noHash(nm.c_str());
-                CStaticGraphCurve* curve=new CStaticGraphCurve(1,&values0,&values1,nullptr);
+                CStaticGraphCurve_old* curve=new CStaticGraphCurve_old(1,&values0,&values1,nullptr);
                 _staticCurves.push_back(curve);
                 curve->setName(nm);
                 curve->setLabel(it->getLabel());
@@ -1419,7 +1773,7 @@ void CGraph::curveToStatic(int graphType,const char* curveName)
     }
     if (graphType==2)
     { // 3D graph curves:
-        CGraphDataComb* it=nullptr;
+        CGraphDataComb_old* it=nullptr;
         for (size_t ind=0;ind<threeDPartners.size();ind++)
         {
             if (threeDPartners[ind]->getName().compare(curveName)==0)
@@ -1436,17 +1790,17 @@ void CGraph::curveToStatic(int graphType,const char* curveName)
             int pos=0;
             int absIndex;
             float val[3];
-            CGraphData* number1=getGraphData(it->data[0]);
-            CGraphData* number2=getGraphData(it->data[1]);
-            CGraphData* number3=getGraphData(it->data[2]);
+            CGraphData_old* number1=getGraphData(it->data[0]);
+            CGraphData_old* number2=getGraphData(it->data[1]);
+            CGraphData_old* number3=getGraphData(it->data[2]);
             bool cyclic1,cyclic2,cyclic3;
             float range1,range2,range3;
             if (number1!=nullptr)
-                CGraphingRoutines::getCyclicAndRangeValues(number1,cyclic1,range1);
+                CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
             if (number2!=nullptr)
-                CGraphingRoutines::getCyclicAndRangeValues(number2,cyclic2,range2);
+                CGraphingRoutines_old::getCyclicAndRangeValues(number2,cyclic2,range2);
             if (number3!=nullptr)
-                CGraphingRoutines::getCyclicAndRangeValues(number3,cyclic3,range3);
+                CGraphingRoutines_old::getCyclicAndRangeValues(number3,cyclic3,range3);
 
             while (getAbsIndexOfPosition(pos++,absIndex))
             {
@@ -1485,7 +1839,7 @@ void CGraph::curveToStatic(int graphType,const char* curveName)
                 std::string nm(it->getName());
                 while (getStaticCurveFromName(2,nm.c_str())!=nullptr)
                     nm=tt::generateNewName_noHash(nm.c_str());
-                CStaticGraphCurve* curve=new CStaticGraphCurve(2,&values0,&values1,&values2);
+                CStaticGraphCurve_old* curve=new CStaticGraphCurve_old(2,&values0,&values1,&values2);
                 _staticCurves.push_back(curve);
                 curve->setName(nm);
                 curve->setLabel(it->getLabel());
@@ -1505,6 +1859,21 @@ void CGraph::curveToStatic(int graphType,const char* curveName)
 
 void CGraph::removeStaticCurve(int graphType,const char* curveName)
 {
+    if (graphType==3)
+    { // time, static
+        CGraphDataStream* stream=getGraphDataStream((std::string(curveName)+" [STATIC]").c_str(),true);
+        if (stream!=nullptr)
+            removeGraphDataStream(stream->getId());
+    }
+    if (graphType==4)
+    { // xy, static
+        CGraphCurve* curve=getGraphCurve((std::string(curveName)+" [STATIC]").c_str(),true);
+        if (curve!=nullptr)
+            removeGraphCurve(curve->getId());
+    }
+
+
+    // Old:
     for (size_t i=0;i<_staticCurves.size();i++)
     {
         if (_staticCurves[i]->getCurveType()==graphType-3)
@@ -1531,7 +1900,7 @@ bool CGraph::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
     int i=0;
     while (i<int(daten.size()))
     {
-        CGraphData* gr=daten[i];
+        CGraphData_old* gr=daten[i];
         if (gr->announceObjectWillBeErased(objectHandle,copyBuffer))
         { // We have to remove this graphData:
             removeGraphData(gr->getIdentifier());
@@ -1556,7 +1925,7 @@ void CGraph::announceCollisionWillBeErased(int collisionID,bool copyBuffer)
     int i=0;
     while (i<int(daten.size()))
     {
-        CGraphData* gr=daten[i];
+        CGraphData_old* gr=daten[i];
         if (gr->announceCollisionWillBeErased(collisionID,copyBuffer))
         { // We have to remove this graphData:
             removeGraphData(gr->getIdentifier());
@@ -1574,7 +1943,7 @@ void CGraph::announceDistanceWillBeErased(int distanceID,bool copyBuffer)
     int i=0;
     while (i<int(daten.size()))
     {
-        CGraphData* gr=daten[i];
+        CGraphData_old* gr=daten[i];
         if (gr->announceDistanceWillBeErased(distanceID,copyBuffer))
         { // We have to remove this graphData:
             removeGraphData(gr->getIdentifier());
@@ -1592,7 +1961,7 @@ void CGraph::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
     int i=0;
     while (i<int(daten.size()))
     {
-        CGraphData* gr=daten[i];
+        CGraphData_old* gr=daten[i];
         if (gr->announceIkObjectWillBeErased(ikGroupID,copyBuffer))
         { // We have to remove this graphData:
             removeGraphData(gr->getIdentifier());
@@ -1665,7 +2034,7 @@ bool CGraph::getCyclic() const
     return(cyclic);
 }
 
-bool CGraph::getData(const CGraphData* it,int pos,float& outputValue,bool cyclic,float range,bool doUnitConversion) const
+bool CGraph::getData(const CGraphData_old* it,int pos,float& outputValue,bool cyclic,float range,bool doUnitConversion) const
 {
     float cumulativeValue=0.0f;
     int cumulativeValueCount=0;
@@ -1676,7 +2045,7 @@ bool CGraph::getData(const CGraphData* it,int pos,float& outputValue,bool cyclic
         if (it->getValue(pos,tmpVal))
         {
             if (doUnitConversion)
-                CGraphingRoutines::adjustDataToUserMetric(it,tmpVal,it->getDerivativeIntegralAndCumulative());
+                CGraphingRoutines_old::adjustDataToUserMetric(it,tmpVal,it->getDerivativeIntegralAndCumulative());
             cumulativeValue+=tmpVal;
             cumulativeValueCount++;
         }
@@ -1705,6 +2074,9 @@ void CGraph::resetGraph()
     times.clear();
     for (int i=0;i<bufferSize;i++)
         times.push_back(0.0f);
+    for (size_t i=0;i<_dataStreams.size();i++)
+        _dataStreams[i]->reset(bufferSize);
+    // Old:
     for (int i=0;i<int(daten.size());i++)
         daten[i]->resetData(bufferSize);
 }
@@ -1770,6 +2142,26 @@ void CGraph::serialize(CSer& ar)
             }
             ar.flush();
 
+            for (size_t i=0;i<_dataStreams.size();i++)
+            {
+                ar.storeDataName("Dst");
+                ar.setCountingMode();
+                _dataStreams[i]->serialize(ar,startingPoint,numberOfPoints,bufferSize);
+                if (ar.setWritingMode())
+                    _dataStreams[i]->serialize(ar,startingPoint,numberOfPoints,bufferSize);
+            }
+
+            for (size_t i=0;i<_curves.size();i++)
+            {
+                ar.storeDataName("Cuv");
+                ar.setCountingMode();
+                _curves[i]->serialize(ar,startingPoint,numberOfPoints,bufferSize);
+                if (ar.setWritingMode())
+                    _curves[i]->serialize(ar,startingPoint,numberOfPoints,bufferSize);
+            }
+
+            // Old:
+            //------------
             for (int i=0;i<int(daten.size());i++)
             {
                 ar.storeDataName("Ghd");
@@ -1803,6 +2195,7 @@ void CGraph::serialize(CSer& ar)
                 if (ar.setWritingMode())
                     _staticCurves[i]->serialize(ar);
             }
+            //------------
 
             ar.storeDataName("Gps");
             unsigned char nothing=0;
@@ -1867,11 +2260,32 @@ void CGraph::serialize(CSer& ar)
                             times[i]=aVal;
                         }
                     }
+
+                    if (theName.compare("Dst")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        CGraphDataStream* it=new CGraphDataStream();
+                        it->serialize(ar,startingPoint,numberOfPoints,bufferSize);
+                        _dataStreams.push_back(it);
+                    }
+
+                    if (theName.compare("Cuv")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        CGraphCurve* it=new CGraphCurve();
+                        it->serialize(ar,startingPoint,numberOfPoints,bufferSize);
+                        _curves.push_back(it);
+                    }
+
+                    // Old:
+                    //------------
                     if (theName.compare("Ghd")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        CGraphData* it=new CGraphData();
+                        CGraphData_old* it=new CGraphData_old();
                         it->serialize(ar,this);
                         daten.push_back(it);
                     }
@@ -1879,7 +2293,7 @@ void CGraph::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        CGraphDataComb* it=new CGraphDataComb();
+                        CGraphDataComb_old* it=new CGraphDataComb_old();
                         it->serialize(ar);
                         threeDPartners.push_back(it);
                     }
@@ -1887,7 +2301,7 @@ void CGraph::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        CGraphDataComb* it=new CGraphDataComb();
+                        CGraphDataComb_old* it=new CGraphDataComb_old();
                         it->serialize(ar);
                         twoDPartners.push_back(it);
                     }
@@ -1895,7 +2309,7 @@ void CGraph::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        CStaticGraphCurve* it=new CStaticGraphCurve();
+                        CStaticGraphCurve_old* it=new CStaticGraphCurve_old();
                         it->serialize(ar);
                         // Following 4 on 16/3/2017: duplicate names for static curves can cause problems
                         std::string nm(it->getName());
@@ -1904,6 +2318,7 @@ void CGraph::serialize(CSer& ar)
                         it->setName(nm);
                         _staticCurves.push_back(it);
                     }
+                    //------------
                     if (theName=="Gps")
                     {
                         noHit=false;
@@ -1982,6 +2397,22 @@ void CGraph::serialize(CSer& ar)
                 }
                 ar.xmlAddNode_floats("times",tmp);
 
+                for (size_t i=0;i<_dataStreams.size();i++)
+                {
+                    ar.xmlPushNewNode("stream");
+                    _dataStreams[i]->serialize(ar,startingPoint,numberOfPoints,bufferSize);
+                    ar.xmlPopNode();
+                }
+
+                for (size_t i=0;i<_curves.size();i++)
+                {
+                    ar.xmlPushNewNode("curve");
+                    _curves[i]->serialize(ar,startingPoint,numberOfPoints,bufferSize);
+                    ar.xmlPopNode();
+                }
+
+                // Old:
+                // ---------------------
                 for (size_t i=0;i<daten.size();i++)
                 {
                     ar.xmlPushNewNode("dataStream");
@@ -2000,13 +2431,13 @@ void CGraph::serialize(CSer& ar)
                     twoDPartners[i]->serialize(ar);
                     ar.xmlPopNode();
                 }
-
                 for (size_t i=0;i<_staticCurves.size();i++)
                 {
                     ar.xmlPushNewNode("staticCurve");
                     _staticCurves[i]->serialize(ar);
                     ar.xmlPopNode();
                 }
+                // ---------------------
             }
         }
         else
@@ -2065,11 +2496,39 @@ void CGraph::serialize(CSer& ar)
             {
                 ar.xmlGetNode_floats("times",times);
 
+                if (ar.xmlPushChildNode("stream",false))
+                {
+                    while (true)
+                    {
+                        CGraphDataStream* it=new CGraphDataStream();
+                        it->serialize(ar,startingPoint,numberOfPoints,bufferSize);
+                        _dataStreams.push_back(it);
+                        if (!ar.xmlPushSiblingNode("stream",false))
+                            break;
+                    }
+                    ar.xmlPopNode();
+                }
+
+                if (ar.xmlPushChildNode("curve",false))
+                {
+                    while (true)
+                    {
+                        CGraphCurve* it=new CGraphCurve();
+                        it->serialize(ar,startingPoint,numberOfPoints,bufferSize);
+                        _curves.push_back(it);
+                        if (!ar.xmlPushSiblingNode("curve",false))
+                            break;
+                    }
+                    ar.xmlPopNode();
+                }
+
+                // Old:
+                // --------------
                 if (ar.xmlPushChildNode("dataStream",false))
                 {
                     while (true)
                     {
-                        CGraphData* it=new CGraphData();
+                        CGraphData_old* it=new CGraphData_old();
                         it->serialize(ar,this);
                         daten.push_back(it);
                         if (!ar.xmlPushSiblingNode("dataStream",false))
@@ -2082,7 +2541,7 @@ void CGraph::serialize(CSer& ar)
                 {
                     while (true)
                     {
-                        CGraphDataComb* it=new CGraphDataComb();
+                        CGraphDataComb_old* it=new CGraphDataComb_old();
                         it->serialize(ar);
                         threeDPartners.push_back(it);
                         if (!ar.xmlPushSiblingNode("3dCurve",false))
@@ -2095,7 +2554,7 @@ void CGraph::serialize(CSer& ar)
                 {
                     while (true)
                     {
-                        CGraphDataComb* it=new CGraphDataComb();
+                        CGraphDataComb_old* it=new CGraphDataComb_old();
                         it->serialize(ar);
                         twoDPartners.push_back(it);
                         if (!ar.xmlPushSiblingNode("2dCurve",false))
@@ -2108,7 +2567,7 @@ void CGraph::serialize(CSer& ar)
                 {
                     while (true)
                     {
-                        CStaticGraphCurve* it=new CStaticGraphCurve();
+                        CStaticGraphCurve_old* it=new CStaticGraphCurve_old();
                         it->serialize(ar);
                         // Following 4 on 16/3/2017: duplicate names for static curves can cause problems
                         std::string nm(it->getName());
@@ -2121,6 +2580,7 @@ void CGraph::serialize(CSer& ar)
                     }
                     ar.xmlPopNode();
                 }
+                // --------------
             }
         }
     }
@@ -2138,79 +2598,6 @@ void CGraph::display(CViewableBase* renderingObject,int displayAttrib)
 { // This is a quite ugly routine which requires refactoring!
     EASYLOCK(_objectMutex);
     displayGraph(this,renderingObject,displayAttrib);
-}
-
-void CGraph::copyCurveToClipboard(int curveIndex,int dimensionIndex)
-{
-    std::string txt;
-    if (dimensionIndex==0)
-    { // time graph curves:
-        if (curveIndex<int(daten.size()))
-        {
-            CGraphData* it=daten[curveIndex];
-            int pos=0;
-            int absIndex;
-            float yVal,xVal;
-            bool cyclic;
-            float range;
-            CGraphingRoutines::getCyclicAndRangeValues(it,cyclic,range);
-            while (getAbsIndexOfPosition(pos++,absIndex))
-            {
-                xVal=times[absIndex];
-                bool dataIsValid=getData(it,absIndex,yVal,cyclic,range,true);
-                if (dataIsValid)
-                {
-                    txt+=boost::lexical_cast<std::string>(xVal)+char(9);
-                    txt+=boost::lexical_cast<std::string>(yVal)+char(13);
-                    txt+=char(10);
-                }
-            }
-        }
-    }
-    if (dimensionIndex==1)
-    { // x/y graph curves:
-        if (curveIndex<int(twoDPartners.size()))
-        {
-            CGraphDataComb* it=twoDPartners[curveIndex];
-            int pos=0;
-            int absIndex;
-            float val[3];
-            CGraphData* number1=getGraphData(it->data[0]);
-            CGraphData* number2=getGraphData(it->data[1]);
-            bool cyclic1,cyclic2;
-            float range1,range2;
-            if (number1!=nullptr)
-                CGraphingRoutines::getCyclicAndRangeValues(number1,cyclic1,range1);
-            if (number2!=nullptr)
-                CGraphingRoutines::getCyclicAndRangeValues(number2,cyclic2,range2);
-
-            while (getAbsIndexOfPosition(pos++,absIndex))
-            {
-                bool dataIsValid=true;
-                if (number1!=nullptr)
-                {
-                    if(!getData(number1,absIndex,val[0],cyclic1,range1,true))
-                        dataIsValid=false;
-                }
-                else
-                    dataIsValid=false;
-                if (number2!=nullptr)
-                {
-                    if(!getData(number2,absIndex,val[1],cyclic2,range2,true))
-                        dataIsValid=false;
-                }
-                else
-                    dataIsValid=false;
-                if (dataIsValid)
-                {
-                    txt+=boost::lexical_cast<std::string>(val[0])+char(9);
-                    txt+=boost::lexical_cast<std::string>(val[1])+char(13);
-                    txt+=char(10);
-                }
-            }
-        }
-    }
-    VVarious::copyTextToClipboard(txt.c_str());
 }
 
 #ifdef SIM_WITH_GUI
@@ -2459,7 +2846,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
         {
             if (daten[i]->getVisible())
             {
-                CGraphData* it=daten[i];
+                CGraphData_old* it=daten[i];
                 ogl::setMaterialColor(sim_colorcomponent_emission,it->ambientColor);
                 if (!dontRender)
                 { // We display that curve
@@ -2482,7 +2869,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
 
                     bool cyclic;
                     float range;
-                    CGraphingRoutines::getCyclicAndRangeValues(it,cyclic,range);
+                    CGraphingRoutines_old::getCyclicAndRangeValues(it,cyclic,range);
 
                     while (getAbsIndexOfPosition(pos++,absIndex))
                     {
@@ -2503,7 +2890,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     glLineWidth(1.0f);
                     if (it->getLabel())
                     {
-                        tmp=it->getName()+" ("+CGraphingRoutines::getDataUnit(it)+")";
+                        tmp=it->getName()+" ("+CGraphingRoutines_old::getDataUnit(it)+")";
                         float tl=float(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
                         ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp.c_str());
                         labelPos[1]=labelPos[1]-interline;
@@ -2517,7 +2904,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     float yVal,xVal;
                     bool cyclic;
                     float range;
-                    CGraphingRoutines::getCyclicAndRangeValues(it,cyclic,range);
+                    CGraphingRoutines_old::getCyclicAndRangeValues(it,cyclic,range);
                     while (getAbsIndexOfPosition(pos++,absIndex))
                     {
                         xVal=times[absIndex];
@@ -2576,7 +2963,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
         {
             if (_staticCurves[i]->getCurveType()==0)
             {
-                CStaticGraphCurve* it=_staticCurves[i];
+                CStaticGraphCurve_old* it=_staticCurves[i];
                 if (!dontRender)
                 {
                     ogl::setMaterialColor(sim_colorcomponent_emission,it->ambientColor);
@@ -2682,7 +3069,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
         {
             if (twoDPartners[i]->getVisible())
             {
-                CGraphDataComb* it=twoDPartners[i];
+                CGraphDataComb_old* it=twoDPartners[i];
                 ogl::setMaterialColor(sim_colorcomponent_emission,it->curveColor.getColorsPtr());
                 if (!dontRender)
                 {
@@ -2702,15 +3089,15 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     int pos=0;
                     int absIndex;
                     float val[3];
-                    CGraphData* number1=getGraphData(it->data[0]);
-                    CGraphData* number2=getGraphData(it->data[1]);
+                    CGraphData_old* number1=getGraphData(it->data[0]);
+                    CGraphData_old* number2=getGraphData(it->data[1]);
 
                     bool cyclic1,cyclic2;
                     float range1,range2;
                     if (number1!=nullptr)
-                        CGraphingRoutines::getCyclicAndRangeValues(number1,cyclic1,range1);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
                     if (number2!=nullptr)
-                        CGraphingRoutines::getCyclicAndRangeValues(number2,cyclic2,range2);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(number2,cyclic2,range2);
 
                     while (getAbsIndexOfPosition(pos++,absIndex))
                     {
@@ -2748,7 +3135,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     {
                         if ( (number1!=nullptr)&&(number2!=nullptr) )
                         {
-                            tmp=it->getName()+" (x: "+CGraphingRoutines::getDataUnit(number1)+") (y: "+CGraphingRoutines::getDataUnit(number2)+")";
+                            tmp=it->getName()+" (x: "+CGraphingRoutines_old::getDataUnit(number1)+") (y: "+CGraphingRoutines_old::getDataUnit(number2)+")";
                             float tl=float(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
                             ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp.c_str());
                             labelPos[1]=labelPos[1]-interline;
@@ -2760,14 +3147,14 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     int pos=0;
                     int absIndex;
                     float val[3];
-                    CGraphData* number1=getGraphData(it->data[0]);
-                    CGraphData* number2=getGraphData(it->data[1]);
+                    CGraphData_old* number1=getGraphData(it->data[0]);
+                    CGraphData_old* number2=getGraphData(it->data[1]);
                     bool cyclic1,cyclic2;
                     float range1,range2;
                     if (number1!=nullptr)
-                        CGraphingRoutines::getCyclicAndRangeValues(number1,cyclic1,range1);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
                     if (number2!=nullptr)
-                        CGraphingRoutines::getCyclicAndRangeValues(number2,cyclic2,range2);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(number2,cyclic2,range2);
                     while (getAbsIndexOfPosition(pos++,absIndex))
                     {
                         bool dataIsValid=true;
@@ -2843,7 +3230,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
         {
             if (_staticCurves[i]->getCurveType()==1)
             {
-                CStaticGraphCurve* it=_staticCurves[i];
+                CStaticGraphCurve_old* it=_staticCurves[i];
                 if (!dontRender)
                 {
                     ogl::setMaterialColor(sim_colorcomponent_emission,it->ambientColor);
@@ -2971,7 +3358,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                 {
                     if (!trackingValueIsStatic)
                     {
-                        CGraphData* it=daten[trackingValueIndex];
+                        CGraphData_old* it=daten[trackingValueIndex];
                         tmp=" ("+tt::getEString(false,trackingValue[0],5)+" ; ";
                         tmp+=tt::getEString(false,trackingValue[1],5)+")";
                         tmp=it->getName()+tmp;
@@ -2988,7 +3375,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     }
                     else
                     { // Tracking a static curve here!
-                        CStaticGraphCurve* it=_staticCurves[trackingValueIndex];
+                        CStaticGraphCurve_old* it=_staticCurves[trackingValueIndex];
                         tmp=" [STATIC] ("+tt::getEString(false,trackingValue[0],5)+" ; ";
                         tmp+=tt::getEString(false,trackingValue[1],5)+")";
                         tmp=it->getName()+tmp;
@@ -3006,7 +3393,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                 {
                     if (!trackingValueIsStatic)
                     {
-                        CGraphDataComb* it=twoDPartners[trackingValueIndex];
+                        CGraphDataComb_old* it=twoDPartners[trackingValueIndex];
                         tmp=" ("+tt::getEString(false,trackingValue[0],5)+" ; ";
                         tmp+=tt::getEString(false,trackingValue[1],5)+")";
                         tmp=it->getName()+tmp;
@@ -3023,7 +3410,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     }
                     else
                     { // tracking a static curve here!
-                        CStaticGraphCurve* it=_staticCurves[trackingValueIndex];
+                        CStaticGraphCurve_old* it=_staticCurves[trackingValueIndex];
                         tmp=" [STATIC] ("+tt::getEString(false,trackingValue[0],5)+" ; ";
                         tmp+=tt::getEString(false,trackingValue[1],5)+")";
                         tmp=it->getName()+tmp;

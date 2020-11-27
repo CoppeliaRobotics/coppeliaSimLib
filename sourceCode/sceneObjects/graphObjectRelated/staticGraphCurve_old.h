@@ -2,13 +2,13 @@
 
 #include "ser.h"
 
-class CStaticGraphCurve  
+class CStaticGraphCurve_old
 {
 public:
     
-    CStaticGraphCurve();
-    CStaticGraphCurve(int type,std::vector<float>* xVals,std::vector<float>* yVals,std::vector<float>* zVals);
-    virtual ~CStaticGraphCurve();
+    CStaticGraphCurve_old();
+    CStaticGraphCurve_old(int type,std::vector<float>* xVals,std::vector<float>* yVals,std::vector<float>* zVals);
+    virtual ~CStaticGraphCurve_old();
 
     // Various
     int getCurveType();
@@ -24,7 +24,7 @@ public:
     bool getRelativeToWorld();
 
     void serialize(CSer& ar);
-    CStaticGraphCurve* copyYourself();
+    CStaticGraphCurve_old* copyYourself();
     
     // Variables which need to be serialized & copied 
     std::vector <float> values;

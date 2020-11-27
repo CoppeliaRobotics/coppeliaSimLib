@@ -518,55 +518,62 @@ void CMesh::getCumulativeMeshes(std::vector<float>& vertices,std::vector<int>* i
     }
 }
 
-void CMesh::setColor(const char* colorName,int colorComponent,const float* rgbData)
+void CMesh::setColor(const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset)
 { // function has virtual/non-virtual counterpart!
-    if ( (colorName==nullptr)||(color.getColorName().compare(colorName)==0) )
+    if ( (colorName==nullptr)||(color.getColorName().compare(colorName)==0)||(strcmp(colorName,"@compound")==0) )
     {
+        bool compoundColors=(colorName!=nullptr)&&(strcmp(colorName,"@compound")==0);
         if (colorComponent<4)
         { // regular components
             for (int i=0;i<3;i++)
-                color.getColorsPtr()[colorComponent*3+i]=rgbData[i];
+                color.getColorsPtr()[colorComponent*3+i]=rgbData[rgbDataOffset+i];
+            if (compoundColors)
+                rgbDataOffset+=3;
         }
         if (colorComponent==4)
         {
-            color.setTransparencyFactor(rgbData[0]);
-            color.setTranslucid(rgbData[0]<1.0f);
+            color.setTransparencyFactor(rgbData[rgbDataOffset+0]);
+            color.setTranslucid(rgbData[rgbDataOffset+0]<1.0f);
+            if (compoundColors)
+                rgbDataOffset+=1;
         }
         if (colorComponent==5)
         { // auxiliary components
             for (int i=0;i<3;i++)
-                color.getColorsPtr()[12+i]=rgbData[i];
+                color.getColorsPtr()[12+i]=rgbData[rgbDataOffset+i];
+            if (compoundColors)
+                rgbDataOffset+=3;
         }
     }
     if ((colorName!=nullptr)&&(insideColor_DEPRECATED.getColorName().compare(colorName)==0))
-    {
+    { // OLD, deprecated
         if (colorComponent<4)
         { // regular components
             for (int i=0;i<3;i++)
-                insideColor_DEPRECATED.getColorsPtr()[colorComponent*3+i]=rgbData[i];
+                insideColor_DEPRECATED.getColorsPtr()[colorComponent*3+i]=rgbData[rgbDataOffset+i];
         }
         if (colorComponent==4)
         {
-            insideColor_DEPRECATED.setTransparencyFactor(rgbData[0]);
-            insideColor_DEPRECATED.setTranslucid(rgbData[0]<1.0f);
+            insideColor_DEPRECATED.setTransparencyFactor(rgbData[rgbDataOffset+0]);
+            insideColor_DEPRECATED.setTranslucid(rgbData[rgbDataOffset+0]<1.0f);
         }
         if (colorComponent==5)
         { // auxiliary components
             for (int i=0;i<3;i++)
-                insideColor_DEPRECATED.getColorsPtr()[12+i]=rgbData[i];
+                insideColor_DEPRECATED.getColorsPtr()[12+i]=rgbData[rgbDataOffset+i];
         }
     }
     if ((colorName!=nullptr)&&(edgeColor_DEPRECATED.getColorName().compare(colorName)==0))
-    {
+    { // OLD, deprecated
         if (colorComponent<4)
         { // regular components
             for (int i=0;i<3;i++)
-                edgeColor_DEPRECATED.getColorsPtr()[colorComponent*3+i]=rgbData[i];
+                edgeColor_DEPRECATED.getColorsPtr()[colorComponent*3+i]=rgbData[rgbDataOffset+i];
         }
         if (colorComponent==5)
         { // auxiliary components
             for (int i=0;i<3;i++)
-                edgeColor_DEPRECATED.getColorsPtr()[12+i]=rgbData[i];
+                edgeColor_DEPRECATED.getColorsPtr()[12+i]=rgbData[rgbDataOffset+i];
         }
     }
 
@@ -574,73 +581,73 @@ void CMesh::setColor(const char* colorName,int colorComponent,const float* rgbDa
     if ( (colorName!=nullptr)&&(strlen(colorName)==2)&&(colorName[0]=='@') )
     { // operations in the HSL space
         if (colorName[1]=='0')
-        { // outside color
+        { // color
             if (colorComponent<4)
             { // regular components
                 float hsl[3];
                 tt::rgbToHsl(color.getColorsPtr()+colorComponent*3,hsl);
-                hsl[0]=fmod(hsl[0]+rgbData[0],1.0f);
-                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[1]);
-                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[2]);
+                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0f);
+                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[rgbDataOffset+1]);
+                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[rgbDataOffset+2]);
                 tt::hslToRgb(hsl,color.getColorsPtr()+colorComponent*3);
             }
             if (colorComponent==4)
             {
-                color.setTransparencyFactor(tt::getLimitedFloat(0.0f,1.0f,color.getTransparencyFactor()+rgbData[0]));
+                color.setTransparencyFactor(tt::getLimitedFloat(0.0f,1.0f,color.getTransparencyFactor()+rgbData[rgbDataOffset+0]));
             }
             if (colorComponent==5)
             { // auxiliary components
                 float hsl[3];
                 tt::rgbToHsl(color.getColorsPtr()+12,hsl);
-                hsl[0]=fmod(hsl[0]+rgbData[0],1.0f);
-                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[1]);
-                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[2]);
+                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0f);
+                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[rgbDataOffset+1]);
+                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[rgbDataOffset+2]);
                 tt::hslToRgb(hsl,color.getColorsPtr()+12);
             }
         }
         if (colorName[1]=='1')
-        { // inside color
+        { // OLD, deprecated (inside color)
             if (colorComponent<4)
             { // regular components
                 float hsl[3];
                 tt::rgbToHsl(insideColor_DEPRECATED.getColorsPtr()+colorComponent*3,hsl);
-                hsl[0]=fmod(hsl[0]+rgbData[0],1.0f);
-                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[1]);
-                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[2]);
+                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0f);
+                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[rgbDataOffset+1]);
+                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[rgbDataOffset+2]);
                 tt::hslToRgb(hsl,insideColor_DEPRECATED.getColorsPtr()+colorComponent*3);
             }
             if (colorComponent==4)
             {
-                insideColor_DEPRECATED.setTransparencyFactor(tt::getLimitedFloat(0.0f,1.0f,insideColor_DEPRECATED.getTransparencyFactor()+rgbData[0]));
+                insideColor_DEPRECATED.setTransparencyFactor(tt::getLimitedFloat(0.0f,1.0f,insideColor_DEPRECATED.getTransparencyFactor()+rgbData[rgbDataOffset+0]));
             }
             if (colorComponent==5)
             { // auxiliary components
                 float hsl[3];
                 tt::rgbToHsl(insideColor_DEPRECATED.getColorsPtr()+12,hsl);
-                hsl[0]=fmod(hsl[0]+rgbData[0],1.0f);
-                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[1]);
-                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[2]);
+                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0f);
+                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[rgbDataOffset+1]);
+                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[rgbDataOffset+2]);
                 tt::hslToRgb(hsl,insideColor_DEPRECATED.getColorsPtr()+12);
             }
         }
         if (colorName[1]=='2')
-        { // edge color
+        { // OLD, deprecated (edge color)
             if (colorComponent<4)
             { // regular components
                 float hsl[3];
                 tt::rgbToHsl(edgeColor_DEPRECATED.getColorsPtr()+colorComponent*3,hsl);
-                hsl[0]=fmod(hsl[0]+rgbData[0],1.0f);
-                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[1]);
-                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[2]);
+                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0f);
+                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[rgbDataOffset+1]);
+                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[rgbDataOffset+2]);
                 tt::hslToRgb(hsl,edgeColor_DEPRECATED.getColorsPtr()+colorComponent*3);
             }
             if (colorComponent==5)
             { // auxiliary components
                 float hsl[3];
                 tt::rgbToHsl(edgeColor_DEPRECATED.getColorsPtr()+12,hsl);
-                hsl[0]=fmod(hsl[0]+rgbData[0],1.0f);
-                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[1]);
-                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[2]);
+                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0f);
+                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[rgbDataOffset+1]);
+                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[rgbDataOffset+2]);
                 tt::hslToRgb(hsl,edgeColor_DEPRECATED.getColorsPtr()+12);
             }
         }
@@ -648,61 +655,68 @@ void CMesh::setColor(const char* colorName,int colorComponent,const float* rgbDa
 
 }
 
-bool CMesh::getColor(const char* colorName,int colorComponent,float* rgbData)
+bool CMesh::getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset)
 { // function has virtual/non-virtual counterpart!
-    if ( (colorName==nullptr)||(color.getColorName().compare(colorName)==0) )
+    if ( (colorName==nullptr)||(color.getColorName().compare(colorName)==0)||(strcmp(colorName,"@compound")==0) )
     {
+        bool compoundColors=(colorName!=nullptr)&&(strcmp(colorName,"@compound")==0);
         if (colorComponent<4)
         { // regular components
             for (int i=0;i<3;i++)
-                rgbData[i]=color.getColorsPtr()[colorComponent*3+i];
+                rgbData[rgbDataOffset+i]=color.getColorsPtr()[colorComponent*3+i];
+            if (compoundColors)
+                rgbDataOffset+=3;
             return(true);
         }
         if (colorComponent==4)
         {
-            rgbData[0]=color.getTransparencyFactor();
+            rgbData[rgbDataOffset+0]=color.getTransparencyFactor();
+            if (compoundColors)
+                rgbDataOffset+=1;
             return(true);
         }
         if (colorComponent==5)
         { // auxiliary components
             for (int i=0;i<3;i++)
-                rgbData[i]=color.getColorsPtr()[12+i];
+                rgbData[rgbDataOffset+i]=color.getColorsPtr()[12+i];
+            if (compoundColors)
+                rgbDataOffset+=3;
             return(true);
         }
         return(false);
     }
     if ((colorName!=nullptr)&&(insideColor_DEPRECATED.getColorName().compare(colorName)==0))
-    {
+    { // OLD, deprecated
         if (colorComponent<4)
         { // regular components
             for (int i=0;i<3;i++)
-                rgbData[i]=insideColor_DEPRECATED.getColorsPtr()[colorComponent*3+i];
+                rgbData[rgbDataOffset+i]=insideColor_DEPRECATED.getColorsPtr()[colorComponent*3+i];
             return(true);
         }
         if (colorComponent==4)
         {
-            rgbData[0]=insideColor_DEPRECATED.getTransparencyFactor();
+            rgbData[rgbDataOffset+0]=insideColor_DEPRECATED.getTransparencyFactor();
             return(true);
         }
         if (colorComponent==5)
         { // auxiliary components
             for (int i=0;i<3;i++)
-                rgbData[i]=insideColor_DEPRECATED.getColorsPtr()[12+i];
+                rgbData[rgbDataOffset+i]=insideColor_DEPRECATED.getColorsPtr()[12+i];
             return(true);
         }
         return(false);
     }
     if ((colorName!=nullptr)&&(edgeColor_DEPRECATED.getColorName().compare(colorName)==0))
-    {
+    { // OLD, deprecated
         if (colorComponent<4)
         { // regular components
             for (int i=0;i<3;i++)
-                rgbData[i]=edgeColor_DEPRECATED.getColorsPtr()[colorComponent*3+i];
+                rgbData[rgbDataOffset+i]=edgeColor_DEPRECATED.getColorsPtr()[colorComponent*3+i];
         }
         if (colorComponent==5)
         { // auxiliary components
             for (int i=0;i<3;i++)
-                rgbData[i]=edgeColor_DEPRECATED.getColorsPtr()[12+i];
+                rgbData[rgbDataOffset+i]=edgeColor_DEPRECATED.getColorsPtr()[12+i];
         }
         return(false);
     }
@@ -723,6 +737,11 @@ CMesh* CMesh::getShapeComponentAtIndex(int& index)
         return(this);
     index--;
     return(nullptr);
+}
+
+int CMesh::getComponentCount() const
+{ // function has virtual/non-virtual counterpart!
+    return(1);
 }
 
 int CMesh::getUniqueID()

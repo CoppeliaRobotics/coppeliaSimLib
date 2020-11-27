@@ -3,7 +3,7 @@
 #include "gV.h"
 #include "tt.h"
 #include "global.h"
-#include "graphingRoutines.h"
+#include "graphingRoutines_old.h"
 #include <QPushButton>
 #include "simStrings.h"
 #include "app.h"
@@ -169,10 +169,10 @@ void CQDlgDataStreamSelection::refresh()
     while(true)
     {
         int objID;
-        if (CGraphingRoutines::loopThroughAllAndGetObjectsFromGraphCategory(counter,w,objID))
+        if (CGraphingRoutines_old::loopThroughAllAndGetObjectsFromGraphCategory(counter,w,objID))
         {
             std::string tmp=IDS_ERROR;
-            CGraphingRoutines::loopThroughAllAndGetGraphObjectName(w,objID,tmp);
+            CGraphingRoutines_old::loopThroughAllAndGetGraphObjectName(w,objID,tmp);
             p.push_back(std::make_pair(tmp,counter));
             counter++;
         }
@@ -191,7 +191,7 @@ void CQDlgDataStreamSelection::refresh()
 void CQDlgDataStreamSelection::addElementToCombobox(QComboBox* box,int dataType)
 {
     std::string tmp;
-    CGraphingRoutines::loopThroughAllAndGetDataName(dataType,tmp);
+    CGraphingRoutines_old::loopThroughAllAndGetDataName(dataType,tmp);
     box->addItem(tmp.c_str(),QVariant(dataType));
 }
 

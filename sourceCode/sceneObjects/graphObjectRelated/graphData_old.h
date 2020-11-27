@@ -3,12 +3,12 @@
 #include "7Vector.h"
 #include "ser.h"
 
-class CGraphData  
+class CGraphData_old
 {
 public:
-    CGraphData();
-    CGraphData(int theDataType,int theDataObjectID,int theDataObjectAuxID);
-    virtual ~CGraphData();
+    CGraphData_old();
+    CGraphData_old(int theDataType,int theDataObjectID,int theDataObjectAuxID);
+    virtual ~CGraphData_old();
 
     // Various
     int getDataType() const;
@@ -48,7 +48,7 @@ public:
     int getMovingAverageCount() const;
 
     void serialize(CSer& ar,void* it);
-    CGraphData* copyYourself();
+    CGraphData_old* copyYourself();
     void performObjectLoadingMapping(const std::vector<int>* map);
     void performCollisionLoadingMapping(const std::vector<int>* map);
     void performDistanceLoadingMapping(const std::vector<int>* map);

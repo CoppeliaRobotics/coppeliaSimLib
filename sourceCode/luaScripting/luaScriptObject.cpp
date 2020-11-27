@@ -415,7 +415,7 @@ const SNewApiMapping _simApiMapping[]=
     "simAuxFunc","sim.auxFunc",
     "simSetReferencedHandles","sim.setReferencedHandles",
     "simGetReferencedHandles","sim.getReferencedHandles",
-    "simGetGraphCurve","sim.getGraphCurve",
+    "simGetGraphCurve","sim.getGraphCurveData",
     "simTest","sim.test",
     "simRMLPos","sim.rmlPos",
     "simRMLVel","sim.rmlVel",
@@ -6048,6 +6048,24 @@ void CLuaScriptObject::_adjustScriptText13(CLuaScriptObject* scriptObject,bool d
             App::logMsg(sim_verbosity_errors,"Contains sim.readDistance...");
         if (_containsScriptText(scriptObject,"sim.resetDistance"))
             App::logMsg(sim_verbosity_errors,"Contains sim.resetDistance...");
+        if (_containsScriptText(scriptObject,"sim.boolAnd32"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.boolAnd32...");
+        if (_containsScriptText(scriptObject,"sim.boolOr32"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.boolOr32...");
+        if (_containsScriptText(scriptObject,"sim.boolXor32"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.boolXor32...");
+        if (_containsScriptText(scriptObject,"simBoolAnd32"))
+            App::logMsg(sim_verbosity_errors,"Contains simBoolAnd32...");
+        if (_containsScriptText(scriptObject,"simBoolOr32"))
+            App::logMsg(sim_verbosity_errors,"Contains simBoolOr32...");
+        if (_containsScriptText(scriptObject,"simBoolXor32"))
+            App::logMsg(sim_verbosity_errors,"Contains simBoolXo32...");
+        if (_containsScriptText(scriptObject,"simBoolAnd16"))
+            App::logMsg(sim_verbosity_errors,"Contains simBoolAnd16...");
+        if (_containsScriptText(scriptObject,"simBoolOr16"))
+            App::logMsg(sim_verbosity_errors,"Contains simBoolOr16...");
+        if (_containsScriptText(scriptObject,"simBoolXor16"))
+            App::logMsg(sim_verbosity_errors,"Contains simBoolXo16...");
 
         if (_containsScriptText(scriptObject,"sim.getScriptExecutionCount"))
             App::logMsg(sim_verbosity_errors,"Contains sim.getScriptExecutionCount...");

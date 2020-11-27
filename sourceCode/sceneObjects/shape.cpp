@@ -1953,14 +1953,21 @@ CSceneObject* CShape::copyYourself()
 
 void CShape::setColor(const char* colorName,int colorComponent,const float* rgbData)
 {
-    getMeshWrapper()->setColor(colorName,colorComponent,rgbData);
+    int rgbDataOffset=0;
+    getMeshWrapper()->setColor(colorName,colorComponent,rgbData,rgbDataOffset);
     if (colorComponent==sim_colorcomponent_transparency)
         actualizeContainsTransparentComponent();
 }
 
 bool CShape::getColor(const char* colorName,int colorComponent,float* rgbData)
 {
-    return(getMeshWrapper()->getColor(colorName,colorComponent,rgbData));
+    int rgbDataOffset=0;
+    return(getMeshWrapper()->getColor(colorName,colorComponent,rgbData,rgbDataOffset));
+}
+
+int CShape::getComponentCount() const
+{
+    return(getMeshWrapper()->getComponentCount());
 }
 
 void CShape::display(CViewableBase* renderingObject,int displayAttrib)

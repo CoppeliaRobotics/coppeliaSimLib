@@ -61,6 +61,10 @@ void CQDlgScripts::refresh()
 
     ui->qqExecutionOrder->clear();
     ui->qqTreeTraversalDirection->clear();
+
+    ui->qqDebugMode->setVisible(App::userSettings->showOldDlgs);
+    ui->qqDebugText->setVisible(App::userSettings->showOldDlgs);
+
     ui->qqDebugMode->clear();
     ui->qqAssociatedObjectCombo->clear();
 

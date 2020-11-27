@@ -1,20 +1,16 @@
-
 #pragma once
 
-#include "graphData.h"
+#include "graphData_old.h"
 
-class CGraphingRoutines
+class CGraphingRoutines_old
 {
 public:
-    CGraphingRoutines();
-    virtual ~CGraphingRoutines();
+    CGraphingRoutines_old();
+    virtual ~CGraphingRoutines_old();
 
-    static void resetAllGraphs(bool exceptExplicitHandling);
-    static void handleAllGraphs(bool exceptExplicitHandling,float time);
-
-    static std::string getDataUnit(CGraphData* it);
-    static void adjustDataToUserMetric(const CGraphData* it,float& v,int derivativeIntegralOrCumulative);
-    static void getCyclicAndRangeValues(const CGraphData* it,bool& cyclic,float& range);
+    static std::string getDataUnit(CGraphData_old* it);
+    static void adjustDataToUserMetric(const CGraphData_old* it,float& v,int derivativeIntegralOrCumulative);
+    static void getCyclicAndRangeValues(const CGraphData_old* it,bool& cyclic,float& range);
 
     static bool getDataName(int dataIndex,std::string& dataName);
     static bool getDataValue(int dataIndex,int objectID,float& value,const C7Vector* graphCTM=nullptr);

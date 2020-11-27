@@ -1,15 +1,14 @@
-
 #pragma once
 
-#include "graphData.h"
+#include "graphData_old.h"
 #include "colorObject.h"
 
-class CGraphDataComb  
+class CGraphDataComb_old
 {
 public:
 
-    CGraphDataComb();
-    virtual ~CGraphDataComb();
+    CGraphDataComb_old();
+    virtual ~CGraphDataComb_old();
 
     // Various
     void setVisible(bool v);
@@ -27,7 +26,7 @@ public:
     void setLabel(bool l);
     bool getLabel();
     void serialize(CSer& ar);
-    CGraphDataComb* copyYourself();
+    CGraphDataComb_old* copyYourself();
 
     void setCurveRelativeToWorld(bool relToWorld);
     bool getCurveRelativeToWorld();

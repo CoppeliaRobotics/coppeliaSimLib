@@ -32,10 +32,11 @@ public:
     void setConvex(bool convex);
     bool containsOnlyPureConvexShapes();
     void getCumulativeMeshes(std::vector<float>& vertices,std::vector<int>* indices,std::vector<float>* normals);
-    void setColor(const char* colorName,int colorComponent,const float* rgbData);
-    bool getColor(const char* colorName,int colorComponent,float* rgbData);
+    void setColor(const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset);
+    bool getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset);
     void getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList); // needed by the dynamics routine
     CMesh* getShapeComponentAtIndex(int& index);
+    int getComponentCount() const;
     void serialize(CSer& ar,const char* shapeName);
     void preMultiplyAllVerticeLocalFrames(const C7Vector& preTr);
     void flipFaces();

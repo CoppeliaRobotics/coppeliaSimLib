@@ -388,10 +388,12 @@ HEADERS += $$PWD/sourceCode/sceneObjects/jointObject.h \
     $$PWD/sourceCode/sceneObjects/proximitySensor.h \
     $$PWD/sourceCode/sceneObjects/visionSensor.h \
 
-HEADERS += $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphingRoutines.h \
-    $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphDataComb.h \
-    $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphData.h \
-    $$PWD/sourceCode/sceneObjects/graphObjectRelated/staticGraphCurve.h \
+HEADERS += $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphCurve.h \
+    $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphDataStream.h \
+    $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphingRoutines_old.h \
+    $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphDataComb_old.h \
+    $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphData_old.h \
+    $$PWD/sourceCode/sceneObjects/graphObjectRelated/staticGraphCurve_old.h \
 
 HEADERS += $$PWD/sourceCode/sceneObjects/pathObjectRelated/bezierPathPoint.h \
     $$PWD/sourceCode/sceneObjects/pathObjectRelated/simplePathPoint.h \
@@ -816,10 +818,12 @@ SOURCES += $$PWD/sourceCode/sceneObjects/jointObject.cpp \
     $$PWD/sourceCode/sceneObjects/shape.cpp \
     $$PWD/sourceCode/sceneObjects/visionSensor.cpp \
 
-SOURCES += $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphingRoutines.cpp \
-    $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphDataComb.cpp \
-    $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphData.cpp \
-    $$PWD/sourceCode/sceneObjects/graphObjectRelated/staticGraphCurve.cpp \
+SOURCES += $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphCurve.cpp \
+    $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphDataStream.cpp \
+    $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphingRoutines_old.cpp \
+    $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphDataComb_old.cpp \
+    $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphData_old.cpp \
+    $$PWD/sourceCode/sceneObjects/graphObjectRelated/staticGraphCurve_old.cpp \
 
 SOURCES += $$PWD/sourceCode/sceneObjects/pathObjectRelated/bezierPathPoint.cpp \
     $$PWD/sourceCode/sceneObjects/pathObjectRelated/simplePathPoint.cpp \

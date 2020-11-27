@@ -82,6 +82,8 @@
 #define SIM_ERROR_INVALID_PARAMETER             "Invalid parameter."
 #define SIM_ERROR_INVALID_FORMAT             "Invalid format."
 #define SIM_ERROR_INVALID_ARGUMENT          "Invalid argument."
+#define SIM_ERROR_EMPTY_STRING_NOT_ALLOWED          "Empty string is not allowed."
+#define SIM_ERROR_INVALID_CURVE_ID              "Invalid curve id."
 #define SIM_ERROR_INVALID_ARGUMENTS             "Invalid arguments."
 #define SIM_ERROR_INVALID_FIRST_ARGUMENT        "Invalid first argument."
 #define SIM_ERROR_INVALID_DIMENSIONS            "Invalid dimensions."

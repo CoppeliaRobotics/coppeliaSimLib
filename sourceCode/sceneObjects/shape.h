@@ -71,6 +71,7 @@ public:
 
     // Various
     void commonInit();
+    int getComponentCount() const;
     bool getCulling();
     void setCulling(bool culState);
     bool getVisibleEdges();

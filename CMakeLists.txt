@@ -484,10 +484,12 @@ list(APPEND SOURCES
     sourceCode/sceneObjects/shape.cpp
     sourceCode/sceneObjects/visionSensor.cpp
 
-    sourceCode/sceneObjects/graphObjectRelated/graphingRoutines.cpp
-    sourceCode/sceneObjects/graphObjectRelated/graphDataComb.cpp
-    sourceCode/sceneObjects/graphObjectRelated/graphData.cpp
-    sourceCode/sceneObjects/graphObjectRelated/staticGraphCurve.cpp
+    sourceCode/sceneObjects/graphObjectRelated/graphDataStream.cpp
+    sourceCode/sceneObjects/graphObjectRelated/graphCurve.cpp
+    sourceCode/sceneObjects/graphObjectRelated/graphingRoutines_old.cpp
+    sourceCode/sceneObjects/graphObjectRelated/graphDataComb_old.cpp
+    sourceCode/sceneObjects/graphObjectRelated/graphData_old.cpp
+    sourceCode/sceneObjects/graphObjectRelated/staticGraphCurve_old.cpp
 
     sourceCode/sceneObjects/pathObjectRelated/bezierPathPoint.cpp
     sourceCode/sceneObjects/pathObjectRelated/simplePathPoint.cpp

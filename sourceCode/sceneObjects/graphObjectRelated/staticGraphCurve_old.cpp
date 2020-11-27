@@ -1,10 +1,10 @@
-#include "staticGraphCurve.h"
+#include "staticGraphCurve_old.h"
 
-CStaticGraphCurve::CStaticGraphCurve()
+CStaticGraphCurve_old::CStaticGraphCurve_old()
 {
 }
 
-CStaticGraphCurve::CStaticGraphCurve(int type,std::vector<float>* xVals,std::vector<float>* yVals,std::vector<float>* zVals)
+CStaticGraphCurve_old::CStaticGraphCurve_old(int type,std::vector<float>* xVals,std::vector<float>* yVals,std::vector<float>* zVals)
 {   
     _curveType=type;
     _linkPoints=true;
@@ -24,68 +24,68 @@ CStaticGraphCurve::CStaticGraphCurve(int type,std::vector<float>* xVals,std::vec
     }
 }
 
-CStaticGraphCurve::~CStaticGraphCurve()
+CStaticGraphCurve_old::~CStaticGraphCurve_old()
 {
 }
 
-void CStaticGraphCurve::setLabel(bool l)
+void CStaticGraphCurve_old::setLabel(bool l)
 {
     _label=l;
 }
 
-bool CStaticGraphCurve::getLabel()
+bool CStaticGraphCurve_old::getLabel()
 { 
     return(_label);
 }
 
-bool CStaticGraphCurve::getLinkPoints()
+bool CStaticGraphCurve_old::getLinkPoints()
 {
     return(_linkPoints);
 }
 
-int CStaticGraphCurve::getCurveType()
+int CStaticGraphCurve_old::getCurveType()
 {
     return(_curveType);
 }
 
-void CStaticGraphCurve::setCurveWidth(float w)
+void CStaticGraphCurve_old::setCurveWidth(float w)
 {
     _curveWidth=w;
 }
 
-float CStaticGraphCurve::getCurveWidth()
+float CStaticGraphCurve_old::getCurveWidth()
 {
     return(_curveWidth);
 }
 
-void CStaticGraphCurve::setRelativeToWorld(bool r)
+void CStaticGraphCurve_old::setRelativeToWorld(bool r)
 {
     _relativeToWorld=r;
 }
 
-bool CStaticGraphCurve::getRelativeToWorld()
+bool CStaticGraphCurve_old::getRelativeToWorld()
 {
     return(_relativeToWorld);
 }
 
-void CStaticGraphCurve::setLinkPoints(bool l)
+void CStaticGraphCurve_old::setLinkPoints(bool l)
 {
     _linkPoints=l;
 }
 
-void CStaticGraphCurve::setName(std::string theName)
+void CStaticGraphCurve_old::setName(std::string theName)
 {
     _name=theName;
 }
 
-std::string CStaticGraphCurve::getName() 
+std::string CStaticGraphCurve_old::getName() 
 { 
     return(_name); 
 }
 
-CStaticGraphCurve* CStaticGraphCurve::copyYourself()
+CStaticGraphCurve_old* CStaticGraphCurve_old::copyYourself()
 {   // We copy everything
-    CStaticGraphCurve* newObj=new CStaticGraphCurve();
+    CStaticGraphCurve_old* newObj=new CStaticGraphCurve_old();
     newObj->_curveType=_curveType;
     newObj->ambientColor[0]=ambientColor[0];
     newObj->ambientColor[1]=ambientColor[1];
@@ -103,7 +103,7 @@ CStaticGraphCurve* CStaticGraphCurve::copyYourself()
     return(newObj);
 }
 
-void CStaticGraphCurve::serialize(CSer& ar)
+void CStaticGraphCurve_old::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {

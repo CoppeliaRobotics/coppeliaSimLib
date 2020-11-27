@@ -1,25 +1,26 @@
 #include "simInternal.h"
-#include "graphData.h"
+#include "graphData_old.h"
 #include "global.h"
 #include "graph.h"
 #include "tt.h"
 #include "proximitySensor.h"
 #include "jointObject.h"
 #include "app.h"
-#include "graphingRoutines.h"
+#include "graphingRoutines_old.h"
 #ifdef SIM_WITH_OPENGL
 #include "oGL.h"
 #endif
 
-CGraphData::CGraphData()
+CGraphData_old::CGraphData_old()
 {
     addCoeff=0.0f;
+    zoomFactor=1.0f;
     _lifeID=-1;
     _movingAverageCount=1; // no moving average!
-    _derivativeIntegralAndCumulative=DATA_STREAM_ORIGINAL;
+    _derivativeIntegralAndCumulative=sim_datastream_transf_raw;
 }
 
-CGraphData::CGraphData(int theDataType,int theDataObjectID,int theDataObjectAuxID)
+CGraphData_old::CGraphData_old(int theDataType,int theDataObjectID,int theDataObjectAuxID)
 {   
     dataType=theDataType;
     dataObjectID=theDataObjectID;
@@ -36,12 +37,12 @@ CGraphData::CGraphData(int theDataType,int theDataObjectID,int theDataObjectAuxI
     ambientColor[1]=ambientColor[2]=0.0f;
     zoomFactor=1.0f;
     addCoeff=0.0f;
-    _derivativeIntegralAndCumulative=DATA_STREAM_ORIGINAL;
+    _derivativeIntegralAndCumulative=sim_datastream_transf_raw;
     _movingAverageCount=1; // no moving average!
     name="Data";
 }
 
-CGraphData::~CGraphData()
+CGraphData_old::~CGraphData_old()
 {
     _floatData.clear();
     _transformedFloatData.clear();
@@ -49,142 +50,142 @@ CGraphData::~CGraphData()
     _transformedFloatDataValidFlags.clear();
 }
 
-void CGraphData::setLabel(bool l)
+void CGraphData_old::setLabel(bool l)
 {
     label=l;
 }
 
-void CGraphData::setMovingAverageCount(int c)
+void CGraphData_old::setMovingAverageCount(int c)
 {
     c=tt::getLimitedInt(1,200,c);
     _movingAverageCount=c;
 }
 
-int CGraphData::getMovingAverageCount() const
+int CGraphData_old::getMovingAverageCount() const
 {
     return(_movingAverageCount);    
 }
 
-void CGraphData::setDerivativeIntegralAndCumulative(int val)
+void CGraphData_old::setDerivativeIntegralAndCumulative(int val)
 {
     _derivativeIntegralAndCumulative=val;
     resetData((int)_floatData.size());
 }
 
-int CGraphData::getDerivativeIntegralAndCumulative() const
+int CGraphData_old::getDerivativeIntegralAndCumulative() const
 {
     return(_derivativeIntegralAndCumulative);
 }
 
-bool CGraphData::getLabel() const
+bool CGraphData_old::getLabel() const
 { 
     return(label);
 }
 
-bool CGraphData::getLinkPoints() const
+bool CGraphData_old::getLinkPoints() const
 {
     return(linkPoints);
 }
 
-int CGraphData::getIdentifier() const
+int CGraphData_old::getIdentifier() const
 {
     return(identifier);
 }
 
-int CGraphData::getDataType() const
+int CGraphData_old::getDataType() const
 {
     return(dataType);
 }
-int CGraphData::getDataObjectID() const
+int CGraphData_old::getDataObjectID() const
 {
     return(dataObjectID);
 }
-int CGraphData::getDataObjectAuxID() const
+int CGraphData_old::getDataObjectAuxID() const
 {
     return(dataObjectAuxID);
 }
 
-float CGraphData::getZoomFactor() const
+float CGraphData_old::getZoomFactor() const
 {
     return(zoomFactor);
 }
 
-float CGraphData::getAddCoeff() const
+float CGraphData_old::getAddCoeff() const
 {
     return(addCoeff);
 }
 
-bool CGraphData::getVisible() const
+bool CGraphData_old::getVisible() const
 {
     return(visible);
 }
 
-void CGraphData::setLinkPoints(bool l)
+void CGraphData_old::setLinkPoints(bool l)
 {
     linkPoints=l;
 }
-void CGraphData::setVisible(bool v)
+void CGraphData_old::setVisible(bool v)
 {
     visible=v;
 }
 
-void CGraphData::setIdentifier(int newIdentifier)
+void CGraphData_old::setIdentifier(int newIdentifier)
 {
     identifier=newIdentifier;
 }
-void CGraphData::setZoomFactor(float newZoomFactor)
+void CGraphData_old::setZoomFactor(float newZoomFactor)
 {
     tt::limitValue(-100000000000.0f,100000000000.0f,newZoomFactor);
     zoomFactor=newZoomFactor;
 }
-void CGraphData::setAddCoeff(float newCoeff)
+void CGraphData_old::setAddCoeff(float newCoeff)
 {
     tt::limitValue(-100000000000.0f,100000000000.0f,newCoeff);
     addCoeff=newCoeff;
 }
-void CGraphData::setDataObjectID(int newID)
+void CGraphData_old::setDataObjectID(int newID)
 {
     dataObjectID=newID;
 }
-void CGraphData::setDataObjectAuxID(int newID)
+void CGraphData_old::setDataObjectAuxID(int newID)
 {
     dataObjectAuxID=newID;
 }
-void CGraphData::setName(std::string theName)
+void CGraphData_old::setName(std::string theName)
 {
     name=theName;
 }
-std::string CGraphData::getName() const
+std::string CGraphData_old::getName() const
 { 
     return(name); 
 }
 
-void CGraphData::performObjectLoadingMapping(const std::vector<int>* map)
+void CGraphData_old::performObjectLoadingMapping(const std::vector<int>* map)
 {
     if ( (dataType>GRAPH_SCENEOBJECT_START)&&(dataType<GRAPH_SCENEOBJECT_END) )
         dataObjectID=CWorld::getLoadingMapping(map,dataObjectID);
 }
-void CGraphData::performCollisionLoadingMapping(const std::vector<int>* map)
+void CGraphData_old::performCollisionLoadingMapping(const std::vector<int>* map)
 {
     if ( (dataType>GRAPH_COLLISION_START)&&(dataType<GRAPH_COLLISION_END) )
         dataObjectID=CWorld::getLoadingMapping(map,dataObjectID);
 }
-void CGraphData::performDistanceLoadingMapping(const std::vector<int>* map)
+void CGraphData_old::performDistanceLoadingMapping(const std::vector<int>* map)
 {
     if ( (dataType>GRAPH_DISTANCE_START)&&(dataType<GRAPH_DISTANCE_END) )
         dataObjectID=CWorld::getLoadingMapping(map,dataObjectID);
 }
-void CGraphData::performIkLoadingMapping(const std::vector<int>* map)
+void CGraphData_old::performIkLoadingMapping(const std::vector<int>* map)
 {
     if ( (dataType>GRAPH_IK_START)&&(dataType<GRAPH_IK_END) )
         dataObjectID=CWorld::getLoadingMapping(map,dataObjectID);
 }
 
-bool CGraphData::announceObjectWillBeErased(int objID,bool copyBuffer)
+bool CGraphData_old::announceObjectWillBeErased(int objID,bool copyBuffer)
 {   // This routine can be called for objCont-objects, but also for objects
     // in the copy-buffer!! So never make use of any 
     // 'ct::objCont->getObject(id)'-call or similar
-    // Return value true means this CGraphData object needs to be destroyed!
+    // Return value true means this CGraphData_old object needs to be destroyed!
     if ( (dataType>GRAPH_SCENEOBJECT_START)&&(dataType<GRAPH_SCENEOBJECT_END) )
     {
         if (dataObjectID==objID)
@@ -192,11 +193,11 @@ bool CGraphData::announceObjectWillBeErased(int objID,bool copyBuffer)
     }
     return(false);
 }
-bool CGraphData::announceCollisionWillBeErased(int collisionID,bool copyBuffer)
+bool CGraphData_old::announceCollisionWillBeErased(int collisionID,bool copyBuffer)
 {   // This routine can be called for objCont-objects, but also for objects
     // in the copy-buffer!! So never make use of any 
     // 'ct::objCont->getObject(id)'-call or similar
-    // Return value true means this CGraphData object needs to be destroyed!
+    // Return value true means this CGraphData_old object needs to be destroyed!
     if ( (dataType>GRAPH_COLLISION_START)&&(dataType<GRAPH_COLLISION_END) )
     {
         if (dataObjectID==collisionID)
@@ -204,11 +205,11 @@ bool CGraphData::announceCollisionWillBeErased(int collisionID,bool copyBuffer)
     }
     return(false);
 }
-bool CGraphData::announceDistanceWillBeErased(int distanceID,bool copyBuffer)
+bool CGraphData_old::announceDistanceWillBeErased(int distanceID,bool copyBuffer)
 {   // This routine can be called for objCont-objects, but also for objects
     // in the copy-buffer!! So never make use of any 
     // 'ct::objCont->getObject(id)'-call or similar
-    // Return value true means this CGraphData object needs to be destroyed!
+    // Return value true means this CGraphData_old object needs to be destroyed!
     if ( (dataType>GRAPH_DISTANCE_START)&&(dataType<GRAPH_DISTANCE_END) )
     {
         if (dataObjectID==distanceID)
@@ -217,7 +218,7 @@ bool CGraphData::announceDistanceWillBeErased(int distanceID,bool copyBuffer)
     return(false);
 }
 
-bool CGraphData::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
+bool CGraphData_old::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 {
     if ( (dataType>GRAPH_IK_START)&&(dataType<GRAPH_IK_END) )
     {
@@ -227,28 +228,28 @@ bool CGraphData::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
     return(false);
 }
 
-void CGraphData::setValueDirect(int absIndex,float theValue,bool firstValue,bool cyclic,float range,const std::vector<float>& times)
+void CGraphData_old::setValueDirect(int absIndex,float theValue,bool firstValue,bool cyclic,float range,const std::vector<float>& times)
 {
     _floatData[absIndex]=theValue;
     _floatDataValidFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
     if (firstValue)
     { // this is the very first point
-        if (_derivativeIntegralAndCumulative==DATA_STREAM_ORIGINAL)
+        if (_derivativeIntegralAndCumulative==sim_datastream_transf_raw)
         {
             _transformedFloatData[absIndex]=_floatData[absIndex];
             _transformedFloatDataValidFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
         }
-        if (_derivativeIntegralAndCumulative==DATA_STREAM_DERIVATIVE)
+        if (_derivativeIntegralAndCumulative==sim_datastream_transf_derivative)
         { // invalid data
             _transformedFloatData[absIndex]=0.0f;
             _transformedFloatDataValidFlags[absIndex/8]&=255-(1<<(absIndex&7)); // invalid data
         }
-        if (_derivativeIntegralAndCumulative==DATA_STREAM_INTEGRAL)
+        if (_derivativeIntegralAndCumulative==sim_datastream_transf_integral)
         {
             _transformedFloatData[absIndex]=0.0f;
             _transformedFloatDataValidFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
         }
-        if (_derivativeIntegralAndCumulative==DATA_STREAM_CUMULATIVE)
+        if (_derivativeIntegralAndCumulative==sim_datastream_transf_cumulative)
         {
             _transformedFloatData[absIndex]=_floatData[absIndex];
             _transformedFloatDataValidFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
@@ -261,12 +262,12 @@ void CGraphData::setValueDirect(int absIndex,float theValue,bool firstValue,bool
         if (prevIndex<0)
             prevIndex+=(int)_floatData.size();
         float dt=(times[absIndex]-times[prevIndex]);
-        if (_derivativeIntegralAndCumulative==DATA_STREAM_ORIGINAL)
+        if (_derivativeIntegralAndCumulative==sim_datastream_transf_raw)
         {
             _transformedFloatData[absIndex]=_floatData[absIndex];
             _transformedFloatDataValidFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
         }
-        if (_derivativeIntegralAndCumulative==DATA_STREAM_DERIVATIVE)
+        if (_derivativeIntegralAndCumulative==sim_datastream_transf_derivative)
         {
             if (dt==0.0f)
             { // invalid data
@@ -290,7 +291,7 @@ void CGraphData::setValueDirect(int absIndex,float theValue,bool firstValue,bool
                 }
             }
         }
-        if (_derivativeIntegralAndCumulative==DATA_STREAM_INTEGRAL)
+        if (_derivativeIntegralAndCumulative==sim_datastream_transf_integral)
         {
             if ((_floatDataValidFlags[prevIndex/8]&(1<<(prevIndex&7)))!=0)
             { // previous data was valid
@@ -308,7 +309,7 @@ void CGraphData::setValueDirect(int absIndex,float theValue,bool firstValue,bool
                 _transformedFloatData[absIndex]=0.0f; // previous data was invalid
             _transformedFloatDataValidFlags[absIndex/8]|=(1<<(absIndex&7)); // valid transformed data
         }
-        if (_derivativeIntegralAndCumulative==DATA_STREAM_CUMULATIVE)
+        if (_derivativeIntegralAndCumulative==sim_datastream_transf_cumulative)
         {
             if ((_floatDataValidFlags[prevIndex/8]&(1<<(prevIndex&7)))!=0)
             { // previous data was valid
@@ -329,7 +330,7 @@ void CGraphData::setValueDirect(int absIndex,float theValue,bool firstValue,bool
     }
 }
 
-void CGraphData::setValue(const C7Vector* graphCTM,int absIndex,bool firstValue,bool cyclic,float range,const std::vector<float>& times)
+void CGraphData_old::setValue(const C7Vector* graphCTM,int absIndex,bool firstValue,bool cyclic,float range,const std::vector<float>& times)
 {
     bool dataIsOkay=false;
     float theValue;
@@ -343,7 +344,7 @@ void CGraphData::setValue(const C7Vector* graphCTM,int absIndex,bool firstValue,
     }
     else
     {
-        if (CGraphingRoutines::loopThroughAllAndGetDataValue(dataType,dataObjectID,theValue,graphCTM))
+        if (CGraphingRoutines_old::loopThroughAllAndGetDataValue(dataType,dataObjectID,theValue,graphCTM))
             dataIsOkay=true;
     }
     if (dataIsOkay)
@@ -357,7 +358,7 @@ void CGraphData::setValue(const C7Vector* graphCTM,int absIndex,bool firstValue,
     }
 }
 
-bool CGraphData::getValue(int absIndex,float& v) const
+bool CGraphData_old::getValue(int absIndex,float& v) const
 {
     if (getValueRaw(absIndex,v))
     {
@@ -368,29 +369,29 @@ bool CGraphData::getValue(int absIndex,float& v) const
 }
 
 
-bool CGraphData::getValueRaw(int absIndex,float& v) const
+bool CGraphData_old::getValueRaw(int absIndex,float& v) const
 { // isValid can be null;
     v=_transformedFloatData[absIndex];
     return ((_transformedFloatDataValidFlags[absIndex/8]&(1<<(absIndex&7)))!=0);
 }
 
-void CGraphData::setUserData(float data)
+void CGraphData_old::setUserData(float data)
 {
     _userData=data;
     _userDataValid=true;        
 }
 
-void CGraphData::clearUserData()
+void CGraphData_old::clearUserData()
 {
     _userDataValid=false;       
 }
 
-int CGraphData::getDataLength()
+int CGraphData_old::getDataLength()
 {
     return(int(_floatData.size()));
 }
 
-void CGraphData::resetData(int bufferSize)
+void CGraphData_old::resetData(int bufferSize)
 {
     _floatData.reserve(bufferSize);
     _floatData.clear();
@@ -412,9 +413,9 @@ void CGraphData::resetData(int bufferSize)
     clearUserData();
 }
 
-CGraphData* CGraphData::copyYourself()
+CGraphData_old* CGraphData_old::copyYourself()
 {   // We copy everything, even the name and the identifier
-    CGraphData* newObj=new CGraphData(dataType,dataObjectID,dataObjectAuxID);
+    CGraphData_old* newObj=new CGraphData_old(dataType,dataObjectID,dataObjectAuxID);
     newObj->zoomFactor=zoomFactor;
     newObj->addCoeff=addCoeff;
     newObj->_movingAverageCount=_movingAverageCount;
@@ -433,7 +434,7 @@ CGraphData* CGraphData::copyYourself()
     return(newObj);
 }
 
-void CGraphData::serialize(CSer& ar,void* it)
+void CGraphData_old::serialize(CSer& ar,void* it)
 {
     CGraph* cg=(CGraph*)it;
     if (ar.isBinary())
@@ -666,7 +667,7 @@ void CGraphData::serialize(CSer& ar,void* it)
             ar.xmlAddNode_floats("color",ambientColor,3);
 
             ar.xmlPushNewNode("transformation");
-            ar.xmlAddNode_enum("value",_derivativeIntegralAndCumulative,DATA_STREAM_ORIGINAL,"original",DATA_STREAM_DERIVATIVE,"derivative",DATA_STREAM_INTEGRAL,"integral",DATA_STREAM_CUMULATIVE,"cumulative");
+            ar.xmlAddNode_enum("value",_derivativeIntegralAndCumulative,sim_datastream_transf_raw,"original",sim_datastream_transf_derivative,"derivative",sim_datastream_transf_integral,"integral",sim_datastream_transf_cumulative,"cumulative");
             ar.xmlAddNode_float("scaling",zoomFactor);
             ar.xmlAddNode_float("offset",addCoeff);
             ar.xmlAddNode_int("movingAveragePeriod",_movingAverageCount);
@@ -727,7 +728,7 @@ void CGraphData::serialize(CSer& ar,void* it)
 
             if (ar.xmlPushChildNode("transformation"))
             {
-                ar.xmlGetNode_enum("value",_derivativeIntegralAndCumulative,true,"original",DATA_STREAM_ORIGINAL,"derivative",DATA_STREAM_DERIVATIVE,"integral",DATA_STREAM_INTEGRAL,"cumulative",DATA_STREAM_CUMULATIVE);
+                ar.xmlGetNode_enum("value",_derivativeIntegralAndCumulative,true,"original",sim_datastream_transf_raw,"derivative",sim_datastream_transf_derivative,"integral",sim_datastream_transf_integral,"cumulative",sim_datastream_transf_cumulative);
                 ar.xmlGetNode_float("scaling",zoomFactor);
                 ar.xmlGetNode_float("offset",addCoeff);
                 ar.xmlGetNode_int("movingAveragePeriod",_movingAverageCount);

@@ -1294,7 +1294,7 @@ void CMainWindow::_createDefaultToolBars()
             _toolbar2->addSeparator();
         }
 
-        if (CSimFlavor::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12)&&App::userSettings->showOldDlgs)
         {
             _toolbarActionCollections=_toolbar2->addAction(QIcon(":/toolbarFiles/collections.png"),tr(IDSN_COLLECTIONS));
             _toolbarActionCollections->setCheckable(true);
@@ -1897,7 +1897,7 @@ void CMainWindow::_actualizetoolbarButtonState()
             _toolbarActionObjectProperties->setEnabled(_toolbarButtonObjPropEnabled&&noEditMode&&noSelector);
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionCalculationModules->setEnabled(_toolbarButtonCalcModulesEnabled&&noEditMode&&noSelector);
-        if (CSimFlavor::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12)&&App::userSettings->showOldDlgs)
             _toolbarActionCollections->setEnabled(noEditMode&&noSelector);
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionScripts->setEnabled(noEditMode&&noSelector);
@@ -1924,7 +1924,7 @@ void CMainWindow::_actualizetoolbarButtonState()
             _toolbarActionObjectProperties->setChecked(dlgCont->isVisible(OBJECT_DLG));
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionCalculationModules->setChecked(dlgCont->isVisible(CALCULATION_DLG));
-        if (CSimFlavor::getBoolVal(12))
+        if (CSimFlavor::getBoolVal(12)&&App::userSettings->showOldDlgs)
             _toolbarActionCollections->setChecked(dlgCont->isVisible(COLLECTION_DLG));
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionScripts->setChecked(dlgCont->isVisible(LUA_SCRIPT_DLG));

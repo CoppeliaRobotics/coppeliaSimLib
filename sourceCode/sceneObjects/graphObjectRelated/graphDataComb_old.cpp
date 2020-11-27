@@ -1,5 +1,5 @@
 #include "simInternal.h"
-#include "graphDataComb.h"
+#include "graphDataComb_old.h"
 #include "global.h"
 #include "graph.h"
 #include "tt.h"
@@ -9,7 +9,7 @@
 #endif
 
 
-CGraphDataComb::CGraphDataComb()
+CGraphDataComb_old::CGraphDataComb_old()
 {
     name="Curve";
     visible=true;
@@ -26,86 +26,86 @@ CGraphDataComb::CGraphDataComb()
     _curveRelativeToWorld=false;
 }
 
-CGraphDataComb::~CGraphDataComb()
+CGraphDataComb_old::~CGraphDataComb_old()
 {
 }
 
-void CGraphDataComb::setLinkPoints(bool l)
+void CGraphDataComb_old::setLinkPoints(bool l)
 {
     linkPoints=l;
 }
-void CGraphDataComb::setLabel(bool l)
+void CGraphDataComb_old::setLabel(bool l)
 {
     label=l;
 }
-bool CGraphDataComb::getLabel() 
+bool CGraphDataComb_old::getLabel()
 {
     return(label); 
 }
 
-bool CGraphDataComb::getLinkPoints() 
+bool CGraphDataComb_old::getLinkPoints()
 {
     return(linkPoints); 
 }
-int CGraphDataComb::getIdentifier() 
+int CGraphDataComb_old::getIdentifier()
 {
     return(identifier); 
 }
-bool CGraphDataComb::getVisible() 
+bool CGraphDataComb_old::getVisible()
 {
     return(visible); 
 }
-void CGraphDataComb::setVisible(bool v)
+void CGraphDataComb_old::setVisible(bool v)
 {
     visible=v;
 }
 
-void CGraphDataComb::setCurveRelativeToWorld(bool relToWorld)
+void CGraphDataComb_old::setCurveRelativeToWorld(bool relToWorld)
 {
     _curveRelativeToWorld=relToWorld;
 }
 
-bool CGraphDataComb::getCurveRelativeToWorld()
+bool CGraphDataComb_old::getCurveRelativeToWorld()
 {
     return(_curveRelativeToWorld);
 }
 
-void CGraphDataComb::setVisibleOnTopOfEverything(bool v)
+void CGraphDataComb_old::setVisibleOnTopOfEverything(bool v)
 {
     visibleOnTopOfEverything=v;
 }
 
-bool CGraphDataComb::getVisibleOnTopOfEverything()
+bool CGraphDataComb_old::getVisibleOnTopOfEverything()
 {
     return(visibleOnTopOfEverything);
 }
 
-void CGraphDataComb::set3DCurveWidth(float width)
+void CGraphDataComb_old::set3DCurveWidth(float width)
 {
     tt::limitValue(1.0f,6.0f,width);
     threeDCurveWidth=width;
 }
 
-float CGraphDataComb::get3DCurveWidth()
+float CGraphDataComb_old::get3DCurveWidth()
 {
     return(threeDCurveWidth);
 }
 
-void CGraphDataComb::setIdentifier(int newIdentifier)
+void CGraphDataComb_old::setIdentifier(int newIdentifier)
 {
     identifier=newIdentifier;
 }
-void CGraphDataComb::setName(std::string theName)
+void CGraphDataComb_old::setName(std::string theName)
 {
     name=theName;
 }
-std::string CGraphDataComb::getName() 
+std::string CGraphDataComb_old::getName()
 { 
     return(name); 
 }
-CGraphDataComb* CGraphDataComb::copyYourself()
+CGraphDataComb_old* CGraphDataComb_old::copyYourself()
 {   // Everything is copied, even the identifier and name
-    CGraphDataComb* newObj=new CGraphDataComb();
+    CGraphDataComb_old* newObj=new CGraphDataComb_old();
     newObj->setName(getName());
     newObj->setIdentifier(getIdentifier());
     newObj->setVisible(getVisible());
@@ -120,7 +120,7 @@ CGraphDataComb* CGraphDataComb::copyYourself()
     return(newObj);
 }
 
-void CGraphDataComb::serialize(CSer& ar)
+void CGraphDataComb_old::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {

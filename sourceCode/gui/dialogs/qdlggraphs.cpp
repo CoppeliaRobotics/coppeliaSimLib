@@ -4,7 +4,7 @@
 #include "gV.h"
 #include "qdlgmaterial.h"
 #include "qdlgdatastreamselection.h"
-#include "graphingRoutines.h"
+#include "graphingRoutines_old.h"
 #include "editboxdelegate.h"
 #include "qdlgcolor.h"
 #include "qdlg2d3dgraphproperties.h"
@@ -59,7 +59,7 @@ void CQDlgGraphs::refresh()
 
     int streamId=-1;
     CGraph* it=nullptr;
-    CGraphData* graphData=nullptr;
+    CGraphData_old* graphData=nullptr;
     if (sel)
     {
         it=App::currentWorld->sceneObjects->getLastSelectionGraph();
@@ -117,10 +117,10 @@ void CQDlgGraphs::refresh()
         ui->qqBufferSize->setText(tt::getIString(false,it->getBufferSize()).c_str());
 
         ui->qqTransformationCombo->clear();
-        ui->qqTransformationCombo->addItem(IDS_RAW,QVariant(DATA_STREAM_ORIGINAL));
-        ui->qqTransformationCombo->addItem(IDS_DERIVATIVE,QVariant(DATA_STREAM_DERIVATIVE));
-        ui->qqTransformationCombo->addItem(IDS_INTEGRAL,QVariant(DATA_STREAM_INTEGRAL));
-        ui->qqTransformationCombo->addItem(IDS_CUMULATIVE,QVariant(DATA_STREAM_CUMULATIVE));
+        ui->qqTransformationCombo->addItem(IDS_RAW,QVariant(sim_datastream_transf_raw));
+        ui->qqTransformationCombo->addItem(IDS_DERIVATIVE,QVariant(sim_datastream_transf_derivative));
+        ui->qqTransformationCombo->addItem(IDS_INTEGRAL,QVariant(sim_datastream_transf_integral));
+        ui->qqTransformationCombo->addItem(IDS_CUMULATIVE,QVariant(sim_datastream_transf_cumulative));
 
         if (graphData!=nullptr)
         {
@@ -175,11 +175,11 @@ void CQDlgGraphs::updateObjectsInList()
         std::string tmp=it->daten[i]->getName();
         tmp=tmp.append(" [");
         std::string tmp2=IDS_ERROR;
-        CGraphingRoutines::loopThroughAllAndGetDataName(dataType,tmp2);
+        CGraphingRoutines_old::loopThroughAllAndGetDataName(dataType,tmp2);
         tmp+=tmp2;
         tmp+=" (";
         tmp2=IDS_ERROR;
-        CGraphingRoutines::loopThroughAllAndGetGraphObjectName(dataType,dataObjectID,tmp2);
+        CGraphingRoutines_old::loopThroughAllAndGetGraphObjectName(dataType,dataObjectID,tmp2);
         tmp+=tmp2;
         tmp+=")";
         tmp=tmp.append("]");
@@ -261,7 +261,7 @@ void CQDlgGraphs::on_qqRecordingList_itemSelectionChanged()
             return;
         CGraph* it=App::currentWorld->sceneObjects->getLastSelectionGraph();
         int objID=getSelectedObjectID();
-        CGraphData* grData=it->getGraphData(objID);
+        CGraphData_old* grData=it->getGraphData(objID);
         if (grData!=nullptr)
             ((CEditBoxDelegate*)ui->qqRecordingList->itemDelegate())->initialText=grData->getName();
         else
@@ -483,7 +483,7 @@ void CQDlgGraphs::on_qqAdjustCurveColor_clicked()
         CGraph* it=App::currentWorld->sceneObjects->getLastSelectionGraph();
         if (it!=nullptr)
         {
-            CGraphData* grData=it->getGraphData(getSelectedObjectID());
+            CGraphData_old* grData=it->getGraphData(getSelectedObjectID());
             if (grData!=nullptr)
                 CQDlgColor::displayDlg(COLOR_ID_GRAPH_TIMECURVE,App::currentWorld->sceneObjects->getLastSelectionHandle(),grData->getIdentifier(),sim_colorcomponent_ambient_diffuse,App::mainWindow);
         }

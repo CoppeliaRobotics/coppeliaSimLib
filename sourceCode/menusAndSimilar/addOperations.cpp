@@ -54,58 +54,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         return(true);
     }
 #endif
-    if (commandID==ADD_COMMANDS_MAKE_GRAPH_CURVE_STATIC_ACCMD)
-    { // can be executed via the UI or NON-UI thread!
-        if (subView!=nullptr)
-        {
-            if (!VThread::isCurrentThreadTheUiThread())
-            { // we are NOT in the UI thread. We execute the command now:
-                int lo=-1;
-                lo=subView->getLinkedObjectID();
-                CGraph* graph=App::currentWorld->sceneObjects->getGraphFromHandle(lo);
-                int val=0;
-                if (!subView->getTimeGraph())
-                    val=1;
-                if ((graph!=nullptr)&&(subView->getTrackedGraphCurveIndex()!=-1))
-                {
-                    App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_STATIC_DUPLICATE_OF_CURVE);
-                    graph->makeCurveStatic(subView->getTrackedGraphCurveIndex(),val);
-                    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                    App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
-                }
-            }
-            else
-            { // We are in the UI thread. Execute the command via the main thread:
-                SSimulationThreadCommand cmd;
-                cmd.cmdId=commandID;
-                cmd.objectParams.push_back(subView);
-                App::appendSimulationThreadCommand(cmd);
-            }
-        }
-        return(true);
-    }
 
-    if (commandID==COPY_GRAPH_CURVE_TO_CLIPBOARD_CMD)
-    { // can be executed via the UI or NON-UI thread!
-#ifdef SIM_WITH_GUI
-        if (subView!=nullptr)
-        {
-            int lo=-1;
-            lo=subView->getLinkedObjectID();
-            CGraph* graph=App::currentWorld->sceneObjects->getGraphFromHandle(lo);
-            int val=0;
-            if (!subView->getTimeGraph())
-                val=1;
-            if ((graph!=nullptr)&&(subView->getTrackedGraphCurveIndex()!=-1))
-            {
-                App::logMsg(sim_verbosity_msgs,IDSNS_CURVE_DATA_COPIED_TO_CLIPBOARD);
-                graph->copyCurveToClipboard(subView->getTrackedGraphCurveIndex(),val);
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
-            }
-        }
-#endif
-        return(true);
-    }
     if (commandID==ADD_COMMANDS_ADD_FLOATING_VIEW_ACCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
@@ -1497,14 +1446,6 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
             menu->appendMenuItem(shapesInRootSel>0,false,ADD_COMMANDS_ADD_GROWN_CONVEX_HULL_ACCMD,IDS_GROWN_CONVEX_HULL_OF_SELECTED_SHAPE_MENU_ITEM);
             menu->appendMenuItem(shapesInRootSel>0,false,ADD_COMMANDS_ADD_CONVEX_DECOMPOSITION_ACCMD,IDS_CONVEX_DECOMPOSITION_OF_SELECTION_MENU_ITEM);
         }
-    }
-
-    if ((associatedViewable!=nullptr)&&(associatedViewable->getObjectType()==sim_object_graph_type)&&(subView!=nullptr))
-    {
-        menu->appendMenuSeparator();
-        bool itemEnabled=(subView->getTrackedGraphCurveIndex()!=-1);
-        menu->appendMenuItem(itemEnabled,false,ADD_COMMANDS_MAKE_GRAPH_CURVE_STATIC_ACCMD,IDS_MAKE_CURVE_STATIC_MENU_ITEM);
-        menu->appendMenuItem(itemEnabled,false,COPY_GRAPH_CURVE_TO_CLIPBOARD_CMD,IDS_COPY_CURVE_TO_CLIPBOARD);
     }
 }
 

@@ -83,6 +83,7 @@ const void* luaWrap_lua_topointer(luaWrap_lua_State* L,int idx);
 const char* luaWrap_lua_tostring(luaWrap_lua_State* L,int idx);
 const char* luaWrap_lua_tolstring(luaWrap_lua_State* L,int idx,size_t* len);
 int luaWrap_lua_isnumber(luaWrap_lua_State* L,int idx);
+int luaWrap_lua_isinteger(luaWrap_lua_State* L,int idx);
 int luaWrap_lua_isstring(luaWrap_lua_State* L,int idx);
 bool luaWrap_lua_isnil(luaWrap_lua_State* L,int idx);
 bool luaWrap_lua_isboolean(luaWrap_lua_State* L,int idx);

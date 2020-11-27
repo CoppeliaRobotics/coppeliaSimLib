@@ -2,7 +2,7 @@
 #include "ui_qdlgaddgraphcurve.h"
 #include "gV.h"
 #include "tt.h"
-#include "graphingRoutines.h"
+#include "graphingRoutines_old.h"
 #include "app.h"
 
 

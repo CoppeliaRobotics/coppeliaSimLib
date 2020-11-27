@@ -177,13 +177,6 @@ enum { // CURSORS:
     sim_cursor_closed_hand,
 };
 
-enum { // DATA STREAM TRANSFORMATIONS:
-    DATA_STREAM_ORIGINAL=0,
-    DATA_STREAM_DERIVATIVE,
-    DATA_STREAM_INTEGRAL,
-    DATA_STREAM_CUMULATIVE,
-};
-
 enum { // RENDERING MODES:
     RENDERING_MODE_SOLID=0,
     RENDERING_MODE_WIREFRAME_EDGES,
@@ -282,7 +275,7 @@ enum {
 // announceCollectionWillBeErased-
 // announceCollisionWillBeErased-
 // ...
-// routines in CGraphData!!!!!
+// routines in CGraphData_old!!!!!
 // and the getCyclicAndRange function in graph!!!!!!!!!!!!
 // and the adjustDataToUserMetric function graph!!!!!!!!
 enum {
@@ -777,7 +770,6 @@ enum {
     ADD_COMMANDS_ADD_OMNI_LIGHT_ACCMD,
     ADD_COMMANDS_ADD_SPOT_LIGHT_ACCMD,
     ADD_COMMANDS_ADD_DIR_LIGHT_ACCMD,
-    ADD_COMMANDS_MAKE_GRAPH_CURVE_STATIC_ACCMD,
 
     // Add commands end;
     ADD_COMMANDS_END_ACCMD,
@@ -828,9 +820,6 @@ enum {
 
     VIEW_FIT_TO_SCENE_CMD,
     VIEW_FIT_TO_SELECTION_CMD,
-
-    COPY_GRAPH_CURVE_TO_CLIPBOARD_CMD,
-
 
     REMOVE_VIEW_CMD,
     PAGE_SELECTOR_CMD,

@@ -521,6 +521,30 @@ SIM_DLLEXPORT simInt simResetGraph(simInt graphHandle)
 {
     return(simResetGraph_internal(graphHandle));
 }
+SIM_DLLEXPORT simInt simAddGraphDataStream(simInt graphHandle,const simChar* streamName,const simChar* unitStr,simInt options,const simFloat* color,simFloat cyclicRange)
+{
+    return(simAddGraphDataStream_internal(graphHandle,streamName,unitStr,options,color,cyclicRange));
+}
+SIM_DLLEXPORT simInt simDestroyGraphCurve(simInt graphHandle,simInt curveId)
+{
+    return(simDestroyGraphCurve_internal(graphHandle,curveId));
+}
+SIM_DLLEXPORT simInt simSetGraphDataStreamTransformation(simInt graphHandle,simInt streamId,simInt trType,simFloat mult,simFloat off,simInt movingAvgPeriod)
+{
+    return(simSetGraphDataStreamTransformation_internal(graphHandle,streamId,trType,mult,off,movingAvgPeriod));
+}
+SIM_DLLEXPORT simInt simDuplicateGraphCurveToStatic(simInt graphHandle,simInt curveId,const simChar* curveName)
+{
+    return(simDuplicateGraphCurveToStatic_internal(graphHandle,curveId,curveName));
+}
+SIM_DLLEXPORT simInt simAddGraphCurve(simInt graphHandle,simInt dim,const simInt* streamIds,const simFloat* defaultValues,const simChar* curveName,const simChar* unitStr,simInt options,const simFloat* color,simInt curveWidth)
+{
+    return(simAddGraphCurve_internal(graphHandle,dim,streamIds,defaultValues,curveName,unitStr,options,color,curveWidth));
+}
+SIM_DLLEXPORT simInt simSetGraphDataStreamValue(simInt graphHandle,simInt streamId,simFloat value)
+{
+    return(simSetGraphDataStreamValue_internal(graphHandle,streamId,value));
+}
 SIM_DLLEXPORT simInt simSetNavigationMode(simInt navigationMode)
 {
     return(simSetNavigationMode_internal(navigationMode));
@@ -592,10 +616,6 @@ SIM_DLLEXPORT simInt simGetObjectUniqueIdentifier(simInt objectHandle,simInt* un
 SIM_DLLEXPORT simChar* simReceiveData(simInt dataHeader,const simChar* dataName,simInt antennaHandle,simInt index,simInt* dataLength,simInt* senderID,simInt* dataHeaderR,simChar** dataNameR)
 {
     return(simReceiveData_internal(dataHeader,dataName,antennaHandle,index,dataLength,senderID,dataHeaderR,dataNameR));
-}
-SIM_DLLEXPORT simInt simSetGraphUserData(simInt graphHandle,const simChar* dataStreamName,simFloat data)
-{
-    return(simSetGraphUserData_internal(graphHandle,dataStreamName,data));
 }
 SIM_DLLEXPORT simInt simAddDrawingObject(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission)
 {
@@ -849,14 +869,6 @@ SIM_DLLEXPORT simInt simGetShapeMesh(simInt shapeHandle,simFloat** vertices,simI
 {
     return(simGetShapeMesh_internal(shapeHandle,vertices,verticesSize,indices,indicesSize,normals));
 }
-SIM_DLLEXPORT simInt simAddBanner(const simChar* label,simFloat size,simInt options,const simFloat* positionAndEulerAngles,simInt parentObjectHandle,const simFloat* labelColors,const simFloat* backgroundColors)
-{
-    return(simAddBanner_internal(label,size,options,positionAndEulerAngles,parentObjectHandle,labelColors,backgroundColors));
-}
-SIM_DLLEXPORT simInt simRemoveBanner(simInt bannerID)
-{
-    return(simRemoveBanner_internal(bannerID));
-}
 SIM_DLLEXPORT simInt simCreateJoint(simInt jointType,simInt jointMode,simInt options,const simFloat* sizes,const simFloat* colorA,const simFloat* colorB)
 {
     return(simCreateJoint_internal(jointType,jointMode,options,sizes,colorA,colorB));
@@ -1041,14 +1053,6 @@ SIM_DLLEXPORT simInt simConvexDecompose(simInt shapeHandle,simInt options,const 
 {
     return(simConvexDecompose_internal(shapeHandle,options,intParams,floatParams));
 }
-SIM_DLLEXPORT simInt simAddGhost(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color)
-{
-    return(simAddGhost_internal(ghostGroup,objectHandle,options,startTime,endTime,color));
-}
-SIM_DLLEXPORT simInt simModifyGhost(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation)
-{
-    return(simModifyGhost_internal(ghostGroup,ghostId,operation,floatValue,options,optionsMask,colorOrTransformation));
-}
 SIM_DLLEXPORT simVoid simQuitSimulator(simBool ignoredArgument)
 {
     simQuitSimulator_internal(ignoredArgument);
@@ -1088,14 +1092,6 @@ SIM_DLLEXPORT simChar* simReadCustomDataBlock(simInt objectHandle,const simChar*
 SIM_DLLEXPORT simChar* simReadCustomDataBlockTags(simInt objectHandle,simInt* tagCount)
 {
     return(simReadCustomDataBlockTags_internal(objectHandle,tagCount));
-}
-SIM_DLLEXPORT simInt simAddPointCloud(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals)
-{
-    return(simAddPointCloud_internal(pageMask,layerMask,objectHandle,options,pointSize,ptCnt,pointCoordinates,defaultColors,pointColors,pointNormals));
-}
-SIM_DLLEXPORT simInt simModifyPointCloud(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam)
-{
-    return(simModifyPointCloud_internal(pointCloudHandle,operation,intParam,floatParam));
 }
 SIM_DLLEXPORT simInt simGetShapeGeomInfo(simInt shapeHandle,simInt* intData,simFloat* floatData,simVoid* reserved)
 {
@@ -2496,6 +2492,34 @@ SIM_DLLEXPORT simInt simHandleDistance(simInt distanceObjectHandle,simFloat* sma
 SIM_DLLEXPORT simInt simReadDistance(simInt distanceObjectHandle,simFloat* smallestDistance)
 {
     return(simReadDistance_internal(distanceObjectHandle,smallestDistance));
+}
+SIM_DLLEXPORT simInt simAddBanner(const simChar* label,simFloat size,simInt options,const simFloat* positionAndEulerAngles,simInt parentObjectHandle,const simFloat* labelColors,const simFloat* backgroundColors)
+{
+    return(simAddBanner_internal(label,size,options,positionAndEulerAngles,parentObjectHandle,labelColors,backgroundColors));
+}
+SIM_DLLEXPORT simInt simRemoveBanner(simInt bannerID)
+{
+    return(simRemoveBanner_internal(bannerID));
+}
+SIM_DLLEXPORT simInt simAddGhost(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color)
+{
+    return(simAddGhost_internal(ghostGroup,objectHandle,options,startTime,endTime,color));
+}
+SIM_DLLEXPORT simInt simModifyGhost(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation)
+{
+    return(simModifyGhost_internal(ghostGroup,ghostId,operation,floatValue,options,optionsMask,colorOrTransformation));
+}
+SIM_DLLEXPORT simInt simSetGraphUserData(simInt graphHandle,const simChar* dataStreamName,simFloat data)
+{
+    return(simSetGraphUserData_internal(graphHandle,dataStreamName,data));
+}
+SIM_DLLEXPORT simInt simAddPointCloud(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals)
+{
+    return(simAddPointCloud_internal(pageMask,layerMask,objectHandle,options,pointSize,ptCnt,pointCoordinates,defaultColors,pointColors,pointNormals));
+}
+SIM_DLLEXPORT simInt simModifyPointCloud(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam)
+{
+    return(simModifyPointCloud_internal(pointCloudHandle,operation,intParam,floatParam));
 }
 // Deprecated end
 

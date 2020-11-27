@@ -104,348 +104,343 @@ std::vector<std::string> serialPortLeftOverData;
 
 const SLuaCommands simLuaCommands[]=
 {
-    {"sim.getScriptName",_simGetScriptName,                      "string scriptName=sim.getScriptName(number scriptHandle)",true},
-    {"sim.getObjectAssociatedWithScript",_simGetObjectAssociatedWithScript,"number objectHandle=sim.getObjectAssociatedWithScript(number scriptHandle)",true},
-    {"sim.getScriptAssociatedWithObject",_simGetScriptAssociatedWithObject,"number scriptHandle=sim.getScriptAssociatedWithObject(number objectHandle)",true},
-    {"sim.getCustomizationScriptAssociatedWithObject",_simGetCustomizationScriptAssociatedWithObject,"number scriptHandle=sim.getCustomizationScriptAssociatedWithObject(number objectHandle)",true},
-    {"sim.openModule",_simOpenModule,                            "number result=sim.openModule(sim.handle_all)\nnumber result=sim.openModule(string moduleName)",true},
-    {"sim.closeModule",_simCloseModule,                          "number result=sim.closeModule(sim.handle_all)\nnumber result=sim.closeModule(string moduleName)",true},
-    {"sim.handleModule",_simHandleModule,                        "number result=sim.handleModule(sim.handle_all)\nnumber result=sim.handleModule(string moduleName)",true},
-    {"sim.boolOr32",_simBoolOr32,                                "number result=sim.boolOr32(number value1,number value2)",true},
-    {"sim.boolAnd32",_simBoolAnd32,                              "number result=sim.boolAnd32(number value1,number value2)",true},
-    {"sim.boolXor32",_simBoolXor32,                              "number result=sim.boolXor32(number value1,number value2)",true},
-    {"sim.handleDynamics",_simHandleDynamics,                    "number result=sim.handleDynamics(number deltaTime)",true},
-    {"sim.handleProximitySensor",_simHandleProximitySensor,      "number result,number distance,table_3 detectedPoint,number detectedObjectHandle,table_3 normalVector=\nsim.handleProximitySensor(number sensorHandle)",true},
-    {"sim.readProximitySensor",_simReadProximitySensor,          "number result,number distance,table_3 detectedPoint,number detectedObjectHandle,table_3 normalVector=\nsim.readProximitySensor(number sensorHandle)",true},
-    {"sim.resetProximitySensor",_simResetProximitySensor,        "sim.resetProximitySensor(number objectHandle)",true},
-    {"sim.checkProximitySensor",_simCheckProximitySensor,        "number result,number distance,table_3 detectedPoint=sim.checkProximitySensor(number sensorHandle,number entityHandle)",true},
-    {"sim.checkProximitySensorEx",_simCheckProximitySensorEx,    "number result,number distance,table_3 detectedPoint,number detectedObjectHandle,table_3 normalVector=\nsim.checkProximitySensorEx(number sensorHandle,number entityHandle,number mode,number threshold,number maxAngle)",true},
-    {"sim.checkProximitySensorEx2",_simCheckProximitySensorEx2,  "number result,number distance,table_3 detectedPoint,table_3 normalVector=\nsim.checkProximitySensorEx2(number sensorHandle,table vertices,number itemType,number itemCount,number mode,number threshold,number maxAngle)",true},
-    {"sim.getObjectHandle",_simGetObjectHandle,                  "number objectHandle=sim.getObjectHandle(string objectName)",true},
-    {"sim.addScript",_simAddScript,                              "number scriptHandle=sim.addScript(number scriptType)",true},
-    {"sim.associateScriptWithObject",_simAssociateScriptWithObject,"sim.associateScriptWithObject(number scriptHandle,number objectHandle)",true},
-    {"sim.setScriptText",_simSetScriptText,                      "sim.setScriptText(number scriptHandle,string scriptText)",true},
-    {"sim.getScriptHandle",_simGetScriptHandle,                  "number scriptHandle=sim.getScriptHandle(string scriptName=nil)",true},
-    {"sim.getObjectPosition",_simGetObjectPosition,              "table_3 position=sim.getObjectPosition(number objectHandle,number relativeToObjectHandle)",true},
-    {"sim.getObjectOrientation",_simGetObjectOrientation,        "table_3 eulerAngles=sim.getObjectOrientation(number objectHandle,number relativeToObjectHandle)",true},
-    {"sim.setObjectPosition",_simSetObjectPosition,              "sim.setObjectPosition(number objectHandle,number relativeToObjectHandle,table_3 position)",true},
-    {"sim.setObjectOrientation",_simSetObjectOrientation,        "sim.setObjectOrientation(number objectHandle,number relativeToObjectHandle,table_3 eulerAngles)",true},
-    {"sim.getJointPosition",_simGetJointPosition,                "number position=sim.getJointPosition(number objectHandle)",true},
-    {"sim.setJointPosition",_simSetJointPosition,                "sim.setJointPosition(number objectHandle,number position)",true},
-    {"sim.setJointTargetPosition",_simSetJointTargetPosition,    "sim.setJointTargetPosition(number objectHandle,number targetPosition)",true},
-    {"sim.getJointTargetPosition",_simGetJointTargetPosition,    "number result,number targetPosition=sim.getJointTargetPosition(number objectHandle)",true},
-    {"sim.setJointMaxForce",_simSetJointMaxForce,                "sim.setJointMaxForce(number objectHandle,number forceOrTorque)",true},
-    {"sim.setJointTargetVelocity",_simSetJointTargetVelocity,    "sim.setJointTargetVelocity(number objectHandle,number targetVelocity)",true},
-    {"sim.getJointTargetVelocity",_simGetJointTargetVelocity,    "number targetVelocity=sim.getJointTargetVelocity(number objectHandle)",true},
-    {"sim.getObjectName",_simGetObjectName,                      "string objectName=sim.getObjectName(number objectHandle)",true},
-    {"sim.removeObject",_simRemoveObject,                        "number result=sim.removeObject(number objectHandle)",true},
-    {"sim.removeModel",_simRemoveModel,                          "number removedObjects=sim.removeModel(number objectHandle)",true},
-    {"sim.getSimulationTime",_simGetSimulationTime,              "number simulationTime=sim.getSimulationTime()",true},
-    {"sim.getSimulationState",_simGetSimulationState,            "number simulationState=sim.getSimulationState()",true},
-    {"sim.getSystemTime",_simGetSystemTime,                      "number systemTime=sim.getSystemTime()",true},
-    {"sim.getSystemTimeInMs",_simGetSystemTimeInMs,              "number systemTimeOrTimeDiff=sim.getSystemTimeInMs(number previousTime)",true},
-    {"sim.checkCollision",_simCheckCollision,                    "number result,table_2 collidingObjects=sim.checkCollision(number entity1Handle,number entity2Handle)",true},
-    {"sim.checkCollisionEx",_simCheckCollisionEx,                "number segmentCount,table segmentData=sim.checkCollisionEx(number entity1Handle,number entity2Handle)",true},
-    {"sim.checkDistance",_simCheckDistance,                      "number result,table_7 distanceData,table_2 objectHandlePair=sim.checkDistance(number entity1Handle,number entity2Handle,number threshold=0)",true},
-    {"sim.getObjectConfiguration",_simGetObjectConfiguration,    "number rawBufferHandle=sim.getObjectConfiguration(number objectHandle)",true},
-    {"sim.setObjectConfiguration",_simSetObjectConfiguration,    "sim.setObjectConfiguration(number rawBufferHandle)",true},
-    {"sim.getConfigurationTree",_simGetConfigurationTree,        "number rawBufferHandle=sim.getConfigurationTree(number objectHandle)",true},
-    {"sim.setConfigurationTree",_simSetConfigurationTree,        "sim.setConfigurationTree(number rawBufferHandle)",true},
-    {"sim.getSimulationTimeStep",_simGetSimulationTimeStep,      "number timeStep=sim.getSimulationTimeStep()",true},
-    {"sim.getSimulatorMessage",_simGetSimulatorMessage,          "number messageID,table_4 auxiliaryData,table auxiliaryData2=sim.getSimulatorMessage()",true},
-    {"sim.resetGraph",_simResetGraph,                            "sim.resetGraph(number objectHandle)",true},
-    {"sim.handleGraph",_simHandleGraph,                          "sim.handleGraph(number objectHandle,number simulationTime)",true},
+    {"sim.getScriptName",_simGetScriptName,                      "string scriptName=sim.getScriptName(int scriptHandle)",true},
+    {"sim.getObjectAssociatedWithScript",_simGetObjectAssociatedWithScript,"int objectHandle=sim.getObjectAssociatedWithScript(int scriptHandle)",true},
+    {"sim.getScriptAssociatedWithObject",_simGetScriptAssociatedWithObject,"int scriptHandle=sim.getScriptAssociatedWithObject(int objectHandle)",true},
+    {"sim.getCustomizationScriptAssociatedWithObject",_simGetCustomizationScriptAssociatedWithObject,"int scriptHandle=sim.getCustomizationScriptAssociatedWithObject(int objectHandle)",true},
+    {"sim.openModule",_simOpenModule,                            "int result=sim.openModule(sim.handle_all)\nint result=sim.openModule(string moduleName)",true},
+    {"sim.closeModule",_simCloseModule,                          "int result=sim.closeModule(sim.handle_all)\nint result=sim.closeModule(string moduleName)",true},
+    {"sim.handleModule",_simHandleModule,                        "int result=sim.handleModule(sim.handle_all)\nint result=sim.handleModule(string moduleName)",true},
+    {"sim.handleDynamics",_simHandleDynamics,                    "int result=sim.handleDynamics(float deltaTime)",true},
+    {"sim.handleProximitySensor",_simHandleProximitySensor,      "int result,float distance,table_3 detectedPoint,int detectedObjectHandle,table_3 normalVector=\nsim.handleProximitySensor(int sensorHandle)",true},
+    {"sim.readProximitySensor",_simReadProximitySensor,          "int result,float distance,table_3 detectedPoint,int detectedObjectHandle,table_3 normalVector=\nsim.readProximitySensor(int sensorHandle)",true},
+    {"sim.resetProximitySensor",_simResetProximitySensor,        "sim.resetProximitySensor(int objectHandle)",true},
+    {"sim.checkProximitySensor",_simCheckProximitySensor,        "int result,float distance,table_3 detectedPoint=sim.checkProximitySensor(int sensorHandle,int entityHandle)",true},
+    {"sim.checkProximitySensorEx",_simCheckProximitySensorEx,    "int result,float distance,table_3 detectedPoint,int detectedObjectHandle,table_3 normalVector=\nsim.checkProximitySensorEx(int sensorHandle,int entityHandle,int mode,float threshold,float maxAngle)",true},
+    {"sim.checkProximitySensorEx2",_simCheckProximitySensorEx2,  "int result,float distance,table_3 detectedPoint,table_3 normalVector=\nsim.checkProximitySensorEx2(int sensorHandle,table vertices,int itemType,int itemCount,int mode,float threshold,float maxAngle)",true},
+    {"sim.getObjectHandle",_simGetObjectHandle,                  "int objectHandle=sim.getObjectHandle(string objectName)",true},
+    {"sim.addScript",_simAddScript,                              "int scriptHandle=sim.addScript(int scriptType)",true},
+    {"sim.associateScriptWithObject",_simAssociateScriptWithObject,"sim.associateScriptWithObject(int scriptHandle,int objectHandle)",true},
+    {"sim.setScriptText",_simSetScriptText,                      "sim.setScriptText(int scriptHandle,string scriptText)",true},
+    {"sim.getScriptHandle",_simGetScriptHandle,                  "int scriptHandle=sim.getScriptHandle(string scriptName=nil)",true},
+    {"sim.getObjectPosition",_simGetObjectPosition,              "table_3 position=sim.getObjectPosition(int objectHandle,int relativeToObjectHandle)",true},
+    {"sim.getObjectOrientation",_simGetObjectOrientation,        "table_3 eulerAngles=sim.getObjectOrientation(int objectHandle,int relativeToObjectHandle)",true},
+    {"sim.setObjectPosition",_simSetObjectPosition,              "sim.setObjectPosition(int objectHandle,int relativeToObjectHandle,table_3 position)",true},
+    {"sim.setObjectOrientation",_simSetObjectOrientation,        "sim.setObjectOrientation(int objectHandle,int relativeToObjectHandle,table_3 eulerAngles)",true},
+    {"sim.getJointPosition",_simGetJointPosition,                "float position=sim.getJointPosition(int objectHandle)",true},
+    {"sim.setJointPosition",_simSetJointPosition,                "sim.setJointPosition(int objectHandle,float position)",true},
+    {"sim.setJointTargetPosition",_simSetJointTargetPosition,    "sim.setJointTargetPosition(int objectHandle,float targetPosition)",true},
+    {"sim.getJointTargetPosition",_simGetJointTargetPosition,    "int result,float targetPosition=sim.getJointTargetPosition(int objectHandle)",true},
+    {"sim.setJointMaxForce",_simSetJointMaxForce,                "sim.setJointMaxForce(int objectHandle,float forceOrTorque)",true},
+    {"sim.setJointTargetVelocity",_simSetJointTargetVelocity,    "sim.setJointTargetVelocity(int objectHandle,float targetVelocity)",true},
+    {"sim.getJointTargetVelocity",_simGetJointTargetVelocity,    "float targetVelocity=sim.getJointTargetVelocity(int objectHandle)",true},
+    {"sim.getObjectName",_simGetObjectName,                      "string objectName=sim.getObjectName(int objectHandle)",true},
+    {"sim.removeObject",_simRemoveObject,                        "int result=sim.removeObject(int objectHandle)",true},
+    {"sim.removeModel",_simRemoveModel,                          "int removedObjects=sim.removeModel(int objectHandle)",true},
+    {"sim.getSimulationTime",_simGetSimulationTime,              "float simulationTime=sim.getSimulationTime()",true},
+    {"sim.getSimulationState",_simGetSimulationState,            "int simulationState=sim.getSimulationState()",true},
+    {"sim.getSystemTime",_simGetSystemTime,                      "float systemTime=sim.getSystemTime()",true},
+    {"sim.getSystemTimeInMs",_simGetSystemTimeInMs,              "int systemTimeOrTimeDiff=sim.getSystemTimeInMs(int previousTime)",true},
+    {"sim.checkCollision",_simCheckCollision,                    "int result,table_2 collidingObjects=sim.checkCollision(int entity1Handle,int entity2Handle)",true},
+    {"sim.checkCollisionEx",_simCheckCollisionEx,                "int segmentCount,table segmentData=sim.checkCollisionEx(int entity1Handle,int entity2Handle)",true},
+    {"sim.checkDistance",_simCheckDistance,                      "int result,table_7 distanceData,table_2 objectHandlePair=sim.checkDistance(int entity1Handle,int entity2Handle,float threshold=0.0)",true},
+    {"sim.getObjectConfiguration",_simGetObjectConfiguration,    "int rawBufferHandle=sim.getObjectConfiguration(int objectHandle)",true},
+    {"sim.setObjectConfiguration",_simSetObjectConfiguration,    "sim.setObjectConfiguration(int rawBufferHandle)",true},
+    {"sim.getConfigurationTree",_simGetConfigurationTree,        "int rawBufferHandle=sim.getConfigurationTree(int objectHandle)",true},
+    {"sim.setConfigurationTree",_simSetConfigurationTree,        "sim.setConfigurationTree(int rawBufferHandle)",true},
+    {"sim.getSimulationTimeStep",_simGetSimulationTimeStep,      "float timeStep=sim.getSimulationTimeStep()",true},
+    {"sim.getSimulatorMessage",_simGetSimulatorMessage,          "int messageID,table_4 auxiliaryData,table auxiliaryData2=sim.getSimulatorMessage()",true},
+    {"sim.resetGraph",_simResetGraph,                            "sim.resetGraph(int objectHandle)",true},
+    {"sim.handleGraph",_simHandleGraph,                          "sim.handleGraph(int objectHandle,float simulationTime)",true},
+    {"sim.getGraphCurve",_simGetGraphCurve,                      "string label,int curveType,table curveColor,table xData,table yData,table zData,table minMax=\nsim.getGraphCurve(int graphHandle,int graphType,int curveIndex)",true},
+    {"sim.getGraphInfo",_simGetGraphInfo,                        "int bitCoded,table_3 bgColor,table_3 fgColor=sim.getGraphInfo(int graphHandle)",true},
+    {"sim.addGraphDataStream",_simAddGraphDataStream,            "int streamId=sim.addGraphDataStream(int graphHandle,string streamName,\nstring unit,int options=0,table_3 color={1,0,0},float cyclicRange=pi)",true},
+    {"sim.destroyGraphCurve",_simDestroyGraphCurve,              "sim.destroyGraphCurve(int graphHandle,int curveId)",true},
+    {"sim.setGraphDataStreamTransformation",_simSetGraphDataStreamTransformation, "sim.setGraphDataStreamTransformation(int graphHandle,int streamId,\nint trType,float mult=1.0,float off=0.0,int movAvgPeriod=1)",true},
+    {"sim.duplicateGraphCurveToStatic",_simDuplicateGraphCurveToStatic, "int curveId=sim.duplicateGraphCurveToStatic(int graphHandle,int curveId,string curveName='')",true},
+    {"sim.addGraphCurve",_simAddGraphCurve,                      "int curveId=sim.addGraphCurve(int graphHandle,int dim,\ntable_3 streamIds,table_3 defaultValues,string curveName,string unitStr,int options=0,\ntable_3 color={1,1,0},int curveWidth=2)",true},
+    {"sim.setGraphDataStreamValue",_simSetGraphDataStreamValue,  "sim.setGraphDataStreamValue(int graphHandle,int streamId,float value)",true},
     {"sim.getLastError",_simGetLastError,                        "string lastError=sim.getLastError([scriptHandle])",true},
-    {"sim.getObjects",_simGetObjects,                            "number objectHandle=sim.getObjects(number index,number objectType)",true},
-    {"sim.refreshDialogs",_simRefreshDialogs,                    "number result=sim.refreshDialogs(number refreshDegree)",true},
-    {"sim.getModuleName",_simGetModuleName,                      "string moduleName,number version=sim.getModuleName(number index)",true},
-    {"sim.removeScript",_simRemoveScript,                        "sim.removeScript(number scriptHandle)",true},
-    {"sim.stopSimulation",_simStopSimulation,                    "number result=sim.stopSimulation()",true},
-    {"sim.pauseSimulation",_simPauseSimulation,                  "number result=sim.pauseSimulation()",true},
-    {"sim.startSimulation",_simStartSimulation,                  "number result=sim.startSimulation()",true},
-    {"sim.getObjectMatrix",_simGetObjectMatrix,                  "table_12 matrix=sim.getObjectMatrix(number objectHandle,number relativeToObjectHandle)",true},
-    {"sim.setObjectMatrix",_simSetObjectMatrix,                  "sim.setObjectMatrix(number objectHandle,number relativeToObjectHandle,table_12 matrix)",true},
-    {"sim.getJointMatrix",_simGetJointMatrix,                    "table_12 matrix=sim.getJointMatrix(number objectHandle)",true},
-    {"sim.setSphericalJointMatrix",_simSetSphericalJointMatrix,  "sim.setSphericalJointMatrix(number objectHandle,table_12 matrix)",true},
+    {"sim.getObjects",_simGetObjects,                            "int objectHandle=sim.getObjects(int index,int objectType)",true},
+    {"sim.refreshDialogs",_simRefreshDialogs,                    "int result=sim.refreshDialogs(int refreshDegree)",true},
+    {"sim.getModuleName",_simGetModuleName,                      "string moduleName,int version=sim.getModuleName(int index)",true},
+    {"sim.removeScript",_simRemoveScript,                        "sim.removeScript(int scriptHandle)",true},
+    {"sim.stopSimulation",_simStopSimulation,                    "int result=sim.stopSimulation()",true},
+    {"sim.pauseSimulation",_simPauseSimulation,                  "int result=sim.pauseSimulation()",true},
+    {"sim.startSimulation",_simStartSimulation,                  "int result=sim.startSimulation()",true},
+    {"sim.getObjectMatrix",_simGetObjectMatrix,                  "table_12 matrix=sim.getObjectMatrix(int objectHandle,int relativeToObjectHandle)",true},
+    {"sim.setObjectMatrix",_simSetObjectMatrix,                  "sim.setObjectMatrix(int objectHandle,int relativeToObjectHandle,table_12 matrix)",true},
+    {"sim.getJointMatrix",_simGetJointMatrix,                    "table_12 matrix=sim.getJointMatrix(int objectHandle)",true},
+    {"sim.setSphericalJointMatrix",_simSetSphericalJointMatrix,  "sim.setSphericalJointMatrix(int objectHandle,table_12 matrix)",true},
     {"sim.buildIdentityMatrix",_simBuildIdentityMatrix,          "table_12 matrix=sim.buildIdentityMatrix()",true},
     {"sim.copyMatrix",_simCopyMatrix,                            "table_12 matrix=sim.copyMatrix(table_12 matrixToCopy)",true},
     {"sim.buildMatrix",_simBuildMatrix,                          "table_12 matrix=sim.buildMatrix(table_3 position,table_3 eulerAngles)",true},
     {"sim.getEulerAnglesFromMatrix",_simGetEulerAnglesFromMatrix,"table_3 eulerAngles=sim.getEulerAnglesFromMatrix(table_12 matrix)",true},
     {"sim.invertMatrix",_simInvertMatrix,                        "sim.invertMatrix(table_12 matrix)",true},
     {"sim.multiplyMatrices",_simMultiplyMatrices,                "table_12 resultMatrix=sim.multiplyMatrices(table_12 matrixIn1,table_12 matrixIn2)",true},
-    {"sim.interpolateMatrices",_simInterpolateMatrices,          "table_12 resultMatrix=sim.interpolateMatrices(table_12 matrixIn1,table_12 matrixIn2,number interpolFactor)",true},
+    {"sim.interpolateMatrices",_simInterpolateMatrices,          "table_12 resultMatrix=sim.interpolateMatrices(table_12 matrixIn1,table_12 matrixIn2,float interpolFactor)",true},
     {"sim.multiplyVector",_simMultiplyVector,                    "table_3n resultVector=sim.multiplyVector(table_12 matrix,table_3n vector)",true},
-    {"sim.getObjectChild",_simGetObjectChild,                    "number childObjectHandle=sim.getObjectChild(number objectHandle,number index)",true},
-    {"sim.getObjectParent",_simGetObjectParent,                  "number parentObjectHandle=sim.getObjectParent(number objectHandle)",true},
-    {"sim.setObjectParent",_simSetObjectParent,                  "sim.setObjectParent(number objectHandle,number parentObjectHandle,boolean keepInPlace)",true},
-    {"sim.getObjectType",_simGetObjectType,                      "number objectType=sim.getObjectType(number objectHandle)",true},
-    {"sim.getJointType",_simGetJointType,                        "number jointType=sim.getJointType(number objectHandle)",true},
-    {"sim.setBoolParameter",_simSetBoolParameter,                "sim.setBoolParameter(number parameter,boolean boolState)",true},
-    {"sim.getBoolParameter",_simGetBoolParameter,                "boolean boolState=sim.getBoolParameter(number parameter)",true},
-    {"sim.setInt32Parameter",_simSetInt32Parameter,              "sim.setInt32Parameter(number parameter,number intState)",true},
-    {"sim.getInt32Parameter",_simGetInt32Parameter,              "number intState=sim.getInt32Parameter(number parameter)",true},
-    {"sim.setFloatParameter",_simSetFloatParameter,              "sim.setFloatParameter(number parameter,number floatState)",true},
-    {"sim.getFloatParameter",_simGetFloatParameter,              "number floatState=sim.getFloatParameter(number parameter)",true},
-    {"sim.setStringParameter",_simSetStringParameter,            "sim.setStringParameter(number parameter,string stringState)",true},
-    {"sim.getStringParameter",_simGetStringParameter,            "string stringState=sim.getStringParameter(number parameter)",true},
-    {"sim.setArrayParameter",_simSetArrayParameter,              "sim.setArrayParameter(number parameter,table arrayOfValues)",true},
-    {"sim.getArrayParameter",_simGetArrayParameter,              "table arrayOfValues=sim.getArrayParameter(number parameter)",true},
-    {"sim.setObjectName",_simSetObjectName,                      "sim.setObjectName(number objectHandle,string objectName)",true},
-    {"sim.getJointInterval",_simGetJointInterval,                "boolean cyclic,table_2 interval=sim.getJointInterval(number objectHandle)",true},
-    {"sim.setJointInterval",_simSetJointInterval,                "sim.setJointInterval(number objectHandle,boolean cyclic,table_2 interval)",true},
+    {"sim.getObjectChild",_simGetObjectChild,                    "int childObjectHandle=sim.getObjectChild(int objectHandle,int index)",true},
+    {"sim.getObjectParent",_simGetObjectParent,                  "int parentObjectHandle=sim.getObjectParent(int objectHandle)",true},
+    {"sim.setObjectParent",_simSetObjectParent,                  "sim.setObjectParent(int objectHandle,int parentObjectHandle,boolean keepInPlace)",true},
+    {"sim.getObjectType",_simGetObjectType,                      "int objectType=sim.getObjectType(int objectHandle)",true},
+    {"sim.getJointType",_simGetJointType,                        "int jointType=sim.getJointType(int objectHandle)",true},
+    {"sim.setBoolParameter",_simSetBoolParameter,                "sim.setBoolParameter(int parameter,boolean boolState)",true},
+    {"sim.getBoolParameter",_simGetBoolParameter,                "boolean boolState=sim.getBoolParameter(int parameter)",true},
+    {"sim.setInt32Parameter",_simSetInt32Parameter,              "sim.setInt32Parameter(int parameter,int intState)",true},
+    {"sim.getInt32Parameter",_simGetInt32Parameter,              "int intState=sim.getInt32Parameter(int parameter)",true},
+    {"sim.setFloatParameter",_simSetFloatParameter,              "sim.setFloatParameter(int parameter,float floatState)",true},
+    {"sim.getFloatParameter",_simGetFloatParameter,              "float floatState=sim.getFloatParameter(int parameter)",true},
+    {"sim.setStringParameter",_simSetStringParameter,            "sim.setStringParameter(int parameter,string stringState)",true},
+    {"sim.getStringParameter",_simGetStringParameter,            "string stringState=sim.getStringParameter(int parameter)",true},
+    {"sim.setArrayParameter",_simSetArrayParameter,              "sim.setArrayParameter(int parameter,table arrayOfValues)",true},
+    {"sim.getArrayParameter",_simGetArrayParameter,              "table arrayOfValues=sim.getArrayParameter(int parameter)",true},
+    {"sim.setObjectName",_simSetObjectName,                      "sim.setObjectName(int objectHandle,string objectName)",true},
+    {"sim.getJointInterval",_simGetJointInterval,                "boolean cyclic,table_2 interval=sim.getJointInterval(int objectHandle)",true},
+    {"sim.setJointInterval",_simSetJointInterval,                "sim.setJointInterval(int objectHandle,boolean cyclic,table_2 interval)",true},
     {"sim.loadScene",_simLoadScene,                              "sim.loadScene(string filename)",true},
-    {"sim.closeScene",_simCloseScene,                            "number result=sim.closeScene()",true},
+    {"sim.closeScene",_simCloseScene,                            "int result=sim.closeScene()",true},
     {"sim.saveScene",_simSaveScene,                              "sim.saveScene(string filename)",true},
-    {"sim.loadModel",_simLoadModel,                              "number objectHandle=sim.loadModel(string filename)",true},
-    {"sim.saveModel",_simSaveModel,                              "string buffer=sim.saveModel(number modelBaseHandle,string filename=nil)",true},
-    {"sim.isObjectInSelection",_simIsObjectInSelection,          "number selectionState=sim.isObjectInSelection(number objectHandle)",true},
-    {"sim.addObjectToSelection",_simAddObjectToSelection,        "sim.addObjectToSelection(number what,number objectHandle)\nsim.addObjectToSelection(table objectHandles)",true},
-    {"sim.removeObjectFromSelection",_simRemoveObjectFromSelection,"sim.removeObjectFromSelection(number what,number objectHandle)\nnumber result=sim.removeObjectFromSelection(table objectHandles)",true},
+    {"sim.loadModel",_simLoadModel,                              "int objectHandle=sim.loadModel(string filename)",true},
+    {"sim.saveModel",_simSaveModel,                              "string buffer=sim.saveModel(int modelBaseHandle,string filename=nil)",true},
+    {"sim.isObjectInSelection",_simIsObjectInSelection,          "int selectionState=sim.isObjectInSelection(int objectHandle)",true},
+    {"sim.addObjectToSelection",_simAddObjectToSelection,        "sim.addObjectToSelection(int what,int objectHandle)\nsim.addObjectToSelection(table objectHandles)",true},
+    {"sim.removeObjectFromSelection",_simRemoveObjectFromSelection,"sim.removeObjectFromSelection(int what,int objectHandle)\nint result=sim.removeObjectFromSelection(table objectHandles)",true},
     {"sim.getObjectSelection",_simGetObjectSelection,            "table selectedObjectHandles=sim.getObjectSelection()",true},
-    {"sim.getRealTimeSimulation",_simGetRealTimeSimulation,      "number result=sim.getRealTimeSimulation()",true},
-    {"sim.setNavigationMode",_simSetNavigationMode,              "sim.setNavigationMode(number navigationMode)",true},
-    {"sim.getNavigationMode",_simGetNavigationMode,              "number navigationMode=sim.getNavigationMode()",true},
-    {"sim.setPage",_simSetPage,                                  "sim.setPage(number pageIndex)",true},
-    {"sim.getPage",_simGetPage,                                  "number pageIndex=sim.getPage()",true},
-    {"sim.copyPasteObjects",_simCopyPasteObjects,                "table copiedObjectHandles=sim.copyPasteObjects(table objectHandles,number options)",true},
-    {"sim.scaleObjects",_simScaleObjects,                        "sim.scaleObjects(table objectHandles,number scalingFactor,boolean scalePositionsToo)",true},
-    {"sim.getObjectUniqueIdentifier",_simGetObjectUniqueIdentifier,"number uniqueIdentifier=sim.getObjectUniqueIdentifier(number objectHandle)\ntable uniqueIdentifiers=sim.getObjectUniqueIdentifier(sim.handle_all)",true},
-    {"sim.setThreadAutomaticSwitch",_simSetThreadAutomaticSwitch,"number autoSwitchForbidLevel=sim.setThreadAutomaticSwitch(boolean automaticSwitch/number forbidLevel)",true},
+    {"sim.getRealTimeSimulation",_simGetRealTimeSimulation,      "int result=sim.getRealTimeSimulation()",true},
+    {"sim.setNavigationMode",_simSetNavigationMode,              "sim.setNavigationMode(int navigationMode)",true},
+    {"sim.getNavigationMode",_simGetNavigationMode,              "int navigationMode=sim.getNavigationMode()",true},
+    {"sim.setPage",_simSetPage,                                  "sim.setPage(int pageIndex)",true},
+    {"sim.getPage",_simGetPage,                                  "int pageIndex=sim.getPage()",true},
+    {"sim.copyPasteObjects",_simCopyPasteObjects,                "table copiedObjectHandles=sim.copyPasteObjects(table objectHandles,int options)",true},
+    {"sim.scaleObjects",_simScaleObjects,                        "sim.scaleObjects(table objectHandles,float scalingFactor,boolean scalePositionsToo)",true},
+    {"sim.getObjectUniqueIdentifier",_simGetObjectUniqueIdentifier,"int uniqueIdentifier=sim.getObjectUniqueIdentifier(int objectHandle)\ntable uniqueIdentifiers=sim.getObjectUniqueIdentifier(sim.handle_all)",true},
+    {"sim.setThreadAutomaticSwitch",_simSetThreadAutomaticSwitch,"int autoSwitchForbidLevel=sim.setThreadAutomaticSwitch(boolean automaticSwitch/int forbidLevel)",true},
     {"sim.getThreadAutomaticSwitch",_simGetThreadAutomaticSwitch,"boolean result=sim.getThreadAutomaticSwitch()",true},
     {"sim.getThreadSwitchAllowed",_simGetThreadSwitchAllowed,    "boolean allowed=sim.getThreadSwitchAllowed()",true},
-    {"sim.setThreadSwitchAllowed",_simSetThreadSwitchAllowed,    "number forbidLevel=sim.setThreadSwitchAllowed(boolean allowed/number forbidLevel)",true},
-    {"sim.setThreadSwitchTiming",_simSetThreadSwitchTiming,      "sim.setThreadSwitchTiming(number deltaTimeInMilliseconds)",true},
+    {"sim.setThreadSwitchAllowed",_simSetThreadSwitchAllowed,    "int forbidLevel=sim.setThreadSwitchAllowed(boolean allowed/int forbidLevel)",true},
+    {"sim.setThreadSwitchTiming",_simSetThreadSwitchTiming,      "sim.setThreadSwitchTiming(int deltaTimeInMilliseconds)",true},
     {"sim._switchThread",_simSwitchThread,                       "sim._switchThread()",false},
-    {"sim.saveImage",_simSaveImage,                              "string buffer=sim.saveImage(string image,table_2 resolution,number options,string filename,number quality)",true},
-    {"sim.loadImage",_simLoadImage,                              "string image,table_2 resolution=sim.loadImage(number options,string filename)",true},
-    {"sim.getScaledImage",_simGetScaledImage,                    "string imageOut,table_2 effectiveResolutionOut=sim.getScaledImage(string imageIn,table_2 resolutionIn,\ntable_2 desiredResolutionOut,number options)",true},
-    {"sim.transformImage",_simTransformImage,                    "sim.transformImage(string image,table_2 resolution,number options)",true},
+    {"sim.saveImage",_simSaveImage,                              "string buffer=sim.saveImage(string image,table_2 resolution,int options,string filename,int quality)",true},
+    {"sim.loadImage",_simLoadImage,                              "string image,table_2 resolution=sim.loadImage(int options,string filename)",true},
+    {"sim.getScaledImage",_simGetScaledImage,                    "string imageOut,table_2 effectiveResolutionOut=sim.getScaledImage(string imageIn,table_2 resolutionIn,\ntable_2 desiredResolutionOut,int options)",true},
+    {"sim.transformImage",_simTransformImage,                    "sim.transformImage(string image,table_2 resolution,int options)",true},
     {"sim.getQHull",_simGetQHull,                                "table verticesOut,table indicesOut=sim.getQHull(table verticesIn)",true},
-    {"sim.getDecimatedMesh",_simGetDecimatedMesh,                "table verticesOut,table indicesOut=sim.getDecimatedMesh(table verticesIn,table indicesIn,number decimationPercentage)",true},
-    {"sim.packInt32Table",_simPackInt32Table,                    "string data=sim.packInt32Table(table int32Numbers,number startInt32Index=0,number int32Count=0)",true},
-    {"sim.packUInt32Table",_simPackUInt32Table,                  "string data=sim.packUInt32Table(table uint32Numbers,number startUInt32Index=0,number uint32Count=0)",true},
-    {"sim.packFloatTable",_simPackFloatTable,                    "string data=sim.packFloatTable(table floatNumbers,number startFloatIndex=0,number floatCount=0)",true},
-    {"sim.packDoubleTable",_simPackDoubleTable,                  "string data=sim.packDoubleTable(table doubleNumbers,number startDoubleIndex=0,number doubleCount=0)",true},
-    {"sim.packUInt8Table",_simPackUInt8Table,                    "string data=sim.packUInt8Table(table uint8Numbers,number startUint8Index=0,number uint8count=0)",true},
-    {"sim.packUInt16Table",_simPackUInt16Table,                  "string data=sim.packUInt16Table(table uint16Numbers,number startUint16Index=0,number uint16Count=0)",true},
-    {"sim.unpackInt32Table",_simUnpackInt32Table,                "table int32Numbers=sim.unpackInt32Table(string data,number startInt32Index=0,number int32Count=0,number additionalByteOffset=0)",true},
-    {"sim.unpackUInt32Table",_simUnpackUInt32Table,              "table uint32Numbers=sim.unpackUInt32Table(string data,number startUint32Index=0,number uint32Count=0,number additionalByteOffset=0)",true},
-    {"sim.unpackFloatTable",_simUnpackFloatTable,                "table floatNumbers=sim.unpackFloatTable(string data,number startFloatIndex=0,number floatCount=0,number additionalByteOffset=0)",true},
-    {"sim.unpackDoubleTable",_simUnpackDoubleTable,              "table doubleNumbers=sim.unpackDoubleTable(string data,number startDoubleIndex=0,number doubleCount=0,number additionalByteOffset=0)",true},
-    {"sim.unpackUInt8Table",_simUnpackUInt8Table,                "table uint8Numbers=sim.unpackUInt8Table(string data,number startUint8Index=0,number uint8count=0)",true},
-    {"sim.unpackUInt16Table",_simUnpackUInt16Table,              "table uint16Numbers=sim.unpackUInt16Table(string data,number startUint16Index=0,number uint16Count=0,number additionalByteOffset=0)",true},
+    {"sim.getDecimatedMesh",_simGetDecimatedMesh,                "table verticesOut,table indicesOut=sim.getDecimatedMesh(table verticesIn,table indicesIn,float decimationPercentage)",true},
+    {"sim.packInt32Table",_simPackInt32Table,                    "string data=sim.packInt32Table(table int32Numbers,int startInt32Index=0,int int32Count=0)",true},
+    {"sim.packUInt32Table",_simPackUInt32Table,                  "string data=sim.packUInt32Table(table uint32Numbers,int startUInt32Index=0,int uint32Count=0)",true},
+    {"sim.packFloatTable",_simPackFloatTable,                    "string data=sim.packFloatTable(table floatNumbers,int startFloatIndex=0,int floatCount=0)",true},
+    {"sim.packDoubleTable",_simPackDoubleTable,                  "string data=sim.packDoubleTable(table doubleNumbers,int startDoubleIndex=0,int doubleCount=0)",true},
+    {"sim.packUInt8Table",_simPackUInt8Table,                    "string data=sim.packUInt8Table(table uint8Numbers,int startUint8Index=0,int uint8count=0)",true},
+    {"sim.packUInt16Table",_simPackUInt16Table,                  "string data=sim.packUInt16Table(table uint16Numbers,int startUint16Index=0,int uint16Count=0)",true},
+    {"sim.unpackInt32Table",_simUnpackInt32Table,                "table int32Numbers=sim.unpackInt32Table(string data,int startInt32Index=0,int int32Count=0,int additionalByteOffset=0)",true},
+    {"sim.unpackUInt32Table",_simUnpackUInt32Table,              "table uint32Numbers=sim.unpackUInt32Table(string data,int startUint32Index=0,int uint32Count=0,int additionalByteOffset=0)",true},
+    {"sim.unpackFloatTable",_simUnpackFloatTable,                "table floatNumbers=sim.unpackFloatTable(string data,int startFloatIndex=0,int floatCount=0,int additionalByteOffset=0)",true},
+    {"sim.unpackDoubleTable",_simUnpackDoubleTable,              "table doubleNumbers=sim.unpackDoubleTable(string data,int startDoubleIndex=0,int doubleCount=0,int additionalByteOffset=0)",true},
+    {"sim.unpackUInt8Table",_simUnpackUInt8Table,                "table uint8Numbers=sim.unpackUInt8Table(string data,int startUint8Index=0,int uint8count=0)",true},
+    {"sim.unpackUInt16Table",_simUnpackUInt16Table,              "table uint16Numbers=sim.unpackUInt16Table(string data,int startUint16Index=0,int uint16Count=0,int additionalByteOffset=0)",true},
     {"sim.packTable",_simPackTable,                              "string buffer=sim.packTable(table aTable)",true},
     {"sim.unpackTable",_simUnpackTable,                          "table aTable=sim.unpackTable(string buffer)",true},
-    {"sim.transformBuffer",_simTransformBuffer,                  "string outBuffer=sim.transformBuffer(string inBuffer,number inFormat,number multiplier,number offset,number outFormat)",true},
-    {"sim.combineRgbImages",_simCombineRgbImages,                "string outImg=sim.combineRgbImages(string img1,table_2 img1Res,string img2,table_2 img2Res,number operation)",true},
-    {"sim.getVelocity",_simGetVelocity,                          "table_3 linearVelocity,table_3 angularVelocity=sim.getVelocity(number shapeHandle)",true},
-    {"sim.getObjectVelocity",_simGetObjectVelocity,              "table_3 linearVelocity,table_3 angularVelocity=sim.getObjectVelocity(number objectHandle)",true},
-    {"sim.addForceAndTorque",_simAddForceAndTorque,              "sim.addForceAndTorque(number shapeHandle,table_3 force=nil,table_3 torque=nil)",true},
-    {"sim.addForce",_simAddForce,                                "sim.addForce(number shapeHandle,table_3 position,table_3 force)",true},
-    {"sim.setExplicitHandling",_simSetExplicitHandling,          "sim.setExplicitHandling(number objectHandle,number explicitHandlingFlags)",true},
-    {"sim.getExplicitHandling",_simGetExplicitHandling,          "number explicitHandlingFlags=sim.getExplicitHandling(number objectHandle)",true},
-    {"sim.setGraphUserData",_simSetGraphUserData,                "number result=sim.setGraphUserData(number graphHandle,string dataStreamName,number data)",true},
-    {"sim.addDrawingObject",_simAddDrawingObject,                "number drawingObjectHandle=sim.addDrawingObject(number objectType,number size,number duplicateTolerance,\nnumber parentObjectHandle,number maxItemCount,table_3 ambient_diffuse=nil,nil,table_3 specular=nil,\ntable_3 emission=nil)",true},
-    {"sim.removeDrawingObject",_simRemoveDrawingObject,          "sim.removeDrawingObject(number drawingObjectHandle)",true},
-    {"sim.addDrawingObjectItem",_simAddDrawingObjectItem,        "number result=sim.addDrawingObjectItem(number drawingObjectHandle,table itemData)",true},
-    {"sim.addParticleObject",_simAddParticleObject,              "number particleObjectHandle=sim.addParticleObject(number objectType,number size,number density,table params,number lifeTime,\nnumber maxItemCount,table_3 ambient_diffuse=nil,nil,table_3 specular=nil,table_3 emission=nil)",true},
-    {"sim.removeParticleObject",_simRemoveParticleObject,        "sim.removeParticleObject(number particleObjectHandle)",true},
-    {"sim.addParticleObjectItem",_simAddParticleObjectItem,      "sim.addParticleObjectItem(number particleObjectHandle,table itemData)",true},
-    {"sim.getObjectSizeFactor",_simGetObjectSizeFactor,          "number sizeFactor=sim.getObjectSizeFactor(number ObjectHandle)",true},
-    {"sim.setIntegerSignal",_simSetIntegerSignal,                "sim.setIntegerSignal(string signalName,number signalValue)",true},
-    {"sim.getIntegerSignal",_simGetIntegerSignal,                "number signalValue=sim.getIntegerSignal(string signalName)",true},
-    {"sim.clearIntegerSignal",_simClearIntegerSignal,            "number clearCount=sim.clearIntegerSignal(string signalName)",true},
-    {"sim.setFloatSignal",_simSetFloatSignal,                    "sim.setFloatSignal(string signalName,number signalValue)",true},
-    {"sim.getFloatSignal",_simGetFloatSignal,                    "number signalValue=sim.getFloatSignal(string signalName)",true},
-    {"sim.clearFloatSignal",_simClearFloatSignal,                "number clearCount=sim.clearFloatSignal(string signalName)",true},
-    {"sim.setDoubleSignal",_simSetDoubleSignal,                  "sim.setDoubleSignal(string signalName,number signalValue)",true},
-    {"sim.getDoubleSignal",_simGetDoubleSignal,                  "number signalValue=sim.getDoubleSignal(string signalName)",true},
-    {"sim.clearDoubleSignal",_simClearDoubleSignal,              "number clearCount=sim.clearDoubleSignal(string signalName)",true},
+    {"sim.transformBuffer",_simTransformBuffer,                  "string outBuffer=sim.transformBuffer(string inBuffer,int inFormat,float multiplier,float offset,int outFormat)",true},
+    {"sim.combineRgbImages",_simCombineRgbImages,                "string outImg=sim.combineRgbImages(string img1,table_2 img1Res,string img2,table_2 img2Res,int operation)",true},
+    {"sim.getVelocity",_simGetVelocity,                          "table_3 linearVelocity,table_3 angularVelocity=sim.getVelocity(int shapeHandle)",true},
+    {"sim.getObjectVelocity",_simGetObjectVelocity,              "table_3 linearVelocity,table_3 angularVelocity=sim.getObjectVelocity(int objectHandle)",true},
+    {"sim.addForceAndTorque",_simAddForceAndTorque,              "sim.addForceAndTorque(int shapeHandle,table_3 force=nil,table_3 torque=nil)",true},
+    {"sim.addForce",_simAddForce,                                "sim.addForce(int shapeHandle,table_3 position,table_3 force)",true},
+    {"sim.setExplicitHandling",_simSetExplicitHandling,          "sim.setExplicitHandling(int objectHandle,int explicitHandlingFlags)",true},
+    {"sim.getExplicitHandling",_simGetExplicitHandling,          "int explicitHandlingFlags=sim.getExplicitHandling(int objectHandle)",true},
+    {"sim.setGraphUserData",_simSetGraphUserData,                "int result=sim.setGraphUserData(int graphHandle,string dataStreamName,float data)",true},
+    {"sim.addDrawingObject",_simAddDrawingObject,                "int drawingObjectHandle=sim.addDrawingObject(int objectType,float size,float duplicateTolerance,\nint parentObjectHandle,int maxItemCount,table_3 ambient_diffuse=nil,nil,table_3 specular=nil,\ntable_3 emission=nil)",true},
+    {"sim.removeDrawingObject",_simRemoveDrawingObject,          "sim.removeDrawingObject(int drawingObjectHandle)",true},
+    {"sim.addDrawingObjectItem",_simAddDrawingObjectItem,        "int result=sim.addDrawingObjectItem(int drawingObjectHandle,table itemData)",true},
+    {"sim.addParticleObject",_simAddParticleObject,              "int particleObjectHandle=sim.addParticleObject(int objectType,float size,float density,table params,float lifeTime,\nint maxItemCount,table_3 ambient_diffuse=nil,nil,table_3 specular=nil,table_3 emission=nil)",true},
+    {"sim.removeParticleObject",_simRemoveParticleObject,        "sim.removeParticleObject(int particleObjectHandle)",true},
+    {"sim.addParticleObjectItem",_simAddParticleObjectItem,      "sim.addParticleObjectItem(int particleObjectHandle,table itemData)",true},
+    {"sim.getObjectSizeFactor",_simGetObjectSizeFactor,          "float sizeFactor=sim.getObjectSizeFactor(int ObjectHandle)",true},
+    {"sim.setIntegerSignal",_simSetIntegerSignal,                "sim.setIntegerSignal(string signalName,int signalValue)",true},
+    {"sim.getIntegerSignal",_simGetIntegerSignal,                "int signalValue=sim.getIntegerSignal(string signalName)",true},
+    {"sim.clearIntegerSignal",_simClearIntegerSignal,            "sim.clearIntegerSignal(string signalName)",true},
+    {"sim.setFloatSignal",_simSetFloatSignal,                    "sim.setFloatSignal(string signalName,float signalValue)",true},
+    {"sim.getFloatSignal",_simGetFloatSignal,                    "float signalValue=sim.getFloatSignal(string signalName)",true},
+    {"sim.clearFloatSignal",_simClearFloatSignal,                "sim.clearFloatSignal(string signalName)",true},
+    {"sim.setDoubleSignal",_simSetDoubleSignal,                  "sim.setDoubleSignal(string signalName,float signalValue)",true},
+    {"sim.getDoubleSignal",_simGetDoubleSignal,                  "float signalValue=sim.getDoubleSignal(string signalName)",true},
+    {"sim.clearDoubleSignal",_simClearDoubleSignal,              "clearDoubleSignal(string signalName)",true},
     {"sim.setStringSignal",_simSetStringSignal,                  "sim.setStringSignal(string signalName,string signalValue)",true},
     {"sim.getStringSignal",_simGetStringSignal,                  "string signalValue=sim.getStringSignal(string signalName)",true},
-    {"sim.clearStringSignal",_simClearStringSignal,              "number clearCount=sim.clearStringSignal(string signalName)",true},
-    {"sim.getSignalName",_simGetSignalName,                      "string signalName=sim.getSignalName(number signalIndex,number signalType)",true},
-    {"sim.persistentDataWrite",_simPersistentDataWrite,          "sim.persistentDataWrite(string dataTag,string dataValue,number options=0)",true},
+    {"sim.clearStringSignal",_simClearStringSignal,              "clearStringSignal(string signalName)",true},
+    {"sim.getSignalName",_simGetSignalName,                      "string signalName=sim.getSignalName(int signalIndex,int signalType)",true},
+    {"sim.persistentDataWrite",_simPersistentDataWrite,          "sim.persistentDataWrite(string dataTag,string dataValue,int options=0)",true},
     {"sim.persistentDataRead",_simPersistentDataRead,            "string dataValue=sim.persistentDataRead(string dataTag)",true},
-    {"sim.setObjectProperty",_simSetObjectProperty,              "sim.setObjectProperty(number objectHandle,number property)",true},
-    {"sim.getObjectProperty",_simGetObjectProperty,              "number property=sim.getObjectProperty(number objectHandle)",true},
-    {"sim.setObjectSpecialProperty",_simSetObjectSpecialProperty,"sim.setObjectSpecialProperty(number objectHandle,number property)",true},
-    {"sim.getObjectSpecialProperty",_simGetObjectSpecialProperty,"number property=sim.getObjectSpecialProperty(number objectHandle)",true},
-    {"sim.setModelProperty",_simSetModelProperty,                "sim.setModelProperty(number objectHandle,number property)",true},
-    {"sim.getModelProperty",_simGetModelProperty,                "number property=sim.getModelProperty(number objectHandle)",true},
-    {"sim.readForceSensor",_simReadForceSensor,                  "number result,table_3 forceVector,table_3 torqueVector=sim.readForceSensor(number objectHandle)",true},
-    {"sim.breakForceSensor",_simBreakForceSensor,                "sim.breakForceSensor(number objectHandle)",true},
-    {"sim.getLightParameters",_simGetLightParameters,            "number state,table_3 zero,table_3 diffusePart,table_3 specular=sim.getLightParameters(number lightHandle)",true},
-    {"sim.setLightParameters",_simSetLightParameters,            "sim.setLightParameters(number lightHandle,number state,nil,table_3 diffusePart,table_3 specularPart)",true},
-    {"sim.getLinkDummy",_simGetLinkDummy,                        "number linkDummyHandle=sim.getLinkDummy(number dummyHandle)",true},
-    {"sim.setLinkDummy",_simSetLinkDummy,                        "sim.setLinkDummy(number dummyHandle,number linkDummyHandle)",true},
-    {"sim.setShapeColor",_simSetShapeColor,                      "sim.setShapeColor(number shapeHandle,string colorName,number colorComponent,table_3 rgbData)",true},
-    {"sim.getShapeColor",_simGetShapeColor,                      "number result,table_3 rgbData=sim.getShapeColor(number shapeHandle,string colorName,number colorComponent)",true},
-    {"sim.resetDynamicObject",_simResetDynamicObject,            "sim.resetDynamicObject(number objectHandle)",true},
-    {"sim.setJointMode",_simSetJointMode,                        "sim.setJointMode(number jointHandle,number jointMode,number options)",true},
-    {"sim.getJointMode",_simGetJointMode,                        "number jointMode,number options=sim.getJointMode(number jointHandle)",true},
+    {"sim.setObjectProperty",_simSetObjectProperty,              "sim.setObjectProperty(int objectHandle,int property)",true},
+    {"sim.getObjectProperty",_simGetObjectProperty,              "int property=sim.getObjectProperty(int objectHandle)",true},
+    {"sim.setObjectSpecialProperty",_simSetObjectSpecialProperty,"sim.setObjectSpecialProperty(int objectHandle,int property)",true},
+    {"sim.getObjectSpecialProperty",_simGetObjectSpecialProperty,"int property=sim.getObjectSpecialProperty(int objectHandle)",true},
+    {"sim.setModelProperty",_simSetModelProperty,                "sim.setModelProperty(int objectHandle,int property)",true},
+    {"sim.getModelProperty",_simGetModelProperty,                "int property=sim.getModelProperty(int objectHandle)",true},
+    {"sim.readForceSensor",_simReadForceSensor,                  "int result,table_3 forceVector,table_3 torqueVector=sim.readForceSensor(int objectHandle)",true},
+    {"sim.breakForceSensor",_simBreakForceSensor,                "sim.breakForceSensor(int objectHandle)",true},
+    {"sim.getLightParameters",_simGetLightParameters,            "int state,table_3 zero,table_3 diffusePart,table_3 specular=sim.getLightParameters(int lightHandle)",true},
+    {"sim.setLightParameters",_simSetLightParameters,            "sim.setLightParameters(int lightHandle,int state,nil,table_3 diffusePart,table_3 specularPart)",true},
+    {"sim.getLinkDummy",_simGetLinkDummy,                        "int linkDummyHandle=sim.getLinkDummy(int dummyHandle)",true},
+    {"sim.setLinkDummy",_simSetLinkDummy,                        "sim.setLinkDummy(int dummyHandle,int linkDummyHandle)",true},
+    {"sim.setShapeColor",_simSetShapeColor,                      "sim.setShapeColor(int shapeHandle,string colorName,int colorComponent,table_3 rgbData)",true},
+    {"sim.getShapeColor",_simGetShapeColor,                      "int result,table_3 rgbData=sim.getShapeColor(int shapeHandle,string colorName,int colorComponent)",true},
+    {"sim.resetDynamicObject",_simResetDynamicObject,            "sim.resetDynamicObject(int objectHandle)",true},
+    {"sim.setJointMode",_simSetJointMode,                        "sim.setJointMode(int jointHandle,int jointMode,int options)",true},
+    {"sim.getJointMode",_simGetJointMode,                        "int jointMode,int options=sim.getJointMode(int jointHandle)",true},
     {"sim._serialOpen",_simSerialOpen,                           "",false}, // partially implemented in sim.lua
     {"sim._serialClose",_simSerialClose,                         "",false}, // partially implemented in sim.lua
-    {"sim.serialSend",_simSerialSend,                            "number charsSent=sim.serialSend(number portHandle,string data)",true},
+    {"sim.serialSend",_simSerialSend,                            "int charsSent=sim.serialSend(int portHandle,string data)",true},
     {"sim._serialRead",_simSerialRead,                           "",false}, // partially implemented in sim.lua
-    {"sim.serialCheck",_simSerialCheck,                          "number byteCount=sim.serialCheck(number portHandle)",true},
-    {"sim.getContactInfo",_simGetContactInfo,                    "table_2 collidingObjects,table_3 collisionPoint,table_3 reactionForce,table_3 normalVector=sim.getContactInfo(number dynamicPass,\nnumber objectHandle,number index)",true},
-    {"sim.auxiliaryConsoleOpen",_simAuxiliaryConsoleOpen,        "number consoleHandle=sim.auxiliaryConsoleOpen(string title,number maxLines,number mode,table_2 position=nil,table_2 size=nil,\ntable_3 textColor=nil,table_3 backgroundColor=nil)",true},
-    {"sim.auxiliaryConsoleClose",_simAuxiliaryConsoleClose,      "number result=sim.auxiliaryConsoleClose(number consoleHandle)",true},
-    {"sim.auxiliaryConsolePrint",_simAuxiliaryConsolePrint,      "number result=sim.auxiliaryConsolePrint(number consoleHandle,string text)",true},
-    {"sim.auxiliaryConsoleShow",_simAuxiliaryConsoleShow,        "number result=sim.auxiliaryConsoleShow(number consoleHandle,boolean showState)",true},
-    {"sim.importShape",_simImportShape,                          "number shapeHandle=sim.importShape(number fileformat,string pathAndFilename,number options,number identicalVerticeTolerance\n,number scalingFactor)",true},
-    {"sim.importMesh",_simImportMesh,                            "table_of_table vertices,table_of_table indices=sim.importMesh(number fileformat,string pathAndFilename,\nnumber options,number identicalVerticeTolerance,number scalingFactor)",true},
-    {"sim.exportMesh",_simExportMesh,                            "sim.exportMesh(number fileformat,string pathAndFilename,number options,number scalingFactor,\ntable_of_table vertices,table_of_table indices)",true},
-    {"sim.createMeshShape",_simCreateMeshShape,                  "number objectHandle=sim.createMeshShape(number options,number shadingAngle,table vertices,table indices)",true},
-    {"sim.getShapeMesh",_simGetShapeMesh,                        "table vertices,table indices,table normals=sim.getShapeMesh(number shapeHandle)",true},
-    {"sim.createPureShape",_simCreatePureShape,                  "number objectHandle=sim.createPureShape(number primitiveType,number options,table_3 sizes,number mass,table_2 precision=nil)",true},
-    {"sim.createHeightfieldShape",_simCreateHeightfieldShape,    "number objectHandle=sim.createHeightfieldShape(number options,number shadingAngle,number xPointCount,\nnumber yPointCount,number xSize,table heights)",true},
-    {"sim.addBanner",_simAddBanner,                              "number bannerID=sim.addBanner(string label,number size,number options,table_6 positionAndEulerAngles=nil,\nnumber parentObjectHandle=nil,table_12 labelColors=nil,table_12 backgroundColors=nil)",true},
-    {"sim.removeBanner",_simRemoveBanner,                        "sim.removeBanner(number bannerID)",true},
-    {"sim.createJoint",_simCreateJoint,                          "number jointHandle=sim.createJoint(number jointType,number jointMode,number options,table_2 sizes=nil,\ntable_12 colorA=nil,table_12 colorB=nil)",true},
-    {"sim.createDummy",_simCreateDummy,                          "number dummyHandle=sim.createDummy(number size,table_12 color=nil)",true},
-    {"sim.createProximitySensor",_simCreateProximitySensor,      "number sensorHandle=sim.createProximitySensor(number sensorType,number subType,number options,table_8 intParams,\ntable_15 floatParams,table_48 color=nil)",true},
-    {"sim.createForceSensor",_simCreateForceSensor,              "number sensorHandle=sim.createForceSensor(number options,table_5 intParams,table_5 floatParams,table_24 color=nil)",true},
-    {"sim.createVisionSensor",_simCreateVisionSensor,            "number sensorHandle=sim.createVisionSensor(number options,table_4 intParams,table_11 floatParams,table_48 color=nil)",true},
-    {"sim.floatingViewAdd",_simFloatingViewAdd,                  "number floatingViewHandle=sim.floatingViewAdd(number posX,number posY,number sizeX,number sizeY,number options)",true},
-    {"sim.floatingViewRemove",_simFloatingViewRemove,            "number result=sim.floatingViewRemove(number floatingViewHandle)",true},
-    {"sim.adjustView",_simAdjustView,                            "number result=sim.adjustView(number viewHandleOrIndex,number associatedViewableObjectHandle,number options,string viewLabel=nil)",true},
-    {"sim.cameraFitToView",_simCameraFitToView,                  "number result=sim.cameraFitToView(number viewHandleOrIndex,table objectHandles=nil,simInt options=0,simFloat scaling=1)",true},
-    {"sim.announceSceneContentChange",_simAnnounceSceneContentChange,"number result=sim.announceSceneContentChange()",true},
-    {"sim.getObjectInt32Parameter",_simGetObjectInt32Parameter,  "number result,number parameter=sim.getObjectInt32Parameter(number objectHandle,number parameterID)",true},
-    {"sim.setObjectInt32Parameter",_simSetObjectInt32Parameter,  "sim.setObjectInt32Parameter(number objectHandle,number parameterID,number parameter)",true},
-    {"sim.getObjectFloatParameter",_simGetObjectFloatParameter,  "number result,number parameter=sim.getObjectFloatParameter(number objectHandle,number parameterID)",true},
-    {"sim.setObjectFloatParameter",_simSetObjectFloatParameter,  "sim.setObjectFloatParameter(number objectHandle,number parameterID,number parameter)",true},
-    {"sim.getObjectStringParameter",_simGetObjectStringParameter,"string parameter=sim.getObjectStringParameter(number objectHandle,number parameterID)",true},
-    {"sim.setObjectStringParameter",_simSetObjectStringParameter,"sim.setObjectStringParameter(number objectHandle,number parameterID,string parameter)",true},
-    {"sim.getRotationAxis",_simGetRotationAxis,                  "table_3 axis,number angle=sim.getRotationAxis(table_12 matrixStart,table_12 matrixGoal)",true},
-    {"sim.rotateAroundAxis",_simRotateAroundAxis,                "table_12 matrixOut=sim.rotateAroundAxis(table_12 matrixIn,table_3 axis,table_3 axisPos,number angle)",true},
-    {"sim.launchExecutable",_simLaunchExecutable,                "sim.launchExecutable(string filename,string parameters='',number showStatus=1)",true},
-    {"sim.getJointForce",_simGetJointForce,                      "number forceOrTorque=sim.getJointForce(number jointHandle)",true},
-    {"sim.getJointMaxForce",_simGetJointMaxForce,                "number forceOrTorque=sim.getJointMaxForce(number jointHandle)",true},
-    {"sim.isHandleValid",_simIsHandleValid,                      "number result=sim.isHandleValid(number generalObjectHandle,number generalObjectType=-1)",true},
-    {"sim.getObjectQuaternion",_simGetObjectQuaternion,          "table_4 quaternion=sim.getObjectQuaternion(number objectHandle,number relativeToObjectHandle)",true},
-    {"sim.setObjectQuaternion",_simSetObjectQuaternion,          "sim.setObjectQuaternion(number objectHandle,number relativeToObjectHandle,table_4 quaternion)",true},
-    {"sim.groupShapes",_simGroupShapes,                          "number shapeHandle=sim.groupShapes(table shapeHandles)",true},
-    {"sim.ungroupShape",_simUngroupShape,                        "table simpleShapeHandles=sim.ungroupShape(number shapeHandle)",true},
-    {"sim.convexDecompose",_simConvexDecompose,                  "number shapeHandle=sim.convexDecompose(number shapeHandle,number options,table_4 intParams,table_3 floatParams)",true},
-    {"sim.addGhost",_simAddGhost,                                "number ghostId=sim.addGhost(number ghostGroup,number objectHandle,number options,number startTime,number endTime,table_12 color=nil)",true},
-    {"sim.modifyGhost",_simModifyGhost,                          "number result=sim.modifyGhost(number ghostGroup,number ghostId,number operation,number floatValue,number options=nil,\nnumber optionsMask=nil,table colorOrTransformation=nil)",true},
+    {"sim.serialCheck",_simSerialCheck,                          "int byteCount=sim.serialCheck(int portHandle)",true},
+    {"sim.getContactInfo",_simGetContactInfo,                    "table_2 collidingObjects,table_3 collisionPoint,table_3 reactionForce,table_3 normalVector=sim.getContactInfo(int dynamicPass,\nint objectHandle,int index)",true},
+    {"sim.auxiliaryConsoleOpen",_simAuxiliaryConsoleOpen,        "int consoleHandle=sim.auxiliaryConsoleOpen(string title,int maxLines,int mode,table_2 position=nil,table_2 size=nil,\ntable_3 textColor=nil,table_3 backgroundColor=nil)",true},
+    {"sim.auxiliaryConsoleClose",_simAuxiliaryConsoleClose,      "int result=sim.auxiliaryConsoleClose(int consoleHandle)",true},
+    {"sim.auxiliaryConsolePrint",_simAuxiliaryConsolePrint,      "int result=sim.auxiliaryConsolePrint(int consoleHandle,string text)",true},
+    {"sim.auxiliaryConsoleShow",_simAuxiliaryConsoleShow,        "int result=sim.auxiliaryConsoleShow(int consoleHandle,boolean showState)",true},
+    {"sim.importShape",_simImportShape,                          "int shapeHandle=sim.importShape(int fileformat,string pathAndFilename,int options,float identicalVerticeTolerance\n,float scalingFactor)",true},
+    {"sim.importMesh",_simImportMesh,                            "table_of_table vertices,table_of_table indices=sim.importMesh(int fileformat,string pathAndFilename,\nint options,float identicalVerticeTolerance,float scalingFactor)",true},
+    {"sim.exportMesh",_simExportMesh,                            "sim.exportMesh(int fileformat,string pathAndFilename,int options,float scalingFactor,\ntable_of_table vertices,table_of_table indices)",true},
+    {"sim.createMeshShape",_simCreateMeshShape,                  "int objectHandle=sim.createMeshShape(int options,float shadingAngle,table vertices,table indices)",true},
+    {"sim.getShapeMesh",_simGetShapeMesh,                        "table vertices,table indices,table normals=sim.getShapeMesh(int shapeHandle)",true},
+    {"sim.createPureShape",_simCreatePureShape,                  "int objectHandle=sim.createPureShape(int primitiveType,int options,table_3 sizes,float mass,table_2 precision=nil)",true},
+    {"sim.createHeightfieldShape",_simCreateHeightfieldShape,    "int objectHandle=sim.createHeightfieldShape(int options,float shadingAngle,int xPointCount,\nint yPointCount,float xSize,table heights)",true},
+    {"sim.createJoint",_simCreateJoint,                          "int jointHandle=sim.createJoint(int jointType,int jointMode,int options,table_2 sizes=nil,\ntable_12 colorA=nil,table_12 colorB=nil)",true},
+    {"sim.createDummy",_simCreateDummy,                          "int dummyHandle=sim.createDummy(float size,table_12 color=nil)",true},
+    {"sim.createProximitySensor",_simCreateProximitySensor,      "int sensorHandle=sim.createProximitySensor(int sensorType,int subType,int options,table_8 intParams,\ntable_15 floatParams,table_48 color=nil)",true},
+    {"sim.createForceSensor",_simCreateForceSensor,              "int sensorHandle=sim.createForceSensor(int options,table_5 intParams,table_5 floatParams,table_24 color=nil)",true},
+    {"sim.createVisionSensor",_simCreateVisionSensor,            "int sensorHandle=sim.createVisionSensor(int options,table_4 intParams,table_11 floatParams,table_48 color=nil)",true},
+    {"sim.floatingViewAdd",_simFloatingViewAdd,                  "int floatingViewHandle=sim.floatingViewAdd(float posX,float posY,float sizeX,float sizeY,int options)",true},
+    {"sim.floatingViewRemove",_simFloatingViewRemove,            "int result=sim.floatingViewRemove(int floatingViewHandle)",true},
+    {"sim.adjustView",_simAdjustView,                            "int result=sim.adjustView(int viewHandleOrIndex,int associatedViewableObjectHandle,int options,string viewLabel=nil)",true},
+    {"sim.cameraFitToView",_simCameraFitToView,                  "int result=sim.cameraFitToView(int viewHandleOrIndex,table objectHandles=nil,simInt options=0,simFloat scaling=1)",true},
+    {"sim.announceSceneContentChange",_simAnnounceSceneContentChange,"int result=sim.announceSceneContentChange()",true},
+    {"sim.getObjectInt32Parameter",_simGetObjectInt32Parameter,  "int result,int parameter=sim.getObjectInt32Parameter(int objectHandle,int parameterID)",true},
+    {"sim.setObjectInt32Parameter",_simSetObjectInt32Parameter,  "sim.setObjectInt32Parameter(int objectHandle,int parameterID,int parameter)",true},
+    {"sim.getObjectFloatParameter",_simGetObjectFloatParameter,  "int result,float parameter=sim.getObjectFloatParameter(int objectHandle,int parameterID)",true},
+    {"sim.setObjectFloatParameter",_simSetObjectFloatParameter,  "sim.setObjectFloatParameter(int objectHandle,int parameterID,float parameter)",true},
+    {"sim.getObjectStringParameter",_simGetObjectStringParameter,"string parameter=sim.getObjectStringParameter(int objectHandle,int parameterID)",true},
+    {"sim.setObjectStringParameter",_simSetObjectStringParameter,"sim.setObjectStringParameter(int objectHandle,int parameterID,string parameter)",true},
+    {"sim.getRotationAxis",_simGetRotationAxis,                  "table_3 axis,float angle=sim.getRotationAxis(table_12 matrixStart,table_12 matrixGoal)",true},
+    {"sim.rotateAroundAxis",_simRotateAroundAxis,                "table_12 matrixOut=sim.rotateAroundAxis(table_12 matrixIn,table_3 axis,table_3 axisPos,float angle)",true},
+    {"sim.launchExecutable",_simLaunchExecutable,                "sim.launchExecutable(string filename,string parameters='',int showStatus=1)",true},
+    {"sim.getJointForce",_simGetJointForce,                      "float forceOrTorque=sim.getJointForce(int jointHandle)",true},
+    {"sim.getJointMaxForce",_simGetJointMaxForce,                "float forceOrTorque=sim.getJointMaxForce(int jointHandle)",true},
+    {"sim.isHandleValid",_simIsHandleValid,                      "int result=sim.isHandleValid(int generalObjectHandle,int generalObjectType=-1)",true},
+    {"sim.getObjectQuaternion",_simGetObjectQuaternion,          "table_4 quaternion=sim.getObjectQuaternion(int objectHandle,int relativeToObjectHandle)",true},
+    {"sim.setObjectQuaternion",_simSetObjectQuaternion,          "sim.setObjectQuaternion(int objectHandle,int relativeToObjectHandle,table_4 quaternion)",true},
+    {"sim.groupShapes",_simGroupShapes,                          "int shapeHandle=sim.groupShapes(table shapeHandles)",true},
+    {"sim.ungroupShape",_simUngroupShape,                        "table simpleShapeHandles=sim.ungroupShape(int shapeHandle)",true},
+    {"sim.convexDecompose",_simConvexDecompose,                  "int shapeHandle=sim.convexDecompose(int shapeHandle,int options,table_4 intParams,table_3 floatParams)",true},
     {"sim.quitSimulator",_simQuitSimulator,                      "sim.quitSimulator()",true},
-    {"sim.getThreadId",_simGetThreadId,                          "number threadId=sim.getThreadId()",true},
-    {"sim.setShapeMaterial",_simSetShapeMaterial,                "sim.setShapeMaterial(number shapeHandle,number materialIdOrShapeHandle)",true},
-    {"sim.getTextureId",_simGetTextureId,                        "number textureId,table_2 resolution=sim.getTextureId(string textureName)",true},
-    {"sim.readTexture",_simReadTexture,                          "string textureData=sim.readTexture(number textureId,number options,number posX=0,number posY=0,number sizeX=0,number sizeY=0)",true},
-    {"sim.writeTexture",_simWriteTexture,                        "sim.writeTexture(number textureId,number options,string textureData,number posX=0,number posY=0,number sizeX=0,\nnumber sizeY=0,number interpol=0)",true},
-    {"sim.createTexture",_simCreateTexture,                      "number shapeHandle,number textureId,table_2 resolution=sim.createTexture(string fileName,number options,table_2 planeSizes=nil,\ntable_2 scalingUV=nil,table_2 xy_g=nil,number fixedResolution=0,table_2 resolution=nil)",true},
-    {"sim.writeCustomDataBlock",_simWriteCustomDataBlock,        "sim.writeCustomDataBlock(number objectHandle,string tagName,string data)",true},
-    {"sim.readCustomDataBlock",_simReadCustomDataBlock,          "string data=sim.readCustomDataBlock(number objectHandle,string tagName)",true},
-    {"sim.readCustomDataBlockTags",_simReadCustomDataBlockTags,  "table tags=sim.readCustomDataBlockTags(number objectHandle)",true},
-    {"sim.addPointCloud",_simAddPointCloud,                      "number pointCloudHandle=sim.addPointCloud(number pageMask,number layerMask,number objectHandle,number options,number pointSize,\ntable pointCoordinates,table_12 defaultColors=nil,table pointColors=nil,table pointNormals=nil)",true},
-    {"sim.modifyPointCloud",_simModifyPointCloud,                "number result=sim.modifyPointCloud(number pointCloudHandle,number operation)",true},
-    {"sim.getShapeGeomInfo",_simGetShapeGeomInfo,                "number result,number pureType,table_4 dimensions=sim.getShapeGeomInfo(number shapeHandle)",true},
-    {"sim.getObjectsInTree",_simGetObjectsInTree,                "table objects=sim.getObjectsInTree(number treeBaseHandle,number objectType=sim.handle_all,number options=0)",true},
-    {"sim.setObjectSizeValues",_simSetObjectSizeValues,          "sim.setObjectSizeValues(number objectHandle,table_3 sizeValues)",true},
-    {"sim.getObjectSizeValues",_simGetObjectSizeValues,          "table_3 sizeValues=sim.getObjectSizeValues(number objectHandle)",true},
-    {"sim.scaleObject",_simScaleObject,                          "sim.scaleObject(number objectHandle,number xScale,number yScale,number zScale,number options=0)",true},
-    {"sim.setShapeTexture",_simSetShapeTexture,                  "sim.setShapeTexture(number shapeHandle,number textureId,number mappingMode,number options,table_2 uvScaling,\ntable_3 position=nil,table_3 orientation=nil)",true},
-    {"sim.getShapeTextureId",_simGetShapeTextureId,              "number textureId=sim.getShapeTextureId(number shapeHandle)",true},
-    {"sim.addCollection",_simAddCollection,                      "number collectionHandle=sim.addCollection(number options)",true},
-    {"sim.destroyCollection",_simDestroyCollection,              "sim.destroyCollection(number collectionHandle)",true},
-    {"sim.addItemToCollection",_simAddItemToCollection,          "sim.addItemToCollection(number collectionHandle,number what,number objectHandle,number options)",true},
-    {"sim.getCollectionObjects",_simGetCollectionObjects,        "table objectHandles=sim.getCollectionObjects(number collectionHandle)",true},
-    {"sim.handleCustomizationScripts",_simHandleCustomizationScripts,"number count=sim.handleCustomizationScripts(number callType)",true},
-    {"sim.handleAddOnScripts",_simHandleAddOnScripts,            "number count=sim.handleAddOnScripts(number callType)",true},
-    {"sim.handleSandboxScript",_simHandleSandboxScript,          "sim.handleSandboxScript(number callType)",true},
-    {"sim.setScriptAttribute",_simSetScriptAttribute,            "sim.setScriptAttribute(number scriptHandle,number attributeID,number/boolean attribute)",true},
-    {"sim.getScriptAttribute",_simGetScriptAttribute,            "number/boolean attribute=sim.getScriptAttribute(number scriptHandle,number attributeID)",true},
-    {"sim.handleChildScripts",_simHandleChildScripts,            "number executedScriptCount=sim.handleChildScripts(number callType,...(objects to be passed))",true},
-    {"sim.reorientShapeBoundingBox",_simReorientShapeBoundingBox,"number result=sim.reorientShapeBoundingBox(number shapeHandle,number relativeToHandle)",true},
-    {"sim.handleVisionSensor",_simHandleVisionSensor,            "number detectionCount,table auxiliaryValuesPacket1,table auxiliaryValuesPacket2,etc.=sim.handleVisionSensor(number sensorHandle)",true},
-    {"sim.readVisionSensor",_simReadVisionSensor,                "number result,table auxiliaryValues=sim.readVisionSensor(number sensorHandle)",true},
-    {"sim.resetVisionSensor",_simResetVisionSensor,              "sim.resetVisionSensor(number sensorHandle)",true},
-    {"sim.getVisionSensorResolution",_simGetVisionSensorResolution,"table_2 resolution=sim.getVisionSensorResolution(number sensorHandle)",true},
-    {"sim.getVisionSensorImage",_simGetVisionSensorImage,        "table/string imageBuffer=sim.getVisionSensorImage(number sensorHandle,number posX=0,number posY=0,number sizeX=0,\nnumber sizeY=0,number returnType=0)",true},
-    {"sim.setVisionSensorImage",_simSetVisionSensorImage,        "number result=sim.setVisionSensorImage(number sensorHandle,table imageBuffer)\nnumber result=sim.setVisionSensorImage(number sensorHandle,string imageBuffer)",true},
-    {"sim.getVisionSensorCharImage",_simGetVisionSensorCharImage,"string imageBuffer,number resolutionX,number resolutionY=sim.getVisionSensorCharImage(number sensorHandle,number posX=0,\nnumber posY=0,number sizeX=0,number sizeY=0,number RgbaCutoff=0)",true},
-    {"sim.setVisionSensorCharImage",_simSetVisionSensorCharImage,"number result=sim.setVisionSensorCharImage(number sensorHandle,string imageBuffer)",true},
-    {"sim.getVisionSensorDepthBuffer",_simGetVisionSensorDepthBuffer,"table/string depthBuffer=sim.getVisionSensorDepthBuffer(number sensorHandle,number posX=0,number posY=0,\nnumber sizeX=0,number sizeY=0)",true},
-    {"sim.checkVisionSensor",_simCheckVisionSensor,              "number result,table auxiliaryValuesPacket1,table auxiliaryValuesPacket2,etc.=sim.checkVisionSensor(number sensorHandle,\nnumber entityHandle)",true},
-    {"sim.checkVisionSensorEx",_simCheckVisionSensorEx,          "table buffer=sim.checkVisionSensorEx(number sensorHandle,number entityHandle,boolean returnImage)",true},
-    {"sim.rmlPos",_simRMLPos,                                    "number handle=sim.rmlPos(number dofs,number smallestTimeStep,number flags,table currentPosVelAccel,table maxVelAccelJerk,\ntable selection,table targetPosVel)",true},
-    {"sim.rmlVel",_simRMLVel,                                    "number handle=sim.rmlVel(number dofs,number smallestTimeStep,number flags,table currentPosVelAccel,table maxAccelJerk,\ntable selection,table targetVel)",true},
-    {"sim.rmlStep",_simRMLStep,                                  "number result,table newPosVelAccel,number synchronizationTime=sim.rmlStep(number handle,number timeStep)",true},
-    {"sim.rmlRemove",_simRMLRemove,                              "sim.rmlRemove(number handle)",true},
+    {"sim.getThreadId",_simGetThreadId,                          "int threadId=sim.getThreadId()",true},
+    {"sim.setShapeMaterial",_simSetShapeMaterial,                "sim.setShapeMaterial(int shapeHandle,int materialIdOrShapeHandle)",true},
+    {"sim.getTextureId",_simGetTextureId,                        "int textureId,table_2 resolution=sim.getTextureId(string textureName)",true},
+    {"sim.readTexture",_simReadTexture,                          "string textureData=sim.readTexture(int textureId,int options,int posX=0,int posY=0,int sizeX=0,int sizeY=0)",true},
+    {"sim.writeTexture",_simWriteTexture,                        "sim.writeTexture(int textureId,int options,string textureData,int posX=0,int posY=0,int sizeX=0,\nint sizeY=0,float interpol=0.0)",true},
+    {"sim.createTexture",_simCreateTexture,                      "int shapeHandle,int textureId,table_2 resolution=sim.createTexture(string fileName,int options,table_2 planeSizes=nil,\ntable_2 scalingUV=nil,table_2 xy_g=nil,int fixedResolution=0,table_2 resolution=nil)",true},
+    {"sim.writeCustomDataBlock",_simWriteCustomDataBlock,        "sim.writeCustomDataBlock(int objectHandle,string tagName,string data)",true},
+    {"sim.readCustomDataBlock",_simReadCustomDataBlock,          "string data=sim.readCustomDataBlock(int objectHandle,string tagName)",true},
+    {"sim.readCustomDataBlockTags",_simReadCustomDataBlockTags,  "table tags=sim.readCustomDataBlockTags(int objectHandle)",true},
+    {"sim.getShapeGeomInfo",_simGetShapeGeomInfo,                "int result,int pureType,table_4 dimensions=sim.getShapeGeomInfo(int shapeHandle)",true},
+    {"sim.getObjectsInTree",_simGetObjectsInTree,                "table objects=sim.getObjectsInTree(int treeBaseHandle,int objectType=sim.handle_all,int options=0)",true},
+    {"sim.setObjectSizeValues",_simSetObjectSizeValues,          "sim.setObjectSizeValues(int objectHandle,table_3 sizeValues)",true},
+    {"sim.getObjectSizeValues",_simGetObjectSizeValues,          "table_3 sizeValues=sim.getObjectSizeValues(int objectHandle)",true},
+    {"sim.scaleObject",_simScaleObject,                          "sim.scaleObject(int objectHandle,float xScale,float yScale,float zScale,int options=0)",true},
+    {"sim.setShapeTexture",_simSetShapeTexture,                  "sim.setShapeTexture(int shapeHandle,int textureId,int mappingMode,int options,table_2 uvScaling,\ntable_3 position=nil,table_3 orientation=nil)",true},
+    {"sim.getShapeTextureId",_simGetShapeTextureId,              "int textureId=sim.getShapeTextureId(int shapeHandle)",true},
+    {"sim.addCollection",_simAddCollection,                      "int collectionHandle=sim.addCollection(int options)",true},
+    {"sim.destroyCollection",_simDestroyCollection,              "sim.destroyCollection(int collectionHandle)",true},
+    {"sim.addItemToCollection",_simAddItemToCollection,          "sim.addItemToCollection(int collectionHandle,int what,int objectHandle,int options)",true},
+    {"sim.getCollectionObjects",_simGetCollectionObjects,        "table objectHandles=sim.getCollectionObjects(int collectionHandle)",true},
+    {"sim.handleCustomizationScripts",_simHandleCustomizationScripts,"int count=sim.handleCustomizationScripts(int callType)",true},
+    {"sim.handleAddOnScripts",_simHandleAddOnScripts,            "int count=sim.handleAddOnScripts(int callType)",true},
+    {"sim.handleSandboxScript",_simHandleSandboxScript,          "sim.handleSandboxScript(int callType)",true},
+    {"sim.setScriptAttribute",_simSetScriptAttribute,            "sim.setScriptAttribute(int scriptHandle,int attributeID,number/boolean attribute)",true},
+    {"sim.getScriptAttribute",_simGetScriptAttribute,            "number/boolean attribute=sim.getScriptAttribute(int scriptHandle,int attributeID)",true},
+    {"sim.handleChildScripts",_simHandleChildScripts,            "int executedScriptCount=sim.handleChildScripts(int callType)",true},
+    {"sim.reorientShapeBoundingBox",_simReorientShapeBoundingBox,"int result=sim.reorientShapeBoundingBox(int shapeHandle,int relativeToHandle)",true},
+    {"sim.handleVisionSensor",_simHandleVisionSensor,            "int detectionCount,table auxiliaryValuesPacket1,table auxiliaryValuesPacket2,etc.=sim.handleVisionSensor(int sensorHandle)",true},
+    {"sim.readVisionSensor",_simReadVisionSensor,                "int result,table auxiliaryValues=sim.readVisionSensor(int sensorHandle)",true},
+    {"sim.resetVisionSensor",_simResetVisionSensor,              "sim.resetVisionSensor(int sensorHandle)",true},
+    {"sim.getVisionSensorResolution",_simGetVisionSensorResolution,"table_2 resolution=sim.getVisionSensorResolution(int sensorHandle)",true},
+    {"sim.getVisionSensorImage",_simGetVisionSensorImage,        "table/string imageBuffer=sim.getVisionSensorImage(int sensorHandle,int posX=0,int posY=0,int sizeX=0,\nint sizeY=0,int returnType=0)",true},
+    {"sim.setVisionSensorImage",_simSetVisionSensorImage,        "int result=sim.setVisionSensorImage(int sensorHandle,table imageBuffer)\nint result=sim.setVisionSensorImage(int sensorHandle,string imageBuffer)",true},
+    {"sim.getVisionSensorCharImage",_simGetVisionSensorCharImage,"string imageBuffer,int resolutionX,int resolutionY=sim.getVisionSensorCharImage(int sensorHandle,int posX=0,\nint posY=0,int sizeX=0,int sizeY=0,int RgbaCutoff=0)",true},
+    {"sim.setVisionSensorCharImage",_simSetVisionSensorCharImage,"int result=sim.setVisionSensorCharImage(int sensorHandle,string imageBuffer)",true},
+    {"sim.getVisionSensorDepthBuffer",_simGetVisionSensorDepthBuffer,"table/string depthBuffer=sim.getVisionSensorDepthBuffer(int sensorHandle,int posX=0,int posY=0,\nint sizeX=0,int sizeY=0)",true},
+    {"sim.checkVisionSensor",_simCheckVisionSensor,              "int result,table auxiliaryValuesPacket1,table auxiliaryValuesPacket2,etc.=sim.checkVisionSensor(int sensorHandle,\nint entityHandle)",true},
+    {"sim.checkVisionSensorEx",_simCheckVisionSensorEx,          "table buffer=sim.checkVisionSensorEx(int sensorHandle,int entityHandle,boolean returnImage)",true},
+    {"sim.rmlPos",_simRMLPos,                                    "int handle=sim.rmlPos(int dofs,float smallestTimeStep,int flags,table currentPosVelAccel,table maxVelAccelJerk,\ntable selection,table targetPosVel)",true},
+    {"sim.rmlVel",_simRMLVel,                                    "int handle=sim.rmlVel(int dofs,float smallestTimeStep,int flags,table currentPosVelAccel,table maxAccelJerk,\ntable selection,table targetVel)",true},
+    {"sim.rmlStep",_simRMLStep,                                  "int result,table newPosVelAccel,float synchronizationTime=sim.rmlStep(int handle,float timeStep)",true},
+    {"sim.rmlRemove",_simRMLRemove,                              "sim.rmlRemove(int handle)",true},
     {"sim.buildMatrixQ",_simBuildMatrixQ,                        "table_12 matrix=sim.buildMatrixQ(table_3 position,table_4 quaternion)",true},
     {"sim.getQuaternionFromMatrix",_simGetQuaternionFromMatrix,  "table_4 quaternion=sim.getQuaternionFromMatrix(table_12 matrix)",true},
-    {"sim.fileDialog",_simFileDialog,                            "string pathAndName=sim.fileDialog(number mode,string title,string startPath,string initName,string extName,string ext)",true},
-    {"sim.msgBox",_simMsgBox,                                    "number returnValue=sim.msgBox(number dlgType,number buttons,string title,string message)",true},
-    {"sim.loadModule",_simLoadModule,                            "number pluginHandle=sim.loadModule(string filenameAndPath,string pluginName)",true},
-    {"sim.unloadModule",_simUnloadModule,                        "number result=sim.unloadModule(number pluginHandle)",true},
-    {"sim.callScriptFunction",_simCallScriptFunction,            "...=sim.callScriptFunction(string functionNameAtScriptName,number scriptHandleOrType,...)",true},
-    {"sim.getExtensionString",_simGetExtensionString,            "string theString=sim.getExtensionString(number objectHandle,number index,string key=nil)",true},
-    {"sim.computeMassAndInertia",_simComputeMassAndInertia,      "number result=sim.computeMassAndInertia(number shapeHandle,number density)",true},
-    {"sim.setScriptVariable",_simSetScriptVariable,              "sim.setScriptVariable(string variableNameAtScriptName,number scriptHandleOrType,variable)",true},
-    {"sim.getEngineFloatParameter",_simGetEngineFloatParameter,  "number floatParam=sim.getEngineFloatParameter(number paramId,number objectHandle)",true},
-    {"sim.getEngineInt32Parameter",_simGetEngineInt32Parameter,  "number int32Param=sim.getEngineInt32Parameter(number paramId,number objectHandle)",true},
-    {"sim.getEngineBoolParameter",_simGetEngineBoolParameter,    "boolean boolParam=sim.getEngineBoolParameter(number paramId,number objectHandle)",true},
-    {"sim.setEngineFloatParameter",_simSetEngineFloatParameter,  "sim.setEngineFloatParameter(number paramId,number objectHandle,number floatParam)",true},
-    {"sim.setEngineInt32Parameter",_simSetEngineInt32Parameter,  "sim.setEngineInt32Parameter(number paramId,number objectHandle,number int32Param)",true},
-    {"sim.setEngineBoolParameter",_simSetEngineBoolParameter,    "sim.setEngineBoolParameter(number paramId,number objectHandle,boolean boolParam)",true},
-    {"sim.createOctree",_simCreateOctree,                        "number handle=sim.createOctree(number voxelSize,number options,number pointSize)",true},
-    {"sim.createPointCloud",_simCreatePointCloud,                "number handle=sim.createPointCloud(number maxVoxelSize,number maxPtCntPerVoxel,number options,number pointSize)",true},
-    {"sim.setPointCloudOptions",_simSetPointCloudOptions,        "sim.setPointCloudOptions(number pointCloudHandle,number maxVoxelSize,\nnumber maxPtCntPerVoxel,number options,number pointSize)",true},
-    {"sim.getPointCloudOptions",_simGetPointCloudOptions,        "number maxVoxelSize,number maxPtCntPerVoxel,number options,number pointSize=\nsim.getPointCloudOptions(number pointCloudHandle)",true},
-    {"sim.insertVoxelsIntoOctree",_simInsertVoxelsIntoOctree,    "number totalVoxelCnt=sim.insertVoxelsIntoOctree(number octreeHandle,number options,table points,table color=nil,table tag=nil)",true},
-    {"sim.removeVoxelsFromOctree",_simRemoveVoxelsFromOctree,    "number totalVoxelCnt=sim.removeVoxelsFromOctree(number octreeHandle,number options,table points)",true},
-    {"sim.insertPointsIntoPointCloud",_simInsertPointsIntoPointCloud,"number totalPointCnt=sim.insertPointsIntoPointCloud(number pointCloudHandle,\nnumber options,table points,table color=nil,number duplicateTolerance=nil)",true},
-    {"sim.removePointsFromPointCloud",_simRemovePointsFromPointCloud,"number totalPointCnt=sim.removePointsFromPointCloud(number pointCloudHandle,\nnumber options,table points,number tolerance)",true},
-    {"sim.intersectPointsWithPointCloud",_simIntersectPointsWithPointCloud,"number totalPointCnt=sim.intersectPointsWithPointCloud(number pointCloudHandle,\nnumber options,table points,number tolerance)",true},
-    {"sim.getOctreeVoxels",_simGetOctreeVoxels,                  "table voxels=sim.getOctreeVoxels(number octreeHandle)",true},
-    {"sim.getPointCloudPoints",_simGetPointCloudPoints,          "table points=sim.getPointCloudPoints(number pointCloudHandle)",true},
-    {"sim.insertObjectIntoOctree",_simInsertObjectIntoOctree,    "number totalVoxelCnt=sim.insertObjectIntoOctree(number octreeHandle,number objectHandle,number options,table color=nil,number tag=0)",true},
-    {"sim.subtractObjectFromOctree",_simSubtractObjectFromOctree,    "number totalVoxelCnt=sim.subtractObjectFromOctree(number octreeHandle,number objectHandle,number options)",true},
-    {"sim.insertObjectIntoPointCloud",_simInsertObjectIntoPointCloud,"number totalPointCnt=sim.insertObjectIntoPointCloud(number pointCloudHandle,\nnumber objectHandle,number options,number gridSize,table color=nil,number duplicateTolerance=nil)",true},
-    {"sim.subtractObjectFromPointCloud",_simSubtractObjectFromPointCloud,    "number totalPointCnt=sim.subtractObjectFromPointCloud(number pointCloudHandle,number objectHandle,number options,number tolerance)",true},
-    {"sim.checkOctreePointOccupancy",_simCheckOctreePointOccupancy,"number result,number tag,number locationLow,number locationHigh=sim.checkOctreePointOccupancy(number octreeHandle,number options,table points)",true},
+    {"sim.fileDialog",_simFileDialog,                            "string pathAndName=sim.fileDialog(int mode,string title,string startPath,string initName,string extName,string ext)",true},
+    {"sim.msgBox",_simMsgBox,                                    "int returnValue=sim.msgBox(int dlgType,int buttons,string title,string message)",true},
+    {"sim.loadModule",_simLoadModule,                            "int pluginHandle=sim.loadModule(string filenameAndPath,string pluginName)",true},
+    {"sim.unloadModule",_simUnloadModule,                        "int result=sim.unloadModule(int pluginHandle)",true},
+    {"sim.callScriptFunction",_simCallScriptFunction,            "...=sim.callScriptFunction(string functionNameAtScriptName,int scriptHandleOrType,...)",true},
+    {"sim.getExtensionString",_simGetExtensionString,            "string theString=sim.getExtensionString(int objectHandle,int index,string key=nil)",true},
+    {"sim.computeMassAndInertia",_simComputeMassAndInertia,      "int result=sim.computeMassAndInertia(int shapeHandle,float density)",true},
+    {"sim.setScriptVariable",_simSetScriptVariable,              "sim.setScriptVariable(string variableNameAtScriptName,int scriptHandleOrType,variable)",true},
+    {"sim.getEngineFloatParameter",_simGetEngineFloatParameter,  "float floatParam=sim.getEngineFloatParameter(int paramId,int objectHandle)",true},
+    {"sim.getEngineInt32Parameter",_simGetEngineInt32Parameter,  "int int32Param=sim.getEngineInt32Parameter(int paramId,int objectHandle)",true},
+    {"sim.getEngineBoolParameter",_simGetEngineBoolParameter,    "boolean boolParam=sim.getEngineBoolParameter(int paramId,int objectHandle)",true},
+    {"sim.setEngineFloatParameter",_simSetEngineFloatParameter,  "sim.setEngineFloatParameter(int paramId,int objectHandle,float floatParam)",true},
+    {"sim.setEngineInt32Parameter",_simSetEngineInt32Parameter,  "sim.setEngineInt32Parameter(int paramId,int objectHandle,int int32Param)",true},
+    {"sim.setEngineBoolParameter",_simSetEngineBoolParameter,    "sim.setEngineBoolParameter(int paramId,int objectHandle,boolean boolParam)",true},
+    {"sim.createOctree",_simCreateOctree,                        "int handle=sim.createOctree(float voxelSize,int options,int pointSize)",true},
+    {"sim.createPointCloud",_simCreatePointCloud,                "int handle=sim.createPointCloud(float maxVoxelSize,int maxPtCntPerVoxel,int options,int pointSize)",true},
+    {"sim.setPointCloudOptions",_simSetPointCloudOptions,        "sim.setPointCloudOptions(int pointCloudHandle,float maxVoxelSize,\nint maxPtCntPerVoxel,int options,int pointSize)",true},
+    {"sim.getPointCloudOptions",_simGetPointCloudOptions,        "float maxVoxelSize,int maxPtCntPerVoxel,int options,int pointSize=\nsim.getPointCloudOptions(int pointCloudHandle)",true},
+    {"sim.insertVoxelsIntoOctree",_simInsertVoxelsIntoOctree,    "int totalVoxelCnt=sim.insertVoxelsIntoOctree(int octreeHandle,int options,table points,table color=nil,table tag=nil)",true},
+    {"sim.removeVoxelsFromOctree",_simRemoveVoxelsFromOctree,    "int totalVoxelCnt=sim.removeVoxelsFromOctree(int octreeHandle,int options,table points)",true},
+    {"sim.insertPointsIntoPointCloud",_simInsertPointsIntoPointCloud,"int totalPointCnt=sim.insertPointsIntoPointCloud(int pointCloudHandle,\nint options,table points,table color=nil,float duplicateTolerance=nil)",true},
+    {"sim.removePointsFromPointCloud",_simRemovePointsFromPointCloud,"int totalPointCnt=sim.removePointsFromPointCloud(int pointCloudHandle,\nint options,table points,float tolerance)",true},
+    {"sim.intersectPointsWithPointCloud",_simIntersectPointsWithPointCloud,"int totalPointCnt=sim.intersectPointsWithPointCloud(int pointCloudHandle,\nint options,table points,float tolerance)",true},
+    {"sim.getOctreeVoxels",_simGetOctreeVoxels,                  "table voxels=sim.getOctreeVoxels(int octreeHandle)",true},
+    {"sim.getPointCloudPoints",_simGetPointCloudPoints,          "table points=sim.getPointCloudPoints(int pointCloudHandle)",true},
+    {"sim.insertObjectIntoOctree",_simInsertObjectIntoOctree,    "int totalVoxelCnt=sim.insertObjectIntoOctree(int octreeHandle,int objectHandle,int options,table color=nil,int tag=0)",true},
+    {"sim.subtractObjectFromOctree",_simSubtractObjectFromOctree,    "int totalVoxelCnt=sim.subtractObjectFromOctree(int octreeHandle,int objectHandle,int options)",true},
+    {"sim.insertObjectIntoPointCloud",_simInsertObjectIntoPointCloud,"int totalPointCnt=sim.insertObjectIntoPointCloud(int pointCloudHandle,\nint objectHandle,int options,float gridSize,table color=nil,float duplicateTolerance=nil)",true},
+    {"sim.subtractObjectFromPointCloud",_simSubtractObjectFromPointCloud,    "int totalPointCnt=sim.subtractObjectFromPointCloud(int pointCloudHandle,int objectHandle,int options,float tolerance)",true},
+    {"sim.checkOctreePointOccupancy",_simCheckOctreePointOccupancy,"int result,int tag,int locationLow,int locationHigh=sim.checkOctreePointOccupancy(int octreeHandle,int options,table points)",true},
     {"sim.handleSimulationStart",_simHandleSimulationStart,      "sim.handleSimulationStart()",true},
     {"sim.handleSensingStart",_simHandleSensingStart,            "sim.handleSensingStart()",true},
     {"sim.auxFunc",_simAuxFunc,                                  "... =sim.auxFunc(...)",true},
-    {"sim.setReferencedHandles",_simSetReferencedHandles,        "sim.setReferencedHandles(number objectHandle,table referencedHandles)",true},
-    {"sim.getReferencedHandles",_simGetReferencedHandles,        "table referencedHandles=sim.getReferencedHandles(number objectHandle)",true},
-    {"sim.getGraphCurve",_simGetGraphCurve,                      "string label,number curveType,table curveColor,table xData,table yData,table zData,table minMax=\nsim.getGraphCurve(number graphHandle,number graphType,number curveIndex)",true},
-    {"sim.getGraphInfo",_simGetGraphInfo,                        "number bitCoded,table_3 bgColor,table_3 fgColor=sim.getGraphInfo(number graphHandle)",true},
-    {"sim.getShapeViz",_simGetShapeViz,                          "map data=sim.getShapeViz(number shapeHandle,number itemIndex)",true},
-    {"sim.executeScriptString",_simExecuteScriptString,          "number result,executionResult=sim.executeScriptString(string stringAtScriptName,number scriptHandleOrType)",true},
-    {"sim.getApiFunc",_simGetApiFunc,                            "table funcsAndVars=sim.getApiFunc(number scriptHandleOrType,string apiWord)",true},
-    {"sim.getApiInfo",_simGetApiInfo,                            "string info=sim.getApiInfo(number scriptHandleOrType,string apiWord)",true},
-    {"sim.getModuleInfo",_simGetModuleInfo,                      "string/number info=sim.getModuleInfo(string moduleName,number infoType)",true},
-    {"sim.setModuleInfo",_simSetModuleInfo,                      "sim.setModuleInfo(string moduleName,number infoType,string/number info)",true},
-    {"sim.registerScriptFunction",_simRegisterScriptFunction,    "number result=sim.registerScriptFunction(string funcNameAtPluginName,string callTips)",true},
-    {"sim.registerScriptVariable",_simRegisterScriptVariable,    "number result=sim.registerScriptVariable(string varNameAtPluginName)",true},
-    {"sim.isDeprecated",_simIsDeprecated,                        "number result=sim.isDeprecated(string funcOrConst)",true},
+    {"sim.setReferencedHandles",_simSetReferencedHandles,        "sim.setReferencedHandles(int objectHandle,table referencedHandles)",true},
+    {"sim.getReferencedHandles",_simGetReferencedHandles,        "table referencedHandles=sim.getReferencedHandles(int objectHandle)",true},
+    {"sim.getShapeViz",_simGetShapeViz,                          "map data=sim.getShapeViz(int shapeHandle,int itemIndex)",true},
+    {"sim.executeScriptString",_simExecuteScriptString,          "int result,executionResult=sim.executeScriptString(string stringAtScriptName,int scriptHandleOrType)",true},
+    {"sim.getApiFunc",_simGetApiFunc,                            "table funcsAndVars=sim.getApiFunc(int scriptHandleOrType,string apiWord)",true},
+    {"sim.getApiInfo",_simGetApiInfo,                            "string info=sim.getApiInfo(int scriptHandleOrType,string apiWord)",true},
+    {"sim.getModuleInfo",_simGetModuleInfo,                      "string/number info=sim.getModuleInfo(string moduleName,int infoType)",true},
+    {"sim.setModuleInfo",_simSetModuleInfo,                      "sim.setModuleInfo(string moduleName,int infoType,string/number info)",true},
+    {"sim.registerScriptFunction",_simRegisterScriptFunction,    "int result=sim.registerScriptFunction(string funcNameAtPluginName,string callTips)",true},
+    {"sim.registerScriptVariable",_simRegisterScriptVariable,    "int result=sim.registerScriptVariable(string varNameAtPluginName)",true},
+    {"sim.isDeprecated",_simIsDeprecated,                        "int result=sim.isDeprecated(string funcOrConst)",true},
     {"sim.getPersistentDataTags",_simGetPersistentDataTags,      "table tags=sim.getPersistentDataTags()",true},
-    {"sim.getRandom",_simGetRandom,                              "number randomNumber=sim.getRandom(number seed=nil)",true},
-    {"sim.textEditorOpen",_simTextEditorOpen,                    "number handle=sim.textEditorOpen(string initText,string properties)",true},
-    {"sim.textEditorClose",_simTextEditorClose,                  "string text,table_2 pos,table_2 size=sim.textEditorClose(number handle)",true},
-    {"sim.textEditorShow",_simTextEditorShow,                    "sim.textEditorShow(number handle,boolean showState)",true},
-    {"sim.textEditorGetInfo",_simTextEditorGetInfo,              "string text,table_2 pos,table_2 size,boolean visible=sim.textEditorGetInfo(number handle)",true},
-    {"sim.setJointDependency",_simSetJointDependency,            "sim.setJointDependency(number jointHandle,number masterJointHandle,number offset,number multCoeff)",true},
-    {"sim.getJointDependency",_simGetJointDependency,            "number masterJointHandle,number offset,number multCoeff=sim.getJointDependency(number jointHandle)",true},
-    {"sim.getStackTraceback",_simGetStackTraceback,              "string stacktraceback=sim.getStackTraceback([number scriptHandle])",true},
-    {"sim.setStringNamedParam",_simSetStringNamedParam,          "number result=sim.setStringNamedParam(string paramName,string stringParam)",true},
+    {"sim.getRandom",_simGetRandom,                              "float randomNumber=sim.getRandom(int seed=nil)",true},
+    {"sim.textEditorOpen",_simTextEditorOpen,                    "int handle=sim.textEditorOpen(string initText,string properties)",true},
+    {"sim.textEditorClose",_simTextEditorClose,                  "string text,table_2 pos,table_2 size=sim.textEditorClose(int handle)",true},
+    {"sim.textEditorShow",_simTextEditorShow,                    "sim.textEditorShow(int handle,boolean showState)",true},
+    {"sim.textEditorGetInfo",_simTextEditorGetInfo,              "string text,table_2 pos,table_2 size,boolean visible=sim.textEditorGetInfo(int handle)",true},
+    {"sim.setJointDependency",_simSetJointDependency,            "sim.setJointDependency(int jointHandle,int masterJointHandle,float offset,float multCoeff)",true},
+    {"sim.getJointDependency",_simGetJointDependency,            "int masterJointHandle,float offset,float multCoeff=sim.getJointDependency(int jointHandle)",true},
+    {"sim.getStackTraceback",_simGetStackTraceback,              "string stacktraceback=sim.getStackTraceback([int scriptHandle])",true},
+    {"sim.setStringNamedParam",_simSetStringNamedParam,          "int result=sim.setStringNamedParam(string paramName,string stringParam)",true},
     {"sim.getStringNamedParam",_simGetStringNamedParam,          "string stringParam=sim.getStringNamedParam(string paramName)",true},
-    {"sim.addLog",_simAddLog,                                    "sim.addLog(number verbosityLevel,string logMessage)",true},
-    {"sim.getShapeMass",_simGetShapeMass,                        "number mass=sim.getShapeMassAndInertia(number shapeHandle)",true},
-    {"sim.setShapeMass",_simSetShapeMass,                        "sim.setShapeMass(number shapeHandle,number mass)",true},
-    {"sim.getShapeInertia",_simGetShapeInertia,                  "table_9 inertiaMatrix,table_12 transformationMatrix=sim.getShapeInertia(number shapeHandle)",true},
-    {"sim.setShapeInertia",_simSetShapeInertia,                  "sim.setShapeInertia(number shapeHandle,table_9 inertiaMatrix,table_12 transformationMatrix)",true},
-    {"sim.isDynamicallyEnabled",_simIsDynamicallyEnabled,        "boolean enabled=sim.isDynamicallyEnabled(number objectHandle)",true},
+    {"sim.addLog",_simAddLog,                                    "sim.addLog(int verbosityLevel,string logMessage)",true},
+    {"sim.getShapeMass",_simGetShapeMass,                        "float mass=sim.getShapeMassAndInertia(int shapeHandle)",true},
+    {"sim.setShapeMass",_simSetShapeMass,                        "sim.setShapeMass(int shapeHandle,float mass)",true},
+    {"sim.getShapeInertia",_simGetShapeInertia,                  "table_9 inertiaMatrix,table_12 transformationMatrix=sim.getShapeInertia(int shapeHandle)",true},
+    {"sim.setShapeInertia",_simSetShapeInertia,                  "sim.setShapeInertia(int shapeHandle,table_9 inertiaMatrix,table_12 transformationMatrix)",true},
+    {"sim.isDynamicallyEnabled",_simIsDynamicallyEnabled,        "boolean enabled=sim.isDynamicallyEnabled(int objectHandle)",true},
 
     {"sim.test",_simTest,                                        "test function - shouldn't be used",true},
-
-
 
     // deprecated
     {"sim.addStatusbarMessage",_simAddStatusbarMessage,         "Deprecated. Use 'sim.addLog' instead",false},
@@ -486,7 +481,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.tubeStatus",_simTubeStatus,                            "Deprecated. Use signals or custom data blocks instead",false},
     {"sim.sendData",_simSendData,                                "Deprecated. Use signals or custom data blocks instead",false},
     {"sim.receiveData",_simReceiveData,                          "Deprecated. Use signals or custom data blocks instead",false},
-
     {"sim.moveToPosition",_simMoveToPosition,                    "Deprecated. Use 'sim.moveToPose' instead",false},
     {"sim.moveToObject",_simMoveToObject,                        "Deprecated. Use 'sim.moveToPose' instead",false},
     {"sim.followPath",_simFollowPath,                            "Deprecated. Use 'sim.rmlPos' and 'sim.rmlStep' instead",false},
@@ -526,6 +520,15 @@ const SLuaCommands simLuaCommands[]=
     {"sim.readDistance",_simReadDistance,                        "Deprecated. Use 'sim.checkDistance' instead",false},
     {"sim.resetCollision",_simResetCollision,                    "Deprecated",false},
     {"sim.resetDistance",_simResetDistance,                      "Deprecated",false},
+    {"sim.addBanner",_simAddBanner,                              "Deprecated",false},
+    {"sim.removeBanner",_simRemoveBanner,                        "Deprecated",false},
+    {"sim.addGhost",_simAddGhost,                                "Deprecated",false},
+    {"sim.modifyGhost",_simModifyGhost,                          "Deprecated",false},
+    {"sim.addPointCloud",_simAddPointCloud,                      "Deprecated. Use point cloud objects instead",false},
+    {"sim.modifyPointCloud",_simModifyPointCloud,                "Deprecated. Use point cloud objects instead",false},
+    //{"sim.boolOr32",_simBoolOr32,                                "Deprecated. Use the bitwise operator | instead",false},
+    //{"sim.boolAnd32",_simBoolAnd32,                              "Deprecated. Use the bitwise operator & instead",false},
+    //{"sim.boolXor32",_simBoolXor32,                              "Deprecated. Use the bitwise operator ~ instead",false},
     // {"sim.rmlMoveToPosition",_simRMLMoveToPosition,              "Deprecated. Use 'sim.moveToPose' instead",false},
     //{"sim.rmlMoveToJointPositions",_simRMLMoveToJointPositions,  "Deprecated. Use 'sim.moveToConfig' instead",false},
     //{"sim.wait",_simWait,                                        "number deltaTimeLeft=sim.wait(number deltaTime,boolean simulationTime=true)",true},
@@ -544,9 +547,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simOpenModule",_simOpenModule,                            "Use the newer 'sim.openModule' notation",false},
     {"simCloseModule",_simCloseModule,                          "Use the newer 'sim.closeModule' notation",false},
     {"simHandleModule",_simHandleModule,                        "Use the newer 'sim.handleModule' notation",false},
-    {"simBoolOr32",_simBoolOr32,                                "Use the newer 'sim.boolOr32' notation",false},
-    {"simBoolAnd32",_simBoolAnd32,                              "Use the newer 'sim.boolAnd32' notation",false},
-    {"simBoolXor32",_simBoolXor32,                              "Use the newer 'sim.boolXor32' notation",false},
     {"simHandleDynamics",_simHandleDynamics,                    "Use the newer 'sim.handleDynamics' notation",false},
     {"simHandleProximitySensor",_simHandleProximitySensor,      "Use the newer 'sim.handleProximitySensor' notation",false},
     {"simReadProximitySensor",_simReadProximitySensor,          "Use the newer 'sim.readProximitySensor' notation",false},
@@ -725,8 +725,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetShapeMesh",_simGetShapeMesh,                        "Use the newer 'sim.getShapeMesh' notation",false},
     {"simCreatePureShape",_simCreatePureShape,                  "Use the newer 'sim.createPureShape' notation",false},
     {"simCreateHeightfieldShape",_simCreateHeightfieldShape,    "Use the newer 'sim.createHeightfieldShape' notation",false},
-    {"simAddBanner",_simAddBanner,                              "Use the newer 'sim.addBanner' notation",false},
-    {"simRemoveBanner",_simRemoveBanner,                        "Use the newer 'sim.removeBanner' notation",false},
     {"simCreateJoint",_simCreateJoint,                          "Use the newer 'sim.createJoint' notation",false},
     {"simCreateDummy",_simCreateDummy,                          "Use the newer 'sim.createDummy' notation",false},
     {"simCreateProximitySensor",_simCreateProximitySensor,      "Use the newer 'sim.createProximitySensor' notation",false},
@@ -755,8 +753,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGroupShapes",_simGroupShapes,                          "Use the newer 'sim.groupShapes' notation",false},
     {"simUngroupShape",_simUngroupShape,                        "Use the newer 'sim.ungroupShape' notation",false},
     {"simConvexDecompose",_simConvexDecompose,                  "Use the newer 'sim.convexDecompose' notation",false},
-    {"simAddGhost",_simAddGhost,                                "Use the newer 'sim.addGhost' notation",false},
-    {"simModifyGhost",_simModifyGhost,                          "Use the newer 'sim.modifyGhost' notation",false},
     {"simQuitSimulator",_simQuitSimulator,                      "Use the newer 'sim.quitSimulator' notation",false},
     {"simGetThreadId",_simGetThreadId,                          "Use the newer 'sim.getThreadId' notation",false},
     {"simSetShapeMaterial",_simSetShapeMaterial,                "Use the newer 'sim.setShapeMaterial' notation",false},
@@ -767,8 +763,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simWriteCustomDataBlock",_simWriteCustomDataBlock,        "Use the newer 'sim.writeCustomDataBlock' notation",false},
     {"simReadCustomDataBlock",_simReadCustomDataBlock,          "Use the newer 'sim.readCustomDataBlock' notation",false},
     {"simReadCustomDataBlockTags",_simReadCustomDataBlockTags,  "Use the newer 'sim.readCustomDataBlockTags' notation",false},
-    {"simAddPointCloud",_simAddPointCloud,                      "Use the newer 'sim.addPointCloud' notation",false},
-    {"simModifyPointCloud",_simModifyPointCloud,                "Use the newer 'sim.modifyPointCloud' notation",false},
     {"simGetShapeGeomInfo",_simGetShapeGeomInfo,                "Use the newer 'sim.getShapeGeomInfo' notation",false},
     {"simGetObjectsInTree",_simGetObjectsInTree,                "Use the newer 'sim.getObjectsInTree' notation",false},
     {"simSetObjectSizeValues",_simSetObjectSizeValues,          "Use the newer 'sim.setObjectSizeValues' notation",false},
@@ -843,9 +837,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simTest",_simTest,                                        "Use the newer 'sim.test' notation",false},
     {"simAddStatusbarMessage",_simAddStatusbarMessage,          "Deprecated. Use 'sim.addLog' instead",false},
     // Following deprecated since 21/05/2017:
-    {"simBoolOr16",_simBoolOr16,                                "Deprecated. Use sim.boolOr32 instead",false},
-    {"simBoolAnd16",_simBoolAnd16,                              "Deprecated. Use sim.boolAnd32 instead",false},
-    {"simBoolXor16",_simBoolXor16,                              "Deprecated. Use sim.boolXor32 instead",false},
     {"simGetObjectSelectionSize",_simGetObjectSelectionSize,    "Deprecated. Use sim.getObjectSelection instead",false},
     {"simGetObjectLastSelection",_simGetObjectLastSelection,    "Deprecated. Use sim.getObjectSelection instead",false},
     {"simReleaseScriptRawBuffer",_simReleaseScriptRawBuffer,    "Deprecated",false},
@@ -1024,6 +1015,12 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simResetDistance",_simResetDistance,                      "Deprecated",false},
     {"simGetCollisionHandle",_simGetCollisionHandle,            "Deprecated. Use 'sim.checkCollision' instead",false},
     {"simGetDistanceHandle",_simGetDistanceHandle,              "Deprecated. Use 'sim.checkDistance' instead",false},
+    {"simAddBanner",_simAddBanner,                              "Deprecated",false},
+    {"simRemoveBanner",_simRemoveBanner,                        "Deprecated",false},
+    {"simAddGhost",_simAddGhost,                                "Deprecated",false},
+    {"simModifyGhost",_simModifyGhost,                          "Deprecated",false},
+    {"simAddPointCloud",_simAddPointCloud,                      "Deprecated. Use point cloud objects instead",false},
+    {"simModifyPointCloud",_simModifyPointCloud,                "Deprecated. Use point cloud objects instead",false},
     //{"simRMLMoveToPosition",_simRMLMoveToPosition,              "Deprecated. Use 'sim.moveToPose' instead",false},
     //{"simRMLMoveToJointPositions",_simRMLMoveToJointPositions,  "Deprecated. Use 'sim.moveToConfig' instead",false},
     //{"simWait",_simWait,                                        "Use the newer 'sim.wait' notation",false},
@@ -1036,6 +1033,12 @@ const SLuaCommands simLuaCommandsOldApi[]=
     //{"simSerialPortClose",_simSerialPortClose,                      "Deprecated. Use sim.serialClose instead",false},
     //{"simSerialPortSend",_simSerialPortSend,                        "Deprecated. Use sim.serialSend instead",false},
     //{"simSerialPortRead",_simSerialPortRead,                        "Deprecated. Use sim.serialRead instead",false},
+    //{"simBoolOr16",_simBoolOr16,                                "Deprecated. Use the bitwise operator | instead",false},
+    //{"simBoolAnd16",_simBoolAnd16,                              "Deprecated. Use the bitwise operator & instead",false},
+    //{"simBoolXor16",_simBoolXor16,                              "Deprecated. Use the bitwise operator ~ instead",false},
+    //{"simBoolOr32",_simBoolOr32,                                "Deprecated. Use the bitwise operator | instead",false},
+    //{"simBoolAnd32",_simBoolAnd32,                              "Deprecated. Use the bitwise operator & instead",false},
+    //{"simBoolXor32",_simBoolXor32,                              "Deprecated. Use the bitwise operator ~ instead",false},
 
 
     {"",nullptr,"",false}
@@ -1538,19 +1541,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.drawing_persistent",sim_drawing_persistent,true},
     {"sim.drawing_auxchannelcolor1",sim_drawing_auxchannelcolor1,true},
     {"sim.drawing_auxchannelcolor2",sim_drawing_auxchannelcolor2,true},
-    // Banners
-    {"sim.banner_left",sim_banner_left,true},
-    {"sim.banner_right",sim_banner_right,true},
-    {"sim.banner_nobackground",sim_banner_nobackground,true},
-    {"sim.banner_overlay",sim_banner_overlay,true},
-    {"sim.banner_followparentvisibility",sim_banner_followparentvisibility,true},
-    {"sim.banner_clickselectsparent",sim_banner_clickselectsparent,true},
-    {"sim.banner_clicktriggersevent",sim_banner_clicktriggersevent,true},
-    {"sim.banner_facingcamera",sim_banner_facingcamera,true},
-    {"sim.banner_fullyfacingcamera",sim_banner_fullyfacingcamera,true},
-    {"sim.banner_backfaceculling",sim_banner_backfaceculling,true},
-    {"sim.banner_keepsamesize",sim_banner_keepsamesize,true},
-    {"sim.banner_bitmapfont",sim_banner_bitmapfont,true},
     // particle objects
     {"sim.particle_points1",sim_particle_points1,true},
     {"sim.particle_points2",sim_particle_points2,true},
@@ -1741,6 +1731,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.shapefloatparam_shading_angle",sim_shapefloatparam_shading_angle,true},
     {"sim.shapefloatparam_edge_angle",sim_shapefloatparam_edge_angle,true},
     {"sim.shapeintparam_edge_borders_hidden",sim_shapeintparam_edge_borders_hidden,true},
+    {"sim.shapeintparam_component_cnt",sim_shapeintparam_component_cnt,true},
     // proximity sensors
     {"sim.proxintparam_ray_invisibility",sim_proxintparam_ray_invisibility,true},
     {"sim.proxintparam_volume_type",sim_proxintparam_volume_type,true},
@@ -2042,6 +2033,11 @@ const SLuaVariables simLuaVariables[]=
     // Image combination:
     {"sim.imgcomb_vertical",sim_imgcomb_vertical,true},
     {"sim.imgcomb_horizontal",sim_imgcomb_horizontal,true},
+    // Graph data stream transformations:
+    {"sim.datastream_transf_raw",sim_datastream_transf_raw,true},
+    {"sim.datastream_transf_derivative",sim_datastream_transf_derivative,true},
+    {"sim.datastream_transf_integral",sim_datastream_transf_integral,true},
+    {"sim.datastream_transf_cumulative",sim_datastream_transf_cumulative,true},
     // predefined material types:
     {"sim.dynmat_default",sim_dynmat_default,true},
     {"sim.dynmat_highfriction",sim_dynmat_highfriction,true},
@@ -2096,6 +2092,18 @@ const SLuaVariables simLuaVariables[]=
     {"sim.appobj_pathplanning_type",sim_appobj_pathplanning_type,false},
     {"sim.scripttype_threaded",sim_scripttype_threaded_old,false},
     {"sim.navigation_camerafly",sim_navigation_camerafly_old,false},
+    {"sim.banner_left",sim_banner_left,false},
+    {"sim.banner_right",sim_banner_right,false},
+    {"sim.banner_nobackground",sim_banner_nobackground,false},
+    {"sim.banner_overlay",sim_banner_overlay,false},
+    {"sim.banner_followparentvisibility",sim_banner_followparentvisibility,false},
+    {"sim.banner_clickselectsparent",sim_banner_clickselectsparent,false},
+    {"sim.banner_clicktriggersevent",sim_banner_clicktriggersevent,false},
+    {"sim.banner_facingcamera",sim_banner_facingcamera,false},
+    {"sim.banner_fullyfacingcamera",sim_banner_fullyfacingcamera,false},
+    {"sim.banner_backfaceculling",sim_banner_backfaceculling,false},
+    {"sim.banner_keepsamesize",sim_banner_keepsamesize,false},
+    {"sim.banner_bitmapfont",sim_banner_bitmapfont,false},
 
     {"",-1}
 };
@@ -2530,18 +2538,6 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim_drawing_persistent",sim_drawing_persistent,false},
     {"sim_drawing_auxchannelcolor1",sim_drawing_auxchannelcolor1,false},
     {"sim_drawing_auxchannelcolor2",sim_drawing_auxchannelcolor2,false},
-    {"sim_banner_left",sim_banner_left,false},
-    {"sim_banner_right",sim_banner_right,false},
-    {"sim_banner_nobackground",sim_banner_nobackground,false},
-    {"sim_banner_overlay",sim_banner_overlay,false},
-    {"sim_banner_followparentvisibility",sim_banner_followparentvisibility,false},
-    {"sim_banner_clickselectsparent",sim_banner_clickselectsparent,false},
-    {"sim_banner_clicktriggersevent",sim_banner_clicktriggersevent,false},
-    {"sim_banner_facingcamera",sim_banner_facingcamera,false},
-    {"sim_banner_fullyfacingcamera",sim_banner_fullyfacingcamera,false},
-    {"sim_banner_backfaceculling",sim_banner_backfaceculling,false},
-    {"sim_banner_keepsamesize",sim_banner_keepsamesize,false},
-    {"sim_banner_bitmapfont",sim_banner_bitmapfont,false},
     {"sim_particle_points1",sim_particle_points1,false},
     {"sim_particle_points2",sim_particle_points2,false},
     {"sim_particle_points4",sim_particle_points4,false},
@@ -3050,6 +3046,18 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim.addonscriptcall_run",sim_syscb_aos_run_old,false},
     {"sim_addonscriptcall_run",sim_syscb_aos_run_old,false},
     {"sim_navigation_camerafly",sim_navigation_camerafly_old,false},
+    {"sim_banner_left",sim_banner_left,false},
+    {"sim_banner_right",sim_banner_right,false},
+    {"sim_banner_nobackground",sim_banner_nobackground,false},
+    {"sim_banner_overlay",sim_banner_overlay,false},
+    {"sim_banner_followparentvisibility",sim_banner_followparentvisibility,false},
+    {"sim_banner_clickselectsparent",sim_banner_clickselectsparent,false},
+    {"sim_banner_clicktriggersevent",sim_banner_clicktriggersevent,false},
+    {"sim_banner_facingcamera",sim_banner_facingcamera,false},
+    {"sim_banner_fullyfacingcamera",sim_banner_fullyfacingcamera,false},
+    {"sim_banner_backfaceculling",sim_banner_backfaceculling,false},
+    {"sim_banner_keepsamesize",sim_banner_keepsamesize,false},
+    {"sim_banner_bitmapfont",sim_banner_bitmapfont,false},
     {"",-1,false}
 };
 
@@ -4042,6 +4050,16 @@ bool checkOneInputArgument(luaWrap_lua_State* L,int index,int type,std::string* 
         }
         return(true);
     }
+    if (type==lua_arg_integer)
+    {
+        if (!luaWrap_lua_isinteger(L,index))
+        {
+            if (errStr!=nullptr)
+                errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
+            return(false); // error
+        }
+        return(true);
+    }
     if (type==lua_arg_bool)
     { // since anything can be a bool value, we don't generate any error!
         return(true);
@@ -4740,79 +4758,6 @@ void moduleCommonPart(luaWrap_lua_State* L,int action,std::string* errorString)
         }
     }
 }
-
-int _simBoolOr32(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.boolOr32");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
-        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
-        if ((na>=0)&&(nb>=0)&&(na<4294967295.9)&&(nb<4294967295.9))
-        {
-            unsigned int a=(unsigned int)na;
-            unsigned int b=(unsigned int)nb;
-            luaWrap_lua_pushinteger(L,(long long int)(a|b));
-            LUA_END(1);
-        }
-        else
-            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simBoolAnd32(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.boolAnd32");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
-        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
-        if ((na>=0)&&(nb>=0)&&(na<4294967295.9)&&(nb<4294967295.9))
-        {
-            unsigned int a=(unsigned int)na;
-            unsigned int b=(unsigned int)nb;
-            luaWrap_lua_pushinteger(L,(long long int)(a&b));
-            LUA_END(1);
-        }
-        else
-            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simBoolXor32(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.boolXor32");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
-        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
-        if ((na>=0)&&(nb>=0)&&(na<4294967295.9)&&(nb<4294967295.9))
-        {
-            unsigned int a=(unsigned int)na;
-            unsigned int b=(unsigned int)nb;
-            luaWrap_lua_pushinteger(L,(long long int)(a^b));
-            LUA_END(1);
-        }
-        else
-            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
 
 int _simHandleDynamics(luaWrap_lua_State* L)
 {
@@ -6362,6 +6307,189 @@ int _simHandleGraph(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
+}
+
+int _simAddGraphDataStream(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.addGraphDataStream");
+
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_string,0,lua_arg_string,0))
+    {
+        int graphHandle=luaToInt(L,1);
+        std::string streamName(luaWrap_lua_tostring(L,2));
+        std::string unitStr(luaWrap_lua_tostring(L,3));
+        if (streamName.size()!=0)
+        {
+            int options=0;
+            int res=checkOneGeneralInputArgument(L,4,lua_arg_integer,0,true,false,&errorString);
+            if (res==2)
+                options=luaToInt(L,4);
+            if ( (res==0)||(res==2) )
+            {
+                float col[3]={1.0f,0.0f,0.0f};
+                res=checkOneGeneralInputArgument(L,5,lua_arg_number,3,true,false,&errorString);
+                if (res==2)
+                    getFloatsFromTable(L,5,3,col);
+                if ( (res==0)||(res==2) )
+                {
+                    float cyclicRange=piValue_f;
+                    res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,false,&errorString);
+                    if (res==2)
+                        cyclicRange=luaToFloat(L,6);
+                    if ( (res==0)||(res==2) )
+                    {
+                        int retVal=simAddGraphDataStream_internal(graphHandle,streamName.c_str(),unitStr.c_str(),options,col,cyclicRange);
+                        luaWrap_lua_pushinteger(L,retVal);
+                        LUA_END(1);
+                    }
+                }
+            }
+        }
+        else
+            errorString=SIM_ERROR_EMPTY_STRING_NOT_ALLOWED;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simDestroyGraphCurve(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.destroyGraphCurve");
+
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_integer,0))
+        simDestroyGraphCurve_internal(luaToInt(L,1),luaToInt(L,2));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetGraphDataStreamTransformation(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setGraphDataStreamTransformation");
+
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_integer,0,lua_arg_integer,0))
+    {
+        float mult=1.0f;
+        int res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
+        if (res==2)
+            mult=luaToFloat(L,4);
+        if ( (res==0)||(res==2) )
+        {
+            float off=0.0f;
+            res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
+            if (res==2)
+                off=luaToFloat(L,5);
+            if ( (res==0)||(res==2) )
+            {
+                int movAvgP=1;
+                res=checkOneGeneralInputArgument(L,6,lua_arg_integer,0,true,false,&errorString);
+                if (res==2)
+                    movAvgP=luaToInt(L,6);
+                if ( (res==0)||(res==2) )
+                    simSetGraphDataStreamTransformation_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3),mult,off,movAvgP);
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simDuplicateGraphCurveToStatic(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.duplicateGraphCurveToStatic");
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_integer,0))
+    {
+        std::string name;
+        const char* str=nullptr;
+        int res=checkOneGeneralInputArgument(L,3,lua_arg_string,0,true,false,&errorString);
+        if (res==2)
+        {
+            name=luaWrap_lua_tostring(L,3);
+            if (name.length()>0)
+                str=&name[0];
+        }
+        if ( (res==0)||(res==2) )
+            simDuplicateGraphCurveToStatic_internal(luaToInt(L,1),luaToInt(L,2),str);
+    }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simAddGraphCurve(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.addGraphCurve");
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_integer,0,lua_arg_integer,3,lua_arg_number,3,lua_arg_string,0))
+    {
+        int graphHandle=luaToInt(L,1);
+        int dim=luaToInt(L,2);
+        int streamIds[3];
+        getIntsFromTable(L,3,3,streamIds);
+        float defaultVals[3];
+        getFloatsFromTable(L,4,3,defaultVals);
+        std::string curveName(luaWrap_lua_tostring(L,5));
+        if (curveName.size()!=0)
+        {
+            std::string unitStr;
+            char* _unitStr=nullptr;
+            int res=checkOneGeneralInputArgument(L,6,lua_arg_string,0,true,false,&errorString);
+            if (res==2)
+            {
+                unitStr=luaWrap_lua_tostring(L,6);
+                if (unitStr.size()>0)
+                    _unitStr=&unitStr[0];
+            }
+            if ( (res==0)||(res==2) )
+            {
+                int options=0;
+                int res=checkOneGeneralInputArgument(L,7,lua_arg_integer,0,true,false,&errorString);
+                if (res==2)
+                    options=luaToInt(L,7);
+                if ( (res==0)||(res==2) )
+                {
+                    float col[3]={1.0f,1.0f,0.0f};
+                    res=checkOneGeneralInputArgument(L,8,lua_arg_number,3,true,false,&errorString);
+                    if (res==2)
+                        getFloatsFromTable(L,8,3,col);
+                    if ( (res==0)||(res==2) )
+                    {
+                        int curveWidth=2;
+                        res=checkOneGeneralInputArgument(L,9,lua_arg_integer,0,true,false,&errorString);
+                        if (res==2)
+                            curveWidth=luaToInt(L,9);
+                        if ( (res==0)||(res==2) )
+                        {
+                            int retVal=simAddGraphCurve_internal(graphHandle,dim,streamIds,defaultVals,curveName.c_str(),_unitStr,options,col,curveWidth);
+                            luaWrap_lua_pushinteger(L,retVal);
+                            LUA_END(1);
+                        }
+                    }
+                }
+            }
+        }
+        else
+            errorString=SIM_ERROR_EMPTY_STRING_NOT_ALLOWED;
+    }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetGraphDataStreamValue(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setGraphDataStreamValue");
+
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_integer,0,lua_arg_number,0))
+        simSetGraphDataStreamValue_internal(luaToInt(L,1),luaToInt(L,2),luaToFloat(L,3));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 
 int _simAddLog(luaWrap_lua_State* L)
@@ -10248,26 +10376,6 @@ int _simCombineRgbImages(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-
-int _simSetGraphUserData(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setGraphUserData");
-
-    int retVal=-1; // for error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_number,0))
-    {
-        int graphHandle=luaWrap_lua_tointeger(L,1);
-        std::string dataName(luaWrap_lua_tostring(L,2));
-        float data=luaToFloat(L,3);
-        retVal=simSetGraphUserData_internal(graphHandle,dataName.c_str(),data);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
 int _simAddDrawingObject(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -11245,8 +11353,15 @@ int _simSetShapeColor(luaWrap_lua_State* L)
                 res=checkOneGeneralInputArgument(L,4,lua_arg_number,floatsInTableExpected,false,false,&errorString);
                 if (res==2)
                 {
-                    float rgbData[3];
-                    getFloatsFromTable(L,4,floatsInTableExpected,rgbData);
+                    if (strTmp.compare("@compound")==0)
+                    {
+                        CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+                        if (shape!=nullptr)
+                            floatsInTableExpected*=shape->getComponentCount();
+                    }
+                    std::vector<float> rgbData;
+                    rgbData.resize(floatsInTableExpected);
+                    getFloatsFromTable(L,4,floatsInTableExpected,&rgbData[0]);
                     if (correctColors&&(colorComponent==0)&&(!transformColor) )
                     {
                         rgbData[0]=(rgbData[0]+0.25f)/0.85f;
@@ -11260,7 +11375,7 @@ int _simSetShapeColor(luaWrap_lua_State* L)
                             rgbData[2]/=mx;
                         }
                     }
-                    retVal=simSetShapeColor_internal(shapeHandle,str,colorComponent,rgbData);
+                    retVal=simSetShapeColor_internal(shapeHandle,str,colorComponent,&rgbData[0]);
                 }
             }
         }
@@ -11299,12 +11414,22 @@ int _simGetShapeColor(luaWrap_lua_State* L)
             err=err||(res<2);
             if (!err)
             {
-                float rgbData[3];
-                retVal=simGetShapeColor_internal(shapeHandle,str,colorComponent,rgbData);
+                int res=1;
+                if (strTmp.compare("@compound")==0)
+                {
+                    CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+                    if (shape!=nullptr)
+                        res=shape->getComponentCount();
+                }
+                if (colorComponent!=4)
+                    res*=3;
+                std::vector<float> rgbData;
+                rgbData.resize(res);
+                retVal=simGetShapeColor_internal(shapeHandle,str,colorComponent,&rgbData[0]);
                 if (retVal>0)
                 {
                     luaWrap_lua_pushinteger(L,retVal);
-                    pushFloatTableOntoStack(L,3,rgbData);
+                    pushFloatTableOntoStack(L,res,&rgbData[0]);
                     LUA_END(2);
                 }
             }
@@ -11922,117 +12047,6 @@ int _simCreateHeightfieldShape(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-
-int _simAddBanner(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.addBanner");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0,lua_arg_number,0))
-    {
-        std::string label(luaWrap_lua_tostring(L,1));
-        float size=luaToFloat(L,2);
-        int options=luaToInt(L,3);
-
-        float* positionAndEulerAngles=nullptr;
-        int parentObjectHandle=-1;
-        float* labelColors=nullptr;
-        float* backgroundColors=nullptr;
-
-        int res=checkOneGeneralInputArgument(L,4,lua_arg_number,6,true,true,&errorString);
-        int okToGo=(res!=-1);
-        if (okToGo)
-        {
-            float positionAndEulerAnglesC[6];
-            if (res>0)
-            {
-                if (res==2)
-                {
-                    getFloatsFromTable(L,4,6,positionAndEulerAnglesC);
-                    positionAndEulerAngles=positionAndEulerAnglesC;
-                }
-                res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,true,&errorString);
-                okToGo=(res!=-1);
-                if (okToGo)
-                {
-                    if (res>0)
-                    {
-                        if (res==2)
-                            parentObjectHandle=luaToInt(L,5);
-                        res=checkOneGeneralInputArgument(L,6,lua_arg_number,12,true,true,&errorString);
-                        okToGo=(res!=-1);
-                        if (okToGo)
-                        {
-                            float labelColorsC[12];
-                            if (res>0)
-                            {
-                                if (res==2)
-                                {
-                                    getFloatsFromTable(L,6,12,labelColorsC);
-                                    labelColors=labelColorsC;
-                                }
-                                res=checkOneGeneralInputArgument(L,7,lua_arg_number,12,true,true,&errorString);
-                                okToGo=(res!=-1);
-                                if (okToGo)
-                                {
-                                    float backgroundColorsC[12];
-                                    if (res>0)
-                                    {
-                                        if (res==2)
-                                        {
-                                            getFloatsFromTable(L,7,12,backgroundColorsC);
-                                            backgroundColors=backgroundColorsC;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if (okToGo)
-            {
-                retVal=simAddBanner_internal(label.c_str(),size,options,positionAndEulerAngles,parentObjectHandle,labelColors,backgroundColors);
-                if (retVal!=-1)
-                { // following condition added on 2011/01/06 so as to not remove objects created from the c/c++ interface or an add-on:
-                    int currentScriptID=getScriptHandle(L);
-                    CLuaScriptObject* itScrObj=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(currentScriptID);
-                    CBannerObject* anObj=App::currentWorld->bannerCont->getObject(retVal);
-                    if (anObj!=nullptr)
-                        anObj->setCreatedFromScript((itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript));
-                }
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simRemoveBanner(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.removeBanner");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int objectHandle=luaToInt(L,1);
-        if (objectHandle==sim_handle_all)
-        { // following condition added here on 2011/01/06 so as not to remove objects created from a C/c++ call
-            App::currentWorld->bannerCont->removeAllObjects(true);
-            retVal=1;
-        }
-        else
-            retVal=simRemoveBanner_internal(objectHandle);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
 
 int _simCreateJoint(luaWrap_lua_State* L)
 {
@@ -13252,95 +13266,6 @@ int _simConvexDecompose(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-
-int _simAddGhost(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.addGhost");
-
-    int retVal=-1; // error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-    {
-        int ghostGroup=luaToInt(L,1);
-        int objectHandle=luaToInt(L,2);
-        int options=luaToInt(L,3);
-        float startTime=luaToFloat(L,4);
-        float endTime=luaToFloat(L,5);
-        int res=checkOneGeneralInputArgument(L,6,lua_arg_number,12,true,true,&errorString);
-        if (res>=0)
-        {
-            bool defaultColors=true;
-            float color[12];
-            if (res==2)
-            {
-                defaultColors=false;
-                getFloatsFromTable(L,6,12,color);
-            }
-            if (defaultColors)
-                retVal=simAddGhost_internal(ghostGroup,objectHandle,options,startTime,endTime,nullptr);
-            else
-                retVal=simAddGhost_internal(ghostGroup,objectHandle,options,startTime,endTime,color);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simModifyGhost(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.modifyGhost");
-
-    int retVal=-1; // error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-    {
-        int ghostGroup=luaToInt(L,1);
-        int ghostId=luaToInt(L,2);
-        int operation=luaToInt(L,3);
-        float floatValue=luaToFloat(L,4);
-
-        int options=0;
-        int optionsMask=0;
-        int res=0;
-        if (operation==10)
-            res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,false,false,&errorString);
-        if (res>=0)
-        {
-            if ((res==2)&&(operation==10))
-            {
-                options=luaToInt(L,5);
-                res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,false,false,&errorString);
-                if (res==2)
-                    optionsMask=luaToInt(L,6);
-                else
-                    res=-1;
-            }
-            if (res>=0)
-            {
-                int floatCnt=7;
-                if (operation==13)
-                    floatCnt=12;
-                res=0;
-                if ((operation>=11)&&(operation<=13))
-                    res=checkOneGeneralInputArgument(L,7,lua_arg_number,floatCnt,false,false,&errorString);
-                if (res>=0)
-                {
-                    float colorOrTransfData[12];
-                    if ((res==2)&&(operation>=11)&&(operation<=13))
-                        getFloatsFromTable(L,7,floatCnt,colorOrTransfData);
-                    retVal=simModifyGhost_internal(ghostGroup,ghostId,operation,floatValue,options,optionsMask,colorOrTransfData);
-                }
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
 int _simQuitSimulator(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -13731,94 +13656,6 @@ int _simReadCustomDataBlockTags(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simAddPointCloud(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.addPointCloud");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3))
-    {
-        int pageMask=luaToInt(L,1);
-        int layerMask=luaToInt(L,2);
-        int objectHandle=luaToInt(L,3);
-        int options=luaToInt(L,4);
-        int currentScriptID=getScriptHandle(L);
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(currentScriptID);
-        if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
-            options=(options|1)-1; // cloud is automatically removed at the end of the simulation (i.e. is not persistent)
-        float pointSize=luaToFloat(L,5);
-        int pointCnt=(int)luaWrap_lua_rawlen(L,6)/3;
-        std::vector<float> pointCoordinates(pointCnt*3,0.0f);
-        getFloatsFromTable(L,6,pointCnt*3,&pointCoordinates[0]);
-        int res;
-        res=checkOneGeneralInputArgument(L,7,lua_arg_number,12,true,true,&errorString);
-        if (res>=0)
-        {
-            unsigned char* defaultColors=nullptr;
-            std::vector<unsigned char> _defCols(12,0);
-            if (res==2)
-            {
-                std::vector<int> _defCols_(12,0);
-                getIntsFromTable(L,7,12,&_defCols_[0]);
-                for (int i=0;i<12;i++)
-                    _defCols[i]=(unsigned char)_defCols_[i];
-                defaultColors=&_defCols[0];
-            }
-            res=checkOneGeneralInputArgument(L,8,lua_arg_number,pointCnt*3,true,true,&errorString);
-            if (res>=0)
-            {
-                unsigned char* pointColors=nullptr;
-                std::vector<unsigned char> _pointCols;
-                if (res==2)
-                {
-                    _pointCols.resize(pointCnt*3,0);
-                    std::vector<int> _pointCols_(pointCnt*3,0);
-                    getIntsFromTable(L,8,pointCnt*3,&_pointCols_[0]);
-                    for (int i=0;i<pointCnt*3;i++)
-                        _pointCols[i]=(unsigned char)_pointCols_[i];
-                    pointColors=&_pointCols[0];
-                }
-                res=checkOneGeneralInputArgument(L,9,lua_arg_number,pointCnt*3,true,true,&errorString);
-                if (res>=0)
-                {
-                    float* pointNormals=nullptr;
-                    std::vector<float> _pointNormals;
-                    if (res==2)
-                    {
-                        _pointNormals.resize(pointCnt*3,0);
-                        getFloatsFromTable(L,9,pointCnt*3,&_pointNormals[0]);
-                        pointNormals=&_pointNormals[0];
-                    }
-                    retVal=simAddPointCloud_internal(pageMask,layerMask,objectHandle,options,pointSize,(int)pointCoordinates.size()/3,&pointCoordinates[0],(char*)defaultColors,(char*)pointColors,pointNormals);
-                }
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simModifyPointCloud(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.modifyPointCloud");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        int pointCloudHandle=luaToInt(L,1);
-        int operation=luaToInt(L,2);
-        retVal=simModifyPointCloud_internal(pointCloudHandle,operation,nullptr,nullptr);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
 int _simGetShapeGeomInfo(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -14035,8 +13872,8 @@ int _simAddItemToCollection(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
         int collHandle=luaToInt(L,1);
-        int objHandle=luaToInt(L,2);
-        int what=luaToInt(L,3);
+        int what=luaToInt(L,2);
+        int objHandle=luaToInt(L,3);
         int options=luaToInt(L,4);
         simAddItemToCollection_internal(collHandle,what,objHandle,options);
     }
@@ -15283,7 +15120,7 @@ int _simGetGraphCurve(luaWrap_lua_State* L)
             int curveType;
             float col[3];
             float minMax[6];
-            if (graph->getGraphCurve(graphType,index,label,xVals,yVals,zVals,curveType,col,minMax))
+            if (graph->getGraphCurveData(graphType,index,label,xVals,yVals,zVals,curveType,col,minMax))
             {
                 luaWrap_lua_pushstring(L,label.c_str());
                 luaWrap_lua_pushinteger(L,curveType);
@@ -17488,81 +17325,6 @@ int _simHandleSensingChildScripts(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
-}
-
-int _simBoolOr16(luaWrap_lua_State* L)
-{ // DEPRECATED
-    TRACE_LUA_API;
-    LUA_START("simBoolOr16");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
-        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
-        if ((na>=0)&&(nb>=0)&&(na<65535.9)&&(nb<65535.9))
-        {
-            unsigned int a=(unsigned int)na;
-            unsigned int b=(unsigned int)nb;
-            retVal=a|b;
-        }
-        else
-            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simBoolAnd16(luaWrap_lua_State* L)
-{ // DEPRECATED
-    TRACE_LUA_API;
-    LUA_START("simBoolAnd16");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
-        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
-        if ((na>=0)&&(nb>=0)&&(na<65535.9)&&(nb<65535.9))
-        {
-            unsigned int a=(unsigned int)na;
-            unsigned int b=(unsigned int)nb;
-            retVal=a&b;
-        }
-        else
-            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simBoolXor16(luaWrap_lua_State* L)
-{ // DEPRECATED
-    TRACE_LUA_API;
-    LUA_START("simBoolXor16");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
-        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
-        if ((na>=0)&&(nb>=0)&&(na<65535.9)&&(nb<65535.9))
-        {
-            unsigned int a=(unsigned int)na;
-            unsigned int b=(unsigned int)nb;
-            retVal=a^b;
-        }
-        else
-            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
 }
 
 int _simScaleSelectedObjects(luaWrap_lua_State* L)
@@ -20092,6 +19854,312 @@ int _simResetDistance(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
+int _simAddBanner(luaWrap_lua_State* L)
+{ // deprecated on 23.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.addBanner");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0,lua_arg_number,0))
+    {
+        std::string label(luaWrap_lua_tostring(L,1));
+        float size=luaToFloat(L,2);
+        int options=luaToInt(L,3);
+
+        float* positionAndEulerAngles=nullptr;
+        int parentObjectHandle=-1;
+        float* labelColors=nullptr;
+        float* backgroundColors=nullptr;
+
+        int res=checkOneGeneralInputArgument(L,4,lua_arg_number,6,true,true,&errorString);
+        int okToGo=(res!=-1);
+        if (okToGo)
+        {
+            float positionAndEulerAnglesC[6];
+            if (res>0)
+            {
+                if (res==2)
+                {
+                    getFloatsFromTable(L,4,6,positionAndEulerAnglesC);
+                    positionAndEulerAngles=positionAndEulerAnglesC;
+                }
+                res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,true,&errorString);
+                okToGo=(res!=-1);
+                if (okToGo)
+                {
+                    if (res>0)
+                    {
+                        if (res==2)
+                            parentObjectHandle=luaToInt(L,5);
+                        res=checkOneGeneralInputArgument(L,6,lua_arg_number,12,true,true,&errorString);
+                        okToGo=(res!=-1);
+                        if (okToGo)
+                        {
+                            float labelColorsC[12];
+                            if (res>0)
+                            {
+                                if (res==2)
+                                {
+                                    getFloatsFromTable(L,6,12,labelColorsC);
+                                    labelColors=labelColorsC;
+                                }
+                                res=checkOneGeneralInputArgument(L,7,lua_arg_number,12,true,true,&errorString);
+                                okToGo=(res!=-1);
+                                if (okToGo)
+                                {
+                                    float backgroundColorsC[12];
+                                    if (res>0)
+                                    {
+                                        if (res==2)
+                                        {
+                                            getFloatsFromTable(L,7,12,backgroundColorsC);
+                                            backgroundColors=backgroundColorsC;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (okToGo)
+            {
+                retVal=simAddBanner_internal(label.c_str(),size,options,positionAndEulerAngles,parentObjectHandle,labelColors,backgroundColors);
+                if (retVal!=-1)
+                { // following condition added on 2011/01/06 so as to not remove objects created from the c/c++ interface or an add-on:
+                    int currentScriptID=getScriptHandle(L);
+                    CLuaScriptObject* itScrObj=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(currentScriptID);
+                    CBannerObject* anObj=App::currentWorld->bannerCont->getObject(retVal);
+                    if (anObj!=nullptr)
+                        anObj->setCreatedFromScript((itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript));
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simRemoveBanner(luaWrap_lua_State* L)
+{ // deprecated on 23.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.removeBanner");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int objectHandle=luaToInt(L,1);
+        if (objectHandle==sim_handle_all)
+        { // following condition added here on 2011/01/06 so as not to remove objects created from a C/c++ call
+            App::currentWorld->bannerCont->removeAllObjects(true);
+            retVal=1;
+        }
+        else
+            retVal=simRemoveBanner_internal(objectHandle);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simAddGhost(luaWrap_lua_State* L)
+{ // deprecated on 23.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.addGhost");
+
+    int retVal=-1; // error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+    {
+        int ghostGroup=luaToInt(L,1);
+        int objectHandle=luaToInt(L,2);
+        int options=luaToInt(L,3);
+        float startTime=luaToFloat(L,4);
+        float endTime=luaToFloat(L,5);
+        int res=checkOneGeneralInputArgument(L,6,lua_arg_number,12,true,true,&errorString);
+        if (res>=0)
+        {
+            bool defaultColors=true;
+            float color[12];
+            if (res==2)
+            {
+                defaultColors=false;
+                getFloatsFromTable(L,6,12,color);
+            }
+            if (defaultColors)
+                retVal=simAddGhost_internal(ghostGroup,objectHandle,options,startTime,endTime,nullptr);
+            else
+                retVal=simAddGhost_internal(ghostGroup,objectHandle,options,startTime,endTime,color);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simModifyGhost(luaWrap_lua_State* L)
+{ // deprecated on 23.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.modifyGhost");
+
+    int retVal=-1; // error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+    {
+        int ghostGroup=luaToInt(L,1);
+        int ghostId=luaToInt(L,2);
+        int operation=luaToInt(L,3);
+        float floatValue=luaToFloat(L,4);
+
+        int options=0;
+        int optionsMask=0;
+        int res=0;
+        if (operation==10)
+            res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,false,false,&errorString);
+        if (res>=0)
+        {
+            if ((res==2)&&(operation==10))
+            {
+                options=luaToInt(L,5);
+                res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,false,false,&errorString);
+                if (res==2)
+                    optionsMask=luaToInt(L,6);
+                else
+                    res=-1;
+            }
+            if (res>=0)
+            {
+                int floatCnt=7;
+                if (operation==13)
+                    floatCnt=12;
+                res=0;
+                if ((operation>=11)&&(operation<=13))
+                    res=checkOneGeneralInputArgument(L,7,lua_arg_number,floatCnt,false,false,&errorString);
+                if (res>=0)
+                {
+                    float colorOrTransfData[12];
+                    if ((res==2)&&(operation>=11)&&(operation<=13))
+                        getFloatsFromTable(L,7,floatCnt,colorOrTransfData);
+                    retVal=simModifyGhost_internal(ghostGroup,ghostId,operation,floatValue,options,optionsMask,colorOrTransfData);
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simSetGraphUserData(luaWrap_lua_State* L)
+{ // deprecated on 23.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.setGraphUserData");
+
+    int retVal=-1; // for error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_number,0))
+    {
+        int graphHandle=luaWrap_lua_tointeger(L,1);
+        std::string dataName(luaWrap_lua_tostring(L,2));
+        float data=luaToFloat(L,3);
+        retVal=simSetGraphUserData_internal(graphHandle,dataName.c_str(),data);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simAddPointCloud(luaWrap_lua_State* L)
+{ // deprecated on 23.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.addPointCloud");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3))
+    {
+        int pageMask=luaToInt(L,1);
+        int layerMask=luaToInt(L,2);
+        int objectHandle=luaToInt(L,3);
+        int options=luaToInt(L,4);
+        int currentScriptID=getScriptHandle(L);
+        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(currentScriptID);
+        if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
+            options=(options|1)-1; // cloud is automatically removed at the end of the simulation (i.e. is not persistent)
+        float pointSize=luaToFloat(L,5);
+        int pointCnt=(int)luaWrap_lua_rawlen(L,6)/3;
+        std::vector<float> pointCoordinates(pointCnt*3,0.0f);
+        getFloatsFromTable(L,6,pointCnt*3,&pointCoordinates[0]);
+        int res;
+        res=checkOneGeneralInputArgument(L,7,lua_arg_number,12,true,true,&errorString);
+        if (res>=0)
+        {
+            unsigned char* defaultColors=nullptr;
+            std::vector<unsigned char> _defCols(12,0);
+            if (res==2)
+            {
+                std::vector<int> _defCols_(12,0);
+                getIntsFromTable(L,7,12,&_defCols_[0]);
+                for (int i=0;i<12;i++)
+                    _defCols[i]=(unsigned char)_defCols_[i];
+                defaultColors=&_defCols[0];
+            }
+            res=checkOneGeneralInputArgument(L,8,lua_arg_number,pointCnt*3,true,true,&errorString);
+            if (res>=0)
+            {
+                unsigned char* pointColors=nullptr;
+                std::vector<unsigned char> _pointCols;
+                if (res==2)
+                {
+                    _pointCols.resize(pointCnt*3,0);
+                    std::vector<int> _pointCols_(pointCnt*3,0);
+                    getIntsFromTable(L,8,pointCnt*3,&_pointCols_[0]);
+                    for (int i=0;i<pointCnt*3;i++)
+                        _pointCols[i]=(unsigned char)_pointCols_[i];
+                    pointColors=&_pointCols[0];
+                }
+                res=checkOneGeneralInputArgument(L,9,lua_arg_number,pointCnt*3,true,true,&errorString);
+                if (res>=0)
+                {
+                    float* pointNormals=nullptr;
+                    std::vector<float> _pointNormals;
+                    if (res==2)
+                    {
+                        _pointNormals.resize(pointCnt*3,0);
+                        getFloatsFromTable(L,9,pointCnt*3,&_pointNormals[0]);
+                        pointNormals=&_pointNormals[0];
+                    }
+                    retVal=simAddPointCloud_internal(pageMask,layerMask,objectHandle,options,pointSize,(int)pointCoordinates.size()/3,&pointCoordinates[0],(char*)defaultColors,(char*)pointColors,pointNormals);
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simModifyPointCloud(luaWrap_lua_State* L)
+{ // deprecated on 23.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.modifyPointCloud");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        int pointCloudHandle=luaToInt(L,1);
+        int operation=luaToInt(L,2);
+        retVal=simModifyPointCloud_internal(pointCloudHandle,operation,nullptr,nullptr);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
 /*
 int _simWait(luaWrap_lua_State* L)
 { // can only be called from a script running in a thread!!
@@ -21100,4 +21168,151 @@ int _simRMLMoveToPosition(luaWrap_lua_State* L)
     luaWrap_lua_pushinteger(L,retVal); // error
     LUA_END(1);
 }
+int _simBoolOr16(luaWrap_lua_State* L)
+{ // DEPRECATED
+    TRACE_LUA_API;
+    LUA_START("simBoolOr16");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
+        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
+        if ((na>=0)&&(nb>=0)&&(na<65535.9)&&(nb<65535.9))
+        {
+            unsigned int a=(unsigned int)na;
+            unsigned int b=(unsigned int)nb;
+            retVal=a|b;
+        }
+        else
+            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simBoolAnd16(luaWrap_lua_State* L)
+{ // DEPRECATED
+    TRACE_LUA_API;
+    LUA_START("simBoolAnd16");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
+        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
+        if ((na>=0)&&(nb>=0)&&(na<65535.9)&&(nb<65535.9))
+        {
+            unsigned int a=(unsigned int)na;
+            unsigned int b=(unsigned int)nb;
+            retVal=a&b;
+        }
+        else
+            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simBoolXor16(luaWrap_lua_State* L)
+{ // DEPRECATED
+    TRACE_LUA_API;
+    LUA_START("simBoolXor16");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
+        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
+        if ((na>=0)&&(nb>=0)&&(na<65535.9)&&(nb<65535.9))
+        {
+            unsigned int a=(unsigned int)na;
+            unsigned int b=(unsigned int)nb;
+            retVal=a^b;
+        }
+        else
+            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simBoolOr32(luaWrap_lua_State* L)
+{ // Deprecated on 23.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.boolOr32");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
+        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
+        if ((na>=0)&&(nb>=0)&&(na<4294967295.9)&&(nb<4294967295.9))
+        {
+            unsigned int a=(unsigned int)na;
+            unsigned int b=(unsigned int)nb;
+            luaWrap_lua_pushinteger(L,(long long int)(a|b));
+            LUA_END(1);
+        }
+        else
+            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simBoolAnd32(luaWrap_lua_State* L)
+{ // Deprecated on 23.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.boolAnd32");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
+        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
+        if ((na>=0)&&(nb>=0)&&(na<4294967295.9)&&(nb<4294967295.9))
+        {
+            unsigned int a=(unsigned int)na;
+            unsigned int b=(unsigned int)nb;
+            luaWrap_lua_pushinteger(L,(long long int)(a&b));
+            LUA_END(1);
+        }
+        else
+            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simBoolXor32(luaWrap_lua_State* L)
+{ // Deprecated on 23.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.boolXor32");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
+        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
+        if ((na>=0)&&(nb>=0)&&(na<4294967295.9)&&(nb<4294967295.9))
+        {
+            unsigned int a=(unsigned int)na;
+            unsigned int b=(unsigned int)nb;
+            luaWrap_lua_pushinteger(L,(long long int)(a^b));
+            LUA_END(1);
+        }
+        else
+            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
 */

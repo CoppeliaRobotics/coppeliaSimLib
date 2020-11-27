@@ -8,7 +8,7 @@
 #include "tt.h"
 #include "fileOperations.h"
 #include "persistentDataContainer.h"
-#include "graphingRoutines.h"
+#include "graphingRoutines_old.h"
 #include "sceneObjectOperations.h"
 #include "threadPool.h"
 #include "addOperations.h"
@@ -6360,21 +6360,24 @@ simInt simHandleGraph_internal(simInt graphHandle,simFloat simulationTime)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if ( (graphHandle!=sim_handle_all)&&(graphHandle!=sim_handle_all_except_explicit) )
         {
             if (!isGraph(__func__,graphHandle))
-            {
                 return(-1);
-            }
         }
         if (graphHandle<0)
-            CGraphingRoutines::handleAllGraphs(graphHandle==sim_handle_all_except_explicit,simulationTime);
+        {
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getGraphCount();i++)
+            {
+                CGraph* it=App::currentWorld->sceneObjects->getGraphFromIndex(i);
+                if ( (!it->getExplicitHandling())||(graphHandle==sim_handle_all) )
+                    it->addNextPoint(simulationTime);
+            }
+        }
         else
         { // explicit handling
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
@@ -6406,7 +6409,14 @@ simInt simResetGraph_internal(simInt graphHandle)
                 return(-1);
         }
         if (graphHandle<0)
-            CGraphingRoutines::resetAllGraphs(graphHandle==sim_handle_all_except_explicit);
+        {
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getGraphCount();i++)
+            {
+                CGraph* it=App::currentWorld->sceneObjects->getGraphFromIndex(i);
+                if ( (!it->getExplicitHandling())||(graphHandle==sim_handle_all) )
+                    it->resetGraph();
+            }
+        }
         else
         { // explicit handling
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
@@ -6418,6 +6428,148 @@ simInt simResetGraph_internal(simInt graphHandle)
             it->resetGraph();
         }
         return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simAddGraphDataStream_internal(simInt graphHandle,const simChar* streamName,const simChar* unitStr,simInt options,const simFloat* color,simFloat cyclicRange)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!isGraph(__func__,graphHandle))
+            return(-1);
+        if (strlen(streamName)==0)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_EMPTY_STRING_NOT_ALLOWED);
+            return(-1);
+        }
+        std::string nm(streamName);
+        tt::removeIllegalCharacters(nm,false);
+        CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+        CGraphDataStream* str=new CGraphDataStream(nm.c_str(),unitStr,options,color,cyclicRange);
+        int retVal=it->addOrUpdateDataStream(str);
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simDestroyGraphCurve_internal(simInt graphHandle,simInt curveId)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!isGraph(__func__,graphHandle))
+            return(-1);
+        CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+        if (it->removeGraphCurve(curveId))
+            return(1);
+        if (it->removeGraphDataStream(curveId))
+            return(1);
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CURVE_ID);
+        return(-1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetGraphDataStreamTransformation_internal(simInt graphHandle,simInt streamId,simInt trType,simFloat mult,simFloat off,simInt movingAvgPeriod)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!isGraph(__func__,graphHandle))
+            return(-1);
+        CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+        if (it->setDataStreamTransformation(streamId,trType,mult,off,movingAvgPeriod))
+            return(1);
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CURVE_ID);
+        return(-1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simDuplicateGraphCurveToStatic_internal(simInt graphHandle,simInt curveId,const simChar* curveName)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!isGraph(__func__,graphHandle))
+            return(-1);
+        CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+        std::string nm(curveName);
+        tt::removeIllegalCharacters(nm,false);
+        int retVal=it->duplicateCurveToStatic(curveId,nm.c_str());
+        if (retVal==-1)
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CURVE_ID);
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simAddGraphCurve_internal(simInt graphHandle,simInt dim,const simInt* streamIds,const simFloat* defaultValues,const simChar* curveName,const simChar* unitStr,simInt options,const simFloat* color,simInt curveWidth)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!isGraph(__func__,graphHandle))
+            return(-1);
+        if (strlen(curveName)==0)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_EMPTY_STRING_NOT_ALLOWED);
+            return(-1);
+        }
+        std::string nm(curveName);
+        tt::removeIllegalCharacters(nm,false);
+        CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+        CGraphCurve* curve=new CGraphCurve(dim,streamIds,defaultValues,nm.c_str(),unitStr,options,color,curveWidth);
+        int retVal=it->addOrUpdateCurve(curve);
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetGraphDataStreamValue_internal(simInt graphHandle,simInt streamId,simFloat value)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!isGraph(__func__,graphHandle))
+            return(-1);
+        CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+        if (it->setNextValueToInsert(streamId,value))
+            return(1);
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CURVE_ID);
+        return(-1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
@@ -6797,39 +6949,6 @@ simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueI
             if ( (it->getObjectHandle()==objectHandle)||(objectHandle==sim_handle_all) )
                 uniqueIdentifier[p++]=it->getUniqueID();
         }
-        return(1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* dataStreamName,simFloat data)
-{
-    TRACE_C_API;
-
-    if (!App::currentWorld->simulation->isSimulationRunning())
-    {
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!isGraph(__func__,graphHandle))
-            return(-1);
-        CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
-        CGraphData* stream=it->getGraphData(dataStreamName);
-        if (stream==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA_STREAM);
-            return(-1);
-        }
-        if (stream->getDataType()!=GRAPH_NOOBJECT_USER_DEFINED)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_DATA_STREAM_NOT_USER_DEFINED);
-            return(-1);
-        }
-        stream->setUserData(data);
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -8070,13 +8189,20 @@ simInt simSetShapeColor_internal(simInt shapeHandle,const simChar* colorName,sim
     {
         if ( (shapeHandle!=sim_handle_all)&&(!isShape(__func__,shapeHandle)) )
             return(-1);
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
-        {
-            CShape* it=App::currentWorld->sceneObjects->getShapeFromIndex(i);
-            if ( (it->getObjectHandle()==shapeHandle)||(shapeHandle==sim_handle_all) )
+        if (shapeHandle==sim_handle_all)
+        { // deprecated functionality
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
+            {
+                CShape* it=App::currentWorld->sceneObjects->getShapeFromIndex(i);
                 it->setColor(colorName,colorComponent,rgbData);
+            }
         }
-        return(1);
+        else
+        {
+            CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+            it->setColor(colorName,colorComponent,rgbData);
+        }
+       return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
@@ -8087,16 +8213,12 @@ simInt simGetShapeColor_internal(simInt shapeHandle,const simChar* colorName,sim
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isShape(__func__,shapeHandle))
-        {
             return(-1);
-        }
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
         int retVal=0;
         if (it->getColor(colorName,colorComponent,rgbData))
@@ -8723,68 +8845,6 @@ simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const sim
         shape->setShapeIsDynamicallyStatic((options&16)!=0);
         shape->getMeshWrapper()->setMass(tt::getLimitedFloat(0.000001f,10000.0f,mass));
         return(shape->getObjectHandle());
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simInt simAddBanner_internal(const simChar* label,simFloat size,simInt options,const simFloat* positionAndEulerAngles,simInt parentObjectHandle,const simFloat* labelColors,const simFloat* backgroundColors)
-{ // from positionAndEulerAngles on, all can be nullptr for default behaviour
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        int retVal=-1; // means error
-
-        CBannerObject* it=new CBannerObject(label,options,parentObjectHandle,positionAndEulerAngles,labelColors,backgroundColors,size);
-        retVal=App::currentWorld->bannerCont->addObject(it);
-
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simInt simRemoveBanner_internal(simInt bannerID)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        if (bannerID==sim_handle_all)
-            App::currentWorld->bannerCont->removeAllObjects(false);
-        else
-        {
-            int handleFlags=0;
-            if (bannerID>=0)
-            {
-                handleFlags=bannerID&0xff00000;
-                bannerID=bannerID&0xfffff;
-            }
-            CBannerObject* it=App::currentWorld->bannerCont->getObject(bannerID);
-            if (it==nullptr)
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT);
-                return(-1);
-            }
-            if (handleFlags&sim_handleflag_togglevisibility)
-            {
-                if (it->toggleVisibility())
-                    return(1);
-                return(0);
-            }
-            else
-                App::currentWorld->bannerCont->removeObject(bannerID);
-        }
-        return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
@@ -9702,6 +9762,12 @@ simInt simGetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterI
                     parameter[0]=1;
                 retVal=1;
             }
+            if (parameterID==sim_shapeintparam_component_cnt)
+            {
+                parameter[0]=shape->getComponentCount();
+                retVal=1;
+            }
+
         }
         if (mirror!=nullptr)
         {
@@ -11159,48 +11225,30 @@ simInt simIsHandleValid_internal(simInt generalObjectHandle,simInt generalObject
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (((generalObjectType==-1)||(generalObjectType==sim_appobj_object_type))&&(App::currentWorld->sceneObjects->getObjectFromHandle(generalObjectHandle)!=nullptr))
-        {
             return(1);
-        }
-        if (((generalObjectType==-1)||(generalObjectType==sim_appobj_ui_type))&&(App::currentWorld->buttonBlockContainer->getBlockWithID(generalObjectHandle)!=nullptr))
-        {
-            return(1);
-        }
         if (((generalObjectType==-1)||(generalObjectType==sim_appobj_collection_type))&&(App::currentWorld->collections->getObjectFromHandle(generalObjectHandle)!=nullptr))
-        {
             return(1);
-        }
-        if (((generalObjectType==-1)||(generalObjectType==sim_appobj_collision_type))&&(App::currentWorld->collisions->getObjectFromHandle(generalObjectHandle)!=nullptr))
-        {
-            return(1);
-        }
-        if (((generalObjectType==-1)||(generalObjectType==sim_appobj_distance_type))&&(App::currentWorld->distances->getObjectFromHandle(generalObjectHandle)!=nullptr))
-        {
-            return(1);
-        }
-        if (((generalObjectType==-1)||(generalObjectType==sim_appobj_ik_type))&&(App::currentWorld->ikGroups->getObjectFromHandle(generalObjectHandle)!=nullptr))
-        {
-            return(1);
-        }
         if (((generalObjectType==-1)||(generalObjectType==sim_appobj_script_type))&&(App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(generalObjectHandle)!=nullptr))
-        {
             return(1);
-        }
-        if (((generalObjectType==-1)||(generalObjectType==sim_appobj_pathplanning_type))&&(App::currentWorld->pathPlanning->getObject(generalObjectHandle)!=nullptr))
-        {
-            return(1);
-        }
         if (((generalObjectType==-1)||(generalObjectType==sim_appobj_texture_type))&&(App::currentWorld->textureContainer->getObject(generalObjectHandle)!=nullptr))
-        {
             return(1);
-        }
+
+        // Old:
+        if (((generalObjectType==-1)||(generalObjectType==sim_appobj_ui_type))&&(App::currentWorld->buttonBlockContainer->getBlockWithID(generalObjectHandle)!=nullptr))
+            return(1);
+        if (((generalObjectType==-1)||(generalObjectType==sim_appobj_collision_type))&&(App::currentWorld->collisions->getObjectFromHandle(generalObjectHandle)!=nullptr))
+            return(1);
+        if (((generalObjectType==-1)||(generalObjectType==sim_appobj_distance_type))&&(App::currentWorld->distances->getObjectFromHandle(generalObjectHandle)!=nullptr))
+            return(1);
+        if (((generalObjectType==-1)||(generalObjectType==sim_appobj_ik_type))&&(App::currentWorld->ikGroups->getObjectFromHandle(generalObjectHandle)!=nullptr))
+            return(1);
+        if (((generalObjectType==-1)||(generalObjectType==sim_appobj_pathplanning_type))&&(App::currentWorld->pathPlanning->getObject(generalObjectHandle)!=nullptr))
+            return(1);
         return(0); // handle is not valid!
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -12738,46 +12786,6 @@ simInt simConvexDecompose_internal(simInt shapeHandle,simInt options,const simIn
     return(retVal);
 }
 
-simInt simAddGhost_internal(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,objectHandle))
-        {
-            return(-1);
-        }
-        int retVal=App::currentWorld->ghostObjectCont->addGhost(ghostGroup,objectHandle,options,startTime,endTime,color);
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simModifyGhost_internal(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int retVal=App::currentWorld->ghostObjectCont->modifyGhost(ghostGroup,ghostId,operation,floatValue,options,optionsMask,colorOrTransformation);
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
 simVoid simQuitSimulator_internal(simBool ignoredArgument)
 {
     TRACE_C_API;
@@ -13482,46 +13490,6 @@ simChar* simReadCustomDataBlockTags_internal(simInt objectHandle,simInt* tagCoun
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
-}
-
-simInt simAddPointCloud_internal(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int retVal=-1;
-        CPtCloud_old* ptCloud=new CPtCloud_old(pageMask,layerMask,objectHandle,options,pointSize,ptCnt,pointCoordinates,(unsigned char*)pointColors,pointNormals,(unsigned char*)defaultColors);
-        retVal=App::currentWorld->pointCloudCont->addObject(ptCloud);
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simModifyPointCloud_internal(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (operation==0)
-        {
-            if (App::currentWorld->pointCloudCont->removeObject(pointCloudHandle))
-                return(1);
-        }
-        return(-1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
 }
 
 simInt simGetShapeGeomInfo_internal(simInt shapeHandle,simInt* intData,simFloat* floatData,simVoid* reserved)
@@ -21703,6 +21671,171 @@ simInt simResetDistance_internal(simInt distanceObjectHandle)
             it->clearDistanceResult();
         }
         return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simAddBanner_internal(const simChar* label,simFloat size,simInt options,const simFloat* positionAndEulerAngles,simInt parentObjectHandle,const simFloat* labelColors,const simFloat* backgroundColors)
+{ // deprecated on 23.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal=-1; // means error
+
+        CBannerObject* it=new CBannerObject(label,options,parentObjectHandle,positionAndEulerAngles,labelColors,backgroundColors,size);
+        retVal=App::currentWorld->bannerCont->addObject(it);
+
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simRemoveBanner_internal(simInt bannerID)
+{ // deprecated on 23.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (bannerID==sim_handle_all)
+            App::currentWorld->bannerCont->removeAllObjects(false);
+        else
+        {
+            int handleFlags=0;
+            if (bannerID>=0)
+            {
+                handleFlags=bannerID&0xff00000;
+                bannerID=bannerID&0xfffff;
+            }
+            CBannerObject* it=App::currentWorld->bannerCont->getObject(bannerID);
+            if (it==nullptr)
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT);
+                return(-1);
+            }
+            if (handleFlags&sim_handleflag_togglevisibility)
+            {
+                if (it->toggleVisibility())
+                    return(1);
+                return(0);
+            }
+            else
+                App::currentWorld->bannerCont->removeObject(bannerID);
+        }
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simAddGhost_internal(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color)
+{ // deprecated on 23.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        int retVal=App::currentWorld->ghostObjectCont->addGhost(ghostGroup,objectHandle,options,startTime,endTime,color);
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simModifyGhost_internal(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation)
+{ // deprecated on 23.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal=App::currentWorld->ghostObjectCont->modifyGhost(ghostGroup,ghostId,operation,floatValue,options,optionsMask,colorOrTransformation);
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* dataStreamName,simFloat data)
+{ // deprecated on 23.11.2020
+    TRACE_C_API;
+
+    if (!App::currentWorld->simulation->isSimulationRunning())
+    {
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
+        return(-1);
+    }
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!isGraph(__func__,graphHandle))
+            return(-1);
+        CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+        CGraphData_old* stream=it->getGraphData(dataStreamName);
+        if (stream==nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA_STREAM);
+            return(-1);
+        }
+        if (stream->getDataType()!=GRAPH_NOOBJECT_USER_DEFINED)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_DATA_STREAM_NOT_USER_DEFINED);
+            return(-1);
+        }
+        stream->setUserData(data);
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simAddPointCloud_internal(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals)
+{ // deprecated on 23.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal=-1;
+        CPtCloud_old* ptCloud=new CPtCloud_old(pageMask,layerMask,objectHandle,options,pointSize,ptCnt,pointCoordinates,(unsigned char*)pointColors,pointNormals,(unsigned char*)defaultColors);
+        retVal=App::currentWorld->pointCloudCont->addObject(ptCloud);
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simModifyPointCloud_internal(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam)
+{ // deprecated on 23.11.2020
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (operation==0)
+        {
+            if (App::currentWorld->pointCloudCont->removeObject(pointCloudHandle))
+                return(1);
+        }
+        return(-1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);

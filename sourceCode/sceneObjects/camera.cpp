@@ -4,7 +4,7 @@
 #include "meshManip.h"
 #include "global.h"
 #include "sceneObjectOperations.h"
-#include "graphingRoutines.h"
+#include "graphingRoutines_old.h"
 #include "pluginContainer.h"
 #include "simStrings.h"
 #include "vDateTime.h"
@@ -317,20 +317,20 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
 
                 for (int k=0;k<int(gr->threeDPartners.size());k++)
                 {
-                    CGraphData* part0=gr->getGraphData(gr->threeDPartners[k]->data[0]);
-                    CGraphData* part1=gr->getGraphData(gr->threeDPartners[k]->data[1]);
-                    CGraphData* part2=gr->getGraphData(gr->threeDPartners[k]->data[2]);
+                    CGraphData_old* part0=gr->getGraphData(gr->threeDPartners[k]->data[0]);
+                    CGraphData_old* part1=gr->getGraphData(gr->threeDPartners[k]->data[1]);
+                    CGraphData_old* part2=gr->getGraphData(gr->threeDPartners[k]->data[2]);
                     int pos=0;
                     int absIndex;
                     float point[3];
                     bool cyclic0,cyclic1,cyclic2;
                     float range0,range1,range2;
                     if (part0!=nullptr)    
-                        CGraphingRoutines::getCyclicAndRangeValues(part0,cyclic0,range0);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(part0,cyclic0,range0);
                     if (part1!=nullptr)    
-                        CGraphingRoutines::getCyclicAndRangeValues(part1,cyclic1,range1);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(part1,cyclic1,range1);
                     if (part2!=nullptr)    
-                        CGraphingRoutines::getCyclicAndRangeValues(part2,cyclic2,range2);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(part2,cyclic2,range2);
                     while (gr->getAbsIndexOfPosition(pos++,absIndex))
                     {
                         bool dataIsValid=true;
@@ -372,7 +372,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                 // Static 3D curves now:
                 for (int k=0;k<int(gr->_staticCurves.size());k++)
                 {
-                    CStaticGraphCurve* itg=gr->_staticCurves[k];
+                    CStaticGraphCurve_old* itg=gr->_staticCurves[k];
                     if (itg->getCurveType()==2)
                     {
                         for (int j=0;j<int(itg->values.size()/3);j++)

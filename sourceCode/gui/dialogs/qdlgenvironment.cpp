@@ -33,7 +33,10 @@ void CQDlgEnvironment::refresh()
     ui->qqBackgroundColorDown->setEnabled(noEditModeNoSim);
     ui->qqAmbientLightColor->setEnabled(noEditModeNoSim);
     ui->qqFogAdjust->setEnabled(noEditModeNoSim);
+
+    ui->qqCleanUpGhosts->setVisible(App::userSettings->showOldDlgs);
     ui->qqCleanUpGhosts->setEnabled(noEditModeNoSim);
+
     ui->qqMaxTriangleSize->setEnabled(noEditModeNoSim);
     ui->qqMinRelTriangleSize->setEnabled(noEditModeNoSim);
     ui->qqSaveCalcStruct->setEnabled(noEditModeNoSim);

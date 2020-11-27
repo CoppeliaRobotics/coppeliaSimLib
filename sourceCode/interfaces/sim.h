@@ -146,6 +146,12 @@ SIM_DLLEXPORT simInt simAdjustView(simInt viewHandleOrIndex,simInt associatedVie
 SIM_DLLEXPORT simInt simSetLastError(const simChar* funcName,const simChar* errorMessage);
 SIM_DLLEXPORT simInt simHandleGraph(simInt graphHandle,simFloat simulationTime);
 SIM_DLLEXPORT simInt simResetGraph(simInt graphHandle);
+SIM_DLLEXPORT simInt simAddGraphDataStream(simInt graphHandle,const simChar* streamName,const simChar* unitStr,simInt options,const simFloat* color,simFloat cyclicRange);
+SIM_DLLEXPORT simInt simDestroyGraphCurve(simInt graphHandle,simInt curveId);
+SIM_DLLEXPORT simInt simSetGraphDataStreamTransformation(simInt graphHandle,simInt streamId,simInt trType,simFloat mult,simFloat off,simInt movingAvgPeriod);
+SIM_DLLEXPORT simInt simDuplicateGraphCurveToStatic(simInt graphHandle,simInt curveId,const simChar* curveName);
+SIM_DLLEXPORT simInt simAddGraphCurve(simInt graphHandle,simInt dim,const simInt* streamIds,const simFloat* defaultValues,const simChar* curveName,const simChar* unitStr,simInt options,const simFloat* color,simInt curveWidth);
+SIM_DLLEXPORT simInt simSetGraphDataStreamValue(simInt graphHandle,simInt streamId,simFloat value);
 SIM_DLLEXPORT simInt simSetNavigationMode(simInt navigationMode);
 SIM_DLLEXPORT simInt simGetNavigationMode();
 SIM_DLLEXPORT simInt simSetPage(simInt index);
@@ -163,7 +169,6 @@ SIM_DLLEXPORT simInt simScaleSelectedObjects(simFloat scalingFactor,simBool scal
 SIM_DLLEXPORT simInt simScaleObjects(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo);
 SIM_DLLEXPORT simInt simDeleteSelectedObjects();
 SIM_DLLEXPORT simInt simGetObjectUniqueIdentifier(simInt objectHandle,simInt* uniqueIdentifier);
-SIM_DLLEXPORT simInt simSetGraphUserData(simInt graphHandle,const simChar* dataStreamName,simFloat data);
 SIM_DLLEXPORT simInt simAddDrawingObject(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission);
 SIM_DLLEXPORT simInt simRemoveDrawingObject(simInt objectHandle);
 SIM_DLLEXPORT simInt simAddDrawingObjectItem(simInt objectHandle,const simFloat* itemData);
@@ -227,8 +232,6 @@ SIM_DLLEXPORT simInt simCreateMeshShape(simInt options,simFloat shadingAngle,con
 SIM_DLLEXPORT simInt simCreatePureShape(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision);
 SIM_DLLEXPORT simInt simCreateHeightfieldShape(simInt options,simFloat shadingAngle,simInt xPointCount,simInt yPointCount,simFloat xSize,const simFloat* heights);
 SIM_DLLEXPORT simInt simGetShapeMesh(simInt shapeHandle,simFloat** vertices,simInt* verticesSize,simInt** indices,simInt* indicesSize,simFloat** normals);
-SIM_DLLEXPORT simInt simAddBanner(const simChar* label,simFloat size,simInt options,const simFloat* positionAndEulerAngles,simInt parentObjectHandle,const simFloat* labelColors,const simFloat* backgroundColors);
-SIM_DLLEXPORT simInt simRemoveBanner(simInt bannerID);
 SIM_DLLEXPORT simInt simCreateJoint(simInt jointType,simInt jointMode,simInt options,const simFloat* sizes,const simFloat* colorA,const simFloat* colorB);
 SIM_DLLEXPORT simInt simGetObjectIntParameter(simInt objectHandle,simInt parameterID,simInt* parameter);
 SIM_DLLEXPORT simInt simSetObjectIntParameter(simInt objectHandle,simInt parameterID,simInt parameter);
@@ -275,8 +278,6 @@ SIM_DLLEXPORT simInt simCreateProximitySensor(simInt sensorType,simInt subType,s
 SIM_DLLEXPORT simInt simCreateForceSensor(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
 SIM_DLLEXPORT simInt simCreateVisionSensor(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
 SIM_DLLEXPORT simInt simConvexDecompose(simInt shapeHandle,simInt options,const simInt* intParams,const simFloat* floatParams);
-SIM_DLLEXPORT simInt simAddGhost(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color);
-SIM_DLLEXPORT simInt simModifyGhost(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation);
 SIM_DLLEXPORT simVoid simQuitSimulator(simBool ignoredArgument);
 SIM_DLLEXPORT simInt simEnableEventCallback(simInt eventCallbackType,const simChar* plugin,simInt reserved);
 SIM_DLLEXPORT simInt simSetShapeMaterial(simInt shapeHandle,simInt materialIdOrShapeHandle);
@@ -287,8 +288,6 @@ SIM_DLLEXPORT simInt simCreateTexture(const simChar* fileName,simInt options,con
 SIM_DLLEXPORT simInt simWriteCustomDataBlock(simInt objectHandle,const simChar* tagName,const simChar* data,simInt dataSize);
 SIM_DLLEXPORT simChar* simReadCustomDataBlock(simInt objectHandle,const simChar* tagName,simInt* dataSize);
 SIM_DLLEXPORT simChar* simReadCustomDataBlockTags(simInt objectHandle,simInt* tagCount);
-SIM_DLLEXPORT simInt simAddPointCloud(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals);
-SIM_DLLEXPORT simInt simModifyPointCloud(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam);
 SIM_DLLEXPORT simInt simGetShapeGeomInfo(simInt shapeHandle,simInt* intData,simFloat* floatData,simVoid* reserved);
 SIM_DLLEXPORT simInt* simGetObjectsInTree(simInt treeBaseHandle,simInt objectType,simInt options,simInt* objectCount);
 SIM_DLLEXPORT simInt simSetObjectSizeValues(simInt objectHandle,const simFloat* sizeValues);
@@ -651,6 +650,13 @@ SIM_DLLEXPORT simInt simHandleCollision(simInt collisionObjectHandle);
 SIM_DLLEXPORT simInt simReadCollision(simInt collisionObjectHandle);
 SIM_DLLEXPORT simInt simHandleDistance(simInt distanceObjectHandle,simFloat* smallestDistance);
 SIM_DLLEXPORT simInt simReadDistance(simInt distanceObjectHandle,simFloat* smallestDistance);
+SIM_DLLEXPORT simInt simAddBanner(const simChar* label,simFloat size,simInt options,const simFloat* positionAndEulerAngles,simInt parentObjectHandle,const simFloat* labelColors,const simFloat* backgroundColors);
+SIM_DLLEXPORT simInt simRemoveBanner(simInt bannerID);
+SIM_DLLEXPORT simInt simAddGhost(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color);
+SIM_DLLEXPORT simInt simModifyGhost(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation);
+SIM_DLLEXPORT simInt simSetGraphUserData(simInt graphHandle,const simChar* dataStreamName,simFloat data);
+SIM_DLLEXPORT simInt simAddPointCloud(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals);
+SIM_DLLEXPORT simInt simModifyPointCloud(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

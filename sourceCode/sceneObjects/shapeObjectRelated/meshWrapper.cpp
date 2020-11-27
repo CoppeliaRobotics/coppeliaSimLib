@@ -361,17 +361,17 @@ void CMeshWrapper::getCumulativeMeshes(std::vector<float>& vertices,std::vector<
         childList[i]->getCumulativeMeshes(vertices,indices,normals);
 }
 
-void CMeshWrapper::setColor(const char* colorName,int colorComponent,const float* rgbData)
+void CMeshWrapper::setColor(const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
-        childList[i]->setColor(colorName,colorComponent,rgbData);
+        childList[i]->setColor(colorName,colorComponent,rgbData,rgbDataOffset);
 }
 
-bool CMeshWrapper::getColor(const char* colorName,int colorComponent,float* rgbData)
+bool CMeshWrapper::getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset)
 { // function has virtual/non-virtual counterpart!
     bool retVal=false;
     for (size_t i=0;i<childList.size();i++)
-        retVal=childList[i]->getColor(colorName,colorComponent,rgbData)||retVal;
+        retVal=childList[i]->getColor(colorName,colorComponent,rgbData,rgbDataOffset)||retVal;
     return(retVal);
 }
 
@@ -395,6 +395,14 @@ CMesh* CMeshWrapper::getShapeComponentAtIndex(int& index)
             return(nullptr);
     }
     return(nullptr);
+}
+
+int CMeshWrapper::getComponentCount() const
+{ // function has virtual/non-virtual counterpart!
+    int retVal=0;
+    for (size_t i=0;i<childList.size();i++)
+        retVal+=childList[i]->getComponentCount();
+    return(retVal);
 }
 
 void CMeshWrapper::preMultiplyAllVerticeLocalFrames(const C7Vector& preTr)

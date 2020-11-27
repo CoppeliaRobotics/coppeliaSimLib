@@ -957,7 +957,7 @@ float* App::getRGBPointerFromItem(int objType,int objID1,int objID2,int colCompo
         CGraph* it=currentWorld->sceneObjects->getGraphFromHandle(objID1);
         if (it!=nullptr)
         {
-            CGraphDataComb* grDataComb=it->getGraphData2D(objID2);
+            CGraphDataComb_old* grDataComb=it->getGraphData2D(objID2);
             if (grDataComb!=nullptr)
                 return(grDataComb->curveColor.getColorsPtr());
         }
@@ -982,7 +982,7 @@ float* App::getRGBPointerFromItem(int objType,int objID1,int objID2,int colCompo
         CGraph* it=currentWorld->sceneObjects->getGraphFromHandle(objID1);
         if (it!=nullptr)
         {
-            CGraphData* grData=it->getGraphData(objID2);
+            CGraphData_old* grData=it->getGraphData(objID2);
             if (grData!=nullptr)
                 return(grData->ambientColor);
         }
@@ -1113,7 +1113,7 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         CGraph* it=currentWorld->sceneObjects->getGraphFromHandle(objID1);
         if (it!=nullptr)
         {
-            CGraphDataComb* grDataComb=it->getGraphData3D(objID2);
+            CGraphDataComb_old* grDataComb=it->getGraphData3D(objID2);
             if (grDataComb!=nullptr)
                 return(&grDataComb->curveColor);
         }

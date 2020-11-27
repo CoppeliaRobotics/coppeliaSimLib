@@ -16,7 +16,7 @@
 #include "mesh.h"
 #include "threadPool.h"
 #include "volInt.h"
-#include "graphingRoutines.h"
+#include "graphingRoutines_old.h"
 #include "simStringTable_openGl.h"
 #include "simFlavor.h"
 #ifdef SIM_WITH_GUI
@@ -3704,7 +3704,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                CGraphData* grData=it->getGraphData(cmd.intParams[1]);
+                CGraphData_old* grData=it->getGraphData(cmd.intParams[1]);
                 if (grData!=nullptr)
                     grData->setVisible(!grData->getVisible());
             }
@@ -3714,7 +3714,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                CGraphData* grData=it->getGraphData(cmd.intParams[1]);
+                CGraphData_old* grData=it->getGraphData(cmd.intParams[1]);
                 if (grData!=nullptr)
                     grData->setLabel(!grData->getLabel());
             }
@@ -3724,7 +3724,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                CGraphData* grData=it->getGraphData(cmd.intParams[1]);
+                CGraphData_old* grData=it->getGraphData(cmd.intParams[1]);
                 if (grData!=nullptr)
                     grData->setLinkPoints(!grData->getLinkPoints());
             }
@@ -3737,8 +3737,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 int currentDataType=cmd.intParams[1];
                 int index=cmd.intParams[2];
                 int objID;
-                CGraphingRoutines::loopThroughAllAndGetObjectsFromGraphCategory(index,currentDataType,objID);
-                CGraphData* newGraphDat=new CGraphData(currentDataType,objID,-1);
+                CGraphingRoutines_old::loopThroughAllAndGetObjectsFromGraphCategory(index,currentDataType,objID);
+                CGraphData_old* newGraphDat=new CGraphData_old(currentDataType,objID,-1);
                 CGraph* it=App::currentWorld->sceneObjects->getLastSelectionGraph();
                 int h=it->addNewGraphData(newGraphDat);
                 // Now select the object in the UI. We need to post it so that it arrives after the dialog refresh!:
@@ -3762,7 +3762,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
             {
                 std::string newName(cmd.stringParams[0]);
-                CGraphData* grData=it->getGraphData(cmd.intParams[1]);
+                CGraphData_old* grData=it->getGraphData(cmd.intParams[1]);
                 if ( (grData!=nullptr)&&(newName!="") )
                 {
                     if (grData->getName()!=newName)
@@ -3797,7 +3797,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                CGraphData* grData=it->getGraphData(cmd.intParams[1]);
+                CGraphData_old* grData=it->getGraphData(cmd.intParams[1]);
                 if (grData!=nullptr)
                     grData->setDerivativeIntegralAndCumulative(cmd.intParams[2]);
             }
@@ -3807,7 +3807,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                CGraphData* grData=it->getGraphData(cmd.intParams[1]);
+                CGraphData_old* grData=it->getGraphData(cmd.intParams[1]);
                 if (grData!=nullptr)
                     grData->setZoomFactor(cmd.floatParams[0]);
             }
@@ -3817,7 +3817,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                CGraphData* grData=it->getGraphData(cmd.intParams[1]);
+                CGraphData_old* grData=it->getGraphData(cmd.intParams[1]);
                 if (grData!=nullptr)
                     grData->setAddCoeff(cmd.floatParams[0]);
             }
@@ -3827,7 +3827,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                CGraphData* grData=it->getGraphData(cmd.intParams[1]);
+                CGraphData_old* grData=it->getGraphData(cmd.intParams[1]);
                 if (grData!=nullptr)
                     grData->setMovingAverageCount(cmd.intParams[2]);
             }
@@ -3837,7 +3837,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                CGraphData* grData=it->getGraphData(cmd.intParams[1]);
+                CGraphData_old* grData=it->getGraphData(cmd.intParams[1]);
                 if ((grData!=nullptr)&&(grData->getDataLength()!=0))
                 {
                     it->makeCurveStatic(cmd.intParams[1],0);
@@ -3874,7 +3874,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if (objID!=-1)
                 {
                     std::string newName(cmd.stringParams[0]);
-                    CGraphDataComb* grData;
+                    CGraphDataComb_old* grData;
                     if (cmd.boolParams[0])
                         grData=it->getGraphData2D(objID);
                     else
@@ -3904,7 +3904,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if ((it!=nullptr)&&(cmd.intParams[1]!=-1))
             {
-                CGraphDataComb* grDataComb=nullptr;
+                CGraphDataComb_old* grDataComb=nullptr;
                 if (cmd.boolParams[0])
                     grDataComb=it->getGraphData2D(cmd.intParams[1]);
                 else
@@ -3918,7 +3918,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if ((it!=nullptr)&&(cmd.intParams[1]!=-1))
             {
-                CGraphDataComb* grDataComb=nullptr;
+                CGraphDataComb_old* grDataComb=nullptr;
                 if (cmd.boolParams[0])
                     grDataComb=it->getGraphData2D(cmd.intParams[1]);
                 else
@@ -3932,7 +3932,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if ((it!=nullptr)&&(cmd.intParams[1]!=-1))
             {
-                CGraphDataComb* grDataComb=nullptr;
+                CGraphDataComb_old* grDataComb=nullptr;
                 if (cmd.boolParams[0])
                     grDataComb=it->getGraphData2D(cmd.intParams[1]);
                 else
@@ -3946,7 +3946,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if ((it!=nullptr)&&(cmd.intParams[1]!=-1))
             {
-                CGraphDataComb* grDataComb=nullptr;
+                CGraphDataComb_old* grDataComb=nullptr;
                 if (cmd.boolParams[0])
                     grDataComb=it->getGraphData2D(cmd.intParams[1]);
                 else
@@ -3960,7 +3960,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if ((it!=nullptr)&&(cmd.intParams[1]!=-1))
             {
-                CGraphDataComb* grDataComb=it->getGraphData3D(cmd.intParams[1]);
+                CGraphDataComb_old* grDataComb=it->getGraphData3D(cmd.intParams[1]);
                 if (grDataComb!=nullptr)
                     grDataComb->setCurveRelativeToWorld(cmd.boolParams[0]);
             }
@@ -3970,7 +3970,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if ((it!=nullptr)&&(cmd.intParams[1]!=-1))
             {
-                CGraphDataComb* grDataComb=it->getGraphData3D(cmd.intParams[1]);
+                CGraphDataComb_old* grDataComb=it->getGraphData3D(cmd.intParams[1]);
                 if (grDataComb!=nullptr)
                     grDataComb->set3DCurveWidth(float(cmd.intParams[2]));
             }
@@ -3980,7 +3980,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if ((it!=nullptr)&&(cmd.intParams[1]!=-1))
             {
-                CGraphDataComb* grDataComb=nullptr;
+                CGraphDataComb_old* grDataComb=nullptr;
                 int dim=1;
                 if (cmd.boolParams[0])
                     grDataComb=it->getGraphData2D(cmd.intParams[1]);
@@ -4001,7 +4001,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                CGraphDataComb* theNew=new CGraphDataComb();
+                CGraphDataComb_old* theNew=new CGraphDataComb_old();
                 theNew->data[0]=cmd.intParams[1];
                 theNew->data[1]=cmd.intParams[2];
                 if (!cmd.boolParams[0])

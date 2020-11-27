@@ -1,10 +1,13 @@
-
 #pragma once
 
+#include "graphDataStream.h"
+#include "graphCurve.h"
+
+// Old:
 #include "sceneObject.h"
-#include "graphData.h"
-#include "graphDataComb.h"
-#include "staticGraphCurve.h"
+#include "graphData_old.h"
+#include "graphDataComb_old.h"
+#include "staticGraphCurve_old.h"
 #include "sView.h"
 #include "VPoint.h"
 
@@ -49,31 +52,27 @@ public:
     bool isPotentiallyRenderable() const;
 
     // Various
-    bool getGraphCurve(int graphType,int index,std::string& label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int& curveType,float col[3],float minMax[6]) const;
+    bool getGraphCurveData(int graphType,int index,std::string& label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int& curveType,float col[3],float minMax[6]) const;
     void curveToClipboard(int graphType,const char* curveName) const;
     void curveToStatic(int graphType,const char* curveName);
     void removeStaticCurve(int graphType,const char* curveName);
 
+    int addOrUpdateDataStream(CGraphDataStream* dataStream);
+    int addOrUpdateCurve(CGraphCurve* curve);
+    bool setDataStreamTransformation(int streamId,int trType,float mult,float off,int movAvgPeriod);
+    bool setNextValueToInsert(int streamId,float v);
+    CGraphDataStream* getGraphDataStream(int id) const;
+    CGraphDataStream* getGraphDataStream(const char* name,bool staticStream) const;
+    void getGraphDataStreamsFromIds(const int ids[3],CGraphDataStream* streams[3]) const;
+    CGraphCurve* getGraphCurve(int id) const;
+    CGraphCurve* getGraphCurve(const char* name,bool staticCurve) const;
+    bool removeGraphDataStream(int id);
+    bool removeGraphCurve(int id);
+    int duplicateCurveToStatic(int curveId,const char* curveName);
+    void getAllStreamIds(std::vector<int>& allStreamIds);
+
     void setSize(float theNewSize);
     float getSize() const;
-    int addNewGraphData(CGraphData* graphData);
-    void removeGraphData(int id);
-    int getDataStreamCount() const;
-    int get2DCurveCount() const;
-    int get3DCurveCount() const;
-    CGraphData* getGraphData(int id) const;
-    CGraphData* getGraphData(std::string theName) const;
-    CGraphDataComb* getGraphData2D(int id) const;
-    CGraphDataComb* getGraphData2D(std::string theName) const;
-    CGraphDataComb* getGraphData3D(int id) const;
-    CGraphDataComb* getGraphData3D(std::string theName) const;
-
-    void add2DPartners(CGraphDataComb* it);
-    void add3DPartners(CGraphDataComb* it);
-    void remove2DPartners(int id);
-    void remove3DPartners(int id);
-    bool set3DDataName(int identifier,std::string newName);
-    bool set2DDataName(int identifier,std::string newName);
     void setBufferSize(int buffSize);
     int getBufferSize() const;
     void setCyclic(bool isCyclic);
@@ -82,40 +81,58 @@ public:
     void addNextPoint(float time);
     bool getAbsIndexOfPosition(int pos,int& absIndex) const;
     int getNumberOfPoints() const;
-    void setJustDrawCurves(bool justCurves);
-    bool getJustDrawCurves() const;
-    bool getData(const CGraphData* it,int pos,float& outputValue,bool cyclic,float range,bool doUnitConversion) const;
 
     void exportGraphData(VArchive &ar);
 
     void setExplicitHandling(bool explicitHandl);
     bool getExplicitHandling() const;
 
-    int getTrackingValueIndex() const;
-    void makeCurveStatic(int curveIndex,int dimensionIndex);
     void removeAllStatics();
-    void copyCurveToClipboard(int curveIndex,int dimensionIndex);
-
 
     void announceGraphDataObjectWillBeDestroyed(int graphDataID);
 
     CColorObject* getColor();
 
-    // Variables which need to be serialized & copied
-    std::vector <CGraphData*> daten;
-    std::vector <CGraphDataComb*> threeDPartners;
-    std::vector <CGraphDataComb*> twoDPartners;
-    std::vector <CStaticGraphCurve*> _staticCurves;
     bool xYZPlanesDisplay;
     bool graphGrid;
     bool graphValues;
     float backgroundColor[3];
     float textColor[3];
 
-protected:
-    CStaticGraphCurve* getStaticCurveFromName(int type,const char* name);
+    // Old:
+    void makeCurveStatic(int curveIndex,int dimensionIndex);
+    int addNewGraphData(CGraphData_old* graphData);
+    void removeGraphData(int id);
+    int getDataStreamCount() const;
+    int get2DCurveCount() const;
+    int get3DCurveCount() const;
+    CGraphData_old* getGraphData(int id) const;
+    CGraphData_old* getGraphData(std::string theName) const;
+    CGraphDataComb_old* getGraphData2D(int id) const;
+    CGraphDataComb_old* getGraphData2D(std::string theName) const;
+    CGraphDataComb_old* getGraphData3D(int id) const;
+    CGraphDataComb_old* getGraphData3D(std::string theName) const;
+    void add2DPartners(CGraphDataComb_old* it);
+    void add3DPartners(CGraphDataComb_old* it);
+    void remove2DPartners(int id);
+    void remove3DPartners(int id);
+    bool set3DDataName(int identifier,std::string newName);
+    bool set2DDataName(int identifier,std::string newName);
+    void setJustDrawCurves(bool justCurves);
+    bool getJustDrawCurves() const;
+    bool getData(const CGraphData_old* it,int pos,float& outputValue,bool cyclic,float range,bool doUnitConversion) const;
+    int getTrackingValueIndex() const;
+    std::vector <CGraphData_old*> daten;
+    std::vector <CGraphDataComb_old*> threeDPartners;
+    std::vector <CGraphDataComb_old*> twoDPartners;
+    std::vector <CStaticGraphCurve_old*> _staticCurves;
 
-    // Variables which need to be serialized & copied
+protected:
+    CStaticGraphCurve_old* getStaticCurveFromName(int type,const char* name);
+
+    std::vector <CGraphDataStream*> _dataStreams;
+    std::vector <CGraphCurve*> _curves;
+
     CColorObject color;
     float size;
     int bufferSize;
@@ -125,17 +142,15 @@ protected:
     int startingPoint;
     std::vector <float> times;
 
-    bool justDrawCurves; // no need to serialize. used to display just the 3D curves on top of everything
+    bool _initialExplicitHandling;
+
+    // Old:
+    bool justDrawCurves;
     int trackingValueIndex;
     bool trackingValueIsStatic;
     float trackingValue[2];
     float squareDistFromTrackingValue;
-    // Various
     static VPoint currentWinSize;
-
-    bool _initialExplicitHandling;
-
-
 #ifdef SIM_WITH_GUI
 public:
     void lookAt(int windowSize[2],CSView* subView,bool timeGraph,bool drawText,bool passiveSubView,bool oneOneProportionForXYGraph);

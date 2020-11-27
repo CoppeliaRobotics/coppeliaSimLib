@@ -92,7 +92,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Pause on script error</string>
+     <string>Pause on embedded script error</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
