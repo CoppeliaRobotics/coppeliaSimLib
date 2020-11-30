@@ -2715,6 +2715,11 @@ void CSceneObject::performObjectLoadingMapping(const std::vector<int>* map,bool 
     }
 }
 
+void CSceneObject::performScriptLoadingMapping(const std::vector<int>* map)
+{
+
+}
+
 std::string CSceneObject::getDisplayName() const
 {
     if (CSimFlavor::getBoolVal(8))
@@ -2773,6 +2778,12 @@ bool CSceneObject::announceObjectWillBeErased(int objHandle,bool copyBuffer)
     }
     return(false);
 }
+
+void CSceneObject::announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer)
+{
+
+}
+
 void CSceneObject::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 {
     // This routine can be called for sceneObjects-objects, but also for objects

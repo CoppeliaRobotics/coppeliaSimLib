@@ -729,13 +729,6 @@ void CWorld::simulationEnded(bool removeNewObjects)
         App::worldContainer->sandboxScript->runSandboxScript(sim_syscb_aftersimulation,nullptr,nullptr);
 }
 
-void CWorld::announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
-{
-    collections->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
-    signalContainer->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
-    drawingCont->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
-}
-
 void CWorld::setEnableRemoteWorldsSync(bool enabled)
 {
     CSyncObject::setOverallSyncEnabled(enabled);
@@ -826,6 +819,8 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     for (size_t i=0;i<loadedDynMaterialObjectList.size();i++)
         delete loadedDynMaterialObjectList[i];
 
+    // Old:
+    // -----------------
     // We add all the collections:
     std::vector<int> collectionMapping;
     for (size_t i=0;i<loadedCollectionList->size();i++)
@@ -835,7 +830,6 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         collectionMapping.push_back(loadedCollectionList->at(i)->getCollectionHandle()); // New ID
     }
     _prepareFastLoadingMapping(collectionMapping);
-
     // We add all the collisions:
     std::vector<int> collisionMapping;
     for (size_t i=0;i<loadedCollisionList->size();i++)
@@ -845,7 +839,6 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         collisionMapping.push_back(loadedCollisionList->at(i)->getObjectHandle()); // New ID
     }
     _prepareFastLoadingMapping(collisionMapping);
-
     // We add all the distances:
     std::vector<int> distanceMapping;
     for (size_t i=0;i<loadedDistanceList->size();i++)
@@ -855,7 +848,6 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         distanceMapping.push_back(loadedDistanceList->at(i)->getObjectHandle()); // New ID
     }
     _prepareFastLoadingMapping(distanceMapping);
-
     // We add all the ik groups:
     std::vector<int> ikGroupMapping;
     for (size_t i=0;i<loadedIkGroupList->size();i++)
@@ -865,7 +857,6 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         ikGroupMapping.push_back(loadedIkGroupList->at(i)->getObjectHandle()); // New ID
     }
     _prepareFastLoadingMapping(ikGroupMapping);
-
     // We add all the path planning tasks:
     std::vector<int> pathPlanningTaskMapping;
     for (size_t i=0;i<loadedPathPlanningTaskList->size();i++)
@@ -875,7 +866,6 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         pathPlanningTaskMapping.push_back(loadedPathPlanningTaskList->at(i)->getObjectID()); // New ID
     }
     _prepareFastLoadingMapping(pathPlanningTaskMapping);
-
     // We add all the button blocks:
     std::vector<int> buttonBlockMapping;
     for (size_t i=0;i<loadedButtonBlockList->size();i++)
@@ -885,6 +875,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         buttonBlockMapping.push_back(loadedButtonBlockList->at(i)->getBlockID()); // New ID
     }
     _prepareFastLoadingMapping(buttonBlockMapping);
+    // -----------------
 
     // We add all the scripts:
     std::vector<int> luaScriptMapping;
@@ -904,6 +895,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     {
         CSceneObject* it=loadedObjectList->at(i);
         it->performObjectLoadingMapping(&objectMapping,model);
+        it->performScriptLoadingMapping(&luaScriptMapping);
         it->performCollectionLoadingMapping(&collectionMapping,model);
         it->performCollisionLoadingMapping(&collisionMapping,model);
         it->performDistanceLoadingMapping(&distanceMapping,model);
@@ -1140,20 +1132,36 @@ void CWorld::announceObjectWillBeErased(int objectHandle)
 {
     luaScriptContainer->announceObjectWillBeErased(objectHandle);
     sceneObjects->announceObjectWillBeErased(objectHandle);
+    drawingCont->announceObjectWillBeErased(objectHandle);
+    textureContainer->announceGeneralObjectWillBeErased(objectHandle,-1);
     pageContainer->announceObjectWillBeErased(objectHandle); // might trigger a view destruction!
+
+    // Old:
     buttonBlockContainer->announceObjectWillBeErased(objectHandle);
     pathPlanning->announceObjectWillBeErased(objectHandle);
     collisions->announceObjectWillBeErased(objectHandle);
     distances->announceObjectWillBeErased(objectHandle);
-    drawingCont->announceObjectWillBeErased(objectHandle);
     pointCloudCont->announceObjectWillBeErased(objectHandle);
     ghostObjectCont->announceObjectWillBeErased(objectHandle);
     bannerCont->announceObjectWillBeErased(objectHandle);
-    textureContainer->announceGeneralObjectWillBeErased(objectHandle,-1);
     collections->announceObjectWillBeErased(objectHandle); // can trigger distance, collision
     ikGroups->announceObjectWillBeErased(objectHandle);
 }
 
+void CWorld::announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
+{
+    sceneObjects->announceScriptWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
+}
+
+void CWorld::announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
+{
+    collections->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
+    signalContainer->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
+    drawingCont->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
+}
+
+// Old:
+// -----------
 void CWorld::announceIkGroupWillBeErased(int ikGroupHandle)
 {
     sceneObjects->announceIkGroupWillBeErased(ikGroupHandle);
@@ -1189,6 +1197,7 @@ void CWorld::announce2DElementButtonWillBeErased(int elementID,int buttonID)
     if (textureContainer!=nullptr)
         textureContainer->announceGeneralObjectWillBeErased(elementID,buttonID);
 }
+// -----------
 
 void CWorld::exportIkContent(CExtIkSer& ar)
 {

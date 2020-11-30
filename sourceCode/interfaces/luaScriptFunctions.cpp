@@ -96,8 +96,8 @@ void _raiseErrorOrYieldIfNeeded(luaWrap_lua_State* L,const char* functionName,co
 }
 
 #define LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED() _raiseErrorOrYieldIfNeeded(L,functionName.c_str(),errorString.c_str(),cSideErrorOrWarningReporting)
-#define SIM_SCRIPT_NAME_INDEX "sim_script_name_index" // keep this global, e.g. not __HIDDEN__.sim_script_name_index
-#define SIM_SCRIPT_HANDLE "sim_script_handle" // keep this global, e.g. not __HIDDEN__.sim_script_handle
+#define SIM_SCRIPT_NAME_INDEX "sim_script_name_index" // keep this global, e.g. not _S.sim_script_name_index
+#define SIM_SCRIPT_HANDLE "sim_script_handle" // keep this global, e.g. not _S.sim_script_handle
 
 std::vector<int> serialPortHandles;
 std::vector<std::string> serialPortLeftOverData;
@@ -152,8 +152,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getSimulatorMessage",_simGetSimulatorMessage,          "int messageID,table_4 auxiliaryData,table auxiliaryData2=sim.getSimulatorMessage()",true},
     {"sim.resetGraph",_simResetGraph,                            "sim.resetGraph(int objectHandle)",true},
     {"sim.handleGraph",_simHandleGraph,                          "sim.handleGraph(int objectHandle,float simulationTime)",true},
-    {"sim.getGraphCurve",_simGetGraphCurve,                      "string label,int curveType,table curveColor,table xData,table yData,table zData,table minMax=\nsim.getGraphCurve(int graphHandle,int graphType,int curveIndex)",true},
-    {"sim.getGraphInfo",_simGetGraphInfo,                        "int bitCoded,table_3 bgColor,table_3 fgColor=sim.getGraphInfo(int graphHandle)",true},
+    {"sim.getGraphCurve",_simGetGraphCurve,                      "string label,int attributes,table curveColor,table xData,table yData,table zData,\ntable minMax,int curveId=sim.getGraphCurve(int graphHandle,int graphType,int curveIndex)",true},
+    {"sim.getGraphInfo",_simGetGraphInfo,                        "int bitCoded,table_3 bgColor,table_3 fgColor,int bufferSize=sim.getGraphInfo(int graphHandle)",true},
     {"sim.addGraphDataStream",_simAddGraphDataStream,            "int streamId=sim.addGraphDataStream(int graphHandle,string streamName,\nstring unit,int options=0,table_3 color={1,0,0},float cyclicRange=pi)",true},
     {"sim.destroyGraphCurve",_simDestroyGraphCurve,              "sim.destroyGraphCurve(int graphHandle,int curveId)",true},
     {"sim.setGraphDataStreamTransformation",_simSetGraphDataStreamTransformation, "sim.setGraphDataStreamTransformation(int graphHandle,int streamId,\nint trType,float mult=1.0,float off=0.0,int movAvgPeriod=1)",true},
@@ -1768,6 +1768,8 @@ const SLuaVariables simLuaVariables[]=
     {"sim.dummyintparam_link_type",sim_dummyintparam_link_type,true},
     {"sim.dummyintparam_follow_path",sim_dummyintparam_follow_path,true},
     {"sim.dummyfloatparam_follow_path_offset",sim_dummyfloatparam_follow_path_offset,true},
+    // graph
+    {"sim.graphintparam_needs_refresh",sim_graphintparam_needs_refresh,true},
     // mills
     {"sim.millintparam_volume_type",sim_millintparam_volume_type,true},
     // mirrors
@@ -3285,7 +3287,7 @@ std::string getAdditionalLuaSearchPath()
     retVal+=App::folders->getExecutablePath();
     retVal+="/?.lua;";
     retVal+=App::folders->getExecutablePath();
-    retVal+="/lua/?.lua;";
+    retVal+="/lua/?.lua;"; // present by default, but also needed for the code editor
     retVal+=App::folders->getExecutablePath();
     retVal+="/bwf/?.lua";
     if (App::currentWorld->mainSettings->getScenePathAndName().compare("")!=0)
@@ -3332,7 +3334,7 @@ luaWrap_lua_State* initializeNewLuaState(int scriptHandle,int scriptNameIndex,in
     registerNewLuaFunctions(L); // Important to handle functions before variables, so that in the line below we can assign functions to new function names (e.g. simExtCustomUI_create=simUI.create)
     prepareNewLuaVariables_noRequire(L);
 
-    luaWrap_luaL_dostring(L,"__HIDDEN__.executeAfterLuaStateInit()"); // needed for various
+    luaWrap_luaL_dostring(L,"_S.executeAfterLuaStateInit()"); // needed for various
 
     int hookMask=luaWrapGet_LUA_MASKCOUNT();
     if (debugLevel>=sim_scriptdebug_allcalls)
@@ -6339,7 +6341,9 @@ int _simAddGraphDataStream(luaWrap_lua_State* L)
                         cyclicRange=luaToFloat(L,6);
                     if ( (res==0)||(res==2) )
                     {
+                        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                         int retVal=simAddGraphDataStream_internal(graphHandle,streamName.c_str(),unitStr.c_str(),options,col,cyclicRange);
+                        setCurrentScriptInfo_cSide(-1,-1);
                         luaWrap_lua_pushinteger(L,retVal);
                         LUA_END(1);
                     }
@@ -6415,7 +6419,11 @@ int _simDuplicateGraphCurveToStatic(luaWrap_lua_State* L)
                 str=&name[0];
         }
         if ( (res==0)||(res==2) )
+        {
+            setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
             simDuplicateGraphCurveToStatic_internal(luaToInt(L,1),luaToInt(L,2),str);
+            setCurrentScriptInfo_cSide(-1,-1);
+        }
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
@@ -6465,7 +6473,9 @@ int _simAddGraphCurve(luaWrap_lua_State* L)
                             curveWidth=luaToInt(L,9);
                         if ( (res==0)||(res==2) )
                         {
+                            setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                             int retVal=simAddGraphCurve_internal(graphHandle,dim,streamIds,defaultVals,curveName.c_str(),_unitStr,options,col,curveWidth);
+                            setCurrentScriptInfo_cSide(-1,-1);
                             luaWrap_lua_pushinteger(L,retVal);
                             LUA_END(1);
                         }
@@ -15118,9 +15128,10 @@ int _simGetGraphCurve(luaWrap_lua_State* L)
             std::vector<float> zVals;
             std::string label;
             int curveType;
+            int curveId;
             float col[3];
             float minMax[6];
-            if (graph->getGraphCurveData(graphType,index,label,xVals,yVals,zVals,curveType,col,minMax))
+            if (graph->getGraphCurveData(graphType,index,label,xVals,yVals,zVals,curveType,col,minMax,curveId))
             {
                 luaWrap_lua_pushstring(L,label.c_str());
                 luaWrap_lua_pushinteger(L,curveType);
@@ -15133,31 +15144,13 @@ int _simGetGraphCurve(luaWrap_lua_State* L)
                     pushFloatTableOntoStack(L,(int)yVals.size(),&yVals[0]);
                 else
                     pushFloatTableOntoStack(L,0,nullptr);
-                if (graphType==2)
-                {
-                    if (zVals.size()>0)
-                        pushFloatTableOntoStack(L,(int)zVals.size(),&zVals[0]);
-                    else
-                        pushFloatTableOntoStack(L,0,nullptr);
-                    if (xVals.size()>0)
-                    {
-                        pushFloatTableOntoStack(L,6,minMax);
-                        LUA_END(7);
-                    }
-                    LUA_END(6);
-                }
+                if (zVals.size()>0)
+                    pushFloatTableOntoStack(L,(int)zVals.size(),&zVals[0]);
                 else
-                {
-                    if (xVals.size()>0)
-                    {
-                        pushFloatTableOntoStack(L,4,minMax);
-                        LUA_END(6);
-                    }
-                    LUA_END(5);
-                }
-            }
-            else
-            { // this should not generate an error!
+                    pushFloatTableOntoStack(L,0,nullptr);
+                pushFloatTableOntoStack(L,6,minMax);
+                luaWrap_lua_pushinteger(L,curveId);
+                LUA_END(8);
             }
         }
         else

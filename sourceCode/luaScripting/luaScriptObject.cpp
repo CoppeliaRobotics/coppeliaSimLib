@@ -2005,6 +2005,7 @@ CLuaScriptObject::~CLuaScriptObject()
         if (VFile::doesFileExist(fname.c_str()))
             VFile::eraseFile(fname.c_str());
     }
+    App::worldContainer->announceScriptWillBeErased(_scriptHandle,isSimulationScript(),isSceneSwitchPersistentScript());
 }
 
 std::string CLuaScriptObject::getFilenameForExternalScriptEditor() const
@@ -4795,7 +4796,7 @@ void CLuaScriptObject::handleDebug(const char* funcName,const char* funcType,boo
         // Temp. disable the hook:
         luaWrap_lua_sethook(L,luaHookFunction,0,0);
 
-        luaWrap_lua_getglobal(L,"__HIDDEN__");
+        luaWrap_lua_getglobal(L,"_S");
         if (luaWrap_lua_istable(L,-1))
         {
             luaWrap_lua_getfield(L,-1,"debug");
@@ -5593,7 +5594,7 @@ void CLuaScriptObject::_adjustScriptText10(CLuaScriptObject* scriptObject,bool d
     //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include(\"/",".lua\")","require('/","')");
     //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include('\\",".lua')","require('\\","')");
     //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include(\"\\",".lua\")","require('\\","')");
-    _replaceScriptText(scriptObject,"sim.include('/lua/graph_customization.lua')","require('graph_customization')");
+    _replaceScriptText(scriptObject,"sim.include('/lua/graph_customization.lua')","graph=require('graph_customization')");
     _replaceScriptText(scriptObject,"require('/BlueWorkforce/","require('/bwf/");
     _replaceScriptText(scriptObject,"sim.include('/BlueWorkforce/","sim.include('/bwf/");
     if (!doIt)

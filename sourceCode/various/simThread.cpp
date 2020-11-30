@@ -3525,56 +3525,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
         }
-        if (cmd.cmdId==INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD)
-        {
-            int scriptT=cmd.intParams[0];
-            bool threaded=cmd.intParams[1]==1;
-            bool oldThreaded=cmd.intParams[1]==2;
-            int newScriptID=-1;
-            if ((scriptT==sim_scripttype_mainscript)||(scriptT==sim_scripttype_childscript))
-                newScriptID=App::currentWorld->luaScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(scriptT,threaded,oldThreaded);
-            if (scriptT==sim_scripttype_customizationscript)
-            {
-                std::string filenameAndPath(App::folders->getSystemPath()+"/");
-                filenameAndPath+=DEFAULT_CUSTOMIZATIONSCRIPT_NAME;
-                std::string scriptInitText;
-                if (VFile::doesFileExist(filenameAndPath.c_str()))
-                {
-                    try
-                    {
-                        VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
-                        VArchive archive(&file,VArchive::LOAD);
-                        unsigned int archiveLength=(unsigned int)file.getLength();
-                        char* defaultScript=new char[archiveLength+1];
-                        for (int i=0;i<int(archiveLength);i++)
-                            archive >> defaultScript[i];
-                        defaultScript[archiveLength]=0;
-                        scriptInitText=defaultScript;
-                        delete[] defaultScript;
-                        archive.close();
-                        file.close();
-                    }
-                    catch(VFILE_EXCEPTION_TYPE e)
-                    {
-                        VFile::reportAndHandleFileExceptionError(e);
-                        scriptInitText="Default customization script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
-                    }
-                }
-                else
-                    scriptInitText="Default customization script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
-
-                CLuaScriptObject* script=new CLuaScriptObject(sim_scripttype_customizationscript);
-                script->setScriptText(scriptInitText.c_str());
-                newScriptID=App::currentWorld->luaScriptContainer->insertScript(script);
-            }
-            // Now select the new collection in the UI. We need to post it so that it arrives after the dialog refresh!:
-            SSimulationThreadCommand cmd2;
-            cmd2.cmdId=CALL_DIALOG_FUNCTION_GUITRIGGEREDCMD;
-            cmd2.intParams.push_back(LUA_SCRIPT_DLG);
-            cmd2.intParams.push_back(0);
-            cmd2.intParams.push_back(newScriptID);
-            App::appendSimulationThreadCommand(cmd2);
-        }
         if (cmd.cmdId==TOGGLE_DISABLED_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
@@ -3592,50 +3542,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptID);
             if ((it!=nullptr)&&it->getThreadedExecution())
                 it->setExecuteJustOnce(!it->getExecuteJustOnce());
-        }
-        if (cmd.cmdId==SET_ASSOCIATEDOBJECT_SCRIPTGUITRIGGEREDCMD)
-        {
-            int scriptID=cmd.intParams[0];
-            int objID=cmd.intParams[1];
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptID);
-            CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
-            if (it!=nullptr)
-            {
-                if (it->getScriptType()==sim_scripttype_childscript)
-                {
-                    if (it2!=nullptr)
-                    {
-                        // Check if the object doesn't already have a script attached:
-                        if (App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objID)==nullptr)
-                        {
-                            it->setObjectHandleThatScriptIsAttachedTo(objID);
-                            App::worldContainer->setModificationFlag(8192); // script added flag
-                        }
-                    }
-                    else
-                    {
-                        it->setObjectHandleThatScriptIsAttachedTo(-1);
-                        App::worldContainer->setModificationFlag(16384); // script deleted flag
-                    }
-                }
-                if (it->getScriptType()==sim_scripttype_customizationscript)
-                {
-                    if (it2!=nullptr)
-                    {
-                        // Check if the object doesn't already have a script attached:
-                        if (App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objID)==nullptr)
-                        {
-                            it->setObjectHandleThatScriptIsAttachedTo(objID);
-                            App::worldContainer->setModificationFlag(8192); // script added flag
-                        }
-                    }
-                    else
-                    {
-                        it->setObjectHandleThatScriptIsAttachedTo(-1);
-                        App::worldContainer->setModificationFlag(16384); // script deleted flag
-                    }
-                }
-            }
         }
         if (cmd.cmdId==SET_EXECORDER_SCRIPTGUITRIGGEREDCMD)
         {

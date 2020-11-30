@@ -15,7 +15,8 @@ CGraph::CGraph()
 {
     setObjectType(sim_object_graph_type);
     justDrawCurves=false;
-    _explicitHandling=false;
+    _needsRefresh=true;
+    _explicitHandling=true; // changed to true on 29.11.2020: graphs are not handled anymore by the main script since CoppeliaSim V4.2.0 on
     bufferSize=1000;
     numberOfPoints=0;
     startingPoint=0;
@@ -53,17 +54,26 @@ CGraph::CGraph()
 
 CGraph::~CGraph()
 {
-    for (int i=0;i<int(threeDPartners.size());i++)
+    removeAllStreamsAndCurves();
+
+    // Old:
+    removeAllStreamsAndCurves_old();
+}
+
+void CGraph::removeAllStreamsAndCurves_old()
+{
+    for (size_t i=0;i<threeDPartners.size();i++)
         delete threeDPartners[i];
     threeDPartners.clear();
-    for (int i=0;i<int(twoDPartners.size());i++)
+    for (size_t i=0;i<twoDPartners.size();i++)
         delete twoDPartners[i];
     twoDPartners.clear();
-    for (int i=0;i<int(daten.size());i++)
+    for (size_t i=0;i<daten.size();i++)
         delete daten[i];
     daten.clear();
-
-    removeAllStatics();
+    for (size_t i=0;i<_staticCurves.size();i++)
+        delete _staticCurves[i];
+    _staticCurves.clear();
 }
 
 std::string CGraph::getObjectTypeInfo() const
@@ -335,7 +345,7 @@ int CGraph::addOrUpdateDataStream(CGraphDataStream* dataStream)
         stream=getGraphDataStream(dataStream->getStreamName().c_str(),false);
         if (stream!=nullptr)
         { // such a stream already exists
-            stream->setBasics(dataStream->getUnitStr().c_str(),dataStream->getOptions(),dataStream->getColorPtr(),dataStream->getCyclicRange());
+            stream->setBasics(dataStream->getUnitStr().c_str(),dataStream->getOptions(),dataStream->getColorPtr(),dataStream->getCyclicRange(),dataStream->getScriptHandle());
             delete dataStream;
         }
         else
@@ -349,6 +359,7 @@ int CGraph::addOrUpdateDataStream(CGraphDataStream* dataStream)
             stream=dataStream;
         }
         retVal=stream->getId();
+        _needsRefresh=true;
     }
     return(retVal);
 }
@@ -365,7 +376,7 @@ int CGraph::addOrUpdateCurve(CGraphCurve* curve)
         curve->updateStreamIds(allStreamIds);
         if (theCurve!=nullptr)
         { // such a curve already exists
-            theCurve->setBasics(curve->getDim(),curve->getStreamIdsPtr(),curve->getDefaultValsPtr(),curve->getUnitStr().c_str(),curve->getOptions(),curve->getColorPtr(),curve->getCurveWidth());
+            theCurve->setBasics(curve->getDim(),curve->getStreamIdsPtr(),curve->getDefaultValsPtr(),curve->getUnitStr().c_str(),curve->getOptions(),curve->getColorPtr(),curve->getCurveWidth(),curve->getScriptHandle());
             delete curve;
         }
         else
@@ -378,6 +389,7 @@ int CGraph::addOrUpdateCurve(CGraphCurve* curve)
             theCurve=curve;
         }
         retVal=theCurve->getId();
+        _needsRefresh=true;
     }
     return(retVal);
 }
@@ -389,6 +401,7 @@ bool CGraph::setDataStreamTransformation(int streamId,int trType,float mult,floa
     {
         if (stream->setTransformation(trType,mult,off,movAvgPeriod))
             stream->reset(bufferSize);
+        _needsRefresh=true;
     }
     return(stream!=nullptr);
 }
@@ -421,6 +434,7 @@ bool CGraph::removeGraphDataStream(int id)
     for (size_t i=0;i<_curves.size();i++)
         _curves[i]->updateStreamIds(allStreamIds);
 
+    _needsRefresh=true;
     return(retVal);
 }
 
@@ -437,7 +451,19 @@ bool CGraph::removeGraphCurve(int id)
             break;
         }
     }
+    _needsRefresh=true;
     return(retVal);
+}
+
+void CGraph::removeAllStreamsAndCurves()
+{
+    for (size_t i=0;i<_curves.size();i++)
+        delete _curves[i];
+    _curves.clear();
+    for (size_t i=0;i<_dataStreams.size();i++)
+        delete _dataStreams[i];
+    _dataStreams.clear();
+    _needsRefresh=true;
 }
 
 void CGraph::getAllStreamIds(std::vector<int>& allStreamIds)
@@ -451,6 +477,7 @@ int CGraph::addNewGraphData(CGraphData_old* graphData)
 {   // Returns the graphData identifier
     // We don't care if already present, because we could scale one but not the other
     // for instance.
+    _needsRefresh=true;
     std::string theName=graphData->getName();
     while (getGraphData(theName)!=nullptr)
         theName=tt::generateNewName_noHash(theName.c_str());
@@ -465,6 +492,7 @@ int CGraph::addNewGraphData(CGraphData_old* graphData)
 }
 void CGraph::removeGraphData(int id)
 {
+    _needsRefresh=true;
     announceGraphDataObjectWillBeDestroyed(id);
     for (int i=0;i<int(daten.size());i++)
     {
@@ -478,6 +506,7 @@ void CGraph::removeGraphData(int id)
 }
 void CGraph::remove2DPartners(int id)
 {
+    _needsRefresh=true;
     for (int i=0;i<int(twoDPartners.size());i++)
     {
         if (twoDPartners[i]->getIdentifier()==id)
@@ -490,6 +519,7 @@ void CGraph::remove2DPartners(int id)
 }
 void CGraph::remove3DPartners(int id)
 {
+    _needsRefresh=true;
     for (int i=0;i<int(threeDPartners.size());i++)
     {
         if (threeDPartners[i]->getIdentifier()==id)
@@ -675,6 +705,7 @@ void CGraph::removeAllStatics()
 
 void CGraph::makeCurveStatic(int curveIndex,int dimensionIndex)
 {
+    _needsRefresh=true;
     if (dimensionIndex==0)
     { // time graph curves:
         if (curveIndex<int(daten.size()))
@@ -878,6 +909,13 @@ float CGraph::getSize() const
     return(size);
 }
 
+bool CGraph::getNeedsRefresh()
+{
+    bool retVal=_needsRefresh;
+    _needsRefresh=false;
+    return(retVal);
+}
+
 void CGraph::setExplicitHandling(bool explicitHandl)
 {
     _explicitHandling=explicitHandl;
@@ -998,19 +1036,25 @@ void CGraph::exportGraphData(VArchive &ar)
     ar << (unsigned char)10;
 }
 
-bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int& curveType,float col[3],float minMax[6]) const
+bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int& curveType,float col[3],float minMax[6],int& curveId) const
 {
     if (graphType==0)
     { // time curves (dyn then static curves)
         for (size_t i=0;i<_dataStreams.size();i++)
         {
             if (_dataStreams[i]->getCurveData(false,&index,startingPoint,numberOfPoints,times,&label,xVals,yVals,zVals,&curveType,col,minMax))
+            {
+                curveId=_dataStreams[i]->getId();
                 return(true);
+            }
         }
         for (size_t i=0;i<_dataStreams.size();i++)
         {
             if (_dataStreams[i]->getCurveData(true,&index,startingPoint,numberOfPoints,times,&label,xVals,yVals,zVals,&curveType,col,minMax))
+            {
+                curveId=_dataStreams[i]->getId();
                 return(true);
+            }
         }
     }
     if (graphType==1)
@@ -1020,12 +1064,18 @@ bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::v
             CGraphDataStream* streams[3];
             getGraphDataStreamsFromIds(_curves[i]->getStreamIdsPtr(),streams);
             if (_curves[i]->getCurveData_xy(streams,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,yVals,zVals,&curveType,col,minMax))
+            {
+                curveId=_dataStreams[i]->getId();
                 return(true);
+            }
         }
         for (size_t i=0;i<_curves.size();i++)
         {
             if (_curves[i]->getCurveData_xy(nullptr,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,yVals,zVals,&curveType,col,minMax))
+            {
+                curveId=_dataStreams[i]->getId();
                 return(true);
+            }
         }
     }
     if (graphType==2)
@@ -1035,15 +1085,22 @@ bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::v
             CGraphDataStream* streams[3];
             getGraphDataStreamsFromIds(_curves[i]->getStreamIdsPtr(),streams);
             if (_curves[i]->getCurveData_xyz(streams,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,yVals,zVals,&curveType,col,minMax))
+            {
+                curveId=_dataStreams[i]->getId();
                 return(true);
+            }
         }
         for (size_t i=0;i<_curves.size();i++)
         {
             if (_curves[i]->getCurveData_xyz(nullptr,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,yVals,zVals,&curveType,col,minMax))
+            {
+                curveId=_dataStreams[i]->getId();
                 return(true);
+            }
         }
     }
 
+    curveId=-1;
     // Old, Gui-created curves:
     if (graphType==0)
     { // time
@@ -1912,6 +1969,28 @@ bool CGraph::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
     return(retVal);
 }
 
+void CGraph::announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer)
+{
+    CSceneObject::announceScriptWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript,copyBuffer);
+    // When a script that created a stream/curve gets removed, that stream/curve should also be removed:
+    size_t i=0;
+    while (i<_dataStreams.size())
+    {
+        if (_dataStreams[i]->announceScriptWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript,copyBuffer))
+            removeGraphDataStream(_dataStreams[i]->getId());
+        else
+            i++;
+    }
+    i=0;
+    while (i<_curves.size())
+    {
+        if (_curves[i]->announceScriptWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript,copyBuffer))
+            removeGraphCurve(_curves[i]->getId());
+        else
+            i++;
+    }
+}
+
 void CGraph::announceCollectionWillBeErased(int groupID,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
@@ -1975,9 +2054,19 @@ void CGraph::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 void CGraph::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
 { // New_Object_ID=map[Old_Object_ID]
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
-    for (int i=0;i<int(daten.size());i++)
+    for (size_t i=0;i<daten.size();i++)
         daten[i]->performObjectLoadingMapping(map);
 }
+
+void CGraph::performScriptLoadingMapping(const std::vector<int>* map)
+{ // If (map[2*i+0]==old_script_handle) then new_script_handle=map[2*i+1]
+    CSceneObject::performScriptLoadingMapping(map);
+    for (size_t i=0;i<_dataStreams.size();i++)
+        _dataStreams[i]->performScriptLoadingMapping(map);
+    for (size_t i=0;i<_curves.size();i++)
+        _curves[i]->performScriptLoadingMapping(map);
+}
+
 void CGraph::performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
     CSceneObject::performCollectionLoadingMapping(map,loadingAmodel);

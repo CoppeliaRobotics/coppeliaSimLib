@@ -43,6 +43,16 @@ void CSceneObjectContainer::announceObjectWillBeErased(int objectHandle)
     }
 }
 
+void CSceneObjectContainer::announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
+{
+    TRACE_INTERNAL;
+    for (size_t i=0;i<getObjectCount();i++)
+    {
+        CSceneObject* it=getObjectFromIndex(i);
+        it->announceScriptWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript,false);
+    }
+}
+
 void CSceneObjectContainer::announceIkGroupWillBeErased(int ikGroupHandle)
 {
     for (size_t i=0;i<getObjectCount();i++)

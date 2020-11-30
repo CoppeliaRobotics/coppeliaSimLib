@@ -34,6 +34,7 @@ public:
 private:
 
     void _announceObjectWillBeErased(int objectID);
+    void _announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
 
     // Old:
     void _announceCollectionWillBeErased(int groupID);
@@ -43,7 +44,7 @@ private:
     void _announce2DElementWillBeErased(int elementID);
 
     void _eraseObjectInBuffer(int objectID);
-    void _eraseLuaScriptInBuffer(int objectID);
+    void _eraseScriptInBuffer(int objectID);
     void _eraseTextureObjectInBuffer(int objectID);
 
     // Old:

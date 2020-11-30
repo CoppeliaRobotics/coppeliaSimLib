@@ -6,10 +6,10 @@ class CGraphDataStream
 {
 public:
     CGraphDataStream();
-    CGraphDataStream(const char* streamName,const char* unitStr,int options,const float* color,float cyclicRange);
+    CGraphDataStream(const char* streamName,const char* unitStr,int options,const float* color,float cyclicRange,int scriptHandle);
     virtual ~CGraphDataStream();
 
-    void setBasics(const char* unitStr,int options,const float* color,float cyclicRange);
+    void setBasics(const char* unitStr,int options,const float* color,float cyclicRange,int scriptHandle);
     bool setTransformation(int trType,float mult,float off,int movAvgPeriod);
     void serialize(CSer& ar,int startPt,int ptCnt,int bufferSize);
     CGraphDataStream* copyYourself() const;
@@ -19,6 +19,8 @@ public:
     bool getTransformedValue(int startPt,int pos,float& retVal) const;
     bool getCurveData(bool staticCurve,int* index,int startPt,int ptCnt,const std::vector<float>& times,std::string* label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int* curveType,float col[3],float minMax[6]) const;
     void makeStatic(int startPt,int ptCnt,const std::vector<float>& times);
+    bool announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer);
+    void performScriptLoadingMapping(const std::vector<int>* map);
 
     void setId(int id);
     int getId() const;
@@ -29,6 +31,7 @@ public:
     bool getIsStatic() const;
     float getCyclicRange() const;
     const float* getColorPtr() const;
+    int getScriptHandle() const;
 
 
 protected:
@@ -41,6 +44,7 @@ protected:
 
     std::string _streamName;
     std::string _unitStr;
+    int _scriptHandle;
     bool _visible;
     bool _showLabel;
     bool _linkPoints;

@@ -67,7 +67,11 @@ void CQDlgGraphs::refresh()
         graphData=it->getGraphData(streamId);
     }
 
+    ui->qqOldPart->setVisible(App::userSettings->showOldDlgs);
+    ui->qqOldPart2->setVisible(App::userSettings->showOldDlgs);
+
     ui->qqExplicitHandling->setEnabled(sel&&noEditModeAndNoSim);
+    ui->qqExplicitHandling->setVisible(App::userSettings->showOldDlgs);
     ui->qqObjectSize->setEnabled(sel&&noEditModeAndNoSim);
     ui->qqBufferIsCyclic->setEnabled(sel&&noEditModeAndNoSim);
     ui->qqBufferSize->setEnabled(sel&&noEditModeAndNoSim);

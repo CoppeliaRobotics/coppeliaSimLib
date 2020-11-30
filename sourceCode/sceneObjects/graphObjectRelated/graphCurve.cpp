@@ -2,22 +2,24 @@
 
 CGraphCurve::CGraphCurve()
 {
+    _scriptHandle=-1;
 }
 
-CGraphCurve::CGraphCurve(int dim,const int streamIds[3],const float defaultVals[3],const char* curveName,const char* unitStr,int options,const float* color,int curveWidth)
+CGraphCurve::CGraphCurve(int dim,const int streamIds[3],const float defaultVals[3],const char* curveName,const char* unitStr,int options,const float* color,int curveWidth,int scriptHandle)
 {
     _curveName=curveName;
     _isStatic=false;
-    setBasics(dim,streamIds,defaultVals,unitStr,options,color,curveWidth);
+    setBasics(dim,streamIds,defaultVals,unitStr,options,color,curveWidth,scriptHandle);
 }
 
 CGraphCurve::~CGraphCurve()
 {
 }
 
-void CGraphCurve::setBasics(int dim,const int streamIds[3],const float defaultVals[3],const char* unitStr,int options,const float* color,int curveWidth)
+void CGraphCurve::setBasics(int dim,const int streamIds[3],const float defaultVals[3],const char* unitStr,int options,const float* color,int curveWidth,int scriptHandle)
 {
     _dim=dim;
+    _scriptHandle=scriptHandle;
     _streamIds[0]=streamIds[0];
     _streamIds[1]=-1;
     _streamIds[2]=-1;
@@ -170,6 +172,11 @@ int CGraphCurve::getDim() const
 const float* CGraphCurve::getDefaultValsPtr() const
 {
     return(_defaultVals);
+}
+
+int CGraphCurve::getScriptHandle() const
+{
+    return(_scriptHandle);
 }
 
 bool CGraphCurve::getCurveData_xy(CGraphDataStream* streams[3],int* index,int bufferSize,int startPt,int ptCnt,std::string* label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int* curveType,float col[3],float minMax[6]) const
@@ -435,6 +442,10 @@ void CGraphCurve::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar << _id << _dim << _curveWidth;
             ar.flush();
 
+            ar.storeDataName("Sch");
+            ar << _scriptHandle;
+            ar.flush();
+
             ar.storeDataName("Col");
             ar << _color[0] << _color[1] << _color[2];
             ar.flush();
@@ -484,6 +495,12 @@ void CGraphCurve::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _id >> _dim >> _curveWidth;
+                    }
+                    if (theName.compare("Sch")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _scriptHandle;
                     }
                     if (theName.compare("Col")==0)
                     {
@@ -537,6 +554,7 @@ void CGraphCurve::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar.xmlAddNode_string("name",_curveName.c_str());
             ar.xmlAddNode_string("unitStr",_unitStr.c_str());
             ar.xmlAddNode_int("id",_id);
+            ar.xmlAddNode_int("scriptHandle",_scriptHandle);
             ar.xmlAddNode_int("dim",_dim);
             ar.xmlAddNode_floats("color",_color,3);
             ar.xmlAddNode_floats("defaultValues",_defaultVals,3);
@@ -556,6 +574,7 @@ void CGraphCurve::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar.xmlGetNode_string("name",_curveName);
             ar.xmlGetNode_string("unitStr",_unitStr);
             ar.xmlGetNode_int("id",_id);
+            ar.xmlGetNode_int("scriptHandle",_scriptHandle);
             ar.xmlGetNode_int("dim",_dim);
             ar.xmlGetNode_floats("color",_color,3);
             ar.xmlGetNode_floats("defaultValues",_defaultVals,3);
@@ -596,3 +615,19 @@ CGraphCurve* CGraphCurve::copyYourself() const
     return(newObj);
 }
 
+bool CGraphCurve::announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer)
+{
+    return( (scriptHandle==_scriptHandle)&&(!sceneSwitchPersistentScript) );
+}
+
+void CGraphCurve::performScriptLoadingMapping(const std::vector<int>* map)
+{ // If (map[2*i+0]==old_script_handle) then new_script_handle=map[2*i+1]
+    for (size_t i=0;i<map->size()/2;i++)
+    {
+        if (_scriptHandle==map->at(2*i+0))
+        {
+            _scriptHandle=map->at(2*i+1);
+            break;
+        }
+    }
+}

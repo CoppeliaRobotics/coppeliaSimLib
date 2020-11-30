@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>390</height>
+    <height>372</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,29 +16,13 @@
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
-  <widget class="QToolButton" name="qqAddNewScript">
-   <property name="geometry">
-    <rect>
-     <x>270</x>
-     <y>10</y>
-     <width>151</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::StrongFocus</enum>
-   </property>
-   <property name="text">
-    <string>Insert new script</string>
-   </property>
-  </widget>
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>240</y>
      <width>411</width>
-     <height>141</height>
+     <height>121</height>
     </rect>
    </property>
    <property name="title">
@@ -79,37 +63,11 @@
      <string>Execute just once</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>161</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Associated object</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="qqAssociatedObjectCombo">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>50</y>
-      <width>231</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="maxVisibleItems">
-     <number>50</number>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>70</y>
+      <y>50</y>
       <width>161</width>
       <height>18</height>
      </rect>
@@ -122,7 +80,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>70</y>
+      <y>50</y>
       <width>231</width>
       <height>18</height>
      </rect>
@@ -132,7 +90,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>90</y>
+      <y>70</y>
       <width>231</width>
       <height>18</height>
      </rect>
@@ -142,7 +100,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>90</y>
+      <y>70</y>
       <width>161</width>
       <height>18</height>
      </rect>
@@ -155,7 +113,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>110</y>
+      <y>90</y>
       <width>231</width>
       <height>18</height>
      </rect>
@@ -165,7 +123,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>110</y>
+      <y>90</y>
       <width>161</width>
       <height>18</height>
      </rect>
@@ -220,11 +178,9 @@
  </widget>
  <tabstops>
   <tabstop>qqCombo</tabstop>
-  <tabstop>qqAddNewScript</tabstop>
   <tabstop>qqScriptList</tabstop>
   <tabstop>qqDisabled</tabstop>
   <tabstop>qqExecuteOnce</tabstop>
-  <tabstop>qqAssociatedObjectCombo</tabstop>
   <tabstop>qqExecutionOrder</tabstop>
   <tabstop>qqTreeTraversalDirection</tabstop>
  </tabstops>

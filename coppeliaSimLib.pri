@@ -265,7 +265,6 @@ WITH_GUI {
     $$PWD/ui/qdlgdistances.ui \
     $$PWD/ui/qdlgentityvsentityselection.ui \
     $$PWD/ui/qdlgscripts.ui \
-    $$PWD/ui/qdlginsertscript.ui \
     $$PWD/ui/qdlgdynamics.ui \
     $$PWD/ui/qdlgscaling.ui \
     $$PWD/ui/qdlgcameras.ui \
@@ -636,7 +635,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgdistances.h \
         $$PWD/sourceCode/gui/dialogs/qdlgentityvsentityselection.h \
         $$PWD/sourceCode/gui/dialogs/qdlgscripts.h \
-        $$PWD/sourceCode/gui/dialogs/qdlginsertscript.h \
         $$PWD/sourceCode/gui/dialogs/qdlgdynamics.h \
         $$PWD/sourceCode/gui/dialogs/qdlgscaling.h \
         $$PWD/sourceCode/gui/dialogs/qdlgcameras.h \
@@ -1065,7 +1063,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgdistances.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgentityvsentityselection.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgscripts.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlginsertscript.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgdynamics.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgscaling.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgcameras.cpp \

@@ -37,6 +37,9 @@ public:
     void simulationEnded();
 
     void announceObjectWillBeErased(int objectHandle);
+    void announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
+
+    // Old:
     void announceIkGroupWillBeErased(int ikGroupHandle);
     void announceCollectionWillBeErased(int collectionHandle);
     void announceCollisionWillBeErased(int collisionHandle);

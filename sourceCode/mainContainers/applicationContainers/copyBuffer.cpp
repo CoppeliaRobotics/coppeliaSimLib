@@ -693,8 +693,9 @@ void CCopyBuffer::_eraseObjectInBuffer(int objectID)
     }
 }
 
-void CCopyBuffer::_eraseLuaScriptInBuffer(int objectID)
+void CCopyBuffer::_eraseScriptInBuffer(int objectID)
 {
+    _announceScriptWillBeErased(objectID,false,false);
     for (size_t i=0;i<luaScriptBuffer.size();i++)
     {
         if (luaScriptBuffer[i]->getScriptHandle()==objectID)
@@ -830,7 +831,7 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
         CLuaScriptObject* it=luaScriptBuffer[i];
         if (it->announceSceneObjectWillBeErased(objectID,true))
         {
-            _eraseLuaScriptInBuffer(it->getScriptHandle());
+            _eraseScriptInBuffer(it->getScriptHandle());
             i=0; // Ordering may have changed!
         }
         else
@@ -928,6 +929,12 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
         else
             i++;
     }
+}
+
+void CCopyBuffer::_announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
+{
+    for (size_t i=0;i<objectBuffer.size();i++)
+        objectBuffer[i]->announceScriptWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript,true); // this never triggers scene object destruction!
 }
 
 void CCopyBuffer::_announceCollectionWillBeErased(int collectionID)

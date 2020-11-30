@@ -5,12 +5,13 @@
 CGraphDataStream::CGraphDataStream()
 {
     _nextValueToInsertIsValid=false;
+    _scriptHandle=-1;
 }
 
-CGraphDataStream::CGraphDataStream(const char* streamName,const char* unitStr,int options,const float* color,float cyclicRange)
+CGraphDataStream::CGraphDataStream(const char* streamName,const char* unitStr,int options,const float* color,float cyclicRange,int scriptHandle)
 {
     _streamName=streamName;
-    setBasics(unitStr,options,color,cyclicRange);
+    setBasics(unitStr,options,color,cyclicRange,scriptHandle);
     setTransformation(sim_datastream_transf_raw,1.0f,0.0f,1);
     _nextValueToInsertIsValid=false;
 }
@@ -19,11 +20,12 @@ CGraphDataStream::~CGraphDataStream()
 {
 }
 
-void CGraphDataStream::setBasics(const char* unitStr,int options,const float* color,float cyclicRange)
+void CGraphDataStream::setBasics(const char* unitStr,int options,const float* color,float cyclicRange,int scriptHandle)
 {
     _unitStr.clear();
     if (unitStr!=nullptr)
         _unitStr=unitStr;
+    _scriptHandle=scriptHandle;
     _visible=(options&1)==0;
     _showLabel=(options&2)==0;
     _linkPoints=(options&4)==0;
@@ -125,6 +127,11 @@ float CGraphDataStream::getCyclicRange() const
 const float* CGraphDataStream::getColorPtr() const
 {
     return(_color);
+}
+
+int CGraphDataStream::getScriptHandle() const
+{
+    return(_scriptHandle);
 }
 
 void CGraphDataStream::setNextValueToInsert(float v)
@@ -424,6 +431,10 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar << _id;
             ar.flush();
 
+            ar.storeDataName("Sch");
+            ar << _scriptHandle;
+            ar.flush();
+
             ar.storeDataName("Col");
             ar << _color[0] << _color[1] << _color[2];
             ar.flush();
@@ -495,6 +506,12 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                         ar >> byteQuantity;
                         ar >> _id;
                     }
+                    if (theName.compare("Sch")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _scriptHandle;
+                    }
                     if (theName.compare("Col")==0)
                     {
                         noHit=false;
@@ -563,6 +580,7 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar.xmlAddNode_string("name",_streamName.c_str());
             ar.xmlAddNode_string("unitStr",_unitStr.c_str());
             ar.xmlAddNode_int("id",_id);
+            ar.xmlAddNode_int("scriptHandle",_scriptHandle);
             ar.xmlAddNode_floats("color",_color,3);
             ar.xmlAddNode_float("cyclicRange",_cyclicRange);
 
@@ -631,6 +649,7 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar.xmlGetNode_string("name",_streamName);
             ar.xmlGetNode_string("unitStr",_unitStr);
             ar.xmlGetNode_int("id",_id);
+            ar.xmlGetNode_int("scriptHandle",_scriptHandle);
             ar.xmlGetNode_floats("color",_color,3);
             ar.xmlGetNode_float("cyclicRange",_cyclicRange);
 
@@ -699,6 +718,7 @@ CGraphDataStream* CGraphDataStream::copyYourself() const
     newObj->_transformationOff=_transformationOff;
     newObj->_movingAveragePeriod=_movingAveragePeriod;
     newObj->_id=_id;
+    newObj->_scriptHandle=_scriptHandle;
     for (int i=0;i<3;i++)
         newObj->_color[i]=_color[i];
     newObj->_values.assign(_values.begin(),_values.end());
@@ -709,3 +729,19 @@ CGraphDataStream* CGraphDataStream::copyYourself() const
     return(newObj);
 }
 
+bool CGraphDataStream::announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer)
+{
+    return( (scriptHandle==_scriptHandle)&&(!sceneSwitchPersistentScript) );
+}
+
+void CGraphDataStream::performScriptLoadingMapping(const std::vector<int>* map)
+{ // If (map[2*i+0]==old_script_handle) then new_script_handle=map[2*i+1]
+    for (size_t i=0;i<map->size()/2;i++)
+    {
+        if (_scriptHandle==map->at(2*i+0))
+        {
+            _scriptHandle=map->at(2*i+1);
+            break;
+        }
+    }
+}

@@ -824,26 +824,12 @@
 #define IDS_OVERALL_COLLISION_COUNT "Overall collision count"
 #define IDS_SIMULATION_TIME     "Simulation time"
 #define IDS_USER_DATA           "User data"
-#define IDS_MAIN_SCRIPT         "Main script"
-#define IDS_CHILD_SCRIPT_UNTHREADED "Child script (non-threaded)"
-#define IDS_CHILD_SCRIPT_THREADED "Child script (threaded)"
-#define IDS_CUSTOMIZATION_SCRIPT "Customization script"
 
 #define IDS_SIMULATION_SCRIPTS         "Simulation scripts"
 #define IDS_CUSTOMIZATION_SCRIPTS "Customization scripts"
 
 
-#define IDS_PROVIDE_MORE_INFO_AND_VALID_EMAIL "Please provide more information and a valid email address."
-#define IDS_IF_BEHIND_PROXY_REQUEST_KEY_AT "If you are behind a proxy server, you can request the license key at "
-#define IDS_INFO_NO_MORE_THAN_ONE_MAIN_SCRIPT "There can't be more than one main script. Replace current main script?"
-#define IDS_INFO_NO_MORE_THAN_ONE_CONTACT_CALLBACK_SCRIPT "There can't be more than one contact callback script. Replace current contact callback script?"
-#define IDS_INFO_NO_MORE_THAN_ONE_GENERAL_CALLBACK_SCRIPT "There can't be more than one general callback script. Replace current general callback script?"
-#define IDS_DONT_FORGET_CORRESPONDING_INFO "(don't forget to provide the corresponding information like hardware ID, name, institution, and other information)"
-#define IDS_KEY_WAS_SENT_PER_EMAIL "The license key was sent to the indicated email address. Should you not receive the license key via email within 2 hours, then try to request the key via email instead."
 #define IDS_VISION_SENSOR_ORTHOGONAL_TYPE_MENU_ITEM "Orthographic type"
-#define IDS_VISION_SENSORS   "Vision sensors"
-
-
 
 #define IDS_DONT_TRACK_OBJECT__MENU_ITEM "Don't track object '"
 

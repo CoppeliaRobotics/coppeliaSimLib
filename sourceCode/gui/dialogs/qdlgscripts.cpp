@@ -2,7 +2,6 @@
 #include "ui_qdlgscripts.h"
 #include "tt.h"
 #include <QShortcut>
-#include "qdlginsertscript.h"
 #include "app.h"
 #include "simStrings.h"
 #include "jointObject.h"
@@ -56,7 +55,6 @@ void CQDlgScripts::refresh()
     updateObjectsInList();
     selectObjectInList(selectedObjectID);
 
-    ui->qqAddNewScript->setEnabled(noEditModeAndNoSim);
     ui->qqScriptList->setEnabled(noEditMode);
 
     ui->qqExecutionOrder->clear();
@@ -66,13 +64,11 @@ void CQDlgScripts::refresh()
     ui->qqDebugText->setVisible(App::userSettings->showOldDlgs);
 
     ui->qqDebugMode->clear();
-    ui->qqAssociatedObjectCombo->clear();
 
     CLuaScriptObject* theScript=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(getSelectedObjectID());
     ui->qqExecutionOrder->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqTreeTraversalDirection->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqDebugMode->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript)||(theScript->getScriptType()==sim_scripttype_mainscript) ));
-    ui->qqAssociatedObjectCombo->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqDisabled->setEnabled((theScript!=nullptr)&&noEditMode&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqExecuteOnce->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&(theScript->getScriptType()==sim_scripttype_childscript)&&theScript->getThreadedExecution());
     ui->qqExecuteOnce->setVisible(App::userSettings->makeOldThreadedScriptsAvailable);
@@ -99,39 +95,11 @@ void CQDlgScripts::refresh()
             ui->qqDebugMode->addItem(IDSN_SCRIPTDEBUG_FULL,QVariant(sim_scriptdebug_callsandvars));
             ui->qqDebugMode->setCurrentIndex(theScript->getDebugLevel());
 
-            ui->qqAssociatedObjectCombo->addItem(IDSN_NONE,QVariant(-1));
-            std::vector<std::string> names;
-            std::vector<int> ids;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
-            {
-                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-                CLuaScriptObject* so=nullptr;
-                if (theScript->getScriptType()==sim_scripttype_childscript)
-                    so=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(it->getObjectHandle());
-                if (theScript->getScriptType()==sim_scripttype_customizationscript)
-                    so=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
-                if ( (so==nullptr)||(so==theScript) )
-                {
-                    names.push_back(it->getObjectName());
-                    ids.push_back(it->getObjectHandle());
-                }
-            }
-            tt::orderStrings(names,ids);
-            for (int i=0;i<int(names.size());i++)
-                ui->qqAssociatedObjectCombo->addItem(names[i].c_str(),QVariant(ids[i]));
             int objIdAttached=-1;
             if (theScript->getScriptType()==sim_scripttype_childscript)
                 objIdAttached=theScript->getObjectHandleThatScriptIsAttachedTo_child();
             if (theScript->getScriptType()==sim_scripttype_customizationscript)
                 objIdAttached=theScript->getObjectHandleThatScriptIsAttachedTo_customization();
-            for (int i=0;i<ui->qqAssociatedObjectCombo->count();i++)
-            {
-                if (ui->qqAssociatedObjectCombo->itemData(i).toInt()==objIdAttached)
-                {
-                    ui->qqAssociatedObjectCombo->setCurrentIndex(i);
-                    break;
-                }
-            }
         }
 
         ui->qqDisabled->setChecked(theScript->getScriptIsDisabled());
@@ -246,58 +214,6 @@ void CQDlgScripts::onDeletePressed()
     }
 }
 
-
-void CQDlgScripts::on_qqAddNewScript_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CQDlgInsertScript theDialog(this);
-        theDialog.initialize();
-        if (theDialog.makeDialogModal()!=VDIALOG_MODAL_RETURN_CANCEL)
-        {
-            if (theDialog.scriptType==0)
-            {
-                scriptViewMode=0;
-                CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getMainScript();
-                if (it!=nullptr)
-                {
-                    if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDS_MAIN_SCRIPT,IDS_INFO_NO_MORE_THAN_ONE_MAIN_SCRIPT,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES))
-                    {
-                        App::appendSimulationThreadCommand(DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD,it->getScriptHandle());
-                        App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_mainscript,0);
-                    }
-                }
-                else
-                    App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_mainscript,0);
-            }
-            if (theDialog.scriptType==1)
-            {
-                scriptViewMode=0;
-                App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_childscript,0);
-            }
-            if (theDialog.scriptType==2)
-            {
-                scriptViewMode=0;
-                App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_childscript,1);
-            }
-            if (theDialog.scriptType==3)
-            {
-                scriptViewMode=0;
-                App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_childscript,2);
-            }
-            if (theDialog.scriptType==4)
-            {
-                scriptViewMode=1;
-                App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_customizationscript,0);
-            }
-
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-//      selectObjectInList(newScriptID);
-    }
-}
-
 void CQDlgScripts::on_qqScriptList_itemSelectionChanged()
 { // react only if the user clicked there!
     IF_UI_EVENT_CAN_READ_DATA
@@ -346,22 +262,6 @@ void CQDlgScripts::on_qqExecuteOnce_clicked()
         App::appendSimulationThreadCommand(TOGGLE_EXECUTEONCE_SCRIPTGUITRIGGEREDCMD,scriptID);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgScripts::on_qqAssociatedObjectCombo_currentIndexChanged(int index)
-{
-    if (!inMainRefreshRoutine)
-    {
-        IF_UI_EVENT_CAN_READ_DATA
-        {
-            int scriptID=getSelectedObjectID();
-            int objID=ui->qqAssociatedObjectCombo->itemData(ui->qqAssociatedObjectCombo->currentIndex()).toInt();
-            App::appendSimulationThreadCommand(SET_ASSOCIATEDOBJECT_SCRIPTGUITRIGGEREDCMD,scriptID,objID);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
-        }
     }
 }
 

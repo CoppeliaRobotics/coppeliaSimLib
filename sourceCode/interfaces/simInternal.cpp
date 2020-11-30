@@ -6452,8 +6452,13 @@ simInt simAddGraphDataStream_internal(simInt graphHandle,const simChar* streamNa
         std::string nm(streamName);
         tt::removeIllegalCharacters(nm,false);
         CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
-        CGraphDataStream* str=new CGraphDataStream(nm.c_str(),unitStr,options,color,cyclicRange);
+        CGraphDataStream* str=new CGraphDataStream(nm.c_str(),unitStr,options,color,cyclicRange,_currentScriptHandle);
         int retVal=it->addOrUpdateDataStream(str);
+        if (retVal==-1)
+        {
+            delete str;
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_CANNOT_OVERWRITE_STATIC_CURVE);
+        }
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -6472,10 +6477,19 @@ simInt simDestroyGraphCurve_internal(simInt graphHandle,simInt curveId)
         if (!isGraph(__func__,graphHandle))
             return(-1);
         CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
-        if (it->removeGraphCurve(curveId))
+        if (curveId==-1)
+        {
+            it->removeAllStreamsAndCurves();
+            it->removeAllStreamsAndCurves_old();
             return(1);
-        if (it->removeGraphDataStream(curveId))
-            return(1);
+        }
+        else
+        {
+            if (it->removeGraphCurve(curveId))
+                return(1);
+            if (it->removeGraphDataStream(curveId))
+                return(1);
+        }
         CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CURVE_ID);
         return(-1);
     }
@@ -6546,8 +6560,13 @@ simInt simAddGraphCurve_internal(simInt graphHandle,simInt dim,const simInt* str
         std::string nm(curveName);
         tt::removeIllegalCharacters(nm,false);
         CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
-        CGraphCurve* curve=new CGraphCurve(dim,streamIds,defaultValues,nm.c_str(),unitStr,options,color,curveWidth);
+        CGraphCurve* curve=new CGraphCurve(dim,streamIds,defaultValues,nm.c_str(),unitStr,options,color,curveWidth,_currentScriptHandle);
         int retVal=it->addOrUpdateCurve(curve);
+        if (retVal==-1)
+        {
+            delete curve;
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_CANNOT_OVERWRITE_STATIC_CURVE);
+        }
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -8056,9 +8075,7 @@ simInt simGetExplicitHandling_internal(simInt objectHandle)
         if ( (objectHandle>=SIM_IDSTART_SCENEOBJECT)&&(objectHandle<SIM_IDEND_SCENEOBJECT) )
         { // scene objects
             if (!doesObjectExist(__func__,objectHandle))
-            {
                 return(-1);
-            }
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
             if (it->getObjectType()==sim_object_joint_type)
             { // Joints
@@ -9410,6 +9427,7 @@ simInt simGetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterI
         CCamera* camera=App::currentWorld->sceneObjects->getCameraFromHandle(objectHandle);
         CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         CDummy* dummy=App::currentWorld->sceneObjects->getDummyFromHandle(objectHandle);
+        CGraph* graph=App::currentWorld->sceneObjects->getGraphFromHandle(objectHandle);
         CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(objectHandle);
         CMirror* mirror=App::currentWorld->sceneObjects->getMirrorFromHandle(objectHandle);
         CProxSensor* proximitySensor=App::currentWorld->sceneObjects->getProximitySensorFromHandle(objectHandle);
@@ -9662,6 +9680,14 @@ simInt simGetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterI
             if (parameterID==sim_dummyintparam_follow_path)
             {
                 parameter[0]=dummy->getAssignedToParentPath();
+                retVal=1;
+            }
+        }
+        if (graph!=nullptr)
+        {
+            if (parameterID==sim_graphintparam_needs_refresh)
+            {
+                parameter[0]=graph->getNeedsRefresh();
                 retVal=1;
             }
         }

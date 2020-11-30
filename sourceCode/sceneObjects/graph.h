@@ -26,18 +26,26 @@ public:
     void scaleObjectNonIsometrically(float x,float y,float z);
     void serialize(CSer& ar);
     void serializeWExtIk(CExtIkSer& ar);
+
     bool announceObjectWillBeErased(int objectHandle,bool copyBuffer);
+    void announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer);
+    void performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
+    void performScriptLoadingMapping(const std::vector<int>* map);
+    void performTextureObjectLoadingMapping(const std::vector<int>* map);
+
+    // Old:
+    // ---------
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer);
-    void performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
     void performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
     void performCollisionLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
     void performDistanceLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
     void performIkLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::vector<int>* map);
     void performDynMaterialObjectLoadingMapping(const std::vector<int>* map);
+    // ---------
+
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -52,7 +60,7 @@ public:
     bool isPotentiallyRenderable() const;
 
     // Various
-    bool getGraphCurveData(int graphType,int index,std::string& label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int& curveType,float col[3],float minMax[6]) const;
+    bool getGraphCurveData(int graphType,int index,std::string& label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int& curveType,float col[3],float minMax[6],int& curveId) const;
     void curveToClipboard(int graphType,const char* curveName) const;
     void curveToStatic(int graphType,const char* curveName);
     void removeStaticCurve(int graphType,const char* curveName);
@@ -68,11 +76,13 @@ public:
     CGraphCurve* getGraphCurve(const char* name,bool staticCurve) const;
     bool removeGraphDataStream(int id);
     bool removeGraphCurve(int id);
+    void removeAllStreamsAndCurves();
     int duplicateCurveToStatic(int curveId,const char* curveName);
     void getAllStreamIds(std::vector<int>& allStreamIds);
 
     void setSize(float theNewSize);
     float getSize() const;
+    bool getNeedsRefresh();
     void setBufferSize(int buffSize);
     int getBufferSize() const;
     void setCyclic(bool isCyclic);
@@ -100,6 +110,7 @@ public:
     float textColor[3];
 
     // Old:
+    void removeAllStreamsAndCurves_old();
     void makeCurveStatic(int curveIndex,int dimensionIndex);
     int addNewGraphData(CGraphData_old* graphData);
     void removeGraphData(int id);
@@ -141,6 +152,7 @@ protected:
     int numberOfPoints;
     int startingPoint;
     std::vector <float> times;
+    bool _needsRefresh;
 
     bool _initialExplicitHandling;
 

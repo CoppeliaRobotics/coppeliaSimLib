@@ -7,16 +7,18 @@ class CGraphCurve
 {
 public:
     CGraphCurve();
-    CGraphCurve(int dim,const int streamIds[3],const float defaultVals[3],const char* curveName,const char* unitStr,int options,const float* color,int curveWidth);
+    CGraphCurve(int dim,const int streamIds[3],const float defaultVals[3],const char* curveName,const char* unitStr,int options,const float* color,int curveWidth,int scriptHandle);
     virtual ~CGraphCurve();
 
     void serialize(CSer& ar,int startPt,int ptCnt,int bufferSize);
     CGraphCurve* copyYourself() const;
-    void setBasics(int dim,const int streamIds[3],const float defaultVals[3],const char* unitStr,int options,const float* color,int curveWidth);
+    void setBasics(int dim,const int streamIds[3],const float defaultVals[3],const char* unitStr,int options,const float* color,int curveWidth,int scriptHandle);
     void updateStreamIds(const std::vector<int>& allStreamIds);
     bool getCurveData_xy(CGraphDataStream* streams[3],int* index,int bufferSize,int startPt,int ptCnt,std::string* label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int* curveType,float col[3],float minMax[6]) const;
     bool getCurveData_xyz(CGraphDataStream* streams[3],int* index,int bufferSize,int startPt,int ptCnt,std::string* label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int* curveType,float col[3],float minMax[6]) const;
     void makeStatic(CGraphDataStream* streams[3],int bufferSize,int startPt,int ptCnt);
+    bool announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer);
+    void performScriptLoadingMapping(const std::vector<int>* map);
 
     void setId(int id);
     int getId() const;
@@ -30,6 +32,7 @@ public:
     const float* getColorPtr() const;
     int getDim() const;
     const float* getDefaultValsPtr() const;
+    int getScriptHandle() const;
 
 protected:
     std::vector<float> _staticCurveValues;
@@ -45,5 +48,6 @@ protected:
     float _defaultVals[3];
     int _curveWidth;
     int _id;
+    int _scriptHandle;
     int _dim;
 };

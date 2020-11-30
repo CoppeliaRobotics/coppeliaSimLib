@@ -137,6 +137,7 @@
 #define SIM_ERROR_OBJECT_OR_TARGET_OBJECT_DOES_NOT_EXIST "Object or target object does not exist."
 #define SIM_ERROR_OBJECT_IS_SAME_AS_TARGET_OBJECT "Object is same as target object."
 #define SIM_ERROR_TARGET_OBJECT_IS_NOT_A_PATH "Target object is not a path."
+#define SIM_ERROR_CANNOT_OVERWRITE_STATIC_CURVE "Cannot overwrite static curve."
 #define SIM_ERROR_BLOCKING_OPERATION_ONLY_FROM_THREAD "Blocking operation only available when called from a thread."
 #define SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ "Could not lock resources for data read operation."
 #define SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE "Could not lock resources for data write operation."

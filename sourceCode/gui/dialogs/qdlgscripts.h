@@ -31,7 +31,6 @@ public:
 
 private slots:
     void onDeletePressed();
-    void on_qqAddNewScript_clicked();
 
     void on_qqScriptList_itemSelectionChanged();
 
@@ -40,8 +39,6 @@ private slots:
     void on_qqDisabled_clicked();
 
     void on_qqExecuteOnce_clicked();
-
-    void on_qqAssociatedObjectCombo_currentIndexChanged(int index);
 
     void on_qqExecutionOrder_currentIndexChanged(int index);
 

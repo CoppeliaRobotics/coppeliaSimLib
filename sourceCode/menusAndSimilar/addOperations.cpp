@@ -431,7 +431,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             CLuaScriptObject* scriptObj=new CLuaScriptObject(sim_scripttype_customizationscript);
             App::currentWorld->luaScriptContainer->insertScript(scriptObj);
             scriptObj->setObjectHandleThatScriptIsAttachedTo(newObject->getObjectHandle());
-            scriptObj->setScriptText("require('graph_customization')");
+            scriptObj->setScriptText("graph=require('graph_customization')");
 
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());

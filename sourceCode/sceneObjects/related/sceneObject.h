@@ -48,19 +48,27 @@ public:
     virtual void scaleObjectNonIsometrically(float x,float y,float z);
     virtual void serialize(CSer& ar);
     virtual void serializeWExtIk(CExtIkSer& ar);
+
     virtual bool announceObjectWillBeErased(int objHandle,bool copyBuffer);
+    virtual void announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer);
+
+    virtual void performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
+    virtual void performScriptLoadingMapping(const std::vector<int>* map);
+    virtual void performTextureObjectLoadingMapping(const std::vector<int>* map);
+
+    // Old:
+    // -----------
     virtual void announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer);
     virtual void announceCollectionWillBeErased(int collectionID,bool copyBuffer);
     virtual void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
     virtual void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
-    virtual void performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
     virtual void performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
     virtual void performCollisionLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
     virtual void performDistanceLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
     virtual void performIkLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
     virtual void performGcsLoadingMapping(const std::vector<int>* map);
-    virtual void performTextureObjectLoadingMapping(const std::vector<int>* map);
     virtual void performDynMaterialObjectLoadingMapping(const std::vector<int>* map);
+    // -----------
 
     virtual void simulationAboutToStart();
     virtual void simulationEnded();

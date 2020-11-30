@@ -301,7 +301,6 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/qdlgdistances.cpp
         sourceCode/gui/dialogs/qdlgentityvsentityselection.cpp
         sourceCode/gui/dialogs/qdlgscripts.cpp
-        sourceCode/gui/dialogs/qdlginsertscript.cpp
         sourceCode/gui/dialogs/qdlgdynamics.cpp
         sourceCode/gui/dialogs/qdlgscaling.cpp
         sourceCode/gui/dialogs/qdlgcameras.cpp
