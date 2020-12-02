@@ -315,11 +315,11 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
 
                 C7Vector trr(camTrInv*gr->getFullCumulativeTransformation());
 
-                for (int k=0;k<int(gr->threeDPartners.size());k++)
+                for (int k=0;k<int(gr->curves3d_old.size());k++)
                 {
-                    CGraphData_old* part0=gr->getGraphData(gr->threeDPartners[k]->data[0]);
-                    CGraphData_old* part1=gr->getGraphData(gr->threeDPartners[k]->data[1]);
-                    CGraphData_old* part2=gr->getGraphData(gr->threeDPartners[k]->data[2]);
+                    CGraphData_old* part0=gr->getGraphData(gr->curves3d_old[k]->data[0]);
+                    CGraphData_old* part1=gr->getGraphData(gr->curves3d_old[k]->data[1]);
+                    CGraphData_old* part2=gr->getGraphData(gr->curves3d_old[k]->data[2]);
                     int pos=0;
                     int absIndex;
                     float point[3];
@@ -358,7 +358,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                         if (dataIsValid)
                         {
                             C3Vector pp(point);
-                            if (gr->threeDPartners[k]->getCurveRelativeToWorld())
+                            if (gr->curves3d_old[k]->getCurveRelativeToWorld())
                                 pp=camTrInv*pp;
                             else
                                 pp=trr*pp;
@@ -370,9 +370,9 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                 }
 
                 // Static 3D curves now:
-                for (int k=0;k<int(gr->_staticCurves.size());k++)
+                for (int k=0;k<int(gr->staticStreamsAndCurves_old.size());k++)
                 {
-                    CStaticGraphCurve_old* itg=gr->_staticCurves[k];
+                    CStaticGraphCurve_old* itg=gr->staticStreamsAndCurves_old[k];
                     if (itg->getCurveType()==2)
                     {
                         for (int j=0;j<int(itg->values.size()/3);j++)
@@ -2699,7 +2699,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
             {
                 // Wireless communication activities:
                 if ((displayAttrib&sim_displayattribute_dynamiccontentonly)==0)
-                    App::currentWorld->luaScriptContainer->broadcastDataContainer.visualizeCommunications(VDateTime::getTimeInMs());
+                    App::currentWorld->embeddedScriptContainer->broadcastDataContainer.visualizeCommunications(VDateTime::getTimeInMs());
             }
 
             if (!shapeEditModeAndPicking)

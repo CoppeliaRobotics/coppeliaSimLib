@@ -895,10 +895,10 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
     _calcTimeInMs=VDateTime::getTimeDiffInMs(stTime);
     if (_sensorResultValid&&_detectedPointValid)
     {
-        CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+        CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
         if ( (script!=nullptr)&&(!script->getContainsTriggerCallbackFunction()) )
             script=nullptr;
-        CLuaScriptObject* cScript=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
+        CLuaScriptObject* cScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
         if ( (cScript!=nullptr)&&(!cScript->getContainsTriggerCallbackFunction()) )
             cScript=nullptr;
         if ( (script!=nullptr)||(cScript!=nullptr) )

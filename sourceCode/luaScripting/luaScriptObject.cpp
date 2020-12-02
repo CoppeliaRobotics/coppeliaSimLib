@@ -3155,7 +3155,7 @@ int CLuaScriptObject::_runMainScript(int optionalCallType,const CInterfaceStack*
 
     if (optionalCallType==-1)
     {
-        App::currentWorld->luaScriptContainer->resetScriptFlagCalledInThisSimulationStep();
+        App::currentWorld->embeddedScriptContainer->resetScriptFlagCalledInThisSimulationStep();
         int startT=VDateTime::getTimeInMs();
 
         if (App::currentWorld->simulation->getSimulationState()==sim_simulation_advancing_firstafterstop)
@@ -3173,7 +3173,7 @@ int CLuaScriptObject::_runMainScript(int optionalCallType,const CInterfaceStack*
             retVal|=_runMainScriptNow(sim_syscb_cleanup,inStack,outStack,nullptr);
 
         App::worldContainer->calcInfo->setMainScriptExecutionTime(VDateTime::getTimeInMs()-startT);
-        App::worldContainer->calcInfo->setSimulationScriptExecCount(App::currentWorld->luaScriptContainer->getCalledScriptsCountInThisSimulationStep(true));
+        App::worldContainer->calcInfo->setSimulationScriptExecCount(App::currentWorld->embeddedScriptContainer->getCalledScriptsCountInThisSimulationStep(true));
     }
     else
     {
@@ -3187,11 +3187,11 @@ int CLuaScriptObject::_runMainScriptNow(int callType,const CInterfaceStack* inSt
 {
     if (functionPresent!=nullptr)
         functionPresent[0]=true; // we only return false if we know for sure the function is not there (if the script contains an error, we can't know for sure)
-    App::currentWorld->luaScriptContainer->setInMainScriptNow(true,VDateTime::getTimeInMs());
+    App::currentWorld->embeddedScriptContainer->setInMainScriptNow(true,VDateTime::getTimeInMs());
     int retVal=_runScriptOrCallScriptFunction(callType,inStack,outStack);
     if ( (retVal==0)&&(functionPresent!=nullptr) )
         functionPresent[0]=false;
-    App::currentWorld->luaScriptContainer->setInMainScriptNow(false,0);
+    App::currentWorld->embeddedScriptContainer->setInMainScriptNow(false,0);
     if (retVal<0)
         return(sim_script_lua_error);
     return(sim_script_no_error);
@@ -3587,7 +3587,7 @@ int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfa
     return(retVal);
 }
 
-int CLuaScriptObject::runSandboxScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
+int CLuaScriptObject::callSandboxScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
 {
     if (L!=nullptr)
     {
@@ -3601,7 +3601,7 @@ bool CLuaScriptObject::runSandboxScript_beforeMainScript()
 {
     bool retVal=true;
     CInterfaceStack outStack;
-    runSandboxScript(sim_syscb_beforemainscript,nullptr,&outStack);
+    callSandboxScript(sim_syscb_beforemainscript,nullptr,&outStack);
     bool doNotRunMainScript;
     if (outStack.getStackMapBoolValue("doNotRunMainScript",doNotRunMainScript))
     {
@@ -4206,12 +4206,12 @@ bool CLuaScriptObject::killLuaState()
         if ((_scriptType==sim_scripttype_childscript)&&(!_threadedExecution) )
         {
             // Following few not elegant, but important otherwise we don't have the emergency stop button
-            bool wasInMainScript=App::currentWorld->luaScriptContainer->getInMainScriptNow();
+            bool wasInMainScript=App::currentWorld->embeddedScriptContainer->getInMainScriptNow();
             if (!wasInMainScript)
-                App::currentWorld->luaScriptContainer->setInMainScriptNow(true,VDateTime::getTimeInMs());
+                App::currentWorld->embeddedScriptContainer->setInMainScriptNow(true,VDateTime::getTimeInMs());
             _runNonThreadedChildScriptNow(sim_syscb_cleanup,nullptr,nullptr);
             if (!wasInMainScript)
-                App::currentWorld->luaScriptContainer->setInMainScriptNow(false,0);
+                App::currentWorld->embeddedScriptContainer->setInMainScriptNow(false,0);
         }
         App::worldContainer->announceScriptStateWillBeErased(_scriptHandle,isSimulationScript(),isSceneSwitchPersistentScript());
         luaWrap_lua_close(L);
@@ -6092,6 +6092,8 @@ void CLuaScriptObject::_adjustScriptText13(CLuaScriptObject* scriptObject,bool d
             App::logMsg(sim_verbosity_errors,"Contains simResumeThreads...");
         if (_containsScriptText(scriptObject,"simLaunchThreadedChildScripts"))
             App::logMsg(sim_verbosity_errors,"Contains simLaunchThreadedChildScripts...");
+        if (_containsScriptText(scriptObject,"'utils'"))
+            App::logMsg(sim_verbosity_errors,"Contains 'utils'...");
 
 
         //************************************************************

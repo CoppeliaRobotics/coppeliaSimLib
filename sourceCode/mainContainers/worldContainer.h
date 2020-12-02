@@ -37,6 +37,8 @@ public:
     bool switchToWorld(int worldIndex);
     bool isWorldSwitchingLocked() const;
     void getAllSceneNames(std::vector<std::string>& l) const;
+    CLuaScriptObject* getScriptFromHandle(int scriptHandle) const;
+    void callScripts(int callType,CInterfaceStack* inStack);
 
     void simulationAboutToStart();
     void simulationPaused();

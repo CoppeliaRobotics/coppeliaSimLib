@@ -1384,14 +1384,14 @@ void CSceneObject::setEnableCustomizationScript(bool c,const char* scriptContent
     // _customizationScriptEnabled=c;
 
     // We remove a script that might be associated:
-    CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(getObjectHandle());
+    CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(getObjectHandle());
     if (script)
     {
 #ifdef SIM_WITH_GUI
         if (App::mainWindow!=nullptr)
             App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
 #endif
-        App::currentWorld->luaScriptContainer->removeScript(script->getScriptHandle());
+        App::currentWorld->embeddedScriptContainer->removeScript(script->getScriptHandle());
     }
 
     if (c)
@@ -1399,14 +1399,14 @@ void CSceneObject::setEnableCustomizationScript(bool c,const char* scriptContent
         CLuaScriptObject* script=new CLuaScriptObject(sim_scripttype_customizationscript);
         if (scriptContent)
             script->setScriptText(scriptContent);
-        App::currentWorld->luaScriptContainer->insertScript(script);
+        App::currentWorld->embeddedScriptContainer->insertScript(script);
         script->setObjectHandleThatScriptIsAttachedTo(getObjectHandle());
     }
 }
 
 bool CSceneObject::getEnableCustomizationScript()
 {
-    return(App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(getObjectHandle())!=nullptr);
+    return(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(getObjectHandle())!=nullptr);
 //  return(_customizationScriptEnabled);
 }
 
@@ -1507,13 +1507,13 @@ int CSceneObject::getScriptExecutionOrder(int scriptType) const
 {
     if (scriptType==sim_scripttype_customizationscript)
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
+        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
         if (it!=nullptr)
             return(it->getExecutionOrder());
     }
     else if ((scriptType&sim_scripttype_childscript)!=0)
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
         if (it!=nullptr)
         {
             if ( it->getThreadedExecution()==((scriptType&sim_scripttype_threaded_old)!=0) )
@@ -1528,10 +1528,10 @@ int CSceneObject::getScriptsToExecute(int scriptType,int parentTraversalDirectio
     int cnt=0;
     CLuaScriptObject* attachedScript=nullptr;
     if (scriptType==sim_scripttype_customizationscript)
-        attachedScript=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
+        attachedScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
     else if ((scriptType&sim_scripttype_childscript)!=0)
     {
-        attachedScript=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+        attachedScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
         if (attachedScript!=nullptr)
         {
             if ( attachedScript->getThreadedExecution()!=((scriptType&sim_scripttype_threaded_old)!=0) )

@@ -1144,7 +1144,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
     int scriptID=getScriptActionObjectID(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
     if (scriptID!=-1)
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptID);
+        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
         if (it!=nullptr)
         {
             bool openScriptEditor=true;

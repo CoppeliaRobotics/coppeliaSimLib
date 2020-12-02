@@ -188,9 +188,9 @@ void CQDlg2D3DGraphProperties::updateObjectsInList()
     CGraph* it=App::currentWorld->sceneObjects->getLastSelectionGraph();
     if (_xyGraph)
     {
-        for (size_t i=0;i<it->twoDPartners.size();i++)
+        for (size_t i=0;i<it->curves2d_old.size();i++)
         {
-            CGraphDataComb_old* aa=it->twoDPartners[i];
+            CGraphDataComb_old* aa=it->curves2d_old[i];
             std::string tmp(aa->getName());
             tmp+=" [";
             if (aa->data[0]==-1)
@@ -210,9 +210,9 @@ void CQDlg2D3DGraphProperties::updateObjectsInList()
     }
     else
     {
-        for (size_t i=0;i<it->threeDPartners.size();i++)
+        for (size_t i=0;i<it->curves3d_old.size();i++)
         {
-            CGraphDataComb_old* aa=it->threeDPartners[i];
+            CGraphDataComb_old* aa=it->curves3d_old[i];
 
             std::string tmp(aa->getName());
             tmp+=" [";

@@ -85,10 +85,10 @@ int CWorldContainer::createNewWorld()
     // Inform scripts about future switch to new world (only if there is already at least one world):
     if (currentWorld!=nullptr)
     {
-        currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
-        addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
+        currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
+        addOnScriptContainer->callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
-            sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
+            sandboxScript->callSandboxScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
     }
 
     // Inform plugins about future switch to new world (only if there is already at least one world):
@@ -126,10 +126,10 @@ int CWorldContainer::createNewWorld()
     currentWorld->initializeWorld();
 
     // Inform scripts about performed switch to new world:
-    currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
-    addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_afterinstanceswitch,nullptr,nullptr);
+    currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
+    addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
-        sandboxScript->runSandboxScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
+        sandboxScript->callSandboxScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
 
     // Inform plugins about performed switch to new world:
     int data[4]={getCurrentWorldIndex(),currentWorld->environment->getSceneUniqueID(),0,0};
@@ -171,10 +171,10 @@ int CWorldContainer::destroyCurrentWorld()
             nextWorldIndex=int(_worlds.size())-2;
 
         // Inform scripts about future world switch:
-        currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
-        addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
+        currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
+        addOnScriptContainer->callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
-            sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
+            sandboxScript->callSandboxScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
 
         // Inform plugins about future world switch:
         int pluginData[4]={-1,_worlds[nextWorldIndex]->environment->getSceneUniqueID(),0,0};
@@ -217,10 +217,10 @@ int CWorldContainer::destroyCurrentWorld()
         App::currentWorld=currentWorld;
 
         // Inform scripts about performed world switch:
-        currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
-        addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_afterinstanceswitch,nullptr,nullptr);
+        currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
+        addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
-            sandboxScript->runSandboxScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
+            sandboxScript->callSandboxScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
 
         // Inform plugins about performed world switch:
         int pluginData[4]={_currentWorldIndex,currentWorld->environment->getSceneUniqueID(),0,0};
@@ -308,10 +308,10 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
         return(false);
 
     // Inform scripts about future world switch:
-    currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
-    addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
+    currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
+    addOnScriptContainer->callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
-        sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
+        sandboxScript->callSandboxScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
 
     // Inform plugins about future world switch:
     int pluginData[4]={_currentWorldIndex,_worlds[newWorldIndex]->environment->getSceneUniqueID(),0,0};
@@ -343,10 +343,10 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     App::currentWorld=currentWorld;
 
     // Inform scripts about performed world switch:
-    currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
-    addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_afterinstanceswitch,nullptr,nullptr);
+    currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
+    addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
-        sandboxScript->runSandboxScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
+        sandboxScript->callSandboxScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
 
     // Inform plugins about performed world switch:
     pluginData[0]=_currentWorldIndex;
@@ -394,6 +394,27 @@ void CWorldContainer::getAllSceneNames(std::vector<std::string>& l) const
     l.clear();
     for (size_t i=0;i<_worlds.size();i++)
         l.push_back(VVarious::splitPath_fileBase(_worlds[i]->mainSettings->getScenePathAndName().c_str()));
+}
+
+CLuaScriptObject* CWorldContainer::getScriptFromHandle(int scriptHandle) const
+{
+    CLuaScriptObject* retVal=currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
+    if (retVal==nullptr)
+    {
+        retVal=addOnScriptContainer->getAddOnScriptFromID(scriptHandle);
+        if ( (retVal==nullptr)&&(sandboxScript!=nullptr)&&(sandboxScript->getScriptHandle()==scriptHandle) )
+            retVal=sandboxScript;
+    }
+    return(retVal);
+}
+
+void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack)
+{
+    TRACE_INTERNAL;
+    currentWorld->embeddedScriptContainer->callScripts(callType,inStack);
+    addOnScriptContainer->callScripts(callType,inStack,nullptr);
+    if (sandboxScript!=nullptr)
+        sandboxScript->callSandboxScript(callType,inStack,nullptr);
 }
 
 #ifdef SIM_WITH_GUI

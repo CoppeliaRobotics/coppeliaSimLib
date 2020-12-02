@@ -5011,19 +5011,19 @@ simInt simGetScriptHandle_internal(const simChar* targetAtScriptName)
         if ((targetName.length()==0)||(targetName.compare("child")==0)||(targetName.compare("main")==0))
         {
             if (scriptNameAdjusted.length()==0)
-                it=App::currentWorld->luaScriptContainer->getMainScript();
+                it=App::currentWorld->embeddedScriptContainer->getMainScript();
             else
             {
                 CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromName(scriptNameAdjusted.c_str());
                 if (obj!=nullptr)
-                    it=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
             }
         }
         if (targetName.compare("customization")==0)
         {
             CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromName(scriptNameAdjusted.c_str());
             if (obj!=nullptr)
-                it=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(obj->getObjectHandle());
+                it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(obj->getObjectHandle());
         }
         if (it==nullptr)
         {
@@ -5059,7 +5059,7 @@ simInt simHandleMainScript_internal()
     // Customization scripts:
     int res=0;
     CInterfaceStack outStack;
-    App::currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforemainscript,nullptr,&outStack,&res);
+    App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforemainscript,nullptr,&outStack,&res);
     bool cs=(res!=1);
 
     // Add-on scripts:
@@ -5072,12 +5072,12 @@ simInt simHandleMainScript_internal()
 
     if ( ( (rtVal[0]==-1)&&cs&&as&&ss )||App::currentWorld->simulation->didStopRequestCounterChangeSinceSimulationStart() )
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getMainScript();
+        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getMainScript();
         if (it!=nullptr)
         {
             App::worldContainer->calcInfo->simulationPassStart();
 
-            App::currentWorld->luaScriptContainer->broadcastDataContainer.removeTimedOutObjects(float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f); // remove invalid elements
+            App::currentWorld->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f); // remove invalid elements
             CThreadPool::prepareAllThreadsForResume_calledBeforeMainScript();
 
             retVal=it->runMainScript(-1,nullptr,nullptr,nullptr);
@@ -5094,7 +5094,7 @@ simInt simHandleMainScript_internal()
     }
 
     // Following for backward compatibility:
-    App::worldContainer->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_aos_run_old,nullptr,nullptr);
+    App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_aos_run_old,nullptr,nullptr);
 
     return(retVal);
 }
@@ -5110,10 +5110,10 @@ simInt simResetScript_internal(simInt scriptHandle)
     {
         if (scriptHandle==sim_handle_all)
         {
-            App::currentWorld->luaScriptContainer->killAllSimulationLuaStates();
+            App::currentWorld->embeddedScriptContainer->killAllSimulationLuaStates();
             return(1);
         }
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandle);
+        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5135,7 +5135,7 @@ simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandle);
+        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5169,7 +5169,7 @@ const simChar* simGetScriptText_internal(simInt scriptHandle)
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCENE_LOCKED);
             return(nullptr);
         }
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandle);
+        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5200,11 +5200,11 @@ simInt simGetScript_internal(simInt index)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if ( (index<0)||(index>=int(App::currentWorld->luaScriptContainer->allScripts.size())) )
+        if ( (index<0)||(index>=int(App::currentWorld->embeddedScriptContainer->allScripts.size())) )
         {
             return(-1);
         }
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->allScripts[index];
+        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->allScripts[index];
         int retVal=it->getScriptHandle();
         return(retVal);
     }
@@ -5223,7 +5223,7 @@ simInt simGetScriptAssociatedWithObject_internal(simInt objectHandle)
     {
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objectHandle);
+        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objectHandle);
         if (it==nullptr)
             return(-1);
         int retVal=it->getScriptHandle();
@@ -5248,7 +5248,7 @@ simInt simGetCustomizationScriptAssociatedWithObject_internal(simInt objectHandl
         {
             return(-1);
         }
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objectHandle);
+        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objectHandle);
         if (it==nullptr)
         {
             return(-1);
@@ -5269,7 +5269,7 @@ simInt simGetObjectAssociatedWithScript_internal(simInt scriptHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5295,7 +5295,7 @@ simChar* simGetScriptName_internal(simInt scriptHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandle);
+        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5322,7 +5322,7 @@ simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandle);
+        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5348,7 +5348,7 @@ simInt simAssociateScriptWithObject_internal(simInt scriptHandle,simInt associat
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal=-1;
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
         if (it!=nullptr)
         {
             if ( (it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_customizationscript) )
@@ -5367,9 +5367,9 @@ simInt simAssociateScriptWithObject_internal(simInt scriptHandle,simInt associat
                         { // script not yet associated
                             CLuaScriptObject* currentSimilarObj=nullptr;
                             if (it->getScriptType()==sim_scripttype_childscript)
-                                currentSimilarObj=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(associatedObjectHandle);
+                                currentSimilarObj=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(associatedObjectHandle);
                             if (it->getScriptType()==sim_scripttype_customizationscript)
-                                currentSimilarObj=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(associatedObjectHandle);
+                                currentSimilarObj=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(associatedObjectHandle);
                             if (currentSimilarObj==nullptr)
                             {
                                 it->setObjectHandleThatScriptIsAttachedTo(associatedObjectHandle);
@@ -5415,7 +5415,7 @@ simInt simAddScript_internal(simInt scriptProperty)
                 it->setExecuteJustOnce(true);
             }
         }
-        int retVal=App::currentWorld->luaScriptContainer->insertScript(it);
+        int retVal=App::currentWorld->embeddedScriptContainer->insertScript(it);
         App::setFullDialogRefreshFlag();
         return(retVal);
     }
@@ -5439,11 +5439,11 @@ simInt simRemoveScript_internal(simInt scriptHandle)
                 CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
                 return(-1);
             }
-            App::currentWorld->luaScriptContainer->removeAllScripts();
+            App::currentWorld->embeddedScriptContainer->removeAllScripts();
             App::setFullDialogRefreshFlag();
             return(1);
         }
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5453,7 +5453,7 @@ simInt simRemoveScript_internal(simInt scriptHandle)
         if (App::mainWindow!=nullptr)
             App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
 #endif
-        App::currentWorld->luaScriptContainer->removeScript_safe(scriptHandle);
+        App::currentWorld->embeddedScriptContainer->removeScript_safe(scriptHandle);
         App::setFullDialogRefreshFlag();
         return(1);
     }
@@ -6433,7 +6433,7 @@ simInt simResetGraph_internal(simInt graphHandle)
     return(-1);
 }
 
-simInt simAddGraphDataStream_internal(simInt graphHandle,const simChar* streamName,const simChar* unitStr,simInt options,const simFloat* color,simFloat cyclicRange)
+simInt simAddGraphStream_internal(simInt graphHandle,const simChar* streamName,const simChar* unitStr,simInt options,const simFloat* color,simFloat cyclicRange)
 {
     TRACE_C_API;
 
@@ -6497,7 +6497,7 @@ simInt simDestroyGraphCurve_internal(simInt graphHandle,simInt curveId)
     return(-1);
 }
 
-simInt simSetGraphDataStreamTransformation_internal(simInt graphHandle,simInt streamId,simInt trType,simFloat mult,simFloat off,simInt movingAvgPeriod)
+simInt simSetGraphStreamTransformation_internal(simInt graphHandle,simInt streamId,simInt trType,simFloat mult,simFloat off,simInt movingAvgPeriod)
 {
     TRACE_C_API;
 
@@ -6541,7 +6541,7 @@ simInt simDuplicateGraphCurveToStatic_internal(simInt graphHandle,simInt curveId
     return(-1);
 }
 
-simInt simAddGraphCurve_internal(simInt graphHandle,simInt dim,const simInt* streamIds,const simFloat* defaultValues,const simChar* curveName,const simChar* unitStr,simInt options,const simFloat* color,simInt curveWidth)
+simInt simAddGraphCurve_internal(simInt graphHandle,const simChar* curveName,simInt dim,const simInt* streamIds,const simFloat* defaultValues,const simChar* unitStr,simInt options,const simFloat* color,simInt curveWidth)
 {
     TRACE_C_API;
 
@@ -6573,7 +6573,7 @@ simInt simAddGraphCurve_internal(simInt graphHandle,simInt dim,const simInt* str
     return(-1);
 }
 
-simInt simSetGraphDataStreamValue_internal(simInt graphHandle,simInt streamId,simFloat value)
+simInt simSetGraphStreamValue_internal(simInt graphHandle,simInt streamId,simFloat value)
 {
     TRACE_C_API;
 
@@ -7887,6 +7887,25 @@ simInt simGetObjectVelocity_internal(simInt objectHandle,simFloat* linearVelocit
             lv.copyTo(linearVelocity);
         if (angularVelocity!=nullptr)
             av.copyTo(angularVelocity);
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetJointVelocity_internal(simInt jointHandle,simFloat* velocity)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!isJoint(__func__,jointHandle))
+            return(-1);
+        CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
+        velocity[0]=it->getMeasuredJointVelocity();
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -11259,7 +11278,7 @@ simInt simIsHandleValid_internal(simInt generalObjectHandle,simInt generalObject
             return(1);
         if (((generalObjectType==-1)||(generalObjectType==sim_appobj_collection_type))&&(App::currentWorld->collections->getObjectFromHandle(generalObjectHandle)!=nullptr))
             return(1);
-        if (((generalObjectType==-1)||(generalObjectType==sim_appobj_script_type))&&(App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(generalObjectHandle)!=nullptr))
+        if (((generalObjectType==-1)||(generalObjectType==sim_appobj_script_type))&&(App::worldContainer->getScriptFromHandle(generalObjectHandle)!=nullptr))
             return(1);
         if (((generalObjectType==-1)||(generalObjectType==sim_appobj_texture_type))&&(App::currentWorld->textureContainer->getObject(generalObjectHandle)!=nullptr))
             return(1);
@@ -13142,7 +13161,7 @@ simInt simWriteCustomDataBlock_internal(simInt objectHandle,const simChar* tagNa
             dataSize=0;
         if (objectHandle>=SIM_IDSTART_LUASCRIPT)
         { // here we have a script
-            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(objectHandle);
+            CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
             if (script!=nullptr)
             { // here we have a script
                 if (useTempBuffer)
@@ -13321,7 +13340,7 @@ simChar* simReadCustomDataBlock_internal(simInt objectHandle,const simChar* tagN
             useTempBuffer=((tagName[0]=='@')&&(tagName[1]=='t')&&(tagName[2]=='m')&&(tagName[3]=='p'));
         if (objectHandle>=SIM_IDSTART_LUASCRIPT)
         { // here we have a script
-            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(objectHandle);
+            CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
             if (script!=nullptr)
             {
                 if (useTempBuffer)
@@ -13426,7 +13445,7 @@ simChar* simReadCustomDataBlockTags_internal(simInt objectHandle,simInt* tagCoun
         std::vector<std::string> allTags;
         if (objectHandle>=SIM_IDSTART_LUASCRIPT)
         { // here we have a script
-            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(objectHandle);
+            CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
             if (script!=nullptr)
             {
                 int l=script->getObjectCustomDataLength_tempData(356248756);
@@ -13910,7 +13929,7 @@ simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandle);
+        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -13969,7 +13988,7 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandle);
+        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
@@ -14243,7 +14262,7 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
             funcName.assign(funcNameAtScriptName.begin(),funcNameAtScriptName.begin()+p);
         else
             funcName=funcNameAtScriptName;
-        script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
+        script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
     }
     else
     { // script is identified by a script type and sometimes also a script name
@@ -14258,7 +14277,7 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
         else
             funcName=funcNameAtScriptName;
         if (scriptHandleOrType==sim_scripttype_mainscript)
-            script=App::currentWorld->luaScriptContainer->getMainScript();
+            script=App::currentWorld->embeddedScriptContainer->getMainScript();
         if (scriptHandleOrType==sim_scripttype_sandboxscript)
             script=App::worldContainer->sandboxScript;
         if (scriptHandleOrType==sim_scripttype_addonscript)
@@ -14266,12 +14285,12 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
         if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==(sim_scripttype_childscript|sim_scripttype_threaded_old)) )
         {
             int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-            script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+            script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
         }
         if (scriptHandleOrType==sim_scripttype_customizationscript)
         {
             int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-            script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+            script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
         }
     }
 
@@ -15262,7 +15281,7 @@ simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* va
                 variableName.assign(varNameAtScriptName.begin(),varNameAtScriptName.begin()+p);
             else
                 variableName=varNameAtScriptName;
-            script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
+            script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
         }
         else
         {
@@ -15278,7 +15297,7 @@ simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* va
                 variableName=varNameAtScriptName;
 
             if (scriptHandleOrType==sim_scripttype_mainscript)
-                script=App::currentWorld->luaScriptContainer->getMainScript();
+                script=App::currentWorld->embeddedScriptContainer->getMainScript();
             if (scriptHandleOrType==sim_scripttype_addonscript)
             {
                 if (scriptName.size()>0)
@@ -15291,13 +15310,13 @@ simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* va
                 if (scriptName.size()>0)
                 {
                     int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-                    script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
                 }
             }
             if (scriptHandleOrType==sim_scripttype_customizationscript)
             {
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-                script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
             }
         }
 
@@ -16395,7 +16414,7 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
                 stringToExecute.assign(strAtScriptName.begin(),strAtScriptName.begin()+p);
             else
                 stringToExecute=strAtScriptName;
-            script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
+            script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
         }
         else
         {
@@ -16411,7 +16430,7 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
                 stringToExecute=strAtScriptName;
 
             if (scriptHandleOrType==sim_scripttype_mainscript)
-                script=App::currentWorld->luaScriptContainer->getMainScript();
+                script=App::currentWorld->embeddedScriptContainer->getMainScript();
             if (scriptHandleOrType==sim_scripttype_addonscript)
             {
                 if (scriptName.size()>0)
@@ -16424,13 +16443,13 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
                 if (scriptName.size()>0)
                 {
                     int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-                    script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
                 }
             }
             if (scriptHandleOrType==sim_scripttype_customizationscript)
             {
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-                script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
             }
         }
 
@@ -16494,7 +16513,7 @@ simChar* simGetApiFunc_internal(simInt scriptHandleOrType,const simChar* apiWord
         bool threaded=false;
         if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
-            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
+            CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
             if (script!=nullptr)
             {
                 scriptType=script->getScriptType();
@@ -16558,7 +16577,7 @@ simChar* simGetApiInfo_internal(simInt scriptHandleOrType,const simChar* apiWord
         bool threaded=false;
         if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
-            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
+            CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
             if (script!=nullptr)
             {
                 scriptType=script->getScriptType();
@@ -17620,7 +17639,7 @@ simInt _simHandleCustomContact_internal(simInt objHandle1,simInt objHandle2,simI
     TRACE_C_API;
 
     // 1. We handle the new calling method:
-    if ( ((engine&1024)==0)&&App::currentWorld->luaScriptContainer->isContactCallbackFunctionAvailable() ) // the engine flag 1024 means: the calling thread is not the simulation thread. We would have problems with the scripts
+    if ( ((engine&1024)==0)&&App::currentWorld->embeddedScriptContainer->isContactCallbackFunctionAvailable() ) // the engine flag 1024 means: the calling thread is not the simulation thread. We would have problems with the scripts
     {
         CInterfaceStack inStack;
         inStack.pushTableOntoStack();
@@ -17635,9 +17654,9 @@ simInt _simHandleCustomContact_internal(simInt objHandle1,simInt objHandle2,simI
         inStack.insertDataIntoStackTable();
         CInterfaceStack outStack;
         int retInfo=0;
-        App::currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,sim_syscb_contactcallback,&inStack,&outStack,&retInfo);
+        App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,sim_syscb_contactcallback,&inStack,&outStack,&retInfo);
         if (retInfo>0)
-            App::currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_contactcallback,&inStack,&outStack,&retInfo);
+            App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_contactcallback,&inStack,&outStack,&retInfo);
 
         bool ignoreContact;
         if (outStack.getStackMapBoolValue("ignoreContact",ignoreContact))
@@ -17719,7 +17738,7 @@ simVoid _simDynCallback_internal(const simInt* intData,const simFloat* floatData
     TRACE_C_API;
 
     CInterfaceStack inStack;
-    if (App::currentWorld->luaScriptContainer->isDynCallbackFunctionAvailable())
+    if (App::currentWorld->embeddedScriptContainer->isDynCallbackFunctionAvailable())
     { // to make it a bit faster than blindly parsing the whole object hierarchy
         inStack.pushTableOntoStack();
         inStack.pushStringOntoStack("passCnt",0);
@@ -17738,8 +17757,8 @@ simVoid _simDynCallback_internal(const simInt* intData,const simFloat* floatData
         inStack.pushBoolOntoStack(intData[3]!=0);
         inStack.insertDataIntoStackTable();
 
-        App::currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,sim_syscb_dyncallback,&inStack,nullptr,nullptr);
-        App::currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_dyncallback,&inStack,nullptr,nullptr);
+        App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,sim_syscb_dyncallback,&inStack,nullptr,nullptr);
+        App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_dyncallback,&inStack,nullptr,nullptr);
     }
 }
 
@@ -18271,7 +18290,7 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
                 arrayName.assign(arrNameAtScriptName.begin(),arrNameAtScriptName.begin()+p);
             else
                 arrayName=arrNameAtScriptName;
-            script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
+            script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
         }
         else
         {
@@ -18289,7 +18308,7 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
                     arrayName=arrNameAtScriptName;
 
                 if (scriptHandleOrType==sim_scripttype_mainscript) // new and old way (same coding)
-                    script=App::currentWorld->luaScriptContainer->getMainScript();
+                    script=App::currentWorld->embeddedScriptContainer->getMainScript();
                 if (scriptHandleOrType==sim_scripttype_addonscript)
                 {
                     if (scriptName.size()>0)
@@ -18302,29 +18321,29 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
                     if (scriptName.size()>0)
                     { // new way
                         int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-                        script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                        script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
                     }
                 }
                 if (scriptHandleOrType==sim_scripttype_customizationscript)
                 { // new way only possible (6 was not available in the old way)
                     int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-                    script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
                 }
             }
             else
             { // this is the old way of doing it. Deprecated. Was only 2 months active, not officially
                 arrayName=arrayNameAtScriptName;
                 if (scriptHandleOrType==0) // main script
-                    script=App::currentWorld->luaScriptContainer->getMainScript();
+                    script=App::currentWorld->embeddedScriptContainer->getMainScript();
                 if (scriptHandleOrType==3) // child script
                 {
                     int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(reservedSetToNull);
-                    script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
                 }
                 if (scriptHandleOrType==5) // customization
                 {
                     int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(reservedSetToNull);
-                    script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
                 }
             }
         }
@@ -18359,7 +18378,7 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
             variableName.assign(varNameAtScriptName.begin(),varNameAtScriptName.begin()+p);
         else
             variableName=varNameAtScriptName;
-        script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
+        script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
     }
     else
     {
@@ -18377,7 +18396,7 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
                 variableName=varNameAtScriptName;
 
             if (scriptHandleOrType==sim_scripttype_mainscript) // new and old way (same coding)
-                script=App::currentWorld->luaScriptContainer->getMainScript();
+                script=App::currentWorld->embeddedScriptContainer->getMainScript();
             if (scriptHandleOrType==sim_scripttype_addonscript)
             {
                 if (scriptName.size()>0)
@@ -18390,29 +18409,29 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
                 if (scriptName.size()>0)
                 { // new way
                     int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-                    script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
                 }
             }
             if (scriptHandleOrType==sim_scripttype_customizationscript)
             { // new way only possible (6 was not available in the old way)
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-                script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
             }
         }
         else
         { // this is the old way of doing it. Deprecated. Was only 2 months active, not officially
             variableName=variableNameAtScriptName;
             if (scriptHandleOrType==0) // main script
-                script=App::currentWorld->luaScriptContainer->getMainScript();
+                script=App::currentWorld->embeddedScriptContainer->getMainScript();
             if (scriptHandleOrType==3) // child script
             {
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(reservedSetToNull);
-                script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
             }
             if (scriptHandleOrType==5) // customization
             {
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(reservedSetToNull);
-                script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
             }
         }
     }
@@ -19488,8 +19507,8 @@ simInt simHandleCustomizationScripts_internal(simInt callType)
         int retVal=0;
         if (App::getEditModeType()==NO_EDIT_MODE)
         {
-            retVal=App::currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,callType,nullptr,nullptr,nullptr);
-            App::currentWorld->luaScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
+            retVal=App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,callType,nullptr,nullptr,nullptr);
+            App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
         }
         return(retVal);
     }
@@ -19511,7 +19530,7 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
             funcName.assign(funcNameAtScriptName.begin(),funcNameAtScriptName.begin()+p);
         else
             funcName=funcNameAtScriptName;
-        script=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptHandleOrType);
+        script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
     }
     else
     { // script is identified by a script type and sometimes also a script name
@@ -19528,16 +19547,16 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
             else
                 funcName=funcNameAtScriptName;
             if (scriptHandleOrType==sim_scripttype_mainscript)
-                script=App::currentWorld->luaScriptContainer->getMainScript();
+                script=App::currentWorld->embeddedScriptContainer->getMainScript();
             if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==(sim_scripttype_childscript|sim_scripttype_threaded_old)) )
             {
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-                script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
             }
             if (scriptHandleOrType==sim_scripttype_customizationscript)
             {
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-                script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
             }
             if (scriptHandleOrType==sim_scripttype_addonscript)
                 script=App::worldContainer->addOnScriptContainer->getAddOnScriptFromName(scriptName.c_str());
@@ -19546,16 +19565,16 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
         { // this is the old way of doing it. Deprecated. Was only 2 months active, not officially
             funcName=functionNameAtScriptName;
             if (scriptHandleOrType==0) // main script
-                script=App::currentWorld->luaScriptContainer->getMainScript();
+                script=App::currentWorld->embeddedScriptContainer->getMainScript();
             if (scriptHandleOrType==3) // child script
             {
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(reservedSetToNull);
-                script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
             }
             if (scriptHandleOrType==5) // customization
             {
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(reservedSetToNull);
-                script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
             }
         }
     }
@@ -19618,7 +19637,7 @@ simChar* simGetScriptSimulationParameter_internal(simInt scriptHandle,const simC
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
         CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(scriptHandle);
         if ( (it!=nullptr)||(obj!=nullptr) )
         {
@@ -19658,7 +19677,7 @@ simInt simSetScriptSimulationParameter_internal(simInt scriptHandle,const simCha
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptHandle);
+        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
         CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(scriptHandle);
         int retVal=-1;
         if ( (it!=nullptr)||(obj!=nullptr) )
@@ -20522,7 +20541,7 @@ simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dat
     {
         if ( (targetID!=0)&&(targetID!=sim_handle_all) )
         {
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(targetID);
+            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(targetID);
             if (it==nullptr)
             {
                 CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_TARGET_HANDLE);
@@ -20560,7 +20579,7 @@ simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dat
         if (persistence==0.0f)
             persistence=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())*1.5f/1000000.0f;
         std::string datN(dataName);
-        App::currentWorld->luaScriptContainer->broadcastDataContainer.broadcastData(0,targetID,dataHeader,datN,
+        App::currentWorld->embeddedScriptContainer->broadcastDataContainer.broadcastData(0,targetID,dataHeader,datN,
                         float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+persistence,actionRadius,antennaHandle,
                         emissionAngle1,emissionAngle2,data,dataLength);
         return(1);
@@ -20609,7 +20628,7 @@ simChar* simReceiveData_internal(simInt dataHeader,const simChar* dataName,simIn
         int theSenderID;
         int theDataHeader;
         std::string theDataName;
-        char* data0=App::currentWorld->luaScriptContainer->broadcastDataContainer.receiveData(0,float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f,
+        char* data0=App::currentWorld->embeddedScriptContainer->broadcastDataContainer.receiveData(0,float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f,
                 dataHeader,datNm,antennaHandle,dataLength[0],theIndex,theSenderID,theDataHeader,theDataName);
         char* retData=nullptr;
         if (data0!=nullptr)
@@ -21796,7 +21815,7 @@ simInt simModifyGhost_internal(simInt ghostGroup,simInt ghostId,simInt operation
     return(-1);
 }
 
-simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* dataStreamName,simFloat data)
+simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* streamName,simFloat data)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -21811,7 +21830,7 @@ simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* dataStream
         if (!isGraph(__func__,graphHandle))
             return(-1);
         CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
-        CGraphData_old* stream=it->getGraphData(dataStreamName);
+        CGraphData_old* stream=it->getGraphData(streamName);
         if (stream==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA_STREAM);

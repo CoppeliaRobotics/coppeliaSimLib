@@ -70,7 +70,7 @@ public:
     int runNonThreadedChildScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int runCustomizationScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int runAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int runSandboxScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int callSandboxScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     bool runSandboxScript_beforeMainScript();
 
     void terminateScriptExecutionExternally(bool generateErrorMsg);

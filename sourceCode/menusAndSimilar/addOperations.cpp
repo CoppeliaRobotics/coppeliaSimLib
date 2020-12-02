@@ -311,8 +311,8 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // we are NOT in the UI thread. We execute the command now:
             if (App::currentWorld->sceneObjects->getSelectionCount()==1)
             {
-                int scriptID=App::currentWorld->luaScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_childscript,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_OLDTHREADED_CHILD_SCRIPT_ACCMD);
-                CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptID);
+                int scriptID=App::currentWorld->embeddedScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_childscript,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_OLDTHREADED_CHILD_SCRIPT_ACCMD);
+                CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
                 if (script!=nullptr)
                     script->setObjectHandleThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
@@ -429,7 +429,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
 
             // Following 3 on 24/3/2017
             CLuaScriptObject* scriptObj=new CLuaScriptObject(sim_scripttype_customizationscript);
-            App::currentWorld->luaScriptContainer->insertScript(scriptObj);
+            App::currentWorld->embeddedScriptContainer->insertScript(scriptObj);
             scriptObj->setObjectHandleThatScriptIsAttachedTo(newObject->getObjectHandle());
             scriptObj->setScriptText("graph=require('graph_customization')");
 
@@ -1321,8 +1321,8 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
     bool canAddCustomizationScript=false;
     if (App::currentWorld->sceneObjects->getSelectionCount()==1)
     {
-        canAddChildScript=(App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))==nullptr)&&App::currentWorld->simulation->isSimulationStopped();
-        canAddCustomizationScript=(App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))==nullptr)&&App::currentWorld->simulation->isSimulationStopped();
+        canAddChildScript=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))==nullptr)&&App::currentWorld->simulation->isSimulationStopped();
+        canAddCustomizationScript=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))==nullptr)&&App::currentWorld->simulation->isSimulationStopped();
     }
 
     std::vector<int> rootSel;

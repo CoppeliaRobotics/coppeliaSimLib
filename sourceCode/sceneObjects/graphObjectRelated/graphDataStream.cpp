@@ -12,7 +12,7 @@ CGraphDataStream::CGraphDataStream(const char* streamName,const char* unitStr,in
 {
     _streamName=streamName;
     setBasics(unitStr,options,color,cyclicRange,scriptHandle);
-    setTransformation(sim_datastream_transf_raw,1.0f,0.0f,1);
+    setTransformation(sim_stream_transf_raw,1.0f,0.0f,1);
     _nextValueToInsertIsValid=false;
 }
 
@@ -29,7 +29,6 @@ void CGraphDataStream::setBasics(const char* unitStr,int options,const float* co
     _visible=(options&1)==0;
     _showLabel=(options&2)==0;
     _linkPoints=(options&4)==0;
-    _cyclic=(options&8)!=0;
     _cyclicRange=cyclicRange;
     _static=false;
     if (color!=nullptr)
@@ -109,8 +108,6 @@ int CGraphDataStream::getOptions() const
         retVal|=2;
     if (!_linkPoints)
         retVal|=4;
-    if (_cyclic)
-        retVal|=8;
     return(retVal);
 }
 
@@ -153,22 +150,22 @@ void CGraphDataStream::insertNextValue(int absIndex,bool firstValue,const std::v
             _valuesValidityFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
             if (firstValue)
             { // this is the very first point
-                if (_transformationType==sim_datastream_transf_raw)
+                if (_transformationType==sim_stream_transf_raw)
                 {
                     _transformedValues[absIndex]=_values[absIndex];
                     _transformedValuesValidityFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
                 }
-                if (_transformationType==sim_datastream_transf_derivative)
+                if (_transformationType==sim_stream_transf_derivative)
                 { // invalid data
                     _transformedValues[absIndex]=0.0f;
                     _transformedValuesValidityFlags[absIndex/8]&=255-(1<<(absIndex&7)); // invalid data
                 }
-                if (_transformationType==sim_datastream_transf_integral)
+                if (_transformationType==sim_stream_transf_integral)
                 {
                     _transformedValues[absIndex]=0.0f;
                     _transformedValuesValidityFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
                 }
-                if (_transformationType==sim_datastream_transf_cumulative)
+                if (_transformationType==sim_stream_transf_cumulative)
                 {
                     _transformedValues[absIndex]=_values[absIndex];
                     _transformedValuesValidityFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
@@ -183,12 +180,12 @@ void CGraphDataStream::insertNextValue(int absIndex,bool firstValue,const std::v
                 else
                     prevIndex=absIndex-1;
                 float dt=(times[absIndex]-times[prevIndex]);
-                if (_transformationType==sim_datastream_transf_raw)
+                if (_transformationType==sim_stream_transf_raw)
                 {
                     _transformedValues[absIndex]=_values[absIndex];
                     _transformedValuesValidityFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
                 }
-                if (_transformationType==sim_datastream_transf_derivative)
+                if (_transformationType==sim_stream_transf_derivative)
                 {
                     if (dt==0.0f)
                     { // invalid data
@@ -199,7 +196,7 @@ void CGraphDataStream::insertNextValue(int absIndex,bool firstValue,const std::v
                     {
                         if ((_valuesValidityFlags[prevIndex/8]&(1<<(prevIndex&7)))!=0)
                         { // previous data was valid
-                            if (!_cyclic)
+                            if (_cyclicRange==0.0f)
                                 _transformedValues[absIndex]=(_values[absIndex]-_values[prevIndex])/dt;
                             else
                                 _transformedValues[absIndex]=(tt::getAngleMinusAlpha_range(_values[absIndex],_values[prevIndex],_cyclicRange))/dt;
@@ -212,13 +209,13 @@ void CGraphDataStream::insertNextValue(int absIndex,bool firstValue,const std::v
                         }
                     }
                 }
-                if (_transformationType==sim_datastream_transf_integral)
+                if (_transformationType==sim_stream_transf_integral)
                 {
                     if ((_valuesValidityFlags[prevIndex/8]&(1<<(prevIndex&7)))!=0)
                     { // previous data was valid
                         if ((_transformedValuesValidityFlags[prevIndex/8]&(1<<(prevIndex&7)))!=0)
                         { // previous transformed data was valid
-                            if (!_cyclic)
+                            if (_cyclicRange==0.0f)
                                 _transformedValues[absIndex]=_transformedValues[prevIndex]+(_values[prevIndex]+_values[absIndex])*0.5f*dt;
                             else
                                 _transformedValues[absIndex]=_transformedValues[prevIndex]+(_values[prevIndex]+tt::getAngleMinusAlpha_range(_values[absIndex],_values[prevIndex],_cyclicRange)*0.5f)*dt;
@@ -230,13 +227,13 @@ void CGraphDataStream::insertNextValue(int absIndex,bool firstValue,const std::v
                         _transformedValues[absIndex]=0.0f; // previous data was invalid
                     _transformedValuesValidityFlags[absIndex/8]|=(1<<(absIndex&7)); // valid transformed data
                 }
-                if (_transformationType==sim_datastream_transf_cumulative)
+                if (_transformationType==sim_stream_transf_cumulative)
                 {
                     if ((_valuesValidityFlags[prevIndex/8]&(1<<(prevIndex&7)))!=0)
                     { // previous data was valid
                         if ((_transformedValuesValidityFlags[prevIndex/8]&(1<<(prevIndex&7)))!=0)
                         { // previous transformed data was valid
-                            if (!_cyclic)
+                            if (_cyclicRange=0.0f)
                                 _transformedValues[absIndex]=_transformedValues[prevIndex]+_values[absIndex];
                             else
                                 _transformedValues[absIndex]=_transformedValues[prevIndex]+(_values[prevIndex]+tt::getAngleMinusAlpha_range(_values[absIndex],_values[prevIndex],_cyclicRange));
@@ -258,6 +255,7 @@ void CGraphDataStream::insertNextValue(int absIndex,bool firstValue,const std::v
             _transformedValuesValidityFlags[absIndex/8]&=255-(1<<(absIndex&7)); // invalid data
         }
     }
+    _nextValueToInsertIsValid=false;
 }
 
 bool CGraphDataStream::getTransformedValue(int startPt,int pos,float& retVal) const
@@ -448,7 +446,7 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             SIM_SET_CLEAR_BIT(nothing,0,_visible);
             SIM_SET_CLEAR_BIT(nothing,1,_showLabel);
             SIM_SET_CLEAR_BIT(nothing,2,_linkPoints);
-            SIM_SET_CLEAR_BIT(nothing,3,_cyclic);
+
             SIM_SET_CLEAR_BIT(nothing,4,_static);
             ar << nothing;
             ar.flush();
@@ -534,7 +532,7 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                         _visible=SIM_IS_BIT_SET(nothing,0);
                         _showLabel=SIM_IS_BIT_SET(nothing,1);
                         _linkPoints=SIM_IS_BIT_SET(nothing,2);
-                        _cyclic=SIM_IS_BIT_SET(nothing,3);
+
                         _static=SIM_IS_BIT_SET(nothing,4);
                     }
                     if (theName.compare("Pts")==0)
@@ -585,7 +583,7 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar.xmlAddNode_float("cyclicRange",_cyclicRange);
 
             ar.xmlPushNewNode("transformation");
-            ar.xmlAddNode_enum("type",_transformationType,sim_datastream_transf_raw,"raw",sim_datastream_transf_derivative,"derivative",sim_datastream_transf_integral,"integral",sim_datastream_transf_cumulative,"cumulative");
+            ar.xmlAddNode_enum("type",_transformationType,sim_stream_transf_raw,"raw",sim_stream_transf_derivative,"derivative",sim_stream_transf_integral,"integral",sim_stream_transf_cumulative,"cumulative");
             ar.xmlAddNode_float("scaling",_transformationMult);
             ar.xmlAddNode_float("offset",_transformationOff);
             ar.xmlAddNode_int("movingAveragePeriod",_movingAveragePeriod);
@@ -595,7 +593,6 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar.xmlAddNode_bool("visible",_visible);
             ar.xmlAddNode_bool("showLabel",_showLabel);
             ar.xmlAddNode_bool("linkPoints",_linkPoints);
-            ar.xmlAddNode_bool("cyclic",_cyclic);
             ar.xmlAddNode_bool("static",_static);
             ar.xmlPopNode();
 
@@ -655,7 +652,7 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
 
             if (ar.xmlPushChildNode("transformation"))
             {
-                ar.xmlGetNode_enum("type",_transformationType,true,"raw",sim_datastream_transf_raw,"derivative",sim_datastream_transf_derivative,"integral",sim_datastream_transf_integral,"cumulative",sim_datastream_transf_cumulative);
+                ar.xmlGetNode_enum("type",_transformationType,true,"raw",sim_stream_transf_raw,"derivative",sim_stream_transf_derivative,"integral",sim_stream_transf_integral,"cumulative",sim_stream_transf_cumulative);
                 ar.xmlGetNode_float("scaling",_transformationMult);
                 ar.xmlGetNode_float("offset",_transformationOff);
                 ar.xmlGetNode_int("movingAveragePeriod",_movingAveragePeriod);
@@ -667,7 +664,6 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                 ar.xmlGetNode_bool("visible",_visible);
                 ar.xmlGetNode_bool("showLabel",_showLabel);
                 ar.xmlGetNode_bool("linkPoints",_linkPoints);
-                ar.xmlGetNode_bool("cyclic",_cyclic);
                 ar.xmlGetNode_bool("static",_static);
                 ar.xmlPopNode();
             }
@@ -711,7 +707,6 @@ CGraphDataStream* CGraphDataStream::copyYourself() const
     newObj->_showLabel=_showLabel;
     newObj->_linkPoints=_linkPoints;
     newObj->_static=_static;
-    newObj->_cyclic=_cyclic;
     newObj->_cyclicRange=_cyclicRange;
     newObj->_transformationType=_transformationType;
     newObj->_transformationMult=_transformationMult;

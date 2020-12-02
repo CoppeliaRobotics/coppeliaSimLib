@@ -521,29 +521,29 @@ SIM_DLLEXPORT simInt simResetGraph(simInt graphHandle)
 {
     return(simResetGraph_internal(graphHandle));
 }
-SIM_DLLEXPORT simInt simAddGraphDataStream(simInt graphHandle,const simChar* streamName,const simChar* unitStr,simInt options,const simFloat* color,simFloat cyclicRange)
+SIM_DLLEXPORT simInt simAddGraphStream(simInt graphHandle,const simChar* streamName,const simChar* unitStr,simInt options,const simFloat* color,simFloat cyclicRange)
 {
-    return(simAddGraphDataStream_internal(graphHandle,streamName,unitStr,options,color,cyclicRange));
+    return(simAddGraphStream_internal(graphHandle,streamName,unitStr,options,color,cyclicRange));
 }
 SIM_DLLEXPORT simInt simDestroyGraphCurve(simInt graphHandle,simInt curveId)
 {
     return(simDestroyGraphCurve_internal(graphHandle,curveId));
 }
-SIM_DLLEXPORT simInt simSetGraphDataStreamTransformation(simInt graphHandle,simInt streamId,simInt trType,simFloat mult,simFloat off,simInt movingAvgPeriod)
+SIM_DLLEXPORT simInt simSetGraphStreamTransformation(simInt graphHandle,simInt streamId,simInt trType,simFloat mult,simFloat off,simInt movingAvgPeriod)
 {
-    return(simSetGraphDataStreamTransformation_internal(graphHandle,streamId,trType,mult,off,movingAvgPeriod));
+    return(simSetGraphStreamTransformation_internal(graphHandle,streamId,trType,mult,off,movingAvgPeriod));
 }
 SIM_DLLEXPORT simInt simDuplicateGraphCurveToStatic(simInt graphHandle,simInt curveId,const simChar* curveName)
 {
     return(simDuplicateGraphCurveToStatic_internal(graphHandle,curveId,curveName));
 }
-SIM_DLLEXPORT simInt simAddGraphCurve(simInt graphHandle,simInt dim,const simInt* streamIds,const simFloat* defaultValues,const simChar* curveName,const simChar* unitStr,simInt options,const simFloat* color,simInt curveWidth)
+SIM_DLLEXPORT simInt simAddGraphCurve(simInt graphHandle,const simChar* curveName,simInt dim,const simInt* streamIds,const simFloat* defaultValues,const simChar* unitStr,simInt options,const simFloat* color,simInt curveWidth)
 {
-    return(simAddGraphCurve_internal(graphHandle,dim,streamIds,defaultValues,curveName,unitStr,options,color,curveWidth));
+    return(simAddGraphCurve_internal(graphHandle,curveName,dim,streamIds,defaultValues,unitStr,options,color,curveWidth));
 }
-SIM_DLLEXPORT simInt simSetGraphDataStreamValue(simInt graphHandle,simInt streamId,simFloat value)
+SIM_DLLEXPORT simInt simSetGraphStreamValue(simInt graphHandle,simInt streamId,simFloat value)
 {
-    return(simSetGraphDataStreamValue_internal(graphHandle,streamId,value));
+    return(simSetGraphStreamValue_internal(graphHandle,streamId,value));
 }
 SIM_DLLEXPORT simInt simSetNavigationMode(simInt navigationMode)
 {
@@ -748,6 +748,10 @@ SIM_DLLEXPORT simInt simGetVelocity(simInt shapeHandle,simFloat* linearVelocity,
 SIM_DLLEXPORT simInt simGetObjectVelocity(simInt objectHandle,simFloat* linearVelocity,simFloat* angularVelocity)
 {
     return(simGetObjectVelocity_internal(objectHandle,linearVelocity,angularVelocity));
+}
+SIM_DLLEXPORT simInt simGetJointVelocity(simInt jointHandle,simFloat* velocity)
+{
+    return(simGetJointVelocity_internal(jointHandle,velocity));
 }
 SIM_DLLEXPORT simInt simAddForceAndTorque(simInt shapeHandle,const simFloat* force,const simFloat* torque)
 {
@@ -2509,9 +2513,9 @@ SIM_DLLEXPORT simInt simModifyGhost(simInt ghostGroup,simInt ghostId,simInt oper
 {
     return(simModifyGhost_internal(ghostGroup,ghostId,operation,floatValue,options,optionsMask,colorOrTransformation));
 }
-SIM_DLLEXPORT simInt simSetGraphUserData(simInt graphHandle,const simChar* dataStreamName,simFloat data)
+SIM_DLLEXPORT simInt simSetGraphUserData(simInt graphHandle,const simChar* streamName,simFloat data)
 {
-    return(simSetGraphUserData_internal(graphHandle,dataStreamName,data));
+    return(simSetGraphUserData_internal(graphHandle,streamName,data));
 }
 SIM_DLLEXPORT simInt simAddPointCloud(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals)
 {

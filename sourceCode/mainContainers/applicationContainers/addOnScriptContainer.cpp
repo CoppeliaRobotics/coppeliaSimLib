@@ -228,7 +228,7 @@ bool CAddOnScriptContainer::handleAddOnScriptExecution_beforeMainScript()
     return(retVal);
 }
 
-int CAddOnScriptContainer::handleAddOnScriptExecution(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack)
+int CAddOnScriptContainer::callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack)
 {
     int retVal=0;
     for (size_t i=0;i<allAddOnScripts.size();i++)

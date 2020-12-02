@@ -40,13 +40,13 @@ void CQDlgAddGraphCurve::refresh()
     ui->qqComboX->addItem("0.0",QVariant(-1));
     ui->qqComboY->addItem("0.0",QVariant(-1));
     ui->qqComboZ->addItem("0.0",QVariant(-1));
-    for (size_t i=0;i<it->daten.size();i++)
+    for (size_t i=0;i<it->dataStreams_old.size();i++)
     {
-        int theID=it->daten[i]->getIdentifier();
-        ui->qqComboX->addItem(it->daten[i]->getName().c_str(),QVariant(theID));
-        ui->qqComboY->addItem(it->daten[i]->getName().c_str(),QVariant(theID));
+        int theID=it->dataStreams_old[i]->getIdentifier();
+        ui->qqComboX->addItem(it->dataStreams_old[i]->getName().c_str(),QVariant(theID));
+        ui->qqComboY->addItem(it->dataStreams_old[i]->getName().c_str(),QVariant(theID));
         if (!xyGraph)
-            ui->qqComboZ->addItem(it->daten[i]->getName().c_str(),QVariant(theID));
+            ui->qqComboZ->addItem(it->dataStreams_old[i]->getName().c_str(),QVariant(theID));
     }
 }
 

@@ -74,6 +74,8 @@ public:
     void getGraphDataStreamsFromIds(const int ids[3],CGraphDataStream* streams[3]) const;
     CGraphCurve* getGraphCurve(int id) const;
     CGraphCurve* getGraphCurve(const char* name,bool staticCurve) const;
+    size_t getGraphCurveCount() const;
+    CGraphCurve* getGraphCurveFromIndex(size_t index) const;
     bool removeGraphDataStream(int id);
     bool removeGraphCurve(int id);
     void removeAllStreamsAndCurves();
@@ -133,10 +135,10 @@ public:
     bool getJustDrawCurves() const;
     bool getData(const CGraphData_old* it,int pos,float& outputValue,bool cyclic,float range,bool doUnitConversion) const;
     int getTrackingValueIndex() const;
-    std::vector <CGraphData_old*> daten;
-    std::vector <CGraphDataComb_old*> threeDPartners;
-    std::vector <CGraphDataComb_old*> twoDPartners;
-    std::vector <CStaticGraphCurve_old*> _staticCurves;
+    std::vector <CGraphData_old*> dataStreams_old;
+    std::vector <CGraphDataComb_old*> curves3d_old;
+    std::vector <CGraphDataComb_old*> curves2d_old;
+    std::vector <CStaticGraphCurve_old*> staticStreamsAndCurves_old;
 
 protected:
     CStaticGraphCurve_old* getStaticCurveFromName(int type,const char* name);

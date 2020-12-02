@@ -19,7 +19,7 @@ CWorld::CWorld()
     pageContainer=nullptr;
     mainSettings=nullptr;
     pathPlanning=nullptr;
-    luaScriptContainer=nullptr;
+    embeddedScriptContainer=nullptr;
     textureContainer=nullptr;
     simulation=nullptr;
     customSceneData=nullptr;
@@ -58,7 +58,7 @@ void CWorld::initializeWorld()
     buttonBlockContainer=new CButtonBlockContainer(true);
     simulation=new CSimulation();
     textureContainer=new CTextureContainer();
-    luaScriptContainer=new CLuaScriptContainer();
+    embeddedScriptContainer=new CEmbeddedScriptContainer();
 
     _CWorld_::initializeWorld();
 
@@ -99,7 +99,7 @@ void CWorld::clearScene(bool notCalledFromUndoFunction)
     collisions->removeAllCollisionObjects();
     collisions->setUpDefaultValues();
     pathPlanning->removeAllTasks();
-    luaScriptContainer->removeAllScripts();
+    embeddedScriptContainer->removeAllScripts();
 
     simulation->setUpDefaultValues();
     if (buttonBlockContainer!=nullptr)
@@ -125,8 +125,8 @@ void CWorld::deleteWorld()
     simulation->setOnlineMode(false); // disable online mode before deleting
     delete undoBufferContainer;
     undoBufferContainer=nullptr;
-    delete luaScriptContainer;
-    luaScriptContainer=nullptr;
+    delete embeddedScriptContainer;
+    embeddedScriptContainer=nullptr;
     delete dynamicsContainer;
     dynamicsContainer=nullptr;
     delete mainSettings;
@@ -529,9 +529,9 @@ void CWorld::saveScene(CSer& ar)
     }
 
     // We serialize the lua script objects (not the add-on scripts nor the sandbox script):
-    for (size_t i=0;i<luaScriptContainer->allScripts.size();i++)
+    for (size_t i=0;i<embeddedScriptContainer->allScripts.size();i++)
     {
-        CLuaScriptObject* it=luaScriptContainer->allScripts[i];
+        CLuaScriptObject* it=embeddedScriptContainer->allScripts[i];
         if (it->isSceneScript())
         {
             if (ar.isBinary())
@@ -587,10 +587,10 @@ void CWorld::simulationAboutToStart()
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
-    luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforesimulation,nullptr,nullptr,nullptr);
-    App::worldContainer->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforesimulation,nullptr,nullptr);
+    embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforesimulation,nullptr,nullptr,nullptr);
+    App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_beforesimulation,nullptr,nullptr);
     if (App::worldContainer->sandboxScript!=nullptr)
-        App::worldContainer->sandboxScript->runSandboxScript(sim_syscb_beforesimulation,nullptr,nullptr);
+        App::worldContainer->sandboxScript->callSandboxScript(sim_syscb_beforesimulation,nullptr,nullptr);
 
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
     for (size_t i=0;i<sceneObjects->getObjectCount();i++)
@@ -723,10 +723,10 @@ void CWorld::simulationEnded(bool removeNewObjects)
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
     POST_SCENE_CHANGED_ANNOUNCEMENT(""); // keeps this (additional objects were removed, and object positions were reset)
 
-    luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_aftersimulation,nullptr,nullptr,nullptr);
-    App::worldContainer->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_aftersimulation,nullptr,nullptr);
+    embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_aftersimulation,nullptr,nullptr,nullptr);
+    App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_aftersimulation,nullptr,nullptr);
     if (App::worldContainer->sandboxScript!=nullptr)
-        App::worldContainer->sandboxScript->runSandboxScript(sim_syscb_aftersimulation,nullptr,nullptr);
+        App::worldContainer->sandboxScript->callSandboxScript(sim_syscb_aftersimulation,nullptr,nullptr);
 }
 
 void CWorld::setEnableRemoteWorldsSync(bool enabled)
@@ -882,7 +882,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     for (size_t i=0;i<loadedLuaScriptList->size();i++)
     {
         luaScriptMapping.push_back(loadedLuaScriptList->at(i)->getScriptHandle()); // Old ID
-        luaScriptContainer->insertScript(loadedLuaScriptList->at(i));
+        embeddedScriptContainer->insertScript(loadedLuaScriptList->at(i));
         luaScriptMapping.push_back(loadedLuaScriptList->at(i)->getScriptHandle()); // New ID
     }
     _prepareFastLoadingMapping(luaScriptMapping);
@@ -1033,7 +1033,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         int handle=_loadOperationIssues[i].objectHandle;
         std::string newTxt("NAME_NOT_FOUND");
         int handle2=getLoadingMapping(&luaScriptMapping,handle);
-        CLuaScriptObject* script=luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(handle2);
+        CLuaScriptObject* script=embeddedScriptContainer->getScriptFromHandle(handle2);
         if (script!=nullptr)
             newTxt=script->getShortDescriptiveName();
         std::string msg(_loadOperationIssues[i].message);
@@ -1130,7 +1130,7 @@ void CWorld::renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase*
 
 void CWorld::announceObjectWillBeErased(int objectHandle)
 {
-    luaScriptContainer->announceObjectWillBeErased(objectHandle);
+    embeddedScriptContainer->announceObjectWillBeErased(objectHandle);
     sceneObjects->announceObjectWillBeErased(objectHandle);
     drawingCont->announceObjectWillBeErased(objectHandle);
     textureContainer->announceGeneralObjectWillBeErased(objectHandle,-1);
@@ -1610,7 +1610,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
             stack.insertDataIntoStackTable();
         }
         stack.insertDataIntoStackTable();
-        luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercreate,&stack);
+        App::worldContainer->callScripts(sim_syscb_aftercreate,&stack);
     }
 
     // Following for backward compatibility for vision sensor filters:
@@ -1622,12 +1622,12 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
         if (txt.size()>0)
         {
             cf->scriptEquivalent.clear();
-            CLuaScriptObject* script=luaScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
+            CLuaScriptObject* script=embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
             if (script==nullptr)
             {
                 txt=std::string("function sysCall_init()\nend\n\n")+txt;
                 script=new CLuaScriptObject(sim_scripttype_customizationscript);
-                luaScriptContainer->insertScript(script);
+                embeddedScriptContainer->insertScript(script);
                 script->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
             }
             std::string t(script->getScriptText());
@@ -1641,13 +1641,13 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
         CForceSensor* it=sceneObjects->getForceSensorFromIndex(i);
         if (it->getStillAutomaticallyBreaking())
         {
-            CLuaScriptObject* script=luaScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
+            CLuaScriptObject* script=embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
             std::string txt("function sysCall_trigger(inData)\n    -- callback function automatically added for backward compatibility\n    sim.breakForceSensor(inData.handle)\nend\n\n");
             if (script==nullptr)
             {
                 txt=std::string("function sysCall_init()\nend\n\n")+txt;
                 script=new CLuaScriptObject(sim_scripttype_customizationscript);
-                luaScriptContainer->insertScript(script);
+                embeddedScriptContainer->insertScript(script);
                 script->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
             }
             std::string t(script->getScriptText());
@@ -1659,7 +1659,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
     // Following for backward compatibility (Lua script parameters are now attached to objects, and not scripts anymore):
     for (size_t i=0;i<loadedLuaScriptList.size();i++)
     {
-        CLuaScriptObject* script=luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(loadedLuaScriptList[i]->getScriptHandle());
+        CLuaScriptObject* script=embeddedScriptContainer->getScriptFromHandle(loadedLuaScriptList[i]->getScriptHandle());
         if (script!=nullptr)
         {
             CUserParameters* params=script->getScriptParametersObject_backCompatibility();
@@ -1738,8 +1738,8 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
         ar.xmlPopNode();
     }
 
-    if ( isScene&&(luaScriptContainer->getMainScript()==nullptr) )
-        luaScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_mainscript,false,false);
+    if ( isScene&&(embeddedScriptContainer->getMainScript()==nullptr) )
+        embeddedScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_mainscript,false,false);
 
     CCamera* mainCam=nullptr;
 
@@ -1773,13 +1773,13 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
                 if (childScript!=nullptr)
                 {
                     hasAScriptAttached=true;
-                    luaScriptContainer->insertScript(childScript);
+                    embeddedScriptContainer->insertScript(childScript);
                     childScript->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
                 }
                 if (customizationScript!=nullptr)
                 {
                     hasAScriptAttached=true;
-                    luaScriptContainer->insertScript(customizationScript);
+                    embeddedScriptContainer->insertScript(customizationScript);
                     customizationScript->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
                 }
                 simpleXmlObjects.erase(simpleXmlObjects.begin()+i);
@@ -2075,7 +2075,7 @@ void CWorld::_simulationAboutToStart()
 {
     buttonBlockContainer->simulationAboutToStart();
     dynamicsContainer->simulationAboutToStart();
-    luaScriptContainer->simulationAboutToStart();
+    embeddedScriptContainer->simulationAboutToStart();
     sceneObjects->simulationAboutToStart();
     pageContainer->simulationAboutToStart();
     collisions->simulationAboutToStart();
@@ -2088,14 +2088,14 @@ void CWorld::_simulationAboutToStart()
 
 void CWorld::_simulationPaused()
 {
-    CLuaScriptObject* mainScript=luaScriptContainer->getMainScript();
+    CLuaScriptObject* mainScript=embeddedScriptContainer->getMainScript();
     if (mainScript!=nullptr)
         mainScript->runMainScript(sim_syscb_suspend,nullptr,nullptr,nullptr);
 }
 
 void CWorld::_simulationAboutToResume()
 {
-    CLuaScriptObject* mainScript=luaScriptContainer->getMainScript();
+    CLuaScriptObject* mainScript=embeddedScriptContainer->getMainScript();
     if (mainScript!=nullptr)
         mainScript->runMainScript(sim_syscb_resume,nullptr,nullptr,nullptr);
 }
@@ -2107,7 +2107,7 @@ void CWorld::_simulationAboutToStep()
 
 void CWorld::_simulationAboutToEnd()
 {
-    luaScriptContainer->simulationAboutToEnd(); // will call a last time the main and all non-threaded child scripts, then reset them
+    embeddedScriptContainer->simulationAboutToEnd(); // will call a last time the main and all non-threaded child scripts, then reset them
 }
 
 void CWorld::_simulationEnded()
@@ -2118,7 +2118,7 @@ void CWorld::_simulationEnded()
     buttonBlockContainer->simulationEnded();
     dynamicsContainer->simulationEnded();
     signalContainer->simulationEnded();
-    luaScriptContainer->simulationEnded();
+    embeddedScriptContainer->simulationEnded();
     sceneObjects->simulationEnded();
     pageContainer->simulationEnded();
     collisions->simulationEnded();

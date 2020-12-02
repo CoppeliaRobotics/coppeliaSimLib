@@ -146,12 +146,12 @@ SIM_DLLEXPORT simInt simAdjustView(simInt viewHandleOrIndex,simInt associatedVie
 SIM_DLLEXPORT simInt simSetLastError(const simChar* funcName,const simChar* errorMessage);
 SIM_DLLEXPORT simInt simHandleGraph(simInt graphHandle,simFloat simulationTime);
 SIM_DLLEXPORT simInt simResetGraph(simInt graphHandle);
-SIM_DLLEXPORT simInt simAddGraphDataStream(simInt graphHandle,const simChar* streamName,const simChar* unitStr,simInt options,const simFloat* color,simFloat cyclicRange);
+SIM_DLLEXPORT simInt simAddGraphStream(simInt graphHandle,const simChar* streamName,const simChar* unitStr,simInt options,const simFloat* color,simFloat cyclicRange);
 SIM_DLLEXPORT simInt simDestroyGraphCurve(simInt graphHandle,simInt curveId);
-SIM_DLLEXPORT simInt simSetGraphDataStreamTransformation(simInt graphHandle,simInt streamId,simInt trType,simFloat mult,simFloat off,simInt movingAvgPeriod);
+SIM_DLLEXPORT simInt simSetGraphStreamTransformation(simInt graphHandle,simInt streamId,simInt trType,simFloat mult,simFloat off,simInt movingAvgPeriod);
 SIM_DLLEXPORT simInt simDuplicateGraphCurveToStatic(simInt graphHandle,simInt curveId,const simChar* curveName);
-SIM_DLLEXPORT simInt simAddGraphCurve(simInt graphHandle,simInt dim,const simInt* streamIds,const simFloat* defaultValues,const simChar* curveName,const simChar* unitStr,simInt options,const simFloat* color,simInt curveWidth);
-SIM_DLLEXPORT simInt simSetGraphDataStreamValue(simInt graphHandle,simInt streamId,simFloat value);
+SIM_DLLEXPORT simInt simAddGraphCurve(simInt graphHandle,const simChar* curveName,simInt dim,const simInt* streamIds,const simFloat* defaultValues,const simChar* unitStr,simInt options,const simFloat* color,simInt curveWidth);
+SIM_DLLEXPORT simInt simSetGraphStreamValue(simInt graphHandle,simInt streamId,simFloat value);
 SIM_DLLEXPORT simInt simSetNavigationMode(simInt navigationMode);
 SIM_DLLEXPORT simInt simGetNavigationMode();
 SIM_DLLEXPORT simInt simSetPage(simInt index);
@@ -202,6 +202,7 @@ SIM_DLLEXPORT simInt simSetLightParameters(simInt objectHandle,simInt state,cons
 SIM_DLLEXPORT simInt simGetLightParameters(simInt objectHandle,simFloat* setToNULL,simFloat* diffusePart,simFloat* specularPart);
 SIM_DLLEXPORT simInt simGetVelocity(simInt shapeHandle,simFloat* linearVelocity,simFloat* angularVelocity);
 SIM_DLLEXPORT simInt simGetObjectVelocity(simInt objectHandle,simFloat* linearVelocity,simFloat* angularVelocity);
+SIM_DLLEXPORT simInt simGetJointVelocity(simInt jointHandle,simFloat* velocity);
 SIM_DLLEXPORT simInt simAddForceAndTorque(simInt shapeHandle,const simFloat* force,const simFloat* torque);
 SIM_DLLEXPORT simInt simAddForce(simInt shapeHandle,const simFloat* position,const simFloat* force);
 SIM_DLLEXPORT simInt simSetExplicitHandling(simInt objectHandle,int explicitFlags);
@@ -654,7 +655,7 @@ SIM_DLLEXPORT simInt simAddBanner(const simChar* label,simFloat size,simInt opti
 SIM_DLLEXPORT simInt simRemoveBanner(simInt bannerID);
 SIM_DLLEXPORT simInt simAddGhost(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color);
 SIM_DLLEXPORT simInt simModifyGhost(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation);
-SIM_DLLEXPORT simInt simSetGraphUserData(simInt graphHandle,const simChar* dataStreamName,simFloat data);
+SIM_DLLEXPORT simInt simSetGraphUserData(simInt graphHandle,const simChar* streamName,simFloat data);
 SIM_DLLEXPORT simInt simAddPointCloud(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals);
 SIM_DLLEXPORT simInt simModifyPointCloud(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam);
 // Deprecated end

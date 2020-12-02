@@ -4,11 +4,11 @@
 #include "broadcastDataContainer.h"
 #include "simInternal.h"
 
-class CLuaScriptContainer 
+class CEmbeddedScriptContainer
 {
 public:
-    CLuaScriptContainer();
-    virtual ~CLuaScriptContainer();
+    CEmbeddedScriptContainer();
+    virtual ~CEmbeddedScriptContainer();
     void simulationAboutToStart();
     void simulationEnded();
     void simulationAboutToEnd();
@@ -17,8 +17,7 @@ public:
     bool removeScript_safe(int scriptHandle);
     bool removeScript(int scriptHandle);
     int insertScript(CLuaScriptObject* script);
-    CLuaScriptObject* getScriptFromHandle_alsoAddOnsAndSandbox(int scriptHandle) const;
-    CLuaScriptObject* getScriptFromHandle_noAddOnsNorSandbox(int scriptHandle) const;
+    CLuaScriptObject* getScriptFromHandle(int scriptHandle) const;
     CLuaScriptObject* getMainScript() const;
     CLuaScriptObject* getScriptFromObjectAttachedTo_child(int objectHandle) const;
     CLuaScriptObject* getScriptFromObjectAttachedTo_customization(int objectHandle) const;
@@ -45,18 +44,12 @@ public:
     bool isContactCallbackFunctionAvailable();
     bool isDynCallbackFunctionAvailable();
 
-    void callChildMainCustomizationAddonSandboxScriptWithData(int callType,CInterfaceStack* inStack);
+    void callScripts(int callType,CInterfaceStack* inStack);
     void sceneOrModelAboutToBeSaved(int modelBase);
 
     std::vector<CLuaScriptObject*> allScripts;
 
-    /*
-    int getScriptSimulationParameter_mainAndChildScriptsOnly(int scriptHandle,const char* parameterName,std::string& parameterValue) const;
-    int setScriptSimulationParameter_mainAndChildScriptsOnly(int scriptHandle,const char* parameterName,const char* parameterValue,int parameterValueLength);
-    */
-
     CBroadcastDataContainer broadcastDataContainer;
-
 
 protected:
     int _getScriptsToExecute(int scriptType,std::vector<CLuaScriptObject*>& scripts,std::vector<int>& uniqueIds) const;

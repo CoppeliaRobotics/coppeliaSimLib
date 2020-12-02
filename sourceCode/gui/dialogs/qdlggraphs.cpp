@@ -121,10 +121,10 @@ void CQDlgGraphs::refresh()
         ui->qqBufferSize->setText(tt::getIString(false,it->getBufferSize()).c_str());
 
         ui->qqTransformationCombo->clear();
-        ui->qqTransformationCombo->addItem(IDS_RAW,QVariant(sim_datastream_transf_raw));
-        ui->qqTransformationCombo->addItem(IDS_DERIVATIVE,QVariant(sim_datastream_transf_derivative));
-        ui->qqTransformationCombo->addItem(IDS_INTEGRAL,QVariant(sim_datastream_transf_integral));
-        ui->qqTransformationCombo->addItem(IDS_CUMULATIVE,QVariant(sim_datastream_transf_cumulative));
+        ui->qqTransformationCombo->addItem(IDS_RAW,QVariant(sim_stream_transf_raw));
+        ui->qqTransformationCombo->addItem(IDS_DERIVATIVE,QVariant(sim_stream_transf_derivative));
+        ui->qqTransformationCombo->addItem(IDS_INTEGRAL,QVariant(sim_stream_transf_integral));
+        ui->qqTransformationCombo->addItem(IDS_CUMULATIVE,QVariant(sim_stream_transf_cumulative));
 
         if (graphData!=nullptr)
         {
@@ -171,12 +171,12 @@ void CQDlgGraphs::updateObjectsInList()
         return;
     CGraph* it=App::currentWorld->sceneObjects->getLastSelectionGraph();
     noListSelectionAllowed=true;
-    for (size_t i=0;i<it->daten.size();i++)
+    for (size_t i=0;i<it->dataStreams_old.size();i++)
     {
-        int dataType=it->daten[i]->getDataType();
-        int dataObjectID=it->daten[i]->getDataObjectID();
-        int theID=it->daten[i]->getIdentifier();
-        std::string tmp=it->daten[i]->getName();
+        int dataType=it->dataStreams_old[i]->getDataType();
+        int dataObjectID=it->dataStreams_old[i]->getDataObjectID();
+        int theID=it->dataStreams_old[i]->getIdentifier();
+        std::string tmp=it->dataStreams_old[i]->getName();
         tmp=tmp.append(" [");
         std::string tmp2=IDS_ERROR;
         CGraphingRoutines_old::loopThroughAllAndGetDataName(dataType,tmp2);

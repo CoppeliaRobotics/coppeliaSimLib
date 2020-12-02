@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "luaScriptObject.h"
@@ -32,11 +31,8 @@ public:
     int insertAddOnScripts();
     int prepareAddOnFunctionNames();
 
-    void addCallbackStructureObjectToDestroyAtTheEndOfSimulation_new(SScriptCallBack* object);
-    void addCallbackStructureObjectToDestroyAtTheEndOfSimulation_old(SLuaCallBack* object);
-
     bool handleAddOnScriptExecution_beforeMainScript();
-    int handleAddOnScriptExecution(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack);
 
     std::vector<CLuaScriptObject*> allAddOnScripts;
     std::vector<std::string> allAddOnFunctionNames;

@@ -2113,10 +2113,10 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         }
     }
 
-    CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+    CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
     if ( (script!=nullptr)&&(!script->getContainsVisionCallbackFunction()) )
         script=nullptr;
-    CLuaScriptObject* cScript=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
+    CLuaScriptObject* cScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
     if ( (cScript!=nullptr)&&(!cScript->getContainsVisionCallbackFunction()) )
         cScript=nullptr;
     if ( (script!=nullptr)||(cScript!=nullptr) )

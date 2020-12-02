@@ -437,7 +437,7 @@ HEADERS += $$PWD/sourceCode/mainContainers/sceneContainers/drawingContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/sceneObjectContainer.h \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_sceneObjectContainer_.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/mainSettings.h \
-    $$PWD/sourceCode/mainContainers/sceneContainers/luaScriptContainer.h \
+    $$PWD/sourceCode/mainContainers/sceneContainers/embeddedScriptContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/environment.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/dynamicsContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/commTubeContainer.h \
@@ -870,7 +870,7 @@ SOURCES += $$PWD/sourceCode/mainContainers/sceneContainers/bannerContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_sceneObjectContainer_.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/mainSettings.cpp \
-    $$PWD/sourceCode/mainContainers/sceneContainers/luaScriptContainer.cpp \
+    $$PWD/sourceCode/mainContainers/sceneContainers/embeddedScriptContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/environment.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/dynamicsContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/customData.cpp \

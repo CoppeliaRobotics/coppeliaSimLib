@@ -1459,7 +1459,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
             if (!simpleXml) // because lossy
                 App::currentWorld->mainSettings->setScenePathAndName(_pathAndFilename.c_str());
 
-            App::currentWorld->luaScriptContainer->sceneOrModelAboutToBeSaved(-1);
+            App::currentWorld->embeddedScriptContainer->sceneOrModelAboutToBeSaved(-1);
 
             if (changeSceneUniqueId)
                 App::currentWorld->environment->generateNewUniquePersistentIdString();
@@ -1507,7 +1507,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
 {
     if ( CSimFlavor::getBoolVal(16)||(saveBuffer!=nullptr) )
     {
-        App::currentWorld->luaScriptContainer->sceneOrModelAboutToBeSaved(modelBaseDummyID);
+        App::currentWorld->embeddedScriptContainer->sceneOrModelAboutToBeSaved(modelBaseDummyID);
         if (App::isFullScreen())
             displayDialogs=false;
         std::vector<int> sel;

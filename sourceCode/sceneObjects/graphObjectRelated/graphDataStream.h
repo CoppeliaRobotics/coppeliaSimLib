@@ -49,7 +49,6 @@ protected:
     bool _showLabel;
     bool _linkPoints;
     bool _static;
-    bool _cyclic;
     float _cyclicRange;
     float _color[3];
     int _transformationType;

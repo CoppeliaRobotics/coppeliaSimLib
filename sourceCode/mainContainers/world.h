@@ -7,7 +7,7 @@
 #include "simulation.h"
 #include "buttonBlockContainer.h"
 #include "outsideCommandQueue.h"
-#include "luaScriptContainer.h"
+#include "embeddedScriptContainer.h"
 #include "customData.h"
 #include "cacheCont.h"
 #include "textureContainer.h"
@@ -96,7 +96,7 @@ public:
     CEnvironment* environment;
     CPageContainer* pageContainer;
     CMainSettings* mainSettings;
-    CLuaScriptContainer* luaScriptContainer;
+    CEmbeddedScriptContainer* embeddedScriptContainer;
     CTextureContainer* textureContainer;
     CSimulation* simulation;
     CCustomData* customSceneData;

@@ -236,7 +236,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene)
         stack.insertDataIntoStackTable();
     }
     stack.insertDataIntoStackTable();
-    App::currentWorld->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercreate,&stack);
+    App::worldContainer->callScripts(sim_syscb_aftercreate,&stack);
 
     return(1);
 }
@@ -283,7 +283,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
     }
     stack.insertDataIntoStackTable();
 
-    App::currentWorld->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_beforecopy,&stack);
+    App::worldContainer->callScripts(sim_syscb_beforecopy,&stack);
 
     for (size_t i=0;i<selObj.size();i++)
     {
@@ -292,7 +292,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
         objectBuffer.push_back(it);
     }
 
-    App::currentWorld->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercopy,&stack);
+    App::worldContainer->callScripts(sim_syscb_aftercopy,&stack);
     // sceneObjects are copied. We need to prepare the parenting info:
     for (size_t i=0;i<selObj.size();i++)
     {
@@ -330,11 +330,11 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
     }
 
     // Other object copy:
-    for (size_t i=0;i<App::currentWorld->luaScriptContainer->allScripts.size();i++)
+    for (size_t i=0;i<App::currentWorld->embeddedScriptContainer->allScripts.size();i++)
     { // Copy only child scripts or customization scripts:
-        int st=App::currentWorld->luaScriptContainer->allScripts[i]->getScriptType();
-        if ( ( (st==sim_scripttype_childscript)||(st==sim_scripttype_customizationscript) )&&(App::currentWorld->luaScriptContainer->allScripts[i]->getObjectHandleThatScriptIsAttachedTo()!=-1) )
-            luaScriptBuffer.push_back(App::currentWorld->luaScriptContainer->allScripts[i]->copyYourself());
+        int st=App::currentWorld->embeddedScriptContainer->allScripts[i]->getScriptType();
+        if ( ( (st==sim_scripttype_childscript)||(st==sim_scripttype_customizationscript) )&&(App::currentWorld->embeddedScriptContainer->allScripts[i]->getObjectHandleThatScriptIsAttachedTo()!=-1) )
+            luaScriptBuffer.push_back(App::currentWorld->embeddedScriptContainer->allScripts[i]->copyYourself());
     }
     for (size_t i=0;i<App::currentWorld->textureContainer->_allTextureObjects.size();i++)
         textureObjectBuffer.push_back(App::currentWorld->textureContainer->_allTextureObjects[i]->copyYourself());

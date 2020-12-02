@@ -17,7 +17,7 @@ CGraphData_old::CGraphData_old()
     zoomFactor=1.0f;
     _lifeID=-1;
     _movingAverageCount=1; // no moving average!
-    _derivativeIntegralAndCumulative=sim_datastream_transf_raw;
+    _derivativeIntegralAndCumulative=sim_stream_transf_raw;
 }
 
 CGraphData_old::CGraphData_old(int theDataType,int theDataObjectID,int theDataObjectAuxID)
@@ -37,7 +37,7 @@ CGraphData_old::CGraphData_old(int theDataType,int theDataObjectID,int theDataOb
     ambientColor[1]=ambientColor[2]=0.0f;
     zoomFactor=1.0f;
     addCoeff=0.0f;
-    _derivativeIntegralAndCumulative=sim_datastream_transf_raw;
+    _derivativeIntegralAndCumulative=sim_stream_transf_raw;
     _movingAverageCount=1; // no moving average!
     name="Data";
 }
@@ -234,22 +234,22 @@ void CGraphData_old::setValueDirect(int absIndex,float theValue,bool firstValue,
     _floatDataValidFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
     if (firstValue)
     { // this is the very first point
-        if (_derivativeIntegralAndCumulative==sim_datastream_transf_raw)
+        if (_derivativeIntegralAndCumulative==sim_stream_transf_raw)
         {
             _transformedFloatData[absIndex]=_floatData[absIndex];
             _transformedFloatDataValidFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
         }
-        if (_derivativeIntegralAndCumulative==sim_datastream_transf_derivative)
+        if (_derivativeIntegralAndCumulative==sim_stream_transf_derivative)
         { // invalid data
             _transformedFloatData[absIndex]=0.0f;
             _transformedFloatDataValidFlags[absIndex/8]&=255-(1<<(absIndex&7)); // invalid data
         }
-        if (_derivativeIntegralAndCumulative==sim_datastream_transf_integral)
+        if (_derivativeIntegralAndCumulative==sim_stream_transf_integral)
         {
             _transformedFloatData[absIndex]=0.0f;
             _transformedFloatDataValidFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
         }
-        if (_derivativeIntegralAndCumulative==sim_datastream_transf_cumulative)
+        if (_derivativeIntegralAndCumulative==sim_stream_transf_cumulative)
         {
             _transformedFloatData[absIndex]=_floatData[absIndex];
             _transformedFloatDataValidFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
@@ -262,12 +262,12 @@ void CGraphData_old::setValueDirect(int absIndex,float theValue,bool firstValue,
         if (prevIndex<0)
             prevIndex+=(int)_floatData.size();
         float dt=(times[absIndex]-times[prevIndex]);
-        if (_derivativeIntegralAndCumulative==sim_datastream_transf_raw)
+        if (_derivativeIntegralAndCumulative==sim_stream_transf_raw)
         {
             _transformedFloatData[absIndex]=_floatData[absIndex];
             _transformedFloatDataValidFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
         }
-        if (_derivativeIntegralAndCumulative==sim_datastream_transf_derivative)
+        if (_derivativeIntegralAndCumulative==sim_stream_transf_derivative)
         {
             if (dt==0.0f)
             { // invalid data
@@ -291,7 +291,7 @@ void CGraphData_old::setValueDirect(int absIndex,float theValue,bool firstValue,
                 }
             }
         }
-        if (_derivativeIntegralAndCumulative==sim_datastream_transf_integral)
+        if (_derivativeIntegralAndCumulative==sim_stream_transf_integral)
         {
             if ((_floatDataValidFlags[prevIndex/8]&(1<<(prevIndex&7)))!=0)
             { // previous data was valid
@@ -309,7 +309,7 @@ void CGraphData_old::setValueDirect(int absIndex,float theValue,bool firstValue,
                 _transformedFloatData[absIndex]=0.0f; // previous data was invalid
             _transformedFloatDataValidFlags[absIndex/8]|=(1<<(absIndex&7)); // valid transformed data
         }
-        if (_derivativeIntegralAndCumulative==sim_datastream_transf_cumulative)
+        if (_derivativeIntegralAndCumulative==sim_stream_transf_cumulative)
         {
             if ((_floatDataValidFlags[prevIndex/8]&(1<<(prevIndex&7)))!=0)
             { // previous data was valid
@@ -667,7 +667,7 @@ void CGraphData_old::serialize(CSer& ar,void* it)
             ar.xmlAddNode_floats("color",ambientColor,3);
 
             ar.xmlPushNewNode("transformation");
-            ar.xmlAddNode_enum("value",_derivativeIntegralAndCumulative,sim_datastream_transf_raw,"original",sim_datastream_transf_derivative,"derivative",sim_datastream_transf_integral,"integral",sim_datastream_transf_cumulative,"cumulative");
+            ar.xmlAddNode_enum("value",_derivativeIntegralAndCumulative,sim_stream_transf_raw,"original",sim_stream_transf_derivative,"derivative",sim_stream_transf_integral,"integral",sim_stream_transf_cumulative,"cumulative");
             ar.xmlAddNode_float("scaling",zoomFactor);
             ar.xmlAddNode_float("offset",addCoeff);
             ar.xmlAddNode_int("movingAveragePeriod",_movingAverageCount);
@@ -728,7 +728,7 @@ void CGraphData_old::serialize(CSer& ar,void* it)
 
             if (ar.xmlPushChildNode("transformation"))
             {
-                ar.xmlGetNode_enum("value",_derivativeIntegralAndCumulative,true,"original",sim_datastream_transf_raw,"derivative",sim_datastream_transf_derivative,"integral",sim_datastream_transf_integral,"cumulative",sim_datastream_transf_cumulative);
+                ar.xmlGetNode_enum("value",_derivativeIntegralAndCumulative,true,"original",sim_stream_transf_raw,"derivative",sim_stream_transf_derivative,"integral",sim_stream_transf_integral,"cumulative",sim_stream_transf_cumulative);
                 ar.xmlGetNode_float("scaling",zoomFactor);
                 ar.xmlGetNode_float("offset",addCoeff);
                 ar.xmlGetNode_int("movingAveragePeriod",_movingAverageCount);

@@ -25,11 +25,14 @@ void CGraphCurve::setBasics(int dim,const int streamIds[3],const float defaultVa
     _streamIds[2]=-1;
     if (streamIds[1]!=-1)
         _streamIds[1]=streamIds[1];
-    if (streamIds[2]!=-1)
-        _streamIds[2]=streamIds[2];
     _defaultVals[0]=defaultVals[0];
     _defaultVals[1]=defaultVals[1];
-    _defaultVals[2]=defaultVals[2];
+    if (_dim>2)
+    {
+        if (streamIds[2]!=-1)
+            _streamIds[2]=streamIds[2];
+        _defaultVals[2]=defaultVals[2];
+    }
     _unitStr.clear();
     if (unitStr!=nullptr)
         _unitStr=unitStr;

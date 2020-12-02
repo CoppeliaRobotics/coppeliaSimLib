@@ -137,12 +137,12 @@ simInt simAdjustView_internal(simInt viewHandleOrIndex,simInt associatedViewable
 simInt simSetLastError_internal(const simChar* funcName,const simChar* errorMessage);
 simInt simHandleGraph_internal(simInt graphHandle,simFloat simulationTime);
 simInt simResetGraph_internal(simInt graphHandle);
-simInt simAddGraphDataStream_internal(simInt graphHandle,const simChar* streamName,const simChar* unitStr,simInt options,const simFloat* color,simFloat cyclicRange);
+simInt simAddGraphStream_internal(simInt graphHandle,const simChar* streamName,const simChar* unitStr,simInt options,const simFloat* color,simFloat cyclicRange);
 simInt simDestroyGraphCurve_internal(simInt graphHandle,simInt curveId);
-simInt simSetGraphDataStreamTransformation_internal(simInt graphHandle,simInt streamId,simInt trType,simFloat mult,simFloat off,simInt movingAvgPeriod);
+simInt simSetGraphStreamTransformation_internal(simInt graphHandle,simInt streamId,simInt trType,simFloat mult,simFloat off,simInt movingAvgPeriod);
 simInt simDuplicateGraphCurveToStatic_internal(simInt graphHandle,simInt curveId,const simChar* curveName);
-simInt simAddGraphCurve_internal(simInt graphHandle,simInt dim,const simInt* streamIds,const simFloat* defaultValues,const simChar* curveName,const simChar* unitStr,simInt options,const simFloat* color,simInt curveWidth);
-simInt simSetGraphDataStreamValue_internal(simInt graphHandle,simInt streamId,simFloat value);
+simInt simAddGraphCurve_internal(simInt graphHandle,const simChar* curveName,simInt dim,const simInt* streamIds,const simFloat* defaultValues,const simChar* unitStr,simInt options,const simFloat* color,simInt curveWidth);
+simInt simSetGraphStreamValue_internal(simInt graphHandle,simInt streamId,simFloat value);
 simInt simSetNavigationMode_internal(simInt navigationMode);
 simInt simGetNavigationMode_internal();
 simInt simSetPage_internal(simInt index);
@@ -193,6 +193,7 @@ simInt simSetLightParameters_internal(simInt objectHandle,simInt state,const sim
 simInt simGetLightParameters_internal(simInt objectHandle,simFloat* setToNULL,simFloat* diffusePart,simFloat* specularPart);
 simInt simGetVelocity_internal(simInt shapeHandle,simFloat* linearVelocity,simFloat* angularVelocity);
 simInt simGetObjectVelocity_internal(simInt objectHandle,simFloat* linearVelocity,simFloat* angularVelocity);
+simInt simGetJointVelocity_internal(simInt jointHandle,simFloat* velocity);
 simInt simAddForceAndTorque_internal(simInt shapeHandle,const simFloat* force,const simFloat* torque);
 simInt simAddForce_internal(simInt shapeHandle,const simFloat* position,const simFloat* force);
 simInt simSetExplicitHandling_internal(simInt objectHandle,int explicitFlags);
@@ -633,7 +634,7 @@ simInt simAddBanner_internal(const simChar* label,simFloat size,simInt options,c
 simInt simRemoveBanner_internal(simInt bannerID);
 simInt simAddGhost_internal(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color);
 simInt simModifyGhost_internal(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation);
-simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* dataStreamName,simFloat data);
+simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* streamName,simFloat data);
 simInt simAddPointCloud_internal(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals);
 simInt simModifyPointCloud_internal(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam);
 

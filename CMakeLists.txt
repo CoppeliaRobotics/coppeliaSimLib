@@ -537,7 +537,7 @@ list(APPEND SOURCES
     sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp
     sourceCode/shared/mainContainers/sceneContainers/_sceneObjectContainer_.cpp
     sourceCode/mainContainers/sceneContainers/mainSettings.cpp
-    sourceCode/mainContainers/sceneContainers/luaScriptContainer.cpp
+    sourceCode/mainContainers/sceneContainers/embeddedScriptContainer.cpp
     sourceCode/mainContainers/sceneContainers/environment.cpp
     sourceCode/mainContainers/sceneContainers/dynamicsContainer.cpp
     sourceCode/mainContainers/sceneContainers/customData.cpp

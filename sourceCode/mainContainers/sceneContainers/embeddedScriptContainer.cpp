@@ -1,6 +1,5 @@
-
 #include "simInternal.h"
-#include "luaScriptContainer.h"
+#include "embeddedScriptContainer.h"
 #include "tt.h"
 #include "vVarious.h"
 #include "threadPool.h"
@@ -9,13 +8,13 @@
 #include "app.h"
 #include "vDateTime.h"
 
-CLuaScriptContainer::CLuaScriptContainer()
+CEmbeddedScriptContainer::CEmbeddedScriptContainer()
 {
     _inMainScriptNow=0;
     insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_mainscript,false,false);
 }
 
-CLuaScriptContainer::~CLuaScriptContainer()
+CEmbeddedScriptContainer::~CEmbeddedScriptContainer()
 { // beware, the current world could be nullptr
     removeAllScripts();
     for (size_t i=0;i<_callbackStructureToDestroyAtEndOfSimulation_new.size();i++)
@@ -25,14 +24,14 @@ CLuaScriptContainer::~CLuaScriptContainer()
     broadcastDataContainer.removeAllObjects();
 }
 
-void CLuaScriptContainer::simulationAboutToStart()
+void CEmbeddedScriptContainer::simulationAboutToStart()
 {
     broadcastDataContainer.simulationAboutToStart();
     for (size_t i=0;i<allScripts.size();i++)
         allScripts[i]->simulationAboutToStart();
 }
 
-void CLuaScriptContainer::simulationEnded()
+void CEmbeddedScriptContainer::simulationEnded()
 {
     for (size_t i=0;i<allScripts.size();i++)
         allScripts[i]->simulationEnded();
@@ -51,28 +50,28 @@ void CLuaScriptContainer::simulationEnded()
 //  }
 }
 
-void CLuaScriptContainer::simulationAboutToEnd()
+void CEmbeddedScriptContainer::simulationAboutToEnd()
 {
     for (size_t i=0;i<allScripts.size();i++)
         allScripts[i]->simulationAboutToEnd();
 }
 
-void CLuaScriptContainer::addCallbackStructureObjectToDestroyAtTheEndOfSimulation_new(SScriptCallBack* object)
+void CEmbeddedScriptContainer::addCallbackStructureObjectToDestroyAtTheEndOfSimulation_new(SScriptCallBack* object)
 {
     _callbackStructureToDestroyAtEndOfSimulation_new.push_back(object);
 }
-void CLuaScriptContainer::addCallbackStructureObjectToDestroyAtTheEndOfSimulation_old(SLuaCallBack* object)
+void CEmbeddedScriptContainer::addCallbackStructureObjectToDestroyAtTheEndOfSimulation_old(SLuaCallBack* object)
 {
     _callbackStructureToDestroyAtEndOfSimulation_old.push_back(object);
 }
 
-void CLuaScriptContainer::resetScriptFlagCalledInThisSimulationStep()
+void CEmbeddedScriptContainer::resetScriptFlagCalledInThisSimulationStep()
 {
     for (size_t i=0;i<allScripts.size();i++)
         allScripts[i]->resetCalledInThisSimulationStep();
 }
 
-int CLuaScriptContainer::getCalledScriptsCountInThisSimulationStep(bool onlySimulationScripts)
+int CEmbeddedScriptContainer::getCalledScriptsCountInThisSimulationStep(bool onlySimulationScripts)
 {
     int cnt=0;
     for (size_t i=0;i<allScripts.size();i++)
@@ -96,7 +95,7 @@ int CLuaScriptContainer::getCalledScriptsCountInThisSimulationStep(bool onlySimu
     return(cnt);
 }
 
-int CLuaScriptContainer::removeDestroyedScripts(int scriptType)
+int CEmbeddedScriptContainer::removeDestroyedScripts(int scriptType)
 {
     TRACE_INTERNAL;
     int retVal=0;
@@ -118,7 +117,7 @@ int CLuaScriptContainer::removeDestroyedScripts(int scriptType)
     return(retVal);
 }
 
-void CLuaScriptContainer::setInMainScriptNow(bool launched,int startTimeInMs)
+void CEmbeddedScriptContainer::setInMainScriptNow(bool launched,int startTimeInMs)
 {
     if (launched)
     {
@@ -130,17 +129,17 @@ void CLuaScriptContainer::setInMainScriptNow(bool launched,int startTimeInMs)
         _inMainScriptNow--;
 }
 
-bool CLuaScriptContainer::getInMainScriptNow() const
+bool CEmbeddedScriptContainer::getInMainScriptNow() const
 {
     return(_inMainScriptNow>0);
 }
 
-int CLuaScriptContainer::getMainScriptExecTimeInMs() const
+int CEmbeddedScriptContainer::getMainScriptExecTimeInMs() const
 {
     return(VDateTime::getTimeDiffInMs(_mainScriptStartTimeInMs));
 }
 
-bool CLuaScriptContainer::isContactCallbackFunctionAvailable()
+bool CEmbeddedScriptContainer::isContactCallbackFunctionAvailable()
 {
     for (size_t i=0;i<allScripts.size();i++)
     {
@@ -151,7 +150,7 @@ bool CLuaScriptContainer::isContactCallbackFunctionAvailable()
     return(false);
 }
 
-bool CLuaScriptContainer::isDynCallbackFunctionAvailable()
+bool CEmbeddedScriptContainer::isDynCallbackFunctionAvailable()
 {
     for (size_t i=0;i<allScripts.size();i++)
     {
@@ -162,7 +161,7 @@ bool CLuaScriptContainer::isDynCallbackFunctionAvailable()
     return(false);
 }
 
-void CLuaScriptContainer::removeAllScripts()
+void CEmbeddedScriptContainer::removeAllScripts()
 {
     TRACE_INTERNAL;
     while (allScripts.size()>0)
@@ -174,7 +173,7 @@ void CLuaScriptContainer::removeAllScripts()
     }
 }
 
-void CLuaScriptContainer::killAllSimulationLuaStates()
+void CEmbeddedScriptContainer::killAllSimulationLuaStates()
 {
     for (size_t i=0;i<allScripts.size();i++)
     {
@@ -183,7 +182,7 @@ void CLuaScriptContainer::killAllSimulationLuaStates()
     }
 }
 
-void CLuaScriptContainer::announceObjectWillBeErased(int scriptHandle)
+void CEmbeddedScriptContainer::announceObjectWillBeErased(int scriptHandle)
 { // Never called from copy buffer!
     size_t i=0;
     while (i<allScripts.size())
@@ -200,9 +199,9 @@ void CLuaScriptContainer::announceObjectWillBeErased(int scriptHandle)
     }
 }
 
-bool CLuaScriptContainer::removeScript_safe(int scriptHandle)
+bool CEmbeddedScriptContainer::removeScript_safe(int scriptHandle)
 { // removal may happen in a delayed fashion
-    CLuaScriptObject* it=getScriptFromHandle_noAddOnsNorSandbox(scriptHandle);
+    CLuaScriptObject* it=getScriptFromHandle(scriptHandle);
     if (it==nullptr)
         return(false);
     int res=it->flagScriptForRemoval();
@@ -213,7 +212,7 @@ bool CLuaScriptContainer::removeScript_safe(int scriptHandle)
     return(true);
 }
 
-bool CLuaScriptContainer::removeScript(int scriptHandle)
+bool CEmbeddedScriptContainer::removeScript(int scriptHandle)
 {
     TRACE_INTERNAL;
     for (size_t i=0;i<allScripts.size();i++)
@@ -232,21 +231,7 @@ bool CLuaScriptContainer::removeScript(int scriptHandle)
     return(true);
 }
 
-CLuaScriptObject* CLuaScriptContainer::getScriptFromHandle_alsoAddOnsAndSandbox(int scriptHandle) const
-{
-    CLuaScriptObject* retVal=App::worldContainer->addOnScriptContainer->getAddOnScriptFromID(scriptHandle);
-    if (retVal==nullptr)
-    {
-        if (retVal==nullptr)
-            retVal=getScriptFromHandle_noAddOnsNorSandbox(scriptHandle);
-        if ( (retVal==nullptr)&&(App::worldContainer->sandboxScript!=nullptr)&&(App::worldContainer->sandboxScript->getScriptHandle()==scriptHandle) )
-            retVal=App::worldContainer->sandboxScript;
-
-    }
-    return(retVal);
-}
-
-CLuaScriptObject* CLuaScriptContainer::getScriptFromHandle_noAddOnsNorSandbox(int scriptHandle) const
+CLuaScriptObject* CEmbeddedScriptContainer::getScriptFromHandle(int scriptHandle) const
 {
     CLuaScriptObject* retVal=nullptr;
     for (size_t i=0;i<allScripts.size();i++)
@@ -260,7 +245,7 @@ CLuaScriptObject* CLuaScriptContainer::getScriptFromHandle_noAddOnsNorSandbox(in
     return(retVal);
 }
 
-CLuaScriptObject* CLuaScriptContainer::getScriptFromObjectAttachedTo_child(int objectHandle) const
+CLuaScriptObject* CEmbeddedScriptContainer::getScriptFromObjectAttachedTo_child(int objectHandle) const
 { // used for child scripts
     if (objectHandle<0)
         return(nullptr); // 10/1/2016
@@ -272,7 +257,7 @@ CLuaScriptObject* CLuaScriptContainer::getScriptFromObjectAttachedTo_child(int o
     return(nullptr);
 }
 
-CLuaScriptObject* CLuaScriptContainer::getScriptFromObjectAttachedTo_customization(int objectHandle) const
+CLuaScriptObject* CEmbeddedScriptContainer::getScriptFromObjectAttachedTo_customization(int objectHandle) const
 { // used for customization scripts
     for (size_t i=0;i<allScripts.size();i++)
     {
@@ -282,7 +267,7 @@ CLuaScriptObject* CLuaScriptContainer::getScriptFromObjectAttachedTo_customizati
     return(nullptr);
 }
 
-int CLuaScriptContainer::getScriptsFromObjectAttachedTo(int objectHandle,std::vector<CLuaScriptObject*>& scripts) const
+int CEmbeddedScriptContainer::getScriptsFromObjectAttachedTo(int objectHandle,std::vector<CLuaScriptObject*>& scripts) const
 {
     scripts.clear();
     CLuaScriptObject* it=getScriptFromObjectAttachedTo_child(objectHandle);
@@ -294,7 +279,7 @@ int CLuaScriptContainer::getScriptsFromObjectAttachedTo(int objectHandle,std::ve
     return(int(scripts.size()));
 }
 
-CLuaScriptObject* CLuaScriptContainer::getMainScript() const
+CLuaScriptObject* CEmbeddedScriptContainer::getMainScript() const
 {
     for (size_t i=0;i<allScripts.size();i++)
     {
@@ -304,11 +289,11 @@ CLuaScriptObject* CLuaScriptContainer::getMainScript() const
     return(nullptr);
 }
 
-int CLuaScriptContainer::insertScript(CLuaScriptObject* script)
+int CEmbeddedScriptContainer::insertScript(CLuaScriptObject* script)
 {
     // We make sure the id is unique:
     int newHandle=SIM_IDSTART_LUASCRIPT;
-    while (getScriptFromHandle_noAddOnsNorSandbox(newHandle)!=nullptr)
+    while (getScriptFromHandle(newHandle)!=nullptr)
         newHandle++;
     script->setScriptHandle(newHandle);
     allScripts.push_back(script);
@@ -316,7 +301,7 @@ int CLuaScriptContainer::insertScript(CLuaScriptObject* script)
     return(newHandle);
 }
 
-int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptType,bool threaded,bool oldThreadedScript)
+int CEmbeddedScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptType,bool threaded,bool oldThreadedScript)
 { 
     if (scriptType!=sim_scripttype_childscript)
         oldThreadedScript=false; // just to make sure
@@ -399,7 +384,7 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
     return(retVal);
 }
 
-void CLuaScriptContainer::callChildMainCustomizationAddonSandboxScriptWithData(int callType,CInterfaceStack* inStack)
+void CEmbeddedScriptContainer::callScripts(int callType,CInterfaceStack* inStack)
 {
     TRACE_INTERNAL;
     if (!App::currentWorld->simulation->isSimulationStopped())
@@ -412,12 +397,9 @@ void CLuaScriptContainer::callChildMainCustomizationAddonSandboxScriptWithData(i
         }
     }
     handleCascadedScriptExecution(sim_scripttype_customizationscript,callType,inStack,nullptr,nullptr);
-    App::worldContainer->addOnScriptContainer->handleAddOnScriptExecution(callType,inStack,nullptr);
-    if (App::worldContainer->sandboxScript!=nullptr)
-        App::worldContainer->sandboxScript->runSandboxScript(callType,inStack,nullptr);
 }
 
-void CLuaScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
+void CEmbeddedScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
 {
     CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(modelBase);
     if (obj!=nullptr)
@@ -452,7 +434,7 @@ void CLuaScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
     }
 }
 
-int CLuaScriptContainer::_getScriptsToExecute(int scriptType,std::vector<CLuaScriptObject*>& scripts,std::vector<int>& uniqueIds) const
+int CEmbeddedScriptContainer::_getScriptsToExecute(int scriptType,std::vector<CLuaScriptObject*>& scripts,std::vector<int>& uniqueIds) const
 {
     std::vector<CSceneObject*> orderFirst;
     std::vector<CSceneObject*> orderNormal;
@@ -474,7 +456,7 @@ int CLuaScriptContainer::_getScriptsToExecute(int scriptType,std::vector<CLuaScr
     return(int(scripts.size()));
 }
 
-bool CLuaScriptContainer::doesScriptWithUniqueIdExist(int id) const
+bool CEmbeddedScriptContainer::doesScriptWithUniqueIdExist(int id) const
 {
     for (size_t i=0;i<allScripts.size();i++)
     {
@@ -485,7 +467,7 @@ bool CLuaScriptContainer::doesScriptWithUniqueIdExist(int id) const
 }
 
 
-int CLuaScriptContainer::handleCascadedScriptExecution(int scriptType,int callTypeOrResumeLocation,CInterfaceStack* inStack,CInterfaceStack* outStack,int* retInfo)
+int CEmbeddedScriptContainer::handleCascadedScriptExecution(int scriptType,int callTypeOrResumeLocation,CInterfaceStack* inStack,CInterfaceStack* outStack,int* retInfo)
 {
     int cnt=0;
     if (retInfo!=nullptr)
@@ -572,54 +554,8 @@ int CLuaScriptContainer::handleCascadedScriptExecution(int scriptType,int callTy
     }
     return(cnt);
 }
-/*
-int CLuaScriptContainer::getScriptSimulationParameter_mainAndChildScriptsOnly(int scriptHandle,const char* parameterName,std::string& parameterValue) const
-{
-    int retVal=0;
-    for (size_t i=0;i<allScripts.size();i++)
-    {
-        if (!allScripts[i]->getFlaggedForDestruction())
-        {
-            if ( (scriptHandle==allScripts[i]->getScriptHandle())||
-                (scriptHandle==sim_handle_all)||
-                ( (scriptHandle==sim_handle_main_script)&&(allScripts[i]->getScriptType()==sim_scripttype_mainscript) ) )
-            {
-                if ((allScripts[i]->getScriptType()==sim_scripttype_mainscript)||(allScripts[i]->getScriptType()==sim_scripttype_childscript))
-                { // We only access main script and child script1
-                    bool res=allScripts[i]->getScriptParametersObject()->getParameterValue(parameterName,parameterValue);
-                    if (res)
-                        retVal++;
-                }
-            }
-        }
-    }
-    return(retVal);
-}
 
-int CLuaScriptContainer::setScriptSimulationParameter_mainAndChildScriptsOnly(int scriptHandle,const char* parameterName,const char* parameterValue,int parameterValueLength)
-{
-    int retVal=0;
-    for (int i=0;i<int(allScripts.size());i++)
-    {
-        if (!allScripts[i]->getFlaggedForDestruction())
-        {
-            if ( (scriptHandle==allScripts[i]->getScriptHandle())||
-                (scriptHandle==sim_handle_all)||
-                ( (scriptHandle==sim_handle_main_script)&&(allScripts[i]->getScriptType()==sim_scripttype_mainscript) ) )
-            {
-                if ((allScripts[i]->getScriptType()==sim_scripttype_mainscript)||(allScripts[i]->getScriptType()==sim_scripttype_childscript))
-                { // We only access main script and child script1
-                    bool res=allScripts[i]->getScriptParametersObject()->setParameterValue(parameterName,parameterValue,parameterValueLength);
-                    if (res)
-                        retVal++;
-                }
-            }
-        }
-    }
-    return(retVal);
-}
-*/
-bool CLuaScriptContainer::addCommandToOutsideCommandQueues(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const float aux2Vals[8],int aux2Count)
+bool CEmbeddedScriptContainer::addCommandToOutsideCommandQueues(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const float aux2Vals[8],int aux2Count)
 {
     for (size_t i=0;i<allScripts.size();i++)
     {

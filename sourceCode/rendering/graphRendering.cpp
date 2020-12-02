@@ -69,22 +69,22 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
         ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
         C7Vector thisInv(graph->getFullCumulativeTransformation().getInverse());
 
-        for (int i=0;i<int(graph->threeDPartners.size());i++)
+        for (int i=0;i<int(graph->curves3d_old.size());i++)
         {
-            if (graph->threeDPartners[i]->getVisible())
+            if (graph->curves3d_old[i]->getVisible())
             {
-                if ( (graph->getJustDrawCurves()&&graph->threeDPartners[i]->getVisibleOnTopOfEverything()) ||
-                    ((!graph->getJustDrawCurves())&&(!graph->threeDPartners[i]->getVisibleOnTopOfEverything())) )
+                if ( (graph->getJustDrawCurves()&&graph->curves3d_old[i]->getVisibleOnTopOfEverything()) ||
+                    ((!graph->getJustDrawCurves())&&(!graph->curves3d_old[i]->getVisibleOnTopOfEverything())) )
                 {
-                    CGraphData_old* part0=graph->getGraphData(graph->threeDPartners[i]->data[0]);
-                    CGraphData_old* part1=graph->getGraphData(graph->threeDPartners[i]->data[1]);
-                    CGraphData_old* part2=graph->getGraphData(graph->threeDPartners[i]->data[2]);
+                    CGraphData_old* part0=graph->getGraphData(graph->curves3d_old[i]->data[0]);
+                    CGraphData_old* part1=graph->getGraphData(graph->curves3d_old[i]->data[1]);
+                    CGraphData_old* part2=graph->getGraphData(graph->curves3d_old[i]->data[2]);
                     int pos=0;
                     int absIndex;
                     float point[3];
-                    glLineWidth(graph->threeDPartners[i]->get3DCurveWidth());
-                    glPointSize(graph->threeDPartners[i]->get3DCurveWidth());
-                    if (graph->threeDPartners[i]->getVisibleOnTopOfEverything())
+                    glLineWidth(graph->curves3d_old[i]->get3DCurveWidth());
+                    glPointSize(graph->curves3d_old[i]->get3DCurveWidth());
+                    if (graph->curves3d_old[i]->getVisibleOnTopOfEverything())
                     {
                         glDepthMask(GL_FALSE);
                         glDisable(GL_DEPTH_TEST);
@@ -127,20 +127,20 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
                         if (dataIsValid)
                         {
                             C3Vector pp(point);
-                            if (graph->threeDPartners[i]->getCurveRelativeToWorld())
+                            if (graph->curves3d_old[i]->getCurveRelativeToWorld())
                                 pp=thisInv*pp;
                             ogl::addBuffer3DPoints(pp.data);
                         }
                     }
                     if (ogl::buffer.size()>0)
                     {
-                        ogl::setMaterialColor(graph->threeDPartners[i]->curveColor.getColorsPtr(),ogl::colorBlack,graph->threeDPartners[i]->curveColor.getColorsPtr()+9);
-                        if (graph->threeDPartners[i]->getLinkPoints())
+                        ogl::setMaterialColor(graph->curves3d_old[i]->curveColor.getColorsPtr(),ogl::colorBlack,graph->curves3d_old[i]->curveColor.getColorsPtr()+9);
+                        if (graph->curves3d_old[i]->getLinkPoints())
                             ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,true,normalVectorForLinesAndPoints.data);
                         else
                             ogl::drawRandom3dPoints(&ogl::buffer[0],(int)ogl::buffer.size()/3,normalVectorForLinesAndPoints.data);
-                        if (graph->threeDPartners[i]->getLabel()&&(displayAttrib&sim_displayattribute_renderpass)&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
-                            ogl::drawBitmapTextTo3dPosition(&ogl::buffer[0],graph->threeDPartners[i]->getName().c_str(),normalVectorForLinesAndPoints.data);
+                        if (graph->curves3d_old[i]->getLabel()&&(displayAttrib&sim_displayattribute_renderpass)&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
+                            ogl::drawBitmapTextTo3dPosition(&ogl::buffer[0],graph->curves3d_old[i]->getName().c_str(),normalVectorForLinesAndPoints.data);
                     }
                     ogl::buffer.clear();
                     glDepthMask(GL_TRUE);
@@ -154,11 +154,11 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
         // Static curves now:
         if ((displayAttrib&sim_displayattribute_forvisionsensor)==0)
         {
-            for (int i=0;i<int(graph->_staticCurves.size());i++)
+            for (int i=0;i<int(graph->staticStreamsAndCurves_old.size());i++)
             {
-                if (graph->_staticCurves[i]->getCurveType()==2)
+                if (graph->staticStreamsAndCurves_old[i]->getCurveType()==2)
                 {
-                    CStaticGraphCurve_old* it=graph->_staticCurves[i];
+                    CStaticGraphCurve_old* it=graph->staticStreamsAndCurves_old[i];
                     glLineWidth(it->getCurveWidth());
                     glPointSize(it->getCurveWidth());
                     glLineStipple(1,0xE187);
@@ -190,6 +190,90 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
                 }
             }
         }
+
+/*
+        for (int i=0;i<int(graph->curves3d_old.size());i++)
+        {
+            if (graph->curves3d_old[i]->getVisible())
+            {
+                if ( (graph->getJustDrawCurves()&&graph->curves3d_old[i]->getVisibleOnTopOfEverything()) ||
+                    ((!graph->getJustDrawCurves())&&(!graph->curves3d_old[i]->getVisibleOnTopOfEverything())) )
+                {
+                    CGraphData_old* part0=graph->getGraphData(graph->curves3d_old[i]->data[0]);
+                    CGraphData_old* part1=graph->getGraphData(graph->curves3d_old[i]->data[1]);
+                    CGraphData_old* part2=graph->getGraphData(graph->curves3d_old[i]->data[2]);
+                    int pos=0;
+                    int absIndex;
+                    float point[3];
+                    glLineWidth(graph->curves3d_old[i]->get3DCurveWidth());
+                    glPointSize(graph->curves3d_old[i]->get3DCurveWidth());
+                    if (graph->curves3d_old[i]->getVisibleOnTopOfEverything())
+                    {
+                        glDepthMask(GL_FALSE);
+                        glDisable(GL_DEPTH_TEST);
+                    }
+                    bool cyclic0,cyclic1,cyclic2;
+                    float range0,range1,range2;
+                    if (part0!=nullptr)
+                        CGraphingRoutines_old::getCyclicAndRangeValues(part0,cyclic0,range0);
+                    if (part1!=nullptr)
+                        CGraphingRoutines_old::getCyclicAndRangeValues(part1,cyclic1,range1);
+                    if (part2!=nullptr)
+                        CGraphingRoutines_old::getCyclicAndRangeValues(part2,cyclic2,range2);
+
+                    ogl::buffer.clear();
+                    while (graph->getAbsIndexOfPosition(pos++,absIndex))
+                    {
+                        bool dataIsValid=true;
+                        if (part0!=nullptr)
+                        {
+                            if(!graph->getData(part0,absIndex,point[0],cyclic0,range0,false))
+                                dataIsValid=false;
+                        }
+                        else
+                            dataIsValid=false;
+                        if (part1!=nullptr)
+                        {
+                            if(!graph->getData(part1,absIndex,point[1],cyclic1,range1,false))
+                                dataIsValid=false;
+                        }
+                        else
+                            dataIsValid=false;
+                        if (part2!=nullptr)
+                        {
+                            if(!graph->getData(part2,absIndex,point[2],cyclic2,range2,false))
+                                dataIsValid=false;
+                        }
+                        else
+                            dataIsValid=false;
+
+                        if (dataIsValid)
+                        {
+                            C3Vector pp(point);
+                            if (graph->curves3d_old[i]->getCurveRelativeToWorld())
+                                pp=thisInv*pp;
+                            ogl::addBuffer3DPoints(pp.data);
+                        }
+                    }
+                    if (ogl::buffer.size()>0)
+                    {
+                        ogl::setMaterialColor(graph->curves3d_old[i]->curveColor.getColorsPtr(),ogl::colorBlack,graph->curves3d_old[i]->curveColor.getColorsPtr()+9);
+                        if (graph->curves3d_old[i]->getLinkPoints())
+                            ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,true,normalVectorForLinesAndPoints.data);
+                        else
+                            ogl::drawRandom3dPoints(&ogl::buffer[0],(int)ogl::buffer.size()/3,normalVectorForLinesAndPoints.data);
+                        if (graph->curves3d_old[i]->getLabel()&&(displayAttrib&sim_displayattribute_renderpass)&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
+                            ogl::drawBitmapTextTo3dPosition(&ogl::buffer[0],graph->curves3d_old[i]->getName().c_str(),normalVectorForLinesAndPoints.data);
+                    }
+                    ogl::buffer.clear();
+                    glDepthMask(GL_TRUE);
+                    glEnable(GL_DEPTH_TEST);
+                    glLineWidth(1.0f);
+                    glPointSize(1.0f);
+                }
+            }
+        }
+//*/
 
         _disableAuxClippingPlanes();
     }

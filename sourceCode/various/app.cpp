@@ -116,7 +116,7 @@ void App::simulationThreadInit()
 
     App::worldContainer->sandboxScript=new CLuaScriptObject(sim_scripttype_sandboxscript);
     App::worldContainer->sandboxScript->setScriptTextFromFile((App::folders->getSystemPath()+"/"+"sndbxscpt.txt").c_str());
-    App::worldContainer->sandboxScript->runSandboxScript(sim_syscb_init,nullptr,nullptr);
+    App::worldContainer->sandboxScript->callSandboxScript(sim_syscb_init,nullptr,nullptr);
     if (_startupScriptString.size()>0)
     {
         App::worldContainer->sandboxScript->executeScriptString(_startupScriptString.c_str(),nullptr);
@@ -134,7 +134,7 @@ void App::simulationThreadDestroy()
         simReleaseBuffer_internal((simChar*)replyBuffer);
 
     App::worldContainer->addOnScriptContainer->removeAllScripts();
-    App::worldContainer->sandboxScript->runSandboxScript(sim_syscb_cleanup,nullptr,nullptr);
+    App::worldContainer->sandboxScript->callSandboxScript(sim_syscb_cleanup,nullptr,nullptr);
     delete App::worldContainer->sandboxScript;
     App::worldContainer->sandboxScript=nullptr;
 
@@ -184,25 +184,25 @@ void App::simulationThreadLoop()
 
     if ( App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
     {
-        App::currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_nonsimulation,nullptr,nullptr,nullptr);
-        App::currentWorld->luaScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
-        App::worldContainer->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_nonsimulation,nullptr,nullptr);
+        App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_nonsimulation,nullptr,nullptr,nullptr);
+        App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
+        App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_nonsimulation,nullptr,nullptr);
         if (App::worldContainer->sandboxScript!=nullptr)
-            App::worldContainer->sandboxScript->runSandboxScript(sim_syscb_nonsimulation,nullptr,nullptr);
+            App::worldContainer->sandboxScript->callSandboxScript(sim_syscb_nonsimulation,nullptr,nullptr);
     }
     if (App::currentWorld->simulation->isSimulationPaused())
     {
-        CLuaScriptObject* mainScript=App::currentWorld->luaScriptContainer->getMainScript();
+        CLuaScriptObject* mainScript=App::currentWorld->embeddedScriptContainer->getMainScript();
         bool suspendedFunctionPresentInMainScript=true;
         if (mainScript!=nullptr)
             mainScript->runMainScript(sim_syscb_suspended,nullptr,nullptr,&suspendedFunctionPresentInMainScript);
         if (!suspendedFunctionPresentInMainScript)
         { // For backward compatibility for scenes that have customized main script (e.g. BR)
-            App::currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_suspended,nullptr,nullptr,nullptr);
-            App::currentWorld->luaScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
-            App::worldContainer->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_suspended,nullptr,nullptr);
+            App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_suspended,nullptr,nullptr,nullptr);
+            App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
+            App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_suspended,nullptr,nullptr);
             if (App::worldContainer->sandboxScript!=nullptr)
-                App::worldContainer->sandboxScript->runSandboxScript(sim_syscb_suspended,nullptr,nullptr);
+                App::worldContainer->sandboxScript->callSandboxScript(sim_syscb_suspended,nullptr,nullptr);
         }
     }
 
@@ -210,11 +210,11 @@ void App::simulationThreadLoop()
     if (_workThreadLoopCallback!=nullptr)
         _workThreadLoopCallback();
 
-    App::currentWorld->luaScriptContainer->removeDestroyedScripts(sim_scripttype_childscript);
+    App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_childscript);
 
     // Keep for backward compatibility:
     if (!App::currentWorld->simulation->isSimulationRunning()) // when simulation is running, we handle the add-on scripts after the main script was called
-        App::worldContainer->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_aos_run_old,nullptr,nullptr);
+        App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_aos_run_old,nullptr,nullptr);
 
     #ifdef SIM_WITH_GUI
             App::currentWorld->simulation->showAndHandleEmergencyStopButton(false,""); // 10/10/2015

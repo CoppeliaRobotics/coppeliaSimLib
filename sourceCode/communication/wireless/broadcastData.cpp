@@ -78,8 +78,8 @@ char* CBroadcastData::receiveData(int receiverID,float simulationTime,int dataHe
     { // message not for everyone
         if (_receiverID==sim_handle_tree)
         { // we have to check if receiverID has a parent _emitterID:
-            CLuaScriptObject* rec=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(receiverID);
-            CLuaScriptObject* em=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(_emitterID);
+            CLuaScriptObject* rec=App::worldContainer->getScriptFromHandle(receiverID);
+            CLuaScriptObject* em=App::worldContainer->getScriptFromHandle(_emitterID);
             if ( (rec==nullptr)||(em==nullptr) )
                 return(nullptr);
             if (em->getScriptType()!=sim_scripttype_mainscript)
@@ -104,8 +104,8 @@ char* CBroadcastData::receiveData(int receiverID,float simulationTime,int dataHe
         }
         if (_receiverID==sim_handle_chain)
         { // we have to check if _emitterID has a parent receiverID:
-            CLuaScriptObject* rec=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(receiverID);
-            CLuaScriptObject* em=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(_emitterID);
+            CLuaScriptObject* rec=App::worldContainer->getScriptFromHandle(receiverID);
+            CLuaScriptObject* em=App::worldContainer->getScriptFromHandle(_emitterID);
             if ( (rec==nullptr)||(em==nullptr) )
                 return(nullptr);
             if (rec->getScriptType()!=sim_scripttype_mainscript)

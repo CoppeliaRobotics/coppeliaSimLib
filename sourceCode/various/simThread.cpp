@@ -295,7 +295,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             if (cmd.cmdId==CALL_USER_CONFIG_CALLBACK_CMD)
             {
-                CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(cmd.intParams[0]);
+                CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(cmd.intParams[0]);
                 if ( (script!=nullptr)&&(script->getContainsUserConfigCallbackFunction()) )
                 { // we have a user config callback
                     CInterfaceStack stack;
@@ -322,7 +322,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 if (App::getEditModeType()==NO_EDIT_MODE)
                 {
-                    CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(cmd.intParams[0]);
+                    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(cmd.intParams[0]);
                     if ((it!=nullptr)&&(App::mainWindow!=nullptr))
                     {
                         if (it->getScriptType()==sim_scripttype_customizationscript)
@@ -3501,14 +3501,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptID);
+            CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
             if (script!=nullptr)
             {
                 if ((script->getScriptType()==sim_scripttype_mainscript)||(script->getScriptType()==sim_scripttype_childscript))
                 {
                     if (App::mainWindow!=nullptr)
                         App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptID,nullptr,true);
-                    App::currentWorld->luaScriptContainer->removeScript(scriptID);
+                    App::currentWorld->embeddedScriptContainer->removeScript(scriptID);
                 }
                 else if (script->getScriptType()==sim_scripttype_customizationscript)
                 {
@@ -3520,7 +3520,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     {
                         if (App::mainWindow!=nullptr)
                             App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptID,nullptr,true);
-                        App::currentWorld->luaScriptContainer->removeScript(scriptID); // unassociated
+                        App::currentWorld->embeddedScriptContainer->removeScript(scriptID); // unassociated
                     }
                 }
             }
@@ -3528,7 +3528,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==TOGGLE_DISABLED_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptID);
+            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptID);
             if (it!=nullptr)
             {
                 if (it->getScriptType()==sim_scripttype_customizationscript)
@@ -3539,28 +3539,28 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==TOGGLE_EXECUTEONCE_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_noAddOnsNorSandbox(scriptID);
+            CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
             if ((it!=nullptr)&&it->getThreadedExecution())
                 it->setExecuteJustOnce(!it->getExecuteJustOnce());
         }
         if (cmd.cmdId==SET_EXECORDER_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptID);
+            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptID);
             if (it!=nullptr)
                 it->setExecutionOrder(cmd.intParams[1]);
         }
         if (cmd.cmdId==SET_TREETRAVERSALDIR_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptID);
+            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptID);
             if (it!=nullptr)
                 it->setTreeTraversalDirection(cmd.intParams[1]);
         }
         if (cmd.cmdId==SET_DEBUGMODE_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(scriptID);
+            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptID);
             if (it!=nullptr)
                 it->setDebugLevel(cmd.intParams[1]);
         }
@@ -4603,10 +4603,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 stack.pushStringOntoStack("brCallIndex",0);
                 stack.pushNumberOntoStack(int(executeXrCallIndex));
                 stack.insertDataIntoStackTable();
-                App::currentWorld->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_xr,&stack,nullptr,nullptr);
-                App::worldContainer->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_xr,&stack,nullptr);
+                App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_xr,&stack,nullptr,nullptr);
+                App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_xr,&stack,nullptr);
                 if (App::worldContainer->sandboxScript!=nullptr)
-                    App::worldContainer->sandboxScript->runSandboxScript(sim_syscb_xr,&stack,nullptr);
+                    App::worldContainer->sandboxScript->callSandboxScript(sim_syscb_xr,&stack,nullptr);
             }
         }
 

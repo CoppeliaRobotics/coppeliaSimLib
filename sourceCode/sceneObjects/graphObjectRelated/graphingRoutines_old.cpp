@@ -46,11 +46,11 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         (dType==GRAPH_DISTANCE_SEG2_Y_REL)||
         (dType==GRAPH_DISTANCE_SEG2_Z_REL) )
     {
-        if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+        if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
             return(gv::getSizeUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
             return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
             return(gv::getSizeUnitStr()+"*"+gv::getTimeUnitStr());
     }
     
@@ -59,22 +59,22 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         (dType==GRAPH_SCENEOBJECT_ALL_ZVEL_ABS)||
         (dType==GRAPH_SCENEOBJECT_ALL_VEL_ABS) )
     {
-        if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+        if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
             return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
             return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStrShort()+"^2");
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
             return(gv::getSizeUnitStr());
     }
 
 
     if (dType==GRAPH_SCENEOBJECT_ALL_ANGULAR_VEL_ABS)
     {
-        if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+        if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
             return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
             return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStrShort()+"^2");
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
             return(gv::getAngleUnitStr());
     }
 
@@ -88,11 +88,11 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         (dType==GRAPH_SCENEOBJECT_PROXSENSOR_AZIMUTH)||
         (dType==GRAPH_SCENEOBJECT_PROXSENSOR_ELEVATION) )
     {
-        if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+        if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
             return(gv::getAngleUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
             return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
             return(gv::getAngleUnitStr()+"*"+gv::getTimeUnitStr());
     }
     if ( (dType>GRAPH_SCENEOBJECT_JOINT_SUBSTART)&&(dType<GRAPH_SCENEOBJECT_JOINT_SUBEND) )
@@ -104,29 +104,29 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
             {
                 if (act->getJointType()==sim_joint_prismatic_subtype)
                 {
-                    if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+                    if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                         return(gv::getSizeUnitStr());
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                         return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStr());
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                         return(gv::getSizeUnitStr()+"*"+gv::getTimeUnitStr());
                 }
                 if (act->getJointType()==sim_joint_revolute_subtype)
                 {
-                    if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+                    if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                         return(gv::getAngleUnitStr());
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                         return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStr());
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                         return(gv::getAngleUnitStr()+"*"+gv::getTimeUnitStr());
                 }
                 if (act->getJointType()==sim_joint_spherical_subtype)
                 {
-                    if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+                    if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                         return(gv::getNullUnitStr());
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                         return(gv::getNullUnitStr()+"/"+gv::getTimeUnitStr());
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                         return(gv::getNullUnitStr()+"*"+gv::getTimeUnitStr());
                 }
             }
@@ -138,49 +138,49 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
             {
                 if (act->getJointType()==sim_joint_prismatic_subtype)
                 {
-                    if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+                    if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                         return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStr());
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                         return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStrShort()+"^2");
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                         return(gv::getSizeUnitStr());
                 }
                 if (act->getJointType()==sim_joint_revolute_subtype)
                 {
-                    if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+                    if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                         return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStr());
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                         return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStrShort()+"^2");
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                         return(gv::getAngleUnitStr());
                 }
                 if (act->getJointType()==sim_joint_spherical_subtype)
                 {
-                    if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+                    if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                         return(gv::getNullUnitStr()+"/"+gv::getTimeUnitStr());
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                         return(gv::getNullUnitStr()+"/"+gv::getTimeUnitStrShort()+"^2");
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                         return(gv::getNullUnitStr());
                 }
             }
         }
         if (dType==GRAPH_SCENEOBJECT_JOINT_DYN_POSITION_ERROR)
         {
-            if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+            if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                 return(gv::getSizeUnitStr());
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                 return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStr());
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                 return(gv::getSizeUnitStr()+"*"+gv::getTimeUnitStr());
         }
         if (dType==GRAPH_SCENEOBJECT_JOINT_DYN_ORIENTATION_ERROR)
         {
-            if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+            if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                 return(gv::getAngleUnitStr());
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                 return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStr());
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                 return(gv::getAngleUnitStr()+"*"+gv::getTimeUnitStr());
         }
         if (dType==GRAPH_SCENEOBJECT_JOINT_DYN_FORCE_OR_TORQUE)
@@ -191,32 +191,32 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
                 if (act->getJointType()==sim_joint_prismatic_subtype)
                 {
                     std::string retV;
-                    if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+                    if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                         retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"/"+gv::getTimeUnitStrShort()+"^2";
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                         retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"/"+gv::getTimeUnitStrShort()+"^3";
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                         retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"/"+gv::getTimeUnitStrShort();
                     return(retV);
                 }
                 if (act->getJointType()==sim_joint_revolute_subtype)
                 {
                     std::string retV;
-                    if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+                    if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                         retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"^2/"+gv::getTimeUnitStrShort()+"^2";
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                         retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"^2/"+gv::getTimeUnitStrShort()+"^3";
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                         retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"^2/"+gv::getTimeUnitStrShort();
                     return(retV);
                 }
                 if (act->getJointType()==sim_joint_spherical_subtype)
                 {
-                    if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+                    if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                         return(gv::getNullUnitStr());
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                         return(gv::getNullUnitStr()+"/"+gv::getTimeUnitStr());
-                    if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+                    if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                         return(gv::getNullUnitStr()+"*"+gv::getTimeUnitStr());
                 }
             }
@@ -228,55 +228,55 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         if ( (dType==GRAPH_SCENEOBJECT_FORCESENSOR_FORCE_X)||(dType==GRAPH_SCENEOBJECT_FORCESENSOR_FORCE_Y)||(dType==GRAPH_SCENEOBJECT_FORCESENSOR_FORCE_Z)||(dType==GRAPH_SCENEOBJECT_FORCESENSOR_FORCE_LENGTH) )
         {
             std::string retV;
-            if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+            if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                 retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"/"+gv::getTimeUnitStrShort()+"^2";
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                 retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"/"+gv::getTimeUnitStrShort()+"^3";
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                 retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"/"+gv::getTimeUnitStrShort();
             return(retV);
         }
         if ( (dType==GRAPH_SCENEOBJECT_FORCESENSOR_TORQUE_X)||(dType==GRAPH_SCENEOBJECT_FORCESENSOR_TORQUE_Y)||(dType==GRAPH_SCENEOBJECT_FORCESENSOR_TORQUE_Z)||(dType==GRAPH_SCENEOBJECT_FORCESENSOR_TORQUE_LENGTH) )
         {
             std::string retV;
-            if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+            if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                 retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"^2/"+gv::getTimeUnitStrShort()+"^2";
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                 retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"^2/"+gv::getTimeUnitStrShort()+"^3";
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                 retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"^2/"+gv::getTimeUnitStrShort();
             return(retV);
         }
         if (dType==GRAPH_SCENEOBJECT_FORCESENSOR_POSITION_ERROR)
         {
             std::string retV;
-            if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+            if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                 retV=gv::getSizeUnitStr();
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                 retV=gv::getSizeUnitStr()+"/"+gv::getTimeUnitStr();
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                 retV=gv::getSizeUnitStr()+"*"+gv::getTimeUnitStr();
             return(retV);
         }
         if (dType==GRAPH_SCENEOBJECT_FORCESENSOR_ORIENTATION_ERROR)
         {
             std::string retV;
-            if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+            if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                 retV=gv::getAngleUnitStr();
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                 retV=gv::getAngleUnitStr()+"/"+gv::getTimeUnitStr();
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                 retV=gv::getAngleUnitStr()+"*"+gv::getTimeUnitStr();
             return(retV);
         }
         if (dType==GRAPH_SCENEOBJECT_FORCESENSOR_BROKEN)
         {
             std::string retV;
-            if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+            if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                 retV=gv::getBoolStateUnitStr();
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                 retV=gv::getBoolStateUnitStr()+"/"+gv::getTimeUnitStr();
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                 retV=gv::getBoolStateUnitStr()+"*"+gv::getTimeUnitStr();
             return(retV);
         }
@@ -286,11 +286,11 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(it->getDataObjectID());
         if (path!=nullptr)
         {
-            if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+            if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                 return(gv::getSizeUnitStr());
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                 return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStr());
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                 return(gv::getSizeUnitStr()+"*"+gv::getTimeUnitStr());
         }
     }
@@ -299,11 +299,11 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(it->getDataObjectID());
         if (path!=nullptr)
         {
-            if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+            if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
                 return(gv::getAngleUnitStr());
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
                 return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStr());
-            if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+            if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
                 return(gv::getAngleUnitStr()+"*"+gv::getTimeUnitStr());
         }
     }
@@ -326,31 +326,31 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         (dType==GRAPH_NOOBJECT_MAINSCRIPT_EXECUTION_TIME)||
         (dType==GRAPH_NOOBJECT_SIMULATIONPASS_EXECUTION_TIME) )
     {
-        if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+        if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
             return(gv::getTimeUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
             return("-");//gv::getTimeUnitStr()+"/"+gv::getTimeUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
             return(gv::getTimeUnitStr()+"*"+gv::getTimeUnitStr());
     }
     if (dType==GRAPH_NOOBJECT_COLLISION_QUANTITY)
     {
-        if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+        if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
             return(gv::getCountUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
             return(gv::getCountUnitStr()+"/"+gv::getTimeUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
             return(gv::getCountUnitStr()+"*"+gv::getTimeUnitStr());
     }
     if ( (dType==GRAPH_COLLISION_BOOLEAN)||
         (dType==GRAPH_SCENEOBJECT_PROXSENSOR_DETECTION_STATE)||
         (dType==GRAPH_SCENEOBJECT_VISIONSENSOR_DETECTION_STATE) )
     {
-        if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+        if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
             return(gv::getBoolStateUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
             return(gv::getBoolStateUnitStr()+"/"+gv::getTimeUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
             return(gv::getBoolStateUnitStr()+"*"+gv::getTimeUnitStr());
     }
     if ( (dType==GRAPH_SCENEOBJECT_VISIONSENSOR_MIN_RED)||
@@ -369,20 +369,20 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         (dType==GRAPH_SCENEOBJECT_VISIONSENSOR_AVG_INTENSITY)||
         (dType==GRAPH_SCENEOBJECT_VISIONSENSOR_AVG_DEPTH) )
     {
-        if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+        if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
             return(gv::getFloatUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
             return(gv::getFloatUnitStr()+"/"+gv::getTimeUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
             return(gv::getFloatUnitStr()+"*"+gv::getTimeUnitStr());
     }
     if (dType==GRAPH_NOOBJECT_USER_DEFINED)
     {
-        if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+        if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
             return(gv::getUserUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
             return(gv::getUserUnitStr()+"/"+gv::getTimeUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
             return(gv::getUserUnitStr()+"*"+gv::getTimeUnitStr());
             // was this before:     return(gv::getUserUnitStr());
     }
@@ -390,21 +390,21 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
     if ( (dType==GRAPH_SCENEOBJECT_MILL_CUT_SURFACE)||
         (dType==GRAPH_NOOBJECT_MILL_OVERALL_CUT_SURFACE) )
     {
-        if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+        if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
             return(gv::getSurfaceUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
             return(gv::getSurfaceUnitStr()+"/"+gv::getTimeUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
             return(gv::getSurfaceUnitStr()+"*"+gv::getTimeUnitStr());
     }
     if ( (dType==GRAPH_SCENEOBJECT_MILL_CUT_VOLUME)||
         (dType==GRAPH_NOOBJECT_MILL_OVERALL_CUT_VOLUME) )
     {
-        if ((it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_cumulative))
+        if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
             return(gv::getVolumeUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_derivative)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
             return(gv::getVolumeUnitStr()+"/"+gv::getTimeUnitStr());
-        if (it->getDerivativeIntegralAndCumulative()==sim_datastream_transf_integral)
+        if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
             return(gv::getVolumeUnitStr()+"*"+gv::getTimeUnitStr());
     }
     return(gv::getNullUnitStr());

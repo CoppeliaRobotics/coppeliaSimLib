@@ -280,7 +280,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                                         children[j]->setParent(newObj,false);
                                         children[j]->setLocalTransformation(childrenTr[j]);
                                     }
-                                    if (App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(newObj->getObjectHandle())!=nullptr)
+                                    if (App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(newObj->getObjectHandle())!=nullptr)
                                     { // we just try to keep the name suffix
                                         int oldSuffix=tt::getNameSuffixNumber(name.c_str(),true);
                                         std::string newName(tt::generateNewName_hash(tt::getNameWithoutSuffixNumber(masterName.c_str(),true).c_str(),oldSuffix));
@@ -993,14 +993,14 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int id=App::currentWorld->sceneObjects->getLastSelectionHandle();
-            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(id);
+            CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(id);
             if (script!=nullptr)
             {
 #ifdef SIM_WITH_GUI
                 if (App::mainWindow!=nullptr)
                     App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
 #endif
-                App::currentWorld->luaScriptContainer->removeScript(script->getScriptHandle());
+                App::currentWorld->embeddedScriptContainer->removeScript(script->getScriptHandle());
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
                 App::setFullDialogRefreshFlag();
             }
@@ -1019,14 +1019,14 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int id=App::currentWorld->sceneObjects->getLastSelectionHandle();
-            CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(id);
+            CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(id);
             if (script!=nullptr)
             {
 #ifdef SIM_WITH_GUI
                 if (App::mainWindow!=nullptr)
                     App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
 #endif
-                App::currentWorld->luaScriptContainer->removeScript(script->getScriptHandle());
+                App::currentWorld->embeddedScriptContainer->removeScript(script->getScriptHandle());
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
                 App::setFullDialogRefreshFlag();
             }
@@ -1682,7 +1682,7 @@ void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection,bool s
         stack.pushStringOntoStack("objectHandles",0);
         stack.pushIntArrayTableOntoStack(&newObjectHandles[0],(int)newObjectHandles.size());
         stack.insertDataIntoStackTable();
-        App::currentWorld->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercreate,&stack);
+        App::worldContainer->callScripts(sim_syscb_aftercreate,&stack);
     }
 }
 
@@ -1998,7 +1998,7 @@ void CSceneObjectOperations::divideSelection(std::vector<int>* selection,bool sh
         stack.pushStringOntoStack("objectHandles",0);
         stack.pushIntArrayTableOntoStack(&newObjectHandles[0],(int)newObjectHandles.size());
         stack.insertDataIntoStackTable();
-        App::currentWorld->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercreate,&stack);
+        App::worldContainer->callScripts(sim_syscb_aftercreate,&stack);
     }
 
     if (showMessages)
@@ -2683,8 +2683,8 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
     bool hasCustomizationScriptAttached=false;
     if (selItems==1)
     {
-        hasChildScriptAttached=(App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))!=nullptr);
-        hasCustomizationScriptAttached=(App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))!=nullptr);
+        hasChildScriptAttached=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))!=nullptr);
+        hasCustomizationScriptAttached=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))!=nullptr);
     }
     std::vector<int> rootSel;
     for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)

@@ -1273,13 +1273,13 @@ void CJoint::handleDynJointControl(bool init,int loopCnt,int totalLoops,float cu
 
     if (handleJointHere)
     { // The plugins didn't want to handle that joint
-        CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(getObjectHandle());
+        CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(getObjectHandle());
         if (script!=nullptr)
         {
             if (!script->getContainsJointCallbackFunction())
                 script=nullptr;
         }
-        CLuaScriptObject* cScript=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(getObjectHandle());
+        CLuaScriptObject* cScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(getObjectHandle());
         if (cScript!=nullptr)
         {
             if (!cScript->getContainsJointCallbackFunction())

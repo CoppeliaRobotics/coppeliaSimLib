@@ -199,7 +199,7 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         stack.pushNumberOntoStack(newObject->getObjectHandle());
         stack.insertDataIntoStackTable();
         stack.insertDataIntoStackTable();
-        App::currentWorld->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercreate,&stack);
+        App::worldContainer->callScripts(sim_syscb_aftercreate,&stack);
     }
     App::worldContainer->setModificationFlag(2); // object created
 
@@ -226,7 +226,7 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
         stack.pushStringOntoStack("allObjects",0);
         stack.pushBoolOntoStack(getObjectCount()==1);
         stack.insertDataIntoStackTable();
-        App::currentWorld->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_beforedelete,&stack);
+        App::worldContainer->callScripts(sim_syscb_beforedelete,&stack);
     }
 
     // We announce the object will be erased:
@@ -245,7 +245,7 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
     App::worldContainer->setModificationFlag(1); // object erased
 
     if (generateBeforeAfterDeleteCallback)
-        App::currentWorld->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_afterdelete,&stack);
+        App::worldContainer->callScripts(sim_syscb_afterdelete,&stack);
 
     return(true);
 }
@@ -284,14 +284,14 @@ void CSceneObjectContainer::eraseSeveralObjects(const std::vector<CSceneObject*>
             stack.pushStringOntoStack("allObjects",0);
             stack.pushBoolOntoStack(objs.size()==getObjectCount());
             stack.insertDataIntoStackTable();
-            App::currentWorld->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_beforedelete,&stack);
+            App::worldContainer->callScripts(sim_syscb_beforedelete,&stack);
         }
 
         for (size_t i=0;i<objs.size();i++)
             eraseObject(objs[i],false);
 
         if (generateBeforeAfterDeleteCallback)
-            App::currentWorld->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_afterdelete,&stack);
+            App::worldContainer->callScripts(sim_syscb_afterdelete,&stack);
     }
 }
 
@@ -1159,14 +1159,14 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer& ar,const CSceneO
         obj->serialize(ar);
     }
 
-    CLuaScriptObject* script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_child(object->getObjectHandle());
+    CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(object->getObjectHandle());
     if (script!=nullptr)
     {
         ar.xmlPushNewNode("childScript");
         script->serialize(ar);
         ar.xmlPopNode();
     }
-    script=App::currentWorld->luaScriptContainer->getScriptFromObjectAttachedTo_customization(object->getObjectHandle());
+    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(object->getObjectHandle());
     if (script!=nullptr)
     {
         ar.xmlPushNewNode("customizationScript");

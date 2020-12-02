@@ -65,7 +65,7 @@ void CQDlgScripts::refresh()
 
     ui->qqDebugMode->clear();
 
-    CLuaScriptObject* theScript=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(getSelectedObjectID());
+    CLuaScriptObject* theScript=App::worldContainer->getScriptFromHandle(getSelectedObjectID());
     ui->qqExecutionOrder->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqTreeTraversalDirection->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqDebugMode->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript)||(theScript->getScriptType()==sim_scripttype_mainscript) ));
@@ -121,7 +121,7 @@ void CQDlgScripts::updateObjectsInList()
 
     if (scriptViewMode==0)
     { // Main and child scripts
-        CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getMainScript();
+        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getMainScript();
         if (it!=nullptr)
         {
             std::string tmp=it->getDescriptiveName();
@@ -132,9 +132,9 @@ void CQDlgScripts::updateObjectsInList()
             itm->setForeground(QColor(255,128,128)); // RED
             ui->qqScriptList->addItem(itm);
         }
-        for (int i=0;i<int(App::currentWorld->luaScriptContainer->allScripts.size());i++)
+        for (int i=0;i<int(App::currentWorld->embeddedScriptContainer->allScripts.size());i++)
         {
-            it=App::currentWorld->luaScriptContainer->allScripts[i];
+            it=App::currentWorld->embeddedScriptContainer->allScripts[i];
             int t=it->getScriptType();
             if (t==sim_scripttype_childscript)
             {
@@ -154,9 +154,9 @@ void CQDlgScripts::updateObjectsInList()
 
     if (scriptViewMode==1)
     { // Customization scripts
-        for (int i=0;i<int(App::currentWorld->luaScriptContainer->allScripts.size());i++)
+        for (int i=0;i<int(App::currentWorld->embeddedScriptContainer->allScripts.size());i++)
         {
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->allScripts[i];
+            CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->allScripts[i];
             int t=it->getScriptType();
             if (t==sim_scripttype_customizationscript)
             {
@@ -229,7 +229,7 @@ void CQDlgScripts::on_qqScriptList_itemDoubleClicked(QListWidgetItem *item)
     {
         if ( (item!=nullptr)&&App::currentWorld->simulation->isSimulationStopped() )
         {
-            CLuaScriptObject* it=App::currentWorld->luaScriptContainer->getScriptFromHandle_alsoAddOnsAndSandbox(item->data(Qt::UserRole).toInt());
+            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(item->data(Qt::UserRole).toInt());
             if (it!=nullptr)
             {
                 // Process the command via the simulation thread (delayed):
