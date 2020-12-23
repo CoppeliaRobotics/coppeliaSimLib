@@ -23,7 +23,7 @@ std::vector<std::vector<unsigned char>*> CMesh::_tempEdges;
 CMesh::CMesh()
 {
     color.setDefaultValues();
-    color.setColor(0.6f+0.4f*(float)(rand()/(float)RAND_MAX),0.6f+0.4f*(float)(rand()/(float)RAND_MAX),0.6f+0.4f*(float)(rand()/(float)RAND_MAX),sim_colorcomponent_ambient_diffuse);
+    color.setColor(0.9f,0.9f,0.9f,sim_colorcomponent_ambient_diffuse);
     edgeColor_DEPRECATED.setColorsAllBlack();
     insideColor_DEPRECATED.setDefaultValues();
 

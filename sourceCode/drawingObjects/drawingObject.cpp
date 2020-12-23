@@ -49,13 +49,15 @@ CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateToler
     _sceneObjectID=-1;
     size=tt::getLimitedFloat(0.0001f,100.0f,size);
     _size=size;
+    if (maxItemCount==0)
+        maxItemCount=10000000;
     maxItemCount=tt::getLimitedInt(1,10000000,maxItemCount);
     _maxItemCount=maxItemCount;
     _startItem=0;
     int tmp=theObjectType&0x001f;
     if (theObjectType&sim_drawing_vertexcolors)
     {
-        if ((tmp!=sim_drawing_lines)&&(tmp!=sim_drawing_triangles))
+        if ((tmp!=sim_drawing_lines)&&(tmp!=sim_drawing_triangles)&&(tmp!=sim_drawing_linestrip))
             theObjectType-=sim_drawing_vertexcolors;
         if ((theObjectType&sim_drawing_itemcolors)&&(theObjectType&sim_drawing_vertexcolors))
             theObjectType-=sim_drawing_vertexcolors;
@@ -132,7 +134,7 @@ void CDrawingObject::adjustForScaling(float xScale,float yScale,float zScale)
 {
     float avgScaling=(xScale+yScale+zScale)/3.0f;
     int tmp=_objectType&0x001f;
-    if ((tmp!=sim_drawing_points)&&(tmp!=sim_drawing_lines))
+    if ((tmp!=sim_drawing_points)&&(tmp!=sim_drawing_lines)&&(tmp!=sim_drawing_linestrip))
         _size*=avgScaling;
 
     for (int i=0;i<int(_data.size())/floatsPerItem;i++)
@@ -158,6 +160,14 @@ void CDrawingObject::adjustForScaling(float xScale,float yScale,float zScale)
         if (_objectType&sim_drawing_itemtransparency)
             off+=1;
     }
+}
+
+void CDrawingObject::setItems(const float* itemData,size_t itemCnt)
+{
+    addItem(nullptr);
+    size_t off=size_t(verticesPerItem*3+normalsPerItem*3+otherFloatsPerItem);
+    for (size_t i=0;i<itemCnt;i++)
+        addItem(itemData+off*i);
 }
 
 bool CDrawingObject::addItem(const float* itemData)
@@ -250,6 +260,8 @@ void CDrawingObject::_setItemSizes()
         verticesPerItem=1;
     if (tmp==sim_drawing_lines)
         verticesPerItem=2;
+    if (tmp==sim_drawing_linestrip)
+        verticesPerItem=1;
     if (tmp==sim_drawing_triangles)
         verticesPerItem=3;
 
@@ -263,6 +275,8 @@ void CDrawingObject::_setItemSizes()
         otherFloatsPerItem+=3;
     if (_objectType&sim_drawing_vertexcolors)
     { 
+        if (tmp==sim_drawing_linestrip)
+            otherFloatsPerItem+=3;
         if (tmp==sim_drawing_lines)
             otherFloatsPerItem+=6;
         if (tmp==sim_drawing_triangles)

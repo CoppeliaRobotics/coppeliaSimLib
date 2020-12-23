@@ -195,7 +195,7 @@ void App::simulationThreadLoop()
         CLuaScriptObject* mainScript=App::currentWorld->embeddedScriptContainer->getMainScript();
         bool suspendedFunctionPresentInMainScript=true;
         if (mainScript!=nullptr)
-            mainScript->runMainScript(sim_syscb_suspended,nullptr,nullptr,&suspendedFunctionPresentInMainScript);
+            mainScript->callMainScript(sim_syscb_suspended,nullptr,nullptr,&suspendedFunctionPresentInMainScript);
         if (!suspendedFunctionPresentInMainScript)
         { // For backward compatibility for scenes that have customized main script (e.g. BR)
             App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_suspended,nullptr,nullptr,nullptr);

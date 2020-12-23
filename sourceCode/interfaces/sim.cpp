@@ -193,10 +193,6 @@ SIM_DLLEXPORT simInt simBuildIdentityMatrix(simFloat* matrix)
 {
     return(simBuildIdentityMatrix_internal(matrix));
 }
-SIM_DLLEXPORT simInt simCopyMatrix(const simFloat* matrixIn,simFloat* matrixOut)
-{
-    return(simCopyMatrix_internal(matrixIn,matrixOut));
-}
 SIM_DLLEXPORT simInt simBuildMatrix(const simFloat* position,const simFloat* eulerAngles,simFloat* matrix)
 {
     return(simBuildMatrix_internal(position,eulerAngles,matrix));
@@ -1215,6 +1211,10 @@ SIM_DLLEXPORT simInt simPushInt32OntoStack(simInt stackHandle,simInt value)
 {
     return(simPushInt32OntoStack_internal(stackHandle,value));
 }
+SIM_DLLEXPORT simInt simPushInt64OntoStack(simInt stackHandle,simInt64 value)
+{
+    return(simPushInt64OntoStack_internal(stackHandle,value));
+}
 SIM_DLLEXPORT simInt simPushFloatOntoStack(simInt stackHandle,simFloat value)
 {
     return(simPushFloatOntoStack_internal(stackHandle,value));
@@ -1234,6 +1234,10 @@ SIM_DLLEXPORT simInt simPushUInt8TableOntoStack(simInt stackHandle,const simUCha
 SIM_DLLEXPORT simInt simPushInt32TableOntoStack(simInt stackHandle,const simInt* values,simInt valueCnt)
 {
     return(simPushInt32TableOntoStack_internal(stackHandle,values,valueCnt));
+}
+SIM_DLLEXPORT simInt simPushInt64TableOntoStack(simInt stackHandle,const simInt64* values,simInt valueCnt)
+{
+    return(simPushInt64TableOntoStack_internal(stackHandle,values,valueCnt));
 }
 SIM_DLLEXPORT simInt simPushFloatTableOntoStack(simInt stackHandle,const simFloat* values,simInt valueCnt)
 {
@@ -1275,6 +1279,10 @@ SIM_DLLEXPORT simInt simGetStackInt32Value(simInt stackHandle,simInt* numberValu
 {
     return(simGetStackInt32Value_internal(stackHandle,numberValue));
 }
+SIM_DLLEXPORT simInt simGetStackInt64Value(simInt stackHandle,simInt64* numberValue)
+{
+    return(simGetStackInt64Value_internal(stackHandle,numberValue));
+}
 SIM_DLLEXPORT simInt simGetStackFloatValue(simInt stackHandle,simFloat* numberValue)
 {
     return(simGetStackFloatValue_internal(stackHandle,numberValue));
@@ -1298,6 +1306,10 @@ SIM_DLLEXPORT simInt simGetStackUInt8Table(simInt stackHandle,simUChar* array,si
 SIM_DLLEXPORT simInt simGetStackInt32Table(simInt stackHandle,simInt* array,simInt count)
 {
     return(simGetStackInt32Table_internal(stackHandle,array,count));
+}
+SIM_DLLEXPORT simInt simGetStackInt64Table(simInt stackHandle,simInt64* array,simInt count)
+{
+    return(simGetStackInt64Table_internal(stackHandle,array,count));
 }
 SIM_DLLEXPORT simInt simGetStackFloatTable(simInt stackHandle,simFloat* array,simInt count)
 {
@@ -1507,6 +1519,10 @@ SIM_DLLEXPORT simInt simSetShapeInertia(simInt shapeHandle,const simFloat* inert
 SIM_DLLEXPORT simInt simIsDynamicallyEnabled(simInt objectHandle)
 {
     return(simIsDynamicallyEnabled_internal(objectHandle));
+}
+SIM_DLLEXPORT simInt simGenerateShapeFromPath(const simFloat* path,simInt pathSize,const simFloat* section,simInt sectionSize,const simFloat* upVector,simInt options,simFloat reserved)
+{
+    return(simGenerateShapeFromPath_internal(path,pathSize,section,sectionSize,upVector,options,reserved));
 }
 
 
@@ -2524,6 +2540,10 @@ SIM_DLLEXPORT simInt simAddPointCloud(simInt pageMask,simInt layerMask,simInt ob
 SIM_DLLEXPORT simInt simModifyPointCloud(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam)
 {
     return(simModifyPointCloud_internal(pointCloudHandle,operation,intParam,floatParam));
+}
+SIM_DLLEXPORT simInt simCopyMatrix(const simFloat* matrixIn,simFloat* matrixOut)
+{
+    return(simCopyMatrix_internal(matrixIn,matrixOut));
 }
 // Deprecated end
 

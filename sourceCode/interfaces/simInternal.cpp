@@ -2271,15 +2271,6 @@ simInt simBuildIdentityMatrix_internal(simFloat* matrix)
     return(1);
 }
 
-simInt simCopyMatrix_internal(const simFloat* matrixIn,simFloat* matrixOut)
-{
-    TRACE_C_API;
-
-    for (int i=0;i<12;i++)
-        matrixOut[i]=matrixIn[i];
-    return(1);
-}
-
 simInt simBuildMatrix_internal(const simFloat* position,const simFloat* eulerAngles,simFloat* matrix)
 {
     TRACE_C_API;
@@ -4304,6 +4295,11 @@ simChar* simGetStringParameter_internal(simInt parameter)
             validParam=true;
             retVal=App::folders->getExecutablePath();
         }
+        if (parameter==sim_stringparam_uniqueid)
+        {
+            validParam=true;
+            retVal=CTTUtil::generateUniqueReadableString();
+        }
         if (parameter==sim_stringparam_scene_path_and_name)
         {
             validParam=true;
@@ -5068,7 +5064,7 @@ simInt simHandleMainScript_internal()
     // Sandbox script:
     bool ss=true;
     if (App::worldContainer->sandboxScript!=nullptr)
-        ss=App::worldContainer->sandboxScript->runSandboxScript_beforeMainScript();
+        ss=App::worldContainer->sandboxScript->callSandboxScript_beforeMainScript();
 
     if ( ( (rtVal[0]==-1)&&cs&&as&&ss )||App::currentWorld->simulation->didStopRequestCounterChangeSinceSimulationStart() )
     {
@@ -5080,7 +5076,7 @@ simInt simHandleMainScript_internal()
             App::currentWorld->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f); // remove invalid elements
             CThreadPool::prepareAllThreadsForResume_calledBeforeMainScript();
 
-            retVal=it->runMainScript(-1,nullptr,nullptr,nullptr);
+            retVal=it->callMainScript(-1,nullptr,nullptr,nullptr);
             App::worldContainer->calcInfo->simulationPassEnd();
         }
         else
@@ -5119,7 +5115,7 @@ simInt simResetScript_internal(simInt scriptHandle)
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(-1);
         }
-        it->killLuaState();
+        it->resetScript();
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -5147,8 +5143,8 @@ simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText)
             App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
 #endif
         it->setScriptText(scriptText);
-        if ( (it->getScriptType()!=sim_scripttype_childscript)||(!it->getThreadedExecution())||App::currentWorld->simulation->isSimulationStopped() )
-            it->killLuaState();
+        if ( (it->getScriptType()!=sim_scripttype_childscript)||(!it->getThreadedExecution_oldThreads())||App::currentWorld->simulation->isSimulationStopped() )
+            it->resetScript();
         return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -5330,7 +5326,7 @@ simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,
         }
         scriptProperty[0]=it->getScriptType();
         associatedObjectHandle[0]=it->getObjectHandleThatScriptIsAttachedTo_child();
-        if (it->getThreadedExecution())
+        if (it->getThreadedExecution_oldThreads())
             scriptProperty[0]|=sim_scripttype_threaded_old;
         return(1);
     }
@@ -5411,8 +5407,8 @@ simInt simAddScript_internal(simInt scriptProperty)
         {
             if (scriptProperty&sim_scripttype_threaded_old)
             {
-                it->setThreadedExecution(true);
-                it->setExecuteJustOnce(true);
+                it->setThreadedExecution_oldThreads(true);
+                it->setExecuteJustOnce_oldThreads(true);
             }
         }
         int retVal=App::currentWorld->embeddedScriptContainer->insertScript(it);
@@ -6645,7 +6641,7 @@ simInt simDisplayDialog_internal(const simChar* titleText,const simChar* mainTex
         int stackId=App::worldContainer->interfaceStackContainer->addStack(stack);
         simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.displayDialog",stackId);
         int retVal;
-        stack->getStackIntValue(retVal);
+        stack->getStackInt32Value(retVal);
         App::worldContainer->interfaceStackContainer->destroyStack(stackId);
         return(retVal);
 #else
@@ -6671,7 +6667,7 @@ simInt simGetDialogResult_internal(simInt genericDialogHandle)
         int stackId=App::worldContainer->interfaceStackContainer->addStack(stack);
         simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.getDialogResult",stackId);
         int retVal;
-        stack->getStackIntValue(retVal);
+        stack->getStackInt32Value(retVal);
         App::worldContainer->interfaceStackContainer->destroyStack(stackId);
         return(retVal);
 #else
@@ -6863,9 +6859,10 @@ simInt simCopyPasteObjects_internal(simInt* objectHandles,simInt objectCount,sim
         App::worldContainer->copyBuffer->memorizeBuffer();
         App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked());
         App::currentWorld->sceneObjects->deselectObjects();
-        App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked());
         if (options&1)
-            App::currentWorld->sceneObjects->removeFromSelectionAllExceptModelBase(true);
+            App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),3);
+        else
+            App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),1);
         int retVal=int(App::currentWorld->sceneObjects->getSelectionCount());
         for (int i=0;i<retVal;i++)
             objectHandles[i]=App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(size_t(i));
@@ -7041,9 +7038,7 @@ simInt simAddDrawingObjectItem_internal(simInt objectHandle,const simFloat* item
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
+       return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     { // protected with an additional mutex in CDrawingObject
@@ -12673,6 +12668,134 @@ simInt simIsDynamicallyEnabled_internal(simInt objectHandle)
     return(-1);
 }
 
+simInt simGenerateShapeFromPath_internal(const simFloat* ppath,simInt pathSize,const simFloat* section,simInt sectionSize,const simFloat* upVector,simInt options,simFloat reserved)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        C3Vector zvect;
+        if (upVector!=nullptr)
+            zvect.set(upVector);
+        else
+            zvect=C3Vector::unitZVector;
+        bool closedPath=(options&1)!=0;
+
+        size_t confCnt=size_t(pathSize)/3;
+        size_t elementCount=confCnt;
+        size_t secVertCnt=size_t(sectionSize)/2;
+
+        std::vector<float> path;
+        for (size_t i=0;i<confCnt;i++)
+        {
+            C3Vector p0,p1,p2;
+            if (i!=0)
+                p0=C3Vector(ppath+3*(i-1));
+            else
+            {
+                if (closedPath)
+                    p0=C3Vector(ppath+pathSize-3);
+            }
+            p1=C3Vector(ppath+3*i);
+            if (i!=(confCnt-1))
+                p2=C3Vector(ppath+3*(i+1));
+            else
+            {
+                if (closedPath)
+                    p2=C3Vector(ppath+3*1);
+            }
+            C3Vector vy;
+            if ( closedPath||((i!=0)&&(i!=(confCnt-1))) )
+                vy=(p1-p0)+(p2-p1);
+            else
+            {
+                if (i==0)
+                    vy=(p2-p1);
+                else
+                    vy=(p1-p0);
+            }
+            vy.normalize();
+            C3Vector vx=vy^zvect;
+            vx.normalize();
+            C4X4Matrix m;
+            m.X=p1;
+            m.M.axis[0]=vx;
+            m.M.axis[1]=vy;
+            m.M.axis[2]=vx^vy;
+            C7Vector p(m.getTransformation());
+            for (size_t j=0;j<7;j++)
+                path.push_back(p(j));
+        }
+
+        bool sectionClosed=( (section[0]==section[sectionSize-2])&&(section[1]==section[sectionSize-1]) );
+        if (sectionClosed)
+            secVertCnt--;
+
+        std::vector<float> vertices;
+        std::vector<int> indices;
+        C7Vector tr0;
+        tr0.setInternalData(&path[0]);
+        for (size_t i=0;i<=secVertCnt-1;i++)
+        {
+            C3Vector v(section[i*2+0],0.0f,section[i*2+1]);
+            v=tr0*v;
+            vertices.push_back(v(0));
+            vertices.push_back(v(1));
+            vertices.push_back(v(2));
+        }
+
+        int previousVerticesOffset=0;
+        for (size_t ec=1;ec<elementCount;ec++)
+        {
+            C7Vector tr;
+            tr.setInternalData(&path[ec*7]);
+            int forwOff=secVertCnt;
+            for (size_t i=0;i<=secVertCnt-1;i++)
+            {
+                C3Vector v(section[i*2+0],0.0f,section[i*2+1]);
+                if ( closedPath&&(ec==(elementCount-1)) )
+                    forwOff=-previousVerticesOffset;
+                else
+                {
+                    v=tr*v;
+                    vertices.push_back(v(0));
+                    vertices.push_back(v(1));
+                    vertices.push_back(v(2));
+                }
+                if (i!=(secVertCnt-1))
+                {
+                    indices.push_back(previousVerticesOffset+0+i);
+                    indices.push_back(previousVerticesOffset+forwOff+i);
+                    indices.push_back(previousVerticesOffset+1+i);
+                    indices.push_back(previousVerticesOffset+1+i);
+                    indices.push_back(previousVerticesOffset+forwOff+i);
+                    indices.push_back(previousVerticesOffset+forwOff+i+1);
+                }
+                else
+                {
+                    if (sectionClosed)
+                    {
+                        indices.push_back(previousVerticesOffset+0+i);
+                        indices.push_back(previousVerticesOffset+forwOff+i);
+                        indices.push_back(previousVerticesOffset+0);
+                        indices.push_back(previousVerticesOffset+0);
+                        indices.push_back(previousVerticesOffset+forwOff+i);
+                        indices.push_back(previousVerticesOffset+forwOff+0);
+                    }
+                }
+            }
+            previousVerticesOffset+=secVertCnt;
+        }
+        int h=simCreateMeshShape_internal(0,0.0f,&vertices[0],int(vertices.size()),&indices[0],int(indices.size()),nullptr);
+        return(h);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
 simInt simGroupShapes_internal(const simInt* shapeHandles,simInt shapeCount)
 {
     TRACE_C_API;
@@ -13948,7 +14071,7 @@ simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
         }
         if (attributeID==sim_scriptattribute_executionorder)
         {
-            it->setExecutionOrder(intOrBoolVal);
+            it->setExecutionPriority(intOrBoolVal);
             retVal=1;
         }
         if (attributeID==sim_scriptattribute_executioncount)
@@ -13956,7 +14079,7 @@ simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
             it->setNumberOfPasses(intOrBoolVal);
             retVal=1;
         }
-        if ( (attributeID==sim_childscriptattribute_automaticcascadingcalls)&&(it->getScriptType()==sim_scripttype_childscript)&&(!it->getThreadedExecution()) )
+        if ( (attributeID==sim_childscriptattribute_automaticcascadingcalls)&&(it->getScriptType()==sim_scripttype_childscript)&&(!it->getThreadedExecution_oldThreads()) )
         {
             it->setAutomaticCascadingCallsDisabled_OLD(intOrBoolVal==0);
             retVal=1;
@@ -14011,7 +14134,7 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
                 intOrBoolVal[0]=0;
             retVal=1;
         }
-        if ( (attributeID==sim_childscriptattribute_automaticcascadingcalls)&&(it->getScriptType()==sim_scripttype_childscript)&&(!it->getThreadedExecution()) )
+        if ( (attributeID==sim_childscriptattribute_automaticcascadingcalls)&&(it->getScriptType()==sim_scripttype_childscript)&&(!it->getThreadedExecution_oldThreads()) )
         {
             if (it->getAutomaticCascadingCallsDisabled_OLD())
                 intOrBoolVal[0]=0;
@@ -14021,7 +14144,7 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
         }
         if (attributeID==sim_scriptattribute_executionorder)
         {
-            intOrBoolVal[0]=it->getExecutionOrder();
+            intOrBoolVal[0]=it->getExecutionPriority();
             retVal=1;
         }
         if (attributeID==sim_scriptattribute_executioncount)
@@ -14037,7 +14160,7 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
         if (attributeID==sim_scriptattribute_scripttype)
         {
             intOrBoolVal[0]=it->getScriptType();
-            if (it->getThreadedExecution())
+            if (it->getThreadedExecution_oldThreads())
                 intOrBoolVal[0]|=sim_scripttype_threaded_old;
             retVal=1;
         }
@@ -14303,10 +14426,10 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackId);
         if (stack!=nullptr)
         {
-            if (script->getThreadedExecutionIsUnderWay())
+            if (script->getThreadedExecutionIsUnderWay_oldThreads())
             { // very special handling here!
                 if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
-                    retVal=script->callScriptFunctionEx(funcName.c_str(),stack);
+                    retVal=script->callScriptFunction(funcName.c_str(),stack);
                 else
                 { // we have to execute that function via another thread!
                     void* d[4];
@@ -14323,7 +14446,7 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
             {
                 if (VThread::isCurrentThreadTheMainSimulationThread())
                 { // For now we don't allow non-main threads to call non-threaded scripts!
-                    retVal=script->callScriptFunctionEx(funcName.c_str(),stack);
+                    retVal=script->callScriptFunction(funcName.c_str(),stack);
                 }
             }
             if (retVal==-3)
@@ -14567,7 +14690,30 @@ simInt simPushInt32OntoStack_internal(simInt stackHandle,simInt value)
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushIntegerOntoStack(value);
+            stack->pushInt32OntoStack(value);
+            return(1);
+        }
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        return(-1);
+    }
+
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simPushInt64OntoStack_internal(simInt stackHandle,simInt64 value)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        if (stack!=nullptr)
+        {
+            stack->pushInt64OntoStack(value);
             return(1);
         }
         CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
@@ -14682,7 +14828,30 @@ simInt simPushInt32TableOntoStack_internal(simInt stackHandle,const simInt* valu
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushIntArrayTableOntoStack(values,valueCnt);
+            stack->pushInt32ArrayTableOntoStack(values,valueCnt);
+            return(1);
+        }
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        return(-1);
+    }
+
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simPushInt64TableOntoStack_internal(simInt stackHandle,const simInt64* values,simInt valueCnt)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        if (stack!=nullptr)
+        {
+            stack->pushInt64ArrayTableOntoStack(values,valueCnt);
             return(1);
         }
         CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
@@ -14934,7 +15103,40 @@ simInt simGetStackInt32Value_internal(simInt stackHandle,simInt* numberValue)
             if (stack->getStackSize()>0)
             {
                 int v;
-                if (stack->getStackIntValue(v))
+                if (stack->getStackInt32Value(v))
+                {
+                    numberValue[0]=v;
+                    return(1);
+                }
+                return(0);
+            }
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            return(-1);
+        }
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        return(-1);
+    }
+
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetStackInt64Value_internal(simInt stackHandle,simInt64* numberValue)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        if (stack!=nullptr)
+        {
+            if (stack->getStackSize()>0)
+            {
+                simInt64 v;
+                if (stack->getStackInt64Value(v))
                 {
                     numberValue[0]=v;
                     return(1);
@@ -15139,7 +15341,36 @@ simInt simGetStackInt32Table_internal(simInt stackHandle,simInt* array,simInt co
         {
             if (stack->getStackSize()>0)
             {
-                if (stack->getStackIntArray(array,count))
+                if (stack->getStackInt32Array(array,count))
+                    return(1);
+                return(0);
+            }
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            return(-1);
+        }
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        return(-1);
+    }
+
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetStackInt64Table_internal(simInt stackHandle,simInt64* array,simInt count)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        if (stack!=nullptr)
+        {
+            if (stack->getStackSize()>0)
+            {
+                if (stack->getStackInt64Array(array,count))
                     return(1);
                 return(0);
             }
@@ -15335,7 +15566,7 @@ simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* va
                 return(-1);
             }
             int retVal=-1; // error
-            if (script->getThreadedExecutionIsUnderWay())
+            if (script->getThreadedExecutionIsUnderWay_oldThreads())
             { // very special handling here!
                 if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
                     retVal=script->setScriptVariable(variableName.c_str(),stack);
@@ -16463,7 +16694,7 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
                 return(-1);
             }
             int retVal=-1; // error
-            if (script->getThreadedExecutionIsUnderWay())
+            if (script->getThreadedExecutionIsUnderWay_oldThreads())
             { // very special handling here!
                 if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
                     retVal=script->executeScriptString(stringToExecute.c_str(),stack);
@@ -16517,7 +16748,7 @@ simChar* simGetApiFunc_internal(simInt scriptHandleOrType,const simChar* apiWord
             if (script!=nullptr)
             {
                 scriptType=script->getScriptType();
-                threaded=script->getThreadedExecution();
+                threaded=script->getThreadedExecution_oldThreads();
             }
         }
         else
@@ -16581,7 +16812,7 @@ simChar* simGetApiInfo_internal(simInt scriptHandleOrType,const simChar* apiWord
             if (script!=nullptr)
             {
                 scriptType=script->getScriptType();
-                threaded=script->getThreadedExecution();
+                threaded=script->getThreadedExecution_oldThreads();
             }
         }
         else
@@ -16802,8 +17033,8 @@ simInt simEventNotification_internal(const simChar* event)
                                     int posAndSize[4];
                                     std::string txt=App::mainWindow->codeEditorContainer->getText(h,posAndSize);
                                     stack->pushStringOntoStack(txt.c_str(),0);
-                                    stack->pushIntArrayTableOntoStack(posAndSize+0,2);
-                                    stack->pushIntArrayTableOntoStack(posAndSize+2,2);
+                                    stack->pushInt32ArrayTableOntoStack(posAndSize+0,2);
+                                    stack->pushInt32ArrayTableOntoStack(posAndSize+2,2);
                                     int stackId=App::worldContainer->interfaceStackContainer->addStack(stack);
                                     simCallScriptFunctionEx_internal(callingScript,data,stackId);
                                     App::worldContainer->interfaceStackContainer->destroyStack(stackId);
@@ -18211,8 +18442,7 @@ simInt simCopyPasteSelectedObjects_internal()
         App::worldContainer->copyBuffer->memorizeBuffer();
         App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked());
         App::currentWorld->sceneObjects->deselectObjects();
-        App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked());
-        App::currentWorld->sceneObjects->removeFromSelectionAllExceptModelBase(true);
+        App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),3);
         App::worldContainer->copyBuffer->restoreBuffer();
         App::worldContainer->copyBuffer->clearMemorizedBuffer();
         return(1);
@@ -18350,7 +18580,7 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
 
         if (script!=nullptr)
         {
-            int retVal=script->appendTableEntry(arrayName.c_str(),keyName,data,what);
+            int retVal=script->appendTableEntry_DEPRECATED(arrayName.c_str(),keyName,data,what);
             if (retVal==-1)
                 CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OPERATION_FAILED);
             return(retVal);
@@ -18438,7 +18668,7 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
 
     if (script!=nullptr)
     {
-        int retVal=script->clearScriptVariable(variableName.c_str());
+        int retVal=script->clearScriptVariable_DEPRECATED(variableName.c_str());
         if (retVal==-1)
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OPERATION_FAILED);
         return(retVal);
@@ -19582,10 +19812,10 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
     if (script!=nullptr)
     {
         int retVal=-1; // error
-        if (script->getThreadedExecutionIsUnderWay())
+        if (script->getThreadedExecutionIsUnderWay_oldThreads())
         { // very special handling here!
             if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
-                retVal=script->callScriptFunction(funcName.c_str(),data);
+                retVal=script->callScriptFunction_DEPRECATED(funcName.c_str(),data);
             else
             { // we have to execute that function via another thread!
                 void* d[4];
@@ -19602,7 +19832,7 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
         {
             if (VThread::isCurrentThreadTheMainSimulationThread())
             { // For now we don't allow non-main threads to call non-threaded scripts!
-                retVal=script->callScriptFunction(funcName.c_str(),data);
+                retVal=script->callScriptFunction_DEPRECATED(funcName.c_str(),data);
             }
         }
         if (retVal==-1)
@@ -21884,5 +22114,14 @@ simInt simModifyPointCloud_internal(simInt pointCloudHandle,simInt operation,con
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
+}
+
+simInt simCopyMatrix_internal(const simFloat* matrixIn,simFloat* matrixOut)
+{ // deprecated on 23.11.2020
+    TRACE_C_API;
+
+    for (int i=0;i<12;i++)
+        matrixOut[i]=matrixIn[i];
+    return(1);
 }
 

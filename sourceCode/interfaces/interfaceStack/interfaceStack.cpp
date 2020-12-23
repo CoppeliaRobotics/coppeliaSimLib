@@ -149,7 +149,7 @@ bool CInterfaceStack::getStackStrictIntegerValue(luaWrap_lua_Integer& theValue) 
     return(false);
 }
 
-bool CInterfaceStack::getStackLongIntValue(luaWrap_lua_Integer& theValue) const
+bool CInterfaceStack::getStackInt64Value(luaWrap_lua_Integer& theValue) const
 {
     bool retVal=getStackStrictIntegerValue(theValue);
     if (!retVal)
@@ -167,10 +167,10 @@ bool CInterfaceStack::getStackLongIntValue(luaWrap_lua_Integer& theValue) const
     return(retVal);
 }
 
-bool CInterfaceStack::getStackIntValue(int& theValue) const
+bool CInterfaceStack::getStackInt32Value(int& theValue) const
 {
     luaWrap_lua_Integer v;
-    bool retVal=getStackLongIntValue(v);
+    bool retVal=getStackInt64Value(v);
     if (retVal)
         theValue=(int)v;
     return(retVal);
@@ -510,7 +510,7 @@ bool CInterfaceStack::getStackUCharArray(unsigned char* array,int count) const
     return(table->getUCharArray(array,count));
 }
 
-bool CInterfaceStack::getStackIntArray(int* array,int count) const
+bool CInterfaceStack::getStackInt32Array(int* array,int count) const
 {
     if (_stackObjects.size()==0)
         return(false);
@@ -520,7 +520,20 @@ bool CInterfaceStack::getStackIntArray(int* array,int count) const
     CInterfaceStackTable* table=(CInterfaceStackTable*)obj;
     if (!table->isTableArray())
         return(false);
-    return(table->getIntArray(array,count));
+    return(table->getInt32Array(array,count));
+}
+
+bool CInterfaceStack::getStackInt64Array(luaWrap_lua_Integer* array,int count) const
+{
+    if (_stackObjects.size()==0)
+        return(false);
+    CInterfaceStackObject* obj=_stackObjects[_stackObjects.size()-1];
+    if (obj->getObjectType()!=STACK_OBJECT_TABLE)
+        return(false);
+    CInterfaceStackTable* table=(CInterfaceStackTable*)obj;
+    if (!table->isTableArray())
+        return(false);
+    return(table->getInt64Array(array,count));
 }
 
 bool CInterfaceStack::getStackFloatArray(float* array,int count) const
@@ -725,7 +738,12 @@ void CInterfaceStack::pushNumberOntoStack(double v)
     _stackObjects.push_back(new CInterfaceStackNumber(v));
 }
 
-void CInterfaceStack::pushIntegerOntoStack(luaWrap_lua_Integer v)
+void CInterfaceStack::pushInt32OntoStack(int v)
+{
+    _stackObjects.push_back(new CInterfaceStackInteger(v));
+}
+
+void CInterfaceStack::pushInt64OntoStack(luaWrap_lua_Integer v)
 {
     _stackObjects.push_back(new CInterfaceStackInteger(v));
 }
@@ -735,10 +753,17 @@ void CInterfaceStack::pushStringOntoStack(const char* str,size_t l)
     _stackObjects.push_back(new CInterfaceStackString(str,l));
 }
 
-void CInterfaceStack::pushIntArrayTableOntoStack(const int* arr,int l)
+void CInterfaceStack::pushInt32ArrayTableOntoStack(const int* arr,int l)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
-    table->setIntArray(arr,l);
+    table->setInt32Array(arr,l);
+    _stackObjects.push_back(table);
+}
+
+void CInterfaceStack::pushInt64ArrayTableOntoStack(const luaWrap_lua_Integer* arr,int l)
+{
+    CInterfaceStackTable* table=new CInterfaceStackTable();
+    table->setInt64Array(arr,l);
     _stackObjects.push_back(table);
 }
 

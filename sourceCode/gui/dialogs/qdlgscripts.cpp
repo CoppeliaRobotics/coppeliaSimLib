@@ -70,7 +70,7 @@ void CQDlgScripts::refresh()
     ui->qqTreeTraversalDirection->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqDebugMode->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript)||(theScript->getScriptType()==sim_scripttype_mainscript) ));
     ui->qqDisabled->setEnabled((theScript!=nullptr)&&noEditMode&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
-    ui->qqExecuteOnce->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&(theScript->getScriptType()==sim_scripttype_childscript)&&theScript->getThreadedExecution());
+    ui->qqExecuteOnce->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&(theScript->getScriptType()==sim_scripttype_childscript)&&theScript->getThreadedExecution_oldThreads());
     ui->qqExecuteOnce->setVisible(App::userSettings->makeOldThreadedScriptsAvailable);
 
     if (theScript!=nullptr)
@@ -80,7 +80,7 @@ void CQDlgScripts::refresh()
             ui->qqExecutionOrder->addItem(IDSN_FIRST,QVariant(sim_scriptexecorder_first));
             ui->qqExecutionOrder->addItem(IDSN_NORMAL,QVariant(sim_scriptexecorder_normal));
             ui->qqExecutionOrder->addItem(IDSN_LAST,QVariant(sim_scriptexecorder_last));
-            ui->qqExecutionOrder->setCurrentIndex(theScript->getExecutionOrder());
+            ui->qqExecutionOrder->setCurrentIndex(theScript->getExecutionPriority());
 
             ui->qqTreeTraversalDirection->addItem(IDSN_REVERSE_TRAVERSAL,QVariant(sim_scripttreetraversal_reverse));
             ui->qqTreeTraversalDirection->addItem(IDSN_FORWARD_TRAVERSAL,QVariant(sim_scripttreetraversal_forward));
@@ -104,7 +104,7 @@ void CQDlgScripts::refresh()
 
         ui->qqDisabled->setChecked(theScript->getScriptIsDisabled());
 
-        ui->qqExecuteOnce->setChecked(theScript->getExecuteJustOnce());
+        ui->qqExecuteOnce->setChecked(theScript->getExecuteJustOnce_oldThreads());
     }
     else
     {
@@ -143,7 +143,7 @@ void CQDlgScripts::updateObjectsInList()
                 QListWidgetItem* itm=new QListWidgetItem(tmp.c_str());
                 itm->setData(Qt::UserRole,QVariant(id));
                 itm->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-                if (it->getThreadedExecution())
+                if (it->getThreadedExecution_oldThreads())
                     itm->setForeground(QColor(128,205,205)); // CYAN
                 else
                     itm->setForeground(QColor(128,128,128)); // GREY

@@ -343,7 +343,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                 editorNode->SetAttribute("toolbar",toBoolStr(true));
                 editorNode->SetAttribute("statusbar",toBoolStr(false));
                 editorNode->SetAttribute("wrap-word",toBoolStr(false));
-                editorNode->SetAttribute("can-restart",toBoolStr(!( (it->getScriptType()==sim_scripttype_mainscript)||it->getThreadedExecution() )));
+                editorNode->SetAttribute("can-restart",toBoolStr(!( (it->getScriptType()==sim_scripttype_mainscript)||it->getThreadedExecution_oldThreads() )));
                 editorNode->SetAttribute("max-lines",0);
                 editorNode->SetAttribute("activate",toBoolStr(true));
                 editorNode->SetAttribute("editable",toBoolStr(true));
@@ -382,7 +382,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                 }
                 if (it->getScriptType()==sim_scripttype_childscript)
                 {
-                    if (it->getThreadedExecution())
+                    if (it->getThreadedExecution_oldThreads())
                     {
                         editorNode->SetAttribute("background-col",getColorStr(App::userSettings->threadedChildScriptColor_background).c_str());
                         editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->threadedChildScriptColor_selection).c_str());
@@ -416,7 +416,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                     }
                 }
 
-                getKeywords(&xmlDoc,editorNode,it->getScriptType(),it->getThreadedExecution());
+                getKeywords(&xmlDoc,editorNode,it->getScriptType(),it->getThreadedExecution_oldThreads());
 
                 sim::tinyxml2::XMLPrinter printer;
                 xmlDoc.Print(&printer);
@@ -514,7 +514,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                 editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->customizationScriptColor_word).c_str());
                 editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->customizationScriptColor_word4).c_str());
 
-                getKeywords(&xmlDoc,editorNode,it->getScriptType(),it->getThreadedExecution());
+                getKeywords(&xmlDoc,editorNode,it->getScriptType(),it->getThreadedExecution_oldThreads());
 
                 sim::tinyxml2::XMLPrinter printer;
                 xmlDoc.Print(&printer);
@@ -700,7 +700,7 @@ bool CCodeEditorContainer::close(int handle,int posAndSize[4],std::string* txt,s
                 {
                     applyChanges(_allEditors[i].handle);
                     if (_allEditors[i].restartScriptWhenClosing)
-                        killLuaState(_allEditors[i].scriptHandle); // this can also trigger closing of another editor, see below
+                        resetScript(_allEditors[i].scriptHandle); // this can also trigger closing of another editor, see below
                 }
             }
             int pas[4];
@@ -805,10 +805,10 @@ void CCodeEditorContainer::restartScript(int handle) const
             CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
             if (CPluginContainer::codeEditor_getText(handle,txt,nullptr))
             {
-                if ( (it!=nullptr)&&(!it->getThreadedExecution()) )
+                if ( (it!=nullptr)&&(!it->getThreadedExecution_oldThreads()) )
                 {
                     applyChanges(_allEditors[i].handle);
-                    killLuaState(_allEditors[i].scriptHandle);
+                    resetScript(_allEditors[i].scriptHandle);
                 }
             }
             break;
@@ -816,10 +816,10 @@ void CCodeEditorContainer::restartScript(int handle) const
     }
 }
 
-void CCodeEditorContainer::killLuaState(int scriptHandle) const
+void CCodeEditorContainer::resetScript(int scriptHandle) const
 {
     CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
-    if ( (it!=nullptr)&&it->killLuaState() )
+    if ( (it!=nullptr)&&it->resetScript() )
     {
         std::string msg(it->getDescriptiveName());
         msg+=" was reset.";

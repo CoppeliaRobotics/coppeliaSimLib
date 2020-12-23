@@ -267,7 +267,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                                     childrenTr.push_back(child->getLocalTransformation());
                                 }
                                 App::currentWorld->sceneObjects->eraseObject(siblings[i],true);
-                                App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked());
+                                App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),1);
                                 CSceneObject* newObj=App::currentWorld->sceneObjects->getLastSelectionObject();
                                 App::currentWorld->sceneObjects->deselectObjects();
                                 if (newObj!=nullptr)
@@ -311,8 +311,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                                 C7Vector tr(siblings[i]->getFullLocalTransformation());
                                 CSceneObject* parent(siblings[i]->getParent());
                                 App::currentWorld->sceneObjects->eraseSeveralObjects(objs,true);
-                                App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked());
-                                App::currentWorld->sceneObjects->removeFromSelectionAllExceptModelBase(false);
+                                App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),2);
                                 CSceneObject* newObj=App::currentWorld->sceneObjects->getLastSelectionObject();
                                 App::currentWorld->sceneObjects->deselectObjects();
                                 if (newObj!=nullptr)
@@ -1420,23 +1419,23 @@ void CSceneObjectOperations::copyObjects(std::vector<int>* selection,bool displa
 void CSceneObjectOperations::pasteCopyBuffer(bool displayMessages)
 {
     TRACE_INTERNAL;
+#ifdef SIM_WITH_GUI
     if (displayMessages)
         App::uiThread->showOrHideProgressBar(true,-1.0f,"Pasting objects...");
+#endif
 
-    bool failed=(App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked())==-1);
+    bool failed=(App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),3)==-1);
 
+#ifdef SIM_WITH_GUI
     if (displayMessages)
         App::uiThread->showOrHideProgressBar(false);
 
     if (failed) // Error: trying to copy locked buffer into unlocked scene!
     {
-#ifdef SIM_WITH_GUI
         if (displayMessages)
             App::uiThread->messageBox_warning(App::mainWindow,"Paste",IDS_SCENE_IS_LOCKED_CANNOT_PASTE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-#endif
     }
-    else
-        App::currentWorld->sceneObjects->removeFromSelectionAllExceptModelBase(true);
+#endif
 }
 
 void CSceneObjectOperations::cutObjects(std::vector<int>* selection,bool displayMessages)
@@ -1680,7 +1679,7 @@ void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection,bool s
         CInterfaceStack stack;
         stack.pushTableOntoStack();
         stack.pushStringOntoStack("objectHandles",0);
-        stack.pushIntArrayTableOntoStack(&newObjectHandles[0],(int)newObjectHandles.size());
+        stack.pushInt32ArrayTableOntoStack(&newObjectHandles[0],(int)newObjectHandles.size());
         stack.insertDataIntoStackTable();
         App::worldContainer->callScripts(sim_syscb_aftercreate,&stack);
     }
@@ -1996,7 +1995,7 @@ void CSceneObjectOperations::divideSelection(std::vector<int>* selection,bool sh
         CInterfaceStack stack;
         stack.pushTableOntoStack();
         stack.pushStringOntoStack("objectHandles",0);
-        stack.pushIntArrayTableOntoStack(&newObjectHandles[0],(int)newObjectHandles.size());
+        stack.pushInt32ArrayTableOntoStack(&newObjectHandles[0],(int)newObjectHandles.size());
         stack.insertDataIntoStackTable();
         App::worldContainer->callScripts(sim_syscb_aftercreate,&stack);
     }

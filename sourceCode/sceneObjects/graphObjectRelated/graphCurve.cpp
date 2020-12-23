@@ -36,7 +36,7 @@ void CGraphCurve::setBasics(int dim,const int streamIds[3],const float defaultVa
     _unitStr.clear();
     if (unitStr!=nullptr)
         _unitStr=unitStr;
-    _relativeToWorld=(options&1)!=0; // default is rel. to graph
+    _relativeToGraph=(options&1)!=0; // default is rel. to world
     _showLabel=(options&2)==0;
     _linkPoints=(options&4)==0;
     _curveWidth=curveWidth;
@@ -82,11 +82,10 @@ void CGraphCurve::makeStatic(CGraphDataStream* streams[3],int bufferSize,int sta
     {
         std::vector<float> xVals;
         std::vector<float> yVals;
-        std::vector<float> zVals;
         _staticCurveValues.clear();
         if (_dim==2)
         {
-            getCurveData_xy(streams,nullptr,bufferSize,startPt,ptCnt,nullptr,xVals,yVals,zVals,nullptr,nullptr,nullptr);
+            getCurveData_xy(streams,nullptr,bufferSize,startPt,ptCnt,nullptr,xVals,yVals,nullptr,nullptr,nullptr);
             for (size_t i=0;i<xVals.size();i++)
             {
                 _staticCurveValues.push_back(xVals[i]);
@@ -95,13 +94,9 @@ void CGraphCurve::makeStatic(CGraphDataStream* streams[3],int bufferSize,int sta
         }
         if (_dim==3)
         {
-            getCurveData_xyz(streams,nullptr,bufferSize,startPt,ptCnt,nullptr,xVals,yVals,zVals,nullptr,nullptr,nullptr);
+            getCurveData_xyz(streams,nullptr,bufferSize,startPt,ptCnt,nullptr,xVals,nullptr,nullptr,nullptr,nullptr);
             for (size_t i=0;i<xVals.size();i++)
-            {
                 _staticCurveValues.push_back(xVals[i]);
-                _staticCurveValues.push_back(yVals[i]);
-                _staticCurveValues.push_back(zVals[i]);
-            }
         }
         _streamIds[0]=-1;
         _streamIds[1]=-1;
@@ -138,7 +133,7 @@ std::string CGraphCurve::getUnitStr() const
 int CGraphCurve::getOptions() const
 {
     int retVal=0;
-    if (_relativeToWorld)
+    if (_relativeToGraph)
         retVal|=1;
     if (!_showLabel)
         retVal|=2;
@@ -182,7 +177,7 @@ int CGraphCurve::getScriptHandle() const
     return(_scriptHandle);
 }
 
-bool CGraphCurve::getCurveData_xy(CGraphDataStream* streams[3],int* index,int bufferSize,int startPt,int ptCnt,std::string* label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int* curveType,float col[3],float minMax[6]) const
+bool CGraphCurve::getCurveData_xy(CGraphDataStream* streams[3],int* index,int bufferSize,int startPt,int ptCnt,std::string* label,std::vector<float>& xVals,std::vector<float>& yVals,int* curveType,float col[3],float minMax[6]) const
 {
     if ( (((streams==nullptr)&&(_isStatic))||((streams!=nullptr)&&(!_isStatic)))&&(_dim==2) )
     {
@@ -299,7 +294,7 @@ bool CGraphCurve::getCurveData_xy(CGraphDataStream* streams[3],int* index,int bu
     return(false);
 }
 
-bool CGraphCurve::getCurveData_xyz(CGraphDataStream* streams[3],int* index,int bufferSize,int startPt,int ptCnt,std::string* label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int* curveType,float col[3],float minMax[6]) const
+bool CGraphCurve::getCurveData_xyz(CGraphDataStream* streams[3],int* index,int bufferSize,int startPt,int ptCnt,std::string* label,std::vector<float>& xVals,int* curveType,float col[3],float minMax[6],int* curveWidth) const
 {
     if ( (((streams==nullptr)&&(_isStatic))||((streams!=nullptr)&&(!_isStatic)))&&(_dim==3) )
     {
@@ -319,6 +314,8 @@ bool CGraphCurve::getCurveData_xyz(CGraphDataStream* streams[3],int* index,int b
                     curveType[0]=1;
                 if (!_showLabel)
                     curveType[0]+=4;
+                if (_relativeToGraph)
+                    curveType[0]+=8;
             }
             if (col!=nullptr)
             {
@@ -326,6 +323,8 @@ bool CGraphCurve::getCurveData_xyz(CGraphDataStream* streams[3],int* index,int b
                 col[1]=_color[1];
                 col[2]=_color[2];
             }
+            if (curveWidth!=nullptr)
+                curveWidth[0]=_curveWidth;
             if (streams!=nullptr)
             { // not static
                 int cnt=0;
@@ -335,29 +334,74 @@ bool CGraphCurve::getCurveData_xyz(CGraphDataStream* streams[3],int* index,int b
                     if (absIndex>=bufferSize) // i.e. bufferSize
                         absIndex-=bufferSize;
                     bool validPt=true;
-                    float xVal=_defaultVals[0];
+                    C7Vector xyz;
+                    xyz(0)=_defaultVals[0];
                     if (streams[0]!=nullptr)
                     {
-                        if (!streams[0]->getTransformedValue(startPt,absIndex,xVal))
+                        if (!streams[0]->getTransformedValue(startPt,absIndex,xyz(0)))
                             validPt=false;
                     }
-                    float yVal=_defaultVals[1];
+                    xyz(1)=_defaultVals[1];
                     if (streams[1]!=nullptr)
                     {
-                        if (!streams[1]->getTransformedValue(startPt,absIndex,yVal))
+                        if (!streams[1]->getTransformedValue(startPt,absIndex,xyz(1)))
                             validPt=false;
                     }
-                    float zVal=_defaultVals[2];
+                    xyz(2)=_defaultVals[2];
                     if (streams[2]!=nullptr)
                     {
-                        if (!streams[2]->getTransformedValue(startPt,absIndex,zVal))
+                        if (!streams[2]->getTransformedValue(startPt,absIndex,xyz(2)))
                             validPt=false;
                     }
                     if (validPt)
                     {
-                        xVals.push_back(xVal);
-                        yVals.push_back(yVal);
-                        zVals.push_back(zVal);
+                        xVals.push_back(xyz(0));
+                        xVals.push_back(xyz(1));
+                        xVals.push_back(xyz(2));
+                        if (minMax!=nullptr)
+                        {
+                            if (xVals.size()==1)
+                            {
+                                minMax[0]=xyz(0);
+                                minMax[1]=xyz(0);
+                                minMax[2]=xyz(1);
+                                minMax[3]=xyz(1);
+                                minMax[4]=xyz(2);
+                                minMax[5]=xyz(2);
+                            }
+                            else
+                            {
+                                if (xyz(0)<minMax[0])
+                                    minMax[0]=xyz(0);
+                                if (xyz(0)>minMax[1])
+                                    minMax[1]=xyz(0);
+                                if (xyz(1)<minMax[2])
+                                    minMax[2]=xyz(1);
+                                if (xyz(1)>minMax[3])
+                                    minMax[3]=xyz(1);
+                                if (xyz(2)<minMax[4])
+                                    minMax[4]=xyz(2);
+                                if (xyz(2)>minMax[5])
+                                    minMax[5]=xyz(2);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            { // static
+                if (curveType!=nullptr)
+                    curveType[0]+=2; // static
+                for (size_t i=0;i<_staticCurveValues.size()/3;i++)
+                {
+                    float xVal=_staticCurveValues[3*i+0];
+                    float yVal=_staticCurveValues[3*i+1];
+                    float zVal=_staticCurveValues[3*i+2];
+                    xVals.push_back(xVal);
+                    xVals.push_back(yVal);
+                    xVals.push_back(zVal);
+                    if (minMax!=nullptr)
+                    {
                         if (xVals.size()==1)
                         {
                             minMax[0]=xVal;
@@ -382,44 +426,6 @@ bool CGraphCurve::getCurveData_xyz(CGraphDataStream* streams[3],int* index,int b
                             if (zVal>minMax[5])
                                 minMax[5]=zVal;
                         }
-                    }
-                }
-            }
-            else
-            { // static
-                if (curveType!=nullptr)
-                    curveType[0]+=2; // static
-                for (size_t i=0;i<_staticCurveValues.size()/3;i++)
-                {
-                    float xVal=_staticCurveValues[3*i+0];
-                    float yVal=_staticCurveValues[3*i+1];
-                    float zVal=_staticCurveValues[3*i+2];
-                    xVals.push_back(xVal);
-                    yVals.push_back(yVal);
-                    zVals.push_back(zVal);
-                    if (xVals.size()==1)
-                    {
-                        minMax[0]=xVal;
-                        minMax[1]=xVal;
-                        minMax[2]=yVal;
-                        minMax[3]=yVal;
-                        minMax[4]=zVal;
-                        minMax[5]=zVal;
-                    }
-                    else
-                    {
-                        if (xVal<minMax[0])
-                            minMax[0]=xVal;
-                        if (xVal>minMax[1])
-                            minMax[1]=xVal;
-                        if (yVal<minMax[2])
-                            minMax[2]=yVal;
-                        if (yVal>minMax[3])
-                            minMax[3]=yVal;
-                        if (zVal<minMax[4])
-                            minMax[4]=zVal;
-                        if (zVal>minMax[5])
-                            minMax[5]=zVal;
                     }
                 }
             }
@@ -463,7 +469,7 @@ void CGraphCurve::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
 
             ar.storeDataName("Pa0");
             unsigned char nothing=0;
-            SIM_SET_CLEAR_BIT(nothing,0,_relativeToWorld);
+            SIM_SET_CLEAR_BIT(nothing,0,_relativeToGraph);
             SIM_SET_CLEAR_BIT(nothing,1,_showLabel);
             SIM_SET_CLEAR_BIT(nothing,2,_linkPoints);
             SIM_SET_CLEAR_BIT(nothing,3,_isStatic);
@@ -529,7 +535,7 @@ void CGraphCurve::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                         ar >> byteQuantity;
                         unsigned char nothing;
                         ar >> nothing;
-                        _relativeToWorld=SIM_IS_BIT_SET(nothing,0);
+                        _relativeToGraph=SIM_IS_BIT_SET(nothing,0);
                         _showLabel=SIM_IS_BIT_SET(nothing,1);
                         _linkPoints=SIM_IS_BIT_SET(nothing,2);
                         _isStatic=SIM_IS_BIT_SET(nothing,3);
@@ -566,7 +572,7 @@ void CGraphCurve::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar.xmlAddNode_floats("staticData",_staticCurveValues);
 
             ar.xmlPushNewNode("switches");
-            ar.xmlAddNode_bool("relativeToWorld",_relativeToWorld);
+            ar.xmlAddNode_bool("relativeToGraph",_relativeToGraph);
             ar.xmlAddNode_bool("showLabel",_showLabel);
             ar.xmlAddNode_bool("linkPoints",_linkPoints);
             ar.xmlAddNode_bool("static",_isStatic);
@@ -586,7 +592,7 @@ void CGraphCurve::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
 
             if (ar.xmlPushChildNode("switches"))
             {
-                ar.xmlGetNode_bool("relativeToWorld",_relativeToWorld);
+                ar.xmlGetNode_bool("relativeToGraph",_relativeToGraph);
                 ar.xmlGetNode_bool("showLabel",_showLabel);
                 ar.xmlGetNode_bool("linkPoints",_linkPoints);
                 ar.xmlGetNode_bool("static",_isStatic);
@@ -601,7 +607,7 @@ CGraphCurve* CGraphCurve::copyYourself() const
     CGraphCurve* newObj=new CGraphCurve();
     newObj->_curveName=_curveName;
     newObj->_unitStr=_unitStr;
-    newObj->_relativeToWorld=_relativeToWorld;
+    newObj->_relativeToGraph=_relativeToGraph;
     newObj->_showLabel=_showLabel;
     newObj->_linkPoints=_linkPoints;
     newObj->_isStatic=_isStatic;

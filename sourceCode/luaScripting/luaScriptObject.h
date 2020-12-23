@@ -16,13 +16,16 @@
 #define DEFAULT_THREADEDCHILDSCRIPTOLD_NAME "dlttscptbkcomp.txt"
 #define DEFAULT_CUSTOMIZATIONSCRIPT_NAME "defaultCustomizationScript.txt"
 
+#define SIM_SCRIPT_NAME_INDEX "sim_script_name_index" // keep this global, e.g. not _S.sim_script_name_index
+#define SIM_SCRIPT_HANDLE "sim_script_handle" // keep this global, e.g. not _S.sim_script_handle
+
 class CLuaScriptObject
 {
     enum {
-        execState_uninitialized=-1,
-        execState_compilationError=0,
-        execState_initialized=1,
-        execState_runtimeError=2, // means the script is initialized too
+        scriptState_uninitialized=0,
+        scriptState_initialized,
+        scriptState_ended,
+        scriptState_error=8
     };
 
 public:
@@ -37,7 +40,6 @@ public:
     int getScriptHandle() const;
     int getScriptUniqueID() const;
     void setScriptHandle(int newHandle);
-    bool isSceneScript() const;
 
     std::string getDescriptiveName() const;
     std::string getShortDescriptiveName() const;
@@ -56,7 +58,6 @@ public:
     int getObjectHandleThatScriptIsAttachedTo_child() const; // for child scripts
     int getObjectHandleThatScriptIsAttachedTo_customization() const; // for customization scripts
 
-
     void setScriptText(const char* scriptTxt);
     bool setScriptTextFromFile(const char* filename);
     const char* getScriptText();
@@ -64,37 +65,31 @@ public:
     void resetCalledInThisSimulationStep();
     bool getCalledInThisSimulationStep() const;
 
-    int runMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
-    bool launchThreadedChildScript();
-    int resumeThreadedChildScriptIfLocationMatch(int resumeLocation);
-    int runNonThreadedChildScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int runCustomizationScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int runAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int callMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
+    int callChildScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int callCustomizationScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int callAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int callSandboxScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    bool runSandboxScript_beforeMainScript();
+    bool callSandboxScript_beforeMainScript();
+
+    int callScriptFunction(const char* functionName,CInterfaceStack* stack);
+    int setScriptVariable(const char* variableName,CInterfaceStack* stack);
+    int executeScriptString(const char* scriptString,CInterfaceStack* stack);
 
     void terminateScriptExecutionExternally(bool generateErrorMsg);
     void handleDebug(const char* funcName,const char* funcType,bool inCall,bool sysCall);
 
-    int callScriptFunction(const char* functionName, SLuaCallBack* pdata);
-    int callScriptFunctionEx(const char* functionName,CInterfaceStack* stack);
-    int setScriptVariable(const char* variableName,CInterfaceStack* stack);
-    int clearScriptVariable(const char* variableName); // deprecated
-    int executeScriptString(const char* scriptString,CInterfaceStack* stack);
-    int appendTableEntry(const char* arrayName,const char* keyName,const char* data,const int what[2]); // deprecated
-
-    bool killLuaState();
+    bool resetScript();
+    bool _killLuaState();
     bool hasLuaState() const;
     bool isSimulationScript() const;
+    bool isEmbeddedScript() const;
     bool isSceneSwitchPersistentScript() const;
     int getNumberOfPasses() const;
     void setNumberOfPasses(int p);
     std::string getLuaSearchPath() const;
-    void setThreadedExecution(bool threadedExec);
-    bool getThreadedExecution() const;
-    bool getThreadedExecutionIsUnderWay() const;
-    void setExecutionOrder(int order);
-    int getExecutionOrder() const;
+    void setExecutionPriority(int order);
+    int getExecutionPriority() const;
     void setDebugLevel(int l);
     int getDebugLevel() const;
     void setTreeTraversalDirection(int dir);
@@ -106,8 +101,6 @@ public:
     void setScriptIsDisabled(bool isDisabled);
     bool getScriptIsDisabled() const;
     bool getScriptEnabledAndNoErrorRaised() const;
-    void setExecuteJustOnce(bool justOnce);
-    bool getExecuteJustOnce() const;
 
     void getPreviousEditionWindowPosAndSize(int posAndSize[4]) const;
     void setPreviousEditionWindowPosAndSize(const int posAndSize[4]);
@@ -123,16 +116,8 @@ public:
     void getObjectCustomData_tempData(int header,char* data) const;
     bool getObjectCustomDataHeader_tempData(int index,int& header) const;
 
-    CUserParameters* getScriptParametersObject_backCompatibility();
-
-    void setCustScriptDisabledDSim_compatibilityMode_DEPRECATED(bool disabled);
-    bool getCustScriptDisabledDSim_compatibilityMode_DEPRECATED() const;
-    void setCustomizationScriptCleanupBeforeSave_DEPRECATED(bool doIt);
-    bool getCustomizationScriptCleanupBeforeSave_DEPRECATED() const;
-
-    bool hasCustomizationScripAnyChanceToGetExecuted(bool forCleanUpSection,bool whenSimulationRuns) const;
-
     int getScriptExecutionTimeInMs() const;
+    void resetScriptExecutionTime();
     void setRaiseErrors_backCompatibility(bool raise);
     bool getRaiseErrors_backCompatibility() const;
 
@@ -147,8 +132,6 @@ public:
 
     bool addCommandToOutsideCommandQueue(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const float aux2Vals[8],int aux2Count);
     int extractCommandFromOutsideCommandQueue(int auxVals[4],float aux2Vals[8],int& aux2Count);
-
-    static bool emergencyStopButtonPressed;
 
     bool getContainsJointCallbackFunction() const;
     bool getContainsContactCallbackFunction() const;
@@ -183,20 +166,44 @@ public:
     static std::string getSystemCallbackExString(int calltype);
     static std::vector<std::string> getAllSystemCallbackStrings(int scriptType,bool threaded,bool callTips);
 
+    static int getScriptHandleFromLuaState(luaWrap_lua_State* L);
+    static void setScriptNameIndexToLuaState(luaWrap_lua_State* L,int index);
+    static int getScriptNameIndexFromLuaState(luaWrap_lua_State* L);
+
+    CUserParameters* getScriptParametersObject_backCompatibility();
+    void setCustScriptDisabledDSim_compatibilityMode_DEPRECATED(bool disabled);
+    bool getCustScriptDisabledDSim_compatibilityMode_DEPRECATED() const;
+    void setCustomizationScriptCleanupBeforeSave_DEPRECATED(bool doIt);
+    bool getCustomizationScriptCleanupBeforeSave_DEPRECATED() const;
+    int appendTableEntry_DEPRECATED(const char* arrayName,const char* keyName,const char* data,const int what[2]); // deprecated
+    int callScriptFunction_DEPRECATED(const char* functionName, SLuaCallBack* pdata);
+    int clearScriptVariable_DEPRECATED(const char* variableName); // deprecated
+    void setThreadedExecution_oldThreads(bool threadedExec);
+    bool getThreadedExecution_oldThreads() const;
+    bool getThreadedExecutionIsUnderWay_oldThreads() const;
+    void setExecuteJustOnce_oldThreads(bool justOnce);
+    bool getExecuteJustOnce_oldThreads() const;
+    bool launchThreadedChildScript_oldThreads();
+    int resumeThreadedChildScriptIfLocationMatch_oldThreads(int resumeLocation);
+
 protected:
+    static void _luaHookFunc(luaWrap_lua_State* L,luaWrap_lua_Debug* ar);
+    static std::string _getAdditionalLuaSearchPath();
+    static void _setScriptHandleToLuaState(luaWrap_lua_State* L,int h);
+
+    void _initLuaState();
+
     void _announceErrorWasRaisedAndDisableScript(const char* errMsg,bool runtimeError,bool debugRoutine=false);
     bool _luaLoadBuffer(luaWrap_lua_State* luaState,const char* buff,size_t sz,const char* name);
     int _luaPCall(luaWrap_lua_State* luaState,int nargs,int nresult,int errfunc,const char* funcName);
 
-    int _runMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
-    int _runMainScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
-    int _runNonThreadedChildScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    void _launchThreadedChildScriptNow();
-    int _runAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int _runScriptOrCallScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int _callMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
+    int _callMainScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
+    int _callChildScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int _callAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int _callScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     void _handleSimpleSysExCalls(int callType);
 
-    bool _prepareLuaStateAndCallScriptInitSectionIfNeeded();
     bool _checkIfMixingOldAndNewCallMethods();
 
     void _insertScriptText(CLuaScriptObject* scriptObject,bool toFront,const char* txt);
@@ -216,7 +223,7 @@ protected:
     void _adjustScriptText5(CLuaScriptObject* scriptObject,bool doIt);
     void _adjustScriptText6(CLuaScriptObject* scriptObject,bool doIt);
     void _adjustScriptText7(CLuaScriptObject* scriptObject,bool doIt);
-    void _adjustScriptText8(CLuaScriptObject* scriptObject,int adjust);
+    void _adjustScriptText8(CLuaScriptObject* scriptObject);
     void _adjustScriptText9(CLuaScriptObject* scriptObject);
     void _adjustScriptText10(CLuaScriptObject* scriptObject,bool doIt);
     void _adjustScriptText11(CLuaScriptObject* scriptObject,bool doIt);
@@ -224,16 +231,13 @@ protected:
     void _adjustScriptText13(CLuaScriptObject* scriptObject,bool doIt);
     bool _convertThreadedScriptToCoroutine(CLuaScriptObject* scriptObject);
 
-    // Variables that need to be copied and serialized:
     int _scriptHandle;
     int _scriptUniqueId;
-    int _scriptType; // sim_scriptproperty_mainscript, etc.
-    bool _threadedExecution;
+    int _scriptType;
     bool _scriptIsDisabled;
-    int _executionState; // execState_uninitialized, etc.
-    bool _executeJustOnce;
+    int _scriptState;
     bool _mainScriptIsDefaultMainScript_old; // 16.11.2020
-    int _executionOrder;
+    int _executionPriority;
     int _debugLevel;
     bool _inDebug;
     bool _raiseErrors_backCompatibility;
@@ -258,9 +262,7 @@ protected:
 
     // Other variables that don't need serialization:
     luaWrap_lua_State* L;
-    VTHREAD_ID_TYPE _threadedScript_associatedFiberOrThreadID;
     int _numberOfPasses;
-    bool _threadedExecutionUnderWay;
     bool _inExecutionNow;
     int _loadBufferResult;
 
@@ -280,15 +282,20 @@ protected:
     bool _containsUserConfigCallbackFunction;
     void _printContext(const char* str,size_t p);
 
-    VMutex _localMutex;
     std::string _addOnName;
     int _addOn_executionState;
     std::mt19937 _randGen;
 
-
     bool _initialValuesInitialized;
-
     int _previousEditionWindowPosAndSize[4];
+
+    std::string _filenameForExternalScriptEditor;
+
+
+    static int _nextIdForExternalScriptEditor;
+    static int _scriptUniqueCounter;
+    static std::map<std::string,std::string> _newApiMap;
+
 
     bool _warningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014;
     bool _warning_simRMLPosition_oldCompatibility_30_8_2014;
@@ -296,15 +303,15 @@ protected:
     bool _warning_simGetMpConfigForTipPose_oldCompatibility_21_1_2016;
     bool _warning_simFindIkPath_oldCompatibility_2_2_2016;
     bool _automaticCascadingCallsDisabled_OLD; // reset to false at simulation start!
+    bool _threadedExecution_oldThreads;
+    VTHREAD_ID_TYPE _threadedScript_associatedFiberOrThreadID_oldThreads;
+    bool _threadedExecutionUnderWay_oldThreads;
+    bool _executeJustOnce_oldThreads;
+    void _launchThreadedChildScriptNow_oldThreads();
 
-    std::string _filenameForExternalScriptEditor;
-
-    static int _nextIdForExternalScriptEditor;
-    static int _scriptUniqueCounter;
-    static VMutex _globalMutex;
-    static std::vector<CLuaScriptObject*> toBeCalledByThread;
-    static VTHREAD_RETURN_TYPE _startAddressForThreadedScripts(VTHREAD_ARGUMENT_TYPE lpData);
-    static std::map<std::string,std::string> _newApiMap;
+    static VMutex _globalMutex_oldThreads;
+    static std::vector<CLuaScriptObject*> toBeCalledByThread_oldThreads;
+    static VTHREAD_RETURN_TYPE _startAddressForThreadedScripts_oldThreads(VTHREAD_ARGUMENT_TYPE lpData);
 };
 
 struct SNewApiMapping

@@ -64,7 +64,6 @@ SIM_DLLEXPORT simInt simSetObjectParent(simInt objectHandle,simInt parentObjectH
 SIM_DLLEXPORT simInt simGetObjectType(simInt objectHandle);
 SIM_DLLEXPORT simInt simGetJointType(simInt objectHandle);
 SIM_DLLEXPORT simInt simBuildIdentityMatrix(simFloat* matrix);
-SIM_DLLEXPORT simInt simCopyMatrix(const simFloat* matrixIn,simFloat* matrixOut);
 SIM_DLLEXPORT simInt simBuildMatrix(const simFloat* position,const simFloat* eulerAngles,simFloat* matrix);
 SIM_DLLEXPORT simInt simBuildMatrixQ(const simFloat* position,const simFloat* quaternion,simFloat* matrix);
 SIM_DLLEXPORT simInt simGetEulerAnglesFromMatrix(const simFloat* matrix,simFloat* eulerAngles);
@@ -318,11 +317,13 @@ SIM_DLLEXPORT simInt simCopyStack(simInt stackHandle);
 SIM_DLLEXPORT simInt simPushNullOntoStack(simInt stackHandle);
 SIM_DLLEXPORT simInt simPushBoolOntoStack(simInt stackHandle,simBool value);
 SIM_DLLEXPORT simInt simPushInt32OntoStack(simInt stackHandle,simInt value);
+SIM_DLLEXPORT simInt simPushInt64OntoStack(simInt stackHandle,simInt64 value);
 SIM_DLLEXPORT simInt simPushFloatOntoStack(simInt stackHandle,simFloat value);
 SIM_DLLEXPORT simInt simPushDoubleOntoStack(simInt stackHandle,simDouble value);
 SIM_DLLEXPORT simInt simPushStringOntoStack(simInt stackHandle,const simChar* value,simInt stringSize);
 SIM_DLLEXPORT simInt simPushUInt8TableOntoStack(simInt stackHandle,const simUChar* values,simInt valueCnt);
 SIM_DLLEXPORT simInt simPushInt32TableOntoStack(simInt stackHandle,const simInt* values,simInt valueCnt);
+SIM_DLLEXPORT simInt simPushInt64TableOntoStack(simInt stackHandle,const simInt64* values,simInt valueCnt);
 SIM_DLLEXPORT simInt simPushFloatTableOntoStack(simInt stackHandle,const simFloat* values,simInt valueCnt);
 SIM_DLLEXPORT simInt simPushDoubleTableOntoStack(simInt stackHandle,const simDouble* values,simInt valueCnt);
 SIM_DLLEXPORT simInt simPushTableOntoStack(simInt stackHandle);
@@ -333,12 +334,14 @@ SIM_DLLEXPORT simInt simMoveStackItemToTop(simInt stackHandle,simInt cIndex);
 SIM_DLLEXPORT simInt simIsStackValueNull(simInt stackHandle);
 SIM_DLLEXPORT simInt simGetStackBoolValue(simInt stackHandle,simBool* boolValue);
 SIM_DLLEXPORT simInt simGetStackInt32Value(simInt stackHandle,simInt* numberValue);
+SIM_DLLEXPORT simInt simGetStackInt64Value(simInt stackHandle,simInt64* numberValue);
 SIM_DLLEXPORT simInt simGetStackFloatValue(simInt stackHandle,simFloat* numberValue);
 SIM_DLLEXPORT simInt simGetStackDoubleValue(simInt stackHandle,simDouble* numberValue);
 SIM_DLLEXPORT simChar* simGetStackStringValue(simInt stackHandle,simInt* stringSize);
 SIM_DLLEXPORT simInt simGetStackTableInfo(simInt stackHandle,simInt infoType);
 SIM_DLLEXPORT simInt simGetStackUInt8Table(simInt stackHandle,simUChar* array,simInt count);
 SIM_DLLEXPORT simInt simGetStackInt32Table(simInt stackHandle,simInt* array,simInt count);
+SIM_DLLEXPORT simInt simGetStackInt64Table(simInt stackHandle,simInt64* array,simInt count);
 SIM_DLLEXPORT simInt simGetStackFloatTable(simInt stackHandle,simFloat* array,simInt count);
 SIM_DLLEXPORT simInt simGetStackDoubleTable(simInt stackHandle,simDouble* array,simInt count);
 SIM_DLLEXPORT simInt simUnfoldStackTable(simInt stackHandle);
@@ -391,7 +394,7 @@ SIM_DLLEXPORT simInt simSetShapeMass(simInt shapeHandle,simFloat mass);
 SIM_DLLEXPORT simInt simGetShapeInertia(simInt shapeHandle,simFloat* inertiaMatrix,simFloat* transformationMatrix);
 SIM_DLLEXPORT simInt simSetShapeInertia(simInt shapeHandle,const simFloat* inertiaMatrix,const simFloat* transformationMatrix);
 SIM_DLLEXPORT simInt simIsDynamicallyEnabled(simInt objectHandle);
-
+SIM_DLLEXPORT simInt simGenerateShapeFromPath(const simFloat* path,simInt pathSize,const simFloat* section,simInt sectionSize,const simFloat* upVector,simInt options,simFloat reserved);
 
 
 SIM_DLLEXPORT simInt _simGetContactCallbackCount();
@@ -658,6 +661,7 @@ SIM_DLLEXPORT simInt simModifyGhost(simInt ghostGroup,simInt ghostId,simInt oper
 SIM_DLLEXPORT simInt simSetGraphUserData(simInt graphHandle,const simChar* streamName,simFloat data);
 SIM_DLLEXPORT simInt simAddPointCloud(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals);
 SIM_DLLEXPORT simInt simModifyPointCloud(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam);
+SIM_DLLEXPORT simInt simCopyMatrix(const simFloat* matrixIn,simFloat* matrixOut);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

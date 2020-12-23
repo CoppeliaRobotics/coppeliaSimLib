@@ -26,7 +26,8 @@ public:
     void getAllObjectsAndClearTable(std::vector<CInterfaceStackObject*>& allObjs);
 
     void setUCharArray(const unsigned char* array,int l);
-    void setIntArray(const int* array,int l);
+    void setInt32Array(const int* array,int l);
+    void setInt64Array(const luaWrap_lua_Integer* array,int l);
     void setFloatArray(const float* array,int l);
     void setDoubleArray(const double* array,int l);
 
@@ -38,7 +39,8 @@ public:
     void appendArrayOrMapObject(CInterfaceStackObject* obj,CInterfaceStackObject* key);
 
     bool getUCharArray(unsigned char* array,int count) const;
-    bool getIntArray(int* array,int count) const;
+    bool getInt32Array(int* array,int count) const;
+    bool getInt64Array(luaWrap_lua_Integer* array,int count) const;
     bool getFloatArray(float* array,int count) const;
     bool getDoubleArray(double* array,int count) const;
     CInterfaceStackObject* getMapObject(const char* fieldName) const;

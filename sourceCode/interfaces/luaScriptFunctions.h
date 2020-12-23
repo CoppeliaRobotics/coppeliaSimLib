@@ -28,14 +28,10 @@ struct SLuaVariables
     bool autoComplete;
 };
 
-
-luaWrap_lua_State* initializeNewLuaState(int scriptHandle,int scriptNameIndex,int debugLevel);
-std::string getAdditionalLuaSearchPath();
 void registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char const* const functionName,luaWrap_lua_CFunction functionCallback);
 void registerNewLuaFunctions(luaWrap_lua_State* L);
 void prepareNewLuaVariables_onlyRequire(luaWrap_lua_State* L);
 void prepareNewLuaVariables_noRequire(luaWrap_lua_State* L);
-void setNewLuaVariable(luaWrap_lua_State* L,const char* name,int identifier);
 
 void pushCorrectTypeOntoLuaStack(luaWrap_lua_State* L,const std::string& buff);
 int getCorrectType(const std::string& buff);
@@ -79,11 +75,6 @@ float luaToFloat(luaWrap_lua_State* L,int pos);
 double luaToDouble(luaWrap_lua_State* L,int pos);
 bool luaToBool(luaWrap_lua_State* L,int pos);
 
-void setScriptHandle(luaWrap_lua_State* L,int h);
-int getScriptHandle(luaWrap_lua_State* L);
-void setScriptNameIndex(luaWrap_lua_State* L,int index);
-int getScriptNameIndex(luaWrap_lua_State* L);
-
 void getScriptTree_mainOr(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scriptHandles);
 void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std::vector<int>& scriptHandles);
 
@@ -111,7 +102,6 @@ int checkOneGeneralInputArgument(luaWrap_lua_State* L,int index,
 bool checkOneInputArgument(luaWrap_lua_State* L,int index,int type,std::string* errStr);
 
 
-void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar);
 void moduleCommonPart(luaWrap_lua_State* L,int action,std::string* errorString);
 
 
@@ -205,7 +195,6 @@ extern int _simSetObjectMatrix(luaWrap_lua_State* L);
 extern int _simGetJointMatrix(luaWrap_lua_State* L);
 extern int _simSetSphericalJointMatrix(luaWrap_lua_State* L);
 extern int _simBuildIdentityMatrix(luaWrap_lua_State* L);
-extern int _simCopyMatrix(luaWrap_lua_State* L);
 extern int _simBuildMatrix(luaWrap_lua_State* L);
 extern int _simGetEulerAnglesFromMatrix(luaWrap_lua_State* L);
 extern int _simInvertMatrix(luaWrap_lua_State* L);
@@ -483,6 +472,7 @@ extern int _simSetShapeMass(luaWrap_lua_State* L);
 extern int _simGetShapeInertia(luaWrap_lua_State* L);
 extern int _simSetShapeInertia(luaWrap_lua_State* L);
 extern int _simIsDynamicallyEnabled(luaWrap_lua_State* L);
+extern int _simGenerateShapeFromPath(luaWrap_lua_State* L);
 
 // DEPRECATED
 int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func);
@@ -615,6 +605,7 @@ extern int _simModifyGhost(luaWrap_lua_State* L);
 extern int _simSetGraphUserData(luaWrap_lua_State* L);
 extern int _simAddPointCloud(luaWrap_lua_State* L);
 extern int _simModifyPointCloud(luaWrap_lua_State* L);
+extern int _simCopyMatrix(luaWrap_lua_State* L);
 //extern int _simRMLMoveToPosition(luaWrap_lua_State* L);
 //extern int _simRMLMoveToJointPositions(luaWrap_lua_State* L);
 //extern int _simWait(luaWrap_lua_State* L);

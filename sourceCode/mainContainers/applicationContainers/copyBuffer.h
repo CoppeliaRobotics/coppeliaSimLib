@@ -19,7 +19,7 @@ public:
     virtual ~CCopyBuffer();
 
     void clearBuffer();
-    int pasteBuffer(bool intoLockedScene);
+    int pasteBuffer(bool intoLockedScene,int selectionMode);
     bool isBufferEmpty();
     void copyCurrentSelection(std::vector<int>* sel,bool fromLockedScene);
     void serializeCurrentSelection(CSer& ar,std::vector<int>* sel,C7Vector& modelTr,C3Vector& modelBBSize,float modelNonDefaultTranslationStepSize);

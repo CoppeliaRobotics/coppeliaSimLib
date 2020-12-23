@@ -9,6 +9,7 @@ void _drawDiscPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
 void _drawCubePoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix& cameraRTM);
 void _drawSpherePoints(CDrawingObject* drawingObject,int displayAttrib);
 void _drawLines(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix& cameraRTM,const float normalVectorForLinesAndPoints[3]);
+void _drawLineStrip(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix& cameraRTM,const float normalVectorForLinesAndPoints[3]);
 void _drawTriangles(CDrawingObject* drawingObject,int displayAttrib);
 #endif
 

@@ -889,18 +889,18 @@ VTHREAD_RETURN_TYPE CThreadPool::_tmpCallback(VTHREAD_ARGUMENT_TYPE lpData)
     int callType=((int*)valPtr[0])[0];
     _tmpRetData=-1; // error
     if (callType==0)
-    { // we want to call "script->callScriptFunction"
+    { // we want to call "script->callScriptFunction_DEPRECATED"
         CLuaScriptObject* script=(CLuaScriptObject*)valPtr[1];
         char* funcName=(char*)valPtr[2];
         SLuaCallBack* data=(SLuaCallBack*)valPtr[3];
-        _tmpRetData=script->callScriptFunction(funcName,data);
+        _tmpRetData=script->callScriptFunction_DEPRECATED(funcName,data);
     }
     if (callType==1)
-    { // we want to call "script->callScriptFunctionEx"
+    { // we want to call "script->callScriptFunction"
         CLuaScriptObject* script=(CLuaScriptObject*)valPtr[1];
         char* funcName=(char*)valPtr[2];
         CInterfaceStack* stack=(CInterfaceStack*)valPtr[3];
-        _tmpRetData=script->callScriptFunctionEx(funcName,stack);
+        _tmpRetData=script->callScriptFunction(funcName,stack);
     }
     if (callType==2)
     { // we want to call "script->setScriptVariable"

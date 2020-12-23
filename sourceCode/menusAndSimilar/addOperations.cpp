@@ -1434,7 +1434,7 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
             childScript->appendMenuItem(true,false,ADD_COMMANDS_ADD_AND_ASSOCIATE_NON_THREADED_CHILD_SCRIPT_ACCMD,IDS_NON_THREADED_MENU_ITEM);
             childScript->appendMenuItem(true,false,ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD,IDS_THREADED_MENU_ITEM);
             if (App::userSettings->makeOldThreadedScriptsAvailable)
-                childScript->appendMenuItem(true,false,ADD_COMMANDS_ADD_AND_ASSOCIATE_OLDTHREADED_CHILD_SCRIPT_ACCMD,"Threaded (deprecated, backward compatibility version)");
+                childScript->appendMenuItem(true,false,ADD_COMMANDS_ADD_AND_ASSOCIATE_OLDTHREADED_CHILD_SCRIPT_ACCMD,"Threaded (deprecated, compatibility version)");
 
             menu->appendMenuAndDetach(childScript,canAddChildScript,IDS_ASSOCIATED_CHILD_SCRIPT_MENU_ITEM);
 

@@ -151,11 +151,13 @@ void CCopyBuffer::restoreBuffer()
     _bufferIsFromLockedScene=_bufferIsFromLockedScene_memorized;
 }
 
-int CCopyBuffer::pasteBuffer(bool intoLockedScene)
+int CCopyBuffer::pasteBuffer(bool intoLockedScene,int selectionMode)
 { // return -1 means the operation cannot procceed because the scene is not locked (but buffer is), 0=empty buffer, 1=successful
     // This function is very similar to a model-loading operation:
     // Everything is inserted (sceneObjects, collections, etc. ) and then
     // the mapping is performed
+
+    // selectionMode: 0=clearSelection, 1=selectAllPasted, 2=selectOnlyModels, 3=selectOnlyModelsAndOrphans
     TRACE_INTERNAL;
     if (isBufferEmpty())
         return(0);
@@ -224,6 +226,11 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene)
                                                     textureObjectCopy,
                                                     dynMaterialObjectCopy,
                                                     true,SIM_PROGRAM_VERSION_NB,false);
+
+    if (selectionMode==0)
+        App::currentWorld->sceneObjects->deselectObjects();
+    if ((selectionMode==2)||(selectionMode==3))
+        App::currentWorld->sceneObjects->removeFromSelectionAllExceptModelBase(selectionMode==3);
 
     CInterfaceStack stack;
     stack.pushTableOntoStack();

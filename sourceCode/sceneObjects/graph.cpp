@@ -336,19 +336,6 @@ CGraphCurve* CGraph::getGraphCurve(const char* name,bool staticCurve) const
     return(retVal);
 }
 
-size_t CGraph::getGraphCurveCount() const
-{
-    return(_curves.size());
-}
-
-CGraphCurve* CGraph::getGraphCurveFromIndex(size_t index) const
-{
-    CGraphCurve* retVal=nullptr;
-    if (index<_curves.size())
-        retVal=_curves[index];
-    return(retVal);
-}
-
 int CGraph::addOrUpdateDataStream(CGraphDataStream* dataStream)
 {
     int retVal=-1; // error, curve already exists and is static
@@ -1076,13 +1063,13 @@ void CGraph::exportGraphData(VArchive &ar)
     ar << (unsigned char)10;
 }
 
-bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int& curveType,float col[3],float minMax[6],int& curveId) const
+bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::vector<float>& xVals,std::vector<float>& yVals,int& curveType,float col[3],float minMax[6],int& curveId,int& curveWidth) const
 {
     if (graphType==0)
     { // time curves (dyn then static curves)
         for (size_t i=0;i<_dataStreams.size();i++)
         {
-            if (_dataStreams[i]->getCurveData(false,&index,startingPoint,numberOfPoints,times,&label,xVals,yVals,zVals,&curveType,col,minMax))
+            if (_dataStreams[i]->getCurveData(false,&index,startingPoint,numberOfPoints,times,&label,xVals,yVals,&curveType,col,minMax))
             {
                 curveId=_dataStreams[i]->getId();
                 return(true);
@@ -1090,7 +1077,7 @@ bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::v
         }
         for (size_t i=0;i<_dataStreams.size();i++)
         {
-            if (_dataStreams[i]->getCurveData(true,&index,startingPoint,numberOfPoints,times,&label,xVals,yVals,zVals,&curveType,col,minMax))
+            if (_dataStreams[i]->getCurveData(true,&index,startingPoint,numberOfPoints,times,&label,xVals,yVals,&curveType,col,minMax))
             {
                 curveId=_dataStreams[i]->getId();
                 return(true);
@@ -1103,17 +1090,17 @@ bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::v
         {
             CGraphDataStream* streams[3];
             getGraphDataStreamsFromIds(_curves[i]->getStreamIdsPtr(),streams);
-            if (_curves[i]->getCurveData_xy(streams,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,yVals,zVals,&curveType,col,minMax))
+            if (_curves[i]->getCurveData_xy(streams,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,yVals,&curveType,col,minMax))
             {
-                curveId=_dataStreams[i]->getId();
+                curveId=_curves[i]->getId();
                 return(true);
             }
         }
         for (size_t i=0;i<_curves.size();i++)
         {
-            if (_curves[i]->getCurveData_xy(nullptr,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,yVals,zVals,&curveType,col,minMax))
+            if (_curves[i]->getCurveData_xy(nullptr,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,yVals,&curveType,col,minMax))
             {
-                curveId=_dataStreams[i]->getId();
+                curveId=_curves[i]->getId();
                 return(true);
             }
         }
@@ -1124,17 +1111,17 @@ bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::v
         {
             CGraphDataStream* streams[3];
             getGraphDataStreamsFromIds(_curves[i]->getStreamIdsPtr(),streams);
-            if (_curves[i]->getCurveData_xyz(streams,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,yVals,zVals,&curveType,col,minMax))
+            if (_curves[i]->getCurveData_xyz(streams,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,&curveType,col,minMax,&curveWidth))
             {
-                curveId=_dataStreams[i]->getId();
+                curveId=_curves[i]->getId();
                 return(true);
             }
         }
         for (size_t i=0;i<_curves.size();i++)
         {
-            if (_curves[i]->getCurveData_xyz(nullptr,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,yVals,zVals,&curveType,col,minMax))
+            if (_curves[i]->getCurveData_xyz(nullptr,&index,bufferSize,startingPoint,numberOfPoints,&label,xVals,&curveType,col,minMax,&curveWidth))
             {
-                curveId=_dataStreams[i]->getId();
+                curveId=_curves[i]->getId();
                 return(true);
             }
         }
@@ -1381,167 +1368,6 @@ bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::v
         }
         return(false);
     }
-    if (graphType==2)
-    { // x/y/z
-        for (size_t ind=0;ind<curves3d_old.size();ind++)
-        {
-            CGraphDataComb_old* it=curves3d_old[ind];
-            if (it->getVisible())
-            {
-                if (index==0)
-                {
-                    col[0]=it->curveColor.getColorsPtr()[0];
-                    col[1]=it->curveColor.getColorsPtr()[1];
-                    col[2]=it->curveColor.getColorsPtr()[2];
-                    int pos=0;
-                    int absIndex;
-                    float val[3];
-                    CGraphData_old* number1=getGraphData(it->data[0]);
-                    CGraphData_old* number2=getGraphData(it->data[1]);
-                    CGraphData_old* number3=getGraphData(it->data[2]);
-                    bool cyclic1,cyclic2,cyclic3;
-                    float range1,range2,range3;
-                    if (number1!=nullptr)
-                        CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
-                    if (number2!=nullptr)
-                        CGraphingRoutines_old::getCyclicAndRangeValues(number2,cyclic2,range2);
-                    if (number3!=nullptr)
-                        CGraphingRoutines_old::getCyclicAndRangeValues(number3,cyclic3,range3);
-                    label=it->getName()+" (x: ";
-                    if (number1!=nullptr)
-                        label+=CGraphingRoutines_old::getDataUnit(number1)+") (y: ";
-                    else
-                        label+="0.0) (y: ";
-                    if (number2!=nullptr)
-                        label+=CGraphingRoutines_old::getDataUnit(number2)+") (z: ";
-                    else
-                        label+="0.0) (z: ";
-                    if (number3!=nullptr)
-                        label+=CGraphingRoutines_old::getDataUnit(number3)+")";
-                    else
-                        label+="0.0)";
-                    if (it->getLinkPoints())
-                        curveType=0;
-                    else
-                        curveType=1;
-                    if (!it->getLabel())
-                        curveType+=4;
-
-                    while (getAbsIndexOfPosition(pos++,absIndex))
-                    {
-                        bool dataIsValid=true;
-                        if (number1!=nullptr)
-                        {
-                            if(!getData(number1,absIndex,val[0],cyclic1,range1,true))
-                                dataIsValid=false;
-                        }
-                        else
-                            val[0]=0.0;
-                        if (number2!=nullptr)
-                        {
-                            if(!getData(number2,absIndex,val[1],cyclic2,range2,true))
-                                dataIsValid=false;
-                        }
-                        else
-                            val[1]=0.0;
-                        if (number3!=nullptr)
-                        {
-                            if(!getData(number3,absIndex,val[2],cyclic3,range3,true))
-                                dataIsValid=false;
-                        }
-                        else
-                            val[2]=0.0;
-                        if (dataIsValid)
-                        {
-                            xVals.push_back(val[0]);
-                            yVals.push_back(val[1]);
-                            zVals.push_back(val[2]);
-                            if (xVals.size()==1)
-                            {
-                                minMax[0]=val[0];
-                                minMax[1]=val[0];
-                                minMax[2]=val[1];
-                                minMax[3]=val[1];
-                                minMax[4]=val[2];
-                                minMax[5]=val[2];
-                            }
-                            else
-                            {
-                                if (val[0]<minMax[0])
-                                    minMax[0]=val[0];
-                                if (val[0]>minMax[1])
-                                    minMax[1]=val[0];
-                                if (val[1]<minMax[2])
-                                    minMax[2]=val[1];
-                                if (val[1]>minMax[3])
-                                    minMax[3]=val[1];
-                                if (val[2]<minMax[4])
-                                    minMax[4]=val[2];
-                                if (val[2]>minMax[5])
-                                    minMax[5]=val[2];
-                            }
-                        }
-                    }
-                    return(true);
-                }
-                index--;
-            }
-        }
-
-        for (size_t ind=0;ind<staticStreamsAndCurves_old.size();ind++)
-        {
-            CStaticGraphCurve_old* gr=staticStreamsAndCurves_old[ind];
-            if (gr->getCurveType()==2)
-            { // x/y/z
-                if (index==0)
-                {
-                    label=gr->getName()+" (STATIC)";
-                    if (gr->getLinkPoints())
-                        curveType=2;
-                    else
-                        curveType=2+1;
-                    if (!gr->getLabel())
-                        curveType+=4;
-                    col[0]=gr->ambientColor[0];
-                    col[1]=gr->ambientColor[1];
-                    col[2]=gr->ambientColor[2];
-                    for (size_t i=0;i<gr->values.size()/3;i++)
-                    {
-                        xVals.push_back(gr->values[3*i+0]);
-                        yVals.push_back(gr->values[3*i+1]);
-                        zVals.push_back(gr->values[3*i+2]);
-                        if (xVals.size()==1)
-                        {
-                            minMax[0]=gr->values[3*i+0];
-                            minMax[1]=gr->values[3*i+0];
-                            minMax[2]=gr->values[3*i+1];
-                            minMax[3]=gr->values[3*i+1];
-                            minMax[4]=gr->values[3*i+2];
-                            minMax[5]=gr->values[3*i+2];
-                        }
-                        else
-                        {
-                            if (gr->values[3*i+0]<minMax[0])
-                                minMax[0]=gr->values[3*i+0];
-                            if (gr->values[3*i+0]>minMax[1])
-                                minMax[1]=gr->values[3*i+0];
-                            if (gr->values[3*i+1]<minMax[2])
-                                minMax[2]=gr->values[3*i+1];
-                            if (gr->values[3*i+1]>minMax[3])
-                                minMax[3]=gr->values[3*i+1];
-                            if (gr->values[3*i+2]<minMax[4])
-                                minMax[4]=gr->values[3*i+2];
-                            if (gr->values[3*i+2]>minMax[5])
-                                minMax[5]=gr->values[3*i+2];
-                        }
-                    }
-                    return(true);
-                }
-                index--;
-            }
-        }
-        return(false);
-    }
     return(false);
 }
 
@@ -1549,18 +1375,17 @@ void CGraph::curveToClipboard(int graphType,const char* curveName) const
 {
     std::vector<float> xVals;
     std::vector<float> yVals;
-    std::vector<float> zVals;
     if (graphType==0)
     { // time curves, non-static
         CGraphDataStream* stream=getGraphDataStream(curveName,false);
         if (stream!=nullptr)
-            stream->getCurveData(false,nullptr,startingPoint,numberOfPoints,times,nullptr,xVals,yVals,zVals,nullptr,nullptr,nullptr);
+            stream->getCurveData(false,nullptr,startingPoint,numberOfPoints,times,nullptr,xVals,yVals,nullptr,nullptr,nullptr);
     }
     if (graphType==3)
     { // time curves, static
         CGraphDataStream* stream=getGraphDataStream((std::string(curveName)+" [STATIC]").c_str(),true);
         if (stream!=nullptr)
-            stream->getCurveData(true,nullptr,startingPoint,numberOfPoints,times,nullptr,xVals,yVals,zVals,nullptr,nullptr,nullptr);
+            stream->getCurveData(true,nullptr,startingPoint,numberOfPoints,times,nullptr,xVals,yVals,nullptr,nullptr,nullptr);
     }
     if (graphType==1)
     { // x/y curves, non-static
@@ -1569,14 +1394,14 @@ void CGraph::curveToClipboard(int graphType,const char* curveName) const
         {
             CGraphDataStream* streams[3];
             getGraphDataStreamsFromIds(curve->getStreamIdsPtr(),streams);
-            curve->getCurveData_xy(streams,nullptr,bufferSize,startingPoint,numberOfPoints,nullptr,xVals,yVals,zVals,nullptr,nullptr,nullptr);
+            curve->getCurveData_xy(streams,nullptr,bufferSize,startingPoint,numberOfPoints,nullptr,xVals,yVals,nullptr,nullptr,nullptr);
         }
     }
     if (graphType==4)
     { // x/y curves, static
         CGraphCurve* curve=getGraphCurve((std::string(curveName)+" [STATIC]").c_str(),true);
         if (curve!=nullptr)
-            curve->getCurveData_xy(nullptr,nullptr,bufferSize,startingPoint,numberOfPoints,nullptr,xVals,yVals,zVals,nullptr,nullptr,nullptr);
+            curve->getCurveData_xy(nullptr,nullptr,bufferSize,startingPoint,numberOfPoints,nullptr,xVals,yVals,nullptr,nullptr,nullptr);
     }
     if (xVals.size()>0)
     {

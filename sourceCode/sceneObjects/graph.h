@@ -60,7 +60,7 @@ public:
     bool isPotentiallyRenderable() const;
 
     // Various
-    bool getGraphCurveData(int graphType,int index,std::string& label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int& curveType,float col[3],float minMax[6],int& curveId) const;
+    bool getGraphCurveData(int graphType,int index,std::string& label,std::vector<float>& xVals,std::vector<float>& yVals,int& curveType,float col[3],float minMax[6],int& curveId,int& curveWidth) const;
     void curveToClipboard(int graphType,const char* curveName) const;
     void curveToStatic(int graphType,const char* curveName);
     void removeStaticCurve(int graphType,const char* curveName);
@@ -74,8 +74,6 @@ public:
     void getGraphDataStreamsFromIds(const int ids[3],CGraphDataStream* streams[3]) const;
     CGraphCurve* getGraphCurve(int id) const;
     CGraphCurve* getGraphCurve(const char* name,bool staticCurve) const;
-    size_t getGraphCurveCount() const;
-    CGraphCurve* getGraphCurveFromIndex(size_t index) const;
     bool removeGraphDataStream(int id);
     bool removeGraphCurve(int id);
     void removeAllStreamsAndCurves();

@@ -287,7 +287,7 @@ bool CGraphDataStream::getTransformedValue(int startPt,int pos,float& retVal) co
     return(cumulativeValueCount>0);
 }
 
-bool CGraphDataStream::getCurveData(bool staticCurve,int* index,int startPt,int ptCnt,const std::vector<float>& times,std::string* label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int* curveType,float col[3],float minMax[6]) const
+bool CGraphDataStream::getCurveData(bool staticCurve,int* index,int startPt,int ptCnt,const std::vector<float>& times,std::string* label,std::vector<float>& xVals,std::vector<float>& yVals,int* curveType,float col[3],float minMax[6]) const
 {
     if (_visible&&(staticCurve==_static))
     {
@@ -401,7 +401,7 @@ void CGraphDataStream::makeStatic(int startPt,int ptCnt,const std::vector<float>
         std::vector<float> yVals;
         std::vector<float> zVals;
         _staticCurveValues.clear();
-        getCurveData(false,nullptr,startPt,ptCnt,times,nullptr,xVals,yVals,zVals,nullptr,nullptr,nullptr);
+        getCurveData(false,nullptr,startPt,ptCnt,times,nullptr,xVals,yVals,nullptr,nullptr,nullptr);
         for (size_t i=0;i<xVals.size();i++)
         {
             _staticCurveValues.push_back(xVals[i]);

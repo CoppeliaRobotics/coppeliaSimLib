@@ -27,9 +27,6 @@ public:
 
     void killAllSimulationLuaStates();
     int insertDefaultScript_mainAndChildScriptsOnly(int scriptType,bool threaded,bool oldThreadedScript);
-    void setInMainScriptNow(bool launched,int startTimeInMs);
-    bool getInMainScriptNow() const;
-    int getMainScriptExecTimeInMs() const;
     const std::vector<int>* getObjectIdsWhereDynCallbackFunctionsAvailable() const;
 
     int removeDestroyedScripts(int scriptType);
@@ -53,9 +50,6 @@ public:
 
 protected:
     int _getScriptsToExecute(int scriptType,std::vector<CLuaScriptObject*>& scripts,std::vector<int>& uniqueIds) const;
-
-    int _inMainScriptNow;
-    int _mainScriptStartTimeInMs;
 
     std::vector<SScriptCallBack*> _callbackStructureToDestroyAtEndOfSimulation_new;
     std::vector<SLuaCallBack*> _callbackStructureToDestroyAtEndOfSimulation_old;

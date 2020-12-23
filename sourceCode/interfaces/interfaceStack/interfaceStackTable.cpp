@@ -76,7 +76,7 @@ bool CInterfaceStackTable::getUCharArray(unsigned char* array,int count) const
     return(retVal);
 }
 
-bool CInterfaceStackTable::getIntArray(int* array,int count) const
+bool CInterfaceStackTable::getInt32Array(int* array,int count) const
 {
     if (!_isTableArray)
         return(false);
@@ -91,6 +91,32 @@ bool CInterfaceStackTable::getIntArray(int* array,int count) const
             array[i]=(int)((CInterfaceStackNumber*)_tableObjects[i])->getValue();
         else if (t==STACK_OBJECT_INTEGER)
             array[i]=(int)((CInterfaceStackInteger*)_tableObjects[i])->getValue();
+        else
+        {
+            array[i]=0;
+            retVal=false;
+        }
+    }
+    for (size_t i=c;i<(size_t)count;i++)
+        array[i]=0; // fill with zeros
+    return(retVal);
+}
+
+bool CInterfaceStackTable::getInt64Array(luaWrap_lua_Integer* array,int count) const
+{
+    if (!_isTableArray)
+        return(false);
+    bool retVal=true;
+    size_t c=(size_t)count;
+    if (c>_tableObjects.size())
+        c=_tableObjects.size();
+    for (size_t i=0;i<c;i++)
+    {
+        int t=_tableObjects[i]->getObjectType();
+        if (t==STACK_OBJECT_NUMBER)
+            array[i]=(luaWrap_lua_Integer)((CInterfaceStackNumber*)_tableObjects[i])->getValue();
+        else if (t==STACK_OBJECT_INTEGER)
+            array[i]=(luaWrap_lua_Integer)((CInterfaceStackInteger*)_tableObjects[i])->getValue();
         else
         {
             array[i]=0;
@@ -394,7 +420,15 @@ void CInterfaceStackTable::setUCharArray(const unsigned char* array,int l)
         _tableObjects.push_back(new CInterfaceStackInteger(array[i]));
 }
 
-void CInterfaceStackTable::setIntArray(const int* array,int l)
+void CInterfaceStackTable::setInt32Array(const int* array,int l)
+{
+    _tableObjects.clear();
+    _isTableArray=true;
+    for (int i=0;i<l;i++)
+        _tableObjects.push_back(new CInterfaceStackInteger(array[i]));
+}
+
+void CInterfaceStackTable::setInt64Array(const luaWrap_lua_Integer* array,int l)
 {
     _tableObjects.clear();
     _isTableArray=true;

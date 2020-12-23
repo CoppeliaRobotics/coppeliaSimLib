@@ -10,7 +10,6 @@
 
 CEmbeddedScriptContainer::CEmbeddedScriptContainer()
 {
-    _inMainScriptNow=0;
     insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_mainscript,false,false);
 }
 
@@ -84,7 +83,7 @@ int CEmbeddedScriptContainer::getCalledScriptsCountInThisSimulationStep(bool onl
                     cnt++;
                 if (allScripts[i]->getScriptType()==sim_scripttype_childscript)
                 {
-                    if (!allScripts[i]->getThreadedExecution()) // ignore old threaded scripts
+                    if (!allScripts[i]->getThreadedExecution_oldThreads()) // ignore old threaded scripts
                         cnt++;
                 }
             }
@@ -103,11 +102,11 @@ int CEmbeddedScriptContainer::removeDestroyedScripts(int scriptType)
     {
         if ( (allScripts[i]->getScriptType()==scriptType)&&allScripts[i]->getFlaggedForDestruction() )
         {
-            if ( (!allScripts[i]->getThreadedExecution())||(!allScripts[i]->getThreadedExecutionIsUnderWay()) )
+            if ( (!allScripts[i]->getThreadedExecution_oldThreads())||(!allScripts[i]->getThreadedExecutionIsUnderWay_oldThreads()) )
             {
                 retVal++;
                 CLuaScriptObject* it=allScripts[i];
-                it->killLuaState(); // should not be done in the destructor!
+                it->resetScript(); // should not be done in the destructor!
                 allScripts.erase(allScripts.begin()+i);
                 i--;
                 delete it;
@@ -115,28 +114,6 @@ int CEmbeddedScriptContainer::removeDestroyedScripts(int scriptType)
         }
     }
     return(retVal);
-}
-
-void CEmbeddedScriptContainer::setInMainScriptNow(bool launched,int startTimeInMs)
-{
-    if (launched)
-    {
-        if (_inMainScriptNow==0)
-            _mainScriptStartTimeInMs=startTimeInMs;
-        _inMainScriptNow++;
-    }
-    else
-        _inMainScriptNow--;
-}
-
-bool CEmbeddedScriptContainer::getInMainScriptNow() const
-{
-    return(_inMainScriptNow>0);
-}
-
-int CEmbeddedScriptContainer::getMainScriptExecTimeInMs() const
-{
-    return(VDateTime::getTimeDiffInMs(_mainScriptStartTimeInMs));
 }
 
 bool CEmbeddedScriptContainer::isContactCallbackFunctionAvailable()
@@ -167,7 +144,7 @@ void CEmbeddedScriptContainer::removeAllScripts()
     while (allScripts.size()>0)
     {
         CLuaScriptObject* it=allScripts[0];
-        it->killLuaState(); // should not be done in the destructor!
+        it->resetScript(); // should not be done in the destructor!
         allScripts.erase(allScripts.begin());
         delete it;
     }
@@ -177,8 +154,8 @@ void CEmbeddedScriptContainer::killAllSimulationLuaStates()
 {
     for (size_t i=0;i<allScripts.size();i++)
     {
-        if ( (allScripts[i]->getScriptType()==sim_scripttype_mainscript)||(allScripts[i]->getScriptType()==sim_scripttype_childscript) )
-            allScripts[i]->killLuaState();
+        if (allScripts[i]->isSimulationScript())
+            allScripts[i]->resetScript();
     }
 }
 
@@ -220,7 +197,7 @@ bool CEmbeddedScriptContainer::removeScript(int scriptHandle)
         if (allScripts[i]->getScriptHandle()==scriptHandle)
         {
             CLuaScriptObject* it=allScripts[i];
-            it->killLuaState(); // should not be done in the destructor!
+            it->resetScript(); // should not be done in the destructor!
             allScripts.erase(allScripts.begin()+i);
             delete it;
             App::worldContainer->setModificationFlag(16384);
@@ -346,8 +323,8 @@ int CEmbeddedScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int sc
                 defScript->setScriptText(defaultScript);
                 if (oldThreadedScript)
                 {
-                    defScript->setThreadedExecution(true);
-                    defScript->setExecuteJustOnce(true);
+                    defScript->setThreadedExecution_oldThreads(true);
+                    defScript->setExecuteJustOnce_oldThreads(true);
                 }
                 delete[] defaultScript;
                 archive.close();
@@ -362,8 +339,8 @@ int CEmbeddedScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int sc
                 defScript->setScriptText(defaultMessage);
                 if (oldThreadedScript)
                 {
-                    defScript->setThreadedExecution(true);
-                    defScript->setExecuteJustOnce(true);
+                    defScript->setThreadedExecution_oldThreads(true);
+                    defScript->setExecuteJustOnce_oldThreads(true);
                 }
             }
         }
@@ -375,8 +352,8 @@ int CEmbeddedScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int sc
             defScript->setScriptText(defaultMessage);
             if (oldThreadedScript)
             {
-                defScript->setThreadedExecution(true);
-                defScript->setExecuteJustOnce(true);
+                defScript->setThreadedExecution_oldThreads(true);
+                defScript->setExecuteJustOnce_oldThreads(true);
             }
         }
     }
@@ -392,7 +369,7 @@ void CEmbeddedScriptContainer::callScripts(int callType,CInterfaceStack* inStack
         CLuaScriptObject* script=getMainScript();
         if (script!=nullptr)
         {
-            script->runMainScript(callType,inStack,nullptr,nullptr);
+            script->callMainScript(callType,inStack,nullptr,nullptr);
             handleCascadedScriptExecution(sim_scripttype_childscript,callType,inStack,nullptr,nullptr);
         }
     }
@@ -414,7 +391,7 @@ void CEmbeddedScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
             if (it!=nullptr)
             {
                 if (it->getCustomizationScriptCleanupBeforeSave_DEPRECATED())
-                    it->killLuaState();
+                    it->resetScript();
             }
             for (size_t i=0;i<obj->getChildCount();i++)
                 toExplore.push_back(obj->getChildFromIndex(i));
@@ -428,7 +405,7 @@ void CEmbeddedScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
             if (it->getScriptType()==sim_scripttype_customizationscript)
             {
                 if (it->getCustomizationScriptCleanupBeforeSave_DEPRECATED())
-                    it->killLuaState();
+                    it->resetScript();
             }
         }
     }
@@ -443,15 +420,18 @@ int CEmbeddedScriptContainer::_getScriptsToExecute(int scriptType,std::vector<CL
     toHandle.push_back(&orderFirst);
     toHandle.push_back(&orderNormal);
     toHandle.push_back(&orderLast);
-    for (size_t i=0;i<App::currentWorld->sceneObjects->getOrphanCount();i++)
+    if ( (scriptType!=sim_scripttype_customizationscript)||App::userSettings->runCustomizationScripts )
     {
-        CSceneObject* it=App::currentWorld->sceneObjects->getOrphanFromIndex(i);
-        toHandle[it->getScriptExecutionOrder(scriptType)]->push_back(it);
-    }
-    for (size_t i=0;i<toHandle.size();i++)
-    {
-        for (size_t j=0;j<toHandle[i]->size();j++)
-            toHandle[i]->at(j)->getScriptsToExecute(scriptType,sim_scripttreetraversal_reverse,scripts,uniqueIds);
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getOrphanCount();i++)
+        {
+            CSceneObject* it=App::currentWorld->sceneObjects->getOrphanFromIndex(i);
+            toHandle[it->getScriptExecutionOrder(scriptType)]->push_back(it);
+        }
+        for (size_t i=0;i<toHandle.size();i++)
+        {
+            for (size_t j=0;j<toHandle[i]->size();j++)
+                toHandle[i]->at(j)->getScriptsToExecute(scriptType,sim_scripttreetraversal_reverse,scripts,uniqueIds);
+        }
     }
     return(int(scripts.size()));
 }
@@ -491,7 +471,7 @@ int CEmbeddedScriptContainer::handleCascadedScriptExecution(int scriptType,int c
                         doIt=false;
                     if (doIt)
                     {
-                        if (script->runCustomizationScript(callTypeOrResumeLocation,inStack,outStack)==1)
+                        if (script->callCustomizationScript(callTypeOrResumeLocation,inStack,outStack)==1)
                         {
                             cnt++;
                             if (callTypeOrResumeLocation==sim_syscb_contactcallback)
@@ -517,15 +497,15 @@ int CEmbeddedScriptContainer::handleCascadedScriptExecution(int scriptType,int c
                 }
                 else if ((scriptType&sim_scripttype_childscript)!=0)
                 {
-                    if (script->getThreadedExecution())
+                    if (script->getThreadedExecution_oldThreads())
                     {
                         if (callTypeOrResumeLocation==sim_scriptthreadresume_launch)
                         {
-                            if (script->launchThreadedChildScript())
+                            if (script->launchThreadedChildScript_oldThreads())
                                 cnt++;
                         }
                         else
-                            cnt+=script->resumeThreadedChildScriptIfLocationMatch(callTypeOrResumeLocation);
+                            cnt+=script->resumeThreadedChildScriptIfLocationMatch_oldThreads(callTypeOrResumeLocation);
                     }
                     else
                     {
@@ -536,7 +516,7 @@ int CEmbeddedScriptContainer::handleCascadedScriptExecution(int scriptType,int c
                             doIt=false;
                         if (doIt)
                         {
-                            if (script->runNonThreadedChildScript(callTypeOrResumeLocation,inStack,outStack)==1)
+                            if (script->callChildScript(callTypeOrResumeLocation,inStack,outStack)==1)
                             {
                                 cnt++;
                                 if (callTypeOrResumeLocation==sim_syscb_contactcallback)

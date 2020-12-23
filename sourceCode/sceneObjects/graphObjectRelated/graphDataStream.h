@@ -17,7 +17,7 @@ public:
     void setNextValueToInsert(float v);
     void insertNextValue(int absIndex,bool firstValue,const std::vector<float>& times);
     bool getTransformedValue(int startPt,int pos,float& retVal) const;
-    bool getCurveData(bool staticCurve,int* index,int startPt,int ptCnt,const std::vector<float>& times,std::string* label,std::vector<float>& xVals,std::vector<float>& yVals,std::vector<float>& zVals,int* curveType,float col[3],float minMax[6]) const;
+    bool getCurveData(bool staticCurve,int* index,int startPt,int ptCnt,const std::vector<float>& times,std::string* label,std::vector<float>& xVals,std::vector<float>& yVals,int* curveType,float col[3],float minMax[6]) const;
     void makeStatic(int startPt,int ptCnt,const std::vector<float>& times);
     bool announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer);
     void performScriptLoadingMapping(const std::vector<int>* map);

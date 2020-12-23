@@ -99,7 +99,7 @@ public:
 
 
 #ifdef SIM_WITH_GUI
-    void showAndHandleEmergencyStopButton(bool showState,const char* scriptName);
+    bool showAndHandleEmergencyStopButton(bool showState,const char* scriptName);
     void keyPress(int key);
     void addMenu(VMenu* menu);
 #endif

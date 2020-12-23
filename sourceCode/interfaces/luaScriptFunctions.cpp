@@ -46,7 +46,7 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const
         warnStr=CApiErrors::getAndClearThreadBasedFirstCapiWarning();
     if (warnStr.size()>0)
     {
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(getScriptHandle(L));
+        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
         if (it!=nullptr)
         {
             int verb=sim_verbosity_scriptwarnings;
@@ -73,7 +73,7 @@ void _raiseErrorOrYieldIfNeeded(luaWrap_lua_State* L,const char* functionName,co
             errStr=CApiErrors::getAndClearThreadBasedFirstCapiError();
         if (errStr.size()==0)
             return;
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(getScriptHandle(L));
+        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
         if (it==nullptr)
             return;
         it->setLastError(errStr.c_str());
@@ -96,8 +96,6 @@ void _raiseErrorOrYieldIfNeeded(luaWrap_lua_State* L,const char* functionName,co
 }
 
 #define LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED() _raiseErrorOrYieldIfNeeded(L,functionName.c_str(),errorString.c_str(),cSideErrorOrWarningReporting)
-#define SIM_SCRIPT_NAME_INDEX "sim_script_name_index" // keep this global, e.g. not _S.sim_script_name_index
-#define SIM_SCRIPT_HANDLE "sim_script_handle" // keep this global, e.g. not _S.sim_script_handle
 
 std::vector<int> serialPortHandles;
 std::vector<std::string> serialPortLeftOverData;
@@ -152,7 +150,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getSimulatorMessage",_simGetSimulatorMessage,          "int messageID,table_4 auxiliaryData,table auxiliaryData2=sim.getSimulatorMessage()",true},
     {"sim.resetGraph",_simResetGraph,                            "sim.resetGraph(int objectHandle)",true},
     {"sim.handleGraph",_simHandleGraph,                          "sim.handleGraph(int objectHandle,float simulationTime)",true},
-    {"sim.getGraphCurve",_simGetGraphCurve,                      "string label,int attributes,table curveColor,table xData,table yData,table zData,\ntable minMax,int curveId=sim.getGraphCurve(int graphHandle,int graphType,int curveIndex)",true},
+    {"sim.getGraphCurve",_simGetGraphCurve,                      "string label,int attributes,table curveColor,table xData,table yData,table minMax,\nint curveId,int curveWidth=sim.getGraphCurve(int graphHandle,int graphType,int curveIndex)",true},
     {"sim.getGraphInfo",_simGetGraphInfo,                        "int bitCoded,table_3 bgColor,table_3 fgColor,int bufferSize=sim.getGraphInfo(int graphHandle)",true},
     {"sim.addGraphStream",_simAddGraphStream,                    "int streamId=sim.addGraphStream(int graphHandle,string streamName,\nstring unit,int options=0,table_3 color={1,0,0},float cyclicRange=pi)",true},
     {"sim.destroyGraphCurve",_simDestroyGraphCurve,              "sim.destroyGraphCurve(int graphHandle,int curveId)",true},
@@ -173,7 +171,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getJointMatrix",_simGetJointMatrix,                    "table_12 matrix=sim.getJointMatrix(int objectHandle)",true},
     {"sim.setSphericalJointMatrix",_simSetSphericalJointMatrix,  "sim.setSphericalJointMatrix(int objectHandle,table_12 matrix)",true},
     {"sim.buildIdentityMatrix",_simBuildIdentityMatrix,          "table_12 matrix=sim.buildIdentityMatrix()",true},
-    {"sim.copyMatrix",_simCopyMatrix,                            "table_12 matrix=sim.copyMatrix(table_12 matrixToCopy)",true},
     {"sim.buildMatrix",_simBuildMatrix,                          "table_12 matrix=sim.buildMatrix(table_3 position,table_3 eulerAngles)",true},
     {"sim.getEulerAnglesFromMatrix",_simGetEulerAnglesFromMatrix,"table_3 eulerAngles=sim.getEulerAnglesFromMatrix(table_12 matrix)",true},
     {"sim.invertMatrix",_simInvertMatrix,                        "sim.invertMatrix(table_12 matrix)",true},
@@ -250,7 +247,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.addForce",_simAddForce,                                "sim.addForce(int shapeHandle,table_3 position,table_3 force)",true},
     {"sim.setExplicitHandling",_simSetExplicitHandling,          "sim.setExplicitHandling(int objectHandle,int explicitHandlingFlags)",true},
     {"sim.getExplicitHandling",_simGetExplicitHandling,          "int explicitHandlingFlags=sim.getExplicitHandling(int objectHandle)",true},
-    {"sim.setGraphUserData",_simSetGraphUserData,                "int result=sim.setGraphUserData(int graphHandle,string streamName,float data)",true},
     {"sim.addDrawingObject",_simAddDrawingObject,                "int drawingObjectHandle=sim.addDrawingObject(int objectType,float size,float duplicateTolerance,\nint parentObjectHandle,int maxItemCount,table_3 ambient_diffuse=nil,nil,table_3 specular=nil,\ntable_3 emission=nil)",true},
     {"sim.removeDrawingObject",_simRemoveDrawingObject,          "sim.removeDrawingObject(int drawingObjectHandle)",true},
     {"sim.addDrawingObjectItem",_simAddDrawingObjectItem,        "int result=sim.addDrawingObjectItem(int drawingObjectHandle,table itemData)",true},
@@ -440,6 +436,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getShapeInertia",_simGetShapeInertia,                  "table_9 inertiaMatrix,table_12 transformationMatrix=sim.getShapeInertia(int shapeHandle)",true},
     {"sim.setShapeInertia",_simSetShapeInertia,                  "sim.setShapeInertia(int shapeHandle,table_9 inertiaMatrix,table_12 transformationMatrix)",true},
     {"sim.isDynamicallyEnabled",_simIsDynamicallyEnabled,        "boolean enabled=sim.isDynamicallyEnabled(int objectHandle)",true},
+    {"sim.generateShapeFromPath",_simGenerateShapeFromPath,      "int shapeHandle=sim.generateShapeFromPath(table path,table section,table_3 upVector={0.0,0.0,1.0},int options=0)",true},
 
     {"sim.test",_simTest,                                        "test function - shouldn't be used",true},
 
@@ -527,6 +524,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.modifyGhost",_simModifyGhost,                          "Deprecated",false},
     {"sim.addPointCloud",_simAddPointCloud,                      "Deprecated. Use point cloud objects instead",false},
     {"sim.modifyPointCloud",_simModifyPointCloud,                "Deprecated. Use point cloud objects instead",false},
+    {"sim.setGraphUserData",_simSetGraphUserData,                "Deprecated. Use sim.setGraphStreamValue instead",false},
+    {"sim.copyMatrix",_simCopyMatrix,                            "Deprecated. Use sim.copyTable instead",false},
     //{"sim.boolOr32",_simBoolOr32,                                "Deprecated. Use the bitwise operator | instead",false},
     //{"sim.boolAnd32",_simBoolAnd32,                              "Deprecated. Use the bitwise operator & instead",false},
     //{"sim.boolXor32",_simBoolXor32,                              "Deprecated. Use the bitwise operator ~ instead",false},
@@ -602,7 +601,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetJointMatrix",_simGetJointMatrix,                    "Use the newer 'sim.getJointMatrix' notation",false},
     {"simSetSphericalJointMatrix",_simSetSphericalJointMatrix,  "Use the newer 'sim.setSphericalJointMatrix' notation",false},
     {"simBuildIdentityMatrix",_simBuildIdentityMatrix,          "Use the newer 'sim.buildIdentityMatrix' notation",false},
-    {"simCopyMatrix",_simCopyMatrix,                            "Use the newer 'sim.copyMatrix' notation",false},
     {"simBuildMatrix",_simBuildMatrix,                          "Use the newer 'sim.buildMatrix' notation",false},
     {"simGetEulerAnglesFromMatrix",_simGetEulerAnglesFromMatrix,"Use the newer 'sim.getEulerAnglesFromMatrix' notation",false},
     {"simInvertMatrix",_simInvertMatrix,                        "Use the newer 'sim.invertMatrix' notation",false},
@@ -675,7 +673,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simAddForce",_simAddForce,                                "Use the newer 'sim.addForce' notation",false},
     {"simSetExplicitHandling",_simSetExplicitHandling,          "Use the newer 'sim.setExplicitHandling' notation",false},
     {"simGetExplicitHandling",_simGetExplicitHandling,          "Use the newer 'sim.getExplicitHandling' notation",false},
-    {"simSetGraphUserData",_simSetGraphUserData,                "Use the newer 'sim.setGraphUserData' notation",false},
     {"simAddDrawingObject",_simAddDrawingObject,                "Use the newer 'sim.addDrawingObject' notation",false},
     {"simRemoveDrawingObject",_simRemoveDrawingObject,          "Use the newer 'sim.removeDrawingObject' notation",false},
     {"simAddDrawingObjectItem",_simAddDrawingObjectItem,        "Use the newer 'sim.addDrawingObjectItem' notation",false},
@@ -1022,6 +1019,8 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simModifyGhost",_simModifyGhost,                          "Deprecated",false},
     {"simAddPointCloud",_simAddPointCloud,                      "Deprecated. Use point cloud objects instead",false},
     {"simModifyPointCloud",_simModifyPointCloud,                "Deprecated. Use point cloud objects instead",false},
+    {"simSetGraphUserData",_simSetGraphUserData,                "Deprecated. Use sim.setGraphStreamValue instead",false},
+    {"simCopyMatrix",_simCopyMatrix,                            "Deprecated. Use sim.copyTable instead",false},
     //{"simRMLMoveToPosition",_simRMLMoveToPosition,              "Deprecated. Use 'sim.moveToPose' instead",false},
     //{"simRMLMoveToJointPositions",_simRMLMoveToJointPositions,  "Deprecated. Use 'sim.moveToConfig' instead",false},
     //{"simWait",_simWait,                                        "Use the newer 'sim.wait' notation",false},
@@ -1253,6 +1252,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.handleflag_codedstring",sim_handleflag_codedstring,true},
     {"sim.handleflag_wxyzquaternion",sim_handleflag_wxyzquaternion,true},
     {"sim.handleflag_reljointbaseframe",sim_handleflag_reljointbaseframe,true},
+    {"sim.handleflag_setmultiple",sim_handleflag_setmultiple,true},
     {"sim.handleflag_abscoords",sim_handleflag_abscoords,true},
     {"sim.handleflag_model",sim_handleflag_model,true},
     {"sim.handleflag_rawvalue",sim_handleflag_rawvalue,true},
@@ -1446,6 +1446,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_statusbarverbosity",sim_stringparam_statusbarverbosity,true},
     {"sim.stringparam_dlgverbosity",sim_stringparam_dlgverbosity,true},
     {"sim.stringparam_logfilter",sim_stringparam_consolelogfilter,true},
+    {"sim.stringparam_uniqueid",sim_stringparam_uniqueid,true},
 
     // verbosity:
     {"sim.verbosity_useglobal",sim_verbosity_useglobal,true},
@@ -1518,6 +1519,7 @@ const SLuaVariables simLuaVariables[]=
     // drawing objects
     {"sim.drawing_points",sim_drawing_points,true},
     {"sim.drawing_lines",sim_drawing_lines,true},
+    {"sim.drawing_linestrip",sim_drawing_linestrip,true},
     {"sim.drawing_triangles",sim_drawing_triangles,true},
     {"sim.drawing_trianglepoints",sim_drawing_trianglepoints,true},
     {"sim.drawing_quadpoints",sim_drawing_quadpoints,true},
@@ -3102,7 +3104,7 @@ void clearSerialPortLeftOver(int portHandle)
 */
 bool isObjectAssociatedWithThisThreadedChildScriptValid(luaWrap_lua_State* L)
 {
-    int id=getScriptHandle(L);
+    int id=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(id);
     if (script==nullptr)
         return(false);
@@ -3151,7 +3153,7 @@ int getCorrectType(const std::string& buff)
 void getScriptTree(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scriptHandles)
 { // Returns all scripts that are built under the current one
     scriptHandles.clear();
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
 
     CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
     if (it!=nullptr)
@@ -3218,7 +3220,7 @@ void getScriptTree(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scri
 void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std::vector<int>& scriptHandles)
 { // Returns all script IDs that are parents (or grand-parents,grand-grand-parents, etc.) of the current one
     scriptHandles.clear();
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
 
     CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
 
@@ -3282,68 +3284,6 @@ void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std
     }
 }
 
-std::string getAdditionalLuaSearchPath()
-{
-    std::string retVal;
-    retVal+=App::folders->getExecutablePath();
-    retVal+="/?.lua;";
-    retVal+=App::folders->getExecutablePath();
-    retVal+="/lua/?.lua;"; // present by default, but also needed for the code editor
-    retVal+=App::folders->getExecutablePath();
-    retVal+="/bwf/?.lua";
-    if (App::currentWorld->mainSettings->getScenePathAndName().compare("")!=0)
-    {
-        retVal+=";";
-        retVal+=App::currentWorld->mainSettings->getScenePath();
-        retVal+="/?.lua";
-    }
-    if (App::userSettings->additionalLuaPath.length()>0)
-    {
-        retVal+=";";
-        retVal+=App::userSettings->additionalLuaPath;
-        retVal+="/?.lua";
-    }
-    return(retVal);
-}
-
-
-luaWrap_lua_State* initializeNewLuaState(int scriptHandle,int scriptNameIndex,int debugLevel)
-{
-    luaWrap_lua_State* L=luaWrap_luaL_newstate();
-    luaWrap_luaL_openlibs(L);
-    luaWrap_luaL_dostring(L,"os.setlocale'C'");
-
-    setScriptHandle(L,scriptHandle);
-    setScriptNameIndex(L,scriptNameIndex);
-
-    // --------------------------------------------
-    // append some paths to the Lua path variable:
-    luaWrap_lua_getglobal(L,"package");
-    luaWrap_lua_getfield(L,-1,"path");
-    std::string cur_path=luaWrap_lua_tostring(L,-1);
-    cur_path+=";";
-    cur_path+=getAdditionalLuaSearchPath().c_str();
-    boost::replace_all(cur_path,"\\","/");
-    luaWrap_lua_pop(L,1);
-    luaWrap_lua_pushstring(L,cur_path.c_str());
-    luaWrap_lua_setfield(L,-2,"path");
-    luaWrap_lua_pop(L,1);
-    // --------------------------------------------
-
-    luaWrap_luaL_dostring(L,"sim=require('sim')");
-    prepareNewLuaVariables_onlyRequire(L); // Here we only handle things like: simUI=require('simExtCustomUI')
-    registerNewLuaFunctions(L); // Important to handle functions before variables, so that in the line below we can assign functions to new function names (e.g. simExtCustomUI_create=simUI.create)
-    prepareNewLuaVariables_noRequire(L);
-
-    luaWrap_luaL_dostring(L,"_S.executeAfterLuaStateInit()"); // needed for various
-
-    int hookMask=luaWrapGet_LUA_MASKCOUNT();
-    if (debugLevel>=sim_scriptdebug_allcalls)
-        hookMask|=luaWrapGet_LUA_MASKCALL()|luaWrapGet_LUA_MASKRET();
-    luaWrap_lua_sethook(L,luaHookFunction,hookMask,100); // This instruction gets also called in luaHookFunction!!!!
-
-    return(L);
-}
 
 void registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char const* const functionName,luaWrap_lua_CFunction functionCallback)
 {
@@ -3410,113 +3350,6 @@ void registerNewLuaFunctions(luaWrap_lua_State* L)
     App::worldContainer->luaCustomFuncAndVarContainer->registerCustomLuaFunctions(L,_simGenericFunctionHandler);
 }
 
-void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
-{
-    TRACE_INTERNAL;
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(getScriptHandle(L));
-    if (it==nullptr)
-        return; // the script ID was not yet set
-    int debugLevel=it->getDebugLevel();
-
-    if ( (ar->event==luaWrapGet_LUA_HOOKCALL())||(ar->event==luaWrapGet_LUA_HOOKRET()) )
-    { // Debug call and return hooks
-        if (debugLevel>=sim_scriptdebug_allcalls)
-        { // debugging (further down also several occurences (auto thread switches and script end force)
-            bool callIn=(ar->event==luaWrapGet_LUA_HOOKCALL());
-            luaWrap_lua_getinfo(L, "nS", ar);
-            it->handleDebug(ar->name,ar->what,callIn,false);
-        }
-    }
-
-    if (ar->event!=luaWrapGet_LUA_HOOKCALL())
-    { // Return and Count hook (return somehow needed here too when debug is on)
-        // Following 6 instructions are important: it can happen that the user locks/unlocks automatic thread switch in a loop,
-        // and that the hook function by malchance only gets called when the thread switches are not allowed (due to the loop
-        // timing and hook call timing overlap) --> this thread doesn't switch and stays in a lua loop forever.
-        // To avoid this we add some random component to the hook timing:
-        int randComponent=rand()/(RAND_MAX/10);
-        int hookMask=luaWrapGet_LUA_MASKCOUNT();
-        if (debugLevel>=sim_scriptdebug_allcalls)
-            hookMask|=luaWrapGet_LUA_MASKCALL()|luaWrapGet_LUA_MASKRET();
-        luaWrap_lua_sethook(L,luaHookFunction,hookMask,95+randComponent);
-        // Also remember: the hook gets also called when calling luaWrap_luaL_doString from c++ and similar!!
-
-        int scriptType=it->getScriptType();
-        if ( (scriptType==sim_scripttype_mainscript)||(scriptType==sim_scripttype_childscript) )
-        {
-#ifdef SIM_WITH_GUI
-            if (App::userSettings->getAbortScriptExecutionTiming()!=0)
-            {
-                if ( (App::currentWorld->embeddedScriptContainer->getMainScriptExecTimeInMs()>(App::userSettings->getAbortScriptExecutionTiming()*1000))&&App::currentWorld->embeddedScriptContainer->getInMainScriptNow() )
-                    App::currentWorld->simulation->showAndHandleEmergencyStopButton(true,it->getShortDescriptiveName().c_str());
-            }
-
-            if ( CThreadPool::getSimulationEmergencyStop() ) // No automatic yield when flagged for destruction!! ||it->getFlaggedForDestruction() )
-            { // This is the only way a non-threaded script can yield. But threaded child scripts can also yield here
-                it->terminateScriptExecutionExternally(true);
-                return;
-            }
-#endif
-            if (CThreadPool::getSimulationStopRequestedAndActivated())
-            { // returns true only after 1-2 seconds after the request arrived
-                if (!VThread::isCurrentThreadTheMainSimulationThread())
-                { // Here only threaded scripts can yield!
-                    it->terminateScriptExecutionExternally(false);
-                    return;
-                }
-            }
-
-            if (!VThread::isCurrentThreadTheMainSimulationThread())
-            {
-                if (CThreadPool::isSwitchBackToPreviousThreadNeeded())
-                {
-                    if (debugLevel!=sim_scriptdebug_none)
-                        it->handleDebug("thread_automatic_switch","C",true,true);
-                    CThreadPool::switchBackToPreviousThreadIfNeeded();
-                    if (debugLevel!=sim_scriptdebug_none)
-                        it->handleDebug("thread_automatic_switch","C",false,true);
-                }
-            }
-        }
-        else
-        { // non-simulation scripts (i.e. add-ons and customization scripts)
-#ifdef SIM_WITH_GUI
-            if (App::userSettings->getAbortScriptExecutionTiming()!=0)
-            {
-                if ( it->getScriptExecutionTimeInMs()>(App::userSettings->getAbortScriptExecutionTiming()*1000) )
-                {
-                    App::currentWorld->simulation->showAndHandleEmergencyStopButton(true,it->getShortDescriptiveName().c_str());
-                    if (CLuaScriptObject::emergencyStopButtonPressed)
-                    {
-                        CLuaScriptObject::emergencyStopButtonPressed=false;
-                        it->terminateScriptExecutionExternally(true);
-                    }
-                }
-                else
-                    App::currentWorld->simulation->showAndHandleEmergencyStopButton(false,"");
-            }
-#endif
-        }
-
-#ifdef OLD_LUA51
-        luaWrap_luaL_dostring(L,"return coroutine.running()");
-        if (!luaWrap_lua_isnil(L,-1))
-#else
-//        luaWrap_luaL_dostring(L,"return coroutine.isyieldable()");
-        luaWrap_luaL_dostring(L,"return coroutine.running()"); // sec. ret. val. is false --> can yield
-        if (!luaWrap_lua_toboolean(L,-1))
-#endif
-        {
-            if (it->shouldAutoYield())
-            {
-                luaWrap_lua_pop(L,1);
-                return luaWrap_lua_yield(L,0); // does a long jump and never returns
-            }
-        }
-        luaWrap_lua_pop(L,1);
-    }
-}
-
 void prepareNewLuaVariables_onlyRequire(luaWrap_lua_State* L)
 {
     App::worldContainer->luaCustomFuncAndVarContainer->assignCustomVariables(L,true);
@@ -3525,56 +3358,21 @@ void prepareNewLuaVariables_onlyRequire(luaWrap_lua_State* L)
 void prepareNewLuaVariables_noRequire(luaWrap_lua_State* L)
 {
     for (int i=0;simLuaVariables[i].name!="";i++)
-        setNewLuaVariable(L,simLuaVariables[i].name.c_str(),simLuaVariables[i].val);
+    {
+        std::string tmp(simLuaVariables[i].name.c_str());
+        tmp+="="+boost::lexical_cast<std::string>(simLuaVariables[i].val);
+        luaWrap_luaL_dostring(L,tmp.c_str());
+    }
     if (App::userSettings->getSupportOldApiNotation())
     {
         for (int i=0;simLuaVariablesOldApi[i].name!="";i++)
-            setNewLuaVariable(L,simLuaVariablesOldApi[i].name.c_str(),simLuaVariablesOldApi[i].val);
+        {
+            std::string tmp(simLuaVariablesOldApi[i].name.c_str());
+            tmp+="="+boost::lexical_cast<std::string>(simLuaVariablesOldApi[i].val);
+            luaWrap_luaL_dostring(L,tmp.c_str());
+        }
     }
     App::worldContainer->luaCustomFuncAndVarContainer->assignCustomVariables(L,false);
-}
-
-void setNewLuaVariable(luaWrap_lua_State* L,const char* name,int identifier)
-{
-    std::string tmp(name);
-    tmp+="="+boost::lexical_cast<std::string>(identifier);
-    luaWrap_luaL_dostring(L,tmp.c_str());
-}
-
-void setScriptHandle(luaWrap_lua_State* L,int h)
-{
-    std::string tmp(SIM_SCRIPT_HANDLE);
-    tmp+="=";
-    tmp+=std::to_string(h);
-    luaWrap_luaL_dostring(L,tmp.c_str());
-}
-
-int getScriptHandle(luaWrap_lua_State* L)
-{
-    int retVal=-1;
-    luaWrap_lua_getglobal(L,SIM_SCRIPT_HANDLE);
-    if (luaWrap_lua_isnumber(L,-1))
-        retVal=luaWrap_lua_tointeger(L,-1);
-    luaWrap_lua_pop(L,1);
-    return(retVal);
-}
-
-void setScriptNameIndex(luaWrap_lua_State* L,int index)
-{
-    std::string tmp(SIM_SCRIPT_NAME_INDEX);
-    tmp+="=";
-    tmp+=std::to_string(index);
-    luaWrap_luaL_dostring(L,tmp.c_str());
-}
-
-int getScriptNameIndex(luaWrap_lua_State* L)
-{
-    int retVal=-1;
-    luaWrap_lua_getglobal(L,SIM_SCRIPT_NAME_INDEX);
-    if (luaWrap_lua_isnumber(L,-1))
-        retVal=luaWrap_lua_tointeger(L,-1);
-    luaWrap_lua_pop(L,1);
-    return(retVal);
 }
 
 bool readCustomFunctionDataFromStack(luaWrap_lua_State* L,int ind,int dataType,
@@ -4202,7 +4000,7 @@ int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,st
     stack->buildFromLuaStack(L);
 
     // Now we retrieve the object ID this script might be attached to:
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* itObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     int linkedObject=-1;
     if (itObj->getScriptType()==sim_scripttype_childscript)
@@ -4583,7 +4381,7 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int callType=luaWrap_lua_tointeger(L,1);
-        int currentScriptID=getScriptHandle(L);
+        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
         CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
         if (it!=nullptr)
         {
@@ -4611,7 +4409,7 @@ int _simGetScriptName(luaWrap_lua_State* L)
     {
         int a=luaToInt(L,1);
         if (a==sim_handle_self)
-            a=getScriptHandle(L);
+            a=CLuaScriptObject::getScriptHandleFromLuaState(L);
         char* name=simGetScriptName_internal(a);
         if (name!=nullptr)
         {
@@ -4635,7 +4433,7 @@ int _simGetObjectAssociatedWithScript(luaWrap_lua_State* L)
     {
         int a=luaToInt(L,1);
         if (a==sim_handle_self)
-            a=getScriptHandle(L);
+            a=CLuaScriptObject::getScriptHandleFromLuaState(L);
         retVal=simGetObjectAssociatedWithScript_internal(a);
     }
 
@@ -4726,7 +4524,7 @@ void moduleCommonPart(luaWrap_lua_State* L,int action,std::string* errorString)
         functionName="sim.closeModule";
     if ( (action==sim_message_eventcallback_modulehandle)||(action==sim_message_eventcallback_modulehandleinsensingpart) )
         functionName="sim.handleModule";
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (it->getScriptType()!=sim_scripttype_mainscript)
     {
@@ -4768,7 +4566,7 @@ int _simHandleDynamics(luaWrap_lua_State* L)
     LUA_START("sim.handleDynamics");
 
     int retVal=-1; // means error
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript) )
     {
@@ -5574,7 +5372,7 @@ int _simGetObjectHandle(luaWrap_lua_State* L)
         if (luaWrap_lua_tointeger(L,1)==sim_handle_self)
         {
             checkWithString=false;
-            int a=getScriptHandle(L);
+            int a=CLuaScriptObject::getScriptHandleFromLuaState(L);
             retVal=simGetObjectAssociatedWithScript_internal(a);
         }
     }
@@ -5583,7 +5381,7 @@ int _simGetObjectHandle(luaWrap_lua_State* L)
         if (checkInputArguments(L,&errorString,lua_arg_string,0))
         {
             std::string name(luaWrap_lua_tostring(L,1));
-            setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+            setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
             retVal=simGetObjectHandle_internal(name.c_str());
             setCurrentScriptInfo_cSide(-1,-1);
 
@@ -5655,22 +5453,22 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
 
     int retVal=-1; // means error
     if (luaWrap_lua_gettop(L)==0) // no arguments
-        retVal=getScriptHandle(L);
+        retVal=CLuaScriptObject::getScriptHandleFromLuaState(L);
     else
     {
         if (checkInputArguments(L,nullptr,lua_arg_nil,0)) // we don't output errors here!!
-            retVal=getScriptHandle(L); // nil argument
+            retVal=CLuaScriptObject::getScriptHandleFromLuaState(L); // nil argument
         else
         {
             if (checkInputArguments(L,nullptr,lua_arg_number,0))
             { // argument sim.handle_self
                 if (luaWrap_lua_tointeger(L,1)==sim_handle_self)
-                    retVal=getScriptHandle(L);
+                    retVal=CLuaScriptObject::getScriptHandleFromLuaState(L);
             }
             if ( (retVal==-1)&&checkInputArguments(L,&errorString,lua_arg_string,0) )
             { // string argument
                 std::string name(luaWrap_lua_tostring(L,1));
-                setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                 retVal=simGetScriptHandle_internal(name.c_str());
                 setCurrentScriptInfo_cSide(-1,-1);
             }
@@ -5692,7 +5490,7 @@ int _simRemoveScript(luaWrap_lua_State* L)
     {
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
-            handle=getScriptHandle(L);
+            handle=CLuaScriptObject::getScriptHandleFromLuaState(L);
         if (sim_handle_all!=handle)
             retVal=simRemoveScript_internal(handle);
     }
@@ -6177,7 +5975,7 @@ int _simGetConfigurationTree(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getConfigurationTree");
 
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(getScriptHandle(L));
+    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int id=luaToInt(L,1);
@@ -6235,7 +6033,7 @@ int _simGetLastError(luaWrap_lua_State* L)
             scriptHandle=luaWrap_lua_tointeger(L,1);
     }
     else
-        scriptHandle=getScriptHandle(L);
+        scriptHandle=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
     if (it!=nullptr)
     {
@@ -6265,7 +6063,7 @@ int _simGetSimulatorMessage(luaWrap_lua_State* L)
     int auxVals[4];
     float aux2Vals[8];
     int aux2Cnt;
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(getScriptHandle(L));
+    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
     int commandID=it->extractCommandFromOutsideCommandQueue(auxVals,aux2Vals,aux2Cnt);
     if (commandID!=-1)
     {
@@ -6342,7 +6140,7 @@ int _simAddGraphStream(luaWrap_lua_State* L)
                         cyclicRange=luaToFloat(L,6);
                     if ( (res==0)||(res==2) )
                     {
-                        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                         int retVal=simAddGraphStream_internal(graphHandle,streamName.c_str(),unitStr.c_str(),options,col,cyclicRange);
                         setCurrentScriptInfo_cSide(-1,-1);
                         luaWrap_lua_pushinteger(L,retVal);
@@ -6421,7 +6219,7 @@ int _simDuplicateGraphCurveToStatic(luaWrap_lua_State* L)
         }
         if ( (res==0)||(res==2) )
         {
-            setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+            setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
             simDuplicateGraphCurveToStatic_internal(luaToInt(L,1),luaToInt(L,2),str);
             setCurrentScriptInfo_cSide(-1,-1);
         }
@@ -6434,58 +6232,66 @@ int _simAddGraphCurve(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.addGraphCurve");
-    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_string,0,lua_arg_integer,0,lua_arg_integer,3,lua_arg_number,3))
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_string,0,lua_arg_integer,0,lua_arg_integer,2,lua_arg_number,2))
     {
         int graphHandle=luaToInt(L,1);
         std::string curveName(luaWrap_lua_tostring(L,2));
         int dim=luaToInt(L,3);
-        int streamIds[3];
-        getIntsFromTable(L,4,dim,streamIds);
-        float defaultVals[3];
-        getFloatsFromTable(L,5,dim,defaultVals);
-        if (curveName.size()!=0)
+        int res=checkOneGeneralInputArgument(L,4,lua_arg_integer,dim,false,false,&errorString);
+        if (res==2)
         {
-            std::string unitStr;
-            char* _unitStr=nullptr;
-            int res=checkOneGeneralInputArgument(L,6,lua_arg_string,0,true,false,&errorString);
+            int streamIds[3];
+            getIntsFromTable(L,4,dim,streamIds);
+            int res=checkOneGeneralInputArgument(L,5,lua_arg_number,dim,false,false,&errorString);
             if (res==2)
             {
-                unitStr=luaWrap_lua_tostring(L,6);
-                if (unitStr.size()>0)
-                    _unitStr=&unitStr[0];
-            }
-            if ( (res==0)||(res==2) )
-            {
-                int options=0;
-                int res=checkOneGeneralInputArgument(L,7,lua_arg_integer,0,true,false,&errorString);
-                if (res==2)
-                    options=luaToInt(L,7);
-                if ( (res==0)||(res==2) )
+                float defaultVals[3];
+                getFloatsFromTable(L,5,dim,defaultVals);
+                if (curveName.size()!=0)
                 {
-                    float col[3]={1.0f,1.0f,0.0f};
-                    res=checkOneGeneralInputArgument(L,8,lua_arg_number,3,true,false,&errorString);
+                    std::string unitStr;
+                    char* _unitStr=nullptr;
+                    res=checkOneGeneralInputArgument(L,6,lua_arg_string,0,true,false,&errorString);
                     if (res==2)
-                        getFloatsFromTable(L,8,3,col);
+                    {
+                        unitStr=luaWrap_lua_tostring(L,6);
+                        if (unitStr.size()>0)
+                            _unitStr=&unitStr[0];
+                    }
                     if ( (res==0)||(res==2) )
                     {
-                        int curveWidth=2;
-                        res=checkOneGeneralInputArgument(L,9,lua_arg_integer,0,true,false,&errorString);
+                        int options=0;
+                        int res=checkOneGeneralInputArgument(L,7,lua_arg_integer,0,true,false,&errorString);
                         if (res==2)
-                            curveWidth=luaToInt(L,9);
+                            options=luaToInt(L,7);
                         if ( (res==0)||(res==2) )
                         {
-                            setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-                            int retVal=simAddGraphCurve_internal(graphHandle,curveName.c_str(),dim,streamIds,defaultVals,_unitStr,options,col,curveWidth);
-                            setCurrentScriptInfo_cSide(-1,-1);
-                            luaWrap_lua_pushinteger(L,retVal);
-                            LUA_END(1);
+                            float col[3]={1.0f,1.0f,0.0f};
+                            res=checkOneGeneralInputArgument(L,8,lua_arg_number,3,true,false,&errorString);
+                            if (res==2)
+                                getFloatsFromTable(L,8,3,col);
+                            if ( (res==0)||(res==2) )
+                            {
+                                int curveWidth=2;
+                                res=checkOneGeneralInputArgument(L,9,lua_arg_integer,0,true,false,&errorString);
+                                if (res==2)
+                                    curveWidth=luaToInt(L,9);
+                                if ( (res==0)||(res==2) )
+                                {
+                                    setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                                    int retVal=simAddGraphCurve_internal(graphHandle,curveName.c_str(),dim,streamIds,defaultVals,_unitStr,options,col,curveWidth);
+                                    setCurrentScriptInfo_cSide(-1,-1);
+                                    luaWrap_lua_pushinteger(L,retVal);
+                                    LUA_END(1);
+                                }
+                            }
                         }
                     }
                 }
+                else
+                    errorString=SIM_ERROR_EMPTY_STRING_NOT_ALLOWED;
             }
         }
-        else
-            errorString=SIM_ERROR_EMPTY_STRING_NOT_ALLOWED;
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
@@ -6519,7 +6325,7 @@ int _simAddLog(luaWrap_lua_State* L)
             else
             {
                 std::string msg(luaWrap_lua_tostring(L,2));
-                CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(getScriptHandle(L));
+                CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
                 std::string nm("???");
                 if (it!=nullptr)
                     nm=it->getShortDescriptiveName();
@@ -6656,23 +6462,6 @@ int _simBuildIdentityMatrix(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     pushFloatTableOntoStack(L,12,arr);
     LUA_END(1);
-}
-
-int _simCopyMatrix(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.copyMatrix");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,12))
-    {
-        float arr[12];
-        getFloatsFromTable(L,1,12,arr);
-        pushFloatTableOntoStack(L,12,arr);
-        LUA_END(1);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
 }
 
 int _simBuildMatrix(luaWrap_lua_State* L)
@@ -6927,7 +6716,7 @@ int _simSetInt32Parameter(luaWrap_lua_State* L)
         int v=luaWrap_lua_tointeger(L,2);
         if (paramIndex==sim_intparam_error_report_mode)
         { // for backward compatibility (2020)
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(getScriptHandle(L));
+            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
             if (it!=nullptr)
             {
                 bool r=true; // default
@@ -6956,7 +6745,7 @@ int _simGetInt32Parameter(luaWrap_lua_State* L)
         int paramIndex=luaWrap_lua_tointeger(L,1);
         if (paramIndex==sim_intparam_error_report_mode)
         { // for backward compatibility (2020)
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(getScriptHandle(L));
+            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
             if (it!=nullptr)
             {
                 int v=1; // default
@@ -7105,9 +6894,9 @@ int _simRemoveObject(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int objId=luaWrap_lua_tointeger(L,1);
-        int currentScriptID=getScriptHandle(L);
+        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
         CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
-        if (!it->getThreadedExecution())
+        if (!it->getThreadedExecution_oldThreads())
             retVal=simRemoveObject_internal(objId);
         else
         { // this script runs threaded and wants to destroy another object (than itself probably). We need to make sure that it will only destroy objects that do not have any scripts attached with a non-nullptr lua state:
@@ -7140,9 +6929,9 @@ int _simRemoveModel(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int objId=luaWrap_lua_tointeger(L,1);
-        int currentScriptID=getScriptHandle(L);
+        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
         CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
-        if (!it->getThreadedExecution())
+        if (!it->getThreadedExecution_oldThreads())
             retVal=simRemoveModel_internal(objId);
         else
         { // this script runs threaded and wants to destroy other objects. We need to make sure that it will only destroy objects that do not have any scripts attached with a non-nullptr lua state:
@@ -7242,7 +7031,7 @@ int _simLoadScene(luaWrap_lua_State* L)
     LUA_START("sim.loadScene");
 
     int retVal=-1;// error
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(currentScriptID);
     if ( (script!=nullptr)&&((script->getScriptType()==sim_scripttype_addonfunction)||(script->getScriptType()==sim_scripttype_addonscript)||(script->getScriptType()==sim_scripttype_sandboxscript)) )
     {
@@ -7263,7 +7052,7 @@ int _simCloseScene(luaWrap_lua_State* L)
     LUA_START("sim.closeScene");
 
     int retVal=-1;// error
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(currentScriptID);
     if ( (script!=nullptr)&&((script->getScriptType()==sim_scripttype_addonfunction)||(script->getScriptType()==sim_scripttype_addonscript)||(script->getScriptType()==sim_scripttype_sandboxscript)) )
         retVal=simCloseScene_internal();
@@ -7665,6 +7454,9 @@ int _simTest(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.test");
+
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
@@ -7681,7 +7473,7 @@ int _simTextEditorOpen(luaWrap_lua_State* L)
         {
             const char* arg1=luaWrap_lua_tostring(L,1);
             const char* arg2=luaWrap_lua_tostring(L,2);
-            retVal=App::mainWindow->codeEditorContainer->open(arg1,arg2,getScriptHandle(L));
+            retVal=App::mainWindow->codeEditorContainer->open(arg1,arg2,CLuaScriptObject::getScriptHandleFromLuaState(L));
         }
     }
     else
@@ -7845,7 +7637,7 @@ int _simGetStackTraceback(luaWrap_lua_State* L)
             scriptHandle=luaWrap_lua_tointeger(L,1);
     }
     else
-        scriptHandle=getScriptHandle(L);
+        scriptHandle=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
     if (it!=nullptr)
         retVal=it->getAndClearLastStackTraceback();
@@ -8041,7 +7833,7 @@ int _simSetThreadSwitchTiming(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int timeInMs=luaWrap_lua_tointeger(L,1);
-        int currentScriptID=getScriptHandle(L);
+        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
         CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         if (it!=nullptr)
             it->setDelayForAutoYielding(timeInMs);
@@ -8060,7 +7852,7 @@ int _simSetThreadAutomaticSwitch(luaWrap_lua_State* L)
 
     if (luaWrap_lua_gettop(L)>0)
     {
-        int currentScriptID=getScriptHandle(L);
+        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
         CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         if (it!=nullptr)
         {
@@ -8094,7 +7886,7 @@ int _simGetThreadAutomaticSwitch(luaWrap_lua_State* L)
 { // doesn't generate an error
     TRACE_LUA_API;
     LUA_START("sim.getThreadAutomaticSwitch");
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     bool retVal=false;
     if (it!=nullptr)
@@ -8110,7 +7902,7 @@ int _simSwitchThread(luaWrap_lua_State* L)
     LUA_START("sim._switchThread");
 
     int retVal=-1;
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if ((it!=nullptr)&&(it->canManualYield()))
     {
@@ -8130,7 +7922,7 @@ int _simGetThreadSwitchAllowed(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getThreadSwitchAllowed");
 
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (it!=nullptr)
     {
@@ -8149,7 +7941,7 @@ int _simSetThreadSwitchAllowed(luaWrap_lua_State* L)
 
     if (luaWrap_lua_gettop(L)>0)
     {
-        int currentScriptID=getScriptHandle(L);
+        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
         CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         if (it!=nullptr)
         {
@@ -10465,7 +10257,7 @@ int _simAddDrawingObject(luaWrap_lua_State* L)
             }
             if (okToGo)
             {
-                setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                 retVal=simAddDrawingObject_internal(objType,size,duplicateTolerance,parentID,maxItemCount,ambient,nullptr,specular,emission);
                 setCurrentScriptInfo_cSide(-1,-1);
             }
@@ -10488,7 +10280,7 @@ int _simRemoveDrawingObject(luaWrap_lua_State* L)
         int objectHandle=luaToInt(L,1);
         if (objectHandle==sim_handle_all)
         { // following condition added here on 2011/01/06 so as not to remove objects created from a c/c++ call or from add-on:
-            int currentScriptID=getScriptHandle(L);
+            int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
             CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
             App::currentWorld->drawingCont->removeAllObjects();
             retVal=1;
@@ -10510,22 +10302,37 @@ int _simAddDrawingObjectItem(luaWrap_lua_State* L)
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int drawingObjHandle=luaToInt(L,1);
-        CDrawingObject* it=App::currentWorld->drawingCont->getObject(drawingObjHandle);
-        int d=3;
+        int h=luaToInt(L,1);
+        int handleFlags=h&0xff00000;
+        h=h&0xfffff;
+
+        CDrawingObject* it=App::currentWorld->drawingCont->getObject(h);
+        size_t d=3;
         if (it!=nullptr)
-            d=it->verticesPerItem*3+it->normalsPerItem*3+it->otherFloatsPerItem;
-        int res=checkOneGeneralInputArgument(L,2,lua_arg_number,d,true,true,&errorString);
+            d=size_t(it->verticesPerItem*3+it->normalsPerItem*3+it->otherFloatsPerItem);
+        int res=checkOneGeneralInputArgument(L,2,lua_arg_number,int(d),true,true,&errorString);
         if (res==2)
         {
-            float vertex[20]; // we should have enough here!
-            getFloatsFromTable(L,2,d,vertex);
-            retVal=simAddDrawingObjectItem_internal(drawingObjHandle,vertex);
+            std::vector<float> vertices;
+            if ( ((handleFlags&sim_handleflag_setmultiple)!=0)&&(it!=nullptr) )
+            {
+                size_t itemCnt=luaWrap_lua_rawlen(L,2)/d;
+                vertices.resize(itemCnt*d);
+                getFloatsFromTable(L,2,int(itemCnt*d),&vertices[0]);
+                it->setItems(&vertices[0],itemCnt);
+                retVal=1;
+            }
+            else
+            {
+                vertices.resize(d);
+                getFloatsFromTable(L,2,int(d),&vertices[0]);
+                retVal=simAddDrawingObjectItem_internal(h,&vertices[0]);
+            }
         }
         else
         {
             if (res>=0)
-                retVal=simAddDrawingObjectItem_internal(drawingObjHandle,nullptr);
+                retVal=simAddDrawingObjectItem_internal(h,nullptr);
         }
     }
 
@@ -10711,7 +10518,7 @@ int _simSetIntegerSignal(luaWrap_lua_State* L)
     int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
-        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simSetIntegerSignal_internal(luaWrap_lua_tostring(L,1),luaToInt(L,2));
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -10768,7 +10575,7 @@ int _simSetFloatSignal(luaWrap_lua_State* L)
     int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
-        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simSetFloatSignal_internal(luaWrap_lua_tostring(L,1),luaToFloat(L,2));
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -10825,7 +10632,7 @@ int _simSetDoubleSignal(luaWrap_lua_State* L)
     int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
-        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simSetDoubleSignal_internal(luaWrap_lua_tostring(L,1),luaToDouble(L,2));
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -10884,7 +10691,7 @@ int _simSetStringSignal(luaWrap_lua_State* L)
     {
         size_t dataLength;
         const char* data=luaWrap_lua_tolstring(L,2,&dataLength);
-        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simSetStringSignal_internal(luaWrap_lua_tostring(L,1),data,int(dataLength));
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -11646,7 +11453,7 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0,lua_arg_number,0))
     {
         int mode=luaToInt(L,3);
-        int currentScriptID=getScriptHandle(L);
+        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
         CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
         if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript) )
         { // Add-ons and customization scripts do not have this restriction
@@ -12659,7 +12466,7 @@ int _simRMLPos(luaWrap_lua_State* L)
                         auxData[0]=1;
                         ((int*)(auxData+1))[0]=0;
 
-                        int currentScriptID=getScriptHandle(L);
+                        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
                         CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
                         if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript))
                             ((int*)(auxData+1))[0]=1; // destroy at simulation end!
@@ -12783,7 +12590,7 @@ int _simRMLVel(luaWrap_lua_State* L)
                         auxData[0]=1;
                         ((int*)(auxData+1))[0]=0;
 
-                        int currentScriptID=getScriptHandle(L);
+                        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
                         CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
                         if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript))
                             ((int*)(auxData+1))[0]=1; // destroy at simulation end!
@@ -13019,11 +12826,11 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                 CInterfaceStack stack;
                 stack.buildFromLuaStack(L,3);
 
-                if (script->getThreadedExecutionIsUnderWay())
+                if (script->getThreadedExecutionIsUnderWay_oldThreads())
                 { // very special handling here!
                     if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
                     {
-                        int rr=script->callScriptFunctionEx(funcName.c_str(),&stack);
+                        int rr=script->callScriptFunction(funcName.c_str(),&stack);
                         if (rr>=0)
                         {
                             stack.buildOntoLuaStack(L,false);
@@ -13068,7 +12875,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                 {
                     if (VThread::isCurrentThreadTheMainSimulationThread())
                     { // For now we don't allow non-main threads to call non-threaded scripts!
-                        int rr=script->callScriptFunctionEx(funcName.c_str(),&stack);
+                        int rr=script->callScriptFunction(funcName.c_str(),&stack);
                         if (rr>=0)
                         {
                             stack.buildOntoLuaStack(L,false);
@@ -13191,6 +12998,46 @@ int _simIsDynamicallyEnabled(luaWrap_lua_State* L)
         {
             luaWrap_lua_pushboolean(L,res!=0);
             LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGenerateShapeFromPath(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.generateShapeFromPath");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,6,lua_arg_number,4))
+    {
+        std::vector<float> ppath;
+        std::vector<float> section;
+        ppath.resize(luaWrap_lua_rawlen(L,1));
+        section.resize(luaWrap_lua_rawlen(L,2));
+        getFloatsFromTable(L,1,luaWrap_lua_rawlen(L,1),&ppath[0]);
+        getFloatsFromTable(L,2,luaWrap_lua_rawlen(L,2),&section[0]);
+        int options=0;
+        float* zvect=nullptr;
+        int res=checkOneGeneralInputArgument(L,3,lua_arg_number,3,true,true,&errorString);
+        if (res>=0)
+        {
+            float tmp[3];
+            if (res==2)
+            {
+                getFloatsFromTable(L,3,3,tmp);
+                zvect=tmp;
+            }
+            res=checkOneGeneralInputArgument(L,4,lua_arg_integer,0,true,true,&errorString);
+            if (res>=0)
+            {
+                if (res==2)
+                    options=luaWrap_lua_tointeger(L,4);
+                int h=simGenerateShapeFromPath_internal(&ppath[0],int(ppath.size()),&section[0],int(section.size()),zvect,options,0.0f);
+                luaWrap_lua_pushinteger(L,h);
+                LUA_END(1);
+            }
         }
     }
 
@@ -13607,7 +13454,7 @@ int _simWriteCustomDataBlock(luaWrap_lua_State* L)
     {
         int objectHandle=luaToInt(L,1);
         if (objectHandle==sim_handle_self)
-            objectHandle=getScriptHandle(L);
+            objectHandle=CLuaScriptObject::getScriptHandleFromLuaState(L);
 
         std::string dataName(luaWrap_lua_tostring(L,2));
         int res;
@@ -13637,7 +13484,7 @@ int _simReadCustomDataBlock(luaWrap_lua_State* L)
     {
         int objectHandle=luaToInt(L,1);
         if (objectHandle==sim_handle_self)
-            objectHandle=getScriptHandle(L);
+            objectHandle=CLuaScriptObject::getScriptHandleFromLuaState(L);
 
         std::string dataName(luaWrap_lua_tostring(L,2));
         int dataLength;
@@ -13663,7 +13510,7 @@ int _simReadCustomDataBlockTags(luaWrap_lua_State* L)
     {
         int objectHandle=luaToInt(L,1);
         if (objectHandle==sim_handle_self)
-            objectHandle=getScriptHandle(L);
+            objectHandle=CLuaScriptObject::getScriptHandleFromLuaState(L);
 
         int tagCount;
         char* data=simReadCustomDataBlockTags_internal(objectHandle,&tagCount);
@@ -13884,7 +13731,7 @@ int _simAddCollection(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int options=luaToInt(L,1);
-        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         int handle=simAddCollection_internal(options);
         setCurrentScriptInfo_cSide(-1,-1);
         luaWrap_lua_pushinteger(L,handle);
@@ -13950,7 +13797,7 @@ int _simHandleCustomizationScripts(luaWrap_lua_State* L)
     LUA_START("sim.handleCustomizationScripts");
 
     int retVal=-1;
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
@@ -13979,7 +13826,7 @@ int _simHandleAddOnScripts(luaWrap_lua_State* L)
     LUA_START("sim.handleAddOnScripts");
 
     int retVal=-1;
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
@@ -14004,7 +13851,7 @@ int _simHandleSandboxScript(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.handleSandboxScript");
 
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
@@ -14032,7 +13879,7 @@ int _simSetScriptAttribute(luaWrap_lua_State* L)
     {
         int scriptID=luaToInt(L,1);
         if (scriptID==sim_handle_self)
-            scriptID=getScriptHandle(L);
+            scriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
         int attribID=luaToInt(L,2);
         int thirdArgType=lua_arg_number;
         if ( (attribID==sim_customizationscriptattribute_activeduringsimulation)||(attribID==sim_childscriptattribute_automaticcascadingcalls)||(attribID==sim_scriptattribute_enabled)||(attribID==sim_customizationscriptattribute_cleanupbeforesave) )
@@ -14065,7 +13912,7 @@ int _simGetScriptAttribute(luaWrap_lua_State* L)
     {
         int scriptID=luaToInt(L,1);
         if (scriptID==sim_handle_self)
-            scriptID=getScriptHandle(L);
+            scriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
         int attribID=luaToInt(L,2);
         int intVal;
         float floatVal;
@@ -14794,7 +14641,7 @@ int _simHandleSimulationStart(luaWrap_lua_State* L)
     LUA_START("sim.handleSimulationStart");
 
     int retVal=-1;
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
@@ -14819,7 +14666,7 @@ int _simHandleSensingStart(luaWrap_lua_State* L)
     LUA_START("sim.handleSensingStart");
 
     int retVal=-1;
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
@@ -14853,6 +14700,17 @@ int _simAuxFunc(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string cmd(luaWrap_lua_tostring(L,1));
+        if (cmd.compare("frexp")==0)
+        {
+            if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
+            {
+                int e;
+                luaWrap_lua_pushnumber(L,frexp(luaWrap_lua_tonumber(L,2),&e));
+                luaWrap_lua_pushinteger(L,e);
+                LUA_END(2);
+            }
+            LUA_END(0);
+        }
         if (cmd.compare("createMirror")==0)
         {
             if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,2))
@@ -15146,13 +15004,13 @@ int _simGetGraphCurve(luaWrap_lua_State* L)
         {
             std::vector<float> xVals;
             std::vector<float> yVals;
-            std::vector<float> zVals;
             std::string label;
             int curveType;
             int curveId;
+            int curveWidth;
             float col[3];
             float minMax[6];
-            if (graph->getGraphCurveData(graphType,index,label,xVals,yVals,zVals,curveType,col,minMax,curveId))
+            if (graph->getGraphCurveData(graphType,index,label,xVals,yVals,curveType,col,minMax,curveId,curveWidth))
             {
                 luaWrap_lua_pushstring(L,label.c_str());
                 luaWrap_lua_pushinteger(L,curveType);
@@ -15165,12 +15023,9 @@ int _simGetGraphCurve(luaWrap_lua_State* L)
                     pushFloatTableOntoStack(L,(int)yVals.size(),&yVals[0]);
                 else
                     pushFloatTableOntoStack(L,0,nullptr);
-                if (zVals.size()>0)
-                    pushFloatTableOntoStack(L,(int)zVals.size(),&zVals[0]);
-                else
-                    pushFloatTableOntoStack(L,0,nullptr);
                 pushFloatTableOntoStack(L,6,minMax);
                 luaWrap_lua_pushinteger(L,curveId);
+                luaWrap_lua_pushinteger(L,curveWidth);
                 LUA_END(8);
             }
         }
@@ -15225,7 +15080,7 @@ int _simGetShapeViz(luaWrap_lua_State* L)
             stack.pushFloatArrayTableOntoStack(info.vertices,info.verticesSize);
             stack.insertDataIntoStackTable();
             stack.pushStringOntoStack("indices",0);
-            stack.pushIntArrayTableOntoStack(info.indices,info.indicesSize);
+            stack.pushInt32ArrayTableOntoStack(info.indices,info.indicesSize);
             stack.insertDataIntoStackTable();
             stack.pushStringOntoStack("normals",0);
             stack.pushFloatArrayTableOntoStack(info.normals,info.indicesSize*3);
@@ -15248,7 +15103,7 @@ int _simGetShapeViz(luaWrap_lua_State* L)
                 stack.pushStringOntoStack(info.texture,4*info.textureRes[0]*info.textureRes[1]);
                 stack.insertDataIntoStackTable();
                 stack.pushStringOntoStack("resolution",0);
-                stack.pushIntArrayTableOntoStack(info.textureRes,2);
+                stack.pushInt32ArrayTableOntoStack(info.textureRes,2);
                 stack.insertDataIntoStackTable();
                 stack.pushStringOntoStack("coordinates",0);
                 stack.pushFloatArrayTableOntoStack(info.textureCoords,info.indicesSize*2);
@@ -15510,7 +15365,7 @@ int _simGetRandom(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getRandom");
 
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (it!=nullptr)
     {
@@ -15591,7 +15446,7 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
             else
             { // non-modal dlg
                 int handle=-1;
-                CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(getScriptHandle(L));
+                CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
                 if (it!=nullptr)
                 {
                     std::string callbackFunction(luaWrap_lua_tostring(L,3));
@@ -15632,14 +15487,14 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
 #endif
         if ( (res>0)&&(!ignoreCb) )
         {   // We call the callback directly from here:
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(getScriptHandle(L));
+            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
             if (it!=nullptr)
             {
                 CInterfaceStack stack;
                 stack.pushStringOntoStack(txt.c_str(),txt.size());
-                stack.pushIntArrayTableOntoStack(posAndSize+0,2);
-                stack.pushIntArrayTableOntoStack(posAndSize+2,2);
-                it->callScriptFunctionEx(cb.c_str(),&stack);
+                stack.pushInt32ArrayTableOntoStack(posAndSize+0,2);
+                stack.pushInt32ArrayTableOntoStack(posAndSize+2,2);
+                it->callScriptFunction(cb.c_str(),&stack);
             }
         }
         luaWrap_lua_pushinteger(L,res);
@@ -16424,7 +16279,7 @@ int _simRMLPosition(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START_NO_CSIDE_ERROR("simRMLPosition");
 
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* scr=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (!scr->checkAndSetWarning_simRMLPosition_oldCompatibility_30_8_2014())
         warningString="Function is deprecated. Use simRMLPos instead.";
@@ -16491,7 +16346,7 @@ int _simRMLVelocity(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simRMLVelocity");
 
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* scr=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (!scr->checkAndSetWarning_simRMLVelocity_oldCompatibility_30_8_2014())
         warningString="Function is deprecated. Use simRMLVel instead.";
@@ -16583,7 +16438,7 @@ int _simGetPathPlanningHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simGetPathPlanningHandle_internal(name.c_str());
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -16880,7 +16735,7 @@ int _simGetUIHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simGetUIHandle_internal(name.c_str());
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -17316,7 +17171,7 @@ int _simHandleChildScript(luaWrap_lua_State* L)
     LUA_START("simHandleChildScript");
 
     warningString="function is deprecated. Use simHandleChildScripts instead.";
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (!it->checkAndSetWarningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014())
     {
@@ -17468,7 +17323,7 @@ int _simReleaseScriptRawBuffer(luaWrap_lua_State* L)
     {
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
-            handle=getScriptHandle(L);
+            handle=CLuaScriptObject::getScriptHandleFromLuaState(L);
         if ( (handle!=sim_handle_tree)&&(handle!=sim_handle_chain) )
             retVal=simReleaseScriptRawBuffer_internal(handle,luaToInt(L,2));
         else
@@ -17542,7 +17397,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
         {
-            handle=getScriptHandle(L);
+            handle=CLuaScriptObject::getScriptHandleFromLuaState(L);
             // Since this routine can also be called by customization scripts, check for that here:
             CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
             if (it->getScriptType()==sim_scripttype_customizationscript)
@@ -17665,7 +17520,7 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
         {
-            handle=getScriptHandle(L);
+            handle=CLuaScriptObject::getScriptHandleFromLuaState(L);
             // Since this routine can also be called by customization scripts, check for that here:
             CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
             if (it->getScriptType()==sim_scripttype_customizationscript)
@@ -17742,7 +17597,7 @@ int _simGetNameSuffix(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,nullptr,lua_arg_nil,0))
     { // we want the suffix of current script
-        luaWrap_lua_pushinteger(L,getScriptNameIndex(L));
+        luaWrap_lua_pushinteger(L,CLuaScriptObject::getScriptNameIndexFromLuaState(L));
         LUA_END(1);
     }
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
@@ -17768,7 +17623,7 @@ int _simSetNameSuffix(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int nb=luaWrap_lua_tointeger(L,1);
-        setScriptNameIndex(L,nb);
+        CLuaScriptObject::setScriptNameIndexToLuaState(L,nb);
         retVal=1;
     }
 
@@ -17800,7 +17655,7 @@ int _simAddStatusbarMessage(luaWrap_lua_State* L)
             if (checkInputArguments(L,&errorString,lua_arg_string,0))
             {
                 //retVal=simAddStatusbarMessage_internal(luaWrap_lua_tostring(L,1));
-                CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(getScriptHandle(L));
+                CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
                 if (it!=nullptr)
                 {
                     App::logScriptMsg(it->getShortDescriptiveName().c_str(),sim_verbosity_msgs,luaWrap_lua_tostring(L,1));
@@ -18393,7 +18248,7 @@ int _simGetIkGroupHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simGetIkGroupHandle_internal(name.c_str());
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -18552,7 +18407,7 @@ int _simTubeOpen(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_number,0))
     {
         std::string strTmp=luaWrap_lua_tostring(L,2);
-        int currentScriptID=getScriptHandle(L);
+        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
         CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         retVal=App::currentWorld->commTubeContainer->openTube(luaToInt(L,1),strTmp.c_str(),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript),luaToInt(L,3));
     }
@@ -18623,7 +18478,7 @@ int _simSendData(luaWrap_lua_State* L)
     LUA_START("sim.sendData");
 
     int retVal=-1;
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
     {
@@ -18744,7 +18599,7 @@ int _simReceiveData(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.receiveData");
 
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
     {
@@ -19217,7 +19072,7 @@ int _simGetScriptExecutionCount(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getScriptExecutionCount");
 
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -19230,10 +19085,10 @@ int _simIsScriptExecutionThreaded(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.isScriptExecutionThreaded");
 
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
     int retVal=0;
-    if ((it!=nullptr)&&it->getThreadedExecution())
+    if ((it!=nullptr)&&it->getThreadedExecution_oldThreads())
         retVal=1;
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -19280,7 +19135,7 @@ int _simResumeThreads(luaWrap_lua_State* L)
     LUA_START("sim.resumeThreads");
 
     int retVal=-1;
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (it->getScriptType()==sim_scripttype_mainscript)
     {
@@ -19310,7 +19165,7 @@ int _simLaunchThreadedChildScripts(luaWrap_lua_State* L)
     LUA_START("sim.launchThreadedChildScripts");
 
     int retVal=-1; // means error
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
     if (it!=nullptr)
     {
@@ -19350,7 +19205,7 @@ int _simGetUserParameter(luaWrap_lua_State* L)
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
         {
-            handle=getScriptHandle(L);
+            handle=CLuaScriptObject::getScriptHandleFromLuaState(L);
             CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
             handle=it->getObjectHandleThatScriptIsAttachedTo();
         }
@@ -19392,7 +19247,7 @@ int _simSetUserParameter(luaWrap_lua_State* L)
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
         {
-            handle=getScriptHandle(L);
+            handle=CLuaScriptObject::getScriptHandleFromLuaState(L);
             CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
             handle=it->getObjectHandleThatScriptIsAttachedTo();
         }
@@ -19425,7 +19280,7 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func)
     }
 
     // Now we retrieve the object ID this script might be attached to:
-    int currentScriptID=getScriptHandle(L);
+    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
     CLuaScriptObject* itObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     int linkedObject=-1;
     if (itObj->getScriptType()==sim_scripttype_childscript)
@@ -19640,7 +19495,7 @@ int _simGetCollectionHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simGetCollectionHandle_internal(name.c_str());
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -19811,7 +19666,7 @@ int _simGetCollisionHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simGetCollisionHandle_internal(name.c_str());
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -19830,7 +19685,7 @@ int _simGetDistanceHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        setCurrentScriptInfo_cSide(getScriptHandle(L),getScriptNameIndex(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simGetDistanceHandle_internal(name.c_str());
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -19941,7 +19796,7 @@ int _simAddBanner(luaWrap_lua_State* L)
                 retVal=simAddBanner_internal(label.c_str(),size,options,positionAndEulerAngles,parentObjectHandle,labelColors,backgroundColors);
                 if (retVal!=-1)
                 { // following condition added on 2011/01/06 so as to not remove objects created from the c/c++ interface or an add-on:
-                    int currentScriptID=getScriptHandle(L);
+                    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
                     CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
                     CBannerObject* anObj=App::currentWorld->bannerCont->getObject(retVal);
                     if (anObj!=nullptr)
@@ -20098,7 +19953,7 @@ int _simAddPointCloud(luaWrap_lua_State* L)
         int layerMask=luaToInt(L,2);
         int objectHandle=luaToInt(L,3);
         int options=luaToInt(L,4);
-        int currentScriptID=getScriptHandle(L);
+        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
         CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
             options=(options|1)-1; // cloud is automatically removed at the end of the simulation (i.e. is not persistent)
@@ -20172,6 +20027,23 @@ int _simModifyPointCloud(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
+}
+
+int _simCopyMatrix(luaWrap_lua_State* L)
+{ // deprecated on 23.11.2020
+    TRACE_LUA_API;
+    LUA_START("sim.copyMatrix");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,12))
+    {
+        float arr[12];
+        getFloatsFromTable(L,1,12,arr);
+        pushFloatTableOntoStack(L,12,arr);
+        LUA_END(1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 
 /*

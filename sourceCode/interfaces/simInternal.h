@@ -55,7 +55,6 @@ simInt simSetObjectParent_internal(simInt objectHandle,simInt parentObjectHandle
 simInt simGetObjectType_internal(simInt objectHandle);
 simInt simGetJointType_internal(simInt objectHandle);
 simInt simBuildIdentityMatrix_internal(simFloat* matrix);
-simInt simCopyMatrix_internal(const simFloat* matrixIn,simFloat* matrixOut);
 simInt simBuildMatrix_internal(const simFloat* position,const simFloat* eulerAngles,simFloat* matrix);
 simInt simBuildMatrixQ_internal(const simFloat* position,const simFloat* quaternion,simFloat* matrix);
 simInt simGetEulerAnglesFromMatrix_internal(const simFloat* matrix,simFloat* eulerAngles);
@@ -307,11 +306,13 @@ simInt simCopyStack_internal(simInt stackHandle);
 simInt simPushNullOntoStack_internal(simInt stackHandle);
 simInt simPushBoolOntoStack_internal(simInt stackHandle,simBool value);
 simInt simPushInt32OntoStack_internal(simInt stackHandle,simInt value);
+simInt simPushInt64OntoStack_internal(simInt stackHandle,simInt64 value);
 simInt simPushFloatOntoStack_internal(simInt stackHandle,simFloat value);
 simInt simPushDoubleOntoStack_internal(simInt stackHandle,simDouble value);
 simInt simPushStringOntoStack_internal(simInt stackHandle,const simChar* value,simInt stringSize);
 simInt simPushUInt8TableOntoStack_internal(simInt stackHandle,const simUChar* values,simInt valueCnt);
 simInt simPushInt32TableOntoStack_internal(simInt stackHandle,const simInt* values,simInt valueCnt);
+simInt simPushInt64TableOntoStack_internal(simInt stackHandle,const simInt64* values,simInt valueCnt);
 simInt simPushFloatTableOntoStack_internal(simInt stackHandle,const simFloat* values,simInt valueCnt);
 simInt simPushDoubleTableOntoStack_internal(simInt stackHandle,const simDouble* values,simInt valueCnt);
 simInt simPushTableOntoStack_internal(simInt stackHandle);
@@ -322,12 +323,14 @@ simInt simMoveStackItemToTop_internal(simInt stackHandle,simInt cIndex);
 simInt simIsStackValueNull_internal(simInt stackHandle);
 simInt simGetStackBoolValue_internal(simInt stackHandle,simBool* boolValue);
 simInt simGetStackInt32Value_internal(simInt stackHandle,simInt* numberValue);
+simInt simGetStackInt64Value_internal(simInt stackHandle,simInt64* numberValue);
 simInt simGetStackFloatValue_internal(simInt stackHandle,simFloat* numberValue);
 simInt simGetStackDoubleValue_internal(simInt stackHandle,simDouble* numberValue);
 simChar* simGetStackStringValue_internal(simInt stackHandle,simInt* stringSize);
 simInt simGetStackTableInfo_internal(simInt stackHandle,simInt infoType);
 simInt simGetStackUInt8Table_internal(simInt stackHandle,simUChar* array,simInt count);
 simInt simGetStackInt32Table_internal(simInt stackHandle,simInt* array,simInt count);
+simInt simGetStackInt64Table_internal(simInt stackHandle,simInt64* array,simInt count);
 simInt simGetStackFloatTable_internal(simInt stackHandle,simFloat* array,simInt count);
 simInt simGetStackDoubleTable_internal(simInt stackHandle,simDouble* array,simInt count);
 simInt simUnfoldStackTable_internal(simInt stackHandle);
@@ -380,7 +383,7 @@ simInt simSetShapeMass_internal(simInt shapeHandle,simFloat mass);
 simInt simGetShapeInertia_internal(simInt shapeHandle,simFloat* inertiaMatrix,simFloat* transformationMatrix);
 simInt simSetShapeInertia_internal(simInt shapeHandle,const simFloat* inertiaMatrix,const simFloat* transformationMatrix);
 simInt simIsDynamicallyEnabled_internal(simInt objectHandle);
-
+simInt simGenerateShapeFromPath_internal(const simFloat* path,simInt pathSize,const simFloat* section,simInt sectionSize,const simFloat* upVector,simInt options,simFloat reserved);
 
 
 simInt _simGetContactCallbackCount_internal();
@@ -637,6 +640,7 @@ simInt simModifyGhost_internal(simInt ghostGroup,simInt ghostId,simInt operation
 simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* streamName,simFloat data);
 simInt simAddPointCloud_internal(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals);
 simInt simModifyPointCloud_internal(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam);
+simInt simCopyMatrix_internal(const simFloat* matrixIn,simFloat* matrixOut);
 
 
 #endif // !defined(simInternal_INCLUDED_)

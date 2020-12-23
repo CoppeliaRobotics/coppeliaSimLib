@@ -151,7 +151,7 @@ int CAddOnScriptContainer::insertAddOnScripts()
                 defScript->setScriptText(script);
 
                 defScript->setAddOnName(fileName_noExtension.c_str());
-                defScript->setThreadedExecution(false);
+                defScript->setThreadedExecution_oldThreads(false);
                 defScript->setAddOnScriptAutoRun();
 
                 delete[] script;
@@ -216,7 +216,7 @@ bool CAddOnScriptContainer::handleAddOnScriptExecution_beforeMainScript()
         if (it->getScriptType()==sim_scripttype_addonscript)
         {
             CInterfaceStack outStack;
-            it->runAddOn(sim_syscb_beforemainscript,nullptr,&outStack);
+            it->callAddOn(sim_syscb_beforemainscript,nullptr,&outStack);
             bool doNotRunMainScript;
             if (outStack.getStackMapBoolValue("doNotRunMainScript",doNotRunMainScript))
             {
@@ -236,7 +236,7 @@ int CAddOnScriptContainer::callScripts(int callType,CInterfaceStack* inStack,CIn
         CLuaScriptObject* it=allAddOnScripts[i];
         if (it->getScriptType()==sim_scripttype_addonscript)
         {
-            if (it->runAddOn(callType,inStack,outStack)==1)
+            if (it->callAddOn(callType,inStack,outStack)==1)
                 retVal++;
         }
     }
@@ -251,7 +251,7 @@ bool CAddOnScriptContainer::removeScript(int scriptID)
         if (allAddOnScripts[i]->getScriptHandle()==scriptID)
         {
             CLuaScriptObject* it=allAddOnScripts[i];
-            it->killLuaState(); // should not be done in the destructor!
+            it->resetScript(); // should not be done in the destructor!
             allAddOnScripts.erase(allAddOnScripts.begin()+i);
             delete it;
             break;
@@ -266,7 +266,7 @@ void CAddOnScriptContainer::removeAllScripts()
     while (allAddOnScripts.size()>0)
     {
         CLuaScriptObject* it=allAddOnScripts[0];
-        it->killLuaState(); // should not be done in the destructor!
+        it->resetScript(); // should not be done in the destructor!
         allAddOnScripts.erase(allAddOnScripts.begin());
         delete it;
     }
@@ -320,8 +320,8 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                         int scriptID=insertScript(defScript);
                         defScript->setScriptText(script);
                         defScript->setAddOnName(allAddOnFunctionNames[index].c_str());
-                        defScript->setThreadedExecution(false);
-                        defScript->runAddOn(sim_syscb_init,nullptr,nullptr);
+                        defScript->setThreadedExecution_oldThreads(false);
+                        defScript->callAddOn(sim_syscb_init,nullptr,nullptr);
                         delete[] script;
                         archive.close();
                         file.close();
@@ -370,17 +370,17 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                 int st=it->getAddOnExecutionState();
                 if (st==sim_syscb_aos_suspend)
                 {
-                    it->runAddOn(sim_syscb_aos_resume,nullptr,nullptr);
+                    it->callAddOn(sim_syscb_aos_resume,nullptr,nullptr);
                     txt=IDSNS_RESUMED_ADDON_SCRIPT;
                 }
                 if (st==sim_syscb_aos_run_old)
                 {
-                    it->runAddOn(sim_syscb_aos_suspend,nullptr,nullptr);
+                    it->callAddOn(sim_syscb_aos_suspend,nullptr,nullptr);
                     txt=IDSNS_PAUSED_ADDON_SCRIPT;
                 }
                 if (st==sim_syscb_init)
                 {
-                    it->runAddOn(sim_syscb_init,nullptr,nullptr);
+                    it->callAddOn(sim_syscb_init,nullptr,nullptr);
                     txt=IDSNS_STARTED_ADDON_SCRIPT;
                 }
                 txt+=" ";

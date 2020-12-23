@@ -102,7 +102,6 @@ public:
     int visionSensorsUseGuiThread_headless;
     int fileDialogs;
     float mouseWheelZoomFactor;
-    int changeScriptCodeForNewApiNotation;
 
     bool doNotWritePersistentData;
     bool doNotShowCrashRecoveryMessage;

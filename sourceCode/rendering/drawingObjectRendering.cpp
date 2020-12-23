@@ -141,6 +141,8 @@ void displayDrawingObject(CDrawingObject* drawingObject,C7Vector& tr,bool overla
         _drawPoints(drawingObject,displayAttrib,cameraRTM,normalVectorForLinesAndPoints.data);
     if (tmp==sim_drawing_lines)
         _drawLines(drawingObject,displayAttrib,cameraRTM,normalVectorForLinesAndPoints.data);
+    if (tmp==sim_drawing_linestrip)
+        _drawLineStrip(drawingObject,displayAttrib,cameraRTM,normalVectorForLinesAndPoints.data);
     if (tmp==sim_drawing_triangles)
         _drawTriangles(drawingObject,displayAttrib);
     if (tmp==sim_drawing_trianglepoints)
@@ -825,6 +827,54 @@ void _drawLines(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix
         glEnd();
         glLineWidth(1.0f);
     }
+
+    // Following 2 new since introduction of sim_drawing_itemtransparency:
+    if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
+        ogl::setBlending(false); // make sure we turn blending off!
+}
+
+void _drawLineStrip(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix& cameraRTM,const float normalVectorForLinesAndPoints[3])
+{
+    bool auxCmp=(displayAttrib&sim_displayattribute_useauxcomponent)!=0;
+    int _objectType=drawingObject->getObjectType();
+    float _size=drawingObject->getSize();
+    int _maxItemCount=drawingObject->getMaxItemCount();
+    int _startItem=drawingObject->getStartItem();
+    std::vector<float>& _data=drawingObject->getDataPtr()[0];
+    // Following 2 new since introduction of sim_drawing_itemtransparency:
+    if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
+        ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
+
+    C3Vector n(cameraRTM.M.axis[2]*-1.0f);
+
+    glLineWidth(_size);
+    glBegin(GL_LINE_STRIP);
+    C3Vector v;
+    float rgbaAmb[3]={0.0f,0.0f,0.0f};
+    float rgbaAmb2[3]={0.0f,0.0f,0.0f};
+    int off=0;
+    for (int i=0;i<int(_data.size())/drawingObject->floatsPerItem;i++)
+    {
+        int p=_startItem+i;
+        if (p>=_maxItemCount)
+            p-=_maxItemCount;
+        v.set(&_data[drawingObject->floatsPerItem*p+0]);
+        if ( (_objectType&(sim_drawing_itemcolors|sim_drawing_vertexcolors)) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
+        {
+            rgbaAmb[0]=_data[drawingObject->floatsPerItem*p+6];
+            rgbaAmb[1]=_data[drawingObject->floatsPerItem*p+7];
+            rgbaAmb[2]=_data[drawingObject->floatsPerItem*p+8];
+            if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
+                ogl::setMaterialColor(sim_colorcomponent_emission,rgbaAmb);
+            else
+                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,rgbaAmb);
+        }
+
+        glNormal3fv(n.data);
+        glVertex3fv(v.data);
+    }
+    glEnd();
+    glLineWidth(1.0f);
 
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )

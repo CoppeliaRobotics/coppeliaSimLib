@@ -532,7 +532,7 @@ void CWorld::saveScene(CSer& ar)
     for (size_t i=0;i<embeddedScriptContainer->allScripts.size();i++)
     {
         CLuaScriptObject* it=embeddedScriptContainer->allScripts[i];
-        if (it->isSceneScript())
+        if (it->isEmbeddedScript())
         {
             if (ar.isBinary())
             {
@@ -2090,14 +2090,14 @@ void CWorld::_simulationPaused()
 {
     CLuaScriptObject* mainScript=embeddedScriptContainer->getMainScript();
     if (mainScript!=nullptr)
-        mainScript->runMainScript(sim_syscb_suspend,nullptr,nullptr,nullptr);
+        mainScript->callMainScript(sim_syscb_suspend,nullptr,nullptr,nullptr);
 }
 
 void CWorld::_simulationAboutToResume()
 {
     CLuaScriptObject* mainScript=embeddedScriptContainer->getMainScript();
     if (mainScript!=nullptr)
-        mainScript->runMainScript(sim_syscb_resume,nullptr,nullptr,nullptr);
+        mainScript->callMainScript(sim_syscb_resume,nullptr,nullptr,nullptr);
 }
 
 void CWorld::_simulationAboutToStep()

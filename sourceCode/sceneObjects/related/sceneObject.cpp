@@ -1509,15 +1509,15 @@ int CSceneObject::getScriptExecutionOrder(int scriptType) const
     {
         CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
         if (it!=nullptr)
-            return(it->getExecutionOrder());
+            return(it->getExecutionPriority());
     }
     else if ((scriptType&sim_scripttype_childscript)!=0)
     {
         CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
         if (it!=nullptr)
         {
-            if ( it->getThreadedExecution()==((scriptType&sim_scripttype_threaded_old)!=0) )
-                return(it->getExecutionOrder());
+            if ( it->getThreadedExecution_oldThreads()==((scriptType&sim_scripttype_threaded_old)!=0) )
+                return(it->getExecutionPriority());
         }
     }
     return(sim_scriptexecorder_normal);
@@ -1534,7 +1534,7 @@ int CSceneObject::getScriptsToExecute(int scriptType,int parentTraversalDirectio
         attachedScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
         if (attachedScript!=nullptr)
         {
-            if ( attachedScript->getThreadedExecution()!=((scriptType&sim_scripttype_threaded_old)!=0) )
+            if ( attachedScript->getThreadedExecution_oldThreads()!=((scriptType&sim_scripttype_threaded_old)!=0) )
                 attachedScript=nullptr;
         }
     }

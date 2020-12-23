@@ -299,7 +299,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if ( (script!=nullptr)&&(script->getContainsUserConfigCallbackFunction()) )
                 { // we have a user config callback
                     CInterfaceStack stack;
-                    script->callScriptFunctionEx(CLuaScriptObject::getSystemCallbackString(sim_syscb_userconfig,false).c_str(),&stack);
+                    script->callScriptFunction(CLuaScriptObject::getSystemCallbackString(sim_syscb_userconfig,false).c_str(),&stack);
                 }
                 else
                 {
@@ -3532,7 +3532,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
             {
                 if (it->getScriptType()==sim_scripttype_customizationscript)
-                    it->killLuaState();
+                    it->resetScript();
                 it->setScriptIsDisabled(!it->getScriptIsDisabled());
             }
         }
@@ -3540,15 +3540,15 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             int scriptID=cmd.intParams[0];
             CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
-            if ((it!=nullptr)&&it->getThreadedExecution())
-                it->setExecuteJustOnce(!it->getExecuteJustOnce());
+            if ((it!=nullptr)&&it->getThreadedExecution_oldThreads())
+                it->setExecuteJustOnce_oldThreads(!it->getExecuteJustOnce_oldThreads());
         }
         if (cmd.cmdId==SET_EXECORDER_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
             CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptID);
             if (it!=nullptr)
-                it->setExecutionOrder(cmd.intParams[1]);
+                it->setExecutionPriority(cmd.intParams[1]);
         }
         if (cmd.cmdId==SET_TREETRAVERSALDIR_SCRIPTGUITRIGGEREDCMD)
         {

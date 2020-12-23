@@ -734,7 +734,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
             hasScript=true;
             if (!dontDisplay)
             {
-                if (script->getThreadedExecution())
+                if (script->getThreadedExecution_oldThreads())
                 {
                     if ((!script->getScriptEnabledAndNoErrorRaised())||((it->getCumulativeModelProperty()&sim_modelproperty_scripts_inactive)!=0))
                         App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTDISABLED_THREADED_PICTURE);
@@ -757,24 +757,6 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
                 hier->scriptIconPosition.push_back(script->getScriptHandle());
             }
             localOffset+=HIERARCHY_ICON_WIDTH*App::sc;
-            /*
-            if (!dontDisplay)
-            {
-                
-                if (script->getScriptParametersObject()->userParamEntries.size()!=0)
-                    App::wc->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
-                else
-                    App::wc->globalGuiTextureCont->startTextureDisplay(SCRIPT_PARAMETERS_PICTURE);
-                _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
-            }
-            if (!forDragAndDrop)
-            {
-                hier->scriptParametersIconPosition.push_back(tPosX+localOffset);
-                hier->scriptParametersIconPosition.push_back(tPosY);
-                hier->scriptParametersIconPosition.push_back(script->getScriptHandle());
-            }
-            localOffset+=(HIERARCHY_ICON_WIDTH+HIERARCHY_INTER_ICON_SPACING)*App::sc;
-            */
         }
 
         // Customization scripts:
@@ -784,10 +766,10 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
             hasScript=true;
             if (!dontDisplay)
             {
-                if ( customizationScript->hasCustomizationScripAnyChanceToGetExecuted(false,false)&&customizationScript->getScriptEnabledAndNoErrorRaised() )
-                    App::worldContainer->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPT_PICTURE);
-                else
+                if ((!customizationScript->getScriptEnabledAndNoErrorRaised())||((it->getCumulativeModelProperty()&sim_modelproperty_scripts_inactive)!=0))
                     App::worldContainer->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPTDISABLED_PICTURE);
+                else
+                    App::worldContainer->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPT_PICTURE);
                 _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
             }
             if (!forDragAndDrop)

@@ -255,7 +255,7 @@ bool CSimulation::startOrResumeSimulation()
         App::setFullScreen(_fullscreenAtSimulationStart);
         CThreadPool::setSimulationEmergencyStop(false);
         CThreadPool::setRequestSimulationStop(false);
-        CLuaScriptObject::emergencyStopButtonPressed=false;
+//        CLuaScriptObject::emergencyStopButtonPressed=false;
         App::worldContainer->simulationAboutToStart();
         _speedModifierIndexOffset=0;
         _pauseOnErrorRequested=false;
@@ -419,7 +419,7 @@ void CSimulation::advanceSimulationByOneStep()
         App::worldContainer->simulationAboutToEnd();
         CThreadPool::setSimulationEmergencyStop(false);
         CThreadPool::setRequestSimulationStop(false);
-        CLuaScriptObject::emergencyStopButtonPressed=false;
+ //       CLuaScriptObject::emergencyStopButtonPressed=false;
         simulationState=sim_simulation_stopped;
         App::worldContainer->simulationEnded(_removeNewObjectsAtSimulationEnd);
     }
@@ -1231,9 +1231,10 @@ void CSimulation::serialize(CSer& ar)
 }
 
 #ifdef SIM_WITH_GUI
-void CSimulation::showAndHandleEmergencyStopButton(bool showState,const char* scriptName)
+bool CSimulation::showAndHandleEmergencyStopButton(bool showState,const char* scriptName)
 {
     TRACE_INTERNAL;
+    bool retVal=false;
     if (App::mainWindow!=nullptr)
     { // make sure we are not in headless mode
         bool res=App::uiThread->showOrHideEmergencyStop(showState,scriptName);
@@ -1243,14 +1244,16 @@ void CSimulation::showAndHandleEmergencyStopButton(bool showState,const char* sc
             {
                 CThreadPool::forceAutomaticThreadSwitch_simulationEnding(); // 21/6/2014
                 CThreadPool::setSimulationEmergencyStop(true);
-                if (getSimulationState()!=sim_simulation_advancing_lastbeforestop)
-                    setSimulationStateDirect(sim_simulation_advancing_abouttostop);
+  //              if (getSimulationState()!=sim_simulation_advancing_lastbeforestop)
+  //                  setSimulationStateDirect(sim_simulation_advancing_abouttostop);
             }
-            CLuaScriptObject::emergencyStopButtonPressed=true;
+            retVal=true;
+//            CLuaScriptObject::emergencyStopButtonPressed=true;
         }
-        else
-            CLuaScriptObject::emergencyStopButtonPressed=false;
+//        else
+//            CLuaScriptObject::emergencyStopButtonPressed=false;
     }
+    return(retVal);
 }
 
 void CSimulation::addMenu(VMenu* menu)

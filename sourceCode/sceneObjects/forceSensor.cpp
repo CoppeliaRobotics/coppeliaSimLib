@@ -364,10 +364,10 @@ void CForceSensor::_handleSensorBreaking()
                 inStack.insertDataIntoStackTable();
                 inStack.insertDataIntoStackTable();
                 // we are in the main simulation thread. Call only scripts that live in the same thread
-                if ( (script!=nullptr)&&(!script->getThreadedExecution()) )
-                    script->runNonThreadedChildScript(sim_syscb_trigger,&inStack,nullptr);
+                if ( (script!=nullptr)&&(!script->getThreadedExecution_oldThreads()) )
+                    script->callChildScript(sim_syscb_trigger,&inStack,nullptr);
                 if (cScript!=nullptr)
-                    cScript->runCustomizationScript(sim_syscb_trigger,&inStack,nullptr);
+                    cScript->callCustomizationScript(sim_syscb_trigger,&inStack,nullptr);
             }
             _currentThresholdViolationCount=0;
         }

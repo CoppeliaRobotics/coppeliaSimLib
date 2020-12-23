@@ -15,6 +15,7 @@ public:
     void setObjectID(int newID);
     int getObjectID() const;
     bool addItem(const float* itemData);
+    void setItems(const float* itemData,size_t itemCnt);
     int getObjectType() const;
     bool announceObjectWillBeErased(int objID);
     bool announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);

@@ -2166,16 +2166,16 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         CInterfaceStack* outSt2=&outStack2;
         if (VThread::isCurrentThreadTheMainSimulationThread())
         { // we are in the main simulation thread. Call only scripts that live in the same thread
-            if ( (script!=nullptr)&&(!script->getThreadedExecution()) )
-                script->runNonThreadedChildScript(sim_syscb_vision,&inStack,&outStack1);
+            if ( (script!=nullptr)&&(!script->getThreadedExecution_oldThreads()) )
+                script->callChildScript(sim_syscb_vision,&inStack,&outStack1);
             if (cScript!=nullptr)
-                cScript->runCustomizationScript(sim_syscb_vision,&inStack,&outStack2);
+                cScript->callCustomizationScript(sim_syscb_vision,&inStack,&outStack2);
         }
         else
         { // we are in the thread started by a threaded child script. Call only that script
-            if ( (script!=nullptr)&&script->getThreadedExecution() )
+            if ( (script!=nullptr)&&script->getThreadedExecution_oldThreads() )
             {
-                script->callScriptFunctionEx(CLuaScriptObject::getSystemCallbackString(sim_syscb_vision,false).c_str(),&inStack);
+                script->callScriptFunction(CLuaScriptObject::getSystemCallbackString(sim_syscb_vision,false).c_str(),&inStack);
                 outSt1=&inStack;
             }
         }
@@ -2247,16 +2247,16 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
             CInterfaceStack* outSt2=&outStack2;
             if (VThread::isCurrentThreadTheMainSimulationThread())
             { // we are in the main simulation thread. Call only scripts that live in the same thread
-                if ( (script!=nullptr)&&(!script->getThreadedExecution()) )
-                    script->runNonThreadedChildScript(sim_syscb_trigger,&inStack,&outStack1);
+                if ( (script!=nullptr)&&(!script->getThreadedExecution_oldThreads()) )
+                    script->callChildScript(sim_syscb_trigger,&inStack,&outStack1);
                 if (cScript!=nullptr)
-                    cScript->runCustomizationScript(sim_syscb_trigger,&inStack,&outStack2);
+                    cScript->callCustomizationScript(sim_syscb_trigger,&inStack,&outStack2);
             }
             else
             { // we are in the thread started by a threaded child script. Call only that script
-                if ( (script!=nullptr)&&script->getThreadedExecution() )
+                if ( (script!=nullptr)&&script->getThreadedExecution_oldThreads() )
                 {
-                    script->callScriptFunctionEx(CLuaScriptObject::getSystemCallbackString(sim_syscb_trigger,false).c_str(),&inStack);
+                    script->callScriptFunction(CLuaScriptObject::getSystemCallbackString(sim_syscb_trigger,false).c_str(),&inStack);
                     outSt1=&inStack;
                 }
             }
