@@ -4787,7 +4787,7 @@ void CLuaScriptObject::serialize(CSer& ar)
                 if (ar.xmlGetNode_bool("enabled",_scriptIsDisabled,exhaustiveXml))
                     _scriptIsDisabled=!_scriptIsDisabled;
                 if (exhaustiveXml)
-                    ar.xmlGetNode_bool("isDefaultMainScript",_mainScriptIsDefaultMainScript_old);
+                    ar.xmlGetNode_bool("isDefaultMainScript",_mainScriptIsDefaultMainScript_old,false);
                 if ( exhaustiveXml||(_scriptType==sim_scripttype_childscript) )
                     ar.xmlGetNode_bool("executeOnce",_executeJustOnce_oldThreads,exhaustiveXml);
                 ar.xmlPopNode();

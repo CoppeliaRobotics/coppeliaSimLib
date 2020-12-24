@@ -53,7 +53,7 @@ CSceneObject::CSceneObject()
     _dynamicObjectFlag_forVisualization=0;
 
     _transparentObjectDistanceOffset=0;
-
+    _objectManipulationMode_flaggedForGridOverlay=0;
 
     _measuredAngularVelocity_velocityMeasurement=0.0f;
     _measuredLinearVelocity_velocityMeasurement.clear();
