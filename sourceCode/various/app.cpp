@@ -1569,7 +1569,7 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         inside=true;
 
         bool decorateMsg=((verbosityLevel&sim_verbosity_undecorated)==0)&&((App::userSettings==nullptr)||(!App::userSettings->undecoratedStatusbarMessages));
-        static std::string consoleLogFormat,statusbarLogFormat;
+        static std::string consoleLogFormat,statusbarLogFormat,statusbarLogFormatUndecorated;
         if (consoleLogFormat.empty())
         {
             auto f=std::getenv("COPPELIASIM_CONSOLE_LOG_FORMAT");
@@ -1579,6 +1579,11 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         {
             auto f=std::getenv("COPPELIASIM_STATUSBAR_LOG_FORMAT");
             statusbarLogFormat=f?f:"<font color='grey'>[{origin}:{verbosity}]</font>    <font color='{color}'>{message}</font>";
+        }
+        if (statusbarLogFormatUndecorated.empty())
+        {
+            auto f=std::getenv("COPPELIASIM_STATUSBAR_LOG_FORMAT_UNDECORATED");
+            statusbarLogFormatUndecorated=f?f:"<font color='{color}'>{message}</font>";
         }
 
         std::map<std::string,std::string> vars;
@@ -1667,11 +1672,7 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
                     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                 }
             }
-            std::string statusbarTxt;
-            if (decorateMsg)
-                statusbarTxt=replaceVars(statusbarLogFormat,vars);
-            else
-                statusbarTxt=vars["message"];
+            std::string statusbarTxt=replaceVars(decorateMsg?statusbarLogFormat:statusbarLogFormatUndecorated,vars);
             _logMsgToStatusbar(statusbarTxt.c_str(),true);
         }
         inside=false;
