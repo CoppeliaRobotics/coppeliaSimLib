@@ -12668,7 +12668,7 @@ simInt simIsDynamicallyEnabled_internal(simInt objectHandle)
     return(-1);
 }
 
-simInt simGenerateShapeFromPath_internal(const simFloat* ppath,simInt pathSize,const simFloat* section,simInt sectionSize,const simFloat* upVector,simInt options,simFloat reserved)
+simInt simGenerateShapeFromPath_internal(const simFloat* ppath,simInt pathSize,const simFloat* section,simInt sectionSize,simInt options,const simFloat* upVector,simFloat reserved)
 {
     TRACE_C_API;
 
@@ -12682,9 +12682,10 @@ simInt simGenerateShapeFromPath_internal(const simFloat* ppath,simInt pathSize,c
             zvect.set(upVector);
         else
             zvect=C3Vector::unitZVector;
-        bool closedPath=(options&1)!=0;
+        bool closedPath=(options&4)!=0;
+        int axis=options&3;
 
-        size_t confCnt=size_t(pathSize)/3;
+        size_t confCnt=size_t(pathSize)/7;
         size_t elementCount=confCnt;
         size_t secVertCnt=size_t(sectionSize)/2;
 
@@ -12693,19 +12694,22 @@ simInt simGenerateShapeFromPath_internal(const simFloat* ppath,simInt pathSize,c
         {
             C3Vector p0,p1,p2;
             if (i!=0)
-                p0=C3Vector(ppath+3*(i-1));
+                p0=C3Vector(ppath+7*(i-1));
             else
             {
                 if (closedPath)
-                    p0=C3Vector(ppath+pathSize-3);
+                    p0=C3Vector(ppath+pathSize-7);
             }
-            p1=C3Vector(ppath+3*i);
+            p1=C3Vector(ppath+7*i);
+            C4Vector q(ppath+7*i+3,true);
+            if (axis!=0)
+                zvect=q.getAxis(axis-1);
             if (i!=(confCnt-1))
-                p2=C3Vector(ppath+3*(i+1));
+                p2=C3Vector(ppath+7*(i+1));
             else
             {
                 if (closedPath)
-                    p2=C3Vector(ppath+3*1);
+                    p2=C3Vector(ppath+7*1);
             }
             C3Vector vy;
             if ( closedPath||((i!=0)&&(i!=(confCnt-1))) )

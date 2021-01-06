@@ -383,7 +383,7 @@ simInt simSetShapeMass_internal(simInt shapeHandle,simFloat mass);
 simInt simGetShapeInertia_internal(simInt shapeHandle,simFloat* inertiaMatrix,simFloat* transformationMatrix);
 simInt simSetShapeInertia_internal(simInt shapeHandle,const simFloat* inertiaMatrix,const simFloat* transformationMatrix);
 simInt simIsDynamicallyEnabled_internal(simInt objectHandle);
-simInt simGenerateShapeFromPath_internal(const simFloat* path,simInt pathSize,const simFloat* section,simInt sectionSize,const simFloat* upVector,simInt options,simFloat reserved);
+simInt simGenerateShapeFromPath_internal(const simFloat* path,simInt pathSize,const simFloat* section,simInt sectionSize,simInt options,const simFloat* upVector,simFloat reserved);
 
 
 simInt _simGetContactCallbackCount_internal();

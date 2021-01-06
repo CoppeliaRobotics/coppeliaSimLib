@@ -1520,9 +1520,9 @@ SIM_DLLEXPORT simInt simIsDynamicallyEnabled(simInt objectHandle)
 {
     return(simIsDynamicallyEnabled_internal(objectHandle));
 }
-SIM_DLLEXPORT simInt simGenerateShapeFromPath(const simFloat* path,simInt pathSize,const simFloat* section,simInt sectionSize,const simFloat* upVector,simInt options,simFloat reserved)
+SIM_DLLEXPORT simInt simGenerateShapeFromPath(const simFloat* path,simInt pathSize,const simFloat* section,simInt sectionSize,simInt options,const simFloat* upVector,simFloat reserved)
 {
-    return(simGenerateShapeFromPath_internal(path,pathSize,section,sectionSize,upVector,options,reserved));
+    return(simGenerateShapeFromPath_internal(path,pathSize,section,sectionSize,options,upVector,reserved));
 }
 
 

@@ -600,7 +600,6 @@
 #define IDS_RAY_TYPE_MENU_ITEM  "Ray type"
 #define IDS_RANDOMIZED_RAY_TYPE_MENU_ITEM  "Randomized ray type"
 
-#define IDS_SEGMENT_TYPE_MENU_ITEM "Segment type"
 
 #define IDS_CONVEX_HULL_OF_SELECTION_MENU_ITEM "Convex hull of selection"
 #define IDS_GROWN_CONVEX_HULL_OF_SELECTED_SHAPE_MENU_ITEM "Inflated convex hull of selection..."
@@ -817,7 +816,9 @@
 #define IDS_EXPORT_SELECTED_PATH_MENU_ITEM "Selected path as CSV..."
 #define IDS_EXPORT_SELECTED_PATH_BEZIER_CURVE_MENU_ITEM "Selected path's bezier curve as CSV..."
 #define IDS_MAKE_PATH_WITH_SELECTED_EDGES_MENU_ITEM "Make path with selected edges"
-#define IDS_CIRCLE_TYPE_MENU_ITEM "Circle type"
+#define IDS_CIRCLE_TYPE_MENU_ITEM "Closed"
+#define IDS_SEGMENT_TYPE_MENU_ITEM "Open"
+
 
 #define IDS_EXECUTION_TIME      "Execution time"
 #define IDS_EDIT_MODES_MENU_ITEM "Edit modes"

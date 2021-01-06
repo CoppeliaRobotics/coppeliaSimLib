@@ -1,5 +1,6 @@
 #include "simInternal.h"
 #include "addOperations.h"
+#include "fileOperations.h"
 #include "tt.h"
 #include "meshRoutines.h"
 #include "sceneObjectOperations.h"
@@ -272,39 +273,6 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         }
         return(true);
     }
-    if (commandID==ADD_COMMANDS_ADD_PATH_SEGMENT_ACCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_PATH);
-            CPath* newObject=new CPath();
-            CSimplePathPoint* it=new CSimplePathPoint();
-            C7Vector trtmp(it->getTransformation());
-            trtmp.X(0)=-0.25f;
-            it->setTransformation(trtmp,newObject->pathContainer->getAttributes());
-            newObject->pathContainer->addSimplePathPoint(it);
-            it=it->copyYourself();
-            trtmp=it->getTransformation();
-            trtmp.X(0)=+0.25f;
-            it->setTransformation(trtmp,newObject->pathContainer->getAttributes());
-            newObject->pathContainer->addSimplePathPoint(it);
-            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            int atr=newObject->pathContainer->getAttributes();
-            if (atr&sim_pathproperty_endpoints_at_zero_deprecated)
-                atr-=sim_pathproperty_endpoints_at_zero_deprecated;
-            newObject->pathContainer->setAttributes(atr);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
     if ((commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_NON_THREADED_CHILD_SCRIPT_ACCMD)||(commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD)||(commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_OLDTHREADED_CHILD_SCRIPT_ACCMD))
     {
         if (!VThread::isCurrentThreadTheUiThread())
@@ -384,32 +352,24 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         return(true);
     }
 
-    if (commandID==ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD)
+    if ( (commandID==ADD_COMMANDS_ADD_PATH_SEGMENT_ACCMD)||(commandID==ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD) )
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_PATH);
-            CPath* newObject=new CPath();
-            CSimplePathPoint* it=nullptr;
-            float a=0.0f;
-            float da=piValTimes2_f/16.0f;
-            float r=0.25f/cos(360.0*degToRad/32.0);
-            for (int i=0;i<16;i++)
+            std::string mn;
+            if (commandID==ADD_COMMANDS_ADD_PATH_SEGMENT_ACCMD)
+                mn=App::folders->getSystemPath()+"/openPath.ttm";
+            else
+                mn=App::folders->getSystemPath()+"/closedPath.ttm";
+            if (VFile::doesFileExist(mn.c_str()))
             {
-                it=new CSimplePathPoint();
-                it->setBezierFactors(0.95f,0.95f);
-                C7Vector trtmp(it->getTransformation());
-                trtmp.X(0)=r*cos(a);
-                trtmp.X(1)=r*sin(a);
-                it->setTransformation(trtmp,newObject->pathContainer->getAttributes());
-                newObject->pathContainer->addSimplePathPoint(it);
-                a+=da;
+                CFileOperations::loadModel(mn.c_str(),false,false,false,false,nullptr,false,false);
+                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
-            newObject->pathContainer->setAttributes(newObject->pathContainer->getAttributes()|sim_pathproperty_closed_path);
-            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            else
+                App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED_FILE_DOES_NOT_EXIST);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:

@@ -394,7 +394,7 @@ SIM_DLLEXPORT simInt simSetShapeMass(simInt shapeHandle,simFloat mass);
 SIM_DLLEXPORT simInt simGetShapeInertia(simInt shapeHandle,simFloat* inertiaMatrix,simFloat* transformationMatrix);
 SIM_DLLEXPORT simInt simSetShapeInertia(simInt shapeHandle,const simFloat* inertiaMatrix,const simFloat* transformationMatrix);
 SIM_DLLEXPORT simInt simIsDynamicallyEnabled(simInt objectHandle);
-SIM_DLLEXPORT simInt simGenerateShapeFromPath(const simFloat* path,simInt pathSize,const simFloat* section,simInt sectionSize,const simFloat* upVector,simInt options,simFloat reserved);
+SIM_DLLEXPORT simInt simGenerateShapeFromPath(const simFloat* path,simInt pathSize,const simFloat* section,simInt sectionSize,simInt options,const simFloat* upVector,simFloat reserved);
 
 
 SIM_DLLEXPORT simInt _simGetContactCallbackCount();
