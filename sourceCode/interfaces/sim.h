@@ -295,7 +295,7 @@ SIM_DLLEXPORT simInt simGetObjectSizeValues(simInt objectHandle,simFloat* sizeVa
 SIM_DLLEXPORT simInt simScaleObject(simInt objectHandle,simFloat xScale,simFloat yScale,simFloat zScale,simInt options);
 SIM_DLLEXPORT simInt simSetShapeTexture(simInt shapeHandle,simInt textureId,simInt mappingMode,simInt options,const simFloat* uvScaling,const simFloat* position,const simFloat* orientation);
 SIM_DLLEXPORT simInt simGetShapeTextureId(simInt shapeHandle);
-SIM_DLLEXPORT simInt simAddCollection(simInt options);
+SIM_DLLEXPORT simInt simCreateCollectionEx(simInt options);
 SIM_DLLEXPORT simInt simAddItemToCollection(simInt collectionHandle,simInt what,simInt objectHandle,simInt options);
 SIM_DLLEXPORT simInt simDestroyCollection(simInt collectionHandle);
 SIM_DLLEXPORT simInt* simGetCollectionObjects(simInt collectionHandle,simInt* objectCount);
@@ -395,6 +395,7 @@ SIM_DLLEXPORT simInt simGetShapeInertia(simInt shapeHandle,simFloat* inertiaMatr
 SIM_DLLEXPORT simInt simSetShapeInertia(simInt shapeHandle,const simFloat* inertiaMatrix,const simFloat* transformationMatrix);
 SIM_DLLEXPORT simInt simIsDynamicallyEnabled(simInt objectHandle);
 SIM_DLLEXPORT simInt simGenerateShapeFromPath(const simFloat* path,simInt pathSize,const simFloat* section,simInt sectionSize,simInt options,const simFloat* upVector,simFloat reserved);
+SIM_DLLEXPORT simInt simInitScript(simInt scriptHandle);
 
 
 SIM_DLLEXPORT simInt _simGetContactCallbackCount();

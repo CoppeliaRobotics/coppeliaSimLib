@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>162</height>
+    <height>183</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -187,9 +187,9 @@
   <widget class="QToolButton" name="qqCopyToClipboard">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>50</y>
-     <width>201</width>
+     <x>240</x>
+     <y>160</y>
+     <width>171</width>
      <height>18</height>
     </rect>
    </property>
@@ -197,7 +197,26 @@
     <enum>Qt::StrongFocus</enum>
    </property>
    <property name="text">
-    <string>Copy path points to statusbar</string>
+    <string>Copy path data to statusbar</string>
+   </property>
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="qqCreateEquivalentObject">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>160</y>
+     <width>171</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Create similar object</string>
    </property>
    <property name="checkable">
     <bool>false</bool>
@@ -213,6 +232,8 @@
   <tabstop>qqAdjustColor</tabstop>
   <tabstop>qqLineSize</tabstop>
   <tabstop>qqControlPointSize</tabstop>
+  <tabstop>qqCreateEquivalentObject</tabstop>
+  <tabstop>qqCopyToClipboard</tabstop>
  </tabstops>
  <resources/>
  <connections/>

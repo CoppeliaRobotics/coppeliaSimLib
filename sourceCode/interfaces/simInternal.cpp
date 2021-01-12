@@ -10550,6 +10550,11 @@ simInt simGetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
                 parameter[0]=dummy->getVirtualDistanceOffsetOnPath();
                 retVal=1;
             }
+            if (parameterID==sim_dummyfloatparam_size)
+            {
+                parameter[0]=dummy->getDummySize();
+                retVal=1;
+            }
         }
         if (camera!=nullptr)
         {
@@ -10942,6 +10947,14 @@ simInt simSetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
             if (parameterID==sim_dummyfloatparam_follow_path_offset)
             {
                 dummy->setVirtualDistanceOffsetOnPath(parameter);
+                retVal=1;
+            }
+        }
+        if (dummy!=nullptr)
+        {
+            if (parameterID==sim_dummyfloatparam_size)
+            {
+                dummy->setDummySize(parameter);
                 retVal=1;
             }
         }
@@ -12800,6 +12813,41 @@ simInt simGenerateShapeFromPath_internal(const simFloat* ppath,simInt pathSize,c
     return(-1);
 }
 
+simInt simInitScript_internal(simInt scriptHandle)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        if (it!=nullptr)
+        {
+            if ( (it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_customizationscript)||(it->getScriptType()==sim_scripttype_sandboxscript) )
+            {
+                it->resetScript();
+                if (it->initScript())
+                    return(1);
+                return(0);
+            }
+            else
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_SCRIPT_TYPE);
+                return(-1);
+            }
+        }
+        else
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            return(-1);
+        }
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
 simInt simGroupShapes_internal(const simInt* shapeHandles,simInt shapeCount)
 {
     TRACE_C_API;
@@ -13895,7 +13943,7 @@ simInt simSetShapeTexture_internal(simInt shapeHandle,simInt textureId,simInt ma
                 CTextureProperty* tp=shape->getSingleMesh()->getTextureProperty();
                 if (tp!=nullptr)
                 { // first remove any existing texture:
-                    App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(),-1);
+           //         App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(),-1);
                     delete tp;
                     shape->getSingleMesh()->setTextureProperty(nullptr);
                 }
@@ -13935,7 +13983,7 @@ simInt simSetShapeTexture_internal(simInt shapeHandle,simInt textureId,simInt ma
     return(-1);
 }
 
-simInt simAddCollection_internal(simInt options)
+simInt simCreateCollectionEx_internal(simInt options)
 {
     TRACE_C_API;
 

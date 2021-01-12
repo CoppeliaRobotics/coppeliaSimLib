@@ -80,6 +80,7 @@ public:
     void handleDebug(const char* funcName,const char* funcType,bool inCall,bool sysCall);
 
     bool resetScript();
+    bool initScript();
     bool _killLuaState();
     bool hasLuaState() const;
     bool isSimulationScript() const;

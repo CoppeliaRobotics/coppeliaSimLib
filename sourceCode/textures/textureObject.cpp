@@ -131,20 +131,11 @@ bool CTextureObject::announceGeneralObjectWillBeErased(int objectID,int subObjec
     {
         if (_dependentObjects[i]==objectID)
         {
-            if (subObjectID==-1)
+            if ( (subObjectID==-1)||(subObjectID==_dependentSubObjects[i]) )
             {
                 _dependentObjects.erase(_dependentObjects.begin()+i);
                 _dependentSubObjects.erase(_dependentSubObjects.begin()+i);
                 i--; // we have to reprocess this position!
-            }
-            else
-            {
-                if (subObjectID==_dependentSubObjects[i])
-                {
-                    _dependentObjects.erase(_dependentObjects.begin()+i);
-                    _dependentSubObjects.erase(_dependentSubObjects.begin()+i);
-                    i--; // we have to reprocess this position!
-                }
             }
         }
     }
@@ -153,9 +144,9 @@ bool CTextureObject::announceGeneralObjectWillBeErased(int objectID,int subObjec
 
 void CTextureObject::transferDependenciesToThere(CTextureObject* receivingObject)
 {
-    for (int i=0;i<int(_dependentObjects.size());i++)
+    for (size_t i=0;i<_dependentObjects.size();i++)
         receivingObject->_dependentObjects.push_back(_dependentObjects[i]);
-    for (int i=0;i<int(_dependentSubObjects.size());i++)
+    for (size_t i=0;i<_dependentSubObjects.size();i++)
         receivingObject->_dependentSubObjects.push_back(_dependentSubObjects[i]);
     clearAllDependencies();
 }
@@ -208,7 +199,7 @@ const unsigned char* CTextureObject::getTextureBufferPointer() const
 
 void CTextureObject::lightenUp()
 {
-    for (int i=0;i<int(_textureBuffer.size())/4;i++)
+    for (size_t i=0;i<_textureBuffer.size()/4;i++)
     {
         int avg=_textureBuffer[4*i+0];
         avg+=_textureBuffer[4*i+1];
@@ -264,7 +255,7 @@ void CTextureObject::lightenUp()
 
 void CTextureObject::setRandomContent()
 {
-    for (int i=0;i<int(_textureBuffer.size())/4;i++)
+    for (size_t i=0;i<_textureBuffer.size()/4;i++)
     {
         _textureBuffer[4*i+0]=(unsigned char)(SIM_RAND_FLOAT*255.0f);
         _textureBuffer[4*i+1]=(unsigned char)(SIM_RAND_FLOAT*255.0f);

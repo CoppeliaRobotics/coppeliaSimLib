@@ -55,8 +55,8 @@ void CQDlgPaths::refresh()
     ui->qqDistanceCombo->setVisible(App::userSettings->showOldDlgs);
     ui->qqShowShapingDialog->setVisible(App::userSettings->showOldDlgs);
     ui->groupBox->setVisible(App::userSettings->showOldDlgs);
-    ui->qqCopyToClipboard->setVisible(!App::userSettings->showOldDlgs);
-    ui->qqCopyToClipboard->setEnabled(sel&&noEditModeNoSim);
+    //ui->qqCopyToClipboard->setVisible(!App::userSettings->showOldDlgs);
+    //ui->qqCopyToClipboard->setEnabled(sel&&noEditModeNoSim);
 
     ui->qqShowOrientation->setChecked((pathCont!=nullptr)&&((pathCont->getAttributes()&sim_pathproperty_show_orientation)!=0));
     ui->qqShowPathLine->setChecked((pathCont!=nullptr)&&((pathCont->getAttributes()&sim_pathproperty_show_line)!=0));
@@ -230,5 +230,15 @@ void CQDlgPaths::on_qqCopyToClipboard_clicked()
         CPathCont* pathCont=getPathCont();
         if (pathCont!=nullptr)
             App::appendSimulationThreadCommand(COPY_TO_CLIPBOARD_PATHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+    }
+}
+
+void CQDlgPaths::on_qqCreateEquivalentObject_clicked()
+{
+    IF_UI_EVENT_CAN_WRITE_DATA
+    {
+        CPathCont* pathCont=getPathCont();
+        if (pathCont!=nullptr)
+            App::appendSimulationThreadCommand(CREATE_EQUIVALENT_PATHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
     }
 }

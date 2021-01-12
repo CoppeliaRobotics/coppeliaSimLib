@@ -347,7 +347,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.scaleObject",_simScaleObject,                          "sim.scaleObject(int objectHandle,float xScale,float yScale,float zScale,int options=0)",true},
     {"sim.setShapeTexture",_simSetShapeTexture,                  "sim.setShapeTexture(int shapeHandle,int textureId,int mappingMode,int options,table[2] uvScaling,\ntable[3] position=nil,table[3] orientation=nil)",true},
     {"sim.getShapeTextureId",_simGetShapeTextureId,              "int textureId=sim.getShapeTextureId(int shapeHandle)",true},
-    {"sim.addCollection",_simAddCollection,                      "int collectionHandle=sim.addCollection(int options)",true},
+    {"sim.createCollectionEx",_simCreateCollectionEx,            "",false},
     {"sim.destroyCollection",_simDestroyCollection,              "sim.destroyCollection(int collectionHandle)",true},
     {"sim.addItemToCollection",_simAddItemToCollection,          "sim.addItemToCollection(int collectionHandle,int what,int objectHandle,int options)",true},
     {"sim.getCollectionObjects",_simGetCollectionObjects,        "table[] objectHandles=sim.getCollectionObjects(int collectionHandle)",true},
@@ -437,6 +437,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setShapeInertia",_simSetShapeInertia,                  "sim.setShapeInertia(int shapeHandle,table[9] inertiaMatrix,table[12] transformationMatrix)",true},
     {"sim.isDynamicallyEnabled",_simIsDynamicallyEnabled,        "boolean enabled=sim.isDynamicallyEnabled(int objectHandle)",true},
     {"sim.generateShapeFromPath",_simGenerateShapeFromPath,      "int shapeHandle=sim.generateShapeFromPath(table[] path,table[] section,int options=0,table[3] upVector={0.0,0.0,1.0})",true},
+    {"sim.initScript",_simInitScript,                            "bool result=sim.initScript(int scriptHandle)",true},
 
     {"sim.test",_simTest,                                        "test function - shouldn't be used",true},
 
@@ -490,7 +491,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getPositionOnPath",_simGetPositionOnPath,              "Deprecated",false},
     {"sim.getOrientationOnPath",_simGetOrientationOnPath,        "Deprecated",false},
     {"sim.getClosestPositionOnPath",_simGetClosestPositionOnPath,"Deprecated",false},
-    {"sim.createPath",_simCreatePath,                            "Deprecated",false},
+    {"sim._createPath",_sim_CreatePath,                          "Deprecated",false},
     {"sim.insertPathCtrlPoints",_simInsertPathCtrlPoints,        "Deprecated",false},
     {"sim.cutPathCtrlPoints",_simCutPathCtrlPoints,              "Deprecated",false},
     {"sim.getScriptExecutionCount",_simGetScriptExecutionCount,  "Deprecated",false},
@@ -508,7 +509,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.emptyCollection",_simEmptyCollection,                  "Deprecated. Use 'sim.destroyCollection' instead",false},
     {"sim.getCollectionName",_simGetCollectionName,              "Deprecated",false},
     {"sim.setCollectionName",_simSetCollectionName,              "Deprecated",false},
-    {"sim.createCollection",_simCreateCollection,                "Deprecated. Use 'sim.addCollection' instead",false},
+    {"sim._createCollection",_sim_CreateCollection,              "",false},
     {"sim.addObjectToCollection",_simAddObjectToCollection,      "Deprecated. Use 'sim.addItemToCollection' instead",false},
     {"sim.getCollisionHandle",_simGetCollisionHandle,            "Deprecated. Use 'sim.checkCollision' instead",false},
     {"sim.getDistanceHandle",_simGetDistanceHandle,              "Deprecated. Use 'sim.checkDistance' instead",false},
@@ -989,7 +990,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetPositionOnPath",_simGetPositionOnPath,              "Deprecated",false},
     {"simGetOrientationOnPath",_simGetOrientationOnPath,        "Deprecated",false},
     {"simGetClosestPositionOnPath",_simGetClosestPositionOnPath,"Deprecated",false},
-    {"simCreatePath",_simCreatePath,                            "Deprecated",false},
+    {"simCreatePath",_sim_CreatePath,                           "Deprecated",false},
     {"simInsertPathCtrlPoints",_simInsertPathCtrlPoints,        "Deprecated",false},
     {"simCutPathCtrlPoints",_simCutPathCtrlPoints,              "Deprecated",false},
     {"simGetScriptExecutionCount",_simGetScriptExecutionCount,  "Deprecated",false},
@@ -1003,7 +1004,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simEmptyCollection",_simEmptyCollection,                  "Deprecated. Use 'sim.destroyCollection' instead",false},
     {"simGetCollectionName",_simGetCollectionName,              "Deprecated",false},
     {"simSetCollectionName",_simSetCollectionName,              "Deprecated",false},
-    {"simCreateCollection",_simCreateCollection,                "Deprecated. Use 'sim.addCollection' instead",false},
+    {"simCreateCollection",_sim_CreateCollection,               "Deprecated. Use 'sim.createCollection' instead",false},
     {"simAddObjectToCollection",_simAddObjectToCollection,      "Deprecated. Use 'sim.addItemToCollection' instead",false},
     {"simHandleDistance",_simHandleDistance,                    "Deprecated. Use 'sim.checkDistance' instead",false},
     {"simReadDistance",_simReadDistance,                        "Deprecated. Use 'sim.checkDistance' instead",false},
@@ -1769,8 +1770,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.cameraintparam_pov_blur_samples",sim_cameraintparam_pov_blur_samples,true},
     // dummies
     {"sim.dummyintparam_link_type",sim_dummyintparam_link_type,true},
-    {"sim.dummyintparam_follow_path",sim_dummyintparam_follow_path,true},
-    {"sim.dummyfloatparam_follow_path_offset",sim_dummyfloatparam_follow_path_offset,true},
+    {"sim.dummyfloatparam_size",sim_dummyfloatparam_size,true},
     // graph
     {"sim.graphintparam_needs_refresh",sim_graphintparam_needs_refresh,true},
     // mills
@@ -2739,6 +2739,8 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim_dummyintparam_link_type",sim_dummyintparam_link_type,false},
     {"sim_dummyintparam_follow_path",sim_dummyintparam_follow_path,false},
     {"sim_dummyfloatparam_follow_path_offset",sim_dummyfloatparam_follow_path_offset,false},
+    {"sim.dummyintparam_follow_path",sim_dummyintparam_follow_path,false},
+    {"sim.dummyfloatparam_follow_path_offset",sim_dummyfloatparam_follow_path_offset,false},
     {"sim_millintparam_volume_type",sim_millintparam_volume_type,false},
     {"sim_mirrorfloatparam_width",sim_mirrorfloatparam_width,false},
     {"sim_mirrorfloatparam_height",sim_mirrorfloatparam_height,false},
@@ -7454,8 +7456,6 @@ int _simTest(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.test");
-
-
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
@@ -13045,6 +13045,26 @@ int _simGenerateShapeFromPath(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
+int _simInitScript(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.initScript");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int scriptHandle=luaWrap_lua_tointeger(L,1);
+        int r=simInitScript_internal(scriptHandle);
+        if (r>=0)
+        {
+            luaWrap_lua_pushboolean(L,r==1);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
 int _simGroupShapes(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -13723,16 +13743,16 @@ int _simGetShapeTextureId(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simAddCollection(luaWrap_lua_State* L)
+int _simCreateCollectionEx(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.addCollection");
+    LUA_START("sim.createCollectionEx");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int options=luaToInt(L,1);
         setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-        int handle=simAddCollection_internal(options);
+        int handle=simCreateCollectionEx_internal(options);
         setCurrentScriptInfo_cSide(-1,-1);
         luaWrap_lua_pushinteger(L,handle);
         LUA_END(1);
@@ -19017,10 +19037,10 @@ int _simCutPathCtrlPoints(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simCreatePath(luaWrap_lua_State* L)
+int _sim_CreatePath(luaWrap_lua_State* L)
 { // deprecated on 01.10.2020
     TRACE_LUA_API;
-    LUA_START("sim.createPath");
+    LUA_START("sim._createPath");
 
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
@@ -19448,10 +19468,10 @@ int _simSetCollectionName(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simCreateCollection(luaWrap_lua_State* L)
+int _sim_CreateCollection(luaWrap_lua_State* L)
 { // deprecated on 17.11.2020
     TRACE_LUA_API;
-    LUA_START("sim.createCollection");
+    LUA_START("sim._createCollection");
 
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))

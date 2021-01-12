@@ -31,6 +31,7 @@ public:
     int getSimplePathPointCount();
     int getBezierPathPointCount();
     void copyPointsToClipboard();
+    void createEquivalent(int pathHandle);
 
     void enableActualization(bool enable);
     void actualizePath();

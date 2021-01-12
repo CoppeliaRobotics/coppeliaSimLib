@@ -1121,9 +1121,9 @@ SIM_DLLEXPORT simInt simGetShapeTextureId(simInt shapeHandle)
 {
     return(simGetShapeTextureId_internal(shapeHandle));
 }
-SIM_DLLEXPORT simInt simAddCollection(simInt options)
+SIM_DLLEXPORT simInt simCreateCollectionEx(simInt options)
 {
-    return(simAddCollection_internal(options));
+    return(simCreateCollectionEx_internal(options));
 }
 SIM_DLLEXPORT simInt simAddItemToCollection(simInt collectionHandle,simInt what,simInt objectHandle,simInt options)
 {
@@ -1524,9 +1524,10 @@ SIM_DLLEXPORT simInt simGenerateShapeFromPath(const simFloat* path,simInt pathSi
 {
     return(simGenerateShapeFromPath_internal(path,pathSize,section,sectionSize,options,upVector,reserved));
 }
-
-
-
+SIM_DLLEXPORT simInt simInitScript(simInt scriptHandle)
+{
+    return(simInitScript_internal(scriptHandle));
+}
 SIM_DLLEXPORT simInt _simGetContactCallbackCount()
 {
     return(_simGetContactCallbackCount_internal());

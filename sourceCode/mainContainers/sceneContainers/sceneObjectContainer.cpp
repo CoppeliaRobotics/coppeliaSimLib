@@ -433,6 +433,8 @@ void CSceneObjectContainer::actualizeObjectInformation()
 
         for (size_t i=0;i<_shapeList.size();i++)
             getShapeFromHandle(_shapeList[i])->clearLastParentForLocalGlobalRespondable();
+
+        App::currentWorld->textureContainer->updateAllDependencies();
     }
 
     setSelectedObjectHandles(initialSel);

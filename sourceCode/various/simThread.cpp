@@ -3236,7 +3236,15 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 App::logMsg(sim_verbosity_scriptinfos,"Path points copied to clipboard.");
             }
         }
-
+        if (cmd.cmdId==CREATE_EQUIVALENT_PATHGUITRIGGEREDCMD)
+        {
+            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            if ((it!=nullptr)&&(it->pathContainer!=nullptr))
+            {
+                it->pathContainer->createEquivalent(it->getObjectHandle());
+                App::logMsg(sim_verbosity_scriptinfos,"Equivalent path object created.");
+            }
+        }
         if (cmd.cmdId==TOGGLE_SHAPINGENABLED_PATHSHAPINGGUITRIGGEREDCMD)
         {
             CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);

@@ -106,9 +106,11 @@ int CTextureContainer::addObject(CTextureObject* anObject,bool objectIsACopy)
 
 int CTextureContainer::addObjectWithSuffixOffset(CTextureObject* anObject,bool objectIsACopy,int suffixOffset)
 { // If object already exists (well, similar object), it is destroyed in here!
+//    printf("TextCnt: %i\n",_allTextureObjects.size());
     CTextureObject* theOldData=_getEquivalentTextureObject(anObject);
     if (theOldData!=nullptr)
     { // we already have a similar object!!
+  //      printf("a\n");
         // We transfer the dependencies (since 10/2/2012 (was forgotten before)):
         anObject->transferDependenciesToThere(theOldData);
 
@@ -133,7 +135,7 @@ int CTextureContainer::addObjectWithSuffixOffset(CTextureObject* anObject,bool o
 
 CTextureObject* CTextureContainer::_getEquivalentTextureObject(CTextureObject *theData)
 {
-    for (int i=0;i<int(_allTextureObjects.size());i++)
+    for (size_t i=0;i<_allTextureObjects.size();i++)
     {
         if (_allTextureObjects[i]->isSame(theData))
             return(_allTextureObjects[i]);
@@ -143,7 +145,7 @@ CTextureObject* CTextureContainer::_getEquivalentTextureObject(CTextureObject *t
 
 void CTextureContainer::removeObject(int objectID)
 {
-    for (int i=0;i<int(_allTextureObjects.size());i++)
+    for (size_t i=0;i<_allTextureObjects.size();i++)
     {
         if (_allTextureObjects[i]->getObjectID()==objectID)
         {

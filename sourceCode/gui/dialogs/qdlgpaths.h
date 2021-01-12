@@ -45,6 +45,8 @@ private slots:
 
     void on_qqCopyToClipboard_clicked();
 
+    void on_qqCreateEquivalentObject_clicked();
+
 private:
     Ui::CQDlgPaths *ui;
 };

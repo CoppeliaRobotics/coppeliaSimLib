@@ -876,10 +876,27 @@ int CPathCont::getBezierPathPointCount()
 
 void CPathCont::copyPointsToClipboard()
 {
-    std::string txt="path={";
+    std::string txt="ctrlPts={";
+    for (size_t i=0;i<_simplePathPoints.size();i++)
+    {
+        C7Vector tr(_simplePathPoints[i]->getTransformation());
+        for (size_t j=0;j<3;j++)
+            txt+=tt::getEString(false,tr(j),4)+",";
+        float q[4];
+        tr.Q.getInternalData(q,true);
+        for (size_t j=0;j<4;j++)
+        {
+            txt+=tt::getEString(false,q[j],4);
+            if ( (j<3)||(i<_simplePathPoints.size()-1) )
+                txt+=",";
+        }
+    }
+    txt+="}";
+    App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
+
+    txt="path={";
     for (size_t i=0;i<_bezierPathPoints.size();i++)
     {
-        txt+="{";
         C7Vector tr(_bezierPathPoints[i]->getTransformation());
         for (size_t j=0;j<3;j++)
             txt+=tt::getEString(false,tr(j),4)+",";
@@ -888,12 +905,9 @@ void CPathCont::copyPointsToClipboard()
         for (size_t j=0;j<4;j++)
         {
             txt+=tt::getEString(false,q[j],4);
-            if (j<3)
+            if ( (j<3)||(i<_bezierPathPoints.size()-1) )
                 txt+=",";
         }
-        txt+="}";
-        if (i<_bezierPathPoints.size()-1)
-            txt+=",";
     }
     txt+="}";
     App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
@@ -921,23 +935,50 @@ void CPathCont::copyPointsToClipboard()
     txt="auxChannels={";
     for (size_t i=0;i<_bezierPathPoints.size();i++)
     {
-        txt+="{";
+//        txt+="{";
         float c[4];
         _bezierPathPoints[i]->getAuxChannels(c);
         for (size_t j=0;j<4;j++)
         {
             txt+=tt::getEString(false,c[j],4);
-            if (j<3)
+            if ( (j<3)||(i<_bezierPathPoints.size()-1) )
                 txt+=",";
         }
-        txt+="}";
-        if (i<_bezierPathPoints.size()-1)
-            txt+=",";
+//        txt+="}";
+//        if (i<_bezierPathPoints.size()-1)
+//            txt+=",";
     }
     txt+="}";
     App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
 }
 
+void CPathCont::createEquivalent(int pathHandle)
+{
+    std::string txt;
+    txt+="local path="+std::to_string(pathHandle);
+    txt+="\nlocal pathData={";
+    for (size_t i=0;i<_simplePathPoints.size();i++)
+    {
+        C7Vector tr(_simplePathPoints[i]->getTransformation());
+        for (size_t j=0;j<3;j++)
+            txt+=tt::getEString(false,tr(j),4)+",";
+        float q[4];
+        tr.Q.getInternalData(q,true);
+        for (size_t j=0;j<4;j++)
+        {
+            txt+=tt::getEString(false,q[j],4);
+            if ( (j<3)||(i<_simplePathPoints.size()-1) )
+                txt+=",";
+        }
+    }
+    txt+="}\nlocal m=sim.getObjectMatrix(path,-1)\nlocal newPath=sim.createPath(pathData,";
+    int opt=0;
+    if ((_attributes&sim_pathproperty_closed_path)!=0)
+        opt+=2;
+    txt+=std::to_string(opt)+",";
+    txt+=std::to_string(_bezierPathPoints.size())+")\nsim.setObjectMatrix(newPath,-1,m)";
+    App::worldContainer->sandboxScript->executeScriptString(txt.c_str(),nullptr);
+}
 
 CBezierPathPoint* CPathCont::_addBezierPathPoint(const C7Vector& transf,float maxRelAbsVelocity,float onSpotDistance,unsigned short auxFlags,const float auxChannels[4])
 {

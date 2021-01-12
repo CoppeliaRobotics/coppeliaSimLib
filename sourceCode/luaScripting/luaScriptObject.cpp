@@ -3607,13 +3607,10 @@ int CLuaScriptObject::_callScriptFunction(int callType,const CInterfaceStack* in
 }
 
 int CLuaScriptObject::callSandboxScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
-{
-    if (L!=nullptr)
-    {
-        _scriptState&=7; // remove a possible error flag
-        _callScriptFunction(callType,inStack,outStack);
-    }
-    return(-1);
+{ // retval: -2: compil error, -1: runtimeError, 0: function not there, 1: ok
+    _scriptState&=7; // remove a possible error flag
+    int retVal=_callScriptFunction(callType,inStack,outStack);
+    return(retVal);
 }
 
 bool CLuaScriptObject::callSandboxScript_beforeMainScript()
@@ -4199,6 +4196,18 @@ bool CLuaScriptObject::resetScript()
    bool retVal=_killLuaState();
    _scriptState=scriptState_uninitialized;
    return(retVal);
+}
+
+bool CLuaScriptObject::initScript()
+{ // add-on scripts, and the main script cannot be initialized via this function
+    bool retVal=false;
+    if (_scriptType==sim_scripttype_sandboxscript)
+        retVal=callSandboxScript(sim_syscb_init,nullptr,nullptr)==1;
+    if (_scriptType==sim_scripttype_childscript)
+        retVal=callChildScript(sim_syscb_init,nullptr,nullptr)==1;
+    if (_scriptType==sim_scripttype_customizationscript)
+        retVal=callCustomizationScript(sim_syscb_init,nullptr,nullptr)==1;
+    return(retVal);
 }
 
 bool CLuaScriptObject::_killLuaState()
