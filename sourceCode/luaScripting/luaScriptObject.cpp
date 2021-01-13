@@ -6141,8 +6141,8 @@ void CLuaScriptObject::_adjustScriptText13(CLuaScriptObject* scriptObject,bool d
 
         if (_containsScriptText(scriptObject,"sim.getCollectionHandle"))
             App::logMsg(sim_verbosity_errors,"Contains sim.getCollectionHandle...");
-        if (_containsScriptText(scriptObject,"sim.createCollection"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.createCollection...");
+        if (_containsScriptText(scriptObject,"sim.addCollection"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.addCollection...");
         if (_containsScriptText(scriptObject,"sim.addObjectToCollection"))
             App::logMsg(sim_verbosity_errors,"Contains sim.addObjectToCollection...");
         if (_containsScriptText(scriptObject,"sim.emptyCollection"))

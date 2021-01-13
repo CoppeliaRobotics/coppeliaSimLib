@@ -12502,14 +12502,9 @@ int _simRMLStep(luaWrap_lua_State* L)
         {
             int auxVals[4]={0,handle,0,0};
             int replyData[4]={-1,-1,-1,-1};
-
-            if (CPluginContainer::getPluginFromName("ReflexxesTypeIV",true)!=nullptr)
-                CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeIV",sim_message_eventcallback_rmlinfo,auxVals,nullptr,replyData);
-            else
-            {
-                if (CPluginContainer::getPluginFromName("ReflexxesTypeII",true)!=nullptr)
-                    CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeII",sim_message_eventcallback_rmlinfo,auxVals,nullptr,replyData);
-            }
+            CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
+            if (plugin!=nullptr)
+                plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlinfo,auxVals,nullptr,replyData);
             dofs=replyData[1];
         }
 

@@ -387,6 +387,7 @@ public:
     static int getPluginCount();
     static CPlugin* getPluginFromIndex(size_t index);
     static CPlugin* getPluginFromName(const char* pluginName,bool caseSensitive);
+    static CPlugin* getPluginFromFunc(const char* func);
     static CPlugin* getPluginFromHandle(int handle);
     static bool unloadPlugin(int handle);
     static void _removePlugin(int handle);

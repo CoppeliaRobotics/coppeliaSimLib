@@ -3187,7 +3187,8 @@ simInt simGetBoolParameter_internal(simInt parameter)
         if (parameter==sim_boolparam_rml2_available)
         {
             int retVal=0;
-            if (CPluginContainer::getPluginFromName("ReflexxesTypeII",true)!=nullptr)
+            CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml2");
+            if (plugin!=nullptr)
                 retVal=1;
             return(retVal);
         }
@@ -3195,7 +3196,8 @@ simInt simGetBoolParameter_internal(simInt parameter)
         if (parameter==sim_boolparam_rml4_available)
         {
             int retVal=0;
-            if (CPluginContainer::getPluginFromName("ReflexxesTypeIV",true)!=nullptr)
+            CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml4");
+            if (plugin!=nullptr)
                 retVal=1;
             return(retVal);
         }
@@ -11860,14 +11862,9 @@ simInt simRMLPosition_internal(simInt dofs,simDouble timeStep,simInt flags,const
     int replyData[4]={-1,-1,-1,-1};
 
     void* returnData=nullptr;
-    if (CPluginContainer::getPluginFromName("ReflexxesTypeIV",true)!=nullptr)
-        returnData=CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeIV",sim_message_eventcallback_rmlposition,auxVals,data,replyData);
-    else
-    {
-        if (CPluginContainer::getPluginFromName("ReflexxesTypeII",true)!=nullptr)
-            returnData=CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeII",sim_message_eventcallback_rmlposition,auxVals,data,replyData);
-    }
-    // void* returnData=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_rmlposition,auxVals,data,replyData);
+    CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
+    if (plugin!=nullptr)
+        returnData=plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlposition,auxVals,data,replyData);
     if (returnData!=nullptr)
     {
         retVal=replyData[0];
@@ -11986,15 +11983,9 @@ simInt simRMLVelocity_internal(simInt dofs,simDouble timeStep,simInt flags,const
 
 
     void* returnData=nullptr;
-    if (CPluginContainer::getPluginFromName("ReflexxesTypeIV",true)!=nullptr)
-        returnData=CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeIV",sim_message_eventcallback_rmlvelocity,auxVals,data,replyData);
-    else
-    {
-        if (CPluginContainer::getPluginFromName("ReflexxesTypeII",true)!=nullptr)
-            returnData=CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeII",sim_message_eventcallback_rmlvelocity,auxVals,data,replyData);
-    }
-
-//    void* returnData=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_rmlvelocity,auxVals,data,replyData);
+    CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
+    if (plugin!=nullptr)
+        returnData=plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlvelocity,auxVals,data,replyData);
     if (returnData!=nullptr)
     {
         retVal=replyData[0];
@@ -12121,16 +12112,9 @@ simInt simRMLPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,co
             auxVals[1]=((int*)(((unsigned char*)auxData)+1))[0];
     }
     int replyData[4]={-1,-1,-1,-1};
-
-    if (CPluginContainer::getPluginFromName("ReflexxesTypeIV",true)!=nullptr)
-        CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeIV",sim_message_eventcallback_rmlpos,auxVals,data,replyData);
-    else
-    {
-        if (CPluginContainer::getPluginFromName("ReflexxesTypeII",true)!=nullptr)
-            CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeII",sim_message_eventcallback_rmlpos,auxVals,data,replyData);
-    }
-//    CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_rmlpos,auxVals,data,replyData);
-
+    CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
+    if (plugin!=nullptr)
+        plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlpos,auxVals,data,replyData);
     delete[] data;
     return(replyData[1]);
 }
@@ -12216,14 +12200,9 @@ simInt simRMLVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,co
     }
     int replyData[4]={-1,-1,-1,-1};
 
-    if (CPluginContainer::getPluginFromName("ReflexxesTypeIV",true)!=nullptr)
-        CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeIV",sim_message_eventcallback_rmlvel,auxVals,data,replyData);
-    else
-    {
-        if (CPluginContainer::getPluginFromName("ReflexxesTypeII",true)!=nullptr)
-            CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeII",sim_message_eventcallback_rmlvel,auxVals,data,replyData);
-    }
-//    CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_rmlvel,auxVals,data,replyData);
+    CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
+    if (plugin!=nullptr)
+        plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlvel,auxVals,data,replyData);
 
     delete[] data;
     return(replyData[1]);
@@ -12249,14 +12228,9 @@ simInt simRMLStep_internal(simInt handle,simDouble timeStep,simDouble* newPosVel
 
 
     void* returnData=nullptr;
-    if (CPluginContainer::getPluginFromName("ReflexxesTypeIV",true)!=nullptr)
-        returnData=CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeIV",sim_message_eventcallback_rmlstep,auxVals,nullptr,replyData);
-    else
-    {
-        if (CPluginContainer::getPluginFromName("ReflexxesTypeII",true)!=nullptr)
-            returnData=CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeII",sim_message_eventcallback_rmlstep,auxVals,nullptr,replyData);
-    }
-//    void* returnData=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_rmlstep,auxVals,nullptr,replyData);
+    CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
+    if (plugin!=nullptr)
+        returnData=plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlstep,auxVals,nullptr,replyData);
     if (returnData!=nullptr)
     {
         retVal=replyData[0];
@@ -12306,14 +12280,9 @@ simInt simRMLRemove_internal(simInt handle)
     auxVals[1]=handle;
     int replyData[4]={-1,-1,-1,-1};
 
-    if (CPluginContainer::getPluginFromName("ReflexxesTypeIV",true)!=nullptr)
-        CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeIV",sim_message_eventcallback_rmlremove,auxVals,nullptr,replyData);
-    else
-    {
-        if (CPluginContainer::getPluginFromName("ReflexxesTypeII",true)!=nullptr)
-            CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeII",sim_message_eventcallback_rmlremove,auxVals,nullptr,replyData);
-    }
-//    CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_rmlremove,auxVals,nullptr,replyData);
+    CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
+    if (plugin!=nullptr)
+        plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlremove,auxVals,nullptr,replyData);
     return(replyData[1]);
 }
 

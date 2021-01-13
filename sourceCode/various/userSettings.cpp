@@ -359,7 +359,7 @@ CUserSettings::CUserSettings()
     disableOpenGlBasedCustomUi=false;
     showOldDlgs=false;
     makeOldThreadedScriptsAvailable=false;
-    _supportOldApiNotation=false;
+    _supportOldApiNotation=true;
     enableOldMirrorObjects=false;
     allowOldEduRelease=-1;
     threadedScriptsStoppingGraceTime=0;

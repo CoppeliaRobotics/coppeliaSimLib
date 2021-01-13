@@ -418,6 +418,22 @@ int CPluginContainer::addPlugin(const char* filename,const char* pluginName)
     return(plug->handle);
 }
 
+CPlugin* CPluginContainer::getPluginFromFunc(const char* func)
+{
+    CPlugin* retVal=nullptr;
+    if (strcmp(func,"rml")==0)
+    {
+        retVal=getPluginFromName("RML4",true);
+        if (retVal==nullptr)
+            retVal=getPluginFromName("RML2",true);
+    }
+    else if (strcmp(func,"rml2")==0)
+        retVal=getPluginFromName("RML2",true);
+    else if (strcmp(func,"rml4")==0)
+        retVal=getPluginFromName("RML4",true);
+    return(retVal);
+}
+
 CPlugin* CPluginContainer::getPluginFromName(const char* pluginName,bool caseSensitive)
 {
     CPlugin* retVal=nullptr;
