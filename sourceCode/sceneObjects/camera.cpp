@@ -125,20 +125,20 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                     editMode=NO_EDIT_MODE;
             }
         }
-        if ((editMode&PATH_EDIT_MODE)!=0)
+        if ((editMode&PATH_EDIT_MODE_OLD)!=0)
         { // just take the path points
-            if (App::mainWindow->editModeContainer->getEditModePathContainer()==nullptr)
+            if (App::mainWindow->editModeContainer->getEditModePathContainer_old()==nullptr)
                 editMode=NO_EDIT_MODE;
             else
             {
-                int cnt=App::mainWindow->editModeContainer->getEditModePathContainer()->getSimplePathPointCount();
-                CPath* path=App::mainWindow->editModeContainer->getEditModePath();
+                int cnt=App::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPointCount();
+                CPath_old* path=App::mainWindow->editModeContainer->getEditModePath_old();
                 if ((cnt!=0)&&(path!=nullptr))
                 {
                     C7Vector parentTr(path->getFullCumulativeTransformation());
                     for (int i=0;i<cnt;i++)
                     {
-                        CSimplePathPoint* pp=App::mainWindow->editModeContainer->getEditModePathContainer()->getSimplePathPoint(i);
+                        CSimplePathPoint_old* pp=App::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPoint(i);
                         C3Vector v(camTrInv*parentTr*pp->getTransformation().X);
                         pts.push_back(v(0));
                         pts.push_back(v(1));
@@ -247,14 +247,14 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
             if (it->getObjectType()==sim_object_path_type)
             {
                 done=true;
-                CPath* path=(CPath*)it;
+                CPath_old* path=(CPath_old*)it;
                 int cnt=path->pathContainer->getSimplePathPointCount();
                 if ((cnt!=0)&&(path!=nullptr))
                 {
                     C7Vector parentTr(path->getFullCumulativeTransformation());
                     for (int i=0;i<cnt;i++)
                     {
-                        CSimplePathPoint* pp=path->pathContainer->getSimplePathPoint(i);
+                        CSimplePathPoint_old* pp=path->pathContainer->getSimplePathPoint(i);
                         C3Vector v(camTrInv*parentTr*pp->getTransformation().X);
                         pts.push_back(v(0));
                         pts.push_back(v(1));
@@ -2610,7 +2610,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                     // Draw everything except for the camera you look through (unless we look through the mirror) and the object which is being edited!
                     if  ( (it->getObjectHandle()!=getObjectHandle())||mirrored )
                     {
-                        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
+                        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
                         {
                             if (getInternalRendering())
                                 it->display(this,atr);
@@ -2683,7 +2683,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
         // We render the object being edited last (the vertices appear above everything)
         if (getInternalRendering())
         {
-            if (App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)
+            if (App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)
             {
                 CSceneObject* it=App::mainWindow->editModeContainer->getEditModeObject();
                 if (it!=nullptr)
@@ -3088,7 +3088,7 @@ void CCamera::handleMouseUpHit(int hitId)
     TRACE_INTERNAL;
     if (hitId==-1)
     {
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
+        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
             App::currentWorld->sceneObjects->deselectObjects();
         else
             App::mainWindow->editModeContainer->deselectEditModeBuffer();
@@ -3097,7 +3097,7 @@ void CCamera::handleMouseUpHit(int hitId)
     {
         if ( (hitId<SIM_IDEND_SCENEOBJECT)||(hitId>=NON_OBJECT_PICKING_ID_PATH_PTS_START) ) // We need the NON_OBJECT_PICKING_ID_PATH_PTS_START start here to select individual path points when not in path edit mode!!!!!!!
         {
-            if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
+            if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
             {
                 App::currentWorld->sceneObjects->deselectObjects();
                 App::currentWorld->sceneObjects->addObjectToSelection(hitId);
@@ -3129,7 +3129,7 @@ int CCamera::handleHits(int hits,unsigned int selectBuff[])
             {
                 if ( (hitList[i]<SIM_IDEND_SCENEOBJECT)||(hitList[i]>=NON_OBJECT_PICKING_ID_PATH_PTS_START) ) // We need the NON_OBJECT_PICKING_ID_PATH_PTS_START start here to select individual path points when not in path edit mode!!!!!!!
                 {
-                    if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
+                    if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
                         App::currentWorld->sceneObjects->addObjectToSelection(hitList[i]);
                     else
                         App::mainWindow->editModeContainer->addItemToEditModeBuffer(hitList[i],true);
@@ -3149,7 +3149,7 @@ int CCamera::handleHits(int hits,unsigned int selectBuff[])
             int hitId=getSingleHit(hits,selectBuff,ignoreDepth,dummy);
             if (hitId==-1)
             {
-                if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
+                if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
                     App::currentWorld->sceneObjects->deselectObjects();
                 else
                     App::mainWindow->editModeContainer->deselectEditModeBuffer();
@@ -3158,7 +3158,7 @@ int CCamera::handleHits(int hits,unsigned int selectBuff[])
             {
                 if ( (hitId<SIM_IDEND_SCENEOBJECT)||(hitId>=NON_OBJECT_PICKING_ID_PATH_PTS_START) ) // We need the NON_OBJECT_PICKING_ID_PATH_PTS_START start here to select individual path points when not in path edit mode!!!!!!!
                 {
-                    if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
+                    if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
                         App::currentWorld->sceneObjects->xorAddObjectToSelection(hitId);
                     else
                         App::mainWindow->editModeContainer->xorAddItemToEditModeBuffer(hitId,false);

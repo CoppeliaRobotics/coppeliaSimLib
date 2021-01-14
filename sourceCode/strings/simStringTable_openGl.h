@@ -36,7 +36,6 @@
 #define IDSOGL_HEIGHTFIELD "heightfield"
 
 #define IDSOGL_MODEL_FOLDER_NOT_FOUND "Model folder not found"
-#define IDSOGL_IMPORTEDPATH "ImportedPath"
 
 #define IDSOGL_VISION_SENSOR "Vision sensor"
 #define IDSOGL_VISION_U_SENSOR "Vision_sensor"

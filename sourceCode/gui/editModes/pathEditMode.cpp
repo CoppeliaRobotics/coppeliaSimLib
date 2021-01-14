@@ -4,18 +4,18 @@
 #include "simStringTable.h"
 #include "app.h"
 
-CPathEditMode::CPathEditMode(CPath* path,CSceneObjectContainer* objCont)
+CPathEditMode_old::CPathEditMode_old(CPath_old* path,CSceneObjectContainer* objCont)
 {
     _editionPathCont=path->pathContainer->copyYourself();
     _path=path;
     _objCont=objCont;
 }
 
-CPathEditMode::~CPathEditMode()
+CPathEditMode_old::~CPathEditMode_old()
 {
 }
 
-void CPathEditMode::endEditMode(bool cancelChanges)
+void CPathEditMode_old::endEditMode(bool cancelChanges)
 { // return true means: select the edition object, otherwise it was erased
     // delete this object right after calling this function!
 
@@ -33,42 +33,42 @@ void CPathEditMode::endEditMode(bool cancelChanges)
     _editionPathCont=nullptr;
 }
 
-CPathCont* CPathEditMode::getEditModePathContainer()
+CPathCont_old* CPathEditMode_old::getEditModePathContainer_old()
 {
     return(_editionPathCont);
 }
 
-CPath* CPathEditMode::getEditModePath()
+CPath_old* CPathEditMode_old::getEditModePath_old()
 {
     return(_path);
 }
 
-int CPathEditMode::getEditModeBufferSize()
+int CPathEditMode_old::getEditModeBufferSize()
 {
     return(int(editModeBuffer.size()));
 }
 
-int CPathEditMode::getLastEditModeBufferValue()
+int CPathEditMode_old::getLastEditModeBufferValue()
 {
     return(editModeBuffer[editModeBuffer.size()-1]);
 }
 
-int CPathEditMode::getEditModeBufferValue(int index)
+int CPathEditMode_old::getEditModeBufferValue(int index)
 {
     return(editModeBuffer[index]);
 }
 
-std::vector<int>* CPathEditMode::getEditModeBuffer()
+std::vector<int>* CPathEditMode_old::getEditModeBuffer()
 {
     return(&editModeBuffer);
 }
 
-void CPathEditMode::deselectEditModeBuffer()
+void CPathEditMode_old::deselectEditModeBuffer()
 {
     editModeBuffer.clear();
 }
 
-void CPathEditMode::removeItemFromEditModeBuffer(int item)
+void CPathEditMode_old::removeItemFromEditModeBuffer(int item)
 {
     for (int i=0;i<int(editModeBuffer.size());i++)
     {
@@ -80,14 +80,14 @@ void CPathEditMode::removeItemFromEditModeBuffer(int item)
     }
 }
 
-bool CPathEditMode::isEditModeItemAValidItem(int item)
+bool CPathEditMode_old::isEditModeItemAValidItem(int item)
 {
     if (item<0)
         return(false);
     return(true);
 }
 
-void CPathEditMode::xorAddItemToEditModeBuffer(int item)
+void CPathEditMode_old::xorAddItemToEditModeBuffer(int item)
 {
     if (isEditModeItemAValidItem(item))
     {
@@ -100,7 +100,7 @@ void CPathEditMode::xorAddItemToEditModeBuffer(int item)
         editModeBuffer.clear();
 }
 
-void CPathEditMode::addItemToEditModeBuffer(int item)
+void CPathEditMode_old::addItemToEditModeBuffer(int item)
 {
     if (isEditModeItemAValidItem(item))
     {
@@ -109,7 +109,7 @@ void CPathEditMode::addItemToEditModeBuffer(int item)
     }
 }
 
-bool CPathEditMode::alreadyInEditModeBuffer(int item)
+bool CPathEditMode_old::alreadyInEditModeBuffer(int item)
 {
     for (int i=0;i<int(editModeBuffer.size());i++)
         if (editModeBuffer[i]==item)
@@ -117,12 +117,12 @@ bool CPathEditMode::alreadyInEditModeBuffer(int item)
     return(false);
 }
 
-int CPathEditMode::getBezierPathPointCount()
+int CPathEditMode_old::getBezierPathPointCount()
 {
     return(_editionPathCont->getBezierPathPointCount());
 }
 
-CSimplePathPoint* CPathEditMode::getSimplePathPoint(int editModeBufferIndex)
+CSimplePathPoint_old* CPathEditMode_old::getSimplePathPoint(int editModeBufferIndex)
 {
     if (editModeBufferIndex<0)
         return(nullptr);
@@ -131,7 +131,7 @@ CSimplePathPoint* CPathEditMode::getSimplePathPoint(int editModeBufferIndex)
     return(_editionPathCont->getSimplePathPoint(editModeBuffer[editModeBufferIndex]));
 }
 
-void CPathEditMode::_copySelection(std::vector<int>* selection)
+void CPathEditMode_old::_copySelection(std::vector<int>* selection)
 {
     for (int i=0;i<int(editBufferPathPointsCopy.size());i++)
         delete editBufferPathPointsCopy[i];
@@ -149,7 +149,7 @@ void CPathEditMode::_copySelection(std::vector<int>* selection)
     {
         if (toCopy[i])
         {
-            CSimplePathPoint* it=_editionPathCont->getSimplePathPoint(i);
+            CSimplePathPoint_old* it=_editionPathCont->getSimplePathPoint(i);
             if (it!=nullptr)
                 editBufferPathPointsCopy.push_back(it->copyYourself());
         }
@@ -157,7 +157,7 @@ void CPathEditMode::_copySelection(std::vector<int>* selection)
     deselectEditModeBuffer();
 }
 
-void CPathEditMode::_paste(int insertPosition)
+void CPathEditMode_old::_paste(int insertPosition)
 {
     deselectEditModeBuffer();
     _editionPathCont->enableActualization(false);
@@ -171,15 +171,15 @@ void CPathEditMode::_paste(int insertPosition)
     _editionPathCont->actualizePath();
 }
 
-void CPathEditMode::_insertNewPoint(int insertPosition)
+void CPathEditMode_old::_insertNewPoint(int insertPosition)
 {
     deselectEditModeBuffer();
     if (insertPosition==-1)
         insertPosition=0;
-    CSimplePathPoint* it=_editionPathCont->getSimplePathPoint(insertPosition);
+    CSimplePathPoint_old* it=_editionPathCont->getSimplePathPoint(insertPosition);
     if (it==nullptr)
     {
-        it=new CSimplePathPoint();
+        it=new CSimplePathPoint_old();
         C7Vector tr(it->getTransformation());
         tr.X(2)=0.1f;
         it->setTransformation(tr,_editionPathCont->getAttributes());
@@ -194,13 +194,13 @@ void CPathEditMode::_insertNewPoint(int insertPosition)
     _editionPathCont->actualizePath();
 }
 
-void CPathEditMode::_cutSelection(std::vector<int>* selection)
+void CPathEditMode_old::_cutSelection(std::vector<int>* selection)
 {
     _copySelection(selection);
     _deleteSelection(selection);
 }
 
-void CPathEditMode::_deleteSelection(std::vector<int>* selection)
+void CPathEditMode_old::_deleteSelection(std::vector<int>* selection)
 {
     int maxIndex=-1;
     for (int i=0;i<int(selection->size());i++)
@@ -222,19 +222,19 @@ void CPathEditMode::_deleteSelection(std::vector<int>* selection)
     deselectEditModeBuffer();
 }
 
-void CPathEditMode::_keepXAxisAndAlignZAxis(std::vector<int>* selection)
+void CPathEditMode_old::_keepXAxisAndAlignZAxis(std::vector<int>* selection)
 {
     if (selection->size()>1)
     {
         C7Vector ctm(_path->getCumulativeTransformation());
-        CSimplePathPoint* last=_editionPathCont->getSimplePathPoint((*selection)[selection->size()-1]);
+        CSimplePathPoint_old* last=_editionPathCont->getSimplePathPoint((*selection)[selection->size()-1]);
         C3Vector zVect(last->getTransformation().getMatrix().M.axis[2]);
         C3X3Matrix posRot,negRot;
         posRot.buildXRotation(piValue_f/1800.0f);
         negRot.buildXRotation(-piValue_f/1800.0f);
         for (int i=0;i<int(selection->size()-1);i++)
         {
-            CSimplePathPoint* it=_editionPathCont->getSimplePathPoint((*selection)[i]);
+            CSimplePathPoint_old* it=_editionPathCont->getSimplePathPoint((*selection)[i]);
             C4X4Matrix m=it->getTransformation().getMatrix();
             float d=(m.M.axis[2]-zVect).getLength();
             bool positiveRot=true;
@@ -255,18 +255,18 @@ void CPathEditMode::_keepXAxisAndAlignZAxis(std::vector<int>* selection)
     }
 }
 
-void CPathEditMode::_generatePath()
+void CPathEditMode_old::_generatePath()
 {
     if (_path!=nullptr)
     {
-        CPath* newPath=(CPath*)_path->copyYourself();
+        CPath_old* newPath=(CPath_old*)_path->copyYourself();
         newPath->pathContainer->enableActualization(false);
         newPath->pathContainer->removeAllSimplePathPoints();
         int i=0;
-        CBezierPathPoint* it=_editionPathCont->getBezierPathPoint(i++);
+        CBezierPathPoint_old* it=_editionPathCont->getBezierPathPoint(i++);
         while (it!=nullptr)
         {
-            CSimplePathPoint* bp=new CSimplePathPoint();
+            CSimplePathPoint_old* bp=new CSimplePathPoint_old();
             bp->setTransformation(it->getTransformation(),_editionPathCont->getAttributes());
             newPath->pathContainer->addSimplePathPoint(bp);
             it=_editionPathCont->getBezierPathPoint(i++);
@@ -277,32 +277,32 @@ void CPathEditMode::_generatePath()
     }
 }
 
-void CPathEditMode::addMenu(VMenu* menu,CSceneObject* viewableObject)
+void CPathEditMode_old::addMenu(VMenu* menu,CSceneObject* viewableObject)
 {
     int selSize=getEditModeBufferSize();
     int buffSize=(int)editBufferPathPointsCopy.size();
-    menu->appendMenuItem(selSize>0,false,PATH_EDIT_MODE_PATH_POINT_COPY_EMCMD,IDS_COPY_SELECTED_PATH_POINTS_MENU_ITEM);
+    menu->appendMenuItem(selSize>0,false,PATH_EDIT_MODE_OLD_PATH_POINT_COPY_EMCMD,IDS_COPY_SELECTED_PATH_POINTS_MENU_ITEM);
     if (selSize>=1)
-        menu->appendMenuItem((buffSize>0)&&(selSize==1),false,PATH_EDIT_MODE_PASTE_PATH_POINT_EMCMD,IDS_PASTE_PATH_POINTS_MENU_ITEM);
+        menu->appendMenuItem((buffSize>0)&&(selSize==1),false,PATH_EDIT_MODE_OLD_PASTE_PATH_POINT_EMCMD,IDS_PASTE_PATH_POINTS_MENU_ITEM);
     else
-        menu->appendMenuItem(buffSize>0,false,PATH_EDIT_MODE_PASTE_PATH_POINT_EMCMD,IDS_PASTE_PATH_POINTS_AT_BEGINNING_MENU_ITEM);
-    menu->appendMenuItem(selSize>0,false,PATH_EDIT_MODE_DELETE_PATH_POINT_EMCMD,IDS_DELETE_SELECTED_PATH_POINTS_MENU_ITEM);
-    menu->appendMenuItem(selSize>0,false,PATH_EDIT_MODE_PATH_POINT_CUT_EMCMD,IDS_CUT_SELECTED_PATH_POINTS_MENU_ITEM);
+        menu->appendMenuItem(buffSize>0,false,PATH_EDIT_MODE_OLD_PASTE_PATH_POINT_EMCMD,IDS_PASTE_PATH_POINTS_AT_BEGINNING_MENU_ITEM);
+    menu->appendMenuItem(selSize>0,false,PATH_EDIT_MODE_OLD_DELETE_PATH_POINT_EMCMD,IDS_DELETE_SELECTED_PATH_POINTS_MENU_ITEM);
+    menu->appendMenuItem(selSize>0,false,PATH_EDIT_MODE_OLD_PATH_POINT_CUT_EMCMD,IDS_CUT_SELECTED_PATH_POINTS_MENU_ITEM);
 
     menu->appendMenuSeparator();
 
     if (selSize>=1)
-        menu->appendMenuItem(selSize==1,false,PATH_EDIT_MODE_INSERT_NEW_PATH_POINT_EMCMD,IDS_INSERT_NEW_PATH_POINT_MENU_ITEM);
+        menu->appendMenuItem(selSize==1,false,PATH_EDIT_MODE_OLD_INSERT_NEW_PATH_POINT_EMCMD,IDS_INSERT_NEW_PATH_POINT_MENU_ITEM);
     else
-        menu->appendMenuItem(true,false,PATH_EDIT_MODE_INSERT_NEW_PATH_POINT_EMCMD,IDS_INSERT_NEW_PATH_POINT_AT_BEGINNING_MENU_ITEM);
-    menu->appendMenuItem((viewableObject!=nullptr)&&(viewableObject->getObjectType()==sim_object_camera_type),false,PATH_EDIT_MODE_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD,IDS_APPEND_NEW_PATH_POINT_FROM_CAMERA_MENU_ITEM);
-    menu->appendMenuItem(_editionPathCont->getBezierPathPointCount()>1,false,PATH_EDIT_MODE_MAKE_PATH_FROM_BEZIER_EMCMD,IDS_MAKE_PATH_FROM_BEZIER_PATH_MENU_ITEM);
-    menu->appendMenuItem(selSize>0,false,PATH_EDIT_MODE_MAKE_DUMMIES_FROM_PATH_CTRL_POINTS_EMCMD,IDS_MAKE_DUMMIES_FROM_PATH_CTRL_POINTS_MENU_ITEM);
-    menu->appendMenuItem(selSize>0,false,PATH_EDIT_MODE_INVERSE_ORDER_OF_SELECTED_PATH_CTRL_POINTS_EMCMD,IDS_INVERSE_ORDER_OF_SELECTED_PATH_CTRL_POINTS_MENU_ITEM);
+        menu->appendMenuItem(true,false,PATH_EDIT_MODE_OLD_INSERT_NEW_PATH_POINT_EMCMD,IDS_INSERT_NEW_PATH_POINT_AT_BEGINNING_MENU_ITEM);
+    menu->appendMenuItem((viewableObject!=nullptr)&&(viewableObject->getObjectType()==sim_object_camera_type),false,PATH_EDIT_MODE_OLD_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD,IDS_APPEND_NEW_PATH_POINT_FROM_CAMERA_MENU_ITEM);
+    menu->appendMenuItem(_editionPathCont->getBezierPathPointCount()>1,false,PATH_EDIT_MODE_OLD_MAKE_PATH_FROM_BEZIER_EMCMD,IDS_MAKE_PATH_FROM_BEZIER_PATH_MENU_ITEM);
+    menu->appendMenuItem(selSize>0,false,PATH_EDIT_MODE_OLD_MAKE_DUMMIES_FROM_PATH_CTRL_POINTS_EMCMD,IDS_MAKE_DUMMIES_FROM_PATH_CTRL_POINTS_MENU_ITEM);
+    menu->appendMenuItem(selSize>0,false,PATH_EDIT_MODE_OLD_INVERSE_ORDER_OF_SELECTED_PATH_CTRL_POINTS_EMCMD,IDS_INVERSE_ORDER_OF_SELECTED_PATH_CTRL_POINTS_MENU_ITEM);
 
     menu->appendMenuSeparator();
 
-    menu->appendMenuItem(true,false,PATH_EDIT_MODE_SELECT_ALL_PATH_POINTS_EMCMD,IDSN_SELECT_ALL_MENU_ITEM);
+    menu->appendMenuItem(true,false,PATH_EDIT_MODE_OLD_SELECT_ALL_PATH_POINTS_EMCMD,IDSN_SELECT_ALL_MENU_ITEM);
 
     menu->appendMenuSeparator();
 
@@ -310,17 +310,17 @@ void CPathEditMode::addMenu(VMenu* menu,CSceneObject* viewableObject)
     menu->appendMenuItem(true,false,ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD,IDS_LEAVE_EDIT_MODE_AND_APPLY_CHANGES_MENU_ITEM);
 }
 
-bool CPathEditMode::processCommand(int commandID,CSceneObject* viewableObject)
+bool CPathEditMode_old::processCommand(int commandID,CSceneObject* viewableObject)
 {   // Return value is true if the command was successful
     bool retVal=true;
-    if (commandID==PATH_EDIT_MODE_SELECT_ALL_PATH_POINTS_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_SELECT_ALL_PATH_POINTS_EMCMD)
     {
         for (int i=0;i<int(_editionPathCont->getSimplePathPointCount());i++)
             addItemToEditModeBuffer(i);
         return(retVal);
     }
 
-    if (commandID==PATH_EDIT_MODE_PATH_POINT_COPY_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_PATH_POINT_COPY_EMCMD)
     {
         std::vector<int> sel;
         for (int i=0;i<getEditModeBufferSize();i++)
@@ -329,7 +329,7 @@ bool CPathEditMode::processCommand(int commandID,CSceneObject* viewableObject)
         return(retVal);
     }
 
-    if (commandID==PATH_EDIT_MODE_PASTE_PATH_POINT_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_PASTE_PATH_POINT_EMCMD)
     {
         std::vector<int> sel;
         for (int i=0;i<getEditModeBufferSize();i++)
@@ -346,7 +346,7 @@ bool CPathEditMode::processCommand(int commandID,CSceneObject* viewableObject)
         return(retVal);
     }
 
-    if (commandID==PATH_EDIT_MODE_INSERT_NEW_PATH_POINT_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_INSERT_NEW_PATH_POINT_EMCMD)
     {
         std::vector<int> sel;
         for (int i=0;i<getEditModeBufferSize();i++)
@@ -363,10 +363,10 @@ bool CPathEditMode::processCommand(int commandID,CSceneObject* viewableObject)
         return(retVal);
     }
 
-    if (commandID==PATH_EDIT_MODE_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD)
     {
         deselectEditModeBuffer();
-        CSimplePathPoint* it=new CSimplePathPoint();
+        CSimplePathPoint_old* it=new CSimplePathPoint_old();
         C7Vector pathInv(_path->getFullCumulativeTransformation().getInverse());
         it->setTransformation(pathInv*viewableObject->getCumulativeTransformation(),_editionPathCont->getAttributes());
         _editionPathCont->insertSimplePathPoint(it,_editionPathCont->getSimplePathPointCount());
@@ -375,7 +375,7 @@ bool CPathEditMode::processCommand(int commandID,CSceneObject* viewableObject)
         return(retVal);
     }
 
-    if (commandID==PATH_EDIT_MODE_DELETE_PATH_POINT_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_DELETE_PATH_POINT_EMCMD)
     {
         std::vector<int> sel;
         for (int i=0;i<getEditModeBufferSize();i++)
@@ -385,7 +385,7 @@ bool CPathEditMode::processCommand(int commandID,CSceneObject* viewableObject)
         return(sel.size()>0);
     }
 
-    if (commandID==PATH_EDIT_MODE_PATH_POINT_CUT_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_PATH_POINT_CUT_EMCMD)
     {
         std::vector<int> sel;
         for (int i=0;i<getEditModeBufferSize();i++)
@@ -395,7 +395,7 @@ bool CPathEditMode::processCommand(int commandID,CSceneObject* viewableObject)
         return(sel.size()>0);
     }
 
-    if (commandID==PATH_EDIT_MODE_KEEP_ALL_X_AND_ALIGN_Z_FOR_PATH_POINTS_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_KEEP_ALL_X_AND_ALIGN_Z_FOR_PATH_POINTS_EMCMD)
     {
             std::vector<int> sel;
             for (int i=0;i<getEditModeBufferSize();i++)
@@ -408,7 +408,7 @@ bool CPathEditMode::processCommand(int commandID,CSceneObject* viewableObject)
         return(retVal);
     }
 
-    if (commandID==PATH_EDIT_MODE_INVERSE_ORDER_OF_SELECTED_PATH_CTRL_POINTS_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_INVERSE_ORDER_OF_SELECTED_PATH_CTRL_POINTS_EMCMD)
     {
         std::vector<int> sel;
         for (int i=0;i<getEditModeBufferSize();i++)
@@ -418,7 +418,7 @@ bool CPathEditMode::processCommand(int commandID,CSceneObject* viewableObject)
         return(retVal);
     }
 
-    if (commandID==PATH_EDIT_MODE_MAKE_PATH_FROM_BEZIER_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_MAKE_PATH_FROM_BEZIER_EMCMD)
     {
         _generatePath();
         return(retVal);
@@ -427,14 +427,14 @@ bool CPathEditMode::processCommand(int commandID,CSceneObject* viewableObject)
     return(false);
 }
 
-void CPathEditMode::makeDummies()
+void CPathEditMode_old::makeDummies()
 {
     std::vector<int> sel;
     for (int i=0;i<getEditModeBufferSize();i++)
         sel.push_back(editModeBuffer[i]);
     for (size_t i=0;i<sel.size();i++)
     {
-        CSimplePathPoint* it=_editionPathCont->getSimplePathPoint(sel[i]);
+        CSimplePathPoint_old* it=_editionPathCont->getSimplePathPoint(sel[i]);
         SSimulationThreadCommand cmd;
         cmd.cmdId=PATHEDIT_MAKEDUMMY_GUITRIGGEREDCMD;
         cmd.stringParams.push_back("ExtractedDummy");

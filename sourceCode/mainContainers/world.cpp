@@ -269,12 +269,12 @@ void CWorld::saveScene(CSer& ar)
     //------------------------------------------------------------
     if (ar.isBinary())
     {
-        int dynObjId=SIM_IDSTART_DYNMATERIAL_OLD;
+        int dynObjId=SIM_IDSTART_DYNMATERIAL_old;
         for (size_t i=0;i<sceneObjects->getShapeCount();i++)
         {
             CShape* it=sceneObjects->getShapeFromIndex(i);
             CDynMaterialObject* mat=it->getDynMaterial();
-            it->getMeshWrapper()->setDynMaterialId_OLD(dynObjId);
+            it->getMeshWrapper()->setDynMaterialId_old(dynObjId);
             mat->setObjectID(dynObjId++);
             ar.storeDataName(SER_DYNMATERIAL);
             ar.setCountingMode();
@@ -350,7 +350,7 @@ void CWorld::saveScene(CSer& ar)
 
     for (size_t i=0;i<collisions->getObjectCount();i++)
     {
-        CCollisionObject* collObj=collisions->getObjectFromIndex(i);
+        CCollisionObject_old* collObj=collisions->getObjectFromIndex(i);
         if (ar.isBinary())
         {
             ar.storeDataName(SER_COLLISION);
@@ -368,7 +368,7 @@ void CWorld::saveScene(CSer& ar)
     }
     for (size_t i=0;i<distances->getObjectCount();i++)
     {
-        CDistanceObject* distObj=distances->getObjectFromIndex(i);
+        CDistanceObject_old* distObj=distances->getObjectFromIndex(i);
         if (ar.isBinary())
         {
             ar.storeDataName(SER_DISTANCE);
@@ -386,7 +386,7 @@ void CWorld::saveScene(CSer& ar)
     }
     for (size_t i=0;i<ikGroups->getObjectCount();i++)
     {
-        CIkGroup* ikg=ikGroups->getObjectFromIndex(i);
+        CIkGroup_old* ikg=ikGroups->getObjectFromIndex(i);
         if (ar.isBinary())
         {
             ar.storeDataName(SER_IK);
@@ -519,7 +519,7 @@ void CWorld::saveScene(CSer& ar)
             CButtonBlock* bblk=buttonBlockContainer->allBlocks[i];
             if ((bblk->getAttributes()&sim_ui_property_systemblock)==0)
             {
-                ar.storeDataName(SER_BUTTON_BLOCK_OLD);
+                ar.storeDataName(SER_BUTTON_BLOCK_old);
                 ar.setCountingMode();
                 bblk->serialize(ar);
                 if (ar.setWritingMode())
@@ -736,9 +736,9 @@ void CWorld::setEnableRemoteWorldsSync(bool enabled)
 
 void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject*>* loadedObjectList,
                                                     std::vector<CCollection*>* loadedCollectionList,
-                                                    std::vector<CCollisionObject*>* loadedCollisionList,
-                                                    std::vector<CDistanceObject*>* loadedDistanceList,
-                                                    std::vector<CIkGroup*>* loadedIkGroupList,
+                                                    std::vector<CCollisionObject_old*>* loadedCollisionList,
+                                                    std::vector<CDistanceObject_old*>* loadedDistanceList,
+                                                    std::vector<CIkGroup_old*>* loadedIkGroupList,
                                                     std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
                                                     std::vector<CButtonBlock*>* loadedButtonBlockList,
                                                     std::vector<CLuaScriptObject*>* loadedLuaScriptList,
@@ -784,7 +784,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         if (loadedObjectList->at(i)->getObjectType()==sim_object_shape_type)
         {
             CShape* shape=(CShape*)loadedObjectList->at(i);
-            int matId=shape->getMeshWrapper()->getDynMaterialId_OLD();
+            int matId=shape->getMeshWrapper()->getDynMaterialId_old();
             if ((fileSimVersion<30303)&&(matId>=0))
             { // for backward compatibility(29/10/2016), when the dyn material was stored separaterly and shared among shapes
                 for (size_t j=0;j<loadedDynMaterialObjectList.size();j++)
@@ -808,7 +808,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
                         mat->setEngineFloatParam(sim_bullet_body_friction,0.25f); // the new Bullet friction
                 }
             }
-            shape->getMeshWrapper()->setDynMaterialId_OLD(-1);
+            shape->getMeshWrapper()->setDynMaterialId_old(-1);
         }
     }
     _prepareFastLoadingMapping(objectMapping);
@@ -911,21 +911,21 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     // We do the mapping for the collisions:
     for (size_t i=0;i<loadedCollisionList->size();i++)
     {
-        CCollisionObject* it=loadedCollisionList->at(i);
+        CCollisionObject_old* it=loadedCollisionList->at(i);
         it->performObjectLoadingMapping(&objectMapping);
         it->performCollectionLoadingMapping(&collectionMapping);
     }
     // We do the mapping for the distances:
     for (size_t i=0;i<loadedDistanceList->size();i++)
     {
-        CDistanceObject* it=loadedDistanceList->at(i);
+        CDistanceObject_old* it=loadedDistanceList->at(i);
         it->performObjectLoadingMapping(&objectMapping);
         it->performCollectionLoadingMapping(&collectionMapping);
     }
     // We do the mapping for the ik groups:
     for (size_t i=0;i<loadedIkGroupList->size();i++)
     {
-        CIkGroup* it=loadedIkGroupList->at(i);
+        CIkGroup_old* it=loadedIkGroupList->at(i);
         it->performObjectLoadingMapping(&objectMapping);
         it->performIkGroupLoadingMapping(&ikGroupMapping);
     }
@@ -1217,9 +1217,9 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
     std::vector<CTextureObject*> loadedTextureList;
     std::vector<CDynMaterialObject*> loadedDynMaterialList;
     std::vector<CCollection*> loadedCollectionList;
-    std::vector<CCollisionObject*> loadedCollisionList;
-    std::vector<CDistanceObject*> loadedDistanceList;
-    std::vector<CIkGroup*> loadedIkGroupList;
+    std::vector<CCollisionObject_old*> loadedCollisionList;
+    std::vector<CDistanceObject_old*> loadedDistanceList;
+    std::vector<CIkGroup_old*> loadedIkGroupList;
     std::vector<CPathPlanningTask*> pathPlanningTaskList;
     std::vector<CButtonBlock*> loadedButtonBlockList;
     std::vector<CLuaScriptObject*> loadedLuaScriptList;
@@ -1355,7 +1355,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                     loadedCollectionList.push_back(it);
                     noHit=false;
                 }
-                if (theName.compare(SER_BUTTON_BLOCK_OLD)==0)
+                if (theName.compare(SER_BUTTON_BLOCK_old)==0)
                 {
                     if (App::userSettings->xrTest==123456789)
                         App::logMsg(sim_verbosity_errors,"Contains old custom UIs...");
@@ -1400,7 +1400,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                     if (App::userSettings->xrTest==123456789)
                         App::logMsg(sim_verbosity_errors,"Contains collision objects...");
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CCollisionObject* it=new CCollisionObject();
+                    CCollisionObject_old* it=new CCollisionObject_old();
                     it->serialize(ar);
                     loadedCollisionList.push_back(it);
                     noHit=false;
@@ -1410,7 +1410,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                     if (App::userSettings->xrTest==123456789)
                         App::logMsg(sim_verbosity_errors,"Contains distance objects...");
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CDistanceObject* it=new CDistanceObject();
+                    CDistanceObject_old* it=new CDistanceObject_old();
                     it->serialize(ar);
                     loadedDistanceList.push_back(it);
                     noHit=false;
@@ -1420,7 +1420,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                     if (App::userSettings->xrTest==123456789)
                         App::logMsg(sim_verbosity_errors,"Contains IK objects...");
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CIkGroup* it=new CIkGroup();
+                    CIkGroup_old* it=new CIkGroup_old();
                     it->serialize(ar);
                     loadedIkGroupList.push_back(it);
                     noHit=false;
@@ -1514,7 +1514,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
         {
             while (true)
             {
-                CCollisionObject* it=new CCollisionObject();
+                CCollisionObject_old* it=new CCollisionObject_old();
                 it->serialize(ar);
                 loadedCollisionList.push_back(it);
                 if (!ar.xmlPushSiblingNode(SERX_COLLISION,false))
@@ -1526,7 +1526,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
         {
             while (true)
             {
-                CDistanceObject* it=new CDistanceObject();
+                CDistanceObject_old* it=new CDistanceObject_old();
                 it->serialize(ar);
                 loadedDistanceList.push_back(it);
                 if (!ar.xmlPushSiblingNode(SERX_DISTANCE,false))
@@ -1550,7 +1550,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
         {
             while (true)
             {
-                CIkGroup* it=new CIkGroup();
+                CIkGroup_old* it=new CIkGroup_old();
                 it->serialize(ar);
                 loadedIkGroupList.push_back(it);
                 if (!ar.xmlPushSiblingNode(SERX_IK,false))
@@ -1724,12 +1724,12 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
         ar.xmlPopNode();
     }
 
-    std::vector<CIkGroup*> allLoadedIkGroups;
+    std::vector<CIkGroup_old*> allLoadedIkGroups;
     if (ar.xmlPushChildNode(SERX_IK,false))
     {
         while (true)
         {
-            CIkGroup* it=new CIkGroup();
+            CIkGroup_old* it=new CIkGroup_old();
             it->serialize(ar);
             allLoadedIkGroups.push_back(it);
             if (!ar.xmlPushSiblingNode(SERX_IK,false))
@@ -1918,10 +1918,10 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
     // Add ik groups and perform mapping:
     for (size_t i=0;i<allLoadedIkGroups.size();i++)
     {
-        CIkGroup* it=allLoadedIkGroups[i];
+        CIkGroup_old* it=allLoadedIkGroups[i];
         for (size_t j=0;j<it->getIkElementCount();j++)
         {
-            CIkElement* el=it->getIkElementFromIndex(j);
+            CIkElement_old* el=it->getIkElementFromIndex(j);
             std::map<std::string,CSceneObject*>::const_iterator elIt=_objectTempNamesMap.find(el->getTipLoadName());
             if ( (el->getTipLoadName().size()>0)&&(elIt!=_objectTempNamesMap.end()) )
             {
@@ -2174,9 +2174,9 @@ void CWorld::_getMinAndMaxNameSuffixes(int& smallestSuffix,int& biggestSuffix) c
 
 int CWorld::_getSuffixOffsetForGeneralObjectToAdd(bool tempNames,std::vector<CSceneObject*>* loadedObjectList,
                                                  std::vector<CCollection*>* loadedCollectionList,
-                                                 std::vector<CCollisionObject*>* loadedCollisionList,
-                                                 std::vector<CDistanceObject*>* loadedDistanceList,
-                                                 std::vector<CIkGroup*>* loadedIkGroupList,
+                                                 std::vector<CCollisionObject_old*>* loadedCollisionList,
+                                                 std::vector<CDistanceObject_old*>* loadedDistanceList,
+                                                 std::vector<CIkGroup_old*>* loadedIkGroupList,
                                                  std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
                                                  std::vector<CButtonBlock*>* loadedButtonBlockList,
                                                  std::vector<CLuaScriptObject*>* loadedLuaScriptList) const

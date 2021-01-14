@@ -56,7 +56,7 @@ void CQDlgCollisions::refresh()
         selectObjectInList(selectedObjectID);
     }
 
-    CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
+    CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
     ui->qqComputeContour->setEnabled((it!=nullptr)&&it->canComputeCollisionContour()&&noEditModeNoSim);
 
     ui->qqAddNewObject->setEnabled(noEditModeNoSim);
@@ -92,7 +92,7 @@ void CQDlgCollisions::updateObjectsInList()
     ui->qqCollisionList->clear();
     for (size_t i=0;i<App::currentWorld->collisions->getObjectCount();i++)
     {
-        CCollisionObject* it=App::currentWorld->collisions->getObjectFromIndex(i);
+        CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromIndex(i);
         std::string tmp=it->getObjectDescriptiveName();
         int id=it->getObjectHandle();
         QListWidgetItem* itm=new QListWidgetItem(tmp.c_str());
@@ -147,7 +147,7 @@ void CQDlgCollisions::on_qqCollisionList_itemSelectionChanged()
     IF_UI_EVENT_CAN_READ_DATA
     {
         int objID=getSelectedObjectID();
-        CCollisionObject* coll=App::currentWorld->collisions->getObjectFromHandle(objID);
+        CCollisionObject_old* coll=App::currentWorld->collisions->getObjectFromHandle(objID);
         if (coll!=nullptr)
             ((CEditBoxDelegate*)ui->qqCollisionList->itemDelegate())->initialText=coll->getObjectName();
         else
@@ -165,7 +165,7 @@ void CQDlgCollisions::on_qqCollisionList_itemChanged(QListWidgetItem *item)
         if (item!=nullptr)
         {
             std::string newName(item->text().toStdString());
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(item->data(Qt::UserRole).toInt());
+            CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(item->data(Qt::UserRole).toInt());
             if ( (it!=nullptr)&&(newName!="") )
             {
                 if (it->getObjectName()!=newName)
@@ -222,7 +222,7 @@ void CQDlgCollisions::on_qqExplicitHandling_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
+        CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
         {
             App::appendSimulationThreadCommand(TOGGLE_EXPLICITHANDLING_COLLISIONGUITRIGGEREDCMD,it->getObjectHandle());
@@ -236,7 +236,7 @@ void CQDlgCollisions::on_qqColliderColorChanges_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
+        CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
         {
             App::appendSimulationThreadCommand(TOGGLE_COLLIDERCOLORCHANGES_COLLISIONGUITRIGGEREDCMD,it->getObjectHandle());
@@ -250,7 +250,7 @@ void CQDlgCollisions::on_qqComputeContour_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
+        CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
         {
             App::appendSimulationThreadCommand(TOGGLE_COLLISIONCONTOUR_COLLISIONGUITRIGGEREDCMD,it->getObjectHandle());
@@ -264,7 +264,7 @@ void CQDlgCollisions::on_qqCollideeColorChanges_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
+        CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
         {
             App::appendSimulationThreadCommand(TOGGLE_COLLIDEECOLORCHANGES_COLLISIONGUITRIGGEREDCMD,it->getObjectHandle());
@@ -288,7 +288,7 @@ void CQDlgCollisions::on_qqContourWidth_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
+        CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
         {
             bool ok;

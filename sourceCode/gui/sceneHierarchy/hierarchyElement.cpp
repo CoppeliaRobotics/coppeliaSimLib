@@ -1306,7 +1306,7 @@ void CHierarchyElement::renderElement_editModeList(CHierarchy* hier,int labelEdi
         theText="Edge ";
         theText+=boost::lexical_cast<std::string>(objectID+1);
     }
-    if (editModeType==PATH_EDIT_MODE)
+    if (editModeType==PATH_EDIT_MODE_OLD)
     {
         theText="Path point ";
         theText+=boost::lexical_cast<std::string>(objectID+1);
@@ -1363,7 +1363,7 @@ void CHierarchyElement::renderElement_editModeList(CHierarchy* hier,int labelEdi
         off=off+_drawIcon_editModeList(hier,textPos[0]+off+8*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,TRIANGLE_PICTURE,!dontDisplay);
     if (editModeType==EDGE_EDIT_MODE)
         off=off+_drawIcon_editModeList(hier,textPos[0]+off+8*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,EDGE_PICTURE,!dontDisplay);
-    if (editModeType==PATH_EDIT_MODE)
+    if (editModeType==PATH_EDIT_MODE_OLD)
         off=off+_drawIcon_editModeList(hier,textPos[0]+off+8*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,PATH_POINT_PICTURE,!dontDisplay);
     if (editModeType==MULTISHAPE_EDIT_MODE)
     {

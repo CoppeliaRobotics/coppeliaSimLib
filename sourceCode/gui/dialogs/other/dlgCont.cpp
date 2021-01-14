@@ -301,7 +301,7 @@ void CDlgCont::keyPress(int key)
 void CDlgCont::addMenu(VMenu* menu)
 { 
     bool noShapePathEditModeNoSelector=true;
-    if ((App::getEditModeType()&SHAPE_EDIT_MODE)||(App::getEditModeType()==PATH_EDIT_MODE))
+    if ((App::getEditModeType()&SHAPE_EDIT_MODE)||(App::getEditModeType()==PATH_EDIT_MODE_OLD))
         noShapePathEditModeNoSelector=false;
     if (App::mainWindow->oglSurface->isPageSelectionActive())
         noShapePathEditModeNoSelector=false;

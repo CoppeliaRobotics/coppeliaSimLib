@@ -2,4 +2,4 @@
 #include "app.h"
 #include "rendering.h"
 
-void displayDistance(CDistanceObject* dist,int segWidth,const float* distResult);
+void displayDistance(CDistanceObject_old* dist,int segWidth,const float* distResult);

@@ -6,9 +6,9 @@
 
 // old:
 #include "collection.h"
-#include "collisionObject.h"
-#include "distanceObject.h"
-#include "ikGroup.h"
+#include "collisionObject_old.h"
+#include "distanceObject_old.h"
+#include "ikGroup_old.h"
 #include "pathPlanningTask_old.h"
 #include "buttonBlock.h"
 
@@ -65,9 +65,9 @@ private:
 
     // Old:
     std::vector<CCollection*> collectionBuffer;
-    std::vector<CCollisionObject*> collisionBuffer;
-    std::vector<CDistanceObject*> distanceBuffer;
-    std::vector<CIkGroup*> ikGroupBuffer;
+    std::vector<CCollisionObject_old*> collisionBuffer;
+    std::vector<CDistanceObject_old*> distanceBuffer;
+    std::vector<CIkGroup_old*> ikGroupBuffer;
     std::vector<CPathPlanningTask*> pathPlanningTaskBuffer;
     std::vector<CButtonBlock*> buttonBlockBuffer;
 
@@ -78,9 +78,9 @@ private:
 
     // Old:
     std::vector<CCollection*> collectionBuffer_tempSer;
-    std::vector<CCollisionObject*> collisionBuffer_tempSer;
-    std::vector<CDistanceObject*> distanceBuffer_tempSer;
-    std::vector<CIkGroup*> ikGroupBuffer_tempSer;
+    std::vector<CCollisionObject_old*> collisionBuffer_tempSer;
+    std::vector<CDistanceObject_old*> distanceBuffer_tempSer;
+    std::vector<CIkGroup_old*> ikGroupBuffer_tempSer;
     std::vector<CPathPlanningTask*> pathPlanningTaskBuffer_tempSer;
     std::vector<CButtonBlock*> buttonBlockBuffer_tempSer;
 
@@ -93,9 +93,9 @@ private:
 
     // Old:
     std::vector<CCollection*> collectionBuffer_memorized;
-    std::vector<CCollisionObject*> collisionBuffer_memorized;
-    std::vector<CDistanceObject*> distanceBuffer_memorized;
-    std::vector<CIkGroup*> ikGroupBuffer_memorized;
+    std::vector<CCollisionObject_old*> collisionBuffer_memorized;
+    std::vector<CDistanceObject_old*> distanceBuffer_memorized;
+    std::vector<CIkGroup_old*> ikGroupBuffer_memorized;
     std::vector<CPathPlanningTask*> pathPlanningTaskBuffer_memorized;
     std::vector<CButtonBlock*> buttonBlockBuffer_memorized;
 };

@@ -2,11 +2,11 @@
 
 #include <vector>
 
-class CPathPointManipulation
+class CPathPointManipulation_old
 {
 public:
-    CPathPointManipulation();
-    virtual ~CPathPointManipulation();
+    CPathPointManipulation_old();
+    virtual ~CPathPointManipulation_old();
 
     void announceObjectSelectionChanged();
     void announceSceneInstanceChanged();
@@ -23,7 +23,6 @@ public:
     bool isPathPointIndexSelected_nonEditMode(int index,bool removeIfYes);
     int getUniqueSelectedPathId_nonEditMode();
     int getSelectedPathPointIndicesSize_nonEditMode();
-    bool deleteSelectedPathPoints_nonEditMode();
 
 private:
     bool _simulationStopped;

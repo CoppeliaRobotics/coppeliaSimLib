@@ -56,9 +56,9 @@ public:
 
     void addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject*>* loadedObjectList,
                                                     std::vector<CCollection*>* loadedCollectionList,
-                                                    std::vector<CCollisionObject*>* loadedCollisionList,
-                                                    std::vector<CDistanceObject*>* loadedDistanceList,
-                                                    std::vector<CIkGroup*>* loadedIkGroupList,
+                                                    std::vector<CCollisionObject_old*>* loadedCollisionList,
+                                                    std::vector<CDistanceObject_old*>* loadedDistanceList,
+                                                    std::vector<CIkGroup_old*>* loadedIkGroupList,
                                                     std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
                                                     std::vector<CButtonBlock*>* loadedButtonBlockList,
                                                     std::vector<CLuaScriptObject*>* loadedLuaScriptList,
@@ -128,9 +128,9 @@ private:
     void _getMinAndMaxNameSuffixes(int& smallestSuffix,int& biggestSuffix) const;
     int _getSuffixOffsetForGeneralObjectToAdd(bool tempNames,std::vector<CSceneObject*>* loadedObjectList,
         std::vector<CCollection*>* loadedCollectionList,
-        std::vector<CCollisionObject*>* loadedCollisionList,
-        std::vector<CDistanceObject*>* loadedDistanceList,
-        std::vector<CIkGroup*>* loadedIkGroupList,
+        std::vector<CCollisionObject_old*>* loadedCollisionList,
+        std::vector<CDistanceObject_old*>* loadedDistanceList,
+        std::vector<CIkGroup_old*>* loadedIkGroupList,
         std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
         std::vector<CButtonBlock*>* loadedButtonBlockList,
         std::vector<CLuaScriptObject*>* loadedLuaScriptList) const;

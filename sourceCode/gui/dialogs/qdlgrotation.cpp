@@ -185,7 +185,7 @@ void CQDlgRotation::refresh()
                 else
                     _setDefaultValuesTransformationPart(true);
             }
-            if (editMode&PATH_EDIT_MODE)
+            if (editMode&PATH_EDIT_MODE_OLD)
             {
                 bool sel=(App::mainWindow->editModeContainer->getEditModeBufferSize()!=0);
                 bool bigSel=(App::mainWindow->editModeContainer->getEditModeBufferSize()>1);
@@ -194,9 +194,9 @@ void CQDlgRotation::refresh()
                 _enableTransformationPart(sel,sel,true);
                 if (sel)
                 {
-                    CPath* path=App::mainWindow->editModeContainer->getEditModePath();
+                    CPath_old* path=App::mainWindow->editModeContainer->getEditModePath_old();
                     int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
-                    CSimplePathPoint* pp=App::mainWindow->editModeContainer->getEditModePathContainer()->getSimplePathPoint(ind);
+                    CSimplePathPoint_old* pp=App::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPoint(ind);
                     if (sel&&(path!=nullptr)&&(pp!=nullptr))
                     {
                         // Coordinate part:
@@ -316,12 +316,12 @@ bool CQDlgRotation::_setCoord_userUnit(float newValueInUserUnit,int index)
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
-    if ( (editMode&PATH_EDIT_MODE)&&(App::mainWindow->editModeContainer->getEditModeBufferSize()!=0)&&(App::mainWindow->editModeContainer->getEditModePathContainer()!=nullptr) )
+    if ( (editMode&PATH_EDIT_MODE_OLD)&&(App::mainWindow->editModeContainer->getEditModeBufferSize()!=0)&&(App::mainWindow->editModeContainer->getEditModePathContainer_old()!=nullptr) )
     {
-        CPathCont* pathCont=App::mainWindow->editModeContainer->getEditModePathContainer();
+        CPathCont_old* pathCont=App::mainWindow->editModeContainer->getEditModePathContainer_old();
         int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
-        CSimplePathPoint* pp=pathCont->getSimplePathPoint(ind);
-        CPath* path=App::mainWindow->editModeContainer->getEditModePath();
+        CSimplePathPoint_old* pp=pathCont->getSimplePathPoint(ind);
+        CPath_old* path=App::mainWindow->editModeContainer->getEditModePath_old();
         if ( (pp!=nullptr)&&(path!=nullptr) )
         {
             C7Vector tr(pp->getTransformation());
@@ -386,12 +386,12 @@ bool CQDlgRotation::_applyCoord()
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
-    if ( (editMode&PATH_EDIT_MODE)&&(editObjSelSize>1)&&(App::mainWindow->editModeContainer->getEditModePathContainer()!=nullptr) )
+    if ( (editMode&PATH_EDIT_MODE_OLD)&&(editObjSelSize>1)&&(App::mainWindow->editModeContainer->getEditModePathContainer_old()!=nullptr) )
     {
-        CPathCont* pathCont=App::mainWindow->editModeContainer->getEditModePathContainer();
+        CPathCont_old* pathCont=App::mainWindow->editModeContainer->getEditModePathContainer_old();
         int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
-        CSimplePathPoint* pp=pathCont->getSimplePathPoint(ind);
-        CPath* path=App::mainWindow->editModeContainer->getEditModePath();
+        CSimplePathPoint_old* pp=pathCont->getSimplePathPoint(ind);
+        CPath_old* path=App::mainWindow->editModeContainer->getEditModePath_old();
         if ( (pp!=nullptr)&&(path!=nullptr) )
         {
             C7Vector tr(pp->getTransformation());
@@ -399,7 +399,7 @@ bool CQDlgRotation::_applyCoord()
                 tr=path->getCumulativeTransformation()*tr;
             for (int i=0;i<editObjSelSize-1;i++)
             {
-                CSimplePathPoint* ppIt=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
+                CSimplePathPoint_old* ppIt=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
                 if (ppIt!=nullptr)
                 {
                     C7Vector trIt(ppIt->getTransformation());
@@ -475,13 +475,13 @@ bool CQDlgRotation::_applyTransformation(int axis)
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
-    if ( (editMode&PATH_EDIT_MODE)&&(editObjSelSize>0)&&(App::mainWindow->editModeContainer->getEditModePathContainer()!=nullptr) )
+    if ( (editMode&PATH_EDIT_MODE_OLD)&&(editObjSelSize>0)&&(App::mainWindow->editModeContainer->getEditModePathContainer_old()!=nullptr) )
     {
-        CPathCont* pathCont=App::mainWindow->editModeContainer->getEditModePathContainer();
-        CPath* path=App::mainWindow->editModeContainer->getEditModePath();
+        CPathCont_old* pathCont=App::mainWindow->editModeContainer->getEditModePathContainer_old();
+        CPath_old* path=App::mainWindow->editModeContainer->getEditModePath_old();
         for (int i=0;i<editObjSelSize;i++)
         {
-            CSimplePathPoint* pp=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
+            CSimplePathPoint_old* pp=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
             if ( (pp!=nullptr)&&(path!=nullptr) )
             {
                 C7Vector tr(pp->getTransformation());

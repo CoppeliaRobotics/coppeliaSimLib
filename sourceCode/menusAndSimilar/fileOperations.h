@@ -26,8 +26,6 @@ public:
 
 private:
     static void _removeFromRecentlyOpenedScenes(std::string filenameAndPath);
-    static bool _pathImportRoutine(const char* pathName,bool displayDialogs);
-    static bool _pathExportPoints(const char* pathName,int pathID,bool bezierPoints,bool displayDialogs);
     static bool heightfieldImportRoutine(const char* pathName);
     static std::string _getStringOfVersionAndLicenseThatTheFileWasWrittenWith(unsigned short coppeliaSimVer,int licenseType,char revision);
 

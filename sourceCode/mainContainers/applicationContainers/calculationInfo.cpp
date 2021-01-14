@@ -257,7 +257,7 @@ void CCalculationInfo::printInformation()
         int pos=0;
         std::string tmp;
         std::string txt;
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
+        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getLastSelectionObject();
             if (it!=nullptr)
@@ -365,10 +365,10 @@ void CCalculationInfo::printInformation()
 
 
 
-        if (App::getEditModeType()&PATH_EDIT_MODE)
-        {
-            CPathCont* pc=App::mainWindow->editModeContainer->getEditModePathContainer();
-            CPath* path=App::mainWindow->editModeContainer->getEditModePath();
+        if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
+        { // OLD
+            CPathCont_old* pc=App::mainWindow->editModeContainer->getEditModePathContainer_old();
+            CPath_old* path=App::mainWindow->editModeContainer->getEditModePath_old();
             if ( (pc!=nullptr)&&(path!=nullptr) )
             {
                 if (App::mainWindow->editModeContainer->getEditModeBufferSize()!=2)
@@ -380,8 +380,8 @@ void CCalculationInfo::printInformation()
                 }
                 else
                 {
-                    CSimplePathPoint* pt1(App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(0));
-                    CSimplePathPoint* pt2(App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(1));
+                    CSimplePathPoint_old* pt1(App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(0));
+                    CSimplePathPoint_old* pt2(App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(1));
                     float dist=(pt2->getTransformation().X-pt1->getTransformation().X).getLength();
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected path points:";
                     txt="2 (distance="+gv::getSizeStr(false,dist,0)+")";
@@ -389,8 +389,8 @@ void CCalculationInfo::printInformation()
                 }
                 if (App::mainWindow->editModeContainer->getEditModeBufferSize()!=0)
                 {
-                    CSimplePathPoint* pt(App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(App::mainWindow->editModeContainer->getEditModeBufferSize()-1));
-//                  CSimplePathPoint* pt(pc->getSimplePathPoint(App::currentWorld->objCont->editModeBuffer[App::currentWorld->objCont->editModeBuffer.size()-1]));
+                    CSimplePathPoint_old* pt(App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(App::mainWindow->editModeContainer->getEditModeBufferSize()-1));
+//                  CSimplePathPoint_old* pt(pc->getSimplePathPoint(App::currentWorld->objCont->editModeBuffer[App::currentWorld->objCont->editModeBuffer.size()-1]));
                     C7Vector tr(path->getCumulativeTransformation());
                     C3Vector v(tr*pt->getTransformation().X);
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Last selected path point position:";

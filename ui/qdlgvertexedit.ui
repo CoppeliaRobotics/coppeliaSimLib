@@ -108,7 +108,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Make dummies</string>
+     <string>Copy to status bar</string>
     </property>
    </widget>
   </widget>

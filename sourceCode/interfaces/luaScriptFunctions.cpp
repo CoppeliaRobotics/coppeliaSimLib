@@ -17894,7 +17894,7 @@ int _simMoveToObject(luaWrap_lua_State* L)
                                 if (targetObject->getObjectType()==sim_object_path_type)
                                 {
                                     C7Vector pathLoc;
-                                    if ( ((CPath*)targetObject)->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(relativeDistanceOnPath,pathLoc))
+                                    if ( ((CPath_old*)targetObject)->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(relativeDistanceOnPath,pathLoc))
                                         targetTr*=pathLoc;
                                     else
                                         relativeDistanceOnPath=-1.0f; // the path is empty!
@@ -18728,7 +18728,7 @@ int _simFollowPath(luaWrap_lua_State* L)
                     positionAndOrOrientation=1;
                 float maxVelocity=luaToFloat(L,5);
                 CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
-                CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(pathID);
+                CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(pathID);
                 float accel=0.0f; // means infinite accel!! (default value)
                 bool foundError=false;
                 if ((!foundError)&&(object==nullptr))
@@ -19581,7 +19581,7 @@ int _simHandleCollision(luaWrap_lua_State* L)
         if ( (retVal>0)&&(objHandle>=0) )
         {
             int collObjHandles[2];
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(objHandle);
+            CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(objHandle);
             if (it!=nullptr)
             {
                 it->readCollision(collObjHandles);
@@ -19610,7 +19610,7 @@ int _simReadCollision(luaWrap_lua_State* L)
         if (retVal>0)
         {
             int collObjHandles[2];
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(objHandle);
+            CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(objHandle);
             if (it!=nullptr)
             {
                 it->readCollision(collObjHandles);

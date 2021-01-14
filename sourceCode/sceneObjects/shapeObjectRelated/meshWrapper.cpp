@@ -13,7 +13,7 @@ CMeshWrapper::CMeshWrapper()
     _mass=1.0f;
     _name="sub__0";
 
-    _dynMaterialId_OLD=-1; // not used anymore since V3.4.0
+    _dynMaterialId_old=-1; // not used anymore since V3.4.0
 
     _convex=false;
 
@@ -76,7 +76,7 @@ void CMeshWrapper::performTextureObjectLoadingMapping(const std::vector<int>* ma
 
 void CMeshWrapper::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
 {
-    _dynMaterialId_OLD=CWorld::getLoadingMapping(map,_dynMaterialId_OLD);
+    _dynMaterialId_old=CWorld::getLoadingMapping(map,_dynMaterialId_old);
 }
 
 void CMeshWrapper::announceSceneObjectWillBeErased(int objectID)
@@ -182,7 +182,7 @@ void CMeshWrapper::copyWrapperInfos(CMeshWrapper* target)
 
     target->_transformationsSinceGrouping=_transformationsSinceGrouping;
 
-    target->_dynMaterialId_OLD=_dynMaterialId_OLD;
+    target->_dynMaterialId_old=_dynMaterialId_old;
 
     for (size_t i=0;i<childList.size();i++)
         target->childList.push_back(childList[i]->copyYourself());
@@ -216,14 +216,14 @@ std::string CMeshWrapper::getName()
     return(_name);
 }
 
-int CMeshWrapper::getDynMaterialId_OLD()
+int CMeshWrapper::getDynMaterialId_old()
 {
-    return(_dynMaterialId_OLD);
+    return(_dynMaterialId_old);
 }
 
-void CMeshWrapper::setDynMaterialId_OLD(int id)
+void CMeshWrapper::setDynMaterialId_old(int id)
 {
-    _dynMaterialId_OLD=id;
+    _dynMaterialId_old=id;
 }
 
 C7Vector CMeshWrapper::getLocalInertiaFrame()
@@ -442,7 +442,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
             ar.flush();
 
             ar.storeDataName("Dmi");
-            ar << _dynMaterialId_OLD;
+            ar << _dynMaterialId_old;
             ar.flush();
 
             ar.storeDataName("Ine");
@@ -509,7 +509,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _dynMaterialId_OLD;
+                        ar >> _dynMaterialId_old;
                     }
                     if (theName.compare("Ine")==0)
                     {

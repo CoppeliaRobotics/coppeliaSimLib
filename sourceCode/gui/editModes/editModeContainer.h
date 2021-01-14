@@ -15,9 +15,9 @@ public:
     void endEditMode(bool cancelChanges);
     int getEditModeObjectID();
     CShape* getEditModeShape();
-    CPath* getEditModePath();
+    CPath_old* getEditModePath_old();
     CSceneObject* getEditModeObject();
-    CPathCont* getEditModePathContainer();
+    CPathCont_old* getEditModePathContainer_old();
     int getEditModeType();
     void swapShapeEditModeType(int theType);
 
@@ -32,7 +32,7 @@ public:
 
     CShapeEditMode* getShapeEditMode();
     CMultishapeEditMode* getMultishapeEditMode();
-    CPathEditMode* getPathEditMode();
+    CPathEditMode_old* getPathEditMode();
 
     void addMenu(VMenu* menu,CSceneObject* viewableObject);
     bool processCommand(int commandID,CSceneObject* viewableObject);
@@ -44,16 +44,16 @@ public:
     void simulationAboutToStart();
     void simulationEnded();
 
-    CPathPointManipulation* pathPointManipulation;
+    CPathPointManipulation_old* pathPointManipulation;
 
 private:
     bool _processShapeEditModeCommand(int commandID);
     bool _processMultishapeEditModeCommand(int commandID);
-    bool _processPathEditModeCommand(int commandID,CSceneObject* viewableObject);
+    bool _processPathEditModeCommand_old(int commandID,CSceneObject* viewableObject);
 
     CShapeEditMode* _shapeEditMode;
     CMultishapeEditMode* _multishapeEditMode;
-    CPathEditMode* _pathEditMode;
+    CPathEditMode_old* _pathEditMode;
 
     int _editModeObject;
     bool _editMode_hierarchyWasEnabledBeforeEditMode;

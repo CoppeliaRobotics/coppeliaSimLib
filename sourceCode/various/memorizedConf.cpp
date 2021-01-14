@@ -20,7 +20,7 @@ CMemorizedConf::CMemorizedConf(CSceneObject* theObject)
     }
     if (objectType==sim_object_path_type)
     {
-        CPath* path=(CPath*)theObject;
+        CPath_old* path=(CPath_old*)theObject;
         position=float(path->pathContainer->getPosition());
     }
 }
@@ -60,7 +60,7 @@ void CMemorizedConf::restore()
     }
     if (objectType==sim_object_path_type)
     {
-        CPath* path=(CPath*)it;
+        CPath_old* path=(CPath_old*)it;
         path->pathContainer->setPosition(position);
     }
 }

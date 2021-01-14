@@ -5,7 +5,7 @@
 #include "visionSensor.h"
 #include "camera.h"
 #include "graph.h"
-#include "path.h"
+#include "path_old.h"
 #include "mirror.h"
 #include "octree.h"
 #include "pointCloud.h"
@@ -115,7 +115,7 @@ public:
     CProxSensor* getProximitySensorFromIndex(size_t index) const;
     CVisionSensor* getVisionSensorFromIndex(size_t index) const;
     CShape* getShapeFromIndex(size_t index) const;
-    CPath* getPathFromIndex(size_t index) const;
+    CPath_old* getPathFromIndex(size_t index) const;
     CMill* getMillFromIndex(size_t index) const;
     CForceSensor* getForceSensorFromIndex(size_t index) const;
     COctree* getOctreeFromIndex(size_t index) const;
@@ -132,7 +132,7 @@ public:
     CCamera* getCameraFromHandle(int objectHandle) const;
     CLight* getLightFromHandle(int objectHandle) const;
     CGraph* getGraphFromHandle(int objectHandle) const;
-    CPath* getPathFromHandle(int objectHandle) const;
+    CPath_old* getPathFromHandle(int objectHandle) const;
     CMill* getMillFromHandle(int objectHandle) const;
     CForceSensor* getForceSensorFromHandle(int objectHandle) const;
 
@@ -200,7 +200,7 @@ public:
     CDummy* getLastSelectionDummy() const;
     CProxSensor* getLastSelectionProxSensor() const;
     CVisionSensor* getLastSelectionVisionSensor() const;
-    CPath* getLastSelectionPath() const;
+    CPath_old* getLastSelectionPath() const;
     CMill* getLastSelectionMill() const;
     CForceSensor* getLastSelectionForceSensor() const;
 

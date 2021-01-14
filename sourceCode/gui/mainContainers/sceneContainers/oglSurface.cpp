@@ -519,10 +519,10 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
                     hierarchyTitle="  Edges (";
                 hierarchyTitle+=objName+")";
             }
-            if (t&PATH_EDIT_MODE)
+            if (t&PATH_EDIT_MODE_OLD)
             {
                 std::string objName("  ERROR");
-                CPath* thePath=App::mainWindow->editModeContainer->getEditModePath();
+                CPath_old* thePath=App::mainWindow->editModeContainer->getEditModePath_old();
                 if (thePath!=nullptr)
                     objName=thePath->getObjectName();
                 hierarchyTitle="  Control points (";

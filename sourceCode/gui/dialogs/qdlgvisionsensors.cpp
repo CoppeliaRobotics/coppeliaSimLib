@@ -178,7 +178,7 @@ void CQDlgVisionSensors::refresh()
         // Now paths:
         for (size_t i=0;i<App::currentWorld->sceneObjects->getPathCount();i++)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromIndex(i);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromIndex(i);
             std::string name(tt::decorateString("[",IDSN_PATH,"] "));
             name+=it->getObjectName();
             names.push_back(name);

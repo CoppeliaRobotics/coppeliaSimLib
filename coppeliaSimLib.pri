@@ -157,8 +157,9 @@ LIBS += $$LUA_LIBS
 
 INCLUDEPATH += $$PWD/"sourceCode"
 INCLUDEPATH += $$PWD/"sourceCode/shared"
-INCLUDEPATH += $$PWD/"sourceCode/kinematics"
-INCLUDEPATH += $$PWD/"sourceCode/shared/kinematics"
+INCLUDEPATH += $$PWD/"sourceCode/shared/backwardCompatibility/collisions"
+INCLUDEPATH += $$PWD/"sourceCode/shared/backwardCompatibility/distances"
+INCLUDEPATH += $$PWD/"sourceCode/shared/backwardCompatibility/kinematics"
 INCLUDEPATH += $$PWD/"sourceCode/communication"
 INCLUDEPATH += $$PWD/"sourceCode/communication/tubes"
 INCLUDEPATH += $$PWD/"sourceCode/communication/wireless"
@@ -167,9 +168,7 @@ INCLUDEPATH += $$PWD/"sourceCode/platform"
 INCLUDEPATH += $$PWD/"sourceCode/collections"
 INCLUDEPATH += $$PWD/"sourceCode/shared/collections"
 INCLUDEPATH += $$PWD/"sourceCode/collisions"
-INCLUDEPATH += $$PWD/"sourceCode/shared/collisions"
 INCLUDEPATH += $$PWD/"sourceCode/distances"
-INCLUDEPATH += $$PWD/"sourceCode/shared/distances"
 INCLUDEPATH += $$PWD/"sourceCode/pathPlanning_old"
 INCLUDEPATH += $$PWD/"sourceCode/sceneObjects"
 INCLUDEPATH += $$PWD/"sourceCode/shared/sceneObjects"
@@ -204,6 +203,9 @@ INCLUDEPATH += $$PWD/"sourceCode/displ"
 INCLUDEPATH += $$PWD/"sourceCode/shared/displ"
 INCLUDEPATH += $$PWD/"sourceCode/utils"
 INCLUDEPATH += $$PWD/"sourceCode/backwardCompatibility/pathPlanning"
+INCLUDEPATH += $$PWD/"sourceCode/backwardCompatibility/collisions"
+INCLUDEPATH += $$PWD/"sourceCode/backwardCompatibility/distances"
+INCLUDEPATH += $$PWD/"sourceCode/backwardCompatibility/kinematics"
 INCLUDEPATH += $$PWD/"sourceCode/customUserInterfaces"
 INCLUDEPATH += $$PWD/"sourceCode/undoRedo"
 INCLUDEPATH += $$PWD/"sourceCode/rendering"
@@ -335,10 +337,10 @@ HEADERS += $$PWD/../programming/simMath/mathDefines.h \
 HEADERS += $$PWD/../programming/include/simConst.h \
     $$PWD/../programming/include/simTypes.h \
 
-HEADERS += $$PWD/sourceCode/kinematics/ikGroup.h \
-    $$PWD/sourceCode/shared/kinematics/_ikGroup_.h \
-    $$PWD/sourceCode/kinematics/ikElement.h \
-    $$PWD/sourceCode/shared/kinematics/_ikElement_.h
+HEADERS += $$PWD/sourceCode/backwardCompatibility/kinematics/ikGroup_old.h \
+    $$PWD/sourceCode/shared/backwardCompatibility/kinematics/_ikGroup_old.h \
+    $$PWD/sourceCode/backwardCompatibility/kinematics/ikElement_old.h \
+    $$PWD/sourceCode/shared/backwardCompatibility/kinematics/_ikElement_old.h
 
 HEADERS += $$PWD/sourceCode/drawingObjects/bannerObject.h \
     $$PWD/sourceCode/drawingObjects/drawingObject.h \
@@ -357,12 +359,12 @@ HEADERS += $$PWD/sourceCode/collections/collectionElement.h \
     $$PWD/sourceCode/collections/collection.h \
     $$PWD/sourceCode/shared/collections/_collection_.h \
 
-HEADERS += $$PWD/sourceCode/collisions/collisionObject.h \
-    $$PWD/sourceCode/shared/collisions/_collisionObject_.h \
+HEADERS += $$PWD/sourceCode/backwardCompatibility/collisions/collisionObject_old.h \
+    $$PWD/sourceCode/shared/backwardCompatibility/collisions/_collisionObject_old.h \
     $$PWD/sourceCode/collisions/collisionRoutines.h \
 
-HEADERS += $$PWD/sourceCode/distances/distanceObject.h \
-    $$PWD/sourceCode/shared/distances/_distanceObject_.h \
+HEADERS += $$PWD/sourceCode/backwardCompatibility/distances/distanceObject_old.h \
+    $$PWD/sourceCode/shared/backwardCompatibility/distances/_distanceObject_old.h \
     $$PWD/sourceCode/distances/distanceRoutines.h \
 
 HEADERS += $$PWD/sourceCode/sceneObjects/related/sceneObject.h \
@@ -383,7 +385,7 @@ HEADERS += $$PWD/sourceCode/sceneObjects/jointObject.h \
     $$PWD/sourceCode/sceneObjects/mill.h \
     $$PWD/sourceCode/sceneObjects/mirror.h \
     $$PWD/sourceCode/sceneObjects/shape.h \
-    $$PWD/sourceCode/sceneObjects/path.h \
+    $$PWD/sourceCode/sceneObjects/path_old.h \
     $$PWD/sourceCode/sceneObjects/proximitySensor.h \
     $$PWD/sourceCode/sceneObjects/visionSensor.h \
 
@@ -394,20 +396,20 @@ HEADERS += $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphCurve.h \
     $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphData_old.h \
     $$PWD/sourceCode/sceneObjects/graphObjectRelated/staticGraphCurve_old.h \
 
-HEADERS += $$PWD/sourceCode/sceneObjects/pathObjectRelated/bezierPathPoint.h \
-    $$PWD/sourceCode/sceneObjects/pathObjectRelated/simplePathPoint.h \
-    $$PWD/sourceCode/sceneObjects/pathObjectRelated/pathPoint.h \
-    $$PWD/sourceCode/sceneObjects/pathObjectRelated/pathCont.h \
+HEADERS += $$PWD/sourceCode/sceneObjects/pathObjectRelated/bezierPathPoint_old.h \
+    $$PWD/sourceCode/sceneObjects/pathObjectRelated/simplePathPoint_old.h \
+    $$PWD/sourceCode/sceneObjects/pathObjectRelated/pathPoint_old.h \
+    $$PWD/sourceCode/sceneObjects/pathObjectRelated/pathCont_old.h \
 
 HEADERS += $$PWD/sourceCode/sceneObjects/shapeObjectRelated/mesh.h \
     $$PWD/sourceCode/sceneObjects/shapeObjectRelated/meshWrapper.h \
     $$PWD/sourceCode/sceneObjects/shapeObjectRelated/volInt.h \
 
-HEADERS += $$PWD/sourceCode/backwardCompatibility/pathPlanning/pathPlanning.h \
-    $$PWD/sourceCode/backwardCompatibility/pathPlanning/holonomicPathPlanning.h \
-    $$PWD/sourceCode/backwardCompatibility/pathPlanning/holonomicPathNode.h \
-    $$PWD/sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathPlanning.h \
-    $$PWD/sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathNode.h \
+HEADERS += $$PWD/sourceCode/backwardCompatibility/pathPlanning/pathPlanning_old.h \
+    $$PWD/sourceCode/backwardCompatibility/pathPlanning/holonomicPathPlanning_old.h \
+    $$PWD/sourceCode/backwardCompatibility/pathPlanning/holonomicPathNode_old.h \
+    $$PWD/sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathPlanning_old.h \
+    $$PWD/sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathNode_old.h \
 
 HEADERS += $$PWD/sourceCode/communication/tubes/commTube.h \
 
@@ -430,10 +432,10 @@ HEADERS += $$PWD/sourceCode/mainContainers/sceneContainers/drawingContainer.h \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_ikGroupContainer_.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/collectionContainer.h \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_collectionContainer_.h \
-    $$PWD/sourceCode/mainContainers/sceneContainers/distanceObjectContainer.h \
-    $$PWD/sourceCode/shared/mainContainers/sceneContainers/_distanceObjectContainer_.h \
-    $$PWD/sourceCode/mainContainers/sceneContainers/collisionObjectContainer.h \
-    $$PWD/sourceCode/shared/mainContainers/sceneContainers/_collisionObjectContainer_.h \
+    $$PWD/sourceCode/mainContainers/sceneContainers/distanceObjectContainer_old.h \
+    $$PWD/sourceCode/shared/mainContainers/sceneContainers/_distanceObjectContainer_old.h \
+    $$PWD/sourceCode/mainContainers/sceneContainers/collisionObjectContainer_old.h \
+    $$PWD/sourceCode/shared/mainContainers/sceneContainers/_collisionObjectContainer_old.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/sceneObjectContainer.h \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_sceneObjectContainer_.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/mainSettings.h \
@@ -764,10 +766,10 @@ SOURCES += $$PWD/../programming/simMath/Vector.cpp \
     $$PWD/../programming/simMath/3X3Matrix.cpp \
     $$PWD/../programming/simMath/3Vector.cpp \
 
-SOURCES += $$PWD/sourceCode/kinematics/ikGroup.cpp \
-    $$PWD/sourceCode/shared/kinematics/_ikGroup_.cpp \
-    $$PWD/sourceCode/kinematics/ikElement.cpp \
-    $$PWD/sourceCode/shared/kinematics/_ikElement_.cpp
+SOURCES += $$PWD/sourceCode/backwardCompatibility/kinematics/ikGroup_old.cpp \
+    $$PWD/sourceCode/shared/backwardCompatibility/kinematics/_ikGroup_old.cpp \
+    $$PWD/sourceCode/backwardCompatibility/kinematics/ikElement_old.cpp \
+    $$PWD/sourceCode/shared/backwardCompatibility/kinematics/_ikElement_old.cpp
 
 SOURCES += $$PWD/sourceCode/drawingObjects/bannerObject.cpp \
     $$PWD/sourceCode/drawingObjects/drawingObject.cpp \
@@ -786,12 +788,12 @@ SOURCES += $$PWD/sourceCode/collections/collectionElement.cpp \
     $$PWD/sourceCode/collections/collection.cpp \
     $$PWD/sourceCode/shared/collections/_collection_.cpp \
 
-SOURCES += $$PWD/sourceCode/collisions/collisionObject.cpp \
-    $$PWD/sourceCode/shared/collisions/_collisionObject_.cpp \
+SOURCES += $$PWD/sourceCode/backwardCompatibility/collisions/collisionObject_old.cpp \
+    $$PWD/sourceCode/shared/backwardCompatibility/collisions/_collisionObject_old.cpp \
     $$PWD/sourceCode/collisions/collisionRoutines.cpp \
 
-SOURCES += $$PWD/sourceCode/distances/distanceObject.cpp \
-    $$PWD/sourceCode/shared/distances/_distanceObject_.cpp \
+SOURCES += $$PWD/sourceCode/backwardCompatibility/distances/distanceObject_old.cpp \
+    $$PWD/sourceCode/shared/backwardCompatibility/distances/_distanceObject_old.cpp \
     $$PWD/sourceCode/distances/distanceRoutines.cpp \
 
 SOURCES += $$PWD/sourceCode/sceneObjects/related/sceneObject.cpp \
@@ -811,7 +813,7 @@ SOURCES += $$PWD/sourceCode/sceneObjects/jointObject.cpp \
     $$PWD/sourceCode/sceneObjects/light.cpp \
     $$PWD/sourceCode/sceneObjects/mirror.cpp \
     $$PWD/sourceCode/sceneObjects/mill.cpp \
-    $$PWD/sourceCode/sceneObjects/path.cpp \
+    $$PWD/sourceCode/sceneObjects/path_old.cpp \
     $$PWD/sourceCode/sceneObjects/proximitySensor.cpp \
     $$PWD/sourceCode/sceneObjects/shape.cpp \
     $$PWD/sourceCode/sceneObjects/visionSensor.cpp \
@@ -823,10 +825,10 @@ SOURCES += $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphCurve.cpp \
     $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphData_old.cpp \
     $$PWD/sourceCode/sceneObjects/graphObjectRelated/staticGraphCurve_old.cpp \
 
-SOURCES += $$PWD/sourceCode/sceneObjects/pathObjectRelated/bezierPathPoint.cpp \
-    $$PWD/sourceCode/sceneObjects/pathObjectRelated/simplePathPoint.cpp \
-    $$PWD/sourceCode/sceneObjects/pathObjectRelated/pathPoint.cpp \
-    $$PWD/sourceCode/sceneObjects/pathObjectRelated/pathCont.cpp \
+SOURCES += $$PWD/sourceCode/sceneObjects/pathObjectRelated/bezierPathPoint_old.cpp \
+    $$PWD/sourceCode/sceneObjects/pathObjectRelated/simplePathPoint_old.cpp \
+    $$PWD/sourceCode/sceneObjects/pathObjectRelated/pathPoint_old.cpp \
+    $$PWD/sourceCode/sceneObjects/pathObjectRelated/pathCont_old.cpp \
 
 SOURCES += $$PWD/sourceCode/sceneObjects/proximitySensorObjectRelated/proxSensorRoutine.cpp \
 
@@ -835,11 +837,11 @@ SOURCES += $$PWD/sourceCode/sceneObjects/shapeObjectRelated/mesh.cpp \
     $$PWD/sourceCode/sceneObjects/shapeObjectRelated/volInt.cpp \
 
 
-SOURCES += $$PWD/sourceCode/backwardCompatibility/pathPlanning/pathPlanning.cpp \
-    $$PWD/sourceCode/backwardCompatibility/pathPlanning/holonomicPathPlanning.cpp \
-    $$PWD/sourceCode/backwardCompatibility/pathPlanning/holonomicPathNode.cpp \
-    $$PWD/sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathPlanning.cpp \
-    $$PWD/sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathNode.cpp \
+SOURCES += $$PWD/sourceCode/backwardCompatibility/pathPlanning/pathPlanning_old.cpp \
+    $$PWD/sourceCode/backwardCompatibility/pathPlanning/holonomicPathPlanning_old.cpp \
+    $$PWD/sourceCode/backwardCompatibility/pathPlanning/holonomicPathNode_old.cpp \
+    $$PWD/sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathPlanning_old.cpp \
+    $$PWD/sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathNode_old.cpp \
 
 SOURCES += $$PWD/sourceCode/communication/tubes/commTube.cpp \
 
@@ -862,10 +864,10 @@ SOURCES += $$PWD/sourceCode/mainContainers/sceneContainers/bannerContainer.cpp \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_ikGroupContainer_.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/collectionContainer.cpp \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_collectionContainer_.cpp \
-    $$PWD/sourceCode/mainContainers/sceneContainers/distanceObjectContainer.cpp \
-    $$PWD/sourceCode/shared/mainContainers/sceneContainers/_distanceObjectContainer_.cpp \
-    $$PWD/sourceCode/mainContainers/sceneContainers/collisionObjectContainer.cpp \
-    $$PWD/sourceCode/shared/mainContainers/sceneContainers/_collisionObjectContainer_.cpp \
+    $$PWD/sourceCode/mainContainers/sceneContainers/distanceObjectContainer_old.cpp \
+    $$PWD/sourceCode/shared/mainContainers/sceneContainers/_distanceObjectContainer_old.cpp \
+    $$PWD/sourceCode/mainContainers/sceneContainers/collisionObjectContainer_old.cpp \
+    $$PWD/sourceCode/shared/mainContainers/sceneContainers/_collisionObjectContainer_old.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_sceneObjectContainer_.cpp \

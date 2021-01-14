@@ -26,12 +26,6 @@ struct SSimulationThreadCommand
     std::vector<std::vector<float> > floatVectorParams;
 };
 
-enum {  NO_COMMAND_FROMUI_TOSIM_CMD=100000, // Always start at 100000!!!!
-        DELETE_SELECTED_PATH_POINTS_NON_EDIT_FROMUI_TOSIM_CMD,
-
-        // 999995-999999 for UNDO point announcements
-};
-
 #ifndef SIM_WITH_QT
 class CSimThread
 {

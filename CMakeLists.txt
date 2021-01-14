@@ -183,8 +183,9 @@ endif()
 
 include_directories(sourceCode)
 include_directories(sourceCode/shared)
-include_directories(sourceCode/kinematics)
-include_directories(sourceCode/shared/kinematics)
+include_directories(sourceCode/shared/backwardCompatibility/kinematics)
+include_directories(sourceCode/shared/backwardCompatibility/collisions)
+include_directories(sourceCode/shared/backwardCompatibility/distances)
 include_directories(sourceCode/communication)
 include_directories(sourceCode/communication/tubes)
 include_directories(sourceCode/communication/wireless)
@@ -193,9 +194,7 @@ include_directories(sourceCode/platform)
 include_directories(sourceCode/collections)
 include_directories(sourceCode/shared/collections)
 include_directories(sourceCode/collisions)
-include_directories(sourceCode/shared/collisions)
 include_directories(sourceCode/distances)
-include_directories(sourceCode/shared/distances)
 include_directories(sourceCode/pathPlanning_old)
 include_directories(sourceCode/sceneObjects)
 include_directories(sourceCode/shared/sceneObjects)
@@ -230,6 +229,9 @@ include_directories(sourceCode/displ)
 include_directories(sourceCode/shared/displ)
 include_directories(sourceCode/utils)
 include_directories(sourceCode/backwardCompatibility/pathPlanning)
+include_directories(sourceCode/backwardCompatibility/collisions)
+include_directories(sourceCode/backwardCompatibility/distances)
+include_directories(sourceCode/backwardCompatibility/kinematics)
 include_directories(sourceCode/customUserInterfaces)
 include_directories(sourceCode/undoRedo)
 include_directories(sourceCode/rendering)
@@ -431,10 +433,10 @@ list(APPEND SOURCES
     ../programming/simMath/3X3Matrix.cpp
     ../programming/simMath/3Vector.cpp
 
-    sourceCode/kinematics/ikGroup.cpp
-    sourceCode/shared/kinematics/_ikGroup_.cpp
-    sourceCode/kinematics/ikElement.cpp
-    sourceCode/shared/kinematics/_ikElement_.cpp
+    sourceCode/backwardCompatibility/kinematics/ikGroup_old.cpp
+    sourceCode/shared/backwardCompatibility/kinematics/_ikGroup_old.cpp
+    sourceCode/backwardCompatibility/kinematics/ikElement_old.cpp
+    sourceCode/shared/backwardCompatibility/kinematics/_ikElement_old.cpp
 
     sourceCode/drawingObjects/bannerObject.cpp
     sourceCode/drawingObjects/drawingObject.cpp
@@ -453,12 +455,12 @@ list(APPEND SOURCES
     sourceCode/collections/collection.cpp
     sourceCode/shared/collections/_collection_.cpp
 
-    sourceCode/collisions/collisionObject.cpp
-    sourceCode/shared/collisions/_collisionObject_.cpp
+    sourceCode/backwardCompatibility/collisions/collisionObject_old.cpp
+    sourceCode/shared/backwardCompatibility/collisions/_collisionObject_old.cpp
     sourceCode/collisions/collisionRoutines.cpp
 
-    sourceCode/distances/distanceObject.cpp
-    sourceCode/shared/distances/_distanceObject_.cpp
+    sourceCode/backwardCompatibility/distances/distanceObject_old.cpp
+    sourceCode/shared/backwardCompatibility/distances/_distanceObject_old.cpp
     sourceCode/distances/distanceRoutines.cpp
 
     sourceCode/sceneObjects/related/sceneObject.cpp
@@ -478,7 +480,7 @@ list(APPEND SOURCES
     sourceCode/sceneObjects/light.cpp
     sourceCode/sceneObjects/mirror.cpp
     sourceCode/sceneObjects/mill.cpp
-    sourceCode/sceneObjects/path.cpp
+    sourceCode/sceneObjects/path_old.cpp
     sourceCode/sceneObjects/proximitySensor.cpp
     sourceCode/sceneObjects/shape.cpp
     sourceCode/sceneObjects/visionSensor.cpp
@@ -490,10 +492,10 @@ list(APPEND SOURCES
     sourceCode/sceneObjects/graphObjectRelated/graphData_old.cpp
     sourceCode/sceneObjects/graphObjectRelated/staticGraphCurve_old.cpp
 
-    sourceCode/sceneObjects/pathObjectRelated/bezierPathPoint.cpp
-    sourceCode/sceneObjects/pathObjectRelated/simplePathPoint.cpp
-    sourceCode/sceneObjects/pathObjectRelated/pathPoint.cpp
-    sourceCode/sceneObjects/pathObjectRelated/pathCont.cpp
+    sourceCode/sceneObjects/pathObjectRelated/bezierPathPoint_old.cpp
+    sourceCode/sceneObjects/pathObjectRelated/simplePathPoint_old.cpp
+    sourceCode/sceneObjects/pathObjectRelated/pathPoint_old.cpp
+    sourceCode/sceneObjects/pathObjectRelated/pathCont_old.cpp
 
     sourceCode/sceneObjects/proximitySensorObjectRelated/proxSensorRoutine.cpp
 
@@ -502,11 +504,11 @@ list(APPEND SOURCES
     sourceCode/sceneObjects/shapeObjectRelated/volInt.cpp
 
 
-    sourceCode/backwardCompatibility/pathPlanning/pathPlanning.cpp
-    sourceCode/backwardCompatibility/pathPlanning/holonomicPathPlanning.cpp
-    sourceCode/backwardCompatibility/pathPlanning/holonomicPathNode.cpp
-    sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathPlanning.cpp
-    sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathNode.cpp
+    sourceCode/backwardCompatibility/pathPlanning/pathPlanning_old.cpp
+    sourceCode/backwardCompatibility/pathPlanning/holonomicPathPlanning_old.cpp
+    sourceCode/backwardCompatibility/pathPlanning/holonomicPathNode_old.cpp
+    sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathPlanning_old.cpp
+    sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathNode_old.cpp
 
     sourceCode/communication/tubes/commTube.cpp
 
@@ -529,10 +531,10 @@ list(APPEND SOURCES
     sourceCode/shared/mainContainers/sceneContainers/_ikGroupContainer_.cpp
     sourceCode/mainContainers/sceneContainers/collectionContainer.cpp
     sourceCode/shared/mainContainers/sceneContainers/_collectionContainer_.cpp
-    sourceCode/mainContainers/sceneContainers/distanceObjectContainer.cpp
-    sourceCode/shared/mainContainers/sceneContainers/_distanceObjectContainer_.cpp
-    sourceCode/mainContainers/sceneContainers/collisionObjectContainer.cpp
-    sourceCode/shared/mainContainers/sceneContainers/_collisionObjectContainer_.cpp
+    sourceCode/mainContainers/sceneContainers/distanceObjectContainer_old.cpp
+    sourceCode/shared/mainContainers/sceneContainers/_distanceObjectContainer_old.cpp
+    sourceCode/mainContainers/sceneContainers/collisionObjectContainer_old.cpp
+    sourceCode/shared/mainContainers/sceneContainers/_collisionObjectContainer_old.cpp
     sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp
     sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp
     sourceCode/shared/mainContainers/sceneContainers/_sceneObjectContainer_.cpp

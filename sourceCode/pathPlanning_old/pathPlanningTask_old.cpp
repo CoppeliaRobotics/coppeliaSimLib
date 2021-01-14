@@ -714,7 +714,7 @@ bool CPathPlanningTask::initiateSteppedSearch(bool showProgressDlg,float maxTime
 {
     if (!isTaskValid())
         return(false);
-    CPath* thePath=App::currentWorld->sceneObjects->getPathFromHandle(_pathID);
+    CPath_old* thePath=App::currentWorld->sceneObjects->getPathFromHandle(_pathID);
     if (thePath==nullptr)
         return(false);
     _steppedSearchTemp_initTimeInMs=VDateTime::getTimeInMs();
@@ -759,7 +759,7 @@ int CPathPlanningTask::performSteppedSearch()
     int retVal=-1;
     if (!isTaskValid())
         return(retVal);
-    CPath* thePath=App::currentWorld->sceneObjects->getPathFromHandle(_pathID);
+    CPath_old* thePath=App::currentWorld->sceneObjects->getPathFromHandle(_pathID);
     if (thePath==nullptr)
         return(retVal);
     if (pathPlanningType==sim_pathplanning_nonholonomic)
@@ -822,7 +822,7 @@ int CPathPlanningTask::performSteppedSearch()
                 retVal=0; // we didn't find anything (the smoothing actually failed)
             if (res==1)
             {
-                CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(_pathID);
+                CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(_pathID);
                 int nodeCount;
                 float* pathData=CPathPlanningInterface::getFoundPath(p,&nodeCount);
                 if ((it!=nullptr)&&(pathData!=nullptr))
@@ -839,7 +839,7 @@ int CPathPlanningTask::performSteppedSearch()
                         conf.X.setInternalData(pathData+0+7*i);
                         conf.Q.setInternalData(pathData+3+7*i);
                         conf=pathInv*conf;
-                        CSimplePathPoint* nspp=new CSimplePathPoint();
+                        CSimplePathPoint_old* nspp=new CSimplePathPoint_old();
                         nspp->setTransformation(conf,it->pathContainer->getAttributes());
                         it->pathContainer->addSimplePathPoint(nspp);
                     }
@@ -911,7 +911,7 @@ int CPathPlanningTask::performSteppedSearch()
                 retVal=0; // we didn't find anything (the smoothing actually failed)
             if (res==1)
             {
-                CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(_pathID);
+                CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(_pathID);
                 int nodeCount;
                 float* pathData=CPathPlanningInterface::getFoundPath(p,&nodeCount);
                 if ((it!=nullptr)&&(pathData!=nullptr))
@@ -928,7 +928,7 @@ int CPathPlanningTask::performSteppedSearch()
                         conf.X.setInternalData(pathData+0+7*i);
                         conf.Q.setInternalData(pathData+3+7*i);
                         conf=pathInv*conf;
-                        CSimplePathPoint* nspp=new CSimplePathPoint();
+                        CSimplePathPoint_old* nspp=new CSimplePathPoint_old();
                         nspp->setTransformation(conf,it->pathContainer->getAttributes());
                         it->pathContainer->addSimplePathPoint(nspp);
                     }

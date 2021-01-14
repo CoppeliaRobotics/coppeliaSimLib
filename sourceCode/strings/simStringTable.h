@@ -77,8 +77,6 @@
 #define IDSNS_AN_ERROR_OCCURRED_DURING_THE_IMPORT_OPERATION "An error occurred during the import operation."
 #define IDSNS_AN_ERROR_OCCURRED_DURING_THE_EXPORT_OPERATION "An error occurred during the export operation."
 #define IDSNS_ABORTED_FILE_DOES_NOT_EXIST "Aborted (file does not exist)."
-#define IDSNS_CANNOT_EXPORT_AN_EMPTY_PATH "Cannot export an empty path."
-#define IDSNS_LAST_SELECTION_IS_NOT_A_PATH "Last selection is not a path."
 #define IDSNS_CANNOT_PROCEED_NO_DYNAMIC_CONTENT_AVAILABLE "Cannot proceed, no dynamic content available!"
 #define IDSNS_FAILED_IS_THE_QHULL_PLUGIN_LOADED "Operation failed: is the Qhull plugin loaded?"
 #define IDSNS_EXPORT_OPERATION_FAILED "Export operation failed."
@@ -88,7 +86,7 @@
 #define IDSNS_STARTING_COMPOUND_SHAPE_EDIT_MODE "Starting edit mode of compound shape..."
 #define IDSNS_ENDING_EDIT_MODE_AND_APPLYING_CHANGES "Ending edit mode and applying changes..."
 #define IDSNS_ENDING_EDIT_MODE_AND_CANCELLING_CHANGES "Ending edit mode and canceling changes..."
-#define IDSNS_STARTING_PATH_EDIT_MODE "Starting path edit mode..."
+#define IDSNS_STARTING_PATH_EDIT_MODE_OLD "Starting path edit mode..."
 #define IDSNS_COPYING_SELECTION "Copying selection..."
 #define IDSNS_PASTING_BUFFER "Pasting buffer..."
 #define IDSNS_DELETING_SELECTION "Deleting selection..."
@@ -167,13 +165,10 @@
 #define IDSNS_ADDING_CONVEX_HULL "Adding the convex hull of selected shapes and dummies..."
 #define IDSNS_ADDING_CONVEX_DECOMPOSITION "Adding the convex decomposition of selected shapes..."
 
-#define IDSNS_IMPORTING_PATH_FROM_CSV_FILE "Importing path from *.csv file..."
 #define IDSNS_IMPORTING_HEIGHTFIELD_SHAPE "Importing heightfield shape..."
 
 #define IDSNS_EXPORTING_SHAPES "Exporting shapes..."
 #define IDSNS_EXPORTING_GRAPH_DATA "Exporting graph data..."
-#define IDSNS_EXPORTING_PATH "Exporting path..."
-#define IDSNS_EXPORTING_PATHS_BEZIER_CURVE "Exporting path's Bezier curve..."
 #define IDSNS_EXPORTING_DYNAMIC_CONTENT "Exporting dynamic content..."
 #define IDSNS_EXPORTING_IK_CONTENT "Exporting kinematics content..."
 
@@ -196,7 +191,6 @@
 #define IDSNS_MORPHING_INTO_CONVEX_DECOMPOSITION "Morphing selected shapes into convex decomposition..."
 #define IDSNS_DECIMATING_MESH "Decimating mesh..."
 #define IDSNS_EXTRACTING_INSIDE_PART "Extracting inside part..."
-#define IDSNS_DELETING_SELECTED_PATH_POINTS "Deleting selected path points..."
 
 #define IDSNS_MEMORIZING_OBJECT_CONFIGURATION "Memorizing object configuration (object position/orientation, joint parameter)..."
 #define IDSNS_RESTORING_OBJECT_CONFIGURATION "Restoring object configuration (object position/orientation, joint parameter)..."
@@ -204,7 +198,6 @@
 #define IDSNS_UNGROUPING_SELECTED_SHAPES "Ungrouping selected shapes..."
 #define IDSNS_MERGING_SELECTED_SHAPES "Merging selected shapes..."
 #define IDSNS_DIVIDING_SELECTED_SHAPES "Dividing selected shapes..."
-#define IDSNS_MERGING_SELECTED_PATHS "Merging selected paths..."
 
 #define IDSNS_LOADING_MODEL "Loading model"
 #define IDSNS_LOADING_UI "Loading OpenGl-based custom UI"
@@ -223,7 +216,6 @@
 #define IDSNS_SCENE_WAS_EXPORTED "Scene was exported."
 #define IDSNS_SAVING_MODEL "Saving model"
 #define IDSNS_MODEL_WAS_SAVED "Model was saved."
-#define IDSNS_PATH_WAS_EMPTIED "Path was emptied."
 #define IDSNS_FORWARD_ROLL_PERFORMED "Forward roll performed."
 #define IDSNS_BACKWARD_ROLL_PERFORMED "Backward roll performed."
 #define IDSNS_EXECUTING_UNDO "Executing undo... "
@@ -263,7 +255,7 @@
 #define IDSN_PATH_EDITION_MENU_ITEM "Path edition" //addedOn 11/3/2012
 #define IDS_SHAPE_IS_NOT_SIMPLE_FOR_EDITION_INFO_MESSAGE "The shape you wish to edit is not a simple shape. Make sure you ungroup it before proceeding." //addedOn 11/3/2012
 #define IDSN_SHAPE_EDIT_MODE "Shape edit mode" //addedOn 11/3/2012
-#define IDSN_PATH_EDIT_MODE "Path edit mode" //addedOn 11/3/2012
+#define IDSN_PATH_EDIT_MODE_OLD "Path edit mode" //addedOn 11/3/2012
 #define IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES "Do you wish to apply the changes? (clicking no will however still preserve extracted objects)" //addedOn 11/3/2012
 #define IDSN_CUSTOM_USER_INTERFACES         "OpenGl-based custom UIs" //addedOn 14/3/2012
 #define IDSN_SHAPE_EDIT_MODE_START_MENU_ITEM "Enter shape edit mode"
@@ -544,7 +536,7 @@
 #define IDS____TRIANGLE_EDIT_MODE " - TRIANGLE EDIT MODE"
 #define IDS____VERTEX_EDIT_MODE " - VERTEX EDIT MODE"
 #define IDS____EDGE_EDIT_MODE   " - EDGE EDIT MODE"
-#define IDS____PATH_EDIT_MODE   " - PATH EDIT MODE"
+#define IDS____PATH_EDIT_MODE_OLD   " - PATH EDIT MODE"
 #define IDS____SIMULATION_RUNNING " - SIMULATION RUNNING"
 #define IDS____SIMULATION_PAUSED " - SIMULATION SUSPENDED"
 #define IDS____SIMULATION_STOPPED " - SIMULATION STOPPED"
@@ -645,9 +637,6 @@
 #define IDS_EXPORT_SHAPE_MENU_ITEM "Selected shapes..."
 #define IDS_EXPORT_SELECTED_GRAPHS_MENU_ITEM "Selected graphs as CSV..."
 #define IDS_SAVING_GRAPHS___ "Saving graphs..."
-#define IDS_IMPORTING_PATH_FROM_CSV_FILE "Importing path from CSV file..."
-#define IDS_EXPORTING_PATH___ "Exporting path..."
-#define IDS_EXPORTING_PATH_BEZIER_CURVE___ "Exporting path's Bezier curve..."
 #define IDS_IMPORTING_HEIGHTFIELD___ "Importing heightfield..."
 #define IDS_EXPORTING_DYNAMIC_CONTENT___ "Exporting dynamic content..."
 #define IDS_EXPORT_IK_CONTENT_MENU_ITEM "Kinematics content..."
@@ -799,7 +788,7 @@
 #define IDS_SCRIPT_PARAMETERS   "Script parameters"
 #define IDS_OVERALL_CUT_VOLUME  "Overall cut volume"
 
-#define IDS_PATH_EDIT_MODE_START_MENU_ITEM "Enter path edit mode"
+#define IDS_PATH_EDIT_MODE_OLD_START_MENU_ITEM "Enter path edit mode"
 #define IDS_COPY_SELECTED_PATH_POINTS_MENU_ITEM "Copy selected path points"
 #define IDS_PASTE_PATH_POINTS_MENU_ITEM "Paste path points after selection"
 #define IDS_PASTE_PATH_POINTS_AT_BEGINNING_MENU_ITEM "Paste path points at beginning of path"
@@ -812,10 +801,6 @@
 #define IDS_INVERSE_ORDER_OF_SELECTED_PATH_CTRL_POINTS_MENU_ITEM "Invert order of selected control points"
 #define IDS_LARGE_QUANTITY_OF_PATH_POINTS_WARNING "The operation you are about to perform will generate a path with a large quantity of path points. This is not recommended and might take a while. Do you still want to proceed?"
 #define IDS_TOTAL_PATH_POINTS   "Total path points"
-#define IDS_IMPORT_PATH___MENU_ITEM "Path from CSV..."
-#define IDS_EXPORT_SELECTED_PATH_MENU_ITEM "Selected path as CSV..."
-#define IDS_EXPORT_SELECTED_PATH_BEZIER_CURVE_MENU_ITEM "Selected path's bezier curve as CSV..."
-#define IDS_MAKE_PATH_WITH_SELECTED_EDGES_MENU_ITEM "Make path with selected edges"
 #define IDS_CIRCLE_TYPE_MENU_ITEM "Closed"
 #define IDS_SEGMENT_TYPE_MENU_ITEM "Open"
 
@@ -898,18 +883,11 @@
 #define IDS_ASSOCIATED_CUSTOMIZATION_SCRIPT_MENU_ITEM "Associated customization script"
 
 #define IDS_APPEND_NEW_PATH_POINT_FROM_CAMERA_MENU_ITEM "Append new control point from camera configuration"
-#define IDS_EMPTY_LAST_SELECTED_PATH_MENU_ITEM "Empty path"
-
 
 #define IDS_XY_GRAPH_AUTO_MODE_DURING_SIMULATION_MENU_ITEM "Auto-size during simulation"
 #define IDS_TIME_GRAPH_X_AUTO_MODE_DURING_SIMULATION_MENU_ITEM "X-axis auto-size during simulation"
 #define IDS_TIME_GRAPH_Y_AUTO_MODE_DURING_SIMULATION_MENU_ITEM "Y-axis auto-size during simulation"
 #define IDS_XY_GRAPH_ONE_ONE_PROPORTION_MENU_ITEM "Keep proportions at 1:1"
-
-
-#define IDS_MERGE_SELECTED_PATHS_MENU_ITEM "Merge selected paths"
-#define IDS_ROLL_PATH_POINTS_FORWARD_MENU_ITEM "Roll path points forward"
-#define IDS_ROLL_PATH_POINTS_BACKWARD_MENU_ITEM "Roll path points backward"
 
 #define IDSN_UNDO_REDO "Undo / Redo"
 #define IDSN_UNDO "Undo"

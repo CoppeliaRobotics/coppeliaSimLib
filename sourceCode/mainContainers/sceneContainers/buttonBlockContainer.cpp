@@ -1174,7 +1174,7 @@ CButtonBlockContainer* CButtonBlockContainer::loadSystemButtonBlocks(std::string
                         bool noHit=true;
                         if (theName.compare(SER_END_OF_OBJECT)==0) // Probably we can remove those two lines...
                             noHit=false;
-                        if (theName.compare(SER_BUTTON_BLOCK_OLD)==0)
+                        if (theName.compare(SER_BUTTON_BLOCK_old)==0)
                         {
                             ar >> byteQuantity;
                             CButtonBlock* it=new CButtonBlock(1,1,10,10,0);

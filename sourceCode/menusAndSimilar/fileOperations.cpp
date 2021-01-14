@@ -431,34 +431,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         return(true);
     }
-    if (cmd.cmdId==FILE_OPERATION_IMPORT_PATH_FOCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_IMPORTING_PATH_FROM_CSV_FILE);
-            App::currentWorld->sceneObjects->deselectObjects();
-            std::string tst(App::folders->getCadFilesPath());
-            std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,IDS_IMPORTING_PATH_FROM_CSV_FILE,tst.c_str(),"",false,"CSV Files","csv");
-            if (filenameAndPath.length()!=0)
-            {
-                if (VFile::doesFileExist(filenameAndPath.c_str()))
-                {
-                    if (_pathImportRoutine(filenameAndPath.c_str(),true))
-                        App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
-                    else
-                        App::logMsg(sim_verbosity_errors,IDSNS_AN_ERROR_OCCURRED_DURING_THE_IMPORT_OPERATION);
-                    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                }
-                else
-                    App::logMsg(sim_verbosity_errors,IDSNS_AN_ERROR_OCCURRED_DURING_THE_IMPORT_OPERATION);
-            }
-            else
-                App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
-        }
-        else
-            App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
-        return(true);
-    }
 
     if (cmd.cmdId==FILE_OPERATION_IMPORT_HEIGHTFIELD_FOCMD)
     {
@@ -572,48 +544,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         return(true);
     }
 
-    if ( (cmd.cmdId==FILE_OPERATION_EXPORT_PATH_SIMPLE_POINTS_FOCMD)||(cmd.cmdId==FILE_OPERATION_EXPORT_PATH_BEZIER_POINTS_FOCMD) )
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            if (App::currentWorld->sceneObjects->isLastSelectionAPath(&sel))
-            {
-                CPath* it=(CPath*)App::currentWorld->sceneObjects->getLastSelectionObject(&sel);
-                if (it->pathContainer->getSimplePathPointCount()!=0)
-                {
-                    if (cmd.cmdId==FILE_OPERATION_EXPORT_PATH_SIMPLE_POINTS_FOCMD)
-                        App::logMsg(sim_verbosity_msgs,IDSNS_EXPORTING_PATH);
-                    else
-                        App::logMsg(sim_verbosity_msgs,IDSNS_EXPORTING_PATHS_BEZIER_CURVE);
-                    App::currentWorld->simulation->stopSimulation();
-                    std::string titleString;
-                    if (cmd.cmdId==FILE_OPERATION_EXPORT_PATH_SIMPLE_POINTS_FOCMD)
-                        titleString=IDS_EXPORTING_PATH___;
-                    else
-                        titleString=IDS_EXPORTING_PATH_BEZIER_CURVE___;
-                    std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,titleString.c_str(),App::folders->getExecutablePath().c_str(),"",false,"CSV Files","csv");
-                    if (filenameAndPath.length()!=0)
-                    {
-                        _pathExportPoints(filenameAndPath.c_str(),it->getObjectHandle(),cmd.cmdId==FILE_OPERATION_EXPORT_PATH_BEZIER_POINTS_FOCMD,true);
-                        App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
-                    }
-                    else
-                        App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
-                }
-                else
-                    App::logMsg(sim_verbosity_errors,IDSNS_CANNOT_EXPORT_AN_EMPTY_PATH);
-            }
-            else
-                App::logMsg(sim_verbosity_errors,IDSNS_LAST_SELECTION_IS_NOT_A_PATH);
-            App::currentWorld->sceneObjects->deselectObjects();
-        }
-        else
-            App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
-        return(true);
-    }
     if (cmd.cmdId==FILE_OPERATION_EXPORT_DYNAMIC_CONTENT_FOCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
@@ -873,225 +803,6 @@ void CFileOperations::closeScene(bool displayMessages,bool displayDialogs)
         }
     }
     App::setRebuildHierarchyFlag();
-}
-
-bool CFileOperations::_pathImportRoutine(const char* pathName,bool displayDialogs)
-{ // Should only be called by the NON-UI thread
-    bool retVal=false;
-    if (VFile::doesFileExist(pathName))
-    {
-        if (displayDialogs)
-            App::uiThread->showOrHideProgressBar(true,-1,"Importing path...");
-        try
-        {
-            VFile file(pathName,VFile::READ|VFile::SHARE_DENY_NONE);
-            VArchive archive(&file,VArchive::LOAD);
-            unsigned int currentPos=0;
-            std::string line;
-            std::vector<float> readData;
-            bool automaticOrientation=true;
-            const int ds=16;
-            // We read:
-            // (x,y,z), (a,b,g), velocityRatio, bezierPtCount,beforeRatio,afterRatio,virtualDistance,auxFlags,auxChannel1,auxChannel2,auxChannel3,auxChannel4
-            while (archive.readSingleLine(currentPos,line,false))
-            {
-                float data[ds];
-                int cnt=0;
-                std::string word;
-                float val;
-                while (tt::extractCommaSeparatedWord(line,word))
-                {
-                    if (tt::getValidFloat(word.c_str(),val))
-                        data[cnt]=val;
-                    else
-                        break;
-                    cnt++;
-                    if (cnt>=ds)
-                        break;
-                }
-                if (cnt>=3)
-                { // We have a point!
-                    int dataOff=(int)readData.size();
-                    readData.push_back(0.0f); // x
-                    readData.push_back(0.0f); // y
-                    readData.push_back(0.0f); // z
-                    readData.push_back(0.0f); // Euler 0
-                    readData.push_back(0.0f); // Euler 1
-                    readData.push_back(0.0f); // Euler 2
-                    readData.push_back(1.0f); // Velocity ratio
-                    readData.push_back(1.0f); // Bezier count
-                    readData.push_back(0.5f); // Bezier 0
-                    readData.push_back(0.5f); // Bezier 1
-                    readData.push_back(0.0f); // virtual distance
-                    readData.push_back(0.0f); // aux flags
-                    readData.push_back(0.0f); // aux channel1
-                    readData.push_back(0.0f); // aux channel2
-                    readData.push_back(0.0f); // aux channel3
-                    readData.push_back(0.0f); // aux channel4
-
-                    readData[dataOff+0]=data[0]; // x
-                    readData[dataOff+1]=data[1]; // y
-                    readData[dataOff+2]=data[2]; // z
-                    if (cnt>=6)
-                    {
-                        automaticOrientation=false;
-                        readData[dataOff+3]=data[3]*degToRad_f; // Euler 0
-                        readData[dataOff+4]=data[4]*degToRad_f; // Euler 1
-                        readData[dataOff+5]=data[5]*degToRad_f; // Euler 2
-                    }
-                    if (cnt>=7)
-                        readData[dataOff+6]=data[6]; // velocity ratio
-                    if (cnt>=8)
-                        readData[dataOff+7]=data[7]; // Bezier count
-                    if (cnt>=10)
-                    {
-                        readData[dataOff+8]=data[8]; // Bezier 0
-                        readData[dataOff+9]=data[9]; // Bezier 1
-                    }
-                    if (cnt>=11)
-                        readData[dataOff+10]=data[10]; // Virtual distance
-                    if (cnt>=12)
-                        readData[dataOff+11]=data[11]; // aux flags
-                    if (cnt>=13)
-                        readData[dataOff+12]=data[12]; // aux channel1
-                    if (cnt>=14)
-                        readData[dataOff+13]=data[13]; // aux channel2
-                    if (cnt>=15)
-                        readData[dataOff+14]=data[14]; // aux channel3
-                    if (cnt>=16)
-                        readData[dataOff+15]=data[15]; // aux channel4
-                }
-            }
-            if (readData.size()!=0)
-            {
-                CPath* newObject=new CPath();
-                newObject->pathContainer->enableActualization(false);
-                int attr=newObject->pathContainer->getAttributes()|sim_pathproperty_automatic_orientation;
-                if (!automaticOrientation)
-                    attr-=sim_pathproperty_automatic_orientation;
-                newObject->pathContainer->setAttributes(attr);
-                for (int i=0;i<int(readData.size())/ds;i++)
-                {
-                    CSimplePathPoint* it=new CSimplePathPoint();
-                    C7Vector tr;
-                    tr.X(0)=readData[ds*i+0];
-                    tr.X(1)=readData[ds*i+1];
-                    tr.X(2)=readData[ds*i+2];
-                    tr.Q.setEulerAngles(readData[ds*i+3],readData[ds*i+4],readData[ds*i+5]);
-                    it->setTransformation(tr,newObject->pathContainer->getAttributes());
-                    it->setMaxRelAbsVelocity(readData[ds*i+6]);
-                    it->setBezierPointCount(int(readData[ds*i+7]+0.5f));
-                    it->setBezierFactors(readData[ds*i+8],readData[ds*i+9]);
-                    it->setOnSpotDistance(readData[ds*i+10]);
-                    it->setAuxFlags(int(readData[ds*i+11]+0.5f));
-                    it->setAuxChannels(&readData[ds*i+12]);
-                    newObject->pathContainer->addSimplePathPoint(it);
-                }
-                newObject->pathContainer->enableActualization(true);
-                newObject->pathContainer->actualizePath();
-                newObject->setObjectName(IDSOGL_IMPORTEDPATH,true);
-                newObject->setObjectAltName(tt::getObjectAltNameFromObjectName(newObject->getObjectName().c_str()).c_str(),true);
-
-                App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-                App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            }
-            archive.close();
-            file.close();
-            retVal=readData.size()!=0;
-        }
-        catch(VFILE_EXCEPTION_TYPE e)
-        {
-            VFile::reportAndHandleFileExceptionError(e);
-            retVal=false;
-        }
-        if (displayDialogs)
-            App::uiThread->showOrHideProgressBar(false);
-    }
-    return(retVal);
-}
-
-bool CFileOperations::_pathExportPoints(const char* pathName,int pathID,bool bezierPoints,bool displayDialogs)
-{
-    CPath* pathObject=App::currentWorld->sceneObjects->getPathFromHandle(pathID);
-    if (pathObject==nullptr)
-        return(false);
-    bool retVal=false;
-    if (displayDialogs)
-        App::uiThread->showOrHideProgressBar(true,-1,"Exporting path points...");
-    try
-    {
-        VFile myFile(pathName,VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
-        VArchive ar(&myFile,VArchive::STORE);
-
-        CPathCont* it=pathObject->pathContainer;
-        C7Vector pathTr(pathObject->getFullCumulativeTransformation());
-        if (bezierPoints)
-        {
-            for (int i=0;i<it->getBezierPathPointCount();i++)
-            {
-                CBezierPathPoint* bp=it->getBezierPathPoint(i);
-                C7Vector tr(pathTr*bp->getTransformation());
-                C3Vector euler(tr.Q.getEulerAngles());
-                std::string line(tt::FNb(tr.X(0))+',');
-                line+=tt::FNb(tr.X(1))+',';
-                line+=tt::FNb(tr.X(2))+',';
-                line+=tt::FNb(euler(0)*radToDeg_f)+',';
-                line+=tt::FNb(euler(1)*radToDeg_f)+',';
-                line+=tt::FNb(euler(2)*radToDeg_f)+',';
-                line+=tt::FNb(bp->getMaxRelAbsVelocity())+',';
-                line+=tt::FNb(bp->getOnSpotDistance())+',';
-                line+=tt::FNb(bp->getAuxFlags())+',';
-                float auxChannels[4];
-                bp->getAuxChannels(auxChannels);
-                line+=tt::FNb(auxChannels[0])+',';
-                line+=tt::FNb(auxChannels[1])+',';
-                line+=tt::FNb(auxChannels[2])+',';
-                line+=tt::FNb(auxChannels[3]);
-                ar.writeLine(line);
-            }
-        }
-        else
-        {
-            for (int i=0;i<it->getSimplePathPointCount();i++)
-            {
-                CSimplePathPoint* bp=it->getSimplePathPoint(i);
-                C7Vector tr(pathTr*bp->getTransformation());
-                C3Vector euler(tr.Q.getEulerAngles());
-                float f0,f1;
-                bp->getBezierFactors(f0,f1);
-                std::string line(tt::FNb(tr.X(0))+',');
-                line+=tt::FNb(tr.X(1))+',';
-                line+=tt::FNb(tr.X(2))+',';
-                line+=tt::FNb(euler(0)*radToDeg_f)+',';
-                line+=tt::FNb(euler(1)*radToDeg_f)+',';
-                line+=tt::FNb(euler(2)*radToDeg_f)+',';
-                line+=tt::FNb(bp->getMaxRelAbsVelocity())+',';
-                line+=tt::FNb(bp->getBezierPointCount())+',';
-                line+=tt::FNb(f0)+',';
-                line+=tt::FNb(f1)+',';
-                line+=tt::FNb(bp->getOnSpotDistance())+',';
-                line+=tt::FNb(bp->getAuxFlags())+',';
-                float auxChannels[4];
-                bp->getAuxChannels(auxChannels);
-                line+=tt::FNb(auxChannels[0])+',';
-                line+=tt::FNb(auxChannels[1])+',';
-                line+=tt::FNb(auxChannels[2])+',';
-                line+=tt::FNb(auxChannels[3]);
-                ar.writeLine(line);
-            }
-        }
-        ar.close();
-        myFile.close();
-        retVal=true;
-    }
-    catch(VFILE_EXCEPTION_TYPE e)
-    {
-        VFile::reportAndHandleFileExceptionError(e);
-        retVal=false;
-    }
-    if (displayDialogs)
-        App::uiThread->showOrHideProgressBar(false);
-    return(retVal);
 }
 
 bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir)
@@ -2031,15 +1742,12 @@ void CFileOperations::addMenu(VMenu* menu)
         menu->appendMenuSeparator();
         VMenu* impMenu=new VMenu();
         impMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_IMPORT_MESH_FOCMD,IDS_IMPORT_MESH___MENU_ITEM);
-        impMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_IMPORT_PATH_FOCMD,IDS_IMPORT_PATH___MENU_ITEM);
         impMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_IMPORT_HEIGHTFIELD_FOCMD,(std::string(IDSN_IMPORT_HEIGHTFIELD)+"...").c_str());
         menu->appendMenuAndDetach(impMenu,true,IDSN_IMPORT_MENU_ITEM);
 
         VMenu* expMenu=new VMenu();
         expMenu->appendMenuItem(simStoppedOrPausedNoEditMode&&(shapeNumber>0),false,FILE_OPERATION_EXPORT_SHAPE_FOCMD,IDS_EXPORT_SHAPE_MENU_ITEM);
         expMenu->appendMenuItem(fileOpOk&&(graphNumber!=0),false,FILE_OPERATION_EXPORT_GRAPHS_FOCMD,IDS_EXPORT_SELECTED_GRAPHS_MENU_ITEM);
-        expMenu->appendMenuItem(fileOpOk&&(pathNumber==1)&&(selItems==1),false,FILE_OPERATION_EXPORT_PATH_SIMPLE_POINTS_FOCMD,IDS_EXPORT_SELECTED_PATH_MENU_ITEM);
-        expMenu->appendMenuItem(fileOpOk&&(pathNumber==1)&&(selItems==1),false,FILE_OPERATION_EXPORT_PATH_BEZIER_POINTS_FOCMD,IDS_EXPORT_SELECTED_PATH_BEZIER_CURVE_MENU_ITEM);
         if (App::userSettings->showOldDlgs)
             expMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_EXPORT_IK_CONTENT_FOCMD,IDS_EXPORT_IK_CONTENT_MENU_ITEM);
         bool canExportDynamicContent=CPluginContainer::dyn_isDynamicContentAvailable()!=0;

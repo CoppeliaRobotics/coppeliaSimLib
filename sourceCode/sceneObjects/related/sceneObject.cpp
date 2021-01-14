@@ -3,7 +3,7 @@
 #include "shape.h"
 #include "camera.h"
 #include "graph.h"
-#include "path.h"
+#include "path_old.h"
 #include "customData.h"
 #include "visionSensor.h"
 #include "mill.h"
@@ -941,7 +941,7 @@ CSceneObject* CSceneObject::copyYourself()
     if (getObjectType()==sim_object_light_type)
         theNewObject=new CLight(((CLight*)this)->getLightType());
     if (getObjectType()==sim_object_path_type)
-        theNewObject=new CPath();
+        theNewObject=new CPath_old();
     if (getObjectType()==sim_object_mirror_type)
         theNewObject=new CMirror();
     if (getObjectType()==sim_object_visionsensor_type)
@@ -3223,25 +3223,25 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
     {
         isPath=true;
         std::vector<int> pathPointsToTakeIntoAccount;
-        CPathCont* pc;
-        if ( ( (App::getEditModeType()&PATH_EDIT_MODE)||(App::mainWindow->editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode()!=0) )&&((_objectManipulationMode_flaggedForGridOverlay&8)==0) )
+        CPathCont_old* pc;
+        if ( ( (App::getEditModeType()&PATH_EDIT_MODE_OLD)||(App::mainWindow->editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode()!=0) )&&((_objectManipulationMode_flaggedForGridOverlay&8)==0) )
 
         { // (path is in edition or path points are selected) and no rotation
             isPathPoints=true;
-            if (App::getEditModeType()&PATH_EDIT_MODE)
+            if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
             { // Path is in edition
-                pc=App::mainWindow->editModeContainer->getEditModePathContainer();
+                pc=App::mainWindow->editModeContainer->getEditModePathContainer_old();
                 pathPointsToTakeIntoAccount.assign(App::mainWindow->editModeContainer->getEditModeBuffer()->begin(),App::mainWindow->editModeContainer->getEditModeBuffer()->end());
             }
             else
             { // Path points are selected (but not in path edit mode)
-                pc=((CPath*)this)->pathContainer;
+                pc=((CPath_old*)this)->pathContainer;
                 pathPointsToTakeIntoAccount.assign(App::mainWindow->editModeContainer->pathPointManipulation->getPointerToSelectedPathPointIndices_nonEditMode()->begin(),App::mainWindow->editModeContainer->pathPointManipulation->getPointerToSelectedPathPointIndices_nonEditMode()->end());
             }
         }
         else
         { // Path is not in edition and no path points are selected
-            pc=((CPath*)this)->pathContainer;
+            pc=((CPath_old*)this)->pathContainer;
             int cnt=pc->getSimplePathPointCount();
             for (int i=0;i<cnt;i++)
                 pathPointsToTakeIntoAccount.push_back(i);
@@ -3249,7 +3249,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         C3Vector minCoord,maxCoord;
         for (int i=0;i<int(pathPointsToTakeIntoAccount.size());i++)
         {
-            CSimplePathPoint* aPt=pc->getSimplePathPoint(pathPointsToTakeIntoAccount[i]);
+            CSimplePathPoint_old* aPt=pc->getSimplePathPoint(pathPointsToTakeIntoAccount[i]);
             C3Vector c(aPt->getTransformation().X);
             if (i==0)
             {

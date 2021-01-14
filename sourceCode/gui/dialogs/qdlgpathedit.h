@@ -3,7 +3,7 @@
 #define QDLGPATHEDIT_H
 
 #include "dlgEx.h"
-#include "path.h"
+#include "path_old.h"
 
 namespace Ui {
     class CQDlgPathEdit;
@@ -21,7 +21,7 @@ public:
     void cancelEvent();
     void okEvent();
 
-    CPathCont* getPathCont();
+    CPathCont_old* getPathCont();
 
 private slots:
     void on_qqClosed_clicked();

@@ -208,15 +208,6 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
         cmdOut->intParams.push_back(theDialog.iterationCnt);
     }
 
-    if (cmdIn->cmdId==DESTROY_UIOBJECT_UITHREADCMD)
-    {
-        if (cmdIn->intParams[0]==sim_object_path_type)
-        {
-            CPath* it=(CPath*)cmdIn->objectParams[0];
-            delete it;
-        }
-    }
-
     if (cmdIn->cmdId==COPY_TEXT_TO_CLIPBOARD_UITHREADCMD)
         VVarious::copyTextToClipboard(cmdIn->stringParams[0].c_str());
 

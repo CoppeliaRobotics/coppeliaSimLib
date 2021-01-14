@@ -25,12 +25,12 @@ void CIkGroupContainer::simulationEnded()
         getObjectFromIndex(i)->simulationEnded();
 }
 
-void CIkGroupContainer::addIkGroup(CIkGroup* anIkGroup,bool objectIsACopy)
+void CIkGroupContainer::addIkGroup(CIkGroup_old* anIkGroup,bool objectIsACopy)
 {
     addIkGroupWithSuffixOffset(anIkGroup,objectIsACopy,1);
 }
 
-void CIkGroupContainer::addIkGroupWithSuffixOffset(CIkGroup* anIkGroup,bool objectIsACopy,int suffixOffset)
+void CIkGroupContainer::addIkGroupWithSuffixOffset(CIkGroup_old* anIkGroup,bool objectIsACopy,int suffixOffset)
 {
     std::string theName=anIkGroup->getObjectName();
     if (theName.length()==0)
@@ -127,7 +127,7 @@ bool CIkGroupContainer::shiftIkGroup(int ikGroupHandle,bool shiftUp)
     std::vector<int> seenIDs;
     for (size_t i=0;i<getObjectCount();i++)
     {
-        CIkGroup* theGroup=getObjectFromIndex(i);
+        CIkGroup_old* theGroup=getObjectFromIndex(i);
         int dep=theGroup->getDoOnFailOrSuccessOf();
         if (dep!=-1)
         {
@@ -212,7 +212,7 @@ int CIkGroupContainer::computeAllIkGroups(bool exceptExplicitHandling)
     return(performedCount);
 }
 
-void CIkGroupContainer::_addIkGroup(CIkGroup* anIkGroup)
+void CIkGroupContainer::_addIkGroup(CIkGroup_old* anIkGroup)
 { // Overridden from _CIkGroupContainer_
     _CIkGroupContainer_::_addIkGroup(anIkGroup);
 
@@ -222,7 +222,7 @@ void CIkGroupContainer::_addIkGroup(CIkGroup* anIkGroup)
 
 void CIkGroupContainer::_removeIkGroup(int ikGroupHandle)
 { // Overridden from _CIkGroupContainer_
-    CIkGroup* ig=getObjectFromHandle(ikGroupHandle);
+    CIkGroup_old* ig=getObjectFromHandle(ikGroupHandle);
     if (ig!=nullptr)
         ig->removeSynchronizationObject(false);
 
@@ -233,7 +233,7 @@ void CIkGroupContainer::buildUpdateAndPopulateSynchronizationObjects()
 {
     for (size_t i=0;i<getObjectCount();i++)
     {
-        CIkGroup* it=getObjectFromIndex(i);
+        CIkGroup_old* it=getObjectFromIndex(i);
         it->buildUpdateAndPopulateSynchronizationObject(nullptr);
     }
 }
@@ -242,7 +242,7 @@ void CIkGroupContainer::connectSynchronizationObjects()
 {
     for (size_t i=0;i<getObjectCount();i++)
     {
-        CIkGroup* it=getObjectFromIndex(i);
+        CIkGroup_old* it=getObjectFromIndex(i);
         it->connectSynchronizationObject();
     }
 }
@@ -251,7 +251,7 @@ void CIkGroupContainer::removeSynchronizationObjects(bool localReferencesToItOnl
 {
     for (size_t i=0;i<getObjectCount();i++)
     {
-        CIkGroup* it=getObjectFromIndex(i);
+        CIkGroup_old* it=getObjectFromIndex(i);
         it->removeSynchronizationObject(localReferencesToItOnly);
     }
 }

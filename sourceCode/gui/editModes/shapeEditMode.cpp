@@ -1507,10 +1507,6 @@ void CShapeEditMode::addMenu(VMenu* menu)
 
         menu->appendMenuSeparator();
 
-        menu->appendMenuItem(selSize>0,false,SHAPE_EDIT_MODE_MAKE_PATH_WITH_SELECTED_EDGES_EMCMD,IDS_MAKE_PATH_WITH_SELECTED_EDGES_MENU_ITEM);
-
-        menu->appendMenuSeparator();
-
         menu->appendMenuItem(true,false,SHAPE_EDIT_MODE_SELECT_ALL_ITEMS_EMCMD,IDSN_SELECT_ALL_MENU_ITEM);
     }
 }
@@ -1814,27 +1810,70 @@ void CShapeEditMode::insertTriangleFan()
 
 void CShapeEditMode::makeDummies()
 {
-    bool proceed=true;
-    if (getEditModeBufferSize()>50)
-        proceed=(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_VERTICES,IDS_LARGE_QUANTITY_OF_OBJECT_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
-    if (proceed)
-    {
+//    bool proceed=true;
+//    if (getEditModeBufferSize()>50)
+//        proceed=(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_VERTICES,IDS_LARGE_QUANTITY_OF_OBJECT_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
+//    if (proceed)
+//    {
         CShape* it=_shape;
         C7Vector tr(it->getFullCumulativeTransformation());
+        std::vector<float> relPathPts;
         for (int i=0;i<getEditModeBufferSize();i++)
         {
             int ind=editModeBuffer[i];
-            C3Vector v(_editionVertices[3*ind+0],_editionVertices[3*ind+1],_editionVertices[3*ind+2]);
-            v=tr*v;
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=PATHEDIT_MAKEDUMMY_GUITRIGGEREDCMD;
-            cmd.stringParams.push_back("ExtractedDummy");
-            cmd.floatParams.push_back(0.01f);
-            cmd.transfParams.push_back(v);
-            App::appendSimulationThreadCommand(cmd);
+            relPathPts.push_back(_editionVertices[3*ind+0]);
+            relPathPts.push_back(_editionVertices[3*ind+1]);
+            relPathPts.push_back(_editionVertices[3*ind+2]);
+//            C3Vector v(_editionVertices[3*ind+0],_editionVertices[3*ind+1],_editionVertices[3*ind+2]);
+//            v=tr*v;
+//            SSimulationThreadCommand cmd;
+//            cmd.cmdId=PATHEDIT_MAKEDUMMY_GUITRIGGEREDCMD;
+//            cmd.stringParams.push_back("ExtractedDummy");
+//            cmd.floatParams.push_back(0.01f);
+//            cmd.transfParams.push_back(v);
+//            App::appendSimulationThreadCommand(cmd);
         }
         editModeBuffer.clear();
-    }
+
+        std::string txt="relPath={";
+        for (size_t i=0;i<relPathPts.size()/3;i++)
+        {
+//            txt+="{";
+            for (size_t j=0;j<3;j++)
+            {
+                txt+=tt::getEString(false,relPathPts[3*i+j],4);
+                if ( (j!=2)||(i<(relPathPts.size()/3)-1) )
+                    txt+=",";
+            }
+//            txt+="}";
+//            if (i<(relPathPts.size()/3)-1)
+//                txt+=",";
+        }
+        txt+="}";
+        App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
+
+        txt="absPath={";
+        for (size_t i=0;i<relPathPts.size()/3;i++)
+        {
+//            txt+="{";
+            for (size_t j=0;j<3;j++)
+            {
+                C3Vector v(&relPathPts[3*i+0]);
+                v=tr*v;
+                txt+=tt::getEString(false,v(j),4);
+                if ( (j!=2)||(i<(relPathPts.size()/3)-1) )
+                    txt+=",";
+            }
+//            txt+="}";
+//            if (i<(relPathPts.size()/3)-1)
+//                txt+=",";
+        }
+        txt+="}";
+        App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
+
+
+
+//    }
 }
 
 
@@ -1957,16 +1996,16 @@ void CShapeEditMode::makePath()
         std::string txt="relPath={";
         for (size_t i=0;i<relPathPts.size()/3;i++)
         {
-            txt+="{";
+//            txt+="{";
             for (size_t j=0;j<3;j++)
             {
                 txt+=tt::getEString(false,relPathPts[3*i+j],4);
-                if (j!=2)
+                if ( (j!=2)||(i<(relPathPts.size()/3)-1) )
                     txt+=",";
             }
-            txt+="}";
-            if (i<(relPathPts.size()/3)-1)
-                txt+=",";
+//            txt+="}";
+//            if (i<(relPathPts.size()/3)-1)
+//                txt+=",";
         }
         txt+="}";
         App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
@@ -1974,18 +2013,18 @@ void CShapeEditMode::makePath()
         txt="absPath={";
         for (size_t i=0;i<relPathPts.size()/3;i++)
         {
-            txt+="{";
+//            txt+="{";
             for (size_t j=0;j<3;j++)
             {
                 C3Vector v(&relPathPts[3*i+0]);
                 v=sctm*v;
                 txt+=tt::getEString(false,v(j),4);
-                if (j!=2)
+                if ( (j!=2)||(i<(relPathPts.size()/3)-1) )
                     txt+=",";
             }
-            txt+="}";
-            if (i<(relPathPts.size()/3)-1)
-                txt+=",";
+//            txt+="}";
+//            if (i<(relPathPts.size()/3)-1)
+//                txt+=",";
         }
         txt+="}";
         App::logMsg(sim_verbosity_scriptinfos,txt.c_str());

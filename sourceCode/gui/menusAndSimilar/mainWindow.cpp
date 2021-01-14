@@ -616,12 +616,13 @@ void CMainWindow::simThread_prepareToRenderScene()
             it->handleTrackingAndHeadAlwaysUp();
         }
     }
-    // Following is for dummy position assignment to path trajectory when not simulating (and not pausing):
+
+    // OLD:
     if (App::currentWorld->simulation->isSimulationStopped())
     {
         for (size_t i=0;i<App::currentWorld->sceneObjects->getPathCount();i++)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromIndex(i);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromIndex(i);
             it->resetPath();
         }
     }
@@ -722,8 +723,8 @@ void CMainWindow::refreshDialogs_uiThread()
             title+=IDS____VERTEX_EDIT_MODE;
         else if (editModeContainer->getEditModeType()&EDGE_EDIT_MODE)
             title+=IDS____EDGE_EDIT_MODE;
-        else if (editModeContainer->getEditModeType()&PATH_EDIT_MODE)
-            title+=IDS____PATH_EDIT_MODE;
+        else if (editModeContainer->getEditModeType()&PATH_EDIT_MODE_OLD)
+            title+=IDS____PATH_EDIT_MODE_OLD;
 
         if (editModeContainer->getEditModeType()==NO_EDIT_MODE)
         {
@@ -1323,7 +1324,7 @@ void CMainWindow::_createDefaultToolBars()
             _toolbarActionPathEdition=_toolbar2->addAction(QIcon(":/toolbarFiles/pathEdition.png"),tr(IDS_PATH_EDITION_TOOLBAR_TIP));
             _toolbarActionPathEdition->setCheckable(true);
             connect(_toolbarActionPathEdition,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionPathEdition,PATH_EDIT_MODE_TOGGLE_ON_OFF_EMCMD);
+            _signalMapper->setMapping(_toolbarActionPathEdition,PATH_EDIT_MODE_OLD_TOGGLE_ON_OFF_EMCMD);
             _toolbar2->addSeparator();
         }
 
@@ -1904,7 +1905,7 @@ void CMainWindow::_actualizetoolbarButtonState()
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionShapeEdition->setEnabled((noSelector&&(selS==1)&&App::currentWorld->sceneObjects->isLastSelectionAShape()&&App::currentWorld->simulation->isSimulationStopped()&&(editModeContainer->getEditModeType()==NO_EDIT_MODE))||(editModeContainer->getEditModeType()&SHAPE_EDIT_MODE)||(editModeContainer->getEditModeType()&MULTISHAPE_EDIT_MODE));
         if (CSimFlavor::getBoolVal(12)&&App::userSettings->showOldDlgs)
-            _toolbarActionPathEdition->setEnabled((noSelector&&(selS==1)&&App::currentWorld->sceneObjects->isLastSelectionAPath()&&App::currentWorld->simulation->isSimulationStopped()&&(editModeContainer->getEditModeType()==NO_EDIT_MODE))||(editModeContainer->getEditModeType()&PATH_EDIT_MODE));
+            _toolbarActionPathEdition->setEnabled((noSelector&&(selS==1)&&App::currentWorld->sceneObjects->isLastSelectionAPath()&&App::currentWorld->simulation->isSimulationStopped()&&(editModeContainer->getEditModeType()==NO_EDIT_MODE))||(editModeContainer->getEditModeType()&PATH_EDIT_MODE_OLD));
 
         _toolbarActionModelBrowser->setEnabled(noEditMode&&noSelector&&_toolbarButtonBrowserEnabled);
 
@@ -1931,7 +1932,7 @@ void CMainWindow::_actualizetoolbarButtonState()
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionShapeEdition->setChecked(editModeContainer->getEditModeType()&SHAPE_EDIT_MODE);
         if (CSimFlavor::getBoolVal(12)&&App::userSettings->showOldDlgs)
-            _toolbarActionPathEdition->setChecked(editModeContainer->getEditModeType()==PATH_EDIT_MODE);
+            _toolbarActionPathEdition->setChecked(editModeContainer->getEditModeType()==PATH_EDIT_MODE_OLD);
 
         _toolbarActionModelBrowser->setChecked(dlgCont->isVisible(BROWSER_DLG));
 

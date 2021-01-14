@@ -80,11 +80,11 @@
 #define _USR_SPECIFIC_GPU_TWEAK "specificGpuTweak"
 #define _USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES "useAlternateSerialPortRoutines"
 #define _USR_DISABLED_OPENGL_BASED_CUSTOM_UI "disableOpenGlBasedCustomUi"
-#define _USR_SHOW_OLD_DLGS "showOldDlgs"
-#define _USR_SUPPORT_OLD_THREADED_SCRIPTS "makeOldThreadedScriptsAvailable"
-#define _USR_SUPPORT_OLD_API_NOTATION "supportOldApiNotation"
-#define _USR_ENABLE_OLD_MIRROR_OBJECTS "enableOldMirrorObjects"
-#define _USR_ALLOW_OLD_EDU_RELEASE "allowOldEduRelease"
+#define _USR_SHOW_old_DLGS "showOldDlgs"
+#define _USR_SUPPORT_old_THREADED_SCRIPTS "makeOldThreadedScriptsAvailable"
+#define _USR_SUPPORT_old_API_NOTATION "supportOldApiNotation"
+#define _USR_ENABLE_old_MIRROR_OBJECTS "enableOldMirrorObjects"
+#define _USR_ALLOW_old_EDU_RELEASE "allowOldEduRelease"
 #define _USR_THREADED_SCRIPTS_GRACE_TIME "threadedScriptsStoppingGraceTime"
 
 #define _USR_ABORT_SCRIPT_EXECUTION_BUTTON "abortScriptExecutionButton"
@@ -526,7 +526,7 @@ bool CUserSettings::getSupportOldApiNotation()
         for (int i=0;i<9;i++)
         {
             std::string s(App::getApplicationArgument(i));
-            if (s.compare("NO_OLD_API_SUPPORT")==0)
+            if (s.compare("NO_old_API_SUPPORT")==0)
             {
                 support=-1;
                 break;
@@ -734,9 +734,9 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_SPECIFIC_GPU_TWEAK,specificGpuTweak,"");
     c.addBoolean(_USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES,useAlternateSerialPortRoutines,"");
     c.addBoolean(_USR_DISABLED_OPENGL_BASED_CUSTOM_UI,disableOpenGlBasedCustomUi,"");
-    c.addBoolean(_USR_SHOW_OLD_DLGS,showOldDlgs,"");
-    c.addBoolean(_USR_SUPPORT_OLD_THREADED_SCRIPTS,makeOldThreadedScriptsAvailable,"");
-    c.addBoolean(_USR_ENABLE_OLD_MIRROR_OBJECTS,enableOldMirrorObjects,"");
+    c.addBoolean(_USR_SHOW_old_DLGS,showOldDlgs,"");
+    c.addBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,makeOldThreadedScriptsAvailable,"");
+    c.addBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects,"");
     c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");
 
 
@@ -1044,11 +1044,11 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_SPECIFIC_GPU_TWEAK,specificGpuTweak);
     c.getBoolean(_USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES,useAlternateSerialPortRoutines);
     c.getBoolean(_USR_DISABLED_OPENGL_BASED_CUSTOM_UI,disableOpenGlBasedCustomUi);
-    c.getBoolean(_USR_SHOW_OLD_DLGS,showOldDlgs);
-    c.getBoolean(_USR_SUPPORT_OLD_THREADED_SCRIPTS,makeOldThreadedScriptsAvailable);
-    c.getBoolean(_USR_SUPPORT_OLD_API_NOTATION,_supportOldApiNotation);
-    c.getBoolean(_USR_ENABLE_OLD_MIRROR_OBJECTS,enableOldMirrorObjects);
-    c.getInteger(_USR_ALLOW_OLD_EDU_RELEASE,allowOldEduRelease);
+    c.getBoolean(_USR_SHOW_old_DLGS,showOldDlgs);
+    c.getBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,makeOldThreadedScriptsAvailable);
+    c.getBoolean(_USR_SUPPORT_old_API_NOTATION,_supportOldApiNotation);
+    c.getBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects);
+    c.getInteger(_USR_ALLOW_old_EDU_RELEASE,allowOldEduRelease);
     c.getInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime);
 
 

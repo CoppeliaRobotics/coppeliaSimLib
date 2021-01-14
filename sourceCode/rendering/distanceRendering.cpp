@@ -4,7 +4,7 @@
 
 #ifdef SIM_WITH_OPENGL
 
-void displayDistance(CDistanceObject* dist,int segWidth,const float* distResult)
+void displayDistance(CDistanceObject_old* dist,int segWidth,const float* distResult)
 {
     dist->getSegmentColor()->makeCurrentColor(false);
     glLineWidth(float(segWidth));

@@ -68,8 +68,8 @@ public:
     void setName(std::string newName);
     std::string getName();
 
-    int getDynMaterialId_OLD();
-    void setDynMaterialId_OLD(int id);
+    int getDynMaterialId_old();
+    void setDynMaterialId_old(int id);
     // ---------------------
 
 
@@ -93,7 +93,7 @@ protected:
 
     float _mass;
 
-    int _dynMaterialId_OLD;
+    int _dynMaterialId_old;
 
     C7Vector _localInertiaFrame; // frame relative to the shape.
     C3Vector _principalMomentsOfInertia; // remember that we always work with a massless tensor. The tensor is multiplied with the mass in the dynamics module!

@@ -1927,7 +1927,7 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
     _scriptIsDisabled=false;
     _scriptState=scriptState_uninitialized;
     _executeJustOnce_oldThreads=false;
-    _automaticCascadingCallsDisabled_OLD=false;
+    _automaticCascadingCallsDisabled_old=false;
     _threadedExecutionUnderWay_oldThreads=false;
     _flaggedForDestruction=false;
     _mainScriptIsDefaultMainScript_old=false;
@@ -2688,7 +2688,7 @@ void CLuaScriptObject::simulationAboutToStart()
     {
         resetScript(); // should already be reset! (should have been done in simulationEnded routine)
         _numberOfPasses=0;
-        _automaticCascadingCallsDisabled_OLD=false;
+        _automaticCascadingCallsDisabled_old=false;
         initializeInitialValues(false);
         _warningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014=false;
         _warning_simRMLPosition_oldCompatibility_30_8_2014=false;
@@ -5025,14 +5025,14 @@ bool CLuaScriptObject::_luaLoadBuffer(luaWrap_lua_State* luaState,const char* bu
 }
 
 
-void CLuaScriptObject::setAutomaticCascadingCallsDisabled_OLD(bool disabled)
+void CLuaScriptObject::setAutomaticCascadingCallsDisabled_old(bool disabled)
 {
-    _automaticCascadingCallsDisabled_OLD=disabled;
+    _automaticCascadingCallsDisabled_old=disabled;
 }
 
-bool CLuaScriptObject::getAutomaticCascadingCallsDisabled_OLD() const
+bool CLuaScriptObject::getAutomaticCascadingCallsDisabled_old() const
 {
-    return(_automaticCascadingCallsDisabled_OLD);
+    return(_automaticCascadingCallsDisabled_old);
 }
 
 bool CLuaScriptObject::checkAndSetWarningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014()

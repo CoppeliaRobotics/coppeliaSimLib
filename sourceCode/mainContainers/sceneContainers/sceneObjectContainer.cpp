@@ -717,12 +717,12 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
             noHit=false;
             return(myNewObject);
         }
-        if (theName.compare(SER_PATH)==0)
+        if (theName.compare(SER_PATH_OLD)==0)
         {
             if (App::userSettings->xrTest==123456789)
                 App::logMsg(sim_verbosity_errors,"Contains path objects...");
             ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-            CPath* myNewObject=new CPath();
+            CPath_old* myNewObject=new CPath_old();
             myNewObject->serialize(ar);
             noHit=false;
             return(myNewObject);
@@ -839,9 +839,9 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
             ar.xmlPopNode();
             return(myNewObject);
         }
-        if (ar.xmlPushChildNode(SERX_PATH,false))
+        if (ar.xmlPushChildNode(SERX_PATH_OLD,false))
         {
-            CPath* myNewObject=new CPath();
+            CPath_old* myNewObject=new CPath_old();
             myNewObject->serialize(ar);
             ar.xmlPopNode();
             return(myNewObject);
@@ -891,7 +891,7 @@ void CSceneObjectContainer::writeSceneObject(CSer& ar,CSceneObject* it)
         if (it->getObjectType()==sim_object_visionsensor_type)
             ar.storeDataName(SER_VISIONSENSOR);
         if (it->getObjectType()==sim_object_path_type)
-            ar.storeDataName(SER_PATH);
+            ar.storeDataName(SER_PATH_OLD);
         if (it->getObjectType()==sim_object_mill_type)
             ar.storeDataName(SER_MILL);
         if (it->getObjectType()==sim_object_forcesensor_type)
@@ -927,7 +927,7 @@ void CSceneObjectContainer::writeSceneObject(CSer& ar,CSceneObject* it)
         if (it->getObjectType()==sim_object_visionsensor_type)
             ar.xmlPushNewNode(SERX_VISIONSENSOR);
         if (it->getObjectType()==sim_object_path_type)
-            ar.xmlPushNewNode(SERX_PATH);
+            ar.xmlPushNewNode(SERX_PATH_OLD);
         if (it->getObjectType()==sim_object_mill_type)
             ar.xmlPushNewNode(SERX_MILL);
         if (it->getObjectType()==sim_object_forcesensor_type)
@@ -1007,7 +1007,7 @@ bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer& ar,CSce
                 }
                 if (nm.compare("path")==0)
                 {
-                    CPath* myNewObject=new CPath();
+                    CPath_old* myNewObject=new CPath_old();
                     myNewObject->serialize(ar);
                     obj=myNewObject;
                     addObjectToScene(obj,false,true);
@@ -1126,7 +1126,7 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer& ar,const CSceneO
     }
     if (object->getObjectType()==sim_object_path_type)
     {
-        CPath* obj=(CPath*)object;
+        CPath_old* obj=(CPath_old*)object;
         ar.xmlPushNewNode("path");
         obj->serialize(ar);
     }
@@ -1493,11 +1493,11 @@ CShape* CSceneObjectContainer::getShapeFromIndex(size_t index) const
     return(retVal);
 }
 
-CPath* CSceneObjectContainer::getPathFromIndex(size_t index) const
+CPath_old* CSceneObjectContainer::getPathFromIndex(size_t index) const
 {
-    CPath* retVal=nullptr;
+    CPath_old* retVal=nullptr;
     if (index<_pathList.size())
-        retVal=(CPath*)getObjectFromHandle(_pathList[index]);
+        retVal=(CPath_old*)getObjectFromHandle(_pathList[index]);
     return(retVal);
 }
 
@@ -1605,12 +1605,12 @@ CVisionSensor* CSceneObjectContainer::getVisionSensorFromHandle(int objectHandle
     return(retVal);
 }
 
-CPath* CSceneObjectContainer::getPathFromHandle(int objectHandle) const
+CPath_old* CSceneObjectContainer::getPathFromHandle(int objectHandle) const
 {
-    CPath* retVal=nullptr;
+    CPath_old* retVal=nullptr;
     CSceneObject* it=getObjectFromHandle(objectHandle);
     if ( (it!=nullptr)&&(it->getObjectType()==sim_object_path_type) )
-         retVal=(CPath*)it;
+         retVal=(CPath_old*)it;
     return(retVal);
 }
 
@@ -2123,7 +2123,7 @@ size_t CSceneObjectContainer::getPathCountInSelection(const std::vector<int>* se
         sel=selection;
     for (size_t i=0;i<sel->size();i++)
     {
-        CPath* it=getPathFromHandle(sel->at(i));
+        CPath_old* it=getPathFromHandle(sel->at(i));
         if (it!=nullptr)
             counter++;
     }
@@ -2356,7 +2356,7 @@ bool CSceneObjectContainer::isLastSelectionAPath(const std::vector<int>* selecti
         sel=selection;
     if (sel->size()==0)
         return(false);
-    CPath* it=getPathFromHandle(sel->at(sel->size()-1));
+    CPath_old* it=getPathFromHandle(sel->at(sel->size()-1));
     if (it!=nullptr)
         return(true);
     return(false);
@@ -2522,13 +2522,13 @@ CVisionSensor* CSceneObjectContainer::getLastSelectionVisionSensor() const
     return(nullptr);
 }
 
-CPath* CSceneObjectContainer::getLastSelectionPath() const
+CPath_old* CSceneObjectContainer::getLastSelectionPath() const
 {
     CSceneObject* it=getLastSelectionObject(getSelectedObjectHandlesPtr());
     if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_path_type)
-            return((CPath*)it);
+            return((CPath_old*)it);
     }
     return(nullptr);
 }

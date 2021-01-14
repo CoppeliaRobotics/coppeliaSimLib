@@ -36,8 +36,8 @@ void _CWorld_::initializeWorld()
 {
     ikGroups=new CIkGroupContainer();
     collections=new CCollectionContainer();
-    distances=new CDistanceObjectContainer();
-    collisions=new CCollisionObjectContainer();
+    distances=new CDistanceObjectContainer_old();
+    collisions=new CCollisionObjectContainer_old();
     sceneObjects=new CSceneObjectContainer();
 }
 

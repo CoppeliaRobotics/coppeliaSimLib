@@ -30,6 +30,9 @@ CQDlgObjectDialogContainer::CQDlgObjectDialogContainer(QWidget *parent) :
     ui->setupUi(this);
     pageDlgs[0]=new CQDlgDummies();
     originalHeights[0]=pageDlgs[0]->size().height();
+    if (App::userSettings->showOldDlgs)
+        originalHeights[0]=352;
+
     ui->qqObjectProp->setText(IDSN_DUMMY);
     objTypeDlg=sim_object_dummy_type;
 
@@ -129,20 +132,20 @@ void CQDlgObjectDialogContainer::refresh()
     }
     else
     {
-        if (editMode==PATH_EDIT_MODE)
+        if (editMode==PATH_EDIT_MODE_OLD)
             ui->qqObjectProp->setText(IDSN_GRAPH);
         if (editMode&SHAPE_EDIT_MODE)
             ui->qqObjectProp->setText(IDSN_SHAPE);
     }
 
-    if ((currentPage==0)&&((sel!=nullptr)||(editMode==PATH_EDIT_MODE)||(editMode&SHAPE_EDIT_MODE)))
+    if ((currentPage==0)&&((sel!=nullptr)||(editMode==PATH_EDIT_MODE_OLD)||(editMode&SHAPE_EDIT_MODE)))
     { // object properties
         int t=-1;
         if (sel!=nullptr)
             t=sel->getObjectType();
         else
         {
-            if (editMode==PATH_EDIT_MODE)
+            if (editMode==PATH_EDIT_MODE_OLD)
                 t=sim_object_path_type;
             if (editMode&SHAPE_EDIT_MODE)
                 t=sim_object_shape_type;
@@ -180,6 +183,10 @@ void CQDlgObjectDialogContainer::refresh()
                 pageDlgs[currentPage]=new CQDlgLights();
 
             originalHeights[currentPage]=pageDlgs[currentPage]->size().height();
+            if ( (App::userSettings->showOldDlgs)&&(objTypeDlg==sim_object_dummy_type) )
+                originalHeights[0]=352;
+            if ( (App::userSettings->showOldDlgs)&&(objTypeDlg==sim_object_graph_type) )
+                originalHeights[0]=501;
 
             bl->addWidget(pageDlgs[currentPage]);
 

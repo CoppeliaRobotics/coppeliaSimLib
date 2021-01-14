@@ -3,7 +3,7 @@
 #define QDLGIKELEMENTS_H
 
 #include "dlgEx.h"
-#include "ikGroup.h"
+#include "ikGroup_old.h"
 #include <QAbstractButton>
 
 namespace Ui {

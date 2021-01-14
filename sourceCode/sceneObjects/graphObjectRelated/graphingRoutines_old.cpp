@@ -283,7 +283,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
     }
     if ((dType==GRAPH_SCENEOBJECT_PATH_POSITION)||(dType==GRAPH_SCENEOBJECT_PATH_POSITION_LINEAR_COMPONENT))
     { // We have to check if this is a path:
-        CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(it->getDataObjectID());
+        CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(it->getDataObjectID());
         if (path!=nullptr)
         {
             if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
@@ -296,7 +296,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
     }
     if (dType==GRAPH_SCENEOBJECT_PATH_POSITION_ANGULAR_COMPONENT)
     { // We have to check if this is a path:
-        CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(it->getDataObjectID());
+        CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(it->getDataObjectID());
         if (path!=nullptr)
         {
             if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
@@ -459,7 +459,7 @@ void CGraphingRoutines_old::adjustDataToUserMetric(const CGraphData_old* it,floa
     }
     if (dType==GRAPH_SCENEOBJECT_PATH_POSITION_ANGULAR_COMPONENT)
     { // We have to check if this is a path:
-        CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(it->getDataObjectID());
+        CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(it->getDataObjectID());
         if (path!=nullptr)
         {
                 v*=gv::radToUser;
@@ -497,7 +497,7 @@ void CGraphingRoutines_old::getCyclicAndRangeValues(const CGraphData_old* it,boo
     }
     if (dType==GRAPH_SCENEOBJECT_PATH_POSITION)
     { // We have to check if this is a path and is cyclic:
-        CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(it->getDataObjectID());
+        CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(it->getDataObjectID());
         if (path!=nullptr)
         {
             if ((path->pathContainer->getAttributes()&sim_pathproperty_closed_path)!=0)
@@ -510,7 +510,7 @@ void CGraphingRoutines_old::getCyclicAndRangeValues(const CGraphData_old* it,boo
     }
     if (dType==GRAPH_SCENEOBJECT_PATH_POSITION_LINEAR_COMPONENT)
     { // We have to check if this is a path and is cyclic:
-        CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(it->getDataObjectID());
+        CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(it->getDataObjectID());
         if (path!=nullptr)
         {
             if ((path->pathContainer->getAttributes()&sim_pathproperty_closed_path)!=0)
@@ -523,7 +523,7 @@ void CGraphingRoutines_old::getCyclicAndRangeValues(const CGraphData_old* it,boo
     }
     if (dType==GRAPH_SCENEOBJECT_PATH_POSITION_ANGULAR_COMPONENT)
     { // We have to check if this is a path and is cyclic:
-        CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(it->getDataObjectID());
+        CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(it->getDataObjectID());
         if (path!=nullptr)
         {
             if ((path->pathContainer->getAttributes()&sim_pathproperty_closed_path)!=0)
@@ -809,7 +809,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
             int q=0;
             for (size_t i=0;i<App::currentWorld->collisions->getObjectCount();i++)
             {
-                CCollisionObject* aColl=App::currentWorld->collisions->getObjectFromIndex(i);
+                CCollisionObject_old* aColl=App::currentWorld->collisions->getObjectFromIndex(i);
                 if (aColl!=nullptr)
                     if (aColl->getCollisionResult())
                         q++;
@@ -885,7 +885,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
 
     if ( (dataIndex>GRAPH_IK_START)&&(dataIndex<GRAPH_IK_END) )
     {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(objectID);
+        CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(objectID);
         if (it==nullptr)
             return(false);
         if (dataIndex==GRAPH_IK_CALCULATION_TIME)
@@ -896,12 +896,12 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
         return(false);
     }
 
-    if ( (dataIndex>GRAPH_GCS_START_OLD)&&(dataIndex<GRAPH_GCS_END_OLD) )
+    if ( (dataIndex>GRAPH_GCS_START_old)&&(dataIndex<GRAPH_GCS_END_old) )
         return(false); // not supported anymore
 
     if ( (dataIndex>GRAPH_COLLISION_START)&&(dataIndex<GRAPH_COLLISION_END) )
     {
-        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(objectID);
+        CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(objectID);
         if (it==nullptr)
             return(false);
         if (dataIndex==GRAPH_COLLISION_BOOLEAN)
@@ -925,7 +925,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
     }
     if ( (dataIndex>GRAPH_DISTANCE_START)&&(dataIndex<GRAPH_DISTANCE_END) )
     {
-        CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(objectID);
+        CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(objectID);
         if (it==nullptr)
             return(false);
         float dist[7];
@@ -1121,7 +1121,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
 
     if ( (dataIndex>GRAPH_SCENEOBJECT_PATH_SUBSTART)&&(dataIndex<GRAPH_SCENEOBJECT_PATH_SUBEND) )
     {
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(objectID);
+        CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(objectID);
         if (it==nullptr)
             return(false);
         if (dataIndex==GRAPH_SCENEOBJECT_PATH_POSITION)
@@ -1525,17 +1525,17 @@ bool CGraphingRoutines_old::getGraphObjectName(int dataIndex,int objectID,std::s
     // objName is valid only if return value is true
     if ( (dataIndex>GRAPH_IK_START)&&(dataIndex<GRAPH_IK_END) )
     {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(objectID);
+        CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(objectID);
         if (it==nullptr)
             return(false);
         objName=it->getObjectName();
         return(true);
     }
-    if ( (dataIndex>GRAPH_GCS_START_OLD)&&(dataIndex<GRAPH_GCS_END_OLD) )
+    if ( (dataIndex>GRAPH_GCS_START_old)&&(dataIndex<GRAPH_GCS_END_old) )
         return(false); // not supported anymore
     if ( (dataIndex>GRAPH_COLLISION_START)&&(dataIndex<GRAPH_COLLISION_END) )
     {
-        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(objectID);
+        CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(objectID);
         if (it==nullptr)
             return(false);
         objName=it->getObjectName();
@@ -1543,7 +1543,7 @@ bool CGraphingRoutines_old::getGraphObjectName(int dataIndex,int objectID,std::s
     }
     if ( (dataIndex>GRAPH_DISTANCE_START)&&(dataIndex<GRAPH_DISTANCE_END) )
     {
-        CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(objectID);
+        CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(objectID);
         if (it==nullptr)
             return(false);
         objName=it->getObjectName();
@@ -1635,19 +1635,19 @@ bool CGraphingRoutines_old::getObjectsFromGraphCategory(int index,int dataIndex,
     {
         if (index>=int(App::currentWorld->ikGroups->getObjectCount()))
             return(false);
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromIndex(index);
+        CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromIndex(index);
         if (it==nullptr)
             return(false);
         objectID=it->getObjectHandle();
         return(true);
     }
-    if ( (dataIndex>GRAPH_GCS_START_OLD)&&(dataIndex<GRAPH_GCS_END_OLD) )
+    if ( (dataIndex>GRAPH_GCS_START_old)&&(dataIndex<GRAPH_GCS_END_old) )
         return(false); // not supported anymore
     if ( (dataIndex>GRAPH_COLLISION_START)&&(dataIndex<GRAPH_COLLISION_END) )
     {
         if (index>=int(App::currentWorld->collisions->getObjectCount()))
             return(false);
-        CCollisionObject* it=App::currentWorld->collisions->getObjectFromIndex(index);
+        CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromIndex(index);
         if (it==nullptr)
             return(false);
         objectID=it->getObjectHandle();
@@ -1657,7 +1657,7 @@ bool CGraphingRoutines_old::getObjectsFromGraphCategory(int index,int dataIndex,
     {
         if (index>=int(App::currentWorld->distances->getObjectCount()))
             return(false);
-        CDistanceObject* it=App::currentWorld->distances->getObjectFromIndex(index);
+        CDistanceObject_old* it=App::currentWorld->distances->getObjectFromIndex(index);
         if (it==nullptr)
             return(false);
         objectID=it->getObjectHandle();

@@ -197,7 +197,7 @@
     <enum>Qt::StrongFocus</enum>
    </property>
    <property name="text">
-    <string>Copy path data to statusbar</string>
+    <string>Copy path data to status bar</string>
    </property>
    <property name="checkable">
     <bool>false</bool>

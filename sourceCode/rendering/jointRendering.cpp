@@ -50,7 +50,7 @@ void displayJoint(CJoint* joint,CViewableBase* renderingObject,int displayAttrib
 
 void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,float sizeParam)
 {
-    if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
+    if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
     {
         if (joint->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
             glLoadName(joint->getModelSelectionHandle());

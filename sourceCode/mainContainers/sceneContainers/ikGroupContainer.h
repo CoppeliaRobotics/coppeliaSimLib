@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ikGroup.h"
+#include "ikGroup_old.h"
 #include "_ikGroupContainer_.h"
 
 class CIkGroupContainer : public _CIkGroupContainer_
@@ -16,8 +16,8 @@ public:
     void simulationAboutToStart();
     void simulationEnded();
 
-    void addIkGroup(CIkGroup* anIkGroup,bool objectIsACopy);
-    void addIkGroupWithSuffixOffset(CIkGroup* anIkGroup,bool objectIsACopy,int suffixOffset);
+    void addIkGroup(CIkGroup_old* anIkGroup,bool objectIsACopy);
+    void addIkGroupWithSuffixOffset(CIkGroup_old* anIkGroup,bool objectIsACopy,int suffixOffset);
 
     void getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix) const;
     bool canSuffix1BeSetToSuffix2(int suffix1,int suffix2) const;
@@ -37,6 +37,6 @@ public:
 
 protected:
     // Overridden from _CIkGroupContainer_:
-    void _addIkGroup(CIkGroup* anIkGroup);
+    void _addIkGroup(CIkGroup_old* anIkGroup);
     void _removeIkGroup(int ikGroupHandle);
 };

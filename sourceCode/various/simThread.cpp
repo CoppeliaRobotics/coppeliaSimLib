@@ -270,27 +270,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             }
         }
 
-
-        if (cmd.cmdId==DELETE_SELECTED_PATH_POINTS_NON_EDIT_FROMUI_TOSIM_CMD)
-        {
-            App::logMsg(sim_verbosity_msgs,IDSNS_DELETING_SELECTED_PATH_POINTS);
-            CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
-            if (path!=nullptr)
-            {
-                CPathCont* pc=path->pathContainer;
-                std::vector<bool> toDelete(pc->getSimplePathPointCount(),false);
-                for (int i=0;i<int(cmd.intVectorParams[0].size());i++)
-                    toDelete[cmd.intVectorParams[0][i]]=true;
-                for (int i=int(toDelete.size())-1;i>=0;i--)
-                {
-                    if (toDelete[i])
-                        pc->removeSimplePathPoint(i);
-                }
-                POST_SCENE_CHANGED_ANNOUNCEMENT("");
-                App::setLightDialogRefreshFlag();
-            }
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
-        }
         if (CSimFlavor::getBoolVal(11))
         {
             if (cmd.cmdId==CALL_USER_CONFIG_CALLBACK_CMD)
@@ -380,7 +359,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if ( (App::mainWindow!=nullptr)&&(cmd.cmdId>EDIT_MODE_COMMANDS_START_EMCMD)&&(cmd.cmdId<EDIT_MODE_COMMANDS_END_EMCMD) )
         {
             CSceneObject* additionalSceneObject=nullptr;
-            if (cmd.cmdId==PATH_EDIT_MODE_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD)
+            if (cmd.cmdId==PATH_EDIT_MODE_OLD_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD)
             {
                 additionalSceneObject=(CSceneObject*)cmd.objectParams[0];
                 if (additionalSceneObject!=nullptr)
@@ -914,13 +893,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SET_OBJECTNAME_COLLISIONGUITRIGGEREDCMD)
         {
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(cmd.intParams[0]);
+            CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setObjectName(cmd.stringParams[0].c_str(),true);
         }
         if (cmd.cmdId==DELETE_OBJECT_COLLISIONGUITRIGGEREDCMD)
         {
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(cmd.intParams[0]);
+            CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 App::currentWorld->collisions->removeObject(it->getObjectHandle());
         }
@@ -930,31 +909,31 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==TOGGLE_EXPLICITHANDLING_COLLISIONGUITRIGGEREDCMD)
         {
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(cmd.intParams[0]);
+            CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setExplicitHandling(!it->getExplicitHandling());
         }
         if (cmd.cmdId==TOGGLE_COLLIDERCOLORCHANGES_COLLISIONGUITRIGGEREDCMD)
         {
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(cmd.intParams[0]);
+            CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setColliderChangesColor(!it->getColliderChangesColor());
         }
         if (cmd.cmdId==TOGGLE_COLLIDEECOLORCHANGES_COLLISIONGUITRIGGEREDCMD)
         {
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(cmd.intParams[0]);
+            CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setCollideeChangesColor(!it->getCollideeChangesColor());
         }
         if (cmd.cmdId==TOGGLE_COLLISIONCONTOUR_COLLISIONGUITRIGGEREDCMD)
         {
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(cmd.intParams[0]);
+            CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setExhaustiveDetection(!it->getExhaustiveDetection());
         }
         if (cmd.cmdId==SET_CONTOURWIDTH_COLLISIONGUITRIGGEREDCMD)
         {
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(cmd.intParams[0]);
+            CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setContourWidth(cmd.intParams[1]);
         }
@@ -973,13 +952,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SET_OBJECTNAME_DISTANCEGUITRIGGEREDCMD)
         {
-            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
+            CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setObjectName(cmd.stringParams[0].c_str(),true);
         }
         if (cmd.cmdId==DELETE_OBJECT_DISTANCEGUITRIGGEREDCMD)
         {
-            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
+            CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 App::currentWorld->distances->removeObject(it->getObjectHandle());
         }
@@ -989,31 +968,31 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==TOGGLE_EXPLICITHANDLING_DISTANCEGUITRIGGEREDCMD)
         {
-            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
+            CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setExplicitHandling(!it->getExplicitHandling());
         }
         if (cmd.cmdId==TOGGLE_USETHRESHOLD_DISTANCEGUITRIGGEREDCMD)
         {
-            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
+            CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setThresholdEnabled(!it->getTreshholdEnabled());
         }
         if (cmd.cmdId==SET_THRESHOLD_DISTANCEGUITRIGGEREDCMD)
         {
-            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
+            CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setThreshold(cmd.floatParams[0]);
         }
         if (cmd.cmdId==TOGGLE_SEGMENTDISPLAY_DISTANCEGUITRIGGEREDCMD)
         {
-            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
+            CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setDisplaySegment(!it->getDisplaySegment());
         }
         if (cmd.cmdId==SET_SEGMENTWIDTH_DISTANCEGUITRIGGEREDCMD)
         {
-            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
+            CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setSegmentWidth(cmd.floatParams[0]);
         }
@@ -3203,75 +3182,75 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
 
 
-        if (cmd.cmdId==SET_ATTRIBUTES_PATHGUITRIGGEREDCMD)
+        if (cmd.cmdId==SET_ATTRIBUTES_PATH_OLD_GUITRIGGEREDCMD)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if ((it!=nullptr)&&(it->pathContainer!=nullptr))
                 it->pathContainer->setAttributes(cmd.intParams[1]);
         }
-        if (cmd.cmdId==SET_LINESIZE_PATHGUITRIGGEREDCMD)
+        if (cmd.cmdId==SET_LINESIZE_PATH_OLD_GUITRIGGEREDCMD)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if ((it!=nullptr)&&(it->pathContainer!=nullptr))
                 it->pathContainer->setLineSize(cmd.intParams[1]);
         }
-        if (cmd.cmdId==SET_CTRLPTSIZE_PATHGUITRIGGEREDCMD)
+        if (cmd.cmdId==SET_CTRLPTSIZE_PATH_OLD_GUITRIGGEREDCMD)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if ((it!=nullptr)&&(it->pathContainer!=nullptr))
                 it->pathContainer->setSquareSize(cmd.floatParams[0]);
         }
-        if (cmd.cmdId==SET_DISTANCEUNIT_PATHGUITRIGGEREDCMD)
+        if (cmd.cmdId==SET_DISTANCEUNIT_PATH_OLD_GUITRIGGEREDCMD)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if ((it!=nullptr)&&(it->pathContainer!=nullptr))
                 it->pathContainer->setPathLengthCalculationMethod(cmd.intParams[1]);
         }
-        if (cmd.cmdId==COPY_TO_CLIPBOARD_PATHGUITRIGGEREDCMD)
+        if (cmd.cmdId==COPY_TO_CLIPBOARD_PATH_OLD_GUITRIGGEREDCMD)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if ((it!=nullptr)&&(it->pathContainer!=nullptr))
             {
                 it->pathContainer->copyPointsToClipboard();
-                App::logMsg(sim_verbosity_scriptinfos,"Path points copied to clipboard.");
+                App::logMsg(sim_verbosity_scriptinfos,"Path points copied to status bar.");
             }
         }
-        if (cmd.cmdId==CREATE_EQUIVALENT_PATHGUITRIGGEREDCMD)
+        if (cmd.cmdId==CREATE_EQUIVALENT_PATH_OLD_GUITRIGGEREDCMD)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if ((it!=nullptr)&&(it->pathContainer!=nullptr))
             {
                 it->pathContainer->createEquivalent(it->getObjectHandle());
                 App::logMsg(sim_verbosity_scriptinfos,"Equivalent path object created.");
             }
         }
-        if (cmd.cmdId==TOGGLE_SHAPINGENABLED_PATHSHAPINGGUITRIGGEREDCMD)
+        if (cmd.cmdId==TOGGLE_SHAPINGENABLED_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setShapingEnabled(!it->getShapingEnabled());
         }
-        if (cmd.cmdId==TOGGLE_FOLLOWORIENTATION_PATHSHAPINGGUITRIGGEREDCMD)
+        if (cmd.cmdId==TOGGLE_FOLLOWORIENTATION_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setShapingFollowFullOrientation(!it->getShapingFollowFullOrientation());
         }
-        if (cmd.cmdId==TOGGLE_CONVEXHULLS_PATHSHAPINGGUITRIGGEREDCMD)
+        if (cmd.cmdId==TOGGLE_CONVEXHULLS_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setShapingThroughConvexHull(!it->getShapingThroughConvexHull());
         }
-        if (cmd.cmdId==TOGGLE_LASTCOORDLINKSTOFIRST_PATHSHAPINGGUITRIGGEREDCMD)
+        if (cmd.cmdId==TOGGLE_LASTCOORDLINKSTOFIRST_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setShapingSectionClosed(!it->getShapingSectionClosed());
         }
-        if (cmd.cmdId==GENERATE_SHAPE_PATHSHAPINGGUITRIGGEREDCMD)
+        if (cmd.cmdId==GENERATE_SHAPE_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
                 CShape* shape=it->getShape();
@@ -3279,27 +3258,27 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     App::currentWorld->sceneObjects->addObjectToScene(shape,false,true);
             }
         }
-        if (cmd.cmdId==SET_ELEMENTMAXLENGTH_PATHSHAPINGGUITRIGGEREDCMD)
+        if (cmd.cmdId==SET_ELEMENTMAXLENGTH_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setShapingElementMaxLength(cmd.floatParams[0]);
         }
-        if (cmd.cmdId==SET_TYPE_PATHSHAPINGGUITRIGGEREDCMD)
+        if (cmd.cmdId==SET_TYPE_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setShapingType(cmd.intParams[1]);
         }
-        if (cmd.cmdId==SET_SCALINGFACTOR_PATHSHAPINGGUITRIGGEREDCMD)
+        if (cmd.cmdId==SET_SCALINGFACTOR_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setShapingScaling(cmd.floatParams[0]);
         }
-        if (cmd.cmdId==SET_COORDINATES_PATHSHAPINGGUITRIGGEREDCMD)
+        if (cmd.cmdId==SET_COORDINATES_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
         {
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
                 it->shapingCoordinates.assign(cmd.floatParams.begin(),cmd.floatParams.end());
@@ -4242,23 +4221,23 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
         if (cmd.cmdId==REMOVE_ELEMENT_IKELEMENTGUITRIGGEREDCMD)
         {
-            CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (ikGroup!=nullptr)
             {
-                CIkElement* it=ikGroup->getIkElementFromHandle(cmd.intParams[1]);
+                CIkElement_old* it=ikGroup->getIkElementFromHandle(cmd.intParams[1]);
                 if (it!=nullptr)
                     ikGroup->removeIkElement(cmd.intParams[1]);
             }
         }
         if (cmd.cmdId==ADD_ELEMENT_IKELEMENTGUITRIGGEREDCMD)
         {
-            CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (ikGroup!=nullptr)
             {
                 CDummy* it=App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[1]);
                 if (it!=nullptr)
                 {
-                    CIkElement* newIkEl=new CIkElement(it->getObjectHandle());
+                    CIkElement_old* newIkEl=new CIkElement_old(it->getObjectHandle());
                     if (!ikGroup->addIkElement(newIkEl))
                         delete newIkEl;
                     else
@@ -4276,30 +4255,30 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==TOGGLE_ACTIVE_IKELEMENTGUITRIGGEREDCMD)
         {
-            CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (ikGroup!=nullptr)
             {
-                CIkElement* it=ikGroup->getIkElementFromHandle(cmd.intParams[1]);
+                CIkElement_old* it=ikGroup->getIkElementFromHandle(cmd.intParams[1]);
                 if (it!=nullptr)
                     it->setEnabled(!it->getEnabled());
             }
         }
         if (cmd.cmdId==SET_BASE_IKELEMENTGUITRIGGEREDCMD)
         {
-            CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (ikGroup!=nullptr)
             {
-                CIkElement* it=ikGroup->getIkElementFromHandle(cmd.intParams[1]);
+                CIkElement_old* it=ikGroup->getIkElementFromHandle(cmd.intParams[1]);
                 if (it!=nullptr)
                     it->setBase(cmd.intParams[2]);
             }
         }
         if (cmd.cmdId==TOGGLE_CONSTRAINT_IKELEMENTGUITRIGGEREDCMD)
         {
-            CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (ikGroup!=nullptr)
             {
-                CIkElement* it=ikGroup->getIkElementFromHandle(cmd.intParams[1]);
+                CIkElement_old* it=ikGroup->getIkElementFromHandle(cmd.intParams[1]);
                 if (it!=nullptr)
                 {
                     int c=cmd.intParams[2];
@@ -4316,20 +4295,20 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SET_REFERENCEFRAME_IKELEMENTGUITRIGGEREDCMD)
         {
-            CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (ikGroup!=nullptr)
             {
-                CIkElement* it=ikGroup->getIkElementFromHandle(cmd.intParams[1]);
+                CIkElement_old* it=ikGroup->getIkElementFromHandle(cmd.intParams[1]);
                 if (it!=nullptr)
                     it->setAlternativeBaseForConstraints(cmd.intParams[2]);
             }
         }
         if (cmd.cmdId==SET_PRECISION_IKELEMENTGUITRIGGEREDCMD)
         {
-            CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (ikGroup!=nullptr)
             {
-                CIkElement* it=ikGroup->getIkElementFromHandle(cmd.intParams[1]);
+                CIkElement_old* it=ikGroup->getIkElementFromHandle(cmd.intParams[1]);
                 if (it!=nullptr)
                 {
                     if (cmd.intParams[2]==0)
@@ -4341,10 +4320,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SET_WEIGHT_IKELEMENTGUITRIGGEREDCMD)
         {
-            CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (ikGroup!=nullptr)
             {
-                CIkElement* it=ikGroup->getIkElementFromHandle(cmd.intParams[1]);
+                CIkElement_old* it=ikGroup->getIkElementFromHandle(cmd.intParams[1]);
                 if (it!=nullptr)
                 {
                     if (cmd.intParams[2]==0)
@@ -4365,13 +4344,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==REMOVE_IKGROUP_IKGROUPGUITRIGGEREDCMD)
         {
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 App::currentWorld->ikGroups->removeIkGroup(it->getObjectHandle());
         }
         if (cmd.cmdId==ADD_IKGROUP_IKGROUPGUITRIGGEREDCMD)
         {
-            CIkGroup* newGroup=new CIkGroup();
+            CIkGroup_old* newGroup=new CIkGroup_old();
             newGroup->setObjectName("IK_Group",false);
             App::currentWorld->ikGroups->addIkGroup(newGroup,false);
             // Now select the object in the UI. We need to post it so that it arrives after the dialog refresh!:
@@ -4386,13 +4365,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==RENAME_IKGROUP_IKGROUPGUITRIGGEREDCMD)
         {
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setObjectName(cmd.stringParams[0].c_str(),true);
         }
         if (cmd.cmdId==SHIFT_IKGROUP_IKGROUPGUITRIGGEREDCMD)
         {
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             bool up=cmd.intParams[1]!=0;
             if (it!=nullptr)
             {
@@ -4407,46 +4386,46 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==TOGGLE_EXPLICITHANDLING_IKGROUPGUITRIGGEREDCMD)
         {
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setExplicitHandling(!it->getExplicitHandling());
         }
         if (cmd.cmdId==TOGGLE_ACTIVE_IKGROUPGUITRIGGEREDCMD)
         {
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setEnabled(!it->getEnabled());
         }
         if (cmd.cmdId==TOGGLE_IGNOREMAXSTEPSIZES_IKGROUPGUITRIGGEREDCMD)
         {
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setIgnoreMaxStepSizes(!it->getIgnoreMaxStepSizes());
         }
         if (cmd.cmdId==SET_CALCMETHOD_IKGROUPGUITRIGGEREDCMD)
         {
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setCalculationMethod(cmd.intParams[1]);
         }
         if (cmd.cmdId==SET_DAMPING_IKGROUPGUITRIGGEREDCMD)
         {
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setDampingFactor(cmd.floatParams[0]);
         }
         if (cmd.cmdId==SET_ITERATIONS_IKGROUPGUITRIGGEREDCMD)
         {
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setMaxIterations(cmd.intParams[1]);
         }
         if (cmd.cmdId==SET_CONDITIONALPARAMS_IKGROUPGUITRIGGEREDCMD)
         {
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
+            CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                CIkGroup* it2=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[1]);
+                CIkGroup_old* it2=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[1]);
                 int id=-1;
                 if (it2!=nullptr)
                     id=it2->getObjectHandle();
@@ -4742,22 +4721,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             App::setFullDialogRefreshFlag();
         }
 
-        if (cmd.cmdId==ADD_OBJECTTOSCENE_GUITRIGGEREDCMD)
-        {
-            if (cmd.intParams[0]==sim_object_path_type)
-            {
-                CPath* it=(CPath*)cmd.objectParams[0];
-                // Use a copy (the original was created in the UI thread):
-                App::currentWorld->sceneObjects->addObjectToScene(it->copyYourself(),false,true);
-                // Have the original destroyed by the UI thread:
-                SUIThreadCommand cmdIn;
-                SUIThreadCommand cmdOut;
-                cmdIn.cmdId=DESTROY_UIOBJECT_UITHREADCMD;
-                cmdIn.intParams.push_back(cmd.intParams[0]);
-                cmdIn.objectParams.push_back(cmd.objectParams[0]);
-                App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-            }
-        }
         if (cmd.cmdId==SWITCH_TOINSTANCEINDEX_GUITRIGGEREDCMD)
         {
             App::worldContainer->switchToWorld(cmd.intParams[0]);

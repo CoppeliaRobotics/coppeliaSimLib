@@ -58,7 +58,7 @@ void CQDlgIk::refresh()
         noEditModeNoSim=false;
 
     int groupID=getSelectedObjectID();
-    CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(groupID);
+    CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(groupID);
 
     if (!inListSelectionRoutine)
     {
@@ -123,7 +123,7 @@ void CQDlgIk::updateObjectsInList()
 
     for (size_t i=0;i<App::currentWorld->ikGroups->getObjectCount();i++)
     {
-        CIkGroup* ikg=App::currentWorld->ikGroups->getObjectFromIndex(i);
+        CIkGroup_old* ikg=App::currentWorld->ikGroups->getObjectFromIndex(i);
         std::string txt=ikg->getObjectName();
         txt+=" [containing ";
         txt+=tt::FNb(0,int(ikg->getIkElementCount())).c_str();
@@ -225,7 +225,7 @@ void CQDlgIk::on_qqList_itemSelectionChanged()
             CQDlgIkElements::_invalid=true;
             App::mainWindow->dlgCont->close(IKELEMENT_DLG);
             int objID=getSelectedObjectID();
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(objID);
+            CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(objID);
             if (it!=nullptr)
                 ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText=it->getObjectName();
             else
@@ -338,7 +338,7 @@ void CQDlgIk::on_qqEditConditional_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(getSelectedObjectID());
+        CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
         {
             CQDlgIkConditional theDialog(this);
@@ -365,7 +365,7 @@ void CQDlgIk::on_qqEditIkElements_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(getSelectedObjectID());
+        CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
             CQDlgIkElements::display(it->getObjectHandle(),App::mainWindow);
     }

@@ -42,12 +42,12 @@ void CQDlgIkElements::updateObjectsInList()
 {
     noListSelectionAllowed=true;
     ui->qqList->clear();
-    CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);
+    CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);
     if (ikGroup!=nullptr)
     {
         for (size_t i=0;i<ikGroup->getIkElementCount();i++)
         {
-            CIkElement* ikElement=ikGroup->getIkElementFromIndex(i);
+            CIkElement_old* ikElement=ikGroup->getIkElementFromIndex(i);
             int tooltipID=ikElement->getTipHandle();
             int elementID=ikElement->getObjectHandle();
             CDummy* theTooltip=App::currentWorld->sceneObjects->getDummyFromHandle(tooltipID);
@@ -96,7 +96,7 @@ bool CQDlgIkElements::needsDestruction()
 void CQDlgIkElements::_initialize(int ikGroupHandle)
 {
     _ikGroupHandle=ikGroupHandle;
-    CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);
+    CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);
     if (ikGroup!=nullptr)
     {
         std::string titleText("IK Group (");
@@ -156,9 +156,9 @@ void CQDlgIkElements::refresh()
     bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
     if (!isLinkedDataValid())
         return;
-    CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);
+    CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);
     int elementID=getSelectedObjectID();
-    CIkElement* it=ikGroup->getIkElementFromHandle(elementID);
+    CIkElement_old* it=ikGroup->getIkElementFromHandle(elementID);
 
     if (!inListSelectionRoutine)
     {

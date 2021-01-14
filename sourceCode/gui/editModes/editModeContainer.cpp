@@ -11,7 +11,7 @@ CEditModeContainer::CEditModeContainer()
     _pathEditMode=nullptr;
     _editModeObject=-1;
     _simulationStopped=true;
-    pathPointManipulation=new CPathPointManipulation();
+    pathPointManipulation=new CPathPointManipulation_old();
 }
 
 CEditModeContainer::~CEditModeContainer()
@@ -42,9 +42,9 @@ bool CEditModeContainer::enterEditMode(int objID,int modeType)
         if (shape->isCompound())
             return(false);
     }
-    if (modeType&PATH_EDIT_MODE)
+    if (modeType&PATH_EDIT_MODE_OLD)
     {
-        CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(objID);
+        CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(objID);
         if (path==nullptr)
             return(false);
     }
@@ -81,9 +81,9 @@ bool CEditModeContainer::enterEditMode(int objID,int modeType)
         cmdIn.intParams.push_back(OPEN_SHAPE_EDITION_DLG_CMD);
         App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
-    else if (modeType&PATH_EDIT_MODE)
+    else if (modeType&PATH_EDIT_MODE_OLD)
     {
-        _pathEditMode=new CPathEditMode(App::currentWorld->sceneObjects->getPathFromHandle(objID),App::currentWorld->sceneObjects);
+        _pathEditMode=new CPathEditMode_old(App::currentWorld->sceneObjects->getPathFromHandle(objID),App::currentWorld->sceneObjects);
 
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
@@ -209,7 +209,7 @@ int CEditModeContainer::getEditModeType()
     if (_multishapeEditMode!=nullptr)
         return(MULTISHAPE_EDIT_MODE);
     if (_pathEditMode!=nullptr)
-        return(PATH_EDIT_MODE);
+        return(PATH_EDIT_MODE_OLD);
     return(NO_EDIT_MODE);
 }
 
@@ -315,7 +315,7 @@ CMultishapeEditMode* CEditModeContainer::getMultishapeEditMode()
     return(_multishapeEditMode);
 }
 
-CPathEditMode* CEditModeContainer::getPathEditMode()
+CPathEditMode_old* CEditModeContainer::getPathEditMode()
 {
     TRACE_INTERNAL;
     return(_pathEditMode);
@@ -331,11 +331,11 @@ CShape* CEditModeContainer::getEditModeShape()
     return(nullptr);
 }
 
-CPath* CEditModeContainer::getEditModePath()
+CPath_old* CEditModeContainer::getEditModePath_old()
 {
     TRACE_INTERNAL;
     if (_pathEditMode!=nullptr)
-        return(_pathEditMode->getEditModePath());
+        return(_pathEditMode->getEditModePath_old());
     return(nullptr);
 }
 
@@ -347,15 +347,15 @@ CSceneObject* CEditModeContainer::getEditModeObject()
     if (_multishapeEditMode!=nullptr)
         return(_multishapeEditMode->getEditModeMultishape());
     if (_pathEditMode!=nullptr)
-        return(_pathEditMode->getEditModePath());
+        return(_pathEditMode->getEditModePath_old());
     return(nullptr);
 }
 
-CPathCont* CEditModeContainer::getEditModePathContainer()
+CPathCont_old* CEditModeContainer::getEditModePathContainer_old()
 {
     TRACE_INTERNAL;
     if (_pathEditMode!=nullptr)
-        return(_pathEditMode->getEditModePathContainer());
+        return(_pathEditMode->getEditModePathContainer_old());
     return(nullptr);
 }
 
@@ -369,8 +369,6 @@ bool CEditModeContainer::keyPress(int key)
         // The key press can only be meant for the path point manipulation mode:
         if ( (key==CTRL_V_KEY)||(key==CTRL_X_KEY)||(key==CTRL_C_KEY) )
             App::logMsg(sim_verbosity_msgs,IDSNS_OPERATION_DISABLED_WITH_INDIVIDUAL_PATH_POINTS_SELECTED);
-        if ((key==DELETE_KEY)||(key==BACKSPACE_KEY))
-            processCommand(HALF_PATH_EDIT_MODE_DELETE_PATH_POINTS_EMCMD,nullptr);
         if (key==ESC_KEY)
             processCommand(ANY_EDIT_MODE_DESELECT_BUFFER_EMCMD,nullptr);
         return(true);
@@ -395,17 +393,17 @@ bool CEditModeContainer::keyPress(int key)
     if (_pathEditMode!=nullptr)
     { // for the path edit mode:
         if (key==CTRL_V_KEY)
-            processCommand(PATH_EDIT_MODE_PASTE_PATH_POINT_EMCMD,nullptr);
+            processCommand(PATH_EDIT_MODE_OLD_PASTE_PATH_POINT_EMCMD,nullptr);
         if ((key==DELETE_KEY)||(key==BACKSPACE_KEY))
-            processCommand(PATH_EDIT_MODE_DELETE_PATH_POINT_EMCMD,nullptr);
+            processCommand(PATH_EDIT_MODE_OLD_DELETE_PATH_POINT_EMCMD,nullptr);
         if (key==CTRL_X_KEY)
-            processCommand(PATH_EDIT_MODE_PATH_POINT_CUT_EMCMD,nullptr);
+            processCommand(PATH_EDIT_MODE_OLD_PATH_POINT_CUT_EMCMD,nullptr);
         if (key==CTRL_C_KEY)
-            processCommand(PATH_EDIT_MODE_PATH_POINT_COPY_EMCMD,nullptr);
+            processCommand(PATH_EDIT_MODE_OLD_PATH_POINT_COPY_EMCMD,nullptr);
         if (key==ESC_KEY)
             processCommand(ANY_EDIT_MODE_DESELECT_BUFFER_EMCMD,nullptr);
         if (key==CTRL_A_KEY)
-            processCommand(PATH_EDIT_MODE_SELECT_ALL_PATH_POINTS_EMCMD,nullptr);
+            processCommand(PATH_EDIT_MODE_OLD_SELECT_ALL_PATH_POINTS_EMCMD,nullptr);
     }
 
     if (_multishapeEditMode!=nullptr)
@@ -435,21 +433,6 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             deselectEditModeBuffer();
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-
-    if (commandID==HALF_PATH_EDIT_MODE_DELETE_PATH_POINTS_EMCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            pathPointManipulation->deleteSelectedPathPoints_nonEditMode();
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -540,19 +523,19 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
         return(true);
     }
 
-    if ( (commandID==PATH_EDIT_MODE_START_EMCMD)||( (getEditModeType()==NO_EDIT_MODE)&&(commandID==PATH_EDIT_MODE_TOGGLE_ON_OFF_EMCMD) ) )
+    if ( (commandID==PATH_EDIT_MODE_OLD_START_EMCMD)||( (getEditModeType()==NO_EDIT_MODE)&&(commandID==PATH_EDIT_MODE_OLD_TOGGLE_ON_OFF_EMCMD) ) )
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CPath* it=nullptr;
+            CPath_old* it=nullptr;
             if (App::currentWorld->sceneObjects->getSelectionCount()>=1)
                 it=App::currentWorld->sceneObjects->getPathFromHandle(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(App::currentWorld->sceneObjects->getSelectionCount()-1));
             if (it!=nullptr)
             {
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                if (enterEditMode(it->getObjectHandle(),PATH_EDIT_MODE))
+                if (enterEditMode(it->getObjectHandle(),PATH_EDIT_MODE_OLD))
                 {
-                    App::logMsg(sim_verbosity_msgs,IDSNS_STARTING_PATH_EDIT_MODE);
+                    App::logMsg(sim_verbosity_msgs,IDSNS_STARTING_PATH_EDIT_MODE_OLD);
                     // Frame the path
                     CSPage* thePage=App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
                     if (thePage!=nullptr)
@@ -588,7 +571,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
     if (_multishapeEditMode!=nullptr)
         return(_processMultishapeEditModeCommand(commandID));
     if (_pathEditMode!=nullptr)
-        return(_processPathEditModeCommand(commandID,viewableObject));
+        return(_processPathEditModeCommand_old(commandID,viewableObject));
 
     return(false);
 }
@@ -872,18 +855,6 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         return(true);
     }
 
-
-
-    if (commandID==SHAPE_EDIT_MODE_MAKE_PATH_WITH_SELECTED_EDGES_EMCMD)
-    {
-        IF_UI_EVENT_CAN_READ_DATA // no write here
-        {
-            _shapeEditMode->makePath();
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-        }
-        return(true);
-    }
-
     if (commandID==SHAPE_EDIT_MODE_MAKE_DUMMIES_WITH_SELECTED_VERTICES_EMCMD)
     {
         IF_UI_EVENT_CAN_READ_DATA // no write here
@@ -984,10 +955,10 @@ bool CEditModeContainer::_processMultishapeEditModeCommand(int commandID)
     return(false);
 }
 
-bool CEditModeContainer::_processPathEditModeCommand(int commandID,CSceneObject* viewableObject)
+bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObject* viewableObject)
 {
     TRACE_INTERNAL;
-    if (commandID==PATH_EDIT_MODE_SELECT_ALL_PATH_POINTS_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_SELECT_ALL_PATH_POINTS_EMCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -1007,7 +978,7 @@ bool CEditModeContainer::_processPathEditModeCommand(int commandID,CSceneObject*
         return(true);
     }
 
-    if (commandID==PATH_EDIT_MODE_PATH_POINT_COPY_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_PATH_POINT_COPY_EMCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -1027,7 +998,7 @@ bool CEditModeContainer::_processPathEditModeCommand(int commandID,CSceneObject*
         return(true);
     }
 
-    if (commandID==PATH_EDIT_MODE_PASTE_PATH_POINT_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_PASTE_PATH_POINT_EMCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -1047,7 +1018,7 @@ bool CEditModeContainer::_processPathEditModeCommand(int commandID,CSceneObject*
         return(true);
     }
 
-    if (commandID==PATH_EDIT_MODE_INSERT_NEW_PATH_POINT_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_INSERT_NEW_PATH_POINT_EMCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -1067,7 +1038,7 @@ bool CEditModeContainer::_processPathEditModeCommand(int commandID,CSceneObject*
         return(true);
     }
 
-    if (commandID==PATH_EDIT_MODE_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -1091,7 +1062,7 @@ bool CEditModeContainer::_processPathEditModeCommand(int commandID,CSceneObject*
         return(true);
     }
 
-    if (commandID==PATH_EDIT_MODE_DELETE_PATH_POINT_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_DELETE_PATH_POINT_EMCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -1111,7 +1082,7 @@ bool CEditModeContainer::_processPathEditModeCommand(int commandID,CSceneObject*
         return(true);
     }
 
-    if (commandID==PATH_EDIT_MODE_PATH_POINT_CUT_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_PATH_POINT_CUT_EMCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -1131,7 +1102,7 @@ bool CEditModeContainer::_processPathEditModeCommand(int commandID,CSceneObject*
         return(true);
     }
 
-    if (commandID==PATH_EDIT_MODE_KEEP_ALL_X_AND_ALIGN_Z_FOR_PATH_POINTS_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_KEEP_ALL_X_AND_ALIGN_Z_FOR_PATH_POINTS_EMCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -1151,14 +1122,14 @@ bool CEditModeContainer::_processPathEditModeCommand(int commandID,CSceneObject*
         return(true);
     }
 
-    if (commandID==PATH_EDIT_MODE_MAKE_DUMMIES_FROM_PATH_CTRL_POINTS_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_MAKE_DUMMIES_FROM_PATH_CTRL_POINTS_EMCMD)
     {
         _pathEditMode->makeDummies();
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         return(true);
     }
 
-    if (commandID==PATH_EDIT_MODE_INVERSE_ORDER_OF_SELECTED_PATH_CTRL_POINTS_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_INVERSE_ORDER_OF_SELECTED_PATH_CTRL_POINTS_EMCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -1178,7 +1149,7 @@ bool CEditModeContainer::_processPathEditModeCommand(int commandID,CSceneObject*
         return(true);
     }
 
-    if (commandID==PATH_EDIT_MODE_MAKE_PATH_FROM_BEZIER_EMCMD)
+    if (commandID==PATH_EDIT_MODE_OLD_MAKE_PATH_FROM_BEZIER_EMCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -1204,13 +1175,13 @@ bool CEditModeContainer::_processPathEditModeCommand(int commandID,CSceneObject*
         return(true);
     }
 
-    if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)||(commandID==ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)||(commandID==PATH_EDIT_MODE_TOGGLE_ON_OFF_EMCMD) )
+    if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)||(commandID==ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)||(commandID==PATH_EDIT_MODE_OLD_TOGGLE_ON_OFF_EMCMD) )
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             unsigned short res=0;
-            if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==PATH_EDIT_MODE_TOGGLE_ON_OFF_EMCMD) )
-                res=App::uiThread->messageBox_information(App::mainWindow,IDSN_PATH_EDIT_MODE,IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES,VMESSAGEBOX_YES_NO_CANCEL,VMESSAGEBOX_REPLY_YES);
+            if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==PATH_EDIT_MODE_OLD_TOGGLE_ON_OFF_EMCMD) )
+                res=App::uiThread->messageBox_information(App::mainWindow,IDSN_PATH_EDIT_MODE_OLD,IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES,VMESSAGEBOX_YES_NO_CANCEL,VMESSAGEBOX_REPLY_YES);
             if (commandID==ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)
                 res=VMESSAGEBOX_REPLY_NO;
             if (commandID==ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)

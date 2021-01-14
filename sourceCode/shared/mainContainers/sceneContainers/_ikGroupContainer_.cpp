@@ -21,7 +21,7 @@ size_t _CIkGroupContainer_::getObjectCount() const
     return(_ikGroups.size());
 }
 
-CIkGroup* _CIkGroupContainer_::getObjectFromHandle(int ikGroupHandle) const
+CIkGroup_old* _CIkGroupContainer_::getObjectFromHandle(int ikGroupHandle) const
 {
      for (size_t i=0;i<_ikGroups.size();i++)
      {
@@ -31,15 +31,15 @@ CIkGroup* _CIkGroupContainer_::getObjectFromHandle(int ikGroupHandle) const
      return(nullptr);
 }
 
-CIkGroup* _CIkGroupContainer_::getObjectFromIndex(size_t index) const
+CIkGroup_old* _CIkGroupContainer_::getObjectFromIndex(size_t index) const
 {
-    CIkGroup* retVal=nullptr;
+    CIkGroup_old* retVal=nullptr;
     if (index<_ikGroups.size())
         retVal=_ikGroups[index];
     return(retVal);
 }
 
-CIkGroup* _CIkGroupContainer_::getObjectFromName(const char* ikGroupName) const
+CIkGroup_old* _CIkGroupContainer_::getObjectFromName(const char* ikGroupName) const
 {
     for (size_t i=0;i<_ikGroups.size();i++)
     {
@@ -49,7 +49,7 @@ CIkGroup* _CIkGroupContainer_::getObjectFromName(const char* ikGroupName) const
     return(nullptr);
 }
 
-void _CIkGroupContainer_::_addIkGroup(CIkGroup* anIkGroup)
+void _CIkGroupContainer_::_addIkGroup(CIkGroup_old* anIkGroup)
 {
     _ikGroups.push_back(anIkGroup);
 }
@@ -70,10 +70,10 @@ void _CIkGroupContainer_::_removeIkGroup(int ikGroupHandle)
 bool _CIkGroupContainer_::shiftIkGroup(int ikGroupHandle,bool shiftUp)
 {
     bool diff=false;
-    CIkGroup* it=getObjectFromHandle(ikGroupHandle);
+    CIkGroup_old* it=getObjectFromHandle(ikGroupHandle);
     for (size_t i=0;i<_ikGroups.size();i++)
     {
-        CIkGroup* ikg=_ikGroups[i];
+        CIkGroup_old* ikg=_ikGroups[i];
         if (shiftUp)
         {
             if ( (ikg->getObjectHandle()==ikGroupHandle)&&(i>0) )
@@ -125,12 +125,12 @@ void _CIkGroupContainer_::synchronizationMsg(std::vector<SSyncRoute>& routing,co
     {
         if (routing[0].objHandle!=-1)
         { // Msg is for an IK group
-            CIkGroup* ikGroup=getObjectFromHandle(routing[0].objHandle);
+            CIkGroup_old* ikGroup=getObjectFromHandle(routing[0].objHandle);
             if (ikGroup==nullptr)
             {
                 if ( (msg.msg==sim_syncobj_ikgroup_create)&&(routing.size()==1) ) // check also size (some msgs have same ids in different scopes)
                 {
-                    ikGroup=new CIkGroup();
+                    ikGroup=new CIkGroup_old();
                     ikGroup->setObjectHandle(routing[0].objHandle);
                     _addIkGroup(ikGroup);
                 }

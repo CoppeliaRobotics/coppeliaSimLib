@@ -2,7 +2,7 @@
 
 #ifdef SIM_WITH_OPENGL
 
-void displayContour(CCollisionObject* coll,int countourWidth)
+void displayContour(CCollisionObject_old* coll,int countourWidth)
 {
     const std::vector<float>* intersections=coll->getIntersections();
 

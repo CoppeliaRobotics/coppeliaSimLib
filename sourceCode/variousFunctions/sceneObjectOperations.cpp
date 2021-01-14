@@ -37,61 +37,6 @@ void CSceneObjectOperations::keyPress(int key)
 bool CSceneObjectOperations::processCommand(int commandID)
 { // Return value is true if the command belonged to object edition menu and was executed
  // Can be called by the UI and SIM thread!
-    if (commandID==SCENE_OBJECT_OPERATION_EMPTY_PATH_SOOCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            if (sel.size()>0)
-            {
-                CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(sel[sel.size()-1]);
-                if (path!=nullptr)
-                {
-                    path->pathContainer->removeAllSimplePathPoints();
-                    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                    App::logMsg(sim_verbosity_msgs,IDSNS_PATH_WAS_EMPTIED);
-                }
-            }
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if ((commandID==SCENE_OBJECT_OPERATION_ROLL_PATH_POINTS_FORWARD_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_ROLL_PATH_POINTS_BACKWARD_SOOCMD))
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            if (sel.size()>0)
-            {
-                CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(sel[sel.size()-1]);
-                if (path!=nullptr)
-                {
-                    path->pathContainer->rollPathPoints(commandID==SCENE_OBJECT_OPERATION_ROLL_PATH_POINTS_FORWARD_SOOCMD);
-                    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                    if (commandID==SCENE_OBJECT_OPERATION_ROLL_PATH_POINTS_FORWARD_SOOCMD)
-                        App::logMsg(sim_verbosity_msgs,IDSNS_FORWARD_ROLL_PERFORMED);
-                    else
-                        App::logMsg(sim_verbosity_msgs,IDSNS_BACKWARD_ROLL_PERFORMED);
-                }
-            }
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
     
     if (commandID==SCENE_OBJECT_OPERATION_ASSEMBLE_SOOCMD)
     {
@@ -1297,26 +1242,6 @@ bool CSceneObjectOperations::processCommand(int commandID)
         }
         return(true);
     }
-    if (commandID==SCENE_OBJECT_OPERATION_MERGE_PATHS_SOOCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            App::logMsg(sim_verbosity_msgs,IDSNS_MERGING_SELECTED_PATHS);
-            mergePathSelection(&sel);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
     if (commandID==SCENE_OBJECT_OPERATION_DIVIDE_SHAPES_SOOCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
@@ -2106,41 +2031,6 @@ bool CSceneObjectOperations::_divideShape(CShape* shape,std::vector<CShape*>& ne
     return(newShapes.size()>0);
 }
 
-void CSceneObjectOperations::mergePathSelection(std::vector<int>* selection)
-{ // CALL ONLY FROM THE MAIN SIMULATION THREAD!
-    App::currentWorld->sceneObjects->deselectObjects();
-    if (selection->size()<2)
-        return;
-    CSceneObject* lastObj=App::currentWorld->sceneObjects->getLastSelectionObject(selection);
-    if (lastObj->getObjectType()==sim_object_path_type)
-    {
-        CPath* last=(CPath*)lastObj;
-        C7Vector lastTrInv(last->getFullCumulativeTransformation().getInverse());
-        last->pathContainer->enableActualization(false);
-        for (size_t i=0;i<selection->size()-1;i++)
-        {
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle((*selection)[i]);
-            if (obj->getObjectType()==sim_object_path_type)
-            {
-                CPath* it=(CPath*)obj;
-                C7Vector itTr(it->getFullCumulativeTransformation());
-                for (int j=0;j<it->pathContainer->getSimplePathPointCount();j++)
-                {
-                    CSimplePathPoint* itCopy(it->pathContainer->getSimplePathPoint(j)->copyYourself());
-                    C7Vector confRel(itCopy->getTransformation());
-                    last->pathContainer->addSimplePathPoint(itCopy);
-                    itCopy->setTransformation(lastTrInv*itTr*confRel,it->pathContainer->getAttributes());
-                }
-                // Now remove that path:
-                App::currentWorld->sceneObjects->eraseObject(obj,true);
-            }       
-        }
-        last->pathContainer->enableActualization(true);
-        last->pathContainer->actualizePath();
-    }
-}
-
-
 void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection,float scalingFactor,bool scalePositionsToo)
 {
     std::vector<int> sel(selection);
@@ -2181,11 +2071,11 @@ void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection,floa
     // Now we might have to scale a few ikElements/ikGroups:
     for (size_t i=0;i<App::currentWorld->ikGroups->getObjectCount();i++)
     {
-        CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromIndex(i);
+        CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromIndex(i);
         // Go through all ikElement lists:
         for (size_t j=0;j<ikGroup->getIkElementCount();j++)
         {
-            CIkElement* ikEl=ikGroup->getIkElementFromIndex(j);
+            CIkElement_old* ikEl=ikGroup->getIkElementFromIndex(j);
             CDummy* tip=App::currentWorld->sceneObjects->getDummyFromHandle(ikEl->getTipHandle());
             bool scaleElement=false;
             if (tip!=nullptr)
@@ -2750,22 +2640,12 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
             menu->appendMenuAndDetach(removing,(hasChildScriptAttached||hasCustomizationScriptAttached)&&noSim,IDSN_REMOVE_MENU_ITEM);
             menu->appendMenuSeparator();
 
-            if (App::currentWorld->sceneObjects->isLastSelectionAPath())
-            {
-                menu->appendMenuItem((selItems==1)&&noSim,false,SCENE_OBJECT_OPERATION_EMPTY_PATH_SOOCMD,IDS_EMPTY_LAST_SELECTED_PATH_MENU_ITEM);
-                menu->appendMenuItem((selItems==1)&&noSim,false,SCENE_OBJECT_OPERATION_ROLL_PATH_POINTS_FORWARD_SOOCMD,IDS_ROLL_PATH_POINTS_FORWARD_MENU_ITEM);
-                menu->appendMenuItem((selItems==1)&&noSim,false,SCENE_OBJECT_OPERATION_ROLL_PATH_POINTS_BACKWARD_SOOCMD,IDS_ROLL_PATH_POINTS_BACKWARD_MENU_ITEM);
-                menu->appendMenuSeparator();
-            }
-
             VMenu* grouping=new VMenu();
             grouping->appendMenuItem((shapeNumber==selItems)&&(selItems>1)&&noSim,false,SCENE_OBJECT_OPERATION_GROUP_SHAPES_SOOCMD,IDS_GROUP_SELECTED_SHAPES_MENU_ITEM);
             grouping->appendMenuItem((shapeNumber==selItems)&&(selItems>0)&&noSim,false,SCENE_OBJECT_OPERATION_UNGROUP_SHAPES_SOOCMD,IDS_UNGROUP_SELECTED_SHAPES_MENU_ITEM);
             grouping->appendMenuSeparator();
             grouping->appendMenuItem((shapeNumber==selItems)&&(selItems>1)&&noSim,false,SCENE_OBJECT_OPERATION_MERGE_SHAPES_SOOCMD,IDS_MERGE_SELECTED_SHAPES_MENU_ITEM);
             grouping->appendMenuItem((shapeNumber==selItems)&&(selItems>0)&&noSim,false,SCENE_OBJECT_OPERATION_DIVIDE_SHAPES_SOOCMD,IDS_DIVIDE_SELECTED_SHAPES_MENU_ITEM);
-            grouping->appendMenuSeparator();
-            grouping->appendMenuItem((pathNumber==selItems)&&(selItems>1)&&noSim,false,SCENE_OBJECT_OPERATION_MERGE_PATHS_SOOCMD,IDS_MERGE_SELECTED_PATHS_MENU_ITEM);
             menu->appendMenuAndDetach(grouping,true,IDS_GROUPING_MERGING_MENU_ITEM);
 
             VMenu* align=new VMenu();

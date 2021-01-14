@@ -143,8 +143,8 @@ public:
 
     VTHREAD_ID_TYPE getThreadedScriptThreadId() const;
 
-    void setAutomaticCascadingCallsDisabled_OLD(bool disabled);
-    bool getAutomaticCascadingCallsDisabled_OLD() const;
+    void setAutomaticCascadingCallsDisabled_old(bool disabled);
+    bool getAutomaticCascadingCallsDisabled_old() const;
     bool checkAndSetWarningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014();
     bool checkAndSetWarning_simRMLPosition_oldCompatibility_30_8_2014();
     bool checkAndSetWarning_simRMLVelocity_oldCompatibility_30_8_2014();
@@ -303,7 +303,7 @@ protected:
     bool _warning_simRMLVelocity_oldCompatibility_30_8_2014;
     bool _warning_simGetMpConfigForTipPose_oldCompatibility_21_1_2016;
     bool _warning_simFindIkPath_oldCompatibility_2_2_2016;
-    bool _automaticCascadingCallsDisabled_OLD; // reset to false at simulation start!
+    bool _automaticCascadingCallsDisabled_old; // reset to false at simulation start!
     bool _threadedExecution_oldThreads;
     VTHREAD_ID_TYPE _threadedScript_associatedFiberOrThreadID_oldThreads;
     bool _threadedExecutionUnderWay_oldThreads;

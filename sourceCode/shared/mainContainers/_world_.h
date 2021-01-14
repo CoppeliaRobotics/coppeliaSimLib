@@ -1,8 +1,8 @@
 #pragma once
 
 #include "collectionContainer.h"
-#include "distanceObjectContainer.h"
-#include "collisionObjectContainer.h"
+#include "distanceObjectContainer_old.h"
+#include "collisionObjectContainer_old.h"
 #include "ikGroupContainer.h"
 #include "sceneObjectContainer.h"
 
@@ -29,8 +29,8 @@ public:
     virtual void deleteWorld();
 
     CCollectionContainer* collections;
-    CDistanceObjectContainer* distances;
-    CCollisionObjectContainer* collisions;
+    CDistanceObjectContainer_old* distances;
+    CCollisionObjectContainer_old* collisions;
     CIkGroupContainer* ikGroups;
     CSceneObjectContainer* sceneObjects;
 

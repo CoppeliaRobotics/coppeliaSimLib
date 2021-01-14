@@ -1592,7 +1592,7 @@ bool CSView::rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* mainWindo
                     App::mainWindow->editModeContainer->addMenu(triangleVertexEditMenu,nullptr);
                     mainMenu.appendMenuAndDetach(triangleVertexEditMenu,true,IDS_EDIT_MENU_ITEM);
                 }
-                if (t&PATH_EDIT_MODE)
+                if (t&PATH_EDIT_MODE_OLD)
                 {
                     VMenu* pathEditMenu=new VMenu();
                     App::mainWindow->editModeContainer->addMenu(pathEditMenu,App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID));
@@ -1629,7 +1629,7 @@ bool CSView::rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* mainWindo
                 if (!processed)
                     processed=App::mainWindow->editModeContainer->processCommand(command,nullptr);
             }
-            if (App::getEditModeType()&PATH_EDIT_MODE)
+            if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
             {
                 if (!processed)
                     processed=App::mainWindow->editModeContainer->processCommand(command,App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID));
@@ -1960,7 +1960,7 @@ void CSView::cameraAndObjectMotion()
 
             aroundX=-aroundX;
             aroundY=-aroundY;
-            if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
+            if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
             { // We have object rotation here:
                 // Prepare the object that will be rotated, and all other objects in selection appropriately:
                 // There is one master object that acts as the rotation pivot. That object needs to be carefully selected
@@ -2076,7 +2076,7 @@ void CSView::cameraAndObjectMotion()
                 centerPosition[1]+=absoluteTransl(1);
                 centerPosition[2]+=absoluteTransl(2);
             }
-            if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
+            if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
             { // Object shifting/zooming
                 // Prepare the object that will be shifted, and all other objects in selection appropriately:
                 // There is one master object that acts as the shift pivot. That object needs to be carefully selected
@@ -2166,7 +2166,7 @@ void CSView::cameraAndObjectMotion()
                     }
                     else
                     { // path point shifting (non-edit mode!):
-                        ((CPath*)masterObj)->transformSelectedPathPoints(camera->getFullCumulativeTransformation().getMatrix(),centerPos,prevPos,pos,screenHalfSizes,halfSizes,perspective,eventID);
+                        ((CPath_old*)masterObj)->transformSelectedPathPoints(camera->getFullCumulativeTransformation().getMatrix(),centerPos,prevPos,pos,screenHalfSizes,halfSizes,perspective,eventID);
                     }
 
                     if (shiftedMaster)
@@ -2197,7 +2197,7 @@ void CSView::cameraAndObjectMotion()
                     App::mainWindow->editModeContainer->getShapeEditMode()->setEditionVertex(vertexSel[i],objCTM*v);
                 }
             }
-            if (App::getEditModeType()&PATH_EDIT_MODE)
+            if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
             { // Path point shifting
                 float prevPos[2]={float(previousMousePosition.x),float(previousMousePosition.y)};
                 float pos[2]={float(mousePosition.x),float(mousePosition.y)};
@@ -2248,7 +2248,7 @@ void CSView::cameraAndObjectMotion()
                 }
                 C3Vector centerPos(centerPosition);
 
-                CPath* path=App::mainWindow->editModeContainer->getEditModePath();
+                CPath_old* path=App::mainWindow->editModeContainer->getEditModePath_old();
                 path->transformSelectedPathPoints(camera->getFullCumulativeTransformation().getMatrix(),centerPos,prevPos,pos,screenHalfSizes,halfSizes,perspective,eventID);
             }
         }

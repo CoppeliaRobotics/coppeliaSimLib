@@ -15,7 +15,7 @@ void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAtt
     // Object display:
     if (camera->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
+        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
             if (camera->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(camera->getModelSelectionHandle());

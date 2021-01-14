@@ -1094,7 +1094,7 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
     {
         _auxDlgTitle->assign("Path");
         _allowedParts[0]=1+4+8+16+32+64;
-        CPath* it=currentWorld->sceneObjects->getPathFromHandle(objID1);
+        CPath_old* it=currentWorld->sceneObjects->getPathFromHandle(objID1);
         if ( (it!=nullptr)&&(it->pathContainer!=nullptr) )
             return(&it->pathContainer->_lineColor);
     }
@@ -1102,7 +1102,7 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
     {
         _auxDlgTitle->assign("Path shaping");
         _allowedParts[0]=1+4+8+16+32+64;
-        CPath* it=currentWorld->sceneObjects->getPathFromHandle(objID1);
+        CPath_old* it=currentWorld->sceneObjects->getPathFromHandle(objID1);
         if (it!=nullptr)
             return(it->getShapingColor());
     }
@@ -1128,7 +1128,7 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
     {
         _auxDlgTitle->assign("Collision contour");
         _allowedParts[0]=1+4+8+16+32+64;
-        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(objID1);
+        CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(objID1);
         if (it!=nullptr)
             return(it->getContourColor());
     }
@@ -1136,7 +1136,7 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
     {
         _auxDlgTitle->assign("Distance segment");
         _allowedParts[0]=1+4+8+16+32+64;
-        CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(objID1);
+        CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(objID1);
         if (it!=nullptr)
             return(it->getSegmentColor());
     }

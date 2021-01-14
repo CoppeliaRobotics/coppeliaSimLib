@@ -34,8 +34,6 @@ public:
     static void divideSelection(std::vector<int>* selection,bool showMessages);
     static bool _divideShape(CShape* shape,std::vector<CShape*>& newShapes);
 
-
-    static void mergePathSelection(std::vector<int>* selection);
     static int generateConvexDecomposed(int shapeHandle,size_t nClusters,double maxConcavity,bool addExtraDistPoints,
                                         bool addFacesPoints,double maxConnectDist,size_t maxTrianglesInDecimatedMesh,
                                         size_t maxHullVertices,double smallClusterThreshold,

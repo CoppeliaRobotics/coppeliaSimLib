@@ -228,7 +228,7 @@ void CSPage::getViewSizeAndPosition(int sViewSize[2],int sViewPos[2],int subView
         else
             sViewPos[1]=_pagePosition[1]+_pageSize[1]/2;
     }
-    if (_pageType==SIX_VIEWS_OLD)
+    if (_pageType==SIX_VIEWS_old)
     {
         if (subViewIndex==0)
         {
@@ -603,7 +603,7 @@ int CSPage::getRegularViewCount() const
         return(1);
     if (_pageType==FOUR_VIEWS)
         return(4);
-    if ((_pageType==SIX_VIEWS_OLD)||(_pageType==SIX_VIEWS))
+    if ((_pageType==SIX_VIEWS_old)||(_pageType==SIX_VIEWS))
         return(6);
     if (_pageType==EIGHT_VIEWS)
         return(8);
@@ -818,7 +818,7 @@ bool CSPage::viewIsPassive(int viewIndex) const
         return(viewIndex>0);
     if (_pageType==FOUR_VIEWS)
         return(viewIndex>3);
-    if ((_pageType==SIX_VIEWS_OLD)||(_pageType==SIX_VIEWS))
+    if ((_pageType==SIX_VIEWS_old)||(_pageType==SIX_VIEWS))
         return(viewIndex>5);
     if (_pageType==EIGHT_VIEWS)
         return(viewIndex>7);
@@ -883,7 +883,7 @@ bool CSPage::doubleClickActionForView(int viewIndex)
         // We can now also swap some of the regular views with the main view (since 1/11/2014):
         if ( (viewIndex<getRegularViewCount())&&(viewIndex>0) )
         {
-            if ( (_pageType==SIX_VIEWS_OLD)||(_pageType==SIX_VIEWS)||(_pageType==EIGHT_VIEWS)||(_pageType==HORIZONTALLY_DIVIDED_3)||(_pageType==VERTICALLY_DIVIDED_3)||(_pageType==HORIZONTAL_1_PLUS_3_VIEWS)||(_pageType==VERTICAL_1_PLUS_3_VIEWS)||(_pageType==HORIZONTAL_1_PLUS_4_VIEWS)||(_pageType==VERTICAL_1_PLUS_4_VIEWS) )
+            if ( (_pageType==SIX_VIEWS_old)||(_pageType==SIX_VIEWS)||(_pageType==EIGHT_VIEWS)||(_pageType==HORIZONTALLY_DIVIDED_3)||(_pageType==VERTICALLY_DIVIDED_3)||(_pageType==HORIZONTAL_1_PLUS_3_VIEWS)||(_pageType==VERTICAL_1_PLUS_3_VIEWS)||(_pageType==HORIZONTAL_1_PLUS_4_VIEWS)||(_pageType==VERTICAL_1_PLUS_4_VIEWS) )
             {
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SWAP_VIEWS_CMD;

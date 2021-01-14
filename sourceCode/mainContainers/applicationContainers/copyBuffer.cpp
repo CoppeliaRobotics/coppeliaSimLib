@@ -187,15 +187,15 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene,int selectionMode)
     for (size_t i=0;i<collectionBuffer.size();i++)
         collectionCopy.push_back(collectionBuffer[i]->copyYourself());
 
-    std::vector<CCollisionObject*> collisionCopy;
+    std::vector<CCollisionObject_old*> collisionCopy;
     for (size_t i=0;i<collisionBuffer.size();i++)
         collisionCopy.push_back(collisionBuffer[i]->copyYourself());
 
-    std::vector<CDistanceObject*> distanceCopy;
+    std::vector<CDistanceObject_old*> distanceCopy;
     for (size_t i=0;i<distanceBuffer.size();i++)
         distanceCopy.push_back(distanceBuffer[i]->copyYourself());
 
-    std::vector<CIkGroup*> ikGroupCopy;
+    std::vector<CIkGroup_old*> ikGroupCopy;
     for (size_t i=0;i<ikGroupBuffer.size();i++)
         ikGroupCopy.push_back(ikGroupBuffer[i]->copyYourself());
 
@@ -445,14 +445,14 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
     //------------------------------------------------------------
     if (ar.isBinary())
     {
-        int dynObjId=SIM_IDSTART_DYNMATERIAL_OLD;
+        int dynObjId=SIM_IDSTART_DYNMATERIAL_old;
         for (size_t i=0;i<objectBuffer.size();i++)
         {
             if (objectBuffer[i]->getObjectType()==sim_object_shape_type)
             {
                 CShape* it=(CShape*)objectBuffer[i];
                 CDynMaterialObject* mat=it->getDynMaterial();
-                it->getMeshWrapper()->setDynMaterialId_OLD(dynObjId);
+                it->getMeshWrapper()->setDynMaterialId_old(dynObjId);
                 mat->setObjectID(dynObjId++);
                 ar.storeDataName(SER_DYNMATERIAL);
                 ar.setCountingMode();
@@ -596,7 +596,7 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
         {
             for (size_t i=0;i<buttonBlockBuffer.size();i++)
             {
-                ar.storeDataName(SER_BUTTON_BLOCK_OLD);
+                ar.storeDataName(SER_BUTTON_BLOCK_old);
                 ar.setCountingMode();
                 buttonBlockBuffer[i]->serialize(ar);
                 if (ar.setWritingMode())
@@ -888,7 +888,7 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
     i=0;
     while (i<collisionBuffer.size())
     {
-        CCollisionObject* it=collisionBuffer[i];
+        CCollisionObject_old* it=collisionBuffer[i];
         if (it->announceObjectWillBeErased(objectID,true))
         {
             _eraseCollisionInBuffer(it->getObjectHandle());
@@ -901,7 +901,7 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
     i=0;
     while (i<distanceBuffer.size())
     {
-        CDistanceObject* it=distanceBuffer[i];
+        CDistanceObject_old* it=distanceBuffer[i];
         if (it->announceObjectWillBeErased(objectID,true))
         {
             _eraseDistanceInBuffer(it->getObjectHandle());
@@ -927,7 +927,7 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
     i=0;
     while (i<ikGroupBuffer.size())
     {
-        CIkGroup* it=ikGroupBuffer[i];
+        CIkGroup_old* it=ikGroupBuffer[i];
         if (it->announceObjectWillBeErased(objectID,true))
         {
             _eraseIkObjectInBuffer(it->getObjectHandle());
@@ -952,7 +952,7 @@ void CCopyBuffer::_announceCollectionWillBeErased(int collectionID)
     size_t i=0;
     while (i<collisionBuffer.size())
     {
-        CCollisionObject* it=collisionBuffer[i];
+        CCollisionObject_old* it=collisionBuffer[i];
         if (it->announceCollectionWillBeErased(collectionID,true))
         {
             _eraseCollisionInBuffer(it->getObjectHandle());
@@ -965,7 +965,7 @@ void CCopyBuffer::_announceCollectionWillBeErased(int collectionID)
     i=0;
     while (i<distanceBuffer.size())
     {
-        CDistanceObject* it=distanceBuffer[i];
+        CDistanceObject_old* it=distanceBuffer[i];
         if (it->announceCollectionWillBeErased(collectionID,true))
         {
             _eraseDistanceInBuffer(it->getObjectHandle());
@@ -998,7 +998,7 @@ void CCopyBuffer::_announceIkGroupWillBeErased(int ikGroupID)
     size_t i=0;
     while (i<ikGroupBuffer.size())
     {
-        CIkGroup* it=ikGroupBuffer[i];
+        CIkGroup_old* it=ikGroupBuffer[i];
         if (it->announceIkGroupWillBeErased(ikGroupID,true))
         {
             _eraseIkObjectInBuffer(it->getObjectHandle());

@@ -3,7 +3,7 @@
 #define QDLGIKCONDITIONAL_H
 
 #include "vDialog.h"
-#include "ikGroup.h"
+#include "ikGroup_old.h"
 #include <QAbstractButton>
 
 namespace Ui {
@@ -24,7 +24,7 @@ public:
     void refresh();
 
     bool inMainRefreshRoutine;
-    CIkGroup* ikGroup;
+    CIkGroup_old* ikGroup;
 
     int doOnFailOrSuccessOf;
     int ikResult;

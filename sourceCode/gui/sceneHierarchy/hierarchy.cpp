@@ -129,9 +129,9 @@ void CHierarchy::rebuildHierarchy()
         for (int i=0;i<App::mainWindow->editModeContainer->getShapeEditMode()->getEditionEdgesSize()/2;i++)
             rootElements.push_back(new CHierarchyElement(i));
     }
-    if (App::getEditModeType()&PATH_EDIT_MODE)
+    if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
     {
-        for (int i=0;i<int(App::mainWindow->editModeContainer->getEditModePathContainer()->getSimplePathPointCount());i++)
+        for (int i=0;i<int(App::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPointCount());i++)
             rootElements.push_back(new CHierarchyElement(i));
     }
     if (App::getEditModeType()&MULTISHAPE_EDIT_MODE)
@@ -440,7 +440,7 @@ bool CHierarchy::render()
         _drawLinesLinkingDummies(maxRenderedPosition);
     }
     std::vector<char> editModeSelectionStateList;
-    if ((editModeType&SHAPE_EDIT_MODE)||(editModeType&PATH_EDIT_MODE))
+    if ((editModeType&SHAPE_EDIT_MODE)||(editModeType&PATH_EDIT_MODE_OLD))
     {
         if (editModeType&VERTEX_EDIT_MODE)
             editModeSelectionStateList.resize(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVerticesSize()/3,0);
@@ -448,8 +448,8 @@ bool CHierarchy::render()
             editModeSelectionStateList.resize(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionIndicesSize()/3,0);
         if (editModeType&EDGE_EDIT_MODE)
             editModeSelectionStateList.resize(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionEdgesSize()/2,0);
-        if (editModeType&PATH_EDIT_MODE)
-            editModeSelectionStateList.resize(App::mainWindow->editModeContainer->getEditModePathContainer()->getSimplePathPointCount(),0);
+        if (editModeType&PATH_EDIT_MODE_OLD)
+            editModeSelectionStateList.resize(App::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPointCount(),0);
         for (int i=0;i<App::mainWindow->editModeContainer->getEditModeBufferSize();i++)
         {
             int ind=App::mainWindow->editModeContainer->getEditModeBufferValue(i);
@@ -556,7 +556,7 @@ bool CHierarchy::render()
         }
 
     }
-    if ((editModeType&SHAPE_EDIT_MODE)||(editModeType&PATH_EDIT_MODE))
+    if ((editModeType&SHAPE_EDIT_MODE)||(editModeType&PATH_EDIT_MODE_OLD))
     {
         for (int i=0;i<int(rootElements.size());i++)
         {
@@ -855,7 +855,7 @@ bool CHierarchy::leftMouseDown(int x,int y,int selectionStatus)
         if (selectionStatus==SHIFTSELECTION)
             shiftSelectionStarted=true;
     }
-    if ( ((App::getEditModeType()&SHAPE_EDIT_MODE)||(App::getEditModeType()&PATH_EDIT_MODE))&&canSelect )
+    if ( ((App::getEditModeType()&SHAPE_EDIT_MODE)||(App::getEditModeType()&PATH_EDIT_MODE_OLD))&&canSelect )
     { // SHAPE OR PATH EDIT MODE
         if ( (selectionStatus==CTRLSELECTION)||clickSelection )
         {
@@ -947,7 +947,7 @@ void CHierarchy::leftMouseUp(int x,int y)
                 }
             }
         }
-        if ((App::getEditModeType()&SHAPE_EDIT_MODE)||(App::getEditModeType()&PATH_EDIT_MODE))
+        if ((App::getEditModeType()&SHAPE_EDIT_MODE)||(App::getEditModeType()&PATH_EDIT_MODE_OLD))
         {
             for (int i=0;i<int(objToBeSelected.size());i++)
                 App::mainWindow->editModeContainer->addItemToEditModeBuffer(objToBeSelected[i],true);
@@ -1056,14 +1056,14 @@ void CHierarchy::rightMouseUp(int x,int y,int absX,int absY,QWidget* mainWindow)
 
             if (App::getEditModeType()&SHAPE_EDIT_MODE)
                 App::mainWindow->editModeContainer->addMenu(&mainMenu,nullptr);
-            if (App::getEditModeType()&PATH_EDIT_MODE)
+            if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
                 App::mainWindow->editModeContainer->addMenu(&mainMenu,nullptr);
 
             int command=mainMenu.trackPopupMenu();
 
             if (App::getEditModeType()&SHAPE_EDIT_MODE)
                 App::mainWindow->editModeContainer->processCommand(command,nullptr);
-            if (App::getEditModeType()&PATH_EDIT_MODE)
+            if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
                 App::mainWindow->editModeContainer->processCommand(command,nullptr);
         }
     }
@@ -1307,7 +1307,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
         return(true);
     }
 
-    if ( CSimFlavor::getBoolVal(6)&&(App::getEditModeType()&(VERTEX_EDIT_MODE|PATH_EDIT_MODE)) )
+    if ( CSimFlavor::getBoolVal(6)&&(App::getEditModeType()&(VERTEX_EDIT_MODE|PATH_EDIT_MODE_OLD)) )
     {
         // Did we double-click the icon?
         int objID=getActionObjectID_icon(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);

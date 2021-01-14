@@ -14,7 +14,7 @@ void displayLight(CLight* light,CViewableBase* renderingObject,int displayAttrib
     // Object display:
     if (light->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
+        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
             if (light->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(light->getModelSelectionHandle());

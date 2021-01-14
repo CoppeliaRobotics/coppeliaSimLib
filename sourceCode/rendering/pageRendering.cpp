@@ -210,7 +210,7 @@ void _drawSeparationLines(int _pageType,const int* _pageSize)
         ogl::drawSingle2dLine_i(0,_pageSize[1]/2,_pageSize[0],_pageSize[1]/2);
         ogl::drawSingle2dLine_i(_pageSize[0]/2,0,_pageSize[0]/2,_pageSize[1]);
     }
-    if (_pageType==SIX_VIEWS_OLD)
+    if (_pageType==SIX_VIEWS_old)
     {
         ogl::drawSingle2dLine_i(0,2*_pageSize[1]/3,_pageSize[0],2*_pageSize[1]/3);
         ogl::drawSingle2dLine_i(_pageSize[0]/3,_pageSize[1],_pageSize[0]/3,0);

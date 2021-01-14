@@ -877,7 +877,7 @@ bool doesUIButtonExist(const char* functionName,int elementHandle,int buttonHand
 
 bool doesIKGroupExist(const char* functionName,int identifier)
 {
-    CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(identifier);
+    CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
         CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_IK_GROUP_INEXISTANT);
@@ -3896,7 +3896,7 @@ simInt simGetInt32Parameter_internal(simInt parameter,simInt* intState)
                 intState[0]=2;
             if (editMode==EDGE_EDIT_MODE)
                 intState[0]=3;
-            if (editMode==PATH_EDIT_MODE)
+            if (editMode==PATH_EDIT_MODE_OLD)
                 intState[0]=4;
             if (editMode==MULTISHAPE_EDIT_MODE)
                 intState[0]=6;
@@ -8025,7 +8025,7 @@ simInt simSetExplicitHandling_internal(simInt objectHandle,int explicitFlags)
             }
             if (it->getObjectType()==sim_object_path_type)
             { // Paths
-                ((CPath*)it)->setExplicitHandling(explicitFlags&1);
+                ((CPath_old*)it)->setExplicitHandling(explicitFlags&1);
                 return(1);
             }
             if (it->getObjectType()==sim_object_visionsensor_type)
@@ -8047,7 +8047,7 @@ simInt simSetExplicitHandling_internal(simInt objectHandle,int explicitFlags)
             {
                 return(-1);
             }
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(objectHandle);
+            CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(objectHandle);
             it->setExplicitHandling(explicitFlags&1);
             return(1);
         }
@@ -8057,7 +8057,7 @@ simInt simSetExplicitHandling_internal(simInt objectHandle,int explicitFlags)
             {
                 return(-1);
             }
-            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(objectHandle);
+            CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(objectHandle);
             it->setExplicitHandling(explicitFlags&1);
             return(1);
         }
@@ -8067,7 +8067,7 @@ simInt simSetExplicitHandling_internal(simInt objectHandle,int explicitFlags)
             {
                 return(-1);
             }
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(objectHandle);
+            CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(objectHandle);
             it->setExplicitHandling(explicitFlags&1);
             return(1);
         }
@@ -8110,7 +8110,7 @@ simInt simGetExplicitHandling_internal(simInt objectHandle)
             }
             if (it->getObjectType()==sim_object_path_type)
             { // Paths
-                bool exp=((CPath*)it)->getExplicitHandling();
+                bool exp=((CPath_old*)it)->getExplicitHandling();
                 return(exp);
             }
             if (it->getObjectType()==sim_object_visionsensor_type)
@@ -8132,7 +8132,7 @@ simInt simGetExplicitHandling_internal(simInt objectHandle)
             {
                 return(-1);
             }
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(objectHandle);
+            CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(objectHandle);
             bool exp=it->getExplicitHandling();
             return(exp);
         }
@@ -8142,7 +8142,7 @@ simInt simGetExplicitHandling_internal(simInt objectHandle)
             {
                 return(-1);
             }
-            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(objectHandle);
+            CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(objectHandle);
             bool exp=it->getExplicitHandling();
             return(exp);
         }
@@ -8152,7 +8152,7 @@ simInt simGetExplicitHandling_internal(simInt objectHandle)
             {
                 return(-1);
             }
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(objectHandle);
+            CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(objectHandle);
             bool exp=it->getExplicitHandling();
             return(exp);
         }
@@ -14102,7 +14102,7 @@ simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
         }
         if ( (attributeID==sim_childscriptattribute_automaticcascadingcalls)&&(it->getScriptType()==sim_scripttype_childscript)&&(!it->getThreadedExecution_oldThreads()) )
         {
-            it->setAutomaticCascadingCallsDisabled_OLD(intOrBoolVal==0);
+            it->setAutomaticCascadingCallsDisabled_old(intOrBoolVal==0);
             retVal=1;
         }
         if ( (attributeID==sim_scriptattribute_enabled) )//&&(it->getScriptType()==sim_scripttype_childscript) )
@@ -14157,7 +14157,7 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
         }
         if ( (attributeID==sim_childscriptattribute_automaticcascadingcalls)&&(it->getScriptType()==sim_scripttype_childscript)&&(!it->getThreadedExecution_oldThreads()) )
         {
-            if (it->getAutomaticCascadingCallsDisabled_OLD())
+            if (it->getAutomaticCascadingCallsDisabled_old())
                 intOrBoolVal[0]=0;
             else
                 intOrBoolVal[0]=1;
@@ -17547,7 +17547,7 @@ const simVoid* _simGetIkGroupObject_internal(int ikGroupID)
 simInt _simMpHandleIkGroupObject_internal(const simVoid* ikGroup)
 {
     TRACE_C_API;
-    return(((CIkGroup*)ikGroup)->computeGroupIk(true));
+    return(((CIkGroup_old*)ikGroup)->computeGroupIk(true));
 }
 
 simInt _simGetJointType_internal(const simVoid* joint)
@@ -18105,7 +18105,7 @@ simInt simResetPath_internal(simInt pathHandle)
         }
         if (pathHandle>=0)
         { // Explicit handling
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
             if (!it->getExplicitHandling())
             {
                 CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -18117,7 +18117,7 @@ simInt simResetPath_internal(simInt pathHandle)
         {
             for (size_t i=0;i<App::currentWorld->sceneObjects->getPathCount();i++)
             {
-                CPath* p=App::currentWorld->sceneObjects->getPathFromIndex(i);
+                CPath_old* p=App::currentWorld->sceneObjects->getPathFromIndex(i);
                 if ( (pathHandle==sim_handle_all)||(!p->getExplicitHandling()) )
                     p->resetPath();
             }
@@ -18148,7 +18148,7 @@ simInt simHandlePath_internal(simInt pathHandle,simFloat deltaTime)
         }
         if (pathHandle>=0)
         { // explicit handling
-            CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
+            CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
             if (!it->getExplicitHandling())
             {
                 CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -18160,7 +18160,7 @@ simInt simHandlePath_internal(simInt pathHandle,simFloat deltaTime)
         {
             for (size_t i=0;i<App::currentWorld->sceneObjects->getPathCount();i++)
             {
-                CPath* p=App::currentWorld->sceneObjects->getPathFromIndex(i);
+                CPath_old* p=App::currentWorld->sceneObjects->getPathFromIndex(i);
                 if ( (pathHandle==sim_handle_all)||(!p->getExplicitHandling()) )
                     p->handlePath(deltaTime);
             }
@@ -20113,7 +20113,7 @@ simInt simCheckIkGroup_internal(simInt ikGroupHandle,simInt jointCnt,const simIn
         if (!doesIKGroupExist(__func__,ikGroupHandle))
             return(-1);
         int retVal=-1;
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
         int r=it->checkIkGroup(jointCnt,jointHandles,jointValues,jointOptions);
         if (r==-1)
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -20136,7 +20136,7 @@ simInt simCreateIkGroup_internal(simInt options,const simInt* intParams,const si
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CIkGroup* ikGroup=new CIkGroup();
+        CIkGroup_old* ikGroup=new CIkGroup_old();
         ikGroup->setObjectName("IK_Group",false);
         App::currentWorld->ikGroups->addIkGroup(ikGroup,false);
         ikGroup->setEnabled((options&1)==0);
@@ -20166,7 +20166,7 @@ simInt simRemoveIkGroup_internal(simInt ikGroupHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
@@ -20188,7 +20188,7 @@ simInt simCreateIkElement_internal(simInt ikGroupHandle,simInt options,const sim
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
@@ -20204,7 +20204,7 @@ simInt simCreateIkElement_internal(simInt ikGroupHandle,simInt options,const sim
             base=-1;
         if (App::currentWorld->sceneObjects->getObjectFromHandle(constrBase)==nullptr)
             constrBase=-1;
-        CIkElement* ikEl=new CIkElement(tip);
+        CIkElement_old* ikEl=new CIkElement_old(tip);
         ikEl->setEnabled((options&1)==0);
         ikEl->setBase(base);
         ikEl->setAlternativeBaseForConstraints(constrBase);
@@ -20256,7 +20256,7 @@ simInt simComputeJacobian_internal(simInt ikGroupHandle,simInt options,simVoid* 
         if (!doesIKGroupExist(__func__,ikGroupHandle))
             return(-1);
         int returnValue=-1;
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
         if (it->computeOnlyJacobian(options))
             returnValue=0;
         return(returnValue);
@@ -20278,7 +20278,7 @@ simInt simGetConfigForTipPose_internal(simInt ikGroupHandle,simInt jointCnt,cons
         if (!doesIKGroupExist(__func__,ikGroupHandle))
             return(-1);
 
-        CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
         std::string err;
         int retVal=ikGroup->getConfigForTipPose(jointCnt,jointHandles,thresholdDist,maxTimeInMs,retConfig,metric,collisionPairCnt,collisionPairs,jointOptions,lowLimits,ranges,err);
         if (retVal<0)
@@ -20302,7 +20302,7 @@ simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const 
         if (!doesIKGroupExist(__func__,ikGroupHandle))
             return(nullptr);
         std::vector<CJoint*> joints;
-        CIkGroup* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
         bool err=false;
         for (int i=0;i<jointCnt;i++)
         {
@@ -20324,7 +20324,7 @@ simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const 
             {
                 for (size_t i=0;i<ikGroup->getIkElementCount();i++)
                 {
-                    CIkElement* ikElement=ikGroup->getIkElementFromIndex(i);
+                    CIkElement_old* ikElement=ikGroup->getIkElementFromIndex(i);
                     CDummy* tip=App::currentWorld->sceneObjects->getDummyFromHandle(ikElement->getTipHandle());
                     CDummy* target=App::currentWorld->sceneObjects->getDummyFromHandle(ikElement->getTargetHandle());
                     if ((tip==nullptr)||(target==nullptr))
@@ -20392,7 +20392,7 @@ simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const 
             std::vector<bool> enabledElements;
             for (size_t i=0;i<ikGroup->getIkElementCount();i++)
             {
-                CIkElement* ikElement=ikGroup->getIkElementFromIndex(i);
+                CIkElement_old* ikElement=ikGroup->getIkElementFromIndex(i);
                 enabledElements.push_back(ikElement->getEnabled());
             }
 
@@ -20461,7 +20461,7 @@ simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const 
             // Restore the IK element activation state:
             for (size_t i=0;i<ikGroup->getIkElementCount();i++)
             {
-                CIkElement* ikElement=ikGroup->getIkElementFromIndex(i);
+                CIkElement_old* ikElement=ikGroup->getIkElementFromIndex(i);
                 ikElement->setEnabled(enabledElements[i]);
             }
 
@@ -20509,7 +20509,7 @@ simInt simGetIkGroupHandle_internal(const simChar* ikGroupName)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromName(ikGroupNameAdjusted.c_str());
+        CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromName(ikGroupNameAdjusted.c_str());
         if (it==nullptr)
         {
             if (silentErrorPos==std::string::npos)
@@ -20532,7 +20532,7 @@ simFloat* simGetIkGroupMatrix_internal(simInt ikGroupHandle,simInt options,simIn
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
@@ -20568,7 +20568,7 @@ simInt simHandleIkGroup_internal(simInt ikGroupHandle)
             returnValue=App::currentWorld->ikGroups->computeAllIkGroups(ikGroupHandle==sim_handle_all_except_explicit);
         else
         { // explicit handling
-            CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+            CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
             if (!it->getExplicitHandling())
             {
                 CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -20593,7 +20593,7 @@ simInt simSetIkGroupProperties_internal(simInt ikGroupHandle,simInt resolutionMe
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
@@ -20617,7 +20617,7 @@ simInt simSetIkElementProperties_internal(simInt ikGroupHandle,simInt tipDummyHa
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CIkGroup* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
         if (it==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
@@ -20625,7 +20625,7 @@ simInt simSetIkElementProperties_internal(simInt ikGroupHandle,simInt tipDummyHa
         }
         if (!isDummy(__func__,tipDummyHandle))
             return(-1);
-        CIkElement* el=it->getIkElementFromTipHandle(tipDummyHandle);
+        CIkElement_old* el=it->getIkElementFromTipHandle(tipDummyHandle);
         if (el==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_ELEMENT_INEXISTANT);
@@ -20918,7 +20918,7 @@ simInt simGetDataOnPath_internal(simInt pathHandle,simFloat relativeDistance,sim
             return(-1);
         if (!isPath(__func__,pathHandle))
             return(-1);
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
+        CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
         float auxChannels[4];
         int auxFlags;
         if (dataType==0)
@@ -20940,7 +20940,7 @@ simInt simGetDataOnPath_internal(simInt pathHandle,simFloat relativeDistance,sim
             }
             else
             { // We are working with indices pointing on ctrl points. index=-(relativeDistance+1.0)
-                CSimplePathPoint* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5f));
+                CSimplePathPoint_old* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5f));
                 if (ctrlPt!=nullptr)
                 {
                     intData[0]=ctrlPt->getAuxFlags();
@@ -20976,7 +20976,7 @@ simInt simGetPositionOnPath_internal(simInt pathHandle,simFloat relativeDistance
             return(-1);
         if (!isPath(__func__,pathHandle))
             return(-1);
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
+        CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
         C7Vector tr;
 
         if (relativeDistance>-0.5f)
@@ -20995,7 +20995,7 @@ simInt simGetPositionOnPath_internal(simInt pathHandle,simFloat relativeDistance
         }
         else
         { // We are working with indices pointing on ctrl points. index=-(relativeDistance+1.0)
-            CSimplePathPoint* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5f));
+            CSimplePathPoint_old* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5f));
             if (ctrlPt!=nullptr)
             {
                 tr=ctrlPt->getTransformation();
@@ -21027,7 +21027,7 @@ simInt simGetOrientationOnPath_internal(simInt pathHandle,simFloat relativeDista
             return(-1);
         if (!isPath(__func__,pathHandle))
             return(-1);
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
+        CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
         C7Vector tr;
         if (relativeDistance>-0.5f)
         { // regular use of the function
@@ -21045,7 +21045,7 @@ simInt simGetOrientationOnPath_internal(simInt pathHandle,simFloat relativeDista
         }
         else
         { // We are working with indices pointing on ctrl points. index=-(relativeDistance+1.0)
-            CSimplePathPoint* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5f));
+            CSimplePathPoint_old* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5f));
             if (ctrlPt!=nullptr)
             {
                 tr=ctrlPt->getTransformation();
@@ -21077,7 +21077,7 @@ simInt simGetClosestPositionOnPath_internal(simInt pathHandle,simFloat* absolute
             return(-1);
         if (!isPath(__func__,pathHandle))
             return(-1);
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
+        CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
         C3Vector p(absolutePosition);
         if (it->pathContainer->getPositionOnPathClosestTo(p,*pathPosition))
         {
@@ -21106,7 +21106,7 @@ simInt simGetPathPosition_internal(simInt objectHandle,simFloat* position)
             return(-1);
         if (!isPath(__func__,objectHandle))
             return(-1);
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
+        CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
         position[0]=float(it->pathContainer->getPosition());
         return(1);
     }
@@ -21127,7 +21127,7 @@ simInt simSetPathPosition_internal(simInt objectHandle,simFloat position)
             return(-1);
         if (!isPath(__func__,objectHandle))
             return(-1);
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
+        CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
         it->pathContainer->setPosition(position);
         return(1);
     }
@@ -21148,7 +21148,7 @@ simInt simGetPathLength_internal(simInt objectHandle,simFloat* length)
             return(-1);
         if (!isPath(__func__,objectHandle))
             return(-1);
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
+        CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
         length[0]=it->pathContainer->getBezierVirtualPathLength();
         return(1);
     }
@@ -21161,13 +21161,11 @@ simInt simCreatePath_internal(simInt attributes,const simInt* intParams,const si
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CPath* newObject=new CPath();
+        CPath_old* newObject=new CPath_old();
         App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
         if (attributes!=-1)
             newObject->pathContainer->setAttributes(attributes);
@@ -21210,7 +21208,7 @@ simInt simInsertPathCtrlPoints_internal(simInt pathHandle,simInt options,simInt 
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
+        CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
         if (path==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_INEXISTANT);
@@ -21224,7 +21222,7 @@ simInt simInsertPathCtrlPoints_internal(simInt pathHandle,simInt options,simInt 
 
         for (int i=0;i<ptCnt;i++)
         {
-            CSimplePathPoint* pt=new CSimplePathPoint();
+            CSimplePathPoint_old* pt=new CSimplePathPoint_old();
             C7Vector tr(C4Vector(((float*)ptData)[fiCnt*i+3],((float*)ptData)[fiCnt*i+4],((float*)ptData)[fiCnt*i+5]),C3Vector(((float*)ptData)+fiCnt*i+0));
             pt->setTransformation(tr,path->pathContainer->getAttributes());
             pt->setMaxRelAbsVelocity(((float*)ptData)[fiCnt*i+6]);
@@ -21262,7 +21260,7 @@ simInt simCutPathCtrlPoints_internal(simInt pathHandle,simInt startIndex,simInt 
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CPath* path=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
+        CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
         if (path==nullptr)
         {
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_INEXISTANT);
@@ -21440,7 +21438,7 @@ simInt simSetPathTargetNominalVelocity_internal(simInt objectHandle,simFloat tar
             return(-1);
         if (!isPath(__func__,objectHandle))
             return(-1);
-        CPath* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
+        CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
         it->pathContainer->setTargetNominalVelocity(targetNominalVelocity);
         return(1);
     }
@@ -21746,7 +21744,7 @@ simInt simHandleCollision_internal(simInt collisionObjectHandle)
             colCnt=App::currentWorld->collisions->handleAllCollisions(collisionObjectHandle==sim_handle_all_except_explicit); // implicit handling
         else
         { // explicit handling
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
+            CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
             if (!it->getExplicitHandling())
             {
                 CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -21776,7 +21774,7 @@ simInt simReadCollision_internal(simInt collisionObjectHandle)
         {
             return(-1);
         }
-        CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
+        CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
         int retVal=it->readCollision(nullptr);
         return(retVal);
     }
@@ -21803,7 +21801,7 @@ simInt simHandleDistance_internal(simInt distanceObjectHandle,simFloat* smallest
             d=App::currentWorld->distances->handleAllDistances(distanceObjectHandle==sim_handle_all_except_explicit); // implicit handling
         else
         { // explicit handling
-            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
+            CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
             if (!it->getExplicitHandling())
             {
                 CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -21836,7 +21834,7 @@ simInt simReadDistance_internal(simInt distanceObjectHandle,simFloat* smallestDi
         if (!doesDistanceObjectExist(__func__,distanceObjectHandle))
             return(-1);
         float d;
-        CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
+        CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
         d=it->readDistance();
         if (d>=0.0f)
         {
@@ -21865,7 +21863,7 @@ simInt simGetCollisionHandle_internal(const simChar* collisionObjectName)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CCollisionObject* it=App::currentWorld->collisions->getObjectFromName(collisionObjectNameAdjusted.c_str());
+        CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromName(collisionObjectNameAdjusted.c_str());
         if (it==nullptr)
         {
             if (silentErrorPos==std::string::npos)
@@ -21894,7 +21892,7 @@ simInt simGetDistanceHandle_internal(const simChar* distanceObjectName)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CDistanceObject* it=App::currentWorld->distances->getObjectFromName(distanceObjectNameAdjusted.c_str());
+        CDistanceObject_old* it=App::currentWorld->distances->getObjectFromName(distanceObjectNameAdjusted.c_str());
         if (it==nullptr)
         {
             if (silentErrorPos==std::string::npos)
@@ -21926,7 +21924,7 @@ simInt simResetCollision_internal(simInt collisionObjectHandle)
             App::currentWorld->collisions->resetAllCollisions(collisionObjectHandle==sim_handle_all_except_explicit);
         else
         { // Explicit handling
-            CCollisionObject* it=App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
+            CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
             if (!it->getExplicitHandling())
             {
                 CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -21958,7 +21956,7 @@ simInt simResetDistance_internal(simInt distanceObjectHandle)
             App::currentWorld->distances->resetAllDistances(distanceObjectHandle==sim_handle_all_except_explicit);
         else
         { // Explicit handling
-            CDistanceObject* it=App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
+            CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
             if (!it->getExplicitHandling())
             {
                 CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);

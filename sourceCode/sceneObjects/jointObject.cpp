@@ -1836,7 +1836,7 @@ void CJoint::serialize(CSer& ar)
                         ar >> byteQuantity;
                         unsigned char dummy;
                         ar >> dummy;
-                        // _dynamicMotorCustomControl_OLD=SIM_IS_BIT_SET(dummy,0);
+                        // _dynamicMotorCustomControl_old=SIM_IS_BIT_SET(dummy,0);
                         _dynamicLockModeWhenInVelocityControl=SIM_IS_BIT_SET(dummy,1);
                     }
                     if (theName.compare("Jmd")==0)

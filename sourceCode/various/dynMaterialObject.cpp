@@ -14,7 +14,7 @@ CDynMaterialObject::CDynMaterialObject()
 
 void CDynMaterialObject::_setDefaultParameters()
 {
-    _objectID=SIM_IDSTART_DYNMATERIAL_OLD;
+    _objectID=SIM_IDSTART_DYNMATERIAL_old;
     _objectName="usr_";
 
     _uniqueID=_nextUniqueID++;
