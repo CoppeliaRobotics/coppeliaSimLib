@@ -168,6 +168,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.startSimulation",_simStartSimulation,                  "int result=sim.startSimulation()",true},
     {"sim.getObjectMatrix",_simGetObjectMatrix,                  "table[12] matrix=sim.getObjectMatrix(int objectHandle,int relativeToObjectHandle)",true},
     {"sim.setObjectMatrix",_simSetObjectMatrix,                  "sim.setObjectMatrix(int objectHandle,int relativeToObjectHandle,table[12] matrix)",true},
+    {"sim.getObjectPose",_simGetObjectPose,                      "table[7] pose=sim.getObjectPose(int objectHandle,int relativeToObjectHandle)",true},
+    {"sim.setObjectPose",_simSetObjectPose,                      "sim.setObjectPose(int objectHandle,int relativeToObjectHandle,table[7] pose)",true},
     {"sim.getJointMatrix",_simGetJointMatrix,                    "table[12] matrix=sim.getJointMatrix(int objectHandle)",true},
     {"sim.setSphericalJointMatrix",_simSetSphericalJointMatrix,  "sim.setSphericalJointMatrix(int objectHandle,table[12] matrix)",true},
     {"sim.buildIdentityMatrix",_simBuildIdentityMatrix,          "table[12] matrix=sim.buildIdentityMatrix()",true},
@@ -6409,6 +6411,43 @@ int _simSetObjectMatrix(luaWrap_lua_State* L)
         float arr[12];
         getFloatsFromTable(L,3,12,arr);
         retVal=simSetObjectMatrix_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),arr);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetObjectPose(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectPose");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        float arr[7];
+        if (simGetObjectPose_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),arr)==1)
+        {
+            pushFloatTableOntoStack(L,7,arr); // Success
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetObjectPose(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setObjectPose");
+
+    int retVal=-1; // error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,7))
+    {
+        float arr[7];
+        getFloatsFromTable(L,3,7,arr);
+        retVal=simSetObjectPose_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),arr);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

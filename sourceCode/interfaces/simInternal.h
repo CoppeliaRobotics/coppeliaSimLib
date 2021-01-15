@@ -34,6 +34,8 @@ simInt simGetObjects_internal(simInt index,simInt objectType);
 simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName);
 simInt simGetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHandle,simFloat* matrix);
 simInt simSetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* matrix);
+simInt simGetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHandle,simFloat* pose);
+simInt simSetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* pose);
 simInt simGetObjectPosition_internal(simInt objectHandle,simInt relativeToObjectHandle,simFloat* position);
 simInt simSetObjectPosition_internal(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* position);
 simInt simGetObjectOrientation_internal(simInt objectHandle,simInt relativeToObjectHandle,simFloat* eulerAngles);

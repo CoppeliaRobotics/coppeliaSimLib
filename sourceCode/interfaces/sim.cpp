@@ -109,6 +109,14 @@ SIM_DLLEXPORT simInt simSetObjectMatrix(simInt objectHandle,simInt relativeToObj
 {
     return(simSetObjectMatrix_internal(objectHandle,relativeToObjectHandle,matrix));
 }
+SIM_DLLEXPORT simInt simGetObjectPose(simInt objectHandle,simInt relativeToObjectHandle,simFloat* pose)
+{
+    return(simGetObjectPose_internal(objectHandle,relativeToObjectHandle,pose));
+}
+SIM_DLLEXPORT simInt simSetObjectPose(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* pose)
+{
+    return(simSetObjectPose_internal(objectHandle,relativeToObjectHandle,pose));
+}
 SIM_DLLEXPORT simInt simGetObjectPosition(simInt objectHandle,simInt relativeToObjectHandle,simFloat* position)
 {
     return(simGetObjectPosition_internal(objectHandle,relativeToObjectHandle,position));

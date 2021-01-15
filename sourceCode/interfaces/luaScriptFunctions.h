@@ -192,6 +192,8 @@ extern int _simPauseSimulation(luaWrap_lua_State* L);
 extern int _simStartSimulation(luaWrap_lua_State* L);
 extern int _simGetObjectMatrix(luaWrap_lua_State* L);
 extern int _simSetObjectMatrix(luaWrap_lua_State* L);
+extern int _simGetObjectPose(luaWrap_lua_State* L);
+extern int _simSetObjectPose(luaWrap_lua_State* L);
 extern int _simGetJointMatrix(luaWrap_lua_State* L);
 extern int _simSetSphericalJointMatrix(luaWrap_lua_State* L);
 extern int _simBuildIdentityMatrix(luaWrap_lua_State* L);

@@ -1557,6 +1557,106 @@ simInt simSetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
     return(-1);
 }
 
+simInt simGetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHandle,simFloat* pose)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int handleFlags=objectHandle&0xff00000;
+        objectHandle=objectHandle&0xfffff;
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        if (relativeToObjectHandle==sim_handle_parent)
+        {
+            relativeToObjectHandle=-1;
+            CSceneObject* parent=it->getParent();
+            if (parent!=nullptr)
+                relativeToObjectHandle=parent->getObjectHandle();
+        }
+        if (relativeToObjectHandle!=-1)
+        {
+            if (!doesObjectExist(__func__,relativeToObjectHandle))
+                return(-1);
+        }
+        CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        C7Vector tr;
+        if (relObj==nullptr)
+            tr=it->getCumulativeTransformation();
+        else
+        {
+            C7Vector relTr;
+            if ( (handleFlags&sim_handleflag_reljointbaseframe)!=0)
+                relTr=relObj->getCumulativeTransformation();
+            else
+                relTr=relObj->getFullCumulativeTransformation();
+            tr=relTr.getInverse()*it->getCumulativeTransformation();
+        }
+        tr.getInternalData(pose,true);
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* pose)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int handleFlags=objectHandle&0xff00000;
+        objectHandle=objectHandle&0xfffff;
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        if (relativeToObjectHandle==sim_handle_parent)
+        {
+            relativeToObjectHandle=-1;
+            CSceneObject* parent=it->getParent();
+            if (parent!=nullptr)
+                relativeToObjectHandle=parent->getObjectHandle();
+        }
+        if (relativeToObjectHandle!=-1)
+        {
+            if (!doesObjectExist(__func__,relativeToObjectHandle))
+                return(-1);
+        }
+        if (it->getObjectType()==sim_object_shape_type)
+        {
+            CShape* shape=(CShape*)it;
+            if (!shape->getShapeIsDynamicallyStatic()) // condition new since 5/5/2013
+                shape->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
+        }
+        else
+            it->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
+        C7Vector tr;
+        tr.setInternalData(pose,true);
+        CSceneObject* objRel=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        if (objRel==nullptr)
+            App::currentWorld->sceneObjects->setObjectAbsolutePose(it->getObjectHandle(),tr,false);
+        else
+        {
+            C7Vector relTr;
+            if ( (handleFlags&sim_handleflag_reljointbaseframe)!=0)
+                relTr=objRel->getCumulativeTransformation();
+            else
+                relTr=objRel->getFullCumulativeTransformation();
+            App::currentWorld->sceneObjects->setObjectAbsolutePose(it->getObjectHandle(),relTr*tr,false);
+        }
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
 simInt simGetObjectPosition_internal(simInt objectHandle,simInt relativeToObjectHandle,simFloat* position)
 {
     TRACE_C_API;

@@ -43,6 +43,8 @@ SIM_DLLEXPORT simInt simGetObjects(simInt index,simInt objectType);
 SIM_DLLEXPORT simInt simSetObjectName(simInt objectHandle,const simChar* objectName);
 SIM_DLLEXPORT simInt simGetObjectMatrix(simInt objectHandle,simInt relativeToObjectHandle,simFloat* matrix);
 SIM_DLLEXPORT simInt simSetObjectMatrix(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* matrix);
+SIM_DLLEXPORT simInt simGetObjectPose(simInt objectHandle,simInt relativeToObjectHandle,simFloat* pose);
+SIM_DLLEXPORT simInt simSetObjectPose(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* pose);
 SIM_DLLEXPORT simInt simGetObjectPosition(simInt objectHandle,simInt relativeToObjectHandle,simFloat* position);
 SIM_DLLEXPORT simInt simSetObjectPosition(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* position);
 SIM_DLLEXPORT simInt simGetObjectOrientation(simInt objectHandle,simInt relativeToObjectHandle,simFloat* eulerAngles);

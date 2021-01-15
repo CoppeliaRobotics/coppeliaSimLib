@@ -1559,6 +1559,7 @@ int CGraph::duplicateCurveToStatic(int curveId,const char* curveName)
             retVal=addOrUpdateCurve(staticCurve);
         }
     }
+    return(retVal);
 }
 
 void CGraph::curveToStatic(int graphType,const char* curveName)
