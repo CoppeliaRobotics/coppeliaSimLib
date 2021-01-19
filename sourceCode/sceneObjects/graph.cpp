@@ -1968,7 +1968,7 @@ void CGraph::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
 
 void CGraph::setBufferSize(int buffSize)
 {
-    tt::limitValue(10,1000000,buffSize);
+    tt::limitValue(10,100000000,buffSize);
     bufferSize=buffSize;
     resetGraph();
 }
