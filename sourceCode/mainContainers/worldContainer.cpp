@@ -401,7 +401,7 @@ CLuaScriptObject* CWorldContainer::getScriptFromHandle(int scriptHandle) const
     CLuaScriptObject* retVal=currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
     if (retVal==nullptr)
     {
-        retVal=addOnScriptContainer->getAddOnScriptFromID(scriptHandle);
+        retVal=addOnScriptContainer->getAddOnFromID(scriptHandle);
         if ( (retVal==nullptr)&&(sandboxScript!=nullptr)&&(sandboxScript->getScriptHandle()==scriptHandle) )
             retVal=sandboxScript;
     }

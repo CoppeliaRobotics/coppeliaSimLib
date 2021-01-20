@@ -12850,7 +12850,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
             if (scriptHandleOrType==sim_scripttype_sandboxscript)
                 script=App::worldContainer->sandboxScript;
             if (scriptHandleOrType==sim_scripttype_addonscript)
-                script=App::worldContainer->addOnScriptContainer->getAddOnScriptFromName(scriptDescription.c_str());
+                script=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptDescription.c_str());
         }
 
         if (script!=nullptr)

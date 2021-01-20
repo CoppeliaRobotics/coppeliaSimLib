@@ -1937,7 +1937,6 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
     _treeTraversalDirection=0; // reverse by default
     _custScriptDisabledDSim_compatibilityMode_DEPRECATED=false;
     _customizationScriptCleanupBeforeSave_DEPRECATED=false;
-    _addOn_executionState=sim_syscb_init;
 
     _previousEditionWindowPosAndSize[0]=50;
     _previousEditionWindowPosAndSize[1]=50;
@@ -2655,9 +2654,15 @@ std::string CLuaScriptObject::getAddOnName() const
     return(_addOnName);
 }
 
-int CLuaScriptObject::getAddOnExecutionState() const
+
+int CLuaScriptObject::getScriptState() const
 {
-    return(_addOn_executionState);
+    return(_scriptState);
+}
+
+void CLuaScriptObject::setScriptState(int state)
+{
+    _scriptState=state;
 }
 
 void CLuaScriptObject::setExecuteJustOnce_oldThreads(bool justOnce)
@@ -2806,11 +2811,6 @@ void CLuaScriptObject::flagForDestruction()
 bool CLuaScriptObject::getFlaggedForDestruction() const
 {
     return(_flaggedForDestruction);
-}
-
-void CLuaScriptObject::setAddOnScriptAutoRun()
-{
-    _addOn_executionState=-1;
 }
 
 bool CLuaScriptObject::setScriptTextFromFile(const char* filename)
@@ -3184,32 +3184,6 @@ int CLuaScriptObject::_callMainScriptNow(int callType,const CInterfaceStack* inS
     return(sim_script_no_error);
 }
 
-int CLuaScriptObject::callChildScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
-{ // retval: -2: compil error, -1: runtimeError, 0: function not there, 1: ok
-    TRACE_INTERNAL;
-
-    int retVal=0;
-    bool ok=true;
-    if (L==nullptr)
-    {
-        if (callType>sim_syscb_sensing)
-            ok=false; // specialized callbacks require the script to be initialized
-        if (ok)
-            retVal=_callChildScriptNow(sim_syscb_init,nullptr,nullptr);
-    }
-
-    if ( ok&&(callType!=sim_syscb_init) ) // sim_syscb_init was already executed just above!
-        retVal=_callChildScriptNow(callType,inStack,outStack);
-
-    return(retVal);
-}
-
-int CLuaScriptObject::_callChildScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
-{ // retval: -2: compil error, -1: runtimeError, 0: function not there, 1: ok
-    int retVal=_callScriptFunction(callType,inStack,outStack);
-    return(retVal);
-}
-
 bool CLuaScriptObject::launchThreadedChildScript_oldThreads()
 {
     TRACE_INTERNAL;
@@ -3350,41 +3324,21 @@ int CLuaScriptObject::resumeThreadedChildScriptIfLocationMatch_oldThreads(int re
     return(res);
 }
 
-int CLuaScriptObject::callCustomizationScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
+int CLuaScriptObject::callAssociatedScriptOrAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
 { // retval: -2: compil error, -1: runtimeError, 0: function not there or script not executed, 1: ok
     TRACE_INTERNAL;
-    // Can we run the script? Was it temporarily disabled? Is it allowed to run during simulation? etc. is checked here:
-//    if (!hasCustomizationScripAnyChanceToGetExecuted(callType==sim_syscb_cleanup,App::currentWorld->simulation->isSimulationRunning()))
-//        return(0);
 
     int retVal=0;
     bool ok=true;
-    if (L==nullptr)
-    {   // The first time we call this script
+    if ( (L==nullptr)&&(callType!=sim_syscb_init) )
+    {
         if (callType>sim_syscb_sensing)
             ok=false; // specialized callbacks require the script to be initialized
         else
-        {
-            // Generate the sim_syscb_init call:
-            retVal=_callScriptFunction(sim_syscb_init,inStack,outStack);
-
-//            // Above call might have disabled the script. Check again:
-//            if (!hasCustomizationScripAnyChanceToGetExecuted(false,App::currentWorld->simulation->isSimulationRunning()))
-//                return(0);
-
-            if (App::currentWorld->simulation->isSimulationPaused())
-            {   // Here we have copied an object with customization script into the scene while simulation was paused.
-                // We need to generate the sim_syscb_suspend call from here (special case):
-                retVal=_callScriptFunction(sim_syscb_suspend,inStack,outStack);
-
- //               // Above call might have disabled the script. Check again:
-//                if (!hasCustomizationScripAnyChanceToGetExecuted(false,App::currentWorld->simulation->isSimulationRunning()))
-//                    return(0);
-            }
-        }
+            _callScriptFunction(sim_syscb_init,nullptr,nullptr); // init the script implicitely
     }
 
-    if ( ok&&(callType!=sim_syscb_init) ) // sim_syscb_init was already handled just here above
+    if (ok)
         retVal=_callScriptFunction(callType,inStack,outStack);
     return(retVal);
 }
@@ -3405,6 +3359,10 @@ int CLuaScriptObject::_callScriptFunction(int callType,const CInterfaceStack* in
     _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
     _forbidOverallYieldingLevel=0;
 
+    CInterfaceStack _outStack;
+    if (outStack==nullptr)
+        outStack=&_outStack;
+
     if (callType==sim_syscb_init)
     {
         if (_scriptState!=scriptState_uninitialized)
@@ -3412,17 +3370,23 @@ int CLuaScriptObject::_callScriptFunction(int callType,const CInterfaceStack* in
     }
     else
     {
+        if ((_scriptState&7)!=scriptState_initialized)
+            return(0);
         if (callType==sim_syscb_cleanup)
         {
-            if ((_scriptState&7)!=scriptState_initialized)
-                return(0);
             _scriptState&=scriptState_error; // keep the error flag
             _scriptState|=scriptState_ended; // set the ended state
         }
         else
         {
-            if (_scriptState!=scriptState_initialized)
+            if ((_scriptState&scriptState_error)!=0)
                 return(0);
+            if (callType==sim_syscb_aos_resume)
+                _scriptState=(_scriptState|scriptState_suspended)-scriptState_suspended;
+            if ((_scriptState&scriptState_suspended)!=0)
+                return(0);
+            if (callType==sim_syscb_aos_suspend)
+                _scriptState|=scriptState_suspended;
         }
     }
 
@@ -3502,8 +3466,7 @@ int CLuaScriptObject::_callScriptFunction(int callType,const CInterfaceStack* in
                     _handleSimpleSysExCalls(callType);
                     int currentTop=luaWrap_lua_gettop(L);
                     int numberOfArgs=currentTop-oldTop-1; // the first arg is linked to the debug mechanism
-                    if (outStack!=nullptr)
-                        outStack->buildFromLuaStack(L,oldTop+1+1,numberOfArgs); // the first arg is linked to the debug mechanism
+                    outStack->buildFromLuaStack(L,oldTop+1+1,numberOfArgs); // the first arg is linked to the debug mechanism
                 }
                 retVal=1;
             }
@@ -3582,8 +3545,7 @@ int CLuaScriptObject::_callScriptFunction(int callType,const CInterfaceStack* in
             { // return values:
                 int currentTop=luaWrap_lua_gettop(L);
                 int numberOfArgs=currentTop-oldTop-1; // the first arg is linked to the debug mechanism
-                if (outStack!=nullptr)
-                    outStack->buildFromLuaStack(L,oldTop+1+1,numberOfArgs); // the first arg is linked to the debug mechanism
+                outStack->buildFromLuaStack(L,oldTop+1+1,numberOfArgs); // the first arg is linked to the debug mechanism
                 retVal=1;
             }
             _calledInThisSimulationStep=true;
@@ -3597,10 +3559,32 @@ int CLuaScriptObject::_callScriptFunction(int callType,const CInterfaceStack* in
     }
     luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
 
+
+
     if ((_scriptState&scriptState_error)!=0)
     { // We got an error
         if ((_scriptState&7)!=scriptState_ended)
             _killLuaState();
+    }
+    else
+    {
+        if ((_scriptState&7)!=scriptState_ended)
+        {
+            std::string cmd;
+            if (outStack->getStackMapStringValue("cmd",cmd))
+            {
+                if (cmd.compare("restart")==0)
+                    resetScript();
+                if (cmd.compare("cleanup")==0)
+                    _killLuaState();
+            }
+            else
+            { // Following for backward compatibility with older add-ons: they could return 1 (sim_syscb_cleanup) to request cleanup
+                luaWrap_lua_Integer theValue;
+                if ( (_scriptType==sim_scripttype_addonscript)&&(outStack->getStackStrictIntegerValue(theValue))&&(theValue==1) )
+                    _killLuaState();
+            }
+        }
     }
 
     return(retVal);
@@ -3613,95 +3597,18 @@ int CLuaScriptObject::callSandboxScript(int callType,const CInterfaceStack* inSt
     return(retVal);
 }
 
-bool CLuaScriptObject::callSandboxScript_beforeMainScript()
+bool CLuaScriptObject::shouldTemporarilySuspendMainScript()
 {
-    bool retVal=true;
+    bool retVal=false;
+    if (_scriptType==sim_scripttype_sandboxscript)
+        _scriptState&=7; // remove a possible error flag
     CInterfaceStack outStack;
-    callSandboxScript(sim_syscb_beforemainscript,nullptr,&outStack);
+    _callScriptFunction(sim_syscb_beforemainscript,nullptr,&outStack);
     bool doNotRunMainScript;
     if (outStack.getStackMapBoolValue("doNotRunMainScript",doNotRunMainScript))
     {
         if (doNotRunMainScript)
-            retVal=false;
-    }
-    return(retVal);
-}
-
-int CLuaScriptObject::callAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
-{ // retval: -2: compil error, -1: runtimeError, 0: function not there or script not executed, 1: ok
-    int retVal=0;
-    if (_flaggedForDestruction)
-        callType=sim_syscb_cleanup;
-    if (L==nullptr)
-    {
-        if ( (callType==sim_syscb_init)||(_addOn_executionState==-1) ) // second arg. is for auto-run
-        {
-            if ( (_addOn_executionState!=-1)||(callType==sim_syscb_init)||(callType==sim_syscb_aos_run_old)||(callType==sim_syscb_nonsimulation)||(callType==sim_syscb_beforemainscript) )
-                retVal=_callAddOn(sim_syscb_init,inStack,outStack);
-        }
-    }
-    else
-    { // ok, the add-on was already initialized. We can run it, suspend it, restart it, or kill it (and a few others):
-        if ( (callType==sim_syscb_aos_run_old)||(callType==sim_syscb_nonsimulation)||(callType==sim_syscb_beforemainscript) )
-        {
-            if (_addOn_executionState!=sim_syscb_aos_suspend) // when suspended, we first need to unsuspend it
-                retVal=_callAddOn(callType,inStack,outStack);
-        }
-        else if (callType==sim_syscb_aos_suspend)
-        {
-            if ( (_addOn_executionState==sim_syscb_aos_run_old)||(_addOn_executionState==sim_syscb_nonsimulation)||(_addOn_executionState==sim_syscb_beforemainscript) ) // only when running
-                retVal=_callAddOn(callType,inStack,outStack);
-        }
-        else if (callType==sim_syscb_aos_resume)
-        {
-            if (_addOn_executionState==sim_syscb_aos_suspend) // only when suspended
-                retVal=_callAddOn(callType,inStack,outStack);
-        }
-        else if (callType==sim_syscb_cleanup)
-            resetScript();
-        else
-        {
-            if (_addOn_executionState!=sim_syscb_aos_suspend) // when suspended, we don't handle the other system calls
-                retVal=_callAddOn(callType,inStack,outStack);
-        }
-    }
-    return(retVal);
-}
-
-int CLuaScriptObject::_callAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
-{
-    CInterfaceStack outStackTmp;
-    CInterfaceStack* outStackProxy;
-    if (outStack!=nullptr)
-        outStackProxy=outStack;
-    else
-        outStackProxy=&outStackTmp;
-
-    int retVal;
-    if (_compatibilityModeOrFirstTimeCall_sysCallbacks)
-    { // for backward compatibility
-        CInterfaceStack inStackLocal;
-        inStackLocal.pushNumberOntoStack(double(callType));
-        retVal=_callScriptFunction(callType,&inStackLocal,outStackProxy);
-    }
-    else
-        retVal=_callScriptFunction(callType,inStack,outStackProxy);
-    if (retVal>-2)
-    {
-        if ( (callType==sim_syscb_init)||(callType==sim_syscb_cleanup)||(callType==sim_syscb_aos_run_old)||(callType==sim_syscb_aos_suspend)||(callType==sim_syscb_aos_resume) )
-            _addOn_executionState=callType;
-    }
-    if ( (outStackProxy->getStackSize()>0)&&(callType!=sim_syscb_cleanup) )
-    {
-        CInterfaceStack* outStackCopy=outStackProxy->copyYourself();
-        outStackCopy->moveStackItemToTop(0);
-        int r;
-        if (outStackCopy->getStackInt32Value(r))
-        {
-            if ( (r==sim_syscb_cleanup)||(r==sim_syscb_init) ) // second part is for backward compatibility
-                resetScript(); // we want to run the clean-up procedure
-        }
-        delete outStackCopy;
+            retVal=true;
     }
     return(retVal);
 }
@@ -4203,10 +4110,8 @@ bool CLuaScriptObject::initScript()
     bool retVal=false;
     if (_scriptType==sim_scripttype_sandboxscript)
         retVal=callSandboxScript(sim_syscb_init,nullptr,nullptr)==1;
-    if (_scriptType==sim_scripttype_childscript)
-        retVal=callChildScript(sim_syscb_init,nullptr,nullptr)==1;
-    if (_scriptType==sim_scripttype_customizationscript)
-        retVal=callCustomizationScript(sim_syscb_init,nullptr,nullptr)==1;
+    if ( (_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
+        retVal=callAssociatedScriptOrAddOn(sim_syscb_init,nullptr,nullptr)==1;
     return(retVal);
 }
 
@@ -4217,11 +4122,8 @@ bool CLuaScriptObject::_killLuaState()
     {
         if ( ((_scriptState&7)==scriptState_initialized)&&(!_threadedExecution_oldThreads) )
         {
-            if (isEmbeddedScript())
+            if ( isEmbeddedScript()||(_scriptType==sim_scripttype_addonscript) )
                 _callScriptFunction(sim_syscb_cleanup,nullptr,nullptr);
-
-            if (_scriptType==sim_scripttype_addonscript)
-                _callAddOn(sim_syscb_cleanup,nullptr,nullptr);
 
             // if (_scriptType==sim_scripttype_addonfunction) // Not needed
             // if (_scriptType==sim_scripttype_sandboxscript) // Not needed
@@ -4236,7 +4138,6 @@ bool CLuaScriptObject::_killLuaState()
     _scriptTextExec.clear();
     if (!_threadedExecution_oldThreads)
         _numberOfPasses=0;
-    _addOn_executionState=sim_syscb_init;
     _compatibilityModeOrFirstTimeCall_sysCallbacks=true;
     _containsJointCallbackFunction=false;
     _containsContactCallbackFunction=false;

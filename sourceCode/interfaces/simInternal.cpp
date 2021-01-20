@@ -5155,18 +5155,20 @@ simInt simHandleMainScript_internal()
     delete[] (char*)returnVal;
 
     // Customization scripts:
-    int res=0;
-    CInterfaceStack outStack;
-    App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforemainscript,nullptr,&outStack,&res);
-    bool cs=(res!=1);
+//    int res=0;
+//    CInterfaceStack outStack;
+//    App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforemainscript,nullptr,&outStack,&res);
+//    bool cs=(res!=1);
+    // Customization scripts:
+    bool cs=!App::currentWorld->embeddedScriptContainer->shouldTemporarilySuspendMainScript();
 
     // Add-on scripts:
-    bool as=App::worldContainer->addOnScriptContainer->handleAddOnScriptExecution_beforeMainScript();
+    bool as=!App::worldContainer->addOnScriptContainer->shouldTemporarilySuspendMainScript();
 
     // Sandbox script:
     bool ss=true;
     if (App::worldContainer->sandboxScript!=nullptr)
-        ss=App::worldContainer->sandboxScript->callSandboxScript_beforeMainScript();
+        ss=!App::worldContainer->sandboxScript->shouldTemporarilySuspendMainScript();
 
     if ( ( (rtVal[0]==-1)&&cs&&as&&ss )||App::currentWorld->simulation->didStopRequestCounterChangeSinceSimulationStart() )
     {
@@ -14525,7 +14527,7 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
         if (scriptHandleOrType==sim_scripttype_sandboxscript)
             script=App::worldContainer->sandboxScript;
         if (scriptHandleOrType==sim_scripttype_addonscript)
-            script=App::worldContainer->addOnScriptContainer->getAddOnScriptFromName(scriptName.c_str());
+            script=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
         if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==(sim_scripttype_childscript|sim_scripttype_threaded_old)) )
         {
             int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
@@ -15653,7 +15655,7 @@ simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* va
             if (scriptHandleOrType==sim_scripttype_addonscript)
             {
                 if (scriptName.size()>0)
-                    script=App::worldContainer->addOnScriptContainer->getAddOnScriptFromName(scriptName.c_str());
+                    script=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
             }
             if (scriptHandleOrType==sim_scripttype_sandboxscript)
                 script=App::worldContainer->sandboxScript;
@@ -16786,7 +16788,7 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
             if (scriptHandleOrType==sim_scripttype_addonscript)
             {
                 if (scriptName.size()>0)
-                    script=App::worldContainer->addOnScriptContainer->getAddOnScriptFromName(scriptName.c_str());
+                    script=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
             }
             if (scriptHandleOrType==sim_scripttype_sandboxscript)
                 script=App::worldContainer->sandboxScript;
@@ -18663,7 +18665,7 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
                 if (scriptHandleOrType==sim_scripttype_addonscript)
                 {
                     if (scriptName.size()>0)
-                        script=App::worldContainer->addOnScriptContainer->getAddOnScriptFromName(scriptName.c_str());
+                        script=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
                 }
                 if (scriptHandleOrType==sim_scripttype_sandboxscript)
                     script=App::worldContainer->sandboxScript;
@@ -18751,7 +18753,7 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
             if (scriptHandleOrType==sim_scripttype_addonscript)
             {
                 if (scriptName.size()>0)
-                    script=App::worldContainer->addOnScriptContainer->getAddOnScriptFromName(scriptName.c_str());
+                    script=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
             }
             if (scriptHandleOrType==sim_scripttype_sandboxscript)
                 script=App::worldContainer->sandboxScript;
@@ -19910,7 +19912,7 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
                 script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
             }
             if (scriptHandleOrType==sim_scripttype_addonscript)
-                script=App::worldContainer->addOnScriptContainer->getAddOnScriptFromName(scriptName.c_str());
+                script=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
         }
         else
         { // this is the old way of doing it. Deprecated. Was only 2 months active, not officially

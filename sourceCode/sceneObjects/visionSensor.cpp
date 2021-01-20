@@ -2167,9 +2167,9 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         if (VThread::isCurrentThreadTheMainSimulationThread())
         { // we are in the main simulation thread. Call only scripts that live in the same thread
             if ( (script!=nullptr)&&(!script->getThreadedExecution_oldThreads()) )
-                script->callChildScript(sim_syscb_vision,&inStack,&outStack1);
+                script->callAssociatedScriptOrAddOn(sim_syscb_vision,&inStack,&outStack1);
             if (cScript!=nullptr)
-                cScript->callCustomizationScript(sim_syscb_vision,&inStack,&outStack2);
+                cScript->callAssociatedScriptOrAddOn(sim_syscb_vision,&inStack,&outStack2);
         }
         else
         { // we are in the thread started by a threaded child script. Call only that script
@@ -2248,9 +2248,9 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
             if (VThread::isCurrentThreadTheMainSimulationThread())
             { // we are in the main simulation thread. Call only scripts that live in the same thread
                 if ( (script!=nullptr)&&(!script->getThreadedExecution_oldThreads()) )
-                    script->callChildScript(sim_syscb_trigger,&inStack,&outStack1);
+                    script->callAssociatedScriptOrAddOn(sim_syscb_trigger,&inStack,&outStack1);
                 if (cScript!=nullptr)
-                    cScript->callCustomizationScript(sim_syscb_trigger,&inStack,&outStack2);
+                    cScript->callAssociatedScriptOrAddOn(sim_syscb_trigger,&inStack,&outStack2);
             }
             else
             { // we are in the thread started by a threaded child script. Call only that script

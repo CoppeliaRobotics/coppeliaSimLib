@@ -446,6 +446,22 @@ bool CEmbeddedScriptContainer::doesScriptWithUniqueIdExist(int id) const
     return(false);
 }
 
+bool CEmbeddedScriptContainer::shouldTemporarilySuspendMainScript()
+{
+    bool retVal=false;
+    std::vector<CLuaScriptObject*> scripts;
+    std::vector<int> uniqueIds;
+    _getScriptsToExecute(sim_scripttype_customizationscript,scripts,uniqueIds);
+    for (size_t i=0;i<scripts.size();i++)
+    {
+        if (doesScriptWithUniqueIdExist(uniqueIds[i]))
+        { // the script could have been erased in the mean time
+            if (scripts[i]->shouldTemporarilySuspendMainScript())
+                retVal=true;
+        }
+    }
+    return(retVal);
+}
 
 int CEmbeddedScriptContainer::handleCascadedScriptExecution(int scriptType,int callTypeOrResumeLocation,CInterfaceStack* inStack,CInterfaceStack* outStack,int* retInfo)
 {
@@ -471,7 +487,7 @@ int CEmbeddedScriptContainer::handleCascadedScriptExecution(int scriptType,int c
                         doIt=false;
                     if (doIt)
                     {
-                        if (script->callCustomizationScript(callTypeOrResumeLocation,inStack,outStack)==1)
+                        if (script->callAssociatedScriptOrAddOn(callTypeOrResumeLocation,inStack,outStack)==1)
                         {
                             cnt++;
                             if (callTypeOrResumeLocation==sim_syscb_contactcallback)
@@ -479,18 +495,6 @@ int CEmbeddedScriptContainer::handleCascadedScriptExecution(int scriptType,int c
                                 if (retInfo!=nullptr)
                                     retInfo[0]=1;
                                 break;
-                            }
-                            if (callTypeOrResumeLocation==sim_syscb_beforemainscript)
-                            {
-                                bool doNotRunMainScript;
-                                if ((outStack!=nullptr)&&outStack->getStackMapBoolValue("doNotRunMainScript",doNotRunMainScript))
-                                {
-                                    if (doNotRunMainScript)
-                                    {
-                                        if (retInfo!=nullptr)
-                                            retInfo[0]=1;
-                                    }
-                                }
                             }
                         }
                     }
@@ -516,7 +520,7 @@ int CEmbeddedScriptContainer::handleCascadedScriptExecution(int scriptType,int c
                             doIt=false;
                         if (doIt)
                         {
-                            if (script->callChildScript(callTypeOrResumeLocation,inStack,outStack)==1)
+                            if (script->callAssociatedScriptOrAddOn(callTypeOrResumeLocation,inStack,outStack)==1)
                             {
                                 cnt++;
                                 if (callTypeOrResumeLocation==sim_syscb_contactcallback)

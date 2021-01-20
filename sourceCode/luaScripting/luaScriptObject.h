@@ -21,14 +21,15 @@
 
 class CLuaScriptObject
 {
+public:
     enum {
         scriptState_uninitialized=0,
         scriptState_initialized,
         scriptState_ended,
-        scriptState_error=8
+        scriptState_error=8,
+        scriptState_suspended=16 // only add-ons
     };
 
-public:
     CLuaScriptObject(int scriptTypeOrMinusOneForSerialization);
     virtual ~CLuaScriptObject();
 
@@ -66,11 +67,9 @@ public:
     bool getCalledInThisSimulationStep() const;
 
     int callMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
-    int callChildScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int callCustomizationScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int callAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int callAssociatedScriptOrAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int callSandboxScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    bool callSandboxScript_beforeMainScript();
+    bool shouldTemporarilySuspendMainScript();
 
     int callScriptFunction(const char* functionName,CInterfaceStack* stack);
     int setScriptVariable(const char* variableName,CInterfaceStack* stack);
@@ -97,7 +96,6 @@ public:
     int getTreeTraversalDirection() const;
     void flagForDestruction();
     bool getFlaggedForDestruction() const;
-    void setAddOnScriptAutoRun();
     int getScriptType() const;
     void setScriptIsDisabled(bool isDisabled);
     bool getScriptIsDisabled() const;
@@ -129,7 +127,8 @@ public:
     void setLastError(const char* err);
     std::string getAndClearLastError();
 
-    int getAddOnExecutionState() const;
+    int getScriptState() const;
+    void setScriptState(int state);
 
     bool addCommandToOutsideCommandQueue(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const float aux2Vals[8],int aux2Count);
     int extractCommandFromOutsideCommandQueue(int auxVals[4],float aux2Vals[8],int& aux2Count);
@@ -200,8 +199,6 @@ protected:
 
     int _callMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
     int _callMainScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
-    int _callChildScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int _callAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int _callScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     void _handleSimpleSysExCalls(int callType);
 
@@ -284,7 +281,6 @@ protected:
     void _printContext(const char* str,size_t p);
 
     std::string _addOnName;
-    int _addOn_executionState;
     std::mt19937 _randGen;
 
     bool _initialValuesInitialized;

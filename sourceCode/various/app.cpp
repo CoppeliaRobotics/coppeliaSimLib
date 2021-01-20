@@ -133,7 +133,7 @@ void App::simulationThreadDestroy()
     if (replyBuffer!=nullptr)
         simReleaseBuffer_internal((simChar*)replyBuffer);
 
-    App::worldContainer->addOnScriptContainer->removeAllScripts();
+    App::worldContainer->addOnScriptContainer->removeAllAddOns();
     App::worldContainer->sandboxScript->callSandboxScript(sim_syscb_cleanup,nullptr,nullptr);
     delete App::worldContainer->sandboxScript;
     App::worldContainer->sandboxScript=nullptr;
