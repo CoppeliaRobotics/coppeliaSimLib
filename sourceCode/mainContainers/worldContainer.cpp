@@ -88,7 +88,7 @@ int CWorldContainer::createNewWorld()
         currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
         addOnScriptContainer->callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
-            sandboxScript->callSandboxScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
+            sandboxScript->systemCallScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
     }
 
     // Inform plugins about future switch to new world (only if there is already at least one world):
@@ -129,7 +129,7 @@ int CWorldContainer::createNewWorld()
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
-        sandboxScript->callSandboxScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
+        sandboxScript->systemCallScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
 
     // Inform plugins about performed switch to new world:
     int data[4]={getCurrentWorldIndex(),currentWorld->environment->getSceneUniqueID(),0,0};
@@ -174,7 +174,7 @@ int CWorldContainer::destroyCurrentWorld()
         currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
         addOnScriptContainer->callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
-            sandboxScript->callSandboxScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
+            sandboxScript->systemCallScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
 
         // Inform plugins about future world switch:
         int pluginData[4]={-1,_worlds[nextWorldIndex]->environment->getSceneUniqueID(),0,0};
@@ -220,7 +220,7 @@ int CWorldContainer::destroyCurrentWorld()
         currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
         addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
-            sandboxScript->callSandboxScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
+            sandboxScript->systemCallScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
 
         // Inform plugins about performed world switch:
         int pluginData[4]={_currentWorldIndex,currentWorld->environment->getSceneUniqueID(),0,0};
@@ -311,7 +311,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
-        sandboxScript->callSandboxScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
+        sandboxScript->systemCallScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
 
     // Inform plugins about future world switch:
     int pluginData[4]={_currentWorldIndex,_worlds[newWorldIndex]->environment->getSceneUniqueID(),0,0};
@@ -346,7 +346,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
-        sandboxScript->callSandboxScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
+        sandboxScript->systemCallScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
 
     // Inform plugins about performed world switch:
     pluginData[0]=_currentWorldIndex;
@@ -414,7 +414,7 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack)
     currentWorld->embeddedScriptContainer->callScripts(callType,inStack);
     addOnScriptContainer->callScripts(callType,inStack,nullptr);
     if (sandboxScript!=nullptr)
-        sandboxScript->callSandboxScript(callType,inStack,nullptr);
+        sandboxScript->systemCallScript(callType,inStack,nullptr);
 }
 
 #ifdef SIM_WITH_GUI

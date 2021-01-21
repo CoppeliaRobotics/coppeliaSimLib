@@ -116,7 +116,7 @@ void App::simulationThreadInit()
 
     App::worldContainer->sandboxScript=new CLuaScriptObject(sim_scripttype_sandboxscript);
     App::worldContainer->sandboxScript->setScriptTextFromFile((App::folders->getSystemPath()+"/"+"sndbxscpt.txt").c_str());
-    App::worldContainer->sandboxScript->callSandboxScript(sim_syscb_init,nullptr,nullptr);
+    App::worldContainer->sandboxScript->systemCallScript(sim_syscb_init,nullptr,nullptr);
     if (_startupScriptString.size()>0)
     {
         App::worldContainer->sandboxScript->executeScriptString(_startupScriptString.c_str(),nullptr);
@@ -134,7 +134,7 @@ void App::simulationThreadDestroy()
         simReleaseBuffer_internal((simChar*)replyBuffer);
 
     App::worldContainer->addOnScriptContainer->removeAllAddOns();
-    App::worldContainer->sandboxScript->callSandboxScript(sim_syscb_cleanup,nullptr,nullptr);
+    App::worldContainer->sandboxScript->systemCallScript(sim_syscb_cleanup,nullptr,nullptr);
     delete App::worldContainer->sandboxScript;
     App::worldContainer->sandboxScript=nullptr;
 
@@ -188,21 +188,21 @@ void App::simulationThreadLoop()
         App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
         App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_nonsimulation,nullptr,nullptr);
         if (App::worldContainer->sandboxScript!=nullptr)
-            App::worldContainer->sandboxScript->callSandboxScript(sim_syscb_nonsimulation,nullptr,nullptr);
+            App::worldContainer->sandboxScript->systemCallScript(sim_syscb_nonsimulation,nullptr,nullptr);
     }
     if (App::currentWorld->simulation->isSimulationPaused())
     {
         CLuaScriptObject* mainScript=App::currentWorld->embeddedScriptContainer->getMainScript();
-        bool suspendedFunctionPresentInMainScript=true;
         if (mainScript!=nullptr)
-            mainScript->callMainScript(sim_syscb_suspended,nullptr,nullptr,&suspendedFunctionPresentInMainScript);
-        if (!suspendedFunctionPresentInMainScript)
-        { // For backward compatibility for scenes that have customized main script (e.g. BR)
-            App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_suspended,nullptr,nullptr,nullptr);
-            App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
-            App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_suspended,nullptr,nullptr);
-            if (App::worldContainer->sandboxScript!=nullptr)
-                App::worldContainer->sandboxScript->callSandboxScript(sim_syscb_suspended,nullptr,nullptr);
+        {
+            if (mainScript->systemCallMainScript(sim_syscb_suspended,nullptr,nullptr)==0)
+            { // For backward compatibility for scenes that have customized main script (e.g. BR)
+                App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_suspended,nullptr,nullptr,nullptr);
+                App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
+                App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_suspended,nullptr,nullptr);
+                if (App::worldContainer->sandboxScript!=nullptr)
+                    App::worldContainer->sandboxScript->systemCallScript(sim_syscb_suspended,nullptr,nullptr);
+            }
         }
     }
 

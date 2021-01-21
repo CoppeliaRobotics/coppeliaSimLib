@@ -13913,7 +13913,7 @@ int _simHandleSandboxScript(luaWrap_lua_State* L)
         {
             int callType=luaToInt(L,1);
             if ( (App::getEditModeType()==NO_EDIT_MODE)&&(App::worldContainer->sandboxScript!=nullptr) )
-                App::worldContainer->sandboxScript->callSandboxScript(callType,nullptr,nullptr);
+                App::worldContainer->sandboxScript->systemCallScript(callType,nullptr,nullptr);
         }
     }
     else

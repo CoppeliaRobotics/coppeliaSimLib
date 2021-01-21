@@ -1925,7 +1925,7 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
     _numberOfPasses=0;
     _threadedExecution_oldThreads=false;
     _scriptIsDisabled=false;
-    _scriptState=scriptState_uninitialized;
+    _scriptState=scriptState_unloaded;
     _executeJustOnce_oldThreads=false;
     _automaticCascadingCallsDisabled_old=false;
     _threadedExecutionUnderWay_oldThreads=false;
@@ -1934,6 +1934,8 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
     _executionPriority=sim_scriptexecorder_normal;
     _debugLevel=0;
     _inDebug=false;
+    _autoStartAddOn=-1;
+    _addOnTriggered=false;
     _treeTraversalDirection=0; // reverse by default
     _custScriptDisabledDSim_compatibilityMode_DEPRECATED=false;
     _customizationScriptCleanupBeforeSave_DEPRECATED=false;
@@ -2121,6 +2123,13 @@ void CLuaScriptObject::fromBufferToFile() const
 
 std::string CLuaScriptObject::getSystemCallbackString(int calltype,bool callTips)
 {
+    if (calltype==sim_syscb_info)
+    {
+        std::string r("sysCall_info");
+        if (callTips)
+            r+="()\nCalled even before the script is initialized.";
+        return(r);
+    }
     if (calltype==sim_syscb_init)
     {
         std::string r("sysCall_init");
@@ -2370,6 +2379,8 @@ bool CLuaScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int
     }
     else
     { // For all script types (except for the old threaded scripts):
+        if (callType==sim_syscb_info)
+            return(true);
         if (callType==sim_syscb_init)
             return(true);
         if (callType==sim_syscb_cleanup)
@@ -2447,6 +2458,7 @@ bool CLuaScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int
 std::vector<std::string> CLuaScriptObject::getAllSystemCallbackStrings(int scriptType,bool threaded,bool callTips)
 {
     const int ct[]={
+                 sim_syscb_info,
                  sim_syscb_init,
                  sim_syscb_cleanup,
                  sim_syscb_nonsimulation,
@@ -3117,71 +3129,37 @@ bool CLuaScriptObject::getCalledInThisSimulationStep() const
     return(_calledInThisSimulationStep);
 }
 
-int CLuaScriptObject::callMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent)
-{
+int CLuaScriptObject::systemCallMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
+{ // retval: -2: compil error, -1: runtimeError, 0: function not there or script not executed, 1: ok
     TRACE_INTERNAL;
-    if (functionPresent!=nullptr)
-        functionPresent[0]=true; // we only return false if we know for sure the function is not there (if the script contains an error, we can't know for sure)
 
-    int retVal=sim_script_no_error;
+    int retVal=-1;
     if (!CThreadPool::getSimulationEmergencyStop())
     {
-        if (!_scriptIsDisabled)
-            retVal=_callMainScript(optionalCallType,inStack,outStack,functionPresent);
-    }
-    else
-        CThreadPool::handleAllThreads_withResumeLocation(-1); // Added on 24/02/2011 (important, otherwise threads might never resume!!!)
-
-    return(retVal);
-}
-
-int CLuaScriptObject::_callMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent)
-{
-    TRACE_INTERNAL;
-    if (functionPresent!=nullptr)
-        functionPresent[0]=true; // we only return false if we know for sure the function is not there (if the script contains an error, we can't know for sure)
-    int retVal=sim_script_no_error;
-
-    if (optionalCallType==-1)
-    {
-        App::currentWorld->embeddedScriptContainer->resetScriptFlagCalledInThisSimulationStep();
-        int startT=VDateTime::getTimeInMs();
-
-        if (App::currentWorld->simulation->getSimulationState()==sim_simulation_advancing_firstafterstop)
-            retVal|=_callMainScriptNow(sim_syscb_init,inStack,outStack,nullptr);
-
-        if (_compatibilityModeOrFirstTimeCall_sysCallbacks)
-            retVal|=_callMainScriptNow(sim_syscb_actuation,inStack,outStack,nullptr);
-        else
+        if (optionalCallType==-1)
         {
-            retVal|=_callMainScriptNow(sim_syscb_actuation,inStack,outStack,nullptr);
-            retVal|=_callMainScriptNow(sim_syscb_sensing,inStack,outStack,nullptr);
+            App::currentWorld->embeddedScriptContainer->resetScriptFlagCalledInThisSimulationStep();
+            int startT=VDateTime::getTimeInMs();
+
+            if (App::currentWorld->simulation->getSimulationState()==sim_simulation_advancing_firstafterstop)
+                retVal=systemCallScript(sim_syscb_init,inStack,outStack);
+
+            retVal=systemCallScript(sim_syscb_actuation,inStack,outStack);
+            retVal=systemCallScript(sim_syscb_sensing,inStack,outStack);
+
+            if (App::currentWorld->simulation->getSimulationState()==sim_simulation_advancing_lastbeforestop)
+                retVal=systemCallScript(sim_syscb_cleanup,inStack,outStack);
+
+            App::worldContainer->calcInfo->setMainScriptExecutionTime(VDateTime::getTimeInMs()-startT);
+            App::worldContainer->calcInfo->setSimulationScriptExecCount(App::currentWorld->embeddedScriptContainer->getCalledScriptsCountInThisSimulationStep(true));
         }
-
-        if (App::currentWorld->simulation->getSimulationState()==sim_simulation_advancing_lastbeforestop)
-            retVal|=_callMainScriptNow(sim_syscb_cleanup,inStack,outStack,nullptr);
-
-        App::worldContainer->calcInfo->setMainScriptExecutionTime(VDateTime::getTimeInMs()-startT);
-        App::worldContainer->calcInfo->setSimulationScriptExecCount(App::currentWorld->embeddedScriptContainer->getCalledScriptsCountInThisSimulationStep(true));
+        else
+            retVal=systemCallScript(optionalCallType,inStack,outStack);
     }
     else
-    {
-        if (!_compatibilityModeOrFirstTimeCall_sysCallbacks)
-            retVal|=_callMainScriptNow(optionalCallType,inStack,outStack,functionPresent); // this only supported with the new calling method
-    }
-    return(retVal);
-}
+        CThreadPool::handleAllThreads_withResumeLocation(-1); // Backward compatibility with old threads
 
-int CLuaScriptObject::_callMainScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent)
-{
-    if (functionPresent!=nullptr)
-        functionPresent[0]=true; // we only return false if we know for sure the function is not there (if the script contains an error, we can't know for sure)
-    int retVal=_callScriptFunction(callType,inStack,outStack);
-    if ( (retVal==0)&&(functionPresent!=nullptr) )
-        functionPresent[0]=false;
-    if (retVal<0)
-        return(sim_script_lua_error);
-    return(sim_script_no_error);
+    return(retVal);
 }
 
 bool CLuaScriptObject::launchThreadedChildScript_oldThreads()
@@ -3217,7 +3195,7 @@ void CLuaScriptObject::_launchThreadedChildScriptNow_oldThreads()
     TRACE_INTERNAL;
     if ((_scriptState&scriptState_error)!=0)
         return;
-    _scriptState=scriptState_uninitialized;
+    _scriptState=scriptState_unloaded;
 
     _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
     _forbidOverallYieldingLevel=0;
@@ -3255,7 +3233,7 @@ void CLuaScriptObject::_launchThreadedChildScriptNow_oldThreads()
             else
                 errMsg="(error unknown)";
             luaWrap_lua_pop(L,1); // pop error from stack
-            _announceErrorWasRaisedAndDisableScript(errMsg.c_str(),true);
+            _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),true);
         }
         else
         {
@@ -3291,7 +3269,7 @@ void CLuaScriptObject::_launchThreadedChildScriptNow_oldThreads()
                         else
                             errMsg="(error unknown)";
                         luaWrap_lua_pop(L,1); // pop error from stack
-                        _announceErrorWasRaisedAndDisableScript(errMsg.c_str(),true);
+                        _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),true);
                     }
                 }
                 else
@@ -3311,7 +3289,7 @@ void CLuaScriptObject::_launchThreadedChildScriptNow_oldThreads()
         else
             errMsg="(error unknown)";
         luaWrap_lua_pop(L,1); // pop error from stack
-        _announceErrorWasRaisedAndDisableScript(errMsg.c_str(),false);
+        _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),false);
     }
     _killLuaState();
     _numberOfPasses++;
@@ -3324,23 +3302,106 @@ int CLuaScriptObject::resumeThreadedChildScriptIfLocationMatch_oldThreads(int re
     return(res);
 }
 
-int CLuaScriptObject::callAssociatedScriptOrAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
+int CLuaScriptObject::systemCallScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
 { // retval: -2: compil error, -1: runtimeError, 0: function not there or script not executed, 1: ok
     TRACE_INTERNAL;
 
-    int retVal=0;
-    bool ok=true;
-    if ( (L==nullptr)&&(callType!=sim_syscb_init) )
+    if ( (_scriptType==sim_scripttype_addonscript)&&(_scriptState==scriptState_unloaded)&&(callType!=sim_syscb_info) )
     {
-        if (callType>sim_syscb_sensing)
-            ok=false; // specialized callbacks require the script to be initialized
-        else
-            _callScriptFunction(sim_syscb_init,nullptr,nullptr); // init the script implicitely
+        if (!_addOnTriggered)
+        {
+            if (!isAutoStartAddOn())
+                return(0);
+        }
     }
+    _addOnTriggered=false;
 
-    if (ok)
-        retVal=_callScriptFunction(callType,inStack,outStack);
+
+    int retVal=0;
+
+    bool scriptDisabled=_scriptIsDisabled;
+    if ( (_scriptType==sim_scripttype_customizationscript)&&(!App::userSettings->runCustomizationScripts) )
+        scriptDisabled=true;
+    if ( (!scriptDisabled)||( ((_scriptState&7)==scriptState_initialized)&&(callType==sim_syscb_cleanup) ) )
+    { // Only cleanup call allowed when script is not enabled (e.g. when the used disabled it temporarily)
+        if ( (_scriptState==scriptState_unloaded)&&(callType<=sim_syscb_sensing) )
+        { // First execute the script chunk if not yet done
+            if (_initScriptChunk())
+            {
+                if (callType==sim_syscb_info)
+                    retVal=_callScriptFunction(sim_syscb_info,inStack,outStack);
+                else
+                    retVal=_callScriptFunction(sim_syscb_info,nullptr,nullptr); // implicit call
+            }
+            else
+                retVal=-2;
+        }
+        if ( (_scriptState==scriptState_uninitialized)&&(callType!=sim_syscb_info)&&(callType<=sim_syscb_sensing) )
+        { // Second execute the init section if not yet done
+            if (callType==sim_syscb_init)
+                retVal=_callScriptFunction(sim_syscb_init,inStack,outStack);
+            else
+                retVal=_callScriptFunction(sim_syscb_init,nullptr,nullptr); // implicit call
+        }
+        if ( ((_scriptState&7)==scriptState_initialized)&&(callType!=sim_syscb_info)&&(callType!=sim_syscb_init) )
+        { // Execut the script call
+            if (!_compatibilityModeOrFirstTimeCall_sysCallbacks)
+            { // Regular system function calls
+                if ( ((_scriptState&scriptState_error)==0)||(callType==sim_syscb_cleanup) )
+                {
+                    retVal=_callScriptFunction(callType,inStack,outStack);
+                    if (_scriptType==sim_scripttype_sandboxscript)
+                        _scriptState&=7; // remove a possible error flag
+                }
+            }
+            else
+            { // Backward compatibility
+                if (_callScriptChunk_old(callType,inStack,outStack))
+                    retVal=1;
+                else
+                    retVal=-1;
+            }
+        }
+    }
     return(retVal);
+}
+
+bool CLuaScriptObject::shouldTemporarilySuspendMainScript()
+{
+    bool retVal=false;
+    if (_scriptType==sim_scripttype_sandboxscript)
+        _scriptState&=7; // remove a possible error flag
+    CInterfaceStack outStack;
+    _callScriptFunction(sim_syscb_beforemainscript,nullptr,&outStack);
+    bool doNotRunMainScript;
+    if (outStack.getStackMapBoolValue("doNotRunMainScript",doNotRunMainScript))
+    {
+        if (doNotRunMainScript)
+            retVal=true;
+    }
+    return(retVal);
+}
+
+void CLuaScriptObject::setAddOnTriggered()
+{
+    _addOnTriggered=true;
+}
+
+bool CLuaScriptObject::isAutoStartAddOn()
+{
+    if (_autoStartAddOn==-1)
+    {
+        CInterfaceStack outStack;
+        systemCallScript(sim_syscb_info,nullptr,&outStack);
+        resetScript();
+        bool autoStart=true;
+        outStack.getStackMapBoolValue("autoStart",autoStart);
+        if (autoStart)
+            _autoStartAddOn=1;
+        else
+            _autoStartAddOn=0;
+    }
+    return(_autoStartAddOn==1);
 }
 
 void CLuaScriptObject::_handleSimpleSysExCalls(int callType)
@@ -3353,20 +3414,180 @@ void CLuaScriptObject::_handleSimpleSysExCalls(int callType)
     }
 }
 
-int CLuaScriptObject::_callScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
-{ // retval: -2: compil error, -1: runtimeError, 0: function not there, 1: ok
+bool CLuaScriptObject::_initScriptChunk()
+{
+    if (_scriptState==scriptState_unloaded)
+    {
+        fromFileToBuffer();
+        _scriptTextExec.assign(_scriptText.begin(),_scriptText.end());
+        _initLuaState();
+        _calledInThisSimulationStep=false;
+        _raiseErrors_backCompatibility=true;
+        _randGen.seed(123456);
+        _delayForAutoYielding=2;
+        _forbidAutoYieldingLevel=0;
+        if (_checkIfMixingOldAndNewCallMethods())
+        {
+            std::string msg(getShortDescriptiveName());
+            msg+=": detected a possible attempt to mix the old and new calling methods. For example:";
+            msg+="\n         with the old method: if sim_call_type==sim_childscriptcall_initialization then ... end";
+            msg+="\n         with the new method: function sysCall_init() ... end";
+            App::logMsg(sim_verbosity_warnings,msg.c_str());
+        }
+
+        _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
+        _forbidOverallYieldingLevel=0;
+
+        int oldTop=luaWrap_lua_gettop(L);
+        std::string tmp("sim_call_type="); // for backward compatibility
+        tmp+=boost::lexical_cast<std::string>(sim_syscb_init);
+        luaWrap_luaL_dostring(L,tmp.c_str());
+
+        if (_luaLoadBuffer(L,_scriptTextExec.c_str(),_scriptTextExec.size(),getShortDescriptiveName().c_str()))
+        {
+            luaWrap_lua_getglobal(L,"debug");
+            luaWrap_lua_getfield(L,-1,"traceback");
+            luaWrap_lua_remove(L,-2);
+            int argCnt=0;
+            int errindex=-argCnt-2;
+            luaWrap_lua_insert(L,errindex);
+            if (_luaPCall(L,argCnt,luaWrapGet_LUA_MULTRET(),errindex,"scriptChunk")!=0)
+            { // a runtime error occurred!
+                _scriptState|=scriptState_error;
+                std::string errMsg;
+                if (luaWrap_lua_isstring(L,-1))
+                    errMsg=std::string(luaWrap_lua_tostring(L,-1));
+                else
+                    errMsg="(error unknown)";
+                luaWrap_lua_pop(L,1); // pop error from stack
+                _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),true);
+            }
+            else
+            {
+                // here we check if we can enable the new calling method:
+                std::string initCb=getSystemCallbackString(sim_syscb_init,false);
+                luaWrap_lua_getglobal(L,initCb.c_str());
+                _compatibilityModeOrFirstTimeCall_sysCallbacks=!(luaWrap_lua_isfunction(L,-1));
+                luaWrap_lua_pop(L,1);
+                if (!_compatibilityModeOrFirstTimeCall_sysCallbacks)
+                {
+                    luaWrap_luaL_dostring(L,"sim_call_type=nil");
+                    _scriptState=scriptState_uninitialized;
+                    luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_jointcallback,false).c_str());
+                    _containsJointCallbackFunction=luaWrap_lua_isfunction(L,-1);
+                    luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_contactcallback,false).c_str());
+                    _containsContactCallbackFunction=luaWrap_lua_isfunction(L,-1);
+                    luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_dyncallback,false).c_str());
+                    _containsDynCallbackFunction=luaWrap_lua_isfunction(L,-1);
+                    luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_vision,false).c_str());
+                    _containsVisionCallbackFunction=luaWrap_lua_isfunction(L,-1);
+                    luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_trigger,false).c_str());
+                    _containsTriggerCallbackFunction=luaWrap_lua_isfunction(L,-1);
+                    luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_userconfig,false).c_str());
+                    _containsUserConfigCallbackFunction=luaWrap_lua_isfunction(L,-1);
+                    luaWrap_lua_pop(L,6);
+                }
+                else
+                    _scriptState=scriptState_initialized;
+            }
+            _numberOfPasses++;
+        }
+        else
+        { // A compilation error occurred!
+            _scriptState|=scriptState_error;
+            std::string errMsg;
+            if (luaWrap_lua_isstring(L,-1))
+                errMsg=std::string(luaWrap_lua_tostring(L,-1));
+            else
+                errMsg="(error unknown)";
+            luaWrap_lua_pop(L,1); // pop error from stack
+            _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),false);
+        }
+        luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
+    }
+    if ((_scriptState&scriptState_error)!=0)
+        _killLuaState();
+    return( (_scriptState==scriptState_uninitialized)||(_scriptState==scriptState_initialized) );
+}
+
+bool CLuaScriptObject::_callScriptChunk_old(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
+{
+    if (!_compatibilityModeOrFirstTimeCall_sysCallbacks)
+        return(false);
+    if ((_scriptState&7)!=scriptState_initialized)
+        return(false);
+    if ((_scriptState&scriptState_error)!=0)
+        return(false);
 
     _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
     _forbidOverallYieldingLevel=0;
 
-    CInterfaceStack _outStack;
-    if (outStack==nullptr)
-        outStack=&_outStack;
+    int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
+    std::string tmp("sim_call_type=");
+    tmp+=boost::lexical_cast<std::string>(callType);
+    luaWrap_luaL_dostring(L,tmp.c_str());
+    if (_luaLoadBuffer(L,_scriptTextExec.c_str(),_scriptTextExec.size(),getShortDescriptiveName().c_str()))
+    {
+        int inputArgs=0;
+        if (inStack!=nullptr)
+        {
+            inputArgs=inStack->getStackSize();
+            if (inputArgs!=0)
+                inStack->buildOntoLuaStack(L,false);
+        }
+        luaWrap_lua_getglobal(L,"debug");
+        luaWrap_lua_getfield(L,-1,"traceback");
+        luaWrap_lua_remove(L,-2);
+        int argCnt=inputArgs;
+        int errindex=-argCnt-2;
+        luaWrap_lua_insert(L,errindex);
+        if (_luaPCall(L,argCnt,luaWrapGet_LUA_MULTRET(),errindex,"scriptChunk")!=0)
+        { // a runtime error occurred!
+            _scriptState|=scriptState_error;
+            std::string errMsg;
+            if (luaWrap_lua_isstring(L,-1))
+                errMsg=std::string(luaWrap_lua_tostring(L,-1));
+            else
+                errMsg="(error unknown)";
+            luaWrap_lua_pop(L,1); // pop error from stack
+            _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),true);
+        }
+        else
+        {
+            _handleSimpleSysExCalls(callType);
+            if (outStack!=nullptr)
+            {
+                int currentTop=luaWrap_lua_gettop(L);
+                int numberOfArgs=currentTop-oldTop-1; // the first arg is linked to the debug mechanism
+                outStack->buildFromLuaStack(L,oldTop+1+1,numberOfArgs); // the first arg is linked to the debug mechanism
+            }
+        }
+        _numberOfPasses++;
+    }
+    luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
 
-    if (callType==sim_syscb_init)
+
+    if ((_scriptState&scriptState_error)!=0)
+        _killLuaState();
+
+    return((_scriptState&scriptState_error)==0);
+}
+
+int CLuaScriptObject::_callScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
+{ // retval: -2: compil error, -1: runtimeError, 0: function not there, 1: ok
+    if (_compatibilityModeOrFirstTimeCall_sysCallbacks)
+        return(0);
+
+    if (callType==sim_syscb_info)
     {
         if (_scriptState!=scriptState_uninitialized)
             return(0);
+    }
+    else if (callType==sim_syscb_init)
+    {
+        if (_scriptState!=scriptState_uninitialized)
+            return(0);
+        _scriptState=scriptState_initialized;
     }
     else
     {
@@ -3390,90 +3611,43 @@ int CLuaScriptObject::_callScriptFunction(int callType,const CInterfaceStack* in
         }
     }
 
+    _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
+    _forbidOverallYieldingLevel=0;
+
+    CInterfaceStack _outStack;
+    if (outStack==nullptr)
+        outStack=&_outStack;
+
     int retVal;
-    if (_scriptTextExec.size()==0)
-    {
-        fromFileToBuffer();
-        _scriptTextExec.assign(_scriptText.begin(),_scriptText.end());
-    }
-    if (L==nullptr)
-    {
-        _initLuaState();
-        _calledInThisSimulationStep=false;
-        _raiseErrors_backCompatibility=true;
-        _randGen.seed(123456);
-        _delayForAutoYielding=2;
-        _forbidAutoYieldingLevel=0;
-        if (_checkIfMixingOldAndNewCallMethods())
-        {
-            std::string msg(getShortDescriptiveName());
-            msg+=": detected a possible attempt to mix the old and new calling methods. For example:";
-            msg+="\n         with the old method: if sim_call_type==sim_childscriptcall_initialization then ... end";
-            msg+="\n         with the new method: function sysCall_init() ... end";
-            App::logMsg(sim_verbosity_warnings,msg.c_str());
-        }
-    }
     int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
-    if (_compatibilityModeOrFirstTimeCall_sysCallbacks)
+
+    // Push the function name onto the stack (will be automatically popped from stack after _luaPCall):
+    std::string funcName(getSystemCallbackString(callType,false));
+    luaWrap_lua_getglobal(L,funcName.c_str());
+    if ( (callType==sim_syscb_xr)&&(!luaWrap_lua_isfunction(L,-1)) )
     {
-        std::string tmp("sim_call_type="); // for backward compatibility
-        tmp+=boost::lexical_cast<std::string>(callType);
-        luaWrap_luaL_dostring(L,tmp.c_str());
-        if (_luaLoadBuffer(L,_scriptTextExec.c_str(),_scriptTextExec.size(),getShortDescriptiveName().c_str()))
+        luaWrap_lua_pop(L,1); // pop the function name
+        funcName="sysCall_br"; // for backward functionality
+        luaWrap_lua_getglobal(L,funcName.c_str());
+    }
+    if (luaWrap_lua_isfunction(L,-1))
+    { // ok, the function exists!
+        // Push the arguments onto the stack (will be automatically popped from stack after _luaPCall):
+        int inputArgs=0;
+        if (inStack!=nullptr)
         {
-            int inputArgs=0;
-            if (inStack!=nullptr)
-            { // for backward compatibility
-                inputArgs=inStack->getStackSize();
-                if (inputArgs!=0)
-                    inStack->buildOntoLuaStack(L,false);
-                //inStack->clear();
-            }
-            luaWrap_lua_getglobal(L,"debug");
-            luaWrap_lua_getfield(L,-1,"traceback");
-            luaWrap_lua_remove(L,-2);
-            int argCnt=inputArgs;
-            int errindex=-argCnt-2;
-            luaWrap_lua_insert(L,errindex);
-            if (_luaPCall(L,argCnt,luaWrapGet_LUA_MULTRET(),errindex,"scriptChunk")!=0)
-            { // a runtime error occurred!
-                _scriptState|=scriptState_error;
-                std::string errMsg;
-                if (luaWrap_lua_isstring(L,-1))
-                    errMsg=std::string(luaWrap_lua_tostring(L,-1));
-                else
-                    errMsg="(error unknown)";
-                luaWrap_lua_pop(L,1); // pop error from stack
-                _announceErrorWasRaisedAndDisableScript(errMsg.c_str(),true);
-                retVal=-1;
-            }
-            else
-            {
-                _scriptState=(_scriptState&scriptState_error);
-                if ( (_scriptState&7)==scriptState_uninitialized )
-                    _scriptState|=scriptState_initialized;
-                if (callType==sim_syscb_init)
-                { // here we check if we can enable the new calling method:
-                    std::string initCb=getSystemCallbackString(sim_syscb_init,false);
-                    luaWrap_lua_getglobal(L,initCb.c_str());
-                    _compatibilityModeOrFirstTimeCall_sysCallbacks=!(luaWrap_lua_isfunction(L,-1));
-                    luaWrap_lua_pop(L,1);
-                    if (!_compatibilityModeOrFirstTimeCall_sysCallbacks)
-                        luaWrap_luaL_dostring(L,"sim_call_type=nil");
-                }
-                else
-                { // for backward compatibility:
-                    _handleSimpleSysExCalls(callType);
-                    int currentTop=luaWrap_lua_gettop(L);
-                    int numberOfArgs=currentTop-oldTop-1; // the first arg is linked to the debug mechanism
-                    outStack->buildFromLuaStack(L,oldTop+1+1,numberOfArgs); // the first arg is linked to the debug mechanism
-                }
-                retVal=1;
-            }
-            _numberOfPasses++;
+            inputArgs=inStack->getStackSize();
+            if (inputArgs!=0)
+                inStack->buildOntoLuaStack(L,false);
         }
-        else
-        { // A compilation error occurred!
+        luaWrap_lua_getglobal(L,"debug");
+        luaWrap_lua_getfield(L,-1,"traceback");
+        luaWrap_lua_remove(L,-2);
+        int argCnt=inputArgs;
+        int errindex=-argCnt-2;
+        luaWrap_lua_insert(L,errindex);
+        if (_luaPCall(L,argCnt,luaWrapGet_LUA_MULTRET(),errindex,funcName.c_str())!=0)
+        { // a runtime error occurred!
             _scriptState|=scriptState_error;
             std::string errMsg;
             if (luaWrap_lua_isstring(L,-1))
@@ -3481,94 +3655,44 @@ int CLuaScriptObject::_callScriptFunction(int callType,const CInterfaceStack* in
             else
                 errMsg="(error unknown)";
             luaWrap_lua_pop(L,1); // pop error from stack
-            _announceErrorWasRaisedAndDisableScript(errMsg.c_str(),false);
-            retVal=-2;
-        }
-    }
-    if (!_compatibilityModeOrFirstTimeCall_sysCallbacks)
-    {
-        if (callType==sim_syscb_init)
-        { // do this only once
-            luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_jointcallback,false).c_str());
-            _containsJointCallbackFunction=luaWrap_lua_isfunction(L,-1);
-            luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_contactcallback,false).c_str());
-            _containsContactCallbackFunction=luaWrap_lua_isfunction(L,-1);
-            luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_dyncallback,false).c_str());
-            _containsDynCallbackFunction=luaWrap_lua_isfunction(L,-1);
-            luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_vision,false).c_str());
-            _containsVisionCallbackFunction=luaWrap_lua_isfunction(L,-1);
-            luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_trigger,false).c_str());
-            _containsTriggerCallbackFunction=luaWrap_lua_isfunction(L,-1);
-            luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_userconfig,false).c_str());
-            _containsUserConfigCallbackFunction=luaWrap_lua_isfunction(L,-1);
-            luaWrap_lua_pop(L,6);
-        }
-        // Push the function name onto the stack (will be automatically popped from stack after _luaPCall):
-        std::string funcName(getSystemCallbackString(callType,false));
-        luaWrap_lua_getglobal(L,funcName.c_str());
-        if ( (callType==sim_syscb_xr)&&(!luaWrap_lua_isfunction(L,-1)) )
-        {
-            luaWrap_lua_pop(L,1); // pop the function name
-            funcName="sysCall_br"; // for backward functionality
-            luaWrap_lua_getglobal(L,funcName.c_str());
-        }
-        if (luaWrap_lua_isfunction(L,-1))
-        { // ok, the function exists!
-            // Push the arguments onto the stack (will be automatically popped from stack after _luaPCall):
-            int inputArgs=0;
-            if (inStack!=nullptr)
-            {
-                inputArgs=inStack->getStackSize();
-                if (inputArgs!=0)
-                    inStack->buildOntoLuaStack(L,false);
-                //inStack->clear();
-            }
-            luaWrap_lua_getglobal(L,"debug");
-            luaWrap_lua_getfield(L,-1,"traceback");
-            luaWrap_lua_remove(L,-2);
-            int argCnt=inputArgs;
-            int errindex=-argCnt-2;
-            luaWrap_lua_insert(L,errindex);
-            if (_luaPCall(L,argCnt,luaWrapGet_LUA_MULTRET(),errindex,funcName.c_str())!=0)
-            { // a runtime error occurred!
-                _scriptState|=scriptState_error;
-                std::string errMsg;
-                if (luaWrap_lua_isstring(L,-1))
-                    errMsg=std::string(luaWrap_lua_tostring(L,-1));
-                else
-                    errMsg="(error unknown)";
-                luaWrap_lua_pop(L,1); // pop error from stack
-                _announceErrorWasRaisedAndDisableScript(errMsg.c_str(),true);
-                retVal=-1;
-            }
-            else
-            { // return values:
-                int currentTop=luaWrap_lua_gettop(L);
-                int numberOfArgs=currentTop-oldTop-1; // the first arg is linked to the debug mechanism
-                outStack->buildFromLuaStack(L,oldTop+1+1,numberOfArgs); // the first arg is linked to the debug mechanism
-                retVal=1;
-            }
-            _calledInThisSimulationStep=true;
+            _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),true);
+            retVal=-1;
         }
         else
-        {
-            luaWrap_lua_pop(L,1); // pop the function name
-            retVal=0;
+        { // return values:
+            int currentTop=luaWrap_lua_gettop(L);
+            int numberOfArgs=currentTop-oldTop-1; // the first arg is linked to the debug mechanism
+            outStack->buildFromLuaStack(L,oldTop+1+1,numberOfArgs); // the first arg is linked to the debug mechanism
+            retVal=1;
         }
-        _handleSimpleSysExCalls(callType);
+        _calledInThisSimulationStep=true;
     }
+    else
+    {
+        luaWrap_lua_pop(L,1); // pop the function name
+        retVal=0;
+    }
+    _handleSimpleSysExCalls(callType);
     luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
 
 
 
     if ((_scriptState&scriptState_error)!=0)
     { // We got an error
-        if ((_scriptState&7)!=scriptState_ended)
+        if (callType==sim_syscb_info)
+        {
+            _scriptState=scriptState_ended|scriptState_error;
             _killLuaState();
+        }
+        else
+        {
+            if ((_scriptState&7)!=scriptState_ended)
+                _killLuaState();
+        }
     }
     else
     {
-        if ((_scriptState&7)!=scriptState_ended)
+        if ( ((_scriptState&7)!=scriptState_ended)&&(callType!=sim_syscb_info) )
         {
             std::string cmd;
             if (outStack->getStackMapStringValue("cmd",cmd))
@@ -3587,29 +3711,6 @@ int CLuaScriptObject::_callScriptFunction(int callType,const CInterfaceStack* in
         }
     }
 
-    return(retVal);
-}
-
-int CLuaScriptObject::callSandboxScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
-{ // retval: -2: compil error, -1: runtimeError, 0: function not there, 1: ok
-    _scriptState&=7; // remove a possible error flag
-    int retVal=_callScriptFunction(callType,inStack,outStack);
-    return(retVal);
-}
-
-bool CLuaScriptObject::shouldTemporarilySuspendMainScript()
-{
-    bool retVal=false;
-    if (_scriptType==sim_scripttype_sandboxscript)
-        _scriptState&=7; // remove a possible error flag
-    CInterfaceStack outStack;
-    _callScriptFunction(sim_syscb_beforemainscript,nullptr,&outStack);
-    bool doNotRunMainScript;
-    if (outStack.getStackMapBoolValue("doNotRunMainScript",doNotRunMainScript))
-    {
-        if (doNotRunMainScript)
-            retVal=true;
-    }
     return(retVal);
 }
 
@@ -3699,7 +3800,7 @@ int CLuaScriptObject::callScriptFunction_DEPRECATED(const char* functionName,SLu
         else
             errMsg="(error unknown)";
         luaWrap_lua_pop(L,1); // pop error from stack
-        _announceErrorWasRaisedAndDisableScript(errMsg.c_str(),true);
+        _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),true);
 
         // Following probably not needed:
         pdata->outputBool=new unsigned char[0];
@@ -3863,7 +3964,7 @@ int CLuaScriptObject::callScriptFunction(const char* functionName,CInterfaceStac
                 else
                     errMsg="(error unknown)";
                 luaWrap_lua_pop(L,1); // pop error from stack
-                _announceErrorWasRaisedAndDisableScript(errMsg.c_str(),true);
+                _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),true);
             }
             else
             { // return values:
@@ -4101,7 +4202,7 @@ bool CLuaScriptObject::isSceneSwitchPersistentScript() const
 bool CLuaScriptObject::resetScript()
 {
    bool retVal=_killLuaState();
-   _scriptState=scriptState_uninitialized;
+   _scriptState=scriptState_unloaded;
    return(retVal);
 }
 
@@ -4109,15 +4210,15 @@ bool CLuaScriptObject::initScript()
 { // add-on scripts, and the main script cannot be initialized via this function
     bool retVal=false;
     if (_scriptType==sim_scripttype_sandboxscript)
-        retVal=callSandboxScript(sim_syscb_init,nullptr,nullptr)==1;
+        retVal=systemCallScript(sim_syscb_init,nullptr,nullptr)==1;
     if ( (_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
-        retVal=callAssociatedScriptOrAddOn(sim_syscb_init,nullptr,nullptr)==1;
+        retVal=systemCallScript(sim_syscb_init,nullptr,nullptr)==1;
     return(retVal);
 }
 
 bool CLuaScriptObject::_killLuaState()
 {
-    bool retVal=(_scriptState!=scriptState_uninitialized);
+    bool retVal=(_scriptState!=scriptState_unloaded);
     if (L!=nullptr)
     {
         if ( ((_scriptState&7)==scriptState_initialized)&&(!_threadedExecution_oldThreads) )
@@ -4211,7 +4312,7 @@ void CLuaScriptObject::terminateScriptExecutionExternally(bool generateErrorMsg)
     if (generateErrorMsg)
     {
         std::string tmp("?: script execution was terminated externally.");
-        _announceErrorWasRaisedAndDisableScript(tmp.c_str(),true);
+        _announceErrorWasRaisedAndPossiblyPauseSimulation(tmp.c_str(),true);
     }
     if (getScriptType()==sim_scripttype_addonscript)
         flagForDestruction(); // stop it
@@ -4220,7 +4321,7 @@ void CLuaScriptObject::terminateScriptExecutionExternally(bool generateErrorMsg)
     luaWrap_lua_yield(L,0);
 }
 
-void CLuaScriptObject::_announceErrorWasRaisedAndDisableScript(const char* errMsg,bool runtimeError,bool debugRoutine/*=false*/)
+void CLuaScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg,bool runtimeError,bool debugRoutine/*=false*/)
 { // errMsg is in the form: xxxx:lineNb: msg
     std::string errM(errMsg);
     if ( (errM.find("attempt to yield across metamethod/C-call boundary")==std::string::npos)&&(errM.find("attempt to yield from outside a coroutine")==std::string::npos) )
@@ -4869,7 +4970,7 @@ void CLuaScriptObject::handleDebug(const char* funcName,const char* funcType,boo
                         else
                             errMsg+="error unknown";
                         luaWrap_lua_pop(L,1); // pop error from stack
-                        _announceErrorWasRaisedAndDisableScript(errMsg.c_str(),true,true);
+                        _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),true,true);
                     }
                 }
                 else

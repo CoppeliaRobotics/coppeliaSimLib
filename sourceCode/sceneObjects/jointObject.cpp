@@ -1342,9 +1342,9 @@ void CJoint::handleDynJointControl(bool init,int loopCnt,int totalLoops,float cu
 
             // 2. Call the script(s):
             if (script!=nullptr)
-                script->callAssociatedScriptOrAddOn(sim_syscb_jointcallback,&inStack,&outStack);
+                script->systemCallScript(sim_syscb_jointcallback,&inStack,&outStack);
             if ( (cScript!=nullptr)&&(outStack.getStackSize()==0) )
-                cScript->callAssociatedScriptOrAddOn(sim_syscb_jointcallback,&inStack,&outStack);
+                cScript->systemCallScript(sim_syscb_jointcallback,&inStack,&outStack);
             // 3. Collect the return values:
             if (outStack.getStackSize()>0)
             {

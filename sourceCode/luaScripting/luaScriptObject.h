@@ -23,7 +23,8 @@ class CLuaScriptObject
 {
 public:
     enum {
-        scriptState_uninitialized=0,
+        scriptState_unloaded=0,
+        scriptState_uninitialized,
         scriptState_initialized,
         scriptState_ended,
         scriptState_error=8,
@@ -66,10 +67,11 @@ public:
     void resetCalledInThisSimulationStep();
     bool getCalledInThisSimulationStep() const;
 
-    int callMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
-    int callAssociatedScriptOrAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int callSandboxScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int systemCallMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int systemCallScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     bool shouldTemporarilySuspendMainScript();
+    void setAddOnTriggered();
+    bool isAutoStartAddOn();
 
     int callScriptFunction(const char* functionName,CInterfaceStack* stack);
     int setScriptVariable(const char* variableName,CInterfaceStack* stack);
@@ -193,12 +195,12 @@ protected:
 
     void _initLuaState();
 
-    void _announceErrorWasRaisedAndDisableScript(const char* errMsg,bool runtimeError,bool debugRoutine=false);
+    void _announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg,bool runtimeError,bool debugRoutine=false);
     bool _luaLoadBuffer(luaWrap_lua_State* luaState,const char* buff,size_t sz,const char* name);
     int _luaPCall(luaWrap_lua_State* luaState,int nargs,int nresult,int errfunc,const char* funcName);
 
-    int _callMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
-    int _callMainScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
+    bool _initScriptChunk();
+    bool _callScriptChunk_old(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int _callScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     void _handleSimpleSysExCalls(int callType);
 
@@ -241,6 +243,8 @@ protected:
     bool _raiseErrors_backCompatibility;
     int _treeTraversalDirection;
     int _objectHandleAttachedTo;
+    int _autoStartAddOn;
+    bool _addOnTriggered=false;
 
     bool _calledInThisSimulationStep;
 

@@ -227,7 +227,7 @@ int CAddOnScriptContainer::callScripts(int callType,CInterfaceStack* inStack,CIn
     for (size_t i=0;i<_addOns.size();i++)
     {
         CLuaScriptObject* it=_addOns[i];
-        if (it->callAssociatedScriptOrAddOn(callType,inStack,outStack)==1)
+        if (it->systemCallScript(callType,inStack,outStack)==1)
             retVal++;
     }
     return(retVal);
@@ -287,12 +287,11 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                 std::string txt;
                 int st=it->getScriptState();
                 int sysCall=-1;
-                CInterfaceStack inStack;
                 if ( ((st&CLuaScriptObject::scriptState_error)!=0)||((st&7)!=CLuaScriptObject::scriptState_initialized) )
                 {
-                    it->resetScript();
-                    inStack.pushBoolOntoStack(true);
                     sysCall=sim_syscb_init;
+                    it->resetScript();
+                    it->setAddOnTriggered();
                     txt=IDSNS_STARTING_ADDON_SCRIPT; // started/restarted
                 }
                 if (st==(CLuaScriptObject::scriptState_initialized|CLuaScriptObject::scriptState_suspended))
@@ -310,7 +309,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                     txt+=" ";
                     txt+=it->getAddOnName();
                     App::logMsg(sim_verbosity_msgs,txt.c_str());
-                    it->callAssociatedScriptOrAddOn(sysCall,&inStack,nullptr);
+                    it->systemCallScript(sysCall,nullptr,nullptr);
                 }
             }
         }
@@ -371,7 +370,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                         defScript->setScriptText(script);
                         defScript->setAddOnName(_allAddOnFunctionNames_old[index].c_str());
                         defScript->setThreadedExecution_oldThreads(false);
-                        defScript->callAssociatedScriptOrAddOn(sim_syscb_init,nullptr,nullptr);
+                        defScript->systemCallScript(sim_syscb_init,nullptr,nullptr);
                         delete[] script;
                         archive.close();
                         file.close();

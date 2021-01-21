@@ -4593,7 +4593,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_xr,&stack,nullptr,nullptr);
                 App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_xr,&stack,nullptr);
                 if (App::worldContainer->sandboxScript!=nullptr)
-                    App::worldContainer->sandboxScript->callSandboxScript(sim_syscb_xr,&stack,nullptr);
+                    App::worldContainer->sandboxScript->systemCallScript(sim_syscb_xr,&stack,nullptr);
             }
         }
 

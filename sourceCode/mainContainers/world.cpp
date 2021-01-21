@@ -590,7 +590,7 @@ void CWorld::simulationAboutToStart()
     embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforesimulation,nullptr,nullptr,nullptr);
     App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_beforesimulation,nullptr,nullptr);
     if (App::worldContainer->sandboxScript!=nullptr)
-        App::worldContainer->sandboxScript->callSandboxScript(sim_syscb_beforesimulation,nullptr,nullptr);
+        App::worldContainer->sandboxScript->systemCallScript(sim_syscb_beforesimulation,nullptr,nullptr);
 
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
     for (size_t i=0;i<sceneObjects->getObjectCount();i++)
@@ -726,7 +726,7 @@ void CWorld::simulationEnded(bool removeNewObjects)
     embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_aftersimulation,nullptr,nullptr,nullptr);
     App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_aftersimulation,nullptr,nullptr);
     if (App::worldContainer->sandboxScript!=nullptr)
-        App::worldContainer->sandboxScript->callSandboxScript(sim_syscb_aftersimulation,nullptr,nullptr);
+        App::worldContainer->sandboxScript->systemCallScript(sim_syscb_aftersimulation,nullptr,nullptr);
 }
 
 void CWorld::setEnableRemoteWorldsSync(bool enabled)
@@ -2090,14 +2090,14 @@ void CWorld::_simulationPaused()
 {
     CLuaScriptObject* mainScript=embeddedScriptContainer->getMainScript();
     if (mainScript!=nullptr)
-        mainScript->callMainScript(sim_syscb_suspend,nullptr,nullptr,nullptr);
+        mainScript->systemCallMainScript(sim_syscb_suspend,nullptr,nullptr);
 }
 
 void CWorld::_simulationAboutToResume()
 {
     CLuaScriptObject* mainScript=embeddedScriptContainer->getMainScript();
     if (mainScript!=nullptr)
-        mainScript->callMainScript(sim_syscb_resume,nullptr,nullptr,nullptr);
+        mainScript->systemCallMainScript(sim_syscb_resume,nullptr,nullptr);
 }
 
 void CWorld::_simulationAboutToStep()

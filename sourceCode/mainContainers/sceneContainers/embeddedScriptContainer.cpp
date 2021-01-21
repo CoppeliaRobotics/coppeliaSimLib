@@ -369,7 +369,7 @@ void CEmbeddedScriptContainer::callScripts(int callType,CInterfaceStack* inStack
         CLuaScriptObject* script=getMainScript();
         if (script!=nullptr)
         {
-            script->callMainScript(callType,inStack,nullptr,nullptr);
+            script->systemCallMainScript(callType,inStack,nullptr);
             handleCascadedScriptExecution(sim_scripttype_childscript,callType,inStack,nullptr,nullptr);
         }
     }
@@ -487,7 +487,7 @@ int CEmbeddedScriptContainer::handleCascadedScriptExecution(int scriptType,int c
                         doIt=false;
                     if (doIt)
                     {
-                        if (script->callAssociatedScriptOrAddOn(callTypeOrResumeLocation,inStack,outStack)==1)
+                        if (script->systemCallScript(callTypeOrResumeLocation,inStack,outStack)==1)
                         {
                             cnt++;
                             if (callTypeOrResumeLocation==sim_syscb_contactcallback)
@@ -520,7 +520,7 @@ int CEmbeddedScriptContainer::handleCascadedScriptExecution(int scriptType,int c
                             doIt=false;
                         if (doIt)
                         {
-                            if (script->callAssociatedScriptOrAddOn(callTypeOrResumeLocation,inStack,outStack)==1)
+                            if (script->systemCallScript(callTypeOrResumeLocation,inStack,outStack)==1)
                             {
                                 cnt++;
                                 if (callTypeOrResumeLocation==sim_syscb_contactcallback)

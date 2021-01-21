@@ -5180,7 +5180,10 @@ simInt simHandleMainScript_internal()
             App::currentWorld->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f); // remove invalid elements
             CThreadPool::prepareAllThreadsForResume_calledBeforeMainScript();
 
-            retVal=it->callMainScript(-1,nullptr,nullptr,nullptr);
+            if (it->systemCallMainScript(-1,nullptr,nullptr)>0)
+                retVal=sim_script_no_error;
+            else
+                retVal=sim_script_lua_error;
             App::worldContainer->calcInfo->simulationPassEnd();
         }
         else
