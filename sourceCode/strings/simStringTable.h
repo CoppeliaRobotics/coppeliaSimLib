@@ -37,7 +37,7 @@
 #define IDSNS_STARTING_ADDON_FUNCTION "Starting add-on function"
 #define IDSNS_ENDED_ADDON_FUNCTION "Ended add-on function"
 #define IDSNS_STARTING_ADDON_SCRIPT "Starting add-on"
-#define IDSNS_PAUSING_ADDON_SCRIPT "Suspending add-on"
+#define IDSNS_PAUSING_ADDON_SCRIPT "Suspending/stopping add-on"
 #define IDSNS_RESUMING_ADDON_SCRIPT "Resuming add-on script"
 
 #define IDSN_MAP_COORD_IMPORTED "imported"

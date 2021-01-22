@@ -68,9 +68,8 @@ public:
     bool getCalledInThisSimulationStep() const;
 
     int systemCallMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int systemCallScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int systemCallScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool addOnManuallyStarted=false);
     bool shouldTemporarilySuspendMainScript();
-    void setAddOnTriggered();
     bool isAutoStartAddOn();
 
     int callScriptFunction(const char* functionName,CInterfaceStack* stack);
@@ -244,7 +243,6 @@ protected:
     int _treeTraversalDirection;
     int _objectHandleAttachedTo;
     int _autoStartAddOn;
-    bool _addOnTriggered=false;
 
     bool _calledInThisSimulationStep;
 

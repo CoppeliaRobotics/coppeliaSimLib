@@ -14210,7 +14210,7 @@ simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
             it->setAutomaticCascadingCallsDisabled_old(intOrBoolVal==0);
             retVal=1;
         }
-        if ( (attributeID==sim_scriptattribute_enabled) )//&&(it->getScriptType()==sim_scripttype_childscript) )
+        if (attributeID==sim_scriptattribute_enabled)//&&(it->getScriptType()==sim_scripttype_childscript) )
         {
             it->setScriptIsDisabled(intOrBoolVal==0);
             retVal=1;

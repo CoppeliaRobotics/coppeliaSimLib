@@ -26,7 +26,7 @@ CHierarchyElement::~CHierarchyElement()
 
 void CHierarchyElement::setSceneName(const char* sn)
 {
-    if (sn=="")
+    if (strlen(sn)==0)
         _sceneName="new scene";
     else
         _sceneName=sn;

@@ -291,7 +291,6 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                 {
                     sysCall=sim_syscb_init;
                     it->resetScript();
-                    it->setAddOnTriggered();
                     txt=IDSNS_STARTING_ADDON_SCRIPT; // started/restarted
                 }
                 if (st==(CLuaScriptObject::scriptState_initialized|CLuaScriptObject::scriptState_suspended))
@@ -309,7 +308,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                     txt+=" ";
                     txt+=it->getAddOnName();
                     App::logMsg(sim_verbosity_msgs,txt.c_str());
-                    it->systemCallScript(sysCall,nullptr,nullptr);
+                    it->systemCallScript(sysCall,nullptr,nullptr,true);
                 }
             }
         }

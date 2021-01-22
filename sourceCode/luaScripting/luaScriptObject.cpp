@@ -1935,7 +1935,6 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
     _debugLevel=0;
     _inDebug=false;
     _autoStartAddOn=-1;
-    _addOnTriggered=false;
     _treeTraversalDirection=0; // reverse by default
     _custScriptDisabledDSim_compatibilityMode_DEPRECATED=false;
     _customizationScriptCleanupBeforeSave_DEPRECATED=false;
@@ -3302,20 +3301,18 @@ int CLuaScriptObject::resumeThreadedChildScriptIfLocationMatch_oldThreads(int re
     return(res);
 }
 
-int CLuaScriptObject::systemCallScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
+int CLuaScriptObject::systemCallScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool addOnManuallyStarted/*=false*/)
 { // retval: -2: compil error, -1: runtimeError, 0: function not there or script not executed, 1: ok
     TRACE_INTERNAL;
 
     if ( (_scriptType==sim_scripttype_addonscript)&&(_scriptState==scriptState_unloaded)&&(callType!=sim_syscb_info) )
     {
-        if (!_addOnTriggered)
+        if (!addOnManuallyStarted)
         {
             if (!isAutoStartAddOn())
                 return(0);
         }
     }
-    _addOnTriggered=false;
-
 
     int retVal=0;
 
@@ -3380,11 +3377,6 @@ bool CLuaScriptObject::shouldTemporarilySuspendMainScript()
             retVal=true;
     }
     return(retVal);
-}
-
-void CLuaScriptObject::setAddOnTriggered()
-{
-    _addOnTriggered=true;
 }
 
 bool CLuaScriptObject::isAutoStartAddOn()

@@ -233,7 +233,7 @@ void CGraphDataStream::insertNextValue(int absIndex,bool firstValue,const std::v
                     { // previous data was valid
                         if ((_transformedValuesValidityFlags[prevIndex/8]&(1<<(prevIndex&7)))!=0)
                         { // previous transformed data was valid
-                            if (_cyclicRange=0.0f)
+                            if (_cyclicRange==0.0f)
                                 _transformedValues[absIndex]=_transformedValues[prevIndex]+_values[absIndex];
                             else
                                 _transformedValues[absIndex]=_transformedValues[prevIndex]+(_values[prevIndex]+tt::getAngleMinusAlpha_range(_values[absIndex],_values[prevIndex],_cyclicRange));
