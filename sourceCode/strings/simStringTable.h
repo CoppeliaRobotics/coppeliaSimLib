@@ -99,8 +99,6 @@
 
 #define IDSNS_TOGGLED_TO_REAL_TIME_MODE "Toggled to real-time simulation mode."
 #define IDSNS_TOGGLED_TO_NON_REAL_TIME_MODE "Toggled to non real-time simulation mode."
-#define IDSNS_TOGGLED_TO_ONLINE_MODE "Toggled to online mode."
-#define IDSNS_TOGGLED_TO_OFFLINE_MODE "Toggled to offline mode."
 #define IDSNS_CREATED_VIEWS "Created View(s)."
 #define IDSNS_REMOVED_VIEW "Removed view."
 
@@ -271,8 +269,6 @@
 #define IDS_MAINSCRIPT_EDITION_WARNING "You are about to edit the main script. This is not recommended for compatibility reasons since loaded models, or models copied from a different scene might not operate as expected anymore in this scene. We rather recomend that you adjust a child script for the behaviour you wish to achieve. Do you want to proceed anyway?" //modifiedOn 5/3/2012
 #define IDS_TOOLBAR_TOOLTIP_VISUALIZE_DYNAMIC_CONTENT "Visualize and verify dynamic content (during simulation only)" //modifiedOn 23/02/2012
 #define IDS_ANOTHER_INSTANCE_STILL_NOT_SAVED_WANNA_LEAVE_ANYWAY_MESSAGE "One or more scenes have not yet been saved. Do you wish to leave anyway?" //modifiedOn 5/3/2012
-#define IDS_LAYOUT_MENU_ITEM "Layout"
-#define IDS_JOBS_MENU_ITEM "Jobs"
 
 //#define IDS_LOOK_AT_SELECTED_GRAPH_MENU_ITEM "Associate view with selected graph" //modifiedOn 10/3/2012
 #define IDS_LOOK_THROUGH_SELECTED_CAMERA_MENU_ITEM "Associate view with selected camera" //modifiedOn 10/3/2012
@@ -824,11 +820,6 @@
 #define IDS_PARTIAL_PATH_WAS_FOUND_ "Partial path was found!"
 
 #define IDSN_REAL_TIME_SIMULATION "Real-time simulation"
-#define IDSN_ONLINE_MODE "Online mode"
-
-
-
-
 
 #define IDS_SHAPING_USER_DEFINED "user defined"
 #define IDS_SHAPING_CIRCLE      "circle"
@@ -936,8 +927,6 @@
 #define IDS_TOOLBAR_TOOLTIP_CLEAR_SELECTION "Clear selection"
 #define IDS_TOOLBAR_TOOLTIP_SIMULATION_START "Start/resume simulation"
 #define IDS_TOOLBAR_TOOLTIP_REALTIMESIMULATION "Toggle real-time mode"
-#define IDS_TOOLBAR_TOOLTIP_ONLINE "Toggle online mode"
-#define IDS_TOOLBAR_TOOLTIP_VERIFY "Verify layout"
 #define IDS_TOOLBAR_TOOLTIP_SWITCH_TO_PAGE "Switch to a different page"
 
 #define IDSN_PURE_SPHEROID "Pure spheroid"

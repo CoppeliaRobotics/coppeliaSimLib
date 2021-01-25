@@ -136,16 +136,6 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     if (cmdIn->cmdId==DESTROY_GL_TEXTURE_UITHREADCMD)
         destroyGlTexture(cmdIn->uintParams[0]);
 
-#ifdef SIM_WITH_GUI
-    if (cmdIn->cmdId==JOB_NAME_UITHREADCMD)
-    {
-        bool ok;
-        QString text=QInputDialog::getText(App::mainWindow,"Job Name","Job name:",QLineEdit::Normal,cmdIn->stringParams[0].c_str(),&ok);
-        if (ok)
-            cmdOut->stringParams.push_back(text.toStdString());
-    }
-#endif
-
 #ifdef SIM_WITH_OPENGL
     if (cmdIn->cmdId==CREATE_GL_CONTEXT_FBO_TEXTURE_IF_NEEDED_UITHREADCMD)
         ((CVisionSensor*)cmdIn->objectParams[0])->createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(cmdIn->boolParams[0]);

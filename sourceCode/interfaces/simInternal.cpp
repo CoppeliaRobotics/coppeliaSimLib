@@ -2881,38 +2881,6 @@ simInt simSetBoolParameter_internal(simInt parameter,simBool boolState)
             }
             return(0);
         }
-        if (parameter==sim_boolparam_online_mode)
-        {
-            if (App::currentWorld->simulation==nullptr)
-                return(-1);
-            if (App::currentWorld->simulation->isSimulationStopped())
-            {
-                App::currentWorld->simulation->setOnlineMode(boolState!=0);
-                return(1);
-            }
-            return(0);
-        }
-        if (parameter==sim_boolparam_xr_partrepository)
-        {
-            if (App::currentWorld->environment==nullptr)
-                return(-1);
-            App::currentWorld->environment->setShowPartRepository(boolState!=0);
-            return(1);
-        }
-        if (parameter==sim_boolparam_xr_palletrepository)
-        {
-            if (App::currentWorld->environment==nullptr)
-                return(-1);
-            App::currentWorld->environment->setShowPalletRepository(boolState!=0);
-            return(1);
-        }
-        if (parameter==sim_boolparam_xr_jobfunc)
-        {
-            if (App::currentWorld->environment==nullptr)
-                return(-1);
-            App::currentWorld->environment->setJobFunctionalityEnabled(boolState!=0);
-            return(1);
-        }
         if (parameter==sim_boolparam_use_glfinish_cmd)
         {
             App::userSettings->useGlFinish=(boolState!=0);
@@ -2992,42 +2960,6 @@ simInt simGetBoolParameter_internal(simInt parameter)
             if (App::currentWorld->simulation==nullptr)
                 return(-1);
             if (App::currentWorld->simulation->getRealTimeSimulation())
-                retVal=1;
-            return(retVal);
-        }
-        if (parameter==sim_boolparam_online_mode)
-        {
-            int retVal=0;
-            if (App::currentWorld->simulation==nullptr)
-                return(-1);
-            if (App::currentWorld->simulation->getOnlineMode())
-                retVal=1;
-            return(retVal);
-        }
-        if (parameter==sim_boolparam_xr_partrepository)
-        {
-            int retVal=0;
-            if (App::currentWorld->environment==nullptr)
-                return(-1);
-            if (App::currentWorld->environment->getShowPartRepository())
-                retVal=1;
-            return(retVal);
-        }
-        if (parameter==sim_boolparam_xr_palletrepository)
-        {
-            int retVal=0;
-            if (App::currentWorld->environment==nullptr)
-                return(-1);
-            if (App::currentWorld->environment->getShowPalletRepository())
-                retVal=1;
-            return(retVal);
-        }
-        if (parameter==sim_boolparam_xr_jobfunc)
-        {
-            int retVal=0;
-            if (App::currentWorld->environment==nullptr)
-                return(-1);
-            if (App::currentWorld->environment->getJobFunctionalityEnabled())
                 retVal=1;
             return(retVal);
         }
@@ -4125,13 +4057,6 @@ simInt simGetInt32Parameter_internal(simInt parameter,simInt* intState)
             intState[0]=App::currentWorld->dynamicsContainer->getCurrentIterationCount();
             return(1);
         }
-        if (parameter==sim_intparam_job_count)
-        {
-            if (App::currentWorld->environment==nullptr)
-                return(-1);
-            intState[0]=App::currentWorld->environment->getJobCount();
-            return(1);
-        }
         if (parameter==sim_intparam_scene_index)
         {
             intState[0]=App::worldContainer->getCurrentWorldIndex();
@@ -4364,13 +4289,6 @@ simInt simSetStringParameter_internal(simInt parameter,const simChar* str)
             App::setAdditionalAddOnScript2(str);
             return(1);
         }
-        if (parameter==sim_stringparam_job)
-        {
-            bool r=App::currentWorld->environment->setCurrentJob(str);
-            if (r)
-                return(1);
-            return(0);
-        }
         if (parameter==sim_stringparam_consolelogfilter)
         {
             App::setConsoleLogFilter(str);
@@ -4449,18 +4367,6 @@ simChar* simGetStringParameter_internal(simInt parameter)
 #else
             return(nullptr);
 #endif
-        }
-        if (parameter==sim_stringparam_job)
-        {
-            validParam=true;
-            retVal=App::currentWorld->environment->getCurrentJob();
-        }
-        if ( (parameter>=sim_stringparam_job0)&&(parameter<=sim_stringparam_job99) )
-        {
-            validParam=true;
-            retVal=App::currentWorld->environment->getJobAtIndex(parameter-sim_stringparam_job0);
-            if (retVal.size()==0)
-                return(nullptr);
         }
         if ((parameter>=sim_stringparam_app_arg1)&&(parameter<=sim_stringparam_app_arg9))
         {

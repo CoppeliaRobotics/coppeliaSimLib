@@ -99,10 +99,6 @@ int CWorldContainer::createNewWorld()
         delete[] (char*)pluginReturnVal;
     }
 
-    // Disable online mode before switching
-    if (currentWorld!=nullptr)
-        currentWorld->simulation->setOnlineMode(false);
-
 #ifdef SIM_WITH_GUI
     // Inform UI about new world creation:
     SUIThreadCommand cmdIn;
@@ -185,9 +181,6 @@ int CWorldContainer::destroyCurrentWorld()
     // Empty current scene:
     CWorld* w=currentWorld;
     w->clearScene(true);
-
-    // Disable online mode before destroying:
-    w->simulation->setOnlineMode(false);
 
 #ifdef SIM_WITH_GUI
     // Inform UI about future world destruction:
@@ -317,10 +310,6 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     int pluginData[4]={_currentWorldIndex,_worlds[newWorldIndex]->environment->getSceneUniqueID(),0,0};
     void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,nullptr,nullptr);
     delete[] (char*)pluginReturnVal;
-
-    // Disable online mode before switching:
-    currentWorld->simulation->setOnlineMode(false);
-
 
 #ifdef SIM_WITH_GUI
     // Inform UI about future world switch:

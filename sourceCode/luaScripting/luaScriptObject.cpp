@@ -2335,13 +2335,6 @@ std::string CLuaScriptObject::getSystemCallbackString(int calltype,bool callTips
             r+="()\nMain function of a threaded child script.";
         return(r);
     }
-    if (calltype==sim_syscb_xr)
-    {
-        std::string r("sysCall_xr");
-        if (callTips)
-            r+="(...)\nCalled for XReality functionality.";
-        return(r);
-    }
     return("");
 }
 
@@ -2420,11 +2413,6 @@ bool CLuaScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int
         if (callType==sim_syscb_afterinstanceswitch)
             return(true);
     }
-    if (scriptType!=sim_scripttype_childscript)
-    {
-        if (callType==sim_syscb_xr)
-            return(true);
-    }
     if (scriptType==sim_scripttype_addonscript)
     {
         if (callType==sim_syscb_aos_run_old) // for backward compatibility
@@ -2490,7 +2478,6 @@ std::vector<std::string> CLuaScriptObject::getAllSystemCallbackStrings(int scrip
                  sim_syscb_customcallback4,
                  sim_syscb_threadmain,
                  sim_syscb_userconfig,
-                 sim_syscb_xr,
                  -1
             };
 
@@ -3616,12 +3603,6 @@ int CLuaScriptObject::_callScriptFunction(int callType,const CInterfaceStack* in
     // Push the function name onto the stack (will be automatically popped from stack after _luaPCall):
     std::string funcName(getSystemCallbackString(callType,false));
     luaWrap_lua_getglobal(L,funcName.c_str());
-    if ( (callType==sim_syscb_xr)&&(!luaWrap_lua_isfunction(L,-1)) )
-    {
-        luaWrap_lua_pop(L,1); // pop the function name
-        funcName="sysCall_br"; // for backward functionality
-        luaWrap_lua_getglobal(L,funcName.c_str());
-    }
     if (luaWrap_lua_isfunction(L,-1))
     { // ok, the function exists!
         // Push the arguments onto the stack (will be automatically popped from stack after _luaPCall):

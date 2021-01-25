@@ -117,6 +117,7 @@ public:
 
     void setSpecificLight(int h);
     int getSpecificLight() const;
+    bool setBeforeDeleteCallbackSent();
 
     bool getGlobalMarkingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool& minMaxNotYetDefined,bool first,bool guiIsRendering) const;
     void getBoundingBoxEncompassingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool guiIsRendering) const;
@@ -359,6 +360,7 @@ protected:
 
     // Other variables
     int _mechanismID; // don't serialize!
+    bool _beforeDeleteCallbackSent;
     bool _initialValuesInitialized;
     bool _initialConfigurationMemorized;
     int _initialParentUniqueID;

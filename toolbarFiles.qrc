@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>toolbarFiles/verify.png</file>
         <file>toolbarFiles/cameraShift.png</file>
         <file>toolbarFiles/cameraAngle.png</file>
         <file>toolbarFiles/cameraRotate.png</file>
@@ -14,8 +13,6 @@
         <file>toolbarFiles/pause.png</file>
         <file>toolbarFiles/stop.png</file>
         <file>toolbarFiles/realTime.png</file>
-        <file>toolbarFiles/online.png</file>
-        <file>toolbarFiles/onlineOn.png</file>
         <file>toolbarFiles/increaseSpeed.png</file>
         <file>toolbarFiles/reduceSpeed.png</file>
         <file>toolbarFiles/collections.png</file>

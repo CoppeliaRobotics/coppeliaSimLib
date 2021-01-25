@@ -252,21 +252,7 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
 
 void CSceneObjectContainer::eraseSeveralObjects(const std::vector<int>& objectHandles,bool generateBeforeAfterDeleteCallback)
 {
-    std::vector<CSceneObject*> objects;
-    for (size_t i=0;i<objectHandles.size();i++)
-        objects.push_back(getObjectFromHandle(objectHandles[i]));
-    eraseSeveralObjects(objects,generateBeforeAfterDeleteCallback);
-}
-
-void CSceneObjectContainer::eraseSeveralObjects(const std::vector<CSceneObject*>& objects,bool generateBeforeAfterDeleteCallback)
-{
-    std::vector<CSceneObject*> objs;
-    for (size_t i=0;i<objects.size();i++)
-    {
-        if (objects[i]!=nullptr)
-            objs.push_back(objects[i]);
-    }
-    if (objs.size()>0)
+    if (objectHandles.size()>0)
     {
         CInterfaceStack stack;
         if (generateBeforeAfterDeleteCallback)
@@ -274,21 +260,29 @@ void CSceneObjectContainer::eraseSeveralObjects(const std::vector<CSceneObject*>
             stack.pushTableOntoStack();
             stack.pushStringOntoStack("objectHandles",0);
             stack.pushTableOntoStack();
-            for (size_t i=0;i<objs.size();i++)
+            for (size_t i=0;i<objectHandles.size();i++)
             {
-                stack.pushNumberOntoStack(double(objs[i]->getObjectHandle())); // key or index
-                stack.pushBoolOntoStack(true);
-                stack.insertDataIntoStackTable();
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandles[i]);
+                if ( (it!=nullptr)&&it->setBeforeDeleteCallbackSent() )
+                { // send the message only once. This routine can be reentrant!
+                    stack.pushInt32OntoStack(objectHandles[i]); // key or index
+                    stack.pushBoolOntoStack(true);
+                    stack.insertDataIntoStackTable();
+                }
             }
             stack.insertDataIntoStackTable();
             stack.pushStringOntoStack("allObjects",0);
-            stack.pushBoolOntoStack(objs.size()==getObjectCount());
+            stack.pushBoolOntoStack(objectHandles.size()==getObjectCount());
             stack.insertDataIntoStackTable();
             App::worldContainer->callScripts(sim_syscb_beforedelete,&stack);
         }
 
-        for (size_t i=0;i<objs.size();i++)
-            eraseObject(objs[i],false);
+        for (size_t i=0;i<objectHandles.size();i++)
+        {
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandles[i]);
+            if (it!=nullptr)
+                eraseObject(it,false);
+        }
 
         if (generateBeforeAfterDeleteCallback)
             App::worldContainer->callScripts(sim_syscb_afterdelete,&stack);
@@ -304,9 +298,9 @@ void CSceneObjectContainer::removeAllObjects(bool generateBeforeAfterDeleteCallb
     if (getObjectCount()>0)
         deselectObjects();
 
-    std::vector<CSceneObject*> toRemove;
+    std::vector<int> toRemove;
     for (size_t i=0;i<getObjectCount();i++)
-        toRemove.push_back(getObjectFromIndex(i));
+        toRemove.push_back(getObjectFromIndex(i)->getObjectHandle());
     eraseSeveralObjects(toRemove,generateBeforeAfterDeleteCallback);
     // The above destroys all sceneObjects, and normally automatically
     // all resources linked to them. So we don't have to destroy the resources

@@ -84,23 +84,6 @@ public:
     bool getSceneIsClosingFlag() const;
     void setSceneIsClosingFlag(bool closing);
 
-    std::string getCurrentJob() const;
-    bool setCurrentJob(const char* jobName);
-    int getJobCount();
-    int getJobIndex(const char* name);
-    std::string getJobAtIndex(int index);
-    bool createNewJob(const char* newName);
-    bool deleteCurrentJob();
-    bool renameCurrentJob(const char* newName);
-    bool switchJob(int index);
-    bool getJobFunctionalityEnabled();
-    void setJobFunctionalityEnabled(bool en);
-
-    void setShowPartRepository(bool en);
-    bool getShowPartRepository();
-    void setShowPalletRepository(bool en);
-    bool getShowPalletRepository();
-
     quint64 autoSaveLastSaveTimeInSecondsSince1970;
     float fogBackgroundColor[3];
     float backGroundColor[3];
@@ -110,12 +93,6 @@ public:
     CColorObject wirelessReceptionVolumeColor;
 
     CThumbnail modelThumbnail_notSerializedHere;
-
-#ifdef SIM_WITH_GUI
-    void addLayoutMenu(VMenu* menu);
-    void addJobsMenu(VMenu* menu);
-    bool processGuiCommand(int commandID);
-#endif
 
 protected:
     bool _nonAmbientLightsAreActive;
@@ -139,15 +116,8 @@ protected:
     bool _saveExistingCalculationStructuresTemp;
     bool _sceneCanBeDiscardedWhenNewSceneOpened;
 
-    bool _jobFuncEnabled; // not serialized
-    bool _showPartRepository; // not serialized
-    bool _showPalletRepository; // not serialized
-
     bool _sceneIsClosingFlag;
     std::string _extensionString;
-
-    std::vector<std::string> _jobs;
-    std::string _currentJob;
 
     int _sceneUniqueID;
 

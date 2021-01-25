@@ -1517,7 +1517,7 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
     composedInertia+=CMeshWrapper::getNewTensor(lastSel->getMeshWrapper()->getPrincipalMomentsOfInertia(),tmp)*lastSel->getMeshWrapper()->getMass();
 
     // now the other items:
-    std::vector<CSceneObject*> shapesToErase;
+    std::vector<int> shapesToErase;
     for (size_t i=0;i<shapesToGroup.size()-1;i++)
     {
         CShape* it=shapesToGroup[i];
@@ -1531,7 +1531,7 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
         it->getMeshWrapper()->preMultiplyAllVerticeLocalFrames(correctionTr);
         theWrap->childList.push_back(it->getMeshWrapper());
         it->disconnectMesh();
-        shapesToErase.push_back(it); // erase it later (if we do it now, texture dependencies might get mixed up)
+        shapesToErase.push_back(it->getObjectHandle()); // erase it later (if we do it now, texture dependencies might get mixed up)
     }
 
     lastSel->disconnectMesh();

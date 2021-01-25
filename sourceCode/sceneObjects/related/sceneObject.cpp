@@ -33,6 +33,7 @@ CSceneObject::CSceneObject()
 {
     _parentObjectHandle_forSerializationOnly=-1;
     _objectHandle=-1;
+    _beforeDeleteCallbackSent=false;
     _ikPluginCounterpartHandle=-1;
     generateDnaString();
     _assemblingLocalTransformation.setIdentity();
@@ -603,6 +604,13 @@ void CSceneObject::setSpecificLight(int h)
 int CSceneObject::getSpecificLight() const
 {
     return(_specificLight);
+}
+
+bool CSceneObject::setBeforeDeleteCallbackSent()
+{
+    bool retVal=!_beforeDeleteCallbackSent;
+    _beforeDeleteCallbackSent=true;
+    return(retVal);
 }
 
 bool CSceneObject::getGlobalMarkingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool& minMaxNotYetDefined,bool first,bool guiIsRendering) const

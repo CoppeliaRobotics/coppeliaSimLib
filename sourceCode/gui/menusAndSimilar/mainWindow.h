@@ -192,8 +192,6 @@ private:
     VMenu* _addOnSystemMenu;
     VMenu* _helpSystemMenu;
     VMenu* _instancesSystemMenu;
-    VMenu* _layoutSystemMenu;
-    VMenu* _jobsSystemMenu;
 
 
     std::vector<CSceneHierarchyWidget*> _sceneHierarchyWidgetList;
@@ -218,12 +216,10 @@ private:
     QComboBox* _engineSelectCombo;
     QComboBox* _enginePrecisionCombo;
     QComboBox* _timeStepConfigCombo;
-    QAction* _toolbarActionVerify;
     QAction* _toolbarActionStart;
     QAction* _toolbarActionPause;
     QAction* _toolbarActionStop;
     QAction* _toolbarActionRealTime;
-    QAction* _toolbarActionOnline;
     QAction* _toolbarActionReduceSpeed;
     QAction* _toolbarActionIncreaseSpeed;
     QAction* _toolbarActionToggleVisualization;
@@ -304,8 +300,6 @@ public slots:
     void _aboutToShowHelpSystemMenu();
     void _aboutToShowInstancesSystemMenu();
     void _aboutToShowCustomMenu();
-    void _aboutToShowLayoutSystemMenu();
-    void _aboutToShowJobsSystemMenu();
 
     void statusbarSplitterMoved(int pos,int index);
 

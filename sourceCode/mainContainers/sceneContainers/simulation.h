@@ -25,8 +25,6 @@ public:
     int getDefaultSimulationParameterIndex();
     void setRealTimeSimulation(bool realTime);
     bool getRealTimeSimulation();
-    void setOnlineMode(bool onlineMode);
-    bool getOnlineMode();
     void serialize(CSer& ar);
 
     quint64 getSimulationTime_us();
@@ -137,7 +135,6 @@ private:
     int timeInMsWhenStopWasPressed;
 
     bool _realTimeSimulation;
-    bool _onlineMode; // not serialized
     double _realTimeCoefficient;
 
     quint64 _simulationTimeToPause_us;

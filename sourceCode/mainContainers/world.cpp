@@ -122,7 +122,6 @@ void CWorld::clearScene(bool notCalledFromUndoFunction)
 
 void CWorld::deleteWorld()
 {
-    simulation->setOnlineMode(false); // disable online mode before deleting
     delete undoBufferContainer;
     undoBufferContainer=nullptr;
     delete embeddedScriptContainer;
@@ -701,7 +700,7 @@ void CWorld::simulationEnded(bool removeNewObjects)
     {
         const std::vector<int>* savedSelection=sceneObjects->getSelectedObjectHandlesPtr();
         //sceneObjects->deselectObjects();
-        std::vector<CSceneObject*> toRemove;
+        std::vector<int> toRemove;
         for (size_t i=0;i<sceneObjects->getObjectCount();i++)
         {
             CSceneObject* it=sceneObjects->getObjectFromIndex(i);
@@ -715,7 +714,7 @@ void CWorld::simulationEnded(bool removeNewObjects)
                 }
             }
             if (!found)
-                toRemove.push_back(it);
+                toRemove.push_back(it->getObjectHandle());
         }
         sceneObjects->eraseSeveralObjects(toRemove,true);
         sceneObjects->setSelectedObjectHandles(savedSelection);

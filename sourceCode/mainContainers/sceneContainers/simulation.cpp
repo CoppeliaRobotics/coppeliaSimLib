@@ -56,7 +56,6 @@ void CSimulation::setUpDefaultValues()
     _resetSimulationAtEnd=true;
     _removeNewObjectsAtSimulationEnd=true;
     _realTimeSimulation=false;
-    _onlineMode=false;
     _fullscreenAtSimulationStart=false;
 }
 
@@ -489,16 +488,6 @@ double CSimulation::getRealTimeCoefficient_speedModified()
     return(_getRealTimeCoefficient_raw()*_getSpeedModifier_forRealTimeCoefficient());
 }
 
-void CSimulation::setOnlineMode(bool onlineMode)
-{
-    _onlineMode=onlineMode;
-}
-
-bool CSimulation::getOnlineMode()
-{
-    return(_onlineMode);
-}
-
 void CSimulation::setRealTimeSimulation(bool realTime)
 {
     if (isSimulationStopped())
@@ -735,33 +724,6 @@ bool CSimulation::processCommand(int commandID)
         }
         return(true);
     }
-
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_ONLINE_SCCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
-            if (App::currentWorld->simulation->isSimulationStopped()&&noEditMode )
-            {
-                App::currentWorld->simulation->setOnlineMode(!App::currentWorld->simulation->getOnlineMode());
-                if (App::currentWorld->simulation->getOnlineMode())
-                    App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_ONLINE_MODE);
-                else
-                    App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_OFFLINE_MODE);
-                App::setLightDialogRefreshFlag();
-                App::setToolbarRefreshFlag(); // will trigger a refresh
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            }
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-
     if (commandID==SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD)
     { 
         _desiredFasterOrSlowerSpeed--;
@@ -1270,11 +1232,6 @@ void CSimulation::addMenu(VMenu* menu)
         menu->appendMenuItem(App::mainWindow->getPlayViaGuiEnabled()&&noEditMode&&(!simRunning),false,SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD,IDS_START_SIMULATION_MENU_ITEM);
     menu->appendMenuItem(App::mainWindow->getPauseViaGuiEnabled()&&noEditMode&&simRunning,false,SIMULATION_COMMANDS_PAUSE_SIMULATION_REQUEST_SCCMD,IDS_PAUSE_SIMULATION_MENU_ITEM);
     menu->appendMenuItem(App::mainWindow->getStopViaGuiEnabled()&&noEditMode&&(!simStopped),false,SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD,IDS_STOP_SIMULATION_MENU_ITEM);
-    if (!CSimFlavor::getBoolVal(11))
-    {
-        menu->appendMenuSeparator();
-        menu->appendMenuItem(noEditMode&&simStopped,App::currentWorld->simulation->getOnlineMode(),SIMULATION_COMMANDS_TOGGLE_ONLINE_SCCMD,IDSN_ONLINE_MODE,true);
-    }
     menu->appendMenuSeparator();
     int version;
     int engine=App::currentWorld->dynamicsContainer->getDynamicEngineType(&version);

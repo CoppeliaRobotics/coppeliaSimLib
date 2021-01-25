@@ -48,7 +48,6 @@ public:
     bool addObjectToScene(CSceneObject* newObject,bool objectIsACopy,bool generateAfterCreateCallback);
     bool addObjectToSceneWithSuffixOffset(CSceneObject* newObject,bool objectIsACopy,int suffixOffset,bool generateAfterCreateCallback);
     bool eraseObject(CSceneObject* it,bool generateBeforeAfterDeleteCallback);
-    void eraseSeveralObjects(const std::vector<CSceneObject*>& objects,bool generateBeforeAfterDeleteCallback);
     void eraseSeveralObjects(const std::vector<int>& objectHandles,bool generateBeforeAfterDeleteCallback);
     void removeAllObjects(bool generateBeforeAfterDeleteCallback);
     void actualizeObjectInformation();

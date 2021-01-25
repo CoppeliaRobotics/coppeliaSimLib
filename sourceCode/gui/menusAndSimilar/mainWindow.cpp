@@ -957,20 +957,6 @@ void CMainWindow::createDefaultMenuBar()
                 _menubar->appendMenuAndDetach(_instancesSystemMenu,menuBarEnabled,(std::string(IDS_INSTANCES_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
                 connect(_instancesSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowInstancesSystemMenu()));
             }
-
-            if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
-            {
-                _layoutSystemMenu=new VMenu();
-                _menubar->appendMenuAndDetach(_layoutSystemMenu,menuBarEnabled,(std::string(IDS_LAYOUT_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
-                connect(_layoutSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowLayoutSystemMenu()));
-            }
-
-            if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
-            {
-                _jobsSystemMenu=new VMenu();
-                _menubar->appendMenuAndDetach(_jobsSystemMenu,menuBarEnabled,(std::string(IDS_JOBS_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
-                connect(_jobsSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowJobsSystemMenu()));
-            }
         }
 
         if (editModeContainer->getEditModeType()==NO_EDIT_MODE)
@@ -1080,14 +1066,6 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionRedo,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionRedo,SCENE_OBJECT_OPERATION_REDO_SOOCMD);
         _toolbar1->addSeparator();
-
-        if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
-        {
-            _toolbarActionVerify=_toolbar1->addAction(QIcon(":/toolbarFiles/verify.png"),tr(IDS_TOOLBAR_TOOLTIP_VERIFY));
-            _toolbarActionVerify->setCheckable(false);
-            connect(_toolbarActionVerify,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionVerify,XR_COMMAND_1_SCCMD+11);
-        }
 
         if (CSimFlavor::getBoolVal(11))
         {
@@ -1214,14 +1192,6 @@ void CMainWindow::_createDefaultToolBars()
         _toolbarActionStop->setCheckable(false);
         connect(_toolbarActionStop,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionStop,SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD);
-
-        if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
-        {
-            _toolbarActionOnline=_toolbar1->addAction(QIcon(":/toolbarFiles/online.png"),tr(IDS_TOOLBAR_TOOLTIP_ONLINE));
-            _toolbarActionOnline->setCheckable(true);
-            connect(_toolbarActionOnline,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionOnline,SIMULATION_COMMANDS_TOGGLE_ONLINE_SCCMD);
-        }
 
         if (CSimFlavor::getBoolVal(11))
         {
@@ -1795,13 +1765,9 @@ void CMainWindow::_actualizetoolbarButtonState()
             _enginePrecisionCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&App::currentWorld->dynamicsContainer->getDynamicsEnabled()&&noSelector);
         if (CSimFlavor::getBoolVal(11))
             _timeStepConfigCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&noSelector);
-        if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
-            _toolbarActionVerify->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&noSelector);
         _toolbarActionStart->setEnabled(_toolbarButtonPlayEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&(!App::currentWorld->simulation->isSimulationRunning())&&noSelector);
         _toolbarActionPause->setEnabled(_toolbarButtonPauseEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationRunning()&&noSelector);
         _toolbarActionStop->setEnabled(_toolbarButtonStopEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&(!App::currentWorld->simulation->isSimulationStopped())&&noSelector);
-        if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
-            _toolbarActionOnline->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&noSelector);
         if (CSimFlavor::getBoolVal(11))
             _toolbarActionRealTime->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&noSelector);
         if (CSimFlavor::getBoolVal(11))
@@ -1875,14 +1841,6 @@ void CMainWindow::_actualizetoolbarButtonState()
         _toolbarActionStart->setChecked(App::currentWorld->simulation->isSimulationRunning());
         _toolbarActionPause->setChecked(App::currentWorld->simulation->isSimulationPaused());
 
-        if (CSimFlavor::getBoolVal_int(0,App::userSettings->xrTest))
-        {
-            _toolbarActionOnline->setChecked(App::currentWorld->simulation->getOnlineMode());
-            if (App::currentWorld->simulation->getOnlineMode())
-                _toolbarActionOnline->setIcon(QIcon(":/toolbarFiles/onlineOn.png"));
-            else
-                _toolbarActionOnline->setIcon(QIcon(":/toolbarFiles/online.png"));
-        }
         if (CSimFlavor::getBoolVal(11))
             _toolbarActionRealTime->setChecked(App::currentWorld->simulation->getRealTimeSimulation());
 
@@ -2059,8 +2017,6 @@ void CMainWindow::_simMessageHandler(int id)
     if (!processed)
         processed=App::worldContainer->processGuiCommand(id);
     if (!processed)
-        processed=App::currentWorld->environment->processGuiCommand(id);
-    if (!processed)
         processed=customMenuBarItemContainer->processCommand(id);
     App::setToolbarRefreshFlag();
 }
@@ -2114,18 +2070,6 @@ void CMainWindow::_aboutToShowInstancesSystemMenu()
 {
     _instancesSystemMenu->clear();
     App::worldContainer->addMenu(_instancesSystemMenu);
-}
-
-void CMainWindow::_aboutToShowLayoutSystemMenu()
-{
-    _layoutSystemMenu->clear();
-    App::currentWorld->environment->addLayoutMenu(_layoutSystemMenu);
-}
-
-void CMainWindow::_aboutToShowJobsSystemMenu()
-{
-    _jobsSystemMenu->clear();
-    App::currentWorld->environment->addJobsMenu(_jobsSystemMenu);
 }
 
 void CMainWindow::_aboutToShowCustomMenu()
