@@ -6,8 +6,6 @@
 #define SIM_CADFILES_DIRECTORY_NAME "cadFiles"
 #define SIM_SCENE_EXTENSION "ttt"
 #define SIM_MODEL_EXTENSION "ttm"
-#define SIM_XR_SCENE_EXTENSION "brs"
-#define SIM_XR_MODEL_EXTENSION "brm"
 #define SIM_XML_SCENE_EXTENSION "simscene.xml"
 #define SIM_XML_MODEL_EXTENSION "simmodel.xml"
 #define SIM_MODEL_THUMBNAILFILE_NAME "simModelThumbnails.ttmt"

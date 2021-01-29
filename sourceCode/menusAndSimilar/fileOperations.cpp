@@ -217,7 +217,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         return(true);
     }
-    if ( (cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD)||(cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD)||(cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD)||(cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_XR_FOCMD) )
+    if ( (cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD)||(cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD)||(cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD) )
     {
         if (App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
         { // execute the command only when simulation is not running and not in an edit mode
@@ -230,8 +230,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     filetype=CSer::filetype_csim_xml_xscene_file;
                 if (cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD)
                     filetype=CSer::filetype_csim_xml_simplescene_file;
-                if (cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_XR_FOCMD)
-                    filetype=CSer::filetype_xr_bin_scene_file;
                 _saveSceneAsWithDialogAndEverything(filetype);
             }
             else
@@ -239,7 +237,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         }
         return(true);
     }
-    if ( (cmd.cmdId==FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD)||(cmd.cmdId==FILE_OPERATION_SAVE_MODEL_AS_XR_FOCMD)||(cmd.cmdId==FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD) )
+    if ( (cmd.cmdId==FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD)||(cmd.cmdId==FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD) )
     {
         if (App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
         { // execute the command only when simulation is not running and not in an edit mode
@@ -278,8 +276,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         int ft=-1;
                         if (cmd.cmdId==FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD)
                             ft=0;
-                        if (cmd.cmdId==FILE_OPERATION_SAVE_MODEL_AS_XR_FOCMD)
-                            ft=1;
                         if (cmd.cmdId==FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD)
                             ft=2;
                         while (true)
@@ -327,8 +323,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                             std::string filenameAndPath;
                             if (ft==0)
                                 filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_SAVING_MODEL___,App::folders->getModelsPath().c_str(),"",false,"CoppeliaSim Model",SIM_MODEL_EXTENSION);
-                            if (ft==1)
-                                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_SAVING_MODEL___,App::folders->getModelsPath().c_str(),"",false,"XReality Model",SIM_XR_MODEL_EXTENSION);
                             if (ft==2)
                                 filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_SAVING_MODEL___,App::folders->getModelsPath().c_str(),"",false,"CoppeliaSim XML Model (exhaustive)",SIM_XML_MODEL_EXTENSION);
                             if (ft==3)
@@ -1333,8 +1327,6 @@ std::string CFileOperations::_getStringOfVersionAndLicenseThatTheFileWasWrittenW
             retStr+=" (CoppeliaSim Player license)";
         if (licenseType==0x00006000)
             retStr+=" (custom compilation)";
-        if (licenseType==0x00007000)
-            retStr+=" (XReality license)";
     }
     return(retStr);
 }
@@ -1708,7 +1700,6 @@ void CFileOperations::addMenu(VMenu* menu)
             menu->appendMenuItem(fileOpOk,false,FILE_OPERATION_SAVE_SCENE_FOCMD,IDS_SAVE_SCENE_MENU_ITEM);
             VMenu* saveSceneMenu=new VMenu();
             saveSceneMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD,IDS_SCENE_AS_CSIM___MENU_ITEM);
-            saveSceneMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_SAVE_SCENE_AS_XR_FOCMD,IDS_SCENE_AS_XR___MENU_ITEM);
             VMenu* saveSceneAsXmlMenu=new VMenu();
             saveSceneAsXmlMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD,IDS_SCENE_AS_XML___MENU_ITEM);
             saveSceneAsXmlMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD,IDS_SCENE_AS_SIMPLEXML___MENU_ITEM);
@@ -1717,7 +1708,6 @@ void CFileOperations::addMenu(VMenu* menu)
 
             VMenu* saveModelMenu=new VMenu();
             saveModelMenu->appendMenuItem(fileOpOk&&justModelSelected,false,FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD,IDS_MODEL_AS_CSIM___MENU_ITEM);
-            saveModelMenu->appendMenuItem(fileOpOk&&justModelSelected,false,FILE_OPERATION_SAVE_MODEL_AS_XR_FOCMD,IDS_MODEL_AS_XR___MENU_ITEM);
             saveModelMenu->appendMenuItem(fileOpOk&&justModelSelected,false,FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD,IDS_MODEL_AS_XML___MENU_ITEM);
             menu->appendMenuAndDetach(saveModelMenu,fileOpOk&&justModelSelected,IDS_SAVE_MODEL_AS_MENU_ITEM);
         }
@@ -1729,10 +1719,7 @@ void CFileOperations::addMenu(VMenu* menu)
     {
         menu->appendMenuSeparator();
         if (CSimFlavor::getBoolVal(14))
-        {
             menu->appendMenuItem(fileOpOk,false,FILE_OPERATION_SAVE_SCENE_FOCMD,IDS_SAVE_SCENE_MENU_ITEM);
-            menu->appendMenuItem(fileOpOk,false,FILE_OPERATION_SAVE_SCENE_AS_XR_FOCMD,IDS_SAVE_SCENE_AS___MENU_ITEM);
-        }
         else
             menu->appendMenuItem(false,false,0,CSimFlavor::getStringVal(10).c_str());
     }
@@ -1818,8 +1805,6 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
                 sceneName="";
             if ( (filetype==CSer::filetype_csim_xml_simplescene_file)&&(ext.compare(SIM_XML_SCENE_EXTENSION)!=0) )
                 sceneName="";
-            if ( (filetype==CSer::filetype_xr_bin_scene_file)&&(ext.compare(SIM_XR_SCENE_EXTENSION)!=0) )
-                sceneName="";
 
             if (filetype==CSer::filetype_csim_bin_scene_file)
                 filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",IDSN_SAVING_SCENE,"...").c_str(),initPath.c_str(),sceneName.c_str(),false,"CoppeliaSim Scene",SIM_SCENE_EXTENSION);
@@ -1827,8 +1812,6 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
                 filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",IDSN_SAVING_SCENE,"...").c_str(),initPath.c_str(),sceneName.c_str(),false,"CoppeliaSim XML Scene (exhaustive)",SIM_XML_SCENE_EXTENSION);
             if (filetype==CSer::filetype_csim_xml_simplescene_file)
                 filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",IDSN_SAVING_SCENE,"...").c_str(),initPath.c_str(),sceneName.c_str(),false,"CoppeliaSim XML Scene (simple)",SIM_XML_SCENE_EXTENSION);
-            if (filetype==CSer::filetype_xr_bin_scene_file)
-                filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",IDSN_SAVING_SCENE,"...").c_str(),initPath.c_str(),sceneName.c_str(),false,"XReality Scene",SIM_XR_SCENE_EXTENSION);
 
             if (filenameAndPath.length()!=0)
             {

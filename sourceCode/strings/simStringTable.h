@@ -614,12 +614,10 @@
 #define IDS_SAVE_SCENE_MENU_ITEM "Save scene"
 #define IDS_SAVE_SCENE_AS_MENU_ITEM "Save scene as"
 #define IDS_SCENE_AS_CSIM___MENU_ITEM "CoppeliaSim scene..."
-#define IDS_SCENE_AS_XR___MENU_ITEM "XReality scene..."
 #define IDS_SAVE_SCENE_AS___MENU_ITEM "Save scene as..."
 
 #define IDS_SAVE_MODEL_AS_MENU_ITEM "Save model as"
 #define IDS_MODEL_AS_CSIM___MENU_ITEM "CoppeliaSim model..."
-#define IDS_MODEL_AS_XR___MENU_ITEM "XReality model..."
 #define IDS_SAVE_SCENE_AS_XML_MENU_ITEM "CoppeliaSim XML scene"
 #define IDS_SCENE_AS_XML___MENU_ITEM "Exhaustive (lossless, non-editable)..."
 #define IDS_SCENE_AS_SIMPLEXML___MENU_ITEM "Simple (lossy, editable)..."

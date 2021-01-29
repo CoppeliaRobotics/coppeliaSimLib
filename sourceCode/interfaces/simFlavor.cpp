@@ -23,10 +23,6 @@ void CSimFlavor::getAboutStr(std::string& title,std::string& txt)
     txt="Custom CoppeliaSim";
 }
 
-void CSimFlavor::handleBrFile(int f,char* b)
-{
-}
-
 int CSimFlavor::handleReadOpenFile(int f,char* b)
 {
     if ( (f<=CSer::filetype_csim_bin_thumbnails_file)||(f==CSer::filetype_csim_bin_scene_buff)||(f==CSer::filetype_csim_bin_model_buff)||(f==CSer::filetype_csim_bin_ui_file) )
@@ -154,8 +150,6 @@ bool CSimFlavor::getBoolVal_str(int w,const char* str)
 {
     if (w==0)
         return(boost::algorithm::ends_with(str,std::string(".")+SIM_MODEL_EXTENSION));
-    if (w==1)
-        return(boost::algorithm::ends_with(str,std::string(".")+SIM_XR_SCENE_EXTENSION));
     return(false);
 }
 

@@ -9,7 +9,6 @@ public:
     static int ver();
     static bool init();
     static void getAboutStr(std::string& title,std::string& txt);
-    static void handleBrFile(int f,char* b);
     static int handleReadOpenFile(int f,char* b);
     static void setHld(void* w);
     static void ekd();

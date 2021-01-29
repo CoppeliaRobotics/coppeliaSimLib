@@ -20,8 +20,8 @@ public:
         filetype_csim_bin_scene_file,       // .ttt
         filetype_csim_bin_model_file,       // .ttm
         filetype_csim_bin_thumbnails_file,  // .ttmt
-        filetype_xr_bin_scene_file,         // .brs
-        filetype_xr_bin_model_file,         // .brm
+        reserved_was_brs,
+        reserved_was_brm,
         filetype_csim_bin_scene_buff,       // ---
         filetype_csim_bin_model_buff,       // ---
         filetype_csim_bin_ui_file,          // .ttb

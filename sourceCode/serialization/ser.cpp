@@ -88,7 +88,6 @@ bool CSer::writeOpenBinary(bool compress)
     _storing=true;
     _compress=compress;
     if ( (_filetype==filetype_csim_bin_scene_file)||(_filetype==filetype_csim_bin_model_file)||
-         (_filetype==filetype_xr_bin_scene_file)||(_filetype==filetype_xr_bin_model_file)||
          (_filetype==filetype_csim_bin_thumbnails_file)||(_filetype==filetype_csim_bin_ui_file) )
     {
         theFile=new VFile(_filename.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE,true);
@@ -158,7 +157,6 @@ void CSer::writeClose()
         // Now we write all the data:
         if (_compress)
         { // compressed. When changing compression method, then serialization version has to be incremented and older version won't be able to read newer versions anymore!
-            CSimFlavor::handleBrFile(_filetype,(char*)&_fileBuffer[0]);
             // Hufmann:
             unsigned char* writeBuff=new unsigned char[_fileBuffer.size()+400]; // actually 384
             int outSize=Huffman_Compress(&_fileBuffer[0],writeBuff,(int)_fileBuffer.size());
@@ -346,9 +344,6 @@ void CSer::_writeBinaryHeader()
         else
             (*_bufferArchive).push_back((char)0);
     }
-
-    if ( (_filetype==CSer::filetype_xr_bin_scene_file)||(_filetype==CSer::filetype_xr_bin_model_file) )
-        _compress=true;
 }
 
 std::string CSer::getFilenamePath() const
