@@ -7932,6 +7932,7 @@ int _simSwitchThread(luaWrap_lua_State* L)
     CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if ((it!=nullptr)&&(it->canManualYield()))
     {
+        it->resetScriptExecutionTime();
         if (CThreadPool::switchBackToPreviousThread())
             retVal=1;
         else
@@ -12851,20 +12852,18 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                 { // very special handling here!
                     if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
                     {
-                        int rr=script->callScriptFunction(funcName.c_str(),&stack);
-                        if (rr>=0)
+                        int rr=script->callCustomScriptFunction(funcName.c_str(),&stack);
+                        if (rr==1)
                         {
                             stack.buildOntoLuaStack(L,false);
                             LUA_END(stack.getStackSize());
                         }
                         else
                         {
-                            if (rr==-3)
-                                errorString=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
-                            if (rr==-2)
-                                errorString=SIM_ERROR_SCRIPT_FUNCTION_INEXISTANT;
                             if (rr==-1)
                                 errorString=SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
+                            else // rr==0
+                                errorString=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
                         }
                     }
                     else
@@ -12876,19 +12875,17 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                         d[2]=(void*)funcName.c_str();
                         d[3]=&stack;
                         int retVal=CThreadPool::callRoutineViaSpecificThread(script->getThreadedScriptThreadId(),d);
-                        if (retVal>=0)
+                        if (retVal==1)
                         {
                             stack.buildOntoLuaStack(L,false);
                             LUA_END(stack.getStackSize());
                         }
                         else
                         {
-                            if (retVal==-3)
-                                errorString=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
-                            if (retVal==-2)
-                                errorString=SIM_ERROR_SCRIPT_FUNCTION_INEXISTANT;
                             if (retVal==-1)
                                 errorString=SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
+                            else // retVal==0
+                                errorString=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
                         }
                     }
                 }
@@ -12896,20 +12893,18 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                 {
                     if (VThread::isCurrentThreadTheMainSimulationThread())
                     { // For now we don't allow non-main threads to call non-threaded scripts!
-                        int rr=script->callScriptFunction(funcName.c_str(),&stack);
-                        if (rr>=0)
+                        int rr=script->callCustomScriptFunction(funcName.c_str(),&stack);
+                        if (rr==1)
                         {
                             stack.buildOntoLuaStack(L,false);
                             LUA_END(stack.getStackSize());
                         }
                         else
                         {
-                            if (rr==-3)
-                                errorString=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
-                            if (rr==-2)
-                                errorString=SIM_ERROR_SCRIPT_FUNCTION_INEXISTANT;
                             if (rr==-1)
                                 errorString=SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
+                            else // rr==0
+                                errorString=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
                         }
                     }
                     else
@@ -15535,7 +15530,7 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
                 stack.pushStringOntoStack(txt.c_str(),txt.size());
                 stack.pushInt32ArrayTableOntoStack(posAndSize+0,2);
                 stack.pushInt32ArrayTableOntoStack(posAndSize+2,2);
-                it->callScriptFunction(cb.c_str(),&stack);
+                it->callCustomScriptFunction(cb.c_str(),&stack);
             }
         }
         luaWrap_lua_pushinteger(L,res);

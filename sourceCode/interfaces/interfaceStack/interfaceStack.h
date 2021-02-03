@@ -22,6 +22,7 @@ public:
     void buildOntoLuaStack(luaWrap_lua_State* L,bool takeOnlyTop) const;
     // C interface (creation):
     CInterfaceStack* copyYourself() const;
+    void copyFrom(const CInterfaceStack* source);
     void pushNullOntoStack();
     void pushBoolOntoStack(bool v);
     void pushNumberOntoStack(double v);

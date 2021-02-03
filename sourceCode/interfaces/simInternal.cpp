@@ -14461,7 +14461,7 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
             if (script->getThreadedExecutionIsUnderWay_oldThreads())
             { // very special handling here!
                 if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
-                    retVal=script->callScriptFunction(funcName.c_str(),stack);
+                    retVal=script->callCustomScriptFunction(funcName.c_str(),stack);
                 else
                 { // we have to execute that function via another thread!
                     void* d[4];
@@ -14477,21 +14477,7 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
             else
             {
                 if (VThread::isCurrentThreadTheMainSimulationThread())
-                { // For now we don't allow non-main threads to call non-threaded scripts!
-                    retVal=script->callScriptFunction(funcName.c_str(),stack);
-                }
-            }
-            if (retVal==-3)
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION);
-                tmp+=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
-                App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
-            }
-            if (retVal==-2)
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_FUNCTION_INEXISTANT);
-                tmp+=SIM_ERROR_SCRIPT_FUNCTION_INEXISTANT;
-                App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
+                    retVal=script->callCustomScriptFunction(funcName.c_str(),stack);
             }
             if (retVal==-1)
             {
@@ -14499,8 +14485,15 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
                 tmp+=SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
                 App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
             }
-            if (retVal<-1)
+            if (retVal==0)
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION);
+                tmp+=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
+                App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
                 retVal=-1; // to stay backward compatible
+            }
+            if (retVal==1)
+                retVal=0; // to stay backward compatible
         }
         else
         {

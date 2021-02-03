@@ -69,10 +69,10 @@ public:
 
     int systemCallMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int systemCallScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool addOnManuallyStarted=false);
+    int callCustomScriptFunction(const char* functionName,CInterfaceStack* inOutStack);
     bool shouldTemporarilySuspendMainScript();
     bool isAutoStartAddOn();
 
-    int callScriptFunction(const char* functionName,CInterfaceStack* stack);
     int setScriptVariable(const char* variableName,CInterfaceStack* stack);
     int executeScriptString(const char* scriptString,CInterfaceStack* stack);
 
@@ -200,7 +200,8 @@ protected:
 
     bool _initScriptChunk();
     bool _callScriptChunk_old(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int _callScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int _callSystemScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int _callScriptFunction(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     void _handleSimpleSysExCalls(int callType);
 
     bool _checkIfMixingOldAndNewCallMethods();
@@ -237,6 +238,7 @@ protected:
     int _scriptState;
     bool _mainScriptIsDefaultMainScript_old; // 16.11.2020
     int _executionPriority;
+    int _executionDepth;
     int _debugLevel;
     bool _inDebug;
     bool _raiseErrors_backCompatibility;
@@ -260,7 +262,6 @@ protected:
     CCustomData* _customObjectData;
     CCustomData* _customObjectData_tempData; // same as above, but is not serialized (but copied!)
 
-    // Other variables that don't need serialization:
     luaWrap_lua_State* L;
     int _numberOfPasses;
     bool _inExecutionNow;

@@ -497,6 +497,13 @@ CInterfaceStack* CInterfaceStack::copyYourself() const
     return(retVal);
 }
 
+void CInterfaceStack::copyFrom(const CInterfaceStack* source)
+{
+    clear();
+    for (size_t i=0;i<source->_stackObjects.size();i++)
+        _stackObjects.push_back(source->_stackObjects[i]->copyYourself());
+}
+
 bool CInterfaceStack::getStackUCharArray(unsigned char* array,int count) const
 {
     if (_stackObjects.size()==0)

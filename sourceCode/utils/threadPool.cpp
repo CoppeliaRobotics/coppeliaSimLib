@@ -900,7 +900,7 @@ VTHREAD_RETURN_TYPE CThreadPool::_tmpCallback(VTHREAD_ARGUMENT_TYPE lpData)
         CLuaScriptObject* script=(CLuaScriptObject*)valPtr[1];
         char* funcName=(char*)valPtr[2];
         CInterfaceStack* stack=(CInterfaceStack*)valPtr[3];
-        _tmpRetData=script->callScriptFunction(funcName,stack);
+        _tmpRetData=script->callCustomScriptFunction(funcName,stack);
     }
     if (callType==2)
     { // we want to call "script->setScriptVariable"

@@ -2175,7 +2175,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         { // OLD: we are in the thread started by a threaded child script. Call only that script
             if ( (script!=nullptr)&&script->getThreadedExecution_oldThreads() )
             {
-                script->callScriptFunction(CLuaScriptObject::getSystemCallbackString(sim_syscb_vision,false).c_str(),&inStack);
+                script->systemCallScript(sim_syscb_vision,&inStack,nullptr);
                 outSt1=&inStack;
             }
         }
@@ -2256,7 +2256,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
             { // we are in the thread started by a threaded child script. Call only that script
                 if ( (script!=nullptr)&&script->getThreadedExecution_oldThreads() )
                 {
-                    script->callScriptFunction(CLuaScriptObject::getSystemCallbackString(sim_syscb_trigger,false).c_str(),&inStack);
+                    script->systemCallScript(sim_syscb_trigger,&inStack,nullptr);
                     outSt1=&inStack;
                 }
             }

@@ -413,7 +413,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     }
                     CInterfaceStack stack;
                     stack.pushStringOntoStack(files.c_str(),0);
-                    App::worldContainer->sandboxScript->callScriptFunction("simAssimp.importShapesDlg",&stack);
+                    App::worldContainer->sandboxScript->callCustomScriptFunction("simAssimp.importShapesDlg",&stack);
                 }
                 else
                     App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
@@ -486,7 +486,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                             stack.pushNumberOntoStack(sel[i]);
                             stack.insertDataIntoStackTable();
                         }
-                        App::worldContainer->sandboxScript->callScriptFunction("simAssimp.exportShapesDlg",&stack);
+                        App::worldContainer->sandboxScript->callCustomScriptFunction("simAssimp.exportShapesDlg",&stack);
                     }
                     else
                         App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);

@@ -278,7 +278,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if ( (script!=nullptr)&&(script->getContainsUserConfigCallbackFunction()) )
                 { // we have a user config callback
                     CInterfaceStack stack;
-                    script->callScriptFunction(CLuaScriptObject::getSystemCallbackString(sim_syscb_userconfig,false).c_str(),&stack);
+                    script->systemCallScript(sim_syscb_userconfig,&stack,nullptr);
                 }
                 else
                 {
