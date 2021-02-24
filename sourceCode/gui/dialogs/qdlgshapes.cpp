@@ -54,8 +54,11 @@ void CQDlgShapes::refresh()
     ui->qqShadingAngle->setEnabled(ssel&&noEditModeAndNoSim);
     ui->qqEdgesAngle->setEnabled(ssel&&noEditModeAndNoSim);
     ui->qqBackfaceCulling->setEnabled(ssel&&noEditModeAndNoSim);
-    ui->qqWireframe->setEnabled(ssel&&noEditModeAndNoSim);
     ui->qqShowEdges->setEnabled(ssel&&noEditModeAndNoSim);
+
+    ui->qqHiddenBorder->setVisible(App::userSettings->showOldDlgs);
+    ui->qqWireframe->setVisible(App::userSettings->showOldDlgs);
+    ui->qqWireframe->setEnabled(ssel&&noEditModeAndNoSim);
     ui->qqHiddenBorder->setEnabled(ssel&&noEditModeAndNoSim);
 
     ui->qqApplyColors->setEnabled(ssel&&(ssc>1)&&noEditModeAndNoSim);

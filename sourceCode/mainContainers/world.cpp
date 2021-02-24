@@ -1154,6 +1154,11 @@ void CWorld::announceScriptWillBeErased(int scriptHandle,bool simulationScript,b
 
 void CWorld::announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
 {
+    // Inform plugins about this event:
+    int pluginData[4]={scriptHandle,0,0,0};
+    void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptstatedestroyed,pluginData,nullptr,nullptr);
+    delete[] (char*)pluginReturnVal;
+
     collections->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
     signalContainer->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
     drawingCont->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);

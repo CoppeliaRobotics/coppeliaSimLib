@@ -119,8 +119,8 @@
 
 #define SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS "The function requires more arguments."
 #define SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG "One of the function's argument type is not correct."
-#define SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG "One of the function's table size is not correct."
-#define SIM_ERROR_ONE_STRING_SIZE_IS_WRONG "One of the function's string size is not correct."
+#define SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG "Incorrect table size."
+#define SIM_ERROR_ONE_STRING_SIZE_IS_WRONG "Incorrect string size."
 #define SIM_ERROR_NOT_MAIN_NOR_CHILD_SCRIPT "Script is not a main script nor a child script."
 #define SIM_ERROR_NON_EXPLICIT_CHILD_SCRIPT_EXECUTIONS_WERE_DELEGATED "Non-explicit child script executions were delegated."
 #define SIM_ERROR_THREAD_LAUNCHING_SCRIPTS_WILL_NOT_BE_CALLED_FROM_SENSING_SECTION "Scripts launching a thread will not be called when in a sensing section."

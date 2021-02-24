@@ -1532,6 +1532,10 @@ SIM_DLLEXPORT simInt simGenerateShapeFromPath(const simFloat* path,simInt pathSi
 {
     return(simGenerateShapeFromPath_internal(path,pathSize,section,sectionSize,options,upVector,reserved));
 }
+SIM_DLLEXPORT simFloat simGetClosestPosOnPath(const simFloat* path,simInt pathSize,const simFloat* pathLengths,const simFloat* absPt)
+{
+    return(simGetClosestPosOnPath_internal(path,pathSize,pathLengths,absPt));
+}
 SIM_DLLEXPORT simInt simInitScript(simInt scriptHandle)
 {
     return(simInitScript_internal(scriptHandle));

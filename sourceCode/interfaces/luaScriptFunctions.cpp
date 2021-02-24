@@ -366,7 +366,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getVisionSensorResolution",_simGetVisionSensorResolution,"table[2] resolution=sim.getVisionSensorResolution(int sensorHandle)",true},
     {"sim.getVisionSensorImage",_simGetVisionSensorImage,        "table/string imageBuffer=sim.getVisionSensorImage(int sensorHandle,int posX=0,int posY=0,int sizeX=0,\nint sizeY=0,int returnType=0)",true},
     {"sim.setVisionSensorImage",_simSetVisionSensorImage,        "int result=sim.setVisionSensorImage(int sensorHandle,table[] imageBuffer)\nint result=sim.setVisionSensorImage(int sensorHandle,string imageBuffer)",true},
-    {"sim.getVisionSensorCharImage",_simGetVisionSensorCharImage,"string imageBuffer,int resolutionX,int resolutionY=sim.getVisionSensorCharImage(int sensorHandle,int posX=0,\nint posY=0,int sizeX=0,int sizeY=0,int RgbaCutoff=0)",true},
+    {"sim.getVisionSensorCharImage",_simGetVisionSensorCharImage,"string imageBuffer,int resolutionX,int resolutionY=sim.getVisionSensorCharImage(int sensorHandle,int posX=0,\nint posY=0,int sizeX=0,int sizeY=0,float RgbaCutoff=0)",true},
     {"sim.setVisionSensorCharImage",_simSetVisionSensorCharImage,"int result=sim.setVisionSensorCharImage(int sensorHandle,string imageBuffer)",true},
     {"sim.getVisionSensorDepthBuffer",_simGetVisionSensorDepthBuffer,"table/string depthBuffer=sim.getVisionSensorDepthBuffer(int sensorHandle,int posX=0,int posY=0,\nint sizeX=0,int sizeY=0)",true},
     {"sim.checkVisionSensor",_simCheckVisionSensor,              "int result,table[] auxiliaryValuesPacket1,table[] auxiliaryValuesPacket2,etc.=sim.checkVisionSensor(int sensorHandle,\nint entityHandle)",true},
@@ -439,6 +439,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setShapeInertia",_simSetShapeInertia,                  "sim.setShapeInertia(int shapeHandle,table[9] inertiaMatrix,table[12] transformationMatrix)",true},
     {"sim.isDynamicallyEnabled",_simIsDynamicallyEnabled,        "boolean enabled=sim.isDynamicallyEnabled(int objectHandle)",true},
     {"sim.generateShapeFromPath",_simGenerateShapeFromPath,      "int shapeHandle=sim.generateShapeFromPath(table[] path,table[] section,int options=0,table[3] upVector={0.0,0.0,1.0})",true},
+    {"sim.getClosestPosOnPath",_simGetClosestPosOnPath,          "float posAlongPath=sim.getClosestPosOnPath(table[] path,table[] pathLengths,table[3] absPt)",true},
     {"sim.initScript",_simInitScript,                            "bool result=sim.initScript(int scriptHandle)",true},
 
     {"sim.test",_simTest,                                        "test function - shouldn't be used",true},
@@ -1758,6 +1759,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.camerafloatparam_pov_blur_distance",sim_camerafloatparam_pov_blur_distance,true},
     {"sim.camerafloatparam_pov_aperture",sim_camerafloatparam_pov_aperture,true},
     {"sim.cameraintparam_pov_blur_samples",sim_cameraintparam_pov_blur_samples,true},
+
     // dummies
     {"sim.dummyintparam_link_type",sim_dummyintparam_link_type,true},
     {"sim.dummyfloatparam_size",sim_dummyfloatparam_size,true},
@@ -13055,6 +13057,36 @@ int _simGenerateShapeFromPath(luaWrap_lua_State* L)
                 LUA_END(1);
             }
         }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetClosestPosOnPath(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.generateShapeFromPath");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,3,lua_arg_number,1,lua_arg_number,3))
+    {
+        size_t pathS=luaWrap_lua_rawlen(L,1);
+        size_t pathLS=luaWrap_lua_rawlen(L,2);
+        if (pathLS<=pathS/3)
+        {
+            std::vector<float> ppath;
+            std::vector<float> pathLengths;
+            float absPt[3];
+            ppath.resize(pathS);
+            pathLengths.resize(pathLS);
+            getFloatsFromTable(L,1,pathS,&ppath[0]);
+            getFloatsFromTable(L,2,pathLS,&pathLengths[0]);
+            getFloatsFromTable(L,3,3,absPt);
+            float p=simGetClosestPosOnPath_internal(&ppath[0],pathLS*3,&pathLengths[0],absPt);
+            luaWrap_lua_pushnumber(L,p);
+            LUA_END(1);
+        }
+        errorString=SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG;
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

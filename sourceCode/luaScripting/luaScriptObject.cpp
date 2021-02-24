@@ -4683,7 +4683,7 @@ void CLuaScriptObject::serialize(CSer& ar)
             _adjustScriptText11(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40001);
             _adjustScriptText12(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40100);
             _adjustScriptText13(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40200);
-            if ( _threadedExecution_oldThreads&&(App::userSettings->xrTest==123456789) ) //(!App::userSettings->makeOldThreadedScriptsAvailable) )
+            if ( _threadedExecution_oldThreads&&(!App::userSettings->keepOldThreadedScripts)&&(ar.getCoppeliaSimVersionThatWroteThisFile()<40200) )
             {
                 if (_convertThreadedScriptToCoroutine(this))
                 {
@@ -5930,12 +5930,12 @@ void CLuaScriptObject::_adjustScriptText13(CLuaScriptObject* scriptObject,bool d
         _replaceScriptText(scriptObject,txt1,txt2);
 
 
-        if (_containsScriptText(scriptObject," thread"))
-            App::logMsg(sim_verbosity_errors,"Contains the word 'thread'");
-        if (_containsScriptText(scriptObject," Thread"))
-            App::logMsg(sim_verbosity_errors,"Contains the word 'Thread'");
+        if ( _containsScriptText(scriptObject,"sysCall_vision")&&(scriptObject->_scriptType==sim_scripttype_customizationscript) )
+            App::logMsg(sim_verbosity_errors,"Contains a vision callback in a customization script");
         if (_containsScriptText(scriptObject,"sim.rmlMove"))
             App::logMsg(sim_verbosity_errors,"Contains sim.rmlMove...");
+        if (_containsScriptText(scriptObject,"sim.include"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.include...");
         if (_containsScriptText(scriptObject,"sim.getIk"))
             App::logMsg(sim_verbosity_errors,"Contains sim.getIk...");
         if (_containsScriptText(scriptObject,"sim.getScriptSimulationParameter"))

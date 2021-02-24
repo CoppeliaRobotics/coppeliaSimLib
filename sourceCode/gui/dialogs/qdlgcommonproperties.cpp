@@ -79,6 +79,8 @@ void CQDlgCommonProperties::refresh()
     ui->qqApplyGeneralProperties->setEnabled(noEditModeNoSim&&bigSel);
     ui->qqAssembling->setEnabled(noEditModeNoSim&&objIsSelected);
 
+    ui->qqSeen->setVisible(App::userSettings->showOldDlgs);
+    ui->qqViewableObjects->setVisible(App::userSettings->showOldDlgs);
     ui->qqViewableObjects->setEnabled(noEditModeNoSim&&objIsSelected);
     ui->qqViewableObjects->clear();
 

@@ -5416,7 +5416,7 @@ simInt simAddScript_internal(simInt scriptProperty)
         if (scriptProperty&sim_scripttype_threaded_old)
             scriptType=scriptProperty-sim_scripttype_threaded_old;
         CLuaScriptObject* it=new CLuaScriptObject(scriptType);
-        if (App::userSettings->makeOldThreadedScriptsAvailable)
+        if (App::userSettings->keepOldThreadedScripts)
         {
             if (scriptProperty&sim_scripttype_threaded_old)
             {
@@ -7028,17 +7028,27 @@ simInt simRemoveDrawingObject_internal(simInt objectHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        if (objectHandle==sim_handle_all)
+        int handle=objectHandle;
+        int handleFlags=0;
+        if (objectHandle>=0)
+        {
+            handleFlags=objectHandle&0x0ff00000;
+            handle=objectHandle&0x000fffff;
+        }
+
+        if (handle==sim_handle_all)
             App::currentWorld->drawingCont->removeAllObjects();
         else
         {
-            CDrawingObject* it=App::currentWorld->drawingCont->getObject(objectHandle);
-            if (it==nullptr)
+            CDrawingObject* it=App::currentWorld->drawingCont->getObject(handle);
+            if (it!=nullptr)
+                App::currentWorld->drawingCont->removeObject(handle);
+            else
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT);
+                if (handleFlags!=sim_handleflag_silenterror)
+                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT);
                 return(-1);
             }
-            App::currentWorld->drawingCont->removeObject(objectHandle);
         }
         return(1);
     }
@@ -8924,9 +8934,7 @@ simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -8939,7 +8947,6 @@ simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt
         it->setBackFaceDetection((options&16)==0);
         it->setClosestObjectMode((options&32)==0);
         it->setNormalCheck((options&64)!=0);
-//        it->setCheckOcclusions((options&128)!=0);
         it->convexVolume->setSmallestDistanceEnabled((options&256)!=0);
         it->setRandomizedDetection((sensorType==sim_proximitysensor_ray_subtype)&&(options&512)!=0);
 
@@ -8974,7 +8981,7 @@ simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt
         if ( (sensorType==sim_proximitysensor_cone_subtype)||(sensorType==sim_proximitysensor_disc_subtype) )
             it->convexVolume->setInsideAngleThing(floatParams[6]);
 
-        if ( (sensorType==sim_proximitysensor_cylinder_subtype)||(sensorType==sim_proximitysensor_cone_subtype)||(sensorType==sim_proximitysensor_disc_subtype) )
+        if ( ((sensorType==sim_proximitysensor_ray_subtype)&&it->getRandomizedDetection())||(sensorType==sim_proximitysensor_cylinder_subtype)||(sensorType==sim_proximitysensor_cone_subtype)||(sensorType==sim_proximitysensor_disc_subtype) )
             it->convexVolume->setRadius(floatParams[7]);
         if (sensorType==sim_proximitysensor_cylinder_subtype)
             it->convexVolume->setRadiusFar(floatParams[8]);
@@ -12661,7 +12668,7 @@ simInt simIsDynamicallyEnabled_internal(simInt objectHandle)
     return(-1);
 }
 
-simInt simGenerateShapeFromPath_internal(const simFloat* ppath,simInt pathSize,const simFloat* section,simInt sectionSize,simInt options,const simFloat* upVector,simFloat reserved)
+simInt simGenerateShapeFromPath_internal(const simFloat* pppath,simInt pathSize,const simFloat* section,simInt sectionSize,simInt options,const simFloat* upVector,simFloat reserved)
 {
     TRACE_C_API;
 
@@ -12670,6 +12677,29 @@ simInt simGenerateShapeFromPath_internal(const simFloat* ppath,simInt pathSize,c
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
+        // First make sure the points are not coincident:
+        std::vector<float> ppath;
+        C3Vector prevV;
+        prevV.clear();
+        C4Vector prevQ;
+        prevQ.clear();
+        for (int i=0;i<pathSize/7;i++)
+        {
+            C3Vector v(pppath+7*i);
+            C4Vector q(pppath+7*i+3,true);
+            float d=(prevV-v).getLength();
+            if ( (d>=0.0005f)||(i==0) )
+            {
+                prevV=v;
+                prevQ=q;
+                for (size_t j=0;j<3;j++)
+                    ppath.push_back(v(j));
+                for (size_t j=0;j<4;j++)
+                    ppath.push_back(q(j));
+            }
+        }
+        pathSize=ppath.size();
+
         C3Vector zvect;
         if (upVector!=nullptr)
             zvect.set(upVector);
@@ -12687,22 +12717,22 @@ simInt simGenerateShapeFromPath_internal(const simFloat* ppath,simInt pathSize,c
         {
             C3Vector p0,p1,p2;
             if (i!=0)
-                p0=C3Vector(ppath+7*(i-1));
+                p0=C3Vector(&ppath[0]+7*(i-1));
             else
             {
                 if (closedPath)
-                    p0=C3Vector(ppath+pathSize-7);
+                    p0=C3Vector(&ppath[0]+pathSize-7);
             }
-            p1=C3Vector(ppath+7*i);
-            C4Vector q(ppath+7*i+3,true);
+            p1=C3Vector(&ppath[0]+7*i);
+            C4Vector q(&ppath[0]+7*i+3,true);
             if (axis!=0)
                 zvect=q.getAxis(axis-1);
             if (i!=(confCnt-1))
-                p2=C3Vector(ppath+7*(i+1));
+                p2=C3Vector(&ppath[0]+7*(i+1));
             else
             {
                 if (closedPath)
-                    p2=C3Vector(ppath+7*1);
+                    p2=C3Vector(&ppath[0]+7*1);
             }
             C3Vector vy;
             if ( closedPath||((i!=0)&&(i!=(confCnt-1))) )
@@ -12793,6 +12823,38 @@ simInt simGenerateShapeFromPath_internal(const simFloat* ppath,simInt pathSize,c
     return(-1);
 }
 
+simFloat simGetClosestPosOnPath_internal(const simFloat* path,simInt pathSize,const simFloat* pathLengths,const simFloat* absPt)
+{
+    TRACE_C_API;
+    float retVal=0.0f;
+
+    if (pathSize>=6)
+    {
+        float d=SIM_MAX_FLOAT;
+        C3Vector pppt(absPt);
+        for (int i=0;i<(pathSize/3)-1;i++)
+        {
+            C3Vector v0(path+i*3);
+            C3Vector v1(path+(i+1)*3);
+            C3Vector vd(v1-v0);
+            C3Vector theSearchedPt;
+            if (CMeshRoutines::getMinDistBetweenSegmentAndPoint_IfSmaller(v0,vd,pppt,d,theSearchedPt))
+            {
+                float vdL=vd.getLength();
+                if (vdL==0.0f)
+                    retVal=pathLengths[i]; // // Coinciding points
+                else
+                {
+                    float l=(theSearchedPt-v0).getLength();
+                    float c=l/vdL;
+                    retVal=pathLengths[i]*(1.0f-c)+pathLengths[i+1]*c;
+                }
+            }
+        }
+    }
+    return(retVal);
+}
+
 simInt simInitScript_internal(simInt scriptHandle)
 {
     TRACE_C_API;
@@ -12852,13 +12914,13 @@ simInt simGroupShapes_internal(const simInt* shapeHandles,simInt shapeCount)
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_NOT_ENOUGH_SHAPES);
             return(-1);
         }
-        const std::vector<int>* initSelection=App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr();
+        const std::vector<int> initSelection(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
         int retVal;
         if (merging)
             retVal=CSceneObjectOperations::mergeSelection(&shapes,false);
         else
             retVal=CSceneObjectOperations::groupSelection(&shapes,false);
-        App::currentWorld->sceneObjects->setSelectedObjectHandles(initSelection);
+        App::currentWorld->sceneObjects->setSelectedObjectHandles(&initSelection);
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);

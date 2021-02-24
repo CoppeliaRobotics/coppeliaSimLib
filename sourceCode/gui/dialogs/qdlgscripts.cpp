@@ -71,7 +71,7 @@ void CQDlgScripts::refresh()
     ui->qqDebugMode->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript)||(theScript->getScriptType()==sim_scripttype_mainscript) ));
     ui->qqDisabled->setEnabled((theScript!=nullptr)&&noEditMode&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqExecuteOnce->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&(theScript->getScriptType()==sim_scripttype_childscript)&&theScript->getThreadedExecution_oldThreads());
-    ui->qqExecuteOnce->setVisible(App::userSettings->makeOldThreadedScriptsAvailable);
+    ui->qqExecuteOnce->setVisible(App::userSettings->keepOldThreadedScripts);
 
     if (theScript!=nullptr)
     {

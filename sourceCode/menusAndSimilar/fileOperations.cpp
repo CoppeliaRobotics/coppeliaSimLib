@@ -924,7 +924,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
                 tt::removeSpacesAtBeginningAndEnd(acknowledgement);
                 if (acknowledgement.length()!=0)
                 {
-                    acknowledgement="Scene content acknowledgement / infos:\n"+acknowledgement;
+                    acknowledgement="Scene infos:\n"+acknowledgement;
                     App::logMsg(sim_verbosity_scriptinfos,acknowledgement.c_str());
                 }
             }
@@ -1075,7 +1075,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                     }
                     if (displayMessages&&(acknowledgement.length()!=0))
                     {
-                        acknowledgement="Model acknowledgement / infos:\n"+acknowledgement;
+                        acknowledgement="Model infos:\n"+acknowledgement;
                         App::logMsg(sim_verbosity_scriptinfos,acknowledgement.c_str());
                     }
                 }

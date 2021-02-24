@@ -475,6 +475,7 @@ extern int _simGetShapeInertia(luaWrap_lua_State* L);
 extern int _simSetShapeInertia(luaWrap_lua_State* L);
 extern int _simIsDynamicallyEnabled(luaWrap_lua_State* L);
 extern int _simGenerateShapeFromPath(luaWrap_lua_State* L);
+extern int _simGetClosestPosOnPath(luaWrap_lua_State* L);
 extern int _simInitScript(luaWrap_lua_State* L);
 
 // DEPRECATED

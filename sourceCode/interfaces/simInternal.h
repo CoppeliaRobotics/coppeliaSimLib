@@ -386,6 +386,7 @@ simInt simGetShapeInertia_internal(simInt shapeHandle,simFloat* inertiaMatrix,si
 simInt simSetShapeInertia_internal(simInt shapeHandle,const simFloat* inertiaMatrix,const simFloat* transformationMatrix);
 simInt simIsDynamicallyEnabled_internal(simInt objectHandle);
 simInt simGenerateShapeFromPath_internal(const simFloat* path,simInt pathSize,const simFloat* section,simInt sectionSize,simInt options,const simFloat* upVector,simFloat reserved);
+simFloat simGetClosestPosOnPath_internal(const simFloat* path,simInt pathSize,const simFloat* pathLengths,const simFloat* absPt);
 simInt simInitScript_internal(simInt scriptHandle);
 
 

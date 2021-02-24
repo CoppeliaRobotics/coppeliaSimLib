@@ -36,6 +36,7 @@ void CQDlgMaterial::refresh()
     ui->qqSpecularAdjust->setEnabled(simStopped&&(allowedParts&4));
     ui->qqEmissiveAdjust->setEnabled(simStopped&&(allowedParts&8));
     ui->qqAuxiliaryAdjust->setEnabled(simStopped&&(allowedParts&16));
+    ui->qqPulsationAdjust->setVisible(App::userSettings->showOldDlgs);
     ui->qqPulsationAdjust->setEnabled(simStopped&&(allowedParts&32));
     ui->qqShininess->setEnabled(simStopped&&(allowedParts&64));
     ui->qqOpacityEnable->setEnabled(simStopped&&(allowedParts&128));

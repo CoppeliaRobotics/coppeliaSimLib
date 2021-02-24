@@ -397,6 +397,7 @@ SIM_DLLEXPORT simInt simGetShapeInertia(simInt shapeHandle,simFloat* inertiaMatr
 SIM_DLLEXPORT simInt simSetShapeInertia(simInt shapeHandle,const simFloat* inertiaMatrix,const simFloat* transformationMatrix);
 SIM_DLLEXPORT simInt simIsDynamicallyEnabled(simInt objectHandle);
 SIM_DLLEXPORT simInt simGenerateShapeFromPath(const simFloat* path,simInt pathSize,const simFloat* section,simInt sectionSize,simInt options,const simFloat* upVector,simFloat reserved);
+SIM_DLLEXPORT simFloat simGetClosestPosOnPath(const simFloat* path,simInt pathSize,const simFloat* pathLengths,const simFloat* absPt);
 SIM_DLLEXPORT simInt simInitScript(simInt scriptHandle);
 
 

@@ -79,7 +79,7 @@ public:
     bool useAlternateSerialPortRoutines;
     bool disableOpenGlBasedCustomUi;
     bool showOldDlgs;
-    bool makeOldThreadedScriptsAvailable;
+    bool keepOldThreadedScripts;
     bool enableOldMirrorObjects;
     int allowOldEduRelease;
     int threadedScriptsStoppingGraceTime;

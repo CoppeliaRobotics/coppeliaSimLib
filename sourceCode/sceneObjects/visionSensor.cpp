@@ -175,6 +175,7 @@ unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX
             }
         }
     }
+
     return(buff);
 }
 
