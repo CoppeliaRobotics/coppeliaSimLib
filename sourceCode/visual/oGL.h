@@ -243,4 +243,9 @@ public:
 
     static float HIERARCHY_NO_SELECTION_BLUE_BRIGHT[3];
     static float HIERARCHY_NO_SELECTION_BLUE_DARK[3];
+
+    static unsigned int genTexture();
+    static void delTexture(unsigned int t);
+    static std::vector<unsigned int> _allTextureNames;
+    static std::vector<bool> _allTextureNamesAv;
 };

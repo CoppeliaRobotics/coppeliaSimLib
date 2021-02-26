@@ -750,7 +750,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
             ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorWhite);
 
             GLuint _oglTextureName;
-            glGenTextures(1,&_oglTextureName);
+            _oglTextureName=ogl::genTexture();//glGenTextures(1,&_oglTextureName);
             glBindTexture(GL_TEXTURE_2D,_oglTextureName);
             glPixelStorei(GL_UNPACK_ALIGNMENT,1);
             glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,surfaceSize[0],surfaceSize[1],0,GL_RGB,GL_UNSIGNED_BYTE,buff);
@@ -777,7 +777,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
             glEnd();
 
             glDisable(GL_TEXTURE_2D);
-            glDeleteTextures(1,&_oglTextureName);
+            ogl::delTexture(_oglTextureName);//glDeleteTextures(1,&_oglTextureName);
             glEnable(GL_DEPTH_TEST);
         }
     }

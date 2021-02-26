@@ -3811,6 +3811,11 @@ simInt simGetInt32Parameter_internal(simInt parameter,simInt* intState)
             intState[0]=App::getExitCode();
             return(1);
         }
+        if (parameter==sim_intparam_bugfix1)
+        {
+            intState[0]=App::userSettings->bugFix1;
+            return(1);
+        }
         if (parameter==sim_intparam_dlgverbosity)
         {
             intState[0]=App::getDlgVerbosity();

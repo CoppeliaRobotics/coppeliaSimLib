@@ -2993,7 +2993,7 @@ void CVisionSensor::lookAt(CSView* viewObject,int viewPos[2],int viewSize[2])
         if (getApplyExternalRenderedImage())
         {
             if (_rayTracingTextureName==(unsigned int)-1)
-                glGenTextures(1,&_rayTracingTextureName);
+                _rayTracingTextureName=ogl::genTexture();//glGenTextures(1,&_rayTracingTextureName);
             glBindTexture(GL_TEXTURE_2D,_rayTracingTextureName);
             glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,_resolutionX,_resolutionY,0,GL_RGB,GL_UNSIGNED_BYTE,_rgbBuffer);
             glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR); // keep to GL_LINEAR here!!

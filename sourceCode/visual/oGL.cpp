@@ -86,6 +86,62 @@ float ogl::_lastAmbientDiffuseAlpha[4];
 std::vector<float> ogl::buffer;
 std::vector<int> ogl::buffer_i;
 
+std::vector<unsigned int> ogl::_allTextureNames;
+std::vector<bool> ogl::_allTextureNamesAv;
+
+unsigned int ogl::genTexture()
+{
+    static int bf=App::userSettings->bugFix1;
+    unsigned int retVal=0;
+    if (bf>0)
+    {
+        static bool first=true;
+        if (first)
+        {
+            first=false;
+            _allTextureNames.resize(bf);
+            _allTextureNamesAv.resize(bf,true);
+            glGenTextures(bf,&_allTextureNames[0]);
+        }
+        for (size_t i=0;i<bf;i++)
+        {
+            if (_allTextureNamesAv[i])
+            {
+                _allTextureNamesAv[i]=false;
+                retVal=_allTextureNames[i];
+                break;
+            }
+        }
+    }
+    else
+    {
+        if (bf==-1)
+            glGenTextures(1,&retVal);
+    }
+    return(retVal);
+}
+
+void ogl::delTexture(unsigned int t)
+{
+    static int bf=App::userSettings->bugFix1;
+    if (bf>0)
+    {
+        for (size_t i=0;i<bf;i++)
+        {
+            if (_allTextureNames[i]==t)
+            {
+                _allTextureNamesAv[i]=true;
+                break;
+            }
+        }
+    }
+    else
+    {
+        if (bf==-1)
+            glDeleteTextures(1,&t);
+    }
+}
+
 void ogl::setTextColor(float r,float g,float b)
 {
     float buff[4]={r,g,b,1.0f};

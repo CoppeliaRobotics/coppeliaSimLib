@@ -71,6 +71,7 @@ public:
     int autoSaveDelay;
     int bulletSerializationBuffer;
     int timeInMsForUndoRedoTooLongWarning;
+    int bugFix1;
 
     bool middleMouseButtonSwitchesModes;
     bool navigationBackwardCompatibility;

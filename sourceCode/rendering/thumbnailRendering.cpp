@@ -29,7 +29,7 @@ void displayThumbnail(CThumbnail* thumbnail,int posX,int posY,const char* name,i
         ogl::disableLighting_useWithCare(); // only temporarily
         ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
         unsigned int textureName;
-        glGenTextures(1,&textureName);
+        textureName=ogl::genTexture();//glGenTextures(1,&textureName);
         glBindTexture(GL_TEXTURE_2D,textureName);
         glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,128,128,0,GL_RGBA,GL_UNSIGNED_BYTE,_thumbnailRGBAImage);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
@@ -54,7 +54,7 @@ void displayThumbnail(CThumbnail* thumbnail,int posX,int posY,const char* name,i
         glDisable(GL_TEXTURE_2D);
         ogl::setBlending(false);
         glDisable(GL_ALPHA_TEST);
-        glDeleteTextures(1,&textureName);
+        ogl::delTexture(textureName);//glDeleteTextures(1,&textureName);
     }
     ogl::setTextColor(ogl::colorGrey);
 

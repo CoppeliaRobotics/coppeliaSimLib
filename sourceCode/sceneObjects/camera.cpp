@@ -2079,7 +2079,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
             glDisable(GL_DEPTH_TEST);
             ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorWhite);
             if (_textureNameForExtGeneratedView==(unsigned int)-1)
-                glGenTextures(1,&_textureNameForExtGeneratedView);
+                _textureNameForExtGeneratedView=ogl::genTexture();//glGenTextures(1,&_textureNameForExtGeneratedView);
             glBindTexture(GL_TEXTURE_2D,_textureNameForExtGeneratedView);
             glPixelStorei(GL_UNPACK_ALIGNMENT,1);
             glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,_currentViewSize[0],_currentViewSize[1],0,GL_RGB,GL_UNSIGNED_BYTE,buff);

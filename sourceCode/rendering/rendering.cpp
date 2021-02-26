@@ -633,7 +633,7 @@ void _startTextureDisplay(CTextureObject* to,bool interpolateColor,int applyMode
     if (to->getOglTextureName()==(unsigned int)-1)
     {
         unsigned int tn;
-        glGenTextures(1,&tn);
+        tn=ogl::genTexture();//glGenTextures(1,&tn);
         glBindTexture(GL_TEXTURE_2D,tn);
         to->setOglTextureName(tn);
         glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,sx,sy,0,GL_RGBA,GL_UNSIGNED_BYTE,to->getTextureBufferPointer());
@@ -681,7 +681,7 @@ void _endTextureDisplay()
 
 void destroyGlTexture(unsigned int texName)
 {
-    glDeleteTextures(1,&texName);
+    ogl::delTexture(texName);//glDeleteTextures(1,&texName);
 }
 
 #else

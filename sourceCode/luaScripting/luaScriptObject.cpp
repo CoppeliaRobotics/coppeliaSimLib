@@ -5932,6 +5932,8 @@ void CLuaScriptObject::_adjustScriptText13(CLuaScriptObject* scriptObject,bool d
 
         if ( _containsScriptText(scriptObject,"sysCall_vision")&&(scriptObject->_scriptType==sim_scripttype_customizationscript) )
             App::logMsg(sim_verbosity_errors,"Contains a vision callback in a customization script");
+        if ( _containsScriptText(scriptObject,"sysCall_trigger")&&(scriptObject->_scriptType==sim_scripttype_customizationscript) )
+            App::logMsg(sim_verbosity_errors,"Contains a trigger callback in a customization script");
         if (_containsScriptText(scriptObject,"sim.rmlMove"))
             App::logMsg(sim_verbosity_errors,"Contains sim.rmlMove...");
         if (_containsScriptText(scriptObject,"sim.include"))

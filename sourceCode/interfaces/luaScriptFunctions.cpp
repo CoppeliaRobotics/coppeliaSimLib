@@ -178,7 +178,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.invertMatrix",_simInvertMatrix,                        "sim.invertMatrix(table[12] matrix)",true},
     {"sim.multiplyMatrices",_simMultiplyMatrices,                "table[12] resultMatrix=sim.multiplyMatrices(table[12] matrixIn1,table[12] matrixIn2)",true},
     {"sim.interpolateMatrices",_simInterpolateMatrices,          "table[12] resultMatrix=sim.interpolateMatrices(table[12] matrixIn1,table[12] matrixIn2,float interpolFactor)",true},
-    {"sim.multiplyVector",_simMultiplyVector,                    "table[3*n] resultVector=sim.multiplyVector(table[12] matrix,table[3*n] vector)",true},
+    {"sim.multiplyVector",_simMultiplyVector,                    "table[3*n] resultVector=sim.multiplyVector(table[7]/table[12] pose/matrix,table[3*n] vector)",true},
     {"sim.getObjectChild",_simGetObjectChild,                    "int childObjectHandle=sim.getObjectChild(int objectHandle,int index)",true},
     {"sim.getObjectParent",_simGetObjectParent,                  "int parentObjectHandle=sim.getObjectParent(int objectHandle)",true},
     {"sim.setObjectParent",_simSetObjectParent,                  "sim.setObjectParent(int objectHandle,int parentObjectHandle,boolean keepInPlace)",true},
@@ -6607,22 +6607,38 @@ int _simMultiplyVector(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.multiplyVector");
 
-    if (checkInputArguments(L,&errorString,lua_arg_number,12,lua_arg_number,3))
+    if (checkInputArguments(L,&errorString,lua_arg_number,7,lua_arg_number,3))
     {
         float matr[12];
         std::vector<float> vect;
         size_t cnt=luaWrap_lua_rawlen(L,2)/3;
         vect.resize(cnt*3);
-        getFloatsFromTable(L,1,12,matr);
         getFloatsFromTable(L,2,cnt*3,&vect[0]);
 
-        C4X4Matrix m;
-        m.copyFromInterface(matr);
-        for (size_t i=0;i<cnt;i++)
-        {
-            C3Vector v(&vect[3*i]);
-            (m*v).copyTo(&vect[3*i]);
+        if (luaWrap_lua_rawlen(L,1)>=12)
+        { // we have a matrix
+            getFloatsFromTable(L,1,12,matr);
+            C4X4Matrix m;
+            m.copyFromInterface(matr);
+            for (size_t i=0;i<cnt;i++)
+            {
+                C3Vector v(&vect[3*i]);
+                (m*v).copyTo(&vect[3*i]);
+            }
         }
+        else
+        { // we have a pose
+            getFloatsFromTable(L,1,7,matr);
+            C7Vector tr;
+            tr.X.set(matr);
+            tr.Q.setInternalData(matr+3,true);
+            for (size_t i=0;i<cnt;i++)
+            {
+                C3Vector v(&vect[3*i]);
+                (tr*v).copyTo(&vect[3*i]);
+            }
+        }
+
         pushFloatTableOntoStack(L,3*cnt,&vect[0]);
         LUA_END(1);
     }

@@ -64,6 +64,7 @@
 #define _USR_STATUSBAR_VERBOSITY "statusbarVerbosity"
 #define _USR_DIALOG_VERBOSITY "dialogVerbosity"
 #define _USR_LOG_FILTER "logFilter"
+#define _USR_BUGFIX1 "bugFix1"
 #define _USR_UNDECORATED_STATUSBAR_MSGS "undecoratedStatusbarMessages"
 #define _USR_CONSOLE_MSGS_TO_FILE "consoleMsgsToFile"
 #define _USR_FORCE_BUG_FIX_REL_30002 "forceBugFix_rel30002"
@@ -205,6 +206,8 @@ CUserSettings::CUserSettings()
     _overrideDialogVerbosity="default";
     _consoleLogFilter="";
     undecoratedStatusbarMessages=false;
+    bugFix1=1000;
+
 
     // Rendering section:
     // *****************************
@@ -885,6 +888,8 @@ void CUserSettings::loadUserSettings()
     bool dummyBool=false;
     if (c.getBoolean(_USR_CONSOLE_MSGS_TO_FILE,dummyBool))
         App::setConsoleMsgToFile(dummyBool);
+
+    c.getInteger(_USR_BUGFIX1,bugFix1);
 
 
     // Rendering section:
