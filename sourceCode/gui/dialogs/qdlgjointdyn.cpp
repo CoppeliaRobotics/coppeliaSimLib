@@ -75,8 +75,8 @@ void CQDlgJointDyn::refresh()
         ui->qqMaxForceLabel->setText("Maximum torque [N*m]");
         ui->qqTargetPositionLabel->setText("Target position [deg]");
         ui->qqUpperVelocityLabel->setText("Upper velocity limit [deg/s]");
-        ui->qqKLabel->setText("Spring constant K [N]");
-        ui->qqCLabel->setText("Damping coefficient C [N*s]");
+        ui->qqKLabel->setText("Spring constant K [N*m/deg]");
+        ui->qqCLabel->setText("Damping coefficient C [N*s*m/deg]");
     }
 
     ui->qqMotorEnabled->setEnabled(dynamicMotControlAllowed&&(!it->getHybridFunctionality()));

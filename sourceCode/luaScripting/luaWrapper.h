@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 extern "C" {
     #include "lua.h"
     #include "lauxlib.h"
@@ -111,6 +113,7 @@ void luaWrap_lua_insert(luaWrap_lua_State* L,int idx);
 int luaWrap_lua_isuserdata(luaWrap_lua_State* L,int idx);
 int luaWrap_lua_upvalueindex(int i);
 int luaWrap_getCurrentCodeLine(luaWrap_lua_State* L);
+std::string luaWrap_getCurrentCodeSource(luaWrap_lua_State* L);
 void luaWrap_lua_settable(luaWrap_lua_State* L,int idx);
 int luaWrap_lua_next(luaWrap_lua_State* L,int idx);
 int luaWrap_lua_stype(luaWrap_lua_State* L,int idx);

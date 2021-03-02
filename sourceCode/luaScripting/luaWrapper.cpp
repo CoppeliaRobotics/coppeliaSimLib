@@ -851,6 +851,20 @@ int luaWrap_getCurrentCodeLine(luaWrap_lua_State* L)
     return(r);
 }
 
+std::string luaWrap_getCurrentCodeSource(luaWrap_lua_State* L)
+{
+//    if (lib!=nullptr)
+//        return(luaLib_getCurrentCodeSource(L));
+    std::string r="?";
+    lua_Debug ar;
+    if (lua_getstack((lua_State*)L,1,&ar)==1)
+    {
+        if (lua_getinfo((lua_State*)L,"S",&ar)==1)
+            r=ar.source;
+    }
+    return(r);
+}
+
 void luaWrap_lua_settable(luaWrap_lua_State* L,int idx)
 {
     if (lib!=nullptr)

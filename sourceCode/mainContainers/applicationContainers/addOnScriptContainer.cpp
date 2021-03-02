@@ -284,32 +284,19 @@ bool CAddOnScriptContainer::processCommand(int commandID)
             }
             if (it!=nullptr)
             {
-                std::string txt;
                 int st=it->getScriptState();
                 int sysCall=-1;
                 if ( ((st&CLuaScriptObject::scriptState_error)!=0)||((st&7)!=CLuaScriptObject::scriptState_initialized) )
                 {
                     sysCall=sim_syscb_init;
                     it->resetScript();
-                    txt=IDSNS_STARTING_ADDON_SCRIPT; // started/restarted
                 }
                 if (st==(CLuaScriptObject::scriptState_initialized|CLuaScriptObject::scriptState_suspended))
-                {
                     sysCall=sim_syscb_aos_resume;
-                    txt=IDSNS_RESUMING_ADDON_SCRIPT;
-                }
                 if (st==CLuaScriptObject::scriptState_initialized)
-                {
                     sysCall=sim_syscb_aos_suspend;
-                    txt=IDSNS_PAUSING_ADDON_SCRIPT;
-                }
                 if (sysCall!=-1)
-                {
-                    txt+=" ";
-                    txt+=it->getAddOnName();
-                    App::logMsg(sim_verbosity_msgs,txt.c_str());
                     it->systemCallScript(sysCall,nullptr,nullptr,true);
-                }
             }
         }
         else
@@ -329,10 +316,10 @@ bool CAddOnScriptContainer::processCommand(int commandID)
             int index=commandID-SCRIPT_CONT_COMMANDS_ADDON_FUNCTION_MENU_ITEM_START_SCCMD;
             if (index<int(_allAddOnFunctionNames_old.size()))
             {
-                std::string txt(IDSNS_STARTING_ADDON_FUNCTION);
-                txt+=" ";
-                txt+=_allAddOnFunctionNames_old[index];
-                App::logMsg(sim_verbosity_msgs,txt.c_str());
+//                std::string txt("Starting add-on function");
+//                txt+=" ";
+//                txt+=_allAddOnFunctionNames_old[index];
+//                App::logMsg(sim_verbosity_msgs,txt.c_str());
 
                 // execute the add-on function here!!
                 std::string fp1(App::folders->getExecutablePath()+"/");
@@ -382,7 +369,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
     //                  VFile::reportAndHandleFileExceptionError(e);
                     }
                 }
-                App::logMsg(sim_verbosity_msgs,IDSNS_ENDED_ADDON_FUNCTION);
+               // App::logMsg(sim_verbosity_msgs,"Ended add-on function");
             }
         }
         else

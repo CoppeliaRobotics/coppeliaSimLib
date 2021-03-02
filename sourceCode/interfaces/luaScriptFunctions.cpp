@@ -4010,14 +4010,17 @@ int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,st
     }
 
     // We prepare the callback structure:
-    char raiseErrorMsg[258];
-    raiseErrorMsg[0]='\0';
     SScriptCallBack* cb=new SScriptCallBack;
     cb->objectID=linkedObject;
     cb->scriptID=currentScriptID;
     cb->stackID=stackId;
-    cb->waitUntilZero=0;
-    cb->raiseErrorWithMessage=(char*)&raiseErrorMsg;
+    cb->waitUntilZero=0; // old
+    char raiseErrorMsg[258]; // old
+    raiseErrorMsg[0]='\0'; // old
+    cb->raiseErrorWithMessage=(char*)&raiseErrorMsg; // old
+    std::string source(luaWrap_getCurrentCodeSource(L));
+    cb->source=(char*)source.c_str();
+    cb->line=luaWrap_getCurrentCodeLine(L);
 
     // Now we can call the callback:
     func->callBackFunction_new(cb);
@@ -4035,14 +4038,7 @@ int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,st
             break;
         }
     }
-    /*
-    if (func->getFunctionName().compare("simUI.getPosition")==0)
-    {
-        std::string buff;
-        stack->printContent(-1,buff);
-        printf("%s\n",buff.c_str());
-    }
-    */
+
     // Now we have to build the returned data onto the stack:
     stack->buildOntoLuaStack(L,false);
 
@@ -7500,6 +7496,24 @@ int _simTest(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.test");
+
+    lua_Debug ar;
+    if (lua_getstack((lua_State*)L,1,&ar)==1)
+    {
+        if (lua_getinfo((lua_State*)L,"S",&ar)==1)
+        {
+            printf("Source: %s\n",ar.source);
+            printf("SourceShort: %s\n",ar.short_src);
+        }
+    }
+    if (lua_getstack((lua_State*)L,1,&ar)==1)
+    {
+        if (lua_getinfo((lua_State*)L,"l",&ar)==1)
+            printf("Line: %i\n",ar.currentline);
+    }
+
+
+
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
