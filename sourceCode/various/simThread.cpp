@@ -4537,9 +4537,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 newShape=new CShape(nullptr,cmd.floatVectorParams[0],cmd.intVectorParams[0],nullptr,&cmd.floatVectorParams[2]);
             else
                 newShape=new CShape(nullptr,cmd.floatVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr);
-            newShape->setVisibleEdges(true);
-            newShape->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
-            newShape->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
+            newShape->setVisibleEdges(false);
+            newShape->getSingleMesh()->setGouraudShadingAngle(0.0f);
+            newShape->getSingleMesh()->setEdgeThresholdAngle(0.0f);
             newShape->setObjectName("Extracted_shape",true);
             newShape->setObjectAltName(tt::getObjectAltNameFromObjectName(newShape->getObjectName().c_str()).c_str(),true);
             App::currentWorld->sceneObjects->addObjectToScene(newShape,false,true);

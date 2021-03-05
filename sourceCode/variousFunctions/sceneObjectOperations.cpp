@@ -401,7 +401,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                             it->getSingleMesh()->color.setColor(1.0f,0.7f,0.7f,sim_colorcomponent_ambient_diffuse);
                             it->getSingleMesh()->setEdgeThresholdAngle(0.0f);
                             it->getSingleMesh()->setGouraudShadingAngle(0.0f);
-                            it->getSingleMesh()->setVisibleEdges(true);
+                            it->getSingleMesh()->setVisibleEdges(false);
 
                             // We need to correct all its children for this change of frame:
                             for (size_t i=0;i<it->getChildCount();i++)
@@ -520,7 +520,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         sh->getSingleMesh()->color.setColor(0.7f,0.7f,1.0f,sim_colorcomponent_ambient_diffuse);
                         sh->getSingleMesh()->setEdgeThresholdAngle(0.0f);
                         sh->getSingleMesh()->setGouraudShadingAngle(0.0f);
-                        sh->getSingleMesh()->setVisibleEdges(true);
+                        sh->getSingleMesh()->setVisibleEdges(false);
 
                         // We need to correct all its children for this change of frame:
                         for (size_t i=0;i<sh->getChildCount();i++)
@@ -843,7 +843,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         newShape->getSingleMesh()->color.setColor(1.0f,0.2f,0.2f,sim_colorcomponent_ambient_diffuse);
                         newShape->getSingleMesh()->setEdgeThresholdAngle(0.0f);
                         newShape->getSingleMesh()->setGouraudShadingAngle(0.0f);
-                        newShape->getSingleMesh()->setVisibleEdges(true);
+                        newShape->getSingleMesh()->setVisibleEdges(false);
 
                         App::currentWorld->sceneObjects->deselectObjects();
                         App::currentWorld->sceneObjects->selectObject(newShape->getObjectHandle());
@@ -1843,7 +1843,7 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
         C7Vector newTr(lastSel->reinitMesh(nullptr,wvert,wind,nullptr,nullptr));
         C7Vector lastSelPreviousLocal(lastSel->getFullLocalTransformation());
         C7Vector lastSelCurrentLocal(lastSel->getFullParentCumulativeTransformation().getInverse()*newTr);
-        lastSel->setLocalTransformation(newTr);
+        lastSel->setLocalTransformation(lastSelCurrentLocal);
 
         // Copy some CMesh properties (not all):
         geometricTemp->copyVisualAttributesTo(lastSel->getSingleMesh());
@@ -2209,7 +2209,7 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
                             shape->getSingleMesh()->color.setColor(0.7f,1.0f,0.7f,sim_colorcomponent_ambient_diffuse);
                             shape->getSingleMesh()->setEdgeThresholdAngle(0.0f);
                             shape->getSingleMesh()->setGouraudShadingAngle(0.0f);
-                            shape->getSingleMesh()->setVisibleEdges(true);
+                            shape->getSingleMesh()->setVisibleEdges(false);
                         }
                         delete outputVert[i];
                         delete outputInd[i];
@@ -2296,7 +2296,7 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
                         shape->getSingleMesh()->color.setColor(0.7f,1.0f,0.7f,sim_colorcomponent_ambient_diffuse);
                         shape->getSingleMesh()->setEdgeThresholdAngle(0.0f);
                         shape->getSingleMesh()->setGouraudShadingAngle(0.0f);
-                        shape->getSingleMesh()->setVisibleEdges(true);
+                        shape->getSingleMesh()->setVisibleEdges(false);
                     }
                     delete outputVert[i];
                     delete outputInd[i];

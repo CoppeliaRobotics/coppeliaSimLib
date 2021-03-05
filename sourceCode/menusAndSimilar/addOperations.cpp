@@ -759,7 +759,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         it->getSingleMesh()->color.setDefaultValues();
         it->getSingleMesh()->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
-        it->getSingleMesh()->setVisibleEdges(true);
+        it->getSingleMesh()->setVisibleEdges(false);
         it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
         it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         it->setObjectName(IDSOGL_PLANE,true);
@@ -815,7 +815,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         it->getSingleMesh()->color.setDefaultValues();
         it->getSingleMesh()->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
-        it->getSingleMesh()->setVisibleEdges(true);
+        it->getSingleMesh()->setVisibleEdges(false);
         it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
         it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         it->setObjectName(IDSOGL_RECTANGLE,true);
@@ -955,7 +955,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         it->getSingleMesh()->color.setDefaultValues();
         it->getSingleMesh()->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
-        it->getSingleMesh()->setVisibleEdges(true);
+        it->getSingleMesh()->setVisibleEdges(false);
         if (smooth)
         {
             it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
@@ -1078,7 +1078,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         it->getSingleMesh()->color.setDefaultValues();
         it->getSingleMesh()->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
-        it->getSingleMesh()->setVisibleEdges(true);
+        it->getSingleMesh()->setVisibleEdges(false);
         it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
         it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         it->setObjectName(IDSOGL_DISC,true);
@@ -1162,7 +1162,7 @@ CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& 
             retVal->getSingleMesh()->color.getColorsPtr()[2]=0.7f;
             retVal->getSingleMesh()->setEdgeThresholdAngle(0.0f);
             retVal->getSingleMesh()->setGouraudShadingAngle(0.0f);
-            retVal->getSingleMesh()->setVisibleEdges(true);
+            retVal->getSingleMesh()->setVisibleEdges(false);
 
             // Since we extracted the convex hull from a single shape, we take over the inertia and mass parameters
             // Get the mass and inertia info from the old shape:
@@ -1243,7 +1243,7 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
             retVal->getSingleMesh()->color.getColorsPtr()[2]=0.7f;
             retVal->getSingleMesh()->setEdgeThresholdAngle(0.0f);
             retVal->getSingleMesh()->setGouraudShadingAngle(0.0f);
-            retVal->getSingleMesh()->setVisibleEdges(true);
+            retVal->getSingleMesh()->setVisibleEdges(false);
 
             if ( (oneShape!=nullptr)&&(inputObjects.size()==1) )
             { // Since we extracted the convex hull from a single shape, we take over the inertia and mass parameters

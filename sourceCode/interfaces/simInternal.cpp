@@ -13261,7 +13261,7 @@ simInt simCreateTexture_internal(const simChar* fileName,simInt options,const si
                     identity.setIdentity();
                     shape->setLocalTransformation(identity);
                     shape->setCulling(false);
-                    shape->setVisibleEdges(true);
+                    shape->setVisibleEdges(false);
                     shape->setRespondable(false);
                     shape->setShapeIsDynamicallyStatic(true);
                     shape->getMeshWrapper()->setMass(1.0f);
@@ -13320,7 +13320,7 @@ simInt simCreateTexture_internal(const simChar* fileName,simInt options,const si
                 identity.setIdentity();
                 shape->setLocalTransformation(identity);
                 shape->setCulling(false);
-                shape->setVisibleEdges(true);
+                shape->setVisibleEdges(false);
                 shape->setRespondable(false);
                 shape->setShapeIsDynamicallyStatic(true);
                 shape->getMeshWrapper()->setMass(1.0f);

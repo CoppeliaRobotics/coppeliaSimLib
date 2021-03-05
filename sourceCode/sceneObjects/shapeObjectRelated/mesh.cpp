@@ -818,7 +818,7 @@ void CMesh::setConvexVisualAttributes()
     _hideEdgeBorders=false;
     setGouraudShadingAngle(0.0f);
     setEdgeThresholdAngle(0.0f);
-    setVisibleEdges(true);
+    setVisibleEdges(false);
     color.setConvexColors();
     edgeColor_DEPRECATED.setColorsAllBlack();
     _insideAndOutsideFacesSameColor_DEPRECATED=true;
@@ -1924,6 +1924,8 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                         // reserved doTheConvectivityTest=!SIM_IS_BIT_SET(nothing,5); // since version 3.0.2 (version 3.0.1 was buggy)
                         _displayInverted_DEPRECATED=SIM_IS_BIT_SET(nothing,6);
                         _hideEdgeBorders=SIM_IS_BIT_SET(nothing,7);
+                        if (App::userSettings->xrTest==123456789)
+                            _visibleEdges=false;
                     }
                     if (theName.compare("Toj")==0)
                     {
