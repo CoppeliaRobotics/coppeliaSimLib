@@ -39,12 +39,14 @@
 #ifdef LIN_SIM
     #include <GL/glx.h>
 #endif
+#include <Qsci/qsciscintilla.h>
 
 const int DEFAULT_MOUSE_MODE=sim_navigation_camerashift|sim_navigation_clickselection|sim_navigation_ctrlselection|sim_navigation_shiftselection|sim_navigation_camerazoomwheel|sim_navigation_camerarotaterightbutton;
 
 CMainWindow::CMainWindow() : QMainWindow()
 {
     TRACE_INTERNAL;
+    QsciScintilla obj; // somehow required to avoid a crash on exit (Windows), when copy was used in the code editor...
     _focusObject=FOCUS_ON_PAGE;
     _clientArea.x=1024;
     _clientArea.y=768;

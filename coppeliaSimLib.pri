@@ -154,6 +154,9 @@ INCLUDEPATH += $$BOOST_INCLUDEPATH
 INCLUDEPATH += $$LUA_INCLUDEPATH
 INCLUDEPATH += $$EIGEN_INCLUDEPATH
 LIBS += $$LUA_LIBS
+INCLUDEPATH += $$QSCINTILLA_INCLUDEPATH # somehow required to avoid a crash on exit (Windows), when copy was used in the code editor...
+LIBS += $$QSCINTILLA_LIBS # somehow required to avoid a crash on exit (Windows), when copy was used in the code editor...
+
 
 INCLUDEPATH += $$PWD/"sourceCode"
 INCLUDEPATH += $$PWD/"sourceCode/shared"
