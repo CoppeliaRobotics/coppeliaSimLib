@@ -105,8 +105,59 @@ endif()
 
 find_package(Boost REQUIRED)
 
+set(QSCINTILLA_DIR NOTFOUND CACHE PATH "Path to the QScintilla directory")
+if(EXISTS "${QSCINTILLA_DIR}")
+    message(STATUS "QSCINTILLA_DIR: ${QSCINTILLA_DIR}")
+else()
+    message(FATAL_ERROR "The specified QSCINTILLA_DIR (${QSCINTILLA_DIR}) does not exist")
+endif()
+
+# try to figure out the QSCINTILLA_BUILD_DIR (only if it is valid)
+if(EXISTS "${QSCINTILLA_DIR}/Qt4Qt5/release/moc_qsciscintilla.cpp")
+    set(QSCINTILLA_BUILD_DIR ${QSCINTILLA_DIR}/Qt4Qt5/)
+    message(STATUS "Found QSCINTILLA_BUILD_DIR at ${QSCINTILLA_BUILD_DIR}")
+endif()
+
 include_directories(${LUA_INCLUDE_DIR})
 include_directories(${EIGEN_INCLUDE_DIR})
+include_directories(${QSCINTILLA_DIR}/Qt4Qt5)
+include_directories(${QSCINTILLA_DIR}/include)
+if(NOT QSCINTILLA_LIBRARY)
+    if(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
+        set(QSCINTILLA_LIBRARY_SUFFIX _debug)
+    endif()
+    set(QSCINTILLA_LIBRARY_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}qscintilla2_qt5${QSCINTILLA_LIBRARY_SUFFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})
+    if(EXISTS ${QSCINTILLA_BUILD_DIR}/release/${QSCINTILLA_LIBRARY_NAME})
+        set(QSCINTILLA_LIBRARY ${QSCINTILLA_BUILD_DIR}/release/${QSCINTILLA_LIBRARY_NAME})
+    elseif(EXISTS ${QSCINTILLA_BUILD_DIR}/${QSCINTILLA_LIBRARY_NAME})
+        set(QSCINTILLA_LIBRARY ${QSCINTILLA_BUILD_DIR}/${QSCINTILLA_LIBRARY_NAME})
+    else()
+        set(QSCINTILLA_LIBRARY NOTFOUND)
+    endif()
+endif()
+
+if(WIN32)
+    # on Windows it fails to link
+    # workaround is to link some moc files from the QScintilla project
+    if(NOT QSCINTILLA_BUILD_DIR)
+        message(FATAL_ERROR "QSCINTILLA_BUILD_DIR is not set")
+    endif()
+    file(TO_CMAKE_PATH ${QSCINTILLA_BUILD_DIR} QSCINTILLA_BUILD_DIR)
+    if(NOT EXISTS "${QSCINTILLA_BUILD_DIR}/release/moc_qsciscintilla.cpp")
+        message(FATAL_ERROR "The specified QSCINTILLA_BUILD_DIR (${QSCINTILLA_BUILD_DIR}) does not exist or it is not valid")
+    endif()
+    message(STATUS "QSCINTILLA_BUILD_DIR: ${QSCINTILLA_BUILD_DIR}")
+    list(APPEND SOURCES
+        ${QSCINTILLA_BUILD_DIR}/release/moc_qsciscintilla.cpp
+        ${QSCINTILLA_BUILD_DIR}/release/moc_qsciscintillabase.cpp
+    )
+endif()
+
+if(EXISTS "${QSCINTILLA_LIBRARY}")
+    message(STATUS "QSCINTILLA_LIBRARY: ${QSCINTILLA_LIBRARY}")
+else()
+    message(FATAL_ERROR "The specified QSCINTILLA_LIBRARY (${QSCINTILLA_LIBRARY}) does not exist")
+endif()
 
 add_definitions(-DSIM_LIB)
 
@@ -719,6 +770,8 @@ if(NOT LUA_FOUND)
     add_dependencies(coppeliaSim lua)
 endif()
 target_link_libraries(coppeliaSim ${LUA_LIBRARIES})
+target_link_libraries(coppeliaSim ${QSCINTILLA_LIBRARY})
+
 if(WITH_QT)
     target_link_libraries(coppeliaSim Qt5::Core)
 endif()
