@@ -10,7 +10,7 @@
 #include "pluginContainer.h"
 #include "simFlavor.h"
 
-int CSer::SER_SERIALIZATION_VERSION=22; // 9 since 2008/09/01,
+int CSer::SER_SERIALIZATION_VERSION=23; // 9 since 2008/09/01,
                                         // 10 since 2009/02/14,
                                         // 11 since 2009/05/15,
                                         // 12 since 2009/07/03,
@@ -24,10 +24,12 @@ int CSer::SER_SERIALIZATION_VERSION=22; // 9 since 2008/09/01,
                                         // 20 since 2017/03/08 (small detail)
                                         // 21 since 2017/05/26 (New API notation)
                                         // 22 since 2019/04/29 (Striped away some backward compatibility features)
+                                        // 23 since 2021/03/08 (not a big diff. in format, more in content (e.g. Lua5.3, main script using require, etc.))
 
 int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_CAN_READ_THIS=18; // means: files written with this can be read by older CoppeliaSim with serialization THE_NUMBER
 int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ=18; // means: this executable can read versions >=THE_NUMBER
 int CSer::XML_XSERIALIZATION_VERSION=1;
+int CSer::_serializationVersionThatWroteLastFile=-1;
 const bool xmlDebug=false;
 char CSer::getFileTypeFromName(const char* filename)
 {
@@ -524,6 +526,7 @@ int CSer::readOpenXml(int& serializationVersion,unsigned short& coppeliaSimVersi
     licenseTypeThatWroteThis=-1; // means: not yet supported
     serializationVersion=-1; // error
     _serializationVersionThatWroteThisFile=serializationVersion;
+    _serializationVersionThatWroteLastFile=serializationVersion;
     return(_readXmlHeader(serializationVersion,coppeliaSimVersionThatWroteThis,revNumber));
 }
 int CSer::readOpenBinary(int& serializationVersion,unsigned short& coppeliaSimVersionThatWroteThis,int& licenseTypeThatWroteThis,char& revNumber,bool ignoreTooOldSerializationVersion)
@@ -546,6 +549,7 @@ int CSer::readOpenBinary(int& serializationVersion,unsigned short& coppeliaSimVe
     licenseTypeThatWroteThis=-1; // means: not yet supported
     serializationVersion=-1; // error
     _serializationVersionThatWroteThisFile=serializationVersion;
+    _serializationVersionThatWroteLastFile=serializationVersion;
     int minSerializationVersionThatCanReadThis=-1; // error
     int compilationVersion=-1;
     int alreadyReadDataCount=0;
@@ -606,6 +610,7 @@ int CSer::readOpenBinary(int& serializationVersion,unsigned short& coppeliaSimVe
                 ((char*)&minSerializationVersionThatCanReadThis)[3]=(*_bufferArchive)[bufferArchivePointer++];
             }
             _serializationVersionThatWroteThisFile=serializationVersion;
+            _serializationVersionThatWroteLastFile=serializationVersion;
             // We read the compression method:
             if (theArchive!=nullptr)
                 (*theArchive) >> compressMethod;
@@ -1082,6 +1087,11 @@ int CSer::getLicenseTypeThatWroteThisFile()
 int CSer::getSerializationVersionThatWroteThisFile()
 {
     return(_serializationVersionThatWroteThisFile);
+}
+
+int CSer::getSerializationVersionThatWroteLastFile()
+{
+    return(_serializationVersionThatWroteLastFile);
 }
 
 int CSer::getIncrementCounter()

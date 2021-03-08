@@ -1523,7 +1523,7 @@ enum {
     DIRECTORY_ID_TEXTURE=0
 };
 
-enum { // VERY CAREFUL, FOLLOWING VALUES ARE SERIALIZED!!
+enum { // Values are serialized, changing them will break backward compatibility.
     SIM_IDSTART_SCENEOBJECT         =0,
     SIM_IDEND_SCENEOBJECT           =999999, // keep below 2^10 (b/c of handleflags)
     SIM_IDSTART_COLLECTION          =2000000,

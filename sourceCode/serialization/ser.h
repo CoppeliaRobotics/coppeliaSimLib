@@ -90,7 +90,8 @@ public:
     unsigned short getCoppeliaSimVersionThatWroteThisFile();
     int getLicenseTypeThatWroteThisFile();
     int getSerializationVersionThatWroteThisFile();
-    
+    static int getSerializationVersionThatWroteLastFile();
+
     void storeDataName(const char* name);
     std::string readDataName();
     int readBytesButKeepPointerUnchanged(unsigned char* buffer,int desiredCount);
@@ -217,4 +218,5 @@ private:
     unsigned short _coppeliaSimVersionThatWroteThis;
     int _licenseTypeThatWroteThis;
     int _serializationVersionThatWroteThisFile;
+    static int _serializationVersionThatWroteLastFile;
 };

@@ -1497,7 +1497,7 @@ std::string App::_getHtmlEscapedString(const char* str)
     CTTUtil::replaceSubstring(s,"\t","*+-%T%-+*");
 #ifdef SIM_WITH_QT
     QString qstr(s.c_str());
-    qstr.toHtmlEscaped();
+    qstr=qstr.toHtmlEscaped();
     s=qstr.toStdString();
 #endif
     CTTUtil::replaceSubstring(s,"*+-%NL%-+*","<br/>");
@@ -1642,7 +1642,7 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
                 consoleVerbosity=_consoleVerbosity;
             if (consoleVerbosity>=realVerbosityLevel)
             {
-                printf(consoleTxt.c_str());
+                printf("%s",consoleTxt.c_str());
                 if (_consoleMsgsToFile)
                 {
                     if (_consoleMsgsFile==nullptr)

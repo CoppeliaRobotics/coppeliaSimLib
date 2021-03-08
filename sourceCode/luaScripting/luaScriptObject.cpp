@@ -1915,7 +1915,7 @@ const SNewApiMapping _simxApiMapping[]=
 
 CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
 {
-    _scriptHandle=SIM_IDSTART_LUASCRIPT;
+    _scriptHandle=-1;
     _scriptUniqueId=_scriptUniqueCounter++;
     _objectHandleAttachedTo=-1;
 

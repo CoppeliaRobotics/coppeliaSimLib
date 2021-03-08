@@ -8027,7 +8027,7 @@ simInt simSetExplicitHandling_internal(simInt objectHandle,int explicitFlags)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if ( (objectHandle>=SIM_IDSTART_SCENEOBJECT)&&(objectHandle<SIM_IDEND_SCENEOBJECT) )
+        if ( (objectHandle>=SIM_IDSTART_SCENEOBJECT)&&(objectHandle<=SIM_IDEND_SCENEOBJECT) )
         { // scene objects
             if (!doesObjectExist(__func__,objectHandle))
             {
@@ -8114,7 +8114,7 @@ simInt simGetExplicitHandling_internal(simInt objectHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if ( (objectHandle>=SIM_IDSTART_SCENEOBJECT)&&(objectHandle<SIM_IDEND_SCENEOBJECT) )
+        if ( (objectHandle>=SIM_IDSTART_SCENEOBJECT)&&(objectHandle<=SIM_IDEND_SCENEOBJECT) )
         { // scene objects
             if (!doesObjectExist(__func__,objectHandle))
                 return(-1);
