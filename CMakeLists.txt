@@ -797,6 +797,11 @@ if(WIN32)
     )
 endif()
 
+if(APPLE)
+    get_filename_component(QSCINTILLA_LIB_NAME ${QSCINTILLA_LIBRARY} NAME)
+    add_custom_command(TARGET coppeliaSim POST_BUILD COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change ${QSCINTILLA_LIB_NAME} @executable_path/../Frameworks/${QSCINTILLA_LIB_NAME} $<TARGET_FILE:coppeliaSim>)
+endif()
+
 if(INSTALL_DIR)
     install(TARGETS coppeliaSim DESTINATION "${INSTALL_DIR}")
 endif()

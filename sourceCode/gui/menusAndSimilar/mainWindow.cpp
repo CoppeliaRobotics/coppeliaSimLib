@@ -33,9 +33,6 @@
 #include <QToolButton>
 #include <QLabel>
 #include <QWindow>
-#ifdef MAC_SIM
-    #include <curses.h> // required for the beep() function
-#endif
 #ifdef LIN_SIM
     #include <GL/glx.h>
 #endif
