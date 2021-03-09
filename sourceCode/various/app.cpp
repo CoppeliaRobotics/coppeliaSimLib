@@ -17,6 +17,7 @@
 #include <sstream>
 #include <iomanip>
 #include <boost/algorithm/string/replace.hpp>
+#include <chrono>
 #ifdef SIM_WITH_GUI
     #include "auxLibVideo.h"
     #include "vMessageBox.h"

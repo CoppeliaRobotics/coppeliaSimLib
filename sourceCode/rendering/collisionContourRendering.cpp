@@ -37,7 +37,7 @@ void displayContour(CCollisionObject_old* coll,int countourWidth)
 
 #else
 
-void displayContour(CCollisionObject* coll,int countourWidth)
+void displayContour(CCollisionObject_old* coll,int countourWidth)
 {
 
 }

@@ -98,7 +98,7 @@ bool CGraph::isPotentiallyDetectable() const
 }
 bool CGraph::isPotentiallyRenderable() const
 {
-    return(true);
+    return(false);
 }
 
 bool CGraph::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const

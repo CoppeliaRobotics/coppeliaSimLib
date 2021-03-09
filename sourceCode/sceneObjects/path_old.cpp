@@ -380,7 +380,7 @@ bool CPath_old::isPotentiallyDetectable() const
 }
 bool CPath_old::isPotentiallyRenderable() const
 {
-    return(true);
+    return(false);
 }
 
 void CPath_old::initializeInitialValues(bool simulationAlreadyRunning)

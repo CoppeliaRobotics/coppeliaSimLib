@@ -19,7 +19,7 @@ void displayDistance(CDistanceObject_old* dist,int segWidth,const float* distRes
 
 #else
 
-void displayDistance(CDistanceObject* dist,int segWidth,const float* distResult)
+void displayDistance(CDistanceObject_old* dist,int segWidth,const float* distResult)
 {
 
 }
