@@ -33,10 +33,10 @@
 #include <QToolButton>
 #include <QLabel>
 #include <QWindow>
+#include <Qsci/qsciscintilla.h> // put this before glx.h
 #ifdef LIN_SIM
     #include <GL/glx.h>
 #endif
-#include <Qsci/qsciscintilla.h>
 
 const int DEFAULT_MOUSE_MODE=sim_navigation_camerashift|sim_navigation_clickselection|sim_navigation_ctrlselection|sim_navigation_shiftselection|sim_navigation_camerazoomwheel|sim_navigation_camerarotaterightbutton;
 
