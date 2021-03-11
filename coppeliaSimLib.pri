@@ -928,9 +928,7 @@ SOURCES += $$PWD/sourceCode/interfaces/sim.cpp \
     $$PWD/sourceCode/interfaces/luaScriptFunctions.cpp \
     $$PWD/sourceCode/interfaces/pathPlanningInterface.cpp \
 
-!SIM_PLUS {
-    SOURCES += $$PWD/sourceCode/interfaces/simFlavor.cpp
-}
+SOURCES += $$PWD/sourceCode/interfaces/simFlavor.cpp
 
 SOURCES += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.cpp \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackObject.cpp \

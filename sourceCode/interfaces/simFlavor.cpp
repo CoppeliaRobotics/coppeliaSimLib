@@ -1,3 +1,6 @@
+#ifdef SIM_PLUS
+#include "simFl.cpp"
+#else
 #include "simFlavor.h"
 #include "app.h"
 #include "simConst.h"
@@ -220,4 +223,4 @@ std::string CSimFlavor::getStringVal_int(int w,int v)
     }
     return("");
 }
-
+#endif
