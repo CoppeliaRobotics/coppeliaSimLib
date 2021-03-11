@@ -118,10 +118,12 @@ if(EXISTS "${QSCINTILLA_DIR}/Qt4Qt5/release/moc_qsciscintilla.cpp")
     message(STATUS "Found QSCINTILLA_BUILD_DIR at ${QSCINTILLA_BUILD_DIR}")
 endif()
 
-include_directories(${LUA_INCLUDE_DIR})
-include_directories(${EIGEN_INCLUDE_DIR})
-include_directories(${QSCINTILLA_DIR}/Qt4Qt5)
-include_directories(${QSCINTILLA_DIR}/include)
+add_library(coppeliaSim SHARED "")
+
+target_include_directories(coppeliaSim PRIVATE ${LUA_INCLUDE_DIR})
+target_include_directories(coppeliaSim PRIVATE ${EIGEN_INCLUDE_DIR})
+target_include_directories(coppeliaSim PRIVATE ${QSCINTILLA_DIR}/Qt4Qt5)
+target_include_directories(coppeliaSim PRIVATE ${QSCINTILLA_DIR}/include)
 if(NOT QSCINTILLA_LIBRARY)
     if(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
         set(QSCINTILLA_LIBRARY_SUFFIX _debug)
@@ -147,7 +149,7 @@ if(WIN32)
         message(FATAL_ERROR "The specified QSCINTILLA_BUILD_DIR (${QSCINTILLA_BUILD_DIR}) does not exist or it is not valid")
     endif()
     message(STATUS "QSCINTILLA_BUILD_DIR: ${QSCINTILLA_BUILD_DIR}")
-    list(APPEND SOURCES
+    target_sources(coppeliaSim PRIVATE
         ${QSCINTILLA_BUILD_DIR}/release/moc_qsciscintilla.cpp
         ${QSCINTILLA_BUILD_DIR}/release/moc_qsciscintillabase.cpp
     )
@@ -231,91 +233,94 @@ elseif(UNIX)
     add_definitions(-DLIN_SIM)
 endif()
 
-include_directories(sourceCode)
-include_directories(sourceCode/shared)
-include_directories(sourceCode/shared/backwardCompatibility/kinematics)
-include_directories(sourceCode/shared/backwardCompatibility/collisions)
-include_directories(sourceCode/shared/backwardCompatibility/distances)
-include_directories(sourceCode/communication)
-include_directories(sourceCode/communication/tubes)
-include_directories(sourceCode/communication/wireless)
-include_directories(sourceCode/drawingObjects)
-include_directories(sourceCode/platform)
-include_directories(sourceCode/collections)
-include_directories(sourceCode/shared/collections)
-include_directories(sourceCode/collisions)
-include_directories(sourceCode/distances)
-include_directories(sourceCode/pathPlanning_old)
-include_directories(sourceCode/sceneObjects)
-include_directories(sourceCode/shared/sceneObjects)
-include_directories(sourceCode/sceneObjects/related)
-include_directories(sourceCode/shared/sceneObjects/related)
-include_directories(sourceCode/sceneObjects/graphObjectRelated)
-include_directories(sourceCode/sceneObjects/pathObjectRelated)
-include_directories(sourceCode/sceneObjects/proximitySensorObjectRelated)
-include_directories(sourceCode/sceneObjects/shapeObjectRelated)
-include_directories(sourceCode/sceneObjects/visionSensorObjectRelated)
-include_directories(sourceCode/mainContainers)
-include_directories(sourceCode/shared/mainContainers)
-include_directories(sourceCode/mainContainers/sceneContainers)
-include_directories(sourceCode/shared/mainContainers/sceneContainers)
-include_directories(sourceCode/mainContainers/applicationContainers)
-include_directories(sourceCode/luaScripting)
-include_directories(sourceCode/luaScripting/customLuaFuncAndVar)
-include_directories(sourceCode/pagesAndViews)
-include_directories(sourceCode/textures)
-include_directories(sourceCode/serialization)
-include_directories(sourceCode/strings)
-include_directories(sourceCode/interfaces)
-include_directories(sourceCode/interfaces/interfaceStack)
-include_directories(sourceCode/menusAndSimilar)
-include_directories(sourceCode/variousFunctions)
-include_directories(sourceCode/geometricAlgorithms)
-include_directories(sourceCode/various)
-include_directories(sourceCode/shared/various)
-include_directories(sourceCode/libsAndPlugins)
-include_directories(sourceCode/visual)
-include_directories(sourceCode/displ)
-include_directories(sourceCode/shared/displ)
-include_directories(sourceCode/utils)
-include_directories(sourceCode/backwardCompatibility/pathPlanning)
-include_directories(sourceCode/backwardCompatibility/collisions)
-include_directories(sourceCode/backwardCompatibility/distances)
-include_directories(sourceCode/backwardCompatibility/kinematics)
-include_directories(sourceCode/customUserInterfaces)
-include_directories(sourceCode/undoRedo)
-include_directories(sourceCode/rendering)
-include_directories(../programming/include)
-include_directories(../programming/simMath)
+target_include_directories(coppeliaSim
+    PRIVATE
+    sourceCode
+    sourceCode/shared
+    sourceCode/shared/backwardCompatibility/kinematics
+    sourceCode/shared/backwardCompatibility/collisions
+    sourceCode/shared/backwardCompatibility/distances
+    sourceCode/communication
+    sourceCode/communication/tubes
+    sourceCode/communication/wireless
+    sourceCode/drawingObjects
+    sourceCode/platform
+    sourceCode/collections
+    sourceCode/shared/collections
+    sourceCode/collisions
+    sourceCode/distances
+    sourceCode/pathPlanning_old
+    sourceCode/sceneObjects
+    sourceCode/shared/sceneObjects
+    sourceCode/sceneObjects/related
+    sourceCode/shared/sceneObjects/related
+    sourceCode/sceneObjects/graphObjectRelated
+    sourceCode/sceneObjects/pathObjectRelated
+    sourceCode/sceneObjects/proximitySensorObjectRelated
+    sourceCode/sceneObjects/shapeObjectRelated
+    sourceCode/sceneObjects/visionSensorObjectRelated
+    sourceCode/mainContainers
+    sourceCode/shared/mainContainers
+    sourceCode/mainContainers/sceneContainers
+    sourceCode/shared/mainContainers/sceneContainers
+    sourceCode/mainContainers/applicationContainers
+    sourceCode/luaScripting
+    sourceCode/luaScripting/customLuaFuncAndVar
+    sourceCode/pagesAndViews
+    sourceCode/textures
+    sourceCode/serialization
+    sourceCode/strings
+    sourceCode/interfaces
+    sourceCode/interfaces/interfaceStack
+    sourceCode/menusAndSimilar
+    sourceCode/variousFunctions
+    sourceCode/geometricAlgorithms
+    sourceCode/various
+    sourceCode/shared/various
+    sourceCode/libsAndPlugins
+    sourceCode/visual
+    sourceCode/displ
+    sourceCode/shared/displ
+    sourceCode/utils
+    sourceCode/backwardCompatibility/pathPlanning
+    sourceCode/backwardCompatibility/collisions
+    sourceCode/backwardCompatibility/distances
+    sourceCode/backwardCompatibility/kinematics
+    sourceCode/customUserInterfaces
+    sourceCode/undoRedo
+    sourceCode/rendering
+    programming/include
+    programming/simMath
+)
 
 
 if(WITH_SERIAL)
-    include_directories(sourceCode/communication/serialPort)
+    target_include_directories(coppeliaSim PRIVATE sourceCode/communication/serialPort)
 endif()
 
 if(WITH_GUI)
-    include_directories(sourceCode/gui/qtPropertyBrowserRelated)
-    include_directories(sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles)
-    include_directories(sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles)
-    include_directories(sourceCode/gui/dialogs)
-    include_directories(sourceCode/gui/dialogs/other)
-    include_directories(sourceCode/gui/platform)
-    include_directories(sourceCode/gui/mainContainers)
-    include_directories(sourceCode/gui/mainContainers/sceneContainers)
-    include_directories(sourceCode/gui/mainContainers/applicationContainers)
-    include_directories(sourceCode/gui/editModes)
-    include_directories(sourceCode/gui/modelBrowser)
-    include_directories(sourceCode/gui/sceneHierarchy)
-    include_directories(sourceCode/gui/selectors)
-    include_directories(sourceCode/gui/menusAndSimilar)
-    include_directories(sourceCode/gui/various)
-    include_directories(sourceCode/gui/libs)
+    target_include_directories(coppeliaSim PRIVATE
+        sourceCode/gui/qtPropertyBrowserRelated
+        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles
+        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles
+        sourceCode/gui/dialogs
+        sourceCode/gui/dialogs/other
+        sourceCode/gui/platform
+        sourceCode/gui/mainContainers
+        sourceCode/gui/mainContainers/sceneContainers
+        sourceCode/gui/mainContainers/applicationContainers
+        sourceCode/gui/editModes
+        sourceCode/gui/modelBrowser
+        sourceCode/gui/sceneHierarchy
+        sourceCode/gui/selectors
+        sourceCode/gui/menusAndSimilar
+        sourceCode/gui/various
+        sourceCode/gui/libs
+    )
 endif()
 
-set(SOURCES "")
-
 if(WITH_GUI)
-    list(APPEND SOURCES
+    target_sources(coppeliaSim PRIVATE
         targaFiles.qrc
         toolbarFiles.qrc
         variousImageFiles.qrc
@@ -327,7 +332,7 @@ endif()
 
 
 if(WITH_GUI)
-    list(APPEND SOURCES
+    target_sources(coppeliaSim PRIVATE
         sourceCode/gui/dialogs/qdlgsettings.cpp
         sourceCode/gui/dialogs/qdlglayers.cpp
         sourceCode/gui/dialogs/qdlgavirecorder.cpp
@@ -470,7 +475,7 @@ if(WITH_GUI)
     )
 endif()
 
-list(APPEND SOURCES
+target_sources(coppeliaSim PRIVATE
     ../programming/simMath/Vector.cpp
     ../programming/simMath/MyMath.cpp
     ../programming/simMath/MMatrix.cpp
@@ -729,7 +734,7 @@ list(APPEND SOURCES
 )
 
 if(WITH_QT)
-    list(APPEND SOURCES
+    target_sources(coppeliaSim PRIVATE
         sourceCode/platform/vSimUiMutex.cpp
         sourceCode/platform/wThread.cpp
 
@@ -739,7 +744,7 @@ if(WITH_QT)
 endif()
 
 if(WITH_SERIAL)
-    list(APPEND SOURCES
+    target_sources(coppeliaSim PRIVATE
         sourceCode/mainContainers/applicationContainers/serialPortContainer.cpp
 
         sourceCode/communication/serialPort/serialPort.cpp
@@ -749,7 +754,7 @@ if(WITH_SERIAL)
 endif()
 
 if(WITH_OPENGL)
-    list(APPEND SOURCES
+    target_sources(coppeliaSim PRIVATE
         sourceCode/sceneObjects/visionSensorObjectRelated/offscreenGlContext.cpp
         sourceCode/sceneObjects/visionSensorObjectRelated/frameBufferObject.cpp
         sourceCode/sceneObjects/visionSensorObjectRelated/visionSensorGlStuff.cpp
@@ -762,7 +767,6 @@ if(WITH_OPENGL)
 endif()
 
 
-add_library(coppeliaSim SHARED ${SOURCES})
 target_link_libraries(coppeliaSim Boost::boost)
 if(NOT LUA_FOUND)
     # trigger the build of lua, if not found in the system
