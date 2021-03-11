@@ -2,7 +2,7 @@ TARGET = coppeliaSim
 TEMPLATE = lib
 DEFINES += SIM_LIB
 
-CONFIG += shared debug_and_release
+CONFIG += shared plugin debug_and_release
 CONFIG += WITH_QT # can be compiled without Qt, but then it should be headless, and some functionality won't be there, check TODO_SIM_WITH_QT
 
 !HEADLESS {
