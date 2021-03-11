@@ -1,6 +1,4 @@
-#ifdef SIM_PLUS
-#include "simFl.cpp"
-#else
+#ifndef SIM_PLUS
 #include "simFlavor.h"
 #include "app.h"
 #include "simConst.h"
