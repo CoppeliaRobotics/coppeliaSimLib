@@ -118,6 +118,10 @@ if(EXISTS "${QSCINTILLA_DIR}/Qt4Qt5/release/moc_qsciscintilla.cpp")
     message(STATUS "Found QSCINTILLA_BUILD_DIR at ${QSCINTILLA_BUILD_DIR}")
 endif()
 
+if(NOT COPPELIASIM_PROGRAMMING_DIR)
+    set(COPPELIASIM_PROGRAMMING_DIR ../programming)
+endif()
+
 add_library(coppeliaSim SHARED "")
 
 target_include_directories(coppeliaSim PRIVATE ${LUA_INCLUDE_DIR})
@@ -476,17 +480,17 @@ if(WITH_GUI)
 endif()
 
 target_sources(coppeliaSim PRIVATE
-    ../programming/simMath/Vector.cpp
-    ../programming/simMath/MyMath.cpp
-    ../programming/simMath/MMatrix.cpp
-    ../programming/simMath/7Vector.cpp
-    ../programming/simMath/6X6Matrix.cpp
-    ../programming/simMath/6Vector.cpp
-    ../programming/simMath/4X4Matrix.cpp
-    ../programming/simMath/4X4FullMatrix.cpp
-    ../programming/simMath/4Vector.cpp
-    ../programming/simMath/3X3Matrix.cpp
-    ../programming/simMath/3Vector.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/Vector.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/MyMath.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/MMatrix.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/7Vector.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/6X6Matrix.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/6Vector.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/4X4Matrix.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/4X4FullMatrix.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/4Vector.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/3X3Matrix.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/3Vector.cpp
 
     sourceCode/backwardCompatibility/kinematics/ikGroup_old.cpp
     sourceCode/shared/backwardCompatibility/kinematics/_ikGroup_old.cpp
