@@ -802,6 +802,10 @@ if(WIN32)
     )
 endif()
 
+if(PLUS)
+    add_subdirectory(${PLUS} ${CMAKE_CURRENT_BINARY_DIR}/plus)
+endif()
+
 if(APPLE)
     get_filename_component(QSCINTILLA_LIB_NAME ${QSCINTILLA_LIBRARY} NAME)
     add_custom_command(TARGET coppeliaSim POST_BUILD COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change ${QSCINTILLA_LIB_NAME} @executable_path/../Frameworks/${QSCINTILLA_LIB_NAME} $<TARGET_FILE:coppeliaSim>)
