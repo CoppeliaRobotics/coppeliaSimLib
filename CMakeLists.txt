@@ -293,8 +293,8 @@ target_include_directories(coppeliaSim
     sourceCode/customUserInterfaces
     sourceCode/undoRedo
     sourceCode/rendering
-    programming/include
-    programming/simMath
+    ${COPPELIASIM_PROGRAMMING_DIR}/include
+    ${COPPELIASIM_PROGRAMMING_DIR}/simMath
 )
 
 
