@@ -345,16 +345,16 @@ void CDynamicsContainer::displayWarningsIfNeeded()
             {
     #ifdef WIN_SIM
         #ifdef SIM_WITH_GUI
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                App::uiThread->messageBox_warning(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WHEN_VORTEX_PLUGIN_NOT_FOUND,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         #else
-                App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
+                App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_VORTEX_PLUGIN_NOT_FOUND);
         #endif
     #endif
     #ifdef LIN_SIM
         #ifdef SIM_WITH_GUI
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                App::uiThread->messageBox_warning(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WHEN_VORTEX_PLUGIN_NOT_FOUND,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         #else
-                App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
+                App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_VORTEX_PLUGIN_NOT_FOUND);
         #endif
     #endif
     #ifdef MAC_SIM
