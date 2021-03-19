@@ -392,6 +392,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->embeddedScriptContainer->insertScript(scriptObj);
             scriptObj->setObjectHandleThatScriptIsAttachedTo(newObject->getObjectHandle());
             scriptObj->setScriptText("graph=require('graph_customization')");
+            scriptObj->setExecutionPriority(sim_scriptexecorder_last);
 
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());

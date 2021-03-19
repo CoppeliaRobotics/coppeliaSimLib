@@ -507,6 +507,11 @@ void CWorldContainer::simulationEnded(bool removeNewObjects)
 
 void CWorldContainer::announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
 {
+    // Inform plugins about this event:
+    int pluginData[4]={scriptHandle,0,0,0};
+    void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptdestroyed,pluginData,nullptr,nullptr);
+    delete[] (char*)pluginReturnVal;
+
     currentWorld->announceScriptWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
 }
 

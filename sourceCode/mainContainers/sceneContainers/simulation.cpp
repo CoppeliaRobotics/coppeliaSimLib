@@ -47,7 +47,7 @@ void CSimulation::setUpDefaultValues()
     _simulationStepCount=0;
     _simulationTimeToPause_us=10000000;
     _pauseAtSpecificTime=false;
-    _pauseAtError=false;
+    _pauseAtError=true;
     _pauseOnErrorRequested=false;
     _hierarchyWasEnabledBeforeSimulation=false;
     _catchUpIfLate=false;

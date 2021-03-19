@@ -4683,6 +4683,7 @@ void CLuaScriptObject::serialize(CSer& ar)
             _adjustScriptText11(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40001);
             _adjustScriptText12(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40100);
             _adjustScriptText13(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40200);
+
             if ( _threadedExecution_oldThreads&&(!App::userSettings->keepOldThreadedScripts)&&(ar.getCoppeliaSimVersionThatWroteThisFile()<40200) )
             {
                 if (_convertThreadedScriptToCoroutine(this))
@@ -5928,7 +5929,6 @@ void CLuaScriptObject::_adjustScriptText13(CLuaScriptObject* scriptObject,bool d
             error(debug.traceback(corout,errorMsg),2)\n\
         end\n";
         _replaceScriptText(scriptObject,txt1,txt2);
-
 
         if ( _containsScriptText(scriptObject,"sysCall_vision")&&(scriptObject->_scriptType==sim_scripttype_customizationscript) )
             App::logMsg(sim_verbosity_errors,"Contains a vision callback in a customization script");
