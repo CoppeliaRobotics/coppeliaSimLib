@@ -4206,7 +4206,7 @@ bool CLuaScriptObject::_killLuaState()
 
 std::string CLuaScriptObject::getLuaSearchPath() const
 {
-    return(_getAdditionalLuaSearchPath());
+    return(_getAdditionalLuaSearchPath_path());
 }
 
 CLuaScriptObject* CLuaScriptObject::copyYourself()
@@ -4334,7 +4334,7 @@ int CLuaScriptObject::getScriptNameIndexFromLuaState(luaWrap_lua_State* L)
     return(retVal);
 }
 
-std::string CLuaScriptObject::_getAdditionalLuaSearchPath()
+std::string CLuaScriptObject::_getAdditionalLuaSearchPath_path()
 {
     std::string retVal;
     retVal+=App::folders->getExecutablePath();
@@ -4343,6 +4343,11 @@ std::string CLuaScriptObject::_getAdditionalLuaSearchPath()
     retVal+="/lua/?.lua;"; // present by default, but also needed for the code editor
     retVal+=App::folders->getExecutablePath();
     retVal+="/bwf/?.lua";
+#ifdef MAC_SIM
+    retVal+=";";
+    retVal+=App::folders->getExecutablePath();
+    retVal+="/luarocks/share/lua/5.3/?.lua";
+#endif
     if (App::currentWorld->mainSettings->getScenePathAndName().compare("")!=0)
     {
         retVal+=";";
@@ -4355,6 +4360,16 @@ std::string CLuaScriptObject::_getAdditionalLuaSearchPath()
         retVal+=App::userSettings->additionalLuaPath;
         retVal+="/?.lua";
     }
+    return(retVal);
+}
+
+std::string CLuaScriptObject::_getAdditionalLuaSearchPath_cpath()
+{
+    std::string retVal;
+#ifdef MAC_SIM
+    retVal+=App::folders->getExecutablePath();
+    retVal+="/luarocks/lib/lua/5.3/?.so";
+#endif
     return(retVal);
 }
 
@@ -4373,11 +4388,25 @@ void CLuaScriptObject::_initLuaState()
     luaWrap_lua_getfield(L,-1,"path");
     std::string cur_path=luaWrap_lua_tostring(L,-1);
     cur_path+=";";
-    cur_path+=_getAdditionalLuaSearchPath().c_str();
+    cur_path+=_getAdditionalLuaSearchPath_path().c_str();
     boost::replace_all(cur_path,"\\","/");
     luaWrap_lua_pop(L,1);
     luaWrap_lua_pushstring(L,cur_path.c_str());
     luaWrap_lua_setfield(L,-2,"path");
+    luaWrap_lua_pop(L,1);
+    // --------------------------------------------
+
+    // --------------------------------------------
+    // append some paths to the Lua cpath variable:
+    luaWrap_lua_getglobal(L,"package");
+    luaWrap_lua_getfield(L,-1,"cpath");
+    cur_path=luaWrap_lua_tostring(L,-1);
+    cur_path+=";";
+    cur_path+=_getAdditionalLuaSearchPath_cpath().c_str();
+    boost::replace_all(cur_path,"\\","/");
+    luaWrap_lua_pop(L,1);
+    luaWrap_lua_pushstring(L,cur_path.c_str());
+    luaWrap_lua_setfield(L,-2,"cpath");
     luaWrap_lua_pop(L,1);
     // --------------------------------------------
 
@@ -4683,6 +4712,7 @@ void CLuaScriptObject::serialize(CSer& ar)
             _adjustScriptText11(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40001);
             _adjustScriptText12(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40100);
             _adjustScriptText13(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40200);
+
 
             if ( _threadedExecution_oldThreads&&(!App::userSettings->keepOldThreadedScripts)&&(ar.getCoppeliaSimVersionThatWroteThisFile()<40200) )
             {

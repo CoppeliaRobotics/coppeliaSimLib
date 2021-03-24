@@ -189,7 +189,8 @@ public:
 
 protected:
     static void _luaHookFunc(luaWrap_lua_State* L,luaWrap_lua_Debug* ar);
-    static std::string _getAdditionalLuaSearchPath();
+    static std::string _getAdditionalLuaSearchPath_path();
+    static std::string _getAdditionalLuaSearchPath_cpath();
     static void _setScriptHandleToLuaState(luaWrap_lua_State* L,int h);
 
     void _initLuaState();
