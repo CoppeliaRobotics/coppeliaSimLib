@@ -4343,6 +4343,16 @@ std::string CLuaScriptObject::_getAdditionalLuaSearchPath_path()
     retVal+="/lua/?.lua;"; // present by default, but also needed for the code editor
     retVal+=App::folders->getExecutablePath();
     retVal+="/bwf/?.lua";
+#ifdef WIN_SIM
+    retVal+=";";
+    retVal+=App::folders->getExecutablePath();
+    retVal+="/luar/?.lua";
+#endif
+#ifdef LIN_SIM
+    retVal+=";";
+    retVal+=App::folders->getExecutablePath();
+    retVal+="/luar/?.lua";
+#endif
 #ifdef MAC_SIM
     retVal+=";";
     retVal+=App::folders->getExecutablePath();
@@ -4366,6 +4376,14 @@ std::string CLuaScriptObject::_getAdditionalLuaSearchPath_path()
 std::string CLuaScriptObject::_getAdditionalLuaSearchPath_cpath()
 {
     std::string retVal;
+#ifdef WIN_SIM
+    retVal+=App::folders->getExecutablePath();
+    retVal+="/luar/?.dll";
+#endif
+#ifdef LIN_SIM
+    retVal+=App::folders->getExecutablePath();
+    retVal+="/luar/?.so";
+#endif
 #ifdef MAC_SIM
     retVal+=App::folders->getExecutablePath();
     retVal+="/luarocks/lib/lua/5.3/?.so";
@@ -4712,7 +4730,6 @@ void CLuaScriptObject::serialize(CSer& ar)
             _adjustScriptText11(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40001);
             _adjustScriptText12(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40100);
             _adjustScriptText13(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40200);
-
 
             if ( _threadedExecution_oldThreads&&(!App::userSettings->keepOldThreadedScripts)&&(ar.getCoppeliaSimVersionThatWroteThisFile()<40200) )
             {

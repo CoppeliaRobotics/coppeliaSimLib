@@ -13383,6 +13383,12 @@ simInt simWriteCustomDataBlock_internal(simInt objectHandle,const simChar* tagNa
             dataSize=0;
         if (objectHandle>=SIM_IDSTART_LUASCRIPT)
         { // here we have a script
+            if (!App::userSettings->compatibilityFix1)
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,"Targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
+                return(-1);
+            }
+
             CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
             if (script!=nullptr)
             { // here we have a script
@@ -13562,6 +13568,11 @@ simChar* simReadCustomDataBlock_internal(simInt objectHandle,const simChar* tagN
             useTempBuffer=((tagName[0]=='@')&&(tagName[1]=='t')&&(tagName[2]=='m')&&(tagName[3]=='p'));
         if (objectHandle>=SIM_IDSTART_LUASCRIPT)
         { // here we have a script
+            if (!App::userSettings->compatibilityFix1)
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,"Targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
+                return(nullptr);
+            }
             CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
             if (script!=nullptr)
             {
@@ -13667,6 +13678,11 @@ simChar* simReadCustomDataBlockTags_internal(simInt objectHandle,simInt* tagCoun
         std::vector<std::string> allTags;
         if (objectHandle>=SIM_IDSTART_LUASCRIPT)
         { // here we have a script
+            if (!App::userSettings->compatibilityFix1)
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,"Targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
+                return(nullptr);
+            }
             CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
             if (script!=nullptr)
             {

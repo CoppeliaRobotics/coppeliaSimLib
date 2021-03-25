@@ -64,7 +64,6 @@
 #define _USR_STATUSBAR_VERBOSITY "statusbarVerbosity"
 #define _USR_DIALOG_VERBOSITY "dialogVerbosity"
 #define _USR_LOG_FILTER "logFilter"
-#define _USR_BUGFIX1 "bugFix1"
 #define _USR_UNDECORATED_STATUSBAR_MSGS "undecoratedStatusbarMessages"
 #define _USR_CONSOLE_MSGS_TO_FILE "consoleMsgsToFile"
 #define _USR_FORCE_BUG_FIX_REL_30002 "forceBugFix_rel30002"
@@ -82,6 +81,8 @@
 #define _USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES "useAlternateSerialPortRoutines"
 #define _USR_DISABLED_OPENGL_BASED_CUSTOM_UI "disableOpenGlBasedCustomUi"
 #define _USR_SHOW_old_DLGS "showOldDlgs"
+#define _USR_BUGFIX1 "bugFix1"
+#define _USR_COMPATIBILITYFIX1 "compatibilityFix1"
 #define _USR_SUPPORT_old_THREADED_SCRIPTS "keepOldThreadedScripts"
 #define _USR_SUPPORT_old_API_NOTATION "supportOldApiNotation"
 #define _USR_ENABLE_old_MIRROR_OBJECTS "enableOldMirrorObjects"
@@ -206,8 +207,6 @@ CUserSettings::CUserSettings()
     _overrideDialogVerbosity="default";
     _consoleLogFilter="";
     undecoratedStatusbarMessages=false;
-    bugFix1=1000;
-
 
     // Rendering section:
     // *****************************
@@ -366,6 +365,8 @@ CUserSettings::CUserSettings()
     enableOldMirrorObjects=false;
     allowOldEduRelease=-1;
     threadedScriptsStoppingGraceTime=0;
+    bugFix1=1000;
+    compatibilityFix1=false;
 
 
     // Various section:
@@ -889,9 +890,6 @@ void CUserSettings::loadUserSettings()
     if (c.getBoolean(_USR_CONSOLE_MSGS_TO_FILE,dummyBool))
         App::setConsoleMsgToFile(dummyBool);
 
-    c.getInteger(_USR_BUGFIX1,bugFix1);
-
-
     // Rendering section:
     // *****************************
     c.getInteger(_USR_IDLE_FPS,_idleFps);
@@ -1055,6 +1053,9 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects);
     c.getInteger(_USR_ALLOW_old_EDU_RELEASE,allowOldEduRelease);
     c.getInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime);
+    c.getInteger(_USR_BUGFIX1,bugFix1);
+    c.getBoolean(_USR_COMPATIBILITYFIX1,compatibilityFix1);
+
 
 
     // Various section:

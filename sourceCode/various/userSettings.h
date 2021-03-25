@@ -72,6 +72,7 @@ public:
     int bulletSerializationBuffer;
     int timeInMsForUndoRedoTooLongWarning;
     int bugFix1;
+    bool compatibilityFix1;
 
     bool middleMouseButtonSwitchesModes;
     bool navigationBackwardCompatibility;
