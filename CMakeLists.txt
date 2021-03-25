@@ -66,11 +66,14 @@ if(NOT LUA_FOUND)
         ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lvm.c
         ${CMAKE_CURRENT_BINARY_DIR}/lua/src/lzio.c
     )
+    if(APPLE)
+        target_compile_definitions(lua PUBLIC LUA_USE_MACOSX)
+    endif()
     set(LUA_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/lua/src)
     set(LUA_LIBRARIES $<TARGET_FILE:lua>)
-    if(INSTALL_DIR)
-        install(TARGETS lua DESTINATION "${INSTALL_DIR}")
-    endif()
+    #if(INSTALL_DIR)
+    #    install(TARGETS lua DESTINATION "${INSTALL_DIR}")
+    #endif()
 endif()
 
 find_package(Eigen3)
