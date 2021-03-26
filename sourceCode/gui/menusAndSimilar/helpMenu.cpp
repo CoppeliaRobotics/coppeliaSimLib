@@ -17,6 +17,7 @@
 #include "collisionRoutines.h"
 #include "distanceRoutines.h"
 #include "simFlavor.h"
+#include <QHostInfo>
 
 CHelpMenu::CHelpMenu()
 {
@@ -59,15 +60,16 @@ bool CHelpMenu::processCommand(int commandID)
 { // Return value is true if the command belonged to help menu and was executed
     if (commandID==HELP_TOPICS_CMD)
     {
-        if (VThread::isCurrentThreadTheUiThread())
-        { // We are in the UI thread. Execute the command via the main thread:
+        std::string tmp("https://coppeliarobotics.com/helpFiles/index.html");
+        if ( ((SIM_PROGRAM_REVISION_NB)==0) || (QHostInfo::fromName("coppeliarobotics.com").error()!=QHostInfo::NoError) )
+        {
             #ifdef MAC_SIM
-                std::string tmp(App::folders->getExecutablePath()+"/../Resources/"+"helpFiles"+"/"+"index.html");
+                tmp=App::folders->getExecutablePath()+"/../Resources/"+"helpFiles"+"/"+"index.html";
             #else
-                std::string tmp(App::folders->getExecutablePath()+"/"+"helpFiles"+"/"+"index.html");
+                tmp=App::folders->getExecutablePath()+"/"+"helpFiles"+"/"+"index.html";
             #endif
-            VVarious::openUrl(tmp.c_str());
         }
+        VVarious::openUrl(tmp.c_str());
         return(true);
     }
     if (commandID==ABOUT_CMD)

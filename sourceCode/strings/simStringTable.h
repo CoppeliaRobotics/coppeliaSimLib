@@ -648,7 +648,7 @@
 
 
 #define IDSN_STATIC_TEXTURE    "static texture"
-#define IDS_HELP_TOPICS_MENU_ITEM "Help topics"
+#define IDS_HELP_TOPICS_MENU_ITEM "User manual"
 #define IDS_BUSY____PLEASE_WAIT "Busy... please wait"
 
 #define IDS_VISIBLE_COMPONENTS  "OpenGL"
