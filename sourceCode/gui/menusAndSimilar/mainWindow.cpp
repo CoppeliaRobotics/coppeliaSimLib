@@ -1127,11 +1127,12 @@ void CMainWindow::_createDefaultToolBars()
                 _enginePrecisionCombo->setMaximumHeight(24);
             #endif
 
-            _enginePrecisionCombo->addItem(tr(IDSN_ENGINE_VERY_PRECISE));
-            _enginePrecisionCombo->addItem(tr(IDSN_ENGINE_PRECISE));
-            _enginePrecisionCombo->addItem(tr(IDSN_ENGINE_FAST));
-            _enginePrecisionCombo->addItem(tr(IDSN_ENGINE_VERY_FAST));
-            _enginePrecisionCombo->addItem(tr(IDSN_ENGINE_CUSTOM));
+            _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_veryprecise).c_str());
+            _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_precise).c_str());
+            _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_balanced).c_str());
+            _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_fast).c_str());
+            _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_veryfast).c_str());
+            _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_custom).c_str());
             _enginePrecisionCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_DYNAMICS_SETTINGS);
             _toolbar1->addWidget(_enginePrecisionCombo);
             connect(_enginePrecisionCombo,SIGNAL(activated(int)),this,SLOT(_enginePrecisionViaToolbar(int)));
@@ -1806,7 +1807,7 @@ void CMainWindow::_actualizetoolbarButtonState()
 
         if (CSimFlavor::getBoolVal(11))
         {
-            _enginePrecisionCombo->setCurrentIndex(App::currentWorld->dynamicsContainer->getUseDynamicDefaultCalculationParameters());
+            _enginePrecisionCombo->setCurrentIndex(App::currentWorld->dynamicsContainer->getDynamicsSettingsMode());
             if (App::currentWorld->simulation->isSimulationStopped())
             {
                 _timeStepConfigCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_SIMULATION_TIME_STEP);
@@ -1972,7 +1973,7 @@ void CMainWindow::_engineSelectedViaToolbar(int index)
 
 void CMainWindow::_enginePrecisionViaToolbar(int index)
 {
-    App::currentWorld->dynamicsContainer->setUseDynamicDefaultCalculationParameters(index);
+    App::currentWorld->dynamicsContainer->setDynamicsSettingsMode(index);
     POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
 }
 

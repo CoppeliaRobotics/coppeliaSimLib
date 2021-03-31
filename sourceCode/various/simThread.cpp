@@ -1294,7 +1294,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SET_ALLGLOBALPARAMS_DYNAMICSGUITRIGGEREDCMD)
         {
-            App::currentWorld->dynamicsContainer->setUseDynamicDefaultCalculationParameters(cmd.intParams[0]);
+            App::currentWorld->dynamicsContainer->setDynamicsSettingsMode(cmd.intParams[0]);
             App::currentWorld->dynamicsContainer->setBulletIntParams(cmd.intVectorParams[0],false);
             App::currentWorld->dynamicsContainer->setBulletFloatParams(cmd.floatVectorParams[0],false);
             App::currentWorld->dynamicsContainer->setOdeIntParams(cmd.intVectorParams[1],false);

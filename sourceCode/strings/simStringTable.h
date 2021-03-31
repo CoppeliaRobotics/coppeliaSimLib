@@ -437,13 +437,6 @@
 #define IDSN_CHECK_ROBOT_OBSTACLE_MINIMUM_DISTANCE "Check robot - obstacle minimum distance"
 #define IDSN_CHECK_ROBOT_OBSTACLE_MINIMUM_AND_MAXIMUM_DISTANCE "Check robot - obstacle minimum & maximum distance"
 
-// Physics engine preconfigured settings:
-#define IDSN_ENGINE_VERY_PRECISE "Very accurate"
-#define IDSN_ENGINE_PRECISE "Accurate (default)"
-#define IDSN_ENGINE_FAST "Fast"
-#define IDSN_ENGINE_VERY_FAST "Very fast"
-#define IDSN_ENGINE_CUSTOM "Customized"
-
 // Preconfigured simulation step sizes:
 #define IDSN_TIME_STEP_CONFIG_200 "dt=200 ms"
 #define IDSN_TIME_STEP_CONFIG_100 "dt=100 ms"

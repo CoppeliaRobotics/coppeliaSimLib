@@ -89,7 +89,12 @@ void CPropBrowserEngineGeneral::show(QWidget* parentWindow)
 
 
     QStringList configurationEnum;
-    configurationEnum << "Very accurate" << "Accurate (default)" << "Fast" << "Very fast" << "Customized";
+    configurationEnum << CDynamicsContainer::getDynamicsSettingsModeStr(dynset_veryprecise).c_str();
+    configurationEnum << CDynamicsContainer::getDynamicsSettingsModeStr(dynset_precise).c_str();
+    configurationEnum << CDynamicsContainer::getDynamicsSettingsModeStr(dynset_balanced).c_str();
+    configurationEnum << CDynamicsContainer::getDynamicsSettingsModeStr(dynset_fast).c_str();
+    configurationEnum << CDynamicsContainer::getDynamicsSettingsModeStr(dynset_veryfast).c_str();
+    configurationEnum << CDynamicsContainer::getDynamicsSettingsModeStr(dynset_custom).c_str();
     p_configuration = variantManager->addProperty(QtVariantPropertyManager::enumTypeId(),"");
     p_configuration->setAttribute("enumNames", configurationEnum);
     QtBrowserItem* anItem=addProperty(p_configuration);
@@ -239,7 +244,7 @@ void CPropBrowserEngineGeneral::enableNotifications(bool enable)
 
 void CPropBrowserEngineGeneral::refresh()
 {
-    int confIndex=App::currentWorld->dynamicsContainer->getUseDynamicDefaultCalculationParameters();
+    int confIndex=App::currentWorld->dynamicsContainer->getDynamicsSettingsMode();
 
     // Configuration drop box:
     p_configuration->setPropertyName("Configuration");
@@ -255,17 +260,17 @@ void CPropBrowserEngineGeneral::refresh()
 
     // Bullet parameters:
     p_bulletTimeStep->setValue(tt::floatToEInfString(App::currentWorld->dynamicsContainer->getEngineFloatParam(sim_bullet_global_stepsize,nullptr),false).c_str());
-    p_bulletTimeStep->setEnabled(confIndex==4);
+    p_bulletTimeStep->setEnabled(confIndex==dynset_custom);
     p_bulletConstraintSolvType->setValue(App::currentWorld->dynamicsContainer->getEngineIntParam(sim_bullet_global_constraintsolvertype,nullptr));
-    p_bulletConstraintSolvType->setEnabled(confIndex==4);
+    p_bulletConstraintSolvType->setEnabled(confIndex==dynset_custom);
     p_bulletConstraintSolvIterat->setValue(std::to_string(App::currentWorld->dynamicsContainer->getEngineIntParam(sim_bullet_global_constraintsolvingiterations,nullptr)).c_str());
-    p_bulletConstraintSolvIterat->setEnabled(confIndex==4);
+    p_bulletConstraintSolvIterat->setEnabled(confIndex==dynset_custom);
     p_bulletInternalScaling->setValue(tt::floatToEInfString(App::currentWorld->dynamicsContainer->getEngineFloatParam(sim_bullet_global_internalscalingfactor,nullptr),false).c_str());
-    p_bulletInternalScaling->setEnabled(confIndex==4);
+    p_bulletInternalScaling->setEnabled(confIndex==dynset_custom);
     p_bulletInternalFullScaling->setValue(App::currentWorld->dynamicsContainer->getEngineBoolParam(sim_bullet_global_fullinternalscaling,nullptr));
-    p_bulletInternalFullScaling->setEnabled(confIndex==4);
+    p_bulletInternalFullScaling->setEnabled(confIndex==dynset_custom);
     p_bulletCollMarginScaling->setValue(tt::floatToEInfString(App::currentWorld->dynamicsContainer->getEngineFloatParam(sim_bullet_global_collisionmarginfactor,nullptr),false).c_str());
-    p_bulletCollMarginScaling->setEnabled(confIndex==4);
+    p_bulletCollMarginScaling->setEnabled(confIndex==dynset_custom);
 
 
     // ODE property names:
@@ -279,19 +284,19 @@ void CPropBrowserEngineGeneral::refresh()
 
     // ODE parameters:
     p_odeTimeStep->setValue(tt::floatToEInfString(App::currentWorld->dynamicsContainer->getEngineFloatParam(sim_ode_global_stepsize,nullptr),false).c_str());
-    p_odeTimeStep->setEnabled(confIndex==4);
+    p_odeTimeStep->setEnabled(confIndex==dynset_custom);
     p_odeQuickStep->setValue(App::currentWorld->dynamicsContainer->getEngineBoolParam(sim_ode_global_quickstep,nullptr));
-    p_odeQuickStep->setEnabled(confIndex==4);
+    p_odeQuickStep->setEnabled(confIndex==dynset_custom);
     p_odeIterations->setValue(std::to_string(App::currentWorld->dynamicsContainer->getEngineIntParam(sim_ode_global_constraintsolvingiterations,nullptr)).c_str());
-    p_odeIterations->setEnabled((confIndex==4)&&App::currentWorld->dynamicsContainer->getEngineBoolParam(sim_ode_global_quickstep,nullptr));
+    p_odeIterations->setEnabled((confIndex==dynset_custom)&&App::currentWorld->dynamicsContainer->getEngineBoolParam(sim_ode_global_quickstep,nullptr));
     p_odeInternalScaling->setValue(tt::floatToEInfString(App::currentWorld->dynamicsContainer->getEngineFloatParam(sim_ode_global_internalscalingfactor,nullptr),false).c_str());
-    p_odeInternalScaling->setEnabled(confIndex==4);
+    p_odeInternalScaling->setEnabled(confIndex==dynset_custom);
     p_odeInternalFullScaling->setValue(App::currentWorld->dynamicsContainer->getEngineBoolParam(sim_ode_global_fullinternalscaling,nullptr));
-    p_odeInternalFullScaling->setEnabled(confIndex==4);
+    p_odeInternalFullScaling->setEnabled(confIndex==dynset_custom);
     p_odeGlobalErp->setValue(tt::floatToEInfString(App::currentWorld->dynamicsContainer->getEngineFloatParam(sim_ode_global_erp,nullptr),false).c_str());
-    p_odeGlobalErp->setEnabled(confIndex==4);
+    p_odeGlobalErp->setEnabled(confIndex==dynset_custom);
     p_odeGlobalCfm->setValue(tt::floatToEInfString(App::currentWorld->dynamicsContainer->getEngineFloatParam(sim_ode_global_cfm,nullptr),false).c_str());
-    p_odeGlobalCfm->setEnabled(confIndex==4);
+    p_odeGlobalCfm->setEnabled(confIndex==dynset_custom);
 
 
     // Vortex property names:
@@ -323,26 +328,26 @@ void CPropBrowserEngineGeneral::refresh()
     bool multiThreading=App::currentWorld->dynamicsContainer->getEngineBoolParam(sim_vortex_global_multithreading,nullptr);
 
     p_vortexTimeStep->setValue(tt::floatToEInfString(stepSize,false).c_str());
-    p_vortexTimeStep->setEnabled(confIndex==4);
+    p_vortexTimeStep->setEnabled(confIndex==dynset_custom);
     p_vortexContactTolerance->setValue(tt::floatToEInfString(contactTolerance,false).c_str());
-    p_vortexContactTolerance->setEnabled(confIndex==4);
+    p_vortexContactTolerance->setEnabled(confIndex==dynset_custom);
     p_vortexAutoSleep->setValue(autoSleep);
-    p_vortexAutoSleep->setEnabled(confIndex==4);
+    p_vortexAutoSleep->setEnabled(confIndex==dynset_custom);
     p_vortexMultithreading->setValue(multiThreading);
-    p_vortexMultithreading->setEnabled(confIndex==4);
+    p_vortexMultithreading->setEnabled(confIndex==dynset_custom);
 
     p_vortexConstraintLinearCompliance->setValue(tt::floatToEInfString(constraint_linear_compliance,false).c_str());
-    p_vortexConstraintLinearCompliance->setEnabled(confIndex==4);
+    p_vortexConstraintLinearCompliance->setEnabled(confIndex==dynset_custom);
     p_vortexConstraintLinearDamping->setValue(tt::floatToEInfString(constraint_linear_damping,false).c_str());
-    p_vortexConstraintLinearDamping->setEnabled(confIndex==4);
+    p_vortexConstraintLinearDamping->setEnabled(confIndex==dynset_custom);
     p_vortexConstraintLinearKinLoss->setValue(tt::floatToEInfString(constraint_linear_kineticLoss,false).c_str());
-    p_vortexConstraintLinearKinLoss->setEnabled(confIndex==4);
+    p_vortexConstraintLinearKinLoss->setEnabled(confIndex==dynset_custom);
     p_vortexConstraintAngularCompliance->setValue(tt::floatToEInfString(constraint_angular_compliance,false).c_str());
-    p_vortexConstraintAngularCompliance->setEnabled(confIndex==4);
+    p_vortexConstraintAngularCompliance->setEnabled(confIndex==dynset_custom);
     p_vortexConstraintAngularDamping->setValue(tt::floatToEInfString(constraint_angular_damping,false).c_str());
-    p_vortexConstraintAngularDamping->setEnabled(confIndex==4);
+    p_vortexConstraintAngularDamping->setEnabled(confIndex==dynset_custom);
     p_vortexConstraintAngularKinLoss->setValue(tt::floatToEInfString(constraint_angular_kineticLoss,false).c_str());
-    p_vortexConstraintAngularKinLoss->setEnabled(confIndex==4);
+    p_vortexConstraintAngularKinLoss->setEnabled(confIndex==dynset_custom);
 
 
     // Newton property names:
@@ -362,17 +367,17 @@ void CPropBrowserEngineGeneral::refresh()
     bool newtonHighJointAccuracy=App::currentWorld->dynamicsContainer->getEngineBoolParam(sim_newton_global_highjointaccuracy,nullptr);
 
     p_newtonTimeStep->setValue(tt::floatToEInfString(newtonStepSize,false).c_str());
-    p_newtonTimeStep->setEnabled(confIndex==4);
+    p_newtonTimeStep->setEnabled(confIndex==dynset_custom);
     p_newtonSolvingIterations->setValue(tt::getIString(false,newtonIterations).c_str());
-    p_newtonSolvingIterations->setEnabled(confIndex==4);
+    p_newtonSolvingIterations->setEnabled(confIndex==dynset_custom);
     p_newtonMultithreading->setValue(newtonMultithreading);
-    p_newtonMultithreading->setEnabled(confIndex==4);
+    p_newtonMultithreading->setEnabled(confIndex==dynset_custom);
     p_newtonExactSolver->setValue(newtonExactSolver);
-    p_newtonExactSolver->setEnabled(confIndex==4);
+    p_newtonExactSolver->setEnabled(confIndex==dynset_custom);
     p_newtonHighJointAccuracy->setValue(newtonHighJointAccuracy);
-    p_newtonHighJointAccuracy->setEnabled(confIndex==4);
+    p_newtonHighJointAccuracy->setEnabled(confIndex==dynset_custom);
     p_newtonContactMergeTolerance->setValue(tt::floatToEInfString(newtonContactMergeTolerance,false).c_str());
-    p_newtonContactMergeTolerance->setEnabled(confIndex==4);
+    p_newtonContactMergeTolerance->setEnabled(confIndex==dynset_custom);
 }
 
 QtBrowserItem* CPropBrowserEngineGeneral::getSubPropertyBrowserItem(const QtBrowserItem* parentBrowserItem,const QtProperty* childProperty)
@@ -407,7 +412,7 @@ void CPropBrowserEngineGeneral::handlePropertyChanges(QtProperty *_prop)
 
     // Config drop box:
     if (_prop==p_configuration)
-        App::currentWorld->dynamicsContainer->setUseDynamicDefaultCalculationParameters(((QtVariantProperty*)_prop)->value().toInt());
+        App::currentWorld->dynamicsContainer->setDynamicsSettingsMode(((QtVariantProperty*)_prop)->value().toInt());
 
     // Bullet
     if (_prop==p_bulletTimeStep)

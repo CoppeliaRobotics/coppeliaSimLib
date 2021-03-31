@@ -1330,7 +1330,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                         float bulletStepSize=step/float(mainSettings->dynamicsBULLETStepSizeDivider_forBackwardCompatibility_03_01_2012);
                         float odeStepSize=step/float(mainSettings->dynamicsODEStepSizeDivider_forBackwardCompatibility_03_01_2012);
                         if (fabs(step-0.05f)>0.002f)
-                            dynamicsContainer->setUseDynamicDefaultCalculationParameters(4); // use custom settings
+                            dynamicsContainer->setDynamicsSettingsMode(dynset_custom); // use custom settings
                         // Following has an effect only when using custom parameters (custom parameters might already be enabled before above line!):
 
                         dynamicsContainer->setEngineFloatParam(sim_bullet_global_stepsize,bulletStepSize,false);

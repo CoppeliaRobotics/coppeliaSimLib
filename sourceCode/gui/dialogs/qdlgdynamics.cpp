@@ -130,7 +130,7 @@ void CQDlgDynamics::on_qqAdjustEngine_clicked()
         dlg.exec(); // items are set in here
         SSimulationThreadCommand cmd;
         cmd.cmdId=SET_ALLGLOBALPARAMS_DYNAMICSGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentWorld->dynamicsContainer->getUseDynamicDefaultCalculationParameters());
+        cmd.intParams.push_back(App::currentWorld->dynamicsContainer->getDynamicsSettingsMode());
         std::vector<int> iParams;
         std::vector<float> fParams;
         App::currentWorld->dynamicsContainer->getBulletIntParams(iParams);

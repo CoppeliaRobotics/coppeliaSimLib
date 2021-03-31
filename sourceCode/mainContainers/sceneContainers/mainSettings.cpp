@@ -174,10 +174,10 @@ void CMainSettings::serialize(CSer& ar)
                         statusBoxOpenState=SIM_IS_BIT_SET(dummy,7);
 
                         App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_ode_global_quickstep,_dynamicODEUseQuickStep,true);
-                        int _dynamicDefaultTypeCalculationParameters=1; // precise.
+                        int _dynamicsSettingsMode=dynset_balanced;
                         if ((!bulletUseDefault)||(!odeUseDefault))
-                            _dynamicDefaultTypeCalculationParameters=4; // custom
-                        App::currentWorld->dynamicsContainer->setUseDynamicDefaultCalculationParameters(_dynamicDefaultTypeCalculationParameters);
+                            _dynamicsSettingsMode=dynset_custom;
+                        App::currentWorld->dynamicsContainer->setDynamicsSettingsMode(_dynamicsSettingsMode);
 
                         forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers=true;
                     }
@@ -196,9 +196,9 @@ void CMainSettings::serialize(CSer& ar)
                     { // Keep for backward compatibility (27/11/2012)
                         noHit=false;
                         ar >> byteQuantity;
-                        int _dynamicDefaultTypeCalculationParameters;
-                        ar >> _dynamicDefaultTypeCalculationParameters;
-                        App::currentWorld->dynamicsContainer->setUseDynamicDefaultCalculationParameters(_dynamicDefaultTypeCalculationParameters);
+                        int _dynamicsSettingsMode;
+                        ar >> _dynamicsSettingsMode;
+                        App::currentWorld->dynamicsContainer->setDynamicsSettingsMode(_dynamicsSettingsMode);
 
                     }
 

@@ -75,6 +75,18 @@ enum { /* Newton global bit params */
     simi_newton_global_highjointaccuracy=4,
 };
 
+enum {
+    dynset_first        =0,
+    dynset_veryprecise  =dynset_first,
+    dynset_precise      =1,
+    dynset_balanced     =2,
+    dynset_fast         =3,
+    dynset_veryfast     =4,
+    dynset_custom       =5,
+    dynset_default      =dynset_balanced,
+    dynset_last         =dynset_custom
+};
+
 class CViewableBase;
 
 class CDynamicsContainer 
@@ -123,8 +135,9 @@ public:
     void setGravity(const C3Vector& gr);
     C3Vector getGravity();
 
-    void setUseDynamicDefaultCalculationParameters(int defType); // 0=default very precise, 1=default precise, 2=default fast, 3=default very fast, 4=custom
-    int getUseDynamicDefaultCalculationParameters();
+    void setDynamicsSettingsMode(int dynSetMode);
+    int getDynamicsSettingsMode();
+    static std::string getDynamicsSettingsModeStr(int dynSetMode);
 
     float getPositionScalingFactorDyn();
     float getLinearVelocityScalingFactorDyn();
@@ -203,7 +216,7 @@ protected:
     int _dynamicEngineToUse;
     int _dynamicEngineVersionToUse;
     C3Vector _gravity;
-    int _dynamicDefaultTypeCalculationParameters;
+    int _dynamicsSettingsMode;
     bool _displayContactPoints;
 
 
