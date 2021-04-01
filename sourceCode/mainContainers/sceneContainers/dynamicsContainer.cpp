@@ -424,9 +424,9 @@ std::string CDynamicsContainer::getDynamicsSettingsModeStr(int dynSetMode)
 {
     std::string retStr;
     if (dynSetMode==dynset_veryprecise)
-        retStr="very precise";
+        retStr="very accurate";
     if (dynSetMode==dynset_precise)
-        retStr="precise";
+        retStr="accurate";
     if (dynSetMode==dynset_balanced)
         retStr="balanced (default)";
     if (dynSetMode==dynset_fast)

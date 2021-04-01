@@ -247,7 +247,7 @@ void CPropBrowserEngineGeneral::refresh()
     int confIndex=App::currentWorld->dynamicsContainer->getDynamicsSettingsMode();
 
     // Configuration drop box:
-    p_configuration->setPropertyName("Configuration");
+    p_configuration->setPropertyName("Configuration mode");
     p_configuration->setValue(confIndex);
 
     // Bullet property names:
