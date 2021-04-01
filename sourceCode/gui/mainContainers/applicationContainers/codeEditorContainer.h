@@ -55,6 +55,7 @@ public:
     int showOrHide(int handle,bool showState);
     int getShowState(int handle) const;
     bool appendText(int handle,const char* txt) const;
+    bool hasSomethingBeenModifiedInCurrentScene() const;
 
     // From any thread:
     int getHandleFromUniqueId(int uid);

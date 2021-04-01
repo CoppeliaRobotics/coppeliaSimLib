@@ -51,7 +51,8 @@ bool CUndoBufferCont::isUndoSavingOrRestoringUnderWay()
 
 bool CUndoBufferCont::isSceneSaveMaybeNeededFlagSet()
 {
-    return(_sceneSaveMightBeNeeded);
+    bool codeEditorChange=( (App::mainWindow!=nullptr)&&App::mainWindow->codeEditorContainer->hasSomethingBeenModifiedInCurrentScene());
+    return(_sceneSaveMightBeNeeded||codeEditorChange);
 }
 
 void CUndoBufferCont::clearSceneSaveMaybeNeededFlag()

@@ -5,6 +5,7 @@
 #include "simStrings.h"
 #include "vVarious.h"
 #include "app.h"
+#include "ttUtil.h"
 
 int CCodeEditorContainer::_nextUniqueId=0;
 
@@ -875,6 +876,32 @@ bool CCodeEditorContainer::appendText(int handle,const char* txt) const
         }
     }
     return(false);
+}
+
+bool CCodeEditorContainer::hasSomethingBeenModifiedInCurrentScene() const
+{
+    bool retVal=false;
+    int sceneId=App::currentWorld->environment->getSceneUniqueID();
+    for (size_t i=0;i<_allEditors.size();i++)
+    {
+        if (_allEditors[i].sceneUniqueId==sceneId)
+        {
+            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
+            std::string txt;
+            if ( (it!=nullptr)&&CPluginContainer::codeEditor_getText(_allEditors[i].handle,txt,nullptr) )
+            {
+                std::string txt2(it->getScriptText());
+                CTTUtil::removeSpacesAtBeginningAndEnd(txt);
+                CTTUtil::removeSpacesAtBeginningAndEnd(txt2);
+                if (txt.compare(txt2.c_str())!=0)
+                {
+                    retVal=true;
+                    break;
+                }
+            }
+        }
+    }
+    return(retVal);
 }
 
 int CCodeEditorContainer::getCallingScriptHandle(int handle) const
