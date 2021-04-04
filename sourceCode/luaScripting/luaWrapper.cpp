@@ -9,12 +9,8 @@ typedef int (__cdecl *pluaLibGet_LUA_MASKRET)(void);
 typedef int (__cdecl *pluaLibGet_LUA_HOOKCOUNT)(void);
 typedef int (__cdecl *pluaLibGet_LUA_HOOKCALL)(void);
 typedef int (__cdecl *pluaLibGet_LUA_HOOKRET)(void);
-#ifdef OLD_LUA51
-typedef int (__cdecl *pluaLibGet_LUA_GLOBALSINDEX)(void);
-#else
 typedef int (__cdecl *pluaLibGet_LUA_REGISTRYINDEX)(void);
 typedef int (__cdecl *pluaLibGet_LUA_RIDX_GLOBALS)(void);
-#endif
 typedef luaWrap_lua_State* (__cdecl *pluaLib_luaL_newstate)(void);
 typedef void (__cdecl *pluaLib_lua_close)(luaWrap_lua_State* L);
 typedef void (__cdecl *pluaLib_luaL_openlibs)(luaWrap_lua_State* L);
@@ -67,9 +63,7 @@ typedef int (__cdecl *pluaLib_getCurrentCodeLine)(luaWrap_lua_State* L);
 typedef void (__cdecl *pluaLib_lua_settable)(luaWrap_lua_State* L,int idx);
 typedef int (__cdecl *pluaLib_lua_next)(luaWrap_lua_State* L,int idx);
 typedef int (__cdecl *pluaLib_lua_type)(luaWrap_lua_State* L,int idx);
-#ifndef OLD_LUA51
 typedef int (__cdecl *pluaLib_lua_isinteger)(luaWrap_lua_State* L,int idx);
-#endif
 typedef int (__cdecl *pluaLib_lua_error)(luaWrap_lua_State* L);
 
 
@@ -80,12 +74,8 @@ pluaLibGet_LUA_MASKRET luaLibGet_LUA_MASKRET;
 pluaLibGet_LUA_HOOKCOUNT luaLibGet_LUA_HOOKCOUNT;
 pluaLibGet_LUA_HOOKCALL luaLibGet_LUA_HOOKCALL;
 pluaLibGet_LUA_HOOKRET luaLibGet_LUA_HOOKRET;
-#ifdef OLD_LUA51
-pluaLibGet_LUA_GLOBALSINDEX luaLibGet_LUA_GLOBALSINDEX;
-#else
 pluaLibGet_LUA_REGISTRYINDEX luaLibGet_LUA_REGISTRYINDEX;
 pluaLibGet_LUA_RIDX_GLOBALS luaLibGet_LUA_RIDX_GLOBALS;
-#endif
 pluaLib_luaL_newstate luaLib_luaL_newstate;
 pluaLib_lua_close luaLib_lua_close;
 pluaLib_luaL_openlibs luaLib_luaL_openlibs;
@@ -138,9 +128,7 @@ pluaLib_getCurrentCodeLine luaLib_getCurrentCodeLine;
 pluaLib_lua_settable luaLib_lua_settable;
 pluaLib_lua_next luaLib_lua_next;
 pluaLib_lua_type luaLib_lua_type;
-#ifndef OLD_LUA51
 pluaLib_lua_isinteger luaLib_lua_isinteger;
-#endif
 pluaLib_lua_error luaLib_lua_error;
 
 WLibrary lib;
@@ -159,12 +147,8 @@ bool _getLibProcAddresses()
     luaLibGet_LUA_HOOKCOUNT=(pluaLibGet_LUA_HOOKCOUNT)(_getProcAddress("luaLibGet_LUA_HOOKCOUNT"));
     luaLibGet_LUA_HOOKCALL=(pluaLibGet_LUA_HOOKCALL)(_getProcAddress("luaLibGet_LUA_HOOKCALL"));
     luaLibGet_LUA_HOOKRET=(pluaLibGet_LUA_HOOKRET)(_getProcAddress("luaLibGet_LUA_HOOKRET"));
-#ifdef OLD_LUA51
-    luaLibGet_LUA_GLOBALSINDEX=(pluaLibGet_LUA_GLOBALSINDEX)(_getProcAddress("luaLibGet_LUA_GLOBALSINDEX"));
-#else
     luaLibGet_LUA_REGISTRYINDEX=(pluaLibGet_LUA_REGISTRYINDEX)(_getProcAddress("luaLibGet_LUA_REGISTRYINDEX"));
     luaLibGet_LUA_RIDX_GLOBALS=(pluaLibGet_LUA_RIDX_GLOBALS)(_getProcAddress("luaLibGet_LUA_RIDX_GLOBALS"));
-#endif
     luaLib_luaL_newstate=(pluaLib_luaL_newstate)(_getProcAddress("luaLib_luaL_newstate"));
     luaLib_lua_close=(pluaLib_lua_close)(_getProcAddress("luaLib_lua_close"));
     luaLib_luaL_openlibs=(pluaLib_luaL_openlibs)(_getProcAddress("luaLib_luaL_openlibs"));
@@ -217,9 +201,7 @@ bool _getLibProcAddresses()
     luaLib_lua_settable=(pluaLib_lua_settable)(_getProcAddress("luaLib_lua_settable"));
     luaLib_lua_next=(pluaLib_lua_next)(_getProcAddress("luaLib_lua_next"));
     luaLib_lua_type=(pluaLib_lua_type)(_getProcAddress("luaLib_lua_type"));
-#ifndef OLD_LUA51
     luaLib_lua_isinteger=(pluaLib_lua_isinteger)(_getProcAddress("luaLib_lua_isinteger"));
-#endif
     luaLib_lua_error=(pluaLib_lua_error)(_getProcAddress("luaLib_lua_error"));
 
 
@@ -230,12 +212,8 @@ bool _getLibProcAddresses()
     if (luaLibGet_LUA_HOOKCOUNT==nullptr) return false;
     if (luaLibGet_LUA_HOOKCALL==nullptr) return false;
     if (luaLibGet_LUA_HOOKRET==nullptr) return false;
-#ifdef OLD_LUA51
-    if (luaLibGet_LUA_GLOBALSINDEX==nullptr) return false;
-#else
     if (luaLibGet_LUA_REGISTRYINDEX==nullptr) return false;
     if (luaLibGet_LUA_RIDX_GLOBALS==nullptr) return false;
-#endif
     if (luaLib_luaL_newstate==nullptr) return false;
     if (luaLib_lua_close==nullptr) return false;
     if (luaLib_luaL_openlibs==nullptr) return false;
@@ -288,9 +266,7 @@ bool _getLibProcAddresses()
     if (luaLib_lua_settable==nullptr) return false;
     if (luaLib_lua_next==nullptr) return false;
     if (luaLib_lua_type==nullptr) return false;
-#ifndef OLD_LUA51
     if (luaLib_lua_isinteger==nullptr) return false;
-#endif
     if (luaLib_lua_error==nullptr) return false;
 
     return true;
@@ -415,14 +391,6 @@ int luaWrapGet_LUA_HOOKRET()
     return(LUA_HOOKRET);
 }
 
-#ifdef OLD_LUA51
-int luaWrapGet_LUA_GLOBALSINDEX()
-{
-    if (lib!=nullptr)
-        return(luaLibGet_LUA_GLOBALSINDEX());
-    return(LUA_GLOBALSINDEX);
-}
-#else
 int luaWrapGet_LUA_REGISTRYINDEX()
 {
     if (lib!=nullptr)
@@ -436,7 +404,6 @@ int luaWrapGet_LUA_RIDX_GLOBALS()
         return(luaLibGet_LUA_RIDX_GLOBALS());
     return(LUA_RIDX_GLOBALS);
 }
-#endif
 
 luaWrap_lua_State* luaWrap_luaL_newstate()
 {
@@ -561,21 +528,13 @@ luaWrap_lua_Integer luaWrap_lua_tointeger(luaWrap_lua_State* L,int idx)
 {
     if (lib!=nullptr)
     {
-#ifdef OLD_LUA51
-        return(luaLib_lua_tointeger(L,idx));
-#else
         if (luaLib_lua_isinteger(L,idx))
             return(luaLib_lua_tointeger(L,idx));
         return((luaWrap_lua_Integer)luaLib_lua_tonumber(L,idx));
-#endif
     }
-#ifdef OLD_LUA51
-    return(lua_tointeger((lua_State*)L,idx));
-#else
     if (lua_isinteger((lua_State*)L,idx))
         return(lua_tointeger((lua_State*)L,idx));
     return((luaWrap_lua_Integer)lua_tonumber((lua_State*)L,idx));
-#endif
 }
 
 luaWrap_lua_Number luaWrap_lua_tonumber(luaWrap_lua_State* L,int idx)
@@ -623,20 +582,9 @@ int luaWrap_lua_isnumber(luaWrap_lua_State* L,int idx)
 
 int luaWrap_lua_isinteger(luaWrap_lua_State* L,int idx)
 {
-#ifdef OLD_LUA51
-    if (luaWrap_lua_isnumber(L,idx))
-    {
-        lua_Number d=luaWrap_lua_tonumber(L,idx);
-        lua_Integer v=(lua_Integer)d;
-        return(d==(luaNumber)v);
-    }
-    return(false);
-#else
     if (lib!=nullptr)
         return(luaLib_lua_isinteger(L,idx));
     return(lua_isinteger((lua_State*)L,idx));
-#endif
-
 }
 
 int luaWrap_lua_isstring(luaWrap_lua_State* L,int idx)
@@ -762,11 +710,7 @@ size_t luaWrap_lua_rawlen(luaWrap_lua_State* L,int idx)
 {
     if (lib!=nullptr)
         return(luaLib_lua_rawlen(L,idx));
-#ifdef OLD_LUA51
-    return(lua_objlen((lua_State*)L,idx));
-#else
     return(lua_rawlen((lua_State*)L,idx));
-#endif
 }
 
 void luaWrap_lua_rawgeti(luaWrap_lua_State* L,int idx,int n)
@@ -893,12 +837,10 @@ int luaWrap_lua_stype(luaWrap_lua_State* L,int idx)
     if (t==LUA_TNUMBER)
     {
         int intT=0;
-#ifndef OLD_LUA51
         if (lib!=nullptr)
             intT=luaLib_lua_isinteger(L,idx);
         else
             intT=lua_isinteger((lua_State*)L,idx);
-#endif
         if (intT==0)
             return(STACK_OBJECT_NUMBER);
         return(STACK_OBJECT_INTEGER);

@@ -17,7 +17,6 @@
 #include "collisionRoutines.h"
 #include "distanceRoutines.h"
 #include "simFlavor.h"
-#include <QHostInfo>
 
 CHelpMenu::CHelpMenu()
 {
@@ -60,8 +59,9 @@ bool CHelpMenu::processCommand(int commandID)
 { // Return value is true if the command belonged to help menu and was executed
     if (commandID==HELP_TOPICS_CMD)
     {
+
         std::string tmp("https://coppeliarobotics.com/helpFiles/index.html");
-        if ( ((SIM_PROGRAM_REVISION_NB)==0) || (QHostInfo::fromName("coppeliarobotics.com").error()!=QHostInfo::NoError) )
+        if ( ((SIM_PROGRAM_REVISION_NB)==0) || (!App::isOnline()) )
         {
             #ifdef MAC_SIM
                 tmp=App::folders->getExecutablePath()+"/../Resources/"+"helpFiles"+"/"+"index.html";

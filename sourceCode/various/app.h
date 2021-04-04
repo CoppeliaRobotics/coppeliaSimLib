@@ -92,6 +92,7 @@ public:
     static void setStartupScriptString(const char* str);
     static void setExitCode(int c);
     static int getExitCode();
+    static bool isOnline();
 
     static float* getRGBPointerFromItem(int objType,int objID1,int objID2,int colComponent,std::string* auxDlgTitle);
     static CColorObject* getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts);
@@ -139,6 +140,7 @@ private:
     static int _statusbarVerbosity;
     static int _dlgVerbosity;
     static int _exitCode;
+    static bool _online;
     static std::string _consoleLogFilterStr;
     static std::string _startupScriptString;
 

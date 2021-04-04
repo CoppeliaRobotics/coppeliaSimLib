@@ -3280,20 +3280,6 @@ void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std
 
 void registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char const* const functionName,luaWrap_lua_CFunction functionCallback)
 {
-#ifdef OLD_LUA51
-    luaWrap_lua_getfield(L,luaWrapGet_LUA_GLOBALSINDEX(),tableName);
-    if (!luaWrap_lua_istable(L,-1))
-    { // we first need to create the table
-        luaWrap_lua_createtable(L,0,1);
-        luaWrap_lua_setfield(L,luaWrapGet_LUA_GLOBALSINDEX(),tableName);
-        luaWrap_lua_pop(L,1);
-        luaWrap_lua_getfield(L,luaWrapGet_LUA_GLOBALSINDEX(),tableName);
-    }
-    luaWrap_lua_pushstring(L,functionName);
-    luaWrap_lua_pushcfunction(L,functionCallback);
-    luaWrap_lua_settable(L,-3);
-    luaWrap_lua_pop(L,1);
-#else
     luaWrap_lua_rawgeti(L,luaWrapGet_LUA_REGISTRYINDEX(),luaWrapGet_LUA_RIDX_GLOBALS()); // table of globals
     luaWrap_lua_getfield(L,-1,tableName);
     if (!luaWrap_lua_istable(L,-1))
@@ -3308,7 +3294,6 @@ void registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char
     luaWrap_lua_settable(L,-3);
     luaWrap_lua_pop(L,1);
     luaWrap_lua_pop(L,1); // pop table of globals
-#endif
 }
 
 void registerNewLuaFunctions(luaWrap_lua_State* L)

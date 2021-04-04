@@ -29,6 +29,7 @@
     #endif
 #endif
 #ifdef SIM_WITH_QT
+    #include <QHostInfo>
     #include <QTextDocument>
 #endif
 void (*_workThreadLoopCallback)();
@@ -48,6 +49,7 @@ int App::_consoleVerbosity=sim_verbosity_default;
 int App::_statusbarVerbosity=sim_verbosity_msgs;
 int App::_dlgVerbosity=sim_verbosity_infos;
 int App::_exitCode=0;
+bool App::_online=false;
 std::string App::_consoleLogFilterStr;
 std::string App::_startupScriptString;
 
@@ -315,6 +317,14 @@ App::App(bool headless)
 
 #ifdef SIM_WITH_QT
     qtApp=new CSimQApp(_qApp_argc,_qApp_argv);
+
+    QHostInfo::lookupHost("www.coppeliarobotics.com",
+        [=] (const QHostInfo &info)
+        {
+            if(info.error() == QHostInfo::NoError)
+                App::_online = true;
+        }
+    );
 #endif
 
 #ifdef USING_QOPENGLWIDGET
@@ -1703,6 +1713,11 @@ void App::setExitCode(int c)
 int App::getExitCode()
 {
     return(_exitCode);
+}
+
+bool App::isOnline()
+{
+    return(_online);
 }
 
 int App::getConsoleVerbosity(const char* pluginName/*=nullptr*/)

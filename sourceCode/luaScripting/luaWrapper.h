@@ -56,12 +56,8 @@ int luaWrapGet_LUA_MASKRET();
 int luaWrapGet_LUA_HOOKCOUNT();
 int luaWrapGet_LUA_HOOKCALL();
 int luaWrapGet_LUA_HOOKRET();
-#ifdef OLD_LUA51
-int luaWrapGet_LUA_GLOBALSINDEX();
-#else
 int luaWrapGet_LUA_REGISTRYINDEX();
 int luaWrapGet_LUA_RIDX_GLOBALS();
-#endif
 
 luaWrap_lua_State* luaWrap_luaL_newstate();
 void luaWrap_lua_close(luaWrap_lua_State* L);
