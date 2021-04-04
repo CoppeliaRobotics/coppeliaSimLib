@@ -68,7 +68,10 @@ bool CHelpMenu::processCommand(int commandID)
             #else
                 tmp=App::folders->getExecutablePath()+"/"+"helpFiles"+"/"+"index.html";
             #endif
+            App::logMsg(sim_verbosity_msgs,"Opening the locally stored user manual...");
         }
+        else
+            App::logMsg(sim_verbosity_msgs,"Opening the online user manual at https://coppeliarobotics.com/helpFiles/index.html");
         VVarious::openUrl(tmp.c_str());
         return(true);
     }
