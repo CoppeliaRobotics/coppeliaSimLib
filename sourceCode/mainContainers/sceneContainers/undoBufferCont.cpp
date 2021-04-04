@@ -4,7 +4,6 @@
 #include "vDateTime.h"
 #include "app.h"
 #include "simStrings.h"
-//#include "vMessageBox.h"
 
 CUndoBufferCont::CUndoBufferCont()
 {
@@ -51,7 +50,10 @@ bool CUndoBufferCont::isUndoSavingOrRestoringUnderWay()
 
 bool CUndoBufferCont::isSceneSaveMaybeNeededFlagSet()
 {
-    bool codeEditorChange=( (App::mainWindow!=nullptr)&&App::mainWindow->codeEditorContainer->hasSomethingBeenModifiedInCurrentScene());
+    bool codeEditorChange=false;
+#ifdef SIM_WITH_GUI
+    codeEditorChange=( (App::mainWindow!=nullptr)&&App::mainWindow->codeEditorContainer->hasSomethingBeenModifiedInCurrentScene());
+#endif
     return(_sceneSaveMightBeNeeded||codeEditorChange);
 }
 
