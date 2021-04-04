@@ -60,19 +60,22 @@ bool CHelpMenu::processCommand(int commandID)
     if (commandID==HELP_TOPICS_CMD)
     {
 
-        std::string tmp("https://coppeliarobotics.com/helpFiles/index.html");
         if ( ((SIM_PROGRAM_REVISION_NB)==0) || (!App::isOnline()) )
         {
+            std::string tmp;
             #ifdef MAC_SIM
                 tmp=App::folders->getExecutablePath()+"/../Resources/"+"helpFiles"+"/"+"index.html";
             #else
                 tmp=App::folders->getExecutablePath()+"/"+"helpFiles"+"/"+"index.html";
             #endif
             App::logMsg(sim_verbosity_msgs,"Opening the locally stored user manual...");
+            VVarious::openOfflineUrl(tmp.c_str());
         }
         else
+        {
             App::logMsg(sim_verbosity_msgs,"Opening the online user manual at https://coppeliarobotics.com/helpFiles/index.html");
-        VVarious::openUrl(tmp.c_str());
+            VVarious::openOnlineUrl("https://coppeliarobotics.com/helpFiles/index.html");
+        }
         return(true);
     }
     if (commandID==ABOUT_CMD)

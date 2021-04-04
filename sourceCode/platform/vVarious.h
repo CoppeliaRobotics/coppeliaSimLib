@@ -42,7 +42,8 @@ public:
 
 #ifdef SIM_WITH_GUI
 public:
-    static bool openUrl(const char* url);
+    static bool openOfflineUrl(const char* url);
+    static bool openOnlineUrl(const char* url);
     static bool openTextFile(const char* file);
 #endif
 };

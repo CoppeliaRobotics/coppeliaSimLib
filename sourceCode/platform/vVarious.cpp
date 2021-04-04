@@ -366,9 +366,14 @@ bool VVarious::copyTextToClipboard(const char* text)
 }
 
 #ifdef SIM_WITH_GUI
-bool VVarious::openUrl(const char* url)
+bool VVarious::openOfflineUrl(const char* url)
 {
     return(QDesktopServices::openUrl(QUrl::fromLocalFile(url)));
+}
+
+bool VVarious::openOnlineUrl(const char* url)
+{
+    return(QDesktopServices::openUrl(QUrl(url)));
 }
 
 bool VVarious::openTextFile(const char* file)
