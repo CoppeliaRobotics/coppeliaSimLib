@@ -165,7 +165,11 @@ std::string CCodeEditorContainer::translateXml(const char* oldXml,const char* ca
 
             editorNode->SetAttribute("resizable",toBoolStr(true));
             editorNode->SetAttribute("placement","absolute");
-            editorNode->SetAttribute("font","Courier");
+            if (App::userSettings->scriptEditorFont.compare("")==0)
+                editorNode->SetAttribute("font","Courier");
+            else
+                editorNode->SetAttribute("font",App::userSettings->scriptEditorFont.c_str());
+            editorNode->SetAttribute("font-bold",toBoolStr(App::userSettings->scriptEditorBoldFont));
             editorNode->SetAttribute("toolbar",toBoolStr(false));
             editorNode->SetAttribute("statusbar",toBoolStr(false));
             editorNode->SetAttribute("can-restart",toBoolStr(false));
@@ -340,7 +344,11 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                 editorNode->SetAttribute("resizable",toBoolStr(true));
                 editorNode->SetAttribute("closeable",toBoolStr(true));
                 editorNode->SetAttribute("placement","absolute");
-                editorNode->SetAttribute("font","Courier");
+                if (App::userSettings->scriptEditorFont.compare("")==0)
+                    editorNode->SetAttribute("font","Courier");
+                else
+                    editorNode->SetAttribute("font",App::userSettings->scriptEditorFont.c_str());
+                editorNode->SetAttribute("font-bold",toBoolStr(App::userSettings->scriptEditorBoldFont));
                 editorNode->SetAttribute("toolbar",toBoolStr(true));
                 editorNode->SetAttribute("statusbar",toBoolStr(false));
                 editorNode->SetAttribute("wrap-word",toBoolStr(false));
@@ -476,7 +484,11 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                 editorNode->SetAttribute("resizable",toBoolStr(true));
                 editorNode->SetAttribute("closeable",toBoolStr(true));
                 editorNode->SetAttribute("placement","absolute");
-                editorNode->SetAttribute("font","Courier");
+                if (App::userSettings->scriptEditorFont.compare("")==0)
+                    editorNode->SetAttribute("font","Courier");
+                else
+                    editorNode->SetAttribute("font",App::userSettings->scriptEditorFont.c_str());
+                editorNode->SetAttribute("font-bold",toBoolStr(App::userSettings->scriptEditorBoldFont));
                 editorNode->SetAttribute("toolbar",toBoolStr(true));
                 editorNode->SetAttribute("statusbar",toBoolStr(false));
                 editorNode->SetAttribute("wrap-word",toBoolStr(false));
@@ -580,7 +592,11 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
         editorNode->SetAttribute("resizable",toBoolStr(true));
         editorNode->SetAttribute("closeable",toBoolStr((mode&4)!=0));
         editorNode->SetAttribute("placement","absolute");
-        editorNode->SetAttribute("font","Courier");
+        if (App::userSettings->scriptEditorFont.compare("")==0)
+            editorNode->SetAttribute("font","Courier");
+        else
+            editorNode->SetAttribute("font",App::userSettings->scriptEditorFont.c_str());
+        editorNode->SetAttribute("font-bold",toBoolStr(App::userSettings->scriptEditorBoldFont));
         editorNode->SetAttribute("toolbar",toBoolStr(false));
         editorNode->SetAttribute("statusbar",toBoolStr(false));
         editorNode->SetAttribute("wrap-word",toBoolStr((mode&2)!=0));

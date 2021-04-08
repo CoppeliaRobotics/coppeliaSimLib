@@ -73,7 +73,7 @@ bool CHelpMenu::processCommand(int commandID)
         }
         else
         {
-            App::logMsg(sim_verbosity_msgs,"Opening the online user manual at https://coppeliarobotics.com/helpFiles/index.html");
+            App::logMsg(sim_verbosity_msgs,"Opening the online user manual at https://coppeliarobotics.com/helpFiles/index.html... if this fails, check the locally stored user manual.");
             VVarious::openOnlineUrl("https://coppeliarobotics.com/helpFiles/index.html");
         }
         return(true);

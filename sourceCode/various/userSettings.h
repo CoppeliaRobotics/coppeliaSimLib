@@ -115,6 +115,7 @@ public:
     bool suppressXmlOverwriteMsg;
 
     std::string scriptEditorFont;
+    bool scriptEditorBoldFont;
     int scriptEditorFontSize;
 
     std::string additionalLuaPath;

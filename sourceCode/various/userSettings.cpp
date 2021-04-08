@@ -187,6 +187,7 @@
 
 #define _USR_SCRIPT_EDITOR_FONT "scriptEditorFont"
 #define _USR_SCRIPT_EDITOR_FONT_SIZE "scriptEditorFontSize"
+#define _USR_SCRIPT_EDITOR_BOLDFONT "scriptEditorBoldFont"
 
 #define _USR_CONNECTION_ADDRESS "conParam1"
 #define _USR_CONNECTION_PORT "conParam2"
@@ -235,6 +236,8 @@ CUserSettings::CUserSettings()
     renderingSurfaceVResize=0;
     scriptEditorFont=""; // default
     scriptEditorFontSize=-1; // default
+    scriptEditorBoldFont=false;
+
     displayWorldReference=true;
     antiAliasing=false;
     displayBoundingBoxeWhenObjectSelected=true;
@@ -612,6 +615,7 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_SCENEHIERARCHY_HIDDEN_DURING_SIMULATION,sceneHierarchyHiddenDuringSimulation,"");
 
     c.addString(_USR_SCRIPT_EDITOR_FONT,scriptEditorFont,"empty=default.");
+    c.addBoolean(_USR_SCRIPT_EDITOR_BOLDFONT,scriptEditorBoldFont,"");
     c.addInteger(_USR_SCRIPT_EDITOR_FONT_SIZE,scriptEditorFontSize,"-1=default.");
 
     c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_BACKGROUND,mainScriptColor_background,"");
@@ -939,6 +943,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_SCENEHIERARCHY_HIDDEN_DURING_SIMULATION,sceneHierarchyHiddenDuringSimulation);
 
     c.getString(_USR_SCRIPT_EDITOR_FONT,scriptEditorFont);
+    c.getBoolean(_USR_SCRIPT_EDITOR_BOLDFONT,scriptEditorBoldFont);
     c.getInteger(_USR_SCRIPT_EDITOR_FONT_SIZE,scriptEditorFontSize);
 
     c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_BACKGROUND,mainScriptColor_background);

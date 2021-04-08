@@ -227,6 +227,14 @@ bool CSimRecorder::recordFrameIfNeeded(int resX,int resY,int posX,int posY)
                         if ((App::userSettings->desktopRecordingIndex>=0)&&(App::userSettings->desktopRecordingIndex<screens.size()))
                             screenIndex=App::userSettings->desktopRecordingIndex;
                         QPixmap pixmap(screens[screenIndex]->grabWindow(0));
+                        /*
+                        if (_showCursor)
+                        {
+                            QPixmap pixmapM(":/targaFiles/cur_arrow.tga");
+                            QPainter painter(&pixmap);
+                            painter.drawPixmap(App::mainWindow->cursor().pos(),pixmapM);
+                        }
+                        */
                         QImage img(pixmap.toImage());
 
                         if ((App::userSettings->desktopRecordingWidth>100)&&(App::userSettings->desktopRecordingWidth<4000))
