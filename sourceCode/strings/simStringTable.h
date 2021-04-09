@@ -680,8 +680,6 @@
 #define IDSN_SELECT_ALL_MENU_ITEM "Select all"
 
 #define IDSN_REMOVE_MENU_ITEM "Remove"
-#define IDSN_ASSOCIATED_CHILD_SCRIPT_MENU_ITEM "Associated child script"
-#define IDSN_ASSOCIATED_CUSTOMIZATION_SCRIPT_MENU_ITEM "Associated customization script"
 
 #define IDSNS_SELECTING_ALL_OBJECTS "Selecting all objects..."
 #define IDSNS_SELECTING_ALL_TRIANGLES "Selecting all triangles..."
@@ -852,11 +850,6 @@
 #define IDS_A_TEXTURE_FILE_COULD_NOT_BE_LOADED "A texture file could not be loaded"
 #define IDS_THUMBNAILS_REQUIRE_128X128_RESOLUTION "Thumbnail images should have a resolution of 128X128 pixels"
 
-
-#define IDS_ASSOCIATED_CHILD_SCRIPT_MENU_ITEM "Associated child script"
-#define IDS_NON_THREADED_MENU_ITEM "Non threaded"
-#define IDS_THREADED_MENU_ITEM  "Threaded"
-#define IDS_ASSOCIATED_CUSTOMIZATION_SCRIPT_MENU_ITEM "Associated customization script"
 
 #define IDS_APPEND_NEW_PATH_POINT_FROM_CAMERA_MENU_ITEM "Append new control point from camera configuration"
 

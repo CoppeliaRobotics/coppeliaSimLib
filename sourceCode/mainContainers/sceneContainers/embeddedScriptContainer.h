@@ -26,7 +26,7 @@ public:
     bool doesScriptWithUniqueIdExist(int id) const;
 
     void killAllSimulationLuaStates();
-    int insertDefaultScript_mainAndChildScriptsOnly(int scriptType,bool threaded,bool oldThreadedScript);
+    int insertDefaultScript(int scriptType,bool threaded,bool oldThreadedScript);
     const std::vector<int>* getObjectIdsWhereDynCallbackFunctionsAvailable() const;
 
     int removeDestroyedScripts(int scriptType);

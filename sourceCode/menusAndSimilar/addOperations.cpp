@@ -279,7 +279,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // we are NOT in the UI thread. We execute the command now:
             if (App::currentWorld->sceneObjects->getSelectionCount()==1)
             {
-                int scriptID=App::currentWorld->embeddedScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_childscript,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_oldTHREADED_CHILD_SCRIPT_ACCMD);
+                int scriptID=App::currentWorld->embeddedScriptContainer->insertDefaultScript(sim_scripttype_childscript,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_oldTHREADED_CHILD_SCRIPT_ACCMD);
                 CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
                 if (script!=nullptr)
                     script->setObjectHandleThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
@@ -296,51 +296,18 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         return(true);
     }
 
-    if (commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_CUSTOMIZATION_SCRIPT_ACCMD)
+    if ((commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_NON_THREADED_CUSTOMIZATION_SCRIPT_ACCMD)||(commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CUSTOMIZATION_SCRIPT_ACCMD))
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (App::currentWorld->sceneObjects->getSelectionCount()==1)
             {
-                CSceneObject* it=App::currentWorld->sceneObjects->getLastSelectionObject();
-                if (it!=nullptr)
-                {
-                    if (!it->getEnableCustomizationScript())
-                    { // we don't yet have a customization script
-                        std::string filenameAndPath(App::folders->getSystemPath()+"/");
-                        filenameAndPath+=DEFAULT_CUSTOMIZATIONSCRIPT_NAME;
-                        if (VFile::doesFileExist(filenameAndPath.c_str()))
-                        {
-                            try
-                            {
-                                VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
-                                VArchive archive(&file,VArchive::LOAD);
-                                unsigned int archiveLength=(unsigned int)file.getLength();
-                                char* defaultScript=new char[archiveLength+1];
-                                for (int i=0;i<int(archiveLength);i++)
-                                    archive >> defaultScript[i];
-                                defaultScript[archiveLength]=0;
-                                it->setEnableCustomizationScript(true,defaultScript);
-                                delete[] defaultScript;
-                                archive.close();
-                                file.close();
-                            }
-                            catch(VFILE_EXCEPTION_TYPE e)
-                            {
-                                VFile::reportAndHandleFileExceptionError(e);
-                                char defaultMessage[]="Default customization script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
-                                it->setEnableCustomizationScript(true,defaultMessage);
-                            }
-                        }
-                        else
-                        {
-                            char defaultMessage[]="Default customization script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
-                            it->setEnableCustomizationScript(true,defaultMessage);
-                        }
-                        POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                        App::setFullDialogRefreshFlag();
-                    }
-                }
+                int scriptID=App::currentWorld->embeddedScriptContainer->insertDefaultScript(sim_scripttype_customizationscript,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CUSTOMIZATION_SCRIPT_ACCMD,false);
+                CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
+                if (script!=nullptr)
+                    script->setObjectHandleThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
+                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::setFullDialogRefreshFlag();
             }
         }
         else
@@ -1389,15 +1356,16 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
             menu->appendMenuAndDetach(pathM,true,IDSN_PATH);
 
             VMenu* childScript=new VMenu();
-            childScript->appendMenuItem(true,false,ADD_COMMANDS_ADD_AND_ASSOCIATE_NON_THREADED_CHILD_SCRIPT_ACCMD,IDS_NON_THREADED_MENU_ITEM);
-            childScript->appendMenuItem(true,false,ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD,IDS_THREADED_MENU_ITEM);
+            childScript->appendMenuItem(true,false,ADD_COMMANDS_ADD_AND_ASSOCIATE_NON_THREADED_CHILD_SCRIPT_ACCMD,"Non threaded");
+            childScript->appendMenuItem(true,false,ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD,"Threaded");
             if (App::userSettings->keepOldThreadedScripts)
                 childScript->appendMenuItem(true,false,ADD_COMMANDS_ADD_AND_ASSOCIATE_oldTHREADED_CHILD_SCRIPT_ACCMD,"Threaded (deprecated, compatibility version)");
+            menu->appendMenuAndDetach(childScript,canAddChildScript,"Associated child script");
 
-            menu->appendMenuAndDetach(childScript,canAddChildScript,IDS_ASSOCIATED_CHILD_SCRIPT_MENU_ITEM);
-
-            menu->appendMenuItem(canAddCustomizationScript,false,ADD_COMMANDS_ADD_AND_ASSOCIATE_CUSTOMIZATION_SCRIPT_ACCMD,IDS_ASSOCIATED_CUSTOMIZATION_SCRIPT_MENU_ITEM);
-
+            VMenu* customizationScript=new VMenu();
+            customizationScript->appendMenuItem(true,false,ADD_COMMANDS_ADD_AND_ASSOCIATE_NON_THREADED_CUSTOMIZATION_SCRIPT_ACCMD,"Non threaded");
+            customizationScript->appendMenuItem(true,false,ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CUSTOMIZATION_SCRIPT_ACCMD,"Threaded");
+            menu->appendMenuAndDetach(customizationScript,canAddCustomizationScript,"Associated customization script");
 
             menu->appendMenuSeparator();
             menu->appendMenuItem(shapesAndDummiesInRootSel>0,false,ADD_COMMANDS_ADD_CONVEX_HULL_ACCMD,IDS_CONVEX_HULL_OF_SELECTION_MENU_ITEM);

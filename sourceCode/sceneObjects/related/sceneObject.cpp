@@ -1386,38 +1386,6 @@ bool CSceneObject::getAssemblingLocalTransformationIsUsed()
     return(_assemblingLocalTransformationIsUsed);
 }
 
-
-void CSceneObject::setEnableCustomizationScript(bool c,const char* scriptContent)
-{
-    // _customizationScriptEnabled=c;
-
-    // We remove a script that might be associated:
-    CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(getObjectHandle());
-    if (script)
-    {
-#ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-            App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
-#endif
-        App::currentWorld->embeddedScriptContainer->removeScript(script->getScriptHandle());
-    }
-
-    if (c)
-    { // we have to add a script
-        CLuaScriptObject* script=new CLuaScriptObject(sim_scripttype_customizationscript);
-        if (scriptContent)
-            script->setScriptText(scriptContent);
-        App::currentWorld->embeddedScriptContainer->insertScript(script);
-        script->setObjectHandleThatScriptIsAttachedTo(getObjectHandle());
-    }
-}
-
-bool CSceneObject::getEnableCustomizationScript()
-{
-    return(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(getObjectHandle())!=nullptr);
-//  return(_customizationScriptEnabled);
-}
-
 void CSceneObject::setAssemblyMatchValues(bool asChild,const char* str)
 {
     std::vector<std::string>* v;

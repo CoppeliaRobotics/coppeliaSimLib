@@ -11,10 +11,11 @@
 #include <random>
 
 #define DEFAULT_MAINSCRIPT_CODE "-- The main script is not supposed to be modified, except in special cases.\nrequire('defaultMainScript')"
-#define DEFAULT_NONTHREADEDCHILDSCRIPT_NAME "dltcscpt.txt"
-#define DEFAULT_THREADEDCHILDSCRIPT_NAME "dlttscpt.txt"
+#define DEFAULT_NONTHREADEDCHILDSCRIPT_NAME "defaultChildScript.txt"
+#define DEFAULT_THREADEDCHILDSCRIPT_NAME "defaultThreadedChildScript.txt"
 #define DEFAULT_THREADEDCHILDSCRIPTOLD_NAME "dlttscptbkcomp.txt"
-#define DEFAULT_CUSTOMIZATIONSCRIPT_NAME "defaultCustomizationScript.txt"
+#define DEFAULT_NONTHREADEDCUSTOMIZATIONSCRIPT_NAME "defaultCustomizationScript.txt"
+#define DEFAULT_THREADEDCUSTOMIZATIONSCRIPT_NAME "defaultThreadedCustomizationScript.txt"
 
 #define SIM_SCRIPT_NAME_INDEX "sim_script_name_index" // keep this global, e.g. not _S.sim_script_name_index
 #define SIM_SCRIPT_HANDLE "sim_script_handle" // keep this global, e.g. not _S.sim_script_handle

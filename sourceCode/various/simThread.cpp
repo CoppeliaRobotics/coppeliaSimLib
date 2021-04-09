@@ -3481,35 +3481,15 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             }
         }
 
-
-
-
-
         if (cmd.cmdId==DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
             CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
             if (script!=nullptr)
             {
-                if ((script->getScriptType()==sim_scripttype_mainscript)||(script->getScriptType()==sim_scripttype_childscript))
-                {
-                    if (App::mainWindow!=nullptr)
-                        App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptID,nullptr,true);
-                    App::currentWorld->embeddedScriptContainer->removeScript(scriptID);
-                }
-                else if (script->getScriptType()==sim_scripttype_customizationscript)
-                {
-                    int objID=script->getObjectHandleThatScriptIsAttachedTo_customization();
-                    CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
-                    if (it!=nullptr)
-                        it->setEnableCustomizationScript(false,nullptr);
-                    else
-                    {
-                        if (App::mainWindow!=nullptr)
-                            App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptID,nullptr,true);
-                        App::currentWorld->embeddedScriptContainer->removeScript(scriptID); // unassociated
-                    }
-                }
+                if (App::mainWindow!=nullptr)
+                    App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptID,nullptr,true);
+                App::currentWorld->embeddedScriptContainer->removeScript(scriptID);
             }
         }
         if (cmd.cmdId==TOGGLE_DISABLED_SCRIPTGUITRIGGEREDCMD)

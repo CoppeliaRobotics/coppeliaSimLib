@@ -10,7 +10,7 @@
 
 CEmbeddedScriptContainer::CEmbeddedScriptContainer()
 {
-    insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_mainscript,false,false);
+    insertDefaultScript(sim_scripttype_mainscript,false,false);
 }
 
 CEmbeddedScriptContainer::~CEmbeddedScriptContainer()
@@ -278,7 +278,7 @@ int CEmbeddedScriptContainer::insertScript(CLuaScriptObject* script)
     return(newHandle);
 }
 
-int CEmbeddedScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptType,bool threaded,bool oldThreadedScript)
+int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,bool oldThreadedScript)
 { 
     if (scriptType!=sim_scripttype_childscript)
         oldThreadedScript=false; // just to make sure
@@ -303,6 +303,13 @@ int CEmbeddedScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int sc
             else
                 filenameAndPath+=DEFAULT_NONTHREADEDCHILDSCRIPT_NAME;
         }
+    }
+    if (scriptType==sim_scripttype_customizationscript)
+    {
+        if (threaded)
+            filenameAndPath+=DEFAULT_THREADEDCUSTOMIZATIONSCRIPT_NAME;
+        else
+            filenameAndPath+=DEFAULT_NONTHREADEDCUSTOMIZATIONSCRIPT_NAME;
     }
 
     if (filenameAndPath.size()>0)

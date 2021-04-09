@@ -1738,7 +1738,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
     }
 
     if ( isScene&&(embeddedScriptContainer->getMainScript()==nullptr) )
-        embeddedScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_mainscript,false,false);
+        embeddedScriptContainer->insertDefaultScript(sim_scripttype_mainscript,false,false);
 
     CCamera* mainCam=nullptr;
 

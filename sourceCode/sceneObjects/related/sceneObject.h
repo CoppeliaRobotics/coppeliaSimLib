@@ -191,9 +191,6 @@ public:
     void incrementMemorizedConfigurationValidCounter();
     int getMemorizedConfigurationValidCounter();
 
-    void setEnableCustomizationScript(bool c,const char* scriptContent);
-    bool getEnableCustomizationScript();
-
     void setSizeFactor(float f);
     float getSizeFactor() const;
     void setSizeValues(const float s[3]);

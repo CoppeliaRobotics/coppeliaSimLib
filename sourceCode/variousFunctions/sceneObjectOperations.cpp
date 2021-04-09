@@ -2635,8 +2635,8 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
         if (CSimFlavor::getBoolVal(12))
         {
             VMenu* removing=new VMenu();
-            removing->appendMenuItem(hasChildScriptAttached&&noSim,false,SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CHILD_SCRIPT_SOOCMD,IDSN_ASSOCIATED_CHILD_SCRIPT_MENU_ITEM);
-            removing->appendMenuItem(hasCustomizationScriptAttached&&noSim,false,SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CUSTOMIZATION_SCRIPT_SOOCMD,IDSN_ASSOCIATED_CUSTOMIZATION_SCRIPT_MENU_ITEM);
+            removing->appendMenuItem(hasChildScriptAttached&&noSim,false,SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CHILD_SCRIPT_SOOCMD,"Associated child script");
+            removing->appendMenuItem(hasCustomizationScriptAttached&&noSim,false,SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CUSTOMIZATION_SCRIPT_SOOCMD,"Associated customization script");
             menu->appendMenuAndDetach(removing,(hasChildScriptAttached||hasCustomizationScriptAttached)&&noSim,IDSN_REMOVE_MENU_ITEM);
             menu->appendMenuSeparator();
 
