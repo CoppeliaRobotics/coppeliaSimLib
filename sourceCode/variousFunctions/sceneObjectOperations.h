@@ -28,7 +28,7 @@ public:
     static void _ungroupShape(CShape* shape,std::vector<CShape*>& newShapes);
     static void _fullUngroupShape(CShape* shape,std::vector<CShape*>& newShapes);
 
-    static bool mergeSelection(std::vector<int>* selection,bool showMessages);
+    static int mergeSelection(std::vector<int>* selection,bool showMessages);
     static CShape* _mergeShapes(const std::vector<CShape*>& allShapesToMerge);
 
     static void divideSelection(std::vector<int>* selection,bool showMessages);

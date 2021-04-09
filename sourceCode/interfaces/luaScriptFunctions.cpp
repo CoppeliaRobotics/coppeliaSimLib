@@ -329,7 +329,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.isHandleValid",_simIsHandleValid,                      "int result=sim.isHandleValid(int generalObjectHandle,int generalObjectType=-1)",true},
     {"sim.getObjectQuaternion",_simGetObjectQuaternion,          "table[4] quaternion=sim.getObjectQuaternion(int objectHandle,int relativeToObjectHandle)",true},
     {"sim.setObjectQuaternion",_simSetObjectQuaternion,          "sim.setObjectQuaternion(int objectHandle,int relativeToObjectHandle,table[4] quaternion)",true},
-    {"sim.groupShapes",_simGroupShapes,                          "int shapeHandle=sim.groupShapes(table[] shapeHandles)",true},
+    {"sim.groupShapes",_simGroupShapes,                          "int shapeHandle=sim.groupShapes(table[] shapeHandles,bool merge=false)",true},
     {"sim.ungroupShape",_simUngroupShape,                        "table[] simpleShapeHandles=sim.ungroupShape(int shapeHandle)",true},
     {"sim.convexDecompose",_simConvexDecompose,                  "int shapeHandle=sim.convexDecompose(int shapeHandle,int options,table[4] intParams,table[3] floatParams)",true},
     {"sim.quitSimulator",_simQuitSimulator,                      "sim.quitSimulator()",true},

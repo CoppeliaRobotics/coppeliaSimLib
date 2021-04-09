@@ -1226,7 +1226,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::logMsg(sim_verbosity_msgs,IDSNS_MERGING_SELECTED_SHAPES);
-            if (mergeSelection(&sel,true))
+            if (mergeSelection(&sel,true)>=0)
             {
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
@@ -1708,10 +1708,10 @@ void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it,st
     App::currentWorld->textureContainer->updateAllDependencies();
 }
 
-bool CSceneObjectOperations::mergeSelection(std::vector<int>* selection,bool showMessages)
+int CSceneObjectOperations::mergeSelection(std::vector<int>* selection,bool showMessages)
 { // CALL ONLY FROM THE MAIN SIMULATION THREAD!
     if (selection->size()<2)
-        return(false);
+        return(-1);
 
     std::vector<CShape*> shapesToMerge;
 
@@ -1728,7 +1728,7 @@ bool CSceneObjectOperations::mergeSelection(std::vector<int>* selection,bool sho
 #ifdef SIM_WITH_GUI
                     if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_MERGING,IDS_MERGING_SOME_PURE_SHAPES_PROCEED_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES))
                         break;
-                    return(false); // we abort
+                    return(-1); // we abort
 #else
                     break;
 #endif
@@ -1751,7 +1751,7 @@ bool CSceneObjectOperations::mergeSelection(std::vector<int>* selection,bool sho
                 if (showMessages)
                 {
                     if ( (!textureWarningOutput)&&(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_MERGING,IDS_MERGING_OR_DIVIDING_REMOVES_TEXTURES_PROCEED_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES)) )
-                        return(false); // we abort
+                        return(-1); // we abort
                 }
 #endif
                 textureWarningOutput=true;
@@ -1771,7 +1771,7 @@ bool CSceneObjectOperations::mergeSelection(std::vector<int>* selection,bool sho
 
     App::currentWorld->sceneObjects->selectObject(mergedShape->getObjectHandle());
 
-    return(true);
+    return(mergedShape->getObjectHandle());
 }
 
 CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShapesToMerge)
