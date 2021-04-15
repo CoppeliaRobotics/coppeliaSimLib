@@ -165,7 +165,7 @@ void CDynamicsContainer::handleDynamics(float dt)
         App::worldContainer->calcInfo->dynamicsEnd(0,false);
 }
 
-bool CDynamicsContainer::getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],float contactInfo[6])
+bool CDynamicsContainer::getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],float* contactInfo)
 {
     if (getDynamicsEnabled())
         return(CPluginContainer::dyn_getContactForce(dynamicPass,objectHandle,index,objectHandles,contactInfo)!=0);

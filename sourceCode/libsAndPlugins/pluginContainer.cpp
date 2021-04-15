@@ -15,7 +15,7 @@ CPlugin::CPlugin(const char* filename,const char* pluginName)
     _name=pluginName;
     instance=nullptr;
     geomPlugin_createMesh=nullptr;
-    ikPlugin_createEnvironment=nullptr;
+    ikPlugin_createEnv=nullptr;
     _codeEditor_openModal=nullptr;
     _customUi_msgBox=nullptr;
     _assimp_importShapes=nullptr;
@@ -31,7 +31,7 @@ CPlugin::~CPlugin()
         VVarious::closeLibrary(instance);
     if (geomPlugin_createMesh!=nullptr)
         CPluginContainer::currentGeomPlugin=nullptr;
-    if (ikPlugin_createEnvironment!=nullptr)
+    if (ikPlugin_createEnv!=nullptr)
     {
         CPluginContainer::currentIkPlugin=nullptr;
         CPluginContainer::ikEnvironment=-1;
@@ -261,8 +261,8 @@ int CPlugin::load()
                     CPluginContainer::currentGeomPlugin=this;
 
                 // For the IK plugin:
-                ikPlugin_createEnvironment=(ptr_ikPlugin_createEnvironment)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_createEnvironment"));
-                ikPlugin_switchEnvironment=(ptr_ikPlugin_switchEnvironment)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_switchEnvironment"));
+                ikPlugin_createEnv=(ptr_ikPlugin_createEnv)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_createEnv"));
+//                ikPlugin_switchEnvironment=(ptr_ikPlugin_switchEnvironment)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_switchEnvironment"));
                 ikPlugin_eraseEnvironment=(ptr_ikPlugin_eraseEnvironment)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_eraseEnvironment"));
                 ikPlugin_eraseObject=(ptr_ikPlugin_eraseObject)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_eraseObject"));
                 ikPlugin_setObjectParent=(ptr_ikPlugin_setObjectParent)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setObjectParent"));
@@ -297,10 +297,10 @@ int CPlugin::load()
                 ikPlugin_getConfigForTipPose=(ptr_ikPlugin_getConfigForTipPose)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_getConfigForTipPose"));
                 ikPlugin_getObjectLocalTransformation=(ptr_ikPlugin_getObjectLocalTransformation)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_getObjectLocalTransformation"));
                 ikPlugin_setObjectLocalTransformation=(ptr_ikPlugin_setObjectLocalTransformation)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setObjectLocalTransformation"));
-                if (ikPlugin_createEnvironment!=nullptr)
+                if (ikPlugin_createEnv!=nullptr)
                 {
                     CPluginContainer::currentIkPlugin=this;
-                    CPluginContainer::ikEnvironment=CPluginContainer::currentIkPlugin->ikPlugin_createEnvironment();
+                    CPluginContainer::ikEnvironment=CPluginContainer::currentIkPlugin->ikPlugin_createEnv();
                 }
 
 
@@ -846,7 +846,7 @@ bool CPluginContainer::dyn_getParticleData(const void* particle,float* pos,float
     return(false);
 }
 
-bool CPluginContainer::dyn_getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],float contactInfo[6])
+bool CPluginContainer::dyn_getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],float* contactInfo)
 {
     if (currentDynEngine!=nullptr)
         return(currentDynEngine->dynPlugin_getContactForce(dynamicPass,objectHandle,index,objectHandles,contactInfo)!=0);
@@ -2296,193 +2296,176 @@ void CPluginContainer::ikPlugin_emptyEnvironment()
 {
     if (currentIkPlugin!=nullptr)
     {
-        currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment);
-        currentIkPlugin->ikPlugin_eraseEnvironment();
-        ikEnvironment=currentIkPlugin->ikPlugin_createEnvironment();
+        //currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment);
+        currentIkPlugin->ikPlugin_eraseEnvironment(ikEnvironment);
+        ikEnvironment=currentIkPlugin->ikPlugin_createEnv();
     }
 }
 
-/*
-void CPluginContainer::ikPlugin_createEnvironment()
-{
-    ikPlugin_eraseEnvironment();
-    if (currentIkPlugin!=nullptr)
-        ikEnvironment=currentIkPlugin->ikPlugin_createEnvironment();
-}
-
-void CPluginContainer::ikPlugin_eraseEnvironment()
-{
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-    {
-        currentIkPlugin->ikPlugin_eraseEnvironment();
-        ikEnvironment=-1;
-    }
-}
-*/
 void CPluginContainer::ikPlugin_eraseObject(int objectHandle)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_eraseObject(objectHandle);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_eraseObject(ikEnvironment,objectHandle);
 }
 void CPluginContainer::ikPlugin_setObjectParent(int objectHandle,int parentObjectHandle)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setObjectParent(objectHandle,parentObjectHandle);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setObjectParent(ikEnvironment,objectHandle,parentObjectHandle);
 }
 int CPluginContainer::ikPlugin_createDummy()
 {
     int retVal=-1;
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        retVal=currentIkPlugin->ikPlugin_createDummy();
+    if (currentIkPlugin!=nullptr)
+        retVal=currentIkPlugin->ikPlugin_createDummy(ikEnvironment);
     return(retVal);
 }
 void CPluginContainer::ikPlugin_setLinkedDummy(int dummyHandle,int linkedDummyHandle)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setLinkedDummy(dummyHandle,linkedDummyHandle);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setLinkedDummy(ikEnvironment,dummyHandle,linkedDummyHandle);
 }
 int CPluginContainer::ikPlugin_createJoint(int jointType)
 {
     int retVal=-1;
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        retVal=currentIkPlugin->ikPlugin_createJoint(jointType);
+    if (currentIkPlugin!=nullptr)
+        retVal=currentIkPlugin->ikPlugin_createJoint(ikEnvironment,jointType);
     return(retVal);
 }
 void CPluginContainer::ikPlugin_setJointMode(int jointHandle,int jointMode)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setJointMode(jointHandle,jointMode);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setJointMode(ikEnvironment,jointHandle,jointMode);
 }
 void CPluginContainer::ikPlugin_setJointInterval(int jointHandle,bool cyclic,float jMin,float jRange)
 {
     float mr[2]={jMin,jRange};
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setJointInterval(jointHandle,cyclic,mr);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setJointInterval(ikEnvironment,jointHandle,cyclic,mr);
 }
 void CPluginContainer::ikPlugin_setJointScrewPitch(int jointHandle,float pitch)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setJointScrewPitch(jointHandle,pitch);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setJointScrewPitch(ikEnvironment,jointHandle,pitch);
 }
 void CPluginContainer::ikPlugin_setJointIkWeight(int jointHandle,float ikWeight)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setJointIkWeight(jointHandle,ikWeight);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setJointIkWeight(ikEnvironment,jointHandle,ikWeight);
 }
 void CPluginContainer::ikPlugin_setJointMaxStepSize(int jointHandle,float maxStepSize)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setJointMaxStepSize(jointHandle,maxStepSize);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setJointMaxStepSize(ikEnvironment,jointHandle,maxStepSize);
 }
 void CPluginContainer::ikPlugin_setJointDependency(int jointHandle,int dependencyJointHandle,float offset,float mult)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setJointDependency(jointHandle,dependencyJointHandle,offset,mult);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setJointDependency(ikEnvironment,jointHandle,dependencyJointHandle,offset,mult);
 }
 float CPluginContainer::ikPlugin_getJointPosition(int jointHandle)
 {
     float retVal=0.0f;
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        retVal=currentIkPlugin->ikPlugin_getJointPosition(jointHandle);
+    if (currentIkPlugin!=nullptr)
+        retVal=currentIkPlugin->ikPlugin_getJointPosition(ikEnvironment,jointHandle);
     return(retVal);
 }
 void CPluginContainer::ikPlugin_setJointPosition(int jointHandle,float position)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setJointPosition(jointHandle,position);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setJointPosition(ikEnvironment,jointHandle,position);
 }
 C4Vector CPluginContainer::ikPlugin_getSphericalJointQuaternion(int jointHandle)
 {
     C4Vector retVal;
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_getSphericalJointQuaternion(jointHandle,retVal.data);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_getSphericalJointQuaternion(ikEnvironment,jointHandle,retVal.data);
     return(retVal);
 }
 void CPluginContainer::ikPlugin_setSphericalJointQuaternion(int jointHandle,const C4Vector& quaternion)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setSphericalJointQuaternion(jointHandle,quaternion.data);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setSphericalJointQuaternion(ikEnvironment,jointHandle,quaternion.data);
 }
 int CPluginContainer::ikPlugin_createIkGroup()
 {
     int retVal=-1;
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        retVal=currentIkPlugin->ikPlugin_createIkGroup();
+    if (currentIkPlugin!=nullptr)
+        retVal=currentIkPlugin->ikPlugin_createIkGroup(ikEnvironment);
     return(retVal);
 }
 void CPluginContainer::ikPlugin_eraseIkGroup(int ikGroupHandle)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_eraseIkGroup(ikGroupHandle);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_eraseIkGroup(ikEnvironment,ikGroupHandle);
 }
 void CPluginContainer::ikPlugin_setIkGroupFlags(int ikGroupHandle,int flags)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setIkGroupFlags(ikGroupHandle,flags);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setIkGroupFlags(ikEnvironment,ikGroupHandle,flags);
 }
 void CPluginContainer::ikPlugin_setIkGroupCalculation(int ikGroupHandle,int method,float damping,int maxIterations)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setIkGroupCalculation(ikGroupHandle,method,damping,maxIterations);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setIkGroupCalculation(ikEnvironment,ikGroupHandle,method,damping,maxIterations);
 }
 int CPluginContainer::ikPlugin_addIkElement(int ikGroupHandle,int tipHandle)
 {
     int retVal=-1;
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        retVal=currentIkPlugin->ikPlugin_addIkElement(ikGroupHandle,tipHandle);
+    if (currentIkPlugin!=nullptr)
+        retVal=currentIkPlugin->ikPlugin_addIkElement(ikEnvironment,ikGroupHandle,tipHandle);
     return(retVal);
 }
 void CPluginContainer::ikPlugin_eraseIkElement(int ikGroupHandle,int ikElementIndex)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_eraseIkElement(ikGroupHandle,ikElementIndex);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_eraseIkElement(ikEnvironment,ikGroupHandle,ikElementIndex);
 }
 void CPluginContainer::ikPlugin_setIkElementFlags(int ikGroupHandle,int ikElementIndex,int flags)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setIkElementFlags(ikGroupHandle,ikElementIndex,flags);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setIkElementFlags(ikEnvironment,ikGroupHandle,ikElementIndex,flags);
 }
 void CPluginContainer::ikPlugin_setIkElementBase(int ikGroupHandle,int ikElementIndex,int baseHandle,int constraintsBaseHandle)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setIkElementBase(ikGroupHandle,ikElementIndex,baseHandle,constraintsBaseHandle);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setIkElementBase(ikEnvironment,ikGroupHandle,ikElementIndex,baseHandle,constraintsBaseHandle);
 }
 void CPluginContainer::ikPlugin_setIkElementConstraints(int ikGroupHandle,int ikElementIndex,int constraints)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setIkElementConstraints(ikGroupHandle,ikElementIndex,constraints);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setIkElementConstraints(ikEnvironment,ikGroupHandle,ikElementIndex,constraints);
 }
 void CPluginContainer::ikPlugin_setIkElementPrecision(int ikGroupHandle,int ikElementIndex,float linearPrecision,float angularPrecision)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setIkElementPrecision(ikGroupHandle,ikElementIndex,linearPrecision,angularPrecision);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setIkElementPrecision(ikEnvironment,ikGroupHandle,ikElementIndex,linearPrecision,angularPrecision);
 }
 void CPluginContainer::ikPlugin_setIkElementWeights(int ikGroupHandle,int ikElementIndex,float linearWeight,float angularWeight)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setIkElementWeights(ikGroupHandle,ikElementIndex,linearWeight,angularWeight);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setIkElementWeights(ikEnvironment,ikGroupHandle,ikElementIndex,linearWeight,angularWeight);
 }
 int CPluginContainer::ikPlugin_handleIkGroup(int ikGroupHandle)
 {
     int retVal=sim_ikresult_not_performed;
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        retVal=currentIkPlugin->ikPlugin_handleIkGroup(ikGroupHandle);
+    if (currentIkPlugin!=nullptr)
+        retVal=currentIkPlugin->ikPlugin_handleIkGroup(ikEnvironment,ikGroupHandle);
     return(retVal);
 }
 bool CPluginContainer::ikPlugin_computeJacobian(int ikGroupHandle,int options)
 {
     bool retVal=false;
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        retVal=currentIkPlugin->ikPlugin_computeJacobian(ikGroupHandle,options);
+    if (currentIkPlugin!=nullptr)
+        retVal=currentIkPlugin->ikPlugin_computeJacobian(ikEnvironment,ikGroupHandle,options);
     return(retVal);
 }
 CMatrix* CPluginContainer::ikPlugin_getJacobian(int ikGroupHandle)
 {
     CMatrix* retVal=nullptr;
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+    if (currentIkPlugin!=nullptr)
     {
         int matrixSize[2];
-        float* jc=currentIkPlugin->ikPlugin_getJacobian(ikGroupHandle,matrixSize);
+        float* jc=currentIkPlugin->ikPlugin_getJacobian(ikEnvironment,ikGroupHandle,matrixSize);
         if (jc!=nullptr)
         {
             retVal=new CMatrix(matrixSize[1],matrixSize[0]);
@@ -2499,16 +2482,16 @@ CMatrix* CPluginContainer::ikPlugin_getJacobian(int ikGroupHandle)
 float CPluginContainer::ikPlugin_getManipulability(int ikGroupHandle)
 {
     float retVal=0.0f;
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        retVal=currentIkPlugin->ikPlugin_getManipulability(ikGroupHandle);
+    if (currentIkPlugin!=nullptr)
+        retVal=currentIkPlugin->ikPlugin_getManipulability(ikEnvironment,ikGroupHandle);
     return(retVal);
 }
 int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,float thresholdDist,int maxIterationsOrTimeInMs,float* retConfig,const float* metric,bool(*validationCallback)(float*),const int* jointOptions,const float* lowLimits,const float* ranges,std::string& errString)
 {
     int retVal=-1;
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+    if (currentIkPlugin!=nullptr)
     {
-        char* errS=currentIkPlugin->ikPlugin_getConfigForTipPose(ikGroupHandle,jointCnt,jointHandles,thresholdDist,maxIterationsOrTimeInMs,&retVal,retConfig,metric,validationCallback,jointOptions,lowLimits,ranges);
+        char* errS=currentIkPlugin->ikPlugin_getConfigForTipPose(ikEnvironment,ikGroupHandle,jointCnt,jointHandles,thresholdDist,maxIterationsOrTimeInMs,&retVal,retConfig,metric,validationCallback,jointOptions,lowLimits,ranges);
         if ( (retVal<0)&&(errS!=nullptr) )
         {
             errString=errS;
@@ -2561,7 +2544,7 @@ bool _validationCallback(float* conf)
 int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,float thresholdDist,int maxIterationsOrTimeInMs,float* retConfig,const float* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const float* lowLimits,const float* ranges,std::string& errString)
 {
     int retVal=-1;
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
+    if (currentIkPlugin!=nullptr)
     {
         bool(*_validationCB)(float*)=nullptr;
         bool err=false;
@@ -2593,14 +2576,14 @@ int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCn
 C7Vector CPluginContainer::ikPlugin_getObjectLocalTransformation(int objectHandle)
 {
     C7Vector tr;
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_getObjectLocalTransformation(objectHandle,tr.X.data,tr.Q.data);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_getObjectLocalTransformation(ikEnvironment,objectHandle,tr.X.data,tr.Q.data);
     return(tr);
 }
 void CPluginContainer::ikPlugin_setObjectLocalTransformation(int objectHandle,const C7Vector& tr)
 {
-    if ( (currentIkPlugin!=nullptr)&&currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment) )
-        currentIkPlugin->ikPlugin_setObjectLocalTransformation(objectHandle,tr.X.data,tr.Q.data);
+    if (currentIkPlugin!=nullptr)
+        currentIkPlugin->ikPlugin_setObjectLocalTransformation(ikEnvironment,objectHandle,tr.X.data,tr.Q.data);
 }
 
 bool CPluginContainer::codeEditor_openModal(const char* initText,const char* properties,std::string& modifiedText,int* positionAndSize)

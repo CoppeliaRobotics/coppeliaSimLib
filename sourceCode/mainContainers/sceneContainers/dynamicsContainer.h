@@ -101,7 +101,7 @@ public:
     void renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib);
 
     void handleDynamics(float dt);
-    bool getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],float contactInfo[6]);
+    bool getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],float* contactInfo);
 
     void reportDynamicWorldConfiguration();
 

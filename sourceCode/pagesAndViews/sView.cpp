@@ -1158,16 +1158,12 @@ bool CSView::mouseWheel(int deltaZ,int x,int y)
                 static float previousRl=rl;
                 static float fact=1.0f;
                 if (previousRl*rl<0)
-                {
                     fact=1.0f;
-                }
                 fact+=fabs(vel)/0.02f;
                 if (fact>50.0f)
                     fact=50.0f;
                 if (timeDiffInMs>800)
-                {
                     fact=1.0f;
-                }
                 previousRl=rl;
                 lastTime=ct;
                 C4X4Matrix local(((CCamera*)it)->getFullLocalTransformation().getMatrix());
