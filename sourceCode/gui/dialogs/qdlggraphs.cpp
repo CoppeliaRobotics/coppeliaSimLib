@@ -75,7 +75,6 @@ void CQDlgGraphs::refresh()
     ui->qqObjectSize->setEnabled(sel&&noEditModeAndNoSim);
     ui->qqBufferIsCyclic->setEnabled(sel&&noEditModeAndNoSim);
     ui->qqBufferSize->setEnabled(sel&&noEditModeAndNoSim);
-    ui->qqShowXYZPlanes->setEnabled(sel&&noEditModeAndNoSim);
     ui->qqRemoveAllStatics->setEnabled(sel&&noEditModeAndNoSim);
 
     ui->qqAdjustBackgroundColor->setEnabled(sel&&noEditModeAndNoSim);
@@ -101,7 +100,6 @@ void CQDlgGraphs::refresh()
 
     ui->qqExplicitHandling->setChecked(sel&&it->getExplicitHandling());
     ui->qqBufferIsCyclic->setChecked(sel&&it->getCyclic());
-    ui->qqShowXYZPlanes->setChecked(sel&&it->xYZPlanesDisplay);
 
     ui->qqTimeGraphVisible->setChecked(sel&&(graphData!=nullptr)&&graphData->getVisible());
     ui->qqShowLabel->setChecked(sel&&(graphData!=nullptr)&&graphData->getLabel());
@@ -307,16 +305,6 @@ void CQDlgGraphs::on_qqBufferIsCyclic_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_BUFFERCYCLIC_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgGraphs::on_qqShowXYZPlanes_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        App::appendSimulationThreadCommand(TOGGLE_SHOWXYZPLANES_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

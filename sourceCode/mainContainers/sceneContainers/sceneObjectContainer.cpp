@@ -2742,7 +2742,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
             pType=0;
         if (primitiveType==5) // disc
             pType=4;
-        retVal=CAddOperations::addPrimitiveShape(pType,s,nullptr,faces,sides,0,true,openEnds,true,true,cone,1000.0f,false,0.5f);
+        retVal=CAddOperations::addPrimitiveShape(pType,s,nullptr,faces,sides,0,true,openEnds,true,true,cone,1000.0f);
         retVal->setLocalTransformation(tr);
     }
     if (!noHeightfield)

@@ -679,7 +679,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     return(false);
 }
 
-CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const int subdiv[3],int faces,int sides,int discSubdiv,bool smooth,int openEnds,bool dynamic,bool pure,bool cone,float density,bool negVolume,float negVolumeScaling)
+CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const int subdiv[3],int faces,int sides,int discSubdiv,bool smooth,int openEnds,bool dynamic,bool pure,bool cone,float density)
 { // subdiv can be nullptr
     int sdiv[3]={0,0,0};
     if (subdiv!=nullptr)
@@ -768,17 +768,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         indices.reserve(divX*divY*12+divX*divZ*12+divY*divZ*12);
         int theDiv[3]={divX,divY,divZ};
 
-        float sca=negVolumeScaling;
         CMeshRoutines::createCube(vertices,indices,C3Vector(xhSize*2.0f,yhSize*2.0f,zhSize*2.0f),theDiv);
-        if (negVolume)
-        {
-            std::vector<float> auxVert;
-            std::vector<int> auxInd;
-            auxVert.reserve(((divX+1)*(2*divY+2*divZ)+2*(divY-1)*(divZ-1))*3);
-            auxInd.reserve(divX*divY*12+divX*divZ*12+divY*divZ*12);
-            CMeshRoutines::createCube(auxVert,auxInd,C3Vector(xhSize*2.0f*sca,yhSize*2.0f*sca,zhSize*2.0f*sca),theDiv);
-            CMeshManip::mergeWith(&vertices,&indices,nullptr,&auxVert,&auxInd,nullptr);
-        }
 
         CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         it->getSingleMesh()->color.setDefaultValues();
@@ -800,14 +790,6 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             it->setRespondable(true);
             it->setShapeIsDynamicallyStatic(false);
             it->getSingleMesh()->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
-        }
-
-        if (negVolume)
-        {
-            // For now, keep a mass and moment of inertia as if the shape was not hollow!
-            it->getSingleMesh()->setCulling(true);
-            it->getSingleMesh()->flipFaces();
-            it->getSingleMesh()->setPurePrimitiveInsideScaling(negVolumeScaling);
         }
 
         it->getMeshWrapper()->setMass(sizes(0)*sizes(1)*sizes(2)*density);
@@ -833,17 +815,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         if (faces<2)
             faces=2;
 
-        float sca=negVolumeScaling;
         CMeshRoutines::createSphere(vertices,indices,C3Vector(xhSize*2.0f,yhSize*2.0f,zhSize*2.0f),sides,faces);
-        if (negVolume)
-        {
-            std::vector<float> auxVert;
-            std::vector<int> auxInd;
-            auxVert.reserve(((faces-1)*sides+2)*3);
-            auxInd.reserve((sides*2+2*(faces-2)*sides)*3);
-            CMeshRoutines::createSphere(auxVert,auxInd,C3Vector(xhSize*2.0f*sca,yhSize*2.0f*sca,zhSize*2.0f*sca),sides,faces);
-            CMeshManip::mergeWith(&vertices,&indices,nullptr,&auxVert,&auxInd,nullptr);
-        }
 
         CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         it->getSingleMesh()->color.setDefaultValues();
@@ -870,14 +842,6 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         }
         float avR=(sizes(0)+sizes(1)+sizes(2))/6.0f;
 
-        if (negVolume)
-        {
-            // For now, keep a mass and moment of inertia as if the shape was not hollow!
-            it->getSingleMesh()->setCulling(true);
-            it->getSingleMesh()->flipFaces();
-            it->getSingleMesh()->setPurePrimitiveInsideScaling(negVolumeScaling);
-        }
-
         it->getMeshWrapper()->setMass((4.0f*piValue_f/3.0f)*avR*avR*avR*density);
         it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(2.0f*avR*avR/5.0f,2.0f*avR*avR/5.0f,2.0f*avR*avR/5.0f));
         float avr2=avR*2.0f;
@@ -902,23 +866,8 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         indices.reserve((sides*2+sides*faces*2+(discDiv-1)*4*sides)*3);
         if (sides<3)
             sides=3;
-        float sca=negVolumeScaling;
-        if (negVolume)
-        {
-            CMeshRoutines::createCylinder(vertices,indices,C3Vector(xhSize*2.0f,yhSize*2.0f,zhSize*2.0f),sides,faces,discDiv,3,false);
-            std::vector<float> auxVert;
-            std::vector<int> auxInd;
-            auxVert.reserve((sides*(1+faces)+2+(discDiv-1)*sides*2)*3);
-            auxInd.reserve((sides*2+sides*faces*2+(discDiv-1)*4*sides)*3);
-            CMeshRoutines::createCylinder(auxVert,auxInd,C3Vector(xhSize*2.0f*sca,yhSize*2.0f*sca,zhSize*2.0f),sides,faces,discDiv,3,false);
-            CMeshManip::mergeWith(&vertices,&indices,nullptr,&auxVert,&auxInd,nullptr);
-            CMeshRoutines::createAnnulus(auxVert,auxInd,xhSize*2.0f,xhSize*2.0f*sca,-zhSize,sides,true);
-            CMeshManip::mergeWith(&vertices,&indices,nullptr,&auxVert,&auxInd,nullptr);
-            CMeshRoutines::createAnnulus(auxVert,auxInd,xhSize*2.0f,xhSize*2.0f*sca,+zhSize,sides,false);
-            CMeshManip::mergeWith(&vertices,&indices,nullptr,&auxVert,&auxInd,nullptr);
-        }
-        else
-            CMeshRoutines::createCylinder(vertices,indices,C3Vector(xhSize*2.0f,yhSize*2.0f,zhSize*2.0f),sides,faces,discDiv,openEnds,cone);
+
+        CMeshRoutines::createCylinder(vertices,indices,C3Vector(xhSize*2.0f,yhSize*2.0f,zhSize*2.0f),sides,faces,discDiv,openEnds,cone);
 
         CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         it->getSingleMesh()->color.setDefaultValues();
@@ -954,14 +903,6 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         if (cone)
             divider=3.0f;
 
-
-        if (negVolume)
-        {
-            // For now, keep a mass and moment of inertia as if the shape was not hollow!
-            it->getSingleMesh()->setCulling(true);
-            it->getSingleMesh()->flipFaces();
-            it->getSingleMesh()->setPurePrimitiveInsideScaling(negVolumeScaling);
-        }
         it->getMeshWrapper()->setMass(piValue_f*avR*avR*divider*sizes(2)*density);
         if (cone)
             it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(3.0f*(0.25f*avR*avR+sizes(2)*sizes(2))/5.0f,3.0f*(0.25f*avR*avR+sizes(2)*sizes(2))/5.0f,3.0f*avR*avR/10.0f));
@@ -1394,10 +1335,10 @@ CShape* CAddOperations::addPrimitive_withDialog(int command,const C3Vector* optS
         C3Vector sizes;
         int subdiv[3];
         int faces,sides,discSubdiv,openEnds;
-        bool smooth,dynamic,pure,cone,negVolume;
-        float density,negVolumeScaling;
-        if (App::uiThread->showPrimitiveShapeDialog(pType,optSizes,sizes,subdiv,faces,sides,discSubdiv,smooth,openEnds,dynamic,pure,cone,density,negVolume,negVolumeScaling))
-            retVal=addPrimitiveShape(pType,sizes,subdiv,faces,sides,discSubdiv,smooth,openEnds,dynamic,pure,cone,density,negVolume,negVolumeScaling);
+        bool smooth,dynamic,pure,cone;
+        float density;
+        if (App::uiThread->showPrimitiveShapeDialog(pType,optSizes,sizes,subdiv,faces,sides,discSubdiv,smooth,openEnds,dynamic,pure,cone,density))
+            retVal=addPrimitiveShape(pType,sizes,subdiv,faces,sides,discSubdiv,smooth,openEnds,dynamic,pure,cone,density);
     }
     return(retVal);
 }

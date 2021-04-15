@@ -8893,7 +8893,7 @@ simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const sim
             CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_TYPE);
             return(-1);
         }
-        CShape* shape=CAddOperations::addPrimitiveShape(pType,s,nullptr,faces,sides,0,true,openEnds,true,true,cone,1000.0f,false,0.5f);
+        CShape* shape=CAddOperations::addPrimitiveShape(pType,s,nullptr,faces,sides,0,true,openEnds,true,true,cone,1000.0f);
 
         C7Vector identity;
         identity.setIdentity();
@@ -12703,126 +12703,130 @@ simInt simGenerateShapeFromPath_internal(const simFloat* pppath,simInt pathSize,
                     ppath.push_back(q(j));
             }
         }
-        pathSize=ppath.size();
-
-        C3Vector zvect;
-        if (upVector!=nullptr)
-            zvect.set(upVector);
-        else
-            zvect=C3Vector::unitZVector;
-        bool closedPath=(options&4)!=0;
-        int axis=options&3;
-
-        size_t confCnt=size_t(pathSize)/7;
-        size_t elementCount=confCnt;
-        size_t secVertCnt=size_t(sectionSize)/2;
-
-        std::vector<float> path;
-        for (size_t i=0;i<confCnt;i++)
+        pathSize=int(ppath.size());
+        if (pathSize>=7*2)
         {
-            C3Vector p0,p1,p2;
-            if (i!=0)
-                p0=C3Vector(&ppath[0]+7*(i-1));
+            C3Vector zvect;
+            if (upVector!=nullptr)
+                zvect.set(upVector);
             else
+                zvect=C3Vector::unitZVector;
+            bool closedPath=(options&4)!=0;
+            int axis=options&3;
+
+            size_t confCnt=size_t(pathSize)/7;
+            size_t elementCount=confCnt;
+            size_t secVertCnt=size_t(sectionSize)/2;
+
+            std::vector<float> path;
+            for (size_t i=0;i<confCnt;i++)
             {
-                if (closedPath)
-                    p0=C3Vector(&ppath[0]+pathSize-7);
-            }
-            p1=C3Vector(&ppath[0]+7*i);
-            C4Vector q(&ppath[0]+7*i+3,true);
-            if (axis!=0)
-                zvect=q.getAxis(axis-1);
-            if (i!=(confCnt-1))
-                p2=C3Vector(&ppath[0]+7*(i+1));
-            else
-            {
-                if (closedPath)
-                    p2=C3Vector(&ppath[0]+7*1);
-            }
-            C3Vector vy;
-            if ( closedPath||((i!=0)&&(i!=(confCnt-1))) )
-                vy=(p1-p0)+(p2-p1);
-            else
-            {
-                if (i==0)
-                    vy=(p2-p1);
+                C3Vector p0,p1,p2;
+                if (i!=0)
+                    p0=C3Vector(&ppath[0]+7*(i-1));
                 else
-                    vy=(p1-p0);
+                {
+                    if (closedPath)
+                        p0=C3Vector(&ppath[0]+pathSize-7);
+                }
+                p1=C3Vector(&ppath[0]+7*i);
+                C4Vector q(&ppath[0]+7*i+3,true);
+                if (axis!=0)
+                    zvect=q.getAxis(axis-1);
+                if (i!=(confCnt-1))
+                    p2=C3Vector(&ppath[0]+7*(i+1));
+                else
+                {
+                    if (closedPath)
+                        p2=C3Vector(&ppath[0]+7*1);
+                }
+                C3Vector vy;
+                if ( closedPath||((i!=0)&&(i!=(confCnt-1))) )
+                    vy=(p1-p0)+(p2-p1);
+                else
+                {
+                    if (i==0)
+                        vy=(p2-p1);
+                    else
+                        vy=(p1-p0);
+                }
+                vy.normalize();
+                C3Vector vx=vy^zvect;
+                vx.normalize();
+                C4X4Matrix m;
+                m.X=p1;
+                m.M.axis[0]=vx;
+                m.M.axis[1]=vy;
+                m.M.axis[2]=vx^vy;
+                C7Vector p(m.getTransformation());
+                for (size_t j=0;j<7;j++)
+                    path.push_back(p(j));
             }
-            vy.normalize();
-            C3Vector vx=vy^zvect;
-            vx.normalize();
-            C4X4Matrix m;
-            m.X=p1;
-            m.M.axis[0]=vx;
-            m.M.axis[1]=vy;
-            m.M.axis[2]=vx^vy;
-            C7Vector p(m.getTransformation());
-            for (size_t j=0;j<7;j++)
-                path.push_back(p(j));
-        }
 
-        bool sectionClosed=( (section[0]==section[sectionSize-2])&&(section[1]==section[sectionSize-1]) );
-        if (sectionClosed)
-            secVertCnt--;
+            bool sectionClosed=( (section[0]==section[sectionSize-2])&&(section[1]==section[sectionSize-1]) );
+            if (sectionClosed)
+                secVertCnt--;
 
-        std::vector<float> vertices;
-        std::vector<int> indices;
-        C7Vector tr0;
-        tr0.setInternalData(&path[0]);
-        for (size_t i=0;i<=secVertCnt-1;i++)
-        {
-            C3Vector v(section[i*2+0],0.0f,section[i*2+1]);
-            v=tr0*v;
-            vertices.push_back(v(0));
-            vertices.push_back(v(1));
-            vertices.push_back(v(2));
-        }
-
-        int previousVerticesOffset=0;
-        for (size_t ec=1;ec<elementCount;ec++)
-        {
-            C7Vector tr;
-            tr.setInternalData(&path[ec*7]);
-            int forwOff=secVertCnt;
+            std::vector<float> vertices;
+            std::vector<int> indices;
+            C7Vector tr0;
+            tr0.setInternalData(&path[0]);
             for (size_t i=0;i<=secVertCnt-1;i++)
             {
                 C3Vector v(section[i*2+0],0.0f,section[i*2+1]);
-                if ( closedPath&&(ec==(elementCount-1)) )
-                    forwOff=-previousVerticesOffset;
-                else
+                v=tr0*v;
+                vertices.push_back(v(0));
+                vertices.push_back(v(1));
+                vertices.push_back(v(2));
+            }
+
+            int previousVerticesOffset=0;
+            for (size_t ec=1;ec<elementCount;ec++)
+            {
+                C7Vector tr;
+                tr.setInternalData(&path[ec*7]);
+                int forwOff=secVertCnt;
+                for (size_t i=0;i<=secVertCnt-1;i++)
                 {
-                    v=tr*v;
-                    vertices.push_back(v(0));
-                    vertices.push_back(v(1));
-                    vertices.push_back(v(2));
-                }
-                if (i!=(secVertCnt-1))
-                {
-                    indices.push_back(previousVerticesOffset+0+i);
-                    indices.push_back(previousVerticesOffset+forwOff+i);
-                    indices.push_back(previousVerticesOffset+1+i);
-                    indices.push_back(previousVerticesOffset+1+i);
-                    indices.push_back(previousVerticesOffset+forwOff+i);
-                    indices.push_back(previousVerticesOffset+forwOff+i+1);
-                }
-                else
-                {
-                    if (sectionClosed)
+                    C3Vector v(section[i*2+0],0.0f,section[i*2+1]);
+                    if ( closedPath&&(ec==(elementCount-1)) )
+                        forwOff=-previousVerticesOffset;
+                    else
+                    {
+                        v=tr*v;
+                        vertices.push_back(v(0));
+                        vertices.push_back(v(1));
+                        vertices.push_back(v(2));
+                    }
+                    if (i!=(secVertCnt-1))
                     {
                         indices.push_back(previousVerticesOffset+0+i);
                         indices.push_back(previousVerticesOffset+forwOff+i);
-                        indices.push_back(previousVerticesOffset+0);
-                        indices.push_back(previousVerticesOffset+0);
+                        indices.push_back(previousVerticesOffset+1+i);
+                        indices.push_back(previousVerticesOffset+1+i);
                         indices.push_back(previousVerticesOffset+forwOff+i);
-                        indices.push_back(previousVerticesOffset+forwOff+0);
+                        indices.push_back(previousVerticesOffset+forwOff+i+1);
+                    }
+                    else
+                    {
+                        if (sectionClosed)
+                        {
+                            indices.push_back(previousVerticesOffset+0+i);
+                            indices.push_back(previousVerticesOffset+forwOff+i);
+                            indices.push_back(previousVerticesOffset+0);
+                            indices.push_back(previousVerticesOffset+0);
+                            indices.push_back(previousVerticesOffset+forwOff+i);
+                            indices.push_back(previousVerticesOffset+forwOff+0);
+                        }
                     }
                 }
+                previousVerticesOffset+=secVertCnt;
             }
-            previousVerticesOffset+=secVertCnt;
+            int h=simCreateMeshShape_internal(0,0.0f,&vertices[0],int(vertices.size()),&indices[0],int(indices.size()),nullptr);
+            return(h);
         }
-        int h=simCreateMeshShape_internal(0,0.0f,&vertices[0],int(vertices.size()),&indices[0],int(indices.size()),nullptr);
-        return(h);
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PATH);
+        return(-1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
@@ -13255,7 +13259,7 @@ simInt simCreateTexture_internal(const simChar* fileName,simInt options,const si
                     C3Vector s(0.1f,0.1f,0.00001f);
                     if (planeSizes!=nullptr)
                         s=C3Vector(tt::getLimitedFloat(0.00001f,100000.0f,planeSizes[0]),tt::getLimitedFloat(0.00001f,100000.0f,planeSizes[1]),0.00001f);
-                    CShape* shape=CAddOperations::addPrimitiveShape(0,s,nullptr,0,32,0,false,0,false,false,false,1000.0f,false,0.5f);
+                    CShape* shape=CAddOperations::addPrimitiveShape(0,s,nullptr,0,32,0,false,0,false,false,false,1000.0f);
 
                     C7Vector identity;
                     identity.setIdentity();
@@ -13315,7 +13319,7 @@ simInt simCreateTexture_internal(const simChar* fileName,simInt options,const si
                 C3Vector s(0.1f,0.1f,0.00001f);
                 if (planeSizes!=nullptr)
                     s=C3Vector(tt::getLimitedFloat(0.00001f,100000.0f,planeSizes[0]),tt::getLimitedFloat(0.00001f,100000.0f,planeSizes[1]),0.00001f);
-                CShape* shape=CAddOperations::addPrimitiveShape(0,s,nullptr,0,32,0,false,0,false,false,false,1000.0f,false,0.5f);
+                CShape* shape=CAddOperations::addPrimitiveShape(0,s,nullptr,0,32,0,false,0,false,false,false,1000.0f);
                 C7Vector identity;
                 identity.setIdentity();
                 shape->setLocalTransformation(identity);

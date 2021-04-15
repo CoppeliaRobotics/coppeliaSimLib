@@ -57,8 +57,6 @@ void CQDlgPrimitives::initialize(int type,const C3Vector* sizes)
     dynamic=((type!=0)&&(type!=4)); // (planes and discs are almost never used dynamic!)
     cone=false;
     density=1000.0f;
-    negativeVolume=false;
-    negativeVolumeScaling=0.5f;
     primitiveType=type;
     sizesAreLocked=(sizes!=nullptr);
     refresh();
@@ -70,9 +68,6 @@ void CQDlgPrimitives::refresh()
     ui->qqDynamic->setChecked(dynamic);
     ui->qqPure->setChecked(pure);
     ui->qqDensity->setEnabled(pure);
-    ui->qqNegativeVolume->setEnabled(((primitiveType==1)||(primitiveType==2)||(primitiveType==3)));
-    ui->qqNegativeVolume->setChecked(negativeVolume);
-    ui->qqNegativeVolumeScaling->setEnabled(((primitiveType==1)||(primitiveType==2)||(primitiveType==3))&&negativeVolume);
     ui->qqDensity->setText(tt::getFString(false,density,1).c_str());
 
     ui->qqXSize->setText(tt::getEString(false,xSize,4).c_str());
@@ -113,8 +108,6 @@ void CQDlgPrimitives::refresh()
 
         ui->qqCone->setEnabled(false);
         ui->qqCone->setChecked(false);
-
-        ui->qqNegativeVolumeScaling->setText("");
     }
     if (primitiveType==1)
     { // Box
@@ -151,8 +144,6 @@ void CQDlgPrimitives::refresh()
 
         ui->qqCone->setEnabled(false);
         ui->qqCone->setChecked(false);
-
-        ui->qqNegativeVolumeScaling->setText(tt::getFString(false,negativeVolumeScaling,3).c_str());
     }
     if (primitiveType==2)
     { // Sphere
@@ -192,8 +183,6 @@ void CQDlgPrimitives::refresh()
 
         ui->qqCone->setEnabled(false);
         ui->qqCone->setChecked(false);
-
-        ui->qqNegativeVolumeScaling->setText(tt::getFString(false,negativeVolumeScaling,3).c_str());
     }
     if (primitiveType==3)
     { // Cylinder
@@ -230,8 +219,6 @@ void CQDlgPrimitives::refresh()
 
         ui->qqCone->setEnabled(true);
         ui->qqCone->setChecked(cone);
-
-        ui->qqNegativeVolumeScaling->setText(tt::getFString(false,negativeVolumeScaling,3).c_str());
     }
     if (primitiveType==4)
     { // Disc
@@ -268,8 +255,6 @@ void CQDlgPrimitives::refresh()
 
         ui->qqCone->setEnabled(false);
         ui->qqCone->setChecked(false);
-
-        ui->qqNegativeVolumeScaling->setText("");
     }
 
 }
@@ -285,8 +270,6 @@ void CQDlgPrimitives::on_qqPure_clicked()
     pure=!pure;
     _adjustValuesForPurePrimitive();
 
-    if (pure&&negativeVolume)
-        App::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_SELECTING_NEGATIVE_VOLUME,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     if (pure&&cone)
         App::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_SELECTING_PURE_CONE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     if (pure&&((sides<32)||((faces<16)&&(primitiveType==2))))
@@ -461,8 +444,6 @@ void CQDlgPrimitives::on_qqOpen_clicked()
 void CQDlgPrimitives::on_qqCone_clicked()
 {
     cone=!cone;
-    if (cone)
-        negativeVolume=false;
     _adjustValuesForPurePrimitive();
     if (pure&&cone)
         App::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_SELECTING_PURE_CONE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
@@ -514,28 +495,3 @@ void CQDlgPrimitives::on_qqDensity_editingFinished()
     }
     refresh();
 }
-
-void CQDlgPrimitives::on_qqNegativeVolume_clicked()
-{
-    negativeVolume=!negativeVolume;
-    if (negativeVolume)
-        cone=false;
-    if (pure&&negativeVolume)
-        App::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_SELECTING_NEGATIVE_VOLUME,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-    refresh();
-}
-
-void CQDlgPrimitives::on_qqNegativeVolumeScaling_editingFinished()
-{
-    if (!ui->qqNegativeVolumeScaling->isModified())
-        return;
-    bool ok;
-    float newVal=ui->qqNegativeVolumeScaling->text().toFloat(&ok);
-    if (ok)
-    {
-        negativeVolumeScaling=newVal;
-        tt::limitValue(0.01f,0.99f,negativeVolumeScaling);
-    }
-    refresh();
-}
-

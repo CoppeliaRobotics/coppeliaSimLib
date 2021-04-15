@@ -107,6 +107,7 @@
 #define SIM_ERROR_FOUND_INVALID_HANDLES     "Found invalid handles."
 #define SIM_ERROR_DATA_STREAM_NOT_USER_DEFINED          "Data stream is not user-defined."
 #define SIM_ERROR_PATH_EMPTY            "Path is empty."
+#define SIM_ERROR_INVALID_PATH            "Invalid path data."
 #define SIM_ERROR_INVALID_CTRL_PT       "Invalid control point."
 #define SIM_ERROR_PORT_NOT_OPEN             "Port is not open."
 #define SIM_ERROR_CANNOT_BE_CALLED_FROM_MAIN_THREAD             "Cannot be called from the main thread."

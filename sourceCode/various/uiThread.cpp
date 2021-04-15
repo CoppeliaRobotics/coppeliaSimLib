@@ -443,9 +443,9 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
         C3Vector sizes;
         int subdiv[3];
         int faces,sides,discSubdiv,openEnds;
-        bool smooth,dynamic,pure,cone,negVolume;
-        float density,negVolumeScaling;
-        if (showPrimitiveShapeDialog(cmdIn->intParams[0],(C3Vector*)cmdIn->objectParams[0],sizes,subdiv,faces,sides,discSubdiv,smooth,openEnds,dynamic,pure,cone,density,negVolume,negVolumeScaling))
+        bool smooth,dynamic,pure,cone;
+        float density;
+        if (showPrimitiveShapeDialog(cmdIn->intParams[0],(C3Vector*)cmdIn->objectParams[0],sizes,subdiv,faces,sides,discSubdiv,smooth,openEnds,dynamic,pure,cone,density))
         {
             cmdOut->posParams.push_back(sizes);
             cmdOut->intParams.push_back(subdiv[0]);
@@ -459,8 +459,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
             cmdOut->boolParams.push_back(pure);
             cmdOut->boolParams.push_back(cone);
             cmdOut->floatParams.push_back(density);
-            cmdOut->boolParams.push_back(negVolume);
-            cmdOut->floatParams.push_back(negVolumeScaling);
+            cmdOut->boolParams.push_back(false); // was neg volume
             cmdOut->boolParams.push_back(dynamic);
         }
     }
@@ -1024,7 +1023,7 @@ bool CUiThread::dialogInputGetFloat(void* parentWidget,const char* title,const c
 }
 
 
-bool CUiThread::showPrimitiveShapeDialog(int type,const C3Vector* optionalSizesIn,C3Vector& sizes,int subdiv[3],int& faces,int& sides,int& discSubdiv,bool& smooth,int& openEnds,bool& dynamic,bool& pure,bool& cone,float& density,bool& negVolume,float& negVolumeScaling)
+bool CUiThread::showPrimitiveShapeDialog(int type,const C3Vector* optionalSizesIn,C3Vector& sizes,int subdiv[3],int& faces,int& sides,int& discSubdiv,bool& smooth,int& openEnds,bool& dynamic,bool& pure,bool& cone,float& density)
 {
     TRACE_INTERNAL;
     bool retVal=false;
@@ -1049,8 +1048,6 @@ bool CUiThread::showPrimitiveShapeDialog(int type,const C3Vector* optionalSizesI
                 pure=theDialog.pure;
                 cone=theDialog.cone;
                 density=theDialog.density;
-                negVolume=theDialog.negativeVolume;
-                negVolumeScaling=theDialog.negativeVolumeScaling;
                 dynamic=theDialog.dynamic;
             }
         }
@@ -1076,8 +1073,6 @@ bool CUiThread::showPrimitiveShapeDialog(int type,const C3Vector* optionalSizesI
                 pure=cmdOut.boolParams[1];
                 cone=cmdOut.boolParams[2];
                 density=cmdOut.floatParams[0];
-                negVolume=cmdOut.boolParams[3];
-                negVolumeScaling=cmdOut.floatParams[1];
                 dynamic=cmdOut.boolParams[4];
                 retVal=true;
             }

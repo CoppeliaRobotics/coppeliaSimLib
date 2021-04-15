@@ -1057,13 +1057,13 @@ const SLuaVariables simLuaVariables[]=
     {"sim.object_camera_type",sim_object_camera_type,true},
     {"sim.object_dummy_type",sim_object_dummy_type,true},
     {"sim.object_proximitysensor_type",sim_object_proximitysensor_type,true},
-    {"sim.object_path_type",sim_object_path_type,true},
+    {"sim.object_path_type",sim_object_path_type,false},
     {"sim.object_renderingsensor_type",sim_object_visionsensor_type,true},
     {"sim.object_visionsensor_type",sim_object_visionsensor_type,true},
-    {"sim.object_mill_type",sim_object_mill_type,true},
+    {"sim.object_mill_type",sim_object_mill_type,false},
     {"sim.object_forcesensor_type",sim_object_forcesensor_type,true},
     {"sim.object_light_type",sim_object_light_type,true},
-    {"sim.object_mirror_type",sim_object_mirror_type,true},
+    {"sim.object_mirror_type",sim_object_mirror_type,false},
     {"sim.object_octree_type",sim_object_octree_type,true},
     {"sim.object_pointcloud_type",sim_object_pointcloud_type,true},
     // 3D object sub-types:
@@ -1080,10 +1080,10 @@ const SLuaVariables simLuaVariables[]=
     {"sim.proximitysensor_disc_subtype",sim_proximitysensor_disc_subtype,true},
     {"sim.proximitysensor_cone_subtype",sim_proximitysensor_cone_subtype,true},
     {"sim.proximitysensor_ray_subtype",sim_proximitysensor_ray_subtype,true},
-    {"sim.mill_pyramid_subtype",sim_mill_pyramid_subtype,true},
-    {"sim.mill_cylinder_subtype",sim_mill_cylinder_subtype,true},
-    {"sim.mill_disc_subtype",sim_mill_disc_subtype,true},
-    {"sim.mill_cone_subtype",sim_mill_cone_subtype,true},
+    {"sim.mill_pyramid_subtype",sim_mill_pyramid_subtype,false},
+    {"sim.mill_cylinder_subtype",sim_mill_cylinder_subtype,false},
+    {"sim.mill_disc_subtype",sim_mill_disc_subtype,false},
+    {"sim.mill_cone_subtype",sim_mill_cone_subtype,false},
     {"sim.object_no_subtype",sim_object_no_subtype,true},
     // Other object types:
     {"sim.appobj_object_type",sim_appobj_object_type,true},
@@ -13071,8 +13071,11 @@ int _simGenerateShapeFromPath(luaWrap_lua_State* L)
                     zvect=tmp;
                 }
                 int h=simGenerateShapeFromPath_internal(&ppath[0],int(ppath.size()),&section[0],int(section.size()),options,zvect,0.0f);
-                luaWrap_lua_pushinteger(L,h);
-                LUA_END(1);
+                if (h>=0)
+                {
+                    luaWrap_lua_pushinteger(L,h);
+                    LUA_END(1);
+                }
             }
         }
     }
@@ -13084,7 +13087,7 @@ int _simGenerateShapeFromPath(luaWrap_lua_State* L)
 int _simGetClosestPosOnPath(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.generateShapeFromPath");
+    LUA_START("sim.getClosestPosOnPath");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,3,lua_arg_number,1,lua_arg_number,3))
     {
@@ -13104,7 +13107,8 @@ int _simGetClosestPosOnPath(luaWrap_lua_State* L)
             luaWrap_lua_pushnumber(L,p);
             LUA_END(1);
         }
-        errorString=SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG;
+        else
+            errorString=SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG;
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

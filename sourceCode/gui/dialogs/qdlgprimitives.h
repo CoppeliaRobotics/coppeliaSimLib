@@ -42,8 +42,6 @@ public:
     bool cone;
     bool sizesAreLocked;
     float density;
-    bool negativeVolume;
-    float negativeVolumeScaling;
 
 private slots:
     void on_qqPure_clicked();
@@ -62,8 +60,6 @@ private slots:
     void on_qqOkCancel_accepted();
     void on_qqOkCancel_rejected();
     void on_qqDensity_editingFinished();
-    void on_qqNegativeVolume_clicked();
-    void on_qqNegativeVolumeScaling_editingFinished();
 
     void on_qqDynamic_clicked();
 

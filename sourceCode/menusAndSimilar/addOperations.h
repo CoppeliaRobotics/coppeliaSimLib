@@ -11,7 +11,7 @@ public:
     virtual ~CAddOperations();
 
     static bool processCommand(int commandID,CSView* subView);
-    static CShape* addPrimitiveShape(int type,const C3Vector& sizes,const int subdiv[3],int faces,int sides,int discSubdiv,bool smooth,int openEnds,bool dynamic,bool pure,bool cone,float density,bool negVolume,float negVolumeScaling);
+    static CShape* addPrimitiveShape(int type,const C3Vector& sizes,const int subdiv[3],int faces,int sides,int discSubdiv,bool smooth,int openEnds,bool dynamic,bool pure,bool cone,float density);
 
     static CShape* addConvexHull(const std::vector<CSceneObject*>& inputObjects,bool generateAfterCreateCallback);
     static CShape* addInflatedConvexHull(const std::vector<CSceneObject*>& inputObjects,float margin);

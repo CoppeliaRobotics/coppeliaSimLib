@@ -884,7 +884,6 @@
 #define IDS_VORTEX              "Vortex"
 #define IDS_NEWTON              "Newton"
 #define IDS_WARNING_WHEN_SELECTING_PURE_CONE "Pure cones are currently only supported by the Bullet and Newton engines."
-#define IDS_WARNING_WHEN_SELECTING_NEGATIVE_VOLUME "Negative volumes are only supported by the Vortex engine."
 
 #define IDS_TOOLBAR_TOOLTIP_CAMERA_SHIFT "Camera pan"
 #define IDS_TOOLBAR_TOOLTIP_CAMERA_FIT_TO_SCREEN "Fit to view"

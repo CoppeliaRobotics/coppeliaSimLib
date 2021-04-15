@@ -46,8 +46,6 @@ private slots:
 
     void on_qqBufferIsCyclic_clicked();
 
-    void on_qqShowXYZPlanes_clicked();
-
     void on_qqObjectSize_editingFinished();
 
     void on_qqBufferSize_editingFinished();

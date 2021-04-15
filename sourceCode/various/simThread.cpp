@@ -3566,12 +3566,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
                 it->setCyclic(!it->getCyclic());
         }
-        if (cmd.cmdId==TOGGLE_SHOWXYZPLANES_GRAPHGUITRIGGEREDCMD)
-        {
-            CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-                it->xYZPlanesDisplay=!it->xYZPlanesDisplay;
-        }
         if (cmd.cmdId==TOGGLE_TIMEGRAPHVISIBLE_GRAPHGUITRIGGEREDCMD)
         {
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);

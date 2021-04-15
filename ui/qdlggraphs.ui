@@ -333,7 +333,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>30</y>
+     <y>10</y>
      <width>191</width>
      <height>18</height>
     </rect>
@@ -343,22 +343,6 @@
    </property>
    <property name="text">
     <string>Buffer is cyclic</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="qqShowXYZPlanes">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>161</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::StrongFocus</enum>
-   </property>
-   <property name="text">
-    <string>Display XYZ planes</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="qqObjectSize">
@@ -374,9 +358,9 @@
   <widget class="QToolButton" name="qqAdjustGridColor">
    <property name="geometry">
     <rect>
-     <x>230</x>
+     <x>220</x>
      <y>75</y>
-     <width>190</width>
+     <width>201</width>
      <height>18</height>
     </rect>
    </property>
@@ -400,9 +384,9 @@
   <widget class="QToolButton" name="qqRemoveAllStatics">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>220</x>
      <y>50</y>
-     <width>191</width>
+     <width>201</width>
      <height>18</height>
     </rect>
    </property>
@@ -416,8 +400,8 @@
   <widget class="QCheckBox" name="qqExplicitHandling">
    <property name="geometry">
     <rect>
-     <x>220</x>
-     <y>50</y>
+     <x>10</x>
+     <y>30</y>
      <width>181</width>
      <height>18</height>
     </rect>
@@ -460,12 +444,11 @@
   </widget>
  </widget>
  <tabstops>
-  <tabstop>qqShowXYZPlanes</tabstop>
-  <tabstop>qqObjectSize</tabstop>
   <tabstop>qqBufferIsCyclic</tabstop>
+  <tabstop>qqObjectSize</tabstop>
+  <tabstop>qqExplicitHandling</tabstop>
   <tabstop>qqBufferSize</tabstop>
   <tabstop>qqRemoveAllStatics</tabstop>
-  <tabstop>qqExplicitHandling</tabstop>
   <tabstop>qqAdjustBackgroundColor</tabstop>
   <tabstop>qqAdjustGridColor</tabstop>
   <tabstop>qqAddNewDataStream</tabstop>
