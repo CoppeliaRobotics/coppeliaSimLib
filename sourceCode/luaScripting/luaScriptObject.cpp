@@ -1959,7 +1959,7 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
     _outsideCommandQueue=new COutsideCommandQueueForScript();
 
     _scriptType=scriptTypeOrMinusOneForSerialization;
-    _compatibilityModeOrFirstTimeCall_sysCallbacks=true;
+    _compatibilityMode=false;
     _containsJointCallbackFunction=false;
     _containsContactCallbackFunction=false;
     _containsDynCallbackFunction=false;
@@ -3331,8 +3331,15 @@ int CLuaScriptObject::systemCallScript(int callType,const CInterfaceStack* inSta
                 retVal=_callSystemScriptFunction(sim_syscb_init,nullptr,nullptr); // implicit call
         }
         if ( ((_scriptState&7)==scriptState_initialized)&&(callType!=sim_syscb_info)&&(callType!=sim_syscb_init) )
-        { // Execut the script call
-            if (!_compatibilityModeOrFirstTimeCall_sysCallbacks)
+        { // Execute the script call
+            if (_compatibilityMode)
+            { // Backward compatibility
+                if (_callScriptChunk_old(callType,inStack,outStack))
+                    retVal=1;
+                else
+                    retVal=-1;
+            }
+            else
             { // Regular system function calls
                 if ( ((_scriptState&scriptState_error)==0)||(callType==sim_syscb_cleanup) )
                 {
@@ -3340,13 +3347,6 @@ int CLuaScriptObject::systemCallScript(int callType,const CInterfaceStack* inSta
                     if (_scriptType==sim_scripttype_sandboxscript)
                         _scriptState&=7; // remove a possible error flag
                 }
-            }
-            else
-            { // Backward compatibility
-                if (_callScriptChunk_old(callType,inStack,outStack))
-                    retVal=1;
-                else
-                    retVal=-1;
             }
         }
     }
@@ -3449,9 +3449,11 @@ bool CLuaScriptObject::_initScriptChunk()
                 // here we check if we can enable the new calling method:
                 std::string initCb=getSystemCallbackString(sim_syscb_init,false);
                 luaWrap_lua_getglobal(L,initCb.c_str());
-                _compatibilityModeOrFirstTimeCall_sysCallbacks=!(luaWrap_lua_isfunction(L,-1));
+                _compatibilityMode=!(luaWrap_lua_isfunction(L,-1));
                 luaWrap_lua_pop(L,1);
-                if (!_compatibilityModeOrFirstTimeCall_sysCallbacks)
+                if (_compatibilityMode)
+                    _scriptState=scriptState_initialized;
+                else
                 {
                     luaWrap_luaL_dostring(L,"sim_call_type=nil");
                     _scriptState=scriptState_uninitialized;
@@ -3469,8 +3471,6 @@ bool CLuaScriptObject::_initScriptChunk()
                     _containsUserConfigCallbackFunction=luaWrap_lua_isfunction(L,-1);
                     luaWrap_lua_pop(L,6);
                 }
-                else
-                    _scriptState=scriptState_initialized;
             }
             _numberOfPasses++;
         }
@@ -3494,7 +3494,7 @@ bool CLuaScriptObject::_initScriptChunk()
 
 bool CLuaScriptObject::_callScriptChunk_old(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
 {
-    if (!_compatibilityModeOrFirstTimeCall_sysCallbacks)
+    if (!_compatibilityMode)
         return(false);
     if ((_scriptState&7)!=scriptState_initialized)
         return(false);
@@ -3557,7 +3557,7 @@ bool CLuaScriptObject::_callScriptChunk_old(int callType,const CInterfaceStack* 
 
 int CLuaScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
 { // retval: -1: runtimeError, 0: function not there or not called, 1: ok
-    if (_compatibilityModeOrFirstTimeCall_sysCallbacks)
+    if (_compatibilityMode)
         return(0);
 
     if (callType==sim_syscb_info)
@@ -3915,7 +3915,7 @@ int CLuaScriptObject::callScriptFunction_DEPRECATED(const char* functionName,SLu
 int CLuaScriptObject::callCustomScriptFunction(const char* functionName,CInterfaceStack* inOutStack)
 { // retval: -1: runtimeError, 0: function not there or not executed, 1: ok
     int retVal=0;
-    if ( (!_compatibilityModeOrFirstTimeCall_sysCallbacks)&&(_scriptState==scriptState_initialized) )
+    if (_scriptState==scriptState_initialized)
     {
         changeOverallYieldingForbidLevel(1,false); // never yield from such a call
         CInterfaceStack outStack;
@@ -4193,7 +4193,7 @@ bool CLuaScriptObject::_killLuaState()
     if (!_threadedExecution_oldThreads) // those could run several times
         _numberOfPasses=0;
     _executionDepth=0;
-    _compatibilityModeOrFirstTimeCall_sysCallbacks=true;
+    _compatibilityMode=false;
     _containsJointCallbackFunction=false;
     _containsContactCallbackFunction=false;
     _containsDynCallbackFunction=false;

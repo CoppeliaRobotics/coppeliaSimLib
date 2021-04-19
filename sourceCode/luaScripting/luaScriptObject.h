@@ -276,7 +276,7 @@ protected:
     int _timeOfPcallStart;
     std::string _lastStackTraceback;
     std::string _lastError;
-    bool _compatibilityModeOrFirstTimeCall_sysCallbacks;
+    bool _compatibilityMode;
     bool _containsJointCallbackFunction;
     bool _containsContactCallbackFunction;
     bool _containsDynCallbackFunction;
