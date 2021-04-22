@@ -14376,7 +14376,7 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State* L)
         int ptCnt=int(luaWrap_lua_rawlen(L,3))/3;
         float optionalValues[2];
         ((int*)optionalValues)[0]=1; // duplicate tolerance bit
-        optionalValues[1]=0.0; // duplicate tolerance
+        optionalValues[1]=0.0f; // duplicate tolerance
         std::vector<float> pts;
         pts.resize(ptCnt*3);
         unsigned char* cols=nullptr;

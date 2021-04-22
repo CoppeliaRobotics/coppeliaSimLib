@@ -8770,33 +8770,38 @@ simInt simCreateMeshShape_internal(simInt options,simFloat shadingAngle,const si
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        bool badIndices=false;
-        for (int i=0;i<indicesSize;i++)
+        if ( (indicesSize>=3)&&((indicesSize/3)*3==indicesSize) )
         {
-            if ( (indices[i]<0)||(indices[i]>=verticesSize/3) )
+            bool badIndices=false;
+            for (int i=0;i<indicesSize;i++)
             {
-                badIndices=true;
-                break;
+                if ( (indices[i]<0)||(indices[i]>=verticesSize/3) )
+                {
+                    badIndices=true;
+                    break;
+                }
+            }
+            if (!badIndices)
+            {
+                if ( (verticesSize>=9)&&((verticesSize/3)*3==verticesSize) )
+                {
+                    std::vector<float> vert(vertices,vertices+verticesSize);
+                    std::vector<int> ind(indices,indices+indicesSize);
+                    CShape* shape=new CShape(nullptr,vert,ind,nullptr,nullptr);
+                    shape->getSingleMesh()->setGouraudShadingAngle(shadingAngle);
+                    shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
+                    shape->getMeshWrapper()->setLocalInertiaFrame(C7Vector::identityTransformation);
+                    shape->setCulling((options&1)!=0);
+                    shape->setVisibleEdges((options&2)!=0);
+                    App::currentWorld->sceneObjects->addObjectToScene(shape,false,true);
+                    return(shape->getObjectHandle());
+                }
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_BAD_VERTICES);
+                return(-1);
             }
         }
-        if (!badIndices)
-        {
-            std::vector<float> vert(vertices,vertices+verticesSize);
-            std::vector<int> ind(indices,indices+indicesSize);
-            CShape* shape=new CShape(nullptr,vert,ind,nullptr,nullptr);
-            shape->getSingleMesh()->setGouraudShadingAngle(shadingAngle);
-            shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
-            shape->getMeshWrapper()->setLocalInertiaFrame(C7Vector::identityTransformation);
-            shape->setCulling((options&1)!=0);
-            shape->setVisibleEdges((options&2)!=0);
-            App::currentWorld->sceneObjects->addObjectToScene(shape,false,true);
-            return(shape->getObjectHandle());
-        }
-        else
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INDICES_CONTAIN_ILLEGAL_VALUES);
-            return(-1);
-        }
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_BAD_INDICES);
+        return(-1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
