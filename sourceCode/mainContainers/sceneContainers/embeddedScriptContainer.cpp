@@ -109,7 +109,7 @@ int CEmbeddedScriptContainer::removeDestroyedScripts(int scriptType)
                 it->resetScript(); // should not be done in the destructor!
                 allScripts.erase(allScripts.begin()+i);
                 i--;
-                delete it;
+                CLuaScriptObject::destroy(it,true);
             }
         }
     }
@@ -146,7 +146,7 @@ void CEmbeddedScriptContainer::removeAllScripts()
         CLuaScriptObject* it=allScripts[0];
         it->resetScript(); // should not be done in the destructor!
         allScripts.erase(allScripts.begin());
-        delete it;
+        CLuaScriptObject::destroy(it,true);
     }
 }
 
@@ -199,7 +199,7 @@ bool CEmbeddedScriptContainer::removeScript(int scriptHandle)
             CLuaScriptObject* it=allScripts[i];
             it->resetScript(); // should not be done in the destructor!
             allScripts.erase(allScripts.begin()+i);
-            delete it;
+            CLuaScriptObject::destroy(it,true);
             App::worldContainer->setModificationFlag(16384);
             break;
         }

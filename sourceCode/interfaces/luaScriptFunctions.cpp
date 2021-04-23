@@ -184,16 +184,18 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setObjectParent",_simSetObjectParent,                  "sim.setObjectParent(int objectHandle,int parentObjectHandle,boolean keepInPlace)",true},
     {"sim.getObjectType",_simGetObjectType,                      "int objectType=sim.getObjectType(int objectHandle)",true},
     {"sim.getJointType",_simGetJointType,                        "int jointType=sim.getJointType(int objectHandle)",true},
-    {"sim.setBoolParameter",_simSetBoolParameter,                "sim.setBoolParameter(int parameter,boolean boolState)",true},
-    {"sim.getBoolParameter",_simGetBoolParameter,                "boolean boolState=sim.getBoolParameter(int parameter)",true},
-    {"sim.setInt32Parameter",_simSetInt32Parameter,              "sim.setInt32Parameter(int parameter,int intState)",true},
-    {"sim.getInt32Parameter",_simGetInt32Parameter,              "int intState=sim.getInt32Parameter(int parameter)",true},
-    {"sim.setFloatParameter",_simSetFloatParameter,              "sim.setFloatParameter(int parameter,float floatState)",true},
-    {"sim.getFloatParameter",_simGetFloatParameter,              "float floatState=sim.getFloatParameter(int parameter)",true},
-    {"sim.setStringParameter",_simSetStringParameter,            "sim.setStringParameter(int parameter,string stringState)",true},
-    {"sim.getStringParameter",_simGetStringParameter,            "string stringState=sim.getStringParameter(int parameter)",true},
-    {"sim.setArrayParameter",_simSetArrayParameter,              "sim.setArrayParameter(int parameter,table[3] arrayOfValues)",true},
-    {"sim.getArrayParameter",_simGetArrayParameter,              "table[3] arrayOfValues=sim.getArrayParameter(int parameter)",true},
+    {"sim.setBoolParam",_simSetBoolParam,                        "sim.setBoolParam(int parameter,boolean boolState)",true},
+    {"sim.getBoolParam",_simGetBoolParam,                        "boolean boolState=sim.getBoolParam(int parameter)",true},
+    {"sim.setInt32Param",_simSetInt32Param,                      "sim.setInt32Param(int parameter,int intState)",true},
+    {"sim.getInt32Param",_simGetInt32Param,                      "int intState=sim.getInt32Param(int parameter)",true},
+    {"sim.setFloatParam",_simSetFloatParam,                      "sim.setFloatParam(int parameter,float floatState)",true},
+    {"sim.getFloatParam",_simGetFloatParam,                      "float floatState=sim.getFloatParam(int parameter)",true},
+    {"sim.setStringParam",_simSetStringParam,                    "sim.setStringParam(int parameter,string stringState)",true},
+    {"sim.getStringParam",_simGetStringParam,                    "string stringState=sim.getStringParam(int parameter)",true},
+    {"sim.setArrayParam",_simSetArrayParam,                      "sim.setArrayParam(int parameter,table[3] arrayOfValues)",true},
+    {"sim.getArrayParam",_simGetArrayParam,                      "table[3] arrayOfValues=sim.getArrayParam(int parameter)",true},
+    {"sim.setStringNamedParam",_simSetStringNamedParam,          "sim.setStringNamedParam(string paramName,string stringParam)",true},
+    {"sim.getStringNamedParam",_simGetStringNamedParam,          "string stringParam=sim.getStringNamedParam(string paramName)",true},
     {"sim.setObjectName",_simSetObjectName,                      "sim.setObjectName(int objectHandle,string objectName)",true},
     {"sim.getJointInterval",_simGetJointInterval,                "boolean cyclic,table[2] interval=sim.getJointInterval(int objectHandle)",true},
     {"sim.setJointInterval",_simSetJointInterval,                "sim.setJointInterval(int objectHandle,boolean cyclic,table[2] interval)",true},
@@ -315,18 +317,18 @@ const SLuaCommands simLuaCommands[]=
     {"sim.adjustView",_simAdjustView,                            "int result=sim.adjustView(int viewHandleOrIndex,int associatedViewableObjectHandle,int options,string viewLabel=nil)",true},
     {"sim.cameraFitToView",_simCameraFitToView,                  "int result=sim.cameraFitToView(int viewHandleOrIndex,table[] objectHandles=nil,simInt options=0,simFloat scaling=1)",true},
     {"sim.announceSceneContentChange",_simAnnounceSceneContentChange,"int result=sim.announceSceneContentChange()",true},
-    {"sim.getObjectInt32Parameter",_simGetObjectInt32Parameter,  "int result,int parameter=sim.getObjectInt32Parameter(int objectHandle,int parameterID)",true},
-    {"sim.setObjectInt32Parameter",_simSetObjectInt32Parameter,  "sim.setObjectInt32Parameter(int objectHandle,int parameterID,int parameter)",true},
-    {"sim.getObjectFloatParameter",_simGetObjectFloatParameter,  "int result,float parameter=sim.getObjectFloatParameter(int objectHandle,int parameterID)",true},
-    {"sim.setObjectFloatParameter",_simSetObjectFloatParameter,  "sim.setObjectFloatParameter(int objectHandle,int parameterID,float parameter)",true},
-    {"sim.getObjectStringParameter",_simGetObjectStringParameter,"string parameter=sim.getObjectStringParameter(int objectHandle,int parameterID)",true},
-    {"sim.setObjectStringParameter",_simSetObjectStringParameter,"sim.setObjectStringParameter(int objectHandle,int parameterID,string parameter)",true},
+    {"sim.getObjectInt32Param",_simGetObjectInt32Param,          "int parameter=sim.getObjectInt32Param(int objectHandle,int parameterID)",true},
+    {"sim.setObjectInt32Param",_simSetObjectInt32Param,          "sim.setObjectInt32Param(int objectHandle,int parameterID,int parameter)",true},
+    {"sim.getObjectFloatParam",_simGetObjectFloatParam,          "float parameter=sim.getObjectFloatParam(int objectHandle,int parameterID)",true},
+    {"sim.setObjectFloatParam",_simSetObjectFloatParam,          "sim.setObjectFloatParam(int objectHandle,int parameterID,float parameter)",true},
+    {"sim.getObjectStringParam",_simGetObjectStringParam,        "string parameter=sim.getObjectStringParam(int objectHandle,int parameterID)",true},
+    {"sim.setObjectStringParam",_simSetObjectStringParam,        "sim.setObjectStringParam(int objectHandle,int parameterID,string parameter)",true},
     {"sim.getRotationAxis",_simGetRotationAxis,                  "table[3] axis,float angle=sim.getRotationAxis(table[12] matrixStart,table[12] matrixGoal)",true},
     {"sim.rotateAroundAxis",_simRotateAroundAxis,                "table[12] matrixOut=sim.rotateAroundAxis(table[12] matrixIn,table[3] axis,table[3] axisPos,float angle)",true},
     {"sim.launchExecutable",_simLaunchExecutable,                "sim.launchExecutable(string filename,string parameters='',int showStatus=1)",true},
     {"sim.getJointForce",_simGetJointForce,                      "float forceOrTorque=sim.getJointForce(int jointHandle)",true},
     {"sim.getJointMaxForce",_simGetJointMaxForce,                "float forceOrTorque=sim.getJointMaxForce(int jointHandle)",true},
-    {"sim.isHandleValid",_simIsHandleValid,                      "int result=sim.isHandleValid(int generalObjectHandle,int generalObjectType=-1)",true},
+    {"sim.isHandle",_simIsHandle,                                "bool result=sim.isHandle(int generalObjectHandle,int generalObjectType=-1)",true},
     {"sim.getObjectQuaternion",_simGetObjectQuaternion,          "table[4] quaternion=sim.getObjectQuaternion(int objectHandle,int relativeToObjectHandle)",true},
     {"sim.setObjectQuaternion",_simSetObjectQuaternion,          "sim.setObjectQuaternion(int objectHandle,int relativeToObjectHandle,table[4] quaternion)",true},
     {"sim.groupShapes",_simGroupShapes,                          "int shapeHandle=sim.groupShapes(table[] shapeHandles,bool merge=false)",true},
@@ -385,12 +387,12 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getExtensionString",_simGetExtensionString,            "string theString=sim.getExtensionString(int objectHandle,int index,string key=nil)",true},
     {"sim.computeMassAndInertia",_simComputeMassAndInertia,      "int result=sim.computeMassAndInertia(int shapeHandle,float density)",true},
     {"sim.setScriptVariable",_simSetScriptVariable,              "sim.setScriptVariable(string variableNameAtScriptName,int scriptHandleOrType,variable)",true},
-    {"sim.getEngineFloatParameter",_simGetEngineFloatParameter,  "float floatParam=sim.getEngineFloatParameter(int paramId,int objectHandle)",true},
-    {"sim.getEngineInt32Parameter",_simGetEngineInt32Parameter,  "int int32Param=sim.getEngineInt32Parameter(int paramId,int objectHandle)",true},
-    {"sim.getEngineBoolParameter",_simGetEngineBoolParameter,    "boolean boolParam=sim.getEngineBoolParameter(int paramId,int objectHandle)",true},
-    {"sim.setEngineFloatParameter",_simSetEngineFloatParameter,  "sim.setEngineFloatParameter(int paramId,int objectHandle,float floatParam)",true},
-    {"sim.setEngineInt32Parameter",_simSetEngineInt32Parameter,  "sim.setEngineInt32Parameter(int paramId,int objectHandle,int int32Param)",true},
-    {"sim.setEngineBoolParameter",_simSetEngineBoolParameter,    "sim.setEngineBoolParameter(int paramId,int objectHandle,boolean boolParam)",true},
+    {"sim.getEngineFloatParam",_simGetEngineFloatParam,          "float floatParam=sim.getEngineFloatParam(int paramId,int objectHandle)",true},
+    {"sim.getEngineInt32Param",_simGetEngineInt32Param,          "int int32Param=sim.getEngineInt32Param(int paramId,int objectHandle)",true},
+    {"sim.getEngineBoolParam",_simGetEngineBoolParam,            "boolean boolParam=sim.getEngineBoolParam(int paramId,int objectHandle)",true},
+    {"sim.setEngineFloatParam",_simSetEngineFloatParam,          "sim.setEngineFloatParam(int paramId,int objectHandle,float floatParam)",true},
+    {"sim.setEngineInt32Param",_simSetEngineInt32Param,          "sim.setEngineInt32Param(int paramId,int objectHandle,int int32Param)",true},
+    {"sim.setEngineBoolParam",_simSetEngineBoolParam,            "sim.setEngineBoolParam(int paramId,int objectHandle,boolean boolParam)",true},
     {"sim.createOctree",_simCreateOctree,                        "int handle=sim.createOctree(float voxelSize,int options,float pointSize)",true},
     {"sim.createPointCloud",_simCreatePointCloud,                "int handle=sim.createPointCloud(float maxVoxelSize,int maxPtCntPerVoxel,int options,float pointSize)",true},
     {"sim.setPointCloudOptions",_simSetPointCloudOptions,        "sim.setPointCloudOptions(int pointCloudHandle,float maxVoxelSize,\nint maxPtCntPerVoxel,int options,float pointSize)",true},
@@ -430,8 +432,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setJointDependency",_simSetJointDependency,            "sim.setJointDependency(int jointHandle,int masterJointHandle,float offset,float multCoeff)",true},
     {"sim.getJointDependency",_simGetJointDependency,            "int masterJointHandle,float offset,float multCoeff=sim.getJointDependency(int jointHandle)",true},
     {"sim.getStackTraceback",_simGetStackTraceback,              "string stacktraceback=sim.getStackTraceback([int scriptHandle])",true},
-    {"sim.setStringNamedParam",_simSetStringNamedParam,          "int result=sim.setStringNamedParam(string paramName,string stringParam)",true},
-    {"sim.getStringNamedParam",_simGetStringNamedParam,          "string stringParam=sim.getStringNamedParam(string paramName)",true},
     {"sim.addLog",_simAddLog,                                    "sim.addLog(int verbosityLevel,string logMessage)",true},
     {"sim.getShapeMass",_simGetShapeMass,                        "float mass=sim.getShapeMassAndInertia(int shapeHandle)",true},
     {"sim.setShapeMass",_simSetShapeMass,                        "sim.setShapeMass(int shapeHandle,float mass)",true},
@@ -530,6 +530,29 @@ const SLuaCommands simLuaCommands[]=
     {"sim.modifyPointCloud",_simModifyPointCloud,                "Deprecated. Use point cloud objects instead",false},
     {"sim.setGraphUserData",_simSetGraphUserData,                "Deprecated. Use sim.setGraphStreamValue instead",false},
     {"sim.copyMatrix",_simCopyMatrix,                            "Deprecated. Use sim.copyTable instead",false},
+    {"sim.getObjectInt32Parameter",_simGetObjectInt32Parameter,  "Deprecated. Use sim.getObjectInt32Param instead",false},
+    {"sim.setObjectInt32Parameter",_simSetObjectInt32Param,      "Deprecated. Use sim.setObjectInt32Param instead",false},
+    {"sim.getObjectFloatParameter",_simGetObjectFloatParameter,  "Deprecated. Use sim.getObjectFloatParam instead",false},
+    {"sim.setObjectFloatParameter",_simSetObjectFloatParam,      "Deprecated. Use sim.setObjectFloatParam instead",false},
+    {"sim.getObjectStringParameter",_simGetObjectStringParam,    "Deprecated. Use sim.getObjectStringParam instead",false},
+    {"sim.setObjectStringParameter",_simSetObjectStringParam,    "Deprecated. Use sim.setObjectStringParam instead",false},
+    {"sim.setBoolParameter",_simSetBoolParam,                    "Deprecated. Use sim.setBoolParam instead",false},
+    {"sim.getBoolParameter",_simGetBoolParam,                    "Deprecated. Use sim.getBoolParam instead",false},
+    {"sim.setInt32Parameter",_simSetInt32Param,                  "Deprecated. Use sim.setInt32Param instead",false},
+    {"sim.getInt32Parameter",_simGetInt32Param,                  "Deprecated. Use sim.getInt32Param instead",false},
+    {"sim.setFloatParameter",_simSetFloatParam,                  "Deprecated. Use sim.setFloatParam instead",false},
+    {"sim.getFloatParameter",_simGetFloatParam,                  "Deprecated. Use sim.getFloatParam instead",false},
+    {"sim.setStringParameter",_simSetStringParam,                "Deprecated. Use sim.setStringParam instead",false},
+    {"sim.getStringParameter",_simGetStringParam,                "Deprecated. Use sim.getStringParam instead",false},
+    {"sim.setArrayParameter",_simSetArrayParam,                  "Deprecated. Use sim.setArrayParam instead",false},
+    {"sim.getArrayParameter",_simGetArrayParam,                  "Deprecated. Use sim.getArrayParam instead",false},
+    {"sim.getEngineFloatParameter",_simGetEngineFloatParam,      "Deprecated. Use sim.getEngineFloatParam instead",false},
+    {"sim.getEngineInt32Parameter",_simGetEngineInt32Param,      "Deprecated. Use sim.getEngineInt32Param instead",false},
+    {"sim.getEngineBoolParameter",_simGetEngineBoolParam,        "Deprecated. Use sim.getEngineBoolParam instead",false},
+    {"sim.setEngineFloatParameter",_simSetEngineFloatParam,      "Deprecated. Use sim.setEngineFloatParam instead",false},
+    {"sim.setEngineInt32Parameter",_simSetEngineInt32Param,      "Deprecated. Use sim.setEngineInt32Param instead",false},
+    {"sim.setEngineBoolParameter",_simSetEngineBoolParam,        "Deprecated. Use sim.setEngineBoolParam instead",false},
+    {"sim.isHandleValid",_simIsHandleValid,                      "Deprecated. Use sim.isHandle instead",false},
     //{"sim.boolOr32",_simBoolOr32,                                "Deprecated. Use the bitwise operator | instead",false},
     //{"sim.boolAnd32",_simBoolAnd32,                              "Deprecated. Use the bitwise operator & instead",false},
     //{"sim.boolXor32",_simBoolXor32,                              "Deprecated. Use the bitwise operator ~ instead",false},
@@ -616,16 +639,16 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simSetObjectParent",_simSetObjectParent,                  "Use the newer 'sim.setObjectParent' notation",false},
     {"simGetObjectType",_simGetObjectType,                      "Use the newer 'sim.getObjectType' notation",false},
     {"simGetJointType",_simGetJointType,                        "Use the newer 'sim.getJointType' notation",false},
-    {"simSetBoolParameter",_simSetBoolParameter,                "Use the newer 'sim.setBoolParameter' notation",false},
-    {"simGetBoolParameter",_simGetBoolParameter,                "Use the newer 'sim.getBoolParameter' notation",false},
-    {"simSetInt32Parameter",_simSetInt32Parameter,              "Use the newer 'sim.setInt32Parameter' notation",false},
-    {"simGetInt32Parameter",_simGetInt32Parameter,              "Use the newer 'sim.getInt32Parameter' notation",false},
-    {"simSetFloatParameter",_simSetFloatParameter,              "Use the newer 'sim.setFloatParameter' notation",false},
-    {"simGetFloatParameter",_simGetFloatParameter,              "Use the newer 'sim.getFloatParameter' notation",false},
-    {"simSetStringParameter",_simSetStringParameter,            "Use the newer 'sim.setStringParameter' notation",false},
-    {"simGetStringParameter",_simGetStringParameter,            "Use the newer 'sim.getStringParameter' notation",false},
-    {"simSetArrayParameter",_simSetArrayParameter,              "Use the newer 'sim.setArrayParameter' notation",false},
-    {"simGetArrayParameter",_simGetArrayParameter,              "Use the newer 'sim.getArrayParameter' notation",false},
+    {"simSetBoolParameter",_simSetBoolParam,                    "Deprecated. Use sim.setBoolParam instead",false},
+    {"simGetBoolParameter",_simGetBoolParam,                    "Deprecated. Use sim.getBoolParam instead",false},
+    {"simSetInt32Parameter",_simSetInt32Param,                  "Deprecated. Use sim.setInt32Param instead",false},
+    {"simGetInt32Parameter",_simGetInt32Param,                  "Deprecated. Use sim.getInt32Param instead",false},
+    {"simSetFloatParameter",_simSetFloatParam,                  "Deprecated. Use sim.setFloatParam instead",false},
+    {"simGetFloatParameter",_simGetFloatParam,                  "Deprecated. Use sim.getFloatParam instead",false},
+    {"simSetStringParameter",_simSetStringParam,                "Deprecated. Use sim.setStringParam instead",false},
+    {"simGetStringParameter",_simGetStringParam,                "Deprecated. Use sim.getStringParam instead",false},
+    {"simSetArrayParameter",_simSetArrayParam,                  "Deprecated. Use sim.setArrayParam instead",false},
+    {"simGetArrayParameter",_simGetArrayParam,                  "Deprecated. Use sim.getArrayParam instead",false},
     {"simSetObjectName",_simSetObjectName,                      "Use the newer 'sim.setObjectName' notation",false},
     {"simGetJointInterval",_simGetJointInterval,                "Use the newer 'sim.getJointInterval' notation",false},
     {"simSetJointInterval",_simSetJointInterval,                "Use the newer 'sim.setJointInterval' notation",false},
@@ -737,17 +760,17 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simAdjustView",_simAdjustView,                            "Use the newer 'sim.adjustView' notation",false},
     {"simCameraFitToView",_simCameraFitToView,                  "Use the newer 'sim.cameraFitToView' notation",false},
     {"simAnnounceSceneContentChange",_simAnnounceSceneContentChange,"Use the newer 'sim.announceSceneContentChange' notation",false},
-    {"simGetObjectInt32Parameter",_simGetObjectInt32Parameter,  "Use the newer 'sim.getObjectInt32Parameter' notation",false},
-    {"simSetObjectInt32Parameter",_simSetObjectInt32Parameter,  "Use the newer 'sim.setObjectInt32Parameter' notation",false},
-    {"simGetObjectFloatParameter",_simGetObjectFloatParameter,  "Use the newer 'sim.getObjectFloatParameter' notation",false},
-    {"simSetObjectFloatParameter",_simSetObjectFloatParameter,  "Use the newer 'sim.setObjectFloatParameter' notation",false},
-    {"simGetObjectStringParameter",_simGetObjectStringParameter,"Use the newer 'sim.getObjectStringParameter' notation",false},
-    {"simSetObjectStringParameter",_simSetObjectStringParameter,"Use the newer 'sim.setObjectStringParameter' notation",false},
+    {"simGetObjectInt32Parameter",_simGetObjectInt32Parameter,  "Deprecated. Use sim.getObjectInt32Param instead",false},
+    {"simSetObjectInt32Parameter",_simSetObjectInt32Param,      "Deprecated. Use sim.setObjectInt32Param instead",false},
+    {"simGetObjectFloatParameter",_simGetObjectFloatParameter,  "Deprecated. Use sim.getObjectFloatParam instead",false},
+    {"simSetObjectFloatParameter",_simSetObjectFloatParam,      "Deprecated. Use sim.setObjectFloatParam instead",false},
+    {"simGetObjectStringParameter",_simGetObjectStringParam,    "Deprecated. Use sim.getObjectStringParam instead",false},
+    {"simSetObjectStringParameter",_simSetObjectStringParam,    "Deprecated. Use sim.setObjectStringParam instead",false},
     {"simGetRotationAxis",_simGetRotationAxis,                  "Use the newer 'sim.getRotationAxis' notation",false},
     {"simRotateAroundAxis",_simRotateAroundAxis,                "Use the newer 'sim.rotateAroundAxis' notation",false},
     {"simLaunchExecutable",_simLaunchExecutable,                "Use the newer 'sim.launchExecutable' notation",false},
     {"simGetJointForce",_simGetJointForce,                      "Use the newer 'sim.getJointForce' notation",false},
-    {"simIsHandleValid",_simIsHandleValid,                      "Use the newer 'sim.isHandleValid' notation",false},
+    {"simIsHandleValid",_simIsHandleValid,                      "Deprecated. Use sim.isHandle instead",false},
     {"simGetObjectQuaternion",_simGetObjectQuaternion,          "Use the newer 'sim.getObjectQuaternion' notation",false},
     {"simSetObjectQuaternion",_simSetObjectQuaternion,          "Use the newer 'sim.setObjectQuaternion' notation",false},
     {"simSetShapeMassAndInertia",_simSetShapeMassAndInertia,    "Deprecated. Use 'sim.setShapeMass' and/or 'sim.setShapeInertia' instead",false},
@@ -803,12 +826,12 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetExtensionString",_simGetExtensionString,            "Use the newer 'sim.getExtensionString' notation",false},
     {"simComputeMassAndInertia",_simComputeMassAndInertia,      "Use the newer 'sim.computeMassAndInertia' notation",false},
     {"simSetScriptVariable",_simSetScriptVariable,              "Use the newer 'sim.setScriptVariable' notation",false},
-    {"simGetEngineFloatParameter",_simGetEngineFloatParameter,  "Use the newer 'sim.getEngineFloatParameter' notation",false},
-    {"simGetEngineInt32Parameter",_simGetEngineInt32Parameter,  "Use the newer 'sim.getEngineInt32Parameter' notation",false},
-    {"simGetEngineBoolParameter",_simGetEngineBoolParameter,    "Use the newer 'sim.getEngineBoolParameter' notation",false},
-    {"simSetEngineFloatParameter",_simSetEngineFloatParameter,  "Use the newer 'sim.setEngineFloatParameter' notation",false},
-    {"simSetEngineInt32Parameter",_simSetEngineInt32Parameter,  "Use the newer 'sim.setEngineInt32Parameter' notation",false},
-    {"simSetEngineBoolParameter",_simSetEngineBoolParameter,    "Use the newer 'sim.setEngineBoolParameter' notation",false},
+    {"simGetEngineFloatParameter",_simGetEngineFloatParam,      "Deprecated. Use sim.getEngineFloatParam instead",false},
+    {"simGetEngineInt32Parameter",_simGetEngineInt32Param,      "Deprecated. Use sim.getEngineInt32Param instead",false},
+    {"simGetEngineBoolParameter",_simGetEngineBoolParam,        "Deprecated. Use sim.getEngineBoolParam instead",false},
+    {"simSetEngineFloatParameter",_simSetEngineFloatParam,      "Deprecated. Use sim.setEngineFloatParam instead",false},
+    {"simSetEngineInt32Parameter",_simSetEngineInt32Param,      "Deprecated. Use sim.setEngineInt32Param instead",false},
+    {"simSetEngineBoolParameter",_simSetEngineBoolParam,        "Deprecated. Use sim.setEngineBoolParam instead",false},
     {"simCreateOctree",_simCreateOctree,                        "Use the newer 'sim.createOctree' notation",false},
     {"simCreatePointCloud",_simCreatePointCloud,                "Use the newer 'sim.createPointCloud' notation",false},
     {"simSetPointCloudOptions",_simSetPointCloudOptions,        "Use the newer 'sim.setPointCloudOptions' notation",false},
@@ -940,14 +963,14 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetNameSuffix",_simGetNameSuffix,                      "Deprecated.",false},
     {"simSetNameSuffix",_simSetNameSuffix,                      "Deprecated.",false},
     // Following for backward compatibility (Dec 2015):
-    {"simSetBooleanParameter",_simSetBoolParameter,                 "Deprecated. Use sim.setBoolParameter instead",false},
-    {"simGetBooleanParameter",_simGetBoolParameter,                 "Deprecated. Use sim.getBoolParameter instead",false},
-    {"simSetIntegerParameter",_simSetInt32Parameter,                "Deprecated. Use sim.setInt32Parameter instead",false},
-    {"simGetIntegerParameter",_simGetInt32Parameter,                "Deprecated. Use sim.getInt32Parameter instead",false},
-    {"simSetFloatingParameter",_simSetFloatParameter,               "Deprecated. Use sim.setFloatParameter instead",false},
-    {"simGetFloatingParameter",_simGetFloatParameter,               "Deprecated. Use sim.getFloatParameter instead",false},
-    {"simGetObjectIntParameter",_simGetObjectInt32Parameter,        "Deprecated. Use sim.getObjectInt32Parameter instead",false},
-    {"simSetObjectIntParameter",_simSetObjectInt32Parameter,        "Deprecated. Use sim.setObjectInt32Parameter instead",false},
+    {"simSetBooleanParameter",_simSetBoolParam,                 "Deprecated. Use sim.setBoolParam instead",false},
+    {"simGetBooleanParameter",_simGetBoolParam,                 "Deprecated. Use sim.getBoolParam instead",false},
+    {"simSetIntegerParameter",_simSetInt32Param,                "Deprecated. Use sim.setInt32Param instead",false},
+    {"simGetIntegerParameter",_simGetInt32Param,                "Deprecated. Use sim.getInt32Param instead",false},
+    {"simSetFloatingParameter",_simSetFloatParam,               "Deprecated. Use sim.setFloatParam instead",false},
+    {"simGetFloatingParameter",_simGetFloatParam,               "Deprecated. Use sim.getFloatParam instead",false},
+    {"simGetObjectIntParameter",_simGetObjectInt32Parameter,    "Deprecated. Use sim.getObjectInt32Param instead",false},
+    {"simSetObjectIntParameter",_simSetObjectInt32Param,        "Deprecated. Use sim.setObjectInt32Param instead",false},
     // Following for backward compatibility:
     {"simHandleRenderingSensor",_simHandleVisionSensor,             "Deprecated. Use sim.handleVisionSensor instead",false},
     {"simReadRenderingSensor",_simReadVisionSensor,                 "Deprecated. Use sim.readVisionSensor instead",false},
@@ -3062,42 +3085,6 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"",-1,false}
 };
 
-/*
-void insertSerialPortLeftOver(int portHandle,std::string leftOver)
-{
-    serialPortHandles.push_back(portHandle);
-    serialPortLeftOverData.push_back(leftOver);
-}
-
-std::string retrieveSerialPortLeftOver(int portHandle)
-{
-    std::string leftOver;
-    for (int i=0;i<int(serialPortHandles.size());i++)
-    {
-        if (serialPortHandles[i]==portHandle)
-        {
-            serialPortHandles.erase(serialPortHandles.begin()+i);
-            leftOver=serialPortLeftOverData[i];
-            serialPortLeftOverData.erase(serialPortLeftOverData.begin()+i);
-            break;
-        }
-    }
-    return(leftOver);
-}
-
-void clearSerialPortLeftOver(int portHandle)
-{
-    for (int i=0;i<int(serialPortHandles.size());i++)
-    {
-        if (serialPortHandles[i]==portHandle)
-        {
-            serialPortHandles.erase(serialPortHandles.begin()+i);
-            serialPortLeftOverData.erase(serialPortLeftOverData.begin()+i);
-            break;
-        }
-    }
-}
-*/
 bool isObjectAssociatedWithThisThreadedChildScriptValid(luaWrap_lua_State* L)
 {
     int id=CLuaScriptObject::getScriptHandleFromLuaState(L);
@@ -6701,28 +6688,28 @@ int _simGetJointType(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simSetBoolParameter(luaWrap_lua_State* L)
+int _simSetBoolParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setBoolParameter");
+    LUA_START("sim.setBoolParam");
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_bool,0))
-        retVal=simSetBoolParameter_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_toboolean(L,2));
+        retVal=simSetBoolParam_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_toboolean(L,2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
 
-int _simGetBoolParameter(luaWrap_lua_State* L)
+int _simGetBoolParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getBoolParameter");
+    LUA_START("sim.getBoolParam");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int retVal=simGetBoolParameter_internal(luaWrap_lua_tointeger(L,1));
+        int retVal=simGetBoolParam_internal(luaWrap_lua_tointeger(L,1));
         if (retVal!=-1)
         {
             luaWrap_lua_pushboolean(L,retVal!=0);
@@ -6734,10 +6721,10 @@ int _simGetBoolParameter(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSetInt32Parameter(luaWrap_lua_State* L)
+int _simSetInt32Param(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setInt32Parameter");
+    LUA_START("sim.setInt32Param");
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
@@ -6757,7 +6744,7 @@ int _simSetInt32Parameter(luaWrap_lua_State* L)
             }
         }
         else
-            retVal=simSetInt32Parameter_internal(paramIndex,v);
+            retVal=simSetInt32Param_internal(paramIndex,v);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -6765,10 +6752,10 @@ int _simSetInt32Parameter(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetInt32Parameter(luaWrap_lua_State* L)
+int _simGetInt32Param(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getInt32Parameter");
+    LUA_START("sim.getInt32Param");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
@@ -6788,7 +6775,7 @@ int _simGetInt32Parameter(luaWrap_lua_State* L)
         else
         {
             int v;
-            int retVal=simGetInt32Parameter_internal(paramIndex,&v);
+            int retVal=simGetInt32Param_internal(paramIndex,&v);
             if (retVal!=-1)
             {
                 luaWrap_lua_pushinteger(L,v);
@@ -6801,29 +6788,29 @@ int _simGetInt32Parameter(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSetFloatParameter(luaWrap_lua_State* L)
+int _simSetFloatParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setFloatParameter");
+    LUA_START("sim.setFloatParam");
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simSetFloatParameter_internal(luaWrap_lua_tointeger(L,1),luaToFloat(L,2));
+        retVal=simSetFloatParam_internal(luaWrap_lua_tointeger(L,1),luaToFloat(L,2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
 
-int _simGetFloatParameter(luaWrap_lua_State* L)
+int _simGetFloatParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getFloatParameter");
+    LUA_START("sim.getFloatParam");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         float v;
-        int retVal=simGetFloatParameter_internal(luaWrap_lua_tointeger(L,1),&v);
+        int retVal=simGetFloatParam_internal(luaWrap_lua_tointeger(L,1),&v);
         if (retVal!=-1)
         {
             luaWrap_lua_pushnumber(L,v);
@@ -6835,28 +6822,28 @@ int _simGetFloatParameter(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simSetStringParameter(luaWrap_lua_State* L)
+int _simSetStringParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setStringParameter");
+    LUA_START("sim.setStringParam");
 
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
-        retVal=simSetStringParameter_internal(luaToInt(L,1),luaWrap_lua_tostring(L,2));
+        retVal=simSetStringParam_internal(luaToInt(L,1),luaWrap_lua_tostring(L,2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
 
-int _simGetStringParameter(luaWrap_lua_State* L)
+int _simGetStringParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getStringParameter");
+    LUA_START("sim.getStringParam");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        char* s=simGetStringParameter_internal(luaWrap_lua_tointeger(L,1));
+        char* s=simGetStringParam_internal(luaWrap_lua_tointeger(L,1));
         if (s!=nullptr)
         {
             luaWrap_lua_pushstring(L,s);
@@ -6869,10 +6856,10 @@ int _simGetStringParameter(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSetArrayParameter(luaWrap_lua_State* L)
+int _simSetArrayParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setArrayParameter");
+    LUA_START("sim.setArrayParam");
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_table,0))
@@ -6882,7 +6869,7 @@ int _simSetArrayParameter(luaWrap_lua_State* L)
         { // for now all array parameters are tables of 3 floats
             float theArray[3];
             getFloatsFromTable(L,2,3,theArray);
-            retVal=simSetArrayParameter_internal(parameter,theArray);
+            retVal=simSetArrayParam_internal(parameter,theArray);
         }
     }
 
@@ -6891,10 +6878,10 @@ int _simSetArrayParameter(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetArrayParameter(luaWrap_lua_State* L)
+int _simGetArrayParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getArrayParameter");
+    LUA_START("sim.getArrayParam");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
@@ -6902,7 +6889,7 @@ int _simGetArrayParameter(luaWrap_lua_State* L)
         if (true)
         { // for now all parameters are tables of 3 floats
             float theArray[3];
-            int retVal=simGetArrayParameter_internal(parameter,theArray);
+            int retVal=simGetArrayParam_internal(parameter,theArray);
             if (retVal!=-1)
             {
                 pushFloatTableOntoStack(L,3,theArray);
@@ -7711,8 +7698,7 @@ int _simSetStringNamedParam(luaWrap_lua_State* L)
         }
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simGetStringNamedParam(luaWrap_lua_State* L)
@@ -12224,37 +12210,34 @@ int _simAnnounceSceneContentChange(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetObjectInt32Parameter(luaWrap_lua_State* L)
+int _simGetObjectInt32Param(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getObjectInt32Parameter");
+    LUA_START("sim.getObjectInt32Param");
 
-    int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         int param;
-        retVal=simGetObjectInt32Parameter_internal(luaToInt(L,1),luaToInt(L,2),&param);
+        int retVal=simGetObjectInt32Param_internal(luaToInt(L,1),luaToInt(L,2),&param);
         if (retVal>0)
         {
-            luaWrap_lua_pushinteger(L,retVal);
             luaWrap_lua_pushinteger(L,param);
-            LUA_END(2);
+            LUA_END(1);
         }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
-int _simSetObjectInt32Parameter(luaWrap_lua_State* L)
+int _simSetObjectInt32Param(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setObjectInt32Parameter");
+    LUA_START("sim.setObjectInt32Param");
 
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-        retVal=simSetObjectInt32Parameter_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3));
+        retVal=simSetObjectInt32Param_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -12262,52 +12245,49 @@ int _simSetObjectInt32Parameter(luaWrap_lua_State* L)
 }
 
 
-int _simGetObjectFloatParameter(luaWrap_lua_State* L)
+int _simGetObjectFloatParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getObjectFloatParameter");
+    LUA_START("sim.getObjectFloatParam");
 
-    int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         float param;
-        retVal=simGetObjectFloatParameter_internal(luaToInt(L,1),luaToInt(L,2),&param);
+        int retVal=simGetObjectFloatParam_internal(luaToInt(L,1),luaToInt(L,2),&param);
         if (retVal>0)
         {
-            luaWrap_lua_pushinteger(L,retVal);
             luaWrap_lua_pushnumber(L,param);
-            LUA_END(2);
+            LUA_END(1);
         }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
-int _simSetObjectFloatParameter(luaWrap_lua_State* L)
+int _simSetObjectFloatParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setObjectFloatParameter");
+    LUA_START("sim.setObjectFloatParam");
 
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-        retVal=simSetObjectFloatParameter_internal(luaToInt(L,1),luaToInt(L,2),luaToFloat(L,3));
+        retVal=simSetObjectFloatParam_internal(luaToInt(L,1),luaToInt(L,2),luaToFloat(L,3));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
 
-int _simGetObjectStringParameter(luaWrap_lua_State* L)
+int _simGetObjectStringParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getObjectStringParameter");
+    LUA_START("sim.getObjectStringParam");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         int paramLength;
-        char* strBuff=simGetObjectStringParameter_internal(luaToInt(L,1),luaToInt(L,2),&paramLength);
+        char* strBuff=simGetObjectStringParam_internal(luaToInt(L,1),luaToInt(L,2),&paramLength);
         if (strBuff!=nullptr)
         {
             luaWrap_lua_pushlstring(L,strBuff,paramLength);
@@ -12320,17 +12300,17 @@ int _simGetObjectStringParameter(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSetObjectStringParameter(luaWrap_lua_State* L)
+int _simSetObjectStringParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setObjectStringParameter");
+    LUA_START("sim.setObjectStringParam");
 
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_string,0))
     {
         size_t dataLength;
         char* data=(char*)luaWrap_lua_tolstring(L,3,&dataLength);
-        retVal=simSetObjectStringParameter_internal(luaToInt(L,1),luaToInt(L,2),data,(int)dataLength);
+        retVal=simSetObjectStringParam_internal(luaToInt(L,1),luaToInt(L,2),data,(int)dataLength);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -12454,12 +12434,11 @@ int _simPersistentDataRead(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simIsHandleValid(luaWrap_lua_State* L)
+int _simIsHandle(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.isHandleValid");
+    LUA_START("sim.isHandle");
 
-    int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int objType=-1;
@@ -12468,13 +12447,16 @@ int _simIsHandleValid(luaWrap_lua_State* L)
         {
             if (res==2)
                 objType=luaToInt(L,2);
-            retVal=simIsHandleValid_internal(luaToInt(L,1),objType);
+            int res=simIsHandle_internal(luaToInt(L,1),objType);
+            if (res>=0)
+            {
+                luaWrap_lua_pushboolean(L,res!=0);
+                LUA_END(1);
+            }
         }
     }
-
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simRMLPos(luaWrap_lua_State* L)
@@ -14068,17 +14050,17 @@ int _simSetScriptVariable(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetEngineFloatParameter(luaWrap_lua_State* L)
+int _simGetEngineFloatParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getEngineFloatParameter");
+    LUA_START("sim.getEngineFloatParam");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         int paramId=luaWrap_lua_tointeger(L,1);
         int objectHandle=luaWrap_lua_tointeger(L,2);
         simBool ok;
-        float paramVal=simGetEngineFloatParameter_internal(paramId,objectHandle,nullptr,&ok);
+        float paramVal=simGetEngineFloatParam_internal(paramId,objectHandle,nullptr,&ok);
         if (ok>0)
         {
             luaWrap_lua_pushnumber(L,paramVal);
@@ -14090,17 +14072,17 @@ int _simGetEngineFloatParameter(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simGetEngineInt32Parameter(luaWrap_lua_State* L)
+int _simGetEngineInt32Param(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getEngineInt32Parameter");
+    LUA_START("sim.getEngineInt32Param");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         int paramId=luaWrap_lua_tointeger(L,1);
         int objectHandle=luaWrap_lua_tointeger(L,2);
         simBool ok;
-        int paramVal=simGetEngineInt32Parameter_internal(paramId,objectHandle,nullptr,&ok);
+        int paramVal=simGetEngineInt32Param_internal(paramId,objectHandle,nullptr,&ok);
         if (ok>0)
         {
             luaWrap_lua_pushinteger(L,paramVal);
@@ -14112,17 +14094,17 @@ int _simGetEngineInt32Parameter(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simGetEngineBoolParameter(luaWrap_lua_State* L)
+int _simGetEngineBoolParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getEngineBoolParameter");
+    LUA_START("sim.getEngineBoolParam");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         int paramId=luaWrap_lua_tointeger(L,1);
         int objectHandle=luaWrap_lua_tointeger(L,2);
         simBool ok;
-        simBool paramVal=simGetEngineBoolParameter_internal(paramId,objectHandle,nullptr,&ok);
+        simBool paramVal=simGetEngineBoolParam_internal(paramId,objectHandle,nullptr,&ok);
         if (ok>0)
         {
             luaWrap_lua_pushboolean(L,paramVal>0);
@@ -14134,10 +14116,10 @@ int _simGetEngineBoolParameter(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSetEngineFloatParameter(luaWrap_lua_State* L)
+int _simSetEngineFloatParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setEngineFloatParameter");
+    LUA_START("sim.setEngineFloatParam");
 
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
@@ -14145,7 +14127,7 @@ int _simSetEngineFloatParameter(luaWrap_lua_State* L)
         int paramId=luaWrap_lua_tointeger(L,1);
         int objectHandle=luaWrap_lua_tointeger(L,2);
         float paramVal=luaToFloat(L,3);
-        retVal=simSetEngineFloatParameter_internal(paramId,objectHandle,nullptr,paramVal);
+        retVal=simSetEngineFloatParam_internal(paramId,objectHandle,nullptr,paramVal);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -14153,10 +14135,10 @@ int _simSetEngineFloatParameter(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simSetEngineInt32Parameter(luaWrap_lua_State* L)
+int _simSetEngineInt32Param(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setEngineInt32Parameter");
+    LUA_START("sim.setEngineInt32Param");
 
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
@@ -14164,7 +14146,7 @@ int _simSetEngineInt32Parameter(luaWrap_lua_State* L)
         int paramId=luaWrap_lua_tointeger(L,1);
         int objectHandle=luaWrap_lua_tointeger(L,2);
         int paramVal=luaWrap_lua_tointeger(L,3);
-        retVal=simSetEngineInt32Parameter_internal(paramId,objectHandle,nullptr,paramVal);
+        retVal=simSetEngineInt32Param_internal(paramId,objectHandle,nullptr,paramVal);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -14172,10 +14154,10 @@ int _simSetEngineInt32Parameter(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simSetEngineBoolParameter(luaWrap_lua_State* L)
+int _simSetEngineBoolParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setEngineBoolParameter");
+    LUA_START("sim.setEngineBoolParam");
 
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_bool,0))
@@ -14183,7 +14165,7 @@ int _simSetEngineBoolParameter(luaWrap_lua_State* L)
         int paramId=luaWrap_lua_tointeger(L,1);
         int objectHandle=luaWrap_lua_tointeger(L,2);
         simBool paramVal=(simBool)luaWrap_lua_toboolean(L,3);
-        retVal=simSetEngineBoolParameter_internal(paramId,objectHandle,nullptr,paramVal);
+        retVal=simSetEngineBoolParam_internal(paramId,objectHandle,nullptr,paramVal);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -20134,6 +20116,75 @@ int _simCopyMatrix(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
+}
+
+int _simGetObjectInt32Parameter(luaWrap_lua_State* L)
+{ // deprecated on 22.04.2021
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectInt32Parameter");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        int param;
+        retVal=simGetObjectInt32Param_internal(luaToInt(L,1),luaToInt(L,2),&param);
+        if (retVal>0)
+        {
+            luaWrap_lua_pushinteger(L,retVal);
+            luaWrap_lua_pushinteger(L,param);
+            LUA_END(2);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetObjectFloatParameter(luaWrap_lua_State* L)
+{ // deprecated on 22.04.2021
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectFloatParameter");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        float param;
+        retVal=simGetObjectFloatParam_internal(luaToInt(L,1),luaToInt(L,2),&param);
+        if (retVal>0)
+        {
+            luaWrap_lua_pushinteger(L,retVal);
+            luaWrap_lua_pushnumber(L,param);
+            LUA_END(2);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simIsHandleValid(luaWrap_lua_State* L)
+{ // deprecated on 23.04.2021
+    TRACE_LUA_API;
+    LUA_START("sim.isHandleValid");
+
+    int retVal=-1; //error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int objType=-1;
+        int res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,true,false,&errorString);
+        if ((res==0)||(res==2))
+        {
+            if (res==2)
+                objType=luaToInt(L,2);
+            retVal=simIsHandle_internal(luaToInt(L,1),objType);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
 }
 
 /*

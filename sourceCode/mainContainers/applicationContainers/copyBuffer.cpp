@@ -32,7 +32,7 @@ void CCopyBuffer::clearBuffer()
         delete objectBuffer[i];
     objectBuffer.clear();
     for (size_t i=0;i<luaScriptBuffer.size();i++)
-        delete luaScriptBuffer[i];
+        CLuaScriptObject::destroy(luaScriptBuffer[i],false);
     luaScriptBuffer.clear();
     for (size_t i=0;i<textureObjectBuffer.size();i++)
         delete textureObjectBuffer[i];
@@ -65,7 +65,7 @@ void CCopyBuffer::clearMemorizedBuffer()
         delete objectBuffer_memorized[i];
     objectBuffer_memorized.clear();
     for (size_t i=0;i<luaScriptBuffer_memorized.size();i++)
-        delete luaScriptBuffer_memorized[i];
+        CLuaScriptObject::destroy(luaScriptBuffer_memorized[i],false);
     luaScriptBuffer_memorized.clear();
     for (size_t i=0;i<textureObjectBuffer_memorized.size();i++)
         delete textureObjectBuffer_memorized[i];
@@ -707,7 +707,7 @@ void CCopyBuffer::_eraseScriptInBuffer(int objectID)
     {
         if (luaScriptBuffer[i]->getScriptHandle()==objectID)
         {
-            delete luaScriptBuffer[i];
+            CLuaScriptObject::destroy(luaScriptBuffer[i],false);
             luaScriptBuffer.erase(luaScriptBuffer.begin()+i);
             break;
         }

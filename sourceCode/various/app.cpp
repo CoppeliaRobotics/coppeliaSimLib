@@ -138,7 +138,7 @@ void App::simulationThreadDestroy()
 
     App::worldContainer->addOnScriptContainer->removeAllAddOns();
     App::worldContainer->sandboxScript->systemCallScript(sim_syscb_cleanup,nullptr,nullptr);
-    delete App::worldContainer->sandboxScript;
+    CLuaScriptObject::destroy(App::worldContainer->sandboxScript,true);
     App::worldContainer->sandboxScript=nullptr;
 
     App::setQuitLevel(1);

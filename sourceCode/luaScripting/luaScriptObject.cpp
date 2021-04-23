@@ -1991,22 +1991,30 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
 }
 
 CLuaScriptObject::~CLuaScriptObject()
-{
+{ // use destory further below to delete the object!
     TRACE_INTERNAL;
     _killLuaState(); // should already have been done outside of the destructor!
     delete _scriptParameters_backCompatibility;
     delete _outsideCommandQueue;
     delete _customObjectData;
     delete _customObjectData_tempData;
-    if (App::userSettings->externalScriptEditor.length()>0)
+}
+
+void CLuaScriptObject::destroy(CLuaScriptObject* obj,bool registeredObject)
+{
+    if (registeredObject)
     {
-        // destroy file
-        std::string fname=App::folders->getExtScriptEditorTempPath()+"/";
-        fname.append(_filenameForExternalScriptEditor);
-        if (VFile::doesFileExist(fname.c_str()))
-            VFile::eraseFile(fname.c_str());
+        if (App::userSettings->externalScriptEditor.length()>0)
+        {
+            // destroy file
+            std::string fname=App::folders->getExtScriptEditorTempPath()+"/";
+            fname.append(obj->_filenameForExternalScriptEditor);
+            if (VFile::doesFileExist(fname.c_str()))
+                VFile::eraseFile(fname.c_str());
+        }
+        App::worldContainer->announceScriptWillBeErased(obj->getScriptHandle(),obj->isSimulationScript(),obj->isSceneSwitchPersistentScript());
     }
-    App::worldContainer->announceScriptWillBeErased(_scriptHandle,isSimulationScript(),isSceneSwitchPersistentScript());
+    delete obj;
 }
 
 std::string CLuaScriptObject::getFilenameForExternalScriptEditor() const
@@ -4725,6 +4733,7 @@ void CLuaScriptObject::serialize(CSer& ar)
             _adjustScriptText11(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40001);
             _adjustScriptText12(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40100);
             _adjustScriptText13(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40200);
+            _adjustScriptText14(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40201);
 
             if ( _threadedExecution_oldThreads&&(!App::userSettings->keepOldThreadedScripts)&&(ar.getCoppeliaSimVersionThatWroteThisFile()<40200) )
             {
@@ -6297,3 +6306,46 @@ function sysCall_actuation()\n\
     }
     return retVal;
 }
+
+void CLuaScriptObject::_adjustScriptText14(CLuaScriptObject* scriptObject,bool doIt)
+{   // for release 4.2.1:
+    if (!doIt)
+        return;
+
+    _replaceScriptText(scriptObject,"sim.setObjectInt32Parameter","sim.setObjectInt32Param");
+    _replaceScriptText(scriptObject,"sim.setObjectFloatParameter","sim.setObjectFloatParam");
+    _replaceScriptText(scriptObject,"sim.getObjectStringParameter","sim.getObjectStringParam");
+    _replaceScriptText(scriptObject,"sim.setObjectStringParameter","sim.setObjectStringParam");
+
+    _replaceScriptText(scriptObject,"sim.setBoolParameter","sim.setBoolParam");
+    _replaceScriptText(scriptObject,"sim.getBoolParameter","sim.getBoolParam");
+    _replaceScriptText(scriptObject,"sim.setInt32Parameter","sim.setInt32Param");
+    _replaceScriptText(scriptObject,"sim.getInt32Parameter","sim.getInt32Param");
+    _replaceScriptText(scriptObject,"sim.setFloatParameter","sim.setFloatParam");
+    _replaceScriptText(scriptObject,"sim.getFloatParameter","sim.getFloatParam");
+    _replaceScriptText(scriptObject,"sim.setStringParameter","sim.setStringParam");
+    _replaceScriptText(scriptObject,"sim.getStringParameter","sim.getStringParam");
+    _replaceScriptText(scriptObject,"sim.setArrayParameter","sim.setArrayParam");
+    _replaceScriptText(scriptObject,"sim.getArrayParameter","sim.getArrayParam");
+
+    _replaceScriptText(scriptObject,"sim.getEngineBoolParameter","sim.getEngineBoolParam");
+    _replaceScriptText(scriptObject,"sim.getEngineInt32Parameter","sim.getEngineInt32Param");
+    _replaceScriptText(scriptObject,"sim.getEngineFloatParameter","sim.getEngineFloatParam");
+    _replaceScriptText(scriptObject,"sim.setEngineBoolParameter","sim.setEngineBoolParam");
+    _replaceScriptText(scriptObject,"sim.setEngineInt32Parameter","sim.setEngineInt32Param");
+    _replaceScriptText(scriptObject,"sim.setEngineFloatParameter","sim.setEngineFloatParam");
+
+
+    if (App::userSettings->xrTest==123456789)
+    {
+        if (_containsScriptText(scriptObject,"sim.getObjectInt32Parameter"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getObjectInt32Parameter...");
+        if (_containsScriptText(scriptObject,"sim.getObjectIntParameter"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getObjectIntParameter...");
+        if (_containsScriptText(scriptObject,"sim.getObjectFloatParameter"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getObjectFloatParameter...");
+        if (_containsScriptText(scriptObject,"sim.isHandleValid"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.isHandleValid...");
+    }
+}
+

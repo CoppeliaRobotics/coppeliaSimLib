@@ -35,6 +35,8 @@ public:
     CLuaScriptObject(int scriptTypeOrMinusOneForSerialization);
     virtual ~CLuaScriptObject();
 
+    static void destroy(CLuaScriptObject* obj,bool registeredObject);
+
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
     void simulationAboutToEnd();
@@ -231,6 +233,7 @@ protected:
     void _adjustScriptText11(CLuaScriptObject* scriptObject,bool doIt);
     void _adjustScriptText12(CLuaScriptObject* scriptObject,bool doIt);
     void _adjustScriptText13(CLuaScriptObject* scriptObject,bool doIt);
+    void _adjustScriptText14(CLuaScriptObject* scriptObject,bool doIt);
     bool _convertThreadedScriptToCoroutine(CLuaScriptObject* scriptObject);
 
     int _scriptHandle;

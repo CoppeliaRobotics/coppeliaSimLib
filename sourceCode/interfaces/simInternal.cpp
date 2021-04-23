@@ -2485,7 +2485,7 @@ simInt simReservedCommand_internal(simInt v,simInt w)
     return(CSimFlavor::getIntVal_2int(0,v,w));
 }
 
-simInt simSetBoolParameter_internal(simInt parameter,simBool boolState)
+simInt simSetBoolParam_internal(simInt parameter,simBool boolState)
 {
     TRACE_C_API;
     bool couldNotLock=true;
@@ -2948,7 +2948,7 @@ simInt simSetBoolParameter_internal(simInt parameter,simBool boolState)
     return(-1);
 }
 
-simInt simGetBoolParameter_internal(simInt parameter)
+simInt simGetBoolParam_internal(simInt parameter)
 {
     TRACE_C_API;
 
@@ -3408,7 +3408,7 @@ simInt simGetBoolParameter_internal(simInt parameter)
     return(-1);
 }
 
-simInt simSetArrayParameter_internal(simInt parameter,const simVoid* arrayOfValues)
+simInt simSetArrayParam_internal(simInt parameter,const simVoid* arrayOfValues)
 {
     TRACE_C_API;
 
@@ -3487,7 +3487,7 @@ simInt simSetArrayParameter_internal(simInt parameter,const simVoid* arrayOfValu
     return(-1);
 }
 
-simInt simGetArrayParameter_internal(simInt parameter,simVoid* arrayOfValues)
+simInt simGetArrayParam_internal(simInt parameter,simVoid* arrayOfValues)
 {
     TRACE_C_API;
 
@@ -3579,7 +3579,7 @@ simInt simGetArrayParameter_internal(simInt parameter,simVoid* arrayOfValues)
 
 
 
-simInt simSetInt32Parameter_internal(simInt parameter,simInt intState)
+simInt simSetInt32Param_internal(simInt parameter,simInt intState)
 {
     if (parameter==sim_intparam_verbosity)
     { // called by client app when lib not yet initialized
@@ -3741,7 +3741,7 @@ simInt simSetInt32Parameter_internal(simInt parameter,simInt intState)
     return(-1);
 }
 
-simInt simGetUInt64Parameter_internal(simInt parameter,simUInt64* intState)
+simInt simGetUInt64Param_internal(simInt parameter,simUInt64* intState)
 {
     TRACE_C_API;
 
@@ -3768,7 +3768,7 @@ simInt simGetUInt64Parameter_internal(simInt parameter,simUInt64* intState)
     return(-1);
 }
 
-simInt simGetInt32Parameter_internal(simInt parameter,simInt* intState)
+simInt simGetInt32Param_internal(simInt parameter,simInt* intState)
 {
     TRACE_C_API;
     if (parameter==sim_intparam_error_report_mode)
@@ -4121,7 +4121,7 @@ simInt simGetInt32Parameter_internal(simInt parameter,simInt* intState)
     return(-1);
 }
 
-simInt simSetFloatParameter_internal(simInt parameter,simFloat floatState)
+simInt simSetFloatParam_internal(simInt parameter,simFloat floatState)
 {
     TRACE_C_API;
 
@@ -4168,7 +4168,7 @@ simInt simSetFloatParameter_internal(simInt parameter,simFloat floatState)
     return(-1);
 }
 
-simInt simGetFloatParameter_internal(simInt parameter,simFloat* floatState)
+simInt simGetFloatParam_internal(simInt parameter,simFloat* floatState)
 {
     TRACE_C_API;
 
@@ -4216,7 +4216,7 @@ simInt simGetFloatParameter_internal(simInt parameter,simFloat* floatState)
     return(-1);
 }
 
-simInt simSetStringParameter_internal(simInt parameter,const simChar* str)
+simInt simSetStringParam_internal(simInt parameter,const simChar* str)
 {
     if ( (parameter==sim_stringparam_verbosity)||(parameter==sim_stringparam_statusbarverbosity)||(parameter==sim_stringparam_dlgverbosity) )
     { // called by client app when lib not yet initialized
@@ -4307,7 +4307,7 @@ simInt simSetStringParameter_internal(simInt parameter,const simChar* str)
     return(-1);
 }
 
-simChar* simGetStringParameter_internal(simInt parameter)
+simChar* simGetStringParam_internal(simInt parameter)
 {
     TRACE_C_API;
 
@@ -9455,7 +9455,7 @@ simInt simCreateHeightfieldShape_internal(simInt options,simFloat shadingAngle,s
     return(-1);
 }
 
-simInt simGetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterID,simInt* parameter)
+simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,simInt* parameter)
 {
     TRACE_C_API;
 
@@ -9852,7 +9852,7 @@ simInt simGetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterI
     return(-1);
 }
 
-simInt simSetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterID,simInt parameter)
+simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,simInt parameter)
 {
     TRACE_C_API;
 
@@ -10147,7 +10147,7 @@ simInt simSetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterI
     return(-1);
 }
 
-simInt simGetObjectFloatParameter_internal(simInt objectHandle,simInt parameterID,simFloat* parameter)
+simInt simGetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,simFloat* parameter)
 {
     TRACE_C_API;
 
@@ -10640,7 +10640,7 @@ simInt simGetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
     return(-1);
 }
 
-simInt simSetObjectFloatParameter_internal(simInt objectHandle,simInt parameterID,simFloat parameter)
+simInt simSetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,simFloat parameter)
 {
     TRACE_C_API;
 
@@ -11031,7 +11031,7 @@ simInt simSetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
     return(-1);
 }
 
-simChar* simGetObjectStringParameter_internal(simInt objectHandle,simInt parameterID,simInt* parameterLength)
+simChar* simGetObjectStringParam_internal(simInt objectHandle,simInt parameterID,simInt* parameterLength)
 {
     TRACE_C_API;
 
@@ -11094,7 +11094,7 @@ simChar* simGetObjectStringParameter_internal(simInt objectHandle,simInt paramet
     return(nullptr);
 }
 
-simInt simSetObjectStringParameter_internal(simInt objectHandle,simInt parameterID,const simChar* parameter,simInt parameterLength)
+simInt simSetObjectStringParam_internal(simInt objectHandle,simInt parameterID,const simChar* parameter,simInt parameterLength)
 {
     TRACE_C_API;
 
@@ -11301,7 +11301,7 @@ simChar* simPersistentDataRead_internal(const simChar* dataTag,simInt* dataLengt
     return(nullptr);
 }
 
-simInt simIsHandleValid_internal(simInt generalObjectHandle,simInt generalObjectType)
+simInt simIsHandle_internal(simInt generalObjectHandle,simInt generalObjectType)
 {
     TRACE_C_API;
 
@@ -15718,7 +15718,7 @@ simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* va
     return(-1);
 }
 
-simFloat simGetEngineFloatParameter_internal(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
+simFloat simGetEngineFloatParam_internal(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
 {   // if object is not nullptr, we use the object, otherwise the objectHandle.
     // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint or shape parameter
     // this function doesn't generate any error messages
@@ -15770,7 +15770,7 @@ simFloat simGetEngineFloatParameter_internal(simInt paramId,simInt objectHandle,
     return(retVal);
 }
 
-simInt simGetEngineInt32Parameter_internal(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
+simInt simGetEngineInt32Param_internal(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
 {   // if object is not nullptr, we use the object, otherwise the objectHandle.
     // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint or shape parameter
     // this function doesn't generate any error messages
@@ -15822,7 +15822,7 @@ simInt simGetEngineInt32Parameter_internal(simInt paramId,simInt objectHandle,co
     return(retVal);
 }
 
-simBool simGetEngineBoolParameter_internal(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
+simBool simGetEngineBoolParam_internal(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
 {   // if object is not nullptr, we use the object, otherwise the objectHandle.
     // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint or shape parameter
     // this function doesn't generate any error messages
@@ -15874,7 +15874,7 @@ simBool simGetEngineBoolParameter_internal(simInt paramId,simInt objectHandle,co
     return(retVal);
 }
 
-simInt simSetEngineFloatParameter_internal(simInt paramId,simInt objectHandle,const simVoid* object,simFloat val)
+simInt simSetEngineFloatParam_internal(simInt paramId,simInt objectHandle,const simVoid* object,simFloat val)
 {   // if object is not nullptr, we use the object, otherwise the objectHandle.
     // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint or shape parameter
     // this function doesn't generate any error messages
@@ -15925,7 +15925,7 @@ simInt simSetEngineFloatParameter_internal(simInt paramId,simInt objectHandle,co
     return(-1);
 }
 
-simInt simSetEngineInt32Parameter_internal(simInt paramId,simInt objectHandle,const simVoid* object,simInt val)
+simInt simSetEngineInt32Param_internal(simInt paramId,simInt objectHandle,const simVoid* object,simInt val)
 {   // if object is not nullptr, we use the object, otherwise the objectHandle.
     // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint or shape parameter
     // this function doesn't generate any error messages
@@ -15976,7 +15976,7 @@ simInt simSetEngineInt32Parameter_internal(simInt paramId,simInt objectHandle,co
     return(-1);
 }
 
-simInt simSetEngineBoolParameter_internal(simInt paramId,simInt objectHandle,const simVoid* object,simBool val)
+simInt simSetEngineBoolParam_internal(simInt paramId,simInt objectHandle,const simVoid* object,simBool val)
 {   // if object is not nullptr, we use the object, otherwise the objectHandle.
     // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint or shape parameter
     // this function doesn't generate any error messages

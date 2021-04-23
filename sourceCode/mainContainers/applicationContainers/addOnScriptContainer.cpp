@@ -243,7 +243,7 @@ bool CAddOnScriptContainer::_removeAddOn(int scriptID)
             CLuaScriptObject* it=_addOns[i];
             it->resetScript(); // should not be done in the destructor!
             _addOns.erase(_addOns.begin()+i);
-            delete it;
+            CLuaScriptObject::destroy(it,true);
             break;
         }
     }
@@ -258,7 +258,7 @@ void CAddOnScriptContainer::removeAllAddOns()
         CLuaScriptObject* it=_addOns[0];
         it->resetScript(); // should not be done in the destructor!
         _addOns.erase(_addOns.begin());
-        delete it;
+        CLuaScriptObject::destroy(it,true);
     }
 }
 

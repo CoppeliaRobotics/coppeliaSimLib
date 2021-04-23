@@ -1382,7 +1382,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                         if (it->getScriptType()==sim_scripttype_contactcallback_old)
                             ml="the file contains a contact callback script, which is a script type that is not supported anymore (since CoppeliaSim V3.6.1 rev2).\nUse a contact callback functions instead. Following the script content:\n"+ml;
                         App::logMsg(sim_verbosity_errors,ml.c_str());
-                        delete it;
+                        CLuaScriptObject::destroy(it,false);
                     }
                     else
                         loadedLuaScriptList.push_back(it);
