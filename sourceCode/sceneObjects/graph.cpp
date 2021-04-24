@@ -1012,55 +1012,58 @@ void CGraph::announceGraphDataObjectWillBeDestroyed(int graphDataID)
 void CGraph::exportGraphData(VArchive &ar)
 { // STATIC streams are not exported!! (they might have a different time interval, etc.)
     // The graph name:
-    ar.writeString(getObjectName());
-    ar << (unsigned char)13;
-    ar << (unsigned char)10;
-    // The first line:
-    std::string tmp("Time ("+gv::getTimeUnitStr()+")");
-    if (dataStreams_old.size()!=0)
-        tmp+=",";
-    ar.writeString(tmp);
-    for (int k=0;k<int(dataStreams_old.size());k++)
-    {
-        CGraphData_old* gr=dataStreams_old[k];
-        tmp=gr->getName()+" ("+CGraphingRoutines_old::getDataUnit(gr)+")";
-        if (k<(int(dataStreams_old.size())-1))
-            tmp+=",";
-        ar.writeString(tmp);
-    }
-    ar << (unsigned char)13;
-    ar << (unsigned char)10;
+    std::string txt(getObjectName());
+    txt+="\n\n";
 
-    // Now the data:
-    int pos=0;
-    int absIndex;
-    while (getAbsIndexOfPosition(pos++,absIndex))
+    for (size_t i=0;i<_dataStreams.size();i++)
     {
-        float value=times[absIndex];
-        tmp=tt::FNb(0,value,6,false);
-        if (dataStreams_old.size()!=0)
-            tmp+=",";
-        ar.writeString(tmp);
-        for (int k=0;k<int(dataStreams_old.size());k++)
+        std::string label;
+        std::vector<float> timeVals;
+        std::vector<float> vals;
+        if (_dataStreams[i]->getCurveData(false,nullptr,startingPoint,numberOfPoints,times,&label,timeVals,vals,nullptr,nullptr,nullptr))
         {
-            CGraphData_old* gr=dataStreams_old[k];
+            txt+="Time (s),";
+            txt+=label;
+            txt+="\n";
+            for (size_t i=0;i<timeVals.size();i++)
+            {
+                txt+=tt::getFString(false,timeVals[i],5);
+                txt+=",";
+                txt+=tt::getEString(true,vals[i],4);
+                txt+="\n";
+            }
+            txt+="\n";
+        }
+    }
+
+    // OLD GRAPHS:
+    for (size_t k=0;k<dataStreams_old.size();k++)
+    {
+        txt+="Time ("+gv::getTimeUnitStr()+"),";
+        CGraphData_old* gr=dataStreams_old[k];
+        txt+=gr->getName()+" ("+CGraphingRoutines_old::getDataUnit(gr)+")\n";
+
+        int pos=0;
+        int absIndex;
+        while (getAbsIndexOfPosition(pos++,absIndex))
+        {
             bool cyclic;
             float range;
             CGraphingRoutines_old::getCyclicAndRangeValues(gr,cyclic,range);
+            float value;
             bool dataIsValid=getData(gr,absIndex,value,cyclic,range,true);
             if (dataIsValid)
-                tmp=tt::FNb(0,value,6,false);
-            else
-                tmp="Null";
-            if (k<(int(dataStreams_old.size())-1))
-                tmp+=",";
-            ar.writeString(tmp);
+            {
+                float time=times[absIndex];
+                txt+=tt::getFString(false,time,5);
+                txt+=",";
+                txt+=tt::getEString(true,value,4);
+                txt+="\n";
+            }
         }
-        ar << (unsigned char)13;
-        ar << (unsigned char)10;
+        txt+="\n";
     }
-    ar << (unsigned char)13;
-    ar << (unsigned char)10;
+    ar.writeString(txt);
 }
 
 bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::vector<float>& xVals,std::vector<float>& yVals,int& curveType,float col[3],float minMax[6],int& curveId,int& curveWidth) const

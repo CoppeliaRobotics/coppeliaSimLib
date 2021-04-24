@@ -3930,7 +3930,9 @@ int CLuaScriptObject::callCustomScriptFunction(const char* functionName,CInterfa
         retVal=_callScriptFunction(functionName,inOutStack,&outStack);
         if (inOutStack!=nullptr)
             inOutStack->clear();
-        if (retVal==-1)
+        if (_scriptType==sim_scripttype_sandboxscript)
+            _scriptState&=7; // remove a possible error flag
+        if ( (retVal==-1)&&(_scriptType!=sim_scripttype_sandboxscript) )
             _killLuaState();
         else
         {

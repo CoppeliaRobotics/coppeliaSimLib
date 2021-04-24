@@ -480,11 +480,16 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         CInterfaceStack stack;
                         stack.pushStringOntoStack(filenameAndPath.c_str(),0);
                         stack.pushTableOntoStack();
+                        int cnt=1;
                         for (size_t i=0;i<sel.size();i++)
                         {
-                            stack.pushNumberOntoStack(double(i+1)); // key or index
-                            stack.pushNumberOntoStack(sel[i]);
-                            stack.insertDataIntoStackTable();
+                            CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(sel[i]);
+                            if (shape!=nullptr)
+                            {
+                                stack.pushInt32OntoStack(cnt++); // key or index
+                                stack.pushInt32OntoStack(sel[i]);
+                                stack.insertDataIntoStackTable();
+                            }
                         }
                         App::worldContainer->sandboxScript->callCustomScriptFunction("simAssimp.exportShapesDlg",&stack);
                     }
@@ -508,6 +513,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             std::vector<int> sel;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
             App::logMsg(sim_verbosity_msgs,IDSNS_EXPORTING_GRAPH_DATA);
             App::currentWorld->simulation->stopSimulation();
             if (App::currentWorld->sceneObjects->getGraphCountInSelection(&sel)!=0)
@@ -519,7 +525,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     VFile myFile(filenameAndPath.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
                     VArchive ar(&myFile,VArchive::STORE);
                     App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
-                    for (int i=0;i<int(sel.size());i++)
+                    for (size_t i=0;i<sel.size();i++)
                     {
                         CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(sel[i]);
                         if (it!=nullptr)
@@ -1733,8 +1739,8 @@ void CFileOperations::addMenu(VMenu* menu)
         menu->appendMenuAndDetach(impMenu,true,IDSN_IMPORT_MENU_ITEM);
 
         VMenu* expMenu=new VMenu();
-        expMenu->appendMenuItem(simStoppedOrPausedNoEditMode&&(shapeNumber>0),false,FILE_OPERATION_EXPORT_SHAPE_FOCMD,IDS_EXPORT_SHAPE_MENU_ITEM);
-        expMenu->appendMenuItem(fileOpOk&&(graphNumber!=0),false,FILE_OPERATION_EXPORT_GRAPHS_FOCMD,IDS_EXPORT_SELECTED_GRAPHS_MENU_ITEM);
+        expMenu->appendMenuItem(simStoppedOrPausedNoEditMode&&(shapeNumber>0),false,FILE_OPERATION_EXPORT_SHAPE_FOCMD,IDS_EXPORT_SELECTION_SHAPES_MENU_ITEM);
+        expMenu->appendMenuItem(fileOpOk&&(graphNumber!=0),false,FILE_OPERATION_EXPORT_GRAPHS_FOCMD,IDS_EXPORT_SELECTION_GRAPHS_MENU_ITEM);
         if (App::userSettings->showOldDlgs)
             expMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_EXPORT_IK_CONTENT_FOCMD,IDS_EXPORT_IK_CONTENT_MENU_ITEM);
         bool canExportDynamicContent=CPluginContainer::dyn_isDynamicContentAvailable()!=0;
