@@ -239,7 +239,6 @@ void CEnvironment::setSceneLocked()
 {
     _sceneIsLocked=true;
     _requestFinalSave=false;
-//  App::currentWorld->objCont->resetDialogRefreshFlags();
 }
 
 bool CEnvironment::getSceneLocked() const

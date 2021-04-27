@@ -1787,9 +1787,9 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
     bool retVal=false;
     if (!App::currentWorld->environment->getSceneLocked())
     {
-        if ( ((!App::currentWorld->environment->getRequestFinalSave())||(filetype==CSer::filetype_csim_bin_scene_file)) ||(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_FINAL_SCENE_SAVE_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES)) )
+        if ( (!App::currentWorld->environment->getRequestFinalSave())||(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_FINAL_SCENE_SAVE_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES)) )
         {
-            if (App::currentWorld->environment->getRequestFinalSave()&&(filetype!=CSer::filetype_csim_bin_scene_file))
+            if (App::currentWorld->environment->getRequestFinalSave())
                 App::currentWorld->environment->setSceneLocked();
 
             std::string infoPrintOut(IDSN_SAVING_SCENE);

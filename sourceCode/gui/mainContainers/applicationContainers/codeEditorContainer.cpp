@@ -279,9 +279,14 @@ int CCodeEditorContainer::openScriptWithExternalEditor(int scriptHandle)
     CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
     if (it!=nullptr)
     {
-        std::string fname(it->getFilenameForExternalScriptEditor());
-        VVarious::executeExternalApplication(App::userSettings->externalScriptEditor.c_str(),fname.c_str(),App::folders->getExecutablePath().c_str(),VVARIOUS_SHOWNORMAL); // executable directory needed because otherwise the shellExecute command might switch directories!
-        retVal=scriptHandle;
+        if (!App::currentWorld->environment->getSceneLocked())
+        {
+            std::string fname(it->getFilenameForExternalScriptEditor());
+            VVarious::executeExternalApplication(App::userSettings->externalScriptEditor.c_str(),fname.c_str(),App::folders->getExecutablePath().c_str(),VVARIOUS_SHOWNORMAL); // executable directory needed because otherwise the shellExecute command might switch directories!
+            retVal=scriptHandle;
+        }
+        else
+            App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     }
     return(retVal);
 }
@@ -294,21 +299,26 @@ int CCodeEditorContainer::open(const char* initText,const char* xml,int callingS
     {
         if (it!=nullptr)
         {
-            retVal=CPluginContainer::codeEditor_open(initText,xml);
-            SCodeEditor inf;
-            inf.handle=retVal;
-            inf.scriptHandle=-1;
-            inf.callingScriptHandle=callingScriptHandle;
-            inf.sceneUniqueId=App::currentWorld->environment->getSceneUniqueID();
-            inf.openAcrossScenes=( (it->getScriptType()==sim_scripttype_sandboxscript)||(it->getScriptType()==sim_scripttype_addonscript) );
-            inf.closeAtSimulationEnd=it->isSimulationScript();
-            inf.systemVisibility=true;
-            inf.userVisibility=true;
-            inf.closeAfterCallbackCalled=false;
-            inf.restartScriptWhenClosing=false;
-            inf.callbackFunction="";
-            inf.uniqueId=_nextUniqueId++;
-            _allEditors.push_back(inf);
+            if (!App::currentWorld->environment->getSceneLocked())
+            {
+                retVal=CPluginContainer::codeEditor_open(initText,xml);
+                SCodeEditor inf;
+                inf.handle=retVal;
+                inf.scriptHandle=-1;
+                inf.callingScriptHandle=callingScriptHandle;
+                inf.sceneUniqueId=App::currentWorld->environment->getSceneUniqueID();
+                inf.openAcrossScenes=( (it->getScriptType()==sim_scripttype_sandboxscript)||(it->getScriptType()==sim_scripttype_addonscript) );
+                inf.closeAtSimulationEnd=it->isSimulationScript();
+                inf.systemVisibility=true;
+                inf.userVisibility=true;
+                inf.closeAfterCallbackCalled=false;
+                inf.restartScriptWhenClosing=false;
+                inf.callbackFunction="";
+                inf.uniqueId=_nextUniqueId++;
+                _allEditors.push_back(inf);
+            }
+            else
+                App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         }
     }
     else
@@ -322,136 +332,141 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
     CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
     if (it!=nullptr)
     {
-        if (App::userSettings->externalScriptEditor.size()==0)
+        if (!App::currentWorld->environment->getSceneLocked())
         {
-            int sceneId=App::currentWorld->environment->getSceneUniqueID();
-            for (size_t i=0;i<_allEditors.size();i++)
+            if (App::userSettings->externalScriptEditor.size()==0)
             {
-                if ( (_allEditors[i].scriptHandle==scriptHandle)&&(_allEditors[i].sceneUniqueId==sceneId) )
-                    return(_allEditors[i].handle);
-            }
-            if (CPluginContainer::isCodeEditorPluginAvailable())
-            {
-                int posAndSize[4];
-                it->getPreviousEditionWindowPosAndSize(posAndSize);
-
-                sim::tinyxml2::XMLDocument xmlDoc;
-                sim::tinyxml2::XMLElement* editorNode=xmlDoc.NewElement("editor");
-                xmlDoc.InsertFirstChild(editorNode);
-                editorNode->SetAttribute("title",it->getDescriptiveName().c_str());
-                editorNode->SetAttribute("position",QString("%1 %2").arg(posAndSize[0]).arg(posAndSize[1]).toStdString().c_str());
-                editorNode->SetAttribute("size",QString("%1 %2").arg(posAndSize[2]).arg(posAndSize[3]).toStdString().c_str());
-                editorNode->SetAttribute("resizable",toBoolStr(true));
-                editorNode->SetAttribute("closeable",toBoolStr(true));
-                editorNode->SetAttribute("placement","absolute");
-                if (App::userSettings->scriptEditorFont.compare("")==0)
-                    editorNode->SetAttribute("font","Courier");
-                else
-                    editorNode->SetAttribute("font",App::userSettings->scriptEditorFont.c_str());
-                editorNode->SetAttribute("font-bold",toBoolStr(App::userSettings->scriptEditorBoldFont));
-                editorNode->SetAttribute("toolbar",toBoolStr(true));
-                editorNode->SetAttribute("statusbar",toBoolStr(false));
-                editorNode->SetAttribute("wrap-word",toBoolStr(false));
-                editorNode->SetAttribute("can-restart",toBoolStr(!( (it->getScriptType()==sim_scripttype_mainscript)||it->getThreadedExecution_oldThreads() )));
-                editorNode->SetAttribute("max-lines",0);
-                editorNode->SetAttribute("activate",toBoolStr(true));
-                editorNode->SetAttribute("editable",toBoolStr(true));
-                editorNode->SetAttribute("searchable",toBoolStr(true));
-                editorNode->SetAttribute("line-numbers",toBoolStr(true));
-                editorNode->SetAttribute("tab-width",4);
-                editorNode->SetAttribute("is-lua",toBoolStr(true));
-                editorNode->SetAttribute("lua-search-paths",it->getLuaSearchPath().c_str());
-                int fontSize=12;
-                #ifdef MAC_SIM
-                    fontSize=16; // bigger fonts here
-                #endif
-                if (App::userSettings->scriptEditorFontSize!=-1)
-                    fontSize=App::userSettings->scriptEditorFontSize;
-//                #ifndef MAC_SIM
-//                if (App::sc>1)
-//                    fontSize*=2;
-//                #endif
-                editorNode->SetAttribute("font-size",fontSize);
-                editorNode->SetAttribute("text-col","0 0 0");
-                if (it->getScriptType()==sim_scripttype_mainscript)
+                int sceneId=App::currentWorld->environment->getSceneUniqueID();
+                for (size_t i=0;i<_allEditors.size();i++)
                 {
-                    editorNode->SetAttribute("background-col",getColorStr(App::userSettings->mainScriptColor_background).c_str());
-                    editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->mainScriptColor_selection).c_str());
-                    editorNode->SetAttribute("comment-col",getColorStr(App::userSettings->mainScriptColor_comment).c_str());
-                    editorNode->SetAttribute("number-col",getColorStr(App::userSettings->mainScriptColor_number).c_str());
-                    editorNode->SetAttribute("string-col",getColorStr(App::userSettings->mainScriptColor_string).c_str());
-                    editorNode->SetAttribute("character-col",getColorStr(App::userSettings->mainScriptColor_character).c_str());
-                    editorNode->SetAttribute("operator-col",getColorStr(App::userSettings->mainScriptColor_operator).c_str());
-                    editorNode->SetAttribute("identifier-col",getColorStr(App::userSettings->mainScriptColor_identifier).c_str());
-                    editorNode->SetAttribute("preprocessor-col",getColorStr(App::userSettings->mainScriptColor_preprocessor).c_str());
-                    editorNode->SetAttribute("keyword1-col",getColorStr(App::userSettings->mainScriptColor_word2).c_str());
-                    editorNode->SetAttribute("keyword2-col",getColorStr(App::userSettings->mainScriptColor_word3).c_str());
-                    editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->mainScriptColor_word).c_str());
-                    editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->mainScriptColor_word4).c_str());
+                    if ( (_allEditors[i].scriptHandle==scriptHandle)&&(_allEditors[i].sceneUniqueId==sceneId) )
+                        return(_allEditors[i].handle);
                 }
-                if (it->getScriptType()==sim_scripttype_childscript)
+                if (CPluginContainer::isCodeEditorPluginAvailable())
                 {
-                    if (it->getThreadedExecution_oldThreads())
-                    {
-                        editorNode->SetAttribute("background-col",getColorStr(App::userSettings->threadedChildScriptColor_background).c_str());
-                        editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->threadedChildScriptColor_selection).c_str());
-                        editorNode->SetAttribute("comment-col",getColorStr(App::userSettings->threadedChildScriptColor_comment).c_str());
-                        editorNode->SetAttribute("number-col",getColorStr(App::userSettings->threadedChildScriptColor_number).c_str());
-                        editorNode->SetAttribute("string-col",getColorStr(App::userSettings->threadedChildScriptColor_string).c_str());
-                        editorNode->SetAttribute("character-col",getColorStr(App::userSettings->threadedChildScriptColor_character).c_str());
-                        editorNode->SetAttribute("operator-col",getColorStr(App::userSettings->threadedChildScriptColor_operator).c_str());
-                        editorNode->SetAttribute("identifier-col",getColorStr(App::userSettings->threadedChildScriptColor_identifier).c_str());
-                        editorNode->SetAttribute("preprocessor-col",getColorStr(App::userSettings->threadedChildScriptColor_preprocessor).c_str());
-                        editorNode->SetAttribute("keyword1-col",getColorStr(App::userSettings->threadedChildScriptColor_word2).c_str());
-                        editorNode->SetAttribute("keyword2-col",getColorStr(App::userSettings->threadedChildScriptColor_word3).c_str());
-                        editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->threadedChildScriptColor_word).c_str());
-                        editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->threadedChildScriptColor_word4).c_str());
-                    }
+                    int posAndSize[4];
+                    it->getPreviousEditionWindowPosAndSize(posAndSize);
+
+                    sim::tinyxml2::XMLDocument xmlDoc;
+                    sim::tinyxml2::XMLElement* editorNode=xmlDoc.NewElement("editor");
+                    xmlDoc.InsertFirstChild(editorNode);
+                    editorNode->SetAttribute("title",it->getDescriptiveName().c_str());
+                    editorNode->SetAttribute("position",QString("%1 %2").arg(posAndSize[0]).arg(posAndSize[1]).toStdString().c_str());
+                    editorNode->SetAttribute("size",QString("%1 %2").arg(posAndSize[2]).arg(posAndSize[3]).toStdString().c_str());
+                    editorNode->SetAttribute("resizable",toBoolStr(true));
+                    editorNode->SetAttribute("closeable",toBoolStr(true));
+                    editorNode->SetAttribute("placement","absolute");
+                    if (App::userSettings->scriptEditorFont.compare("")==0)
+                        editorNode->SetAttribute("font","Courier");
                     else
+                        editorNode->SetAttribute("font",App::userSettings->scriptEditorFont.c_str());
+                    editorNode->SetAttribute("font-bold",toBoolStr(App::userSettings->scriptEditorBoldFont));
+                    editorNode->SetAttribute("toolbar",toBoolStr(true));
+                    editorNode->SetAttribute("statusbar",toBoolStr(false));
+                    editorNode->SetAttribute("wrap-word",toBoolStr(false));
+                    editorNode->SetAttribute("can-restart",toBoolStr(!( (it->getScriptType()==sim_scripttype_mainscript)||it->getThreadedExecution_oldThreads() )));
+                    editorNode->SetAttribute("max-lines",0);
+                    editorNode->SetAttribute("activate",toBoolStr(true));
+                    editorNode->SetAttribute("editable",toBoolStr(true));
+                    editorNode->SetAttribute("searchable",toBoolStr(true));
+                    editorNode->SetAttribute("line-numbers",toBoolStr(true));
+                    editorNode->SetAttribute("tab-width",4);
+                    editorNode->SetAttribute("is-lua",toBoolStr(true));
+                    editorNode->SetAttribute("lua-search-paths",it->getLuaSearchPath().c_str());
+                    int fontSize=12;
+                    #ifdef MAC_SIM
+                        fontSize=16; // bigger fonts here
+                    #endif
+                    if (App::userSettings->scriptEditorFontSize!=-1)
+                        fontSize=App::userSettings->scriptEditorFontSize;
+    //                #ifndef MAC_SIM
+    //                if (App::sc>1)
+    //                    fontSize*=2;
+    //                #endif
+                    editorNode->SetAttribute("font-size",fontSize);
+                    editorNode->SetAttribute("text-col","0 0 0");
+                    if (it->getScriptType()==sim_scripttype_mainscript)
                     {
-                        editorNode->SetAttribute("background-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_background).c_str());
-                        editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_selection).c_str());
-                        editorNode->SetAttribute("comment-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_comment).c_str());
-                        editorNode->SetAttribute("number-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_number).c_str());
-                        editorNode->SetAttribute("string-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_string).c_str());
-                        editorNode->SetAttribute("character-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_character).c_str());
-                        editorNode->SetAttribute("operator-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_operator).c_str());
-                        editorNode->SetAttribute("identifier-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_identifier).c_str());
-                        editorNode->SetAttribute("preprocessor-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_preprocessor).c_str());
-                        editorNode->SetAttribute("keyword1-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word2).c_str());
-                        editorNode->SetAttribute("keyword2-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word3).c_str());
-                        editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word).c_str());
-                        editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word4).c_str());
+                        editorNode->SetAttribute("background-col",getColorStr(App::userSettings->mainScriptColor_background).c_str());
+                        editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->mainScriptColor_selection).c_str());
+                        editorNode->SetAttribute("comment-col",getColorStr(App::userSettings->mainScriptColor_comment).c_str());
+                        editorNode->SetAttribute("number-col",getColorStr(App::userSettings->mainScriptColor_number).c_str());
+                        editorNode->SetAttribute("string-col",getColorStr(App::userSettings->mainScriptColor_string).c_str());
+                        editorNode->SetAttribute("character-col",getColorStr(App::userSettings->mainScriptColor_character).c_str());
+                        editorNode->SetAttribute("operator-col",getColorStr(App::userSettings->mainScriptColor_operator).c_str());
+                        editorNode->SetAttribute("identifier-col",getColorStr(App::userSettings->mainScriptColor_identifier).c_str());
+                        editorNode->SetAttribute("preprocessor-col",getColorStr(App::userSettings->mainScriptColor_preprocessor).c_str());
+                        editorNode->SetAttribute("keyword1-col",getColorStr(App::userSettings->mainScriptColor_word2).c_str());
+                        editorNode->SetAttribute("keyword2-col",getColorStr(App::userSettings->mainScriptColor_word3).c_str());
+                        editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->mainScriptColor_word).c_str());
+                        editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->mainScriptColor_word4).c_str());
                     }
+                    if (it->getScriptType()==sim_scripttype_childscript)
+                    {
+                        if (it->getThreadedExecution_oldThreads())
+                        {
+                            editorNode->SetAttribute("background-col",getColorStr(App::userSettings->threadedChildScriptColor_background).c_str());
+                            editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->threadedChildScriptColor_selection).c_str());
+                            editorNode->SetAttribute("comment-col",getColorStr(App::userSettings->threadedChildScriptColor_comment).c_str());
+                            editorNode->SetAttribute("number-col",getColorStr(App::userSettings->threadedChildScriptColor_number).c_str());
+                            editorNode->SetAttribute("string-col",getColorStr(App::userSettings->threadedChildScriptColor_string).c_str());
+                            editorNode->SetAttribute("character-col",getColorStr(App::userSettings->threadedChildScriptColor_character).c_str());
+                            editorNode->SetAttribute("operator-col",getColorStr(App::userSettings->threadedChildScriptColor_operator).c_str());
+                            editorNode->SetAttribute("identifier-col",getColorStr(App::userSettings->threadedChildScriptColor_identifier).c_str());
+                            editorNode->SetAttribute("preprocessor-col",getColorStr(App::userSettings->threadedChildScriptColor_preprocessor).c_str());
+                            editorNode->SetAttribute("keyword1-col",getColorStr(App::userSettings->threadedChildScriptColor_word2).c_str());
+                            editorNode->SetAttribute("keyword2-col",getColorStr(App::userSettings->threadedChildScriptColor_word3).c_str());
+                            editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->threadedChildScriptColor_word).c_str());
+                            editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->threadedChildScriptColor_word4).c_str());
+                        }
+                        else
+                        {
+                            editorNode->SetAttribute("background-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_background).c_str());
+                            editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_selection).c_str());
+                            editorNode->SetAttribute("comment-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_comment).c_str());
+                            editorNode->SetAttribute("number-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_number).c_str());
+                            editorNode->SetAttribute("string-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_string).c_str());
+                            editorNode->SetAttribute("character-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_character).c_str());
+                            editorNode->SetAttribute("operator-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_operator).c_str());
+                            editorNode->SetAttribute("identifier-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_identifier).c_str());
+                            editorNode->SetAttribute("preprocessor-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_preprocessor).c_str());
+                            editorNode->SetAttribute("keyword1-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word2).c_str());
+                            editorNode->SetAttribute("keyword2-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word3).c_str());
+                            editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word).c_str());
+                            editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word4).c_str());
+                        }
+                    }
+
+                    getKeywords(&xmlDoc,editorNode,it->getScriptType(),it->getThreadedExecution_oldThreads());
+
+                    sim::tinyxml2::XMLPrinter printer;
+                    xmlDoc.Print(&printer);
+                    //printf("%s\n",printer.CStr());
+
+                    retVal=CPluginContainer::codeEditor_open(it->getScriptText(),printer.CStr());
+                    SCodeEditor inf;
+                    inf.handle=retVal;
+                    inf.scriptHandle=scriptHandle;
+                    inf.callingScriptHandle=callingScriptHandle;
+                    inf.sceneUniqueId=App::currentWorld->environment->getSceneUniqueID();
+                    inf.openAcrossScenes=false;
+                    inf.closeAtSimulationEnd=false;
+                    inf.systemVisibility=true;
+                    inf.userVisibility=true;
+                    inf.closeAfterCallbackCalled=false;
+                    inf.restartScriptWhenClosing=false;
+                    inf.callbackFunction="";
+                    inf.uniqueId=_nextUniqueId++;
+                    _allEditors.push_back(inf);
                 }
-
-                getKeywords(&xmlDoc,editorNode,it->getScriptType(),it->getThreadedExecution_oldThreads());
-
-                sim::tinyxml2::XMLPrinter printer;
-                xmlDoc.Print(&printer);
-                //printf("%s\n",printer.CStr());
-
-                retVal=CPluginContainer::codeEditor_open(it->getScriptText(),printer.CStr());
-                SCodeEditor inf;
-                inf.handle=retVal;
-                inf.scriptHandle=scriptHandle;
-                inf.callingScriptHandle=callingScriptHandle;
-                inf.sceneUniqueId=App::currentWorld->environment->getSceneUniqueID();
-                inf.openAcrossScenes=false;
-                inf.closeAtSimulationEnd=false;
-                inf.systemVisibility=true;
-                inf.userVisibility=true;
-                inf.closeAfterCallbackCalled=false;
-                inf.restartScriptWhenClosing=false;
-                inf.callbackFunction="";
-                inf.uniqueId=_nextUniqueId++;
-                _allEditors.push_back(inf);
+                else
+                    App::logMsg(sim_verbosity_errors,"code editor plugin was not found.");
             }
             else
-                App::logMsg(sim_verbosity_errors,"code editor plugin was not found.");
+                retVal=openScriptWithExternalEditor(scriptHandle);
         }
         else
-            retVal=openScriptWithExternalEditor(scriptHandle);
+            App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     }
     return(retVal);
 }
@@ -472,82 +487,87 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
         {
             if (it!=nullptr)
             {
-                int posAndSize[4];
-                it->getPreviousEditionWindowPosAndSize(posAndSize);
+                if (!App::currentWorld->environment->getSceneLocked())
+                {
+                    int posAndSize[4];
+                    it->getPreviousEditionWindowPosAndSize(posAndSize);
 
-                sim::tinyxml2::XMLDocument xmlDoc;
-                sim::tinyxml2::XMLElement* editorNode=xmlDoc.NewElement("editor");
-                xmlDoc.InsertFirstChild(editorNode);
-                editorNode->SetAttribute("title",it->getDescriptiveName().c_str());
-                editorNode->SetAttribute("position",QString("%1 %2").arg(posAndSize[0]).arg(posAndSize[1]).toStdString().c_str());
-                editorNode->SetAttribute("size",QString("%1 %2").arg(posAndSize[2]).arg(posAndSize[3]).toStdString().c_str());
-                editorNode->SetAttribute("resizable",toBoolStr(true));
-                editorNode->SetAttribute("closeable",toBoolStr(true));
-                editorNode->SetAttribute("placement","absolute");
-                if (App::userSettings->scriptEditorFont.compare("")==0)
-                    editorNode->SetAttribute("font","Courier");
+                    sim::tinyxml2::XMLDocument xmlDoc;
+                    sim::tinyxml2::XMLElement* editorNode=xmlDoc.NewElement("editor");
+                    xmlDoc.InsertFirstChild(editorNode);
+                    editorNode->SetAttribute("title",it->getDescriptiveName().c_str());
+                    editorNode->SetAttribute("position",QString("%1 %2").arg(posAndSize[0]).arg(posAndSize[1]).toStdString().c_str());
+                    editorNode->SetAttribute("size",QString("%1 %2").arg(posAndSize[2]).arg(posAndSize[3]).toStdString().c_str());
+                    editorNode->SetAttribute("resizable",toBoolStr(true));
+                    editorNode->SetAttribute("closeable",toBoolStr(true));
+                    editorNode->SetAttribute("placement","absolute");
+                    if (App::userSettings->scriptEditorFont.compare("")==0)
+                        editorNode->SetAttribute("font","Courier");
+                    else
+                        editorNode->SetAttribute("font",App::userSettings->scriptEditorFont.c_str());
+                    editorNode->SetAttribute("font-bold",toBoolStr(App::userSettings->scriptEditorBoldFont));
+                    editorNode->SetAttribute("toolbar",toBoolStr(true));
+                    editorNode->SetAttribute("statusbar",toBoolStr(false));
+                    editorNode->SetAttribute("wrap-word",toBoolStr(false));
+                    editorNode->SetAttribute("can-restart",toBoolStr(true));
+                    editorNode->SetAttribute("max-lines",0);
+                    editorNode->SetAttribute("activate",toBoolStr(true));
+                    editorNode->SetAttribute("editable",toBoolStr(true));
+                    editorNode->SetAttribute("searchable",toBoolStr(true));
+                    editorNode->SetAttribute("line-numbers",toBoolStr(true));
+                    editorNode->SetAttribute("tab-width",4);
+                    editorNode->SetAttribute("is-lua",toBoolStr(true));
+                    editorNode->SetAttribute("lua-search-paths",it->getLuaSearchPath().c_str());
+                    int fontSize=12;
+                    #ifdef MAC_SIM
+                        fontSize=16; // bigger fonts here
+                    #endif
+                    if (App::userSettings->scriptEditorFontSize!=-1)
+                        fontSize=App::userSettings->scriptEditorFontSize;
+    //                #ifndef MAC_SIM
+    //                if (App::sc>1)
+    //                    fontSize*=2;
+    //                #endif
+                    editorNode->SetAttribute("font-size",fontSize);
+                    editorNode->SetAttribute("text-col","0 0 0");
+                    editorNode->SetAttribute("background-col",getColorStr(App::userSettings->customizationScriptColor_background).c_str());
+                    editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->customizationScriptColor_selection).c_str());
+                    editorNode->SetAttribute("comment-col",getColorStr(App::userSettings->customizationScriptColor_comment).c_str());
+                    editorNode->SetAttribute("number-col",getColorStr(App::userSettings->customizationScriptColor_number).c_str());
+                    editorNode->SetAttribute("string-col",getColorStr(App::userSettings->customizationScriptColor_string).c_str());
+                    editorNode->SetAttribute("character-col",getColorStr(App::userSettings->customizationScriptColor_character).c_str());
+                    editorNode->SetAttribute("operator-col",getColorStr(App::userSettings->customizationScriptColor_operator).c_str());
+                    editorNode->SetAttribute("identifier-col",getColorStr(App::userSettings->customizationScriptColor_identifier).c_str());
+                    editorNode->SetAttribute("preprocessor-col",getColorStr(App::userSettings->customizationScriptColor_preprocessor).c_str());
+                    editorNode->SetAttribute("keyword1-col",getColorStr(App::userSettings->customizationScriptColor_word2).c_str());
+                    editorNode->SetAttribute("keyword2-col",getColorStr(App::userSettings->customizationScriptColor_word3).c_str());
+                    editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->customizationScriptColor_word).c_str());
+                    editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->customizationScriptColor_word4).c_str());
+
+                    getKeywords(&xmlDoc,editorNode,it->getScriptType(),it->getThreadedExecution_oldThreads());
+
+                    sim::tinyxml2::XMLPrinter printer;
+                    xmlDoc.Print(&printer);
+                    //printf("%s\n",printer.CStr());
+
+                    retVal=CPluginContainer::codeEditor_open(it->getScriptText(),printer.CStr());
+                    SCodeEditor inf;
+                    inf.handle=retVal;
+                    inf.scriptHandle=scriptHandle;
+                    inf.callingScriptHandle=callingScriptHandle;
+                    inf.sceneUniqueId=App::currentWorld->environment->getSceneUniqueID();
+                    inf.openAcrossScenes=false;
+                    inf.closeAtSimulationEnd=false;
+                    inf.systemVisibility=true;
+                    inf.userVisibility=true;
+                    inf.closeAfterCallbackCalled=false;
+                    inf.restartScriptWhenClosing=false;//true;
+                    inf.callbackFunction="";
+                    inf.uniqueId=_nextUniqueId++;
+                    _allEditors.push_back(inf);
+                }
                 else
-                    editorNode->SetAttribute("font",App::userSettings->scriptEditorFont.c_str());
-                editorNode->SetAttribute("font-bold",toBoolStr(App::userSettings->scriptEditorBoldFont));
-                editorNode->SetAttribute("toolbar",toBoolStr(true));
-                editorNode->SetAttribute("statusbar",toBoolStr(false));
-                editorNode->SetAttribute("wrap-word",toBoolStr(false));
-                editorNode->SetAttribute("can-restart",toBoolStr(true));
-                editorNode->SetAttribute("max-lines",0);
-                editorNode->SetAttribute("activate",toBoolStr(true));
-                editorNode->SetAttribute("editable",toBoolStr(true));
-                editorNode->SetAttribute("searchable",toBoolStr(true));
-                editorNode->SetAttribute("line-numbers",toBoolStr(true));
-                editorNode->SetAttribute("tab-width",4);
-                editorNode->SetAttribute("is-lua",toBoolStr(true));
-                editorNode->SetAttribute("lua-search-paths",it->getLuaSearchPath().c_str());
-                int fontSize=12;
-                #ifdef MAC_SIM
-                    fontSize=16; // bigger fonts here
-                #endif
-                if (App::userSettings->scriptEditorFontSize!=-1)
-                    fontSize=App::userSettings->scriptEditorFontSize;
-//                #ifndef MAC_SIM
-//                if (App::sc>1)
-//                    fontSize*=2;
-//                #endif
-                editorNode->SetAttribute("font-size",fontSize);
-                editorNode->SetAttribute("text-col","0 0 0");
-                editorNode->SetAttribute("background-col",getColorStr(App::userSettings->customizationScriptColor_background).c_str());
-                editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->customizationScriptColor_selection).c_str());
-                editorNode->SetAttribute("comment-col",getColorStr(App::userSettings->customizationScriptColor_comment).c_str());
-                editorNode->SetAttribute("number-col",getColorStr(App::userSettings->customizationScriptColor_number).c_str());
-                editorNode->SetAttribute("string-col",getColorStr(App::userSettings->customizationScriptColor_string).c_str());
-                editorNode->SetAttribute("character-col",getColorStr(App::userSettings->customizationScriptColor_character).c_str());
-                editorNode->SetAttribute("operator-col",getColorStr(App::userSettings->customizationScriptColor_operator).c_str());
-                editorNode->SetAttribute("identifier-col",getColorStr(App::userSettings->customizationScriptColor_identifier).c_str());
-                editorNode->SetAttribute("preprocessor-col",getColorStr(App::userSettings->customizationScriptColor_preprocessor).c_str());
-                editorNode->SetAttribute("keyword1-col",getColorStr(App::userSettings->customizationScriptColor_word2).c_str());
-                editorNode->SetAttribute("keyword2-col",getColorStr(App::userSettings->customizationScriptColor_word3).c_str());
-                editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->customizationScriptColor_word).c_str());
-                editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->customizationScriptColor_word4).c_str());
-
-                getKeywords(&xmlDoc,editorNode,it->getScriptType(),it->getThreadedExecution_oldThreads());
-
-                sim::tinyxml2::XMLPrinter printer;
-                xmlDoc.Print(&printer);
-                //printf("%s\n",printer.CStr());
-
-                retVal=CPluginContainer::codeEditor_open(it->getScriptText(),printer.CStr());
-                SCodeEditor inf;
-                inf.handle=retVal;
-                inf.scriptHandle=scriptHandle;
-                inf.callingScriptHandle=callingScriptHandle;
-                inf.sceneUniqueId=App::currentWorld->environment->getSceneUniqueID();
-                inf.openAcrossScenes=false;
-                inf.closeAtSimulationEnd=false;
-                inf.systemVisibility=true;
-                inf.userVisibility=true;
-                inf.closeAfterCallbackCalled=false;
-                inf.restartScriptWhenClosing=false;//true;
-                inf.callbackFunction="";
-                inf.uniqueId=_nextUniqueId++;
-                _allEditors.push_back(inf);
+                    App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             }
         }
         else

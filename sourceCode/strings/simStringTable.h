@@ -971,7 +971,7 @@
 #define IDS_READING_NEWER_SERIALIZATION_FILE_WARNING "The file you are about to read was created with a newer version of CoppeliaSim. Some functionality might not be available or not working properly."
 #define IDS_MAKING_NON_PURE_CONCAVE_SHAPE_RESPONDABLE_WARNING "The shape you made respondable is not a pure shape, nor a convex shape. It is a random non-convex shape that will perform much worse than pure shapes or convex shapes. Additionally, calculations with non-pure non-convex respondable shapes are much more time-consuming. For collision response calculations, it is recomended to use pure shapes whenever possible, or if that is not possible, convex shapes."
 #define IDS_SCENE_LOCKING_INFO "Next scene save will be final: after that, this scene cannot anymore be saved, exported, or script content viewed."
-#define IDS_SCENE_IS_LOCKED_WARNING "Save/export operation unavailable (scene is locked)"
+#define IDS_SCENE_IS_LOCKED_WARNING "Operation unavailable (scene is locked)"
 #define IDS_SCENE_IS_LOCKED_CANNOT_PASTE_WARNING "Paste operation unavailable (buffer is locked)"
 #define IDS_FINAL_SCENE_SAVE_WARNING "The save operation you are about to perform will be final: the scene will be locked and you will not be able to save changes anymore. Are you sure you want to proceed?"
 #define IDS_INCLUDE_SCRIPT_FILES_QUESTION "Some scripts include code from external files, via the 'include' function. Do you wish to replace those scripts with their actual include code? In case of doubt, click 'No'."
