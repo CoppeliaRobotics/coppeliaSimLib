@@ -12720,7 +12720,6 @@ simInt simGenerateShapeFromPath_internal(const simFloat* pppath,simInt pathSize,
             size_t confCnt=size_t(pathSize)/7;
             size_t elementCount=confCnt;
             size_t secVertCnt=size_t(sectionSize)/2;
-
             std::vector<float> path;
             for (size_t i=0;i<confCnt;i++)
             {
@@ -12733,7 +12732,7 @@ simInt simGenerateShapeFromPath_internal(const simFloat* pppath,simInt pathSize,
                         p0=C3Vector(&ppath[0]+pathSize-7);
                 }
                 p1=C3Vector(&ppath[0]+7*i);
-                C4Vector q(&ppath[0]+7*i+3,true);
+                C4Vector q(&ppath[0]+7*i+3,false); // Quaternion notation was changed above!
                 if (axis!=0)
                     zvect=q.getAxis(axis-1);
                 if (i!=(confCnt-1))
