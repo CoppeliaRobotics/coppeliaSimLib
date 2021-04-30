@@ -393,6 +393,25 @@ bool CGraphDataStream::getCurveData(bool staticCurve,int* index,int startPt,int 
     return(false);
 }
 
+bool CGraphDataStream::getExportValue(int startPt,int relPos,float* val,std::string* label) const
+{ // only for non-static curves!
+    if (label!=nullptr)
+    {
+        label[0]=_streamName;
+        if (_unitStr.size()>0)
+            label[0]+=" ("+_unitStr+")";
+    }
+
+    if (val!=nullptr)
+    {
+        int absIndex=startPt+relPos;
+        if (absIndex>=int(_values.size())) // i.e. bufferSize
+            absIndex-=int(_values.size());
+        return getTransformedValue(startPt,absIndex,val[0]);
+    }
+    return(true);
+}
+
 void CGraphDataStream::makeStatic(int startPt,int ptCnt,const std::vector<float>& times)
 {
     if (!_static)

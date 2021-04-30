@@ -1011,58 +1011,68 @@ void CGraph::announceGraphDataObjectWillBeDestroyed(int graphDataID)
 
 void CGraph::exportGraphData(VArchive &ar)
 { // STATIC streams are not exported!! (they might have a different time interval, etc.)
+
     // The graph name:
     std::string txt(getObjectName());
-    txt+="\n\n";
+    txt+="\n";
 
-    for (size_t i=0;i<_dataStreams.size();i++)
+    if (numberOfPoints>0)
     {
-        std::string label;
-        std::vector<float> timeVals;
-        std::vector<float> vals;
-        if (_dataStreams[i]->getCurveData(false,nullptr,startingPoint,numberOfPoints,times,&label,timeVals,vals,nullptr,nullptr,nullptr))
+        // The labels:
+        txt+="Time (s)";
+        for (size_t i=0;i<_dataStreams.size();i++)
         {
-            txt+="Time (s),";
+            txt+=",";
+            std::string label;
+            _dataStreams[i]->getExportValue(0,0,nullptr,&label);
             txt+=label;
-            txt+="\n";
-            for (size_t i=0;i<timeVals.size();i++)
-            {
-                txt+=tt::getFString(false,timeVals[i],5);
-                txt+=",";
-                txt+=tt::getEString(true,vals[i],4);
-                txt+="\n";
-            }
-            txt+="\n";
         }
-    }
-
-    // OLD GRAPHS:
-    for (size_t k=0;k<dataStreams_old.size();k++)
-    {
-        txt+="Time ("+gv::getTimeUnitStr()+"),";
-        CGraphData_old* gr=dataStreams_old[k];
-        txt+=gr->getName()+" ("+CGraphingRoutines_old::getDataUnit(gr)+")\n";
-
-        int pos=0;
-        int absIndex;
-        while (getAbsIndexOfPosition(pos++,absIndex))
+        // The labels of the old curves:
+        for (size_t i=0;i<dataStreams_old.size();i++)
         {
-            bool cyclic;
-            float range;
-            CGraphingRoutines_old::getCyclicAndRangeValues(gr,cyclic,range);
-            float value;
-            bool dataIsValid=getData(gr,absIndex,value,cyclic,range,true);
-            if (dataIsValid)
-            {
-                float time=times[absIndex];
-                txt+=tt::getFString(false,time,5);
-                txt+=",";
-                txt+=tt::getEString(true,value,4);
-                txt+="\n";
-            }
+            txt+=",";
+            CGraphData_old* gr=dataStreams_old[i];
+            txt+=gr->getName()+" ("+CGraphingRoutines_old::getDataUnit(gr)+")";
         }
         txt+="\n";
+
+        // The values:
+        int pos=0;
+        int absIndex;
+        while (getAbsIndexOfPosition(pos,absIndex))
+        {
+            float time=times[absIndex];
+            txt+=tt::getFString(false,time,5);
+            for (size_t i=0;i<_dataStreams.size();i++)
+            {
+                txt+=",";
+                float val;
+                if (_dataStreams[i]->getExportValue(startingPoint,pos,&val,nullptr))
+                    txt+=tt::getEString(true,val,4);
+                else
+                    txt+="Null";
+            }
+            // The values of the old curves:
+            for (size_t i=0;i<dataStreams_old.size();i++)
+            {
+                txt+=",";
+                CGraphData_old* gr=dataStreams_old[i];
+
+                bool cyclic;
+                float range;
+                CGraphingRoutines_old::getCyclicAndRangeValues(gr,cyclic,range);
+                float val;
+                bool dataIsValid=getData(gr,absIndex,val,cyclic,range,true);
+                if (dataIsValid)
+                    txt+=tt::getEString(true,val,4);
+                else
+                    txt+="Null";
+            }
+            txt+="\n";
+            pos++;
+        }
     }
+    txt+="\n";
     ar.writeString(txt);
 }
 
