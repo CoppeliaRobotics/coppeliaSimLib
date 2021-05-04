@@ -2007,7 +2007,7 @@ void CLuaScriptObject::destroy(CLuaScriptObject* obj,bool registeredObject)
         if (App::userSettings->externalScriptEditor.length()>0)
         {
             // destroy file
-            std::string fname=App::folders->getExtScriptEditorTempPath()+"/";
+            std::string fname=App::folders->getTempDataPath()+"/";
             fname.append(obj->_filenameForExternalScriptEditor);
             if (VFile::doesFileExist(fname.c_str()))
                 VFile::eraseFile(fname.c_str());
@@ -2019,7 +2019,7 @@ void CLuaScriptObject::destroy(CLuaScriptObject* obj,bool registeredObject)
 
 std::string CLuaScriptObject::getFilenameForExternalScriptEditor() const
 {
-    std::string fname=App::folders->getExtScriptEditorTempPath()+"/";
+    std::string fname=App::folders->getTempDataPath()+"/";
     fname.append(_filenameForExternalScriptEditor);
     return(fname);
 }
@@ -2028,7 +2028,7 @@ void CLuaScriptObject::fromFileToBuffer()
 {
     if (App::userSettings->externalScriptEditor.size()>0)
     { // read file
-        std::string fname=App::folders->getExtScriptEditorTempPath()+"/";
+        std::string fname=App::folders->getTempDataPath()+"/";
         fname.append(_filenameForExternalScriptEditor);
 
         VFile myFile(fname.c_str(),VFile::READ|VFile::SHARE_DENY_NONE,true);
@@ -2110,7 +2110,7 @@ void CLuaScriptObject::fromBufferToFile() const
     { // write file
         if ( (App::currentWorld==nullptr)||(App::currentWorld->environment==nullptr)||(!App::currentWorld->environment->getSceneLocked()) )
         {
-            std::string fname=App::folders->getExtScriptEditorTempPath()+"/";
+            std::string fname=App::folders->getTempDataPath()+"/";
             fname.append(_filenameForExternalScriptEditor);
 
             VFile myFile(fname.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE,true);

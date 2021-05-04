@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef SIM_WITH_QT
+    #include <QTemporaryDir>
+#endif
+
 class CFolderSystem
 {
 public:
@@ -24,12 +28,14 @@ public:
     void setVideosPath(const char* path);
     std::string getOtherFilesPath() const;
     void setOtherFilesPath(const char* path);
-    std::string getExtScriptEditorTempPath() const;
-    void setExtScriptEditorTempPath(const char* path);
-    std::string getRemoteApiTempPath() const;
-    void setRemoteApiTempPath(const char* path);
+    std::string getAppDataPath() const;
+    std::string getTempDataPath() const;
+    std::string getSceneTempDataPath() const;
 
 private:
+#ifdef SIM_WITH_QT
+    QTemporaryDir* _tempDir;
+#endif
     std::string _executablePath;
     std::string _systemPath;
     std::string _resourcesPath;
@@ -39,6 +45,6 @@ private:
     std::string _texturesPath;
     std::string _videosPath;
     std::string _otherFilesPath;
-    std::string _extScriptEditorTempPath;
-    std::string _remoteApiTempPath;
+    std::string _appDataPath;
+    std::string _tempDataPath;
 };

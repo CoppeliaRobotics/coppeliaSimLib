@@ -15,6 +15,7 @@ CONFIG(debug,debug|release) {
     CONFIG += force_debug_info
 }
 
+QMAKE_CXXFLAGS += /std:c++17
 QT += printsupport
 QT += network
 

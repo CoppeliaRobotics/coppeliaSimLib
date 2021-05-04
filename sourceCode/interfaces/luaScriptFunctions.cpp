@@ -196,7 +196,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getArrayParam",_simGetArrayParam,                      "table[3] arrayOfValues=sim.getArrayParam(int parameter)",true},
     {"sim.setStringNamedParam",_simSetStringNamedParam,          "sim.setStringNamedParam(string paramName,string stringParam)",true},
     {"sim.getStringNamedParam",_simGetStringNamedParam,          "string stringParam=sim.getStringNamedParam(string paramName)",true},
-    {"sim.setObjectName",_simSetObjectName,                      "sim.setObjectName(int objectHandle,string objectName)",true},
+    {"sim.setObjectName",_simSetObjectName,                      "int result=sim.setObjectName(int objectHandle,string objectName)",true},
     {"sim.getJointInterval",_simGetJointInterval,                "boolean cyclic,table[2] interval=sim.getJointInterval(int objectHandle)",true},
     {"sim.setJointInterval",_simSetJointInterval,                "sim.setJointInterval(int objectHandle,boolean cyclic,table[2] interval)",true},
     {"sim.loadScene",_simLoadScene,                              "sim.loadScene(string filename)",true},
@@ -1386,6 +1386,9 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_dlgverbosity",sim_stringparam_dlgverbosity,true},
     {"sim.stringparam_logfilter",sim_stringparam_consolelogfilter,true},
     {"sim.stringparam_uniqueid",sim_stringparam_uniqueid,true},
+    {"sim.stringparam_tempdir",sim_stringparam_tempdir,true},
+    {"sim.stringparam_tempscenedir",sim_stringparam_tempscenedir,true},
+    {"sim.stringparam_datadir",sim_stringparam_datadir,true},
 
     // verbosity:
     {"sim.verbosity_useglobal",sim_verbosity_useglobal,true},

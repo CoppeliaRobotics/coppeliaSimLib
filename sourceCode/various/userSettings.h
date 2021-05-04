@@ -128,8 +128,6 @@ public:
     std::string defaultDirectoryForModels;
     std::string defaultDirectoryForCadFiles;
     std::string defaultDirectoryForMiscFiles;
-    std::string defaultDirectoryForExternalScriptEditor;
-    std::string defaultDirectoryForRemoteApiFiles;
 
     int threadedChildScriptColor_background[3];
     int threadedChildScriptColor_selection[3];

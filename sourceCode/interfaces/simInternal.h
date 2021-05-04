@@ -81,8 +81,6 @@ simInt simSaveScene_internal(const simChar* filename);
 simInt simLoadModel_internal(const simChar* filename);
 simInt simSaveModel_internal(int baseOfModelHandle,const simChar* filename);
 simChar* simGetSimulatorMessage_internal(simInt* messageID,simInt* auxiliaryData,simInt* returnedDataSize);
-simInt simAddModuleMenuEntry_internal(const simChar* entryLabel,simInt itemCount,simInt* itemHandles);
-simInt simSetModuleMenuItemState_internal(simInt itemHandle,simInt state,const simChar* label);
 simInt simDoesFileExist_internal(const simChar* filename);
 simInt simIsObjectInSelection_internal(simInt objectHandle);
 simInt simAddObjectToSelection_internal(simInt what,simInt objectHandle);
@@ -645,6 +643,8 @@ simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* streamName
 simInt simAddPointCloud_internal(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals);
 simInt simModifyPointCloud_internal(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam);
 simInt simCopyMatrix_internal(const simFloat* matrixIn,simFloat* matrixOut);
+simInt simAddModuleMenuEntry_internal(const simChar* entryLabel,simInt itemCount,simInt* itemHandles);
+simInt simSetModuleMenuItemState_internal(simInt itemHandle,simInt state,const simChar* label);
 
 
 #endif // !defined(simInternal_INCLUDED_)

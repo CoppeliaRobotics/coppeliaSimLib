@@ -273,14 +273,6 @@ SIM_DLLEXPORT simChar* simGetSimulatorMessage(simInt* messageID,simInt* auxiliar
 {
     return(simGetSimulatorMessage_internal(messageID,auxiliaryData,returnedDataSize));
 }
-SIM_DLLEXPORT simInt simAddModuleMenuEntry(const simChar* entryLabel,simInt itemCount,simInt* itemHandles)
-{
-    return(simAddModuleMenuEntry_internal(entryLabel,itemCount,itemHandles));
-}
-SIM_DLLEXPORT simInt simSetModuleMenuItemState(simInt itemHandle,simInt state,const simChar* label)
-{
-    return(simSetModuleMenuItemState_internal(itemHandle,state,label));
-}
 SIM_DLLEXPORT simInt simDoesFileExist(const simChar* filename)
 {
     return(simDoesFileExist_internal(filename));
@@ -2652,6 +2644,14 @@ SIM_DLLEXPORT simInt simSetEngineBoolParameter(simInt paramId,simInt objectHandl
 SIM_DLLEXPORT simInt simIsHandleValid(simInt generalObjectHandle,simInt generalObjectType)
 {
     return(simIsHandle_internal(generalObjectHandle,generalObjectType));
+}
+SIM_DLLEXPORT simInt simAddModuleMenuEntry(const simChar* entryLabel,simInt itemCount,simInt* itemHandles)
+{
+    return(simAddModuleMenuEntry_internal(entryLabel,itemCount,itemHandles));
+}
+SIM_DLLEXPORT simInt simSetModuleMenuItemState(simInt itemHandle,simInt state,const simChar* label)
+{
+    return(simSetModuleMenuItemState_internal(itemHandle,state,label));
 }
 // Deprecated end
 

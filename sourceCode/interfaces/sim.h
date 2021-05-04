@@ -84,8 +84,6 @@ SIM_DLLEXPORT simInt simSaveScene(const simChar* filename);
 SIM_DLLEXPORT simInt simLoadModel(const simChar* filename);
 SIM_DLLEXPORT simInt simSaveModel(simInt baseOfModelHandle,const simChar* filename);
 SIM_DLLEXPORT simChar* simGetSimulatorMessage(simInt* messageID,simInt* auxiliaryData,simInt* returnedDataSize);
-SIM_DLLEXPORT simInt simAddModuleMenuEntry(const simChar* entryLabel,simInt itemCount,simInt* itemHandles);
-SIM_DLLEXPORT simInt simSetModuleMenuItemState(simInt itemHandle,simInt state,const simChar* label);
 SIM_DLLEXPORT simInt simDoesFileExist(const simChar* filename);
 SIM_DLLEXPORT simInt simIsObjectInSelection(simInt objectHandle);
 SIM_DLLEXPORT simInt simAddObjectToSelection(simInt what,simInt objectHandle);
@@ -690,6 +688,8 @@ SIM_DLLEXPORT simInt simSetEngineFloatParameter(simInt paramId,simInt objectHand
 SIM_DLLEXPORT simInt simSetEngineInt32Parameter(simInt paramId,simInt objectHandle,const simVoid* object,simInt val);
 SIM_DLLEXPORT simInt simSetEngineBoolParameter(simInt paramId,simInt objectHandle,const simVoid* object,simBool val);
 SIM_DLLEXPORT simInt simIsHandleValid(simInt generalObjectHandle,simInt generalObjectType);
+SIM_DLLEXPORT simInt simAddModuleMenuEntry(const simChar* entryLabel,simInt itemCount,simInt* itemHandles);
+SIM_DLLEXPORT simInt simSetModuleMenuItemState(simInt itemHandle,simInt state,const simChar* label);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

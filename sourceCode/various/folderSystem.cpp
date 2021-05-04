@@ -1,9 +1,14 @@
 #include "simInternal.h"
 #include "folderSystem.h"
+#include "vFile.h"
 #include "global.h"
 #include "vVarious.h"
 #include "app.h"
 #include "simFlavor.h"
+#include <filesystem>
+#ifdef SIM_WITH_QT
+    #include <QStandardPaths>
+#endif
 
 CFolderSystem::CFolderSystem()
 {
@@ -14,8 +19,6 @@ CFolderSystem::CFolderSystem()
 #else
     _resourcesPath=_executablePath;
 #endif
-    _extScriptEditorTempPath=_executablePath;
-    _remoteApiTempPath=_executablePath;
     _systemPath=_executablePath+"/"+SIM_SYSTEM_DIRECTORY_NAME;
     _scenesPath=_resourcesPath+"/"+CSimFlavor::getStringVal(13);// if scenes can't be found, it will use the last used directory somehow!
     _modelsPath=_resourcesPath+"/"+CSimFlavor::getStringVal(14);
@@ -32,16 +35,51 @@ CFolderSystem::CFolderSystem()
         setCadFilesPath(App::userSettings->defaultDirectoryForCadFiles.c_str());
     if (App::userSettings->defaultDirectoryForMiscFiles.length()!=0)
         setOtherFilesPath(App::userSettings->defaultDirectoryForMiscFiles.c_str());
-    if (App::userSettings->defaultDirectoryForExternalScriptEditor.length()!=0)
-        setExtScriptEditorTempPath(App::userSettings->defaultDirectoryForExternalScriptEditor.c_str());
-    if (App::userSettings->defaultDirectoryForRemoteApiFiles.length()!=0)
-        setRemoteApiTempPath(App::userSettings->defaultDirectoryForRemoteApiFiles.c_str());
 
+#ifdef SIM_WITH_QT
+    _tempDir=new QTemporaryDir();
+    _tempDir->setAutoRemove(true);
+    if (_tempDir->isValid())
+        _tempDataPath=_tempDir->path().toStdString().c_str();
+    QString s(QStandardPaths::locate(QStandardPaths::AppDataLocation,"CoppeliaSim",QStandardPaths::LocateDirectory));
+    if (s.length()==0)
+    {
+        QString wl(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+        QDir(wl).mkdir("CoppeliaSim");
+    }
+    _appDataPath=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString()+"/CoppeliaSim";
+#endif
+    if (_tempDataPath.size()==0)
+    {
+        _tempDataPath=_executablePath+"/tmp";
+        if (!VFile::doesFolderExist(_tempDataPath.c_str()))
+            VFile::createFolder(_tempDataPath.c_str());
+    }
+    if (_appDataPath.size()==0)
+    {
+        _appDataPath=_executablePath+"/app";
+        if (!VFile::doesFolderExist(_appDataPath.c_str()))
+            VFile::createFolder(_appDataPath.c_str());
+    }
 }
 
 CFolderSystem::~CFolderSystem()
 {
-
+#ifdef SIM_WITH_QT
+    if (_tempDir->isValid())
+        delete _tempDir;
+        _tempDataPath.clear();
+#endif
+    if (_tempDataPath.size()>0)
+    {
+        try
+        {
+            std::filesystem::remove_all(_tempDataPath.c_str());
+        }
+        catch(std::filesystem::filesystem_error const &e)
+        {
+        }
+    }
 }
 
 std::string CFolderSystem::getPathFromFull(const char* full)
@@ -135,25 +173,20 @@ void CFolderSystem::setOtherFilesPath(const char* path)
     VVarious::removePathFinalSlashOrBackslash(_otherFilesPath);
 }
 
-std::string CFolderSystem::getExtScriptEditorTempPath() const
+std::string CFolderSystem::getAppDataPath() const
 {
-    return(_extScriptEditorTempPath);
+    return(_appDataPath);
 }
 
-void CFolderSystem::setExtScriptEditorTempPath(const char* path)
+std::string CFolderSystem::getTempDataPath() const
 {
-    _extScriptEditorTempPath=path;
-    VVarious::removePathFinalSlashOrBackslash(_extScriptEditorTempPath);
+    return(_tempDataPath);
 }
 
-std::string CFolderSystem::getRemoteApiTempPath() const
+std::string CFolderSystem::getSceneTempDataPath() const
 {
-    return(_remoteApiTempPath);
+    std::string folder=_tempDataPath+"/sceneData"+std::to_string(App::currentWorld->environment->getSceneUniqueID());
+    if (!VFile::doesFolderExist(folder.c_str()))
+        VFile::createFolder(folder.c_str());
+    return(folder);
 }
-
-void CFolderSystem::setRemoteApiTempPath(const char* path)
-{
-    _remoteApiTempPath=path;
-    VVarious::removePathFinalSlashOrBackslash(_remoteApiTempPath);
-}
-

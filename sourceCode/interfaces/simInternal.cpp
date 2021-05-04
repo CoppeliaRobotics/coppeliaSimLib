@@ -4325,6 +4325,21 @@ simChar* simGetStringParam_internal(simInt parameter)
             validParam=true;
             retVal=CTTUtil::generateUniqueReadableString();
         }
+        if (parameter==sim_stringparam_tempdir)
+        {
+            validParam=true;
+            retVal=App::folders->getTempDataPath();
+        }
+        if (parameter==sim_stringparam_tempscenedir)
+        {
+            validParam=true;
+            retVal=App::folders->getSceneTempDataPath();
+        }
+        if (parameter==sim_stringparam_datadir)
+        {
+            validParam=true;
+            retVal=App::folders->getAppDataPath();
+        }
         if (parameter==sim_stringparam_scene_path_and_name)
         {
             validParam=true;
@@ -4357,7 +4372,7 @@ simChar* simGetStringParam_internal(simInt parameter)
         if (parameter==sim_stringparam_remoteapi_temp_file_dir)
         {
             validParam=true;
-            retVal=App::folders->getRemoteApiTempPath();
+            retVal=App::folders->getTempDataPath();
         }
         if (parameter==sim_stringparam_video_filename)
         {
@@ -6306,64 +6321,6 @@ simInt simPauseSimulation_internal()
             return(1);
         }
         return(0);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simAddModuleMenuEntry_internal(const simChar* entryLabel,simInt itemCount,simInt* itemHandles)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-#ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-        {
-            std::vector<int> commandIDs;
-            if (App::mainWindow->customMenuBarItemContainer->addMenuBarItem(entryLabel,itemCount,commandIDs))
-            {
-                for (unsigned int i=0;i<commandIDs.size();i++)
-                    itemHandles[i]=commandIDs[i];
-                App::mainWindow->createDefaultMenuBar();
-                return(1);
-            }
-        }
-        else
-#endif
-            return(1); // in headless mode we fake success
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OPERATION_FAILED);
-        return(-1);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simSetModuleMenuItemState_internal(simInt itemHandle,simInt state,const simChar* label)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-#ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-        {
-            if (App::mainWindow->customMenuBarItemContainer->setItemState(itemHandle,(state&2)!=0,(state&1)!=0,label))
-                return(1);
-        }
-        else
-#endif
-            return(1); // in headless mode we fake success
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ITEM_HANDLE);
-        return(-1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
@@ -22235,5 +22192,61 @@ simInt simCopyMatrix_internal(const simFloat* matrixIn,simFloat* matrixOut)
     for (int i=0;i<12;i++)
         matrixOut[i]=matrixIn[i];
     return(1);
+}
+
+simInt simAddModuleMenuEntry_internal(const simChar* entryLabel,simInt itemCount,simInt* itemHandles)
+{ // deprecated on 04.05.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+#ifdef SIM_WITH_GUI
+        if (App::mainWindow!=nullptr)
+        {
+            std::vector<int> commandIDs;
+            if (App::mainWindow->customMenuBarItemContainer->addMenuBarItem(entryLabel,itemCount,commandIDs))
+            {
+                for (unsigned int i=0;i<commandIDs.size();i++)
+                    itemHandles[i]=commandIDs[i];
+                App::mainWindow->createDefaultMenuBar();
+                return(1);
+            }
+        }
+        else
+#endif
+            return(1); // in headless mode we fake success
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OPERATION_FAILED);
+        return(-1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetModuleMenuItemState_internal(simInt itemHandle,simInt state,const simChar* label)
+{ // deprecated on 04.05.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+#ifdef SIM_WITH_GUI
+        if (App::mainWindow!=nullptr)
+        {
+            if (App::mainWindow->customMenuBarItemContainer->setItemState(itemHandle,(state&2)!=0,(state&1)!=0,label))
+                return(1);
+        }
+        else
+#endif
+            return(1); // in headless mode we fake success
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ITEM_HANDLE);
+        return(-1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
 }
 

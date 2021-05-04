@@ -51,7 +51,6 @@
 #define _USR_USE_EXTERNAL_LUA_LIBRARY "useExternalLuaLibrary"
 #define _USR_DESKTOP_RECORDING_INDEX "desktopRecordingIndex"
 #define _USR_DESKTOP_RECORDING_WIDTH "desktopRecordingWidth"
-#define _USR_DIRECTORY_FOR_SCRIPT_EDITOR "defaultDirectoryForExternalScriptEditor"
 #define _USR_EXTERNAL_SCRIPT_EDITOR "externalScriptEditor"
 #define _USR_XML_EXPORT_SPLIT_SIZE "xmlExportSplitSize"
 #define _USR_XML_EXPORT_KNOWN_FORMATS "xmlExportKnownFormats"
@@ -99,7 +98,6 @@
 #define _USR_DIRECTORY_FOR_MODELS "defaultDirectoryForModels"
 #define _USR_DIRECTORY_FOR_CAD "defaultDirectoryForCadFiles"
 #define _USR_DIRECTORY_FOR_MISC "defaultDirectoryForMiscFiles"
-#define _USR_DIRECTORY_FOR_REMOTE_API "defaultDirectoryForRemoteApiFiles"
 
 
 #define _USR_OFFSCREEN_CONTEXT_TYPE "offscreenContextType"
@@ -318,8 +316,6 @@ CUserSettings::CUserSettings()
     defaultDirectoryForModels="";
     defaultDirectoryForCadFiles="";
     defaultDirectoryForMiscFiles="";
-    defaultDirectoryForExternalScriptEditor="";
-    defaultDirectoryForRemoteApiFiles="";
 
 
     // Serialization section:
@@ -684,8 +680,6 @@ void CUserSettings::saveUserSettings()
     c.addString(_USR_DIRECTORY_FOR_MODELS,defaultDirectoryForModels,"absolute path, e.g. d:/myModels (or leave empty for default path)");
     c.addString(_USR_DIRECTORY_FOR_CAD,defaultDirectoryForCadFiles,"absolute path, e.g. d:/myCadFiles (or leave empty for default path)");
     c.addString(_USR_DIRECTORY_FOR_MISC,defaultDirectoryForMiscFiles,"absolute path, e.g. d:/myMiscFiles (or leave empty for default path)");
-    c.addString(_USR_DIRECTORY_FOR_SCRIPT_EDITOR,defaultDirectoryForExternalScriptEditor,"absolute path, e.g. d:/myScriptTempFiles (or leave empty for default path)");
-    c.addString(_USR_DIRECTORY_FOR_REMOTE_API,defaultDirectoryForRemoteApiFiles,"absolute path, e.g. d:/myRemoteApiTransfers (or leave empty for default path)");
 
 
     c.addRandomLine("");
@@ -1008,8 +1002,6 @@ void CUserSettings::loadUserSettings()
     c.getString(_USR_DIRECTORY_FOR_MODELS,defaultDirectoryForModels);
     c.getString(_USR_DIRECTORY_FOR_CAD,defaultDirectoryForCadFiles);
     c.getString(_USR_DIRECTORY_FOR_MISC,defaultDirectoryForMiscFiles);
-    c.getString(_USR_DIRECTORY_FOR_SCRIPT_EDITOR,defaultDirectoryForExternalScriptEditor);
-    c.getString(_USR_DIRECTORY_FOR_REMOTE_API,defaultDirectoryForRemoteApiFiles);
 
     // Serialization section:
     // *****************************
