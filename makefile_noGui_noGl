@@ -11,6 +11,7 @@ endif
 
 CFLAGS += -std=c++17
 CFLAGS += -I/usr/include/lua5.3
+CFLAGS += -I/usr/include/eigen3
 
 CFLAGS += -IsourceCode
 CFLAGS += -IsourceCode/shared
@@ -130,10 +131,12 @@ all:
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/proximitySensor.cpp -o proximitySensor.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/shape.cpp -o shape.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/visionSensor.cpp -o visionSensor.o
-	gcc $(CFLAGS) -c sourceCode/sceneObjects/graphObjectRelated/graphingRoutines.cpp -o graphingRoutines.o
-	gcc $(CFLAGS) -c sourceCode/sceneObjects/graphObjectRelated/graphDataComb.cpp -o graphDataComb.o
-	gcc $(CFLAGS) -c sourceCode/sceneObjects/graphObjectRelated/graphData.cpp -o graphData.o
-	gcc $(CFLAGS) -c sourceCode/sceneObjects/graphObjectRelated/staticGraphCurve.cpp -o staticGraphCurve.o
+	gcc $(CFLAGS) -c sourceCode/sceneObjects/graphObjectRelated/graphingRoutines_old.cpp -o graphingRoutines_old.o
+	gcc $(CFLAGS) -c sourceCode/sceneObjects/graphObjectRelated/graphDataComb_old.cpp -o graphDataComb_old.o
+	gcc $(CFLAGS) -c sourceCode/sceneObjects/graphObjectRelated/graphData_old.cpp -o graphData_old.o
+	gcc $(CFLAGS) -c sourceCode/sceneObjects/graphObjectRelated/staticGraphCurve_old.cpp -o staticGraphCurve_old.o
+	gcc $(CFLAGS) -c sourceCode/sceneObjects/graphObjectRelated/graphCurve.cpp -o graphCurve.o
+	gcc $(CFLAGS) -c sourceCode/sceneObjects/graphObjectRelated/graphDataStream.cpp -o graphDataStream.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/pathObjectRelated/bezierPathPoint_old.cpp -o bezierPathPoint_old.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/pathObjectRelated/simplePathPoint_old.cpp -o simplePathPoint_old.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/pathObjectRelated/pathPoint_old.cpp -o pathPoint_old.o
@@ -173,7 +176,7 @@ all:
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp -o sceneObjectContainer.o
 	gcc $(CFLAGS) -c sourceCode/shared/mainContainers/sceneContainers/_sceneObjectContainer_.cpp -o _sceneObjectContainer_.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/mainSettings.cpp -o mainSettings.o
-	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/luaScriptContainer.cpp -o luaScriptContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/embeddedScriptContainer.cpp -o embeddedScriptContainer.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/environment.cpp -o environment.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/dynamicsContainer.cpp -o dynamicsContainer.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/customData.cpp -o customData.o
