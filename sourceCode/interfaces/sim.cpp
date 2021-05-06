@@ -637,17 +637,17 @@ SIM_DLLEXPORT simInt simAnnounceSceneContentChange()
 {
     return(simAnnounceSceneContentChange_internal());
 }
-SIM_DLLEXPORT simInt simSetIntegerSignal(const simChar* signalName,simInt signalValue)
+SIM_DLLEXPORT simInt simSetInt32Signal(const simChar* signalName,simInt signalValue)
 {
-    return(simSetIntegerSignal_internal(signalName,signalValue));
+    return(simSetInt32Signal_internal(signalName,signalValue));
 }
-SIM_DLLEXPORT simInt simGetIntegerSignal(const simChar* signalName,simInt* signalValue)
+SIM_DLLEXPORT simInt simGetInt32Signal(const simChar* signalName,simInt* signalValue)
 {
-    return(simGetIntegerSignal_internal(signalName,signalValue));
+    return(simGetInt32Signal_internal(signalName,signalValue));
 }
-SIM_DLLEXPORT simInt simClearIntegerSignal(const simChar* signalName)
+SIM_DLLEXPORT simInt simClearInt32Signal(const simChar* signalName)
 {
-    return(simClearIntegerSignal_internal(signalName));
+    return(simClearInt32Signal_internal(signalName));
 }
 SIM_DLLEXPORT simInt simSetFloatSignal(const simChar* signalName,simFloat signalValue)
 {
@@ -2652,6 +2652,18 @@ SIM_DLLEXPORT simInt simAddModuleMenuEntry(const simChar* entryLabel,simInt item
 SIM_DLLEXPORT simInt simSetModuleMenuItemState(simInt itemHandle,simInt state,const simChar* label)
 {
     return(simSetModuleMenuItemState_internal(itemHandle,state,label));
+}
+SIM_DLLEXPORT simInt simSetIntegerSignal(const simChar* signalName,simInt signalValue)
+{
+    return(simSetInt32Signal_internal(signalName,signalValue));
+}
+SIM_DLLEXPORT simInt simGetIntegerSignal(const simChar* signalName,simInt* signalValue)
+{
+    return(simGetInt32Signal_internal(signalName,signalValue));
+}
+SIM_DLLEXPORT simInt simClearIntegerSignal(const simChar* signalName)
+{
+    return(simClearInt32Signal_internal(signalName));
 }
 // Deprecated end
 

@@ -172,7 +172,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Model scripts are inactive (child  and customization scripts)</string>
+     <string>Model scripts are inactive</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="qqNotInsideModelBBox">

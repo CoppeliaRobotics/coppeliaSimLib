@@ -258,9 +258,9 @@ const SLuaCommands simLuaCommands[]=
     {"sim.removeParticleObject",_simRemoveParticleObject,        "sim.removeParticleObject(int particleObjectHandle)",true},
     {"sim.addParticleObjectItem",_simAddParticleObjectItem,      "sim.addParticleObjectItem(int particleObjectHandle,table[] itemData)",true},
     {"sim.getObjectSizeFactor",_simGetObjectSizeFactor,          "float sizeFactor=sim.getObjectSizeFactor(int ObjectHandle)",true},
-    {"sim.setIntegerSignal",_simSetIntegerSignal,                "sim.setIntegerSignal(string signalName,int signalValue)",true},
-    {"sim.getIntegerSignal",_simGetIntegerSignal,                "int signalValue=sim.getIntegerSignal(string signalName)",true},
-    {"sim.clearIntegerSignal",_simClearIntegerSignal,            "sim.clearIntegerSignal(string signalName)",true},
+    {"sim.setInt32Signal",_simSetInt32Signal,                    "sim.setInt32Signal(string signalName,int signalValue)",true},
+    {"sim.getInt32Signal",_simGetInt32Signal,                    "int signalValue=sim.getInt32Signal(string signalName)",true},
+    {"sim.clearInt32Signal",_simClearInt32Signal,                "sim.clearInt32Signal(string signalName)",true},
     {"sim.setFloatSignal",_simSetFloatSignal,                    "sim.setFloatSignal(string signalName,float signalValue)",true},
     {"sim.getFloatSignal",_simGetFloatSignal,                    "float signalValue=sim.getFloatSignal(string signalName)",true},
     {"sim.clearFloatSignal",_simClearFloatSignal,                "sim.clearFloatSignal(string signalName)",true},
@@ -553,6 +553,9 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setEngineInt32Parameter",_simSetEngineInt32Param,      "Deprecated. Use sim.setEngineInt32Param instead",false},
     {"sim.setEngineBoolParameter",_simSetEngineBoolParam,        "Deprecated. Use sim.setEngineBoolParam instead",false},
     {"sim.isHandleValid",_simIsHandleValid,                      "Deprecated. Use sim.isHandle instead",false},
+    {"sim.setIntegerSignal",_simSetInt32Signal,                  "Deprecated. Use sim.setInt32Signal instead",false},
+    {"sim.getIntegerSignal",_simGetInt32Signal,                  "Deprecated. Use sim.getInt32Signal instead",false},
+    {"sim.clearIntegerSignal",_simClearInt32Signal,              "Deprecated. Use sim.clearInt32Signal instead",false},
     //{"sim.boolOr32",_simBoolOr32,                                "Deprecated. Use the bitwise operator | instead",false},
     //{"sim.boolAnd32",_simBoolAnd32,                              "Deprecated. Use the bitwise operator & instead",false},
     //{"sim.boolXor32",_simBoolXor32,                              "Deprecated. Use the bitwise operator ~ instead",false},
@@ -707,9 +710,9 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simRemoveParticleObject",_simRemoveParticleObject,        "Use the newer 'sim.removeParticleObject' notation",false},
     {"simAddParticleObjectItem",_simAddParticleObjectItem,      "Use the newer 'sim.addParticleObjectItem' notation",false},
     {"simGetObjectSizeFactor",_simGetObjectSizeFactor,          "Use the newer 'sim.getObjectSizeFactor' notation",false},
-    {"simSetIntegerSignal",_simSetIntegerSignal,                "Use the newer 'sim.setIntegerSignal' notation",false},
-    {"simGetIntegerSignal",_simGetIntegerSignal,                "Use the newer 'sim.getIntegerSignal' notation",false},
-    {"simClearIntegerSignal",_simClearIntegerSignal,            "Use the newer 'sim.clearIntegerSignal' notation",false},
+    {"simSetIntegerSignal",_simSetInt32Signal,                  "Deprecated. Use sim.setInt32Signal instead",false},
+    {"simGetIntegerSignal",_simGetInt32Signal,                  "Deprecated. Use sim.getInt32Signal instead",false},
+    {"simClearIntegerSignal",_simClearInt32Signal,              "Deprecated. Use sim.clearInt32Signal instead",false},
     {"simSetFloatSignal",_simSetFloatSignal,                    "Use the newer 'sim.setFloatSignal' notation",false},
     {"simGetFloatSignal",_simGetFloatSignal,                    "Use the newer 'sim.getFloatSignal' notation",false},
     {"simClearFloatSignal",_simClearFloatSignal,                "Use the newer 'sim.clearFloatSignal' notation",false},
@@ -7475,22 +7478,6 @@ int _simTest(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.test");
 
-    lua_Debug ar;
-    if (lua_getstack((lua_State*)L,1,&ar)==1)
-    {
-        if (lua_getinfo((lua_State*)L,"S",&ar)==1)
-        {
-            printf("Source: %s\n",ar.source);
-            printf("SourceShort: %s\n",ar.short_src);
-        }
-    }
-    if (lua_getstack((lua_State*)L,1,&ar)==1)
-    {
-        if (lua_getinfo((lua_State*)L,"l",&ar)==1)
-            printf("Line: %i\n",ar.currentline);
-    }
-
-
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
@@ -10546,16 +10533,16 @@ int _simGetObjectSizeFactor(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simSetIntegerSignal(luaWrap_lua_State* L)
+int _simSetInt32Signal(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setIntegerSignal");
+    LUA_START("sim.setInt32Signal");
 
     int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
         setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-        retVal=simSetIntegerSignal_internal(luaWrap_lua_tostring(L,1),luaToInt(L,2));
+        retVal=simSetInt32Signal_internal(luaWrap_lua_tostring(L,1),luaToInt(L,2));
         setCurrentScriptInfo_cSide(-1,-1);
     }
 
@@ -10564,15 +10551,15 @@ int _simSetIntegerSignal(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetIntegerSignal(luaWrap_lua_State* L)
+int _simGetInt32Signal(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getIntegerSignal");
+    LUA_START("sim.getInt32Signal");
 
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         int intVal;
-        if (simGetIntegerSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str(),&intVal)==1)
+        if (simGetInt32Signal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str(),&intVal)==1)
         {
             luaWrap_lua_pushinteger(L,intVal);
             LUA_END(1);
@@ -10583,19 +10570,19 @@ int _simGetIntegerSignal(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simClearIntegerSignal(luaWrap_lua_State* L)
+int _simClearInt32Signal(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.clearIntegerSignal");
+    LUA_START("sim.clearInt32Signal");
 
     int retVal=-1; //error
     int res=checkOneGeneralInputArgument(L,1,lua_arg_string,0,true,true,&errorString);
     if (res>=0)
     {
         if (res!=2)
-            retVal=simClearIntegerSignal_internal(nullptr); // actually deprecated. No need for that
+            retVal=simClearInt32Signal_internal(nullptr); // actually deprecated. No need for that
         else
-            retVal=simClearIntegerSignal_internal(luaWrap_lua_tostring(L,1));
+            retVal=simClearInt32Signal_internal(luaWrap_lua_tostring(L,1));
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

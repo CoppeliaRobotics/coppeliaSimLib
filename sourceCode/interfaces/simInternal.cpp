@@ -7150,7 +7150,7 @@ simInt simAnnounceSceneContentChange_internal()
     return(-1);
 }
 
-simInt simSetIntegerSignal_internal(const simChar* signalName,simInt signalValue)
+simInt simSetInt32Signal_internal(const simChar* signalName,simInt signalValue)
 {
     TRACE_C_API;
 
@@ -7166,7 +7166,7 @@ simInt simSetIntegerSignal_internal(const simChar* signalName,simInt signalValue
     return(-1);
 }
 
-simInt simGetIntegerSignal_internal(const simChar* signalName,simInt* signalValue)
+simInt simGetInt32Signal_internal(const simChar* signalName,simInt* signalValue)
 {
     TRACE_C_API;
 
@@ -7186,7 +7186,7 @@ simInt simGetIntegerSignal_internal(const simChar* signalName,simInt* signalValu
     return(-1);
 }
 
-simInt simClearIntegerSignal_internal(const simChar* signalName)
+simInt simClearInt32Signal_internal(const simChar* signalName)
 {
     TRACE_C_API;
 

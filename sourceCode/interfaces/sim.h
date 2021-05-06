@@ -174,9 +174,9 @@ SIM_DLLEXPORT simInt simRemoveParticleObject(simInt objectHandle);
 SIM_DLLEXPORT simInt simAddParticleObjectItem(simInt objectHandle,const simFloat* itemData);
 SIM_DLLEXPORT simFloat simGetObjectSizeFactor(simInt objectHandle);
 SIM_DLLEXPORT simInt simAnnounceSceneContentChange();
-SIM_DLLEXPORT simInt simSetIntegerSignal(const simChar* signalName,simInt signalValue);
-SIM_DLLEXPORT simInt simGetIntegerSignal(const simChar* signalName,simInt* signalValue);
-SIM_DLLEXPORT simInt simClearIntegerSignal(const simChar* signalName);
+SIM_DLLEXPORT simInt simSetInt32Signal(const simChar* signalName,simInt signalValue);
+SIM_DLLEXPORT simInt simGetInt32Signal(const simChar* signalName,simInt* signalValue);
+SIM_DLLEXPORT simInt simClearInt32Signal(const simChar* signalName);
 SIM_DLLEXPORT simInt simSetFloatSignal(const simChar* signalName,simFloat signalValue);
 SIM_DLLEXPORT simInt simGetFloatSignal(const simChar* signalName,simFloat* signalValue);
 SIM_DLLEXPORT simInt simClearFloatSignal(const simChar* signalName);
@@ -690,6 +690,9 @@ SIM_DLLEXPORT simInt simSetEngineBoolParameter(simInt paramId,simInt objectHandl
 SIM_DLLEXPORT simInt simIsHandleValid(simInt generalObjectHandle,simInt generalObjectType);
 SIM_DLLEXPORT simInt simAddModuleMenuEntry(const simChar* entryLabel,simInt itemCount,simInt* itemHandles);
 SIM_DLLEXPORT simInt simSetModuleMenuItemState(simInt itemHandle,simInt state,const simChar* label);
+SIM_DLLEXPORT simInt simSetIntegerSignal(const simChar* signalName,simInt signalValue);
+SIM_DLLEXPORT simInt simGetIntegerSignal(const simChar* signalName,simInt* signalValue);
+SIM_DLLEXPORT simInt simClearIntegerSignal(const simChar* signalName);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

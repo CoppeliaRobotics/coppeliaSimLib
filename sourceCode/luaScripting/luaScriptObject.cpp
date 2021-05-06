@@ -6337,6 +6337,9 @@ void CLuaScriptObject::_adjustScriptText14(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"sim.setEngineInt32Parameter","sim.setEngineInt32Param");
     _replaceScriptText(scriptObject,"sim.setEngineFloatParameter","sim.setEngineFloatParam");
 
+    _replaceScriptText(scriptObject,"sim.setIntegerSignal","sim.setInt32Signal");
+    _replaceScriptText(scriptObject,"sim.getIntegerSignal","sim.getInt32Signal");
+    _replaceScriptText(scriptObject,"sim.clearIntegerSignal","sim.clearInt32Signal");
 
     if (App::userSettings->xrTest==123456789)
     {

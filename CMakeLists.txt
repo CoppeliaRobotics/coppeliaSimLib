@@ -125,6 +125,7 @@ else()
     set(WITH_SERIAL false)
 endif()
 
+target_compile_features(coppeliaSim PRIVATE cxx_std_17)
 target_include_directories(coppeliaSim PRIVATE ${LUA_INCLUDE_DIR})
 target_include_directories(coppeliaSim PRIVATE ${EIGEN_INCLUDE_DIR})
 target_include_directories(coppeliaSim PRIVATE ${QSCINTILLA_DIR}/Qt4Qt5)

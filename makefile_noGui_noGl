@@ -9,8 +9,8 @@ else
 	EXT = dylib
 endif
 
-CFLAGS += -std=c++11
-CFLAGS += -I/usr/include/lua5.1
+CFLAGS += -std=c++17
+CFLAGS += -I/usr/include/lua5.3
 
 CFLAGS += -IsourceCode
 CFLAGS += -IsourceCode/shared
