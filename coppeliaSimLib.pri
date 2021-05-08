@@ -15,7 +15,6 @@ CONFIG(debug,debug|release) {
     CONFIG += force_debug_info
 }
 
-QMAKE_CXXFLAGS += /std:c++17
 QT += printsupport
 QT += network
 
@@ -53,6 +52,7 @@ WITH_QT {
 }
 
 *-msvc* {
+    QMAKE_CXXFLAGS += /std:c++17
     QMAKE_CFLAGS += -O2
     QMAKE_CFLAGS += -fp:precise
     QMAKE_CXXFLAGS += -O2
@@ -87,7 +87,7 @@ WITH_QT {
         QMAKE_CFLAGS += -O3
         QMAKE_CXXFLAGS += -O3
     }
-
+    CONFIG += c++17
     QMAKE_CFLAGS_WARN_ON = -Wall
     QMAKE_CFLAGS_WARN_ON += -Wno-strict-aliasing
     QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter
@@ -114,6 +114,7 @@ clang* {
         QMAKE_CXXFLAGS += -O3
     }
 
+    CONFIG += c++17
     QMAKE_CFLAGS_WARN_ON = -Wall
     QMAKE_CFLAGS_WARN_ON += -Wno-strict-aliasing
     QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter
