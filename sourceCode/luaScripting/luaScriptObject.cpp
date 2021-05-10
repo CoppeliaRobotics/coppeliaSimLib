@@ -3933,7 +3933,10 @@ int CLuaScriptObject::callCustomScriptFunction(const char* functionName,CInterfa
         if (_scriptType==sim_scripttype_sandboxscript)
             _scriptState&=7; // remove a possible error flag
         if ( (retVal==-1)&&(_scriptType!=sim_scripttype_sandboxscript) )
-            _killLuaState();
+        {
+            if (_executionDepth==0)
+                _killLuaState();
+        }
         else
         {
             if (inOutStack!=nullptr)
@@ -4278,8 +4281,8 @@ void CLuaScriptObject::terminateScriptExecutionExternally(bool generateErrorMsg)
         std::string tmp("?: script execution was terminated externally.");
         _announceErrorWasRaisedAndPossiblyPauseSimulation(tmp.c_str(),true);
     }
-    if (getScriptType()==sim_scripttype_addonscript)
-        flagForDestruction(); // stop it
+//    if (getScriptType()==sim_scripttype_addonscript)
+//        flagForDestruction(); // stop it
     if (getDebugLevel()!=sim_scriptdebug_none)
         handleDebug("force_script_stop","C",true,true);
     luaWrap_lua_yield(L,0);
