@@ -327,6 +327,21 @@ void ogl::drawRandom3dPoints(const float* pts,int ptsCnt,const float normalVecto
 
 void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,const float* cols,const float* sizes,bool colsAreEmission,const float normalVectorForDiffuseComp[3])
 {
+    if (cols!=nullptr)
+    { // note: glMaterialfv has some bugs in some geForce drivers, use glColor instead
+        glEnable(GL_COLOR_MATERIAL);
+        glColorMaterial(GL_FRONT_AND_BACK,GL_SPECULAR);
+        glColor3f(0.0f,0.0f,0.0f);
+        glColorMaterial(GL_FRONT_AND_BACK,GL_EMISSION);
+        glColor3f(0.0f,0.0f,0.0f);
+        glColorMaterial(GL_FRONT_AND_BACK,GL_SHININESS);
+        glColor3f(0.0f,0.0f,0.0f);
+        glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
+        glColor3f(0.0f,0.0f,0.0f);
+        if (colsAreEmission)
+            glColorMaterial(GL_FRONT_AND_BACK,GL_EMISSION);
+    }
+
     if (normals==nullptr)
     {
         if (cols==nullptr)
@@ -366,12 +381,9 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
                     glNormal3fv(normalVectorForDiffuseComp);
                 else
                     glNormal3f(0.0f,0.0f,1.0f);
-                GLenum comp=GL_AMBIENT_AND_DIFFUSE;
-                if (colsAreEmission)
-                    comp=GL_EMISSION;
                 for (int i=0;i<ptsCnt;i++)
                 {
-                    glMaterialfv(GL_FRONT_AND_BACK,comp,&cols[4*i]);
+                    glColor4fv(cols+4*i);
                     glVertex3fv(pts+i*3);
                 }
                 glEnd();
@@ -382,14 +394,11 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
                     glNormal3fv(normalVectorForDiffuseComp);
                 else
                     glNormal3f(0.0f,0.0f,1.0f);
-                GLenum comp=GL_AMBIENT_AND_DIFFUSE;
-                if (colsAreEmission)
-                    comp=GL_EMISSION;
                 for (int i=0;i<ptsCnt;i++)
                 {
                     glPointSize(sizes[i]); // cannot be called between glBegin and glEnd!
                     glBegin(GL_POINTS);
-                    glMaterialfv(GL_FRONT_AND_BACK,comp,&cols[4*i]);
+                    glColor4fv(cols+4*i);
                     glVertex3fv(pts+i*3);
                     glEnd();
                 }
@@ -427,12 +436,9 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
             if (sizes==nullptr)
             {
                 glBegin(GL_POINTS);
-                GLenum comp=GL_AMBIENT_AND_DIFFUSE;
-                if (colsAreEmission)
-                    comp=GL_EMISSION;
                 for (int i=0;i<ptsCnt;i++)
                 {
-                    glMaterialfv(GL_FRONT_AND_BACK,comp,&cols[4*i]);
+                    glColor4fv(cols+4*i);
                     glNormal3fv(normals+i*3);
                     glVertex3fv(pts+i*3);
                 }
@@ -440,14 +446,11 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
             }
             else
             {
-                GLenum comp=GL_AMBIENT_AND_DIFFUSE;
-                if (colsAreEmission)
-                    comp=GL_EMISSION;
                 for (int i=0;i<ptsCnt;i++)
                 {
                     glPointSize(sizes[i]); // cannot be called between glBegin and glEnd!
                     glBegin(GL_POINTS);
-                    glMaterialfv(GL_FRONT_AND_BACK,comp,&cols[4*i]);
+                    glColor4fv(cols+4*i);
                     glNormal3fv(normals+i*3);
                     glVertex3fv(pts+i*3);
                     glEnd();
@@ -455,6 +458,8 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
             }
         }
     }
+    if (cols!=nullptr)
+        glDisable(GL_COLOR_MATERIAL);
 }
 
 void ogl::drawRandom2dLines(const float* pts,int ptsCnt,bool connected,float zCoord)

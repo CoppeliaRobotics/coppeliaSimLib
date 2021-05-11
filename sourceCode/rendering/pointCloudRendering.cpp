@@ -113,6 +113,7 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
                 cols=pointCloud->getDisplayColors();
             }
 
+
             if ((cols->size()==0)||setOtherColor)
             {
                 glBegin(GL_POINTS);
@@ -123,27 +124,28 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
             }
             else
             {
+                // note: glMaterialfv has some bugs in some geForce drivers, use glColor instead
+                glEnable(GL_COLOR_MATERIAL);
+                glColorMaterial(GL_FRONT_AND_BACK,GL_SPECULAR);
+                glColor3f(0.0f,0.0f,0.0f);
+                glColorMaterial(GL_FRONT_AND_BACK,GL_EMISSION);
+                glColor3f(0.0f,0.0f,0.0f);
+                glColorMaterial(GL_FRONT_AND_BACK,GL_SHININESS);
+                glColor3f(0.0f,0.0f,0.0f);
+                glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
+                glColor3f(0.0f,0.0f,0.0f);
+                if (pointCloud->getColorIsEmissive())
+                    glColorMaterial(GL_FRONT_AND_BACK,GL_EMISSION);
+
                 glBegin(GL_POINTS);
                 glNormal3fv(normalVectorForLinesAndPoints.data);
-                if (pointCloud->getColorIsEmissive())
+                for (size_t i=0;i<pts->size()/3;i++)
                 {
-                    const float blk[4]={0.0,0.0,0.0,0.0};
-                    glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,blk);
-                    for (size_t i=0;i<pts->size()/3;i++)
-                    {
-                        glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,&(cols[0])[4*i]);
-                        glVertex3fv(&(pts[0])[3*i]);
-                    }
-                }
-                else
-                {
-                    for (size_t i=0;i<pts->size()/3;i++)
-                    {
-                        glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,&(cols[0])[4*i]);
-                        glVertex3fv(&(pts[0])[3*i]);
-                    }
+                    glColor4fv(&(cols[0])[4*i]);
+                    glVertex3fv(&(pts[0])[3*i]);
                 }
                 glEnd();
+                glDisable(GL_COLOR_MATERIAL);
             }
             glPointSize(1.0);
         }

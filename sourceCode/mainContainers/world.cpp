@@ -611,7 +611,7 @@ void CWorld::simulationAboutToStart()
 #ifdef SIM_WITH_GUI
         simDisplayDialog_internal("ERROR","The 'Geometric' plugin could not be initialized. Collision detection, distance calculation,\n and proximity sensor simulation will not work.",sim_dlgstyle_ok,"",nullptr,nullptr,nullptr);
 #endif
-        App::logMsg(sim_verbosity_errors,"the 'MeshCalc' plugin could not be initialized. Collision detection,\n       distance calculation, and proximity sensor simulation will not work.");
+        App::logMsg(sim_verbosity_errors,"the 'Geometric' plugin could not be initialized. Collision detection,\n       distance calculation, and proximity sensor simulation will not work.");
     }
 
     _simulationAboutToStart();

@@ -91,6 +91,7 @@ void CQDlgShapeDyn::refresh()
 
     // Mass/inertia properties:
     ui->qqDynamic->setEnabled(sel&&noEditModeAndNoSim&&notHeightfield);
+    ui->qqSleepModeStart->setVisible(App::userSettings->showOldDlgs);
     ui->qqSleepModeStart->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
     ui->qqComputeMassProperties->setEnabled(sel&&noEditModeAndNoSim&&lastSelIsNotStatic&&lastSelIsConvex);
     ui->qqMass->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);

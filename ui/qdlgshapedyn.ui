@@ -1773,7 +1773,7 @@
    <widget class="QCheckBox" name="qqSleepModeStart">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>220</x>
       <y>25</y>
       <width>181</width>
       <height>18</height>
@@ -1789,7 +1789,7 @@
    <widget class="QCheckBox" name="qqAutomaticToNonStatic">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>10</x>
       <y>25</y>
       <width>211</width>
       <height>18</height>
