@@ -14367,9 +14367,7 @@ simInt simGetQHull_internal(const simFloat* inVertices,simInt inVerticesL,simFlo
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
