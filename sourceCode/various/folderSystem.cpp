@@ -6,7 +6,10 @@
 #include "app.h"
 #include "simFlavor.h"
 #ifdef __cpp_lib_filesystem // macOS 10.13 does not support XCode >=11 which is required for that
-#include <filesystem>
+    #include <filesystem>
+#else
+    #include <ftw.h>
+    #include <unistd.h>
 #endif
 #ifdef SIM_WITH_QT
     #include <QStandardPaths>
@@ -68,9 +71,7 @@ CFolderSystem::CFolderSystem()
 #ifndef  __cpp_lib_filesystem // macOS 10.13 does not support XCode >=11 which is required for that
 int unlinkCb(const char* fpath,const struct stat* sb,int typeflag,struct FTW* ftwbuf)
 {
-    int rv = remove(fpath);
-    if (rv)
-        perror(fpath);
+    int rv=remove(fpath);
     return rv;
 }
 
