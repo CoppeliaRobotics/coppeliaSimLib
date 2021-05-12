@@ -75,7 +75,7 @@ int unlinkCb(const char* fpath,const struct stat* sb,int typeflag,struct FTW* ft
     return rv;
 }
 
-int rmrf(char* path)
+int rmrf(const char* path)
 {
     return nftw(path,unlinkCb,64,FTW_DEPTH|FTW_PHYS);
 }
