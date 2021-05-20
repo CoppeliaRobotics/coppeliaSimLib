@@ -6354,6 +6354,8 @@ void CLuaScriptObject::_adjustScriptText14(CLuaScriptObject* scriptObject,bool d
             App::logMsg(sim_verbosity_errors,"Contains sim.getObjectFloatParameter...");
         if (_containsScriptText(scriptObject,"sim.isHandleValid"))
             App::logMsg(sim_verbosity_errors,"Contains sim.isHandleValid...");
+        if (_containsScriptText(scriptObject,"sim.addPointCloud"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.addPointCloud...");
     }
 }
 
