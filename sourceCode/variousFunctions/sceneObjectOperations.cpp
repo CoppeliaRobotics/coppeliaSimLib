@@ -131,154 +131,123 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             size_t selS=App::currentWorld->sceneObjects->getSelectionCount();
-            if (selS==1)
+            CSceneObject* it=App::currentWorld->sceneObjects->getLastSelectionObject();
+            if ( (selS==1)&&(it->getLocalObjectProperty()&sim_objectproperty_canupdatedna) )
             {
-                CSceneObject* it=App::currentWorld->sceneObjects->getLastSelectionObject();
-                if (it->getLocalObjectProperty()&sim_objectproperty_canupdatedna)
+                CSceneObject* tmpIt=it;
+                while (true)
                 {
-                    bool model=it->getModelBase();
-                    std::vector<CSceneObject*> siblings;
-                    // Retrieve the sibling in the scene:
-                    for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
+                    tmpIt=tmpIt->getParent();
+                    if (tmpIt==nullptr)
+                        break;
+                    if (tmpIt->getModelBase())
+                        break;
+                }
+                std::vector<CSceneObject*> toExplore;
+                if (tmpIt!=nullptr)
+                    toExplore.assign(tmpIt->getChildren()->begin(),tmpIt->getChildren()->end());
+                else
+                {
+                    for (size_t i=0;i<App::currentWorld->sceneObjects->getOrphanCount();i++)
+                        toExplore.push_back(App::currentWorld->sceneObjects->getOrphanFromIndex(i));
+                }
+                std::vector<CSceneObject*> clones;
+                while (toExplore.size()>0)
+                {
+                    CSceneObject* obj=toExplore[0];
+                    toExplore.erase(toExplore.begin());
+                    if (obj!=it)
                     {
-                        CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-                        if ( (it2!=it)&&(it2->getLocalObjectProperty()&sim_objectproperty_canupdatedna)&&(it2->getDnaString().compare(it->getDnaString())==0) )
+                        if ( (obj->getLocalObjectProperty()&sim_objectproperty_canupdatedna)&&(obj->getDnaString().compare(it->getDnaString())==0) )
+                            clones.push_back(obj);
+                        else
+                            toExplore.insert(toExplore.end(),obj->getChildren()->begin(),obj->getChildren()->end());
+                    }
+                }
+
+                bool model=it->getModelBase();
+                std::vector<int> newSelection;
+                if (clones.size()>0)
+                {
+                    App::logMsg(sim_verbosity_msgs,IDSN_TRANSFERRING_DNA_TO_CLONES);
+                    App::worldContainer->copyBuffer->memorizeBuffer();
+
+                    std::vector<int> sel;
+                    sel.push_back(it->getObjectHandle());
+                    if (model)
+                        CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
+                    std::string masterName(it->getObjectName());
+
+                    App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked());
+                    App::currentWorld->sceneObjects->deselectObjects();
+                    for (size_t i=0;i<clones.size();i++)
+                    {
+                        if (!model)
                         {
-                            if (!model)
-                                siblings.push_back(it2);
-                            else
-                            { // Here we also have to check that the sibling model is not located in the same hierarchy as this one:
-                                bool sameHierarchy=false;
-                                CSceneObject* ite=it2;
-                                while (true)
-                                {
-                                    ite=ite->getParent();
-                                    if (ite==nullptr)
-                                        break;
-                                    if (ite==it)
-                                    {
-                                        sameHierarchy=true;
-                                        break;
-                                    }
-                                }
-                                if (!sameHierarchy)
-                                { // Here we also need to check if the sibling model is not located in the hierarchy of another sibling:
-                                    sameHierarchy=false;
-                                    ite=it2;
-                                    while (true)
-                                    {
-                                        ite=ite->getParent();
-                                        if (ite==nullptr)
-                                            break;
-                                        if ( (ite->getLocalObjectProperty()&sim_objectproperty_canupdatedna)&&(ite->getDnaString().compare(it->getDnaString())==0) )
-                                        {
-                                            sameHierarchy=true;
-                                            break;
-                                        }
-                                    }
-                                    if (!sameHierarchy)
-                                        siblings.push_back(it2);
-                                }
+                            std::string name(clones[i]->getObjectName());
+                            std::string altName(clones[i]->getObjectAltName());
+                            CSceneObject* parent(clones[i]->getParent());
+                            C7Vector tr(clones[i]->getLocalTransformation());
+                            std::vector<CSceneObject*> children;
+                            std::vector<C7Vector> childrenTr;
+                            for (size_t j=0;j<clones[i]->getChildCount();j++)
+                            {
+                                CSceneObject* child=clones[i]->getChildFromIndex(j);
+                                children.push_back(child);
+                                childrenTr.push_back(child->getLocalTransformation());
                             }
+                            App::currentWorld->sceneObjects->eraseObject(clones[i],true);
+                            App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),1);
+                            CSceneObject* newObj=App::currentWorld->sceneObjects->getLastSelectionObject();
+                            App::currentWorld->sceneObjects->deselectObjects();
+                            newSelection.push_back(newObj->getObjectHandle());
+                            newObj->setParent(parent,true);
+                            newObj->setLocalTransformation(tr);
+                            for (size_t j=0;j<children.size();j++)
+                            {
+                                children[j]->setParent(newObj,false);
+                                children[j]->setLocalTransformation(childrenTr[j]);
+                            }
+                            newObj->setObjectName(name.c_str(),true);
+                            newObj->setObjectAltName(altName.c_str(),true);
+                        }
+                        else
+                        {
+                            std::string name(clones[i]->getObjectName());
+                            std::string altName(clones[i]->getObjectAltName());
+                            std::vector<int> objs;
+                            objs.push_back(clones[i]->getObjectHandle());
+                            CSceneObjectOperations::addRootObjectChildrenToSelection(objs);
+                            C7Vector tr(clones[i]->getLocalTransformation());
+                            CSceneObject* parent(clones[i]->getParent());
+                            App::currentWorld->sceneObjects->eraseSeveralObjects(objs,true);
+                            App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),2);
+                            CSceneObject* newObj=App::currentWorld->sceneObjects->getLastSelectionObject();
+                            App::currentWorld->sceneObjects->deselectObjects();
+                            newSelection.push_back(newObj->getObjectHandle());
+                            newObj->setParent(parent,true);
+                            newObj->setLocalTransformation(tr);
+
+                            std::string autoName(newObj->getObjectName());
+                            int suffixNb=tt::getNameSuffixNumber(autoName.c_str(),true);
+                            name=tt::getNameWithoutSuffixNumber(name.c_str(),true);
+                            if (suffixNb>=0)
+                                name+="#"+std::to_string(suffixNb);
+                            newObj->setObjectName(name.c_str(),true);
+                            newObj->setObjectAltName(altName.c_str(),true);
                         }
                     }
-                    std::vector<int> newSelection;
-                    if (siblings.size()>0)
-                    {
-                        App::logMsg(sim_verbosity_msgs,IDSN_TRANSFERING_DNA_TO_SIBLINGS);
-                        App::worldContainer->copyBuffer->memorizeBuffer();
+                    App::worldContainer->copyBuffer->restoreBuffer();
+                    App::worldContainer->copyBuffer->clearMemorizedBuffer();
+                    App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                    std::string txt;
+                    txt+=boost::lexical_cast<std::string>(clones.size())+IDSN_X_CLONES_WERE_UPDATED;
+                    App::logMsg(sim_verbosity_msgs,txt.c_str());
 
-                        std::vector<int> sel;
-                        sel.push_back(it->getObjectHandle());
-                        if (model)
-                            CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-                        std::string masterName(it->getObjectName());
-                        App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked());
-                        App::currentWorld->sceneObjects->deselectObjects();
-                        for (int i=0;i<int(siblings.size());i++)
-                        {
-                            if (!model)
-                            {
-                                std::string name(siblings[i]->getObjectName());
-                                std::string altName(siblings[i]->getObjectAltName());
-                                CSceneObject* parent(siblings[i]->getParent());
-                                C7Vector tr(siblings[i]->getLocalTransformation());
-                                std::vector<CSceneObject*> children;
-                                std::vector<C7Vector> childrenTr;
-                                for (size_t j=0;j<siblings[i]->getChildCount();j++)
-                                {
-                                    CSceneObject* child=siblings[i]->getChildFromIndex(j);
-                                    children.push_back(child);
-                                    childrenTr.push_back(child->getLocalTransformation());
-                                }
-                                App::currentWorld->sceneObjects->eraseObject(siblings[i],true);
-                                App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),1);
-                                CSceneObject* newObj=App::currentWorld->sceneObjects->getLastSelectionObject();
-                                App::currentWorld->sceneObjects->deselectObjects();
-                                if (newObj!=nullptr)
-                                {
-                                    newSelection.push_back(newObj->getObjectHandle());
-                                    newObj->setParent(parent,true);
-                                    newObj->setLocalTransformation(tr);
-                                    for (size_t j=0;j<children.size();j++)
-                                    {
-                                        children[j]->setParent(newObj,false);
-                                        children[j]->setLocalTransformation(childrenTr[j]);
-                                    }
-                                    if (App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(newObj->getObjectHandle())!=nullptr)
-                                    { // we just try to keep the name suffix
-                                        int oldSuffix=tt::getNameSuffixNumber(name.c_str(),true);
-                                        std::string newName(tt::generateNewName_hash(tt::getNameWithoutSuffixNumber(masterName.c_str(),true).c_str(),oldSuffix));
-                                        while (App::currentWorld->sceneObjects->getObjectFromName(newName.c_str())!=nullptr)
-                                            newName=tt::generateNewName_hash(newName.c_str());
-                                        newObj->setObjectName(newName.c_str(),true);
-                                        //App::currentWorld->sceneObjects->renameObject(newObj->getObjectHandle(),newName.c_str());
-                                        newName=tt::getObjectAltNameFromObjectName(altName.c_str());
-                                        while (App::currentWorld->sceneObjects->getObjectFromAltName(newName.c_str())!=nullptr)
-                                            newName=tt::generateNewName_noHash(newName.c_str());
-                                        newObj->setObjectAltName(newName.c_str(),true);
-                                        //App::currentWorld->sceneObjects->altRenameObject(newObj->getObjectHandle(),newName.c_str());
-                                    }
-                                    else
-                                    { // we keep the old names
-                                        newObj->setObjectName(name.c_str(),true);
-                                        newObj->setObjectAltName(altName.c_str(),true);
-                                        //App::currentWorld->sceneObjects->renameObject(newObj->getObjectHandle(),name.c_str());
-                                        //App::currentWorld->sceneObjects->altRenameObject(newObj->getObjectHandle(),name.c_str());
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                std::vector<int> objs;
-                                objs.push_back(siblings[i]->getObjectHandle());
-                                CSceneObjectOperations::addRootObjectChildrenToSelection(objs);
-                                C7Vector tr(siblings[i]->getFullLocalTransformation());
-                                CSceneObject* parent(siblings[i]->getParent());
-                                App::currentWorld->sceneObjects->eraseSeveralObjects(objs,true);
-                                App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),2);
-                                CSceneObject* newObj=App::currentWorld->sceneObjects->getLastSelectionObject();
-                                App::currentWorld->sceneObjects->deselectObjects();
-                                if (newObj!=nullptr)
-                                {
-                                    newSelection.push_back(newObj->getObjectHandle());
-                                    newObj->setParent(parent,true);
-                                    newObj->setLocalTransformation(tr);
-                                }
-                            }
-                        }
-                        App::worldContainer->copyBuffer->restoreBuffer();
-                        App::worldContainer->copyBuffer->clearMemorizedBuffer();
-                        App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
-                        std::string txt;
-                        txt+=boost::lexical_cast<std::string>(siblings.size())+IDSN_X_SIBLINGS_WERE_UPDATED;
-                        App::logMsg(sim_verbosity_msgs,txt.c_str());
+                    for (size_t i=0;i<newSelection.size();i++)
+                        App::currentWorld->sceneObjects->addObjectToSelection(newSelection[i]);
 
-                        for (int i=0;i<int(newSelection.size());i++)
-                            App::currentWorld->sceneObjects->addObjectToSelection(newSelection[i]);
-
-                        POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                    }
+                    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
                 }
             }
         }

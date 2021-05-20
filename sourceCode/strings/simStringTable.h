@@ -216,8 +216,8 @@
 #define IDSNS_MAKING_ORPHANS "Making orphan(s)..."
 #define IDSN_ASSEMBLING_2_OBJECTS "Assembling 2 objects..."
 #define IDSN_DISASSEMBLING_OBJECT "Disassembling object..."
-#define IDSN_TRANSFERING_DNA_TO_SIBLINGS "Transferring DNA to siblings..."
-#define IDSN_X_SIBLINGS_WERE_UPDATED " siblings were updated."
+#define IDSN_TRANSFERRING_DNA_TO_CLONES "Transferring DNA to clones..."
+#define IDSN_X_CLONES_WERE_UPDATED " clones were updated."
 
 
 #define IDSNS_SCENE_WAS_RESTORED_FROM_AUTO_SAVED_SCENE "Scene was restored from auto-saved scene."
@@ -862,7 +862,7 @@
 #define IDSN_UNDO "Undo"
 #define IDSN_REDO "Redo"
 #define IDSN_ASSEMBLE "Assemble / Disassemble"
-#define IDSN_TRANSFER_DNA "Transfer DNA to siblings"
+#define IDSN_TRANSFER_DNA "Transfer DNA to clones"
 
 
 #define IDSN_SLOW_DOWN_SIMULATION "Slow down simulation"
