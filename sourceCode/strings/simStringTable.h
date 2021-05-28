@@ -582,7 +582,7 @@
 #define IDS_CONVEX_MORPH_MENU_ITEM "Morph selection into convex shapes"
 #define IDS_CONVEX_DECOMPOSITION_MORPH_MENU_ITEM "Morph selection into its convex decomposition..."
 #define IDS_MESH_DECIMATION_MENU_ITEM "Decimate selected shape..."
-#define IDS_REMOVE_SHAPE_INSIDE_MENU_ITEM "Extract inside of selected shape..."
+//#define IDS_REMOVE_SHAPE_INSIDE_MENU_ITEM "Extract inside of selected shape..."
 
 // ****************************************************************************
 

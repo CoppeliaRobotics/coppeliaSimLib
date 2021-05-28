@@ -178,7 +178,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
                     std::string masterName(it->getObjectName());
 
-                    App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked());
+                    App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked(),0);
                     App::currentWorld->sceneObjects->deselectObjects();
                     for (size_t i=0;i<clones.size();i++)
                     {
@@ -625,6 +625,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         return(true);
     }
 
+    /*
     if (commandID==SCENE_OBJECT_OPERATION_EXTRACT_SHAPE_INSIDE_SOOCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
@@ -836,7 +837,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         }
         return(true);
     }
-
+*/
 
     if ((commandID==SCENE_OBJECT_OPERATION_UNLINK_DUMMIES_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_LINK_DUMMIES_IK_TIP_TARGET_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_LINK_DUMMIES_GCS_LOOP_CLOSURE_SOOCMD)||
         (commandID==SCENE_OBJECT_OPERATION_LINK_DUMMIES_GCS_TIP_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_LINK_DUMMIES_GCS_TARGET_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_LINK_DUMMIES_DYNAMICS_LOOP_CLOSURE_SOOCMD))
@@ -1303,7 +1304,7 @@ void CSceneObjectOperations::copyObjects(std::vector<int>* selection,bool displa
     // We first copy the selection:
     std::vector<int> sel(*selection);
     addRootObjectChildrenToSelection(sel);
-    App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked());
+    App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked(),0);
     App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
 
     if (displayMessages)
@@ -2566,7 +2567,7 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
             menu->appendMenuItem((shapesInRootSel>0)&&noSim,false,SCENE_OBJECT_OPERATION_MORPH_INTO_CONVEX_SHAPES_SOOCMD,IDS_CONVEX_MORPH_MENU_ITEM);
             menu->appendMenuItem((shapesInRootSel>0)&&noSim,false,SCENE_OBJECT_OPERATION_MORPH_INTO_CONVEX_DECOMPOSITION_SOOCMD,IDS_CONVEX_DECOMPOSITION_MORPH_MENU_ITEM);
             menu->appendMenuItem(lastSelIsShape&&(selItems==1)&&noSim&&lastSelIsNonPureShape,false,SCENE_OBJECT_OPERATION_DECIMATE_SHAPE_SOOCMD,IDS_MESH_DECIMATION_MENU_ITEM);
-            menu->appendMenuItem(lastSelIsShape&&(selItems==1)&&noSim&&lastSelIsNonPureShape&&lastSelIsNonGrouping,false,SCENE_OBJECT_OPERATION_EXTRACT_SHAPE_INSIDE_SOOCMD,IDS_REMOVE_SHAPE_INSIDE_MENU_ITEM);
+//            menu->appendMenuItem(lastSelIsShape&&(selItems==1)&&noSim&&lastSelIsNonPureShape&&lastSelIsNonGrouping,false,SCENE_OBJECT_OPERATION_EXTRACT_SHAPE_INSIDE_SOOCMD,IDS_REMOVE_SHAPE_INSIDE_MENU_ITEM);
 
             if ((selItems==2)&&(selDummies==2))
             { // we have 2 selected dummies we might want to link/unlink:

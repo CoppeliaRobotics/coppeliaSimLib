@@ -6832,7 +6832,7 @@ simInt simCopyPasteObjects_internal(simInt* objectHandles,simInt objectCount,sim
         if (options&1)
             CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
         App::worldContainer->copyBuffer->memorizeBuffer();
-        App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked());
+        App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked(),options>>1);
         App::currentWorld->sceneObjects->deselectObjects();
         if (options&1)
             App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),3);
@@ -18509,7 +18509,7 @@ simInt simCopyPasteSelectedObjects_internal()
         if (fullModelCopyFromApi)
             CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
         App::worldContainer->copyBuffer->memorizeBuffer();
-        App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked());
+        App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked(),0);
         App::currentWorld->sceneObjects->deselectObjects();
         App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),3);
         App::worldContainer->copyBuffer->restoreBuffer();

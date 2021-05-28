@@ -1028,6 +1028,12 @@ CSceneObject* CSceneObject::copyYourself()
     return(theNewObject);
 }
 
+void CSceneObject::clearObjectCustomData()
+{
+    delete _customObjectData;
+    _customObjectData=nullptr;
+}
+
 void CSceneObject::setObjectCustomData(int header,const char* data,int dataLength)
 {
     if (_customObjectData==nullptr)
@@ -1054,6 +1060,12 @@ bool CSceneObject::getObjectCustomDataHeader(int index,int& header) const
     if (_customObjectData==nullptr)
         return(false);
     return(_customObjectData->getHeader(index,header));
+}
+
+void CSceneObject::clearObjectCustomData_tempData()
+{
+    delete _customObjectData_tempData;
+    _customObjectData_tempData=nullptr;
 }
 
 void CSceneObject::setObjectCustomData_tempData(int header,const char* data,int dataLength)

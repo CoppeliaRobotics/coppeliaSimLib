@@ -253,8 +253,8 @@ bool CCopyBuffer::isBufferEmpty()
     return(objectBuffer.size()==0);
 }
 
-void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScene)
-{   
+void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScene,int options)
+{   // options: bit0 set=remove scripts, bit1 set=remove custom data, bit2 set=remove object references, bit3 set=remove textures
     TRACE_INTERNAL;
     // We copy the current selection in a way that the copied data (sceneObjects,
     // collections, collisions, etc.) is self-consistent: Should the entire scene be
@@ -296,6 +296,16 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
     {
         CSceneObject* original=selObj[i];
         CSceneObject* it=original->copyYourself();
+        if ((options&2)!=0)
+        {
+            it->clearObjectCustomData();
+            it->clearObjectCustomData_tempData();
+        }
+        if ((options&4)!=0)
+        {
+            it->setReferencedHandles(0,nullptr);
+            it->setReferencedOriginalHandles(0,nullptr);
+        }
         objectBuffer.push_back(it);
     }
 
@@ -337,14 +347,20 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
     }
 
     // Other object copy:
-    for (size_t i=0;i<App::currentWorld->embeddedScriptContainer->allScripts.size();i++)
-    { // Copy only child scripts or customization scripts:
-        int st=App::currentWorld->embeddedScriptContainer->allScripts[i]->getScriptType();
-        if ( ( (st==sim_scripttype_childscript)||(st==sim_scripttype_customizationscript) )&&(App::currentWorld->embeddedScriptContainer->allScripts[i]->getObjectHandleThatScriptIsAttachedTo()!=-1) )
-            luaScriptBuffer.push_back(App::currentWorld->embeddedScriptContainer->allScripts[i]->copyYourself());
+    if ((options&1)==0)
+    {
+        for (size_t i=0;i<App::currentWorld->embeddedScriptContainer->allScripts.size();i++)
+        { // Copy only child scripts or customization scripts:
+            int st=App::currentWorld->embeddedScriptContainer->allScripts[i]->getScriptType();
+            if ( ( (st==sim_scripttype_childscript)||(st==sim_scripttype_customizationscript) )&&(App::currentWorld->embeddedScriptContainer->allScripts[i]->getObjectHandleThatScriptIsAttachedTo()!=-1) )
+                luaScriptBuffer.push_back(App::currentWorld->embeddedScriptContainer->allScripts[i]->copyYourself());
+        }
     }
-    for (size_t i=0;i<App::currentWorld->textureContainer->_allTextureObjects.size();i++)
-        textureObjectBuffer.push_back(App::currentWorld->textureContainer->_allTextureObjects[i]->copyYourself());
+    if ((options&8)==0)
+    {
+        for (size_t i=0;i<App::currentWorld->textureContainer->_allTextureObjects.size();i++)
+            textureObjectBuffer.push_back(App::currentWorld->textureContainer->_allTextureObjects[i]->copyYourself());
+    }
 
     // Old:
     for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
@@ -390,7 +406,7 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
     // temporary buffers:
     _backupBuffers_temp();
 
-    copyCurrentSelection(sel,false); // here we indicate that the scene is not locked,it doesn't matter (should have been checked before anyway)
+    copyCurrentSelection(sel,false,0); // here we indicate that the scene is not locked,it doesn't matter (should have been checked before anyway)
 
 //--------------------------- Here we serialize the buffer content -------------------
 

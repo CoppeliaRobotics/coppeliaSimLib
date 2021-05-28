@@ -155,12 +155,14 @@ public:
     float getNonDefaultRotationStepSize() const;
 
     void setObjectCustomData(int header,const char* data,int dataLength);
+    void clearObjectCustomData();
     int getObjectCustomDataLength(int header) const;
     void getObjectCustomData(int header,char* data) const;
     bool getObjectCustomDataHeader(int index,int& header) const;
 
     // Following same as above, but not serialized:
     void setObjectCustomData_tempData(int header,const char* data,int dataLength);
+    void clearObjectCustomData_tempData();
     int getObjectCustomDataLength_tempData(int header) const;
     void getObjectCustomData_tempData(int header,char* data) const;
     bool getObjectCustomDataHeader_tempData(int index,int& header) const;
