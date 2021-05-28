@@ -254,7 +254,11 @@ bool CCopyBuffer::isBufferEmpty()
 }
 
 void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScene,int options)
-{   // options: bit0 set=remove scripts, bit1 set=remove custom data, bit2 set=remove object references, bit3 set=remove textures
+{   // options: bit0 set=remove scripts,
+    //          bit1 set=remove custom data
+    //          bit2 set=remove object references
+    //          bit3 set=remove textures
+    //          bit4 set=remove model tags and DNA tag
     TRACE_INTERNAL;
     // We copy the current selection in a way that the copied data (sceneObjects,
     // collections, collisions, etc.) is self-consistent: Should the entire scene be
@@ -305,6 +309,12 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
         {
             it->setReferencedHandles(0,nullptr);
             it->setReferencedOriginalHandles(0,nullptr);
+        }
+        if ((options&16)!=0)
+        {
+            it->setModelBase(false);
+            it->setLocalObjectProperty((it->getLocalObjectProperty()|sim_objectproperty_canupdatedna)-sim_objectproperty_canupdatedna);
+            it->generateDnaString();
         }
         objectBuffer.push_back(it);
     }
