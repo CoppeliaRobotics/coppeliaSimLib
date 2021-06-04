@@ -17,6 +17,7 @@ public:
     bool removeScript_safe(int scriptHandle);
     bool removeScript(int scriptHandle);
     int insertScript(CLuaScriptObject* script);
+    int getObjectHandleFromScriptHandle(int scriptHandle) const;
     CLuaScriptObject* getScriptFromHandle(int scriptHandle) const;
     CLuaScriptObject* getMainScript() const;
     CLuaScriptObject* getScriptFromObjectAttachedTo_child(int objectHandle) const;

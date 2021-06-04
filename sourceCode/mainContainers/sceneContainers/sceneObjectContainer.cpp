@@ -6,6 +6,8 @@
 #include "tt.h"
 #include "pluginContainer.h"
 #include "mesh.h"
+#include <sstream>
+#include <iostream>
 
 CSceneObjectContainer::CSceneObjectContainer()
 {
@@ -1277,6 +1279,110 @@ int CSceneObjectContainer::getObjectHandleFromAltName(const char* objectAltName)
     if (it!=_objectAltNameMap.end())
         return(it->second);
     return(-1);
+}
+
+CSceneObject* CSceneObjectContainer::getObjectFromNamePath(int emittingObject,const char* objectNameAndPath,int index) const
+{
+    std::string nm(objectNameAndPath);
+    CSceneObject* retVal=nullptr;
+    if (nm.size()>0)
+    {
+        CSceneObject* emObj=nullptr;
+        if (nm[0]=='/')
+        {
+            nm.erase(0,1);
+            if ( (nm[0]=='.')||(nm[0]=='/') )
+                return(nullptr);
+        }
+        else
+        {
+            emObj=getObjectFromHandle(emittingObject);
+            if (nm==".")
+            {
+                while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
+                    emObj=emObj->getParent();
+                return(emObj);
+            }
+            else
+            {
+                if (nm.compare(0,2,"./")==0)
+                {
+                    nm.erase(0,2);
+                    while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
+                        emObj=emObj->getParent();
+                }
+                else
+                {
+                    while (nm.compare(0,2,"..")==0)
+                    {
+                        nm.erase(0,2);
+                        if (emObj==nullptr)
+                            return(nullptr);
+                        // Get the first parent that is model (including itself):
+                        while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
+                            emObj=emObj->getParent();
+                        if (emObj==nullptr)
+                            return(nullptr);
+                        // Get the next parent that is model (excluding itself):
+                        emObj=emObj->getParent();
+                        while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
+                            emObj=emObj->getParent();
+                        if (nm.size()==0)
+                            return(emObj); // e.g. "../.."
+                        if (nm[0]=='/')
+                            nm.erase(0,1);
+                        else
+                            return(nullptr); // bad string (expected "../")
+                    }
+                }
+            }
+        }
+        std::vector<CSceneObject*> toExplore;
+        if (emObj==nullptr)
+        {
+            for (size_t i=0;i<getOrphanCount();i++)
+                toExplore.push_back(getOrphanFromIndex(i));
+        }
+        else
+        {
+            for (size_t i=0;i<emObj->getChildCount();i++)
+                toExplore.push_back(emObj->getChildFromIndex(i));
+        }
+        std::istringstream fullname(nm.c_str());
+        std::string objName;
+        while (std::getline(fullname,objName,'/'))
+        {
+            size_t wildcardPos=objName.find('*');
+            if (wildcardPos!=std::string::npos)
+                objName.erase(wildcardPos,1);
+            retVal=nullptr;
+            size_t i=0;
+            while (i<toExplore.size())
+            {
+                CSceneObject* it=toExplore[i];
+                i++;
+                std::string name(it->getObjectName().substr(0,it->getObjectName().find('#')));
+                if (name.compare(0,wildcardPos,objName)==0) // if (name==objName)
+                {
+                    if (index<=0)
+                    {
+                        toExplore.clear();
+                        retVal=it;
+                    }
+                    else
+                        index--;
+                }
+                // add its children to be explored:
+                for (size_t j=0;j<it->getChildCount();j++)
+                    toExplore.push_back(it->getChildFromIndex(j));
+                if (retVal!=nullptr)
+                    break;
+            }
+            if (retVal==nullptr)
+                break;
+        }
+    }
+    return(retVal);
 }
 
 CSceneObject* CSceneObjectContainer::getObjectFromName(const char* name) const

@@ -222,6 +222,14 @@ CLuaScriptObject* CEmbeddedScriptContainer::getScriptFromHandle(int scriptHandle
     return(retVal);
 }
 
+int CEmbeddedScriptContainer::getObjectHandleFromScriptHandle(int scriptHandle) const
+{
+    CLuaScriptObject* script=getScriptFromHandle(scriptHandle);
+    if (script!=nullptr)
+        return(script->getObjectHandleThatScriptIsAttachedTo());
+    return(-1);
+}
+
 CLuaScriptObject* CEmbeddedScriptContainer::getScriptFromObjectAttachedTo_child(int objectHandle) const
 { // used for child scripts
     if (objectHandle<0)

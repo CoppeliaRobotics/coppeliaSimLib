@@ -153,7 +153,18 @@ int CAddOnScriptContainer::_insertAddOns()
                 script[archiveLength]=0;
                 CLuaScriptObject* defScript=new CLuaScriptObject(sim_scripttype_addonscript);
                 _insertAddOn(defScript);
-                defScript->setScriptText(script);
+                std::string sc(script);
+                size_t p=0;
+                while (true)
+                { // unelegant, but simply disable the sysCall_info, so that the script automatically loads (since explicitely specified in the command line)
+                    p=sc.find("sysCall_info",p);
+                    if (p==std::string::npos)
+                        break;
+                    sc.replace(p,strlen("sysCall_info"),"_sysCall_info_");
+                    p+=strlen("sysCall_info");
+                }
+
+                defScript->setScriptText(sc.c_str());
 
                 defScript->setAddOnName(fileName_noExtension.c_str());
                 defScript->setThreadedExecution_oldThreads(false);

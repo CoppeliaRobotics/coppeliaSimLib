@@ -1184,6 +1184,11 @@ simInt simSetLastError_internal(const simChar* funcName,const simChar* errorMess
 
 simInt simGetObjectHandle_internal(const simChar* objectName)
 {
+    return(simGetObjectHandleEx_internal(objectName,-1));
+}
+
+simInt simGetObjectHandleEx_internal(const simChar* objectName,int index)
+{
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
@@ -1200,16 +1205,24 @@ simInt simGetObjectHandle_internal(const simChar* objectName)
             nm.erase(nm.begin()+firstAtPos,nm.end());
         if (altPos==std::string::npos)
         { // handle retrieval via regular name
-            nm=getIndexAdjustedObjectName(nm.c_str());
-            it=App::currentWorld->sceneObjects->getObjectFromName(nm.c_str());
+            if ( (nm.size()>0)&&((nm[0]=='.')||(nm[0]=='/')) )
+            {
+                int objHandle=App::currentWorld->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
+                it=App::currentWorld->sceneObjects->getObjectFromNamePath(objHandle,nm.c_str(),index);
+            }
+            else
+            {
+                nm=getIndexAdjustedObjectName(nm.c_str());
+                it=App::currentWorld->sceneObjects->getObjectFromName(nm.c_str());
+            }
         }
         else
             it=App::currentWorld->sceneObjects->getObjectFromAltName(nm.c_str()); // handle retrieval via alt name
 
         if (it==nullptr)
         {
-            if (silentErrorPos==std::string::npos)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT);
+            if ( (silentErrorPos==std::string::npos)&&(index==-1) )
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH);
             return(-1);
         }
         int retVal=it->getObjectHandle();

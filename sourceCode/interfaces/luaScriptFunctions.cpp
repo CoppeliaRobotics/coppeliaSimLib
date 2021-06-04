@@ -116,7 +116,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.checkProximitySensor",_simCheckProximitySensor,        "int result,float distance,table[3] detectedPoint=sim.checkProximitySensor(int sensorHandle,int entityHandle)",true},
     {"sim.checkProximitySensorEx",_simCheckProximitySensorEx,    "int result,float distance,table[3] detectedPoint,int detectedObjectHandle,table[3] normalVector=\nsim.checkProximitySensorEx(int sensorHandle,int entityHandle,int mode,float threshold,float maxAngle)",true},
     {"sim.checkProximitySensorEx2",_simCheckProximitySensorEx2,  "int result,float distance,table[3] detectedPoint,table[3] normalVector=\nsim.checkProximitySensorEx2(int sensorHandle,table[3..*] vertices,int itemType,int itemCount,int mode,float threshold,float maxAngle)",true},
-    {"sim.getObjectHandle",_simGetObjectHandle,                  "int objectHandle=sim.getObjectHandle(string objectName)",true},
+    {"sim.getObjectHandle",_simGetObjectHandle,                  "int objectHandle=sim.getObjectHandle(string objectPathAndName,int index=-1)",true},
     {"sim.addScript",_simAddScript,                              "int scriptHandle=sim.addScript(int scriptType)",true},
     {"sim.associateScriptWithObject",_simAssociateScriptWithObject,"sim.associateScriptWithObject(int scriptHandle,int objectHandle)",true},
     {"sim.setScriptText",_simSetScriptText,                      "sim.setScriptText(int scriptHandle,string scriptText)",true},
@@ -5350,11 +5350,17 @@ int _simGetObjectHandle(luaWrap_lua_State* L)
     {
         if (checkInputArguments(L,&errorString,lua_arg_string,0))
         {
-            std::string name(luaWrap_lua_tostring(L,1));
-            setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-            retVal=simGetObjectHandle_internal(name.c_str());
-            setCurrentScriptInfo_cSide(-1,-1);
-
+            int index=-1;
+            int res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,true,false,&errorString);
+            if (res>=0)
+            {
+                if (res==2)
+                    index=luaToInt(L,2);
+                std::string name(luaWrap_lua_tostring(L,1));
+                setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                retVal=simGetObjectHandleEx_internal(name.c_str(),index);
+                setCurrentScriptInfo_cSide(-1,-1);
+            }
         }
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

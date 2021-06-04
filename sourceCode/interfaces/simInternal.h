@@ -31,6 +31,7 @@ simInt simGetArrayParam_internal(simInt parameter,simVoid* arrayOfValues);
 simInt simSetStringNamedParam_internal(const simChar* paramName,const simChar* stringParam,simInt paramLength);
 simChar* simGetStringNamedParam_internal(const simChar* paramName,simInt* paramLength);
 simInt simGetObjectHandle_internal(const simChar* objectName);
+simInt simGetObjectHandleEx_internal(const simChar* objectName,int index);
 simInt simRemoveObject_internal(simInt objectHandle);
 simInt simRemoveModel_internal(simInt objectHandle);
 simChar* simGetObjectName_internal(simInt objectHandle);

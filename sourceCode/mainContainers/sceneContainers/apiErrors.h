@@ -12,6 +12,7 @@
 #define SIM_ERROR_CANNOT_SET_GET_PARAM_WINDOW           "Cannot set/get parameter: simulator window initialization state is wrong."
 #define SIM_ERROR_CANNOT_SET_GET_PARAM_SIM          "Cannot set/get parameter: simulation run state is wrong."
 #define SIM_ERROR_OBJECT_INEXISTANT             "Object does not exist."
+#define SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH  "Object does not exist, or name/path is ill formatted."
 #define SIM_ERROR_VISION_SENSOR_INEXISTANT          "Vision sensor does not exist."
 #define SIM_ERROR_PATH_INEXISTANT           "Path does not exist."
 #define SIM_ERROR_ENTITY_INEXISTANT             "Entity does not exist."

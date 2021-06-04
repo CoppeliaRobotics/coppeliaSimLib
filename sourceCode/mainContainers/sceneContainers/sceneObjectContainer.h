@@ -84,6 +84,7 @@ public:
     CSceneObject* getObjectFromName(const char* name) const;
     CSceneObject* getObjectFromAltName(const char* altName) const;
     CSceneObject* getObjectFromUniqueId(int uniqueID) const;
+    CSceneObject* getObjectFromNamePath(int emittingObject,const char* objectNameAndPath,int index) const;
     int getHighestObjectHandle() const;
 
     size_t getOrphanCount() const;
