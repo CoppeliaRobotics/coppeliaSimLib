@@ -339,5 +339,15 @@ int CTTUtil::popIntFromBuffer(std::vector<char>& data)
     return(d);
 }
 
-
-
+bool CTTUtil::doStringMatch_wildcard(const char* wildcardStr,const char* otherStr)
+{
+    if ( (wildcardStr[0]=='\0')&&(otherStr[0]=='\0') )
+        return(true);
+    if ( (wildcardStr[0]=='*')&&((wildcardStr+1)[0]!='\0')&&(otherStr[0]=='\0') )
+        return(false);
+    if ( (wildcardStr[0]=='?')||(wildcardStr[0]==otherStr[0]) )
+        return(doStringMatch_wildcard(wildcardStr+1,otherStr+1));
+    if (wildcardStr[0]=='*')
+        return(doStringMatch_wildcard(wildcardStr+1,otherStr)||doStringMatch_wildcard(wildcardStr,otherStr+1));
+    return(false);
+}

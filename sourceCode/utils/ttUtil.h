@@ -32,5 +32,6 @@ public:
     static float popFloatFromBuffer(std::vector<char>& data);
     static void pushIntToBuffer(int d,std::vector<char>& data);
     static int popIntFromBuffer(std::vector<char>& data);
+    static bool doStringMatch_wildcard(const char* wildcardStr,const char* otherStr);
 
 };

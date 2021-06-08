@@ -1976,18 +1976,10 @@ void CShape::display(CViewableBase* renderingObject,int displayAttrib)
     displayShape(this,renderingObject,displayAttrib);
 }
 
-bool CShape::setParent(CSceneObject* newParent,bool keepObjectInPlace)
-{ // Overridden from CSceneObject
-    bool retVal=CSceneObject::setParent(newParent,keepObjectInPlace);
-    if ( retVal&&(newParent!=nullptr) )
-    {
-        CSceneObject* thisObject=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandle);
-        CSceneObject* _newParent=App::currentWorld->sceneObjects->getObjectFromHandle(newParent->getObjectHandle());
-        if ( (thisObject!=nullptr)&&(_newParent!=nullptr) )
-        { // both objects are in the world
-            if (getSetAutomaticallyToNonStaticIfGetsParent())
-                setShapeIsDynamicallyStatic(false);
-        }
-    }
+bool CShape::setParent(CSceneObject* newParent)
+{ // Overridden from _CSceneObject_
+    bool retVal=CSceneObject::setParent(newParent);
+    if (retVal&&getSetAutomaticallyToNonStaticIfGetsParent())
+        setShapeIsDynamicallyStatic(false);
     return(retVal);
 }

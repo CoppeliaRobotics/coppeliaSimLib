@@ -219,12 +219,8 @@ void CHierarchy::keyPress(int key)
                     {
                         if (App::currentWorld->sceneObjects->getObjectFromName(editionText.c_str())==nullptr)
                         {
-                            if ( (SIM_LOWCASE_STRING_COMPARE("world",editionText.c_str())!=0)&&(SIM_LOWCASE_STRING_COMPARE("none",editionText.c_str())!=0) )
-                            {
-                                it->setObjectName(editionText.c_str(),true);
-                                // App::currentWorld->sceneObjects->renameObject(it->getObjectHandle(),editionText.c_str());
-                                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                            }
+                            App::currentWorld->sceneObjects->setObjectName(it,editionText.c_str(),true);
+                            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
                         }
                         App::setFullDialogRefreshFlag();
                     }

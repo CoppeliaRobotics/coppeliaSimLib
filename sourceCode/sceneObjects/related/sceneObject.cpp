@@ -962,6 +962,7 @@ CSceneObject* CSceneObject::copyYourself()
     theNewObject->_objectHandle=_objectHandle; // important for copy operations connections
     theNewObject->_authorizedViewableObjects=_authorizedViewableObjects;
     theNewObject->_visibilityLayer=_visibilityLayer;
+    theNewObject->_childOrder=_childOrder;
     theNewObject->_localTransformation=_localTransformation;
     theNewObject->_objectName=_objectName;
     theNewObject->_objectAltName=_objectAltName;
@@ -1336,7 +1337,7 @@ void CSceneObject::simulationEnded()
                         if ( (oldParent!=nullptr)||(_initialParentUniqueID==-1) )
                         {
                             // Inverted following 2 lines on 24/2/2012:
-                            setParent(oldParent,true);
+                            App::currentWorld->sceneObjects->setObjectParent(this,oldParent,true);
                             setLocalTransformation(_initialLocalTransformationPart1);
                         }
                     }
@@ -1571,62 +1572,6 @@ int CSceneObject::getScriptsToExecute(int scriptType,int parentTraversalDirectio
     return(cnt);
 }
 
-bool CSceneObject::setObjectName(const char* newName,bool check)
-{ // overridden from _CSceneObject_
-    bool diff=false;
-    CSceneObject* thisObject=nullptr;
-    if (check)
-        thisObject=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandle);
-    if (thisObject!=this)
-        diff=_CSceneObject_::setObjectName(newName,false); // no checking or object not yet in scene
-    else
-    { // object is in world
-        std::string nm(newName);
-        tt::removeIllegalCharacters(nm,true);
-        if ( (nm.size()>0)&&(SIM_LOWCASE_STRING_COMPARE("world",nm.c_str())!=0)&&(SIM_LOWCASE_STRING_COMPARE("none",nm.c_str())!=0) )
-        {
-            if (getObjectName()!=nm)
-            {
-                while (App::currentWorld->sceneObjects->getObjectFromName(nm.c_str())!=nullptr)
-                    nm=tt::generateNewName_hashOrNoHash(nm.c_str(),!tt::isHashFree(nm.c_str()));
-                std::string oldName(_objectName);
-                diff=_CSceneObject_::setObjectName(nm.c_str(),check);
-                if (diff)
-                    App::currentWorld->sceneObjects->objectWasRenamed(_objectHandle,oldName.c_str(),nm.c_str(),false); // update name index
-            }
-        }
-    }
-    return(diff);
-}
-
-bool CSceneObject::setObjectAltName(const char* newName,bool check)
-{ // overridden from _CSceneObject_
-    bool diff=false;
-    CSceneObject* thisObject=nullptr;
-    if (check)
-        thisObject=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandle);
-    if (thisObject!=this)
-        diff=_CSceneObject_::setObjectAltName(newName,false); // no checking or object not yet in scene
-    else
-    { // object is in world
-        std::string nm(newName);
-        tt::removeAltNameIllegalCharacters(nm);
-        if (nm.size()>0)
-        {
-            if (getObjectName()!=nm)
-            {
-                while (App::currentWorld->sceneObjects->getObjectFromAltName(nm.c_str())!=nullptr)
-                    nm=tt::generateNewName_noHash(nm.c_str());
-                std::string oldName(_objectAltName);
-                diff=_CSceneObject_::setObjectAltName(nm.c_str(),check);
-                if (diff)
-                    App::currentWorld->sceneObjects->objectWasRenamed(_objectHandle,oldName.c_str(),nm.c_str(),true); // update name index
-            }
-        }
-    }
-    return(diff);
-}
-
 void CSceneObject::_setLocalTransformation_send(const C7Vector& tr) const
 { // overridden from _CSceneObject_
     _CSceneObject_::_setLocalTransformation_send(tr);
@@ -1636,9 +1581,9 @@ void CSceneObject::_setLocalTransformation_send(const C7Vector& tr) const
         CPluginContainer::ikPlugin_setObjectLocalTransformation(_ikPluginCounterpartHandle,_localTransformation);
 }
 
-void CSceneObject::_setParent_send(int parentHandle,bool keepObjectInPlace) const
+void CSceneObject::_setParent_send(int parentHandle) const
 { // overridden from _CSceneObject_
-    _CSceneObject_::_setParent_send(parentHandle,keepObjectInPlace);
+    _CSceneObject_::_setParent_send(parentHandle);
 
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
@@ -1752,6 +1697,10 @@ void CSceneObject::serialize(CSer& ar)
 
             ar.storeDataName("Lar");
             ar << _visibilityLayer;
+            ar.flush();
+
+            ar.storeDataName("Cor");
+            ar << _childOrder;
             ar.flush();
 
             ar.storeDataName("Om5");
@@ -2039,6 +1988,12 @@ void CSceneObject::serialize(CSer& ar)
                         ar >> byteQuantity;
                         ar >> _visibilityLayer;
                     }
+                    if (theName.compare("Cor")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _childOrder;
+                    }
                     if (theName.compare("Om5")==0)
                     {
                         noHit=false;
@@ -2302,6 +2257,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.xmlPopNode();
 
             ar.xmlAddNode_int("layer",_visibilityLayer);
+            ar.xmlAddNode_int("childOrder",_childOrder);
 
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("modelBase",_modelBase);
@@ -2542,6 +2498,9 @@ void CSceneObject::serialize(CSer& ar)
                 if (ar.xmlGetNode_int("layer",l,exhaustiveXml))
                     _visibilityLayer=(unsigned short)l;
 
+                if (ar.xmlGetNode_int("childOrder",l,exhaustiveXml))
+                    _childOrder=l;
+
                 if (exhaustiveXml&&ar.xmlPushChildNode("manipulation"))
                 {
                     ar.xmlGetNode_int("permissions",_objectManipulationModePermissions);
@@ -2683,7 +2642,7 @@ int CSceneObject::_uniqueIDCounter=0;
 void CSceneObject::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
 {
     int newParentID=CWorld::getLoadingMapping(map,_parentObjectHandle_forSerializationOnly);
-    setParent(App::currentWorld->sceneObjects->getObjectFromHandle(newParentID),false);
+    App::currentWorld->sceneObjects->setObjectParent(this,App::currentWorld->sceneObjects->getObjectFromHandle(newParentID),false);
 
     if ( (_authorizedViewableObjects>=0)&&(_authorizedViewableObjects<SIM_IDSTART_COLLECTION) )
         _authorizedViewableObjects=CWorld::getLoadingMapping(map,_authorizedViewableObjects);
@@ -2741,7 +2700,7 @@ bool CSceneObject::announceObjectWillBeErased(int objHandle,bool copyBuffer)
         if (parent!=nullptr)
         {
             if (parent->getObjectHandle()==objHandle)
-                setParent(parent->getParent(),true);
+                App::currentWorld->sceneObjects->setObjectParent(this,parent->getParent(),true);
         }
         removeChild(toRemove);
     }
@@ -3067,45 +3026,6 @@ void CSceneObject::setParentHandle_forSerializationOnly(int pHandle)
     _parentObjectHandle_forSerializationOnly=pHandle;
 }
 
-bool CSceneObject::setParent(CSceneObject* newParent,bool keepObjectInPlace)
-{ // Overridden from _CSceneObject_
-    bool retVal=false;
-    CSceneObject* oldParent=getParent();
-    if ( (newParent!=oldParent)&&( (newParent==nullptr)||(!newParent->isObjectParentedWith(this)) ) )
-    {
-        CSceneObject* thisObject=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandle);
-        CSceneObject* _newParent=nullptr;
-        if (newParent!=nullptr)
-            _newParent=App::currentWorld->sceneObjects->getObjectFromHandle(newParent->getObjectHandle());
-        if ( (thisObject!=this)||(_newParent!=newParent) )
-            retVal=_CSceneObject_::setParent(newParent,false); // object and/or parent is not yet in world
-        else
-        { // objects are in world
-            C7Vector oldCumulTransf(getCumulativeTransformation());
-            if (oldParent!=nullptr)
-                retVal=oldParent->removeChild(this);
-            retVal=_CSceneObject_::setParent(newParent,keepObjectInPlace)||retVal;
-            if (retVal)
-            {
-                if (newParent!=nullptr)
-                    newParent->addChild(this);
-                int h1=-1;
-                if (oldParent!=nullptr)
-                    h1=oldParent->getObjectHandle();
-                int h2=-1;
-                if (newParent!=nullptr)
-                    h2=newParent->getObjectHandle();
-                App::currentWorld->sceneObjects->objectGotNewParent(_objectHandle,h1,h2);
-                CSceneObject::incrementModelPropertyValidityNumber();
-                App::setRebuildHierarchyFlag();
-                if (keepObjectInPlace)
-                    setLocalTransformation(getFullParentCumulativeTransformation().getInverse()*oldCumulTransf);
-            }
-        }
-    }
-    return(retVal);
-}
-
 void CSceneObject::getFirstModelRelatives(std::vector<CSceneObject*>& firstModelRelatives,bool visibleModelsOnly) const
 {
     for (size_t i=0;i<getChildCount();i++)
@@ -3175,11 +3095,6 @@ void CSceneObject::acquireCommonPropertiesFromObject_simpleXMLLoading(const CSce
     _CSceneObject_::setVisibilityLayer(obj->getVisibilityLayer());
     _extensionString=obj->_extensionString;
     _modelAcknowledgement=obj->_modelAcknowledgement;
-}
-
-int CSceneObject::getObjectType() const
-{
-    return(_objectType);
 }
 
 void CSceneObject::setRestoreToDefaultLights(bool s)
@@ -3975,6 +3890,7 @@ void CSceneObject::buildUpdateAndPopulateSynchronizationObject(const std::vector
         // Update the remote object:
         _setExtensionString_send(_extensionString.c_str());
         _setVisibilityLayer_send(_visibilityLayer);
+        _setChildOrder_send(_childOrder);
         _setObjectName_send(_objectName.c_str());
         _setObjectAltName_send(_objectAltName.c_str());
         _setLocalTransformation_send(_localTransformation);
@@ -3990,7 +3906,7 @@ void CSceneObject::connectSynchronizationObject()
         int h=-1;
         if (getParent()!=nullptr)
             h=getParent()->getObjectHandle();
-        _setParent_send(h,false);
+        _setParent_send(h);
     }
 }
 
@@ -4037,7 +3953,10 @@ void CSceneObject::addChild(CSceneObject* child)
     if (child==nullptr)
         _childList.clear();
     else
+    {
         _childList.push_back(child);
+        handleOrderIndexOfChildren();
+    }
 }
 
 bool CSceneObject::removeChild(const CSceneObject* child)
@@ -4052,6 +3971,31 @@ bool CSceneObject::removeChild(const CSceneObject* child)
             break;
         }
     }
+    handleOrderIndexOfChildren();
     return(retVal);
+}
+
+void CSceneObject::handleOrderIndexOfChildren()
+{
+    std::map<std::string,int> nameMap;
+    for (size_t i=0;i<_childList.size();i++)
+    {
+        CSceneObject* child=_childList[i];
+        std::string hn(child->getObjectHashlessName());
+        std::map<std::string,int>::iterator it=nameMap.find(hn);
+        if (it==nameMap.end())
+            nameMap[hn]=0;
+        else
+            nameMap[hn]++;
+        child->setChildOrder(nameMap[hn]);
+    }
+    for (size_t i=0;i<_childList.size();i++)
+    {
+        CSceneObject* child=_childList[i];
+        std::string hn(child->getObjectHashlessName());
+        std::map<std::string,int>::iterator it=nameMap.find(hn);
+        if (nameMap[hn]==0)
+            child->setChildOrder(-1); // means unique with that name, with that parent
+    }
 }
 

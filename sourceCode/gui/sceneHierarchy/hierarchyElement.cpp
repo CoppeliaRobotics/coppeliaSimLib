@@ -64,7 +64,9 @@ void CHierarchyElement::addYourChildren()
 #endif
                 {
                     objIDs.push_back(it->getObjectHandle());
-                    objNames.push_back(tt::getLowerUpperCaseString(it->getObjectName(),false));
+//                    objNames.push_back(tt::getLowerUpperCaseString(it->getObjectName(),false));
+                    objNames.push_back(tt::getLowerUpperCaseString(it->getObjectHashlessNameAndOrder(),false));
+
                 }
             }
             tt::orderStrings(objNames,objIDs);
@@ -103,7 +105,9 @@ void CHierarchyElement::addYourChildren()
                     if (!child->hiddenInSceneHierarchy())
                     {
                         objIDs.push_back(child->getObjectHandle());
-                        objNames.push_back(tt::getLowerUpperCaseString(child->getObjectName(),false));
+//                        objNames.push_back(tt::getLowerUpperCaseString(child->getObjectName(),false));
+                        objNames.push_back(tt::getLowerUpperCaseString(child->getObjectHashlessNameAndOrder(),false));
+
                     }
                 }
                 tt::orderStrings(objNames,objIDs);
@@ -509,7 +513,8 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectID);
     std::string theText;
     if (it!=nullptr)
-        theText=it->getObjectName();
+//        theText=it->getObjectName();
+        theText=it->getObjectHashlessNameAndOrder();
     else
     {
         theText+=_sceneName;

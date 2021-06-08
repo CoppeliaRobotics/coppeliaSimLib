@@ -5350,16 +5350,23 @@ int _simGetObjectHandle(luaWrap_lua_State* L)
     {
         if (checkInputArguments(L,&errorString,lua_arg_string,0))
         {
-            int index=-1;
+            int altHandleForSearch=-1;
             int res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,true,false,&errorString);
             if (res>=0)
             {
                 if (res==2)
-                    index=luaToInt(L,2);
-                std::string name(luaWrap_lua_tostring(L,1));
-                setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-                retVal=simGetObjectHandleEx_internal(name.c_str(),index);
-                setCurrentScriptInfo_cSide(-1,-1);
+                    altHandleForSearch=luaToInt(L,2);
+                int index=-1;
+                res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,false,&errorString);
+                if (res>=0)
+                {
+                    if (res==2)
+                        index=luaToInt(L,3);
+                    std::string name(luaWrap_lua_tostring(L,1));
+                    setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                    retVal=simGetObjectHandleEx_internal(name.c_str(),altHandleForSearch,index);
+                    setCurrentScriptInfo_cSide(-1,-1);
+                }
             }
         }
     }

@@ -1184,10 +1184,10 @@ simInt simSetLastError_internal(const simChar* funcName,const simChar* errorMess
 
 simInt simGetObjectHandle_internal(const simChar* objectName)
 {
-    return(simGetObjectHandleEx_internal(objectName,-1));
+    return(simGetObjectHandleEx_internal(objectName,-1,-1));
 }
 
-simInt simGetObjectHandleEx_internal(const simChar* objectName,int index)
+simInt simGetObjectHandleEx_internal(const simChar* objectName,int altObjHandleForSearch,int index)
 {
     TRACE_C_API;
 
@@ -1208,7 +1208,7 @@ simInt simGetObjectHandleEx_internal(const simChar* objectName,int index)
             if ( (nm.size()>0)&&((nm[0]=='.')||(nm[0]=='/')) )
             {
                 int objHandle=App::currentWorld->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
-                it=App::currentWorld->sceneObjects->getObjectFromNamePath(objHandle,nm.c_str(),index);
+                it=App::currentWorld->sceneObjects->getObjectFromNamePath(objHandle,nm.c_str(),altObjHandleForSearch,index);
             }
             else
             {
@@ -1449,18 +1449,10 @@ simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName)
             return(-1);
         }
         if ((handleFlags&sim_handleflag_altname)!=0)
-            it->setObjectAltName(text.c_str(),true);
-            //App::currentWorld->sceneObjects->altRenameObject(it->getObjectHandle(),text.c_str());
+            App::currentWorld->sceneObjects->setObjectAltName(it,text.c_str(),true);
         else
         {
-            if ( (SIM_LOWCASE_STRING_COMPARE("world",text.c_str())==0)||(SIM_LOWCASE_STRING_COMPARE("none",text.c_str())==0) )
-            {
-                if ((handleFlags&sim_handleflag_silenterror)==0)
-                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
-                return(-1);
-            }
-            it->setObjectName(text.c_str(),true);
-            //App::currentWorld->sceneObjects->renameObject(it->getObjectHandle(),text.c_str());
+            App::currentWorld->sceneObjects->setObjectName(it,text.c_str(),true);
             App::setFullDialogRefreshFlag();
         }
         return(1);
@@ -2294,7 +2286,7 @@ simInt simSetObjectParent_internal(simInt objectHandle,simInt parentObjectHandle
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         CSceneObject* parentIt=App::currentWorld->sceneObjects->getObjectFromHandle(parentObjectHandle);
         if (keepInPlace)
-            it->setParent(parentIt,true);
+            App::currentWorld->sceneObjects->setObjectParent(it,parentIt,true);
         else
         {
             if ( (handleFlags&sim_handleflag_assembly)&&(parentIt!=nullptr) )
@@ -2306,17 +2298,17 @@ simInt simSetObjectParent_internal(simInt objectHandle,simInt parentObjectHandle
                 if ( directAssembly||(potParents.size()==1) )
                 {
                     if (directAssembly)
-                        it->setParent(parentIt,true);
+                        App::currentWorld->sceneObjects->setObjectParent(it,parentIt,true);
                     else
-                        it->setParent(potParents[0],true);
+                        App::currentWorld->sceneObjects->setObjectParent(it,potParents[0],true);
                     if (it->getAssemblingLocalTransformationIsUsed())
                         it->setLocalTransformation(it->getAssemblingLocalTransformation());
                 }
                 else
-                    it->setParent(parentIt,false);
+                    App::currentWorld->sceneObjects->setObjectParent(it,parentIt,false);
             }
             else
-                it->setParent(parentIt,false);
+                App::currentWorld->sceneObjects->setObjectParent(it,parentIt,false);
         }
         return(1);
     }

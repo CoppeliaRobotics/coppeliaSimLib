@@ -303,9 +303,12 @@ void CWorld::saveScene(CSer& ar)
     }
     //------------------------------------------------------------
 
-    for (size_t i=0;i<sceneObjects->getObjectCount();i++)
+    // Save objects in hierarchial order!
+    std::vector<CSceneObject*> allObjects;
+    App::currentWorld->sceneObjects->getObjects_hierarchyOrder(allObjects);
+    for (size_t i=0;i<allObjects.size();i++)
     {
-        CSceneObject* it=sceneObjects->getObjectFromIndex(i);
+        CSceneObject* it=allObjects[i];
         if (ar.isBinary())
             sceneObjects->writeSceneObject(ar,it);
         else
@@ -316,6 +319,8 @@ void CWorld::saveScene(CSer& ar)
         }
     }
 
+    // Old:
+    // --------------------------
     if (ar.isBinary())
     {
         ar.storeDataName(SER_GHOSTS);
@@ -330,6 +335,7 @@ void CWorld::saveScene(CSer& ar)
         ghostObjectCont->serialize(ar);
         ar.xmlPopNode();
     }
+    // --------------------------
 
     if (ar.isBinary())
     {
@@ -347,6 +353,8 @@ void CWorld::saveScene(CSer& ar)
     }
 
 
+    // Old:
+    // --------------------------
     for (size_t i=0;i<collisions->getObjectCount();i++)
     {
         CCollisionObject_old* collObj=collisions->getObjectFromIndex(i);
@@ -402,7 +410,7 @@ void CWorld::saveScene(CSer& ar)
         }
     }
     if (ar.isBinary())
-    { // deprecated functionality
+    {
         for (size_t i=0;i<pathPlanning->allObjects.size();i++)
         {
             ar.storeDataName(SER_PATH_PLANNING);
@@ -412,6 +420,7 @@ void CWorld::saveScene(CSer& ar)
                 pathPlanning->allObjects[i]->serialize(ar);
         }
     }
+    // --------------------------
 
     if (ar.isBinary())
     {
@@ -487,7 +496,8 @@ void CWorld::saveScene(CSer& ar)
         ar.xmlPopNode();
     }
 
-    // We serialize all OLD collections (those that were created via the GUI or via simCreateCollection):
+    // Old:
+    // --------------------------
     for (size_t i=0;i<collections->getObjectCount();i++)
     {
         CCollection* coll=collections->getObjectFromIndex(i);
@@ -509,10 +519,8 @@ void CWorld::saveScene(CSer& ar)
             }
         }
     }
-
     if ( ar.isBinary()&&(!App::userSettings->disableOpenGlBasedCustomUi) )
-    { // deprecated functionality
-        // We serialize the buttonBlocks (non-system):
+    {
         for (size_t i=0;i<buttonBlockContainer->allBlocks.size();i++)
         {
             CButtonBlock* bblk=buttonBlockContainer->allBlocks[i];
@@ -526,8 +534,9 @@ void CWorld::saveScene(CSer& ar)
             }
         }
     }
+    // --------------------------
 
-    // We serialize the lua script objects (not the add-on scripts nor the sandbox script):
+    // We serialize the script objects (not the add-on scripts nor the sandbox script):
     for (size_t i=0;i<embeddedScriptContainer->allScripts.size();i++)
     {
         CLuaScriptObject* it=embeddedScriptContainer->allScripts[i];
@@ -1766,7 +1775,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
             if ( (s!=addedObjects.end())||(pit==nullptr) )
             {
                 allLoadedObjects.push_back(it);
-                it->setParent(pit,false);
+                sceneObjects->setObjectParent(it,pit,false);
                 addedObjects[it]=true;
 
                 if (childScript!=nullptr)
@@ -1843,8 +1852,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
             //      while (getObject(newObjName)!=nullptr)
             //          newObjName=tt::generateNewName_noHash(newObjName);
         }
-        it->setObjectName(newObjName.c_str(),true);
-        //sceneObjects->renameObject(it->getObjectHandle(),newObjName.c_str());
+        sceneObjects->setObjectName(it,newObjName.c_str(),true);
 
         // Now a similar procedure, but with the alt object names:
         std::string newObjAltName=it->getObjectTempAltName();
@@ -1878,8 +1886,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
         // Following was too slow with many objects:
         //      while (getObjectFromAltName(newObjAltName)!=nullptr)
         //          newObjAltName=tt::generateNewName_noHash(newObjAltName);
-        it->setObjectAltName(newObjAltName.c_str(),true);
-        //sceneObjects->altRenameObject(it->getObjectHandle(),newObjAltName.c_str());
+        sceneObjects->setObjectAltName(it,newObjAltName.c_str(),true);
     }
 
     // Add collections and perform mapping:

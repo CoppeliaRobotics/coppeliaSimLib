@@ -276,7 +276,10 @@ void CCalculationInfo::printInformation()
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=tmp;
 
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Last selected object name:";
-                tmp=it->getObjectName();
+                tmp=it->getObjectHashlessNameAndOrder();
+                tmp+=" (";
+                tmp+=it->getObjectName();
+                tmp+=")";
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=tmp;
 
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Last selected object type:";

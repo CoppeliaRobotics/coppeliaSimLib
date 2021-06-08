@@ -151,7 +151,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CSceneObject* parent=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[1]);
             if (child!=nullptr)
             {
-                child->setParent(parent,true);
+                App::currentWorld->sceneObjects->setObjectParent(child,parent,true);
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
             }
         }
@@ -4496,8 +4496,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==PATHEDIT_MAKEDUMMY_GUITRIGGEREDCMD)
         {
             CDummy* newDummy=new CDummy();
-            newDummy->setObjectName(cmd.stringParams[0].c_str(),true);
-            newDummy->setObjectAltName(tt::getObjectAltNameFromObjectName(newDummy->getObjectName().c_str()).c_str(),true);
+            newDummy->setObjectName_direct(cmd.stringParams[0].c_str());
+            newDummy->setObjectAltName_direct(tt::getObjectAltNameFromObjectName(newDummy->getObjectName().c_str()).c_str());
             newDummy->setDummySize(cmd.floatParams[0]);
             App::currentWorld->sceneObjects->addObjectToScene(newDummy,false,true);
             newDummy->setLocalTransformation(cmd.transfParams[0]);
@@ -4514,8 +4514,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             newShape->setVisibleEdges(false);
             newShape->getSingleMesh()->setGouraudShadingAngle(0.0f);
             newShape->getSingleMesh()->setEdgeThresholdAngle(0.0f);
-            newShape->setObjectName("Extracted_shape",true);
-            newShape->setObjectAltName(tt::getObjectAltNameFromObjectName(newShape->getObjectName().c_str()).c_str(),true);
+            newShape->setObjectName_direct("Extracted_shape");
+            newShape->setObjectAltName_direct(tt::getObjectAltNameFromObjectName(newShape->getObjectName().c_str()).c_str());
             App::currentWorld->sceneObjects->addObjectToScene(newShape,false,true);
             if (toid!=-1)
             {

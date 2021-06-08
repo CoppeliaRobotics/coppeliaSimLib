@@ -534,18 +534,8 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
 
                             // Fix the name and add the new shape to the new selection vector:
                             CShape* newShape=App::currentWorld->sceneObjects->getShapeFromHandle(newShapeHandle);
-                            std::string baseN("generated_part");
-                            std::string n(baseN);
-                            int suff=0;
-                            while (App::currentWorld->sceneObjects->getObjectFromName(n.c_str())!=nullptr)
-                                n=baseN+boost::lexical_cast<std::string>(suff++);
-                            newShape->setObjectName(n.c_str(),true);
-                            n=tt::getObjectAltNameFromObjectName(baseN.c_str());
-                            suff=0;
-                            while (App::currentWorld->sceneObjects->getObjectFromAltName(n.c_str())!=nullptr)
-                                n=baseN+boost::lexical_cast<std::string>(suff++);
-                            newShape->setObjectAltName(n.c_str(),true);
-
+                            App::currentWorld->sceneObjects->setObjectName(newShape,"generated_part",true);
+                            App::currentWorld->sceneObjects->setObjectAltName(newShape,"generated_part",true);
                             newSelection.push_back(newShapeHandle);
 
                             // Transfer the mass and inertia info to the new shape:
@@ -730,8 +720,8 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         it->getSingleMesh()->setVisibleEdges(false);
         it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
         it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
-        it->setObjectName(IDSOGL_PLANE,true);
-        it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName().c_str()).c_str(),true);
+        it->setObjectName_direct(IDSOGL_PLANE);
+        it->setObjectAltName_direct(tt::getObjectAltNameFromObjectName(it->getObjectName().c_str()).c_str());
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // we shift the plane so that it is above the floor
         it->alignBoundingBoxWithWorld();
@@ -776,8 +766,8 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         it->getSingleMesh()->setVisibleEdges(false);
         it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
         it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
-        it->setObjectName(IDSOGL_RECTANGLE,true);
-        it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName().c_str()).c_str(),true);
+        it->setObjectName_direct(IDSOGL_RECTANGLE);
+        it->setObjectAltName_direct(tt::getObjectAltNameFromObjectName(it->getObjectName().c_str()).c_str());
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the rectangle so that it sits on the floor
         it->alignBoundingBoxWithWorld();
@@ -825,8 +815,8 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
             it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         }
-        it->setObjectName(IDSOGL_SPHERE,true);
-        it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName().c_str()).c_str(),true);
+        it->setObjectName_direct(IDSOGL_SPHERE);
+        it->setObjectAltName_direct(tt::getObjectAltNameFromObjectName(it->getObjectName().c_str()).c_str());
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the sphere so that it sits on the floor
         it->alignBoundingBoxWithWorld();
@@ -878,8 +868,8 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
             it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         }
-        it->setObjectName(IDSOGL_CYLINDER,true);
-        it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName().c_str()).c_str(),true);
+        it->setObjectName_direct(IDSOGL_CYLINDER);
+        it->setObjectAltName_direct(tt::getObjectAltNameFromObjectName(it->getObjectName().c_str()).c_str());
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->alignBoundingBoxWithWorld();
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // Now we shift the cylinder so it sits on the floor
@@ -990,8 +980,8 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         it->getSingleMesh()->setVisibleEdges(false);
         it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
         it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
-        it->setObjectName(IDSOGL_DISC,true);
-        it->setObjectAltName(tt::getObjectAltNameFromObjectName(it->getObjectName().c_str()).c_str(),true);
+        it->setObjectName_direct(IDSOGL_DISC);
+        it->setObjectAltName_direct(tt::getObjectAltNameFromObjectName(it->getObjectName().c_str()).c_str());
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // Now we shift the disc so it sits just above the floor
         it->alignBoundingBoxWithWorld();
@@ -1145,7 +1135,8 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
         if (CMeshRoutines::getConvexHull(&allHullVertices,&hull,&indices))
         {
             retVal=new CShape(nullptr,hull,indices,nullptr,nullptr);
-            retVal->setObjectName("convexHull",false);
+            retVal->setObjectName_direct("convexHull");
+            retVal->setObjectAltName_direct(tt::getObjectAltNameFromObjectName(retVal->getObjectName().c_str()).c_str());
             retVal->getSingleMesh()->setConvexVisualAttributes();
             retVal->getSingleMesh()->color.getColorsPtr()[0]=1.0f;
             retVal->getSingleMesh()->color.getColorsPtr()[1]=0.7f;

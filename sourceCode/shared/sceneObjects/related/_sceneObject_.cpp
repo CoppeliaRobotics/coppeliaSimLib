@@ -6,6 +6,7 @@ _CSceneObject_::_CSceneObject_()
 {
     _selected=false;
     _parentObject=nullptr;
+    _childOrder=-1;
     _localTransformation.setIdentity();
 }
 
@@ -18,7 +19,12 @@ std::string _CSceneObject_::getExtensionString() const
     return(_extensionString);
 }
 
-bool _CSceneObject_::setParent(CSceneObject* parent,bool keepObjectInPlace)
+void _CSceneObject_::setParentPtr(CSceneObject* parent)
+{
+    _parentObject=parent;
+}
+
+bool _CSceneObject_::setParent(CSceneObject* parent)
 {
     bool diff=(_parentObject!=parent);
     if (diff)
@@ -30,18 +36,15 @@ bool _CSceneObject_::setParent(CSceneObject* parent,bool keepObjectInPlace)
             int h=-1;
             if (parent!=nullptr)
                 h=parent->getObjectHandle();
-            _setParent_send(h,keepObjectInPlace);
+            _setParent_send(h);
         }
     }
     return(diff&&getObjectCanChange());
 }
 
-void _CSceneObject_::_setParent_send(int parentHandle,bool keepObjectInPlace) const
+void _CSceneObject_::_setParent_send(int parentHandle) const
 {
-    void* data[2];
-    data[0]=&parentHandle;
-    data[1]=&keepObjectInPlace;
-    sendRandom(data,2,sim_syncobj_sceneobject_setparent);
+    sendInt32(parentHandle,sim_syncobj_sceneobject_setparent);
 }
 
 bool _CSceneObject_::setExtensionString(const char* str)
@@ -67,6 +70,11 @@ unsigned short _CSceneObject_::getVisibilityLayer() const
     return(_visibilityLayer);
 }
 
+int _CSceneObject_::getChildOrder() const
+{
+    return(_childOrder);
+}
+
 bool _CSceneObject_::setVisibilityLayer(unsigned short l)
 {
     bool diff=(_visibilityLayer!=l);
@@ -80,9 +88,27 @@ bool _CSceneObject_::setVisibilityLayer(unsigned short l)
     return(diff&&getObjectCanChange());
 }
 
+bool _CSceneObject_::setChildOrder(int order)
+{
+    bool diff=(_childOrder!=order);
+    if (diff)
+    {
+        if (getObjectCanChange())
+            _childOrder=order;
+        if (getObjectCanSync())
+            _setChildOrder_send(order);
+    }
+    return(diff&&getObjectCanChange());
+}
+
 void _CSceneObject_::_setVisibilityLayer_send(unsigned short l) const
 {
     sendUInt16(l,sim_syncobj_sceneobject_setvisibilitylayer);
+}
+
+void _CSceneObject_::_setChildOrder_send(int order) const
+{
+    sendInt32(order,sim_syncobj_sceneobject_setchildorder);
 }
 
 bool _CSceneObject_::getSelected() const
@@ -105,9 +131,23 @@ void _CSceneObject_::setSelected(bool s)
     _selected=s;
 }
 
+int _CSceneObject_::getHierarchyTreeObjects(std::vector<CSceneObject*>& allObjects)
+{
+    int retVal=1;
+    allObjects.push_back((CSceneObject*)this);
+    for (size_t i=0;i<_childList.size();i++)
+        retVal+=_childList[i]->getHierarchyTreeObjects(allObjects);
+    return(retVal);
+}
+
 CSceneObject* _CSceneObject_::getParent() const
 {
     return(_parentObject);
+}
+
+int _CSceneObject_::getObjectType() const
+{
+    return(_objectType);
 }
 
 int _CSceneObject_::getObjectHandle() const
@@ -127,7 +167,27 @@ std::string _CSceneObject_::getObjectName() const
     return(_objectName);
 }
 
-bool _CSceneObject_::setObjectName(const char* newName,bool check)
+std::string _CSceneObject_::getObjectHashlessName() const
+{
+    return(_objectName.substr(0,_objectName.find('#')));
+}
+
+std::string _CSceneObject_::getObjectHashlessNameAndOrder() const
+{
+    std::string retVal(getObjectHashlessName());
+    if (_childOrder>=0)
+    {
+        retVal+="[";
+        retVal+=std::to_string(_childOrder);
+        retVal+="]";
+    }
+//    size_t h=_objectName.find('#');
+//    if (h!=std::string::npos)
+//        retVal+=_objectName.substr(h);
+    return(retVal);
+}
+
+bool _CSceneObject_::setObjectName_direct(const char* newName)
 {
     bool diff=(_objectName!=newName);
     if (diff)
@@ -180,7 +240,7 @@ C7Vector _CSceneObject_::getFullCumulativeTransformation() const
     return(getFullParentCumulativeTransformation()*getFullLocalTransformation());
 }
 
-bool _CSceneObject_::setObjectAltName(const char* newAltName,bool check)
+bool _CSceneObject_::setObjectAltName_direct(const char* newAltName)
 {
     bool diff=(_objectAltName!=newAltName);
     if (diff)
@@ -262,6 +322,11 @@ void _CSceneObject_::synchronizationMsg(std::vector<SSyncRoute>& routing,const S
     }
     else
     { // message is for this object
+        if (msg.msg==sim_syncobj_sceneobject_setchildorder)
+        {
+            setChildOrder(((int*)msg.data)[0]);
+            return;
+        }
         if (msg.msg==sim_syncobj_sceneobject_setvisibilitylayer)
         {
             setVisibilityLayer(((int*)msg.data)[0]);
@@ -281,20 +346,19 @@ void _CSceneObject_::synchronizationMsg(std::vector<SSyncRoute>& routing,const S
         }
         if (msg.msg==sim_syncobj_sceneobject_setname)
         {
-            setObjectName(((char*)msg.data),true);
+            setObjectName_direct(((char*)msg.data));
             return;
         }
         if (msg.msg==sim_syncobj_sceneobject_setaltname)
         {
-            setObjectAltName(((char*)msg.data),true);
+            setObjectAltName_direct(((char*)msg.data));
             return;
         }
         if (msg.msg==sim_syncobj_sceneobject_setparent)
         {
             int h=((int*)msg.data)[0];
-            bool keepInPlace=((bool*)msg.data)[1];
             CSceneObject* parent=App::currentWorld->sceneObjects->getObjectFromHandle(h);
-            setParent(parent,keepInPlace);
+            setParent(parent);
             return;
         }
     }

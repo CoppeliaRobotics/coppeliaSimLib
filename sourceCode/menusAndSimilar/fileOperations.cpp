@@ -1492,17 +1492,8 @@ int CFileOperations::apiAddHeightfieldToScene(int xSize,float pointSpacing,const
     shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
     shape->getSingleMesh()->color.setColor(0.68f,0.56f,0.36f,sim_colorcomponent_ambient_diffuse);
     shape->getSingleMesh()->color.setColor(0.25f,0.25f,0.25f,sim_colorcomponent_specular);
-    std::string tempName(IDSOGL_HEIGHTFIELD);
-    while (App::currentWorld->sceneObjects->getObjectFromName(tempName.c_str())!=nullptr)
-        tempName=tt::generateNewName_noHash(tempName.c_str());
-    shape->setObjectName(tempName.c_str(),true);
-    //App::currentWorld->sceneObjects->renameObject(shape->getObjectHandle(),tempName.c_str());
-    tempName=tt::getObjectAltNameFromObjectName(IDSOGL_HEIGHTFIELD);
-    while (App::currentWorld->sceneObjects->getObjectFromAltName(tempName.c_str())!=nullptr)
-        tempName=tt::generateNewName_noHash(tempName.c_str());
-    shape->setObjectAltName(tempName.c_str(),true);
-    //App::currentWorld->sceneObjects->altRenameObject(shape->getObjectHandle(),tempName.c_str());
-
+    App::currentWorld->sceneObjects->setObjectName(shape,"heightfield",true);
+    App::currentWorld->sceneObjects->setObjectAltName(shape,"heightfield",true);
     shape->alignBoundingBoxWithWorld();
 
     int propToRemove=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable;

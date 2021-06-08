@@ -274,21 +274,32 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
 #endif
     clearBuffer();
     _bufferIsFromLockedScene=fromLockedScene;
+
+    // Copy objects in hierarchial order!
     std::vector<CSceneObject*> selObj;
-    selObj.reserve(sel->size());
-    selObj.clear();
-    for (size_t i=0;i<sel->size();i++)
-        selObj.push_back(App::currentWorld->sceneObjects->getObjectFromHandle(sel->at(i)));
-    objectBuffer.reserve(selObj.size());
-    objectBuffer.clear();
+    std::vector<CSceneObject*> selObjTmp;
+    App::currentWorld->sceneObjects->getObjects_hierarchyOrder(selObjTmp);
+    {
+        std::map<CSceneObject*,bool> selObjMap;
+        for (size_t i=0;i<sel->size();i++)
+        {
+            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(sel->at(i));
+            selObjMap[obj]=true;
+        }
+        for (size_t i=0;i<selObjTmp.size();i++)
+        {
+            if (selObjMap.find(selObjTmp[i])!=selObjMap.end())
+                selObj.push_back(selObjTmp[i]);
+        }
+    }
 
     CInterfaceStack stack;
     stack.pushTableOntoStack();
     stack.pushStringOntoStack("objectHandles",0);
     stack.pushTableOntoStack();
-    for (size_t i=0;i<sel->size();i++)
+    for (size_t i=0;i<selObj.size();i++)
     {
-        stack.pushNumberOntoStack(double(sel->at(i))); // key or index
+        stack.pushNumberOntoStack(double(selObj[i]->getObjectHandle())); // key or index
         stack.pushBoolOntoStack(true);
         stack.insertDataIntoStackTable();
     }
@@ -346,7 +357,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
                 {
                     objectBuffer[i]->setParentHandle_forSerializationOnly(objectBuffer[j]->getObjectHandle());
                     // The following is important for model-serialization!!!
-                    objectBuffer[i]->setParent(objectBuffer[j],false);
+                    objectBuffer[i]->setParentPtr(objectBuffer[j]);
                     found=true;
                     break;
                 }

@@ -4,6 +4,7 @@
 #include "sceneObjectOperations.h"
 #include "fileOperations.h"
 #include "tt.h"
+#include "ttUtil.h"
 #include "pluginContainer.h"
 #include "mesh.h"
 #include <sstream>
@@ -123,8 +124,7 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         //      while (getObject(newObjName)!=nullptr)
         //          newObjName=tt::generateNewName_noHash(newObjName);
     }
-    newObject->setObjectName(newObjName.c_str(),false);
-    //newObject->setObjectName_objectNotYetInScene(newObjName.c_str());
+    newObject->setObjectName_direct(newObjName.c_str());
 
     // Same but with the alt object names:
     std::string newObjAltName=newObject->getObjectAltName();
@@ -157,8 +157,7 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
     // Following was too slow with many objects:
     //      while (getObjectFromAltName(newObjAltName)!=nullptr)
     //          newObjAltName=tt::generateNewName_noHash(newObjAltName);
-    newObject->setObjectAltName(newObjAltName.c_str(),false);
-    //newObject->setObjectAltName_objectNotYetInScene(newObjAltName.c_str());
+    newObject->setObjectAltName_direct(newObjAltName.c_str());
 
     // Give the object a new handle
     int handle=_nextObjectHandle;
@@ -176,10 +175,6 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
 
     _addObject(newObject);
 
-    // Update the object name and alt name index:
-    _objectNameMap[newObject->getObjectName()]=handle;
-    _objectAltNameMap[newObject->getObjectAltName()]=handle;
-
     if (newObject->getObjectType()==sim_object_graph_type)
     { // If the simulation is running, we have to empty the buffer!!! (otherwise we might have old and new data mixed together (e.g. old data in future, new data in present!)
         if ((App::currentWorld->simulation!=nullptr)&&(!App::currentWorld->simulation->isSimulationStopped()))
@@ -189,8 +184,6 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         }
     }
 
-    // Actualize the object information
-    actualizeObjectInformation();
     if (generateAfterCreateCallback)
     {
         CInterfaceStack stack;
@@ -235,15 +228,8 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
     App::currentWorld->announceObjectWillBeErased(it->getObjectHandle()); // this may trigger other "interesting" things, such as customization script runs, etc.
     deselectObjects(); // to make sure, since above might have changed selection again
 
-    std::map<std::string,int>::iterator mapIt=_objectNameMap.find(it->getObjectName());
-    _objectNameMap.erase(mapIt);
-    mapIt=_objectAltNameMap.find(it->getObjectAltName());
-    _objectAltNameMap.erase(mapIt);
+    _removeObject(it);
 
-    _removeObject(it->getObjectHandle());
-
-    CSceneObject::incrementModelPropertyValidityNumber();
-    actualizeObjectInformation();
     App::worldContainer->setModificationFlag(1); // object erased
 
     if (generateBeforeAfterDeleteCallback)
@@ -307,22 +293,6 @@ void CSceneObjectContainer::removeAllObjects(bool generateBeforeAfterDeleteCallb
     // The above destroys all sceneObjects, and normally automatically
     // all resources linked to them. So we don't have to destroy the resources
 
-    _octreeList.clear();
-    _pointCloudList.clear();
-    _mirrorList.clear();
-    _lightList.clear();
-    _cameraList.clear();
-    _graphList.clear();
-    _proximitySensorList.clear();
-    _visionSensorList.clear();
-    _pathList.clear();
-    _millList.clear();
-    _forceSensorList.clear();
-    _shapeList.clear();
-    _jointList.clear();
-    _dummyList.clear();
-    _orphanList.clear();
-
     // Following new since 30/7/2014:
     // ideally we want to always use different object handles so that if the user erases an object and
     // creates a new one just after, the erased object's handle is not reused. That's why we have
@@ -337,81 +307,16 @@ void CSceneObjectContainer::removeAllObjects(bool generateBeforeAfterDeleteCallb
 
 void CSceneObjectContainer::actualizeObjectInformation()
 {
-    const std::vector<int>* initialSel=getSelectedObjectHandlesPtr();
-    //deselectObjects();
-
     if (_objectActualizationEnabled)
     {
-        App::setRebuildHierarchyFlag();
-
-        for (size_t i=0;i<getObjectCount();i++)
-            getObjectFromIndex(i)->addChild(nullptr); // clear child list
-        for (size_t i=0;i<getObjectCount();i++)
+        // We actualize the direct linked joint list of each joint:
+        for (size_t i=0;i<getJointCount();i++)
         {
-            CSceneObject* it=getObjectFromIndex(i);
-            CSceneObject* parent=it->getParent();
-            if (parent!=nullptr)
-                parent->addChild(it);
-        }
-
-        // Actualize the light, graph, sensor & joint list
-        _jointList.clear();
-        _dummyList.clear();
-        _orphanList.clear();
-        _octreeList.clear();
-        _pointCloudList.clear();
-        _mirrorList.clear();
-        _lightList.clear();
-        _cameraList.clear();
-        _graphList.clear();
-        _proximitySensorList.clear();
-        _visionSensorList.clear();
-        _pathList.clear();
-        _millList.clear();
-        _forceSensorList.clear();
-        _shapeList.clear();
-
-        for (size_t i=0;i<getObjectCount();i++)
-        {
-            if (getObjectFromIndex(i)->getObjectType()==sim_object_joint_type)
-                _jointList.push_back(getObjectFromIndex(i)->getObjectHandle());
-            if (getObjectFromIndex(i)->getObjectType()==sim_object_dummy_type)
-                _dummyList.push_back(getObjectFromIndex(i)->getObjectHandle());
-            if (getObjectFromIndex(i)->getParent()==nullptr)
-                _orphanList.push_back(getObjectFromIndex(i)->getObjectHandle());
-            if (getObjectFromIndex(i)->getObjectType()==sim_object_camera_type)
-                _cameraList.push_back(getObjectFromIndex(i)->getObjectHandle());
-            if (getObjectFromIndex(i)->getObjectType()==sim_object_light_type)
-                _lightList.push_back(getObjectFromIndex(i)->getObjectHandle());
-            if (getObjectFromIndex(i)->getObjectType()==sim_object_mirror_type)
-                _mirrorList.push_back(getObjectFromIndex(i)->getObjectHandle());
-            if (getObjectFromIndex(i)->getObjectType()==sim_object_octree_type)
-                _octreeList.push_back(getObjectFromIndex(i)->getObjectHandle());
-            if (getObjectFromIndex(i)->getObjectType()==sim_object_pointcloud_type)
-                _pointCloudList.push_back(getObjectFromIndex(i)->getObjectHandle());
-            if (getObjectFromIndex(i)->getObjectType()==sim_object_graph_type)
-                _graphList.push_back(getObjectFromIndex(i)->getObjectHandle());
-            if (getObjectFromIndex(i)->getObjectType()==sim_object_proximitysensor_type)
-                _proximitySensorList.push_back(getObjectFromIndex(i)->getObjectHandle());
-            if (getObjectFromIndex(i)->getObjectType()==sim_object_visionsensor_type)
-                _visionSensorList.push_back(getObjectFromIndex(i)->getObjectHandle());
-            if (getObjectFromIndex(i)->getObjectType()==sim_object_path_type)
-                _pathList.push_back(getObjectFromIndex(i)->getObjectHandle());
-            if (getObjectFromIndex(i)->getObjectType()==sim_object_shape_type)
-                _shapeList.push_back(getObjectFromIndex(i)->getObjectHandle());
-            if (getObjectFromIndex(i)->getObjectType()==sim_object_mill_type)
-                _millList.push_back(getObjectFromIndex(i)->getObjectHandle());
-            if (getObjectFromIndex(i)->getObjectType()==sim_object_forcesensor_type)
-                _forceSensorList.push_back(getObjectFromIndex(i)->getObjectHandle());
-        }
-        // We actualize the direct linked joint list of each joint: (2009-01-27)
-        for (size_t i=0;i<_jointList.size();i++)
-        {
-            CJoint* it=getJointFromHandle(_jointList[i]);
+            CJoint* it=getJointFromIndex(i);
             std::vector<CJoint*> joints;
-            for (size_t j=0;j<_jointList.size();j++)
+            for (size_t j=0;j<getJointCount();j++)
             {
-                CJoint* anAct=getJointFromHandle(_jointList[j]);
+                CJoint* anAct=getJointFromIndex(j);
                 if (anAct!=it)
                 {
                     if ((anAct->getJointMode()==sim_jointmode_dependent)||(anAct->getJointMode()==sim_jointmode_reserved_previously_ikdependent))
@@ -424,17 +329,13 @@ void CSceneObjectContainer::actualizeObjectInformation()
             it->setDirectDependentJoints(joints);
         }
 
-        // We rebuild the collection information
         App::currentWorld->collections->actualizeAllCollections();
 
-        for (size_t i=0;i<_shapeList.size();i++)
-            getShapeFromHandle(_shapeList[i])->clearLastParentForLocalGlobalRespondable();
+        for (size_t i=0;i<getShapeCount();i++)
+            getShapeFromIndex(i)->clearLastParentForLocalGlobalRespondable();
 
         App::currentWorld->textureContainer->updateAllDependencies();
     }
-
-    setSelectedObjectHandles(initialSel);
-    App::setFullDialogRefreshFlag();
 }
 
 void CSceneObjectContainer::enableObjectActualization(bool e)
@@ -496,8 +397,7 @@ void CSceneObjectContainer::setSuffix1ToSuffix2(int suffix1,int suffix2)
         {
             CSceneObject* obj=getObjectFromIndex(i);
             std::string name1(tt::getNameWithoutSuffixNumber(obj->getObjectName().c_str(),true));
-            obj->setObjectName(tt::generateNewName_hash(name1.c_str(),suffix2+1).c_str(),true);
-            //renameObject(getObjectFromIndex(i),tt::generateNewName_hash(name1,suffix2+1).c_str());
+            setObjectName(obj,tt::generateNewName_hash(name1.c_str(),suffix2+1).c_str(),true);
         }
     }
 }
@@ -1178,46 +1078,111 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer& ar,const CSceneO
     ar.xmlPopNode();
 }
 
-void CSceneObjectContainer::objectWasRenamed(int objectHandle,const char* oldName,const char* newName,bool altName)
-{
-    if (altName)
+void CSceneObjectContainer::setObjectParent(CSceneObject* object,CSceneObject* newParent,bool keepInPlace)
+{ // overridden from _CSceneObjectContainer_
+    CSceneObject* oldParent=object->getParent();
+    if (oldParent!=newParent)
     {
-        std::map<std::string,int>::iterator mapIt=_objectAltNameMap.find(oldName);
-        _objectAltNameMap.erase(mapIt);
-        _objectAltNameMap[newName]=objectHandle;
-    }
-    else
-    {
-        std::map<std::string,int>::iterator mapIt=_objectNameMap.find(oldName);
-        _objectNameMap.erase(mapIt);
-        _objectNameMap[newName]=objectHandle;
+        C7Vector absTr(object->getFullCumulativeTransformation());
+        if (oldParent!=nullptr)
+            oldParent->removeChild(object);
+        else
+            _removeFromOrphanObjects(object);
+        if (newParent!=nullptr)
+            newParent->addChild(object);
+        else
+            _addToOrphanObjects(object);
+        object->setParent(newParent);
+        _handleOrderIndexOfOrphans();
+
+        if (keepInPlace)
+        {
+            C7Vector parentTr(object->getFullParentCumulativeTransformation());
+            object->setLocalTransformation(parentTr.getInverse()*absTr);
+        }
+
+        App::currentWorld->sceneObjects->actualizeObjectInformation();
     }
 }
 
-void CSceneObjectContainer::objectGotNewParent(int objectHandle,int oldParentHandle,int newParentHandle)
-{
-    if (_objectActualizationEnabled)
+bool CSceneObjectContainer::setObjectName(CSceneObject* object,const char* newName,bool allowNameAdjustment)
+{ // overridden from _CSceneObjectContainer_
+    std::string nm(newName);
+    if (allowNameAdjustment)
     {
-        // Update orphan list:
-        if (oldParentHandle==-1)
-        { // object was an orphan, not anymore!
-            for (size_t i=0;i<_orphanList.size();i++)
-            {
-                if (_orphanList[i]==objectHandle)
-                {
-                    _orphanList.erase(_orphanList.begin()+i);
-                    break;
-                }
-            }
+        tt::removeIllegalCharacters(nm,true);
+        while (getObjectFromName(nm.c_str())!=nullptr)
+            nm=tt::generateNewName_hashOrNoHash(nm.c_str(),!tt::isHashFree(nm.c_str()));
+    }
+    bool retVal=_CSceneObjectContainer_::setObjectName(object,nm.c_str(),allowNameAdjustment);
+    if (retVal)
+    {
+        object->setObjectName_direct(newName);
+        if (object->getParent()==nullptr)
+            _handleOrderIndexOfOrphans();
+        else
+            object->getParent()->handleOrderIndexOfChildren();
+    }
+    return(retVal);
+}
+
+bool CSceneObjectContainer::setObjectAltName(CSceneObject* object,const char* newName,bool allowNameAdjustment)
+{ // overridden from _CSceneObjectContainer_
+    std::string nm(newName);
+    if (allowNameAdjustment)
+    {
+        tt::removeAltNameIllegalCharacters(nm);
+        while (getObjectFromAltName(nm.c_str())!=nullptr)
+            nm=tt::generateNewName_noHash(nm.c_str());
+    }
+    bool retVal=_CSceneObjectContainer_::setObjectAltName(object,nm.c_str(),allowNameAdjustment);
+    if (retVal)
+        object->setObjectAltName_direct(newName);
+
+    return(retVal);
+}
+
+bool CSceneObjectContainer::setSelectedObjectHandles(const std::vector<int>* v)
+{ // overridden from _CSceneObjectContainer_
+    std::vector<int> prevSel(getSelectedObjectHandlesPtr()->begin(),getSelectedObjectHandlesPtr()->end());
+    bool retVal=_CSceneObjectContainer_::setSelectedObjectHandles(v);
+    if (retVal)
+    {
+        for (size_t i=0;i<prevSel.size();i++)
+        {
+            CSceneObject* it=getObjectFromHandle(prevSel[i]);
+            it->setSelected(false);
         }
-        if (newParentHandle==-1)
-            _orphanList.push_back(objectHandle); // object bacame an orphan
+        for (size_t i=0;i<getSelectedObjectHandlesPtr()->size();i++)
+        {
+            CSceneObject* it=getObjectFromHandle(getSelectedObjectHandlesPtr()->at(i));
+            it->setSelected(true);
+        }
+    }
+    return(retVal);
+}
 
-        // Rebuild collection information
-        App::currentWorld->collections->actualizeAllCollections();
-
-        for (size_t i=0;i<_shapeList.size();i++)
-            getShapeFromHandle(_shapeList[i])->clearLastParentForLocalGlobalRespondable();
+void CSceneObjectContainer::_handleOrderIndexOfOrphans()
+{
+    std::map<std::string,int> nameMap;
+    for (size_t i=0;i<getOrphanCount();i++)
+    {
+        CSceneObject* child=getOrphanFromIndex(i);
+        std::string hn(child->getObjectHashlessName());
+        std::map<std::string,int>::iterator it=nameMap.find(hn);
+        if (it==nameMap.end())
+            nameMap[hn]=0;
+        else
+            nameMap[hn]++;
+        child->setChildOrder(nameMap[hn]);
+    }
+    for (size_t i=0;i<getOrphanCount();i++)
+    {
+        CSceneObject* child=getOrphanFromIndex(i);
+        std::string hn(child->getObjectHashlessName());
+        std::map<std::string,int>::iterator it=nameMap.find(hn);
+        if (nameMap[hn]==0)
+            child->setChildOrder(-1); // means unique with that name, with that parent
     }
 }
 
@@ -1265,23 +1230,7 @@ void CSceneObjectContainer::setObjectAbsoluteOrientation(int objectHandle,const 
     }
 }
 
-int CSceneObjectContainer::getObjectHandleFromName(const char* objectName) const
-{
-    std::map<std::string,int>::const_iterator it=_objectNameMap.find(objectName);
-    if (it!=_objectNameMap.end())
-        return(it->second);
-    return(-1);
-}
-
-int CSceneObjectContainer::getObjectHandleFromAltName(const char* objectAltName) const
-{
-    std::map<std::string,int>::const_iterator it=_objectAltNameMap.find(objectAltName);
-    if (it!=_objectAltNameMap.end())
-        return(it->second);
-    return(-1);
-}
-
-CSceneObject* CSceneObjectContainer::getObjectFromNamePath(int emittingObject,const char* objectNameAndPath,int index) const
+CSceneObject* CSceneObjectContainer::getObjectFromNamePath(int emittingObject,const char* objectNameAndPath,int altObjHandleForSearch,int index) const
 {
     std::string nm(objectNameAndPath);
     CSceneObject* retVal=nullptr;
@@ -1299,8 +1248,13 @@ CSceneObject* CSceneObjectContainer::getObjectFromNamePath(int emittingObject,co
             emObj=getObjectFromHandle(emittingObject);
             if (nm==".")
             {
-                while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
-                    emObj=emObj->getParent();
+                if (altObjHandleForSearch!=-1)
+                    emObj=getObjectFromHandle(altObjHandleForSearch);
+                else
+                {
+                    while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
+                        emObj=emObj->getParent();
+                }
                 return(emObj);
             }
             else
@@ -1308,8 +1262,17 @@ CSceneObject* CSceneObjectContainer::getObjectFromNamePath(int emittingObject,co
                 if (nm.compare(0,2,"./")==0)
                 {
                     nm.erase(0,2);
-                    while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
-                        emObj=emObj->getParent();
+                    if (altObjHandleForSearch!=-1)
+                    {
+                        emObj=getObjectFromHandle(altObjHandleForSearch);
+                        if (emObj==nullptr)
+                            return(nullptr);
+                    }
+                    else
+                    {
+                        while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
+                            emObj=emObj->getParent();
+                    }
                 }
                 else
                 {
@@ -1352,25 +1315,45 @@ CSceneObject* CSceneObjectContainer::getObjectFromNamePath(int emittingObject,co
         std::string objName;
         while (std::getline(fullname,objName,'/'))
         {
-            size_t wildcardPos=objName.find('*');
-            if (wildcardPos!=std::string::npos)
-                objName.erase(wildcardPos,1);
+            int specIndex=0;
+            size_t ob=objName.find('[');
+            if (ob!=std::string::npos)
+            {
+                if (objName[objName.size()-1]==']')
+                {
+                    objName.erase(objName.size()-1,1);
+                    std::string nv(objName.substr(ob+1));
+                    if (tt::getValidInt(nv.c_str(),specIndex)) // if nb is not valid, won't be able to match any object name
+                        objName.erase(ob);
+                }
+            }
+
+//            CTTUtil::doStringMatch_wildcard
+ //           size_t wildcardPos=objName.find('*');
+ //           if (wildcardPos!=std::string::npos)
+ //               objName.erase(wildcardPos,1);
             retVal=nullptr;
             size_t i=0;
             while (i<toExplore.size())
             {
                 CSceneObject* it=toExplore[i];
                 i++;
-                std::string name(it->getObjectName().substr(0,it->getObjectName().find('#')));
-                if (name.compare(0,wildcardPos,objName)==0) // if (name==objName)
+                std::string name(it->getObjectHashlessName());
+                if (CTTUtil::doStringMatch_wildcard(objName.c_str(),name.c_str()))
+//                if (name.compare(0,wildcardPos,objName)==0) // if (name==objName)
                 {
-                    if (index<=0)
+                    if (specIndex==0)
                     {
-                        toExplore.clear();
-                        retVal=it;
+                        if (index<=0)
+                        {
+                            toExplore.clear();
+                            retVal=it;
+                        }
+                        else
+                            index--;
                     }
                     else
-                        index--;
+                        specIndex--;
                 }
                 // add its children to be explored:
                 for (size_t j=0;j<it->getChildCount();j++)
@@ -1383,16 +1366,6 @@ CSceneObject* CSceneObjectContainer::getObjectFromNamePath(int emittingObject,co
         }
     }
     return(retVal);
-}
-
-CSceneObject* CSceneObjectContainer::getObjectFromName(const char* name) const
-{
-    return(getObjectFromHandle(getObjectHandleFromName(name)));
-}
-
-CSceneObject* CSceneObjectContainer::getObjectFromAltName(const char* altName) const
-{
-    return(getObjectFromHandle(getObjectHandleFromAltName(altName)));
 }
 
 CSceneObject* CSceneObjectContainer::getObjectFromUniqueId(int uniqueID) const
@@ -1421,352 +1394,6 @@ int CSceneObjectContainer::getHighestObjectHandle() const
     return(highest);
 }
 
-size_t CSceneObjectContainer::getJointCount() const
-{
-    return(_jointList.size());
-}
-
-size_t CSceneObjectContainer::getDummyCount() const
-{
-    return(_dummyList.size());
-}
-
-size_t CSceneObjectContainer::getMirrorCount() const
-{
-    return(_mirrorList.size());
-}
-
-size_t CSceneObjectContainer::getGraphCount() const
-{
-    return(_graphList.size());
-}
-
-size_t CSceneObjectContainer::getLightCount() const
-{
-    return(_lightList.size());
-}
-
-size_t CSceneObjectContainer::getCameraCount() const
-{
-    return(_cameraList.size());
-}
-
-size_t CSceneObjectContainer::getProximitySensorCount() const
-{
-    return(_proximitySensorList.size());
-}
-
-size_t CSceneObjectContainer::getVisionSensorCount() const
-{
-    return(_visionSensorList.size());
-}
-
-size_t CSceneObjectContainer::getShapeCount() const
-{
-    return(_shapeList.size());
-}
-
-size_t CSceneObjectContainer::getSimpleShapeCount() const
-{
-    size_t counter=0;
-    for (size_t i=0;i<_shapeList.size();i++)
-    {
-        CShape* it=getShapeFromIndex(i);
-        if (!it->isCompound())
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getCompoundShapeCount() const
-{
-    return(getShapeCount()-getSimpleShapeCount());
-}
-
-size_t CSceneObjectContainer::getPathCount() const
-{
-    return(_pathList.size());
-}
-
-size_t CSceneObjectContainer::getMillCount() const
-{
-    return(_millList.size());
-}
-
-size_t CSceneObjectContainer::getForceSensorCount() const
-{
-    return(_forceSensorList.size());
-}
-
-size_t CSceneObjectContainer::getOctreeCount() const
-{
-    return(_octreeList.size());
-}
-
-size_t CSceneObjectContainer::getPointCloudCount() const
-{
-    return(_pointCloudList.size());
-}
-
-size_t CSceneObjectContainer::getOrphanCount() const
-{
-    return(_orphanList.size());
-}
-
-CSceneObject* CSceneObjectContainer::getOrphanFromIndex(size_t index) const
-{
-    CSceneObject* retVal=nullptr;
-    if (index<_orphanList.size())
-        retVal=getObjectFromHandle(_orphanList[index]);
-    return(retVal);
-}
-
-CJoint* CSceneObjectContainer::getJointFromIndex(size_t index) const
-{
-    CJoint* retVal=nullptr;
-    if (index<_jointList.size())
-        retVal=(CJoint*)getObjectFromHandle(_jointList[index]);
-    return(retVal);
-}
-
-CDummy* CSceneObjectContainer::getDummyFromIndex(size_t index) const
-{
-    CDummy* retVal=nullptr;
-    if (index<_dummyList.size())
-        retVal=(CDummy*)getObjectFromHandle(_dummyList[index]);
-    return(retVal);
-}
-
-CMirror* CSceneObjectContainer::getMirrorFromIndex(size_t index) const
-{
-    CMirror* retVal=nullptr;
-    if (index<_mirrorList.size())
-        retVal=(CMirror*)getObjectFromHandle(_mirrorList[index]);
-    return(retVal);
-}
-
-CGraph* CSceneObjectContainer::getGraphFromIndex(size_t index) const
-{
-    CGraph* retVal=nullptr;
-    if (index<_graphList.size())
-        retVal=(CGraph*)getObjectFromHandle(_graphList[index]);
-    return(retVal);
-}
-
-CLight* CSceneObjectContainer::getLightFromIndex(size_t index) const
-{
-    CLight* retVal=nullptr;
-    if (index<_lightList.size())
-        retVal=(CLight*)getObjectFromHandle(_lightList[index]);
-    return(retVal);
-}
-
-CCamera* CSceneObjectContainer::getCameraFromIndex(size_t index) const
-{
-    CCamera* retVal=nullptr;
-    if (index<_cameraList.size())
-        retVal=(CCamera*)getObjectFromHandle(_cameraList[index]);
-    return(retVal);
-}
-
-CProxSensor* CSceneObjectContainer::getProximitySensorFromIndex(size_t index) const
-{
-    CProxSensor* retVal=nullptr;
-    if (index<_proximitySensorList.size())
-        retVal=(CProxSensor*)getObjectFromHandle(_proximitySensorList[index]);
-    return(retVal);
-}
-
-CVisionSensor* CSceneObjectContainer::getVisionSensorFromIndex(size_t index) const
-{
-    CVisionSensor* retVal=nullptr;
-    if (index<_visionSensorList.size())
-        retVal=(CVisionSensor*)getObjectFromHandle(_visionSensorList[index]);
-    return(retVal);
-}
-
-CShape* CSceneObjectContainer::getShapeFromIndex(size_t index) const
-{
-    CShape* retVal=nullptr;
-    if (index<_shapeList.size())
-        retVal=(CShape*)getObjectFromHandle(_shapeList[index]);
-    return(retVal);
-}
-
-CPath_old* CSceneObjectContainer::getPathFromIndex(size_t index) const
-{
-    CPath_old* retVal=nullptr;
-    if (index<_pathList.size())
-        retVal=(CPath_old*)getObjectFromHandle(_pathList[index]);
-    return(retVal);
-}
-
-CMill* CSceneObjectContainer::getMillFromIndex(size_t index) const
-{
-    CMill* retVal=nullptr;
-    if (index<_millList.size())
-        retVal=(CMill*)getObjectFromHandle(_millList[index]);
-    return(retVal);
-}
-
-CForceSensor* CSceneObjectContainer::getForceSensorFromIndex(size_t index) const
-{
-    CForceSensor* retVal=nullptr;
-    if (index<_forceSensorList.size())
-        retVal=(CForceSensor*)getObjectFromHandle(_forceSensorList[index]);
-    return(retVal);
-}
-
-COctree* CSceneObjectContainer::getOctreeFromIndex(size_t index) const
-{
-    COctree* retVal=nullptr;
-    if (index<_octreeList.size())
-        retVal=(COctree*)getObjectFromHandle(_octreeList[index]);
-    return(retVal);
-}
-
-CPointCloud* CSceneObjectContainer::getPointCloudFromIndex(size_t index) const
-{
-    CPointCloud* retVal=nullptr;
-    if (index<_pointCloudList.size())
-        retVal=(CPointCloud*)getObjectFromHandle(_pointCloudList[index]);
-    return(retVal);
-}
-
-CDummy* CSceneObjectContainer::getDummyFromHandle(int objectHandle) const
-{
-    CDummy* retVal=nullptr;
-    CSceneObject* it=getObjectFromHandle(objectHandle);
-    if ( (it!=nullptr)&&(it->getObjectType()==sim_object_dummy_type) )
-         retVal=(CDummy*)it;
-    return(retVal);
-}
-
-CJoint* CSceneObjectContainer::getJointFromHandle(int objectHandle) const
-{
-    CJoint* retVal=nullptr;
-    CSceneObject* it=getObjectFromHandle(objectHandle);
-    if ( (it!=nullptr)&&(it->getObjectType()==sim_object_joint_type) )
-         retVal=(CJoint*)it;
-    return(retVal);
-}
-
-CShape* CSceneObjectContainer::getShapeFromHandle(int objectHandle) const
-{
-    CShape* retVal=nullptr;
-    CSceneObject* it=getObjectFromHandle(objectHandle);
-    if ( (it!=nullptr)&&(it->getObjectType()==sim_object_shape_type) )
-         retVal=(CShape*)it;
-    return(retVal);
-}
-
-CMirror* CSceneObjectContainer::getMirrorFromHandle(int objectHandle) const
-{
-    CMirror* retVal=nullptr;
-    CSceneObject* it=getObjectFromHandle(objectHandle);
-    if ( (it!=nullptr)&&(it->getObjectType()==sim_object_mirror_type) )
-         retVal=(CMirror*)it;
-    return(retVal);
-}
-
-COctree* CSceneObjectContainer::getOctreeFromHandle(int objectHandle) const
-{
-    COctree* retVal=nullptr;
-    CSceneObject* it=getObjectFromHandle(objectHandle);
-    if ( (it!=nullptr)&&(it->getObjectType()==sim_object_octree_type) )
-         retVal=(COctree*)it;
-    return(retVal);
-}
-
-CPointCloud* CSceneObjectContainer::getPointCloudFromHandle(int objectHandle) const
-{
-    CPointCloud* retVal=nullptr;
-    CSceneObject* it=getObjectFromHandle(objectHandle);
-    if ( (it!=nullptr)&&(it->getObjectType()==sim_object_pointcloud_type) )
-         retVal=(CPointCloud*)it;
-    return(retVal);
-}
-
-CProxSensor* CSceneObjectContainer::getProximitySensorFromHandle(int objectHandle) const
-{
-    CProxSensor* retVal=nullptr;
-    CSceneObject* it=getObjectFromHandle(objectHandle);
-    if ( (it!=nullptr)&&(it->getObjectType()==sim_object_proximitysensor_type) )
-         retVal=(CProxSensor*)it;
-    return(retVal);
-}
-
-CVisionSensor* CSceneObjectContainer::getVisionSensorFromHandle(int objectHandle) const
-{
-    CVisionSensor* retVal=nullptr;
-    CSceneObject* it=getObjectFromHandle(objectHandle);
-    if ( (it!=nullptr)&&(it->getObjectType()==sim_object_visionsensor_type) )
-         retVal=(CVisionSensor*)it;
-    return(retVal);
-}
-
-CPath_old* CSceneObjectContainer::getPathFromHandle(int objectHandle) const
-{
-    CPath_old* retVal=nullptr;
-    CSceneObject* it=getObjectFromHandle(objectHandle);
-    if ( (it!=nullptr)&&(it->getObjectType()==sim_object_path_type) )
-         retVal=(CPath_old*)it;
-    return(retVal);
-}
-
-CMill* CSceneObjectContainer::getMillFromHandle(int objectHandle) const
-{
-    CMill* retVal=nullptr;
-    CSceneObject* it=getObjectFromHandle(objectHandle);
-    if ( (it!=nullptr)&&(it->getObjectType()==sim_object_mill_type) )
-         retVal=(CMill*)it;
-    return(retVal);
-}
-
-CForceSensor* CSceneObjectContainer::getForceSensorFromHandle(int objectHandle) const
-{
-    CForceSensor* retVal=nullptr;
-    CSceneObject* it=getObjectFromHandle(objectHandle);
-    if ( (it!=nullptr)&&(it->getObjectType()==sim_object_forcesensor_type) )
-         retVal=(CForceSensor*)it;
-    return(retVal);
-}
-
-CCamera* CSceneObjectContainer::getCameraFromHandle(int objectHandle) const
-{
-    CCamera* retVal=nullptr;
-    CSceneObject* it=getObjectFromHandle(objectHandle);
-    if ( (it!=nullptr)&&(it->getObjectType()==sim_object_camera_type) )
-         retVal=(CCamera*)it;
-    return(retVal);
-}
-
-CLight* CSceneObjectContainer::getLightFromHandle(int objectHandle) const
-{
-    CLight* retVal=nullptr;
-    CSceneObject* it=getObjectFromHandle(objectHandle);
-    if ( (it!=nullptr)&&(it->getObjectType()==sim_object_light_type) )
-         retVal=(CLight*)it;
-    return(retVal);
-}
-
-CGraph* CSceneObjectContainer::getGraphFromHandle(int objectHandle) const
-{
-    CGraph* retVal=nullptr;
-    CSceneObject* it=getObjectFromHandle(objectHandle);
-    if ( (it!=nullptr)&&(it->getObjectType()==sim_object_graph_type) )
-         retVal=(CGraph*)it;
-    return(retVal);
-}
-
-bool CSceneObjectContainer::isObjectSelected(int objectHandle) const
-{
-    bool retVal=false;
-    CSceneObject* it=getObjectFromHandle(objectHandle);
-    if (it!=nullptr)
-        retVal=it->getSelected();
-    return(retVal);
-}
 
 bool CSceneObjectContainer::isSelectionSame(std::vector<int>& sel,bool actualize) const
 {
@@ -1924,41 +1551,6 @@ void CSceneObjectContainer::xorAddObjectToSelection(int objectHandle)
         deselectObjects();
 }
 
-void CSceneObjectContainer::getSelectedObjects(std::vector<CSceneObject*>& selection) const
-{
-    selection.clear();
-    const std::vector<int>* _sel=getSelectedObjectHandlesPtr();
-    for (size_t i=0;i<_sel->size();i++)
-    {
-        CSceneObject* it=getObjectFromHandle(_sel->at(i));
-        if (it!=nullptr)
-            selection.push_back(it);
-    }
-}
-
-int CSceneObjectContainer::getLastSelectionHandle(const std::vector<int>* selection/*=nullptr*/) const
-{
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(-1);
-    return((*sel)[(sel->size()-1)]);
-}
-
-bool CSceneObjectContainer::isObjectInSelection(int objectHandle,const std::vector<int>* selection/*=nullptr*/) const
-{
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        if (sel->at(i)==objectHandle)
-            return(true);
-    }
-    return(false);
-}
-
 void CSceneObjectContainer::removeFromSelectionAllExceptModelBase(bool keepObjectsSelectedThatAreNotBuiltOnAModelBase)
 { // One model base per hierarchy tree!
     TRACE_INTERNAL;
@@ -2012,647 +1604,6 @@ void CSceneObjectContainer::removeFromSelectionAllExceptModelBase(bool keepObjec
         for (size_t i=0;i<nonModelBasesBuildOnNothing.size();i++)
             addObjectToSelection(nonModelBasesBuildOnNothing[i]->getObjectHandle());
     }
-}
-
-size_t CSceneObjectContainer::getSimpleShapeCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        CShape* it=getShapeFromHandle(sel->at(i));
-        if (it!=nullptr)
-        {
-            if (!it->isCompound())
-                counter++;
-        }
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getCompoundCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        CShape* it=getShapeFromHandle(sel->at(i));
-        if (it!=nullptr)
-        {
-            if (it->isCompound())
-                counter++;
-        }
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getShapeCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        CShape* it=getShapeFromHandle(sel->at(i));
-        if (it!=nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getMirrorCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        CMirror* it=getMirrorFromHandle(sel->at(i));
-        if (it!=nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getOctreeCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        COctree* it=getOctreeFromHandle(sel->at(i));
-        if (it!=nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getPointCloudCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        CPointCloud* it=getPointCloudFromHandle(sel->at(i));
-        if (it!=nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getJointCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        CJoint* it=getJointFromHandle(sel->at(i));
-        if (it!=nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getGraphCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        CGraph* it=getGraphFromHandle(sel->at(i));
-        if (it!=nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getCameraCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        CCamera* it=getCameraFromHandle(sel->at(i));
-        if (it!=nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getLightCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        CLight* it=getLightFromHandle(sel->at(i));
-        if (it!=nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getDummyCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        CDummy* it=getDummyFromHandle(sel->at(i));
-        if (it!=nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getProxSensorCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        CProxSensor* it=getProximitySensorFromHandle(sel->at(i));
-        if (it!=nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getVisionSensorCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        CVisionSensor* it=getVisionSensorFromHandle(sel->at(i));
-        if (it!=nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getPathCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        CPath_old* it=getPathFromHandle(sel->at(i));
-        if (it!=nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getMillCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        CMill* it=getMillFromHandle(sel->at(i));
-        if (it!=nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getForceSensorCountInSelection(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    for (size_t i=0;i<sel->size();i++)
-    {
-        CForceSensor* it=getForceSensorFromHandle(sel->at(i));
-        if (it!=nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-bool CSceneObjectContainer::isLastSelectionAShape(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    CShape* it=getShapeFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-        return(true);
-    return(false);
-}
-
-bool CSceneObjectContainer::isLastSelectionASimpleShape(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    CShape* it=getShapeFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-    {
-        if (!it->isCompound())
-            return(true);
-    }
-    return(false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAJoint(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    CJoint* it=getJointFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-        return(true);
-    return(false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAMirror(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    CMirror* it=getMirrorFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-        return(true);
-    return(false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAnOctree(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    COctree* it=getOctreeFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-        return(true);
-    return(false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAPointCloud(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    CPointCloud* it=getPointCloudFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-        return(true);
-    return(false);
-}
-
-bool CSceneObjectContainer::isLastSelectionACompound(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    CShape* it=getShapeFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-    {
-        if (it->isCompound())
-            return(true);
-    }
-    return(false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAGraph(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    CGraph* it=getGraphFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-        return(true);
-    return(false);
-}
-
-bool CSceneObjectContainer::isLastSelectionACamera(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    CCamera* it=getCameraFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-        return(true);
-    return(false);
-}
-
-bool CSceneObjectContainer::isLastSelectionALight(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    CLight* it=getLightFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-        return(true);
-    return(false);
-}
-
-bool CSceneObjectContainer::isLastSelectionADummy(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    CDummy* it=getDummyFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-        return(true);
-    return(false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAProxSensor(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    CProxSensor* it=getProximitySensorFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-        return(true);
-    return(false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAVisionSensor(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    CVisionSensor* it=getVisionSensorFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-        return(true);
-    return(false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAPath(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    CPath_old* it=getPathFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-        return(true);
-    return(false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAMill(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    CMill* it=getMillFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-        return(true);
-    return(false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAForceSensor(const std::vector<int>* selection/*=nullptr*/) const
-{
-    size_t counter=0;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()==0)
-        return(false);
-    CForceSensor* it=getForceSensorFromHandle(sel->at(sel->size()-1));
-    if (it!=nullptr)
-        return(true);
-    return(false);
-}
-
-CSceneObject* CSceneObjectContainer::getLastSelectionObject(const std::vector<int>* selection/*=nullptr*/) const
-{
-    CSceneObject* retVal=nullptr;
-    const std::vector<int>* sel=getSelectedObjectHandlesPtr();
-    if (selection!=nullptr)
-        sel=selection;
-    if (sel->size()!=0)
-        retVal=getObjectFromHandle(sel->at(sel->size()-1));
-    return(retVal);
-}
-
-CMirror* CSceneObjectContainer::getLastSelectionMirror() const
-{
-    CSceneObject* it=getLastSelectionObject(getSelectedObjectHandlesPtr());
-    if (it!=nullptr)
-    {
-        if (it->getObjectType()==sim_object_mirror_type)
-            return((CMirror*)it);
-    }
-    return(nullptr);
-}
-
-COctree* CSceneObjectContainer::getLastSelectionOctree() const
-{
-    CSceneObject* it=getLastSelectionObject(getSelectedObjectHandlesPtr());
-    if (it!=nullptr)
-    {
-        if (it->getObjectType()==sim_object_octree_type)
-            return((COctree*)it);
-    }
-    return(nullptr);
-}
-
-CPointCloud* CSceneObjectContainer::getLastSelectionPointCloud() const
-{
-    CSceneObject* it=getLastSelectionObject(getSelectedObjectHandlesPtr());
-    if (it!=nullptr)
-    {
-        if (it->getObjectType()==sim_object_pointcloud_type)
-            return((CPointCloud*)it);
-    }
-    return(nullptr);
-}
-
-CShape* CSceneObjectContainer::getLastSelectionShape() const
-{
-    CSceneObject* it=getLastSelectionObject(getSelectedObjectHandlesPtr());
-    if (it!=nullptr)
-    {
-        if (it->getObjectType()==sim_object_shape_type)
-            return((CShape*)it);
-    }
-    return(nullptr);
-}
-
-CJoint* CSceneObjectContainer::getLastSelectionJoint() const
-{
-    CSceneObject* it=getLastSelectionObject(getSelectedObjectHandlesPtr());
-    if (it!=nullptr)
-    {
-        if (it->getObjectType()==sim_object_joint_type)
-            return((CJoint*)it);
-    }
-    return(nullptr);
-}
-
-CGraph* CSceneObjectContainer::getLastSelectionGraph() const
-{
-    CSceneObject* it=getLastSelectionObject(getSelectedObjectHandlesPtr());
-    if (it!=nullptr)
-    {
-        if (it->getObjectType()==sim_object_graph_type)
-            return((CGraph*)it);
-    }
-    return(nullptr);
-}
-
-CCamera* CSceneObjectContainer::getLastSelectionCamera() const
-{
-    CSceneObject* it=getLastSelectionObject(getSelectedObjectHandlesPtr());
-    if (it!=nullptr)
-    {
-        if (it->getObjectType()==sim_object_camera_type)
-            return((CCamera*)it);
-    }
-    return(nullptr);
-}
-
-CLight* CSceneObjectContainer::getLastSelectionLight() const
-{
-    CSceneObject* it=getLastSelectionObject(getSelectedObjectHandlesPtr());
-    if (it!=nullptr)
-    {
-        if (it->getObjectType()==sim_object_light_type)
-            return((CLight*)it);
-    }
-    return(nullptr);
-}
-
-CDummy* CSceneObjectContainer::getLastSelectionDummy() const
-{
-    CSceneObject* it=getLastSelectionObject(getSelectedObjectHandlesPtr());
-    if (it!=nullptr)
-    {
-        if (it->getObjectType()==sim_object_dummy_type)
-            return((CDummy*)it);
-    }
-    return(nullptr);
-}
-
-CProxSensor* CSceneObjectContainer::getLastSelectionProxSensor() const
-{
-    CSceneObject* it=getLastSelectionObject(getSelectedObjectHandlesPtr());
-    if (it!=nullptr)
-    {
-        if (it->getObjectType()==sim_object_proximitysensor_type)
-            return((CProxSensor*)it);
-    }
-    return(nullptr);
-}
-
-CVisionSensor* CSceneObjectContainer::getLastSelectionVisionSensor() const
-{
-    CSceneObject* it=getLastSelectionObject(getSelectedObjectHandlesPtr());
-    if (it!=nullptr)
-    {
-        if (it->getObjectType()==sim_object_visionsensor_type)
-            return((CVisionSensor*)it);
-    }
-    return(nullptr);
-}
-
-CPath_old* CSceneObjectContainer::getLastSelectionPath() const
-{
-    CSceneObject* it=getLastSelectionObject(getSelectedObjectHandlesPtr());
-    if (it!=nullptr)
-    {
-        if (it->getObjectType()==sim_object_path_type)
-            return((CPath_old*)it);
-    }
-    return(nullptr);
-}
-
-CMill* CSceneObjectContainer::getLastSelectionMill() const
-{
-    CSceneObject* it=getLastSelectionObject(getSelectedObjectHandlesPtr());
-    if (it!=nullptr)
-    {
-        if (it->getObjectType()==sim_object_mill_type)
-            return((CMill*)it);
-    }
-    return(nullptr);
-}
-
-CForceSensor* CSceneObjectContainer::getLastSelectionForceSensor() const
-{
-    CSceneObject* it=getLastSelectionObject(getSelectedObjectHandlesPtr());
-    if (it!=nullptr)
-    {
-        if (it->getObjectType()==sim_object_forcesensor_type)
-            return((CForceSensor*)it);
-    }
-    return(nullptr);
 }
 
 CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLocalFrame)
@@ -2752,10 +1703,8 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
         }
         C7Vector tr(shape->getFullCumulativeTransformation());
         shape->acquireCommonPropertiesFromObject_simpleXMLLoading(dummy);
-        shape->setObjectName(dummy->getObjectName().c_str(),true);
-        //renameObject(shape->getObjectHandle(),dummy->getObjectName().c_str());
-        shape->setObjectAltName(dummy->getObjectAltName().c_str(),true);
-        //altRenameObject(shape->getObjectHandle(),dummy->getObjectAltName().c_str());
+        setObjectName(shape,dummy->getObjectName().c_str(),true);
+        setObjectAltName(shape,dummy->getObjectAltName().c_str(),true);
         shape->setLocalTransformation(dummy->getFullCumulativeTransformation()*tr);
 
         // We cannot decided of the position of the shape (the position is selected at the center of the shape)
@@ -3286,21 +2235,30 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
 
 void CSceneObjectContainer::_addObject(CSceneObject* object)
 { // Overridden from _CSceneObjectContainer_
+    object->setSelected(false);
     _CSceneObjectContainer_::_addObject(object);
+    _handleOrderIndexOfOrphans();
+
+    App::setFullDialogRefreshFlag();
+    App::setRebuildHierarchyFlag();
+
+    actualizeObjectInformation();
 
     if (object->setObjectCanSync(true))
         object->buildUpdateAndPopulateSynchronizationObject(nullptr);
 }
 
-bool CSceneObjectContainer::_removeObject(int objectHandle)
+void CSceneObjectContainer::_removeObject(CSceneObject* object)
 { // Overridden from _CSceneObjectContainer_
-    bool retVal=false;
-    CSceneObject* ig=getObjectFromHandle(objectHandle);
-    if (ig!=nullptr)
-        ig->removeSynchronizationObject(false);
+    setObjectParent(object,nullptr,true);
+    object->removeSynchronizationObject(false);
+    _CSceneObjectContainer_::_removeObject(object);
+    _handleOrderIndexOfOrphans();
 
-    retVal=_CSceneObjectContainer_::_removeObject(objectHandle);
-    return(retVal);
+    CSceneObject::incrementModelPropertyValidityNumber();
+    actualizeObjectInformation();
+    App::setFullDialogRefreshFlag();
+    App::setRebuildHierarchyFlag();
 }
 
 void CSceneObjectContainer::buildUpdateAndPopulateSynchronizationObjects()

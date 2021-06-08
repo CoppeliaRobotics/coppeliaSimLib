@@ -53,7 +53,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 if (disassembleEnabled)
                 {
                     App::logMsg(sim_verbosity_msgs,IDSN_DISASSEMBLING_OBJECT);
-                    it->setParent(nullptr,true);
+                    App::currentWorld->sceneObjects->setObjectParent(it,nullptr,true);
                 }
             }
             else if (selS==2)
@@ -71,13 +71,13 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         App::logMsg(sim_verbosity_msgs,IDSN_DISASSEMBLING_OBJECT);
                         if (it1->getParent()==it2)
                         {
-                            it1->setParent(nullptr,true);
+                            App::currentWorld->sceneObjects->setObjectParent(it1,nullptr,true);
                             App::currentWorld->sceneObjects->deselectObjects();
                             App::currentWorld->sceneObjects->addObjectToSelection(it1->getObjectHandle());
                             App::currentWorld->sceneObjects->addObjectToSelection(it2->getObjectHandle());
                         }
                         else
-                            it2->setParent(nullptr,true);
+                            App::currentWorld->sceneObjects->setObjectParent(it2,nullptr,true);
                     }
                 }
                 else
@@ -90,9 +90,9 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         App::logMsg(sim_verbosity_msgs,IDSN_ASSEMBLING_2_OBJECTS);
                         assembleEnabled=true;
                         if (directAssembly)
-                            it2->setParent(it1,true);
+                            App::currentWorld->sceneObjects->setObjectParent(it2,it1,true);
                         else
-                            it2->setParent(potParents[0],true);
+                            App::currentWorld->sceneObjects->setObjectParent(it2,potParents[0],true);
                         if (it2->getAssemblingLocalTransformationIsUsed())
                             it2->setLocalTransformation(it2->getAssemblingLocalTransformation());
                     }
@@ -103,7 +103,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         {
                             App::logMsg(sim_verbosity_msgs,IDSN_ASSEMBLING_2_OBJECTS);
                             assembleEnabled=true;
-                            it1->setParent(it2,true);
+                            App::currentWorld->sceneObjects->setObjectParent(it1,it2,true);
                             if (it1->getAssemblingLocalTransformationIsUsed())
                                 it1->setLocalTransformation(it1->getAssemblingLocalTransformation());
                         }
@@ -201,15 +201,15 @@ bool CSceneObjectOperations::processCommand(int commandID)
                             CSceneObject* newObj=App::currentWorld->sceneObjects->getLastSelectionObject();
                             App::currentWorld->sceneObjects->deselectObjects();
                             newSelection.push_back(newObj->getObjectHandle());
-                            newObj->setParent(parent,true);
+                            App::currentWorld->sceneObjects->setObjectParent(newObj,parent,true);
                             newObj->setLocalTransformation(tr);
                             for (size_t j=0;j<children.size();j++)
                             {
-                                children[j]->setParent(newObj,false);
+                                App::currentWorld->sceneObjects->setObjectParent(children[j],newObj,false);
                                 children[j]->setLocalTransformation(childrenTr[j]);
                             }
-                            newObj->setObjectName(name.c_str(),true);
-                            newObj->setObjectAltName(altName.c_str(),true);
+                            App::currentWorld->sceneObjects->setObjectName(newObj,name.c_str(),true);
+                            App::currentWorld->sceneObjects->setObjectAltName(newObj,altName.c_str(),true);
                         }
                         else
                         {
@@ -225,7 +225,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                             CSceneObject* newObj=App::currentWorld->sceneObjects->getLastSelectionObject();
                             App::currentWorld->sceneObjects->deselectObjects();
                             newSelection.push_back(newObj->getObjectHandle());
-                            newObj->setParent(parent,true);
+                            App::currentWorld->sceneObjects->setObjectParent(newObj,parent,true);
                             newObj->setLocalTransformation(tr);
 
                             std::string autoName(newObj->getObjectName());
@@ -233,8 +233,8 @@ bool CSceneObjectOperations::processCommand(int commandID)
                             name=tt::getNameWithoutSuffixNumber(name.c_str(),true);
                             if (suffixNb>=0)
                                 name+="#"+std::to_string(suffixNb);
-                            newObj->setObjectName(name.c_str(),true);
-                            newObj->setObjectAltName(altName.c_str(),true);
+                            App::currentWorld->sceneObjects->setObjectName(newObj,name.c_str(),true);
+                            App::currentWorld->sceneObjects->setObjectAltName(newObj,altName.c_str(),true);
                         }
                     }
                     App::worldContainer->copyBuffer->restoreBuffer();
@@ -273,7 +273,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 for (int i=0;i<int(sel.size())-1;i++)
                 {
                     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
-                    it->setParent(last,true);
+                    App::currentWorld->sceneObjects->setObjectParent(it,last,true);
                 }
                 App::currentWorld->sceneObjects->selectObject(last->getObjectHandle()); // We select the parent
 
@@ -304,7 +304,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             for (size_t i=0;i<sel.size();i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
-                it->setParent(nullptr,true);
+                App::currentWorld->sceneObjects->setObjectParent(it,nullptr,true);
             }
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
@@ -1644,15 +1644,15 @@ void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it,st
             // reinitMesh2
             CShape* newIt=new CShape(itCumulTransf,oldGeomInfo->childList[i]);
 
-            newIt->setObjectName(oldGeomInfo->childList[i]->getName().c_str(),true);
-            newIt->setObjectAltName(tt::getObjectAltNameFromObjectName(newIt->getObjectName().c_str()).c_str(),true);
+            newIt->setObjectName_direct(oldGeomInfo->childList[i]->getName().c_str());
+            newIt->setObjectAltName_direct(tt::getObjectAltNameFromObjectName(newIt->getObjectName().c_str()).c_str());
             newIt->setDynMaterial(it->getDynMaterial()->copyYourself());
 
             App::currentWorld->sceneObjects->addObjectToScene(newIt,false,false);
             newShapes.push_back(newIt);
 
             // Now a few properties/things we want to be same for the new shape:
-            newIt->setParent(it->getParent(),true);
+            App::currentWorld->sceneObjects->setObjectParent(newIt,it->getParent(),true);
             newIt->setSizeFactor(it->getSizeFactor());
             newIt->setLocalObjectProperty(it->getLocalObjectProperty());
             newIt->setLocalObjectSpecialProperty(it->getLocalObjectSpecialProperty());
@@ -1928,20 +1928,11 @@ bool CSceneObjectOperations::_divideShape(CShape* shape,std::vector<CShape*>& ne
 
                     C7Vector tmpTr(it->getFullCumulativeTransformation());
                     CShape* newIt=new CShape(&tmpTr,subvert,subind,nullptr,nullptr);
-
-                    std::string name(it->getObjectName()+"_sub");
-/*
-                    tt::removeIllegalCharacters(name,false);
-                    while (App::currentWorld->sceneObjects->getObjectFromName(name.c_str())!=nullptr)
-                        name=tt::generateNewName_noHash(name);
-                    newIt->setObjectName(name.c_str(),true);
-                    newIt->setObjectAltName(tt::getObjectAltNameFromObjectName(name).c_str(),true);
-                    */
                     App::currentWorld->sceneObjects->addObjectToScene(newIt,false,false);
                     newShapes.push_back(newIt);
 
                     // Now a few properties/things we want to be same for the new shape:
-                    newIt->setParent(it->getParent(),true);
+                    App::currentWorld->sceneObjects->setObjectParent(newIt,it->getParent(),true);
                     newIt->setSizeFactor(it->getSizeFactor());
                     newIt->setLocalObjectProperty(it->getLocalObjectProperty());
                     newIt->setLocalObjectSpecialProperty(it->getLocalObjectSpecialProperty());

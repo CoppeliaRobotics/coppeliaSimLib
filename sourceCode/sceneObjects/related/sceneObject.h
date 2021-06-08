@@ -84,12 +84,6 @@ public:
     virtual bool isPotentiallyDetectable() const;
     virtual bool isPotentiallyRenderable() const;
 
-
-    // Overridden from _CSceneObject_:
-    bool setObjectName(const char* newName,bool check);
-    bool setObjectAltName(const char* newAltName,bool check);
-
-
     void setRestoreToDefaultLights(bool s);
     bool getRestoreToDefaultLights() const;
     
@@ -236,6 +230,7 @@ public:
     const std::vector<CSceneObject*>* getChildren() const;
     void addChild(CSceneObject* child);
     bool removeChild(const CSceneObject* child);
+    void handleOrderIndexOfChildren();
 
     void setHierarchyColorIndex(int c);
     int getHierarchyColorIndex() const;
@@ -274,10 +269,6 @@ public:
 
     void setParentHandle_forSerializationOnly(int pHandle);
 
-    // Overridden from _CSceneObject_:
-    virtual bool setParent(CSceneObject* newParent,bool keepObjectInPlace);
-
-    int getObjectType() const;
     void getFirstModelRelatives(std::vector<CSceneObject*>& firstModelRelatives,bool visibleModelsOnly) const;
     int countFirstModelRelatives(bool visibleModelsOnly) const;
     std::string getObjectTempName() const;
@@ -303,7 +294,6 @@ protected:
 
     int _uniqueID; // valid for a given scene instance (non-persistent)
 
-    std::vector<CSceneObject*> _childList;
     int _parentObjectHandle_forSerializationOnly;
 
     std::string _dnaString;
@@ -388,5 +378,5 @@ public:
 private:
     // Overridden from _CSceneObject_:
     void _setLocalTransformation_send(const C7Vector& tr) const;
-    void _setParent_send(int parentHandle,bool keepObjectInPlace) const;
+    void _setParent_send(int parentHandle) const;
 };

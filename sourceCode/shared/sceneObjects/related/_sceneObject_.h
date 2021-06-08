@@ -16,6 +16,7 @@ enum {
     sim_syncobj_sceneobject_setaltname,
     sim_syncobj_sceneobject_localtransf,
     sim_syncobj_sceneobject_setparent,
+    sim_syncobj_sceneobject_setchildorder,
 };
 
 class _CSceneObject_ : public CSyncObject
@@ -27,6 +28,7 @@ public:
     // Overridden from _CSyncObject_:
     virtual void synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg);
 
+    int getObjectType() const;
     CSceneObject* getParent() const;
     int getObjectHandle() const;
     bool getSelected() const;
@@ -34,7 +36,11 @@ public:
     bool getModelBase() const;
     std::string getExtensionString() const;
     unsigned short getVisibilityLayer() const;
+    int getChildOrder() const;
+    int getHierarchyTreeObjects(std::vector<CSceneObject*>& allObjects);
     std::string getObjectName() const;
+    std::string getObjectHashlessName() const;
+    std::string getObjectHashlessNameAndOrder() const;
     std::string getObjectAltName() const;
 
     C7Vector getLocalTransformation() const;
@@ -48,18 +54,21 @@ public:
 
     virtual bool setObjectHandle(int newObjectHandle);
 
-    virtual bool setParent(CSceneObject* parent,bool keepObjectInPlace);
+    void setParentPtr(CSceneObject* parent);
+    virtual bool setParent(CSceneObject* parent);
+    virtual bool setChildOrder(int order);
     virtual bool setExtensionString(const char* str);
     virtual bool setVisibilityLayer(unsigned short l);
-    virtual bool setObjectName(const char* newName,bool check);
-    virtual bool setObjectAltName(const char* newAltName,bool check);
+    virtual bool setObjectName_direct(const char* newName);
+    virtual bool setObjectAltName_direct(const char* newAltName);
 
     virtual bool setLocalTransformation(const C7Vector& tr);
     virtual bool setLocalTransformation(const C4Vector& q);
     virtual bool setLocalTransformation(const C3Vector& x);
 
 protected:
-    virtual void _setParent_send(int parentHandle,bool keepObjectInPlace) const;
+    virtual void _setChildOrder_send(int order) const;
+    virtual void _setParent_send(int parentHandle) const;
     virtual void _setExtensionString_send(const char* str) const;
     virtual void _setVisibilityLayer_send(unsigned short l) const;
     virtual void _setObjectName_send(const char* newName) const;
@@ -71,10 +80,12 @@ protected:
     std::string _extensionString;
     unsigned short _visibilityLayer;
     bool _selected;
+    int _childOrder;
     std::string _objectName;
     std::string _objectAltName;
     C7Vector _localTransformation;
 
+    std::vector<CSceneObject*> _childList;
     C7Vector _assemblingLocalTransformation; // When assembling this object
     bool _assemblingLocalTransformationIsUsed;
     std::vector<std::string> _assemblyMatchValuesChild;

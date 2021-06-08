@@ -87,8 +87,8 @@ public:
 
     void display_extRenderer(CViewableBase* renderingObject,int displayAttrib);
 
-    // Overridden from CSceneObject:
-    virtual bool setParent(CSceneObject* newParent,bool keepObjectInPlace);
+    // Overridden from _CSceneObject_:
+    virtual bool setParent(CSceneObject* newParent);
 
 
     void prepareVerticesIndicesNormalsAndEdgesForSerialization();

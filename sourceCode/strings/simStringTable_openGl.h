@@ -33,7 +33,6 @@
 #define IDSOGL_DISC "Disc"
 #define IDSOGL_UI "UI"
 #define IDSOGL_MECHANISM "Mechanism"
-#define IDSOGL_HEIGHTFIELD "heightfield"
 
 #define IDSOGL_MODEL_FOLDER_NOT_FOUND "Model folder not found"
 
