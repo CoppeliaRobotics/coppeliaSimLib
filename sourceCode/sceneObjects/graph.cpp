@@ -48,8 +48,9 @@ CGraph::CGraph()
     textColor[1]=0.8f;
     textColor[2]=0.8f;
     _visibilityLayer=GRAPH_LAYER;
-    _objectName=IDSOGL_GRAPH;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
+    _objectAlias=IDSOGL_GRAPH;
+    _objectName_old=IDSOGL_GRAPH;
+    _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 }
 
 CGraph::~CGraph()
@@ -1013,7 +1014,7 @@ void CGraph::exportGraphData(VArchive &ar)
 { // STATIC streams are not exported!! (they might have a different time interval, etc.)
 
     // The graph name:
-    std::string txt(getObjectName());
+    std::string txt(getObjectAliasAndOrder());
     txt+="\n";
 
     if (numberOfPoints>0)

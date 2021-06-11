@@ -22,8 +22,9 @@ CPointCloud::CPointCloud()
     color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
     _visibilityLayer=POINTCLOUD_LAYER;
     _localObjectSpecialProperty=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable_all|sim_objectspecialproperty_renderable;
-    _objectName=IDSOGL_POINTCLOUD;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
+    _objectAlias=IDSOGL_POINTCLOUD;
+    _objectName_old=IDSOGL_POINTCLOUD;
+    _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     _pointCloudInfo=nullptr;
     _showOctreeStructure=false;
     _useRandomColors=false;
@@ -1160,7 +1161,8 @@ void CPointCloud::serialize(CSer& ar)
             }
             else
             {
-                CSer* w=ar.xmlAddNode_binFile("file",(std::string("ptcloud_")+_objectName).c_str());
+//                CSer* w=ar.xmlAddNode_binFile("file",(std::string("ptcloud_")+_objectName).c_str());
+                CSer* w=ar.xmlAddNode_binFile("file",(_objectAlias+"-ptcloud-"+std::to_string(_objectHandle)).c_str());
                 w[0] << int(_points.size());
                 for (size_t i=0;i<_points.size();i++)
                     w[0] << _points[i];

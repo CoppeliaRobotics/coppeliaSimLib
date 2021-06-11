@@ -62,8 +62,9 @@ void CMirror::_commonInit()
 
     _objectManipulationModePermissions=0x013;
 
-    _objectName=IDSOGL_MIRROR;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
+    _objectAlias=IDSOGL_MIRROR;
+    _objectName_old=IDSOGL_MIRROR;
+    _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 }
 
 bool CMirror::getContainsTransparentComponent() const

@@ -212,18 +212,11 @@ void CHierarchy::keyPress(int key)
             CButtonBlock* blk=App::currentWorld->buttonBlockContainer->getBlockWithID(labelEditObjectID);
             if ( (key==ENTER_KEY)||(key==TAB_KEY) )
             {
-                tt::removeIllegalCharacters(editionText,true);
-                if (editionText!="")
+                if ( (em==NO_EDIT_MODE)&&(it!=nullptr) )
                 {
-                    if ( (em==NO_EDIT_MODE)&&(it!=nullptr) )
-                    {
-                        if (App::currentWorld->sceneObjects->getObjectFromName(editionText.c_str())==nullptr)
-                        {
-                            App::currentWorld->sceneObjects->setObjectName(it,editionText.c_str(),true);
-                            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-                        }
-                        App::setFullDialogRefreshFlag();
-                    }
+                    if (App::currentWorld->sceneObjects->setObjectAlias(it,editionText.c_str(),true))
+                        POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                    App::setFullDialogRefreshFlag();
                 }
                 labelEditObjectID=-1;
             }
@@ -1230,13 +1223,13 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
                 if (it->getDynamicSimulationIconCode()==sim_dynamicsimicon_objectisnotdynamicallyenabled)
                 {
                     txt=IDS_OBJECT;
-                    txt+=" '"+it->getObjectName()+"' ";
+                    txt+=" '"+it->getObjectAlias_shortPath()+"' ";
                     txt+=IDS_IS_NOT_DYNAMICALLY_ENABLED_WARNING;
                 }
                 if (it->getDynamicSimulationIconCode()==sim_dynamicsimicon_objectisdynamicallysimulated)
                 {
                     txt=IDS_OBJECT;
-                    txt+=" '"+it->getObjectName()+"' ";
+                    txt+=" '"+it->getObjectAlias_shortPath()+"' ";
                     txt+=std::string(IDS_IS_DYNAMICALLY_SIMULATED)+"\n";
                     if (it->getObjectType()==sim_object_shape_type)
                     {
@@ -1297,7 +1290,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
         if (it!=nullptr)
         {
-            editionText=it->getObjectName();
+            editionText=it->getObjectAlias();
             editionTextEditPos=(int)editionText.length();
         }
         return(true);

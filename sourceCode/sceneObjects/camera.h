@@ -70,7 +70,8 @@ public:
     void setCameraManipulationModePermissions(int p); // bit coded: own x, own y, own z, full rotation, tilting, never tilting
     int getCameraManipulationModePermissions() const; // bit coded: own x, own y, own z, full rotation, tilting, never tilting
     bool getIsMainCamera();
-    std::string getTrackedObjectLoadName() const;
+    std::string getTrackedObjectLoadAlias() const;
+    std::string getTrackedObjectLoadName_old() const;
 
     void shiftCameraInCameraManipulationMode(const C3Vector& newLocalPos);
     void rotateCameraInCameraManipulationMode(const C7Vector& newLocalConf);
@@ -97,7 +98,8 @@ protected:
     int _attributesForRendering;
     unsigned int _textureNameForExtGeneratedView;
     bool _isMainCamera;
-    std::string _trackedObjectLoadName;
+    std::string _trackedObjectLoadAlias;
+    std::string _trackedObjectLoadName_old;
 
     static unsigned int selectBuff[SELECTION_BUFFER_SIZE*4];    // For picking
 

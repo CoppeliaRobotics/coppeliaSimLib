@@ -168,7 +168,7 @@ void CCollectionElement::serialize(CSer& ar)
                 std::string str;
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_mainObjectHandle);
                 if (it!=nullptr)
-                    str=it->getObjectName();
+                    str=it->getObjectName_old();
                 ar.xmlAddNode_comment(" 'objectName' tag: required if 'type' is not 'everything'. Has to be an existing scene object name ",exhaustiveXml);
                 ar.xmlAddNode_string("objectName",str.c_str());
             }

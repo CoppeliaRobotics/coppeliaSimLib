@@ -145,7 +145,7 @@ void CQDlgCollections::refreshSubGroupList()
                 CSceneObject* theObj=App::currentWorld->sceneObjects->getObjectFromHandle(it2->getMainObject());
                 if (theObj!=nullptr)
                 {
-                    objName=objName.append(theObj->getObjectName());
+                    objName=objName.append(theObj->getObjectAlias_shortPath());
                     objName=objName.append("]");
                 }
                 else

@@ -287,8 +287,9 @@ void CVisionSensor::commonInit()
 
     _objectManipulationModePermissions=0x013;
 
-    _objectName=IDSOGL_VISION_U_SENSOR;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
+    _objectAlias=IDSOGL_VISION_U_SENSOR;
+    _objectName_old=IDSOGL_VISION_U_SENSOR;
+    _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 }
 
 void CVisionSensor::setUseExternalImage(bool u)
@@ -371,9 +372,14 @@ float CVisionSensor::getCalculationTime()
     return(float(sensorResult.calcTimeInMs)*0.001f);
 }
 
-std::string CVisionSensor::getDdetectableEntityLoadName() const
+std::string CVisionSensor::getDetectableEntityLoadAlias() const
 {
-    return(_detectableEntityLoadName);
+    return(_detectableEntityLoadAlias);
+}
+
+std::string CVisionSensor::getDetectableEntityLoadName_old() const
+{
+    return(_detectableEntityLoadName_old);
 }
 
 void CVisionSensor::_reserveBuffers()
@@ -1561,7 +1567,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool d
                         }
                         if (it->getParent()!=nullptr)
                         { // We need this because the dummy that is the base of the skybox is not renderable!
-                            if (it->getParent()->getObjectName()==IDSOGL_SKYBOX_DO_NOT_RENAME)
+                            if (it->getParent()->getObjectName_old()==IDSOGL_SKYBOX_DO_NOT_RENAME)
                                 viewBoxObject=it->getParent();
                         }
                     }
@@ -1610,7 +1616,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool d
                             }
                             if (it->getParent()!=nullptr)
                             { // We need this because the dummy that is the base of the skybox is not renderable!
-                                if (it->getParent()->getObjectName()==IDSOGL_SKYBOX_DO_NOT_RENAME)
+                                if (it->getParent()->getObjectName_old()==IDSOGL_SKYBOX_DO_NOT_RENAME)
                                     viewBoxObject=it->getParent();
                             }
                         }
@@ -1628,7 +1634,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool d
                 toRender.push_back(object);
                 if (object->getParent()!=nullptr)
                 { // We need this because the dummy that is the base of the skybox is not renderable!
-                    if (object->getParent()->getObjectName()==IDSOGL_SKYBOX_DO_NOT_RENAME)
+                    if (object->getParent()->getObjectName_old()==IDSOGL_SKYBOX_DO_NOT_RENAME)
                         viewBoxObject=object->getParent();
                 }
             }
@@ -2549,14 +2555,21 @@ void CVisionSensor::serialize(CSer& ar)
                 std::string str;
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_detectableEntityHandle);
                 if (it!=nullptr)
-                    str=it->getObjectName();
+                    str=it->getObjectName_old();
                 else
                 {
                     CCollection* coll=App::currentWorld->collections->getObjectFromHandle(_detectableEntityHandle);
                     if (coll!=nullptr)
                         str="@collection@"+coll->getCollectionName();
                 }
+                ar.xmlAddNode_comment(" 'renderableEntity' tag only used for backward compatibility, use instead 'renderableObjectAlias' tag",exhaustiveXml);
                 ar.xmlAddNode_string("renderableEntity",str.c_str());
+                if (it!=nullptr)
+                {
+                    str=it->getObjectAlias()+"*";
+                    str+=std::to_string(it->getObjectHandle());
+                }
+                ar.xmlAddNode_string("renderableObjectAlias",str.c_str());
             }
 
             ar.xmlPushNewNode("switches");
@@ -2639,7 +2652,10 @@ void CVisionSensor::serialize(CSer& ar)
             if (exhaustiveXml)
                 ar.xmlGetNode_int("renderableEntity",_detectableEntityHandle);
             else
-                ar.xmlGetNode_string("renderableEntity",_detectableEntityLoadName,exhaustiveXml);
+            {
+                ar.xmlGetNode_string("renderableObjectAlias",_detectableEntityLoadAlias,exhaustiveXml);
+                ar.xmlGetNode_string("renderableEntity",_detectableEntityLoadName_old,exhaustiveXml);
+            }
 
             if (ar.xmlPushChildNode("switches",exhaustiveXml))
             {

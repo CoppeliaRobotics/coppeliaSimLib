@@ -915,8 +915,9 @@ void CShape::commonInit()
 
     _visibilityLayer=SHAPE_LAYER;
     _localObjectSpecialProperty=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable_all|sim_objectspecialproperty_renderable;
-    _objectName="Shape";
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
+    _objectAlias="Shape";
+    _objectName_old="Shape";
+    _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _dynamicLinearVelocity.clear();
     _dynamicAngularVelocity.clear();
@@ -1243,9 +1244,9 @@ void CShape::serialize(CSer& ar)
                 else
                     ar.storeDataName("Gsg");
                 ar.setCountingMode();
-                _mesh->serialize(ar,_objectName.c_str());
+                _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
                 if (ar.setWritingMode())
-                    _mesh->serialize(ar,_objectName.c_str());
+                    _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
 
                 // (if undo/redo under way, getSaveExistingCalculationStructuresTemp is false)
                 if (App::currentWorld->environment->getSaveExistingCalculationStructuresTemp()&&isMeshCalculationStructureInitialized())
@@ -1331,7 +1332,7 @@ void CShape::serialize(CSer& ar)
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                         delete _mesh;
                         _mesh=new CMesh();
-                        ((CMesh*)_mesh)->serialize(ar,_objectName.c_str());
+                        ((CMesh*)_mesh)->serialize(ar,getObjectAliasAndHandle().c_str());
                         _computeMeshBoundingBox();
                         getMeshWrapper()->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
                     }
@@ -1341,7 +1342,7 @@ void CShape::serialize(CSer& ar)
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                         delete _mesh;
                         _mesh=new CMeshWrapper();
-                        _mesh->serialize(ar,_objectName.c_str());
+                        _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
                         _computeMeshBoundingBox();
                         getMeshWrapper()->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
                     }
@@ -1447,7 +1448,7 @@ void CShape::serialize(CSer& ar)
                             ar.xmlAddNode_string("data_base64Coded",str.c_str());
                         }
                         else
-                            ar.xmlAddNode_binFile("file",(std::string("calcStruct_")+_objectName).c_str(),&collInfoData[0],collInfoData.size());
+                            ar.xmlAddNode_binFile("file",(std::string("calcStruct_")+_objectAlias+"-"+std::to_string(_objectHandle)).c_str(),&collInfoData[0],collInfoData.size());
                         ar.xmlPopNode();
                     }
 
@@ -1455,7 +1456,7 @@ void CShape::serialize(CSer& ar)
                         ar.xmlPushNewNode("mesh");
                     else
                         ar.xmlPushNewNode("compound");
-                    _mesh->serialize(ar,_objectName.c_str());
+                    _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
                     ar.xmlPopNode();
                 }
 
@@ -1506,7 +1507,7 @@ void CShape::serialize(CSer& ar)
                 { // (not yet used, but so that old versions will be able to read this)
                     delete _mesh;
                     _mesh=new CMesh();
-                    ((CMesh*)_mesh)->serialize(ar,_objectName.c_str());
+                    ((CMesh*)_mesh)->serialize(ar,getObjectAliasAndHandle().c_str());
                     ar.xmlPopNode();
                     _computeMeshBoundingBox();
                 }
@@ -1516,7 +1517,7 @@ void CShape::serialize(CSer& ar)
                     {  // (not yet used, but so that old versions will be able to read this)
                         delete _mesh;
                         _mesh=new CMeshWrapper();
-                        _mesh->serialize(ar,_objectName.c_str());
+                        _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
                         ar.xmlPopNode();
                         _computeMeshBoundingBox();
                     }
@@ -1565,9 +1566,9 @@ void CShape::_serializeBackCompatibility(CSer& ar)
             else
                 ar.storeDataName("Gsg");
             ar.setCountingMode();
-            _mesh->serialize(ar,_objectName.c_str());
+            _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
             if (ar.setWritingMode())
-                _mesh->serialize(ar,_objectName.c_str());
+                _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
 
             // (if undo/redo under way, getSaveExistingCalculationStructuresTemp is false)
             if (App::currentWorld->environment->getSaveExistingCalculationStructuresTemp()&&isMeshCalculationStructureInitialized())
@@ -1606,7 +1607,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                         delete _mesh;
                         _mesh=new CMesh();
-                        ((CMesh*)_mesh)->serialize(ar,_objectName.c_str());
+                        ((CMesh*)_mesh)->serialize(ar,getObjectAliasAndHandle().c_str());
                     }
                     if (theName.compare("Gsg")==0)
                     { // geomWrap
@@ -1614,7 +1615,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                         delete _mesh;
                         _mesh=new CMeshWrapper();
-                        _mesh->serialize(ar,_objectName.c_str());
+                        _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
                     }
 
                     if (theName.compare("Coi")==0)
@@ -1658,7 +1659,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                     ar.xmlAddNode_string("data_base64Coded",str.c_str());
                 }
                 else
-                    ar.xmlAddNode_binFile("file",(std::string("calcStruct_")+_objectName).c_str(),&collInfoData[0],collInfoData.size());
+                    ar.xmlAddNode_binFile("file",(std::string("calcStruct_")+getObjectAliasAndHandle()).c_str(),&collInfoData[0],collInfoData.size());
                 ar.xmlPopNode();
             }
 
@@ -1666,7 +1667,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                 ar.xmlPushNewNode("mesh");
             else
                 ar.xmlPushNewNode("compound");
-            _mesh->serialize(ar,_objectName.c_str());
+            _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
             ar.xmlPopNode();
         }
         else
@@ -1689,7 +1690,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
             {
                 delete _mesh;
                 _mesh=new CMesh();
-                ((CMesh*)_mesh)->serialize(ar,_objectName.c_str());
+                ((CMesh*)_mesh)->serialize(ar,getObjectAliasAndHandle().c_str());
                 ar.xmlPopNode();
             }
             else
@@ -1698,7 +1699,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                 {
                     delete _mesh;
                     _mesh=new CMeshWrapper();
-                    _mesh->serialize(ar,_objectName.c_str());
+                    _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
                     ar.xmlPopNode();
                 }
             }

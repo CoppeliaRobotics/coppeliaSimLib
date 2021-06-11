@@ -21,7 +21,8 @@ CJoint::CJoint(int jointType)
     _jointType=jointType;
     if (jointType==sim_joint_revolute_subtype)
     {
-        _objectName=IDSOGL_REVOLUTE_JOINT;
+        _objectName_old=IDSOGL_REVOLUTE_JOINT;
+        _objectAlias=IDSOGL_REVOLUTE_JOINT;
         _jointMode=sim_jointmode_force;
         _positionIsCyclic=true;
         _jointPositionRange=piValTimes2_f;
@@ -33,7 +34,8 @@ CJoint::CJoint(int jointType)
     }
     if (jointType==sim_joint_prismatic_subtype)
     {
-        _objectName=IDSOGL_PRISMATIC_JOINT;
+        _objectName_old=IDSOGL_PRISMATIC_JOINT;
+        _objectAlias=IDSOGL_PRISMATIC_JOINT;
         _jointMode=sim_jointmode_force;
         _positionIsCyclic=false;
         _jointPositionRange=1.0f;
@@ -45,7 +47,8 @@ CJoint::CJoint(int jointType)
     }
     if (jointType==sim_joint_spherical_subtype)
     {
-        _objectName=IDSOGL_SPHERICAL_JOINT;
+        _objectName_old=IDSOGL_SPHERICAL_JOINT;
+        _objectAlias=IDSOGL_SPHERICAL_JOINT;
         _jointMode=sim_jointmode_force;
         _positionIsCyclic=true;
         _jointPositionRange=piValue_f;
@@ -55,14 +58,15 @@ CJoint::CJoint(int jointType)
         _dynamicMotorUpperLimitVelocity=0.0f;
         _maxAcceleration_DEPRECATED=60.0f*degToRad_f;
     }
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
+    _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 }
 
 void CJoint::_commonInit()
 {
     _visibilityLayer=JOINT_LAYER;
-    _objectName=IDSOGL_JOINT;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
+    _objectAlias=IDSOGL_JOINT;
+    _objectName_old=IDSOGL_JOINT;
+    _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _cumulatedForceOrTorque=0.0f;
     _cumulativeForceOrTorqueTmp=0.0f;
@@ -568,8 +572,6 @@ void CJoint::measureJointVelocity(float dt)
 
 void CJoint::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    if (_objectName.compare("j")==0)
-        printf("init\n");
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
     _dynamicSecondPartIsValid=false; // do the same as for force sensors here?! (if the joint is copied while apart, paste it apart too!)
     _previousJointPositionIsValid=false;
@@ -878,9 +880,14 @@ float CJoint::getMeasuredJointVelocity() const
     return(_measuredJointVelocity_velocityMeasurement);
 }
 
-std::string CJoint::getDependencyJointLoadName() const
+std::string CJoint::getDependencyJointLoadAlias() const
 {
-    return(_dependencyJointLoadName);
+    return(_dependencyJointLoadAlias);
+}
+
+std::string CJoint::getDependencyJointLoadName_old() const
+{
+    return(_dependencyJointLoadName_old);
 }
 
 int CJoint::getJointCallbackCallOrder_backwardCompatibility() const
@@ -2173,8 +2180,15 @@ void CJoint::serialize(CSer& ar)
                 std::string str;
                 CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
                 if (it!=nullptr)
-                    str=it->getObjectName();
+                    str=it->getObjectName_old();
+                ar.xmlAddNode_comment(" 'dependentJoint' tag only used for backward compatibility, use instead 'dependentJointAlias' tag",exhaustiveXml);
                 ar.xmlAddNode_string("dependentJoint",str.c_str());
+                if (it!=nullptr)
+                {
+                    str=it->getObjectAlias()+"*";
+                    str+=std::to_string(it->getObjectHandle());
+                }
+                ar.xmlAddNode_string("dependentJointAlias",str.c_str());
             }
             ar.xmlAddNode_comment(" 'offset_m_or_rad' tag: has to be specified in meters or radians ",exhaustiveXml);
             ar.xmlAddNode_float("offset_m_or_rad",_dependencyJointOffset);
@@ -2377,7 +2391,10 @@ void CJoint::serialize(CSer& ar)
                 if (exhaustiveXml)
                     ar.xmlGetNode_int("jointHandle",_dependencyMasterJointHandle);
                 else
-                    ar.xmlGetNode_string("dependentJoint",_dependencyJointLoadName,exhaustiveXml);
+                {
+                    ar.xmlGetNode_string("dependentJointAlias",_dependencyJointLoadAlias,exhaustiveXml);
+                    ar.xmlGetNode_string("dependentJoint",_dependencyJointLoadName_old,exhaustiveXml);
+                }
                 ar.xmlGetNode_float("offset_m_or_rad",_dependencyJointOffset,exhaustiveXml);
                 ar.xmlGetNode_float("mult_m_or_rad",_dependencyJointMult,exhaustiveXml);
                 ar.xmlPopNode();

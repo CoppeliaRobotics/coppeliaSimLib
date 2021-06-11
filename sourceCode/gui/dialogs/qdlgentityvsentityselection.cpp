@@ -95,7 +95,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
     {
         CShape* it=App::currentWorld->sceneObjects->getShapeFromIndex(i);
         std::string name(tt::decorateString("[",IDSN_SHAPE,"] "));
-        name+=it->getObjectName();
+        name+=it->getObjectAlias_shortPath();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
     }
@@ -111,7 +111,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
     {
         COctree* it=App::currentWorld->sceneObjects->getOctreeFromIndex(i);
         std::string name(tt::decorateString("[",IDSN_OCTREE,"] "));
-        name+=it->getObjectName();
+        name+=it->getObjectAlias_shortPath();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
     }
@@ -127,7 +127,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
     {
         CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromIndex(i);
         std::string name(tt::decorateString("[",IDSN_POINTCLOUD,"] "));
-        name+=it->getObjectName();
+        name+=it->getObjectAlias_shortPath();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
     }
@@ -143,7 +143,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
     {
         CDummy* it=App::currentWorld->sceneObjects->getDummyFromIndex(i);
         std::string name(tt::decorateString("[",IDSN_DUMMY,"] "));
-        name+=it->getObjectName();
+        name+=it->getObjectAlias_shortPath();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
     }
@@ -185,7 +185,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
     {
         CShape* it=App::currentWorld->sceneObjects->getShapeFromIndex(i);
         std::string name(tt::decorateString("[",IDSN_SHAPE,"] "));
-        name+=it->getObjectName();
+        name+=it->getObjectAlias_shortPath();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
     }
@@ -201,7 +201,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
     {
         COctree* it=App::currentWorld->sceneObjects->getOctreeFromIndex(i);
         std::string name(tt::decorateString("[",IDSN_OCTREE,"] "));
-        name+=it->getObjectName();
+        name+=it->getObjectAlias_shortPath();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
     }
@@ -217,7 +217,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
     {
         CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromIndex(i);
         std::string name(tt::decorateString("[",IDSN_POINTCLOUD,"] "));
-        name+=it->getObjectName();
+        name+=it->getObjectAlias_shortPath();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
     }
@@ -233,7 +233,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
     {
         CDummy* it=App::currentWorld->sceneObjects->getDummyFromIndex(i);
         std::string name(tt::decorateString("[",IDSN_DUMMY,"] "));
-        name+=it->getObjectName();
+        name+=it->getObjectAlias_shortPath();
         names.push_back(name);
         ids.push_back(it->getObjectHandle());
     }

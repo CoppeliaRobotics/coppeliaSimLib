@@ -1755,43 +1755,33 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
     ident.setIdentity();
     std::vector<SSimpleXmlSceneObject> simpleXmlObjects;
     sceneObjects->readAndAddToSceneSimpleXmlSceneObjects(ar,nullptr,ident,simpleXmlObjects);
-    std::map<CSceneObject*,bool> addedObjects;
-    std::vector<CSceneObject*> allLoadedObjects;
-    bool hasAScriptAttached=false;
-    while (simpleXmlObjects.size()>0)
-    {
-        for (size_t i=0;i<simpleXmlObjects.size();i++)
-        {
-            CSceneObject* it=simpleXmlObjects[i].object;
-            if (it->getObjectType()==sim_object_camera_type)
-            {
-                if ( (mainCam==nullptr)||((CCamera*)it)->getIsMainCamera() )
-                    mainCam=(CCamera*)it;
-            }
-            CSceneObject* pit=simpleXmlObjects[i].parentObject;
-            CLuaScriptObject* childScript=simpleXmlObjects[i].childScript;
-            CLuaScriptObject* customizationScript=simpleXmlObjects[i].customizationScript;
-            std::map<CSceneObject*,bool>::iterator s=addedObjects.find(pit);
-            if ( (s!=addedObjects.end())||(pit==nullptr) )
-            {
-                allLoadedObjects.push_back(it);
-                sceneObjects->setObjectParent(it,pit,false);
-                addedObjects[it]=true;
 
-                if (childScript!=nullptr)
-                {
-                    hasAScriptAttached=true;
-                    embeddedScriptContainer->insertScript(childScript);
-                    childScript->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
-                }
-                if (customizationScript!=nullptr)
-                {
-                    hasAScriptAttached=true;
-                    embeddedScriptContainer->insertScript(customizationScript);
-                    customizationScript->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
-                }
-                simpleXmlObjects.erase(simpleXmlObjects.begin()+i);
-            }
+    bool hasAScriptAttached=false;
+    std::vector<CSceneObject*> allLoadedObjects;
+    for (size_t i=0;i<simpleXmlObjects.size();i++)
+    {
+        CSceneObject* it=simpleXmlObjects[i].object;
+        CSceneObject* pit=simpleXmlObjects[i].parentObject;
+        CLuaScriptObject* childScript=simpleXmlObjects[i].childScript;
+        CLuaScriptObject* customizationScript=simpleXmlObjects[i].customizationScript;
+        allLoadedObjects.push_back(it);
+        if (it->getObjectType()==sim_object_camera_type)
+        {
+            if ( (mainCam==nullptr)||((CCamera*)it)->getIsMainCamera() )
+                mainCam=(CCamera*)it;
+        }
+        sceneObjects->setObjectParent(it,pit,false);
+        if (childScript!=nullptr)
+        {
+            hasAScriptAttached=true;
+            embeddedScriptContainer->insertScript(childScript);
+            childScript->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
+        }
+        if (customizationScript!=nullptr)
+        {
+            hasAScriptAttached=true;
+            embeddedScriptContainer->insertScript(customizationScript);
+            customizationScript->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
         }
     }
     if ( (mainCam!=nullptr)&&isScene )
@@ -1811,12 +1801,17 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
     // and no '#' (or no modified suffix) will appear in their names.
     // Following line summarizes this:
     bool objectIsACopy=(hasAScriptAttached&&(ar.getFileType()==CSer::filetype_csim_xml_simplemodel_file)); // scenes are not treated like copies!
+    std::map<std::string,CSceneObject*> _objectAliasesMap;
     std::map<std::string,CSceneObject*> _objectTempNamesMap;
     for (size_t i=0;i<allLoadedObjects.size();i++)
     {
         CSceneObject* it=allLoadedObjects[i];
-        _objectTempNamesMap[it->getObjectTempName()]=it;
-        std::string newObjName=it->getObjectTempName();
+        _objectAliasesMap[it->getObjectTempAlias()]=it;
+
+        // Old, for backward compatibility:
+        // ----------------------------
+        _objectTempNamesMap[it->getObjectTempName_old()]=it;
+        std::string newObjName=it->getObjectTempName_old();
         if (objectIsACopy)
             newObjName=tt::generateNewName_hash(newObjName.c_str(),suffixOffset);
         else
@@ -1831,10 +1826,10 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
                 for (size_t i=0;i<sceneObjects->getObjectCount();i++)
                 { //
                     CSceneObject* itt=sceneObjects->getObjectFromIndex(i);
-                    std::string baseNameIt(tt::getNameWithoutSuffixNumber(itt->getObjectName().c_str(),false));
+                    std::string baseNameIt(tt::getNameWithoutSuffixNumber(itt->getObjectName_old().c_str(),false));
                     if (baseName.compare(baseNameIt)==0)
                     {
-                        suffixes.push_back(tt::getNameSuffixNumber(itt->getObjectName().c_str(),false));
+                        suffixes.push_back(tt::getNameSuffixNumber(itt->getObjectName_old().c_str(),false));
                         dummyValues.push_back(0);
                     }
                 }
@@ -1848,14 +1843,11 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
                 }
                 newObjName=tt::generateNewName_noHash(baseName.c_str(),lastS+1+1);
             }
-            // Following was too slow with many objects:
-            //      while (getObject(newObjName)!=nullptr)
-            //          newObjName=tt::generateNewName_noHash(newObjName);
         }
-        sceneObjects->setObjectName(it,newObjName.c_str(),true);
+        sceneObjects->setObjectName_old(it,newObjName.c_str(),true);
 
         // Now a similar procedure, but with the alt object names:
-        std::string newObjAltName=it->getObjectTempAltName();
+        std::string newObjAltName=it->getObjectTempAltName_old();
         if (sceneObjects->getObjectFromAltName(newObjAltName.c_str())!=nullptr)
         {
             // Following faster with many objects:
@@ -1866,10 +1858,10 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
             for (size_t i=0;i<sceneObjects->getObjectCount();i++)
             {
                 CSceneObject* itt=sceneObjects->getObjectFromIndex(i);
-                std::string baseAltNameIt(tt::getNameWithoutSuffixNumber(itt->getObjectAltName().c_str(),false));
+                std::string baseAltNameIt(tt::getNameWithoutSuffixNumber(itt->getObjectAltName_old().c_str(),false));
                 if (baseAltName.compare(baseAltNameIt)==0)
                 {
-                    suffixes.push_back(tt::getNameSuffixNumber(itt->getObjectAltName().c_str(),false));
+                    suffixes.push_back(tt::getNameSuffixNumber(itt->getObjectAltName_old().c_str(),false));
                     dummyValues.push_back(0);
                 }
             }
@@ -1883,13 +1875,12 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
             }
             newObjAltName=tt::generateNewName_noHash(baseAltName.c_str(),lastS+1+1);
         }
-        // Following was too slow with many objects:
-        //      while (getObjectFromAltName(newObjAltName)!=nullptr)
-        //          newObjAltName=tt::generateNewName_noHash(newObjAltName);
-        sceneObjects->setObjectAltName(it,newObjAltName.c_str(),true);
+        sceneObjects->setObjectAltName_old(it,newObjAltName.c_str(),true);
+        // ----------------------------
     }
 
-    // Add collections and perform mapping:
+    // Old, for backward compatibility when persistent collections & Ik groups are present:
+    // -----------------------
     for (size_t i=0;i<allLoadedCollections.size();i++)
     {
         CCollection* it=allLoadedCollections[i];
@@ -1920,8 +1911,6 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
             i--; // reprocess this position
         }
     }
-
-    // Add ik groups and perform mapping:
     for (size_t i=0;i<allLoadedIkGroups.size();i++)
     {
         CIkGroup_old* it=allLoadedIkGroups[i];
@@ -1954,6 +1943,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
             i--; // reprocess this position
         }
     }
+    // -----------------------
 
     for (size_t i=0;i<allLoadedObjects.size();i++)
     {
@@ -1962,49 +1952,73 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
         if (obj->getObjectType()==sim_object_dummy_type)
         {
             CDummy* dummy=(CDummy*)obj;
-            if (dummy->getLinkedDummyLoadName().size()>0)
-            {
-                std::map<std::string,CSceneObject*>::const_iterator it=_objectTempNamesMap.find(dummy->getLinkedDummyLoadName());
-                if (it!=_objectTempNamesMap.end())
-                    dummy->setLinkedDummyHandle(it->second->getObjectHandle(),true);
+            std::map<std::string,CSceneObject*>::const_iterator it=_objectAliasesMap.find(dummy->getLinkedDummyLoadAlias());
+            if ( (dummy->getLinkedDummyLoadAlias().size()>0)&&(it!=_objectAliasesMap.end()) )
+                dummy->setLinkedDummyHandle(it->second->getObjectHandle(),true);
+            else
+            { // for backward compatibility
+                if (dummy->getLinkedDummyLoadName_old().size()>0)
+                {
+                    it=_objectTempNamesMap.find(dummy->getLinkedDummyLoadName_old());
+                    if (it!=_objectTempNamesMap.end())
+                        dummy->setLinkedDummyHandle(it->second->getObjectHandle(),true);
+                }
             }
         }
         // Handle joint-joint linking:
         if (obj->getObjectType()==sim_object_joint_type)
         {
             CJoint* joint=(CJoint*)obj;
-            if (joint->getDependencyJointLoadName().size()>0)
-            {
-                std::map<std::string,CSceneObject*>::const_iterator it=_objectTempNamesMap.find(joint->getDependencyJointLoadName());
-                if (it!=_objectTempNamesMap.end())
-                    joint->setDependencyMasterJointHandle(it->second->getObjectHandle());
+            std::map<std::string,CSceneObject*>::const_iterator it=_objectAliasesMap.find(joint->getDependencyJointLoadAlias());
+            if ( (joint->getDependencyJointLoadAlias().size()>0)&&(it!=_objectAliasesMap.end()) )
+                joint->setDependencyMasterJointHandle(it->second->getObjectHandle());
+            else
+            { // for backward compatibility
+                if (joint->getDependencyJointLoadName_old().size()>0)
+                {
+                    it=_objectTempNamesMap.find(joint->getDependencyJointLoadName_old());
+                    if (it!=_objectTempNamesMap.end())
+                        joint->setDependencyMasterJointHandle(it->second->getObjectHandle());
+                }
             }
         }
         // Handle camera tracking:
         if (obj->getObjectType()==sim_object_camera_type)
         {
             CCamera* camera=(CCamera*)obj;
-            if (camera->getTrackedObjectLoadName().size()>0)
-            {
-                std::map<std::string,CSceneObject*>::const_iterator it=_objectTempNamesMap.find(camera->getTrackedObjectLoadName());
-                if (it!=_objectTempNamesMap.end())
-                    camera->setTrackedObjectID(it->second->getObjectHandle());
+            std::map<std::string,CSceneObject*>::const_iterator it=_objectAliasesMap.find(camera->getTrackedObjectLoadAlias());
+            if ( (camera->getTrackedObjectLoadAlias().size()>0)&&(it!=_objectAliasesMap.end()) )
+                camera->setTrackedObjectID(it->second->getObjectHandle());
+            else
+            { // for backward compatibility
+                if (camera->getTrackedObjectLoadName_old().size()>0)
+                {
+                    it=_objectTempNamesMap.find(camera->getTrackedObjectLoadName_old());
+                    if (it!=_objectTempNamesMap.end())
+                        camera->setTrackedObjectID(it->second->getObjectHandle());
+                }
             }
         }
         // Handle proximitySensor sensable entity linking:
         if (obj->getObjectType()==sim_object_proximitysensor_type)
         {
             CProxSensor* proxSensor=(CProxSensor*)obj;
-            if (proxSensor->getSensableObjectLoadName().size()>0)
-            {
-                std::map<std::string,CSceneObject*>::const_iterator it=_objectTempNamesMap.find(proxSensor->getSensableObjectLoadName());
-                if (it!=_objectTempNamesMap.end())
-                    proxSensor->setSensableObject(it->second->getObjectHandle());
-                else
+            std::map<std::string,CSceneObject*>::const_iterator it=_objectAliasesMap.find(proxSensor->getSensableObjectLoadAlias());
+            if ( (proxSensor->getSensableObjectLoadAlias().size()>0)&&(it!=_objectAliasesMap.end()) )
+                proxSensor->setSensableObject(it->second->getObjectHandle());
+            else
+            { // for backward compatibility
+                if (proxSensor->getSensableObjectLoadName_old().size()>0)
                 {
-                    std::map<std::string,CCollection*>::const_iterator itColl=_collectionLoadNamesMap.find(proxSensor->getSensableObjectLoadName());
-                    if (itColl!=_collectionLoadNamesMap.end())
-                        proxSensor->setSensableObject(itColl->second->getCollectionHandle());
+                    it=_objectTempNamesMap.find(proxSensor->getSensableObjectLoadName_old());
+                    if (it!=_objectTempNamesMap.end())
+                        proxSensor->setSensableObject(it->second->getObjectHandle());
+                    else
+                    {
+                        std::map<std::string,CCollection*>::const_iterator itColl=_collectionLoadNamesMap.find(proxSensor->getSensableObjectLoadName_old());
+                        if (itColl!=_collectionLoadNamesMap.end())
+                            proxSensor->setSensableObject(itColl->second->getCollectionHandle());
+                    }
                 }
             }
         }
@@ -2012,20 +2026,27 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
         if (obj->getObjectType()==sim_object_visionsensor_type)
         {
             CVisionSensor* visionSensor=(CVisionSensor*)obj;
-            if (visionSensor->getDdetectableEntityLoadName().size()>0)
-            {
-                std::map<std::string,CSceneObject*>::const_iterator it=_objectTempNamesMap.find(visionSensor->getDdetectableEntityLoadName());
-                if (it!=_objectTempNamesMap.end())
-                    visionSensor->setDetectableEntityHandle(it->second->getObjectHandle());
-                else
+            std::map<std::string,CSceneObject*>::const_iterator it=_objectAliasesMap.find(visionSensor->getDetectableEntityLoadAlias());
+            if ( (visionSensor->getDetectableEntityLoadAlias().size()>0)&&(it!=_objectAliasesMap.end()) )
+                visionSensor->setDetectableEntityHandle(it->second->getObjectHandle());
+            else
+            { // for backward compatibility
+                if (visionSensor->getDetectableEntityLoadName_old().size()>0)
                 {
-                    std::map<std::string,CCollection*>::const_iterator itColl=_collectionLoadNamesMap.find(visionSensor->getDdetectableEntityLoadName());
-                    if (itColl!=_collectionLoadNamesMap.end())
-                        visionSensor->setDetectableEntityHandle(itColl->second->getCollectionHandle());
+                    it=_objectTempNamesMap.find(visionSensor->getDetectableEntityLoadName_old());
+                    if (it!=_objectTempNamesMap.end())
+                        visionSensor->setDetectableEntityHandle(it->second->getObjectHandle());
+                    else
+                    {
+                        std::map<std::string,CCollection*>::const_iterator itColl=_collectionLoadNamesMap.find(visionSensor->getDetectableEntityLoadName_old());
+                        if (itColl!=_collectionLoadNamesMap.end())
+                            visionSensor->setDetectableEntityHandle(itColl->second->getCollectionHandle());
+                    }
                 }
             }
         }
     }
+
     setEnableRemoteWorldsSync(true);
     rebuildRemoteWorlds();
 
@@ -2058,14 +2079,14 @@ bool CWorld::_saveSimpleXmlScene(CSer& ar)
     ar.xmlPopNode();
 
     for (size_t i=0;i<collections->getObjectCount();i++)
-    {
+    { // Old:
         ar.xmlPushNewNode(SERX_COLLECTION);
         collections->getObjectFromIndex(i)->serialize(ar);
         ar.xmlPopNode();
     }
 
     for (size_t i=0;i<ikGroups->getObjectCount();i++)
-    {
+    { // Old:
         ar.xmlPushNewNode(SERX_IK);
         ikGroups->getObjectFromIndex(i)->serialize(ar);
         ar.xmlPopNode();
@@ -2194,9 +2215,9 @@ int CWorld::_getSuffixOffsetForGeneralObjectToAdd(bool tempNames,std::vector<CSc
     {
         for (size_t i=0;i<loadedObjectList->size();i++)
         {
-            std::string str(loadedObjectList->at(i)->getObjectName());
+            std::string str(loadedObjectList->at(i)->getObjectName_old());
             if (tempNames)
-                str=loadedObjectList->at(i)->getObjectTempName();
+                str=loadedObjectList->at(i)->getObjectTempName_old();
             int s=tt::getNameSuffixNumber(str.c_str(),true);
             if (i==0)
                 smallestSuffix=s;

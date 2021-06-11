@@ -122,7 +122,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
         if (t==sim_object_dummy_type)
             theName+=IDSN_DUMMY;
         theName+=":";
-        theName+=it->getObjectName();
+        theName+=it->getObjectName_old();
     }
     else
     {
@@ -160,7 +160,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
             if (t==sim_object_dummy_type)
                 theName+=IDSN_DUMMY;
             theName+=":";
-            theName+=it->getObjectName();
+            theName+=it->getObjectName_old();
         }
         else
             theName+=IDS_ALL_OTHER_ENTITIES;

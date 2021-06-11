@@ -71,18 +71,20 @@ public:
     bool readAndAddToSceneSimpleXmlSceneObjects(CSer& ar,CSceneObject* parentObject,const C7Vector& localFramePreCorrection,std::vector<SSimpleXmlSceneObject>& simpleXmlObjects);
     void writeSimpleXmlSceneObjectTree(CSer& ar,const CSceneObject* object);
 
-    // Overridden from _CSceneObjectContainer_:
+    bool setObjectAlias(CSceneObject* object,const char* newAlias,bool allowNameAdjustment);
     void setObjectParent(CSceneObject* object,CSceneObject* newParent,bool keepInPlace);
-    bool setObjectName(CSceneObject* object,const char* newName,bool allowNameAdjustment);
-    bool setObjectAltName(CSceneObject* object,const char* newAltName,bool allowNameAdjustment);
+
+    // Overridden from _CSceneObjectContainer_:
+    bool setObjectSequence(CSceneObject* object,int order);
     bool setSelectedObjectHandles(const std::vector<int>* v);
+    bool setObjectName_old(CSceneObject* object,const char* newName,bool allowNameAdjustment);
+    bool setObjectAltName_old(CSceneObject* object,const char* newAltName,bool allowNameAdjustment);
 
     void setObjectAbsolutePose(int objectHandle,const C7Vector& v,bool keepChildrenInPlace);
     void setObjectAbsoluteOrientation(int objectHandle,const C3Vector& euler);
     void setObjectAbsolutePosition(int objectHandle,const C3Vector& p);
 
     CSceneObject* getObjectFromUniqueId(int uniqueID) const;
-    CSceneObject* getObjectFromNamePath(int emittingObject,const char* objectNameAndPath,int altObjHandleForSearch,int index) const;
     int getHighestObjectHandle() const;
 
 

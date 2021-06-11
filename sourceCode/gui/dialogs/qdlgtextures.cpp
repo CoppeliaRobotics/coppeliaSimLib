@@ -182,7 +182,7 @@ void CQDlgTextures::refresh()
             CVisionSensor* rs=App::currentWorld->sceneObjects->getVisionSensorFromHandle(tp->getTextureObjectID());
             if (rs!=nullptr)
             {
-                textureName=rs->getObjectName();
+                textureName=rs->getObjectAlias_shortPath();
                 int s[2];
                 rs->getRealResolution(s);
                 textureName+=" [";

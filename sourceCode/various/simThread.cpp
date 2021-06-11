@@ -4496,8 +4496,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==PATHEDIT_MAKEDUMMY_GUITRIGGEREDCMD)
         {
             CDummy* newDummy=new CDummy();
-            newDummy->setObjectName_direct(cmd.stringParams[0].c_str());
-            newDummy->setObjectAltName_direct(tt::getObjectAltNameFromObjectName(newDummy->getObjectName().c_str()).c_str());
+            newDummy->setObjectAlias_direct(cmd.stringParams[0].c_str());
+            newDummy->setObjectName_direct_old(cmd.stringParams[0].c_str());
+            newDummy->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(newDummy->getObjectName_old().c_str()).c_str());
             newDummy->setDummySize(cmd.floatParams[0]);
             App::currentWorld->sceneObjects->addObjectToScene(newDummy,false,true);
             newDummy->setLocalTransformation(cmd.transfParams[0]);
@@ -4514,8 +4515,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             newShape->setVisibleEdges(false);
             newShape->getSingleMesh()->setGouraudShadingAngle(0.0f);
             newShape->getSingleMesh()->setEdgeThresholdAngle(0.0f);
-            newShape->setObjectName_direct("Extracted_shape");
-            newShape->setObjectAltName_direct(tt::getObjectAltNameFromObjectName(newShape->getObjectName().c_str()).c_str());
+            newShape->setObjectAlias_direct("Extracted_shape");
+            newShape->setObjectName_direct_old("Extracted_shape");
+            newShape->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(newShape->getObjectName_old().c_str()).c_str());
             App::currentWorld->sceneObjects->addObjectToScene(newShape,false,true);
             if (toid!=-1)
             {

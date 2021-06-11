@@ -46,7 +46,8 @@ public:
 
     float getPosition_useTempValues() const;
     float getMeasuredJointVelocity() const;
-    std::string getDependencyJointLoadName() const;
+    std::string getDependencyJointLoadAlias() const;
+    std::string getDependencyJointLoadName_old() const;
     int getJointCallbackCallOrder_backwardCompatibility() const;
     void setDirectDependentJoints(const std::vector<CJoint*>& joints);
 
@@ -156,7 +157,8 @@ private:
     float _dynamicMotorPIDCumulativeErrorForIntegralParameter;
     float _dynamicMotorPIDLastErrorForDerivativeParameter;
 
-    std::string _dependencyJointLoadName;
+    std::string _dependencyJointLoadAlias;
+    std::string _dependencyJointLoadName_old;
 
     float _initialPosition;
     C4Vector _initialSphericalJointTransformation;

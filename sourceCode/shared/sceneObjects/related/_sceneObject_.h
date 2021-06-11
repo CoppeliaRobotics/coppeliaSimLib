@@ -12,6 +12,7 @@ enum {
     sim_syncobj_sceneobject_delete,
     sim_syncobj_sceneobject_setextensionstring,
     sim_syncobj_sceneobject_setvisibilitylayer,
+    sim_syncobj_sceneobject_setalias,
     sim_syncobj_sceneobject_setname,
     sim_syncobj_sceneobject_setaltname,
     sim_syncobj_sceneobject_localtransf,
@@ -38,10 +39,13 @@ public:
     unsigned short getVisibilityLayer() const;
     int getChildOrder() const;
     int getHierarchyTreeObjects(std::vector<CSceneObject*>& allObjects);
-    std::string getObjectName() const;
-    std::string getObjectHashlessName() const;
-    std::string getObjectHashlessNameAndOrder() const;
-    std::string getObjectAltName() const;
+    std::string getObjectAlias() const;
+    std::string getObjectAliasAndOrder() const;
+    std::string getObjectAliasAndHandle() const;
+    std::string getObjectAlias_fullPath() const;
+    std::string getObjectAlias_shortPath() const;
+    std::string getObjectName_old() const;
+    std::string getObjectAltName_old() const;
 
     C7Vector getLocalTransformation() const;
     virtual C7Vector getFullLocalTransformation() const;
@@ -59,8 +63,9 @@ public:
     virtual bool setChildOrder(int order);
     virtual bool setExtensionString(const char* str);
     virtual bool setVisibilityLayer(unsigned short l);
-    virtual bool setObjectName_direct(const char* newName);
-    virtual bool setObjectAltName_direct(const char* newAltName);
+    virtual bool setObjectAlias_direct(const char* newAlias);
+    virtual bool setObjectName_direct_old(const char* newName);
+    virtual bool setObjectAltName_direct_old(const char* newAltName);
 
     virtual bool setLocalTransformation(const C7Vector& tr);
     virtual bool setLocalTransformation(const C4Vector& q);
@@ -71,6 +76,7 @@ protected:
     virtual void _setParent_send(int parentHandle) const;
     virtual void _setExtensionString_send(const char* str) const;
     virtual void _setVisibilityLayer_send(unsigned short l) const;
+    virtual void _setObjectAlias_send(const char* newName) const;
     virtual void _setObjectName_send(const char* newName) const;
     virtual void _setObjectAltName_send(const char* newAltName) const;
     virtual void _setLocalTransformation_send(const C7Vector& tr) const;
@@ -81,8 +87,7 @@ protected:
     unsigned short _visibilityLayer;
     bool _selected;
     int _childOrder;
-    std::string _objectName;
-    std::string _objectAltName;
+    std::string _objectAlias;
     C7Vector _localTransformation;
 
     std::vector<CSceneObject*> _childList;
@@ -104,4 +109,7 @@ protected:
     int _localModelProperty;
     std::string _modelAcknowledgement;
 
+    // Old:
+    std::string _objectName_old;
+    std::string _objectAltName_old;
 };

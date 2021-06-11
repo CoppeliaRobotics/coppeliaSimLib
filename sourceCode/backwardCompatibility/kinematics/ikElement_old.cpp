@@ -174,18 +174,18 @@ void CIkElement_old::serialize(CSer& ar)
                 std::string str;
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_tipHandle);
                 if (it!=nullptr)
-                    str=it->getObjectName();
+                    str=it->getObjectName_old();
                 ar.xmlAddNode_comment(" 'tip' tag: is required and has to be the name of an existing scene object ",exhaustiveXml);
                 ar.xmlAddNode_string("tip",str.c_str());
                 str.clear();
                 it=App::currentWorld->sceneObjects->getObjectFromHandle(_baseHandle);
                 if (it!=nullptr)
-                    str=it->getObjectName();
+                    str=it->getObjectName_old();
                 ar.xmlAddNode_string("base",str.c_str());
                 str.clear();
                 it=App::currentWorld->sceneObjects->getObjectFromHandle(_constraintBaseHandle);
                 if (it!=nullptr)
-                    str=it->getObjectName();
+                    str=it->getObjectName_old();
                 ar.xmlAddNode_string("alternateBase",str.c_str());
             }
 

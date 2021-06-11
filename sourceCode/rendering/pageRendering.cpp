@@ -165,7 +165,7 @@ void displayPage(CSPage* page,int auxViewResizingAction,int viewIndexOfResizingA
         if (altName=="")
         {
             if (itObj!=nullptr)
-                name="  "+itObj->getObjectName();
+                name="  "+itObj->getObjectAlias_shortPath();
         }
         else
             name="  "+altName;

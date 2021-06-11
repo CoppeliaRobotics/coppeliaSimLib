@@ -84,7 +84,7 @@ void CQDlgCameras::refresh()
             CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromIndex(i);
             if (it2!=it)
             {
-                names.push_back(it2->getObjectName());
+                names.push_back(it2->getObjectAlias_shortPath());
                 ids.push_back(it2->getObjectHandle());
             }
         }

@@ -1571,6 +1571,20 @@ void CSer::xmlAddNode_double(const char* name,double val)
     node->InsertEndChild(txt);
 }
 
+void CSer::xmlGetAllChildNodeNames(std::vector<std::string>& allNames)
+{
+    xmlNode* node=nullptr;
+    if (_xmlCurrentNode==nullptr)
+        node=_xmlDocument.FirstChildElement();
+    else
+        node=_xmlCurrentNode->FirstChildElement();
+    while (node!=nullptr)
+    {
+        allNames.push_back(node->Name());
+        node=node->NextSiblingElement();
+    }
+}
+
 bool CSer::xmlPushChildNode(const char* name,bool required/*=true*/)
 {
     if (xmlDebug)

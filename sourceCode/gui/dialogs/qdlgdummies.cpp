@@ -63,7 +63,7 @@ void CQDlgDummies::refresh()
             CDummy* it2=App::currentWorld->sceneObjects->getDummyFromIndex(i);
             if (it2!=it)
             {
-                names.push_back(it2->getObjectName());
+                names.push_back(it2->getObjectAlias_shortPath());
                 ids.push_back(it2->getObjectHandle());
             }
         }

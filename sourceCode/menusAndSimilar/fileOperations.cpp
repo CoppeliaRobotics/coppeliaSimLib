@@ -1492,8 +1492,9 @@ int CFileOperations::apiAddHeightfieldToScene(int xSize,float pointSpacing,const
     shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
     shape->getSingleMesh()->color.setColor(0.68f,0.56f,0.36f,sim_colorcomponent_ambient_diffuse);
     shape->getSingleMesh()->color.setColor(0.25f,0.25f,0.25f,sim_colorcomponent_specular);
-    App::currentWorld->sceneObjects->setObjectName(shape,"heightfield",true);
-    App::currentWorld->sceneObjects->setObjectAltName(shape,"heightfield",true);
+    App::currentWorld->sceneObjects->setObjectAlias(shape,"heightfield",true);
+    App::currentWorld->sceneObjects->setObjectName_old(shape,"heightfield",true);
+    App::currentWorld->sceneObjects->setObjectAltName_old(shape,"heightfield",true);
     shape->alignBoundingBoxWithWorld();
 
     int propToRemove=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable;

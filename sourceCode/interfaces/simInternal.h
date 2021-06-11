@@ -30,13 +30,12 @@ simInt simSetArrayParam_internal(simInt parameter,const simVoid* arrayOfValues);
 simInt simGetArrayParam_internal(simInt parameter,simVoid* arrayOfValues);
 simInt simSetStringNamedParam_internal(const simChar* paramName,const simChar* stringParam,simInt paramLength);
 simChar* simGetStringNamedParam_internal(const simChar* paramName,simInt* paramLength);
-simInt simGetObjectHandle_internal(const simChar* objectName);
-simInt simGetObjectHandleEx_internal(const simChar* objectName,int altObjHandleForSearch,int index);
+simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int proxy,int options);
 simInt simRemoveObject_internal(simInt objectHandle);
 simInt simRemoveModel_internal(simInt objectHandle);
-simChar* simGetObjectName_internal(simInt objectHandle);
 simInt simGetObjects_internal(simInt index,simInt objectType);
-simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName);
+simChar* simGetObjectAlias_internal(simInt objectHandle);
+simInt simSetObjectAlias_internal(simInt objectHandle,const simChar* objectAlias,int options);
 simInt simGetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHandle,simFloat* matrix);
 simInt simSetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* matrix);
 simInt simGetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHandle,simFloat* pose);
@@ -646,6 +645,6 @@ simInt simModifyPointCloud_internal(simInt pointCloudHandle,simInt operation,con
 simInt simCopyMatrix_internal(const simFloat* matrixIn,simFloat* matrixOut);
 simInt simAddModuleMenuEntry_internal(const simChar* entryLabel,simInt itemCount,simInt* itemHandles);
 simInt simSetModuleMenuItemState_internal(simInt itemHandle,simInt state,const simChar* label);
-
-
+simChar* simGetObjectName_internal(simInt objectHandle);
+simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName);
 #endif // !defined(simInternal_INCLUDED_)

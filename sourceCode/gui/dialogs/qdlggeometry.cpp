@@ -137,7 +137,7 @@ void CQDlgGeometry::_initialize(int shapeHandle)
     if (shape!=nullptr)
     {
         titleText="Geometry associated with '";
-        titleText+=shape->getObjectName();
+        titleText+=shape->getObjectAlias_shortPath();
         titleText+="'";
         std::vector<float> wvert;
         std::vector<int> wind;

@@ -52,8 +52,9 @@ void CForceSensor::commonInit()
     colorPart2.setColor(0.22f,0.22f,0.22f,sim_colorcomponent_ambient_diffuse);
     _visibilityLayer=FORCE_SENSOR_LAYER;
     _localObjectSpecialProperty=0;
-    _objectName=IDSOGL_FORCE_SENSOR;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
+    _objectAlias=IDSOGL_FORCE_SENSOR;
+    _objectName_old=IDSOGL_FORCE_SENSOR;
+    _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 }
 
 CForceSensor::~CForceSensor()

@@ -162,48 +162,116 @@ bool _CSceneObject_::setObjectHandle(int newObjectHandle)
     return(diff);
 }
 
-std::string _CSceneObject_::getObjectName() const
+std::string _CSceneObject_::getObjectName_old() const
 {
-    return(_objectName);
+    return(_objectName_old);
 }
 
-std::string _CSceneObject_::getObjectHashlessName() const
+std::string _CSceneObject_::getObjectAlias() const
 {
-    return(_objectName.substr(0,_objectName.find('#')));
+    return(_objectAlias);
 }
 
-std::string _CSceneObject_::getObjectHashlessNameAndOrder() const
+std::string _CSceneObject_::getObjectAlias_fullPath() const
 {
-    std::string retVal(getObjectHashlessName());
+    std::string retVal;
+    if (_parentObject==nullptr)
+        retVal="/"+getObjectAliasAndOrder();
+    else
+        retVal=_parentObject->getObjectAlias_fullPath()+"/"+getObjectAliasAndOrder();
+    return(retVal);
+}
+
+std::string _CSceneObject_::getObjectAlias_shortPath() const
+{
+    std::string retVal("/"+getObjectAliasAndOrder());
+    if (_parentObject!=nullptr)
+    {
+        CSceneObject* it=_parentObject;
+        while (it!=nullptr)
+        {
+            if (it->getParent()==nullptr)
+            {
+                if (App::currentWorld->sceneObjects->getObjectFromPath(nullptr,retVal.c_str(),1,nullptr)!=nullptr)
+                    retVal="/"+it->getObjectAliasAndOrder()+retVal;
+            }
+            else
+            {
+                std::string tmp(".");
+                tmp+=retVal;
+                if (App::currentWorld->sceneObjects->getObjectFromPath(nullptr,tmp.c_str(),1,it->getParent())!=nullptr)
+                    retVal="/"+it->getObjectAliasAndOrder()+retVal;
+            }
+            it=it->getParent();
+        }
+    }
+    return(retVal);
+}
+
+std::string _CSceneObject_::getObjectAliasAndOrder() const
+{
+    std::string retVal(_objectAlias);
     if (_childOrder>=0)
     {
         retVal+="[";
         retVal+=std::to_string(_childOrder);
         retVal+="]";
     }
-//    size_t h=_objectName.find('#');
-//    if (h!=std::string::npos)
-//        retVal+=_objectName.substr(h);
     return(retVal);
 }
 
-bool _CSceneObject_::setObjectName_direct(const char* newName)
+std::string _CSceneObject_::getObjectAliasAndHandle() const
 {
-    bool diff=(_objectName!=newName);
+    std::string retVal(_objectAlias);
+    retVal+="-";
+    retVal+=std::to_string(_objectHandle);
+    return(retVal);
+}
+
+bool _CSceneObject_::setObjectAlias_direct(const char* newName)
+{
+    bool diff=(_objectAlias!=newName);
     if (diff)
     {
         if (getObjectCanChange())
-            _objectName=newName;
+            _objectAlias=newName;
+        if (getObjectCanSync())
+            _setObjectAlias_send(newName);
+    }
+    return(diff&&getObjectCanChange());
+}
+
+bool _CSceneObject_::setObjectName_direct_old(const char* newName)
+{
+    bool diff=(_objectName_old!=newName);
+    if (diff)
+    {
+        if (getObjectCanChange())
+            _objectName_old=newName;
         if (getObjectCanSync())
             _setObjectName_send(newName);
     }
     return(diff&&getObjectCanChange());
 }
 
-std::string _CSceneObject_::getObjectAltName() const
+std::string _CSceneObject_::getObjectAltName_old() const
 {
-    return(_objectAltName);
+    return(_objectAltName_old);
 }
+
+bool _CSceneObject_::setObjectAltName_direct_old(const char* newAltName)
+{
+    bool diff=(_objectAltName_old!=newAltName);
+    if (diff)
+    {
+        if (getObjectCanChange())
+            _objectAltName_old=newAltName;
+        if (getObjectCanSync())
+            _setObjectAltName_send(newAltName);
+    }
+    return(diff&&getObjectCanChange());
+}
+
 
 C7Vector _CSceneObject_::getLocalTransformation() const
 {
@@ -240,17 +308,9 @@ C7Vector _CSceneObject_::getFullCumulativeTransformation() const
     return(getFullParentCumulativeTransformation()*getFullLocalTransformation());
 }
 
-bool _CSceneObject_::setObjectAltName_direct(const char* newAltName)
+void _CSceneObject_::_setObjectAlias_send(const char* newName) const
 {
-    bool diff=(_objectAltName!=newAltName);
-    if (diff)
-    {
-        if (getObjectCanChange())
-            _objectAltName=newAltName;
-        if (getObjectCanSync())
-            _setObjectAltName_send(newAltName);
-    }
-    return(diff&&getObjectCanChange());
+    sendString(newName,sim_syncobj_sceneobject_setalias);
 }
 
 void _CSceneObject_::_setObjectName_send(const char* newName) const
@@ -344,14 +404,19 @@ void _CSceneObject_::synchronizationMsg(std::vector<SSyncRoute>& routing,const S
             setExtensionString(((char*)msg.data));
             return;
         }
+        if (msg.msg==sim_syncobj_sceneobject_setalias)
+        {
+            setObjectAlias_direct(((char*)msg.data));
+            return;
+        }
         if (msg.msg==sim_syncobj_sceneobject_setname)
         {
-            setObjectName_direct(((char*)msg.data));
+            setObjectName_direct_old(((char*)msg.data));
             return;
         }
         if (msg.msg==sim_syncobj_sceneobject_setaltname)
         {
-            setObjectAltName_direct(((char*)msg.data));
+            setObjectAltName_direct_old(((char*)msg.data));
             return;
         }
         if (msg.msg==sim_syncobj_sceneobject_setparent)

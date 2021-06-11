@@ -190,8 +190,9 @@ void CProxSensor::commonInit()
     _objectManipulationModePermissions=0x013;
 
     _visibilityLayer=PROXIMITY_SENSOR_LAYER;
-    _objectName="Proximity_sensor";
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
+    _objectAlias="Proximity_sensor";
+    _objectName_old="Proximity_sensor";
+    _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 }
 
 void CProxSensor::setSensableType(int theType)
@@ -602,14 +603,21 @@ void CProxSensor::serialize(CSer& ar)
                 std::string str;
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sensableObject);
                 if (it!=nullptr)
-                    str=it->getObjectName();
+                    str=it->getObjectName_old();
                 else
                 {
                     CCollection* coll=App::currentWorld->collections->getObjectFromHandle(_sensableObject);
                     if (coll!=nullptr)
                         str="@collection@"+coll->getCollectionName();
                 }
+                ar.xmlAddNode_comment(" 'detectableEntity' tag only used for backward compatibility, use instead 'detectableObjectAlias' tag",exhaustiveXml);
                 ar.xmlAddNode_string("detectableEntity",str.c_str());
+                if (it!=nullptr)
+                {
+                    str=it->getObjectAlias()+"*";
+                    str+=std::to_string(it->getObjectHandle());
+                }
+                ar.xmlAddNode_string("detectableObjectAlias",str.c_str());
             }
 
             ar.xmlAddNode_comment(" 'detectionType' tag: can be 'ultrasonic', 'infrared', 'laser', 'inductive' or 'capacitive' ",exhaustiveXml);
@@ -680,7 +688,10 @@ void CProxSensor::serialize(CSer& ar)
             if (exhaustiveXml)
                 ar.xmlGetNode_int("detectableEntity",_sensableObject);
             else
-                ar.xmlGetNode_string("detectableEntity",_sensableObjectLoadName,exhaustiveXml);
+            {
+                ar.xmlGetNode_string("detectableObjectAlias",_sensableObjectLoadAlias,exhaustiveXml);
+                ar.xmlGetNode_string("detectableEntity",_sensableObjectLoadName_old,exhaustiveXml);
+            }
 
             ar.xmlGetNode_enum("detectionType",_sensableType,exhaustiveXml,"ultrasonic",sim_objectspecialproperty_detectable_ultrasonic,"infrared",sim_objectspecialproperty_detectable_infrared,"laser",sim_objectspecialproperty_detectable_laser,"inductive",sim_objectspecialproperty_detectable_inductive,"capacitive",sim_objectspecialproperty_detectable_capacitive);
 
@@ -1089,9 +1100,14 @@ bool CProxSensor::getIsDetectedPointValid() const
     return(_detectedPointValid);
 }
 
-std::string CProxSensor::getSensableObjectLoadName() const
+std::string CProxSensor::getSensableObjectLoadAlias() const
 {
-    return(_sensableObjectLoadName);
+    return(_sensableObjectLoadAlias);
+}
+
+std::string CProxSensor::getSensableObjectLoadName_old() const
+{
+    return(_sensableObjectLoadName_old);
 }
 
 CColorObject* CProxSensor::getColor(int index)

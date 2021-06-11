@@ -1181,13 +1181,7 @@ simInt simSetLastError_internal(const simChar* funcName,const simChar* errorMess
     return(-1);
 }
 
-
-simInt simGetObjectHandle_internal(const simChar* objectName)
-{
-    return(simGetObjectHandleEx_internal(objectName,-1,-1));
-}
-
-simInt simGetObjectHandleEx_internal(const simChar* objectName,int altObjHandleForSearch,int index)
+simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int proxy,int options)
 {
     TRACE_C_API;
 
@@ -1197,31 +1191,33 @@ simInt simGetObjectHandleEx_internal(const simChar* objectName,int altObjHandleF
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         CSceneObject* it;
-        size_t silentErrorPos=std::string(objectName).find("@silentError");
-        size_t altPos=std::string(objectName).find("@alt");
-        size_t firstAtPos=std::string(objectName).find("@");
-        std::string nm(objectName);
-        if (firstAtPos!=std::string::npos)
-            nm.erase(nm.begin()+firstAtPos,nm.end());
-        if (altPos==std::string::npos)
-        { // handle retrieval via regular name
-            if ( (nm.size()>0)&&((nm[0]=='.')||(nm[0]=='/')) )
-            {
-                int objHandle=App::currentWorld->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
-                it=App::currentWorld->sceneObjects->getObjectFromNamePath(objHandle,nm.c_str(),altObjHandleForSearch,index);
-            }
-            else
-            {
+        std::string nm(objectAlias);
+        size_t silentErrorPos=std::string(objectAlias).find("@silentError"); // Old, for backcompatibility
+        if ( (nm.size()>0)&&((nm[0]=='.')||(nm[0]=='/')) )
+        {
+            int objHandle=App::currentWorld->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
+            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
+            CSceneObject* prox=App::currentWorld->sceneObjects->getObjectFromHandle(proxy);
+            it=App::currentWorld->sceneObjects->getObjectFromPath(obj,nm.c_str(),index,prox);
+        }
+        else
+        { // Old, for backcompatibility:
+            size_t altPos=std::string(objectAlias).find("@alt");
+            size_t firstAtPos=std::string(objectAlias).find("@");
+            if (firstAtPos!=std::string::npos)
+                nm.erase(nm.begin()+firstAtPos,nm.end());
+            if (altPos==std::string::npos)
+            { // handle retrieval via regular name
                 nm=getIndexAdjustedObjectName(nm.c_str());
                 it=App::currentWorld->sceneObjects->getObjectFromName(nm.c_str());
             }
+            else
+                it=App::currentWorld->sceneObjects->getObjectFromAltName(nm.c_str()); // handle retrieval via alt name
         }
-        else
-            it=App::currentWorld->sceneObjects->getObjectFromAltName(nm.c_str()); // handle retrieval via alt name
 
         if (it==nullptr)
         {
-            if ( (silentErrorPos==std::string::npos)&&(index==-1) )
+            if ( ((silentErrorPos==std::string::npos)&&(index==-1))||((options&1)!=0) )
                 CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH);
             return(-1);
         }
@@ -1316,40 +1312,6 @@ simInt simRemoveModel_internal(simInt objectHandle)
     return(-1);
 }
 
-simChar* simGetObjectName_internal(simInt objectHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int handle=objectHandle;
-        int handleFlags=0;
-        if (objectHandle>=0)
-        {
-            handleFlags=objectHandle&0x0ff00000;
-            handle=objectHandle&0x000fffff;
-        }
-        if (!doesObjectExist(__func__,handle))
-            return(nullptr);
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(handle);
-        std::string nm;
-        if ((handleFlags&sim_handleflag_altname)!=0)
-            nm=it->getObjectAltName();
-        else
-            nm=it->getObjectName();
-        char* retVal=new char[nm.length()+1];
-        for (size_t i=0;i<nm.length();i++)
-            retVal[i]=nm[i];
-        retVal[nm.length()]=0;
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(nullptr);
-}
-
 simInt simGetObjects_internal(simInt index,simInt objectType)
 {
     TRACE_C_API;
@@ -1386,7 +1348,30 @@ simInt simGetObjects_internal(simInt index,simInt objectType)
     return(-1);
 }
 
-simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName)
+simChar* simGetObjectAlias_internal(simInt objectHandle)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(nullptr);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        std::string nm(it->getObjectAlias());
+        char* retVal=new char[nm.length()+1];
+        for (size_t i=0;i<nm.length();i++)
+            retVal[i]=nm[i];
+        retVal[nm.length()]=0;
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simSetObjectAlias_internal(simInt objectHandle,const simChar* objectAlias,int options)
 {
     TRACE_C_API;
 
@@ -1395,71 +1380,21 @@ simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        int handle=objectHandle;
-        int handleFlags=0;
-        if (objectHandle>=0)
-        {
-            handleFlags=objectHandle&0x0ff00000;
-            handle=objectHandle&0x000fffff;
-        }
-        if (!doesObjectExist(__func__,handle))
+        if (!doesObjectExist(__func__,objectHandle))
             return(-1);
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(handle);
-        std::string originalText(objectName);
-        if (originalText.length()>127)
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        int retVal=-1;
+        if (App::currentWorld->sceneObjects->setObjectAlias(it,objectAlias,false))
         {
-            if ((handleFlags&sim_handleflag_silenterror)==0)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
-            return(-1);
-        }
-        if (originalText.length()<1)
-        {
-            if ((handleFlags&sim_handleflag_silenterror)==0)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
-            return(-1);
-        }
-        std::string text(objectName);
-        if ((handleFlags&sim_handleflag_altname)!=0)
-            tt::removeAltNameIllegalCharacters(text);
-        else
-            tt::removeIllegalCharacters(text,true);
-        if (originalText!=text)
-        {
-            if ((handleFlags&sim_handleflag_silenterror)==0)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
-            return(-1);
-        }
-        std::string oldName;
-        if ((handleFlags&sim_handleflag_altname)!=0)
-            oldName=it->getObjectAltName();
-        else
-            oldName=it->getObjectName();
-
-        if (oldName.compare(text)==0)
-            return(1);
-        bool err;
-        if ((handleFlags&sim_handleflag_altname)!=0)
-            err=(App::currentWorld->sceneObjects->getObjectFromAltName(text.c_str())!=nullptr);
-        else
-            err=(App::currentWorld->sceneObjects->getObjectFromName(text.c_str())!=nullptr);
-        if (err)
-        {
-            if ((handleFlags&sim_handleflag_silenterror)==0)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
-            return(-1);
-        }
-        if ((handleFlags&sim_handleflag_altname)!=0)
-            App::currentWorld->sceneObjects->setObjectAltName(it,text.c_str(),true);
-        else
-        {
-            App::currentWorld->sceneObjects->setObjectName(it,text.c_str(),true);
             App::setFullDialogRefreshFlag();
+            retVal=1;
         }
-        return(1);
+        else
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_ALIAS);
+        return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
-
 }
 
 simInt simGetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHandle,simFloat* matrix)
@@ -22251,5 +22186,115 @@ simInt simSetModuleMenuItemState_internal(simInt itemHandle,simInt state,const s
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
+}
+
+simChar* simGetObjectName_internal(simInt objectHandle)
+{ // deprecated on 08.06.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int handle=objectHandle;
+        int handleFlags=0;
+        if (objectHandle>=0)
+        {
+            handleFlags=objectHandle&0x0ff00000;
+            handle=objectHandle&0x000fffff;
+        }
+        if (!doesObjectExist(__func__,handle))
+            return(nullptr);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(handle);
+        std::string nm;
+        if ((handleFlags&sim_handleflag_altname)!=0)
+            nm=it->getObjectAltName_old();
+        else
+            nm=it->getObjectName_old();
+        char* retVal=new char[nm.length()+1];
+        for (size_t i=0;i<nm.length();i++)
+            retVal[i]=nm[i];
+        retVal[nm.length()]=0;
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName)
+{ // deprecated on 08.06.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int handle=objectHandle;
+        int handleFlags=0;
+        if (objectHandle>=0)
+        {
+            handleFlags=objectHandle&0x0ff00000;
+            handle=objectHandle&0x000fffff;
+        }
+        if (!doesObjectExist(__func__,handle))
+            return(-1);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(handle);
+        std::string originalText(objectName);
+        if (originalText.length()>127)
+        {
+            if ((handleFlags&sim_handleflag_silenterror)==0)
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
+            return(-1);
+        }
+        if (originalText.length()<1)
+        {
+            if ((handleFlags&sim_handleflag_silenterror)==0)
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
+            return(-1);
+        }
+        std::string text(objectName);
+        if ((handleFlags&sim_handleflag_altname)!=0)
+            tt::removeAltNameIllegalCharacters(text);
+        else
+            tt::removeIllegalCharacters(text,true);
+        if (originalText!=text)
+        {
+            if ((handleFlags&sim_handleflag_silenterror)==0)
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
+            return(-1);
+        }
+        std::string oldName;
+        if ((handleFlags&sim_handleflag_altname)!=0)
+            oldName=it->getObjectAltName_old();
+        else
+            oldName=it->getObjectName_old();
+
+        if (oldName.compare(text)==0)
+            return(1);
+        bool err;
+        if ((handleFlags&sim_handleflag_altname)!=0)
+            err=(App::currentWorld->sceneObjects->getObjectFromAltName(text.c_str())!=nullptr);
+        else
+            err=(App::currentWorld->sceneObjects->getObjectFromName(text.c_str())!=nullptr);
+        if (err)
+        {
+            if ((handleFlags&sim_handleflag_silenterror)==0)
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
+            return(-1);
+        }
+        if ((handleFlags&sim_handleflag_altname)!=0)
+            App::currentWorld->sceneObjects->setObjectAltName_old(it,text.c_str(),true);
+        else
+        {
+            App::currentWorld->sceneObjects->setObjectName_old(it,text.c_str(),true);
+            App::setFullDialogRefreshFlag();
+        }
+        return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+
 }
 

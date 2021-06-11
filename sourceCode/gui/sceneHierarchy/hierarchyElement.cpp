@@ -65,7 +65,7 @@ void CHierarchyElement::addYourChildren()
                 {
                     objIDs.push_back(it->getObjectHandle());
 //                    objNames.push_back(tt::getLowerUpperCaseString(it->getObjectName(),false));
-                    objNames.push_back(tt::getLowerUpperCaseString(it->getObjectHashlessNameAndOrder(),false));
+                    objNames.push_back(tt::getLowerUpperCaseString(it->getObjectAliasAndOrder(),false));
 
                 }
             }
@@ -106,7 +106,7 @@ void CHierarchyElement::addYourChildren()
                     {
                         objIDs.push_back(child->getObjectHandle());
 //                        objNames.push_back(tt::getLowerUpperCaseString(child->getObjectName(),false));
-                        objNames.push_back(tt::getLowerUpperCaseString(child->getObjectHashlessNameAndOrder(),false));
+                        objNames.push_back(tt::getLowerUpperCaseString(child->getObjectAliasAndOrder(),false));
 
                     }
                 }
@@ -514,7 +514,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
     std::string theText;
     if (it!=nullptr)
 //        theText=it->getObjectName();
-        theText=it->getObjectHashlessNameAndOrder();
+        theText=it->getObjectAliasAndOrder();
     else
     {
         theText+=_sceneName;

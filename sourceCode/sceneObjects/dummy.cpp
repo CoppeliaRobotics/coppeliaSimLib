@@ -12,8 +12,9 @@
 CDummy::CDummy()
 {
     _visibilityLayer=DUMMY_LAYER;
-    _objectName=IDSOGL_DUMMY;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
+    _objectAlias=IDSOGL_DUMMY;
+    _objectName_old=IDSOGL_DUMMY;
+    _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _freeOnPathTrajectory=false;
     _virtualDistanceOffsetOnPath=0.0f;
@@ -360,8 +361,15 @@ void CDummy::serialize(CSer& ar)
                 std::string str;
                 CDummy* it=App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
                 if (it!=nullptr)
-                    str=it->getObjectName();
+                    str=it->getObjectName_old();
+                ar.xmlAddNode_comment(" 'linkedDummy' tag only used for backward compatibility, use instead 'linkedDummyAlias' tag",exhaustiveXml);
                 ar.xmlAddNode_string("linkedDummy",str.c_str());
+                if (it!=nullptr)
+                {
+                    str=it->getObjectAlias()+"*";
+                    str+=std::to_string(it->getObjectHandle());
+                }
+                ar.xmlAddNode_string("linkedDummyAlias",str.c_str());
             }
 
             ar.xmlAddNode_comment(" 'linkType' tag: can be 'dynamics_loopClosure'' ",exhaustiveXml);
@@ -398,7 +406,10 @@ void CDummy::serialize(CSer& ar)
             if (exhaustiveXml)
                 ar.xmlGetNode_int("linkedDummyHandle",_linkedDummyHandle);
             else
-                ar.xmlGetNode_string("linkedDummy",_linkedDummyLoadName,exhaustiveXml);
+            {
+                ar.xmlGetNode_string("linkedDummyAlias",_linkedDummyLoadAlias,exhaustiveXml);
+                ar.xmlGetNode_string("linkedDummy",_linkedDummyLoadName_old,exhaustiveXml);
+            }
             ar.xmlGetNode_enum("linkType",_linkType,exhaustiveXml,"dynamics_loopClosure",sim_dummy_linktype_dynamics_loop_closure,"dynamics_forceConstraint",sim_dummy_linktype_dynamics_force_constraint,"ik_tipTarget",sim_dummy_linktype_ik_tip_target);
 
             if (exhaustiveXml&&ar.xmlPushChildNode("switches"))
@@ -617,9 +628,14 @@ float CDummy::getVirtualDistanceOffsetOnPath_variationWhenCopy() const
     return(_virtualDistanceOffsetOnPath_variationWhenCopy);
 }
 
-std::string CDummy::getLinkedDummyLoadName() const
+std::string CDummy::getLinkedDummyLoadName_old() const
 {
-    return(_linkedDummyLoadName);
+    return(_linkedDummyLoadName_old);
+}
+
+std::string CDummy::getLinkedDummyLoadAlias() const
+{
+    return(_linkedDummyLoadAlias);
 }
 
 C7Vector CDummy::getTempLocalTransformation() const

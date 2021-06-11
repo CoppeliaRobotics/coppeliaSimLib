@@ -466,7 +466,7 @@ void CUndoBufferCont::_rememberSelectionState()
     std::vector<CSceneObject*> sel;
     App::currentWorld->sceneObjects->getSelectedObjects(sel);
     for (size_t i=0;i<sel.size();i++)
-        _selectionState.push_back(sel[i]->getObjectName());
+        _selectionState.push_back(sel[i]->getObjectAlias_fullPath());
 }
 
 void CUndoBufferCont::_restoreSelectionState()
@@ -474,7 +474,7 @@ void CUndoBufferCont::_restoreSelectionState()
     TRACE_INTERNAL;
     for (size_t i=0;i<_selectionState.size();i++)
     {
-        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromName(_selectionState[i].c_str());
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,_selectionState[i].c_str(),-1,nullptr);
         if (obj!=nullptr)
             App::currentWorld->sceneObjects->addObjectToSelection(obj->getObjectHandle());
     }

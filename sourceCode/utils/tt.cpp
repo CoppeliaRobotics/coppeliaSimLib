@@ -712,6 +712,42 @@ std::string tt::generateNewName_noHash(const char* name,int suffixOffset)
     return(nameWithoutSuffix);
 }
 
+bool tt::isAliasValid(const char* alias)
+{
+    std::string str(getValidAlias(alias));
+    return(str.compare(alias)==0);
+}
+
+std::string tt::getValidAlias(const char* alias)
+{   // Illegal characters are replaced with underscore.
+    // Permitted characters are: a-z, A-Z, 0-9, parenthesis and underscore
+    std::string retVal(alias);
+    if (retVal.size()==0)
+        retVal="_";
+    for (size_t i=0;i<retVal.size();i++)
+    {
+        bool ok=false;
+        if ( !( ((retVal[i]>='a')&&(retVal[i]<='z'))||
+             ((retVal[i]>='A')&&(retVal[i]<='Z'))||
+             ((retVal[i]>='0')&&(retVal[i]<='9'))||
+             (retVal[i]=='-')||(retVal[i]=='_') ) )
+            retVal[i]='_';
+    }
+    return(retVal);
+}
+
+bool tt::isObjectNameValid_old(const char* text,bool allowOneHashFollowedByNumbers)
+{
+    bool retVal=false;
+    std::string nm(text);
+    if (nm.size()>0)
+    {
+        tt::removeIllegalCharacters(nm,allowOneHashFollowedByNumbers);
+        retVal=(nm.compare(text)==0);
+    }
+    return(retVal);
+}
+
 bool tt::removeIllegalCharacters(std::string& text,bool allowOneHashFollowedByNumbers)
 {   // Illegal characters are replaced with underscore.
     // Permitted characters are: a-z, A-Z, 0-9, parenthesis and underscore

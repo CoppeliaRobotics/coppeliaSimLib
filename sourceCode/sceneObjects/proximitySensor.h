@@ -106,7 +106,8 @@ public:
     float getCalculationTime() const;
     C3Vector getDetectedPoint() const;
     bool getIsDetectedPointValid() const;
-    std::string getSensableObjectLoadName() const;
+    std::string getSensableObjectLoadAlias() const;
+    std::string getSensableObjectLoadName_old() const;
 
     CColorObject* getColor(int index);
 
@@ -152,5 +153,6 @@ protected:
     bool _initialExplicitHandling;
 
     bool _hideDetectionRay;
-    std::string _sensableObjectLoadName;
+    std::string _sensableObjectLoadAlias;
+    std::string _sensableObjectLoadName_old;
 };

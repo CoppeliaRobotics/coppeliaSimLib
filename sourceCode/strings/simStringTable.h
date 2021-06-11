@@ -10,7 +10,6 @@
 #define IDSN_INERTIA_FRAME_RELATIVE_TO_WORLD "The inertia frame is now expressed relative to the absolute reference frame. Clicking 'Apply to selection' will from now on apply the same absolute position/orientation of the inertia frames."
 #define IDSN_MOTION_PLANNING "Motion planning"
 #define IDSN_MOTION_PLANNING_SELECTION_INVALID "Make sure that you have selected only the joints (revolute or prismatic) involved in the motion planning task."
-#define IDSN_JOINT_NAME "Joint name"
 #define IDSN_RANGE_SUBDIVISIONS "Range subdivisions"
 #define IDSN_METRIC_WEIGHT "Metric weight"
 #define IDSN_DONE "Done."

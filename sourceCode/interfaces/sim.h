@@ -33,12 +33,13 @@ SIM_DLLEXPORT simInt simSetArrayParam(simInt parameter,const simVoid* arrayOfVal
 SIM_DLLEXPORT simInt simGetArrayParam(simInt parameter,simVoid* arrayOfValues);
 SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simChar* stringParam,simInt paramLength);
 SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength);
-SIM_DLLEXPORT simInt simGetObjectHandle(const simChar* objectName);
+SIM_DLLEXPORT simInt simGetObjectHandle(const simChar* objectAlias);
+SIM_DLLEXPORT simInt simGetObjectHandleEx(const simChar* objectAlias,int index,int proxy,int options);
 SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle);
 SIM_DLLEXPORT simInt simRemoveModel(simInt objectHandle);
-SIM_DLLEXPORT simChar* simGetObjectName(simInt objectHandle);
 SIM_DLLEXPORT simInt simGetObjects(simInt index,simInt objectType);
-SIM_DLLEXPORT simInt simSetObjectName(simInt objectHandle,const simChar* objectName);
+SIM_DLLEXPORT simChar* simGetObjectAlias(simInt objectHandle);
+SIM_DLLEXPORT simInt simSetObjectAlias(simInt objectHandle,const simChar* objectAlias,int options);
 SIM_DLLEXPORT simInt simGetObjectMatrix(simInt objectHandle,simInt relativeToObjectHandle,simFloat* matrix);
 SIM_DLLEXPORT simInt simSetObjectMatrix(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* matrix);
 SIM_DLLEXPORT simInt simGetObjectPose(simInt objectHandle,simInt relativeToObjectHandle,simFloat* pose);
@@ -693,6 +694,8 @@ SIM_DLLEXPORT simInt simSetModuleMenuItemState(simInt itemHandle,simInt state,co
 SIM_DLLEXPORT simInt simSetIntegerSignal(const simChar* signalName,simInt signalValue);
 SIM_DLLEXPORT simInt simGetIntegerSignal(const simChar* signalName,simInt* signalValue);
 SIM_DLLEXPORT simInt simClearIntegerSignal(const simChar* signalName);
+SIM_DLLEXPORT simChar* simGetObjectName(simInt objectHandle);
+SIM_DLLEXPORT simInt simSetObjectName(simInt objectHandle,const simChar* objectName);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

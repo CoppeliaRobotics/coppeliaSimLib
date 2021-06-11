@@ -770,8 +770,9 @@ void CCamera::commonInit()
     colorPart2.setDefaultValues();
     colorPart2.setColor(0.45f,0.45f,0.45f,sim_colorcomponent_ambient_diffuse);
 
-    _objectName=IDSOGL_CAMERA;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
+    _objectAlias=IDSOGL_CAMERA;
+    _objectName_old=IDSOGL_CAMERA;
+    _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 }
 
 void CCamera::setCameraManipulationModePermissions(int p)
@@ -802,9 +803,14 @@ bool CCamera::getIsMainCamera()
     return(retVal);
 }
 
-std::string CCamera::getTrackedObjectLoadName() const
+std::string CCamera::getTrackedObjectLoadAlias() const
 {
-    return(_trackedObjectLoadName);
+    return(_trackedObjectLoadAlias);
+}
+
+std::string CCamera::getTrackedObjectLoadName_old() const
+{
+    return(_trackedObjectLoadName_old);
 }
 
 void CCamera::shiftCameraInCameraManipulationMode(const C3Vector& newLocalPos)
@@ -1406,7 +1412,7 @@ void CCamera::serialize(CSer& ar)
 
             if (ar.getCoppeliaSimVersionThatWroteThisFile()<20509)
             { // For backward compatibility (27/7/2011)
-                if ( (_objectName.compare("DefaultXViewCamera")==0)||(_objectName.compare("DefaultYViewCamera")==0)||(_objectName.compare("DefaultZViewCamera")==0) )
+                if ( (_objectName_old.compare("DefaultXViewCamera")==0)||(_objectName_old.compare("DefaultYViewCamera")==0)||(_objectName_old.compare("DefaultZViewCamera")==0) )
                     _showFogIfAvailable=false;
             }
 
@@ -1437,8 +1443,15 @@ void CCamera::serialize(CSer& ar)
                 std::string str;
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(trck);
                 if (it!=nullptr)
-                    str=it->getObjectName();
+                    str=it->getObjectName_old();
+                ar.xmlAddNode_comment(" 'trackedObject' tag only used for backward compatibility, use instead 'trackedObjectAlias' tag",exhaustiveXml);
                 ar.xmlAddNode_string("trackedObject",str.c_str());
+                if (it!=nullptr)
+                {
+                    str=it->getObjectAlias()+"*";
+                    str+=std::to_string(it->getObjectHandle());
+                }
+                ar.xmlAddNode_string("trackedObjectAlias",str.c_str());
             }
 
             ar.xmlAddNode_float("size",cameraSize);
@@ -1496,7 +1509,10 @@ void CCamera::serialize(CSer& ar)
             if (exhaustiveXml)
                 ar.xmlGetNode_int("trackedObjectHandle",trackedObjectIdentifier_NeverDirectlyTouch);
             else
-                ar.xmlGetNode_string("trackedObject",_trackedObjectLoadName,exhaustiveXml);
+            {
+                ar.xmlGetNode_string("trackedObjectAlias",_trackedObjectLoadAlias,exhaustiveXml);
+                ar.xmlGetNode_string("trackedObject",_trackedObjectLoadName_old,exhaustiveXml);
+            }
 
             ar.xmlGetNode_float("size",cameraSize,exhaustiveXml);
 
@@ -2792,7 +2808,7 @@ CSceneObject* CCamera::_getInfoOfWhatNeedsToBeRendered(std::vector<CSceneObject*
             else
                 toRender.push_back(it);
         }
-        if (it->getObjectName()==IDSOGL_SKYBOX_DO_NOT_RENAME)
+        if (it->getObjectName_old()==IDSOGL_SKYBOX_DO_NOT_RENAME)
             viewBoxObject=it;
     }
 

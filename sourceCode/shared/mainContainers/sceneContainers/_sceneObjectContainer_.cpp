@@ -2,6 +2,8 @@
 #include "jointObject.h"
 #include "dummy.h"
 #include "simConst.h"
+#include "tt.h"
+#include "ttUtil.h"
 #include "app.h"
 
 _CSceneObjectContainer_::_CSceneObjectContainer_()
@@ -60,16 +62,16 @@ int _CSceneObjectContainer_::getObjects_hierarchyOrder(std::vector<CSceneObject*
 
 CSceneObject* _CSceneObjectContainer_::getObjectFromName(const char* objectName) const
 {
-    std::map<std::string,CSceneObject*>::const_iterator it=_objectNameMap.find(objectName);
-    if (it!=_objectNameMap.end())
+    std::map<std::string,CSceneObject*>::const_iterator it=_objectNameMap_old.find(objectName);
+    if (it!=_objectNameMap_old.end())
         return(it->second);
     return(nullptr);
 }
 
 CSceneObject* _CSceneObjectContainer_::getObjectFromAltName(const char* objectAltName) const
 {
-    std::map<std::string,CSceneObject*>::const_iterator it=_objectAltNameMap.find(objectAltName);
-    if (it!=_objectAltNameMap.end())
+    std::map<std::string,CSceneObject*>::const_iterator it=_objectAltNameMap_old.find(objectAltName);
+    if (it!=_objectAltNameMap_old.end())
         return(it->second);
     return(nullptr);
 }
@@ -972,25 +974,66 @@ void _CSceneObjectContainer_::_removeFromOrphanObjects(CSceneObject* object)
     }
 }
 
-bool _CSceneObjectContainer_::setObjectName(CSceneObject* object,const char* newName,bool allowNameAdjustment)
+int _CSceneObjectContainer_::getObjectSequence(const CSceneObject* object) const
 {
-    std::map<std::string,CSceneObject*>::iterator it=_objectNameMap.find(newName);
-    if (it==_objectNameMap.end()&&(strlen(newName)!=0))
+    CSceneObject* parent=object->getParent();
+    if (parent!=nullptr)
+        return(parent->getChildSequence(object));
+    else
     {
-        _objectNameMap.erase(object->getObjectName());
-        _objectNameMap[newName]=object;
+        for (size_t i=0;i<_orphanObjects.size();i++)
+        {
+            if (_orphanObjects[i]==object)
+                return(i);
+        }
+    }
+    return(-1);
+}
+
+bool _CSceneObjectContainer_::setObjectSequence(CSceneObject* object,int order)
+{
+    CSceneObject* parent=object->getParent();
+    if (parent==nullptr)
+    {
+        order=std::min<int>(_orphanObjects.size()-1,order);
+        if (order<0)
+            order=_orphanObjects.size()-1; // neg. value: put in last position
+        for (size_t i=0;i<_orphanObjects.size();i++)
+        {
+            if (_orphanObjects[i]==object)
+            {
+                if (order!=i)
+                {
+                    _orphanObjects.erase(_orphanObjects.begin()+i);
+                    _orphanObjects.insert(_orphanObjects.begin()+order,object);
+                    return(true);
+                }
+                break;
+            }
+        }
+    }
+    return(false);
+}
+
+bool _CSceneObjectContainer_::setObjectName_old(CSceneObject* object,const char* newName,bool allowNameAdjustment)
+{
+    std::map<std::string,CSceneObject*>::iterator it=_objectNameMap_old.find(newName);
+    if (it==_objectNameMap_old.end()&&(strlen(newName)!=0))
+    {
+        _objectNameMap_old.erase(object->getObjectName_old());
+        _objectNameMap_old[newName]=object;
         return(true);
     }
     return(false);
 }
 
-bool _CSceneObjectContainer_::setObjectAltName(CSceneObject* object,const char* newName,bool allowNameAdjustment)
+bool _CSceneObjectContainer_::setObjectAltName_old(CSceneObject* object,const char* newName,bool allowNameAdjustment)
 {
-    std::map<std::string,CSceneObject*>::iterator it=_objectAltNameMap.find(newName);
-    if (it==_objectNameMap.end()&&(strlen(newName)!=0))
+    std::map<std::string,CSceneObject*>::iterator it=_objectAltNameMap_old.find(newName);
+    if (it==_objectNameMap_old.end()&&(strlen(newName)!=0))
     {
-        _objectAltNameMap.erase(object->getObjectAltName());
-        _objectAltNameMap[newName]=object;
+        _objectAltNameMap_old.erase(object->getObjectAltName_old());
+        _objectAltNameMap_old[newName]=object;
         return(true);
     }
     return(false);
@@ -1001,8 +1044,8 @@ void _CSceneObjectContainer_::_addObject(CSceneObject* object)
     _orphanObjects.push_back(object);
     _allObjects.push_back(object);
     _objectHandleMap[object->getObjectHandle()]=object;
-    _objectNameMap[object->getObjectName()]=object;
-    _objectAltNameMap[object->getObjectAltName()]=object;
+    _objectNameMap_old[object->getObjectName_old()]=object;
+    _objectAltNameMap_old[object->getObjectAltName_old()]=object;
     int t=object->getObjectType();
     if (t==sim_object_joint_type)
         _jointList.push_back((CJoint*)object);
@@ -1100,8 +1143,8 @@ void _CSceneObjectContainer_::_removeObject(CSceneObject* object)
     }
 
     _objectHandleMap.erase(object->getObjectHandle());
-    _objectNameMap.erase(object->getObjectName());
-    _objectAltNameMap.erase(object->getObjectAltName());
+    _objectNameMap_old.erase(object->getObjectName_old());
+    _objectAltNameMap_old.erase(object->getObjectAltName_old());
 }
 
 const std::vector<int>* _CSceneObjectContainer_::getSelectedObjectHandlesPtr() const
@@ -1170,6 +1213,138 @@ size_t _CSceneObjectContainer_::getSelectionCount() const
 int _CSceneObjectContainer_::getObjectHandleFromSelectionIndex(size_t index) const
 {
     return(_selectedObjectHandles[index]);
+}
+
+CSceneObject* _CSceneObjectContainer_::getObjectFromPath(CSceneObject* emittingObject,const char* objectAliasAndPath,int index,CSceneObject* proxy) const
+{
+    std::string nm(objectAliasAndPath);
+    CSceneObject* retVal=nullptr;
+    if (nm.size()>0)
+    {
+        CSceneObject* emObj=nullptr;
+        if (nm[0]=='/')
+        {
+            nm.erase(0,1);
+            if ( (nm[0]=='.')||(nm[0]=='/') )
+                return(nullptr);
+        }
+        else
+        {
+            emObj=emittingObject;
+            if (nm==".")
+            {
+                if (proxy!=nullptr)
+                    emObj=proxy;
+                else
+                {
+                    while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
+                        emObj=emObj->getParent();
+                }
+                return(emObj);
+            }
+            else
+            {
+                if (nm.compare(0,2,"./")==0)
+                {
+                    nm.erase(0,2);
+                    if (proxy!=nullptr)
+                    {
+                        emObj=proxy;
+                        if (emObj==nullptr)
+                            return(nullptr);
+                    }
+                    else
+                    {
+                        while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
+                            emObj=emObj->getParent();
+                    }
+                }
+                else
+                {
+                    while (nm.compare(0,2,"..")==0)
+                    {
+                        nm.erase(0,2);
+                        if (emObj==nullptr)
+                            return(nullptr);
+                        // Get the first parent that is model (including itself):
+                        while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
+                            emObj=emObj->getParent();
+                        if (emObj==nullptr)
+                            return(nullptr);
+                        // Get the next parent that is model (excluding itself):
+                        emObj=emObj->getParent();
+                        while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
+                            emObj=emObj->getParent();
+                        if (nm.size()==0)
+                            return(emObj); // e.g. "../.."
+                        if (nm[0]=='/')
+                            nm.erase(0,1);
+                        else
+                            return(nullptr); // bad string (expected "../")
+                    }
+                }
+            }
+        }
+        std::vector<CSceneObject*> toExplore;
+        if (emObj==nullptr)
+        {
+            for (size_t i=0;i<getOrphanCount();i++)
+                toExplore.push_back(getOrphanFromIndex(i));
+        }
+        else
+        {
+            for (size_t i=0;i<emObj->getChildCount();i++)
+                toExplore.push_back(emObj->getChildFromIndex(i));
+        }
+        std::istringstream fullname(nm.c_str());
+        std::string objName;
+        while (std::getline(fullname,objName,'/'))
+        {
+            int specIndex=0;
+            size_t ob=objName.find('[');
+            if (ob!=std::string::npos)
+            {
+                if (objName[objName.size()-1]==']')
+                {
+                    objName.erase(objName.size()-1,1);
+                    std::string nv(objName.substr(ob+1));
+                    if (tt::getValidInt(nv.c_str(),specIndex)) // if nb is not valid, won't be able to match any object name
+                        objName.erase(ob);
+                }
+            }
+            retVal=nullptr;
+            size_t i=0;
+            while (i<toExplore.size())
+            {
+                CSceneObject* it=toExplore[i];
+                i++;
+                std::string name(it->getObjectAlias());
+                if (CTTUtil::doStringMatch_wildcard(objName.c_str(),name.c_str()))
+                {
+                    if (specIndex==0)
+                    {
+                        if (index<=0)
+                        {
+                            toExplore.clear();
+                            retVal=it;
+                        }
+                        else
+                            index--;
+                    }
+                    else
+                        specIndex--;
+                }
+                // add its children to be explored:
+                for (size_t j=0;j<it->getChildCount();j++)
+                    toExplore.push_back(it->getChildFromIndex(j));
+                if (retVal!=nullptr)
+                    break;
+            }
+            if (retVal==nullptr)
+                break;
+        }
+    }
+    return(retVal);
 }
 
 void _CSceneObjectContainer_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)

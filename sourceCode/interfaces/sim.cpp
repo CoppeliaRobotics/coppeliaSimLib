@@ -69,9 +69,13 @@ SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* p
 {
     return(simGetStringNamedParam_internal(paramName,paramLength));
 }
-SIM_DLLEXPORT simInt simGetObjectHandle(const simChar* objectName)
+SIM_DLLEXPORT simInt simGetObjectHandle(const simChar* objectAlias)
 {
-    return(simGetObjectHandle_internal(objectName));
+    return(simGetObjectHandleEx_internal(objectAlias,-1,-1,0));
+}
+SIM_DLLEXPORT simInt simGetObjectHandleEx(const simChar* objectAlias,int index,int proxy,int options)
+{
+    return(simGetObjectHandleEx_internal(objectAlias,index,proxy,options));
 }
 SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle)
 {
@@ -81,17 +85,17 @@ SIM_DLLEXPORT simInt simRemoveModel(simInt objectHandle)
 {
     return(simRemoveModel_internal(objectHandle));
 }
-SIM_DLLEXPORT simChar* simGetObjectName(simInt objectHandle)
-{
-    return(simGetObjectName_internal(objectHandle));
-}
 SIM_DLLEXPORT simInt simGetObjects(simInt index,simInt objectType)
 {
     return(simGetObjects_internal(index,objectType));
 }
-SIM_DLLEXPORT simInt simSetObjectName(simInt objectHandle,const simChar* objectName)
+SIM_DLLEXPORT simChar* simGetObjectAlias(simInt objectHandle)
 {
-    return(simSetObjectName_internal(objectHandle,objectName));
+    return(simGetObjectAlias_internal(objectHandle));
+}
+SIM_DLLEXPORT simInt simSetObjectAlias(simInt objectHandle,const simChar* objectAlias,int options)
+{
+    return(simSetObjectAlias_internal(objectHandle,objectAlias,options));
 }
 SIM_DLLEXPORT simInt simGetObjectMatrix(simInt objectHandle,simInt relativeToObjectHandle,simFloat* matrix)
 {
@@ -2664,6 +2668,14 @@ SIM_DLLEXPORT simInt simGetIntegerSignal(const simChar* signalName,simInt* signa
 SIM_DLLEXPORT simInt simClearIntegerSignal(const simChar* signalName)
 {
     return(simClearInt32Signal_internal(signalName));
+}
+SIM_DLLEXPORT simChar* simGetObjectName(simInt objectHandle)
+{
+    return(simGetObjectName_internal(objectHandle));
+}
+SIM_DLLEXPORT simInt simSetObjectName(simInt objectHandle,const simChar* objectName)
+{
+    return(simSetObjectName_internal(objectHandle,objectName));
 }
 // Deprecated end
 

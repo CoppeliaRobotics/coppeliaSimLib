@@ -176,7 +176,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     sel.push_back(it->getObjectHandle());
                     if (model)
                         CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-                    std::string masterName(it->getObjectName());
+                    std::string masterName(it->getObjectName_old());
 
                     App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked(),0);
                     App::currentWorld->sceneObjects->deselectObjects();
@@ -184,8 +184,8 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     {
                         if (!model)
                         {
-                            std::string name(clones[i]->getObjectName());
-                            std::string altName(clones[i]->getObjectAltName());
+                            std::string name(clones[i]->getObjectName_old());
+                            std::string altName(clones[i]->getObjectAltName_old());
                             CSceneObject* parent(clones[i]->getParent());
                             C7Vector tr(clones[i]->getLocalTransformation());
                             std::vector<CSceneObject*> children;
@@ -196,45 +196,49 @@ bool CSceneObjectOperations::processCommand(int commandID)
                                 children.push_back(child);
                                 childrenTr.push_back(child->getLocalTransformation());
                             }
+                            int order=App::currentWorld->sceneObjects->getObjectSequence(clones[i]);
                             App::currentWorld->sceneObjects->eraseObject(clones[i],true);
                             App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),1);
                             CSceneObject* newObj=App::currentWorld->sceneObjects->getLastSelectionObject();
                             App::currentWorld->sceneObjects->deselectObjects();
                             newSelection.push_back(newObj->getObjectHandle());
                             App::currentWorld->sceneObjects->setObjectParent(newObj,parent,true);
+                            App::currentWorld->sceneObjects->setObjectSequence(newObj,order);
                             newObj->setLocalTransformation(tr);
                             for (size_t j=0;j<children.size();j++)
                             {
                                 App::currentWorld->sceneObjects->setObjectParent(children[j],newObj,false);
                                 children[j]->setLocalTransformation(childrenTr[j]);
                             }
-                            App::currentWorld->sceneObjects->setObjectName(newObj,name.c_str(),true);
-                            App::currentWorld->sceneObjects->setObjectAltName(newObj,altName.c_str(),true);
+                            App::currentWorld->sceneObjects->setObjectName_old(newObj,name.c_str(),true);
+                            App::currentWorld->sceneObjects->setObjectAltName_old(newObj,altName.c_str(),true);
                         }
                         else
                         {
-                            std::string name(clones[i]->getObjectName());
-                            std::string altName(clones[i]->getObjectAltName());
+                            std::string name(clones[i]->getObjectName_old());
+                            std::string altName(clones[i]->getObjectAltName_old());
                             std::vector<int> objs;
                             objs.push_back(clones[i]->getObjectHandle());
                             CSceneObjectOperations::addRootObjectChildrenToSelection(objs);
                             C7Vector tr(clones[i]->getLocalTransformation());
                             CSceneObject* parent(clones[i]->getParent());
+                            int order=App::currentWorld->sceneObjects->getObjectSequence(clones[i]);
                             App::currentWorld->sceneObjects->eraseSeveralObjects(objs,true);
                             App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),2);
                             CSceneObject* newObj=App::currentWorld->sceneObjects->getLastSelectionObject();
                             App::currentWorld->sceneObjects->deselectObjects();
                             newSelection.push_back(newObj->getObjectHandle());
                             App::currentWorld->sceneObjects->setObjectParent(newObj,parent,true);
+                            App::currentWorld->sceneObjects->setObjectSequence(newObj,order);
                             newObj->setLocalTransformation(tr);
 
-                            std::string autoName(newObj->getObjectName());
+                            std::string autoName(newObj->getObjectName_old());
                             int suffixNb=tt::getNameSuffixNumber(autoName.c_str(),true);
                             name=tt::getNameWithoutSuffixNumber(name.c_str(),true);
                             if (suffixNb>=0)
                                 name+="#"+std::to_string(suffixNb);
-                            App::currentWorld->sceneObjects->setObjectName(newObj,name.c_str(),true);
-                            App::currentWorld->sceneObjects->setObjectAltName(newObj,altName.c_str(),true);
+                            App::currentWorld->sceneObjects->setObjectName_old(newObj,name.c_str(),true);
+                            App::currentWorld->sceneObjects->setObjectAltName_old(newObj,altName.c_str(),true);
                         }
                     }
                     App::worldContainer->copyBuffer->restoreBuffer();
@@ -279,7 +283,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
                 std::string txt(IDSNS_ATTACHING_OBJECTS_TO);
-                txt+=last->getObjectName()+"'...";
+                txt+=last->getObjectAlias_shortPath()+"'...";
                 App::logMsg(sim_verbosity_msgs,txt.c_str());
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
@@ -1482,7 +1486,7 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
     theWrap->setConvex(allConvex);
     theWrap->childList.push_back(lastSel->getMeshWrapper());
     lastSel->getMeshWrapper()->setTransformationsSinceGrouping(C7Vector::identityTransformation); // so that we can properly (i.e. like it was before) reorient the shape after ungrouping
-    lastSel->getMeshWrapper()->setName(lastSel->getObjectName());
+    lastSel->getMeshWrapper()->setName(lastSel->getObjectAlias());
     C7Vector tmp(newInertiaFrame.getInverse()*lastSel->getFullCumulativeTransformation()*lastSel->getMeshWrapper()->getLocalInertiaFrame());
     composedInertia+=CMeshWrapper::getNewTensor(lastSel->getMeshWrapper()->getPrincipalMomentsOfInertia(),tmp)*lastSel->getMeshWrapper()->getMass();
 
@@ -1492,7 +1496,7 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
     {
         CShape* it=shapesToGroup[i];
         it->getMeshWrapper()->setTransformationsSinceGrouping(C7Vector::identityTransformation); // so that we can properly (i.e. like it was before) reorient the shape after ungrouping
-        it->getMeshWrapper()->setName(it->getObjectName());
+        it->getMeshWrapper()->setName(it->getObjectAlias());
 
         tmp=newInertiaFrame.getInverse()*it->getFullCumulativeTransformation()*it->getMeshWrapper()->getLocalInertiaFrame();
         composedInertia+=CMeshWrapper::getNewTensor(it->getMeshWrapper()->getPrincipalMomentsOfInertia(),tmp)*it->getMeshWrapper()->getMass();
@@ -1644,8 +1648,9 @@ void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it,st
             // reinitMesh2
             CShape* newIt=new CShape(itCumulTransf,oldGeomInfo->childList[i]);
 
-            newIt->setObjectName_direct(oldGeomInfo->childList[i]->getName().c_str());
-            newIt->setObjectAltName_direct(tt::getObjectAltNameFromObjectName(newIt->getObjectName().c_str()).c_str());
+            newIt->setObjectAlias_direct(oldGeomInfo->childList[i]->getName().c_str());
+            newIt->setObjectName_direct_old(oldGeomInfo->childList[i]->getName().c_str());
+            newIt->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(newIt->getObjectName_old().c_str()).c_str());
             newIt->setDynMaterial(it->getDynMaterial()->copyYourself());
 
             App::currentWorld->sceneObjects->addObjectToScene(newIt,false,false);

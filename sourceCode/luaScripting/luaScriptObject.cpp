@@ -2903,22 +2903,22 @@ std::string CLuaScriptObject::getDescriptiveName() const
             retVal+=" (unassociated)";
         else
         {
-            retVal+=" (";
-            retVal+=it->getObjectName();
-            retVal+=")";
+            retVal+=" \"";
+            retVal+=it->getObjectAlias_shortPath();
+            retVal+="\"";
         }
     }
     if (_scriptType==sim_scripttype_addonscript)
     {
-        retVal+="Add-on script (";
+        retVal+="Add-on script \"";
         retVal+=_addOnName;
-        retVal+=")";
+        retVal+="\"";
     }
     if (_scriptType==sim_scripttype_addonfunction)
     {
-        retVal+="Add-on function (";
+        retVal+="Add-on function \"";
         retVal+=_addOnName;
-        retVal+=")";
+        retVal+="\"";
     }
     if (_scriptType==sim_scripttype_sandboxscript)
         retVal+="Sandbox script";
@@ -2936,7 +2936,7 @@ std::string CLuaScriptObject::getShortDescriptiveName() const
         if (it==nullptr)
             retVal+="???";
         else
-            retVal+=it->getObjectName();
+            retVal+=it->getObjectAlias_shortPath();
         if (_scriptType==sim_scripttype_childscript)
             retVal+="@childScript";
         else
@@ -2969,7 +2969,7 @@ int CLuaScriptObject::getScriptNameIndexNumber() const
     {
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
         if (it!=nullptr)
-            retVal=tt::getNameSuffixNumber(it->getObjectName().c_str(),true);
+            retVal=tt::getNameSuffixNumber(it->getObjectName_old().c_str(),true);
     }
     return(retVal);
 }
@@ -2980,7 +2980,7 @@ std::string CLuaScriptObject::getScriptPseudoName() const
     {
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
         if (it!=nullptr)
-            return(it->getObjectName());
+            return(it->getObjectAlias_shortPath());
     }
     if ( (_scriptType==sim_scripttype_addonscript)||(_scriptType==sim_scripttype_addonfunction) )
         return(_addOnName);

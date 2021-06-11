@@ -78,12 +78,13 @@ void CLight::_commonInit()
     _objectManipulationModePermissions=0x013;
 
     if (_lightType==sim_light_omnidirectional_subtype)
-        _objectName=IDSOGL_OMNIDIRECTIONAL_LIGHT;
+        _objectAlias=IDSOGL_OMNIDIRECTIONAL_LIGHT;
     if (_lightType==sim_light_spot_subtype)
-        _objectName=IDSOGL_SPOTLIGHT;
+        _objectAlias=IDSOGL_SPOTLIGHT;
     if (_lightType==sim_light_directional_subtype)
-        _objectName=IDSOGL_DIRECTIONAL_LIGHT;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
+        _objectAlias=IDSOGL_DIRECTIONAL_LIGHT;
+    _objectName_old=_objectAlias;
+    _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 }
 
 bool CLight::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const

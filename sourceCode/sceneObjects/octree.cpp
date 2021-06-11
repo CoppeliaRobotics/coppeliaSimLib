@@ -20,8 +20,9 @@ COctree::COctree()
     color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
     _visibilityLayer=OCTREE_LAYER;
     _localObjectSpecialProperty=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable_all|sim_objectspecialproperty_renderable;
-    _objectName=IDSOGL_OCTREE;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
+    _objectAlias=IDSOGL_OCTREE;
+    _objectName_old=IDSOGL_OCTREE;
+    _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     _octreeInfo=nullptr;
     _showOctreeStructure=false;
     _useRandomColors=false;
@@ -909,7 +910,8 @@ void COctree::serialize(CSer& ar)
                 }
                 else
                 {
-                    CSer* w=ar.xmlAddNode_binFile("file",(std::string("octree_")+_objectName).c_str());
+//                    CSer* w=ar.xmlAddNode_binFile("file",(std::string("octree_")+_objectName).c_str());
+                    CSer* w=ar.xmlAddNode_binFile("file",(_objectAlias+"-octree-"+std::to_string(_objectHandle)).c_str());
                     w[0] << int(_voxelPositions.size());
                     for (size_t i=0;i<_voxelPositions.size();i++)
                         w[0] << _voxelPositions[i];

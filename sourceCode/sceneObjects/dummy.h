@@ -52,7 +52,8 @@ public:
     bool getFreeOnPathTrajectory() const;
     float getVirtualDistanceOffsetOnPath() const;
     float getVirtualDistanceOffsetOnPath_variationWhenCopy() const;
-    std::string getLinkedDummyLoadName() const;
+    std::string getLinkedDummyLoadAlias() const;
+    std::string getLinkedDummyLoadName_old() const;
     C7Vector getTempLocalTransformation() const;
 
     void loadUnknownObjectType(CSer& ar);
@@ -78,5 +79,6 @@ private:
     float _virtualDistanceOffsetOnPath;
     float _virtualDistanceOffsetOnPath_variationWhenCopy;
     C7Vector _localTransformation_temp; // used for IK (needed when the dummy is freely sliding on a path object!)
-    std::string _linkedDummyLoadName;
+    std::string _linkedDummyLoadAlias;
+    std::string _linkedDummyLoadName_old;
 };

@@ -89,7 +89,7 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
 {
     App::currentWorld->environment->setSceneCanBeDiscardedWhenNewSceneOpened(false); // 4/3/2012
 
-    std::string newObjName=newObject->getObjectName();
+    std::string newObjName=newObject->getObjectName_old();
     if (objectIsACopy)
         newObjName=tt::generateNewName_hash(newObjName.c_str(),suffixOffset);
     else
@@ -103,10 +103,10 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
             std::vector<int> dummyValues;
             for (size_t i=0;i<getObjectCount();i++)
             {
-                std::string baseNameIt(tt::getNameWithoutSuffixNumber(getObjectFromIndex(i)->getObjectName().c_str(),false));
+                std::string baseNameIt(tt::getNameWithoutSuffixNumber(getObjectFromIndex(i)->getObjectName_old().c_str(),false));
                 if (baseName.compare(baseNameIt)==0)
                 {
-                    suffixes.push_back(tt::getNameSuffixNumber(getObjectFromIndex(i)->getObjectName().c_str(),false));
+                    suffixes.push_back(tt::getNameSuffixNumber(getObjectFromIndex(i)->getObjectName_old().c_str(),false));
                     dummyValues.push_back(0);
                 }
             }
@@ -124,10 +124,10 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         //      while (getObject(newObjName)!=nullptr)
         //          newObjName=tt::generateNewName_noHash(newObjName);
     }
-    newObject->setObjectName_direct(newObjName.c_str());
+    newObject->setObjectName_direct_old(newObjName.c_str());
 
     // Same but with the alt object names:
-    std::string newObjAltName=newObject->getObjectAltName();
+    std::string newObjAltName=newObject->getObjectAltName_old();
     if (getObjectFromAltName(newObjAltName.c_str())!=nullptr)
     {
         // Following faster with many objects:
@@ -137,10 +137,10 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         std::vector<int> dummyValues;
         for (size_t i=0;i<getObjectCount();i++)
         {
-            std::string baseAltNameIt(tt::getNameWithoutSuffixNumber(getObjectFromIndex(i)->getObjectAltName().c_str(),false));
+            std::string baseAltNameIt(tt::getNameWithoutSuffixNumber(getObjectFromIndex(i)->getObjectAltName_old().c_str(),false));
             if (baseAltName.compare(baseAltNameIt)==0)
             {
-                suffixes.push_back(tt::getNameSuffixNumber(getObjectFromIndex(i)->getObjectAltName().c_str(),false));
+                suffixes.push_back(tt::getNameSuffixNumber(getObjectFromIndex(i)->getObjectAltName_old().c_str(),false));
                 dummyValues.push_back(0);
             }
         }
@@ -157,7 +157,7 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
     // Following was too slow with many objects:
     //      while (getObjectFromAltName(newObjAltName)!=nullptr)
     //          newObjAltName=tt::generateNewName_noHash(newObjAltName);
-    newObject->setObjectAltName_direct(newObjAltName.c_str());
+    newObject->setObjectAltName_direct_old(newObjAltName.c_str());
 
     // Give the object a new handle
     int handle=_nextObjectHandle;
@@ -335,6 +335,10 @@ void CSceneObjectContainer::actualizeObjectInformation()
             getShapeFromIndex(i)->clearLastParentForLocalGlobalRespondable();
 
         App::currentWorld->textureContainer->updateAllDependencies();
+        CSceneObject::incrementModelPropertyValidityNumber();
+        App::setRebuildHierarchyFlag();
+
+
     }
 }
 
@@ -349,7 +353,7 @@ void CSceneObjectContainer::getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuff
     maxSuffix=-1;
     for (size_t i=0;i<getObjectCount();i++)
     {
-        int s=tt::getNameSuffixNumber(getObjectFromIndex(i)->getObjectName().c_str(),true);
+        int s=tt::getNameSuffixNumber(getObjectFromIndex(i)->getObjectName_old().c_str(),true);
         if (i==0)
         {
             minSuffix=s;
@@ -369,16 +373,16 @@ bool CSceneObjectContainer::canSuffix1BeSetToSuffix2(int suffix1,int suffix2) co
 {
     for (size_t i=0;i<getObjectCount();i++)
     {
-        int s1=tt::getNameSuffixNumber(getObjectFromIndex(i)->getObjectName().c_str(),true);
+        int s1=tt::getNameSuffixNumber(getObjectFromIndex(i)->getObjectName_old().c_str(),true);
         if (s1==suffix1)
         {
-            std::string name1(tt::getNameWithoutSuffixNumber(getObjectFromIndex(i)->getObjectName().c_str(),true));
+            std::string name1(tt::getNameWithoutSuffixNumber(getObjectFromIndex(i)->getObjectName_old().c_str(),true));
             for (size_t j=0;j<getObjectCount();j++)
             {
-                int s2=tt::getNameSuffixNumber(getObjectFromIndex(j)->getObjectName().c_str(),true);
+                int s2=tt::getNameSuffixNumber(getObjectFromIndex(j)->getObjectName_old().c_str(),true);
                 if (s2==suffix2)
                 {
-                    std::string name2(tt::getNameWithoutSuffixNumber(getObjectFromIndex(j)->getObjectName().c_str(),true));
+                    std::string name2(tt::getNameWithoutSuffixNumber(getObjectFromIndex(j)->getObjectName_old().c_str(),true));
                     if (name1==name2)
                         return(false); // NO! We would have a name clash!
                 }
@@ -392,12 +396,12 @@ void CSceneObjectContainer::setSuffix1ToSuffix2(int suffix1,int suffix2)
 {
     for (size_t i=0;i<getObjectCount();i++)
     {
-        int s1=tt::getNameSuffixNumber(getObjectFromIndex(i)->getObjectName().c_str(),true);
+        int s1=tt::getNameSuffixNumber(getObjectFromIndex(i)->getObjectName_old().c_str(),true);
         if (s1==suffix1)
         {
             CSceneObject* obj=getObjectFromIndex(i);
-            std::string name1(tt::getNameWithoutSuffixNumber(obj->getObjectName().c_str(),true));
-            setObjectName(obj,tt::generateNewName_hash(name1.c_str(),suffix2+1).c_str(),true);
+            std::string name1(tt::getNameWithoutSuffixNumber(obj->getObjectName_old().c_str(),true));
+            setObjectName_old(obj,tt::generateNewName_hash(name1.c_str(),suffix2+1).c_str(),true);
         }
     }
 }
@@ -837,147 +841,138 @@ bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer& ar,CSce
 {
     bool retVal=true;
     bool isScene=(ar.getFileType()==CSer::filetype_csim_xml_simplescene_file);
-    const char* objNames={"shape\0joint\0graph\0camera\0dummy\0proximitySensor\0visionSensor\0forceSensor\0path\0light\0ocTree\0pointCloud\0\0"};
-    int off=0;
-    while (true)
+    std::vector<std::string> allChildNodeNames;
+    ar.xmlGetAllChildNodeNames(allChildNodeNames);
+    for (size_t nodeIt=0;nodeIt<allChildNodeNames.size();nodeIt++)
     {
-        std::string nm(objNames+off);
-        if (nm.size()==0)
-            break;
-        if (ar.xmlPushChildNode(nm.c_str(),false))
+        std::string nm(allChildNodeNames[nodeIt]);
+        if (nodeIt==0)
+            ar.xmlPushChildNode(nm.c_str(),false);
+        else
+            ar.xmlPushSiblingNode(nm.c_str(),false);
+        std::string objNames("shape*joint*graph*camera*dummy*proximitySensor*visionSensor*forceSensor*path*light*ocTree*pointCloud");
+        if (objNames.find(nm)!=std::string::npos)
         {
-            while (true)
+            C7Vector desiredLocalFrame;
+            CSceneObject* obj=nullptr;
+            if (nm.compare("shape")==0)
+                obj=_readSimpleXmlShape(ar,desiredLocalFrame); // special, added to scene already. Can fail
+            if (nm.compare("joint")==0)
             {
-                C7Vector desiredLocalFrame;
-                CSceneObject* obj=nullptr;
-                if (nm.compare("shape")==0)
-                    obj=_readSimpleXmlShape(ar,desiredLocalFrame); // special, added to scene already. Can fail
-                if (nm.compare("joint")==0)
-                {
-                    CJoint* myNewObject=new CJoint();
-                    myNewObject->serialize(ar);
-                    obj=myNewObject;
-                    addObjectToScene(obj,false,true);
-                }
-                if (nm.compare("graph")==0)
-                {
-                    CGraph* myNewObject=new CGraph();
-                    myNewObject->serialize(ar);
-                    obj=myNewObject;
-                    addObjectToScene(obj,false,true);
-                }
-                if (nm.compare("camera")==0)
-                {
-                    CCamera* myNewObject=new CCamera();
-                    myNewObject->serialize(ar);
-                    obj=myNewObject;
-                    addObjectToScene(obj,false,true);
-                }
-                if (nm.compare("dummy")==0)
-                {
-                    CDummy* myNewObject=new CDummy();
-                    myNewObject->serialize(ar);
-                    obj=myNewObject;
-                    addObjectToScene(obj,false,true);
-                }
-                if (nm.compare("proximitySensor")==0)
-                {
-                    CProxSensor* myNewObject=new CProxSensor();
-                    myNewObject->serialize(ar);
-                    obj=myNewObject;
-                    addObjectToScene(obj,false,true);
-                }
-                if (nm.compare("visionSensor")==0)
-                {
-                    CVisionSensor* myNewObject=new CVisionSensor();
-                    myNewObject->serialize(ar);
-                    obj=myNewObject;
-                    addObjectToScene(obj,false,true);
-                }
-                if (nm.compare("forceSensor")==0)
-                {
-                    CForceSensor* myNewObject=new CForceSensor();
-                    myNewObject->serialize(ar);
-                    obj=myNewObject;
-                    addObjectToScene(obj,false,true);
-                }
-                if (nm.compare("path")==0)
-                {
-                    CPath_old* myNewObject=new CPath_old();
-                    myNewObject->serialize(ar);
-                    obj=myNewObject;
-                    addObjectToScene(obj,false,true);
-                }
-                if (nm.compare("light")==0)
-                {
-                    CLight* myNewObject=new CLight();
-                    myNewObject->serialize(ar);
-                    obj=myNewObject;
-                    addObjectToScene(obj,false,true);
-                }
-                if (nm.compare("ocTree")==0)
-                {
-                    COctree* myNewObject=new COctree();
-                    myNewObject->serialize(ar);
-                    obj=myNewObject;
-                    addObjectToScene(obj,false,true);
-                }
-                if (nm.compare("pointCloud")==0)
-                {
-                    CPointCloud* myNewObject=new CPointCloud();
-                    myNewObject->serialize(ar);
-                    obj=myNewObject;
-                    addObjectToScene(obj,false,true);
-                }
-
-                if (obj!=nullptr)
-                {
-                    if (obj->getObjectType()!=sim_object_shape_type)
-                        desiredLocalFrame=obj->getLocalTransformation();
-                    C7Vector localFramePreCorrectionForChildren(obj->getLocalTransformation().getInverse()*desiredLocalFrame);
-                    obj->setLocalTransformation(localFramePreCorrection*obj->getLocalTransformation());
-
-                    // Handle attached child scripts:
-                    CLuaScriptObject* childScript=nullptr;
-                    if (ar.xmlPushChildNode("childScript",false))
-                    {
-                        childScript=new CLuaScriptObject(sim_scripttype_childscript);
-                        childScript->serialize(ar);
-                        ar.xmlPopNode();
-                    }
-
-                    // Handle attached customization scripts:
-                    CLuaScriptObject* customizationScript=nullptr;
-                    if (ar.xmlPushChildNode("customizationScript",false))
-                    {
-                        customizationScript=new CLuaScriptObject(sim_scripttype_customizationscript);
-                        customizationScript->serialize(ar);
-                        ar.xmlPopNode();
-                    }
-
-                    SSimpleXmlSceneObject xmlobj;
-                    xmlobj.object=obj;
-                    xmlobj.parentObject=parentObject;
-                    xmlobj.childScript=childScript;
-                    xmlobj.customizationScript=customizationScript;
-                    simpleXmlObjects.push_back(xmlobj);
-
-                    // Possibly recurse:
-                    readAndAddToSceneSimpleXmlSceneObjects(ar,obj,localFramePreCorrectionForChildren,simpleXmlObjects);
-
-                    if ( (!isScene)&&(parentObject==nullptr) )
-                        break;
-                }
-
-                if (!ar.xmlPushSiblingNode(nm.c_str(),false))
-                    break;
+                CJoint* myNewObject=new CJoint();
+                myNewObject->serialize(ar);
+                obj=myNewObject;
+                addObjectToScene(obj,false,true);
             }
-            ar.xmlPopNode();
-        }
-        off+=strlen(objNames+off)+1;
+            if (nm.compare("graph")==0)
+            {
+                CGraph* myNewObject=new CGraph();
+                myNewObject->serialize(ar);
+                obj=myNewObject;
+                addObjectToScene(obj,false,true);
+            }
+            if (nm.compare("camera")==0)
+            {
+                CCamera* myNewObject=new CCamera();
+                myNewObject->serialize(ar);
+                obj=myNewObject;
+                addObjectToScene(obj,false,true);
+            }
+            if (nm.compare("dummy")==0)
+            {
+                CDummy* myNewObject=new CDummy();
+                myNewObject->serialize(ar);
+                obj=myNewObject;
+                addObjectToScene(obj,false,true);
+            }
+            if (nm.compare("proximitySensor")==0)
+            {
+                CProxSensor* myNewObject=new CProxSensor();
+                myNewObject->serialize(ar);
+                obj=myNewObject;
+                addObjectToScene(obj,false,true);
+            }
+            if (nm.compare("visionSensor")==0)
+            {
+                CVisionSensor* myNewObject=new CVisionSensor();
+                myNewObject->serialize(ar);
+                obj=myNewObject;
+                addObjectToScene(obj,false,true);
+            }
+            if (nm.compare("forceSensor")==0)
+            {
+                CForceSensor* myNewObject=new CForceSensor();
+                myNewObject->serialize(ar);
+                obj=myNewObject;
+                addObjectToScene(obj,false,true);
+            }
+            if (nm.compare("path")==0)
+            {
+                CPath_old* myNewObject=new CPath_old();
+                myNewObject->serialize(ar);
+                obj=myNewObject;
+                addObjectToScene(obj,false,true);
+            }
+            if (nm.compare("light")==0)
+            {
+                CLight* myNewObject=new CLight();
+                myNewObject->serialize(ar);
+                obj=myNewObject;
+                addObjectToScene(obj,false,true);
+            }
+            if (nm.compare("ocTree")==0)
+            {
+                COctree* myNewObject=new COctree();
+                myNewObject->serialize(ar);
+                obj=myNewObject;
+                addObjectToScene(obj,false,true);
+            }
+            if (nm.compare("pointCloud")==0)
+            {
+                CPointCloud* myNewObject=new CPointCloud();
+                myNewObject->serialize(ar);
+                obj=myNewObject;
+                addObjectToScene(obj,false,true);
+            }
 
-        if ( (!isScene)&&(parentObject==nullptr) )
-            break;
+            if (obj!=nullptr)
+            {
+                if (obj->getObjectType()!=sim_object_shape_type)
+                    desiredLocalFrame=obj->getLocalTransformation();
+                C7Vector localFramePreCorrectionForChildren(obj->getLocalTransformation().getInverse()*desiredLocalFrame);
+                obj->setLocalTransformation(localFramePreCorrection*obj->getLocalTransformation());
+
+                // Handle attached child scripts:
+                CLuaScriptObject* childScript=nullptr;
+                if (ar.xmlPushChildNode("childScript",false))
+                {
+                    childScript=new CLuaScriptObject(sim_scripttype_childscript);
+                    childScript->serialize(ar);
+                    ar.xmlPopNode();
+                }
+
+                // Handle attached customization scripts:
+                CLuaScriptObject* customizationScript=nullptr;
+                if (ar.xmlPushChildNode("customizationScript",false))
+                {
+                    customizationScript=new CLuaScriptObject(sim_scripttype_customizationscript);
+                    customizationScript->serialize(ar);
+                    ar.xmlPopNode();
+                }
+
+                SSimpleXmlSceneObject xmlobj;
+                xmlobj.object=obj;
+                xmlobj.parentObject=parentObject;
+                xmlobj.childScript=childScript;
+                xmlobj.customizationScript=customizationScript;
+                simpleXmlObjects.push_back(xmlobj);
+
+                // Possibly recurse:
+                readAndAddToSceneSimpleXmlSceneObjects(ar,obj,localFramePreCorrectionForChildren,simpleXmlObjects);
+            }
+        }
+        if (nodeIt==allChildNodeNames.size()-1)
+            ar.xmlPopNode();
     }
     return(retVal);
 }
@@ -1079,7 +1074,7 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer& ar,const CSceneO
 }
 
 void CSceneObjectContainer::setObjectParent(CSceneObject* object,CSceneObject* newParent,bool keepInPlace)
-{ // overridden from _CSceneObjectContainer_
+{
     CSceneObject* oldParent=object->getParent();
     if (oldParent!=newParent)
     {
@@ -1105,40 +1100,89 @@ void CSceneObjectContainer::setObjectParent(CSceneObject* object,CSceneObject* n
     }
 }
 
-bool CSceneObjectContainer::setObjectName(CSceneObject* object,const char* newName,bool allowNameAdjustment)
-{ // overridden from _CSceneObjectContainer_
-    std::string nm(newName);
-    if (allowNameAdjustment)
+bool CSceneObjectContainer::setObjectAlias(CSceneObject* object,const char* newAlias,bool allowNameAdjustment)
+{
+    bool retVal=false;
+    if (allowNameAdjustment||tt::isAliasValid(newAlias))
     {
-        tt::removeIllegalCharacters(nm,true);
-        while (getObjectFromName(nm.c_str())!=nullptr)
-            nm=tt::generateNewName_hashOrNoHash(nm.c_str(),!tt::isHashFree(nm.c_str()));
-    }
-    bool retVal=_CSceneObjectContainer_::setObjectName(object,nm.c_str(),allowNameAdjustment);
-    if (retVal)
-    {
-        object->setObjectName_direct(newName);
-        if (object->getParent()==nullptr)
-            _handleOrderIndexOfOrphans();
-        else
-            object->getParent()->handleOrderIndexOfChildren();
+        std::string nm(tt::getValidAlias(newAlias));
+        if (nm!=object->getObjectAlias())
+        {
+            retVal=true;
+            object->setObjectAlias_direct(nm.c_str());
+            setObjectSequence(object,-1); // like inserting it in last position
+            if (object->getParent()==nullptr)
+                _handleOrderIndexOfOrphans();
+            else
+                object->getParent()->handleOrderIndexOfChildren();
+        }
     }
     return(retVal);
 }
 
-bool CSceneObjectContainer::setObjectAltName(CSceneObject* object,const char* newName,bool allowNameAdjustment)
+bool CSceneObjectContainer::setObjectSequence(CSceneObject* object,int order)
+{ // overridden from _CSceneObjectContainer_
+    bool retVal=false;
+    CSceneObject* parent=object->getParent();
+    if (parent==nullptr)
+    {
+        retVal=_CSceneObjectContainer_::setObjectSequence(object,order);
+        if (retVal)
+            _handleOrderIndexOfOrphans();
+    }
+    else
+        retVal=parent->setChildSequence(object,order);
+    if (retVal)
+    {
+        App::setFullDialogRefreshFlag();
+        App::setRebuildHierarchyFlag();
+    }
+    return(retVal);
+}
+
+bool CSceneObjectContainer::setObjectName_old(CSceneObject* object,const char* newName,bool allowNameAdjustment)
 { // overridden from _CSceneObjectContainer_
     std::string nm(newName);
-    if (allowNameAdjustment)
+    bool retVal=false;
+    if (allowNameAdjustment||tt::isObjectNameValid_old(newName,!tt::isHashFree(newName)))
+    {
+        tt::removeIllegalCharacters(nm,true);
+        bool renamed=false;
+        while (getObjectFromName(nm.c_str())!=nullptr)
+        {
+            renamed=true;
+            nm=tt::generateNewName_hashOrNoHash(nm.c_str(),!tt::isHashFree(nm.c_str()));
+        }
+        if (allowNameAdjustment||(!renamed))
+        {
+            retVal=_CSceneObjectContainer_::setObjectName_old(object,nm.c_str(),allowNameAdjustment);
+            if (retVal)
+                object->setObjectName_direct_old(nm.c_str());
+        }
+    }
+    return(retVal);
+}
+
+bool CSceneObjectContainer::setObjectAltName_old(CSceneObject* object,const char* newName,bool allowNameAdjustment)
+{ // overridden from _CSceneObjectContainer_
+    std::string nm(newName);
+    bool retVal=false;
+    if (allowNameAdjustment||tt::isObjectNameValid_old(newName,false))
     {
         tt::removeAltNameIllegalCharacters(nm);
+        bool renamed=false;
         while (getObjectFromAltName(nm.c_str())!=nullptr)
+        {
+            renamed=true;
             nm=tt::generateNewName_noHash(nm.c_str());
+        }
+        if (allowNameAdjustment||(!renamed))
+        {
+            retVal=_CSceneObjectContainer_::setObjectAltName_old(object,nm.c_str(),allowNameAdjustment);
+            if (retVal)
+                object->setObjectAltName_direct_old(nm.c_str());
+        }
     }
-    bool retVal=_CSceneObjectContainer_::setObjectAltName(object,nm.c_str(),allowNameAdjustment);
-    if (retVal)
-        object->setObjectAltName_direct(newName);
-
     return(retVal);
 }
 
@@ -1168,7 +1212,7 @@ void CSceneObjectContainer::_handleOrderIndexOfOrphans()
     for (size_t i=0;i<getOrphanCount();i++)
     {
         CSceneObject* child=getOrphanFromIndex(i);
-        std::string hn(child->getObjectHashlessName());
+        std::string hn(child->getObjectAlias());
         std::map<std::string,int>::iterator it=nameMap.find(hn);
         if (it==nameMap.end())
             nameMap[hn]=0;
@@ -1179,11 +1223,13 @@ void CSceneObjectContainer::_handleOrderIndexOfOrphans()
     for (size_t i=0;i<getOrphanCount();i++)
     {
         CSceneObject* child=getOrphanFromIndex(i);
-        std::string hn(child->getObjectHashlessName());
+        std::string hn(child->getObjectAlias());
         std::map<std::string,int>::iterator it=nameMap.find(hn);
         if (nameMap[hn]==0)
             child->setChildOrder(-1); // means unique with that name, with that parent
     }
+    App::setFullDialogRefreshFlag();
+    App::setRebuildHierarchyFlag();
 }
 
 void CSceneObjectContainer::setObjectAbsolutePose(int objectHandle,const C7Vector& v,bool keepChildrenInPlace)
@@ -1228,144 +1274,6 @@ void CSceneObjectContainer::setObjectAbsoluteOrientation(int objectHandle,const 
         cumul.Q.setEulerAngles(euler);
         it->setLocalTransformation(parentInverse*cumul);
     }
-}
-
-CSceneObject* CSceneObjectContainer::getObjectFromNamePath(int emittingObject,const char* objectNameAndPath,int altObjHandleForSearch,int index) const
-{
-    std::string nm(objectNameAndPath);
-    CSceneObject* retVal=nullptr;
-    if (nm.size()>0)
-    {
-        CSceneObject* emObj=nullptr;
-        if (nm[0]=='/')
-        {
-            nm.erase(0,1);
-            if ( (nm[0]=='.')||(nm[0]=='/') )
-                return(nullptr);
-        }
-        else
-        {
-            emObj=getObjectFromHandle(emittingObject);
-            if (nm==".")
-            {
-                if (altObjHandleForSearch!=-1)
-                    emObj=getObjectFromHandle(altObjHandleForSearch);
-                else
-                {
-                    while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
-                        emObj=emObj->getParent();
-                }
-                return(emObj);
-            }
-            else
-            {
-                if (nm.compare(0,2,"./")==0)
-                {
-                    nm.erase(0,2);
-                    if (altObjHandleForSearch!=-1)
-                    {
-                        emObj=getObjectFromHandle(altObjHandleForSearch);
-                        if (emObj==nullptr)
-                            return(nullptr);
-                    }
-                    else
-                    {
-                        while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
-                            emObj=emObj->getParent();
-                    }
-                }
-                else
-                {
-                    while (nm.compare(0,2,"..")==0)
-                    {
-                        nm.erase(0,2);
-                        if (emObj==nullptr)
-                            return(nullptr);
-                        // Get the first parent that is model (including itself):
-                        while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
-                            emObj=emObj->getParent();
-                        if (emObj==nullptr)
-                            return(nullptr);
-                        // Get the next parent that is model (excluding itself):
-                        emObj=emObj->getParent();
-                        while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
-                            emObj=emObj->getParent();
-                        if (nm.size()==0)
-                            return(emObj); // e.g. "../.."
-                        if (nm[0]=='/')
-                            nm.erase(0,1);
-                        else
-                            return(nullptr); // bad string (expected "../")
-                    }
-                }
-            }
-        }
-        std::vector<CSceneObject*> toExplore;
-        if (emObj==nullptr)
-        {
-            for (size_t i=0;i<getOrphanCount();i++)
-                toExplore.push_back(getOrphanFromIndex(i));
-        }
-        else
-        {
-            for (size_t i=0;i<emObj->getChildCount();i++)
-                toExplore.push_back(emObj->getChildFromIndex(i));
-        }
-        std::istringstream fullname(nm.c_str());
-        std::string objName;
-        while (std::getline(fullname,objName,'/'))
-        {
-            int specIndex=0;
-            size_t ob=objName.find('[');
-            if (ob!=std::string::npos)
-            {
-                if (objName[objName.size()-1]==']')
-                {
-                    objName.erase(objName.size()-1,1);
-                    std::string nv(objName.substr(ob+1));
-                    if (tt::getValidInt(nv.c_str(),specIndex)) // if nb is not valid, won't be able to match any object name
-                        objName.erase(ob);
-                }
-            }
-
-//            CTTUtil::doStringMatch_wildcard
- //           size_t wildcardPos=objName.find('*');
- //           if (wildcardPos!=std::string::npos)
- //               objName.erase(wildcardPos,1);
-            retVal=nullptr;
-            size_t i=0;
-            while (i<toExplore.size())
-            {
-                CSceneObject* it=toExplore[i];
-                i++;
-                std::string name(it->getObjectHashlessName());
-                if (CTTUtil::doStringMatch_wildcard(objName.c_str(),name.c_str()))
-//                if (name.compare(0,wildcardPos,objName)==0) // if (name==objName)
-                {
-                    if (specIndex==0)
-                    {
-                        if (index<=0)
-                        {
-                            toExplore.clear();
-                            retVal=it;
-                        }
-                        else
-                            index--;
-                    }
-                    else
-                        specIndex--;
-                }
-                // add its children to be explored:
-                for (size_t j=0;j<it->getChildCount();j++)
-                    toExplore.push_back(it->getChildFromIndex(j));
-                if (retVal!=nullptr)
-                    break;
-            }
-            if (retVal==nullptr)
-                break;
-        }
-    }
-    return(retVal);
 }
 
 CSceneObject* CSceneObjectContainer::getObjectFromUniqueId(int uniqueID) const
@@ -1703,8 +1611,9 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
         }
         C7Vector tr(shape->getFullCumulativeTransformation());
         shape->acquireCommonPropertiesFromObject_simpleXMLLoading(dummy);
-        setObjectName(shape,dummy->getObjectName().c_str(),true);
-        setObjectAltName(shape,dummy->getObjectAltName().c_str(),true);
+        setObjectAlias(shape,dummy->getObjectAlias().c_str(),true);
+        setObjectName_old(shape,dummy->getObjectName_old().c_str(),true);
+        setObjectAltName_old(shape,dummy->getObjectAltName_old().c_str(),true);
         shape->setLocalTransformation(dummy->getFullCumulativeTransformation()*tr);
 
         // We cannot decided of the position of the shape (the position is selected at the center of the shape)
@@ -2087,12 +1996,11 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar,CShape* shape)
     {
         ar.xmlPushNewNode("compound");
         for (size_t i=0;i<allComponents.size();i++)
-            _writeSimpleXmlSimpleShape(ar,shape->getObjectName().c_str(),allComponents[i],shape->getFullCumulativeTransformation());
+            _writeSimpleXmlSimpleShape(ar,shape->getObjectAliasAndHandle().c_str(),allComponents[i],shape->getFullCumulativeTransformation());
         ar.xmlPopNode();
     }
     else
-        _writeSimpleXmlSimpleShape(ar,shape->getObjectName().c_str(),allComponents[0],shape->getFullCumulativeTransformation());
-
+        _writeSimpleXmlSimpleShape(ar,shape->getObjectAliasAndHandle().c_str(),allComponents[0],shape->getFullCumulativeTransformation());
 
     for (size_t i=0;i<allComponents.size();i++)
         eraseObject(allComponents[i],false);
@@ -2143,7 +2051,12 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
         {
             int shapeHandle=shape->getObjectHandle();
             std::string filename(ar.getFilenameBase()+"_mesh_"+originalShapeName+tt::FNb(ar.getIncrementCounter())+".dae");
+            bool wireframe=shape->getShapeWireframe();
+            if (wireframe)
+                shape->setShapeWireframe(false); // The Assimp plugin will ignore wireframe shapes and not write them!!
             CPluginContainer::assimp_exportShapes(&shapeHandle,1,(ar.getFilenamePath()+filename).c_str(),"collada",1.0f,1,256);
+            if (wireframe)
+                shape->setShapeWireframe(true);
             ar.xmlAddNode_string("fileName",filename.c_str());
         }
         else

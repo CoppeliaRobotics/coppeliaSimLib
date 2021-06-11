@@ -201,9 +201,9 @@ void CViewSelector::render()
                 if (it->getObjectType()==sim_object_camera_type)
                 {
                     ogl::setTextColor(0.1f,0.1f,0.1f);
-                    ogl::drawText(2,tns[1]-12*App::sc,0,it->getObjectName().append(" (Camera)"));
+                    ogl::drawText(2,tns[1]-12*App::sc,0,it->getObjectAlias_shortPath().append(" (Camera)"));
                     ogl::setTextColor(0.9f,0.9f,0.9f);
-                    ogl::drawText(1,tns[1]-11*App::sc,0,it->getObjectName().append(" (Camera)"));
+                    ogl::drawText(1,tns[1]-11*App::sc,0,it->getObjectAlias_shortPath().append(" (Camera)"));
                 }
 /*                if (it->getObjectType()==sim_object_graph_type)
                 {
@@ -219,9 +219,9 @@ void CViewSelector::render()
                 {
                     std::string txt=" (Vision Sensor)";
                     ogl::setTextColor(0.1f,0.1f,0.1f);
-                    ogl::drawText(2,tns[1]-12*App::sc,0,it->getObjectName().append(txt));
+                    ogl::drawText(2,tns[1]-12*App::sc,0,it->getObjectAlias_shortPath().append(txt));
                     ogl::setTextColor(0.9f,0.9f,0.9f);
-                    ogl::drawText(1,tns[1]-11*App::sc,0,it->getObjectName().append(txt));
+                    ogl::drawText(1,tns[1]-11*App::sc,0,it->getObjectAlias_shortPath().append(txt));
                 }
                 glEnable(GL_DEPTH_TEST);
                 glDisable(GL_SCISSOR_TEST);

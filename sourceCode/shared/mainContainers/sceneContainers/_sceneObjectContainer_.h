@@ -34,9 +34,11 @@ public:
     virtual void synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg);
 
     bool doesObjectExist(const CSceneObject* obj) const;
+    int getObjectSequence(const CSceneObject* object) const;
     size_t getObjectCount() const;
     CSceneObject* getObjectFromIndex(size_t index) const;
     CSceneObject* getObjectFromHandle(int objectHandle) const;
+    CSceneObject* getObjectFromPath(CSceneObject* emittingObject,const char* objectAliasAndPath,int index,CSceneObject* proxy) const;
     CSceneObject* getObjectFromName(const char* objectName) const;
     CSceneObject* getObjectFromAltName(const char* objectAltName) const;
     int getObjectHandleFromName(const char* objectName) const;
@@ -134,9 +136,10 @@ public:
     bool isLastSelectionAMill(const std::vector<int>* selection=nullptr) const;
     bool isLastSelectionAForceSensor(const std::vector<int>* selection=nullptr) const;
 
-    virtual bool setObjectName(CSceneObject* object,const char* newName,bool allowNameAdjustment);
-    virtual bool setObjectAltName(CSceneObject* object,const char* newAltName,bool allowNameAdjustment);
+    virtual bool setObjectName_old(CSceneObject* object,const char* newName,bool allowNameAdjustment);
+    virtual bool setObjectAltName_old(CSceneObject* object,const char* newAltName,bool allowNameAdjustment);
 
+    virtual bool setObjectSequence(CSceneObject* object,int order);
     virtual bool setSelectedObjectHandles(const std::vector<int>* v);
 
 protected:
@@ -152,8 +155,8 @@ private:
 
     std::vector<CSceneObject*> _allObjects; // only used for iterating in a RANDOM manner over objects
     std::map<int,CSceneObject*> _objectHandleMap; // only used for fast access!
-    std::map<std::string,CSceneObject*> _objectNameMap; // only used for fast access!
-    std::map<std::string,CSceneObject*> _objectAltNameMap; // only used for fast access!
+    std::map<std::string,CSceneObject*> _objectNameMap_old; // only used for fast access!
+    std::map<std::string,CSceneObject*> _objectAltNameMap_old; // only used for fast access!
 
     // only used for iterating in a RANDOM manner over specific objects:
     std::vector<CJoint*> _jointList;

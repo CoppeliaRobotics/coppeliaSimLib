@@ -286,7 +286,7 @@ void CPropBrowserEngineJoint::show(QWidget* parentWindow)
         CJoint* it2=App::currentWorld->sceneObjects->getJointFromIndex(i);
         if ( (it2!=it)&&(it2->getVortexDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
         {
-            names.push_back(it2->getObjectName());
+            names.push_back(it2->getObjectAlias_shortPath());
             ids.push_back(it2->getObjectHandle());
         }
     }
@@ -598,7 +598,7 @@ void CPropBrowserEngineJoint::show(QWidget* parentWindow)
         CJoint* it2=App::currentWorld->sceneObjects->getJointFromIndex(i);
         if ( (it2!=it)&&(it2->getNewtonDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
         {
-            names.push_back(it2->getObjectName());
+            names.push_back(it2->getObjectAlias_shortPath());
             ids.push_back(it2->getObjectHandle());
         }
     }
@@ -878,7 +878,7 @@ void CPropBrowserEngineJoint::refresh()
         CJoint* it2=App::currentWorld->sceneObjects->getJointFromIndex(i);
         if ( (it2!=it)&&(it2->getVortexDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
         {
-            depNames.push_back(it2->getObjectName());
+            depNames.push_back(it2->getObjectAlias_shortPath());
             depIds.push_back(it2->getObjectHandle());
         }
     }
@@ -952,7 +952,7 @@ void CPropBrowserEngineJoint::refresh()
             {
                 for (int i=0;i<int(depNames.size());i++)
                 {
-                    if (depNames[i].compare(aJoint->getObjectName())==0)
+                    if (depNames[i].compare(aJoint->getObjectAlias_shortPath())==0)
                     {
                         depIndex=i+1;
                         break;
@@ -1419,7 +1419,7 @@ void CPropBrowserEngineJoint::refresh()
         CJoint* it2=App::currentWorld->sceneObjects->getJointFromIndex(i);
         if ( (it2!=it)&&(it2->getNewtonDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
         {
-            depNames.push_back(it2->getObjectName());
+            depNames.push_back(it2->getObjectAlias_shortPath());
             depIds.push_back(it2->getObjectHandle());
         }
     }
@@ -1434,9 +1434,9 @@ void CPropBrowserEngineJoint::refresh()
             CJoint* aJoint=App::currentWorld->sceneObjects->getJointFromHandle(newtonDependentJointId);
             if (aJoint!=nullptr)
             {
-                for (int i=0;i<int(depNames.size());i++)
+                for (size_t i=0;i<depNames.size();i++)
                 {
-                    if (depNames[i].compare(aJoint->getObjectName())==0)
+                    if (depNames[i].compare(aJoint->getObjectAlias_shortPath())==0)
                     {
                         depIndex=i+1;
                         break;
@@ -1634,7 +1634,7 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
             CJoint* it2=App::currentWorld->sceneObjects->getJointFromIndex(i);
             if ( (it2!=it)&&(it2->getVortexDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
             {
-                depNames.push_back(it2->getObjectName());
+                depNames.push_back(it2->getObjectAlias_shortPath());
                 depIds.push_back(it2->getObjectHandle());
             }
         }
@@ -1995,7 +1995,7 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
             CJoint* it2=App::currentWorld->sceneObjects->getJointFromIndex(i);
             if ( (it2!=it)&&(it2->getNewtonDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
             {
-                depNames.push_back(it2->getObjectName());
+                depNames.push_back(it2->getObjectAlias_shortPath());
                 depIds.push_back(it2->getObjectHandle());
             }
         }

@@ -510,7 +510,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
                 std::string objName("ERROR");
                 CShape* theShape=App::mainWindow->editModeContainer->getEditModeShape();
                 if (theShape!=nullptr)
-                    objName=theShape->getObjectName();
+                    objName=theShape->getObjectAlias_shortPath();
                 if (t&VERTEX_EDIT_MODE)
                     hierarchyTitle="  Vertices (";
                 if (t&TRIANGLE_EDIT_MODE)
@@ -524,7 +524,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
                 std::string objName("  ERROR");
                 CPath_old* thePath=App::mainWindow->editModeContainer->getEditModePath_old();
                 if (thePath!=nullptr)
-                    objName=thePath->getObjectName();
+                    objName=thePath->getObjectAlias_shortPath();
                 hierarchyTitle="  Control points (";
                 hierarchyTitle+=objName+")";
             }

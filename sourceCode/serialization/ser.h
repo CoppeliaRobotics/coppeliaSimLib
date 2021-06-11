@@ -144,6 +144,7 @@ public:
     void xmlAddNode_floats(const char* name,const std::vector<float>& vals);
     void xmlAddNode_double(const char* name,double val);
 
+    void xmlGetAllChildNodeNames(std::vector<std::string>& allNames);
     bool xmlPushChildNode(const char* name,bool required=true);
     bool xmlPushSiblingNode(const char* name,bool required=true);
 

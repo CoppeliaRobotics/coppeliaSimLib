@@ -58,7 +58,7 @@ void CQDlgDependencyEquation::refresh()
             if ((it2!=it)&&(it2->getJointType()!=sim_joint_spherical_subtype))
             {
                 std::string name(tt::decorateString("[",IDSN_JOINT,"] "));
-                name+=it2->getObjectName();
+                name+=it2->getObjectAlias_shortPath();
                 names.push_back(name);
                 ids.push_back(it2->getObjectHandle());
             }

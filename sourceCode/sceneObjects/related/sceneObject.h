@@ -231,6 +231,8 @@ public:
     void addChild(CSceneObject* child);
     bool removeChild(const CSceneObject* child);
     void handleOrderIndexOfChildren();
+    int getChildSequence(const CSceneObject* child) const;
+    bool setChildSequence(CSceneObject* child,int order);
 
     void setHierarchyColorIndex(int c);
     int getHierarchyColorIndex() const;
@@ -271,8 +273,9 @@ public:
 
     void getFirstModelRelatives(std::vector<CSceneObject*>& firstModelRelatives,bool visibleModelsOnly) const;
     int countFirstModelRelatives(bool visibleModelsOnly) const;
-    std::string getObjectTempName() const;
-    std::string getObjectTempAltName() const;
+    std::string getObjectTempAlias() const;
+    std::string getObjectTempName_old() const;
+    std::string getObjectTempAltName_old() const;
     void acquireCommonPropertiesFromObject_simpleXMLLoading(const CSceneObject* obj);
     CUserParameters* getUserScriptParameterObject();
     void setUserScriptParameterObject(CUserParameters* obj);
@@ -301,8 +304,9 @@ protected:
 
 
     int _ikPluginCounterpartHandle;
-    std::string _objectTempName;
-    std::string _objectTempAltName;
+    std::string _objectTempAlias;
+    std::string _objectTempName_old;
+    std::string _objectTempAltName_old;
 
     int _cumulativeModelProperty;
     int _cumulativeModelPropertyValidityNumber;

@@ -1554,7 +1554,7 @@ bool CGraphingRoutines_old::getGraphObjectName(int dataIndex,int objectID,std::s
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectID);
         if (it==nullptr)
             return(false);
-        objName=it->getObjectName();
+        objName=it->getObjectName_old();
         return(true);
     }
     if ((dataIndex==GRAPH_NOOBJECT_IK_OVERALL_CALCULATION_TIME)||

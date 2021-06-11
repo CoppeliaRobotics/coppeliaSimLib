@@ -28,8 +28,9 @@ CPath_old::CPath_old()
     _pathModifID=0;
     pathContainer=new CPathCont_old();
     setShapingType(1);
-    _objectName=IDSOGL_PATH;
-    _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
+    _objectAlias=IDSOGL_PATH;
+    _objectName_old=IDSOGL_PATH;
+    _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 }
 
 CPath_old::~CPath_old()

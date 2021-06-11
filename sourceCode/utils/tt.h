@@ -64,6 +64,9 @@ public:
     static bool isHashFree(const char* name);
     static int getNameSuffixNumber(const char* name,bool hash);
     static std::string getNameWithoutSuffixNumber(const char* name,bool hash);
+    static bool isAliasValid(const char* alias);
+    static std::string getValidAlias(const char* alias);
+    static bool isObjectNameValid_old(const char* text,bool allowOneHashFollowedByNumbers);
     static bool removeIllegalCharacters(std::string& text,bool allowOneHashFollowedByNumbers);
     static bool removeAltNameIllegalCharacters(std::string& text);
     static std::string getObjectAltNameFromObjectName(const char* text);

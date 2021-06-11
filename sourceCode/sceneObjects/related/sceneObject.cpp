@@ -93,7 +93,8 @@ CSceneObject::CSceneObject()
     _uniqueID=_uniqueIDCounter++; // not persistent
     _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
     _modelAcknowledgement="";
-    _objectTempName="__object__";
+    _objectTempAlias="_*_object_*_";
+    _objectTempName_old="_*_object_*_";
 
     _specificLight=-1; // default, i.e. all lights
 
@@ -964,8 +965,9 @@ CSceneObject* CSceneObject::copyYourself()
     theNewObject->_visibilityLayer=_visibilityLayer;
     theNewObject->_childOrder=_childOrder;
     theNewObject->_localTransformation=_localTransformation;
-    theNewObject->_objectName=_objectName;
-    theNewObject->_objectAltName=_objectAltName;
+    theNewObject->_objectAlias=_objectAlias;
+    theNewObject->_objectName_old=_objectName_old;
+    theNewObject->_objectAltName_old=_objectAltName_old;
     theNewObject->_localObjectProperty=_localObjectProperty;
     theNewObject->_hierarchyColorIndex=_hierarchyColorIndex;
     theNewObject->_collectionSelfCollisionIndicator=_collectionSelfCollisionIndicator;
@@ -1633,12 +1635,16 @@ void CSceneObject::serialize(CSer& ar)
             ar << _objectHandle << parentID;
             ar.flush();
 
+            ar.storeDataName("Ali"); // keep this before "Nme"
+            ar << _objectAlias;
+            ar.flush();
+
             ar.storeDataName("Anm"); // keep this before "Nme"
-            ar << _objectAltName;
+            ar << _objectAltName_old;
             ar.flush();
 
             ar.storeDataName("Nme");
-            ar << _objectName;
+            ar << _objectName_old;
             ar.flush();
 
             ar.storeDataName("Hci");
@@ -1795,6 +1801,7 @@ void CSceneObject::serialize(CSer& ar)
             int byteQuantity;
             std::string theName="";
             bool hasAltName=false;
+            bool hasAlias=false;
             bool _assemblingLocalTransformationIsUsed_compatibility=false;
             while (theName.compare(SER_NEXT_STEP)!=0)
             {
@@ -1885,21 +1892,32 @@ void CSceneObject::serialize(CSer& ar)
                         ar >> byteQuantity;
                         ar >> _objectHandle >> _parentObjectHandle_forSerializationOnly;
                     }
+                    if (theName.compare("Ali")==0)
+                    {
+                        hasAltName=true;
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _objectAlias;
+                        _objectTempAlias=_objectAlias;
+                        hasAlias=true;
+                    }
                     if (theName.compare("Anm")==0)
                     {
                         hasAltName=true;
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _objectAltName;
+                        ar >> _objectAltName_old;
                     }
                     if (theName.compare("Nme")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _objectName;
+                        ar >> _objectName_old;
                         if (!hasAltName)
-                            _objectAltName=tt::getObjectAltNameFromObjectName(_objectName.c_str());
-                        _objectTempName=_objectName;
+                            _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
+                        _objectTempName_old=_objectName_old;
+                        if (!hasAlias)
+                            _objectAlias=_objectName_old.substr(0,_objectName_old.find('#'));
                     }
                     if (theName.compare("Op2")==0)
                     {
@@ -2137,7 +2155,7 @@ void CSceneObject::serialize(CSer& ar)
                 _localObjectProperty|=sim_objectproperty_canupdatedna;
                 // We now create a "unique" id, that is always the same for the same file:
                 _dnaString="1234567890123456";
-                std::string a(_objectName);
+                std::string a(CTTUtil::generateUniqueReadableString());
                 while (a.length()<16)
                     a=a+"*";
                 std::string b("1234567890123456");
@@ -2162,8 +2180,13 @@ void CSceneObject::serialize(CSer& ar)
         {
             ar.xmlPushNewNode("common");
 
-            ar.xmlAddNode_string("name",_objectName.c_str());
-            ar.xmlAddNode_string("altName",_objectAltName.c_str());
+            if (exhaustiveXml)
+                ar.xmlAddNode_string("alias",_objectAlias.c_str());
+            else
+                ar.xmlAddNode_string("alias",(_objectAlias+"*"+std::to_string(_objectHandle)).c_str());
+            ar.xmlAddNode_comment(" 'name' and 'altName' tags only used for backward compatibility:",exhaustiveXml);
+            ar.xmlAddNode_string("name",_objectName_old.c_str());
+            ar.xmlAddNode_string("altName",_objectAltName_old.c_str());
 
             if (exhaustiveXml)
             {
@@ -2311,7 +2334,8 @@ void CSceneObject::serialize(CSer& ar)
                 if (_customObjectData!=nullptr)
                 {
                     ar.xmlPushNewNode("customData");
-                    _customObjectData->serializeData(ar,_objectName.c_str(),-1);
+//                    _customObjectData->serializeData(ar,_objectName.c_str(),-1);
+                    _customObjectData->serializeData(ar,getObjectAliasAndHandle().c_str(),-1);
                     ar.xmlPopNode();
                 }
                 if (_userScriptParameters!=nullptr)
@@ -2360,19 +2384,27 @@ void CSceneObject::serialize(CSer& ar)
         }
         else
         {
+            bool aliasFound=false;
             if (ar.xmlPushChildNode("common",exhaustiveXml))
             {
-                if ( ar.xmlGetNode_string("name",_objectName,exhaustiveXml)&&(!exhaustiveXml) )
+                aliasFound=ar.xmlGetNode_string("alias",_objectAlias,false); // keep false for compatibility with older versions! exhaustiveXml);
+                if (aliasFound)
                 {
-                    tt::removeIllegalCharacters(_objectName,true);
-                    _objectTempName=_objectName;
-                    _objectName="XYZ___"+_objectName+"___XYZ";
+                    _objectTempAlias=_objectAlias;
+                    _objectAlias=_objectAlias.substr(0,_objectAlias.find('*'));
+                    _objectAlias=tt::getValidAlias(_objectAlias.c_str());
                 }
-                if ( ar.xmlGetNode_string("altName",_objectAltName,exhaustiveXml)&&(!exhaustiveXml) )
+                if ( ar.xmlGetNode_string("name",_objectName_old,exhaustiveXml)&&(!exhaustiveXml) )
                 {
-                    tt::removeAltNameIllegalCharacters(_objectAltName);
-                    _objectTempAltName=_objectAltName;
-                    _objectAltName="XYZ___"+_objectAltName+"___XYZ";
+                    tt::removeIllegalCharacters(_objectName_old,true);
+                    _objectTempName_old=_objectName_old;
+                    _objectName_old="XYZ___"+_objectName_old+"___XYZ";
+                }
+                if ( ar.xmlGetNode_string("altName",_objectAltName_old,exhaustiveXml)&&(!exhaustiveXml) )
+                {
+                    tt::removeAltNameIllegalCharacters(_objectAltName_old);
+                    _objectTempAltName_old=_objectAltName_old;
+                    _objectAltName_old="XYZ___"+_objectAltName_old+"___XYZ";
                 }
 
                 if (exhaustiveXml)
@@ -2498,7 +2530,7 @@ void CSceneObject::serialize(CSer& ar)
                 if (ar.xmlGetNode_int("layer",l,exhaustiveXml))
                     _visibilityLayer=(unsigned short)l;
 
-                if (ar.xmlGetNode_int("childOrder",l,exhaustiveXml))
+                if (ar.xmlGetNode_int("childOrder",l,false)) // Keep false for compatibility with older versions! exhaustiveXml))
                     _childOrder=l;
 
                 if (exhaustiveXml&&ar.xmlPushChildNode("manipulation"))
@@ -2550,7 +2582,8 @@ void CSceneObject::serialize(CSer& ar)
                 if (exhaustiveXml&&ar.xmlPushChildNode("customData",false))
                 {
                     _customObjectData=new CCustomData();
-                    _customObjectData->serializeData(ar,_objectName.c_str(),-1);
+//                    _customObjectData->serializeData(ar,_objectName.c_str(),-1);
+                    _customObjectData->serializeData(ar,getObjectAliasAndHandle().c_str(),-1);
                     ar.xmlPopNode();
                 }
                 if (exhaustiveXml&&ar.xmlPushChildNode("userParameters",false))
@@ -2613,6 +2646,13 @@ void CSceneObject::serialize(CSer& ar)
                 }
                 ar.xmlPopNode();
             }
+            if (!aliasFound)
+            {
+                if (exhaustiveXml)
+                    _objectAlias=_objectName_old.substr(0,_objectName_old.find('#'));
+                else
+                    _objectAlias=_objectTempName_old.substr(0,_objectTempName_old.find('#'));
+            }
         }
     }
 }
@@ -2634,7 +2674,7 @@ void CSceneObject::serializeWExtIk(CExtIkSer& ar)
     ar.writeInt(_objectHandle);
     ar.writeInt(parentID);
 
-    ar.writeString(_objectName.c_str());
+    ar.writeString(_objectName_old.c_str());
 }
 
 int CSceneObject::_uniqueIDCounter=0;
@@ -2669,9 +2709,7 @@ void CSceneObject::performScriptLoadingMapping(const std::vector<int>* map)
 
 std::string CSceneObject::getDisplayName() const
 {
-    if (CSimFlavor::getBoolVal(8))
-        return(_objectAltName);
-    return(_objectName);
+    return(getObjectAlias_shortPath());
 }
 
 bool CSceneObject::announceObjectWillBeErased(int objHandle,bool copyBuffer)
@@ -3057,14 +3095,20 @@ int CSceneObject::countFirstModelRelatives(bool visibleModelsOnly) const
     }
     return(cnt);
 }
-std::string CSceneObject::getObjectTempName() const
+
+std::string CSceneObject::getObjectTempAlias() const
 {
-    return(_objectTempName);
+    return(_objectTempAlias);
 }
 
-std::string CSceneObject::getObjectTempAltName() const
+std::string CSceneObject::getObjectTempName_old() const
 {
-    return(_objectTempAltName);
+    return(_objectTempName_old);
+}
+
+std::string CSceneObject::getObjectTempAltName_old() const
+{
+    return(_objectTempAltName_old);
 }
 
 CUserParameters* CSceneObject::getUserScriptParameterObject()
@@ -3080,9 +3124,11 @@ void CSceneObject::setUserScriptParameterObject(CUserParameters* obj)
 }
 
 void CSceneObject::acquireCommonPropertiesFromObject_simpleXMLLoading(const CSceneObject* obj)
-{ // names can't be changed here!
+{ // names can't be changed here, probably same with aliases!
 //    _objectName=obj->_objectName;
-    _objectTempName=obj->_objectTempName;
+//    _objectAlias=obj->_objectAlias;
+    _objectTempAlias=obj->_objectTempAlias;
+    _objectTempName_old=obj->_objectTempName_old;
 //    _objectAltName=obj->_objectAltName;
     _localTransformation=obj->_localTransformation;
     _hierarchyColorIndex=obj->_hierarchyColorIndex;
@@ -3891,8 +3937,8 @@ void CSceneObject::buildUpdateAndPopulateSynchronizationObject(const std::vector
         _setExtensionString_send(_extensionString.c_str());
         _setVisibilityLayer_send(_visibilityLayer);
         _setChildOrder_send(_childOrder);
-        _setObjectName_send(_objectName.c_str());
-        _setObjectAltName_send(_objectAltName.c_str());
+        _setObjectName_send(_objectName_old.c_str());
+        _setObjectAltName_send(_objectAltName_old.c_str());
         _setLocalTransformation_send(_localTransformation);
 
         // Update sub-objects:
@@ -3981,7 +4027,7 @@ void CSceneObject::handleOrderIndexOfChildren()
     for (size_t i=0;i<_childList.size();i++)
     {
         CSceneObject* child=_childList[i];
-        std::string hn(child->getObjectHashlessName());
+        std::string hn(child->getObjectAlias());
         std::map<std::string,int>::iterator it=nameMap.find(hn);
         if (it==nameMap.end())
             nameMap[hn]=0;
@@ -3992,10 +4038,43 @@ void CSceneObject::handleOrderIndexOfChildren()
     for (size_t i=0;i<_childList.size();i++)
     {
         CSceneObject* child=_childList[i];
-        std::string hn(child->getObjectHashlessName());
+        std::string hn(child->getObjectAlias());
         std::map<std::string,int>::iterator it=nameMap.find(hn);
         if (nameMap[hn]==0)
             child->setChildOrder(-1); // means unique with that name, with that parent
     }
 }
+
+int CSceneObject::getChildSequence(const CSceneObject* child) const
+{
+    for (size_t i=0;i<_childList.size();i++)
+    {
+        if (_childList[i]==child)
+            return(i);
+    }
+    return(-1);
+}
+
+bool CSceneObject::setChildSequence(CSceneObject* child,int order)
+{
+    order=std::min<int>(_childList.size()-1,order);
+    if (order<0)
+        order=_childList.size()-1; // neg. value: put in last position
+    for (size_t i=0;i<_childList.size();i++)
+    {
+        if (_childList[i]==child)
+        {
+            if (order!=i)
+            {
+                _childList.erase(_childList.begin()+i);
+                _childList.insert(_childList.begin()+order,child);
+                handleOrderIndexOfChildren();
+                return(true);
+            }
+            break;
+        }
+    }
+    return(false);
+}
+
 

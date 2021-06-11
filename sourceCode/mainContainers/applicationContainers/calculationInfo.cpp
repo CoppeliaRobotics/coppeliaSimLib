@@ -275,10 +275,10 @@ void CCalculationInfo::printInformation()
                 }
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=tmp;
 
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Last selected object name:";
-                tmp=it->getObjectHashlessNameAndOrder();
-                tmp+=" (";
-                tmp+=it->getObjectName();
+                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Last selected object alias:";
+                tmp=it->getObjectAlias_shortPath();
+                tmp+="    (deprecated name:";
+                tmp+=it->getObjectName_old();
                 tmp+=")";
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=tmp;
 
