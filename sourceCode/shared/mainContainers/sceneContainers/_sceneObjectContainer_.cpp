@@ -5,7 +5,6 @@
 #include "tt.h"
 #include "ttUtil.h"
 #include "app.h"
-#include <sstream>
 
 _CSceneObjectContainer_::_CSceneObjectContainer_()
 {
