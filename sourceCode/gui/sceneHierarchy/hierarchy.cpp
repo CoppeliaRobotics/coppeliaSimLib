@@ -95,19 +95,6 @@ void CHierarchy::rebuildHierarchy()
 
     if (App::getEditModeType()==NO_EDIT_MODE)
     {
-        /*
-        std::vector<std::string> sceneNames;
-        App::wc->getAllSceneNames(sceneNames);
-        for (int i=0;i<int(sceneNames.size());i++)
-        {
-            if (i!=App::wc->getCurrentInstanceIndex())
-            {
-                CHierarchyElement* el=new CHierarchyElement(-i-1);
-                el->setSceneName(sceneNames[i]);
-                rootElements.push_back(el);
-            }
-        }
-        */
         CHierarchyElement* newEl=new CHierarchyElement(-App::worldContainer->getCurrentWorldIndex()-1);
         newEl->addYourChildren();
         std::string sceneName=App::currentWorld->mainSettings->getSceneName();
@@ -139,8 +126,6 @@ void CHierarchy::rebuildHierarchy()
         for (int i=0;i<App::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentsSize();i++)
             rootElements.push_back(new CHierarchyElement(i));
     }
-    for (size_t i=0;i<rootElements.size();i++)
-        rootElements[i]->computeNumberOfElements();
     rebuildHierarchyFlag=false;
     refreshViewFlag=App::userSettings->hierarchyRefreshCnt;
 }
@@ -488,22 +473,6 @@ bool CHierarchy::render()
     simulationIconPosition.clear();
     if (editModeType==NO_EDIT_MODE)
     {
-
-        std::vector<CHierarchyElement*> el;
-        std::vector<int> elNb;
-        for (int i=0;i<int(rootElements.size());i++)
-        { // This is needed to order the elements from most sub-elements to least sub-elements
-            int els=rootElements[i]->getNumberOfElements();
-            int j;
-            for (j=0;j<int(elNb.size());j++)
-            {
-                if (els>elNb[j])
-                    break;
-            }
-            elNb.insert(elNb.begin()+j,els);
-            el.insert(el.begin()+j,rootElements[i]);
-        }   
-
         int objFromHalf=-1;
         if (hierarchDragUnderway)
             objFromHalf=_mouseDownDragObjectID;
@@ -512,10 +481,10 @@ bool CHierarchy::render()
         if (_worldSelectID_down==_worldSelectID_moving)
             worldClickThing=_worldSelectID_down;
 
-        for (int i=0;i<int(el.size());i++)
+        for (size_t i=0;i<rootElements.size();i++)
         {
             std::vector<int> vertLines;
-            el[i]->renderElement_sceneObject(this,labelEditObjectID,bright,false,renderingSize,
+            rootElements[i]->renderElement_sceneObject(this,labelEditObjectID,bright,false,renderingSize,
                 textPos,0,&vertLines,minRenderedPosition,maxRenderedPosition,false,objFromHalf,dropID,worldClickThing);
         }
         while (CHierarchyElement::renderDummyElement(bright,renderingSize,textPos));
@@ -527,9 +496,9 @@ bool CHierarchy::render()
             textPos[1]=dy+_mouseDownDragOffset[1];
 
             CHierarchyElement* it=nullptr;
-            for (int i=0;i<int(el.size());i++)
+            for (size_t i=0;i<rootElements.size();i++)
             {
-                it=el[i]->getElementLinkedWithObject(_mouseDownDragObjectID);
+                it=rootElements[i]->getElementLinkedWithObject(_mouseDownDragObjectID);
                 if (it!=nullptr)
                     break;
             }
@@ -818,7 +787,6 @@ bool CHierarchy::leftMouseDown(int x,int y,int selectionStatus)
                     {
                         App::currentWorld->sceneObjects->deselectObjects();
                         App::currentWorld->sceneObjects->addObjectToSelection(objID); // Normal selection
-#ifndef KEYWORD__NOT_DEFINED_FORMELY_XR
                         int dxv[2];
                         if (getLineObjectID(mouseDownRelativePosition[1],dxv)==objID)
                         {
@@ -826,7 +794,6 @@ bool CHierarchy::leftMouseDown(int x,int y,int selectionStatus)
                             _mouseDownDragOffset[0]=dxv[0];
                             _mouseDownDragOffset[1]=dxv[1];
                         }
-#endif
                     }
                 }
             }
@@ -1128,7 +1095,6 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
     shiftSelectionStarted=false;
     shiftingAllowed=false;
 
-#ifndef KEYWORD__NOT_DEFINED_FORMELY_XR
     // We check if we have to launch a script editor window:
     int scriptID=getScriptActionObjectID(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
     if (scriptID!=-1)
@@ -1170,11 +1136,9 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
         }
         return(true);
     }
-#endif
     if (App::getEditModeType()==NO_EDIT_MODE)
     {
         int objID=-1;
-#ifndef KEYWORD__NOT_DEFINED_FORMELY_XR
         // Do we need to open an object property dialog?
         objID=getActionObjectID_icon(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
         if (objID!=-9999) // minus numbers are for the world(s)
@@ -1281,7 +1245,6 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
             }
             return(true);
         }
-#endif
         // Do we need to do some label editing?
         objID=getTextActionObjectID(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
         if (objID==-9999)

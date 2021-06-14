@@ -1110,7 +1110,7 @@ bool CSceneObjectContainer::setObjectAlias(CSceneObject* object,const char* newA
         {
             retVal=true;
             object->setObjectAlias_direct(nm.c_str());
-            setObjectSequence(object,-1); // like inserting it in last position
+            //setObjectSequence(object,-1); // like inserting it in last position
             if (object->getParent()==nullptr)
                 _handleOrderIndexOfOrphans();
             else

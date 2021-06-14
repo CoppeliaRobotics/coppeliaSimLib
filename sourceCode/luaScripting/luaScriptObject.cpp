@@ -6344,6 +6344,9 @@ void CLuaScriptObject::_adjustScriptText14(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"sim.getIntegerSignal","sim.getInt32Signal");
     _replaceScriptText(scriptObject,"sim.clearIntegerSignal","sim.clearInt32Signal");
 
+//    _replaceScriptText(scriptObject,"sim.getObjectHandle('","sim.getObjectHandle('./");
+//    _replaceScriptText(scriptObject,"sim.getObjectHandle(\"","sim.getObjectHandle(\"./");
+
     if (App::userSettings->xrTest==123456789)
     {
         if (_containsScriptText(scriptObject,"sim.getObjectInt32Parameter"))

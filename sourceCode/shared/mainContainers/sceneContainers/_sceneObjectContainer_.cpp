@@ -1215,6 +1215,7 @@ int _CSceneObjectContainer_::getObjectHandleFromSelectionIndex(size_t index) con
     return(_selectedObjectHandles[index]);
 }
 
+
 CSceneObject* _CSceneObjectContainer_::getObjectFromPath(CSceneObject* emittingObject,const char* objectAliasAndPath,int index,CSceneObject* proxy) const
 {
     std::string nm(objectAliasAndPath);
@@ -1225,17 +1226,17 @@ CSceneObject* _CSceneObjectContainer_::getObjectFromPath(CSceneObject* emittingO
         if (nm[0]=='/')
         {
             nm.erase(0,1);
-            if ( (nm[0]=='.')||(nm[0]=='/') )
+            if ( (nm[0]=='.')||(nm[0]==':')||(nm[0]=='/') )
                 return(nullptr);
         }
         else
         {
             emObj=emittingObject;
-            if (nm==".")
+            if (proxy!=nullptr)
+                emObj=proxy;
+            if ( (nm==":")||(nm==".") )
             {
-                if (proxy!=nullptr)
-                    emObj=proxy;
-                else
+                if (nm==":")
                 {
                     while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
                         emObj=emObj->getParent();
@@ -1245,106 +1246,118 @@ CSceneObject* _CSceneObjectContainer_::getObjectFromPath(CSceneObject* emittingO
             else
             {
                 if (nm.compare(0,2,"./")==0)
+                    nm.erase(0,2);
+                if (nm.compare(0,2,":/")==0)
                 {
                     nm.erase(0,2);
-                    if (proxy!=nullptr)
-                    {
-                        emObj=proxy;
-                        if (emObj==nullptr)
-                            return(nullptr);
-                    }
-                    else
-                    {
-                        while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
-                            emObj=emObj->getParent();
-                    }
-                }
-                else
-                {
-                    while (nm.compare(0,2,"..")==0)
-                    {
-                        nm.erase(0,2);
-                        if (emObj==nullptr)
-                            return(nullptr);
-                        // Get the first parent that is model (including itself):
-                        while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
-                            emObj=emObj->getParent();
-                        if (emObj==nullptr)
-                            return(nullptr);
-                        // Get the next parent that is model (excluding itself):
+                    while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
                         emObj=emObj->getParent();
+                }
+                while ( (nm.compare(0,2,"::")==0)||(nm.compare(0,2,"..")==0) )
+                {
+                    if (emObj==nullptr)
+                        return(nullptr);
+                    bool model=(nm.compare(0,2,"::")==0);
+                    nm.erase(0,2);
+                    if (model)
+                    { // Get the first parent that is model (including itself):
                         while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
                             emObj=emObj->getParent();
-                        if (nm.size()==0)
-                            return(emObj); // e.g. "../.."
-                        if (nm[0]=='/')
-                            nm.erase(0,1);
-                        else
-                            return(nullptr); // bad string (expected "../")
+                        if (emObj==nullptr)
+                            return(nullptr);
                     }
-                }
-            }
-        }
-        std::vector<CSceneObject*> toExplore;
-        if (emObj==nullptr)
-        {
-            for (size_t i=0;i<getOrphanCount();i++)
-                toExplore.push_back(getOrphanFromIndex(i));
-        }
-        else
-        {
-            for (size_t i=0;i<emObj->getChildCount();i++)
-                toExplore.push_back(emObj->getChildFromIndex(i));
-        }
-        std::istringstream fullname(nm.c_str());
-        std::string objName;
-        while (std::getline(fullname,objName,'/'))
-        {
-            int specIndex=0;
-            size_t ob=objName.find('[');
-            if (ob!=std::string::npos)
-            {
-                if (objName[objName.size()-1]==']')
-                {
-                    objName.erase(objName.size()-1,1);
-                    std::string nv(objName.substr(ob+1));
-                    if (tt::getValidInt(nv.c_str(),specIndex)) // if nb is not valid, won't be able to match any object name
-                        objName.erase(ob);
-                }
-            }
-            retVal=nullptr;
-            size_t i=0;
-            while (i<toExplore.size())
-            {
-                CSceneObject* it=toExplore[i];
-                i++;
-                std::string name(it->getObjectAlias());
-                if (CTTUtil::doStringMatch_wildcard(objName.c_str(),name.c_str()))
-                {
-                    if (specIndex==0)
-                    {
-                        if (index<=0)
-                        {
-                            toExplore.clear();
-                            retVal=it;
-                        }
-                        else
-                            index--;
+                    emObj=emObj->getParent();
+                    if (model)
+                    { // Get the next parent that is model (excluding itself):
+                        while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
+                            emObj=emObj->getParent();
                     }
+                    if (nm.size()==0)
+                        return(emObj); // e.g. "../.."
+                    if (nm[0]=='/')
+                        nm.erase(0,1);
                     else
-                        specIndex--;
+                        return(nullptr); // bad string (expected "../" or "::/")
                 }
-                // add its children to be explored:
-                for (size_t j=0;j<it->getChildCount();j++)
-                    toExplore.push_back(it->getChildFromIndex(j));
-                if (retVal!=nullptr)
-                    break;
             }
-            if (retVal==nullptr)
-                break;
         }
+        retVal=_getObjectInTree(emObj,nm.c_str(),index);
     }
     return(retVal);
+}
+
+CSceneObject* _CSceneObjectContainer_::_getObjectInTree(CSceneObject* treeBase,const char* objectAliasAndPath,int& index) const
+{ // recursive. objectAliasAndPath as "objectName/objectName" with optional wildcards and order info, e.g. "objectName[0]/objectName[0]"
+    std::vector<CSceneObject*> toExplore;
+    if (treeBase==nullptr)
+    {
+        for (size_t i=0;i<getOrphanCount();i++)
+            toExplore.push_back(getOrphanFromIndex(i));
+    }
+    else
+    {
+        for (size_t i=0;i<treeBase->getChildCount();i++)
+            toExplore.push_back(treeBase->getChildFromIndex(i));
+    }
+    std::string fullname(objectAliasAndPath);
+    size_t sp=fullname.find("/");
+    std::string objName(fullname.substr(0,sp));
+    if (sp==std::string::npos)
+        fullname.clear();
+    else
+        fullname=fullname.substr(sp+1);
+    int nameIndex=0;
+    bool usingNameIndex=false;
+    size_t ob=objName.find('[');
+    if (ob!=std::string::npos)
+    {
+        usingNameIndex=true;
+        if (objName[objName.size()-1]==']')
+        {
+            objName.erase(objName.size()-1,1);
+            std::string nv(objName.substr(ob+1));
+            if (tt::getValidInt(nv.c_str(),nameIndex)) // if nb is not valid, won't be able to match any object name
+                objName.erase(ob);
+        }
+    }
+    std::vector<CSceneObject*> nextLevelExploration;
+    for (size_t i=0;i<toExplore.size();i++)
+    {
+        CSceneObject* it=toExplore[i];
+        std::string name(it->getObjectAlias());
+        bool doNextLevelExploration=true;
+        if (CTTUtil::doStringMatch_wildcard(objName.c_str(),name.c_str()))
+        {
+            doNextLevelExploration=!usingNameIndex;
+            if (nameIndex==0)
+            {
+                if (fullname.size()==0)
+                { // we can't explore further
+                    if (index>0)
+                        index--;
+                    else
+                        return(it);
+                }
+                else
+                { // we can explore further:
+                    CSceneObject* r=_getObjectInTree(it,fullname.c_str(),index);
+                    if (r!=nullptr)
+                        return(r);
+                }
+            }
+            if (usingNameIndex)
+                nameIndex--;
+        }
+        if (doNextLevelExploration)
+            nextLevelExploration.push_back(it);
+    }
+    for (size_t i=0;i<nextLevelExploration.size();i++)
+    {
+        CSceneObject* r=_getObjectInTree(nextLevelExploration[i],objectAliasAndPath,index);
+        if (r!=nullptr)
+            return(r);
+    }
+    return(nullptr);
 }
 
 void _CSceneObjectContainer_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)

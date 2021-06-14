@@ -24,8 +24,6 @@ public:
     virtual ~CHierarchyElement();
     void addYourChildren();
     int getLinkedObjectID();
-    int getNumberOfElements();
-    int computeNumberOfElements();
     CHierarchyElement* getElementLinkedWithObject(int objID);
 
     void renderElement_sceneObject(CHierarchy* hier,int labelEditObjectID,bool& bright,bool dontDisplay,
@@ -41,14 +39,9 @@ public:
     std::vector<CHierarchyElement*> children;
 
 private:
-#ifdef KEYWORD__NOT_DEFINED_FORMELY_XR
-    int _drawIcon_brm(CHierarchy* hier,int tPosX,int tPosY,CSceneObject* it,int pictureID,bool drawIt,float transparencyFactor,bool forDragAndDrop);
-#else
     int _drawIcon_sceneObject(CHierarchy* hier,int tPosX,int tPosY,CSceneObject* it,int pictureID,bool drawIt,float transparencyFactor,bool forDragAndDrop);
-#endif
     int _drawIcon_editModeList(CHierarchy* hier,int tPosX,int tPosY,int pictureID,bool drawIt);
     void _drawTexturedIcon(int tPosX,int tPosY,int sizeX,int sizeY,float transparencyFactor);
     int objectID;
     std::string _sceneName;
-    int numberOfElements;
 };

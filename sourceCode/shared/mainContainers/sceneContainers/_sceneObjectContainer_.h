@@ -147,6 +147,7 @@ protected:
     virtual void _removeObject(CSceneObject* object);
     void _addToOrphanObjects(CSceneObject* object);
     void _removeFromOrphanObjects(CSceneObject* object);
+    CSceneObject* _getObjectInTree(CSceneObject* treeBase,const char* objectAliasAndPath,int& index) const;
 
     virtual void _setSelectedObjectHandles_send(const std::vector<int>* v) const;
 

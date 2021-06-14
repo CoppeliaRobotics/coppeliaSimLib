@@ -1193,7 +1193,7 @@ simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int pr
         CSceneObject* it;
         std::string nm(objectAlias);
         size_t silentErrorPos=std::string(objectAlias).find("@silentError"); // Old, for backcompatibility
-        if ( (nm.size()>0)&&((nm[0]=='.')||(nm[0]=='/')) )
+        if ( (nm.size()>0)&&((nm[0]=='.')||(nm[0]==':')||(nm[0]=='/')) )
         {
             int objHandle=App::currentWorld->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
             CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
