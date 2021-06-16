@@ -73,7 +73,7 @@ SIM_DLLEXPORT simInt simGetObjectHandle(const simChar* objectAlias)
 {
     return(simGetObjectHandleEx_internal(objectAlias,-1,-1,0));
 }
-SIM_DLLEXPORT simInt simGetObjectHandleEx(const simChar* objectAlias,int index,int proxy,int options)
+SIM_DLLEXPORT simInt simGetObjectHandleEx(const simChar* objectAlias,simInt index,simInt proxy,simInt options)
 {
     return(simGetObjectHandleEx_internal(objectAlias,index,proxy,options));
 }
@@ -89,11 +89,11 @@ SIM_DLLEXPORT simInt simGetObjects(simInt index,simInt objectType)
 {
     return(simGetObjects_internal(index,objectType));
 }
-SIM_DLLEXPORT simChar* simGetObjectAlias(simInt objectHandle)
+SIM_DLLEXPORT simChar* simGetObjectAlias(simInt objectHandle,simInt options)
 {
-    return(simGetObjectAlias_internal(objectHandle));
+    return(simGetObjectAlias_internal(objectHandle,options));
 }
-SIM_DLLEXPORT simInt simSetObjectAlias(simInt objectHandle,const simChar* objectAlias,int options)
+SIM_DLLEXPORT simInt simSetObjectAlias(simInt objectHandle,const simChar* objectAlias,simInt options)
 {
     return(simSetObjectAlias_internal(objectHandle,objectAlias,options));
 }
@@ -317,10 +317,6 @@ SIM_DLLEXPORT simInt simHandleDynamics(simFloat deltaTime)
 {
     return(simHandleDynamics_internal(deltaTime));
 }
-SIM_DLLEXPORT simInt simGetScriptHandle(const simChar* scriptName)
-{
-    return(simGetScriptHandle_internal(scriptName));
-}
 SIM_DLLEXPORT simInt simSetScriptText(simInt scriptHandle,const simChar* scriptText)
 {
     return(simSetScriptText_internal(scriptHandle,scriptText));
@@ -352,10 +348,6 @@ SIM_DLLEXPORT simInt simGetCustomizationScriptAssociatedWithObject(simInt object
 SIM_DLLEXPORT simInt simGetObjectAssociatedWithScript(simInt scriptHandle)
 {
     return(simGetObjectAssociatedWithScript_internal(scriptHandle));
-}
-SIM_DLLEXPORT simChar* simGetScriptName(simInt scriptHandle)
-{
-    return(simGetScriptName_internal(scriptHandle));
 }
 SIM_DLLEXPORT simInt simHandleMainScript()
 {
@@ -1306,10 +1298,6 @@ SIM_DLLEXPORT simInt simUnfoldStackTable(simInt stackHandle)
 SIM_DLLEXPORT simInt simDebugStack(simInt stackHandle,simInt cIndex)
 {
     return(simDebugStack_internal(stackHandle,cIndex));
-}
-SIM_DLLEXPORT simInt simSetScriptVariable(simInt scriptHandleOrType,const simChar* variableNameAtScriptName,simInt stackHandle)
-{
-    return(simSetScriptVariable_internal(scriptHandleOrType,variableNameAtScriptName,stackHandle));
 }
 SIM_DLLEXPORT simFloat simGetEngineFloatParam(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
 {
@@ -2676,6 +2664,18 @@ SIM_DLLEXPORT simChar* simGetObjectName(simInt objectHandle)
 SIM_DLLEXPORT simInt simSetObjectName(simInt objectHandle,const simChar* objectName)
 {
     return(simSetObjectName_internal(objectHandle,objectName));
+}
+SIM_DLLEXPORT simChar* simGetScriptName(simInt scriptHandle)
+{
+    return(simGetScriptName_internal(scriptHandle));
+}
+SIM_DLLEXPORT simInt simGetScriptHandle(const simChar* scriptName)
+{
+    return(simGetScriptHandle_internal(scriptName));
+}
+SIM_DLLEXPORT simInt simSetScriptVariable(simInt scriptHandleOrType,const simChar* variableNameAtScriptName,simInt stackHandle)
+{
+    return(simSetScriptVariable_internal(scriptHandleOrType,variableNameAtScriptName,stackHandle));
 }
 // Deprecated end
 

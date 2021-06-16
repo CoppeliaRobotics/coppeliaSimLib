@@ -49,7 +49,7 @@ public:
     std::string getDescriptiveName() const;
     std::string getShortDescriptiveName() const;
     int getScriptNameIndexNumber() const;
-    std::string getScriptPseudoName() const;
+    std::string getScriptPseudoName_old() const;
     void setAddOnName(const char* name);
     std::string getAddOnName() const;
 

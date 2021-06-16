@@ -1209,10 +1209,10 @@ simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int pr
             if (altPos==std::string::npos)
             { // handle retrieval via regular name
                 nm=getIndexAdjustedObjectName(nm.c_str());
-                it=App::currentWorld->sceneObjects->getObjectFromName(nm.c_str());
+                it=App::currentWorld->sceneObjects->getObjectFromName_old(nm.c_str());
             }
             else
-                it=App::currentWorld->sceneObjects->getObjectFromAltName(nm.c_str()); // handle retrieval via alt name
+                it=App::currentWorld->sceneObjects->getObjectFromAltName_old(nm.c_str()); // handle retrieval via alt name
         }
 
         if (it==nullptr)
@@ -1348,7 +1348,7 @@ simInt simGetObjects_internal(simInt index,simInt objectType)
     return(-1);
 }
 
-simChar* simGetObjectAlias_internal(simInt objectHandle)
+simChar* simGetObjectAlias_internal(simInt objectHandle,simInt options)
 {
     TRACE_C_API;
 
@@ -1360,7 +1360,28 @@ simChar* simGetObjectAlias_internal(simInt objectHandle)
         if (!doesObjectExist(__func__,objectHandle))
             return(nullptr);
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-        std::string nm(it->getObjectAlias());
+        std::string nm;
+        if (options==-1)
+            nm=it->getObjectAlias();
+        if (options==0)
+            nm=it->getObjectAliasAndOrder();
+        if (options==1)
+            nm=it->getObjectAlias_shortPath();
+        if (options==2)
+            nm=it->getObjectAlias_fullPath();
+        if (options==3)
+        {
+            if (App::currentWorld->sceneObjects->getObjectFromPath(nullptr,(std::string("/")+it->getObjectAlias()).c_str(),1,nullptr)==nullptr)
+                nm=it->getObjectAlias();
+            else
+                options=4;
+        }
+        if (options==4)
+        {
+            nm=it->getObjectAlias()+"__";
+            nm+=std::to_string(it->getObjectHandle());
+            nm+="__";
+        }
         char* retVal=new char[nm.length()+1];
         for (size_t i=0;i<nm.length();i++)
             retVal[i]=nm[i];
@@ -1390,7 +1411,10 @@ simInt simSetObjectAlias_internal(simInt objectHandle,const simChar* objectAlias
             retVal=1;
         }
         else
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_ALIAS);
+        {
+            if ((options&1)==0)
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_ALIAS);
+        }
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -4950,62 +4974,6 @@ simInt simHandleDynamics_internal(simFloat deltaTime)
     return(-1);
 }
 
-simInt simGetScriptHandle_internal(const simChar* targetAtScriptName)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    std::string scriptName(targetAtScriptName);
-    std::string targetName;
-
-    std::string targetAtScriptNm(targetAtScriptName);
-    size_t p=targetAtScriptNm.find('@');
-    if (p!=std::string::npos)
-    {
-        scriptName.assign(targetAtScriptNm.begin()+p+1,targetAtScriptNm.end());
-        targetName.assign(targetAtScriptNm.begin(),targetAtScriptNm.begin()+p);
-    }
-    std::string scriptNameAdjusted=getIndexAdjustedObjectName(scriptName.c_str());
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        CLuaScriptObject* it=nullptr;
-        if ((targetName.length()==0)||(targetName.compare("child")==0)||(targetName.compare("main")==0))
-        {
-            if (scriptNameAdjusted.length()==0)
-                it=App::currentWorld->embeddedScriptContainer->getMainScript();
-            else
-            {
-                CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromName(scriptNameAdjusted.c_str());
-                if (obj!=nullptr)
-                    it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
-            }
-        }
-        if (targetName.compare("customization")==0)
-        {
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromName(scriptNameAdjusted.c_str());
-            if (obj!=nullptr)
-                it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(obj->getObjectHandle());
-        }
-        if (it==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
-            return(-1);
-        }
-        if (it->getFlaggedForDestruction())
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_WAS_DESTROYED);
-            return(-1);
-        }
-        int retVal=it->getScriptHandle();
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
 simInt simHandleMainScript_internal()
 {
     TRACE_C_API;
@@ -5254,33 +5222,6 @@ simInt simGetObjectAssociatedWithScript_internal(simInt scriptHandle)
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
-
-simChar* simGetScriptName_internal(simInt scriptHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
-        if (it==nullptr)
-        {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
-            return(nullptr);
-        }
-        std::string name(it->getScriptPseudoName());
-        char* retVal=new char[name.length()+1];
-        for (int i=0;i<int(name.length());i++)
-            retVal[i]=name[i];
-        retVal[name.length()]=0;
-        return(retVal);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(nullptr);
-}
-
 
 simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle)
 {
@@ -14182,6 +14123,12 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
                 intOrBoolVal[0]|=sim_scripttype_threaded_old;
             retVal=1;
         }
+        if (attributeID==sim_scriptattribute_scripthandle)
+        {
+            intOrBoolVal[0]=it->getScriptHandle();
+            retVal=1;
+        }
+
         return(retVal);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -14421,15 +14368,18 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
             script=App::worldContainer->sandboxScript;
         if (scriptHandleOrType==sim_scripttype_addonscript)
             script=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
-        if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==(sim_scripttype_childscript|sim_scripttype_threaded_old)) )
+        if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==(sim_scripttype_childscript|sim_scripttype_threaded_old))||(scriptHandleOrType==sim_scripttype_customizationscript) )
         {
-            int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-            script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
-        }
-        if (scriptHandleOrType==sim_scripttype_customizationscript)
-        {
-            int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-            script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+            int objId=-1;
+            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0,nullptr);
+            if (obj!=nullptr)
+                objId=obj->getObjectHandle();
+            else
+                objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
+            if (scriptHandleOrType==sim_scripttype_customizationscript)
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+            else
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
         }
     }
 
@@ -15505,113 +15455,6 @@ simInt simDebugStack_internal(simInt stackHandle,simInt cIndex)
     return(-1);
 }
 
-simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* variableNameAtScriptName,simInt stackHandle)
-{
-    TRACE_C_API;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        CLuaScriptObject* script=nullptr;
-        std::string variableName;
-        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
-        { // script is identified by its ID
-            std::string varNameAtScriptName(variableNameAtScriptName);
-            size_t p=varNameAtScriptName.find('@');
-            if (p!=std::string::npos)
-                variableName.assign(varNameAtScriptName.begin(),varNameAtScriptName.begin()+p);
-            else
-                variableName=varNameAtScriptName;
-            script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
-        }
-        else
-        {
-            std::string scriptName;
-            std::string varNameAtScriptName(variableNameAtScriptName);
-            size_t p=varNameAtScriptName.find('@');
-            if (p!=std::string::npos)
-            {
-                scriptName.assign(varNameAtScriptName.begin()+p+1,varNameAtScriptName.end());
-                variableName.assign(varNameAtScriptName.begin(),varNameAtScriptName.begin()+p);
-            }
-            else
-                variableName=varNameAtScriptName;
-
-            if (scriptHandleOrType==sim_scripttype_mainscript)
-                script=App::currentWorld->embeddedScriptContainer->getMainScript();
-            if (scriptHandleOrType==sim_scripttype_addonscript)
-            {
-                if (scriptName.size()>0)
-                    script=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
-            }
-            if (scriptHandleOrType==sim_scripttype_sandboxscript)
-                script=App::worldContainer->sandboxScript;
-            if (scriptHandleOrType==sim_scripttype_childscript)
-            {
-                if (scriptName.size()>0)
-                {
-                    int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
-                }
-            }
-            if (scriptHandleOrType==sim_scripttype_customizationscript)
-            {
-                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
-            }
-        }
-
-        if (script!=nullptr)
-        {
-            bool doAClear=(stackHandle==0);
-            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
-            if ( (stack==nullptr)&&(!doAClear) )
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
-                return(-1);
-            }
-            if ( (stack!=nullptr)&&(stack->getStackSize()==0) )
-            {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
-                return(-1);
-            }
-            int retVal=-1; // error
-            if (script->getThreadedExecutionIsUnderWay_oldThreads())
-            { // very special handling here!
-                if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
-                    retVal=script->setScriptVariable(variableName.c_str(),stack);
-                else
-                { // we have to execute that function via another thread!
-                    void* d[4];
-                    int callType=2;
-                    d[0]=&callType;
-                    d[1]=script;
-                    d[2]=(void*)variableName.c_str();
-                    d[3]=stack;
-
-                    retVal=CThreadPool::callRoutineViaSpecificThread(script->getThreadedScriptThreadId(),d);
-                }
-            }
-            else
-            {
-                if (VThread::isCurrentThreadTheMainSimulationThread())
-                { // For now we don't allow non-main threads to call non-threaded scripts!
-                    retVal=script->setScriptVariable(variableName.c_str(),stack);
-                }
-            }
-
-            if (retVal==-1)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OPERATION_FAILED);
-            return(retVal);
-        }
-
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
-        return(-1);
-    }
-
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
 simFloat simGetEngineFloatParam_internal(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
 {   // if object is not nullptr, we use the object, otherwise the objectHandle.
     // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint or shape parameter
@@ -16678,18 +16521,22 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
             }
             if (scriptHandleOrType==sim_scripttype_sandboxscript)
                 script=App::worldContainer->sandboxScript;
-            if (scriptHandleOrType==sim_scripttype_childscript)
+            if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==sim_scripttype_customizationscript) )
             {
                 if (scriptName.size()>0)
                 {
-                    int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
+                    int objId=-1;
+                    CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0,nullptr);
+                    if (obj!=nullptr)
+                        objId=obj->getObjectHandle();
+                    else
+                        objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
                     script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                    if (scriptHandleOrType==sim_scripttype_customizationscript)
+                        script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                    else
+                        script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
                 }
-            }
-            if (scriptHandleOrType==sim_scripttype_customizationscript)
-            {
-                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
             }
         }
 
@@ -18559,13 +18406,13 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
                 {
                     if (scriptName.size()>0)
                     { // new way
-                        int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
+                        int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
                         script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
                     }
                 }
                 if (scriptHandleOrType==sim_scripttype_customizationscript)
                 { // new way only possible (6 was not available in the old way)
-                    int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
+                    int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
                     script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
                 }
             }
@@ -18576,12 +18423,12 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
                     script=App::currentWorld->embeddedScriptContainer->getMainScript();
                 if (scriptHandleOrType==3) // child script
                 {
-                    int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(reservedSetToNull);
+                    int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
                     script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
                 }
                 if (scriptHandleOrType==5) // customization
                 {
-                    int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(reservedSetToNull);
+                    int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
                     script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
                 }
             }
@@ -18647,13 +18494,13 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
             {
                 if (scriptName.size()>0)
                 { // new way
-                    int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
+                    int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
                     script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
                 }
             }
             if (scriptHandleOrType==sim_scripttype_customizationscript)
             { // new way only possible (6 was not available in the old way)
-                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
+                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
                 script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
             }
         }
@@ -18664,12 +18511,12 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
                 script=App::currentWorld->embeddedScriptContainer->getMainScript();
             if (scriptHandleOrType==3) // child script
             {
-                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(reservedSetToNull);
+                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
                 script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
             }
             if (scriptHandleOrType==5) // customization
             {
-                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(reservedSetToNull);
+                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
                 script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
             }
         }
@@ -19787,15 +19634,18 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
                 funcName=funcNameAtScriptName;
             if (scriptHandleOrType==sim_scripttype_mainscript)
                 script=App::currentWorld->embeddedScriptContainer->getMainScript();
-            if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==(sim_scripttype_childscript|sim_scripttype_threaded_old)) )
+            if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==(sim_scripttype_childscript|sim_scripttype_threaded_old))||(scriptHandleOrType==sim_scripttype_customizationscript) )
             {
-                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
-            }
-            if (scriptHandleOrType==sim_scripttype_customizationscript)
-            {
-                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptName.c_str());
-                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                int objId=-1;
+                CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0,nullptr);
+                if (obj!=nullptr)
+                    objId=obj->getObjectHandle();
+                else
+                    objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
+                if (scriptHandleOrType==sim_scripttype_customizationscript)
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                else
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
             }
             if (scriptHandleOrType==sim_scripttype_addonscript)
                 script=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
@@ -19807,12 +19657,12 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
                 script=App::currentWorld->embeddedScriptContainer->getMainScript();
             if (scriptHandleOrType==3) // child script
             {
-                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(reservedSetToNull);
+                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
                 script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
             }
             if (scriptHandleOrType==5) // customization
             {
-                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(reservedSetToNull);
+                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
                 script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
             }
         }
@@ -22275,9 +22125,9 @@ simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName)
             return(1);
         bool err;
         if ((handleFlags&sim_handleflag_altname)!=0)
-            err=(App::currentWorld->sceneObjects->getObjectFromAltName(text.c_str())!=nullptr);
+            err=(App::currentWorld->sceneObjects->getObjectFromAltName_old(text.c_str())!=nullptr);
         else
-            err=(App::currentWorld->sceneObjects->getObjectFromName(text.c_str())!=nullptr);
+            err=(App::currentWorld->sceneObjects->getObjectFromName_old(text.c_str())!=nullptr);
         if (err)
         {
             if ((handleFlags&sim_handleflag_silenterror)==0)
@@ -22295,6 +22145,208 @@ simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName)
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
+}
 
+simChar* simGetScriptName_internal(simInt scriptHandle)
+{ // deprecated on 08.06.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            return(nullptr);
+        }
+        std::string name(it->getScriptPseudoName_old());
+        char* retVal=new char[name.length()+1];
+        for (int i=0;i<int(name.length());i++)
+            retVal[i]=name[i];
+        retVal[name.length()]=0;
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simGetScriptHandle_internal(const simChar* targetAtScriptName)
+{ // deprecated on 16.06.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    std::string scriptName(targetAtScriptName);
+    std::string targetName;
+
+    std::string targetAtScriptNm(targetAtScriptName);
+    size_t p=targetAtScriptNm.find('@');
+    if (p!=std::string::npos)
+    {
+        scriptName.assign(targetAtScriptNm.begin()+p+1,targetAtScriptNm.end());
+        targetName.assign(targetAtScriptNm.begin(),targetAtScriptNm.begin()+p);
+    }
+
+    bool useAlias=( (scriptName.size()>0)&&((scriptName[0]=='/')||(scriptName[0]=='.')||(scriptName[0]==':')) );
+    if (!useAlias)
+        scriptName=getIndexAdjustedObjectName(scriptName.c_str());
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CLuaScriptObject* it=nullptr;
+        if ((targetName.length()==0)||(targetName.compare("child")==0)||(targetName.compare("main")==0))
+        {
+            if (scriptName.length()==0)
+                it=App::currentWorld->embeddedScriptContainer->getMainScript();
+            else
+            {
+                CSceneObject* obj=nullptr;
+                if (useAlias)
+                    obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0,nullptr);
+                else
+                    obj=App::currentWorld->sceneObjects->getObjectFromName_old(scriptName.c_str());
+                if (obj!=nullptr)
+                    it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+            }
+        }
+        if (targetName.compare("customization")==0)
+        {
+            CSceneObject* obj=nullptr;
+            if (useAlias)
+                obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0,nullptr);
+            else
+                obj=App::currentWorld->sceneObjects->getObjectFromName_old(scriptName.c_str());
+            if (obj!=nullptr)
+                it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(obj->getObjectHandle());
+        }
+        if (it==nullptr)
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            return(-1);
+        }
+        if (it->getFlaggedForDestruction())
+        {
+            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_WAS_DESTROYED);
+            return(-1);
+        }
+        int retVal=it->getScriptHandle();
+        return(retVal);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* variableNameAtScriptName,simInt stackHandle)
+{ // deprecated on 16.06.2021
+    TRACE_C_API;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CLuaScriptObject* script=nullptr;
+        std::string variableName;
+        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
+        { // script is identified by its ID
+            std::string varNameAtScriptName(variableNameAtScriptName);
+            size_t p=varNameAtScriptName.find('@');
+            if (p!=std::string::npos)
+                variableName.assign(varNameAtScriptName.begin(),varNameAtScriptName.begin()+p);
+            else
+                variableName=varNameAtScriptName;
+            script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
+        }
+        else
+        {
+            std::string scriptName;
+            std::string varNameAtScriptName(variableNameAtScriptName);
+            size_t p=varNameAtScriptName.find('@');
+            if (p!=std::string::npos)
+            {
+                scriptName.assign(varNameAtScriptName.begin()+p+1,varNameAtScriptName.end());
+                variableName.assign(varNameAtScriptName.begin(),varNameAtScriptName.begin()+p);
+            }
+            else
+                variableName=varNameAtScriptName;
+
+            if (scriptHandleOrType==sim_scripttype_mainscript)
+                script=App::currentWorld->embeddedScriptContainer->getMainScript();
+            if (scriptHandleOrType==sim_scripttype_addonscript)
+            {
+                if (scriptName.size()>0)
+                    script=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
+            }
+            if (scriptHandleOrType==sim_scripttype_sandboxscript)
+                script=App::worldContainer->sandboxScript;
+            if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==sim_scripttype_customizationscript) )
+            {
+                if (scriptName.size()>0)
+                {
+                    int objId=-1;
+                    CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0,nullptr);
+                    if (obj!=nullptr)
+                        objId=obj->getObjectHandle();
+                    else
+                        objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
+                    if (scriptHandleOrType==sim_scripttype_customizationscript)
+                        script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                    else
+                        script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                }
+            }
+        }
+
+        if (script!=nullptr)
+        {
+            bool doAClear=(stackHandle==0);
+            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+            if ( (stack==nullptr)&&(!doAClear) )
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+                return(-1);
+            }
+            if ( (stack!=nullptr)&&(stack->getStackSize()==0) )
+            {
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+                return(-1);
+            }
+            int retVal=-1; // error
+            if (script->getThreadedExecutionIsUnderWay_oldThreads())
+            { // very special handling here!
+                if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
+                    retVal=script->setScriptVariable(variableName.c_str(),stack);
+                else
+                { // we have to execute that function via another thread!
+                    void* d[4];
+                    int callType=2;
+                    d[0]=&callType;
+                    d[1]=script;
+                    d[2]=(void*)variableName.c_str();
+                    d[3]=stack;
+
+                    retVal=CThreadPool::callRoutineViaSpecificThread(script->getThreadedScriptThreadId(),d);
+                }
+            }
+            else
+            {
+                if (VThread::isCurrentThreadTheMainSimulationThread())
+                { // For now we don't allow non-main threads to call non-threaded scripts!
+                    retVal=script->setScriptVariable(variableName.c_str(),stack);
+                }
+            }
+
+            if (retVal==-1)
+                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OPERATION_FAILED);
+            return(retVal);
+        }
+
+        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+        return(-1);
+    }
+
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
 }
 

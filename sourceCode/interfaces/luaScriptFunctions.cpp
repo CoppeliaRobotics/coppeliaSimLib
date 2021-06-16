@@ -102,7 +102,6 @@ std::vector<std::string> serialPortLeftOverData;
 
 const SLuaCommands simLuaCommands[]=
 {
-    {"sim.getScriptName",_simGetScriptName,                      "string scriptName=sim.getScriptName(int scriptHandle)",true},
     {"sim.getObjectAssociatedWithScript",_simGetObjectAssociatedWithScript,"int objectHandle=sim.getObjectAssociatedWithScript(int scriptHandle)",true},
     {"sim.getScriptAssociatedWithObject",_simGetScriptAssociatedWithObject,"int scriptHandle=sim.getScriptAssociatedWithObject(int objectHandle)",true},
     {"sim.getCustomizationScriptAssociatedWithObject",_simGetCustomizationScriptAssociatedWithObject,"int scriptHandle=sim.getCustomizationScriptAssociatedWithObject(int objectHandle)",true},
@@ -120,7 +119,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.addScript",_simAddScript,                              "int scriptHandle=sim.addScript(int scriptType)",true},
     {"sim.associateScriptWithObject",_simAssociateScriptWithObject,"sim.associateScriptWithObject(int scriptHandle,int objectHandle)",true},
     {"sim.setScriptText",_simSetScriptText,                      "sim.setScriptText(int scriptHandle,string scriptText)",true},
-    {"sim.getScriptHandle",_simGetScriptHandle,                  "int scriptHandle=sim.getScriptHandle(string scriptName=nil)",true},
     {"sim.getObjectPosition",_simGetObjectPosition,              "table[3] position=sim.getObjectPosition(int objectHandle,int relativeToObjectHandle)",true},
     {"sim.getObjectOrientation",_simGetObjectOrientation,        "table[3] eulerAngles=sim.getObjectOrientation(int objectHandle,int relativeToObjectHandle)",true},
     {"sim.setObjectPosition",_simSetObjectPosition,              "sim.setObjectPosition(int objectHandle,int relativeToObjectHandle,table[3] position)",true},
@@ -195,7 +193,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getArrayParam",_simGetArrayParam,                      "table[3] arrayOfValues=sim.getArrayParam(int parameter)",true},
     {"sim.setStringNamedParam",_simSetStringNamedParam,          "sim.setStringNamedParam(string paramName,string stringParam)",true},
     {"sim.getStringNamedParam",_simGetStringNamedParam,          "string stringParam=sim.getStringNamedParam(string paramName)",true},
-    {"sim.getObjectAlias",_simGetObjectAlias,                    "string objectAlias=sim.getObjectAlias(int objectHandle)",true},
+    {"sim.getObjectAlias",_simGetObjectAlias,                    "string objectAlias=sim.getObjectAlias(int objectHandle,int options)",true},
     {"sim.setObjectAlias",_simSetObjectAlias,                    "sim.setObjectAlias(int objectHandle,string objectAlias)",true},
     {"sim.getJointInterval",_simGetJointInterval,                "boolean cyclic,table[2] interval=sim.getJointInterval(int objectHandle)",true},
     {"sim.setJointInterval",_simSetJointInterval,                "sim.setJointInterval(int objectHandle,boolean cyclic,table[2] interval)",true},
@@ -386,7 +384,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.callScriptFunction",_simCallScriptFunction,            "...=sim.callScriptFunction(string functionNameAtScriptName,int scriptHandleOrType,...)",true},
     {"sim.getExtensionString",_simGetExtensionString,            "string theString=sim.getExtensionString(int objectHandle,int index,string key=nil)",true},
     {"sim.computeMassAndInertia",_simComputeMassAndInertia,      "int result=sim.computeMassAndInertia(int shapeHandle,float density)",true},
-    {"sim.setScriptVariable",_simSetScriptVariable,              "sim.setScriptVariable(string variableNameAtScriptName,int scriptHandleOrType,variable)",true},
     {"sim.getEngineFloatParam",_simGetEngineFloatParam,          "float floatParam=sim.getEngineFloatParam(int paramId,int objectHandle)",true},
     {"sim.getEngineInt32Param",_simGetEngineInt32Param,          "int int32Param=sim.getEngineInt32Param(int paramId,int objectHandle)",true},
     {"sim.getEngineBoolParam",_simGetEngineBoolParam,            "boolean boolParam=sim.getEngineBoolParam(int paramId,int objectHandle)",true},
@@ -558,6 +555,9 @@ const SLuaCommands simLuaCommands[]=
     {"sim.clearIntegerSignal",_simClearInt32Signal,              "Deprecated. Use sim.clearInt32Signal instead",false},
     {"sim.getObjectName",_simGetObjectName,                      "Deprecated. Use sim.getObjectAlias instead",false},
     {"sim.setObjectName",_simSetObjectName,                      "Deprecated. Use sim.setObjectAlias instead",false},
+    {"sim.getScriptName",_simGetScriptName,                      "Deprecated. Use sim.getObjectAlias instead",false},
+    {"sim.setScriptVariable",_simSetScriptVariable,              "Deprecated. Use sim.executeScriptString instead",false},
+    {"sim.getScriptHandle",_simGetScriptHandle,                  "Deprecated. Use sim.getScriptAttribute(sim.handle_self,sim.scriptattribute_scripthandle) instead",false},
     //{"sim.boolOr32",_simBoolOr32,                                "Deprecated. Use the bitwise operator | instead",false},
     //{"sim.boolAnd32",_simBoolAnd32,                              "Deprecated. Use the bitwise operator & instead",false},
     //{"sim.boolXor32",_simBoolXor32,                              "Deprecated. Use the bitwise operator ~ instead",false},
@@ -572,7 +572,7 @@ const SLuaCommands simLuaCommands[]=
 
 const SLuaCommands simLuaCommandsOldApi[]=
 { // Following for backward compatibility (has now a new notation (see 'simLuaCommands'))
-    {"simGetScriptName",_simGetScriptName,                      "Use the newer 'sim.getScriptName' notation",false},
+    {"simGetScriptName",_simGetScriptName,                      "Deprecated. Use sim.getObjectAlias instead",false},
     {"simGetObjectAssociatedWithScript",_simGetObjectAssociatedWithScript,"Use the newer 'sim.getObjectAssociatedWithScript' notation",false},
     {"simGetScriptAssociatedWithObject",_simGetScriptAssociatedWithObject,"Use the newer 'sim.getScriptAssociatedWithObject' notation",false},
     {"simGetCustomizationScriptAssociatedWithObject",_simGetCustomizationScriptAssociatedWithObject,"Use the newer 'sim.getCustomizationScriptAssociatedWithObject' notation",false},
@@ -590,7 +590,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simAddScript",_simAddScript,                              "Use the newer 'sim.addScript' notation",false},
     {"simAssociateScriptWithObject",_simAssociateScriptWithObject,"Use the newer 'sim.associateScriptWithObject' notation",false},
     {"simSetScriptText",_simSetScriptText,                      "Use the newer 'sim.setScriptText' notation",false},
-    {"simGetScriptHandle",_simGetScriptHandle,                  "Use the newer 'sim.getScriptHandle' notation",false},
+    {"simGetScriptHandle",_simGetScriptHandle,                  "Deprecated. Use sim.getScriptAttribute(sim.handle_self,sim.scriptattribute_scripthandle) instead",false},
     {"simGetObjectPosition",_simGetObjectPosition,              "Use the newer 'sim.getObjectPosition' notation",false},
     {"simGetObjectOrientation",_simGetObjectOrientation,        "Use the newer 'sim.getObjectOrientation' notation",false},
     {"simSetObjectPosition",_simSetObjectPosition,              "Use the newer 'sim.setObjectPosition' notation",false},
@@ -830,7 +830,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simCallScriptFunction",_simCallScriptFunction,            "Use the newer 'sim.callScriptFunction' notation",false},
     {"simGetExtensionString",_simGetExtensionString,            "Use the newer 'sim.getExtensionString' notation",false},
     {"simComputeMassAndInertia",_simComputeMassAndInertia,      "Use the newer 'sim.computeMassAndInertia' notation",false},
-    {"simSetScriptVariable",_simSetScriptVariable,              "Use the newer 'sim.setScriptVariable' notation",false},
+    {"simSetScriptVariable",_simSetScriptVariable,              "Deprecated. Use sim.executeScriptString instead",false},
     {"simGetEngineFloatParameter",_simGetEngineFloatParam,      "Deprecated. Use sim.getEngineFloatParam instead",false},
     {"simGetEngineInt32Parameter",_simGetEngineInt32Param,      "Deprecated. Use sim.getEngineInt32Param instead",false},
     {"simGetEngineBoolParameter",_simGetEngineBoolParam,        "Deprecated. Use sim.getEngineBoolParam instead",false},
@@ -1193,6 +1193,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.childscriptattribute_enabled",sim_childscriptattribute_enabled,true},
     {"sim.scriptattribute_enabled",sim_scriptattribute_enabled,true},
     {"sim.scriptattribute_scripttype",sim_scriptattribute_scripttype,true},
+    {"sim.scriptattribute_scripthandle",sim_scriptattribute_scripthandle,true},
     // script execution order:
     {"sim.scriptexecorder_first",sim_scriptexecorder_first,true},
     {"sim.scriptexecorder_normal",sim_scriptexecorder_normal,true},
@@ -4372,29 +4373,6 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetScriptName(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getScriptName");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int a=luaToInt(L,1);
-        if (a==sim_handle_self)
-            a=CLuaScriptObject::getScriptHandleFromLuaState(L);
-        char* name=simGetScriptName_internal(a);
-        if (name!=nullptr)
-        {
-            luaWrap_lua_pushstring(L,name);
-            simReleaseBuffer_internal(name);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
 int _simGetObjectAssociatedWithScript(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -5438,40 +5416,6 @@ int _simSetScriptText(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-
-int _simGetScriptHandle(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getScriptHandle");
-
-    int retVal=-1; // means error
-    if (luaWrap_lua_gettop(L)==0) // no arguments
-        retVal=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    else
-    {
-        if (checkInputArguments(L,nullptr,lua_arg_nil,0)) // we don't output errors here!!
-            retVal=CLuaScriptObject::getScriptHandleFromLuaState(L); // nil argument
-        else
-        {
-            if (checkInputArguments(L,nullptr,lua_arg_number,0))
-            { // argument sim.handle_self
-                if (luaWrap_lua_tointeger(L,1)==sim_handle_self)
-                    retVal=CLuaScriptObject::getScriptHandleFromLuaState(L);
-            }
-            if ( (retVal==-1)&&checkInputArguments(L,&errorString,lua_arg_string,0) )
-            { // string argument
-                std::string name(luaWrap_lua_tostring(L,1));
-                setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-                retVal=simGetScriptHandle_internal(name.c_str());
-                setCurrentScriptInfo_cSide(-1,-1);
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
 
 int _simRemoveScript(luaWrap_lua_State* L)
 {
@@ -7005,12 +6949,19 @@ int _simGetObjectAlias(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        char* name=simGetObjectAlias_internal(luaToInt(L,1));
-        if (name!=nullptr)
+        int options=-1;
+        int res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,true,false,&errorString);
+        if (res>=0)
         {
-            luaWrap_lua_pushstring(L,name);
-            simReleaseBuffer_internal(name);
-            LUA_END(1);
+            if (res==2)
+                options=luaToInt(L,2);
+            char* name=simGetObjectAlias_internal(luaToInt(L,1),options);
+            if (name!=nullptr)
+            {
+                luaWrap_lua_pushstring(L,name);
+                simReleaseBuffer_internal(name);
+                LUA_END(1);
+            }
         }
     }
 
@@ -12839,15 +12790,18 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
         { // the script is identified by its type sometimes also by its name
             if (scriptHandleOrType==sim_scripttype_mainscript)
                 script=App::currentWorld->embeddedScriptContainer->getMainScript();
-            if (scriptHandleOrType==sim_scripttype_childscript)
+            if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==sim_scripttype_customizationscript) )
             {
-                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptDescription.c_str());
-                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
-            }
-            if (scriptHandleOrType==sim_scripttype_customizationscript)
-            {
-                int objId=App::currentWorld->sceneObjects->getObjectHandleFromName(scriptDescription.c_str());
-                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                int objId=-1;
+                CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptDescription.c_str(),0,nullptr);
+                if (obj!=nullptr)
+                    objId=obj->getObjectHandle();
+                else
+                    objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptDescription.c_str());
+                if (scriptHandleOrType==sim_scripttype_childscript)
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                else
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
             }
             if (scriptHandleOrType==sim_scripttype_sandboxscript)
                 script=App::worldContainer->sandboxScript;
@@ -14005,7 +13959,7 @@ int _simGetScriptAttribute(luaWrap_lua_State* L)
         {
             if ( (attribID==sim_customizationscriptattribute_activeduringsimulation)||(attribID==sim_childscriptattribute_automaticcascadingcalls)||(attribID==sim_scriptattribute_enabled)||(attribID==sim_customizationscriptattribute_cleanupbeforesave) )
                 luaWrap_lua_pushboolean(L,intVal);
-            if ( (attribID==sim_scriptattribute_executionorder)||(attribID==sim_scriptattribute_executioncount)||(attribID==sim_scriptattribute_scripttype) )
+            if ( (attribID==sim_scriptattribute_executionorder)||(attribID==sim_scriptattribute_executioncount)||(attribID==sim_scriptattribute_scripttype)||(attribID==sim_scriptattribute_scripthandle) )
                 luaWrap_lua_pushinteger(L,intVal);
             LUA_END(1);
         }
@@ -14027,34 +13981,6 @@ int _simReorientShapeBoundingBox(luaWrap_lua_State* L)
         int shapeHandle=luaToInt(L,1);
         int relativeToHandle=luaToInt(L,2);
         retVal=simReorientShapeBoundingBox_internal(shapeHandle,relativeToHandle,0);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simSetScriptVariable(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setScriptVariable");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
-    {
-        std::string varAndScriptName(luaWrap_lua_tostring(L,1));
-        int scriptHandleOrType=luaWrap_lua_tointeger(L,2);
-        int numberOfArguments=luaWrap_lua_gettop(L);
-        if (numberOfArguments>=3)
-        {
-            CInterfaceStack* stack=new CInterfaceStack();
-            int stackHandle=App::worldContainer->interfaceStackContainer->addStack(stack);
-            stack->buildFromLuaStack(L,3,1);
-            retVal=simSetScriptVariable_internal(scriptHandleOrType,varAndScriptName.c_str(),stackHandle);
-            App::worldContainer->interfaceStackContainer->destroyStack(stackHandle);
-        }
-        else
-            errorString=SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -20227,6 +20153,91 @@ int _simSetObjectName(luaWrap_lua_State* L)
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
         retVal=simSetObjectName_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tostring(L,2));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetScriptName(luaWrap_lua_State* L)
+{ // deprecated on 08.06.2021
+    TRACE_LUA_API;
+    LUA_START("sim.getScriptName");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int a=luaToInt(L,1);
+        if (a==sim_handle_self)
+            a=CLuaScriptObject::getScriptHandleFromLuaState(L);
+        char* name=simGetScriptName_internal(a);
+        if (name!=nullptr)
+        {
+            luaWrap_lua_pushstring(L,name);
+            simReleaseBuffer_internal(name);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetScriptHandle(luaWrap_lua_State* L)
+{ // deprecated on 16.06.2021
+    TRACE_LUA_API;
+    LUA_START("sim.getScriptHandle");
+
+    int retVal=-1; // means error
+    if (luaWrap_lua_gettop(L)==0) // no arguments
+        retVal=CLuaScriptObject::getScriptHandleFromLuaState(L);
+    else
+    {
+        if (checkInputArguments(L,nullptr,lua_arg_nil,0)) // we don't output errors here!!
+            retVal=CLuaScriptObject::getScriptHandleFromLuaState(L); // nil argument
+        else
+        {
+            if (checkInputArguments(L,nullptr,lua_arg_number,0))
+            { // argument sim.handle_self
+                if (luaWrap_lua_tointeger(L,1)==sim_handle_self)
+                    retVal=CLuaScriptObject::getScriptHandleFromLuaState(L);
+            }
+            if ( (retVal==-1)&&checkInputArguments(L,&errorString,lua_arg_string,0) )
+            { // string argument
+                std::string name(luaWrap_lua_tostring(L,1));
+                setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                retVal=simGetScriptHandle_internal(name.c_str());
+                setCurrentScriptInfo_cSide(-1,-1);
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simSetScriptVariable(luaWrap_lua_State* L)
+{ // deprecated on 16.06.2021
+    TRACE_LUA_API;
+    LUA_START("sim.setScriptVariable");
+
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
+    {
+        std::string varAndScriptName(luaWrap_lua_tostring(L,1));
+        int scriptHandleOrType=luaWrap_lua_tointeger(L,2);
+        int numberOfArguments=luaWrap_lua_gettop(L);
+        if (numberOfArguments>=3)
+        {
+            CInterfaceStack* stack=new CInterfaceStack();
+            int stackHandle=App::worldContainer->interfaceStackContainer->addStack(stack);
+            stack->buildFromLuaStack(L,3,1);
+            retVal=simSetScriptVariable_internal(scriptHandleOrType,varAndScriptName.c_str(),stackHandle);
+            App::worldContainer->interfaceStackContainer->destroyStack(stackHandle);
+        }
+        else
+            errorString=SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
+    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);

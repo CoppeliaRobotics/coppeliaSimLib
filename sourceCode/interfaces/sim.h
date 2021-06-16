@@ -34,12 +34,12 @@ SIM_DLLEXPORT simInt simGetArrayParam(simInt parameter,simVoid* arrayOfValues);
 SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simChar* stringParam,simInt paramLength);
 SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength);
 SIM_DLLEXPORT simInt simGetObjectHandle(const simChar* objectAlias);
-SIM_DLLEXPORT simInt simGetObjectHandleEx(const simChar* objectAlias,int index,int proxy,int options);
+SIM_DLLEXPORT simInt simGetObjectHandleEx(const simChar* objectAlias,simInt index,simInt proxy,simInt options);
 SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle);
 SIM_DLLEXPORT simInt simRemoveModel(simInt objectHandle);
 SIM_DLLEXPORT simInt simGetObjects(simInt index,simInt objectType);
-SIM_DLLEXPORT simChar* simGetObjectAlias(simInt objectHandle);
-SIM_DLLEXPORT simInt simSetObjectAlias(simInt objectHandle,const simChar* objectAlias,int options);
+SIM_DLLEXPORT simChar* simGetObjectAlias(simInt objectHandle,simInt options);
+SIM_DLLEXPORT simInt simSetObjectAlias(simInt objectHandle,const simChar* objectAlias,simInt options);
 SIM_DLLEXPORT simInt simGetObjectMatrix(simInt objectHandle,simInt relativeToObjectHandle,simFloat* matrix);
 SIM_DLLEXPORT simInt simSetObjectMatrix(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* matrix);
 SIM_DLLEXPORT simInt simGetObjectPose(simInt objectHandle,simInt relativeToObjectHandle,simFloat* pose);
@@ -95,7 +95,6 @@ SIM_DLLEXPORT simInt simGetObjectSelection(simInt* objectHandles);
 SIM_DLLEXPORT simInt simHandleProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 SIM_DLLEXPORT simInt simReadProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 SIM_DLLEXPORT simInt simHandleDynamics(simFloat deltaTime);
-SIM_DLLEXPORT simInt simGetScriptHandle(const simChar* scriptName);
 SIM_DLLEXPORT simInt simSetScriptText(simInt scriptHandle,const simChar* scriptText);
 SIM_DLLEXPORT const simChar* simGetScriptText(simInt scriptHandle);
 SIM_DLLEXPORT simInt simGetScriptProperty(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle);
@@ -104,7 +103,6 @@ SIM_DLLEXPORT simInt simGetScript(simInt index);
 SIM_DLLEXPORT simInt simGetScriptAssociatedWithObject(simInt objectHandle);
 SIM_DLLEXPORT simInt simGetCustomizationScriptAssociatedWithObject(simInt objectHandle);
 SIM_DLLEXPORT simInt simGetObjectAssociatedWithScript(simInt scriptHandle);
-SIM_DLLEXPORT simChar* simGetScriptName(simInt scriptHandle);
 SIM_DLLEXPORT simInt simHandleMainScript();
 SIM_DLLEXPORT simInt simResetScript(simInt scriptHandle);
 SIM_DLLEXPORT simInt simAddScript(simInt scriptProperty);
@@ -341,7 +339,6 @@ SIM_DLLEXPORT simInt simGetStackFloatTable(simInt stackHandle,simFloat* array,si
 SIM_DLLEXPORT simInt simGetStackDoubleTable(simInt stackHandle,simDouble* array,simInt count);
 SIM_DLLEXPORT simInt simUnfoldStackTable(simInt stackHandle);
 SIM_DLLEXPORT simInt simDebugStack(simInt stackHandle,simInt cIndex);
-SIM_DLLEXPORT simInt simSetScriptVariable(simInt scriptHandleOrType,const simChar* variableNameAtScriptName,simInt stackHandle);
 SIM_DLLEXPORT simFloat simGetEngineFloatParam(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok);
 SIM_DLLEXPORT simInt simGetEngineInt32Param(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok);
 SIM_DLLEXPORT simBool simGetEngineBoolParam(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok);
@@ -696,6 +693,9 @@ SIM_DLLEXPORT simInt simGetIntegerSignal(const simChar* signalName,simInt* signa
 SIM_DLLEXPORT simInt simClearIntegerSignal(const simChar* signalName);
 SIM_DLLEXPORT simChar* simGetObjectName(simInt objectHandle);
 SIM_DLLEXPORT simInt simSetObjectName(simInt objectHandle,const simChar* objectName);
+SIM_DLLEXPORT simChar* simGetScriptName(simInt scriptHandle);
+SIM_DLLEXPORT simInt simGetScriptHandle(const simChar* scriptName);
+SIM_DLLEXPORT simInt simSetScriptVariable(simInt scriptHandleOrType,const simChar* variableNameAtScriptName,simInt stackHandle);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

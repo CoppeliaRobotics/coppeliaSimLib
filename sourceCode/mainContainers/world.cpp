@@ -1816,7 +1816,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
             newObjName=tt::generateNewName_hash(newObjName.c_str(),suffixOffset);
         else
         {
-            if (sceneObjects->getObjectFromName(newObjName.c_str())!=nullptr)
+            if (sceneObjects->getObjectFromName_old(newObjName.c_str())!=nullptr)
             {
                 // Following faster with many objects:
                 std::string baseName(tt::getNameWithoutSuffixNumber(newObjName.c_str(),false));
@@ -1848,7 +1848,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
 
         // Now a similar procedure, but with the alt object names:
         std::string newObjAltName=it->getObjectTempAltName_old();
-        if (sceneObjects->getObjectFromAltName(newObjAltName.c_str())!=nullptr)
+        if (sceneObjects->getObjectFromAltName_old(newObjAltName.c_str())!=nullptr)
         {
             // Following faster with many objects:
             std::string baseAltName(tt::getNameWithoutSuffixNumber(newObjAltName.c_str(),false));

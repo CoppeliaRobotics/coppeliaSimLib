@@ -158,7 +158,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
         std::vector<CSceneObject*> sel;
         if (editMode==NO_EDIT_MODE)
         {
-            CSceneObject* skybox=App::currentWorld->sceneObjects->getObjectFromName(IDSOGL_SKYBOX_DO_NOT_RENAME);
+            CSceneObject* skybox=App::currentWorld->sceneObjects->getObjectFromName_old(IDSOGL_SKYBOX_DO_NOT_RENAME);
             // 1. List of all visible objects, excluding this camera, the skybox and objects flaged as "ignoreViewFitting":
             std::vector<CSceneObject*> visibleObjs;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)

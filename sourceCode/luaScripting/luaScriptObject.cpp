@@ -2974,13 +2974,13 @@ int CLuaScriptObject::getScriptNameIndexNumber() const
     return(retVal);
 }
 
-std::string CLuaScriptObject::getScriptPseudoName() const
+std::string CLuaScriptObject::getScriptPseudoName_old() const
 {
     if ( (_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
     {
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
         if (it!=nullptr)
-            return(it->getObjectAlias_shortPath());
+            return(it->getObjectName_old());
     }
     if ( (_scriptType==sim_scripttype_addonscript)||(_scriptType==sim_scripttype_addonfunction) )
         return(_addOnName);
@@ -6346,9 +6346,25 @@ void CLuaScriptObject::_adjustScriptText14(CLuaScriptObject* scriptObject,bool d
 
 //    _replaceScriptText(scriptObject,"sim.getObjectHandle('","sim.getObjectHandle('./");
 //    _replaceScriptText(scriptObject,"sim.getObjectHandle(\"","sim.getObjectHandle(\"./");
+//    _replaceScriptText(scriptObject,"sim.getObjectHandle(sim.handle_self)","sim.getObjectHandle('.')");
 
     if (App::userSettings->xrTest==123456789)
     {
+        if (_containsScriptText(scriptObject,"sim.getObjectHandle(sim.handle_self)"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getObjectHandle(sim.handle_self)...");
+        if (_containsScriptText(scriptObject,"sim.getObjectName"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getObjectName...");
+        if (_containsScriptText(scriptObject,"sim.setObjectName"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.setObjectName...");
+        if (_containsScriptText(scriptObject,"sim.getScriptName"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getScriptName...");
+        if (_containsScriptText(scriptObject,"sim.setSimilarName"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.setSimilarName...");
+
+
+
+
+
         if (_containsScriptText(scriptObject,"sim.getObjectInt32Parameter"))
             App::logMsg(sim_verbosity_errors,"Contains sim.getObjectInt32Parameter...");
         if (_containsScriptText(scriptObject,"sim.getObjectIntParameter"))

@@ -60,7 +60,7 @@ int _CSceneObjectContainer_::getObjects_hierarchyOrder(std::vector<CSceneObject*
     return(retVal);
 }
 
-CSceneObject* _CSceneObjectContainer_::getObjectFromName(const char* objectName) const
+CSceneObject* _CSceneObjectContainer_::getObjectFromName_old(const char* objectName) const
 {
     std::map<std::string,CSceneObject*>::const_iterator it=_objectNameMap_old.find(objectName);
     if (it!=_objectNameMap_old.end())
@@ -68,7 +68,7 @@ CSceneObject* _CSceneObjectContainer_::getObjectFromName(const char* objectName)
     return(nullptr);
 }
 
-CSceneObject* _CSceneObjectContainer_::getObjectFromAltName(const char* objectAltName) const
+CSceneObject* _CSceneObjectContainer_::getObjectFromAltName_old(const char* objectAltName) const
 {
     std::map<std::string,CSceneObject*>::const_iterator it=_objectAltNameMap_old.find(objectAltName);
     if (it!=_objectAltNameMap_old.end())
@@ -76,10 +76,10 @@ CSceneObject* _CSceneObjectContainer_::getObjectFromAltName(const char* objectAl
     return(nullptr);
 }
 
-int _CSceneObjectContainer_::getObjectHandleFromName(const char* objectName) const
+int _CSceneObjectContainer_::getObjectHandleFromName_old(const char* objectName) const
 {
     int retVal=-1;
-    CSceneObject* obj=getObjectFromName(objectName);
+    CSceneObject* obj=getObjectFromName_old(objectName);
     if (obj!=nullptr)
         retVal=obj->getObjectHandle();
     return(retVal);
@@ -1220,7 +1220,7 @@ CSceneObject* _CSceneObjectContainer_::getObjectFromPath(CSceneObject* emittingO
 {
     std::string nm(objectAliasAndPath);
     CSceneObject* retVal=nullptr;
-    if (nm.size()>0)
+    if ( (nm.size()>0)&&((nm[0]=='/')||(nm[0]=='.')||(nm[0]==':')) )
     {
         CSceneObject* emObj=nullptr;
         if (nm[0]=='/')

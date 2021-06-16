@@ -94,7 +94,7 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         newObjName=tt::generateNewName_hash(newObjName.c_str(),suffixOffset);
     else
     {
-        if (getObjectFromName(newObjName.c_str())!=nullptr)
+        if (getObjectFromName_old(newObjName.c_str())!=nullptr)
         {
             // Following faster with many objects:
             std::string baseName(tt::getNameWithoutSuffixNumber(newObjName.c_str(),false));
@@ -128,7 +128,7 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
 
     // Same but with the alt object names:
     std::string newObjAltName=newObject->getObjectAltName_old();
-    if (getObjectFromAltName(newObjAltName.c_str())!=nullptr)
+    if (getObjectFromAltName_old(newObjAltName.c_str())!=nullptr)
     {
         // Following faster with many objects:
         std::string baseAltName(tt::getNameWithoutSuffixNumber(newObjAltName.c_str(),false));
@@ -1148,7 +1148,7 @@ bool CSceneObjectContainer::setObjectName_old(CSceneObject* object,const char* n
     {
         tt::removeIllegalCharacters(nm,true);
         bool renamed=false;
-        while (getObjectFromName(nm.c_str())!=nullptr)
+        while (getObjectFromName_old(nm.c_str())!=nullptr)
         {
             renamed=true;
             nm=tt::generateNewName_hashOrNoHash(nm.c_str(),!tt::isHashFree(nm.c_str()));
@@ -1171,7 +1171,7 @@ bool CSceneObjectContainer::setObjectAltName_old(CSceneObject* object,const char
     {
         tt::removeAltNameIllegalCharacters(nm);
         bool renamed=false;
-        while (getObjectFromAltName(nm.c_str())!=nullptr)
+        while (getObjectFromAltName_old(nm.c_str())!=nullptr)
         {
             renamed=true;
             nm=tt::generateNewName_noHash(nm.c_str());

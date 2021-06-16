@@ -720,7 +720,7 @@ bool tt::isAliasValid(const char* alias)
 
 std::string tt::getValidAlias(const char* alias)
 {   // Illegal characters are replaced with underscore.
-    // Permitted characters are: a-z, A-Z, 0-9, parenthesis and underscore
+    // Permitted characters are: a-z, A-Z, 0-9, and underscore (same as ROS names)
     std::string retVal(alias);
     if (retVal.size()==0)
         retVal="_";
@@ -729,8 +729,7 @@ std::string tt::getValidAlias(const char* alias)
         bool ok=false;
         if ( !( ((retVal[i]>='a')&&(retVal[i]<='z'))||
              ((retVal[i]>='A')&&(retVal[i]<='Z'))||
-             ((retVal[i]>='0')&&(retVal[i]<='9'))||
-             (retVal[i]=='-')||(retVal[i]=='_') ) )
+             ((retVal[i]>='0')&&(retVal[i]<='9'))|| (retVal[i]=='_') ) )
             retVal[i]='_';
     }
     return(retVal);

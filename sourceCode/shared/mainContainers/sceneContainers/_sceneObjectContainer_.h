@@ -39,9 +39,9 @@ public:
     CSceneObject* getObjectFromIndex(size_t index) const;
     CSceneObject* getObjectFromHandle(int objectHandle) const;
     CSceneObject* getObjectFromPath(CSceneObject* emittingObject,const char* objectAliasAndPath,int index,CSceneObject* proxy) const;
-    CSceneObject* getObjectFromName(const char* objectName) const;
-    CSceneObject* getObjectFromAltName(const char* objectAltName) const;
-    int getObjectHandleFromName(const char* objectName) const;
+    CSceneObject* getObjectFromName_old(const char* objectName) const;
+    CSceneObject* getObjectFromAltName_old(const char* objectAltName) const;
+    int getObjectHandleFromName_old(const char* objectName) const;
     int getObjects_hierarchyOrder(std::vector<CSceneObject*>& allObjects);
 
     size_t getOrphanCount() const;
