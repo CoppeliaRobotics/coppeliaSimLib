@@ -6358,6 +6358,10 @@ void CLuaScriptObject::_adjustScriptText14(CLuaScriptObject* scriptObject,bool d
             App::logMsg(sim_verbosity_errors,"Contains sim.setObjectName...");
         if (_containsScriptText(scriptObject,"sim.getScriptName"))
             App::logMsg(sim_verbosity_errors,"Contains sim.getScriptName...");
+        if (_containsScriptText(scriptObject,"sim.getScriptHandle"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getScriptHandle...");
+        if (_containsScriptText(scriptObject,"sim.setScriptVariable"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.setScriptVariable...");
         if (_containsScriptText(scriptObject,"sim.setSimilarName"))
             App::logMsg(sim_verbosity_errors,"Contains sim.setSimilarName...");
 

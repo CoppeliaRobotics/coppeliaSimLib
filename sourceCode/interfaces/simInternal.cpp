@@ -1217,7 +1217,7 @@ simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int pr
 
         if (it==nullptr)
         {
-            if ( ((silentErrorPos==std::string::npos)&&(index==-1))||((options&1)!=0) )
+            if ( (silentErrorPos==std::string::npos)&&((options&1)==0) )
                 CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH);
             return(-1);
         }
