@@ -1075,6 +1075,7 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer& ar,const CSceneO
 
 void CSceneObjectContainer::setObjectParent(CSceneObject* object,CSceneObject* newParent,bool keepInPlace)
 {
+    TRACE_INTERNAL;
     CSceneObject* oldParent=object->getParent();
     if (oldParent!=newParent)
     {

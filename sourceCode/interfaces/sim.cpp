@@ -69,13 +69,13 @@ SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* p
 {
     return(simGetStringNamedParam_internal(paramName,paramLength));
 }
-SIM_DLLEXPORT simInt simGetObjectHandle(const simChar* objectAlias)
-{
-    return(simGetObjectHandleEx_internal(objectAlias,-1,-1,0));
-}
 SIM_DLLEXPORT simInt simGetObjectHandleEx(const simChar* objectAlias,simInt index,simInt proxy,simInt options)
 {
     return(simGetObjectHandleEx_internal(objectAlias,index,proxy,options));
+}
+SIM_DLLEXPORT simInt simGetScriptHandleEx(simInt scriptType,simInt objectHandle,const simChar* scriptName)
+{
+    return(simGetScriptHandleEx_internal(scriptType,objectHandle,scriptName));
 }
 SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle)
 {
@@ -84,10 +84,6 @@ SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle)
 SIM_DLLEXPORT simInt simRemoveModel(simInt objectHandle)
 {
     return(simRemoveModel_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simGetObjects(simInt index,simInt objectType)
-{
-    return(simGetObjects_internal(index,objectType));
 }
 SIM_DLLEXPORT simChar* simGetObjectAlias(simInt objectHandle,simInt options)
 {
@@ -333,22 +329,6 @@ SIM_DLLEXPORT simInt simAssociateScriptWithObject(simInt scriptHandle,simInt ass
 {
     return(simAssociateScriptWithObject_internal(scriptHandle,associatedObjectHandle));
 }
-SIM_DLLEXPORT simInt simGetScript(simInt index)
-{
-    return(simGetScript_internal(index));
-}
-SIM_DLLEXPORT simInt simGetScriptAssociatedWithObject(simInt objectHandle)
-{
-    return(simGetScriptAssociatedWithObject_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simGetCustomizationScriptAssociatedWithObject(simInt objectHandle)
-{
-    return(simGetCustomizationScriptAssociatedWithObject_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simGetObjectAssociatedWithScript(simInt scriptHandle)
-{
-    return(simGetObjectAssociatedWithScript_internal(scriptHandle));
-}
 SIM_DLLEXPORT simInt simHandleMainScript()
 {
     return(simHandleMainScript_internal());
@@ -404,22 +384,6 @@ SIM_DLLEXPORT simInt simCheckCollisionEx(simInt entity1Handle,simInt entity2Hand
 SIM_DLLEXPORT simInt simCheckDistance(simInt entity1Handle,simInt entity2Handle,simFloat threshold,simFloat* distanceData)
 {
     return(simCheckDistance_internal(entity1Handle,entity2Handle,threshold,distanceData));
-}
-SIM_DLLEXPORT simChar* simGetObjectConfiguration(simInt objectHandle)
-{
-    return(simGetObjectConfiguration_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simSetObjectConfiguration(const simChar* data)
-{
-    return(simSetObjectConfiguration_internal(data));
-}
-SIM_DLLEXPORT simChar* simGetConfigurationTree(simInt objectHandle)
-{
-    return(simGetConfigurationTree_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simSetConfigurationTree(const simChar* data)
-{
-    return(simSetConfigurationTree_internal(data));
 }
 SIM_DLLEXPORT simInt simSetSimulationTimeStep(simFloat timeStep)
 {
@@ -1068,6 +1032,10 @@ SIM_DLLEXPORT simChar* simReadCustomDataBlockTags(simInt objectHandle,simInt* ta
 SIM_DLLEXPORT simInt simGetShapeGeomInfo(simInt shapeHandle,simInt* intData,simFloat* floatData,simVoid* reserved)
 {
     return(simGetShapeGeomInfo_internal(shapeHandle,intData,floatData,reserved));
+}
+SIM_DLLEXPORT simInt simGetObjects(simInt index,simInt objectType)
+{
+    return(simGetObjects_internal(index,objectType));
 }
 SIM_DLLEXPORT simInt* simGetObjectsInTree(simInt treeBaseHandle,simInt objectType,simInt options,simInt* objectCount)
 {
@@ -2676,6 +2644,42 @@ SIM_DLLEXPORT simInt simGetScriptHandle(const simChar* scriptName)
 SIM_DLLEXPORT simInt simSetScriptVariable(simInt scriptHandleOrType,const simChar* variableNameAtScriptName,simInt stackHandle)
 {
     return(simSetScriptVariable_internal(scriptHandleOrType,variableNameAtScriptName,stackHandle));
+}
+SIM_DLLEXPORT simInt simGetObjectHandle(const simChar* objectAlias)
+{
+    return(simGetObjectHandleEx_internal(objectAlias,-1,-1,0));
+}
+SIM_DLLEXPORT simInt simGetScript(simInt index)
+{
+    return(simGetScript_internal(index));
+}
+SIM_DLLEXPORT simInt simGetScriptAssociatedWithObject(simInt objectHandle)
+{
+    return(simGetScriptAssociatedWithObject_internal(objectHandle));
+}
+SIM_DLLEXPORT simInt simGetCustomizationScriptAssociatedWithObject(simInt objectHandle)
+{
+    return(simGetCustomizationScriptAssociatedWithObject_internal(objectHandle));
+}
+SIM_DLLEXPORT simInt simGetObjectAssociatedWithScript(simInt scriptHandle)
+{
+    return(simGetObjectAssociatedWithScript_internal(scriptHandle));
+}
+SIM_DLLEXPORT simChar* simGetObjectConfiguration(simInt objectHandle)
+{
+    return(simGetObjectConfiguration_internal(objectHandle));
+}
+SIM_DLLEXPORT simInt simSetObjectConfiguration(const simChar* data)
+{
+    return(simSetObjectConfiguration_internal(data));
+}
+SIM_DLLEXPORT simChar* simGetConfigurationTree(simInt objectHandle)
+{
+    return(simGetConfigurationTree_internal(objectHandle));
+}
+SIM_DLLEXPORT simInt simSetConfigurationTree(const simChar* data)
+{
+    return(simSetConfigurationTree_internal(data));
 }
 // Deprecated end
 

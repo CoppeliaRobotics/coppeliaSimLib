@@ -37,10 +37,6 @@ private slots:
 
     void on_qqAcknowledgments_textChanged();
 
-    void on_qqCleanUpHashNames_clicked();
-
-    void on_qqCleanUpGhosts_clicked();
-
     void on_qqMinRelTriangleSize_editingFinished();
 
     void on_qqExtensionString_editingFinished();

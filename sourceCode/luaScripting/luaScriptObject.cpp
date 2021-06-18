@@ -6344,10 +6344,6 @@ void CLuaScriptObject::_adjustScriptText14(CLuaScriptObject* scriptObject,bool d
     _replaceScriptText(scriptObject,"sim.getIntegerSignal","sim.getInt32Signal");
     _replaceScriptText(scriptObject,"sim.clearIntegerSignal","sim.clearInt32Signal");
 
-//    _replaceScriptText(scriptObject,"sim.getObjectHandle('","sim.getObjectHandle('./");
-//    _replaceScriptText(scriptObject,"sim.getObjectHandle(\"","sim.getObjectHandle(\"./");
-//    _replaceScriptText(scriptObject,"sim.getObjectHandle(sim.handle_self)","sim.getObjectHandle('.')");
-
     if (App::userSettings->xrTest==123456789)
     {
         if (_containsScriptText(scriptObject,"sim.getObjectHandle(sim.handle_self)"))
@@ -6358,16 +6354,25 @@ void CLuaScriptObject::_adjustScriptText14(CLuaScriptObject* scriptObject,bool d
             App::logMsg(sim_verbosity_errors,"Contains sim.setObjectName...");
         if (_containsScriptText(scriptObject,"sim.getScriptName"))
             App::logMsg(sim_verbosity_errors,"Contains sim.getScriptName...");
-        if (_containsScriptText(scriptObject,"sim.getScriptHandle"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getScriptHandle...");
         if (_containsScriptText(scriptObject,"sim.setScriptVariable"))
             App::logMsg(sim_verbosity_errors,"Contains sim.setScriptVariable...");
         if (_containsScriptText(scriptObject,"sim.setSimilarName"))
             App::logMsg(sim_verbosity_errors,"Contains sim.setSimilarName...");
+        if (_containsScriptText(scriptObject,"sim.getObjectAssociatedWithScript"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getObjectAssociatedWithScript...");
+        if (_containsScriptText(scriptObject,"sim.getScriptAssociatedWithObject"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getScriptAssociatedWithObject...");
+        if (_containsScriptText(scriptObject,"sim.getCustomizationScriptAssociatedWithObject"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getCustomizationScriptAssociatedWithObject...");
 
-
-
-
+        if (_containsScriptText(scriptObject,"sim.getObjectConfiguration"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getObjectConfiguration...");
+        if (_containsScriptText(scriptObject,"sim.setObjectConfiguration"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.setObjectConfiguration...");
+        if (_containsScriptText(scriptObject,"sim.getConfigurationTree"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.getConfigurationTree...");
+        if (_containsScriptText(scriptObject,"sim.setConfigurationTree"))
+            App::logMsg(sim_verbosity_errors,"Contains sim.setConfigurationTree...");
 
         if (_containsScriptText(scriptObject,"sim.getObjectInt32Parameter"))
             App::logMsg(sim_verbosity_errors,"Contains sim.getObjectInt32Parameter...");

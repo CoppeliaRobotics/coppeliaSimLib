@@ -184,25 +184,67 @@ std::string _CSceneObject_::getObjectAlias_fullPath() const
 
 std::string _CSceneObject_::getObjectAlias_shortPath() const
 {
-    std::string retVal("/"+getObjectAliasAndOrder());
+    std::string previousAlias=getObjectAliasAndOrder();
+    std::string retVal("/"+previousAlias);
     if (_parentObject!=nullptr)
     {
         CSceneObject* it=_parentObject;
+
+        CSceneObject* itBeforeSkipping=nullptr;
+        std::string retValBeforeSkipping;
+        bool previouslySkipped=false;
+        bool doNotSkip=false;
         while (it!=nullptr)
         {
-            if (it->getParent()==nullptr)
+            std::string itAlias=it->getObjectAliasAndOrder();
+            if ( (itAlias==previousAlias)&&previouslySkipped )
             {
-                if (App::currentWorld->sceneObjects->getObjectFromPath(nullptr,retVal.c_str(),1,nullptr)!=nullptr)
-                    retVal="/"+it->getObjectAliasAndOrder()+retVal;
+                it=itBeforeSkipping;
+                retVal=retValBeforeSkipping;
+                doNotSkip=true;
+                previouslySkipped=false;
             }
             else
             {
-                std::string tmp(".");
-                tmp+=retVal;
-                if (App::currentWorld->sceneObjects->getObjectFromPath(nullptr,tmp.c_str(),1,it->getParent())!=nullptr)
-                    retVal="/"+it->getObjectAliasAndOrder()+retVal;
+                if (it->getParent()==nullptr)
+                {
+                    if ( it->getModelBase()||doNotSkip||(App::currentWorld->sceneObjects->getObjectFromPath(nullptr,retVal.c_str(),0,nullptr)!=this) )
+                    {
+                        previousAlias=itAlias;
+                        retVal="/"+previousAlias+retVal;
+                    }
+                    else
+                    {
+                        if (!previouslySkipped)
+                        {
+                            retValBeforeSkipping=retVal;
+                            itBeforeSkipping=it;
+                        }
+                        previouslySkipped=true;
+                    }
+                }
+                else
+                {
+                    std::string tmp(".");
+                    tmp+=retVal;
+                    if ( it->getModelBase()||doNotSkip||(App::currentWorld->sceneObjects->getObjectFromPath(nullptr,tmp.c_str(),0,it->getParent())!=this) )
+                    {
+                        previousAlias=itAlias;
+                        retVal="/"+previousAlias+retVal;
+                    }
+                    else
+                    {
+                        if (!previouslySkipped)
+                        {
+                            retValBeforeSkipping=retVal;
+                            itBeforeSkipping=it;
+                        }
+                        previouslySkipped=true;
+                    }
+                }
+                doNotSkip=false;
+                it=it->getParent();
             }
-            it=it->getParent();
         }
     }
     return(retVal);

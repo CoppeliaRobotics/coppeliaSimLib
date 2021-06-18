@@ -33,11 +33,10 @@ SIM_DLLEXPORT simInt simSetArrayParam(simInt parameter,const simVoid* arrayOfVal
 SIM_DLLEXPORT simInt simGetArrayParam(simInt parameter,simVoid* arrayOfValues);
 SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simChar* stringParam,simInt paramLength);
 SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength);
-SIM_DLLEXPORT simInt simGetObjectHandle(const simChar* objectAlias);
 SIM_DLLEXPORT simInt simGetObjectHandleEx(const simChar* objectAlias,simInt index,simInt proxy,simInt options);
+SIM_DLLEXPORT simInt simGetScriptHandleEx(simInt scriptType,simInt objectHandle,const simChar* scriptName);
 SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle);
 SIM_DLLEXPORT simInt simRemoveModel(simInt objectHandle);
-SIM_DLLEXPORT simInt simGetObjects(simInt index,simInt objectType);
 SIM_DLLEXPORT simChar* simGetObjectAlias(simInt objectHandle,simInt options);
 SIM_DLLEXPORT simInt simSetObjectAlias(simInt objectHandle,const simChar* objectAlias,simInt options);
 SIM_DLLEXPORT simInt simGetObjectMatrix(simInt objectHandle,simInt relativeToObjectHandle,simFloat* matrix);
@@ -99,10 +98,6 @@ SIM_DLLEXPORT simInt simSetScriptText(simInt scriptHandle,const simChar* scriptT
 SIM_DLLEXPORT const simChar* simGetScriptText(simInt scriptHandle);
 SIM_DLLEXPORT simInt simGetScriptProperty(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle);
 SIM_DLLEXPORT simInt simAssociateScriptWithObject(simInt scriptHandle,simInt associatedObjectHandle);
-SIM_DLLEXPORT simInt simGetScript(simInt index);
-SIM_DLLEXPORT simInt simGetScriptAssociatedWithObject(simInt objectHandle);
-SIM_DLLEXPORT simInt simGetCustomizationScriptAssociatedWithObject(simInt objectHandle);
-SIM_DLLEXPORT simInt simGetObjectAssociatedWithScript(simInt scriptHandle);
 SIM_DLLEXPORT simInt simHandleMainScript();
 SIM_DLLEXPORT simInt simResetScript(simInt scriptHandle);
 SIM_DLLEXPORT simInt simAddScript(simInt scriptProperty);
@@ -117,10 +112,6 @@ SIM_DLLEXPORT simInt simReleaseBuffer(const simChar* buffer);
 SIM_DLLEXPORT simInt simCheckCollision(simInt entity1Handle,simInt entity2Handle);
 SIM_DLLEXPORT simInt simCheckCollisionEx(simInt entity1Handle,simInt entity2Handle,simFloat** intersectionSegments);
 SIM_DLLEXPORT simInt simCheckDistance(simInt entity1Handle,simInt entity2Handle,simFloat threshold,simFloat* distanceData);
-SIM_DLLEXPORT simChar* simGetObjectConfiguration(simInt objectHandle);
-SIM_DLLEXPORT simInt simSetObjectConfiguration(const simChar* data);
-SIM_DLLEXPORT simChar* simGetConfigurationTree(simInt objectHandle);
-SIM_DLLEXPORT simInt simSetConfigurationTree(const simChar* data);
 SIM_DLLEXPORT simInt simSetSimulationTimeStep(simFloat timeStep);
 SIM_DLLEXPORT simFloat simGetSimulationTimeStep();
 SIM_DLLEXPORT simInt simGetRealTimeSimulation();
@@ -282,6 +273,7 @@ SIM_DLLEXPORT simInt simWriteCustomDataBlock(simInt objectHandle,const simChar* 
 SIM_DLLEXPORT simChar* simReadCustomDataBlock(simInt objectHandle,const simChar* tagName,simInt* dataSize);
 SIM_DLLEXPORT simChar* simReadCustomDataBlockTags(simInt objectHandle,simInt* tagCount);
 SIM_DLLEXPORT simInt simGetShapeGeomInfo(simInt shapeHandle,simInt* intData,simFloat* floatData,simVoid* reserved);
+SIM_DLLEXPORT simInt simGetObjects(simInt index,simInt objectType);
 SIM_DLLEXPORT simInt* simGetObjectsInTree(simInt treeBaseHandle,simInt objectType,simInt options,simInt* objectCount);
 SIM_DLLEXPORT simInt simSetObjectSizeValues(simInt objectHandle,const simFloat* sizeValues);
 SIM_DLLEXPORT simInt simGetObjectSizeValues(simInt objectHandle,simFloat* sizeValues);
@@ -696,6 +688,15 @@ SIM_DLLEXPORT simInt simSetObjectName(simInt objectHandle,const simChar* objectN
 SIM_DLLEXPORT simChar* simGetScriptName(simInt scriptHandle);
 SIM_DLLEXPORT simInt simGetScriptHandle(const simChar* scriptName);
 SIM_DLLEXPORT simInt simSetScriptVariable(simInt scriptHandleOrType,const simChar* variableNameAtScriptName,simInt stackHandle);
+SIM_DLLEXPORT simInt simGetObjectHandle(const simChar* objectAlias);
+SIM_DLLEXPORT simInt simGetScript(simInt index);
+SIM_DLLEXPORT simInt simGetScriptAssociatedWithObject(simInt objectHandle);
+SIM_DLLEXPORT simInt simGetCustomizationScriptAssociatedWithObject(simInt objectHandle);
+SIM_DLLEXPORT simInt simGetObjectAssociatedWithScript(simInt scriptHandle);
+SIM_DLLEXPORT simChar* simGetObjectConfiguration(simInt objectHandle);
+SIM_DLLEXPORT simInt simSetObjectConfiguration(const simChar* data);
+SIM_DLLEXPORT simChar* simGetConfigurationTree(simInt objectHandle);
+SIM_DLLEXPORT simInt simSetConfigurationTree(const simChar* data);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

@@ -27,15 +27,11 @@ void CQDlgEnvironment::refresh()
     bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     ui->qqNextSaveIsDefinitive->setEnabled((!App::currentWorld->environment->getSceneLocked())&&noEditModeNoSim);
-    ui->qqCleanUpHashNames->setEnabled(noEditModeNoSim);
     ui->qqExtensionString->setEnabled(noEditModeNoSim);
     ui->qqBackgroundColorUp->setEnabled(noEditModeNoSim);
     ui->qqBackgroundColorDown->setEnabled(noEditModeNoSim);
     ui->qqAmbientLightColor->setEnabled(noEditModeNoSim);
     ui->qqFogAdjust->setEnabled(noEditModeNoSim);
-
-    ui->qqCleanUpGhosts->setVisible(App::userSettings->showOldDlgs);
-    ui->qqCleanUpGhosts->setEnabled(noEditModeNoSim);
 
     ui->qqMaxTriangleSize->setEnabled(noEditModeNoSim);
     ui->qqMinRelTriangleSize->setEnabled(noEditModeNoSim);
@@ -129,19 +125,6 @@ void CQDlgEnvironment::on_qqAcknowledgments_textChanged()
     tt::removeSpacesAndEmptyLinesAtBeginningAndEnd(txt);
     // No refresh here!! (otherwise we can't edit the item properly)
     App::appendSimulationThreadCommand(SET_ACKNOWLEDGMENT_ENVIRONMENTGUITRIGGEREDCMD,-1,-1,0.0,0.0,txt.c_str());
-}
-
-void CQDlgEnvironment::on_qqCleanUpHashNames_clicked()
-{
-    App::appendSimulationThreadCommand(CLEANUP_OBJNAMES_ENVIRONMENTGUITRIGGEREDCMD);
-    App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-}
-
-void CQDlgEnvironment::on_qqCleanUpGhosts_clicked()
-{
-    App::appendSimulationThreadCommand(CLEANUP_GHOSTS_ENVIRONMENTGUITRIGGEREDCMD);
-    App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
 }
 
 void CQDlgEnvironment::on_qqMinRelTriangleSize_editingFinished()

@@ -102,9 +102,6 @@ std::vector<std::string> serialPortLeftOverData;
 
 const SLuaCommands simLuaCommands[]=
 {
-    {"sim.getObjectAssociatedWithScript",_simGetObjectAssociatedWithScript,"int objectHandle=sim.getObjectAssociatedWithScript(int scriptHandle)",true},
-    {"sim.getScriptAssociatedWithObject",_simGetScriptAssociatedWithObject,"int scriptHandle=sim.getScriptAssociatedWithObject(int objectHandle)",true},
-    {"sim.getCustomizationScriptAssociatedWithObject",_simGetCustomizationScriptAssociatedWithObject,"int scriptHandle=sim.getCustomizationScriptAssociatedWithObject(int objectHandle)",true},
     {"sim.openModule",_simOpenModule,                            "int result=sim.openModule(sim.handle_all)\nint result=sim.openModule(string moduleName)",true},
     {"sim.closeModule",_simCloseModule,                          "int result=sim.closeModule(sim.handle_all)\nint result=sim.closeModule(string moduleName)",true},
     {"sim.handleModule",_simHandleModule,                        "int result=sim.handleModule(sim.handle_all)\nint result=sim.handleModule(string moduleName)",true},
@@ -116,6 +113,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.checkProximitySensorEx",_simCheckProximitySensorEx,    "int result,float distance,table[3] detectedPoint,int detectedObjectHandle,table[3] normalVector=\nsim.checkProximitySensorEx(int sensorHandle,int entityHandle,int mode,float threshold,float maxAngle)",true},
     {"sim.checkProximitySensorEx2",_simCheckProximitySensorEx2,  "int result,float distance,table[3] detectedPoint,table[3] normalVector=\nsim.checkProximitySensorEx2(int sensorHandle,table[3..*] vertices,int itemType,int itemCount,int mode,float threshold,float maxAngle)",true},
     {"sim._getObjectHandle",_sim_getObjectHandle,                "",false}, // handled via sim.getObjectHandle from sim.lua
+    {"sim.getScriptHandle",_simGetScriptHandle,                  "int scriptHandle=sim.getScriptHandle(int scriptType,int objectHandle=-1 / string addOnName='')",true},
     {"sim.addScript",_simAddScript,                              "int scriptHandle=sim.addScript(int scriptType)",true},
     {"sim.associateScriptWithObject",_simAssociateScriptWithObject,"sim.associateScriptWithObject(int scriptHandle,int objectHandle)",true},
     {"sim.setScriptText",_simSetScriptText,                      "sim.setScriptText(int scriptHandle,string scriptText)",true},
@@ -139,10 +137,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.checkCollision",_simCheckCollision,                    "int result,table[2] collidingObjects=sim.checkCollision(int entity1Handle,int entity2Handle)",true},
     {"sim.checkCollisionEx",_simCheckCollisionEx,                "int segmentCount,table[6..*] segmentData=sim.checkCollisionEx(int entity1Handle,int entity2Handle)",true},
     {"sim.checkDistance",_simCheckDistance,                      "int result,table[7] distanceData,table[2] objectHandlePair=sim.checkDistance(int entity1Handle,int entity2Handle,float threshold=0.0)",true},
-    {"sim.getObjectConfiguration",_simGetObjectConfiguration,    "int rawBufferHandle=sim.getObjectConfiguration(int objectHandle)",true},
-    {"sim.setObjectConfiguration",_simSetObjectConfiguration,    "sim.setObjectConfiguration(int rawBufferHandle)",true},
-    {"sim.getConfigurationTree",_simGetConfigurationTree,        "int rawBufferHandle=sim.getConfigurationTree(int objectHandle)",true},
-    {"sim.setConfigurationTree",_simSetConfigurationTree,        "sim.setConfigurationTree(int rawBufferHandle)",true},
     {"sim.getSimulationTimeStep",_simGetSimulationTimeStep,      "float timeStep=sim.getSimulationTimeStep()",true},
     {"sim.getSimulatorMessage",_simGetSimulatorMessage,          "int messageID,table[4] auxiliaryData,table[1..*] auxiliaryData2=sim.getSimulatorMessage()",true},
     {"sim.resetGraph",_simResetGraph,                            "sim.resetGraph(int objectHandle)",true},
@@ -156,7 +150,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.addGraphCurve",_simAddGraphCurve,                      "int curveId=sim.addGraphCurve(int graphHandle,string curveName,int dim,\ntable[2..3] streamIds,table[2..3] defaultValues,string unitStr,int options=0,\ntable[3] color={1,1,0},int curveWidth=2)",true},
     {"sim.setGraphStreamValue",_simSetGraphStreamValue,          "sim.setGraphStreamValue(int graphHandle,int streamId,float value)",true},
     {"sim.getLastError",_simGetLastError,                        "string lastError=sim.getLastError([scriptHandle])",true},
-    {"sim.getObjects",_simGetObjects,                            "int objectHandle=sim.getObjects(int index,int objectType)",true},
     {"sim.refreshDialogs",_simRefreshDialogs,                    "int result=sim.refreshDialogs(int refreshDegree)",true},
     {"sim.getModuleName",_simGetModuleName,                      "string moduleName,int version=sim.getModuleName(int index)",true},
     {"sim.removeScript",_simRemoveScript,                        "sim.removeScript(int scriptHandle)",true},
@@ -193,7 +186,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getArrayParam",_simGetArrayParam,                      "table[3] arrayOfValues=sim.getArrayParam(int parameter)",true},
     {"sim.setStringNamedParam",_simSetStringNamedParam,          "sim.setStringNamedParam(string paramName,string stringParam)",true},
     {"sim.getStringNamedParam",_simGetStringNamedParam,          "string stringParam=sim.getStringNamedParam(string paramName)",true},
-    {"sim.getObjectAlias",_simGetObjectAlias,                    "string objectAlias=sim.getObjectAlias(int objectHandle,int options)",true},
+    {"sim.getObjectAlias",_simGetObjectAlias,                    "string objectAlias=sim.getObjectAlias(int objectHandle,int options=-1)",true},
     {"sim.setObjectAlias",_simSetObjectAlias,                    "sim.setObjectAlias(int objectHandle,string objectAlias)",true},
     {"sim.getJointInterval",_simGetJointInterval,                "boolean cyclic,table[2] interval=sim.getJointInterval(int objectHandle)",true},
     {"sim.setJointInterval",_simSetJointInterval,                "sim.setJointInterval(int objectHandle,boolean cyclic,table[2] interval)",true},
@@ -344,6 +337,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.readCustomDataBlockTags",_simReadCustomDataBlockTags,  "table[] tags=sim.readCustomDataBlockTags(int objectHandle)",true},
     {"sim.getShapeGeomInfo",_simGetShapeGeomInfo,                "int result,int pureType,table[4] dimensions=sim.getShapeGeomInfo(int shapeHandle)",true},
     {"sim.getObjectsInTree",_simGetObjectsInTree,                "table[] objects=sim.getObjectsInTree(int treeBaseHandle,int objectType=sim.handle_all,int options=0)",true},
+    {"sim.getObjects",_simGetObjects,                            "int objectHandle=sim.getObjects(int index,int objectType)",true},
     {"sim.setObjectSizeValues",_simSetObjectSizeValues,          "sim.setObjectSizeValues(int objectHandle,table[3] sizeValues)",true},
     {"sim.getObjectSizeValues",_simGetObjectSizeValues,          "table[3] sizeValues=sim.getObjectSizeValues(int objectHandle)",true},
     {"sim.scaleObject",_simScaleObject,                          "sim.scaleObject(int objectHandle,float xScale,float yScale,float zScale,int options=0)",true},
@@ -381,7 +375,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.msgBox",_simMsgBox,                                    "int returnValue=sim.msgBox(int dlgType,int buttons,string title,string message)",true},
     {"sim.loadModule",_simLoadModule,                            "int pluginHandle=sim.loadModule(string filenameAndPath,string pluginName)",true},
     {"sim.unloadModule",_simUnloadModule,                        "int result=sim.unloadModule(int pluginHandle)",true},
-    {"sim.callScriptFunction",_simCallScriptFunction,            "...=sim.callScriptFunction(string functionNameAtScriptName,int scriptHandleOrType,...)",true},
+    {"sim.callScriptFunction",_simCallScriptFunction,            "...=sim.callScriptFunction(string functionNameAtScriptPath,int scriptHandleOrType,...)",true},
     {"sim.getExtensionString",_simGetExtensionString,            "string theString=sim.getExtensionString(int objectHandle,int index,string key=nil)",true},
     {"sim.computeMassAndInertia",_simComputeMassAndInertia,      "int result=sim.computeMassAndInertia(int shapeHandle,float density)",true},
     {"sim.getEngineFloatParam",_simGetEngineFloatParam,          "float floatParam=sim.getEngineFloatParam(int paramId,int objectHandle)",true},
@@ -412,7 +406,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setReferencedHandles",_simSetReferencedHandles,        "sim.setReferencedHandles(int objectHandle,table[] referencedHandles)",true},
     {"sim.getReferencedHandles",_simGetReferencedHandles,        "table[] referencedHandles=sim.getReferencedHandles(int objectHandle)",true},
     {"sim.getShapeViz",_simGetShapeViz,                          "map data=sim.getShapeViz(int shapeHandle,int itemIndex)",true},
-    {"sim.executeScriptString",_simExecuteScriptString,          "int result,executionResult=sim.executeScriptString(string stringAtScriptName,int scriptHandleOrType)",true},
+    {"sim.executeScriptString",_simExecuteScriptString,          "int result,executionResult=sim.executeScriptString(string stringAtScriptPath,int scriptHandleOrType)",true},
     {"sim.getApiFunc",_simGetApiFunc,                            "table[] funcsAndVars=sim.getApiFunc(int scriptHandleOrType,string apiWord)",true},
     {"sim.getApiInfo",_simGetApiInfo,                            "string info=sim.getApiInfo(int scriptHandleOrType,string apiWord)",true},
     {"sim.getModuleInfo",_simGetModuleInfo,                      "string/number info=sim.getModuleInfo(string moduleName,int infoType)",true},
@@ -557,7 +551,13 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setObjectName",_simSetObjectName,                      "Deprecated. Use sim.setObjectAlias instead",false},
     {"sim.getScriptName",_simGetScriptName,                      "Deprecated. Use sim.getObjectAlias instead",false},
     {"sim.setScriptVariable",_simSetScriptVariable,              "Deprecated. Use sim.executeScriptString instead",false},
-    {"sim.getScriptHandle",_simGetScriptHandle,                  "Deprecated. Use sim.getScriptAttribute(sim.handle_self,sim.scriptattribute_scripthandle) instead",false},
+    {"sim.getObjectAssociatedWithScript",_simGetObjectAssociatedWithScript,"Deprecated. Use sim.getObjectHandle('.') instead",false},
+    {"sim.getScriptAssociatedWithObject",_simGetScriptAssociatedWithObject,"Deprecated. Use sim.getScriptHandle instead",false},
+    {"sim.getCustomizationScriptAssociatedWithObject",_simGetCustomizationScriptAssociatedWithObject,"Deprecated. Use sim.getScriptHandle instead",false},
+    {"sim.getObjectConfiguration",_simGetObjectConfiguration,    "Deprecated",false},
+    {"sim.setObjectConfiguration",_simSetObjectConfiguration,    "Deprecated",false},
+    {"sim.getConfigurationTree",_simGetConfigurationTree,        "Deprecated",false},
+    {"sim.setConfigurationTree",_simSetConfigurationTree,        "Deprecated",false},
     //{"sim.boolOr32",_simBoolOr32,                                "Deprecated. Use the bitwise operator | instead",false},
     //{"sim.boolAnd32",_simBoolAnd32,                              "Deprecated. Use the bitwise operator & instead",false},
     //{"sim.boolXor32",_simBoolXor32,                              "Deprecated. Use the bitwise operator ~ instead",false},
@@ -573,9 +573,9 @@ const SLuaCommands simLuaCommands[]=
 const SLuaCommands simLuaCommandsOldApi[]=
 { // Following for backward compatibility (has now a new notation (see 'simLuaCommands'))
     {"simGetScriptName",_simGetScriptName,                      "Deprecated. Use sim.getObjectAlias instead",false},
-    {"simGetObjectAssociatedWithScript",_simGetObjectAssociatedWithScript,"Use the newer 'sim.getObjectAssociatedWithScript' notation",false},
-    {"simGetScriptAssociatedWithObject",_simGetScriptAssociatedWithObject,"Use the newer 'sim.getScriptAssociatedWithObject' notation",false},
-    {"simGetCustomizationScriptAssociatedWithObject",_simGetCustomizationScriptAssociatedWithObject,"Use the newer 'sim.getCustomizationScriptAssociatedWithObject' notation",false},
+    {"simGetObjectAssociatedWithScript",_simGetObjectAssociatedWithScript,"Deprecated. Use sim.getObjectHandle('.') instead",false},
+    {"simGetScriptAssociatedWithObject",_simGetScriptAssociatedWithObject,"Deprecated. Use sim.getScriptHandle instead",false},
+    {"simGetCustomizationScriptAssociatedWithObject",_simGetCustomizationScriptAssociatedWithObject,"Deprecated. Use sim.getScriptHandle instead",false},
     {"simOpenModule",_simOpenModule,                            "Use the newer 'sim.openModule' notation",false},
     {"simCloseModule",_simCloseModule,                          "Use the newer 'sim.closeModule' notation",false},
     {"simHandleModule",_simHandleModule,                        "Use the newer 'sim.handleModule' notation",false},
@@ -590,7 +590,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simAddScript",_simAddScript,                              "Use the newer 'sim.addScript' notation",false},
     {"simAssociateScriptWithObject",_simAssociateScriptWithObject,"Use the newer 'sim.associateScriptWithObject' notation",false},
     {"simSetScriptText",_simSetScriptText,                      "Use the newer 'sim.setScriptText' notation",false},
-    {"simGetScriptHandle",_simGetScriptHandle,                  "Deprecated. Use sim.getScriptAttribute(sim.handle_self,sim.scriptattribute_scripthandle) instead",false},
+    {"simGetScriptHandle",_simGetScriptHandle,                  "Use the newer 'sim.getScriptHandle' notation",false},
     {"simGetObjectPosition",_simGetObjectPosition,              "Use the newer 'sim.getObjectPosition' notation",false},
     {"simGetObjectOrientation",_simGetObjectOrientation,        "Use the newer 'sim.getObjectOrientation' notation",false},
     {"simSetObjectPosition",_simSetObjectPosition,              "Use the newer 'sim.setObjectPosition' notation",false},
@@ -613,10 +613,10 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simCheckCollision",_simCheckCollision,                    "Use the newer 'sim.checkCollision' notation",false},
     {"simCheckCollisionEx",_simCheckCollisionEx,                "Use the newer 'sim.checkCollisionEx' notation",false},
     {"simCheckDistance",_simCheckDistance,                      "Use the newer 'sim.checkDistance' notation",false},
-    {"simGetObjectConfiguration",_simGetObjectConfiguration,    "Use the newer 'sim.getObjectConfiguration' notation",false},
-    {"simSetObjectConfiguration",_simSetObjectConfiguration,    "Use the newer 'sim.setObjectConfiguration' notation",false},
-    {"simGetConfigurationTree",_simGetConfigurationTree,        "Use the newer 'sim.getConfigurationTree' notation",false},
-    {"simSetConfigurationTree",_simSetConfigurationTree,        "Use the newer 'sim.setConfigurationTree' notation",false},
+    {"simGetObjectConfiguration",_simGetObjectConfiguration,    "Deprecated",false},
+    {"simSetObjectConfiguration",_simSetObjectConfiguration,    "Deprecated",false},
+    {"simGetConfigurationTree",_simGetConfigurationTree,        "Deprecated",false},
+    {"simSetConfigurationTree",_simSetConfigurationTree,        "Deprecated",false},
     {"simGetSimulationTimeStep",_simGetSimulationTimeStep,      "Use the newer 'sim.getSimulationTimeStep' notation",false},
     {"simGetSimulatorMessage",_simGetSimulatorMessage,          "Use the newer 'sim.getSimulatorMessage' notation",false},
     {"simResetGraph",_simResetGraph,                            "Use the newer 'sim.resetGraph' notation",false},
@@ -4373,53 +4373,6 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetObjectAssociatedWithScript(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getObjectAssociatedWithScript");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int a=luaToInt(L,1);
-        if (a==sim_handle_self)
-            a=CLuaScriptObject::getScriptHandleFromLuaState(L);
-        retVal=simGetObjectAssociatedWithScript_internal(a);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simGetScriptAssociatedWithObject(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getScriptAssociatedWithObject");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simGetScriptAssociatedWithObject_internal(luaToInt(L,1));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simGetCustomizationScriptAssociatedWithObject(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getCustomizationScriptAssociatedWithObject");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simGetCustomizationScriptAssociatedWithObject_internal(luaToInt(L,1));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
 int _simOpenModule(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -5295,20 +5248,6 @@ int _simCheckVisionSensorEx(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simGetObjects(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getObjects");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simGetObjects_internal(luaToInt(L,1),luaToInt(L,2));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
 int _sim_getObjectHandle(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -5358,6 +5297,57 @@ int _sim_getObjectHandle(luaWrap_lua_State* L)
             }
         }
     }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetScriptHandle(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getScriptHandle");
+
+    int retVal=-1; // means error
+    if (luaWrap_lua_gettop(L)==0) // no arguments
+        retVal=CLuaScriptObject::getScriptHandleFromLuaState(L);
+    else
+    {
+        if (checkInputArguments(L,nullptr,lua_arg_nil,0)) // we don't output errors here!!
+            retVal=CLuaScriptObject::getScriptHandleFromLuaState(L); // nil argument
+        else
+        {
+            if (checkInputArguments(L,nullptr,lua_arg_number,0))
+            {
+                int scriptType=luaWrap_lua_tointeger(L,1);
+                if (scriptType==sim_handle_self)
+                    retVal=CLuaScriptObject::getScriptHandleFromLuaState(L); // for backward compatibility
+                else
+                {
+                    int objectHandle=-1;
+                    std::string addOnName;
+                    if (scriptType==sim_scripttype_addonscript)
+                    {
+                        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
+                            addOnName=luaWrap_lua_tostring(L,2);
+                    }
+                    if ( (scriptType==sim_scripttype_childscript)||(scriptType==sim_scripttype_customizationscript) )
+                    {
+                        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+                            objectHandle=luaWrap_lua_tointeger(L,2);
+                    }
+                    retVal=simGetScriptHandleEx_internal(scriptType,objectHandle,addOnName.c_str());
+                }
+            }
+            if ( (retVal==-1)&&checkInputArguments(L,&errorString,lua_arg_string,0) )
+            { // string argument, for backward compatibility:
+                std::string name(luaWrap_lua_tostring(L,1));
+                setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                retVal=simGetScriptHandle_internal(name.c_str());
+                setCurrentScriptInfo_cSide(-1,-1);
+            }
+        }
+    }
+
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
@@ -5846,96 +5836,6 @@ int _simCheckDistance(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
-}
-
-int _simGetObjectConfiguration(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getObjectConfiguration");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        char* data=simGetObjectConfiguration_internal(luaToInt(L,1));
-        if (data!=nullptr)
-        {
-            int dataSize=((int*)data)[0]+4;
-            luaWrap_lua_pushlstring(L,data,dataSize);
-            delete[] data;
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetObjectConfiguration(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setObjectConfiguration");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_string,0))
-    {
-        size_t l;
-        const char* data=luaWrap_lua_tolstring(L,1,&l);
-        retVal=simSetObjectConfiguration_internal(data);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simGetConfigurationTree(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getConfigurationTree");
-
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int id=luaToInt(L,1);
-        if (id==sim_handle_self)
-        {
-            int objID=it->getObjectHandleThatScriptIsAttachedTo_child();
-            id=objID;
-            if (id==-1)
-                errorString=SIM_ERROR_ARGUMENT_VALID_ONLY_WITH_CHILD_SCRIPTS;
-        }
-        if (id!=-1)
-        {
-            char* data=simGetConfigurationTree_internal(id);
-            if (data!=nullptr)
-            {
-                int dataSize=((int*)data)[0]+4;
-                luaWrap_lua_pushlstring(L,data,dataSize);
-                delete[] data;
-                LUA_END(1);
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetConfigurationTree(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setConfigurationTree");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_string,0))
-    {
-        size_t l;
-        const char* data=luaWrap_lua_tolstring(L,1,&l);
-        retVal=simSetConfigurationTree_internal(data);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
 }
 
 int _simGetLastError(luaWrap_lua_State* L)
@@ -13598,6 +13498,20 @@ int _simGetShapeGeomInfo(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
+int _simGetObjects(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjects");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+        retVal=simGetObjects_internal(luaToInt(L,1),luaToInt(L,2));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
 int _simGetObjectsInTree(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -20182,40 +20096,6 @@ int _simGetScriptName(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simGetScriptHandle(luaWrap_lua_State* L)
-{ // deprecated on 16.06.2021
-    TRACE_LUA_API;
-    LUA_START("sim.getScriptHandle");
-
-    int retVal=-1; // means error
-    if (luaWrap_lua_gettop(L)==0) // no arguments
-        retVal=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    else
-    {
-        if (checkInputArguments(L,nullptr,lua_arg_nil,0)) // we don't output errors here!!
-            retVal=CLuaScriptObject::getScriptHandleFromLuaState(L); // nil argument
-        else
-        {
-            if (checkInputArguments(L,nullptr,lua_arg_number,0))
-            { // argument sim.handle_self
-                if (luaWrap_lua_tointeger(L,1)==sim_handle_self)
-                    retVal=CLuaScriptObject::getScriptHandleFromLuaState(L);
-            }
-            if ( (retVal==-1)&&checkInputArguments(L,&errorString,lua_arg_string,0) )
-            { // string argument
-                std::string name(luaWrap_lua_tostring(L,1));
-                setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-                retVal=simGetScriptHandle_internal(name.c_str());
-                setCurrentScriptInfo_cSide(-1,-1);
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
 int _simSetScriptVariable(luaWrap_lua_State* L)
 { // deprecated on 16.06.2021
     TRACE_LUA_API;
@@ -20237,6 +20117,143 @@ int _simSetScriptVariable(luaWrap_lua_State* L)
         }
         else
             errorString=SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetObjectAssociatedWithScript(luaWrap_lua_State* L)
+{ // deprecated on 18.06.2021
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectAssociatedWithScript");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int a=luaToInt(L,1);
+        if (a==sim_handle_self)
+            a=CLuaScriptObject::getScriptHandleFromLuaState(L);
+        retVal=simGetObjectAssociatedWithScript_internal(a);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetScriptAssociatedWithObject(luaWrap_lua_State* L)
+{ // deprecated on 18.06.2021
+    TRACE_LUA_API;
+    LUA_START("sim.getScriptAssociatedWithObject");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        retVal=simGetScriptAssociatedWithObject_internal(luaToInt(L,1));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetCustomizationScriptAssociatedWithObject(luaWrap_lua_State* L)
+{ // deprecated on 18.06.2021
+    TRACE_LUA_API;
+    LUA_START("sim.getCustomizationScriptAssociatedWithObject");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        retVal=simGetCustomizationScriptAssociatedWithObject_internal(luaToInt(L,1));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetObjectConfiguration(luaWrap_lua_State* L)
+{ // deprecated on 18.06.2021
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectConfiguration");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        char* data=simGetObjectConfiguration_internal(luaToInt(L,1));
+        if (data!=nullptr)
+        {
+            int dataSize=((int*)data)[0]+4;
+            luaWrap_lua_pushlstring(L,data,dataSize);
+            delete[] data;
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetObjectConfiguration(luaWrap_lua_State* L)
+{ // deprecated on 18.06.2021
+    TRACE_LUA_API;
+    LUA_START("sim.setObjectConfiguration");
+
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
+    {
+        size_t l;
+        const char* data=luaWrap_lua_tolstring(L,1,&l);
+        retVal=simSetObjectConfiguration_internal(data);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetConfigurationTree(luaWrap_lua_State* L)
+{ // deprecated on 18.06.2021
+    TRACE_LUA_API;
+    LUA_START("sim.getConfigurationTree");
+
+    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int id=luaToInt(L,1);
+        if (id==sim_handle_self)
+        {
+            int objID=it->getObjectHandleThatScriptIsAttachedTo_child();
+            id=objID;
+            if (id==-1)
+                errorString=SIM_ERROR_ARGUMENT_VALID_ONLY_WITH_CHILD_SCRIPTS;
+        }
+        if (id!=-1)
+        {
+            char* data=simGetConfigurationTree_internal(id);
+            if (data!=nullptr)
+            {
+                int dataSize=((int*)data)[0]+4;
+                luaWrap_lua_pushlstring(L,data,dataSize);
+                delete[] data;
+                LUA_END(1);
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetConfigurationTree(luaWrap_lua_State* L)
+{ // deprecated on 18.06.2021
+    TRACE_LUA_API;
+    LUA_START("sim.setConfigurationTree");
+
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
+    {
+        size_t l;
+        const char* data=luaWrap_lua_tolstring(L,1,&l);
+        retVal=simSetConfigurationTree_internal(data);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

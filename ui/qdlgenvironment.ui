@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>492</height>
+    <height>473</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -193,7 +193,7 @@
      <x>10</x>
      <y>210</y>
      <width>411</width>
-     <height>111</height>
+     <height>91</height>
     </rect>
    </property>
    <property name="title">
@@ -234,38 +234,6 @@
      <string>Lock scene after next scene save</string>
     </property>
    </widget>
-   <widget class="QToolButton" name="qqCleanUpHashNames">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>85</y>
-      <width>190</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Clean-up object names</string>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="qqCleanUpGhosts">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>85</y>
-      <width>190</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Clean-up ghosts</string>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="qqExtensionString">
     <property name="geometry">
      <rect>
@@ -294,7 +262,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>330</y>
+     <y>310</y>
      <width>411</width>
      <height>151</height>
     </rect>
@@ -328,8 +296,6 @@
   <tabstop>qqShapeTexturesDisabled</tabstop>
   <tabstop>qqNextSaveIsDefinitive</tabstop>
   <tabstop>qqExtensionString</tabstop>
-  <tabstop>qqCleanUpHashNames</tabstop>
-  <tabstop>qqCleanUpGhosts</tabstop>
   <tabstop>qqAcknowledgments</tabstop>
  </tabstops>
  <resources/>
