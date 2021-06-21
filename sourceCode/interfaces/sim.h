@@ -263,7 +263,6 @@ SIM_DLLEXPORT simInt simCreateForceSensor(simInt options,const simInt* intParams
 SIM_DLLEXPORT simInt simCreateVisionSensor(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
 SIM_DLLEXPORT simInt simConvexDecompose(simInt shapeHandle,simInt options,const simInt* intParams,const simFloat* floatParams);
 SIM_DLLEXPORT simVoid simQuitSimulator(simBool ignoredArgument);
-SIM_DLLEXPORT simInt simEnableEventCallback(simInt eventCallbackType,const simChar* plugin,simInt reserved);
 SIM_DLLEXPORT simInt simSetShapeMaterial(simInt shapeHandle,simInt materialIdOrShapeHandle);
 SIM_DLLEXPORT simInt simGetTextureId(const simChar* textureName,simInt* resolution);
 SIM_DLLEXPORT simChar* simReadTexture(simInt textureId,simInt options,simInt posX,simInt posY,simInt sizeX,simInt sizeY);
@@ -697,6 +696,7 @@ SIM_DLLEXPORT simChar* simGetObjectConfiguration(simInt objectHandle);
 SIM_DLLEXPORT simInt simSetObjectConfiguration(const simChar* data);
 SIM_DLLEXPORT simChar* simGetConfigurationTree(simInt objectHandle);
 SIM_DLLEXPORT simInt simSetConfigurationTree(const simChar* data);
+SIM_DLLEXPORT simInt simEnableEventCallback(simInt eventCallbackType,const simChar* plugin,simInt reserved);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

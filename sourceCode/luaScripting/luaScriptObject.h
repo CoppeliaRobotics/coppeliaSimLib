@@ -190,6 +190,7 @@ public:
     bool launchThreadedChildScript_oldThreads();
     int resumeThreadedChildScriptIfLocationMatch_oldThreads(int resumeLocation);
 
+    static std::vector<std::string> TEMP;
 protected:
     static void _luaHookFunc(luaWrap_lua_State* L,luaWrap_lua_Debug* ar);
     static std::string _getAdditionalLuaSearchPath_path();

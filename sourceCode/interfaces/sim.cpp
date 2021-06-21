@@ -993,10 +993,6 @@ SIM_DLLEXPORT simVoid simQuitSimulator(simBool ignoredArgument)
 {
     simQuitSimulator_internal(ignoredArgument);
 }
-SIM_DLLEXPORT simInt simEnableEventCallback(simInt eventCallbackType,const simChar* plugin,simInt reserved)
-{
-    return(simEnableEventCallback_internal(eventCallbackType,plugin,reserved));
-}
 SIM_DLLEXPORT simInt simSetShapeMaterial(simInt shapeHandle,simInt materialIdOrShapeHandle)
 {
     return(simSetShapeMaterial_internal(shapeHandle,materialIdOrShapeHandle));
@@ -2680,6 +2676,10 @@ SIM_DLLEXPORT simChar* simGetConfigurationTree(simInt objectHandle)
 SIM_DLLEXPORT simInt simSetConfigurationTree(const simChar* data)
 {
     return(simSetConfigurationTree_internal(data));
+}
+SIM_DLLEXPORT simInt simEnableEventCallback(simInt eventCallbackType,const simChar* plugin,simInt reserved)
+{
+    return(simEnableEventCallback_internal(eventCallbackType,plugin,reserved));
 }
 // Deprecated end
 

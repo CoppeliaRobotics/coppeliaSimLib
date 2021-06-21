@@ -1187,13 +1187,13 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
                 if (it->getDynamicSimulationIconCode()==sim_dynamicsimicon_objectisnotdynamicallyenabled)
                 {
                     txt=IDS_OBJECT;
-                    txt+=" '"+it->getObjectAlias_shortPath()+"' ";
+                    txt+=" '"+it->getObjectAlias_printPath()+"' ";
                     txt+=IDS_IS_NOT_DYNAMICALLY_ENABLED_WARNING;
                 }
                 if (it->getDynamicSimulationIconCode()==sim_dynamicsimicon_objectisdynamicallysimulated)
                 {
                     txt=IDS_OBJECT;
-                    txt+=" '"+it->getObjectAlias_shortPath()+"' ";
+                    txt+=" '"+it->getObjectAlias_printPath()+"' ";
                     txt+=std::string(IDS_IS_DYNAMICALLY_SIMULATED)+"\n";
                     if (it->getObjectType()==sim_object_shape_type)
                     {

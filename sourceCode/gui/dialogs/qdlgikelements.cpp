@@ -51,7 +51,7 @@ void CQDlgIkElements::updateObjectsInList()
             int tooltipID=ikElement->getTipHandle();
             int elementID=ikElement->getObjectHandle();
             CDummy* theTooltip=App::currentWorld->sceneObjects->getDummyFromHandle(tooltipID);
-            QListWidgetItem* itm=new QListWidgetItem(theTooltip->getObjectAlias_shortPath().c_str());
+            QListWidgetItem* itm=new QListWidgetItem(theTooltip->getObjectAlias_printPath().c_str());
             itm->setData(Qt::UserRole,QVariant(elementID));
             itm->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
             ui->qqList->addItem(itm);
@@ -195,7 +195,7 @@ void CQDlgIkElements::refresh()
     for (size_t i=0;i<App::currentWorld->sceneObjects->getDummyCount();i++)
     {
         CDummy* it2=App::currentWorld->sceneObjects->getDummyFromIndex(i);
-        names.push_back(it2->getObjectAlias_shortPath());
+        names.push_back(it2->getObjectAlias_printPath());
         ids.push_back(it2->getObjectHandle());
     }
     tt::orderStrings(names,ids);
@@ -217,7 +217,7 @@ void CQDlgIkElements::refresh()
                 if (tip->getLinkType()!=sim_dummy_linktype_ik_tip_target)
                     ui->qqTargetString->setText(IDS_WARNING_WRONG_DUMMY_LINK_TYPE);
                 else
-                    ui->qqTargetString->setText(target->getObjectAlias_shortPath().c_str());
+                    ui->qqTargetString->setText(target->getObjectAlias_printPath().c_str());
             }
         }
 
@@ -230,7 +230,7 @@ void CQDlgIkElements::refresh()
             CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromIndex(i);
             if (tooltip->isObjectParentedWith(it2))
             {
-                names.push_back(it2->getObjectAlias_shortPath());
+                names.push_back(it2->getObjectAlias_printPath());
                 ids.push_back(it2->getObjectHandle());
             }
         }
@@ -254,7 +254,7 @@ void CQDlgIkElements::refresh()
             CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromIndex(i);
             if ( (it2->getObjectType()==sim_object_dummy_type)&&(it2!=tooltip) )
             {
-                names.push_back(it2->getObjectAlias_shortPath());
+                names.push_back(it2->getObjectAlias_printPath());
                 ids.push_back(it2->getObjectHandle());
             }
         }

@@ -193,7 +193,7 @@ void CQDlgCommonProperties::refresh()
         {
             CCamera* it2=App::currentWorld->sceneObjects->getCameraFromIndex(i);
             std::string name(tt::decorateString("[",IDSN_CAMERA,"] "));
-            name+=it2->getObjectAlias_shortPath();
+            name+=it2->getObjectAlias_printPath();
             names.push_back(name);
             ids.push_back(it2->getObjectHandle());
         }
@@ -208,7 +208,7 @@ void CQDlgCommonProperties::refresh()
         {
             CVisionSensor* it2=App::currentWorld->sceneObjects->getVisionSensorFromIndex(i);
             std::string name(tt::decorateString("[",IDSN_VISION_SENSOR,"] "));
-            name+=it2->getObjectAlias_shortPath();
+            name+=it2->getObjectAlias_printPath();
             names.push_back(name);
             ids.push_back(it2->getObjectHandle());
         }

@@ -94,7 +94,7 @@ void CQDlgMirrors::refresh()
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
                 std::string name(tt::decorateString("[",IDS_OBJECT,"] "));
-                name+=it->getObjectAlias_shortPath();
+                name+=it->getObjectAlias_printPath();
                 names.push_back(name);
                 ids.push_back(it->getObjectHandle());
             }

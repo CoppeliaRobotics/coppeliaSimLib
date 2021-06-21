@@ -114,7 +114,7 @@ void CQDlgProximitySensors::refresh()
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromIndex(i);
             std::string name(tt::decorateString("[",IDSN_SHAPE,"] "));
-            name+=it->getObjectAlias_shortPath();
+            name+=it->getObjectAlias_printPath();
             names.push_back(name);
             ids.push_back(it->getObjectHandle());
         }
@@ -130,7 +130,7 @@ void CQDlgProximitySensors::refresh()
         {
             CDummy* it=App::currentWorld->sceneObjects->getDummyFromIndex(i);
             std::string name(tt::decorateString("[",IDSN_DUMMY,"] "));
-            name+=it->getObjectAlias_shortPath();
+            name+=it->getObjectAlias_printPath();
             names.push_back(name);
             ids.push_back(it->getObjectHandle());
         }

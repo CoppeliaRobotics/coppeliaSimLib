@@ -81,7 +81,7 @@ void CQDlg2D3DGraphProperties::_initialize(int graphHandle,bool xyGraph)
             txt=IDSN_3D_CURVES;
         }
         txt+=" (";
-        txt+=graph->getObjectAlias_shortPath();
+        txt+=graph->getObjectAlias_printPath();
         txt+=")";
         setWindowTitle(txt.c_str());
     }

@@ -283,7 +283,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
                 std::string txt(IDSNS_ATTACHING_OBJECTS_TO);
-                txt+=last->getObjectAlias_shortPath()+"'...";
+                txt+=last->getObjectAlias_printPath()+"'...";
                 App::logMsg(sim_verbosity_msgs,txt.c_str());
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }

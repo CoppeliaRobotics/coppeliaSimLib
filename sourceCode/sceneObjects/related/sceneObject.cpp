@@ -2709,7 +2709,7 @@ void CSceneObject::performScriptLoadingMapping(const std::vector<int>* map)
 
 std::string CSceneObject::getDisplayName() const
 {
-    return(getObjectAlias_shortPath());
+    return(getObjectAlias_printPath());
 }
 
 bool CSceneObject::announceObjectWillBeErased(int objHandle,bool copyBuffer)

@@ -185,6 +185,7 @@ std::string _CSceneObject_::getObjectAlias_fullPath() const
 std::string _CSceneObject_::getObjectAlias_shortPath() const
 {
     std::string previousAlias=getObjectAliasAndOrder();
+    size_t cnt=1;
     std::string retVal("/"+previousAlias);
     if (_parentObject!=nullptr)
     {
@@ -196,6 +197,8 @@ std::string _CSceneObject_::getObjectAlias_shortPath() const
         bool doNotSkip=false;
         while (it!=nullptr)
         {
+            if (cnt>8)
+                return(getObjectAlias_fullPath());
             std::string itAlias=it->getObjectAliasAndOrder();
             if ( (itAlias==previousAlias)&&previouslySkipped )
             {
@@ -212,6 +215,7 @@ std::string _CSceneObject_::getObjectAlias_shortPath() const
                     {
                         previousAlias=itAlias;
                         retVal="/"+previousAlias+retVal;
+                        cnt++;
                     }
                     else
                     {
@@ -231,6 +235,7 @@ std::string _CSceneObject_::getObjectAlias_shortPath() const
                     {
                         previousAlias=itAlias;
                         retVal="/"+previousAlias+retVal;
+                        cnt++;
                     }
                     else
                     {
@@ -245,6 +250,33 @@ std::string _CSceneObject_::getObjectAlias_shortPath() const
                 doNotSkip=false;
                 it=it->getParent();
             }
+        }
+    }
+    return(retVal);
+}
+
+std::string _CSceneObject_::getObjectAlias_printPath() const
+{
+    std::string retVal=getObjectAlias_shortPath();
+    if (retVal.size()>40)
+    {
+        size_t cnt=0;
+        size_t p2;
+        for (size_t i=0;i<retVal.size();i++)
+        {
+            if (retVal[i]=='/')
+            {
+                cnt++;
+                if (cnt==2)
+                    p2=i;
+                if (cnt>=3)
+                    break;
+            }
+        }
+        if (cnt>=3)
+        {
+            retVal=retVal.substr(0,p2+1)+" ... /";
+            retVal+=getObjectAliasAndOrder();
         }
     }
     return(retVal);

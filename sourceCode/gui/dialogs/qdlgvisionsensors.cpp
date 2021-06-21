@@ -164,7 +164,7 @@ void CQDlgVisionSensors::refresh()
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromIndex(i);
             std::string name(tt::decorateString("[",IDSN_SHAPE,"] "));
-            name+=it->getObjectAlias_shortPath();
+            name+=it->getObjectAlias_printPath();
             names.push_back(name);
             ids.push_back(it->getObjectHandle());
         }
@@ -180,7 +180,7 @@ void CQDlgVisionSensors::refresh()
         {
             CPath_old* it=App::currentWorld->sceneObjects->getPathFromIndex(i);
             std::string name(tt::decorateString("[",IDSN_PATH,"] "));
-            name+=it->getObjectAlias_shortPath();
+            name+=it->getObjectAlias_printPath();
             names.push_back(name);
             ids.push_back(it->getObjectHandle());
         }
@@ -196,7 +196,7 @@ void CQDlgVisionSensors::refresh()
         {
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromIndex(i);
             std::string name(tt::decorateString("[",IDSN_GRAPH,"] "));
-            name+=it->getObjectAlias_shortPath();
+            name+=it->getObjectAlias_printPath();
             names.push_back(name);
             ids.push_back(it->getObjectHandle());
         }

@@ -12661,25 +12661,6 @@ simVoid simQuitSimulator_internal(simBool ignoredArgument)
     App::appendSimulationThreadCommand(cmd);
 }
 
-simInt simEnableEventCallback_internal(simInt eventCallbackType,const simChar* plugin,simInt reserved)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        if (CPluginContainer::enableOrDisableSpecificEventCallback(eventCallbackType,plugin))
-            return(1);
-        return(0);
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
 simInt simSetShapeMaterial_internal(simInt shapeHandle,simInt materialIdOrShapeHandle)
 {
     TRACE_C_API;
@@ -16341,7 +16322,7 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
             }
             int retVal=-1; // error
             if (script->getThreadedExecutionIsUnderWay_oldThreads())
-            { // very special handling here!
+            { // OLD, very special handling here!
                 if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
                     retVal=script->executeScriptString(stringToExecute.c_str(),stack);
                 else
@@ -22360,6 +22341,23 @@ simInt simSetConfigurationTree_internal(const simChar* data)
             }
         }
         return(1);
+    }
+    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simEnableEventCallback_internal(simInt eventCallbackType,const simChar* plugin,simInt reserved)
+{ // deprecated on 18.06.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (CPluginContainer::enableOrDisableSpecificEventCallback(eventCallbackType,plugin))
+            return(1);
+        return(0);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);

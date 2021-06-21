@@ -51,7 +51,7 @@ void CQDlgTextureSelection::refresh()
     for (size_t i=0;i<App::currentWorld->sceneObjects->getVisionSensorCount();i++)
     {
         CVisionSensor* rs=App::currentWorld->sceneObjects->getVisionSensorFromIndex(i);
-        std::string txt(rs->getObjectAlias_shortPath());
+        std::string txt(rs->getObjectAlias_printPath());
         int s[2];
         rs->getRealResolution(s);
         txt+=" [";

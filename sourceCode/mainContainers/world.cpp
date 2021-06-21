@@ -1216,6 +1216,7 @@ void CWorld::exportIkContent(CExtIkSer& ar)
 
 bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
 {
+    CLuaScriptObject::TEMP.clear();
     appendLoadOperationIssue(-1,nullptr,-1); // clear
 
     CMesh::clearTempVerticesIndicesNormalsAndEdges();
@@ -1683,6 +1684,46 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
             }
         }
     }
+
+    //******************
+    /*
+    for (size_t i=0;i<loadedObjectList.size();i++)
+    {
+        CSceneObject* it=loadedObjectList[i];
+        std::string alias=it->getObjectAlias();
+        size_t p=alias.find("_");
+        if (p!=std::string::npos)
+        {
+            alias.erase(0,p+1);
+            if (it->getModelBase())
+                printf("    ******** --> Model base with alias: %s\n",it->getObjectAlias().c_str());
+            it->setObjectAlias_direct(alias.c_str());
+        }
+        if (!it->getModelBase())
+        {
+            std::string aliasNew=tt::getNameWithoutSuffixNumber(alias.c_str(),false);
+            if (aliasNew!=alias)
+            { // ok, has number suffix
+                bool present=false;
+                for (size_t j=0;j<CLuaScriptObject::TEMP.size();j++)
+                {
+                    if (CLuaScriptObject::TEMP[j]==alias)
+                    {
+                        present=true;
+                        break;
+                    }
+                }
+                if (!present)
+                {
+                    it->setObjectAlias_direct(aliasNew.c_str());
+                    if (aliasNew.size()==0)
+                        printf("    ******** --> Alias became ZERO: %s\n",alias.c_str());
+                }
+            }
+        }
+    }
+    //*/
+    //******************
     return(true);
 }
 

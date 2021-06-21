@@ -5256,7 +5256,7 @@ int _sim_getObjectHandle(luaWrap_lua_State* L)
     int retVal=-1; // means error
 
     bool checkWithString=true;
-    if (checkInputArguments(L,nullptr,lua_arg_number,0)) // do not output error if not string
+    if (checkInputArguments(L,nullptr,lua_arg_integer,0)) // do not output error if not string
     { // argument sim.handle_self
         if (luaWrap_lua_tointeger(L,1)==sim_handle_self)
         {

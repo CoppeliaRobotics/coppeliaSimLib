@@ -260,7 +260,6 @@ simInt simCreateForceSensor_internal(simInt options,const simInt* intParams,cons
 simInt simCreateVisionSensor_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
 simInt simConvexDecompose_internal(simInt shapeHandle,simInt options,const simInt* intParams,const simFloat* floatParams);
 simVoid simQuitSimulator_internal(simBool ignoredArgument);
-simInt simEnableEventCallback_internal(simInt eventCallbackType,const simChar* plugin,simInt reserved);
 simInt simSetShapeMaterial_internal(simInt shapeHandle,simInt materialIdOrShapeHandle);
 simInt simGetTextureId_internal(const simChar* textureName,simInt* resolution);
 simChar* simReadTexture_internal(simInt textureId,simInt options,simInt posX,simInt posY,simInt sizeX,simInt sizeY);
@@ -648,4 +647,5 @@ simChar* simGetObjectConfiguration_internal(simInt objectHandle);
 simInt simSetObjectConfiguration_internal(const simChar* data);
 simChar* simGetConfigurationTree_internal(simInt objectHandle);
 simInt simSetConfigurationTree_internal(const simChar* data);
+simInt simEnableEventCallback_internal(simInt eventCallbackType,const simChar* plugin,simInt reserved);
 #endif // !defined(simInternal_INCLUDED_)

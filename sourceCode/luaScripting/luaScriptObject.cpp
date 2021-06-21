@@ -19,6 +19,8 @@ VMutex CLuaScriptObject::_globalMutex_oldThreads;
 std::vector<CLuaScriptObject*> CLuaScriptObject::toBeCalledByThread_oldThreads;
 std::map<std::string,std::string> CLuaScriptObject::_newApiMap;
 
+std::vector<std::string> CLuaScriptObject::TEMP;
+
 const SNewApiMapping _simApiMapping[]=
 {
     "sim.mainscriptcall_initialization","sim.syscb_init",
@@ -2904,7 +2906,7 @@ std::string CLuaScriptObject::getDescriptiveName() const
         else
         {
             retVal+=" \"";
-            retVal+=it->getObjectAlias_shortPath();
+            retVal+=it->getObjectAlias_printPath();
             retVal+="\"";
         }
     }
@@ -2936,7 +2938,7 @@ std::string CLuaScriptObject::getShortDescriptiveName() const
         if (it==nullptr)
             retVal+="???";
         else
-            retVal+=it->getObjectAlias_shortPath();
+            retVal+=it->getObjectAlias_printPath();
         if (_scriptType==sim_scripttype_childscript)
             retVal+="@childScript";
         else
@@ -6364,6 +6366,71 @@ void CLuaScriptObject::_adjustScriptText14(CLuaScriptObject* scriptObject,bool d
             App::logMsg(sim_verbosity_errors,"Contains sim.getScriptAssociatedWithObject...");
         if (_containsScriptText(scriptObject,"sim.getCustomizationScriptAssociatedWithObject"))
             App::logMsg(sim_verbosity_errors,"Contains sim.getCustomizationScriptAssociatedWithObject...");
+
+        //********************************************
+        /*
+        std::string s=getScriptText();
+        std::string newS;
+        size_t pos=0;
+        std::string token;
+        while ((pos=s.find("\n"))!=std::string::npos)
+        {
+            token=s.substr(0,pos);
+            std::string newL=token;
+            size_t p2=token.find("sim.getObjectHandle('");
+            size_t p3=token.find("sim.getObjectHandle(\"");
+            size_t p4;
+            if ( (p2!=std::string::npos)||(p3!=std::string::npos) )
+            {
+                size_t p5;
+                size_t p7;
+                if (p2!=std::string::npos)
+                {
+                    p4=p2+21;
+                    token.erase(0,p4);
+                    p5=newL.find("'");
+                    p7=token.find("'");
+                }
+                else
+                {
+                    p4=p3+21;
+                    token.erase(0,p4);
+                    p5=newL.find("\"");
+                    p7=token.find("\"");
+                }
+                if (p7!=std::string::npos)
+                {
+                    token.erase(p7);
+                    while ( (token.size()>0)&&((token[0]=='.')||(token[0]=='/')||(token[0]==':')) )
+                    {
+                        p4++;
+                        token.erase(0,1);
+                    }
+                    if (token.size()!=0)
+                    {
+                        size_t p6=newL.find("_");
+                        if (p6!=std::string::npos)
+                        {
+                            newL.erase(p4,(p6-p4)+1);
+                            size_t p8=token.find("_");
+                            token.erase(0,p8+1);
+                        }
+                        std::string tokenS=tt::getNameWithoutSuffixNumber(token.c_str(),false);
+                        if (tokenS!=token)
+                        { // for those do not remove suffix number:
+                            TEMP.push_back(token);
+//                            printf("ALIAS: %s\n",token.c_str());
+                        }
+                    }
+                }
+            }
+            s.erase(0,pos+1);
+            newS+=newL+"\n";
+        }
+        newS+=s;
+        setScriptText(newS.c_str());
+        //*/
+        //********************************************
 
         if (_containsScriptText(scriptObject,"sim.getObjectConfiguration"))
             App::logMsg(sim_verbosity_errors,"Contains sim.getObjectConfiguration...");

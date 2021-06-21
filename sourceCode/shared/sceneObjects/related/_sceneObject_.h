@@ -44,6 +44,7 @@ public:
     std::string getObjectAliasAndHandle() const;
     std::string getObjectAlias_fullPath() const;
     std::string getObjectAlias_shortPath() const;
+    std::string getObjectAlias_printPath() const;
     std::string getObjectName_old() const;
     std::string getObjectAltName_old() const;
 

@@ -268,7 +268,7 @@ void CSceneHierarchyWidget::removeAll()
 
 QTreeWidgetItem* CSceneHierarchyWidget::_buildObject(CSceneObject* it)
 {
-    QTreeWidgetItem* item=new QTreeWidgetItem((QTreeWidget*)0,QStringList(it->getObjectAlias_shortPath().c_str()));
+    QTreeWidgetItem* item=new QTreeWidgetItem((QTreeWidget*)0,QStringList(it->getObjectAlias_printPath().c_str()));
     _allTreeItems[it->getObjectHandle()]=item;
     item->setIcon(0,*(new QIcon(":/toolbarFiles/cameraShift.png")));
 //    QPixmap pix(16,16);
