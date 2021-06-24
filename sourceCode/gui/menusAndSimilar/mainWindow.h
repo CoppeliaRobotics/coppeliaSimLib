@@ -23,7 +23,6 @@
 #include "simThread.h"
 #include "modelFolderWidget.h"
 #include "modelListWidget.h"
-#include "sceneHierarchyWidget.h"
 
 enum {FOCUS_ON_PAGE=0,FOCUS_ON_HIERARCHY,FOCUS_ON_SOFT_DIALOG,FOCUS_ON_VIEW_SELECTION_WINDOW,FOCUS_ON_PAGE_SELECTION_WINDOW,FOCUS_ON_UNKNOWN_OBJECT,FOCUS_ON_BROWSER};
 
@@ -121,8 +120,6 @@ public:
     CStatusBar* statusBar;
     CModelFolderWidget* modelFolderWidget;
     CModelListWidget* modelListWidget;
-    CSceneHierarchyWidget* sceneHierarchyWidget;
-    QHBoxLayout* sceneHierarchyLayout;
     QTabBar* tabBar;
 
     CDlgCont* dlgCont;
@@ -193,8 +190,6 @@ private:
     VMenu* _helpSystemMenu;
     VMenu* _instancesSystemMenu;
 
-
-    std::vector<CSceneHierarchyWidget*> _sceneHierarchyWidgetList;
 
 
     QToolBar* _toolbar1;

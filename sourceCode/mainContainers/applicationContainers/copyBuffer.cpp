@@ -324,7 +324,6 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
         if ((options&16)!=0)
         {
             it->setModelBase(false);
-            it->setLocalObjectProperty((it->getLocalObjectProperty()|sim_objectproperty_canupdatedna)-sim_objectproperty_canupdatedna);
             it->generateDnaString();
         }
         objectBuffer.push_back(it);

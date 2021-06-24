@@ -81,6 +81,7 @@ public:
     bool useAlternateSerialPortRoutines;
     bool disableOpenGlBasedCustomUi;
     bool showOldDlgs;
+    bool enableOldRenderableBehaviour;
     bool keepOldThreadedScripts;
     bool enableOldMirrorObjects;
     int allowOldEduRelease;

@@ -737,8 +737,6 @@ WITH_GUI {
 
     HEADERS += $$PWD/sourceCode/gui/sceneHierarchy/hierarchy.h \
         $$PWD/sourceCode/gui/sceneHierarchy/hierarchyElement.h \
-        $$PWD/sourceCode/gui/sceneHierarchy/sceneHierarchyWidget.h \
-        $$PWD/sourceCode/gui/sceneHierarchy/sceneHierarchyItemDelegate.h \
 
     HEADERS += $$PWD/sourceCode/gui/modelBrowser/modelFolderWidget.h \
         $$PWD/sourceCode/gui/modelBrowser/modelListWidget.h \
@@ -1162,8 +1160,6 @@ WITH_GUI {
 
     SOURCES += $$PWD/sourceCode/gui/sceneHierarchy/hierarchy.cpp \
         $$PWD/sourceCode/gui/sceneHierarchy/hierarchyElement.cpp \
-        $$PWD/sourceCode/gui/sceneHierarchy/sceneHierarchyWidget.cpp \
-        $$PWD/sourceCode/gui/sceneHierarchy/sceneHierarchyItemDelegate.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/modelBrowser/modelFolderWidget.cpp \
         $$PWD/sourceCode/gui/modelBrowser/modelListWidget.cpp \

@@ -35,7 +35,7 @@ CSceneObject::CSceneObject()
     _objectHandle=-1;
     _beforeDeleteCallbackSent=false;
     _ikPluginCounterpartHandle=-1;
-    generateDnaString();
+    _dnaString=CTTUtil::generateUniqueString();
     _assemblingLocalTransformation.setIdentity();
     _assemblingLocalTransformationIsUsed=false;
     _userScriptParameters=nullptr;
@@ -357,7 +357,7 @@ int CSceneObject::_getAllowedObjectSpecialProperties() const
     if (isPotentiallyMeasurable())
         retVal|=sim_objectspecialproperty_measurable;
     if (isPotentiallyDetectable())
-        retVal|=sim_objectspecialproperty_detectable_all;
+        retVal|=sim_objectspecialproperty_detectable;
     if (isPotentiallyRenderable())
         retVal|=sim_objectspecialproperty_renderable;
     return(retVal);
@@ -465,7 +465,7 @@ int CSceneObject::getCumulativeObjectSpecialProperty()
     if (o&sim_modelproperty_not_renderable)
         p=(p|sim_objectspecialproperty_renderable)-sim_objectspecialproperty_renderable;
     if (o&sim_modelproperty_not_detectable)
-        p=(p|sim_objectspecialproperty_detectable_all)-sim_objectspecialproperty_detectable_all;
+        p=(p|sim_objectspecialproperty_detectable)-sim_objectspecialproperty_detectable;
 
     return(p);
 }
@@ -506,11 +506,22 @@ void CSceneObject::incrementModelPropertyValidityNumber()
     _modelPropertyValidityNumber++;
 }
 
+bool CSceneObject::isObjectVisible()
+{
+    return( isObjectInVisibleLayer()&&(!isObjectPartOfInvisibleModel()) );
+}
+
+bool CSceneObject::isObjectInVisibleLayer()
+{
+    return( (int(App::currentWorld->mainSettings->getActiveLayers())&_visibilityLayer)!=0 );
+}
 
 bool CSceneObject::isObjectPartOfInvisibleModel()
 {
     return((getCumulativeModelProperty()&sim_modelproperty_not_visible)!=0);
 }
+
+
 
 int CSceneObject::getTreeDynamicProperty() // combination of sim_objdynprop_dynamic and sim_objdynprop_respondable
 { // returns the total
@@ -977,8 +988,7 @@ CSceneObject* CSceneObject::copyYourself()
     theNewObject->_localModelProperty=_localModelProperty;
     theNewObject->_extensionString=_extensionString;
 
-    if (_localObjectProperty&sim_objectproperty_canupdatedna)
-        theNewObject->_dnaString=_dnaString;
+    theNewObject->_dnaString=_dnaString;
 
     theNewObject->_assemblingLocalTransformation=_assemblingLocalTransformation;
     theNewObject->_assemblingLocalTransformationIsUsed=_assemblingLocalTransformationIsUsed;
@@ -2152,8 +2162,6 @@ void CSceneObject::serialize(CSer& ar)
             // For old models to support the DNA-thing by default:
             if ( (ar.getCoppeliaSimVersionThatWroteThisFile()<30003)&&getModelBase() )
             {
-                _localObjectProperty|=sim_objectproperty_canupdatedna;
-                // We now create a "unique" id, that is always the same for the same file:
                 _dnaString="1234567890123456";
                 std::string a(CTTUtil::generateUniqueReadableString());
                 while (a.length()<16)
@@ -2246,30 +2254,34 @@ void CSceneObject::serialize(CSer& ar)
             ar.xmlAddNode_bool("selectable",_localObjectProperty&sim_objectproperty_selectable);
             ar.xmlAddNode_bool("selectModelBaseInstead",_localObjectProperty&sim_objectproperty_selectmodelbaseinstead);
             ar.xmlAddNode_bool("dontShowAsInsideModel",_localObjectProperty&sim_objectproperty_dontshowasinsidemodel);
-            ar.xmlAddNode_bool("canUpdateDna",_localObjectProperty&sim_objectproperty_canupdatedna);
             ar.xmlAddNode_bool("selectInvisible",_localObjectProperty&sim_objectproperty_selectinvisible);
             ar.xmlAddNode_bool("depthInvisible",_localObjectProperty&sim_objectproperty_depthinvisible);
             ar.xmlAddNode_bool("cannotDelete",_localObjectProperty&sim_objectproperty_cannotdelete);
             ar.xmlAddNode_bool("cannotDeleteDuringSimulation",_localObjectProperty&sim_objectproperty_cannotdeleteduringsim);
-            ar.xmlAddNode_bool("hiddenModelChild",_localObjectProperty&sim_objectproperty_hierarchyhiddenmodelchild);
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("localObjectSpecialProperty");
             ar.xmlAddNode_bool("collidable",_localObjectSpecialProperty&sim_objectspecialproperty_collidable);
             ar.xmlAddNode_bool("measurable",_localObjectSpecialProperty&sim_objectspecialproperty_measurable);
-            ar.xmlAddNode_bool("renderable",_localObjectSpecialProperty&sim_objectspecialproperty_renderable);
-            ar.xmlAddNode_comment(" following 5 can be set at the same time with the 'detectable' tag",exhaustiveXml);
+            if (_localObjectSpecialProperty&sim_objectspecialproperty_detectable==sim_objectspecialproperty_detectable)
+                ar.xmlAddNode_bool("detectable",true);
+            if (_localObjectSpecialProperty&sim_objectspecialproperty_detectable==0)
+                ar.xmlAddNode_bool("detectable",false);
+            // OLD:
+            ar.xmlAddNode_comment(" 'renderable' tag for backward compatibility, set to 'true':",exhaustiveXml);
+            ar.xmlAddNode_bool("renderable",_localObjectSpecialProperty&sim_objectspecialproperty_renderable); // for backward compatibility
+            ar.xmlAddNode_comment(" following 5 for backward compatibility:",exhaustiveXml);
             ar.xmlAddNode_bool("ultrasonicDetectable",_localObjectSpecialProperty&sim_objectspecialproperty_detectable_ultrasonic);
             ar.xmlAddNode_bool("infraredDetectable",_localObjectSpecialProperty&sim_objectspecialproperty_detectable_infrared);
             ar.xmlAddNode_bool("laserDetectable",_localObjectSpecialProperty&sim_objectspecialproperty_detectable_laser);
             ar.xmlAddNode_bool("inductiveDetectable",_localObjectSpecialProperty&sim_objectspecialproperty_detectable_inductive);
             ar.xmlAddNode_bool("capacitiveDetectable",_localObjectSpecialProperty&sim_objectspecialproperty_detectable_capacitive);
+
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("localModelProperty");
             ar.xmlAddNode_bool("notCollidable",_localModelProperty&sim_modelproperty_not_collidable);
             ar.xmlAddNode_bool("notMeasurable",_localModelProperty&sim_modelproperty_not_measurable);
-            ar.xmlAddNode_bool("notRenderable",_localModelProperty&sim_modelproperty_not_renderable);
             ar.xmlAddNode_bool("notDetectable",_localModelProperty&sim_modelproperty_not_detectable);
             ar.xmlAddNode_bool("notDynamic",_localModelProperty&sim_modelproperty_not_dynamic);
             ar.xmlAddNode_bool("notRespondable",_localModelProperty&sim_modelproperty_not_respondable);
@@ -2277,6 +2289,11 @@ void CSceneObject::serialize(CSer& ar)
             ar.xmlAddNode_bool("notVisible",_localModelProperty&sim_modelproperty_not_visible);
             ar.xmlAddNode_bool("scriptsInactive",_localModelProperty&sim_modelproperty_scripts_inactive);
             ar.xmlAddNode_bool("notShowAsInsideModel",_localModelProperty&sim_modelproperty_not_showasinsidemodel);
+
+            // For backward compatibility:
+            ar.xmlAddNode_comment(" 'notRenderable' tag for backward compatibility, set to 'false':",exhaustiveXml);
+            ar.xmlAddNode_bool("notRenderable",_localModelProperty&sim_modelproperty_not_renderable);
+
             ar.xmlPopNode();
 
             ar.xmlAddNode_int("layer",_visibilityLayer);
@@ -2470,12 +2487,10 @@ void CSceneObject::serialize(CSer& ar)
                     ar.xmlGetNode_flags("selectable",_localObjectProperty,sim_objectproperty_selectable,exhaustiveXml);
                     ar.xmlGetNode_flags("selectModelBaseInstead",_localObjectProperty,sim_objectproperty_selectmodelbaseinstead,exhaustiveXml);
                     ar.xmlGetNode_flags("dontShowAsInsideModel",_localObjectProperty,sim_objectproperty_dontshowasinsidemodel,exhaustiveXml);
-                    ar.xmlGetNode_flags("canUpdateDna",_localObjectProperty,sim_objectproperty_canupdatedna,exhaustiveXml);
                     ar.xmlGetNode_flags("selectInvisible",_localObjectProperty,sim_objectproperty_selectinvisible,exhaustiveXml);
                     ar.xmlGetNode_flags("depthInvisible",_localObjectProperty,sim_objectproperty_depthinvisible,exhaustiveXml);
                     ar.xmlGetNode_flags("cannotDelete",_localObjectProperty,sim_objectproperty_cannotdelete,exhaustiveXml);
                     ar.xmlGetNode_flags("cannotDeleteDuringSimulation",_localObjectProperty,sim_objectproperty_cannotdeleteduringsim,exhaustiveXml);
-                    ar.xmlGetNode_flags("hiddenModelChild",_localObjectProperty,sim_objectproperty_hierarchyhiddenmodelchild,false); // new flag
                     ar.xmlPopNode();
                 }
 
@@ -2484,22 +2499,21 @@ void CSceneObject::serialize(CSer& ar)
                     _localObjectSpecialProperty=0;
                     ar.xmlGetNode_flags("collidable",_localObjectSpecialProperty,sim_objectspecialproperty_collidable,exhaustiveXml);
                     ar.xmlGetNode_flags("measurable",_localObjectSpecialProperty,sim_objectspecialproperty_measurable,exhaustiveXml);
-                    if (!exhaustiveXml)
+                    ar.xmlGetNode_flags("renderable",_localObjectSpecialProperty,sim_objectspecialproperty_renderable,false); // for backward compatibility
+                    // Following 5 for backward compatibility:
+                    ar.xmlGetNode_flags("ultrasonicDetectable",_localObjectSpecialProperty,sim_objectspecialproperty_detectable_ultrasonic,false);
+                    ar.xmlGetNode_flags("infraredDetectable",_localObjectSpecialProperty,sim_objectspecialproperty_detectable_infrared,false);
+                    ar.xmlGetNode_flags("laserDetectable",_localObjectSpecialProperty,sim_objectspecialproperty_detectable_laser,false);
+                    ar.xmlGetNode_flags("inductiveDetectable",_localObjectSpecialProperty,sim_objectspecialproperty_detectable_inductive,false);
+                    ar.xmlGetNode_flags("capacitiveDetectable",_localObjectSpecialProperty,sim_objectspecialproperty_detectable_capacitive,false);
+                    bool dummyDet;
+                    if (ar.xmlGetNode_bool("detectable",dummyDet,false))
                     {
-                        bool detectable;
-                        if (ar.xmlGetNode_bool("detectable",detectable,exhaustiveXml))
-                        {
-                            _localObjectSpecialProperty|=sim_objectspecialproperty_detectable_all;
-                            if (!detectable)
-                                _localObjectSpecialProperty-=sim_objectspecialproperty_detectable_all;
-                        }
+                        _localObjectSpecialProperty|=sim_objectspecialproperty_detectable;
+                        if (!dummyDet)
+                            _localObjectSpecialProperty-=sim_objectspecialproperty_detectable;
                     }
-                    ar.xmlGetNode_flags("ultrasonicDetectable",_localObjectSpecialProperty,sim_objectspecialproperty_detectable_ultrasonic,exhaustiveXml);
-                    ar.xmlGetNode_flags("infraredDetectable",_localObjectSpecialProperty,sim_objectspecialproperty_detectable_infrared,exhaustiveXml);
-                    ar.xmlGetNode_flags("laserDetectable",_localObjectSpecialProperty,sim_objectspecialproperty_detectable_laser,exhaustiveXml);
-                    ar.xmlGetNode_flags("inductiveDetectable",_localObjectSpecialProperty,sim_objectspecialproperty_detectable_inductive,exhaustiveXml);
-                    ar.xmlGetNode_flags("capacitiveDetectable",_localObjectSpecialProperty,sim_objectspecialproperty_detectable_capacitive,exhaustiveXml);
-                    ar.xmlGetNode_flags("renderable",_localObjectSpecialProperty,sim_objectspecialproperty_renderable,exhaustiveXml);
+
                     ar.xmlPopNode();
                 }
 
@@ -2508,7 +2522,7 @@ void CSceneObject::serialize(CSer& ar)
                     _localModelProperty=0;
                     ar.xmlGetNode_flags("notCollidable",_localModelProperty,sim_modelproperty_not_collidable,exhaustiveXml);
                     ar.xmlGetNode_flags("notMeasurable",_localModelProperty,sim_modelproperty_not_measurable,exhaustiveXml);
-                    ar.xmlGetNode_flags("notRenderable",_localModelProperty,sim_modelproperty_not_renderable,exhaustiveXml);
+                    ar.xmlGetNode_flags("notRenderable",_localModelProperty,sim_modelproperty_not_renderable,false); // for backward compatibility
                     ar.xmlGetNode_flags("notDetectable",_localModelProperty,sim_modelproperty_not_detectable,exhaustiveXml);
                     ar.xmlGetNode_flags("notDynamic",_localModelProperty,sim_modelproperty_not_dynamic,exhaustiveXml);
                     ar.xmlGetNode_flags("notRespondable",_localModelProperty,sim_modelproperty_not_respondable,exhaustiveXml);

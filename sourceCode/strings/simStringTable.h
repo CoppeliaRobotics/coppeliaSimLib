@@ -980,7 +980,6 @@
 #define IDSN_SURE_TO_REMOVE_GENERAL_CALLBACK_WARNING "The operation you are about to perform will remove the general callback script. Are you sure you want to proceed?"
 #define IDSN_SURE_TO_REMOVE_CUSTOMIZATION_SCRIPT_WARNING "The operation you are about to perform will remove the customization script. Are you sure you want to proceed?"
 #define IDSN_CUSTOM_CONTACT_IS_SLOW_AND_NOT_RECOMENDED_WARNING "Performing custom collision/contact response handling is not recomended for compatibility reasons (e.g. models created by others will perform differently in this scene). Remember also that this mechanism will slow down the simulation."
-#define IDSN_SURE_TO_DISABLE_UPDATABLE_WARNING "The operation you are about to perform will definitely disassociate this object/model from its siblings (i.e. this object/model will be independent, and you won't be able to re-associate it with its former siblings). Are you sure you want to proceed?"
 
 #define IDS_DUMMY_LINK_TYPE_DYNAMICS_LOOP_CLOSURE "Dynamics, overlap constraint"
 #define IDS_DUMMY_LINK_TYPE_GCS_LOOP_CLOSURE "GCS, overlap constraint (deprecated)"

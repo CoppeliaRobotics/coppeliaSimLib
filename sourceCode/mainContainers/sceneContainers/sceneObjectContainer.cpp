@@ -1111,12 +1111,20 @@ bool CSceneObjectContainer::setObjectAlias(CSceneObject* object,const char* newA
         {
             retVal=true;
             object->setObjectAlias_direct(nm.c_str());
-            //setObjectSequence(object,-1); // like inserting it in last position
             if (object->getParent()==nullptr)
                 _handleOrderIndexOfOrphans();
             else
                 object->getParent()->handleOrderIndexOfChildren();
         }
+    }
+    if (retVal)
+    {
+        std::string newName(object->getObjectAlias());
+        int sn=tt::getNameSuffixNumber(object->getObjectName_old().c_str(),true);
+        if (sn>=0)
+            newName=newName+"#"+std::to_string(sn);
+        setObjectName_old(object,newName.c_str(),true);
+        App::setRebuildHierarchyFlag();
     }
     return(retVal);
 }

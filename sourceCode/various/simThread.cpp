@@ -1047,7 +1047,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
+            {
                 it->setVisibilityLayer(cmd.intParams[1]);
+                // For backward compatibility: always renderable (now following the visibility layers as for cameras):
+                if (it->isPotentiallyRenderable())
+                    it->setLocalObjectSpecialProperty(it->getLocalObjectSpecialProperty()|sim_objectspecialproperty_renderable);
+            }
         }
         if (cmd.cmdId==APPLY_VISIBILITYPROP_COMMONPROPGUITRIGGEREDCMD)
         {
@@ -1069,7 +1074,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
+            {
                 it->setModelBase(!it->getModelBase());
+                if (it->getModelBase())
+                    it->generateDnaString();
+            }
         }
         if (cmd.cmdId==TOGGLE_COLLIDABLE_COMMONPROPGUITRIGGEREDCMD)
         {
@@ -1094,14 +1103,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if ((it!=nullptr)&&it->isPotentiallyDetectable())
             {
-                int t=it->getLocalObjectSpecialProperty()&sim_objectspecialproperty_detectable_all;
-                if (t==sim_objectspecialproperty_detectable_all)
+                int t=it->getLocalObjectSpecialProperty()&sim_objectspecialproperty_detectable;
+                if (t==sim_objectspecialproperty_detectable)
                 {
-                    t=it->getLocalObjectSpecialProperty()|sim_objectspecialproperty_detectable_all;
-                    t-=sim_objectspecialproperty_detectable_all;
+                    t=it->getLocalObjectSpecialProperty()|sim_objectspecialproperty_detectable;
+                    t-=sim_objectspecialproperty_detectable;
                 }
                 else
-                    t=it->getLocalObjectSpecialProperty()|sim_objectspecialproperty_detectable_all;
+                    t=it->getLocalObjectSpecialProperty()|sim_objectspecialproperty_detectable;
                 it->setLocalObjectSpecialProperty(t);
             }
         }
@@ -1122,7 +1131,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if (last->isPotentiallyMeasurable())
                     settableBits|=sim_objectspecialproperty_measurable;
                 if (last->isPotentiallyDetectable())
-                    settableBits|=sim_objectspecialproperty_detectable_all;
+                    settableBits|=sim_objectspecialproperty_detectable;
                 if (last->isPotentiallyRenderable())
                     settableBits|=sim_objectspecialproperty_renderable;
                 int stateOfSettableBits=last->getLocalObjectSpecialProperty()&settableBits;
@@ -1134,21 +1143,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         int objProp=((it->getLocalObjectSpecialProperty()|settableBits)-settableBits)|stateOfSettableBits;
                         it->setLocalObjectSpecialProperty(objProp);
                     }
-                }
-            }
-        }
-        if (cmd.cmdId==TOGGLE_CANTRANSFERDNA_COMMONPROPGUITRIGGEREDCMD)
-        {
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                int p=it->getLocalObjectProperty();
-                if (p&sim_objectproperty_canupdatedna)
-                    it->setLocalObjectProperty(p-sim_objectproperty_canupdatedna);
-                else
-                {
-                    it->setLocalObjectProperty(p|sim_objectproperty_canupdatedna);
-                    it->generateDnaString();
                 }
             }
         }
@@ -4805,7 +4799,7 @@ void CSimThread::_handleClickRayIntersection(SSimulationThreadCommand cmd)
 
         int intParams[8]={0,0,0,0,0,0,0,0};
         float floatParams[15]={nearClipp,999999.9f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.01f,0.0f,0.0f};
-        int psh=simCreateProximitySensor_internal(sim_proximitysensor_ray_subtype,sim_objectspecialproperty_detectable_all,0,intParams,floatParams,nullptr);
+        int psh=simCreateProximitySensor_internal(sim_proximitysensor_ray_subtype,sim_objectspecialproperty_detectable,0,intParams,floatParams,nullptr);
         simSetObjectPosition_internal(psh,cameraHandle,transf.X.data);
         simSetObjectOrientation_internal(psh,cameraHandle,transf.Q.getEulerAngles().data);
         int displayAttrib=sim_displayattribute_renderpass;

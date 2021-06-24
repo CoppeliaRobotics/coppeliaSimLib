@@ -68,12 +68,9 @@ void CHierarchyElement::addYourChildren()
                 for (size_t i=0;i<it->getChildCount();i++)
                 {
                     CSceneObject* child=it->getChildFromIndex(i);
-                    if (!child->hiddenInSceneHierarchy())
-                    {
-                        CHierarchyElement* aKid=new CHierarchyElement(child->getObjectHandle());
-                        aKid->addYourChildren();
-                        children.push_back(aKid);
-                    }
+                    CHierarchyElement* aKid=new CHierarchyElement(child->getObjectHandle());
+                    aKid->addYourChildren();
+                    children.push_back(aKid);
                 }
             }
         }

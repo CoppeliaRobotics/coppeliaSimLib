@@ -405,8 +405,6 @@ if(WITH_GUI)
 
         sourceCode/gui/sceneHierarchy/hierarchy.cpp
         sourceCode/gui/sceneHierarchy/hierarchyElement.cpp
-        sourceCode/gui/sceneHierarchy/sceneHierarchyWidget.cpp
-        sourceCode/gui/sceneHierarchy/sceneHierarchyItemDelegate.cpp
 
         sourceCode/gui/modelBrowser/modelFolderWidget.cpp
         sourceCode/gui/modelBrowser/modelListWidget.cpp

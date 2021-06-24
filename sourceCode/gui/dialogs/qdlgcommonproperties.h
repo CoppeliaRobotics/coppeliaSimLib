@@ -74,8 +74,6 @@ private slots:
 
     void on_qqAssembling_clicked();
 
-    void on_qqUpdatable_clicked();
-
     void on_qqSelectInvisible_clicked();
 
     void on_qqDepthInvisible_clicked();

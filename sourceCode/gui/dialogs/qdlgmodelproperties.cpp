@@ -34,14 +34,16 @@ void CQDlgModelProperties::refresh()
     ui->qqNotVisible->setChecked((ovProp&sim_modelproperty_not_visible)!=0);
     ui->qqNotCollidable->setChecked((ovProp&sim_modelproperty_not_collidable)!=0);
     ui->qqNotMeasurable->setChecked((ovProp&sim_modelproperty_not_measurable)!=0);
-    ui->qqNotRenderable->setChecked((ovProp&sim_modelproperty_not_renderable)!=0);
     ui->qqNotDetectable->setChecked((ovProp&sim_modelproperty_not_detectable)!=0);
     ui->qqNotDynamic->setChecked((ovProp&sim_modelproperty_not_dynamic)!=0);
     ui->qqNotRespondable->setChecked((ovProp&sim_modelproperty_not_respondable)!=0);
     ui->qqScriptsInactive->setChecked((ovProp&sim_modelproperty_scripts_inactive)!=0);
     ui->qqNotInsideModelBBox->setChecked((ovProp&sim_modelproperty_not_showasinsidemodel)!=0);
-
     ui->qqAcknowledgments->setPlainText(modelBaseObject->getModelAcknowledgement().c_str());
+
+    // Old:
+    ui->qqNotRenderable->setChecked((ovProp&sim_modelproperty_not_renderable)!=0);
+    ui->qqNotRenderable->setVisible(App::userSettings->showOldDlgs);
 }
 
 void CQDlgModelProperties::on_qqSelectThumbnail_clicked()
@@ -85,7 +87,9 @@ void CQDlgModelProperties::on_qqSelectThumbnail_clicked()
 
 void CQDlgModelProperties::on_qqNotVisible_clicked()
 {
-    modelBaseObject->setLocalModelProperty(modelBaseObject->getLocalModelProperty()^sim_modelproperty_not_visible);
+    int p=modelBaseObject->getLocalModelProperty();
+    p=(p|sim_modelproperty_not_renderable)-sim_modelproperty_not_renderable; // for backward compatibility. This will always clear that flag
+    modelBaseObject->setLocalModelProperty(p^sim_modelproperty_not_visible);
     refresh();
 }
 

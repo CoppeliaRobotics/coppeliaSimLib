@@ -21,7 +21,7 @@ CPointCloud::CPointCloud()
     color.setDefaultValues();
     color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
     _visibilityLayer=POINTCLOUD_LAYER;
-    _localObjectSpecialProperty=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable_all|sim_objectspecialproperty_renderable;
+    _localObjectSpecialProperty=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable|sim_objectspecialproperty_renderable;
     _objectAlias=IDSOGL_POINTCLOUD;
     _objectName_old=IDSOGL_POINTCLOUD;
     _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());

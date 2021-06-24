@@ -80,6 +80,7 @@
 #define _USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES "useAlternateSerialPortRoutines"
 #define _USR_DISABLED_OPENGL_BASED_CUSTOM_UI "disableOpenGlBasedCustomUi"
 #define _USR_SHOW_old_DLGS "showOldDlgs"
+#define _USR_ENABLE_OLD_RENDERABLE "enableOldRenderableBehaviour"
 #define _USR_BUGFIX1 "bugFix1"
 #define _USR_COMPATIBILITYFIX1 "compatibilityFix1"
 #define _USR_SUPPORT_old_THREADED_SCRIPTS "keepOldThreadedScripts"
@@ -359,6 +360,7 @@ CUserSettings::CUserSettings()
     useAlternateSerialPortRoutines=false;
     disableOpenGlBasedCustomUi=false;
     showOldDlgs=false;
+    enableOldRenderableBehaviour=false;
     keepOldThreadedScripts=false;
     _supportOldApiNotation=true;
     enableOldMirrorObjects=false;
@@ -737,6 +739,7 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES,useAlternateSerialPortRoutines,"");
     c.addBoolean(_USR_DISABLED_OPENGL_BASED_CUSTOM_UI,disableOpenGlBasedCustomUi,"");
     c.addBoolean(_USR_SHOW_old_DLGS,showOldDlgs,"");
+    c.addBoolean(_USR_ENABLE_OLD_RENDERABLE,enableOldRenderableBehaviour,"");
     c.addBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,keepOldThreadedScripts,"");
     c.addBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects,"");
     c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");
@@ -1045,6 +1048,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES,useAlternateSerialPortRoutines);
     c.getBoolean(_USR_DISABLED_OPENGL_BASED_CUSTOM_UI,disableOpenGlBasedCustomUi);
     c.getBoolean(_USR_SHOW_old_DLGS,showOldDlgs);
+    c.getBoolean(_USR_ENABLE_OLD_RENDERABLE,enableOldRenderableBehaviour);
     c.getBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,keepOldThreadedScripts);
     c.getBoolean(_USR_SUPPORT_old_API_NOTATION,_supportOldApiNotation);
     c.getBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects);

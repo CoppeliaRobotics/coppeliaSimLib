@@ -914,7 +914,7 @@ void CShape::commonInit()
     _initialDynamicAngularVelocity.clear();
 
     _visibilityLayer=SHAPE_LAYER;
-    _localObjectSpecialProperty=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable_all|sim_objectspecialproperty_renderable;
+    _localObjectSpecialProperty=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable|sim_objectspecialproperty_renderable;
     _objectAlias="Shape";
     _objectName_old="Shape";
     _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());

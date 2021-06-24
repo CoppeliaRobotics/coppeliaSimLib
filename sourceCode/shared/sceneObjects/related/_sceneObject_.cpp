@@ -116,11 +116,6 @@ bool _CSceneObject_::getSelected() const
     return(_selected);
 }
 
-bool _CSceneObject_::hiddenInSceneHierarchy() const
-{
-    return((_localObjectProperty&sim_objectproperty_hierarchyhiddenmodelchild)&&(_parentObject!=nullptr)&&_parentObject->getModelBase());
-}
-
 bool _CSceneObject_::getModelBase() const
 {
     return(_modelBase);

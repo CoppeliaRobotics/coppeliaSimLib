@@ -19,7 +19,7 @@ COctree::COctree()
     color.setDefaultValues();
     color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
     _visibilityLayer=OCTREE_LAYER;
-    _localObjectSpecialProperty=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable_all|sim_objectspecialproperty_renderable;
+    _localObjectSpecialProperty=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable|sim_objectspecialproperty_renderable;
     _objectAlias=IDSOGL_OCTREE;
     _objectName_old=IDSOGL_OCTREE;
     _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());

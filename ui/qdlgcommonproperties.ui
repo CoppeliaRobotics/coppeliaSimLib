@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>550</height>
+    <height>441</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -189,7 +189,7 @@
      <x>10</x>
      <y>170</y>
      <width>411</width>
-     <height>91</height>
+     <height>71</height>
     </rect>
    </property>
    <property name="title">
@@ -454,19 +454,6 @@
      <string/>
     </property>
    </widget>
-   <widget class="QComboBox" name="qqViewableObjects">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
-      <y>65</y>
-      <width>211</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="maxVisibleItems">
-     <number>50</number>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
@@ -480,27 +467,14 @@
      <string>Camera visibility layers</string>
     </property>
    </widget>
-   <widget class="QLabel" name="qqSeen">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>65</y>
-      <width>161</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Can be seen by</string>
-    </property>
-   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>390</y>
-     <width>411</width>
-     <height>51</height>
+     <x>260</x>
+     <y>270</y>
+     <width>161</width>
+     <height>71</height>
     </rect>
    </property>
    <property name="title">
@@ -514,7 +488,7 @@
      <rect>
       <x>10</x>
       <y>25</y>
-      <width>191</width>
+      <width>151</width>
       <height>18</height>
      </rect>
     </property>
@@ -522,15 +496,15 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Object is model base</string>
+     <string>Object is model</string>
     </property>
    </widget>
    <widget class="QToolButton" name="qqEditModelProperties">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>25</y>
-      <width>190</width>
+      <x>10</x>
+      <y>50</y>
+      <width>141</width>
       <height>18</height>
      </rect>
     </property>
@@ -538,7 +512,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Edit model properties</string>
+     <string>Model properties</string>
     </property>
    </widget>
   </widget>
@@ -546,8 +520,8 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>290</y>
-     <width>411</width>
+     <y>270</y>
+     <width>241</width>
      <height>71</height>
     </rect>
    </property>
@@ -589,27 +563,11 @@
      <string>Measurable</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="qqRenderable">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>45</y>
-      <width>121</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Renderable</string>
-    </property>
-   </widget>
    <widget class="QCheckBox" name="qqDetectable">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>25</y>
+      <x>10</x>
+      <y>50</y>
       <width>101</width>
       <height>18</height>
      </rect>
@@ -627,9 +585,9 @@
    <widget class="QToolButton" name="qqEditDetectableDetails">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>25</y>
-      <width>61</width>
+      <x>130</x>
+      <y>50</y>
+      <width>101</width>
       <height>18</height>
      </rect>
     </property>
@@ -637,7 +595,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>details</string>
+     <string>Det. details</string>
     </property>
    </widget>
   </widget>
@@ -645,9 +603,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>450</y>
+     <y>360</y>
      <width>411</width>
-     <height>91</height>
+     <height>71</height>
     </rect>
    </property>
    <property name="title">
@@ -660,7 +618,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>65</y>
+      <y>45</y>
       <width>190</width>
       <height>18</height>
      </rect>
@@ -676,7 +634,7 @@
     <property name="geometry">
      <rect>
       <x>210</x>
-      <y>65</y>
+      <y>45</y>
       <width>190</width>
       <height>18</height>
      </rect>
@@ -688,27 +646,11 @@
      <string>Assembling</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="qqUpdatable">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>25</y>
-      <width>331</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Object / model can transfer or accept DNA</string>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="qqSelfCollisionIndicator">
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>45</y>
+      <y>25</y>
       <width>56</width>
       <height>18</height>
      </rect>
@@ -718,7 +660,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>45</y>
+      <y>25</y>
       <width>201</width>
       <height>18</height>
      </rect>
@@ -1190,7 +1132,7 @@
    <property name="geometry">
     <rect>
      <x>290</x>
-     <y>265</y>
+     <y>250</y>
      <width>130</width>
      <height>18</height>
     </rect>
@@ -1647,8 +1589,8 @@
   <widget class="QToolButton" name="qqApplySpecialProperties">
    <property name="geometry">
     <rect>
-     <x>290</x>
-     <y>365</y>
+     <x>120</x>
+     <y>345</y>
      <width>130</width>
      <height>18</height>
     </rect>
@@ -2105,6 +2047,48 @@
     <string>Apply to selection</string>
    </property>
   </widget>
+  <widget class="QCheckBox" name="qqRenderable">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>340</y>
+     <width>91</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Renderable</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="qqViewableObjects">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>250</y>
+     <width>141</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="maxVisibleItems">
+    <number>50</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="qqSeen">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>250</y>
+     <width>91</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Can be seen by</string>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>qqSelectable</tabstop>
@@ -2143,7 +2127,6 @@
   <tabstop>qqApplySpecialProperties</tabstop>
   <tabstop>qqModelBase</tabstop>
   <tabstop>qqEditModelProperties</tabstop>
-  <tabstop>qqUpdatable</tabstop>
   <tabstop>qqSelfCollisionIndicator</tabstop>
   <tabstop>qqOpenScalingDialog</tabstop>
   <tabstop>qqAssembling</tabstop>

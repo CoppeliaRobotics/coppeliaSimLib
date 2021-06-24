@@ -71,6 +71,8 @@ void CQDlgProximitySensors::refresh()
     ui->qqShowNotDetecting->setChecked(isSensor&&it->getShowVolumeWhenNotDetecting());
     ui->qqExplicitHandling->setChecked(isSensor&&it->getExplicitHandling());
 
+    ui->qqSensorTypeCombo->setVisible(App::userSettings->showOldDlgs);
+    ui->qqSubtype->setVisible(App::userSettings->showOldDlgs);
     if (isSensor)
     {
         ui->qqPointSize->setText(tt::getFString(false,it->getSize(),3).c_str());
@@ -271,7 +273,7 @@ void CQDlgProximitySensors::on_qqEntityToDetect_currentIndexChanged(int index)
                 {
                     CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
                     if (it2!=nullptr)
-                        displayWarning|=((it2->getLocalObjectSpecialProperty()&sim_objectspecialproperty_detectable_all)==0);
+                        displayWarning|=((it2->getLocalObjectSpecialProperty()&sim_objectspecialproperty_detectable)==0);
                 }
                 if (displayWarning)
                     App::uiThread->messageBox_warning(App::mainWindow,"Scene object",IDS_OBJECT_NOT_DETECTABLE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);

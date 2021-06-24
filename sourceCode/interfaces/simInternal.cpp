@@ -1193,6 +1193,7 @@ simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int pr
         CSceneObject* it;
         std::string nm(objectAlias);
         size_t silentErrorPos=std::string(objectAlias).find("@silentError"); // Old, for backcompatibility
+        std::string additionalMessage_backCompatibility;
         if ( (nm.size()>0)&&((nm[0]=='.')||(nm[0]==':')||(nm[0]=='/')) )
         {
             int objHandle=App::currentWorld->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
@@ -1210,6 +1211,15 @@ simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int pr
             { // handle retrieval via regular name
                 nm=getIndexAdjustedObjectName(nm.c_str());
                 it=App::currentWorld->sceneObjects->getObjectFromName_old(nm.c_str());
+                if (it==nullptr)
+                {
+                    additionalMessage_backCompatibility+="\n\nSince CoppeliaSim V4.2.1, objects should be retrieved via a path and alias, e.g. \"./path/to/alias\", \":/path/to/alias\", \"/path/to/alias\", etc.";
+                    additionalMessage_backCompatibility+="\nYou however tried to access an object that doesn't follow the new notation, and that wasn't found using the old notation, i.e. \"";
+                    additionalMessage_backCompatibility+=objectAlias;
+                    additionalMessage_backCompatibility+="\" wasn't found.";
+                    additionalMessage_backCompatibility+="\nNote also that object aliases are distinct from object names, which are deprecated and not displayed anymore.";
+                    additionalMessage_backCompatibility+="\nMake sure to read the following page for additional details: https://www.coppeliarobotics.com/helpFiles/en/accessingSceneObjects.htm\n\n";
+                }
             }
             else
                 it=App::currentWorld->sceneObjects->getObjectFromAltName_old(nm.c_str()); // handle retrieval via alt name
@@ -1218,7 +1228,10 @@ simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int pr
         if (it==nullptr)
         {
             if ( (silentErrorPos==std::string::npos)&&((options&1)==0) )
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH);
+            {
+                additionalMessage_backCompatibility=SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH+additionalMessage_backCompatibility;
+                CApiErrors::setCapiCallErrorMessage(__func__,additionalMessage_backCompatibility.c_str());
+            }
             return(-1);
         }
         int retVal=it->getObjectHandle();
@@ -1373,6 +1386,8 @@ simChar* simGetObjectAlias_internal(simInt objectHandle,simInt options)
             nm+=std::to_string(it->getObjectHandle());
             nm+="__";
         }
+        if (options==5)
+            nm=it->getObjectAlias_printPath();
         char* retVal=new char[nm.length()+1];
         for (size_t i=0;i<nm.length();i++)
             retVal[i]=nm[i];
@@ -1395,18 +1410,8 @@ simInt simSetObjectAlias_internal(simInt objectHandle,const simChar* objectAlias
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-        int retVal=-1;
-        if (App::currentWorld->sceneObjects->setObjectAlias(it,objectAlias,false))
-        {
-            App::setFullDialogRefreshFlag();
-            retVal=1;
-        }
-        else
-        {
-            if ((options&1)==0)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_ALIAS);
-        }
-        return(retVal);
+        App::currentWorld->sceneObjects->setObjectAlias(it,objectAlias,true);
+        return(1);
     }
     CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
@@ -9081,18 +9086,11 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
                 }
                 if (parameterID==sim_objintparam_visible)
                 {
-                    if (App::currentWorld->mainSettings!=nullptr)
-                    {
+                    if (it->isObjectVisible())
                         parameter[0]=1;
-                        if ( (int(App::currentWorld->mainSettings->getActiveLayers())&it->getVisibilityLayer())==0 )
-                            parameter[0]=0;
-                        else
-                        {
-                            if (it->isObjectPartOfInvisibleModel())
-                                parameter[0]=0;
-                        }
-                        retVal=1;
-                    }
+                    else
+                        parameter[0]=0;
+                    retVal=1;
                 }
                 if (parameterID==sim_objintparam_collection_self_collision_indicator)
                 {

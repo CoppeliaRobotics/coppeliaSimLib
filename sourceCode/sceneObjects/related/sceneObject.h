@@ -201,6 +201,8 @@ public:
 
     void clearManipulationModeOverlayGridFlag();
 
+    bool isObjectVisible();
+    bool isObjectInVisibleLayer();
     bool isObjectPartOfInvisibleModel();
 
     void setModelAcknowledgement(const char* a);

@@ -1359,7 +1359,11 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
         rendAttrib|=sim_displayattribute_useauxcomponent;
 
     std::vector<CSceneObject*> toRender;
-    CSceneObject* viewBoxObject=_getInfoOfWhatNeedsToBeRendered(entityID,detectAll,rendAttrib,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,overrideRenderableFlagsForNonCollections,toRender);
+    CSceneObject* viewBoxObject;
+    if (App::userSettings->enableOldRenderableBehaviour)
+        viewBoxObject=_getInfoOfWhatNeedsToBeRendered_old(entityID,detectAll,rendAttrib,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,overrideRenderableFlagsForNonCollections,toRender);
+    else
+        viewBoxObject=_getInfoOfWhatNeedsToBeRendered(entityID,detectAll,rendAttrib,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,overrideRenderableFlagsForNonCollections,toRender);
 
     //************ Viewbox thing ***************
     if (viewBoxObject!=nullptr)
@@ -1515,6 +1519,143 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
 }
 
 CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool detectAll,int rendAttrib,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool overrideRenderableFlagsForNonCollections,std::vector<CSceneObject*>& toRender)
+{
+    CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(entityID);
+    CCollection* collection=nullptr;
+    std::vector<int> transparentObjects;
+    std::vector<float> transparentObjectsDist;
+    C7Vector camTrInv(getCumulativeTransformation().getInverse());
+    CSceneObject* viewBoxObject=nullptr;
+
+    if (object==nullptr)
+    {
+        collection=App::currentWorld->collections->getObjectFromHandle(entityID);
+        if (collection!=nullptr)
+        {
+            bool overridePropertyFlag=collection->getOverridesObjectMainProperties();
+            for (size_t i=0;i<collection->getSceneObjectCountInCollection();i++)
+            {
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(collection->getSceneObjectHandleFromIndex(i));
+                if ( ((it->getObjectType()==sim_object_shape_type)||(it->getObjectType()==sim_object_octree_type)||(it->getObjectType()==sim_object_pointcloud_type))&&(overridePropertyFlag||it->isObjectVisible()) )
+                {
+                    if (it->getObjectType()==sim_object_shape_type)
+                    {
+                        CShape* sh=(CShape*)it;
+                        if (sh->getContainsTransparentComponent())
+                        {
+                            C7Vector obj(it->getCumulativeTransformation());
+                            transparentObjectsDist.push_back(-(camTrInv*obj).X(2)-it->getTransparentObjectDistanceOffset());
+                            transparentObjects.push_back(it->getObjectHandle());
+                        }
+                        else
+                            toRender.push_back(it);
+                    }
+                    else
+                        toRender.push_back(it);
+                    if (it->getParent()!=nullptr)
+                    { // We need this because the dummy that is the base of the skybox is not renderable!
+                        if (it->getParent()->getObjectName_old()==IDSOGL_SKYBOX_DO_NOT_RENAME)
+                            viewBoxObject=it->getParent();
+                    }
+                }
+            }
+        }
+        else
+        { // Here we want to detect all visible objects:
+            if (detectAll)
+            {
+                for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
+                {
+                    CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
+                    if ( ((it->getObjectType()==sim_object_shape_type)||(it->getObjectType()==sim_object_octree_type)||(it->getObjectType()==sim_object_pointcloud_type))&&it->isObjectVisible() )
+                    {
+                        if (it->getObjectType()==sim_object_shape_type)
+                        {
+                            CShape* sh=(CShape*)it;
+                            if (sh->getContainsTransparentComponent())
+                            {
+                                C7Vector obj(it->getCumulativeTransformation());
+                                transparentObjectsDist.push_back(-(camTrInv*obj).X(2)-it->getTransparentObjectDistanceOffset());
+                                transparentObjects.push_back(it->getObjectHandle());
+                            }
+                            else
+                                toRender.push_back(it);
+                        }
+                        else
+                            toRender.push_back(it);
+                        if (it->getParent()!=nullptr)
+                        { // We need this because the dummy that is the base of the skybox is not renderable!
+                            if (it->getParent()->getObjectName_old()==IDSOGL_SKYBOX_DO_NOT_RENAME)
+                                viewBoxObject=it->getParent();
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+    { // We want to detect a single object (no collection not all objects in the scene)
+        if (!entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects)
+        { // normal for a single object. We always render it!
+            toRender.push_back(object);
+            if (object->getParent()!=nullptr)
+            { // We need this because the dummy that is the base of the skybox is not renderable!
+                if (object->getParent()->getObjectName_old()==IDSOGL_SKYBOX_DO_NOT_RENAME)
+                    viewBoxObject=object->getParent();
+            }
+        }
+        else
+        { // we have a model here that we want to render. We render also non-renderable object. And only those currently visible:
+            std::vector<int> rootSel;
+            rootSel.push_back(object->getObjectHandle());
+            CSceneObjectOperations::addRootObjectChildrenToSelection(rootSel);
+            for (int i=0;i<int(rootSel.size());i++)
+            {
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(rootSel[i]);
+                if (App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer())
+                { // ok, currently visible
+                    if (it->getObjectType()==sim_object_shape_type)
+                    {
+                        CShape* sh=(CShape*)it;
+                        if (sh->getContainsTransparentComponent())
+                        {
+                            C7Vector obj(it->getCumulativeTransformation());
+                            transparentObjectsDist.push_back(-(camTrInv*obj).X(2)-it->getTransparentObjectDistanceOffset());
+                            transparentObjects.push_back(it->getObjectHandle());
+                        }
+                        else
+                            toRender.push_back(it);
+                    }
+                    else
+                    {
+                        if (it->getObjectType()==sim_object_mirror_type)
+                        {
+                            CMirror* mir=(CMirror*)it;
+                            if (mir->getContainsTransparentComponent())
+                            {
+                                C7Vector obj(it->getCumulativeTransformation());
+                                transparentObjectsDist.push_back(-(camTrInv*obj).X(2)-it->getTransparentObjectDistanceOffset());
+                                transparentObjects.push_back(it->getObjectHandle());
+                            }
+                            else
+                                toRender.push_back(it);
+                        }
+                        else
+                            toRender.push_back(it);
+                    }
+                }
+            }
+        }
+    }
+
+    tt::orderAscending(transparentObjectsDist,transparentObjects);
+    for (int i=0;i<int(transparentObjects.size());i++)
+        toRender.push_back(App::currentWorld->sceneObjects->getObjectFromHandle(transparentObjects[i]));
+
+    return(viewBoxObject);
+}
+
+CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(int entityID,bool detectAll,int rendAttrib,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool overrideRenderableFlagsForNonCollections,std::vector<CSceneObject*>& toRender)
 {
     CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(entityID);
     CCollection* collection=nullptr;

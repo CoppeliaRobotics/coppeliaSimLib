@@ -269,16 +269,7 @@ bool CHierarchy::render()
     if (viewPosition[0]<-20000) // From -2000 to -20000 on 3/4/2011 // somehow there is a bug I can't put the finger on right now (2009/12/16)
         viewPosition[0]=0;
     if (rebuildHierarchyFlag)
-    {
         rebuildHierarchy();
-        if (App::mainWindow->sceneHierarchyWidget->isVisible())
-            App::mainWindow->sceneHierarchyWidget->rebuild();
-    }
-    if (refreshViewFlag)
-    {
-    if (App::mainWindow->sceneHierarchyWidget->isVisible())
-        App::mainWindow->sceneHierarchyWidget->refresh();
-    }
 
     if (resetViewFlag)
     {

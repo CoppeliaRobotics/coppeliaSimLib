@@ -33,7 +33,6 @@ public:
     CSceneObject* getParent() const;
     int getObjectHandle() const;
     bool getSelected() const;
-    bool hiddenInSceneHierarchy() const;
     bool getModelBase() const;
     std::string getExtensionString() const;
     unsigned short getVisibilityLayer() const;

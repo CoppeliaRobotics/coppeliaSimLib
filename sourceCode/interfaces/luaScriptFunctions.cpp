@@ -1128,12 +1128,10 @@ const SLuaVariables simLuaVariables[]=
     {"sim.objectproperty_selectable",sim_objectproperty_selectable,true},
     {"sim.objectproperty_selectmodelbaseinstead",sim_objectproperty_selectmodelbaseinstead,true},
     {"sim.objectproperty_dontshowasinsidemodel",sim_objectproperty_dontshowasinsidemodel,true},
-    {"sim.objectproperty_canupdatedna",sim_objectproperty_canupdatedna,true},
     {"sim.objectproperty_selectinvisible",sim_objectproperty_selectinvisible,true},
     {"sim.objectproperty_depthinvisible",sim_objectproperty_depthinvisible,true},
     {"sim.objectproperty_cannotdelete",sim_objectproperty_cannotdelete,true},
     {"sim.objectproperty_cannotdeleteduringsim",sim_objectproperty_cannotdeleteduringsim,true},
-    {"sim.objectproperty_hierarchyhiddenmodelchild",sim_objectproperty_hierarchyhiddenmodelchild,true},
     // Simulation status:
     {"sim.simulation_stopped",sim_simulation_stopped,true},
     {"sim.simulation_paused",sim_simulation_paused,true},
@@ -1236,18 +1234,10 @@ const SLuaVariables simLuaVariables[]=
     // General object main properties:
     {"sim.objectspecialproperty_collidable",sim_objectspecialproperty_collidable,true},
     {"sim.objectspecialproperty_measurable",sim_objectspecialproperty_measurable,true},
-    {"sim.objectspecialproperty_detectable_ultrasonic",sim_objectspecialproperty_detectable_ultrasonic,true},
-    {"sim.objectspecialproperty_detectable_infrared",sim_objectspecialproperty_detectable_infrared,true},
-    {"sim.objectspecialproperty_detectable_laser",sim_objectspecialproperty_detectable_laser,true},
-    {"sim.objectspecialproperty_detectable_inductive",sim_objectspecialproperty_detectable_inductive,true},
-    {"sim.objectspecialproperty_detectable_capacitive",sim_objectspecialproperty_detectable_capacitive,true},
-    {"sim.objectspecialproperty_renderable",sim_objectspecialproperty_renderable,true},
-    {"sim.objectspecialproperty_detectable_all",sim_objectspecialproperty_detectable_all,true},
-    {"sim.objectspecialproperty_pathplanning_ignored",sim_objectspecialproperty_pathplanning_ignored,true},
+    {"sim.objectspecialproperty_detectable",sim_objectspecialproperty_detectable,true},
     // Model override properties:
     {"sim.modelproperty_not_collidable",sim_modelproperty_not_collidable,true},
     {"sim.modelproperty_not_measurable",sim_modelproperty_not_measurable,true},
-    {"sim.modelproperty_not_renderable",sim_modelproperty_not_renderable,true},
     {"sim.modelproperty_not_detectable",sim_modelproperty_not_detectable,true},
     {"sim.modelproperty_not_dynamic",sim_modelproperty_not_dynamic,true},
     {"sim.modelproperty_not_respondable",sim_modelproperty_not_respondable,true},
@@ -2012,25 +2002,32 @@ const SLuaVariables simLuaVariables[]=
 
 
     // deprecated!
+    {"sim.modelproperty_not_renderable",sim_modelproperty_not_renderable,false},
+    {"sim.objectspecialproperty_detectable_ultrasonic",sim_objectspecialproperty_detectable_ultrasonic,false},
+    {"sim.objectspecialproperty_detectable_infrared",sim_objectspecialproperty_detectable_infrared,false},
+    {"sim.objectspecialproperty_detectable_laser",sim_objectspecialproperty_detectable_laser,false},
+    {"sim.objectspecialproperty_detectable_inductive",sim_objectspecialproperty_detectable_inductive,false},
+    {"sim.objectspecialproperty_detectable_capacitive",sim_objectspecialproperty_detectable_capacitive,false},
+    {"sim.objectspecialproperty_renderable",sim_objectspecialproperty_renderable,false},
+    {"sim.objectspecialproperty_detectable_all",sim_objectspecialproperty_detectable,false},
+    {"sim.objectspecialproperty_pathplanning_ignored",sim_objectspecialproperty_pathplanning_ignored,false},
+    {"sim.objectproperty_canupdatedna",sim_objectproperty_canupdatedna,false},
+    {"sim.objectproperty_hierarchyhiddenmodelchild",sim_objectproperty_hierarchyhiddenmodelchild,false},
     {"sim.jointmode_ik",sim_jointmode_ik_deprecated,false},
     {"sim.jointmode_ikdependent",sim_jointmode_reserved_previously_ikdependent,false},
     {"sim.appobj_ik_type",sim_appobj_ik_type,false},
-    // IK calculation methods:
     {"sim.ik_pseudo_inverse_method",sim_ik_pseudo_inverse_method,false},
     {"sim.ik_damped_least_squares_method",sim_ik_damped_least_squares_method,false},
     {"sim.ik_jacobian_transpose_method",sim_ik_jacobian_transpose_method,false},
     {"sim.ik_undamped_pseudo_inverse_method",sim_ik_undamped_pseudo_inverse_method,false},
-    // IK constraints:
     {"sim.ik_x_constraint",sim_ik_x_constraint,false},
     {"sim.ik_y_constraint",sim_ik_y_constraint,false},
     {"sim.ik_z_constraint",sim_ik_z_constraint,false},
     {"sim.ik_alpha_beta_constraint",sim_ik_alpha_beta_constraint,false},
     {"sim.ik_gamma_constraint",sim_ik_gamma_constraint,false},
-    // IK calculation results:
     {"sim.ikresult_not_performed",sim_ikresult_not_performed,false},
     {"sim.ikresult_success",sim_ikresult_success,false},
     {"sim.ikresult_fail",sim_ikresult_fail,false},
-
     {"sim.dummy_linktype_gcs_loop_closure",sim_dummy_linktype_gcs_loop_closure,false},
     {"sim.dummy_linktype_gcs_tip",sim_dummy_linktype_gcs_tip,false},
     {"sim.dummy_linktype_gcs_target",sim_dummy_linktype_gcs_target,false},
@@ -2057,15 +2054,12 @@ const SLuaVariables simLuaVariables[]=
     {"sim.banner_backfaceculling",sim_banner_backfaceculling,false},
     {"sim.banner_keepsamesize",sim_banner_keepsamesize,false},
     {"sim.banner_bitmapfont",sim_banner_bitmapfont,false},
-
-    // script debug level:
     {"sim.scriptdebug_none",sim_scriptdebug_none,false},
     {"sim.scriptdebug_syscalls",sim_scriptdebug_syscalls,false},
     {"sim.scriptdebug_vars_interval",sim_scriptdebug_vars_interval,false},
     {"sim.scriptdebug_allcalls",sim_scriptdebug_allcalls,false},
     {"sim.scriptdebug_vars",sim_scriptdebug_vars,false},
     {"sim.scriptdebug_callsandvars",sim_scriptdebug_callsandvars,false},
-    // threaded script resume location:
     {"sim.scriptthreadresume_allnotyetresumed",sim_scriptthreadresume_allnotyetresumed,false},
     {"sim.scriptthreadresume_default",sim_scriptthreadresume_default,false},
     {"sim.scriptthreadresume_actuation_first",sim_scriptthreadresume_actuation_first,false},
@@ -2073,11 +2067,9 @@ const SLuaVariables simLuaVariables[]=
     {"sim.scriptthreadresume_sensing_first",sim_scriptthreadresume_sensing_first,false},
     {"sim.scriptthreadresume_sensing_last",sim_scriptthreadresume_sensing_last,false},
     {"sim.scriptthreadresume_custom",sim_scriptthreadresume_custom,false},
-    // General callback IDs:
     {"sim.callbackid_rossubscriber",sim_callbackid_rossubscriber,false},
     {"sim.callbackid_dynstep",sim_callbackid_dynstep,false},
     {"sim.callbackid_userdefined",sim_callbackid_userdefined,false},
-    // Button properties:
     {"sim.buttonproperty_button",sim_buttonproperty_button,false},
     {"sim.buttonproperty_label",sim_buttonproperty_label,false},
     {"sim.buttonproperty_editbox",sim_buttonproperty_editbox,false},
@@ -2094,7 +2086,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.buttonproperty_closeaction",sim_buttonproperty_closeaction,false},
     {"sim.buttonproperty_verticallycentered",sim_buttonproperty_verticallycentered,false},
     {"sim.buttonproperty_downupevent",sim_buttonproperty_downupevent,false},
-    // Path properties:
     {"sim.pathproperty_show_line",sim_pathproperty_show_line,false},
     {"sim.pathproperty_show_orientation",sim_pathproperty_show_orientation,false},
     {"sim.pathproperty_closed_path",sim_pathproperty_closed_path,false},
@@ -2102,7 +2093,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.pathproperty_flat_path",sim_pathproperty_flat_path,false},
     {"sim.pathproperty_show_position",sim_pathproperty_show_position,false},
     {"sim.pathproperty_keep_x_up",sim_pathproperty_keep_x_up,false},
-    // distance calculation methods:
     {"sim.distcalcmethod_dl",sim_distcalcmethod_dl,false},
     {"sim.distcalcmethod_dac",sim_distcalcmethod_dac,false},
     {"sim.distcalcmethod_max_dl_dac",sim_distcalcmethod_max_dl_dac,false},
@@ -2110,7 +2100,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.distcalcmethod_sqrt_dl2_and_dac2",sim_distcalcmethod_sqrt_dl2_and_dac2,false},
     {"sim.distcalcmethod_dl_if_nonzero",sim_distcalcmethod_dl_if_nonzero,false},
     {"sim.distcalcmethod_dac_if_nonzero",sim_distcalcmethod_dac_if_nonzero,false},
-
     {"sim.appobj_collision_type",sim_appobj_collision_type,false},
     {"sim.appobj_distance_type",sim_appobj_distance_type,false},
     {"sim.appobj_collection_type",sim_appobj_collection_type,false},
@@ -2120,19 +2109,16 @@ const SLuaVariables simLuaVariables[]=
     {"sim.message_prox_sensor_select_up",sim_message_prox_sensor_select_up,false},
     {"sim.message_pick_select_down",sim_message_pick_select_down,false},
     {"sim.scripttype_addonfunction",sim_scripttype_addonfunction,false},
-
     {"sim.customizationscriptattribute_activeduringsimulation",sim_customizationscriptattribute_activeduringsimulation,false},
     {"sim.childscriptattribute_automaticcascadingcalls",sim_childscriptattribute_automaticcascadingcalls,false},
     {"sim.customizationscriptattribute_cleanupbeforesave",sim_customizationscriptattribute_cleanupbeforesave,false},
     {"sim.scriptattribute_debuglevel",sim_scriptattribute_debuglevel,false},
-    // Script execution result:
     {"sim.script_no_error",sim_script_no_error,false},
     {"sim.script_main_script_nonexistent",sim_script_main_script_nonexistent,false},
     {"sim.script_main_not_called",sim_script_main_script_not_called,false},
     {"sim.script_reentrance_error",sim_script_reentrance_error,false},
     {"sim.script_lua_error",sim_script_lua_error,false},
     {"sim.script_call_error",sim_script_call_error,false},
-    // API call error messages
     {"sim.api_error_report",sim_api_error_report,false},
     {"sim.api_error_output",sim_api_error_output,false},
     {"sim.api_warning_output",sim_api_warning_output,false},
@@ -2360,7 +2346,7 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim_objectspecialproperty_detectable_inductive",sim_objectspecialproperty_detectable_inductive,false},
     {"sim_objectspecialproperty_detectable_capacitive",sim_objectspecialproperty_detectable_capacitive,false},
     {"sim_objectspecialproperty_renderable",sim_objectspecialproperty_renderable,false},
-    {"sim_objectspecialproperty_detectable_all",sim_objectspecialproperty_detectable_all,false},
+    {"sim_objectspecialproperty_detectable_all",sim_objectspecialproperty_detectable,false},
     {"sim_objectspecialproperty_pathplanning_ignored",sim_objectspecialproperty_pathplanning_ignored,false},
     {"sim_modelproperty_not_collidable",sim_modelproperty_not_collidable,false},
     {"sim_modelproperty_not_measurable",sim_modelproperty_not_measurable,false},

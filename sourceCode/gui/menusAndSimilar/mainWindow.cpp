@@ -84,8 +84,6 @@ CMainWindow::CMainWindow() : QMainWindow()
     _toolbarButtonPauseEnabled=true;
     _toolbarButtonStopEnabled=true;
 
-    sceneHierarchyWidget=nullptr;
-
     editModeContainer=new CEditModeContainer();
     oglSurface=new COglSurface();
     codeEditorContainer=new CCodeEditorContainer();
@@ -140,19 +138,6 @@ CMainWindow::CMainWindow() : QMainWindow()
         _modelBrowser->setVisible(false); // do not explicitely set to true (not nice artifacts during creation). Is true by default anyways
 // -----------
 
-// --- Hierarchy container ---
-    sceneHierarchyWidget=new CSceneHierarchyWidget();
-    _sceneHierarchyWidgetList.push_back(sceneHierarchyWidget);
-
-    sceneHierarchyLayout=new QHBoxLayout();
-    sceneHierarchyLayout->addWidget(sceneHierarchyWidget);
-    sceneHierarchyLayout->setSpacing(0);
-    sceneHierarchyLayout->setContentsMargins(0,0,0,0);
-    QWidget* hierarchyContainer=new QWidget();
-    hierarchyContainer->setLayout(sceneHierarchyLayout);
-    hierarchyContainer->setVisible(false); // do not explicitely set to true (not nice artifacts during creation). Is true by default anyways
-// -----------
-
 // --- OpenGl widget ---
     openglWidget=new COpenglWidget();
     if (App::userSettings->stereoDist>0.0f)
@@ -180,9 +165,8 @@ CMainWindow::CMainWindow() : QMainWindow()
     #endif
 // -----------
 
-// --- ( Hierarchy container + openGl widget ) splitter ---
+// --- ( openGl widget ) splitter ---
     _sceneHierarchySplitter=new QSplitter(Qt::Horizontal);
-    _sceneHierarchySplitter->addWidget(hierarchyContainer);
     _sceneHierarchySplitter->addWidget(openglWidget);
 // -----------
 
@@ -282,9 +266,6 @@ CMainWindow::~CMainWindow()
 
     ogl::freeOutlineFont();
     ogl::freeBitmapFonts();
-
-    while (_sceneHierarchyWidgetList.size()!=0)
-        instanceAboutToBeDestroyed(int(_sceneHierarchyWidgetList.size()-1));
 
     delete codeEditorContainer;
     delete oglSurface;
@@ -1687,40 +1668,24 @@ void CMainWindow::_actualizetoolbarButtonState()
     if ( (selS==1)&&noSelector&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped() )
     {
         CSceneObject* it=App::currentWorld->sceneObjects->getLastSelectionObject();
-        if (it->getLocalObjectProperty()&sim_objectproperty_canupdatedna)
-        { 
-            bool model=it->getModelBase();
-            // Check if we have a sibling in the scene:
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
+        if (it->getModelBase())
+        {
+            std::vector<CSceneObject*> toExplore;
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getOrphanCount();i++)
+                toExplore.push_back(App::currentWorld->sceneObjects->getOrphanFromIndex(i));
+            while (toExplore.size()>0)
             {
-                CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-                if ( (it2!=it)&&(it2->getLocalObjectProperty()&sim_objectproperty_canupdatedna)&&(it2->getDnaString().compare(it->getDnaString())==0) )
+                CSceneObject* obj=toExplore[0];
+                toExplore.erase(toExplore.begin());
+                if (obj!=it)
                 {
-                    if (!model)
+                    if ( obj->getModelBase()&&(obj->getDnaString().compare(it->getDnaString())==0) )
                     {
-                        transferDnaAllowed=true; // yes, and it is not a model
+                        transferDnaAllowed=true;
                         break;
                     }
                     else
-                    { // Here we also have to check that the sibling model is not located in the same hierarchy as this one:
-                        bool sameHierarchy=false;
-                        while (true)
-                        {
-                            if (it2==nullptr)
-                                break;
-                            if (it2==it)
-                            {
-                                sameHierarchy=true;
-                                break;
-                            }
-                            it2=it2->getParent();
-                        }
-                        if (!sameHierarchy)
-                        {
-                            transferDnaAllowed=true;
-                            break;
-                        }
-                    }
+                        toExplore.insert(toExplore.end(),obj->getChildren()->begin(),obj->getChildren()->end());
                 }
             }
         }
@@ -2286,13 +2251,6 @@ void CMainWindow::setToolbarRefreshFlag()
 void CMainWindow::newInstanceAboutToBeCreated()
 {
     TRACE_INTERNAL;
-    if (_sceneHierarchyWidgetList.size()>0)
-    {
-        sceneHierarchyWidget=new CSceneHierarchyWidget();
-        _sceneHierarchyWidgetList.push_back(sceneHierarchyWidget);
-        sceneHierarchyLayout->addWidget(sceneHierarchyWidget);
-        sceneHierarchyWidget->setVisible(false);//here_for_new_hierarchy
-    }
     if (codeEditorContainer!=nullptr)
         codeEditorContainer->showOrHideAll(false);
 }
@@ -2309,11 +2267,6 @@ void CMainWindow::instanceAboutToBeDestroyed(int currentInstanceIndex)
     TRACE_INTERNAL;
     codeEditorContainer->sceneClosed(App::currentWorld->environment->getSceneUniqueID());
 
-    sceneHierarchyLayout->removeWidget(sceneHierarchyWidget);
-    delete sceneHierarchyWidget;
-    sceneHierarchyWidget=nullptr;
-    _sceneHierarchyWidgetList.erase(_sceneHierarchyWidgetList.begin()+currentInstanceIndex);
-
     tabBar->removeTab(currentInstanceIndex);
 }
 
@@ -2322,8 +2275,6 @@ void CMainWindow::instanceAboutToChange(int newInstanceIndex)
     TRACE_INTERNAL;
     if (codeEditorContainer!=nullptr)
         codeEditorContainer->showOrHideAll(false);
-    if (sceneHierarchyWidget!=nullptr)
-        sceneHierarchyWidget->setVisible(false);
 
     _flyModeCameraHandle=-1;
 }
@@ -2331,8 +2282,6 @@ void CMainWindow::instanceAboutToChange(int newInstanceIndex)
 void CMainWindow::instanceHasChanged(int newInstanceIndex)
 {
     TRACE_INTERNAL;
-    if ( (newInstanceIndex>=0)&&(newInstanceIndex<int(_sceneHierarchyWidgetList.size())) )
-        sceneHierarchyWidget=_sceneHierarchyWidgetList[newInstanceIndex];
 
     if (tabBar->currentIndex()!=newInstanceIndex)
         tabBar->setCurrentIndex(newInstanceIndex);

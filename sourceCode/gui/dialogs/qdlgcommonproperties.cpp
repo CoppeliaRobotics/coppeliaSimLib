@@ -240,6 +240,8 @@ void CQDlgCommonProperties::refresh()
     }
 
     ui->qqApplySpecialProperties->setEnabled(bigSel&&noEditModeNoSim);//(isShape||isPath||isDummy||isGraph||isMirror)));
+    ui->qqEditDetectableDetails->setVisible(App::userSettings->showOldDlgs);
+    ui->qqRenderable->setVisible(App::userSettings->showOldDlgs);
     if (ls!=nullptr)
     {
         //** Collidable
@@ -258,7 +260,7 @@ void CQDlgCommonProperties::refresh()
             ui->qqMeasurable->setChecked(false);
         //**
 
-        //** Renderable
+        //** Renderable, OLD
         ui->qqRenderable->setEnabled(ls->isPotentiallyRenderable()&&noEditModeNoSim);
         if (ls->isPotentiallyRenderable())
             ui->qqRenderable->setChecked((ls->getLocalObjectSpecialProperty()&sim_objectspecialproperty_renderable)!=0);
@@ -266,25 +268,23 @@ void CQDlgCommonProperties::refresh()
             ui->qqRenderable->setChecked(false);
         //**
 
-        //** Detectable
+        //** Detectable, partially old (detectable details)
         ui->qqDetectable->setEnabled(ls->isPotentiallyDetectable()&&noEditModeNoSim);
         ui->qqEditDetectableDetails->setEnabled(ls->isPotentiallyDetectable()&&noEditModeNoSim);
         if (ls->isPotentiallyDetectable())
         {
-            if ((ls->getLocalObjectSpecialProperty()&sim_objectspecialproperty_detectable_all)==0)
+            if ((ls->getLocalObjectSpecialProperty()&sim_objectspecialproperty_detectable)==0)
                 ui->qqDetectable->setCheckState(Qt::Unchecked);
             else
             {
-                if ((ls->getLocalObjectSpecialProperty()&sim_objectspecialproperty_detectable_all)==sim_objectspecialproperty_detectable_all)
+                if ((ls->getLocalObjectSpecialProperty()&sim_objectspecialproperty_detectable)==sim_objectspecialproperty_detectable)
                     ui->qqDetectable->setCheckState(Qt::Checked);
                 else
                     ui->qqDetectable->setCheckState(Qt::PartiallyChecked);
             }
         }
         else
-        {
             ui->qqDetectable->setCheckState(Qt::Unchecked);
-        }
         //**
     }
     else
@@ -300,7 +300,6 @@ void CQDlgCommonProperties::refresh()
         ui->qqDetectable->setChecked(false);
     }
 
-    ui->qqUpdatable->setEnabled(objIsSelected&&noEditModeNoSim);
     ui->qqOpenScalingDialog->setEnabled(objIsSelected&&noEditModeNoSim);
 
     ui->qqSelfCollisionIndicator->setEnabled(objIsSelected&&noEditModeNoSim&&(isDummy||isShape));
@@ -311,13 +310,9 @@ void CQDlgCommonProperties::refresh()
             ui->qqSelfCollisionIndicator->setText(tt::getIString(false,ls->getCollectionSelfCollisionIndicator()).c_str());
         else
             ui->qqSelfCollisionIndicator->setText("");
-        ui->qqUpdatable->setChecked((ls->getLocalObjectProperty()&sim_objectproperty_canupdatedna)!=0);
     }
     else
-    {
         ui->qqSelfCollisionIndicator->setText("");
-        ui->qqUpdatable->setChecked(false);
-    }
 
     selectLineEdit(lineEditToSelect);
     inMainRefreshRoutine=false;
@@ -802,27 +797,6 @@ void CQDlgCommonProperties::on_qqAssembling_clicked()
         theDialog.obj=App::currentWorld->sceneObjects->getLastSelectionObject();
         theDialog.refresh();
         theDialog.makeDialogModal(); // things are modified in the dlg
-    }
-}
-
-void CQDlgCommonProperties::on_qqUpdatable_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CSceneObject* ls=App::currentWorld->sceneObjects->getLastSelectionObject();
-        if (ls!=nullptr)
-        {
-            int p=ls->getLocalObjectProperty();
-            if (p&sim_objectproperty_canupdatedna)
-            {
-                if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,"Updatable property",IDSN_SURE_TO_DISABLE_UPDATABLE_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES))
-                    App::appendSimulationThreadCommand(TOGGLE_CANTRANSFERDNA_COMMONPROPGUITRIGGEREDCMD,ls->getObjectHandle());
-            }
-            else
-                App::appendSimulationThreadCommand(TOGGLE_CANTRANSFERDNA_COMMONPROPGUITRIGGEREDCMD,ls->getObjectHandle());
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 

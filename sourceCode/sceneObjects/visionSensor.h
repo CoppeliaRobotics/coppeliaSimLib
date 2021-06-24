@@ -145,6 +145,7 @@ protected:
     bool _computeDefaultReturnValuesAndApplyFilters();
 
     CSceneObject* _getInfoOfWhatNeedsToBeRendered(int entityID,bool detectAll,int rendAttrib,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool overrideRenderableFlagsForNonCollections,std::vector<CSceneObject*>& toRender);
+    CSceneObject* _getInfoOfWhatNeedsToBeRendered_old(int entityID,bool detectAll,int rendAttrib,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool overrideRenderableFlagsForNonCollections,std::vector<CSceneObject*>& toRender);
 
     bool _extRenderer_prepareView(int extRendererIndex);
     void _extRenderer_prepareLights();
