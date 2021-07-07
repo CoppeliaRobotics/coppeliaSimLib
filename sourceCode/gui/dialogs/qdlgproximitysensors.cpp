@@ -42,6 +42,7 @@ void CQDlgProximitySensors::refresh()
     bool noEditModeAndNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
 //  bool noSim=App::currentWorld->simulation->isSimulationStopped();
 
+    ui->qqEnableAll->setVisible(App::userSettings->showOldDlgs);
     ui->qqEnableAll->setEnabled(noEditMode);
     ui->qqEnableAll->setChecked(App::currentWorld->mainSettings->proximitySensorsEnabled);
 
@@ -55,9 +56,6 @@ void CQDlgProximitySensors::refresh()
 
     ui->qqAdjustVolume->setEnabled(noEditModeAndNoSim);
     ui->qqAdjustVolume->setChecked(CQDlgDetectionVolume::showVolumeWindow);
-
-    ui->qqEntityToDetect->setEnabled(isSensor&&noEditModeAndNoSim);
-    ui->qqEntityToDetect->clear();
 
     ui->qqAdjustDetectionParams->setEnabled(isSensor&&noEditModeAndNoSim);
 
@@ -87,65 +85,6 @@ void CQDlgProximitySensors::refresh()
             if (ui->qqSensorTypeCombo->itemData(i).toInt()==it->getSensableType())
             {
                 ui->qqSensorTypeCombo->setCurrentIndex(i);
-                break;
-            }
-        }
-
-
-        ui->qqEntityToDetect->addItem(IDSN_ALL_DETECTABLE_OBJECTS_IN_SCENE,QVariant(-1));
-        std::vector<std::string> names;
-        std::vector<int> ids;
-        // Now collections:
-        for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
-        {
-            CCollection* it=App::currentWorld->collections->getObjectFromIndex(i);
-            std::string name(tt::decorateString("[",IDSN_COLLECTION,"] "));
-            name+=it->getCollectionName();
-            names.push_back(name);
-            ids.push_back(it->getCollectionHandle());
-        }
-        tt::orderStrings(names,ids);
-        for (int i=0;i<int(names.size());i++)
-            ui->qqEntityToDetect->addItem(names[i].c_str(),QVariant(ids[i]));
-
-        names.clear();
-        ids.clear();
-
-        // Now shapes:
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
-        {
-            CShape* it=App::currentWorld->sceneObjects->getShapeFromIndex(i);
-            std::string name(tt::decorateString("[",IDSN_SHAPE,"] "));
-            name+=it->getObjectAlias_printPath();
-            names.push_back(name);
-            ids.push_back(it->getObjectHandle());
-        }
-        tt::orderStrings(names,ids);
-        for (size_t i=0;i<names.size();i++)
-            ui->qqEntityToDetect->addItem(names[i].c_str(),QVariant(ids[i]));
-
-        names.clear();
-        ids.clear();
-
-        // Now dummies:
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getDummyCount();i++)
-        {
-            CDummy* it=App::currentWorld->sceneObjects->getDummyFromIndex(i);
-            std::string name(tt::decorateString("[",IDSN_DUMMY,"] "));
-            name+=it->getObjectAlias_printPath();
-            names.push_back(name);
-            ids.push_back(it->getObjectHandle());
-        }
-        tt::orderStrings(names,ids);
-        for (int i=0;i<int(names.size());i++)
-            ui->qqEntityToDetect->addItem(names[i].c_str(),QVariant(ids[i]));
-
-        // Select current item:
-        for (int i=0;i<ui->qqEntityToDetect->count();i++)
-        {
-            if (ui->qqEntityToDetect->itemData(i).toInt()==it->getSensableObject())
-            {
-                ui->qqEntityToDetect->setCurrentIndex(i);
                 break;
             }
         }
@@ -255,33 +194,6 @@ void CQDlgProximitySensors::on_qqAdjustVolume_clicked()
         CQDlgDetectionVolume::showVolumeWindow=!CQDlgDetectionVolume::showVolumeWindow;
         if (App::mainWindow->dlgCont->isVisible(DETECTION_VOLUME_DLG)!=CQDlgDetectionVolume::showVolumeWindow)
             App::mainWindow->dlgCont->toggle(DETECTION_VOLUME_DLG);
-    }
-}
-
-void CQDlgProximitySensors::on_qqEntityToDetect_currentIndexChanged(int index)
-{
-    if (!inMainRefreshRoutine)
-    {
-        IF_UI_EVENT_CAN_READ_DATA
-        {
-            CProxSensor* it=App::currentWorld->sceneObjects->getLastSelectionProxSensor();
-            int objID=ui->qqEntityToDetect->itemData(ui->qqEntityToDetect->currentIndex()).toInt();
-            if ((objID!=-1)&&(it!=nullptr))
-            {
-                bool displayWarning=false;
-                if ((objID<SIM_IDSTART_COLLECTION)&&(objID>=0))
-                {
-                    CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
-                    if (it2!=nullptr)
-                        displayWarning|=((it2->getLocalObjectSpecialProperty()&sim_objectspecialproperty_detectable)==0);
-                }
-                if (displayWarning)
-                    App::uiThread->messageBox_warning(App::mainWindow,"Scene object",IDS_OBJECT_NOT_DETECTABLE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-            }
-            App::appendSimulationThreadCommand(SET_ENTITYTODETECT_PROXSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),objID);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-        }
     }
 }
 

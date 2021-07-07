@@ -217,8 +217,8 @@ target_include_directories(coppeliaSim
     sourceCode/mainContainers/sceneContainers
     sourceCode/shared/mainContainers/sceneContainers
     sourceCode/mainContainers/applicationContainers
-    sourceCode/luaScripting
-    sourceCode/luaScripting/customLuaFuncAndVar
+    sourceCode/scripting
+    sourceCode/scripting/customScriptFuncAndVar
     sourceCode/pagesAndViews
     sourceCode/textures
     sourceCode/serialization
@@ -569,14 +569,14 @@ target_sources(coppeliaSim PRIVATE
 
     sourceCode/pathPlanning_old/pathPlanningTask_old.cpp
 
-    sourceCode/luaScripting/userParameters.cpp
-    sourceCode/luaScripting/luaScriptObject.cpp
-    sourceCode/luaScripting/outsideCommandQueueForScript.cpp
-    sourceCode/luaScripting/luaWrapper.cpp
+    sourceCode/scripting/userParameters.cpp
+    sourceCode/scripting/scriptObject.cpp
+    sourceCode/scripting/outsideCommandQueueForScript.cpp
+    sourceCode/scripting/luaWrapper.cpp
 
-    sourceCode/luaScripting/customLuaFuncAndVar/luaCustomFuncAndVarContainer.cpp
-    sourceCode/luaScripting/customLuaFuncAndVar/luaCustomFunction.cpp
-    sourceCode/luaScripting/customLuaFuncAndVar/luaCustomVariable.cpp
+    sourceCode/scripting/customScriptFuncAndVar/scriptCustomFuncAndVarContainer.cpp
+    sourceCode/scripting/customScriptFuncAndVar/scriptCustomFunction.cpp
+    sourceCode/scripting/customScriptFuncAndVar/scriptCustomVariable.cpp
 
     sourceCode/pagesAndViews/pageContainer.cpp
     sourceCode/pagesAndViews/sPage.cpp
@@ -674,7 +674,7 @@ target_sources(coppeliaSim PRIVATE
 
     sourceCode/visual/thumbnail.cpp
 
-    sourceCode/utils/threadPool.cpp
+    sourceCode/utils/threadPool_old.cpp
     sourceCode/utils/ttUtil.cpp
     sourceCode/utils/tt.cpp
     sourceCode/utils/confReaderAndWriter.cpp

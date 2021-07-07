@@ -274,8 +274,6 @@ SIM_DLLEXPORT simChar* simReadCustomDataBlockTags(simInt objectHandle,simInt* ta
 SIM_DLLEXPORT simInt simGetShapeGeomInfo(simInt shapeHandle,simInt* intData,simFloat* floatData,simVoid* reserved);
 SIM_DLLEXPORT simInt simGetObjects(simInt index,simInt objectType);
 SIM_DLLEXPORT simInt* simGetObjectsInTree(simInt treeBaseHandle,simInt objectType,simInt options,simInt* objectCount);
-SIM_DLLEXPORT simInt simSetObjectSizeValues(simInt objectHandle,const simFloat* sizeValues);
-SIM_DLLEXPORT simInt simGetObjectSizeValues(simInt objectHandle,simFloat* sizeValues);
 SIM_DLLEXPORT simInt simScaleObject(simInt objectHandle,simFloat xScale,simFloat yScale,simFloat zScale,simInt options);
 SIM_DLLEXPORT simInt simSetShapeTexture(simInt shapeHandle,simInt textureId,simInt mappingMode,simInt options,const simFloat* uvScaling,const simFloat* position,const simFloat* orientation);
 SIM_DLLEXPORT simInt simGetShapeTextureId(simInt shapeHandle);
@@ -697,6 +695,8 @@ SIM_DLLEXPORT simInt simSetObjectConfiguration(const simChar* data);
 SIM_DLLEXPORT simChar* simGetConfigurationTree(simInt objectHandle);
 SIM_DLLEXPORT simInt simSetConfigurationTree(const simChar* data);
 SIM_DLLEXPORT simInt simEnableEventCallback(simInt eventCallbackType,const simChar* plugin,simInt reserved);
+SIM_DLLEXPORT simInt simSetObjectSizeValues(simInt objectHandle,const simFloat* sizeValues);
+SIM_DLLEXPORT simInt simGetObjectSizeValues(simInt objectHandle,simFloat* sizeValues);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

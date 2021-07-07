@@ -8,18 +8,6 @@ extern "C" {
     #include "lualib.h"
 }
 
-enum {  STACK_OBJECT_NULL=0,
-        STACK_OBJECT_NUMBER,
-        STACK_OBJECT_BOOL,
-        STACK_OBJECT_STRING,
-        STACK_OBJECT_TABLE,
-        STACK_OBJECT_FUNC,
-        STACK_OBJECT_USERDAT,
-        STACK_OBJECT_THREAD,
-        STACK_OBJECT_LIGHTUSERDAT,
-        STACK_OBJECT_INTEGER
-};
-
 struct luaWrap_lua_Debug
 {
   int event;
@@ -41,13 +29,8 @@ struct luaWrap_lua_Debug
 typedef void luaWrap_lua_State;
 typedef lua_Number luaWrap_lua_Number;
 typedef lua_Integer luaWrap_lua_Integer;
-typedef void (*luaWrap_lua_Hook) (luaWrap_lua_State* L,luaWrap_lua_Debug* ar);
+typedef void (*luaWrap_lua_Hook) (void* L,void* ar);
 typedef int (*luaWrap_lua_CFunction) (luaWrap_lua_State* L);
-
-void loadExtLuaLibrary(bool useExternalLuaLibrary,bool headless);
-void unloadExtLuaLibrary();
-
-bool _loadExtLuaLibrary(const char* pathAndFilename);
 
 int luaWrapGet_LUA_MULTRET();
 int luaWrapGet_LUA_MASKCOUNT();

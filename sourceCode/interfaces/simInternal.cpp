@@ -10,7 +10,7 @@
 #include "persistentDataContainer.h"
 #include "graphingRoutines_old.h"
 #include "sceneObjectOperations.h"
-#include "threadPool.h"
+#include "threadPool_old.h"
 #include "addOperations.h"
 #include "app.h"
 #include "pluginContainer.h"
@@ -22,7 +22,6 @@
 #include "imgLoaderSaver.h"
 #include "apiErrors.h"
 #include "sigHandler.h"
-#include "luaScriptFunctions.h"
 #include "memorizedConf.h"
 #include <algorithm>
 #include <iostream>
@@ -531,7 +530,7 @@ bool isSimulatorInitialized(const char* functionName)
 {
     if (!App::isSimulatorRunning())
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_SIMULATOR_NOT_INITIALIZED);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_SIMULATOR_NOT_INITIALIZED);
         return(false);
     }
     return(true);
@@ -541,7 +540,7 @@ bool ifEditModeActiveGenerateErrorAndReturnTrue(const char* functionName)
 {
     if (App::getEditModeType()!=NO_EDIT_MODE)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERRROR_EDIT_MODE_ACTIVE);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERRROR_EDIT_MODE_ACTIVE);
         return(true);
     }
     return(false);
@@ -571,17 +570,17 @@ bool canBoolIntOrFloatParameterBeSetOrGet(const char* functionName,int when)
         st|=1+4+16;
     if (((st&3)&when)==0)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_CANNOT_SET_GET_PARAM_LAUNCH);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_CANNOT_SET_GET_PARAM_LAUNCH);
         return(false);
     }
     if (((st&12)&when)==0)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_CANNOT_SET_GET_PARAM_WINDOW);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_CANNOT_SET_GET_PARAM_WINDOW);
         return(false);
     }
     if (((st&48)&when)==0)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_CANNOT_SET_GET_PARAM_SIM);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_CANNOT_SET_GET_PARAM_SIM);
         return(false);
     }
     return(true);
@@ -592,7 +591,7 @@ bool doesObjectExist(const char* functionName,int identifier)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_INEXISTANT);
         return(false);
     }
     else
@@ -605,7 +604,7 @@ bool doesEntityExist(const char* functionName,int identifier)
     {
         if (App::currentWorld->collections->getObjectFromHandle(identifier)==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_ENTITY_INEXISTANT);
+            CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_ENTITY_INEXISTANT);
             return(false);
         }
         return(true);
@@ -614,7 +613,7 @@ bool doesEntityExist(const char* functionName,int identifier)
     {
         if (App::currentWorld->sceneObjects->getObjectFromHandle(identifier)==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_ENTITY_INEXISTANT);
+            CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_ENTITY_INEXISTANT);
             return(false);
         }
         return(true);
@@ -625,7 +624,7 @@ bool doesCollectionExist(const char* functionName,int identifier)
 {
     if (App::currentWorld->collections->getObjectFromHandle(identifier)==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_COLLECTION_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_COLLECTION_INEXISTANT);
         return(false);
     }
     return(true);
@@ -635,7 +634,7 @@ bool doesCollisionObjectExist(const char* functionName,int identifier)
 {
     if (App::currentWorld->collisions->getObjectFromHandle(identifier)==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_COLLISION_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_COLLISION_INEXISTANT);
         return(false);
     }
     else
@@ -646,7 +645,7 @@ bool doesDistanceObjectExist(const char* functionName,int identifier)
 {
     if (App::currentWorld->distances->getObjectFromHandle(identifier)==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_DISTANCE_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_DISTANCE_INEXISTANT);
         return(false);
     }
     else
@@ -658,12 +657,12 @@ bool isJoint(const char* functionName,int identifier)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_INEXISTANT);
         return(false);
     }
     else if (it->getObjectType()!=sim_object_joint_type)
     { 
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_NOT_JOINT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_JOINT);
         return(false);
     }
     return(true);
@@ -673,12 +672,12 @@ bool isShape(const char* functionName,int identifier)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_INEXISTANT);
         return(false);
     }
     else if (it->getObjectType()!=sim_object_shape_type)
     { 
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_NOT_SHAPE);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_SHAPE);
         return(false);
     }
     return(true);
@@ -688,12 +687,12 @@ bool isSensor(const char* functionName,int identifier)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_INEXISTANT);
         return(false);
     }
     else if (it->getObjectType()!=sim_object_proximitysensor_type)
     { 
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_NOT_PROX_SENSOR);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_PROX_SENSOR);
         return(false);
     }
     return(true);
@@ -703,12 +702,12 @@ bool isMill(const char* functionName,int identifier)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_INEXISTANT);
         return(false);
     }
     else if (it->getObjectType()!=sim_object_mill_type)
     { 
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_NOT_MILL);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_MILL);
         return(false);
     }
     return(true);
@@ -718,12 +717,12 @@ bool isForceSensor(const char* functionName,int identifier)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_INEXISTANT);
         return(false);
     }
     else if (it->getObjectType()!=sim_object_forcesensor_type)
     { 
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_NOT_FORCE_SENSOR);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_FORCE_SENSOR);
         return(false);
     }
     return(true);
@@ -733,12 +732,12 @@ bool isVisionSensor(const char* functionName,int identifier)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_INEXISTANT);
         return(false);
     }
     else if (it->getObjectType()!=sim_object_visionsensor_type)
     { 
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_NOT_VISION_SENSOR);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_VISION_SENSOR);
         return(false);
     }
     return(true);
@@ -748,12 +747,12 @@ bool isCamera(const char* functionName,int identifier)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_INEXISTANT);
         return(false);
     }
     else if (it->getObjectType()!=sim_object_camera_type)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_NOT_CAMERA);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_CAMERA);
         return(false);
     }
     return(true);
@@ -763,12 +762,12 @@ bool isGraph(const char* functionName,int identifier)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_INEXISTANT);
         return(false);
     }
     else if (it->getObjectType()!=sim_object_graph_type)
     { 
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_NOT_GRAPH);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_GRAPH);
         return(false);
     }
     return(true);
@@ -778,12 +777,12 @@ bool isPath(const char* functionName,int identifier)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_INEXISTANT);
         return(false);
     }
     else if (it->getObjectType()!=sim_object_path_type)
     { 
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_NOT_PATH);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_PATH);
         return(false);
     }
     return(true);
@@ -793,12 +792,12 @@ bool isLight(const char* functionName,int identifier)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_INEXISTANT);
         return(false);
     }
     else if (it->getObjectType()!=sim_object_light_type)
     { 
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_NOT_LIGHT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_LIGHT);
         return(false);
     }
     return(true);
@@ -808,12 +807,12 @@ bool isDummy(const char* functionName,int identifier)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_INEXISTANT);
         return(false);
     }
     else if (it->getObjectType()!=sim_object_dummy_type)
     { 
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_NOT_DUMMY);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_DUMMY);
         return(false);
     }
     return(true);
@@ -823,12 +822,12 @@ bool isOctree(const char* functionName,int identifier)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_INEXISTANT);
         return(false);
     }
     else if (it->getObjectType()!=sim_object_octree_type)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_NOT_OCTREE);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_OCTREE);
         return(false);
     }
     return(true);
@@ -838,12 +837,12 @@ bool isPointCloud(const char* functionName,int identifier)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_INEXISTANT);
         return(false);
     }
     else if (it->getObjectType()!=sim_object_pointcloud_type)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_OBJECT_NOT_POINTCLOUD);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_POINTCLOUD);
         return(false);
     }
     return(true);
@@ -853,7 +852,7 @@ bool doesUIExist(const char* functionName,int elementHandle)
     CButtonBlock* it=App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_UI_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_UI_INEXISTANT);
         return(false);
     }
     return(true);
@@ -864,12 +863,12 @@ bool doesUIButtonExist(const char* functionName,int elementHandle,int buttonHand
     CButtonBlock* it=App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_UI_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_UI_INEXISTANT);
         return(false);
     }
     else if (it->getButtonWithID(buttonHandle)==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_UI_BUTTON_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_UI_BUTTON_INEXISTANT);
         return(false);
     }
     return(true);
@@ -880,7 +879,7 @@ bool doesIKGroupExist(const char* functionName,int identifier)
     CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(identifier);
     if (it==nullptr)
     {
-        CApiErrors::setCapiCallErrorMessage(functionName,SIM_ERROR_IK_GROUP_INEXISTANT);
+        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_IK_GROUP_INEXISTANT);
         return(false);
     }
     else
@@ -1086,7 +1085,7 @@ simInt simRunSimulator_internal(const simChar* applicationName,simInt options,si
     App::logMsg(sim_verbosity_loadinfos,"2");
     CSimFlavor::run(3);
     App::logMsg(sim_verbosity_loadinfos,"1");
-    CThreadPool::cleanUp();
+    CThreadPool_old::cleanUp();
     delete applicationBasicInitialization;
     App::logMsg(sim_verbosity_loadinfos,"done.");
     return(1);
@@ -1118,7 +1117,7 @@ simVoid* simGetMainWindow_internal(simInt type)
 #endif
         return(nullptr);
     }
-//    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+//    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -1140,7 +1139,7 @@ simInt simRefreshDialogs_internal(simInt refreshDegree)
         App::setDialogRefreshDontPublishFlag();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1150,17 +1149,16 @@ simChar* simGetLastError_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        std::string lastErr(CApiErrors::getCapiCallErrorMessage());
+        std::string lastErr(CApiErrors::getAndClearLastWarningOrError());
         if (lastErr.size()==0)
             return(nullptr);
         char* retVal=new char[lastErr.length()+1];
         for (unsigned int i=0;i<lastErr.length();i++)
             retVal[i]=lastErr[i];
         retVal[lastErr.length()]=0;
-        CApiErrors::clearCapiCallErrorMessage();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -1172,12 +1170,12 @@ simInt simSetLastError_internal(const simChar* funcName,const simChar* errorMess
     {
         std::string func(funcName);
         if (func.compare(0,8,"warning@")==0)
-            CApiErrors::setThreadBasedFirstCapiWarning(errorMessage);
+            CApiErrors::setThreadBasedFirstCapiWarning_old(errorMessage);
         else
-            CApiErrors::setThreadBasedFirstCapiError(errorMessage);
+            CApiErrors::setThreadBasedFirstCapiError_old(errorMessage);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1230,14 +1228,14 @@ simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int pr
             if ( (silentErrorPos==std::string::npos)&&((options&1)==0) )
             {
                 additionalMessage_backCompatibility=SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH+additionalMessage_backCompatibility;
-                CApiErrors::setCapiCallErrorMessage(__func__,additionalMessage_backCompatibility.c_str());
+                CApiErrors::setLastWarningOrError(__func__,additionalMessage_backCompatibility.c_str());
             }
             return(-1);
         }
         int retVal=it->getObjectHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1250,7 +1248,7 @@ simInt simGetScriptHandleEx_internal(simInt scriptType,simInt objectHandle,const
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=nullptr;
+        CScriptObject* it=nullptr;
         if ( (scriptType==sim_scripttype_addonscript)&&(scriptName!=nullptr) )
             it=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName);
         if (scriptType==sim_scripttype_mainscript)
@@ -1265,7 +1263,7 @@ simInt simGetScriptHandleEx_internal(simInt scriptType,simInt objectHandle,const
             return(it->getScriptHandle());
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1286,7 +1284,7 @@ simInt simRemoveObject_internal(simInt objectHandle)
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_INEXISTANT);
             return(-1);
         }
 
@@ -1304,7 +1302,7 @@ simInt simRemoveObject_internal(simInt objectHandle)
 
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -1320,12 +1318,12 @@ simInt simRemoveModel_internal(simInt objectHandle)
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_INEXISTANT);
             return(-1);
         }
         if (!it->getModelBase())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_MODEL_BASE);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_MODEL_BASE);
             return(-1);
         }
 
@@ -1348,7 +1346,7 @@ simInt simRemoveModel_internal(simInt objectHandle)
 
         return((int)sel.size());
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -1394,7 +1392,7 @@ simChar* simGetObjectAlias_internal(simInt objectHandle,simInt options)
         retVal[nm.length()]=0;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -1413,7 +1411,7 @@ simInt simSetObjectAlias_internal(simInt objectHandle,const simChar* objectAlias
         App::currentWorld->sceneObjects->setObjectAlias(it,objectAlias,true);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -1459,7 +1457,7 @@ simInt simGetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
         tr.getMatrix().copyToInterface(matrix);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1513,7 +1511,7 @@ simInt simSetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1559,7 +1557,7 @@ simInt simGetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHand
         tr.getInternalData(pose,true);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1613,7 +1611,7 @@ simInt simSetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHand
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1668,7 +1666,7 @@ simInt simGetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
         tr.X.copyTo(position);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1741,7 +1739,7 @@ simInt simSetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1791,7 +1789,7 @@ simInt simGetObjectOrientation_internal(simInt objectHandle,simInt relativeToObj
         C3Vector(tr.Q.getEulerAngles()).copyTo(eulerAngles);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1847,7 +1845,7 @@ simInt simSetObjectOrientation_internal(simInt objectHandle,simInt relativeToObj
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1867,13 +1865,13 @@ simInt simGetJointPosition_internal(simInt objectHandle,simFloat* position)
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType()==sim_joint_spherical_subtype)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_JOINT_SPHERICAL);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_SPHERICAL);
             return(-1);
         }
         position[0]=it->getPosition();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1893,13 +1891,13 @@ simInt simSetJointPosition_internal(simInt objectHandle,simFloat position)
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType()==sim_joint_spherical_subtype)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_JOINT_SPHERICAL);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_SPHERICAL);
             return(-1);
         }
         it->setPosition(position);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1919,19 +1917,19 @@ simInt simSetJointTargetPosition_internal(simInt objectHandle,simFloat targetPos
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType()==sim_joint_spherical_subtype)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_JOINT_SPHERICAL);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_SPHERICAL);
             return(-1);
         }
         if (it->getJointMode()==sim_jointmode_force)
             it->setDynamicMotorPositionControlTargetPosition(targetPosition);
         else
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_JOINT_NOT_IN_FORCE_TORQUE_MODE);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_NOT_IN_FORCE_TORQUE_MODE);
             return(-1);
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1951,13 +1949,13 @@ simInt simGetJointTargetPosition_internal(simInt objectHandle,simFloat* targetPo
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType()==sim_joint_spherical_subtype)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_JOINT_SPHERICAL);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_SPHERICAL);
             return(-1);
         }
         targetPosition[0]=it->getDynamicMotorPositionControlTargetPosition();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1978,7 +1976,7 @@ simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque)
         it->setDynamicMotorMaximumForce(forceOrTorque);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -1998,7 +1996,7 @@ simInt simSetJointTargetVelocity_internal(simInt objectHandle,simFloat targetVel
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType()==sim_joint_spherical_subtype)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_JOINT_SPHERICAL);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_SPHERICAL);
             return(-1);
         }
         if (it->getJointMode()==sim_jointmode_force)
@@ -2007,7 +2005,7 @@ simInt simSetJointTargetVelocity_internal(simInt objectHandle,simFloat targetVel
             it->setTargetVelocity_DEPRECATED(targetVelocity);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -2027,7 +2025,7 @@ simInt simGetJointTargetVelocity_internal(simInt objectHandle,simFloat* targetVe
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType()==sim_joint_spherical_subtype)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_JOINT_SPHERICAL);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_SPHERICAL);
             return(-1);
         }
         if (it->getJointMode()==sim_jointmode_force)
@@ -2036,7 +2034,7 @@ simInt simGetJointTargetVelocity_internal(simInt objectHandle,simFloat* targetVe
             targetVelocity[0]=it->getTargetVelocity_DEPRECATED();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -2066,7 +2064,7 @@ simInt simGetJointMatrix_internal(simInt objectHandle,simFloat* matrix)
         tr.getMatrix().copyToInterface(matrix);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -2092,7 +2090,7 @@ simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* m
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType()!=sim_joint_spherical_subtype)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_JOINT_NOT_SPHERICAL);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_NOT_SPHERICAL);
             return(-1);
         }
         C4X4Matrix m;
@@ -2100,7 +2098,7 @@ simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* m
         it->setSphericalTransformation(C4Vector(m.M.getQuaternion()));
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -2131,7 +2129,7 @@ simInt simGetJointInterval_internal(simInt objectHandle,simBool* cyclic,simFloat
         interval[1]=it->getPositionIntervalRange();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -2160,9 +2158,9 @@ simInt simSetJointInterval_internal(simInt objectHandle,simBool cyclic,const sim
             return(1);
         }
 //        return(-1);
-//        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
+//        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -2187,7 +2185,7 @@ simInt simGetObjectParent_internal(simInt objectHandle)
             retVal=it->getParent()->getObjectHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -2212,7 +2210,7 @@ simInt simGetObjectChild_internal(simInt objectHandle,simInt index)
             retVal=it->getChildFromIndex(index)->getObjectHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -2267,7 +2265,7 @@ simInt simSetObjectParent_internal(simInt objectHandle,simInt parentObjectHandle
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -2290,7 +2288,7 @@ simInt simGetObjectType_internal(simInt objectHandle)
         int retVal=it->getObjectType();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -2317,7 +2315,7 @@ simInt simGetJointType_internal(simInt objectHandle)
         int retVal=it->getJointType();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -2879,7 +2877,7 @@ simInt simSetBoolParam_internal(simInt parameter,simBool boolState)
         }
     }
     if (couldNotLock)
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
 
     couldNotLock=true;
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
@@ -2902,9 +2900,9 @@ simInt simSetBoolParam_internal(simInt parameter,simBool boolState)
     }
 
     if (couldNotLock)
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PARAMETER);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
     return(-1);
 }
 
@@ -3361,10 +3359,10 @@ simInt simGetBoolParam_internal(simInt parameter)
             return(retVal);
         }
 
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PARAMETER);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -3440,10 +3438,10 @@ simInt simSetArrayParam_internal(simInt parameter,const simVoid* arrayOfValues)
             return(1);
         }
 
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PARAMETER);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -3530,10 +3528,10 @@ simInt simGetArrayParam_internal(simInt parameter,simVoid* arrayOfValues)
         }
 
 
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PARAMETER);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -3694,10 +3692,10 @@ simInt simSetInt32Param_internal(simInt parameter,simInt intState)
 #endif
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PARAMETER);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -3721,10 +3719,10 @@ simInt simGetUInt64Param_internal(simInt parameter,simUInt64* intState)
             intState[0]=App::currentWorld->simulation->getSimulationTime_us()*1000;
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PARAMETER);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -4074,10 +4072,10 @@ simInt simGetInt32Param_internal(simInt parameter,simInt* intState)
             intState[0]=App::userSettings->freeServerPortRange;
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PARAMETER);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -4121,10 +4119,10 @@ simInt simSetFloatParam_internal(simInt parameter,simFloat floatState)
             return(0);
         }
 
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PARAMETER);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -4169,10 +4167,10 @@ simInt simGetFloatParam_internal(simInt parameter,simFloat* floatState)
             floatState[0]=App::userSettings->mouseWheelZoomFactor;
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PARAMETER);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -4260,10 +4258,10 @@ simInt simSetStringParam_internal(simInt parameter,const simChar* str)
             return(1);
         }
 
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PARAMETER);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -4366,10 +4364,10 @@ simChar* simGetStringParam_internal(simInt parameter)
             retVal2[retVal.length()]=0;
             return(retVal2);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PARAMETER);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(nullptr);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -4385,7 +4383,7 @@ simFloat simGetSimulationTime_internal()
         float retVal=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1.0f);
 }
 
@@ -4401,7 +4399,7 @@ simInt simGetSimulationState_internal()
         int retVal=App::currentWorld->simulation->getSimulationState();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -4448,7 +4446,7 @@ simInt simLoadScene_internal(const simChar* filename)
     {
         if (!App::currentWorld->simulation->isSimulationStopped())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
             return(-1);
         }
 
@@ -4462,7 +4460,7 @@ simInt simLoadScene_internal(const simChar* filename)
         {
             if (!VFile::doesFileExist(nm.c_str()))
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_FILE_NOT_FOUND);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_FILE_NOT_FOUND);
                 return(-1);
             }
         }
@@ -4472,13 +4470,13 @@ simInt simLoadScene_internal(const simChar* filename)
 
         if (!CFileOperations::loadScene(nm.c_str(),outputSceneOrModelLoadMessagesWithApiCall,outputSceneOrModelLoadMessagesWithApiCall,false))
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCENE_COULD_NOT_BE_READ);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_COULD_NOT_BE_READ);
             return(-1);
         }
         App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -4493,13 +4491,13 @@ simInt simCloseScene_internal()
     {
         if (!App::currentWorld->simulation->isSimulationStopped())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
             return(-1);
         }
         CFileOperations::closeScene(false,false);
         return(App::worldContainer->getCurrentWorldIndex());
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -4520,18 +4518,18 @@ simInt simLoadModel_internal(const simChar* filename)
 
         if (!VFile::doesFileExist(nm.c_str()))
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_FILE_NOT_FOUND);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_FILE_NOT_FOUND);
             return(-1);
         }
         if (!CFileOperations::loadModel(nm.c_str(),outputSceneOrModelLoadMessagesWithApiCall,outputSceneOrModelLoadMessagesWithApiCall,false,true,nullptr,false,forceAsCopy))
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_MODEL_COULD_NOT_BE_READ);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_MODEL_COULD_NOT_BE_READ);
             return(-1);
         }
         int retVal=App::currentWorld->sceneObjects->getLastSelectionHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -4553,7 +4551,7 @@ simInt simSaveScene_internal(const simChar* filename)
     }
     if (App::currentWorld->environment->getSceneLocked())
     {
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCENE_LOCKED);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_LOCKED);
         return(-1);
     }
 
@@ -4564,14 +4562,14 @@ simInt simSaveScene_internal(const simChar* filename)
 
         if (!CFileOperations::saveScene(filename,false,false,false,false))
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCENE_COULD_NOT_BE_SAVED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_COULD_NOT_BE_SAVED);
             return(-1);
         }
         CFileOperations::addToRecentlyOpenedScenes(App::currentWorld->mainSettings->getScenePathAndName());
         App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -4583,7 +4581,7 @@ simInt simSaveModel_internal(int baseOfModelHandle,const simChar* filename)
         return(-1);
     if (App::currentWorld->environment->getSceneLocked())
     {
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCENE_LOCKED);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_LOCKED);
         return(-1);
     }
     if (!doesObjectExist(__func__,baseOfModelHandle))
@@ -4591,7 +4589,7 @@ simInt simSaveModel_internal(int baseOfModelHandle,const simChar* filename)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(baseOfModelHandle);
     if (!it->getModelBase())
     {
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_MODEL_BASE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_MODEL_BASE);
         return(-1);
     }
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
@@ -4599,13 +4597,13 @@ simInt simSaveModel_internal(int baseOfModelHandle,const simChar* filename)
         const std::vector<int>* initSelection=App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr();
         if (!CFileOperations::saveModel(baseOfModelHandle,filename,false,false,false))
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_MODEL_COULD_NOT_BE_SAVED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_MODEL_COULD_NOT_BE_SAVED);
             return(-1);
         }
         App::currentWorld->sceneObjects->setSelectedObjectHandles(initSelection);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -4640,7 +4638,7 @@ simInt simIsObjectInSelection_internal(simInt objectHandle)
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -4684,14 +4682,14 @@ simInt simAddObjectToSelection_internal(simInt what,simInt objectHandle)
                 }
                 else
                 {
-                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
                     return(-1);
                 }
             }
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 
 }
@@ -4736,14 +4734,14 @@ simInt simRemoveObjectFromSelection_internal(simInt what,simInt objectHandle)
                 }
                 else
                 {
-                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
                     return(-1);
                 }
             }
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 
 }
@@ -4762,7 +4760,7 @@ simInt simGetObjectSelectionSize_internal()
         int retVal=int(App::currentWorld->sceneObjects->getSelectionCount());
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -4783,7 +4781,7 @@ simInt simGetObjectLastSelection_internal()
             retVal=it->getObjectHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -4801,7 +4799,7 @@ simInt simGetObjectSelection_internal(simInt* objectHandles)
             objectHandles[i]=App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i);
         return(int(App::currentWorld->sceneObjects->getSelectionCount()));
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -4825,7 +4823,7 @@ simInt simHandleProximitySensor_internal(simInt sensorHandle,simFloat* detectedP
             {
                 if (!it->getExplicitHandling())
                 {
-                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                     return(-1);
                 }
 
@@ -4909,7 +4907,7 @@ simInt simHandleProximitySensor_internal(simInt sensorHandle,simFloat* detectedP
             return(retVal);
         }
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -4944,7 +4942,7 @@ simInt simReadProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoi
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -4966,7 +4964,7 @@ simInt simHandleDynamics_internal(simFloat deltaTime)
         }
         return(CPluginContainer::dyn_getDynamicStepDivider());
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5002,13 +5000,13 @@ simInt simHandleMainScript_internal()
 
     if ( ( (rtVal[0]==-1)&&cs&&as&&ss )||App::currentWorld->simulation->didStopRequestCounterChangeSinceSimulationStart() )
     {
-        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getMainScript();
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getMainScript();
         if (it!=nullptr)
         {
             App::worldContainer->calcInfo->simulationPassStart();
 
             App::currentWorld->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f); // remove invalid elements
-            CThreadPool::prepareAllThreadsForResume_calledBeforeMainScript();
+            CThreadPool_old::prepareAllThreadsForResume_calledBeforeMainScript();
 
             if (it->systemCallMainScript(-1,nullptr,nullptr)>0)
                 retVal=sim_script_no_error;
@@ -5046,16 +5044,16 @@ simInt simResetScript_internal(simInt scriptHandle)
             App::currentWorld->embeddedScriptContainer->killAllSimulationLuaStates();
             return(1);
         }
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(-1);
         }
         it->resetScript();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -5068,10 +5066,10 @@ simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(-1);
         }
 
@@ -5084,7 +5082,7 @@ simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText)
             it->resetScript();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -5099,13 +5097,13 @@ const simChar* simGetScriptText_internal(simInt scriptHandle)
     {
         if (App::currentWorld->environment->getSceneLocked())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCENE_LOCKED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_LOCKED);
             return(nullptr);
         }
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(nullptr);
         }
         const char* retVal=nullptr;
@@ -5118,7 +5116,7 @@ const simChar* simGetScriptText_internal(simInt scriptHandle)
             retVal=it->getScriptText();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -5131,10 +5129,10 @@ simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(-1);
         }
         scriptProperty[0]=it->getScriptType();
@@ -5143,7 +5141,7 @@ simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,
             scriptProperty[0]|=sim_scripttype_threaded_old;
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5157,7 +5155,7 @@ simInt simAssociateScriptWithObject_internal(simInt scriptHandle,simInt associat
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal=-1;
-        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
         if (it!=nullptr)
         {
             if ( (it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_customizationscript) )
@@ -5174,7 +5172,7 @@ simInt simAssociateScriptWithObject_internal(simInt scriptHandle,simInt associat
                     { // object does exist
                         if (it->getObjectHandleThatScriptIsAttachedTo()==-1)
                         { // script not yet associated
-                            CLuaScriptObject* currentSimilarObj=nullptr;
+                            CScriptObject* currentSimilarObj=nullptr;
                             if (it->getScriptType()==sim_scripttype_childscript)
                                 currentSimilarObj=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(associatedObjectHandle);
                             if (it->getScriptType()==sim_scripttype_customizationscript)
@@ -5186,19 +5184,19 @@ simInt simAssociateScriptWithObject_internal(simInt scriptHandle,simInt associat
                                 retVal=1;
                             }
                             else
-                                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_ALREADY_ASSOCIATED_WITH_SCRIPT_TYPE);
+                                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_ALREADY_ASSOCIATED_WITH_SCRIPT_TYPE);
                         }
                     }
                 }
             }
             else
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_NOT_CHILD_OR_CUSTOMIZATION_SCRIPT);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_NOT_CHILD_OR_CUSTOMIZATION_SCRIPT);
         }
         else
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 
 }
@@ -5215,7 +5213,7 @@ simInt simAddScript_internal(simInt scriptProperty)
         int scriptType=scriptProperty;
         if (scriptProperty&sim_scripttype_threaded_old)
             scriptType=scriptProperty-sim_scripttype_threaded_old;
-        CLuaScriptObject* it=new CLuaScriptObject(scriptType);
+        CScriptObject* it=new CScriptObject(scriptType);
         if (App::userSettings->keepOldThreadedScripts)
         {
             if (scriptProperty&sim_scripttype_threaded_old)
@@ -5228,7 +5226,7 @@ simInt simAddScript_internal(simInt scriptProperty)
         App::setFullDialogRefreshFlag();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -5245,17 +5243,17 @@ simInt simRemoveScript_internal(simInt scriptHandle)
         { // We wanna remove all scripts!
             if (!App::currentWorld->simulation->isSimulationStopped())
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
                 return(-1);
             }
             App::currentWorld->embeddedScriptContainer->removeAllScripts();
             App::setFullDialogRefreshFlag();
             return(1);
         }
-        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(-1);
         }
 #ifdef SIM_WITH_GUI
@@ -5266,7 +5264,7 @@ simInt simRemoveScript_internal(simInt scriptHandle)
         App::setFullDialogRefreshFlag();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -5296,7 +5294,7 @@ simInt simResetProximitySensor_internal(simInt sensorHandle)
                 it=(CProxSensor*)App::currentWorld->sceneObjects->getObjectFromHandle(sensorHandle);
                 if (!it->getExplicitHandling())
                 {
-                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                     return(-1);
                 }
                 it->resetSensor(false);
@@ -5307,7 +5305,7 @@ simInt simResetProximitySensor_internal(simInt sensorHandle)
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5329,7 +5327,7 @@ simInt simCheckProximitySensor_internal(simInt sensorHandle,simInt entityHandle,
         int retVal=simCheckProximitySensorEx_internal(sensorHandle,entityHandle,3,SIM_MAX_FLOAT,0,detectedPoint,nullptr,nullptr);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5393,7 +5391,7 @@ simInt simCheckProximitySensorEx_internal(simInt sensorHandle,simInt entityHandl
         }
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5453,7 +5451,7 @@ simInt simCheckProximitySensorEx2_internal(simInt sensorHandle,simFloat* vertexP
         }
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5576,23 +5574,23 @@ simInt simRegisterScriptCallbackFunction_internal(const simChar* funcNameAtPlugi
         }
         if (pluginName.size()<1)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_MISSING_PLUGIN_NAME);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_MISSING_PLUGIN_NAME);
             return(-1);
         }
 
         bool retVal=1;
-        if (App::worldContainer->luaCustomFuncAndVarContainer->removeCustomFunction(funcNameAtPluginName))
+        if (App::worldContainer->scriptCustomFuncAndVarContainer->removeCustomFunction(funcNameAtPluginName))
             retVal=0;// that function already existed. We remove it and replace it!
-        CLuaCustomFunction* newFunction=new CLuaCustomFunction(funcNameAtPluginName,callTips,callBack);
-        if (!App::worldContainer->luaCustomFuncAndVarContainer->insertCustomFunction(newFunction))
+        CScriptCustomFunction* newFunction=new CScriptCustomFunction(funcNameAtPluginName,callTips,callBack);
+        if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomFunction(newFunction))
         {
             delete newFunction;
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED);
             return(-1);
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5606,16 +5604,16 @@ simInt simRegisterScriptVariable_internal(const simChar* varNameAtPluginName,con
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         bool retVal=1;
-        if (App::worldContainer->luaCustomFuncAndVarContainer->removeCustomVariable(varNameAtPluginName))
+        if (App::worldContainer->scriptCustomFuncAndVarContainer->removeCustomVariable(varNameAtPluginName))
             retVal=0;// that variable already existed. We remove it and replace it!
-        if (!App::worldContainer->luaCustomFuncAndVarContainer->insertCustomVariable(varNameAtPluginName,varValue,stackHandle))
+        if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomVariable(varNameAtPluginName,varValue,stackHandle))
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_CUSTOM_LUA_VAR_COULD_NOT_BE_REGISTERED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CUSTOM_LUA_VAR_COULD_NOT_BE_REGISTERED);
             return(-1);
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5655,7 +5653,7 @@ simInt simCheckCollision_internal(simInt entity1Handle,simInt entity2Handle)
         bool returnValue=CCollisionRoutine::doEntitiesCollide(entity1Handle,entity2Handle,nullptr,true,true,nullptr);
         return(returnValue);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5693,7 +5691,7 @@ simInt simCheckCollisionEx_internal(simInt entity1Handle,simInt entity2Handle,si
         }
         return((int)intersect.size()/6);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5727,7 +5725,7 @@ simInt simCheckDistance_internal(simInt entity1Handle,simInt entity2Handle,simFl
             return(1);
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5744,13 +5742,13 @@ simInt simAdvanceSimulationByOneStep_internal()
     {
         if (!App::currentWorld->simulation->isSimulationRunning())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
             return(-1);
         }
         App::currentWorld->simulation->advanceSimulationByOneStep();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5767,13 +5765,13 @@ simInt simSetSimulationTimeStep_internal(simFloat timeStep)
     {
         if (!App::currentWorld->simulation->isSimulationStopped())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
             return(-1);
         }
         App::currentWorld->simulation->setSimulationTimeStep_raw_us(quint64(timeStep*1000000.0f));
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5789,7 +5787,7 @@ simFloat simGetSimulationTimeStep_internal()
         float retVal=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1.0f);
 }
 
@@ -5813,7 +5811,7 @@ simInt simGetRealTimeSimulation_internal()
             return(0);
         }
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5831,7 +5829,7 @@ simInt simAdjustRealTimeTimer_internal(simInt instanceIndex,simFloat deltaTime)
         App::currentWorld->simulation->adjustRealTimeTimer_us(quint64(deltaTime*1000000.0f));
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5849,12 +5847,12 @@ simInt simIsRealTimeSimulationStepNeeded_internal()
     {
         if (!App::currentWorld->simulation->isSimulationRunning())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
             return(-1);
         }
         if (!App::currentWorld->simulation->getRealTimeSimulation())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_REAL_TIME);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_REAL_TIME);
             return(-1);
         }
         if (App::currentWorld->simulation->isRealTimeCalculationStepNeeded())
@@ -5863,7 +5861,7 @@ simInt simIsRealTimeSimulationStepNeeded_internal()
         }
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5881,7 +5879,7 @@ simInt simGetSimulationPassesPerRenderingPass_internal()
         int retVal=App::currentWorld->simulation->getSimulationPassesPerRendering_speedModified();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5900,7 +5898,7 @@ simInt simSetSimulationPassesPerRenderingPass_internal(int p)
         App::currentWorld->simulation->setSimulationPassesPerRendering_raw(p);
         return(App::currentWorld->simulation->getSimulationPassesPerRendering_raw());
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5923,7 +5921,7 @@ simInt simStartSimulation_internal()
         }
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5944,7 +5942,7 @@ simInt simStopSimulation_internal()
         }
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -5964,7 +5962,7 @@ simInt simPauseSimulation_internal()
         }
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -5996,14 +5994,14 @@ simInt simHandleGraph_internal(simInt graphHandle,simFloat simulationTime)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
             if (!it->getExplicitHandling())
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                 return(-1);
             }
             it->addNextPoint(simulationTime);
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6035,14 +6033,14 @@ simInt simResetGraph_internal(simInt graphHandle)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
 //            if (!it->getExplicitHandling())
 //            {
-//                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+//                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
 //                return(-1);
 //            }
             it->resetGraph();
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6059,7 +6057,7 @@ simInt simAddGraphStream_internal(simInt graphHandle,const simChar* streamName,c
             return(-1);
         if (strlen(streamName)==0)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_EMPTY_STRING_NOT_ALLOWED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_EMPTY_STRING_NOT_ALLOWED);
             return(-1);
         }
         std::string nm(streamName);
@@ -6070,11 +6068,11 @@ simInt simAddGraphStream_internal(simInt graphHandle,const simChar* streamName,c
         if (retVal==-1)
         {
             delete str;
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_CANNOT_OVERWRITE_STATIC_CURVE);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CANNOT_OVERWRITE_STATIC_CURVE);
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6103,10 +6101,10 @@ simInt simDestroyGraphCurve_internal(simInt graphHandle,simInt curveId)
             if (it->removeGraphDataStream(curveId))
                 return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CURVE_ID);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_CURVE_ID);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6124,10 +6122,10 @@ simInt simSetGraphStreamTransformation_internal(simInt graphHandle,simInt stream
         CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
         if (it->setDataStreamTransformation(streamId,trType,mult,off,movingAvgPeriod))
             return(1);
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CURVE_ID);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_CURVE_ID);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6147,10 +6145,10 @@ simInt simDuplicateGraphCurveToStatic_internal(simInt graphHandle,simInt curveId
         tt::removeIllegalCharacters(nm,false);
         int retVal=it->duplicateCurveToStatic(curveId,nm.c_str());
         if (retVal==-1)
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CURVE_ID);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_CURVE_ID);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6167,7 +6165,7 @@ simInt simAddGraphCurve_internal(simInt graphHandle,const simChar* curveName,sim
             return(-1);
         if (strlen(curveName)==0)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_EMPTY_STRING_NOT_ALLOWED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_EMPTY_STRING_NOT_ALLOWED);
             return(-1);
         }
         std::string nm(curveName);
@@ -6178,11 +6176,11 @@ simInt simAddGraphCurve_internal(simInt graphHandle,const simChar* curveName,sim
         if (retVal==-1)
         {
             delete curve;
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_CANNOT_OVERWRITE_STATIC_CURVE);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CANNOT_OVERWRITE_STATIC_CURVE);
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6200,10 +6198,10 @@ simInt simSetGraphStreamValue_internal(simInt graphHandle,simInt streamId,simFlo
         CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
         if (it->setNextValueToInsert(streamId,value))
             return(1);
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CURVE_ID);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_CURVE_ID);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6227,7 +6225,7 @@ simChar* simGetModuleName_internal(simInt index,simUChar* moduleVersion)
             moduleVersion[0]=plug->pluginVersion;
         return(name);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -6265,7 +6263,7 @@ simInt simDisplayDialog_internal(const simChar* titleText,const simChar* mainTex
         return(1);
 #endif
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -6291,7 +6289,7 @@ simInt simGetDialogResult_internal(simInt genericDialogHandle)
         return(sim_dlgret_cancel);
 #endif
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6323,7 +6321,7 @@ simChar* simGetDialogInput_internal(simInt genericDialogHandle)
             retVal[i]=tmp[i];
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -6345,7 +6343,7 @@ simInt simEndDialog_internal(simInt genericDialogHandle)
 #endif
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -6389,7 +6387,7 @@ simInt simSetPage_internal(simInt index)
 #endif
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6411,7 +6409,7 @@ simInt simGetPage_internal()
         return(0);
 #endif
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6492,7 +6490,7 @@ simInt simCopyPasteObjects_internal(simInt* objectHandles,simInt objectCount,sim
             App::currentWorld->sceneObjects->addObjectToSelection(initSel[i]);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -6513,7 +6511,7 @@ simInt simScaleSelectedObjects_internal(simFloat scalingFactor,simBool scalePosi
         CSceneObjectOperations::scaleObjects(sel,scalingFactor,scalePositionsToo!=0);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -6533,7 +6531,7 @@ simInt simScaleObjects_internal(const simInt* objectHandles,simInt objectCount,s
         CSceneObjectOperations::scaleObjects(sel,scalingFactor,scalePositionsToo!=0);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -6556,7 +6554,7 @@ simInt simDeleteSelectedObjects_internal()
         App::currentWorld->sceneObjects->eraseSeveralObjects(sel,true);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -6584,7 +6582,7 @@ simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueI
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6619,7 +6617,7 @@ simInt simAddDrawingObject_internal(simInt objectType,simFloat size,simFloat dup
         int retVal=App::currentWorld->drawingCont->addObject(it);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -6650,13 +6648,13 @@ simInt simRemoveDrawingObject_internal(simInt objectHandle)
             else
             {
                 if (handleFlags!=sim_handleflag_silenterror)
-                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT);
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_INEXISTANT);
                 return(-1);
             }
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -6672,14 +6670,14 @@ simInt simAddDrawingObjectItem_internal(simInt objectHandle,const simFloat* item
         CDrawingObject* it=App::currentWorld->drawingCont->getObject(objectHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_INEXISTANT);
             return(-1);
         }
         if (it->addItem(itemData))
             return(1);
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 simInt simAddParticleObject_internal(simInt objectType,simFloat size,simFloat massOverVolume,const simVoid* params,simFloat lifeTime,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission)
@@ -6695,13 +6693,13 @@ simInt simAddParticleObject_internal(simInt objectType,simFloat size,simFloat ma
     {
         if (!App::currentWorld->simulation->isSimulationRunning())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
             return(-1);
         }
         int retVal=CPluginContainer::dyn_addParticleObject(objectType,size,massOverVolume,params,lifeTime,maxItemCount,ambient_diffuse,nullptr,specular,emission);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -6718,7 +6716,7 @@ simInt simRemoveParticleObject_internal(simInt objectHandle)
     {
         if (!App::currentWorld->simulation->isSimulationRunning())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
             return(-1);
         }
         int retVal=-1;
@@ -6726,7 +6724,7 @@ simInt simRemoveParticleObject_internal(simInt objectHandle)
             retVal=1;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -6738,7 +6736,7 @@ simInt simAddParticleObjectItem_internal(simInt objectHandle,const simFloat* ite
         return(-1);
     if (!App::currentWorld->simulation->isSimulationRunning())
     {
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
         return(-1);
     }
 
@@ -6748,10 +6746,10 @@ simInt simAddParticleObjectItem_internal(simInt objectHandle,const simFloat* ite
         if (CPluginContainer::dyn_addParticleObjectItem(objectHandle,itemData,float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f)!=0)
             retVal=1;
         else
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_INEXISTANT);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -6771,7 +6769,7 @@ simFloat simGetObjectSizeFactor_internal(simInt objectHandle)
         float retVal=it->getSizeFactor();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6788,7 +6786,7 @@ simInt simAnnounceSceneContentChange_internal()
             return(-1);
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6804,7 +6802,7 @@ simInt simSetInt32Signal_internal(const simChar* signalName,simInt signalValue)
         App::currentWorld->signalContainer->setIntegerSignal(signalName,signalValue,_currentScriptHandle);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6824,7 +6822,7 @@ simInt simGetInt32Signal_internal(const simChar* signalName,simInt* signalValue)
 
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6846,7 +6844,7 @@ simInt simClearInt32Signal_internal(const simChar* signalName)
 
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6862,7 +6860,7 @@ simInt simSetFloatSignal_internal(const simChar* signalName,simFloat signalValue
         App::currentWorld->signalContainer->setFloatSignal(signalName,signalValue,_currentScriptHandle);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6882,7 +6880,7 @@ simInt simGetFloatSignal_internal(const simChar* signalName,simFloat* signalValu
 
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6904,7 +6902,7 @@ simInt simClearFloatSignal_internal(const simChar* signalName)
 
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6920,7 +6918,7 @@ simInt simSetDoubleSignal_internal(const simChar* signalName,simDouble signalVal
         App::currentWorld->signalContainer->setDoubleSignal(signalName,signalValue,_currentScriptHandle);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6940,7 +6938,7 @@ simInt simGetDoubleSignal_internal(const simChar* signalName,simDouble* signalVa
 
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6962,7 +6960,7 @@ simInt simClearDoubleSignal_internal(const simChar* signalName)
 
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6978,7 +6976,7 @@ simInt simSetStringSignal_internal(const simChar* signalName,const simChar* sign
         App::currentWorld->signalContainer->setStringSignal(signalName,std::string(signalValue,stringLength),_currentScriptHandle);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7004,7 +7002,7 @@ simChar* simGetStringSignal_internal(const simChar* signalName,simInt* stringLen
 
         return(nullptr); // signal does not exist
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -7026,7 +7024,7 @@ simInt simClearStringSignal_internal(const simChar* signalName)
 
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7041,7 +7039,7 @@ simChar* simGetSignalName_internal(simInt signalIndex,simInt signalType)
     {
         if ( (signalType!=0)&&(signalType!=1)&&(signalType!=2)&&(signalType!=3) )
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
             return(nullptr);
         }
         std::string sigName;
@@ -7066,7 +7064,7 @@ simChar* simGetSignalName_internal(simInt signalIndex,simInt signalType)
         }
         return(nullptr); // signal does not exist
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -7085,7 +7083,7 @@ simInt simSetObjectProperty_internal(simInt objectHandle,simInt prop)
         it->setLocalObjectProperty(prop);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7106,7 +7104,7 @@ simInt simGetObjectProperty_internal(simInt objectHandle)
         int retVal=it->getLocalObjectProperty();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7127,7 +7125,7 @@ simInt simSetObjectSpecialProperty_internal(simInt objectHandle,simInt prop)
         it->setLocalObjectSpecialProperty(prop);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7148,7 +7146,7 @@ simInt simGetObjectSpecialProperty_internal(simInt objectHandle)
         int retVal=it->getLocalObjectSpecialProperty();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7176,7 +7174,7 @@ simInt simSetModelProperty_internal(simInt objectHandle,simInt modelProperty)
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7199,7 +7197,7 @@ simInt simGetModelProperty_internal(simInt objectHandle)
             retVal=sim_modelproperty_not_model;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7226,7 +7224,7 @@ simInt simReadForceSensor_internal(simInt objectHandle,simFloat* forceVector,sim
             return(-1);
         if (App::currentWorld->simulation->isSimulationStopped())
         {
-//            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
+//            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
             return(0);
         }
         CForceSensor* it=App::currentWorld->sceneObjects->getForceSensorFromHandle(handle);
@@ -7248,7 +7246,7 @@ simInt simReadForceSensor_internal(simInt objectHandle,simFloat* forceVector,sim
 
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7273,14 +7271,14 @@ simInt simBreakForceSensor_internal(simInt objectHandle)
         }
         if (App::currentWorld->simulation->isSimulationStopped())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
             return(-1);
         }
         CForceSensor* it=App::currentWorld->sceneObjects->getForceSensorFromHandle(objectHandle);
         it->setForceSensorIsBroken();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7305,7 +7303,7 @@ simInt simGetShapeVertex_internal(simInt shapeHandle,simInt groupElementIndex,si
         }
         if (App::currentWorld->environment->getSceneLocked())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCENE_LOCKED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_LOCKED);
             return(-1);
         }
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
@@ -7325,7 +7323,7 @@ simInt simGetShapeVertex_internal(simInt shapeHandle,simInt groupElementIndex,si
         relativePosition[2]=wvert[3*vertexIndex+2];
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7350,7 +7348,7 @@ simInt simGetShapeTriangle_internal(simInt shapeHandle,simInt groupElementIndex,
         }
         if (App::currentWorld->environment->getSceneLocked())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCENE_LOCKED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_LOCKED);
             return(-1);
         }
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
@@ -7387,7 +7385,7 @@ simInt simGetShapeTriangle_internal(simInt shapeHandle,simInt groupElementIndex,
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7425,7 +7423,7 @@ simInt simGetLightParameters_internal(simInt objectHandle,simFloat* setToNULL,si
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7450,7 +7448,7 @@ simInt simSetLightParameters_internal(simInt objectHandle,simInt state,const sim
             it->getColor(true)->setColor(specularPart,sim_colorcomponent_specular);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7476,7 +7474,7 @@ simInt simGetVelocity_internal(simInt shapeHandle,simFloat* linearVelocity,simFl
             av.copyTo(angularVelocity);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7511,7 +7509,7 @@ simInt simGetObjectVelocity_internal(simInt objectHandle,simFloat* linearVelocit
             av.copyTo(angularVelocity);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7530,7 +7528,7 @@ simInt simGetJointVelocity_internal(simInt jointHandle,simFloat* velocity)
         velocity[0]=it->getMeasuredJointVelocity();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7572,7 +7570,7 @@ simInt simAddForceAndTorque_internal(simInt shapeHandle,const simFloat* force,co
         it->addAdditionalForceAndTorque(f,t);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7612,7 +7610,7 @@ simInt simAddForce_internal(simInt shapeHandle,const simFloat* position,const si
         it->addAdditionalForceAndTorque(f,t);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7697,10 +7695,10 @@ simInt simSetExplicitHandling_internal(simInt objectHandle,int explicitFlags)
             return(1);
         }
         // -------------------------------------------------------
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7782,10 +7780,10 @@ simInt simGetExplicitHandling_internal(simInt objectHandle)
             return(exp);
         }
         // -------------------------------------------------------
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7808,7 +7806,7 @@ simInt simGetLinkDummy_internal(simInt dummyHandle)
         int retVal=it->getLinkedDummyHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7832,7 +7830,7 @@ simInt simSetLinkDummy_internal(simInt dummyHandle,simInt linkedDummyHandle)
         it->setLinkedDummyHandle(linkedDummyHandle,true);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7862,7 +7860,7 @@ simInt simSetShapeColor_internal(simInt shapeHandle,const simChar* colorName,sim
         }
        return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7883,7 +7881,7 @@ simInt simGetShapeColor_internal(simInt shapeHandle,const simChar* colorName,sim
             retVal=1;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7934,7 +7932,7 @@ simInt simResetDynamicObject_internal(simInt objectHandle)
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7954,7 +7952,7 @@ simInt simSetJointMode_internal(simInt jointHandle,simInt jointMode,simInt optio
         it->setHybridFunctionality(options&1);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -7980,7 +7978,7 @@ simInt simGetJointMode_internal(simInt jointHandle,simInt* options)
             options[0]|=1;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -8001,7 +7999,7 @@ simInt simSerialOpen_internal(const simChar* portString,simInt baudRate,simVoid*
 #endif
         return(handle);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -8020,11 +8018,11 @@ simInt simSerialClose_internal(simInt portHandle)
         if (App::worldContainer->serialPortContainer->serialPortClose(portHandle))
             retVal=1;
         else
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PORT_HANDLE);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PORT_HANDLE);
 #endif
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -8041,7 +8039,7 @@ simInt simSerialSend_internal(simInt portHandle,const simChar* data,simInt dataL
     std::string dat(data,data+dataLength);
     retVal=App::worldContainer->serialPortContainer->serialPortSend(portHandle,dat);
     if (retVal==-1)
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PORT_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PORT_HANDLE);
 #endif
     return(retVal);
 }
@@ -8063,7 +8061,7 @@ simInt simSerialRead_internal(simInt portHandle,simChar* buffer,simInt dataLengt
             buffer[i]=data[i];
     }
     if (retVal==-1)
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PORT_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PORT_HANDLE);
 #endif
     return(retVal);
 }
@@ -8080,7 +8078,7 @@ simInt simSerialCheck_internal(simInt portHandle)
 #ifdef SIM_WITH_SERIAL
     retVal=App::worldContainer->serialPortContainer->serialPortCheck(portHandle);
     if (retVal==-1)
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PORT_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PORT_HANDLE);
 #endif
     return(retVal);
 }
@@ -8099,7 +8097,7 @@ simInt simGetContactInfo_internal(simInt dynamicPass,simInt objectHandle,simInt 
             retVal=1;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -8130,7 +8128,7 @@ simInt simAuxiliaryConsoleOpen_internal(const simChar* title,simInt maxLines,sim
 #endif
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -8149,7 +8147,7 @@ simInt simAuxiliaryConsoleClose_internal(simInt consoleHandle)
 #endif
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -8178,7 +8176,7 @@ simInt simAuxiliaryConsoleShow_internal(simInt consoleHandle,simBool showState)
 #endif
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -8203,7 +8201,7 @@ simInt simAuxiliaryConsolePrint_internal(simInt consoleHandle,const simChar* tex
 #endif
         return(1); // in headless mode we fake success
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -8218,12 +8216,12 @@ simInt simImportShape_internal(simInt fileformat,const simChar* pathAndFilename,
     {
         if (!CPluginContainer::isAssimpPluginAvailable())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
             return(-1);
         }
         if (!VFile::doesFileExist(pathAndFilename))
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_FILE_NOT_FOUND);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_FILE_NOT_FOUND);
             return(-1);
         }
         int op=32;
@@ -8248,7 +8246,7 @@ simInt simImportShape_internal(simInt fileformat,const simChar* pathAndFilename,
         App::currentWorld->sceneObjects->deselectObjects();
         return(h);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -8264,12 +8262,12 @@ simInt simImportMesh_internal(simInt fileformat,const simChar* pathAndFilename,s
     {
         if (!VFile::doesFileExist(pathAndFilename))
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_FILE_NOT_FOUND);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_FILE_NOT_FOUND);
             return(-1);
         }
         if (!CPluginContainer::isAssimpPluginAvailable())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
             return(-1);
         }
         int op=0;
@@ -8290,7 +8288,7 @@ simInt simImportMesh_internal(simInt fileformat,const simChar* pathAndFilename,s
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -8305,12 +8303,12 @@ simInt simExportMesh_internal(simInt fileformat,const simChar* pathAndFilename,s
     {
         if (App::currentWorld->environment->getSceneLocked())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCENE_LOCKED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_LOCKED);
             return(-1);
         }
         if (!CPluginContainer::isAssimpPluginAvailable())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
             return(-1);
         }
         if (CSimFlavor::getBoolVal(15))
@@ -8330,7 +8328,7 @@ simInt simExportMesh_internal(simInt fileformat,const simChar* pathAndFilename,s
             format="plyb";
         if (format.size()==0)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_FILE_FORMAT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_FILE_FORMAT);
             return(-1);
         }
         bool invalidValues=false;
@@ -8348,14 +8346,14 @@ simInt simExportMesh_internal(simInt fileformat,const simChar* pathAndFilename,s
         }
         if (invalidValues)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
             return(-1);
         }
         int op=0;
         CPluginContainer::assimp_exportMeshes(elementCount,vertices,verticesSizes,indices,indicesSizes,pathAndFilename,format.c_str(),scalingFactor,1,op);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -8395,14 +8393,14 @@ simInt simCreateMeshShape_internal(simInt options,simFloat shadingAngle,const si
                     App::currentWorld->sceneObjects->addObjectToScene(shape,false,true);
                     return(shape->getObjectHandle());
                 }
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_BAD_VERTICES);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_BAD_VERTICES);
                 return(-1);
             }
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_BAD_INDICES);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_BAD_INDICES);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -8439,7 +8437,7 @@ simInt simGetShapeMesh_internal(simInt shapeHandle,simFloat** vertices,simInt* v
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -8492,7 +8490,7 @@ simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const sim
         }
         if (pType==-1)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_TYPE);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_TYPE);
             return(-1);
         }
         CShape* shape=CAddOperations::addPrimitiveShape(pType,s,nullptr,faces,sides,0,true,openEnds,true,true,cone,1000.0f);
@@ -8507,7 +8505,7 @@ simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const sim
         shape->getMeshWrapper()->setMass(tt::getLimitedFloat(0.000001f,10000.0f,mass));
         return(shape->getObjectHandle());
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -8532,7 +8530,7 @@ simInt simCreateDummy_internal(simFloat size,const simFloat* color)
         int retVal=it->getObjectHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -8623,7 +8621,7 @@ simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt
         int retVal=it->getObjectHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -8666,7 +8664,7 @@ simInt simCreateForceSensor_internal(simInt options,const simInt* intParams,cons
         int retVal=it->getObjectHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -8719,7 +8717,7 @@ simInt simCreateVisionSensor_internal(simInt options,const simInt* intParams,con
         int retVal=it->getObjectHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -8757,7 +8755,7 @@ simInt simCreateJoint_internal(simInt jointType,simInt jointMode,simInt options,
         int retVal=it->getObjectHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -8776,7 +8774,7 @@ simInt simFloatingViewAdd_internal(simFloat posX,simFloat posY,simFloat sizeX,si
         CSPage* page=App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
         if (page==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PAGE_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PAGE_INEXISTANT);
             return(-1);
         }
         CSView* theFloatingView=new CSView(-1);
@@ -8810,7 +8808,7 @@ simInt simFloatingViewAdd_internal(simFloat posX,simFloat posY,simFloat sizeX,si
         return(-1);
 #endif
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -8842,7 +8840,7 @@ simInt simFloatingViewRemove_internal(simInt floatingViewHandle)
         }
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -8888,7 +8886,7 @@ simInt simCameraFitToView_internal(simInt viewHandleOrIndex,simInt objectCount,c
 #endif
                 if (page==nullptr)
                 {
-                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PAGE_INEXISTANT);
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PAGE_INEXISTANT);
                     return(-1);
                 }
                 else
@@ -8938,7 +8936,7 @@ simInt simCameraFitToView_internal(simInt viewHandleOrIndex,simInt objectCount,c
         camera->frameSceneOrSelectedObjects(xByY,perspective,&objectsToFrame,false,(options&1)==0,scaling,view);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -8975,7 +8973,7 @@ simInt simAdjustView_internal(simInt viewHandleOrIndex,simInt associatedViewable
 #endif
             if (page==nullptr)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PAGE_INEXISTANT);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PAGE_INEXISTANT);
                 return(-1);
             }
             else
@@ -9003,7 +9001,7 @@ simInt simAdjustView_internal(simInt viewHandleOrIndex,simInt associatedViewable
             int objType=it->getObjectType();
             if ( (objType!=sim_object_camera_type)&&(objType!=sim_object_graph_type)&&(objType!=sim_object_visionsensor_type) )
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_IS_NOT_VIEWABLE);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_IS_NOT_VIEWABLE);
                 return(-1);
             }
         }
@@ -9019,7 +9017,7 @@ simInt simAdjustView_internal(simInt viewHandleOrIndex,simInt associatedViewable
             view->setAlternativeViewName(viewLabel);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -9034,7 +9032,7 @@ simInt simCreateHeightfieldShape_internal(simInt options,simFloat shadingAngle,s
     {
         if ( (xPointCount<2)||(xPointCount>2048)||(yPointCount<2)||(yPointCount>2048)||(xSize<0.00001f) )
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENTS);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENTS);
             return(-1);
         }
         std::vector<std::vector<float>*> allData;
@@ -9050,7 +9048,7 @@ simInt simCreateHeightfieldShape_internal(simInt options,simFloat shadingAngle,s
             delete allData[i];
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -9440,7 +9438,7 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
 
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -9732,10 +9730,10 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             }
         }
         if (retVal==0)
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_SET_PARAMETER);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_SET_PARAMETER);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -10228,7 +10226,7 @@ simInt simGetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
 
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -10616,10 +10614,10 @@ simInt simSetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
             }
         }
         if (retVal==0)
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_SET_PARAMETER);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_SET_PARAMETER);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -10682,7 +10680,7 @@ simChar* simGetObjectStringParam_internal(simInt objectHandle,simInt parameterID
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -10721,10 +10719,10 @@ simInt simSetObjectStringParam_internal(simInt objectHandle,simInt parameterID,c
             }
         }
         if (retVal==0)
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_SET_PARAMETER);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_SET_PARAMETER);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -10816,7 +10814,7 @@ simInt simGetJointForce_internal(simInt jointHandle,simFloat* forceOrTorque)
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(handle);
         if (it->getJointType()==sim_joint_spherical_subtype)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_JOINT_SPHERICAL);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_SPHERICAL);
             return(-1);
         }
         float f;
@@ -10828,7 +10826,7 @@ simInt simGetJointForce_internal(simInt jointHandle,simFloat* forceOrTorque)
         }
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -10849,7 +10847,7 @@ simInt simGetJointMaxForce_internal(simInt jointHandle,simFloat* forceOrTorque)
         forceOrTorque[0]=it->getDynamicMotorMaximumForce();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -10865,7 +10863,7 @@ simInt simPersistentDataWrite_internal(const simChar* dataTag,const simChar* dat
         App::worldContainer->persistentDataContainer->writeData(dataTag,std::string(dataValue,dataLength),(options&1)!=0);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -10889,7 +10887,7 @@ simChar* simPersistentDataRead_internal(const simChar* dataTag,simInt* dataLengt
         }
         return(nullptr); // data does not exist
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(nullptr);
 }
 
@@ -10924,7 +10922,7 @@ simInt simIsHandle_internal(simInt generalObjectHandle,simInt generalObjectType)
             return(1);
         return(0); // handle is not valid!
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -10955,7 +10953,7 @@ simInt simHandleVisionSensor_internal(simInt visionSensorHandle,simFloat** auxVa
                 it=(CVisionSensor*)App::currentWorld->sceneObjects->getObjectFromHandle(visionSensorHandle);
                 if (!it->getExplicitHandling())
                 {
-                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                     return(-1);
                 }
                 retVal=it->handleSensor();
@@ -10986,7 +10984,7 @@ simInt simHandleVisionSensor_internal(simInt visionSensorHandle,simFloat** auxVa
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -11032,7 +11030,7 @@ simInt simReadVisionSensor_internal(simInt visionSensorHandle,simFloat** auxValu
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -11062,7 +11060,7 @@ simInt simResetVisionSensor_internal(simInt visionSensorHandle)
                 it=(CVisionSensor*)App::currentWorld->sceneObjects->getObjectFromHandle(visionSensorHandle);
                 if (!it->getExplicitHandling())
                 {
-                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                     return(-1);
                 }
                 it->resetSensor();
@@ -11076,7 +11074,7 @@ simInt simResetVisionSensor_internal(simInt visionSensorHandle)
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -11130,7 +11128,7 @@ simInt simCheckVisionSensor_internal(simInt sensorHandle,simInt entityHandle,sim
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -11159,7 +11157,7 @@ simFloat* simCheckVisionSensorEx_internal(simInt sensorHandle,simInt entityHandl
         float* retBuffer=it->checkSensorEx(entityHandle,returnImage!=0,false,false,true);
         return(retBuffer);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -11186,7 +11184,7 @@ simInt simGetVisionSensorResolution_internal(simInt sensorHandle,simInt* resolut
         it->getRealResolution(resolution);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -11236,7 +11234,7 @@ simFloat* simGetVisionSensorImage_internal(simInt sensorHandle)
         }
         return(buff);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -11293,7 +11291,7 @@ simUChar* simGetVisionSensorCharImage_internal(simInt sensorHandle,simInt* resol
         }
         return(buff);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -11323,7 +11321,7 @@ simInt simSetVisionSensorImage_internal(simInt sensorHandle,const simFloat* imag
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -11348,7 +11346,7 @@ simInt simSetVisionSensorCharImage_internal(simInt sensorHandle,const simUChar* 
             retVal=1;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -11387,7 +11385,7 @@ simFloat* simGetVisionSensorDepthBuffer_internal(simInt sensorHandle)
         }
         return(buff);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -11966,7 +11964,7 @@ simInt simGetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -12062,7 +12060,7 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -12128,7 +12126,7 @@ simInt simGetShapeMass_internal(simInt shapeHandle,simFloat* mass)
         mass[0]=it->getMeshWrapper()->getMass();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -12151,7 +12149,7 @@ simInt simSetShapeMass_internal(simInt shapeHandle,simFloat mass)
         it->setDynamicsFullRefreshFlag(true);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -12181,7 +12179,7 @@ simInt simGetShapeInertia_internal(simInt shapeHandle,simFloat* inertiaMatrix,si
 
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -12224,7 +12222,7 @@ simInt simSetShapeInertia_internal(simInt shapeHandle,const simFloat* inertiaMat
         it->setDynamicsFullRefreshFlag(true);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -12264,7 +12262,7 @@ simInt simIsDynamicallyEnabled_internal(simInt objectHandle)
         */
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -12419,10 +12417,10 @@ simInt simGenerateShapeFromPath_internal(const simFloat* pppath,simInt pathSize,
             int h=simCreateMeshShape_internal(0,0.0f,&vertices[0],int(vertices.size()),&indices[0],int(indices.size()),nullptr);
             return(h);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PATH);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PATH);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -12467,7 +12465,7 @@ simInt simInitScript_internal(simInt scriptHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it!=nullptr)
         {
             if ( (it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_customizationscript)||(it->getScriptType()==sim_scripttype_sandboxscript) )
@@ -12479,17 +12477,17 @@ simInt simInitScript_internal(simInt scriptHandle)
             }
             else
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_SCRIPT_TYPE);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ILLEGAL_SCRIPT_TYPE);
                 return(-1);
             }
         }
         else
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(-1);
         }
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -12514,7 +12512,7 @@ simInt simGroupShapes_internal(const simInt* shapeHandles,simInt shapeCount)
         }
         if (shapes.size()<2)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_NOT_ENOUGH_SHAPES);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_NOT_ENOUGH_SHAPES);
             return(-1);
         }
         const std::vector<int> initSelection(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
@@ -12526,7 +12524,7 @@ simInt simGroupShapes_internal(const simInt* shapeHandles,simInt shapeCount)
         App::currentWorld->sceneObjects->setSelectedObjectHandles(&initSelection);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -12546,7 +12544,7 @@ simInt* simUngroupShape_internal(simInt shapeHandle,simInt* shapeCount)
         /*
         if (!App::currentWorld->simulation->isSimulationStopped())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
             shapeCount[0]=0;
             return(nullptr);
         }
@@ -12599,7 +12597,7 @@ simInt* simUngroupShape_internal(simInt shapeHandle,simInt* shapeCount)
         {
             if (dividing)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_CANNOT_DIVIDE_COMPOUND_SHAPE);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CANNOT_DIVIDE_COMPOUND_SHAPE);
                 shapeCount[0]=0;
                 return(nullptr);
             }
@@ -12636,7 +12634,7 @@ simInt* simUngroupShape_internal(simInt shapeHandle,simInt* shapeCount)
         shapeCount[0]=int(finalSel.size());
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(nullptr);
 }
 
@@ -12695,7 +12693,7 @@ simInt simSetShapeMaterial_internal(simInt shapeHandle,simInt materialIdOrShapeH
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -12719,10 +12717,10 @@ simInt simGetTextureId_internal(const simChar* textureName,simInt* resolution)
                 to->getTextureSize(resolution[0],resolution[1]);
         }
         else
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_TEXTURE_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_TEXTURE_INEXISTANT);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -12758,12 +12756,12 @@ simChar* simReadTexture_internal(simInt textureId,simInt options,simInt posX,sim
                 return(retVal);
             }
             else
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENTS);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENTS);
         }
         else
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_TEXTURE_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_TEXTURE_INEXISTANT);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -12799,12 +12797,12 @@ simInt simWriteTexture_internal(simInt textureId,simInt options,const simChar* d
                 return(retVal);
             }
             else
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENTS);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENTS);
         }
         else
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_TEXTURE_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_TEXTURE_INEXISTANT);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -12885,7 +12883,7 @@ simInt simCreateTexture_internal(const simChar* fileName,simInt options,const si
                 }
             }
             else
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_FILE_NOT_FOUND);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_FILE_NOT_FOUND);
         }
         else
         { // just creating a texture (not loading it)
@@ -12936,11 +12934,11 @@ simInt simCreateTexture_internal(const simChar* fileName,simInt options,const si
                 return(shape->getObjectHandle());
             }
             else
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENTS);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENTS);
         }
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -12964,52 +12962,52 @@ simInt simWriteCustomDataBlock_internal(simInt objectHandle,const simChar* tagNa
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,"Targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
+                CApiErrors::setLastWarningOrError(__func__,"Targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
                 return(-1);
             }
 
-            CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
+            CScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
             if (script!=nullptr)
             { // here we have a script
                 if (useTempBuffer)
                 {
                     if (strlen(tagName)!=0)
                     {
-                        int l=script->getObjectCustomDataLength_tempData(356248756);
+                        int l=script->getObjectCustomDataLength_tempData_old(356248756);
                         if (l>0)
                         {
                             buffer.resize(l,' ');
-                            script->getObjectCustomData_tempData(356248756,&buffer[0]);
+                            script->getObjectCustomData_tempData_old(356248756,&buffer[0]);
                         }
                         delete[] _extractCustomDataFromBuffer(buffer,tagName,&extractedBufSize);
                         _appendCustomDataToBuffer(buffer,tagName,data,dataSize);
                         if (buffer.size()>0)
-                            script->setObjectCustomData_tempData(356248756,&buffer[0],(int)buffer.size());
+                            script->setObjectCustomData_tempData_old(356248756,&buffer[0],(int)buffer.size());
                         else
-                            script->setObjectCustomData_tempData(356248756,nullptr,0);
+                            script->setObjectCustomData_tempData_old(356248756,nullptr,0);
                     }
                     else
-                        script->setObjectCustomData_tempData(356248756,nullptr,0);
+                        script->setObjectCustomData_tempData_old(356248756,nullptr,0);
                 }
                 else
                 {
                     if (strlen(tagName)!=0)
                     {
-                        int l=script->getObjectCustomDataLength(356248756);
+                        int l=script->getObjectCustomDataLength_old(356248756);
                         if (l>0)
                         {
                             buffer.resize(l,' ');
-                            script->getObjectCustomData(356248756,&buffer[0]);
+                            script->getObjectCustomData_old(356248756,&buffer[0]);
                         }
                         delete[] _extractCustomDataFromBuffer(buffer,tagName,&extractedBufSize);
                         _appendCustomDataToBuffer(buffer,tagName,data,dataSize);
                         if (buffer.size()>0)
-                            script->setObjectCustomData(356248756,&buffer[0],(int)buffer.size());
+                            script->setObjectCustomData_old(356248756,&buffer[0],(int)buffer.size());
                         else
-                            script->setObjectCustomData(356248756,nullptr,0);
+                            script->setObjectCustomData_old(356248756,nullptr,0);
                     }
                     else
-                        script->setObjectCustomData(356248756,nullptr,0);
+                        script->setObjectCustomData_old(356248756,nullptr,0);
                 }
             }
         }
@@ -13126,7 +13124,7 @@ simInt simWriteCustomDataBlock_internal(simInt objectHandle,const simChar* tagNa
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -13149,28 +13147,28 @@ simChar* simReadCustomDataBlock_internal(simInt objectHandle,const simChar* tagN
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,"Targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
+                CApiErrors::setLastWarningOrError(__func__,"Targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
                 return(nullptr);
             }
-            CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
+            CScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
             if (script!=nullptr)
             {
                 if (useTempBuffer)
                 {
-                    int l=script->getObjectCustomDataLength_tempData(356248756);
+                    int l=script->getObjectCustomDataLength_tempData_old(356248756);
                     if (l>0)
                     {
                         buffer.resize(l,' ');
-                        script->getObjectCustomData_tempData(356248756,&buffer[0]);
+                        script->getObjectCustomData_tempData_old(356248756,&buffer[0]);
                     }
                 }
                 else
                 {
-                    int l=script->getObjectCustomDataLength(356248756);
+                    int l=script->getObjectCustomDataLength_old(356248756);
                     if (l>0)
                     {
                         buffer.resize(l,' ');
-                        script->getObjectCustomData(356248756,&buffer[0]);
+                        script->getObjectCustomData_old(356248756,&buffer[0]);
                     }
                 }
                 retBuffer=_extractCustomDataFromBuffer(buffer,tagName,dataSize);
@@ -13238,7 +13236,7 @@ simChar* simReadCustomDataBlock_internal(simInt objectHandle,const simChar* tagN
 
         return(retBuffer);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -13259,25 +13257,25 @@ simChar* simReadCustomDataBlockTags_internal(simInt objectHandle,simInt* tagCoun
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,"Targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
+                CApiErrors::setLastWarningOrError(__func__,"Targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
                 return(nullptr);
             }
-            CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
+            CScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
             if (script!=nullptr)
             {
-                int l=script->getObjectCustomDataLength_tempData(356248756);
+                int l=script->getObjectCustomDataLength_tempData_old(356248756);
                 if (l>0)
                 {
                     buffer.resize(l,' ');
-                    script->getObjectCustomData_tempData(356248756,&buffer[0]);
+                    script->getObjectCustomData_tempData_old(356248756,&buffer[0]);
                     _extractCustomDataTagsFromBuffer(buffer,allTags);
                 }
 
-                l=script->getObjectCustomDataLength(356248756);
+                l=script->getObjectCustomDataLength_old(356248756);
                 if (l>0)
                 {
                     buffer.resize(l,' ');
-                    script->getObjectCustomData(356248756,&buffer[0]);
+                    script->getObjectCustomData_old(356248756,&buffer[0]);
                     _extractCustomDataTagsFromBuffer(buffer,allTags);
                 }
             }
@@ -13350,7 +13348,7 @@ simChar* simReadCustomDataBlockTags_internal(simInt objectHandle,simInt* tagCoun
         }
         return(retBuffer);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -13400,7 +13398,7 @@ simInt simGetShapeGeomInfo_internal(simInt shapeHandle,simInt* intData,simFloat*
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -13434,7 +13432,7 @@ simInt simGetObjects_internal(simInt index,simInt objectType)
         }
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -13502,52 +13500,8 @@ simInt* simGetObjectsInTree_internal(simInt treeBaseHandle,simInt objectType,sim
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
-}
-
-simInt simSetObjectSizeValues_internal(simInt objectHandle,const simFloat* sizeValues)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (doesObjectExist(__func__,objectHandle))
-        {
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            obj->setSizeValues(sizeValues);
-            return(1);
-        }
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simGetObjectSizeValues_internal(simInt objectHandle,simFloat* sizeValues)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (doesObjectExist(__func__,objectHandle))
-        {
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            obj->getSizeValues(sizeValues);
-            return(1);
-        }
-    }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
 }
 
 simInt simScaleObject_internal(simInt objectHandle,simFloat xScale,simFloat yScale,simFloat zScale,simInt options)
@@ -13566,7 +13520,7 @@ simInt simScaleObject_internal(simInt objectHandle,simFloat xScale,simFloat ySca
             return(1);
         }
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -13597,7 +13551,7 @@ simInt simGetShapeTextureId_internal(simInt shapeHandle)
             return(-1);
         }
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -13650,12 +13604,12 @@ simInt simSetShapeTexture_internal(simInt shapeHandle,simInt textureId,simInt ma
                     return(1);
                 }
                 else
-                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_TEXTURE_INEXISTANT);
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_TEXTURE_INEXISTANT);
             }
         }
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -13674,7 +13628,7 @@ simInt simCreateCollectionEx_internal(simInt options)
         it->setOverridesObjectMainProperties((options&1)!=0);
         return(it->getCollectionHandle());
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -13716,13 +13670,13 @@ simInt simAddItemToCollection_internal(simInt collectionHandle,simInt what,simIn
         }
         if (el==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
             return(-1);
         }
         it->addCollectionElement(el);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -13738,13 +13692,13 @@ simInt simDestroyCollection_internal(simInt collectionHandle)
         CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
             return(-1);
         }
         App::currentWorld->collections->removeCollection(collectionHandle);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -13767,7 +13721,7 @@ simInt* simGetCollectionObjects_internal(simInt collectionHandle,simInt* objectC
             return(retVal);
         }
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -13780,10 +13734,10 @@ simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(-1);
         }
         int retVal=-1;
@@ -13819,14 +13773,14 @@ simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
         }
         if (attributeID==sim_scriptattribute_debuglevel)
         {
-            it->setDebugLevel(intOrBoolVal);
+            it->setDebugLevel_old(intOrBoolVal);
             retVal=1;
         }
 
 
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -13839,10 +13793,10 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(-1);
         }
         int retVal=-1;
@@ -13882,7 +13836,7 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
         }
         if (attributeID==sim_scriptattribute_debuglevel)
         {
-            intOrBoolVal[0]=it->getDebugLevel();
+            intOrBoolVal[0]=it->getDebugLevel_old();
             retVal=1;
         }
         if (attributeID==sim_scriptattribute_scripttype)
@@ -13900,7 +13854,7 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
 
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -13945,7 +13899,7 @@ simInt simReorientShapeBoundingBox_internal(simInt shapeHandle,simInt relativeTo
             return(0);
         return(1); // success
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -13963,7 +13917,7 @@ simInt simSaveImage_internal(const simUChar* image,const simInt* resolution,simI
             retVal=1;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -13979,7 +13933,7 @@ simUChar* simLoadImage_internal(simInt* resolution,simInt options,const simChar*
         unsigned char* retVal=CImageLoaderSaver::load(resolution,options,filename,reserved);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -13997,7 +13951,7 @@ simUChar* simGetScaledImage_internal(const simUChar* imageIn,const simInt* resol
         unsigned char* retVal=CImageLoaderSaver::getScaledImage(imageIn,resolutionIn,resolutionOut,options);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -14014,7 +13968,7 @@ simInt simTransformImage_internal(simUChar* image,const simInt* resolution,simIn
             return(1);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14058,7 +14012,7 @@ simInt simGetQHull_internal(const simFloat* inVertices,simInt inVerticesL,simFlo
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14100,14 +14054,14 @@ simInt simGetDecimatedMesh_internal(const simFloat* inVertices,simInt inVertices
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
 simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar* functionNameAtScriptName,simInt stackId)
 {
     TRACE_C_API;
-    CLuaScriptObject* script=nullptr;
+    CScriptObject* script=nullptr;
     std::string funcName;
     if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
     { // script is identified by its ID
@@ -14163,7 +14117,7 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
         {
             if (script->getThreadedExecutionIsUnderWay_oldThreads())
             { // very special handling here!
-                if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
+                if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId_old(),VThread::getCurrentThreadId()))
                     retVal=script->callCustomScriptFunction(funcName.c_str(),stack);
                 else
                 { // we have to execute that function via another thread!
@@ -14174,7 +14128,7 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
                     d[2]=(void*)funcName.c_str();
                     d[3]=stack;
 
-                    retVal=CThreadPool::callRoutineViaSpecificThread(script->getThreadedScriptThreadId(),d);
+                    retVal=CThreadPool_old::callRoutineViaSpecificThread(script->getThreadedScriptThreadId_old(),d);
                 }
             }
             else
@@ -14184,13 +14138,13 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
             }
             if (retVal==-1)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION);
                 tmp+=SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
                 App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
             }
             if (retVal==0)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION);
                 tmp+=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
                 App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
                 retVal=-1; // to stay backward compatible
@@ -14200,13 +14154,13 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
         }
         else
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
             tmp+=SIM_ERROR_INVALID_HANDLE;
             App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
     tmp+=SIM_ERROR_SCRIPT_INEXISTANT;
     App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
 
@@ -14259,7 +14213,7 @@ simChar* simGetExtensionString_internal(simInt objectHandle,simInt index,const c
         return(retVal);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -14297,7 +14251,7 @@ simInt simComputeMassAndInertia_internal(simInt shapeHandle,simFloat density)
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14315,7 +14269,7 @@ simInt simCreateStack_internal()
         return(id);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14333,7 +14287,7 @@ simInt simReleaseStack_internal(simInt stackHandle)
         return(0);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14352,11 +14306,11 @@ simInt simCopyStack_internal(simInt stackHandle)
             int id=App::worldContainer->interfaceStackContainer->addStack(stack->copyYourself());
             return(id);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14375,11 +14329,11 @@ simInt simPushNullOntoStack_internal(simInt stackHandle)
             stack->pushNullOntoStack();
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14398,11 +14352,11 @@ simInt simPushBoolOntoStack_internal(simInt stackHandle,simBool value)
             stack->pushBoolOntoStack(value);
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14421,11 +14375,11 @@ simInt simPushInt32OntoStack_internal(simInt stackHandle,simInt value)
             stack->pushInt32OntoStack(value);
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14444,11 +14398,11 @@ simInt simPushInt64OntoStack_internal(simInt stackHandle,simInt64 value)
             stack->pushInt64OntoStack(value);
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14467,11 +14421,11 @@ simInt simPushFloatOntoStack_internal(simInt stackHandle,simFloat value)
             stack->pushNumberOntoStack((double)value);
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14490,11 +14444,11 @@ simInt simPushDoubleOntoStack_internal(simInt stackHandle,simDouble value)
             stack->pushNumberOntoStack(value);
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14513,11 +14467,11 @@ simInt simPushStringOntoStack_internal(simInt stackHandle,const simChar* value,s
             stack->pushStringOntoStack(value,size_t(stringSize));
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14536,11 +14490,11 @@ simInt simPushUInt8TableOntoStack_internal(simInt stackHandle,const simUChar* va
             stack->pushUCharArrayTableOntoStack(values,valueCnt);
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14559,11 +14513,11 @@ simInt simPushInt32TableOntoStack_internal(simInt stackHandle,const simInt* valu
             stack->pushInt32ArrayTableOntoStack(values,valueCnt);
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14582,11 +14536,11 @@ simInt simPushInt64TableOntoStack_internal(simInt stackHandle,const simInt64* va
             stack->pushInt64ArrayTableOntoStack(values,valueCnt);
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14605,11 +14559,11 @@ simInt simPushFloatTableOntoStack_internal(simInt stackHandle,const simFloat* va
             stack->pushFloatArrayTableOntoStack(values,valueCnt);
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14628,11 +14582,11 @@ simInt simPushDoubleTableOntoStack_internal(simInt stackHandle,const simDouble* 
             stack->pushDoubleArrayTableOntoStack(values,valueCnt);
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14651,11 +14605,11 @@ simInt simPushTableOntoStack_internal(simInt stackHandle)
             stack->pushTableOntoStack();
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14673,14 +14627,14 @@ simInt simInsertDataIntoStackTable_internal(simInt stackHandle)
         {
             if (stack->insertDataIntoStackTable())
                 return(1);
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14696,11 +14650,11 @@ simInt simGetStackSize_internal(simInt stackHandle)
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
             return(stack->getStackSize());
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14719,11 +14673,11 @@ simInt simPopStackItem_internal(simInt stackHandle,simInt count)
             stack->popStackValue(count);
             return(stack->getStackSize());
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14741,14 +14695,14 @@ simInt simMoveStackItemToTop_internal(simInt stackHandle,simInt cIndex)
         {
             if (stack->moveStackItemToTop(cIndex))
                 return(1);
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_INDEX);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_INDEX);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14770,14 +14724,14 @@ simInt simIsStackValueNull_internal(simInt stackHandle)
                     return(1);
                 return(0);
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14805,14 +14759,14 @@ simInt simGetStackBoolValue_internal(simInt stackHandle,simBool* boolValue)
                 }
                 return(0);
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14838,14 +14792,14 @@ simInt simGetStackInt32Value_internal(simInt stackHandle,simInt* numberValue)
                 }
                 return(0);
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14871,14 +14825,14 @@ simInt simGetStackInt64Value_internal(simInt stackHandle,simInt64* numberValue)
                 }
                 return(0);
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14904,14 +14858,14 @@ simInt simGetStackFloatValue_internal(simInt stackHandle,simFloat* numberValue)
                 }
                 return(0);
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14937,14 +14891,14 @@ simInt simGetStackDoubleValue_internal(simInt stackHandle,simDouble* numberValue
                 }
                 return(0);
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -14983,16 +14937,16 @@ simChar* simGetStackStringValue_internal(simInt stackHandle,simInt* stringSize)
             }
             if (stringSize!=nullptr)
                 stringSize[0]=-1;
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(nullptr);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         if (stringSize!=nullptr)
             stringSize[0]=-1;
         return(nullptr);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     if (stringSize!=nullptr)
         stringSize[0]=-1;
     return(nullptr);
@@ -15015,14 +14969,14 @@ simInt simGetStackTableInfo_internal(simInt stackHandle,simInt infoType)
                 int retVal=stack->getStackTableInfo(infoType);
                 return(retVal);
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -15044,14 +14998,14 @@ simInt simGetStackUInt8Table_internal(simInt stackHandle,simUChar* array,simInt 
                     return(1);
                 return(0);
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -15073,14 +15027,14 @@ simInt simGetStackInt32Table_internal(simInt stackHandle,simInt* array,simInt co
                     return(1);
                 return(0);
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -15102,14 +15056,14 @@ simInt simGetStackInt64Table_internal(simInt stackHandle,simInt64* array,simInt 
                     return(1);
                 return(0);
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -15131,14 +15085,14 @@ simInt simGetStackFloatTable_internal(simInt stackHandle,simFloat* array,simInt 
                     return(1);
                 return(0);
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -15160,14 +15114,14 @@ simInt simGetStackDoubleTable_internal(simInt stackHandle,simDouble* array,simIn
                     return(1);
                 return(0);
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -15188,14 +15142,14 @@ simInt simUnfoldStackTable_internal(simInt stackHandle)
                 if (stack->unfoldStackTable())
                     return(1);
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -15216,11 +15170,11 @@ simInt simDebugStack_internal(simInt stackHandle,simInt cIndex)
             App::logMsg(sim_verbosity_none,buffer.c_str());
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -15272,7 +15226,7 @@ simFloat simGetEngineFloatParam_internal(simInt paramId,simInt objectHandle,cons
         return(retVal);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(retVal);
 }
 
@@ -15324,7 +15278,7 @@ simInt simGetEngineInt32Param_internal(simInt paramId,simInt objectHandle,const 
         return(retVal);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(retVal);
 }
 
@@ -15376,7 +15330,7 @@ simBool simGetEngineBoolParam_internal(simInt paramId,simInt objectHandle,const 
         return(retVal);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(retVal);
 }
 
@@ -15427,7 +15381,7 @@ simInt simSetEngineFloatParam_internal(simInt paramId,simInt objectHandle,const 
         return(0);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -15478,7 +15432,7 @@ simInt simSetEngineInt32Param_internal(simInt paramId,simInt objectHandle,const 
         return(0);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -15529,7 +15483,7 @@ simInt simSetEngineBoolParam_internal(simInt paramId,simInt objectHandle,const s
         return(0);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -15555,7 +15509,7 @@ simInt simCreateOctree_internal(simFloat voxelSize,simInt options,simFloat point
         int retVal=it->getObjectHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -15582,7 +15536,7 @@ simInt simCreatePointCloud_internal(simFloat maxVoxelSize,simInt maxPtCntPerVoxe
         int retVal=it->getObjectHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -15611,7 +15565,7 @@ simInt simSetPointCloudOptions_internal(simInt pointCloudHandle,simFloat maxVoxe
         it->setColorIsEmissive(options&16);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -15645,7 +15599,7 @@ simInt simGetPointCloudOptions_internal(simInt pointCloudHandle,simFloat* maxVox
             options[0]|=16;
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -15680,7 +15634,7 @@ simInt simInsertVoxelsIntoOctree_internal(simInt octreeHandle,simInt options,con
         int retVal=int(it->getCubePositions()->size())/3;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -15707,7 +15661,7 @@ simInt simRemoveVoxelsFromOctree_internal(simInt octreeHandle,simInt options,con
         int retVal=int(it->getCubePositions()->size())/3;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -15734,7 +15688,7 @@ simInt simInsertPointsIntoPointCloud_internal(simInt pointCloudHandle,simInt opt
         int retVal=int(it->getPoints()->size())/3;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -15761,7 +15715,7 @@ simInt simRemovePointsFromPointCloud_internal(simInt pointCloudHandle,simInt opt
         int retVal=int(it->getPoints()->size())/3;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -15784,7 +15738,7 @@ simInt simIntersectPointsWithPointCloud_internal(simInt pointCloudHandle,simInt 
         int retVal=int(it->getPoints()->size())/3;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -15809,7 +15763,7 @@ const float* simGetOctreeVoxels_internal(simInt octreeHandle,simInt* ptCnt,simVo
         ptCnt[0]=int(p->size())/3;
         return(&(p[0])[0]);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -15834,7 +15788,7 @@ const float* simGetPointCloudPoints_internal(simInt pointCloudHandle,simInt* ptC
         ptCnt[0]=int(p->size())/3;
         return(&(p[0])[0]);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -15869,7 +15823,7 @@ simInt simInsertObjectIntoOctree_internal(simInt octreeHandle,simInt objectHandl
         int retVal=int(it->getCubePositions()->size())/3;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -15891,7 +15845,7 @@ simInt simSubtractObjectFromOctree_internal(simInt octreeHandle,simInt objectHan
         int retVal=int(it->getCubePositions()->size())/3;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -15934,7 +15888,7 @@ simInt simInsertObjectIntoPointCloud_internal(simInt pointCloudHandle,simInt obj
         int retVal=int(it->getPoints()->size())/3;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -15956,7 +15910,7 @@ simInt simSubtractObjectFromPointCloud_internal(simInt pointCloudHandle,simInt o
         int retVal=int(it->getPoints()->size())/3;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -16003,7 +15957,7 @@ simInt simCheckOctreePointOccupancy_internal(simInt octreeHandle,simInt options,
         }
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -16052,13 +16006,13 @@ simChar* simPackTable_internal(simInt stackHandle,simInt* bufferSize)
                     return(bu);
                 }
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
             return(nullptr);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(nullptr);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -16076,13 +16030,13 @@ simInt simUnpackTable_internal(simInt stackHandle,const simChar* buffer,simInt b
         {
             if (stack->pushTableFromBuffer(buffer,bufferSize))
                 return(0);
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -16106,7 +16060,7 @@ simInt simSetReferencedHandles_internal(simInt objectHandle,simInt count,const s
             it->setReferencedOriginalHandles(count,referencedHandles);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -16147,7 +16101,7 @@ simInt simGetReferencedHandles_internal(simInt objectHandle,simInt** referencedH
         referencedHandles[0]=handles;
         return(cnt);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -16246,7 +16200,7 @@ simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizI
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -16256,7 +16210,7 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CLuaScriptObject* script=nullptr;
+        CScriptObject* script=nullptr;
         std::string stringToExecute;
         if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
@@ -16315,13 +16269,13 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
             CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
             if ( (stack==nullptr)&&(!noReturnDesired) )
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
                 return(-1);
             }
             int retVal=-1; // error
             if (script->getThreadedExecutionIsUnderWay_oldThreads())
             { // OLD, very special handling here!
-                if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
+                if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId_old(),VThread::getCurrentThreadId()))
                     retVal=script->executeScriptString(stringToExecute.c_str(),stack);
                 else
                 { // we have to execute that function via another thread!
@@ -16332,7 +16286,7 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
                     d[2]=(void*)stringToExecute.c_str();
                     d[3]=stack;
 
-                    retVal=CThreadPool::callRoutineViaSpecificThread(script->getThreadedScriptThreadId(),d);
+                    retVal=CThreadPool_old::callRoutineViaSpecificThread(script->getThreadedScriptThreadId_old(),d);
                 }
             }
             else
@@ -16345,17 +16299,17 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
 
             if (retVal!=0)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OPERATION_FAILED);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OPERATION_FAILED);
                 retVal=-1;
             }
             return(retVal);
         }
 
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -16369,7 +16323,7 @@ simChar* simGetApiFunc_internal(simInt scriptHandleOrType,const simChar* apiWord
         bool threaded=false;
         if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
-            CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
+            CScriptObject* script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
             if (script!=nullptr)
             {
                 scriptType=script->getScriptType();
@@ -16391,23 +16345,15 @@ simChar* simGetApiFunc_internal(simInt scriptHandleOrType,const simChar* apiWord
             }
         }
         std::vector<std::string> t;
-        std::map<std::string,bool> map;
         if (funcs)
-        {
-            pushAllSimFunctionNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map,scriptType,threaded);
-            App::worldContainer->luaCustomFuncAndVarContainer->pushAllFunctionNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map);
-        }
+            CScriptObject::getMatchingFunctions(apiW.c_str(),t);
         if (vars)
-        {
-            pushAllSimVariableNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map);
-            App::worldContainer->luaCustomFuncAndVarContainer->pushAllVariableNamesThatStartSame_autoCompletionList(apiW.c_str(),t,map);
-        }
-        std::sort(t.begin(),t.end());
+            CScriptObject::getMatchingConstants(apiW.c_str(),t);
         std::string theWords;
-        for (int i=0;i<int(t.size());i++)
+        for (size_t i=0;i<t.size();i++)
         {
             theWords+=t[i];
-            if (i!=int(t.size()-1))
+            if (i!=t.size()-1)
                 theWords+=' ';
         }
         char* buff=nullptr;
@@ -16419,7 +16365,7 @@ simChar* simGetApiFunc_internal(simInt scriptHandleOrType,const simChar* apiWord
         return(buff);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -16433,7 +16379,7 @@ simChar* simGetApiInfo_internal(simInt scriptHandleOrType,const simChar* apiWord
         bool threaded=false;
         if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
-            CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
+            CScriptObject* script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
             if (script!=nullptr)
             {
                 scriptType=script->getScriptType();
@@ -16444,19 +16390,7 @@ simChar* simGetApiInfo_internal(simInt scriptHandleOrType,const simChar* apiWord
             scriptType=scriptHandleOrType;
         if (strlen(apiWord)>0)
         {
-            std::string tip(getSimFunctionCalltip(apiWord,scriptType,threaded,true));
-            if (tip.size()==0)
-            {
-                for (size_t i=0;i<App::worldContainer->luaCustomFuncAndVarContainer->allCustomFunctions.size();i++)
-                {
-                    std::string n=App::worldContainer->luaCustomFuncAndVarContainer->allCustomFunctions[i]->getFunctionName();
-                    if (n.compare(apiWord)==0)
-                    {
-                        tip=App::worldContainer->luaCustomFuncAndVarContainer->allCustomFunctions[i]->getCallTips();
-                        break;
-                    }
-                }
-            }
+            std::string tip(CScriptObject::getFunctionCalltip(apiWord));
             char* buff=nullptr;
             if (tip.size()>0)
             {
@@ -16465,11 +16399,11 @@ simChar* simGetApiInfo_internal(simInt scriptHandleOrType,const simChar* apiWord
             }
             return(buff);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENTS);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENTS);
         return(nullptr);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -16507,14 +16441,14 @@ simInt simSetModuleInfo_internal(const simChar* moduleName,simInt infoType,const
                 App::setStatusbarVerbosity(intInfo,moduleName);
                 return(1);
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PLUGIN_NAME);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PLUGIN_NAME);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -16561,14 +16495,14 @@ simInt simGetModuleInfo_internal(const simChar* moduleName,simInt infoType,simCh
                 intInfo[0]=App::getStatusbarVerbosity(moduleName);
                 return(1);
             }
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
             return(-1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_PLUGIN_NAME);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PLUGIN_NAME);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -16578,12 +16512,10 @@ simInt simIsDeprecated_internal(const simChar* funcOrConst)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal=isFuncOrConstDeprecated(funcOrConst);
-        if (retVal<0)
-            retVal=App::worldContainer->luaCustomFuncAndVarContainer->isFuncOrConstDeprecated(funcOrConst);
+        int retVal=CScriptObject::isFunctionOrConstDeprecated(funcOrConst);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 simChar* simGetPersistentDataTags_internal(simInt* tagCount)
@@ -16616,7 +16548,7 @@ simChar* simGetPersistentDataTags_internal(simInt* tagCount)
         }
         return(retBuffer);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(nullptr);
 }
 
@@ -16682,7 +16614,7 @@ simInt simEventNotification_internal(const simChar* event)
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(retVal);
 }
 
@@ -16729,14 +16661,14 @@ simInt simApplyTexture_internal(simInt shapeHandle,const simFloat* textureCoordi
                     tp->setFixedCoordinates(&c);
                 }
                 else
-                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_BAD_TEXTURE_COORD_SIZE);
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_BAD_TEXTURE_COORD_SIZE);
             }
             else
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_CANNOT_BE_COMPOUND_SHAPE);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CANNOT_BE_COMPOUND_SHAPE);
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(retVal);
 }
 
@@ -16766,7 +16698,7 @@ simInt simSetJointDependency_internal(simInt jointHandle,simInt masterJointHandl
             }
         }
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(retVal);
 }
 
@@ -16790,7 +16722,7 @@ simInt simGetJointDependency_internal(simInt jointHandle,simInt* masterJointHand
             return(retVal);
         }
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(retVal);
 }
 
@@ -16803,10 +16735,10 @@ simInt simSetStringNamedParam_internal(const simChar* paramName,const simChar* s
         retVal=App::setApplicationNamedParam(paramName,stringParam,paramLength);
         if (retVal>=0)
             return(retVal);
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(retVal);
 }
 
@@ -16828,7 +16760,7 @@ simChar* simGetStringNamedParam_internal(const simChar* paramName,simInt* paramL
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(retVal);
 }
 
@@ -17650,7 +17582,7 @@ simInt simGetShapeMaterial_internal(simInt shapeHandle)
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -17680,14 +17612,14 @@ simInt simHandleVarious_internal()
 
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
 simInt simGetMpConfigForTipPose_internal(simInt motionPlanningObjectHandle,simInt options,simFloat closeNodesDistance,simInt trialCount,const simFloat* tipPose,simInt maxTimeInMs,simFloat* outputJointPositions,const simFloat* referenceConfigs,simInt referenceConfigCount,const simFloat* jointWeights,const simInt* jointBehaviour,simInt correctionPasses)
 { // DEPRECATED since 21/1/2016   referenceConfigs can be nullptr, as well as jointWeights
     TRACE_C_API;
-    CApiErrors::setCapiCallErrorMessage(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
     return(-1);
 }
 
@@ -17712,7 +17644,7 @@ simInt simResetPath_internal(simInt pathHandle)
             CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
             if (!it->getExplicitHandling())
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                 return(-1);
             }
             it->resetPath();
@@ -17728,7 +17660,7 @@ simInt simResetPath_internal(simInt pathHandle)
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -17755,7 +17687,7 @@ simInt simHandlePath_internal(simInt pathHandle,simFloat deltaTime)
             CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
             if (!it->getExplicitHandling())
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                 return(-1);
             }
             it->handlePath(deltaTime);
@@ -17771,7 +17703,7 @@ simInt simHandlePath_internal(simInt pathHandle,simFloat deltaTime)
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -17794,7 +17726,7 @@ simInt simResetJoint_internal(simInt jointHandle)
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
             if (!it->getExplicitHandling_DEPRECATED())
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                 return(-1);
             }
             it->resetJoint_DEPRECATED();
@@ -17810,7 +17742,7 @@ simInt simResetJoint_internal(simInt jointHandle)
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -17833,7 +17765,7 @@ simInt simHandleJoint_internal(simInt jointHandle,simFloat deltaTime)
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
             if (!it->getExplicitHandling_DEPRECATED())
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                 return(-1);
             }
             it->handleJoint_DEPRECATED(deltaTime);
@@ -17849,7 +17781,7 @@ simInt simHandleJoint_internal(simInt jointHandle,simFloat deltaTime)
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -17866,62 +17798,62 @@ simInt simGetPathPlanningHandle_internal(const simChar* pathPlanningObjectName)
         CPathPlanningTask* it=App::currentWorld->pathPlanning->getObject(pathPlanningObjectNameAdjusted);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_PLANNING_OBJECT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PATH_PLANNING_OBJECT_INEXISTANT);
             return(-1);
         }
         int retVal=it->getObjectID();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
 simInt simGetMotionPlanningHandle_internal(const simChar* motionPlanningObjectName)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
-    CApiErrors::setCapiCallErrorMessage(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
     return(-1);
 }
 
 simFloat* simFindMpPath_internal(simInt motionPlanningObjectHandle,const simFloat* startConfig,const simFloat* goalConfig,simInt options,simFloat stepSize,simInt* outputConfigsCnt,simInt maxTimeInMs,simFloat* reserved,const simInt* auxIntParams,const simFloat* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
-    CApiErrors::setCapiCallErrorMessage(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
     return(nullptr);
 }
 
 simFloat* simSimplifyMpPath_internal(simInt motionPlanningObjectHandle,const simFloat* pathBuffer,simInt configCnt,simInt options,simFloat stepSize,simInt increment,simInt* outputConfigsCnt,simInt maxTimeInMs,simFloat* reserved,const simInt* auxIntParams,const simFloat* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
-    CApiErrors::setCapiCallErrorMessage(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
     return(nullptr);
 }
 
 simFloat* simFindIkPath_internal(simInt motionPlanningObjectHandle,const simFloat* startConfig,const simFloat* goalPose,simInt options,simFloat stepSize,simInt* outputConfigsCnt,simFloat* reserved,const simInt* auxIntParams,const simFloat* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
-    CApiErrors::setCapiCallErrorMessage(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
     return(nullptr);
 }
 
 simFloat* simGetMpConfigTransition_internal(simInt motionPlanningObjectHandle,const simFloat* startConfig,const simFloat* goalConfig,simInt options,const simInt* select,simFloat calcStepSize,simFloat maxOutStepSize,simInt wayPointCnt,const simFloat* wayPoints,simInt* outputConfigsCnt,const simInt* auxIntParams,const simFloat* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
-    CApiErrors::setCapiCallErrorMessage(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
     return(nullptr);
 }
 
 simInt simCreateMotionPlanning_internal(simInt jointCnt,const simInt* jointHandles,const simInt* jointRangeSubdivisions,const simFloat* jointMetricWeights,simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
-    CApiErrors::setCapiCallErrorMessage(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
     return(-1);
 }
 
 simInt simRemoveMotionPlanning_internal(simInt motionPlanningHandle)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
-    CApiErrors::setCapiCallErrorMessage(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
     return(-1);
 }
 
@@ -17937,7 +17869,7 @@ simInt simSearchPath_internal(simInt pathPlanningObjectHandle,simFloat maximumSe
         CPathPlanningTask* it=App::currentWorld->pathPlanning->getObject(pathPlanningObjectHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_PLANNING_OBJECT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PATH_PLANNING_OBJECT_INEXISTANT);
             return(-1);
         }
         int retVal=0;
@@ -17945,7 +17877,7 @@ simInt simSearchPath_internal(simInt pathPlanningObjectHandle,simFloat maximumSe
             retVal=1;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -17962,12 +17894,12 @@ simInt simInitializePathSearch_internal(simInt pathPlanningObjectHandle,simFloat
         CPathPlanningTask* it=App::currentWorld->pathPlanning->getObject(pathPlanningObjectHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_PLANNING_OBJECT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PATH_PLANNING_OBJECT_INEXISTANT);
             return(-1);
         }
         if (App::currentWorld->pathPlanning->getTemporaryPathSearchObjectCount()>100)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_TOO_MANY_TEMP_OBJECTS);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_TOO_MANY_TEMP_OBJECTS);
             return(-1);
         }
 
@@ -17981,12 +17913,12 @@ simInt simInitializePathSearch_internal(simInt pathPlanningObjectHandle,simFloat
             retVal=App::currentWorld->pathPlanning->addTemporaryPathSearchObject(it);
         else
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_PLANNING_OBJECT_NOT_CONSISTENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PATH_PLANNING_OBJECT_NOT_CONSISTENT);
             delete it;
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -18002,7 +17934,7 @@ simInt simPerformPathSearchStep_internal(simInt temporaryPathSearchObject,simBoo
         CPathPlanningTask* it=App::currentWorld->pathPlanning->getTemporaryPathSearchObject(temporaryPathSearchObject);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_TEMP_PATH_SEARCH_OBJECT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_TEMP_PATH_SEARCH_OBJECT_INEXISTANT);
             return(-1);
         }
         if (abortSearch)
@@ -18039,7 +17971,7 @@ simInt simPerformPathSearchStep_internal(simInt temporaryPathSearchObject,simBoo
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -18072,7 +18004,7 @@ simInt simCopyPasteSelectedObjects_internal()
         App::worldContainer->copyBuffer->clearMemorizedBuffer();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -18096,7 +18028,7 @@ simInt simSerialPortClose_internal(simInt portNumber)
 #ifdef SIM_WITH_SERIAL
     if (App::worldContainer->serialPortContainer->serialPortClose_old(portNumber))
         return(1);
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PORT_NOT_OPEN);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PORT_NOT_OPEN);
 #endif
     return(-1);
 }
@@ -18110,7 +18042,7 @@ simInt simSerialPortSend_internal(simInt portNumber,const simChar* data,simInt d
 #ifdef SIM_WITH_SERIAL
     retVal=App::worldContainer->serialPortContainer->serialPortSend_old(portNumber,data,dataLength);
     if (retVal==-1)
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PORT_NOT_OPEN);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PORT_NOT_OPEN);
 #endif
     return(retVal);
 }
@@ -18124,7 +18056,7 @@ simInt simSerialPortRead_internal(simInt portNumber,simChar* buffer,simInt dataL
 #ifdef SIM_WITH_SERIAL
     retVal=App::worldContainer->serialPortContainer->serialPortReceive_old(portNumber,buffer,dataLengthToRead);
     if (retVal==-1)
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PORT_NOT_OPEN);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PORT_NOT_OPEN);
 #endif
     return(retVal);
 }
@@ -18132,7 +18064,7 @@ simInt simSerialPortRead_internal(simInt portNumber,simChar* buffer,simInt dataL
 simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simInt scriptHandleOrType,const simChar* arrayNameAtScriptName,const simChar* keyName,const simChar* data,const simInt* what)
 { // deprecated (23/02/2016)
     TRACE_C_API;
-    CLuaScriptObject* script=nullptr;
+    CScriptObject* script=nullptr;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -18207,22 +18139,22 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
         {
             int retVal=script->appendTableEntry_DEPRECATED(arrayName.c_str(),keyName,data,what);
             if (retVal==-1)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OPERATION_FAILED);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OPERATION_FAILED);
             return(retVal);
         }
 
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
 simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt scriptHandleOrType,const simChar* variableNameAtScriptName)
 { // DEPRECATED (23/02/2016)
     TRACE_C_API;
-    CLuaScriptObject* script=nullptr;
+    CScriptObject* script=nullptr;
 
     std::string variableName;
     if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
@@ -18295,10 +18227,10 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
     {
         int retVal=script->clearScriptVariable_DEPRECATED(variableName.c_str());
         if (retVal==-1)
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OPERATION_FAILED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OPERATION_FAILED);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
 
     return(-1);
 }
@@ -18586,7 +18518,7 @@ simInt simAddSceneCustomData_internal(simInt header,const simChar* data,simInt d
         App::currentWorld->customSceneData->setData(header,data,dataLength);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -18602,7 +18534,7 @@ simInt simGetSceneCustomDataLength_internal(simInt header)
         int retVal=App::currentWorld->customSceneData->getDataLength(header);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -18618,7 +18550,7 @@ simInt simGetSceneCustomData_internal(simInt header,simChar* data)
         App::currentWorld->customSceneData->getData(header,data);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -18639,7 +18571,7 @@ simInt simAddObjectCustomData_internal(simInt objectHandle,simInt header,const s
         it->setObjectCustomData(header,data,dataLength);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -18658,7 +18590,7 @@ simInt simGetObjectCustomDataLength_internal(simInt objectHandle,simInt header)
         int retVal=it->getObjectCustomDataLength(header);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -18677,7 +18609,7 @@ simInt simGetObjectCustomData_internal(simInt objectHandle,simInt header,simChar
         it->getObjectCustomData(header,data);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -18707,7 +18639,7 @@ simInt simCreateUI_internal(const simChar* elementName,simInt menuAttributes,con
         }
         if (b>s[0])
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DIMENSIONS);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DIMENSIONS);
             return(-1);
         }
         CButtonBlock* it=new CButtonBlock(s[0],s[1],cellSize[0],cellSize[1],-1);
@@ -18753,7 +18685,7 @@ simInt simCreateUI_internal(const simChar* elementName,simInt menuAttributes,con
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -18773,7 +18705,7 @@ simInt simCreateUIButton_internal(simInt elementHandle,const simInt* position,co
         if (!it->insertButton(but))
         {
             delete but;
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_WRONG_POS_SIZE_PARAMS);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_WRONG_POS_SIZE_PARAMS);
             return(-1);
         }
         int retVal=but->buttonID;
@@ -18781,7 +18713,7 @@ simInt simCreateUIButton_internal(simInt elementHandle,const simInt* position,co
             retVal=-1; // should not happen!
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -18798,13 +18730,13 @@ simInt simGetUIHandle_internal(const simChar* elementName)
         CButtonBlock* it=App::currentWorld->buttonBlockContainer->getBlockWithName(elementNameAdjusted);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_UI_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_UI_INEXISTANT);
             return(-1);
         }
         int retVal=it->getBlockID();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -18823,7 +18755,7 @@ simInt simGetUIProperty_internal(simInt elementHandle)
         int retVal=it->getAttributes();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -18845,7 +18777,7 @@ simInt simGetUIEventButton_internal(simInt elementHandle,simInt* auxiliaryValues
 #endif
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -18869,7 +18801,7 @@ simInt simSetUIProperty_internal(simInt elementHandle,simInt elementProperty)
             App::currentWorld->buttonBlockContainer->sendBlockToFront(it->getBlockID());
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -18890,7 +18822,7 @@ simInt simGetUIButtonSize_internal(simInt elementHandle,simInt buttonHandle,simI
         size[1]=but->getHeight();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -18911,7 +18843,7 @@ simInt simGetUIButtonProperty_internal(simInt elementHandle,simInt buttonHandle)
         int retVal=but->getAttributes();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -18931,7 +18863,7 @@ simInt simSetUIButtonProperty_internal(simInt elementHandle,simInt buttonHandle,
         but->setAttributes(buttonProperty);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -18954,7 +18886,7 @@ simInt simSetUIButtonLabel_internal(simInt elementHandle,simInt buttonHandle,con
             but->downLabel=std::string(downStateLabel);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -18977,7 +18909,7 @@ simChar* simGetUIButtonLabel_internal(simInt elementHandle,simInt buttonHandle)
         retVal[but->label.length()]=0;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -18996,13 +18928,13 @@ simInt simSetUISlider_internal(simInt elementHandle,simInt buttonHandle,simInt p
         CSoftButton* but=it->getButtonWithID(buttonHandle);
         if (but->getButtonType()!=sim_buttonproperty_slider)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_BUTTON_NOT_SLIDER);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_BUTTON_NOT_SLIDER);
             return(-1);
         }
         but->setSliderPos((float(position)/500.0f)-1.0f);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -19021,13 +18953,13 @@ simInt simGetUISlider_internal(simInt elementHandle,simInt buttonHandle)
         CSoftButton* but=it->getButtonWithID(buttonHandle);
         if (but->getButtonType()!=sim_buttonproperty_slider)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_BUTTON_NOT_SLIDER);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_BUTTON_NOT_SLIDER);
             return(-1);
         }
         int retVal=int((but->getSliderPos()+1.0f)*500.0f);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -19055,7 +18987,7 @@ simInt simSetUIButtonColor_internal(simInt elementHandle,simInt buttonHandle,con
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -19076,13 +19008,13 @@ simInt simRemoveUI_internal(simInt elementHandle)
         CButtonBlock* it=App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_UI_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_UI_INEXISTANT);
             return(-1);
         }
         App::currentWorld->buttonBlockContainer->removeBlockFromID(elementHandle);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -19102,7 +19034,7 @@ simInt simCreateUIButtonArray_internal(simInt elementHandle,simInt buttonHandle)
         but->enableArray(true);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -19121,12 +19053,12 @@ simInt simSetUIButtonArrayColor_internal(simInt elementHandle,simInt buttonHandl
         CSoftButton* but=it->getButtonWithID(buttonHandle);
         if (!but->setArrayColor(position[0],position[1],color))
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OPERATION_FAILED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OPERATION_FAILED);
             return(-1);
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -19146,7 +19078,7 @@ simInt simDeleteUIButtonArray_internal(simInt elementHandle,simInt buttonHandle)
         but->enableArray(false);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -19202,7 +19134,7 @@ simInt simSetUIButtonTexture_internal(simInt elementHandle,simInt buttonHandle,c
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -19231,7 +19163,7 @@ simInt simGetUIPosition_internal(simInt elementHandle,simInt* position)
         position[1]=p.y;
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -19250,7 +19182,7 @@ simInt simSetUIPosition_internal(simInt elementHandle,const simInt* position)
         it->setDesiredBlockPosition(position[0],position[1]);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -19270,7 +19202,7 @@ simInt simRegisterCustomLuaFunction_internal(const simChar* funcName,const simCh
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         bool retVal=1;
-        if (App::worldContainer->luaCustomFuncAndVarContainer->removeCustomFunction(funcName))
+        if (App::worldContainer->scriptCustomFuncAndVarContainer->removeCustomFunction(funcName))
             retVal=0;// that function already existed. We remove it and replace it!
         std::vector<int> inputV;
         if (inputArgumentTypes!=nullptr)
@@ -19278,16 +19210,16 @@ simInt simRegisterCustomLuaFunction_internal(const simChar* funcName,const simCh
             for (int i=0;i<inputArgumentTypes[0];i++)
                 inputV.push_back(inputArgumentTypes[i+1]);
         }
-        CLuaCustomFunction* newFunction=new CLuaCustomFunction(funcName,callTips,inputV,callBack);
-        if (!App::worldContainer->luaCustomFuncAndVarContainer->insertCustomFunction(newFunction))
+        CScriptCustomFunction* newFunction=new CScriptCustomFunction(funcName,callTips,inputV,callBack);
+        if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomFunction(newFunction))
         {
             delete newFunction;
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED);
             return(-1);
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -19309,7 +19241,7 @@ simInt simRegisterContactCallback_internal(simInt(*callBack)(simInt,simInt,simIn
         allContactCallbacks.push_back(callBack);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -19332,21 +19264,21 @@ simInt simRegisterJointCtrlCallback_internal(simInt(*callBack)(simInt,simInt,sim
         allJointCtrlCallbacks.push_back(callBack);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
 simInt simGetMechanismHandle_internal(const simChar* mechanismName)
 { // deprecated
     TRACE_C_API;
-    CApiErrors::setCapiCallErrorMessage(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
     return(-1);
 }
 
 simInt simHandleMechanism_internal(simInt mechanismHandle)
 { // deprecated
     TRACE_C_API;
-    CApiErrors::setCapiCallErrorMessage(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
     return(-1);
 }
 
@@ -19367,14 +19299,14 @@ simInt simHandleCustomizationScripts_internal(simInt callType)
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
 simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* functionNameAtScriptName,SLuaCallBack* data,const simChar* reservedSetToNull)
 { // DEPRECATED
     TRACE_C_API;
-    CLuaScriptObject* script=nullptr;
+    CScriptObject* script=nullptr;
 
     std::string funcName;
     if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
@@ -19442,7 +19374,7 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
         int retVal=-1; // error
         if (script->getThreadedExecutionIsUnderWay_oldThreads())
         { // very special handling here!
-            if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
+            if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId_old(),VThread::getCurrentThreadId()))
                 retVal=script->callScriptFunction_DEPRECATED(funcName.c_str(),data);
             else
             { // we have to execute that function via another thread!
@@ -19453,7 +19385,7 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
                 d[2]=(void*)funcName.c_str();
                 d[3]=data;
 
-                retVal=CThreadPool::callRoutineViaSpecificThread(script->getThreadedScriptThreadId(),d);
+                retVal=CThreadPool_old::callRoutineViaSpecificThread(script->getThreadedScriptThreadId_old(),d);
             }
         }
         else
@@ -19464,10 +19396,10 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
             }
         }
         if (retVal==-1)
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
 
     return(-1);
 }
@@ -19495,7 +19427,7 @@ simChar* simGetScriptSimulationParameter_internal(simInt scriptHandle,const simC
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
         CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(scriptHandle);
         if ( (it!=nullptr)||(obj!=nullptr) )
         {
@@ -19519,10 +19451,10 @@ simChar* simGetScriptSimulationParameter_internal(simInt scriptHandle,const simC
                 }
             }
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(nullptr);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -19535,7 +19467,7 @@ simInt simSetScriptSimulationParameter_internal(simInt scriptHandle,const simCha
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
         CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(scriptHandle);
         int retVal=-1;
         if ( (it!=nullptr)||(obj!=nullptr) )
@@ -19558,10 +19490,10 @@ simInt simSetScriptSimulationParameter_internal(simInt scriptHandle,const simCha
             }
         }
         if (retVal==-1)
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -19609,7 +19541,7 @@ simInt simAddStatusbarMessage_internal(const simChar* message)
 
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -19671,7 +19603,7 @@ simInt simSetShapeMassAndInertia_internal(simInt shapeHandle,simFloat mass,const
         it->setDynamicsFullRefreshFlag(true);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -19704,7 +19636,7 @@ simInt simGetShapeMassAndInertia_internal(simInt shapeHandle,simFloat* mass,simF
 
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -19723,14 +19655,14 @@ simInt simCheckIkGroup_internal(simInt ikGroupHandle,simInt jointCnt,const simIn
         CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
         int r=it->checkIkGroup(jointCnt,jointHandles,jointValues,jointOptions);
         if (r==-1)
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
         if (r==-2)
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLES);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLES);
         if (r>=sim_ikresult_not_performed)
             retVal=r;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -19760,7 +19692,7 @@ simInt simCreateIkGroup_internal(simInt options,const simInt* intParams,const si
             ikGroup->setDampingFactor(floatParams[0]);
         return(ikGroup->getObjectHandle());
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -19776,13 +19708,13 @@ simInt simRemoveIkGroup_internal(simInt ikGroupHandle)
         CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
             return(-1);
         }
         App::currentWorld->ikGroups->removeIkGroup(it->getObjectHandle());
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -19798,7 +19730,7 @@ simInt simCreateIkElement_internal(simInt ikGroupHandle,simInt options,const sim
         CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
             return(-1);
         }
         int tip=intParams[0];
@@ -19826,7 +19758,7 @@ simInt simCreateIkElement_internal(simInt ikGroupHandle,simInt options,const sim
         it->addIkElement(ikEl);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -19847,7 +19779,7 @@ simInt simExportIk_internal(const simChar* pathAndFilename,simInt reserved1,simV
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -19869,7 +19801,7 @@ simInt simComputeJacobian_internal(simInt ikGroupHandle,simInt options,simVoid* 
         return(returnValue);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -19889,11 +19821,11 @@ simInt simGetConfigForTipPose_internal(simInt ikGroupHandle,simInt jointCnt,cons
         std::string err;
         int retVal=ikGroup->getConfigForTipPose(jointCnt,jointHandles,thresholdDist,maxTimeInMs,retConfig,metric,collisionPairCnt,collisionPairs,jointOptions,lowLimits,ranges,err);
         if (retVal<0)
-            CApiErrors::setCapiCallErrorMessage(__func__,err.c_str());
+            CApiErrors::setLastWarningOrError(__func__,err.c_str());
         return(retVal);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -19920,7 +19852,7 @@ simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const 
                 joints.push_back(aJoint);
         }
         if (err)
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLES);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLES);
         std::vector<CDummy*> tips;
         std::vector<CDummy*> targets;
         std::vector<C7Vector> startTrs;
@@ -19945,7 +19877,7 @@ simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const 
             else
             {
                 err=true;
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_ELEMENT_INEXISTANT);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_IK_ELEMENT_INEXISTANT);
             }
         }
         if (!err)
@@ -19953,7 +19885,7 @@ simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const 
             if (ptCnt<2)
             {
                 err=true;
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
             }
         }
         if ( (!err)&&(collisionPairCnt>0)&&(collisionPairs!=nullptr) )
@@ -20097,7 +20029,7 @@ simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const 
         return(nullptr);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -20120,13 +20052,13 @@ simInt simGetIkGroupHandle_internal(const simChar* ikGroupName)
         if (it==nullptr)
         {
             if (silentErrorPos==std::string::npos)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
             return(-1);
         }
         int retVal=it->getObjectHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20142,7 +20074,7 @@ simFloat* simGetIkGroupMatrix_internal(simInt ikGroupHandle,simInt options,simIn
         CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
             return(nullptr);
         }
         float* retData=nullptr;
@@ -20152,7 +20084,7 @@ simFloat* simGetIkGroupMatrix_internal(simInt ikGroupHandle,simInt options,simIn
             retData=it->getLastManipulabilityValue(matrixSize);
         return(retData);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -20178,14 +20110,14 @@ simInt simHandleIkGroup_internal(simInt ikGroupHandle)
             CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
             if (!it->getExplicitHandling())
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                 return(-1);
             }
             returnValue=it->computeGroupIk(false);
         }
         return(returnValue);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20203,7 +20135,7 @@ simInt simSetIkGroupProperties_internal(simInt ikGroupHandle,simInt resolutionMe
         CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
             return(-1);
         }
         it->setCalculationMethod(resolutionMethod);
@@ -20211,7 +20143,7 @@ simInt simSetIkGroupProperties_internal(simInt ikGroupHandle,simInt resolutionMe
         it->setDampingFactor(damping);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20227,7 +20159,7 @@ simInt simSetIkElementProperties_internal(simInt ikGroupHandle,simInt tipDummyHa
         CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
             return(-1);
         }
         if (!isDummy(__func__,tipDummyHandle))
@@ -20235,7 +20167,7 @@ simInt simSetIkElementProperties_internal(simInt ikGroupHandle,simInt tipDummyHa
         CIkElement_old* el=it->getIkElementFromTipHandle(tipDummyHandle);
         if (el==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_IK_ELEMENT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_IK_ELEMENT_INEXISTANT);
             return(-1);
         }
         el->setConstraints(constraints);
@@ -20251,7 +20183,7 @@ simInt simSetIkElementProperties_internal(simInt ikGroupHandle,simInt tipDummyHa
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20262,10 +20194,10 @@ simInt simSetThreadIsFree_internal(simBool freeMode)
     if (VThread::isCurrentThreadTheMainSimulationThread())
     {
 
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_CANNOT_BE_CALLED_FROM_MAIN_THREAD);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CANNOT_BE_CALLED_FROM_MAIN_THREAD);
         return(-1);
     }
-    if (CThreadPool::setThreadFreeMode(freeMode!=0))
+    if (CThreadPool_old::setThreadFreeMode(freeMode!=0))
         return(1);
     return(0);
 }
@@ -20285,7 +20217,7 @@ simInt simTubeOpen_internal(simInt dataHeader,const simChar* dataName,simInt rea
         retVal=App::currentWorld->commTubeContainer->openTube(dataHeader,dataName,false,readBufferSize);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20311,7 +20243,7 @@ simInt simTubeClose_internal(simInt tubeHandle)
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20337,7 +20269,7 @@ simInt simTubeWrite_internal(simInt tubeHandle,const simChar* data,simInt dataLe
         }
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20356,7 +20288,7 @@ simChar* simTubeRead_internal(simInt tubeHandle,simInt* dataLength)
         retVal=App::currentWorld->commTubeContainer->readFromTube_bufferNotCopied(tubeHandle,dataLength[0]);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -20381,7 +20313,7 @@ simInt simTubeStatus_internal(simInt tubeHandle,simInt* readPacketsCount,simInt*
             writePacketsCount[0]=writeP;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20391,7 +20323,7 @@ simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dat
 
     if (App::currentWorld->simulation->getSimulationState()==sim_simulation_stopped)
     {
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
         return(-1);
     }
 
@@ -20399,26 +20331,26 @@ simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dat
     {
         if ( (targetID!=0)&&(targetID!=sim_handle_all) )
         {
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(targetID);
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(targetID);
             if (it==nullptr)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_TARGET_HANDLE);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_TARGET_HANDLE);
                 return(-1);
             }
         }
         if (dataHeader<0)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA_HEADER);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA_HEADER);
             return(-1);
         }
         if (strlen(dataName)<1)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA_NAME);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA_NAME);
             return(-1);
         }
         if (dataLength<1)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
             return(-1);
         }
         if (antennaHandle!=sim_handle_default)
@@ -20426,7 +20358,7 @@ simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dat
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
             if (it==nullptr)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ANTENNA_HANDLE);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ANTENNA_HANDLE);
                 return(-1);
             }
         }
@@ -20442,7 +20374,7 @@ simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dat
                         emissionAngle1,emissionAngle2,data,dataLength);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20452,7 +20384,7 @@ simChar* simReceiveData_internal(simInt dataHeader,const simChar* dataName,simIn
 
     if (App::currentWorld->simulation->getSimulationState()==sim_simulation_stopped)
     {
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
         return(nullptr);
     }
 
@@ -20464,7 +20396,7 @@ simChar* simReceiveData_internal(simInt dataHeader,const simChar* dataName,simIn
         {
             if (strlen(dataName)<1)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA_NAME);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA_NAME);
                 return(nullptr);
             }
         }
@@ -20473,7 +20405,7 @@ simChar* simReceiveData_internal(simInt dataHeader,const simChar* dataName,simIn
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
             if (it==nullptr)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ANTENNA_HANDLE);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ANTENNA_HANDLE);
                 return(nullptr);
             }
         }
@@ -20508,7 +20440,7 @@ simChar* simReceiveData_internal(simInt dataHeader,const simChar* dataName,simIn
         }
         return(retData);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -20541,7 +20473,7 @@ simInt simGetDataOnPath_internal(simInt pathHandle,simFloat relativeDistance,sim
                 }
                 else
                 {
-                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_EMPTY);
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PATH_EMPTY);
                     return(-1);
                 }
             }
@@ -20556,7 +20488,7 @@ simInt simGetDataOnPath_internal(simInt pathHandle,simFloat relativeDistance,sim
                 }
                 else
                 {
-                    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CTRL_PT);
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_CTRL_PT);
                     return(-1);
                 }
             }
@@ -20565,7 +20497,7 @@ simInt simGetDataOnPath_internal(simInt pathHandle,simFloat relativeDistance,sim
             return(-1);
 
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20596,7 +20528,7 @@ simInt simGetPositionOnPath_internal(simInt pathHandle,simFloat relativeDistance
             }
             else
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_EMPTY);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PATH_EMPTY);
                 return(-1);
             }
         }
@@ -20612,12 +20544,12 @@ simInt simGetPositionOnPath_internal(simInt pathHandle,simFloat relativeDistance
             }
             else
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CTRL_PT);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_CTRL_PT);
                 return(-1);
             }
         }
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20646,7 +20578,7 @@ simInt simGetOrientationOnPath_internal(simInt pathHandle,simFloat relativeDista
             }
             else
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_EMPTY);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PATH_EMPTY);
                 return(-1);
             }
         }
@@ -20662,12 +20594,12 @@ simInt simGetOrientationOnPath_internal(simInt pathHandle,simFloat relativeDista
             }
             else
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_CTRL_PT);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_CTRL_PT);
                 return(-1);
             }
         }
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20693,10 +20625,10 @@ simInt simGetClosestPositionOnPath_internal(simInt pathHandle,simFloat* absolute
                 *pathPosition/=pl;
             return(1);
         }
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_EMPTY);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PATH_EMPTY);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20717,7 +20649,7 @@ simInt simGetPathPosition_internal(simInt objectHandle,simFloat* position)
         position[0]=float(it->pathContainer->getPosition());
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20738,7 +20670,7 @@ simInt simSetPathPosition_internal(simInt objectHandle,simFloat position)
         it->pathContainer->setPosition(position);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20759,7 +20691,7 @@ simInt simGetPathLength_internal(simInt objectHandle,simFloat* length)
         length[0]=it->pathContainer->getBezierVirtualPathLength();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -20800,7 +20732,7 @@ simInt simCreatePath_internal(simInt attributes,const simInt* intParams,const si
         int retVal=newObject->getObjectHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -20818,7 +20750,7 @@ simInt simInsertPathCtrlPoints_internal(simInt pathHandle,simInt options,simInt 
         CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
         if (path==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PATH_INEXISTANT);
             return(-1);
         }
 
@@ -20852,7 +20784,7 @@ simInt simInsertPathCtrlPoints_internal(simInt pathHandle,simInt options,simInt 
         App::setFullDialogRefreshFlag();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -20870,7 +20802,7 @@ simInt simCutPathCtrlPoints_internal(simInt pathHandle,simInt startIndex,simInt 
         CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
         if (path==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_PATH_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PATH_INEXISTANT);
             return(-1);
         }
         if ((startIndex<0)||(ptCnt<0))
@@ -20886,7 +20818,7 @@ simInt simCutPathCtrlPoints_internal(simInt pathHandle,simInt startIndex,simInt 
         App::setFullDialogRefreshFlag();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -20901,9 +20833,9 @@ simInt simGetThreadId_internal()
 simInt simSwitchThread_internal()
 { // deprecated on 01.10.2020
     TRACE_C_API;
-    if (CThreadPool::getThreadAutomaticSwitch())
+    if (CThreadPool_old::getThreadAutomaticSwitch())
     { // Important: when a script forbids thread switching, we don't want that a plugin switches anyways
-        if (CThreadPool::switchBackToPreviousThread())
+        if (CThreadPool_old::switchBackToPreviousThread())
             return(1);
     }
     return(0);
@@ -20997,7 +20929,7 @@ simChar* simGetUserParameter_internal(simInt objectHandle,const simChar* paramet
         }
         return(nullptr);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -21028,7 +20960,7 @@ simInt simSetUserParameter_internal(simInt objectHandle,const simChar* parameter
             obj->setUserScriptParameterObject(uso);
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21049,7 +20981,7 @@ simInt simSetPathTargetNominalVelocity_internal(simInt objectHandle,simFloat tar
         it->pathContainer->setTargetNominalVelocity(targetNominalVelocity);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21072,13 +21004,13 @@ simInt simGetCollectionHandle_internal(const simChar* collectionName)
         if (it==nullptr)
         {
             if (silentErrorPos==std::string::npos)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
             return(-1);
         }
         int retVal=it->getCollectionHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21116,7 +21048,7 @@ simInt simRemoveCollection_internal(simInt collectionHandle)
             CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
             if (it==nullptr)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
                 return(-1);
             }
             App::currentWorld->sceneObjects->deselectObjects();
@@ -21133,7 +21065,7 @@ simInt simRemoveCollection_internal(simInt collectionHandle)
             return(1);
         }
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -21155,13 +21087,13 @@ simInt simEmptyCollection_internal(simInt collectionHandle)
         CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
             return(-1);
         }
         it->emptyCollection();
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -21183,7 +21115,7 @@ simChar* simGetCollectionName_internal(simInt collectionHandle)
         retVal[it->getCollectionName().length()]=0;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -21202,27 +21134,27 @@ simInt simSetCollectionName_internal(simInt collectionHandle,const simChar* coll
         std::string originalText(collectionName);
         if (originalText.length()>127)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
             return(-1);
         }
         std::string text(collectionName);
         tt::removeIllegalCharacters(text,true);
         if (originalText!=text)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
             return(-1);
         }
         if (it->getCollectionName().compare(text)==0)
             return(1);
         if (App::currentWorld->collections->getObjectFromName(text.c_str())!=nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
             return(-1);
         }
         it->setCollectionName(originalText.c_str(),true);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 
 }
@@ -21243,19 +21175,19 @@ simInt simCreateCollection_internal(const simChar* collectionName,simInt options
         {
             if ( (originalText.length()<=0)||(originalText.length()>127) )
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
                 return(-1);
             }
             std::string text(collectionName);
             tt::removeIllegalCharacters(text,true);
             if (originalText!=text)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
                 return(-1);
             }
             if (App::currentWorld->collections->getObjectFromName(text.c_str())!=nullptr)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
                 return(-1);
             }
         }
@@ -21268,7 +21200,7 @@ simInt simCreateCollection_internal(const simChar* collectionName,simInt options
         it->setOverridesObjectMainProperties((options&1)!=0);
         return(it->getCollectionHandle());
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -21320,13 +21252,13 @@ simInt simAddObjectToCollection_internal(simInt collectionHandle,simInt objectHa
         }
         if (el==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
             return(-1);
         }
         it->addCollectionElement(el);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -21354,7 +21286,7 @@ simInt simHandleCollision_internal(simInt collisionObjectHandle)
             CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
             if (!it->getExplicitHandling())
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                 return(-1);
             }
             if (it->handleCollision())
@@ -21362,7 +21294,7 @@ simInt simHandleCollision_internal(simInt collisionObjectHandle)
         }
         return(colCnt);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21385,7 +21317,7 @@ simInt simReadCollision_internal(simInt collisionObjectHandle)
         int retVal=it->readCollision(nullptr);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21411,7 +21343,7 @@ simInt simHandleDistance_internal(simInt distanceObjectHandle,simFloat* smallest
             CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
             if (!it->getExplicitHandling())
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                 return(-1);
             }
             d=it->handleDistance();
@@ -21425,7 +21357,7 @@ simInt simHandleDistance_internal(simInt distanceObjectHandle,simFloat* smallest
         else
             return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21451,7 +21383,7 @@ simInt simReadDistance_internal(simInt distanceObjectHandle,simFloat* smallestDi
         smallestDistance[0]=SIM_MAX_FLOAT; // new for V3.3.2 rev2
         return(0); // from -1 to 0 for V3.3.2 rev2
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21474,13 +21406,13 @@ simInt simGetCollisionHandle_internal(const simChar* collisionObjectName)
         if (it==nullptr)
         {
             if (silentErrorPos==std::string::npos)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COLLISION_INEXISTANT);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COLLISION_INEXISTANT);
             return(-1);
         }
         int retVal=it->getObjectHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21503,13 +21435,13 @@ simInt simGetDistanceHandle_internal(const simChar* distanceObjectName)
         if (it==nullptr)
         {
             if (silentErrorPos==std::string::npos)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_DISTANCE_INEXISTANT);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_DISTANCE_INEXISTANT);
             return(-1);
         }
         int retVal=it->getObjectHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21534,14 +21466,14 @@ simInt simResetCollision_internal(simInt collisionObjectHandle)
             CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
             if (!it->getExplicitHandling())
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                 return(-1);
             }
             it->clearCollisionResult();
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21566,14 +21498,14 @@ simInt simResetDistance_internal(simInt distanceObjectHandle)
             CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
             if (!it->getExplicitHandling())
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                 return(-1);
             }
             it->clearDistanceResult();
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21593,7 +21525,7 @@ simInt simAddBanner_internal(const simChar* label,simFloat size,simInt options,c
 
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -21619,7 +21551,7 @@ simInt simRemoveBanner_internal(simInt bannerID)
             CBannerObject* it=App::currentWorld->bannerCont->getObject(bannerID);
             if (it==nullptr)
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OBJECT_INEXISTANT);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_INEXISTANT);
                 return(-1);
             }
             if (handleFlags&sim_handleflag_togglevisibility)
@@ -21633,7 +21565,7 @@ simInt simRemoveBanner_internal(simInt bannerID)
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -21651,7 +21583,7 @@ simInt simAddGhost_internal(simInt ghostGroup,simInt objectHandle,simInt options
         int retVal=App::currentWorld->ghostObjectCont->addGhost(ghostGroup,objectHandle,options,startTime,endTime,color);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21667,7 +21599,7 @@ simInt simModifyGhost_internal(simInt ghostGroup,simInt ghostId,simInt operation
         int retVal=App::currentWorld->ghostObjectCont->modifyGhost(ghostGroup,ghostId,operation,floatValue,options,optionsMask,colorOrTransformation);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21677,7 +21609,7 @@ simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* streamName
 
     if (!App::currentWorld->simulation->isSimulationRunning())
     {
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
         return(-1);
     }
 
@@ -21689,18 +21621,18 @@ simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* streamName
         CGraphData_old* stream=it->getGraphData(streamName);
         if (stream==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_DATA_STREAM);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA_STREAM);
             return(-1);
         }
         if (stream->getDataType()!=GRAPH_NOOBJECT_USER_DEFINED)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_DATA_STREAM_NOT_USER_DEFINED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_DATA_STREAM_NOT_USER_DEFINED);
             return(-1);
         }
         stream->setUserData(data);
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21718,7 +21650,7 @@ simInt simAddPointCloud_internal(simInt pageMask,simInt layerMask,simInt objectH
         retVal=App::currentWorld->pointCloudCont->addObject(ptCloud);
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21738,7 +21670,7 @@ simInt simModifyPointCloud_internal(simInt pointCloudHandle,simInt operation,con
         }
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21775,10 +21707,10 @@ simInt simAddModuleMenuEntry_internal(const simChar* entryLabel,simInt itemCount
         else
 #endif
             return(1); // in headless mode we fake success
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OPERATION_FAILED);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OPERATION_FAILED);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21800,10 +21732,10 @@ simInt simSetModuleMenuItemState_internal(simInt itemHandle,simInt state,const s
         else
 #endif
             return(1); // in headless mode we fake success
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_ITEM_HANDLE);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ITEM_HANDLE);
         return(-1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21837,7 +21769,7 @@ simChar* simGetObjectName_internal(simInt objectHandle)
         retVal[nm.length()]=0;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -21864,13 +21796,13 @@ simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName)
         if (originalText.length()>127)
         {
             if ((handleFlags&sim_handleflag_silenterror)==0)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
             return(-1);
         }
         if (originalText.length()<1)
         {
             if ((handleFlags&sim_handleflag_silenterror)==0)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
             return(-1);
         }
         std::string text(objectName);
@@ -21881,7 +21813,7 @@ simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName)
         if (originalText!=text)
         {
             if ((handleFlags&sim_handleflag_silenterror)==0)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
             return(-1);
         }
         std::string oldName;
@@ -21900,7 +21832,7 @@ simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName)
         if (err)
         {
             if ((handleFlags&sim_handleflag_silenterror)==0)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ILLEGAL_OBJECT_NAME);
             return(-1);
         }
         if ((handleFlags&sim_handleflag_altname)!=0)
@@ -21912,7 +21844,7 @@ simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName)
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -21925,10 +21857,10 @@ simChar* simGetScriptName_internal(simInt scriptHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(nullptr);
         }
         std::string name(it->getScriptPseudoName_old());
@@ -21938,7 +21870,7 @@ simChar* simGetScriptName_internal(simInt scriptHandle)
         retVal[name.length()]=0;
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -21966,7 +21898,7 @@ simInt simGetScriptHandle_internal(const simChar* targetAtScriptName)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=nullptr;
+        CScriptObject* it=nullptr;
         if ((targetName.length()==0)||(targetName.compare("child")==0)||(targetName.compare("main")==0))
         {
             if (scriptName.length()==0)
@@ -21994,18 +21926,18 @@ simInt simGetScriptHandle_internal(const simChar* targetAtScriptName)
         }
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(-1);
         }
         if (it->getFlaggedForDestruction())
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_WAS_DESTROYED);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_WAS_DESTROYED);
             return(-1);
         }
         int retVal=it->getScriptHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -22015,7 +21947,7 @@ simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* va
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CLuaScriptObject* script=nullptr;
+        CScriptObject* script=nullptr;
         std::string variableName;
         if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
@@ -22073,19 +22005,19 @@ simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* va
             CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
             if ( (stack==nullptr)&&(!doAClear) )
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
                 return(-1);
             }
             if ( (stack!=nullptr)&&(stack->getStackSize()==0) )
             {
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
                 return(-1);
             }
             int retVal=-1; // error
             if (script->getThreadedExecutionIsUnderWay_oldThreads())
             { // very special handling here!
-                if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
-                    retVal=script->setScriptVariable(variableName.c_str(),stack);
+                if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId_old(),VThread::getCurrentThreadId()))
+                    retVal=script->setScriptVariable_old(variableName.c_str(),stack);
                 else
                 { // we have to execute that function via another thread!
                     void* d[4];
@@ -22095,27 +22027,27 @@ simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* va
                     d[2]=(void*)variableName.c_str();
                     d[3]=stack;
 
-                    retVal=CThreadPool::callRoutineViaSpecificThread(script->getThreadedScriptThreadId(),d);
+                    retVal=CThreadPool_old::callRoutineViaSpecificThread(script->getThreadedScriptThreadId_old(),d);
                 }
             }
             else
             {
                 if (VThread::isCurrentThreadTheMainSimulationThread())
                 { // For now we don't allow non-main threads to call non-threaded scripts!
-                    retVal=script->setScriptVariable(variableName.c_str(),stack);
+                    retVal=script->setScriptVariable_old(variableName.c_str(),stack);
                 }
             }
 
             if (retVal==-1)
-                CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_OPERATION_FAILED);
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OPERATION_FAILED);
             return(retVal);
         }
 
-        CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
         return(-1);
     }
 
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -22130,11 +22062,11 @@ simInt simGetScript_internal(simInt index)
     {
         if ( (index<0)||(index>=int(App::currentWorld->embeddedScriptContainer->allScripts.size())) )
             return(-1);
-        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->allScripts[index];
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->allScripts[index];
         int retVal=it->getScriptHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -22149,13 +22081,13 @@ simInt simGetScriptAssociatedWithObject_internal(simInt objectHandle)
     {
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
-        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objectHandle);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objectHandle);
         if (it==nullptr)
             return(-1);
         int retVal=it->getScriptHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -22170,13 +22102,13 @@ simInt simGetCustomizationScriptAssociatedWithObject_internal(simInt objectHandl
     {
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
-        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objectHandle);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objectHandle);
         if (it==nullptr)
             return(-1);
         int retVal=it->getScriptHandle();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -22189,10 +22121,10 @@ simInt simGetObjectAssociatedWithScript_internal(simInt scriptHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
         if (it==nullptr)
         {
-            CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(-1);
         }
         int retVal=-1;
@@ -22202,7 +22134,7 @@ simInt simGetObjectAssociatedWithScript_internal(simInt scriptHandle)
                 retVal=it->getObjectHandleThatScriptIsAttachedTo_customization();
         return(retVal);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -22232,7 +22164,7 @@ simChar* simGetObjectConfiguration_internal(simInt objectHandle)
         }
         return(nullptr);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -22257,7 +22189,7 @@ simInt simSetObjectConfiguration_internal(const simChar* data)
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -22301,7 +22233,7 @@ simChar* simGetConfigurationTree_internal(simInt objectHandle)
             retBuffer[sizeof(int)+i]=data[i];
         return(retBuffer);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
 }
 
@@ -22340,7 +22272,7 @@ simInt simSetConfigurationTree_internal(const simChar* data)
         }
         return(1);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -22357,7 +22289,47 @@ simInt simEnableEventCallback_internal(simInt eventCallbackType,const simChar* p
             return(1);
         return(0);
     }
-    CApiErrors::setCapiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simSetObjectSizeValues_internal(simInt objectHandle,const simFloat* sizeValues)
+{ // deprecated on 28.06.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (doesObjectExist(__func__,objectHandle))
+        {
+            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            obj->setSizeValues(sizeValues);
+            return(1);
+        }
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetObjectSizeValues_internal(simInt objectHandle,simFloat* sizeValues)
+{ // deprecated on 28.06.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (doesObjectExist(__func__,objectHandle))
+        {
+            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            obj->getSizeValues(sizeValues);
+            return(1);
+        }
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 

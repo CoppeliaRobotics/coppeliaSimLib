@@ -4,7 +4,7 @@
 #include "tt.h"
 #include "graphingRoutines_old.h"
 #include "gV.h"
-#include "threadPool.h"
+#include "threadPool_old.h"
 #include "app.h"
 #include "simStrings.h"
 #include "vDateTime.h"
@@ -252,9 +252,9 @@ bool CSimulation::startOrResumeSimulation()
     if (isSimulationStopped())
     {
         App::setFullScreen(_fullscreenAtSimulationStart);
-        CThreadPool::setSimulationEmergencyStop(false);
-        CThreadPool::setRequestSimulationStop(false);
-//        CLuaScriptObject::emergencyStopButtonPressed=false;
+        CThreadPool_old::setSimulationEmergencyStop(false);
+        CThreadPool_old::setRequestSimulationStop(false);
+//        CScriptObject::emergencyStopButtonPressed=false;
         App::worldContainer->simulationAboutToStart();
         _speedModifierIndexOffset=0;
         _pauseOnErrorRequested=false;
@@ -385,7 +385,7 @@ void CSimulation::advanceSimulationByOneStep()
     {
         if (_requestToStop)
         {
-            CThreadPool::setRequestSimulationStop(true);
+            CThreadPool_old::setRequestSimulationStop(true);
             simulationState=sim_simulation_advancing_abouttostop;
             _requestToStop=false;
         }
@@ -410,15 +410,15 @@ void CSimulation::advanceSimulationByOneStep()
     else if (simulationState==sim_simulation_advancing_abouttostop)
     {
         // Check if all threads have stopped
-        if (CThreadPool::getThreadPoolThreadCount()==0)
+        if (CThreadPool_old::getThreadPoolThreadCount()==0)
             simulationState=sim_simulation_advancing_lastbeforestop;
     }
     else if (simulationState==sim_simulation_advancing_lastbeforestop)
     {
         App::worldContainer->simulationAboutToEnd();
-        CThreadPool::setSimulationEmergencyStop(false);
-        CThreadPool::setRequestSimulationStop(false);
- //       CLuaScriptObject::emergencyStopButtonPressed=false;
+        CThreadPool_old::setSimulationEmergencyStop(false);
+        CThreadPool_old::setRequestSimulationStop(false);
+ //       CScriptObject::emergencyStopButtonPressed=false;
         simulationState=sim_simulation_stopped;
         App::worldContainer->simulationEnded(_removeNewObjectsAtSimulationEnd);
     }
@@ -802,7 +802,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CThreadPool::forceAutomaticThreadSwitch_simulationEnding(); // 21/6/2014
+            CThreadPool_old::forceAutomaticThreadSwitch_simulationEnding(); // 21/6/2014
             App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request,0,0,0,0,nullptr,0);
             incrementStopRequestCounter();
         }
@@ -1204,16 +1204,16 @@ bool CSimulation::showAndHandleEmergencyStopButton(bool showState,const char* sc
         { // stop button was pressed
             if (!isSimulationStopped())
             {
-                CThreadPool::forceAutomaticThreadSwitch_simulationEnding(); // 21/6/2014
-                CThreadPool::setSimulationEmergencyStop(true);
+                CThreadPool_old::forceAutomaticThreadSwitch_simulationEnding(); // 21/6/2014
+                CThreadPool_old::setSimulationEmergencyStop(true);
   //              if (getSimulationState()!=sim_simulation_advancing_lastbeforestop)
   //                  setSimulationStateDirect(sim_simulation_advancing_abouttostop);
             }
             retVal=true;
-//            CLuaScriptObject::emergencyStopButtonPressed=true;
+//            CScriptObject::emergencyStopButtonPressed=true;
         }
 //        else
-//            CLuaScriptObject::emergencyStopButtonPressed=false;
+//            CScriptObject::emergencyStopButtonPressed=false;
     }
     return(retVal);
 }

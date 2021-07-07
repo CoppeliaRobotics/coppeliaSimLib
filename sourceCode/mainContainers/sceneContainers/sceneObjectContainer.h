@@ -19,8 +19,8 @@ struct SSimpleXmlSceneObject
 {
     CSceneObject* object;
     CSceneObject* parentObject;
-    CLuaScriptObject* childScript;
-    CLuaScriptObject* customizationScript;
+    CScriptObject* childScript;
+    CScriptObject* customizationScript;
 };
 
 class CSceneObjectContainer : public _CSceneObjectContainer_

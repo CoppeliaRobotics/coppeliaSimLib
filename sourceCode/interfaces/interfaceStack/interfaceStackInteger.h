@@ -5,7 +5,7 @@
 class CInterfaceStackInteger : public CInterfaceStackObject
 {
 public:
-    CInterfaceStackInteger(luaWrap_lua_Integer theValue);
+    CInterfaceStackInteger(long long int theValue);
     virtual ~CInterfaceStackInteger();
 
     CInterfaceStackObject* copyYourself() const;
@@ -14,8 +14,8 @@ public:
     unsigned int createFromData(const char* data);
     static bool checkCreateFromData(const char* data,unsigned int& w,unsigned int l);
 
-    luaWrap_lua_Integer getValue() const;
+    long long int getValue() const;
 
 protected:
-    luaWrap_lua_Integer _value;
+    long long int _value;
 };

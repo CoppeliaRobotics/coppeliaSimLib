@@ -1,4 +1,4 @@
-#include "threadPool.h"
+#include "threadPool_old.h"
 #include "app.h"
 #include "vDateTime.h"
 #include <boost/lexical_cast.hpp>
@@ -7,26 +7,26 @@
     #include <curses.h>
 #endif
 
-VTHREAD_ID_TYPE CThreadPool::_threadToIntercept=0;
-VTHREAD_START_ADDRESS CThreadPool::_threadInterceptCallback=nullptr;
-int CThreadPool::_threadInterceptIndex=0;
-int CThreadPool::_processorCoreAffinity=0;
-int CThreadPool::_lockStage=0;
-bool CThreadPool::_threadShouldNotSwitch_override=false;
-std::vector<CVThreadData*> CThreadPool::_allThreadData;
-std::vector<VTHREAD_ID_TYPE> CThreadPool::_threadQueue;
-std::vector<int> CThreadPool::_threadStartTime;
-bool CThreadPool::_simulationStopRequest=false;
-int CThreadPool::_simulationStopRequestTime;
-bool CThreadPool::_simulationEmergencyStopRequest=false;
-VTHREAD_START_ADDRESS CThreadPool::_threadStartAdd=nullptr;
-VMutex CThreadPool::_threadPoolMutex;
+VTHREAD_ID_TYPE CThreadPool_old::_threadToIntercept=0;
+VTHREAD_START_ADDRESS CThreadPool_old::_threadInterceptCallback=nullptr;
+int CThreadPool_old::_threadInterceptIndex=0;
+int CThreadPool_old::_processorCoreAffinity=0;
+int CThreadPool_old::_lockStage=0;
+bool CThreadPool_old::_threadShouldNotSwitch_override=false;
+std::vector<CVThreadData*> CThreadPool_old::_allThreadData;
+std::vector<VTHREAD_ID_TYPE> CThreadPool_old::_threadQueue;
+std::vector<int> CThreadPool_old::_threadStartTime;
+bool CThreadPool_old::_simulationStopRequest=false;
+int CThreadPool_old::_simulationStopRequestTime;
+bool CThreadPool_old::_simulationEmergencyStopRequest=false;
+VTHREAD_START_ADDRESS CThreadPool_old::_threadStartAdd=nullptr;
+VMutex CThreadPool_old::_threadPoolMutex;
 
-void* CThreadPool::_tmpData=nullptr;
-int CThreadPool::_tmpRetData=0;
-int CThreadPool::_inInterceptRoutine=0;
+void* CThreadPool_old::_tmpData=nullptr;
+int CThreadPool_old::_tmpRetData=0;
+int CThreadPool_old::_inInterceptRoutine=0;
 
-void CThreadPool::init()
+void CThreadPool_old::init()
 {
     _threadToIntercept=0;
     _threadInterceptCallback=nullptr;
@@ -45,7 +45,7 @@ void CThreadPool::init()
     _inInterceptRoutine=0;
 }
 
-VTHREAD_ID_TYPE CThreadPool::createNewThread(VTHREAD_START_ADDRESS threadStartAddress)
+VTHREAD_ID_TYPE CThreadPool_old::createNewThread(VTHREAD_START_ADDRESS threadStartAddress)
 {
     _lock(0);
 
@@ -85,7 +85,7 @@ VTHREAD_ID_TYPE CThreadPool::createNewThread(VTHREAD_START_ADDRESS threadStartAd
     return(newID);
 }
 
-bool CThreadPool::setThreadSwitchTiming(int timeInMs)
+bool CThreadPool_old::setThreadSwitchTiming(int timeInMs)
 {
     if (_inInterceptRoutine>0)
         return(false);
@@ -113,7 +113,7 @@ bool CThreadPool::setThreadSwitchTiming(int timeInMs)
     return(retVal);
 }
 
-bool CThreadPool::getThreadSwitchTiming(int& timeInMs)
+bool CThreadPool_old::getThreadSwitchTiming(int& timeInMs)
 {
     if (_inInterceptRoutine>0)
         return(false);
@@ -137,7 +137,7 @@ bool CThreadPool::getThreadSwitchTiming(int& timeInMs)
     return(retVal);
 }
 
-bool CThreadPool::setThreadAutomaticSwitchForbidLevel(int forbidLevel)
+bool CThreadPool_old::setThreadAutomaticSwitchForbidLevel(int forbidLevel)
 {
     if (_inInterceptRoutine>0)
         return(false);
@@ -161,7 +161,7 @@ bool CThreadPool::setThreadAutomaticSwitchForbidLevel(int forbidLevel)
     return(retVal);
 }
 
-bool CThreadPool::getThreadAutomaticSwitch()
+bool CThreadPool_old::getThreadAutomaticSwitch()
 {
     if (_inInterceptRoutine>0)
         return(false);
@@ -184,7 +184,7 @@ bool CThreadPool::getThreadAutomaticSwitch()
     return(retVal);
 }
 
-bool CThreadPool::setThreadResumeLocation(int location,int order)
+bool CThreadPool_old::setThreadResumeLocation(int location,int order)
 {
     if (_inInterceptRoutine>0)
         return(false);
@@ -214,7 +214,7 @@ bool CThreadPool::setThreadResumeLocation(int location,int order)
     return(retVal);
 }
 
-void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
+void CThreadPool_old::switchToThread(VTHREAD_ID_TYPE threadID)
 {
     if (_inInterceptRoutine>0)
         return;
@@ -307,7 +307,7 @@ void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
                     tmp+=") NOT waiting anymore...";
                     App::logMsg(sim_verbosity_tracelua,tmp.c_str());
 
-                    // If we arrived here, it is because CThreadPool::switchToFiberOrThread was called for this thread from another thread
+                    // If we arrived here, it is because CThreadPool_old::switchToFiberOrThread was called for this thread from another thread
                     it->threadWantsResumeFromYield=false; // We reset it
                     // Now this thread resumes!
                 }
@@ -355,7 +355,7 @@ void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
                 tmp+=") NOT waiting anymore...";
                 App::logMsg(sim_verbosity_tracelua,tmp.c_str());
 
-                // If we arrived here, it is because CThreadPool::switchToFiberOrThread was called for this thread from another thread
+                // If we arrived here, it is because CThreadPool_old::switchToFiberOrThread was called for this thread from another thread
                 it->threadWantsResumeFromYield=false; // We reset it
                 // Now this thread resumes!
                 _cleanupTerminatedThreads(); // This routine will perform the locking unlocking itself
@@ -366,7 +366,7 @@ void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
     _unlock(3);
 }
 
-bool CThreadPool::switchBackToPreviousThread()
+bool CThreadPool_old::switchBackToPreviousThread()
 {
     if (_inInterceptRoutine>0)
         return(false);
@@ -397,7 +397,7 @@ bool CThreadPool::switchBackToPreviousThread()
     return(false);
 }
 
-bool CThreadPool::isSwitchBackToPreviousThreadNeeded()
+bool CThreadPool_old::isSwitchBackToPreviousThreadNeeded()
 {
     if (_inInterceptRoutine>0)
         return(false);
@@ -426,7 +426,7 @@ bool CThreadPool::isSwitchBackToPreviousThreadNeeded()
     return(false);
 }
 
-void CThreadPool::switchBackToPreviousThreadIfNeeded()
+void CThreadPool_old::switchBackToPreviousThreadIfNeeded()
 {
     if (_inInterceptRoutine>0)
         return;
@@ -459,7 +459,7 @@ void CThreadPool::switchBackToPreviousThreadIfNeeded()
         setThreadFreeMode(false);
 }
 
-void CThreadPool::_terminateThread()
+void CThreadPool_old::_terminateThread()
 {
     _lock(6);
     VTHREAD_ID_TYPE nextThreadToSwitchTo=0;
@@ -481,7 +481,7 @@ void CThreadPool::_terminateThread()
     switchToThread(nextThreadToSwitchTo); // We switch to the calling thread (previous thread)
 }
 
-void CThreadPool::_cleanupTerminatedThreads()
+void CThreadPool_old::_cleanupTerminatedThreads()
 {
     _lock(7);
     for (size_t i=0;i<_allThreadData.size();i++)
@@ -496,7 +496,7 @@ void CThreadPool::_cleanupTerminatedThreads()
     _unlock(7);
 }
 
-VTHREAD_RETURN_TYPE CThreadPool::_intermediateThreadStartPoint(VTHREAD_ARGUMENT_TYPE lpData)
+VTHREAD_RETURN_TYPE CThreadPool_old::_intermediateThreadStartPoint(VTHREAD_ARGUMENT_TYPE lpData)
 {
     srand(VDateTime::getTimeInMs()+ (((unsigned long)(VThread::getCurrentThreadId()))&0xffffffff) ); // Important: each thread starts with a same seed!!!
     VTHREAD_START_ADDRESS startAdd=_threadStartAdd;
@@ -507,7 +507,7 @@ VTHREAD_RETURN_TYPE CThreadPool::_intermediateThreadStartPoint(VTHREAD_ARGUMENT_
     while (!it->threadWantsResumeFromYield)
         VThread::switchThread();
 
-    // If we arrived here, it is because CThreadPool::switchToFiberOrThread was called for this thread from another thread
+    // If we arrived here, it is because CThreadPool_old::switchToFiberOrThread was called for this thread from another thread
     it->threadWantsResumeFromYield=false; // We reset it
 
     std::string tmp("==* Inside new thread (threadID: ");
@@ -525,7 +525,7 @@ VTHREAD_RETURN_TYPE CThreadPool::_intermediateThreadStartPoint(VTHREAD_ARGUMENT_
     return(VTHREAD_RETURN_VAL);
 }
 
-void CThreadPool::prepareAllThreadsForResume_calledBeforeMainScript()
+void CThreadPool_old::prepareAllThreadsForResume_calledBeforeMainScript()
 {
     _lock(8);
     for (size_t i=1;i<_allThreadData.size();i++)
@@ -541,12 +541,12 @@ void CThreadPool::prepareAllThreadsForResume_calledBeforeMainScript()
     _unlock(8);
 }
 
-int CThreadPool::handleAllThreads_withResumeLocation(int location)
+int CThreadPool_old::handleAllThreads_withResumeLocation(int location)
 {
     return(handleThread_ifHasResumeLocation(0,true,location));
 }
 
-int CThreadPool::handleThread_ifHasResumeLocation(VTHREAD_ID_TYPE theThread,bool allThreadsWithResumeLocation,int location)
+int CThreadPool_old::handleThread_ifHasResumeLocation(VTHREAD_ID_TYPE theThread,bool allThreadsWithResumeLocation,int location)
 {
     int retVal=0;
     _lock(8);
@@ -592,12 +592,12 @@ int CThreadPool::handleThread_ifHasResumeLocation(VTHREAD_ID_TYPE theThread,bool
     return(retVal);
 }
 
-CVThreadData* CThreadPool::getCurrentThreadData()
+CVThreadData* CThreadPool_old::getCurrentThreadData()
 {
     return(getThreadData(VThread::getCurrentThreadId()));
 }
 
-CVThreadData* CThreadPool::getThreadData(VTHREAD_ID_TYPE threadId)
+CVThreadData* CThreadPool_old::getThreadData(VTHREAD_ID_TYPE threadId)
 {
     CVThreadData* retVal=nullptr;
     _lock(9);
@@ -613,7 +613,7 @@ CVThreadData* CThreadPool::getThreadData(VTHREAD_ID_TYPE threadId)
     return(retVal);
 }
 
-int CThreadPool::getThreadPoolThreadCount()
+int CThreadPool_old::getThreadPoolThreadCount()
 { // Doesn't count the main thread!
     int retVal=0;
     _lock(10);
@@ -625,7 +625,7 @@ int CThreadPool::getThreadPoolThreadCount()
     return(retVal);
 }
 
-void CThreadPool::setSimulationEmergencyStop(bool stop)
+void CThreadPool_old::setSimulationEmergencyStop(bool stop)
 {
     _lock(11);
     _threadShouldNotSwitch_override=true; // 21/6/2014
@@ -633,7 +633,7 @@ void CThreadPool::setSimulationEmergencyStop(bool stop)
     _unlock(11);
 }
 
-bool CThreadPool::getSimulationEmergencyStop()
+bool CThreadPool_old::getSimulationEmergencyStop()
 {
     _lock(12);
 
@@ -668,12 +668,12 @@ bool CThreadPool::getSimulationEmergencyStop()
     return(retVal);
 }
 
-void CThreadPool::forceAutomaticThreadSwitch_simulationEnding()
+void CThreadPool_old::forceAutomaticThreadSwitch_simulationEnding()
 {
     _threadShouldNotSwitch_override=true; // 21/6/2014
 }
 
-void CThreadPool::setRequestSimulationStop(bool stop)
+void CThreadPool_old::setRequestSimulationStop(bool stop)
 {
     _lock(13);
     if (stop)
@@ -693,7 +693,7 @@ void CThreadPool::setRequestSimulationStop(bool stop)
     _unlock(13);
 }
 
-bool CThreadPool::getSimulationStopRequested()
+bool CThreadPool_old::getSimulationStopRequested()
 {
     if (getSimulationEmergencyStop())
         return(true);
@@ -715,7 +715,7 @@ bool CThreadPool::getSimulationStopRequested()
     return(retVal);
 }
 
-bool CThreadPool::getSimulationStopRequestedAndActivated()
+bool CThreadPool_old::getSimulationStopRequestedAndActivated()
 {
     if (_inInterceptRoutine>0)
         return(false);
@@ -741,25 +741,25 @@ bool CThreadPool::getSimulationStopRequestedAndActivated()
     return(retVal);
 }
 
-void CThreadPool::_lock(unsigned char debugInfo)
+void CThreadPool_old::_lock(unsigned char debugInfo)
 {
-    _threadPoolMutex.lock("CThreadPool::_lock()");
+    _threadPoolMutex.lock("CThreadPool_old::_lock()");
     _lockStage++;
 }
 
-void CThreadPool::_unlock(unsigned char debugInfo)
+void CThreadPool_old::_unlock(unsigned char debugInfo)
 {
     _lockStage--;
     _threadPoolMutex.unlock();
 }
 
-void CThreadPool::cleanUp()
+void CThreadPool_old::cleanUp()
 { // Make sure to release the main thread data:
     for (size_t i=0;i<_allThreadData.size();i++)
         delete _allThreadData[i];
 }
 
-bool CThreadPool::setThreadFreeMode(bool freeMode)
+bool CThreadPool_old::setThreadFreeMode(bool freeMode)
 {
     if (_inInterceptRoutine>0)
         return(false);
@@ -858,17 +858,17 @@ bool CThreadPool::setThreadFreeMode(bool freeMode)
     return(retVal);
 }
 
-int CThreadPool::getProcessorCoreAffinity()
+int CThreadPool_old::getProcessorCoreAffinity()
 {
     return(_processorCoreAffinity);
 }
 
-void CThreadPool::setProcessorCoreAffinity(int affinity)
+void CThreadPool_old::setProcessorCoreAffinity(int affinity)
 {
     _processorCoreAffinity=affinity;
 }
 
-bool CThreadPool::isThreadInFreeMode()
+bool CThreadPool_old::isThreadInFreeMode()
 {
     if (_inInterceptRoutine>0)
         return(false);
@@ -883,35 +883,35 @@ bool CThreadPool::isThreadInFreeMode()
     return(retVal);
 }
 
-VTHREAD_RETURN_TYPE CThreadPool::_tmpCallback(VTHREAD_ARGUMENT_TYPE lpData)
+VTHREAD_RETURN_TYPE CThreadPool_old::_tmpCallback(VTHREAD_ARGUMENT_TYPE lpData)
 { // This callback is used to execute some functions via a specific thread
     void** valPtr=(void**)_tmpData;
     int callType=((int*)valPtr[0])[0];
     _tmpRetData=-1; // error
     if (callType==0)
     { // we want to call "script->callScriptFunction_DEPRECATED"
-        CLuaScriptObject* script=(CLuaScriptObject*)valPtr[1];
+        CScriptObject* script=(CScriptObject*)valPtr[1];
         char* funcName=(char*)valPtr[2];
         SLuaCallBack* data=(SLuaCallBack*)valPtr[3];
         _tmpRetData=script->callScriptFunction_DEPRECATED(funcName,data);
     }
     if (callType==1)
     { // we want to call "script->callScriptFunction"
-        CLuaScriptObject* script=(CLuaScriptObject*)valPtr[1];
+        CScriptObject* script=(CScriptObject*)valPtr[1];
         char* funcName=(char*)valPtr[2];
         CInterfaceStack* stack=(CInterfaceStack*)valPtr[3];
         _tmpRetData=script->callCustomScriptFunction(funcName,stack);
     }
     if (callType==2)
     { // we want to call "script->setScriptVariable"
-        CLuaScriptObject* script=(CLuaScriptObject*)valPtr[1];
+        CScriptObject* script=(CScriptObject*)valPtr[1];
         char* varName=(char*)valPtr[2];
         CInterfaceStack* stack=(CInterfaceStack*)valPtr[3];
-        _tmpRetData=script->setScriptVariable(varName,stack);
+        _tmpRetData=script->setScriptVariable_old(varName,stack);
     }
     if (callType==3)
     { // we want to call "script->executeScriptString"
-        CLuaScriptObject* script=(CLuaScriptObject*)valPtr[1];
+        CScriptObject* script=(CScriptObject*)valPtr[1];
         char* scriptString=(char*)valPtr[2];
         CInterfaceStack* stack=(CInterfaceStack*)valPtr[3];
         _tmpRetData=script->executeScriptString(scriptString,stack);
@@ -919,7 +919,7 @@ VTHREAD_RETURN_TYPE CThreadPool::_tmpCallback(VTHREAD_ARGUMENT_TYPE lpData)
     return(VTHREAD_RETURN_VAL);
 }
 
-bool CThreadPool::_interceptThread(VTHREAD_ID_TYPE theThreadToIntercept,VTHREAD_START_ADDRESS theCallback)
+bool CThreadPool_old::_interceptThread(VTHREAD_ID_TYPE theThreadToIntercept,VTHREAD_START_ADDRESS theCallback)
 {
     _lock(1);
     bool retVal=false;
@@ -947,12 +947,12 @@ bool CThreadPool::_interceptThread(VTHREAD_ID_TYPE theThreadToIntercept,VTHREAD_
     return(retVal);
 }
 
-int CThreadPool::callRoutineViaSpecificThread(VTHREAD_ID_TYPE theThread,void* data)
+int CThreadPool_old::callRoutineViaSpecificThread(VTHREAD_ID_TYPE theThread,void* data)
 {
     _inInterceptRoutine++;
     _tmpData=data;
     int retVal=-1; // error
-    if (CThreadPool::_interceptThread(theThread,_tmpCallback))
+    if (CThreadPool_old::_interceptThread(theThread,_tmpCallback))
         retVal=_tmpRetData;
     _inInterceptRoutine--;
     return(retVal);

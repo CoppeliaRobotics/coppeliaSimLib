@@ -189,8 +189,8 @@ INCLUDEPATH += $$PWD/"sourceCode/shared/mainContainers"
 INCLUDEPATH += $$PWD/"sourceCode/mainContainers/sceneContainers"
 INCLUDEPATH += $$PWD/"sourceCode/shared/mainContainers/sceneContainers"
 INCLUDEPATH += $$PWD/"sourceCode/mainContainers/applicationContainers"
-INCLUDEPATH += $$PWD/"sourceCode/luaScripting"
-INCLUDEPATH += $$PWD/"sourceCode/luaScripting/customLuaFuncAndVar"
+INCLUDEPATH += $$PWD/"sourceCode/scripting"
+INCLUDEPATH += $$PWD/"sourceCode/scripting/customScriptFuncAndVar"
 INCLUDEPATH += $$PWD/"sourceCode/pagesAndViews"
 INCLUDEPATH += $$PWD/"sourceCode/textures"
 INCLUDEPATH += $$PWD/"sourceCode/serialization"
@@ -469,14 +469,14 @@ HEADERS += $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/simpleFilter.
 
 HEADERS += $$PWD/sourceCode/pathPlanning_old/pathPlanningTask_old.h \
 
-HEADERS += $$PWD/sourceCode/luaScripting/userParameters.h \
-    $$PWD/sourceCode/luaScripting/luaScriptObject.h \
-    $$PWD/sourceCode/luaScripting/outsideCommandQueueForScript.h \
-    $$PWD/sourceCode/luaScripting/luaWrapper.h \
+HEADERS += $$PWD/sourceCode/scripting/userParameters.h \
+    $$PWD/sourceCode/scripting/scriptObject.h \
+    $$PWD/sourceCode/scripting/outsideCommandQueueForScript.h \
+    $$PWD/sourceCode/scripting/luaWrapper.h \
 
-HEADERS += $$PWD/sourceCode/luaScripting/customLuaFuncAndVar/luaCustomFuncAndVarContainer.h \
-    $$PWD/sourceCode/luaScripting/customLuaFuncAndVar/luaCustomFunction.h \
-    $$PWD/sourceCode/luaScripting/customLuaFuncAndVar/luaCustomVariable.h \
+HEADERS += $$PWD/sourceCode/scripting/customScriptFuncAndVar/scriptCustomFuncAndVarContainer.h \
+    $$PWD/sourceCode/scripting/customScriptFuncAndVar/scriptCustomFunction.h \
+    $$PWD/sourceCode/scripting/customScriptFuncAndVar/scriptCustomVariable.h \
 
 HEADERS += $$PWD/sourceCode/pagesAndViews/pageContainer.h \
     $$PWD/sourceCode/pagesAndViews/sPage.h \
@@ -581,7 +581,7 @@ HEADERS += $$PWD/sourceCode/visual/thumbnail.h \
 HEADERS += $$PWD/sourceCode/displ/colorObject.h \
     $$PWD/sourceCode/shared/displ/_colorObject_.h \
 
-HEADERS += $$PWD/sourceCode/utils/threadPool.h \
+HEADERS += $$PWD/sourceCode/utils/threadPool_old.h \
     $$PWD/sourceCode/utils/tt.h \
     $$PWD/sourceCode/utils/ttUtil.h \
     $$PWD/sourceCode/utils/confReaderAndWriter.h \
@@ -899,14 +899,14 @@ SOURCES += $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/simpleFilter.
 
 SOURCES += $$PWD/sourceCode/pathPlanning_old/pathPlanningTask_old.cpp \
 
-SOURCES += $$PWD/sourceCode/luaScripting/userParameters.cpp \
-    $$PWD/sourceCode/luaScripting/luaScriptObject.cpp \
-    $$PWD/sourceCode/luaScripting/outsideCommandQueueForScript.cpp \
-    $$PWD/sourceCode/luaScripting/luaWrapper.cpp \
+SOURCES += $$PWD/sourceCode/scripting/userParameters.cpp \
+    $$PWD/sourceCode/scripting/scriptObject.cpp \
+    $$PWD/sourceCode/scripting/outsideCommandQueueForScript.cpp \
+    $$PWD/sourceCode/scripting/luaWrapper.cpp \
 
-SOURCES += $$PWD/sourceCode/luaScripting/customLuaFuncAndVar/luaCustomFuncAndVarContainer.cpp \
-    $$PWD/sourceCode/luaScripting/customLuaFuncAndVar/luaCustomFunction.cpp \
-    $$PWD/sourceCode/luaScripting/customLuaFuncAndVar/luaCustomVariable.cpp \
+SOURCES += $$PWD/sourceCode/scripting/customScriptFuncAndVar/scriptCustomFuncAndVarContainer.cpp \
+    $$PWD/sourceCode/scripting/customScriptFuncAndVar/scriptCustomFunction.cpp \
+    $$PWD/sourceCode/scripting/customScriptFuncAndVar/scriptCustomVariable.cpp \
 
 SOURCES += $$PWD/sourceCode/pagesAndViews/pageContainer.cpp \
     $$PWD/sourceCode/pagesAndViews/sPage.cpp \
@@ -1004,7 +1004,7 @@ SOURCES += $$PWD/sourceCode/displ/colorObject.cpp \
 
 SOURCES += $$PWD/sourceCode/visual/thumbnail.cpp \
 
-SOURCES += $$PWD/sourceCode/utils/threadPool.cpp \
+SOURCES += $$PWD/sourceCode/utils/threadPool_old.cpp \
     $$PWD/sourceCode/utils/ttUtil.cpp \
     $$PWD/sourceCode/utils/tt.cpp \
     $$PWD/sourceCode/utils/confReaderAndWriter.cpp \

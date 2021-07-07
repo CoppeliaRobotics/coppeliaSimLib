@@ -65,7 +65,7 @@ void CQDlgScripts::refresh()
 
     ui->qqDebugMode->clear();
 
-    CLuaScriptObject* theScript=App::worldContainer->getScriptFromHandle(getSelectedObjectID());
+    CScriptObject* theScript=App::worldContainer->getScriptFromHandle(getSelectedObjectID());
     ui->qqExecutionOrder->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqTreeTraversalDirection->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqDebugMode->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript)||(theScript->getScriptType()==sim_scripttype_mainscript) ));
@@ -93,7 +93,7 @@ void CQDlgScripts::refresh()
             ui->qqDebugMode->addItem(IDSN_SCRIPTDEBUG_ALLCALLS,QVariant(sim_scriptdebug_allcalls));
             ui->qqDebugMode->addItem(IDSN_SCRIPTDEBUG_VARS,QVariant(sim_scriptdebug_vars));
             ui->qqDebugMode->addItem(IDSN_SCRIPTDEBUG_FULL,QVariant(sim_scriptdebug_callsandvars));
-            ui->qqDebugMode->setCurrentIndex(theScript->getDebugLevel());
+            ui->qqDebugMode->setCurrentIndex(theScript->getDebugLevel_old());
 
             int objIdAttached=-1;
             if (theScript->getScriptType()==sim_scripttype_childscript)
@@ -121,7 +121,7 @@ void CQDlgScripts::updateObjectsInList()
 
     if (scriptViewMode==0)
     { // Main and child scripts
-        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getMainScript();
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getMainScript();
         if (it!=nullptr)
         {
             std::string tmp=it->getDescriptiveName();
@@ -156,7 +156,7 @@ void CQDlgScripts::updateObjectsInList()
     { // Customization scripts
         for (int i=0;i<int(App::currentWorld->embeddedScriptContainer->allScripts.size());i++)
         {
-            CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->allScripts[i];
+            CScriptObject* it=App::currentWorld->embeddedScriptContainer->allScripts[i];
             int t=it->getScriptType();
             if (t==sim_scripttype_customizationscript)
             {
@@ -229,7 +229,7 @@ void CQDlgScripts::on_qqScriptList_itemDoubleClicked(QListWidgetItem *item)
     {
         if ( (item!=nullptr)&&App::currentWorld->simulation->isSimulationStopped() )
         {
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(item->data(Qt::UserRole).toInt());
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(item->data(Qt::UserRole).toInt());
             if (it!=nullptr)
             {
                 // Process the command via the simulation thread (delayed):

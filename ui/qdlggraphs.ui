@@ -431,7 +431,7 @@
     <rect>
      <x>10</x>
      <y>75</y>
-     <width>190</width>
+     <width>201</width>
      <height>18</height>
     </rect>
    </property>
@@ -440,6 +440,22 @@
    </property>
    <property name="text">
     <string>Adjust background color</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="qqRemoveAll">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>50</y>
+     <width>201</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Remove all streams/curves</string>
    </property>
   </widget>
  </widget>

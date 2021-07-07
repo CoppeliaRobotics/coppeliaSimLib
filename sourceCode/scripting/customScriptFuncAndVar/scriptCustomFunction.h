@@ -2,19 +2,14 @@
 
 #include <vector>
 #include <string>
-#include "luaWrapper.h"
 
-class CLuaCustomFunction
+class CScriptCustomFunction
 {
 public:
-    // the old way:
-    CLuaCustomFunction(const char* theFullFunctionName,const char* theCallTips,std::vector<int>& theInputArgTypes,void(*callBack)(struct SLuaCallBack* p));
-    // the new way:
-    CLuaCustomFunction(const char* theFullFunctionName,const char* theCallTips,void(*callBack)(struct SScriptCallBack* cb));
+    CScriptCustomFunction(const char* theFullFunctionName,const char* theCallTips,void(*callBack)(struct SScriptCallBack* cb));
 
-    virtual ~CLuaCustomFunction();
+    virtual ~CScriptCustomFunction();
     
-    void registerCustomLuaFunction(luaWrap_lua_State* L,luaWrap_lua_CFunction func) const;
     bool getUsesStackToExchangeData() const;
     std::string getFunctionName() const;
     bool isFunctionNameSame(const char* fullName) const;
@@ -31,8 +26,11 @@ public:
     bool isDeprecated() const;
 
     void(*callBackFunction_new)(struct SScriptCallBack* p);
-    void(*callBackFunction_old)(struct SLuaCallBack* p);
     std::vector<int> inputArgTypes;
+
+    // Old:
+    CScriptCustomFunction(const char* theFullFunctionName,const char* theCallTips,std::vector<int>& theInputArgTypes,void(*callBack)(struct SLuaCallBack* p));
+    void(*callBackFunction_old)(struct SLuaCallBack* p);
 
 protected:
     std::string pluginName;

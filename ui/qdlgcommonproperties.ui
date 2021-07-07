@@ -471,7 +471,7 @@
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
     <rect>
-     <x>260</x>
+     <x>10</x>
      <y>270</y>
      <width>161</width>
      <height>71</height>
@@ -519,7 +519,7 @@
   <widget class="QGroupBox" name="groupBox_4">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>180</x>
      <y>270</y>
      <width>241</width>
      <height>71</height>
@@ -1589,7 +1589,7 @@
   <widget class="QToolButton" name="qqApplySpecialProperties">
    <property name="geometry">
     <rect>
-     <x>120</x>
+     <x>290</x>
      <y>345</y>
      <width>130</width>
      <height>18</height>
@@ -2050,7 +2050,7 @@
   <widget class="QCheckBox" name="qqRenderable">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>190</x>
      <y>340</y>
      <width>91</width>
      <height>18</height>
@@ -2119,14 +2119,14 @@
   <tabstop>a_16</tabstop>
   <tabstop>qqViewableObjects</tabstop>
   <tabstop>qqApplyLayers</tabstop>
+  <tabstop>qqModelBase</tabstop>
+  <tabstop>qqEditModelProperties</tabstop>
   <tabstop>qqCollidable</tabstop>
   <tabstop>qqMeasurable</tabstop>
   <tabstop>qqDetectable</tabstop>
   <tabstop>qqEditDetectableDetails</tabstop>
   <tabstop>qqRenderable</tabstop>
   <tabstop>qqApplySpecialProperties</tabstop>
-  <tabstop>qqModelBase</tabstop>
-  <tabstop>qqEditModelProperties</tabstop>
   <tabstop>qqSelfCollisionIndicator</tabstop>
   <tabstop>qqOpenScalingDialog</tabstop>
   <tabstop>qqAssembling</tabstop>

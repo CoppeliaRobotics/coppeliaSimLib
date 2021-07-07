@@ -2,7 +2,7 @@
 #include "simInternal.h"
 #include "userSettings.h"
 #include "global.h"
-#include "threadPool.h"
+#include "threadPool_old.h"
 #include "tt.h"
 #include "easyLock.h"
 #include "vVarious.h"
@@ -48,7 +48,6 @@
 #define _USR_TEST1 "test1"
 #define _USR_ORDER_HIERARCHY_ALPHABETICALLY "orderHierarchyAlphabetically"
 #define _USR_MAC_CHILD_DIALOG_TYPE "macChildDialogType"
-#define _USR_USE_EXTERNAL_LUA_LIBRARY "useExternalLuaLibrary"
 #define _USR_DESKTOP_RECORDING_INDEX "desktopRecordingIndex"
 #define _USR_DESKTOP_RECORDING_WIDTH "desktopRecordingWidth"
 #define _USR_EXTERNAL_SCRIPT_EDITOR "externalScriptEditor"
@@ -389,7 +388,6 @@ CUserSettings::CUserSettings()
     test1=false;
     orderHierarchyAlphabetically=false;
     macChildDialogType=-1; // default
-    useExternalLuaLibrary=false; //when using the LUA JIT, we get crashes because of other Lua modules (e.g. LuaSocket). Probably those other modules too need to be recompiled
     additionalLuaPath="";
     desktopRecordingIndex=0;
     desktopRecordingWidth=-1;
@@ -756,7 +754,7 @@ void CUserSettings::saveUserSettings()
     c.addFloat(_USR_DYNAMIC_ACTIVITY_RANGE,dynamicActivityRange,"");
     c.addFloat(_USR_TRANSLATION_STEP_SIZE,_translationStepSize,"");
     c.addFloat(_USR_ROTATION_STEP_SIZE,_rotationStepSize*radToDeg_f,"");
-    c.addInteger(_USR_PROCESSOR_CORE_AFFINITY,CThreadPool::getProcessorCoreAffinity(),"recommended to keep 0 (-1:os default, 0:all threads on same core, m: affinity mask (bit1=core1, bit2=core2, etc.))");
+    c.addInteger(_USR_PROCESSOR_CORE_AFFINITY,CThreadPool_old::getProcessorCoreAffinity(),"recommended to keep 0 (-1:os default, 0:all threads on same core, m: affinity mask (bit1=core1, bit2=core2, etc.))");
     c.addInteger(_USR_FREE_SERVER_PORT_START,freeServerPortStart,"");
     c.addInteger(_USR_FREE_SERVER_PORT_RANGE,freeServerPortRange,"");
     c.addInteger(_USR_ABORT_SCRIPT_EXECUTION_BUTTON,_abortScriptExecutionButton,"in seconds. Zero to disable.");
@@ -769,7 +767,6 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_TEST1,test1,"recommended to keep false.");
     c.addBoolean(_USR_ORDER_HIERARCHY_ALPHABETICALLY,orderHierarchyAlphabetically,"");
     c.addInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType,"-1=default.");
-    c.addBoolean(_USR_USE_EXTERNAL_LUA_LIBRARY,useExternalLuaLibrary,"if true, will call all Lua functions via the simLua library ('simLua.dll', 'libsimLua.so' or 'libsimLua.dylib')");
     c.addString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath,"e.g. d:/myLuaRoutines");
     c.addInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex,"");
     c.addInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth,"-1=default.");
@@ -1069,7 +1066,7 @@ void CUserSettings::loadUserSettings()
         setRotationStepSize(_rotationStepSize*degToRad_f);
     int processorCoreAffinity=0;
     if (c.getInteger(_USR_PROCESSOR_CORE_AFFINITY,processorCoreAffinity))
-        CThreadPool::setProcessorCoreAffinity(processorCoreAffinity);
+        CThreadPool_old::setProcessorCoreAffinity(processorCoreAffinity);
     c.getInteger(_USR_FREE_SERVER_PORT_START,freeServerPortStart);
     _nextfreeServerPortToUse=freeServerPortStart;
     c.getInteger(_USR_FREE_SERVER_PORT_RANGE,freeServerPortRange);
@@ -1097,7 +1094,6 @@ void CUserSettings::loadUserSettings()
         VDialog::dialogStyle=QT_MODELESS_DLG_STYLE;
     #endif
 #endif
-    c.getBoolean(_USR_USE_EXTERNAL_LUA_LIBRARY,useExternalLuaLibrary);
     c.getString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath);
     c.getInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex);
     c.getInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth);

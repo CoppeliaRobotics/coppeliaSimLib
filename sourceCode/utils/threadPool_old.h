@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "vMutex.h"
@@ -40,7 +39,7 @@ public:
 };
 
 // FULLY STATIC CLASS
-class CThreadPool  
+class CThreadPool_old
 {
 public:
     static void init();

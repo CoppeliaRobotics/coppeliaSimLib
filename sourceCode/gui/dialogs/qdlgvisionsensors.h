@@ -65,8 +65,6 @@ private slots:
 
     void on_qqApplyColors_clicked();
 
-    void on_qqEntityCombo_currentIndexChanged(int index);
-
     void on_qqIgnoreRGB_clicked();
 
     void on_qqIgnoreDepth_clicked();

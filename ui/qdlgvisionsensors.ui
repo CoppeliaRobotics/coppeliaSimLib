@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>423</height>
+    <height>356</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,8 +20,8 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>10</y>
-     <width>261</width>
+     <y>320</y>
+     <width>201</width>
      <height>18</height>
     </rect>
    </property>
@@ -36,9 +36,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>35</y>
+     <y>10</y>
      <width>411</width>
-     <height>231</height>
+     <height>191</height>
     </rect>
    </property>
    <property name="title">
@@ -66,8 +66,8 @@
    <widget class="QCheckBox" name="qqExternalInput">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>25</y>
+      <x>10</x>
+      <y>45</y>
       <width>201</width>
       <height>18</height>
      </rect>
@@ -83,7 +83,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>45</y>
+      <y>65</y>
       <width>201</width>
       <height>18</height>
      </rect>
@@ -95,43 +95,11 @@
      <string>Perspective mode</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="qqLocalLights">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>65</y>
-      <width>201</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Use local lights</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="qqShowFog">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>85</y>
-      <width>201</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Show fog if enabled</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>125</y>
+      <y>105</y>
       <width>241</width>
       <height>18</height>
      </rect>
@@ -144,7 +112,7 @@
     <property name="geometry">
      <rect>
       <x>250</x>
-      <y>125</y>
+      <y>105</y>
       <width>66</width>
       <height>18</height>
      </rect>
@@ -154,7 +122,7 @@
     <property name="geometry">
      <rect>
       <x>335</x>
-      <y>125</y>
+      <y>105</y>
       <width>66</width>
       <height>18</height>
      </rect>
@@ -164,7 +132,7 @@
     <property name="geometry">
      <rect>
       <x>315</x>
-      <y>125</y>
+      <y>105</y>
       <width>21</width>
       <height>18</height>
      </rect>
@@ -180,7 +148,7 @@
     <property name="geometry">
      <rect>
       <x>250</x>
-      <y>145</y>
+      <y>125</y>
       <width>66</width>
       <height>18</height>
      </rect>
@@ -190,7 +158,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>145</y>
+      <y>125</y>
       <width>241</width>
       <height>18</height>
      </rect>
@@ -203,7 +171,7 @@
     <property name="geometry">
      <rect>
       <x>250</x>
-      <y>165</y>
+      <y>145</y>
       <width>66</width>
       <height>18</height>
      </rect>
@@ -213,7 +181,7 @@
     <property name="geometry">
      <rect>
       <x>315</x>
-      <y>165</y>
+      <y>145</y>
       <width>21</width>
       <height>18</height>
      </rect>
@@ -229,7 +197,7 @@
     <property name="geometry">
      <rect>
       <x>335</x>
-      <y>165</y>
+      <y>145</y>
       <width>66</width>
       <height>18</height>
      </rect>
@@ -239,7 +207,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>165</y>
+      <y>145</y>
       <width>241</width>
       <height>18</height>
      </rect>
@@ -252,8 +220,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>205</y>
-      <width>241</width>
+      <y>170</y>
+      <width>221</width>
       <height>18</height>
      </rect>
     </property>
@@ -268,7 +236,7 @@
     <property name="geometry">
      <rect>
       <x>210</x>
-      <y>45</y>
+      <y>25</y>
       <width>201</width>
       <height>18</height>
      </rect>
@@ -284,7 +252,7 @@
     <property name="geometry">
      <rect>
       <x>210</x>
-      <y>65</y>
+      <y>45</y>
       <width>201</width>
       <height>18</height>
      </rect>
@@ -300,7 +268,7 @@
     <property name="geometry">
      <rect>
       <x>210</x>
-      <y>85</y>
+      <y>65</y>
       <width>201</width>
       <height>18</height>
      </rect>
@@ -316,7 +284,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>105</y>
+      <y>85</y>
       <width>151</width>
       <height>18</height>
      </rect>
@@ -329,33 +297,10 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>105</y>
+      <y>85</y>
       <width>231</width>
       <height>18</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="qqEntityCombo">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>185</y>
-      <width>261</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_10">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>185</y>
-      <width>131</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Entity to detect</string>
     </property>
    </widget>
   </widget>
@@ -363,7 +308,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>300</y>
+     <y>225</y>
      <width>411</width>
      <height>91</height>
     </rect>
@@ -518,7 +463,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>270</y>
+     <y>210</y>
      <width>161</width>
      <height>18</height>
     </rect>
@@ -976,7 +921,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>395</y>
+     <y>320</y>
      <width>161</width>
      <height>18</height>
     </rect>
@@ -1430,16 +1375,45 @@
     <string>Apply to selection</string>
    </property>
   </widget>
+  <widget class="QCheckBox" name="qqShowFog">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>205</y>
+     <width>121</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Show fog if enabled</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="qqLocalLights">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>205</y>
+     <width>101</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Use local lights</string>
+   </property>
+  </widget>
  </widget>
  <tabstops>
-  <tabstop>qqEnabled</tabstop>
   <tabstop>qqExplicitHandling</tabstop>
-  <tabstop>qqExternalInput</tabstop>
-  <tabstop>qqPerspective</tabstop>
   <tabstop>qqIgnoreRGB</tabstop>
-  <tabstop>qqLocalLights</tabstop>
+  <tabstop>qqExternalInput</tabstop>
   <tabstop>qqIgnoreDepth</tabstop>
-  <tabstop>qqShowFog</tabstop>
+  <tabstop>qqPerspective</tabstop>
   <tabstop>qqIgnorePacket1</tabstop>
   <tabstop>qqRenderModeCombo</tabstop>
   <tabstop>qqNearPlane</tabstop>
@@ -1447,16 +1421,18 @@
   <tabstop>qqPerspectiveAngleOrOrthographicSize</tabstop>
   <tabstop>qqResX</tabstop>
   <tabstop>qqResY</tabstop>
-  <tabstop>qqEntityCombo</tabstop>
   <tabstop>qqAdjustImageColor</tabstop>
+  <tabstop>qqLocalLights</tabstop>
+  <tabstop>qqShowFog</tabstop>
   <tabstop>qqApplyMainProperties</tabstop>
   <tabstop>qqSizeX</tabstop>
   <tabstop>qqSizeY</tabstop>
   <tabstop>qqSizeZ</tabstop>
   <tabstop>qqShowNotDetecting</tabstop>
-  <tabstop>qqShowDetecting</tabstop>
   <tabstop>qqCasingColorPassive</tabstop>
+  <tabstop>qqShowDetecting</tabstop>
   <tabstop>qqCasingColorActive</tabstop>
+  <tabstop>qqEnabled</tabstop>
   <tabstop>qqApplyColors</tabstop>
  </tabstops>
  <resources/>

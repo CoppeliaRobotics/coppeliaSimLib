@@ -1,15 +1,11 @@
 #include "apiErrors.h"
 #include "app.h"
 #include "simInternal.h"
-#include "luaScriptFunctions.h"
-#include "threadPool.h"
+#include "threadPool_old.h"
 #include "simStrings.h"
 #include <iostream>
 
-std::string CApiErrors::_c_lastError;
-VMutex _threadBasedFirstCapiErrorAndWarningMutex;
-std::vector<SThreadAndMsg> CApiErrors::_threadBasedFirstCapiWarning;
-std::vector<SThreadAndMsg> CApiErrors::_threadBasedFirstCapiError;
+std::string CApiErrors::_lastWarningOrError;
 
 CApiErrors::CApiErrors()
 {
@@ -19,62 +15,66 @@ CApiErrors::~CApiErrors()
 {
 }
 
-void CApiErrors::setCapiCallErrorMessage(const char* functionName,const char* errMsg)
+void CApiErrors::setLastWarningOrError(const char* functionName,const char* errMsg)
 {
-    setThreadBasedFirstCapiError(errMsg);
-    std::string funcName(functionName);
-    if (funcName.size()>9)
+    std::string funcName;
+    if (functionName!=nullptr)
     {
-        if (funcName.compare(funcName.size()-9,9,"_internal")==0)
-            funcName.assign(funcName.begin(),funcName.end()-9);
+        funcName=functionName;
+        if (funcName.size()>9)
+        {
+            if (funcName.compare(funcName.size()-9,9,"_internal")==0)
+                funcName.assign(funcName.begin(),funcName.end()-9);
+        }
     }
 
     std::string msg(errMsg);
-    msg+=" ("+funcName+")";
+    if (funcName.size()>0)
+        msg+=" ("+funcName+")";
 
-    _c_lastError=msg;
+    _lastWarningOrError=msg;
+
+    // Old:
+    setThreadBasedFirstCapiError_old(errMsg);
 }
 
-void CApiErrors::clearCapiCallErrorMessage()
+std::string CApiErrors::getAndClearLastWarningOrError()
 {
-    _c_lastError.clear();
+    std::string retVal=_lastWarningOrError;
+    _lastWarningOrError.clear();
+    return(retVal);
 }
 
-std::string CApiErrors::getCapiCallErrorMessage()
+// Old:
+// ***********************************************************
+VMutex _threadBasedFirstCapiErrorAndWarningMutex_old;
+std::vector<SThreadAndMsg_old> CApiErrors::_threadBasedFirstCapiWarning_old;
+std::vector<SThreadAndMsg_old> CApiErrors::_threadBasedFirstCapiError_old;
+void CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old()
 {
-    return(_c_lastError);
+    _clearThreadBasedFirstCapiMsg_old(_threadBasedFirstCapiWarning_old);
+    _clearThreadBasedFirstCapiMsg_old(_threadBasedFirstCapiError_old);
 }
-
-void CApiErrors::clearThreadBasedFirstCapiErrorAndWarning()
+void CApiErrors::setThreadBasedFirstCapiWarning_old(const char* msg)
 {
-    _clearThreadBasedFirstCapiMsg(_threadBasedFirstCapiWarning);
-    _clearThreadBasedFirstCapiMsg(_threadBasedFirstCapiError);
+    _setThreadBasedFirstCapiMsg_old(_threadBasedFirstCapiWarning_old,msg);
 }
-
-void CApiErrors::setThreadBasedFirstCapiWarning(const char* msg)
+std::string CApiErrors::getAndClearThreadBasedFirstCapiWarning_old()
 {
-    _setThreadBasedFirstCapiMsg(_threadBasedFirstCapiWarning,msg);
+    return(_getAndClearThreadBasedFirstCapiMsg_old(_threadBasedFirstCapiWarning_old));
 }
-
-std::string CApiErrors::getAndClearThreadBasedFirstCapiWarning()
+void CApiErrors::setThreadBasedFirstCapiError_old(const char* msg)
 {
-    return(_getAndClearThreadBasedFirstCapiMsg(_threadBasedFirstCapiWarning));
+    _setThreadBasedFirstCapiMsg_old(_threadBasedFirstCapiError_old,msg);
 }
-
-void CApiErrors::setThreadBasedFirstCapiError(const char* msg)
+std::string CApiErrors::getAndClearThreadBasedFirstCapiError_old()
 {
-    _setThreadBasedFirstCapiMsg(_threadBasedFirstCapiError,msg);
+    return(_getAndClearThreadBasedFirstCapiMsg_old(_threadBasedFirstCapiError_old));
 }
-
-std::string CApiErrors::getAndClearThreadBasedFirstCapiError()
-{
-    return(_getAndClearThreadBasedFirstCapiMsg(_threadBasedFirstCapiError));
-}
-
-void CApiErrors::_clearThreadBasedFirstCapiMsg(std::vector<SThreadAndMsg>& vect)
+void CApiErrors::_clearThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old>& vect)
 {
     VTHREAD_ID_TYPE threadId=VThread::getCurrentThreadId();
-    _threadBasedFirstCapiErrorAndWarningMutex.lock("");
+    _threadBasedFirstCapiErrorAndWarningMutex_old.lock("");
     for (size_t i=0;i<vect.size();i++)
     {
         if (vect[i].threadId==threadId)
@@ -83,14 +83,13 @@ void CApiErrors::_clearThreadBasedFirstCapiMsg(std::vector<SThreadAndMsg>& vect)
             break;
         }
     }
-    _threadBasedFirstCapiErrorAndWarningMutex.unlock();
+    _threadBasedFirstCapiErrorAndWarningMutex_old.unlock();
 }
-
-void CApiErrors::_setThreadBasedFirstCapiMsg(std::vector<SThreadAndMsg>& vect,const char* msg)
+void CApiErrors::_setThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old>& vect,const char* msg)
 {
     VTHREAD_ID_TYPE threadId=VThread::getCurrentThreadId();
     int index=-1;
-    _threadBasedFirstCapiErrorAndWarningMutex.lock("");
+    _threadBasedFirstCapiErrorAndWarningMutex_old.lock("");
     for (size_t i=0;i<vect.size();i++)
     {
         if (vect[i].threadId==threadId)
@@ -101,20 +100,19 @@ void CApiErrors::_setThreadBasedFirstCapiMsg(std::vector<SThreadAndMsg>& vect,co
     }
     if (index==-1)
     {
-        SThreadAndMsg v;
+        SThreadAndMsg_old v;
         v.threadId=threadId;
         v.message=msg;
         vect.push_back(v);
     }
-    _threadBasedFirstCapiErrorAndWarningMutex.unlock();
+    _threadBasedFirstCapiErrorAndWarningMutex_old.unlock();
 }
-
-std::string CApiErrors::_getAndClearThreadBasedFirstCapiMsg(std::vector<SThreadAndMsg>& vect)
+std::string CApiErrors::_getAndClearThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old>& vect)
 {
     std::string retVal;
     VTHREAD_ID_TYPE threadId=VThread::getCurrentThreadId();
     int index=-1;
-    _threadBasedFirstCapiErrorAndWarningMutex.lock("");
+    _threadBasedFirstCapiErrorAndWarningMutex_old.lock("");
     for (size_t i=0;i<vect.size();i++)
     {
         if (vect[i].threadId==threadId)
@@ -128,6 +126,7 @@ std::string CApiErrors::_getAndClearThreadBasedFirstCapiMsg(std::vector<SThreadA
         retVal=vect[size_t(index)].message;
         vect.erase(vect.begin()+size_t(index));
     }
-    _threadBasedFirstCapiErrorAndWarningMutex.unlock();
+    _threadBasedFirstCapiErrorAndWarningMutex_old.unlock();
     return(retVal);
 }
+// ***********************************************************

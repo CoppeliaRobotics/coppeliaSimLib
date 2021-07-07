@@ -14,7 +14,7 @@
 #include "vVarious.h"
 #include "easyLock.h"
 #include "mesh.h"
-#include "threadPool.h"
+#include "threadPool_old.h"
 #include "volInt.h"
 #include "graphingRoutines_old.h"
 #include "simStringTable_openGl.h"
@@ -274,7 +274,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             if (cmd.cmdId==CALL_USER_CONFIG_CALLBACK_CMD)
             {
-                CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(cmd.intParams[0]);
+                CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(cmd.intParams[0]);
                 if ( (script!=nullptr)&&(script->getContainsUserConfigCallbackFunction()) )
                 { // we have a user config callback
                     CInterfaceStack stack;
@@ -301,7 +301,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 if (App::getEditModeType()==NO_EDIT_MODE)
                 {
-                    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(cmd.intParams[0]);
+                    CScriptObject* it=App::worldContainer->getScriptFromHandle(cmd.intParams[0]);
                     if ((it!=nullptr)&&(App::mainWindow!=nullptr))
                     {
                         if (it->getScriptType()==sim_scripttype_customizationscript)
@@ -848,12 +848,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
         }
-        if (cmd.cmdId==SET_ENTITYTODETECT_VISIONSENSORGUITRIGGEREDCMD)
-        {
-            CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-                it->setDetectableEntityHandle(cmd.intParams[1]);
-        }
         if (cmd.cmdId==TOGGLE_IGNORERGB_VISIONSENSORGUITRIGGEREDCMD)
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
@@ -1365,12 +1359,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     }
                 }
             }
-        }
-        if (cmd.cmdId==SET_ENTITYTODETECT_PROXSENSORGUITRIGGEREDCMD)
-        {
-            CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-                it->setSensableObject(cmd.intParams[1]);
         }
         if (cmd.cmdId==APPLY_VISUALPROP_PROXSENSORGUITRIGGEREDCMD)
         {
@@ -3478,7 +3466,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
+            CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
             if (script!=nullptr)
             {
                 if (App::mainWindow!=nullptr)
@@ -3489,7 +3477,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==TOGGLE_DISABLED_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptID);
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptID);
             if (it!=nullptr)
             {
                 if (it->getScriptType()==sim_scripttype_customizationscript)
@@ -3500,30 +3488,30 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==TOGGLE_EXECUTEONCE_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
+            CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
             if ((it!=nullptr)&&it->getThreadedExecution_oldThreads())
                 it->setExecuteJustOnce_oldThreads(!it->getExecuteJustOnce_oldThreads());
         }
         if (cmd.cmdId==SET_EXECORDER_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptID);
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptID);
             if (it!=nullptr)
                 it->setExecutionPriority(cmd.intParams[1]);
         }
         if (cmd.cmdId==SET_TREETRAVERSALDIR_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptID);
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptID);
             if (it!=nullptr)
                 it->setTreeTraversalDirection(cmd.intParams[1]);
         }
         if (cmd.cmdId==SET_DEBUGMODE_SCRIPTGUITRIGGEREDCMD)
         {
             int scriptID=cmd.intParams[0];
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptID);
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptID);
             if (it!=nullptr)
-                it->setDebugLevel(cmd.intParams[1]);
+                it->setDebugLevel_old(cmd.intParams[1]);
         }
         if (cmd.cmdId==SET_ALL_SCRIPTSIMULPARAMETERGUITRIGGEREDCMD)
         {
@@ -3652,6 +3640,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->removeAllStatics();
+        }
+        if (cmd.cmdId==REMOVE_ALLCURVES_GRAPHGUITRIGGEREDCMD)
+        {
+            CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+            if (it!=nullptr)
+                it->removeAllStreamsAndCurves();
         }
         if (cmd.cmdId==SET_VALUERAWSTATE_GRAPHGUITRIGGEREDCMD)
         {

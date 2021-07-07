@@ -58,7 +58,6 @@ public:
     bool test1;
     bool orderHierarchyAlphabetically;
     int macChildDialogType;
-    bool useExternalLuaLibrary;
 
     int undoRedoLevelCount;
     int undoRedoMaxBufferSize;

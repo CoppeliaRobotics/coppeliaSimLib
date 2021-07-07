@@ -1,6 +1,6 @@
 #pragma once
 
-#include "luaCustomFuncAndVarContainer.h"
+#include "scriptCustomFuncAndVarContainer.h"
 #include "persistentDataContainer.h"
 #include "copyBuffer.h"
 #include "addOnScriptContainer.h"
@@ -37,7 +37,7 @@ public:
     bool switchToWorld(int worldIndex);
     bool isWorldSwitchingLocked() const;
     void getAllSceneNames(std::vector<std::string>& l) const;
-    CLuaScriptObject* getScriptFromHandle(int scriptHandle) const;
+    CScriptObject* getScriptFromHandle(int scriptHandle) const;
     void callScripts(int callType,CInterfaceStack* inStack);
 
     void simulationAboutToStart();
@@ -55,10 +55,10 @@ public:
     CSimulatorMessageQueue* simulatorMessageQueue;
     CCalculationInfo* calcInfo;
     CInterfaceStackContainer* interfaceStackContainer;
-    CLuaCustomFuncAndVarContainer* luaCustomFuncAndVarContainer;
+    CScriptCustomFuncAndVarContainer* scriptCustomFuncAndVarContainer;
     CCustomData* customAppData;
     CAddOnScriptContainer* addOnScriptContainer;
-    CLuaScriptObject* sandboxScript;
+    CScriptObject* sandboxScript;
 #ifdef SIM_WITH_GUI
     CGlobalGuiTextureContainer* globalGuiTextureCont;
 #endif

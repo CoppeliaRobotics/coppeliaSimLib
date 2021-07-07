@@ -515,7 +515,7 @@ bool CPluginContainer::unloadPlugin(int handle)
             it->endAddress();
             std::string nm(it->getName());
             _removePlugin(handle);
-            App::worldContainer->luaCustomFuncAndVarContainer->announcePluginWasKilled(nm.c_str());
+            App::worldContainer->scriptCustomFuncAndVarContainer->announcePluginWasKilled(nm.c_str());
             retVal=true;
         }
         else

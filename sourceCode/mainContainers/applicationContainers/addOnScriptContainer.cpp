@@ -1,7 +1,7 @@
 #include "simInternal.h"
 #include "tt.h"
 #include "vVarious.h"
-#include "threadPool.h"
+#include "threadPool_old.h"
 #include "vFileFinder.h"
 #include "simStrings.h"
 #include "app.h"
@@ -36,7 +36,7 @@ void CAddOnScriptContainer::simulationAboutToEnd()
         _addOns[i]->simulationAboutToEnd();
 }
 
-CLuaScriptObject* CAddOnScriptContainer::getAddOnFromID(int scriptID) const
+CScriptObject* CAddOnScriptContainer::getAddOnFromID(int scriptID) const
 {
     for (size_t i=0;i<_addOns.size();i++)
     {
@@ -46,7 +46,7 @@ CLuaScriptObject* CAddOnScriptContainer::getAddOnFromID(int scriptID) const
     return(nullptr);
 }
 
-CLuaScriptObject* CAddOnScriptContainer::getAddOnFromName(const char* name) const
+CScriptObject* CAddOnScriptContainer::getAddOnFromName(const char* name) const
 {
     for (size_t i=0;i<_addOns.size();i++)
     {
@@ -56,7 +56,7 @@ CLuaScriptObject* CAddOnScriptContainer::getAddOnFromName(const char* name) cons
     return(nullptr);
 }
 
-int CAddOnScriptContainer::_insertAddOn(CLuaScriptObject* script)
+int CAddOnScriptContainer::_insertAddOn(CScriptObject* script)
 {
     // We make sure the id is unique:
     int newHandle=SIM_IDSTART_ADDONSCRIPT;
@@ -98,7 +98,7 @@ int CAddOnScriptContainer::_insertAddOns()
         {
             std::string fp(App::folders->getExecutablePath()+"/");
             fp+=foundItem->name;
-            CLuaScriptObject* defScript=new CLuaScriptObject(sim_scripttype_addonscript);
+            CScriptObject* defScript=new CScriptObject(sim_scripttype_addonscript);
             if (defScript->setScriptTextFromFile(fp.c_str()))
             {
                 _insertAddOn(defScript);
@@ -107,7 +107,7 @@ int CAddOnScriptContainer::_insertAddOns()
                 nm.erase(nm.end()-strlen(ADDON_EXTENTION)-1,nm.end());
                 defScript->setAddOnName(nm.c_str());
                 if ( (at.compare(ADDON_SCRIPT_PREFIX1_NOAUTOSTART)==0)||(at.compare(ADDON_SCRIPT_PREFIX2_NOAUTOSTART)==0) )
-                    defScript->setScriptState(CLuaScriptObject::scriptState_ended);
+                    defScript->setScriptState(CScriptObject::scriptState_ended);
                 App::logMsg(sim_verbosity_infos,"add-on '%s' was loaded.",foundItem->name.c_str());
                 addOnsCount++;
             }
@@ -151,7 +151,7 @@ int CAddOnScriptContainer::_insertAddOns()
                 for (int i=0;i<int(archiveLength);i++)
                     archive >> script[i];
                 script[archiveLength]=0;
-                CLuaScriptObject* defScript=new CLuaScriptObject(sim_scripttype_addonscript);
+                CScriptObject* defScript=new CScriptObject(sim_scripttype_addonscript);
                 _insertAddOn(defScript);
                 std::string sc(script);
                 size_t p=0;
@@ -237,7 +237,7 @@ int CAddOnScriptContainer::callScripts(int callType,CInterfaceStack* inStack,CIn
     int retVal=0;
     for (size_t i=0;i<_addOns.size();i++)
     {
-        CLuaScriptObject* it=_addOns[i];
+        CScriptObject* it=_addOns[i];
         if (it->systemCallScript(callType,inStack,outStack)==1)
             retVal++;
     }
@@ -251,10 +251,10 @@ bool CAddOnScriptContainer::_removeAddOn(int scriptID)
     {
         if (_addOns[i]->getScriptHandle()==scriptID)
         {
-            CLuaScriptObject* it=_addOns[i];
+            CScriptObject* it=_addOns[i];
             it->resetScript(); // should not be done in the destructor!
             _addOns.erase(_addOns.begin()+i);
-            CLuaScriptObject::destroy(it,true);
+            CScriptObject::destroy(it,true);
             break;
         }
     }
@@ -266,10 +266,10 @@ void CAddOnScriptContainer::removeAllAddOns()
 {
     while (_addOns.size()>0)
     {
-        CLuaScriptObject* it=_addOns[0];
+        CScriptObject* it=_addOns[0];
         it->resetScript(); // should not be done in the destructor!
         _addOns.erase(_addOns.begin());
-        CLuaScriptObject::destroy(it,true);
+        CScriptObject::destroy(it,true);
     }
 }
 
@@ -281,7 +281,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             int index=commandID-SCRIPT_CONT_COMMANDS_ADDON_SCRIPT_MENU_ITEM_START_SCCMD;
             int cnt=0;
-            CLuaScriptObject* it=nullptr;
+            CScriptObject* it=nullptr;
             for (size_t i=0;i<_addOns.size();i++)
             {
                 it=_addOns[i];
@@ -297,14 +297,14 @@ bool CAddOnScriptContainer::processCommand(int commandID)
             {
                 int st=it->getScriptState();
                 int sysCall=-1;
-                if ( ((st&CLuaScriptObject::scriptState_error)!=0)||((st&7)!=CLuaScriptObject::scriptState_initialized) )
+                if ( ((st&CScriptObject::scriptState_error)!=0)||((st&7)!=CScriptObject::scriptState_initialized) )
                 {
                     sysCall=sim_syscb_init;
                     it->resetScript();
                 }
-                if (st==(CLuaScriptObject::scriptState_initialized|CLuaScriptObject::scriptState_suspended))
+                if (st==(CScriptObject::scriptState_initialized|CScriptObject::scriptState_suspended))
                     sysCall=sim_syscb_aos_resume;
-                if (st==CLuaScriptObject::scriptState_initialized)
+                if (st==CScriptObject::scriptState_initialized)
                     sysCall=sim_syscb_aos_suspend;
                 if (sysCall!=-1)
                     it->systemCallScript(sysCall,nullptr,nullptr,true);
@@ -362,7 +362,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                         for (int i=0;i<int(archiveLength);i++)
                             archive >> script[i];
                         script[archiveLength]=0;
-                        CLuaScriptObject* defScript=new CLuaScriptObject(sim_scripttype_addonfunction);
+                        CScriptObject* defScript=new CScriptObject(sim_scripttype_addonfunction);
                         int scriptID=_insertAddOn(defScript);
                         defScript->setScriptText(script);
                         defScript->setAddOnName(_allAddOnFunctionNames_old[index].c_str());
@@ -401,17 +401,17 @@ void CAddOnScriptContainer::addMenu(VMenu* menu)
     int id=SCRIPT_CONT_COMMANDS_ADDON_SCRIPT_MENU_ITEM_START_SCCMD;
     for (size_t i=0;i<_addOns.size();i++)
     {
-        CLuaScriptObject* it=_addOns[i];
+        CScriptObject* it=_addOns[i];
         if (it->getScriptType()==sim_scripttype_addonscript)
         {
             int st=it->getScriptState();
             std::string txt;
             txt=it->getAddOnName();
-            if (st==CLuaScriptObject::scriptState_initialized)
+            if (st==CScriptObject::scriptState_initialized)
                 txt+=" (running)";
-            if ((st&CLuaScriptObject::scriptState_error)!=0)
+            if ((st&CScriptObject::scriptState_error)!=0)
                 txt+=" (error)";
-            if ((st&CLuaScriptObject::scriptState_suspended)!=0)
+            if ((st&CScriptObject::scriptState_suspended)!=0)
                 txt+=" (suspended)";
             menu->appendMenuItem(true,false,id,txt.c_str());
             id++;

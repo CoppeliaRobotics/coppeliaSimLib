@@ -9,7 +9,7 @@
 #include "vDateTime.h"
 #include "vVarious.h"
 #include "ttUtil.h"
-#include "threadPool.h"
+#include "threadPool_old.h"
 #include "easyLock.h"
 #include "app.h"
 #include "pluginContainer.h"
@@ -2261,10 +2261,10 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         }
     }
 
-    CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+    CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
     if ( (script!=nullptr)&&(!script->getContainsVisionCallbackFunction()) )
         script=nullptr;
-    CLuaScriptObject* cScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
+    CScriptObject* cScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
     if ( (cScript!=nullptr)&&(!cScript->getContainsVisionCallbackFunction()) )
         cScript=nullptr;
     if ( (script!=nullptr)||(cScript!=nullptr) )

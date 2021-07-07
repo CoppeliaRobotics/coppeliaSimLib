@@ -1,6 +1,6 @@
 #include "interfaceStackInteger.h"
 
-CInterfaceStackInteger::CInterfaceStackInteger(luaWrap_lua_Integer theValue)
+CInterfaceStackInteger::CInterfaceStackInteger(long long int theValue)
 {
     _objectType=STACK_OBJECT_INTEGER;
     _value=theValue;
@@ -10,7 +10,7 @@ CInterfaceStackInteger::~CInterfaceStackInteger()
 {
 }
 
-luaWrap_lua_Integer CInterfaceStackInteger::getValue() const
+long long int CInterfaceStackInteger::getValue() const
 {
     return(_value);
 }
@@ -56,8 +56,8 @@ unsigned int CInterfaceStackInteger::createFromData(const char* data)
 
 bool CInterfaceStackInteger::checkCreateFromData(const char* data,unsigned int& w,unsigned int l)
 {
-    if (l<sizeof(luaWrap_lua_Integer))
+    if (l<sizeof(long long int))
         return(false);
-    w=sizeof(luaWrap_lua_Integer);
+    w=sizeof(long long int);
     return(true);
 }

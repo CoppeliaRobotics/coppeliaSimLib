@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>318</height>
+    <height>268</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,8 +23,8 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>10</y>
-     <width>281</width>
+     <y>240</y>
+     <width>211</width>
      <height>18</height>
     </rect>
    </property>
@@ -39,9 +39,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>35</y>
+     <y>10</y>
      <width>411</width>
-     <height>91</height>
+     <height>81</height>
     </rect>
    </property>
    <property name="title">
@@ -89,34 +89,11 @@
      </rect>
     </property>
    </widget>
-   <widget class="QComboBox" name="qqEntityToDetect">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>45</y>
-      <width>261</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>45</y>
-      <width>131</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Entity to detect</string>
-    </property>
-   </widget>
    <widget class="QToolButton" name="qqAdjustVolume">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>65</y>
+      <y>50</y>
       <width>191</width>
       <height>18</height>
      </rect>
@@ -135,7 +112,7 @@
     <property name="geometry">
      <rect>
       <x>210</x>
-      <y>65</y>
+      <y>50</y>
       <width>191</width>
       <height>18</height>
      </rect>
@@ -152,7 +129,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>170</y>
+     <y>125</y>
      <width>411</width>
      <height>111</height>
     </rect>
@@ -287,7 +264,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>130</y>
+     <y>100</y>
      <width>161</width>
      <height>18</height>
     </rect>
@@ -745,7 +722,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>285</y>
+     <y>240</y>
      <width>161</width>
      <height>18</height>
     </rect>
@@ -1204,7 +1181,6 @@
   <tabstop>qqEnableAll</tabstop>
   <tabstop>qqExplicitHandling</tabstop>
   <tabstop>qqSensorTypeCombo</tabstop>
-  <tabstop>qqEntityToDetect</tabstop>
   <tabstop>qqAdjustVolume</tabstop>
   <tabstop>qqAdjustDetectionParams</tabstop>
   <tabstop>qqApplyMain</tabstop>

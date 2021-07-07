@@ -61,7 +61,7 @@ public:
                                                     std::vector<CIkGroup_old*>* loadedIkGroupList,
                                                     std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
                                                     std::vector<CButtonBlock*>* loadedButtonBlockList,
-                                                    std::vector<CLuaScriptObject*>* loadedLuaScriptList,
+                                                    std::vector<CScriptObject*>* loadedLuaScriptList,
                                                     std::vector<CTextureObject*>& loadedTextureObjectList,
                                                     std::vector<CDynMaterialObject*>& loadedDynMaterialObjectList,
                                                     bool model,int fileSimVersion,bool forceModelAsCopy);
@@ -133,7 +133,7 @@ private:
         std::vector<CIkGroup_old*>* loadedIkGroupList,
         std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
         std::vector<CButtonBlock*>* loadedButtonBlockList,
-        std::vector<CLuaScriptObject*>* loadedLuaScriptList) const;
+        std::vector<CScriptObject*>* loadedLuaScriptList) const;
     bool _canSuffix1BeSetToSuffix2(int suffix1,int suffix2) const;
     void _setSuffix1ToSuffix2(int suffix1,int suffix2);
 

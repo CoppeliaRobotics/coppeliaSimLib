@@ -75,6 +75,7 @@ void CQDlgGraphs::refresh()
     ui->qqObjectSize->setEnabled(sel&&noEditModeAndNoSim);
     ui->qqBufferIsCyclic->setEnabled(sel&&noEditModeAndNoSim);
     ui->qqBufferSize->setEnabled(sel&&noEditModeAndNoSim);
+    ui->qqRemoveAll->setEnabled(sel&&noEditModeAndNoSim);
     ui->qqRemoveAllStatics->setEnabled(sel&&noEditModeAndNoSim);
 
     ui->qqAdjustBackgroundColor->setEnabled(sel&&noEditModeAndNoSim);
@@ -509,5 +510,16 @@ void CQDlgGraphs::on_qqEdit3DCurves_clicked()
         CGraph* it=App::currentWorld->sceneObjects->getLastSelectionGraph();
         if (it!=nullptr)
             CQDlg2D3DGraphProperties::display(it->getObjectHandle(),false,App::mainWindow);
+    }
+}
+
+
+void CQDlgGraphs::on_qqRemoveAll_clicked()
+{
+    IF_UI_EVENT_CAN_READ_DATA
+    {
+        App::appendSimulationThreadCommand(REMOVE_ALLCURVES_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }

@@ -57,6 +57,7 @@ void CQDlgVisionSensors::refresh()
     ui->qqLocalLights->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqLocalLights->setVisible(App::userSettings->showOldDlgs);
 
+    ui->qqShowFog->setVisible(App::userSettings->showOldDlgs);
     ui->qqShowFog->setEnabled(isSensor&&noEditModeAndNoSim);
 
     ui->qqShowNotDetecting->setEnabled(isSensor&&noEditModeAndNoSim);
@@ -69,6 +70,7 @@ void CQDlgVisionSensors::refresh()
     ui->qqCasingColorPassive->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqCasingColorActive->setEnabled(isSensor&&noEditModeAndNoSim);
 
+    ui->qqEnabled->setVisible(App::userSettings->showOldDlgs);
     ui->qqEnabled->setChecked(App::currentWorld->mainSettings->visionSensorsEnabled);
 
     ui->qqApplyMainProperties->setEnabled(isSensor&&manySensors&&noEditModeAndNoSim);
@@ -78,9 +80,6 @@ void CQDlgVisionSensors::refresh()
 
     ui->qqRenderModeCombo->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqRenderModeCombo->clear();
-
-    ui->qqEntityCombo->setEnabled(isSensor&&noEditModeAndNoSim);
-    ui->qqEntityCombo->clear();
 
     if (isSensor)
     {
@@ -134,82 +133,6 @@ void CQDlgVisionSensors::refresh()
             if (ui->qqRenderModeCombo->itemData(i).toInt()==it->getRenderMode())
             {
                 ui->qqRenderModeCombo->setCurrentIndex(i);
-                break;
-            }
-        }
-
-        ui->qqEntityCombo->addItem(IDS_ALL_RENDERABLE_OBJECTS_IN_SCENE,QVariant(-1));
-
-        std::vector<std::string> names;
-        std::vector<int> ids;
-
-        // Now collections:
-        for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
-        {
-            CCollection* it=App::currentWorld->collections->getObjectFromIndex(i);
-            std::string name(tt::decorateString("[",IDSN_COLLECTION,"] "));
-            name+=it->getCollectionName();
-            names.push_back(name);
-            ids.push_back(it->getCollectionHandle());
-        }
-        tt::orderStrings(names,ids);
-        for (size_t i=0;i<names.size();i++)
-            ui->qqEntityCombo->addItem(names[i].c_str(),QVariant(ids[i]));
-
-        names.clear();
-        ids.clear();
-
-        // Now shapes:
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
-        {
-            CShape* it=App::currentWorld->sceneObjects->getShapeFromIndex(i);
-            std::string name(tt::decorateString("[",IDSN_SHAPE,"] "));
-            name+=it->getObjectAlias_printPath();
-            names.push_back(name);
-            ids.push_back(it->getObjectHandle());
-        }
-        tt::orderStrings(names,ids);
-        for (int i=0;i<int(names.size());i++)
-            ui->qqEntityCombo->addItem(names[i].c_str(),QVariant(ids[i]));
-
-        names.clear();
-        ids.clear();
-
-        // Now paths:
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getPathCount();i++)
-        {
-            CPath_old* it=App::currentWorld->sceneObjects->getPathFromIndex(i);
-            std::string name(tt::decorateString("[",IDSN_PATH,"] "));
-            name+=it->getObjectAlias_printPath();
-            names.push_back(name);
-            ids.push_back(it->getObjectHandle());
-        }
-        tt::orderStrings(names,ids);
-        for (int i=0;i<int(names.size());i++)
-            ui->qqEntityCombo->addItem(names[i].c_str(),QVariant(ids[i]));
-
-        names.clear();
-        ids.clear();
-
-        // Now graphs:
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getGraphCount();i++)
-        {
-            CGraph* it=App::currentWorld->sceneObjects->getGraphFromIndex(i);
-            std::string name(tt::decorateString("[",IDSN_GRAPH,"] "));
-            name+=it->getObjectAlias_printPath();
-            names.push_back(name);
-            ids.push_back(it->getObjectHandle());
-        }
-        tt::orderStrings(names,ids);
-        for (int i=0;i<int(names.size());i++)
-            ui->qqEntityCombo->addItem(names[i].c_str(),QVariant(ids[i]));
-
-        // Select current item:
-        for (int i=0;i<ui->qqEntityCombo->count();i++)
-        {
-            if (ui->qqEntityCombo->itemData(i).toInt()==it->getDetectableEntityHandle())
-            {
-                ui->qqEntityCombo->setCurrentIndex(i);
                 break;
             }
         }
@@ -644,33 +567,6 @@ void CQDlgVisionSensors::on_qqApplyColors_clicked()
             }
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-    }
-}
-
-void CQDlgVisionSensors::on_qqEntityCombo_currentIndexChanged(int index)
-{
-    if (!inMainRefreshRoutine)
-    {
-        IF_UI_EVENT_CAN_WRITE_DATA
-        {
-            int objID=ui->qqEntityCombo->itemData(ui->qqEntityCombo->currentIndex()).toInt();
-            CVisionSensor* it=App::currentWorld->sceneObjects->getLastSelectionVisionSensor();
-            if ( (it!=nullptr)&&(objID!=-1) )
-            {
-                bool displayWarning=false;
-                if ((objID<SIM_IDSTART_COLLECTION)&&(objID>=0))
-                {
-                    CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
-                    if (it2!=nullptr)
-                        displayWarning|=((it2->getLocalObjectSpecialProperty()&sim_objectspecialproperty_renderable)==0);
-                }
-                if (displayWarning)
-                    App::uiThread->messageBox_warning(App::mainWindow,"Scene object",IDS_OBJECT_NOT_RENDERABLE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-            }
-            App::appendSimulationThreadCommand(SET_ENTITYTODETECT_VISIONSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),objID);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }

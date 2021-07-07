@@ -1,6 +1,6 @@
 #pragma once
 
-#include "luaScriptObject.h"
+#include "scriptObject.h"
 #include "broadcastDataContainer.h"
 #include "simInternal.h"
 
@@ -16,14 +16,14 @@ public:
     void announceObjectWillBeErased(int scriptHandle);
     bool removeScript_safe(int scriptHandle);
     bool removeScript(int scriptHandle);
-    int insertScript(CLuaScriptObject* script);
+    int insertScript(CScriptObject* script);
     int getObjectHandleFromScriptHandle(int scriptHandle) const;
-    CLuaScriptObject* getScriptFromHandle(int scriptHandle) const;
-    CLuaScriptObject* getMainScript() const;
-    CLuaScriptObject* getScriptFromObjectAttachedTo_child(int objectHandle) const;
-    CLuaScriptObject* getScriptFromObjectAttachedTo_customization(int objectHandle) const;
+    CScriptObject* getScriptFromHandle(int scriptHandle) const;
+    CScriptObject* getMainScript() const;
+    CScriptObject* getScriptFromObjectAttachedTo_child(int objectHandle) const;
+    CScriptObject* getScriptFromObjectAttachedTo_customization(int objectHandle) const;
 
-    int getScriptsFromObjectAttachedTo(int objectHandle,std::vector<CLuaScriptObject*>& scripts) const;
+    int getScriptsFromObjectAttachedTo(int objectHandle,std::vector<CScriptObject*>& scripts) const;
     bool doesScriptWithUniqueIdExist(int id) const;
 
     void killAllSimulationLuaStates();
@@ -46,12 +46,12 @@ public:
     void callScripts(int callType,CInterfaceStack* inStack);
     void sceneOrModelAboutToBeSaved(int modelBase);
 
-    std::vector<CLuaScriptObject*> allScripts;
+    std::vector<CScriptObject*> allScripts;
 
     CBroadcastDataContainer broadcastDataContainer;
 
 protected:
-    int _getScriptsToExecute(int scriptType,std::vector<CLuaScriptObject*>& scripts,std::vector<int>& uniqueIds) const;
+    int _getScriptsToExecute(int scriptType,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds) const;
 
     std::vector<SScriptCallBack*> _callbackStructureToDestroyAtEndOfSimulation_new;
     std::vector<SLuaCallBack*> _callbackStructureToDestroyAtEndOfSimulation_old;

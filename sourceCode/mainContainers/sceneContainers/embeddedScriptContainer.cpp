@@ -2,7 +2,7 @@
 #include "embeddedScriptContainer.h"
 #include "tt.h"
 #include "vVarious.h"
-#include "threadPool.h"
+#include "threadPool_old.h"
 #include "vFileFinder.h"
 #include "simStrings.h"
 #include "app.h"
@@ -105,11 +105,11 @@ int CEmbeddedScriptContainer::removeDestroyedScripts(int scriptType)
             if ( (!allScripts[i]->getThreadedExecution_oldThreads())||(!allScripts[i]->getThreadedExecutionIsUnderWay_oldThreads()) )
             {
                 retVal++;
-                CLuaScriptObject* it=allScripts[i];
+                CScriptObject* it=allScripts[i];
                 it->resetScript(); // should not be done in the destructor!
                 allScripts.erase(allScripts.begin()+i);
                 i--;
-                CLuaScriptObject::destroy(it,true);
+                CScriptObject::destroy(it,true);
             }
         }
     }
@@ -120,7 +120,7 @@ bool CEmbeddedScriptContainer::isContactCallbackFunctionAvailable()
 {
     for (size_t i=0;i<allScripts.size();i++)
     {
-        CLuaScriptObject* it=allScripts[i];
+        CScriptObject* it=allScripts[i];
         if (it->getContainsContactCallbackFunction())
             return(true);
     }
@@ -131,7 +131,7 @@ bool CEmbeddedScriptContainer::isDynCallbackFunctionAvailable()
 {
     for (size_t i=0;i<allScripts.size();i++)
     {
-        CLuaScriptObject* it=allScripts[i];
+        CScriptObject* it=allScripts[i];
         if (it->getContainsDynCallbackFunction())
             return(true);
     }
@@ -143,10 +143,10 @@ void CEmbeddedScriptContainer::removeAllScripts()
     TRACE_INTERNAL;
     while (allScripts.size()>0)
     {
-        CLuaScriptObject* it=allScripts[0];
+        CScriptObject* it=allScripts[0];
         it->resetScript(); // should not be done in the destructor!
         allScripts.erase(allScripts.begin());
-        CLuaScriptObject::destroy(it,true);
+        CScriptObject::destroy(it,true);
     }
 }
 
@@ -178,7 +178,7 @@ void CEmbeddedScriptContainer::announceObjectWillBeErased(int scriptHandle)
 
 bool CEmbeddedScriptContainer::removeScript_safe(int scriptHandle)
 { // removal may happen in a delayed fashion
-    CLuaScriptObject* it=getScriptFromHandle(scriptHandle);
+    CScriptObject* it=getScriptFromHandle(scriptHandle);
     if (it==nullptr)
         return(false);
     int res=it->flagScriptForRemoval();
@@ -196,10 +196,10 @@ bool CEmbeddedScriptContainer::removeScript(int scriptHandle)
     {
         if (allScripts[i]->getScriptHandle()==scriptHandle)
         {
-            CLuaScriptObject* it=allScripts[i];
+            CScriptObject* it=allScripts[i];
             it->resetScript(); // should not be done in the destructor!
             allScripts.erase(allScripts.begin()+i);
-            CLuaScriptObject::destroy(it,true);
+            CScriptObject::destroy(it,true);
             App::worldContainer->setModificationFlag(16384);
             break;
         }
@@ -208,9 +208,9 @@ bool CEmbeddedScriptContainer::removeScript(int scriptHandle)
     return(true);
 }
 
-CLuaScriptObject* CEmbeddedScriptContainer::getScriptFromHandle(int scriptHandle) const
+CScriptObject* CEmbeddedScriptContainer::getScriptFromHandle(int scriptHandle) const
 {
-    CLuaScriptObject* retVal=nullptr;
+    CScriptObject* retVal=nullptr;
     for (size_t i=0;i<allScripts.size();i++)
     {
         if (allScripts[i]->getScriptHandle()==scriptHandle)
@@ -224,13 +224,13 @@ CLuaScriptObject* CEmbeddedScriptContainer::getScriptFromHandle(int scriptHandle
 
 int CEmbeddedScriptContainer::getObjectHandleFromScriptHandle(int scriptHandle) const
 {
-    CLuaScriptObject* script=getScriptFromHandle(scriptHandle);
+    CScriptObject* script=getScriptFromHandle(scriptHandle);
     if (script!=nullptr)
         return(script->getObjectHandleThatScriptIsAttachedTo());
     return(-1);
 }
 
-CLuaScriptObject* CEmbeddedScriptContainer::getScriptFromObjectAttachedTo_child(int objectHandle) const
+CScriptObject* CEmbeddedScriptContainer::getScriptFromObjectAttachedTo_child(int objectHandle) const
 { // used for child scripts
     if (objectHandle<0)
         return(nullptr); // 10/1/2016
@@ -242,7 +242,7 @@ CLuaScriptObject* CEmbeddedScriptContainer::getScriptFromObjectAttachedTo_child(
     return(nullptr);
 }
 
-CLuaScriptObject* CEmbeddedScriptContainer::getScriptFromObjectAttachedTo_customization(int objectHandle) const
+CScriptObject* CEmbeddedScriptContainer::getScriptFromObjectAttachedTo_customization(int objectHandle) const
 { // used for customization scripts
     for (size_t i=0;i<allScripts.size();i++)
     {
@@ -252,10 +252,10 @@ CLuaScriptObject* CEmbeddedScriptContainer::getScriptFromObjectAttachedTo_custom
     return(nullptr);
 }
 
-int CEmbeddedScriptContainer::getScriptsFromObjectAttachedTo(int objectHandle,std::vector<CLuaScriptObject*>& scripts) const
+int CEmbeddedScriptContainer::getScriptsFromObjectAttachedTo(int objectHandle,std::vector<CScriptObject*>& scripts) const
 {
     scripts.clear();
-    CLuaScriptObject* it=getScriptFromObjectAttachedTo_child(objectHandle);
+    CScriptObject* it=getScriptFromObjectAttachedTo_child(objectHandle);
     if (it!=nullptr)
         scripts.push_back(it);
     it=getScriptFromObjectAttachedTo_customization(objectHandle);
@@ -264,7 +264,7 @@ int CEmbeddedScriptContainer::getScriptsFromObjectAttachedTo(int objectHandle,st
     return(int(scripts.size()));
 }
 
-CLuaScriptObject* CEmbeddedScriptContainer::getMainScript() const
+CScriptObject* CEmbeddedScriptContainer::getMainScript() const
 {
     for (size_t i=0;i<allScripts.size();i++)
     {
@@ -274,7 +274,7 @@ CLuaScriptObject* CEmbeddedScriptContainer::getMainScript() const
     return(nullptr);
 }
 
-int CEmbeddedScriptContainer::insertScript(CLuaScriptObject* script)
+int CEmbeddedScriptContainer::insertScript(CScriptObject* script)
 {
     // We make sure the id is unique:
     int newHandle=SIM_IDSTART_LUASCRIPT;
@@ -295,7 +295,7 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,b
 
     if (scriptType==sim_scripttype_mainscript)
     {
-        CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
+        CScriptObject* defScript=new CScriptObject(scriptType);
         retVal=insertScript(defScript);
         defScript->setScriptText(DEFAULT_MAINSCRIPT_CODE);
         filenameAndPath="";
@@ -333,7 +333,7 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,b
                 for (int i=0;i<int(archiveLength);i++)
                     archive >> defaultScript[i];
                 defaultScript[archiveLength]=0;
-                CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
+                CScriptObject* defScript=new CScriptObject(scriptType);
                 retVal=insertScript(defScript);
                 defScript->setScriptText(defaultScript);
                 if (oldThreadedScript)
@@ -349,7 +349,7 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,b
             {
                 VFile::reportAndHandleFileExceptionError(e);
                 char defaultMessage[]="Default script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
-                CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
+                CScriptObject* defScript=new CScriptObject(scriptType);
                 retVal=insertScript(defScript);
                 defScript->setScriptText(defaultMessage);
                 if (oldThreadedScript)
@@ -362,7 +362,7 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,b
         else
         {
             char defaultMessage[]="Default script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
-            CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
+            CScriptObject* defScript=new CScriptObject(scriptType);
             retVal=insertScript(defScript);
             defScript->setScriptText(defaultMessage);
             if (oldThreadedScript)
@@ -381,7 +381,7 @@ void CEmbeddedScriptContainer::callScripts(int callType,CInterfaceStack* inStack
     TRACE_INTERNAL;
     if (!App::currentWorld->simulation->isSimulationStopped())
     {
-        CLuaScriptObject* script=getMainScript();
+        CScriptObject* script=getMainScript();
         if (script!=nullptr)
         {
             script->systemCallMainScript(callType,inStack,nullptr);
@@ -402,7 +402,7 @@ void CEmbeddedScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
         {
             obj=toExplore[toExplore.size()-1];
             toExplore.pop_back();
-            CLuaScriptObject* it=getScriptFromObjectAttachedTo_customization(obj->getObjectHandle());
+            CScriptObject* it=getScriptFromObjectAttachedTo_customization(obj->getObjectHandle());
             if (it!=nullptr)
             {
                 if (it->getCustomizationScriptCleanupBeforeSave_DEPRECATED())
@@ -416,7 +416,7 @@ void CEmbeddedScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
     {
         for (size_t i=0;i<allScripts.size();i++)
         {
-            CLuaScriptObject* it=allScripts[i];
+            CScriptObject* it=allScripts[i];
             if (it->getScriptType()==sim_scripttype_customizationscript)
             {
                 if (it->getCustomizationScriptCleanupBeforeSave_DEPRECATED())
@@ -426,7 +426,7 @@ void CEmbeddedScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
     }
 }
 
-int CEmbeddedScriptContainer::_getScriptsToExecute(int scriptType,std::vector<CLuaScriptObject*>& scripts,std::vector<int>& uniqueIds) const
+int CEmbeddedScriptContainer::_getScriptsToExecute(int scriptType,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds) const
 {
     std::vector<CSceneObject*> orderFirst;
     std::vector<CSceneObject*> orderNormal;
@@ -464,7 +464,7 @@ bool CEmbeddedScriptContainer::doesScriptWithUniqueIdExist(int id) const
 bool CEmbeddedScriptContainer::shouldTemporarilySuspendMainScript()
 {
     bool retVal=false;
-    std::vector<CLuaScriptObject*> scripts;
+    std::vector<CScriptObject*> scripts;
     std::vector<int> uniqueIds;
     _getScriptsToExecute(sim_scripttype_customizationscript,scripts,uniqueIds);
     for (size_t i=0;i<scripts.size();i++)
@@ -483,14 +483,14 @@ int CEmbeddedScriptContainer::handleCascadedScriptExecution(int scriptType,int c
     int cnt=0;
     if (retInfo!=nullptr)
         retInfo[0]=0;
-    std::vector<CLuaScriptObject*> scripts;
+    std::vector<CScriptObject*> scripts;
     std::vector<int> uniqueIds;
     _getScriptsToExecute(scriptType,scripts,uniqueIds);
     for (size_t i=0;i<scripts.size();i++)
     {
         if (doesScriptWithUniqueIdExist(uniqueIds[i]))
         { // the script could have been erased in the mean time
-            CLuaScriptObject* script=scripts[i];
+            CScriptObject* script=scripts[i];
             if (!script->getScriptIsDisabled())
             {
                 if (scriptType==sim_scripttype_customizationscript)

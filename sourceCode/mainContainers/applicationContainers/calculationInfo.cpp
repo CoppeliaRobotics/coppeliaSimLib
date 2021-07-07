@@ -3,7 +3,7 @@
 #include "gV.h"
 #include "tt.h"
 #include "pluginContainer.h"
-#include "threadPool.h"
+#include "threadPool_old.h"
 #include <boost/lexical_cast.hpp>
 #include "simStrings.h"
 #include "vDateTime.h"

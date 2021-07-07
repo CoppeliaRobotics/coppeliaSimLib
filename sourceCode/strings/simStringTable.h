@@ -994,9 +994,6 @@
 
 #define IDS_OBJECTS_NOT_COLLIDABLE_WARNING "One or more selected objects have their 'collidable' property disabled. Make sure you enable that property (in the object common properties dialog) in order for this collision object to be operational."
 #define IDS_OBJECTS_NOT_MEASURABLE_WARNING "One or more selected objects have their 'measurable' property disabled. Make sure you enable that property (in the object common properties dialog) in order for this distance object to be operational."
-#define IDS_OBJECT_NOT_DETECTABLE_WARNING "The selected object has its 'detectable' properties disabled. Make sure you enable those properties (in the object common properties dialog) in order for this proximity sensor to be operational."
-#define IDS_OBJECT_NOT_RENDERABLE_WARNING "The selected object has its 'renderable' property disabled. Make sure you enable this property (in the object common properties dialog) in order for this vision sensor to be operational."
-#define IDS_OBJECT_NOT_CUTTABLE_WARNING "The selected object has its 'cuttable' property disabled. Make sure you enable this property (in the object common properties dialog) in order for this mill to be operational."
 
 #define IDS_WARNING_WHEN_PURE_CONE_NOT_SUPPORTED "The scene contains one or several pure cones that cannot be simulated with currently selected dynamics engine. The cone(s) will be approximated by cylinders for this simulation."
 #define IDS_WARNING_ODE_NOT_USING_QUICKSTEP "You selected not to use the 'quickstep' method. This is only recommended for scenes with very little dynamic content, otherwise you might experience sudden crashes."

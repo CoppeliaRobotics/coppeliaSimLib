@@ -1508,13 +1508,13 @@ int CSceneObject::getScriptExecutionOrder(int scriptType) const
 {
     if (scriptType==sim_scripttype_customizationscript)
     {
-        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
         if (it!=nullptr)
             return(it->getExecutionPriority());
     }
     else if ((scriptType&sim_scripttype_childscript)!=0)
     {
-        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
         if (it!=nullptr)
         {
             if ( it->getThreadedExecution_oldThreads()==((scriptType&sim_scripttype_threaded_old)!=0) )
@@ -1524,10 +1524,10 @@ int CSceneObject::getScriptExecutionOrder(int scriptType) const
     return(sim_scriptexecorder_normal);
 }
 
-int CSceneObject::getScriptsToExecute(int scriptType,int parentTraversalDirection,std::vector<CLuaScriptObject*>& scripts,std::vector<int>& uniqueIds)
+int CSceneObject::getScriptsToExecute(int scriptType,int parentTraversalDirection,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds)
 {
     int cnt=0;
-    CLuaScriptObject* attachedScript=nullptr;
+    CScriptObject* attachedScript=nullptr;
     if (scriptType==sim_scripttype_customizationscript)
         attachedScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
     else if ((scriptType&sim_scripttype_childscript)!=0)

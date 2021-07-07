@@ -1,6 +1,6 @@
 #pragma once
 
-#include "luaScriptObject.h"
+#include "scriptObject.h"
 #ifdef SIM_WITH_GUI
     #include "vMenubar.h"
 #endif
@@ -26,8 +26,8 @@ public:
     void simulationAboutToEnd();
     bool processCommand(int commandID);
     void removeAllAddOns();
-    CLuaScriptObject* getAddOnFromID(int scriptID) const;
-    CLuaScriptObject* getAddOnFromName(const char* name) const;
+    CScriptObject* getAddOnFromID(int scriptID) const;
+    CScriptObject* getAddOnFromName(const char* name) const;
 
     bool shouldTemporarilySuspendMainScript();
     int callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack);
@@ -38,10 +38,10 @@ public:
 
 private:
     bool _removeAddOn(int scriptID);
-    int _insertAddOn(CLuaScriptObject* script);
+    int _insertAddOn(CScriptObject* script);
     int _insertAddOns();
 
-    std::vector<CLuaScriptObject*> _addOns;
+    std::vector<CScriptObject*> _addOns;
 
     // OLD:
     int _prepareAddOnFunctionNames_old();

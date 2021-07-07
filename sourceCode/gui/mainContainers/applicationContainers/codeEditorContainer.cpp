@@ -1,6 +1,5 @@
 #include "codeEditorContainer.h"
 #include "pluginContainer.h"
-#include "luaScriptFunctions.h"
 #include "simInternal.h"
 #include "simStrings.h"
 #include "vVarious.h"
@@ -37,25 +36,10 @@ void CCodeEditorContainer::getKeywords(sim::tinyxml2::XMLDocument* doc,sim::tiny
 void CCodeEditorContainer::getFuncKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,int scriptType,bool threaded)
 {
     std::vector<std::string> t;
-    std::map<std::string,bool> map;
-    pushAllSimFunctionNamesThatStartSame_autoCompletionList("",t,map,scriptType,threaded);
-    App::worldContainer->luaCustomFuncAndVarContainer->pushAllFunctionNamesThatStartSame_autoCompletionList("",t,map);
-    std::sort(t.begin(),t.end());
+    CScriptObject::getMatchingFunctions("",t); // basically all functions
     for (size_t i=0;i<t.size();i++)
     {
-        std::string tip(getSimFunctionCalltip(t[i].c_str(),scriptType,threaded,true));
-        if (tip.size()==0)
-        {
-            for (size_t j=0;j<App::worldContainer->luaCustomFuncAndVarContainer->allCustomFunctions.size();j++)
-            {
-                std::string n=App::worldContainer->luaCustomFuncAndVarContainer->allCustomFunctions[j]->getFunctionName();
-                if (n.compare(t[i].c_str())==0)
-                {
-                    tip=App::worldContainer->luaCustomFuncAndVarContainer->allCustomFunctions[j]->getCallTips();
-                    break;
-                }
-            }
-        }
+        std::string tip(CScriptObject::getFunctionCalltip(t[i].c_str()));
         sim::tinyxml2::XMLElement* itemNode=doc->NewElement("item");
         parentNode->InsertEndChild(itemNode);
         itemNode->SetAttribute("word",t[i].c_str());
@@ -67,10 +51,7 @@ void CCodeEditorContainer::getFuncKeywords(sim::tinyxml2::XMLDocument* doc,sim::
 void CCodeEditorContainer::getVarKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,int scriptType,bool threaded)
 {
     std::vector<std::string> t;
-    std::map<std::string,bool> map;
-    pushAllSimVariableNamesThatStartSame_autoCompletionList("",t,map);
-    App::worldContainer->luaCustomFuncAndVarContainer->pushAllVariableNamesThatStartSame_autoCompletionList("",t,map);
-    std::sort(t.begin(),t.end());
+    CScriptObject::getMatchingConstants("",t); // basically all constants
     for (size_t i=0;i<t.size();i++)
     {
         sim::tinyxml2::XMLElement* itemNode=doc->NewElement("item");
@@ -276,7 +257,7 @@ CCodeEditorContainer::~CCodeEditorContainer()
 int CCodeEditorContainer::openScriptWithExternalEditor(int scriptHandle)
 {
     int retVal=-1;
-    CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
+    CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
     if (it!=nullptr)
     {
         if (!App::currentWorld->environment->getSceneLocked())
@@ -293,7 +274,7 @@ int CCodeEditorContainer::openScriptWithExternalEditor(int scriptHandle)
 
 int CCodeEditorContainer::open(const char* initText,const char* xml,int callingScriptHandle)
 {
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(callingScriptHandle);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(callingScriptHandle);
     int retVal=-1;
     if (CPluginContainer::isCodeEditorPluginAvailable())
     {
@@ -329,7 +310,7 @@ int CCodeEditorContainer::open(const char* initText,const char* xml,int callingS
 int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScriptHandle)
 {
     int retVal=-1;
-    CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
+    CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
     if (it!=nullptr)
     {
         if (!App::currentWorld->environment->getSceneLocked())
@@ -372,7 +353,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                     editorNode->SetAttribute("line-numbers",toBoolStr(true));
                     editorNode->SetAttribute("tab-width",4);
                     editorNode->SetAttribute("is-lua",toBoolStr(true));
-                    editorNode->SetAttribute("lua-search-paths",it->getLuaSearchPath().c_str());
+                    editorNode->SetAttribute("lua-search-paths",it->getSearchPath().c_str());
                     int fontSize=12;
                     #ifdef MAC_SIM
                         fontSize=16; // bigger fonts here
@@ -482,7 +463,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
             if ( (_allEditors[i].scriptHandle==scriptHandle)&&(_allEditors[i].sceneUniqueId==sceneId) )
                 return(_allEditors[i].handle);
         }
-        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
         if (CPluginContainer::isCodeEditorPluginAvailable())
         {
             if (it!=nullptr)
@@ -517,7 +498,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                     editorNode->SetAttribute("line-numbers",toBoolStr(true));
                     editorNode->SetAttribute("tab-width",4);
                     editorNode->SetAttribute("is-lua",toBoolStr(true));
-                    editorNode->SetAttribute("lua-search-paths",it->getLuaSearchPath().c_str());
+                    editorNode->SetAttribute("lua-search-paths",it->getSearchPath().c_str());
                     int fontSize=12;
                     #ifdef MAC_SIM
                         fontSize=16; // bigger fonts here
@@ -728,7 +709,7 @@ bool CCodeEditorContainer::close(int handle,int posAndSize[4],std::string* txt,s
             if (callback!=nullptr)
                 callback[0]=_allEditors[i].callbackFunction;
             std::string _txt;
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
             if (CPluginContainer::codeEditor_getText(handle,_txt,nullptr))
             {
                 if (txt!=nullptr)
@@ -780,7 +761,7 @@ void CCodeEditorContainer::applyChanges(int handle) const
             if ( (_allEditors[i].handle==handle)||(handle==-1) )
             {
                 std::string _txt;
-                CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
+                CScriptObject* it=App::worldContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
                 if (it!=nullptr)
                 {
                     if (CPluginContainer::codeEditor_getText(_allEditors[i].handle,_txt,nullptr))
@@ -800,7 +781,7 @@ bool CCodeEditorContainer::closeFromScriptHandle(int scriptHandle,int posAndSize
             if (_allEditors[i].scriptHandle==scriptHandle)
             {
                 std::string txt;
-                CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+                CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
                 if (!ignoreChange)
                     applyChanges(_allEditors[i].handle);
                 int pas[4];
@@ -839,7 +820,7 @@ void CCodeEditorContainer::restartScript(int handle) const
         if (_allEditors[i].handle==handle)
         {
             std::string txt;
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
             if (CPluginContainer::codeEditor_getText(handle,txt,nullptr))
             {
                 if ( (it!=nullptr)&&(!it->getThreadedExecution_oldThreads()) )
@@ -855,7 +836,7 @@ void CCodeEditorContainer::restartScript(int handle) const
 
 void CCodeEditorContainer::resetScript(int scriptHandle) const
 {
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
     if ( (it!=nullptr)&&it->resetScript() )
     {
         std::string msg(it->getDescriptiveName());
@@ -922,7 +903,7 @@ bool CCodeEditorContainer::hasSomethingBeenModifiedInCurrentScene() const
     {
         if (_allEditors[i].sceneUniqueId==sceneId)
         {
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
             std::string txt;
             if ( (it!=nullptr)&&CPluginContainer::codeEditor_getText(_allEditors[i].handle,txt,nullptr) )
             {
@@ -969,7 +950,7 @@ void CCodeEditorContainer::simulationAboutToStart() const
         {
             if ( (_allEditors[i].sceneUniqueId==sceneId)&&(_allEditors[i].scriptHandle>=0) )
             {
-                CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
+                CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
                 if ( (it!=nullptr)&&((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)) )
                     applyChanges(_allEditors[i].handle);
             }

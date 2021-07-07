@@ -335,7 +335,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
     {
         bool hasScript=false;
         // Child scripts:
-        CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(it->getObjectHandle());
+        CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(it->getObjectHandle());
         if (script!=nullptr)
         {
             hasScript=true;
@@ -367,7 +367,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
         }
 
         // Customization scripts:
-        CLuaScriptObject* customizationScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
+        CScriptObject* customizationScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
         if (customizationScript!=nullptr)
         {
             hasScript=true;
@@ -411,7 +411,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
     }
     else
     { // This is for the main script (pseudo object "world"):
-        CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getMainScript();
+        CScriptObject* script=App::currentWorld->embeddedScriptContainer->getMainScript();
         if (script!=nullptr)
         {
             if (!dontDisplay)

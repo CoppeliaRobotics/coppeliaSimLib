@@ -9,11 +9,10 @@
 #include "tt.h"
 #include "persistentDataContainer.h"
 #include "apiErrors.h"
-#include "luaWrapper.h"
 #include "mesh.h"
 #include "rendering.h"
 #include "simFlavor.h"
-#include "threadPool.h"
+#include "threadPool_old.h"
 #include <sstream>
 #include <iomanip>
 #include <boost/algorithm/string/replace.hpp>
@@ -95,7 +94,7 @@ SIMPLE_VTHREAD_RETURN_TYPE _workThread(SIMPLE_VTHREAD_ARGUMENT_TYPE lpData)
 void App::simulationThreadInit()
 {
     TRACE_INTERNAL;
-    CThreadPool::init();
+    CThreadPool_old::init();
     _canInitSimThread=false;
     VThread::setSimulationMainThreadId();
     srand(VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
@@ -117,7 +116,7 @@ void App::simulationThreadInit()
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
-    App::worldContainer->sandboxScript=new CLuaScriptObject(sim_scripttype_sandboxscript);
+    App::worldContainer->sandboxScript=new CScriptObject(sim_scripttype_sandboxscript);
     App::worldContainer->sandboxScript->setScriptTextFromFile((App::folders->getSystemPath()+"/"+"sandboxScript.txt").c_str());
     App::worldContainer->sandboxScript->systemCallScript(sim_syscb_init,nullptr,nullptr);
     if (_startupScriptString.size()>0)
@@ -138,7 +137,7 @@ void App::simulationThreadDestroy()
 
     App::worldContainer->addOnScriptContainer->removeAllAddOns();
     App::worldContainer->sandboxScript->systemCallScript(sim_syscb_cleanup,nullptr,nullptr);
-    CLuaScriptObject::destroy(App::worldContainer->sandboxScript,true);
+    CScriptObject::destroy(App::worldContainer->sandboxScript,true);
     App::worldContainer->sandboxScript=nullptr;
 
     App::setQuitLevel(1);
@@ -195,7 +194,7 @@ void App::simulationThreadLoop()
     }
     if (App::currentWorld->simulation->isSimulationPaused())
     {
-        CLuaScriptObject* mainScript=App::currentWorld->embeddedScriptContainer->getMainScript();
+        CScriptObject* mainScript=App::currentWorld->embeddedScriptContainer->getMainScript();
         if (mainScript!=nullptr)
         {
             if (mainScript->systemCallMainScript(sim_syscb_suspended,nullptr,nullptr)==0)
@@ -365,8 +364,6 @@ App::App(bool headless)
     #endif
 #endif
 
-    loadExtLuaLibrary(userSettings->useExternalLuaLibrary,headless);
-
 #ifdef SIM_WITH_GUI
     CAuxLibVideo::loadLibrary(headless);
 
@@ -424,7 +421,6 @@ App::~App()
     folders=nullptr;
     delete userSettings;
     userSettings=nullptr;
-    unloadExtLuaLibrary();
 
 #ifdef SIM_WITH_GUI
     CAuxLibVideo::unloadLibrary();
@@ -549,7 +545,7 @@ void App::_runInitializationCallback(void(*initCallBack)())
     if (initCallBack!=nullptr)
         initCallBack(); // this should load all plugins
 
-    App::worldContainer->luaCustomFuncAndVarContainer->outputWarningWithFunctionNamesWithoutPlugin(true);
+    App::worldContainer->scriptCustomFuncAndVarContainer->outputWarningWithFunctionNamesWithoutPlugin(true);
 
     if (CPluginContainer::isGeomPluginAvailable())
         App::logMsg(sim_verbosity_loadinfos,"using the 'Geometric' plugin.");

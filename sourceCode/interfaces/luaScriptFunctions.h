@@ -1,15 +1,9 @@
 #pragma once
 
-#include <map>
 #include "luaWrapper.h"
-#include "vMutex.h"
-#ifndef WIN_SIM
-#include <pthread.h>
-#endif
+#include <vector>
 
-class CLuaScriptObject;
-class CInterfaceStack;
-class CLuaCustomFunction;
+class CScriptCustomFunction;
 
 enum {lua_arg_empty,lua_arg_nil,lua_arg_number,lua_arg_integer,lua_arg_bool,lua_arg_string,lua_arg_function,lua_arg_userdata,lua_arg_table};
 
@@ -28,31 +22,7 @@ struct SLuaVariables
     bool autoComplete;
 };
 
-void registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char const* const functionName,luaWrap_lua_CFunction functionCallback);
-void registerNewLuaFunctions(luaWrap_lua_State* L);
-void prepareNewLuaVariables_onlyRequire(luaWrap_lua_State* L);
-void prepareNewLuaVariables_noRequire(luaWrap_lua_State* L);
-
-void pushCorrectTypeOntoLuaStack(luaWrap_lua_State* L,const std::string& buff);
-int getCorrectType(const std::string& buff);
-
-bool readCustomFunctionDataFromStack(luaWrap_lua_State* L,int ind,int dataType,
-                                     std::vector<char>& inBoolVector,
-                                     std::vector<int>& inIntVector,
-                                     std::vector<float>& inFloatVector,
-                                     std::vector<double>& inDoubleVector,
-                                     std::vector<std::string>& inStringVector,
-                                     std::vector<std::string>& inCharVector,
-                                    std::vector<int>& inInfoVector);
-void writeCustomFunctionDataOntoStack(luaWrap_lua_State* L,int dataType,int dataSize,
-                                      unsigned char* boolData,int& boolDataPos,
-                                      int* intData,int& intDataPos,
-                                      float* floatData,int& floatDataPos,
-                                      double* doubleData,int& doubleDataPos,
-                                      char* stringData,int& stringDataPos,
-                                      char* charData,int& charDataPos);
-
-
+void _registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char const* const functionName,luaWrap_lua_CFunction functionCallback);
 
 void getFloatsFromTable(luaWrap_lua_State* L,int tablePos,int floatCount,float* arrayField);
 void getDoublesFromTable(luaWrap_lua_State* L,int tablePos,int doubleCount,double* arrayField);
@@ -67,24 +37,15 @@ void pushUIntTableOntoStack(luaWrap_lua_State* L,int intCount,const unsigned int
 void pushUCharTableOntoStack(luaWrap_lua_State* L,int intCount,const unsigned char* arrayField);
 void pushStringTableOntoStack(luaWrap_lua_State* L,const std::vector<std::string>& stringTable);
 void pushLStringTableOntoStack(luaWrap_lua_State* L,const std::vector<std::string>& stringTable);
-void insertFloatsIntoTableAlreadyOnStack(luaWrap_lua_State* L,int tablePos,int floatCount,const float* arrayField);
-
 
 int luaToInt(luaWrap_lua_State* L,int pos);
 float luaToFloat(luaWrap_lua_State* L,int pos);
 double luaToDouble(luaWrap_lua_State* L,int pos);
 bool luaToBool(luaWrap_lua_State* L,int pos);
 
-void getScriptTree_mainOr(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scriptHandles);
-void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std::vector<int>& scriptHandles);
-
 void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* warningString,bool cSideErrorOrWarningReporting);
 void _raiseErrorOrYieldIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* errorString,bool cSideErrorReporting);
-
 bool doesEntityExist(luaWrap_lua_State* L,std::string* errStr,int identifier);
-
-
-// Input argument checking:
 bool checkInputArguments(luaWrap_lua_State* L,std::string* errStr,
                          int type1=lua_arg_empty,int type1Cnt_zeroIfNotTable=-2,
                          int type2=lua_arg_empty,int type2Cnt_zeroIfNotTable=-2,
@@ -101,20 +62,31 @@ int checkOneGeneralInputArgument(luaWrap_lua_State* L,int index,
                            int type,int cnt_orZeroIfNotTable,bool optional,bool nilInsteadOfTypeAndCountAllowed,std::string* errStr);
 bool checkOneInputArgument(luaWrap_lua_State* L,int index,int type,std::string* errStr);
 
+int _genericFunctionHandler(luaWrap_lua_State* L,CScriptCustomFunction* func,std::string& raiseErrorWithMsg);
 
-void moduleCommonPart(luaWrap_lua_State* L,int action,std::string* errorString);
-
-
-void appendAllSimFunctionNames_spaceSeparated(std::string& keywords,int scriptType,bool scriptIsThreaded);
-void appendAllSimVariableNames_spaceSeparated(std::string& keywords);
-void pushAllSimFunctionNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m,int scriptType,bool scriptIsThreaded);
-void pushAllSimVariableNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m);
-std::string getSimFunctionCalltip(const char* txt,int scriptType,bool scriptIsThreaded,bool forceDoNotSupportOldApi);
-int isFuncOrConstDeprecated(const char* txt);
-
-
-int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,std::string& raiseErrorWithMsg);
-
+// Old:
+// **********************************************
+void moduleCommonPart_old(luaWrap_lua_State* L,int action,std::string* errorString);
+int getCorrectType_old(const std::string& buff);
+void pushCorrectTypeOntoLuaStack_old(luaWrap_lua_State* L,const std::string& buff);
+void getScriptChain_old(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std::vector<int>& scriptHandles);
+int _genericFunctionHandler_old(luaWrap_lua_State* L,CScriptCustomFunction* func);
+bool readCustomFunctionDataFromStack_old(luaWrap_lua_State* L,int ind,int dataType,
+                                     std::vector<char>& inBoolVector,
+                                     std::vector<int>& inIntVector,
+                                     std::vector<float>& inFloatVector,
+                                     std::vector<double>& inDoubleVector,
+                                     std::vector<std::string>& inStringVector,
+                                     std::vector<std::string>& inCharVector,
+                                    std::vector<int>& inInfoVector);
+void writeCustomFunctionDataOntoStack_old(luaWrap_lua_State* L,int dataType,int dataSize,
+                                      unsigned char* boolData,int& boolDataPos,
+                                      int* intData,int& intDataPos,
+                                      float* floatData,int& floatDataPos,
+                                      double* doubleData,int& doubleDataPos,
+                                      char* stringData,int& stringDataPos,
+                                      char* charData,int& charDataPos);
+// **********************************************
 
 const extern SLuaCommands simLuaCommands[];
 const extern SLuaCommands simLuaCommandsOldApi[];
@@ -125,9 +97,6 @@ const extern SLuaVariables simLuaVariablesOldApi[];
 extern int _simHandleChildScripts(luaWrap_lua_State* L);
 extern int _simHandleSensingChildScripts(luaWrap_lua_State* L);
 extern int _simGenericFunctionHandler(luaWrap_lua_State* L);
-extern int _simOpenModule(luaWrap_lua_State* L);
-extern int _simCloseModule(luaWrap_lua_State* L);
-extern int _simHandleModule(luaWrap_lua_State* L);
 extern int _simHandleDynamics(luaWrap_lua_State* L);
 extern int _simHandleProximitySensor(luaWrap_lua_State* L);
 extern int _simReadProximitySensor(luaWrap_lua_State* L);
@@ -174,7 +143,6 @@ extern int _simSetGraphStreamTransformation(luaWrap_lua_State* L);
 extern int _simDuplicateGraphCurveToStatic(luaWrap_lua_State* L);
 extern int _simAddGraphCurve(luaWrap_lua_State* L);
 extern int _simSetGraphStreamValue(luaWrap_lua_State* L);
-extern int _simGetLastError(luaWrap_lua_State* L);
 extern int _simRefreshDialogs(luaWrap_lua_State* L);
 extern int _simGetModuleName(luaWrap_lua_State* L);
 extern int _simRemoveScript(luaWrap_lua_State* L);
@@ -240,7 +208,6 @@ extern int _simGetObjectUniqueIdentifier(luaWrap_lua_State* L);
 extern int _simSetThreadAutomaticSwitch(luaWrap_lua_State* L);
 extern int _simGetThreadAutomaticSwitch(luaWrap_lua_State* L);
 extern int _simSetThreadSwitchTiming(luaWrap_lua_State* L);
-extern int _simSwitchThread(luaWrap_lua_State* L);
 extern int _simGetThreadSwitchAllowed(luaWrap_lua_State* L);
 extern int _simSetThreadSwitchAllowed(luaWrap_lua_State* L);
 extern int _simSaveImage(luaWrap_lua_State* L);
@@ -307,7 +274,6 @@ extern int _simSetObjectSpecialProperty(luaWrap_lua_State* L);
 extern int _simGetObjectSpecialProperty(luaWrap_lua_State* L);
 extern int _simSetModelProperty(luaWrap_lua_State* L);
 extern int _simGetModelProperty(luaWrap_lua_State* L);
-extern int _simMoveToJointPositions(luaWrap_lua_State* L);
 extern int _simReadForceSensor(luaWrap_lua_State* L);
 extern int _simBreakForceSensor(luaWrap_lua_State* L);
 extern int _simGetShapeVertex(luaWrap_lua_State* L);
@@ -387,8 +353,6 @@ extern int _simReadCustomDataBlockTags(luaWrap_lua_State* L);
 extern int _simGetShapeGeomInfo(luaWrap_lua_State* L);
 extern int _simGetObjectsInTree(luaWrap_lua_State* L);
 extern int _simGetObjects(luaWrap_lua_State* L);
-extern int _simSetObjectSizeValues(luaWrap_lua_State* L);
-extern int _simGetObjectSizeValues(luaWrap_lua_State* L);
 extern int _simScaleObject(luaWrap_lua_State* L);
 extern int _simSetShapeTexture(luaWrap_lua_State* L);
 extern int _simGetShapeTextureId(luaWrap_lua_State* L);
@@ -470,7 +434,6 @@ extern int _simGetClosestPosOnPath(luaWrap_lua_State* L);
 extern int _simInitScript(luaWrap_lua_State* L);
 
 // DEPRECATED
-int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func);
 extern int _simAddStatusbarMessage(luaWrap_lua_State* L);
 extern int _simGetNameSuffix(luaWrap_lua_State* L);
 extern int _simSetNameSuffix(luaWrap_lua_State* L);
@@ -534,8 +497,15 @@ extern int _simInitializePathSearch(luaWrap_lua_State* L);
 extern int _simPerformPathSearchStep(luaWrap_lua_State* L);
 extern int _simSetShapeMassAndInertia(luaWrap_lua_State* L);
 extern int _simGetShapeMassAndInertia(luaWrap_lua_State* L);
-extern int _simMoveToPosition(luaWrap_lua_State* L);
-extern int _simMoveToObject(luaWrap_lua_State* L);
+extern int _sim_moveToPos_1(luaWrap_lua_State* L);
+extern int _sim_moveToPos_2(luaWrap_lua_State* L);
+extern int _sim_moveToJointPos_1(luaWrap_lua_State* L);
+extern int _sim_moveToJointPos_2(luaWrap_lua_State* L);
+extern int _sim_moveToObj_1(luaWrap_lua_State* L);
+extern int _sim_moveToObj_2(luaWrap_lua_State* L);
+extern int _sim_followPath_1(luaWrap_lua_State* L);
+extern int _sim_followPath_2(luaWrap_lua_State* L);
+extern int _sim_del(luaWrap_lua_State* L);
 extern int _simCheckIkGroup(luaWrap_lua_State* L);
 extern int _simCreateIkGroup(luaWrap_lua_State* L);
 extern int _simRemoveIkGroup(luaWrap_lua_State* L);
@@ -557,7 +527,6 @@ extern int _simTubeRead(luaWrap_lua_State* L);
 extern int _simTubeStatus(luaWrap_lua_State* L);
 extern int _simSendData(luaWrap_lua_State* L);
 extern int _simReceiveData(luaWrap_lua_State* L);
-extern int _simFollowPath(luaWrap_lua_State* L);
 extern int _simGetPathPosition(luaWrap_lua_State* L);
 extern int _simSetPathPosition(luaWrap_lua_State* L);
 extern int _simGetPathLength(luaWrap_lua_State* L);
@@ -615,17 +584,10 @@ extern int _simGetObjectConfiguration(luaWrap_lua_State* L);
 extern int _simSetObjectConfiguration(luaWrap_lua_State* L);
 extern int _simGetConfigurationTree(luaWrap_lua_State* L);
 extern int _simSetConfigurationTree(luaWrap_lua_State* L);
-//extern int _simRMLMoveToPosition(luaWrap_lua_State* L);
-//extern int _simRMLMoveToJointPositions(luaWrap_lua_State* L);
-//extern int _simWait(luaWrap_lua_State* L);
-//extern int _simWaitForSignal(luaWrap_lua_State* L);
-//extern int _simSerialPortOpen(luaWrap_lua_State* L);
-//extern int _simSerialPortClose(luaWrap_lua_State* L);
-//extern int _simSerialPortSend(luaWrap_lua_State* L);
-//extern int _simSerialPortRead(luaWrap_lua_State* L);
-//extern int _simBoolOr16(luaWrap_lua_State* L);
-//extern int _simBoolAnd16(luaWrap_lua_State* L);
-//extern int _simBoolXor16(luaWrap_lua_State* L);
-//extern int _simBoolOr32(luaWrap_lua_State* L);
-//extern int _simBoolAnd32(luaWrap_lua_State* L);
-//extern int _simBoolXor32(luaWrap_lua_State* L);
+extern int _simSetObjectSizeValues(luaWrap_lua_State* L);
+extern int _simGetObjectSizeValues(luaWrap_lua_State* L);
+extern int _simOpenModule(luaWrap_lua_State* L);
+extern int _simCloseModule(luaWrap_lua_State* L);
+extern int _simHandleModule(luaWrap_lua_State* L);
+extern int _simGetLastError(luaWrap_lua_State* L);
+extern int _simSwitchThread(luaWrap_lua_State* L);

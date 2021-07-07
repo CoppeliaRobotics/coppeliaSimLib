@@ -1037,14 +1037,6 @@ SIM_DLLEXPORT simInt* simGetObjectsInTree(simInt treeBaseHandle,simInt objectTyp
 {
     return(simGetObjectsInTree_internal(treeBaseHandle,objectType,options,objectCount));
 }
-SIM_DLLEXPORT simInt simSetObjectSizeValues(simInt objectHandle,const simFloat* sizeValues)
-{
-    return(simSetObjectSizeValues_internal(objectHandle,sizeValues));
-}
-SIM_DLLEXPORT simInt simGetObjectSizeValues(simInt objectHandle,simFloat* sizeValues)
-{
-    return(simGetObjectSizeValues_internal(objectHandle,sizeValues));
-}
 SIM_DLLEXPORT simInt simScaleObject(simInt objectHandle,simFloat xScale,simFloat yScale,simFloat zScale,simInt options)
 {
     return(simScaleObject_internal(objectHandle,xScale,yScale,zScale,options));
@@ -2680,6 +2672,14 @@ SIM_DLLEXPORT simInt simSetConfigurationTree(const simChar* data)
 SIM_DLLEXPORT simInt simEnableEventCallback(simInt eventCallbackType,const simChar* plugin,simInt reserved)
 {
     return(simEnableEventCallback_internal(eventCallbackType,plugin,reserved));
+}
+SIM_DLLEXPORT simInt simSetObjectSizeValues(simInt objectHandle,const simFloat* sizeValues)
+{
+    return(simSetObjectSizeValues_internal(objectHandle,sizeValues));
+}
+SIM_DLLEXPORT simInt simGetObjectSizeValues(simInt objectHandle,simFloat* sizeValues)
+{
+    return(simGetObjectSizeValues_internal(objectHandle,sizeValues));
 }
 // Deprecated end
 

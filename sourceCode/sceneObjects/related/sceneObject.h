@@ -26,7 +26,7 @@ struct SCustomOriginalRefs
 class CShape;
 class CCustomData;
 class CViewableBase;
-class CLuaScriptObject;
+class CScriptObject;
 class CInterfaceStack;
 
 class CSceneObject : public _CSceneObject_
@@ -88,7 +88,7 @@ public:
     bool getRestoreToDefaultLights() const;
     
     int getScriptExecutionOrder(int scriptType) const;
-    int getScriptsToExecute(int scriptType,int parentTraversalDirection,std::vector<CLuaScriptObject*>& scripts,std::vector<int>& uniqueIds);
+    int getScriptsToExecute(int scriptType,int parentTraversalDirection,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds);
 
     void scalePosition(float scalingFactor);
     void getAllObjectsRecursive(std::vector<CSceneObject*>* objectList,bool baseIncluded=true,bool start=true) const;

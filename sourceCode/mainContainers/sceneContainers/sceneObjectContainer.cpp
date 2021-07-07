@@ -943,19 +943,19 @@ bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer& ar,CSce
                 obj->setLocalTransformation(localFramePreCorrection*obj->getLocalTransformation());
 
                 // Handle attached child scripts:
-                CLuaScriptObject* childScript=nullptr;
+                CScriptObject* childScript=nullptr;
                 if (ar.xmlPushChildNode("childScript",false))
                 {
-                    childScript=new CLuaScriptObject(sim_scripttype_childscript);
+                    childScript=new CScriptObject(sim_scripttype_childscript);
                     childScript->serialize(ar);
                     ar.xmlPopNode();
                 }
 
                 // Handle attached customization scripts:
-                CLuaScriptObject* customizationScript=nullptr;
+                CScriptObject* customizationScript=nullptr;
                 if (ar.xmlPushChildNode("customizationScript",false))
                 {
-                    customizationScript=new CLuaScriptObject(sim_scripttype_customizationscript);
+                    customizationScript=new CScriptObject(sim_scripttype_customizationscript);
                     customizationScript->serialize(ar);
                     ar.xmlPopNode();
                 }
@@ -1052,7 +1052,7 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer& ar,const CSceneO
         obj->serialize(ar);
     }
 
-    CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(object->getObjectHandle());
+    CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(object->getObjectHandle());
     if (script!=nullptr)
     {
         ar.xmlPushNewNode("childScript");

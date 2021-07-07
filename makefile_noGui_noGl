@@ -42,8 +42,8 @@ CFLAGS += -IsourceCode/shared/mainContainers
 CFLAGS += -IsourceCode/mainContainers/sceneContainers
 CFLAGS += -IsourceCode/shared/mainContainers/sceneContainers
 CFLAGS += -IsourceCode/mainContainers/applicationContainers
-CFLAGS += -IsourceCode/luaScripting
-CFLAGS += -IsourceCode/luaScripting/customLuaFuncAndVar
+CFLAGS += -IsourceCode/scripting
+CFLAGS += -IsourceCode/scripting/customScriptFuncAndVar
 CFLAGS += -IsourceCode/pagesAndViews
 CFLAGS += -IsourceCode/textures
 CFLAGS += -IsourceCode/serialization
@@ -196,13 +196,13 @@ all:
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/visionSensorObjectRelated/simpleFilter.cpp -o simpleFilter.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/visionSensorObjectRelated/composedFilter.cpp -o composedFilter.o
 	gcc $(CFLAGS) -c sourceCode/pathPlanning_old/pathPlanningTask_old.cpp -o pathPlanningTask_old.o
-	gcc $(CFLAGS) -c sourceCode/luaScripting/userParameters.cpp -o userParameters.o
-	gcc $(CFLAGS) -c sourceCode/luaScripting/luaScriptObject.cpp -o luaScriptObject.o
-	gcc $(CFLAGS) -c sourceCode/luaScripting/outsideCommandQueueForScript.cpp -o outsideCommandQueueForScript.o
-	gcc $(CFLAGS) -c sourceCode/luaScripting/luaWrapper.cpp -o luaWrapper.o
-	gcc $(CFLAGS) -c sourceCode/luaScripting/customLuaFuncAndVar/luaCustomFuncAndVarContainer.cpp -o luaCustomFuncAndVarContainer.o
-	gcc $(CFLAGS) -c sourceCode/luaScripting/customLuaFuncAndVar/luaCustomFunction.cpp -o luaCustomFunction.o
-	gcc $(CFLAGS) -c sourceCode/luaScripting/customLuaFuncAndVar/luaCustomVariable.cpp -o luaCustomVariable.o
+	gcc $(CFLAGS) -c sourceCode/scripting/userParameters.cpp -o userParameters.o
+	gcc $(CFLAGS) -c sourceCode/scripting/scriptObject.cpp -o scriptObject.o
+	gcc $(CFLAGS) -c sourceCode/scripting/outsideCommandQueueForScript.cpp -o outsideCommandQueueForScript.o
+	gcc $(CFLAGS) -c sourceCode/scripting/luaWrapper.cpp -o luaWrapper.o
+	gcc $(CFLAGS) -c sourceCode/scripting/customScriptFuncAndVar/scriptCustomFuncAndVarContainer.cpp -o scriptCustomFuncAndVarContainer.o
+	gcc $(CFLAGS) -c sourceCode/scripting/customScriptFuncAndVar/scriptCustomFunction.cpp -o scriptCustomFunction.o
+	gcc $(CFLAGS) -c sourceCode/scripting/customScriptFuncAndVar/scriptCustomVariable.cpp -o scriptCustomVariable.o
 	gcc $(CFLAGS) -c sourceCode/pagesAndViews/pageContainer.cpp -o pageContainer.o
 	gcc $(CFLAGS) -c sourceCode/pagesAndViews/sPage.cpp -o sPage.o
 	gcc $(CFLAGS) -c sourceCode/pagesAndViews/sView.cpp -o sView.o
@@ -283,7 +283,7 @@ all:
 	gcc $(CFLAGS) -c sourceCode/displ/colorObject.cpp -o colorObject.o
 	gcc $(CFLAGS) -c sourceCode/shared/displ/_colorObject_.cpp -o _colorObject_.o
 	gcc $(CFLAGS) -c sourceCode/visual/thumbnail.cpp -o thumbnail.o
-	gcc $(CFLAGS) -c sourceCode/utils/threadPool.cpp -o threadPool.o
+	gcc $(CFLAGS) -c sourceCode/utils/threadPool_old.cpp -o threadPool_old.o
 	gcc $(CFLAGS) -c sourceCode/utils/ttUtil.cpp -o ttUtil.o
 	gcc $(CFLAGS) -c sourceCode/utils/tt.cpp -o tt.o
 	gcc $(CFLAGS) -c sourceCode/utils/confReaderAndWriter.cpp -o confReaderAndWriter.o

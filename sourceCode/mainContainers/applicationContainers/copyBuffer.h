@@ -1,7 +1,7 @@
 #pragma once
 
 #include "sceneObject.h"
-#include "luaScriptObject.h"
+#include "scriptObject.h"
 #include "dynMaterialObject.h"
 
 // old:
@@ -60,7 +60,7 @@ private:
 
     bool _bufferIsFromLockedScene;
     std::vector<CSceneObject*> objectBuffer;
-    std::vector<CLuaScriptObject*> luaScriptBuffer;
+    std::vector<CScriptObject*> luaScriptBuffer;
     std::vector<CTextureObject*> textureObjectBuffer;
 
     // Old:
@@ -73,7 +73,7 @@ private:
 
     // Following buffers are used TEMPORARILY when saving a model. They will always be empty before and after serialization
     std::vector<CSceneObject*> objectBuffer_tempSer;
-    std::vector<CLuaScriptObject*> luaScriptBuffer_tempSer;
+    std::vector<CScriptObject*> luaScriptBuffer_tempSer;
     std::vector<CTextureObject*> textureObjectBuffer_tempSer;
 
     // Old:
@@ -88,7 +88,7 @@ private:
 
     bool _bufferIsFromLockedScene_memorized;
     std::vector<CSceneObject*> objectBuffer_memorized;
-    std::vector<CLuaScriptObject*> luaScriptBuffer_memorized;
+    std::vector<CScriptObject*> luaScriptBuffer_memorized;
     std::vector<CTextureObject*> textureObjectBuffer_memorized;
 
     // Old:

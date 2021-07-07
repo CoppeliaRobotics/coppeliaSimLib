@@ -1,7 +1,7 @@
-#include "simInternal.h"
 #include "luaScriptFunctions.h"
+#include "simInternal.h"
 #include "tt.h"
-#include "threadPool.h"
+#include "threadPool_old.h"
 #include "linMotionRoutines.h"
 #include "pluginContainer.h"
 #include <boost/lexical_cast.hpp>
@@ -20,14 +20,14 @@
 #include "distanceRoutines.h"
 
 #define LUA_START(funcName) \
-    CApiErrors::clearThreadBasedFirstCapiErrorAndWarning(); \
+    CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old(); \
     std::string functionName(funcName); \
     std::string errorString; \
     std::string warningString; \
     bool cSideErrorOrWarningReporting=true;
 
 #define LUA_START_NO_CSIDE_ERROR(funcName) \
-    CApiErrors::clearThreadBasedFirstCapiErrorAndWarning(); \
+    CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old(); \
     std::string functionName(funcName); \
     std::string errorString; \
     std::string warningString; \
@@ -43,10 +43,10 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const
 {
     std::string warnStr(warningString);
     if ( (warnStr.size()==0)&&cSideErrorOrWarningReporting )
-        warnStr=CApiErrors::getAndClearThreadBasedFirstCapiWarning();
-    if (warnStr.size()>0)
+        warnStr=CApiErrors::getAndClearThreadBasedFirstCapiWarning_old(); // without old threads, use CApiErrors::getAndClearLastWarningOrError
+    if (warnStr.size()>0) // without old threads, check and remove "warning@" in warnStr
     {
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
         if (it!=nullptr)
         {
             int verb=sim_verbosity_scriptwarnings;
@@ -66,45 +66,37 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const
 
 void _raiseErrorOrYieldIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* errorString,bool cSideErrorOrWarningReporting)
 {
-    if (strcmp(errorString,"@yield")!=0)
-    {
-        std::string errStr(errorString);
-        if ( (errStr.size()==0)&&cSideErrorOrWarningReporting )
-            errStr=CApiErrors::getAndClearThreadBasedFirstCapiError();
-        if (errStr.size()==0)
-            return;
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
-        if (it==nullptr)
-            return;
-        it->setLastError(errStr.c_str());
-        if (!it->getRaiseErrors_backCompatibility())
-            return;
-        int lineNumber=-1;
-        lineNumber=luaWrap_getCurrentCodeLine(L);
-        std::string msg;
-        msg+=std::to_string(lineNumber);
-        msg+=": ";
-        msg+=errStr;
-        msg+=" (in function '";
-        msg+=functionName;
-        msg+="')";
-        luaWrap_lua_pushstring(L,msg.c_str());
-    }
-    if (strcmp(errorString,"@yield")==0)
-        luaWrap_lua_yield(L,0); // does a long jump and never returns
+    std::string errStr(errorString);
+    if ( (errStr.size()==0)&&cSideErrorOrWarningReporting )
+        errStr=CApiErrors::getAndClearThreadBasedFirstCapiError_old(); // without old threads, use CApiErrors::getAndClearLastWarningOrError
+    if (errStr.size()==0)
+        return;
+    // without old threads, filter out "warning@" in errStr
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+    if (it==nullptr)
+        return;
+    it->setLastError_old(errStr.c_str());
+    if (!it->getRaiseErrors_backCompatibility())
+        return;
+    int lineNumber=-1;
+    lineNumber=luaWrap_getCurrentCodeLine(L);
+    std::string msg;
+    msg+=std::to_string(lineNumber);
+    msg+=": ";
+    msg+=errStr;
+    msg+=" (in function '";
+    msg+=functionName;
+    msg+="')";
+    luaWrap_lua_pushstring(L,msg.c_str());
+
     luaWrap_lua_error(L); // does a long jump and never returns
 }
 
 #define LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED() _raiseErrorOrYieldIfNeeded(L,functionName.c_str(),errorString.c_str(),cSideErrorOrWarningReporting)
 
-std::vector<int> serialPortHandles;
-std::vector<std::string> serialPortLeftOverData;
 
 const SLuaCommands simLuaCommands[]=
 {
-    {"sim.openModule",_simOpenModule,                            "int result=sim.openModule(sim.handle_all)\nint result=sim.openModule(string moduleName)",true},
-    {"sim.closeModule",_simCloseModule,                          "int result=sim.closeModule(sim.handle_all)\nint result=sim.closeModule(string moduleName)",true},
-    {"sim.handleModule",_simHandleModule,                        "int result=sim.handleModule(sim.handle_all)\nint result=sim.handleModule(string moduleName)",true},
     {"sim.handleDynamics",_simHandleDynamics,                    "int result=sim.handleDynamics(float deltaTime)",true},
     {"sim.handleProximitySensor",_simHandleProximitySensor,      "int result,float distance,table[3] detectedPoint,int detectedObjectHandle,table[3] normalVector=\nsim.handleProximitySensor(int sensorHandle)",true},
     {"sim.readProximitySensor",_simReadProximitySensor,          "int result,float distance,table[3] detectedPoint,int detectedObjectHandle,table[3] normalVector=\nsim.readProximitySensor(int sensorHandle)",true},
@@ -149,7 +141,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.duplicateGraphCurveToStatic",_simDuplicateGraphCurveToStatic, "int curveId=sim.duplicateGraphCurveToStatic(int graphHandle,int curveId,string curveName='')",true},
     {"sim.addGraphCurve",_simAddGraphCurve,                      "int curveId=sim.addGraphCurve(int graphHandle,string curveName,int dim,\ntable[2..3] streamIds,table[2..3] defaultValues,string unitStr,int options=0,\ntable[3] color={1,1,0},int curveWidth=2)",true},
     {"sim.setGraphStreamValue",_simSetGraphStreamValue,          "sim.setGraphStreamValue(int graphHandle,int streamId,float value)",true},
-    {"sim.getLastError",_simGetLastError,                        "string lastError=sim.getLastError([scriptHandle])",true},
     {"sim.refreshDialogs",_simRefreshDialogs,                    "int result=sim.refreshDialogs(int refreshDegree)",true},
     {"sim.getModuleName",_simGetModuleName,                      "string moduleName,int version=sim.getModuleName(int index)",true},
     {"sim.removeScript",_simRemoveScript,                        "sim.removeScript(int scriptHandle)",true},
@@ -212,7 +203,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getThreadSwitchAllowed",_simGetThreadSwitchAllowed,    "boolean allowed=sim.getThreadSwitchAllowed()",true},
     {"sim.setThreadSwitchAllowed",_simSetThreadSwitchAllowed,    "int forbidLevel=sim.setThreadSwitchAllowed(boolean allowed/int forbidLevel)",true},
     {"sim.setThreadSwitchTiming",_simSetThreadSwitchTiming,      "sim.setThreadSwitchTiming(int deltaTimeInMilliseconds)",true},
-    {"sim._switchThread",_simSwitchThread,                       "sim._switchThread()",false},
     {"sim.saveImage",_simSaveImage,                              "string buffer=sim.saveImage(string image,table[2] resolution,int options,string filename,int quality)",true},
     {"sim.loadImage",_simLoadImage,                              "string image,table[2] resolution=sim.loadImage(int options,string filename)",true},
     {"sim.getScaledImage",_simGetScaledImage,                    "string imageOut,table[2] effectiveResolutionOut=sim.getScaledImage(string imageIn,table[2] resolutionIn,\ntable[2] desiredResolutionOut,int options)",true},
@@ -338,8 +328,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getShapeGeomInfo",_simGetShapeGeomInfo,                "int result,int pureType,table[4] dimensions=sim.getShapeGeomInfo(int shapeHandle)",true},
     {"sim.getObjectsInTree",_simGetObjectsInTree,                "table[] objects=sim.getObjectsInTree(int treeBaseHandle,int objectType=sim.handle_all,int options=0)",true},
     {"sim.getObjects",_simGetObjects,                            "int objectHandle=sim.getObjects(int index,int objectType)",true},
-    {"sim.setObjectSizeValues",_simSetObjectSizeValues,          "sim.setObjectSizeValues(int objectHandle,table[3] sizeValues)",true},
-    {"sim.getObjectSizeValues",_simGetObjectSizeValues,          "table[3] sizeValues=sim.getObjectSizeValues(int objectHandle)",true},
     {"sim.scaleObject",_simScaleObject,                          "sim.scaleObject(int objectHandle,float xScale,float yScale,float zScale,int options=0)",true},
     {"sim.setShapeTexture",_simSetShapeTexture,                  "sim.setShapeTexture(int shapeHandle,int textureId,int mappingMode,int options,table[2] uvScaling,\ntable[3] position=nil,table[3] orientation=nil)",true},
     {"sim.getShapeTextureId",_simGetShapeTextureId,              "int textureId=sim.getShapeTextureId(int shapeHandle)",true},
@@ -474,10 +462,16 @@ const SLuaCommands simLuaCommands[]=
     {"sim.tubeStatus",_simTubeStatus,                            "Deprecated. Use signals or custom data blocks instead",false},
     {"sim.sendData",_simSendData,                                "Deprecated. Use signals or custom data blocks instead",false},
     {"sim.receiveData",_simReceiveData,                          "Deprecated. Use signals or custom data blocks instead",false},
-    {"sim.moveToPosition",_simMoveToPosition,                    "Deprecated. Use 'sim.moveToPose' instead",false},
-    {"sim.moveToObject",_simMoveToObject,                        "Deprecated. Use 'sim.moveToPose' instead",false},
-    {"sim.followPath",_simFollowPath,                            "Deprecated. Use 'sim.rmlPos' and 'sim.rmlStep' instead",false},
-    {"sim.moveToJointPositions",_simMoveToJointPositions,        "Deprecated. Use 'sim.moveToConfig' instead",false},
+    {"sim._moveToJointPos_1",_sim_moveToJointPos_1,              "",false},
+    {"sim._moveToJointPos_2",_sim_moveToJointPos_2,              "",false},
+    {"sim._moveToPos_1",_sim_moveToPos_1,                        "",false},
+    {"sim._moveToPos_2",_sim_moveToPos_2,                        "",false},
+    {"sim._moveToObj_1",_sim_moveToObj_1,                        "",false},
+    {"sim._moveToObj_2",_sim_moveToObj_2,                        "",false},
+    {"sim._followPath_1",_sim_followPath_1,                      "",false},
+    {"sim._followPath_2",_sim_followPath_2,                      "",false},
+    {"sim._del",_sim_del,                                        "",false},
+
     {"sim.getPathPosition",_simGetPathPosition,                  "Deprecated",false},
     {"sim.setPathPosition",_simSetPathPosition,                  "Deprecated",false},
     {"sim.getPathLength",_simGetPathLength,                      "Deprecated",false},
@@ -558,6 +552,13 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setObjectConfiguration",_simSetObjectConfiguration,    "Deprecated",false},
     {"sim.getConfigurationTree",_simGetConfigurationTree,        "Deprecated",false},
     {"sim.setConfigurationTree",_simSetConfigurationTree,        "Deprecated",false},
+    {"sim.setObjectSizeValues",_simSetObjectSizeValues,          "Deprecated",false},
+    {"sim.getObjectSizeValues",_simGetObjectSizeValues,          "Deprecated",false},
+    {"sim.openModule",_simOpenModule,                            "Deprecated",false},
+    {"sim.closeModule",_simCloseModule,                          "Deprecated",false},
+    {"sim.handleModule",_simHandleModule,                        "Deprecated",false},
+    {"sim.getLastError",_simGetLastError,                        "Deprecated",false},
+    {"sim._switchThread",_simSwitchThread,                       "Deprecated",false},
     //{"sim.boolOr32",_simBoolOr32,                                "Deprecated. Use the bitwise operator | instead",false},
     //{"sim.boolAnd32",_simBoolAnd32,                              "Deprecated. Use the bitwise operator & instead",false},
     //{"sim.boolXor32",_simBoolXor32,                              "Deprecated. Use the bitwise operator ~ instead",false},
@@ -569,516 +570,9 @@ const SLuaCommands simLuaCommands[]=
     {"",nullptr,"",false}
 };
 
-
-const SLuaCommands simLuaCommandsOldApi[]=
-{ // Following for backward compatibility (has now a new notation (see 'simLuaCommands'))
-    {"simGetScriptName",_simGetScriptName,                      "Deprecated. Use sim.getObjectAlias instead",false},
-    {"simGetObjectAssociatedWithScript",_simGetObjectAssociatedWithScript,"Deprecated. Use sim.getObjectHandle('.') instead",false},
-    {"simGetScriptAssociatedWithObject",_simGetScriptAssociatedWithObject,"Deprecated. Use sim.getScriptHandle instead",false},
-    {"simGetCustomizationScriptAssociatedWithObject",_simGetCustomizationScriptAssociatedWithObject,"Deprecated. Use sim.getScriptHandle instead",false},
-    {"simOpenModule",_simOpenModule,                            "Use the newer 'sim.openModule' notation",false},
-    {"simCloseModule",_simCloseModule,                          "Use the newer 'sim.closeModule' notation",false},
-    {"simHandleModule",_simHandleModule,                        "Use the newer 'sim.handleModule' notation",false},
-    {"simHandleDynamics",_simHandleDynamics,                    "Use the newer 'sim.handleDynamics' notation",false},
-    {"simHandleProximitySensor",_simHandleProximitySensor,      "Use the newer 'sim.handleProximitySensor' notation",false},
-    {"simReadProximitySensor",_simReadProximitySensor,          "Use the newer 'sim.readProximitySensor' notation",false},
-    {"simResetProximitySensor",_simResetProximitySensor,        "Use the newer 'sim.resetProximitySensor' notation",false},
-    {"simCheckProximitySensor",_simCheckProximitySensor,        "Use the newer 'sim.checkProximitySensor' notation",false},
-    {"simCheckProximitySensorEx",_simCheckProximitySensorEx,    "Use the newer 'sim.checkProximitySensorEx' notation",false},
-    {"simCheckProximitySensorEx2",_simCheckProximitySensorEx2,  "Use the newer 'sim.checkProximitySensorEx2' notation",false},
-    {"simGetObjectHandle",_sim_getObjectHandle,                 "Use the newer 'sim.getObjectHandle' notation",false},
-    {"simAddScript",_simAddScript,                              "Use the newer 'sim.addScript' notation",false},
-    {"simAssociateScriptWithObject",_simAssociateScriptWithObject,"Use the newer 'sim.associateScriptWithObject' notation",false},
-    {"simSetScriptText",_simSetScriptText,                      "Use the newer 'sim.setScriptText' notation",false},
-    {"simGetScriptHandle",_simGetScriptHandle,                  "Use the newer 'sim.getScriptHandle' notation",false},
-    {"simGetObjectPosition",_simGetObjectPosition,              "Use the newer 'sim.getObjectPosition' notation",false},
-    {"simGetObjectOrientation",_simGetObjectOrientation,        "Use the newer 'sim.getObjectOrientation' notation",false},
-    {"simSetObjectPosition",_simSetObjectPosition,              "Use the newer 'sim.setObjectPosition' notation",false},
-    {"simSetObjectOrientation",_simSetObjectOrientation,        "Use the newer 'sim.setObjectOrientation' notation",false},
-    {"simGetJointPosition",_simGetJointPosition,                "Use the newer 'sim.getJointPosition' notation",false},
-    {"simSetJointPosition",_simSetJointPosition,                "Use the newer 'sim.setJointPosition' notation",false},
-    {"simSetJointTargetPosition",_simSetJointTargetPosition,    "Use the newer 'sim.setJointTargetPosition' notation",false},
-    {"simGetJointTargetPosition",_simGetJointTargetPosition,    "Use the newer 'sim.getJointTargetPosition' notation",false},
-    {"simSetJointForce",_simSetJointMaxForce,                   "Use the newer 'sim.setJointMaxForce' notation",false},
-    {"simSetJointTargetVelocity",_simSetJointTargetVelocity,    "Use the newer 'sim.setJointTargetVelocity' notation",false},
-    {"simGetJointTargetVelocity",_simGetJointTargetVelocity,    "Use the newer 'sim.getJointTargetVelocity' notation",false},
-    {"simGetObjectName",_simGetObjectName,                      "Deprecated. Use sim.getObjectAlias instead",false},
-    {"simSetObjectName",_simSetObjectName,                      "Deprecated. Use sim.setObjectAlias instead",false},
-    {"simRemoveObject",_simRemoveObject,                        "Use the newer 'sim.removeObject' notation",false},
-    {"simRemoveModel",_simRemoveModel,                          "Use the newer 'sim.removeModel' notation",false},
-    {"simGetSimulationTime",_simGetSimulationTime,              "Use the newer 'sim.getSimulationTime' notation",false},
-    {"simGetSimulationState",_simGetSimulationState,            "Use the newer 'sim.getSimulationState' notation",false},
-    {"simGetSystemTime",_simGetSystemTime,                      "Use the newer 'sim.getSystemTime' notation",false},
-    {"simGetSystemTimeInMs",_simGetSystemTimeInMs,              "Use the newer 'sim.getSystemTimeInMs' notation",false},
-    {"simCheckCollision",_simCheckCollision,                    "Use the newer 'sim.checkCollision' notation",false},
-    {"simCheckCollisionEx",_simCheckCollisionEx,                "Use the newer 'sim.checkCollisionEx' notation",false},
-    {"simCheckDistance",_simCheckDistance,                      "Use the newer 'sim.checkDistance' notation",false},
-    {"simGetObjectConfiguration",_simGetObjectConfiguration,    "Deprecated",false},
-    {"simSetObjectConfiguration",_simSetObjectConfiguration,    "Deprecated",false},
-    {"simGetConfigurationTree",_simGetConfigurationTree,        "Deprecated",false},
-    {"simSetConfigurationTree",_simSetConfigurationTree,        "Deprecated",false},
-    {"simGetSimulationTimeStep",_simGetSimulationTimeStep,      "Use the newer 'sim.getSimulationTimeStep' notation",false},
-    {"simGetSimulatorMessage",_simGetSimulatorMessage,          "Use the newer 'sim.getSimulatorMessage' notation",false},
-    {"simResetGraph",_simResetGraph,                            "Use the newer 'sim.resetGraph' notation",false},
-    {"simHandleGraph",_simHandleGraph,                          "Use the newer 'sim.handleGraph' notation",false},
-    {"simGetLastError",_simGetLastError,                        "Use the newer 'sim.getLastError' notation",false},
-    {"simGetObjects",_simGetObjects,                            "Use the newer 'sim.getObjects' notation",false},
-    {"simRefreshDialogs",_simRefreshDialogs,                    "Use the newer 'sim.refreshDialogs' notation",false},
-    {"simGetModuleName",_simGetModuleName,                      "Use the newer 'sim.getModuleName' notation",false},
-    {"simRemoveScript",_simRemoveScript,                        "Use the newer 'sim.removeScript' notation",false},
-    {"simStopSimulation",_simStopSimulation,                    "Use the newer 'sim.stopSimulation' notation",false},
-    {"simPauseSimulation",_simPauseSimulation,                  "Use the newer 'sim.pauseSimulation' notation",false},
-    {"simStartSimulation",_simStartSimulation,                  "Use the newer 'sim.startSimulation' notation",false},
-    {"simGetObjectMatrix",_simGetObjectMatrix,                  "Use the newer 'sim.getObjectMatrix' notation",false},
-    {"simSetObjectMatrix",_simSetObjectMatrix,                  "Use the newer 'sim.setObjectMatrix' notation",false},
-    {"simGetJointMatrix",_simGetJointMatrix,                    "Use the newer 'sim.getJointMatrix' notation",false},
-    {"simSetSphericalJointMatrix",_simSetSphericalJointMatrix,  "Use the newer 'sim.setSphericalJointMatrix' notation",false},
-    {"simBuildIdentityMatrix",_simBuildIdentityMatrix,          "Use the newer 'sim.buildIdentityMatrix' notation",false},
-    {"simBuildMatrix",_simBuildMatrix,                          "Use the newer 'sim.buildMatrix' notation",false},
-    {"simGetEulerAnglesFromMatrix",_simGetEulerAnglesFromMatrix,"Use the newer 'sim.getEulerAnglesFromMatrix' notation",false},
-    {"simInvertMatrix",_simInvertMatrix,                        "Use the newer 'sim.invertMatrix' notation",false},
-    {"simMultiplyMatrices",_simMultiplyMatrices,                "Use the newer 'sim.multiplyMatrices' notation",false},
-    {"simInterpolateMatrices",_simInterpolateMatrices,          "Use the newer 'sim.interpolateMatrices' notation",false},
-    {"simMultiplyVector",_simMultiplyVector,                    "Use the newer 'sim.multiplyVector' notation",false},
-    {"simGetObjectChild",_simGetObjectChild,                    "Use the newer 'sim.getObjectChild' notation",false},
-    {"simGetObjectParent",_simGetObjectParent,                  "Use the newer 'sim.getObjectParent' notation",false},
-    {"simSetObjectParent",_simSetObjectParent,                  "Use the newer 'sim.setObjectParent' notation",false},
-    {"simGetObjectType",_simGetObjectType,                      "Use the newer 'sim.getObjectType' notation",false},
-    {"simGetJointType",_simGetJointType,                        "Use the newer 'sim.getJointType' notation",false},
-    {"simSetBoolParameter",_simSetBoolParam,                    "Deprecated. Use sim.setBoolParam instead",false},
-    {"simGetBoolParameter",_simGetBoolParam,                    "Deprecated. Use sim.getBoolParam instead",false},
-    {"simSetInt32Parameter",_simSetInt32Param,                  "Deprecated. Use sim.setInt32Param instead",false},
-    {"simGetInt32Parameter",_simGetInt32Param,                  "Deprecated. Use sim.getInt32Param instead",false},
-    {"simSetFloatParameter",_simSetFloatParam,                  "Deprecated. Use sim.setFloatParam instead",false},
-    {"simGetFloatParameter",_simGetFloatParam,                  "Deprecated. Use sim.getFloatParam instead",false},
-    {"simSetStringParameter",_simSetStringParam,                "Deprecated. Use sim.setStringParam instead",false},
-    {"simGetStringParameter",_simGetStringParam,                "Deprecated. Use sim.getStringParam instead",false},
-    {"simSetArrayParameter",_simSetArrayParam,                  "Deprecated. Use sim.setArrayParam instead",false},
-    {"simGetArrayParameter",_simGetArrayParam,                  "Deprecated. Use sim.getArrayParam instead",false},
-    {"simGetJointInterval",_simGetJointInterval,                "Use the newer 'sim.getJointInterval' notation",false},
-    {"simSetJointInterval",_simSetJointInterval,                "Use the newer 'sim.setJointInterval' notation",false},
-    {"simLoadScene",_simLoadScene,                              "Use the newer 'sim.loadScene' notation",false},
-    {"simSaveScene",_simSaveScene,                              "Use the newer 'sim.saveScene' notation",false},
-    {"simLoadModel",_simLoadModel,                              "Use the newer 'sim.loadModel' notation",false},
-    {"simSaveModel",_simSaveModel,                              "Use the newer 'sim.saveModel' notation",false},
-    {"simIsObjectInSelection",_simIsObjectInSelection,          "Use the newer 'sim.isObjectInSelection' notation",false},
-    {"simAddObjectToSelection",_simAddObjectToSelection,        "Use the newer 'sim.addObjectToSelection' notation",false},
-    {"simRemoveObjectFromSelection",_simRemoveObjectFromSelection,"Use the newer 'sim.removeObjectFromSelection' notation",false},
-    {"simGetObjectSelection",_simGetObjectSelection,            "Use the newer 'sim.getObjectSelection' notation",false},
-    {"simGetRealTimeSimulation",_simGetRealTimeSimulation,      "Use the newer 'sim.getRealTimeSimulation' notation",false},
-    {"simSetNavigationMode",_simSetNavigationMode,              "Use the newer 'sim.setNavigationMode' notation",false},
-    {"simGetNavigationMode",_simGetNavigationMode,              "Use the newer 'sim.getNavigationMode' notation",false},
-    {"simSetPage",_simSetPage,                                  "Use the newer 'sim.setPage' notation",false},
-    {"simGetPage",_simGetPage,                                  "Use the newer 'sim.getPage' notation",false},
-    {"simCopyPasteObjects",_simCopyPasteObjects,                "Use the newer 'sim.copyPasteObjects' notation",false},
-    {"simScaleObjects",_simScaleObjects,                        "Use the newer 'sim.scaleObjects' notation",false},
-    {"simGetObjectUniqueIdentifier",_simGetObjectUniqueIdentifier,"Use the newer 'sim.getObjectUniqueIdentifier' notation",false},
-    {"simSetThreadAutomaticSwitch",_simSetThreadAutomaticSwitch,"Use the newer 'sim.setThreadAutomaticSwitch' notation",false},
-    {"simGetThreadAutomaticSwitch",_simGetThreadAutomaticSwitch,"Use the newer 'sim.getThreadAutomaticSwitch' notation",false},
-    {"simSetThreadSwitchTiming",_simSetThreadSwitchTiming,      "Use the newer 'sim.setThreadSwitchTiming' notation",false},
-    {"simSwitchThread",_simSwitchThread,                        "Use the newer 'sim.switchThread' notation",false},
-    {"simSaveImage",_simSaveImage,                              "Use the newer 'sim.saveImage' notation",false},
-    {"simLoadImage",_simLoadImage,                              "Use the newer 'sim.loadImage' notation",false},
-    {"simGetScaledImage",_simGetScaledImage,                    "Use the newer 'sim.getScaledImage' notation",false},
-    {"simTransformImage",_simTransformImage,                    "Use the newer 'sim.transformImage' notation",false},
-    {"simGetQHull",_simGetQHull,                                "Use the newer 'sim.getQHull' notation",false},
-    {"simGetDecimatedMesh",_simGetDecimatedMesh,                "Use the newer 'sim.getDecimatedMesh' notation",false},
-    {"simPackInt32Table",_simPackInt32Table,                    "Use the newer 'sim.packInt32Table' notation",false},
-    {"simPackUInt32Table",_simPackUInt32Table,                  "Use the newer 'sim.packUInt32Table' notation",false},
-    {"simPackFloatTable",_simPackFloatTable,                    "Use the newer 'sim.packFloatTable' notation",false},
-    {"simPackDoubleTable",_simPackDoubleTable,                  "Use the newer 'sim.packDoubleTable' notation",false},
-    {"simPackUInt8Table",_simPackUInt8Table,                    "Use the newer 'sim.packUInt8Table' notation",false},
-    {"simPackUInt16Table",_simPackUInt16Table,                  "Use the newer 'sim.packUInt16Table' notation",false},
-    {"simUnpackInt32Table",_simUnpackInt32Table,                "Use the newer 'sim.unpackInt32Table' notation",false},
-    {"simUnpackUInt32Table",_simUnpackUInt32Table,              "Use the newer 'sim.unpackUInt32Table' notation",false},
-    {"simUnpackFloatTable",_simUnpackFloatTable,                "Use the newer 'sim.unpackFloatTable' notation",false},
-    {"simUnpackDoubleTable",_simUnpackDoubleTable,              "Use the newer 'sim.unpackDoubleTable' notation",false},
-    {"simUnpackUInt8Table",_simUnpackUInt8Table,                "Use the newer 'sim.unpackUInt8Table' notation",false},
-    {"simUnpackUInt16Table",_simUnpackUInt16Table,              "Use the newer 'sim.unpackUInt16Table' notation",false},
-    {"simPackTable",_simPackTable,                              "Use the newer 'sim.packTable' notation",false},
-    {"simUnpackTable",_simUnpackTable,                          "Use the newer 'sim.unpackTable' notation",false},
-    {"simTransformBuffer",_simTransformBuffer,                  "Use the newer 'sim.transformBuffer' notation",false},
-    {"simCombineRgbImages",_simCombineRgbImages,                "Use the newer 'sim.combineRgbImages' notation",false},
-    {"simGetVelocity",_simGetVelocity,                          "Use the newer 'sim.getVelocity' notation",false},
-    {"simGetObjectVelocity",_simGetObjectVelocity,              "Use the newer 'sim.getObjectVelocity' notation",false},
-    {"simAddForceAndTorque",_simAddForceAndTorque,              "Use the newer 'sim.addForceAndTorque' notation",false},
-    {"simAddForce",_simAddForce,                                "Use the newer 'sim.addForce' notation",false},
-    {"simSetExplicitHandling",_simSetExplicitHandling,          "Use the newer 'sim.setExplicitHandling' notation",false},
-    {"simGetExplicitHandling",_simGetExplicitHandling,          "Use the newer 'sim.getExplicitHandling' notation",false},
-    {"simAddDrawingObject",_simAddDrawingObject,                "Use the newer 'sim.addDrawingObject' notation",false},
-    {"simRemoveDrawingObject",_simRemoveDrawingObject,          "Use the newer 'sim.removeDrawingObject' notation",false},
-    {"simAddDrawingObjectItem",_simAddDrawingObjectItem,        "Use the newer 'sim.addDrawingObjectItem' notation",false},
-    {"simAddParticleObject",_simAddParticleObject,              "Use the newer 'sim.addParticleObject' notation",false},
-    {"simRemoveParticleObject",_simRemoveParticleObject,        "Use the newer 'sim.removeParticleObject' notation",false},
-    {"simAddParticleObjectItem",_simAddParticleObjectItem,      "Use the newer 'sim.addParticleObjectItem' notation",false},
-    {"simGetObjectSizeFactor",_simGetObjectSizeFactor,          "Use the newer 'sim.getObjectSizeFactor' notation",false},
-    {"simSetIntegerSignal",_simSetInt32Signal,                  "Deprecated. Use sim.setInt32Signal instead",false},
-    {"simGetIntegerSignal",_simGetInt32Signal,                  "Deprecated. Use sim.getInt32Signal instead",false},
-    {"simClearIntegerSignal",_simClearInt32Signal,              "Deprecated. Use sim.clearInt32Signal instead",false},
-    {"simSetFloatSignal",_simSetFloatSignal,                    "Use the newer 'sim.setFloatSignal' notation",false},
-    {"simGetFloatSignal",_simGetFloatSignal,                    "Use the newer 'sim.getFloatSignal' notation",false},
-    {"simClearFloatSignal",_simClearFloatSignal,                "Use the newer 'sim.clearFloatSignal' notation",false},
-    {"simSetStringSignal",_simSetStringSignal,                  "Use the newer 'sim.setStringSignal' notation",false},
-    {"simGetStringSignal",_simGetStringSignal,                  "Use the newer 'sim.getStringSignal' notation",false},
-    {"simClearStringSignal",_simClearStringSignal,              "Use the newer 'sim.clearStringSignal' notation",false},
-    {"simGetSignalName",_simGetSignalName,                      "Use the newer 'sim.getSignalName' notation",false},
-    {"simPersistentDataWrite",_simPersistentDataWrite,          "Use the newer 'sim.persistentDataWrite' notation",false},
-    {"simPersistentDataRead",_simPersistentDataRead,            "Use the newer 'sim.persistentDataRead' notation",false},
-    {"simSetObjectProperty",_simSetObjectProperty,              "Use the newer 'sim.setObjectProperty' notation",false},
-    {"simGetObjectProperty",_simGetObjectProperty,              "Use the newer 'sim.getObjectProperty' notation",false},
-    {"simSetObjectSpecialProperty",_simSetObjectSpecialProperty,"Use the newer 'sim.setObjectSpecialProperty' notation",false},
-    {"simGetObjectSpecialProperty",_simGetObjectSpecialProperty,"Use the newer 'sim.getObjectSpecialProperty' notation",false},
-    {"simSetModelProperty",_simSetModelProperty,                "Use the newer 'sim.setModelProperty' notation",false},
-    {"simGetModelProperty",_simGetModelProperty,                "Use the newer 'sim.getModelProperty' notation",false},
-    {"simReadForceSensor",_simReadForceSensor,                  "Use the newer 'sim.readForceSensor' notation",false},
-    {"simBreakForceSensor",_simBreakForceSensor,                "Use the newer 'sim.breakForceSensor' notation",false},
-    {"simGetLightParameters",_simGetLightParameters,            "Use the newer 'sim.getLightParameters' notation",false},
-    {"simSetLightParameters",_simSetLightParameters,            "Use the newer 'sim.setLightParameters' notation",false},
-    {"simGetLinkDummy",_simGetLinkDummy,                        "Use the newer 'sim.getLinkDummy' notation",false},
-    {"simSetLinkDummy",_simSetLinkDummy,                        "Use the newer 'sim.setLinkDummy' notation",false},
-    {"simSetShapeColor",_simSetShapeColor,                      "Use the newer 'sim.setShapeColor' notation",false},
-    {"simGetShapeColor",_simGetShapeColor,                      "Use the newer 'sim.getShapeColor' notation",false},
-    {"simResetDynamicObject",_simResetDynamicObject,            "Use the newer 'sim.resetDynamicObject' notation",false},
-    {"simSetJointMode",_simSetJointMode,                        "Use the newer 'sim.setJointMode' notation",false},
-    {"simGetJointMode",_simGetJointMode,                        "Use the newer 'sim.getJointMode' notation",false},
-    {"simSerialSend",_simSerialSend,                            "Use the newer 'sim.serialSend' notation",false},
-    {"simSerialCheck",_simSerialCheck,                          "Use the newer 'sim.serialCheck' notation",false},
-    {"simGetContactInfo",_simGetContactInfo,                    "Use the newer 'sim.getContactInfo' notation",false},
-    {"simAuxiliaryConsoleOpen",_simAuxiliaryConsoleOpen,        "Use the newer 'sim.auxiliaryConsoleOpen' notation",false},
-    {"simAuxiliaryConsoleClose",_simAuxiliaryConsoleClose,      "Use the newer 'sim.auxiliaryConsoleClose' notation",false},
-    {"simAuxiliaryConsolePrint",_simAuxiliaryConsolePrint,      "Use the newer 'sim.auxiliaryConsolePrint' notation",false},
-    {"simAuxiliaryConsoleShow",_simAuxiliaryConsoleShow,        "Use the newer 'sim.auxiliaryConsoleShow' notation",false},
-    {"simImportShape",_simImportShape,                          "Use the newer 'sim.importShape' notation",false},
-    {"simImportMesh",_simImportMesh,                            "Use the newer 'sim.importMesh' notation",false},
-    {"simExportMesh",_simExportMesh,                            "Use the newer 'sim.exportMesh' notation",false},
-    {"simCreateMeshShape",_simCreateMeshShape,                  "Use the newer 'sim.createMeshShape' notation",false},
-    {"simGetShapeMesh",_simGetShapeMesh,                        "Use the newer 'sim.getShapeMesh' notation",false},
-    {"simCreatePureShape",_simCreatePureShape,                  "Use the newer 'sim.createPureShape' notation",false},
-    {"simCreateHeightfieldShape",_simCreateHeightfieldShape,    "Use the newer 'sim.createHeightfieldShape' notation",false},
-    {"simCreateJoint",_simCreateJoint,                          "Use the newer 'sim.createJoint' notation",false},
-    {"simCreateDummy",_simCreateDummy,                          "Use the newer 'sim.createDummy' notation",false},
-    {"simCreateProximitySensor",_simCreateProximitySensor,      "Use the newer 'sim.createProximitySensor' notation",false},
-    {"simCreateForceSensor",_simCreateForceSensor,              "Use the newer 'sim.createForceSensor' notation",false},
-    {"simCreateVisionSensor",_simCreateVisionSensor,            "Use the newer 'sim.createVisionSensor' notation",false},
-    {"simFloatingViewAdd",_simFloatingViewAdd,                  "Use the newer 'sim.floatingViewAdd' notation",false},
-    {"simFloatingViewRemove",_simFloatingViewRemove,            "Use the newer 'sim.floatingViewRemove' notation",false},
-    {"simAdjustView",_simAdjustView,                            "Use the newer 'sim.adjustView' notation",false},
-    {"simCameraFitToView",_simCameraFitToView,                  "Use the newer 'sim.cameraFitToView' notation",false},
-    {"simAnnounceSceneContentChange",_simAnnounceSceneContentChange,"Use the newer 'sim.announceSceneContentChange' notation",false},
-    {"simGetObjectInt32Parameter",_simGetObjectInt32Parameter,  "Deprecated. Use sim.getObjectInt32Param instead",false},
-    {"simSetObjectInt32Parameter",_simSetObjectInt32Param,      "Deprecated. Use sim.setObjectInt32Param instead",false},
-    {"simGetObjectFloatParameter",_simGetObjectFloatParameter,  "Deprecated. Use sim.getObjectFloatParam instead",false},
-    {"simSetObjectFloatParameter",_simSetObjectFloatParam,      "Deprecated. Use sim.setObjectFloatParam instead",false},
-    {"simGetObjectStringParameter",_simGetObjectStringParam,    "Deprecated. Use sim.getObjectStringParam instead",false},
-    {"simSetObjectStringParameter",_simSetObjectStringParam,    "Deprecated. Use sim.setObjectStringParam instead",false},
-    {"simGetRotationAxis",_simGetRotationAxis,                  "Use the newer 'sim.getRotationAxis' notation",false},
-    {"simRotateAroundAxis",_simRotateAroundAxis,                "Use the newer 'sim.rotateAroundAxis' notation",false},
-    {"simLaunchExecutable",_simLaunchExecutable,                "Use the newer 'sim.launchExecutable' notation",false},
-    {"simGetJointForce",_simGetJointForce,                      "Use the newer 'sim.getJointForce' notation",false},
-    {"simIsHandleValid",_simIsHandleValid,                      "Deprecated. Use sim.isHandle instead",false},
-    {"simGetObjectQuaternion",_simGetObjectQuaternion,          "Use the newer 'sim.getObjectQuaternion' notation",false},
-    {"simSetObjectQuaternion",_simSetObjectQuaternion,          "Use the newer 'sim.setObjectQuaternion' notation",false},
-    {"simSetShapeMassAndInertia",_simSetShapeMassAndInertia,    "Deprecated. Use 'sim.setShapeMass' and/or 'sim.setShapeInertia' instead",false},
-    {"simGetShapeMassAndInertia",_simGetShapeMassAndInertia,    "Deprecated. Use 'sim.getShapeMass' and/or 'sim.getShapeInertia' instead",false},
-    {"simGroupShapes",_simGroupShapes,                          "Use the newer 'sim.groupShapes' notation",false},
-    {"simUngroupShape",_simUngroupShape,                        "Use the newer 'sim.ungroupShape' notation",false},
-    {"simConvexDecompose",_simConvexDecompose,                  "Use the newer 'sim.convexDecompose' notation",false},
-    {"simQuitSimulator",_simQuitSimulator,                      "Use the newer 'sim.quitSimulator' notation",false},
-    {"simGetThreadId",_simGetThreadId,                          "Use the newer 'sim.getThreadId' notation",false},
-    {"simSetShapeMaterial",_simSetShapeMaterial,                "Use the newer 'sim.setShapeMaterial' notation",false},
-    {"simGetTextureId",_simGetTextureId,                        "Use the newer 'sim.getTextureId' notation",false},
-    {"simReadTexture",_simReadTexture,                          "Use the newer 'sim.readTexture' notation",false},
-    {"simWriteTexture",_simWriteTexture,                        "Use the newer 'sim.writeTexture' notation",false},
-    {"simCreateTexture",_simCreateTexture,                      "Use the newer 'sim.createTexture' notation",false},
-    {"simWriteCustomDataBlock",_simWriteCustomDataBlock,        "Use the newer 'sim.writeCustomDataBlock' notation",false},
-    {"simReadCustomDataBlock",_simReadCustomDataBlock,          "Use the newer 'sim.readCustomDataBlock' notation",false},
-    {"simReadCustomDataBlockTags",_simReadCustomDataBlockTags,  "Use the newer 'sim.readCustomDataBlockTags' notation",false},
-    {"simGetShapeGeomInfo",_simGetShapeGeomInfo,                "Use the newer 'sim.getShapeGeomInfo' notation",false},
-    {"simGetObjectsInTree",_simGetObjectsInTree,                "Use the newer 'sim.getObjectsInTree' notation",false},
-    {"simSetObjectSizeValues",_simSetObjectSizeValues,          "Use the newer 'sim.setObjectSizeValues' notation",false},
-    {"simGetObjectSizeValues",_simGetObjectSizeValues,          "Use the newer 'sim.getObjectSizeValues' notation",false},
-    {"simScaleObject",_simScaleObject,                          "Use the newer 'sim.scaleObject' notation",false},
-    {"simSetShapeTexture",_simSetShapeTexture,                  "Use the newer 'sim.setShapeTexture' notation",false},
-    {"simGetShapeTextureId",_simGetShapeTextureId,              "Use the newer 'sim.getShapeTextureId' notation",false},
-    {"simGetCollectionObjects",_simGetCollectionObjects,        "Use the newer 'sim.getCollectionObjects' notation",false},
-    {"simHandleCustomizationScripts",_simHandleCustomizationScripts,"Use the newer 'sim.handleCustomizationScripts' notation",false},
-    {"simSetScriptAttribute",_simSetScriptAttribute,            "Use the newer 'sim.setScriptAttribute' notation",false},
-    {"simGetScriptAttribute",_simGetScriptAttribute,            "Use the newer 'sim.getScriptAttribute' notation",false},
-    {"simHandleChildScripts",_simHandleChildScripts,            "Use the newer 'sim.handleChildScripts' notation",false},
-    {"simReorientShapeBoundingBox",_simReorientShapeBoundingBox,"Use the newer 'sim.reorientShapeBoundingBox' notation",false},
-    {"simHandleVisionSensor",_simHandleVisionSensor,            "Use the newer 'sim.handleVisionSensor' notation",false},
-    {"simReadVisionSensor",_simReadVisionSensor,                "Use the newer 'sim.readVisionSensor' notation",false},
-    {"simResetVisionSensor",_simResetVisionSensor,              "Use the newer 'sim.resetVisionSensor' notation",false},
-    {"simGetVisionSensorResolution",_simGetVisionSensorResolution,"Use the newer 'sim.getVisionSensorResolution' notation",false},
-    {"simGetVisionSensorImage",_simGetVisionSensorImage,        "Use the newer 'sim.getVisionSensorImage' notation",false},
-    {"simSetVisionSensorImage",_simSetVisionSensorImage,        "Use the newer 'sim.setVisionSensorImage' notation",false},
-    {"simGetVisionSensorCharImage",_simGetVisionSensorCharImage,"Use the newer 'sim.getVisionSensorCharImage' notation",false},
-    {"simSetVisionSensorCharImage",_simSetVisionSensorCharImage,"Use the newer 'sim.setVisionSensorCharImage' notation",false},
-    {"simGetVisionSensorDepthBuffer",_simGetVisionSensorDepthBuffer,"Use the newer 'sim.getVisionSensorDepthBuffer' notation",false},
-    {"simCheckVisionSensor",_simCheckVisionSensor,              "Use the newer 'sim.checkVisionSensor' notation",false},
-    {"simCheckVisionSensorEx",_simCheckVisionSensorEx,          "Use the newer 'sim.checkVisionSensorEx' notation",false},
-    {"simRMLPos",_simRMLPos,                                    "Use the newer 'sim.rmlPos' notation",false},
-    {"simRMLVel",_simRMLVel,                                    "Use the newer 'sim.rmlVel' notation",false},
-    {"simRMLStep",_simRMLStep,                                  "Use the newer 'sim.rmlStep' notation",false},
-    {"simRMLRemove",_simRMLRemove,                              "Use the newer 'sim.rmlRemove' notation",false},
-    {"simBuildMatrixQ",_simBuildMatrixQ,                        "Use the newer 'sim.buildMatrixQ' notation",false},
-    {"simGetQuaternionFromMatrix",_simGetQuaternionFromMatrix,  "Use the newer 'sim.getQuaternionFromMatrix' notation",false},
-    {"simFileDialog",_simFileDialog,                            "Use the newer 'sim.fileDialog' notation",false},
-    {"simMsgBox",_simMsgBox,                                    "Use the newer 'sim.msgBox' notation",false},
-    {"simLoadModule",_simLoadModule,                            "Use the newer 'sim.loadModule' notation",false},
-    {"simUnloadModule",_simUnloadModule,                        "Use the newer 'sim.unloadModule' notation",false},
-    {"simCallScriptFunction",_simCallScriptFunction,            "Use the newer 'sim.callScriptFunction' notation",false},
-    {"simGetExtensionString",_simGetExtensionString,            "Use the newer 'sim.getExtensionString' notation",false},
-    {"simComputeMassAndInertia",_simComputeMassAndInertia,      "Use the newer 'sim.computeMassAndInertia' notation",false},
-    {"simSetScriptVariable",_simSetScriptVariable,              "Deprecated. Use sim.executeScriptString instead",false},
-    {"simGetEngineFloatParameter",_simGetEngineFloatParam,      "Deprecated. Use sim.getEngineFloatParam instead",false},
-    {"simGetEngineInt32Parameter",_simGetEngineInt32Param,      "Deprecated. Use sim.getEngineInt32Param instead",false},
-    {"simGetEngineBoolParameter",_simGetEngineBoolParam,        "Deprecated. Use sim.getEngineBoolParam instead",false},
-    {"simSetEngineFloatParameter",_simSetEngineFloatParam,      "Deprecated. Use sim.setEngineFloatParam instead",false},
-    {"simSetEngineInt32Parameter",_simSetEngineInt32Param,      "Deprecated. Use sim.setEngineInt32Param instead",false},
-    {"simSetEngineBoolParameter",_simSetEngineBoolParam,        "Deprecated. Use sim.setEngineBoolParam instead",false},
-    {"simCreateOctree",_simCreateOctree,                        "Use the newer 'sim.createOctree' notation",false},
-    {"simCreatePointCloud",_simCreatePointCloud,                "Use the newer 'sim.createPointCloud' notation",false},
-    {"simSetPointCloudOptions",_simSetPointCloudOptions,        "Use the newer 'sim.setPointCloudOptions' notation",false},
-    {"simGetPointCloudOptions",_simGetPointCloudOptions,        "Use the newer 'sim.getPointCloudOptions' notation",false},
-    {"simInsertVoxelsIntoOctree",_simInsertVoxelsIntoOctree,    "Use the newer 'sim.insertVoxelsIntoOctree' notation",false},
-    {"simRemoveVoxelsFromOctree",_simRemoveVoxelsFromOctree,    "Use the newer 'sim.removeVoxelsFromOctree' notation",false},
-    {"simInsertPointsIntoPointCloud",_simInsertPointsIntoPointCloud,"Use the newer 'sim.insertPointsIntoPointCloud' notation",false},
-    {"simRemovePointsFromPointCloud",_simRemovePointsFromPointCloud,"Use the newer 'sim.removePointsFromPointCloud' notation",false},
-    {"simIntersectPointsWithPointCloud",_simIntersectPointsWithPointCloud,"Use the newer 'sim.intersectPointsWithPointCloud' notation",false},
-    {"simGetOctreeVoxels",_simGetOctreeVoxels,                  "Use the newer 'sim.getOctreeVoxels' notation",false},
-    {"simGetPointCloudPoints",_simGetPointCloudPoints,          "Use the newer 'sim.getPointCloudPoints' notation",false},
-    {"simInsertObjectIntoOctree",_simInsertObjectIntoOctree,    "Use the newer 'sim.insertObjectIntoOctree' notation",false},
-    {"simSubtractObjectFromOctree",_simSubtractObjectFromOctree,    "Use the newer 'sim.subtractObjectFromOctree' notation",false},
-    {"simInsertObjectIntoPointCloud",_simInsertObjectIntoPointCloud,"Use the newer 'sim.insertObjectIntoPointCloud' notation",false},
-    {"simSubtractObjectFromPointCloud",_simSubtractObjectFromPointCloud,    "Use the newer 'sim.subtractObjectFromPointCloud' notation",false},
-    {"simCheckOctreePointOccupancy",_simCheckOctreePointOccupancy,"Use the newer 'sim.checkOctreePointOccupancy' notation",false},
-    {"simOpenTextEditor",_simOpenTextEditor,                    "Deprecated. Use 'sim.textEditorOpen' instead",false},
-    {"simSetVisionSensorFilter",_simSetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",false},
-    {"simGetVisionSensorFilter",_simGetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",false},
-    {"simGetScriptSimulationParameter",_simGetScriptSimulationParameter,"Deprecated. Use 'sim.getUserParameter' instead",false},
-    {"simSetScriptSimulationParameter",_simSetScriptSimulationParameter,"Deprecated. Use 'sim.setUserParameter' instead",false},
-    {"simHandleSimulationStart",_simHandleSimulationStart,      "Use the newer 'sim.handleSimulationStart' notation",false},
-    {"simHandleSensingStart",_simHandleSensingStart,            "Use the newer 'sim.handleSensingStart' notation",false},
-    {"simAuxFunc",_simAuxFunc,                                  "Use the newer 'sim.auxFunc' notation",false},
-    {"simSetReferencedHandles",_simSetReferencedHandles,        "Use the newer 'sim.setReferencedHandles' notation",false},
-    {"simGetReferencedHandles",_simGetReferencedHandles,        "Use the newer 'sim.getReferencedHandles' notation",false},
-    {"simGetGraphCurve",_simGetGraphCurve,                        "Use the newer 'sim.getGraphCurve' notation",false},
-    {"simTest",_simTest,                                        "Use the newer 'sim.test' notation",false},
-    {"simAddStatusbarMessage",_simAddStatusbarMessage,          "Deprecated. Use 'sim.addLog' instead",false},
-    // Following deprecated since 21/05/2017:
-    {"simGetObjectSelectionSize",_simGetObjectSelectionSize,    "Deprecated. Use sim.getObjectSelection instead",false},
-    {"simGetObjectLastSelection",_simGetObjectLastSelection,    "Deprecated. Use sim.getObjectSelection instead",false},
-    {"simReleaseScriptRawBuffer",_simReleaseScriptRawBuffer,    "Deprecated",false},
-    // Following deprecated since V3.3.0:
-    {"simGetPathPlanningHandle",_simGetPathPlanningHandle,      "Deprecated. Use the OMPL-based API instead",false},
-    {"simSearchPath",_simSearchPath,                            "Deprecated. Use the OMPL-based API instead",false},
-    {"simInitializePathSearch",_simInitializePathSearch,        "Deprecated. Use the OMPL-based API instead",false},
-    {"simPerformPathSearchStep",_simPerformPathSearchStep,      "Deprecated. Use the OMPL-based API instead",false},
-    // Following deprecated since 09/02/2017:
-    {"simLoadUI",_simLoadUI,                                    "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simSaveUI",_simSaveUI,                                    "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simRemoveUI",_simRemoveUI,                                "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simCreateUI",_simCreateUI,                                "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simCreateUIButton",_simCreateUIButton,                    "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simGetUIPosition",_simGetUIPosition,                      "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simSetUIPosition",_simSetUIPosition,                      "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simGetUIHandle",_simGetUIHandle,                          "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simGetUIProperty",_simGetUIProperty,                      "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simGetUIEventButton",_simGetUIEventButton,                "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simSetUIProperty",_simSetUIProperty,                      "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simGetUIButtonProperty",_simGetUIButtonProperty,          "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simSetUIButtonProperty",_simSetUIButtonProperty,          "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simGetUIButtonSize",_simGetUIButtonSize,                  "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simSetUIButtonLabel",_simSetUIButtonLabel,                "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simGetUIButtonLabel",_simGetUIButtonLabel,                "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simSetUISlider",_simSetUISlider,                          "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simGetUISlider",_simGetUISlider,                          "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simSetUIButtonColor",_simSetUIButtonColor,                "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simCreateUIButtonArray",_simCreateUIButtonArray,          "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simSetUIButtonArrayColor",_simSetUIButtonArrayColor,      "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simDeleteUIButtonArray",_simDeleteUIButtonArray,          "Deprecated. Use Qt-based custom UIs instead",false},
-    // Following for backward compatibility (nov-dec 2011):
-    {"simGet2DElementHandle",_simGetUIHandle,                       "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simGet2DElementProperty",_simGetUIProperty,                   "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simGet2DElementEventButton",_simGetUIEventButton,             "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simSet2DElementProperty",_simSetUIProperty,                   "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simGet2DElementButtonProperty",_simGetUIButtonProperty,       "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simSet2DElementButtonProperty",_simSetUIButtonProperty,       "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simGet2DElementButtonSize",_simGetUIButtonSize,               "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simSet2DElementButtonLabel",_simSetUIButtonLabel,             "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simGet2DElementButtonLabel",_simGetUIButtonLabel,             "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simSet2DElementSlider",_simSetUISlider,                       "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simGet2DElementSlider",_simGetUISlider,                       "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simSet2DElementButtonColor",_simSetUIButtonColor,             "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simCreate2DElementButtonArray",_simCreateUIButtonArray,       "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simSet2DElementButtonArrayColor",_simSetUIButtonArrayColor,   "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simDelete2DElementButtonArray",_simDeleteUIButtonArray,       "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simRemove2DElement",_simRemoveUI,                             "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simCreate2DElement",_simCreateUI,                             "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simCreate2DElementButton",_simCreateUIButton,                 "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simGet2DElementPosition",_simGetUIPosition,                   "Deprecated. Use Qt-based custom UIs instead",false},
-    {"simSet2DElementPosition",_simSetUIPosition,                   "Deprecated. Use Qt-based custom UIs instead",false},
-    // Following deprecated since 26/12/2016:
-    {"simAddSceneCustomData",_simAddSceneCustomData,                "Deprecated. Use sim.writeCustomDataBlock instead",false},
-    {"simGetSceneCustomData",_simGetSceneCustomData,                "Deprecated. Use sim.readCustomDataBlock instead",false},
-    {"simAddObjectCustomData",_simAddObjectCustomData,              "Deprecated. Use sim.writeCustomDataBlock instead",false},
-    {"simGetObjectCustomData",_simGetObjectCustomData,              "Deprecated. Use sim.readCustomDataBlock instead",false},
-    // Following deprecated since 29/10/2016:
-    {"simGetMaterialId",_simGetMaterialId,                          "Deprecated. Use sim.setShapeMaterial instead",false},
-    {"simGetShapeMaterial",_simGetShapeMaterial,                    "Deprecated. Use sim.setShapeMaterial instead",false},
-    {"simHandleVarious",_simHandleVarious,                          "Deprecated. Use sim.handleSimulationStart and sim.handleSensingStart instead",false},
-    // Following deprecated since 13/9/2016:
-    {"simPackInts",_simPackInt32Table,                              "Deprecated. Use sim.packInt32Table instead",false},
-    {"simPackUInts",_simPackUInt32Table,                            "Deprecated. Use sim.packUInt32Table instead",false},
-    {"simPackFloats",_simPackFloatTable,                            "Deprecated. Use sim.packFloatTable instead",false},
-    {"simPackDoubles",_simPackDoubleTable,                          "Deprecated. Use sim.packDoubleTable instead",false},
-    {"simPackBytes",_simPackUInt8Table,                             "Deprecated. Use sim.packUInt8Table instead",false},
-    {"simPackWords",_simPackUInt16Table,                            "Deprecated. Use sim.packUInt16Table instead",false},
-    {"simUnpackInts",_simUnpackInt32Table,                          "Deprecated. Use sim.unpackInt32Table instead",false},
-    {"simUnpackUInts",_simUnpackUInt32Table,                        "Deprecated. Use sim.unpackUInt32Table instead",false},
-    {"simUnpackFloats",_simUnpackFloatTable,                        "Deprecated. Use sim.unpackFloatTable instead",false},
-    {"simUnpackDoubles",_simUnpackDoubleTable,                      "Deprecated. Use sim.unpackDoubleTable instead",false},
-    {"simUnpackBytes",_simUnpackUInt8Table,                         "Deprecated. Use sim.unpackUInt8Table instead",false},
-    {"simUnpackWords",_simUnpackUInt16Table,                        "Deprecated. Use sim.unpackUInt16Table instead",false},
-    // Following deprecated:
-    {"simGetInvertedMatrix",_simGetInvertedMatrix,                  "Deprecated. Use sim.invertMatrix instead",false}, // 10/05/2016
-    {"simEnableWorkThreads",_simEnableWorkThreads,                  "Deprecated. Has no effect",false},
-    {"simWaitForWorkThreads",_simWaitForWorkThreads,                "Deprecated. Has no effect",false},
-    {"simFindIkPath",_simFindIkPath,                                "Deprecated. Use sim.generateIkPath instead",false},
-    {"simHandleChildScript",_simHandleChildScript,                  "Deprecated. Use sim.handleChildScripts instead",false},
-    {"simHandleSensingChildScripts",_simHandleSensingChildScripts,  "Deprecated. Use sim.handleChildScripts instead",false},
-    {"simDelegateChildScriptExecution",_simDelegateChildScriptExecution,"Deprecated. Has no effect",false},
-    {"simResetTracing",_simResetTracing,                            "Deprecated. Has no effect",false},
-    {"simHandleTracing",_simHandleTracing,                          "Deprecated. Has no effect",false},
-    {"simCopyPasteSelectedObjects",_simCopyPasteSelectedObjects,    "Deprecated. Use sim.copyPasteObjects instead",false},
-    {"simGetShapeVertex",_simGetShapeVertex,                        "Deprecated. Use sim.getShapeMesh instead",false},
-    {"simGetShapeTriangle",_simGetShapeTriangle,                    "Deprecated. Use sim.getShapeMesh instead",false},
-    {"simGetInstanceIndex",_simGetInstanceIndex,                    "Deprecated. Returns 0",false},
-    {"simGetVisibleInstanceIndex",_simGetVisibleInstanceIndex,      "Deprecated. Returns 0",false},
-    {"simGetSystemTimeInMilliseconds",_simGetSystemTimeInMilliseconds,"Deprecated. Use sim.getSystemTimeInMs instead",false},
-    {"simLockInterface",_simLockInterface,                          "Deprecated. Has no effect",false},
-    {"simJointGetForce",_simJointGetForce,                          "Deprecated. Use sim.getJointForce instead",false},
-    {"simScaleSelectedObjects",_simScaleSelectedObjects,            "Deprecated. Use sim.scaleObjects instead",false},
-    {"simDeleteSelectedObjects",_simDeleteSelectedObjects,          "Deprecated. Use sim.removeObject instead",false},
-    {"simResetPath",_simResetPath,                                  "Deprecated",false},
-    {"simResetJoint",_simResetJoint,                                "Deprecated",false},
-    {"simGetMpConfigForTipPose",_simGetMpConfigForTipPose,          "Deprecated. Use sim.getConfigForTipPose instead",false},
-    // Following for backward compatibility (June 2020):
-    {"simGetNameSuffix",_simGetNameSuffix,                      "Deprecated.",false},
-    {"simSetNameSuffix",_simSetNameSuffix,                      "Deprecated.",false},
-    // Following for backward compatibility (Dec 2015):
-    {"simSetBooleanParameter",_simSetBoolParam,                 "Deprecated. Use sim.setBoolParam instead",false},
-    {"simGetBooleanParameter",_simGetBoolParam,                 "Deprecated. Use sim.getBoolParam instead",false},
-    {"simSetIntegerParameter",_simSetInt32Param,                "Deprecated. Use sim.setInt32Param instead",false},
-    {"simGetIntegerParameter",_simGetInt32Param,                "Deprecated. Use sim.getInt32Param instead",false},
-    {"simSetFloatingParameter",_simSetFloatParam,               "Deprecated. Use sim.setFloatParam instead",false},
-    {"simGetFloatingParameter",_simGetFloatParam,               "Deprecated. Use sim.getFloatParam instead",false},
-    {"simGetObjectIntParameter",_simGetObjectInt32Parameter,    "Deprecated. Use sim.getObjectInt32Param instead",false},
-    {"simSetObjectIntParameter",_simSetObjectInt32Param,        "Deprecated. Use sim.setObjectInt32Param instead",false},
-    // Following for backward compatibility:
-    {"simHandleRenderingSensor",_simHandleVisionSensor,             "Deprecated. Use sim.handleVisionSensor instead",false},
-    {"simReadRenderingSensor",_simReadVisionSensor,                 "Deprecated. Use sim.readVisionSensor instead",false},
-    {"simResetRenderingSensor",_simResetVisionSensor,               "Deprecated. Use sim.resetVisionSensor instead",false},
-    {"simGetRenderingSensorResolution",_simGetVisionSensorResolution,"Deprecated. Use sim.getVisionSensorResolution instead",false},
-    {"simGetRenderingSensorImage",_simGetVisionSensorImage,         "Deprecated. Use sim.getVisionSensorImage instead",false},
-    {"simSetRenderingSensorImage",_simSetVisionSensorImage,         "Deprecated. Use sim.setVisionSensorImage instead",false},
-    {"simGetRenderingSensorDepthBuffer",_simGetVisionSensorDepthBuffer,"Deprecated. Use sim.getVisionSensorDepthBuffer instead",false},
-    {"simCheckRenderingSensor",_simCheckVisionSensor,               "Deprecated. Use sim.checkVisionSensor instead",false},
-    {"simCheckRenderingSensorEx",_simCheckVisionSensorEx,           "Deprecated. Use sim.checkVisionSensorEx instead",false},
-    // Following for backward compatibility (deprecated since 23/5/2014):
-    {"simRMLPosition",_simRMLPosition,                              "Deprecated. Use sim.rmlPos instead",false},
-    {"simRMLVelocity",_simRMLVelocity,                              "Deprecated. Use sim.rmlVel instead",false},
-
-    {"simCheckIkGroup",_simCheckIkGroup,                        "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
-    {"simCreateIkGroup",_simCreateIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
-    {"simRemoveIkGroup",_simRemoveIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
-    {"simCreateIkElement",_simCreateIkElement,                  "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
-    {"simExportIk",_simExportIk,                                "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
-    {"simComputeJacobian",_simComputeJacobian,                  "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
-    {"simGetConfigForTipPose",_simGetConfigForTipPose,          "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
-    {"simGenerateIkPath",_simGenerateIkPath,                    "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
-    {"simGetIkGroupHandle",_simGetIkGroupHandle,                "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
-    {"simGetIkGroupMatrix",_simGetIkGroupMatrix,                "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
-    {"simHandleIkGroup",_simHandleIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
-    {"simSetIkGroupProperties",_simSetIkGroupProperties,        "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
-    {"simSetIkElementProperties",_simSetIkElementProperties,    "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
-    {"simTubeRead",_simTubeRead,                                "Deprecated. Use signals or custom data blocks instead",false},
-    {"simTubeOpen",_simTubeOpen,                                "Deprecated. Use signals or custom data blocks instead",false},
-    {"simTubeClose",_simTubeClose,                              "Deprecated. Use signals or custom data blocks instead",false},
-    {"simTubeWrite",_simTubeWrite,                              "Deprecated. Use signals or custom data blocks instead",false},
-    {"simTubeStatus",_simTubeStatus,                            "Deprecated. Use signals or custom data blocks instead",false},
-    {"simSendData",_simSendData,                                "Deprecated. Use signals or custom data blocks instead",false},
-    {"simReceiveData",_simReceiveData,                          "Deprecated. Use signals or custom data blocks instead",false},
-    {"simMoveToPosition",_simMoveToPosition,                    "Deprecated. Use 'sim.moveToPose' instead",false},
-    {"simMoveToObject",_simMoveToObject,                        "Deprecated. Use 'sim.moveToPose' instead",false},
-    {"simFollowPath",_simFollowPath,                            "Deprecated. Use 'sim.rmlPos' and 'sim.rmlStep' instead",false},
-    {"simMoveToJointPositions",_simMoveToJointPositions,        "Deprecated. Use 'sim.moveToConfig' instead",false},
-    {"simGetPathPosition",_simGetPathPosition,                  "Deprecated",false},
-    {"simSetPathPosition",_simSetPathPosition,                  "Deprecated",false},
-    {"simGetPathLength",_simGetPathLength,                      "Deprecated",false},
-    {"simGetDataOnPath",_simGetDataOnPath,                      "Deprecated",false},
-    {"simGetPositionOnPath",_simGetPositionOnPath,              "Deprecated",false},
-    {"simGetOrientationOnPath",_simGetOrientationOnPath,        "Deprecated",false},
-    {"simGetClosestPositionOnPath",_simGetClosestPositionOnPath,"Deprecated",false},
-    {"simCreatePath",_sim_CreatePath,                           "Deprecated",false},
-    {"simInsertPathCtrlPoints",_simInsertPathCtrlPoints,        "Deprecated",false},
-    {"simCutPathCtrlPoints",_simCutPathCtrlPoints,              "Deprecated",false},
-    {"simGetScriptExecutionCount",_simGetScriptExecutionCount,  "Deprecated",false},
-    {"simIsScriptExecutionThreaded",_simIsScriptExecutionThreaded,"Deprecated",false},
-    {"simIsScriptRunningInThread",_simIsScriptRunningInThread,  "Deprecated",false},
-    {"simSetThreadResumeLocation",_simSetThreadResumeLocation,  "Deprecated",false},
-    {"simResumeThreads",_simResumeThreads,                      "Deprecated",false},
-    {"simLaunchThreadedChildScripts",_simLaunchThreadedChildScripts,"Deprecated",false},
-    {"simGetCollectionHandle",_simGetCollectionHandle,          "Deprecated. Use 'sim.createCollection' instead",false},
-    {"simRemoveCollection",_simRemoveCollection,                "Deprecated. Use 'sim.destroyCollection' instead",false},
-    {"simEmptyCollection",_simEmptyCollection,                  "Deprecated. Use 'sim.destroyCollection' instead",false},
-    {"simGetCollectionName",_simGetCollectionName,              "Deprecated",false},
-    {"simSetCollectionName",_simSetCollectionName,              "Deprecated",false},
-    {"simCreateCollection",_sim_CreateCollection,               "Deprecated. Use 'sim.createCollection' instead",false},
-    {"simAddObjectToCollection",_simAddObjectToCollection,      "Deprecated. Use 'sim.addItemToCollection' instead",false},
-    {"simHandleDistance",_simHandleDistance,                    "Deprecated. Use 'sim.checkDistance' instead",false},
-    {"simReadDistance",_simReadDistance,                        "Deprecated. Use 'sim.checkDistance' instead",false},
-    {"simHandleCollision",_simHandleCollision,                  "Deprecated. Use 'sim.checkCollision' instead",false},
-    {"simReadCollision",_simReadCollision,                      "Deprecated. Use 'sim.checkCollision' instead",false},
-    {"simResetCollision",_simResetCollision,                    "Deprecated",false},
-    {"simResetDistance",_simResetDistance,                      "Deprecated",false},
-    {"simGetCollisionHandle",_simGetCollisionHandle,            "Deprecated. Use 'sim.checkCollision' instead",false},
-    {"simGetDistanceHandle",_simGetDistanceHandle,              "Deprecated. Use 'sim.checkDistance' instead",false},
-    {"simAddBanner",_simAddBanner,                              "Deprecated",false},
-    {"simRemoveBanner",_simRemoveBanner,                        "Deprecated",false},
-    {"simAddGhost",_simAddGhost,                                "Deprecated",false},
-    {"simModifyGhost",_simModifyGhost,                          "Deprecated",false},
-    {"simAddPointCloud",_simAddPointCloud,                      "Deprecated. Use point cloud objects instead",false},
-    {"simModifyPointCloud",_simModifyPointCloud,                "Deprecated. Use point cloud objects instead",false},
-    {"simSetGraphUserData",_simSetGraphUserData,                "Deprecated. Use sim.setGraphStreamValue instead",false},
-    {"simCopyMatrix",_simCopyMatrix,                            "Deprecated. Use sim.copyTable instead",false},
-    //{"simRMLMoveToPosition",_simRMLMoveToPosition,              "Deprecated. Use 'sim.moveToPose' instead",false},
-    //{"simRMLMoveToJointPositions",_simRMLMoveToJointPositions,  "Deprecated. Use 'sim.moveToConfig' instead",false},
-    //{"simWait",_simWait,                                        "Use the newer 'sim.wait' notation",false},
-    //{"simWaitForSignal",_simWaitForSignal,                      "Use the newer 'sim.waitForSignal' notation",false},
-    //{"simSetThreadIsFree",_simSetThreadIsFree,                  "Use the newer 'sim.setThreadIsFree' notation",false},
-    //{"simSerialRead",_simSerialRead,                            "Use the newer 'sim.serialRead' notation",false},
-    //{"simSerialOpen",_simSerialOpen,                            "Use the newer 'sim.serialOpen' notation",false},
-    //{"simSerialClose",_simSerialClose,                          "Use the newer 'sim.serialClose' notation",false},
-    //{"simSerialPortOpen",_simSerialPortOpen,                        "Deprecated. Use sim.serialOpen instead",false},
-    //{"simSerialPortClose",_simSerialPortClose,                      "Deprecated. Use sim.serialClose instead",false},
-    //{"simSerialPortSend",_simSerialPortSend,                        "Deprecated. Use sim.serialSend instead",false},
-    //{"simSerialPortRead",_simSerialPortRead,                        "Deprecated. Use sim.serialRead instead",false},
-    //{"simBoolOr16",_simBoolOr16,                                "Deprecated. Use the bitwise operator | instead",false},
-    //{"simBoolAnd16",_simBoolAnd16,                              "Deprecated. Use the bitwise operator & instead",false},
-    //{"simBoolXor16",_simBoolXor16,                              "Deprecated. Use the bitwise operator ~ instead",false},
-    //{"simBoolOr32",_simBoolOr32,                                "Deprecated. Use the bitwise operator | instead",false},
-    //{"simBoolAnd32",_simBoolAnd32,                              "Deprecated. Use the bitwise operator & instead",false},
-    //{"simBoolXor32",_simBoolXor32,                              "Deprecated. Use the bitwise operator ~ instead",false},
-
-
-    {"",nullptr,"",false}
-};
-
 const SLuaVariables simLuaVariables[]=
 {
-    // 3D object types (main types):
+    // Scene object types (main types):
     {"sim.object_shape_type",sim_object_shape_type,true},
     {"sim.object_joint_type",sim_object_joint_type,true},
     {"sim.object_graph_type",sim_object_graph_type,true},
@@ -1262,13 +756,7 @@ const SLuaVariables simLuaVariables[]=
     // Boolean parameters:
     {"sim.boolparam_hierarchy_visible",sim_boolparam_hierarchy_visible,true},
     {"sim.boolparam_console_visible",sim_boolparam_console_visible,true},
-    {"sim.boolparam_collision_handling_enabled",sim_boolparam_collision_handling_enabled,true},
-    {"sim.boolparam_distance_handling_enabled",sim_boolparam_distance_handling_enabled,true},
     {"sim.boolparam_dynamics_handling_enabled",sim_boolparam_dynamics_handling_enabled,true},
-    {"sim.boolparam_proximity_sensor_handling_enabled",sim_boolparam_proximity_sensor_handling_enabled,true},
-    {"sim.boolparam_vision_sensor_handling_enabled",sim_boolparam_vision_sensor_handling_enabled,true},
-    {"sim.boolparam_rendering_sensor_handling_enabled",sim_boolparam_vision_sensor_handling_enabled,true},
-    {"sim.boolparam_mill_handling_enabled",sim_boolparam_mill_handling_enabled,true},
     {"sim.boolparam_browser_visible",sim_boolparam_browser_visible,true},
     {"sim.boolparam_scene_and_model_load_messages",sim_boolparam_scene_and_model_load_messages,true},
     {"sim.boolparam_shape_textures_are_visible",sim_boolparam_shape_textures_are_visible,true},
@@ -1284,8 +772,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.boolparam_realtime_simulation",sim_boolparam_realtime_simulation,true},
     {"sim.boolparam_scene_closing",sim_boolparam_scene_closing,true},
     {"sim.boolparam_use_glfinish_cmd",sim_boolparam_use_glfinish_cmd,true},
-    {"sim.boolparam_force_show_wireless_emission",sim_boolparam_force_show_wireless_emission,true},
-    {"sim.boolparam_force_show_wireless_reception",sim_boolparam_force_show_wireless_reception,true},
     {"sim.boolparam_video_recording_triggered",sim_boolparam_video_recording_triggered,true},
     {"sim.boolparam_fullscreen",sim_boolparam_fullscreen,true},
     {"sim.boolparam_headless",sim_boolparam_headless,true},
@@ -2002,6 +1488,14 @@ const SLuaVariables simLuaVariables[]=
 
 
     // deprecated!
+    {"sim.boolparam_force_show_wireless_emission",sim_boolparam_force_show_wireless_emission,false},
+    {"sim.boolparam_force_show_wireless_reception",sim_boolparam_force_show_wireless_reception,false},
+    {"sim.boolparam_collision_handling_enabled",sim_boolparam_collision_handling_enabled,false},
+    {"sim.boolparam_distance_handling_enabled",sim_boolparam_distance_handling_enabled,false},
+    {"sim.boolparam_proximity_sensor_handling_enabled",sim_boolparam_proximity_sensor_handling_enabled,false},
+    {"sim.boolparam_vision_sensor_handling_enabled",sim_boolparam_vision_sensor_handling_enabled,false},
+    {"sim.boolparam_rendering_sensor_handling_enabled",sim_boolparam_vision_sensor_handling_enabled,false},
+    {"sim.boolparam_mill_handling_enabled",sim_boolparam_mill_handling_enabled,false},
     {"sim.modelproperty_not_renderable",sim_modelproperty_not_renderable,false},
     {"sim.objectspecialproperty_detectable_ultrasonic",sim_objectspecialproperty_detectable_ultrasonic,false},
     {"sim.objectspecialproperty_detectable_infrared",sim_objectspecialproperty_detectable_infrared,false},
@@ -2126,1144 +1620,7 @@ const SLuaVariables simLuaVariables[]=
     {"",-1}
 };
 
-
-const SLuaVariables simLuaVariablesOldApi[]=
-{ // Following for backward compatibility (see newer equivalent commands ('simLuaVariables'))
-    {"sim.mainscriptcall_initialization",sim_syscb_init,false},
-    {"sim.mainscriptcall_cleanup",sim_syscb_cleanup,false},
-    {"sim.mainscriptcall_regular",sim_syscb_actuation,false},
-    {"sim.syscb_regular",sim_syscb_actuation,false},
-    {"sim.childscriptcall_initialization",sim_syscb_init,false},
-    {"sim.childscriptcall_cleanup",sim_syscb_cleanup,false},
-    {"sim.childscriptcall_actuation",sim_syscb_actuation,false},
-    {"sim.childscriptcall_sensing",sim_syscb_sensing,false},
-    {"sim.addonscriptcall_initialization",sim_syscb_init,false},
-    {"sim.addonscriptcall_suspend",sim_syscb_aos_suspend,false},
-    {"sim.addonscriptcall_restarting",sim_syscb_aos_resume,false},
-    {"sim.addonscriptcall_cleanup",sim_syscb_cleanup,false},
-    {"sim.customizationscriptcall_initialization",sim_syscb_init,false},
-    {"sim.customizationscriptcall_cleanup",sim_syscb_cleanup,false},
-    {"sim.customizationscriptcall_nonsimulation",sim_syscb_nonsimulation,false},
-    {"sim.customizationscriptcall_lastbeforesimulation",sim_syscb_beforesimulation,false},
-    {"sim.customizationscriptcall_firstaftersimulation",sim_syscb_aftersimulation,false},
-    {"sim.customizationscriptcall_simulationactuation",sim_syscb_actuation,false},
-    {"sim.customizationscriptcall_simulationsensing",sim_syscb_sensing,false},
-    {"sim.customizationscriptcall_simulationpause",sim_syscb_suspended,false},
-    {"sim.customizationscriptcall_simulationpausefirst",sim_syscb_suspend,false},
-    {"sim.customizationscriptcall_simulationpauselast",sim_syscb_resume,false},
-    {"sim.customizationscriptcall_lastbeforeinstanceswitch",sim_syscb_beforeinstanceswitch,false},
-    {"sim.customizationscriptcall_firstafterinstanceswitch",sim_syscb_afterinstanceswitch,false},
-    {"sim.customizationscriptcall_beforecopy",sim_syscb_beforecopy,false},
-    {"sim.customizationscriptcall_aftercopy",sim_syscb_aftercopy,false},
-    {"sim.boolparam_show_w_emitters",sim_boolparam_show_w_emitters,false},
-    {"sim.boolparam_show_w_receivers",sim_boolparam_show_w_receivers,false},
-
-    {"sim_object_shape_type",sim_object_shape_type,false},
-    {"sim_object_joint_type",sim_object_joint_type,false},
-    {"sim_object_graph_type",sim_object_graph_type,false},
-    {"sim_object_camera_type",sim_object_camera_type,false},
-    {"sim_object_dummy_type",sim_object_dummy_type,false},
-    {"sim_object_proximitysensor_type",sim_object_proximitysensor_type,false},
-    {"sim_object_path_type",sim_object_path_type,false},
-    {"sim_object_renderingsensor_type",sim_object_visionsensor_type,false},
-    {"sim_object_visionsensor_type",sim_object_visionsensor_type,false},
-    {"sim_object_mill_type",sim_object_mill_type,false},
-    {"sim_object_forcesensor_type",sim_object_forcesensor_type,false},
-    {"sim_object_light_type",sim_object_light_type,false},
-    {"sim_object_mirror_type",sim_object_mirror_type,false},
-    {"sim_object_octree_type",sim_object_octree_type,false},
-    {"sim_object_pointcloud_type",sim_object_pointcloud_type,false},
-    {"sim_light_omnidirectional_subtype",sim_light_omnidirectional_subtype,false},
-    {"sim_light_spot_subtype",sim_light_spot_subtype,false},
-    {"sim_light_directional_subtype",sim_light_directional_subtype,false},
-    {"sim_joint_revolute_subtype",sim_joint_revolute_subtype,false},
-    {"sim_joint_prismatic_subtype",sim_joint_prismatic_subtype,false},
-    {"sim_joint_spherical_subtype",sim_joint_spherical_subtype,false},
-    {"sim_shape_simpleshape_subtype",sim_shape_simpleshape_subtype,false},
-    {"sim_shape_multishape_subtype",sim_shape_multishape_subtype,false},
-    {"sim_proximitysensor_pyramid_subtype",sim_proximitysensor_pyramid_subtype,false},
-    {"sim_proximitysensor_cylinder_subtype",sim_proximitysensor_cylinder_subtype,false},
-    {"sim_proximitysensor_disc_subtype",sim_proximitysensor_disc_subtype,false},
-    {"sim_proximitysensor_cone_subtype",sim_proximitysensor_cone_subtype,false},
-    {"sim_proximitysensor_ray_subtype",sim_proximitysensor_ray_subtype,false},
-    {"sim_mill_pyramid_subtype",sim_mill_pyramid_subtype,false},
-    {"sim_mill_cylinder_subtype",sim_mill_cylinder_subtype,false},
-    {"sim_mill_disc_subtype",sim_mill_disc_subtype,false},
-    {"sim_mill_cone_subtype",sim_mill_cone_subtype,false},
-    {"sim_object_no_subtype",sim_object_no_subtype,false},
-    {"sim_appobj_object_type",sim_appobj_object_type,false},
-    {"sim_appobj_collision_type",sim_appobj_collision_type,false},
-    {"sim_appobj_distance_type",sim_appobj_distance_type,false},
-    {"sim_appobj_simulation_type",sim_appobj_simulation_type,false},
-    {"sim_appobj_ik_type",sim_appobj_ik_type,false},
-    {"sim_appobj_collection_type",sim_appobj_collection_type,false},
-    {"sim_appobj_2delement_type",sim_appobj_ui_type,false},  // for backward compatibility
-    {"sim_appobj_ui_type",sim_appobj_ui_type,false},
-    {"sim_appobj_script_type",sim_appobj_script_type,false},
-    {"sim_appobj_pathplanning_type",sim_appobj_pathplanning_type,false},
-    {"sim_appobj_texture_type",sim_appobj_texture_type,false},
-    {"sim_ik_pseudo_inverse_method",sim_ik_pseudo_inverse_method,false},
-    {"sim_ik_damped_least_squares_method",sim_ik_damped_least_squares_method,false},
-    {"sim_ik_jacobian_transpose_method",sim_ik_jacobian_transpose_method,false},
-    {"sim_ik_x_constraint",sim_ik_x_constraint,false},
-    {"sim_ik_y_constraint",sim_ik_y_constraint,false},
-    {"sim_ik_z_constraint",sim_ik_z_constraint,false},
-    {"sim_ik_alpha_beta_constraint",sim_ik_alpha_beta_constraint,false},
-    {"sim_ik_gamma_constraint",sim_ik_gamma_constraint,false},
-    {"sim_ikresult_not_performed",sim_ikresult_not_performed,false},
-    {"sim_ikresult_success",sim_ikresult_success,false},
-    {"sim_ikresult_fail",sim_ikresult_fail,false},
-    {"sim_message_ui_button_state_change",sim_message_ui_button_state_change,false},
-    {"sim_message_model_loaded",sim_message_model_loaded,false},
-    {"sim_message_scene_loaded",sim_message_scene_loaded,false},
-    {"sim_message_object_selection_changed",sim_message_object_selection_changed,false},
-    {"sim_message_keypress",sim_message_keypress,false},
-    {"sim_message_bannerclicked",sim_message_bannerclicked,false},
-    {"sim_message_prox_sensor_select_down",sim_message_prox_sensor_select_down,false},
-    {"sim_message_prox_sensor_select_up",sim_message_prox_sensor_select_up,false},
-    {"sim_message_pick_select_down",sim_message_pick_select_down,false},
-    {"sim_buttonproperty_button",sim_buttonproperty_button,false},
-    {"sim_buttonproperty_label",sim_buttonproperty_label,false},
-    {"sim_buttonproperty_editbox",sim_buttonproperty_editbox,false},
-    {"sim_buttonproperty_slider",sim_buttonproperty_slider,false},
-    {"sim_buttonproperty_staydown",sim_buttonproperty_staydown,false},
-    {"sim_buttonproperty_enabled",sim_buttonproperty_enabled,false},
-    {"sim_buttonproperty_borderless",sim_buttonproperty_borderless,false},
-    {"sim_buttonproperty_horizontallycentered",sim_buttonproperty_horizontallycentered,false},
-    {"sim_buttonproperty_ignoremouse",sim_buttonproperty_ignoremouse,false},
-    {"sim_buttonproperty_isdown",sim_buttonproperty_isdown,false},
-    {"sim_buttonproperty_transparent",sim_buttonproperty_transparent,false},
-    {"sim_buttonproperty_nobackgroundcolor",sim_buttonproperty_nobackgroundcolor,false},
-    {"sim_buttonproperty_rollupaction",sim_buttonproperty_rollupaction,false},
-    {"sim_buttonproperty_closeaction",sim_buttonproperty_closeaction,false},
-    {"sim_buttonproperty_verticallycentered",sim_buttonproperty_verticallycentered,false},
-    {"sim_buttonproperty_downupevent",sim_buttonproperty_downupevent,false},
-    {"sim_objectproperty_collapsed",sim_objectproperty_collapsed,false},
-    {"sim_objectproperty_selectable",sim_objectproperty_selectable,false},
-    {"sim_objectproperty_selectmodelbaseinstead",sim_objectproperty_selectmodelbaseinstead,false},
-    {"sim_objectproperty_dontshowasinsidemodel",sim_objectproperty_dontshowasinsidemodel,false},
-    {"sim_objectproperty_canupdatedna",sim_objectproperty_canupdatedna,false},
-    {"sim_objectproperty_selectinvisible",sim_objectproperty_selectinvisible,false},
-    {"sim_objectproperty_depthinvisible",sim_objectproperty_depthinvisible,false},
-    {"sim_objectproperty_cannotdelete",sim_objectproperty_cannotdelete,false},
-    {"sim_simulation_stopped",sim_simulation_stopped,false},
-    {"sim_simulation_paused",sim_simulation_paused,false},
-    {"sim_simulation_advancing",sim_simulation_advancing,false},
-    {"sim_simulation_advancing_firstafterstop",sim_simulation_advancing_firstafterstop,false},
-    {"sim_simulation_advancing_running",sim_simulation_advancing_running,false},
-    {"sim_simulation_advancing_lastbeforepause",sim_simulation_advancing_lastbeforepause,false},
-    {"sim_simulation_advancing_firstafterpause",sim_simulation_advancing_firstafterpause,false},
-    {"sim_simulation_advancing_abouttostop",sim_simulation_advancing_abouttostop,false},
-    {"sim_simulation_advancing_lastbeforestop",sim_simulation_advancing_lastbeforestop,false},
-    {"sim_texturemap_plane",sim_texturemap_plane,false},
-    {"sim_texturemap_cylinder",sim_texturemap_cylinder,false},
-    {"sim_texturemap_sphere",sim_texturemap_sphere,false},
-    {"sim_texturemap_cube",sim_texturemap_cube,false},
-    {"sim_scripttype_mainscript",sim_scripttype_mainscript,false},
-    {"sim_scripttype_childscript",sim_scripttype_childscript,false},
-    {"sim_scripttype_addonscript",sim_scripttype_addonscript,false},
-    {"sim_scripttype_addonfunction",sim_scripttype_addonfunction,false},
-    {"sim_scripttype_customizationscript",sim_scripttype_customizationscript,false},
-    {"sim_scripttype_threaded",sim_scripttype_threaded_old,false},
-    {"sim_mainscriptcall_initialization",sim_syscb_init,false},
-    {"sim_mainscriptcall_cleanup",sim_syscb_cleanup,false},
-    {"sim_mainscriptcall_regular",sim_syscb_actuation,false},
-    {"sim_childscriptcall_initialization",sim_syscb_init,false},
-    {"sim_childscriptcall_cleanup",sim_syscb_cleanup,false},
-    {"sim_childscriptcall_actuation",sim_syscb_actuation,false},
-    {"sim_childscriptcall_sensing",sim_syscb_sensing,false},
-    {"sim_childscriptcall_threaded",-1,false},
-    {"sim_customizationscriptcall_initialization",sim_syscb_init,false},
-    {"sim_customizationscriptcall_cleanup",sim_syscb_cleanup,false},
-    {"sim_customizationscriptcall_nonsimulation",sim_syscb_nonsimulation,false},
-    {"sim_customizationscriptcall_lastbeforesimulation",sim_syscb_beforesimulation,false},
-    {"sim_customizationscriptcall_firstaftersimulation",sim_syscb_aftersimulation,false},
-    {"sim_customizationscriptcall_simulationactuation",sim_syscb_actuation,false},
-    {"sim_customizationscriptcall_simulationsensing",sim_syscb_sensing,false},
-    {"sim_customizationscriptcall_simulationpause",sim_syscb_suspended,false},
-    {"sim_customizationscriptcall_simulationpausefirst",sim_syscb_suspend,false},
-    {"sim_customizationscriptcall_simulationpauselast",sim_syscb_resume,false},
-    {"sim_customizationscriptcall_lastbeforeinstanceswitch",sim_syscb_beforeinstanceswitch,false},
-    {"sim_customizationscriptcall_firstafterinstanceswitch",sim_syscb_afterinstanceswitch,false},
-    {"sim_addonscriptcall_initialization",sim_syscb_init,false},
-    {"sim_addonscriptcall_suspend",sim_syscb_aos_suspend,false},
-    {"sim_addonscriptcall_restarting",sim_syscb_aos_resume,false},
-    {"sim_addonscriptcall_cleanup",sim_syscb_cleanup,false},
-    {"sim_customizationscriptattribute_activeduringsimulation",sim_customizationscriptattribute_activeduringsimulation,false},
-    {"sim_scriptattribute_executionorder",sim_scriptattribute_executionorder,false},
-    {"sim_scriptattribute_executioncount",sim_scriptattribute_executioncount,false},
-    {"sim_childscriptattribute_automaticcascadingcalls",sim_childscriptattribute_automaticcascadingcalls,false},
-    {"sim_childscriptattribute_enabled",sim_childscriptattribute_enabled,false},
-    {"sim_scriptattribute_enabled",sim_scriptattribute_enabled,false},
-    {"sim_customizationscriptattribute_cleanupbeforesave",sim_customizationscriptattribute_cleanupbeforesave,false},
-    {"sim_scriptexecorder_first",sim_scriptexecorder_first,false},
-    {"sim_scriptexecorder_normal",sim_scriptexecorder_normal,false},
-    {"sim_scriptexecorder_last",sim_scriptexecorder_last,false},
-    {"sim_scriptthreadresume_allnotyetresumed",sim_scriptthreadresume_allnotyetresumed,false},
-    {"sim_scriptthreadresume_default",sim_scriptthreadresume_default,false},
-    {"sim_scriptthreadresume_actuation_first",sim_scriptthreadresume_actuation_first,false},
-    {"sim_scriptthreadresume_actuation_last",sim_scriptthreadresume_actuation_last,false},
-    {"sim_scriptthreadresume_sensing_first",sim_scriptthreadresume_sensing_first,false},
-    {"sim_scriptthreadresume_sensing_last",sim_scriptthreadresume_sensing_last,false},
-    {"sim_scriptthreadresume_custom",sim_scriptthreadresume_custom,false},
-    {"sim_callbackid_rossubscriber",sim_callbackid_rossubscriber,false},
-    {"sim_callbackid_dynstep",sim_callbackid_dynstep,false},
-    {"sim_callbackid_userdefined",sim_callbackid_userdefined,false},
-    {"sim_script_no_error",sim_script_no_error,false},
-    {"sim_script_main_script_nonexistent",sim_script_main_script_nonexistent,false},
-    {"sim_script_main_not_called",sim_script_main_script_not_called,false},
-    {"sim_script_reentrance_error",sim_script_reentrance_error,false},
-    {"sim_script_lua_error",sim_script_lua_error,false},
-    {"sim_script_call_error",sim_script_call_error,false},
-    {"sim_api_error_report",sim_api_error_report,false},
-    {"sim_api_error_output",sim_api_error_output,false},
-    {"sim_api_warning_output",sim_api_warning_output,false},
-    {"sim_handle_all",sim_handle_all,false},
-    {"sim_handle_all_except_explicit",sim_handle_all_except_explicit,false},
-    {"sim_handle_self",sim_handle_self,false},
-    {"sim_handle_main_script",sim_handle_main_script,false},
-    {"sim_handle_tree",sim_handle_tree,false},
-    {"sim_handle_chain",sim_handle_chain,false},
-    {"sim_handle_single",sim_handle_single,false},
-    {"sim_handle_default",sim_handle_default,false},
-    {"sim_handle_all_except_self",sim_handle_all_except_self,false},
-    {"sim_handle_parent",sim_handle_parent,false},
-    {"sim_handle_scene",sim_handle_scene,false},
-    {"sim_handle_app",sim_handle_app,false},
-    {"sim_handleflag_assembly",sim_handleflag_assembly,false},
-    {"sim_handleflag_camera",sim_handleflag_camera,false},
-    {"sim_handleflag_togglevisibility",sim_handleflag_togglevisibility,false},
-    {"sim_handleflag_extended",sim_handleflag_extended,false},
-    {"sim_handleflag_greyscale",sim_handleflag_greyscale,false},
-    {"sim_handleflag_codedstring",sim_handleflag_codedstring,false},
-    {"sim_handleflag_model",sim_handleflag_model,false},
-    {"sim_handleflag_rawvalue",sim_handleflag_rawvalue,false},
-    {"sim_objectspecialproperty_collidable",sim_objectspecialproperty_collidable,false},
-    {"sim_objectspecialproperty_measurable",sim_objectspecialproperty_measurable,false},
-    {"sim_objectspecialproperty_detectable_ultrasonic",sim_objectspecialproperty_detectable_ultrasonic,false},
-    {"sim_objectspecialproperty_detectable_infrared",sim_objectspecialproperty_detectable_infrared,false},
-    {"sim_objectspecialproperty_detectable_laser",sim_objectspecialproperty_detectable_laser,false},
-    {"sim_objectspecialproperty_detectable_inductive",sim_objectspecialproperty_detectable_inductive,false},
-    {"sim_objectspecialproperty_detectable_capacitive",sim_objectspecialproperty_detectable_capacitive,false},
-    {"sim_objectspecialproperty_renderable",sim_objectspecialproperty_renderable,false},
-    {"sim_objectspecialproperty_detectable_all",sim_objectspecialproperty_detectable,false},
-    {"sim_objectspecialproperty_pathplanning_ignored",sim_objectspecialproperty_pathplanning_ignored,false},
-    {"sim_modelproperty_not_collidable",sim_modelproperty_not_collidable,false},
-    {"sim_modelproperty_not_measurable",sim_modelproperty_not_measurable,false},
-    {"sim_modelproperty_not_renderable",sim_modelproperty_not_renderable,false},
-    {"sim_modelproperty_not_detectable",sim_modelproperty_not_detectable,false},
-    {"sim_modelproperty_not_dynamic",sim_modelproperty_not_dynamic,false},
-    {"sim_modelproperty_not_respondable",sim_modelproperty_not_respondable,false},
-    {"sim_modelproperty_not_reset",sim_modelproperty_not_reset,false},
-    {"sim_modelproperty_not_visible",sim_modelproperty_not_visible,false},
-    {"sim_modelproperty_scripts_inactive",sim_modelproperty_scripts_inactive,false},
-    {"sim_modelproperty_not_showasinsidemodel",sim_modelproperty_not_showasinsidemodel,false},
-    {"sim_modelproperty_not_model",sim_modelproperty_not_model,false},
-    {"sim_dlgstyle_message",sim_dlgstyle_message,false},
-    {"sim_dlgstyle_input",sim_dlgstyle_input,false},
-    {"sim_dlgstyle_ok",sim_dlgstyle_ok,false},
-    {"sim_dlgstyle_ok_cancel",sim_dlgstyle_ok_cancel,false},
-    {"sim_dlgstyle_yes_no",sim_dlgstyle_yes_no,false},
-    {"sim_dlgstyle_dont_center",sim_dlgstyle_dont_center,false},
-    {"sim_dlgret_still_open",sim_dlgret_still_open,false},
-    {"sim_dlgret_ok",sim_dlgret_ok,false},
-    {"sim_dlgret_cancel",sim_dlgret_cancel,false},
-    {"sim_dlgret_yes",sim_dlgret_yes,false},
-    {"sim_dlgret_no",sim_dlgret_no,false},
-    {"sim_pathproperty_show_line",sim_pathproperty_show_line,false},
-    {"sim_pathproperty_show_orientation",sim_pathproperty_show_orientation,false},
-    {"sim_pathproperty_closed_path",sim_pathproperty_closed_path,false},
-    {"sim_pathproperty_automatic_orientation",sim_pathproperty_automatic_orientation,false},
-    {"sim_pathproperty_flat_path",sim_pathproperty_flat_path,false},
-    {"sim_pathproperty_show_position",sim_pathproperty_show_position,false},
-    {"sim_pathproperty_keep_x_up",sim_pathproperty_keep_x_up,false},
-    {"sim_distcalcmethod_dl",sim_distcalcmethod_dl,false},
-    {"sim_distcalcmethod_dac",sim_distcalcmethod_dac,false},
-    {"sim_distcalcmethod_max_dl_dac",sim_distcalcmethod_max_dl_dac,false},
-    {"sim_distcalcmethod_dl_and_dac",sim_distcalcmethod_dl_and_dac,false},
-    {"sim_distcalcmethod_sqrt_dl2_and_dac2",sim_distcalcmethod_sqrt_dl2_and_dac2,false},
-    {"sim_distcalcmethod_dl_if_nonzero",sim_distcalcmethod_dl_if_nonzero,false},
-    {"sim_distcalcmethod_dac_if_nonzero",sim_distcalcmethod_dac_if_nonzero,false},
-    {"sim_boolparam_hierarchy_visible",sim_boolparam_hierarchy_visible,false},
-    {"sim_boolparam_console_visible",sim_boolparam_console_visible,false},
-    {"sim_boolparam_collision_handling_enabled",sim_boolparam_collision_handling_enabled,false},
-    {"sim_boolparam_distance_handling_enabled",sim_boolparam_distance_handling_enabled,false},
-    {"sim_boolparam_ik_handling_enabled",sim_boolparam_ik_handling_enabled,false},
-    {"sim_boolparam_gcs_handling_enabled",sim_boolparam_gcs_handling_enabled,false},
-    {"sim_boolparam_dynamics_handling_enabled",sim_boolparam_dynamics_handling_enabled,false},
-    {"sim_boolparam_proximity_sensor_handling_enabled",sim_boolparam_proximity_sensor_handling_enabled,false},
-    {"sim_boolparam_vision_sensor_handling_enabled",sim_boolparam_vision_sensor_handling_enabled,false},
-    {"sim_boolparam_rendering_sensor_handling_enabled",sim_boolparam_vision_sensor_handling_enabled,false},
-    {"sim_boolparam_mill_handling_enabled",sim_boolparam_mill_handling_enabled,false},
-    {"sim_boolparam_browser_visible",sim_boolparam_browser_visible,false},
-    {"sim_boolparam_scene_and_model_load_messages",sim_boolparam_scene_and_model_load_messages,false},
-    {"sim_boolparam_shape_textures_are_visible",sim_boolparam_shape_textures_are_visible,false},
-    {"sim_boolparam_display_enabled",sim_boolparam_display_enabled,false},
-    {"sim_boolparam_infotext_visible",sim_boolparam_infotext_visible,false},
-    {"sim_boolparam_statustext_open",sim_boolparam_statustext_open,false},
-    {"sim_boolparam_fog_enabled",sim_boolparam_fog_enabled,false},
-    {"sim_boolparam_rml2_available",sim_boolparam_rml2_available,false},
-    {"sim_boolparam_rml4_available",sim_boolparam_rml4_available,false},
-    {"sim_boolparam_mirrors_enabled",sim_boolparam_mirrors_enabled,false},
-    {"sim_boolparam_aux_clip_planes_enabled",sim_boolparam_aux_clip_planes_enabled,false},
-    {"sim_boolparam_full_model_copy_from_api",sim_boolparam_reserved3,false},
-    {"sim_boolparam_realtime_simulation",sim_boolparam_realtime_simulation,false},
-    {"sim_boolparam_use_glfinish_cmd",sim_boolparam_use_glfinish_cmd,false},
-    {"sim_boolparam_force_show_wireless_emission",sim_boolparam_force_show_wireless_emission,false},
-    {"sim_boolparam_force_show_wireless_reception",sim_boolparam_force_show_wireless_reception,false},
-    {"sim_boolparam_video_recording_triggered",sim_boolparam_video_recording_triggered,false},
-    {"sim_boolparam_fullscreen",sim_boolparam_fullscreen,false},
-    {"sim_boolparam_headless",sim_boolparam_headless,false},
-    {"sim_boolparam_hierarchy_toolbarbutton_enabled",sim_boolparam_hierarchy_toolbarbutton_enabled,false},
-    {"sim_boolparam_browser_toolbarbutton_enabled",sim_boolparam_browser_toolbarbutton_enabled,false},
-    {"sim_boolparam_objectshift_toolbarbutton_enabled",sim_boolparam_objectshift_toolbarbutton_enabled,false},
-    {"sim_boolparam_objectrotate_toolbarbutton_enabled",sim_boolparam_objectrotate_toolbarbutton_enabled,false},
-    {"sim_boolparam_force_calcstruct_all_visible",sim_boolparam_force_calcstruct_all_visible,false},
-    {"sim_boolparam_force_calcstruct_all",sim_boolparam_force_calcstruct_all,false},
-    {"sim_boolparam_exit_request",sim_boolparam_exit_request,false},
-    {"sim_boolparam_play_toolbarbutton_enabled",sim_boolparam_play_toolbarbutton_enabled,false},
-    {"sim_boolparam_pause_toolbarbutton_enabled",sim_boolparam_pause_toolbarbutton_enabled,false},
-    {"sim_boolparam_stop_toolbarbutton_enabled",sim_boolparam_stop_toolbarbutton_enabled,false},
-    {"sim_boolparam_waiting_for_trigger",sim_boolparam_waiting_for_trigger,false},
-    {"sim_boolparam_objproperties_toolbarbutton_enabled",sim_boolparam_objproperties_toolbarbutton_enabled,false},
-    {"sim_boolparam_calcmodules_toolbarbutton_enabled",sim_boolparam_calcmodules_toolbarbutton_enabled,false},
-    {"sim_boolparam_rosinterface_donotrunmainscript",sim_boolparam_rosinterface_donotrunmainscript,false},
-    {"sim_intparam_error_report_mode",sim_intparam_error_report_mode,false},
-    {"sim_intparam_program_version",sim_intparam_program_version,false},
-    {"sim_intparam_compilation_version",sim_intparam_compilation_version,false},
-    {"sim_intparam_current_page",sim_intparam_current_page,false},
-    {"sim_intparam_flymode_camera_handle",sim_intparam_flymode_camera_handle,false},
-    {"sim_intparam_dynamic_step_divider",sim_intparam_dynamic_step_divider,false},
-    {"sim_intparam_dynamic_engine",sim_intparam_dynamic_engine,false},
-    {"sim_intparam_server_port_start",sim_intparam_server_port_start,false},
-    {"sim_intparam_server_port_range",sim_intparam_server_port_range,false},
-    {"sim_intparam_server_port_next",sim_intparam_server_port_next,false},
-    {"sim_intparam_visible_layers",sim_intparam_visible_layers,false},
-    {"sim_intparam_infotext_style",sim_intparam_infotext_style,false},
-    {"sim_intparam_settings",sim_intparam_settings,false},
-    {"sim_intparam_qt_version",sim_intparam_qt_version,false},
-    {"sim_intparam_platform",sim_intparam_platform,false},
-    {"sim_intparam_scene_unique_id",sim_intparam_scene_unique_id,false},
-    {"sim_intparam_edit_mode_type",sim_intparam_edit_mode_type,false},
-    {"sim_intparam_work_thread_count",sim_intparam_work_thread_count,false}, // deprecated
-    {"sim_intparam_mouse_x",sim_intparam_mouse_x,false},
-    {"sim_intparam_mouse_y",sim_intparam_mouse_y,false},
-    {"sim_intparam_core_count",sim_intparam_core_count,false},
-    {"sim_intparam_work_thread_calc_time_ms",sim_intparam_work_thread_calc_time_ms,false}, // deprecated
-    {"sim_intparam_idle_fps",sim_intparam_idle_fps,false},
-    {"sim_intparam_prox_sensor_select_down",sim_intparam_prox_sensor_select_down,false},
-    {"sim_intparam_prox_sensor_select_up",sim_intparam_prox_sensor_select_up,false},
-    {"sim_intparam_stop_request_counter",sim_intparam_stop_request_counter,false},
-    {"sim_intparam_program_revision",sim_intparam_program_revision,false},
-    {"sim_intparam_mouse_buttons",sim_intparam_mouse_buttons,false},
-    {"sim_intparam_dynamic_warning_disabled_mask",sim_intparam_dynamic_warning_disabled_mask,false},
-    {"sim_intparam_simulation_warning_disabled_mask",sim_intparam_simulation_warning_disabled_mask,false},
-    {"sim_intparam_scene_index",sim_intparam_scene_index,false},
-    {"sim_intparam_motionplanning_seed",sim_intparam_motionplanning_seed,false},
-    {"sim_intparam_speedmodifier",sim_intparam_speedmodifier,false},
-    {"sim_intparam_dynamic_iteration_count",sim_intparam_dynamic_iteration_count,false},
-    {"sim_floatparam_rand",sim_floatparam_rand,false},
-    {"sim_floatparam_simulation_time_step",sim_floatparam_simulation_time_step,false},
-    {"sim_floatparam_stereo_distance",sim_floatparam_stereo_distance,false},
-    {"sim_floatparam_dynamic_step_size",sim_floatparam_dynamic_step_size,false},
-    {"sim_floatparam_mouse_wheel_zoom_factor",sim_floatparam_mouse_wheel_zoom_factor,false},
-    {"sim_arrayparam_gravity",sim_arrayparam_gravity,false},
-    {"sim_arrayparam_fog",sim_arrayparam_fog,false},
-    {"sim_arrayparam_fog_color",sim_arrayparam_fog_color,false},
-    {"sim_arrayparam_background_color1",sim_arrayparam_background_color1,false},
-    {"sim_arrayparam_background_color2",sim_arrayparam_background_color2,false},
-    {"sim_arrayparam_ambient_light",sim_arrayparam_ambient_light,false},
-    {"sim_arrayparam_random_euler",sim_arrayparam_random_euler,false},
-    {"sim_stringparam_application_path",sim_stringparam_application_path,false},
-    {"sim_stringparam_video_filename",sim_stringparam_video_filename,false},
-    {"sim_stringparam_app_arg1",sim_stringparam_app_arg1,false},
-    {"sim_stringparam_app_arg2",sim_stringparam_app_arg2,false},
-    {"sim_stringparam_app_arg3",sim_stringparam_app_arg3,false},
-    {"sim_stringparam_app_arg4",sim_stringparam_app_arg4,false},
-    {"sim_stringparam_app_arg5",sim_stringparam_app_arg5,false},
-    {"sim_stringparam_app_arg6",sim_stringparam_app_arg6,false},
-    {"sim_stringparam_app_arg7",sim_stringparam_app_arg7,false},
-    {"sim_stringparam_app_arg8",sim_stringparam_app_arg8,false},
-    {"sim_stringparam_app_arg9",sim_stringparam_app_arg9,false},
-    {"sim_stringparam_scene_path_and_name",sim_stringparam_scene_path_and_name,false},
-    {"sim_stringparam_remoteapi_temp_file_dir",sim_stringparam_remoteapi_temp_file_dir,false},
-    {"sim_stringparam_scene_path",sim_stringparam_scene_path,false},
-    {"sim_stringparam_scene_name",sim_stringparam_scene_name,false},
-    {"sim_displayattribute_renderpass",sim_displayattribute_renderpass,false},
-    {"sim_displayattribute_depthpass",sim_displayattribute_depthpass,false},
-    {"sim_displayattribute_pickpass",sim_displayattribute_pickpass,false},
-    {"sim_displayattribute_selected",sim_displayattribute_selected,false},
-    {"sim_displayattribute_mainselection",sim_displayattribute_mainselection,false},
-    {"sim_displayattribute_forcewireframe",sim_displayattribute_forcewireframe,false},
-    {"sim_displayattribute_forbidwireframe",sim_displayattribute_forbidwireframe,false},
-    {"sim_displayattribute_forbidedges",sim_displayattribute_forbidedges,false},
-    {"sim_displayattribute_originalcolors",sim_displayattribute_originalcolors,false},
-    {"sim_displayattribute_ignorelayer",sim_displayattribute_ignorelayer,false},
-    {"sim_displayattribute_forvisionsensor",sim_displayattribute_forvisionsensor,false},
-    {"sim_displayattribute_colorcodedpickpass",sim_displayattribute_colorcodedpickpass,false},
-    {"sim_displayattribute_colorcoded",sim_displayattribute_colorcoded,false},
-    {"sim_displayattribute_trianglewireframe",sim_displayattribute_trianglewireframe,false},
-    {"sim_displayattribute_thickEdges",sim_displayattribute_thickEdges,false},
-    {"sim_displayattribute_dynamiccontentonly",sim_displayattribute_dynamiccontentonly,false},
-    {"sim_displayattribute_mirror",sim_displayattribute_mirror,false},
-    {"sim_displayattribute_useauxcomponent",sim_displayattribute_useauxcomponent,false},
-    {"sim_displayattribute_ignorerenderableflag",sim_displayattribute_ignorerenderableflag,false},
-    {"sim_displayattribute_noopenglcallbacks",sim_displayattribute_noopenglcallbacks,false},
-    {"sim_displayattribute_noghosts",sim_displayattribute_noghosts,false},
-    {"sim_displayattribute_nopointclouds",sim_displayattribute_nopointclouds,false},
-    {"sim_displayattribute_nodrawingobjects",sim_displayattribute_nodrawingobjects,false},
-    {"sim_displayattribute_noparticles",sim_displayattribute_noparticles,false},
-    {"sim_displayattribute_colorcodedtriangles",sim_displayattribute_colorcodedtriangles,false},
-    {"sim_navigation_passive",sim_navigation_passive,false},
-    {"sim_navigation_camerashift",sim_navigation_camerashift,false},
-    {"sim_navigation_camerarotate",sim_navigation_camerarotate,false},
-    {"sim_navigation_camerazoom",sim_navigation_camerazoom,false},
-    {"sim_navigation_cameratilt",sim_navigation_cameratilt,false},
-    {"sim_navigation_cameraangle",sim_navigation_cameraangle,false},
-    {"sim_navigation_objectshift",sim_navigation_objectshift,false},
-    {"sim_navigation_objectrotate",sim_navigation_objectrotate,false},
-    {"sim_navigation_createpathpoint",sim_navigation_createpathpoint,false},
-    {"sim_navigation_clickselection",sim_navigation_clickselection,false},
-    {"sim_navigation_ctrlselection",sim_navigation_ctrlselection,false},
-    {"sim_navigation_shiftselection",sim_navigation_shiftselection,false},
-    {"sim_navigation_camerazoomwheel",sim_navigation_camerazoomwheel,false},
-    {"sim_navigation_camerarotaterightbutton",sim_navigation_camerarotaterightbutton,false},
-    {"sim_navigation_camerarotatemiddlebutton",sim_navigation_camerarotatemiddlebutton,false},
-    {"sim_drawing_points",sim_drawing_points,false},
-    {"sim_drawing_lines",sim_drawing_lines,false},
-    {"sim_drawing_triangles",sim_drawing_triangles,false},
-    {"sim_drawing_trianglepoints",sim_drawing_trianglepoints,false},
-    {"sim_drawing_quadpoints",sim_drawing_quadpoints,false},
-    {"sim_drawing_discpoints",sim_drawing_discpoints,false},
-    {"sim_drawing_cubepoints",sim_drawing_cubepoints,false},
-    {"sim_drawing_spherepoints",sim_drawing_spherepoints,false},
-    {"sim_drawing_itemcolors",sim_drawing_itemcolors,false},
-    {"sim_drawing_vertexcolors",sim_drawing_vertexcolors,false},
-    {"sim_drawing_itemsizes",sim_drawing_itemsizes,false},
-    {"sim_drawing_backfaceculling",sim_drawing_backfaceculling,false},
-    {"sim_drawing_wireframe",sim_drawing_wireframe,false},
-    {"sim_drawing_painttag",sim_drawing_painttag,false},
-    {"sim_drawing_followparentvisibility",sim_drawing_followparentvisibility,false},
-    {"sim_drawing_cyclic",sim_drawing_cyclic,false},
-    {"sim_drawing_50percenttransparency",sim_drawing_50percenttransparency,false},
-    {"sim_drawing_25percenttransparency",sim_drawing_25percenttransparency,false},
-    {"sim_drawing_12percenttransparency",sim_drawing_12percenttransparency,false},
-    {"sim_drawing_emissioncolor",sim_drawing_emissioncolor,false},
-    {"sim_drawing_facingcamera",sim_drawing_facingcamera,false},
-    {"sim_drawing_overlay",sim_drawing_overlay,false},
-    {"sim_drawing_itemtransparency",sim_drawing_itemtransparency,false},
-    {"sim_drawing_persistent",sim_drawing_persistent,false},
-    {"sim_drawing_auxchannelcolor1",sim_drawing_auxchannelcolor1,false},
-    {"sim_drawing_auxchannelcolor2",sim_drawing_auxchannelcolor2,false},
-    {"sim_particle_points1",sim_particle_points1,false},
-    {"sim_particle_points2",sim_particle_points2,false},
-    {"sim_particle_points4",sim_particle_points4,false},
-    {"sim_particle_roughspheres",sim_particle_roughspheres,false},
-    {"sim_particle_spheres",sim_particle_spheres,false},
-    {"sim_particle_respondable1to4",sim_particle_respondable1to4,false},
-    {"sim_particle_respondable5to8",sim_particle_respondable5to8,false},
-    {"sim_particle_particlerespondable",sim_particle_particlerespondable,false},
-    {"sim_particle_ignoresgravity",sim_particle_ignoresgravity,false},
-    {"sim_particle_invisible",sim_particle_invisible,false},
-    {"sim_particle_painttag",sim_particle_painttag,false},
-    {"sim_particle_itemsizes",sim_particle_itemsizes,false},
-    {"sim_particle_itemdensities",sim_particle_itemdensities,false},
-    {"sim_particle_itemcolors",sim_particle_itemcolors,false},
-    {"sim_particle_cyclic",sim_particle_cyclic,false},
-    {"sim_particle_emissioncolor",sim_particle_emissioncolor,false},
-    {"sim_particle_water",sim_particle_water,false},
-    {"sim_jointmode_passive",sim_jointmode_passive,false},
-    {"sim_jointmode_ik",sim_jointmode_ik_deprecated,false},
-    {"sim_jointmode_ikdependent",sim_jointmode_reserved_previously_ikdependent,false},
-    {"sim_jointmode_dependent",sim_jointmode_dependent,false},
-    {"sim_jointmode_force",sim_jointmode_force,false},
-    {"sim_filedlg_type_load",sim_filedlg_type_load,false},
-    {"sim_filedlg_type_save",sim_filedlg_type_save,false},
-    {"sim_filedlg_type_load_multiple",sim_filedlg_type_load_multiple,false},
-    {"sim_filedlg_type_folder",sim_filedlg_type_folder,false},
-    {"sim_msgbox_type_info",sim_msgbox_type_info,false},
-    {"sim_msgbox_type_question",sim_msgbox_type_question,false},
-    {"sim_msgbox_type_warning",sim_msgbox_type_warning,false},
-    {"sim_msgbox_type_critical",sim_msgbox_type_critical,false},
-    {"sim_msgbox_buttons_ok",sim_msgbox_buttons_ok,false},
-    {"sim_msgbox_buttons_yesno",sim_msgbox_buttons_yesno,false},
-    {"sim_msgbox_buttons_yesnocancel",sim_msgbox_buttons_yesnocancel,false},
-    {"sim_msgbox_buttons_okcancel",sim_msgbox_buttons_okcancel,false},
-    {"sim_msgbox_return_cancel",sim_msgbox_return_cancel,false},
-    {"sim_msgbox_return_no",sim_msgbox_return_no,false},
-    {"sim_msgbox_return_yes",sim_msgbox_return_yes,false},
-    {"sim_msgbox_return_ok",sim_msgbox_return_ok,false},
-    {"sim_msgbox_return_error",sim_msgbox_return_error,false},
-    {"sim_physics_bullet",sim_physics_bullet,false},
-    {"sim_physics_ode",sim_physics_ode,false},
-    {"sim_physics_vortex",sim_physics_vortex,false},
-    {"sim_physics_newton",sim_physics_newton,false},
-    {"sim_pure_primitive_none",sim_pure_primitive_none,false},
-    {"sim_pure_primitive_plane",sim_pure_primitive_plane,false},
-    {"sim_pure_primitive_disc",sim_pure_primitive_disc,false},
-    {"sim_pure_primitive_cuboid",sim_pure_primitive_cuboid,false},
-    {"sim_pure_primitive_spheroid",sim_pure_primitive_spheroid,false},
-    {"sim_pure_primitive_cylinder",sim_pure_primitive_cylinder,false},
-    {"sim_pure_primitive_cone",sim_pure_primitive_cone,false},
-    {"sim_pure_primitive_heightfield",sim_pure_primitive_heightfield,false},
-    {"sim_dummy_linktype_dynamics_loop_closure",sim_dummy_linktype_dynamics_loop_closure,false},
-    {"sim_dummy_linktype_dynamics_force_constraint",sim_dummy_linktype_dynamics_force_constraint,false},
-    {"sim_dummy_linktype_gcs_loop_closure",sim_dummy_linktype_gcs_loop_closure,false},
-    {"sim_dummy_linktype_gcs_tip",sim_dummy_linktype_gcs_tip,false},
-    {"sim_dummy_linktype_gcs_target",sim_dummy_linktype_gcs_target,false},
-    {"sim_dummy_linktype_ik_tip_target",sim_dummy_linktype_ik_tip_target,false},
-    {"sim_colorcomponent_ambient",sim_colorcomponent_ambient,false},
-    {"sim_colorcomponent_ambient_diffuse",sim_colorcomponent_ambient_diffuse,false},
-    {"sim_colorcomponent_diffuse",sim_colorcomponent_diffuse,false},
-    {"sim_colorcomponent_specular",sim_colorcomponent_specular,false},
-    {"sim_colorcomponent_emission",sim_colorcomponent_emission,false},
-    {"sim_colorcomponent_transparency",sim_colorcomponent_transparency,false},
-    {"sim_colorcomponent_auxiliary",sim_colorcomponent_auxiliary,false},
-    {"sim_volume_ray",sim_volume_ray,false},
-    {"sim_volume_randomizedray",sim_volume_randomizedray,false},
-    {"sim_volume_pyramid",sim_volume_pyramid,false},
-    {"sim_volume_cylinder",sim_volume_cylinder,false},
-    {"sim_volume_disc",sim_volume_disc,false},
-    {"sim_volume_cone",sim_volume_cone,false},
-    {"sim_objintparam_visibility_layer",sim_objintparam_visibility_layer,false},
-    {"sim_objfloatparam_abs_x_velocity",sim_objfloatparam_abs_x_velocity,false},
-    {"sim_objfloatparam_abs_y_velocity",sim_objfloatparam_abs_y_velocity,false},
-    {"sim_objfloatparam_abs_z_velocity",sim_objfloatparam_abs_z_velocity,false},
-    {"sim_objfloatparam_abs_rot_velocity",sim_objfloatparam_abs_rot_velocity,false},
-    {"sim_objfloatparam_objbbox_min_x",sim_objfloatparam_objbbox_min_x,false},
-    {"sim_objfloatparam_objbbox_min_y",sim_objfloatparam_objbbox_min_y,false},
-    {"sim_objfloatparam_objbbox_min_z",sim_objfloatparam_objbbox_min_z,false},
-    {"sim_objfloatparam_objbbox_max_x",sim_objfloatparam_objbbox_max_x,false},
-    {"sim_objfloatparam_objbbox_max_y",sim_objfloatparam_objbbox_max_y,false},
-    {"sim_objfloatparam_objbbox_max_z",sim_objfloatparam_objbbox_max_z,false},
-    {"sim_objfloatparam_modelbbox_min_x",sim_objfloatparam_modelbbox_min_x,false},
-    {"sim_objfloatparam_modelbbox_min_y",sim_objfloatparam_modelbbox_min_y,false},
-    {"sim_objfloatparam_modelbbox_min_z",sim_objfloatparam_modelbbox_min_z,false},
-    {"sim_objfloatparam_modelbbox_max_x",sim_objfloatparam_modelbbox_max_x,false},
-    {"sim_objfloatparam_modelbbox_max_y",sim_objfloatparam_modelbbox_max_y,false},
-    {"sim_objfloatparam_modelbbox_max_z",sim_objfloatparam_modelbbox_max_z,false},
-    {"sim_objintparam_collection_self_collision_indicator",sim_objintparam_collection_self_collision_indicator,false},
-    {"sim_objfloatparam_transparency_offset",sim_objfloatparam_transparency_offset,false},
-    {"sim_objintparam_child_role",sim_objintparam_child_role,false},
-    {"sim_objintparam_parent_role",sim_objintparam_parent_role,false},
-    {"sim_objintparam_manipulation_permissions",sim_objintparam_manipulation_permissions,false},
-    {"sim_objintparam_illumination_handle",sim_objintparam_illumination_handle,false},
-    {"sim_objstringparam_dna",sim_objstringparam_dna,false},
-    {"sim_visionfloatparam_near_clipping",sim_visionfloatparam_near_clipping,false},
-    {"sim_visionfloatparam_far_clipping",sim_visionfloatparam_far_clipping,false},
-    {"sim_visionintparam_resolution_x",sim_visionintparam_resolution_x,false},
-    {"sim_visionintparam_resolution_y",sim_visionintparam_resolution_y,false},
-    {"sim_visionfloatparam_perspective_angle",sim_visionfloatparam_perspective_angle,false},
-    {"sim_visionfloatparam_ortho_size",sim_visionfloatparam_ortho_size,false},
-    {"sim_visionintparam_disabled_light_components",sim_visionintparam_disabled_light_components,false},
-    {"sim_visionintparam_rendering_attributes",sim_visionintparam_rendering_attributes,false},
-    {"sim_visionintparam_entity_to_render",sim_visionintparam_entity_to_render,false},
-    {"sim_visionintparam_windowed_size_x",sim_visionintparam_windowed_size_x,false},
-    {"sim_visionintparam_windowed_size_y",sim_visionintparam_windowed_size_y,false},
-    {"sim_visionintparam_windowed_pos_x",sim_visionintparam_windowed_pos_x,false},
-    {"sim_visionintparam_windowed_pos_y",sim_visionintparam_windowed_pos_y,false},
-    {"sim_visionintparam_pov_focal_blur",sim_visionintparam_pov_focal_blur,false},
-    {"sim_visionfloatparam_pov_blur_distance",sim_visionfloatparam_pov_blur_distance,false},
-    {"sim_visionfloatparam_pov_aperture",sim_visionfloatparam_pov_aperture,false},
-    {"sim_visionintparam_pov_blur_sampled",sim_visionintparam_pov_blur_sampled,false},
-    {"sim_visionintparam_render_mode",sim_visionintparam_render_mode,false},
-    {"sim_jointintparam_motor_enabled",sim_jointintparam_motor_enabled,false},
-    {"sim_jointintparam_ctrl_enabled",sim_jointintparam_ctrl_enabled,false},
-    {"sim_jointfloatparam_pid_p",sim_jointfloatparam_pid_p,false},
-    {"sim_jointfloatparam_pid_i",sim_jointfloatparam_pid_i,false},
-    {"sim_jointfloatparam_pid_d",sim_jointfloatparam_pid_d,false},
-    {"sim_jointfloatparam_intrinsic_x",sim_jointfloatparam_intrinsic_x,false},
-    {"sim_jointfloatparam_intrinsic_y",sim_jointfloatparam_intrinsic_y,false},
-    {"sim_jointfloatparam_intrinsic_z",sim_jointfloatparam_intrinsic_z,false},
-    {"sim_jointfloatparam_intrinsic_qx",sim_jointfloatparam_intrinsic_qx,false},
-    {"sim_jointfloatparam_intrinsic_qy",sim_jointfloatparam_intrinsic_qy,false},
-    {"sim_jointfloatparam_intrinsic_qz",sim_jointfloatparam_intrinsic_qz,false},
-    {"sim_jointfloatparam_intrinsic_qw",sim_jointfloatparam_intrinsic_qw,false},
-    {"sim_jointfloatparam_velocity",sim_jointfloatparam_velocity,false},
-    {"sim_jointfloatparam_spherical_qx",sim_jointfloatparam_spherical_qx,false},
-    {"sim_jointfloatparam_spherical_qy",sim_jointfloatparam_spherical_qy,false},
-    {"sim_jointfloatparam_spherical_qz",sim_jointfloatparam_spherical_qz,false},
-    {"sim_jointfloatparam_spherical_qw",sim_jointfloatparam_spherical_qw,false},
-    {"sim_jointfloatparam_upper_limit",sim_jointfloatparam_upper_limit,false},
-    {"sim_jointfloatparam_kc_k",sim_jointfloatparam_kc_k,false},
-    {"sim_jointfloatparam_kc_c",sim_jointfloatparam_kc_c,false},
-    {"sim_jointfloatparam_ik_weight",sim_jointfloatparam_ik_weight,false},
-    {"sim_jointfloatparam_error_x",sim_jointfloatparam_error_x,false},
-    {"sim_jointfloatparam_error_y",sim_jointfloatparam_error_y,false},
-    {"sim_jointfloatparam_error_z",sim_jointfloatparam_error_z,false},
-    {"sim_jointfloatparam_error_a",sim_jointfloatparam_error_a,false},
-    {"sim_jointfloatparam_error_b",sim_jointfloatparam_error_b,false},
-    {"sim_jointfloatparam_error_g",sim_jointfloatparam_error_g,false},
-    {"sim_jointfloatparam_error_pos",sim_jointfloatparam_error_pos,false},
-    {"sim_jointfloatparam_error_angle",sim_jointfloatparam_error_angle,false},
-    {"sim_jointintparam_velocity_lock",sim_jointintparam_velocity_lock,false},
-    {"sim_jointintparam_vortex_dep_handle",sim_jointintparam_vortex_dep_handle,false},
-    {"sim_jointfloatparam_vortex_dep_multiplication",sim_jointfloatparam_vortex_dep_multiplication,false},
-    {"sim_jointfloatparam_vortex_dep_offset",sim_jointfloatparam_vortex_dep_offset,false},
-    {"sim_shapefloatparam_init_velocity_x",sim_shapefloatparam_init_velocity_x,false},
-    {"sim_shapefloatparam_init_velocity_y",sim_shapefloatparam_init_velocity_y,false},
-    {"sim_shapefloatparam_init_velocity_z",sim_shapefloatparam_init_velocity_z,false},
-    {"sim_shapeintparam_static",sim_shapeintparam_static,false},
-    {"sim_shapeintparam_respondable",sim_shapeintparam_respondable,false},
-    {"sim_shapefloatparam_mass",sim_shapefloatparam_mass,false},
-    {"sim_shapefloatparam_texture_x",sim_shapefloatparam_texture_x,false},
-    {"sim_shapefloatparam_texture_y",sim_shapefloatparam_texture_y,false},
-    {"sim_shapefloatparam_texture_z",sim_shapefloatparam_texture_z,false},
-    {"sim_shapefloatparam_texture_a",sim_shapefloatparam_texture_a,false},
-    {"sim_shapefloatparam_texture_b",sim_shapefloatparam_texture_b,false},
-    {"sim_shapefloatparam_texture_g",sim_shapefloatparam_texture_g,false},
-    {"sim_shapefloatparam_texture_scaling_x",sim_shapefloatparam_texture_scaling_x,false},
-    {"sim_shapefloatparam_texture_scaling_y",sim_shapefloatparam_texture_scaling_y,false},
-    {"sim_shapeintparam_culling",sim_shapeintparam_culling,false},
-    {"sim_shapeintparam_wireframe",sim_shapeintparam_wireframe,false},
-    {"sim_shapeintparam_compound",sim_shapeintparam_compound,false},
-    {"sim_shapeintparam_convex",sim_shapeintparam_convex,false},
-    {"sim_shapeintparam_convex_check",sim_shapeintparam_convex_check,false},
-    {"sim_shapeintparam_respondable_mask",sim_shapeintparam_respondable_mask,false},
-    {"sim_shapefloatparam_init_velocity_a",sim_shapefloatparam_init_ang_velocity_x,false},
-    {"sim_shapefloatparam_init_velocity_b",sim_shapefloatparam_init_ang_velocity_y,false},
-    {"sim_shapefloatparam_init_velocity_g",sim_shapefloatparam_init_ang_velocity_z,false},
-    {"sim_shapestringparam_color_name",sim_shapestringparam_color_name,false},
-    {"sim_shapeintparam_edge_visibility",sim_shapeintparam_edge_visibility,false},
-    {"sim_shapefloatparam_shading_angle",sim_shapefloatparam_shading_angle,false},
-    {"sim_shapefloatparam_edge_angle",sim_shapefloatparam_edge_angle,false},
-    {"sim_shapeintparam_edge_borders_hidden",sim_shapeintparam_edge_borders_hidden,false},
-    {"sim_proxintparam_ray_invisibility",sim_proxintparam_ray_invisibility,false},
-    {"sim_proxintparam_volume_type",sim_proxintparam_volume_type,false},
-    {"sim_proxintparam_entity_to_detect",sim_proxintparam_entity_to_detect,false},
-    {"sim_forcefloatparam_error_x",sim_forcefloatparam_error_x,false},
-    {"sim_forcefloatparam_error_y",sim_forcefloatparam_error_y,false},
-    {"sim_forcefloatparam_error_z",sim_forcefloatparam_error_z,false},
-    {"sim_forcefloatparam_error_a",sim_forcefloatparam_error_a,false},
-    {"sim_forcefloatparam_error_b",sim_forcefloatparam_error_b,false},
-    {"sim_forcefloatparam_error_g",sim_forcefloatparam_error_g,false},
-    {"sim_forcefloatparam_error_pos",sim_forcefloatparam_error_pos,false},
-    {"sim_forcefloatparam_error_angle",sim_forcefloatparam_error_angle,false},
-    {"sim_lightintparam_pov_casts_shadows",sim_lightintparam_pov_casts_shadows,false},
-    {"sim_cameraintparam_disabled_light_components",sim_cameraintparam_disabled_light_components,false},
-    {"sim_camerafloatparam_perspective_angle",sim_camerafloatparam_perspective_angle,false},
-    {"sim_camerafloatparam_ortho_size",sim_camerafloatparam_ortho_size,false},
-    {"sim_cameraintparam_rendering_attributes",sim_cameraintparam_rendering_attributes,false},
-    {"sim_cameraintparam_pov_focal_blur",sim_cameraintparam_pov_focal_blur,false},
-    {"sim_camerafloatparam_pov_blur_distance",sim_camerafloatparam_pov_blur_distance,false},
-    {"sim_camerafloatparam_pov_aperture",sim_camerafloatparam_pov_aperture,false},
-    {"sim_cameraintparam_pov_blur_samples",sim_cameraintparam_pov_blur_samples,false},
-    {"sim_dummyintparam_link_type",sim_dummyintparam_link_type,false},
-    {"sim_dummyintparam_follow_path",sim_dummyintparam_follow_path,false},
-    {"sim_dummyfloatparam_follow_path_offset",sim_dummyfloatparam_follow_path_offset,false},
-    {"sim.dummyintparam_follow_path",sim_dummyintparam_follow_path,false},
-    {"sim.dummyfloatparam_follow_path_offset",sim_dummyfloatparam_follow_path_offset,false},
-    {"sim_millintparam_volume_type",sim_millintparam_volume_type,false},
-    {"sim_mirrorfloatparam_width",sim_mirrorfloatparam_width,false},
-    {"sim_mirrorfloatparam_height",sim_mirrorfloatparam_height,false},
-    {"sim_mirrorfloatparam_reflectance",sim_mirrorfloatparam_reflectance,false},
-    {"sim_mirrorintparam_enable",sim_mirrorintparam_enable,false},
-    {"sim_bullet_global_stepsize",sim_bullet_global_stepsize,false},
-    {"sim_bullet_global_internalscalingfactor",sim_bullet_global_internalscalingfactor,false},
-    {"sim_bullet_global_collisionmarginfactor",sim_bullet_global_collisionmarginfactor,false},
-    {"sim_bullet_global_constraintsolvingiterations",sim_bullet_global_constraintsolvingiterations,false},
-    {"sim_bullet_global_bitcoded",sim_bullet_global_bitcoded,false},
-    {"sim_bullet_global_constraintsolvertype",sim_bullet_global_constraintsolvertype,false},
-    {"sim_bullet_global_fullinternalscaling",sim_bullet_global_fullinternalscaling,false},
-    {"sim_bullet_joint_stoperp",sim_bullet_joint_stoperp,false},
-    {"sim_bullet_joint_stopcfm",sim_bullet_joint_stopcfm,false},
-    {"sim_bullet_joint_normalcfm",sim_bullet_joint_normalcfm,false},
-    {"sim_bullet_body_restitution",sim_bullet_body_restitution,false},
-    {"sim_bullet_body_oldfriction",sim_bullet_body_oldfriction,false},
-    {"sim_bullet_body_friction",sim_bullet_body_friction,false},
-    {"sim_bullet_body_lineardamping",sim_bullet_body_lineardamping,false},
-    {"sim_bullet_body_angulardamping",sim_bullet_body_angulardamping,false},
-    {"sim_bullet_body_nondefaultcollisionmargingfactor",sim_bullet_body_nondefaultcollisionmargingfactor,false},
-    {"sim_bullet_body_nondefaultcollisionmargingfactorconvex",sim_bullet_body_nondefaultcollisionmargingfactorconvex,false},
-    {"sim_bullet_body_bitcoded",sim_bullet_body_bitcoded,false},
-    {"sim_bullet_body_sticky",sim_bullet_body_sticky,false},
-    {"sim_bullet_body_usenondefaultcollisionmargin",sim_bullet_body_usenondefaultcollisionmargin,false},
-    {"sim_bullet_body_usenondefaultcollisionmarginconvex",sim_bullet_body_usenondefaultcollisionmarginconvex,false},
-    {"sim_bullet_body_autoshrinkconvex",sim_bullet_body_autoshrinkconvex,false},
-    {"sim_ode_global_stepsize",sim_ode_global_stepsize,false},
-    {"sim_ode_global_internalscalingfactor",sim_ode_global_internalscalingfactor,false},
-    {"sim_ode_global_cfm",sim_ode_global_cfm,false},
-    {"sim_ode_global_erp",sim_ode_global_erp,false},
-    {"sim_ode_global_constraintsolvingiterations",sim_ode_global_constraintsolvingiterations,false},
-    {"sim_ode_global_bitcoded",sim_ode_global_bitcoded,false},
-    {"sim_ode_global_randomseed",sim_ode_global_randomseed,false},
-    {"sim_ode_global_fullinternalscaling",sim_ode_global_fullinternalscaling,false},
-    {"sim_ode_global_quickstep",sim_ode_global_quickstep,false},
-    {"sim_ode_joint_stoperp",sim_ode_joint_stoperp,false},
-    {"sim_ode_joint_stopcfm",sim_ode_joint_stopcfm,false},
-    {"sim_ode_joint_bounce",sim_ode_joint_bounce,false},
-    {"sim_ode_joint_fudgefactor",sim_ode_joint_fudgefactor,false},
-    {"sim_ode_joint_normalcfm",sim_ode_joint_normalcfm,false},
-    {"sim_ode_body_friction",sim_ode_body_friction,false},
-    {"sim_ode_body_softerp",sim_ode_body_softerp,false},
-    {"sim_ode_body_softcfm",sim_ode_body_softcfm,false},
-    {"sim_ode_body_lineardamping",sim_ode_body_lineardamping,false},
-    {"sim_ode_body_angulardamping",sim_ode_body_angulardamping,false},
-    {"sim_ode_body_maxcontacts",sim_ode_body_maxcontacts,false},
-    {"sim_vortex_global_stepsize",sim_vortex_global_stepsize,false},
-    {"sim_vortex_global_internalscalingfactor",sim_vortex_global_internalscalingfactor,false},
-    {"sim_vortex_global_contacttolerance",sim_vortex_global_contacttolerance,false},
-    {"sim_vortex_global_constraintlinearcompliance",sim_vortex_global_constraintlinearcompliance,false},
-    {"sim_vortex_global_constraintlineardamping",sim_vortex_global_constraintlineardamping,false},
-    {"sim_vortex_global_constraintlinearkineticloss",sim_vortex_global_constraintlinearkineticloss,false},
-    {"sim_vortex_global_constraintangularcompliance",sim_vortex_global_constraintangularcompliance,false},
-    {"sim_vortex_global_constraintangulardamping",sim_vortex_global_constraintangulardamping,false},
-    {"sim_vortex_global_constraintangularkineticloss",sim_vortex_global_constraintangularkineticloss,false},
-    {"sim_vortex_global_bitcoded",sim_vortex_global_bitcoded,false},
-    {"sim_vortex_global_autosleep",sim_vortex_global_autosleep,false},
-    {"sim_vortex_global_multithreading",sim_vortex_global_multithreading,false},
-    {"sim_vortex_joint_lowerlimitdamping",sim_vortex_joint_lowerlimitdamping,false},
-    {"sim_vortex_joint_upperlimitdamping",sim_vortex_joint_upperlimitdamping,false},
-    {"sim_vortex_joint_lowerlimitstiffness",sim_vortex_joint_lowerlimitstiffness,false},
-    {"sim_vortex_joint_upperlimitstiffness",sim_vortex_joint_upperlimitstiffness,false},
-    {"sim_vortex_joint_lowerlimitrestitution",sim_vortex_joint_lowerlimitrestitution,false},
-    {"sim_vortex_joint_upperlimitrestitution",sim_vortex_joint_upperlimitrestitution,false},
-    {"sim_vortex_joint_lowerlimitmaxforce",sim_vortex_joint_lowerlimitmaxforce,false},
-    {"sim_vortex_joint_upperlimitmaxforce",sim_vortex_joint_upperlimitmaxforce,false},
-    {"sim_vortex_joint_motorconstraintfrictioncoeff",sim_vortex_joint_motorconstraintfrictioncoeff,false},
-    {"sim_vortex_joint_motorconstraintfrictionmaxforce",sim_vortex_joint_motorconstraintfrictionmaxforce,false},
-    {"sim_vortex_joint_motorconstraintfrictionloss",sim_vortex_joint_motorconstraintfrictionloss,false},
-    {"sim_vortex_joint_p0loss",sim_vortex_joint_p0loss,false},
-    {"sim_vortex_joint_p0stiffness",sim_vortex_joint_p0stiffness,false},
-    {"sim_vortex_joint_p0damping",sim_vortex_joint_p0damping,false},
-    {"sim_vortex_joint_p0frictioncoeff",sim_vortex_joint_p0frictioncoeff,false},
-    {"sim_vortex_joint_p0frictionmaxforce",sim_vortex_joint_p0frictionmaxforce,false},
-    {"sim_vortex_joint_p0frictionloss",sim_vortex_joint_p0frictionloss,false},
-    {"sim_vortex_joint_p1loss",sim_vortex_joint_p1loss,false},
-    {"sim_vortex_joint_p1stiffness",sim_vortex_joint_p1stiffness,false},
-    {"sim_vortex_joint_p1damping",sim_vortex_joint_p1damping,false},
-    {"sim_vortex_joint_p1frictioncoeff",sim_vortex_joint_p1frictioncoeff,false},
-    {"sim_vortex_joint_p1frictionmaxforce",sim_vortex_joint_p1frictionmaxforce,false},
-    {"sim_vortex_joint_p1frictionloss",sim_vortex_joint_p1frictionloss,false},
-    {"sim_vortex_joint_p2loss",sim_vortex_joint_p2loss,false},
-    {"sim_vortex_joint_p2stiffness",sim_vortex_joint_p2stiffness,false},
-    {"sim_vortex_joint_p2damping",sim_vortex_joint_p2damping,false},
-    {"sim_vortex_joint_p2frictioncoeff",sim_vortex_joint_p2frictioncoeff,false},
-    {"sim_vortex_joint_p2frictionmaxforce",sim_vortex_joint_p2frictionmaxforce,false},
-    {"sim_vortex_joint_p2frictionloss",sim_vortex_joint_p2frictionloss,false},
-    {"sim_vortex_joint_a0loss",sim_vortex_joint_a0loss,false},
-    {"sim_vortex_joint_a0stiffness",sim_vortex_joint_a0stiffness,false},
-    {"sim_vortex_joint_a0damping",sim_vortex_joint_a0damping,false},
-    {"sim_vortex_joint_a0frictioncoeff",sim_vortex_joint_a0frictioncoeff,false},
-    {"sim_vortex_joint_a0frictionmaxforce",sim_vortex_joint_a0frictionmaxforce,false},
-    {"sim_vortex_joint_a0frictionloss",sim_vortex_joint_a0frictionloss,false},
-    {"sim_vortex_joint_a1loss",sim_vortex_joint_a1loss,false},
-    {"sim_vortex_joint_a1stiffness",sim_vortex_joint_a1stiffness,false},
-    {"sim_vortex_joint_a1damping",sim_vortex_joint_a1damping,false},
-    {"sim_vortex_joint_a1frictioncoeff",sim_vortex_joint_a1frictioncoeff,false},
-    {"sim_vortex_joint_a1frictionmaxforce",sim_vortex_joint_a1frictionmaxforce,false},
-    {"sim_vortex_joint_a1frictionloss",sim_vortex_joint_a1frictionloss,false},
-    {"sim_vortex_joint_a2loss",sim_vortex_joint_a2loss,false},
-    {"sim_vortex_joint_a2stiffness",sim_vortex_joint_a2stiffness,false},
-    {"sim_vortex_joint_a2damping",sim_vortex_joint_a2damping,false},
-    {"sim_vortex_joint_a2frictioncoeff",sim_vortex_joint_a2frictioncoeff,false},
-    {"sim_vortex_joint_a2frictionmaxforce",sim_vortex_joint_a2frictionmaxforce,false},
-    {"sim_vortex_joint_a2frictionloss",sim_vortex_joint_a2frictionloss,false},
-    {"sim_vortex_joint_dependencyfactor",sim_vortex_joint_dependencyfactor,false},
-    {"sim_vortex_joint_dependencyoffset",sim_vortex_joint_dependencyoffset,false},
-    {"sim_vortex_joint_bitcoded",sim_vortex_joint_bitcoded,false},
-    {"sim_vortex_joint_relaxationenabledbc",sim_vortex_joint_relaxationenabledbc,false},
-    {"sim_vortex_joint_frictionenabledbc",sim_vortex_joint_frictionenabledbc,false},
-    {"sim_vortex_joint_frictionproportionalbc",sim_vortex_joint_frictionproportionalbc,false},
-    {"sim_vortex_joint_objectid",sim_vortex_joint_objectid,false},
-    {"sim_vortex_joint_dependentobjectid",sim_vortex_joint_dependentobjectid,false},
-    {"sim_vortex_joint_motorfrictionenabled",sim_vortex_joint_motorfrictionenabled,false},
-    {"sim_vortex_joint_proportionalmotorfriction",sim_vortex_joint_proportionalmotorfriction,false},
-    {"sim_vortex_body_primlinearaxisfriction",sim_vortex_body_primlinearaxisfriction,false},
-    {"sim_vortex_body_seclinearaxisfriction",sim_vortex_body_seclinearaxisfriction,false},
-    {"sim_vortex_body_primangularaxisfriction",sim_vortex_body_primangularaxisfriction,false},
-    {"sim_vortex_body_secangularaxisfriction",sim_vortex_body_secangularaxisfriction,false},
-    {"sim_vortex_body_normalangularaxisfriction",sim_vortex_body_normalangularaxisfriction,false},
-    {"sim_vortex_body_primlinearaxisstaticfrictionscale",sim_vortex_body_primlinearaxisstaticfrictionscale,false},
-    {"sim_vortex_body_seclinearaxisstaticfrictionscale",sim_vortex_body_seclinearaxisstaticfrictionscale,false},
-    {"sim_vortex_body_primangularaxisstaticfrictionscale",sim_vortex_body_primangularaxisstaticfrictionscale,false},
-    {"sim_vortex_body_secangularaxisstaticfrictionscale",sim_vortex_body_secangularaxisstaticfrictionscale,false},
-    {"sim_vortex_body_normalangularaxisstaticfrictionscale",sim_vortex_body_normalangularaxisstaticfrictionscale,false},
-    {"sim_vortex_body_compliance",sim_vortex_body_compliance,false},
-    {"sim_vortex_body_damping",sim_vortex_body_damping,false},
-    {"sim_vortex_body_restitution",sim_vortex_body_restitution,false},
-    {"sim_vortex_body_restitutionthreshold",sim_vortex_body_restitutionthreshold,false},
-    {"sim_vortex_body_adhesiveforce",sim_vortex_body_adhesiveforce,false},
-    {"sim_vortex_body_linearvelocitydamping",sim_vortex_body_linearvelocitydamping,false},
-    {"sim_vortex_body_angularvelocitydamping",sim_vortex_body_angularvelocitydamping,false},
-    {"sim_vortex_body_primlinearaxisslide",sim_vortex_body_primlinearaxisslide,false},
-    {"sim_vortex_body_seclinearaxisslide",sim_vortex_body_seclinearaxisslide,false},
-    {"sim_vortex_body_primangularaxisslide",sim_vortex_body_primangularaxisslide,false},
-    {"sim_vortex_body_secangularaxisslide",sim_vortex_body_secangularaxisslide,false},
-    {"sim_vortex_body_normalangularaxisslide",sim_vortex_body_normalangularaxisslide,false},
-    {"sim_vortex_body_primlinearaxisslip",sim_vortex_body_primlinearaxisslip,false},
-    {"sim_vortex_body_seclinearaxisslip",sim_vortex_body_seclinearaxisslip,false},
-    {"sim_vortex_body_primangularaxisslip",sim_vortex_body_primangularaxisslip,false},
-    {"sim_vortex_body_secangularaxisslip",sim_vortex_body_secangularaxisslip,false},
-    {"sim_vortex_body_normalangularaxisslip",sim_vortex_body_normalangularaxisslip,false},
-    {"sim_vortex_body_autosleeplinearspeedthreshold",sim_vortex_body_autosleeplinearspeedthreshold,false},
-    {"sim_vortex_body_autosleeplinearaccelthreshold",sim_vortex_body_autosleeplinearaccelthreshold,false},
-    {"sim_vortex_body_autosleepangularspeedthreshold",sim_vortex_body_autosleepangularspeedthreshold,false},
-    {"sim_vortex_body_autosleepangularaccelthreshold",sim_vortex_body_autosleepangularaccelthreshold,false},
-    {"sim_vortex_body_skinthickness",sim_vortex_body_skinthickness,false},
-    {"sim_vortex_body_autoangulardampingtensionratio",sim_vortex_body_autoangulardampingtensionratio,false},
-    {"sim_vortex_body_primaxisvectorx",sim_vortex_body_primaxisvectorx,false},
-    {"sim_vortex_body_primaxisvectory",sim_vortex_body_primaxisvectory,false},
-    {"sim_vortex_body_primaxisvectorz",sim_vortex_body_primaxisvectorz,false},
-    {"sim_vortex_body_primlinearaxisfrictionmodel",sim_vortex_body_primlinearaxisfrictionmodel,false},
-    {"sim_vortex_body_seclinearaxisfrictionmodel",sim_vortex_body_seclinearaxisfrictionmodel,false},
-    {"sim_vortex_body_primangulararaxisfrictionmodel",sim_vortex_body_primangulararaxisfrictionmodel,false},
-    {"sim_vortex_body_secmangulararaxisfrictionmodel",sim_vortex_body_secmangulararaxisfrictionmodel,false},
-    {"sim_vortex_body_normalmangulararaxisfrictionmodel",sim_vortex_body_normalmangulararaxisfrictionmodel,false},
-    {"sim_vortex_body_bitcoded",sim_vortex_body_bitcoded,false},
-    {"sim_vortex_body_autosleepsteplivethreshold",sim_vortex_body_autosleepsteplivethreshold,false},
-    {"sim_vortex_body_materialuniqueid",sim_vortex_body_materialuniqueid,false},
-    {"sim_vortex_body_pureshapesasconvex",sim_vortex_body_pureshapesasconvex,false},
-    {"sim_vortex_body_convexshapesasrandom",sim_vortex_body_convexshapesasrandom,false},
-    {"sim_vortex_body_randomshapesasterrain",sim_vortex_body_randomshapesasterrain,false},
-    {"sim_vortex_body_fastmoving",sim_vortex_body_fastmoving,false},
-    {"sim_vortex_body_autoslip",sim_vortex_body_autoslip,false},
-    {"sim_vortex_body_seclinaxissameasprimlinaxis",sim_vortex_body_seclinaxissameasprimlinaxis,false},
-    {"sim_vortex_body_secangaxissameasprimangaxis",sim_vortex_body_secangaxissameasprimangaxis,false},
-    {"sim_vortex_body_normangaxissameasprimangaxis",sim_vortex_body_normangaxissameasprimangaxis,false},
-    {"sim_vortex_body_autoangulardamping",sim_vortex_body_autoangulardamping,false},
-    {"sim_newton_global_stepsize",sim_newton_global_stepsize,false},
-    {"sim_newton_global_contactmergetolerance",sim_newton_global_contactmergetolerance,false},
-    {"sim_newton_global_constraintsolvingiterations",sim_newton_global_constraintsolvingiterations,false},
-    {"sim_newton_global_bitcoded",sim_newton_global_bitcoded,false},
-    {"sim_newton_global_multithreading",sim_newton_global_multithreading,false},
-    {"sim_newton_global_exactsolver",sim_newton_global_exactsolver,false},
-    {"sim_newton_global_highjointaccuracy",sim_newton_global_highjointaccuracy,false},
-    {"sim_newton_joint_dependencyfactor",sim_newton_joint_dependencyfactor,false},
-    {"sim_newton_joint_dependencyoffset",sim_newton_joint_dependencyoffset,false},
-    {"sim_newton_joint_objectid",sim_newton_joint_objectid,false},
-    {"sim_newton_joint_dependentobjectid",sim_newton_joint_dependentobjectid,false},
-    {"sim_newton_body_staticfriction",sim_newton_body_staticfriction,false},
-    {"sim_newton_body_kineticfriction",sim_newton_body_kineticfriction,false},
-    {"sim_newton_body_restitution",sim_newton_body_restitution,false},
-    {"sim_newton_body_lineardrag",sim_newton_body_lineardrag,false},
-    {"sim_newton_body_angulardrag",sim_newton_body_angulardrag,false},
-    {"sim_newton_body_bitcoded",sim_newton_body_bitcoded,false},
-    {"sim_newton_body_fastmoving",sim_newton_body_fastmoving,false},
-    {"sim_vortex_bodyfrictionmodel_box",sim_vortex_bodyfrictionmodel_box,false},
-    {"sim_vortex_bodyfrictionmodel_scaledbox",sim_vortex_bodyfrictionmodel_scaledbox,false},
-    {"sim_vortex_bodyfrictionmodel_proplow",sim_vortex_bodyfrictionmodel_proplow,false},
-    {"sim_vortex_bodyfrictionmodel_prophigh",sim_vortex_bodyfrictionmodel_prophigh,false},
-    {"sim_vortex_bodyfrictionmodel_scaledboxfast",sim_vortex_bodyfrictionmodel_scaledboxfast,false},
-    {"sim_vortex_bodyfrictionmodel_neutral",sim_vortex_bodyfrictionmodel_neutral,false},
-    {"sim_vortex_bodyfrictionmodel_none",sim_vortex_bodyfrictionmodel_none,false},
-    {"sim_bullet_constraintsolvertype_sequentialimpulse",sim_bullet_constraintsolvertype_sequentialimpulse,false},
-    {"sim_bullet_constraintsolvertype_nncg",sim_bullet_constraintsolvertype_nncg,false},
-    {"sim_bullet_constraintsolvertype_dantzig",sim_bullet_constraintsolvertype_dantzig,false},
-    {"sim_bullet_constraintsolvertype_projectedgaussseidel",sim_bullet_constraintsolvertype_projectedgaussseidel,false},
-    {"sim_filtercomponent_originalimage",sim_filtercomponent_originalimage_deprecated,false},
-    {"sim_filtercomponent_originaldepth",sim_filtercomponent_originaldepth_deprecated,false},
-    {"sim_filtercomponent_uniformimage",sim_filtercomponent_uniformimage_deprecated,false},
-    {"sim_filtercomponent_tooutput",sim_filtercomponent_tooutput_deprecated,false},
-    {"sim_filtercomponent_tobuffer1",sim_filtercomponent_tobuffer1_deprecated,false},
-    {"sim_filtercomponent_tobuffer2",sim_filtercomponent_tobuffer2_deprecated,false},
-    {"sim_filtercomponent_frombuffer1",sim_filtercomponent_frombuffer1_deprecated,false},
-    {"sim_filtercomponent_frombuffer2",sim_filtercomponent_frombuffer2_deprecated,false},
-    {"sim_filtercomponent_swapbuffers",sim_filtercomponent_swapbuffers_deprecated,false},
-    {"sim_filtercomponent_addbuffer1",sim_filtercomponent_addbuffer1_deprecated,false},
-    {"sim_filtercomponent_subtractbuffer1",sim_filtercomponent_subtractbuffer1_deprecated,false},
-    {"sim_filtercomponent_multiplywithbuffer1",sim_filtercomponent_multiplywithbuffer1_deprecated,false},
-    {"sim_filtercomponent_horizontalflip",sim_filtercomponent_horizontalflip_deprecated,false},
-    {"sim_filtercomponent_verticalflip",sim_filtercomponent_verticalflip_deprecated,false},
-    {"sim_filtercomponent_rotate",sim_filtercomponent_rotate_deprecated,false},
-    {"sim_filtercomponent_shift",sim_filtercomponent_shift_deprecated,false},
-    {"sim_filtercomponent_resize",sim_filtercomponent_resize_deprecated,false},
-    {"sim_filtercomponent_3x3filter",sim_filtercomponent_3x3filter_deprecated,false},
-    {"sim_filtercomponent_5x5filter",sim_filtercomponent_5x5filter_deprecated,false},
-    {"sim_filtercomponent_sharpen",sim_filtercomponent_sharpen_deprecated,false},
-    {"sim_filtercomponent_edge",sim_filtercomponent_edge_deprecated,false},
-    {"sim_filtercomponent_rectangularcut",sim_filtercomponent_rectangularcut_deprecated,false},
-    {"sim_filtercomponent_circularcut",sim_filtercomponent_circularcut_deprecated,false},
-    {"sim_filtercomponent_normalize",sim_filtercomponent_normalize_deprecated,false},
-    {"sim_filtercomponent_intensityscale",sim_filtercomponent_intensityscale_deprecated,false},
-    {"sim_filtercomponent_keeporremovecolors",sim_filtercomponent_keeporremovecolors_deprecated,false},
-    {"sim_filtercomponent_scaleandoffsetcolors",sim_filtercomponent_scaleandoffsetcolors_deprecated,false},
-    {"sim_filtercomponent_binary",sim_filtercomponent_binary_deprecated,false},
-    {"sim_filtercomponent_swapwithbuffer1",sim_filtercomponent_swapwithbuffer1_deprecated,false},
-    {"sim_filtercomponent_addtobuffer1",sim_filtercomponent_addtobuffer1_deprecated,false},
-    {"sim_filtercomponent_subtractfrombuffer1",sim_filtercomponent_subtractfrombuffer1_deprecated,false},
-    {"sim_filtercomponent_correlationwithbuffer1",sim_filtercomponent_correlationwithbuffer1_deprecated,false},
-    {"sim_filtercomponent_colorsegmentation",sim_filtercomponent_colorsegmentation_deprecated,false},
-    {"sim_filtercomponent_blobextraction",sim_filtercomponent_blobextraction_deprecated,false},
-    {"sim_filtercomponent_imagetocoord",sim_filtercomponent_imagetocoord_deprecated,false},
-    {"sim_filtercomponent_pixelchange",sim_filtercomponent_pixelchange_deprecated,false},
-    {"sim_filtercomponent_velodyne",sim_filtercomponent_velodyne_deprecated,false},
-    {"sim_filtercomponent_todepthoutput",sim_filtercomponent_todepthoutput_deprecated,false},
-    {"sim_filtercomponent_customized",sim_filtercomponent_customized_deprecated,false},
-    {"sim_buffer_uint8",sim_buffer_uint8,false},
-    {"sim_buffer_int8",sim_buffer_int8,false},
-    {"sim_buffer_uint16",sim_buffer_uint16,false},
-    {"sim_buffer_int16",sim_buffer_int16,false},
-    {"sim_buffer_uint32",sim_buffer_uint32,false},
-    {"sim_buffer_int32",sim_buffer_int32,false},
-    {"sim_buffer_float",sim_buffer_float,false},
-    {"sim_buffer_double",sim_buffer_double,false},
-    {"sim_buffer_uint8rgb",sim_buffer_uint8rgb,false},
-    {"sim_buffer_uint8bgr",sim_buffer_uint8bgr,false},
-    {"sim_imgcomb_vertical",sim_imgcomb_vertical,false},
-    {"sim_imgcomb_horizontal",sim_imgcomb_horizontal,false},
-    {"sim_dynmat_default",sim_dynmat_default,false},
-    {"sim_dynmat_highfriction",sim_dynmat_highfriction,false},
-    {"sim_dynmat_lowfriction",sim_dynmat_lowfriction,false},
-    {"sim_dynmat_nofriction",sim_dynmat_nofriction,false},
-    {"sim_dynmat_reststackgrasp",sim_dynmat_reststackgrasp,false},
-    {"sim_dynmat_foot",sim_dynmat_foot,false},
-    {"sim_dynmat_wheel",sim_dynmat_wheel,false},
-    {"sim_dynmat_gripper",sim_dynmat_gripper,false},
-    {"sim_dynmat_floor",sim_dynmat_floor,false},
-    // for backward compatibility:
-    {"sim_pplanfloatparam_x_min",sim_pplanfloatparam_x_min,false},
-    {"sim_pplanfloatparam_x_range",sim_pplanfloatparam_x_range,false},
-    {"sim_pplanfloatparam_y_min",sim_pplanfloatparam_y_min,false},
-    {"sim_pplanfloatparam_y_range",sim_pplanfloatparam_y_range,false},
-    {"sim_pplanfloatparam_z_min",sim_pplanfloatparam_z_min,false},
-    {"sim_pplanfloatparam_z_range",sim_pplanfloatparam_z_range,false},
-    {"sim_pplanfloatparam_delta_min",sim_pplanfloatparam_delta_min,false},
-    {"sim_pplanfloatparam_delta_range",sim_pplanfloatparam_delta_range,false},
-    {"sim_ui_menu_title",sim_ui_menu_title,false},
-    {"sim_ui_menu_minimize",sim_ui_menu_minimize,false},
-    {"sim_ui_menu_close",sim_ui_menu_close,false},
-    {"sim_api_errormessage_ignore",sim_api_errormessage_ignore,false},
-    {"sim_api_errormessage_report",sim_api_errormessage_report,false},
-    {"sim_api_errormessage_output",sim_api_errormessage_output,false},
-    {"sim_ui_property_visible",sim_ui_property_visible,false},
-    {"sim_ui_property_visibleduringsimulationonly",sim_ui_property_visibleduringsimulationonly,false},
-    {"sim_ui_property_moveable",sim_ui_property_moveable,false},
-    {"sim_ui_property_relativetoleftborder",sim_ui_property_relativetoleftborder,false},
-    {"sim_ui_property_relativetotopborder",sim_ui_property_relativetotopborder,false},
-    {"sim_ui_property_fixedwidthfont",sim_ui_property_fixedwidthfont,false},
-    {"sim_ui_property_systemblock",sim_ui_property_systemblock,false},
-    {"sim_ui_property_settocenter",sim_ui_property_settocenter,false},
-    {"sim_ui_property_rolledup",sim_ui_property_rolledup,false},
-    {"sim_ui_property_selectassociatedobject",sim_ui_property_selectassociatedobject,false},
-    {"sim_ui_property_visiblewhenobjectselected",sim_ui_property_visiblewhenobjectselected,false},
-    {"sim_ui_property_systemblockcanmovetofront",sim_ui_property_systemblockcanmovetofront,false},
-    {"sim_ui_property_pauseactive",sim_ui_property_pauseactive,false},
-    {"sim_2delement_menu_title",sim_ui_menu_title,false},
-    {"sim_2delement_menu_minimize",sim_ui_menu_minimize,false},
-    {"sim_2delement_menu_close",sim_ui_menu_close,false},
-    {"sim_2delement_property_visible",sim_ui_property_visible,false},
-    {"sim_2delement_property_visibleduringsimulationonly",sim_ui_property_visibleduringsimulationonly,false},
-    {"sim_2delement_property_moveable",sim_ui_property_moveable,false},
-    {"sim_2delement_property_relativetoleftborder",sim_ui_property_relativetoleftborder,false},
-    {"sim_2delement_property_relativetotopborder",sim_ui_property_relativetotopborder,false},
-    {"sim_2delement_property_fixedwidthfont",sim_ui_property_fixedwidthfont,false},
-    {"sim_2delement_property_systemblock",sim_ui_property_systemblock,false},
-    {"sim_2delement_property_settocenter",sim_ui_property_settocenter,false},
-    {"sim_2delement_property_rolledup",sim_ui_property_rolledup,false},
-    {"sim_2delement_property_selectassociatedobject",sim_ui_property_selectassociatedobject,false},
-    {"sim_2delement_property_visiblewhenobjectselected",sim_ui_property_visiblewhenobjectselected,false},
-    {"sim_pathproperty_invert_velocity",sim_pathproperty_invert_velocity_deprecated,false},
-    {"sim_pathproperty_infinite_acceleration",sim_pathproperty_infinite_acceleration_deprecated,false},
-    {"sim_pathproperty_auto_velocity_profile_translation",sim_pathproperty_auto_velocity_profile_translation_deprecated,false},
-    {"sim_pathproperty_auto_velocity_profile_rotation",sim_pathproperty_auto_velocity_profile_rotation_deprecated,false},
-    {"sim_pathproperty_endpoints_at_zero",sim_pathproperty_endpoints_at_zero_deprecated,false},
-    {"sim_boolparam_joint_motion_handling_enabled",sim_boolparam_joint_motion_handling_enabled_deprecated,false},
-    {"sim_boolparam_path_motion_handling_enabled",sim_boolparam_path_motion_handling_enabled_deprecated,false},
-    {"sim_jointmode_motion",sim_jointmode_motion_deprecated,false},
-    {"sim.syscb_aos_run",sim_syscb_aos_run_old,false},
-    {"sim.addonscriptcall_run",sim_syscb_aos_run_old,false},
-    {"sim_addonscriptcall_run",sim_syscb_aos_run_old,false},
-    {"sim_navigation_camerafly",sim_navigation_camerafly_old,false},
-    {"sim_banner_left",sim_banner_left,false},
-    {"sim_banner_right",sim_banner_right,false},
-    {"sim_banner_nobackground",sim_banner_nobackground,false},
-    {"sim_banner_overlay",sim_banner_overlay,false},
-    {"sim_banner_followparentvisibility",sim_banner_followparentvisibility,false},
-    {"sim_banner_clickselectsparent",sim_banner_clickselectsparent,false},
-    {"sim_banner_clicktriggersevent",sim_banner_clicktriggersevent,false},
-    {"sim_banner_facingcamera",sim_banner_facingcamera,false},
-    {"sim_banner_fullyfacingcamera",sim_banner_fullyfacingcamera,false},
-    {"sim_banner_backfaceculling",sim_banner_backfaceculling,false},
-    {"sim_banner_keepsamesize",sim_banner_keepsamesize,false},
-    {"sim_banner_bitmapfont",sim_banner_bitmapfont,false},
-    {"",-1,false}
-};
-
-bool isObjectAssociatedWithThisThreadedChildScriptValid(luaWrap_lua_State* L)
-{
-    int id=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(id);
-    if (script==nullptr)
-        return(false);
-    int h=script->getObjectHandleThatScriptIsAttachedTo_child();
-    return(h!=-1);
-}
-
-void pushCorrectTypeOntoLuaStack(luaWrap_lua_State* L,const std::string& buff)
-{ // Pushes nil, false, true, number or string (in that order!!) onto the stack depending on the buff content!
-    int t=getCorrectType(buff);
-    if (t==0)
-        luaWrap_lua_pushnil(L);
-    if (t==1)
-        luaWrap_lua_pushboolean(L,0);
-    if (t==2)
-        luaWrap_lua_pushboolean(L,1);
-    if (t==3)
-    {
-        float floatVal;
-        tt::getValidFloat(buff.c_str(),floatVal);
-        luaWrap_lua_pushnumber(L,floatVal);
-    }
-    if (t==4)
-        luaWrap_lua_pushlstring(L,buff.c_str(),buff.length());
-}
-
-int getCorrectType(const std::string& buff)
-{ // returns 0=nil, 1=boolean false, 2=boolean true, 3=number or 4=string (in that order!!) depending on the buff content!
-    if (buff.length()!=0)
-    {
-        if (buff.length()!=strlen(buff.c_str()))
-            return(4); // We have embedded zeros, this has definitively to be a string:
-    }
-    if (strcmp(buff.c_str(),"nil")==0)
-        return(0);
-    if (strcmp(buff.c_str(),"false")==0)
-        return(1);
-    if (strcmp(buff.c_str(),"true")==0)
-        return(2);
-    float floatVal;
-    if (tt::getValidFloat(buff.c_str(),floatVal))
-        return(3);
-    return(4);
-}
-
-void getScriptTree(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scriptHandles)
-{ // Returns all scripts that are built under the current one
-    scriptHandles.clear();
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-
-    CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
-    if (it!=nullptr)
-    {
-        if (it->getScriptType()==sim_scripttype_mainscript)
-        { // we have a main script here
-            if (selfIncluded)
-                scriptHandles.push_back(currentScriptID);
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
-            {
-                CSceneObject* q=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-                CLuaScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(q->getObjectHandle());
-                if (lso!=nullptr)
-                    scriptHandles.push_back(lso->getScriptHandle());
-            }
-        }
-
-        if (it->getScriptType()==sim_scripttype_childscript)
-        { // we have a child script
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo_child());
-            if (obj!=nullptr)
-            { // should always pass
-                if (selfIncluded)
-                    scriptHandles.push_back(currentScriptID);
-
-                std::vector<CSceneObject*> objList;
-                obj->getAllObjectsRecursive(&objList,false);
-                for (int i=0;i<int(objList.size());i++)
-                {
-                    CLuaScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objList[i]->getObjectHandle());
-                    if (lso!=nullptr)
-                        scriptHandles.push_back(lso->getScriptHandle());
-                }
-            }
-        }
-
-        if (it->getScriptType()==sim_scripttype_customizationscript)
-        { // we have a customization script
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo_customization());
-            if (obj!=nullptr)
-            { // should always pass
-                if (selfIncluded)
-                {
-                    CLuaScriptObject* aScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
-                    if (aScript!=nullptr)
-                        scriptHandles.push_back(aScript->getScriptHandle());
-                }
-
-                std::vector<CSceneObject*> objList;
-                obj->getAllObjectsRecursive(&objList,false);
-                for (int i=0;i<int(objList.size());i++)
-                {
-                    CLuaScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objList[i]->getObjectHandle());
-                    if (lso!=nullptr)
-                    {
-                        scriptHandles.push_back(lso->getScriptHandle());
-                    }
-                }
-            }
-        }
-    }
-}
-
-void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std::vector<int>& scriptHandles)
-{ // Returns all script IDs that are parents (or grand-parents,grand-grand-parents, etc.) of the current one
-    scriptHandles.clear();
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-
-    CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
-
-    if (it!=nullptr)
-    {
-        if (it->getScriptType()==sim_scripttype_mainscript)
-        { // we have a main script here
-            if (selfIncluded&&mainIncluded)
-                scriptHandles.push_back(currentScriptID);
-        }
-
-        if (it->getScriptType()==sim_scripttype_childscript)
-        { // we have a child script here
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo_child());
-            if (obj!=nullptr)
-            {
-                if (selfIncluded)
-                    scriptHandles.push_back(currentScriptID);
-                while (obj->getParent()!=nullptr)
-                {
-                    obj=obj->getParent();
-                    CLuaScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
-                    if (lso!=nullptr)
-                        scriptHandles.push_back(lso->getScriptHandle());
-                }
-                if (mainIncluded)
-                {
-                    CLuaScriptObject* lso=App::currentWorld->embeddedScriptContainer->getMainScript();
-                    if (lso!=nullptr)
-                        scriptHandles.push_back(lso->getScriptHandle());
-                }
-            }
-        }
-
-        if (it->getScriptType()==sim_scripttype_customizationscript)
-        { // we have a customization script here
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo_customization());
-            if (obj!=nullptr)
-            {
-                if (selfIncluded)
-                {
-                    CLuaScriptObject* aScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
-                    if (aScript!=nullptr)
-                        scriptHandles.push_back(aScript->getScriptHandle());
-                }
-                while (obj->getParent()!=nullptr)
-                {
-                    obj=obj->getParent();
-                    CLuaScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
-                    if (lso!=nullptr)
-                        scriptHandles.push_back(lso->getScriptHandle());
-                }
-                if (mainIncluded)
-                {
-                    CLuaScriptObject* lso=App::currentWorld->embeddedScriptContainer->getMainScript();
-                    if (lso!=nullptr)
-                        scriptHandles.push_back(lso->getScriptHandle());
-                }
-            }
-        }
-    }
-}
-
-
-void registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char const* const functionName,luaWrap_lua_CFunction functionCallback)
+void _registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char const* const functionName,luaWrap_lua_CFunction functionCallback)
 {
     luaWrap_lua_rawgeti(L,luaWrapGet_LUA_REGISTRYINDEX(),luaWrapGet_LUA_RIDX_GLOBALS()); // table of globals
     luaWrap_lua_getfield(L,-1,tableName);
@@ -3279,264 +1636,6 @@ void registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char
     luaWrap_lua_settable(L,-3);
     luaWrap_lua_pop(L,1);
     luaWrap_lua_pop(L,1); // pop table of globals
-}
-
-void registerNewLuaFunctions(luaWrap_lua_State* L)
-{
-    // CoppeliaSim API functions:
-    for (int i=0;simLuaCommands[i].name!="";i++)
-    {
-        std::string name(simLuaCommands[i].name);
-        if (name.find("sim.")!=std::string::npos)
-        {
-            name.erase(name.begin(),name.begin()+4);
-            registerTableFunction(L,"sim",name.c_str(),simLuaCommands[i].func);
-        }
-        else
-            luaWrap_lua_register(L,simLuaCommands[i].name.c_str(),simLuaCommands[i].func);
-    }
-    if (App::userSettings->getSupportOldApiNotation())
-    {
-        for (int i=0;simLuaCommandsOldApi[i].name!="";i++)
-        {
-            std::string name(simLuaCommandsOldApi[i].name);
-            if (name.find("sim.")!=std::string::npos)
-            {
-                name.erase(name.begin(),name.begin()+4);
-                registerTableFunction(L,"sim",name.c_str(),simLuaCommandsOldApi[i].func);
-            }
-            else
-                luaWrap_lua_register(L,simLuaCommandsOldApi[i].name.c_str(),simLuaCommandsOldApi[i].func);
-        }
-    }
-    // Plugin API functions:
-    App::worldContainer->luaCustomFuncAndVarContainer->registerCustomLuaFunctions(L,_simGenericFunctionHandler);
-}
-
-void prepareNewLuaVariables_onlyRequire(luaWrap_lua_State* L)
-{
-    App::worldContainer->luaCustomFuncAndVarContainer->assignCustomVariables(L,true);
-}
-
-void prepareNewLuaVariables_noRequire(luaWrap_lua_State* L)
-{
-    for (int i=0;simLuaVariables[i].name!="";i++)
-    {
-        std::string tmp(simLuaVariables[i].name.c_str());
-        tmp+="="+boost::lexical_cast<std::string>(simLuaVariables[i].val);
-        luaWrap_luaL_dostring(L,tmp.c_str());
-    }
-    if (App::userSettings->getSupportOldApiNotation())
-    {
-        for (int i=0;simLuaVariablesOldApi[i].name!="";i++)
-        {
-            std::string tmp(simLuaVariablesOldApi[i].name.c_str());
-            tmp+="="+boost::lexical_cast<std::string>(simLuaVariablesOldApi[i].val);
-            luaWrap_luaL_dostring(L,tmp.c_str());
-        }
-    }
-    App::worldContainer->luaCustomFuncAndVarContainer->assignCustomVariables(L,false);
-}
-
-bool readCustomFunctionDataFromStack(luaWrap_lua_State* L,int ind,int dataType,
-                                     std::vector<char>& inBoolVector,
-                                     std::vector<int>& inIntVector,
-                                     std::vector<float>& inFloatVector,
-                                     std::vector<double>& inDoubleVector,
-                                     std::vector<std::string>& inStringVector,
-                                     std::vector<std::string>& inCharVector,
-                                     std::vector<int>& inInfoVector)
-{ // return value false means there is no more data on the stack
-    if (luaWrap_lua_gettop(L)<ind)
-        return(false); // not enough data on the stack
-    inInfoVector.push_back(sim_script_arg_invalid); // Dummy value for type
-    inInfoVector.push_back(0);                      // dummy value for size
-    if (luaWrap_lua_isnil(L,ind))
-    { // Special case: nil should not generate a sim_script_arg_invalid type!
-        inInfoVector[inInfoVector.size()-2]=sim_script_arg_null;
-        return(true);
-    }
-    if (dataType&sim_script_arg_table)
-    { // we have to read a table:
-        dataType^=sim_script_arg_table;
-        if (!luaWrap_lua_istable(L,ind))
-            return(true); // this is not a table
-        int dataSize=int(luaWrap_lua_rawlen(L,ind));
-        std::vector<char> boolV;
-        std::vector<int> intV;
-        std::vector<float> floatV;
-        std::vector<double> doubleV;
-        std::vector<std::string> stringV;
-        for (int i=0;i<dataSize;i++)
-        {
-            luaWrap_lua_rawgeti(L,ind,i+1);
-            if (dataType==sim_script_arg_bool)
-            {
-                if (!luaWrap_lua_isboolean(L,-1))
-                {
-                    luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
-                    return(true); // we don't have the correct data type
-                }
-                boolV.push_back(luaToBool(L,-1));
-            }
-            else if (dataType==sim_script_arg_int32)
-            {
-                if (!luaWrap_lua_isnumber(L,-1))
-                {
-                    luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
-                    return(true); // we don't have the correct data type
-                }
-                intV.push_back(luaToInt(L,-1));
-            }
-            else if (dataType==sim_script_arg_float)
-            {
-                if (!luaWrap_lua_isnumber(L,-1))
-                {
-                    luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
-                    return(true); // we don't have the correct data type
-                }
-                floatV.push_back(luaToFloat(L,-1));
-            }
-            else if (dataType==sim_script_arg_double)
-            {
-                if (!luaWrap_lua_isnumber(L,-1))
-                {
-                    luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
-                    return(true); // we don't have the correct data type
-                }
-                doubleV.push_back(luaToDouble(L,-1));
-            }
-            else if (dataType==sim_script_arg_string)
-            {
-                if (!luaWrap_lua_isstring(L,-1))
-                {
-                    luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
-                    return(true); // we don't have the correct data type
-                }
-                stringV.push_back(std::string(luaWrap_lua_tostring(L,-1)));
-            }
-            else
-            {
-                luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
-                return(true); // data type not recognized!
-            }
-            luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
-        }
-        // All values in the tables passed the check!
-        for (int i=0;i<int(boolV.size());i++)
-            inBoolVector.push_back(boolV[i]);
-        for (int i=0;i<int(intV.size());i++)
-            inIntVector.push_back(intV[i]);
-        for (int i=0;i<int(floatV.size());i++)
-            inFloatVector.push_back(floatV[i]);
-        for (int i=0;i<int(doubleV.size());i++)
-            inDoubleVector.push_back(doubleV[i]);
-        for (int i=0;i<int(stringV.size());i++)
-            inStringVector.push_back(stringV[i]);
-        inInfoVector[inInfoVector.size()-1]=dataSize; // Size of the table
-        inInfoVector[inInfoVector.size()-2]=dataType|sim_script_arg_table; // Type
-        return(true);
-    }
-    else
-    { // we have simple data here (not a table)
-        if (dataType==sim_script_arg_bool)
-        {
-            if (!luaWrap_lua_isboolean(L,ind))
-                return(true); // we don't have the correct data type
-            inBoolVector.push_back(luaToBool(L,ind));
-            inInfoVector[inInfoVector.size()-2]=dataType;
-        }
-        else if (dataType==sim_script_arg_int32)
-        {
-            if (!luaWrap_lua_isnumber(L,ind))
-                return(true); // we don't have the correct data type
-            inIntVector.push_back(luaToInt(L,ind));
-            inInfoVector[inInfoVector.size()-2]=dataType;
-        }
-        else if (dataType==sim_script_arg_float)
-        {
-            if (!luaWrap_lua_isnumber(L,ind))
-                return(true); // we don't have the correct data type
-            inFloatVector.push_back(luaToFloat(L,ind));
-            inInfoVector[inInfoVector.size()-2]=dataType;
-        }
-        else if (dataType==sim_script_arg_double)
-        {
-            if (!luaWrap_lua_isnumber(L,ind))
-                return(true); // we don't have the correct data type
-            inDoubleVector.push_back(luaToDouble(L,ind));
-            inInfoVector[inInfoVector.size()-2]=dataType;
-        }
-        else if (dataType==sim_script_arg_string)
-        {
-            if (!luaWrap_lua_isstring(L,ind))
-                return(true); // we don't have the correct data type
-            inStringVector.push_back(std::string(luaWrap_lua_tostring(L,ind)));
-            inInfoVector[inInfoVector.size()-2]=dataType;
-        }
-        else if (dataType==sim_script_arg_charbuff)
-        {
-            if (!luaWrap_lua_isstring(L,ind))
-                return(true); // we don't have the correct data type
-            size_t dataLength;
-            char* data=(char*)luaWrap_lua_tolstring(L,ind,&dataLength);
-            inCharVector.push_back(std::string(data,dataLength));
-            inInfoVector[inInfoVector.size()-2]=dataType;
-            inInfoVector[inInfoVector.size()-1]=int(dataLength);
-        }
-        return(true); // data type not recognized!
-    }
-    return(true);
-}
-
-void writeCustomFunctionDataOntoStack(luaWrap_lua_State* L,int dataType,int dataSize,
-                                      unsigned char* boolData,int& boolDataPos,
-                                      int* intData,int& intDataPos,
-                                      float* floatData,int& floatDataPos,
-                                      double* doubleData,int& doubleDataPos,
-                                      char* stringData,int& stringDataPos,
-                                      char* charData,int& charDataPos)
-{
-    if (((dataType|sim_script_arg_table)-sim_script_arg_table)==sim_script_arg_charbuff)
-    { // special handling here
-        luaWrap_lua_pushlstring(L,charData+charDataPos,dataSize);
-        charDataPos+=dataSize;
-    }
-    else
-    {
-        int newTablePos=0;
-        bool weHaveATable=false;
-        if (dataType&sim_script_arg_table)
-        { // we have a table
-            luaWrap_lua_newtable(L);
-            newTablePos=luaWrap_lua_gettop(L);
-            dataType^=sim_script_arg_table;
-            weHaveATable=true;
-        }
-        else
-            dataSize=1;
-        for (int i=0;i<dataSize;i++)
-        {
-            if (dataType==sim_script_arg_bool)
-                luaWrap_lua_pushboolean(L,boolData[boolDataPos++]);
-            else if (dataType==sim_script_arg_int32)
-                luaWrap_lua_pushinteger(L,intData[intDataPos++]);
-            else if (dataType==sim_script_arg_float)
-                luaWrap_lua_pushnumber(L,floatData[floatDataPos++]);
-            else if (dataType==sim_script_arg_double)
-                luaWrap_lua_pushnumber(L,doubleData[doubleDataPos++]);
-            else if (dataType==sim_script_arg_string)
-            {
-                luaWrap_lua_pushstring(L,stringData+stringDataPos);
-                stringDataPos+=(int)strlen(stringData+stringDataPos)+1; // Thanks to Ulrich Schwesinger for noticing a bug here!
-            }
-            else
-                luaWrap_lua_pushnil(L); // that is an error!
-
-            if (weHaveATable) // that's when we have a table
-                luaWrap_lua_rawseti(L,newTablePos,i+1);
-        }
-    }
 }
 
 void getFloatsFromTable(luaWrap_lua_State* L,int tablePos,int floatCount,float* arrayField)
@@ -3697,15 +1796,6 @@ void pushLStringTableOntoStack(luaWrap_lua_State* L,const std::vector<std::strin
     {
         luaWrap_lua_pushlstring(L,stringTable[i].c_str(),stringTable[i].size());
         luaWrap_lua_rawseti(L,newTablePos,(int)i+1);
-    }
-}
-
-void insertFloatsIntoTableAlreadyOnStack(luaWrap_lua_State* L,int tablePos,int floatCount,const float* arrayField)
-{
-    for (int i=0;i<floatCount;i++)
-    {
-        luaWrap_lua_pushnumber(L,arrayField[i]);
-        luaWrap_lua_rawseti(L,tablePos,i+1);
     }
 }
 
@@ -3955,16 +2045,18 @@ bool doesEntityExist(luaWrap_lua_State* L,std::string* errStr,int identifier)
     }
 }
 
-int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,std::string& raiseErrorWithMsg)
+int _genericFunctionHandler(luaWrap_lua_State* L,CScriptCustomFunction* func,std::string& raiseErrorWithMsg)
 {
     TRACE_LUA_API;
+
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* itObj=App::worldContainer->getScriptFromHandle(currentScriptID);
+
     CInterfaceStack* stack=new CInterfaceStack();
     int stackId=App::worldContainer->interfaceStackContainer->addStack(stack);
-    stack->buildFromLuaStack(L);
+    CScriptObject::buildFromInterpreterStack_lua(L,stack,1,0); // all stack
 
     // Now we retrieve the object ID this script might be attached to:
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* itObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     int linkedObject=-1;
     if (itObj->getScriptType()==sim_scripttype_childscript)
     {
@@ -3998,9 +2090,9 @@ int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,st
     bool dontDeleteStructureYet=false;
     while (cb->waitUntilZero!=0)
     { // backward compatibility (for real threads)
-        if (!CThreadPool::switchBackToPreviousThread())
+        if (!CThreadPool_old::switchBackToPreviousThread())
             break;
-        if (CThreadPool::getSimulationStopRequestedAndActivated())
+        if (CThreadPool_old::getSimulationStopRequestedAndActivated())
         { // give a chance to the c app to set the waitUntilZero to zero! (above turns true only 1-2 secs after the stop request arrived)
             // Following: the extension module might still write 0 into that position to signal "no more waiting" in
             // case this while loop got interrupted by a stop request.
@@ -4010,7 +2102,7 @@ int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,st
     }
 
     // Now we have to build the returned data onto the stack:
-    stack->buildOntoLuaStack(L,false);
+    CScriptObject::buildOntoInterpreterStack_lua(L,stack,false);
 
     if (strlen(cb->raiseErrorWithMessage)!=0)
         raiseErrorWithMsg+=cb->raiseErrorWithMessage; // is this mechanism used?! We probably simply use simSetLastError..?
@@ -4028,285 +2120,25 @@ int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,st
     return(outputArgCount);
 }
 
-void appendAllSimFunctionNames_spaceSeparated(std::string& keywords,int scriptType,bool scriptIsThreaded)
-{
-    for (size_t i=0;simLuaCommands[i].name!="";i++)
-    {
-        keywords+=simLuaCommands[i].name;
-        keywords+=" ";
-    }
-    if (App::userSettings->getSupportOldApiNotation())
-    {
-        for (size_t i=0;simLuaCommandsOldApi[i].name!="";i++)
-        {
-            keywords+=simLuaCommandsOldApi[i].name;
-            keywords+=" ";
-        }
-    }
-    std::vector<std::string> sysCb=CLuaScriptObject::getAllSystemCallbackStrings(scriptType,scriptIsThreaded,false);
-    for (size_t i=0;i<sysCb.size();i++)
-    {
-        keywords+=sysCb[i];
-        keywords+=" ";
-    }
-}
-
-void appendAllSimVariableNames_spaceSeparated(std::string& keywords)
-{
-    for (size_t i=0;simLuaVariables[i].name!="";i++)
-    {
-        keywords+=simLuaVariables[i].name;
-        keywords+=" ";
-    }
-    if (App::userSettings->getSupportOldApiNotation())
-    {
-        for (size_t i=0;simLuaVariablesOldApi[i].name!="";i++)
-        {
-            keywords+=simLuaVariablesOldApi[i].name;
-            keywords+=" ";
-        }
-    }
-}
-
-void pushAllSimFunctionNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m,int scriptType,bool scriptIsThreaded)
-{
-    std::string ttxt(txt);
-    bool hasDot=(ttxt.find('.')!=std::string::npos);
-    for (size_t i=0;simLuaCommands[i].name!="";i++)
-    {
-        if (simLuaCommands[i].autoComplete)
-        {
-            std::string n(simLuaCommands[i].name);
-            if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
-            {
-                if (!hasDot)
-                {
-                    size_t dp=n.find('.');
-                    if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
-                        n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
-                }
-                std::map<std::string,bool>::iterator it=m.find(n);
-                if (it==m.end())
-                {
-                    m[n]=true;
-                    v.push_back(n);
-                }
-            }
-        }
-    }
-    if (App::userSettings->getSupportOldApiNotation())
-    {
-        for (size_t i=0;simLuaCommandsOldApi[i].name!="";i++)
-        {
-            if (simLuaCommandsOldApi[i].autoComplete)
-            {
-                std::string n(simLuaCommandsOldApi[i].name);
-                if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
-                {
-                    if (!hasDot)
-                    {
-                        size_t dp=n.find('.');
-                        if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
-                            n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
-                    }
-                    std::map<std::string,bool>::iterator it=m.find(n);
-                    if (it==m.end())
-                    {
-                        m[n]=true;
-                        v.push_back(n);
-                    }
-                }
-            }
-        }
-    }
-    std::vector<std::string> sysCb=CLuaScriptObject::getAllSystemCallbackStrings(scriptType,scriptIsThreaded,false);
-    for (size_t i=0;i<sysCb.size();i++)
-    {
-        std::string n(sysCb[i]);
-        if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
-        {
-            if (!hasDot)
-            {
-                size_t dp=n.find('.');
-                if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
-                    n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
-            }
-            std::map<std::string,bool>::iterator it=m.find(n);
-            if (it==m.end())
-            {
-                m[n]=true;
-                v.push_back(n);
-            }
-        }
-    }
-}
-
-void pushAllSimVariableNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m)
-{
-    std::string ttxt(txt);
-    bool hasDot=(ttxt.find('.')!=std::string::npos);
-    for (size_t i=0;simLuaVariables[i].name!="";i++)
-    {
-        if (simLuaVariables[i].autoComplete)
-        {
-            std::string n(simLuaVariables[i].name);
-            if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
-            {
-                if (!hasDot)
-                {
-                    size_t dp=n.find('.');
-                    if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
-                        n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
-                }
-                std::map<std::string,bool>::iterator it=m.find(n);
-                if (it==m.end())
-                {
-                    m[n]=true;
-                    v.push_back(n);
-                }
-            }
-        }
-    }
-    if (App::userSettings->getSupportOldApiNotation())
-    {
-        for (size_t i=0;simLuaVariablesOldApi[i].name!="";i++)
-        {
-            if (simLuaVariablesOldApi[i].autoComplete)
-            {
-                std::string n(simLuaVariablesOldApi[i].name);
-                if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
-                {
-                    if (!hasDot)
-                    {
-                        size_t dp=n.find('.');
-                        if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
-                            n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
-                    }
-                    std::map<std::string,bool>::iterator it=m.find(n);
-                    if (it==m.end())
-                    {
-                        m[n]=true;
-                        v.push_back(n);
-                    }
-                }
-            }
-        }
-    }
-}
-
-std::string getSimFunctionCalltip(const char* txt,int scriptType,bool scriptIsThreaded,bool forceDoNotSupportOldApi)
-{
-    for (size_t i=0;simLuaCommands[i].name!="";i++)
-    {
-        if (simLuaCommands[i].name.compare(txt)==0)
-            return(simLuaCommands[i].callTip);
-    }
-    if (App::userSettings->getSupportOldApiNotation()&&(!forceDoNotSupportOldApi))
-    {
-        for (size_t i=0;simLuaCommandsOldApi[i].name!="";i++)
-        {
-            if (simLuaCommandsOldApi[i].name.compare(txt)==0)
-                return(simLuaCommandsOldApi[i].callTip);
-        }
-    }
-    std::vector<std::string> sysCb=CLuaScriptObject::getAllSystemCallbackStrings(scriptType,scriptIsThreaded,false);
-    std::vector<std::string> sysCbCt=CLuaScriptObject::getAllSystemCallbackStrings(scriptType,scriptIsThreaded,true);
-    for (size_t i=0;i<sysCb.size();i++)
-    {
-        if (sysCb[i].compare(txt)==0)
-            return(sysCbCt[i]);
-    }
-    return("");
-}
-
-int isFuncOrConstDeprecated(const char* txt)
-{
-    // Functions:
-    for (size_t i=0;simLuaCommands[i].name!="";i++)
-    {
-        std::string n(simLuaCommands[i].name);
-        if (n.compare(txt)==0)
-        {
-            if (simLuaCommands[i].autoComplete)
-                return(0);
-            return(1);
-        }
-    }
-    if (App::userSettings->getSupportOldApiNotation())
-    {
-        for (size_t i=0;simLuaCommandsOldApi[i].name!="";i++)
-        {
-            std::string n(simLuaCommandsOldApi[i].name);
-            if (n.compare(txt)==0)
-            {
-                if (simLuaCommandsOldApi[i].autoComplete)
-                    return(0);
-                return(1);
-            }
-        }
-    }
-    std::vector<std::string> sysCb=CLuaScriptObject::getAllSystemCallbackStrings(-1,false,false);
-    for (size_t i=0;i<sysCb.size();i++)
-    {
-        std::string n(sysCb[i]);
-        if (n.compare(txt)==0)
-            return(0);
-    }
-
-    // Variables/Constants:
-    for (size_t i=0;simLuaVariables[i].name!="";i++)
-    {
-        std::string n(simLuaVariables[i].name);
-        if (n.compare(txt)==0)
-        {
-            if (simLuaVariables[i].autoComplete)
-                return(0);
-            return(1);
-        }
-    }
-    if (App::userSettings->getSupportOldApiNotation())
-    {
-        for (size_t i=0;simLuaVariablesOldApi[i].name!="";i++)
-        {
-            std::string n(simLuaVariablesOldApi[i].name);
-            if (n.compare(txt)==0)
-            {
-                if (simLuaVariablesOldApi[i].autoComplete)
-                    return(0);
-                return(1);
-            }
-        }
-    }
-    return(-1);
-}
-
-//-----------------------------------------------
-//-----------------------------------------------
-//-----------------------------------------------
-//-----------------------------------------------
-//-----------------------------------------------
-//-----------------------------------------------
-
-
-
-
-
-
-
-
-
 int _simGenericFunctionHandler(luaWrap_lua_State* L)
 {   // THIS FUNCTION SHOULD NOT LOCK THE API (AT LEAST NOT WHILE CALLING THE CALLBACK!!) SINCE IT IS NOT DIRECTLY ACCESSING THE API!!!!
     TRACE_LUA_API;
     LUA_START("sim.genericFunctionHandler");
 
+//    CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+//    it->printInterpreterStack();
+
     luaWrap_lua_pushvalue(L,luaWrap_lua_upvalueindex(1));
     int id=luaWrap_lua_tointeger(L,-1)-1;
     luaWrap_lua_pop(L,1); // we have to pop the pushed value to get the original stack state
+
+
+//    it->printInterpreterStack();
+
     int outputArgCount=0;
-    for (size_t j=0;j<App::worldContainer->luaCustomFuncAndVarContainer->allCustomFunctions.size();j++)
+    for (size_t j=0;j<App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount();j++)
     { // we now search for the callback to call:
-        CLuaCustomFunction* it=App::worldContainer->luaCustomFuncAndVarContainer->allCustomFunctions[j];
+        CScriptCustomFunction* it=App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(j);
         if (it->getFunctionID()==id)
         { // we have the right one! Now we need to prepare the input and output argument arrays:
             functionName=it->getFunctionName();
@@ -4320,7 +2152,7 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
                 functionName+="@plugin";
 
             if (it->getUsesStackToExchangeData())
-                outputArgCount=_genericFunctionHandler_new(L,it,errorString);
+                outputArgCount=_genericFunctionHandler(L,it,errorString);
             else
                 outputArgCount=_genericFunctionHandler_old(L,it);
             break;
@@ -4340,14 +2172,14 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int callType=luaWrap_lua_tointeger(L,1);
-        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-        CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
+        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
         if (it!=nullptr)
         {
             if (it->getScriptType()==sim_scripttype_mainscript)
             { // only the main script can call this function
                 CInterfaceStack inStack;
-                inStack.buildFromLuaStack(L,2);
+                CScriptObject::buildFromInterpreterStack_lua(L,&inStack,2,0); // skip the first arg
                 int startT=VDateTime::getTimeInMs();
                 retVal=App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,callType,&inStack,nullptr,nullptr);
             }
@@ -4359,104 +2191,14 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simOpenModule(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.openModule");
-
-    moduleCommonPart(L,sim_message_eventcallback_moduleopen,&errorString);
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(1);
-}
-int _simCloseModule(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.closeModule");
-
-    moduleCommonPart(L,sim_message_eventcallback_moduleclose,&errorString);
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(1);
-}
-
-int _simHandleModule(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START_NO_CSIDE_ERROR("sim.handleModule");
-    bool sensingPart=false;
-    int res=checkOneGeneralInputArgument(L,2,lua_arg_bool,0,true,false,&errorString);
-
-    if ( (res==0)||(res==2) )
-    {
-        if (res==2)
-            sensingPart=(luaWrap_lua_toboolean(L,2)!=0);
-        if (sensingPart)
-            moduleCommonPart(L,sim_message_eventcallback_modulehandleinsensingpart,&errorString);
-        else
-            moduleCommonPart(L,sim_message_eventcallback_modulehandle,&errorString);
-    }
-    else
-        luaWrap_lua_pushinteger(L,-1);
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(1);
-}
-
-void moduleCommonPart(luaWrap_lua_State* L,int action,std::string* errorString)
-{
-    TRACE_LUA_API;
-    std::string functionName;
-    if (action==sim_message_eventcallback_moduleopen)
-        functionName="sim.openModule";
-    if (action==sim_message_eventcallback_moduleclose)
-        functionName="sim.closeModule";
-    if ( (action==sim_message_eventcallback_modulehandle)||(action==sim_message_eventcallback_modulehandleinsensingpart) )
-        functionName="sim.handleModule";
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
-    if (it->getScriptType()!=sim_scripttype_mainscript)
-    {
-        if (errorString!=nullptr)
-            errorString->assign(SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT);
-        luaWrap_lua_pushinteger(L,-1);
-    }
-    else
-    {
-        bool handleAll=false;
-        if (luaWrap_lua_isnumber(L,1))
-        { // We try to check whether we have sim_handle_all as a number:
-            if (luaToInt(L,1)==sim_handle_all)
-            {
-                handleAll=true;
-                void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(action,nullptr,nullptr,nullptr);
-                delete[] ((char*)retVal);
-                luaWrap_lua_pushinteger(L,1);
-            }
-        }
-        if (!handleAll)
-        {
-            if (checkInputArguments(L,errorString,lua_arg_string,0))
-            {
-                std::string modName(luaWrap_lua_tostring(L,1));
-                void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(action,nullptr,(char*)modName.c_str(),nullptr);
-                delete[] ((char*)retVal);
-                luaWrap_lua_pushinteger(L,1);
-            }
-            else
-                luaWrap_lua_pushinteger(L,-1);
-        }
-    }
-}
-
 int _simHandleDynamics(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.handleDynamics");
 
     int retVal=-1; // means error
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript) )
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
@@ -5247,7 +2989,7 @@ int _sim_getObjectHandle(luaWrap_lua_State* L)
         if (luaWrap_lua_tointeger(L,1)==sim_handle_self)
         {
             checkWithString=false;
-            int a=CLuaScriptObject::getScriptHandleFromLuaState(L);
+            int a=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
             retVal=simGetObjectAssociatedWithScript_internal(a);
         }
     }
@@ -5275,7 +3017,7 @@ int _sim_getObjectHandle(luaWrap_lua_State* L)
                         if (res==2)
                             options=luaToInt(L,4);
                         std::string name(luaWrap_lua_tostring(L,1));
-                        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                         retVal=simGetObjectHandleEx_internal(name.c_str(),index,proxyForSearch,options);
                         setCurrentScriptInfo_cSide(-1,-1);
                     }
@@ -5295,18 +3037,18 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
 
     int retVal=-1; // means error
     if (luaWrap_lua_gettop(L)==0) // no arguments
-        retVal=CLuaScriptObject::getScriptHandleFromLuaState(L);
+        retVal=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
     else
     {
         if (checkInputArguments(L,nullptr,lua_arg_nil,0)) // we don't output errors here!!
-            retVal=CLuaScriptObject::getScriptHandleFromLuaState(L); // nil argument
+            retVal=CScriptObject::getScriptHandleFromInterpreterState_lua(L); // nil argument
         else
         {
             if (checkInputArguments(L,nullptr,lua_arg_number,0))
             {
                 int scriptType=luaWrap_lua_tointeger(L,1);
                 if (scriptType==sim_handle_self)
-                    retVal=CLuaScriptObject::getScriptHandleFromLuaState(L); // for backward compatibility
+                    retVal=CScriptObject::getScriptHandleFromInterpreterState_lua(L); // for backward compatibility
                 else
                 {
                     int objectHandle=-1;
@@ -5327,7 +3069,7 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
             if ( (retVal==-1)&&checkInputArguments(L,&errorString,lua_arg_string,0) )
             { // string argument, for backward compatibility:
                 std::string name(luaWrap_lua_tostring(L,1));
-                setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                 retVal=simGetScriptHandle_internal(name.c_str());
                 setCurrentScriptInfo_cSide(-1,-1);
             }
@@ -5403,7 +3145,7 @@ int _simRemoveScript(luaWrap_lua_State* L)
     {
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
-            handle=CLuaScriptObject::getScriptHandleFromLuaState(L);
+            handle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         if (sim_handle_all!=handle)
             retVal=simRemoveScript_internal(handle);
     }
@@ -5824,30 +3566,6 @@ int _simCheckDistance(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simGetLastError(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getLastError");
-
-    int scriptHandle=-1;
-    if (luaWrap_lua_gettop(L)!=0)
-    {
-        if (checkInputArguments(L,&errorString,lua_arg_number,0))
-            scriptHandle=luaWrap_lua_tointeger(L,1);
-    }
-    else
-        scriptHandle=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
-    if (it!=nullptr)
-    {
-        luaWrap_lua_pushstring(L,it->getAndClearLastError().c_str());
-        LUA_END(1);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
 int _simGetSimulationTimeStep(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -5866,7 +3584,7 @@ int _simGetSimulatorMessage(luaWrap_lua_State* L)
     int auxVals[4];
     float aux2Vals[8];
     int aux2Cnt;
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
     int commandID=it->extractCommandFromOutsideCommandQueue(auxVals,aux2Vals,aux2Cnt);
     if (commandID!=-1)
     {
@@ -5943,7 +3661,7 @@ int _simAddGraphStream(luaWrap_lua_State* L)
                         cyclicRange=luaToFloat(L,6);
                     if ( (res==0)||(res==2) )
                     {
-                        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                         int retVal=simAddGraphStream_internal(graphHandle,streamName.c_str(),unitStr.c_str(),options,col,cyclicRange);
                         setCurrentScriptInfo_cSide(-1,-1);
                         luaWrap_lua_pushinteger(L,retVal);
@@ -6022,7 +3740,7 @@ int _simDuplicateGraphCurveToStatic(luaWrap_lua_State* L)
         }
         if ( (res==0)||(res==2) )
         {
-            setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+            setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
             simDuplicateGraphCurveToStatic_internal(luaToInt(L,1),luaToInt(L,2),str);
             setCurrentScriptInfo_cSide(-1,-1);
         }
@@ -6081,7 +3799,7 @@ int _simAddGraphCurve(luaWrap_lua_State* L)
                                     curveWidth=luaToInt(L,9);
                                 if ( (res==0)||(res==2) )
                                 {
-                                    setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                                    setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                                     int retVal=simAddGraphCurve_internal(graphHandle,curveName.c_str(),dim,streamIds,defaultVals,_unitStr,options,col,curveWidth);
                                     setCurrentScriptInfo_cSide(-1,-1);
                                     luaWrap_lua_pushinteger(L,retVal);
@@ -6128,7 +3846,7 @@ int _simAddLog(luaWrap_lua_State* L)
             else
             {
                 std::string msg(luaWrap_lua_tostring(L,2));
-                CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
+                CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
                 std::string nm("???");
                 if (it!=nullptr)
                     nm=it->getShortDescriptiveName();
@@ -6358,7 +4076,11 @@ int _simInvertMatrix(luaWrap_lua_State* L)
         float arr[12];
         getFloatsFromTable(L,1,12,arr);
         retVal=simInvertMatrix_internal(arr);
-        insertFloatsIntoTableAlreadyOnStack(L,1,12,arr);
+        for (int i=0;i<12;i++)
+        {
+            luaWrap_lua_pushnumber(L,arr[i]);
+            luaWrap_lua_rawseti(L,1,i+1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -6572,7 +4294,7 @@ int _simSetInt32Param(luaWrap_lua_State* L)
         int v=luaWrap_lua_tointeger(L,2);
         if (paramIndex==sim_intparam_error_report_mode)
         { // for backward compatibility (2020)
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
             if (it!=nullptr)
             {
                 bool r=true; // default
@@ -6601,7 +4323,7 @@ int _simGetInt32Param(luaWrap_lua_State* L)
         int paramIndex=luaWrap_lua_tointeger(L,1);
         if (paramIndex==sim_intparam_error_report_mode)
         { // for backward compatibility (2020)
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
             if (it!=nullptr)
             {
                 int v=1; // default
@@ -6750,18 +4472,18 @@ int _simRemoveObject(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int objId=luaWrap_lua_tointeger(L,1);
-        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         if (!it->getThreadedExecution_oldThreads())
             retVal=simRemoveObject_internal(objId);
         else
         { // this script runs threaded and wants to destroy another object (than itself probably). We need to make sure that it will only destroy objects that do not have any scripts attached with a non-nullptr lua state:
-            std::vector<CLuaScriptObject*> scripts;
+            std::vector<CScriptObject*> scripts;
             App::currentWorld->embeddedScriptContainer->getScriptsFromObjectAttachedTo(objId,scripts);
             bool ok=true;
             for (size_t i=0;i<scripts.size();i++)
             {
-                if ( (it!=scripts[i])&&scripts[i]->hasLuaState() )
+                if ( (it!=scripts[i])&&scripts[i]->hasInterpreterState() )
                     ok=false;
             }
             if (ok)
@@ -6785,8 +4507,8 @@ int _simRemoveModel(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int objId=luaWrap_lua_tointeger(L,1);
-        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         if (!it->getThreadedExecution_oldThreads())
             retVal=simRemoveModel_internal(objId);
         else
@@ -6802,11 +4524,11 @@ int _simRemoveModel(luaWrap_lua_State* L)
                     bool ok=true;
                     for (size_t j=0;j<modelObjects.size();j++)
                     {
-                        std::vector<CLuaScriptObject*> scripts;
+                        std::vector<CScriptObject*> scripts;
                         App::currentWorld->embeddedScriptContainer->getScriptsFromObjectAttachedTo(modelObjects[j],scripts);
                         for (size_t i=0;i<scripts.size();i++)
                         {
-                            if ( (it!=scripts[i])&&scripts[i]->hasLuaState() )
+                            if ( (it!=scripts[i])&&scripts[i]->hasInterpreterState() )
                                 ok=false;
                         }
                     }
@@ -6913,8 +4635,8 @@ int _simLoadScene(luaWrap_lua_State* L)
     LUA_START("sim.loadScene");
 
     int retVal=-1;// error
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* script=App::worldContainer->getScriptFromHandle(currentScriptID);
     if ( (script!=nullptr)&&((script->getScriptType()==sim_scripttype_addonfunction)||(script->getScriptType()==sim_scripttype_addonscript)||(script->getScriptType()==sim_scripttype_sandboxscript)) )
     {
         if (checkInputArguments(L,&errorString,lua_arg_string,0))
@@ -6934,8 +4656,8 @@ int _simCloseScene(luaWrap_lua_State* L)
     LUA_START("sim.closeScene");
 
     int retVal=-1;// error
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* script=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* script=App::worldContainer->getScriptFromHandle(currentScriptID);
     if ( (script!=nullptr)&&((script->getScriptType()==sim_scripttype_addonfunction)||(script->getScriptType()==sim_scripttype_addonscript)||(script->getScriptType()==sim_scripttype_sandboxscript)) )
         retVal=simCloseScene_internal();
     else
@@ -7355,7 +5077,7 @@ int _simTextEditorOpen(luaWrap_lua_State* L)
         {
             const char* arg1=luaWrap_lua_tostring(L,1);
             const char* arg2=luaWrap_lua_tostring(L,2);
-            retVal=App::mainWindow->codeEditorContainer->open(arg1,arg2,CLuaScriptObject::getScriptHandleFromLuaState(L));
+            retVal=App::mainWindow->codeEditorContainer->open(arg1,arg2,CScriptObject::getScriptHandleFromInterpreterState_lua(L));
         }
     }
     else
@@ -7519,8 +5241,8 @@ int _simGetStackTraceback(luaWrap_lua_State* L)
             scriptHandle=luaWrap_lua_tointeger(L,1);
     }
     else
-        scriptHandle=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        scriptHandle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
     if (it!=nullptr)
         retVal=it->getAndClearLastStackTraceback();
 
@@ -7714,12 +5436,12 @@ int _simSetThreadSwitchTiming(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int timeInMs=luaWrap_lua_tointeger(L,1);
-        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         if (it!=nullptr)
             it->setDelayForAutoYielding(timeInMs);
 
-        CThreadPool::setThreadSwitchTiming(timeInMs);
+        CThreadPool_old::setThreadSwitchTiming(timeInMs);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -7733,8 +5455,8 @@ int _simSetThreadAutomaticSwitch(luaWrap_lua_State* L)
 
     if (luaWrap_lua_gettop(L)>0)
     {
-        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         if (it!=nullptr)
         {
             int retVal;
@@ -7751,7 +5473,7 @@ int _simSetThreadAutomaticSwitch(luaWrap_lua_State* L)
                 else
                     retVal=it->changeAutoYieldingForbidLevel(1,false);
             }
-            CThreadPool::setThreadAutomaticSwitchForbidLevel(it->getAutoYieldingForbidLevel());
+            CThreadPool_old::setThreadAutomaticSwitchForbidLevel(it->getAutoYieldingForbidLevel());
             luaWrap_lua_pushinteger(L,retVal);
             LUA_END(1);
         }
@@ -7767,35 +5489,13 @@ int _simGetThreadAutomaticSwitch(luaWrap_lua_State* L)
 { // doesn't generate an error
     TRACE_LUA_API;
     LUA_START("sim.getThreadAutomaticSwitch");
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     bool retVal=false;
     if (it!=nullptr)
         retVal=(it->getAutoYieldingForbidLevel()==0);
 
-    luaWrap_lua_pushboolean(L,retVal); //CThreadPool::getThreadAutomaticSwitch());
-    LUA_END(1);
-}
-
-int _simSwitchThread(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim._switchThread");
-
-    int retVal=-1;
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
-    if ((it!=nullptr)&&(it->canManualYield()))
-    {
-        it->resetScriptExecutionTime();
-        if (CThreadPool::switchBackToPreviousThread())
-            retVal=1;
-        else
-            retVal=0;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
+    luaWrap_lua_pushboolean(L,retVal); //CThreadPool_old::getThreadAutomaticSwitch());
     LUA_END(1);
 }
 
@@ -7804,8 +5504,8 @@ int _simGetThreadSwitchAllowed(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getThreadSwitchAllowed");
 
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (it!=nullptr)
     {
         luaWrap_lua_pushboolean(L,it->canManualYield());
@@ -7823,8 +5523,8 @@ int _simSetThreadSwitchAllowed(luaWrap_lua_State* L)
 
     if (luaWrap_lua_gettop(L)>0)
     {
-        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         if (it!=nullptr)
         {
             int retVal;
@@ -10139,7 +7839,7 @@ int _simAddDrawingObject(luaWrap_lua_State* L)
             }
             if (okToGo)
             {
-                setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                 retVal=simAddDrawingObject_internal(objType,size,duplicateTolerance,parentID,maxItemCount,ambient,nullptr,specular,emission);
                 setCurrentScriptInfo_cSide(-1,-1);
             }
@@ -10162,8 +7862,8 @@ int _simRemoveDrawingObject(luaWrap_lua_State* L)
         int objectHandle=luaToInt(L,1);
         if (objectHandle==sim_handle_all)
         { // following condition added here on 2011/01/06 so as not to remove objects created from a c/c++ call or from add-on:
-            int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-            CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
+            int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+            CScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
             App::currentWorld->drawingCont->removeAllObjects();
             retVal=1;
         }
@@ -10400,7 +8100,7 @@ int _simSetInt32Signal(luaWrap_lua_State* L)
     int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
-        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simSetInt32Signal_internal(luaWrap_lua_tostring(L,1),luaToInt(L,2));
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -10457,7 +8157,7 @@ int _simSetFloatSignal(luaWrap_lua_State* L)
     int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
-        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simSetFloatSignal_internal(luaWrap_lua_tostring(L,1),luaToFloat(L,2));
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -10514,7 +8214,7 @@ int _simSetDoubleSignal(luaWrap_lua_State* L)
     int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
-        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simSetDoubleSignal_internal(luaWrap_lua_tostring(L,1),luaToDouble(L,2));
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -10573,7 +8273,7 @@ int _simSetStringSignal(luaWrap_lua_State* L)
     {
         size_t dataLength;
         const char* data=luaWrap_lua_tolstring(L,2,&dataLength);
-        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simSetStringSignal_internal(luaWrap_lua_tostring(L,1),data,int(dataLength));
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -11335,8 +9035,8 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0,lua_arg_number,0))
     {
         int mode=luaToInt(L,3);
-        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-        CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
+        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        CScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
         if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript) )
         { // Add-ons and customization scripts do not have this restriction
             mode|=1;
@@ -12344,8 +10044,8 @@ int _simRMLPos(luaWrap_lua_State* L)
                         auxData[0]=1;
                         ((int*)(auxData+1))[0]=0;
 
-                        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-                        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+                        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
                         if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript))
                             ((int*)(auxData+1))[0]=1; // destroy at simulation end!
                         retVal=simRMLPos_internal(dofs,timeStep,flags,currentPosVelAccel,maxVelAccelJerk,(unsigned char*)selection,targetPosVel,auxData);
@@ -12463,8 +10163,8 @@ int _simRMLVel(luaWrap_lua_State* L)
                         auxData[0]=1;
                         ((int*)(auxData+1))[0]=0;
 
-                        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-                        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+                        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
                         if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript))
                             ((int*)(auxData+1))[0]=1; // destroy at simulation end!
 
@@ -12624,7 +10324,11 @@ int _simLoadModule(luaWrap_lua_State* L)
         std::string pluginName(luaWrap_lua_tostring(L,2));
         retVal=simLoadModule_internal(fileAndPath.c_str(),pluginName.c_str());
         if (retVal>=0)
-            registerNewLuaFunctions(L); // otherwise we can only use the custom Lua functions that the plugin registers after this script has re-initialized!
+        {
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+            it->registerNewFunctions_lua(); // otherwise we can only use the custom Lua functions that the plugin registers after this script has re-initialized!
+            it->registerPluginFunctions();
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -12667,7 +10371,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
         else
             funcName=funcAndScriptName;
 
-        CLuaScriptObject* script=nullptr;
+        CScriptObject* script=nullptr;
         if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
             script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
@@ -12697,19 +10401,19 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
 
         if (script!=nullptr)
         {
-            if (script->hasLuaState())
+            if (script->hasInterpreterState())
             {
                 CInterfaceStack stack;
-                stack.buildFromLuaStack(L,3);
+                CScriptObject::buildFromInterpreterStack_lua(L,&stack,3,0); // skip the two first args
 
                 if (script->getThreadedExecutionIsUnderWay_oldThreads())
                 { // very special handling here!
-                    if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId(),VThread::getCurrentThreadId()))
+                    if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId_old(),VThread::getCurrentThreadId()))
                     {
                         int rr=script->callCustomScriptFunction(funcName.c_str(),&stack);
                         if (rr==1)
                         {
-                            stack.buildOntoLuaStack(L,false);
+                            CScriptObject::buildOntoInterpreterStack_lua(L,&stack,false);
                             LUA_END(stack.getStackSize());
                         }
                         else
@@ -12728,10 +10432,10 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                         d[1]=script;
                         d[2]=(void*)funcName.c_str();
                         d[3]=&stack;
-                        int retVal=CThreadPool::callRoutineViaSpecificThread(script->getThreadedScriptThreadId(),d);
+                        int retVal=CThreadPool_old::callRoutineViaSpecificThread(script->getThreadedScriptThreadId_old(),d);
                         if (retVal==1)
                         {
-                            stack.buildOntoLuaStack(L,false);
+                            CScriptObject::buildOntoInterpreterStack_lua(L,&stack,false);
                             LUA_END(stack.getStackSize());
                         }
                         else
@@ -12750,7 +10454,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                         int rr=script->callCustomScriptFunction(funcName.c_str(),&stack);
                         if (rr==1)
                         {
-                            stack.buildOntoLuaStack(L,false);
+                            CScriptObject::buildOntoInterpreterStack_lua(L,&stack,false);
                             LUA_END(stack.getStackSize());
                         }
                         else
@@ -13378,7 +11082,7 @@ int _simWriteCustomDataBlock(luaWrap_lua_State* L)
     {
         int objectHandle=luaToInt(L,1);
         if (objectHandle==sim_handle_self)
-            objectHandle=CLuaScriptObject::getScriptHandleFromLuaState(L);
+            objectHandle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
 
         std::string dataName(luaWrap_lua_tostring(L,2));
         int res;
@@ -13408,7 +11112,7 @@ int _simReadCustomDataBlock(luaWrap_lua_State* L)
     {
         int objectHandle=luaToInt(L,1);
         if (objectHandle==sim_handle_self)
-            objectHandle=CLuaScriptObject::getScriptHandleFromLuaState(L);
+            objectHandle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
 
         std::string dataName(luaWrap_lua_tostring(L,2));
         int dataLength;
@@ -13434,7 +11138,7 @@ int _simReadCustomDataBlockTags(luaWrap_lua_State* L)
     {
         int objectHandle=luaToInt(L,1);
         if (objectHandle==sim_handle_self)
-            objectHandle=CLuaScriptObject::getScriptHandleFromLuaState(L);
+            objectHandle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
 
         int tagCount;
         char* data=simReadCustomDataBlockTags_internal(objectHandle,&tagCount);
@@ -13527,45 +11231,6 @@ int _simGetObjectsInTree(luaWrap_lua_State* L)
                     LUA_END(1);
                 }
             }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetObjectSizeValues(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setObjectSizeValues");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,3))
-    {
-        int handle=luaToInt(L,1);
-        float s[3];
-        getFloatsFromTable(L,2,3,s);
-        retVal=simSetObjectSizeValues_internal(handle,s);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simGetObjectSizeValues(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getObjectSizeValues");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int handle=luaToInt(L,1);
-        float s[3];
-        if (simGetObjectSizeValues_internal(handle,s)!=-1)
-        {
-            pushFloatTableOntoStack(L,3,s);
-            LUA_END(1);
         }
     }
 
@@ -13669,7 +11334,7 @@ int _simCreateCollectionEx(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int options=luaToInt(L,1);
-        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         int handle=simCreateCollectionEx_internal(options);
         setCurrentScriptInfo_cSide(-1,-1);
         luaWrap_lua_pushinteger(L,handle);
@@ -13735,8 +11400,8 @@ int _simHandleCustomizationScripts(luaWrap_lua_State* L)
     LUA_START("sim.handleCustomizationScripts");
 
     int retVal=-1;
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
@@ -13764,8 +11429,8 @@ int _simHandleAddOnScripts(luaWrap_lua_State* L)
     LUA_START("sim.handleAddOnScripts");
 
     int retVal=-1;
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
@@ -13789,8 +11454,8 @@ int _simHandleSandboxScript(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.handleSandboxScript");
 
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
@@ -13817,7 +11482,7 @@ int _simSetScriptAttribute(luaWrap_lua_State* L)
     {
         int scriptID=luaToInt(L,1);
         if (scriptID==sim_handle_self)
-            scriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
+            scriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         int attribID=luaToInt(L,2);
         int thirdArgType=lua_arg_number;
         if ( (attribID==sim_customizationscriptattribute_activeduringsimulation)||(attribID==sim_childscriptattribute_automaticcascadingcalls)||(attribID==sim_scriptattribute_enabled)||(attribID==sim_customizationscriptattribute_cleanupbeforesave) )
@@ -13850,7 +11515,7 @@ int _simGetScriptAttribute(luaWrap_lua_State* L)
     {
         int scriptID=luaToInt(L,1);
         if (scriptID==sim_handle_self)
-            scriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
+            scriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         int attribID=luaToInt(L,2);
         int intVal;
         float floatVal;
@@ -14508,7 +12173,7 @@ int _simPackTable(luaWrap_lua_State* L)
         if (luaWrap_lua_istable(L,1))
         {
             CInterfaceStack stack;
-            stack.buildFromLuaStack(L,1,1);
+            CScriptObject::buildFromInterpreterStack_lua(L,&stack,1,1);
             std::string s(stack.getBufferFromTable());
             luaWrap_lua_pushlstring(L,s.c_str(),s.length());
             LUA_END(1);
@@ -14535,7 +12200,7 @@ int _simUnpackTable(luaWrap_lua_State* L)
         CInterfaceStack stack;
         if (stack.pushTableFromBuffer(s,(unsigned int)l))
         {
-            stack.buildOntoLuaStack(L,true);
+            CScriptObject::buildOntoInterpreterStack_lua(L,&stack,true);
             LUA_END(1);
         }
         errorString.assign(SIM_ERROR_INVALID_DATA);
@@ -14551,8 +12216,8 @@ int _simHandleSimulationStart(luaWrap_lua_State* L)
     LUA_START("sim.handleSimulationStart");
 
     int retVal=-1;
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
         // Following is for velocity measurement (initial):
@@ -14576,8 +12241,8 @@ int _simHandleSensingStart(luaWrap_lua_State* L)
     LUA_START("sim.handleSensingStart");
 
     int retVal=-1;
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
         // Following is for camera tracking!
@@ -15032,7 +12697,7 @@ int _simGetShapeViz(luaWrap_lua_State* L)
                 delete[] info.texture;
                 delete[] info.textureCoords;
             }
-            stack.buildOntoLuaStack(L,true);
+            CScriptObject::buildOntoInterpreterStack_lua(L,&stack,true);
             LUA_END(1);
         }
     }
@@ -15058,7 +12723,7 @@ int _simExecuteScriptString(luaWrap_lua_State* L)
             int s=1;
             if (stack->getStackSize()>0)
             {
-                stack->buildOntoLuaStack(L,false);//true);
+                CScriptObject::buildOntoInterpreterStack_lua(L,stack,false);//true);
                 s+=stack->getStackSize();
             }
             App::worldContainer->interfaceStackContainer->destroyStack(stackHandle);
@@ -15275,8 +12940,8 @@ int _simGetRandom(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getRandom");
 
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (it!=nullptr)
     {
         int res=checkOneGeneralInputArgument(L,1,lua_arg_number,0,true,true,&errorString);
@@ -15302,6 +12967,1840 @@ int _simGetRandom(luaWrap_lua_State* L)
 //****************************************************
 //****************************************************
 
+const SLuaCommands simLuaCommandsOldApi[]=
+{ // Following for backward compatibility (has now a new notation (see 'simLuaCommands'))
+    {"simGetScriptName",_simGetScriptName,                      "Deprecated. Use sim.getObjectAlias instead",false},
+    {"simGetObjectAssociatedWithScript",_simGetObjectAssociatedWithScript,"Deprecated. Use sim.getObjectHandle('.') instead",false},
+    {"simGetScriptAssociatedWithObject",_simGetScriptAssociatedWithObject,"Deprecated. Use sim.getScriptHandle instead",false},
+    {"simGetCustomizationScriptAssociatedWithObject",_simGetCustomizationScriptAssociatedWithObject,"Deprecated. Use sim.getScriptHandle instead",false},
+    {"simOpenModule",_simOpenModule,                            "Deprecated",false},
+    {"simCloseModule",_simCloseModule,                          "Deprecated",false},
+    {"simHandleModule",_simHandleModule,                        "Deprecated",false},
+    {"simHandleDynamics",_simHandleDynamics,                    "Use the newer 'sim.handleDynamics' notation",false},
+    {"simHandleProximitySensor",_simHandleProximitySensor,      "Use the newer 'sim.handleProximitySensor' notation",false},
+    {"simReadProximitySensor",_simReadProximitySensor,          "Use the newer 'sim.readProximitySensor' notation",false},
+    {"simResetProximitySensor",_simResetProximitySensor,        "Use the newer 'sim.resetProximitySensor' notation",false},
+    {"simCheckProximitySensor",_simCheckProximitySensor,        "Use the newer 'sim.checkProximitySensor' notation",false},
+    {"simCheckProximitySensorEx",_simCheckProximitySensorEx,    "Use the newer 'sim.checkProximitySensorEx' notation",false},
+    {"simCheckProximitySensorEx2",_simCheckProximitySensorEx2,  "Use the newer 'sim.checkProximitySensorEx2' notation",false},
+    {"simGetObjectHandle",_sim_getObjectHandle,                 "Use the newer 'sim.getObjectHandle' notation",false},
+    {"simAddScript",_simAddScript,                              "Use the newer 'sim.addScript' notation",false},
+    {"simAssociateScriptWithObject",_simAssociateScriptWithObject,"Use the newer 'sim.associateScriptWithObject' notation",false},
+    {"simSetScriptText",_simSetScriptText,                      "Use the newer 'sim.setScriptText' notation",false},
+    {"simGetScriptHandle",_simGetScriptHandle,                  "Use the newer 'sim.getScriptHandle' notation",false},
+    {"simGetObjectPosition",_simGetObjectPosition,              "Use the newer 'sim.getObjectPosition' notation",false},
+    {"simGetObjectOrientation",_simGetObjectOrientation,        "Use the newer 'sim.getObjectOrientation' notation",false},
+    {"simSetObjectPosition",_simSetObjectPosition,              "Use the newer 'sim.setObjectPosition' notation",false},
+    {"simSetObjectOrientation",_simSetObjectOrientation,        "Use the newer 'sim.setObjectOrientation' notation",false},
+    {"simGetJointPosition",_simGetJointPosition,                "Use the newer 'sim.getJointPosition' notation",false},
+    {"simSetJointPosition",_simSetJointPosition,                "Use the newer 'sim.setJointPosition' notation",false},
+    {"simSetJointTargetPosition",_simSetJointTargetPosition,    "Use the newer 'sim.setJointTargetPosition' notation",false},
+    {"simGetJointTargetPosition",_simGetJointTargetPosition,    "Use the newer 'sim.getJointTargetPosition' notation",false},
+    {"simSetJointForce",_simSetJointMaxForce,                   "Use the newer 'sim.setJointMaxForce' notation",false},
+    {"simSetJointTargetVelocity",_simSetJointTargetVelocity,    "Use the newer 'sim.setJointTargetVelocity' notation",false},
+    {"simGetJointTargetVelocity",_simGetJointTargetVelocity,    "Use the newer 'sim.getJointTargetVelocity' notation",false},
+    {"simGetObjectName",_simGetObjectName,                      "Deprecated. Use sim.getObjectAlias instead",false},
+    {"simSetObjectName",_simSetObjectName,                      "Deprecated. Use sim.setObjectAlias instead",false},
+    {"simRemoveObject",_simRemoveObject,                        "Use the newer 'sim.removeObject' notation",false},
+    {"simRemoveModel",_simRemoveModel,                          "Use the newer 'sim.removeModel' notation",false},
+    {"simGetSimulationTime",_simGetSimulationTime,              "Use the newer 'sim.getSimulationTime' notation",false},
+    {"simGetSimulationState",_simGetSimulationState,            "Use the newer 'sim.getSimulationState' notation",false},
+    {"simGetSystemTime",_simGetSystemTime,                      "Use the newer 'sim.getSystemTime' notation",false},
+    {"simGetSystemTimeInMs",_simGetSystemTimeInMs,              "Use the newer 'sim.getSystemTimeInMs' notation",false},
+    {"simCheckCollision",_simCheckCollision,                    "Use the newer 'sim.checkCollision' notation",false},
+    {"simCheckCollisionEx",_simCheckCollisionEx,                "Use the newer 'sim.checkCollisionEx' notation",false},
+    {"simCheckDistance",_simCheckDistance,                      "Use the newer 'sim.checkDistance' notation",false},
+    {"simGetObjectConfiguration",_simGetObjectConfiguration,    "Deprecated",false},
+    {"simSetObjectConfiguration",_simSetObjectConfiguration,    "Deprecated",false},
+    {"simGetConfigurationTree",_simGetConfigurationTree,        "Deprecated",false},
+    {"simSetConfigurationTree",_simSetConfigurationTree,        "Deprecated",false},
+    {"simGetSimulationTimeStep",_simGetSimulationTimeStep,      "Use the newer 'sim.getSimulationTimeStep' notation",false},
+    {"simGetSimulatorMessage",_simGetSimulatorMessage,          "Use the newer 'sim.getSimulatorMessage' notation",false},
+    {"simResetGraph",_simResetGraph,                            "Use the newer 'sim.resetGraph' notation",false},
+    {"simHandleGraph",_simHandleGraph,                          "Use the newer 'sim.handleGraph' notation",false},
+    {"simGetLastError",_simGetLastError,                        "Deprecated",false},
+    {"simGetObjects",_simGetObjects,                            "Use the newer 'sim.getObjects' notation",false},
+    {"simRefreshDialogs",_simRefreshDialogs,                    "Use the newer 'sim.refreshDialogs' notation",false},
+    {"simGetModuleName",_simGetModuleName,                      "Use the newer 'sim.getModuleName' notation",false},
+    {"simRemoveScript",_simRemoveScript,                        "Use the newer 'sim.removeScript' notation",false},
+    {"simStopSimulation",_simStopSimulation,                    "Use the newer 'sim.stopSimulation' notation",false},
+    {"simPauseSimulation",_simPauseSimulation,                  "Use the newer 'sim.pauseSimulation' notation",false},
+    {"simStartSimulation",_simStartSimulation,                  "Use the newer 'sim.startSimulation' notation",false},
+    {"simGetObjectMatrix",_simGetObjectMatrix,                  "Use the newer 'sim.getObjectMatrix' notation",false},
+    {"simSetObjectMatrix",_simSetObjectMatrix,                  "Use the newer 'sim.setObjectMatrix' notation",false},
+    {"simGetJointMatrix",_simGetJointMatrix,                    "Use the newer 'sim.getJointMatrix' notation",false},
+    {"simSetSphericalJointMatrix",_simSetSphericalJointMatrix,  "Use the newer 'sim.setSphericalJointMatrix' notation",false},
+    {"simBuildIdentityMatrix",_simBuildIdentityMatrix,          "Use the newer 'sim.buildIdentityMatrix' notation",false},
+    {"simBuildMatrix",_simBuildMatrix,                          "Use the newer 'sim.buildMatrix' notation",false},
+    {"simGetEulerAnglesFromMatrix",_simGetEulerAnglesFromMatrix,"Use the newer 'sim.getEulerAnglesFromMatrix' notation",false},
+    {"simInvertMatrix",_simInvertMatrix,                        "Use the newer 'sim.invertMatrix' notation",false},
+    {"simMultiplyMatrices",_simMultiplyMatrices,                "Use the newer 'sim.multiplyMatrices' notation",false},
+    {"simInterpolateMatrices",_simInterpolateMatrices,          "Use the newer 'sim.interpolateMatrices' notation",false},
+    {"simMultiplyVector",_simMultiplyVector,                    "Use the newer 'sim.multiplyVector' notation",false},
+    {"simGetObjectChild",_simGetObjectChild,                    "Use the newer 'sim.getObjectChild' notation",false},
+    {"simGetObjectParent",_simGetObjectParent,                  "Use the newer 'sim.getObjectParent' notation",false},
+    {"simSetObjectParent",_simSetObjectParent,                  "Use the newer 'sim.setObjectParent' notation",false},
+    {"simGetObjectType",_simGetObjectType,                      "Use the newer 'sim.getObjectType' notation",false},
+    {"simGetJointType",_simGetJointType,                        "Use the newer 'sim.getJointType' notation",false},
+    {"simSetBoolParameter",_simSetBoolParam,                    "Deprecated. Use sim.setBoolParam instead",false},
+    {"simGetBoolParameter",_simGetBoolParam,                    "Deprecated. Use sim.getBoolParam instead",false},
+    {"simSetInt32Parameter",_simSetInt32Param,                  "Deprecated. Use sim.setInt32Param instead",false},
+    {"simGetInt32Parameter",_simGetInt32Param,                  "Deprecated. Use sim.getInt32Param instead",false},
+    {"simSetFloatParameter",_simSetFloatParam,                  "Deprecated. Use sim.setFloatParam instead",false},
+    {"simGetFloatParameter",_simGetFloatParam,                  "Deprecated. Use sim.getFloatParam instead",false},
+    {"simSetStringParameter",_simSetStringParam,                "Deprecated. Use sim.setStringParam instead",false},
+    {"simGetStringParameter",_simGetStringParam,                "Deprecated. Use sim.getStringParam instead",false},
+    {"simSetArrayParameter",_simSetArrayParam,                  "Deprecated. Use sim.setArrayParam instead",false},
+    {"simGetArrayParameter",_simGetArrayParam,                  "Deprecated. Use sim.getArrayParam instead",false},
+    {"simGetJointInterval",_simGetJointInterval,                "Use the newer 'sim.getJointInterval' notation",false},
+    {"simSetJointInterval",_simSetJointInterval,                "Use the newer 'sim.setJointInterval' notation",false},
+    {"simLoadScene",_simLoadScene,                              "Use the newer 'sim.loadScene' notation",false},
+    {"simSaveScene",_simSaveScene,                              "Use the newer 'sim.saveScene' notation",false},
+    {"simLoadModel",_simLoadModel,                              "Use the newer 'sim.loadModel' notation",false},
+    {"simSaveModel",_simSaveModel,                              "Use the newer 'sim.saveModel' notation",false},
+    {"simIsObjectInSelection",_simIsObjectInSelection,          "Use the newer 'sim.isObjectInSelection' notation",false},
+    {"simAddObjectToSelection",_simAddObjectToSelection,        "Use the newer 'sim.addObjectToSelection' notation",false},
+    {"simRemoveObjectFromSelection",_simRemoveObjectFromSelection,"Use the newer 'sim.removeObjectFromSelection' notation",false},
+    {"simGetObjectSelection",_simGetObjectSelection,            "Use the newer 'sim.getObjectSelection' notation",false},
+    {"simGetRealTimeSimulation",_simGetRealTimeSimulation,      "Use the newer 'sim.getRealTimeSimulation' notation",false},
+    {"simSetNavigationMode",_simSetNavigationMode,              "Use the newer 'sim.setNavigationMode' notation",false},
+    {"simGetNavigationMode",_simGetNavigationMode,              "Use the newer 'sim.getNavigationMode' notation",false},
+    {"simSetPage",_simSetPage,                                  "Use the newer 'sim.setPage' notation",false},
+    {"simGetPage",_simGetPage,                                  "Use the newer 'sim.getPage' notation",false},
+    {"simCopyPasteObjects",_simCopyPasteObjects,                "Use the newer 'sim.copyPasteObjects' notation",false},
+    {"simScaleObjects",_simScaleObjects,                        "Use the newer 'sim.scaleObjects' notation",false},
+    {"simGetObjectUniqueIdentifier",_simGetObjectUniqueIdentifier,"Use the newer 'sim.getObjectUniqueIdentifier' notation",false},
+    {"simSetThreadAutomaticSwitch",_simSetThreadAutomaticSwitch,"Use the newer 'sim.setThreadAutomaticSwitch' notation",false},
+    {"simGetThreadAutomaticSwitch",_simGetThreadAutomaticSwitch,"Use the newer 'sim.getThreadAutomaticSwitch' notation",false},
+    {"simSetThreadSwitchTiming",_simSetThreadSwitchTiming,      "Use the newer 'sim.setThreadSwitchTiming' notation",false},
+    {"simSwitchThread",_simSwitchThread,                        "Deprecated",false},
+    {"simSaveImage",_simSaveImage,                              "Use the newer 'sim.saveImage' notation",false},
+    {"simLoadImage",_simLoadImage,                              "Use the newer 'sim.loadImage' notation",false},
+    {"simGetScaledImage",_simGetScaledImage,                    "Use the newer 'sim.getScaledImage' notation",false},
+    {"simTransformImage",_simTransformImage,                    "Use the newer 'sim.transformImage' notation",false},
+    {"simGetQHull",_simGetQHull,                                "Use the newer 'sim.getQHull' notation",false},
+    {"simGetDecimatedMesh",_simGetDecimatedMesh,                "Use the newer 'sim.getDecimatedMesh' notation",false},
+    {"simPackInt32Table",_simPackInt32Table,                    "Use the newer 'sim.packInt32Table' notation",false},
+    {"simPackUInt32Table",_simPackUInt32Table,                  "Use the newer 'sim.packUInt32Table' notation",false},
+    {"simPackFloatTable",_simPackFloatTable,                    "Use the newer 'sim.packFloatTable' notation",false},
+    {"simPackDoubleTable",_simPackDoubleTable,                  "Use the newer 'sim.packDoubleTable' notation",false},
+    {"simPackUInt8Table",_simPackUInt8Table,                    "Use the newer 'sim.packUInt8Table' notation",false},
+    {"simPackUInt16Table",_simPackUInt16Table,                  "Use the newer 'sim.packUInt16Table' notation",false},
+    {"simUnpackInt32Table",_simUnpackInt32Table,                "Use the newer 'sim.unpackInt32Table' notation",false},
+    {"simUnpackUInt32Table",_simUnpackUInt32Table,              "Use the newer 'sim.unpackUInt32Table' notation",false},
+    {"simUnpackFloatTable",_simUnpackFloatTable,                "Use the newer 'sim.unpackFloatTable' notation",false},
+    {"simUnpackDoubleTable",_simUnpackDoubleTable,              "Use the newer 'sim.unpackDoubleTable' notation",false},
+    {"simUnpackUInt8Table",_simUnpackUInt8Table,                "Use the newer 'sim.unpackUInt8Table' notation",false},
+    {"simUnpackUInt16Table",_simUnpackUInt16Table,              "Use the newer 'sim.unpackUInt16Table' notation",false},
+    {"simPackTable",_simPackTable,                              "Use the newer 'sim.packTable' notation",false},
+    {"simUnpackTable",_simUnpackTable,                          "Use the newer 'sim.unpackTable' notation",false},
+    {"simTransformBuffer",_simTransformBuffer,                  "Use the newer 'sim.transformBuffer' notation",false},
+    {"simCombineRgbImages",_simCombineRgbImages,                "Use the newer 'sim.combineRgbImages' notation",false},
+    {"simGetVelocity",_simGetVelocity,                          "Use the newer 'sim.getVelocity' notation",false},
+    {"simGetObjectVelocity",_simGetObjectVelocity,              "Use the newer 'sim.getObjectVelocity' notation",false},
+    {"simAddForceAndTorque",_simAddForceAndTorque,              "Use the newer 'sim.addForceAndTorque' notation",false},
+    {"simAddForce",_simAddForce,                                "Use the newer 'sim.addForce' notation",false},
+    {"simSetExplicitHandling",_simSetExplicitHandling,          "Use the newer 'sim.setExplicitHandling' notation",false},
+    {"simGetExplicitHandling",_simGetExplicitHandling,          "Use the newer 'sim.getExplicitHandling' notation",false},
+    {"simAddDrawingObject",_simAddDrawingObject,                "Use the newer 'sim.addDrawingObject' notation",false},
+    {"simRemoveDrawingObject",_simRemoveDrawingObject,          "Use the newer 'sim.removeDrawingObject' notation",false},
+    {"simAddDrawingObjectItem",_simAddDrawingObjectItem,        "Use the newer 'sim.addDrawingObjectItem' notation",false},
+    {"simAddParticleObject",_simAddParticleObject,              "Use the newer 'sim.addParticleObject' notation",false},
+    {"simRemoveParticleObject",_simRemoveParticleObject,        "Use the newer 'sim.removeParticleObject' notation",false},
+    {"simAddParticleObjectItem",_simAddParticleObjectItem,      "Use the newer 'sim.addParticleObjectItem' notation",false},
+    {"simGetObjectSizeFactor",_simGetObjectSizeFactor,          "Use the newer 'sim.getObjectSizeFactor' notation",false},
+    {"simSetIntegerSignal",_simSetInt32Signal,                  "Deprecated. Use sim.setInt32Signal instead",false},
+    {"simGetIntegerSignal",_simGetInt32Signal,                  "Deprecated. Use sim.getInt32Signal instead",false},
+    {"simClearIntegerSignal",_simClearInt32Signal,              "Deprecated. Use sim.clearInt32Signal instead",false},
+    {"simSetFloatSignal",_simSetFloatSignal,                    "Use the newer 'sim.setFloatSignal' notation",false},
+    {"simGetFloatSignal",_simGetFloatSignal,                    "Use the newer 'sim.getFloatSignal' notation",false},
+    {"simClearFloatSignal",_simClearFloatSignal,                "Use the newer 'sim.clearFloatSignal' notation",false},
+    {"simSetStringSignal",_simSetStringSignal,                  "Use the newer 'sim.setStringSignal' notation",false},
+    {"simGetStringSignal",_simGetStringSignal,                  "Use the newer 'sim.getStringSignal' notation",false},
+    {"simClearStringSignal",_simClearStringSignal,              "Use the newer 'sim.clearStringSignal' notation",false},
+    {"simGetSignalName",_simGetSignalName,                      "Use the newer 'sim.getSignalName' notation",false},
+    {"simPersistentDataWrite",_simPersistentDataWrite,          "Use the newer 'sim.persistentDataWrite' notation",false},
+    {"simPersistentDataRead",_simPersistentDataRead,            "Use the newer 'sim.persistentDataRead' notation",false},
+    {"simSetObjectProperty",_simSetObjectProperty,              "Use the newer 'sim.setObjectProperty' notation",false},
+    {"simGetObjectProperty",_simGetObjectProperty,              "Use the newer 'sim.getObjectProperty' notation",false},
+    {"simSetObjectSpecialProperty",_simSetObjectSpecialProperty,"Use the newer 'sim.setObjectSpecialProperty' notation",false},
+    {"simGetObjectSpecialProperty",_simGetObjectSpecialProperty,"Use the newer 'sim.getObjectSpecialProperty' notation",false},
+    {"simSetModelProperty",_simSetModelProperty,                "Use the newer 'sim.setModelProperty' notation",false},
+    {"simGetModelProperty",_simGetModelProperty,                "Use the newer 'sim.getModelProperty' notation",false},
+    {"simReadForceSensor",_simReadForceSensor,                  "Use the newer 'sim.readForceSensor' notation",false},
+    {"simBreakForceSensor",_simBreakForceSensor,                "Use the newer 'sim.breakForceSensor' notation",false},
+    {"simGetLightParameters",_simGetLightParameters,            "Use the newer 'sim.getLightParameters' notation",false},
+    {"simSetLightParameters",_simSetLightParameters,            "Use the newer 'sim.setLightParameters' notation",false},
+    {"simGetLinkDummy",_simGetLinkDummy,                        "Use the newer 'sim.getLinkDummy' notation",false},
+    {"simSetLinkDummy",_simSetLinkDummy,                        "Use the newer 'sim.setLinkDummy' notation",false},
+    {"simSetShapeColor",_simSetShapeColor,                      "Use the newer 'sim.setShapeColor' notation",false},
+    {"simGetShapeColor",_simGetShapeColor,                      "Use the newer 'sim.getShapeColor' notation",false},
+    {"simResetDynamicObject",_simResetDynamicObject,            "Use the newer 'sim.resetDynamicObject' notation",false},
+    {"simSetJointMode",_simSetJointMode,                        "Use the newer 'sim.setJointMode' notation",false},
+    {"simGetJointMode",_simGetJointMode,                        "Use the newer 'sim.getJointMode' notation",false},
+    {"simSerialSend",_simSerialSend,                            "Use the newer 'sim.serialSend' notation",false},
+    {"simSerialCheck",_simSerialCheck,                          "Use the newer 'sim.serialCheck' notation",false},
+    {"simGetContactInfo",_simGetContactInfo,                    "Use the newer 'sim.getContactInfo' notation",false},
+    {"simAuxiliaryConsoleOpen",_simAuxiliaryConsoleOpen,        "Use the newer 'sim.auxiliaryConsoleOpen' notation",false},
+    {"simAuxiliaryConsoleClose",_simAuxiliaryConsoleClose,      "Use the newer 'sim.auxiliaryConsoleClose' notation",false},
+    {"simAuxiliaryConsolePrint",_simAuxiliaryConsolePrint,      "Use the newer 'sim.auxiliaryConsolePrint' notation",false},
+    {"simAuxiliaryConsoleShow",_simAuxiliaryConsoleShow,        "Use the newer 'sim.auxiliaryConsoleShow' notation",false},
+    {"simImportShape",_simImportShape,                          "Use the newer 'sim.importShape' notation",false},
+    {"simImportMesh",_simImportMesh,                            "Use the newer 'sim.importMesh' notation",false},
+    {"simExportMesh",_simExportMesh,                            "Use the newer 'sim.exportMesh' notation",false},
+    {"simCreateMeshShape",_simCreateMeshShape,                  "Use the newer 'sim.createMeshShape' notation",false},
+    {"simGetShapeMesh",_simGetShapeMesh,                        "Use the newer 'sim.getShapeMesh' notation",false},
+    {"simCreatePureShape",_simCreatePureShape,                  "Use the newer 'sim.createPureShape' notation",false},
+    {"simCreateHeightfieldShape",_simCreateHeightfieldShape,    "Use the newer 'sim.createHeightfieldShape' notation",false},
+    {"simCreateJoint",_simCreateJoint,                          "Use the newer 'sim.createJoint' notation",false},
+    {"simCreateDummy",_simCreateDummy,                          "Use the newer 'sim.createDummy' notation",false},
+    {"simCreateProximitySensor",_simCreateProximitySensor,      "Use the newer 'sim.createProximitySensor' notation",false},
+    {"simCreateForceSensor",_simCreateForceSensor,              "Use the newer 'sim.createForceSensor' notation",false},
+    {"simCreateVisionSensor",_simCreateVisionSensor,            "Use the newer 'sim.createVisionSensor' notation",false},
+    {"simFloatingViewAdd",_simFloatingViewAdd,                  "Use the newer 'sim.floatingViewAdd' notation",false},
+    {"simFloatingViewRemove",_simFloatingViewRemove,            "Use the newer 'sim.floatingViewRemove' notation",false},
+    {"simAdjustView",_simAdjustView,                            "Use the newer 'sim.adjustView' notation",false},
+    {"simCameraFitToView",_simCameraFitToView,                  "Use the newer 'sim.cameraFitToView' notation",false},
+    {"simAnnounceSceneContentChange",_simAnnounceSceneContentChange,"Use the newer 'sim.announceSceneContentChange' notation",false},
+    {"simGetObjectInt32Parameter",_simGetObjectInt32Parameter,  "Deprecated. Use sim.getObjectInt32Param instead",false},
+    {"simSetObjectInt32Parameter",_simSetObjectInt32Param,      "Deprecated. Use sim.setObjectInt32Param instead",false},
+    {"simGetObjectFloatParameter",_simGetObjectFloatParameter,  "Deprecated. Use sim.getObjectFloatParam instead",false},
+    {"simSetObjectFloatParameter",_simSetObjectFloatParam,      "Deprecated. Use sim.setObjectFloatParam instead",false},
+    {"simGetObjectStringParameter",_simGetObjectStringParam,    "Deprecated. Use sim.getObjectStringParam instead",false},
+    {"simSetObjectStringParameter",_simSetObjectStringParam,    "Deprecated. Use sim.setObjectStringParam instead",false},
+    {"simGetRotationAxis",_simGetRotationAxis,                  "Use the newer 'sim.getRotationAxis' notation",false},
+    {"simRotateAroundAxis",_simRotateAroundAxis,                "Use the newer 'sim.rotateAroundAxis' notation",false},
+    {"simLaunchExecutable",_simLaunchExecutable,                "Use the newer 'sim.launchExecutable' notation",false},
+    {"simGetJointForce",_simGetJointForce,                      "Use the newer 'sim.getJointForce' notation",false},
+    {"simIsHandleValid",_simIsHandleValid,                      "Deprecated. Use sim.isHandle instead",false},
+    {"simGetObjectQuaternion",_simGetObjectQuaternion,          "Use the newer 'sim.getObjectQuaternion' notation",false},
+    {"simSetObjectQuaternion",_simSetObjectQuaternion,          "Use the newer 'sim.setObjectQuaternion' notation",false},
+    {"simSetShapeMassAndInertia",_simSetShapeMassAndInertia,    "Deprecated. Use 'sim.setShapeMass' and/or 'sim.setShapeInertia' instead",false},
+    {"simGetShapeMassAndInertia",_simGetShapeMassAndInertia,    "Deprecated. Use 'sim.getShapeMass' and/or 'sim.getShapeInertia' instead",false},
+    {"simGroupShapes",_simGroupShapes,                          "Use the newer 'sim.groupShapes' notation",false},
+    {"simUngroupShape",_simUngroupShape,                        "Use the newer 'sim.ungroupShape' notation",false},
+    {"simConvexDecompose",_simConvexDecompose,                  "Use the newer 'sim.convexDecompose' notation",false},
+    {"simQuitSimulator",_simQuitSimulator,                      "Use the newer 'sim.quitSimulator' notation",false},
+    {"simGetThreadId",_simGetThreadId,                          "Use the newer 'sim.getThreadId' notation",false},
+    {"simSetShapeMaterial",_simSetShapeMaterial,                "Use the newer 'sim.setShapeMaterial' notation",false},
+    {"simGetTextureId",_simGetTextureId,                        "Use the newer 'sim.getTextureId' notation",false},
+    {"simReadTexture",_simReadTexture,                          "Use the newer 'sim.readTexture' notation",false},
+    {"simWriteTexture",_simWriteTexture,                        "Use the newer 'sim.writeTexture' notation",false},
+    {"simCreateTexture",_simCreateTexture,                      "Use the newer 'sim.createTexture' notation",false},
+    {"simWriteCustomDataBlock",_simWriteCustomDataBlock,        "Use the newer 'sim.writeCustomDataBlock' notation",false},
+    {"simReadCustomDataBlock",_simReadCustomDataBlock,          "Use the newer 'sim.readCustomDataBlock' notation",false},
+    {"simReadCustomDataBlockTags",_simReadCustomDataBlockTags,  "Use the newer 'sim.readCustomDataBlockTags' notation",false},
+    {"simGetShapeGeomInfo",_simGetShapeGeomInfo,                "Use the newer 'sim.getShapeGeomInfo' notation",false},
+    {"simGetObjectsInTree",_simGetObjectsInTree,                "Use the newer 'sim.getObjectsInTree' notation",false},
+    {"simSetObjectSizeValues",_simSetObjectSizeValues,          "Deprecated.",false},
+    {"simGetObjectSizeValues",_simGetObjectSizeValues,          "Deprecated.",false},
+    {"simScaleObject",_simScaleObject,                          "Use the newer 'sim.scaleObject' notation",false},
+    {"simSetShapeTexture",_simSetShapeTexture,                  "Use the newer 'sim.setShapeTexture' notation",false},
+    {"simGetShapeTextureId",_simGetShapeTextureId,              "Use the newer 'sim.getShapeTextureId' notation",false},
+    {"simGetCollectionObjects",_simGetCollectionObjects,        "Use the newer 'sim.getCollectionObjects' notation",false},
+    {"simHandleCustomizationScripts",_simHandleCustomizationScripts,"Use the newer 'sim.handleCustomizationScripts' notation",false},
+    {"simSetScriptAttribute",_simSetScriptAttribute,            "Use the newer 'sim.setScriptAttribute' notation",false},
+    {"simGetScriptAttribute",_simGetScriptAttribute,            "Use the newer 'sim.getScriptAttribute' notation",false},
+    {"simHandleChildScripts",_simHandleChildScripts,            "Use the newer 'sim.handleChildScripts' notation",false},
+    {"simReorientShapeBoundingBox",_simReorientShapeBoundingBox,"Use the newer 'sim.reorientShapeBoundingBox' notation",false},
+    {"simHandleVisionSensor",_simHandleVisionSensor,            "Use the newer 'sim.handleVisionSensor' notation",false},
+    {"simReadVisionSensor",_simReadVisionSensor,                "Use the newer 'sim.readVisionSensor' notation",false},
+    {"simResetVisionSensor",_simResetVisionSensor,              "Use the newer 'sim.resetVisionSensor' notation",false},
+    {"simGetVisionSensorResolution",_simGetVisionSensorResolution,"Use the newer 'sim.getVisionSensorResolution' notation",false},
+    {"simGetVisionSensorImage",_simGetVisionSensorImage,        "Use the newer 'sim.getVisionSensorImage' notation",false},
+    {"simSetVisionSensorImage",_simSetVisionSensorImage,        "Use the newer 'sim.setVisionSensorImage' notation",false},
+    {"simGetVisionSensorCharImage",_simGetVisionSensorCharImage,"Use the newer 'sim.getVisionSensorCharImage' notation",false},
+    {"simSetVisionSensorCharImage",_simSetVisionSensorCharImage,"Use the newer 'sim.setVisionSensorCharImage' notation",false},
+    {"simGetVisionSensorDepthBuffer",_simGetVisionSensorDepthBuffer,"Use the newer 'sim.getVisionSensorDepthBuffer' notation",false},
+    {"simCheckVisionSensor",_simCheckVisionSensor,              "Use the newer 'sim.checkVisionSensor' notation",false},
+    {"simCheckVisionSensorEx",_simCheckVisionSensorEx,          "Use the newer 'sim.checkVisionSensorEx' notation",false},
+    {"simRMLPos",_simRMLPos,                                    "Use the newer 'sim.rmlPos' notation",false},
+    {"simRMLVel",_simRMLVel,                                    "Use the newer 'sim.rmlVel' notation",false},
+    {"simRMLStep",_simRMLStep,                                  "Use the newer 'sim.rmlStep' notation",false},
+    {"simRMLRemove",_simRMLRemove,                              "Use the newer 'sim.rmlRemove' notation",false},
+    {"simBuildMatrixQ",_simBuildMatrixQ,                        "Use the newer 'sim.buildMatrixQ' notation",false},
+    {"simGetQuaternionFromMatrix",_simGetQuaternionFromMatrix,  "Use the newer 'sim.getQuaternionFromMatrix' notation",false},
+    {"simFileDialog",_simFileDialog,                            "Use the newer 'sim.fileDialog' notation",false},
+    {"simMsgBox",_simMsgBox,                                    "Use the newer 'sim.msgBox' notation",false},
+    {"simLoadModule",_simLoadModule,                            "Use the newer 'sim.loadModule' notation",false},
+    {"simUnloadModule",_simUnloadModule,                        "Use the newer 'sim.unloadModule' notation",false},
+    {"simCallScriptFunction",_simCallScriptFunction,            "Use the newer 'sim.callScriptFunction' notation",false},
+    {"simGetExtensionString",_simGetExtensionString,            "Use the newer 'sim.getExtensionString' notation",false},
+    {"simComputeMassAndInertia",_simComputeMassAndInertia,      "Use the newer 'sim.computeMassAndInertia' notation",false},
+    {"simSetScriptVariable",_simSetScriptVariable,              "Deprecated. Use sim.executeScriptString instead",false},
+    {"simGetEngineFloatParameter",_simGetEngineFloatParam,      "Deprecated. Use sim.getEngineFloatParam instead",false},
+    {"simGetEngineInt32Parameter",_simGetEngineInt32Param,      "Deprecated. Use sim.getEngineInt32Param instead",false},
+    {"simGetEngineBoolParameter",_simGetEngineBoolParam,        "Deprecated. Use sim.getEngineBoolParam instead",false},
+    {"simSetEngineFloatParameter",_simSetEngineFloatParam,      "Deprecated. Use sim.setEngineFloatParam instead",false},
+    {"simSetEngineInt32Parameter",_simSetEngineInt32Param,      "Deprecated. Use sim.setEngineInt32Param instead",false},
+    {"simSetEngineBoolParameter",_simSetEngineBoolParam,        "Deprecated. Use sim.setEngineBoolParam instead",false},
+    {"simCreateOctree",_simCreateOctree,                        "Use the newer 'sim.createOctree' notation",false},
+    {"simCreatePointCloud",_simCreatePointCloud,                "Use the newer 'sim.createPointCloud' notation",false},
+    {"simSetPointCloudOptions",_simSetPointCloudOptions,        "Use the newer 'sim.setPointCloudOptions' notation",false},
+    {"simGetPointCloudOptions",_simGetPointCloudOptions,        "Use the newer 'sim.getPointCloudOptions' notation",false},
+    {"simInsertVoxelsIntoOctree",_simInsertVoxelsIntoOctree,    "Use the newer 'sim.insertVoxelsIntoOctree' notation",false},
+    {"simRemoveVoxelsFromOctree",_simRemoveVoxelsFromOctree,    "Use the newer 'sim.removeVoxelsFromOctree' notation",false},
+    {"simInsertPointsIntoPointCloud",_simInsertPointsIntoPointCloud,"Use the newer 'sim.insertPointsIntoPointCloud' notation",false},
+    {"simRemovePointsFromPointCloud",_simRemovePointsFromPointCloud,"Use the newer 'sim.removePointsFromPointCloud' notation",false},
+    {"simIntersectPointsWithPointCloud",_simIntersectPointsWithPointCloud,"Use the newer 'sim.intersectPointsWithPointCloud' notation",false},
+    {"simGetOctreeVoxels",_simGetOctreeVoxels,                  "Use the newer 'sim.getOctreeVoxels' notation",false},
+    {"simGetPointCloudPoints",_simGetPointCloudPoints,          "Use the newer 'sim.getPointCloudPoints' notation",false},
+    {"simInsertObjectIntoOctree",_simInsertObjectIntoOctree,    "Use the newer 'sim.insertObjectIntoOctree' notation",false},
+    {"simSubtractObjectFromOctree",_simSubtractObjectFromOctree,    "Use the newer 'sim.subtractObjectFromOctree' notation",false},
+    {"simInsertObjectIntoPointCloud",_simInsertObjectIntoPointCloud,"Use the newer 'sim.insertObjectIntoPointCloud' notation",false},
+    {"simSubtractObjectFromPointCloud",_simSubtractObjectFromPointCloud,    "Use the newer 'sim.subtractObjectFromPointCloud' notation",false},
+    {"simCheckOctreePointOccupancy",_simCheckOctreePointOccupancy,"Use the newer 'sim.checkOctreePointOccupancy' notation",false},
+    {"simOpenTextEditor",_simOpenTextEditor,                    "Deprecated. Use 'sim.textEditorOpen' instead",false},
+    {"simSetVisionSensorFilter",_simSetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",false},
+    {"simGetVisionSensorFilter",_simGetVisionSensorFilter,      "Deprecated. Use vision callback functions instead",false},
+    {"simGetScriptSimulationParameter",_simGetScriptSimulationParameter,"Deprecated. Use 'sim.getUserParameter' instead",false},
+    {"simSetScriptSimulationParameter",_simSetScriptSimulationParameter,"Deprecated. Use 'sim.setUserParameter' instead",false},
+    {"simHandleSimulationStart",_simHandleSimulationStart,      "Use the newer 'sim.handleSimulationStart' notation",false},
+    {"simHandleSensingStart",_simHandleSensingStart,            "Use the newer 'sim.handleSensingStart' notation",false},
+    {"simAuxFunc",_simAuxFunc,                                  "Use the newer 'sim.auxFunc' notation",false},
+    {"simSetReferencedHandles",_simSetReferencedHandles,        "Use the newer 'sim.setReferencedHandles' notation",false},
+    {"simGetReferencedHandles",_simGetReferencedHandles,        "Use the newer 'sim.getReferencedHandles' notation",false},
+    {"simGetGraphCurve",_simGetGraphCurve,                        "Use the newer 'sim.getGraphCurve' notation",false},
+    {"simTest",_simTest,                                        "Use the newer 'sim.test' notation",false},
+    {"simAddStatusbarMessage",_simAddStatusbarMessage,          "Deprecated. Use 'sim.addLog' instead",false},
+    // Following deprecated since 21/05/2017:
+    {"simGetObjectSelectionSize",_simGetObjectSelectionSize,    "Deprecated. Use sim.getObjectSelection instead",false},
+    {"simGetObjectLastSelection",_simGetObjectLastSelection,    "Deprecated. Use sim.getObjectSelection instead",false},
+    {"simReleaseScriptRawBuffer",_simReleaseScriptRawBuffer,    "Deprecated",false},
+    // Following deprecated since V3.3.0:
+    {"simGetPathPlanningHandle",_simGetPathPlanningHandle,      "Deprecated. Use the OMPL-based API instead",false},
+    {"simSearchPath",_simSearchPath,                            "Deprecated. Use the OMPL-based API instead",false},
+    {"simInitializePathSearch",_simInitializePathSearch,        "Deprecated. Use the OMPL-based API instead",false},
+    {"simPerformPathSearchStep",_simPerformPathSearchStep,      "Deprecated. Use the OMPL-based API instead",false},
+    // Following deprecated since 09/02/2017:
+    {"simLoadUI",_simLoadUI,                                    "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simSaveUI",_simSaveUI,                                    "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simRemoveUI",_simRemoveUI,                                "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simCreateUI",_simCreateUI,                                "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simCreateUIButton",_simCreateUIButton,                    "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simGetUIPosition",_simGetUIPosition,                      "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simSetUIPosition",_simSetUIPosition,                      "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simGetUIHandle",_simGetUIHandle,                          "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simGetUIProperty",_simGetUIProperty,                      "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simGetUIEventButton",_simGetUIEventButton,                "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simSetUIProperty",_simSetUIProperty,                      "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simGetUIButtonProperty",_simGetUIButtonProperty,          "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simSetUIButtonProperty",_simSetUIButtonProperty,          "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simGetUIButtonSize",_simGetUIButtonSize,                  "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simSetUIButtonLabel",_simSetUIButtonLabel,                "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simGetUIButtonLabel",_simGetUIButtonLabel,                "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simSetUISlider",_simSetUISlider,                          "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simGetUISlider",_simGetUISlider,                          "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simSetUIButtonColor",_simSetUIButtonColor,                "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simCreateUIButtonArray",_simCreateUIButtonArray,          "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simSetUIButtonArrayColor",_simSetUIButtonArrayColor,      "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simDeleteUIButtonArray",_simDeleteUIButtonArray,          "Deprecated. Use Qt-based custom UIs instead",false},
+    // Following for backward compatibility (nov-dec 2011):
+    {"simGet2DElementHandle",_simGetUIHandle,                       "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simGet2DElementProperty",_simGetUIProperty,                   "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simGet2DElementEventButton",_simGetUIEventButton,             "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simSet2DElementProperty",_simSetUIProperty,                   "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simGet2DElementButtonProperty",_simGetUIButtonProperty,       "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simSet2DElementButtonProperty",_simSetUIButtonProperty,       "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simGet2DElementButtonSize",_simGetUIButtonSize,               "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simSet2DElementButtonLabel",_simSetUIButtonLabel,             "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simGet2DElementButtonLabel",_simGetUIButtonLabel,             "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simSet2DElementSlider",_simSetUISlider,                       "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simGet2DElementSlider",_simGetUISlider,                       "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simSet2DElementButtonColor",_simSetUIButtonColor,             "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simCreate2DElementButtonArray",_simCreateUIButtonArray,       "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simSet2DElementButtonArrayColor",_simSetUIButtonArrayColor,   "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simDelete2DElementButtonArray",_simDeleteUIButtonArray,       "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simRemove2DElement",_simRemoveUI,                             "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simCreate2DElement",_simCreateUI,                             "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simCreate2DElementButton",_simCreateUIButton,                 "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simGet2DElementPosition",_simGetUIPosition,                   "Deprecated. Use Qt-based custom UIs instead",false},
+    {"simSet2DElementPosition",_simSetUIPosition,                   "Deprecated. Use Qt-based custom UIs instead",false},
+    // Following deprecated since 26/12/2016:
+    {"simAddSceneCustomData",_simAddSceneCustomData,                "Deprecated. Use sim.writeCustomDataBlock instead",false},
+    {"simGetSceneCustomData",_simGetSceneCustomData,                "Deprecated. Use sim.readCustomDataBlock instead",false},
+    {"simAddObjectCustomData",_simAddObjectCustomData,              "Deprecated. Use sim.writeCustomDataBlock instead",false},
+    {"simGetObjectCustomData",_simGetObjectCustomData,              "Deprecated. Use sim.readCustomDataBlock instead",false},
+    // Following deprecated since 29/10/2016:
+    {"simGetMaterialId",_simGetMaterialId,                          "Deprecated. Use sim.setShapeMaterial instead",false},
+    {"simGetShapeMaterial",_simGetShapeMaterial,                    "Deprecated. Use sim.setShapeMaterial instead",false},
+    {"simHandleVarious",_simHandleVarious,                          "Deprecated. Use sim.handleSimulationStart and sim.handleSensingStart instead",false},
+    // Following deprecated since 13/9/2016:
+    {"simPackInts",_simPackInt32Table,                              "Deprecated. Use sim.packInt32Table instead",false},
+    {"simPackUInts",_simPackUInt32Table,                            "Deprecated. Use sim.packUInt32Table instead",false},
+    {"simPackFloats",_simPackFloatTable,                            "Deprecated. Use sim.packFloatTable instead",false},
+    {"simPackDoubles",_simPackDoubleTable,                          "Deprecated. Use sim.packDoubleTable instead",false},
+    {"simPackBytes",_simPackUInt8Table,                             "Deprecated. Use sim.packUInt8Table instead",false},
+    {"simPackWords",_simPackUInt16Table,                            "Deprecated. Use sim.packUInt16Table instead",false},
+    {"simUnpackInts",_simUnpackInt32Table,                          "Deprecated. Use sim.unpackInt32Table instead",false},
+    {"simUnpackUInts",_simUnpackUInt32Table,                        "Deprecated. Use sim.unpackUInt32Table instead",false},
+    {"simUnpackFloats",_simUnpackFloatTable,                        "Deprecated. Use sim.unpackFloatTable instead",false},
+    {"simUnpackDoubles",_simUnpackDoubleTable,                      "Deprecated. Use sim.unpackDoubleTable instead",false},
+    {"simUnpackBytes",_simUnpackUInt8Table,                         "Deprecated. Use sim.unpackUInt8Table instead",false},
+    {"simUnpackWords",_simUnpackUInt16Table,                        "Deprecated. Use sim.unpackUInt16Table instead",false},
+    // Following deprecated:
+    {"simGetInvertedMatrix",_simGetInvertedMatrix,                  "Deprecated. Use sim.invertMatrix instead",false}, // 10/05/2016
+    {"simEnableWorkThreads",_simEnableWorkThreads,                  "Deprecated. Has no effect",false},
+    {"simWaitForWorkThreads",_simWaitForWorkThreads,                "Deprecated. Has no effect",false},
+    {"simFindIkPath",_simFindIkPath,                                "Deprecated. Use sim.generateIkPath instead",false},
+    {"simHandleChildScript",_simHandleChildScript,                  "Deprecated. Use sim.handleChildScripts instead",false},
+    {"simHandleSensingChildScripts",_simHandleSensingChildScripts,  "Deprecated. Use sim.handleChildScripts instead",false},
+    {"simDelegateChildScriptExecution",_simDelegateChildScriptExecution,"Deprecated. Has no effect",false},
+    {"simResetTracing",_simResetTracing,                            "Deprecated. Has no effect",false},
+    {"simHandleTracing",_simHandleTracing,                          "Deprecated. Has no effect",false},
+    {"simCopyPasteSelectedObjects",_simCopyPasteSelectedObjects,    "Deprecated. Use sim.copyPasteObjects instead",false},
+    {"simGetShapeVertex",_simGetShapeVertex,                        "Deprecated. Use sim.getShapeMesh instead",false},
+    {"simGetShapeTriangle",_simGetShapeTriangle,                    "Deprecated. Use sim.getShapeMesh instead",false},
+    {"simGetInstanceIndex",_simGetInstanceIndex,                    "Deprecated. Returns 0",false},
+    {"simGetVisibleInstanceIndex",_simGetVisibleInstanceIndex,      "Deprecated. Returns 0",false},
+    {"simGetSystemTimeInMilliseconds",_simGetSystemTimeInMilliseconds,"Deprecated. Use sim.getSystemTimeInMs instead",false},
+    {"simLockInterface",_simLockInterface,                          "Deprecated. Has no effect",false},
+    {"simJointGetForce",_simJointGetForce,                          "Deprecated. Use sim.getJointForce instead",false},
+    {"simScaleSelectedObjects",_simScaleSelectedObjects,            "Deprecated. Use sim.scaleObjects instead",false},
+    {"simDeleteSelectedObjects",_simDeleteSelectedObjects,          "Deprecated. Use sim.removeObject instead",false},
+    {"simResetPath",_simResetPath,                                  "Deprecated",false},
+    {"simResetJoint",_simResetJoint,                                "Deprecated",false},
+    {"simGetMpConfigForTipPose",_simGetMpConfigForTipPose,          "Deprecated. Use sim.getConfigForTipPose instead",false},
+    // Following for backward compatibility (June 2020):
+    {"simGetNameSuffix",_simGetNameSuffix,                      "Deprecated.",false},
+    {"simSetNameSuffix",_simSetNameSuffix,                      "Deprecated.",false},
+    // Following for backward compatibility (Dec 2015):
+    {"simSetBooleanParameter",_simSetBoolParam,                 "Deprecated. Use sim.setBoolParam instead",false},
+    {"simGetBooleanParameter",_simGetBoolParam,                 "Deprecated. Use sim.getBoolParam instead",false},
+    {"simSetIntegerParameter",_simSetInt32Param,                "Deprecated. Use sim.setInt32Param instead",false},
+    {"simGetIntegerParameter",_simGetInt32Param,                "Deprecated. Use sim.getInt32Param instead",false},
+    {"simSetFloatingParameter",_simSetFloatParam,               "Deprecated. Use sim.setFloatParam instead",false},
+    {"simGetFloatingParameter",_simGetFloatParam,               "Deprecated. Use sim.getFloatParam instead",false},
+    {"simGetObjectIntParameter",_simGetObjectInt32Parameter,    "Deprecated. Use sim.getObjectInt32Param instead",false},
+    {"simSetObjectIntParameter",_simSetObjectInt32Param,        "Deprecated. Use sim.setObjectInt32Param instead",false},
+    // Following for backward compatibility:
+    {"simHandleRenderingSensor",_simHandleVisionSensor,             "Deprecated. Use sim.handleVisionSensor instead",false},
+    {"simReadRenderingSensor",_simReadVisionSensor,                 "Deprecated. Use sim.readVisionSensor instead",false},
+    {"simResetRenderingSensor",_simResetVisionSensor,               "Deprecated. Use sim.resetVisionSensor instead",false},
+    {"simGetRenderingSensorResolution",_simGetVisionSensorResolution,"Deprecated. Use sim.getVisionSensorResolution instead",false},
+    {"simGetRenderingSensorImage",_simGetVisionSensorImage,         "Deprecated. Use sim.getVisionSensorImage instead",false},
+    {"simSetRenderingSensorImage",_simSetVisionSensorImage,         "Deprecated. Use sim.setVisionSensorImage instead",false},
+    {"simGetRenderingSensorDepthBuffer",_simGetVisionSensorDepthBuffer,"Deprecated. Use sim.getVisionSensorDepthBuffer instead",false},
+    {"simCheckRenderingSensor",_simCheckVisionSensor,               "Deprecated. Use sim.checkVisionSensor instead",false},
+    {"simCheckRenderingSensorEx",_simCheckVisionSensorEx,           "Deprecated. Use sim.checkVisionSensorEx instead",false},
+    // Following for backward compatibility (deprecated since 23/5/2014):
+    {"simRMLPosition",_simRMLPosition,                              "Deprecated. Use sim.rmlPos instead",false},
+    {"simRMLVelocity",_simRMLVelocity,                              "Deprecated. Use sim.rmlVel instead",false},
+
+    {"simCheckIkGroup",_simCheckIkGroup,                        "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simCreateIkGroup",_simCreateIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simRemoveIkGroup",_simRemoveIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simCreateIkElement",_simCreateIkElement,                  "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simExportIk",_simExportIk,                                "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simComputeJacobian",_simComputeJacobian,                  "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simGetConfigForTipPose",_simGetConfigForTipPose,          "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simGenerateIkPath",_simGenerateIkPath,                    "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simGetIkGroupHandle",_simGetIkGroupHandle,                "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simGetIkGroupMatrix",_simGetIkGroupMatrix,                "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simHandleIkGroup",_simHandleIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simSetIkGroupProperties",_simSetIkGroupProperties,        "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simSetIkElementProperties",_simSetIkElementProperties,    "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
+    {"simTubeRead",_simTubeRead,                                "Deprecated. Use signals or custom data blocks instead",false},
+    {"simTubeOpen",_simTubeOpen,                                "Deprecated. Use signals or custom data blocks instead",false},
+    {"simTubeClose",_simTubeClose,                              "Deprecated. Use signals or custom data blocks instead",false},
+    {"simTubeWrite",_simTubeWrite,                              "Deprecated. Use signals or custom data blocks instead",false},
+    {"simTubeStatus",_simTubeStatus,                            "Deprecated. Use signals or custom data blocks instead",false},
+    {"simSendData",_simSendData,                                "Deprecated. Use signals or custom data blocks instead",false},
+    {"simReceiveData",_simReceiveData,                          "Deprecated. Use signals or custom data blocks instead",false},
+    {"simGetPathPosition",_simGetPathPosition,                  "Deprecated",false},
+    {"simSetPathPosition",_simSetPathPosition,                  "Deprecated",false},
+    {"simGetPathLength",_simGetPathLength,                      "Deprecated",false},
+    {"simGetDataOnPath",_simGetDataOnPath,                      "Deprecated",false},
+    {"simGetPositionOnPath",_simGetPositionOnPath,              "Deprecated",false},
+    {"simGetOrientationOnPath",_simGetOrientationOnPath,        "Deprecated",false},
+    {"simGetClosestPositionOnPath",_simGetClosestPositionOnPath,"Deprecated",false},
+    {"simCreatePath",_sim_CreatePath,                           "Deprecated",false},
+    {"simInsertPathCtrlPoints",_simInsertPathCtrlPoints,        "Deprecated",false},
+    {"simCutPathCtrlPoints",_simCutPathCtrlPoints,              "Deprecated",false},
+    {"simGetScriptExecutionCount",_simGetScriptExecutionCount,  "Deprecated",false},
+    {"simIsScriptExecutionThreaded",_simIsScriptExecutionThreaded,"Deprecated",false},
+    {"simIsScriptRunningInThread",_simIsScriptRunningInThread,  "Deprecated",false},
+    {"simSetThreadResumeLocation",_simSetThreadResumeLocation,  "Deprecated",false},
+    {"simResumeThreads",_simResumeThreads,                      "Deprecated",false},
+    {"simLaunchThreadedChildScripts",_simLaunchThreadedChildScripts,"Deprecated",false},
+    {"simGetCollectionHandle",_simGetCollectionHandle,          "Deprecated. Use 'sim.createCollection' instead",false},
+    {"simRemoveCollection",_simRemoveCollection,                "Deprecated. Use 'sim.destroyCollection' instead",false},
+    {"simEmptyCollection",_simEmptyCollection,                  "Deprecated. Use 'sim.destroyCollection' instead",false},
+    {"simGetCollectionName",_simGetCollectionName,              "Deprecated",false},
+    {"simSetCollectionName",_simSetCollectionName,              "Deprecated",false},
+    {"simCreateCollection",_sim_CreateCollection,               "Deprecated. Use 'sim.createCollection' instead",false},
+    {"simAddObjectToCollection",_simAddObjectToCollection,      "Deprecated. Use 'sim.addItemToCollection' instead",false},
+    {"simHandleDistance",_simHandleDistance,                    "Deprecated. Use 'sim.checkDistance' instead",false},
+    {"simReadDistance",_simReadDistance,                        "Deprecated. Use 'sim.checkDistance' instead",false},
+    {"simHandleCollision",_simHandleCollision,                  "Deprecated. Use 'sim.checkCollision' instead",false},
+    {"simReadCollision",_simReadCollision,                      "Deprecated. Use 'sim.checkCollision' instead",false},
+    {"simResetCollision",_simResetCollision,                    "Deprecated",false},
+    {"simResetDistance",_simResetDistance,                      "Deprecated",false},
+    {"simGetCollisionHandle",_simGetCollisionHandle,            "Deprecated. Use 'sim.checkCollision' instead",false},
+    {"simGetDistanceHandle",_simGetDistanceHandle,              "Deprecated. Use 'sim.checkDistance' instead",false},
+    {"simAddBanner",_simAddBanner,                              "Deprecated",false},
+    {"simRemoveBanner",_simRemoveBanner,                        "Deprecated",false},
+    {"simAddGhost",_simAddGhost,                                "Deprecated",false},
+    {"simModifyGhost",_simModifyGhost,                          "Deprecated",false},
+    {"simAddPointCloud",_simAddPointCloud,                      "Deprecated. Use point cloud objects instead",false},
+    {"simModifyPointCloud",_simModifyPointCloud,                "Deprecated. Use point cloud objects instead",false},
+    {"simSetGraphUserData",_simSetGraphUserData,                "Deprecated. Use sim.setGraphStreamValue instead",false},
+    {"simCopyMatrix",_simCopyMatrix,                            "Deprecated. Use sim.copyTable instead",false},
+    //{"simRMLMoveToPosition",_simRMLMoveToPosition,              "Deprecated. Use 'sim.moveToPose' instead",false},
+    //{"simRMLMoveToJointPositions",_simRMLMoveToJointPositions,  "Deprecated. Use 'sim.moveToConfig' instead",false},
+    //{"simWait",_simWait,                                        "Use the newer 'sim.wait' notation",false},
+    //{"simWaitForSignal",_simWaitForSignal,                      "Use the newer 'sim.waitForSignal' notation",false},
+    //{"simSetThreadIsFree",_simSetThreadIsFree,                  "Use the newer 'sim.setThreadIsFree' notation",false},
+    //{"simSerialRead",_simSerialRead,                            "Use the newer 'sim.serialRead' notation",false},
+    //{"simSerialOpen",_simSerialOpen,                            "Use the newer 'sim.serialOpen' notation",false},
+    //{"simSerialClose",_simSerialClose,                          "Use the newer 'sim.serialClose' notation",false},
+    //{"simSerialPortOpen",_simSerialPortOpen,                        "Deprecated. Use sim.serialOpen instead",false},
+    //{"simSerialPortClose",_simSerialPortClose,                      "Deprecated. Use sim.serialClose instead",false},
+    //{"simSerialPortSend",_simSerialPortSend,                        "Deprecated. Use sim.serialSend instead",false},
+    //{"simSerialPortRead",_simSerialPortRead,                        "Deprecated. Use sim.serialRead instead",false},
+    //{"simBoolOr16",_simBoolOr16,                                "Deprecated. Use the bitwise operator | instead",false},
+    //{"simBoolAnd16",_simBoolAnd16,                              "Deprecated. Use the bitwise operator & instead",false},
+    //{"simBoolXor16",_simBoolXor16,                              "Deprecated. Use the bitwise operator ~ instead",false},
+    //{"simBoolOr32",_simBoolOr32,                                "Deprecated. Use the bitwise operator | instead",false},
+    //{"simBoolAnd32",_simBoolAnd32,                              "Deprecated. Use the bitwise operator & instead",false},
+    //{"simBoolXor32",_simBoolXor32,                              "Deprecated. Use the bitwise operator ~ instead",false},
+    {"",nullptr,"",false}
+};
+
+const SLuaVariables simLuaVariablesOldApi[]=
+{ // Following for backward compatibility (see newer equivalent commands ('simLuaVariables'))
+    {"sim.mainscriptcall_initialization",sim_syscb_init,false},
+    {"sim.mainscriptcall_cleanup",sim_syscb_cleanup,false},
+    {"sim.mainscriptcall_regular",sim_syscb_actuation,false},
+    {"sim.syscb_regular",sim_syscb_actuation,false},
+    {"sim.childscriptcall_initialization",sim_syscb_init,false},
+    {"sim.childscriptcall_cleanup",sim_syscb_cleanup,false},
+    {"sim.childscriptcall_actuation",sim_syscb_actuation,false},
+    {"sim.childscriptcall_sensing",sim_syscb_sensing,false},
+    {"sim.addonscriptcall_initialization",sim_syscb_init,false},
+    {"sim.addonscriptcall_suspend",sim_syscb_aos_suspend,false},
+    {"sim.addonscriptcall_restarting",sim_syscb_aos_resume,false},
+    {"sim.addonscriptcall_cleanup",sim_syscb_cleanup,false},
+    {"sim.customizationscriptcall_initialization",sim_syscb_init,false},
+    {"sim.customizationscriptcall_cleanup",sim_syscb_cleanup,false},
+    {"sim.customizationscriptcall_nonsimulation",sim_syscb_nonsimulation,false},
+    {"sim.customizationscriptcall_lastbeforesimulation",sim_syscb_beforesimulation,false},
+    {"sim.customizationscriptcall_firstaftersimulation",sim_syscb_aftersimulation,false},
+    {"sim.customizationscriptcall_simulationactuation",sim_syscb_actuation,false},
+    {"sim.customizationscriptcall_simulationsensing",sim_syscb_sensing,false},
+    {"sim.customizationscriptcall_simulationpause",sim_syscb_suspended,false},
+    {"sim.customizationscriptcall_simulationpausefirst",sim_syscb_suspend,false},
+    {"sim.customizationscriptcall_simulationpauselast",sim_syscb_resume,false},
+    {"sim.customizationscriptcall_lastbeforeinstanceswitch",sim_syscb_beforeinstanceswitch,false},
+    {"sim.customizationscriptcall_firstafterinstanceswitch",sim_syscb_afterinstanceswitch,false},
+    {"sim.customizationscriptcall_beforecopy",sim_syscb_beforecopy,false},
+    {"sim.customizationscriptcall_aftercopy",sim_syscb_aftercopy,false},
+    {"sim.boolparam_show_w_emitters",sim_boolparam_show_w_emitters,false},
+    {"sim.boolparam_show_w_receivers",sim_boolparam_show_w_receivers,false},
+
+    {"sim_object_shape_type",sim_object_shape_type,false},
+    {"sim_object_joint_type",sim_object_joint_type,false},
+    {"sim_object_graph_type",sim_object_graph_type,false},
+    {"sim_object_camera_type",sim_object_camera_type,false},
+    {"sim_object_dummy_type",sim_object_dummy_type,false},
+    {"sim_object_proximitysensor_type",sim_object_proximitysensor_type,false},
+    {"sim_object_path_type",sim_object_path_type,false},
+    {"sim_object_renderingsensor_type",sim_object_visionsensor_type,false},
+    {"sim_object_visionsensor_type",sim_object_visionsensor_type,false},
+    {"sim_object_mill_type",sim_object_mill_type,false},
+    {"sim_object_forcesensor_type",sim_object_forcesensor_type,false},
+    {"sim_object_light_type",sim_object_light_type,false},
+    {"sim_object_mirror_type",sim_object_mirror_type,false},
+    {"sim_object_octree_type",sim_object_octree_type,false},
+    {"sim_object_pointcloud_type",sim_object_pointcloud_type,false},
+    {"sim_light_omnidirectional_subtype",sim_light_omnidirectional_subtype,false},
+    {"sim_light_spot_subtype",sim_light_spot_subtype,false},
+    {"sim_light_directional_subtype",sim_light_directional_subtype,false},
+    {"sim_joint_revolute_subtype",sim_joint_revolute_subtype,false},
+    {"sim_joint_prismatic_subtype",sim_joint_prismatic_subtype,false},
+    {"sim_joint_spherical_subtype",sim_joint_spherical_subtype,false},
+    {"sim_shape_simpleshape_subtype",sim_shape_simpleshape_subtype,false},
+    {"sim_shape_multishape_subtype",sim_shape_multishape_subtype,false},
+    {"sim_proximitysensor_pyramid_subtype",sim_proximitysensor_pyramid_subtype,false},
+    {"sim_proximitysensor_cylinder_subtype",sim_proximitysensor_cylinder_subtype,false},
+    {"sim_proximitysensor_disc_subtype",sim_proximitysensor_disc_subtype,false},
+    {"sim_proximitysensor_cone_subtype",sim_proximitysensor_cone_subtype,false},
+    {"sim_proximitysensor_ray_subtype",sim_proximitysensor_ray_subtype,false},
+    {"sim_mill_pyramid_subtype",sim_mill_pyramid_subtype,false},
+    {"sim_mill_cylinder_subtype",sim_mill_cylinder_subtype,false},
+    {"sim_mill_disc_subtype",sim_mill_disc_subtype,false},
+    {"sim_mill_cone_subtype",sim_mill_cone_subtype,false},
+    {"sim_object_no_subtype",sim_object_no_subtype,false},
+    {"sim_appobj_object_type",sim_appobj_object_type,false},
+    {"sim_appobj_collision_type",sim_appobj_collision_type,false},
+    {"sim_appobj_distance_type",sim_appobj_distance_type,false},
+    {"sim_appobj_simulation_type",sim_appobj_simulation_type,false},
+    {"sim_appobj_ik_type",sim_appobj_ik_type,false},
+    {"sim_appobj_collection_type",sim_appobj_collection_type,false},
+    {"sim_appobj_2delement_type",sim_appobj_ui_type,false},  // for backward compatibility
+    {"sim_appobj_ui_type",sim_appobj_ui_type,false},
+    {"sim_appobj_script_type",sim_appobj_script_type,false},
+    {"sim_appobj_pathplanning_type",sim_appobj_pathplanning_type,false},
+    {"sim_appobj_texture_type",sim_appobj_texture_type,false},
+    {"sim_ik_pseudo_inverse_method",sim_ik_pseudo_inverse_method,false},
+    {"sim_ik_damped_least_squares_method",sim_ik_damped_least_squares_method,false},
+    {"sim_ik_jacobian_transpose_method",sim_ik_jacobian_transpose_method,false},
+    {"sim_ik_x_constraint",sim_ik_x_constraint,false},
+    {"sim_ik_y_constraint",sim_ik_y_constraint,false},
+    {"sim_ik_z_constraint",sim_ik_z_constraint,false},
+    {"sim_ik_alpha_beta_constraint",sim_ik_alpha_beta_constraint,false},
+    {"sim_ik_gamma_constraint",sim_ik_gamma_constraint,false},
+    {"sim_ikresult_not_performed",sim_ikresult_not_performed,false},
+    {"sim_ikresult_success",sim_ikresult_success,false},
+    {"sim_ikresult_fail",sim_ikresult_fail,false},
+    {"sim_message_ui_button_state_change",sim_message_ui_button_state_change,false},
+    {"sim_message_model_loaded",sim_message_model_loaded,false},
+    {"sim_message_scene_loaded",sim_message_scene_loaded,false},
+    {"sim_message_object_selection_changed",sim_message_object_selection_changed,false},
+    {"sim_message_keypress",sim_message_keypress,false},
+    {"sim_message_bannerclicked",sim_message_bannerclicked,false},
+    {"sim_message_prox_sensor_select_down",sim_message_prox_sensor_select_down,false},
+    {"sim_message_prox_sensor_select_up",sim_message_prox_sensor_select_up,false},
+    {"sim_message_pick_select_down",sim_message_pick_select_down,false},
+    {"sim_buttonproperty_button",sim_buttonproperty_button,false},
+    {"sim_buttonproperty_label",sim_buttonproperty_label,false},
+    {"sim_buttonproperty_editbox",sim_buttonproperty_editbox,false},
+    {"sim_buttonproperty_slider",sim_buttonproperty_slider,false},
+    {"sim_buttonproperty_staydown",sim_buttonproperty_staydown,false},
+    {"sim_buttonproperty_enabled",sim_buttonproperty_enabled,false},
+    {"sim_buttonproperty_borderless",sim_buttonproperty_borderless,false},
+    {"sim_buttonproperty_horizontallycentered",sim_buttonproperty_horizontallycentered,false},
+    {"sim_buttonproperty_ignoremouse",sim_buttonproperty_ignoremouse,false},
+    {"sim_buttonproperty_isdown",sim_buttonproperty_isdown,false},
+    {"sim_buttonproperty_transparent",sim_buttonproperty_transparent,false},
+    {"sim_buttonproperty_nobackgroundcolor",sim_buttonproperty_nobackgroundcolor,false},
+    {"sim_buttonproperty_rollupaction",sim_buttonproperty_rollupaction,false},
+    {"sim_buttonproperty_closeaction",sim_buttonproperty_closeaction,false},
+    {"sim_buttonproperty_verticallycentered",sim_buttonproperty_verticallycentered,false},
+    {"sim_buttonproperty_downupevent",sim_buttonproperty_downupevent,false},
+    {"sim_objectproperty_collapsed",sim_objectproperty_collapsed,false},
+    {"sim_objectproperty_selectable",sim_objectproperty_selectable,false},
+    {"sim_objectproperty_selectmodelbaseinstead",sim_objectproperty_selectmodelbaseinstead,false},
+    {"sim_objectproperty_dontshowasinsidemodel",sim_objectproperty_dontshowasinsidemodel,false},
+    {"sim_objectproperty_canupdatedna",sim_objectproperty_canupdatedna,false},
+    {"sim_objectproperty_selectinvisible",sim_objectproperty_selectinvisible,false},
+    {"sim_objectproperty_depthinvisible",sim_objectproperty_depthinvisible,false},
+    {"sim_objectproperty_cannotdelete",sim_objectproperty_cannotdelete,false},
+    {"sim_simulation_stopped",sim_simulation_stopped,false},
+    {"sim_simulation_paused",sim_simulation_paused,false},
+    {"sim_simulation_advancing",sim_simulation_advancing,false},
+    {"sim_simulation_advancing_firstafterstop",sim_simulation_advancing_firstafterstop,false},
+    {"sim_simulation_advancing_running",sim_simulation_advancing_running,false},
+    {"sim_simulation_advancing_lastbeforepause",sim_simulation_advancing_lastbeforepause,false},
+    {"sim_simulation_advancing_firstafterpause",sim_simulation_advancing_firstafterpause,false},
+    {"sim_simulation_advancing_abouttostop",sim_simulation_advancing_abouttostop,false},
+    {"sim_simulation_advancing_lastbeforestop",sim_simulation_advancing_lastbeforestop,false},
+    {"sim_texturemap_plane",sim_texturemap_plane,false},
+    {"sim_texturemap_cylinder",sim_texturemap_cylinder,false},
+    {"sim_texturemap_sphere",sim_texturemap_sphere,false},
+    {"sim_texturemap_cube",sim_texturemap_cube,false},
+    {"sim_scripttype_mainscript",sim_scripttype_mainscript,false},
+    {"sim_scripttype_childscript",sim_scripttype_childscript,false},
+    {"sim_scripttype_addonscript",sim_scripttype_addonscript,false},
+    {"sim_scripttype_addonfunction",sim_scripttype_addonfunction,false},
+    {"sim_scripttype_customizationscript",sim_scripttype_customizationscript,false},
+    {"sim_scripttype_threaded",sim_scripttype_threaded_old,false},
+    {"sim_mainscriptcall_initialization",sim_syscb_init,false},
+    {"sim_mainscriptcall_cleanup",sim_syscb_cleanup,false},
+    {"sim_mainscriptcall_regular",sim_syscb_actuation,false},
+    {"sim_childscriptcall_initialization",sim_syscb_init,false},
+    {"sim_childscriptcall_cleanup",sim_syscb_cleanup,false},
+    {"sim_childscriptcall_actuation",sim_syscb_actuation,false},
+    {"sim_childscriptcall_sensing",sim_syscb_sensing,false},
+    {"sim_childscriptcall_threaded",-1,false},
+    {"sim_customizationscriptcall_initialization",sim_syscb_init,false},
+    {"sim_customizationscriptcall_cleanup",sim_syscb_cleanup,false},
+    {"sim_customizationscriptcall_nonsimulation",sim_syscb_nonsimulation,false},
+    {"sim_customizationscriptcall_lastbeforesimulation",sim_syscb_beforesimulation,false},
+    {"sim_customizationscriptcall_firstaftersimulation",sim_syscb_aftersimulation,false},
+    {"sim_customizationscriptcall_simulationactuation",sim_syscb_actuation,false},
+    {"sim_customizationscriptcall_simulationsensing",sim_syscb_sensing,false},
+    {"sim_customizationscriptcall_simulationpause",sim_syscb_suspended,false},
+    {"sim_customizationscriptcall_simulationpausefirst",sim_syscb_suspend,false},
+    {"sim_customizationscriptcall_simulationpauselast",sim_syscb_resume,false},
+    {"sim_customizationscriptcall_lastbeforeinstanceswitch",sim_syscb_beforeinstanceswitch,false},
+    {"sim_customizationscriptcall_firstafterinstanceswitch",sim_syscb_afterinstanceswitch,false},
+    {"sim_addonscriptcall_initialization",sim_syscb_init,false},
+    {"sim_addonscriptcall_suspend",sim_syscb_aos_suspend,false},
+    {"sim_addonscriptcall_restarting",sim_syscb_aos_resume,false},
+    {"sim_addonscriptcall_cleanup",sim_syscb_cleanup,false},
+    {"sim_customizationscriptattribute_activeduringsimulation",sim_customizationscriptattribute_activeduringsimulation,false},
+    {"sim_scriptattribute_executionorder",sim_scriptattribute_executionorder,false},
+    {"sim_scriptattribute_executioncount",sim_scriptattribute_executioncount,false},
+    {"sim_childscriptattribute_automaticcascadingcalls",sim_childscriptattribute_automaticcascadingcalls,false},
+    {"sim_childscriptattribute_enabled",sim_childscriptattribute_enabled,false},
+    {"sim_scriptattribute_enabled",sim_scriptattribute_enabled,false},
+    {"sim_customizationscriptattribute_cleanupbeforesave",sim_customizationscriptattribute_cleanupbeforesave,false},
+    {"sim_scriptexecorder_first",sim_scriptexecorder_first,false},
+    {"sim_scriptexecorder_normal",sim_scriptexecorder_normal,false},
+    {"sim_scriptexecorder_last",sim_scriptexecorder_last,false},
+    {"sim_scriptthreadresume_allnotyetresumed",sim_scriptthreadresume_allnotyetresumed,false},
+    {"sim_scriptthreadresume_default",sim_scriptthreadresume_default,false},
+    {"sim_scriptthreadresume_actuation_first",sim_scriptthreadresume_actuation_first,false},
+    {"sim_scriptthreadresume_actuation_last",sim_scriptthreadresume_actuation_last,false},
+    {"sim_scriptthreadresume_sensing_first",sim_scriptthreadresume_sensing_first,false},
+    {"sim_scriptthreadresume_sensing_last",sim_scriptthreadresume_sensing_last,false},
+    {"sim_scriptthreadresume_custom",sim_scriptthreadresume_custom,false},
+    {"sim_callbackid_rossubscriber",sim_callbackid_rossubscriber,false},
+    {"sim_callbackid_dynstep",sim_callbackid_dynstep,false},
+    {"sim_callbackid_userdefined",sim_callbackid_userdefined,false},
+    {"sim_script_no_error",sim_script_no_error,false},
+    {"sim_script_main_script_nonexistent",sim_script_main_script_nonexistent,false},
+    {"sim_script_main_not_called",sim_script_main_script_not_called,false},
+    {"sim_script_reentrance_error",sim_script_reentrance_error,false},
+    {"sim_script_lua_error",sim_script_lua_error,false},
+    {"sim_script_call_error",sim_script_call_error,false},
+    {"sim_api_error_report",sim_api_error_report,false},
+    {"sim_api_error_output",sim_api_error_output,false},
+    {"sim_api_warning_output",sim_api_warning_output,false},
+    {"sim_handle_all",sim_handle_all,false},
+    {"sim_handle_all_except_explicit",sim_handle_all_except_explicit,false},
+    {"sim_handle_self",sim_handle_self,false},
+    {"sim_handle_main_script",sim_handle_main_script,false},
+    {"sim_handle_tree",sim_handle_tree,false},
+    {"sim_handle_chain",sim_handle_chain,false},
+    {"sim_handle_single",sim_handle_single,false},
+    {"sim_handle_default",sim_handle_default,false},
+    {"sim_handle_all_except_self",sim_handle_all_except_self,false},
+    {"sim_handle_parent",sim_handle_parent,false},
+    {"sim_handle_scene",sim_handle_scene,false},
+    {"sim_handle_app",sim_handle_app,false},
+    {"sim_handleflag_assembly",sim_handleflag_assembly,false},
+    {"sim_handleflag_camera",sim_handleflag_camera,false},
+    {"sim_handleflag_togglevisibility",sim_handleflag_togglevisibility,false},
+    {"sim_handleflag_extended",sim_handleflag_extended,false},
+    {"sim_handleflag_greyscale",sim_handleflag_greyscale,false},
+    {"sim_handleflag_codedstring",sim_handleflag_codedstring,false},
+    {"sim_handleflag_model",sim_handleflag_model,false},
+    {"sim_handleflag_rawvalue",sim_handleflag_rawvalue,false},
+    {"sim_objectspecialproperty_collidable",sim_objectspecialproperty_collidable,false},
+    {"sim_objectspecialproperty_measurable",sim_objectspecialproperty_measurable,false},
+    {"sim_objectspecialproperty_detectable_ultrasonic",sim_objectspecialproperty_detectable_ultrasonic,false},
+    {"sim_objectspecialproperty_detectable_infrared",sim_objectspecialproperty_detectable_infrared,false},
+    {"sim_objectspecialproperty_detectable_laser",sim_objectspecialproperty_detectable_laser,false},
+    {"sim_objectspecialproperty_detectable_inductive",sim_objectspecialproperty_detectable_inductive,false},
+    {"sim_objectspecialproperty_detectable_capacitive",sim_objectspecialproperty_detectable_capacitive,false},
+    {"sim_objectspecialproperty_renderable",sim_objectspecialproperty_renderable,false},
+    {"sim_objectspecialproperty_detectable_all",sim_objectspecialproperty_detectable,false},
+    {"sim_objectspecialproperty_pathplanning_ignored",sim_objectspecialproperty_pathplanning_ignored,false},
+    {"sim_modelproperty_not_collidable",sim_modelproperty_not_collidable,false},
+    {"sim_modelproperty_not_measurable",sim_modelproperty_not_measurable,false},
+    {"sim_modelproperty_not_renderable",sim_modelproperty_not_renderable,false},
+    {"sim_modelproperty_not_detectable",sim_modelproperty_not_detectable,false},
+    {"sim_modelproperty_not_dynamic",sim_modelproperty_not_dynamic,false},
+    {"sim_modelproperty_not_respondable",sim_modelproperty_not_respondable,false},
+    {"sim_modelproperty_not_reset",sim_modelproperty_not_reset,false},
+    {"sim_modelproperty_not_visible",sim_modelproperty_not_visible,false},
+    {"sim_modelproperty_scripts_inactive",sim_modelproperty_scripts_inactive,false},
+    {"sim_modelproperty_not_showasinsidemodel",sim_modelproperty_not_showasinsidemodel,false},
+    {"sim_modelproperty_not_model",sim_modelproperty_not_model,false},
+    {"sim_dlgstyle_message",sim_dlgstyle_message,false},
+    {"sim_dlgstyle_input",sim_dlgstyle_input,false},
+    {"sim_dlgstyle_ok",sim_dlgstyle_ok,false},
+    {"sim_dlgstyle_ok_cancel",sim_dlgstyle_ok_cancel,false},
+    {"sim_dlgstyle_yes_no",sim_dlgstyle_yes_no,false},
+    {"sim_dlgstyle_dont_center",sim_dlgstyle_dont_center,false},
+    {"sim_dlgret_still_open",sim_dlgret_still_open,false},
+    {"sim_dlgret_ok",sim_dlgret_ok,false},
+    {"sim_dlgret_cancel",sim_dlgret_cancel,false},
+    {"sim_dlgret_yes",sim_dlgret_yes,false},
+    {"sim_dlgret_no",sim_dlgret_no,false},
+    {"sim_pathproperty_show_line",sim_pathproperty_show_line,false},
+    {"sim_pathproperty_show_orientation",sim_pathproperty_show_orientation,false},
+    {"sim_pathproperty_closed_path",sim_pathproperty_closed_path,false},
+    {"sim_pathproperty_automatic_orientation",sim_pathproperty_automatic_orientation,false},
+    {"sim_pathproperty_flat_path",sim_pathproperty_flat_path,false},
+    {"sim_pathproperty_show_position",sim_pathproperty_show_position,false},
+    {"sim_pathproperty_keep_x_up",sim_pathproperty_keep_x_up,false},
+    {"sim_distcalcmethod_dl",sim_distcalcmethod_dl,false},
+    {"sim_distcalcmethod_dac",sim_distcalcmethod_dac,false},
+    {"sim_distcalcmethod_max_dl_dac",sim_distcalcmethod_max_dl_dac,false},
+    {"sim_distcalcmethod_dl_and_dac",sim_distcalcmethod_dl_and_dac,false},
+    {"sim_distcalcmethod_sqrt_dl2_and_dac2",sim_distcalcmethod_sqrt_dl2_and_dac2,false},
+    {"sim_distcalcmethod_dl_if_nonzero",sim_distcalcmethod_dl_if_nonzero,false},
+    {"sim_distcalcmethod_dac_if_nonzero",sim_distcalcmethod_dac_if_nonzero,false},
+    {"sim_boolparam_hierarchy_visible",sim_boolparam_hierarchy_visible,false},
+    {"sim_boolparam_console_visible",sim_boolparam_console_visible,false},
+    {"sim_boolparam_collision_handling_enabled",sim_boolparam_collision_handling_enabled,false},
+    {"sim_boolparam_distance_handling_enabled",sim_boolparam_distance_handling_enabled,false},
+    {"sim_boolparam_ik_handling_enabled",sim_boolparam_ik_handling_enabled,false},
+    {"sim_boolparam_gcs_handling_enabled",sim_boolparam_gcs_handling_enabled,false},
+    {"sim_boolparam_dynamics_handling_enabled",sim_boolparam_dynamics_handling_enabled,false},
+    {"sim_boolparam_proximity_sensor_handling_enabled",sim_boolparam_proximity_sensor_handling_enabled,false},
+    {"sim_boolparam_vision_sensor_handling_enabled",sim_boolparam_vision_sensor_handling_enabled,false},
+    {"sim_boolparam_rendering_sensor_handling_enabled",sim_boolparam_vision_sensor_handling_enabled,false},
+    {"sim_boolparam_mill_handling_enabled",sim_boolparam_mill_handling_enabled,false},
+    {"sim_boolparam_browser_visible",sim_boolparam_browser_visible,false},
+    {"sim_boolparam_scene_and_model_load_messages",sim_boolparam_scene_and_model_load_messages,false},
+    {"sim_boolparam_shape_textures_are_visible",sim_boolparam_shape_textures_are_visible,false},
+    {"sim_boolparam_display_enabled",sim_boolparam_display_enabled,false},
+    {"sim_boolparam_infotext_visible",sim_boolparam_infotext_visible,false},
+    {"sim_boolparam_statustext_open",sim_boolparam_statustext_open,false},
+    {"sim_boolparam_fog_enabled",sim_boolparam_fog_enabled,false},
+    {"sim_boolparam_rml2_available",sim_boolparam_rml2_available,false},
+    {"sim_boolparam_rml4_available",sim_boolparam_rml4_available,false},
+    {"sim_boolparam_mirrors_enabled",sim_boolparam_mirrors_enabled,false},
+    {"sim_boolparam_aux_clip_planes_enabled",sim_boolparam_aux_clip_planes_enabled,false},
+    {"sim_boolparam_full_model_copy_from_api",sim_boolparam_reserved3,false},
+    {"sim_boolparam_realtime_simulation",sim_boolparam_realtime_simulation,false},
+    {"sim_boolparam_use_glfinish_cmd",sim_boolparam_use_glfinish_cmd,false},
+    {"sim_boolparam_force_show_wireless_emission",sim_boolparam_force_show_wireless_emission,false},
+    {"sim_boolparam_force_show_wireless_reception",sim_boolparam_force_show_wireless_reception,false},
+    {"sim_boolparam_video_recording_triggered",sim_boolparam_video_recording_triggered,false},
+    {"sim_boolparam_fullscreen",sim_boolparam_fullscreen,false},
+    {"sim_boolparam_headless",sim_boolparam_headless,false},
+    {"sim_boolparam_hierarchy_toolbarbutton_enabled",sim_boolparam_hierarchy_toolbarbutton_enabled,false},
+    {"sim_boolparam_browser_toolbarbutton_enabled",sim_boolparam_browser_toolbarbutton_enabled,false},
+    {"sim_boolparam_objectshift_toolbarbutton_enabled",sim_boolparam_objectshift_toolbarbutton_enabled,false},
+    {"sim_boolparam_objectrotate_toolbarbutton_enabled",sim_boolparam_objectrotate_toolbarbutton_enabled,false},
+    {"sim_boolparam_force_calcstruct_all_visible",sim_boolparam_force_calcstruct_all_visible,false},
+    {"sim_boolparam_force_calcstruct_all",sim_boolparam_force_calcstruct_all,false},
+    {"sim_boolparam_exit_request",sim_boolparam_exit_request,false},
+    {"sim_boolparam_play_toolbarbutton_enabled",sim_boolparam_play_toolbarbutton_enabled,false},
+    {"sim_boolparam_pause_toolbarbutton_enabled",sim_boolparam_pause_toolbarbutton_enabled,false},
+    {"sim_boolparam_stop_toolbarbutton_enabled",sim_boolparam_stop_toolbarbutton_enabled,false},
+    {"sim_boolparam_waiting_for_trigger",sim_boolparam_waiting_for_trigger,false},
+    {"sim_boolparam_objproperties_toolbarbutton_enabled",sim_boolparam_objproperties_toolbarbutton_enabled,false},
+    {"sim_boolparam_calcmodules_toolbarbutton_enabled",sim_boolparam_calcmodules_toolbarbutton_enabled,false},
+    {"sim_boolparam_rosinterface_donotrunmainscript",sim_boolparam_rosinterface_donotrunmainscript,false},
+    {"sim_intparam_error_report_mode",sim_intparam_error_report_mode,false},
+    {"sim_intparam_program_version",sim_intparam_program_version,false},
+    {"sim_intparam_compilation_version",sim_intparam_compilation_version,false},
+    {"sim_intparam_current_page",sim_intparam_current_page,false},
+    {"sim_intparam_flymode_camera_handle",sim_intparam_flymode_camera_handle,false},
+    {"sim_intparam_dynamic_step_divider",sim_intparam_dynamic_step_divider,false},
+    {"sim_intparam_dynamic_engine",sim_intparam_dynamic_engine,false},
+    {"sim_intparam_server_port_start",sim_intparam_server_port_start,false},
+    {"sim_intparam_server_port_range",sim_intparam_server_port_range,false},
+    {"sim_intparam_server_port_next",sim_intparam_server_port_next,false},
+    {"sim_intparam_visible_layers",sim_intparam_visible_layers,false},
+    {"sim_intparam_infotext_style",sim_intparam_infotext_style,false},
+    {"sim_intparam_settings",sim_intparam_settings,false},
+    {"sim_intparam_qt_version",sim_intparam_qt_version,false},
+    {"sim_intparam_platform",sim_intparam_platform,false},
+    {"sim_intparam_scene_unique_id",sim_intparam_scene_unique_id,false},
+    {"sim_intparam_edit_mode_type",sim_intparam_edit_mode_type,false},
+    {"sim_intparam_work_thread_count",sim_intparam_work_thread_count,false}, // deprecated
+    {"sim_intparam_mouse_x",sim_intparam_mouse_x,false},
+    {"sim_intparam_mouse_y",sim_intparam_mouse_y,false},
+    {"sim_intparam_core_count",sim_intparam_core_count,false},
+    {"sim_intparam_work_thread_calc_time_ms",sim_intparam_work_thread_calc_time_ms,false}, // deprecated
+    {"sim_intparam_idle_fps",sim_intparam_idle_fps,false},
+    {"sim_intparam_prox_sensor_select_down",sim_intparam_prox_sensor_select_down,false},
+    {"sim_intparam_prox_sensor_select_up",sim_intparam_prox_sensor_select_up,false},
+    {"sim_intparam_stop_request_counter",sim_intparam_stop_request_counter,false},
+    {"sim_intparam_program_revision",sim_intparam_program_revision,false},
+    {"sim_intparam_mouse_buttons",sim_intparam_mouse_buttons,false},
+    {"sim_intparam_dynamic_warning_disabled_mask",sim_intparam_dynamic_warning_disabled_mask,false},
+    {"sim_intparam_simulation_warning_disabled_mask",sim_intparam_simulation_warning_disabled_mask,false},
+    {"sim_intparam_scene_index",sim_intparam_scene_index,false},
+    {"sim_intparam_motionplanning_seed",sim_intparam_motionplanning_seed,false},
+    {"sim_intparam_speedmodifier",sim_intparam_speedmodifier,false},
+    {"sim_intparam_dynamic_iteration_count",sim_intparam_dynamic_iteration_count,false},
+    {"sim_floatparam_rand",sim_floatparam_rand,false},
+    {"sim_floatparam_simulation_time_step",sim_floatparam_simulation_time_step,false},
+    {"sim_floatparam_stereo_distance",sim_floatparam_stereo_distance,false},
+    {"sim_floatparam_dynamic_step_size",sim_floatparam_dynamic_step_size,false},
+    {"sim_floatparam_mouse_wheel_zoom_factor",sim_floatparam_mouse_wheel_zoom_factor,false},
+    {"sim_arrayparam_gravity",sim_arrayparam_gravity,false},
+    {"sim_arrayparam_fog",sim_arrayparam_fog,false},
+    {"sim_arrayparam_fog_color",sim_arrayparam_fog_color,false},
+    {"sim_arrayparam_background_color1",sim_arrayparam_background_color1,false},
+    {"sim_arrayparam_background_color2",sim_arrayparam_background_color2,false},
+    {"sim_arrayparam_ambient_light",sim_arrayparam_ambient_light,false},
+    {"sim_arrayparam_random_euler",sim_arrayparam_random_euler,false},
+    {"sim_stringparam_application_path",sim_stringparam_application_path,false},
+    {"sim_stringparam_video_filename",sim_stringparam_video_filename,false},
+    {"sim_stringparam_app_arg1",sim_stringparam_app_arg1,false},
+    {"sim_stringparam_app_arg2",sim_stringparam_app_arg2,false},
+    {"sim_stringparam_app_arg3",sim_stringparam_app_arg3,false},
+    {"sim_stringparam_app_arg4",sim_stringparam_app_arg4,false},
+    {"sim_stringparam_app_arg5",sim_stringparam_app_arg5,false},
+    {"sim_stringparam_app_arg6",sim_stringparam_app_arg6,false},
+    {"sim_stringparam_app_arg7",sim_stringparam_app_arg7,false},
+    {"sim_stringparam_app_arg8",sim_stringparam_app_arg8,false},
+    {"sim_stringparam_app_arg9",sim_stringparam_app_arg9,false},
+    {"sim_stringparam_scene_path_and_name",sim_stringparam_scene_path_and_name,false},
+    {"sim_stringparam_remoteapi_temp_file_dir",sim_stringparam_remoteapi_temp_file_dir,false},
+    {"sim_stringparam_scene_path",sim_stringparam_scene_path,false},
+    {"sim_stringparam_scene_name",sim_stringparam_scene_name,false},
+    {"sim_displayattribute_renderpass",sim_displayattribute_renderpass,false},
+    {"sim_displayattribute_depthpass",sim_displayattribute_depthpass,false},
+    {"sim_displayattribute_pickpass",sim_displayattribute_pickpass,false},
+    {"sim_displayattribute_selected",sim_displayattribute_selected,false},
+    {"sim_displayattribute_mainselection",sim_displayattribute_mainselection,false},
+    {"sim_displayattribute_forcewireframe",sim_displayattribute_forcewireframe,false},
+    {"sim_displayattribute_forbidwireframe",sim_displayattribute_forbidwireframe,false},
+    {"sim_displayattribute_forbidedges",sim_displayattribute_forbidedges,false},
+    {"sim_displayattribute_originalcolors",sim_displayattribute_originalcolors,false},
+    {"sim_displayattribute_ignorelayer",sim_displayattribute_ignorelayer,false},
+    {"sim_displayattribute_forvisionsensor",sim_displayattribute_forvisionsensor,false},
+    {"sim_displayattribute_colorcodedpickpass",sim_displayattribute_colorcodedpickpass,false},
+    {"sim_displayattribute_colorcoded",sim_displayattribute_colorcoded,false},
+    {"sim_displayattribute_trianglewireframe",sim_displayattribute_trianglewireframe,false},
+    {"sim_displayattribute_thickEdges",sim_displayattribute_thickEdges,false},
+    {"sim_displayattribute_dynamiccontentonly",sim_displayattribute_dynamiccontentonly,false},
+    {"sim_displayattribute_mirror",sim_displayattribute_mirror,false},
+    {"sim_displayattribute_useauxcomponent",sim_displayattribute_useauxcomponent,false},
+    {"sim_displayattribute_ignorerenderableflag",sim_displayattribute_ignorerenderableflag,false},
+    {"sim_displayattribute_noopenglcallbacks",sim_displayattribute_noopenglcallbacks,false},
+    {"sim_displayattribute_noghosts",sim_displayattribute_noghosts,false},
+    {"sim_displayattribute_nopointclouds",sim_displayattribute_nopointclouds,false},
+    {"sim_displayattribute_nodrawingobjects",sim_displayattribute_nodrawingobjects,false},
+    {"sim_displayattribute_noparticles",sim_displayattribute_noparticles,false},
+    {"sim_displayattribute_colorcodedtriangles",sim_displayattribute_colorcodedtriangles,false},
+    {"sim_navigation_passive",sim_navigation_passive,false},
+    {"sim_navigation_camerashift",sim_navigation_camerashift,false},
+    {"sim_navigation_camerarotate",sim_navigation_camerarotate,false},
+    {"sim_navigation_camerazoom",sim_navigation_camerazoom,false},
+    {"sim_navigation_cameratilt",sim_navigation_cameratilt,false},
+    {"sim_navigation_cameraangle",sim_navigation_cameraangle,false},
+    {"sim_navigation_objectshift",sim_navigation_objectshift,false},
+    {"sim_navigation_objectrotate",sim_navigation_objectrotate,false},
+    {"sim_navigation_createpathpoint",sim_navigation_createpathpoint,false},
+    {"sim_navigation_clickselection",sim_navigation_clickselection,false},
+    {"sim_navigation_ctrlselection",sim_navigation_ctrlselection,false},
+    {"sim_navigation_shiftselection",sim_navigation_shiftselection,false},
+    {"sim_navigation_camerazoomwheel",sim_navigation_camerazoomwheel,false},
+    {"sim_navigation_camerarotaterightbutton",sim_navigation_camerarotaterightbutton,false},
+    {"sim_navigation_camerarotatemiddlebutton",sim_navigation_camerarotatemiddlebutton,false},
+    {"sim_drawing_points",sim_drawing_points,false},
+    {"sim_drawing_lines",sim_drawing_lines,false},
+    {"sim_drawing_triangles",sim_drawing_triangles,false},
+    {"sim_drawing_trianglepoints",sim_drawing_trianglepoints,false},
+    {"sim_drawing_quadpoints",sim_drawing_quadpoints,false},
+    {"sim_drawing_discpoints",sim_drawing_discpoints,false},
+    {"sim_drawing_cubepoints",sim_drawing_cubepoints,false},
+    {"sim_drawing_spherepoints",sim_drawing_spherepoints,false},
+    {"sim_drawing_itemcolors",sim_drawing_itemcolors,false},
+    {"sim_drawing_vertexcolors",sim_drawing_vertexcolors,false},
+    {"sim_drawing_itemsizes",sim_drawing_itemsizes,false},
+    {"sim_drawing_backfaceculling",sim_drawing_backfaceculling,false},
+    {"sim_drawing_wireframe",sim_drawing_wireframe,false},
+    {"sim_drawing_painttag",sim_drawing_painttag,false},
+    {"sim_drawing_followparentvisibility",sim_drawing_followparentvisibility,false},
+    {"sim_drawing_cyclic",sim_drawing_cyclic,false},
+    {"sim_drawing_50percenttransparency",sim_drawing_50percenttransparency,false},
+    {"sim_drawing_25percenttransparency",sim_drawing_25percenttransparency,false},
+    {"sim_drawing_12percenttransparency",sim_drawing_12percenttransparency,false},
+    {"sim_drawing_emissioncolor",sim_drawing_emissioncolor,false},
+    {"sim_drawing_facingcamera",sim_drawing_facingcamera,false},
+    {"sim_drawing_overlay",sim_drawing_overlay,false},
+    {"sim_drawing_itemtransparency",sim_drawing_itemtransparency,false},
+    {"sim_drawing_persistent",sim_drawing_persistent,false},
+    {"sim_drawing_auxchannelcolor1",sim_drawing_auxchannelcolor1,false},
+    {"sim_drawing_auxchannelcolor2",sim_drawing_auxchannelcolor2,false},
+    {"sim_particle_points1",sim_particle_points1,false},
+    {"sim_particle_points2",sim_particle_points2,false},
+    {"sim_particle_points4",sim_particle_points4,false},
+    {"sim_particle_roughspheres",sim_particle_roughspheres,false},
+    {"sim_particle_spheres",sim_particle_spheres,false},
+    {"sim_particle_respondable1to4",sim_particle_respondable1to4,false},
+    {"sim_particle_respondable5to8",sim_particle_respondable5to8,false},
+    {"sim_particle_particlerespondable",sim_particle_particlerespondable,false},
+    {"sim_particle_ignoresgravity",sim_particle_ignoresgravity,false},
+    {"sim_particle_invisible",sim_particle_invisible,false},
+    {"sim_particle_painttag",sim_particle_painttag,false},
+    {"sim_particle_itemsizes",sim_particle_itemsizes,false},
+    {"sim_particle_itemdensities",sim_particle_itemdensities,false},
+    {"sim_particle_itemcolors",sim_particle_itemcolors,false},
+    {"sim_particle_cyclic",sim_particle_cyclic,false},
+    {"sim_particle_emissioncolor",sim_particle_emissioncolor,false},
+    {"sim_particle_water",sim_particle_water,false},
+    {"sim_jointmode_passive",sim_jointmode_passive,false},
+    {"sim_jointmode_ik",sim_jointmode_ik_deprecated,false},
+    {"sim_jointmode_ikdependent",sim_jointmode_reserved_previously_ikdependent,false},
+    {"sim_jointmode_dependent",sim_jointmode_dependent,false},
+    {"sim_jointmode_force",sim_jointmode_force,false},
+    {"sim_filedlg_type_load",sim_filedlg_type_load,false},
+    {"sim_filedlg_type_save",sim_filedlg_type_save,false},
+    {"sim_filedlg_type_load_multiple",sim_filedlg_type_load_multiple,false},
+    {"sim_filedlg_type_folder",sim_filedlg_type_folder,false},
+    {"sim_msgbox_type_info",sim_msgbox_type_info,false},
+    {"sim_msgbox_type_question",sim_msgbox_type_question,false},
+    {"sim_msgbox_type_warning",sim_msgbox_type_warning,false},
+    {"sim_msgbox_type_critical",sim_msgbox_type_critical,false},
+    {"sim_msgbox_buttons_ok",sim_msgbox_buttons_ok,false},
+    {"sim_msgbox_buttons_yesno",sim_msgbox_buttons_yesno,false},
+    {"sim_msgbox_buttons_yesnocancel",sim_msgbox_buttons_yesnocancel,false},
+    {"sim_msgbox_buttons_okcancel",sim_msgbox_buttons_okcancel,false},
+    {"sim_msgbox_return_cancel",sim_msgbox_return_cancel,false},
+    {"sim_msgbox_return_no",sim_msgbox_return_no,false},
+    {"sim_msgbox_return_yes",sim_msgbox_return_yes,false},
+    {"sim_msgbox_return_ok",sim_msgbox_return_ok,false},
+    {"sim_msgbox_return_error",sim_msgbox_return_error,false},
+    {"sim_physics_bullet",sim_physics_bullet,false},
+    {"sim_physics_ode",sim_physics_ode,false},
+    {"sim_physics_vortex",sim_physics_vortex,false},
+    {"sim_physics_newton",sim_physics_newton,false},
+    {"sim_pure_primitive_none",sim_pure_primitive_none,false},
+    {"sim_pure_primitive_plane",sim_pure_primitive_plane,false},
+    {"sim_pure_primitive_disc",sim_pure_primitive_disc,false},
+    {"sim_pure_primitive_cuboid",sim_pure_primitive_cuboid,false},
+    {"sim_pure_primitive_spheroid",sim_pure_primitive_spheroid,false},
+    {"sim_pure_primitive_cylinder",sim_pure_primitive_cylinder,false},
+    {"sim_pure_primitive_cone",sim_pure_primitive_cone,false},
+    {"sim_pure_primitive_heightfield",sim_pure_primitive_heightfield,false},
+    {"sim_dummy_linktype_dynamics_loop_closure",sim_dummy_linktype_dynamics_loop_closure,false},
+    {"sim_dummy_linktype_dynamics_force_constraint",sim_dummy_linktype_dynamics_force_constraint,false},
+    {"sim_dummy_linktype_gcs_loop_closure",sim_dummy_linktype_gcs_loop_closure,false},
+    {"sim_dummy_linktype_gcs_tip",sim_dummy_linktype_gcs_tip,false},
+    {"sim_dummy_linktype_gcs_target",sim_dummy_linktype_gcs_target,false},
+    {"sim_dummy_linktype_ik_tip_target",sim_dummy_linktype_ik_tip_target,false},
+    {"sim_colorcomponent_ambient",sim_colorcomponent_ambient,false},
+    {"sim_colorcomponent_ambient_diffuse",sim_colorcomponent_ambient_diffuse,false},
+    {"sim_colorcomponent_diffuse",sim_colorcomponent_diffuse,false},
+    {"sim_colorcomponent_specular",sim_colorcomponent_specular,false},
+    {"sim_colorcomponent_emission",sim_colorcomponent_emission,false},
+    {"sim_colorcomponent_transparency",sim_colorcomponent_transparency,false},
+    {"sim_colorcomponent_auxiliary",sim_colorcomponent_auxiliary,false},
+    {"sim_volume_ray",sim_volume_ray,false},
+    {"sim_volume_randomizedray",sim_volume_randomizedray,false},
+    {"sim_volume_pyramid",sim_volume_pyramid,false},
+    {"sim_volume_cylinder",sim_volume_cylinder,false},
+    {"sim_volume_disc",sim_volume_disc,false},
+    {"sim_volume_cone",sim_volume_cone,false},
+    {"sim_objintparam_visibility_layer",sim_objintparam_visibility_layer,false},
+    {"sim_objfloatparam_abs_x_velocity",sim_objfloatparam_abs_x_velocity,false},
+    {"sim_objfloatparam_abs_y_velocity",sim_objfloatparam_abs_y_velocity,false},
+    {"sim_objfloatparam_abs_z_velocity",sim_objfloatparam_abs_z_velocity,false},
+    {"sim_objfloatparam_abs_rot_velocity",sim_objfloatparam_abs_rot_velocity,false},
+    {"sim_objfloatparam_objbbox_min_x",sim_objfloatparam_objbbox_min_x,false},
+    {"sim_objfloatparam_objbbox_min_y",sim_objfloatparam_objbbox_min_y,false},
+    {"sim_objfloatparam_objbbox_min_z",sim_objfloatparam_objbbox_min_z,false},
+    {"sim_objfloatparam_objbbox_max_x",sim_objfloatparam_objbbox_max_x,false},
+    {"sim_objfloatparam_objbbox_max_y",sim_objfloatparam_objbbox_max_y,false},
+    {"sim_objfloatparam_objbbox_max_z",sim_objfloatparam_objbbox_max_z,false},
+    {"sim_objfloatparam_modelbbox_min_x",sim_objfloatparam_modelbbox_min_x,false},
+    {"sim_objfloatparam_modelbbox_min_y",sim_objfloatparam_modelbbox_min_y,false},
+    {"sim_objfloatparam_modelbbox_min_z",sim_objfloatparam_modelbbox_min_z,false},
+    {"sim_objfloatparam_modelbbox_max_x",sim_objfloatparam_modelbbox_max_x,false},
+    {"sim_objfloatparam_modelbbox_max_y",sim_objfloatparam_modelbbox_max_y,false},
+    {"sim_objfloatparam_modelbbox_max_z",sim_objfloatparam_modelbbox_max_z,false},
+    {"sim_objintparam_collection_self_collision_indicator",sim_objintparam_collection_self_collision_indicator,false},
+    {"sim_objfloatparam_transparency_offset",sim_objfloatparam_transparency_offset,false},
+    {"sim_objintparam_child_role",sim_objintparam_child_role,false},
+    {"sim_objintparam_parent_role",sim_objintparam_parent_role,false},
+    {"sim_objintparam_manipulation_permissions",sim_objintparam_manipulation_permissions,false},
+    {"sim_objintparam_illumination_handle",sim_objintparam_illumination_handle,false},
+    {"sim_objstringparam_dna",sim_objstringparam_dna,false},
+    {"sim_visionfloatparam_near_clipping",sim_visionfloatparam_near_clipping,false},
+    {"sim_visionfloatparam_far_clipping",sim_visionfloatparam_far_clipping,false},
+    {"sim_visionintparam_resolution_x",sim_visionintparam_resolution_x,false},
+    {"sim_visionintparam_resolution_y",sim_visionintparam_resolution_y,false},
+    {"sim_visionfloatparam_perspective_angle",sim_visionfloatparam_perspective_angle,false},
+    {"sim_visionfloatparam_ortho_size",sim_visionfloatparam_ortho_size,false},
+    {"sim_visionintparam_disabled_light_components",sim_visionintparam_disabled_light_components,false},
+    {"sim_visionintparam_rendering_attributes",sim_visionintparam_rendering_attributes,false},
+    {"sim_visionintparam_entity_to_render",sim_visionintparam_entity_to_render,false},
+    {"sim_visionintparam_windowed_size_x",sim_visionintparam_windowed_size_x,false},
+    {"sim_visionintparam_windowed_size_y",sim_visionintparam_windowed_size_y,false},
+    {"sim_visionintparam_windowed_pos_x",sim_visionintparam_windowed_pos_x,false},
+    {"sim_visionintparam_windowed_pos_y",sim_visionintparam_windowed_pos_y,false},
+    {"sim_visionintparam_pov_focal_blur",sim_visionintparam_pov_focal_blur,false},
+    {"sim_visionfloatparam_pov_blur_distance",sim_visionfloatparam_pov_blur_distance,false},
+    {"sim_visionfloatparam_pov_aperture",sim_visionfloatparam_pov_aperture,false},
+    {"sim_visionintparam_pov_blur_sampled",sim_visionintparam_pov_blur_sampled,false},
+    {"sim_visionintparam_render_mode",sim_visionintparam_render_mode,false},
+    {"sim_jointintparam_motor_enabled",sim_jointintparam_motor_enabled,false},
+    {"sim_jointintparam_ctrl_enabled",sim_jointintparam_ctrl_enabled,false},
+    {"sim_jointfloatparam_pid_p",sim_jointfloatparam_pid_p,false},
+    {"sim_jointfloatparam_pid_i",sim_jointfloatparam_pid_i,false},
+    {"sim_jointfloatparam_pid_d",sim_jointfloatparam_pid_d,false},
+    {"sim_jointfloatparam_intrinsic_x",sim_jointfloatparam_intrinsic_x,false},
+    {"sim_jointfloatparam_intrinsic_y",sim_jointfloatparam_intrinsic_y,false},
+    {"sim_jointfloatparam_intrinsic_z",sim_jointfloatparam_intrinsic_z,false},
+    {"sim_jointfloatparam_intrinsic_qx",sim_jointfloatparam_intrinsic_qx,false},
+    {"sim_jointfloatparam_intrinsic_qy",sim_jointfloatparam_intrinsic_qy,false},
+    {"sim_jointfloatparam_intrinsic_qz",sim_jointfloatparam_intrinsic_qz,false},
+    {"sim_jointfloatparam_intrinsic_qw",sim_jointfloatparam_intrinsic_qw,false},
+    {"sim_jointfloatparam_velocity",sim_jointfloatparam_velocity,false},
+    {"sim_jointfloatparam_spherical_qx",sim_jointfloatparam_spherical_qx,false},
+    {"sim_jointfloatparam_spherical_qy",sim_jointfloatparam_spherical_qy,false},
+    {"sim_jointfloatparam_spherical_qz",sim_jointfloatparam_spherical_qz,false},
+    {"sim_jointfloatparam_spherical_qw",sim_jointfloatparam_spherical_qw,false},
+    {"sim_jointfloatparam_upper_limit",sim_jointfloatparam_upper_limit,false},
+    {"sim_jointfloatparam_kc_k",sim_jointfloatparam_kc_k,false},
+    {"sim_jointfloatparam_kc_c",sim_jointfloatparam_kc_c,false},
+    {"sim_jointfloatparam_ik_weight",sim_jointfloatparam_ik_weight,false},
+    {"sim_jointfloatparam_error_x",sim_jointfloatparam_error_x,false},
+    {"sim_jointfloatparam_error_y",sim_jointfloatparam_error_y,false},
+    {"sim_jointfloatparam_error_z",sim_jointfloatparam_error_z,false},
+    {"sim_jointfloatparam_error_a",sim_jointfloatparam_error_a,false},
+    {"sim_jointfloatparam_error_b",sim_jointfloatparam_error_b,false},
+    {"sim_jointfloatparam_error_g",sim_jointfloatparam_error_g,false},
+    {"sim_jointfloatparam_error_pos",sim_jointfloatparam_error_pos,false},
+    {"sim_jointfloatparam_error_angle",sim_jointfloatparam_error_angle,false},
+    {"sim_jointintparam_velocity_lock",sim_jointintparam_velocity_lock,false},
+    {"sim_jointintparam_vortex_dep_handle",sim_jointintparam_vortex_dep_handle,false},
+    {"sim_jointfloatparam_vortex_dep_multiplication",sim_jointfloatparam_vortex_dep_multiplication,false},
+    {"sim_jointfloatparam_vortex_dep_offset",sim_jointfloatparam_vortex_dep_offset,false},
+    {"sim_shapefloatparam_init_velocity_x",sim_shapefloatparam_init_velocity_x,false},
+    {"sim_shapefloatparam_init_velocity_y",sim_shapefloatparam_init_velocity_y,false},
+    {"sim_shapefloatparam_init_velocity_z",sim_shapefloatparam_init_velocity_z,false},
+    {"sim_shapeintparam_static",sim_shapeintparam_static,false},
+    {"sim_shapeintparam_respondable",sim_shapeintparam_respondable,false},
+    {"sim_shapefloatparam_mass",sim_shapefloatparam_mass,false},
+    {"sim_shapefloatparam_texture_x",sim_shapefloatparam_texture_x,false},
+    {"sim_shapefloatparam_texture_y",sim_shapefloatparam_texture_y,false},
+    {"sim_shapefloatparam_texture_z",sim_shapefloatparam_texture_z,false},
+    {"sim_shapefloatparam_texture_a",sim_shapefloatparam_texture_a,false},
+    {"sim_shapefloatparam_texture_b",sim_shapefloatparam_texture_b,false},
+    {"sim_shapefloatparam_texture_g",sim_shapefloatparam_texture_g,false},
+    {"sim_shapefloatparam_texture_scaling_x",sim_shapefloatparam_texture_scaling_x,false},
+    {"sim_shapefloatparam_texture_scaling_y",sim_shapefloatparam_texture_scaling_y,false},
+    {"sim_shapeintparam_culling",sim_shapeintparam_culling,false},
+    {"sim_shapeintparam_wireframe",sim_shapeintparam_wireframe,false},
+    {"sim_shapeintparam_compound",sim_shapeintparam_compound,false},
+    {"sim_shapeintparam_convex",sim_shapeintparam_convex,false},
+    {"sim_shapeintparam_convex_check",sim_shapeintparam_convex_check,false},
+    {"sim_shapeintparam_respondable_mask",sim_shapeintparam_respondable_mask,false},
+    {"sim_shapefloatparam_init_velocity_a",sim_shapefloatparam_init_ang_velocity_x,false},
+    {"sim_shapefloatparam_init_velocity_b",sim_shapefloatparam_init_ang_velocity_y,false},
+    {"sim_shapefloatparam_init_velocity_g",sim_shapefloatparam_init_ang_velocity_z,false},
+    {"sim_shapestringparam_color_name",sim_shapestringparam_color_name,false},
+    {"sim_shapeintparam_edge_visibility",sim_shapeintparam_edge_visibility,false},
+    {"sim_shapefloatparam_shading_angle",sim_shapefloatparam_shading_angle,false},
+    {"sim_shapefloatparam_edge_angle",sim_shapefloatparam_edge_angle,false},
+    {"sim_shapeintparam_edge_borders_hidden",sim_shapeintparam_edge_borders_hidden,false},
+    {"sim_proxintparam_ray_invisibility",sim_proxintparam_ray_invisibility,false},
+    {"sim_proxintparam_volume_type",sim_proxintparam_volume_type,false},
+    {"sim_proxintparam_entity_to_detect",sim_proxintparam_entity_to_detect,false},
+    {"sim_forcefloatparam_error_x",sim_forcefloatparam_error_x,false},
+    {"sim_forcefloatparam_error_y",sim_forcefloatparam_error_y,false},
+    {"sim_forcefloatparam_error_z",sim_forcefloatparam_error_z,false},
+    {"sim_forcefloatparam_error_a",sim_forcefloatparam_error_a,false},
+    {"sim_forcefloatparam_error_b",sim_forcefloatparam_error_b,false},
+    {"sim_forcefloatparam_error_g",sim_forcefloatparam_error_g,false},
+    {"sim_forcefloatparam_error_pos",sim_forcefloatparam_error_pos,false},
+    {"sim_forcefloatparam_error_angle",sim_forcefloatparam_error_angle,false},
+    {"sim_lightintparam_pov_casts_shadows",sim_lightintparam_pov_casts_shadows,false},
+    {"sim_cameraintparam_disabled_light_components",sim_cameraintparam_disabled_light_components,false},
+    {"sim_camerafloatparam_perspective_angle",sim_camerafloatparam_perspective_angle,false},
+    {"sim_camerafloatparam_ortho_size",sim_camerafloatparam_ortho_size,false},
+    {"sim_cameraintparam_rendering_attributes",sim_cameraintparam_rendering_attributes,false},
+    {"sim_cameraintparam_pov_focal_blur",sim_cameraintparam_pov_focal_blur,false},
+    {"sim_camerafloatparam_pov_blur_distance",sim_camerafloatparam_pov_blur_distance,false},
+    {"sim_camerafloatparam_pov_aperture",sim_camerafloatparam_pov_aperture,false},
+    {"sim_cameraintparam_pov_blur_samples",sim_cameraintparam_pov_blur_samples,false},
+    {"sim_dummyintparam_link_type",sim_dummyintparam_link_type,false},
+    {"sim_dummyintparam_follow_path",sim_dummyintparam_follow_path,false},
+    {"sim_dummyfloatparam_follow_path_offset",sim_dummyfloatparam_follow_path_offset,false},
+    {"sim.dummyintparam_follow_path",sim_dummyintparam_follow_path,false},
+    {"sim.dummyfloatparam_follow_path_offset",sim_dummyfloatparam_follow_path_offset,false},
+    {"sim_millintparam_volume_type",sim_millintparam_volume_type,false},
+    {"sim_mirrorfloatparam_width",sim_mirrorfloatparam_width,false},
+    {"sim_mirrorfloatparam_height",sim_mirrorfloatparam_height,false},
+    {"sim_mirrorfloatparam_reflectance",sim_mirrorfloatparam_reflectance,false},
+    {"sim_mirrorintparam_enable",sim_mirrorintparam_enable,false},
+    {"sim_bullet_global_stepsize",sim_bullet_global_stepsize,false},
+    {"sim_bullet_global_internalscalingfactor",sim_bullet_global_internalscalingfactor,false},
+    {"sim_bullet_global_collisionmarginfactor",sim_bullet_global_collisionmarginfactor,false},
+    {"sim_bullet_global_constraintsolvingiterations",sim_bullet_global_constraintsolvingiterations,false},
+    {"sim_bullet_global_bitcoded",sim_bullet_global_bitcoded,false},
+    {"sim_bullet_global_constraintsolvertype",sim_bullet_global_constraintsolvertype,false},
+    {"sim_bullet_global_fullinternalscaling",sim_bullet_global_fullinternalscaling,false},
+    {"sim_bullet_joint_stoperp",sim_bullet_joint_stoperp,false},
+    {"sim_bullet_joint_stopcfm",sim_bullet_joint_stopcfm,false},
+    {"sim_bullet_joint_normalcfm",sim_bullet_joint_normalcfm,false},
+    {"sim_bullet_body_restitution",sim_bullet_body_restitution,false},
+    {"sim_bullet_body_oldfriction",sim_bullet_body_oldfriction,false},
+    {"sim_bullet_body_friction",sim_bullet_body_friction,false},
+    {"sim_bullet_body_lineardamping",sim_bullet_body_lineardamping,false},
+    {"sim_bullet_body_angulardamping",sim_bullet_body_angulardamping,false},
+    {"sim_bullet_body_nondefaultcollisionmargingfactor",sim_bullet_body_nondefaultcollisionmargingfactor,false},
+    {"sim_bullet_body_nondefaultcollisionmargingfactorconvex",sim_bullet_body_nondefaultcollisionmargingfactorconvex,false},
+    {"sim_bullet_body_bitcoded",sim_bullet_body_bitcoded,false},
+    {"sim_bullet_body_sticky",sim_bullet_body_sticky,false},
+    {"sim_bullet_body_usenondefaultcollisionmargin",sim_bullet_body_usenondefaultcollisionmargin,false},
+    {"sim_bullet_body_usenondefaultcollisionmarginconvex",sim_bullet_body_usenondefaultcollisionmarginconvex,false},
+    {"sim_bullet_body_autoshrinkconvex",sim_bullet_body_autoshrinkconvex,false},
+    {"sim_ode_global_stepsize",sim_ode_global_stepsize,false},
+    {"sim_ode_global_internalscalingfactor",sim_ode_global_internalscalingfactor,false},
+    {"sim_ode_global_cfm",sim_ode_global_cfm,false},
+    {"sim_ode_global_erp",sim_ode_global_erp,false},
+    {"sim_ode_global_constraintsolvingiterations",sim_ode_global_constraintsolvingiterations,false},
+    {"sim_ode_global_bitcoded",sim_ode_global_bitcoded,false},
+    {"sim_ode_global_randomseed",sim_ode_global_randomseed,false},
+    {"sim_ode_global_fullinternalscaling",sim_ode_global_fullinternalscaling,false},
+    {"sim_ode_global_quickstep",sim_ode_global_quickstep,false},
+    {"sim_ode_joint_stoperp",sim_ode_joint_stoperp,false},
+    {"sim_ode_joint_stopcfm",sim_ode_joint_stopcfm,false},
+    {"sim_ode_joint_bounce",sim_ode_joint_bounce,false},
+    {"sim_ode_joint_fudgefactor",sim_ode_joint_fudgefactor,false},
+    {"sim_ode_joint_normalcfm",sim_ode_joint_normalcfm,false},
+    {"sim_ode_body_friction",sim_ode_body_friction,false},
+    {"sim_ode_body_softerp",sim_ode_body_softerp,false},
+    {"sim_ode_body_softcfm",sim_ode_body_softcfm,false},
+    {"sim_ode_body_lineardamping",sim_ode_body_lineardamping,false},
+    {"sim_ode_body_angulardamping",sim_ode_body_angulardamping,false},
+    {"sim_ode_body_maxcontacts",sim_ode_body_maxcontacts,false},
+    {"sim_vortex_global_stepsize",sim_vortex_global_stepsize,false},
+    {"sim_vortex_global_internalscalingfactor",sim_vortex_global_internalscalingfactor,false},
+    {"sim_vortex_global_contacttolerance",sim_vortex_global_contacttolerance,false},
+    {"sim_vortex_global_constraintlinearcompliance",sim_vortex_global_constraintlinearcompliance,false},
+    {"sim_vortex_global_constraintlineardamping",sim_vortex_global_constraintlineardamping,false},
+    {"sim_vortex_global_constraintlinearkineticloss",sim_vortex_global_constraintlinearkineticloss,false},
+    {"sim_vortex_global_constraintangularcompliance",sim_vortex_global_constraintangularcompliance,false},
+    {"sim_vortex_global_constraintangulardamping",sim_vortex_global_constraintangulardamping,false},
+    {"sim_vortex_global_constraintangularkineticloss",sim_vortex_global_constraintangularkineticloss,false},
+    {"sim_vortex_global_bitcoded",sim_vortex_global_bitcoded,false},
+    {"sim_vortex_global_autosleep",sim_vortex_global_autosleep,false},
+    {"sim_vortex_global_multithreading",sim_vortex_global_multithreading,false},
+    {"sim_vortex_joint_lowerlimitdamping",sim_vortex_joint_lowerlimitdamping,false},
+    {"sim_vortex_joint_upperlimitdamping",sim_vortex_joint_upperlimitdamping,false},
+    {"sim_vortex_joint_lowerlimitstiffness",sim_vortex_joint_lowerlimitstiffness,false},
+    {"sim_vortex_joint_upperlimitstiffness",sim_vortex_joint_upperlimitstiffness,false},
+    {"sim_vortex_joint_lowerlimitrestitution",sim_vortex_joint_lowerlimitrestitution,false},
+    {"sim_vortex_joint_upperlimitrestitution",sim_vortex_joint_upperlimitrestitution,false},
+    {"sim_vortex_joint_lowerlimitmaxforce",sim_vortex_joint_lowerlimitmaxforce,false},
+    {"sim_vortex_joint_upperlimitmaxforce",sim_vortex_joint_upperlimitmaxforce,false},
+    {"sim_vortex_joint_motorconstraintfrictioncoeff",sim_vortex_joint_motorconstraintfrictioncoeff,false},
+    {"sim_vortex_joint_motorconstraintfrictionmaxforce",sim_vortex_joint_motorconstraintfrictionmaxforce,false},
+    {"sim_vortex_joint_motorconstraintfrictionloss",sim_vortex_joint_motorconstraintfrictionloss,false},
+    {"sim_vortex_joint_p0loss",sim_vortex_joint_p0loss,false},
+    {"sim_vortex_joint_p0stiffness",sim_vortex_joint_p0stiffness,false},
+    {"sim_vortex_joint_p0damping",sim_vortex_joint_p0damping,false},
+    {"sim_vortex_joint_p0frictioncoeff",sim_vortex_joint_p0frictioncoeff,false},
+    {"sim_vortex_joint_p0frictionmaxforce",sim_vortex_joint_p0frictionmaxforce,false},
+    {"sim_vortex_joint_p0frictionloss",sim_vortex_joint_p0frictionloss,false},
+    {"sim_vortex_joint_p1loss",sim_vortex_joint_p1loss,false},
+    {"sim_vortex_joint_p1stiffness",sim_vortex_joint_p1stiffness,false},
+    {"sim_vortex_joint_p1damping",sim_vortex_joint_p1damping,false},
+    {"sim_vortex_joint_p1frictioncoeff",sim_vortex_joint_p1frictioncoeff,false},
+    {"sim_vortex_joint_p1frictionmaxforce",sim_vortex_joint_p1frictionmaxforce,false},
+    {"sim_vortex_joint_p1frictionloss",sim_vortex_joint_p1frictionloss,false},
+    {"sim_vortex_joint_p2loss",sim_vortex_joint_p2loss,false},
+    {"sim_vortex_joint_p2stiffness",sim_vortex_joint_p2stiffness,false},
+    {"sim_vortex_joint_p2damping",sim_vortex_joint_p2damping,false},
+    {"sim_vortex_joint_p2frictioncoeff",sim_vortex_joint_p2frictioncoeff,false},
+    {"sim_vortex_joint_p2frictionmaxforce",sim_vortex_joint_p2frictionmaxforce,false},
+    {"sim_vortex_joint_p2frictionloss",sim_vortex_joint_p2frictionloss,false},
+    {"sim_vortex_joint_a0loss",sim_vortex_joint_a0loss,false},
+    {"sim_vortex_joint_a0stiffness",sim_vortex_joint_a0stiffness,false},
+    {"sim_vortex_joint_a0damping",sim_vortex_joint_a0damping,false},
+    {"sim_vortex_joint_a0frictioncoeff",sim_vortex_joint_a0frictioncoeff,false},
+    {"sim_vortex_joint_a0frictionmaxforce",sim_vortex_joint_a0frictionmaxforce,false},
+    {"sim_vortex_joint_a0frictionloss",sim_vortex_joint_a0frictionloss,false},
+    {"sim_vortex_joint_a1loss",sim_vortex_joint_a1loss,false},
+    {"sim_vortex_joint_a1stiffness",sim_vortex_joint_a1stiffness,false},
+    {"sim_vortex_joint_a1damping",sim_vortex_joint_a1damping,false},
+    {"sim_vortex_joint_a1frictioncoeff",sim_vortex_joint_a1frictioncoeff,false},
+    {"sim_vortex_joint_a1frictionmaxforce",sim_vortex_joint_a1frictionmaxforce,false},
+    {"sim_vortex_joint_a1frictionloss",sim_vortex_joint_a1frictionloss,false},
+    {"sim_vortex_joint_a2loss",sim_vortex_joint_a2loss,false},
+    {"sim_vortex_joint_a2stiffness",sim_vortex_joint_a2stiffness,false},
+    {"sim_vortex_joint_a2damping",sim_vortex_joint_a2damping,false},
+    {"sim_vortex_joint_a2frictioncoeff",sim_vortex_joint_a2frictioncoeff,false},
+    {"sim_vortex_joint_a2frictionmaxforce",sim_vortex_joint_a2frictionmaxforce,false},
+    {"sim_vortex_joint_a2frictionloss",sim_vortex_joint_a2frictionloss,false},
+    {"sim_vortex_joint_dependencyfactor",sim_vortex_joint_dependencyfactor,false},
+    {"sim_vortex_joint_dependencyoffset",sim_vortex_joint_dependencyoffset,false},
+    {"sim_vortex_joint_bitcoded",sim_vortex_joint_bitcoded,false},
+    {"sim_vortex_joint_relaxationenabledbc",sim_vortex_joint_relaxationenabledbc,false},
+    {"sim_vortex_joint_frictionenabledbc",sim_vortex_joint_frictionenabledbc,false},
+    {"sim_vortex_joint_frictionproportionalbc",sim_vortex_joint_frictionproportionalbc,false},
+    {"sim_vortex_joint_objectid",sim_vortex_joint_objectid,false},
+    {"sim_vortex_joint_dependentobjectid",sim_vortex_joint_dependentobjectid,false},
+    {"sim_vortex_joint_motorfrictionenabled",sim_vortex_joint_motorfrictionenabled,false},
+    {"sim_vortex_joint_proportionalmotorfriction",sim_vortex_joint_proportionalmotorfriction,false},
+    {"sim_vortex_body_primlinearaxisfriction",sim_vortex_body_primlinearaxisfriction,false},
+    {"sim_vortex_body_seclinearaxisfriction",sim_vortex_body_seclinearaxisfriction,false},
+    {"sim_vortex_body_primangularaxisfriction",sim_vortex_body_primangularaxisfriction,false},
+    {"sim_vortex_body_secangularaxisfriction",sim_vortex_body_secangularaxisfriction,false},
+    {"sim_vortex_body_normalangularaxisfriction",sim_vortex_body_normalangularaxisfriction,false},
+    {"sim_vortex_body_primlinearaxisstaticfrictionscale",sim_vortex_body_primlinearaxisstaticfrictionscale,false},
+    {"sim_vortex_body_seclinearaxisstaticfrictionscale",sim_vortex_body_seclinearaxisstaticfrictionscale,false},
+    {"sim_vortex_body_primangularaxisstaticfrictionscale",sim_vortex_body_primangularaxisstaticfrictionscale,false},
+    {"sim_vortex_body_secangularaxisstaticfrictionscale",sim_vortex_body_secangularaxisstaticfrictionscale,false},
+    {"sim_vortex_body_normalangularaxisstaticfrictionscale",sim_vortex_body_normalangularaxisstaticfrictionscale,false},
+    {"sim_vortex_body_compliance",sim_vortex_body_compliance,false},
+    {"sim_vortex_body_damping",sim_vortex_body_damping,false},
+    {"sim_vortex_body_restitution",sim_vortex_body_restitution,false},
+    {"sim_vortex_body_restitutionthreshold",sim_vortex_body_restitutionthreshold,false},
+    {"sim_vortex_body_adhesiveforce",sim_vortex_body_adhesiveforce,false},
+    {"sim_vortex_body_linearvelocitydamping",sim_vortex_body_linearvelocitydamping,false},
+    {"sim_vortex_body_angularvelocitydamping",sim_vortex_body_angularvelocitydamping,false},
+    {"sim_vortex_body_primlinearaxisslide",sim_vortex_body_primlinearaxisslide,false},
+    {"sim_vortex_body_seclinearaxisslide",sim_vortex_body_seclinearaxisslide,false},
+    {"sim_vortex_body_primangularaxisslide",sim_vortex_body_primangularaxisslide,false},
+    {"sim_vortex_body_secangularaxisslide",sim_vortex_body_secangularaxisslide,false},
+    {"sim_vortex_body_normalangularaxisslide",sim_vortex_body_normalangularaxisslide,false},
+    {"sim_vortex_body_primlinearaxisslip",sim_vortex_body_primlinearaxisslip,false},
+    {"sim_vortex_body_seclinearaxisslip",sim_vortex_body_seclinearaxisslip,false},
+    {"sim_vortex_body_primangularaxisslip",sim_vortex_body_primangularaxisslip,false},
+    {"sim_vortex_body_secangularaxisslip",sim_vortex_body_secangularaxisslip,false},
+    {"sim_vortex_body_normalangularaxisslip",sim_vortex_body_normalangularaxisslip,false},
+    {"sim_vortex_body_autosleeplinearspeedthreshold",sim_vortex_body_autosleeplinearspeedthreshold,false},
+    {"sim_vortex_body_autosleeplinearaccelthreshold",sim_vortex_body_autosleeplinearaccelthreshold,false},
+    {"sim_vortex_body_autosleepangularspeedthreshold",sim_vortex_body_autosleepangularspeedthreshold,false},
+    {"sim_vortex_body_autosleepangularaccelthreshold",sim_vortex_body_autosleepangularaccelthreshold,false},
+    {"sim_vortex_body_skinthickness",sim_vortex_body_skinthickness,false},
+    {"sim_vortex_body_autoangulardampingtensionratio",sim_vortex_body_autoangulardampingtensionratio,false},
+    {"sim_vortex_body_primaxisvectorx",sim_vortex_body_primaxisvectorx,false},
+    {"sim_vortex_body_primaxisvectory",sim_vortex_body_primaxisvectory,false},
+    {"sim_vortex_body_primaxisvectorz",sim_vortex_body_primaxisvectorz,false},
+    {"sim_vortex_body_primlinearaxisfrictionmodel",sim_vortex_body_primlinearaxisfrictionmodel,false},
+    {"sim_vortex_body_seclinearaxisfrictionmodel",sim_vortex_body_seclinearaxisfrictionmodel,false},
+    {"sim_vortex_body_primangulararaxisfrictionmodel",sim_vortex_body_primangulararaxisfrictionmodel,false},
+    {"sim_vortex_body_secmangulararaxisfrictionmodel",sim_vortex_body_secmangulararaxisfrictionmodel,false},
+    {"sim_vortex_body_normalmangulararaxisfrictionmodel",sim_vortex_body_normalmangulararaxisfrictionmodel,false},
+    {"sim_vortex_body_bitcoded",sim_vortex_body_bitcoded,false},
+    {"sim_vortex_body_autosleepsteplivethreshold",sim_vortex_body_autosleepsteplivethreshold,false},
+    {"sim_vortex_body_materialuniqueid",sim_vortex_body_materialuniqueid,false},
+    {"sim_vortex_body_pureshapesasconvex",sim_vortex_body_pureshapesasconvex,false},
+    {"sim_vortex_body_convexshapesasrandom",sim_vortex_body_convexshapesasrandom,false},
+    {"sim_vortex_body_randomshapesasterrain",sim_vortex_body_randomshapesasterrain,false},
+    {"sim_vortex_body_fastmoving",sim_vortex_body_fastmoving,false},
+    {"sim_vortex_body_autoslip",sim_vortex_body_autoslip,false},
+    {"sim_vortex_body_seclinaxissameasprimlinaxis",sim_vortex_body_seclinaxissameasprimlinaxis,false},
+    {"sim_vortex_body_secangaxissameasprimangaxis",sim_vortex_body_secangaxissameasprimangaxis,false},
+    {"sim_vortex_body_normangaxissameasprimangaxis",sim_vortex_body_normangaxissameasprimangaxis,false},
+    {"sim_vortex_body_autoangulardamping",sim_vortex_body_autoangulardamping,false},
+    {"sim_newton_global_stepsize",sim_newton_global_stepsize,false},
+    {"sim_newton_global_contactmergetolerance",sim_newton_global_contactmergetolerance,false},
+    {"sim_newton_global_constraintsolvingiterations",sim_newton_global_constraintsolvingiterations,false},
+    {"sim_newton_global_bitcoded",sim_newton_global_bitcoded,false},
+    {"sim_newton_global_multithreading",sim_newton_global_multithreading,false},
+    {"sim_newton_global_exactsolver",sim_newton_global_exactsolver,false},
+    {"sim_newton_global_highjointaccuracy",sim_newton_global_highjointaccuracy,false},
+    {"sim_newton_joint_dependencyfactor",sim_newton_joint_dependencyfactor,false},
+    {"sim_newton_joint_dependencyoffset",sim_newton_joint_dependencyoffset,false},
+    {"sim_newton_joint_objectid",sim_newton_joint_objectid,false},
+    {"sim_newton_joint_dependentobjectid",sim_newton_joint_dependentobjectid,false},
+    {"sim_newton_body_staticfriction",sim_newton_body_staticfriction,false},
+    {"sim_newton_body_kineticfriction",sim_newton_body_kineticfriction,false},
+    {"sim_newton_body_restitution",sim_newton_body_restitution,false},
+    {"sim_newton_body_lineardrag",sim_newton_body_lineardrag,false},
+    {"sim_newton_body_angulardrag",sim_newton_body_angulardrag,false},
+    {"sim_newton_body_bitcoded",sim_newton_body_bitcoded,false},
+    {"sim_newton_body_fastmoving",sim_newton_body_fastmoving,false},
+    {"sim_vortex_bodyfrictionmodel_box",sim_vortex_bodyfrictionmodel_box,false},
+    {"sim_vortex_bodyfrictionmodel_scaledbox",sim_vortex_bodyfrictionmodel_scaledbox,false},
+    {"sim_vortex_bodyfrictionmodel_proplow",sim_vortex_bodyfrictionmodel_proplow,false},
+    {"sim_vortex_bodyfrictionmodel_prophigh",sim_vortex_bodyfrictionmodel_prophigh,false},
+    {"sim_vortex_bodyfrictionmodel_scaledboxfast",sim_vortex_bodyfrictionmodel_scaledboxfast,false},
+    {"sim_vortex_bodyfrictionmodel_neutral",sim_vortex_bodyfrictionmodel_neutral,false},
+    {"sim_vortex_bodyfrictionmodel_none",sim_vortex_bodyfrictionmodel_none,false},
+    {"sim_bullet_constraintsolvertype_sequentialimpulse",sim_bullet_constraintsolvertype_sequentialimpulse,false},
+    {"sim_bullet_constraintsolvertype_nncg",sim_bullet_constraintsolvertype_nncg,false},
+    {"sim_bullet_constraintsolvertype_dantzig",sim_bullet_constraintsolvertype_dantzig,false},
+    {"sim_bullet_constraintsolvertype_projectedgaussseidel",sim_bullet_constraintsolvertype_projectedgaussseidel,false},
+    {"sim_filtercomponent_originalimage",sim_filtercomponent_originalimage_deprecated,false},
+    {"sim_filtercomponent_originaldepth",sim_filtercomponent_originaldepth_deprecated,false},
+    {"sim_filtercomponent_uniformimage",sim_filtercomponent_uniformimage_deprecated,false},
+    {"sim_filtercomponent_tooutput",sim_filtercomponent_tooutput_deprecated,false},
+    {"sim_filtercomponent_tobuffer1",sim_filtercomponent_tobuffer1_deprecated,false},
+    {"sim_filtercomponent_tobuffer2",sim_filtercomponent_tobuffer2_deprecated,false},
+    {"sim_filtercomponent_frombuffer1",sim_filtercomponent_frombuffer1_deprecated,false},
+    {"sim_filtercomponent_frombuffer2",sim_filtercomponent_frombuffer2_deprecated,false},
+    {"sim_filtercomponent_swapbuffers",sim_filtercomponent_swapbuffers_deprecated,false},
+    {"sim_filtercomponent_addbuffer1",sim_filtercomponent_addbuffer1_deprecated,false},
+    {"sim_filtercomponent_subtractbuffer1",sim_filtercomponent_subtractbuffer1_deprecated,false},
+    {"sim_filtercomponent_multiplywithbuffer1",sim_filtercomponent_multiplywithbuffer1_deprecated,false},
+    {"sim_filtercomponent_horizontalflip",sim_filtercomponent_horizontalflip_deprecated,false},
+    {"sim_filtercomponent_verticalflip",sim_filtercomponent_verticalflip_deprecated,false},
+    {"sim_filtercomponent_rotate",sim_filtercomponent_rotate_deprecated,false},
+    {"sim_filtercomponent_shift",sim_filtercomponent_shift_deprecated,false},
+    {"sim_filtercomponent_resize",sim_filtercomponent_resize_deprecated,false},
+    {"sim_filtercomponent_3x3filter",sim_filtercomponent_3x3filter_deprecated,false},
+    {"sim_filtercomponent_5x5filter",sim_filtercomponent_5x5filter_deprecated,false},
+    {"sim_filtercomponent_sharpen",sim_filtercomponent_sharpen_deprecated,false},
+    {"sim_filtercomponent_edge",sim_filtercomponent_edge_deprecated,false},
+    {"sim_filtercomponent_rectangularcut",sim_filtercomponent_rectangularcut_deprecated,false},
+    {"sim_filtercomponent_circularcut",sim_filtercomponent_circularcut_deprecated,false},
+    {"sim_filtercomponent_normalize",sim_filtercomponent_normalize_deprecated,false},
+    {"sim_filtercomponent_intensityscale",sim_filtercomponent_intensityscale_deprecated,false},
+    {"sim_filtercomponent_keeporremovecolors",sim_filtercomponent_keeporremovecolors_deprecated,false},
+    {"sim_filtercomponent_scaleandoffsetcolors",sim_filtercomponent_scaleandoffsetcolors_deprecated,false},
+    {"sim_filtercomponent_binary",sim_filtercomponent_binary_deprecated,false},
+    {"sim_filtercomponent_swapwithbuffer1",sim_filtercomponent_swapwithbuffer1_deprecated,false},
+    {"sim_filtercomponent_addtobuffer1",sim_filtercomponent_addtobuffer1_deprecated,false},
+    {"sim_filtercomponent_subtractfrombuffer1",sim_filtercomponent_subtractfrombuffer1_deprecated,false},
+    {"sim_filtercomponent_correlationwithbuffer1",sim_filtercomponent_correlationwithbuffer1_deprecated,false},
+    {"sim_filtercomponent_colorsegmentation",sim_filtercomponent_colorsegmentation_deprecated,false},
+    {"sim_filtercomponent_blobextraction",sim_filtercomponent_blobextraction_deprecated,false},
+    {"sim_filtercomponent_imagetocoord",sim_filtercomponent_imagetocoord_deprecated,false},
+    {"sim_filtercomponent_pixelchange",sim_filtercomponent_pixelchange_deprecated,false},
+    {"sim_filtercomponent_velodyne",sim_filtercomponent_velodyne_deprecated,false},
+    {"sim_filtercomponent_todepthoutput",sim_filtercomponent_todepthoutput_deprecated,false},
+    {"sim_filtercomponent_customized",sim_filtercomponent_customized_deprecated,false},
+    {"sim_buffer_uint8",sim_buffer_uint8,false},
+    {"sim_buffer_int8",sim_buffer_int8,false},
+    {"sim_buffer_uint16",sim_buffer_uint16,false},
+    {"sim_buffer_int16",sim_buffer_int16,false},
+    {"sim_buffer_uint32",sim_buffer_uint32,false},
+    {"sim_buffer_int32",sim_buffer_int32,false},
+    {"sim_buffer_float",sim_buffer_float,false},
+    {"sim_buffer_double",sim_buffer_double,false},
+    {"sim_buffer_uint8rgb",sim_buffer_uint8rgb,false},
+    {"sim_buffer_uint8bgr",sim_buffer_uint8bgr,false},
+    {"sim_imgcomb_vertical",sim_imgcomb_vertical,false},
+    {"sim_imgcomb_horizontal",sim_imgcomb_horizontal,false},
+    {"sim_dynmat_default",sim_dynmat_default,false},
+    {"sim_dynmat_highfriction",sim_dynmat_highfriction,false},
+    {"sim_dynmat_lowfriction",sim_dynmat_lowfriction,false},
+    {"sim_dynmat_nofriction",sim_dynmat_nofriction,false},
+    {"sim_dynmat_reststackgrasp",sim_dynmat_reststackgrasp,false},
+    {"sim_dynmat_foot",sim_dynmat_foot,false},
+    {"sim_dynmat_wheel",sim_dynmat_wheel,false},
+    {"sim_dynmat_gripper",sim_dynmat_gripper,false},
+    {"sim_dynmat_floor",sim_dynmat_floor,false},
+    // for backward compatibility:
+    {"sim_pplanfloatparam_x_min",sim_pplanfloatparam_x_min,false},
+    {"sim_pplanfloatparam_x_range",sim_pplanfloatparam_x_range,false},
+    {"sim_pplanfloatparam_y_min",sim_pplanfloatparam_y_min,false},
+    {"sim_pplanfloatparam_y_range",sim_pplanfloatparam_y_range,false},
+    {"sim_pplanfloatparam_z_min",sim_pplanfloatparam_z_min,false},
+    {"sim_pplanfloatparam_z_range",sim_pplanfloatparam_z_range,false},
+    {"sim_pplanfloatparam_delta_min",sim_pplanfloatparam_delta_min,false},
+    {"sim_pplanfloatparam_delta_range",sim_pplanfloatparam_delta_range,false},
+    {"sim_ui_menu_title",sim_ui_menu_title,false},
+    {"sim_ui_menu_minimize",sim_ui_menu_minimize,false},
+    {"sim_ui_menu_close",sim_ui_menu_close,false},
+    {"sim_api_errormessage_ignore",sim_api_errormessage_ignore,false},
+    {"sim_api_errormessage_report",sim_api_errormessage_report,false},
+    {"sim_api_errormessage_output",sim_api_errormessage_output,false},
+    {"sim_ui_property_visible",sim_ui_property_visible,false},
+    {"sim_ui_property_visibleduringsimulationonly",sim_ui_property_visibleduringsimulationonly,false},
+    {"sim_ui_property_moveable",sim_ui_property_moveable,false},
+    {"sim_ui_property_relativetoleftborder",sim_ui_property_relativetoleftborder,false},
+    {"sim_ui_property_relativetotopborder",sim_ui_property_relativetotopborder,false},
+    {"sim_ui_property_fixedwidthfont",sim_ui_property_fixedwidthfont,false},
+    {"sim_ui_property_systemblock",sim_ui_property_systemblock,false},
+    {"sim_ui_property_settocenter",sim_ui_property_settocenter,false},
+    {"sim_ui_property_rolledup",sim_ui_property_rolledup,false},
+    {"sim_ui_property_selectassociatedobject",sim_ui_property_selectassociatedobject,false},
+    {"sim_ui_property_visiblewhenobjectselected",sim_ui_property_visiblewhenobjectselected,false},
+    {"sim_ui_property_systemblockcanmovetofront",sim_ui_property_systemblockcanmovetofront,false},
+    {"sim_ui_property_pauseactive",sim_ui_property_pauseactive,false},
+    {"sim_2delement_menu_title",sim_ui_menu_title,false},
+    {"sim_2delement_menu_minimize",sim_ui_menu_minimize,false},
+    {"sim_2delement_menu_close",sim_ui_menu_close,false},
+    {"sim_2delement_property_visible",sim_ui_property_visible,false},
+    {"sim_2delement_property_visibleduringsimulationonly",sim_ui_property_visibleduringsimulationonly,false},
+    {"sim_2delement_property_moveable",sim_ui_property_moveable,false},
+    {"sim_2delement_property_relativetoleftborder",sim_ui_property_relativetoleftborder,false},
+    {"sim_2delement_property_relativetotopborder",sim_ui_property_relativetotopborder,false},
+    {"sim_2delement_property_fixedwidthfont",sim_ui_property_fixedwidthfont,false},
+    {"sim_2delement_property_systemblock",sim_ui_property_systemblock,false},
+    {"sim_2delement_property_settocenter",sim_ui_property_settocenter,false},
+    {"sim_2delement_property_rolledup",sim_ui_property_rolledup,false},
+    {"sim_2delement_property_selectassociatedobject",sim_ui_property_selectassociatedobject,false},
+    {"sim_2delement_property_visiblewhenobjectselected",sim_ui_property_visiblewhenobjectselected,false},
+    {"sim_pathproperty_invert_velocity",sim_pathproperty_invert_velocity_deprecated,false},
+    {"sim_pathproperty_infinite_acceleration",sim_pathproperty_infinite_acceleration_deprecated,false},
+    {"sim_pathproperty_auto_velocity_profile_translation",sim_pathproperty_auto_velocity_profile_translation_deprecated,false},
+    {"sim_pathproperty_auto_velocity_profile_rotation",sim_pathproperty_auto_velocity_profile_rotation_deprecated,false},
+    {"sim_pathproperty_endpoints_at_zero",sim_pathproperty_endpoints_at_zero_deprecated,false},
+    {"sim_boolparam_joint_motion_handling_enabled",sim_boolparam_joint_motion_handling_enabled_deprecated,false},
+    {"sim_boolparam_path_motion_handling_enabled",sim_boolparam_path_motion_handling_enabled_deprecated,false},
+    {"sim_jointmode_motion",sim_jointmode_motion_deprecated,false},
+    {"sim.syscb_aos_run",sim_syscb_aos_run_old,false},
+    {"sim.addonscriptcall_run",sim_syscb_aos_run_old,false},
+    {"sim_addonscriptcall_run",sim_syscb_aos_run_old,false},
+    {"sim_navigation_camerafly",sim_navigation_camerafly_old,false},
+    {"sim_banner_left",sim_banner_left,false},
+    {"sim_banner_right",sim_banner_right,false},
+    {"sim_banner_nobackground",sim_banner_nobackground,false},
+    {"sim_banner_overlay",sim_banner_overlay,false},
+    {"sim_banner_followparentvisibility",sim_banner_followparentvisibility,false},
+    {"sim_banner_clickselectsparent",sim_banner_clickselectsparent,false},
+    {"sim_banner_clicktriggersevent",sim_banner_clicktriggersevent,false},
+    {"sim_banner_facingcamera",sim_banner_facingcamera,false},
+    {"sim_banner_fullyfacingcamera",sim_banner_fullyfacingcamera,false},
+    {"sim_banner_backfaceculling",sim_banner_backfaceculling,false},
+    {"sim_banner_keepsamesize",sim_banner_keepsamesize,false},
+    {"sim_banner_bitmapfont",sim_banner_bitmapfont,false},
+    {"",-1,false}
+};
+
+bool isObjectAssociatedWithThisThreadedChildScriptValid_old(luaWrap_lua_State* L)
+{
+    int id=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(id);
+    if (script==nullptr)
+        return(false);
+    int h=script->getObjectHandleThatScriptIsAttachedTo_child();
+    return(h!=-1);
+}
+
+void pushCorrectTypeOntoLuaStack_old(luaWrap_lua_State* L,const std::string& buff)
+{ // Pushes nil, false, true, number or string (in that order!!) onto the stack depending on the buff content!
+    int t=getCorrectType_old(buff);
+    if (t==0)
+        luaWrap_lua_pushnil(L);
+    if (t==1)
+        luaWrap_lua_pushboolean(L,0);
+    if (t==2)
+        luaWrap_lua_pushboolean(L,1);
+    if (t==3)
+    {
+        float floatVal;
+        tt::getValidFloat(buff.c_str(),floatVal);
+        luaWrap_lua_pushnumber(L,floatVal);
+    }
+    if (t==4)
+        luaWrap_lua_pushlstring(L,buff.c_str(),buff.length());
+}
+
+int getCorrectType_old(const std::string& buff)
+{ // returns 0=nil, 1=boolean false, 2=boolean true, 3=number or 4=string (in that order!!) depending on the buff content!
+    if (buff.length()!=0)
+    {
+        if (buff.length()!=strlen(buff.c_str()))
+            return(4); // We have embedded zeros, this has definitively to be a string:
+    }
+    if (strcmp(buff.c_str(),"nil")==0)
+        return(0);
+    if (strcmp(buff.c_str(),"false")==0)
+        return(1);
+    if (strcmp(buff.c_str(),"true")==0)
+        return(2);
+    float floatVal;
+    if (tt::getValidFloat(buff.c_str(),floatVal))
+        return(3);
+    return(4);
+}
+
+void getScriptTree_old(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scriptHandles)
+{ // Returns all scripts that are built under the current one
+    scriptHandles.clear();
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+
+    CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
+    if (it!=nullptr)
+    {
+        if (it->getScriptType()==sim_scripttype_mainscript)
+        { // we have a main script here
+            if (selfIncluded)
+                scriptHandles.push_back(currentScriptID);
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
+            {
+                CSceneObject* q=App::currentWorld->sceneObjects->getObjectFromIndex(i);
+                CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(q->getObjectHandle());
+                if (lso!=nullptr)
+                    scriptHandles.push_back(lso->getScriptHandle());
+            }
+        }
+
+        if (it->getScriptType()==sim_scripttype_childscript)
+        { // we have a child script
+            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo_child());
+            if (obj!=nullptr)
+            { // should always pass
+                if (selfIncluded)
+                    scriptHandles.push_back(currentScriptID);
+
+                std::vector<CSceneObject*> objList;
+                obj->getAllObjectsRecursive(&objList,false);
+                for (int i=0;i<int(objList.size());i++)
+                {
+                    CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objList[i]->getObjectHandle());
+                    if (lso!=nullptr)
+                        scriptHandles.push_back(lso->getScriptHandle());
+                }
+            }
+        }
+
+        if (it->getScriptType()==sim_scripttype_customizationscript)
+        { // we have a customization script
+            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo_customization());
+            if (obj!=nullptr)
+            { // should always pass
+                if (selfIncluded)
+                {
+                    CScriptObject* aScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    if (aScript!=nullptr)
+                        scriptHandles.push_back(aScript->getScriptHandle());
+                }
+
+                std::vector<CSceneObject*> objList;
+                obj->getAllObjectsRecursive(&objList,false);
+                for (int i=0;i<int(objList.size());i++)
+                {
+                    CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objList[i]->getObjectHandle());
+                    if (lso!=nullptr)
+                    {
+                        scriptHandles.push_back(lso->getScriptHandle());
+                    }
+                }
+            }
+        }
+    }
+}
+
+void getScriptChain_old(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std::vector<int>& scriptHandles)
+{ // Returns all script IDs that are parents (or grand-parents,grand-grand-parents, etc.) of the current one
+    scriptHandles.clear();
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+
+    CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
+
+    if (it!=nullptr)
+    {
+        if (it->getScriptType()==sim_scripttype_mainscript)
+        { // we have a main script here
+            if (selfIncluded&&mainIncluded)
+                scriptHandles.push_back(currentScriptID);
+        }
+
+        if (it->getScriptType()==sim_scripttype_childscript)
+        { // we have a child script here
+            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo_child());
+            if (obj!=nullptr)
+            {
+                if (selfIncluded)
+                    scriptHandles.push_back(currentScriptID);
+                while (obj->getParent()!=nullptr)
+                {
+                    obj=obj->getParent();
+                    CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    if (lso!=nullptr)
+                        scriptHandles.push_back(lso->getScriptHandle());
+                }
+                if (mainIncluded)
+                {
+                    CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getMainScript();
+                    if (lso!=nullptr)
+                        scriptHandles.push_back(lso->getScriptHandle());
+                }
+            }
+        }
+
+        if (it->getScriptType()==sim_scripttype_customizationscript)
+        { // we have a customization script here
+            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo_customization());
+            if (obj!=nullptr)
+            {
+                if (selfIncluded)
+                {
+                    CScriptObject* aScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    if (aScript!=nullptr)
+                        scriptHandles.push_back(aScript->getScriptHandle());
+                }
+                while (obj->getParent()!=nullptr)
+                {
+                    obj=obj->getParent();
+                    CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    if (lso!=nullptr)
+                        scriptHandles.push_back(lso->getScriptHandle());
+                }
+                if (mainIncluded)
+                {
+                    CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getMainScript();
+                    if (lso!=nullptr)
+                        scriptHandles.push_back(lso->getScriptHandle());
+                }
+            }
+        }
+    }
+}
+bool readCustomFunctionDataFromStack_old(luaWrap_lua_State* L,int ind,int dataType,
+                                     std::vector<char>& inBoolVector,
+                                     std::vector<int>& inIntVector,
+                                     std::vector<float>& inFloatVector,
+                                     std::vector<double>& inDoubleVector,
+                                     std::vector<std::string>& inStringVector,
+                                     std::vector<std::string>& inCharVector,
+                                     std::vector<int>& inInfoVector)
+{ // return value false means there is no more data on the stack
+    if (luaWrap_lua_gettop(L)<ind)
+        return(false); // not enough data on the stack
+    inInfoVector.push_back(sim_script_arg_invalid); // Dummy value for type
+    inInfoVector.push_back(0);                      // dummy value for size
+    if (luaWrap_lua_isnil(L,ind))
+    { // Special case: nil should not generate a sim_script_arg_invalid type!
+        inInfoVector[inInfoVector.size()-2]=sim_script_arg_null;
+        return(true);
+    }
+    if (dataType&sim_script_arg_table)
+    { // we have to read a table:
+        dataType^=sim_script_arg_table;
+        if (!luaWrap_lua_istable(L,ind))
+            return(true); // this is not a table
+        int dataSize=int(luaWrap_lua_rawlen(L,ind));
+        std::vector<char> boolV;
+        std::vector<int> intV;
+        std::vector<float> floatV;
+        std::vector<double> doubleV;
+        std::vector<std::string> stringV;
+        for (int i=0;i<dataSize;i++)
+        {
+            luaWrap_lua_rawgeti(L,ind,i+1);
+            if (dataType==sim_script_arg_bool)
+            {
+                if (!luaWrap_lua_isboolean(L,-1))
+                {
+                    luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
+                    return(true); // we don't have the correct data type
+                }
+                boolV.push_back(luaToBool(L,-1));
+            }
+            else if (dataType==sim_script_arg_int32)
+            {
+                if (!luaWrap_lua_isnumber(L,-1))
+                {
+                    luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
+                    return(true); // we don't have the correct data type
+                }
+                intV.push_back(luaToInt(L,-1));
+            }
+            else if (dataType==sim_script_arg_float)
+            {
+                if (!luaWrap_lua_isnumber(L,-1))
+                {
+                    luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
+                    return(true); // we don't have the correct data type
+                }
+                floatV.push_back(luaToFloat(L,-1));
+            }
+            else if (dataType==sim_script_arg_double)
+            {
+                if (!luaWrap_lua_isnumber(L,-1))
+                {
+                    luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
+                    return(true); // we don't have the correct data type
+                }
+                doubleV.push_back(luaToDouble(L,-1));
+            }
+            else if (dataType==sim_script_arg_string)
+            {
+                if (!luaWrap_lua_isstring(L,-1))
+                {
+                    luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
+                    return(true); // we don't have the correct data type
+                }
+                stringV.push_back(std::string(luaWrap_lua_tostring(L,-1)));
+            }
+            else
+            {
+                luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
+                return(true); // data type not recognized!
+            }
+            luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
+        }
+        // All values in the tables passed the check!
+        for (int i=0;i<int(boolV.size());i++)
+            inBoolVector.push_back(boolV[i]);
+        for (int i=0;i<int(intV.size());i++)
+            inIntVector.push_back(intV[i]);
+        for (int i=0;i<int(floatV.size());i++)
+            inFloatVector.push_back(floatV[i]);
+        for (int i=0;i<int(doubleV.size());i++)
+            inDoubleVector.push_back(doubleV[i]);
+        for (int i=0;i<int(stringV.size());i++)
+            inStringVector.push_back(stringV[i]);
+        inInfoVector[inInfoVector.size()-1]=dataSize; // Size of the table
+        inInfoVector[inInfoVector.size()-2]=dataType|sim_script_arg_table; // Type
+        return(true);
+    }
+    else
+    { // we have simple data here (not a table)
+        if (dataType==sim_script_arg_bool)
+        {
+            if (!luaWrap_lua_isboolean(L,ind))
+                return(true); // we don't have the correct data type
+            inBoolVector.push_back(luaToBool(L,ind));
+            inInfoVector[inInfoVector.size()-2]=dataType;
+        }
+        else if (dataType==sim_script_arg_int32)
+        {
+            if (!luaWrap_lua_isnumber(L,ind))
+                return(true); // we don't have the correct data type
+            inIntVector.push_back(luaToInt(L,ind));
+            inInfoVector[inInfoVector.size()-2]=dataType;
+        }
+        else if (dataType==sim_script_arg_float)
+        {
+            if (!luaWrap_lua_isnumber(L,ind))
+                return(true); // we don't have the correct data type
+            inFloatVector.push_back(luaToFloat(L,ind));
+            inInfoVector[inInfoVector.size()-2]=dataType;
+        }
+        else if (dataType==sim_script_arg_double)
+        {
+            if (!luaWrap_lua_isnumber(L,ind))
+                return(true); // we don't have the correct data type
+            inDoubleVector.push_back(luaToDouble(L,ind));
+            inInfoVector[inInfoVector.size()-2]=dataType;
+        }
+        else if (dataType==sim_script_arg_string)
+        {
+            if (!luaWrap_lua_isstring(L,ind))
+                return(true); // we don't have the correct data type
+            inStringVector.push_back(std::string(luaWrap_lua_tostring(L,ind)));
+            inInfoVector[inInfoVector.size()-2]=dataType;
+        }
+        else if (dataType==sim_script_arg_charbuff)
+        {
+            if (!luaWrap_lua_isstring(L,ind))
+                return(true); // we don't have the correct data type
+            size_t dataLength;
+            char* data=(char*)luaWrap_lua_tolstring(L,ind,&dataLength);
+            inCharVector.push_back(std::string(data,dataLength));
+            inInfoVector[inInfoVector.size()-2]=dataType;
+            inInfoVector[inInfoVector.size()-1]=int(dataLength);
+        }
+        return(true); // data type not recognized!
+    }
+    return(true);
+}
+
+void writeCustomFunctionDataOntoStack_old(luaWrap_lua_State* L,int dataType,int dataSize,
+                                      unsigned char* boolData,int& boolDataPos,
+                                      int* intData,int& intDataPos,
+                                      float* floatData,int& floatDataPos,
+                                      double* doubleData,int& doubleDataPos,
+                                      char* stringData,int& stringDataPos,
+                                      char* charData,int& charDataPos)
+{
+    if (((dataType|sim_script_arg_table)-sim_script_arg_table)==sim_script_arg_charbuff)
+    { // special handling here
+        luaWrap_lua_pushlstring(L,charData+charDataPos,dataSize);
+        charDataPos+=dataSize;
+    }
+    else
+    {
+        int newTablePos=0;
+        bool weHaveATable=false;
+        if (dataType&sim_script_arg_table)
+        { // we have a table
+            luaWrap_lua_newtable(L);
+            newTablePos=luaWrap_lua_gettop(L);
+            dataType^=sim_script_arg_table;
+            weHaveATable=true;
+        }
+        else
+            dataSize=1;
+        for (int i=0;i<dataSize;i++)
+        {
+            if (dataType==sim_script_arg_bool)
+                luaWrap_lua_pushboolean(L,boolData[boolDataPos++]);
+            else if (dataType==sim_script_arg_int32)
+                luaWrap_lua_pushinteger(L,intData[intDataPos++]);
+            else if (dataType==sim_script_arg_float)
+                luaWrap_lua_pushnumber(L,floatData[floatDataPos++]);
+            else if (dataType==sim_script_arg_double)
+                luaWrap_lua_pushnumber(L,doubleData[doubleDataPos++]);
+            else if (dataType==sim_script_arg_string)
+            {
+                luaWrap_lua_pushstring(L,stringData+stringDataPos);
+                stringDataPos+=(int)strlen(stringData+stringDataPos)+1; // Thanks to Ulrich Schwesinger for noticing a bug here!
+            }
+            else
+                luaWrap_lua_pushnil(L); // that is an error!
+
+            if (weHaveATable) // that's when we have a table
+                luaWrap_lua_rawseti(L,newTablePos,i+1);
+        }
+    }
+}
 int _simResetMill(luaWrap_lua_State* L)
 { // DEPRECATED since V4.0.1. has no effect anymore
     LUA_START("sim.ResetMill");
@@ -15356,7 +14855,7 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
             else
             { // non-modal dlg
                 int handle=-1;
-                CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
+                CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
                 if (it!=nullptr)
                 {
                     std::string callbackFunction(luaWrap_lua_tostring(L,3));
@@ -15397,7 +14896,7 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
 #endif
         if ( (res>0)&&(!ignoreCb) )
         {   // We call the callback directly from here:
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
             if (it!=nullptr)
             {
                 CInterfaceStack stack;
@@ -15516,598 +15015,709 @@ int _simHandleTracing(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simMoveToPosition(luaWrap_lua_State* L)
-{ // can only be called from a script running in a thread!! DEPRECATED
-    TRACE_LUA_API;
-    LUA_START("simMoveToPosition");
+static int _nextMemHandle_old=0;
+static std::vector<int> _memHandles_old;
+static std::vector<void*> _memBuffers_old;
 
-    if (!VThread::isCurrentThreadTheMainSimulationThread())
-    {
-        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        { // Those are the arguments that are always required! (the rest can be ignored or set to nil!
-            int objID=luaWrap_lua_tointeger(L,1);
-            int relativeToObjID=luaWrap_lua_tointeger(L,2);
-            float posTarget[3];
-            float eulerTarget[3];
-            float maxVelocity;
-            CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
-            CSceneObject* relToObject=nullptr;
-            float accel=0.0f; // means infinite accel!! (default value)
-            float angleToLinearCoeff=0.1f/(90.0f*degToRad_f); // (default value)
-            int distCalcMethod=sim_distcalcmethod_dl_if_nonzero; // (default value)
-            bool foundError=false;
-            if ((!foundError)&&(object==nullptr))
-            {
+typedef struct{
+    float accel;
+    float vdl;
+    float currentPos;
+    float lastTime;
+    float maxVelocity;
+    float currentVel;
+    C7Vector startTr;
+    C7Vector targetTr;
+    int objID;
+    CSceneObject* object;
+    int relativeToObjID;
+    CSceneObject* relToObject;
+    unsigned char posAndOrient;
+} simMoveToPosData_old;
+
+typedef struct{
+    float lastTime;
+    bool sameTimeFinish;
+    int maxVirtualDistIndex;
+    float maxVelocity;
+    float accel;
+    std::vector<int> jointHandles;
+    std::vector<float> jointCurrentVirtualPositions;
+    std::vector<float> jointCurrentVirtualVelocities;
+    std::vector<float> jointStartPositions;
+    std::vector<float> jointTargetPositions;
+    std::vector<float> jointVirtualDistances;
+    std::vector<float> jointMaxVelocities;
+    std::vector<float> jointAccels;
+} simMoveToJointPosData_old;
+
+int _sim_moveToPos_1(luaWrap_lua_State* L)
+{ // for backward compatibility with simMoveToPosition on old threaded scripts
+    TRACE_LUA_API;
+    LUA_START("sim._moveToPos_1");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    { // Those are the arguments that are always required! (the rest can be ignored or set to nil!
+        int objID=luaWrap_lua_tointeger(L,1);
+        int relativeToObjID=luaWrap_lua_tointeger(L,2);
+        float posTarget[3];
+        float eulerTarget[3];
+        float maxVelocity;
+        CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
+        CSceneObject* relToObject=nullptr;
+        float accel=0.0f; // means infinite accel!! (default value)
+        float angleToLinearCoeff=0.1f/(90.0f*degToRad_f); // (default value)
+        int distCalcMethod=sim_distcalcmethod_dl_if_nonzero; // (default value)
+        bool foundError=false;
+        if ((!foundError)&&(object==nullptr))
+        {
+            errorString=SIM_ERROR_OBJECT_INEXISTANT;
+            foundError=true;
+        }
+        if ((!foundError)&&(relativeToObjID==sim_handle_parent))
+        {
+            relativeToObjID=-1;
+            CSceneObject* parent=object->getParent();
+            if (parent!=nullptr)
+                relativeToObjID=parent->getObjectHandle();
+        }
+        if ((!foundError)&&(relativeToObjID!=-1))
+        {
+            relToObject=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjID);
+            if (relToObject==nullptr)
+            { // error, object doesn't exist!
                 errorString=SIM_ERROR_OBJECT_INEXISTANT;
                 foundError=true;
             }
-            if ((!foundError)&&(relativeToObjID==sim_handle_parent))
-            {
-                relativeToObjID=-1;
-                CSceneObject* parent=object->getParent();
-                if (parent!=nullptr)
-                    relativeToObjID=parent->getObjectHandle();
-            }
-            if ((!foundError)&&(relativeToObjID!=-1))
-            {
-                relToObject=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjID);
-                if (relToObject==nullptr)
-                { // error, object doesn't exist!
-                    errorString=SIM_ERROR_OBJECT_INEXISTANT;
-                    foundError=true;
-                }
-            }
+        }
 
-            // Now check the optional arguments:
-            int res;
-            unsigned char posAndOrient=0;
-            if (!foundError) // position argument:
-            {
-                res=checkOneGeneralInputArgument(L,3,lua_arg_number,3,true,true,&errorString);
-                if (res==2)
-                { // get the data
-                    getFloatsFromTable(L,3,3,posTarget);
-                    posAndOrient|=1;
-                }
-                foundError=(res==-1);
+        // Now check the optional arguments:
+        int res;
+        unsigned char posAndOrient=0;
+        if (!foundError) // position argument:
+        {
+            res=checkOneGeneralInputArgument(L,3,lua_arg_number,3,true,true,&errorString);
+            if (res==2)
+            { // get the data
+                getFloatsFromTable(L,3,3,posTarget);
+                posAndOrient|=1;
             }
-            if (!foundError) // orientation argument:
-            {
-                res=checkOneGeneralInputArgument(L,4,lua_arg_number,3,true,true,&errorString);
-                if (res==2)
-                { // get the data
-                    getFloatsFromTable(L,4,3,eulerTarget);
-                    posAndOrient|=2;
-                }
-                foundError=(res==-1);
+            foundError=(res==-1);
+        }
+        if (!foundError) // orientation argument:
+        {
+            res=checkOneGeneralInputArgument(L,4,lua_arg_number,3,true,true,&errorString);
+            if (res==2)
+            { // get the data
+                getFloatsFromTable(L,4,3,eulerTarget);
+                posAndOrient|=2;
             }
-            if ((!foundError)&&(posAndOrient==0))
-            {
+            foundError=(res==-1);
+        }
+        if ((!foundError)&&(posAndOrient==0))
+        {
+            foundError=true;
+            errorString="Target position and/or target orientation has to be specified.";
+        }
+        if (!foundError) // target velocity argument:
+        {
+            res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,false,false,&errorString);
+            if (res==2)
+            { // get the data
+                maxVelocity=luaToFloat(L,5);
+            }
+            else
                 foundError=true;
-                errorString="Target position and/or target orientation has to be specified.";
+        }
+        if (!foundError) // Accel argument:
+        {
+            res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,true,&errorString);
+            if (res==2)
+            { // get the data
+                accel=fabs(luaToFloat(L,6));
             }
-            if (!foundError) // target velocity argument:
-            {
-                res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,false,false,&errorString);
-                if (res==2)
-                { // get the data
-                    maxVelocity=luaToFloat(L,5);
-                }
-                else
-                    foundError=true;
+            foundError=(res==-1);
+        }
+        if (!foundError) // distance method:
+        {
+            res=checkOneGeneralInputArgument(L,7,lua_arg_number,2,true,true,&errorString);
+            if (res==2)
+            { // get the data
+                float tmpF[2];
+                getFloatsFromTable(L,7,2,tmpF);
+                angleToLinearCoeff=tmpF[1];
+                getIntsFromTable(L,7,1,&distCalcMethod);
             }
-            if (!foundError) // Accel argument:
-            {
-                res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,true,&errorString);
-                if (res==2)
-                { // get the data
-                    accel=fabs(luaToFloat(L,6));
-                }
-                foundError=(res==-1);
-            }
-            if (!foundError) // distance method:
-            {
-                res=checkOneGeneralInputArgument(L,7,lua_arg_number,2,true,true,&errorString);
-                if (res==2)
-                { // get the data
-                    float tmpF[2];
-                    getFloatsFromTable(L,7,2,tmpF);
-                    angleToLinearCoeff=tmpF[1];
-                    getIntsFromTable(L,7,1,&distCalcMethod);
-                }
-                foundError=(res==-1);
-            }
-            /*
-              Crashes the compiler:
-            if (!foundError) // distance method:
-            {
-                res=checkOneGeneralInputArgument(L,7,lua_arg_number,2,true,true,&errorString);
-                if (res==2)
-                { // get the data
-                    float tmpF[2];
-                    int tmpI[2];
-                    getFloatsFromTable(L,7,2,tmpF);
-                    getIntsFromTable(L,7,2,tmpI);
-                    distCalcMethod=tmpI[0];
-                    angleToLinearCoeff=tmpF[1];
-                }
-                foundError=(res==-1);
-            }
-            */
-            if (!foundError)
-            { // do the job here!
-                C7Vector startTr(object->getCumulativeTransformation());
-                C7Vector relTr;
-                relTr.setIdentity();
-                if (relToObject!=nullptr)
-                    relTr=relToObject->getFullCumulativeTransformation();
-                startTr=relTr.getInverse()*startTr;
+            foundError=(res==-1);
+        }
+        if (!foundError)
+        { // do the job here!
+            C7Vector startTr(object->getCumulativeTransformation());
+            C7Vector relTr;
+            relTr.setIdentity();
+            if (relToObject!=nullptr)
+                relTr=relToObject->getFullCumulativeTransformation();
+            startTr=relTr.getInverse()*startTr;
 
-                C7Vector targetTr(startTr);
-                if (posAndOrient&1)
-                    targetTr.X.set(posTarget);
-                if (posAndOrient&2)
-                    targetTr.Q.setEulerAngles(eulerTarget[0],eulerTarget[1],eulerTarget[2]);
-                float currentVel=0.0f;
-                CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+threadData->usedMovementTime;
+            C7Vector targetTr(startTr);
+            if (posAndOrient&1)
+                targetTr.X.set(posTarget);
+            if (posAndOrient&2)
+                targetTr.Q.setEulerAngles(eulerTarget[0],eulerTarget[1],eulerTarget[2]);
+            float currentVel=0.0f;
+            CVThreadData* threadData=CThreadPool_old::getCurrentThreadData();
 
-                float dl=(targetTr.X-startTr.X).getLength();
-                float da=targetTr.Q.getAngleBetweenQuaternions(startTr.Q)*angleToLinearCoeff;
-                float vdl=dl;
-                if (distCalcMethod==sim_distcalcmethod_dl)
-                    vdl=dl;
-                if (distCalcMethod==sim_distcalcmethod_dac)
+            float dl=(targetTr.X-startTr.X).getLength();
+            float da=targetTr.Q.getAngleBetweenQuaternions(startTr.Q)*angleToLinearCoeff;
+            float vdl=dl;
+            if (distCalcMethod==sim_distcalcmethod_dl)
+                vdl=dl;
+            if (distCalcMethod==sim_distcalcmethod_dac)
+                vdl=da;
+            if (distCalcMethod==sim_distcalcmethod_max_dl_dac)
+                vdl=std::max<float>(dl,da);
+            if (distCalcMethod==sim_distcalcmethod_dl_and_dac)
+                vdl=dl+da;
+            if (distCalcMethod==sim_distcalcmethod_sqrt_dl2_and_dac2)
+                vdl=sqrtf(dl*dl+da*da);
+            if (distCalcMethod==sim_distcalcmethod_dl_if_nonzero)
+            {
+                vdl=dl;
+                if (dl<0.00005f) // Was dl==0.0f before (tolerance problem). Changed on 1/4/2011
                     vdl=da;
-                if (distCalcMethod==sim_distcalcmethod_max_dl_dac)
-                    vdl=std::max<float>(dl,da);
-                if (distCalcMethod==sim_distcalcmethod_dl_and_dac)
-                    vdl=dl+da;
-                if (distCalcMethod==sim_distcalcmethod_sqrt_dl2_and_dac2)
-                    vdl=sqrtf(dl*dl+da*da);
-                if (distCalcMethod==sim_distcalcmethod_dl_if_nonzero)
-                {
+            }
+            if (distCalcMethod==sim_distcalcmethod_dac_if_nonzero)
+            {
+                vdl=da;
+                if (da<0.01f*degToRad_f) // Was da==0.0f before (tolerance problem). Changed on 1/4/2011
                     vdl=dl;
-                    if (dl<0.00005f) // Was dl==0.0f before (tolerance problem). Changed on 1/4/2011
-                        vdl=da;
-                }
-                if (distCalcMethod==sim_distcalcmethod_dac_if_nonzero)
-                {
-                    vdl=da;
-                    if (da<0.01f*degToRad_f) // Was da==0.0f before (tolerance problem). Changed on 1/4/2011
-                        vdl=dl;
-                }
-                // vld is the totalvirtual distance
-                float currentPos=0.0f;
-                bool movementFinished=false;
-                float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f; // this is the time left if we leave here
+            }
+            // vld is the totalvirtual distance
+            float currentPos=0.0f;
+            bool movementFinished=false;
 
-                if (vdl==0.0f)
-                { // if the path length is 0 (the two positions might still be not-coincident, depending on the calculation method!)
-                    if (App::currentWorld->sceneObjects->getObjectFromHandle(objID)==object) // make sure the object is still valid (running in a thread)
-                    {
-                        if (relToObject==nullptr)
-                        { // absolute
+            if (vdl==0.0f)
+            { // if the path length is 0 (the two positions might still be not-coincident, depending on the calculation method!)
+                if (App::currentWorld->sceneObjects->getObjectFromHandle(objID)==object) // make sure the object is still valid (running in a thread)
+                {
+                    if (relToObject==nullptr)
+                    { // absolute
+                        C7Vector parentInv(object->getFullParentCumulativeTransformation().getInverse());
+                        object->setLocalTransformation(parentInv*targetTr);
+                    }
+                    else
+                    { // relative to a specific object (2009/11/17)
+                        if (App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjID)==relToObject) // make sure the object is still valid (running in a thread)
+                        { // ok
+                            C7Vector relToTr(relToObject->getFullCumulativeTransformation());
+                            targetTr=relToTr*targetTr;
                             C7Vector parentInv(object->getFullParentCumulativeTransformation().getInverse());
                             object->setLocalTransformation(parentInv*targetTr);
                         }
-                        else
-                        { // relative to a specific object (2009/11/17)
-                            if (App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjID)==relToObject) // make sure the object is still valid (running in a thread)
-                            { // ok
-                                C7Vector relToTr(relToObject->getFullCumulativeTransformation());
-                                targetTr=relToTr*targetTr;
-                                C7Vector parentInv(object->getFullParentCumulativeTransformation().getInverse());
-                                object->setLocalTransformation(parentInv*targetTr);
-                            }
-                        }
                     }
-                    movementFinished=true;
                 }
+                movementFinished=true;
+            }
 
-                bool err=false;
-                while (!movementFinished)
+            if (movementFinished)
+                luaWrap_lua_pushinteger(L,-1);
+            else
+            {
+                _memHandles_old.push_back(_nextMemHandle_old);
+                simMoveToPosData_old* mem=new simMoveToPosData_old();
+                mem->accel=accel;
+                mem->vdl=vdl;
+                mem->currentPos=currentPos;
+                mem->lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
+                mem->maxVelocity=maxVelocity;
+                mem->currentVel=currentVel;
+                mem->startTr=startTr;
+                mem->targetTr=targetTr;
+                mem->objID=objID;
+                mem->object=object;
+                mem->relativeToObjID=relativeToObjID;
+                mem->relToObject=relToObject;
+                mem->posAndOrient=posAndOrient;
+
+                _memBuffers_old.push_back(mem);
+                luaWrap_lua_pushinteger(L,_nextMemHandle_old);
+                _nextMemHandle_old++;
+            }
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED();
+    LUA_END(0);
+}
+
+int _sim_moveToPos_2(luaWrap_lua_State* L)
+{ // for backward compatibility with simMoveToPosition on old threaded scripts
+    TRACE_LUA_API;
+    LUA_START("sim._moveToPos_2");
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0))
+    {
+        int h=luaWrap_lua_tointeger(L,1);
+        simMoveToPosData_old* mem=nullptr;
+        for (size_t i=0;i<_memHandles_old.size();i++)
+        {
+            if (_memHandles_old[i]==h)
+            {
+                mem=(simMoveToPosData_old*)_memBuffers_old[i];
+                break;
+            }
+        }
+        if (mem!=nullptr)
+        {
+            bool err=false;
+            bool movementFinished=false;
+            float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
+            float dt=currentTime-mem->lastTime;
+            mem->lastTime=currentTime;
+
+            if (mem->accel==0.0f)
+            { // Means infinite acceleration
+                float timeNeeded=(mem->vdl-mem->currentPos)/mem->maxVelocity;
+                mem->currentVel=mem->maxVelocity;
+                if (timeNeeded>dt)
                 {
-                    float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
-                    dt=currentTime-lastTime;
-                    lastTime=currentTime;
-
-                    if (accel==0.0f)
-                    { // Means infinite acceleration
-                        float timeNeeded=(vdl-currentPos)/maxVelocity;
-                        currentVel=maxVelocity;
-                        if (timeNeeded>dt)
-                        {
-                            currentPos+=dt*maxVelocity;
-                            dt=0.0f; // this is what is left
-                        }
-                        else
-                        {
-                            currentPos=vdl;
-                            if (timeNeeded>=0.0f)
-                                dt-=timeNeeded;
-                        }
-                    }
-                    else
-                    {
-                        double p=currentPos;
-                        double v=currentVel;
-                        double t=dt;
-                        CLinMotionRoutines::getNextValues(p,v,maxVelocity,accel,0.0f,vdl,0.0f,0.0f,t);
-                        currentPos=float(p);
-                        currentVel=float(v);
-                        dt=float(t);
-                    }
-
-                    // Now check if we are within tolerances:
-                    if (fabs(currentPos-vdl)<=0.00001f)//tol[0])
-                        movementFinished=true;
-
-                    // Set the new configuration of the object:
-                    float ll=currentPos/vdl;
-                    if (ll>1.0f)
-                        ll=1.0f;
-                    C7Vector newAbs;
-                    newAbs.buildInterpolation(startTr,targetTr,ll);
-                    if (App::currentWorld->sceneObjects->getObjectFromHandle(objID)==object) // make sure the object is still valid (running in a thread)
-                    {
-                        if ( (relToObject!=nullptr)&&(App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjID)!=relToObject) )
-                            movementFinished=true; // the object was destroyed during execution of the command!
-                        else
-                        {
-                            C7Vector parentInv(object->getFullParentCumulativeTransformation().getInverse());
-                            C7Vector currAbs(object->getCumulativeTransformation());
-                            C7Vector relToTr;
-                            relToTr.setIdentity();
-                            if (relToObject!=nullptr)
-                                relToTr=relToObject->getFullCumulativeTransformation();
-                            currAbs=relToTr.getInverse()*currAbs;
-                            if ((posAndOrient&1)==0)
-                                newAbs.X=currAbs.X;
-                            if ((posAndOrient&2)==0)
-                                newAbs.Q=currAbs.Q;
-                            newAbs=relToTr*newAbs;
-                            object->setLocalTransformation(parentInv*newAbs);
-                        }
-                    }
-                    else
-                        movementFinished=true; // the object was destroyed during execution of the command!
-
-                    if (!movementFinished)
-                    {
-                        CThreadPool::switchBackToPreviousThread();
-                        if (CThreadPool::getSimulationStopRequestedAndActivated()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L)))
-                        {
-                            errorString="@yield"; // yield will be triggered at end of this function
-                            bool err=true;
-                            break; // error
-                        }
-                    }
+                    mem->currentPos+=dt*mem->maxVelocity;
+                    dt=0.0f; // this is what is left
                 }
-                if (!err)
+                else
                 {
-                    // The movement finished. Now add the time used:
-                    threadData->usedMovementTime=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f-dt;
-                    luaWrap_lua_pushnumber(L,dt); // success (deltaTime left)
-                    LUA_END(1);
+                    mem->currentPos=mem->vdl;
+                    if (timeNeeded>=0.0f)
+                        dt-=timeNeeded;
                 }
+            }
+            else
+            {
+                double p=mem->currentPos;
+                double v=mem->currentVel;
+                double t=dt;
+                CLinMotionRoutines::getNextValues(p,v,mem->maxVelocity,mem->accel,0.0f,mem->vdl,0.0f,0.0f,t);
+                mem->currentPos=float(p);
+                mem->currentVel=float(v);
+                dt=float(t);
+            }
+
+            // Now check if we are within tolerances:
+            if (fabs(mem->currentPos-mem->vdl)<=0.00001f)//tol[0])
+                movementFinished=true;
+
+            // Set the new configuration of the object:
+            float ll=mem->currentPos/mem->vdl;
+            if (ll>1.0f)
+                ll=1.0f;
+            C7Vector newAbs;
+            newAbs.buildInterpolation(mem->startTr,mem->targetTr,ll);
+            if (App::currentWorld->sceneObjects->getObjectFromHandle(mem->objID)==mem->object) // make sure the object is still valid (running in a thread)
+            {
+                if ( (mem->relToObject!=nullptr)&&(App::currentWorld->sceneObjects->getObjectFromHandle(mem->relativeToObjID)!=mem->relToObject) )
+                    movementFinished=true; // the object was destroyed during execution of the command!
+                else
+                {
+                    C7Vector parentInv(mem->object->getFullParentCumulativeTransformation().getInverse());
+                    C7Vector currAbs(mem->object->getCumulativeTransformation());
+                    C7Vector relToTr;
+                    relToTr.setIdentity();
+                    if (mem->relToObject!=nullptr)
+                        relToTr=mem->relToObject->getFullCumulativeTransformation();
+                    currAbs=relToTr.getInverse()*currAbs;
+                    if ((mem->posAndOrient&1)==0)
+                        newAbs.X=currAbs.X;
+                    if ((mem->posAndOrient&2)==0)
+                        newAbs.Q=currAbs.Q;
+                    newAbs=relToTr*newAbs;
+                    mem->object->setLocalTransformation(parentInv*newAbs);
+                }
+            }
+            else
+                movementFinished=true; // the object was destroyed during execution of the command!
+
+            if (!movementFinished)
+            {
+                luaWrap_lua_pushinteger(L,0); // mov. not yet finished
+                LUA_END(1);
+            }
+            if (!err)
+            {
+                luaWrap_lua_pushinteger(L,1); // mov. finished
+                luaWrap_lua_pushnumber(L,dt); // success (deltaTime left)
+                LUA_END(2);
             }
         }
     }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED();
+    LUA_END(0);
+}
+
+int _sim_del(luaWrap_lua_State* L)
+{ // for backward compatibility with simMoveToPosition on old threaded scripts
+    TRACE_LUA_API;
+    LUA_START("sim._del");
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0))
+    {
+        int h=luaWrap_lua_tointeger(L,1);
+        for (size_t i=0;i<_memHandles_old.size();i++)
+        {
+            if (_memHandles_old[i]==h)
+            {
+                delete _memBuffers_old[i];
+                _memHandles_old.erase(_memHandles_old.begin()+i);
+                _memBuffers_old.erase(_memBuffers_old.begin()+i);
+                break;
+            }
+        }
+    }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED();
+    LUA_END(0);
+}
+
+int _sim_moveToJointPos_1(luaWrap_lua_State* L)
+{ // for backward compatibility with simMoveToJointPositions on old threaded scripts
+    TRACE_LUA_API;
+    LUA_START("sim._moveToJointPos_1");
+    if (!( (!luaWrap_lua_istable(L,1))||(!luaWrap_lua_istable(L,2))||(luaWrap_lua_rawlen(L,1)>luaWrap_lua_rawlen(L,2))||(luaWrap_lua_rawlen(L,1)==0) ))
+    { // Ok we have 2 tables with same sizes.
+        int tableLen=(int)luaWrap_lua_rawlen(L,1);
+        bool sameTimeFinish=true;
+        float maxVelocity=0.0f;
+        float accel=0.0f; // means infinite accel!! (default value)
+        bool accelTablePresent=false;
+        float angleToLinearCoeff=1.0f;
+        bool foundError=false;
+        // Now check the other arguments:
+        int res;
+        if (luaWrap_lua_istable(L,3))
+            sameTimeFinish=false; // we do not finish at the same time!
+        if (!foundError) // velocity or velocities argument (not optional!):
+        {
+            if (sameTimeFinish)
+            {
+                res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,false,false,&errorString);
+                if (res==2)
+                    maxVelocity=luaToFloat(L,3);
+                else
+                    foundError=true;
+            }
+            else
+            {
+                res=checkOneGeneralInputArgument(L,3,lua_arg_number,tableLen,false,false,&errorString);
+                if (res!=2)
+                    foundError=true;
+            }
+        }
+        if (!foundError) // Accel argument:
+        {
+            if (sameTimeFinish)
+            {
+                res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,true,&errorString);
+                if (res==2)
+                { // get the data
+                    accel=fabs(luaToFloat(L,4));
+                }
+                foundError=(res==-1);
+            }
+            else
+            {
+                res=checkOneGeneralInputArgument(L,4,lua_arg_number,tableLen,true,true,&errorString);
+                if (res==2)
+                    accelTablePresent=true;
+                foundError=(res==-1);
+            }
+        }
+        if (!foundError) // angleToLinearCoeff argument:
+        {
+            if (sameTimeFinish)
+            {
+                res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,true,&errorString);
+                if (res==2)
+                { // get the data
+                    angleToLinearCoeff=fabs(luaToFloat(L,5));
+                }
+                foundError=(res==-1);
+            }
+            else
+                angleToLinearCoeff=1.0f; // no conversion!
+        }
+        if (!foundError)
+        { // do the job here!
+            std::vector<int> jointHandles;
+            jointHandles.resize(tableLen);
+            std::vector<float> jointCurrentVirtualPositions;
+            jointCurrentVirtualPositions.resize(tableLen);
+            std::vector<float> jointCurrentVirtualVelocities;
+            jointCurrentVirtualVelocities.resize(tableLen);
+            std::vector<float> jointStartPositions;
+            jointStartPositions.resize(tableLen);
+            std::vector<float> jointTargetPositions;
+            jointTargetPositions.resize(tableLen);
+            std::vector<float> jointVirtualDistances;
+            jointVirtualDistances.resize(tableLen);
+            std::vector<float> jointMaxVelocities;
+            jointMaxVelocities.resize(tableLen);
+            std::vector<float> jointAccels;
+            jointAccels.resize(tableLen);
+
+            getIntsFromTable(L,1,tableLen,&jointHandles[0]);
+            getFloatsFromTable(L,2,tableLen,&jointTargetPositions[0]);
+            if (!sameTimeFinish)
+            {
+                getFloatsFromTable(L,3,tableLen,&jointMaxVelocities[0]);
+                for (int i=0;i<tableLen;i++)
+                    jointMaxVelocities[i]=fabs(jointMaxVelocities[i]);
+                if (accelTablePresent)
+                {
+                    getFloatsFromTable(L,4,tableLen,&jointAccels[0]);
+                    for (int i=0;i<tableLen;i++)
+                        jointAccels[i]=fabs(jointAccels[i]);
+                }
+            }
+            float maxVirtualDist=0.0f;
+            int maxVirtualDistIndex=0;
+            for (int i=0;i<tableLen;i++)
+            {
+                jointCurrentVirtualPositions[i]=0.0f;
+                jointCurrentVirtualVelocities[i]=0.0f;
+                if (sameTimeFinish)
+                    jointMaxVelocities[i]=maxVelocity;
+                if (!accelTablePresent)
+                    jointAccels[i]=accel;
+
+                CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
+                if ((it!=nullptr)&&(it->getJointType()!=sim_joint_spherical_subtype))
+                { // make sure target is within allowed range, and check the maximum virtual distance:
+                    jointStartPositions[i]=it->getPosition();
+                    float minP=it->getPositionIntervalMin();
+                    float maxP=minP+it->getPositionIntervalRange();
+                    if (it->getPositionIsCyclic())
+                    {
+                        float da=tt::getAngleMinusAlpha(jointTargetPositions[i],jointStartPositions[i]);
+                        jointTargetPositions[i]=jointStartPositions[i]+da;
+                    }
+                    else
+                    {
+                        if (minP>jointTargetPositions[i])
+                            jointTargetPositions[i]=minP;
+                        if (maxP<jointTargetPositions[i])
+                            jointTargetPositions[i]=maxP;
+                    }
+                    float d=fabs(jointTargetPositions[i]-jointStartPositions[i]);
+                    if (it->getJointType()==sim_joint_revolute_subtype)
+                        d*=angleToLinearCoeff;
+                    jointVirtualDistances[i]=d;
+                    if (d>maxVirtualDist)
+                    {
+                        maxVirtualDist=d;
+                        maxVirtualDistIndex=i;
+                    }
+                }
+                else
+                {
+                    // Following are default values in case the joint doesn't exist or is spherical:
+                    jointStartPositions[i]=0.0f;
+                    jointTargetPositions[i]=0.0f;
+                    jointVirtualDistances[i]=0.0f;
+                }
+            }
+            float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
+            bool movementFinished=false;
+            float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f; // this is the time left if we leave here
+
+            if (maxVirtualDist==0.0f)
+                luaWrap_lua_pushinteger(L,-1);
+            else
+            {
+                _memHandles_old.push_back(_nextMemHandle_old);
+                simMoveToJointPosData_old* mem=new simMoveToJointPosData_old();
+                mem->lastTime=lastTime;
+                mem->sameTimeFinish=sameTimeFinish;
+                mem->maxVirtualDistIndex=maxVirtualDistIndex;
+                mem->maxVelocity=maxVelocity;
+                mem->accel=accel;
+                mem->jointHandles.assign(jointHandles.begin(),jointHandles.end());
+                mem->jointCurrentVirtualPositions.assign(jointCurrentVirtualPositions.begin(),jointCurrentVirtualPositions.end());
+                mem->jointCurrentVirtualVelocities.assign(jointCurrentVirtualVelocities.begin(),jointCurrentVirtualVelocities.end());
+                mem->jointStartPositions.assign(jointStartPositions.begin(),jointStartPositions.end());
+                mem->jointTargetPositions.assign(jointTargetPositions.begin(),jointTargetPositions.end());
+                mem->jointVirtualDistances.assign(jointVirtualDistances.begin(),jointVirtualDistances.end());
+                mem->jointMaxVelocities.assign(jointMaxVelocities.begin(),jointMaxVelocities.end());
+                mem->jointAccels.assign(jointAccels.begin(),jointAccels.end());
+
+
+
+                _memBuffers_old.push_back(mem);
+                luaWrap_lua_pushinteger(L,_nextMemHandle_old);
+                _nextMemHandle_old++;
+            }
+            LUA_END(1);
+
+        }
+    }
     else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
+        errorString="One of the function's argument type is not correct or table sizes are invalid or do not match";
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
-int _simMoveToJointPositions(luaWrap_lua_State* L)
-{ // can only be called from a script running in a thread!! DEPRECATED
+int _sim_moveToJointPos_2(luaWrap_lua_State* L)
+{ // for backward compatibility with simMoveToJointPositions on old threaded scripts
     TRACE_LUA_API;
-    LUA_START("simMoveToJointPositions");
+    LUA_START("sim._moveToJointPos_2");
 
-    if (!VThread::isCurrentThreadTheMainSimulationThread())
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0))
     {
-        if (!(CThreadPool::getSimulationStopRequested()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L))))
-        { // Important to first check if we are supposed to leave the thread!!
-            if (!( (!luaWrap_lua_istable(L,1))||(!luaWrap_lua_istable(L,2))||(luaWrap_lua_rawlen(L,1)>luaWrap_lua_rawlen(L,2))||(luaWrap_lua_rawlen(L,1)==0) ))
-            { // Ok we have 2 tables with same sizes.
-                int tableLen=(int)luaWrap_lua_rawlen(L,1);
-                bool sameTimeFinish=true;
-                float maxVelocity=0.0f;
-                float accel=0.0f; // means infinite accel!! (default value)
-                bool accelTablePresent=false;
-                float angleToLinearCoeff=1.0f;
-                bool foundError=false;
-                // Now check the other arguments:
-                int res;
-                if (luaWrap_lua_istable(L,3))
-                    sameTimeFinish=false; // we do not finish at the same time!
-                if (!foundError) // velocity or velocities argument (not optional!):
+        int h=luaWrap_lua_tointeger(L,1);
+        simMoveToJointPosData_old* mem=nullptr;
+        for (size_t i=0;i<_memHandles_old.size();i++)
+        {
+            if (_memHandles_old[i]==h)
+            {
+                mem=(simMoveToJointPosData_old*)_memBuffers_old[i];
+                break;
+            }
+        }
+        if (mem!=nullptr)
+        {
+            int tableLen=int(mem->jointHandles.size());
+            bool err=false;
+            bool movementFinished=false;
+            float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
+            float dt=currentTime-mem->lastTime;
+            float minTimeLeft=dt;
+            mem->lastTime=currentTime;
+            if (mem->sameTimeFinish)
+            {
+                float timeLeftLocal=dt;
+                // 1. handle the joint with longest distance first:
+                // Does the main joint still exist?
+                if (App::currentWorld->sceneObjects->getJointFromHandle(mem->jointHandles[mem->maxVirtualDistIndex])!=nullptr)
                 {
-                    if (sameTimeFinish)
-                    {
-                        res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,false,false,&errorString);
-                        if (res==2)
-                            maxVelocity=luaToFloat(L,3);
-                        else
-                            foundError=true;
-                    }
-                    else
-                    {
-                        res=checkOneGeneralInputArgument(L,3,lua_arg_number,tableLen,false,false,&errorString);
-                        if (res!=2)
-                            foundError=true;
-                    }
-                }
-                if (!foundError) // Accel argument:
-                {
-                    if (sameTimeFinish)
-                    {
-                        res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,true,&errorString);
-                        if (res==2)
-                        { // get the data
-                            accel=fabs(luaToFloat(L,4));
-                        }
-                        foundError=(res==-1);
-                    }
-                    else
-                    {
-                        res=checkOneGeneralInputArgument(L,4,lua_arg_number,tableLen,true,true,&errorString);
-                        if (res==2)
-                            accelTablePresent=true;
-                        foundError=(res==-1);
-                    }
-                }
-                if (!foundError) // angleToLinearCoeff argument:
-                {
-                    if (sameTimeFinish)
-                    {
-                        res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,true,&errorString);
-                        if (res==2)
-                        { // get the data
-                            angleToLinearCoeff=fabs(luaToFloat(L,5));
-                        }
-                        foundError=(res==-1);
-                    }
-                    else
-                        angleToLinearCoeff=1.0f; // no conversion!
-                }
-                if (!foundError)
-                { // do the job here!
-                    int* jointHandles=new int[tableLen];
-                    float* jointCurrentVirtualPositions=new float[tableLen];
-                    float* jointCurrentVirtualVelocities=new float[tableLen];
-                    float* jointStartPositions=new float[tableLen];
-                    float* jointTargetPositions=new float[tableLen];
-                    float* jointVirtualDistances=new float[tableLen];
-                    float* jointMaxVelocities=new float[tableLen];
-                    float* jointAccels=new float[tableLen];
-
-                    getIntsFromTable(L,1,tableLen,jointHandles);
-                    getFloatsFromTable(L,2,tableLen,jointTargetPositions);
-                    if (!sameTimeFinish)
-                    {
-                        getFloatsFromTable(L,3,tableLen,jointMaxVelocities);
-                        for (int i=0;i<tableLen;i++)
-                            jointMaxVelocities[i]=fabs(jointMaxVelocities[i]);
-                        if (accelTablePresent)
+                    if (mem->accel==0.0f)
+                    { // means infinite accel
+                        float timeNeeded=(mem->jointVirtualDistances[mem->maxVirtualDistIndex]-mem->jointCurrentVirtualPositions[mem->maxVirtualDistIndex])/mem->maxVelocity;
+                        mem->jointCurrentVirtualVelocities[mem->maxVirtualDistIndex]=mem->maxVelocity;
+                        if (timeNeeded>timeLeftLocal)
                         {
-                            getFloatsFromTable(L,4,tableLen,jointAccels);
-                            for (int i=0;i<tableLen;i++)
-                                jointAccels[i]=fabs(jointAccels[i]);
+                            mem->jointCurrentVirtualPositions[mem->maxVirtualDistIndex]+=timeLeftLocal*mem->maxVelocity;
+                            timeLeftLocal=0.0f; // this is what is left
+                        }
+                        else
+                        {
+                            mem->jointCurrentVirtualPositions[mem->maxVirtualDistIndex]=mem->jointVirtualDistances[mem->maxVirtualDistIndex];
+                            if (timeNeeded>=0.0f)
+                                timeLeftLocal-=timeNeeded;
                         }
                     }
-                    float maxVirtualDist=0.0f;
-                    int maxVirtualDistIndex=0;
+                    else
+                    {
+                        double p=mem->jointCurrentVirtualPositions[mem->maxVirtualDistIndex];
+                        double v=mem->jointCurrentVirtualVelocities[mem->maxVirtualDistIndex];
+                        double t=timeLeftLocal;
+                        CLinMotionRoutines::getNextValues(p,v,mem->maxVelocity,mem->accel,0.0f,mem->jointVirtualDistances[mem->maxVirtualDistIndex],0.0f,0.0f,t);
+                        mem->jointCurrentVirtualPositions[mem->maxVirtualDistIndex]=float(p);
+                        mem->jointCurrentVirtualVelocities[mem->maxVirtualDistIndex]=float(v);
+                        timeLeftLocal=float(t);
+                    }
+                    minTimeLeft=timeLeftLocal;
+                    // 2. We adjust the other joints accordingly:
+                    float f=1;
+                    if (mem->jointVirtualDistances[mem->maxVirtualDistIndex]!=0.0f)
+                        f=mem->jointCurrentVirtualPositions[mem->maxVirtualDistIndex]/mem->jointVirtualDistances[mem->maxVirtualDistIndex];
                     for (int i=0;i<tableLen;i++)
                     {
-                        jointCurrentVirtualPositions[i]=0.0f;
-                        jointCurrentVirtualVelocities[i]=0.0f;
-                        if (sameTimeFinish)
-                            jointMaxVelocities[i]=maxVelocity;
-                        if (!accelTablePresent)
-                            jointAccels[i]=accel;
-
-                        CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
-                        if ((it!=nullptr)&&(it->getJointType()!=sim_joint_spherical_subtype))
-                        { // make sure target is within allowed range, and check the maximum virtual distance:
-                            jointStartPositions[i]=it->getPosition();
-                            float minP=it->getPositionIntervalMin();
-                            float maxP=minP+it->getPositionIntervalRange();
-                            if (it->getPositionIsCyclic())
-                            {
-                                float da=tt::getAngleMinusAlpha(jointTargetPositions[i],jointStartPositions[i]);
-                                jointTargetPositions[i]=jointStartPositions[i]+da;
-                            }
-                            else
-                            {
-                                if (minP>jointTargetPositions[i])
-                                    jointTargetPositions[i]=minP;
-                                if (maxP<jointTargetPositions[i])
-                                    jointTargetPositions[i]=maxP;
-                            }
-                            float d=fabs(jointTargetPositions[i]-jointStartPositions[i]);
-                            if (it->getJointType()==sim_joint_revolute_subtype)
-                                d*=angleToLinearCoeff;
-                            jointVirtualDistances[i]=d;
-                            if (d>maxVirtualDist)
-                            {
-                                maxVirtualDist=d;
-                                maxVirtualDistIndex=i;
-                            }
-                        }
-                        else
-                        {
-                            // Following are default values in case the joint doesn't exist or is spherical:
-                            jointStartPositions[i]=0.0f;
-                            jointTargetPositions[i]=0.0f;
-                            jointVirtualDistances[i]=0.0f;
-                        }
+                        if (i!=mem->maxVirtualDistIndex)
+                            mem->jointCurrentVirtualPositions[i]=mem->jointVirtualDistances[i]*f;
                     }
-                    CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                    float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+threadData->usedMovementTime;
-                    bool movementFinished=false;
-                    float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f; // this is the time left if we leave here
-
-                    if (maxVirtualDist==0.0f)
+                    // 3. Check if within tolerance:
+                    if (fabs(mem->jointCurrentVirtualPositions[mem->maxVirtualDistIndex]-mem->jointVirtualDistances[mem->maxVirtualDistIndex])<=0.00001f)
                         movementFinished=true;
-                    bool err=true;
-                    while (!movementFinished)
-                    {
-                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
-                        dt=currentTime-lastTime;
-                        float minTimeLeft=dt;
-                        lastTime=currentTime;
-                        if (sameTimeFinish)
-                        {
-                            float timeLeftLocal=dt;
-                            // 1. handle the joint with longest distance first:
-                            // Does the main joint still exist?
-                            if (App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[maxVirtualDistIndex])!=nullptr)
-                            {
-                                if (accel==0.0f)
-                                { // means infinite accel
-                                    float timeNeeded=(jointVirtualDistances[maxVirtualDistIndex]-jointCurrentVirtualPositions[maxVirtualDistIndex])/maxVelocity;
-                                    jointCurrentVirtualVelocities[maxVirtualDistIndex]=maxVelocity;
-                                    if (timeNeeded>timeLeftLocal)
-                                    {
-                                        jointCurrentVirtualPositions[maxVirtualDistIndex]+=timeLeftLocal*maxVelocity;
-                                        timeLeftLocal=0.0f; // this is what is left
-                                    }
-                                    else
-                                    {
-                                        jointCurrentVirtualPositions[maxVirtualDistIndex]=jointVirtualDistances[maxVirtualDistIndex];
-                                        if (timeNeeded>=0.0f)
-                                            timeLeftLocal-=timeNeeded;
-                                    }
-                                }
-                                else
-                                {
-                                    double p=jointCurrentVirtualPositions[maxVirtualDistIndex];
-                                    double v=jointCurrentVirtualVelocities[maxVirtualDistIndex];
-                                    double t=timeLeftLocal;
-                                    CLinMotionRoutines::getNextValues(p,v,maxVelocity,accel,0.0f,jointVirtualDistances[maxVirtualDistIndex],0.0f,0.0f,t);
-                                    jointCurrentVirtualPositions[maxVirtualDistIndex]=float(p);
-                                    jointCurrentVirtualVelocities[maxVirtualDistIndex]=float(v);
-                                    timeLeftLocal=float(t);
-                                }
-                                minTimeLeft=timeLeftLocal;
-                                // 2. We adjust the other joints accordingly:
-                                float f=1;
-                                if (jointVirtualDistances[maxVirtualDistIndex]!=0.0f)
-                                    f=jointCurrentVirtualPositions[maxVirtualDistIndex]/jointVirtualDistances[maxVirtualDistIndex];
-                                for (int i=0;i<tableLen;i++)
-                                {
-                                    if (i!=maxVirtualDistIndex)
-                                        jointCurrentVirtualPositions[i]=jointVirtualDistances[i]*f;
-                                }
-                                // 3. Check if within tolerance:
-                                if (fabs(jointCurrentVirtualPositions[maxVirtualDistIndex]-jointVirtualDistances[maxVirtualDistIndex])<=0.00001f)
-                                    movementFinished=true;
-                            }
-                            else
-                            { // the main joint was removed. End here!
-                                movementFinished=true;
-                            }
-                        }
-                        else
-                        {
-                            bool withinTolerance=true;
-                            for (int i=0;i<tableLen;i++)
-                            {
-                                if (App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i])!=nullptr)
-                                {
-                                    // Check if within tolerance (before):
-                                    if (fabs(jointCurrentVirtualPositions[i]-jointVirtualDistances[i])>0.00001f)
-                                    {
-                                        float timeLeftLocal=dt;
-                                        if (jointAccels[i]==0.0f)
-                                        { // means infinite accel
-                                            float timeNeeded=(jointVirtualDistances[i]-jointCurrentVirtualPositions[i])/jointMaxVelocities[i];
-                                            jointCurrentVirtualVelocities[i]=jointMaxVelocities[i];
-                                            if (timeNeeded>timeLeftLocal)
-                                            {
-                                                jointCurrentVirtualPositions[i]+=timeLeftLocal*jointMaxVelocities[i];
-                                                timeLeftLocal=0.0f; // this is what is left
-                                            }
-                                            else
-                                            {
-                                                jointCurrentVirtualPositions[i]=jointVirtualDistances[i];
-                                                if (timeNeeded>=0.0f)
-                                                    timeLeftLocal-=timeNeeded;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            double p=jointCurrentVirtualPositions[i];
-                                            double v=jointCurrentVirtualVelocities[i];
-                                            double t=timeLeftLocal;
-                                            CLinMotionRoutines::getNextValues(p,v,jointMaxVelocities[i],jointAccels[i],0.0f,jointVirtualDistances[i],0.0f,0.0f,t);
-                                            jointCurrentVirtualPositions[i]=float(p);
-                                            jointCurrentVirtualVelocities[i]=float(v);
-                                            timeLeftLocal=float(t);
-                                        }
-                                        if (timeLeftLocal<minTimeLeft)
-                                            minTimeLeft=timeLeftLocal;
-                                        // Check if within tolerance (after):
-                                        if (fabs(jointCurrentVirtualPositions[i]-jointVirtualDistances[i])>0.00001f)
-                                            withinTolerance=false;
-                                    }
-                                }
-                            }
-                            if (withinTolerance)
-                                movementFinished=true;
-                        }
-                        dt=minTimeLeft;
-
-                        // We set all joint positions:
-                        for (int i=0;i<tableLen;i++)
-                        {
-                            CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
-                            if ( (joint!=nullptr)&&(joint->getJointType()!=sim_joint_spherical_subtype)&&(jointVirtualDistances[i]!=0.0f) )
-                            {
-                                if (joint->getJointMode()==sim_jointmode_force)
-                                    joint->setDynamicMotorPositionControlTargetPosition(jointStartPositions[i]+(jointTargetPositions[i]-jointStartPositions[i])*jointCurrentVirtualPositions[i]/jointVirtualDistances[i]);
-                                else
-                                    joint->setPosition(jointStartPositions[i]+(jointTargetPositions[i]-jointStartPositions[i])*jointCurrentVirtualPositions[i]/jointVirtualDistances[i]);
-                            }
-                        }
-
-                        if (!movementFinished)
-                        {
-                            CThreadPool::switchBackToPreviousThread();
-                            if (CThreadPool::getSimulationStopRequestedAndActivated()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L)))
-                            {
-                                errorString="@yield"; // yield will be triggered at end of this function
-                                err=true;
-                                break; // error
-                            }
-                        }
-                    }
-                    // The movement finished. Now add the time used:
-                    threadData->usedMovementTime=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f-dt;
-                    if (!err)
-                        luaWrap_lua_pushnumber(L,dt); // success (deltaTime left)
-
-                    delete[] jointAccels;
-                    delete[] jointMaxVelocities;
-                    delete[] jointVirtualDistances;
-                    delete[] jointTargetPositions;
-                    delete[] jointStartPositions;
-                    delete[] jointCurrentVirtualVelocities;
-                    delete[] jointCurrentVirtualPositions;
-                    delete[] jointHandles;
-                    if (!err)
-                        LUA_END(1);
+                }
+                else
+                { // the main joint was removed. End here!
+                    movementFinished=true;
                 }
             }
             else
-                errorString="One of the function's argument type is not correct or table sizes are invalid or do not match";
+            {
+                bool withinTolerance=true;
+                for (int i=0;i<tableLen;i++)
+                {
+                    if (App::currentWorld->sceneObjects->getJointFromHandle(mem->jointHandles[i])!=nullptr)
+                    {
+                        // Check if within tolerance (before):
+                        if (fabs(mem->jointCurrentVirtualPositions[i]-mem->jointVirtualDistances[i])>0.00001f)
+                        {
+                            float timeLeftLocal=dt;
+                            if (mem->jointAccels[i]==0.0f)
+                            { // means infinite accel
+                                float timeNeeded=(mem->jointVirtualDistances[i]-mem->jointCurrentVirtualPositions[i])/mem->jointMaxVelocities[i];
+                                mem->jointCurrentVirtualVelocities[i]=mem->jointMaxVelocities[i];
+                                if (timeNeeded>timeLeftLocal)
+                                {
+                                    mem->jointCurrentVirtualPositions[i]+=timeLeftLocal*mem->jointMaxVelocities[i];
+                                    timeLeftLocal=0.0f; // this is what is left
+                                }
+                                else
+                                {
+                                    mem->jointCurrentVirtualPositions[i]=mem->jointVirtualDistances[i];
+                                    if (timeNeeded>=0.0f)
+                                        timeLeftLocal-=timeNeeded;
+                                }
+                            }
+                            else
+                            {
+                                double p=mem->jointCurrentVirtualPositions[i];
+                                double v=mem->jointCurrentVirtualVelocities[i];
+                                double t=timeLeftLocal;
+                                CLinMotionRoutines::getNextValues(p,v,mem->jointMaxVelocities[i],mem->jointAccels[i],0.0f,mem->jointVirtualDistances[i],0.0f,0.0f,t);
+                                mem->jointCurrentVirtualPositions[i]=float(p);
+                                mem->jointCurrentVirtualVelocities[i]=float(v);
+                                timeLeftLocal=float(t);
+                            }
+                            if (timeLeftLocal<minTimeLeft)
+                                minTimeLeft=timeLeftLocal;
+                            // Check if within tolerance (after):
+                            if (fabs(mem->jointCurrentVirtualPositions[i]-mem->jointVirtualDistances[i])>0.00001f)
+                                withinTolerance=false;
+                        }
+                    }
+                }
+                if (withinTolerance)
+                    movementFinished=true;
+            }
+            dt=minTimeLeft;
+
+            // We set all joint positions:
+            for (int i=0;i<tableLen;i++)
+            {
+                CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(mem->jointHandles[i]);
+                if ( (joint!=nullptr)&&(joint->getJointType()!=sim_joint_spherical_subtype)&&(mem->jointVirtualDistances[i]!=0.0f) )
+                {
+                    if (joint->getJointMode()==sim_jointmode_force)
+                        joint->setDynamicMotorPositionControlTargetPosition(mem->jointStartPositions[i]+(mem->jointTargetPositions[i]-mem->jointStartPositions[i])*mem->jointCurrentVirtualPositions[i]/mem->jointVirtualDistances[i]);
+                    else
+                        joint->setPosition(mem->jointStartPositions[i]+(mem->jointTargetPositions[i]-mem->jointStartPositions[i])*mem->jointCurrentVirtualPositions[i]/mem->jointVirtualDistances[i]);
+                }
+            }
+
+            if (!movementFinished)
+            {
+                luaWrap_lua_pushinteger(L,0); // mov. not yet finished
+                LUA_END(1);
+            }
+            if (!err)
+            {
+                luaWrap_lua_pushinteger(L,1); // mov. finished
+                luaWrap_lua_pushnumber(L,dt); // success (deltaTime left)
+                LUA_END(2);
+            }
         }
     }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
@@ -16189,8 +15799,8 @@ int _simRMLPosition(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START_NO_CSIDE_ERROR("simRMLPosition");
 
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* scr=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* scr=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (!scr->checkAndSetWarning_simRMLPosition_oldCompatibility_30_8_2014())
         warningString="Function is deprecated. Use simRMLPos instead.";
 
@@ -16256,8 +15866,8 @@ int _simRMLVelocity(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simRMLVelocity");
 
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* scr=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* scr=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (!scr->checkAndSetWarning_simRMLVelocity_oldCompatibility_30_8_2014())
         warningString="Function is deprecated. Use simRMLVel instead.";
 
@@ -16348,7 +15958,7 @@ int _simGetPathPlanningHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simGetPathPlanningHandle_internal(name.c_str());
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -16394,71 +16004,6 @@ int _simSearchPath(luaWrap_lua_State* L)
                     if (it->performSearch(false,maximumSearchTime))
                         retVal=1;
                 }
-                /*
-                else
-                { // threaded call:
-                    CPathPlanningTask* oldIt=it;
-                    it=oldIt->copyYourself(); // we copy it because the original might be destroyed at any time
-                    it->setOriginalTask(oldIt);
-                    retVal=-1; // for error
-                    bool err=false;
-                    if (it->initiateSteppedSearch(false,maximumSearchTime,subDt))
-                    {
-                        retVal=-2; // means search not yet finished
-                        while (retVal==-2)
-                        {
-                            retVal=it->performSteppedSearch();
-                            if (retVal==-2)
-                            { // we are not yet finished with the search!
-                                CThreadPool::switchBackToPreviousThread();
-                                if (CThreadPool::getSimulationStopRequestedAndActivated()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L)))
-                                {
-                                    errorString="@yield"; // yield will be triggered at end of this function
-                                    retVal=-1; // generate an error
-                                    break; // will generate an error (retVal is -1)
-                                }
-                            }
-                        }
-                        if (retVal==-1)
-                        {
-                            errorString=SIM_ERROR_PATH_PLANNING_OBJECT_NOT_CONSISTENT_ANYMORE;
-                            retVal=-1; // for error
-                            err=true;
-                        }
-                        // Return values are -1 (error), 0 (no path found) 1 (partial path found) and 2 (full path found)
-                    }
-                    else
-                    { // the task is not consistent!
-                        errorString=SIM_ERROR_PATH_PLANNING_OBJECT_NOT_CONSISTENT;
-                        err=true;
-                    }
-
-                    if (!err)
-                    {
-                        CPathPlanningTask* originalIt=it->getOriginalTask();
-                        int tree1Handle,tree2Handle;
-                        it->getAndDisconnectSearchTrees(tree1Handle,tree2Handle); // to keep trees visible!
-                        delete it;
-                        // Now we connect the trees only if the originalTask still exists:
-                        bool found=false;
-                        for (int ot=0;ot<int(App::currentWorld->pathPlanning->allObjects.size());ot++)
-                        {
-                            if (App::currentWorld->pathPlanning->allObjects[ot]==originalIt)
-                            {
-                                found=true;
-                                break;
-                            }
-                        }
-                        if (found)
-                            originalIt->connectExternalSearchTrees(tree1Handle,tree2Handle);
-                        else
-                        {
-                            App::currentWorld->drawingCont->removeObject(tree1Handle);
-                            App::currentWorld->drawingCont->removeObject(tree2Handle);
-                        }
-                    }
-                }
-                */
             }
         }
     }
@@ -16645,7 +16190,7 @@ int _simGetUIHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simGetUIHandle_internal(name.c_str());
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -17081,8 +16626,8 @@ int _simHandleChildScript(luaWrap_lua_State* L)
     LUA_START("simHandleChildScript");
 
     warningString="function is deprecated. Use simHandleChildScripts instead.";
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (!it->checkAndSetWarningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014())
     {
         std::string title("Compatibility issue with ");
@@ -17233,16 +16778,16 @@ int _simReleaseScriptRawBuffer(luaWrap_lua_State* L)
     {
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
-            handle=CLuaScriptObject::getScriptHandleFromLuaState(L);
+            handle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         if ( (handle!=sim_handle_tree)&&(handle!=sim_handle_chain) )
             retVal=simReleaseScriptRawBuffer_internal(handle,luaToInt(L,2));
         else
         {
             std::vector<int> scriptHandles;
             if (handle==sim_handle_tree)
-                getScriptTree(L,false,scriptHandles);
+                getScriptTree_old(L,false,scriptHandles);
             else
-                getScriptChain(L,false,false,scriptHandles);
+                getScriptChain_old(L,false,false,scriptHandles);
             for (int i=0;i<int(scriptHandles.size());i++)
                 retVal=simReleaseScriptRawBuffer_internal(scriptHandles[i],sim_handle_all);
         }
@@ -17307,9 +16852,9 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
         {
-            handle=CLuaScriptObject::getScriptHandleFromLuaState(L);
+            handle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
             // Since this routine can also be called by customization scripts, check for that here:
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
             if (it->getScriptType()==sim_scripttype_customizationscript)
             {
                 handle=it->getObjectHandleThatScriptIsAttachedTo_customization();
@@ -17340,7 +16885,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
                         if (returnString)
                             luaWrap_lua_pushlstring(L,a.c_str(),a.length());
                         else
-                            pushCorrectTypeOntoLuaStack(L,a);
+                            pushCorrectTypeOntoLuaStack_old(L,a);
                         simReleaseBuffer_internal(p);
                         LUA_END(1);
                     }
@@ -17349,14 +16894,14 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
                 {
                     std::vector<int> scriptHandles;
                     if (handle==sim_handle_tree)
-                        getScriptTree(L,false,scriptHandles);
+                        getScriptTree_old(L,false,scriptHandles);
                     if (handle==sim_handle_chain)
-                        getScriptChain(L,false,false,scriptHandles);
+                        getScriptChain_old(L,false,false,scriptHandles);
                     if (handle==sim_handle_all)
                     {
                         for (int i=0;i<int(App::currentWorld->embeddedScriptContainer->allScripts.size());i++)
                         {
-                            CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->allScripts[i];
+                            CScriptObject* it=App::currentWorld->embeddedScriptContainer->allScripts[i];
                             int scrType=it->getScriptType();
                             if ((scrType==sim_scripttype_mainscript)||(scrType==sim_scripttype_childscript)) // make sure plugin script etc. are not included!
                                 scriptHandles.push_back(it->getScriptHandle());
@@ -17384,7 +16929,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
                         for (int i=0;i<int(retParams.size());i++)
                         {
                             stack.pushNumberOntoStack((double)i+1); // key
-                            int t=getCorrectType(retParams[i]);
+                            int t=getCorrectType_old(retParams[i]);
                             if (returnString)
                                 t=4; // we force for strings!
                             if (t==0)
@@ -17403,7 +16948,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
                                 stack.pushNullOntoStack();
                             stack.insertDataIntoStackTable();
                         }
-                        stack.buildOntoLuaStack(L,true);
+                        CScriptObject::buildOntoInterpreterStack_lua(L,&stack,true);
                         pushIntTableOntoStack(L,(int)retHandles.size(),&retHandles[0]);
                         LUA_END(2);
                     }
@@ -17430,9 +16975,9 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
         {
-            handle=CLuaScriptObject::getScriptHandleFromLuaState(L);
+            handle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
             // Since this routine can also be called by customization scripts, check for that here:
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
             if (it->getScriptType()==sim_scripttype_customizationscript)
             {
                 handle=it->getObjectHandleThatScriptIsAttachedTo_customization();
@@ -17456,9 +17001,9 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
             {
                 std::vector<int> scriptHandles;
                 if (handle==sim_handle_tree)
-                    getScriptTree(L,false,scriptHandles);
+                    getScriptTree_old(L,false,scriptHandles);
                 else
-                    getScriptChain(L,false,false,scriptHandles);
+                    getScriptChain_old(L,false,false,scriptHandles);
                 retVal=0;
                 for (size_t i=0;i<scriptHandles.size();i++)
                 {
@@ -17507,7 +17052,7 @@ int _simGetNameSuffix(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,nullptr,lua_arg_nil,0))
     { // we want the suffix of current script
-        luaWrap_lua_pushinteger(L,CLuaScriptObject::getScriptNameIndexFromLuaState(L));
+        luaWrap_lua_pushinteger(L,CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L));
         LUA_END(1);
     }
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
@@ -17533,7 +17078,7 @@ int _simSetNameSuffix(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int nb=luaWrap_lua_tointeger(L,1);
-        CLuaScriptObject::setScriptNameIndexToLuaState(L,nb);
+        CScriptObject::setScriptNameIndexToInterpreterState_lua_old(L,nb);
         retVal=1;
     }
 
@@ -17565,7 +17110,7 @@ int _simAddStatusbarMessage(luaWrap_lua_State* L)
             if (checkInputArguments(L,&errorString,lua_arg_string,0))
             {
                 //retVal=simAddStatusbarMessage_internal(luaWrap_lua_tostring(L,1));
-                CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
+                CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
                 if (it!=nullptr)
                 {
                     App::logScriptMsg(it->getShortDescriptiveName().c_str(),sim_verbosity_msgs,luaWrap_lua_tostring(L,1));
@@ -17648,200 +17193,238 @@ int _simGetShapeMassAndInertia(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
+typedef struct{
+    float lastTime;
+    float accel;
+    int vdl;
+    float currentPos;
+    float maxVelocity;
+    float currentVel;
+    int objID;
+    CSceneObject* object;
+    int targetObjID;
+    CSceneObject* targetObject;
+    float relativeDistanceOnPath;
+    float previousLL;
+    C7Vector startTr;
+    int positionAndOrOrientation;
+} simMoveToObjData_old;
 
-int _simMoveToObject(luaWrap_lua_State* L)
-{ // Deprecated on 08.09.2020
+int _sim_moveToObj_1(luaWrap_lua_State* L)
+{ // for backward compatibility with simMoveToObject on old threaded scripts
     TRACE_LUA_API;
-    LUA_START("sim.moveToObject");
+    LUA_START("sim._moveToObj_1");
 
-    if (!VThread::isCurrentThreadTheMainSimulationThread())
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    { // Those are the arguments that are always required! (the rest can be ignored or set to nil!
+        int objID=luaWrap_lua_tointeger(L,1);
+        int targetObjID=luaWrap_lua_tointeger(L,2);
+        float maxVelocity=0.1f;
+        float relativeDistanceOnPath=-1.0f;
+        int positionAndOrOrientation=3; // position and orientation (default value)
+        CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
+        CSceneObject* targetObject=App::currentWorld->sceneObjects->getObjectFromHandle(targetObjID);
+        float accel=0.0f; // means infinite accel!! (default value)
+        bool foundError=false;
+        if ((!foundError)&&((object==nullptr)||(targetObject==nullptr)))
+        {
+            errorString=SIM_ERROR_OBJECT_OR_TARGET_OBJECT_DOES_NOT_EXIST;
+            foundError=true;
+        }
+        if ((!foundError)&&(targetObject==object))
+        {
+            errorString=SIM_ERROR_OBJECT_IS_SAME_AS_TARGET_OBJECT;
+            foundError=true;
+        }
+        // Now check the optional arguments:
+        int res;
+        if (!foundError) // position and/or orientation argument:
+        {
+            res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,true,&errorString);
+            if (res==2)
+            { // get the data
+                positionAndOrOrientation=abs(luaToInt(L,3));
+                if ((positionAndOrOrientation&3)==0)
+                    positionAndOrOrientation=1; // position only
+            }
+            foundError=(res==-1);
+        }
+        if (!foundError) // positionOnPath argument:
+        {
+            res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,true,&errorString);
+            if (res==2)
+            { // get the data
+                relativeDistanceOnPath=tt::getLimitedFloat(0.0f,1.0f,luaToFloat(L,4));
+                if (targetObject->getObjectType()!=sim_object_path_type)
+                {
+                    errorString=SIM_ERROR_TARGET_OBJECT_IS_NOT_A_PATH;
+                    foundError=true;
+                }
+            }
+            foundError=(res==-1);
+        }
+        if (!foundError) // Velocity argument:
+        {
+            res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,false,false,&errorString);
+            if (res==2)
+            { // get the data
+                maxVelocity=luaToFloat(L,5);
+            }
+            else
+                foundError=true; // this argument is not optional!
+        }
+        if (!foundError) // Accel argument:
+        {
+            res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,true,&errorString);
+            if (res==2)
+            { // get the data
+                accel=fabs(luaToFloat(L,6));
+            }
+            foundError=(res==-1);
+        }
+        if (!foundError)
+        { // do the job here!
+            C7Vector startTr(object->getCumulativeTransformation());
+            float currentVel=0.0f;
+            float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
+            float vdl=1.0f;
+            // vld is the totalvirtual distance
+            float currentPos=0.0f;
+            float previousLL=0.0f;
+
+            _memHandles_old.push_back(_nextMemHandle_old);
+            simMoveToObjData_old* mem=new simMoveToObjData_old();
+            mem->lastTime=lastTime;
+            mem->accel=accel;
+            mem->vdl=vdl;
+            mem->currentPos=currentPos;
+            mem->maxVelocity=maxVelocity;
+            mem->currentVel=currentVel;
+            mem->objID=objID;
+            mem->object=object;
+            mem->targetObjID=targetObjID;
+            mem->targetObject=targetObject;
+            mem->relativeDistanceOnPath=relativeDistanceOnPath;
+            mem->previousLL=previousLL;
+            mem->startTr=startTr;
+            mem->positionAndOrOrientation=positionAndOrOrientation;
+
+            _memBuffers_old.push_back(mem);
+            luaWrap_lua_pushinteger(L,_nextMemHandle_old);
+            _nextMemHandle_old++;
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED();
+    LUA_END(0);
+}
+
+int _sim_moveToObj_2(luaWrap_lua_State* L)
+{ // for backward compatibility with simMoveToObject on old threaded scripts
+    TRACE_LUA_API;
+    LUA_START("sim._moveToObj_2");
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0))
     {
-        if (!(CThreadPool::getSimulationStopRequested()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L))))
-        { // Important to first check if we are supposed to leave the thread!!
-            if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-            { // Those are the arguments that are always required! (the rest can be ignored or set to nil!
-                int objID=luaWrap_lua_tointeger(L,1);
-                int targetObjID=luaWrap_lua_tointeger(L,2);
-                float maxVelocity=0.1f;
-                float relativeDistanceOnPath=-1.0f;
-                int positionAndOrOrientation=3; // position and orientation (default value)
-                CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
-                CSceneObject* targetObject=App::currentWorld->sceneObjects->getObjectFromHandle(targetObjID);
-                float accel=0.0f; // means infinite accel!! (default value)
-                bool foundError=false;
-                if ((!foundError)&&((object==nullptr)||(targetObject==nullptr)))
+        int h=luaWrap_lua_tointeger(L,1);
+        simMoveToObjData_old* mem=nullptr;
+        for (size_t i=0;i<_memHandles_old.size();i++)
+        {
+            if (_memHandles_old[i]==h)
+            {
+                mem=(simMoveToObjData_old*)_memBuffers_old[i];
+                break;
+            }
+        }
+        if (mem!=nullptr)
+        {
+            bool movementFinished=false;
+            float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
+            float dt=currentTime-mem->lastTime;
+            mem->lastTime=currentTime;
+
+            if (mem->accel==0.0f)
+            { // Means infinite acceleration
+                float timeNeeded=(mem->vdl-mem->currentPos)/mem->maxVelocity;
+                mem->currentVel=mem->maxVelocity;
+                if (timeNeeded>dt)
                 {
-                    errorString=SIM_ERROR_OBJECT_OR_TARGET_OBJECT_DOES_NOT_EXIST;
-                    foundError=true;
+                    mem->currentPos+=dt*mem->maxVelocity;
+                    dt=0.0f; // this is what is left
                 }
-                if ((!foundError)&&(targetObject==object))
+                else
                 {
-                    errorString=SIM_ERROR_OBJECT_IS_SAME_AS_TARGET_OBJECT;
-                    foundError=true;
+                    mem->currentPos=mem->vdl;
+                    if (timeNeeded>=0.0f)
+                        dt-=timeNeeded;
                 }
-                // Now check the optional arguments:
-                int res;
-                if (!foundError) // position and/or orientation argument:
-                {
-                    res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,true,&errorString);
-                    if (res==2)
-                    { // get the data
-                        positionAndOrOrientation=abs(luaToInt(L,3));
-                        if ((positionAndOrOrientation&3)==0)
-                            positionAndOrOrientation=1; // position only
-                    }
-                    foundError=(res==-1);
-                }
-                if (!foundError) // positionOnPath argument:
-                {
-                    res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,true,&errorString);
-                    if (res==2)
-                    { // get the data
-                        relativeDistanceOnPath=tt::getLimitedFloat(0.0f,1.0f,luaToFloat(L,4));
-                        if (targetObject->getObjectType()!=sim_object_path_type)
-                        {
-                            errorString=SIM_ERROR_TARGET_OBJECT_IS_NOT_A_PATH;
-                            foundError=true;
-                        }
-                    }
-                    foundError=(res==-1);
-                }
-                if (!foundError) // Velocity argument:
-                {
-                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,false,false,&errorString);
-                    if (res==2)
-                    { // get the data
-                        maxVelocity=luaToFloat(L,5);
+            }
+            else
+            {
+                double p=mem->currentPos;
+                double v=mem->currentVel;
+                double t=dt;
+                CLinMotionRoutines::getNextValues(p,v,mem->maxVelocity,mem->accel,0.0f,mem->vdl,0.0f,0.0f,t);
+                mem->currentPos=float(p);
+                mem->currentVel=float(v);
+                dt=float(t);
+            }
+
+            // Now check if we are within tolerances:
+            if (fabs(mem->currentPos-mem->vdl)<=0.00001f)
+                movementFinished=true;
+
+            // Set the new configuration of the object:
+            float ll=mem->currentPos/mem->vdl;
+            if (ll>1.0f)
+                ll=1.0f;
+            if ((App::currentWorld->sceneObjects->getObjectFromHandle(mem->objID)==mem->object)&&(App::currentWorld->sceneObjects->getObjectFromHandle(mem->targetObjID)==mem->targetObject)) // make sure the objects are still valid (running in a thread)
+            {
+                C7Vector targetTr(mem->targetObject->getCumulativeTransformation());
+                bool goOn=true;
+                if (mem->relativeDistanceOnPath>=0.0f)
+                { // we should have a path here
+                    if (mem->targetObject->getObjectType()==sim_object_path_type)
+                    {
+                        C7Vector pathLoc;
+                        if ( ((CPath_old*)mem->targetObject)->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(mem->relativeDistanceOnPath,pathLoc))
+                            targetTr*=pathLoc;
+                        else
+                            mem->relativeDistanceOnPath=-1.0f; // the path is empty!
                     }
                     else
-                        foundError=true; // this argument is not optional!
+                        goOn=false;
                 }
-                if (!foundError) // Accel argument:
+                if (goOn)
                 {
-                    res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,true,&errorString);
-                    if (res==2)
-                    { // get the data
-                        accel=fabs(luaToFloat(L,6));
-                    }
-                    foundError=(res==-1);
+                    C7Vector newAbs;
+                    newAbs.buildInterpolation(mem->startTr,targetTr,(ll-mem->previousLL)/(1.0f-mem->previousLL));
+                    mem->startTr=newAbs;
+                    C7Vector parentInv(mem->object->getFullParentCumulativeTransformation().getInverse());
+                    C7Vector currentTr(mem->object->getCumulativeTransformation());
+                    if ((mem->positionAndOrOrientation&1)==0)
+                        newAbs.X=currentTr.X;
+                    if ((mem->positionAndOrOrientation&2)==0)
+                        newAbs.Q=currentTr.Q;
+                    mem->object->setLocalTransformation(parentInv*newAbs);
                 }
-                if (!foundError)
-                { // do the job here!
-                    C7Vector startTr(object->getCumulativeTransformation());
-                    float currentVel=0.0f;
-                    CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                    float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+threadData->usedMovementTime;
-                    float vdl=1.0f;
-                    // vld is the totalvirtual distance
-                    float currentPos=0.0f;
+                else
+                    movementFinished=true; // the target object is not a path anymore!!
 
-                    bool movementFinished=false;
-                    float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f; // this is the time left if we leave here
-                    float previousLL=0.0f;
-                    bool err=false;
-                    while ( (!movementFinished)&&(vdl!=0.0f) )
-                    {
-                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
-                        dt=currentTime-lastTime;
-                        lastTime=currentTime;
-
-                        if (accel==0.0f)
-                        { // Means infinite acceleration
-                            float timeNeeded=(vdl-currentPos)/maxVelocity;
-                            currentVel=maxVelocity;
-                            if (timeNeeded>dt)
-                            {
-                                currentPos+=dt*maxVelocity;
-                                dt=0.0f; // this is what is left
-                            }
-                            else
-                            {
-                                currentPos=vdl;
-                                if (timeNeeded>=0.0f)
-                                    dt-=timeNeeded;
-                            }
-                        }
-                        else
-                        {
-                            double p=currentPos;
-                            double v=currentVel;
-                            double t=dt;
-                            CLinMotionRoutines::getNextValues(p,v,maxVelocity,accel,0.0f,vdl,0.0f,0.0f,t);
-                            currentPos=float(p);
-                            currentVel=float(v);
-                            dt=float(t);
-                        }
-
-                        // Now check if we are within tolerances:
-                        if (fabs(currentPos-vdl)<=0.00001f)
-                            movementFinished=true;
-
-                        // Set the new configuration of the object:
-                        float ll=currentPos/vdl;
-                        if (ll>1.0f)
-                            ll=1.0f;
-                        if ((App::currentWorld->sceneObjects->getObjectFromHandle(objID)==object)&&(App::currentWorld->sceneObjects->getObjectFromHandle(targetObjID)==targetObject)) // make sure the objects are still valid (running in a thread)
-                        {
-                            C7Vector targetTr(targetObject->getCumulativeTransformation());
-                            bool goOn=true;
-                            if (relativeDistanceOnPath>=0.0f)
-                            { // we should have a path here
-                                if (targetObject->getObjectType()==sim_object_path_type)
-                                {
-                                    C7Vector pathLoc;
-                                    if ( ((CPath_old*)targetObject)->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(relativeDistanceOnPath,pathLoc))
-                                        targetTr*=pathLoc;
-                                    else
-                                        relativeDistanceOnPath=-1.0f; // the path is empty!
-                                }
-                                else
-                                    goOn=false;
-                            }
-                            if (goOn)
-                            {
-                                C7Vector newAbs;
-                                newAbs.buildInterpolation(startTr,targetTr,(ll-previousLL)/(1.0f-previousLL));
-                                startTr=newAbs;
-                                C7Vector parentInv(object->getFullParentCumulativeTransformation().getInverse());
-                                C7Vector currentTr(object->getCumulativeTransformation());
-                                if ((positionAndOrOrientation&1)==0)
-                                    newAbs.X=currentTr.X;
-                                if ((positionAndOrOrientation&2)==0)
-                                    newAbs.Q=currentTr.Q;
-                                object->setLocalTransformation(parentInv*newAbs);
-                            }
-                            else
-                                movementFinished=true; // the target object is not a path anymore!!
-                        }
-                        else
-                            movementFinished=true; // the object was destroyed during execution of the command!
-                        previousLL=ll;
-                        if (!movementFinished)
-                        {
-                            CThreadPool::switchBackToPreviousThread();
-                            if (CThreadPool::getSimulationStopRequestedAndActivated()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L)))
-                            {
-                                errorString="@yield"; // yield will be triggered at end of this function
-                                err=true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!err)
-                    {
-                        // The movement finished. Now add the time used:
-                        threadData->usedMovementTime=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f-dt;
-                        luaWrap_lua_pushnumber(L,dt); // success (deltaTime left)
-                        LUA_END(1);
-                    }
+                mem->previousLL=ll;
+                if (!movementFinished)
+                {
+                    luaWrap_lua_pushinteger(L,0); // mov. not yet finished
+                    LUA_END(1);
                 }
+                luaWrap_lua_pushinteger(L,1); // mov. finished
+                luaWrap_lua_pushnumber(L,dt); // success (deltaTime left)
+                LUA_END(2);
             }
         }
     }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
 
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED();
     LUA_END(0);
 }
 
@@ -18158,7 +17741,7 @@ int _simGetIkGroupHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simGetIkGroupHandle_internal(name.c_str());
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -18270,7 +17853,7 @@ int _simSetThreadIsFree(luaWrap_lua_State* L)
         bool result=false;
         if (checkInputArguments(L,nullptr,lua_arg_bool,0))
         {
-            result=CThreadPool::setThreadFreeMode(luaToBool(L,1));
+            result=CThreadPool_old::setThreadFreeMode(luaToBool(L,1));
             if (result)
                 retVal=1;
             else
@@ -18317,8 +17900,8 @@ int _simTubeOpen(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_number,0))
     {
         std::string strTmp=luaWrap_lua_tostring(L,2);
-        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         retVal=App::currentWorld->commTubeContainer->openTube(luaToInt(L,1),strTmp.c_str(),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript),luaToInt(L,3));
     }
 
@@ -18388,8 +17971,8 @@ int _simSendData(luaWrap_lua_State* L)
     LUA_START("sim.sendData");
 
     int retVal=-1;
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_string,0,lua_arg_string,0))
@@ -18509,8 +18092,8 @@ int _simReceiveData(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.receiveData");
 
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
     {
         int dataHeader=-1;
@@ -18604,137 +18187,172 @@ int _simReceiveData(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simFollowPath(luaWrap_lua_State* L)
-{ // deprecated on 01.10.2020
+typedef struct{
+    int objID;
+    CSceneObject* object;
+    int pathID;
+    CPath_old* path;
+    float lastTime;
+    float accel;
+    double pos;
+    float vel;
+    float maxVelocity;
+    float bezierPathLength;
+    int positionAndOrOrientation;
+} simFollowPath_old;
+
+int _sim_followPath_1(luaWrap_lua_State* L)
+{ // for backward compatibility with simFollowPath on old threaded scripts
     TRACE_LUA_API;
-    LUA_START("sim.followPath");
+    LUA_START("sim._followPath_1");
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+    { // Those are the arguments that are always required! (the rest can be ignored or set to nil!
+        int objID=luaWrap_lua_tointeger(L,1);
+        int pathID=luaWrap_lua_tointeger(L,2);
+        float posOnPath=luaToFloat(L,4);
+        int positionAndOrOrientation=abs(luaToInt(L,3));
+        if (positionAndOrOrientation==0)
+            positionAndOrOrientation=1;
+        float maxVelocity=luaToFloat(L,5);
+        CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
+        CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(pathID);
+        float accel=0.0f; // means infinite accel!! (default value)
+        bool foundError=false;
+        if ((!foundError)&&(object==nullptr))
+        {
+            errorString=SIM_ERROR_OBJECT_INEXISTANT;
+            foundError=true;
+        }
+        if ((!foundError)&&(path==nullptr))
+        {
+            errorString=SIM_ERROR_PATH_INEXISTANT;
+            foundError=true;
+        }
+        if (!foundError)
+        {
+            if (path->pathContainer->getAttributes()&sim_pathproperty_closed_path)
+            {
+                if (posOnPath<0.0f)
+                    posOnPath=0.0f;
+            }
+            else
+                posOnPath=tt::getLimitedFloat(0.0f,1.0f,posOnPath);
+        }
 
-    if (!VThread::isCurrentThreadTheMainSimulationThread())
+        // Now check the optional arguments:
+        int res;
+        if (!foundError) // Accel argument:
+        {
+            res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,true,&errorString);
+            if (res==2)
+            { // get the data
+                accel=fabs(luaToFloat(L,6));
+            }
+            foundError=(res==-1);
+        }
+        if (!foundError)
+        { // do the job here!
+            float bezierPathLength=path->pathContainer->getBezierVirtualPathLength();
+            double pos=posOnPath*bezierPathLength;
+            float vel=0.0f;
+            float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
+            bool movementFinished=(bezierPathLength==0.0f);
+            if (movementFinished)
+                luaWrap_lua_pushinteger(L,-1);
+            else
+            {
+                _memHandles_old.push_back(_nextMemHandle_old);
+                simFollowPath_old* mem=new simFollowPath_old();
+                mem->objID=objID;
+                mem->object=object;
+                mem->pathID=pathID;
+                mem->path=path;
+                mem->lastTime=lastTime;
+                mem->accel=accel;
+                mem->pos=pos;
+                mem->vel=vel;
+                mem->maxVelocity=maxVelocity;
+                mem->bezierPathLength=bezierPathLength;
+                mem->positionAndOrOrientation=positionAndOrOrientation;
+                _memBuffers_old.push_back(mem);
+                luaWrap_lua_pushinteger(L,_nextMemHandle_old);
+                _nextMemHandle_old++;
+            }
+            LUA_END(1);
+        }
+    }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED();
+    LUA_END(0);
+}
+
+int _sim_followPath_2(luaWrap_lua_State* L)
+{ // for backward compatibility with simFollowPath on old threaded scripts
+    TRACE_LUA_API;
+    LUA_START("sim._followPath_2");
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0))
     {
-        if (!(CThreadPool::getSimulationStopRequested()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L))))
-        { // Important to first check if we are supposed to leave the thread!!
-            if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-            { // Those are the arguments that are always required! (the rest can be ignored or set to nil!
-                int objID=luaWrap_lua_tointeger(L,1);
-                int pathID=luaWrap_lua_tointeger(L,2);
-                float posOnPath=luaToFloat(L,4);
-                int positionAndOrOrientation=abs(luaToInt(L,3));
-                if (positionAndOrOrientation==0)
-                    positionAndOrOrientation=1;
-                float maxVelocity=luaToFloat(L,5);
-                CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
-                CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(pathID);
-                float accel=0.0f; // means infinite accel!! (default value)
-                bool foundError=false;
-                if ((!foundError)&&(object==nullptr))
+        int h=luaWrap_lua_tointeger(L,1);
+        simFollowPath_old* mem=nullptr;
+        for (size_t i=0;i<_memHandles_old.size();i++)
+        {
+            if (_memHandles_old[i]==h)
+            {
+                mem=(simFollowPath_old*)_memBuffers_old[i];
+                break;
+            }
+        }
+        if (mem!=nullptr)
+        {
+            if ( (App::currentWorld->sceneObjects->getObjectFromHandle(mem->objID)==mem->object)&&(App::currentWorld->sceneObjects->getPathFromHandle(mem->pathID)==mem->path) ) // make sure the objects are still valid (running in a thread)
+            {
+                float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f; // this is the time left if we leave here
+                bool movementFinished=false;
+                float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
+                dt=currentTime-mem->lastTime;
+                mem->lastTime=currentTime;
+                if (mem->accel==0.0f)
+                { // Means infinite acceleration
+                    mem->path->pathContainer->handlePath_keepObjectUnchanged(dt,mem->pos,mem->vel,mem->maxVelocity,1.0f,false,true);
+                }
+                else
                 {
-                    errorString=SIM_ERROR_OBJECT_INEXISTANT;
-                    foundError=true;
+                    mem->path->pathContainer->handlePath_keepObjectUnchanged(dt,mem->pos,mem->vel,mem->maxVelocity,mem->accel,false,false);
                 }
-                if ((!foundError)&&(path==nullptr))
+
+                // Now check if we are within tolerances:
+                if ( ((fabs(mem->pos-mem->bezierPathLength)<=0.00001f)&&(mem->maxVelocity>=0.0f)) || ((fabs(mem->pos-0.0f)<=0.00001f)&&(mem->maxVelocity<=0.0f)) )
+                    movementFinished=true;
+
+                // Set the new configuration of the object:
+                float ll=float(mem->pos/mem->bezierPathLength);
+                C7Vector newAbs;
+                if (mem->path->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(ll,newAbs))
                 {
-                    errorString=SIM_ERROR_PATH_INEXISTANT;
-                    foundError=true;
+                    newAbs=mem->path->getCumulativeTransformation()*newAbs;
+                    C7Vector parentInv(mem->object->getFullParentCumulativeTransformation().getInverse());
+                    C7Vector currAbs(mem->object->getCumulativeTransformation());
+                    if ((mem->positionAndOrOrientation&1)==0)
+                        newAbs.X=currAbs.X;
+                    if ((mem->positionAndOrOrientation&2)==0)
+                        newAbs.Q=currAbs.Q;
+                    mem->object->setLocalTransformation(parentInv*newAbs);
                 }
-                if (!foundError)
+                else
+                    movementFinished=true;
+
+                if (!movementFinished)
                 {
-                    if (path->pathContainer->getAttributes()&sim_pathproperty_closed_path)
-                    {
-                        if (posOnPath<0.0f)
-                            posOnPath=0.0f;
-                    }
-                    else
-                        posOnPath=tt::getLimitedFloat(0.0f,1.0f,posOnPath);
+                    luaWrap_lua_pushinteger(L,0); // mov. not yet finished
+                    LUA_END(1);
                 }
-
-                // Now check the optional arguments:
-                int res;
-                if (!foundError) // Accel argument:
-                {
-                    res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,true,&errorString);
-                    if (res==2)
-                    { // get the data
-                        accel=fabs(luaToFloat(L,6));
-                    }
-                    foundError=(res==-1);
-                }
-                if (!foundError)
-                { // do the job here!
-                    float bezierPathLength=path->pathContainer->getBezierVirtualPathLength();
-                    double pos=posOnPath*bezierPathLength;
-                    float vel=0.0f;
-                    CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                    float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+threadData->usedMovementTime;
-                    bool movementFinished=(bezierPathLength==0.0f);
-                    float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f; // this is the time left if we leave here
-                    bool err=false;
-                    while (!movementFinished)
-                    {
-                        if ((App::currentWorld->sceneObjects->getObjectFromHandle(objID)!=object)||(App::currentWorld->sceneObjects->getPathFromHandle(pathID)!=path) ) // make sure the objects are still valid (running in a thread)
-                        {
-                            dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
-                            break;
-                        }
-
-                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
-                        dt=currentTime-lastTime;
-                        lastTime=currentTime;
-                        if (accel==0.0f)
-                        { // Means infinite acceleration
-                            path->pathContainer->handlePath_keepObjectUnchanged(dt,pos,vel,maxVelocity,1.0f,false,true);
-                        }
-                        else
-                        {
-                            path->pathContainer->handlePath_keepObjectUnchanged(dt,pos,vel,maxVelocity,accel,false,false);
-                        }
-
-                        // Now check if we are within tolerances:
-                        if ( ((fabs(pos-bezierPathLength)<=0.00001f)&&(maxVelocity>=0.0f)) || ((fabs(pos-0.0f)<=0.00001f)&&(maxVelocity<=0.0f)) )
-                            movementFinished=true;
-
-                        // Set the new configuration of the object:
-                        float ll=float(pos/bezierPathLength);
-                        C7Vector newAbs;
-                        if (path->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(ll,newAbs))
-                        {
-                            newAbs=path->getCumulativeTransformation()*newAbs;
-                            C7Vector parentInv(object->getFullParentCumulativeTransformation().getInverse());
-                            C7Vector currAbs(object->getCumulativeTransformation());
-                            if ((positionAndOrOrientation&1)==0)
-                                newAbs.X=currAbs.X;
-                            if ((positionAndOrOrientation&2)==0)
-                                newAbs.Q=currAbs.Q;
-                            object->setLocalTransformation(parentInv*newAbs);
-                        }
-                        else
-                            movementFinished=true;
-
-                        if (!movementFinished)
-                        {
-                            CThreadPool::switchBackToPreviousThread();
-                            if (CThreadPool::getSimulationStopRequestedAndActivated()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L)))
-                            {
-                                errorString="@yield"; // yield will be triggered at end of this function
-                                err=true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!err)
-                    {
-                        // The movement finished. Now add the time used:
-                        threadData->usedMovementTime=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f-dt;
-                        luaWrap_lua_pushnumber(L,dt); // success
-                        LUA_END(1);
-                    }
-                }
+                luaWrap_lua_pushinteger(L,1); // mov. finished
+                luaWrap_lua_pushnumber(L,dt); // success (deltaTime left)
+                LUA_END(2);
             }
         }
     }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
 
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED();
     LUA_END(0);
 }
 
@@ -18982,8 +18600,8 @@ int _simGetScriptExecutionCount(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getScriptExecutionCount");
 
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,it->getNumberOfPasses());
@@ -18995,8 +18613,8 @@ int _simIsScriptExecutionThreaded(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.isScriptExecutionThreaded");
 
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
     int retVal=0;
     if ((it!=nullptr)&&it->getThreadedExecution_oldThreads())
         retVal=1;
@@ -19028,7 +18646,7 @@ int _simSetThreadResumeLocation(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        if (CThreadPool::setThreadResumeLocation(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2)))
+        if (CThreadPool_old::setThreadResumeLocation(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2)))
             retVal=1;
         else
             retVal=0;
@@ -19045,8 +18663,8 @@ int _simResumeThreads(luaWrap_lua_State* L)
     LUA_START("sim.resumeThreads");
 
     int retVal=-1;
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (it->getScriptType()==sim_scripttype_mainscript)
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
@@ -19058,7 +18676,7 @@ int _simResumeThreads(luaWrap_lua_State* L)
             // Following line important: when erasing a running threaded script object, with above cascaded
             // call, the thread will never resume nor be able to end. Next line basically runs all
             // that were not yet ran:
-            retVal+=CThreadPool::handleAllThreads_withResumeLocation(loc);
+            retVal+=CThreadPool_old::handleAllThreads_withResumeLocation(loc);
         }
     }
     else
@@ -19075,8 +18693,8 @@ int _simLaunchThreadedChildScripts(luaWrap_lua_State* L)
     LUA_START("sim.launchThreadedChildScripts");
 
     int retVal=-1; // means error
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
     if (it!=nullptr)
     {
         if (it->getScriptType()==sim_scripttype_mainscript)
@@ -19115,8 +18733,8 @@ int _simGetUserParameter(luaWrap_lua_State* L)
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
         {
-            handle=CLuaScriptObject::getScriptHandleFromLuaState(L);
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
+            handle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
             handle=it->getObjectHandleThatScriptIsAttachedTo();
         }
         bool returnString=false;
@@ -19135,7 +18753,7 @@ int _simGetUserParameter(luaWrap_lua_State* L)
                 if (returnString)
                     luaWrap_lua_pushlstring(L,a.c_str(),a.length());
                 else
-                    pushCorrectTypeOntoLuaStack(L,a);
+                    pushCorrectTypeOntoLuaStack_old(L,a);
                 simReleaseBuffer_internal(p);
                 LUA_END(1);
             }
@@ -19157,8 +18775,8 @@ int _simSetUserParameter(luaWrap_lua_State* L)
         int handle=luaWrap_lua_tointeger(L,1);
         if (handle==sim_handle_self)
         {
-            handle=CLuaScriptObject::getScriptHandleFromLuaState(L);
-            CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
+            handle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
             handle=it->getObjectHandleThatScriptIsAttachedTo();
         }
         std::string parameterName(luaWrap_lua_tostring(L,2));
@@ -19172,7 +18790,7 @@ int _simSetUserParameter(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func)
+int _genericFunctionHandler_old(luaWrap_lua_State* L,CScriptCustomFunction* func)
 { // deprecated around 2015
     TRACE_LUA_API;
     // We first read all arguments from the stack
@@ -19185,13 +18803,13 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func)
     std::vector<int> inInfoVector;
     for (int i=0;i<int(func->inputArgTypes.size());i++)
     {
-        if (!readCustomFunctionDataFromStack(L,i+1,func->inputArgTypes[i],inBoolVector,inIntVector,inFloatVector,inDoubleVector,inStringVector,inCharVector,inInfoVector))
+        if (!readCustomFunctionDataFromStack_old(L,i+1,func->inputArgTypes[i],inBoolVector,inIntVector,inFloatVector,inDoubleVector,inStringVector,inCharVector,inInfoVector))
             break;
     }
 
     // Now we retrieve the object ID this script might be attached to:
-    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-    CLuaScriptObject* itObj=App::worldContainer->getScriptFromHandle(currentScriptID);
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* itObj=App::worldContainer->getScriptFromHandle(currentScriptID);
     int linkedObject=-1;
     if (itObj->getScriptType()==sim_scripttype_childscript)
     {
@@ -19280,9 +18898,9 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func)
     bool dontDeleteStructureYet=false;
     while (p->waitUntilZero!=0)
     { // backward compatibility (for real threads)
-        if (!CThreadPool::switchBackToPreviousThread())
+        if (!CThreadPool_old::switchBackToPreviousThread())
             break;
-        if (CThreadPool::getSimulationStopRequestedAndActivated())
+        if (CThreadPool_old::getSimulationStopRequestedAndActivated())
         { // give a chance to the c app to set the waitUntilZero to zero! (above turns true only 1-2 secs after the stop request arrived)
             // Following: the extension module might still write 0 into that position to signal "no more waiting" in
             // case this while loop got interrupted by a stop request.
@@ -19310,7 +18928,7 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func)
         int stringBuffPt=0;
         for (int i=0;i<p->outputArgCount;i++)
         {
-            writeCustomFunctionDataOntoStack(L,p->outputArgTypeAndSize[2*i+0],p->outputArgTypeAndSize[2*i+1],
+            writeCustomFunctionDataOntoStack_old(L,p->outputArgTypeAndSize[2*i+0],p->outputArgTypeAndSize[2*i+1],
                 p->outputBool,boolPt,
                 p->outputInt,intPt,
                 p->outputFloat,floatPt,
@@ -19405,7 +19023,7 @@ int _simGetCollectionHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simGetCollectionHandle_internal(name.c_str());
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -19576,7 +19194,7 @@ int _simGetCollisionHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simGetCollisionHandle_internal(name.c_str());
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -19595,7 +19213,7 @@ int _simGetDistanceHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        setCurrentScriptInfo_cSide(CLuaScriptObject::getScriptHandleFromLuaState(L),CLuaScriptObject::getScriptNameIndexFromLuaState(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal=simGetDistanceHandle_internal(name.c_str());
         setCurrentScriptInfo_cSide(-1,-1);
     }
@@ -19706,8 +19324,8 @@ int _simAddBanner(luaWrap_lua_State* L)
                 retVal=simAddBanner_internal(label.c_str(),size,options,positionAndEulerAngles,parentObjectHandle,labelColors,backgroundColors);
                 if (retVal!=-1)
                 { // following condition added on 2011/01/06 so as to not remove objects created from the c/c++ interface or an add-on:
-                    int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-                    CLuaScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
+                    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                    CScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
                     CBannerObject* anObj=App::currentWorld->bannerCont->getObject(retVal);
                     if (anObj!=nullptr)
                         anObj->setCreatedFromScript((itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript));
@@ -19863,8 +19481,8 @@ int _simAddPointCloud(luaWrap_lua_State* L)
         int layerMask=luaToInt(L,2);
         int objectHandle=luaToInt(L,3);
         int options=luaToInt(L,4);
-        int currentScriptID=CLuaScriptObject::getScriptHandleFromLuaState(L);
-        CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
             options=(options|1)-1; // cloud is automatically removed at the end of the simulation (i.e. is not persistent)
         float pointSize=luaToFloat(L,5);
@@ -20068,7 +19686,7 @@ int _simGetScriptName(luaWrap_lua_State* L)
     {
         int a=luaToInt(L,1);
         if (a==sim_handle_self)
-            a=CLuaScriptObject::getScriptHandleFromLuaState(L);
+            a=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         char* name=simGetScriptName_internal(a);
         if (name!=nullptr)
         {
@@ -20097,7 +19715,7 @@ int _simSetScriptVariable(luaWrap_lua_State* L)
         {
             CInterfaceStack* stack=new CInterfaceStack();
             int stackHandle=App::worldContainer->interfaceStackContainer->addStack(stack);
-            stack->buildFromLuaStack(L,3,1);
+            CScriptObject::buildFromInterpreterStack_lua(L,stack,3,1);
             retVal=simSetScriptVariable_internal(scriptHandleOrType,varAndScriptName.c_str(),stackHandle);
             App::worldContainer->interfaceStackContainer->destroyStack(stackHandle);
         }
@@ -20120,7 +19738,7 @@ int _simGetObjectAssociatedWithScript(luaWrap_lua_State* L)
     {
         int a=luaToInt(L,1);
         if (a==sim_handle_self)
-            a=CLuaScriptObject::getScriptHandleFromLuaState(L);
+            a=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         retVal=simGetObjectAssociatedWithScript_internal(a);
     }
 
@@ -20201,7 +19819,7 @@ int _simGetConfigurationTree(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getConfigurationTree");
 
-    CLuaScriptObject* it=App::worldContainer->getScriptFromHandle(CLuaScriptObject::getScriptHandleFromLuaState(L));
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int id=luaToInt(L,1);
@@ -20247,1159 +19865,173 @@ int _simSetConfigurationTree(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-/*
-int _simWait(luaWrap_lua_State* L)
-{ // can only be called from a script running in a thread!!
+int _simSetObjectSizeValues(luaWrap_lua_State* L)
+{ // deprecated on 28.06.2021
     TRACE_LUA_API;
-    LUA_START("sim.wait");
-
-    if (!VThread::isCurrentThreadTheMainSimulationThread())
-    {
-        if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        {
-            float deltaTime=luaToFloat(L,1);
-            int res=checkOneGeneralInputArgument(L,2,lua_arg_bool,0,true,false,&errorString);
-            if (res!=-1)
-            {
-                bool simulationTime=true;
-                if (res==2)
-                    simulationTime=luaToBool(L,2);
-                if (!simulationTime)
-                { // real-time wait
-                    CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                    int startTime=VDateTime::getTimeInMs();
-                    bool err=false;
-                    while (true)
-                    {
-                        float diff=float(VDateTime::getTimeDiffInMs(startTime))/1000.0f;
-                        if (diff>=deltaTime)
-                            break;
-                        CThreadPool::switchBackToPreviousThread();
-                        if (CThreadPool::getSimulationStopRequestedAndActivated())
-                        {
-                            errorString="@yield"; // yield will be triggered at end of this function
-                            err=true;
-                            break;
-                        }
-                    }
-                    threadData->usedMovementTime=0.0f; // important!
-                    if (!err)
-                    {
-                        luaWrap_lua_pushnumber(L,0.0f); // success (deltaTime left)
-                        LUA_END(1);
-                    }
-                }
-                else
-                { // simulation time wait
-                    CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                    float startTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+threadData->usedMovementTime;
-                    float overshootTime=0.0f;
-                    bool err=false;
-                    while (true)
-                    {
-                        float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
-                        float diff=currentTime-startTime;
-                        if (diff>=deltaTime)
-                        {
-                            overshootTime=diff-deltaTime; // this is the "overshoot" time!
-                            break;
-                        }
-                        CThreadPool::switchBackToPreviousThread();
-//                        luaWrap_lua_yield(L,0); // does a long jump and never returns
-                        if (CThreadPool::getSimulationStopRequestedAndActivated())
-                        {
-                            errorString="@yield"; // yield will be triggered at end of this function
-                            err=true;
-                            break;
-                        }
-                    }
-                    threadData->usedMovementTime=overshootTime; // important!
-                    if (!err)
-                    {
-                        luaWrap_lua_pushnumber(L,-overshootTime); // success (deltaTime left)
-                        LUA_END(1);
-                    }
-                }
-            }
-        }
-    }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simWaitForSignal(luaWrap_lua_State* L)
-{ // can only be called from a script running in a thread!!
-    TRACE_LUA_API;
-    LUA_START("sim.waitForSignal");
-
-    if (!VThread::isCurrentThreadTheMainSimulationThread())
-    {
-        if (checkInputArguments(L,&errorString,lua_arg_string,0))
-        {
-            std::string signalName(luaWrap_lua_tostring(L,1));
-            int intVal;
-            bool signalPresent=false;
-
-            CSignalContainer* sigCont=nullptr;
-            sigCont=App::currentWorld->signalContainer;
-
-            while (!signalPresent)
-            {
-                if (sigCont->getIntegerSignal(signalName.c_str(),intVal))
-                {
-                    luaWrap_lua_pushinteger(L,intVal);
-                    signalPresent=true;
-                    LUA_END(1);
-                }
-                float floatVal;
-                if ( (!signalPresent)&&(sigCont->getFloatSignal(signalName.c_str(),floatVal)) )
-                {
-                    luaWrap_lua_pushnumber(L,floatVal);
-                    signalPresent=true;
-                    LUA_END(1);
-                }
-                std::string strVal;
-                if ( (!signalPresent)&&(sigCont->getStringSignal(signalName.c_str(),strVal)) )
-                {
-                    luaWrap_lua_pushstring(L,strVal.c_str());
-                    signalPresent=true;
-                    LUA_END(1);
-                }
-                if (!signalPresent)
-                {
-                    CThreadPool::switchBackToPreviousThread();
-                    if (CThreadPool::getSimulationStopRequestedAndActivated())
-                    {
-                        errorString="@yield"; // yield will be triggered at end of this function
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSerialRead(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.serialRead");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_bool,0))
-    {
-        bool blocking=luaToBool(L,3);
-        std::string closingString="";
-        float timeOut=0.0f;
-        unsigned int maxLength=(unsigned int)luaToInt(L,2);
-        std::string fullDataRead;
-        bool err=false;
-        if (blocking)
-        {
-            if (!VThread::isCurrentThreadTheMainSimulationThread())
-            {
-                int res=checkOneGeneralInputArgument(L,4,lua_arg_string,0,true,true,&errorString);
-                if (res==2)
-                {
-                    size_t dataLength;
-                    char* data=(char*)luaWrap_lua_tolstring(L,4,&dataLength);
-                    closingString.assign(data,dataLength);
-                }
-                if (res!=-1)
-                {
-                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
-                    if (res==2)
-                        timeOut=luaToFloat(L,5);
-                    if (res!=-1)
-                    {
-                        int startTime=VDateTime::getTimeInMs();
-                        std::string leftOver=retrieveSerialPortLeftOver(luaToInt(L,1));
-                        fullDataRead=leftOver;
-                        unsigned int closingCheckedIndex=0;
-                        char* data=new char[maxLength-leftOver.length()];
-                        unsigned int csl=(unsigned int)closingString.length();
-                        while (true)
-                        {
-                            // 1. Check in what we already have:
-                            if ( (csl>0)&&(closingCheckedIndex+csl<=fullDataRead.length()) )
-                            {
-                                bool foundTheString=false;
-                                for (unsigned int j=closingCheckedIndex;j<=fullDataRead.length()-csl;j++)
-                                {
-                                    bool same=true;
-                                    for (unsigned int i=0;i<csl;i++)
-                                    {
-                                        if (fullDataRead[j+i]!=closingString[i])
-                                        {
-                                            same=false;
-                                            break;
-                                        }
-                                    }
-                                    if (same)
-                                    {
-                                        std::string rest(fullDataRead.begin()+j+csl,fullDataRead.end());
-                                        fullDataRead.assign(fullDataRead.begin(),fullDataRead.begin()+j);
-                                        insertSerialPortLeftOver(luaToInt(L,1),rest);
-                                        foundTheString=true;
-                                        break;
-                                    }
-                                }
-                                if (foundTheString)
-                                    break;
-                                closingCheckedIndex=(unsigned int)fullDataRead.length()-csl+1;
-                            }
-                            // 2. Did we already read enough?
-                            if (fullDataRead.length()>=maxLength)
-                            { // yes
-                                if (fullDataRead.length()==maxLength)
-                                    break;
-                                std::string rest(fullDataRead.begin()+maxLength,fullDataRead.end());
-                                fullDataRead.assign(fullDataRead.begin(),fullDataRead.begin()+maxLength);
-                                insertSerialPortLeftOver(luaToInt(L,1),rest);
-                                break;
-                            }
-                            else
-                            { // no
-                                int nb=simSerialRead_internal(luaToInt(L,1),data,(int)maxLength-(int)fullDataRead.length());
-                                if (nb<0)
-                                    break; // error
-                                std::string partString(data,nb);
-                                fullDataRead+=partString;
-                            }
-
-                            bool leaveHere=false;
-                            if (maxLength>fullDataRead.length())
-                            {
-                                CThreadPool::switchBackToPreviousThread();
-                                if (CThreadPool::getSimulationStopRequestedAndActivated())
-                                {
-                                    errorString="@yield"; // yield will be triggered at end of this function
-                                    err=true;
-                                    leaveHere=true;
-                                }
-                            }
-                            if ( (timeOut>0.0000001f)&&((float(VDateTime::getTimeDiffInMs(startTime))/1000.0f)>timeOut) )
-                                leaveHere=true;
-
-                            if (leaveHere)
-                            {
-                                insertSerialPortLeftOver(luaToInt(L,1),fullDataRead);
-                                fullDataRead.clear();
-                                break;
-                            }
-                        }
-                        delete[] data;
-                    }
-                }
-            }
-            else
-                errorString=SIM_ERROR_BLOCKING_OPERATION_ONLY_FROM_THREAD;
-        }
-        else
-        {
-            std::string leftOver=retrieveSerialPortLeftOver(luaToInt(L,1));
-            char* data=new char[maxLength-leftOver.length()];
-            int nb=simSerialRead_internal(luaToInt(L,1),data,(int)maxLength-(int)leftOver.length());
-            if (nb>0)
-            { // no error
-                std::string nextData(data,nb);
-                fullDataRead=leftOver+nextData;
-            }
-            delete[] data;
-        }
-
-        if ( (!err)&&(fullDataRead.length()>0) )
-        {
-            luaWrap_lua_pushlstring(L,fullDataRead.c_str(),fullDataRead.length());
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSerialPortOpen(luaWrap_lua_State* L)
-{ // DEPRECATED For backward compatibility (10/04/2012)
-    TRACE_LUA_API;
-    LUA_START("simSerialPortOpen");
-
-    int retVal=-1; // means error
-#ifdef SIM_WITH_SERIAL
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=App::worldContainer->serialPortContainer->serialPortOpen_old(true,luaToInt(L,1),luaToInt(L,2));
-#endif
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simSerialPortClose(luaWrap_lua_State* L)
-{ // DEPRECATED For backward compatibility (10/04/2012)
-    TRACE_LUA_API;
-    LUA_START("simSerialPortClose");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simSerialPortClose_internal(luaToInt(L,1));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simSerialPortSend(luaWrap_lua_State* L)
-{ // DEPRECATED For backward compatibility (10/04/2012)
-    TRACE_LUA_API;
-    LUA_START("simSerialPortSend");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
-    {
-        size_t dataLength;
-        char* data=(char*)luaWrap_lua_tolstring(L,2,&dataLength);
-        retVal=simSerialPortSend_internal(luaToInt(L,1),data,(int)dataLength);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simSerialPortRead(luaWrap_lua_State* L)
-{ // DEPRECATED For backward compatibility (10/04/2012)
-    TRACE_LUA_API;
-    LUA_START("simSerialPortRead");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_bool,0))
-    {
-        bool blocking=luaToBool(L,3);
-        std::string closingString="";
-        float timeOut=0.0f;
-        bool err=false;
-        if (blocking)
-        {
-            if (!VThread::isCurrentThreadTheMainSimulationThread())
-            {
-                int res=checkOneGeneralInputArgument(L,4,lua_arg_string,0,true,true,&errorString);
-                if (res==2)
-                {
-                    size_t dataLength;
-                    char* data=(char*)luaWrap_lua_tolstring(L,4,&dataLength);
-                    closingString.assign(data,dataLength);
-                }
-                if (res!=-1)
-                {
-                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
-                    if (res==2)
-                        timeOut=luaToFloat(L,5);
-                    if (res!=-1)
-                        err=true;
-                }
-                else
-                    err=true;
-            }
-            else
-            {
-                errorString=SIM_ERROR_BLOCKING_OPERATION_ONLY_FROM_THREAD;
-                err=true;
-            }
-        }
-        if (!err)
-        {
-            int maxLength=luaToInt(L,2);
-            char* data=new char[maxLength];
-            int dataRead=0;
-            bool err=false;
-            if (blocking)
-            {
-                int startTime=VDateTime::getTimeInMs();
-                while (maxLength>dataRead)
-                {
-                    int nb=simSerialPortRead_internal(luaToInt(L,1),data+dataRead,maxLength-dataRead);
-                    if (nb<0)
-                        break; // error
-                    dataRead+=nb;
-                    int csl=int(closingString.length());
-                    if ( (csl!=0)&&(dataRead>=csl) )
-                    { // Break if we find the closing signature:
-                        bool same=true;
-                        for (int i=0;i<csl;i++)
-                        {
-                            if (data[dataRead-csl+i]!=closingString[i])
-                            {
-                                same=false;
-                                break;
-                            }
-                        }
-                        if (same)
-                        {
-                            dataRead-=csl;
-                            break;
-                        }
-                    }
-                    if (maxLength>dataRead)
-                    {
-                        CThreadPool::switchBackToPreviousThread();
-                        if (CThreadPool::getSimulationStopRequestedAndActivated())
-                        {
-                            errorString="@yield"; // yield will be triggered at end of this function
-                            err=true;
-                            break;
-                        }
-                    }
-                    if ( (timeOut>0.0000001f)&&((float(VDateTime::getTimeDiffInMs(startTime))/1000.0f)>timeOut) )
-                        break;
-                }
-            }
-            else
-                dataRead=simSerialPortRead_internal(luaToInt(L,1),data,maxLength);
-            if ( (dataRead>0)&&(!err) )
-            {
-                luaWrap_lua_pushlstring(L,(const char*)data,dataRead);
-                delete[] data;
-                LUA_END(1);
-            }
-            delete[] data;
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simRMLMoveToJointPositions(luaWrap_lua_State* L)
-{ // DEPRECATED on 08.09.2020
-    TRACE_LUA_API;
-    LUA_START_NO_CSIDE_ERROR("sim.rmlMoveToJointPositions");
-
-    int retVal=-1; //error
-    if (!VThread::isCurrentThreadTheMainSimulationThread())
-    {
-        if (!( (!luaWrap_lua_istable(L,1))||(luaWrap_lua_rawlen(L,1)<1) ))
-        {
-            int dofs=(int)luaWrap_lua_rawlen(L,1);
-            int flags=-1;
-            int* jointHandles=new int[dofs];
-            double* currentVel=new double[dofs];
-            double* currentAccel=new double[dofs];
-            double* maxVel=new double[dofs];
-            double* maxAccel=new double[dofs];
-            double* maxJerk=new double[dofs];
-            double* targetPos=new double[dofs];
-            double* targetVel=new double[dofs];
-            int* direction=new int[dofs];
-            for (int i=0;i<dofs;i++)
-            {
-                currentVel[i]=0.0;
-                currentAccel[i]=0.0;
-                maxVel[i]=0.0;
-                maxAccel[i]=0.0;
-                maxJerk[i]=0.0;
-                targetPos[i]=0.0;
-                targetVel[i]=0.0;
-                direction[i]=0;
-            }
-            bool argError=false;
-
-            // jointHandles
-            int res=checkOneGeneralInputArgument(L,1,lua_arg_number,dofs,false,false,&errorString);
-            if ((!argError)&&(res<2))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getIntsFromTable(L,1,dofs,jointHandles);
-            }
-            if (!argError)
-            { // check if all joint handles are ok:
-                for (int i=0;i<dofs;i++)
-                {
-                    CJoint* act=App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
-                    if (act==nullptr)
-                        argError=true;
-                }
-                if (argError)
-                    errorString=SIM_ERROR_FOUND_INVALID_HANDLES;
-            }
-
-            // flags
-            res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,false,false,&errorString);
-            if ((!argError)&&(res<2))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    flags=luaToInt(L,2);
-            }
-
-            // currentVel
-            res=checkOneGeneralInputArgument(L,3,lua_arg_number,dofs,false,true,&errorString);
-            if ((!argError)&&(res<1))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getDoublesFromTable(L,3,dofs,currentVel);
-            }
-
-            // currentAccel
-            res=checkOneGeneralInputArgument(L,4,lua_arg_number,dofs,false,true,&errorString);
-            if ((!argError)&&(res<1))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getDoublesFromTable(L,4,dofs,currentAccel);
-            }
-
-            // maxVel
-            res=checkOneGeneralInputArgument(L,5,lua_arg_number,dofs,false,false,&errorString);
-            if ((!argError)&&(res<2))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getDoublesFromTable(L,5,dofs,maxVel);
-            }
-
-            // maxAccel
-            res=checkOneGeneralInputArgument(L,6,lua_arg_number,dofs,false,false,&errorString);
-            if ((!argError)&&(res<2))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getDoublesFromTable(L,6,dofs,maxAccel);
-            }
-
-            // maxJerk
-            res=checkOneGeneralInputArgument(L,7,lua_arg_number,dofs,false,false,&errorString);
-            if ((!argError)&&(res<2))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getDoublesFromTable(L,7,dofs,maxJerk);
-            }
-
-            // targetPos
-            res=checkOneGeneralInputArgument(L,8,lua_arg_number,dofs,false,false,&errorString);
-            if ((!argError)&&(res<2))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getDoublesFromTable(L,8,dofs,targetPos);
-            }
-
-            // targetVel
-            res=checkOneGeneralInputArgument(L,9,lua_arg_number,dofs,false,true,&errorString);
-            if ((!argError)&&(res<1))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getDoublesFromTable(L,9,dofs,targetVel);
-            }
-
-            res=checkOneGeneralInputArgument(L,10,lua_arg_number,dofs,true,true,&errorString);
-            if ((!argError)&&(res<0))
-                argError=true;
-            else
-            {
-                if (res==2)
-                    getIntsFromTable(L,10,dofs,direction);
-            }
-
-            if (!argError)
-            {
-                unsigned char auxData[9];
-                auxData[0]=1;
-                double* currentPosVelAccel=new double[3*dofs];
-                double* newPosVelAccel=new double[3*dofs];
-                double* maxVelAccelJerk=new double[3*dofs];
-                double* targetPosVel=new double[2*dofs];
-                unsigned char* selection=new unsigned char[dofs];
-                for (int i=0;i<dofs;i++)
-                {
-                    CJoint* act=App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
-                    if (act!=nullptr) // should always pass!
-                    {
-                        selection[i]=1;
-                        float ps=act->getPosition();
-                        if ( (act->getJointType()==sim_joint_revolute_subtype)&&act->getPositionIsCyclic() )
-                        {
-                            if (direction[i]==0)
-                            { // smallest movement:
-                                float dx=targetPos[i]-ps;
-                                while (dx>=piValTimes2_f)
-                                {
-                                    ps+=piValTimes2_f;
-                                    dx=targetPos[i]-ps;
-                                }
-                                while (dx<0.0f)
-                                {
-                                    ps-=piValTimes2_f;
-                                    dx=targetPos[i]-ps;
-                                }
-                                float b=ps+piValTimes2_f;
-                                if (fabs(targetPos[i]-b)<fabs(targetPos[i]-ps))
-                                    ps=b;
-                            }
-                            if (direction[i]>0)
-                            { // positive direction:
-                                float dx=targetPos[i]-ps;
-                                while (dx<piValTimes2_f*float(direction[i]-1))
-                                {
-                                    ps-=piValTimes2_f;
-                                    dx=targetPos[i]-ps;
-                                }
-                                while (dx>=piValTimes2_f*float(direction[i]))
-                                {
-                                    ps+=piValTimes2_f;
-                                    dx=targetPos[i]-ps;
-                                }
-                            }
-                            if (direction[i]<0)
-                            { // negative direction:
-                                float dx=targetPos[i]-ps;
-                                while (dx>-piValTimes2_f*float(-direction[i]-1))
-                                {
-                                    ps+=piValTimes2_f;
-                                    dx=targetPos[i]-ps;
-                                }
-                                while (dx<=-piValTimes2_f*float(-direction[i]))
-                                {
-                                    ps-=piValTimes2_f;
-                                    dx=targetPos[i]-ps;
-                                }
-                            }
-                            currentPosVelAccel[0*dofs+i]=ps;
-                        }
-                        else
-                            currentPosVelAccel[0*dofs+i]=ps;
-                    }
-                    else
-                        selection[i]=0;
-
-                    currentPosVelAccel[1*dofs+i]=currentVel[i];
-                    currentPosVelAccel[2*dofs+i]=currentAccel[i];
-
-                    maxVelAccelJerk[0*dofs+i]=maxVel[i];
-                    maxVelAccelJerk[1*dofs+i]=maxAccel[i];
-                    maxVelAccelJerk[2*dofs+i]=maxJerk[i];
-
-                    targetPosVel[0*dofs+i]=targetPos[i];
-                    targetPosVel[1*dofs+i]=targetVel[i];
-
-                    selection[i]=1;
-                }
-
-                bool movementFinished=false;
-
-
-                int rmlHandle=simRMLPos_internal(dofs,0.0001,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,nullptr);
-                while (!movementFinished)
-                {
-                    double dt=double(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0;
-                    int rmlRes=simRMLStep_internal(rmlHandle,dt,newPosVelAccel,auxData,nullptr);
-                    if (rmlRes<0)
-                        movementFinished=true; // error
-                    else
-                    {
-                        movementFinished=(rmlRes==1);
-                        // Set the current positions:
-                        for (int i=0;i<3*dofs;i++)
-                            currentPosVelAccel[i]=newPosVelAccel[i];
-                        for (int i=0;i<dofs;i++)
-                        {
-                            CJoint* act=App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
-                            if ( (act!=nullptr)&&(act->getJointType()!=sim_joint_spherical_subtype) )
-                            { // might have been destroyed in the mean time
-                                if ( (act->getJointMode()==sim_jointmode_force)&&((act->getCumulativeModelProperty()&sim_modelproperty_not_dynamic)==0) )
-                                    act->setDynamicMotorPositionControlTargetPosition((float)currentPosVelAccel[0*dofs+i]);
-                                else
-                                    act->setPosition((float)currentPosVelAccel[0*dofs+i]);
-                            }
-                        }
-
-                        if (movementFinished)
-                        {
-                            CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                            threadData->usedMovementTime=(float)(((double*)(auxData+1))[0]);
-                            luaWrap_lua_pushinteger(L,1);
-                            pushDoubleTableOntoStack(L,dofs,newPosVelAccel+0*dofs);
-                            pushDoubleTableOntoStack(L,dofs,newPosVelAccel+1*dofs);
-                            pushDoubleTableOntoStack(L,dofs,newPosVelAccel+2*dofs);
-                            luaWrap_lua_pushnumber(L,dt-((double*)(auxData+1))[0]);
-
-                            delete[] currentPosVelAccel;
-                            delete[] newPosVelAccel;
-                            delete[] maxVelAccelJerk;
-                            delete[] targetPosVel;
-                            delete[] selection;
-
-                            delete[] jointHandles;
-                            delete[] currentVel;
-                            delete[] currentAccel;
-                            delete[] maxVel;
-                            delete[] maxAccel;
-                            delete[] maxJerk;
-                            delete[] targetPos;
-                            delete[] targetVel;
-                            simRMLRemove_internal(rmlHandle);
-                            LUA_END(5);
-                        }
-
-                        if (!movementFinished)
-                        {
-                            CThreadPool::switchBackToPreviousThread();
-                            if (CThreadPool::getSimulationStopRequestedAndActivated()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L)))
-                            {
-                                errorString="@yield"; // yield will be triggered at end of this function
-                                break;
-                            }
-                        }
-                    }
-                }
-                simRMLRemove_internal(rmlHandle);
-
-                delete[] currentPosVelAccel;
-                delete[] newPosVelAccel;
-                delete[] maxVelAccelJerk;
-                delete[] targetPosVel;
-                delete[] selection;
-            }
-
-            delete[] jointHandles;
-            delete[] currentVel;
-            delete[] currentAccel;
-            delete[] maxVel;
-            delete[] maxAccel;
-            delete[] maxJerk;
-            delete[] targetPos;
-            delete[] targetVel;
-        }
-        else
-            errorString=SIM_ERROR_INVALID_FIRST_ARGUMENT;
-    }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal); // error
-    LUA_END(1);
-}
-
-int _simRMLMoveToPosition(luaWrap_lua_State* L)
-{ // DEPRECATED on 08.09.2020
-    TRACE_LUA_API;
-    LUA_START_NO_CSIDE_ERROR("sim.rmlMoveToPosition");
+    LUA_START("sim.setObjectSizeValues");
 
     int retVal=-1;
-    if (!VThread::isCurrentThreadTheMainSimulationThread())
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,3))
     {
-        if (checkInputArguments(L,nullptr,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-        { // the 3 first types are ok!
-            int objectHandle=luaToInt(L,1);
-            int relativeToObjectHandle=luaToInt(L,2);
-            int flags=luaToInt(L,3);
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            CSceneObject* relativeIt=nullptr;
-            bool relParentError=false;
-            if (relativeToObjectHandle!=-1)
-            {
-                if (relativeToObjectHandle==sim_handle_parent)
-                    relativeIt=it->getParent();
-                else
-                {
-                    relativeIt=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
-                    relParentError=(relativeIt==nullptr);
-                }
-            }
-            if ( (it==nullptr)||((relativeIt==nullptr)&&relParentError) )
-                errorString=SIM_ERROR_OBJECT_INEXISTANT;
-            else
-            {
-                C7Vector startPose(it->getCumulativeTransformation());
-                C7Vector tr;
-                tr.setIdentity();
-                if (relativeIt!=nullptr)
-                    tr=relativeIt->getCumulativeTransformation();
-                C7Vector trInv(tr.getInverse());
-                startPose=trInv*startPose;
-                C7Vector goalPose(startPose); // if we specify nil for the goal pos/quat we use the same as start
+        int handle=luaToInt(L,1);
+        float s[3];
+        getFloatsFromTable(L,2,3,s);
+        retVal=simSetObjectSizeValues_internal(handle,s);
+    }
 
-                double currentVel[4]={0.0,0.0,0.0,0.0};
-                double currentAccel[4]={0.0,0.0,0.0,0.0};
-                double maxVel[4];
-                double maxAccel[4];
-                double maxJerk[4];
-                double targetVel[4]={0.0,0.0,0.0,0.0};
-                bool argError=false;
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
 
-                // currentVel
-                int res=checkOneGeneralInputArgument(L,4,lua_arg_number,4,false,true,&errorString);
-                if ((!argError)&&(res<1))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                        getDoublesFromTable(L,4,4,currentVel);
-                }
+int _simGetObjectSizeValues(luaWrap_lua_State* L)
+{ // deprecated on 28.06.2021
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectSizeValues");
 
-                // currentAccel
-                res=checkOneGeneralInputArgument(L,5,lua_arg_number,4,false,true,&errorString);
-                if ((!argError)&&(res<1))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                        getDoublesFromTable(L,5,4,currentAccel);
-                }
-
-                // maxVel
-                res=checkOneGeneralInputArgument(L,6,lua_arg_number,4,false,false,&errorString);
-                if ((!argError)&&(res<2))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                        getDoublesFromTable(L,6,4,maxVel);
-                }
-
-                // maxAccel
-                res=checkOneGeneralInputArgument(L,7,lua_arg_number,4,false,false,&errorString);
-                if ((!argError)&&(res<2))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                        getDoublesFromTable(L,7,4,maxAccel);
-                }
-
-                // maxJerk
-                res=checkOneGeneralInputArgument(L,8,lua_arg_number,4,false,false,&errorString);
-                if ((!argError)&&(res<2))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                        getDoublesFromTable(L,8,4,maxJerk);
-                }
-
-                // targetPos
-                res=checkOneGeneralInputArgument(L,9,lua_arg_number,3,false,true,&errorString);
-                if ((!argError)&&(res<1))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                    {
-                        float dummy[3];
-                        getFloatsFromTable(L,9,3,dummy);
-                        goalPose.X.set(dummy);
-                    }
-                }
-
-                // targetQuat
-                res=checkOneGeneralInputArgument(L,10,lua_arg_number,4,false,true,&errorString);
-                if ((!argError)&&(res<1))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                    {
-                        float dummy[4];
-                        getFloatsFromTable(L,10,4,dummy);
-                        goalPose.Q(0)=dummy[3];
-                        goalPose.Q(1)=dummy[0];
-                        goalPose.Q(2)=dummy[1];
-                        goalPose.Q(3)=dummy[2];
-                    }
-                }
-
-                // targetVel
-                res=checkOneGeneralInputArgument(L,11,lua_arg_number,4,false,true,&errorString);
-                if ((!argError)&&(res<1))
-                    argError=true;
-                else
-                {
-                    if (res==2)
-                        getDoublesFromTable(L,11,4,targetVel);
-                }
-
-                if (!argError)
-                {
-                    float matrStart[12];
-                    float matrGoal[12];
-                    float axis[3];
-                    float angle;
-                    float quat[4];
-                    quat[0]=startPose.Q(1);
-                    quat[1]=startPose.Q(2);
-                    quat[2]=startPose.Q(3);
-                    quat[3]=startPose.Q(0);
-                    simBuildMatrixQ_internal(startPose.X.data,quat,matrStart);
-                    quat[0]=goalPose.Q(1);
-                    quat[1]=goalPose.Q(2);
-                    quat[2]=goalPose.Q(3);
-                    quat[3]=goalPose.Q(0);
-                    simBuildMatrixQ_internal(goalPose.X.data,quat,matrGoal);
-                    simGetRotationAxis_internal(matrStart,matrGoal,axis,&angle);
-                    unsigned char auxData[9];
-                    auxData[0]=1;
-                    double currentPosVelAccel[3*4];
-                    currentPosVelAccel[0+0]=(double)startPose.X(0);
-                    currentPosVelAccel[0+1]=(double)startPose.X(1);
-                    currentPosVelAccel[0+2]=(double)startPose.X(2);
-                    currentPosVelAccel[0+3]=0.0;
-                    for (int i=0;i<4;i++)
-                        currentPosVelAccel[4+i]=currentVel[i];
-                    for (int i=0;i<4;i++)
-                        currentPosVelAccel[8+i]=currentAccel[i];
-
-                    double maxVelAccelJerk[3*4];
-                    for (int i=0;i<4;i++)
-                        maxVelAccelJerk[0+i]=maxVel[i];
-                    for (int i=0;i<4;i++)
-                        maxVelAccelJerk[4+i]=maxAccel[i];
-                    for (int i=0;i<4;i++)
-                        maxVelAccelJerk[8+i]=maxJerk[i];
-
-                    unsigned char selection[4]={1,1,1,1};
-
-                    double targetPosVel[2*4];
-                    targetPosVel[0+0]=(double)goalPose.X(0);
-                    targetPosVel[0+1]=(double)goalPose.X(1);
-                    targetPosVel[0+2]=(double)goalPose.X(2);
-                    targetPosVel[0+3]=(double)angle;
-                    for (int i=0;i<4;i++)
-                        targetPosVel[4+i]=targetVel[i];
-
-                    double newPosVelAccel[3*4];
-                    bool movementFinished=false;
-
-
-                    int rmlHandle=simRMLPos_internal(4,0.0001,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,nullptr);
-                    while (!movementFinished)
-                    {
-                        double dt=double(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0;
-                        int rmlRes=simRMLStep_internal(rmlHandle,dt,newPosVelAccel,auxData,nullptr);
-                        it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-                        if ((rmlRes<0)||(it==nullptr))
-                            movementFinished=true; // error
-                        else
-                        {
-                            movementFinished=(rmlRes==1);
-                            // Set the current position/orientation:
-                            for (int i=0;i<3*4;i++)
-                                currentPosVelAccel[i]=newPosVelAccel[i];
-                            C7Vector currentPose;
-                            currentPose.X(0)=(float)currentPosVelAccel[0];
-                            currentPose.X(1)=(float)currentPosVelAccel[1];
-                            currentPose.X(2)=(float)currentPosVelAccel[2];
-                            float matrOut[12];
-                            float axisPos[3]={0.0f,0.0f,0.0f};
-                            simRotateAroundAxis_internal(matrStart,axis,axisPos,(float)currentPosVelAccel[3],matrOut);
-                            simGetQuaternionFromMatrix_internal(matrOut,quat);
-                            currentPose.Q(0)=quat[3];
-                            currentPose.Q(1)=quat[0];
-                            currentPose.Q(2)=quat[1];
-                            currentPose.Q(3)=quat[2];
-                            currentPose=tr*currentPose;
-                            it->setAbsoluteTransformation(currentPose);
-
-                            if (movementFinished)
-                            {
-                                CVThreadData* threadData=CThreadPool::getCurrentThreadData();
-                                threadData->usedMovementTime=(float)(((double*)(auxData+1))[0]);
-                                luaWrap_lua_pushinteger(L,1);
-                                pushDoubleTableOntoStack(L,3,newPosVelAccel);
-                                pushFloatTableOntoStack(L,4,quat);
-                                pushDoubleTableOntoStack(L,4,newPosVelAccel+4);
-                                pushDoubleTableOntoStack(L,4,newPosVelAccel+8);
-                                luaWrap_lua_pushnumber(L,dt-((double*)(auxData+1))[0]);
-                                simRMLRemove_internal(rmlHandle);
-                                LUA_END(6);
-                            }
-
-                            if (!movementFinished)
-                            {
-                                CThreadPool::switchBackToPreviousThread();
-                                if (CThreadPool::getSimulationStopRequestedAndActivated()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L)))
-                                {
-                                    errorString="@yield"; // yield will be triggered at end of this function
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    simRMLRemove_internal(rmlHandle);
-                }
-            }
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int handle=luaToInt(L,1);
+        float s[3];
+        if (simGetObjectSizeValues_internal(handle,s)!=-1)
+        {
+            pushFloatTableOntoStack(L,3,s);
+            LUA_END(1);
         }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simOpenModule(luaWrap_lua_State* L)
+{ // deprecated in 2019-2020 sometimes
+    TRACE_LUA_API;
+    LUA_START("sim.openModule");
+
+    moduleCommonPart_old(L,sim_message_eventcallback_moduleopen,&errorString);
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(1);
+}
+int _simCloseModule(luaWrap_lua_State* L)
+{ // deprecated in 2019-2020 sometimes
+    TRACE_LUA_API;
+    LUA_START("sim.closeModule");
+
+    moduleCommonPart_old(L,sim_message_eventcallback_moduleclose,&errorString);
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(1);
+}
+int _simHandleModule(luaWrap_lua_State* L)
+{ // deprecated in 2019-2020 sometimes
+    TRACE_LUA_API;
+    LUA_START_NO_CSIDE_ERROR("sim.handleModule");
+    bool sensingPart=false;
+    int res=checkOneGeneralInputArgument(L,2,lua_arg_bool,0,true,false,&errorString);
+
+    if ( (res==0)||(res==2) )
+    {
+        if (res==2)
+            sensingPart=(luaWrap_lua_toboolean(L,2)!=0);
+        if (sensingPart)
+            moduleCommonPart_old(L,sim_message_eventcallback_modulehandleinsensingpart,&errorString);
+        else
+            moduleCommonPart_old(L,sim_message_eventcallback_modulehandle,&errorString);
     }
     else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
+        luaWrap_lua_pushinteger(L,-1);
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal); // error
     LUA_END(1);
 }
-int _simBoolOr16(luaWrap_lua_State* L)
-{ // DEPRECATED
+void moduleCommonPart_old(luaWrap_lua_State* L,int action,std::string* errorString)
+{ // deprecated in 2019-2020 sometimes
     TRACE_LUA_API;
-    LUA_START("simBoolOr16");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    std::string functionName;
+    if (action==sim_message_eventcallback_moduleopen)
+        functionName="sim.openModule";
+    if (action==sim_message_eventcallback_moduleclose)
+        functionName="sim.closeModule";
+    if ( (action==sim_message_eventcallback_modulehandle)||(action==sim_message_eventcallback_modulehandleinsensingpart) )
+        functionName="sim.handleModule";
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+    if (it->getScriptType()!=sim_scripttype_mainscript)
     {
-        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
-        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
-        if ((na>=0)&&(nb>=0)&&(na<65535.9)&&(nb<65535.9))
-        {
-            unsigned int a=(unsigned int)na;
-            unsigned int b=(unsigned int)nb;
-            retVal=a|b;
+        if (errorString!=nullptr)
+            errorString->assign(SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT);
+        luaWrap_lua_pushinteger(L,-1);
+    }
+    else
+    {
+        bool handleAll=false;
+        if (luaWrap_lua_isnumber(L,1))
+        { // We try to check whether we have sim_handle_all as a number:
+            if (luaToInt(L,1)==sim_handle_all)
+            {
+                handleAll=true;
+                void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(action,nullptr,nullptr,nullptr);
+                delete[] ((char*)retVal);
+                luaWrap_lua_pushinteger(L,1);
+            }
         }
+        if (!handleAll)
+        {
+            if (checkInputArguments(L,errorString,lua_arg_string,0))
+            {
+                std::string modName(luaWrap_lua_tostring(L,1));
+                void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(action,nullptr,(char*)modName.c_str(),nullptr);
+                delete[] ((char*)retVal);
+                luaWrap_lua_pushinteger(L,1);
+            }
+            else
+                luaWrap_lua_pushinteger(L,-1);
+        }
+    }
+}
+int _simGetLastError(luaWrap_lua_State* L)
+{ // deprecated on 01.07.2021
+    TRACE_LUA_API;
+    LUA_START("sim.getLastError");
+
+    int scriptHandle=-1;
+    if (luaWrap_lua_gettop(L)!=0)
+    {
+        if (checkInputArguments(L,&errorString,lua_arg_number,0))
+            scriptHandle=luaWrap_lua_tointeger(L,1);
+    }
+    else
+        scriptHandle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+    if (it!=nullptr)
+    {
+        luaWrap_lua_pushstring(L,it->getAndClearLastError_old().c_str());
+        LUA_END(1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+int _simSwitchThread(luaWrap_lua_State* L)
+{ // now implemented in Lua, except for old threads. Deprecated since V4.2.0
+    TRACE_LUA_API;
+    LUA_START("sim._switchThread");
+
+    int retVal=-1;
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+    if ((it!=nullptr)&&(it->canManualYield()))
+    {
+        it->resetScriptExecutionTime();
+        if (CThreadPool_old::switchBackToPreviousThread())
+            retVal=1;
         else
-            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
+            retVal=0;
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
-
-int _simBoolAnd16(luaWrap_lua_State* L)
-{ // DEPRECATED
-    TRACE_LUA_API;
-    LUA_START("simBoolAnd16");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
-        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
-        if ((na>=0)&&(nb>=0)&&(na<65535.9)&&(nb<65535.9))
-        {
-            unsigned int a=(unsigned int)na;
-            unsigned int b=(unsigned int)nb;
-            retVal=a&b;
-        }
-        else
-            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simBoolXor16(luaWrap_lua_State* L)
-{ // DEPRECATED
-    TRACE_LUA_API;
-    LUA_START("simBoolXor16");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
-        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
-        if ((na>=0)&&(nb>=0)&&(na<65535.9)&&(nb<65535.9))
-        {
-            unsigned int a=(unsigned int)na;
-            unsigned int b=(unsigned int)nb;
-            retVal=a^b;
-        }
-        else
-            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simBoolOr32(luaWrap_lua_State* L)
-{ // Deprecated on 23.11.2020
-    TRACE_LUA_API;
-    LUA_START("sim.boolOr32");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
-        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
-        if ((na>=0)&&(nb>=0)&&(na<4294967295.9)&&(nb<4294967295.9))
-        {
-            unsigned int a=(unsigned int)na;
-            unsigned int b=(unsigned int)nb;
-            luaWrap_lua_pushinteger(L,(long long int)(a|b));
-            LUA_END(1);
-        }
-        else
-            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simBoolAnd32(luaWrap_lua_State* L)
-{ // Deprecated on 23.11.2020
-    TRACE_LUA_API;
-    LUA_START("sim.boolAnd32");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
-        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
-        if ((na>=0)&&(nb>=0)&&(na<4294967295.9)&&(nb<4294967295.9))
-        {
-            unsigned int a=(unsigned int)na;
-            unsigned int b=(unsigned int)nb;
-            luaWrap_lua_pushinteger(L,(long long int)(a&b));
-            LUA_END(1);
-        }
-        else
-            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simBoolXor32(luaWrap_lua_State* L)
-{ // Deprecated on 23.11.2020
-    TRACE_LUA_API;
-    LUA_START("sim.boolXor32");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,1);
-        luaWrap_lua_Number nb=luaWrap_lua_tonumber(L,2);
-        if ((na>=0)&&(nb>=0)&&(na<4294967295.9)&&(nb<4294967295.9))
-        {
-            unsigned int a=(unsigned int)na;
-            unsigned int b=(unsigned int)nb;
-            luaWrap_lua_pushinteger(L,(long long int)(a^b));
-            LUA_END(1);
-        }
-        else
-            errorString=SIM_ERROR_INVALID_NUMBER_INPUT;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-*/

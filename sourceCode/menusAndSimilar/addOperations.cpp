@@ -280,7 +280,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             if (App::currentWorld->sceneObjects->getSelectionCount()==1)
             {
                 int scriptID=App::currentWorld->embeddedScriptContainer->insertDefaultScript(sim_scripttype_childscript,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_oldTHREADED_CHILD_SCRIPT_ACCMD);
-                CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
+                CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
                 if (script!=nullptr)
                     script->setObjectHandleThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
@@ -303,7 +303,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             if (App::currentWorld->sceneObjects->getSelectionCount()==1)
             {
                 int scriptID=App::currentWorld->embeddedScriptContainer->insertDefaultScript(sim_scripttype_customizationscript,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CUSTOMIZATION_SCRIPT_ACCMD,false);
-                CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
+                CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
                 if (script!=nullptr)
                     script->setObjectHandleThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
@@ -355,7 +355,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
 
             // Following 3 on 24/3/2017
-            CLuaScriptObject* scriptObj=new CLuaScriptObject(sim_scripttype_customizationscript);
+            CScriptObject* scriptObj=new CScriptObject(sim_scripttype_customizationscript);
             App::currentWorld->embeddedScriptContainer->insertScript(scriptObj);
             scriptObj->setObjectHandleThatScriptIsAttachedTo(newObject->getObjectHandle());
             scriptObj->setScriptText("graph=require('graph_customization')");

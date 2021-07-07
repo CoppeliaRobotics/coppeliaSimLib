@@ -102,7 +102,7 @@ bool CInterfaceStackTable::getInt32Array(int* array,int count) const
     return(retVal);
 }
 
-bool CInterfaceStackTable::getInt64Array(luaWrap_lua_Integer* array,int count) const
+bool CInterfaceStackTable::getInt64Array(long long int* array,int count) const
 {
     if (!_isTableArray)
         return(false);
@@ -114,9 +114,9 @@ bool CInterfaceStackTable::getInt64Array(luaWrap_lua_Integer* array,int count) c
     {
         int t=_tableObjects[i]->getObjectType();
         if (t==STACK_OBJECT_NUMBER)
-            array[i]=(luaWrap_lua_Integer)((CInterfaceStackNumber*)_tableObjects[i])->getValue();
+            array[i]=(long long int)((CInterfaceStackNumber*)_tableObjects[i])->getValue();
         else if (t==STACK_OBJECT_INTEGER)
-            array[i]=(luaWrap_lua_Integer)((CInterfaceStackInteger*)_tableObjects[i])->getValue();
+            array[i]=(long long int)((CInterfaceStackInteger*)_tableObjects[i])->getValue();
         else
         {
             array[i]=0;
@@ -256,8 +256,8 @@ bool CInterfaceStackTable::removeFromKey(const CInterfaceStackObject* keyToRemov
         }
         if ( (key->getObjectType()==STACK_OBJECT_INTEGER)&&(keyToRemove->getObjectType()==STACK_OBJECT_INTEGER) )
         {
-            luaWrap_lua_Integer theKey1(((CInterfaceStackInteger*)key)->getValue());
-            luaWrap_lua_Integer theKey2(((CInterfaceStackInteger*)keyToRemove)->getValue());
+            long long int theKey1(((CInterfaceStackInteger*)key)->getValue());
+            long long int theKey2(((CInterfaceStackInteger*)keyToRemove)->getValue());
             if (theKey1==theKey2)
             {
                 delete key;
@@ -301,7 +301,7 @@ void CInterfaceStackTable::appendMapObject(CInterfaceStackObject* obj,double key
     _tableObjects.push_back(obj);
 }
 
-void CInterfaceStackTable::appendMapObject(CInterfaceStackObject* obj,luaWrap_lua_Integer key)
+void CInterfaceStackTable::appendMapObject(CInterfaceStackObject* obj,long long int key)
 {
     _isTableArray=false;
     _tableObjects.push_back(new CInterfaceStackInteger(key));
@@ -324,10 +324,10 @@ void CInterfaceStackTable::appendArrayOrMapObject(CInterfaceStackObject* obj,CIn
     {
         if ( (key->getObjectType()==STACK_OBJECT_NUMBER)||(key->getObjectType()==STACK_OBJECT_INTEGER) )
         {
-            luaWrap_lua_Integer ind;
+            long long int ind;
             if (key->getObjectType()==STACK_OBJECT_NUMBER)
             {
-                ind=(luaWrap_lua_Integer)((CInterfaceStackNumber*)key)->getValue();
+                ind=(long long int)((CInterfaceStackNumber*)key)->getValue();
                 if ( ((double)ind)!=((CInterfaceStackNumber*)key)->getValue() )
                     ind=-1; // this can't be an array, not a round index
             }
@@ -363,7 +363,7 @@ CInterfaceStackObject* CInterfaceStackTable::getArrayItemAtIndex(int ind) const
     return(_tableObjects[ind]);
 }
 
-CInterfaceStackObject* CInterfaceStackTable::getMapItemAtIndex(int ind,std::string& stringKey,double& numberKey,luaWrap_lua_Integer& integerKey,bool& boolKey,int& keyType) const
+CInterfaceStackObject* CInterfaceStackTable::getMapItemAtIndex(int ind,std::string& stringKey,double& numberKey,long long int& integerKey,bool& boolKey,int& keyType) const
 {
     if ( (_isTableArray)||(ind>=(int)_tableObjects.size()/2) )
         return(nullptr);
@@ -428,7 +428,7 @@ void CInterfaceStackTable::setInt32Array(const int* array,int l)
         _tableObjects.push_back(new CInterfaceStackInteger(array[i]));
 }
 
-void CInterfaceStackTable::setInt64Array(const luaWrap_lua_Integer* array,int l)
+void CInterfaceStackTable::setInt64Array(const long long int* array,int l)
 {
     _tableObjects.clear();
     _isTableArray=true;
@@ -585,7 +585,7 @@ std::string CInterfaceStackTable::getObjectData() const
         int boolFalse=-1;
         int boolTrue=-1;
         std::vector<std::pair<double,int>> numberKeys;
-        std::vector<std::pair<luaWrap_lua_Integer,int>> integerKeys;
+        std::vector<std::pair<long long int,int>> integerKeys;
         std::vector<std::pair<std::string,int>> stringKeys;
         for (int i=0;i<int(_tableObjects.size()/2);i++)
         {

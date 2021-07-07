@@ -85,6 +85,13 @@ bool CInterfaceStack::moveStackItemToTop(int cIndex)
     return(true);
 }
 
+CInterfaceStackObject* CInterfaceStack::getStackObjectFromIndex(size_t index) const
+{
+    if ( (_stackObjects.size()!=0)&&(index<_stackObjects.size()) )
+        return(_stackObjects[index]);
+    return(nullptr);
+}
+
 bool CInterfaceStack::getStackBoolValue(bool& theValue) const
 {
     if (_stackObjects.size()!=0)
@@ -118,7 +125,7 @@ bool CInterfaceStack::getStackDoubleValue(double& theValue) const
     bool retVal=getStackStrictNumberValue(theValue);
     if (!retVal)
     {
-        luaWrap_lua_Integer v;
+        long long int v;
         retVal=getStackStrictIntegerValue(v);
         if (retVal)
             theValue=(double)v;
@@ -135,7 +142,7 @@ bool CInterfaceStack::getStackFloatValue(float& theValue) const
     return(retVal);
 }
 
-bool CInterfaceStack::getStackStrictIntegerValue(luaWrap_lua_Integer& theValue) const
+bool CInterfaceStack::getStackStrictIntegerValue(long long int& theValue) const
 {
     if (_stackObjects.size()!=0)
     {
@@ -149,7 +156,7 @@ bool CInterfaceStack::getStackStrictIntegerValue(luaWrap_lua_Integer& theValue) 
     return(false);
 }
 
-bool CInterfaceStack::getStackInt64Value(luaWrap_lua_Integer& theValue) const
+bool CInterfaceStack::getStackInt64Value(long long int& theValue) const
 {
     bool retVal=getStackStrictIntegerValue(theValue);
     if (!retVal)
@@ -159,9 +166,9 @@ bool CInterfaceStack::getStackInt64Value(luaWrap_lua_Integer& theValue) const
         if (retVal)
         {
             if (v>=0.0)
-                theValue=(luaWrap_lua_Integer)(v+0.1);
+                theValue=(long long int)(v+0.1);
             else
-                theValue=(luaWrap_lua_Integer)(v-0.1);
+                theValue=(long long int)(v-0.1);
         }
     }
     return(retVal);
@@ -169,7 +176,7 @@ bool CInterfaceStack::getStackInt64Value(luaWrap_lua_Integer& theValue) const
 
 bool CInterfaceStack::getStackInt32Value(int& theValue) const
 {
-    luaWrap_lua_Integer v;
+    long long int v;
     bool retVal=getStackInt64Value(v);
     if (retVal)
         theValue=(int)v;
@@ -224,271 +231,6 @@ void CInterfaceStack::clear()
     _stackObjects.clear();
 }
 
-int CInterfaceStack::_countLuaStackTableEntries(luaWrap_lua_State* L,int index)
-{
-    int cnt=0;
-    luaWrap_lua_pushvalue(L,index); // copy of the table to the top
-    luaWrap_lua_pushnil(L); // nil on top
-    while (luaWrap_lua_next(L,-2)) // pops a value, then pushes a key-value pair (if table is not empty)
-    { // stack now contains at -1 the value, at -2 the key, at -3 the table
-        luaWrap_lua_pop(L,1); // pop 1 value (the value)
-        // stack now contains at -1 the key, at -2 the table
-        cnt++;
-    }
-    luaWrap_lua_pop(L,1);
-    // Stack is now restored to what it was at function entry
-    return(cnt);
-}
-
-CInterfaceStackTable* CInterfaceStack::_generateTableMapFromLuaStack(luaWrap_lua_State* L,int index,std::map<void*,bool>& visitedTables)
-{ // there must be a table at the given index.
-    CInterfaceStackTable* table=new CInterfaceStackTable();
-    luaWrap_lua_pushvalue(L,index); // copy of the table to the top
-    luaWrap_lua_pushnil(L); // nil on top
-    while (luaWrap_lua_next(L,-2)) // pops a value, then pushes a key-value pair (if table is not empty)
-    { // stack now contains at -1 the value, at -2 the key, at -3 the table
-        // copy the key:
-        luaWrap_lua_pushvalue(L,-2);
-        // stack now contains at -1 the key, at -2 the value, at -3 the key, and at -4 the table
-        int t=luaWrap_lua_stype(L,-1);
-        if (t==STACK_OBJECT_NUMBER)
-        { // the key is a number
-            double key=luaWrap_lua_tonumber(L,-1);
-            CInterfaceStackObject* obj=_generateObjectFromLuaStack(L,-2,visitedTables);
-            table->appendMapObject(obj,key);
-        }
-        else if (t==STACK_OBJECT_INTEGER)
-        { // the key is an integer
-            luaWrap_lua_Integer key=luaWrap_lua_tointeger(L,-1);
-            CInterfaceStackObject* obj=_generateObjectFromLuaStack(L,-2,visitedTables);
-            table->appendMapObject(obj,key);
-        }
-        else if (t==STACK_OBJECT_BOOL)
-        { // the key is a bool
-            bool key=luaWrap_lua_toboolean(L,-1)!=0;
-            CInterfaceStackObject* obj=_generateObjectFromLuaStack(L,-2,visitedTables);
-            table->appendMapObject(obj,key);
-        }
-        else if (t==STACK_OBJECT_STRING)
-        { // the key is a string
-            size_t l;
-            std::string key=luaWrap_lua_tolstring(L,-1,&l);
-            CInterfaceStackObject* obj=_generateObjectFromLuaStack(L,-2,visitedTables);
-            table->appendMapObject(obj,key.c_str(),l);
-        }
-        else
-        { // the key is something weird, e.g. a table, a thread, etc. Convert this to a string:
-            void* p=(void*)luaWrap_lua_topointer(L,-1);
-            char num[21];
-            snprintf(num,20,"%p",p);
-            std::string str;
-            if (t==STACK_OBJECT_TABLE)
-                str="<TABLE ";
-            else if (t==STACK_OBJECT_USERDAT)
-                str="<USERDATA ";
-            else if (t==STACK_OBJECT_FUNC)
-                str="<FUNCTION ";
-            else if (t==STACK_OBJECT_THREAD)
-                str="<THREAD ";
-            else if (t==STACK_OBJECT_LIGHTUSERDAT)
-                str="<LIGHTUSERDATA ";
-            else
-                str="<UNKNOWNTYPE ";
-            str+=num;
-            str+=">";
-            CInterfaceStackObject* obj=_generateObjectFromLuaStack(L,-2,visitedTables);
-            table->appendMapObject(obj,str.c_str(),0);
-        }
-        luaWrap_lua_pop(L,2); // pop 2 values (key+value)
-        // stack now contains at -1 the key, at -2 the table
-    }
-    luaWrap_lua_pop(L,1);
-    // Stack is now restored to what it was at function entry
-    return(table);
-}
-
-CInterfaceStackTable* CInterfaceStack::_generateTableArrayFromLuaStack(luaWrap_lua_State* L,int index,std::map<void*,bool>& visitedTables)
-{ // there must be a table at the given index.
-    CInterfaceStackTable* table=new CInterfaceStackTable();
-    int arraySize=int(luaWrap_lua_rawlen(L,index));
-    for (int i=0;i<arraySize;i++)
-    {
-        // Push the element i+1 of the table to the top of Lua's stack:
-        luaWrap_lua_rawgeti(L,index,i+1);
-        CInterfaceStackObject* obj=_generateObjectFromLuaStack(L,-1,visitedTables);
-        luaWrap_lua_pop(L,1); // we pop one element from the stack;
-        table->appendArrayObject(obj);
-    }
-    return(table);
-}
-
-CInterfaceStackObject* CInterfaceStack::_generateObjectFromLuaStack(luaWrap_lua_State* L,int index,std::map<void*,bool>& visitedTables)
-{ // generates just one object at the given index
-    int t=luaWrap_lua_stype(L,index);
-    if (t==STACK_OBJECT_NULL)
-        return(new CInterfaceStackNull());
-    else if (t==STACK_OBJECT_BOOL)
-        return(new CInterfaceStackBool(luaWrap_lua_toboolean(L,index)!=0));
-    else if (t==STACK_OBJECT_NUMBER)
-        return(new CInterfaceStackNumber(luaWrap_lua_tonumber(L,index)));
-    else if (t==STACK_OBJECT_INTEGER)
-        return(new CInterfaceStackInteger(luaWrap_lua_tointeger(L,index)));
-    else if (t==STACK_OBJECT_STRING)
-    {
-        size_t l;
-        const char* c=luaWrap_lua_tolstring(L,index,&l);
-        return(new CInterfaceStackString(c,l));
-    }
-    else if (t==STACK_OBJECT_TABLE)
-    { // this part is more tricky:
-        // Following to avoid getting trapped in circular references:
-        void* p=(void*)luaWrap_lua_topointer(L,index);
-        std::map<void*,bool>::iterator it=visitedTables.find(p);
-        CInterfaceStackTable* table=nullptr;
-        if (it!=visitedTables.end())
-        { // we have a circular reference!
-            table=new CInterfaceStackTable();
-            table->setCircularRef();
-        }
-        else
-        {
-            visitedTables[p]=true;
-            int tableValueCnt=_countLuaStackTableEntries(L,index);
-            int arraySize=int(luaWrap_lua_rawlen(L,index));
-            if (tableValueCnt==arraySize)
-            { // we have an array (or keys that go from "1" to arraySize):
-                table=_generateTableArrayFromLuaStack(L,index,visitedTables);
-            }
-            else
-            { // we have a more complex table, a map, where the keys are specific:
-                table=_generateTableMapFromLuaStack(L,index,visitedTables);
-            }
-            it=visitedTables.find(p);
-            visitedTables.erase(it);
-        }
-        return(table);
-    }
-    else
-    { // following types translate to strings (i.e. can't be handled outside of the Lua state)
-        void* p=(void*)luaWrap_lua_topointer(L,index);
-        char num[21];
-        snprintf(num,20,"%p",p);
-        std::string str;
-        if (t==STACK_OBJECT_USERDAT)
-            str="<USERDATA ";
-        else if (t==STACK_OBJECT_FUNC)
-            str="<FUNCTION ";
-        else if (t==STACK_OBJECT_THREAD)
-            str="<THREAD ";
-        else if (t==STACK_OBJECT_LIGHTUSERDAT)
-            str="<LIGHTUSERDATA ";
-        else
-            str="<UNKNOWNTYPE ";
-        str+=num;
-        str+=">";
-        return(new CInterfaceStackString(str.c_str(),0));
-    }
-}
-
-void CInterfaceStack::buildFromLuaStack(luaWrap_lua_State* L,int fromPos,int cnt)
-{ // fromPos=1 and cnt=0 by default (i.e. the whole stack)
-    clear();
-    int numberOfArguments=luaWrap_lua_gettop(L);
-    if (fromPos>1)
-        numberOfArguments-=fromPos-1;
-    if (cnt>0)
-        numberOfArguments=std::min<int>(numberOfArguments,cnt);
-    for (int i=fromPos;i<fromPos+numberOfArguments;i++)
-    {
-        std::map<void*,bool> visitedTables;
-        CInterfaceStackObject* obj=_generateObjectFromLuaStack(L,i,visitedTables);
-        _stackObjects.push_back(obj);
-    }
-}
-
-void CInterfaceStack::buildOntoLuaStack(luaWrap_lua_State* L,bool takeOnlyTop) const
-{
-    if (takeOnlyTop)
-    {
-        if (_stackObjects.size()>0)
-            _pushOntoLuaStack(L,_stackObjects[_stackObjects.size()-1]);
-    }
-    else
-    {
-        for (size_t i=0;i<_stackObjects.size();i++)
-        {
-            CInterfaceStackObject* obj=_stackObjects[i];
-            _pushOntoLuaStack(L,obj);
-        }
-    }
-}
-
-void CInterfaceStack::_pushOntoLuaStack(luaWrap_lua_State* L,CInterfaceStackObject* obj) const
-{
-    int t=obj->getObjectType();
-    if (t==STACK_OBJECT_NULL)
-        luaWrap_lua_pushnil(L);
-    else if (t==STACK_OBJECT_BOOL)
-        luaWrap_lua_pushboolean(L,((CInterfaceStackBool*)obj)->getValue());
-    else if (t==STACK_OBJECT_NUMBER)
-    {
-#ifdef LUA_STACK_COMPATIBILITY_MODE
-        double v=((CInterfaceStackNumber*)obj)->getValue();
-        luaWrap_lua_Integer w=(luaWrap_lua_Integer)v;
-        if (v==(double)w)
-            luaWrap_lua_pushinteger(L,w);
-        else
-            luaWrap_lua_pushnumber(L,v);
-#else
-        luaWrap_lua_pushnumber(L,((CInterfaceStackNumber*)obj)->getValue());
-#endif
-    }
-    else if (t==STACK_OBJECT_INTEGER)
-        luaWrap_lua_pushinteger(L,((CInterfaceStackInteger*)obj)->getValue());
-    else if (t==STACK_OBJECT_STRING)
-    {
-        size_t l;
-        const char* str=((CInterfaceStackString*)obj)->getValue(&l);
-        luaWrap_lua_pushlstring(L,str,l);
-    }
-    else if (t==STACK_OBJECT_TABLE)
-    {
-        luaWrap_lua_newtable(L);
-        CInterfaceStackTable* table=(CInterfaceStackTable*)obj;
-        if (table->isTableArray())
-        { // array-type table
-            for (int i=0;i<table->getArraySize();i++)
-            {
-                CInterfaceStackObject* tobj=table->getArrayItemAtIndex(i);
-                _pushOntoLuaStack(L,tobj);
-                luaWrap_lua_rawseti(L,-2,i+1);
-            }
-        }
-        else
-        { // map-type table
-            for (int i=0;i<table->getMapEntryCount();i++)
-            {
-                std::string stringKey;
-                double numberKey;
-                luaWrap_lua_Integer integerKey;
-                bool boolKey;
-                int keyType;
-                CInterfaceStackObject* tobj=table->getMapItemAtIndex(i,stringKey,numberKey,integerKey,boolKey,keyType);
-                if (keyType==STACK_OBJECT_STRING)
-                    luaWrap_lua_pushlstring(L,stringKey.c_str(),stringKey.size());
-                if (keyType==STACK_OBJECT_NUMBER)
-                    luaWrap_lua_pushnumber(L,numberKey);
-                if (keyType==STACK_OBJECT_INTEGER)
-                    luaWrap_lua_pushinteger(L,integerKey);
-                if (keyType==STACK_OBJECT_BOOL)
-                    luaWrap_lua_pushboolean(L,boolKey);
-                _pushOntoLuaStack(L,tobj);
-                luaWrap_lua_settable(L,-3);
-            }
-        }
-    }
-}
-
 CInterfaceStack* CInterfaceStack::copyYourself() const
 {
     CInterfaceStack* retVal=new CInterfaceStack();
@@ -530,7 +272,7 @@ bool CInterfaceStack::getStackInt32Array(int* array,int count) const
     return(table->getInt32Array(array,count));
 }
 
-bool CInterfaceStack::getStackInt64Array(luaWrap_lua_Integer* array,int count) const
+bool CInterfaceStack::getStackInt64Array(long long int* array,int count) const
 {
     if (_stackObjects.size()==0)
         return(false);
@@ -620,7 +362,7 @@ bool CInterfaceStack::getStackMapFloatValue(const char* fieldName,float& val) co
     return(retVal);
 }
 
-bool CInterfaceStack::getStackMapLongIntValue(const char* fieldName,luaWrap_lua_Integer& val) const
+bool CInterfaceStack::getStackMapLongIntValue(const char* fieldName,long long int& val) const
 {
     bool retVal=getStackMapStrictIntegerValue(fieldName,val);
     if (!retVal)
@@ -630,9 +372,9 @@ bool CInterfaceStack::getStackMapLongIntValue(const char* fieldName,luaWrap_lua_
         if (retVal)
         {
             if (v>=0.0)
-                val=(luaWrap_lua_Integer)(v+0.1);
+                val=(long long int)(v+0.1);
             else
-                val=(luaWrap_lua_Integer)(v-0.1);
+                val=(long long int)(v-0.1);
         }
     }
     return(retVal);
@@ -640,7 +382,7 @@ bool CInterfaceStack::getStackMapLongIntValue(const char* fieldName,luaWrap_lua_
 
 bool CInterfaceStack::getStackMapIntValue(const char* fieldName,int& val) const
 {
-    luaWrap_lua_Integer v;
+    long long int v;
     bool retVal=getStackMapLongIntValue(fieldName,v);
     if (retVal)
         val=(int)v;
@@ -661,7 +403,7 @@ bool CInterfaceStack::getStackMapStrictNumberValue(const char* fieldName,double&
     return(false);
 }
 
-bool CInterfaceStack::getStackMapStrictIntegerValue(const char* fieldName,luaWrap_lua_Integer& val) const
+bool CInterfaceStack::getStackMapStrictIntegerValue(const char* fieldName,long long int& val) const
 {
     const CInterfaceStackObject* obj=getStackMapObject(fieldName);
     if (obj!=nullptr)
@@ -680,7 +422,7 @@ bool CInterfaceStack::getStackMapDoubleValue(const char* fieldName,double& val) 
     bool retVal=getStackMapStrictNumberValue(fieldName,val);
     if (!retVal)
     {
-        luaWrap_lua_Integer v;
+        long long int v;
         retVal=getStackMapStrictIntegerValue(fieldName,v);
         if (retVal)
             val=(double)v;
@@ -730,6 +472,11 @@ bool CInterfaceStack::unfoldStackTable()
     return(true);
 }
 
+void CInterfaceStack::pushObjectOntoStack(CInterfaceStackObject* obj)
+{
+    _stackObjects.push_back(obj);
+}
+
 void CInterfaceStack::pushNullOntoStack()
 {
     _stackObjects.push_back(new CInterfaceStackNull());
@@ -750,7 +497,7 @@ void CInterfaceStack::pushInt32OntoStack(int v)
     _stackObjects.push_back(new CInterfaceStackInteger(v));
 }
 
-void CInterfaceStack::pushInt64OntoStack(luaWrap_lua_Integer v)
+void CInterfaceStack::pushInt64OntoStack(long long int v)
 {
     _stackObjects.push_back(new CInterfaceStackInteger(v));
 }
@@ -767,7 +514,7 @@ void CInterfaceStack::pushInt32ArrayTableOntoStack(const int* arr,int l)
     _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushInt64ArrayTableOntoStack(const luaWrap_lua_Integer* arr,int l)
+void CInterfaceStack::pushInt64ArrayTableOntoStack(const long long int* arr,int l)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setInt64Array(arr,l);

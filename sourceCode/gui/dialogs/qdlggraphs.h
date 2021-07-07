@@ -78,6 +78,8 @@ private slots:
 
     void on_qqEdit3DCurves_clicked();
 
+    void on_qqRemoveAll_clicked();
+
 private:
     Ui::CQDlgGraphs *ui;
 };

@@ -1,22 +1,22 @@
 #pragma once
 
 #include <string>
-#include "luaWrapper.h"
 
-class CLuaCustomVariable
+class CScriptCustomVariable
 {
 public:
-    CLuaCustomVariable(const char* theFullVariableName,const char* theVariableValue,int theVariableStackValue);
+    CScriptCustomVariable(const char* theFullVariableName,const char* theVariableValue,int theVariableStackValue);
 
-    virtual ~CLuaCustomVariable();
+    virtual ~CScriptCustomVariable();
     
-    void pushVariableOntoLuaStack(luaWrap_lua_State* L,bool handleOnlyRequireAssignments) const;
     bool shouldBeDestroyed(const char* pluginName) const;
     bool isVariableNameSame(const char* fullName) const;
     bool isPluginNameSame(const char* plugName) const;
     bool isDeprecated() const;
     bool getHasAutoCompletion() const;
     std::string getVariableName() const;
+    std::string getVariableValue() const;
+    int getVariableStackId() const;
 
 protected:
     std::string _getVariableNameFromFull(const char* fullName) const;
@@ -25,7 +25,7 @@ protected:
     std::string _pluginName;
     std::string _variableName;
     std::string _variableValue;
-    int _variableStackValue;
+    int _variableStackId;
     bool _isDeprecated;
     bool _hasAutocompletion;
 };

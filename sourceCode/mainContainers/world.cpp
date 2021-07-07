@@ -539,7 +539,7 @@ void CWorld::saveScene(CSer& ar)
     // We serialize the script objects (not the add-on scripts nor the sandbox script):
     for (size_t i=0;i<embeddedScriptContainer->allScripts.size();i++)
     {
-        CLuaScriptObject* it=embeddedScriptContainer->allScripts[i];
+        CScriptObject* it=embeddedScriptContainer->allScripts[i];
         if (it->isEmbeddedScript())
         {
             if (ar.isBinary())
@@ -749,7 +749,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
                                                     std::vector<CIkGroup_old*>* loadedIkGroupList,
                                                     std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
                                                     std::vector<CButtonBlock*>* loadedButtonBlockList,
-                                                    std::vector<CLuaScriptObject*>* loadedLuaScriptList,
+                                                    std::vector<CScriptObject*>* loadedLuaScriptList,
                                                     std::vector<CTextureObject*>& loadedTextureObjectList,
                                                     std::vector<CDynMaterialObject*>& loadedDynMaterialObjectList,
                                                     bool model,int fileSimVersion,bool forceModelAsCopy)
@@ -954,7 +954,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     // We do the mapping for the Lua scripts:
     for (size_t i=0;i<loadedLuaScriptList->size();i++)
     {
-        CLuaScriptObject* it=loadedLuaScriptList->at(i);
+        CScriptObject* it=loadedLuaScriptList->at(i);
         it->performSceneObjectLoadingMapping(&objectMapping);
     }
 
@@ -1041,7 +1041,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         int handle=_loadOperationIssues[i].objectHandle;
         std::string newTxt("NAME_NOT_FOUND");
         int handle2=getLoadingMapping(&luaScriptMapping,handle);
-        CLuaScriptObject* script=embeddedScriptContainer->getScriptFromHandle(handle2);
+        CScriptObject* script=embeddedScriptContainer->getScriptFromHandle(handle2);
         if (script!=nullptr)
             newTxt=script->getShortDescriptiveName();
         std::string msg(_loadOperationIssues[i].message);
@@ -1216,7 +1216,6 @@ void CWorld::exportIkContent(CExtIkSer& ar)
 
 bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
 {
-    CLuaScriptObject::TEMP.clear();
     appendLoadOperationIssue(-1,nullptr,-1); // clear
 
     CMesh::clearTempVerticesIndicesNormalsAndEdges();
@@ -1231,7 +1230,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
     std::vector<CIkGroup_old*> loadedIkGroupList;
     std::vector<CPathPlanningTask*> pathPlanningTaskList;
     std::vector<CButtonBlock*> loadedButtonBlockList;
-    std::vector<CLuaScriptObject*> loadedLuaScriptList;
+    std::vector<CScriptObject*> loadedLuaScriptList;
 
     bool hasThumbnail=false;
     if (ar.isBinary())
@@ -1380,7 +1379,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 if (theName.compare(SER_LUA_SCRIPT)==0)
                 {
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CLuaScriptObject* it=new CLuaScriptObject(-1);
+                    CScriptObject* it=new CScriptObject(-1);
                     it->serialize(ar);
                     if ( (it->getScriptType()==sim_scripttype_jointctrlcallback_old)||(it->getScriptType()==sim_scripttype_generalcallback_old)||(it->getScriptType()==sim_scripttype_contactcallback_old) )
                     { // joint callback, contact callback and general callback scripts are not supported anymore since V3.6.1.rev2
@@ -1392,7 +1391,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                         if (it->getScriptType()==sim_scripttype_contactcallback_old)
                             ml="the file contains a contact callback script, which is a script type that is not supported anymore (since CoppeliaSim V3.6.1 rev2).\nUse a contact callback functions instead. Following the script content:\n"+ml;
                         App::logMsg(sim_verbosity_errors,ml.c_str());
-                        CLuaScriptObject::destroy(it,false);
+                        CScriptObject::destroy(it,false);
                     }
                     else
                         loadedLuaScriptList.push_back(it);
@@ -1571,7 +1570,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
         {
             while (true)
             {
-                CLuaScriptObject* it=new CLuaScriptObject(-1);
+                CScriptObject* it=new CScriptObject(-1);
                 it->serialize(ar);
                 loadedLuaScriptList.push_back(it);
                 if (!ar.xmlPushSiblingNode(SERX_LUA_SCRIPT,false))
@@ -1631,11 +1630,11 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
         if (txt.size()>0)
         {
             cf->scriptEquivalent.clear();
-            CLuaScriptObject* script=embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
+            CScriptObject* script=embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
             if (script==nullptr)
             {
                 txt=std::string("function sysCall_init()\nend\n\n")+txt;
-                script=new CLuaScriptObject(sim_scripttype_customizationscript);
+                script=new CScriptObject(sim_scripttype_customizationscript);
                 embeddedScriptContainer->insertScript(script);
                 script->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
             }
@@ -1650,12 +1649,12 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
         CForceSensor* it=sceneObjects->getForceSensorFromIndex(i);
         if (it->getStillAutomaticallyBreaking())
         {
-            CLuaScriptObject* script=embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
+            CScriptObject* script=embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
             std::string txt("function sysCall_trigger(inData)\n    -- callback function automatically added for backward compatibility\n    sim.breakForceSensor(inData.handle)\nend\n\n");
             if (script==nullptr)
             {
                 txt=std::string("function sysCall_init()\nend\n\n")+txt;
-                script=new CLuaScriptObject(sim_scripttype_customizationscript);
+                script=new CScriptObject(sim_scripttype_customizationscript);
                 embeddedScriptContainer->insertScript(script);
                 script->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
             }
@@ -1668,7 +1667,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
     // Following for backward compatibility (Lua script parameters are now attached to objects, and not scripts anymore):
     for (size_t i=0;i<loadedLuaScriptList.size();i++)
     {
-        CLuaScriptObject* script=embeddedScriptContainer->getScriptFromHandle(loadedLuaScriptList[i]->getScriptHandle());
+        CScriptObject* script=embeddedScriptContainer->getScriptFromHandle(loadedLuaScriptList[i]->getScriptHandle());
         if (script!=nullptr)
         {
             CUserParameters* params=script->getScriptParametersObject_backCompatibility();
@@ -1764,8 +1763,8 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
     {
         CSceneObject* it=simpleXmlObjects[i].object;
         CSceneObject* pit=simpleXmlObjects[i].parentObject;
-        CLuaScriptObject* childScript=simpleXmlObjects[i].childScript;
-        CLuaScriptObject* customizationScript=simpleXmlObjects[i].customizationScript;
+        CScriptObject* childScript=simpleXmlObjects[i].childScript;
+        CScriptObject* customizationScript=simpleXmlObjects[i].customizationScript;
         allLoadedObjects.push_back(it);
         if (it->getObjectType()==sim_object_camera_type)
         {
@@ -2117,14 +2116,14 @@ void CWorld::_simulationAboutToStart()
 
 void CWorld::_simulationPaused()
 {
-    CLuaScriptObject* mainScript=embeddedScriptContainer->getMainScript();
+    CScriptObject* mainScript=embeddedScriptContainer->getMainScript();
     if (mainScript!=nullptr)
         mainScript->systemCallMainScript(sim_syscb_suspend,nullptr,nullptr);
 }
 
 void CWorld::_simulationAboutToResume()
 {
-    CLuaScriptObject* mainScript=embeddedScriptContainer->getMainScript();
+    CScriptObject* mainScript=embeddedScriptContainer->getMainScript();
     if (mainScript!=nullptr)
         mainScript->systemCallMainScript(sim_syscb_resume,nullptr,nullptr);
 }
@@ -2208,7 +2207,7 @@ int CWorld::_getSuffixOffsetForGeneralObjectToAdd(bool tempNames,std::vector<CSc
                                                  std::vector<CIkGroup_old*>* loadedIkGroupList,
                                                  std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
                                                  std::vector<CButtonBlock*>* loadedButtonBlockList,
-                                                 std::vector<CLuaScriptObject*>* loadedLuaScriptList) const
+                                                 std::vector<CScriptObject*>* loadedLuaScriptList) const
 {
     // 1. We find out about the smallest suffix to paste:
     int smallestSuffix=SIM_MAX_INT;

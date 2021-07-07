@@ -12,7 +12,7 @@ CWorldContainer::CWorldContainer()
     addOnScriptContainer=nullptr;
     persistentDataContainer=nullptr;
     interfaceStackContainer=nullptr;
-    luaCustomFuncAndVarContainer=nullptr;
+    scriptCustomFuncAndVarContainer=nullptr;
     simulatorMessageQueue=nullptr;
     calcInfo=nullptr;
     customAppData=nullptr;
@@ -257,7 +257,7 @@ void CWorldContainer::initialize()
 
     persistentDataContainer=new CPersistentDataContainer();
     interfaceStackContainer=new CInterfaceStackContainer();
-    luaCustomFuncAndVarContainer=new CLuaCustomFuncAndVarContainer();
+    scriptCustomFuncAndVarContainer=new CScriptCustomFuncAndVarContainer();
     customAppData=new CCustomData();
     calcInfo=new CCalculationInfo();
     addOnScriptContainer=new CAddOnScriptContainer();
@@ -275,7 +275,7 @@ void CWorldContainer::deinitialize()
 //    delete sandboxScript;
     delete addOnScriptContainer;
     delete customAppData;
-    delete luaCustomFuncAndVarContainer;
+    delete scriptCustomFuncAndVarContainer;
     delete interfaceStackContainer;
     delete persistentDataContainer;
 #ifdef SIM_WITH_GUI
@@ -385,9 +385,9 @@ void CWorldContainer::getAllSceneNames(std::vector<std::string>& l) const
         l.push_back(VVarious::splitPath_fileBase(_worlds[i]->mainSettings->getScenePathAndName().c_str()));
 }
 
-CLuaScriptObject* CWorldContainer::getScriptFromHandle(int scriptHandle) const
+CScriptObject* CWorldContainer::getScriptFromHandle(int scriptHandle) const
 {
-    CLuaScriptObject* retVal=currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
+    CScriptObject* retVal=currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
     if (retVal==nullptr)
     {
         retVal=addOnScriptContainer->getAddOnFromID(scriptHandle);

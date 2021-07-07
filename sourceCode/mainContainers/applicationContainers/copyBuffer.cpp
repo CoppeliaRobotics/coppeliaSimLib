@@ -32,7 +32,7 @@ void CCopyBuffer::clearBuffer()
         delete objectBuffer[i];
     objectBuffer.clear();
     for (size_t i=0;i<luaScriptBuffer.size();i++)
-        CLuaScriptObject::destroy(luaScriptBuffer[i],false);
+        CScriptObject::destroy(luaScriptBuffer[i],false);
     luaScriptBuffer.clear();
     for (size_t i=0;i<textureObjectBuffer.size();i++)
         delete textureObjectBuffer[i];
@@ -65,7 +65,7 @@ void CCopyBuffer::clearMemorizedBuffer()
         delete objectBuffer_memorized[i];
     objectBuffer_memorized.clear();
     for (size_t i=0;i<luaScriptBuffer_memorized.size();i++)
-        CLuaScriptObject::destroy(luaScriptBuffer_memorized[i],false);
+        CScriptObject::destroy(luaScriptBuffer_memorized[i],false);
     luaScriptBuffer_memorized.clear();
     for (size_t i=0;i<textureObjectBuffer_memorized.size();i++)
         delete textureObjectBuffer_memorized[i];
@@ -173,7 +173,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene,int selectionMode)
     for (size_t i=0;i<objectBuffer.size();i++)
         objectCopy.push_back(objectBuffer[i]->copyYourself());
 
-    std::vector<CLuaScriptObject*> luaScriptCopy;
+    std::vector<CScriptObject*> luaScriptCopy;
     for (size_t i=0;i<luaScriptBuffer.size();i++)
         luaScriptCopy.push_back(luaScriptBuffer[i]->copyYourself());
 
@@ -743,7 +743,7 @@ void CCopyBuffer::_eraseScriptInBuffer(int objectID)
     {
         if (luaScriptBuffer[i]->getScriptHandle()==objectID)
         {
-            CLuaScriptObject::destroy(luaScriptBuffer[i],false);
+            CScriptObject::destroy(luaScriptBuffer[i],false);
             luaScriptBuffer.erase(luaScriptBuffer.begin()+i);
             break;
         }
@@ -871,7 +871,7 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
     i=0;
     while (i<luaScriptBuffer.size())
     {
-        CLuaScriptObject* it=luaScriptBuffer[i];
+        CScriptObject* it=luaScriptBuffer[i];
         if (it->announceSceneObjectWillBeErased(objectID,true))
         {
             _eraseScriptInBuffer(it->getScriptHandle());

@@ -298,10 +298,10 @@ void CForceSensor::_handleSensorBreaking()
             _currentThresholdViolationCount=0;
         if (_currentThresholdViolationCount>=_consecutiveThresholdViolationsForBreaking)
         { // we need to break something!
-            CLuaScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+            CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
             if ( (script!=nullptr)&&(!script->getContainsTriggerCallbackFunction()) )
                 script=nullptr;
-            CLuaScriptObject* cScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
+            CScriptObject* cScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
             if ( (cScript!=nullptr)&&(!cScript->getContainsTriggerCallbackFunction()) )
                 cScript=nullptr;
             if ( (script!=nullptr)||(cScript!=nullptr) )

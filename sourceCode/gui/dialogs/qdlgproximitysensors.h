@@ -39,8 +39,6 @@ private slots:
 
     void on_qqAdjustVolume_clicked();
 
-    void on_qqEntityToDetect_currentIndexChanged(int index);
-
     void on_qqAdjustDetectionParams_clicked();
 
     void on_qqPassiveVolumeColor_clicked();
