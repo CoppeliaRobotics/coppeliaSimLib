@@ -392,8 +392,8 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
             theDialog.makeDialogModal(); // things are modified / messages sent in the modal dlg
         }
     }
-    if ( (App::mainWindow!=nullptr)&&(cmdIn->cmdId==FLASH_STATUSBAR_UITHREADCMD) )
-        App::mainWindow->flashStatusbar();
+//    if ( (App::mainWindow!=nullptr)&&(cmdIn->cmdId==FLASH_STATUSBAR_UITHREADCMD) )
+//        App::mainWindow->flashStatusbar();
 
     if ( (App::mainWindow!=nullptr)&&(cmdIn->cmdId==OPEN_HIERARCHY_UITHREADCMD) )
         App::mainWindow->dlgCont->processCommand(OPEN_HIERARCHY_DLG_CMD);

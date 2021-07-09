@@ -53,9 +53,9 @@ public:
     void setCurrentCursor(int cur);
     void setBrowserVisible(bool v);
 
-    void flashStatusbar();
-    void setFlyModeCameraHandle(int h);
-    int getFlyModeCameraHandle();
+//    void flashStatusbar();
+//    void setFlyModeCameraHandle(int h);
+//    int getFlyModeCameraHandle();
     void setProxSensorClickSelectDown(int v);
     int getProxSensorClickSelectDown();
     void setProxSensorClickSelectUp(int v);
@@ -170,7 +170,7 @@ private:
     void _recomputeClientSizeAndPos();
     void _setInitialDimensions(bool maximized);
     void _setClientArea(int x,int y);
-    void _resetStatusbarFlashIfNeeded();
+//    void _resetStatusbarFlashIfNeeded();
     void _closeDialogTemporarilyIfOpened(int dlgID,std::vector<int>& vect);
 
     QSignalMapper* _signalMapper;
@@ -185,8 +185,7 @@ private:
     VMenu* _editSystemMenu;
     VMenu* _addSystemMenu;
     VMenu* _simulationSystemMenu;
-    VMenu* _windowSystemMenu;
-    VMenu* _addOnSystemMenu;
+    VMenu* _toolsSystemMenu;
     VMenu* _helpSystemMenu;
     VMenu* _instancesSystemMenu;
 
@@ -244,7 +243,7 @@ private:
     bool _hasStereo;
     float _stereoDistance;
     bool _leftEye;
-    int _statusbarFlashTime;
+//    int _statusbarFlashTime;
     VPoint _mouseRenderingPos;
     VPoint _clientArea;
     int _focusObject;
@@ -252,7 +251,7 @@ private:
     int _mouseWheelEventTime;
     bool _openGlDisplayEnabled;
     int _mouseMode;
-    int _flyModeCameraHandle;
+//    int _flyModeCameraHandle;
     int _proxSensorClickSelectDown;
     int _proxSensorClickSelectUp;
 
@@ -290,8 +289,7 @@ public slots:
     void _aboutToShowEditSystemMenu();
     void _aboutToShowAddSystemMenu();
     void _aboutToShowSimulationSystemMenu();
-    void _aboutToShowWindowSystemMenu();
-    void _aboutToShowAddOnSystemMenu();
+    void _aboutToShowToolsSystemMenu();
     void _aboutToShowHelpSystemMenu();
     void _aboutToShowInstancesSystemMenu();
     void _aboutToShowCustomMenu();

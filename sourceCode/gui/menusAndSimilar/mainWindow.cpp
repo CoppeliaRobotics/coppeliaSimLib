@@ -53,11 +53,11 @@ CMainWindow::CMainWindow() : QMainWindow()
     _fullscreen=false;
     _hasStereo=false;
     _stereoDistance=0.0f;
-    _statusbarFlashTime=-1;
+//    _statusbarFlashTime=-1;
     _leftEye=true;
     _openGlDisplayEnabled=true;
     _mouseMode=DEFAULT_MOUSE_MODE;
-    _flyModeCameraHandle=-1;
+//    _flyModeCameraHandle=-1;
     _proxSensorClickSelectDown=0;
     _proxSensorClickSelectUp=0;
 
@@ -285,11 +285,12 @@ void CMainWindow::initializeWindow()
     _setInitialDimensions(true);
 }
 
+/*
 void CMainWindow::flashStatusbar()
 { // Call only from GUI
     if (statusBar!=nullptr)
     {
-        statusBar->setStyleSheet("background-color: yellow");
+        statusBar->setStyleSheet("background-color: rgb(255,220,220)");
         if (App::userSettings->darkMode)
             statusBar->verticalScrollBar()->setStyleSheet("background: transparent");
         else
@@ -297,7 +298,6 @@ void CMainWindow::flashStatusbar()
         _statusbarFlashTime=VDateTime::getTimeInMs();
     }
 }
-
 void CMainWindow::setFlyModeCameraHandle(int h)
 {
     _flyModeCameraHandle=h;
@@ -307,6 +307,7 @@ int CMainWindow::getFlyModeCameraHandle()
 {
     return(_flyModeCameraHandle);
 }
+*/
 
 void CMainWindow::setProxSensorClickSelectDown(int v)
 {
@@ -328,11 +329,12 @@ int CMainWindow::getProxSensorClickSelectUp()
     return(_proxSensorClickSelectUp);
 }
 
+/*
 void CMainWindow::_resetStatusbarFlashIfNeeded()
 { // Call only from GUI
     if (_statusbarFlashTime!=-1)
     {
-        if (VDateTime::getTimeDiffInMs(_statusbarFlashTime)>1000)
+        if (VDateTime::getTimeDiffInMs(_statusbarFlashTime)>250)
         {
             if (App::userSettings->darkMode)
                 statusBar->setStyleSheet("background: transparent");
@@ -342,6 +344,7 @@ void CMainWindow::_resetStatusbarFlashIfNeeded()
         }
     }
 }
+*/
 
 bool CMainWindow::getObjectShiftToggleViaGuiEnabled()
 {
@@ -638,7 +641,7 @@ void CMainWindow::refreshDialogs_uiThread()
     void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_guipass,nullptr,nullptr,nullptr);
     delete[] (char*)returnVal;
 
-    _resetStatusbarFlashIfNeeded();
+    //_resetStatusbarFlashIfNeeded();
 
     // We refresh dialogs and the toolbar here:
     //----------------------------------------------------------------------------------
@@ -914,24 +917,16 @@ void CMainWindow::createDefaultMenuBar()
 
         if (editModeContainer->getEditModeType()==NO_EDIT_MODE)
         {
-            _windowSystemMenu=new VMenu();
-            _menubar->appendMenuAndDetach(_windowSystemMenu,menuBarEnabled,(std::string(IDS_TOOLS_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
-            connect(_windowSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowWindowSystemMenu()));
+            _toolsSystemMenu=new VMenu();
+            _menubar->appendMenuAndDetach(_toolsSystemMenu,menuBarEnabled,(std::string(IDS_TOOLS_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
+            connect(_toolsSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowToolsSystemMenu()));
 
             if (customMenuBarItemContainer->allItems.size()!=0)
-            { // Plugins
+            { // Modules (plugins+add-ons)
                 customMenuBarItemContainer->_menuHandle=new VMenu();
-                _menubar->appendMenuAndDetach(customMenuBarItemContainer->_menuHandle,menuBarEnabled,(std::string(IDS_MODULES_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
+                _menubar->appendMenuAndDetach(customMenuBarItemContainer->_menuHandle,menuBarEnabled,(std::string("Modules")+DUMMY_SPACE_QMENUBAR_QT5).c_str());
                 connect(customMenuBarItemContainer->_menuHandle->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowCustomMenu()));
             }
-
-            if (CSimFlavor::getBoolVal(11))
-            {
-                _addOnSystemMenu=new VMenu();
-                _menubar->appendMenuAndDetach(_addOnSystemMenu,menuBarEnabled,(std::string(IDS_ADDON_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
-                connect(_addOnSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowAddOnSystemMenu()));
-            }
-
             {
                 _instancesSystemMenu=new VMenu();
                 _menubar->appendMenuAndDetach(_instancesSystemMenu,menuBarEnabled,(std::string(IDS_INSTANCES_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
@@ -1464,7 +1459,7 @@ void CMainWindow::onLeftMouseButtonUpTT(int xPos,int yPos)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     _mouseRenderingPos.x=xPos;
     _mouseRenderingPos.y=_clientArea.y-yPos;
-    _flyModeCameraHandle=-1;
+//    _flyModeCameraHandle=-1;
     App::setLightDialogRefreshFlag(); // to refresh dlgs when an object has been dragged for instance
     if (oglSurface->getCaughtElements()&sim_left_button)
         oglSurface->leftMouseButtonUp(_mouseRenderingPos.x,_mouseRenderingPos.y);
@@ -2013,16 +2008,10 @@ void CMainWindow::_aboutToShowSimulationSystemMenu()
     App::currentWorld->simulation->addMenu(_simulationSystemMenu);
 }
 
-void CMainWindow::_aboutToShowAddOnSystemMenu()
+void CMainWindow::_aboutToShowToolsSystemMenu()
 {
-    _addOnSystemMenu->clear();
-    App::worldContainer->addOnScriptContainer->addMenu(_addOnSystemMenu);
-}
-
-void CMainWindow::_aboutToShowWindowSystemMenu()
-{
-    _windowSystemMenu->clear();
-    dlgCont->addMenu(_windowSystemMenu);
+    _toolsSystemMenu->clear();
+    dlgCont->addMenu(_toolsSystemMenu);
 }
 
 void CMainWindow::_aboutToShowHelpSystemMenu()
@@ -2276,7 +2265,7 @@ void CMainWindow::instanceAboutToChange(int newInstanceIndex)
     if (codeEditorContainer!=nullptr)
         codeEditorContainer->showOrHideAll(false);
 
-    _flyModeCameraHandle=-1;
+//    _flyModeCameraHandle=-1;
 }
 
 void CMainWindow::instanceHasChanged(int newInstanceIndex)

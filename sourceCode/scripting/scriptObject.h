@@ -208,9 +208,10 @@ protected:
     void _initInterpreterState();
     bool _killInterpreterState();
     void _announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg,bool runtimeError,bool debugRoutine=false);
-    bool _initScriptChunk();
+    bool _loadCode();
+    int ___loadCode(const char* code,const char* scriptName,const char* functionsToFind,bool* functionsFound,std::string* errorMsg);
     int _callSystemScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int _callScriptFunction(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int _callScriptFunction(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg);
     void _handleSimpleSysExCalls(int callType);
 
 
@@ -242,7 +243,6 @@ protected:
     void* _interpreterState;  // !! _interpreterState is not the same for a script when in normal or inside a coroutine !!
 
     int _numberOfPasses;
-    bool _inExecutionNow;
 
     bool _flaggedForDestruction;
 

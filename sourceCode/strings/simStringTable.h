@@ -493,7 +493,6 @@
 #define IDS_FILE_MENU_ITEM      "File"
 #define IDS_SIMULATION_MENU_ITEM "Simulation"
 #define IDS_TOOLS_MENU_ITEM     "Tools"
-#define IDS_ADDON_MENU_ITEM     "Add-ons"
 #define IDS_HELP_MENU_ITEM      "Help"
 
 #define IDS_UNLINK_SELECTED_DUMMIES_MENU_ITEM "Unlink selected dummies"
@@ -757,7 +756,6 @@
 #define IDS_VIEW_TYPE_EIGHT_MENU_ITEM "Set up page with 1+7 views"
 
 #define IDS_OVERALL_CUT_SURFACE "Overall cut surface"
-#define IDS_MODULES_MENU_ITEM   "Plugins"
 #define IDS_DETECTABLE_ULTRASONIC "Ultrasonic"
 #define IDS_DETECTABLE_INFRARED "Infrared"
 #define IDS_DETECTABLE_LASER    "Laser"

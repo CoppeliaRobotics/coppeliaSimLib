@@ -64,7 +64,7 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const
     }
 }
 
-void _raiseErrorOrYieldIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* errorString,bool cSideErrorOrWarningReporting)
+void _raiseErrorIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* errorString,bool cSideErrorOrWarningReporting)
 {
     std::string errStr(errorString);
     if ( (errStr.size()==0)&&cSideErrorOrWarningReporting )
@@ -92,7 +92,7 @@ void _raiseErrorOrYieldIfNeeded(luaWrap_lua_State* L,const char* functionName,co
     luaWrap_lua_error(L); // does a long jump and never returns
 }
 
-#define LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED() _raiseErrorOrYieldIfNeeded(L,functionName.c_str(),errorString.c_str(),cSideErrorOrWarningReporting)
+#define LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED() _raiseErrorIfNeeded(L,functionName.c_str(),errorString.c_str(),cSideErrorOrWarningReporting)
 
 
 const SLuaCommands simLuaCommands[]=

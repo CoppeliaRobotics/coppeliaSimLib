@@ -1669,6 +1669,7 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         if ( (statusbarVerbosity>=realVerbosityLevel)&&(uiThread!=nullptr)&&(simThread!=nullptr) )
         {
             vars["message"]=_getHtmlEscapedString(vars["message"].c_str());
+            /*
             if ( (realVerbosityLevel==sim_verbosity_errors)||(realVerbosityLevel==sim_verbosity_scripterrors) )
             {
                 if ((verbosityLevel&sim_verbosity_undecorated)==0)
@@ -1679,6 +1680,7 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
                     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                 }
             }
+            */
             std::string statusbarTxt=replaceVars(decorateMsg?statusbarLogFormat:statusbarLogFormatUndecorated,vars);
             _logMsgToStatusbar(statusbarTxt.c_str(),true);
         }

@@ -4028,7 +4028,7 @@ simInt simGetInt32Param_internal(simInt parameter,simInt* intState)
 #ifdef SIM_WITH_GUI
         if ( (App::mainWindow!=nullptr)&&(parameter==sim_intparam_flymode_camera_handle) )
         {
-            intState[0]=App::mainWindow->getFlyModeCameraHandle();
+            intState[0]=-1;//App::mainWindow->getFlyModeCameraHandle();
             return(1);
         }
 #endif

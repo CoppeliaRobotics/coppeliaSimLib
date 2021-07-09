@@ -1,4 +1,4 @@
-
+#include "app.h"
 #include "customMenuBarItemContainer.h"
 #include "global.h"
 
@@ -56,8 +56,10 @@ bool CCustomMenuBarItemContainer::addMenus(VMenu* myMenu)
     // From Qt this is only called if the custom menu was clicked (unlike in Windows)
     for (unsigned int i=0;i<allItems.size();i++)
         allItems[i]->addMenus(myMenu);
+    if (allItems.size()>0)
+        myMenu->appendMenuSeparator();
+    App::worldContainer->addOnScriptContainer->addMenu(myMenu);
     return(true);
-    return(false);
 }
 
 bool CCustomMenuBarItemContainer::processCommand(int commandID)
@@ -67,7 +69,6 @@ bool CCustomMenuBarItemContainer::processCommand(int commandID)
         if (allItems[i]->processCommand(commandID))
             return(true);
     }
-    return(false);
-
+    return(App::worldContainer->addOnScriptContainer->processCommand(commandID));
 }
 

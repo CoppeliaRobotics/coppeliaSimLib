@@ -46,10 +46,12 @@ void CQDlgCameras::refresh()
     ui->qqLocalLights->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqLocalLights->setVisible(App::userSettings->showOldDlgs);
     ui->qqAllowPicking->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqAllowPicking->setVisible(App::userSettings->showOldDlgs);
     ui->qqManipProxy->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqPerspectiveProjectionAngle->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqOrthographicProjectionSize->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqShowFog->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqShowFog->setVisible(App::userSettings->showOldDlgs);
     ui->qqSize->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqTilting->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqTrackedCombo->setEnabled((it!=nullptr)&&noEditModeNoSim);

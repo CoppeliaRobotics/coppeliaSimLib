@@ -44,7 +44,7 @@ double luaToDouble(luaWrap_lua_State* L,int pos);
 bool luaToBool(luaWrap_lua_State* L,int pos);
 
 void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* warningString,bool cSideErrorOrWarningReporting);
-void _raiseErrorOrYieldIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* errorString,bool cSideErrorReporting);
+void _raiseErrorIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* errorString,bool cSideErrorReporting);
 bool doesEntityExist(luaWrap_lua_State* L,std::string* errStr,int identifier);
 bool checkInputArguments(luaWrap_lua_State* L,std::string* errStr,
                          int type1=lua_arg_empty,int type1Cnt_zeroIfNotTable=-2,

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>375</height>
+    <height>332</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
      <x>10</x>
      <y>10</y>
      <width>411</width>
-     <height>175</height>
+     <height>131</height>
     </rect>
    </property>
    <property name="locale">
@@ -126,28 +126,12 @@
      <number>50</number>
     </property>
    </widget>
-   <widget class="QCheckBox" name="qqShowFog">
+   <widget class="QCheckBox" name="qqKeepHeadUp">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>105</y>
-      <width>191</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Show fog if enabled</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="qqKeepHeadUp">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>105</y>
-      <width>181</width>
+      <width>171</width>
       <height>18</height>
      </rect>
     </property>
@@ -161,9 +145,9 @@
    <widget class="QCheckBox" name="qqManipProxy">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>145</y>
-      <width>321</width>
+      <x>180</x>
+      <y>105</y>
+      <width>221</width>
       <height>18</height>
      </rect>
     </property>
@@ -171,23 +155,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Use parent as camera manipulation proxy</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="qqLocalLights">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>125</y>
-      <width>141</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Use local lights</string>
+     <string>Parent as manipulation proxy</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_7">
@@ -222,22 +190,6 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QCheckBox" name="qqAllowPicking">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>125</y>
-      <width>181</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Allow picking</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_9">
     <property name="geometry">
      <rect>
@@ -266,7 +218,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>195</y>
+     <y>150</y>
      <width>411</width>
      <height>90</height>
     </rect>
@@ -363,12 +315,60 @@
      <string>Tilting</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="qqShowFog">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>65</y>
+      <width>61</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Fog</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqLocalLights">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>65</y>
+      <width>121</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Local lights</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqAllowPicking">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>65</y>
+      <width>71</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Picking</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>295</y>
+     <y>250</y>
      <width>411</width>
      <height>71</height>
     </rect>
@@ -449,16 +449,16 @@
   <tabstop>qqFarClipping</tabstop>
   <tabstop>qqRenderModeCombo</tabstop>
   <tabstop>qqTrackedCombo</tabstop>
-  <tabstop>qqShowFog</tabstop>
   <tabstop>qqKeepHeadUp</tabstop>
-  <tabstop>qqLocalLights</tabstop>
-  <tabstop>qqAllowPicking</tabstop>
   <tabstop>qqManipProxy</tabstop>
   <tabstop>qqAlongX</tabstop>
   <tabstop>qqAlongY</tabstop>
   <tabstop>qqAlongZ</tabstop>
   <tabstop>qqFullRotation</tabstop>
   <tabstop>qqTilting</tabstop>
+  <tabstop>qqShowFog</tabstop>
+  <tabstop>qqLocalLights</tabstop>
+  <tabstop>qqAllowPicking</tabstop>
   <tabstop>qqSize</tabstop>
   <tabstop>qqColorA</tabstop>
   <tabstop>qqColorB</tabstop>
