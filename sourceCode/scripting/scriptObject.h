@@ -81,7 +81,7 @@ public:
     bool shouldTemporarilySuspendMainScript();
     bool isAutoStartAddOn();
 
-    int executeScriptString(const char* scriptString,CInterfaceStack* stack);
+    int executeScriptString(const char* scriptString,CInterfaceStack* outStack);
 
     void terminateScriptExecutionExternally(bool generateErrorMsg);
 
@@ -166,8 +166,6 @@ public:
     // *****************************************
     std::string getScriptPseudoName_old() const;
     int setScriptVariable_old(const char* variableName,CInterfaceStack* stack);
-    void setDebugLevel_old(int l);
-    int getDebugLevel_old() const;
     void setObjectCustomData_old(int header,const char* data,int dataLength);
     int getObjectCustomDataLength_old(int header) const;
     void getObjectCustomData_old(int header,char* data) const;
@@ -212,6 +210,7 @@ protected:
     int ___loadCode(const char* code,const char* scriptName,const char* functionsToFind,bool* functionsFound,std::string* errorMsg);
     int _callSystemScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int _callScriptFunction(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg);
+    bool _execScriptString(const char* scriptString,CInterfaceStack* outStack);
     void _handleSimpleSysExCalls(int callType);
 
 
@@ -246,7 +245,7 @@ protected:
 
     bool _flaggedForDestruction;
 
-    int _timeOfPcallStart;
+    int _timeOfScriptExecutionStart;
     std::string _lastStackTraceback;
     bool _containsJointCallbackFunction;
     bool _containsContactCallbackFunction;
@@ -272,7 +271,6 @@ protected:
     // -----------------------------
     int _loadBufferResult_lua;
     bool _loadBuffer_lua(const char* buff,size_t sz,const char* name);
-    int _pcall_lua(int nargs,int nresult,int errfunc,const char* funcName);
     void _registerNewVariables_lua();
     static CInterfaceStackObject* _generateObjectFromInterpreterStack_lua(void* LL,int index,std::map<void*,bool>& visitedTables);
     static CInterfaceStackTable* _generateTableArrayFromInterpreterStack_lua(void* LL,int index,std::map<void*,bool>& visitedTables);
@@ -288,7 +286,6 @@ protected:
     // Old:
     // *****************************************
     int _getScriptNameIndexNumber_old() const;
-    void _handleDebug_old(const char* funcName,const char* funcType,bool inCall,bool sysCall);
     bool _callScriptChunk_old(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     bool _checkIfMixingOldAndNewCallMethods_old();
     std::string _replaceOldApi(const char* txt,bool forwardAdjustment);
@@ -317,8 +314,6 @@ protected:
     bool _custScriptDisabledDSim_compatibilityMode_DEPRECATED;
     bool _customizationScriptCleanupBeforeSave_DEPRECATED;
     bool _mainScriptIsDefaultMainScript_old; // 16.11.2020
-    int _debugLevel_old;
-    bool _inDebug_old;
     bool _raiseErrors_backCompatibility;
     CUserParameters* _scriptParameters_backCompatibility;
     CCustomData* _customObjectData_old;

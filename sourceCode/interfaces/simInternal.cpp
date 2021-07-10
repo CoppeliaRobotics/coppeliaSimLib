@@ -13772,10 +13772,7 @@ simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
             retVal=1;
         }
         if (attributeID==sim_scriptattribute_debuglevel)
-        {
-            it->setDebugLevel_old(intOrBoolVal);
-            retVal=1;
-        }
+            retVal=1; // deprecated. Doesn't do anything
 
 
         return(retVal);
@@ -13836,7 +13833,7 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
         }
         if (attributeID==sim_scriptattribute_debuglevel)
         {
-            intOrBoolVal[0]=it->getDebugLevel_old();
+            intOrBoolVal[0]=sim_scriptdebug_none; // deprecated, doesn't work anymore
             retVal=1;
         }
         if (attributeID==sim_scriptattribute_scripttype)

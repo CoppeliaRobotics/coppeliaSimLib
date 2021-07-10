@@ -3506,13 +3506,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
                 it->setTreeTraversalDirection(cmd.intParams[1]);
         }
-        if (cmd.cmdId==SET_DEBUGMODE_SCRIPTGUITRIGGEREDCMD)
-        {
-            int scriptID=cmd.intParams[0];
-            CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptID);
-            if (it!=nullptr)
-                it->setDebugLevel_old(cmd.intParams[1]);
-        }
         if (cmd.cmdId==SET_ALL_SCRIPTSIMULPARAMETERGUITRIGGEREDCMD)
         {
             int objID=cmd.intParams[0];

@@ -45,8 +45,6 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
     _warning_simFindIkPath_oldCompatibility_2_2_2016=false;
     _scriptParameters_backCompatibility=new CUserParameters();
     _compatibilityMode_oldLua=false;
-    _debugLevel_old=0;
-    _inDebug_old=false;
     _customObjectData_old=nullptr;
     _customObjectData_tempData_old=nullptr;
     // ***********************************************************
@@ -70,7 +68,7 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
     _containsVisionCallbackFunction=false;
     _containsTriggerCallbackFunction=false;
     _containsUserConfigCallbackFunction=false;
-    _timeOfPcallStart=-1;
+    _timeOfScriptExecutionStart=-1;
     _interpreterState=nullptr;
 
     _loadBufferResult_lua=-1;
@@ -928,14 +926,14 @@ void CScriptObject::setRandomSeed(unsigned int s)
 
 int CScriptObject::getScriptExecutionTimeInMs() const
 {
-    if (_timeOfPcallStart<0) // happens sometimes when calling luaWrap_luaL_doString
+    if (_timeOfScriptExecutionStart<0) // happens sometimes when calling luaWrap_luaL_doString
         return(0);
-    return(VDateTime::getTimeDiffInMs(_timeOfPcallStart));
+    return(VDateTime::getTimeDiffInMs(_timeOfScriptExecutionStart));
 }
 
 void CScriptObject::resetScriptExecutionTime()
 {
-    _timeOfPcallStart=VDateTime::getTimeInMs();
+    _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
 }
 
 void CScriptObject::getPreviousEditionWindowPosAndSize(int posAndSize[4]) const
@@ -1504,15 +1502,13 @@ int CScriptObject::___loadCode(const char* code,const char* scriptName,const cha
         luaWrap_luaL_dostring(L,tmp.c_str());
         if (_loadBuffer_lua(code,strlen(code),scriptName))
         {
+            if (_executionDepth==0)
+                _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
             _executionDepth++;
             if (_callScriptFunction("",nullptr,nullptr,errorMsg)==-1)
-            {
-                _executionDepth--;
                 retVal=0; // a runtime error occurred!
-            }
             else
             { // here we check if we can enable the new calling method:
-                _executionDepth--;
                 retVal=1;
                 std::string initCb=getSystemCallbackString(sim_syscb_init,false);
                 luaWrap_lua_getglobal(L,initCb.c_str());
@@ -1537,6 +1533,9 @@ int CScriptObject::___loadCode(const char* code,const char* scriptName,const cha
                     l=strlen(functionsToFind+off);
                 }
             }
+            _executionDepth--;
+            if (_executionDepth==0)
+                _timeOfScriptExecutionStart=-1;
         }
         else
         { // A compilation error occurred!
@@ -1668,9 +1667,13 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
 
     // ---------------------------------
     std::string errMsg;
+    if (_executionDepth==0)
+        _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
     _executionDepth++;
     int retVal=_callScriptFunction(getSystemCallbackString(callType,false).c_str(),inStack,outStack,&errMsg);
     _executionDepth--;
+    if (_executionDepth==0)
+        _timeOfScriptExecutionStart=-1;
     if (retVal!=0)
     {
         if (retVal==-1)
@@ -1737,7 +1740,7 @@ int CScriptObject::_callScriptFunction(const char* functionName,const CInterface
         luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
         bool funcDoesNotExist=false;
         int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
-        // Push the function name onto the stack (will be automatically popped from stack after _pcall_lua):
+        // Push the function name onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
         if (func.size()>0)
         {
             size_t ppos=func.find('.');
@@ -1776,9 +1779,7 @@ int CScriptObject::_callScriptFunction(const char* functionName,const CInterface
         }
         if ( (func.size()==0)||((!funcDoesNotExist)&&luaWrap_lua_isfunction(L,-1)) )
         { // ok, the function exists, or we call the script chunk
-            if (func.size()==0)
-                func="scriptChunk";
-            // Push the arguments onto the stack (will be automatically popped from stack after _pcall_lua):
+            // Push the arguments onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
             int inputArgs=0;
             if (inStack!=nullptr)
             {
@@ -1792,7 +1793,7 @@ int CScriptObject::_callScriptFunction(const char* functionName,const CInterface
             int argCnt=inputArgs;
             int errindex=-argCnt-2;
             luaWrap_lua_insert(L,errindex);
-            if (_pcall_lua(argCnt,luaWrapGet_LUA_MULTRET(),errindex,func.c_str())!=0)
+            if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState,argCnt,luaWrapGet_LUA_MULTRET(),errindex)!=0)
             { // a runtime error occurred!
                 retVal=-1;
                 if (errorMsg!=nullptr)
@@ -1834,9 +1835,13 @@ int CScriptObject::callCustomScriptFunction(const char* functionName,CInterfaceS
 
         // -------------------------------------
         std::string errMsg;
+        if (_executionDepth==0)
+            _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
         _executionDepth++;
         retVal=_callScriptFunction(functionName,inOutStack,&outStack,&errMsg);
         _executionDepth--;
+        if (_executionDepth==0)
+            _timeOfScriptExecutionStart=-1;
         if (retVal!=0)
         {
             if (retVal==-1)
@@ -1868,22 +1873,35 @@ int CScriptObject::callCustomScriptFunction(const char* functionName,CInterfaceS
     return(retVal);
 }
 
-int CScriptObject::executeScriptString(const char* scriptString,CInterfaceStack* stack)
+int CScriptObject::executeScriptString(const char* scriptString,CInterfaceStack* outStack)
 { // retVal: -2: script not initialized, is disabled, or had previously an error, -1: string caused an error, 0: string didn't cause an error
     int retVal=-2;
     changeOverallYieldingForbidLevel(1,false);
     if (_scriptState==scriptState_initialized)
     {
-        retVal=-1;
+        if (_executionDepth==0)
+            _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
+        _executionDepth++;
+        if (_execScriptString(scriptString,outStack))
+            retVal=0; // success
+        else
+            retVal=-1;
+        _executionDepth--;
+        if (_executionDepth==0)
+            _timeOfScriptExecutionStart=-1;
+    }
+    changeOverallYieldingForbidLevel(-1,false);
+    return(retVal);
+}
+
+bool CScriptObject::_execScriptString(const char* scriptString,CInterfaceStack* outStack)
+{ // retVal: success, otherwise error
+    bool retVal=false;
+
+    if (_lang==lang_lua)
+    {
         luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
-
         int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
-
-        bool firstCall=(_timeOfPcallStart==-1);
-        if (firstCall)
-            _timeOfPcallStart=VDateTime::getTimeInMs();
-
-
         std::string theString("return ");
         theString+=scriptString;
         int loadBufferRes=luaWrap_luaL_loadbuffer(L,theString.c_str(),theString.size(),scriptString);
@@ -1895,29 +1913,26 @@ int CScriptObject::executeScriptString(const char* scriptString,CInterfaceStack*
         if (loadBufferRes==0)
         {
             int intTop=luaWrap_lua_gettop(L);
-            _executionDepth++;
-            if (luaWrap_lua_pcall(L,0,luaWrapGet_LUA_MULTRET(),0))
+            if (luaWrap_lua_pcall(L,0,luaWrapGet_LUA_MULTRET(),0)!=0)
             { // a runtime error occurred!
-                _executionDepth--;
                 std::string errMsg;
                 if (luaWrap_lua_isstring(L,-1))
                     errMsg=std::string(luaWrap_lua_tostring(L,-1));
                 else
                     errMsg="(error unknown)";
-                if (stack!=nullptr)
+                if (outStack!=nullptr)
                 {
-                    stack->clear();
-                    stack->pushStringOntoStack(errMsg.c_str(),0);
+                    outStack->clear();
+                    outStack->pushStringOntoStack(errMsg.c_str(),0);
                 }
             }
             else
             {
-                _executionDepth--;
+                retVal=true;
                 int currentTop=luaWrap_lua_gettop(L);
                 int numberOfArgs=currentTop-oldTop;
-                if (stack!=nullptr)
-                    buildFromInterpreterStack_lua(L,stack,currentTop-numberOfArgs+1,numberOfArgs);
-                retVal=0;
+                if (outStack!=nullptr)
+                    buildFromInterpreterStack_lua(L,outStack,currentTop-numberOfArgs+1,numberOfArgs);
             }
         }
         else
@@ -1927,46 +1942,19 @@ int CScriptObject::executeScriptString(const char* scriptString,CInterfaceStack*
                 errMsg=std::string(luaWrap_lua_tostring(L,-1));
             else
                 errMsg="(error unknown)";
-            if (stack!=nullptr)
+            if (outStack!=nullptr)
             {
-                stack->clear();
-                stack->pushStringOntoStack(errMsg.c_str(),0);
+                outStack->clear();
+                outStack->pushStringOntoStack(errMsg.c_str(),0);
             }
         }
-/*
-        std::string theString("return ");
-        theString+=scriptString;
-        if (0!=luaWrap_luaL_dostring(L,theString.c_str()))
-        { // 'return theStringToExecute' failed to execute. Let's simply execute 'theStringToExecute'
-            int intermediateTop=luaWrap_lua_gettop(L);
-            if (0==luaWrap_luaL_dostring(L,scriptString))
-                retVal=0; // ok, that worked without an error
-
-            // Now build the return value or error onto the stack
-            if (stack!=nullptr)
-            {
-                stack->clear();
-                if (luaWrap_lua_gettop(L)>intermediateTop)
-                    buildFromInterpreterStack_lua(L,stack,intermediateTop+1,luaWrap_lua_gettop(L)-intermediateTop);
-            }
-        }
-        else
-        { // ok, let's see what we have in return:
-            if (stack!=nullptr)
-            {
-                stack->clear();
-                if (luaWrap_lua_gettop(L)>oldTop)
-                    buildFromInterpreterStack_lua(L,stack,oldTop+1,luaWrap_lua_gettop(L)-oldTop);
-            }
-            retVal=0;
-        }
-        //*/
-
-        if (firstCall)
-            _timeOfPcallStart=-1;
         luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
     }
-    changeOverallYieldingForbidLevel(-1,false);
+
+    if (_lang==lang_python)
+    {
+    }
+
     return(retVal);
 }
 
@@ -2061,7 +2049,6 @@ CScriptObject* CScriptObject::copyYourself()
     it->_threadedExecution_oldThreads=_threadedExecution_oldThreads;
     it->_scriptIsDisabled=_scriptIsDisabled;
     it->_executionPriority=_executionPriority;
-    it->_debugLevel_old=_debugLevel_old;
     it->_treeTraversalDirection=_treeTraversalDirection;
     it->setScriptText(getScriptText());
 
@@ -2102,9 +2089,6 @@ void CScriptObject::terminateScriptExecutionExternally(bool generateErrorMsg)
         std::string tmp("?: script execution was terminated externally.");
         _announceErrorWasRaisedAndPossiblyPauseSimulation(tmp.c_str(),true);
     }
-    if (getDebugLevel_old()!=sim_scriptdebug_none)
-        _handleDebug_old("force_script_stop","C",true,true);
-
     if (_lang==lang_lua)
         luaWrap_lua_yield((luaWrap_lua_State*)_interpreterState,0);
     if (_lang==lang_python)
@@ -2295,8 +2279,6 @@ void CScriptObject::_initInterpreterState()
         luaWrap_luaL_dostring(L,"_S.executeAfterLuaStateInit()"); // needed for various
 
         int hookMask=luaWrapGet_LUA_MASKCOUNT();
-        if (_debugLevel_old>=sim_scriptdebug_allcalls)
-            hookMask|=luaWrapGet_LUA_MASKCALL()|luaWrapGet_LUA_MASKRET();
         luaWrap_lua_sethook(L,_hookFunction_lua,hookMask,100); // This instruction gets also called in luaHookFunction!!!!
     }
 }
@@ -2309,18 +2291,7 @@ void CScriptObject::_hookFunction_lua(void* LL,void* arr)
     if (it==nullptr)
         return;
 
-    int debugLevel=it->getDebugLevel_old();
-
     luaWrap_lua_Debug* ar=(luaWrap_lua_Debug*)arr;
-    if ( (ar->event==luaWrapGet_LUA_HOOKCALL())||(ar->event==luaWrapGet_LUA_HOOKRET()) )
-    { // Debug call and return hooks
-        if (debugLevel>=sim_scriptdebug_allcalls)
-        { // debugging (further down also several occurences (auto thread switches and script end force)
-            bool callIn=(ar->event==luaWrapGet_LUA_HOOKCALL());
-            luaWrap_lua_getinfo(L, "nS", ar);
-            it->_handleDebug_old(ar->name,ar->what,callIn,false);
-        }
-    }
 
     if (ar->event!=luaWrapGet_LUA_HOOKCALL())
     { // Return and Count hook (return somehow needed here too when debug is on)
@@ -2330,8 +2301,6 @@ void CScriptObject::_hookFunction_lua(void* LL,void* arr)
         // To avoid this we add some random component to the hook timing:
         int randComponent=rand()/(RAND_MAX/10);
         int hookMask=luaWrapGet_LUA_MASKCOUNT();
-        if (debugLevel>=sim_scriptdebug_allcalls)
-            hookMask|=luaWrapGet_LUA_MASKCALL()|luaWrapGet_LUA_MASKRET();
         luaWrap_lua_sethook(L,_hookFunction_lua,hookMask,95+randComponent);
         // Also remember: the hook gets also called when calling luaWrap_luaL_doString from c++ and similar!!
 
@@ -2356,12 +2325,8 @@ void CScriptObject::_hookFunction_lua(void* LL,void* arr)
             }
             if (CThreadPool_old::isSwitchBackToPreviousThreadNeeded())
             {
-                if (debugLevel!=sim_scriptdebug_none)
-                    it->_handleDebug_old("thread_automatic_switch","C",true,true);
                 CThreadPool_old::switchBackToPreviousThreadIfNeeded();
                 it->resetScriptExecutionTime();
-                if (debugLevel!=sim_scriptdebug_none)
-                    it->_handleDebug_old("thread_automatic_switch","C",false,true);
             }
         }
 
@@ -2616,10 +2581,6 @@ void CScriptObject::serialize(CSer& ar)
             ar << _treeTraversalDirection;
             ar.flush();
 
-            ar.storeDataName("Dbl");
-            ar << _debugLevel_old;
-            ar.flush();
-
             std::string stt(_scriptText);
 
             // We store scripts in a light encoded way:
@@ -2673,12 +2634,6 @@ void CScriptObject::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _treeTraversalDirection;
-                    }
-                    if (theName.compare("Dbl")==0)
-                    {
-                        noHit=false;
-                        ar >> byteQuantity;
-                        ar >> _debugLevel_old;
                     }
 
                     if (theName.compare("Seo")==0)
@@ -2813,8 +2768,6 @@ void CScriptObject::serialize(CSer& ar)
 
             ar.xmlAddNode_int("executionOrder",_executionPriority);
             ar.xmlAddNode_int("treeTraversalDirection",_treeTraversalDirection);
-            if (exhaustiveXml)
-                ar.xmlAddNode_int("debugLevel",_debugLevel_old);
 
             std::string tmp(_scriptText.c_str());
             boost::replace_all(tmp,"\r\n","\n");
@@ -2856,8 +2809,6 @@ void CScriptObject::serialize(CSer& ar)
 
             ar.xmlGetNode_int("executionOrder",_executionPriority,exhaustiveXml);
             ar.xmlGetNode_int("treeTraversalDirection",_treeTraversalDirection,exhaustiveXml);
-            if (exhaustiveXml)
-                ar.xmlGetNode_int("debugLevel",_debugLevel_old);
 
             if (ar.xmlGetNode_cdata("scriptText",_scriptText,exhaustiveXml)&&(_scriptType==sim_scripttype_mainscript)&&_mainScriptIsDefaultMainScript_old) // for backward compatibility 16.11.2020
                 _scriptText=DEFAULT_MAINSCRIPT_CODE;
@@ -2874,19 +2825,6 @@ void CScriptObject::serialize(CSer& ar)
             fromBufferToFile();
         }
     }
-}
-
-int CScriptObject::_pcall_lua(int nargs,int nresult,int errfunc,const char* funcName)
-{ // do not forget, routine is often re-entered!
-    bool firstCall=(_timeOfPcallStart==-1);
-    if (firstCall)
-        _timeOfPcallStart=VDateTime::getTimeInMs();
-    _handleDebug_old(funcName,"Lua",true,true);
-    int retVal=luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState,nargs,nresult,errfunc);
-    _handleDebug_old(funcName,"Lua",false,true);
-    if (firstCall)
-        _timeOfPcallStart=-1;
-    return(retVal);
 }
 
 bool CScriptObject::_loadBuffer_lua(const char* buff,size_t sz,const char* name)
@@ -5108,14 +5046,6 @@ bool CScriptObject::getCustomizationScriptCleanupBeforeSave_DEPRECATED() const
 {
     return(_customizationScriptCleanupBeforeSave_DEPRECATED);
 }
-void CScriptObject::setDebugLevel_old(int l)
-{
-    _debugLevel_old=l;
-}
-int CScriptObject::getDebugLevel_old() const
-{
-    return(_debugLevel_old);
-}
 int CScriptObject::_getScriptNameIndexNumber_old() const
 {
     int retVal=-1;
@@ -5214,10 +5144,14 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
         int argCnt=0;
         int errindex=-argCnt-2;
         luaWrap_lua_insert(L,errindex);
+        if (_executionDepth==0)
+            _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
         _executionDepth++;
-        if (_pcall_lua(argCnt,luaWrapGet_LUA_MULTRET(),errindex,"scriptChunk")!=0)
+        if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState,argCnt,luaWrapGet_LUA_MULTRET(),errindex)!=0)
         { // a runtime error occurred!
             _executionDepth--;
+            if (_executionDepth==0)
+                _timeOfScriptExecutionStart=-1;
             _scriptState|=scriptState_error;
             // We have to exit the thread free mode if we are still in there (the instance should automatically be restored when this thread resumes):
             if (CThreadPool_old::isThreadInFreeMode())
@@ -5234,6 +5168,8 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
         else
         {
             _executionDepth--;
+            if (_executionDepth==0)
+                _timeOfScriptExecutionStart=-1;
             _scriptState=scriptState_initialized;
             luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_vision,false).c_str());
             _containsVisionCallbackFunction=luaWrap_lua_isfunction(L,-1);
@@ -5243,22 +5179,26 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
             int calls[2]={sim_syscb_threadmain,sim_syscb_cleanup};
             for (size_t callIndex=0;callIndex<2;callIndex++)
             {
-                // Push the function name onto the stack (will be automatically popped from stack after _pcall_lua):
+                // Push the function name onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
                 std::string funcName(getSystemCallbackString(calls[callIndex],false));
                 luaWrap_lua_getglobal(L,funcName.c_str());
                 if (luaWrap_lua_isfunction(L,-1))
                 { // ok, the function exists!
-                    // Push the arguments onto the stack (will be automatically popped from stack after _pcall_lua):
+                    // Push the arguments onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
                     luaWrap_lua_getglobal(L,"debug");
                     luaWrap_lua_getfield(L,-1,"traceback");
                     luaWrap_lua_remove(L,-2);
                     int argCnt=0;
                     int errindex=-argCnt-2;
                     luaWrap_lua_insert(L,errindex);
+                    if (_executionDepth==0)
+                        _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
                     _executionDepth++;
-                    if (_pcall_lua(argCnt,luaWrapGet_LUA_MULTRET(),errindex,funcName.c_str())!=0)
+                    if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState,argCnt,luaWrapGet_LUA_MULTRET(),errindex)!=0)
                     { // a runtime error occurred!
                         _executionDepth--;
+                        if (_executionDepth==0)
+                            _timeOfScriptExecutionStart=-1;
                         _scriptState|=scriptState_error;
                         if (CThreadPool_old::isThreadInFreeMode())
                             CThreadPool_old::setThreadFreeMode(false);
@@ -5271,7 +5211,11 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
                         _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),true);
                     }
                     else
+                    {
                         _executionDepth--;
+                        if (_executionDepth==0)
+                            _timeOfScriptExecutionStart=-1;
+                    }
                 }
                 else
                     luaWrap_lua_pop(L,1); // pop the function name
@@ -5335,10 +5279,14 @@ bool CScriptObject::_callScriptChunk_old(int callType,const CInterfaceStack* inS
         int argCnt=inputArgs;
         int errindex=-argCnt-2;
         luaWrap_lua_insert(L,errindex);
+        if (_executionDepth==0)
+            _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
         _executionDepth++;
-        if (_pcall_lua(argCnt,luaWrapGet_LUA_MULTRET(),errindex,"scriptChunk")!=0)
+        if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState,argCnt,luaWrapGet_LUA_MULTRET(),errindex)!=0)
         { // a runtime error occurred!
             _executionDepth--;
+            if (_executionDepth==0)
+                _timeOfScriptExecutionStart=-1;
             _scriptState|=scriptState_error;
             std::string errMsg;
             if (luaWrap_lua_isstring(L,-1))
@@ -5351,6 +5299,8 @@ bool CScriptObject::_callScriptChunk_old(int callType,const CInterfaceStack* inS
         else
         {
             _executionDepth--;
+            if (_executionDepth==0)
+                _timeOfScriptExecutionStart=-1;
             _handleSimpleSysExCalls(callType);
             if (outStack!=nullptr)
             {
@@ -5401,7 +5351,7 @@ int CScriptObject::callScriptFunction_DEPRECATED(const char* functionName,SLuaCa
 
     luaWrap_luaL_dostring(L,"sim_call_type=-1"); // for backward compatibility
 
-    // Push the function name onto the stack (will be automatically popped from stack after _pcall_lua):
+    // Push the function name onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
     std::string func(functionName);
     size_t ppos=func.find('.');
     if (ppos==std::string::npos)
@@ -5424,7 +5374,7 @@ int CScriptObject::callScriptFunction_DEPRECATED(const char* functionName,SLuaCa
         luaWrap_lua_remove(L,-2);
     }
 
-    // Push the arguments onto the stack (will be automatically popped from stack after _pcall_lua):
+    // Push the arguments onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
     int inputArgs=pdata->inputArgCount;
     if (inputArgs!=0)
     {
@@ -5445,10 +5395,14 @@ int CScriptObject::callScriptFunction_DEPRECATED(const char* functionName,SLuaCa
     int errindex=-argCnt-2;
     luaWrap_lua_insert(L,errindex);
 
+    if (_executionDepth==0)
+        _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
     _executionDepth++;
-    if (_pcall_lua(argCnt,luaWrapGet_LUA_MULTRET(),errindex,functionName)!=0)
+    if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState,argCnt,luaWrapGet_LUA_MULTRET(),errindex)!=0)
     { // a runtime error occurred!
         _executionDepth--;
+        if (_executionDepth==0)
+            _timeOfScriptExecutionStart=-1;
         std::string errMsg;
         if (luaWrap_lua_isstring(L,-1))
             errMsg=std::string(luaWrap_lua_tostring(L,-1));
@@ -5468,6 +5422,8 @@ int CScriptObject::callScriptFunction_DEPRECATED(const char* functionName,SLuaCa
     else
     { // return values:
         _executionDepth--;
+        if (_executionDepth==0)
+            _timeOfScriptExecutionStart=-1;
         int currentTop=luaWrap_lua_gettop(L);
 
         // Following line new since 7/3/2016:
@@ -5752,77 +5708,6 @@ int CScriptObject::appendTableEntry_DEPRECATED(const char* arrayName,const char*
 
     luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
     return(0);
-}
-void CScriptObject::_handleDebug_old(const char* funcName,const char* funcType,bool inCall,bool sysCall)
-{
-    if ( (_debugLevel_old!=sim_scriptdebug_none) && (!_inDebug_old) && (funcName!=nullptr) )
-    {
-        _inDebug_old=true;
-        // Temp. disable the hook:
-        luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
-        luaWrap_lua_sethook(L,_hookFunction_lua,0,0);
-
-        luaWrap_lua_getglobal(L,"_S");
-        if (luaWrap_lua_istable(L,-1))
-        {
-            luaWrap_lua_getfield(L,-1,"debug");
-            luaWrap_lua_remove(L,-2);
-            if (luaWrap_lua_istable(L,-1))
-            {
-                luaWrap_lua_getfield(L,-1,"entryFunc");
-                luaWrap_lua_remove(L,-2);
-                if (luaWrap_lua_isfunction(L,-1))
-                { // function name will be automatically popped after luaWrap_lua_pcall
-                    luaWrap_lua_newtable(L);
-                    luaWrap_lua_pushstring(L,getShortDescriptiveName().c_str());
-                    luaWrap_lua_rawseti(L,-2,1);
-                    luaWrap_lua_pushstring(L,funcName);
-                    luaWrap_lua_rawseti(L,-2,2);
-                    luaWrap_lua_pushstring(L,funcType);
-                    luaWrap_lua_rawseti(L,-2,3);
-                    luaWrap_lua_pushboolean(L,inCall);
-                    luaWrap_lua_rawseti(L,-2,4);
-                    luaWrap_lua_pushinteger(L,_debugLevel_old);
-                    luaWrap_lua_rawseti(L,-2,5);
-                    luaWrap_lua_pushboolean(L,sysCall);
-                    luaWrap_lua_rawseti(L,-2,6);
-                    luaWrap_lua_pushnumber(L,double(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f);
-                    luaWrap_lua_rawseti(L,-2,7);
-
-                    _executionDepth++;
-                    if (luaWrap_lua_pcall(L,1,0,0)!=0)
-                    { // an error occured in the lua debug code
-                        _executionDepth--;
-                        _scriptState|=scriptState_error;
-                        std::string errMsg;
-                        if (luaWrap_lua_isstring(L,-1))
-                            errMsg+=std::string(luaWrap_lua_tostring(L,-1));
-                        else
-                            errMsg+="error unknown";
-                        luaWrap_lua_pop(L,1); // pop error from stack
-                        _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),true,true);
-                    }
-                    else
-                        _executionDepth--;
-                }
-                else
-                    luaWrap_lua_pop(L,1); // pop function name from stack
-            }
-            else
-                luaWrap_lua_pop(L,1);
-        }
-        else
-            luaWrap_lua_pop(L,1);
-
-        // Re-enable the hook:
-        int randComponent=rand()/(RAND_MAX/10);
-        int hookMask=luaWrapGet_LUA_MASKCOUNT();
-        if (_debugLevel_old>=sim_scriptdebug_allcalls)
-            hookMask|=luaWrapGet_LUA_MASKCALL()|luaWrapGet_LUA_MASKRET();
-        luaWrap_lua_sethook(L,_hookFunction_lua,hookMask,95+randComponent);
-
-        _inDebug_old=false;
-    }
 }
 void CScriptObject::setLastError_old(const char* err)
 {

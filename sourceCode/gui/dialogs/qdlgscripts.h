@@ -46,8 +46,6 @@ private slots:
 
     void on_qqTreeTraversalDirection_currentIndexChanged(int index);
 
-    void on_qqDebugMode_currentIndexChanged(int index);
-
 private:
     Ui::CQDlgScripts *ui;
 };

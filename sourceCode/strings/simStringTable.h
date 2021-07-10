@@ -299,14 +299,6 @@
 #define IDSN_FORWARD_TRAVERSAL "forward"
 #define IDSN_PARENT_TRAVERSAL "same as parent"
 
-// Script debug modes:
-#define IDSN_SCRIPTDEBUG_NONE "none"
-#define IDSN_SCRIPTDEBUG_SYSCALLS "watch system calls"
-#define IDSN_SCRIPTDEBUG_VARS_1SEC  "watch variables, ~1 sec. interv."
-#define IDSN_SCRIPTDEBUG_ALLCALLS "watch all calls (slow)"
-#define IDSN_SCRIPTDEBUG_VARS "watch variables (slow)"
-#define IDSN_SCRIPTDEBUG_FULL "watch calls and variables (slow)"
-
 // Help menu item
 #define IDS_ABOUT_SIM         "About CoppeliaSim"
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>372</height>
+    <height>349</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
      <x>10</x>
      <y>240</y>
      <width>411</width>
-     <height>121</height>
+     <height>101</height>
     </rect>
    </property>
    <property name="title">
@@ -107,29 +107,6 @@
     </property>
     <property name="text">
      <string>Tree traversal</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="qqDebugMode">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>90</y>
-      <width>231</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="qqDebugText">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>90</y>
-      <width>161</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Debug mode</string>
     </property>
    </widget>
   </widget>
