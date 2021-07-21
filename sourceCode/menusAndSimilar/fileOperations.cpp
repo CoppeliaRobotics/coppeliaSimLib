@@ -411,9 +411,11 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                             files+=";";
                         files+=filenamesAndPaths[i];
                     }
-                    CInterfaceStack stack;
-                    stack.pushStringOntoStack(files.c_str(),0);
-                    App::worldContainer->sandboxScript->callCustomScriptFunction("simAssimp.importShapesDlg",&stack);
+                    CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+                    stack->pushStringOntoStack(files.c_str(),0);
+                    //xyza;
+                    App::worldContainer->sandboxScript->callCustomScriptFunction("simAssimp.importShapesDlg",stack);
+                    App::worldContainer->interfaceStackContainer->destroyStack(stack);
                 }
                 else
                     App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
@@ -477,21 +479,23 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     {
                         App::folders->setCadFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
 
-                        CInterfaceStack stack;
-                        stack.pushStringOntoStack(filenameAndPath.c_str(),0);
-                        stack.pushTableOntoStack();
+                        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+                        //xyza;
+                        stack->pushStringOntoStack(filenameAndPath.c_str(),0);
+                        stack->pushTableOntoStack();
                         int cnt=1;
                         for (size_t i=0;i<sel.size();i++)
                         {
                             CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(sel[i]);
                             if (shape!=nullptr)
                             {
-                                stack.pushInt32OntoStack(cnt++); // key or index
-                                stack.pushInt32OntoStack(sel[i]);
-                                stack.insertDataIntoStackTable();
+                                stack->pushInt32OntoStack(cnt++); // key or index
+                                stack->pushInt32OntoStack(sel[i]);
+                                stack->insertDataIntoStackTable();
                             }
                         }
-                        App::worldContainer->sandboxScript->callCustomScriptFunction("simAssimp.exportShapesDlg",&stack);
+                        App::worldContainer->sandboxScript->callCustomScriptFunction("simAssimp.exportShapesDlg",stack);
+                        App::worldContainer->interfaceStackContainer->destroyStack(stack);
                     }
                     else
                         App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);

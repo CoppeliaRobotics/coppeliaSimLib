@@ -1295,72 +1295,75 @@ void CJoint::handleDynJointControl(bool init,int loopCnt,int totalLoops,float cu
         if ( (script!=nullptr)||(cScript!=nullptr) )
         { // a child or customization scripts want to handle the joint (new calling method)
             // 1. We prepare the in/out stacks:
-            CInterfaceStack inStack;
-            inStack.pushTableOntoStack();
-            inStack.pushStringOntoStack("first",0);
-            inStack.pushBoolOntoStack(init);
-            inStack.insertDataIntoStackTable();
-            inStack.pushStringOntoStack("revolute",0);
-            inStack.pushBoolOntoStack(rev);
-            inStack.insertDataIntoStackTable();
-            inStack.pushStringOntoStack("cyclic",0);
-            inStack.pushBoolOntoStack(cycl);
-            inStack.insertDataIntoStackTable();
-            inStack.pushStringOntoStack("handle",0);
-            inStack.pushNumberOntoStack(getObjectHandle());
-            inStack.insertDataIntoStackTable();
-            inStack.pushStringOntoStack("lowLimit",0);
-            inStack.pushNumberOntoStack(lowL);
-            inStack.insertDataIntoStackTable();
-            inStack.pushStringOntoStack("highLimit",0);
-            inStack.pushNumberOntoStack(highL);
-            inStack.insertDataIntoStackTable();
-            inStack.pushStringOntoStack("passCnt",0);
-            inStack.pushNumberOntoStack(loopCnt);
-            inStack.insertDataIntoStackTable();
-            inStack.pushStringOntoStack("totalPasses",0);
-            inStack.pushNumberOntoStack(totalLoops);
-            inStack.insertDataIntoStackTable();
-            inStack.pushStringOntoStack("currentPos",0);
-            inStack.pushNumberOntoStack(currentPos);
-            inStack.insertDataIntoStackTable();
-            inStack.pushStringOntoStack("targetPos",0);
-            inStack.pushNumberOntoStack(targetPos);
-            inStack.insertDataIntoStackTable();
-            inStack.pushStringOntoStack("errorValue",0);
-            inStack.pushNumberOntoStack(errorV);
-            inStack.insertDataIntoStackTable();
-            inStack.pushStringOntoStack("effort",0);
-            inStack.pushNumberOntoStack(effort);
-            inStack.insertDataIntoStackTable();
-            inStack.pushStringOntoStack("dynStepSize",0);
-            inStack.pushNumberOntoStack(dynStepSize);
-            inStack.insertDataIntoStackTable();
-            inStack.pushStringOntoStack("targetVel",0);
-            inStack.pushNumberOntoStack(targetVel);
-            inStack.insertDataIntoStackTable();
-            inStack.pushStringOntoStack("maxForce",0);
-            inStack.pushNumberOntoStack(maxForce);
-            inStack.insertDataIntoStackTable();
-            inStack.pushStringOntoStack("velUpperLimit",0);
-            inStack.pushNumberOntoStack(upperLimitVel);
-            inStack.insertDataIntoStackTable();
-            CInterfaceStack outStack;
+            CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
+            inStack->pushTableOntoStack();
+            inStack->pushStringOntoStack("first",0);
+            inStack->pushBoolOntoStack(init);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("revolute",0);
+            inStack->pushBoolOntoStack(rev);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("cyclic",0);
+            inStack->pushBoolOntoStack(cycl);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("handle",0);
+            inStack->pushNumberOntoStack(getObjectHandle());
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("lowLimit",0);
+            inStack->pushNumberOntoStack(lowL);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("highLimit",0);
+            inStack->pushNumberOntoStack(highL);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("passCnt",0);
+            inStack->pushNumberOntoStack(loopCnt);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("totalPasses",0);
+            inStack->pushNumberOntoStack(totalLoops);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("currentPos",0);
+            inStack->pushNumberOntoStack(currentPos);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("targetPos",0);
+            inStack->pushNumberOntoStack(targetPos);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("errorValue",0);
+            inStack->pushNumberOntoStack(errorV);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("effort",0);
+            inStack->pushNumberOntoStack(effort);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("dynStepSize",0);
+            inStack->pushNumberOntoStack(dynStepSize);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("targetVel",0);
+            inStack->pushNumberOntoStack(targetVel);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("maxForce",0);
+            inStack->pushNumberOntoStack(maxForce);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("velUpperLimit",0);
+            inStack->pushNumberOntoStack(upperLimitVel);
+            inStack->insertDataIntoStackTable();
+            CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
+            //xyza;
 
             // 2. Call the script(s):
             if (script!=nullptr)
-                script->systemCallScript(sim_syscb_jointcallback,&inStack,&outStack);
-            if ( (cScript!=nullptr)&&(outStack.getStackSize()==0) )
-                cScript->systemCallScript(sim_syscb_jointcallback,&inStack,&outStack);
+                script->systemCallScript(sim_syscb_jointcallback,inStack,outStack);
+            if ( (cScript!=nullptr)&&(outStack->getStackSize()==0) )
+                cScript->systemCallScript(sim_syscb_jointcallback,inStack,outStack);
             // 3. Collect the return values:
-            if (outStack.getStackSize()>0)
+            if (outStack->getStackSize()>0)
             {
-                int s=outStack.getStackSize();
+                int s=outStack->getStackSize();
                 if (s>1)
-                    outStack.moveStackItemToTop(0);
-                outStack.getStackMapFloatValue("force",forceTorque);
-                outStack.getStackMapFloatValue("velocity",velocity);
+                    outStack->moveStackItemToTop(0);
+                outStack->getStackMapFloatValue("force",forceTorque);
+                outStack->getStackMapFloatValue("velocity",velocity);
             }
+            App::worldContainer->interfaceStackContainer->destroyStack(outStack);
+            App::worldContainer->interfaceStackContainer->destroyStack(inStack);
         }
         else
         { // there doesn't seem to be any appropriate function for joint handling in the attached child or customization scripts

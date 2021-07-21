@@ -9,8 +9,10 @@ public:
     CInterfaceStackContainer();
     virtual ~CInterfaceStackContainer();
 
-    int addStack(CInterfaceStack* stack);
+    CInterfaceStack* createStack();
+    CInterfaceStack* createStackCopy(CInterfaceStack* original);
     bool destroyStack(int id);
+    bool destroyStack(CInterfaceStack* stack);
     CInterfaceStack* getStack(int id);
 
 protected:

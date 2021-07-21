@@ -203,7 +203,7 @@ public:
 
 protected:
     int _checkLanguage();
-    void _initInterpreterState();
+    bool _initInterpreterState();
     bool _killInterpreterState();
     void _announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg,bool runtimeError,bool debugRoutine=false);
     bool _loadCode();

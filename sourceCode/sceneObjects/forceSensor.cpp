@@ -306,69 +306,71 @@ void CForceSensor::_handleSensorBreaking()
                 cScript=nullptr;
             if ( (script!=nullptr)||(cScript!=nullptr) )
             {
-                CInterfaceStack inStack;
-                inStack.pushTableOntoStack();
+                CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
+                //xyza;
+                inStack->pushTableOntoStack();
 
-                inStack.pushStringOntoStack("handle",0);
-                inStack.pushNumberOntoStack(getObjectHandle());
-                inStack.insertDataIntoStackTable();
+                inStack->pushStringOntoStack("handle",0);
+                inStack->pushNumberOntoStack(getObjectHandle());
+                inStack->insertDataIntoStackTable();
 
-                inStack.pushStringOntoStack("force",0);
-                inStack.pushTableOntoStack();
-                inStack.pushNumberOntoStack(1);
-                inStack.pushNumberOntoStack(_lastForce_dynStep(0));
-                inStack.insertDataIntoStackTable();
-                inStack.pushNumberOntoStack(2);
-                inStack.pushNumberOntoStack(_lastForce_dynStep(1));
-                inStack.insertDataIntoStackTable();
-                inStack.pushNumberOntoStack(3);
-                inStack.pushNumberOntoStack(_lastForce_dynStep(2));
-                inStack.insertDataIntoStackTable();
-                inStack.insertDataIntoStackTable();
+                inStack->pushStringOntoStack("force",0);
+                inStack->pushTableOntoStack();
+                inStack->pushNumberOntoStack(1);
+                inStack->pushNumberOntoStack(_lastForce_dynStep(0));
+                inStack->insertDataIntoStackTable();
+                inStack->pushNumberOntoStack(2);
+                inStack->pushNumberOntoStack(_lastForce_dynStep(1));
+                inStack->insertDataIntoStackTable();
+                inStack->pushNumberOntoStack(3);
+                inStack->pushNumberOntoStack(_lastForce_dynStep(2));
+                inStack->insertDataIntoStackTable();
+                inStack->insertDataIntoStackTable();
 
-                inStack.pushStringOntoStack("torque",0);
-                inStack.pushTableOntoStack();
-                inStack.pushNumberOntoStack(1);
-                inStack.pushNumberOntoStack(_lastTorque_dynStep(0));
-                inStack.insertDataIntoStackTable();
-                inStack.pushNumberOntoStack(2);
-                inStack.pushNumberOntoStack(_lastTorque_dynStep(1));
-                inStack.insertDataIntoStackTable();
-                inStack.pushNumberOntoStack(3);
-                inStack.pushNumberOntoStack(_lastTorque_dynStep(2));
-                inStack.insertDataIntoStackTable();
-                inStack.insertDataIntoStackTable();
+                inStack->pushStringOntoStack("torque",0);
+                inStack->pushTableOntoStack();
+                inStack->pushNumberOntoStack(1);
+                inStack->pushNumberOntoStack(_lastTorque_dynStep(0));
+                inStack->insertDataIntoStackTable();
+                inStack->pushNumberOntoStack(2);
+                inStack->pushNumberOntoStack(_lastTorque_dynStep(1));
+                inStack->insertDataIntoStackTable();
+                inStack->pushNumberOntoStack(3);
+                inStack->pushNumberOntoStack(_lastTorque_dynStep(2));
+                inStack->insertDataIntoStackTable();
+                inStack->insertDataIntoStackTable();
 
-                inStack.pushStringOntoStack("filteredForce",0);
-                inStack.pushTableOntoStack();
-                inStack.pushNumberOntoStack(1);
-                inStack.pushNumberOntoStack(_filteredDynamicForces(0));
-                inStack.insertDataIntoStackTable();
-                inStack.pushNumberOntoStack(2);
-                inStack.pushNumberOntoStack(_filteredDynamicForces(1));
-                inStack.insertDataIntoStackTable();
-                inStack.pushNumberOntoStack(3);
-                inStack.pushNumberOntoStack(_filteredDynamicForces(2));
-                inStack.insertDataIntoStackTable();
-                inStack.insertDataIntoStackTable();
+                inStack->pushStringOntoStack("filteredForce",0);
+                inStack->pushTableOntoStack();
+                inStack->pushNumberOntoStack(1);
+                inStack->pushNumberOntoStack(_filteredDynamicForces(0));
+                inStack->insertDataIntoStackTable();
+                inStack->pushNumberOntoStack(2);
+                inStack->pushNumberOntoStack(_filteredDynamicForces(1));
+                inStack->insertDataIntoStackTable();
+                inStack->pushNumberOntoStack(3);
+                inStack->pushNumberOntoStack(_filteredDynamicForces(2));
+                inStack->insertDataIntoStackTable();
+                inStack->insertDataIntoStackTable();
 
-                inStack.pushStringOntoStack("filteredTorque",0);
-                inStack.pushTableOntoStack();
-                inStack.pushNumberOntoStack(1);
-                inStack.pushNumberOntoStack(_filteredDynamicTorques(0));
-                inStack.insertDataIntoStackTable();
-                inStack.pushNumberOntoStack(2);
-                inStack.pushNumberOntoStack(_filteredDynamicTorques(1));
-                inStack.insertDataIntoStackTable();
-                inStack.pushNumberOntoStack(3);
-                inStack.pushNumberOntoStack(_filteredDynamicTorques(2));
-                inStack.insertDataIntoStackTable();
-                inStack.insertDataIntoStackTable();
+                inStack->pushStringOntoStack("filteredTorque",0);
+                inStack->pushTableOntoStack();
+                inStack->pushNumberOntoStack(1);
+                inStack->pushNumberOntoStack(_filteredDynamicTorques(0));
+                inStack->insertDataIntoStackTable();
+                inStack->pushNumberOntoStack(2);
+                inStack->pushNumberOntoStack(_filteredDynamicTorques(1));
+                inStack->insertDataIntoStackTable();
+                inStack->pushNumberOntoStack(3);
+                inStack->pushNumberOntoStack(_filteredDynamicTorques(2));
+                inStack->insertDataIntoStackTable();
+                inStack->insertDataIntoStackTable();
                 // we are in the main simulation thread. Call only scripts that live in the same thread
                 if ( (script!=nullptr)&&(!script->getThreadedExecution_oldThreads()) )
-                    script->systemCallScript(sim_syscb_trigger,&inStack,nullptr);
+                    script->systemCallScript(sim_syscb_trigger,inStack,nullptr);
                 if (cScript!=nullptr)
-                    cScript->systemCallScript(sim_syscb_trigger,&inStack,nullptr);
+                    cScript->systemCallScript(sim_syscb_trigger,inStack,nullptr);
+                App::worldContainer->interfaceStackContainer->destroyStack(inStack);
             }
             _currentThresholdViolationCount=0;
         }

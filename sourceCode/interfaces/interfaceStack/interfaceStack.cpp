@@ -8,8 +8,9 @@
 #include "interfaceStackTable.h"
 #include <algorithm>
 
-CInterfaceStack::CInterfaceStack()
+CInterfaceStack::CInterfaceStack(int a,int b,const char* c)
 {
+    _interfaceStackId=-1;
 }
 
 CInterfaceStack::~CInterfaceStack()
@@ -22,8 +23,13 @@ void CInterfaceStack::setId(int id)
     _interfaceStackId=id;
 }
 
-int CInterfaceStack::getId()
+int CInterfaceStack::getId() const
 {
+    if (_interfaceStackId==-1)
+    {
+        printf("CInterfaceStack::getId() returns -1! Crashing now...");
+        abort();
+    }
     return(_interfaceStackId);
 }
 
@@ -233,7 +239,7 @@ void CInterfaceStack::clear()
 
 CInterfaceStack* CInterfaceStack::copyYourself() const
 {
-    CInterfaceStack* retVal=new CInterfaceStack();
+    CInterfaceStack* retVal=new CInterfaceStack(1,1,"");
     for (size_t i=0;i<_stackObjects.size();i++)
         retVal->_stackObjects.push_back(_stackObjects[i]->copyYourself());
     return(retVal);

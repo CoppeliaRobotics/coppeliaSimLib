@@ -116,7 +116,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
     std::string theText;
     if (it!=nullptr)
 //        theText=it->getObjectName();
-        theText=it->getObjectAliasAndOrder();
+        theText=it->getObjectAliasAndOrderIfRequired();
     else
     {
         theText+=_sceneName;

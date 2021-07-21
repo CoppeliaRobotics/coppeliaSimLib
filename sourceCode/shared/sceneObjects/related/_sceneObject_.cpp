@@ -171,15 +171,15 @@ std::string _CSceneObject_::getObjectAlias_fullPath() const
 {
     std::string retVal;
     if (_parentObject==nullptr)
-        retVal="/"+getObjectAliasAndOrder();
+        retVal="/"+getObjectAliasAndOrderIfRequired();
     else
-        retVal=_parentObject->getObjectAlias_fullPath()+"/"+getObjectAliasAndOrder();
+        retVal=_parentObject->getObjectAlias_fullPath()+"/"+getObjectAliasAndOrderIfRequired();
     return(retVal);
 }
 
 std::string _CSceneObject_::getObjectAlias_shortPath() const
 {
-    std::string previousAlias=getObjectAliasAndOrder();
+    std::string previousAlias=getObjectAliasAndOrderIfRequired();
     size_t cnt=1;
     std::string retVal("/"+previousAlias);
     if (_parentObject!=nullptr)
@@ -194,7 +194,7 @@ std::string _CSceneObject_::getObjectAlias_shortPath() const
         {
             if (cnt>8)
                 return(getObjectAlias_fullPath());
-            std::string itAlias=it->getObjectAliasAndOrder();
+            std::string itAlias=it->getObjectAliasAndOrderIfRequired();
             if ( (itAlias==previousAlias)&&previouslySkipped )
             {
                 it=itBeforeSkipping;
@@ -271,13 +271,13 @@ std::string _CSceneObject_::getObjectAlias_printPath() const
         if (cnt>=3)
         {
             retVal=retVal.substr(0,p2+1)+" ... /";
-            retVal+=getObjectAliasAndOrder();
+            retVal+=getObjectAliasAndOrderIfRequired();
         }
     }
     return(retVal);
 }
 
-std::string _CSceneObject_::getObjectAliasAndOrder() const
+std::string _CSceneObject_::getObjectAliasAndOrderIfRequired() const
 {
     std::string retVal(_objectAlias);
     if (_childOrder>=0)

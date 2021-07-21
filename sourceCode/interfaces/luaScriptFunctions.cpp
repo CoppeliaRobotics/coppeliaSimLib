@@ -2052,8 +2052,7 @@ int _genericFunctionHandler(luaWrap_lua_State* L,CScriptCustomFunction* func,std
     int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
     CScriptObject* itObj=App::worldContainer->getScriptFromHandle(currentScriptID);
 
-    CInterfaceStack* stack=new CInterfaceStack();
-    int stackId=App::worldContainer->interfaceStackContainer->addStack(stack);
+    CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
     CScriptObject::buildFromInterpreterStack_lua(L,stack,1,0); // all stack
 
     // Now we retrieve the object ID this script might be attached to:
@@ -2075,7 +2074,7 @@ int _genericFunctionHandler(luaWrap_lua_State* L,CScriptCustomFunction* func,std
     SScriptCallBack* cb=new SScriptCallBack;
     cb->objectID=linkedObject;
     cb->scriptID=currentScriptID;
-    cb->stackID=stackId;
+    cb->stackID=stack->getId();
     cb->waitUntilZero=0; // old
     char raiseErrorMsg[258]; // old
     raiseErrorMsg[0]='\0'; // old
@@ -2116,7 +2115,7 @@ int _genericFunctionHandler(luaWrap_lua_State* L,CScriptCustomFunction* func,std
     }
     else
         delete cb;
-    App::worldContainer->interfaceStackContainer->destroyStack(stackId);
+    App::worldContainer->interfaceStackContainer->destroyStack(stack);
     return(outputArgCount);
 }
 
@@ -2178,10 +2177,11 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
         {
             if (it->getScriptType()==sim_scripttype_mainscript)
             { // only the main script can call this function
-                CInterfaceStack inStack;
-                CScriptObject::buildFromInterpreterStack_lua(L,&inStack,2,0); // skip the first arg
+                CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
+                CScriptObject::buildFromInterpreterStack_lua(L,inStack,2,0); // skip the first arg
                 int startT=VDateTime::getTimeInMs();
-                retVal=App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,callType,&inStack,nullptr,nullptr);
+                retVal=App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,callType,inStack,nullptr,nullptr);
+                App::worldContainer->interfaceStackContainer->destroyStack(inStack);
             }
         }
     }
@@ -10403,18 +10403,20 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
         {
             if (script->hasInterpreterState())
             {
-                CInterfaceStack stack;
-                CScriptObject::buildFromInterpreterStack_lua(L,&stack,3,0); // skip the two first args
+                CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+                CScriptObject::buildFromInterpreterStack_lua(L,stack,3,0); // skip the two first args
 
                 if (script->getThreadedExecutionIsUnderWay_oldThreads())
                 { // very special handling here!
                     if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId_old(),VThread::getCurrentThreadId()))
                     {
-                        int rr=script->callCustomScriptFunction(funcName.c_str(),&stack);
+                        int rr=script->callCustomScriptFunction(funcName.c_str(),stack);
                         if (rr==1)
                         {
-                            CScriptObject::buildOntoInterpreterStack_lua(L,&stack,false);
-                            LUA_END(stack.getStackSize());
+                            CScriptObject::buildOntoInterpreterStack_lua(L,stack,false);
+                            int ss=stack->getStackSize();
+                            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+                            LUA_END(ss);
                         }
                         else
                         {
@@ -10431,12 +10433,14 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                         d[0]=&callType;
                         d[1]=script;
                         d[2]=(void*)funcName.c_str();
-                        d[3]=&stack;
+                        d[3]=stack;
                         int retVal=CThreadPool_old::callRoutineViaSpecificThread(script->getThreadedScriptThreadId_old(),d);
                         if (retVal==1)
                         {
-                            CScriptObject::buildOntoInterpreterStack_lua(L,&stack,false);
-                            LUA_END(stack.getStackSize());
+                            CScriptObject::buildOntoInterpreterStack_lua(L,stack,false);
+                            int ss=stack->getStackSize();
+                            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+                            LUA_END(ss);
                         }
                         else
                         {
@@ -10451,11 +10455,13 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                 {
                     if (VThread::isCurrentThreadTheMainSimulationThread())
                     { // For now we don't allow non-main threads to call non-threaded scripts!
-                        int rr=script->callCustomScriptFunction(funcName.c_str(),&stack);
+                        int rr=script->callCustomScriptFunction(funcName.c_str(),stack);
                         if (rr==1)
                         {
-                            CScriptObject::buildOntoInterpreterStack_lua(L,&stack,false);
-                            LUA_END(stack.getStackSize());
+                            CScriptObject::buildOntoInterpreterStack_lua(L,stack,false);
+                            int ss=stack->getStackSize();
+                            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+                            LUA_END(ss);
                         }
                         else
                         {
@@ -10468,6 +10474,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                     else
                         errorString=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
                 }
+                App::worldContainer->interfaceStackContainer->destroyStack(stack);
             }
             else
                 errorString=SIM_ERROR_SCRIPT_NOT_INITIALIZED;
@@ -12172,10 +12179,11 @@ int _simPackTable(luaWrap_lua_State* L)
     {
         if (luaWrap_lua_istable(L,1))
         {
-            CInterfaceStack stack;
-            CScriptObject::buildFromInterpreterStack_lua(L,&stack,1,1);
-            std::string s(stack.getBufferFromTable());
+            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+            CScriptObject::buildFromInterpreterStack_lua(L,stack,1,1);
+            std::string s(stack->getBufferFromTable());
             luaWrap_lua_pushlstring(L,s.c_str(),s.length());
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
             LUA_END(1);
         }
         else
@@ -12197,12 +12205,14 @@ int _simUnpackTable(luaWrap_lua_State* L)
     {
         size_t l;
         const char* s=luaWrap_lua_tolstring(L,1,&l);
-        CInterfaceStack stack;
-        if (stack.pushTableFromBuffer(s,(unsigned int)l))
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+        if (stack->pushTableFromBuffer(s,(unsigned int)l))
         {
-            CScriptObject::buildOntoInterpreterStack_lua(L,&stack,true);
+            CScriptObject::buildOntoInterpreterStack_lua(L,stack,true);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
             LUA_END(1);
         }
+        App::worldContainer->interfaceStackContainer->destroyStack(stack);
         errorString.assign(SIM_ERROR_INVALID_DATA);
     }
 
@@ -12648,56 +12658,57 @@ int _simGetShapeViz(luaWrap_lua_State* L)
         int ret=simGetShapeViz_internal(shapeHandle,index,&info);
         if (ret>0)
         {
-            CInterfaceStack stack;
-            stack.pushTableOntoStack();
+            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+            stack->pushTableOntoStack();
 
-            stack.pushStringOntoStack("vertices",0);
-            stack.pushFloatArrayTableOntoStack(info.vertices,info.verticesSize);
-            stack.insertDataIntoStackTable();
-            stack.pushStringOntoStack("indices",0);
-            stack.pushInt32ArrayTableOntoStack(info.indices,info.indicesSize);
-            stack.insertDataIntoStackTable();
-            stack.pushStringOntoStack("normals",0);
-            stack.pushFloatArrayTableOntoStack(info.normals,info.indicesSize*3);
-            stack.insertDataIntoStackTable();
-            stack.pushStringOntoStack("colors",0);
-            stack.pushFloatArrayTableOntoStack(info.colors,9);
-            stack.insertDataIntoStackTable();
-            stack.pushStringOntoStack("shadingAngle",0);
-            stack.pushNumberOntoStack(double(info.shadingAngle));
-            stack.insertDataIntoStackTable();
+            stack->pushStringOntoStack("vertices",0);
+            stack->pushFloatArrayTableOntoStack(info.vertices,info.verticesSize);
+            stack->insertDataIntoStackTable();
+            stack->pushStringOntoStack("indices",0);
+            stack->pushInt32ArrayTableOntoStack(info.indices,info.indicesSize);
+            stack->insertDataIntoStackTable();
+            stack->pushStringOntoStack("normals",0);
+            stack->pushFloatArrayTableOntoStack(info.normals,info.indicesSize*3);
+            stack->insertDataIntoStackTable();
+            stack->pushStringOntoStack("colors",0);
+            stack->pushFloatArrayTableOntoStack(info.colors,9);
+            stack->insertDataIntoStackTable();
+            stack->pushStringOntoStack("shadingAngle",0);
+            stack->pushNumberOntoStack(double(info.shadingAngle));
+            stack->insertDataIntoStackTable();
             delete[] info.vertices;
             delete[] info.indices;
             delete[] info.normals;
             if (ret>1)
             {
-                stack.pushStringOntoStack("texture",0);
-                stack.pushTableOntoStack();
+                stack->pushStringOntoStack("texture",0);
+                stack->pushTableOntoStack();
 
-                stack.pushStringOntoStack("texture",0);
-                stack.pushStringOntoStack(info.texture,4*info.textureRes[0]*info.textureRes[1]);
-                stack.insertDataIntoStackTable();
-                stack.pushStringOntoStack("resolution",0);
-                stack.pushInt32ArrayTableOntoStack(info.textureRes,2);
-                stack.insertDataIntoStackTable();
-                stack.pushStringOntoStack("coordinates",0);
-                stack.pushFloatArrayTableOntoStack(info.textureCoords,info.indicesSize*2);
-                stack.insertDataIntoStackTable();
-                stack.pushStringOntoStack("applyMode",0);
-                stack.pushNumberOntoStack(double(info.textureApplyMode));
-                stack.insertDataIntoStackTable();
-                stack.pushStringOntoStack("options",0);
-                stack.pushNumberOntoStack(double(info.textureOptions));
-                stack.insertDataIntoStackTable();
-                stack.pushStringOntoStack("id",0);
-                stack.pushNumberOntoStack(double(info.textureId));
-                stack.insertDataIntoStackTable();
+                stack->pushStringOntoStack("texture",0);
+                stack->pushStringOntoStack(info.texture,4*info.textureRes[0]*info.textureRes[1]);
+                stack->insertDataIntoStackTable();
+                stack->pushStringOntoStack("resolution",0);
+                stack->pushInt32ArrayTableOntoStack(info.textureRes,2);
+                stack->insertDataIntoStackTable();
+                stack->pushStringOntoStack("coordinates",0);
+                stack->pushFloatArrayTableOntoStack(info.textureCoords,info.indicesSize*2);
+                stack->insertDataIntoStackTable();
+                stack->pushStringOntoStack("applyMode",0);
+                stack->pushNumberOntoStack(double(info.textureApplyMode));
+                stack->insertDataIntoStackTable();
+                stack->pushStringOntoStack("options",0);
+                stack->pushNumberOntoStack(double(info.textureOptions));
+                stack->insertDataIntoStackTable();
+                stack->pushStringOntoStack("id",0);
+                stack->pushNumberOntoStack(double(info.textureId));
+                stack->insertDataIntoStackTable();
 
-                stack.insertDataIntoStackTable();
+                stack->insertDataIntoStackTable();
                 delete[] info.texture;
                 delete[] info.textureCoords;
             }
-            CScriptObject::buildOntoInterpreterStack_lua(L,&stack,true);
+            CScriptObject::buildOntoInterpreterStack_lua(L,stack,true);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
             LUA_END(1);
         }
     }
@@ -12714,9 +12725,8 @@ int _simExecuteScriptString(luaWrap_lua_State* L)
     {
         std::string strAndScriptName(luaWrap_lua_tostring(L,1));
         int scriptHandleOrType=luaWrap_lua_tointeger(L,2);
-        CInterfaceStack* stack=new CInterfaceStack();
-        int stackHandle=App::worldContainer->interfaceStackContainer->addStack(stack);
-        int retVal=simExecuteScriptString_internal(scriptHandleOrType,strAndScriptName.c_str(),stackHandle);
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+        int retVal=simExecuteScriptString_internal(scriptHandleOrType,strAndScriptName.c_str(),stack->getId());
         if (retVal>=0)
         {
             luaWrap_lua_pushinteger(L,retVal);
@@ -12726,11 +12736,12 @@ int _simExecuteScriptString(luaWrap_lua_State* L)
                 CScriptObject::buildOntoInterpreterStack_lua(L,stack,false);//true);
                 s+=stack->getStackSize();
             }
-            App::worldContainer->interfaceStackContainer->destroyStack(stackHandle);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
             LUA_END(s);
         }
         else
         {
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
 //            if (errorString.size()==0)
 //                errorString=SIM_ERROR_OPERATION_FAILED;
         }
@@ -14899,11 +14910,12 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
             CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
             if (it!=nullptr)
             {
-                CInterfaceStack stack;
-                stack.pushStringOntoStack(txt.c_str(),txt.size());
-                stack.pushInt32ArrayTableOntoStack(posAndSize+0,2);
-                stack.pushInt32ArrayTableOntoStack(posAndSize+2,2);
-                it->callCustomScriptFunction(cb.c_str(),&stack);
+                CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+                stack->pushStringOntoStack(txt.c_str(),txt.size());
+                stack->pushInt32ArrayTableOntoStack(posAndSize+0,2);
+                stack->pushInt32ArrayTableOntoStack(posAndSize+2,2);
+                it->callCustomScriptFunction(cb.c_str(),stack);
+                App::worldContainer->interfaceStackContainer->destroyStack(stack);
             }
         }
         luaWrap_lua_pushinteger(L,res);
@@ -16924,31 +16936,32 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
                     }
                     if (retParams.size()!=0)
                     { // now we push two tables onto the stack:
-                        CInterfaceStack stack;
-                        stack.pushTableOntoStack();
+                        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+                        stack->pushTableOntoStack();
                         for (int i=0;i<int(retParams.size());i++)
                         {
-                            stack.pushNumberOntoStack((double)i+1); // key
+                            stack->pushNumberOntoStack((double)i+1); // key
                             int t=getCorrectType_old(retParams[i]);
                             if (returnString)
                                 t=4; // we force for strings!
                             if (t==0)
-                                stack.pushNullOntoStack();
+                                stack->pushNullOntoStack();
                             if ((t==1)||(t==2))
-                                stack.pushBoolOntoStack(t==2);
+                                stack->pushBoolOntoStack(t==2);
                             if (t==3)
                             {
                                 float v;
                                 tt::getValidFloat(retParams[i].c_str(),v);
-                                stack.pushNumberOntoStack((double)v);
+                                stack->pushNumberOntoStack((double)v);
                             }
                             if (t==4)
-                                stack.pushStringOntoStack(retParams[i].c_str(),0);
-                            if (stack.getStackSize()<2)
-                                stack.pushNullOntoStack();
-                            stack.insertDataIntoStackTable();
+                                stack->pushStringOntoStack(retParams[i].c_str(),0);
+                            if (stack->getStackSize()<2)
+                                stack->pushNullOntoStack();
+                            stack->insertDataIntoStackTable();
                         }
-                        CScriptObject::buildOntoInterpreterStack_lua(L,&stack,true);
+                        CScriptObject::buildOntoInterpreterStack_lua(L,stack,true);
+                        App::worldContainer->interfaceStackContainer->destroyStack(stack);
                         pushIntTableOntoStack(L,(int)retHandles.size(),&retHandles[0]);
                         LUA_END(2);
                     }
@@ -19713,11 +19726,10 @@ int _simSetScriptVariable(luaWrap_lua_State* L)
         int numberOfArguments=luaWrap_lua_gettop(L);
         if (numberOfArguments>=3)
         {
-            CInterfaceStack* stack=new CInterfaceStack();
-            int stackHandle=App::worldContainer->interfaceStackContainer->addStack(stack);
+            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
             CScriptObject::buildFromInterpreterStack_lua(L,stack,3,1);
-            retVal=simSetScriptVariable_internal(scriptHandleOrType,varAndScriptName.c_str(),stackHandle);
-            App::worldContainer->interfaceStackContainer->destroyStack(stackHandle);
+            retVal=simSetScriptVariable_internal(scriptHandleOrType,varAndScriptName.c_str(),stack->getId());
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         else
             errorString=SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;

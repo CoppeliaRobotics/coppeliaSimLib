@@ -1014,7 +1014,7 @@ void CGraph::exportGraphData(VArchive &ar)
 { // STATIC streams are not exported!! (they might have a different time interval, etc.)
 
     // The graph name:
-    std::string txt(getObjectAliasAndOrder());
+    std::string txt(getObjectAlias_shortPath());
     txt+="\n";
 
     if (numberOfPoints>0)

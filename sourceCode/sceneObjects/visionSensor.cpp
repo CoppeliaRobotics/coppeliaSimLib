@@ -2269,62 +2269,65 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         cScript=nullptr;
     if ( (script!=nullptr)||(cScript!=nullptr) )
     {
-        CInterfaceStack inStack;
-        inStack.pushTableOntoStack();
+        CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
+        //xyza;
+        inStack->pushTableOntoStack();
 
-        inStack.pushStringOntoStack("handle",0);
-        inStack.pushNumberOntoStack(getObjectHandle());
-        inStack.insertDataIntoStackTable();
+        inStack->pushStringOntoStack("handle",0);
+        inStack->pushNumberOntoStack(getObjectHandle());
+        inStack->insertDataIntoStackTable();
 
-        inStack.pushStringOntoStack("resolution",0);
-        inStack.pushTableOntoStack();
-        inStack.pushNumberOntoStack(1);
-        inStack.pushNumberOntoStack(_resolutionX);
-        inStack.insertDataIntoStackTable();
-        inStack.pushNumberOntoStack(2);
-        inStack.pushNumberOntoStack(_resolutionY);
-        inStack.insertDataIntoStackTable();
-        inStack.insertDataIntoStackTable();
+        inStack->pushStringOntoStack("resolution",0);
+        inStack->pushTableOntoStack();
+        inStack->pushNumberOntoStack(1);
+        inStack->pushNumberOntoStack(_resolutionX);
+        inStack->insertDataIntoStackTable();
+        inStack->pushNumberOntoStack(2);
+        inStack->pushNumberOntoStack(_resolutionY);
+        inStack->insertDataIntoStackTable();
+        inStack->insertDataIntoStackTable();
 
-        inStack.pushStringOntoStack("clippingPlanes",0);
-        inStack.pushTableOntoStack();
-        inStack.pushNumberOntoStack(1);
-        inStack.pushNumberOntoStack(getNearClippingPlane());
-        inStack.insertDataIntoStackTable();
-        inStack.pushNumberOntoStack(2);
-        inStack.pushNumberOntoStack(getFarClippingPlane());
-        inStack.insertDataIntoStackTable();
-        inStack.insertDataIntoStackTable();
+        inStack->pushStringOntoStack("clippingPlanes",0);
+        inStack->pushTableOntoStack();
+        inStack->pushNumberOntoStack(1);
+        inStack->pushNumberOntoStack(getNearClippingPlane());
+        inStack->insertDataIntoStackTable();
+        inStack->pushNumberOntoStack(2);
+        inStack->pushNumberOntoStack(getFarClippingPlane());
+        inStack->insertDataIntoStackTable();
+        inStack->insertDataIntoStackTable();
 
-        inStack.pushStringOntoStack("viewAngle",0);
-        inStack.pushNumberOntoStack(getViewAngle());
-        inStack.insertDataIntoStackTable();
+        inStack->pushStringOntoStack("viewAngle",0);
+        inStack->pushNumberOntoStack(getViewAngle());
+        inStack->insertDataIntoStackTable();
 
-        inStack.pushStringOntoStack("orthoSize",0);
-        inStack.pushNumberOntoStack(getOrthoViewSize());
-        inStack.insertDataIntoStackTable();
+        inStack->pushStringOntoStack("orthoSize",0);
+        inStack->pushNumberOntoStack(getOrthoViewSize());
+        inStack->insertDataIntoStackTable();
 
-        inStack.pushStringOntoStack("perspectiveOperation",0);
-        inStack.pushBoolOntoStack(getPerspectiveOperation());
-        inStack.insertDataIntoStackTable();
+        inStack->pushStringOntoStack("perspectiveOperation",0);
+        inStack->pushBoolOntoStack(getPerspectiveOperation());
+        inStack->insertDataIntoStackTable();
 
-        CInterfaceStack outStack1;
-        CInterfaceStack outStack2;
-        CInterfaceStack* outSt1=&outStack1;
-        CInterfaceStack* outSt2=&outStack2;
+        CInterfaceStack* outStack1=App::worldContainer->interfaceStackContainer->createStack();
+        //xyza;
+        CInterfaceStack* outStack2=App::worldContainer->interfaceStackContainer->createStack();
+        //xyza;
+        CInterfaceStack* outSt1=outStack1;
+        CInterfaceStack* outSt2=outStack2;
         if (VThread::isCurrentThreadTheMainSimulationThread())
         { // we are in the main simulation thread. Call only scripts that live in the same thread
             if ( (script!=nullptr)&&(!script->getThreadedExecution_oldThreads()) )
-                script->systemCallScript(sim_syscb_vision,&inStack,&outStack1);
+                script->systemCallScript(sim_syscb_vision,inStack,outStack1);
             if (cScript!=nullptr)
-                cScript->systemCallScript(sim_syscb_vision,&inStack,&outStack2);
+                cScript->systemCallScript(sim_syscb_vision,inStack,outStack2);
         }
         else
         { // OLD: we are in the thread started by a threaded child script. Call only that script
             if ( (script!=nullptr)&&script->getThreadedExecution_oldThreads() )
             {
-                script->systemCallScript(sim_syscb_vision,&inStack,nullptr);
-                outSt1=&inStack;
+                script->systemCallScript(sim_syscb_vision,inStack,nullptr);
+                outSt1=inStack;
             }
         }
 
@@ -2361,6 +2364,9 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
                 }
             }
         }
+        App::worldContainer->interfaceStackContainer->destroyStack(outStack2);
+        App::worldContainer->interfaceStackContainer->destroyStack(outStack1);
+        App::worldContainer->interfaceStackContainer->destroyStack(inStack);
     }
     if (trigger)
     {
@@ -2370,42 +2376,45 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
             cScript=nullptr;
         if ( (script!=nullptr)||(cScript!=nullptr) )
         {
-            CInterfaceStack inStack;
-            inStack.pushTableOntoStack();
-            inStack.pushStringOntoStack("handle",0);
-            inStack.pushNumberOntoStack(getObjectHandle());
-            inStack.insertDataIntoStackTable();
+            CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
+            //xyza;
+            inStack->pushTableOntoStack();
+            inStack->pushStringOntoStack("handle",0);
+            inStack->pushNumberOntoStack(getObjectHandle());
+            inStack->insertDataIntoStackTable();
 
-            inStack.pushStringOntoStack("packedPackets",0);
-            inStack.pushTableOntoStack();
+            inStack->pushStringOntoStack("packedPackets",0);
+            inStack->pushTableOntoStack();
             for (size_t i=0;i<sensorAuxiliaryResult.size();i++)
             {
-                inStack.pushNumberOntoStack(i+1);
+                inStack->pushNumberOntoStack(i+1);
                 if (sensorAuxiliaryResult[i].size()>0)
-                    inStack.pushStringOntoStack((char*)&(sensorAuxiliaryResult[i])[0],sensorAuxiliaryResult[i].size()*sizeof(float));
+                    inStack->pushStringOntoStack((char*)&(sensorAuxiliaryResult[i])[0],sensorAuxiliaryResult[i].size()*sizeof(float));
                 else
-                    inStack.pushStringOntoStack("",0);
-                inStack.insertDataIntoStackTable();
+                    inStack->pushStringOntoStack("",0);
+                inStack->insertDataIntoStackTable();
             }
-            inStack.insertDataIntoStackTable();
+            inStack->insertDataIntoStackTable();
 
-            CInterfaceStack outStack1;
-            CInterfaceStack outStack2;
-            CInterfaceStack* outSt1=&outStack1;
-            CInterfaceStack* outSt2=&outStack2;
+            CInterfaceStack* outStack1=App::worldContainer->interfaceStackContainer->createStack();
+            //xyza;
+            CInterfaceStack* outStack2=App::worldContainer->interfaceStackContainer->createStack();
+            //xyza;
+            CInterfaceStack* outSt1=outStack1;
+            CInterfaceStack* outSt2=outStack2;
             if (VThread::isCurrentThreadTheMainSimulationThread())
             { // we are in the main simulation thread. Call only scripts that live in the same thread
                 if ( (script!=nullptr)&&(!script->getThreadedExecution_oldThreads()) )
-                    script->systemCallScript(sim_syscb_trigger,&inStack,&outStack1);
+                    script->systemCallScript(sim_syscb_trigger,inStack,outStack1);
                 if (cScript!=nullptr)
-                    cScript->systemCallScript(sim_syscb_trigger,&inStack,&outStack2);
+                    cScript->systemCallScript(sim_syscb_trigger,inStack,outStack2);
             }
             else
             { // we are in the thread started by a threaded child script. Call only that script
                 if ( (script!=nullptr)&&script->getThreadedExecution_oldThreads() )
                 {
-                    script->systemCallScript(sim_syscb_trigger,&inStack,nullptr);
-                    outSt1=&inStack;
+                    script->systemCallScript(sim_syscb_trigger,inStack,nullptr);
+                    outSt1=inStack;
                 }
             }
             CInterfaceStack* outStacks[2]={outSt1,outSt2};
@@ -2420,6 +2429,9 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
                         trigger=trig;
                 }
             }
+            App::worldContainer->interfaceStackContainer->destroyStack(outStack2);
+            App::worldContainer->interfaceStackContainer->destroyStack(outStack1);
+            App::worldContainer->interfaceStackContainer->destroyStack(inStack);
         }
     }
     _inApplyFilterRoutine=false;

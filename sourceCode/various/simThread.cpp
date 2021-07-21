@@ -190,6 +190,15 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId==FINAL_EXIT_REQUEST_CMD)
         App::postExitRequest();
 
+    if (cmd.cmdId==EDU_EXPIRED_CMD)
+    {
+        App::logMsg(sim_verbosity_errors,cmd.stringParams[0].c_str());
+#ifdef SIM_WITH_GUI
+        App::uiThread->messageBox_informationSystemModal(App::mainWindow,"New CoppeliaSim Release",cmd.stringParams[0].c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+#endif
+        App::postExitRequest();
+    }
+
     if (cmd.cmdId==DISPLAY_WARNING_IF_DEBUGGING_CMD)
     {
         if ( (App::getConsoleVerbosity()>=sim_verbosity_trace)&&(!App::userSettings->suppressStartupDialogs) )
@@ -277,8 +286,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(cmd.intParams[0]);
                 if ( (script!=nullptr)&&(script->getContainsUserConfigCallbackFunction()) )
                 { // we have a user config callback
-                    CInterfaceStack stack;
-                    script->systemCallScript(sim_syscb_userconfig,&stack,nullptr);
+                    script->systemCallScript(sim_syscb_userconfig,nullptr,nullptr);
                 }
                 else
                 {

@@ -914,60 +914,63 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
             cScript=nullptr;
         if ( (script!=nullptr)||(cScript!=nullptr) )
         {
-            CInterfaceStack inStack;
-            inStack.pushTableOntoStack();
+            CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
+            //xyza;
+            inStack->pushTableOntoStack();
 
-            inStack.pushStringOntoStack("handle",0);
-            inStack.pushNumberOntoStack(getObjectHandle());
-            inStack.insertDataIntoStackTable();
+            inStack->pushStringOntoStack("handle",0);
+            inStack->pushNumberOntoStack(getObjectHandle());
+            inStack->insertDataIntoStackTable();
 
-            inStack.pushStringOntoStack("detectedObjectHandle",0);
-            inStack.pushNumberOntoStack(_detectedObjectHandle);
-            inStack.insertDataIntoStackTable();
+            inStack->pushStringOntoStack("detectedObjectHandle",0);
+            inStack->pushNumberOntoStack(_detectedObjectHandle);
+            inStack->insertDataIntoStackTable();
 
-            inStack.pushStringOntoStack("detectedPoint",0);
-            inStack.pushTableOntoStack();
-            inStack.pushNumberOntoStack(1);
-            inStack.pushNumberOntoStack(_detectedPoint(0));
-            inStack.insertDataIntoStackTable();
-            inStack.pushNumberOntoStack(2);
-            inStack.pushNumberOntoStack(_detectedPoint(1));
-            inStack.insertDataIntoStackTable();
-            inStack.pushNumberOntoStack(3);
-            inStack.pushNumberOntoStack(_detectedPoint(2));
-            inStack.insertDataIntoStackTable();
-            inStack.insertDataIntoStackTable();
+            inStack->pushStringOntoStack("detectedPoint",0);
+            inStack->pushTableOntoStack();
+            inStack->pushNumberOntoStack(1);
+            inStack->pushNumberOntoStack(_detectedPoint(0));
+            inStack->insertDataIntoStackTable();
+            inStack->pushNumberOntoStack(2);
+            inStack->pushNumberOntoStack(_detectedPoint(1));
+            inStack->insertDataIntoStackTable();
+            inStack->pushNumberOntoStack(3);
+            inStack->pushNumberOntoStack(_detectedPoint(2));
+            inStack->insertDataIntoStackTable();
+            inStack->insertDataIntoStackTable();
 
-            inStack.pushStringOntoStack("normalVector",0);
-            inStack.pushTableOntoStack();
-            inStack.pushNumberOntoStack(1);
-            inStack.pushNumberOntoStack(_detectedNormalVector(0));
-            inStack.insertDataIntoStackTable();
-            inStack.pushNumberOntoStack(2);
-            inStack.pushNumberOntoStack(_detectedNormalVector(1));
-            inStack.insertDataIntoStackTable();
-            inStack.pushNumberOntoStack(3);
-            inStack.pushNumberOntoStack(_detectedNormalVector(2));
-            inStack.insertDataIntoStackTable();
-            inStack.insertDataIntoStackTable();
+            inStack->pushStringOntoStack("normalVector",0);
+            inStack->pushTableOntoStack();
+            inStack->pushNumberOntoStack(1);
+            inStack->pushNumberOntoStack(_detectedNormalVector(0));
+            inStack->insertDataIntoStackTable();
+            inStack->pushNumberOntoStack(2);
+            inStack->pushNumberOntoStack(_detectedNormalVector(1));
+            inStack->insertDataIntoStackTable();
+            inStack->pushNumberOntoStack(3);
+            inStack->pushNumberOntoStack(_detectedNormalVector(2));
+            inStack->insertDataIntoStackTable();
+            inStack->insertDataIntoStackTable();
 
-            CInterfaceStack outStack1;
-            CInterfaceStack outStack2;
-            CInterfaceStack* outSt1=&outStack1;
-            CInterfaceStack* outSt2=&outStack2;
+            CInterfaceStack* outStack1=App::worldContainer->interfaceStackContainer->createStack();
+            //xyza;
+            CInterfaceStack* outStack2=App::worldContainer->interfaceStackContainer->createStack();
+            //xyza;
+            CInterfaceStack* outSt1=outStack1;
+            CInterfaceStack* outSt2=outStack2;
             if (VThread::isCurrentThreadTheMainSimulationThread())
             { // we are in the main simulation thread. Call only scripts that live in the same thread
                 if ( (script!=nullptr)&&(!script->getThreadedExecution_oldThreads()) )
-                    script->systemCallScript(sim_syscb_trigger,&inStack,&outStack1);
+                    script->systemCallScript(sim_syscb_trigger,inStack,outStack1);
                 if (cScript!=nullptr)
-                    cScript->systemCallScript(sim_syscb_trigger,&inStack,&outStack2);
+                    cScript->systemCallScript(sim_syscb_trigger,inStack,outStack2);
             }
             else
             { // we are in the thread started by a threaded child script. Call only that script
                 if ( (script!=nullptr)&&script->getThreadedExecution_oldThreads() )
                 {
-                    script->systemCallScript(sim_syscb_trigger,&inStack,nullptr);
-                    outSt1=&inStack;
+                    script->systemCallScript(sim_syscb_trigger,inStack,nullptr);
+                    outSt1=inStack;
                 }
             }
             CInterfaceStack* outStacks[2]={outSt1,outSt2};
@@ -982,6 +985,9 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
                         _detectedPointValid=trig;
                 }
             }
+            App::worldContainer->interfaceStackContainer->destroyStack(outStack2);
+            App::worldContainer->interfaceStackContainer->destroyStack(outStack1);
+            App::worldContainer->interfaceStackContainer->destroyStack(inStack);
         }
     }
     return(_detectedPointValid);

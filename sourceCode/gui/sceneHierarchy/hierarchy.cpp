@@ -199,8 +199,18 @@ void CHierarchy::keyPress(int key)
             {
                 if ( (em==NO_EDIT_MODE)&&(it!=nullptr) )
                 {
-                    if (App::currentWorld->sceneObjects->setObjectAlias(it,editionText.c_str(),true))
-                        POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                    if (editionText.find("#")!=std::string::npos)
+                    {
+                        if (editionText[editionText.size()-1]=='#')
+                            editionText.pop_back();
+                        if (App::currentWorld->sceneObjects->setObjectName_old(it,editionText.c_str(),true))
+                            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                    }
+                    else
+                    {
+                        if (App::currentWorld->sceneObjects->setObjectAlias(it,editionText.c_str(),true))
+                            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                    }
                     App::setFullDialogRefreshFlag();
                 }
                 labelEditObjectID=-1;

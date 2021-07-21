@@ -171,6 +171,12 @@ typedef char* (__cdecl *ptrCodeEditor_getText)(int handle,int* positionAndSize);
 typedef int (__cdecl *ptrCodeEditor_show)(int handle,int showState);
 typedef int (__cdecl *ptrCodeEditor_close)(int handle,int* positionAndSize);
 
+typedef void* (__cdecl *ptrPythonPlugin_initState)();
+typedef void (__cdecl *ptrPythonPlugin_cleanupState)(void* state);
+typedef char* (__cdecl *ptrPythonPlugin_loadCode)(void* state,const char* code,const char* scriptName,const char* functionsToFind,bool* functionsFound,int* result);
+typedef char* (__cdecl *ptrPythonPlugin_callFunc)(void* state,const char* funcName,int inStackHandle,int outStackHandle,int* result);
+typedef int (__cdecl *ptrPythonPlugin_execStr)(void* state,const char* str,int outStackHandle);
+
 typedef int (__cdecl *ptrCustomUi_msgBox)(int type, int buttons, const char *title, const char *message);
 typedef char* (__cdecl *ptrCustomUi_fileDialog)(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native);
 
@@ -345,6 +351,12 @@ public:
     ptr_ikPlugin_getConfigForTipPose ikPlugin_getConfigForTipPose;
     ptr_ikPlugin_getObjectLocalTransformation ikPlugin_getObjectLocalTransformation;
     ptr_ikPlugin_setObjectLocalTransformation ikPlugin_setObjectLocalTransformation;
+
+    ptrPythonPlugin_initState pythonPlugin_initState;
+    ptrPythonPlugin_cleanupState pythonPlugin_cleanupState;
+    ptrPythonPlugin_loadCode pythonPlugin_loadCode;
+    ptrPythonPlugin_callFunc pythonPlugin_callFunc;
+    ptrPythonPlugin_execStr pythonPlugin_execStr;
 
     ptrCodeEditor_openModal _codeEditor_openModal;
     ptrCodeEditor_open _codeEditor_open;
@@ -597,6 +609,14 @@ public:
     static bool codeEditor_getText(int handle,std::string& text,int* positionAndSize);
     static int codeEditor_show(int handle,int showState);
     static int codeEditor_close(int handle,int* positionAndSize);
+
+    // Python plugin:
+    static CPlugin* currentPythonPlugin;
+    static void* pythonPlugin_initState();
+    static void pythonPlugin_cleanupState(void* state);
+    static int pythonPlugin_loadCode(void* state,const char* code,const char* scriptName,const char* functionsToFind,bool* functionsFound,std::string* errorMsg);
+    static int pythonPlugin_callFunc(void* state,const char* funcName,int inStackHandle,int outStackHandle,std::string* errorMsg);
+    static int pythonPlugin_execStr(void* state,const char* str,int outStackHandle);
 
     // Custom UI plugin:
     static CPlugin* currentCustomUi;

@@ -39,7 +39,7 @@ public:
     int getChildOrder() const;
     int getHierarchyTreeObjects(std::vector<CSceneObject*>& allObjects);
     std::string getObjectAlias() const;
-    std::string getObjectAliasAndOrder() const;
+    std::string getObjectAliasAndOrderIfRequired() const;
     std::string getObjectAliasAndHandle() const;
     std::string getObjectAlias_fullPath() const;
     std::string getObjectAlias_shortPath() const;

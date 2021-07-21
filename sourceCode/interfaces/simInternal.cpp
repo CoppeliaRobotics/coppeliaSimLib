@@ -1211,7 +1211,7 @@ simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int pr
                 it=App::currentWorld->sceneObjects->getObjectFromName_old(nm.c_str());
                 if (it==nullptr)
                 {
-                    additionalMessage_backCompatibility+="\n\nSince CoppeliaSim V4.2.1, objects should be retrieved via a path and alias, e.g. \"./path/to/alias\", \":/path/to/alias\", \"/path/to/alias\", etc.";
+                    additionalMessage_backCompatibility+="\n\nSince CoppeliaSim V4.3.0, objects should be retrieved via a path and alias, e.g. \"./path/to/alias\", \":/path/to/alias\", \"/path/to/alias\", etc.";
                     additionalMessage_backCompatibility+="\nYou however tried to access an object that doesn't follow the new notation, and that wasn't found using the old notation, i.e. \"";
                     additionalMessage_backCompatibility+=objectAlias;
                     additionalMessage_backCompatibility+="\" wasn't found.";
@@ -1364,28 +1364,28 @@ simChar* simGetObjectAlias_internal(simInt objectHandle,simInt options)
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         std::string nm;
         if (options==-1)
-            nm=it->getObjectAlias();
+            nm=it->getObjectAlias(); // just the alias, e.g. "alias"
         if (options==0)
-            nm=it->getObjectAliasAndOrder();
+            nm=it->getObjectAliasAndOrderIfRequired(); // the alias with order, e.g. "alias[0]"
         if (options==1)
-            nm=it->getObjectAlias_shortPath();
+            nm=it->getObjectAlias_shortPath(); // the alias with unique path, short, e.g. "/obj/alias[0]"
         if (options==2)
-            nm=it->getObjectAlias_fullPath();
+            nm=it->getObjectAlias_fullPath(); // the alias with full path, e.g. "/obj/obj2/alias[0]"
         if (options==3)
-        {
+        { // just the alias, if unique, e.g. "alias", otherwise the alias with handle, e.g. "alias__42__"
             if (App::currentWorld->sceneObjects->getObjectFromPath(nullptr,(std::string("/")+it->getObjectAlias()).c_str(),1,nullptr)==nullptr)
                 nm=it->getObjectAlias();
             else
                 options=4;
         }
         if (options==4)
-        {
+        { // the alias with object handle, e.g. "alias__42__"
             nm=it->getObjectAlias()+"__";
             nm+=std::to_string(it->getObjectHandle());
             nm+="__";
         }
         if (options==5)
-            nm=it->getObjectAlias_printPath();
+            nm=it->getObjectAlias_printPath(); // the print version, not guaranteed to be unique, e.g. "/obj/.../alias[0]"
         char* retVal=new char[nm.length()+1];
         for (size_t i=0;i<nm.length();i++)
             retVal[i]=nm[i];
@@ -6246,18 +6246,17 @@ simInt simDisplayDialog_internal(const simChar* titleText,const simChar* mainTex
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
 #ifdef SIM_WITH_GUI
-        CInterfaceStack* stack=new CInterfaceStack();
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
         stack->pushStringOntoStack(titleText,0);
         stack->pushStringOntoStack(mainText,0);
         stack->pushNumberOntoStack(dialogType);
         stack->pushBoolOntoStack(false);
         if (initialText!=nullptr)
             stack->pushStringOntoStack(initialText,0);
-        int stackId=App::worldContainer->interfaceStackContainer->addStack(stack);
-        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.displayDialog",stackId);
+        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.displayDialog",stack->getId());
         int retVal;
         stack->getStackInt32Value(retVal);
-        App::worldContainer->interfaceStackContainer->destroyStack(stackId);
+        App::worldContainer->interfaceStackContainer->destroyStack(stack);
         return(retVal);
 #else
         return(1);
@@ -6277,13 +6276,12 @@ simInt simGetDialogResult_internal(simInt genericDialogHandle)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
 #ifdef SIM_WITH_GUI
-        CInterfaceStack* stack=new CInterfaceStack();
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();;
         stack->pushNumberOntoStack(genericDialogHandle);
-        int stackId=App::worldContainer->interfaceStackContainer->addStack(stack);
-        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.getDialogResult",stackId);
+        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.getDialogResult",stack->getId());
         int retVal;
         stack->getStackInt32Value(retVal);
-        App::worldContainer->interfaceStackContainer->destroyStack(stackId);
+        App::worldContainer->interfaceStackContainer->destroyStack(stack);
         return(retVal);
 #else
         return(sim_dlgret_cancel);
@@ -6304,12 +6302,11 @@ simChar* simGetDialogInput_internal(simInt genericDialogHandle)
     {
         std::string tmp;
 #ifdef SIM_WITH_GUI
-        CInterfaceStack* stack=new CInterfaceStack();
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
         stack->pushNumberOntoStack(genericDialogHandle);
-        int stackId=App::worldContainer->interfaceStackContainer->addStack(stack);
-        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.getDialogInput",stackId);
+        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.getDialogInput",stack->getId());
         bool r=stack->getStackStringValue(tmp);
-        App::worldContainer->interfaceStackContainer->destroyStack(stackId);
+        App::worldContainer->interfaceStackContainer->destroyStack(stack);
         if (!r)
             return(nullptr);
 #else
@@ -6335,11 +6332,10 @@ simInt simEndDialog_internal(simInt genericDialogHandle)
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
 #ifdef SIM_WITH_GUI
-        CInterfaceStack* stack=new CInterfaceStack();
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
         stack->pushNumberOntoStack(genericDialogHandle);
-        int stackId=App::worldContainer->interfaceStackContainer->addStack(stack);
-        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.endDialog",stackId);
-        App::worldContainer->interfaceStackContainer->destroyStack(stackId);
+        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.endDialog",stack->getId());
+        App::worldContainer->interfaceStackContainer->destroyStack(stack);
 #endif
         return(1);
     }
@@ -14261,9 +14257,8 @@ simInt simCreateStack_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack=new CInterfaceStack();
-        int id=App::worldContainer->interfaceStackContainer->addStack(stack);
-        return(id);
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+        return(stack->getId());
     }
 
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -14299,10 +14294,7 @@ simInt simCopyStack_internal(simInt stackHandle)
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
-        {
-            int id=App::worldContainer->interfaceStackContainer->addStack(stack->copyYourself());
-            return(id);
-        }
+            return(App::worldContainer->interfaceStackContainer->createStackCopy(stack)->getId());
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
         return(-1);
     }
@@ -16583,15 +16575,14 @@ simInt simEventNotification_internal(const simChar* event)
                                 if (strlen(data)!=0)
                                 {
                                     int callingScript=App::mainWindow->codeEditorContainer->getCallingScriptHandle(h);
-                                    CInterfaceStack* stack=new CInterfaceStack();
+                                    CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
                                     int posAndSize[4];
                                     std::string txt=App::mainWindow->codeEditorContainer->getText(h,posAndSize);
                                     stack->pushStringOntoStack(txt.c_str(),0);
                                     stack->pushInt32ArrayTableOntoStack(posAndSize+0,2);
                                     stack->pushInt32ArrayTableOntoStack(posAndSize+2,2);
-                                    int stackId=App::worldContainer->interfaceStackContainer->addStack(stack);
-                                    simCallScriptFunctionEx_internal(callingScript,data,stackId);
-                                    App::worldContainer->interfaceStackContainer->destroyStack(stackId);
+                                    simCallScriptFunctionEx_internal(callingScript,data,stack->getId());
+                                    App::worldContainer->interfaceStackContainer->destroyStack(stack);
                                 }
                                 if ( (strlen(data)==0)||App::mainWindow->codeEditorContainer->getCloseAfterCallbackCalled(h) )
                                     App::mainWindow->codeEditorContainer->close(h,nullptr,nullptr,nullptr);
@@ -17426,74 +17417,82 @@ simInt _simHandleCustomContact_internal(simInt objHandle1,simInt objHandle2,simI
     // 1. We handle the new calling method:
     if ( ((engine&1024)==0)&&App::currentWorld->embeddedScriptContainer->isContactCallbackFunctionAvailable() ) // the engine flag 1024 means: the calling thread is not the simulation thread. We would have problems with the scripts
     {
-        CInterfaceStack inStack;
-        inStack.pushTableOntoStack();
-        inStack.pushStringOntoStack("handle1",0);
-        inStack.pushNumberOntoStack(double(objHandle1));
-        inStack.insertDataIntoStackTable();
-        inStack.pushStringOntoStack("handle2",0);
-        inStack.pushNumberOntoStack(double(objHandle2));
-        inStack.insertDataIntoStackTable();
-        inStack.pushStringOntoStack("engine",0);
-        inStack.pushNumberOntoStack(double(engine));
-        inStack.insertDataIntoStackTable();
-        CInterfaceStack outStack;
+        CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
+        inStack->pushTableOntoStack();
+        inStack->pushStringOntoStack("handle1",0);
+        inStack->pushNumberOntoStack(double(objHandle1));
+        inStack->insertDataIntoStackTable();
+        inStack->pushStringOntoStack("handle2",0);
+        inStack->pushNumberOntoStack(double(objHandle2));
+        inStack->insertDataIntoStackTable();
+        inStack->pushStringOntoStack("engine",0);
+        inStack->pushNumberOntoStack(double(engine));
+        inStack->insertDataIntoStackTable();
+        //xyza;
+        CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
+        //xyza;
         int retInfo=0;
-        App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,sim_syscb_contactcallback,&inStack,&outStack,&retInfo);
+        App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,sim_syscb_contactcallback,inStack,outStack,&retInfo);
         if (retInfo>0)
-            App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_contactcallback,&inStack,&outStack,&retInfo);
+            App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_contactcallback,inStack,outStack,&retInfo);
+        App::worldContainer->interfaceStackContainer->destroyStack(inStack);
 
         bool ignoreContact;
-        if (outStack.getStackMapBoolValue("ignoreContact",ignoreContact))
+        if (outStack->getStackMapBoolValue("ignoreContact",ignoreContact))
         {
             dataInt[0]=0;
             if (!ignoreContact)
             {
                 bool collisionResponse=false;
-                outStack.getStackMapBoolValue("collisionResponse",collisionResponse);
+                outStack->getStackMapBoolValue("collisionResponse",collisionResponse);
                 if (collisionResponse)
                 {
                     if (engine==sim_physics_ode)
                     {
-                        outStack.getStackMapIntValue("ode.maxContacts",dataInt[1]);
-                        outStack.getStackMapIntValue("ode.contactMode",dataInt[2]);
+                        outStack->getStackMapIntValue("ode.maxContacts",dataInt[1]);
+                        outStack->getStackMapIntValue("ode.contactMode",dataInt[2]);
                     }
                     if (engine==sim_physics_bullet)
                     {
-                        outStack.getStackMapFloatValue("bullet.friction",dataFloat[0]);
-                        outStack.getStackMapFloatValue("bullet.restitution",dataFloat[1]);
+                        outStack->getStackMapFloatValue("bullet.friction",dataFloat[0]);
+                        outStack->getStackMapFloatValue("bullet.restitution",dataFloat[1]);
                     }
                     if (engine==sim_physics_ode)
                     {
-                        outStack.getStackMapFloatValue("ode.mu",dataFloat[0]);
-                        outStack.getStackMapFloatValue("ode.mu2",dataFloat[1]);
-                        outStack.getStackMapFloatValue("ode.bounce",dataFloat[2]);
-                        outStack.getStackMapFloatValue("ode.bounceVel",dataFloat[3]);
-                        outStack.getStackMapFloatValue("ode.softCfm",dataFloat[4]);
-                        outStack.getStackMapFloatValue("ode.softErp",dataFloat[5]);
-                        outStack.getStackMapFloatValue("ode.motion1",dataFloat[6]);
-                        outStack.getStackMapFloatValue("ode.motion2",dataFloat[7]);
-                        outStack.getStackMapFloatValue("ode.motionN",dataFloat[8]);
-                        outStack.getStackMapFloatValue("ode.slip1",dataFloat[9]);
-                        outStack.getStackMapFloatValue("ode.slip2",dataFloat[10]);
-                        outStack.getStackMapFloatArray("ode.fDir1",dataFloat+11,3);
+                        outStack->getStackMapFloatValue("ode.mu",dataFloat[0]);
+                        outStack->getStackMapFloatValue("ode.mu2",dataFloat[1]);
+                        outStack->getStackMapFloatValue("ode.bounce",dataFloat[2]);
+                        outStack->getStackMapFloatValue("ode.bounceVel",dataFloat[3]);
+                        outStack->getStackMapFloatValue("ode.softCfm",dataFloat[4]);
+                        outStack->getStackMapFloatValue("ode.softErp",dataFloat[5]);
+                        outStack->getStackMapFloatValue("ode.motion1",dataFloat[6]);
+                        outStack->getStackMapFloatValue("ode.motion2",dataFloat[7]);
+                        outStack->getStackMapFloatValue("ode.motionN",dataFloat[8]);
+                        outStack->getStackMapFloatValue("ode.slip1",dataFloat[9]);
+                        outStack->getStackMapFloatValue("ode.slip2",dataFloat[10]);
+                        outStack->getStackMapFloatArray("ode.fDir1",dataFloat+11,3);
                     }
                     if (engine==sim_physics_vortex)
                     {
-                        //outStack.getStackMapFloatValue("vortex.xxxx",dataFloat[0]);
+                        //outStack->getStackMapFloatValue("vortex.xxxx",dataFloat[0]);
                     }
                     if (engine==sim_physics_newton)
                     {
-                        outStack.getStackMapFloatValue("newton.staticFriction",dataFloat[0]);
-                        outStack.getStackMapFloatValue("newton.kineticFriction",dataFloat[1]);
-                        outStack.getStackMapFloatValue("newton.restitution",dataFloat[2]);
+                        outStack->getStackMapFloatValue("newton.staticFriction",dataFloat[0]);
+                        outStack->getStackMapFloatValue("newton.kineticFriction",dataFloat[1]);
+                        outStack->getStackMapFloatValue("newton.restitution",dataFloat[2]);
                     }
+                    App::worldContainer->interfaceStackContainer->destroyStack(outStack);
                     return(1); // collision
                 }
                 else
+                {
+                    App::worldContainer->interfaceStackContainer->destroyStack(outStack);
                     return(0); // no collision
+                }
             }
         }
+        App::worldContainer->interfaceStackContainer->destroyStack(outStack);
     }
 
     // 2. We check if a plugin wants to handle the contact:
@@ -17522,28 +17521,30 @@ simVoid _simDynCallback_internal(const simInt* intData,const simFloat* floatData
 {
     TRACE_C_API;
 
-    CInterfaceStack inStack;
     if (App::currentWorld->embeddedScriptContainer->isDynCallbackFunctionAvailable())
     { // to make it a bit faster than blindly parsing the whole object hierarchy
-        inStack.pushTableOntoStack();
-        inStack.pushStringOntoStack("passCnt",0);
-        inStack.pushNumberOntoStack(double(intData[1]));
-        inStack.insertDataIntoStackTable();
+        CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
+        inStack->pushTableOntoStack();
+        inStack->pushStringOntoStack("passCnt",0);
+        inStack->pushNumberOntoStack(double(intData[1]));
+        inStack->insertDataIntoStackTable();
 
-        inStack.pushStringOntoStack("totalPasses",0);
-        inStack.pushNumberOntoStack(double(intData[2]));
-        inStack.insertDataIntoStackTable();
+        inStack->pushStringOntoStack("totalPasses",0);
+        inStack->pushNumberOntoStack(double(intData[2]));
+        inStack->insertDataIntoStackTable();
 
-        inStack.pushStringOntoStack("dynStepSize",0);
-        inStack.pushNumberOntoStack(double(floatData[0]));
-        inStack.insertDataIntoStackTable();
+        inStack->pushStringOntoStack("dynStepSize",0);
+        inStack->pushNumberOntoStack(double(floatData[0]));
+        inStack->insertDataIntoStackTable();
 
-        inStack.pushStringOntoStack("afterStep",0);
-        inStack.pushBoolOntoStack(intData[3]!=0);
-        inStack.insertDataIntoStackTable();
+        inStack->pushStringOntoStack("afterStep",0);
+        inStack->pushBoolOntoStack(intData[3]!=0);
+        inStack->insertDataIntoStackTable();
+        //xyza;
 
-        App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,sim_syscb_dyncallback,&inStack,nullptr,nullptr);
-        App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_dyncallback,&inStack,nullptr,nullptr);
+        App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,sim_syscb_dyncallback,inStack,nullptr,nullptr);
+        App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_dyncallback,inStack,nullptr,nullptr);
+        App::worldContainer->interfaceStackContainer->destroyStack(inStack);
     }
 }
 

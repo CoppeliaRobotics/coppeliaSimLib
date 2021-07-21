@@ -9,11 +9,11 @@
 class CInterfaceStack
 {
 public:
-    CInterfaceStack();
+    CInterfaceStack(int a,int b,const char* c);
     virtual ~CInterfaceStack();
 
     void setId(int id);
-    int getId();
+    int getId() const;
     void clear();
 
     // C interface (creation):

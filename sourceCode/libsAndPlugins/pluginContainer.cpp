@@ -36,6 +36,8 @@ CPlugin::~CPlugin()
         CPluginContainer::currentIkPlugin=nullptr;
         CPluginContainer::ikEnvironment=-1;
     }
+    if (pythonPlugin_initState!=nullptr)
+        CPluginContainer::currentPythonPlugin=nullptr;
     if (_codeEditor_openModal!=nullptr)
         CPluginContainer::currentCodeEditor=nullptr;
     if (_customUi_msgBox!=nullptr)
@@ -303,7 +305,16 @@ int CPlugin::load()
                     CPluginContainer::ikEnvironment=CPluginContainer::currentIkPlugin->ikPlugin_createEnv();
                 }
 
+                // For the python plugin:
+                pythonPlugin_initState=(ptrPythonPlugin_initState)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_initState"));
+                pythonPlugin_cleanupState=(ptrPythonPlugin_cleanupState)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_cleanupState"));
+                pythonPlugin_loadCode=(ptrPythonPlugin_loadCode)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_loadCode"));
+                pythonPlugin_callFunc=(ptrPythonPlugin_callFunc)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_callFunc"));
+                pythonPlugin_execStr=(ptrPythonPlugin_execStr)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_execStr"));
+                if (pythonPlugin_initState!=nullptr)
+                    CPluginContainer::currentPythonPlugin=this;
 
+                // For the code editor:
                 _codeEditor_openModal=(ptrCodeEditor_openModal)(VVarious::resolveLibraryFuncName(lib,"codeEditor_openModal"));
                 _codeEditor_open=(ptrCodeEditor_open)(VVarious::resolveLibraryFuncName(lib,"codeEditor_open"));
                 _codeEditor_setText=(ptrCodeEditor_setText)(VVarious::resolveLibraryFuncName(lib,"codeEditor_setText"));
@@ -376,6 +387,7 @@ CPlugin* CPluginContainer::currentDynEngine=nullptr;
 CPlugin* CPluginContainer::currentGeomPlugin=nullptr;
 CPlugin* CPluginContainer::currentIkPlugin=nullptr;
 CPlugin* CPluginContainer::currentCodeEditor=nullptr;
+CPlugin* CPluginContainer::currentPythonPlugin=nullptr;
 CPlugin* CPluginContainer::currentCustomUi=nullptr;
 CPlugin* CPluginContainer::currentAssimp=nullptr;
 
@@ -2647,6 +2659,54 @@ int CPluginContainer::codeEditor_close(int handle,int* positionAndSize)
     int retVal=-1;
     if (currentCodeEditor!=nullptr)
         retVal=currentCodeEditor->_codeEditor_close(handle,positionAndSize);
+    return(retVal);
+}
+
+void* CPluginContainer::pythonPlugin_initState()
+{
+    void* retVal=nullptr;
+    if (currentPythonPlugin!=nullptr)
+        retVal=currentPythonPlugin->pythonPlugin_initState();
+    return(retVal);
+}
+
+void CPluginContainer::pythonPlugin_cleanupState(void* state)
+{
+    if (currentPythonPlugin!=nullptr)
+        currentPythonPlugin->pythonPlugin_cleanupState(state);
+}
+
+int CPluginContainer::pythonPlugin_loadCode(void* state,const char* code,const char* scriptName,const char* functionsToFind,bool* functionsFound,std::string* errorMsg)
+{
+    int retVal=-2;
+    if (currentPythonPlugin!=nullptr)
+    {
+        char* err=currentPythonPlugin->pythonPlugin_loadCode(state,code,scriptName,functionsToFind,functionsFound,&retVal);
+        if (errorMsg!=nullptr)
+            errorMsg[0]=err;
+        delete[] err;
+    }
+    return(retVal);
+}
+
+int CPluginContainer::pythonPlugin_callFunc(void* state,const char* funcName,int inStackHandle,int outStackHandle,std::string* errorMsg)
+{
+    int retVal=-2;
+    if (currentPythonPlugin!=nullptr)
+    {
+        char* err=currentPythonPlugin->pythonPlugin_callFunc(state,funcName,inStackHandle,outStackHandle,&retVal);
+        if (errorMsg!=nullptr)
+            errorMsg[0]=err;
+        delete[] err;
+    }
+    return(retVal);
+}
+
+int CPluginContainer::pythonPlugin_execStr(void* state,const char* str,int outStackHandle)
+{
+    int retVal=-2;
+    if (currentPythonPlugin!=nullptr)
+        retVal=currentPythonPlugin->pythonPlugin_execStr(state,str,outStackHandle);
     return(retVal);
 }
 

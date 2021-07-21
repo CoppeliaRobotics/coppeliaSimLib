@@ -628,8 +628,13 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
     appendSimulationThreadCommand(cmd,3000);
 #endif
 
-    if (CSimFlavor::getBoolVal(18))
-        postExitRequest();
+    std::string msg=CSimFlavor::getStringVal(18);
+    if (msg.size()>0)
+    {
+        cmd.cmdId=EDU_EXPIRED_CMD;
+        cmd.stringParams.push_back(msg);
+        appendSimulationThreadCommand(cmd,3000);
+    }
 
     // The UI thread sits here during the whole application:
     _processGuiEventsUntilQuit();

@@ -1607,18 +1607,20 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
 
     if (!isScene)
     {
-        CInterfaceStack stack;
-        stack.pushTableOntoStack();
-        stack.pushStringOntoStack("objectHandles",0);
-        stack.pushTableOntoStack();
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+        stack->pushTableOntoStack();
+        stack->pushStringOntoStack("objectHandles",0);
+        stack->pushTableOntoStack();
         for (size_t i=0;i<loadedObjectList.size();i++)
         {
-            stack.pushNumberOntoStack(double(i+1)); // key or index
-            stack.pushNumberOntoStack(loadedObjectList[i]->getObjectHandle());
-            stack.insertDataIntoStackTable();
+            stack->pushNumberOntoStack(double(i+1)); // key or index
+            stack->pushNumberOntoStack(loadedObjectList[i]->getObjectHandle());
+            stack->insertDataIntoStackTable();
         }
-        stack.insertDataIntoStackTable();
-        App::worldContainer->callScripts(sim_syscb_aftercreate,&stack);
+        stack->insertDataIntoStackTable();
+        //xyza;
+        App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
+        App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
 
     // Following for backward compatibility for vision sensor filters:

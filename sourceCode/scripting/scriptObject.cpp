@@ -1,5 +1,4 @@
 #include "scriptObject.h"
-#include "threadPool_old.h"
 #include "tt.h"
 #include "ttUtil.h"
 #include "vDateTime.h"
@@ -15,6 +14,9 @@
 
 #include "luaScriptFunctions.h"
 #include "luaWrapper.h"
+
+// Old:
+#include "threadPool_old.h"
 
 int CScriptObject::_scriptUniqueCounter=-1;
 int CScriptObject::_nextIdForExternalScriptEditor=-1;
@@ -370,13 +372,6 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
             r+="(inData)\nCalled just after objects were created.";
         return(r);
     }
-    if (calltype==sim_syscb_aos_run_old)
-    {
-        std::string r("sysCall_addOnScriptRun");
-        if (callTips)
-            r+="()\nCalled when the add-on script is running.";
-        return(r);
-    }
     if (calltype==sim_syscb_aos_suspend)
     {
         std::string r("sysCall_addOnScriptSuspend");
@@ -442,6 +437,16 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
             r+="()\nCan be called by a customized main script.";
         return(r);
     }
+
+    // Old:
+    // ------------------------------
+    if (calltype==sim_syscb_aos_run_old)
+    {
+        std::string r("sysCall_addOnScriptRun");
+        if (callTips)
+            r+="()\nDEPRECATED.";
+        return(r);
+    }
     if (calltype==sim_syscb_threadmain)
     {
         std::string r("sysCall_threadmain");
@@ -449,6 +454,8 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
             r+="()\nDEPRECATED. Use coroutines instead.";
         return(r);
     }
+    // ------------------------------
+
     return("");
 }
 
@@ -1440,14 +1447,16 @@ bool CScriptObject::shouldTemporarilySuspendMainScript()
     bool retVal=false;
     if (_scriptType==sim_scripttype_sandboxscript)
         _scriptState&=7; // remove a possible error flag
-    CInterfaceStack outStack;
-    _callSystemScriptFunction(sim_syscb_beforemainscript,nullptr,&outStack);
+    CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
+    //xyza;
+    _callSystemScriptFunction(sim_syscb_beforemainscript,nullptr,outStack);
     bool doNotRunMainScript;
-    if (outStack.getStackMapBoolValue("doNotRunMainScript",doNotRunMainScript))
+    if (outStack->getStackMapBoolValue("doNotRunMainScript",doNotRunMainScript))
     {
         if (doNotRunMainScript)
             retVal=true;
     }
+    App::worldContainer->interfaceStackContainer->destroyStack(outStack);
     return(retVal);
 }
 
@@ -1455,11 +1464,13 @@ bool CScriptObject::isAutoStartAddOn()
 {
     if (_autoStartAddOn==-1)
     {
-        CInterfaceStack outStack;
-        systemCallScript(sim_syscb_info,nullptr,&outStack);
+        CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
+        //xyza;
+        systemCallScript(sim_syscb_info,nullptr,outStack);
         resetScript();
         bool autoStart=true;
-        outStack.getStackMapBoolValue("autoStart",autoStart);
+        outStack->getStackMapBoolValue("autoStart",autoStart);
+        App::worldContainer->interfaceStackContainer->destroyStack(outStack);
         if (autoStart)
             _autoStartAddOn=1;
         else
@@ -1551,6 +1562,8 @@ int CScriptObject::___loadCode(const char* code,const char* scriptName,const cha
         }
         luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
     }
+    if (_lang==lang_python)
+        retVal=CPluginContainer::pythonPlugin_loadCode(_interpreterState,code,scriptName,functionsToFind,functionsFound,errorMsg);
     return(retVal);
 }
 
@@ -1661,9 +1674,10 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
     else
         changeOverallYieldingForbidLevel(1,false);
 
-    CInterfaceStack _outStack;
+    CInterfaceStack* _outStack=App::worldContainer->interfaceStackContainer->createStack();
+    //xyza;
     if (outStack==nullptr)
-        outStack=&_outStack;
+        outStack=_outStack;
 
     // ---------------------------------
     std::string errMsg;
@@ -1727,6 +1741,7 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
             }
         }
     }
+    App::worldContainer->interfaceStackContainer->destroyStack(_outStack);
     return(retVal);
 }
 
@@ -1819,7 +1834,13 @@ int CScriptObject::_callScriptFunction(const char* functionName,const CInterface
 
     if (_lang==lang_python)
     {
-
+        int inStackHandle=-1;
+        if (inStack!=nullptr)
+            inStackHandle=inStack->getId();
+        int outStackHandle=-1;
+        if (outStack!=nullptr)
+            outStackHandle=outStack->getId();
+        retVal=CPluginContainer::pythonPlugin_callFunc(_interpreterState,functionName,inStackHandle,outStackHandle,errorMsg);
     }
 
     return(retVal);
@@ -1831,14 +1852,15 @@ int CScriptObject::callCustomScriptFunction(const char* functionName,CInterfaceS
     if (_scriptState==scriptState_initialized)
     {
         changeOverallYieldingForbidLevel(1,false); // never yield from such a call
-        CInterfaceStack outStack;
+        CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
+        //xyza;
 
         // -------------------------------------
         std::string errMsg;
         if (_executionDepth==0)
             _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
         _executionDepth++;
-        retVal=_callScriptFunction(functionName,inOutStack,&outStack,&errMsg);
+        retVal=_callScriptFunction(functionName,inOutStack,outStack,&errMsg);
         _executionDepth--;
         if (_executionDepth==0)
             _timeOfScriptExecutionStart=-1;
@@ -1866,8 +1888,9 @@ int CScriptObject::callCustomScriptFunction(const char* functionName,CInterfaceS
         else
         {
             if (inOutStack!=nullptr)
-                inOutStack->copyFrom(&outStack);
+                inOutStack->copyFrom(outStack);
         }
+        App::worldContainer->interfaceStackContainer->destroyStack(outStack);
         changeOverallYieldingForbidLevel(-1,false);
     }
     return(retVal);
@@ -1953,6 +1976,10 @@ bool CScriptObject::_execScriptString(const char* scriptString,CInterfaceStack* 
 
     if (_lang==lang_python)
     {
+        int stackHandle=-1;
+        if (outStack!=nullptr)
+            stackHandle=outStack->getId();
+        retVal=CPluginContainer::pythonPlugin_execStr(_interpreterState,scriptString,stackHandle)>0;
     }
 
     return(retVal);
@@ -2006,8 +2033,7 @@ bool CScriptObject::_killInterpreterState()
         if (_lang==lang_lua)
             luaWrap_lua_close((luaWrap_lua_State*)_interpreterState);
         if (_lang==lang_python)
-        {
-        }
+            CPluginContainer::pythonPlugin_cleanupState(_interpreterState);
         _interpreterState=nullptr;
     }
 
@@ -2224,13 +2250,9 @@ int CScriptObject::_checkLanguage()
     return(retVal);
 }
 
-void CScriptObject::_initInterpreterState()
+bool CScriptObject::_initInterpreterState()
 {
-    if (_lang==lang_undefined)
-        _lang=_checkLanguage();
-    if (_lang==lang_python)
-    {
-    }
+    _lang=_checkLanguage();
     if (_lang==lang_lua)
     {
         luaWrap_lua_State* L=luaWrap_luaL_newstate();
@@ -2281,6 +2303,13 @@ void CScriptObject::_initInterpreterState()
         int hookMask=luaWrapGet_LUA_MASKCOUNT();
         luaWrap_lua_sethook(L,_hookFunction_lua,hookMask,100); // This instruction gets also called in luaHookFunction!!!!
     }
+    if (_lang==lang_python)
+        _interpreterState=CPluginContainer::pythonPlugin_initState();
+
+    if (_interpreterState==nullptr)
+        _announceErrorWasRaisedAndPossiblyPauseSimulation("Interpreter could not be initialized",false);
+
+    return(_interpreterState!=nullptr);
 }
 
 void CScriptObject::_hookFunction_lua(void* LL,void* arr)
