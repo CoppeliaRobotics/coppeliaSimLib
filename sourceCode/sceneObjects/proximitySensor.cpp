@@ -915,7 +915,6 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
         if ( (script!=nullptr)||(cScript!=nullptr) )
         {
             CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
-            //xyza;
             inStack->pushTableOntoStack();
 
             inStack->pushStringOntoStack("handle",0);
@@ -953,9 +952,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
             inStack->insertDataIntoStackTable();
 
             CInterfaceStack* outStack1=App::worldContainer->interfaceStackContainer->createStack();
-            //xyza;
             CInterfaceStack* outStack2=App::worldContainer->interfaceStackContainer->createStack();
-            //xyza;
             CInterfaceStack* outSt1=outStack1;
             CInterfaceStack* outSt2=outStack2;
             if (VThread::isCurrentThreadTheMainSimulationThread())

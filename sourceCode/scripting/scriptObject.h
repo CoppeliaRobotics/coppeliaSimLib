@@ -145,13 +145,14 @@ public:
 
     void printInterpreterStack() const;
 
+    int registerFunctionHook(const char* sysFunc,const char* userFunc,bool before);
+
     static void getMatchingFunctions(const char* txt,std::vector<std::string>& v);
     static void getMatchingConstants(const char* txt,std::vector<std::string>& v);
     static std::string getFunctionCalltip(const char* txt);
     static int isFunctionOrConstDeprecated(const char* txt);
     static bool canCallSystemCallback(int scriptType,bool threadedOld,int callType);
     static std::string getSystemCallbackString(int calltype,bool callTips);
-    static std::string getSystemCallbackExString(int calltype);
     static std::vector<std::string> getAllSystemCallbackStrings(int scriptType,bool callTips,bool threadedOld);
 
     // Lua specific:
@@ -205,13 +206,13 @@ protected:
     int _checkLanguage();
     bool _initInterpreterState();
     bool _killInterpreterState();
-    void _announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg,bool runtimeError,bool debugRoutine=false);
+    void _announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg,bool runtimeError);
     bool _loadCode();
     int ___loadCode(const char* code,const char* scriptName,const char* functionsToFind,bool* functionsFound,std::string* errorMsg);
     int _callSystemScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int _callScriptFunction(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg);
+    int _callScriptFunc(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg);
     bool _execScriptString(const char* scriptString,CInterfaceStack* outStack);
-    void _handleSimpleSysExCalls(int callType);
 
 
     int _scriptHandle;
@@ -262,6 +263,8 @@ protected:
     int _previousEditionWindowPosAndSize[4];
 
     std::string _filenameForExternalScriptEditor;
+    std::vector<std::string> _functionHooks_before;
+    std::vector<std::string> _functionHooks_after;
 
 
     static int _nextIdForExternalScriptEditor;
@@ -269,6 +272,7 @@ protected:
 
     // Lua specific:
     // -----------------------------
+    void _execSimpleString_safe_lua(void* LL,const char* string);
     int _loadBufferResult_lua;
     bool _loadBuffer_lua(const char* buff,size_t sz,const char* name);
     void _registerNewVariables_lua();
@@ -285,6 +289,7 @@ protected:
 
     // Old:
     // *****************************************
+    void _handleCallbackEx_old(int calltype);
     int _getScriptNameIndexNumber_old() const;
     bool _callScriptChunk_old(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     bool _checkIfMixingOldAndNewCallMethods_old();

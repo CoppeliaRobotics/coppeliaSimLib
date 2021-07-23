@@ -194,7 +194,6 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         stack->pushNumberOntoStack(newObject->getObjectHandle());
         stack->insertDataIntoStackTable();
         stack->insertDataIntoStackTable();
-        //xyza;
         App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
@@ -223,7 +222,6 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
         stack->pushStringOntoStack("allObjects",0);
         stack->pushBoolOntoStack(getObjectCount()==1);
         stack->insertDataIntoStackTable();
-        //xyza;
         App::worldContainer->callScripts(sim_syscb_beforedelete,stack);
     }
 
@@ -247,7 +245,6 @@ void CSceneObjectContainer::eraseSeveralObjects(const std::vector<int>& objectHa
     if (objectHandles.size()>0)
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-        //xyza;
         if (generateBeforeAfterDeleteCallback)
         {
             stack->pushTableOntoStack();

@@ -1618,7 +1618,6 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
             stack->insertDataIntoStackTable();
         }
         stack->insertDataIntoStackTable();
-        //xyza;
         App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }

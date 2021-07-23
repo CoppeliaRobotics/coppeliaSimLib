@@ -149,6 +149,7 @@ SIM_DLLEXPORT simChar* simGetDialogInput(simInt genericDialogHandle);
 SIM_DLLEXPORT simInt simEndDialog(simInt genericDialogHandle);
 SIM_DLLEXPORT simInt simRegisterScriptCallbackFunction(const simChar* funcNameAtPluginName,const simChar* callTips,simVoid(*callBack)(struct SScriptCallBack* cb));
 SIM_DLLEXPORT simInt simRegisterScriptVariable(const simChar* varNameAtPluginName,const simChar* varValue,simInt stackHandle);
+SIM_DLLEXPORT simInt simRegisterScriptFuncHook(simInt scriptHandle,const simChar* systemFunction,const simChar* userFunction,simBool executeBefore,simInt options);
 SIM_DLLEXPORT simInt simSetJointTargetVelocity(simInt objectHandle,simFloat targetVelocity);
 SIM_DLLEXPORT simInt simGetJointTargetVelocity(simInt objectHandle,simFloat* targetVelocity);
 SIM_DLLEXPORT simInt simCopyPasteObjects(simInt* objectHandles,simInt objectCount,simInt options);

@@ -307,7 +307,6 @@ void CForceSensor::_handleSensorBreaking()
             if ( (script!=nullptr)||(cScript!=nullptr) )
             {
                 CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
-                //xyza;
                 inStack->pushTableOntoStack();
 
                 inStack->pushStringOntoStack("handle",0);

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>422</height>
+    <height>391</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>360</y>
+     <y>330</y>
      <width>411</width>
      <height>51</height>
     </rect>
@@ -66,7 +66,7 @@
      <x>10</x>
      <y>10</y>
      <width>411</width>
-     <height>341</height>
+     <height>311</height>
     </rect>
    </property>
    <property name="title">
@@ -568,7 +568,7 @@
       <x>10</x>
       <y>110</y>
       <width>391</width>
-      <height>111</height>
+      <height>91</height>
      </rect>
     </property>
     <property name="title">
@@ -591,22 +591,6 @@
      </property>
      <property name="text">
       <string>Backface culling</string>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="qqWireframe">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>85</y>
-       <width>151</width>
-       <height>18</height>
-      </rect>
-     </property>
-     <property name="focusPolicy">
-      <enum>Qt::StrongFocus</enum>
-     </property>
-     <property name="text">
-      <string>Wireframe</string>
      </property>
     </widget>
     <widget class="QCheckBox" name="qqShowEdges">
@@ -695,7 +679,7 @@
     <property name="geometry">
      <rect>
       <x>240</x>
-      <y>230</y>
+      <y>210</y>
       <width>161</width>
       <height>18</height>
      </rect>
@@ -1153,7 +1137,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>260</y>
+      <y>230</y>
       <width>391</width>
       <height>71</height>
      </rect>
@@ -1228,6 +1212,22 @@
       <string>Clear textures (selection)</string>
      </property>
     </widget>
+   </widget>
+   <widget class="QCheckBox" name="qqWireframe">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>210</y>
+      <width>151</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Wireframe</string>
+    </property>
    </widget>
   </widget>
   <widget class="QToolButton" name="qqEditMultishape">

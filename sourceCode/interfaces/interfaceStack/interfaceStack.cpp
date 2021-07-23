@@ -9,7 +9,7 @@
 #include <algorithm>
 
 CInterfaceStack::CInterfaceStack(int a,int b,const char* c)
-{
+{ // args just to avoid direct object creation
     _interfaceStackId=-1;
 }
 

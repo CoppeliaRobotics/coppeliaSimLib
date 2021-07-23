@@ -146,6 +146,7 @@ simChar* simGetDialogInput_internal(simInt genericDialogHandle);
 simInt simEndDialog_internal(simInt genericDialogHandle);
 simInt simRegisterScriptCallbackFunction_internal(const simChar* funcNameAtPluginName,const simChar* callTips,simVoid(*callBack)(struct SScriptCallBack* cb));
 simInt simRegisterScriptVariable_internal(const simChar* varNameAtPluginName,const simChar* varValue,simInt stackHandle);
+simInt simRegisterScriptFuncHook_internal(simInt scriptHandle,const simChar* systemFunction,const simChar* userFunction,simBool executeBefore,simInt options);
 simInt simSetJointTargetVelocity_internal(simInt objectHandle,simFloat targetVelocity);
 simInt simGetJointTargetVelocity_internal(simInt objectHandle,simFloat* targetVelocity);
 simInt simCopyPasteObjects_internal(simInt* objectHandles,simInt objectCount,simInt options);

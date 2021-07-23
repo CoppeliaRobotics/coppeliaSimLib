@@ -85,10 +85,6 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
     {
         _scriptHandle=SIM_IDSTART_SANDBOXSCRIPT;
         _initInterpreterState();
-        _calledInThisSimulationStep=false;
-        _randGen.seed(123456);
-        _delayForAutoYielding=2;
-        _forbidAutoYieldingLevel=0;
 
         // Old:
         _raiseErrors_backCompatibility=true;
@@ -456,21 +452,6 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
     }
     // ------------------------------
 
-    return("");
-}
-
-std::string CScriptObject::getSystemCallbackExString(int calltype)
-{
-    if (calltype==sim_syscb_cleanup)
-        return("sysCallEx_cleanup");
-    if (calltype==sim_syscb_beforeinstanceswitch)
-        return("sysCallEx_beforeInstanceSwitch");
-    if (calltype==sim_syscb_afterinstanceswitch)
-        return("sysCallEx_afterInstanceSwitch");
-    if (calltype==sim_syscb_aos_suspend)
-        return("sysCallEx_addOnScriptSuspend");
-    if (calltype==sim_syscb_aos_resume)
-        return("sysCallEx_addOnScriptResume");
     return("");
 }
 
@@ -1448,7 +1429,6 @@ bool CScriptObject::shouldTemporarilySuspendMainScript()
     if (_scriptType==sim_scripttype_sandboxscript)
         _scriptState&=7; // remove a possible error flag
     CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
-    //xyza;
     _callSystemScriptFunction(sim_syscb_beforemainscript,nullptr,outStack);
     bool doNotRunMainScript;
     if (outStack->getStackMapBoolValue("doNotRunMainScript",doNotRunMainScript))
@@ -1465,7 +1445,6 @@ bool CScriptObject::isAutoStartAddOn()
     if (_autoStartAddOn==-1)
     {
         CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
-        //xyza;
         systemCallScript(sim_syscb_info,nullptr,outStack);
         resetScript();
         bool autoStart=true;
@@ -1477,19 +1456,6 @@ bool CScriptObject::isAutoStartAddOn()
             _autoStartAddOn=0;
     }
     return(_autoStartAddOn==1);
-}
-
-void CScriptObject::_handleSimpleSysExCalls(int callType)
-{
-    std::string cbEx(getSystemCallbackExString(callType));
-    if (cbEx.size()>0)
-    {
-        if (_lang==lang_lua)
-        {
-            std::string tmp("if "+cbEx+" then "+cbEx+"() end");
-            luaWrap_luaL_dostring((luaWrap_lua_State*)_interpreterState,tmp.c_str());
-        }
-    }
 }
 
 int CScriptObject::___loadCode(const char* code,const char* scriptName,const char* functionsToFind,bool* functionsFound,std::string* errorMsg)
@@ -1510,7 +1476,7 @@ int CScriptObject::___loadCode(const char* code,const char* scriptName,const cha
         int oldTop=luaWrap_lua_gettop(L);
         std::string tmp("sim_call_type="); // for backward compatibility
         tmp+=std::to_string(sim_syscb_init);
-        luaWrap_luaL_dostring(L,tmp.c_str());
+        _execSimpleString_safe_lua(L,tmp.c_str());
         if (_loadBuffer_lua(code,strlen(code),scriptName))
         {
             if (_executionDepth==0)
@@ -1526,7 +1492,7 @@ int CScriptObject::___loadCode(const char* code,const char* scriptName,const cha
                 _compatibilityMode_oldLua=!(luaWrap_lua_isfunction(L,-1));
                 luaWrap_lua_pop(L,1);
                 if (!_compatibilityMode_oldLua)
-                    luaWrap_luaL_dostring(L,"sim_call_type=nil");
+                    _execSimpleString_safe_lua(L,"sim_call_type=nil");
                 size_t off=0;
                 size_t l=strlen(functionsToFind+off);
                 size_t cnt=0;
@@ -1574,12 +1540,6 @@ bool CScriptObject::_loadCode()
         fromFileToBuffer();
         _scriptTextExec.assign(_scriptText.begin(),_scriptText.end());
         _initInterpreterState();
-        _calledInThisSimulationStep=false;
-        _randGen.seed(123456);
-        _delayForAutoYielding=2;
-        _forbidAutoYieldingLevel=0;
-        _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
-        _forbidOverallYieldingLevel=0;
 
         std::string functions;
         bool functionsPresent[6];
@@ -1602,7 +1562,10 @@ bool CScriptObject::_loadCode()
             else
             { // success
                 if (_compatibilityMode_oldLua)
+                {
+                    _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState,"_S.sysCallEx_init()");
                     _scriptState=scriptState_initialized;
+                }
                 else
                 {
                     _scriptState=scriptState_uninitialized;
@@ -1675,7 +1638,6 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
         changeOverallYieldingForbidLevel(1,false);
 
     CInterfaceStack* _outStack=App::worldContainer->interfaceStackContainer->createStack();
-    //xyza;
     if (outStack==nullptr)
         outStack=_outStack;
 
@@ -1699,8 +1661,6 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
         _calledInThisSimulationStep=true;
     }
     // ---------------------------------
-
-    _handleSimpleSysExCalls(callType);
 
     if (_executionDepth!=0)
         changeOverallYieldingForbidLevel(-1,false);
@@ -1746,6 +1706,30 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
 }
 
 int CScriptObject::_callScriptFunction(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg)
+{ // retVal: -1=error during execution, 0=func does not exist, 1=execution ok
+    // This will also execute function hooks
+    int retVal=0;
+    for (size_t i=0;i<_functionHooks_before.size()/2;i++)
+    {
+        if ( (retVal>=0)&&(_functionHooks_before[2*i+0].compare(functionName)==0) )
+            retVal=_callScriptFunc(_functionHooks_before[2*i+1].c_str(),inStack,nullptr,errorMsg);
+    }
+    if (retVal>=0)
+    {
+        retVal=_callScriptFunc(functionName,inStack,outStack,errorMsg);
+        int r=retVal;
+        for (size_t i=0;i<_functionHooks_after.size()/2;i++)
+        {
+            if ( (r>=0)&&(_functionHooks_after[2*i+0].compare(functionName)==0) )
+                r=_callScriptFunc(_functionHooks_after[2*i+1].c_str(),inStack,nullptr,errorMsg);
+        }
+        if (r<0)
+            retVal=r;
+    }
+    return(retVal);
+}
+
+int CScriptObject::_callScriptFunc(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg)
 { // retVal: -1=error during execution, 0=func does not exist, 1=execution ok
     int retVal=0;
     std::string func(functionName);
@@ -1853,8 +1837,6 @@ int CScriptObject::callCustomScriptFunction(const char* functionName,CInterfaceS
     {
         changeOverallYieldingForbidLevel(1,false); // never yield from such a call
         CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
-        //xyza;
-
         // -------------------------------------
         std::string errMsg;
         if (_executionDepth==0)
@@ -2048,6 +2030,8 @@ bool CScriptObject::_killInterpreterState()
     _containsTriggerCallbackFunction=false;
     _containsUserConfigCallbackFunction=false;
     _flaggedForDestruction=false;
+    _functionHooks_before.clear();
+    _functionHooks_after.clear();
 
     _loadBufferResult_lua=-1;
     _compatibilityMode_oldLua=false;
@@ -2122,25 +2106,16 @@ void CScriptObject::terminateScriptExecutionExternally(bool generateErrorMsg)
     }
 }
 
-void CScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg,bool runtimeError,bool debugRoutine/*=false*/)
+void CScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg,bool runtimeError)
 { // errMsg is in the form: xxxx:lineNb: msg
     std::string errM(errMsg);
     if ( (errM.find("attempt to yield across metamethod/C-call boundary")==std::string::npos)&&(errM.find("attempt to yield from outside a coroutine")==std::string::npos) )
     { // silent error when breaking out of a threaded child script at simulation end
         if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
             App::currentWorld->simulation->pauseOnErrorRequested();
-
         std::string name(getShortDescriptiveName());
         std::string msg(errM);
-        if (debugRoutine)
-        {
-            size_t p=msg.find(": ");
-            if (p!=std::string::npos)
-                msg.insert(p+2,"[in debug routine] ");
-        }
-
         App::logScriptMsg(name.c_str(),sim_verbosity_scripterrors,msg.c_str());
-
         _lastStackTraceback=errM;
     }
 }
@@ -2253,12 +2228,20 @@ int CScriptObject::_checkLanguage()
 bool CScriptObject::_initInterpreterState()
 {
     _lang=_checkLanguage();
+
+    _calledInThisSimulationStep=false;
+    _randGen.seed(123456);
+    _delayForAutoYielding=2;
+    _forbidAutoYieldingLevel=0;
+    _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
+    _forbidOverallYieldingLevel=0;
+
     if (_lang==lang_lua)
     {
         luaWrap_lua_State* L=luaWrap_luaL_newstate();
         _interpreterState=L;
         luaWrap_luaL_openlibs(L);
-        luaWrap_luaL_dostring(L,"os.setlocale'C'");
+        _execSimpleString_safe_lua(L,"os.setlocale'C'");
 
         _setScriptHandleToInterpreterState_lua(L,_scriptHandle);
         setScriptNameIndexToInterpreterState_lua_old(L,_getScriptNameIndexNumber_old());
@@ -2291,14 +2274,13 @@ bool CScriptObject::_initInterpreterState()
         luaWrap_lua_pop(L,1);
         // --------------------------------------------
 
-        luaWrap_luaL_dostring(L,"sim=require('sim')");
-        registerPluginVariables(true); // Here we only handle things like: simUI=require('simExtCustomUI')
-        registerNewFunctions_lua(); // Important to handle functions before variables, so that in the line below we can assign functions to new function names (e.g. simExtCustomUI_create=simUI.create)
-        registerPluginFunctions();
+        _execSimpleString_safe_lua(L,"sim={}");
+        registerNewFunctions_lua();
         _registerNewVariables_lua();
+        _execSimpleString_safe_lua(L,"require('sim')");
+        registerPluginVariables(true);
+        registerPluginFunctions();
         registerPluginVariables(false);
-
-        luaWrap_luaL_dostring(L,"_S.executeAfterLuaStateInit()"); // needed for various
 
         int hookMask=luaWrapGet_LUA_MASKCOUNT();
         luaWrap_lua_sethook(L,_hookFunction_lua,hookMask,100); // This instruction gets also called in luaHookFunction!!!!
@@ -2440,6 +2422,59 @@ void CScriptObject::registerNewFunctions_lua()
     }
 }
 
+int CScriptObject::registerFunctionHook(const char* sysFunc,const char* userFunc,bool before)
+{
+    if (strlen(sysFunc)==0)
+    {
+        if (before)
+            _functionHooks_before.clear();
+        else
+            _functionHooks_after.clear();
+        return(0); // successful unregister
+    }
+    else
+    {
+        std::vector<std::string>* l=&_functionHooks_after;
+        if (before)
+            l=&_functionHooks_before;
+        bool userFuncEmpty=strlen(userFunc)==0;
+        size_t i=0;
+        while (i<l->size()/2)
+        {
+            if (l->at(2*i+0).compare(sysFunc)==0)
+            {
+                if (userFuncEmpty)
+                    l->erase(l->begin()+2*i,l->begin()+2*i+2); // remove all hooks for that system function
+                else
+                {
+                    if (l->at(2*i+1).compare(userFunc)==0)
+                    { // function already registered. Unregister it:
+                        l->erase(l->begin()+2*i,l->begin()+2*i+2);
+                        return(0); // successful unregister
+                    }
+                    i++;
+                }
+            }
+            else
+                i++;
+        }
+        if (userFuncEmpty)
+            return(0); // successful unregister
+        // We need to register that function:
+        if (before)
+        {
+            l->insert(l->begin(),userFunc);
+            l->insert(l->begin(),sysFunc);
+        }
+        else
+        {
+            l->push_back(sysFunc);
+            l->push_back(userFunc);
+        }
+        return(1); // successful register
+    }
+}
+
 void CScriptObject::printInterpreterStack() const
 {
     luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
@@ -2494,7 +2529,7 @@ void CScriptObject::registerPluginFunctions()
                     tmp+="={} end ";
                     tmp+=functionName;
                     tmp+="=__iuafkjsdgoi158zLK __iuafkjsdgoi158zLK=nil";
-                    luaWrap_luaL_dostring(L,tmp.c_str());
+                    _execSimpleString_safe_lua(L,tmp.c_str());
                 }
                 else
                 { // Old
@@ -2516,7 +2551,7 @@ void CScriptObject::_registerNewVariables_lua()
     {
         std::string tmp(simLuaVariables[i].name.c_str());
         tmp+="="+std::to_string(simLuaVariables[i].val);
-        luaWrap_luaL_dostring(L,tmp.c_str());
+        _execSimpleString_safe_lua(L,tmp.c_str());
     }
     if (App::userSettings->getSupportOldApiNotation())
     {
@@ -2524,7 +2559,7 @@ void CScriptObject::_registerNewVariables_lua()
         {
             std::string tmp(simLuaVariablesOldApi[i].name.c_str());
             tmp+="="+std::to_string(simLuaVariablesOldApi[i].val);
-            luaWrap_luaL_dostring(L,tmp.c_str());
+            _execSimpleString_safe_lua(L,tmp.c_str());
         }
     }
 }
@@ -2551,7 +2586,7 @@ void CScriptObject::registerPluginVariables(bool onlyRequireStatements)
                 {
                     std::string tmp(variableName);
                     tmp+="="+variableValue;
-                    luaWrap_luaL_dostring(L,tmp.c_str());
+                    _execSimpleString_safe_lua(L,tmp.c_str());
                 }
             }
             else
@@ -2854,6 +2889,15 @@ void CScriptObject::serialize(CSer& ar)
             fromBufferToFile();
         }
     }
+}
+
+void CScriptObject::_execSimpleString_safe_lua(void* LL,const char* string)
+{
+    int t1=_forbidAutoYieldingLevel;
+    int t2=_forbidOverallYieldingLevel;
+    luaWrap_luaL_dostring((luaWrap_lua_State*)LL,string);
+    _forbidAutoYieldingLevel=t1;
+    _forbidOverallYieldingLevel=t2;
 }
 
 bool CScriptObject::_loadBuffer_lua(const char* buff,size_t sz,const char* name)
@@ -5075,6 +5119,25 @@ bool CScriptObject::getCustomizationScriptCleanupBeforeSave_DEPRECATED() const
 {
     return(_customizationScriptCleanupBeforeSave_DEPRECATED);
 }
+void CScriptObject::_handleCallbackEx_old(int calltype)
+{
+    std::string e;
+    if (calltype==sim_syscb_cleanup)
+        e="_S.sysCallEx_cleanup";
+    if (calltype==sim_syscb_beforeinstanceswitch)
+        e="_S.sysCallEx_beforeInstanceSwitch";
+    if (calltype==sim_syscb_afterinstanceswitch)
+        e="_S.sysCallEx_afterInstanceSwitch";
+    if (calltype==sim_syscb_aos_suspend)
+        e="_S.sysCallEx_addOnScriptSuspend";
+    if (calltype==sim_syscb_aos_resume)
+        e="_S.sysCallEx_addOnScriptResume";
+    if (e.size()>0)
+    {
+        e="if "+e+" then "+e+"() end";
+        _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState,e.c_str());
+    }
+}
 int CScriptObject::_getScriptNameIndexNumber_old() const
 {
     int retVal=-1;
@@ -5156,14 +5219,11 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
     if (_interpreterState==nullptr)
     {
         _initInterpreterState();
-        _forbidAutoYieldingLevel=0;
-        _calledInThisSimulationStep=false;
-        _raiseErrors_backCompatibility=true;
-        _randGen.seed(123456);
+        _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState,"_S.sysCallEx_init()");
     }
     luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
     int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
-    luaWrap_luaL_dostring(L,"sim_call_type=-1"); // for backward compatibility
+    _execSimpleString_safe_lua(L,"sim_call_type=-1"); // for backward compatibility
 
     if (_loadBuffer_lua(_scriptTextExec.c_str(),_scriptTextExec.size(),getShortDescriptiveName().c_str()))
     {
@@ -5241,6 +5301,8 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
                     }
                     else
                     {
+                        if (calls[callIndex]==sim_syscb_cleanup)
+                            _handleCallbackEx_old(sim_syscb_cleanup);
                         _executionDepth--;
                         if (_executionDepth==0)
                             _timeOfScriptExecutionStart=-1;
@@ -5248,7 +5310,6 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
                 }
                 else
                     luaWrap_lua_pop(L,1); // pop the function name
-                _handleSimpleSysExCalls(calls[callIndex]);
             }
             _scriptState&=scriptState_error; // keep the error flag
             _scriptState|=scriptState_ended;
@@ -5292,7 +5353,7 @@ bool CScriptObject::_callScriptChunk_old(int callType,const CInterfaceStack* inS
     int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
     std::string tmp("sim_call_type=");
     tmp+=std::to_string(callType);
-    luaWrap_luaL_dostring(L,tmp.c_str());
+    _execSimpleString_safe_lua(L,tmp.c_str());
     if (_loadBuffer_lua(_scriptTextExec.c_str(),_scriptTextExec.size(),getShortDescriptiveName().c_str()))
     {
         int inputArgs=0;
@@ -5327,10 +5388,10 @@ bool CScriptObject::_callScriptChunk_old(int callType,const CInterfaceStack* inS
         }
         else
         {
+            _handleCallbackEx_old(callType);
             _executionDepth--;
             if (_executionDepth==0)
                 _timeOfScriptExecutionStart=-1;
-            _handleSimpleSysExCalls(callType);
             if (outStack!=nullptr)
             {
                 int currentTop=luaWrap_lua_gettop(L);
@@ -5378,7 +5439,7 @@ int CScriptObject::callScriptFunction_DEPRECATED(const char* functionName,SLuaCa
     luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
     int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
 
-    luaWrap_luaL_dostring(L,"sim_call_type=-1"); // for backward compatibility
+    _execSimpleString_safe_lua(L,"sim_call_type=-1"); // for backward compatibility
 
     // Push the function name onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
     std::string func(functionName);
@@ -6820,6 +6881,10 @@ void CScriptObject::_adjustScriptText14_old(CScriptObject* scriptObject,bool doI
             App::logMsg(sim_verbosity_errors,"Contains sim.getConfigurationTree...");
         if (_containsScriptText_old(scriptObject,"sim.setConfigurationTree"))
             App::logMsg(sim_verbosity_errors,"Contains sim.setConfigurationTree...");
+
+        if (_containsScriptText_old(scriptObject,"__initFunctions"))
+            App::logMsg(sim_verbosity_errors,"Contains __initFunctions...");
+
 
         if (_containsScriptText_old(scriptObject,"sim.getObjectInt32Parameter"))
             App::logMsg(sim_verbosity_errors,"Contains sim.getObjectInt32Parameter...");

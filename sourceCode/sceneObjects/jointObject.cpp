@@ -1346,7 +1346,6 @@ void CJoint::handleDynJointControl(bool init,int loopCnt,int totalLoops,float cu
             inStack->pushNumberOntoStack(upperLimitVel);
             inStack->insertDataIntoStackTable();
             CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
-            //xyza;
 
             // 2. Call the script(s):
             if (script!=nullptr)

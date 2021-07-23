@@ -533,6 +533,10 @@ SIM_DLLEXPORT simInt simRegisterScriptVariable(const simChar* varNameAtPluginNam
 {
     return(simRegisterScriptVariable_internal(varNameAtPluginName,varValue,stackHandle));
 }
+SIM_DLLEXPORT simInt simRegisterScriptFuncHook(simInt scriptHandle,const simChar* systemFunction,const simChar* userFunction,simBool executeBefore,simInt options)
+{
+    return(simRegisterScriptFuncHook_internal(scriptHandle,systemFunction,userFunction,executeBefore,options));
+}
 SIM_DLLEXPORT simInt simSetJointTargetVelocity(simInt objectHandle,simFloat targetVelocity)
 {
     return(simSetJointTargetVelocity_internal(objectHandle,targetVelocity));

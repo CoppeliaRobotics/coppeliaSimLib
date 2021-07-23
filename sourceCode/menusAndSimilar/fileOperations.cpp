@@ -413,7 +413,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     }
                     CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
                     stack->pushStringOntoStack(files.c_str(),0);
-                    //xyza;
                     App::worldContainer->sandboxScript->callCustomScriptFunction("simAssimp.importShapesDlg",stack);
                     App::worldContainer->interfaceStackContainer->destroyStack(stack);
                 }
@@ -480,7 +479,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         App::folders->setCadFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
 
                         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-                        //xyza;
                         stack->pushStringOntoStack(filenameAndPath.c_str(),0);
                         stack->pushTableOntoStack();
                         int cnt=1;

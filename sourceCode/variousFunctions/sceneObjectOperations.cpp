@@ -1526,7 +1526,6 @@ void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection,bool s
     if (newObjectHandles.size()>0)
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-        //xyza;
         stack->pushTableOntoStack();
         stack->pushStringOntoStack("objectHandles",0);
         stack->pushInt32ArrayTableOntoStack(&newObjectHandles[0],(int)newObjectHandles.size());
@@ -1845,7 +1844,6 @@ void CSceneObjectOperations::divideSelection(std::vector<int>* selection,bool sh
     if (newObjectHandles.size()>0)
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-        //xyza;
         stack->pushTableOntoStack();
         stack->pushStringOntoStack("objectHandles",0);
         stack->pushInt32ArrayTableOntoStack(&newObjectHandles[0],(int)newObjectHandles.size());

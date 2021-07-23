@@ -401,6 +401,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setModuleInfo",_simSetModuleInfo,                      "sim.setModuleInfo(string moduleName,int infoType,string/number info)",true},
     {"sim.registerScriptFunction",_simRegisterScriptFunction,    "int result=sim.registerScriptFunction(string funcNameAtPluginName,string callTips)",true},
     {"sim.registerScriptVariable",_simRegisterScriptVariable,    "int result=sim.registerScriptVariable(string varNameAtPluginName)",true},
+    {"sim.registerScriptFuncHook",_simRegisterScriptFuncHook,    "int result=sim.registerScriptFuncHook(string systemFunc,string userFunc,bool execBefore)",true},
     {"sim.isDeprecated",_simIsDeprecated,                        "int result=sim.isDeprecated(string funcOrConst)",true},
     {"sim.getPersistentDataTags",_simGetPersistentDataTags,      "table[] tags=sim.getPersistentDataTags()",true},
     {"sim.getRandom",_simGetRandom,                              "float randomNumber=sim.getRandom(int seed=nil)",true},
@@ -5503,17 +5504,13 @@ int _simGetThreadSwitchAllowed(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getThreadSwitchAllowed");
-
     int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
     CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+    bool canYield=true;
     if (it!=nullptr)
-    {
-        luaWrap_lua_pushboolean(L,it->canManualYield());
-        LUA_END(1);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
+        canYield=it->canManualYield();
+    luaWrap_lua_pushboolean(L,canYield);
+    LUA_END(1);
 }
 
 int _simSetThreadSwitchAllowed(luaWrap_lua_State* L)
@@ -12901,6 +12898,25 @@ int _simRegisterScriptVariable(luaWrap_lua_State* L)
             retVal=simRegisterScriptVariable_internal(varNameAtPluginName,luaWrap_lua_tostring(L,2),-1);
         else
             retVal=simRegisterScriptVariable_internal(varNameAtPluginName,nullptr,0);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simRegisterScriptFuncHook(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.registerScriptFuncHook");
+
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0,lua_arg_bool,0))
+    {
+        const char* systemFunc=luaWrap_lua_tostring(L,1);
+        const char* userFunc=luaWrap_lua_tostring(L,2);
+        bool execBefore=luaWrap_lua_toboolean(L,3);
+        retVal=simRegisterScriptFuncHook_internal(CScriptObject::getScriptHandleFromInterpreterState_lua(L),systemFunc,userFunc,execBefore,0);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

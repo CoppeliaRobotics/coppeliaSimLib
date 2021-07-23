@@ -5617,6 +5617,29 @@ simInt simRegisterScriptVariable_internal(const simChar* varNameAtPluginName,con
     return(-1);
 }
 
+simInt simRegisterScriptFuncHook_internal(simInt scriptHandle,const simChar* systemFunction,const simChar* userFunction,simBool executeBefore,simInt options)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal=-1;
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        if (it!=nullptr)
+        {
+            retVal=it->registerFunctionHook(systemFunction,userFunction,executeBefore);
+        }
+        else
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
 simChar* simCreateBuffer_internal(simInt size)
 {
     TRACE_C_API;
@@ -17428,9 +17451,7 @@ simInt _simHandleCustomContact_internal(simInt objHandle1,simInt objHandle2,simI
         inStack->pushStringOntoStack("engine",0);
         inStack->pushNumberOntoStack(double(engine));
         inStack->insertDataIntoStackTable();
-        //xyza;
         CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
-        //xyza;
         int retInfo=0;
         App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,sim_syscb_contactcallback,inStack,outStack,&retInfo);
         if (retInfo>0)
@@ -17540,8 +17561,6 @@ simVoid _simDynCallback_internal(const simInt* intData,const simFloat* floatData
         inStack->pushStringOntoStack("afterStep",0);
         inStack->pushBoolOntoStack(intData[3]!=0);
         inStack->insertDataIntoStackTable();
-        //xyza;
-
         App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,sim_syscb_dyncallback,inStack,nullptr,nullptr);
         App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_dyncallback,inStack,nullptr,nullptr);
         App::worldContainer->interfaceStackContainer->destroyStack(inStack);
