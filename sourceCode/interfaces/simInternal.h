@@ -245,10 +245,6 @@ simUChar* simGetVisionSensorCharImage_internal(simInt visionSensorHandle,simInt*
 simInt simSetVisionSensorImage_internal(simInt visionSensorHandle,const simFloat* image);
 simInt simSetVisionSensorCharImage_internal(simInt visionSensorHandle,const simUChar* image);
 simFloat* simGetVisionSensorDepthBuffer_internal(simInt visionSensorHandle);
-simInt simRMLPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxVelAccelJerk,const simBool* selection,const simDouble* targetPosVel,simVoid* auxData);
-simInt simRMLVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxAccelJerk,const simBool* selection,const simDouble* targetVel,simVoid* auxData);
-simInt simRMLStep_internal(simInt handle,simDouble timeStep,simDouble* newPosVelAccel,simVoid* auxData,simVoid* reserved);
-simInt simRMLRemove_internal(simInt handle);
 simInt simRuckigPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel);
 simInt simRuckigVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel);
 simInt simRuckigStep_internal(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime);
@@ -653,4 +649,8 @@ simInt simSetConfigurationTree_internal(const simChar* data);
 simInt simEnableEventCallback_internal(simInt eventCallbackType,const simChar* plugin,simInt reserved);
 simInt simRMLPosition_internal(simInt dofs,simDouble timeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxVelAccelJerk,const simBool* selection,const simDouble* targetPosVel,simDouble* newPosVelAccel,simVoid* auxData);
 simInt simRMLVelocity_internal(simInt dofs,simDouble timeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxAccelJerk,const simBool* selection,const simDouble* targetVel,simDouble* newPosVelAccel,simVoid* auxData);
+simInt simRMLPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxVelAccelJerk,const simBool* selection,const simDouble* targetPosVel,simVoid* auxData);
+simInt simRMLVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxAccelJerk,const simBool* selection,const simDouble* targetVel,simVoid* auxData);
+simInt simRMLStep_internal(simInt handle,simDouble timeStep,simDouble* newPosVelAccel,simVoid* auxData,simVoid* reserved);
+simInt simRMLRemove_internal(simInt handle);
 #endif // !defined(simInternal_INCLUDED_)

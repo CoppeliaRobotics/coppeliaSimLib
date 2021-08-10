@@ -11406,264 +11406,6 @@ simFloat* simGetVisionSensorDepthBuffer_internal(simInt sensorHandle)
     return(nullptr);
 }
 
-simInt simRMLPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxVelAccelJerk,const simBool* selection,const simDouble* targetPosVel,simVoid* auxData)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    char* data=new char[4+8+24*dofs+24*dofs+dofs+16*dofs+4+1]; // for now we have no aux data to transmit (so just +1)
-    int off=0;
-
-    // dofs
-    ((int*)(data+off))[0]=dofs;
-    off+=4;
-
-    // timeStep
-    ((double*)(data+off))[0]=smallestTimeStep;
-    off+=8;
-
-    // currentPosVelAccel
-    for (int i=0;i<dofs;i++)
-    {
-        ((double*)(data+off))[0]=currentPosVelAccel[0+i];
-        off+=8;
-    }
-    for (int i=0;i<dofs;i++)
-    {
-        ((double*)(data+off))[0]=currentPosVelAccel[dofs+i];
-        off+=8;
-    }
-    for (int i=0;i<dofs;i++)
-    {
-        ((double*)(data+off))[0]=currentPosVelAccel[2*dofs+i];
-        off+=8;
-    }
-
-    // maxVelAccelJerk
-    for (int i=0;i<dofs;i++)
-    {
-        ((double*)(data+off))[0]=maxVelAccelJerk[0+i];
-        off+=8;
-    }
-    for (int i=0;i<dofs;i++)
-    {
-        ((double*)(data+off))[0]=maxVelAccelJerk[dofs+i];
-        off+=8;
-    }
-    for (int i=0;i<dofs;i++)
-    {
-        ((double*)(data+off))[0]=maxVelAccelJerk[2*dofs+i];
-        off+=8;
-    }
-
-    // selection
-    for (int i=0;i<dofs;i++)
-    {
-        ((char*)(data+off))[0]=selection[0+i];
-        off++;
-    }
-
-    // targetPosVel
-    for (int i=0;i<dofs;i++)
-    {
-        ((double*)(data+off))[0]=targetPosVel[0+i];
-        off+=8;
-    }
-    for (int i=0;i<dofs;i++)
-    {
-        ((double*)(data+off))[0]=targetPosVel[dofs+i];
-        off+=8;
-    }
-
-    // Flags:
-    ((int*)(data+off))[0]=flags;
-    off+=4;
-
-    // Number of extension bytes (not used for now)
-    data[off]=0;
-    off++;
-
-    int auxVals[4]={0,0,0,0}; // if first value is diff. from 0, we use the type 4 lib
-    auxVals[0]=1;
-    auxVals[1]=0; // do not destroy at simulation end
-    if (auxData!=nullptr)
-    {
-        if (((unsigned char*)auxData)[0]>=1)
-            auxVals[1]=((int*)(((unsigned char*)auxData)+1))[0];
-    }
-    int replyData[4]={-1,-1,-1,-1};
-    CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
-    if (plugin!=nullptr)
-        plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlpos,auxVals,data,replyData);
-    delete[] data;
-    return(replyData[1]);
-}
-
-simInt simRMLVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxAccelJerk,const simBool* selection,const simDouble* targetVel,simVoid* auxData)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    char* data=new char[4+8+24*dofs+16*dofs+dofs+8*dofs+4+1]; // for now we have no aux data to transmit (so just +1)
-    int off=0;
-
-    // dofs
-    ((int*)(data+off))[0]=dofs;
-    off+=4;
-
-    // timeStep
-    ((double*)(data+off))[0]=smallestTimeStep;
-    off+=8;
-
-    // currentPosVelAccel
-    for (int i=0;i<dofs;i++)
-    {
-        ((double*)(data+off))[0]=currentPosVelAccel[0+i];
-        off+=8;
-    }
-    for (int i=0;i<dofs;i++)
-    {
-        ((double*)(data+off))[0]=currentPosVelAccel[dofs+i];
-        off+=8;
-    }
-    for (int i=0;i<dofs;i++)
-    {
-        ((double*)(data+off))[0]=currentPosVelAccel[2*dofs+i];
-        off+=8;
-    }
-
-    // maxAccelJerk
-    for (int i=0;i<dofs;i++)
-    {
-        ((double*)(data+off))[0]=maxAccelJerk[0+i];
-        off+=8;
-    }
-    for (int i=0;i<dofs;i++)
-    {
-        ((double*)(data+off))[0]=maxAccelJerk[dofs+i];
-        off+=8;
-    }
-
-    // selection
-    for (int i=0;i<dofs;i++)
-    {
-        ((char*)(data+off))[0]=selection[0+i];
-        off++;
-    }
-
-    // targetVel
-    for (int i=0;i<dofs;i++)
-    {
-        ((double*)(data+off))[0]=targetVel[0+i];
-        off+=8;
-    }
-
-    // Flags:
-    ((int*)(data+off))[0]=flags;
-    off+=4;
-
-    // Number of extension bytes (not used for now)
-    data[off]=0;
-    off++;
-
-    int auxVals[4]={0,0,0,0}; // if first value is diff. from 0, we use the type 4 lib!
-    auxVals[0]=1;
-    auxVals[1]=0; // do not destroy at simulation end
-    if (auxData!=nullptr)
-    {
-        if (((unsigned char*)auxData)[0]>=1)
-            auxVals[1]=((int*)(((unsigned char*)auxData)+1))[0];
-    }
-    int replyData[4]={-1,-1,-1,-1};
-
-    CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
-    if (plugin!=nullptr)
-        plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlvel,auxVals,data,replyData);
-
-    delete[] data;
-    return(replyData[1]);
-}
-
-simInt simRMLStep_internal(simInt handle,simDouble timeStep,simDouble* newPosVelAccel,simVoid* auxData,simVoid* reserved)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    unsigned char auxDataCount=0;
-    if (auxData!=nullptr)
-        auxDataCount=((unsigned char*)auxData)[0]; // the first byte indicates how many values we have or we wanna have set!
-
-    int retVal=-1;
-    int auxVals[4]={0,0,0,0}; // if first value is diff. from 0, we use the type 4 lib
-    auxVals[0]=1;
-    auxVals[1]=handle;
-    auxVals[2]=int(timeStep*100000.0);
-    int replyData[4]={-1,-1,-1,-1};
-
-
-    void* returnData=nullptr;
-    CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
-    if (plugin!=nullptr)
-        returnData=plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlstep,auxVals,nullptr,replyData);
-    if (returnData!=nullptr)
-    {
-        retVal=replyData[0];
-        int dofs=replyData[1];
-        int off=0;
-        char* returnDat=(char*)returnData;
-        // newPosVelAccel
-        for (int i=0;i<dofs;i++)
-        {
-            newPosVelAccel[0+i]=((double*)(returnDat+off))[0];
-            off+=8;
-        }
-        for (int i=0;i<dofs;i++)
-        {
-            newPosVelAccel[dofs+i]=((double*)(returnDat+off))[0];
-            off+=8;
-        }
-        for (int i=0;i<dofs;i++)
-        {
-            newPosVelAccel[2*dofs+i]=((double*)(returnDat+off))[0];
-            off+=8;
-        }
-
-        // here we have 8*8 bytes for future extensions. 1*8 bytes are already used:
-        double synchronizationTime=((double*)(returnDat+off))[0];
-        off+=8*8;
-
-        if (auxDataCount>=1)
-            ((double*)(((char*)auxData)+1))[0]=synchronizationTime;
-
-        delete[] (char*)returnData;
-    }
-
-    return(retVal);
-}
-
-simInt simRMLRemove_internal(simInt handle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    int auxVals[4]={0,0,0,0};
-    auxVals[1]=handle;
-    int replyData[4]={-1,-1,-1,-1};
-
-    CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
-    if (plugin!=nullptr)
-        plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlremove,auxVals,nullptr,replyData);
-    return(replyData[1]);
-}
-
 simInt simRuckigPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel)
 {
     TRACE_C_API;
@@ -22417,4 +22159,260 @@ simInt simRMLVelocity_internal(simInt dofs,simDouble timeStep,simInt flags,const
     return(retVal);
 }
 
+simInt simRMLPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxVelAccelJerk,const simBool* selection,const simDouble* targetPosVel,simVoid* auxData)
+{ // deprecated on 10.08.2021
+    TRACE_C_API;
 
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    char* data=new char[4+8+24*dofs+24*dofs+dofs+16*dofs+4+1]; // for now we have no aux data to transmit (so just +1)
+    int off=0;
+
+    // dofs
+    ((int*)(data+off))[0]=dofs;
+    off+=4;
+
+    // timeStep
+    ((double*)(data+off))[0]=smallestTimeStep;
+    off+=8;
+
+    // currentPosVelAccel
+    for (int i=0;i<dofs;i++)
+    {
+        ((double*)(data+off))[0]=currentPosVelAccel[0+i];
+        off+=8;
+    }
+    for (int i=0;i<dofs;i++)
+    {
+        ((double*)(data+off))[0]=currentPosVelAccel[dofs+i];
+        off+=8;
+    }
+    for (int i=0;i<dofs;i++)
+    {
+        ((double*)(data+off))[0]=currentPosVelAccel[2*dofs+i];
+        off+=8;
+    }
+
+    // maxVelAccelJerk
+    for (int i=0;i<dofs;i++)
+    {
+        ((double*)(data+off))[0]=maxVelAccelJerk[0+i];
+        off+=8;
+    }
+    for (int i=0;i<dofs;i++)
+    {
+        ((double*)(data+off))[0]=maxVelAccelJerk[dofs+i];
+        off+=8;
+    }
+    for (int i=0;i<dofs;i++)
+    {
+        ((double*)(data+off))[0]=maxVelAccelJerk[2*dofs+i];
+        off+=8;
+    }
+
+    // selection
+    for (int i=0;i<dofs;i++)
+    {
+        ((char*)(data+off))[0]=selection[0+i];
+        off++;
+    }
+
+    // targetPosVel
+    for (int i=0;i<dofs;i++)
+    {
+        ((double*)(data+off))[0]=targetPosVel[0+i];
+        off+=8;
+    }
+    for (int i=0;i<dofs;i++)
+    {
+        ((double*)(data+off))[0]=targetPosVel[dofs+i];
+        off+=8;
+    }
+
+    // Flags:
+    ((int*)(data+off))[0]=flags;
+    off+=4;
+
+    // Number of extension bytes (not used for now)
+    data[off]=0;
+    off++;
+
+    int auxVals[4]={0,0,0,0}; // if first value is diff. from 0, we use the type 4 lib
+    auxVals[0]=1;
+    auxVals[1]=0; // do not destroy at simulation end
+    if (auxData!=nullptr)
+    {
+        if (((unsigned char*)auxData)[0]>=1)
+            auxVals[1]=((int*)(((unsigned char*)auxData)+1))[0];
+    }
+    int replyData[4]={-1,-1,-1,-1};
+    CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
+    if (plugin!=nullptr)
+        plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlpos,auxVals,data,replyData);
+    delete[] data;
+    return(replyData[1]);
+}
+
+simInt simRMLVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxAccelJerk,const simBool* selection,const simDouble* targetVel,simVoid* auxData)
+{ // deprecated on 10.08.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    char* data=new char[4+8+24*dofs+16*dofs+dofs+8*dofs+4+1]; // for now we have no aux data to transmit (so just +1)
+    int off=0;
+
+    // dofs
+    ((int*)(data+off))[0]=dofs;
+    off+=4;
+
+    // timeStep
+    ((double*)(data+off))[0]=smallestTimeStep;
+    off+=8;
+
+    // currentPosVelAccel
+    for (int i=0;i<dofs;i++)
+    {
+        ((double*)(data+off))[0]=currentPosVelAccel[0+i];
+        off+=8;
+    }
+    for (int i=0;i<dofs;i++)
+    {
+        ((double*)(data+off))[0]=currentPosVelAccel[dofs+i];
+        off+=8;
+    }
+    for (int i=0;i<dofs;i++)
+    {
+        ((double*)(data+off))[0]=currentPosVelAccel[2*dofs+i];
+        off+=8;
+    }
+
+    // maxAccelJerk
+    for (int i=0;i<dofs;i++)
+    {
+        ((double*)(data+off))[0]=maxAccelJerk[0+i];
+        off+=8;
+    }
+    for (int i=0;i<dofs;i++)
+    {
+        ((double*)(data+off))[0]=maxAccelJerk[dofs+i];
+        off+=8;
+    }
+
+    // selection
+    for (int i=0;i<dofs;i++)
+    {
+        ((char*)(data+off))[0]=selection[0+i];
+        off++;
+    }
+
+    // targetVel
+    for (int i=0;i<dofs;i++)
+    {
+        ((double*)(data+off))[0]=targetVel[0+i];
+        off+=8;
+    }
+
+    // Flags:
+    ((int*)(data+off))[0]=flags;
+    off+=4;
+
+    // Number of extension bytes (not used for now)
+    data[off]=0;
+    off++;
+
+    int auxVals[4]={0,0,0,0}; // if first value is diff. from 0, we use the type 4 lib!
+    auxVals[0]=1;
+    auxVals[1]=0; // do not destroy at simulation end
+    if (auxData!=nullptr)
+    {
+        if (((unsigned char*)auxData)[0]>=1)
+            auxVals[1]=((int*)(((unsigned char*)auxData)+1))[0];
+    }
+    int replyData[4]={-1,-1,-1,-1};
+
+    CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
+    if (plugin!=nullptr)
+        plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlvel,auxVals,data,replyData);
+
+    delete[] data;
+    return(replyData[1]);
+}
+
+simInt simRMLStep_internal(simInt handle,simDouble timeStep,simDouble* newPosVelAccel,simVoid* auxData,simVoid* reserved)
+{ // deprecated on 10.08.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    unsigned char auxDataCount=0;
+    if (auxData!=nullptr)
+        auxDataCount=((unsigned char*)auxData)[0]; // the first byte indicates how many values we have or we wanna have set!
+
+    int retVal=-1;
+    int auxVals[4]={0,0,0,0}; // if first value is diff. from 0, we use the type 4 lib
+    auxVals[0]=1;
+    auxVals[1]=handle;
+    auxVals[2]=int(timeStep*100000.0);
+    int replyData[4]={-1,-1,-1,-1};
+
+
+    void* returnData=nullptr;
+    CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
+    if (plugin!=nullptr)
+        returnData=plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlstep,auxVals,nullptr,replyData);
+    if (returnData!=nullptr)
+    {
+        retVal=replyData[0];
+        int dofs=replyData[1];
+        int off=0;
+        char* returnDat=(char*)returnData;
+        // newPosVelAccel
+        for (int i=0;i<dofs;i++)
+        {
+            newPosVelAccel[0+i]=((double*)(returnDat+off))[0];
+            off+=8;
+        }
+        for (int i=0;i<dofs;i++)
+        {
+            newPosVelAccel[dofs+i]=((double*)(returnDat+off))[0];
+            off+=8;
+        }
+        for (int i=0;i<dofs;i++)
+        {
+            newPosVelAccel[2*dofs+i]=((double*)(returnDat+off))[0];
+            off+=8;
+        }
+
+        // here we have 8*8 bytes for future extensions. 1*8 bytes are already used:
+        double synchronizationTime=((double*)(returnDat+off))[0];
+        off+=8*8;
+
+        if (auxDataCount>=1)
+            ((double*)(((char*)auxData)+1))[0]=synchronizationTime;
+
+        delete[] (char*)returnData;
+    }
+
+    return(retVal);
+}
+
+simInt simRMLRemove_internal(simInt handle)
+{ // deprecated on 10.08.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    int auxVals[4]={0,0,0,0};
+    auxVals[1]=handle;
+    int replyData[4]={-1,-1,-1,-1};
+
+    CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
+    if (plugin!=nullptr)
+        plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlremove,auxVals,nullptr,replyData);
+    return(replyData[1]);
+}
