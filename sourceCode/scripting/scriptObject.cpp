@@ -2797,6 +2797,11 @@ void CScriptObject::serialize(CSer& ar)
             _adjustScriptText12_old(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40100);
             _adjustScriptText13_old(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40200);
             _adjustScriptText14_old(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40201);
+            _adjustScriptText15_old(this,ar.getCoppeliaSimVersionThatWroteThisFile()<=40300);
+
+            if (App::userSettings->xrTest==123456789)
+                _detectDeprecated_old(this);
+
 
             if ( _threadedExecution_oldThreads&&(!App::userSettings->keepOldThreadedScripts)&&(ar.getCoppeliaSimVersionThatWroteThisFile()<40200) )
             {
@@ -6848,55 +6853,73 @@ void CScriptObject::_adjustScriptText14_old(CScriptObject* scriptObject,bool doI
     _replaceScriptText_old(scriptObject,"sim.setIntegerSignal","sim.setInt32Signal");
     _replaceScriptText_old(scriptObject,"sim.getIntegerSignal","sim.getInt32Signal");
     _replaceScriptText_old(scriptObject,"sim.clearIntegerSignal","sim.clearInt32Signal");
+}
 
-    if (App::userSettings->xrTest==123456789)
-    {
-        if (_containsScriptText_old(scriptObject,"sim.getObjectHandle(sim.handle_self)"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getObjectHandle(sim.handle_self)...");
-        if (_containsScriptText_old(scriptObject,"sim.getObjectName"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getObjectName...");
-        if (_containsScriptText_old(scriptObject,"sim.setObjectName"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setObjectName...");
-        if (_containsScriptText_old(scriptObject,"sim.getScriptName"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getScriptName...");
-        if (_containsScriptText_old(scriptObject,"sim.setScriptVariable"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setScriptVariable...");
-        if (_containsScriptText_old(scriptObject,"sim.setSimilarName"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setSimilarName...");
-        if (_containsScriptText_old(scriptObject,"sim.getObjectAssociatedWithScript"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getObjectAssociatedWithScript...");
-        if (_containsScriptText_old(scriptObject,"sim.getScriptAssociatedWithObject"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getScriptAssociatedWithObject...");
-        if (_containsScriptText_old(scriptObject,"sim.getCustomizationScriptAssociatedWithObject"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getCustomizationScriptAssociatedWithObject...");
-        if (_containsScriptText_old(scriptObject,"sim.getObjectSizeValues"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getObjectSizeValues...");
-        if (_containsScriptText_old(scriptObject,"sim.setObjectSizeValues"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setObjectSizeValues...");
-        if (_containsScriptText_old(scriptObject,"sim.getObjectConfiguration"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getObjectConfiguration...");
-        if (_containsScriptText_old(scriptObject,"sim.setObjectConfiguration"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setObjectConfiguration...");
-        if (_containsScriptText_old(scriptObject,"sim.getConfigurationTree"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getConfigurationTree...");
-        if (_containsScriptText_old(scriptObject,"sim.setConfigurationTree"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setConfigurationTree...");
+void CScriptObject::_adjustScriptText15_old(CScriptObject* scriptObject,bool doIt)
+{   // for release 4.3.0 and earlier:
+    if (!doIt)
+        return;
 
-        if (_containsScriptText_old(scriptObject,"__initFunctions"))
-            App::logMsg(sim_verbosity_errors,"Contains __initFunctions...");
+    _replaceScriptText_old(scriptObject,"sim.rmlPos","sim.ruckigPos");
+    _replaceScriptText_old(scriptObject,"sim.rmlVel","sim.ruckigVel");
+    _replaceScriptText_old(scriptObject,"sim.rmlStep","sim.ruckigStep");
+    _replaceScriptText_old(scriptObject,"sim.rmlRemove","sim.ruckigRemove");
+
+    _replaceScriptText_old(scriptObject,"sim.rml_phase_sync_if_possible","sim.ruckig_phasesync");
+    _replaceScriptText_old(scriptObject,"sim.rml_only_time_sync","sim.ruckig_timesync");
+    _replaceScriptText_old(scriptObject,"sim.rml_only_phase_sync","sim.ruckig_phasesync");
+    _replaceScriptText_old(scriptObject,"sim.rml_no_sync","sim.ruckig_nosync");
+}
+
+void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
+{
+    if (_containsScriptText_old(scriptObject,"sim.rml"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.rml*...");
+    if (_containsScriptText_old(scriptObject,"sim.getObjectHandle(sim.handle_self)"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getObjectHandle(sim.handle_self)...");
+    if (_containsScriptText_old(scriptObject,"sim.getObjectName"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getObjectName...");
+    if (_containsScriptText_old(scriptObject,"sim.setObjectName"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setObjectName...");
+    if (_containsScriptText_old(scriptObject,"sim.getScriptName"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getScriptName...");
+    if (_containsScriptText_old(scriptObject,"sim.setScriptVariable"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setScriptVariable...");
+    if (_containsScriptText_old(scriptObject,"sim.setSimilarName"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setSimilarName...");
+    if (_containsScriptText_old(scriptObject,"sim.getObjectAssociatedWithScript"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getObjectAssociatedWithScript...");
+    if (_containsScriptText_old(scriptObject,"sim.getScriptAssociatedWithObject"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getScriptAssociatedWithObject...");
+    if (_containsScriptText_old(scriptObject,"sim.getCustomizationScriptAssociatedWithObject"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getCustomizationScriptAssociatedWithObject...");
+    if (_containsScriptText_old(scriptObject,"sim.getObjectSizeValues"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getObjectSizeValues...");
+    if (_containsScriptText_old(scriptObject,"sim.setObjectSizeValues"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setObjectSizeValues...");
+    if (_containsScriptText_old(scriptObject,"sim.getObjectConfiguration"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getObjectConfiguration...");
+    if (_containsScriptText_old(scriptObject,"sim.setObjectConfiguration"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setObjectConfiguration...");
+    if (_containsScriptText_old(scriptObject,"sim.getConfigurationTree"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getConfigurationTree...");
+    if (_containsScriptText_old(scriptObject,"sim.setConfigurationTree"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setConfigurationTree...");
+
+    if (_containsScriptText_old(scriptObject,"__initFunctions"))
+        App::logMsg(sim_verbosity_errors,"Contains __initFunctions...");
 
 
-        if (_containsScriptText_old(scriptObject,"sim.getObjectInt32Parameter"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getObjectInt32Parameter...");
-        if (_containsScriptText_old(scriptObject,"sim.getObjectIntParameter"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getObjectIntParameter...");
-        if (_containsScriptText_old(scriptObject,"sim.getObjectFloatParameter"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getObjectFloatParameter...");
-        if (_containsScriptText_old(scriptObject,"sim.isHandleValid"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.isHandleValid...");
-        if (_containsScriptText_old(scriptObject,"sim.addPointCloud"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.addPointCloud...");
-    }
+    if (_containsScriptText_old(scriptObject,"sim.getObjectInt32Parameter"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getObjectInt32Parameter...");
+    if (_containsScriptText_old(scriptObject,"sim.getObjectIntParameter"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getObjectIntParameter...");
+    if (_containsScriptText_old(scriptObject,"sim.getObjectFloatParameter"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getObjectFloatParameter...");
+    if (_containsScriptText_old(scriptObject,"sim.isHandleValid"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.isHandleValid...");
+    if (_containsScriptText_old(scriptObject,"sim.addPointCloud"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.addPointCloud...");
 }
 // **************************************************************
 // **************************************************************

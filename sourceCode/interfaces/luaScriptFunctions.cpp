@@ -357,6 +357,10 @@ const SLuaCommands simLuaCommands[]=
     {"sim.rmlVel",_simRMLVel,                                    "int handle=sim.rmlVel(int dofs,float smallestTimeStep,int flags,table[] currentPosVelAccel,table[] maxAccelJerk,\ntable[] selection,table[] targetVel)",true},
     {"sim.rmlStep",_simRMLStep,                                  "int result,table[] newPosVelAccel,float synchronizationTime=sim.rmlStep(int handle,float timeStep)",true},
     {"sim.rmlRemove",_simRMLRemove,                              "sim.rmlRemove(int handle)",true},
+    {"sim.ruckigPos",_simRuckigPos,                              "int handle=sim.ruckigPos(int dofs,float smallestTimeStep,int flags,table[] currentPosVelAccel,table[] maxVelAccelJerk,\ntable[] selection,table[] targetPosVel)",true},
+    {"sim.ruckigVel",_simRuckigVel,                              "int handle=sim.ruckigVel(int dofs,float smallestTimeStep,int flags,table[] currentPosVelAccel,table[] maxAccelJerk,\ntable[] selection,table[] targetVel)",true},
+    {"sim.ruckigStep",_simRuckigStep,                            "int result,table[] newPosVelAccel,float synchronizationTime=sim.ruckigStep(int handle,float timeStep)",true},
+    {"sim.ruckigRemove",_simRuckigRemove,                        "sim.ruckigRemove(int handle)",true},
     {"sim.buildMatrixQ",_simBuildMatrixQ,                        "table[12] matrix=sim.buildMatrixQ(table[3] position,table[4] quaternion)",true},
     {"sim.getQuaternionFromMatrix",_simGetQuaternionFromMatrix,  "table[4] quaternion=sim.getQuaternionFromMatrix(table[12] matrix)",true},
     {"sim.fileDialog",_simFileDialog,                            "string pathAndName=sim.fileDialog(int mode,string title,string startPath,string initName,string extName,string ext)",true},
@@ -401,7 +405,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setModuleInfo",_simSetModuleInfo,                      "sim.setModuleInfo(string moduleName,int infoType,string/number info)",true},
     {"sim.registerScriptFunction",_simRegisterScriptFunction,    "int result=sim.registerScriptFunction(string funcNameAtPluginName,string callTips)",true},
     {"sim.registerScriptVariable",_simRegisterScriptVariable,    "int result=sim.registerScriptVariable(string varNameAtPluginName)",true},
-    {"sim.registerScriptFuncHook",_simRegisterScriptFuncHook,    "int result=sim.registerScriptFuncHook(string systemFunc,string userFunc,bool execBefore)",true},
+    {"sim.registerScriptFuncHook",_simRegisterScriptFuncHook,    "int result=sim.registerScriptFuncHook(string funcToHook,string userFunc,bool execBefore)",true},
     {"sim.isDeprecated",_simIsDeprecated,                        "int result=sim.isDeprecated(string funcOrConst)",true},
     {"sim.getPersistentDataTags",_simGetPersistentDataTags,      "table[] tags=sim.getPersistentDataTags()",true},
     {"sim.getRandom",_simGetRandom,                              "float randomNumber=sim.getRandom(int seed=nil)",true},
@@ -765,8 +769,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.boolparam_infotext_visible",sim_boolparam_infotext_visible,true},
     {"sim.boolparam_statustext_open",sim_boolparam_statustext_open,true},
     {"sim.boolparam_fog_enabled",sim_boolparam_fog_enabled,true},
-    {"sim.boolparam_rml2_available",sim_boolparam_rml2_available,true},
-    {"sim.boolparam_rml4_available",sim_boolparam_rml4_available,true},
     {"sim.boolparam_mirrors_enabled",sim_boolparam_mirrors_enabled,true},
     {"sim.boolparam_aux_clip_planes_enabled",sim_boolparam_aux_clip_planes_enabled,true},
     {"sim.boolparam_full_model_copy_from_api",sim_boolparam_reserved3,true},
@@ -1478,15 +1480,10 @@ const SLuaVariables simLuaVariables[]=
     {"sim.dynmat_wheel",sim_dynmat_wheel,true},
     {"sim.dynmat_gripper",sim_dynmat_gripper,true},
     {"sim.dynmat_floor",sim_dynmat_floor,true},
-    {"sim.rml_phase_sync_if_possible",simrml_phase_sync_if_possible,true},
-    {"sim.rml_only_time_sync",simrml_only_time_sync,true},
-    {"sim.rml_only_phase_sync",simrml_only_phase_sync,true},
-    {"sim.rml_no_sync",simrml_no_sync,true},
-    {"sim.rml_keep_target_vel",simrml_keep_target_vel,true},
-    {"sim.rml_recompute_trajectory",simrml_recompute_trajectory,true},
-    {"sim.rml_disable_extremum_motion_states_calc",simrml_disable_extremum_motion_states_calc,true},
-    {"sim.rml_keep_current_vel_if_fallback_strategy",simrml_keep_current_vel_if_fallback_strategy,true},
-
+    // Ruckig:
+    {"sim.ruckig_phasesync",sim_ruckig_phasesync,true},
+    {"sim.ruckig_timesync",sim_ruckig_timesync,true},
+    {"sim.ruckig_nosync",sim_ruckig_nosync,true},
 
     // deprecated!
     {"sim.boolparam_force_show_wireless_emission",sim_boolparam_force_show_wireless_emission,false},
@@ -1617,6 +1614,16 @@ const SLuaVariables simLuaVariables[]=
     {"sim.api_error_report",sim_api_error_report,false},
     {"sim.api_error_output",sim_api_error_output,false},
     {"sim.api_warning_output",sim_api_warning_output,false},
+    {"sim.boolparam_rml2_available",sim_boolparam_rml2_available,false},
+    {"sim.boolparam_rml4_available",sim_boolparam_rml4_available,false},
+    {"sim.rml_phase_sync_if_possible",simrml_phase_sync_if_possible,false},
+    {"sim.rml_only_time_sync",simrml_only_time_sync,false},
+    {"sim.rml_only_phase_sync",simrml_only_phase_sync,false},
+    {"sim.rml_no_sync",simrml_no_sync,false},
+    {"sim.rml_keep_target_vel",simrml_keep_target_vel,false},
+    {"sim.rml_recompute_trajectory",simrml_recompute_trajectory,false},
+    {"sim.rml_disable_extremum_motion_states_calc",simrml_disable_extremum_motion_states_calc,false},
+    {"sim.rml_keep_current_vel_if_fallback_strategy",simrml_keep_current_vel_if_fallback_strategy,false},
 
     {"",-1}
 };
@@ -10181,6 +10188,133 @@ int _simRMLVel(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
+int _simRuckigPos(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.ruckigPos");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+    {
+        int dofs=luaToInt(L,1);
+        double timeStep=luaWrap_lua_tonumber(L,2);
+        int flags=luaToInt(L,3);
+        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,dofs*3,lua_arg_number,dofs*3,lua_arg_number,dofs,lua_arg_number,dofs*2))
+        {
+            std::vector<double> currentPosVelAccel;
+            currentPosVelAccel.resize(dofs*3);
+            getDoublesFromTable(L,4,dofs*3,&currentPosVelAccel[0]);
+
+            std::vector<double> maxVelAccelJerk;
+            maxVelAccelJerk.resize(dofs*3);
+            getDoublesFromTable(L,5,dofs*3,&maxVelAccelJerk[0]);
+
+            std::vector<char> selection;
+            selection.resize(dofs);
+            getBoolsFromTable(L,6,dofs,&selection[0]);
+
+            std::vector<double> targetPosVel;
+            targetPosVel.resize(dofs*2);
+            getDoublesFromTable(L,7,dofs*2,&targetPosVel[0]);
+
+            setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+            int retVal=simRuckigPos_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&maxVelAccelJerk[0],&maxVelAccelJerk[dofs],&maxVelAccelJerk[dofs*2],(unsigned char*)(&selection[0]),&targetPosVel[0],&targetPosVel[dofs]);
+            setCurrentScriptInfo_cSide(-1,-1);
+
+            luaWrap_lua_pushinteger(L,retVal);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simRuckigVel(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.ruckigVel");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+    {
+        int dofs=luaToInt(L,1);
+        double timeStep=luaWrap_lua_tonumber(L,2);
+        int flags=luaToInt(L,3);
+        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,dofs*3,lua_arg_number,dofs*2,lua_arg_number,dofs,lua_arg_number,dofs))
+        {
+            std::vector<double> currentPosVelAccel;
+            currentPosVelAccel.resize(dofs*3);
+            getDoublesFromTable(L,4,dofs*3,&currentPosVelAccel[0]);
+
+            std::vector<double> maxAccelJerk;
+            maxAccelJerk.resize(dofs*2);
+            getDoublesFromTable(L,5,dofs*2,&maxAccelJerk[0]);
+
+            std::vector<char> selection;
+            selection.resize(dofs);
+            getBoolsFromTable(L,6,dofs,&selection[0]);
+
+            std::vector<double> targetVel;
+            targetVel.resize(dofs);
+            getDoublesFromTable(L,7,dofs,&targetVel[0]);
+
+            setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+            int retVal=simRuckigVel_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&maxAccelJerk[0],&maxAccelJerk[dofs],(unsigned char*)(&selection[0]),&targetVel[0]);
+            setCurrentScriptInfo_cSide(-1,-1);
+
+            luaWrap_lua_pushinteger(L,retVal);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simRuckigStep(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.ruckigStep");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        int handle=luaToInt(L,1);
+        double timeStep=luaWrap_lua_tonumber(L,2);
+        int dofs=CPluginContainer::ruckigPlugin_dofs(handle);
+        if (dofs<0)
+            dofs=1; // will be caught later down
+        std::vector<double> newPosVelAccel;
+        newPosVelAccel.resize(dofs*3);
+        double syncTime;
+        int retVal=simRuckigStep_internal(handle,timeStep,&newPosVelAccel[0],&newPosVelAccel[dofs],&newPosVelAccel[dofs*2],&syncTime);
+        if (retVal>=0)
+        {
+            luaWrap_lua_pushinteger(L,retVal);
+            pushDoubleTableOntoStack(L,dofs*3,&newPosVelAccel[0]);
+            luaWrap_lua_pushnumber(L,syncTime);
+            LUA_END(3);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simRuckigRemove(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.ruckigRemove");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int handle=luaToInt(L,1);
+        int retVal=simRuckigRemove_internal(handle);
+        luaWrap_lua_pushinteger(L,retVal);
+        LUA_END(1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
 
 int _simGetObjectQuaternion(luaWrap_lua_State* L)
 {

@@ -172,6 +172,8 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND "Assimp plugin was not found."
 #define SIM_ERROR_INVALID_MODULE_INFO_TYPE "Invalid module info type."
 #define SIM_ERROR_COULD_NOT_SET_PARAMETER "Could not set parameter."
+#define SIM_ERROR_COULD_NOT_FIND_RUCKIG "Could not find the Ruckig plugin."
+#define SIM_ERROR_RUCKIG_OBJECT_INEXISTANT "Ruckig object does not exist."
 
 
 // Class is fully static

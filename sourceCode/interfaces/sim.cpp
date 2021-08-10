@@ -533,9 +533,9 @@ SIM_DLLEXPORT simInt simRegisterScriptVariable(const simChar* varNameAtPluginNam
 {
     return(simRegisterScriptVariable_internal(varNameAtPluginName,varValue,stackHandle));
 }
-SIM_DLLEXPORT simInt simRegisterScriptFuncHook(simInt scriptHandle,const simChar* systemFunction,const simChar* userFunction,simBool executeBefore,simInt options)
+SIM_DLLEXPORT simInt simRegisterScriptFuncHook(simInt scriptHandle,const simChar* funcToHook,const simChar* userFunction,simBool executeBefore,simInt options)
 {
-    return(simRegisterScriptFuncHook_internal(scriptHandle,systemFunction,userFunction,executeBefore,options));
+    return(simRegisterScriptFuncHook_internal(scriptHandle,funcToHook,userFunction,executeBefore,options));
 }
 SIM_DLLEXPORT simInt simSetJointTargetVelocity(simInt objectHandle,simFloat targetVelocity)
 {
@@ -933,14 +933,6 @@ SIM_DLLEXPORT simFloat* simGetVisionSensorDepthBuffer(simInt visionSensorHandle)
 {
     return(simGetVisionSensorDepthBuffer_internal(visionSensorHandle));
 }
-SIM_DLLEXPORT simInt simRMLPosition(simInt dofs,simDouble timeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxVelAccelJerk,const simBool* selection,const simDouble* targetPosVel,simDouble* newPosVelAccel,simVoid* auxData)
-{
-    return(simRMLPosition_internal(dofs,timeStep,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,newPosVelAccel,auxData));
-}
-SIM_DLLEXPORT simInt simRMLVelocity(simInt dofs,simDouble timeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxAccelJerk,const simBool* selection,const simDouble* targetVel,simDouble* newPosVelAccel,simVoid* auxData)
-{
-    return(simRMLVelocity_internal(dofs,timeStep,flags,currentPosVelAccel,maxAccelJerk,selection,targetVel,newPosVelAccel,auxData));
-}
 SIM_DLLEXPORT simInt simRMLPos(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxVelAccelJerk,const simBool* selection,const simDouble* targetPosVel,simVoid* auxData)
 {
     return(simRMLPos_internal(dofs,smallestTimeStep,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,auxData));
@@ -956,6 +948,22 @@ SIM_DLLEXPORT simInt simRMLStep(simInt handle,simDouble timeStep,simDouble* newP
 SIM_DLLEXPORT simInt simRMLRemove(simInt handle)
 {
     return(simRMLRemove_internal(handle));
+}
+SIM_DLLEXPORT simInt simRuckigPos(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel)
+{
+    return(simRuckigPos_internal(dofs,smallestTimeStep,flags,currentPos,currentVel,currentAccel,maxVel,maxAccel,maxJerk,selection,targetPos,targetVel));
+}
+SIM_DLLEXPORT simInt simRuckigVel(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel)
+{
+    return(simRuckigVel_internal(dofs,smallestTimeStep,flags,currentPos,currentVel,currentAccel,maxAccel,maxJerk,selection,targetVel));
+}
+SIM_DLLEXPORT simInt simRuckigStep(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime)
+{
+    return(simRuckigStep_internal(objHandle,timeStep,newPos,newVel,newAccel,syncTime));
+}
+SIM_DLLEXPORT simInt simRuckigRemove(simInt objHandle)
+{
+    return(simRuckigRemove_internal(objHandle));
 }
 SIM_DLLEXPORT simChar* simFileDialog(simInt mode,const simChar* title,const simChar* startPath,const simChar* initName,const simChar* extName,const simChar* ext)
 {
@@ -2684,6 +2692,14 @@ SIM_DLLEXPORT simInt simSetObjectSizeValues(simInt objectHandle,const simFloat* 
 SIM_DLLEXPORT simInt simGetObjectSizeValues(simInt objectHandle,simFloat* sizeValues)
 {
     return(simGetObjectSizeValues_internal(objectHandle,sizeValues));
+}
+SIM_DLLEXPORT simInt simRMLPosition(simInt dofs,simDouble timeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxVelAccelJerk,const simBool* selection,const simDouble* targetPosVel,simDouble* newPosVelAccel,simVoid* auxData)
+{
+    return(simRMLPosition_internal(dofs,timeStep,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,newPosVelAccel,auxData));
+}
+SIM_DLLEXPORT simInt simRMLVelocity(simInt dofs,simDouble timeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxAccelJerk,const simBool* selection,const simDouble* targetVel,simDouble* newPosVelAccel,simVoid* auxData)
+{
+    return(simRMLVelocity_internal(dofs,timeStep,flags,currentPosVelAccel,maxAccelJerk,selection,targetVel,newPosVelAccel,auxData));
 }
 // Deprecated end
 

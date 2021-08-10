@@ -38,6 +38,8 @@ CPlugin::~CPlugin()
     }
     if (pythonPlugin_initState!=nullptr)
         CPluginContainer::currentPythonPlugin=nullptr;
+    if (ruckigPlugin_pos!=nullptr)
+        CPluginContainer::currentRuckigPlugin=nullptr;
     if (_codeEditor_openModal!=nullptr)
         CPluginContainer::currentCodeEditor=nullptr;
     if (_customUi_msgBox!=nullptr)
@@ -314,6 +316,15 @@ int CPlugin::load()
                 if (pythonPlugin_initState!=nullptr)
                     CPluginContainer::currentPythonPlugin=this;
 
+                // For the Ruckig plugin:
+                ruckigPlugin_pos=(ptrRuckigPlugin_pos)(VVarious::resolveLibraryFuncName(lib,"ruckigPlugin_pos"));
+                ruckigPlugin_vel=(ptrRuckigPlugin_vel)(VVarious::resolveLibraryFuncName(lib,"ruckigPlugin_vel"));
+                ruckigPlugin_step=(ptrRuckigPlugin_step)(VVarious::resolveLibraryFuncName(lib,"ruckigPlugin_step"));
+                ruckigPlugin_remove=(ptrRuckigPlugin_remove)(VVarious::resolveLibraryFuncName(lib,"ruckigPlugin_remove"));
+                ruckigPlugin_dofs=(ptrRuckigPlugin_dofs)(VVarious::resolveLibraryFuncName(lib,"ruckigPlugin_dofs"));
+                if (ruckigPlugin_pos!=nullptr)
+                    CPluginContainer::currentRuckigPlugin=this;
+
                 // For the code editor:
                 _codeEditor_openModal=(ptrCodeEditor_openModal)(VVarious::resolveLibraryFuncName(lib,"codeEditor_openModal"));
                 _codeEditor_open=(ptrCodeEditor_open)(VVarious::resolveLibraryFuncName(lib,"codeEditor_open"));
@@ -388,6 +399,7 @@ CPlugin* CPluginContainer::currentGeomPlugin=nullptr;
 CPlugin* CPluginContainer::currentIkPlugin=nullptr;
 CPlugin* CPluginContainer::currentCodeEditor=nullptr;
 CPlugin* CPluginContainer::currentPythonPlugin=nullptr;
+CPlugin* CPluginContainer::currentRuckigPlugin=nullptr;
 CPlugin* CPluginContainer::currentCustomUi=nullptr;
 CPlugin* CPluginContainer::currentAssimp=nullptr;
 
@@ -2707,6 +2719,46 @@ int CPluginContainer::pythonPlugin_execStr(void* state,const char* str,int outSt
     int retVal=-2;
     if (currentPythonPlugin!=nullptr)
         retVal=currentPythonPlugin->pythonPlugin_execStr(state,str,outStackHandle);
+    return(retVal);
+}
+
+int CPluginContainer::ruckigPlugin_pos(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxVel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetPos,const double* targetVel)
+{
+    int retVal=-2;
+    if (currentRuckigPlugin!=nullptr)
+        retVal=currentRuckigPlugin->ruckigPlugin_pos(scriptHandle,dofs,smallestTimeStep,flags,currentPos,currentVel,currentAccel,maxVel,maxAccel,maxJerk,selection,targetPos,targetVel);
+    return(retVal);
+}
+
+int CPluginContainer::ruckigPlugin_vel(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetVel)
+{
+    int retVal=-2;
+    if (currentRuckigPlugin!=nullptr)
+        retVal=currentRuckigPlugin->ruckigPlugin_vel(scriptHandle,dofs,smallestTimeStep,flags,currentPos,currentVel,currentAccel,maxAccel,maxJerk,selection,targetVel);
+    return(retVal);
+}
+
+int CPluginContainer::ruckigPlugin_step(int objHandle,double timeStep,double* newPos,double* newVel,double* newAccel,double* syncTime)
+{
+    int retVal=-2;
+    if (currentRuckigPlugin!=nullptr)
+        retVal=currentRuckigPlugin->ruckigPlugin_step(objHandle,timeStep,newPos,newVel,newAccel,syncTime);
+    return(retVal);
+}
+
+int CPluginContainer::ruckigPlugin_remove(int objHandle)
+{
+    int retVal=-2;
+    if (currentRuckigPlugin!=nullptr)
+        retVal=currentRuckigPlugin->ruckigPlugin_remove(objHandle);
+    return(retVal);
+}
+
+int CPluginContainer::ruckigPlugin_dofs(int objHandle)
+{
+    int retVal=-2;
+    if (currentRuckigPlugin!=nullptr)
+        retVal=currentRuckigPlugin->ruckigPlugin_dofs(objHandle);
     return(retVal);
 }
 

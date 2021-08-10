@@ -177,6 +177,12 @@ typedef char* (__cdecl *ptrPythonPlugin_loadCode)(void* state,const char* code,c
 typedef char* (__cdecl *ptrPythonPlugin_callFunc)(void* state,const char* funcName,int inStackHandle,int outStackHandle,int* result);
 typedef int (__cdecl *ptrPythonPlugin_execStr)(void* state,const char* str,int outStackHandle);
 
+typedef int (__cdecl *ptrRuckigPlugin_pos)(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxVel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetPos,const double* targetVel);
+typedef int (__cdecl *ptrRuckigPlugin_vel)(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetVel);
+typedef int (__cdecl *ptrRuckigPlugin_step)(int objHandle,double timeStep,double* newPos,double* newVel,double* newAccel,double* syncTime);
+typedef int (__cdecl *ptrRuckigPlugin_remove)(int objHandle);
+typedef int (__cdecl *ptrRuckigPlugin_dofs)(int objHandle);
+
 typedef int (__cdecl *ptrCustomUi_msgBox)(int type, int buttons, const char *title, const char *message);
 typedef char* (__cdecl *ptrCustomUi_fileDialog)(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native);
 
@@ -357,6 +363,12 @@ public:
     ptrPythonPlugin_loadCode pythonPlugin_loadCode;
     ptrPythonPlugin_callFunc pythonPlugin_callFunc;
     ptrPythonPlugin_execStr pythonPlugin_execStr;
+
+    ptrRuckigPlugin_pos ruckigPlugin_pos;
+    ptrRuckigPlugin_vel ruckigPlugin_vel;
+    ptrRuckigPlugin_step ruckigPlugin_step;
+    ptrRuckigPlugin_remove ruckigPlugin_remove;
+    ptrRuckigPlugin_dofs ruckigPlugin_dofs;
 
     ptrCodeEditor_openModal _codeEditor_openModal;
     ptrCodeEditor_open _codeEditor_open;
@@ -617,6 +629,14 @@ public:
     static int pythonPlugin_loadCode(void* state,const char* code,const char* scriptName,const char* functionsToFind,bool* functionsFound,std::string* errorMsg);
     static int pythonPlugin_callFunc(void* state,const char* funcName,int inStackHandle,int outStackHandle,std::string* errorMsg);
     static int pythonPlugin_execStr(void* state,const char* str,int outStackHandle);
+
+    // Ruckig plugin:
+    static CPlugin* currentRuckigPlugin;
+    static int ruckigPlugin_pos(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxVel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetPos,const double* targetVel);
+    static int ruckigPlugin_vel(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetVel);
+    static int ruckigPlugin_step(int objHandle,double timeStep,double* newPos,double* newVel,double* newAccel,double* syncTime);
+    static int ruckigPlugin_remove(int objHandle);
+    static int ruckigPlugin_dofs(int objHandle);
 
     // Custom UI plugin:
     static CPlugin* currentCustomUi;

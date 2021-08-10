@@ -307,6 +307,8 @@ protected:
     void _adjustScriptText12_old(CScriptObject* scriptObject,bool doIt);
     void _adjustScriptText13_old(CScriptObject* scriptObject,bool doIt);
     void _adjustScriptText14_old(CScriptObject* scriptObject,bool doIt);
+    void _adjustScriptText15_old(CScriptObject* scriptObject,bool doIt);
+    void _detectDeprecated_old(CScriptObject* scriptObject);
     void _insertScriptText_old(CScriptObject* scriptObject,bool toFront,const char* txt);
     bool _replaceScriptText_old(CScriptObject* scriptObject,const char* oldTxt,const char* newTxt);
     bool _replaceScriptText_old(CScriptObject* scriptObject,const char* oldTxt1,const char* oldTxt2,const char* oldTxt3,const char* newTxt);
