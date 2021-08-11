@@ -1,20 +1,19 @@
-#include "customMenuBarItem.h"
+#include "moduleMenuItem.h"
 #include "app.h"
 #include "oGL.h"
 #include "simInternal.h"
-
 #include "pluginContainer.h"
 
-CCustomMenuBarItem::CCustomMenuBarItem(const char* menuBarText)
+CModuleMenuItem::CModuleMenuItem(const char* menuBarText)
 {
     _menuBarText=menuBarText;
 }
 
-CCustomMenuBarItem::~CCustomMenuBarItem()
+CModuleMenuItem::~CModuleMenuItem()
 {
 }
 
-void CCustomMenuBarItem::addItem(int cmdID)
+void CModuleMenuItem::addItem(int cmdID)
 {
     std::string tmp("");
     _labels.push_back(tmp);
@@ -22,7 +21,7 @@ void CCustomMenuBarItem::addItem(int cmdID)
     _commandIDs.push_back(cmdID);
 }
 
-void CCustomMenuBarItem::addMenus(VMenu* myMenu)
+void CModuleMenuItem::addMenus(VMenu* myMenu)
 {
     if (_menuBarText!="")
     {
@@ -43,22 +42,22 @@ void CCustomMenuBarItem::addMenus(VMenu* myMenu)
     }
 }
 
-std::string CCustomMenuBarItem::getMenuBarLabel()
+std::string CModuleMenuItem::getMenuBarLabel()
 {
     return(_menuBarText);
 }
 
-int CCustomMenuBarItem::getItemCount()
+int CModuleMenuItem::getItemCount()
 {
     return(int(_commandIDs.size()));
 }
 
-void CCustomMenuBarItem::setCommandID(int index,int theCommand)
+void CModuleMenuItem::setCommandID(int index,int theCommand)
 {
     _commandIDs[index]=theCommand;
 }
 
-bool CCustomMenuBarItem::setItemState(int commandID,bool checked,bool enabled,const char* newLabel)
+bool CModuleMenuItem::setItemState(int commandID,bool checked,bool enabled,const char* newLabel)
 {
     for (unsigned int i=0;i<_commandIDs.size();i++)
     {
@@ -78,7 +77,7 @@ bool CCustomMenuBarItem::setItemState(int commandID,bool checked,bool enabled,co
     return(false);
 }
 
-bool CCustomMenuBarItem::processCommand(int commandID)
+bool CModuleMenuItem::processCommand(int commandID)
 { // Return value is true if the command belonged to object edition menu and was executed
     for (unsigned int i=0;i<_commandIDs.size();i++)
     {

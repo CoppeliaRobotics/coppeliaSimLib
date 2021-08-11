@@ -414,8 +414,8 @@ if(WITH_GUI)
         sourceCode/gui/selectors/viewSelector.cpp
 
         sourceCode/gui/menusAndSimilar/toolBarCommand.cpp
-        sourceCode/gui/menusAndSimilar/customMenuBarItemContainer.cpp
-        sourceCode/gui/menusAndSimilar/customMenuBarItem.cpp
+        sourceCode/gui/menusAndSimilar/moduleMenuItemContainer.cpp
+        sourceCode/gui/menusAndSimilar/moduleMenuItem.cpp
         sourceCode/gui/menusAndSimilar/mainWindow.cpp
         sourceCode/gui/menusAndSimilar/statusBar.cpp
         sourceCode/gui/menusAndSimilar/helpMenu.cpp

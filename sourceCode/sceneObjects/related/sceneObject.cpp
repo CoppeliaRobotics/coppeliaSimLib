@@ -1701,8 +1701,6 @@ void CSceneObject::serialize(CSer& ar)
             ar << dummy;
             ar.flush();
 
-
-
             ar.storeDataName("Omp");
             ar << _localObjectSpecialProperty;
             ar.flush();
@@ -2109,6 +2107,9 @@ void CSceneObject::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _modelAcknowledgement;
+                        if (App::userSettings->xrTest==123456789)
+                        {
+                        }
                     }
                     if (theName.compare("Ups")==0)
                     {

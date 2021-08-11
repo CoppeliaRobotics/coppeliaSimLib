@@ -933,17 +933,17 @@ SIM_DLLEXPORT simFloat* simGetVisionSensorDepthBuffer(simInt visionSensorHandle)
 {
     return(simGetVisionSensorDepthBuffer_internal(visionSensorHandle));
 }
-SIM_DLLEXPORT simInt simRuckigPos(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel)
+SIM_DLLEXPORT simInt simRuckigPos(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2)
 {
-    return(simRuckigPos_internal(dofs,smallestTimeStep,flags,currentPos,currentVel,currentAccel,maxVel,maxAccel,maxJerk,selection,targetPos,targetVel));
+    return(simRuckigPos_internal(dofs,smallestTimeStep,flags,currentPos,currentVel,currentAccel,maxVel,maxAccel,maxJerk,selection,targetPos,targetVel,reserved1,reserved2));
 }
-SIM_DLLEXPORT simInt simRuckigVel(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel)
+SIM_DLLEXPORT simInt simRuckigVel(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2)
 {
-    return(simRuckigVel_internal(dofs,smallestTimeStep,flags,currentPos,currentVel,currentAccel,maxAccel,maxJerk,selection,targetVel));
+    return(simRuckigVel_internal(dofs,smallestTimeStep,flags,currentPos,currentVel,currentAccel,maxAccel,maxJerk,selection,targetVel,reserved1,reserved2));
 }
-SIM_DLLEXPORT simInt simRuckigStep(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime)
+SIM_DLLEXPORT simInt simRuckigStep(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2)
 {
-    return(simRuckigStep_internal(objHandle,timeStep,newPos,newVel,newAccel,syncTime));
+    return(simRuckigStep_internal(objHandle,timeStep,newPos,newVel,newAccel,syncTime,reserved1,reserved2));
 }
 SIM_DLLEXPORT simInt simRuckigRemove(simInt objHandle)
 {

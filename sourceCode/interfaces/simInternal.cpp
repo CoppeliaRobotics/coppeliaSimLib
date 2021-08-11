@@ -11406,7 +11406,7 @@ simFloat* simGetVisionSensorDepthBuffer_internal(simInt sensorHandle)
     return(nullptr);
 }
 
-simInt simRuckigPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel)
+simInt simRuckigPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2)
 {
     TRACE_C_API;
 
@@ -11424,7 +11424,7 @@ simInt simRuckigPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags
     return(-1);
 }
 
-simInt simRuckigVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel)
+simInt simRuckigVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2)
 {
     TRACE_C_API;
 
@@ -11442,7 +11442,7 @@ simInt simRuckigVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags
     return(-1);
 }
 
-simInt simRuckigStep_internal(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime)
+simInt simRuckigStep_internal(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2)
 {
     TRACE_C_API;
 
@@ -21274,7 +21274,7 @@ simInt simAddModuleMenuEntry_internal(const simChar* entryLabel,simInt itemCount
         if (App::mainWindow!=nullptr)
         {
             std::vector<int> commandIDs;
-            if (App::mainWindow->customMenuBarItemContainer->addMenuBarItem(entryLabel,itemCount,commandIDs))
+            if (App::mainWindow->moduleMenuItemContainer->addMenuBarItem(entryLabel,itemCount,commandIDs))
             {
                 for (unsigned int i=0;i<commandIDs.size();i++)
                     itemHandles[i]=commandIDs[i];
@@ -21304,7 +21304,7 @@ simInt simSetModuleMenuItemState_internal(simInt itemHandle,simInt state,const s
 #ifdef SIM_WITH_GUI
         if (App::mainWindow!=nullptr)
         {
-            if (App::mainWindow->customMenuBarItemContainer->setItemState(itemHandle,(state&2)!=0,(state&1)!=0,label))
+            if (App::mainWindow->moduleMenuItemContainer->setItemState(itemHandle,(state&2)!=0,(state&1)!=0,label))
                 return(1);
         }
         else

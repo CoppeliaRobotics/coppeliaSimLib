@@ -96,7 +96,7 @@ CMainWindow::CMainWindow() : QMainWindow()
     if ( (App::userSettings->highResDisplay==1)||((devicePixelRatio()>1.2f)&&(App::userSettings->highResDisplay==-1)) ) // Required for MacOS apparently
             App::sc=2;
 
-    customMenuBarItemContainer=new CCustomMenuBarItemContainer();
+    moduleMenuItemContainer=new CModuleMenuItemContainer();
     dlgCont=new CDlgCont(this);
 
     simulationRecorder=new CSimRecorder(App::folders->getVideosPath().c_str());
@@ -262,7 +262,7 @@ CMainWindow::~CMainWindow()
     delete _signalMapper;
     delete simulationRecorder;
     delete dlgCont;
-    delete customMenuBarItemContainer;
+    delete moduleMenuItemContainer;
 
     ogl::freeOutlineFont();
     ogl::freeBitmapFonts();
@@ -921,11 +921,11 @@ void CMainWindow::createDefaultMenuBar()
             _menubar->appendMenuAndDetach(_toolsSystemMenu,menuBarEnabled,(std::string(IDS_TOOLS_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
             connect(_toolsSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowToolsSystemMenu()));
 
-            if (customMenuBarItemContainer->allItems.size()!=0)
+            if (moduleMenuItemContainer->allItems.size()!=0)
             { // Modules (plugins+add-ons)
-                customMenuBarItemContainer->_menuHandle=new VMenu();
-                _menubar->appendMenuAndDetach(customMenuBarItemContainer->_menuHandle,menuBarEnabled,(std::string("Modules")+DUMMY_SPACE_QMENUBAR_QT5).c_str());
-                connect(customMenuBarItemContainer->_menuHandle->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowCustomMenu()));
+                moduleMenuItemContainer->_menuHandle=new VMenu();
+                _menubar->appendMenuAndDetach(moduleMenuItemContainer->_menuHandle,menuBarEnabled,(std::string("Modules")+DUMMY_SPACE_QMENUBAR_QT5).c_str());
+                connect(moduleMenuItemContainer->_menuHandle->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowCustomMenu()));
             }
             {
                 _instancesSystemMenu=new VMenu();
@@ -1969,15 +1969,13 @@ void CMainWindow::_simMessageHandler(int id)
     if (!processed)
         processed=App::currentWorld->simulation->processCommand(id);
     if (!processed)
-        processed=App::worldContainer->addOnScriptContainer->processCommand(id);
-    if (!processed)
         processed=dlgCont->processCommand(id);
     if (!processed)
         processed=CHelpMenu::processCommand(id);
     if (!processed)
         processed=App::worldContainer->processGuiCommand(id);
     if (!processed)
-        processed=customMenuBarItemContainer->processCommand(id);
+        processed=moduleMenuItemContainer->processCommand(id);
     App::setToolbarRefreshFlag();
 }
 
@@ -2028,8 +2026,8 @@ void CMainWindow::_aboutToShowInstancesSystemMenu()
 
 void CMainWindow::_aboutToShowCustomMenu()
 {
-    customMenuBarItemContainer->_menuHandle->clear();
-    customMenuBarItemContainer->addMenus(customMenuBarItemContainer->_menuHandle);
+    moduleMenuItemContainer->_menuHandle->clear();
+    moduleMenuItemContainer->addMenus(moduleMenuItemContainer->_menuHandle);
 }
 
 void CMainWindow::statusbarSplitterMoved(int pos,int index)

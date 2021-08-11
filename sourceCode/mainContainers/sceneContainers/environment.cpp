@@ -522,6 +522,9 @@ void CEnvironment::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _acknowledgement;
+                        if (App::userSettings->xrTest==123456789)
+                        {
+                        }
                     }
                     if (theName.compare("Mts")==0)
                     { // keep for backward compatibility (2010/07/07)

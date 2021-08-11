@@ -746,8 +746,8 @@ WITH_GUI {
         $$PWD/sourceCode/gui/selectors/pageSelector.h \
 
     HEADERS += $$PWD/sourceCode/gui/menusAndSimilar/toolBarCommand.h \
-        $$PWD/sourceCode/gui/menusAndSimilar/customMenuBarItemContainer.h \
-        $$PWD/sourceCode/gui/menusAndSimilar/customMenuBarItem.h \
+        $$PWD/sourceCode/gui/menusAndSimilar/moduleMenuItemContainer.h \
+        $$PWD/sourceCode/gui/menusAndSimilar/moduleMenuItem.h \
         $$PWD/sourceCode/gui/menusAndSimilar/mainWindow.h \
         $$PWD/sourceCode/gui/menusAndSimilar/statusBar.h \
         $$PWD/sourceCode/gui/menusAndSimilar/helpMenu.h \
@@ -1169,8 +1169,8 @@ WITH_GUI {
         $$PWD/sourceCode/gui/selectors/viewSelector.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/menusAndSimilar/toolBarCommand.cpp \
-        $$PWD/sourceCode/gui/menusAndSimilar/customMenuBarItemContainer.cpp \
-        $$PWD/sourceCode/gui/menusAndSimilar/customMenuBarItem.cpp \
+        $$PWD/sourceCode/gui/menusAndSimilar/moduleMenuItemContainer.cpp \
+        $$PWD/sourceCode/gui/menusAndSimilar/moduleMenuItem.cpp \
         $$PWD/sourceCode/gui/menusAndSimilar/mainWindow.cpp \
         $$PWD/sourceCode/gui/menusAndSimilar/statusBar.cpp \
         $$PWD/sourceCode/gui/menusAndSimilar/helpMenu.cpp \

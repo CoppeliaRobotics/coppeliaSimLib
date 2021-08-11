@@ -3,11 +3,11 @@
 
 #include "vMenubar.h"
 
-class CCustomMenuBarItem  
+class CModuleMenuItem  
 {
 public:
-    CCustomMenuBarItem(const char* menuBarText);
-    virtual ~CCustomMenuBarItem();
+    CModuleMenuItem(const char* menuBarText);
+    virtual ~CModuleMenuItem();
     std::string getMenuBarLabel();
     void addItem(int cmdID);
     bool setItemState(int commandID,bool checked,bool enabled,const char* newLabel);

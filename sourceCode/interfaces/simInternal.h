@@ -245,9 +245,9 @@ simUChar* simGetVisionSensorCharImage_internal(simInt visionSensorHandle,simInt*
 simInt simSetVisionSensorImage_internal(simInt visionSensorHandle,const simFloat* image);
 simInt simSetVisionSensorCharImage_internal(simInt visionSensorHandle,const simUChar* image);
 simFloat* simGetVisionSensorDepthBuffer_internal(simInt visionSensorHandle);
-simInt simRuckigPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel);
-simInt simRuckigVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel);
-simInt simRuckigStep_internal(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime);
+simInt simRuckigPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
+simInt simRuckigVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
+simInt simRuckigStep_internal(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2);
 simInt simRuckigRemove_internal(simInt objHandle);
 simChar* simFileDialog_internal(simInt mode,const simChar* title,const simChar* startPath,const simChar* initName,const simChar* extName,const simChar* ext);
 simInt simMsgBox_internal(simInt dlgType,simInt buttons,const simChar* title,const simChar* message);

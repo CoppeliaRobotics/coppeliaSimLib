@@ -10217,7 +10217,7 @@ int _simRuckigPos(luaWrap_lua_State* L)
             getDoublesFromTable(L,7,dofs*2,&targetPosVel[0]);
 
             setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-            int retVal=simRuckigPos_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&maxVelAccelJerk[0],&maxVelAccelJerk[dofs],&maxVelAccelJerk[dofs*2],(unsigned char*)(&selection[0]),&targetPosVel[0],&targetPosVel[dofs]);
+            int retVal=simRuckigPos_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&maxVelAccelJerk[0],&maxVelAccelJerk[dofs],&maxVelAccelJerk[dofs*2],(unsigned char*)(&selection[0]),&targetPosVel[0],&targetPosVel[dofs],nullptr,nullptr);
             setCurrentScriptInfo_cSide(-1,-1);
 
             luaWrap_lua_pushinteger(L,retVal);
@@ -10258,7 +10258,7 @@ int _simRuckigVel(luaWrap_lua_State* L)
             getDoublesFromTable(L,7,dofs,&targetVel[0]);
 
             setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-            int retVal=simRuckigVel_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&maxAccelJerk[0],&maxAccelJerk[dofs],(unsigned char*)(&selection[0]),&targetVel[0]);
+            int retVal=simRuckigVel_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&maxAccelJerk[0],&maxAccelJerk[dofs],(unsigned char*)(&selection[0]),&targetVel[0],nullptr,nullptr);
             setCurrentScriptInfo_cSide(-1,-1);
 
             luaWrap_lua_pushinteger(L,retVal);
@@ -10285,7 +10285,7 @@ int _simRuckigStep(luaWrap_lua_State* L)
         std::vector<double> newPosVelAccel;
         newPosVelAccel.resize(dofs*3);
         double syncTime;
-        int retVal=simRuckigStep_internal(handle,timeStep,&newPosVelAccel[0],&newPosVelAccel[dofs],&newPosVelAccel[dofs*2],&syncTime);
+        int retVal=simRuckigStep_internal(handle,timeStep,&newPosVelAccel[0],&newPosVelAccel[dofs],&newPosVelAccel[dofs*2],&syncTime,nullptr,nullptr);
         if (retVal>=0)
         {
             luaWrap_lua_pushinteger(L,retVal);

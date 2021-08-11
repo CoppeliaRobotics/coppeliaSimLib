@@ -1,18 +1,18 @@
 
 #pragma once
 
-#include "customMenuBarItem.h"
+#include "moduleMenuItem.h"
 
-class CCustomMenuBarItemContainer  
+class CModuleMenuItemContainer  
 {
 public:
-    CCustomMenuBarItemContainer();
-    virtual ~CCustomMenuBarItemContainer();
+    CModuleMenuItemContainer();
+    virtual ~CModuleMenuItemContainer();
     bool addMenuBarItem(const char* title,int subItemCount,std::vector<int>& commandIDs);
     bool setItemState(int commandID,bool checked,bool enabled,const char* newLabel);
     bool addMenus(VMenu* myMenu);
     bool processCommand(int commandID);
-    std::vector<CCustomMenuBarItem*> allItems;
+    std::vector<CModuleMenuItem*> allItems;
     VMenu* _menuHandle;
 
 private:

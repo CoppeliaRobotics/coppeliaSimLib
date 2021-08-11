@@ -6873,6 +6873,10 @@ void CScriptObject::_adjustScriptText15_old(CScriptObject* scriptObject,bool doI
 
 void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
 {
+    if (_containsScriptText_old(scriptObject,"Reflexxes"))
+        App::logMsg(sim_verbosity_errors,"Contains Reflexxes...");
+    if (_containsScriptText_old(scriptObject,"reflexxes"))
+        App::logMsg(sim_verbosity_errors,"Contains reflexxes...");
     if (_containsScriptText_old(scriptObject,"sim.rml"))
         App::logMsg(sim_verbosity_errors,"Contains sim.rml*...");
     if (_containsScriptText_old(scriptObject,"sim.getObjectHandle(sim.handle_self)"))

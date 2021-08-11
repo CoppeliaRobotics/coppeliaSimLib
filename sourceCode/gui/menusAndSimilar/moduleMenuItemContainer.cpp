@@ -1,20 +1,20 @@
 #include "app.h"
-#include "customMenuBarItemContainer.h"
+#include "moduleMenuItemContainer.h"
 #include "global.h"
 
-CCustomMenuBarItemContainer::CCustomMenuBarItemContainer()
+CModuleMenuItemContainer::CModuleMenuItemContainer()
 {
     _nextSmallItemCommandID=ADDITIONAL_TOOL_MENU_ITEM_START_CMD;
     _menuHandle=nullptr;
 }
 
-CCustomMenuBarItemContainer::~CCustomMenuBarItemContainer()
+CModuleMenuItemContainer::~CModuleMenuItemContainer()
 {
     for (unsigned int i=0;i<allItems.size();i++)
         delete allItems[i];
 }
 
-bool CCustomMenuBarItemContainer::setItemState(int commandID,bool checked,bool enabled,const char* newLabel)
+bool CModuleMenuItemContainer::setItemState(int commandID,bool checked,bool enabled,const char* newLabel)
 {
     for (unsigned int i=0;i<allItems.size();i++)
     {
@@ -24,12 +24,12 @@ bool CCustomMenuBarItemContainer::setItemState(int commandID,bool checked,bool e
     return(false);
 }
 
-bool CCustomMenuBarItemContainer::addMenuBarItem(const char* title,int subItemCount,std::vector<int>& commandIDs)
+bool CModuleMenuItemContainer::addMenuBarItem(const char* title,int subItemCount,std::vector<int>& commandIDs)
 {
     commandIDs.clear();
     if (subItemCount+_nextSmallItemCommandID-1>ADDITIONAL_TOOL_MENU_ITEM_END_CMD)
         return(false); // Too many!!
-    CCustomMenuBarItem* it=nullptr;
+    CModuleMenuItem* it=nullptr;
     for (int i=0;i<int(allItems.size());i++)
     {
         if ( (allItems[i]->getMenuBarLabel()==title)&&(strlen(title)!=0) )
@@ -40,7 +40,7 @@ bool CCustomMenuBarItemContainer::addMenuBarItem(const char* title,int subItemCo
     }
     if (it==nullptr)
     { // That menu doesn't yet exist! We create it
-        it=new CCustomMenuBarItem(title);
+        it=new CModuleMenuItem(title);
         allItems.push_back(it);
     }
     for (int i=0;i<subItemCount;i++)
@@ -51,7 +51,7 @@ bool CCustomMenuBarItemContainer::addMenuBarItem(const char* title,int subItemCo
     return(true);
 }
 
-bool CCustomMenuBarItemContainer::addMenus(VMenu* myMenu)
+bool CModuleMenuItemContainer::addMenus(VMenu* myMenu)
 {
     // From Qt this is only called if the custom menu was clicked (unlike in Windows)
     for (unsigned int i=0;i<allItems.size();i++)
@@ -62,7 +62,7 @@ bool CCustomMenuBarItemContainer::addMenus(VMenu* myMenu)
     return(true);
 }
 
-bool CCustomMenuBarItemContainer::processCommand(int commandID)
+bool CModuleMenuItemContainer::processCommand(int commandID)
 { // Return value is true if the command belonged to object edition menu and was executed
     for (unsigned int i=0;i<allItems.size();i++)
     {
