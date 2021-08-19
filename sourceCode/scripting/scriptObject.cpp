@@ -1458,7 +1458,7 @@ bool CScriptObject::isAutoStartAddOn()
     return(_autoStartAddOn==1);
 }
 
-int CScriptObject::___loadCode(const char* code,const char* scriptName,const char* functionsToFind,bool* functionsFound,std::string* errorMsg)
+int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool* functionsFound,std::string* errorMsg)
 { // retVal: -1=compil error, 0=runtime error, 1=no error
     int retVal=-1;
     if (_lang==lang_lua)
@@ -1467,7 +1467,7 @@ int CScriptObject::___loadCode(const char* code,const char* scriptName,const cha
         _raiseErrors_backCompatibility=true;
         if (_checkIfMixingOldAndNewCallMethods_old())
         {
-            std::string msg(scriptName);
+            std::string msg(getShortDescriptiveName().c_str());
             msg+=": detected a possible attempt to mix the old and new calling methods. For example:";
             msg+="\n         with the old method: if sim_call_type==sim_childscriptcall_initialization then ... end";
             msg+="\n         with the new method: function sysCall_init() ... end";
@@ -1477,7 +1477,7 @@ int CScriptObject::___loadCode(const char* code,const char* scriptName,const cha
         std::string tmp("sim_call_type="); // for backward compatibility
         tmp+=std::to_string(sim_syscb_init);
         _execSimpleString_safe_lua(L,tmp.c_str());
-        if (_loadBuffer_lua(code,strlen(code),scriptName))
+        if (_loadBuffer_lua(code,strlen(code),getShortDescriptiveName().c_str()))
         {
             if (_executionDepth==0)
                 _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
@@ -1529,7 +1529,7 @@ int CScriptObject::___loadCode(const char* code,const char* scriptName,const cha
         luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
     }
     if (_lang==lang_python)
-        retVal=CPluginContainer::pythonPlugin_loadCode(_interpreterState,code,scriptName,functionsToFind,functionsFound,errorMsg);
+        retVal=CPluginContainer::pythonPlugin_loadCode(_interpreterState,code,functionsToFind,functionsFound,errorMsg);
     return(retVal);
 }
 
@@ -1551,7 +1551,7 @@ bool CScriptObject::_loadCode()
         functions+=getSystemCallbackString(sim_syscb_userconfig,false)+'\0';
         functions+='\0';
         std::string errMsg;
-        int r=___loadCode(_scriptTextExec.c_str(),getShortDescriptiveName().c_str(),functions.c_str(),functionsPresent,&errMsg);
+        int r=___loadCode(_scriptTextExec.c_str(),functions.c_str(),functionsPresent,&errMsg);
         if (r>=0)
         {
             if (r==0)
@@ -2286,7 +2286,7 @@ bool CScriptObject::_initInterpreterState()
         luaWrap_lua_sethook(L,_hookFunction_lua,hookMask,100); // This instruction gets also called in luaHookFunction!!!!
     }
     if (_lang==lang_python)
-        _interpreterState=CPluginContainer::pythonPlugin_initState();
+        _interpreterState=CPluginContainer::pythonPlugin_initState(_scriptHandle,getShortDescriptiveName().c_str());
 
     if (_interpreterState==nullptr)
         _announceErrorWasRaisedAndPossiblyPauseSimulation("Interpreter could not be initialized",false);

@@ -171,9 +171,9 @@ typedef char* (__cdecl *ptrCodeEditor_getText)(int handle,int* positionAndSize);
 typedef int (__cdecl *ptrCodeEditor_show)(int handle,int showState);
 typedef int (__cdecl *ptrCodeEditor_close)(int handle,int* positionAndSize);
 
-typedef void* (__cdecl *ptrPythonPlugin_initState)();
+typedef void* (__cdecl *ptrPythonPlugin_initState)(int scriptHandle,const char* scriptName);
 typedef void (__cdecl *ptrPythonPlugin_cleanupState)(void* state);
-typedef char* (__cdecl *ptrPythonPlugin_loadCode)(void* state,const char* code,const char* scriptName,const char* functionsToFind,bool* functionsFound,int* result);
+typedef char* (__cdecl *ptrPythonPlugin_loadCode)(void* state,const char* code,const char* functionsToFind,bool* functionsFound,int* result);
 typedef char* (__cdecl *ptrPythonPlugin_callFunc)(void* state,const char* funcName,int inStackHandle,int outStackHandle,int* result);
 typedef int (__cdecl *ptrPythonPlugin_execStr)(void* state,const char* str,int outStackHandle);
 
@@ -624,9 +624,9 @@ public:
 
     // Python plugin:
     static CPlugin* currentPythonPlugin;
-    static void* pythonPlugin_initState();
+    static void* pythonPlugin_initState(int scriptHandle,const char* scriptName);
     static void pythonPlugin_cleanupState(void* state);
-    static int pythonPlugin_loadCode(void* state,const char* code,const char* scriptName,const char* functionsToFind,bool* functionsFound,std::string* errorMsg);
+    static int pythonPlugin_loadCode(void* state,const char* code,const char* functionsToFind,bool* functionsFound,std::string* errorMsg);
     static int pythonPlugin_callFunc(void* state,const char* funcName,int inStackHandle,int outStackHandle,std::string* errorMsg);
     static int pythonPlugin_execStr(void* state,const char* str,int outStackHandle);
 

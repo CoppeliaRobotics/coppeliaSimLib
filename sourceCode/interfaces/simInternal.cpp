@@ -1249,16 +1249,24 @@ simInt simGetScriptHandleEx_internal(simInt scriptType,simInt objectHandle,const
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         CScriptObject* it=nullptr;
-        if ( (scriptType==sim_scripttype_addonscript)&&(scriptName!=nullptr) )
-            it=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName);
         if (scriptType==sim_scripttype_mainscript)
             it=App::currentWorld->embeddedScriptContainer->getMainScript();
-        if (scriptType==sim_scripttype_childscript)
-            it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objectHandle);
-        if (scriptType==sim_scripttype_customizationscript)
-            it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objectHandle);
         if (scriptType==sim_scripttype_sandboxscript)
             it=App::worldContainer->sandboxScript;
+        if (scriptType==sim_scripttype_childscript)
+        {
+            if ( (objectHandle<0)&&(scriptName!=nullptr) )
+                objectHandle=simGetObjectHandleEx_internal(scriptName,-1,-1,0);
+            it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objectHandle);
+        }
+        if (scriptType==sim_scripttype_customizationscript)
+        {
+            if ( (objectHandle<0)&&(scriptName!=nullptr) )
+                objectHandle=simGetObjectHandleEx_internal(scriptName,-1,-1,0);
+            it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objectHandle);
+        }
+        if ( (scriptType==sim_scripttype_addonscript)&&(scriptName!=nullptr) )
+            it=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName);
         if ( (it!=nullptr)&&(!it->getFlaggedForDestruction()) )
             return(it->getScriptHandle());
         return(-1);
@@ -2274,16 +2282,12 @@ simInt simGetObjectType_internal(simInt objectHandle)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         int retVal=it->getObjectType();
         return(retVal);

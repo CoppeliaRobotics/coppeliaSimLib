@@ -2674,11 +2674,11 @@ int CPluginContainer::codeEditor_close(int handle,int* positionAndSize)
     return(retVal);
 }
 
-void* CPluginContainer::pythonPlugin_initState()
+void* CPluginContainer::pythonPlugin_initState(int scriptHandle,const char* scriptName)
 {
     void* retVal=nullptr;
     if (currentPythonPlugin!=nullptr)
-        retVal=currentPythonPlugin->pythonPlugin_initState();
+        retVal=currentPythonPlugin->pythonPlugin_initState(scriptHandle,scriptName);
     return(retVal);
 }
 
@@ -2688,12 +2688,12 @@ void CPluginContainer::pythonPlugin_cleanupState(void* state)
         currentPythonPlugin->pythonPlugin_cleanupState(state);
 }
 
-int CPluginContainer::pythonPlugin_loadCode(void* state,const char* code,const char* scriptName,const char* functionsToFind,bool* functionsFound,std::string* errorMsg)
+int CPluginContainer::pythonPlugin_loadCode(void* state,const char* code,const char* functionsToFind,bool* functionsFound,std::string* errorMsg)
 {
     int retVal=-2;
     if (currentPythonPlugin!=nullptr)
     {
-        char* err=currentPythonPlugin->pythonPlugin_loadCode(state,code,scriptName,functionsToFind,functionsFound,&retVal);
+        char* err=currentPythonPlugin->pythonPlugin_loadCode(state,code,functionsToFind,functionsFound,&retVal);
         if (errorMsg!=nullptr)
             errorMsg[0]=err;
         delete[] err;
