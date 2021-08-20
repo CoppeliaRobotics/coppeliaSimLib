@@ -174,6 +174,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_COULD_NOT_SET_PARAMETER "Could not set parameter."
 #define SIM_ERROR_COULD_NOT_FIND_RUCKIG "Could not find the Ruckig plugin."
 #define SIM_ERROR_RUCKIG_OBJECT_INEXISTANT "Ruckig object does not exist."
+#define SIM_ERROR_STRING_NOT_RECOGNIZED_AS_FUNC_OR_CONST "String not recognized as function or constant."
 
 
 // Class is fully static

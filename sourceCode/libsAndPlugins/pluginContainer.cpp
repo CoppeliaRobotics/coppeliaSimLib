@@ -313,6 +313,10 @@ int CPlugin::load()
                 pythonPlugin_loadCode=(ptrPythonPlugin_loadCode)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_loadCode"));
                 pythonPlugin_callFunc=(ptrPythonPlugin_callFunc)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_callFunc"));
                 pythonPlugin_execStr=(ptrPythonPlugin_execStr)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_execStr"));
+                pythonPlugin_isDeprecated=(ptrPythonPlugin_isDeprecated)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_isDeprecated"));
+                pythonPlugin_getFuncs=(ptrPythonPlugin_getFuncs)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_getFuncs"));
+                pythonPlugin_getConsts=(ptrPythonPlugin_getConsts)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_getConsts"));
+                pythonPlugin_getCalltip=(ptrPythonPlugin_getCalltip)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_getCalltip"));
                 if (pythonPlugin_initState!=nullptr)
                     CPluginContainer::currentPythonPlugin=this;
 
@@ -2719,6 +2723,69 @@ int CPluginContainer::pythonPlugin_execStr(void* state,const char* str,int outSt
     int retVal=-2;
     if (currentPythonPlugin!=nullptr)
         retVal=currentPythonPlugin->pythonPlugin_execStr(state,str,outStackHandle);
+    return(retVal);
+}
+
+int CPluginContainer::pythonPlugin_isDeprecated(const char* str)
+{
+    int retVal=-2;
+    if (currentPythonPlugin!=nullptr)
+        retVal=currentPythonPlugin->pythonPlugin_isDeprecated(str);
+    return(retVal);
+}
+
+void CPluginContainer::pythonPlugin_getFuncs(const char* str,std::vector<std::string>& v)
+{
+    if (currentPythonPlugin!=nullptr)
+    {
+        char* funcs=currentPythonPlugin->pythonPlugin_getFuncs(str);
+        if (funcs!=nullptr)
+        {
+            size_t off=0;
+            size_t l=strlen(funcs+off);
+            while (l!=0)
+            {
+                v.push_back(funcs+off);
+                off+=l+1;
+                l=strlen(funcs+off);
+            }
+            delete[] funcs;
+        }
+    }
+}
+
+void CPluginContainer::pythonPlugin_getConsts(const char* str,std::vector<std::string>& v)
+{
+    if (currentPythonPlugin!=nullptr)
+    {
+        char* funcs=currentPythonPlugin->pythonPlugin_getConsts(str);
+        if (funcs!=nullptr)
+        {
+            size_t off=0;
+            size_t l=strlen(funcs+off);
+            while (l!=0)
+            {
+                v.push_back(funcs+off);
+                off+=l+1;
+                l=strlen(funcs+off);
+            }
+            delete[] funcs;
+        }
+    }
+}
+
+std::string CPluginContainer::pythonPlugin_getCalltip(const char* func)
+{
+    std::string retVal;
+    if (currentPythonPlugin!=nullptr)
+    {
+        char* tip=currentPythonPlugin->pythonPlugin_getCalltip(func);
+        if (tip!=nullptr)
+        {
+            retVal=tip;
+            delete[] tip;
+        }
+    }
     return(retVal);
 }
 

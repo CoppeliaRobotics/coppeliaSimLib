@@ -176,6 +176,10 @@ typedef void (__cdecl *ptrPythonPlugin_cleanupState)(void* state);
 typedef char* (__cdecl *ptrPythonPlugin_loadCode)(void* state,const char* code,const char* functionsToFind,bool* functionsFound,int* result);
 typedef char* (__cdecl *ptrPythonPlugin_callFunc)(void* state,const char* funcName,int inStackHandle,int outStackHandle,int* result);
 typedef int (__cdecl *ptrPythonPlugin_execStr)(void* state,const char* str,int outStackHandle);
+typedef int (__cdecl *ptrPythonPlugin_isDeprecated)(const char* str);
+typedef char* (__cdecl *ptrPythonPlugin_getFuncs)(const char* str);
+typedef char* (__cdecl *ptrPythonPlugin_getConsts)(const char* str);
+typedef char* (__cdecl *ptrPythonPlugin_getCalltip)(const char* func);
 
 typedef int (__cdecl *ptrRuckigPlugin_pos)(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxVel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetPos,const double* targetVel);
 typedef int (__cdecl *ptrRuckigPlugin_vel)(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetVel);
@@ -363,6 +367,11 @@ public:
     ptrPythonPlugin_loadCode pythonPlugin_loadCode;
     ptrPythonPlugin_callFunc pythonPlugin_callFunc;
     ptrPythonPlugin_execStr pythonPlugin_execStr;
+    ptrPythonPlugin_isDeprecated pythonPlugin_isDeprecated;
+    ptrPythonPlugin_getFuncs pythonPlugin_getFuncs;
+    ptrPythonPlugin_getConsts pythonPlugin_getConsts;
+    ptrPythonPlugin_getCalltip pythonPlugin_getCalltip;
+
 
     ptrRuckigPlugin_pos ruckigPlugin_pos;
     ptrRuckigPlugin_vel ruckigPlugin_vel;
@@ -629,6 +638,10 @@ public:
     static int pythonPlugin_loadCode(void* state,const char* code,const char* functionsToFind,bool* functionsFound,std::string* errorMsg);
     static int pythonPlugin_callFunc(void* state,const char* funcName,int inStackHandle,int outStackHandle,std::string* errorMsg);
     static int pythonPlugin_execStr(void* state,const char* str,int outStackHandle);
+    static int pythonPlugin_isDeprecated(const char* str);
+    static void pythonPlugin_getFuncs(const char* str,std::vector<std::string>& v);
+    static void pythonPlugin_getConsts(const char* str,std::vector<std::string>& v);
+    static std::string pythonPlugin_getCalltip(const char* func);
 
     // Ruckig plugin:
     static CPlugin* currentRuckigPlugin;

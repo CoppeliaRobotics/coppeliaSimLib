@@ -493,24 +493,7 @@ void CScriptObject::getMatchingFunctions(const char* txt,std::vector<std::string
         }
     }
     if (lang==lang_python)
-    {
-        // get functions that match ttxt for autocomplete
-        /*
-        char* funcs=CPluginContainer::pythonPlugin_getAutocompleteFuncs(ttxt.c_str())
-        if (funcs!=nullptr)
-        {
-            size_t off=0;
-            size_t l=strlen(funcs+off);
-            while (l!=0)
-            {
-                v.push_back(funcs+off);
-                off+=l+1;
-                l=strlen(funcs+off);
-            }
-            delete[] funcs;
-        }
-        */
-    }
+        CPluginContainer::pythonPlugin_getFuncs(ttxt.c_str(),v);
 
     std::vector<std::string> sysCb=getAllSystemCallbackStrings(-1,false,false);
     for (size_t i=0;i<sysCb.size();i++)
@@ -575,24 +558,7 @@ void CScriptObject::getMatchingConstants(const char* txt,std::vector<std::string
         }
     }
     if (lang==lang_python)
-    {
-        // get vars that match ttxt for autocomplete
-        /*
-        char* vars=CPluginContainer::pythonPlugin_getAutocompleteVars(ttxt.c_str())
-        if (vars!=nullptr)
-        {
-            size_t off=0;
-            size_t l=strlen(vars+off);
-            while (l!=0)
-            {
-                v.push_back(vars+off);
-                off+=l+1;
-                l=strlen(vars+off);
-            }
-            delete[] vars;
-        }
-        */
-    }
+        CPluginContainer::pythonPlugin_getConsts(ttxt.c_str(),v);
 
     App::worldContainer->scriptCustomFuncAndVarContainer->pushAllVariableNamesThatStartSame_autoCompletionList(ttxt.c_str(),v,m);
     std::sort(v.begin(),v.end());
@@ -618,16 +584,9 @@ std::string CScriptObject::getFunctionCalltip(const char* txt)
     }
     if (lang==lang_python)
     {
-        // get calltip for func
-        /*
-        char* ct=CPluginContainer::pythonPlugin_getFuncCalltip(func.c_str())
-        if (ct!=nullptr)
-        {
-            std::string retVal(ct);
-            delete[] ct;
-            return(retVal);
-        }
-        */
+        std::string ret=CPluginContainer::pythonPlugin_getCalltip(func.c_str());
+        if (ret.size()>0)
+            return(ret);
     }
 
     // Check system callback calltips:
@@ -700,12 +659,10 @@ int CScriptObject::isFunctionOrConstDeprecated(const char* txt)
     }
     if (lang==lang_python)
     {
-        // check if func or var is deprecated
-        /*
-        int r=CPluginContainer::pythonPlugin_isDeprecated(func.c_str())
-        if (r==1)
+        int r=CPluginContainer::pythonPlugin_isDeprecated(func.c_str());
+        if (r>=0)
             return(r);
-        */
+        return(-1);
     }
 
     // Check also callback functions:
@@ -2127,6 +2084,7 @@ void CScriptObject::terminateScriptExecutionExternally(bool generateErrorMsg)
         luaWrap_lua_yield((luaWrap_lua_State*)_interpreterState,0);
     if (_lang==lang_python)
     {
+        // Probably nothing needed here, if handled via the sandbox script and custom UI
     }
 }
 
