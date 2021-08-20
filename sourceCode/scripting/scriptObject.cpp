@@ -1642,6 +1642,18 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
         outStack=_outStack;
 
     // ---------------------------------
+    if (_scriptType==sim_scripttype_mainscript)
+    { // corresponding calls for plugins:
+        int data[4]={0,App::currentWorld->simulation->getSimulationTime_us()/1000,0,0};
+        if (callType==sim_syscb_init)
+            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationinit,data,nullptr,nullptr);
+        if (callType==sim_syscb_actuation)
+            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationactuation,data,nullptr,nullptr);
+        if (callType==sim_syscb_sensing)
+            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationsensing,data,nullptr,nullptr);
+        if (callType==sim_syscb_cleanup)
+            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationcleanup,data,nullptr,nullptr);
+    }
     std::string errMsg;
     if (_executionDepth==0)
         _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
@@ -1659,6 +1671,18 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
             retVal=-1;
         }
         _calledInThisSimulationStep=true;
+    }
+    if (_scriptType==sim_scripttype_mainscript)
+    { // corresponding calls for plugins:
+        int data[4]={1,App::currentWorld->simulation->getSimulationTime_us()/1000,0,0};
+        if (callType==sim_syscb_init)
+            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationinit,data,nullptr,nullptr);
+        if (callType==sim_syscb_actuation)
+            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationactuation,data,nullptr,nullptr);
+        if (callType==sim_syscb_sensing)
+            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationsensing,data,nullptr,nullptr);
+        if (callType==sim_syscb_cleanup)
+            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationcleanup,data,nullptr,nullptr);
     }
     // ---------------------------------
 
