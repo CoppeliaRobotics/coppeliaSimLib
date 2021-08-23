@@ -204,7 +204,7 @@ public:
 
 protected:
     int _checkLanguage();
-    bool _initInterpreterState();
+    bool _initInterpreterState(std::string* errorMsg);
     bool _killInterpreterState();
     void _announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg,bool runtimeError);
     bool _loadCode();

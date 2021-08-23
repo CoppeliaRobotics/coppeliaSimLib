@@ -84,10 +84,8 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
     if (_scriptType==sim_scripttype_sandboxscript)
     {
         _scriptHandle=SIM_IDSTART_SANDBOXSCRIPT;
-        _initInterpreterState();
-
-        // Old:
-        _raiseErrors_backCompatibility=true;
+        if (_initInterpreterState(nullptr))
+            _raiseErrors_backCompatibility=true; // Old
     }
 }
 
@@ -1496,50 +1494,57 @@ bool CScriptObject::_loadCode()
     {
         fromFileToBuffer();
         _scriptTextExec.assign(_scriptText.begin(),_scriptText.end());
-        _initInterpreterState();
-
-        std::string functions;
-        bool functionsPresent[6];
-        functions+=getSystemCallbackString(sim_syscb_jointcallback,false)+'\0';
-        functions+=getSystemCallbackString(sim_syscb_contactcallback,false)+'\0';
-        functions+=getSystemCallbackString(sim_syscb_dyncallback,false)+'\0';
-        functions+=getSystemCallbackString(sim_syscb_vision,false)+'\0';
-        functions+=getSystemCallbackString(sim_syscb_trigger,false)+'\0';
-        functions+=getSystemCallbackString(sim_syscb_userconfig,false)+'\0';
-        functions+='\0';
-        std::string errMsg;
-        int r=___loadCode(_scriptTextExec.c_str(),functions.c_str(),functionsPresent,&errMsg);
-        if (r>=0)
+        std::string intStateErr;
+        if (_initInterpreterState(&intStateErr))
         {
-            if (r==0)
-            { // a runtime error occurred!
-                _scriptState|=scriptState_error;
-                _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),true);
-            }
-            else
-            { // success
-                if (_compatibilityMode_oldLua)
-                {
-                    _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState,"_S.sysCallEx_init()");
-                    _scriptState=scriptState_initialized;
+            std::string functions;
+            bool functionsPresent[6];
+            functions+=getSystemCallbackString(sim_syscb_jointcallback,false)+'\0';
+            functions+=getSystemCallbackString(sim_syscb_contactcallback,false)+'\0';
+            functions+=getSystemCallbackString(sim_syscb_dyncallback,false)+'\0';
+            functions+=getSystemCallbackString(sim_syscb_vision,false)+'\0';
+            functions+=getSystemCallbackString(sim_syscb_trigger,false)+'\0';
+            functions+=getSystemCallbackString(sim_syscb_userconfig,false)+'\0';
+            functions+='\0';
+            std::string errMsg;
+            int r=___loadCode(_scriptTextExec.c_str(),functions.c_str(),functionsPresent,&errMsg);
+            if (r>=0)
+            {
+                if (r==0)
+                { // a runtime error occurred!
+                    _scriptState|=scriptState_error;
+                    _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),true);
                 }
                 else
-                {
-                    _scriptState=scriptState_uninitialized;
-                    _containsJointCallbackFunction=functionsPresent[0];
-                    _containsContactCallbackFunction=functionsPresent[1];
-                    _containsDynCallbackFunction=functionsPresent[2];
-                    _containsVisionCallbackFunction=functionsPresent[3];
-                    _containsTriggerCallbackFunction=functionsPresent[4];
-                    _containsUserConfigCallbackFunction=functionsPresent[5];
+                { // success
+                    if (_compatibilityMode_oldLua)
+                    {
+                        _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState,"_S.sysCallEx_init()");
+                        _scriptState=scriptState_initialized;
+                    }
+                    else
+                    {
+                        _scriptState=scriptState_uninitialized;
+                        _containsJointCallbackFunction=functionsPresent[0];
+                        _containsContactCallbackFunction=functionsPresent[1];
+                        _containsDynCallbackFunction=functionsPresent[2];
+                        _containsVisionCallbackFunction=functionsPresent[3];
+                        _containsTriggerCallbackFunction=functionsPresent[4];
+                        _containsUserConfigCallbackFunction=functionsPresent[5];
+                    }
                 }
+                _numberOfPasses++;
             }
-            _numberOfPasses++;
+            else
+            { // A compilation/load error occurred!
+                _scriptState|=scriptState_error;
+                _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),false);
+            }
         }
         else
-        { // A compilation/load error occurred!
+        { // The interpreter state could not be created!
             _scriptState|=scriptState_error;
-            _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),false);
+            _announceErrorWasRaisedAndPossiblyPauseSimulation(intStateErr.c_str(),false);
         }
     }
 
@@ -2207,7 +2212,7 @@ int CScriptObject::_checkLanguage()
     return(retVal);
 }
 
-bool CScriptObject::_initInterpreterState()
+bool CScriptObject::_initInterpreterState(std::string* errorMsg)
 {
     _lang=_checkLanguage();
 
@@ -2268,10 +2273,7 @@ bool CScriptObject::_initInterpreterState()
         luaWrap_lua_sethook(L,_hookFunction_lua,hookMask,100); // This instruction gets also called in luaHookFunction!!!!
     }
     if (_lang==lang_python)
-        _interpreterState=CPluginContainer::pythonPlugin_initState(_scriptHandle,getShortDescriptiveName().c_str());
-
-    if (_interpreterState==nullptr)
-        _announceErrorWasRaisedAndPossiblyPauseSimulation("Interpreter could not be initialized",false);
+        _interpreterState=CPluginContainer::pythonPlugin_initState(_scriptHandle,getShortDescriptiveName().c_str(),errorMsg);
 
     return(_interpreterState!=nullptr);
 }
@@ -5205,8 +5207,8 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
 
     if (_interpreterState==nullptr)
     {
-        _initInterpreterState();
-        _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState,"_S.sysCallEx_init()");
+        if (_initInterpreterState(nullptr))
+            _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState,"_S.sysCallEx_init()");
     }
     luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
     int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack

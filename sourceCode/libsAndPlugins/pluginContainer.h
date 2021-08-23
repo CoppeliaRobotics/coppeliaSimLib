@@ -173,13 +173,14 @@ typedef int (__cdecl *ptrCodeEditor_close)(int handle,int* positionAndSize);
 
 typedef void* (__cdecl *ptrPythonPlugin_initState)(int scriptHandle,const char* scriptName);
 typedef void (__cdecl *ptrPythonPlugin_cleanupState)(void* state);
-typedef char* (__cdecl *ptrPythonPlugin_loadCode)(void* state,const char* code,const char* functionsToFind,bool* functionsFound,int* result);
-typedef char* (__cdecl *ptrPythonPlugin_callFunc)(void* state,const char* funcName,int inStackHandle,int outStackHandle,int* result);
+typedef int (__cdecl *ptrPythonPlugin_loadCode)(void* state,const char* code,const char* functionsToFind,bool* functionsFound);
+typedef int (__cdecl *ptrPythonPlugin_callFunc)(void* state,const char* funcName,int inStackHandle,int outStackHandle);
 typedef int (__cdecl *ptrPythonPlugin_execStr)(void* state,const char* str,int outStackHandle);
 typedef int (__cdecl *ptrPythonPlugin_isDeprecated)(const char* str);
 typedef char* (__cdecl *ptrPythonPlugin_getFuncs)(const char* str);
 typedef char* (__cdecl *ptrPythonPlugin_getConsts)(const char* str);
 typedef char* (__cdecl *ptrPythonPlugin_getCalltip)(const char* func);
+typedef char* (__cdecl *ptrPythonPlugin_getError)();
 
 typedef int (__cdecl *ptrRuckigPlugin_pos)(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxVel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetPos,const double* targetVel);
 typedef int (__cdecl *ptrRuckigPlugin_vel)(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetVel);
@@ -371,6 +372,7 @@ public:
     ptrPythonPlugin_getFuncs pythonPlugin_getFuncs;
     ptrPythonPlugin_getConsts pythonPlugin_getConsts;
     ptrPythonPlugin_getCalltip pythonPlugin_getCalltip;
+    ptrPythonPlugin_getError pythonPlugin_getError;
 
 
     ptrRuckigPlugin_pos ruckigPlugin_pos;
@@ -633,7 +635,7 @@ public:
 
     // Python plugin:
     static CPlugin* currentPythonPlugin;
-    static void* pythonPlugin_initState(int scriptHandle,const char* scriptName);
+    static void* pythonPlugin_initState(int scriptHandle,const char* scriptName,std::string* errorMsg);
     static void pythonPlugin_cleanupState(void* state);
     static int pythonPlugin_loadCode(void* state,const char* code,const char* functionsToFind,bool* functionsFound,std::string* errorMsg);
     static int pythonPlugin_callFunc(void* state,const char* funcName,int inStackHandle,int outStackHandle,std::string* errorMsg);

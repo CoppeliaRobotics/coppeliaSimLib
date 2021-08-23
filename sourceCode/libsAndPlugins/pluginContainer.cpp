@@ -317,6 +317,7 @@ int CPlugin::load()
                 pythonPlugin_getFuncs=(ptrPythonPlugin_getFuncs)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_getFuncs"));
                 pythonPlugin_getConsts=(ptrPythonPlugin_getConsts)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_getConsts"));
                 pythonPlugin_getCalltip=(ptrPythonPlugin_getCalltip)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_getCalltip"));
+                pythonPlugin_getError=(ptrPythonPlugin_getError)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_getError"));
                 if (pythonPlugin_initState!=nullptr)
                     CPluginContainer::currentPythonPlugin=this;
 
@@ -2678,11 +2679,23 @@ int CPluginContainer::codeEditor_close(int handle,int* positionAndSize)
     return(retVal);
 }
 
-void* CPluginContainer::pythonPlugin_initState(int scriptHandle,const char* scriptName)
+void* CPluginContainer::pythonPlugin_initState(int scriptHandle,const char* scriptName,std::string* errorMsg)
 {
     void* retVal=nullptr;
     if (currentPythonPlugin!=nullptr)
+    {
         retVal=currentPythonPlugin->pythonPlugin_initState(scriptHandle,scriptName);
+        if ( (retVal==nullptr)&&(errorMsg!=nullptr) )
+        {
+            errorMsg[0].clear();
+            char* err=currentPythonPlugin->pythonPlugin_getError();
+            if (err!=nullptr)
+            {
+                errorMsg[0]=err;
+                delete[] err;
+            }
+        }
+    }
     return(retVal);
 }
 
@@ -2697,10 +2710,17 @@ int CPluginContainer::pythonPlugin_loadCode(void* state,const char* code,const c
     int retVal=-2;
     if (currentPythonPlugin!=nullptr)
     {
-        char* err=currentPythonPlugin->pythonPlugin_loadCode(state,code,functionsToFind,functionsFound,&retVal);
-        if (errorMsg!=nullptr)
-            errorMsg[0]=err;
-        delete[] err;
+        retVal=currentPythonPlugin->pythonPlugin_loadCode(state,code,functionsToFind,functionsFound);
+        if ( (retVal!=1)&&(errorMsg!=nullptr) )
+        {
+            errorMsg[0].clear();
+            char* err=currentPythonPlugin->pythonPlugin_getError();
+            if (err!=nullptr)
+            {
+                errorMsg[0]=err;
+                delete[] err;
+            }
+        }
     }
     return(retVal);
 }
@@ -2710,10 +2730,17 @@ int CPluginContainer::pythonPlugin_callFunc(void* state,const char* funcName,int
     int retVal=-2;
     if (currentPythonPlugin!=nullptr)
     {
-        char* err=currentPythonPlugin->pythonPlugin_callFunc(state,funcName,inStackHandle,outStackHandle,&retVal);
-        if (errorMsg!=nullptr)
-            errorMsg[0]=err;
-        delete[] err;
+        retVal=currentPythonPlugin->pythonPlugin_callFunc(state,funcName,inStackHandle,outStackHandle);
+        if ( (retVal<0)&&(errorMsg!=nullptr) )
+        {
+            errorMsg[0].clear();
+            char* err=currentPythonPlugin->pythonPlugin_getError();
+            if (err!=nullptr)
+            {
+                errorMsg[0]=err;
+                delete[] err;
+            }
+        }
     }
     return(retVal);
 }
