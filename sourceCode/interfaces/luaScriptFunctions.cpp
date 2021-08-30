@@ -54,11 +54,10 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const
             lineNumber=luaWrap_getCurrentCodeLine(L);
             std::string msg;
             msg+=std::to_string(lineNumber);
-            msg+=": ";
-            msg+=warnStr;
-            msg+=" (in function '";
+            msg+=": in ";
             msg+=functionName;
-            msg+="')";
+            msg+="' ";
+            msg+=warnStr;
             App::logScriptMsg(it->getShortDescriptiveName().c_str(),verb,msg.c_str());
         }
     }
@@ -82,11 +81,10 @@ void _raiseErrorIfNeeded(luaWrap_lua_State* L,const char* functionName,const cha
     lineNumber=luaWrap_getCurrentCodeLine(L);
     std::string msg;
     msg+=std::to_string(lineNumber);
+    msg+=": in ";
+    msg+=functionName;
     msg+=": ";
     msg+=errStr;
-    msg+=" (in function '";
-    msg+=functionName;
-    msg+="')";
     luaWrap_lua_pushstring(L,msg.c_str());
 
     luaWrap_lua_error(L); // does a long jump and never returns
@@ -5104,7 +5102,7 @@ int _simTextEditorOpen(luaWrap_lua_State* L)
         }
     }
     else
-        errorString="Code Editor plugin was not found.";
+        errorString="code Editor plugin was not found.";
 #endif
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5135,7 +5133,7 @@ int _simTextEditorClose(luaWrap_lua_State* L)
         }
     }
     else
-        errorString="Code Editor plugin was not found.";
+        errorString="code Editor plugin was not found.";
 #endif
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5161,7 +5159,7 @@ int _simTextEditorShow(luaWrap_lua_State* L)
         }
     }
     else
-        errorString="Code Editor plugin was not found.";
+        errorString="code Editor plugin was not found.";
 #endif
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5195,7 +5193,7 @@ int _simTextEditorGetInfo(luaWrap_lua_State* L)
         }
     }
     else
-        errorString="Code Editor plugin was not found.";
+        errorString="code Editor plugin was not found.";
 #endif
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -15107,7 +15105,7 @@ int _simGetMpConfigForTipPose(luaWrap_lua_State* L)
 { // DEPRECATED since V3.3.0
     TRACE_LUA_API;
     LUA_START("simGetMpConfigForTipPose");
-    errorString="Not supported anymore.";
+    errorString="not supported anymore.";
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,-1);
     LUA_END(1);
@@ -15294,7 +15292,7 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
         if ((!foundError)&&(posAndOrient==0))
         {
             foundError=true;
-            errorString="Target position and/or target orientation has to be specified.";
+            errorString="target position and/or target orientation has to be specified.";
         }
         if (!foundError) // target velocity argument:
         {
@@ -15735,7 +15733,7 @@ int _sim_moveToJointPos_1(luaWrap_lua_State* L)
         }
     }
     else
-        errorString="One of the function's argument type is not correct or table sizes are invalid or do not match";
+        errorString="one of the function's argument type is not correct or table sizes are invalid or do not match";
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
@@ -16121,7 +16119,7 @@ int _simFindIkPath(luaWrap_lua_State* L)
 { // DEPRECATED since 3.3.0
     TRACE_LUA_API;
     LUA_START("simFindIkPath");
-    errorString="Not supported anymore.";
+    errorString="not supported anymore.";
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }

@@ -2472,7 +2472,7 @@ void CScriptObject::printInterpreterStack() const
         if (luaWrap_lua_isboolean(L,i))
             printf("bool\n");
         if (luaWrap_lua_isinteger(L,i))
-            printf("int: %i\n",luaWrap_lua_tointeger(L,i));
+            printf("int: %lli\n",luaWrap_lua_tointeger(L,i));
         if (luaWrap_lua_isnumber(L,i))
             printf("number: %f\n",luaWrap_lua_tonumber(L,i));
         if (luaWrap_lua_isstring(L,i))

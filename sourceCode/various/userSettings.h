@@ -26,6 +26,7 @@ public:
     float getRotationStepSize();
     int getIdleFps();
     void setIdleFps(int fps);
+    void setIdleFps_session(int fps);
     int getAbortScriptExecutionTiming();
 
 
@@ -210,6 +211,7 @@ private:
     float _translationStepSize;
     float _rotationStepSize;
     int _idleFps;
+    int _idleFps_session;
     int _nextfreeServerPortToUse;
     int _abortScriptExecutionButton;
 };

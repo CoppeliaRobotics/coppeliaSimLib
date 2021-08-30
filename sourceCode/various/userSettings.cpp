@@ -210,6 +210,7 @@ CUserSettings::CUserSettings()
     // Rendering section:
     // *****************************
     _idleFps=8;
+    _idleFps_session=-1;
     desiredOpenGlMajor=-1; // default
     desiredOpenGlMinor=-1; // default
     offscreenContextType=-1; // default type
@@ -496,12 +497,19 @@ bool CUserSettings::getUndoRedoOnlyPartialWithCameras()
 
 int CUserSettings::getIdleFps()
 {
+    if (_idleFps_session>=0)
+        return(_idleFps_session);
     return(_idleFps);
 }
 
 void CUserSettings::setIdleFps(int fps)
 {
     _idleFps=tt::getLimitedInt(0,25,fps);
+}
+
+void CUserSettings::setIdleFps_session(int fps)
+{
+    _idleFps_session=fps;
 }
 
 int CUserSettings::getAbortScriptExecutionTiming()

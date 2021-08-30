@@ -1212,11 +1212,11 @@ simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int pr
                 if (it==nullptr)
                 {
                     additionalMessage_backCompatibility+="\n\nSince CoppeliaSim V4.3.0, objects should be retrieved via a path and alias, e.g. \"./path/to/alias\", \":/path/to/alias\", \"/path/to/alias\", etc.";
-                    additionalMessage_backCompatibility+="\nYou however tried to access an object that doesn't follow the new notation, and that wasn't found using the old notation, i.e. \"";
+                    additionalMessage_backCompatibility+="\nYou however tried to access an object in a way that doesn't follow the new notation, i.e. \"";
                     additionalMessage_backCompatibility+=objectAlias;
                     additionalMessage_backCompatibility+="\" wasn't found.";
                     additionalMessage_backCompatibility+="\nNote also that object aliases are distinct from object names, which are deprecated and not displayed anymore.";
-                    additionalMessage_backCompatibility+="\nMake sure to read the following page for additional details: https://www.coppeliarobotics.com/helpFiles/en/accessingSceneObjects.htm\n\n";
+                    additionalMessage_backCompatibility+="\nMake sure to read the following page for additional details: https://www.coppeliarobotics.com/helpFiles/en/accessingSceneObjects.htm";
                 }
             }
             else
@@ -3663,7 +3663,7 @@ simInt simSetInt32Param_internal(simInt parameter,simInt intState)
         }
         if (parameter==sim_intparam_idle_fps)
         {
-            App::userSettings->setIdleFps(intState);
+            App::userSettings->setIdleFps_session(intState);
             return(1);
         }
         if (parameter==sim_intparam_dynamic_warning_disabled_mask)
@@ -12546,7 +12546,7 @@ simInt simWriteCustomDataBlock_internal(simInt objectHandle,const simChar* tagNa
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
             {
-                CApiErrors::setLastWarningOrError(__func__,"Targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
+                CApiErrors::setLastWarningOrError(__func__,"targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
                 return(-1);
             }
 
@@ -12731,7 +12731,7 @@ simChar* simReadCustomDataBlock_internal(simInt objectHandle,const simChar* tagN
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
             {
-                CApiErrors::setLastWarningOrError(__func__,"Targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
+                CApiErrors::setLastWarningOrError(__func__,"targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
                 return(nullptr);
             }
             CScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
@@ -12841,7 +12841,7 @@ simChar* simReadCustomDataBlockTags_internal(simInt objectHandle,simInt* tagCoun
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
             {
-                CApiErrors::setLastWarningOrError(__func__,"Targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
+                CApiErrors::setLastWarningOrError(__func__,"targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
                 return(nullptr);
             }
             CScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
@@ -17203,7 +17203,7 @@ simInt simHandleVarious_internal()
 simInt simGetMpConfigForTipPose_internal(simInt motionPlanningObjectHandle,simInt options,simFloat closeNodesDistance,simInt trialCount,const simFloat* tipPose,simInt maxTimeInMs,simFloat* outputJointPositions,const simFloat* referenceConfigs,simInt referenceConfigCount,const simFloat* jointWeights,const simInt* jointBehaviour,simInt correctionPasses)
 { // DEPRECATED since 21/1/2016   referenceConfigs can be nullptr, as well as jointWeights
     TRACE_C_API;
-    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
@@ -17395,49 +17395,49 @@ simInt simGetPathPlanningHandle_internal(const simChar* pathPlanningObjectName)
 simInt simGetMotionPlanningHandle_internal(const simChar* motionPlanningObjectName)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
-    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
 simFloat* simFindMpPath_internal(simInt motionPlanningObjectHandle,const simFloat* startConfig,const simFloat* goalConfig,simInt options,simFloat stepSize,simInt* outputConfigsCnt,simInt maxTimeInMs,simFloat* reserved,const simInt* auxIntParams,const simFloat* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
-    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
 simFloat* simSimplifyMpPath_internal(simInt motionPlanningObjectHandle,const simFloat* pathBuffer,simInt configCnt,simInt options,simFloat stepSize,simInt increment,simInt* outputConfigsCnt,simInt maxTimeInMs,simFloat* reserved,const simInt* auxIntParams,const simFloat* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
-    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
 simFloat* simFindIkPath_internal(simInt motionPlanningObjectHandle,const simFloat* startConfig,const simFloat* goalPose,simInt options,simFloat stepSize,simInt* outputConfigsCnt,simFloat* reserved,const simInt* auxIntParams,const simFloat* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
-    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
 simFloat* simGetMpConfigTransition_internal(simInt motionPlanningObjectHandle,const simFloat* startConfig,const simFloat* goalConfig,simInt options,const simInt* select,simFloat calcStepSize,simFloat maxOutStepSize,simInt wayPointCnt,const simFloat* wayPoints,simInt* outputConfigsCnt,const simInt* auxIntParams,const simFloat* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
-    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
 simInt simCreateMotionPlanning_internal(simInt jointCnt,const simInt* jointHandles,const simInt* jointRangeSubdivisions,const simFloat* jointMetricWeights,simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
-    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
 simInt simRemoveMotionPlanning_internal(simInt motionPlanningHandle)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
-    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
@@ -18855,14 +18855,14 @@ simInt simRegisterJointCtrlCallback_internal(simInt(*callBack)(simInt,simInt,sim
 simInt simGetMechanismHandle_internal(const simChar* mechanismName)
 { // deprecated
     TRACE_C_API;
-    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
 simInt simHandleMechanism_internal(simInt mechanismHandle)
 { // deprecated
     TRACE_C_API;
-    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore.");
+    CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
