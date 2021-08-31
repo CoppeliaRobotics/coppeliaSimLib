@@ -5623,9 +5623,6 @@ simInt simRegisterScriptFuncHook_internal(simInt scriptHandle,const simChar* fun
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=-1;

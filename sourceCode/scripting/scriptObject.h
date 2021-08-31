@@ -141,7 +141,7 @@ public:
     int changeOverallYieldingForbidLevel(int dx,bool absolute);
 
     void registerPluginFunctions();
-    void registerPluginVariables(bool onlyRequireStatements);
+    bool registerPluginVariables(bool onlyRequireStatements);
 
     void printInterpreterStack() const;
 
@@ -272,7 +272,7 @@ protected:
 
     // Lua specific:
     // -----------------------------
-    void _execSimpleString_safe_lua(void* LL,const char* string);
+    int _execSimpleString_safe_lua(void* LL,const char* string);
     int _loadBufferResult_lua;
     bool _loadBuffer_lua(const char* buff,size_t sz,const char* name);
     void _registerNewVariables_lua();

@@ -2100,9 +2100,7 @@ void CScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char
     { // silent error when breaking out of a threaded child script at simulation end
         if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
             App::currentWorld->simulation->pauseOnErrorRequested();
-        std::string name(getShortDescriptiveName());
-        std::string msg(errM);
-        App::logScriptMsg(name.c_str(),sim_verbosity_scripterrors,msg.c_str());
+        App::logScriptMsg(getShortDescriptiveName().c_str(),sim_verbosity_scripterrors,errM.c_str());
         _lastStackTraceback=errM;
     }
 }
@@ -2264,13 +2262,19 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
         _execSimpleString_safe_lua(L,"sim={}");
         registerNewFunctions_lua();
         _registerNewVariables_lua();
-        _execSimpleString_safe_lua(L,"require('sim')");
-        registerPluginVariables(true);
-        registerPluginFunctions();
-        registerPluginVariables(false);
-
-        int hookMask=luaWrapGet_LUA_MASKCOUNT();
-        luaWrap_lua_sethook(L,_hookFunction_lua,hookMask,100); // This instruction gets also called in luaHookFunction!!!!
+        if (0!=_execSimpleString_safe_lua(L,"require('sim')"))
+        {
+            if (errorMsg!=nullptr)
+                errorMsg[0]=luaWrap_lua_tostring(L,-1);
+            _killInterpreterState();
+        }
+        else
+        {
+            registerPluginVariables(true); // for now we do not react to a failed require("file"), for backward compatibility's sake. We report a warning, and only to the console and for the sandbox script
+            registerPluginFunctions();
+            registerPluginVariables(false);
+            luaWrap_lua_sethook(L,_hookFunction_lua,luaWrapGet_LUA_MASKCOUNT(),100); // This instruction gets also called in luaHookFunction!!!!
+        }
     }
     if (_lang==lang_python)
         _interpreterState=CPluginContainer::pythonPlugin_initState(_scriptHandle,getShortDescriptiveName().c_str(),errorMsg);
@@ -2548,7 +2552,7 @@ void CScriptObject::_registerNewVariables_lua()
     }
 }
 
-void CScriptObject::registerPluginVariables(bool onlyRequireStatements)
+bool CScriptObject::registerPluginVariables(bool onlyRequireStatements)
 {
     for (size_t i=0;i<App::worldContainer->scriptCustomFuncAndVarContainer->getCustomVariableCount();i++)
     {
@@ -2570,7 +2574,15 @@ void CScriptObject::registerPluginVariables(bool onlyRequireStatements)
                 {
                     std::string tmp(variableName);
                     tmp+="="+variableValue;
-                    _execSimpleString_safe_lua(L,tmp.c_str());
+                    if ((0!=_execSimpleString_safe_lua(L,tmp.c_str()))&&onlyRequireStatements&&(_scriptType==sim_scripttype_sandboxscript))
+                    { // warning only with sandbox scripts
+                        if ( (variableName.find("simCHAI3D")==std::string::npos)&&(variableName.find("simJoy")==std::string::npos) )
+                        { // ignore 2 files (old plugins)
+                            tmp="failed executing '"+tmp;
+                            tmp+="'";
+                            App::logScriptMsg(getShortDescriptiveName().c_str(),sim_verbosity_scriptwarnings,tmp.c_str());
+                        }
+                    }
                 }
             }
             else
@@ -2587,6 +2599,7 @@ void CScriptObject::registerPluginVariables(bool onlyRequireStatements)
             }
         }
     }
+    return(true);
 }
 
 void CScriptObject::serialize(CSer& ar)
@@ -2880,13 +2893,14 @@ void CScriptObject::serialize(CSer& ar)
     }
 }
 
-void CScriptObject::_execSimpleString_safe_lua(void* LL,const char* string)
+int CScriptObject::_execSimpleString_safe_lua(void* LL,const char* string)
 {
     int t1=_forbidAutoYieldingLevel;
     int t2=_forbidOverallYieldingLevel;
-    luaWrap_luaL_dostring((luaWrap_lua_State*)LL,string);
+    int retVal=luaWrap_luaL_dostring((luaWrap_lua_State*)LL,string);
     _forbidAutoYieldingLevel=t1;
     _forbidOverallYieldingLevel=t2;
+    return(retVal);
 }
 
 bool CScriptObject::_loadBuffer_lua(const char* buff,size_t sz,const char* name)
