@@ -4405,22 +4405,6 @@ simInt simGetSimulationState_internal()
     return(-1);
 }
 
-simFloat simGetSystemTime_internal()
-{
-    TRACE_C_API;
-//  float retVal=float(float(VDateTime::getTimeInMs())/1000.0f);
-    float retVal=float(VDateTime::getOSTimeInMs())/1000.0f;
-    return(retVal);
-}
-
-simInt simGetSystemTimeInMilliseconds_internal()
-{
-    TRACE_C_API;
-//  int retVal=VDateTime::getTimeInMs();
-    int retVal=int(VDateTime::getOSTimeInMs());
-    return(retVal);
-}
-
 simUInt simGetSystemTimeInMs_internal(simInt previousTime)
 {
     TRACE_C_API;
@@ -6256,113 +6240,6 @@ simInt simAddLog_internal(const simChar* pluginName,simInt verbosityLevel,const 
     if (App::logPluginMsg(pluginName,verbosityLevel,logMsg))
         return(1);
     return(0);
-}
-
-simInt simDisplayDialog_internal(const simChar* titleText,const simChar* mainText,simInt dialogType,const simChar* initialText,const simFloat* titleColors,const simFloat* dialogColors,simInt* elementHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-#ifdef SIM_WITH_GUI
-        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-        stack->pushStringOntoStack(titleText,0);
-        stack->pushStringOntoStack(mainText,0);
-        stack->pushNumberOntoStack(dialogType);
-        stack->pushBoolOntoStack(false);
-        if (initialText!=nullptr)
-            stack->pushStringOntoStack(initialText,0);
-        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.displayDialog",stack->getId());
-        int retVal;
-        stack->getStackInt32Value(retVal);
-        App::worldContainer->interfaceStackContainer->destroyStack(stack);
-        return(retVal);
-#else
-        return(1);
-#endif
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simInt simGetDialogResult_internal(simInt genericDialogHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-#ifdef SIM_WITH_GUI
-        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();;
-        stack->pushNumberOntoStack(genericDialogHandle);
-        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.getDialogResult",stack->getId());
-        int retVal;
-        stack->getStackInt32Value(retVal);
-        App::worldContainer->interfaceStackContainer->destroyStack(stack);
-        return(retVal);
-#else
-        return(sim_dlgret_cancel);
-#endif
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simChar* simGetDialogInput_internal(simInt genericDialogHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        std::string tmp;
-#ifdef SIM_WITH_GUI
-        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-        stack->pushNumberOntoStack(genericDialogHandle);
-        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.getDialogInput",stack->getId());
-        bool r=stack->getStackStringValue(tmp);
-        App::worldContainer->interfaceStackContainer->destroyStack(stack);
-        if (!r)
-            return(nullptr);
-#else
-        return(nullptr);
-#endif
-        char* retVal=new char[tmp.length()+1];
-        retVal[tmp.length()]=0;
-        for (int i=0;i<int(tmp.length());i++)
-            retVal[i]=tmp[i];
-        return(retVal);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(nullptr);
-}
-
-simInt simEndDialog_internal(simInt genericDialogHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-#ifdef SIM_WITH_GUI
-        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-        stack->pushNumberOntoStack(genericDialogHandle);
-        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.endDialog",stack->getId());
-        App::worldContainer->interfaceStackContainer->destroyStack(stack);
-#endif
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
 }
 
 simInt simSetNavigationMode_internal(simInt navigationMode)
@@ -11643,52 +11520,6 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
-}
-
-simChar* simFileDialog_internal(simInt mode,const simChar* title,const simChar* startPath,const simChar* initName,const simChar* extName,const simChar* ext)
-{
-    TRACE_C_API;
-#ifdef SIM_WITH_GUI
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-    char* retVal=nullptr;
-
-    std::string nameAndPath;
-    bool native=1;
-    #ifndef WIN_SIM // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that, we don't use native dialogs
-        native=0;
-    #endif
-    CPluginContainer::customUi_fileDialog(mode,title,startPath,initName,extName,ext,native,nameAndPath);
-
-/*
-    std::string stPath(startPath);
-    if (stPath.length()==0)
-        stPath=App::directories->executableDirectory;
-    nameAndPath=App::uiThread->getOpenOrSaveFileName_api(mode,title,stPath.c_str(),initName,extName,ext);
-    */
-    if (nameAndPath.length()!=0)
-    {
-        retVal=new char[nameAndPath.length()+1];
-        for (size_t i=0;i<nameAndPath.length();i++)
-            retVal[i]=nameAndPath[i];
-        retVal[nameAndPath.length()]=0; // terminal 0
-    }
-    return(retVal);
-#else
-    return(nullptr);
-#endif
-}
-
-simInt simMsgBox_internal(simInt dlgType,simInt buttons,const simChar* title,const simChar* message)
-{
-    TRACE_C_API;
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-    int retVal=sim_msgbox_return_ok;
-#ifdef SIM_WITH_GUI
-    retVal=CPluginContainer::customUi_msgBox(dlgType,buttons,title,message,sim_msgbox_return_ok);
-#endif
-    return(retVal);
 }
 
 simInt simGetShapeMass_internal(simInt shapeHandle,simFloat* mass)
@@ -22418,4 +22249,157 @@ simInt simRMLRemove_internal(simInt handle)
     if (plugin!=nullptr)
         plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlremove,auxVals,nullptr,replyData);
     return(replyData[1]);
+}
+
+simChar* simFileDialog_internal(simInt mode,const simChar* title,const simChar* startPath,const simChar* initName,const simChar* extName,const simChar* ext)
+{ // deprecated on 07.09.2021
+    TRACE_C_API;
+#ifdef SIM_WITH_GUI
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+    char* retVal=nullptr;
+
+    std::string nameAndPath;
+    bool native=1;
+    #ifndef WIN_SIM // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that, we don't use native dialogs
+        native=0;
+    #endif
+    CPluginContainer::customUi_fileDialog(mode,title,startPath,initName,extName,ext,native,nameAndPath);
+
+/*
+    std::string stPath(startPath);
+    if (stPath.length()==0)
+        stPath=App::directories->executableDirectory;
+    nameAndPath=App::uiThread->getOpenOrSaveFileName_api(mode,title,stPath.c_str(),initName,extName,ext);
+    */
+    if (nameAndPath.length()!=0)
+    {
+        retVal=new char[nameAndPath.length()+1];
+        for (size_t i=0;i<nameAndPath.length();i++)
+            retVal[i]=nameAndPath[i];
+        retVal[nameAndPath.length()]=0; // terminal 0
+    }
+    return(retVal);
+#else
+    return(nullptr);
+#endif
+}
+
+simInt simMsgBox_internal(simInt dlgType,simInt buttons,const simChar* title,const simChar* message)
+{ // deprecated on 07.09.2021
+    TRACE_C_API;
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+    int retVal=sim_msgbox_return_ok;
+#ifdef SIM_WITH_GUI
+    retVal=CPluginContainer::customUi_msgBox(dlgType,buttons,title,message,sim_msgbox_return_ok);
+#endif
+    return(retVal);
+}
+
+simInt simDisplayDialog_internal(const simChar* titleText,const simChar* mainText,simInt dialogType,const simChar* initialText,const simFloat* titleColors,const simFloat* dialogColors,simInt* elementHandle)
+{ // deprecated on 07.09.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+#ifdef SIM_WITH_GUI
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+        stack->pushStringOntoStack(titleText,0);
+        stack->pushStringOntoStack(mainText,0);
+        stack->pushNumberOntoStack(dialogType);
+        stack->pushBoolOntoStack(false);
+        if (initialText!=nullptr)
+            stack->pushStringOntoStack(initialText,0);
+        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.displayDialog",stack->getId());
+        int retVal;
+        stack->getStackInt32Value(retVal);
+        App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        return(retVal);
+#else
+        return(1);
+#endif
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simGetDialogResult_internal(simInt genericDialogHandle)
+{ // deprecated on 07.09.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+#ifdef SIM_WITH_GUI
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();;
+        stack->pushNumberOntoStack(genericDialogHandle);
+        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.getDialogResult",stack->getId());
+        int retVal;
+        stack->getStackInt32Value(retVal);
+        App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        return(retVal);
+#else
+        return(sim_dlgret_cancel);
+#endif
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simChar* simGetDialogInput_internal(simInt genericDialogHandle)
+{ // deprecated on 07.09.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        std::string tmp;
+#ifdef SIM_WITH_GUI
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+        stack->pushNumberOntoStack(genericDialogHandle);
+        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.getDialogInput",stack->getId());
+        bool r=stack->getStackStringValue(tmp);
+        App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        if (!r)
+            return(nullptr);
+#else
+        return(nullptr);
+#endif
+        char* retVal=new char[tmp.length()+1];
+        retVal[tmp.length()]=0;
+        for (int i=0;i<int(tmp.length());i++)
+            retVal[i]=tmp[i];
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simEndDialog_internal(simInt genericDialogHandle)
+{ // deprecated on 07.09.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+#ifdef SIM_WITH_GUI
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+        stack->pushNumberOntoStack(genericDialogHandle);
+        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.endDialog",stack->getId());
+        App::worldContainer->interfaceStackContainer->destroyStack(stack);
+#endif
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
 }

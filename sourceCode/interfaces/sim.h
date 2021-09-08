@@ -75,8 +75,6 @@ SIM_DLLEXPORT simInt simTransformVector(const simFloat* matrix,simFloat* vect);
 SIM_DLLEXPORT simInt simReservedCommand(simInt v,simInt w);
 SIM_DLLEXPORT simFloat simGetSimulationTime();
 SIM_DLLEXPORT simInt simGetSimulationState();
-SIM_DLLEXPORT simFloat simGetSystemTime();
-SIM_DLLEXPORT simInt simGetSystemTimeInMilliseconds(); // deprecated
 SIM_DLLEXPORT simUInt simGetSystemTimeInMs(simInt previousTime);
 SIM_DLLEXPORT simInt simLoadScene(const simChar* filename);
 SIM_DLLEXPORT simInt simCloseScene();
@@ -143,10 +141,6 @@ SIM_DLLEXPORT simInt simSetNavigationMode(simInt navigationMode);
 SIM_DLLEXPORT simInt simGetNavigationMode();
 SIM_DLLEXPORT simInt simSetPage(simInt index);
 SIM_DLLEXPORT simInt simGetPage();
-SIM_DLLEXPORT simInt simDisplayDialog(const simChar* titleText,const simChar* mainText,simInt dialogType,const simChar* initialText,const simFloat* titleColors,const simFloat* dialogColors,simInt* elementHandle);
-SIM_DLLEXPORT simInt simGetDialogResult(simInt genericDialogHandle);
-SIM_DLLEXPORT simChar* simGetDialogInput(simInt genericDialogHandle);
-SIM_DLLEXPORT simInt simEndDialog(simInt genericDialogHandle);
 SIM_DLLEXPORT simInt simRegisterScriptCallbackFunction(const simChar* funcNameAtPluginName,const simChar* callTips,simVoid(*callBack)(struct SScriptCallBack* cb));
 SIM_DLLEXPORT simInt simRegisterScriptVariable(const simChar* varNameAtPluginName,const simChar* varValue,simInt stackHandle);
 SIM_DLLEXPORT simInt simRegisterScriptFuncHook(simInt scriptHandle,const simChar* funcToHook,const simChar* userFunction,simBool executeBefore,simInt options);
@@ -252,8 +246,6 @@ SIM_DLLEXPORT simInt simRuckigPos(simInt dofs,simDouble smallestTimeStep,simInt 
 SIM_DLLEXPORT simInt simRuckigVel(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
 SIM_DLLEXPORT simInt simRuckigStep(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2);
 SIM_DLLEXPORT simInt simRuckigRemove(simInt objHandle);
-SIM_DLLEXPORT simChar* simFileDialog(simInt mode,const simChar* title,const simChar* startPath,const simChar* initName,const simChar* extName,const simChar* ext);
-SIM_DLLEXPORT simInt simMsgBox(simInt dlgType,simInt buttons,const simChar* title,const simChar* message);
 SIM_DLLEXPORT simInt simCreateDummy(simFloat size,const simFloat* color);
 SIM_DLLEXPORT simInt simGroupShapes(const simInt* shapeHandles,simInt shapeCount);
 SIM_DLLEXPORT simInt* simUngroupShape(simInt shapeHandle,simInt* shapeCount);
@@ -702,6 +694,14 @@ SIM_DLLEXPORT simInt simRMLPos(simInt dofs,simDouble smallestTimeStep,simInt fla
 SIM_DLLEXPORT simInt simRMLVel(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxAccelJerk,const simBool* selection,const simDouble* targetVel,simVoid* auxData);
 SIM_DLLEXPORT simInt simRMLStep(simInt handle,simDouble timeStep,simDouble* newPosVelAccel,simVoid* auxData,simVoid* reserved);
 SIM_DLLEXPORT simInt simRMLRemove(simInt handle);
+SIM_DLLEXPORT simFloat simGetSystemTime();
+SIM_DLLEXPORT simInt simGetSystemTimeInMilliseconds();
+SIM_DLLEXPORT simChar* simFileDialog(simInt mode,const simChar* title,const simChar* startPath,const simChar* initName,const simChar* extName,const simChar* ext);
+SIM_DLLEXPORT simInt simMsgBox(simInt dlgType,simInt buttons,const simChar* title,const simChar* message);
+SIM_DLLEXPORT simInt simDisplayDialog(const simChar* titleText,const simChar* mainText,simInt dialogType,const simChar* initialText,const simFloat* titleColors,const simFloat* dialogColors,simInt* elementHandle);
+SIM_DLLEXPORT simInt simGetDialogResult(simInt genericDialogHandle);
+SIM_DLLEXPORT simChar* simGetDialogInput(simInt genericDialogHandle);
+SIM_DLLEXPORT simInt simEndDialog(simInt genericDialogHandle);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

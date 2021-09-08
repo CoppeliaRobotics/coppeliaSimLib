@@ -618,7 +618,8 @@ void CWorld::simulationAboutToStart()
     if (!CPluginContainer::isGeomPluginAvailable())
     {
 #ifdef SIM_WITH_GUI
-        simDisplayDialog_internal("ERROR","The 'Geometric' plugin could not be initialized. Collision detection, distance calculation,\n and proximity sensor simulation will not work.",sim_dlgstyle_ok,"",nullptr,nullptr,nullptr);
+        if (App::mainWindow!=nullptr)
+            App::uiThread->messageBox_warning(App::mainWindow,"Warning","The 'Geometric' plugin could not be initialized. Collision detection, distance calculation, and proximity sensor simulation will not work.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #endif
         App::logMsg(sim_verbosity_errors,"the 'Geometric' plugin could not be initialized. Collision detection,\n       distance calculation, and proximity sensor simulation will not work.");
     }

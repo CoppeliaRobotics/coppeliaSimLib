@@ -119,10 +119,9 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setJointTargetVelocity",_simSetJointTargetVelocity,    "sim.setJointTargetVelocity(int objectHandle,float targetVelocity)",true},
     {"sim.getJointTargetVelocity",_simGetJointTargetVelocity,    "float targetVelocity=sim.getJointTargetVelocity(int objectHandle)",true},
     {"sim.removeObject",_simRemoveObject,                        "int result=sim.removeObject(int objectHandle)",true},
-    {"sim.removeModel",_simRemoveModel,                          "int removedObjects=sim.removeModel(int objectHandle)",true},
+    {"sim.removeModel",_simRemoveModel,                          "int objectCount=sim.removeModel(int objectHandle)",true},
     {"sim.getSimulationTime",_simGetSimulationTime,              "float simulationTime=sim.getSimulationTime()",true},
     {"sim.getSimulationState",_simGetSimulationState,            "int simulationState=sim.getSimulationState()",true},
-    {"sim.getSystemTime",_simGetSystemTime,                      "float systemTime=sim.getSystemTime()",true},
     {"sim.getSystemTimeInMs",_simGetSystemTimeInMs,              "int systemTimeOrTimeDiff=sim.getSystemTimeInMs(int previousTime)",true},
     {"sim.checkCollision",_simCheckCollision,                    "int result,table[2] collidingObjects=sim.checkCollision(int entity1Handle,int entity2Handle)",true},
     {"sim.checkCollisionEx",_simCheckCollisionEx,                "int segmentCount,table[6..*] segmentData=sim.checkCollisionEx(int entity1Handle,int entity2Handle)",true},
@@ -287,7 +286,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.createPureShape",_simCreatePureShape,                  "int objectHandle=sim.createPureShape(int primitiveType,int options,table[3] sizes,float mass,table[2] precision=nil)",true},
     {"sim.createHeightfieldShape",_simCreateHeightfieldShape,    "int objectHandle=sim.createHeightfieldShape(int options,float shadingAngle,int xPointCount,\nint yPointCount,float xSize,table[] heights)",true},
     {"sim.createJoint",_simCreateJoint,                          "int jointHandle=sim.createJoint(int jointType,int jointMode,int options,table[2] sizes=nil,\ntable[12] colorA=nil,table[12] colorB=nil)",true},
-    {"sim.createDummy",_simCreateDummy,                          "int dummyHandle=sim.createDummy(float size,table[12] color=nil)",true},
+    {"sim.createDummy",_simCreateDummy,                          "int dummyHandle=sim.createDummy(float size,table[3] color=nil)",true},
     {"sim.createProximitySensor",_simCreateProximitySensor,      "int sensorHandle=sim.createProximitySensor(int sensorType,int subType,int options,table[8] intParams,\ntable[15] floatParams,table[48] color=nil)",true},
     {"sim.createForceSensor",_simCreateForceSensor,              "int sensorHandle=sim.createForceSensor(int options,table[5] intParams,table[5] floatParams,table[24] color=nil)",true},
     {"sim.createVisionSensor",_simCreateVisionSensor,            "int sensorHandle=sim.createVisionSensor(int options,table[4] intParams,table[11] floatParams,table[48] color=nil)",true},
@@ -361,8 +360,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.ruckigRemove",_simRuckigRemove,                        "sim.ruckigRemove(int handle)",true},
     {"sim.buildMatrixQ",_simBuildMatrixQ,                        "table[12] matrix=sim.buildMatrixQ(table[3] position,table[4] quaternion)",true},
     {"sim.getQuaternionFromMatrix",_simGetQuaternionFromMatrix,  "table[4] quaternion=sim.getQuaternionFromMatrix(table[12] matrix)",true},
-    {"sim.fileDialog",_simFileDialog,                            "string pathAndName=sim.fileDialog(int mode,string title,string startPath,string initName,string extName,string ext)",true},
-    {"sim.msgBox",_simMsgBox,                                    "int returnValue=sim.msgBox(int dlgType,int buttons,string title,string message)",true},
     {"sim.loadModule",_simLoadModule,                            "int pluginHandle=sim.loadModule(string filenameAndPath,string pluginName)",true},
     {"sim.unloadModule",_simUnloadModule,                        "int result=sim.unloadModule(int pluginHandle)",true},
     {"sim.callScriptFunction",_simCallScriptFunction,            "...=sim.callScriptFunction(string functionNameAtScriptName,int scriptHandleOrType,...)",true},
@@ -562,13 +559,9 @@ const SLuaCommands simLuaCommands[]=
     {"sim.handleModule",_simHandleModule,                        "Deprecated",false},
     {"sim.getLastError",_simGetLastError,                        "Deprecated",false},
     {"sim._switchThread",_simSwitchThread,                       "Deprecated",false},
-    //{"sim.boolOr32",_simBoolOr32,                                "Deprecated. Use the bitwise operator | instead",false},
-    //{"sim.boolAnd32",_simBoolAnd32,                              "Deprecated. Use the bitwise operator & instead",false},
-    //{"sim.boolXor32",_simBoolXor32,                              "Deprecated. Use the bitwise operator ~ instead",false},
-    // {"sim.rmlMoveToPosition",_simRMLMoveToPosition,              "Deprecated. Use 'sim.moveToPose' instead",false},
-    //{"sim.rmlMoveToJointPositions",_simRMLMoveToJointPositions,  "Deprecated. Use 'sim.moveToConfig' instead",false},
-    //{"sim.wait",_simWait,                                        "number deltaTimeLeft=sim.wait(number deltaTime,boolean simulationTime=true)",true},
-    //{"sim.waitForSignal",_simWaitForSignal,                      "number/string signalValue=sim.waitForSignal(string signalName)",true},
+    {"sim.getSystemTime",_simGetSystemTime,                      "Deprecated. Use sim.getSystemTimeInMs instead",false},
+    {"sim.fileDialog",_simFileDialog,                            "Deprecated. Use simUI.fileDialog instead",false},
+    {"sim.msgBox",_simMsgBox,                                    "Deprecated. Use simUI.msgBox instead",false},
 
     {"",nullptr,"",false}
 };
@@ -743,19 +736,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.modelproperty_scripts_inactive",sim_modelproperty_scripts_inactive,true},
     {"sim.modelproperty_not_showasinsidemodel",sim_modelproperty_not_showasinsidemodel,true},
     {"sim.modelproperty_not_model",sim_modelproperty_not_model,true},
-    // Generic dialog styles:
-    {"sim.dlgstyle_message",sim_dlgstyle_message,true},
-    {"sim.dlgstyle_input",sim_dlgstyle_input,true},
-    {"sim.dlgstyle_ok",sim_dlgstyle_ok,true},
-    {"sim.dlgstyle_ok_cancel",sim_dlgstyle_ok_cancel,true},
-    {"sim.dlgstyle_yes_no",sim_dlgstyle_yes_no,true},
-    {"sim.dlgstyle_dont_center",sim_dlgstyle_dont_center,true},
-    // Generic dialog return value:
-    {"sim.dlgret_still_open",sim_dlgret_still_open,true},
-    {"sim.dlgret_ok",sim_dlgret_ok,true},
-    {"sim.dlgret_cancel",sim_dlgret_cancel,true},
-    {"sim.dlgret_yes",sim_dlgret_yes,true},
-    {"sim.dlgret_no",sim_dlgret_no,true},
     // Boolean parameters:
     {"sim.boolparam_hierarchy_visible",sim_boolparam_hierarchy_visible,true},
     {"sim.boolparam_console_visible",sim_boolparam_console_visible,true},
@@ -991,27 +971,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.jointmode_passive",sim_jointmode_passive,true},
     {"sim.jointmode_dependent",sim_jointmode_dependent,true},
     {"sim.jointmode_force",sim_jointmode_force,true},
-    // file dialog styles
-    {"sim.filedlg_type_load",sim_filedlg_type_load,true},
-    {"sim.filedlg_type_save",sim_filedlg_type_save,true},
-    {"sim.filedlg_type_load_multiple",sim_filedlg_type_load_multiple,true},
-    {"sim.filedlg_type_folder",sim_filedlg_type_folder,true},
-    // message box styles
-    {"sim.msgbox_type_info",sim_msgbox_type_info,true},
-    {"sim.msgbox_type_question",sim_msgbox_type_question,true},
-    {"sim.msgbox_type_warning",sim_msgbox_type_warning,true},
-    {"sim.msgbox_type_critical",sim_msgbox_type_critical,true},
-    // message box buttons
-    {"sim.msgbox_buttons_ok",sim_msgbox_buttons_ok,true},
-    {"sim.msgbox_buttons_yesno",sim_msgbox_buttons_yesno,true},
-    {"sim.msgbox_buttons_yesnocancel",sim_msgbox_buttons_yesnocancel,true},
-    {"sim.msgbox_buttons_okcancel",sim_msgbox_buttons_okcancel,true},
-    // message box return values
-    {"sim.msgbox_return_cancel",sim_msgbox_return_cancel,true},
-    {"sim.msgbox_return_no",sim_msgbox_return_no,true},
-    {"sim.msgbox_return_yes",sim_msgbox_return_yes,true},
-    {"sim.msgbox_return_ok",sim_msgbox_return_ok,true},
-    {"sim.msgbox_return_error",sim_msgbox_return_error,true},
     // physics engine
     {"sim.physics_bullet",sim_physics_bullet,true},
     {"sim.physics_ode",sim_physics_ode,true},
@@ -1622,6 +1581,34 @@ const SLuaVariables simLuaVariables[]=
     {"sim.rml_recompute_trajectory",simrml_recompute_trajectory,false},
     {"sim.rml_disable_extremum_motion_states_calc",simrml_disable_extremum_motion_states_calc,false},
     {"sim.rml_keep_current_vel_if_fallback_strategy",simrml_keep_current_vel_if_fallback_strategy,false},
+    {"sim.filedlg_type_load",sim_filedlg_type_load,false},
+    {"sim.filedlg_type_save",sim_filedlg_type_save,false},
+    {"sim.filedlg_type_load_multiple",sim_filedlg_type_load_multiple,false},
+    {"sim.filedlg_type_folder",sim_filedlg_type_folder,false},
+    {"sim.msgbox_type_info",sim_msgbox_type_info,false},
+    {"sim.msgbox_type_question",sim_msgbox_type_question,false},
+    {"sim.msgbox_type_warning",sim_msgbox_type_warning,false},
+    {"sim.msgbox_type_critical",sim_msgbox_type_critical,false},
+    {"sim.msgbox_buttons_ok",sim_msgbox_buttons_ok,false},
+    {"sim.msgbox_buttons_yesno",sim_msgbox_buttons_yesno,false},
+    {"sim.msgbox_buttons_yesnocancel",sim_msgbox_buttons_yesnocancel,false},
+    {"sim.msgbox_buttons_okcancel",sim_msgbox_buttons_okcancel,false},
+    {"sim.msgbox_return_cancel",sim_msgbox_return_cancel,false},
+    {"sim.msgbox_return_no",sim_msgbox_return_no,false},
+    {"sim.msgbox_return_yes",sim_msgbox_return_yes,false},
+    {"sim.msgbox_return_ok",sim_msgbox_return_ok,false},
+    {"sim.msgbox_return_error",sim_msgbox_return_error,false},
+    {"sim.dlgstyle_message",sim_dlgstyle_message,false},
+    {"sim.dlgstyle_input",sim_dlgstyle_input,false},
+    {"sim.dlgstyle_ok",sim_dlgstyle_ok,false},
+    {"sim.dlgstyle_ok_cancel",sim_dlgstyle_ok_cancel,false},
+    {"sim.dlgstyle_yes_no",sim_dlgstyle_yes_no,false},
+    {"sim.dlgstyle_dont_center",sim_dlgstyle_dont_center,false},
+    {"sim.dlgret_still_open",sim_dlgret_still_open,false},
+    {"sim.dlgret_ok",sim_dlgret_ok,false},
+    {"sim.dlgret_cancel",sim_dlgret_cancel,false},
+    {"sim.dlgret_yes",sim_dlgret_yes,false},
+    {"sim.dlgret_no",sim_dlgret_no,false},
 
     {"",-1}
 };
@@ -2189,6 +2176,8 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
                 retVal=App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,callType,inStack,nullptr,nullptr);
                 App::worldContainer->interfaceStackContainer->destroyStack(inStack);
             }
+            else
+                errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
         }
     }
 
@@ -3447,16 +3436,6 @@ int _simGetSimulationState(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simGetSystemTime(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getSystemTime");
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,simGetSystemTime_internal());
     LUA_END(1);
 }
 
@@ -9547,13 +9526,13 @@ int _simCreateDummy(luaWrap_lua_State* L)
     {
         float size=luaToFloat(L,1);
         float* color=nullptr;
-        float c[12];
-        int res=checkOneGeneralInputArgument(L,2,lua_arg_number,12,true,true,&errorString);
+        float c[12]={0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f};
+        int res=checkOneGeneralInputArgument(L,2,lua_arg_number,3,true,true,&errorString);
         if (res>=0)
         {
             if (res==2)
             {
-                getFloatsFromTable(L,2,12,c);
+                getFloatsFromTable(L,2,3,c);
                 color=c;
             }
             retVal=simCreateDummy_internal(size,color);
@@ -10408,52 +10387,6 @@ int _simGetQuaternionFromMatrix(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
-}
-
-int _simFileDialog(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.fileDialog");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_string,0,lua_arg_string,0,lua_arg_string,0,lua_arg_string,0))
-    {
-        int mode=luaToInt(L,1);
-        std::string title(luaWrap_lua_tostring(L,2));
-        std::string startPath(luaWrap_lua_tostring(L,3));
-        std::string initName(luaWrap_lua_tostring(L,4));
-        std::string extName(luaWrap_lua_tostring(L,5));
-        std::string ext(luaWrap_lua_tostring(L,6));
-        char* pathAndName=simFileDialog_internal(mode,title.c_str(),startPath.c_str(),initName.c_str(),extName.c_str(),ext.c_str());
-        if (pathAndName!=nullptr)
-        {
-            luaWrap_lua_pushstring(L,pathAndName);
-            simReleaseBuffer_internal(pathAndName);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simMsgBox(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.msgBox");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_string,0,lua_arg_string,0))
-    {
-        int dlgType=luaToInt(L,1);
-        int dlgButtons=luaToInt(L,2);
-        std::string title(luaWrap_lua_tostring(L,3));
-        std::string message(luaWrap_lua_tostring(L,4));
-        retVal=simMsgBox_internal(dlgType,dlgButtons,title.c_str(),message.c_str());
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
 }
 
 int _simLoadModule(luaWrap_lua_State* L)
@@ -13394,8 +13327,8 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simRMLRemove",_simRMLRemove,                              "Use the newer 'sim.rmlRemove' notation",false},
     {"simBuildMatrixQ",_simBuildMatrixQ,                        "Use the newer 'sim.buildMatrixQ' notation",false},
     {"simGetQuaternionFromMatrix",_simGetQuaternionFromMatrix,  "Use the newer 'sim.getQuaternionFromMatrix' notation",false},
-    {"simFileDialog",_simFileDialog,                            "Use the newer 'sim.fileDialog' notation",false},
-    {"simMsgBox",_simMsgBox,                                    "Use the newer 'sim.msgBox' notation",false},
+    {"simFileDialog",_simFileDialog,                            "Deprecated. Use simUI.fielDialog instead",false},
+    {"simMsgBox",_simMsgBox,                                    "Deprecated. Use simUI.msgBox instead",false},
     {"simLoadModule",_simLoadModule,                            "Use the newer 'sim.loadModule' notation",false},
     {"simUnloadModule",_simUnloadModule,                        "Use the newer 'sim.unloadModule' notation",false},
     {"simCallScriptFunction",_simCallScriptFunction,            "Use the newer 'sim.callScriptFunction' notation",false},
@@ -16807,10 +16740,12 @@ int _simHandleChildScript(luaWrap_lua_State* L)
     {
         std::string title("Compatibility issue with ");
         title+=it->getShortDescriptiveName();
-        std::string txt("The command simHandleChildScript is not supported anymore and was replaced&&n");
-        txt+="with sim.handleChildScripts, which operates in a slightly different manner. Make sure to&&n";
+        std::string txt("The command simHandleChildScript is not supported anymore and was replaced ");
+        txt+="with sim.handleChildScripts, which operates in a slightly different manner. Make sure to ";
         txt+="adjust this script manually.";
-        simDisplayDialog_internal(title.c_str(),txt.c_str(),sim_dlgstyle_ok,"",nullptr,nullptr,nullptr);
+        App::logMsg(sim_verbosity_warnings,txt.c_str());
+        if (App::mainWindow!=nullptr)
+            App::uiThread->messageBox_warning(App::mainWindow,title.c_str(),txt.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -20210,3 +20145,54 @@ int _simSwitchThread(luaWrap_lua_State* L)
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
+int _simGetSystemTime(luaWrap_lua_State* L)
+{ // deprecated
+    TRACE_LUA_API;
+    LUA_START("sim.getSystemTime");
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,double(simGetSystemTimeInMs_internal(-2))/1000.0);
+    LUA_END(1);
+}
+int _simFileDialog(luaWrap_lua_State* L)
+{ // deprecated
+    TRACE_LUA_API;
+    LUA_START("sim.fileDialog");
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_string,0,lua_arg_string,0,lua_arg_string,0,lua_arg_string,0))
+    {
+        int mode=luaToInt(L,1);
+        std::string title(luaWrap_lua_tostring(L,2));
+        std::string startPath(luaWrap_lua_tostring(L,3));
+        std::string initName(luaWrap_lua_tostring(L,4));
+        std::string extName(luaWrap_lua_tostring(L,5));
+        std::string ext(luaWrap_lua_tostring(L,6));
+        char* pathAndName=simFileDialog_internal(mode,title.c_str(),startPath.c_str(),initName.c_str(),extName.c_str(),ext.c_str());
+        if (pathAndName!=nullptr)
+        {
+            luaWrap_lua_pushstring(L,pathAndName);
+            simReleaseBuffer_internal(pathAndName);
+            LUA_END(1);
+        }
+    }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+int _simMsgBox(luaWrap_lua_State* L)
+{ // deprecated
+    TRACE_LUA_API;
+    LUA_START("sim.msgBox");
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_string,0,lua_arg_string,0))
+    {
+        int dlgType=luaToInt(L,1);
+        int dlgButtons=luaToInt(L,2);
+        std::string title(luaWrap_lua_tostring(L,3));
+        std::string message(luaWrap_lua_tostring(L,4));
+        retVal=simMsgBox_internal(dlgType,dlgButtons,title.c_str(),message.c_str());
+    }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+

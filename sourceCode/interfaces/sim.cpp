@@ -237,14 +237,6 @@ SIM_DLLEXPORT simInt simGetSimulationState()
 {
     return(simGetSimulationState_internal());
 }
-SIM_DLLEXPORT simFloat simGetSystemTime()
-{
-    return(simGetSystemTime_internal());
-}
-SIM_DLLEXPORT simInt simGetSystemTimeInMilliseconds()
-{
-    return(simGetSystemTimeInMilliseconds_internal());
-}
 SIM_DLLEXPORT simUInt simGetSystemTimeInMs(simInt previousTime)
 {
     return(simGetSystemTimeInMs_internal(previousTime));
@@ -508,22 +500,6 @@ SIM_DLLEXPORT simInt simSetPage(simInt index)
 SIM_DLLEXPORT simInt simGetPage()
 {
     return(simGetPage_internal());
-}
-SIM_DLLEXPORT simInt simDisplayDialog(const simChar* titleText,const simChar* mainText,simInt dialogType,const simChar* initialText,const simFloat* titleColors,const simFloat* dialogColors,simInt* elementHandle)
-{
-    return(simDisplayDialog_internal(titleText,mainText,dialogType,initialText,titleColors,dialogColors,elementHandle));
-}
-SIM_DLLEXPORT simInt simGetDialogResult(simInt genericDialogHandle)
-{
-    return(simGetDialogResult_internal(genericDialogHandle));
-}
-SIM_DLLEXPORT simChar* simGetDialogInput(simInt genericDialogHandle)
-{
-    return(simGetDialogInput_internal(genericDialogHandle));
-}
-SIM_DLLEXPORT simInt simEndDialog(simInt genericDialogHandle)
-{
-    return(simEndDialog_internal(genericDialogHandle));
 }
 SIM_DLLEXPORT simInt simRegisterScriptCallbackFunction(const simChar* funcNameAtPluginName,const simChar* callTips,simVoid(*callBack)(struct SScriptCallBack* cb))
 {
@@ -948,14 +924,6 @@ SIM_DLLEXPORT simInt simRuckigStep(simInt objHandle,simDouble timeStep,simDouble
 SIM_DLLEXPORT simInt simRuckigRemove(simInt objHandle)
 {
     return(simRuckigRemove_internal(objHandle));
-}
-SIM_DLLEXPORT simChar* simFileDialog(simInt mode,const simChar* title,const simChar* startPath,const simChar* initName,const simChar* extName,const simChar* ext)
-{
-    return(simFileDialog_internal(mode,title,startPath,initName,extName,ext));
-}
-SIM_DLLEXPORT simInt simMsgBox(simInt dlgType,simInt buttons,const simChar* title,const simChar* message)
-{
-    return(simMsgBox_internal(dlgType,buttons,title,message));
 }
 SIM_DLLEXPORT simInt simCreateDummy(simFloat size,const simFloat* color)
 {
@@ -2700,6 +2668,38 @@ SIM_DLLEXPORT simInt simRMLStep(simInt handle,simDouble timeStep,simDouble* newP
 SIM_DLLEXPORT simInt simRMLRemove(simInt handle)
 {
     return(simRMLRemove_internal(handle));
+}
+SIM_DLLEXPORT simFloat simGetSystemTime()
+{
+    return(float(simGetSystemTimeInMs_internal(-2))/1000.0f);
+}
+SIM_DLLEXPORT simInt simGetSystemTimeInMilliseconds()
+{
+    return(simGetSystemTimeInMs_internal(-2));
+}
+SIM_DLLEXPORT simChar* simFileDialog(simInt mode,const simChar* title,const simChar* startPath,const simChar* initName,const simChar* extName,const simChar* ext)
+{
+    return(simFileDialog_internal(mode,title,startPath,initName,extName,ext));
+}
+SIM_DLLEXPORT simInt simMsgBox(simInt dlgType,simInt buttons,const simChar* title,const simChar* message)
+{
+    return(simMsgBox_internal(dlgType,buttons,title,message));
+}
+SIM_DLLEXPORT simInt simDisplayDialog(const simChar* titleText,const simChar* mainText,simInt dialogType,const simChar* initialText,const simFloat* titleColors,const simFloat* dialogColors,simInt* elementHandle)
+{
+    return(simDisplayDialog_internal(titleText,mainText,dialogType,initialText,titleColors,dialogColors,elementHandle));
+}
+SIM_DLLEXPORT simInt simGetDialogResult(simInt genericDialogHandle)
+{
+    return(simGetDialogResult_internal(genericDialogHandle));
+}
+SIM_DLLEXPORT simChar* simGetDialogInput(simInt genericDialogHandle)
+{
+    return(simGetDialogInput_internal(genericDialogHandle));
+}
+SIM_DLLEXPORT simInt simEndDialog(simInt genericDialogHandle)
+{
+    return(simEndDialog_internal(genericDialogHandle));
 }
 // Deprecated end
 

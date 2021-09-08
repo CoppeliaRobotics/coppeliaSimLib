@@ -6871,6 +6871,14 @@ void CScriptObject::_adjustScriptText15_old(CScriptObject* scriptObject,bool doI
 
 void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
 {
+    if (_containsScriptText_old(scriptObject,"sim.fileDlg"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.fileDlg...");
+    if (_containsScriptText_old(scriptObject,"sim.msgBox"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.msgBox...");
+    if (_containsScriptText_old(scriptObject,"sim.displayDialog"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.displayDialog...");
+
+
     if (_containsScriptText_old(scriptObject,"Reflexxes"))
         App::logMsg(sim_verbosity_errors,"Contains Reflexxes...");
     if (_containsScriptText_old(scriptObject,"reflexxes"))
