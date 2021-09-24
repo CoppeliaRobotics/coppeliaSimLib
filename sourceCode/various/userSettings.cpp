@@ -96,7 +96,7 @@
 
 #define _USR_DIRECTORY_FOR_SCENES "defaultDirectoryForScenes"
 #define _USR_DIRECTORY_FOR_MODELS "defaultDirectoryForModels"
-#define _USR_DIRECTORY_FOR_CAD "defaultDirectoryForCadFiles"
+#define _USR_DIRECTORY_FOR_IMPORTEXPORT "defaultDirectoryForImportExport"
 #define _USR_DIRECTORY_FOR_MISC "defaultDirectoryForMiscFiles"
 
 
@@ -314,7 +314,7 @@ CUserSettings::CUserSettings()
     // *****************************
     defaultDirectoryForScenes="";
     defaultDirectoryForModels="";
-    defaultDirectoryForCadFiles="";
+    defaultDirectoryForImportExport="";
     defaultDirectoryForMiscFiles="";
 
 
@@ -684,7 +684,7 @@ void CUserSettings::saveUserSettings()
     c.addRandomLine("// =================================================");
     c.addString(_USR_DIRECTORY_FOR_SCENES,defaultDirectoryForScenes,"absolute path, e.g. d:/myScenes (or leave empty for default path)");
     c.addString(_USR_DIRECTORY_FOR_MODELS,defaultDirectoryForModels,"absolute path, e.g. d:/myModels (or leave empty for default path)");
-    c.addString(_USR_DIRECTORY_FOR_CAD,defaultDirectoryForCadFiles,"absolute path, e.g. d:/myCadFiles (or leave empty for default path)");
+    c.addString(_USR_DIRECTORY_FOR_IMPORTEXPORT,defaultDirectoryForImportExport,"absolute path, e.g. d:/myCadFiles (or leave empty for default path)");
     c.addString(_USR_DIRECTORY_FOR_MISC,defaultDirectoryForMiscFiles,"absolute path, e.g. d:/myMiscFiles (or leave empty for default path)");
 
 
@@ -1005,7 +1005,7 @@ void CUserSettings::loadUserSettings()
     // *****************************
     c.getString(_USR_DIRECTORY_FOR_SCENES,defaultDirectoryForScenes);
     c.getString(_USR_DIRECTORY_FOR_MODELS,defaultDirectoryForModels);
-    c.getString(_USR_DIRECTORY_FOR_CAD,defaultDirectoryForCadFiles);
+    c.getString(_USR_DIRECTORY_FOR_IMPORTEXPORT,defaultDirectoryForImportExport);
     c.getString(_USR_DIRECTORY_FOR_MISC,defaultDirectoryForMiscFiles);
 
     // Serialization section:

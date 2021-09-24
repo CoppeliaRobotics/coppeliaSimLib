@@ -4269,6 +4269,11 @@ simInt simSetStringParam_internal(simInt parameter,const simChar* str)
             App::setConsoleLogFilter(str);
             return(1);
         }
+        if (parameter==sim_stringparam_importexportdir)
+        {
+            App::folders->setImportExportPath(str);
+            return(1);
+        }
 
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(-1);
@@ -4309,6 +4314,11 @@ simChar* simGetStringParam_internal(simInt parameter)
         {
             validParam=true;
             retVal=App::folders->getAppDataPath();
+        }
+        if (parameter==sim_stringparam_importexportdir)
+        {
+            validParam=true;
+            retVal=App::folders->getImportExportPath();
         }
         if (parameter==sim_stringparam_scene_path_and_name)
         {

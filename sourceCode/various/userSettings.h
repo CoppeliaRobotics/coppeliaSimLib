@@ -127,7 +127,7 @@ public:
 
     std::string defaultDirectoryForScenes;
     std::string defaultDirectoryForModels;
-    std::string defaultDirectoryForCadFiles;
+    std::string defaultDirectoryForImportExport;
     std::string defaultDirectoryForMiscFiles;
 
     int threadedChildScriptColor_background[3];

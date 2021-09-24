@@ -20,8 +20,8 @@ public:
     void setScenesPath(const char* path);
     std::string getModelsPath() const;
     void setModelsPath(const char* path);
-    std::string getCadFilesPath() const;
-    void setCadFilesPath(const char* path);
+    std::string getImportExportPath() const;
+    void setImportExportPath(const char* path);
     std::string getTexturesPath() const;
     void setTexturesPath(const char* path);
     std::string getVideosPath() const;
@@ -41,7 +41,7 @@ private:
     std::string _resourcesPath;
     std::string _scenesPath;
     std::string _modelsPath;
-    std::string _cadFilesPath;
+    std::string _importExportPath;
     std::string _texturesPath;
     std::string _videosPath;
     std::string _otherFilesPath;

@@ -27,8 +27,7 @@ CFolderSystem::CFolderSystem()
     _systemPath=_executablePath+"/"+SIM_SYSTEM_DIRECTORY_NAME;
     _scenesPath=_resourcesPath+"/"+CSimFlavor::getStringVal(13);// if scenes can't be found, it will use the last used directory somehow!
     _modelsPath=_resourcesPath+"/"+CSimFlavor::getStringVal(14);
-    _cadFilesPath=_resourcesPath+"/"+SIM_CADFILES_DIRECTORY_NAME;
-    _texturesPath=_resourcesPath;
+    _importExportPath=_resourcesPath+"/"+SIM_IMPORTEXPORT_DIRECTORY_NAME;
     _videosPath=_resourcesPath;
     _otherFilesPath=_resourcesPath;
 
@@ -36,8 +35,8 @@ CFolderSystem::CFolderSystem()
         setScenesPath(App::userSettings->defaultDirectoryForScenes.c_str());
     if (App::userSettings->defaultDirectoryForModels.length()!=0)
         setModelsPath(App::userSettings->defaultDirectoryForModels.c_str());
-    if (App::userSettings->defaultDirectoryForCadFiles.length()!=0)
-        setCadFilesPath(App::userSettings->defaultDirectoryForCadFiles.c_str());
+    if (App::userSettings->defaultDirectoryForImportExport.length()!=0)
+        setImportExportPath(App::userSettings->defaultDirectoryForImportExport.c_str());
     if (App::userSettings->defaultDirectoryForMiscFiles.length()!=0)
         setOtherFilesPath(App::userSettings->defaultDirectoryForMiscFiles.c_str());
 
@@ -151,15 +150,15 @@ void CFolderSystem::setModelsPath(const char* path)
     VVarious::removePathFinalSlashOrBackslash(_modelsPath);
 }
 
-std::string CFolderSystem::getCadFilesPath() const
+std::string CFolderSystem::getImportExportPath() const
 {
-    return(_cadFilesPath);
+    return(_importExportPath);
 }
 
-void CFolderSystem::setCadFilesPath(const char* path)
+void CFolderSystem::setImportExportPath(const char* path)
 {
-    _cadFilesPath=path;
-    VVarious::removePathFinalSlashOrBackslash(_cadFilesPath);
+    _importExportPath=path;
+    VVarious::removePathFinalSlashOrBackslash(_importExportPath);
 }
 
 std::string CFolderSystem::getTexturesPath() const

@@ -399,7 +399,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             {
                 App::logMsg(sim_verbosity_msgs,IDS_IMPORTING_MESH___);
                 App::currentWorld->sceneObjects->deselectObjects();
-                std::string tst(App::folders->getCadFilesPath());
+                std::string tst(App::folders->getImportExportPath());
 
                 std::vector<std::string> filenamesAndPaths;
                 if (App::uiThread->getOpenFileNames(filenamesAndPaths,App::mainWindow,0,IDS_IMPORTING_MESH___,tst.c_str(),"",false,"Mesh files","obj","dxf","ply","stl","dae"))
@@ -409,6 +409,8 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     {
                         if (i!=0)
                             files+=";";
+                        else
+                            App::folders->setImportExportPath(App::folders->getPathFromFull(filenamesAndPaths[i].c_str()).c_str());
                         files+=filenamesAndPaths[i];
                     }
                     CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
@@ -433,11 +435,12 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_IMPORTING_HEIGHTFIELD_SHAPE);
             App::currentWorld->sceneObjects->deselectObjects();
-            std::string tst(App::folders->getCadFilesPath());
+            std::string tst(App::folders->getImportExportPath());
             std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,IDS_IMPORTING_HEIGHTFIELD___,tst.c_str(),"",true,"Image, CSV and TXT files","tga","jpg","jpeg","png","gif","bmp","tiff","csv","txt");
 
             if (filenameAndPath.length()!=0)
             {
+                App::folders->setImportExportPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                 if (VFile::doesFileExist(filenameAndPath.c_str()))
                 {
                     if (heightfieldImportRoutine(filenameAndPath.c_str()))
@@ -472,11 +475,11 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
                     if (0==App::currentWorld->sceneObjects->getShapeCountInSelection(&sel))
                         return(true); // Selection contains nothing that can be exported!
-                    std::string tst(App::folders->getCadFilesPath());
+                    std::string tst(App::folders->getImportExportPath());
                     std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDSNS_EXPORTING_SHAPES,tst.c_str(),"",false,"Mesh files","obj","ply","stl","dae");
                     if (filenameAndPath.length()!=0)
                     {
-                        App::folders->setCadFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
+                        App::folders->setImportExportPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
 
                         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
                         stack->pushStringOntoStack(filenameAndPath.c_str(),0);

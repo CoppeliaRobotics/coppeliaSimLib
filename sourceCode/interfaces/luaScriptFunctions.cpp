@@ -853,6 +853,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_tempdir",sim_stringparam_tempdir,true},
     {"sim.stringparam_tempscenedir",sim_stringparam_tempscenedir,true},
     {"sim.stringparam_datadir",sim_stringparam_datadir,true},
+    {"sim.stringparam_importexportdir",sim_stringparam_importexportdir,true},
 
     // verbosity:
     {"sim.verbosity_useglobal",sim_verbosity_useglobal,true},

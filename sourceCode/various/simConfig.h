@@ -3,7 +3,7 @@
 
 #define SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE "settings.dat"
 #define SIM_SYSTEM_DIRECTORY_NAME "system"
-#define SIM_CADFILES_DIRECTORY_NAME "cadFiles"
+#define SIM_IMPORTEXPORT_DIRECTORY_NAME "cadFiles"
 #define SIM_SCENE_EXTENSION "ttt"
 #define SIM_MODEL_EXTENSION "ttm"
 #define SIM_XML_SCENE_EXTENSION "simscene.xml"
