@@ -6872,6 +6872,22 @@ void CScriptObject::_adjustScriptText15_old(CScriptObject* scriptObject,bool doI
 
 void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
 {
+    if (_containsScriptText_old(scriptObject,"sim.isObjectInSelection"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.isObjectInSelection...");
+    if (_containsScriptText_old(scriptObject,"sim.addObjectToSelection"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.addObjectToSelection...");
+    if (_containsScriptText_old(scriptObject,"sim.removeObjectFromSelection"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.removeObjectFromSelection...");
+    if (_containsScriptText_old(scriptObject,"sim.getObjectLastSelection"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getObjectLastSelection...");
+    if (_containsScriptText_old(scriptObject,"sim.deleteSelectedObjects"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.deleteSelectedObjects...");
+    if (_containsScriptText_old(scriptObject,"sim.scaleSelectedObjects"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.scaleSelectedObjects...");
+    if (_containsScriptText_old(scriptObject,"sim.copyPasteSelectedObjects"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.copyPasteSelectedObjects...");
+
+
     if (_containsScriptText_old(scriptObject,"sim.fileDlg"))
         App::logMsg(sim_verbosity_errors,"Contains sim.fileDlg...");
     if (_containsScriptText_old(scriptObject,"sim.msgBox"))

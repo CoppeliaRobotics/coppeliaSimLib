@@ -183,10 +183,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.saveScene",_simSaveScene,                              "sim.saveScene(string filename)",true},
     {"sim.loadModel",_simLoadModel,                              "int objectHandle=sim.loadModel(string filename)",true},
     {"sim.saveModel",_simSaveModel,                              "string buffer=sim.saveModel(int modelBaseHandle,string filename=nil)",true},
-    {"sim.isObjectInSelection",_simIsObjectInSelection,          "int selectionState=sim.isObjectInSelection(int objectHandle)",true},
-    {"sim.addObjectToSelection",_simAddObjectToSelection,        "sim.addObjectToSelection(int what,int objectHandle)\nsim.addObjectToSelection(table[1..*] objectHandles)",true},
-    {"sim.removeObjectFromSelection",_simRemoveObjectFromSelection,"sim.removeObjectFromSelection(int what,int objectHandle)\nint result=sim.removeObjectFromSelection(table[1..*] objectHandles)",true},
     {"sim.getObjectSelection",_simGetObjectSelection,            "table[] selectedObjectHandles=sim.getObjectSelection()",true},
+    {"sim.setObjectSelection",_simSetObjectSelection,            "sim.getObjectSelection(table[] objectHandles)",true},
     {"sim.getRealTimeSimulation",_simGetRealTimeSimulation,      "int result=sim.getRealTimeSimulation()",true},
     {"sim.setNavigationMode",_simSetNavigationMode,              "sim.setNavigationMode(int navigationMode)",true},
     {"sim.getNavigationMode",_simGetNavigationMode,              "int navigationMode=sim.getNavigationMode()",true},
@@ -562,6 +560,9 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getSystemTime",_simGetSystemTime,                      "Deprecated. Use sim.getSystemTimeInMs instead",false},
     {"sim.fileDialog",_simFileDialog,                            "Deprecated. Use simUI.fileDialog instead",false},
     {"sim.msgBox",_simMsgBox,                                    "Deprecated. Use simUI.msgBox instead",false},
+    {"sim.isObjectInSelection",_simIsObjectInSelection,          "Deprecated. Use sim.getObjectSelection instead",false},
+    {"sim.addObjectToSelection",_simAddObjectToSelection,        "Deprecated. Use sim.setObjectSelection instead",false},
+    {"sim.removeObjectFromSelection",_simRemoveObjectFromSelection,"Deprecated. Use sim.setObjectSelection instead",false},
 
     {"",nullptr,"",false}
 };
@@ -4816,143 +4817,39 @@ int _simSaveModel(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simIsObjectInSelection(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.isObjectInSelection");
-
-    int retVal=-1;// error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simIsObjectInSelection_internal(luaWrap_lua_tointeger(L,1));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simAddObjectToSelection(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.addObjectToSelection");
-
-    int retVal=-1;// error
-    // We check if argument 1 is nil (special case):
-    if (checkOneGeneralInputArgument(L,1,lua_arg_nil,0,false,true,nullptr)==1) // we do not generate an error message!
-    {
-        retVal=1; // nothing happens
-    }
-    else
-    {
-        // We check if we have a table at position 1:
-        if (!luaWrap_lua_istable(L,1))
-        { // It is not a table!
-            if (checkInputArguments(L,nullptr,lua_arg_number,0,lua_arg_number,0)) // we don't generate an error
-                retVal=simAddObjectToSelection_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
-            else
-            { // Maybe we have a special case with one argument only?
-                // nil is a valid argument!
-                if (checkInputArguments(L,nullptr,lua_arg_nil,0)) // we don't generate an error
-                    retVal=1;
-                else
-                {
-                    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-                    {
-                        if (luaWrap_lua_tointeger(L,1)==sim_handle_all)
-                            retVal=simAddObjectToSelection_internal(luaWrap_lua_tointeger(L,1),-1);
-                        else
-                            checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0); // we just generate an error
-                    }
-                }
-            }
-        }
-        else
-        { // Ok we have a table. Now what size is it?
-            int tableLen=int(luaWrap_lua_rawlen(L,1));
-            int* buffer=new int[tableLen];
-            if (getIntsFromTable(L,1,tableLen,buffer))
-            {
-                for (int i=0;i<tableLen;i++)
-                {
-                    if (App::currentWorld->sceneObjects->getObjectFromHandle(buffer[i])!=nullptr)
-                        App::currentWorld->sceneObjects->addObjectToSelection(buffer[i]);
-                }
-                retVal=1;
-            }
-            else
-                errorString=SIM_ERROR_TABLE_CONTAINS_INVALID_TYPES;
-            delete[] buffer;
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simRemoveObjectFromSelection(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.removeObjectFromSelection");
-
-    int retVal=-1;// error
-    // We check if argument 1 is nil (special case):
-    if (checkOneGeneralInputArgument(L,1,lua_arg_nil,0,false,true,nullptr)==1) // we do not generate an error message!
-        retVal=1; // nothing happens
-    else
-    {
-        // We check if we have a table at position 1:
-        if (!luaWrap_lua_istable(L,1))
-        { // It is not a table!
-            if (checkInputArguments(L,nullptr,lua_arg_number,0,lua_arg_number,0)) // we don't generate an error
-                retVal=simRemoveObjectFromSelection_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
-            else
-            {
-                if (checkInputArguments(L,&errorString,lua_arg_number,0))
-                {
-                    if (luaWrap_lua_tointeger(L,1)==sim_handle_all)
-                        retVal=simRemoveObjectFromSelection_internal(luaWrap_lua_tointeger(L,1),-1);
-                    else
-                        checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0); // we just generate an error
-                }
-            }
-        }
-        else
-        { // Ok we have a table. Now what size is it?
-            int tableLen=int(luaWrap_lua_rawlen(L,1));
-            int* buffer=new int[tableLen];
-            if (getIntsFromTable(L,1,tableLen,buffer))
-            {
-                for (int i=0;i<tableLen;i++)
-                    retVal=simRemoveObjectFromSelection_internal(sim_handle_single,buffer[i]);
-            }
-            else
-                errorString=SIM_ERROR_TABLE_CONTAINS_INVALID_TYPES;
-            delete[] buffer;
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
 int _simGetObjectSelection(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectSelection");
 
-    size_t selSize=App::currentWorld->sceneObjects->getSelectionCount();
-    if (selSize!=0)
+    int selSize;
+    int* sel=simGetObjectSel_internal(&selSize);
+    if (sel!=nullptr)
     {
-        int* sel=new int[selSize];
-        int res=simGetObjectSelection_internal(sel);
-        if (res>0)
-        {
-            pushIntTableOntoStack(L,selSize,sel);
-            delete[] sel;
-            LUA_END(1);
-        }
+        pushIntTableOntoStack(L,selSize,sel);
         delete[] sel;
+        LUA_END(1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetObjectSelection(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setObjectSelection");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,1))
+    {
+        int objCnt=(int)luaWrap_lua_rawlen(L,1);
+        if (checkInputArguments(L,&errorString,lua_arg_number,objCnt))
+        {
+            std::vector<int> objectHandles;
+            objectHandles.resize(objCnt,0);
+            getIntsFromTable(L,1,objCnt,&objectHandles[0]);
+            simSetObjectSel_internal(&objectHandles[0],objCnt);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -13168,9 +13065,9 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simSaveScene",_simSaveScene,                              "Use the newer 'sim.saveScene' notation",false},
     {"simLoadModel",_simLoadModel,                              "Use the newer 'sim.loadModel' notation",false},
     {"simSaveModel",_simSaveModel,                              "Use the newer 'sim.saveModel' notation",false},
-    {"simIsObjectInSelection",_simIsObjectInSelection,          "Use the newer 'sim.isObjectInSelection' notation",false},
-    {"simAddObjectToSelection",_simAddObjectToSelection,        "Use the newer 'sim.addObjectToSelection' notation",false},
-    {"simRemoveObjectFromSelection",_simRemoveObjectFromSelection,"Use the newer 'sim.removeObjectFromSelection' notation",false},
+    {"simIsObjectInSelection",_simIsObjectInSelection,          "Deprecated. Use sim.getObjectSelection instead",false},
+    {"simAddObjectToSelection",_simAddObjectToSelection,        "Deprecated. Use sim.setObjectSelection instead",false},
+    {"simRemoveObjectFromSelection",_simRemoveObjectFromSelection,"Deprecated. Use sim.setObjectSelection instead",false},
     {"simGetObjectSelection",_simGetObjectSelection,            "Use the newer 'sim.getObjectSelection' notation",false},
     {"simGetRealTimeSimulation",_simGetRealTimeSimulation,      "Use the newer 'sim.getRealTimeSimulation' notation",false},
     {"simSetNavigationMode",_simSetNavigationMode,              "Use the newer 'sim.setNavigationMode' notation",false},
@@ -20198,4 +20095,123 @@ int _simMsgBox(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
+int _simIsObjectInSelection(luaWrap_lua_State* L)
+{ // deprecated since 24.09.2021
+    TRACE_LUA_API;
+    LUA_START("sim.isObjectInSelection");
+
+    int retVal=-1;// error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        retVal=simIsObjectInSelection_internal(luaWrap_lua_tointeger(L,1));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simAddObjectToSelection(luaWrap_lua_State* L)
+{ // deprecated since 24.09.2021
+    TRACE_LUA_API;
+    LUA_START("sim.addObjectToSelection");
+
+    int retVal=-1;// error
+    // We check if argument 1 is nil (special case):
+    if (checkOneGeneralInputArgument(L,1,lua_arg_nil,0,false,true,nullptr)==1) // we do not generate an error message!
+    {
+        retVal=1; // nothing happens
+    }
+    else
+    {
+        // We check if we have a table at position 1:
+        if (!luaWrap_lua_istable(L,1))
+        { // It is not a table!
+            if (checkInputArguments(L,nullptr,lua_arg_number,0,lua_arg_number,0)) // we don't generate an error
+                retVal=simAddObjectToSelection_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
+            else
+            { // Maybe we have a special case with one argument only?
+                // nil is a valid argument!
+                if (checkInputArguments(L,nullptr,lua_arg_nil,0)) // we don't generate an error
+                    retVal=1;
+                else
+                {
+                    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+                    {
+                        if (luaWrap_lua_tointeger(L,1)==sim_handle_all)
+                            retVal=simAddObjectToSelection_internal(luaWrap_lua_tointeger(L,1),-1);
+                        else
+                            checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0); // we just generate an error
+                    }
+                }
+            }
+        }
+        else
+        { // Ok we have a table. Now what size is it?
+            int tableLen=int(luaWrap_lua_rawlen(L,1));
+            int* buffer=new int[tableLen];
+            if (getIntsFromTable(L,1,tableLen,buffer))
+            {
+                for (int i=0;i<tableLen;i++)
+                {
+                    if (App::currentWorld->sceneObjects->getObjectFromHandle(buffer[i])!=nullptr)
+                        App::currentWorld->sceneObjects->addObjectToSelection(buffer[i]);
+                }
+                retVal=1;
+            }
+            else
+                errorString=SIM_ERROR_TABLE_CONTAINS_INVALID_TYPES;
+            delete[] buffer;
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simRemoveObjectFromSelection(luaWrap_lua_State* L)
+{ // deprecated since 24.09.2021
+    TRACE_LUA_API;
+    LUA_START("sim.removeObjectFromSelection");
+
+    int retVal=-1;// error
+    // We check if argument 1 is nil (special case):
+    if (checkOneGeneralInputArgument(L,1,lua_arg_nil,0,false,true,nullptr)==1) // we do not generate an error message!
+        retVal=1; // nothing happens
+    else
+    {
+        // We check if we have a table at position 1:
+        if (!luaWrap_lua_istable(L,1))
+        { // It is not a table!
+            if (checkInputArguments(L,nullptr,lua_arg_number,0,lua_arg_number,0)) // we don't generate an error
+                retVal=simRemoveObjectFromSelection_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
+            else
+            {
+                if (checkInputArguments(L,&errorString,lua_arg_number,0))
+                {
+                    if (luaWrap_lua_tointeger(L,1)==sim_handle_all)
+                        retVal=simRemoveObjectFromSelection_internal(luaWrap_lua_tointeger(L,1),-1);
+                    else
+                        checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0); // we just generate an error
+                }
+            }
+        }
+        else
+        { // Ok we have a table. Now what size is it?
+            int tableLen=int(luaWrap_lua_rawlen(L,1));
+            int* buffer=new int[tableLen];
+            if (getIntsFromTable(L,1,tableLen,buffer))
+            {
+                for (int i=0;i<tableLen;i++)
+                    retVal=simRemoveObjectFromSelection_internal(sim_handle_single,buffer[i]);
+            }
+            else
+                errorString=SIM_ERROR_TABLE_CONTAINS_INVALID_TYPES;
+            delete[] buffer;
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
 

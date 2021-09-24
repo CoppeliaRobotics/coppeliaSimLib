@@ -80,12 +80,19 @@ simInt simLoadModel_internal(const simChar* filename);
 simInt simSaveModel_internal(int baseOfModelHandle,const simChar* filename);
 simChar* simGetSimulatorMessage_internal(simInt* messageID,simInt* auxiliaryData,simInt* returnedDataSize);
 simInt simDoesFileExist_internal(const simChar* filename);
+simInt* simGetObjectSel_internal(simInt* cnt);
+simInt simSetObjectSel_internal(const simInt* handles,simInt cnt);
+
 simInt simIsObjectInSelection_internal(simInt objectHandle);
 simInt simAddObjectToSelection_internal(simInt what,simInt objectHandle);
 simInt simRemoveObjectFromSelection_internal(simInt what,simInt objectHandle);
 simInt simGetObjectSelectionSize_internal();
 simInt simGetObjectLastSelection_internal();
 simInt simGetObjectSelection_internal(simInt* objectHandles);
+simInt simScaleSelectedObjects_internal(simFloat scalingFactor,simBool scalePositionsToo);
+simInt simDeleteSelectedObjects_internal();
+
+
 simInt simHandleProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 simInt simReadProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 simInt simHandleDynamics_internal(simFloat deltaTime);
@@ -144,9 +151,7 @@ simInt simRegisterScriptFuncHook_internal(simInt scriptHandle,const simChar* fun
 simInt simSetJointTargetVelocity_internal(simInt objectHandle,simFloat targetVelocity);
 simInt simGetJointTargetVelocity_internal(simInt objectHandle,simFloat* targetVelocity);
 simInt simCopyPasteObjects_internal(simInt* objectHandles,simInt objectCount,simInt options);
-simInt simScaleSelectedObjects_internal(simFloat scalingFactor,simBool scalePositionsToo);
 simInt simScaleObjects_internal(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo);
-simInt simDeleteSelectedObjects_internal();
 simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueIdentifier);
 simInt simAddDrawingObject_internal(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission);
 simInt simRemoveDrawingObject_internal(simInt objectHandle);

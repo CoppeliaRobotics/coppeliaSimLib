@@ -4612,33 +4612,27 @@ simInt simDoesFileExist_internal(const simChar* filename)
     return(1);
 }
 
-simInt simIsObjectInSelection_internal(simInt objectHandle)
+simInt* simGetObjectSel_internal(simInt* cnt)
 {
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
+        return(nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal=0;
-        if (App::currentWorld->sceneObjects->isObjectInSelection(objectHandle))
-            retVal|=1;
-        CSceneObject* lastSel=App::currentWorld->sceneObjects->getLastSelectionObject();
-        if (lastSel!=nullptr)
-        {
-            if (lastSel->getObjectHandle()==objectHandle)
-                retVal|=2;
-        }
+        const std::vector<int>* handles=App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr();
+        int* retVal=new int[handles->size()];
+        for (size_t i=0;i<handles->size();i++)
+            retVal[i]=handles->at(i);
+        cnt[0]=int(handles->size());
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
+    return(nullptr);
 }
 
-simInt simAddObjectToSelection_internal(simInt what,simInt objectHandle)
+simInt simSetObjectSel_internal(const simInt* handles,simInt cnt)
 {
     TRACE_C_API;
 
@@ -4647,141 +4641,15 @@ simInt simAddObjectToSelection_internal(simInt what,simInt objectHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        if (ifEditModeActiveGenerateErrorAndReturnTrue(__func__))
-            return(-1);
-        if (what==sim_handle_all)
-            App::currentWorld->sceneObjects->selectAllObjects();
-        else
+        App::currentWorld->sceneObjects->deselectObjects();
+        if ((handles!=nullptr)&&(cnt>0))
         {
-            if (!doesObjectExist(__func__,objectHandle))
-                return(-1);
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            if (what==sim_handle_single)
-                App::currentWorld->sceneObjects->addObjectToSelection(objectHandle);
-            else
-            {
-                if ((what==sim_handle_tree)||(what==sim_handle_chain))
-                {
-                    std::vector<CSceneObject*> allObjects;
-                    if (what==sim_handle_tree)
-                        it->getAllObjectsRecursive(&allObjects,true,true);
-                    if (what==sim_handle_chain)
-                        it->getChain(allObjects,true,true);
-                    for (int i=0;i<int(allObjects.size());i++)
-                        App::currentWorld->sceneObjects->addObjectToSelection(allObjects[i]->getObjectHandle());
-                }
-                else
-                {
-                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
-                    return(-1);
-                }
-            }
+            for (int i=0;i<cnt;i++)
+                App::currentWorld->sceneObjects->addObjectToSelection(handles[i]);
         }
-        return(1);
+        return(int(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()->size()));
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-
-}
-
-simInt simRemoveObjectFromSelection_internal(simInt what,simInt objectHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        if (ifEditModeActiveGenerateErrorAndReturnTrue(__func__))
-            return(-1);
-        if (what==sim_handle_all)
-            App::currentWorld->sceneObjects->deselectObjects();
-        else
-        {
-            if (!doesObjectExist(__func__,objectHandle))
-            {
-                return(-1);
-            }
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            if (what==sim_handle_single)
-                App::currentWorld->sceneObjects->removeObjectFromSelection(objectHandle);
-            else
-            {
-                if ((what==sim_handle_tree)||(what==sim_handle_chain))
-                {
-                    std::vector<CSceneObject*> allObjects;
-                    if (what==sim_handle_tree)
-                        it->getAllObjectsRecursive(&allObjects,true,true);
-                    if (what==sim_handle_chain)
-                        it->getChain(allObjects,true,true);
-                    for (int i=0;i<int(allObjects.size());i++)
-                        App::currentWorld->sceneObjects->removeObjectFromSelection(allObjects[i]->getObjectHandle());
-                }
-                else
-                {
-                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
-                    return(-1);
-                }
-            }
-        }
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-
-}
-
-simInt simGetObjectSelectionSize_internal()
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int retVal=int(App::currentWorld->sceneObjects->getSelectionCount());
-        return(retVal);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simGetObjectLastSelection_internal()
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int retVal=-1;
-        CSceneObject* it=App::currentWorld->sceneObjects->getLastSelectionObject();
-        if (it!=nullptr)
-            retVal=it->getObjectHandle();
-        return(retVal);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-
-simInt simGetObjectSelection_internal(simInt* objectHandles)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-            objectHandles[i]=App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i);
-        return(int(App::currentWorld->sceneObjects->getSelectionCount()));
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -6411,27 +6279,6 @@ simInt simCopyPasteObjects_internal(simInt* objectHandles,simInt objectCount,sim
     return(-1);
 }
 
-simInt simScaleSelectedObjects_internal(simFloat scalingFactor,simBool scalePositionsToo)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        if (ifEditModeActiveGenerateErrorAndReturnTrue(__func__))
-            return(-1);
-        std::vector<int> sel;
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-            sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        CSceneObjectOperations::scaleObjects(sel,scalingFactor,scalePositionsToo!=0);
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
 simInt simScaleObjects_internal(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo)
 {
     TRACE_C_API;
@@ -6446,29 +6293,6 @@ simInt simScaleObjects_internal(const simInt* objectHandles,simInt objectCount,s
         std::vector<int> sel;
         sel.assign(objectHandles,objectHandles+objectCount);
         CSceneObjectOperations::scaleObjects(sel,scalingFactor,scalePositionsToo!=0);
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simInt simDeleteSelectedObjects_internal()
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        if (ifEditModeActiveGenerateErrorAndReturnTrue(__func__))
-            return(-1);
-        std::vector<int> sel;
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-            sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-        App::currentWorld->sceneObjects->deselectObjects();
-        App::currentWorld->sceneObjects->eraseSeveralObjects(sel,true);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -22423,6 +22247,221 @@ simInt simEndDialog_internal(simInt genericDialogHandle)
         simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.endDialog",stack->getId());
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
 #endif
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simIsObjectInSelection_internal(simInt objectHandle)
+{ // deprecated on 24.09.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal=0;
+        if (App::currentWorld->sceneObjects->isObjectInSelection(objectHandle))
+            retVal|=1;
+        CSceneObject* lastSel=App::currentWorld->sceneObjects->getLastSelectionObject();
+        if (lastSel!=nullptr)
+        {
+            if (lastSel->getObjectHandle()==objectHandle)
+                retVal|=2;
+        }
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simAddObjectToSelection_internal(simInt what,simInt objectHandle)
+{ // deprecated on 24.09.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (ifEditModeActiveGenerateErrorAndReturnTrue(__func__))
+            return(-1);
+        if (what==sim_handle_all)
+            App::currentWorld->sceneObjects->selectAllObjects();
+        else
+        {
+            if (!doesObjectExist(__func__,objectHandle))
+                return(-1);
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            if (what==sim_handle_single)
+                App::currentWorld->sceneObjects->addObjectToSelection(objectHandle);
+            else
+            {
+                if ((what==sim_handle_tree)||(what==sim_handle_chain))
+                {
+                    std::vector<CSceneObject*> allObjects;
+                    if (what==sim_handle_tree)
+                        it->getAllObjectsRecursive(&allObjects,true,true);
+                    if (what==sim_handle_chain)
+                        it->getChain(allObjects,true,true);
+                    for (int i=0;i<int(allObjects.size());i++)
+                        App::currentWorld->sceneObjects->addObjectToSelection(allObjects[i]->getObjectHandle());
+                }
+                else
+                {
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
+                    return(-1);
+                }
+            }
+        }
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+
+}
+
+simInt simRemoveObjectFromSelection_internal(simInt what,simInt objectHandle)
+{ // deprecated on 24.09.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (ifEditModeActiveGenerateErrorAndReturnTrue(__func__))
+            return(-1);
+        if (what==sim_handle_all)
+            App::currentWorld->sceneObjects->deselectObjects();
+        else
+        {
+            if (!doesObjectExist(__func__,objectHandle))
+            {
+                return(-1);
+            }
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            if (what==sim_handle_single)
+                App::currentWorld->sceneObjects->removeObjectFromSelection(objectHandle);
+            else
+            {
+                if ((what==sim_handle_tree)||(what==sim_handle_chain))
+                {
+                    std::vector<CSceneObject*> allObjects;
+                    if (what==sim_handle_tree)
+                        it->getAllObjectsRecursive(&allObjects,true,true);
+                    if (what==sim_handle_chain)
+                        it->getChain(allObjects,true,true);
+                    for (int i=0;i<int(allObjects.size());i++)
+                        App::currentWorld->sceneObjects->removeObjectFromSelection(allObjects[i]->getObjectHandle());
+                }
+                else
+                {
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
+                    return(-1);
+                }
+            }
+        }
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+
+}
+
+simInt simGetObjectSelectionSize_internal()
+{ // deprecated on 24.09.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal=int(App::currentWorld->sceneObjects->getSelectionCount());
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetObjectLastSelection_internal()
+{ // deprecated on 24.09.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal=-1;
+        CSceneObject* it=App::currentWorld->sceneObjects->getLastSelectionObject();
+        if (it!=nullptr)
+            retVal=it->getObjectHandle();
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+
+simInt simGetObjectSelection_internal(simInt* objectHandles)
+{ // deprecated on 24.09.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+            objectHandles[i]=App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i);
+        return(int(App::currentWorld->sceneObjects->getSelectionCount()));
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simScaleSelectedObjects_internal(simFloat scalingFactor,simBool scalePositionsToo)
+{ // deprecated on 24.09.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (ifEditModeActiveGenerateErrorAndReturnTrue(__func__))
+            return(-1);
+        std::vector<int> sel;
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+            sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        CSceneObjectOperations::scaleObjects(sel,scalingFactor,scalePositionsToo!=0);
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simDeleteSelectedObjects_internal()
+{ // deprecated on 24.09.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (ifEditModeActiveGenerateErrorAndReturnTrue(__func__))
+            return(-1);
+        std::vector<int> sel;
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+            sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
+        App::currentWorld->sceneObjects->deselectObjects();
+        App::currentWorld->sceneObjects->eraseSeveralObjects(sel,true);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);

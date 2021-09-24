@@ -83,12 +83,8 @@ SIM_DLLEXPORT simInt simLoadModel(const simChar* filename);
 SIM_DLLEXPORT simInt simSaveModel(simInt baseOfModelHandle,const simChar* filename);
 SIM_DLLEXPORT simChar* simGetSimulatorMessage(simInt* messageID,simInt* auxiliaryData,simInt* returnedDataSize);
 SIM_DLLEXPORT simInt simDoesFileExist(const simChar* filename);
-SIM_DLLEXPORT simInt simIsObjectInSelection(simInt objectHandle);
-SIM_DLLEXPORT simInt simAddObjectToSelection(simInt what,simInt objectHandle);
-SIM_DLLEXPORT simInt simRemoveObjectFromSelection(simInt what,simInt objectHandle);
-SIM_DLLEXPORT simInt simGetObjectSelectionSize();
-SIM_DLLEXPORT simInt simGetObjectLastSelection();
-SIM_DLLEXPORT simInt simGetObjectSelection(simInt* objectHandles);
+SIM_DLLEXPORT simInt* simGetObjectSel(simInt* cnt);
+SIM_DLLEXPORT simInt simSetObjectSel(const simInt* handles,simInt cnt);
 SIM_DLLEXPORT simInt simHandleProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 SIM_DLLEXPORT simInt simReadProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 SIM_DLLEXPORT simInt simHandleDynamics(simFloat deltaTime);
@@ -147,9 +143,7 @@ SIM_DLLEXPORT simInt simRegisterScriptFuncHook(simInt scriptHandle,const simChar
 SIM_DLLEXPORT simInt simSetJointTargetVelocity(simInt objectHandle,simFloat targetVelocity);
 SIM_DLLEXPORT simInt simGetJointTargetVelocity(simInt objectHandle,simFloat* targetVelocity);
 SIM_DLLEXPORT simInt simCopyPasteObjects(simInt* objectHandles,simInt objectCount,simInt options);
-SIM_DLLEXPORT simInt simScaleSelectedObjects(simFloat scalingFactor,simBool scalePositionsToo);
 SIM_DLLEXPORT simInt simScaleObjects(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo);
-SIM_DLLEXPORT simInt simDeleteSelectedObjects();
 SIM_DLLEXPORT simInt simGetObjectUniqueIdentifier(simInt objectHandle,simInt* uniqueIdentifier);
 SIM_DLLEXPORT simInt simAddDrawingObject(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission);
 SIM_DLLEXPORT simInt simRemoveDrawingObject(simInt objectHandle);
@@ -702,6 +696,14 @@ SIM_DLLEXPORT simInt simDisplayDialog(const simChar* titleText,const simChar* ma
 SIM_DLLEXPORT simInt simGetDialogResult(simInt genericDialogHandle);
 SIM_DLLEXPORT simChar* simGetDialogInput(simInt genericDialogHandle);
 SIM_DLLEXPORT simInt simEndDialog(simInt genericDialogHandle);
+SIM_DLLEXPORT simInt simIsObjectInSelection(simInt objectHandle);
+SIM_DLLEXPORT simInt simAddObjectToSelection(simInt what,simInt objectHandle);
+SIM_DLLEXPORT simInt simRemoveObjectFromSelection(simInt what,simInt objectHandle);
+SIM_DLLEXPORT simInt simGetObjectSelectionSize();
+SIM_DLLEXPORT simInt simGetObjectLastSelection();
+SIM_DLLEXPORT simInt simGetObjectSelection(simInt* objectHandles);
+SIM_DLLEXPORT simInt simScaleSelectedObjects(simFloat scalingFactor,simBool scalePositionsToo);
+SIM_DLLEXPORT simInt simDeleteSelectedObjects();
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

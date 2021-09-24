@@ -269,29 +269,13 @@ SIM_DLLEXPORT simInt simDoesFileExist(const simChar* filename)
 {
     return(simDoesFileExist_internal(filename));
 }
-SIM_DLLEXPORT simInt simIsObjectInSelection(simInt objectHandle)
+SIM_DLLEXPORT simInt* simGetObjectSel(simInt* cnt)
 {
-    return(simIsObjectInSelection_internal(objectHandle));
+    return(simGetObjectSel_internal(cnt));
 }
-SIM_DLLEXPORT simInt simAddObjectToSelection(simInt what,simInt objectHandle)
+SIM_DLLEXPORT simInt simSetObjectSel(const simInt* handles,simInt cnt)
 {
-    return(simAddObjectToSelection_internal(what,objectHandle));
-}
-SIM_DLLEXPORT simInt simRemoveObjectFromSelection(simInt what,simInt objectHandle)
-{
-    return(simRemoveObjectFromSelection_internal(what,objectHandle));
-}
-SIM_DLLEXPORT simInt simGetObjectSelectionSize()
-{
-    return(simGetObjectSelectionSize_internal());
-}
-SIM_DLLEXPORT simInt simGetObjectLastSelection()
-{
-    return(simGetObjectLastSelection_internal());
-}
-SIM_DLLEXPORT simInt simGetObjectSelection(simInt* objectHandles)
-{
-    return(simGetObjectSelection_internal(objectHandles));
+    return(simSetObjectSel_internal(handles,cnt));
 }
 SIM_DLLEXPORT simInt simHandleProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector)
 {
@@ -525,17 +509,9 @@ SIM_DLLEXPORT simInt simCopyPasteObjects(simInt* objectHandles,simInt objectCoun
 {
     return(simCopyPasteObjects_internal(objectHandles,objectCount,options));
 }
-SIM_DLLEXPORT simInt simScaleSelectedObjects(simFloat scalingFactor,simBool scalePositionsToo)
-{
-    return(simScaleSelectedObjects_internal(scalingFactor,scalePositionsToo));
-}
 SIM_DLLEXPORT simInt simScaleObjects(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo)
 {
     return(simScaleObjects_internal(objectHandles,objectCount,scalingFactor,scalePositionsToo));
-}
-SIM_DLLEXPORT simInt simDeleteSelectedObjects()
-{
-    return(simDeleteSelectedObjects_internal());
 }
 SIM_DLLEXPORT simInt simGetObjectUniqueIdentifier(simInt objectHandle,simInt* uniqueIdentifier)
 {
@@ -2700,6 +2676,38 @@ SIM_DLLEXPORT simChar* simGetDialogInput(simInt genericDialogHandle)
 SIM_DLLEXPORT simInt simEndDialog(simInt genericDialogHandle)
 {
     return(simEndDialog_internal(genericDialogHandle));
+}
+SIM_DLLEXPORT simInt simIsObjectInSelection(simInt objectHandle)
+{
+    return(simIsObjectInSelection_internal(objectHandle));
+}
+SIM_DLLEXPORT simInt simAddObjectToSelection(simInt what,simInt objectHandle)
+{
+    return(simAddObjectToSelection_internal(what,objectHandle));
+}
+SIM_DLLEXPORT simInt simRemoveObjectFromSelection(simInt what,simInt objectHandle)
+{
+    return(simRemoveObjectFromSelection_internal(what,objectHandle));
+}
+SIM_DLLEXPORT simInt simGetObjectSelectionSize()
+{
+    return(simGetObjectSelectionSize_internal());
+}
+SIM_DLLEXPORT simInt simGetObjectLastSelection()
+{
+    return(simGetObjectLastSelection_internal());
+}
+SIM_DLLEXPORT simInt simGetObjectSelection(simInt* objectHandles)
+{
+    return(simGetObjectSelection_internal(objectHandles));
+}
+SIM_DLLEXPORT simInt simScaleSelectedObjects(simFloat scalingFactor,simBool scalePositionsToo)
+{
+    return(simScaleSelectedObjects_internal(scalingFactor,scalePositionsToo));
+}
+SIM_DLLEXPORT simInt simDeleteSelectedObjects()
+{
+    return(simDeleteSelectedObjects_internal());
 }
 // Deprecated end
 
