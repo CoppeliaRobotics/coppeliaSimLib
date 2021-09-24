@@ -2079,7 +2079,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
             auxVals[1]=_currentViewSize[1];
             auxVals[2]=-1;
             if (subView!=nullptr)
-                auxVals[2]=subView->getViewIndex();
+                auxVals[2]=int(subView->getViewIndex());
             auxVals[3]=0;
             CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_openglcameraview,auxVals,buff,retVals);
             applyNewImage=(auxVals[3]!=0);
@@ -2496,7 +2496,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
             displayAttrib|=sim_displayattribute_thickEdges;
         if ( subView->getVisualizeOnlyInertias()&&(App::getEditModeType()==NO_EDIT_MODE)&&(!App::currentWorld->simulation->getDynamicContentVisualizationOnly()) )
             displayAttrib|=sim_displayattribute_inertiaonly|sim_displayattribute_forbidedges;
-        viewIndex=subView->getViewIndex();
+        viewIndex=int(subView->getViewIndex());
     }
 
     bool shapeEditMode=((App::getEditModeType()&SHAPE_EDIT_MODE)!=0);

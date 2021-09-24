@@ -94,6 +94,11 @@ public:
     static int getExitCode();
     static bool isOnline();
 
+    static void App::undoRedo_sceneChanged(const char* txt);
+    static void App::undoRedo_sceneChangedGradual(const char* txt);
+    static void App::undoRedo_sceneChangeStart(const char* txt);
+    static void App::undoRedo_sceneChangeEnd();
+
     static float* getRGBPointerFromItem(int objType,int objID1,int objID2,int colComponent,std::string* auxDlgTitle);
     static CColorObject* getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts);
     static CTextureProperty* getTexturePropertyPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,bool* is3D,bool* valid,CMesh** geom);

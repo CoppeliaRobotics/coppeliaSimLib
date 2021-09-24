@@ -26,11 +26,11 @@ public:
     void pushInt32OntoStack(int v);
     void pushInt64OntoStack(long long int v);
     void pushStringOntoStack(const char* str,size_t l);
-    void pushUCharArrayTableOntoStack(const unsigned char* arr,int l);
-    void pushInt32ArrayTableOntoStack(const int* arr,int l);
-    void pushInt64ArrayTableOntoStack(const long long int* arr,int l);
-    void pushFloatArrayTableOntoStack(const float* arr,int l);
-    void pushDoubleArrayTableOntoStack(const double* arr,int l);
+    void pushUCharArrayTableOntoStack(const unsigned char* arr,size_t l);
+    void pushInt32ArrayTableOntoStack(const int* arr,size_t l);
+    void pushInt64ArrayTableOntoStack(const long long int* arr,size_t l);
+    void pushFloatArrayTableOntoStack(const float* arr,size_t l);
+    void pushDoubleArrayTableOntoStack(const double* arr,size_t l);
     void pushTableOntoStack();
     bool insertDataIntoStackTable();
     bool pushTableFromBuffer(const char* data,unsigned int l);

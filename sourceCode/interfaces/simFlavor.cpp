@@ -137,6 +137,8 @@ bool CSimFlavor::getBoolVal(int w)
         return(true);
     if (w==17)
         return(false);
+    if (w==18)
+        return(false);
     return(false);
 }
 

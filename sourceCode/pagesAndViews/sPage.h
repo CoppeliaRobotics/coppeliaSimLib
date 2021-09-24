@@ -21,16 +21,16 @@ public:
     void performObjectLoadingMapping(const std::vector<int>* map);
     void getPageSizeAndPosition(int& sizeX,int& sizeY,int& posX,int& posY) const;
     void setPageSizeAndPosition(int sizeX,int sizeY,int posX,int posY);
-    CSView* getView(int viewIndex);
-    void getViewSizeAndPosition(int sViewSize[2],int sViewPos[2],int subViewIndex) const;
-    void getFloatingViewRelativeSizeAndPosition(float sViewSize[2],float sViewPos[2],int subViewIndex) const;
+    CSView* getView(size_t viewIndex);
+    void getViewSizeAndPosition(int sViewSize[2],int sViewPos[2],size_t subViewIndex) const;
+    void getFloatingViewRelativeSizeAndPosition(float sViewSize[2],float sViewPos[2],size_t subViewIndex) const;
     void setViewSizesAndPositions();
-    int getRegularViewCount() const;
-    int getViewCount() const;
+    size_t getRegularViewCount() const;
+    size_t getViewCount() const;
     void addFloatingView();
     void addFloatingView(CSView* theFloatingView,float relSize[2],float relPos[2]);
     void getBorderCorrectedFloatingViewPosition(int posX,int posY,int sizeX,int sizeY,int& newPosX,int& newPosY) const;
-    bool removeFloatingView(int viewIndex);
+    bool removeFloatingView(size_t viewIndex);
     int getViewIndexFromViewUniqueID(int uniqueID) const;
     bool isViewValid(CSView* v) const;
 
@@ -62,14 +62,14 @@ private:
 public:
     int getCaughtElements() const;
     void clearCaughtElements(int keepMask);
-    bool viewIsPassive(int viewIndex) const;
-    void swapViews(int index1,int index2,bool alsoSizeAndPosInfo);
-    int bringViewToFrontIfPossible(int index);
-    void getViewRelativeMousePosition(int mouseX,int mouseY,int& relMouseX,int& relMouseY,int index) const;
+    bool viewIsPassive(size_t viewIndex) const;
+    void swapViews(size_t index1,size_t index2,bool alsoSizeAndPosInfo);
+    size_t bringViewToFrontIfPossible(size_t index);
+    void getViewRelativeMousePosition(int mouseX,int mouseY,int& relMouseX,int& relMouseY,size_t index) const;
     int getViewIndexOfMousePosition(int mouseX,int mouseY) const;
-    bool doubleClickActionForView(int viewIndex);
+    bool doubleClickActionForView(size_t viewIndex);
     void clearAllMouseJustWentDownAndUpFlags();
-    int getMousePosRelativeToFloatingViewBorders(int mouseX,int mouseY,int index) const;
+    int getMousePosRelativeToFloatingViewBorders(int mouseX,int mouseY,size_t index) const;
     void clearLastMouseDownViewIndex();
     int getLastMouseDownViewIndex() const;
     bool leftMouseButtonDown(int x,int y,int selectionStatus);

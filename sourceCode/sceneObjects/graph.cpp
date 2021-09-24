@@ -10,6 +10,7 @@
 #include "easyLock.h"
 #include "app.h"
 #include "graphRendering.h"
+#include "simFlavor.h"
 
 CGraph::CGraph()
 {
@@ -2310,7 +2311,7 @@ void CGraph::serialize(CSer& ar)
                 CTTUtil::scaleColorUp_(color.getColorsPtr());
             }
 
-            if (App::userSettings->xrTest==123456789)
+            if (CSimFlavor::getBoolVal(18))
             {
                 if (dataStreams_old.size()+curves3d_old.size()+curves2d_old.size()+staticStreamsAndCurves_old.size()!=0)
                     App::logMsg(sim_verbosity_errors,"Contains old graph streams/curves...");

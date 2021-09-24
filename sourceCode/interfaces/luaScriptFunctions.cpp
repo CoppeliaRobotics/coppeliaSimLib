@@ -1631,31 +1631,31 @@ void _registerTableFunction(luaWrap_lua_State* L,char const* const tableName,cha
     luaWrap_lua_pop(L,1); // pop table of globals
 }
 
-void getFloatsFromTable(luaWrap_lua_State* L,int tablePos,int floatCount,float* arrayField)
+void getFloatsFromTable(luaWrap_lua_State* L,int tablePos,size_t floatCount,float* arrayField)
 {
-    for (int i=0;i<floatCount;i++)
+    for (size_t i=0;i<floatCount;i++)
     {
-        luaWrap_lua_rawgeti(L,tablePos,i+1);
+        luaWrap_lua_rawgeti(L,tablePos,int(i+1));
         arrayField[i]=luaToFloat(L,-1);
         luaWrap_lua_pop(L,1); // we pop one element from the stack;
     }
 }
 
-void getDoublesFromTable(luaWrap_lua_State* L,int tablePos,int doubleCount,double* arrayField)
+void getDoublesFromTable(luaWrap_lua_State* L,int tablePos,size_t doubleCount,double* arrayField)
 {
-    for (int i=0;i<doubleCount;i++)
+    for (size_t i=0;i<doubleCount;i++)
     {
-        luaWrap_lua_rawgeti(L,tablePos,i+1);
+        luaWrap_lua_rawgeti(L,tablePos,int(i+1));
         arrayField[i]=luaWrap_lua_tonumber(L,-1);
         luaWrap_lua_pop(L,1); // we pop one element from the stack;
     }
 }
 
-bool getIntsFromTable(luaWrap_lua_State* L,int tablePos,int intCount,int* arrayField)
+bool getIntsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,int* arrayField)
 {
-    for (int i=0;i<intCount;i++)
+    for (size_t i=0;i<intCount;i++)
     {
-        luaWrap_lua_rawgeti(L,tablePos,i+1);
+        luaWrap_lua_rawgeti(L,tablePos,int(i+1));
         if (!luaWrap_lua_isnumber(L,-1))
         {
             luaWrap_lua_pop(L,1); // we pop one element from the stack;
@@ -1667,11 +1667,11 @@ bool getIntsFromTable(luaWrap_lua_State* L,int tablePos,int intCount,int* arrayF
     return(true);
 }
 
-bool getUIntsFromTable(luaWrap_lua_State* L,int tablePos,int intCount,unsigned int* arrayField)
+bool getUIntsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,unsigned int* arrayField)
 {
-    for (int i=0;i<intCount;i++)
+    for (size_t i=0;i<intCount;i++)
     {
-        luaWrap_lua_rawgeti(L,tablePos,i+1);
+        luaWrap_lua_rawgeti(L,tablePos,int(i+1));
         if (!luaWrap_lua_isnumber(L,-1))
         {
             luaWrap_lua_pop(L,1); // we pop one element from the stack;
@@ -1686,11 +1686,11 @@ bool getUIntsFromTable(luaWrap_lua_State* L,int tablePos,int intCount,unsigned i
     return(true);
 }
 
-bool getUCharsFromTable(luaWrap_lua_State* L,int tablePos,int intCount,unsigned char* arrayField)
+bool getUCharsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,unsigned char* arrayField)
 {
-    for (int i=0;i<intCount;i++)
+    for (size_t i=0;i<intCount;i++)
     {
-        luaWrap_lua_rawgeti(L,tablePos,i+1);
+        luaWrap_lua_rawgeti(L,tablePos,int(i+1));
         if (!luaWrap_lua_isnumber(L,-1))
         {
             luaWrap_lua_pop(L,1); // we pop one element from the stack;
@@ -1705,68 +1705,68 @@ bool getUCharsFromTable(luaWrap_lua_State* L,int tablePos,int intCount,unsigned 
     return(true);
 }
 
-void getBoolsFromTable(luaWrap_lua_State* L,int tablePos,int boolCount,char* arrayField)
+void getBoolsFromTable(luaWrap_lua_State* L,int tablePos,size_t boolCount,char* arrayField)
 {
-    for (int i=0;i<boolCount;i++)
+    for (size_t i=0;i<boolCount;i++)
     {
-        luaWrap_lua_rawgeti(L,tablePos,i+1);
+        luaWrap_lua_rawgeti(L,tablePos,int(i+1));
         arrayField[i]=(char)luaWrap_lua_toboolean(L,-1);
         luaWrap_lua_pop(L,1); // we pop one element from the stack;
     }
 }
 
-void pushFloatTableOntoStack(luaWrap_lua_State* L,int floatCount,const float* arrayField)
+void pushFloatTableOntoStack(luaWrap_lua_State* L,size_t floatCount,const float* arrayField)
 {
     luaWrap_lua_newtable(L);
     int newTablePos=luaWrap_lua_gettop(L);
-    for (int i=0;i<floatCount;i++)
+    for (size_t i=0;i<floatCount;i++)
     {
         luaWrap_lua_pushnumber(L,arrayField[i]);
-        luaWrap_lua_rawseti(L,newTablePos,i+1);
+        luaWrap_lua_rawseti(L,newTablePos,int(i+1));
     }
 }
 
-void pushDoubleTableOntoStack(luaWrap_lua_State* L,int doubleCount,const double* arrayField)
+void pushDoubleTableOntoStack(luaWrap_lua_State* L,size_t doubleCount,const double* arrayField)
 {
     luaWrap_lua_newtable(L);
     int newTablePos=luaWrap_lua_gettop(L);
-    for (int i=0;i<doubleCount;i++)
+    for (size_t i=0;i<doubleCount;i++)
     {
         luaWrap_lua_pushnumber(L,arrayField[i]);
-        luaWrap_lua_rawseti(L,newTablePos,i+1);
+        luaWrap_lua_rawseti(L,newTablePos,int(i+1));
     }
 }
 
-void pushIntTableOntoStack(luaWrap_lua_State* L,int intCount,const int* arrayField)
+void pushIntTableOntoStack(luaWrap_lua_State* L,size_t intCount,const int* arrayField)
 {
     luaWrap_lua_newtable(L);
     int newTablePos=luaWrap_lua_gettop(L);
-    for (int i=0;i<intCount;i++)
+    for (size_t i=0;i<intCount;i++)
     {
         luaWrap_lua_pushinteger(L,arrayField[i]);
-        luaWrap_lua_rawseti(L,newTablePos,i+1);
+        luaWrap_lua_rawseti(L,newTablePos,int(i+1));
     }
 }
 
-void pushUIntTableOntoStack(luaWrap_lua_State* L,int intCount,const unsigned int* arrayField)
+void pushUIntTableOntoStack(luaWrap_lua_State* L,size_t intCount,const unsigned int* arrayField)
 {
     luaWrap_lua_newtable(L);
     int newTablePos=luaWrap_lua_gettop(L);
-    for (int i=0;i<intCount;i++)
+    for (size_t i=0;i<intCount;i++)
     {
         luaWrap_lua_pushinteger(L,arrayField[i]);
-        luaWrap_lua_rawseti(L,newTablePos,i+1);
+        luaWrap_lua_rawseti(L,newTablePos,int(i+1));
     }
 }
 
-void pushUCharTableOntoStack(luaWrap_lua_State* L,int intCount,const unsigned char* arrayField)
+void pushUCharTableOntoStack(luaWrap_lua_State* L,size_t intCount,const unsigned char* arrayField)
 {
     luaWrap_lua_newtable(L);
     int newTablePos=luaWrap_lua_gettop(L);
-    for (int i=0;i<intCount;i++)
+    for (size_t i=0;i<intCount;i++)
     {
         luaWrap_lua_pushinteger(L,arrayField[i]);
-        luaWrap_lua_rawseti(L,newTablePos,i+1);
+        luaWrap_lua_rawseti(L,newTablePos,int(i+1));
     }
 }
 
@@ -5355,14 +5355,17 @@ int _simCopyPasteObjects(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,1,lua_arg_number,0))
     {
         int objCnt=(int)luaWrap_lua_rawlen(L,1);
+        int options=luaToInt(L,2);
         if (checkInputArguments(L,&errorString,lua_arg_number,objCnt,lua_arg_number,0))
         {
             std::vector<int> objectHandles;
             objectHandles.resize(objCnt,0);
             getIntsFromTable(L,1,objCnt,&objectHandles[0]);
-            int retCnt=simCopyPasteObjects_internal(&objectHandles[0],objCnt,luaToInt(L,2));
-            pushIntTableOntoStack(L,retCnt,&objectHandles[0]);
-            LUA_END(1);
+            if (simCopyPasteObjects_internal(&objectHandles[0],objCnt,options)>0)
+            {
+                pushIntTableOntoStack(L,objCnt,&objectHandles[0]);
+                LUA_END(1);
+            }
         }
     }
 
@@ -12739,13 +12742,13 @@ int _simGetShapeViz(luaWrap_lua_State* L)
             stack->pushTableOntoStack();
 
             stack->pushStringOntoStack("vertices",0);
-            stack->pushFloatArrayTableOntoStack(info.vertices,info.verticesSize);
+            stack->pushFloatArrayTableOntoStack(info.vertices,size_t(info.verticesSize));
             stack->insertDataIntoStackTable();
             stack->pushStringOntoStack("indices",0);
-            stack->pushInt32ArrayTableOntoStack(info.indices,info.indicesSize);
+            stack->pushInt32ArrayTableOntoStack(info.indices,size_t(info.indicesSize));
             stack->insertDataIntoStackTable();
             stack->pushStringOntoStack("normals",0);
-            stack->pushFloatArrayTableOntoStack(info.normals,info.indicesSize*3);
+            stack->pushFloatArrayTableOntoStack(info.normals,size_t(info.indicesSize*3));
             stack->insertDataIntoStackTable();
             stack->pushStringOntoStack("colors",0);
             stack->pushFloatArrayTableOntoStack(info.colors,9);
@@ -12768,7 +12771,7 @@ int _simGetShapeViz(luaWrap_lua_State* L)
                 stack->pushInt32ArrayTableOntoStack(info.textureRes,2);
                 stack->insertDataIntoStackTable();
                 stack->pushStringOntoStack("coordinates",0);
-                stack->pushFloatArrayTableOntoStack(info.textureCoords,info.indicesSize*2);
+                stack->pushFloatArrayTableOntoStack(info.textureCoords,size_t(info.indicesSize*2));
                 stack->insertDataIntoStackTable();
                 stack->pushStringOntoStack("applyMode",0);
                 stack->pushNumberOntoStack(double(info.textureApplyMode));

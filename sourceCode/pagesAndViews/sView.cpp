@@ -422,7 +422,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
                 _renderingMode=RENDERING_MODE_SOLID;
                 App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_SOLID_RENDERING_MODE);
             }
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -439,7 +439,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             perspectiveDisplay=!perspectiveDisplay;
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             if (perspectiveDisplay)
                 App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_PERSPECTIVE_PROJECTION_MODE);
             else
@@ -459,7 +459,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _showEdges=!_showEdges;
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             if (_showEdges)
                 App::logMsg(sim_verbosity_msgs,IDSNS_NOW_SHOWING_EDGES);
             else
@@ -479,7 +479,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _thickEdges=!_thickEdges;
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             if (_thickEdges)
                 App::logMsg(sim_verbosity_msgs,IDSNS_EDGES_ARE_NOW_THICK);
             else
@@ -499,7 +499,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::currentWorld->environment->setShapeTexturesEnabled(!App::currentWorld->environment->getShapeTexturesEnabled());
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             if (App::currentWorld->environment->getShapeTexturesEnabled())
                 App::logMsg(sim_verbosity_msgs,IDSNS_SHAPE_TEXTURES_ENABLED);
             else
@@ -521,7 +521,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _visualizeOnlyInertias=!_visualizeOnlyInertias;
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             if (_visualizeOnlyInertias)
                 App::logMsg(sim_verbosity_msgs,IDSNS_SHOWING_INERTIAS);
             else
@@ -544,7 +544,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _xyGraphInAutoModeDuringSimulation=!_xyGraphInAutoModeDuringSimulation;
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             if (_xyGraphInAutoModeDuringSimulation)
                 App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_AUTO_MODE);
             else
@@ -564,7 +564,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _timeGraphXInAutoModeDuringSimulation=!_timeGraphXInAutoModeDuringSimulation;
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             if (_timeGraphXInAutoModeDuringSimulation)
                 App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_AUTO_MODE);
             else
@@ -584,7 +584,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _timeGraphYInAutoModeDuringSimulation=!_timeGraphYInAutoModeDuringSimulation;
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             if (_timeGraphYInAutoModeDuringSimulation)
                 App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_AUTO_MODE);
             else
@@ -604,7 +604,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _xyGraphIsOneOneProportional=!_xyGraphIsOneOneProportional;
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             if (_xyGraphIsOneOneProportional)
                 App::logMsg(sim_verbosity_msgs,IDSNS_KEEPING_PROPORTIONS_AT_1_1);
             else
@@ -624,7 +624,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             graphIsTimeGraph=!graphIsTimeGraph;
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             if (graphIsTimeGraph)
                 App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_TIME_GRAPH_MODE);
             else
@@ -651,7 +651,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             {
                 setDefaultValues();
                 linkedObjectID=sel[0];
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_NOW_LOOKING_THROUGH_SELECTED_CAMERA);
             }
         }
@@ -676,7 +676,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             {
                 setDefaultValues();
                 linkedObjectID=sel[0];
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_NOW_LOOKING_AT_SELECTED_GRAPH);
             }
         }
@@ -701,7 +701,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             {
                 setDefaultValues();
                 linkedObjectID=sel[0];
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_NOW_LOOKING_AT_SELECTED_VISION_SENSOR);
             }
         }
@@ -725,7 +725,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             if ((camera!=nullptr)&&(sel.size()==1))
             {
                 camera->setTrackedObjectID(sel[0]);
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_CAMERA_NOW_TRACKING_SELECTED_OBJECT);
             }
         }
@@ -746,7 +746,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             if (camera!=nullptr)
             {
                 camera->setTrackedObjectID(-1);
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_CAMERA_NOW_NOT_TRACKING_ANY_OBJECT);
             }
         }
@@ -812,12 +812,12 @@ CSView* CSView::copyYourself()
     return(newView);
 }
 
-void CSView::setViewIndex(int ind)
+void CSView::setViewIndex(size_t ind)
 {
     _viewIndex=ind;
 }
 
-int CSView::getViewIndex() const
+size_t CSView::getViewIndex() const
 {
     return(_viewIndex);
 }
@@ -1141,7 +1141,7 @@ bool CSView::mouseWheel(int deltaZ,int x,int y)
                         if (child->getObjectType()==sim_object_camera_type)
                         {
                             ((CCamera*)child)->setOrthoViewSize(((CCamera*)it)->getOrthoViewSize());
-                            POST_SCENE_CHANGED_GRADUAL_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
+                            App::undoRedo_sceneChangedGradual(""); // **************** UNDO THINGY ****************
                         }
                     }
                 }
@@ -1176,7 +1176,7 @@ bool CSView::mouseWheel(int deltaZ,int x,int y)
                     ((CCamera*)it)->setLocalTransformation(local.getTransformation()); // we reset to initial
                     cameraParentProxy->setLocalTransformation(cameraParentProxy->getFullLocalTransformation()*local1*(local.getInverse()).getTransformation());
                 }
-                POST_SCENE_CHANGED_GRADUAL_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
+                App::undoRedo_sceneChangedGradual(""); // **************** UNDO THINGY ****************
             }
         }
         if ( (it->getObjectType()==sim_object_graph_type)&&(!App::currentWorld->simulation->isSimulationRunning()) )
@@ -1188,7 +1188,7 @@ bool CSView::mouseWheel(int deltaZ,int x,int y)
             graphPosition[0]=centerPos[0]-graphSize[0]/2.0f;
             graphPosition[1]=centerPos[1]-graphSize[1]/2.0f;
             ((CGraph*)it)->validateViewValues(_viewSize,graphPosition,graphSize,graphIsTimeGraph,false,false,false);
-            POST_SCENE_CHANGED_GRADUAL_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
+            App::undoRedo_sceneChangedGradual(""); // **************** UNDO THINGY ****************
         }
     }
     return(true); // This event was caught
@@ -1753,7 +1753,7 @@ void CSView::handleCameraOrGraphMotion()
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
             it->disableDynamicTreeForManipulation(false);
         }
-        POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+        App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
     }
     mouseJustWentDownFlag=false;
     mouseJustWentUpFlag=false;

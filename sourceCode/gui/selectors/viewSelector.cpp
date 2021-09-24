@@ -359,7 +359,7 @@ bool CViewSelector::processCommand(int commandID,int subViewIndex)
             CSPage* view=App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
             if (view==nullptr)
                 return(true);
-            CSView* subView=view->getView(subViewIndex);
+            CSView* subView=view->getView(size_t(subViewIndex));
             if (subView==nullptr)
                 return(true);
             int cameraNb=App::currentWorld->sceneObjects->getCameraCount();

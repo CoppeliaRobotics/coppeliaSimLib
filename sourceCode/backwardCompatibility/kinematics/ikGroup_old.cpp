@@ -597,8 +597,8 @@ float*  CIkGroup_old::getLastJacobianData(int matrixSize[2])
     const CMatrix* m=getLastJacobian();
     if (m==nullptr)
         return(nullptr);
-    matrixSize[0]=m->cols;
-    matrixSize[1]=m->rows;
+    matrixSize[0]=int(m->cols);
+    matrixSize[1]=int(m->rows);
     return(m->data);
 }
 

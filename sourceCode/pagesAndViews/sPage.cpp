@@ -60,7 +60,7 @@ void CSPage::initializeInitialValues(bool simulationAlreadyRunning,int initializ
         // make sure we memorize the floating view sizes and positions:
         _initialAuxViewSizesAndPos.clear();
         _initialAuxViewUniqueIDs.clear();
-        for (int i=getRegularViewCount();i<int(_allViews.size());i++)
+        for (size_t i=getRegularViewCount();i<_allViews.size();i++)
         {
             _initialAuxViewSizesAndPos.push_back(_allViewAuxSizesAndPos[4*i+0]);
             _initialAuxViewSizesAndPos.push_back(_allViewAuxSizesAndPos[4*i+1]);
@@ -73,7 +73,7 @@ void CSPage::initializeInitialValues(bool simulationAlreadyRunning,int initializ
     { // this was called for a specific object!
         if (_initialValuesInitialized)
         {
-            for (int i=getRegularViewCount();i<int(_allViews.size());i++)
+            for (size_t i=getRegularViewCount();i<_allViews.size();i++)
             {
                 if (_allViews[i]->getLinkedObjectID()==initializeOnlyForThisNewObject)
                 {
@@ -96,7 +96,7 @@ void CSPage::simulationEnded()
         if (_allViews[i]->simulationEnded())
         { //  Following part is from 26/6/2011: we have to remove a floating view that requested destruction at simulation end
             // Make sure it is a floating view:
-            if (removeFloatingView(i))
+            if (removeFloatingView(size_t(i)))
                 i--; // We have to reprocess this position
         }
     }
@@ -104,10 +104,10 @@ void CSPage::simulationEnded()
     if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
     {
         // Make sure we restore floating view's initial positions and sizes:
-        for (int i=getRegularViewCount();i<int(_allViews.size());i++)
+        for (size_t i=getRegularViewCount();i<_allViews.size();i++)
         {
             int uniqueID=_allViews[i]->getUniqueID();
-            for (int j=0;j<int(_initialAuxViewUniqueIDs.size());j++)
+            for (size_t j=0;j<_initialAuxViewUniqueIDs.size();j++)
             {
                 if (_initialAuxViewUniqueIDs[j]==uniqueID)
                 {
@@ -138,8 +138,8 @@ bool CSPage::setPageType(int newType)
         delete _allViews[i];
     _allViews.clear();
     _allViewAuxSizesAndPos.clear();
-    int newSize=getRegularViewCount();
-    for (int i=0;i<newSize;i++)
+    size_t newSize=getRegularViewCount();
+    for (size_t i=0;i<newSize;i++)
     {
         CSView* it=new CSView(-1);
         _allViews.push_back(it);
@@ -169,8 +169,8 @@ void CSPage::getBorderCorrectedFloatingViewPosition(int posX,int posY,int sizeX,
 
 void CSPage::announceObjectWillBeErased(int objectID)
 { // Never called from copy buffer!
-    int i=0;
-    while (i<int(_allViews.size()))
+    size_t i=0;
+    while (i<_allViews.size())
     {
         if (_allViews[i]->announceObjectWillBeErased(objectID)&&(i>=getRegularViewCount()))
         { // we have to destroy this view!
@@ -206,7 +206,7 @@ void CSPage::setPageSizeAndPosition(int sizeX,int sizeY,int posX,int posY)
     setViewSizesAndPositions();
 }
 
-void CSPage::getViewSizeAndPosition(int sViewSize[2],int sViewPos[2],int subViewIndex) const
+void CSPage::getViewSizeAndPosition(int sViewSize[2],int sViewPos[2],size_t subViewIndex) const
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     if (_pageType==SINGLE_VIEW)
     {
@@ -538,7 +538,7 @@ void CSPage::getViewSizeAndPosition(int sViewSize[2],int sViewPos[2],int subView
     }
 }
 
-void CSPage::getFloatingViewRelativeSizeAndPosition(float sViewSize[2],float sViewPos[2],int subViewIndex) const
+void CSPage::getFloatingViewRelativeSizeAndPosition(float sViewSize[2],float sViewPos[2],size_t subViewIndex) const
 {
     if (subViewIndex>=getRegularViewCount())
     { // We have a floating window here:
@@ -551,7 +551,7 @@ void CSPage::getFloatingViewRelativeSizeAndPosition(float sViewSize[2],float sVi
 
 void CSPage::setViewSizesAndPositions()
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    for (int i=0;i<int(_allViews.size());i++)
+    for (size_t i=0;i<_allViews.size();i++)
     {
         int s[2];
         int p[2];
@@ -563,14 +563,14 @@ void CSPage::setViewSizesAndPositions()
     }
 }
 
-CSView* CSPage::getView(int viewIndex)
+CSView* CSPage::getView(size_t viewIndex)
 {
-    if ( (viewIndex<0)||(viewIndex>=int(_allViews.size())) )
+    if (viewIndex>=_allViews.size())
         return(nullptr);
     return(_allViews[viewIndex]);
 }
 
-bool CSPage::removeFloatingView(int viewIndex)
+bool CSPage::removeFloatingView(size_t viewIndex)
 {
     if (viewIndex>=getRegularViewCount())
     { // Only floating views can be removed!
@@ -592,12 +592,12 @@ int CSPage::getViewIndexFromViewUniqueID(int uniqueID) const
     return(-1);
 }
 
-int CSPage::getViewCount() const
+size_t CSPage::getViewCount() const
 {
-    return(int(_allViews.size()));
+    return(_allViews.size());
 }
 
-int CSPage::getRegularViewCount() const
+size_t CSPage::getRegularViewCount() const
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     if (_pageType==SINGLE_VIEW)
         return(1);
@@ -651,14 +651,14 @@ void CSPage::serialize(CSer& ar)
             ar.flush();
 
             int floatViewsNotToSaveCnt=0;
-            for (int i=getRegularViewCount();i<int(_allViews.size());i++)
+            for (size_t i=getRegularViewCount();i<_allViews.size();i++)
             {
                 if (_allViews[i]->getDoNotSaveFloatingView())
                     floatViewsNotToSaveCnt++;
             }
             int totViewsToSaveCnt=int(_allViews.size())-floatViewsNotToSaveCnt;
 
-            for (int i=0;i<int(_allViews.size());i++)
+            for (size_t i=0;i<_allViews.size();i++)
             {
                 if ( (i<getRegularViewCount())||(!_allViews[i]->getDoNotSaveFloatingView()) )
                 {
@@ -672,7 +672,7 @@ void CSPage::serialize(CSer& ar)
             // Positions and sizes are relative now (2009/05/22)
             ar.storeDataName("Fvr");
             ar << totViewsToSaveCnt*4;
-            for (int i=0;i<int(_allViews.size());i++)
+            for (size_t i=0;i<_allViews.size();i++)
             {
                 if ( (i<getRegularViewCount())||(!_allViews[i]->getDoNotSaveFloatingView()) )
                 {
@@ -749,7 +749,7 @@ void CSPage::serialize(CSer& ar)
             ar.xmlAddNode_int("type",_pageType);
 
             int floatViewsNotToSaveCnt=0;
-            for (int i=getRegularViewCount();i<int(_allViews.size());i++)
+            for (size_t i=getRegularViewCount();i<_allViews.size();i++)
             {
                 if (_allViews[i]->getDoNotSaveFloatingView())
                     floatViewsNotToSaveCnt++;
@@ -812,7 +812,7 @@ void CSPage::render()
 }
 
 #ifdef SIM_WITH_GUI
-bool CSPage::viewIsPassive(int viewIndex) const
+bool CSPage::viewIsPassive(size_t viewIndex) const
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     if (_pageType==SINGLE_VIEW)
         return(viewIndex>0);
@@ -849,32 +849,32 @@ void CSPage::clearAllMouseJustWentDownAndUpFlags()
 
 int CSPage::getViewIndexOfMousePosition(int mouseX,int mouseY) const
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    for (int i=0;i<int(_allViews.size());i++)
+    for (size_t i=0;i<_allViews.size();i++)
     { // We have to go in reverse order because of the auxiliary window case!
-        int inv=(int)_allViews.size()-i-1;
+        size_t inv=_allViews.size()-i-1;
         int subViewSize[2];
         _allViews[inv]->getViewSize(subViewSize);
         int relX;
         int relY;
         getViewRelativeMousePosition(mouseX,mouseY,relX,relY,inv);
         if ( (relX>=0)&&(relX<=subViewSize[0])&&(relY>=0)&&(relY<=subViewSize[1]) )
-            return(inv);
+            return(int(inv));
     }
     return(-1);
 }
 
-bool CSPage::doubleClickActionForView(int viewIndex)
+bool CSPage::doubleClickActionForView(size_t viewIndex)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     // return value false means no action was performed
     if ((_pageType>=SINGLE_VIEW)&&(_pageType<CLOSING_VIEW_ITEM))
     {
         // We can swap subviews with the main view:
-        if ( (viewIndex>=getRegularViewCount())&&(viewIndex<int(_allViews.size())) )
+        if ( (viewIndex>=getRegularViewCount())&&(viewIndex<_allViews.size()) )
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SWAP_VIEWS_CMD;
             cmd.intParams.push_back(App::currentWorld->pageContainer->getActivePageIndex());
-            cmd.intParams.push_back(viewIndex);
+            cmd.intParams.push_back(int(viewIndex));
             cmd.intParams.push_back(0);
             cmd.boolParams.push_back(false);
             App::appendSimulationThreadCommand(cmd);
@@ -888,7 +888,7 @@ bool CSPage::doubleClickActionForView(int viewIndex)
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SWAP_VIEWS_CMD;
                 cmd.intParams.push_back(App::currentWorld->pageContainer->getActivePageIndex());
-                cmd.intParams.push_back(viewIndex);
+                cmd.intParams.push_back(int(viewIndex));
                 cmd.intParams.push_back(0);
                 cmd.boolParams.push_back(false);
                 App::appendSimulationThreadCommand(cmd);
@@ -899,7 +899,7 @@ bool CSPage::doubleClickActionForView(int viewIndex)
     return(false);
 }
 
-void CSPage::swapViews(int index1,int index2,bool alsoSizeAndPosInfo)
+void CSPage::swapViews(size_t index1,size_t index2,bool alsoSizeAndPosInfo)
 {
     CSView* it=_allViews[index1];
     if (it->getCanSwapViewWithMainView()||((index1!=0)&&(index2!=0)) )
@@ -908,7 +908,7 @@ void CSPage::swapViews(int index1,int index2,bool alsoSizeAndPosInfo)
         _allViews[index2]=it;
         if (alsoSizeAndPosInfo)
         {
-            for (int i=0;i<4;i++)
+            for (size_t i=0;i<4;i++)
             {
                 // Positions and sizes are relative now (2009/05/22)
                 float v=_allViewAuxSizesAndPos[4*index1+i];
@@ -920,12 +920,12 @@ void CSPage::swapViews(int index1,int index2,bool alsoSizeAndPosInfo)
     }
 }
 
-int CSPage::bringViewToFrontIfPossible(int index)
+size_t CSPage::bringViewToFrontIfPossible(size_t index)
 {
     if (index<getRegularViewCount())
         return(index);
     // We do a kind of stupid step-by-step shifting:
-    while (index<int(_allViews.size()-1))
+    while (index<_allViews.size()-1)
     {
         swapViews(index,index+1,true);
         index++;
@@ -960,7 +960,7 @@ int CSPage::getLastMouseDownViewIndex() const
     return(_lastMouseDownViewIndex);
 }
 
-int CSPage::getMousePosRelativeToFloatingViewBorders(int mouseX,int mouseY,int index) const
+int CSPage::getMousePosRelativeToFloatingViewBorders(int mouseX,int mouseY,size_t index) const
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     int tol=10;
     int relX;
@@ -1017,7 +1017,7 @@ int CSPage::getMousePosRelativeToFloatingViewBorders(int mouseX,int mouseY,int i
     return(AUX_VIEW_SHIFTING);
 }
 
-void CSPage::getViewRelativeMousePosition(int mouseX,int mouseY,int& relMouseX,int& relMouseY,int index) const
+void CSPage::getViewRelativeMousePosition(int mouseX,int mouseY,int& relMouseX,int& relMouseY,size_t index) const
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     int subViewSize[2];
     int subViewPos[2];
@@ -1032,7 +1032,7 @@ bool CSPage::getMouseRelPosObjectAndViewSize(int x,int y,int relPos[2],int& objT
         return(false);
     // The position is in this view
     int relX,relY;
-    for (int i=int(_allViews.size())-1;i>=0;i--)
+    for (size_t i=_allViews.size()-1;i>=0;i--)
     {
         getViewRelativeMousePosition(x,y,relX,relY,i);
         if (_allViews[i]->getMouseRelPosObjectAndViewSize(relX,relY,relPos,objType,objID,vSize,viewIsPerspective))
@@ -1055,12 +1055,12 @@ bool CSPage::leftMouseButtonDown(int x,int y,int selectionStatus)
     _caughtElements&=0xffff-sim_left_button;
 
     // We first check for a floating view resizing action:
-    for (int i=int(_allViews.size())-1;i>=getRegularViewCount();i--)
+    for (size_t i=_allViews.size()-1;i>=getRegularViewCount();i--)
     {
         auxViewResizingAction=getMousePosRelativeToFloatingViewBorders(mouseRelativePosition[0],mouseRelativePosition[1],i);
         if (auxViewResizingAction!=-1)
         {
-            viewIndexOfResizingAction=bringViewToFrontIfPossible(i);
+            viewIndexOfResizingAction=int(bringViewToFrontIfPossible(i));
             _lastMouseDownViewIndex=viewIndexOfResizingAction; // foc
             _caughtElements|=sim_left_button;
             return(true);
@@ -1068,14 +1068,14 @@ bool CSPage::leftMouseButtonDown(int x,int y,int selectionStatus)
     }
 
     int relX,relY;
-    for (int i=0;i<int(_allViews.size());i++)
+    for (size_t i=0;i<_allViews.size();i++)
     {
         if (!viewIsPassive(i))
         { // We send that event only to active windows!
             getViewRelativeMousePosition(mouseRelativePosition[0],mouseRelativePosition[1],relX,relY,i);
             if (_allViews[i]->leftMouseButtonDown(relX,relY,selectionStatus))
             {
-                _lastMouseDownViewIndex=i; // foc
+                _lastMouseDownViewIndex=int(i); // foc
                 return(true);
             }
         }
@@ -1104,7 +1104,7 @@ void CSPage::leftMouseButtonUp(int x,int y)
         { // We only process it for views that caught the down action
             int relX;
             int relY;
-            getViewRelativeMousePosition(mouseRelativePosition[0],mouseRelativePosition[1],relX,relY,(int)i);
+            getViewRelativeMousePosition(mouseRelativePosition[0],mouseRelativePosition[1],relX,relY,i);
             _allViews[i]->leftMouseButtonUp(relX,relY);
         }
     }
@@ -1115,7 +1115,7 @@ int CSPage::getCursor(int x,int y) const
     if ( (x<0)||(x>_pageSize[0])||(y<0)||(y>_pageSize[1]) )
         return(-1);
     // We first check for a floating view resizing action:
-    for (int i=int(_allViews.size())-1;i>=getRegularViewCount();i--)
+    for (size_t i=_allViews.size()-1;i>=getRegularViewCount();i--)
     {
         int act=getMousePosRelativeToFloatingViewBorders(mouseRelativePosition[0],mouseRelativePosition[1],i);
         if (act!=-1)
@@ -1141,7 +1141,7 @@ int CSPage::getCursor(int x,int y) const
         }
     }
     // Now check regular views:
-    for (int i=0;i<getRegularViewCount();i++)
+    for (size_t i=0;i<getRegularViewCount();i++)
     {
         int relX;
         int relY;
@@ -1160,8 +1160,8 @@ void CSPage::mouseWheel(int deltaZ,int x,int y)
     {
         int relX;
         int relY;
-        getViewRelativeMousePosition(x,y,relX,relY,i);
-        if (_allViews[i]->mouseWheel(deltaZ,relX,relY))
+        getViewRelativeMousePosition(x,y,relX,relY,size_t(i));
+        if (_allViews[size_t(i)]->mouseWheel(deltaZ,relX,relY))
         {
             _lastMouseDownViewIndex=i; // foc
             return;
@@ -1302,7 +1302,7 @@ void CSPage::mouseMove(int x,int y,bool passiveAndFocused)
         bts=sim_right_button|sim_left_button;
 
 
-    for (int i=0;i<int(_allViews.size());i++)
+    for (size_t i=0;i<_allViews.size();i++)
     {
         int relX,relY;
         if (!passiveAndFocused)
@@ -1326,7 +1326,7 @@ int CSPage::modelDragMoveEvent(int x,int y,C3Vector* desiredModelPosition)
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
 
-    for (int i=int(_allViews.size())-1;i>=0;i--)
+    for (size_t i=_allViews.size()-1;i>=0;i--)
     {
         int relX,relY;
         getViewRelativeMousePosition(mouseRelativePosition[0],mouseRelativePosition[1],relX,relY,i);
@@ -1351,14 +1351,14 @@ bool CSPage::rightMouseButtonDown(int x,int y)
     _caughtElements&=0xffff-sim_right_button;
 
     // Which sub-view is concerned?
-    for (int i=0;i<int(_allViews.size());i++)
+    for (size_t i=0;i<_allViews.size();i++)
     { // We have to go through it in reverse order because of the auxiliary view!
-        int inv=(int)_allViews.size()-i-1;
+        size_t inv=_allViews.size()-i-1;
         int relX,relY;
         getViewRelativeMousePosition(mouseRelativePosition[0],mouseRelativePosition[1],relX,relY,inv);
         if (_allViews[inv]->rightMouseButtonDown(relX,relY,viewIsPassive(inv)))
         {
-            _lastMouseDownViewIndex=inv; // foc
+            _lastMouseDownViewIndex=int(inv); // foc
             return(true);
         }
     }
@@ -1369,13 +1369,13 @@ bool CSPage::rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* mainWindo
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
 
-    for (int i=0;i<int(_allViews.size());i++)
+    for (size_t i=0;i<_allViews.size();i++)
     {
         if (_allViews[i]->getCaughtElements()&sim_right_button)
         { // We only process it for views that caught the down action
             int relX,relY;
-            getViewRelativeMousePosition(mouseRelativePosition[0],mouseRelativePosition[1],relX,relY,i);
-            if (_allViews[i]->rightMouseButtonUp(relX,relY,absX,absY,mainWindow,i))
+            getViewRelativeMousePosition(mouseRelativePosition[0],mouseRelativePosition[1],relX,relY,int(i));
+            if (_allViews[i]->rightMouseButtonUp(relX,relY,absX,absY,mainWindow,int(i)))
                 return(true);
         }
     }
@@ -1396,14 +1396,14 @@ bool CSPage::middleMouseButtonDown(int x,int y)
     _caughtElements&=0xffff-sim_middle_button;
 
     // Which sub-view is concerned?
-    for (int i=0;i<int(_allViews.size());i++)
+    for (size_t i=0;i<_allViews.size();i++)
     { // We have to go through it in reverse order because of the auxiliary view!
-        int inv=(int)_allViews.size()-i-1;
+        size_t inv=_allViews.size()-i-1;
         int relX,relY;
         getViewRelativeMousePosition(mouseRelativePosition[0],mouseRelativePosition[1],relX,relY,inv);
         if (_allViews[inv]->middleMouseButtonDown(relX,relY,viewIsPassive(inv)))
         {
-            _lastMouseDownViewIndex=inv; // foc
+            _lastMouseDownViewIndex=int(inv); // foc
             return(true);
         }
     }
@@ -1415,7 +1415,7 @@ void CSPage::middleMouseButtonUp(int x,int y)
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
 
-    for (int i=0;i<int(_allViews.size());i++)
+    for (size_t i=0;i<_allViews.size();i++)
     {
         if (_allViews[i]->getCaughtElements()&sim_middle_button)
         { // We only process it for views that caught the down action
@@ -1434,14 +1434,14 @@ bool CSPage::leftMouseButtonDoubleClick(int x,int y,int selectionStatus)
     int index=getViewIndexOfMousePosition(mouseRelativePosition[0],mouseRelativePosition[1]);
     if (index!=-1)
     {
-        for (int i=0;i<int(_allViews.size());i++)
+        for (size_t i=0;i<_allViews.size();i++)
         { // The mouse is actually down during a double-click.. that causes problems
             int relX;
             int relY;
             getViewRelativeMousePosition(mouseRelativePosition[0],mouseRelativePosition[1],relX,relY,i);
             _allViews[i]->leftMouseButtonUp(relX,relY);
         }
-        return(doubleClickActionForView(index));
+        return(doubleClickActionForView(size_t(index)));
     }
     return(false); // Not processed
 }

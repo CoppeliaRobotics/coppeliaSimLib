@@ -39,7 +39,7 @@ void CInterfaceStackString::printContent(int spaces,std::string& buffer) const
         buffer+="\n";
     }
     else
-        buffer+"STRING: <buffer data>\n";
+        buffer+="STRING: <buffer data>\n";
 }
 
 std::string CInterfaceStackString::getObjectData() const

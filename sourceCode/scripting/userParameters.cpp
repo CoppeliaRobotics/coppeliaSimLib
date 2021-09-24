@@ -73,14 +73,14 @@ void CUserParameters::moveItem(int index,int newIndex)
     }
 }
 
-bool CUserParameters::setParameterValue(const char* paramName,const char* paramValue,int paramValueLength)
+bool CUserParameters::setParameterValue(const char* paramName,const char* paramValue,size_t paramValueLength)
 {
     int ind=getParameterIndex(paramName);
     if (ind>=0)
     {
         userParamEntries[ind].value.assign(paramValue,paramValueLength);
         userParamEntries[ind].properties=(userParamEntries[ind].properties|4)-4; // Indicates that string doesn't contain embedded 0's
-        for (int i=0;i<paramValueLength;i++)
+        for (size_t i=0;i<paramValueLength;i++)
         {
             if (paramValue[i]==0)
             {
@@ -104,7 +104,7 @@ bool CUserParameters::getParameterValue(const char* paramName,std::string& param
     return(false);
 }
 
-void CUserParameters::addParameterValue(const char* paramName,const char* unitText,const char* paramValue,int paramValueLength)
+void CUserParameters::addParameterValue(const char* paramName,const char* unitText,const char* paramValue,size_t paramValueLength)
 {
     int ind=getParameterIndex(paramName);
     if (ind<0)
@@ -117,7 +117,7 @@ void CUserParameters::addParameterValue(const char* paramName,const char* unitTe
     }
     userParamEntries[ind].unit=unitText;
     userParamEntries[ind].value.assign(paramValue,paramValueLength);
-    for (int i=0;i<paramValueLength;i++)
+    for (size_t i=0;i<paramValueLength;i++)
     {
         if (paramValue[i]==0)
         {

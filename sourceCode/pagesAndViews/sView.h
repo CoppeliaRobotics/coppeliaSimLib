@@ -81,9 +81,9 @@ public:
     bool processCommand(int commandID,int subViewIndex);
     void setCenterPosition(float pos[3]);
     void getCenterPosition(float pos[3]) const;
-    void setViewIndex(int ind);
-    int getViewIndex() const;
-    void setTrackedGraphCurveIndex(int index);
+    void setViewIndex(size_t ind);
+    size_t getViewIndex() const;
+    void setTrackedGraphCurveIndex(int ind);
     int getTrackedGraphCurveIndex() const;
 
     int getUniqueID() const;
@@ -157,7 +157,7 @@ private:
     int _initialRenderingMode;
     bool _initialGraphIsTimeGraph;
 
-    int _viewIndex; // set before each rendering
+    size_t _viewIndex; // set before each rendering
 
 #ifdef SIM_WITH_GUI
 public:

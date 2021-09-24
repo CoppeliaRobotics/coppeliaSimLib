@@ -450,7 +450,7 @@ bool CShape::_getTubeReferenceFrame(const std::vector<float>& v,C7Vector& tr)
                 if ( (a>1.0f*degToRad_f)&&(a<179.0f*degToRad_f) )
                 {
                     rightDist=l1;
-                    indexRight3=i;
+                    indexRight3=int(i);
                 }
             }
         }

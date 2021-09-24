@@ -40,7 +40,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             {
                 App::currentWorld->sceneObjects->deselectObjects();
                 App::currentWorld->sceneObjects->selectObject(shapeHandle);
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
             else
@@ -64,7 +64,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
 #ifdef SIM_WITH_GUI
             App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex())->addFloatingView();
 #endif
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
@@ -89,7 +89,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             if (commandID==ADD_COMMANDS_ADD_SPHERICAL_JOINT_ACCMD)
                 newObject=new CJoint(sim_joint_spherical_subtype);
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
@@ -171,7 +171,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 }
             }
             App::currentWorld->sceneObjects->selectObject(addedObject->getObjectHandle());
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -192,7 +192,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(newObject->getObjectHandle(),C3Vector(piValD2_f,0.0f,0.0f));
             App::currentWorld->sceneObjects->setObjectAbsolutePosition(newObject->getObjectHandle(),C3Vector(0.0f,0.0f,newObject->getMirrorHeight()*0.5f));
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
@@ -211,7 +211,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             CDummy* newObject=new CDummy();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
@@ -230,7 +230,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             COctree* newObject=new COctree();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
@@ -262,7 +262,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             //*/
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
@@ -283,7 +283,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
                 if (script!=nullptr)
                     script->setObjectHandleThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::setFullDialogRefreshFlag();
             }
         }
@@ -306,7 +306,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
                 if (script!=nullptr)
                     script->setObjectHandleThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::setFullDialogRefreshFlag();
             }
         }
@@ -335,7 +335,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 opt+=2;
             txt+=std::to_string(opt)+",100)\nsim.setObjectSelection({path})";
             App::worldContainer->sandboxScript->executeScriptString(txt.c_str(),nullptr);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
@@ -361,7 +361,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             scriptObj->setScriptText("graph=require('graph_customization')");
             scriptObj->setExecutionPriority(sim_scriptexecorder_last);
 
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
@@ -382,7 +382,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             newObject->setLocalTransformation(C3Vector(0.0f,0.0f,newObject->getSize()(2)));
             newObject->setPerspectiveOperation(false);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
@@ -403,7 +403,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             newObject->setLocalTransformation(C3Vector(0.0f,0.0f,newObject->getSize()(2)));
             newObject->setPerspectiveOperation(true);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
@@ -422,7 +422,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_FORCE_SENSOR);
             CForceSensor* newObject=new CForceSensor();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
@@ -456,7 +456,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             if (commandID==ADD_COMMANDS_ADD_RANDOMIZED_RAY_PROXSENSOR_ACCMD)
                 newObject->setRandomizedDetection(true);
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
@@ -557,7 +557,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 App::currentWorld->sceneObjects->deselectObjects();
                 for (size_t i=0;i<newSelection.size();i++)
                     App::currentWorld->sceneObjects->addObjectToSelection(newSelection[i]);
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
         }
@@ -599,7 +599,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             if (hull!=nullptr)
             {
                 App::currentWorld->sceneObjects->addObjectToSelection(hull->getObjectHandle());
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
             else
@@ -652,7 +652,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 else
                 {
                     App::currentWorld->sceneObjects->addObjectToSelection(hull->getObjectHandle());
-                    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                    App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                     App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
                 }
             }
@@ -1196,8 +1196,8 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
     for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
         rootSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
     CSceneObjectOperations::addRootObjectChildrenToSelection(rootSel);
-    int shapesInRootSel=App::currentWorld->sceneObjects->getShapeCountInSelection(&rootSel);
-    int shapesAndDummiesInRootSel=App::currentWorld->sceneObjects->getShapeCountInSelection(&rootSel)+App::currentWorld->sceneObjects->getDummyCountInSelection(&rootSel);
+    size_t shapesInRootSel=App::currentWorld->sceneObjects->getShapeCountInSelection(&rootSel);
+    size_t shapesAndDummiesInRootSel=App::currentWorld->sceneObjects->getShapeCountInSelection(&rootSel)+App::currentWorld->sceneObjects->getDummyCountInSelection(&rootSel);
 
     bool linkedObjIsInexistentOrNotGraphNorRenderingSens=true;
     if (subView!=nullptr)

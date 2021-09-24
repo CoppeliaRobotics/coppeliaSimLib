@@ -501,7 +501,7 @@ void ogl::drawBitmapTextTo3dPosition(float x,float y,float z,const char* txt,con
 {
     if (oglFonts[fontIndex].fontBase==0)
         return;
-    int l=strlen(txt);
+    size_t l=strlen(txt);
     if (l==0)
         return;
     if (normalVectorForDiffuseComp!=nullptr)
@@ -519,7 +519,7 @@ void ogl::drawBitmapTextTo2dPosition(float posX,float posY,const char* txt)
 {
     if (oglFonts[fontIndex].fontBase==0)
         return;
-    int l=strlen(txt);
+    size_t l=strlen(txt);
     if (l==0)
         return;
     glRasterPos3f(posX,posY,0.0f);
@@ -1008,7 +1008,7 @@ void ogl::drawBitmapTextIntoScene(float posX,float posY,float posZ,const char* t
 {
     if (oglFonts[fontIndex].fontBase==0) 
         return;
-    int l=strlen(txt);
+    size_t l=strlen(txt);
     if (l==0)
         return;
     glRasterPos3f(posX,posY,posZ);
@@ -1036,8 +1036,8 @@ int ogl::getTextLengthInPixels(const char* txt)
     if (oglFonts[fontIndex].fontBase==0)
         return(0);
     int width=0;
-    int l=strlen(txt);
-    for (int i=0;i<l;i++)
+    size_t l=strlen(txt);
+    for (size_t i=0;i<l;i++)
         width=width+oglFonts[fontIndex].fontWidths[(unsigned char)txt[i]];
     return(width);
 }

@@ -201,7 +201,6 @@ public:
     std::string floatingLicenseServer;
     int floatingLicensePort;
     bool keepDongleOpen;
-    int xrTest;
 
 private:
     bool _supportOldApiNotation;

@@ -194,7 +194,6 @@
 #define _USR_FLOAT_LICENSE_SERVER_ADDRESS "floatingLicenseServer"
 #define _USR_FLOAT_LICENSE_SERVER_PORT "floatingLicensePort"
 #define _USR_KEEP_DONGLE_OPEN "keepDongleOpen"
-#define _USR_XR_TEST "xrTest"
 
 CUserSettings::CUserSettings()
 {
@@ -402,7 +401,6 @@ CUserSettings::CUserSettings()
     floatingLicenseServer="127.0.0.1";
     floatingLicensePort=20249;
     keepDongleOpen=false;
-    xrTest=0;
 
     loadUserSettings();
 }
@@ -791,7 +789,6 @@ void CUserSettings::saveUserSettings()
     c.addString(_USR_FLOAT_LICENSE_SERVER_ADDRESS,floatingLicenseServer,"");
     c.addInteger(_USR_FLOAT_LICENSE_SERVER_PORT,floatingLicensePort,"");
     c.addBoolean(_USR_KEEP_DONGLE_OPEN,keepDongleOpen,"");
-    // c.addInteger(_USR_XR_TEST,xrTest,"");
 
     std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+USER_SETTINGS_FILENAME);
     c.writeConfiguration(filenameAndPath.c_str());
@@ -1116,6 +1113,5 @@ void CUserSettings::loadUserSettings()
     c.getString(_USR_FLOAT_LICENSE_SERVER_ADDRESS,floatingLicenseServer);
     c.getInteger(_USR_FLOAT_LICENSE_SERVER_PORT,floatingLicensePort);
     c.getBoolean(_USR_KEEP_DONGLE_OPEN,keepDongleOpen);
-    c.getInteger(_USR_XR_TEST,xrTest);
 }
 

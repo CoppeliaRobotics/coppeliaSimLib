@@ -454,7 +454,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
             {
                 if (it->isCompound())
                 { // Multishape
-                    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                    App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                     if (enterEditMode(it->getObjectHandle(),MULTISHAPE_EDIT_MODE))
                     {
                         App::logMsg(sim_verbosity_msgs,IDSNS_STARTING_COMPOUND_SHAPE_EDIT_MODE);
@@ -486,7 +486,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
                         goOn=(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SHAPE_EDIT_MODE,IDS_SHAPE_IS_PURE_PRIMITIVE_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
                     if (goOn)
                     {
-                        POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                        App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                         if (enterEditMode(it->getObjectHandle(),TRIANGLE_EDIT_MODE))
                         {
                             App::logMsg(sim_verbosity_msgs,IDSNS_STARTING_TRIANGLE_EDIT_MODE);
@@ -532,7 +532,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
                 it=App::currentWorld->sceneObjects->getPathFromHandle(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(App::currentWorld->sceneObjects->getSelectionCount()-1));
             if (it!=nullptr)
             {
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 if (enterEditMode(it->getObjectHandle(),PATH_EDIT_MODE_OLD))
                 {
                     App::logMsg(sim_verbosity_msgs,IDSNS_STARTING_PATH_EDIT_MODE_OLD);
@@ -916,7 +916,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
                 endEditMode(res==VMESSAGEBOX_REPLY_NO);
                 if (res==VMESSAGEBOX_REPLY_YES)
                 {
-                    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                    App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 }
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
@@ -940,7 +940,7 @@ bool CEditModeContainer::_processMultishapeEditModeCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ENDING_EDIT_MODE_AND_APPLYING_CHANGES);
             endEditMode(false);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
@@ -1195,7 +1195,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
                 endEditMode(res==VMESSAGEBOX_REPLY_NO);
                 if (res==VMESSAGEBOX_REPLY_YES)
                 {
-                    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                    App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 }
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }

@@ -1438,7 +1438,7 @@ void CPropBrowserEngineJoint::refresh()
                 {
                     if (depNames[i].compare(aJoint->getObjectAlias_printPath())==0)
                     {
-                        depIndex=i+1;
+                        depIndex=int(i+1);
                         break;
                     }
                 }

@@ -103,7 +103,7 @@ public:
     void clearIncrementCounter();
 
     std::string xmlGetStackString() const;
-    bool xmlSaveDataInline(int bufferSize) const;
+    bool xmlSaveDataInline(size_t bufferSize) const;
 
     xmlNode* _xmlCreateNode(const char* name);
     xmlNode* _xmlCreateNode(const char* name,const char* nameAttribute);
@@ -119,7 +119,7 @@ public:
     void xmlAddNode_comment(const char* comment,bool doNotInsert);
     void xmlAddNode_bool(const char* name,bool val);
     void xmlAddNode_bools(const char* name,const std::vector<bool>& vals);
-    void xmlAddNode_binFile(const char* name,const char* localFilenameSuffix,const unsigned char* buff,int buffSize);
+    void xmlAddNode_binFile(const char* name,const char* localFilenameSuffix,const unsigned char* buff,size_t buffSize);
     CSer* xmlAddNode_binFile(const char* name,const char* localFilenameSuffix);
     void xmlAddNode_imageFile(const char* name,const char* localFilenameSuffix,const unsigned char* img,int resX,int resY,bool rgba);
     void xmlAddNode_meshFile(const char* name,const char* localFilenameSuffix,const float* vertices,int vl,const int* indices,int il,const float* normals,int nl,const unsigned char* edges,int el);
@@ -131,7 +131,7 @@ public:
     void xmlAddNode_int(const char* name,int val);
     void xmlAddNode_2int(const char* name,int val1,int val2);
     void xmlAddNode_3int(const char* name,int val1,int val2,int val3);
-    void xmlAddNode_ints(const char* name,const int* vals,int cnt);
+    void xmlAddNode_ints(const char* name,const int* vals,size_t cnt);
     void xmlAddNode_ints(const char* name,const std::vector<int>& vals);
     void xmlAddNode_uint(const char* name,unsigned int val);
     void xmlAddNode_ulonglong(const char* name,unsigned long long val);
@@ -140,7 +140,7 @@ public:
     void xmlAddNode_2float(const char* name,float val1,float val2);
     void xmlAddNode_3float(const char* name,float val1,float val2,float val3);
     void xmlAddNode_4float(const char* name,float val1,float val2,float val3,float val4);
-    void xmlAddNode_floats(const char* name,const float* vals,int cnt);
+    void xmlAddNode_floats(const char* name,const float* vals,size_t cnt);
     void xmlAddNode_floats(const char* name,const std::vector<float>& vals);
     void xmlAddNode_double(const char* name,double val);
 
@@ -167,7 +167,7 @@ public:
     bool xmlGetNode_int(const char* name,int& val,bool required=true);
     bool xmlGetNode_2int(const char* name,int& val1,int& val2,bool required=true);
     bool xmlGetNode_3int(const char* name,int& val1,int& val2,int& val3,bool required=true);
-    bool xmlGetNode_ints(const char* name,int* vals,int cnt,bool required=true);
+    bool xmlGetNode_ints(const char* name,int* vals,size_t cnt,bool required=true);
     bool xmlGetNode_ints(const char* name,std::vector<int>& vals,bool required=true);
     bool xmlGetNode_uint(const char* name,unsigned int& val,bool required=true);
     bool xmlGetNode_ulonglong(const char* name,unsigned long long& val,bool required=true);
@@ -176,7 +176,7 @@ public:
     bool xmlGetNode_2float(const char* name,float& val1,float& val2,bool required=true);
     bool xmlGetNode_3float(const char* name,float& val1,float& val2,float& val3,bool required=true);
     bool xmlGetNode_4float(const char* name,float& val1,float& val2,float& val3,float& val4,bool required=true);
-    bool xmlGetNode_floats(const char* name,float* vals,int cnt,bool required=true);
+    bool xmlGetNode_floats(const char* name,float* vals,size_t cnt,bool required=true);
     bool xmlGetNode_floats(const char* name,std::vector<float>& vals,bool required=true);
     bool xmlGetNode_double(const char* name,double& val,bool required=true);
     static int XML_XSERIALIZATION_VERSION;

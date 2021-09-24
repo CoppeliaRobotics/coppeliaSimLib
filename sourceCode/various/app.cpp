@@ -1723,6 +1723,58 @@ bool App::isOnline()
     return(_online);
 }
 
+void App::App::undoRedo_sceneChanged(const char* txt)
+{
+    if (VThread::isCurrentThreadTheUiThread())
+    {
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=999999;
+        cmd.stringParams.push_back(txt);
+        appendSimulationThreadCommand(cmd);
+    }
+    else
+        App::currentWorld->undoBufferContainer->announceChange();
+}
+
+void App::App::undoRedo_sceneChangedGradual(const char* txt)
+{
+    if (VThread::isCurrentThreadTheUiThread())
+    {
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=999996;
+        cmd.stringParams.push_back(txt);
+        App::appendSimulationThreadCommand(cmd);
+    }
+    else
+        App::currentWorld->undoBufferContainer->announceChangeGradual();
+}
+
+void App::App::undoRedo_sceneChangeStart(const char* txt)
+{
+    if  (VThread::isCurrentThreadTheUiThread())
+    {
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=999997;
+        cmd.stringParams.push_back(txt);
+        App::appendSimulationThreadCommand(cmd);
+    }
+    else
+        App::currentWorld->undoBufferContainer->announceChangeStart();
+}
+
+void App::App::undoRedo_sceneChangeEnd()
+{
+    if  (VThread::isCurrentThreadTheUiThread())
+    {
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=999998;
+        cmd.stringParams.push_back("");
+        App::appendSimulationThreadCommand(cmd);
+    }
+    else
+        App::currentWorld->undoBufferContainer->announceChangeEnd();
+}
+
 int App::getConsoleVerbosity(const char* pluginName/*=nullptr*/)
 { // sim_verbosity_none, etc.
     int retVal=_consoleVerbosity;

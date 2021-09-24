@@ -984,7 +984,7 @@ int _CSceneObjectContainer_::getObjectSequence(const CSceneObject* object) const
         for (size_t i=0;i<_orphanObjects.size();i++)
         {
             if (_orphanObjects[i]==object)
-                return(i);
+                return(int(i));
         }
     }
     return(-1);
@@ -995,9 +995,9 @@ bool _CSceneObjectContainer_::setObjectSequence(CSceneObject* object,int order)
     CSceneObject* parent=object->getParent();
     if (parent==nullptr)
     {
-        order=std::min<int>(_orphanObjects.size()-1,order);
+        order=std::min<int>(int(_orphanObjects.size())-1,order);
         if (order<0)
-            order=_orphanObjects.size()-1; // neg. value: put in last position
+            order=int(_orphanObjects.size())-1; // neg. value: put in last position
         for (size_t i=0;i<_orphanObjects.size();i++)
         {
             if (_orphanObjects[i]==object)

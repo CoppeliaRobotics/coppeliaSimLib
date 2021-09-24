@@ -82,14 +82,14 @@ void displayPage(CSPage* page,int auxViewResizingAction,int viewIndexOfResizingA
     // We first render all regular views:
     int mp[2];
     int ms[2];
-    for (int i=0;i<page->getRegularViewCount();i++)
+    for (size_t i=0;i<page->getRegularViewCount();i++)
     {
         page->getViewSizeAndPosition(ms,mp,0);
         page->getView(i)->setViewIndex(i);
         page->getView(i)->render(mp[0],false,i==0,page->viewIsPassive(i));
     }
     // Then we handle mouse commands for all subviews:
-    for (int i=0;i<page->getRegularViewCount();i++)
+    for (size_t i=0;i<page->getRegularViewCount();i++)
         page->getView(i)->handleCameraOrGraphMotion();
     // Now we render a grid on top of it (separation between windows):
 
@@ -116,7 +116,7 @@ void displayPage(CSPage* page,int auxViewResizingAction,int viewIndexOfResizingA
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_SCISSOR_TEST);
 
-    for (int i=page->getRegularViewCount();i<page->getViewCount();i++)
+    for (size_t i=page->getRegularViewCount();i<page->getViewCount();i++)
     {
         page->getView(i)->setViewIndex(i);
         page->getView(i)->render(_pagePosition[0],true,false,page->viewIsPassive(i));

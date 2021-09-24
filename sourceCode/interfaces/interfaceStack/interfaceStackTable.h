@@ -16,20 +16,20 @@ public:
     static bool checkCreateFromData(const char* data,unsigned int& w,unsigned int l);
 
     bool isTableArray() const;
-    int getArraySize() const;
-    int getMapEntryCount() const;
+    size_t getArraySize() const;
+    size_t getMapEntryCount() const;
     bool isCircularRef() const;
     void setCircularRef();
 
-    CInterfaceStackObject* getArrayItemAtIndex(int ind) const;
-    CInterfaceStackObject* getMapItemAtIndex(int ind,std::string& stringKey,double& numberKey,long long int& integerKey,bool& boolKey,int& keyType) const;
+    CInterfaceStackObject* getArrayItemAtIndex(size_t ind) const;
+    CInterfaceStackObject* getMapItemAtIndex(size_t ind,std::string& stringKey,double& numberKey,long long int& integerKey,bool& boolKey,int& keyType) const;
     void getAllObjectsAndClearTable(std::vector<CInterfaceStackObject*>& allObjs);
 
-    void setUCharArray(const unsigned char* array,int l);
-    void setInt32Array(const int* array,int l);
-    void setInt64Array(const long long int* array,int l);
-    void setFloatArray(const float* array,int l);
-    void setDoubleArray(const double* array,int l);
+    void setUCharArray(const unsigned char* array,size_t l);
+    void setInt32Array(const int* array,size_t l);
+    void setInt64Array(const long long int* array,size_t l);
+    void setFloatArray(const float* array,size_t l);
+    void setDoubleArray(const double* array,size_t l);
 
     void appendArrayObject(CInterfaceStackObject* obj);
     void appendMapObject(CInterfaceStackObject* obj,const char* key,size_t l);

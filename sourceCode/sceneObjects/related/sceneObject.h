@@ -226,6 +226,8 @@ public:
     void generateDnaString();
     std::string getDnaString() const;
     std::string getUniquePersistentIdString() const;
+    void setCopyString(const char* str);
+    std::string getCopyString() const;
 
     size_t getChildCount() const;
     CSceneObject* getChildFromIndex(size_t index) const;
@@ -303,6 +305,7 @@ protected:
 
     std::string _dnaString;
     std::string _uniquePersistentIdString;
+    std::string _copyString;
 
 
     int _ikPluginCounterpartHandle;

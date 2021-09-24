@@ -141,7 +141,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     shape->getSingleMesh()->color.setTranslucid(cmd.boolParams[0]);
                     shape->getSingleMesh()->color.setTransparencyFactor(cmd.floatParams[0]);
-                    POST_SCENE_CHANGED_ANNOUNCEMENT("");
+                    App::undoRedo_sceneChanged("");
                 }
             }
         }
@@ -152,7 +152,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (child!=nullptr)
             {
                 App::currentWorld->sceneObjects->setObjectParent(child,parent,true);
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
+                App::undoRedo_sceneChanged(""); // **************** UNDO THINGY ****************
             }
         }
 
@@ -248,7 +248,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (obj!=nullptr)
             {
                 obj->setLocalObjectProperty(obj->getLocalObjectProperty()^sim_objectproperty_collapsed);
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             }
         }
         if (cmd.cmdId==ADD_OR_REMOVE_TO_FROM_OBJECT_SELECTION_CMD)
@@ -262,7 +262,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         App::currentWorld->sceneObjects->addObjectToSelection(cmd.intParams[i]);
                     else
                         App::currentWorld->sceneObjects->removeObjectFromSelection(cmd.intParams[i]);
-                    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                    App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 }
             }
         }
@@ -274,8 +274,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CSPage* p=App::currentWorld->pageContainer->getPage(cmd.intParams[0]);
             if (p!=nullptr)
             {
-                p->swapViews(cmd.intParams[1],cmd.intParams[2],cmd.boolParams[0]);
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
+                p->swapViews(size_t(cmd.intParams[1]),size_t(cmd.intParams[2]),cmd.boolParams[0]);
+                App::undoRedo_sceneChanged(""); // **************** UNDO THINGY ****************
             }
         }
 
@@ -333,7 +333,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
                         App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                     }
-                    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
+                    App::undoRedo_sceneChanged(""); // **************** UNDO THINGY ****************
                     App::setFullDialogRefreshFlag();
                 }
             }
@@ -344,13 +344,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CSPage* page=App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
             if (page!=nullptr)
             {
-                CSView* theFloatingView=page->getView(cmd.intParams[0]);
+                CSView* theFloatingView=page->getView(size_t(cmd.intParams[0]));
                 if (theFloatingView!=nullptr)
                 {
                     if (theFloatingView->getCanBeClosed())
                     {
-                        page->removeFloatingView(cmd.intParams[0]);
-                        POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                        page->removeFloatingView(size_t(cmd.intParams[0]));
+                        App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                     }
                 }
             }
@@ -360,7 +360,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             App::currentWorld->pageContainer->removePage(App::currentWorld->pageContainer->getActivePageIndex());
             App::logMsg(sim_verbosity_msgs,IDSNS_REMOVED_VIEW);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
         }
 
         // Edit mode commands:
@@ -450,7 +450,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CSPage* page=App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
             if (page!=nullptr)
             {
-                CSView* view=page->getView(cmd.intParams[0]);
+                CSView* view=page->getView(size_t(cmd.intParams[0]));
                 if (view!=nullptr)
                     view->processCommand(cmd.cmdId,cmd.intParams[0]);
             }
@@ -483,7 +483,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
             App::mainWindow->openglWidget->clearModelDragAndDropInfo();
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
         }
 
         if (cmd.cmdId==DISPLAY_VARIOUS_WARNING_MESSAGES_DURING_SIMULATION_CMD)
@@ -4628,7 +4628,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 CSPage* view=App::currentWorld->pageContainer->getPage(cmd.intParams[1]);
                 if (view!=nullptr)
                 {
-                    CSView* subView=view->getView(cmd.intParams[2]);
+                    CSView* subView=view->getView(size_t(cmd.intParams[2]));
                     if (subView!=nullptr)
                     {
                         subView->setLinkedObjectID(it->getObjectHandle(),false);
@@ -4720,8 +4720,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
 
         // UNDO/REDO:
-        if (cmd.cmdId==999995)
-            App::currentWorld->undoBufferContainer->emptyRedoBuffer();
+//        if (cmd.cmdId==999995)
+//            App::currentWorld->undoBufferContainer->emptyRedoBuffer();
         if (cmd.cmdId==999996)
             App::currentWorld->undoBufferContainer->announceChangeGradual();
         if (cmd.cmdId==999997)

@@ -1612,7 +1612,7 @@ void CMainWindow::_actualizetoolbarButtonState()
         int ind=page->getLastMouseDownViewIndex();
         if (ind==-1)
             ind=0;
-        CSView* view=page->getView(ind);
+        CSView* view=page->getView(size_t(ind));
         if (view!=nullptr)
         {
             CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(view->getLinkedObjectID());
@@ -1934,13 +1934,13 @@ void CMainWindow::_engineSelectedViaToolbar(int index)
 void CMainWindow::_enginePrecisionViaToolbar(int index)
 {
     App::currentWorld->dynamicsContainer->setDynamicsSettingsMode(index);
-    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
+    App::undoRedo_sceneChanged(""); // **************** UNDO THINGY ****************
 }
 
 void CMainWindow::_timeStepConfigViaToolbar(int index)
 {
     App::currentWorld->simulation->setDefaultSimulationParameterIndex(index);
-    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
+    App::undoRedo_sceneChanged(""); // **************** UNDO THINGY ****************
 }
 
 void CMainWindow::_simPopupMessageHandler(int id)

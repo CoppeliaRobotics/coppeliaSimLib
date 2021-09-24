@@ -57,24 +57,8 @@
 //#include <typeinfo>
 #define SIMPLE_FUNCNAME_DEBUG printf("SYNC_DEBUG: %s, %s\n",typeid(*this).name(),__func__);
 
-
 // Resource lock command:
 #define EASYLOCK(mutex) CEasyLock easyLock(mutex,__func__)
-
-// Undo point announcements:
-#ifdef SIM_WITH_GUI
-    #define POST_SCENE_CHANGED_ANNOUNCEMENT(theTExt) if(VThread::isCurrentThreadTheUiThread()){SSimulationThreadCommand cmd;cmd.cmdId=999999;cmd.stringParams.push_back(theTExt);App::appendSimulationThreadCommand(cmd);}else{App::currentWorld->undoBufferContainer->announceChange();}
-    #define POST_SCENE_CHANGED_CLEAR_REDO_BUFFER_ANNOUNCEMENT() if(VThread::isCurrentThreadTheUiThread()){SSimulationThreadCommand cmd;cmd.cmdId=999995;cmd.stringParams.push_back("");App::appendSimulationThreadCommand(cmd);}else{App::currentWorld->undoBufferContainer->emptyRedoBuffer();}
-    #define POST_SCENE_CHANGED_GRADUAL_ANNOUNCEMENT(theTExt) if(VThread::isCurrentThreadTheUiThread()){SSimulationThreadCommand cmd;cmd.cmdId=999996;cmd.stringParams.push_back(theTExt);App::appendSimulationThreadCommand(cmd);}else{App::currentWorld->undoBufferContainer->announceChangeGradual();}
-    #define POST_SCENE_CHANGED_START_ANNOUNCEMENT(theTExt) if(VThread::isCurrentThreadTheUiThread()){SSimulationThreadCommand cmd;cmd.cmdId=999997;cmd.stringParams.push_back(theTExt);App::appendSimulationThreadCommand(cmd);}else{App::currentWorld->undoBufferContainer->announceChangeStart();}
-    #define POST_SCENE_CHANGED_END_ANNOUNCEMENT() if(VThread::isCurrentThreadTheUiThread()){SSimulationThreadCommand cmd;cmd.cmdId=999998;cmd.stringParams.push_back("");App::appendSimulationThreadCommand(cmd);}else{App::currentWorld->undoBufferContainer->announceChangeEnd();}
-#else
-    #define POST_SCENE_CHANGED_ANNOUNCEMENT(theTExt)
-    #define POST_SCENE_CHANGED_CLEAR_REDO_BUFFER_ANNOUNCEMENT()
-    #define POST_SCENE_CHANGED_GRADUAL_ANNOUNCEMENT(theTExt)
-    #define POST_SCENE_CHANGED_START_ANNOUNCEMENT(theTExt)
-    #define POST_SCENE_CHANGED_END_ANNOUNCEMENT()
-#endif
 
 #ifdef WIN_SIM
     #ifndef NOMINMAX

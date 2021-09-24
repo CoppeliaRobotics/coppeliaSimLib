@@ -25,18 +25,18 @@ bool CInterfaceStackTable::isTableArray() const
     return(_isTableArray);
 }
 
-int CInterfaceStackTable::getArraySize() const
+size_t CInterfaceStackTable::getArraySize() const
 {
     if (!_isTableArray)
         return(0);
-    return((int)_tableObjects.size());
+    return(_tableObjects.size());
 }
 
-int CInterfaceStackTable::getMapEntryCount() const
+size_t CInterfaceStackTable::getMapEntryCount() const
 {
     if (_isTableArray)
         return(0);
-    return((int)_tableObjects.size()/2);
+    return(_tableObjects.size()/2);
 }
 
 bool CInterfaceStackTable::isCircularRef() const
@@ -168,7 +168,7 @@ bool CInterfaceStackTable::getDoubleArray(double* array,int count) const
         if (t==STACK_OBJECT_NUMBER)
             array[i]=((CInterfaceStackNumber*)_tableObjects[i])->getValue();
         else if (t==STACK_OBJECT_INTEGER)
-            array[i]=((CInterfaceStackInteger*)_tableObjects[i])->getValue();
+            array[i]=double(((CInterfaceStackInteger*)_tableObjects[i])->getValue());
         else
         {
             array[i]=0.0;
@@ -356,16 +356,16 @@ void CInterfaceStackTable::appendArrayOrMapObject(CInterfaceStackObject* obj,CIn
     }
 }
 
-CInterfaceStackObject* CInterfaceStackTable::getArrayItemAtIndex(int ind) const
+CInterfaceStackObject* CInterfaceStackTable::getArrayItemAtIndex(size_t ind) const
 {
-    if ( (!_isTableArray)||(ind>=(int)_tableObjects.size()) )
+    if ( (!_isTableArray)||(ind>=_tableObjects.size()) )
         return(nullptr);
     return(_tableObjects[ind]);
 }
 
-CInterfaceStackObject* CInterfaceStackTable::getMapItemAtIndex(int ind,std::string& stringKey,double& numberKey,long long int& integerKey,bool& boolKey,int& keyType) const
+CInterfaceStackObject* CInterfaceStackTable::getMapItemAtIndex(size_t ind,std::string& stringKey,double& numberKey,long long int& integerKey,bool& boolKey,int& keyType) const
 {
-    if ( (_isTableArray)||(ind>=(int)_tableObjects.size()/2) )
+    if ( (_isTableArray)||(ind>=_tableObjects.size()/2) )
         return(nullptr);
     keyType=_tableObjects[2*ind+0]->getObjectType();
     if (keyType==STACK_OBJECT_BOOL)
@@ -412,43 +412,43 @@ void CInterfaceStackTable::getAllObjectsAndClearTable(std::vector<CInterfaceStac
     _isTableArray=true;
 }
 
-void CInterfaceStackTable::setUCharArray(const unsigned char* array,int l)
+void CInterfaceStackTable::setUCharArray(const unsigned char* array,size_t l)
 {
     _tableObjects.clear();
     _isTableArray=true;
-    for (int i=0;i<l;i++)
+    for (size_t i=0;i<l;i++)
         _tableObjects.push_back(new CInterfaceStackInteger(array[i]));
 }
 
-void CInterfaceStackTable::setInt32Array(const int* array,int l)
+void CInterfaceStackTable::setInt32Array(const int* array,size_t l)
 {
     _tableObjects.clear();
     _isTableArray=true;
-    for (int i=0;i<l;i++)
+    for (size_t i=0;i<l;i++)
         _tableObjects.push_back(new CInterfaceStackInteger(array[i]));
 }
 
-void CInterfaceStackTable::setInt64Array(const long long int* array,int l)
+void CInterfaceStackTable::setInt64Array(const long long int* array,size_t l)
 {
     _tableObjects.clear();
     _isTableArray=true;
-    for (int i=0;i<l;i++)
+    for (size_t i=0;i<l;i++)
         _tableObjects.push_back(new CInterfaceStackInteger(array[i]));
 }
 
-void CInterfaceStackTable::setFloatArray(const float* array,int l)
+void CInterfaceStackTable::setFloatArray(const float* array,size_t l)
 {
     _tableObjects.clear();
     _isTableArray=true;
-    for (int i=0;i<l;i++)
+    for (size_t i=0;i<l;i++)
         _tableObjects.push_back(new CInterfaceStackNumber((float)array[i]));
 }
 
-void CInterfaceStackTable::setDoubleArray(const double* array,int l)
+void CInterfaceStackTable::setDoubleArray(const double* array,size_t l)
 {
     _tableObjects.clear();
     _isTableArray=true;
-    for (int i=0;i<l;i++)
+    for (size_t i=0;i<l;i++)
         _tableObjects.push_back(new CInterfaceStackNumber(array[i]));
 }
 
@@ -459,7 +459,7 @@ int CInterfaceStackTable::getTableInfo(int infoType) const
         if (_isCircularRef)
             return(sim_stack_table_circular_ref);
         if (_isTableArray)
-            return(getArraySize());
+            return(int(getArraySize()));
         return(sim_stack_table_map);
     }
     int retVal=0;

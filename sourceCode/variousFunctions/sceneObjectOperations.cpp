@@ -113,7 +113,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
             if (assembleEnabled||disassembleEnabled)
             {
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
         }
@@ -201,7 +201,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     for (size_t i=0;i<newSelection.size();i++)
                         App::currentWorld->sceneObjects->addObjectToSelection(newSelection[i]);
 
-                    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                    App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 }
             }
         }
@@ -231,7 +231,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 }
                 App::currentWorld->sceneObjects->selectObject(last->getObjectHandle()); // We select the parent
 
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 std::string txt(IDSNS_ATTACHING_OBJECTS_TO);
                 txt+=last->getObjectAlias_printPath()+"'...";
                 App::logMsg(sim_verbosity_msgs,txt.c_str());
@@ -260,7 +260,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
                 App::currentWorld->sceneObjects->setObjectParent(it,nullptr,true);
             }
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
@@ -351,7 +351,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 App::logMsg(sim_verbosity_errors,IDSNS_FAILED_IS_THE_QHULL_PLUGIN_LOADED);
             else
             {
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
         }
@@ -453,7 +453,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                             child->incrementMemorizedConfigurationValidCounter(); // so if we are running in a simulation, the shape doesn't get reset at its initial config
                         }
 
-                        POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                        App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                         App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
                     }
 
@@ -568,7 +568,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
             App::currentWorld->sceneObjects->deselectObjects();
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -771,7 +771,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
                         App::currentWorld->sceneObjects->deselectObjects();
                         App::currentWorld->sceneObjects->selectObject(newShape->getObjectHandle());
-                        POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                        App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                         App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
                     }
                     else
@@ -869,7 +869,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
 #endif
                 App::currentWorld->embeddedScriptContainer->removeScript(script->getScriptHandle());
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::setFullDialogRefreshFlag();
             }
         }
@@ -895,7 +895,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
 #endif
                 App::currentWorld->embeddedScriptContainer->removeScript(script->getScriptHandle());
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::setFullDialogRefreshFlag();
             }
         }
@@ -950,7 +950,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_CUTTING_SELECTION);
                 cutObjects(&sel,true);
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
             App::currentWorld->sceneObjects->deselectObjects();
@@ -972,7 +972,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::logMsg(sim_verbosity_msgs,IDSNS_PASTING_BUFFER);
             pasteCopyBuffer(true);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
@@ -1002,7 +1002,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_DELETING_SELECTION);
                 deleteObjects(&sel,true);
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
             App::currentWorld->sceneObjects->deselectObjects();
@@ -1068,14 +1068,14 @@ bool CSceneObjectOperations::processCommand(int commandID)
                                     if (!theShape->alignCuboidBoundingBoxWithMainAxis())
                                         cuboidFail=true;
                                 }
-                                POST_SCENE_CHANGED_START_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                                App::undoRedo_sceneChangeStart(""); // ************************** UNDO thingy **************************
                             }
                             else
                                 informThatPurePrimitivesWereNotChanged=true;
                         }
                     }
                 }
-                POST_SCENE_CHANGED_END_ANNOUNCEMENT(); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChangeEnd(); // ************************** UNDO thingy **************************
 #ifdef SIM_WITH_GUI
                 if (informThatPurePrimitivesWereNotChanged)
                     App::uiThread->messageBox_warning(App::mainWindow,"Alignment",IDS_INFORM_PURE_PRIMITIVES_COULD_NOT_BE_REORIENTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
@@ -1106,7 +1106,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             App::logMsg(sim_verbosity_msgs,IDSNS_GROUPING_SELECTED_SHAPES);
             if (groupSelection(&sel,true)!=-1)
             {
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
             else
@@ -1130,7 +1130,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::logMsg(sim_verbosity_msgs,IDSNS_UNGROUPING_SELECTED_SHAPES);
             ungroupSelection(&sel,true);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
@@ -1152,7 +1152,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             App::logMsg(sim_verbosity_msgs,IDSNS_MERGING_SELECTED_SHAPES);
             if (mergeSelection(&sel,true)>=0)
             {
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
             else
@@ -1175,7 +1175,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::logMsg(sim_verbosity_msgs,IDSNS_DIVIDING_SELECTED_SHAPES);
             divideSelection(&sel,true);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
         }
         else
@@ -1528,7 +1528,7 @@ void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection,bool s
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
         stack->pushStringOntoStack("objectHandles",0);
-        stack->pushInt32ArrayTableOntoStack(&newObjectHandles[0],(int)newObjectHandles.size());
+        stack->pushInt32ArrayTableOntoStack(&newObjectHandles[0],newObjectHandles.size());
         stack->insertDataIntoStackTable();
         App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
@@ -1846,7 +1846,7 @@ void CSceneObjectOperations::divideSelection(std::vector<int>* selection,bool sh
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
         stack->pushStringOntoStack("objectHandles",0);
-        stack->pushInt32ArrayTableOntoStack(&newObjectHandles[0],(int)newObjectHandles.size());
+        stack->pushInt32ArrayTableOntoStack(&newObjectHandles[0],newObjectHandles.size());
         stack->insertDataIntoStackTable();
         App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
@@ -2497,7 +2497,7 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
     for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
         rootSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
     CSceneObjectOperations::addRootObjectChildrenToSelection(rootSel);
-    int shapesInRootSel=App::currentWorld->sceneObjects->getShapeCountInSelection(&rootSel);
+    size_t shapesInRootSel=App::currentWorld->sceneObjects->getShapeCountInSelection(&rootSel);
     if (App::getEditModeType()==NO_EDIT_MODE)
     {
         menu->appendMenuItem(App::currentWorld->undoBufferContainer->canUndo(),false,SCENE_OBJECT_OPERATION_UNDO_SOOCMD,IDSN_UNDO);

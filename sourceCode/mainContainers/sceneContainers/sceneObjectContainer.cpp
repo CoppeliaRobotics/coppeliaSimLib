@@ -9,6 +9,7 @@
 #include "mesh.h"
 #include <sstream>
 #include <iostream>
+#include "simFlavor.h"
 
 CSceneObjectContainer::CSceneObjectContainer()
 {
@@ -572,7 +573,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_MIRROR)==0)
         {
-            if (App::userSettings->xrTest==123456789)
+            if (CSimFlavor::getBoolVal(18))
                 App::logMsg(sim_verbosity_errors,"Contains mirrors...");
             ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
             CMirror* myNewObject=new CMirror();
@@ -622,7 +623,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_PATH_OLD)==0)
         {
-            if (App::userSettings->xrTest==123456789)
+            if (CSimFlavor::getBoolVal(18))
                 App::logMsg(sim_verbosity_errors,"Contains path objects...");
             ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
             CPath_old* myNewObject=new CPath_old();
@@ -632,7 +633,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_MILL)==0)
         {
-            if (App::userSettings->xrTest==123456789)
+            if (CSimFlavor::getBoolVal(18))
                 App::logMsg(sim_verbosity_errors,"Contains mills...");
             ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
             CMill* myNewObject=new CMill();
@@ -1825,7 +1826,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
                     for (size_t i=0;i<indices.size();i++)
                     {
                         if (indices[i]<0)
-                            indices[i]=(vertices.size()/3)+indices[i];
+                            indices[i]=int(vertices.size()/3)+indices[i];
                         if ( (indices[i]<0)||(indices[i]>=(vertices.size()/3)) )
                             ok=false;
                     }

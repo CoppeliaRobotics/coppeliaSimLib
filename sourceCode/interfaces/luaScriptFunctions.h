@@ -24,17 +24,17 @@ struct SLuaVariables
 
 void _registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char const* const functionName,luaWrap_lua_CFunction functionCallback);
 
-void getFloatsFromTable(luaWrap_lua_State* L,int tablePos,int floatCount,float* arrayField);
-void getDoublesFromTable(luaWrap_lua_State* L,int tablePos,int doubleCount,double* arrayField);
-bool getIntsFromTable(luaWrap_lua_State* L,int tablePos,int intCount,int* arrayField);
-bool getUIntsFromTable(luaWrap_lua_State* L,int tablePos,int intCount,unsigned int* arrayField);
-bool getUCharsFromTable(luaWrap_lua_State* L,int tablePos,int intCount,unsigned char* arrayField);
-void getBoolsFromTable(luaWrap_lua_State* L,int tablePos,int boolCount,char* arrayField);
-void pushFloatTableOntoStack(luaWrap_lua_State* L,int floatCount,const float* arrayField);
-void pushDoubleTableOntoStack(luaWrap_lua_State* L,int doubleCount,const double* arrayField);
-void pushIntTableOntoStack(luaWrap_lua_State* L,int intCount,const int* arrayField);
-void pushUIntTableOntoStack(luaWrap_lua_State* L,int intCount,const unsigned int* arrayField);
-void pushUCharTableOntoStack(luaWrap_lua_State* L,int intCount,const unsigned char* arrayField);
+void getFloatsFromTable(luaWrap_lua_State* L,int tablePos,size_t floatCount,float* arrayField);
+void getDoublesFromTable(luaWrap_lua_State* L,int tablePos,size_t doubleCount,double* arrayField);
+bool getIntsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,int* arrayField);
+bool getUIntsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,unsigned int* arrayField);
+bool getUCharsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,unsigned char* arrayField);
+void getBoolsFromTable(luaWrap_lua_State* L,int tablePos,size_t boolCount,char* arrayField);
+void pushFloatTableOntoStack(luaWrap_lua_State* L,size_t floatCount,const float* arrayField);
+void pushDoubleTableOntoStack(luaWrap_lua_State* L,size_t doubleCount,const double* arrayField);
+void pushIntTableOntoStack(luaWrap_lua_State* L,size_t intCount,const int* arrayField);
+void pushUIntTableOntoStack(luaWrap_lua_State* L,size_t intCount,const unsigned int* arrayField);
+void pushUCharTableOntoStack(luaWrap_lua_State* L,size_t intCount,const unsigned char* arrayField);
 void pushStringTableOntoStack(luaWrap_lua_State* L,const std::vector<std::string>& stringTable);
 void pushLStringTableOntoStack(luaWrap_lua_State* L,const std::vector<std::string>& stringTable);
 

@@ -444,7 +444,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
                     else
                         App::logMsg(sim_verbosity_errors,IDSNS_AN_ERROR_OCCURRED_DURING_THE_IMPORT_OPERATION);
-                    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                    App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 }
                 else
                     App::logMsg(sim_verbosity_errors,IDSNS_ABORTED_FILE_DOES_NOT_EXIST);
@@ -1117,7 +1117,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
         App::setRebuildHierarchyFlag();
         if (doUndoThingInHere)
         {
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
         }
     }
     else
@@ -1641,9 +1641,8 @@ void CFileOperations::addMenu(VMenu* menu)
     for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
         sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
     CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-    int shapeNumber=App::currentWorld->sceneObjects->getShapeCountInSelection(&sel);
-    int pathNumber=App::currentWorld->sceneObjects->getPathCountInSelection(&sel);
-    int graphNumber=App::currentWorld->sceneObjects->getGraphCountInSelection(&sel);
+    size_t shapeNumber=App::currentWorld->sceneObjects->getShapeCountInSelection(&sel);
+    size_t graphNumber=App::currentWorld->sceneObjects->getGraphCountInSelection(&sel);
 
     menu->appendMenuItem(fileOpOk,false,FILE_OPERATION_NEW_SCENE_FOCMD,IDS_NEW_SCENE_MENU_ITEM);
 

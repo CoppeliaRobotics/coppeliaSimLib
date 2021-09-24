@@ -11,6 +11,7 @@
 #include "base64.h"
 #include <boost/algorithm/string.hpp>
 #include "pluginContainer.h"
+#include "simFlavor.h"
 
 int CEnvironment::_nextSceneUniqueID=0;
 bool CEnvironment::_shapeTexturesTemporarilyDisabled=false;
@@ -522,7 +523,7 @@ void CEnvironment::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _acknowledgement;
-                        if (App::userSettings->xrTest==123456789)
+                        if (CSimFlavor::getBoolVal(18))
                         {
                         }
                     }

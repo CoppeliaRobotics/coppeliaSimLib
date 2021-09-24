@@ -152,6 +152,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_OBJECT_IS_SAME_AS_TARGET_OBJECT "object is same as target object."
 #define SIM_ERROR_TARGET_OBJECT_IS_NOT_A_PATH "target object is not a path."
 #define SIM_ERROR_CANNOT_OVERWRITE_STATIC_CURVE "cannot overwrite static curve."
+#define SIM_ERROR_OBJECT_IS_ANCESTOR_OF_DESIRED_PARENT "object is ancestor of desired parent."
 #define SIM_ERROR_BLOCKING_OPERATION_ONLY_FROM_THREAD "blocking operation only available when called from a thread."
 #define SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ "could not lock resources for data read operation."
 #define SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE "could not lock resources for data write operation."

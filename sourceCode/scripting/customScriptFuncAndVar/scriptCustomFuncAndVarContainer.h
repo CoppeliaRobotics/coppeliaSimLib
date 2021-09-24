@@ -23,9 +23,9 @@ public:
     void appendAllFunctionNames_spaceSeparated(std::string& v);
 
     size_t getCustomFunctionCount() const;
-    CScriptCustomFunction* getCustomFunctionFromIndex(int index);
+    CScriptCustomFunction* getCustomFunctionFromIndex(size_t index);
     size_t getCustomVariableCount() const;
-    CScriptCustomVariable* getCustomVariableFromIndex(int index);
+    CScriptCustomVariable* getCustomVariableFromIndex(size_t index);
 
     void outputWarningWithFunctionNamesWithoutPlugin(bool o);
 

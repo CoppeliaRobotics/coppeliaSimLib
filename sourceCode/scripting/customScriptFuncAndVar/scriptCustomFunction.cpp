@@ -1,4 +1,4 @@
-#include "ScriptCustomFunction.h"
+#include "scriptCustomFunction.h"
 
 CScriptCustomFunction::CScriptCustomFunction(const char* theFullFunctionName,const char* theCallTips,void(*callBack)(struct SScriptCallBack* cb))
 { // the new way, called through simRegisterScriptCallbackFunction

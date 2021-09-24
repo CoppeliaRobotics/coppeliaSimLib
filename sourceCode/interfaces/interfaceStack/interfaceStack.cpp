@@ -513,35 +513,35 @@ void CInterfaceStack::pushStringOntoStack(const char* str,size_t l)
     _stackObjects.push_back(new CInterfaceStackString(str,l));
 }
 
-void CInterfaceStack::pushInt32ArrayTableOntoStack(const int* arr,int l)
+void CInterfaceStack::pushInt32ArrayTableOntoStack(const int* arr,size_t l)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setInt32Array(arr,l);
     _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushInt64ArrayTableOntoStack(const long long int* arr,int l)
+void CInterfaceStack::pushInt64ArrayTableOntoStack(const long long int* arr,size_t l)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setInt64Array(arr,l);
     _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushUCharArrayTableOntoStack(const unsigned char* arr,int l)
+void CInterfaceStack::pushUCharArrayTableOntoStack(const unsigned char* arr,size_t l)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setUCharArray(arr,l);
     _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushFloatArrayTableOntoStack(const float* arr,int l)
+void CInterfaceStack::pushFloatArrayTableOntoStack(const float* arr,size_t l)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setFloatArray(arr,l);
     _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushDoubleArrayTableOntoStack(const double* arr,int l)
+void CInterfaceStack::pushDoubleArrayTableOntoStack(const double* arr,size_t l)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setDoubleArray(arr,l);

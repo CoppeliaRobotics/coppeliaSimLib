@@ -989,6 +989,7 @@ CSceneObject* CSceneObject::copyYourself()
     theNewObject->_extensionString=_extensionString;
 
     theNewObject->_dnaString=_dnaString;
+    theNewObject->_copyString=_copyString;
 
     theNewObject->_assemblingLocalTransformation=_assemblingLocalTransformation;
     theNewObject->_assemblingLocalTransformationIsUsed=_assemblingLocalTransformationIsUsed;
@@ -1497,6 +1498,16 @@ void CSceneObject::generateDnaString()
 std::string CSceneObject::getDnaString() const
 {
     return(_dnaString);
+}
+
+void CSceneObject::setCopyString(const char* str)
+{ // multipurpose. Will be copied during copy op.
+    _copyString=str;
+}
+
+std::string CSceneObject::getCopyString() const
+{
+    return(_copyString);
 }
 
 std::string CSceneObject::getUniquePersistentIdString() const
@@ -2053,7 +2064,7 @@ void CSceneObject::serialize(CSer& ar)
                         }
                         else
                         {
-                            if (App::userSettings->xrTest==123456789)
+                            if (CSimFlavor::getBoolVal(18))
                                 App::logMsg(sim_verbosity_errors,"Contains script simulation parameters...");
                         }
                     }
@@ -2107,7 +2118,7 @@ void CSceneObject::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _modelAcknowledgement;
-                        if (App::userSettings->xrTest==123456789)
+                        if (CSimFlavor::getBoolVal(18))
                         {
                         }
                     }
@@ -2264,9 +2275,9 @@ void CSceneObject::serialize(CSer& ar)
             ar.xmlPushNewNode("localObjectSpecialProperty");
             ar.xmlAddNode_bool("collidable",_localObjectSpecialProperty&sim_objectspecialproperty_collidable);
             ar.xmlAddNode_bool("measurable",_localObjectSpecialProperty&sim_objectspecialproperty_measurable);
-            if (_localObjectSpecialProperty&sim_objectspecialproperty_detectable==sim_objectspecialproperty_detectable)
+            if ((_localObjectSpecialProperty&sim_objectspecialproperty_detectable)==sim_objectspecialproperty_detectable)
                 ar.xmlAddNode_bool("detectable",true);
-            if (_localObjectSpecialProperty&sim_objectspecialproperty_detectable==0)
+            if ((_localObjectSpecialProperty&sim_objectspecialproperty_detectable)==0)
                 ar.xmlAddNode_bool("detectable",false);
             // OLD:
             ar.xmlAddNode_comment(" 'renderable' tag for backward compatibility, set to 'true':",exhaustiveXml);
@@ -4065,16 +4076,16 @@ int CSceneObject::getChildSequence(const CSceneObject* child) const
     for (size_t i=0;i<_childList.size();i++)
     {
         if (_childList[i]==child)
-            return(i);
+            return(int(i));
     }
     return(-1);
 }
 
 bool CSceneObject::setChildSequence(CSceneObject* child,int order)
 {
-    order=std::min<int>(_childList.size()-1,order);
+    order=std::min<int>(int(_childList.size())-1,order);
     if (order<0)
-        order=_childList.size()-1; // neg. value: put in last position
+        order=int(_childList.size())-1; // neg. value: put in last position
     for (size_t i=0;i<_childList.size();i++)
     {
         if (_childList[i]==child)

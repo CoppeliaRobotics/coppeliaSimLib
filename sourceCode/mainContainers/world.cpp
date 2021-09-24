@@ -4,6 +4,7 @@
 #include "ttUtil.h"
 #include "tt.h"
 #include "app.h"
+#include "simFlavor.h"
 
 std::vector<SLoadOperationIssue> CWorld::_loadOperationIssues;
 
@@ -606,7 +607,7 @@ void CWorld::simulationAboutToStart()
         CSceneObject* it=sceneObjects->getObjectFromIndex(i);
         _initialObjectUniqueIdentifiersForRemovingNewObjects.push_back(it->getUniqueID());
     }
-    POST_SCENE_CHANGED_ANNOUNCEMENT("");
+    App::undoRedo_sceneChanged("");
 
     _savedMouseMode=App::getMouseMode();
 
@@ -682,7 +683,7 @@ void CWorld::simulationAboutToEnd()
 void CWorld::simulationEnded(bool removeNewObjects)
 {
     TRACE_INTERNAL;
-    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // keeps this (this has the objects in their last position, including additional objects)
+    App::undoRedo_sceneChanged(""); // keeps this (this has the objects in their last position, including additional objects)
 
     void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationended,nullptr,nullptr,nullptr);
     delete[] (char*)retVal;
@@ -730,7 +731,7 @@ void CWorld::simulationEnded(bool removeNewObjects)
         sceneObjects->setSelectedObjectHandles(savedSelection);
     }
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
-    POST_SCENE_CHANGED_ANNOUNCEMENT(""); // keeps this (additional objects were removed, and object positions were reset)
+    App::undoRedo_sceneChanged(""); // keeps this (additional objects were removed, and object positions were reset)
 
     embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_aftersimulation,nullptr,nullptr,nullptr);
     App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_aftersimulation,nullptr,nullptr);
@@ -1356,7 +1357,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName.compare(SER_COLLECTION)==0)
                 { // for backward compatibility 18.11.2020
-                    if (App::userSettings->xrTest==123456789)
+                    if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors,"Contains collections...");
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                     CCollection* it=new CCollection(-2);
@@ -1366,7 +1367,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName.compare(SER_BUTTON_BLOCK_old)==0)
                 {
-                    if (App::userSettings->xrTest==123456789)
+                    if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors,"Contains old custom UIs...");
                     if (!App::userSettings->disableOpenGlBasedCustomUi)
                     {
@@ -1406,7 +1407,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName.compare(SER_COLLISION)==0)
                 {
-                    if (App::userSettings->xrTest==123456789)
+                    if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors,"Contains collision objects...");
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                     CCollisionObject_old* it=new CCollisionObject_old();
@@ -1416,7 +1417,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName.compare(SER_DISTANCE)==0)
                 {
-                    if (App::userSettings->xrTest==123456789)
+                    if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors,"Contains distance objects...");
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                     CDistanceObject_old* it=new CDistanceObject_old();
@@ -1426,7 +1427,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName.compare(SER_IK)==0)
                 {
-                    if (App::userSettings->xrTest==123456789)
+                    if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors,"Contains IK objects...");
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                     CIkGroup_old* it=new CIkGroup_old();
@@ -1436,7 +1437,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName==SER_PATH_PLANNING)
                 {
-                    if (App::userSettings->xrTest==123456789)
+                    if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors,"Contains path planning objects...");
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                     CPathPlanningTask* it=new CPathPlanningTask();

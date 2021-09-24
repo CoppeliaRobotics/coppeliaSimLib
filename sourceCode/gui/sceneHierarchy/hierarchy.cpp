@@ -204,12 +204,12 @@ void CHierarchy::keyPress(int key)
                         if (editionText[editionText.size()-1]=='#')
                             editionText.pop_back();
                         if (App::currentWorld->sceneObjects->setObjectName_old(it,editionText.c_str(),true))
-                            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                     }
                     else
                     {
                         if (App::currentWorld->sceneObjects->setObjectAlias(it,editionText.c_str(),true))
-                            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                     }
                     App::setFullDialogRefreshFlag();
                 }
@@ -1497,7 +1497,7 @@ bool CHierarchy::processCommand(int commandID)
                 App::logMsg(sim_verbosity_msgs,IDSNS_HIERARCHY_EXPANDED);
             else
                 App::logMsg(sim_verbosity_msgs,IDSNS_HIERARCHY_COLLAPSED);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1531,7 +1531,7 @@ bool CHierarchy::processCommand(int commandID)
                 App::logMsg(sim_verbosity_msgs,IDSNS_HIERARCHY_TREES_EXPANDED);
             else
                 App::logMsg(sim_verbosity_msgs,IDSNS_HIERARCHY_TREES_COLLAPSED);
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1550,7 +1550,7 @@ bool CHierarchy::processCommand(int commandID)
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
                 it->setHierarchyColorIndex(commandID-HIERARCHY_COLORING_NONE_CMD-1);
             }
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:

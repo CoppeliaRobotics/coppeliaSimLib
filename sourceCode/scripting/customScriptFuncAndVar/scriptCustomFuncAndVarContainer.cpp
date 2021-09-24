@@ -110,7 +110,7 @@ size_t CScriptCustomFuncAndVarContainer::getCustomFunctionCount() const
     return(_allCustomFunctions.size());
 }
 
-CScriptCustomFunction* CScriptCustomFuncAndVarContainer::getCustomFunctionFromIndex(int index)
+CScriptCustomFunction* CScriptCustomFuncAndVarContainer::getCustomFunctionFromIndex(size_t index)
 {
     return(_allCustomFunctions[index]);
 }
@@ -120,7 +120,7 @@ size_t CScriptCustomFuncAndVarContainer::getCustomVariableCount() const
     return(_allCustomVariables.size());
 }
 
-CScriptCustomVariable* CScriptCustomFuncAndVarContainer::getCustomVariableFromIndex(int index)
+CScriptCustomVariable* CScriptCustomFuncAndVarContainer::getCustomVariableFromIndex(size_t index)
 {
     return(_allCustomVariables[index]);
 }

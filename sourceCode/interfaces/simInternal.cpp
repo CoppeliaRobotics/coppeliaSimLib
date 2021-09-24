@@ -2246,6 +2246,16 @@ simInt simSetObjectParent_internal(simInt objectHandle,simInt parentObjectHandle
         }
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         CSceneObject* parentIt=App::currentWorld->sceneObjects->getObjectFromHandle(parentObjectHandle);
+        CSceneObject* pp=parentIt;
+        while (pp!=nullptr)
+        {
+            if (pp==it)
+            {
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_IS_ANCESTOR_OF_DESIRED_PARENT);
+                return(-1);
+            }
+            pp=pp->getParent();
+        }
         if (keepInPlace)
             App::currentWorld->sceneObjects->setObjectParent(it,parentIt,true);
         else
@@ -4633,24 +4643,18 @@ simInt simAddObjectToSelection_internal(simInt what,simInt objectHandle)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (ifEditModeActiveGenerateErrorAndReturnTrue(__func__))
-        {
             return(-1);
-        }
         if (what==sim_handle_all)
             App::currentWorld->sceneObjects->selectAllObjects();
         else
         {
             if (!doesObjectExist(__func__,objectHandle))
-            {
                 return(-1);
-            }
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
             if (what==sim_handle_single)
                 App::currentWorld->sceneObjects->addObjectToSelection(objectHandle);
@@ -4685,16 +4689,12 @@ simInt simRemoveObjectFromSelection_internal(simInt what,simInt objectHandle)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (ifEditModeActiveGenerateErrorAndReturnTrue(__func__))
-        {
             return(-1);
-        }
         if (what==sim_handle_all)
             App::currentWorld->sceneObjects->deselectObjects();
         else
@@ -4737,9 +4737,7 @@ simInt simGetObjectSelectionSize_internal()
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4755,9 +4753,7 @@ simInt simGetObjectLastSelection_internal()
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6319,70 +6315,96 @@ simInt simCopyPasteObjects_internal(simInt* objectHandles,simInt objectCount,sim
     {
         if (ifEditModeActiveGenerateErrorAndReturnTrue(__func__))
             return(-1);
-        // memorize current selection:
-        std::vector<int> initSel;
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-            initSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        // adjust the selection to copy:
-        std::vector<int> selT;
-        for (int i=0;i<objectCount;i++)
+        int retVal=0;
+        if (objectCount>0)
         {
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandles[i]);
-            if (it!=nullptr)
+            // memorize current selection:
+            std::vector<int> initSel;
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+                initSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
+                App::currentWorld->sceneObjects->getObjectFromIndex(i)->setCopyString("");
+
+            // adjust the selection to copy:
+            std::vector<int> selT;
+            for (int i=0;i<objectCount;i++)
             {
-                if (((options&1)==0)||it->getModelBase())
-                    selT.push_back(objectHandles[i]);
-            }
-        }
-        // if we just wanna handle models, make sure no model has a parent that will also be copied:
-        std::vector<int> sel;
-        if (options&1)
-        {
-            for (size_t i=0;i<selT.size();i++)
-            {
-                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(selT[i]);
-                bool ok=true;
-                if (it->getParent()!=nullptr)
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandles[i]);
+                if (it!=nullptr)
                 {
-                    for (size_t j=0;j<selT.size();j++)
+                    if (((options&1)==0)||it->getModelBase())
+                        selT.push_back(objectHandles[i]);
+                    // Here we can't use custom data, dna, etc. since it might be stripped away during the copy, dep. on the options
+                    it->setCopyString(std::to_string(objectHandles[i]).c_str());
+                }
+            }
+            // if we just wanna handle models, make sure no model has a parent that will also be copied:
+            std::vector<int> sel;
+            if (options&1)
+            {
+                for (size_t i=0;i<selT.size();i++)
+                {
+                    CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(selT[i]);
+                    bool ok=true;
+                    if (it->getParent()!=nullptr)
                     {
-                        CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromHandle(selT[j]);
-                        if (it!=it2)
+                        for (size_t j=0;j<selT.size();j++)
                         {
-                            if (it->isObjectParentedWith(it2))
+                            CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromHandle(selT[j]);
+                            if (it!=it2)
                             {
-                                ok=false;
-                                break;
+                                if (it->isObjectParentedWith(it2))
+                                {
+                                    ok=false;
+                                    break;
+                                }
                             }
                         }
                     }
+                    if (ok)
+                        sel.push_back(selT[i]);
                 }
-                if (ok)
-                    sel.push_back(selT[i]);
+            }
+            else
+                sel.assign(selT.begin(),selT.end());
+
+            if (options&1)
+                CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
+            App::worldContainer->copyBuffer->memorizeBuffer();
+            App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked(),options>>1);
+            App::currentWorld->sceneObjects->deselectObjects();
+            App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),0);
+            App::worldContainer->copyBuffer->restoreBuffer();
+            App::worldContainer->copyBuffer->clearMemorizedBuffer();
+
+            // Restore the initial selection:
+            App::currentWorld->sceneObjects->deselectObjects();
+            for (size_t i=0;i<initSel.size();i++)
+                App::currentWorld->sceneObjects->addObjectToSelection(initSel[i]);
+
+            for (int i=0;i<objectCount;i++)
+            { // now return the handles of the copies. Each input handle has a corresponding output handle:
+                CSceneObject* original=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandles[i]);
+                if (original!=nullptr)
+                {
+                    std::string str=original->getCopyString();
+                    original->setCopyString("");
+                    for (size_t j=0;j<App::currentWorld->sceneObjects->getObjectCount();j++)
+                    {
+                        CSceneObject* potentialCopy=App::currentWorld->sceneObjects->getObjectFromIndex(j);
+                        if (potentialCopy->getCopyString().compare(str)==0)
+                        {
+                            objectHandles[i]=potentialCopy->getObjectHandle();
+                            retVal++;
+                            break;
+                        }
+                    }
+                }
+                else
+                    objectHandles[i]=-1;
             }
         }
-        else
-            sel.assign(selT.begin(),selT.end());
-
-        if (options&1)
-            CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-        App::worldContainer->copyBuffer->memorizeBuffer();
-        App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked(),options>>1);
-        App::currentWorld->sceneObjects->deselectObjects();
-        if (options&1)
-            App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),3);
-        else
-            App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),1);
-        int retVal=int(App::currentWorld->sceneObjects->getSelectionCount());
-        for (int i=0;i<retVal;i++)
-            objectHandles[i]=App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(size_t(i));
-        App::worldContainer->copyBuffer->restoreBuffer();
-        App::worldContainer->copyBuffer->clearMemorizedBuffer();
-
-        // Restore the initial selection:
-        App::currentWorld->sceneObjects->deselectObjects();
-        for (size_t i=0;i<initSel.size();i++)
-            App::currentWorld->sceneObjects->addObjectToSelection(initSel[i]);
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -8724,9 +8746,9 @@ simInt simFloatingViewRemove_internal(simInt floatingViewHandle)
                 int viewIndex=page->getViewIndexFromViewUniqueID(floatingViewHandle);
                 if (viewIndex!=-1)
                 {
-                    if (viewIndex>=page->getRegularViewCount())
+                    if (size_t(viewIndex)>=page->getRegularViewCount())
                     {
-                        page->removeFloatingView(viewIndex);
+                        page->removeFloatingView(size_t(viewIndex));
                         return(1);
                     }
                     break; // We can't remove the view because it is not floating (anymore?)
@@ -8767,7 +8789,7 @@ simInt simCameraFitToView_internal(simInt viewHandleOrIndex,simInt objectCount,c
                     int index=page->getViewIndexFromViewUniqueID(viewHandleOrIndex);
                     if (index!=-1)
                     {
-                        view=page->getView(index);
+                        view=page->getView(size_t(index));
                         break;
                     }
                 }
@@ -8785,7 +8807,7 @@ simInt simCameraFitToView_internal(simInt viewHandleOrIndex,simInt objectCount,c
                     return(-1);
                 }
                 else
-                    view=page->getView(viewHandleOrIndex);
+                    view=page->getView(size_t(viewHandleOrIndex));
             }
             if (view==nullptr)
             { // silent error
@@ -8854,7 +8876,7 @@ simInt simAdjustView_internal(simInt viewHandleOrIndex,simInt associatedViewable
                 int index=page->getViewIndexFromViewUniqueID(viewHandleOrIndex);
                 if (index!=-1)
                 {
-                    view=page->getView(index);
+                    view=page->getView(size_t(index));
                     break;
                 }
             }
@@ -8872,7 +8894,7 @@ simInt simAdjustView_internal(simInt viewHandleOrIndex,simInt associatedViewable
                 return(-1);
             }
             else
-                view=page->getView(viewHandleOrIndex);
+                view=page->getView(size_t(viewHandleOrIndex));
         }
         if (view==nullptr)
         {
@@ -11789,8 +11811,8 @@ simInt simGenerateShapeFromPath_internal(const simFloat* pppath,simInt pathSize,
             {
                 C7Vector tr;
                 tr.setInternalData(&path[ec*7]);
-                int forwOff=secVertCnt;
-                for (size_t i=0;i<=secVertCnt-1;i++)
+                int forwOff=int(secVertCnt);
+                for (int i=0;i<=int(secVertCnt)-1;i++)
                 {
                     C3Vector v(section[i*2+0],0.0f,section[i*2+1]);
                     if ( closedPath&&(ec==(elementCount-1)) )
@@ -11802,7 +11824,7 @@ simInt simGenerateShapeFromPath_internal(const simFloat* pppath,simInt pathSize,
                         vertices.push_back(v(1));
                         vertices.push_back(v(2));
                     }
-                    if (i!=(secVertCnt-1))
+                    if (i!=int(secVertCnt-1))
                     {
                         indices.push_back(previousVerticesOffset+0+i);
                         indices.push_back(previousVerticesOffset+forwOff+i);
@@ -11824,7 +11846,7 @@ simInt simGenerateShapeFromPath_internal(const simFloat* pppath,simInt pathSize,
                         }
                     }
                 }
-                previousVerticesOffset+=secVertCnt;
+                previousVerticesOffset+=int(secVertCnt);
             }
             int h=simCreateMeshShape_internal(0,0.0f,&vertices[0],int(vertices.size()),&indices[0],int(indices.size()),nullptr);
             return(h);
@@ -13652,7 +13674,7 @@ simInt simComputeMassAndInertia_internal(simInt shapeHandle,simFloat density)
                 shape->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
                 shape->getMeshWrapper()->setLocalInertiaFrame(C7Vector(rot,com));
                 shape->getMeshWrapper()->setMass(mass);
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
+                App::undoRedo_sceneChanged(""); // **************** UNDO THINGY ****************
                 return(1);
             }
             return(0);
@@ -13892,7 +13914,7 @@ simInt simPushUInt8TableOntoStack_internal(simInt stackHandle,const simUChar* va
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushUCharArrayTableOntoStack(values,valueCnt);
+            stack->pushUCharArrayTableOntoStack(values,size_t(valueCnt));
             return(1);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
@@ -13915,7 +13937,7 @@ simInt simPushInt32TableOntoStack_internal(simInt stackHandle,const simInt* valu
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushInt32ArrayTableOntoStack(values,valueCnt);
+            stack->pushInt32ArrayTableOntoStack(values,size_t(valueCnt));
             return(1);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
@@ -13938,7 +13960,7 @@ simInt simPushInt64TableOntoStack_internal(simInt stackHandle,const simInt64* va
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushInt64ArrayTableOntoStack(values,valueCnt);
+            stack->pushInt64ArrayTableOntoStack(values,size_t(valueCnt));
             return(1);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
@@ -13961,7 +13983,7 @@ simInt simPushFloatTableOntoStack_internal(simInt stackHandle,const simFloat* va
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushFloatArrayTableOntoStack(values,valueCnt);
+            stack->pushFloatArrayTableOntoStack(values,size_t(valueCnt));
             return(1);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
@@ -13984,7 +14006,7 @@ simInt simPushDoubleTableOntoStack_internal(simInt stackHandle,const simDouble* 
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushDoubleArrayTableOntoStack(values,valueCnt);
+            stack->pushDoubleArrayTableOntoStack(values,size_t(valueCnt));
             return(1);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
@@ -17406,14 +17428,17 @@ simInt simCopyPasteSelectedObjects_internal()
         std::vector<int> sel;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
             sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        if (fullModelCopyFromApi)
-            CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-        App::worldContainer->copyBuffer->memorizeBuffer();
-        App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked(),0);
-        App::currentWorld->sceneObjects->deselectObjects();
-        App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),3);
-        App::worldContainer->copyBuffer->restoreBuffer();
-        App::worldContainer->copyBuffer->clearMemorizedBuffer();
+        if (sel.size()>0)
+        {
+            if (fullModelCopyFromApi)
+                CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
+            App::worldContainer->copyBuffer->memorizeBuffer();
+            App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked(),0);
+            App::currentWorld->sceneObjects->deselectObjects();
+            App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),3);
+            App::worldContainer->copyBuffer->restoreBuffer();
+            App::worldContainer->copyBuffer->clearMemorizedBuffer();
+        }
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -18896,7 +18921,7 @@ simInt simSetScriptSimulationParameter_internal(simInt scriptHandle,const simCha
                     uso=new CUserParameters();
                     s=true;
                 }
-                uso->setParameterValue(parameterName,parameterValue,parameterLength);
+                uso->setParameterValue(parameterName,parameterValue,size_t(parameterLength));
                 if (s)
                     obj->setUserScriptParameterObject(uso);
             }
@@ -20367,7 +20392,7 @@ simInt simSetUserParameter_internal(simInt objectHandle,const simChar* parameter
         if (std::string(parameterName).compare("@enable")==0)
             uso->addParameterValue("exampleParameter","string","Hello World!",strlen("Hello World!"));
         else
-            uso->setParameterValue(parameterName,parameterValue,parameterLength);
+            uso->setParameterValue(parameterName,parameterValue,size_t(parameterLength));
         if (s)
             obj->setUserScriptParameterObject(uso);
         return(0);

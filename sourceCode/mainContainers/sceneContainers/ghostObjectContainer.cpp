@@ -1,7 +1,7 @@
-
 #include "ghostObjectContainer.h"
 #include "app.h"
 #include "sceneObjectOperations.h"
+#include "simFlavor.h"
 
 CGhostObjectContainer::CGhostObjectContainer()
 {
@@ -284,7 +284,7 @@ void CGhostObjectContainer::serialize(CSer& ar)
                         ar.loadUnknownData();
                 }
             }
-            if ( (_allObjects.size()!=0)&&(App::userSettings->xrTest==123456789) )
+            if ( (_allObjects.size()!=0)&&CSimFlavor::getBoolVal(18) )
                 App::logMsg(sim_verbosity_errors,"Contains ghosts...");
         }
     }

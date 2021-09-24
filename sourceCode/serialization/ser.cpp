@@ -1104,9 +1104,9 @@ void CSer::clearIncrementCounter()
     _multiPurposeCounter=0;
 }
 
-bool CSer::xmlSaveDataInline(int bufferSize) const
+bool CSer::xmlSaveDataInline(size_t bufferSize) const
 {
-    return( (_xmlMaxInlineBufferSize>=bufferSize)||(_xmlMaxInlineBufferSize<=0) );
+    return( (_xmlMaxInlineBufferSize>=int(bufferSize))||(_xmlMaxInlineBufferSize<=0) );
 }
 
 xmlNode* CSer::_xmlCreateNode(const char* name)
@@ -1213,7 +1213,7 @@ void CSer::xmlAddNode_bools(const char* name,const std::vector<bool>& vals)
     node->InsertEndChild(txt);
 }
 
-void CSer::xmlAddNode_binFile(const char* name,const char* localFilenameSuffix,const unsigned char* buff,int buffSize)
+void CSer::xmlAddNode_binFile(const char* name,const char* localFilenameSuffix,const unsigned char* buff,size_t buffSize)
 {
     std::string fn(getFilenameBase()+"_"+localFilenameSuffix+".bin");
     xmlNode* node=_xmlCreateNode(name,fn.c_str());
@@ -1222,7 +1222,7 @@ void CSer::xmlAddNode_binFile(const char* name,const char* localFilenameSuffix,c
 
     CSer serObj((getFilenamePath()+fn).c_str(),filetype_bin_file);
     serObj.writeOpenBinaryNoHeader(false);
-    for (int i=0;i<buffSize;i++)
+    for (size_t i=0;i<buffSize;i++)
         serObj << buff[i];
     serObj.flush();
     serObj.writeClose();
@@ -1440,12 +1440,12 @@ void CSer::xmlAddNode_3int(const char* name,int val1,int val2,int val3)
     node->InsertEndChild(txt);
 }
 
-void CSer::xmlAddNode_ints(const char* name,const int* vals,int cnt)
+void CSer::xmlAddNode_ints(const char* name,const int* vals,size_t cnt)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
     std::string tmp;
-    for (int i=0;i<cnt;i++)
+    for (size_t i=0;i<cnt;i++)
     {
         if (i>0)
             tmp+=" ";
@@ -1533,12 +1533,12 @@ void CSer::xmlAddNode_4float(const char* name,float val1,float val2,float val3,f
     node->InsertEndChild(txt);
 }
 
-void CSer::xmlAddNode_floats(const char* name,const float* vals,int cnt)
+void CSer::xmlAddNode_floats(const char* name,const float* vals,size_t cnt)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
     std::string tmp;
-    for (int i=0;i<cnt;i++)
+    for (size_t i=0;i<cnt;i++)
     {
         if (i>0)
             tmp+=" ";
@@ -2202,7 +2202,7 @@ bool CSer::xmlGetNode_3int(const char* name,int& val1,int& val2,int& val3,bool r
     return(false);
 }
 
-bool CSer::xmlGetNode_ints(const char* name,int* vals,int cnt,bool required/*=true*/)
+bool CSer::xmlGetNode_ints(const char* name,int* vals,size_t cnt,bool required/*=true*/)
 {
     if (xmlDebug)
         App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_ints, name: %s",name);
@@ -2212,7 +2212,7 @@ bool CSer::xmlGetNode_ints(const char* name,int* vals,int cnt,bool required/*=tr
         std::string str(_getNodeText(node));
         std::string buff;
         std::stringstream ss(str);
-        for (int i=0;i<cnt;i++)
+        for (size_t i=0;i<cnt;i++)
         {
             if (ss >> buff)
             {
@@ -2507,7 +2507,7 @@ bool CSer::xmlGetNode_4float(const char* name,float& val1,float& val2,float& val
     return(retVal);
 }
 
-bool CSer::xmlGetNode_floats(const char* name,float* vals,int cnt,bool required/*=true*/)
+bool CSer::xmlGetNode_floats(const char* name,float* vals,size_t cnt,bool required/*=true*/)
 {
     if (xmlDebug)
         App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_floats, name: %s",name);
@@ -2517,7 +2517,7 @@ bool CSer::xmlGetNode_floats(const char* name,float* vals,int cnt,bool required/
         std::string str(_getNodeText(node));
         std::string buff;
         std::stringstream ss(str);
-        for (int i=0;i<cnt;i++)
+        for (size_t i=0;i<cnt;i++)
         {
             if (ss >> buff)
             {

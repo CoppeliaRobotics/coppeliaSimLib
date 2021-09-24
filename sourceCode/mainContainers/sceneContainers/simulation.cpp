@@ -713,7 +713,7 @@ bool CSimulation::processCommand(int commandID)
                     App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_NON_REAL_TIME_MODE);
                 App::setLightDialogRefreshFlag();
                 App::setToolbarRefreshFlag(); // will trigger a refresh
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             }
         }
         else

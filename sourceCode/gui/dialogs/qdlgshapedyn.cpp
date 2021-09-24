@@ -687,7 +687,7 @@ void CQDlgShapeDyn::on_qqTensorMatrix_clicked()
                     }
                 }
             }
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
+            App::undoRedo_sceneChanged(""); // **************** UNDO THINGY ****************
         }
         refresh();
     }

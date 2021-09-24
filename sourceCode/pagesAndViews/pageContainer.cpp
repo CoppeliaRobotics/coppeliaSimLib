@@ -352,7 +352,7 @@ bool CPageContainer::processCommand(int commandID,int viewIndex)
             {
                 it->setPageSizeAndPosition(_pageSize[0],_pageSize[1],_pagePosition[0],_pagePosition[1]);
                 _allPages[viewIndex]=it;
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             }
         }
         else

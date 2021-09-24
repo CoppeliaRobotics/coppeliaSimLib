@@ -9,6 +9,7 @@
 #include "shapeRendering.h"
 #include "tt.h"
 #include "base64.h"
+#include "simFlavor.h"
 
 int CMesh::_nextUniqueID=0;
 unsigned int CMesh::_extRendererUniqueObjectID=0;
@@ -1924,7 +1925,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                         // reserved doTheConvectivityTest=!SIM_IS_BIT_SET(nothing,5); // since version 3.0.2 (version 3.0.1 was buggy)
                         _displayInverted_DEPRECATED=SIM_IS_BIT_SET(nothing,6);
                         _hideEdgeBorders=SIM_IS_BIT_SET(nothing,7);
-                        if (App::userSettings->xrTest==123456789)
+                        if (CSimFlavor::getBoolVal(18))
                             _visibleEdges=false;
                     }
                     if (theName.compare("Toj")==0)

@@ -11,6 +11,7 @@
 #include "interfaceStackString.h"
 #include "interfaceStackTable.h"
 #include "pluginContainer.h"
+#include "simFlavor.h"
 
 #include "luaScriptFunctions.h"
 #include "luaWrapper.h"
@@ -2737,7 +2738,7 @@ void CScriptObject::serialize(CSer& ar)
                         backwardCompatibility_13_8_2014=!SIM_IS_BIT_SET(nothing,7);
                         if (_threadedExecution_oldThreads)
                         {
-                            if (App::userSettings->xrTest==123456789)
+                            if (CSimFlavor::getBoolVal(18))
                                 App::logMsg(sim_verbosity_errors,"Contains a threaded script...");
                         }
                     }
@@ -2796,7 +2797,7 @@ void CScriptObject::serialize(CSer& ar)
             _adjustScriptText14_old(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40201);
             _adjustScriptText15_old(this,ar.getCoppeliaSimVersionThatWroteThisFile()<=40300);
 
-            if (App::userSettings->xrTest==123456789)
+            if (CSimFlavor::getBoolVal(18))
                 _detectDeprecated_old(this);
 
 
@@ -3143,16 +3144,16 @@ void CScriptObject::_pushOntoInterpreterStack_lua(void* LL,CInterfaceStackObject
         CInterfaceStackTable* table=(CInterfaceStackTable*)obj;
         if (table->isTableArray())
         { // array-type table
-            for (int i=0;i<table->getArraySize();i++)
+            for (size_t i=0;i<table->getArraySize();i++)
             {
                 CInterfaceStackObject* tobj=table->getArrayItemAtIndex(i);
                 _pushOntoInterpreterStack_lua(L,tobj);
-                luaWrap_lua_rawseti(L,-2,i+1);
+                luaWrap_lua_rawseti(L,-2,int(i)+1);
             }
         }
         else
         { // map-type table
-            for (int i=0;i<table->getMapEntryCount();i++)
+            for (size_t i=0;i<table->getMapEntryCount();i++)
             {
                 std::string stringKey;
                 double numberKey;
@@ -6500,7 +6501,7 @@ void CScriptObject::_adjustScriptText13_old(CScriptObject* scriptObject,bool doI
         _replaceScriptText_old(scriptObject,"sim.getSimulationState()~=sim.simulation_advancing_abouttostop","true");
     _replaceScriptText_old(scriptObject,"sim.getObjectAssociatedWithScript(sim.handle_self)","sim.getObjectHandle(sim.handle_self)");
 
-    if ( (App::userSettings->xrTest==123456789)&&(_scriptType!=sim_scripttype_mainscript) )
+    if ( CSimFlavor::getBoolVal(18)&&(_scriptType!=sim_scripttype_mainscript) )
     {
         const char txt1[]="function sysCall_actuation()\n\
     if coroutine.status(corout)~='dead' then\n\

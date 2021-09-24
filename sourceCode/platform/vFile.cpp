@@ -174,7 +174,7 @@ bool VFile::_doesFileOrFolderExist(const char* filenameOrFoldernameAndPath,bool 
     else
     {
         QFile file(dat);
-        return(file.exists());      
+        return(file.exists());
     }
 #endif
 }
