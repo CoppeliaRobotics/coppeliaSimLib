@@ -229,6 +229,8 @@ all:
 	gcc $(CFLAGS) -c sourceCode/interfaces/interfaceStack/interfaceStackTable.cpp -o interfaceStackTable.o
 	gcc $(CFLAGS) -c sourceCode/menusAndSimilar/addOperations.cpp -o addOperations.o
 	gcc $(CFLAGS) -c sourceCode/menusAndSimilar/fileOperations.cpp -o fileOperations.o
+	gcc $(CFLAGS) -c sourceCode/menusAndSimilar/moduleMenuItemContainer.cpp -o moduleMenuItemContainer.o
+	gcc $(CFLAGS) -c sourceCode/menusAndSimilar/moduleMenuItem.cpp -o moduleMenuItem.o
 	gcc $(CFLAGS) -c sourceCode/variousFunctions/sceneObjectOperations.cpp -o sceneObjectOperations.o
 	gcc $(CFLAGS) -c sourceCode/geometricAlgorithms/linMotionRoutines.cpp -o linMotionRoutines.o
 	gcc $(CFLAGS) -c sourceCode/geometricAlgorithms/meshRoutines.cpp -o meshRoutines.o

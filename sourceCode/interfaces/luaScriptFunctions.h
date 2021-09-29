@@ -427,6 +427,7 @@ extern int _simIsDynamicallyEnabled(luaWrap_lua_State* L);
 extern int _simGenerateShapeFromPath(luaWrap_lua_State* L);
 extern int _simGetClosestPosOnPath(luaWrap_lua_State* L);
 extern int _simInitScript(luaWrap_lua_State* L);
+extern int _simModuleEntry(luaWrap_lua_State* L);
 
 // DEPRECATED
 extern int _simAddStatusbarMessage(luaWrap_lua_State* L);

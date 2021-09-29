@@ -32,10 +32,6 @@ public:
     bool shouldTemporarilySuspendMainScript();
     int callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack);
 
-#ifdef SIM_WITH_GUI
-    void addMenu(VMenu* menu);
-#endif
-
 private:
     bool _removeAddOn(int scriptID);
     int _insertAddOn(CScriptObject* script);
@@ -46,4 +42,5 @@ private:
     // OLD:
     int _prepareAddOnFunctionNames_old();
     std::vector<std::string> _allAddOnFunctionNames_old;
+    std::vector<int> _allAddOnFunctionUiHandles_old;
 };

@@ -82,17 +82,6 @@ simChar* simGetSimulatorMessage_internal(simInt* messageID,simInt* auxiliaryData
 simInt simDoesFileExist_internal(const simChar* filename);
 simInt* simGetObjectSel_internal(simInt* cnt);
 simInt simSetObjectSel_internal(const simInt* handles,simInt cnt);
-
-simInt simIsObjectInSelection_internal(simInt objectHandle);
-simInt simAddObjectToSelection_internal(simInt what,simInt objectHandle);
-simInt simRemoveObjectFromSelection_internal(simInt what,simInt objectHandle);
-simInt simGetObjectSelectionSize_internal();
-simInt simGetObjectLastSelection_internal();
-simInt simGetObjectSelection_internal(simInt* objectHandles);
-simInt simScaleSelectedObjects_internal(simFloat scalingFactor,simBool scalePositionsToo);
-simInt simDeleteSelectedObjects_internal();
-
-
 simInt simHandleProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 simInt simReadProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 simInt simHandleDynamics_internal(simFloat deltaTime);
@@ -371,6 +360,7 @@ simInt simIsDynamicallyEnabled_internal(simInt objectHandle);
 simInt simGenerateShapeFromPath_internal(const simFloat* path,simInt pathSize,const simFloat* section,simInt sectionSize,simInt options,const simFloat* upVector,simFloat reserved);
 simFloat simGetClosestPosOnPath_internal(const simFloat* path,simInt pathSize,const simFloat* pathLengths,const simFloat* absPt);
 simInt simInitScript_internal(simInt scriptHandle);
+simInt simModuleEntry_internal(simInt handle,const simChar* label,simInt state);
 
 
 simInt _simGetContactCallbackCount_internal();
@@ -656,4 +646,12 @@ simInt simDisplayDialog_internal(const simChar* titleText,const simChar* mainTex
 simInt simGetDialogResult_internal(simInt genericDialogHandle);
 simChar* simGetDialogInput_internal(simInt genericDialogHandle);
 simInt simEndDialog_internal(simInt genericDialogHandle);
+simInt simIsObjectInSelection_internal(simInt objectHandle);
+simInt simAddObjectToSelection_internal(simInt what,simInt objectHandle);
+simInt simRemoveObjectFromSelection_internal(simInt what,simInt objectHandle);
+simInt simGetObjectSelectionSize_internal();
+simInt simGetObjectLastSelection_internal();
+simInt simGetObjectSelection_internal(simInt* objectHandles);
+simInt simScaleSelectedObjects_internal(simFloat scalingFactor,simBool scalePositionsToo);
+simInt simDeleteSelectedObjects_internal();
 #endif // !defined(simInternal_INCLUDED_)

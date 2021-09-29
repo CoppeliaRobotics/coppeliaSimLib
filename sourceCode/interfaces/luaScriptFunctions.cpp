@@ -418,6 +418,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.generateShapeFromPath",_simGenerateShapeFromPath,      "int shapeHandle=sim.generateShapeFromPath(table[] path,table[] section,int options=0,table[3] upVector={0.0,0.0,1.0})",true},
     {"sim.getClosestPosOnPath",_simGetClosestPosOnPath,          "float posAlongPath=sim.getClosestPosOnPath(table[] path,table[] pathLengths,table[3] absPt)",true},
     {"sim.initScript",_simInitScript,                            "bool result=sim.initScript(int scriptHandle)",true},
+    {"sim.moduleEntry",_simModuleEntry,                          "int handle=sim.moduleEntry(int handle,string label=nil,int state=-1)",true},
 
     {"sim.test",_simTest,                                        "test function - shouldn't be used",true},
 
@@ -676,6 +677,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.syscb_aftercreate",sim_syscb_aftercreate,true},
     {"sim.syscb_threadmain",sim_syscb_threadmain,true},
     {"sim.syscb_userconfig",sim_syscb_userconfig,true},
+    {"sim.syscb_moduleentry",sim_syscb_moduleentry,true},
     // script attributes:
     {"sim.scriptattribute_executionorder",sim_scriptattribute_executionorder,true},
     {"sim.scriptattribute_executioncount",sim_scriptattribute_executioncount,true},
@@ -10651,6 +10653,46 @@ int _simInitScript(luaWrap_lua_State* L)
         {
             luaWrap_lua_pushboolean(L,r==1);
             LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simModuleEntry(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.moduleEntry");
+
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0))
+    {
+        int itemHandle=luaWrap_lua_tointeger(L,1);
+        const char* label=nullptr;
+        std::string _label;
+        int state=-1;
+        int res=checkOneGeneralInputArgument(L,2,lua_arg_string,0,false,true,&errorString);
+        if (res>=1)
+        {
+            if (res==2)
+            {
+                _label=luaWrap_lua_tostring(L,2);
+                label=_label.c_str();
+            }
+            res=checkOneGeneralInputArgument(L,3,lua_arg_integer,0,true,true,&errorString);
+            if (res>=0)
+            {
+                if (res==2)
+                    state=luaWrap_lua_tointeger(L,3);
+                setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                int h=simModuleEntry_internal(itemHandle,label,state);
+                setCurrentScriptInfo_cSide(-1,-1);
+                if (h>=0)
+                {
+                    luaWrap_lua_pushinteger(L,h);
+                    LUA_END(1);
+                }
+            }
         }
     }
 

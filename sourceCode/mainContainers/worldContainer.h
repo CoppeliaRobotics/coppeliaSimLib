@@ -7,6 +7,7 @@
 #include "interfaceStackContainer.h"
 #include "simulatorMessageQueue.h"
 #include "calculationInfo.h"
+#include "moduleMenuItemContainer.h"
 #include "world.h"
 #include "_worldContainer_.h"
 
@@ -59,6 +60,7 @@ public:
     CCustomData* customAppData;
     CAddOnScriptContainer* addOnScriptContainer;
     CScriptObject* sandboxScript;
+    CModuleMenuItemContainer* moduleMenuItemContainer;
 #ifdef SIM_WITH_GUI
     CGlobalGuiTextureContainer* globalGuiTextureCont;
 #endif

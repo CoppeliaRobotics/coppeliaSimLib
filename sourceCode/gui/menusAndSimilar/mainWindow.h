@@ -14,7 +14,6 @@
 #include "qsim_openglwidget.h"
 #include "global.h"
 #include "dlgCont.h"
-#include "moduleMenuItemContainer.h"
 #include "simRecorder.h"
 #include "VPoint.h"
 #include "oglSurface.h"
@@ -123,7 +122,6 @@ public:
     QTabBar* tabBar;
 
     CDlgCont* dlgCont;
-    CModuleMenuItemContainer* moduleMenuItemContainer;
     CSimRecorder* simulationRecorder;
     COglSurface* oglSurface;
     CEditModeContainer* editModeContainer;

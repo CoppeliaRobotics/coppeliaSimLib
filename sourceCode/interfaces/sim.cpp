@@ -1387,6 +1387,10 @@ SIM_DLLEXPORT simInt simInitScript(simInt scriptHandle)
 {
     return(simInitScript_internal(scriptHandle));
 }
+SIM_DLLEXPORT simInt simModuleEntry(simInt handle,const simChar* label,simInt state)
+{
+    return(simModuleEntry_internal(handle,label,state));
+}
 SIM_DLLEXPORT simInt _simGetContactCallbackCount()
 {
     return(_simGetContactCallbackCount_internal());

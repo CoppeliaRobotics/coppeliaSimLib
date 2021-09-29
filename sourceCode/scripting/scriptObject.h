@@ -79,7 +79,6 @@ public:
     int systemCallScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool addOnManuallyStarted=false);
     int callCustomScriptFunction(const char* functionName,CInterfaceStack* inOutStack);
     bool shouldTemporarilySuspendMainScript();
-    bool isAutoStartAddOn();
 
     int executeScriptString(const char* scriptString,CInterfaceStack* outStack);
 
@@ -142,6 +141,8 @@ public:
 
     void registerPluginFunctions();
     bool registerPluginVariables(bool onlyRequireStatements);
+
+    int getAddOnUiMenuHandle() const;
 
     void printInterpreterStack() const;
 
@@ -213,6 +214,7 @@ protected:
     int _callScriptFunction(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg);
     int _callScriptFunc(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg);
     bool _execScriptString(const char* scriptString,CInterfaceStack* outStack);
+    void _handleInfoCallback();
 
 
     int _scriptHandle;
@@ -226,6 +228,7 @@ protected:
     int _treeTraversalDirection;
     int _objectHandleAttachedTo;
     int _autoStartAddOn;
+    int _addOnUiMenuHandle;
 
     bool _calledInThisSimulationStep;
 

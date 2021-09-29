@@ -160,7 +160,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if ( (cmd.cmdId>SCENE_OBJECT_OPERATION_START_SOOCMD)&&(cmd.cmdId<SCENE_OBJECT_OPERATION_END_SOOCMD) )
             CSceneObjectOperations::processCommand(cmd.cmdId);
 
-        if ( (cmd.cmdId>SCRIPT_CONT_COMMANDS_START_SCCMD)&&(cmd.cmdId<SCRIPT_CONT_COMMANDS_END_SCCMD) )
+        if ( (cmd.cmdId>=UI_MODULE_MENU_CMDS_START)&&(cmd.cmdId<=UI_MODULE_MENU_CMDS_END) )
             App::worldContainer->addOnScriptContainer->processCommand(cmd.cmdId);
 
         if ( (cmd.cmdId>PAGE_CONT_FUNCTIONS_START_PCCMD)&&(cmd.cmdId<PAGE_CONT_FUNCTIONS_END_PCCMD) )
@@ -276,6 +276,21 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 p->swapViews(size_t(cmd.intParams[1]),size_t(cmd.intParams[2]),cmd.boolParams[0]);
                 App::undoRedo_sceneChanged(""); // **************** UNDO THINGY ****************
+            }
+        }
+
+        if (cmd.cmdId==CALL_MODULE_ENTRY_CMD)
+        {
+            CScriptObject* script=App::worldContainer->getScriptFromHandle(cmd.intParams[0]);
+            if (script!=nullptr)
+            {
+                CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
+                inStack->pushTableOntoStack();
+                inStack->pushStringOntoStack("handle",0);
+                inStack->pushInt32OntoStack(cmd.intParams[1]);
+                inStack->insertDataIntoStackTable();
+                script->systemCallScript(sim_syscb_moduleentry,inStack,nullptr);
+                App::worldContainer->interfaceStackContainer->destroyStack(inStack);
             }
         }
 

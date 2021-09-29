@@ -1075,6 +1075,7 @@ simInt simRunSimulator_internal(const simChar* applicationName,simInt options,si
     }
 #endif
 
+
     App::run(initCallBack,loopCallBack,deinitCallBack,launchSimThread); // We stay in here until we quit the application!
     App::logMsg(sim_verbosity_loadinfos,"4");
 #ifdef SIM_WITH_GUI
@@ -11759,6 +11760,43 @@ simInt simInitScript_internal(simInt scriptHandle)
     return(-1);
 }
 
+simInt simModuleEntry_internal(simInt handle,const simChar* label,simInt state)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        bool first=false;
+        if (handle==-1)
+        {
+            first=true;
+            handle=App::worldContainer->moduleMenuItemContainer->addMenuItem(label,_currentScriptHandle);
+        }
+        CModuleMenuItem* item=App::worldContainer->moduleMenuItemContainer->getItemFromHandle(handle);
+        if (item!=nullptr)
+        {
+            if (state==-2)
+                App::worldContainer->moduleMenuItemContainer->removeMenuItem(handle);
+            else
+            {
+                if ( (!first)&&(label!=nullptr) )
+                    item->setLabel(label);
+                if (state!=-1)
+                    item->setState(state);
+            }
+            return(handle);
+        }
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
+        return(-1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+
 simInt simGroupShapes_internal(const simInt* shapeHandles,simInt shapeCount)
 {
     TRACE_C_API;
@@ -20963,21 +21001,16 @@ simInt simAddModuleMenuEntry_internal(const simChar* entryLabel,simInt itemCount
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-#ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-        {
-            std::vector<int> commandIDs;
-            if (App::mainWindow->moduleMenuItemContainer->addMenuBarItem(entryLabel,itemCount,commandIDs))
-            {
-                for (unsigned int i=0;i<commandIDs.size();i++)
-                    itemHandles[i]=commandIDs[i];
-                App::mainWindow->createDefaultMenuBar();
-                return(1);
-            }
-        }
+        if (itemCount==1)
+            itemHandles[0]=App::worldContainer->moduleMenuItemContainer->addMenuItem(entryLabel,-1);
         else
-#endif
-            return(1); // in headless mode we fake success
+        {
+            std::string s(entryLabel);
+            s+="//";
+            for (int i=0;i<itemCount;i++)
+                itemHandles[i]=App::worldContainer->moduleMenuItemContainer->addMenuItem(s.c_str(),-1);
+        }
+        return(1);
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OPERATION_FAILED);
         return(-1);
     }
@@ -20994,15 +21027,15 @@ simInt simSetModuleMenuItemState_internal(simInt itemHandle,simInt state,const s
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-#ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
+        CModuleMenuItem* it=App::worldContainer->moduleMenuItemContainer->getItemFromHandle(itemHandle);
+        if (it!=nullptr)
         {
-            if (App::mainWindow->moduleMenuItemContainer->setItemState(itemHandle,(state&2)!=0,(state&1)!=0,label))
-                return(1);
+            if (state!=-1)
+                it->setState(state);
+            if (label!=nullptr)
+                it->setLabel(label);
+            return(1);
         }
-        else
-#endif
-            return(1); // in headless mode we fake success
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ITEM_HANDLE);
         return(-1);
     }

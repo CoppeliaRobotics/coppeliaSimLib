@@ -515,6 +515,8 @@ HEADERS += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.h \
 
 HEADERS += $$PWD/sourceCode/menusAndSimilar/fileOperations.h \
     $$PWD/sourceCode/menusAndSimilar/addOperations.h \
+    $$PWD/sourceCode/menusAndSimilar/moduleMenuItemContainer.h \
+    $$PWD/sourceCode/menusAndSimilar/moduleMenuItem.h \
 
 HEADERS += $$PWD/sourceCode/variousFunctions/sceneObjectOperations.h \
 
@@ -746,8 +748,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/selectors/pageSelector.h \
 
     HEADERS += $$PWD/sourceCode/gui/menusAndSimilar/toolBarCommand.h \
-        $$PWD/sourceCode/gui/menusAndSimilar/moduleMenuItemContainer.h \
-        $$PWD/sourceCode/gui/menusAndSimilar/moduleMenuItem.h \
         $$PWD/sourceCode/gui/menusAndSimilar/mainWindow.h \
         $$PWD/sourceCode/gui/menusAndSimilar/statusBar.h \
         $$PWD/sourceCode/gui/menusAndSimilar/helpMenu.h \
@@ -941,6 +941,8 @@ SOURCES += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.cpp \
 
 SOURCES += $$PWD/sourceCode/menusAndSimilar/addOperations.cpp \
     $$PWD/sourceCode/menusAndSimilar/fileOperations.cpp \
+    $$PWD/sourceCode/menusAndSimilar/moduleMenuItemContainer.cpp \
+    $$PWD/sourceCode/menusAndSimilar/moduleMenuItem.cpp \
 
 SOURCES += $$PWD/sourceCode/variousFunctions/sceneObjectOperations.cpp \
 
@@ -1169,8 +1171,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/selectors/viewSelector.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/menusAndSimilar/toolBarCommand.cpp \
-        $$PWD/sourceCode/gui/menusAndSimilar/moduleMenuItemContainer.cpp \
-        $$PWD/sourceCode/gui/menusAndSimilar/moduleMenuItem.cpp \
         $$PWD/sourceCode/gui/menusAndSimilar/mainWindow.cpp \
         $$PWD/sourceCode/gui/menusAndSimilar/statusBar.cpp \
         $$PWD/sourceCode/gui/menusAndSimilar/helpMenu.cpp \

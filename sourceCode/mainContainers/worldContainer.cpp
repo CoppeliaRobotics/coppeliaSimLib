@@ -16,6 +16,7 @@ CWorldContainer::CWorldContainer()
     simulatorMessageQueue=nullptr;
     calcInfo=nullptr;
     customAppData=nullptr;
+    moduleMenuItemContainer=nullptr;
 #ifdef SIM_WITH_GUI
     globalGuiTextureCont=nullptr;
 #endif
@@ -248,6 +249,7 @@ void CWorldContainer::initialize()
 
     simulatorMessageQueue=new CSimulatorMessageQueue();
     copyBuffer=new CCopyBuffer();
+    moduleMenuItemContainer=new CModuleMenuItemContainer();
 #ifdef SIM_WITH_GUI
     globalGuiTextureCont=new CGlobalGuiTextureContainer();
 #endif
@@ -281,6 +283,7 @@ void CWorldContainer::deinitialize()
 #ifdef SIM_WITH_GUI
     delete globalGuiTextureCont;
 #endif
+    delete moduleMenuItemContainer;
     delete copyBuffer;
 #ifdef SIM_WITH_SERIAL
     delete serialPortContainer;
@@ -522,6 +525,7 @@ void CWorldContainer::announceScriptStateWillBeErased(int scriptHandle,bool simu
     void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptstatedestroyed,pluginData,nullptr,nullptr);
     delete[] (char*)pluginReturnVal;
 
+    moduleMenuItemContainer->announceScriptStateWillBeErased(scriptHandle);
     currentWorld->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
 }
 

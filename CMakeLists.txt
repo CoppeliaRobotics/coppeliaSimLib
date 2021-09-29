@@ -414,8 +414,6 @@ if(WITH_GUI)
         sourceCode/gui/selectors/viewSelector.cpp
 
         sourceCode/gui/menusAndSimilar/toolBarCommand.cpp
-        sourceCode/gui/menusAndSimilar/moduleMenuItemContainer.cpp
-        sourceCode/gui/menusAndSimilar/moduleMenuItem.cpp
         sourceCode/gui/menusAndSimilar/mainWindow.cpp
         sourceCode/gui/menusAndSimilar/statusBar.cpp
         sourceCode/gui/menusAndSimilar/helpMenu.cpp
@@ -611,6 +609,8 @@ target_sources(coppeliaSim PRIVATE
 
     sourceCode/menusAndSimilar/addOperations.cpp
     sourceCode/menusAndSimilar/fileOperations.cpp
+    sourceCode/menusAndSimilar/moduleMenuItemContainer.cpp
+    sourceCode/menusAndSimilar/moduleMenuItem.cpp
 
     sourceCode/variousFunctions/sceneObjectOperations.cpp
 

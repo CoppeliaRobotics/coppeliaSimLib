@@ -154,16 +154,6 @@ int CAddOnScriptContainer::_insertAddOns()
                 CScriptObject* defScript=new CScriptObject(sim_scripttype_addonscript);
                 _insertAddOn(defScript);
                 std::string sc(script);
-                size_t p=0;
-                while (true)
-                { // unelegant, but simply disable the sysCall_info, so that the script automatically loads (since explicitely specified in the command line)
-                    p=sc.find("sysCall_info",p);
-                    if (p==std::string::npos)
-                        break;
-                    sc.replace(p,strlen("sysCall_info"),"_sysCall_info_");
-                    p+=strlen("sysCall_info");
-                }
-
                 defScript->setScriptText(sc.c_str());
 
                 defScript->setAddOnName(fileName_noExtension.c_str());
@@ -172,6 +162,7 @@ int CAddOnScriptContainer::_insertAddOns()
                 delete[] script;
                 archive.close();
                 file.close();
+
                 addOnsCount++;
                 App::logMsg(sim_verbosity_infos,"add-on '%s' was loaded.",fileName_withExtension.c_str());
             }
@@ -196,24 +187,20 @@ int CAddOnScriptContainer::_prepareAddOnFunctionNames_old()
     SFileOrFolder* foundItem=finder.getFoundItem(cnt);
     while (foundItem!=nullptr)
     {
+        std::string pref;
         if (foundItem->name.find(ADDON_FUNCTION_PREFIX1)==0)
+            pref=ADDON_FUNCTION_PREFIX1;
+        if (foundItem->name.find(ADDON_FUNCTION_PREFIX2)==0)
+            pref=ADDON_FUNCTION_PREFIX2;
+        if (pref.size()>0)
         {
             std::string nm(foundItem->name);
-            nm.erase(nm.begin(),nm.begin()+strlen(ADDON_FUNCTION_PREFIX1));
+            nm.erase(nm.begin(),nm.begin()+pref.size());
             nm.erase(nm.end()-strlen(ADDON_EXTENTION)-1,nm.end());
             _allAddOnFunctionNames_old.push_back(nm);
+            nm="Old add-on functions//"+nm;
+            _allAddOnFunctionUiHandles_old.push_back(App::worldContainer->moduleMenuItemContainer->addMenuItem(nm.c_str(),-1));
             addOnsCount++;
-        }
-        else
-        {
-            if (foundItem->name.find(ADDON_FUNCTION_PREFIX2)==0)
-            {
-                std::string nm(foundItem->name);
-                nm.erase(nm.begin(),nm.begin()+strlen(ADDON_FUNCTION_PREFIX2));
-                nm.erase(nm.end()-strlen(ADDON_EXTENTION)-1,nm.end());
-                _allAddOnFunctionNames_old.push_back(nm);
-                addOnsCount++;
-            }
         }
         cnt++;
         foundItem=finder.getFoundItem(cnt);
@@ -275,22 +262,17 @@ void CAddOnScriptContainer::removeAllAddOns()
 
 bool CAddOnScriptContainer::processCommand(int commandID)
 { // Return value is true if the command belonged to hierarchy menu and was executed
-    if ( (commandID>=SCRIPT_CONT_COMMANDS_ADDON_SCRIPT_MENU_ITEM_START_SCCMD)&&(commandID<=SCRIPT_CONT_COMMANDS_ADDON_SCRIPT_MENU_ITEM_END_SCCMD) )
+    if ( (commandID>=UI_MODULE_MENU_CMDS_START)&&(commandID<=UI_MODULE_MENU_CMDS_END) )
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            int index=commandID-SCRIPT_CONT_COMMANDS_ADDON_SCRIPT_MENU_ITEM_START_SCCMD;
-            int cnt=0;
             CScriptObject* it=nullptr;
             for (size_t i=0;i<_addOns.size();i++)
             {
-                it=_addOns[i];
-                if (it->getScriptType()==sim_scripttype_addonscript)
+                if (_addOns[i]->getAddOnUiMenuHandle()==commandID)
                 {
-                    if (index==cnt)
-                        break;
-                    it=nullptr;
-                    cnt++;
+                    it=_addOns[i];
+                    break;
                 }
             }
             if (it!=nullptr)
@@ -308,6 +290,67 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                     sysCall=sim_syscb_aos_suspend;
                 if (sysCall!=-1)
                     it->systemCallScript(sysCall,nullptr,nullptr,true);
+                return(true);
+            }
+            else
+            { // OLD add-on functions:
+                int index=-1;
+                for (size_t i=0;i<_allAddOnFunctionUiHandles_old.size();i++)
+                {
+                    if (_allAddOnFunctionUiHandles_old[i]==commandID)
+                    {
+                        index=i;
+                        break;
+                    }
+                }
+                if (index!=-1)
+                {   // execute the add-on function here!!
+                    std::string fp1(App::folders->getExecutablePath()+"/");
+                    fp1+=ADDON_FUNCTION_PREFIX1;
+                    fp1+=_allAddOnFunctionNames_old[index];
+                    fp1+=".";
+                    fp1+=ADDON_EXTENTION;
+                    std::string fp2(App::folders->getExecutablePath()+"/");
+                    fp2+=ADDON_FUNCTION_PREFIX2;
+                    fp2+=_allAddOnFunctionNames_old[index];
+                    fp2+=".";
+                    fp2+=ADDON_EXTENTION;
+                    std::string fp;
+                    if (VFile::doesFileExist(fp1.c_str()))
+                        fp=fp1;
+                    else
+                    {
+                        if (VFile::doesFileExist(fp2.c_str()))
+                            fp=fp2;
+                    }
+                    if (fp.size()>0)
+                    {
+                        try
+                        {
+                            VFile file(fp.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
+                            VArchive archive(&file,VArchive::LOAD);
+                            unsigned int archiveLength=(unsigned int)file.getLength();
+                            char* script=new char[archiveLength+1];
+                            for (int i=0;i<int(archiveLength);i++)
+                                archive >> script[i];
+                            script[archiveLength]=0;
+                            CScriptObject* defScript=new CScriptObject(sim_scripttype_addonfunction);
+                            int scriptID=_insertAddOn(defScript);
+                            defScript->setScriptText(script);
+                            defScript->setAddOnName(_allAddOnFunctionNames_old[index].c_str());
+                            defScript->setThreadedExecution_oldThreads(false);
+                            defScript->systemCallScript(sim_syscb_init,nullptr,nullptr);
+                            delete[] script;
+                            archive.close();
+                            file.close();
+                            _removeAddOn(scriptID);
+                        }
+                        catch(VFILE_EXCEPTION_TYPE e)
+                        {
+                        }
+                    }
+                    return(true);
+                }
             }
         }
         else
@@ -316,114 +359,6 @@ bool CAddOnScriptContainer::processCommand(int commandID)
             cmd.cmdId=commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
     }
-
-// OLD (add-on functions):
-    if ( (commandID>=SCRIPT_CONT_COMMANDS_ADDON_FUNCTION_MENU_ITEM_START_SCCMD)&&(commandID<=SCRIPT_CONT_COMMANDS_ADDON_FUNCTION_MENU_ITEM_END_SCCMD) )
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            int index=commandID-SCRIPT_CONT_COMMANDS_ADDON_FUNCTION_MENU_ITEM_START_SCCMD;
-            if (index<int(_allAddOnFunctionNames_old.size()))
-            {
-//                std::string txt("Starting add-on function");
-//                txt+=" ";
-//                txt+=_allAddOnFunctionNames_old[index];
-//                App::logMsg(sim_verbosity_msgs,txt.c_str());
-
-                // execute the add-on function here!!
-                std::string fp1(App::folders->getExecutablePath()+"/");
-                fp1+=ADDON_FUNCTION_PREFIX1;
-                fp1+=_allAddOnFunctionNames_old[index];
-                fp1+=".";
-                fp1+=ADDON_EXTENTION;
-                std::string fp2(App::folders->getExecutablePath()+"/");
-                fp2+=ADDON_FUNCTION_PREFIX2;
-                fp2+=_allAddOnFunctionNames_old[index];
-                fp2+=".";
-                fp2+=ADDON_EXTENTION;
-                std::string fp;
-                if (VFile::doesFileExist(fp1.c_str()))
-                    fp=fp1;
-                else
-                {
-                    if (VFile::doesFileExist(fp2.c_str()))
-                        fp=fp2;
-                }
-                if (fp.size()>0)
-                {
-                    try
-                    {
-                        VFile file(fp.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
-                        VArchive archive(&file,VArchive::LOAD);
-                        unsigned int archiveLength=(unsigned int)file.getLength();
-                        char* script=new char[archiveLength+1];
-                        for (int i=0;i<int(archiveLength);i++)
-                            archive >> script[i];
-                        script[archiveLength]=0;
-                        CScriptObject* defScript=new CScriptObject(sim_scripttype_addonfunction);
-                        int scriptID=_insertAddOn(defScript);
-                        defScript->setScriptText(script);
-                        defScript->setAddOnName(_allAddOnFunctionNames_old[index].c_str());
-                        defScript->setThreadedExecution_oldThreads(false);
-                        defScript->systemCallScript(sim_syscb_init,nullptr,nullptr);
-                        delete[] script;
-                        archive.close();
-                        file.close();
-
-                        _removeAddOn(scriptID);
-                    }
-                    catch(VFILE_EXCEPTION_TYPE e)
-                    {
-    //                  printf("CoppeliaSim error: failed loading add-on script '%s'.\n",foundItem->name.c_str());
-    //                  VFile::reportAndHandleFileExceptionError(e);
-                    }
-                }
-               // App::logMsg(sim_verbosity_msgs,"Ended add-on function");
-            }
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-
     return(false);
 }
-
-#ifdef SIM_WITH_GUI
-void CAddOnScriptContainer::addMenu(VMenu* menu)
-{
-    int id=SCRIPT_CONT_COMMANDS_ADDON_SCRIPT_MENU_ITEM_START_SCCMD;
-    for (size_t i=0;i<_addOns.size();i++)
-    {
-        CScriptObject* it=_addOns[i];
-        if (it->getScriptType()==sim_scripttype_addonscript)
-        {
-            int st=it->getScriptState();
-            std::string txt;
-            txt=it->getAddOnName();
-            if (st==CScriptObject::scriptState_initialized)
-                txt+=" (running)";
-            if ((st&CScriptObject::scriptState_error)!=0)
-                txt+=" (error)";
-            if ((st&CScriptObject::scriptState_suspended)!=0)
-                txt+=" (suspended)";
-            menu->appendMenuItem(true,false,id,txt.c_str());
-            id++;
-        }
-    }
-
-    // OLD (add-on functions):
-    id=SCRIPT_CONT_COMMANDS_ADDON_FUNCTION_MENU_ITEM_START_SCCMD;
-    for (size_t i=0;i<_allAddOnFunctionNames_old.size();i++)
-    {
-        menu->appendMenuItem(true,false,id,_allAddOnFunctionNames_old[i].c_str());
-        id++;
-    }
-}
-#endif

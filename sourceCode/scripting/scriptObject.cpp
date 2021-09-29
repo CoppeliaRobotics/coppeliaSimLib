@@ -31,6 +31,7 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
     _scriptTextExec="";
     _numberOfPasses=0;
     _lang=lang_undefined;
+    _addOnUiMenuHandle=-1;
 
     // Old
     // ***********************************************************
@@ -403,6 +404,13 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
             r+="()\nCalled when the user double-clicks a user parameter icon.";
         return(r);
     }
+    if (calltype==sim_syscb_moduleentry)
+    {
+        std::string r("sysCall_moduleEntry");
+        if (callTips)
+            r+="(inData)\nCalled when the user selects a module menu entry.";
+        return(r);
+    }
     if (calltype==sim_syscb_trigger)
     {
         std::string r("sysCall_trigger");
@@ -721,6 +729,8 @@ bool CScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int ca
             return(true);
         if (callType==sim_syscb_aftercreate)
             return(true);
+        if (callType==sim_syscb_moduleentry)
+            return(true);
     }
     if ( (scriptType==sim_scripttype_sandboxscript)||(scriptType==sim_scripttype_addonscript)||(scriptType==sim_scripttype_customizationscript) )
     {
@@ -802,6 +812,7 @@ std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptTy
                  sim_syscb_customcallback4,
                  sim_syscb_threadmain, // for backward compatibility
                  sim_syscb_userconfig,
+                 sim_syscb_moduleentry,
                  -1
             };
 
@@ -895,6 +906,11 @@ void CScriptObject::setPreviousEditionWindowPosAndSize(const int posAndSize[4])
 std::string CScriptObject::getAddOnName() const
 {
     return(_addOnName);
+}
+
+int CScriptObject::getAddOnUiMenuHandle() const
+{
+    return(_addOnUiMenuHandle);
 }
 
 int CScriptObject::getScriptState() const
@@ -1323,11 +1339,9 @@ int CScriptObject::systemCallScript(int callType,const CInterfaceStack* inStack,
 
     if ( (_scriptType==sim_scripttype_addonscript)&&(_scriptState==scriptState_unloaded)&&(callType!=sim_syscb_info) )
     {
-        if (!addOnManuallyStarted)
-        {
-            if (!isAutoStartAddOn())
-                return(0);
-        }
+        _handleInfoCallback();
+        if ( (!addOnManuallyStarted)&&(_autoStartAddOn!=1) )
+            return(0);
     }
 
     int retVal=0;
@@ -1376,6 +1390,23 @@ int CScriptObject::systemCallScript(int callType,const CInterfaceStack* inStack,
             }
         }
     }
+
+    if (_addOnUiMenuHandle!=-1)
+    {
+        CModuleMenuItem* m=App::worldContainer->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle);
+        if (m!=nullptr)
+        {
+            std::string txt(_addOnName);
+            if (_scriptState==CScriptObject::scriptState_initialized)
+                txt+=" (running)";
+            if ((_scriptState&CScriptObject::scriptState_error)!=0)
+                txt+=" (error)";
+            if ((_scriptState&CScriptObject::scriptState_suspended)!=0)
+                txt+=" (suspended)";
+            m->setLabel(txt.c_str());
+        }
+    }
+
     return(retVal);
 }
 
@@ -1396,22 +1427,33 @@ bool CScriptObject::shouldTemporarilySuspendMainScript()
     return(retVal);
 }
 
-bool CScriptObject::isAutoStartAddOn()
+void CScriptObject::_handleInfoCallback()
 {
     if (_autoStartAddOn==-1)
-    {
+    { // do this only once!
         CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
         systemCallScript(sim_syscb_info,nullptr,outStack);
         resetScript();
-        bool autoStart=true;
-        outStack->getStackMapBoolValue("autoStart",autoStart);
-        App::worldContainer->interfaceStackContainer->destroyStack(outStack);
-        if (autoStart)
+        bool boolVal=true;
+        outStack->getStackMapBoolValue("autoStart",boolVal);
+        if (boolVal)
             _autoStartAddOn=1;
         else
             _autoStartAddOn=0;
+        std::string menuEntry(_addOnName);
+        outStack->getStackMapStringValue("menu",menuEntry);
+        if (menuEntry.size()>0)
+        { // might contain also path info, e.g. "Exporters//URDF exporter"
+            _addOnUiMenuHandle=App::worldContainer->moduleMenuItemContainer->addMenuItem(menuEntry.c_str(),-1);
+            _addOnName=App::worldContainer->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle)->getLabel();
+        }
+        boolVal=true;
+        outStack->getStackMapBoolValue("menuEnabled",boolVal);
+        if ( (_addOnUiMenuHandle!=-1)&&(!boolVal) )
+            App::worldContainer->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle)->setState(0);
+
+        App::worldContainer->interfaceStackContainer->destroyStack(outStack);
     }
-    return(_autoStartAddOn==1);
 }
 
 int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool* functionsFound,std::string* errorMsg)
