@@ -253,7 +253,7 @@ CUserSettings::CUserSettings()
     noCustomUisWhenMouseDownInCameraView=true;
     hierarchyRefreshCnt=3;
 
-    _setIntVector3(threadedChildScriptColor_background,180,190,190);
+    _setIntVector3(threadedChildScriptColor_background,210,220,220);
     _setIntVector3(threadedChildScriptColor_selection,128,128,255);
     _setIntVector3(threadedChildScriptColor_comment,0,140,0);
     _setIntVector3(threadedChildScriptColor_number,220,0,220);
@@ -267,7 +267,7 @@ CUserSettings::CUserSettings()
     _setIntVector3(threadedChildScriptColor_word3,220,80,20);
     _setIntVector3(threadedChildScriptColor_word4,152,64,0);
 
-    _setIntVector3(nonThreadedChildScriptColor_background,190,190,190);
+    _setIntVector3(nonThreadedChildScriptColor_background,205,205,205);
     _setIntVector3(nonThreadedChildScriptColor_selection,128,128,255);
     _setIntVector3(nonThreadedChildScriptColor_comment,0,140,0);
     _setIntVector3(nonThreadedChildScriptColor_number,220,0,220);
@@ -281,7 +281,7 @@ CUserSettings::CUserSettings()
     _setIntVector3(nonThreadedChildScriptColor_word3,220,80,20);
     _setIntVector3(nonThreadedChildScriptColor_word4,152,64,0);
 
-    _setIntVector3(mainScriptColor_background,190,175,175);
+    _setIntVector3(mainScriptColor_background,205,195,195);
     _setIntVector3(mainScriptColor_selection,128,128,255);
     _setIntVector3(mainScriptColor_comment,0,140,0);
     _setIntVector3(mainScriptColor_number,220,0,220);
@@ -295,12 +295,12 @@ CUserSettings::CUserSettings()
     _setIntVector3(mainScriptColor_word3,220,80,20);
     _setIntVector3(mainScriptColor_word4,152,64,0);
 
-    _setIntVector3(customizationScriptColor_background,150,150,150);
+    _setIntVector3(customizationScriptColor_background,180,180,180);
     _setIntVector3(customizationScriptColor_selection,128,128,255);
     _setIntVector3(customizationScriptColor_comment,0,120,0);
     _setIntVector3(customizationScriptColor_number,220,0,220);
-    _setIntVector3(customizationScriptColor_string,205,205,0);
-    _setIntVector3(customizationScriptColor_character,205,205,0);
+    _setIntVector3(customizationScriptColor_string,255,255,0);
+    _setIntVector3(customizationScriptColor_character,255,255,0);
     _setIntVector3(customizationScriptColor_operator,0,0,0);
     _setIntVector3(customizationScriptColor_preprocessor,0,128,128);
     _setIntVector3(customizationScriptColor_identifier,70,70,70);

@@ -200,6 +200,7 @@ extern int _simGetObjectUniqueIdentifier(luaWrap_lua_State* L);
 extern int _simSetThreadAutomaticSwitch(luaWrap_lua_State* L);
 extern int _simGetThreadAutomaticSwitch(luaWrap_lua_State* L);
 extern int _simSetThreadSwitchTiming(luaWrap_lua_State* L);
+extern int _simGetThreadSwitchTiming(luaWrap_lua_State* L);
 extern int _simGetThreadSwitchAllowed(luaWrap_lua_State* L);
 extern int _simSetThreadSwitchAllowed(luaWrap_lua_State* L);
 extern int _simSaveImage(luaWrap_lua_State* L);

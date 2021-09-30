@@ -164,6 +164,11 @@ bool CScriptObject::canManualYield() const
     return(_forbidOverallYieldingLevel==0);
 }
 
+int CScriptObject::getDelayForAutoYielding() const
+{
+    return(_delayForAutoYielding);
+}
+
 void CScriptObject::setDelayForAutoYielding(int d)
 {
     if (d<0)
@@ -1853,7 +1858,24 @@ int CScriptObject::_callScriptFunc(const char* functionName,const CInterfaceStac
         int outStackHandle=-1;
         if (outStack!=nullptr)
             outStackHandle=outStack->getId();
-        retVal=CPluginContainer::pythonPlugin_callFunc(_interpreterState,functionName,inStackHandle,outStackHandle,errorMsg);
+        CScriptObject* pythonZmqServer=App::worldContainer->addOnScriptContainer->getAddOnFromName("Python ZMQ server");
+        if ( (pythonZmqServer!=nullptr)&&(pythonZmqServer->getScriptState()==scriptState_initialized) )
+        {
+            retVal=CPluginContainer::pythonPlugin_callFunc(_interpreterState,functionName,inStackHandle,outStackHandle,errorMsg);
+            int res=pythonZmqServer->callCustomScriptFunction("pythonZmqServer.run",nullptr);
+            retVal=res;
+            if (res>=0)
+            {
+                if (errorMsg!=nullptr)
+                    errorMsg[0]="failed calling Python ZMQ server add-on.";
+            }
+        }
+        else
+        {
+            retVal=-1;
+            if (errorMsg!=nullptr)
+                errorMsg[0]="Python ZMQ server add-on was not found, or is not initialized.";
+        }
     }
 
     return(retVal);

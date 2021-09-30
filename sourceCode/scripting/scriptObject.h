@@ -134,6 +134,7 @@ public:
 
     bool shouldAutoYield();
     bool canManualYield() const;
+    int getDelayForAutoYielding() const;
     void setDelayForAutoYielding(int d);
     int changeAutoYieldingForbidLevel(int dx,bool absolute);
     int getAutoYieldingForbidLevel() const;

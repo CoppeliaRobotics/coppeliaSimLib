@@ -197,7 +197,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getThreadAutomaticSwitch",_simGetThreadAutomaticSwitch,"boolean result=sim.getThreadAutomaticSwitch()",true},
     {"sim.getThreadSwitchAllowed",_simGetThreadSwitchAllowed,    "boolean allowed=sim.getThreadSwitchAllowed()",true},
     {"sim.setThreadSwitchAllowed",_simSetThreadSwitchAllowed,    "int forbidLevel=sim.setThreadSwitchAllowed(boolean allowed/int forbidLevel)",true},
-    {"sim.setThreadSwitchTiming",_simSetThreadSwitchTiming,      "sim.setThreadSwitchTiming(int deltaTimeInMilliseconds)",true},
+    {"sim.setThreadSwitchTiming",_simSetThreadSwitchTiming,      "sim.setThreadSwitchTiming(int dtInMs)",true},
+    {"sim.getThreadSwitchTiming",_simGetThreadSwitchTiming,      "int dtInMs=sim.getThreadSwitchTiming()",true},
     {"sim.saveImage",_simSaveImage,                              "string buffer=sim.saveImage(string image,table[2] resolution,int options,string filename,int quality)",true},
     {"sim.loadImage",_simLoadImage,                              "string image,table[2] resolution=sim.loadImage(int options,string filename)",true},
     {"sim.getScaledImage",_simGetScaledImage,                    "string imageOut,table[2] effectiveResolutionOut=sim.getScaledImage(string imageIn,table[2] resolutionIn,\ntable[2] desiredResolutionOut,int options)",true},
@@ -5349,6 +5350,21 @@ int _simSetThreadSwitchTiming(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
+}
+
+int _simGetThreadSwitchTiming(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getThreadSwitchTiming");
+
+    int timeInMs=0;
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+    if (it!=nullptr)
+        timeInMs=it->getDelayForAutoYielding();
+
+    luaWrap_lua_pushinteger(L,timeInMs);
+    LUA_END(1);
 }
 
 int _simSetThreadAutomaticSwitch(luaWrap_lua_State* L)
