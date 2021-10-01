@@ -602,14 +602,16 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
 
 #ifdef SIM_WITH_GUI
     // Prepare a few initial triggers:
-    SSimulationThreadCommand cmd;
-    cmd.cmdId=AUTO_SAVE_SCENE_CMD;
-    cmd.intParams.push_back(0); // load autosaved scenes, if crashed
-    App::appendSimulationThreadCommand(cmd,2000); // was 1000
+    {
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=AUTO_SAVE_SCENE_CMD;
+        cmd.intParams.push_back(0); // load autosaved scenes, if crashed
+        App::appendSimulationThreadCommand(cmd,2000); // was 1000
 
-    cmd.cmdId=MEMORIZE_UNDO_STATE_IF_NEEDED_CMD;
-    cmd.intParams.clear();
-    App::appendSimulationThreadCommand(cmd,2200); // was 200
+        cmd.cmdId=MEMORIZE_UNDO_STATE_IF_NEEDED_CMD;
+        cmd.intParams.clear();
+        App::appendSimulationThreadCommand(cmd,2200); // was 200
+    }
 
     if (CSimFlavor::getBoolVal(17))
     {
@@ -622,15 +624,19 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
         cmd.cmdId=PLUS_HVUD_CMD;
         App::appendSimulationThreadCommand(cmd,20000);
     }
-    cmd.cmdId=REFRESH_DIALOGS_CMD;
-    appendSimulationThreadCommand(cmd,1000);
-    cmd.cmdId=DISPLAY_WARNING_IF_DEBUGGING_CMD;
-    appendSimulationThreadCommand(cmd,3000);
+    {
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=REFRESH_DIALOGS_CMD;
+        appendSimulationThreadCommand(cmd,1000);
+        cmd.cmdId=DISPLAY_WARNING_IF_DEBUGGING_CMD;
+        appendSimulationThreadCommand(cmd,3000);
+    }
 #endif
 
     std::string msg=CSimFlavor::getStringVal(18);
     if (msg.size()>0)
     {
+        SSimulationThreadCommand cmd;
         cmd.cmdId=EDU_EXPIRED_CMD;
         cmd.stringParams.push_back(msg);
         appendSimulationThreadCommand(cmd,3000);
