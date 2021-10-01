@@ -94,10 +94,10 @@ public:
     static int getExitCode();
     static bool isOnline();
 
-    static void App::undoRedo_sceneChanged(const char* txt);
-    static void App::undoRedo_sceneChangedGradual(const char* txt);
-    static void App::undoRedo_sceneChangeStart(const char* txt);
-    static void App::undoRedo_sceneChangeEnd();
+    static void undoRedo_sceneChanged(const char* txt);
+    static void undoRedo_sceneChangedGradual(const char* txt);
+    static void undoRedo_sceneChangeStart(const char* txt);
+    static void undoRedo_sceneChangeEnd();
 
     static float* getRGBPointerFromItem(int objType,int objID1,int objID2,int colComponent,std::string* auxDlgTitle);
     static CColorObject* getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts);
