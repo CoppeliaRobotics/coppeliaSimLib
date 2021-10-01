@@ -5,10 +5,10 @@ CModuleMenuItem::CModuleMenuItem(const char* path,int scriptHandle)
     std::string s(path);
     _label=path;
     size_t pos=0;
-    while ((pos=s.find("//"))!=std::string::npos)
+    while ((pos=s.find("\n"))!=std::string::npos)
     {
-        _path+=s.substr(0,pos+2);
-        s.erase(0,pos+2);
+        _path+=s.substr(0,pos+1);
+        s.erase(0,pos+1);
     }
     if (_path.size()>0)
         _label=s;
@@ -69,7 +69,7 @@ void CModuleMenuItem::addMenu(std::vector<VMenu*>& menus,std::vector<std::string
     if (s.size()>0)
         s+=_label;
     size_t p=0;
-    while ((pos=s.find("//"))!=std::string::npos)
+    while ((pos=s.find("\n"))!=std::string::npos)
     {
         token=s.substr(0,pos);
         if (p<labels.size()-1)
@@ -88,7 +88,7 @@ void CModuleMenuItem::addMenu(std::vector<VMenu*>& menus,std::vector<std::string
             menus.push_back(prim);
         }
         p++;
-        s.erase(0,pos+2);
+        s.erase(0,pos+1);
     }
     if (p==0)
     {

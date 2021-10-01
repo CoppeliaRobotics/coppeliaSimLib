@@ -198,7 +198,7 @@ int CAddOnScriptContainer::_prepareAddOnFunctionNames_old()
             nm.erase(nm.begin(),nm.begin()+pref.size());
             nm.erase(nm.end()-strlen(ADDON_EXTENTION)-1,nm.end());
             _allAddOnFunctionNames_old.push_back(nm);
-            nm="Old add-on functions//"+nm;
+            nm="Compatibility mode add-on functions\n"+nm;
             _allAddOnFunctionUiHandles_old.push_back(App::worldContainer->moduleMenuItemContainer->addMenuItem(nm.c_str(),-1));
             addOnsCount++;
         }

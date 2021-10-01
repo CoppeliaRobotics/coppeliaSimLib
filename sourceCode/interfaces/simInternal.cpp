@@ -21006,7 +21006,7 @@ simInt simAddModuleMenuEntry_internal(const simChar* entryLabel,simInt itemCount
         else
         {
             std::string s(entryLabel);
-            s+="//";
+            s+="\n";
             for (int i=0;i<itemCount;i++)
                 itemHandles[i]=App::worldContainer->moduleMenuItemContainer->addMenuItem(s.c_str(),-1);
         }
