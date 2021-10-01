@@ -16702,9 +16702,7 @@ int _simHandleChildScript(luaWrap_lua_State* L)
         std::string txt("The command simHandleChildScript is not supported anymore and was replaced ");
         txt+="with sim.handleChildScripts, which operates in a slightly different manner. Make sure to ";
         txt+="adjust this script manually.";
-        App::logMsg(sim_verbosity_warnings,txt.c_str());
-        if (App::mainWindow!=nullptr)
-            App::uiThread->messageBox_warning(App::mainWindow,title.c_str(),txt.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+        App::logMsg(sim_verbosity_errors,txt.c_str());
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
