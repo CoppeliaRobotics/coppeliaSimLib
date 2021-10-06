@@ -172,8 +172,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getStringParam",_simGetStringParam,                    "string stringState=sim.getStringParam(int parameter)",true},
     {"sim.setArrayParam",_simSetArrayParam,                      "sim.setArrayParam(int parameter,table[3] arrayOfValues)",true},
     {"sim.getArrayParam",_simGetArrayParam,                      "table[3] arrayOfValues=sim.getArrayParam(int parameter)",true},
-    {"sim.setStringNamedParam",_simSetStringNamedParam,          "sim.setStringNamedParam(string paramName,string stringParam)",true},
-    {"sim.getStringNamedParam",_simGetStringNamedParam,          "string stringParam=sim.getStringNamedParam(string paramName)",true},
+    {"sim.setNamedStringParam",_simSetNamedStringParam,          "sim.setNamedStringParam(string paramName,string stringParam)",true},
+    {"sim.getNamedStringParam",_simGetNamedStringParam,          "string stringParam=sim.getNamedStringParam(string paramName)",true},
     {"sim.getObjectAlias",_simGetObjectAlias,                    "string objectAlias=sim.getObjectAlias(int objectHandle,int options=-1)",true},
     {"sim.setObjectAlias",_simSetObjectAlias,                    "sim.setObjectAlias(int objectHandle,string objectAlias)",true},
     {"sim.getJointInterval",_simGetJointInterval,                "boolean cyclic,table[2] interval=sim.getJointInterval(int objectHandle)",true},
@@ -5152,17 +5152,17 @@ int _simGetStackTraceback(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simSetStringNamedParam(luaWrap_lua_State* L)
+int _simSetNamedStringParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setStringNamedParam");
+    LUA_START("sim.setNamedStringParam");
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0))
     {
         std::string paramName(luaWrap_lua_tostring(L,1));
         size_t l;
         const char* data=((char*)luaWrap_lua_tolstring(L,2,&l));
-        retVal=simSetStringNamedParam_internal(paramName.c_str(),data,int(l));
+        retVal=simSetNamedStringParam_internal(paramName.c_str(),data,int(l));
         if (retVal>=0)
         {
             luaWrap_lua_pushinteger(L,retVal);
@@ -5173,15 +5173,15 @@ int _simSetStringNamedParam(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simGetStringNamedParam(luaWrap_lua_State* L)
+int _simGetNamedStringParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getStringNamedParam");
+    LUA_START("sim.getNamedStringParam");
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string paramName(luaWrap_lua_tostring(L,1));
         int l;
-        char* stringParam=simGetStringNamedParam_internal(paramName.c_str(),&l);
+        char* stringParam=simGetNamedStringParam_internal(paramName.c_str(),&l);
         if (stringParam!=nullptr)
         {
             luaWrap_lua_pushlstring(L,stringParam,l);

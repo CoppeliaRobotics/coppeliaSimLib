@@ -61,13 +61,13 @@ SIM_DLLEXPORT simInt simGetArrayParam(simInt parameter,simVoid* arrayOfValues)
 {
     return(simGetArrayParam_internal(parameter,arrayOfValues));
 }
-SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simChar* stringParam,simInt paramLength)
+SIM_DLLEXPORT simInt simSetNamedStringParam(const simChar* paramName,const simChar* stringParam,simInt paramLength)
 {
-    return(simSetStringNamedParam_internal(paramName,stringParam,paramLength));
+    return(simSetNamedStringParam_internal(paramName,stringParam,paramLength));
 }
-SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength)
+SIM_DLLEXPORT simChar* simGetNamedStringParam(const simChar* paramName,simInt* paramLength)
 {
-    return(simGetStringNamedParam_internal(paramName,paramLength));
+    return(simGetNamedStringParam_internal(paramName,paramLength));
 }
 SIM_DLLEXPORT simInt simGetObjectHandleEx(const simChar* objectAlias,simInt index,simInt proxy,simInt options)
 {
@@ -2712,6 +2712,14 @@ SIM_DLLEXPORT simInt simScaleSelectedObjects(simFloat scalingFactor,simBool scal
 SIM_DLLEXPORT simInt simDeleteSelectedObjects()
 {
     return(simDeleteSelectedObjects_internal());
+}
+SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simChar* stringParam,simInt paramLength)
+{
+    return(simSetNamedStringParam_internal(paramName,stringParam,paramLength));
+}
+SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength)
+{
+    return(simGetNamedStringParam_internal(paramName,paramLength));
 }
 // Deprecated end
 

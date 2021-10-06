@@ -16026,7 +16026,7 @@ simInt simGetJointDependency_internal(simInt jointHandle,simInt* masterJointHand
     return(retVal);
 }
 
-simInt simSetStringNamedParam_internal(const simChar* paramName,const simChar* stringParam,simInt paramLength)
+simInt simSetNamedStringParam_internal(const simChar* paramName,const simChar* stringParam,simInt paramLength)
 {
     TRACE_C_API;
     int retVal=-1;
@@ -16042,7 +16042,7 @@ simInt simSetStringNamedParam_internal(const simChar* paramName,const simChar* s
     return(retVal);
 }
 
-simChar* simGetStringNamedParam_internal(const simChar* paramName,simInt* paramLength)
+simChar* simGetNamedStringParam_internal(const simChar* paramName,simInt* paramLength)
 {
     TRACE_C_API;
     char* retVal=nullptr;

@@ -31,8 +31,8 @@ SIM_DLLEXPORT simInt simSetStringParam(simInt parameter,const simChar* str);
 SIM_DLLEXPORT simChar* simGetStringParam(simInt parameter);
 SIM_DLLEXPORT simInt simSetArrayParam(simInt parameter,const simVoid* arrayOfValues);
 SIM_DLLEXPORT simInt simGetArrayParam(simInt parameter,simVoid* arrayOfValues);
-SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simChar* stringParam,simInt paramLength);
-SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength);
+SIM_DLLEXPORT simInt simSetNamedStringParam(const simChar* paramName,const simChar* stringParam,simInt paramLength);
+SIM_DLLEXPORT simChar* simGetNamedStringParam(const simChar* paramName,simInt* paramLength);
 SIM_DLLEXPORT simInt simGetObjectHandleEx(const simChar* objectAlias,simInt index,simInt proxy,simInt options);
 SIM_DLLEXPORT simInt simGetScriptHandleEx(simInt scriptType,simInt objectHandle,const simChar* scriptName);
 SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle);
@@ -705,6 +705,8 @@ SIM_DLLEXPORT simInt simGetObjectLastSelection();
 SIM_DLLEXPORT simInt simGetObjectSelection(simInt* objectHandles);
 SIM_DLLEXPORT simInt simScaleSelectedObjects(simFloat scalingFactor,simBool scalePositionsToo);
 SIM_DLLEXPORT simInt simDeleteSelectedObjects();
+SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simChar* stringParam,simInt paramLength);
+SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)
