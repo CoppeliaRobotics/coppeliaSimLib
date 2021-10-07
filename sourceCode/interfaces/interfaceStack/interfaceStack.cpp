@@ -6,6 +6,7 @@
 #include "interfaceStackInteger.h"
 #include "interfaceStackString.h"
 #include "interfaceStackTable.h"
+#include "cbor.h"
 #include <algorithm>
 
 CInterfaceStack::CInterfaceStack(int a,int b,const char* c)
@@ -599,6 +600,23 @@ std::string CInterfaceStack::getBufferFromTable() const
             CInterfaceStackTable* table=(CInterfaceStackTable*)it;
             retVal='m'+table->getObjectData();
             retVal[0]=0; // this is the version of the pack format
+        }
+    }
+    return(retVal);
+}
+
+std::string CInterfaceStack::getCborEncodedBufferFromTable() const
+{
+    std::string retVal;  // empty string=error
+    if (_stackObjects.size()!=0)
+    {
+        CInterfaceStackObject* it=_stackObjects[_stackObjects.size()-1];
+        if (it->getObjectType()==STACK_OBJECT_TABLE)
+        {
+            CInterfaceStackTable* table=(CInterfaceStackTable*)it;
+            CCbor cborObj;
+            table->getCborObjectData(&cborObj);
+            retVal=cborObj.getBuff();
         }
     }
     return(retVal);

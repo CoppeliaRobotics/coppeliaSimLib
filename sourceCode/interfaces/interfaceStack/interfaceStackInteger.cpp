@@ -46,6 +46,11 @@ std::string CInterfaceStackInteger::getObjectData() const
     return(retVal);
 }
 
+void CInterfaceStackInteger::getCborObjectData(CCbor* cborObj) const
+{
+    cborObj->appendInt(_value);
+}
+
 unsigned int CInterfaceStackInteger::createFromData(const char* data)
 {
     char* tmp=(char*)(&_value);

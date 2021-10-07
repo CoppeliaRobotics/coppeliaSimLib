@@ -588,6 +588,7 @@ HEADERS += $$PWD/sourceCode/utils/threadPool_old.h \
     $$PWD/sourceCode/utils/ttUtil.h \
     $$PWD/sourceCode/utils/confReaderAndWriter.h \
     $$PWD/sourceCode/utils/base64.h \
+    $$PWD/sourceCode/utils/cbor.h \
 
 HEADERS += $$PWD/sourceCode/customUserInterfaces/buttonBlock.h \
     $$PWD/sourceCode/customUserInterfaces/softButton.h \
@@ -1011,6 +1012,7 @@ SOURCES += $$PWD/sourceCode/utils/threadPool_old.cpp \
     $$PWD/sourceCode/utils/tt.cpp \
     $$PWD/sourceCode/utils/confReaderAndWriter.cpp \
     $$PWD/sourceCode/utils/base64.cpp \
+    $$PWD/sourceCode/utils/cbor.cpp \
 
 SOURCES += $$PWD/sourceCode/customUserInterfaces/buttonBlock.cpp \
     $$PWD/sourceCode/customUserInterfaces/softButton.cpp \

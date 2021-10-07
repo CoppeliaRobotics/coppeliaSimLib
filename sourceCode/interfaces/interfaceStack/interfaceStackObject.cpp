@@ -33,6 +33,10 @@ std::string CInterfaceStackObject::getObjectData() const
     return("");
 }
 
+void CInterfaceStackObject::getCborObjectData(CCbor* cborObj) const
+{
+}
+
 unsigned int CInterfaceStackObject::createFromData(const char* data)
 {
     return(0);

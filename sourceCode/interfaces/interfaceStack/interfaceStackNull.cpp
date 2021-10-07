@@ -28,6 +28,11 @@ std::string CInterfaceStackNull::getObjectData() const
     return("");
 }
 
+void CInterfaceStackNull::getCborObjectData(CCbor* cborObj) const
+{
+    cborObj->appendNull();
+}
+
 unsigned int CInterfaceStackNull::createFromData(const char* data)
 {
     return(0);

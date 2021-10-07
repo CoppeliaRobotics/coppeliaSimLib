@@ -42,6 +42,11 @@ std::string CInterfaceStackBool::getObjectData() const
     return(retVal);
 }
 
+void CInterfaceStackBool::getCborObjectData(CCbor* cborObj) const
+{
+    cborObj->appendBool(_value);
+}
+
 unsigned int CInterfaceStackBool::createFromData(const char* data)
 {
     _value=(data[0]!=0);

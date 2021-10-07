@@ -707,6 +707,101 @@ std::string CInterfaceStackTable::getObjectData() const
     return(retVal);
 }
 
+void CInterfaceStackTable::getCborObjectData(CCbor* cborObj) const
+{
+    if (_isCircularRef)
+        cborObj->appendMap(0);
+    else
+    {
+        if (_isTableArray)
+        {
+            if (_tableObjects.size()==0)
+                cborObj->appendMap(0);
+            else
+                cborObj->appendArray(_tableObjects.size());
+        }
+        else
+            cborObj->appendMap(_tableObjects.size()/2);
+    }
+    if (_isTableArray)
+    {
+        for (size_t i=0;i<_tableObjects.size();i++)
+            _tableObjects[i]->getCborObjectData(cborObj);
+    }
+    else
+    { // we need to store the map data according to a specific key order,
+      // otherwise we can't compare packed tables (which is very convenient in Lua):
+        int boolFalse=-1;
+        int boolTrue=-1;
+        std::vector<std::pair<double,int>> numberKeys;
+        std::vector<std::pair<long long int,int>> integerKeys;
+        std::vector<std::pair<std::string,int>> stringKeys;
+        for (int i=0;i<int(_tableObjects.size()/2);i++)
+        {
+            CInterfaceStackObject* key=_tableObjects[2*i+0];
+            /*
+            if (key->getObjectType()==STACK_OBJECT_BOOL)
+            {
+                if ( ((CInterfaceStackBool*)key)->getValue()==false )
+                    boolFalse=i;
+                else
+                    boolTrue=i;
+            }
+            else if (key->getObjectType()==STACK_OBJECT_NUMBER)
+                numberKeys.push_back(std::make_pair(((CInterfaceStackNumber*)key)->getValue(),i));
+            else if (key->getObjectType()==STACK_OBJECT_INTEGER)
+                integerKeys.push_back(std::make_pair(((CInterfaceStackInteger*)key)->getValue(),i));
+            else if (key->getObjectType()==STACK_OBJECT_STRING)
+                stringKeys.push_back(std::make_pair(((CInterfaceStackString*)key)->getValue(nullptr),i));
+            else
+            { // should normally not happen. We push unordered
+                key->getCborObjectData(cborObj);
+                _tableObjects[2*i+1]->getCborObjectData(cborObj);
+            }
+            */
+
+            // Ignore all key-val pairs that are not strings:
+            if (key->getObjectType()==STACK_OBJECT_STRING)
+                stringKeys.push_back(std::make_pair(((CInterfaceStackString*)key)->getValue(nullptr),i));
+        }
+
+        /*
+        if (boolFalse>=0)
+        { // the key is 'false'
+            _tableObjects[2*boolFalse+0]->getCborObjectData(cborObj);
+            _tableObjects[2*boolFalse+1]->getCborObjectData(cborObj);
+        }
+        if (boolTrue>=0)
+        { // the key is 'true'
+            _tableObjects[2*boolTrue+0]->getCborObjectData(cborObj);
+            _tableObjects[2*boolTrue+1]->getCborObjectData(cborObj);
+        }
+        std::sort(numberKeys.begin(),numberKeys.end());
+        for (size_t i=0;i<numberKeys.size();i++)
+        {
+            int ind=numberKeys[i].second;
+            _tableObjects[2*ind+0]->getCborObjectData(cborObj);
+            _tableObjects[2*ind+1]->getCborObjectData(cborObj);
+        }
+        std::sort(integerKeys.begin(),integerKeys.end());
+        for (size_t i=0;i<integerKeys.size();i++)
+        {
+            int ind=integerKeys[i].second;
+            _tableObjects[2*ind+0]->getCborObjectData(cborObj);
+            _tableObjects[2*ind+1]->getCborObjectData(cborObj);
+        }
+        */
+        std::sort(stringKeys.begin(),stringKeys.end());
+        for (size_t i=0;i<stringKeys.size();i++)
+        {
+            int ind=stringKeys[i].second;
+            _tableObjects[2*ind+0]->getCborObjectData(cborObj);
+            _tableObjects[2*ind+1]->getCborObjectData(cborObj);
+        }
+    }
+}
+
+
 unsigned int CInterfaceStackTable::createFromData(const char* data)
 {
     unsigned int retVal=0;

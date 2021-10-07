@@ -11,6 +11,7 @@ public:
     CInterfaceStackObject* copyYourself() const;
     void printContent(int spaces,std::string& buffer) const;
     std::string getObjectData() const;
+    void getCborObjectData(CCbor* cborObj) const;
     unsigned int createFromData(const char* data);
     static bool checkCreateFromData(const char* data,unsigned int& w,unsigned int l);
 

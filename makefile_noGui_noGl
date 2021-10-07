@@ -290,6 +290,7 @@ all:
 	gcc $(CFLAGS) -c sourceCode/utils/tt.cpp -o tt.o
 	gcc $(CFLAGS) -c sourceCode/utils/confReaderAndWriter.cpp -o confReaderAndWriter.o
 	gcc $(CFLAGS) -c sourceCode/utils/base64.cpp -o base64.o
+	gcc $(CFLAGS) -c sourceCode/utils/cbor.cpp -o cbor.o
 	gcc $(CFLAGS) -c sourceCode/customUserInterfaces/buttonBlock.cpp -o buttonBlock.o
 	gcc $(CFLAGS) -c sourceCode/customUserInterfaces/softButton.cpp -o softButton.o
 

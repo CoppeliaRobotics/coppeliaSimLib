@@ -217,7 +217,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.unpackDoubleTable",_simUnpackDoubleTable,              "table[] doubleNumbers=sim.unpackDoubleTable(string data,int startDoubleIndex=0,int doubleCount=0,int additionalByteOffset=0)",true},
     {"sim.unpackUInt8Table",_simUnpackUInt8Table,                "table[] uint8Numbers=sim.unpackUInt8Table(string data,int startUint8Index=0,int uint8count=0)",true},
     {"sim.unpackUInt16Table",_simUnpackUInt16Table,              "table[] uint16Numbers=sim.unpackUInt16Table(string data,int startUint16Index=0,int uint16Count=0,int additionalByteOffset=0)",true},
-    {"sim.packTable",_simPackTable,                              "string buffer=sim.packTable(table[] aTable)",true},
+    {"sim.packTable",_simPackTable,                              "string buffer=sim.packTable(table[] aTable,int scheme=0)",true},
     {"sim.unpackTable",_simUnpackTable,                          "table[] aTable=sim.unpackTable(string buffer)",true},
     {"sim.transformBuffer",_simTransformBuffer,                  "string outBuffer=sim.transformBuffer(string inBuffer,int inFormat,float multiplier,float offset,int outFormat)",true},
     {"sim.combineRgbImages",_simCombineRgbImages,                "string outImg=sim.combineRgbImages(string img1,table[2] img1Res,string img2,table[2] img2Res,int operation)",true},
@@ -12215,12 +12215,23 @@ int _simPackTable(luaWrap_lua_State* L)
     {
         if (luaWrap_lua_istable(L,1))
         {
-            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-            CScriptObject::buildFromInterpreterStack_lua(L,stack,1,1);
-            std::string s(stack->getBufferFromTable());
-            luaWrap_lua_pushlstring(L,s.c_str(),s.length());
-            App::worldContainer->interfaceStackContainer->destroyStack(stack);
-            LUA_END(1);
+            int res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,true,true,&errorString);
+            if (res>=0)
+            {
+                int scheme=0;
+                if (res==2)
+                    scheme=luaWrap_lua_tointeger(L,2);
+                CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+                CScriptObject::buildFromInterpreterStack_lua(L,stack,1,1);
+                std::string s;
+                if (scheme==0)
+                    s=stack->getBufferFromTable();
+                if (scheme==1)
+                    s=stack->getCborEncodedBufferFromTable();
+                luaWrap_lua_pushlstring(L,s.c_str(),s.length());
+                App::worldContainer->interfaceStackContainer->destroyStack(stack);
+                LUA_END(1);
+            }
         }
         else
             errorString.assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);

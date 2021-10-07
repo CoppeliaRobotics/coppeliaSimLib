@@ -39,6 +39,11 @@ std::string CInterfaceStackNumber::getObjectData() const
     return(retVal);
 }
 
+void CInterfaceStackNumber::getCborObjectData(CCbor* cborObj) const
+{
+    cborObj->appendDouble(_value);
+}
+
 unsigned int CInterfaceStackNumber::createFromData(const char* data)
 {
     char* tmp=(char*)(&_value);
