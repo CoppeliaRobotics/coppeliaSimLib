@@ -12702,7 +12702,7 @@ int _simGetShapeViz(luaWrap_lua_State* L)
         int shapeHandle=luaWrap_lua_tointeger(L,1);
         int index=luaWrap_lua_tointeger(L,2);
         SShapeVizInfo info;
-        int ret=simGetShapeViz_internal(shapeHandle,index,&info);
+        int ret=simGetShapeViz_internal(shapeHandle+sim_handleflag_extended,index,&info);
         if (ret>0)
         {
             CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
@@ -12723,6 +12723,12 @@ int _simGetShapeViz(luaWrap_lua_State* L)
             stack->pushStringOntoStack("shadingAngle",0);
             stack->pushNumberOntoStack(double(info.shadingAngle));
             stack->insertDataIntoStackTable();
+            stack->pushStringOntoStack("transparency",0);
+            stack->pushNumberOntoStack(double(info.transparency));
+            stack->insertDataIntoStackTable();
+            stack->pushStringOntoStack("options",0);
+            stack->pushInt32OntoStack(info.options);
+            stack->insertDataIntoStackTable();
             delete[] info.vertices;
             delete[] info.indices;
             delete[] info.normals;
@@ -12741,13 +12747,13 @@ int _simGetShapeViz(luaWrap_lua_State* L)
                 stack->pushFloatArrayTableOntoStack(info.textureCoords,size_t(info.indicesSize*2));
                 stack->insertDataIntoStackTable();
                 stack->pushStringOntoStack("applyMode",0);
-                stack->pushNumberOntoStack(double(info.textureApplyMode));
+                stack->pushInt32OntoStack(info.textureApplyMode);
                 stack->insertDataIntoStackTable();
                 stack->pushStringOntoStack("options",0);
-                stack->pushNumberOntoStack(double(info.textureOptions));
+                stack->pushInt32OntoStack(info.textureOptions);
                 stack->insertDataIntoStackTable();
                 stack->pushStringOntoStack("id",0);
-                stack->pushNumberOntoStack(double(info.textureId));
+                stack->pushInt32OntoStack(info.textureId);
                 stack->insertDataIntoStackTable();
 
                 stack->insertDataIntoStackTable();

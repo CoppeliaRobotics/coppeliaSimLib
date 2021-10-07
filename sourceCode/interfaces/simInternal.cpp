@@ -15413,6 +15413,9 @@ simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizI
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
+        int handleFlags=shapeHandle&0x0ff00000;
+        shapeHandle=shapeHandle&0x000fffff;
+
         if (!isShape(__func__,shapeHandle))
             return(-1);
         int retVal=0;
@@ -15422,6 +15425,17 @@ simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizI
         if ( (index>=0)&&(index<int(all.size())) )
         {
             CMesh* geom=all[index];
+
+            if ((handleFlags&sim_handleflag_extended)!=0)
+            {
+                info->transparency=0.0f;
+                if (geom->color.getTranslucid())
+                    info->transparency=geom->color.getTransparencyFactor();
+                info->options=0;
+                if (geom->getCulling())
+                    info->options|=1;
+            }
+
             C7Vector tr(geom->getVerticeLocalFrame());
             const std::vector<float>* wvert=geom->getVertices();
             const std::vector<int>* wind=geom->getIndices();
@@ -15452,6 +15466,7 @@ simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizI
             geom->color.getColor(info->colors+3,sim_colorcomponent_specular);
             geom->color.getColor(info->colors+6,sim_colorcomponent_emission);
             info->shadingAngle=geom->getGouraudShadingAngle();
+
             CTextureProperty* tp=geom->getTextureProperty();
             CTextureObject* to=nullptr;
             const std::vector<float>* tc=nullptr;
