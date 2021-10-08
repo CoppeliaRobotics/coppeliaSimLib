@@ -81,12 +81,12 @@ void CSceneObjectContainer::announceDistanceWillBeErased(int distanceHandle)
         getObjectFromIndex(i)->announceDistanceWillBeErased(distanceHandle,false); // this never triggers scene object destruction!
 }
 
-bool CSceneObjectContainer::addObjectToScene(CSceneObject* newObject,bool objectIsACopy,bool generateAfterCreateCallback)
+void CSceneObjectContainer::addObjectToScene(CSceneObject* newObject,bool objectIsACopy,bool generateAfterCreateCallback)
 {
-    return(addObjectToSceneWithSuffixOffset(newObject,objectIsACopy,1,generateAfterCreateCallback));
+    addObjectToSceneWithSuffixOffset(newObject,objectIsACopy,1,generateAfterCreateCallback);
 }
 
-bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newObject,bool objectIsACopy,int suffixOffset,bool generateAfterCreateCallback)
+void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newObject,bool objectIsACopy,int suffixOffset,bool generateAfterCreateCallback)
 {
     App::currentWorld->environment->setSceneCanBeDiscardedWhenNewSceneOpened(false); // 4/3/2012
 
@@ -173,6 +173,7 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         _nextObjectHandle=SIM_IDSTART_SCENEOBJECT;
 
     newObject->setObjectHandle(handle);
+    newObject->setUniqueId();
 
     _addObject(newObject);
 
@@ -199,8 +200,6 @@ bool CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
     App::worldContainer->setModificationFlag(2); // object created
-
-    return(true);
 }
 
 bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfterDeleteCallback)
@@ -1289,16 +1288,13 @@ void CSceneObjectContainer::setObjectAbsoluteOrientation(int objectHandle,const 
     }
 }
 
-CSceneObject* CSceneObjectContainer::getObjectFromUniqueId(int uniqueID) const
+CSceneObject* CSceneObjectContainer::getObjectFromUniqueId(int uniqueId) const
 {
     for (size_t i=0;i<getObjectCount();i++)
     {
         CSceneObject* it=getObjectFromIndex(i);
-        if (it!=nullptr)
-        {
-            if (it->getUniqueID()==uniqueID)
-                return(it);
-        }
+        if (it->getUniqueId()==uniqueId)
+            return(it);
     }
     return(nullptr);
 }

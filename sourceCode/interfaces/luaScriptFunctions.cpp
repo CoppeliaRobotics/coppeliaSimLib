@@ -1036,6 +1036,8 @@ const SLuaVariables simLuaVariables[]=
     {"sim.objstringparam_dna",sim_objstringparam_dna,true},
     {"sim.objstringparam_unique_id",sim_objstringparam_unique_id,true},
     {"sim.objintparam_visible",sim_objintparam_visible,true},
+    {"sim.objintparam_unique_id",sim_objintparam_unique_id,true},
+
 
     // vision_sensors
     {"sim.visionfloatparam_near_clipping",sim_visionfloatparam_near_clipping,true},
@@ -2181,8 +2183,11 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
                 retVal=App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,callType,inStack,nullptr,nullptr);
                 App::worldContainer->interfaceStackContainer->destroyStack(inStack);
             }
+            /*
+            silent error here, for backward compatibility!
             else
                 errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
+                */
         }
     }
 
@@ -5305,8 +5310,17 @@ int _simGetObjectUniqueIdentifier(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int handle=luaToInt(L,1);
-        if (handle==sim_handle_all)
+        if (handle!=sim_handle_all)
         {
+            int retVal;
+            if (simGetObjectUniqueIdentifier_internal(handle,&retVal)!=-1)
+            {
+                luaWrap_lua_pushinteger(L,retVal);
+                LUA_END(1);
+            }
+        }
+        else
+        { // for backward compatibility
             int cnt=int(App::currentWorld->sceneObjects->getObjectCount());
             int* buffer=new int[cnt];
             if (simGetObjectUniqueIdentifier_internal(handle,buffer)!=-1)
@@ -5316,15 +5330,6 @@ int _simGetObjectUniqueIdentifier(luaWrap_lua_State* L)
                 LUA_END(1);
             }
             delete[] buffer;
-        }
-        else
-        {
-            int retVal;
-            if (simGetObjectUniqueIdentifier_internal(handle,&retVal)!=-1)
-            {
-                luaWrap_lua_pushinteger(L,retVal);
-                LUA_END(1);
-            }
         }
     }
 
@@ -10197,12 +10202,17 @@ int _simRuckigStep(luaWrap_lua_State* L)
         newPosVelAccel.resize(dofs*3);
         double syncTime;
         int retVal=simRuckigStep_internal(handle,timeStep,&newPosVelAccel[0],&newPosVelAccel[dofs],&newPosVelAccel[dofs*2],&syncTime,nullptr,nullptr);
-        if (retVal>=0)
+        if ( (retVal!=-1)&&(retVal!=-2) )
         {
             luaWrap_lua_pushinteger(L,retVal);
-            pushDoubleTableOntoStack(L,dofs*3,&newPosVelAccel[0]);
-            luaWrap_lua_pushnumber(L,syncTime);
-            LUA_END(3);
+            if (retVal>=0)
+            {
+                pushDoubleTableOntoStack(L,dofs*3,&newPosVelAccel[0]);
+                luaWrap_lua_pushnumber(L,syncTime);
+                LUA_END(3);
+            }
+            else
+                LUA_END(1);
         }
     }
 

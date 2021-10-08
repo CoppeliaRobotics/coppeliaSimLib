@@ -513,10 +513,6 @@ SIM_DLLEXPORT simInt simScaleObjects(const simInt* objectHandles,simInt objectCo
 {
     return(simScaleObjects_internal(objectHandles,objectCount,scalingFactor,scalePositionsToo));
 }
-SIM_DLLEXPORT simInt simGetObjectUniqueIdentifier(simInt objectHandle,simInt* uniqueIdentifier)
-{
-    return(simGetObjectUniqueIdentifier_internal(objectHandle,uniqueIdentifier));
-}
 SIM_DLLEXPORT simChar* simReceiveData(simInt dataHeader,const simChar* dataName,simInt antennaHandle,simInt index,simInt* dataLength,simInt* senderID,simInt* dataHeaderR,simChar** dataNameR)
 {
     return(simReceiveData_internal(dataHeader,dataName,antennaHandle,index,dataLength,senderID,dataHeaderR,dataNameR));
@@ -2720,6 +2716,10 @@ SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simCh
 SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength)
 {
     return(simGetNamedStringParam_internal(paramName,paramLength));
+}
+SIM_DLLEXPORT simInt simGetObjectUniqueIdentifier(simInt objectHandle,simInt* uniqueIdentifier)
+{
+    return(simGetObjectUniqueIdentifier_internal(objectHandle,uniqueIdentifier));
 }
 // Deprecated end
 

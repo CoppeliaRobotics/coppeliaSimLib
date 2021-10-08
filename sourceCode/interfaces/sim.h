@@ -144,7 +144,6 @@ SIM_DLLEXPORT simInt simSetJointTargetVelocity(simInt objectHandle,simFloat targ
 SIM_DLLEXPORT simInt simGetJointTargetVelocity(simInt objectHandle,simFloat* targetVelocity);
 SIM_DLLEXPORT simInt simCopyPasteObjects(simInt* objectHandles,simInt objectCount,simInt options);
 SIM_DLLEXPORT simInt simScaleObjects(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo);
-SIM_DLLEXPORT simInt simGetObjectUniqueIdentifier(simInt objectHandle,simInt* uniqueIdentifier);
 SIM_DLLEXPORT simInt simAddDrawingObject(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission);
 SIM_DLLEXPORT simInt simRemoveDrawingObject(simInt objectHandle);
 SIM_DLLEXPORT simInt simAddDrawingObjectItem(simInt objectHandle,const simFloat* itemData);
@@ -707,6 +706,7 @@ SIM_DLLEXPORT simInt simScaleSelectedObjects(simFloat scalingFactor,simBool scal
 SIM_DLLEXPORT simInt simDeleteSelectedObjects();
 SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simChar* stringParam,simInt paramLength);
 SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength);
+SIM_DLLEXPORT simInt simGetObjectUniqueIdentifier(simInt objectHandle,simInt* uniqueIdentifier);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

@@ -6310,34 +6310,6 @@ simInt simScaleObjects_internal(const simInt* objectHandles,simInt objectCount,s
     return(-1);
 }
 
-simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueIdentifier)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if ( (objectHandle!=sim_handle_all)&&(!doesObjectExist(__func__,objectHandle)) )
-        {
-            return(-1);
-        }
-        int p=0;
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
-        {
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-            if ( (it->getObjectHandle()==objectHandle)||(objectHandle==sim_handle_all) )
-                uniqueIdentifier[p++]=it->getUniqueID();
-        }
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
 simInt simAddDrawingObject_internal(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission)
 {
     TRACE_C_API;
@@ -8840,6 +8812,11 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
                         parameter[0]=1;
                     else
                         parameter[0]=0;
+                    retVal=1;
+                }
+                if (parameterID==sim_objintparam_unique_id)
+                {
+                    parameter[0]=it->getUniqueId();
                     retVal=1;
                 }
                 if (parameterID==sim_objintparam_collection_self_collision_indicator)
@@ -15434,6 +15411,8 @@ simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizI
                 info->options=0;
                 if (geom->getCulling())
                     info->options|=1;
+                if (geom->getWireframe())
+                    info->options|=2;
             }
 
             C7Vector tr(geom->getVerticeLocalFrame());
@@ -22523,5 +22502,37 @@ simInt simDeleteSelectedObjects_internal()
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueIdentifier)
+{ // deprecated on 08.10.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if ( (objectHandle!=sim_handle_all)&&(!doesObjectExist(__func__,objectHandle)) )
+            return(-1);
+        if (objectHandle!=sim_handle_all)
+        {
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            uniqueIdentifier[0]=it->getUniqueId();
+        }
+        else
+        { // for backward compatibility
+            int p=0;
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
+            {
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
+                if ( (it->getObjectHandle()==objectHandle)||(objectHandle==sim_handle_all) )
+                    uniqueIdentifier[p++]=it->getUniqueId();
+            }
+        }
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }

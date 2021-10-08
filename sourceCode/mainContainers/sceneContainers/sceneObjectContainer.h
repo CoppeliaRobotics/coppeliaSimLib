@@ -45,8 +45,8 @@ public:
     void announceCollisionWillBeErased(int collisionHandle);
     void announceDistanceWillBeErased(int distanceHandle);
 
-    bool addObjectToScene(CSceneObject* newObject,bool objectIsACopy,bool generateAfterCreateCallback);
-    bool addObjectToSceneWithSuffixOffset(CSceneObject* newObject,bool objectIsACopy,int suffixOffset,bool generateAfterCreateCallback);
+    void addObjectToScene(CSceneObject* newObject,bool objectIsACopy,bool generateAfterCreateCallback);
+    void addObjectToSceneWithSuffixOffset(CSceneObject* newObject,bool objectIsACopy,int suffixOffset,bool generateAfterCreateCallback);
     bool eraseObject(CSceneObject* it,bool generateBeforeAfterDeleteCallback);
     void eraseSeveralObjects(const std::vector<int>& objectHandles,bool generateBeforeAfterDeleteCallback);
     void removeAllObjects(bool generateBeforeAfterDeleteCallback);
@@ -84,7 +84,7 @@ public:
     void setObjectAbsoluteOrientation(int objectHandle,const C3Vector& euler);
     void setObjectAbsolutePosition(int objectHandle,const C3Vector& p);
 
-    CSceneObject* getObjectFromUniqueId(int uniqueID) const;
+    CSceneObject* getObjectFromUniqueId(int uniqueId) const;
     int getHighestObjectHandle() const;
 
 

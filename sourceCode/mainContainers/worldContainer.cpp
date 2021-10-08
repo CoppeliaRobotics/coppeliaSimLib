@@ -55,7 +55,7 @@ int CWorldContainer::getModificationFlags(bool clearTheFlagsAfter)
     {
         CSceneObject* it=currentWorld->sceneObjects->getObjectFromHandle(currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
         if (it!=nullptr)
-            currentUniqueIdsOfSel.push_back(it->getUniqueID());
+            currentUniqueIdsOfSel.push_back(it->getUniqueId());
     }
     if (currentUniqueIdsOfSel.size()==_uniqueIdsOfSelectionSinceLastTimeGetAndClearModificationFlagsWasCalled.size())
     {

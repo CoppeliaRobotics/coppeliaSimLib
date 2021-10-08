@@ -93,7 +93,8 @@ public:
     void scalePosition(float scalingFactor);
     void getAllObjectsRecursive(std::vector<CSceneObject*>* objectList,bool baseIncluded=true,bool start=true) const;
     void getChain(std::vector<CSceneObject*>& objectList,bool tipIncluded=true,bool start=true) const;
-    int getUniqueID() const;
+    void setUniqueId();
+    int getUniqueId() const;
 
     void setReferencedHandles(size_t cnt,const int* handles);
     size_t getReferencedHandlesCount() const;
@@ -299,7 +300,7 @@ protected:
     bool _forceAlwaysVisible_tmp;
     int _specificLight; // -1=default (i.e. all), -2=none, otherwise a light ID or collection ID. Is not serialized!
 
-    int _uniqueID; // valid for a given scene instance (non-persistent)
+    int _uniqueId; // valid for a given session (non-persistent)
 
     int _parentObjectHandle_forSerializationOnly;
 
@@ -361,7 +362,7 @@ protected:
     bool _beforeDeleteCallbackSent;
     bool _initialValuesInitialized;
     bool _initialConfigurationMemorized;
-    int _initialParentUniqueID;
+    int _initialParentUniqueId;
     int _initialMainPropertyOverride;
     int _initialMemorizedConfigurationValidCounter;
     C7Vector _initialLocalTransformationPart1;

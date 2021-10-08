@@ -90,7 +90,6 @@ CSceneObject::CSceneObject()
 
     _dynamicSimulationIconCode=sim_dynamicsimicon_none;
 
-    _uniqueID=_uniqueIDCounter++; // not persistent
     _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
     _modelAcknowledgement="";
     _objectTempAlias="_*_object_*_";
@@ -344,9 +343,14 @@ int CSceneObject::getParentCount() const
     return(1+getParent()->getParentCount());
 }
 
-int CSceneObject::getUniqueID() const
+void CSceneObject::setUniqueId()
 {
-    return(_uniqueID);
+    _uniqueId=_uniqueIDCounter++;
+}
+
+int CSceneObject::getUniqueId() const
+{
+    return(_uniqueId);
 }
 
 int CSceneObject::_getAllowedObjectSpecialProperties() const
@@ -1315,10 +1319,10 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
     //********************************
     _initialConfigurationMemorized=true;
     _initialMemorizedConfigurationValidCounter=_memorizedConfigurationValidCounter;
-    _initialParentUniqueID=-1; // -1 means there was no parent at begin
+    _initialParentUniqueId=-1; // -1 means there was no parent at begin
     CSceneObject* p=getParent();
     if (p!=nullptr)
-        _initialParentUniqueID=p->getUniqueID();
+        _initialParentUniqueId=p->getUniqueId();
     _initialLocalTransformationPart1=_localTransformation;
     //********************************
 
@@ -1342,12 +1346,12 @@ void CSceneObject::simulationEnded()
                     int puid=-1;
                     CSceneObject* p=getParent();
                     if (p!=nullptr)
-                        puid=p->getUniqueID();
+                        puid=p->getUniqueId();
                     // Changed following on 24/04/2011 (because we also wanna reset the parenting to the initial state!)
-                    if (puid!=_initialParentUniqueID)
+                    if (puid!=_initialParentUniqueId)
                     { // Not sure following instructions are not problematic here.
-                        CSceneObject* oldParent=App::currentWorld->sceneObjects->getObjectFromUniqueId(_initialParentUniqueID);
-                        if ( (oldParent!=nullptr)||(_initialParentUniqueID==-1) )
+                        CSceneObject* oldParent=App::currentWorld->sceneObjects->getObjectFromUniqueId(_initialParentUniqueId);
+                        if ( (oldParent!=nullptr)||(_initialParentUniqueId==-1) )
                         {
                             // Inverted following 2 lines on 24/2/2012:
                             App::currentWorld->sceneObjects->setObjectParent(this,oldParent,true);
