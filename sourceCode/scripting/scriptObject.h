@@ -144,6 +144,8 @@ public:
     bool registerPluginVariables(bool onlyRequireStatements);
 
     int getAddOnUiMenuHandle() const;
+    void setAddOnFilePath(const char* p);
+    std::string getAddOnFilePath() const;
 
     void printInterpreterStack() const;
 
@@ -230,6 +232,7 @@ protected:
     int _objectHandleAttachedTo;
     int _autoStartAddOn;
     int _addOnUiMenuHandle;
+    std::string _addOnFilePath;
 
     bool _calledInThisSimulationStep;
 

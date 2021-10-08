@@ -192,7 +192,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getPage",_simGetPage,                                  "int pageIndex=sim.getPage()",true},
     {"sim.copyPasteObjects",_simCopyPasteObjects,                "table[1..*] copiedObjectHandles=sim.copyPasteObjects(table[1..*] objectHandles,int options)",true},
     {"sim.scaleObjects",_simScaleObjects,                        "sim.scaleObjects(table[1..*] objectHandles,float scalingFactor,boolean scalePositionsToo)",true},
-    {"sim.getObjectUniqueIdentifier",_simGetObjectUniqueIdentifier,"int uniqueIdentifier=sim.getObjectUniqueIdentifier(int objectHandle)\ntable[] uniqueIdentifiers=sim.getObjectUniqueIdentifier(sim.handle_all)",true},
     {"sim.setThreadAutomaticSwitch",_simSetThreadAutomaticSwitch,"int autoSwitchForbidLevel=sim.setThreadAutomaticSwitch(boolean automaticSwitch/int forbidLevel)",true},
     {"sim.getThreadAutomaticSwitch",_simGetThreadAutomaticSwitch,"boolean result=sim.getThreadAutomaticSwitch()",true},
     {"sim.getThreadSwitchAllowed",_simGetThreadSwitchAllowed,    "boolean allowed=sim.getThreadSwitchAllowed()",true},
@@ -305,7 +304,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.launchExecutable",_simLaunchExecutable,                "sim.launchExecutable(string filename,string parameters='',int showStatus=1)",true},
     {"sim.getJointForce",_simGetJointForce,                      "float forceOrTorque=sim.getJointForce(int jointHandle)",true},
     {"sim.getJointMaxForce",_simGetJointMaxForce,                "float forceOrTorque=sim.getJointMaxForce(int jointHandle)",true},
-    {"sim.isHandle",_simIsHandle,                                "bool result=sim.isHandle(int generalObjectHandle,int generalObjectType=-1)",true},
+    {"sim.isHandle",_simIsHandle,                                "bool result=sim.isHandle(int objectHandle)",true},
     {"sim.getObjectQuaternion",_simGetObjectQuaternion,          "table[4] quaternion=sim.getObjectQuaternion(int objectHandle,int relativeToObjectHandle)",true},
     {"sim.setObjectQuaternion",_simSetObjectQuaternion,          "sim.setObjectQuaternion(int objectHandle,int relativeToObjectHandle,table[4] quaternion)",true},
     {"sim.groupShapes",_simGroupShapes,                          "int shapeHandle=sim.groupShapes(table[] shapeHandles,bool merge=false)",true},
@@ -565,6 +564,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.isObjectInSelection",_simIsObjectInSelection,          "Deprecated. Use sim.getObjectSelection instead",false},
     {"sim.addObjectToSelection",_simAddObjectToSelection,        "Deprecated. Use sim.setObjectSelection instead",false},
     {"sim.removeObjectFromSelection",_simRemoveObjectFromSelection,"Deprecated. Use sim.setObjectSelection instead",false},
+    {"sim.getObjectUniqueIdentifier",_simGetObjectUniqueIdentifier,"Deprecated. Use sim.getObjectInt32Param with sim.objintparam_unique_id instead",false},
 
     {"",nullptr,"",false}
 };
@@ -857,6 +857,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_tempscenedir",sim_stringparam_tempscenedir,true},
     {"sim.stringparam_datadir",sim_stringparam_datadir,true},
     {"sim.stringparam_importexportdir",sim_stringparam_importexportdir,true},
+    {"sim.stringparam_addonpath",sim_stringparam_addonpath,true},
 
     // verbosity:
     {"sim.verbosity_useglobal",sim_verbosity_useglobal,true},
@@ -4414,12 +4415,25 @@ int _simGetStringParam(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        char* s=simGetStringParam_internal(luaWrap_lua_tointeger(L,1));
-        if (s!=nullptr)
+        int param=luaWrap_lua_tointeger(L,1);
+        if (sim_stringparam_addonpath==param)
         {
-            luaWrap_lua_pushstring(L,s);
-            delete[] s;
+            std::string s;
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+            if (it!=nullptr)
+                s=it->getAddOnFilePath();
+            luaWrap_lua_pushstring(L,s.c_str());
             LUA_END(1);
+        }
+        else
+        {
+            char* s=simGetStringParam_internal(param);
+            if (s!=nullptr)
+            {
+                luaWrap_lua_pushstring(L,s);
+                delete[] s;
+                LUA_END(1);
+            }
         }
     }
 
@@ -5300,41 +5314,6 @@ int _simScaleObjects(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
-}
-
-int _simGetObjectUniqueIdentifier(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getObjectUniqueIdentifier");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int handle=luaToInt(L,1);
-        if (handle!=sim_handle_all)
-        {
-            int retVal;
-            if (simGetObjectUniqueIdentifier_internal(handle,&retVal)!=-1)
-            {
-                luaWrap_lua_pushinteger(L,retVal);
-                LUA_END(1);
-            }
-        }
-        else
-        { // for backward compatibility
-            int cnt=int(App::currentWorld->sceneObjects->getObjectCount());
-            int* buffer=new int[cnt];
-            if (simGetObjectUniqueIdentifier_internal(handle,buffer)!=-1)
-            {
-                pushIntTableOntoStack(L,cnt,buffer);
-                delete[] buffer;
-                LUA_END(1);
-            }
-            delete[] buffer;
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
 }
 
 int _simSetThreadSwitchTiming(luaWrap_lua_State* L)
@@ -20299,3 +20278,37 @@ int _simRemoveObjectFromSelection(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
+int _simGetObjectUniqueIdentifier(luaWrap_lua_State* L)
+{ // deprecated since 08.10.2021
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectUniqueIdentifier");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int handle=luaToInt(L,1);
+        if (handle!=sim_handle_all)
+        {
+            int retVal;
+            if (simGetObjectUniqueIdentifier_internal(handle,&retVal)!=-1)
+            {
+                luaWrap_lua_pushinteger(L,retVal);
+                LUA_END(1);
+            }
+        }
+        else
+        { // for backward compatibility
+            int cnt=int(App::currentWorld->sceneObjects->getObjectCount());
+            int* buffer=new int[cnt];
+            if (simGetObjectUniqueIdentifier_internal(handle,buffer)!=-1)
+            {
+                pushIntTableOntoStack(L,cnt,buffer);
+                delete[] buffer;
+                LUA_END(1);
+            }
+            delete[] buffer;
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}

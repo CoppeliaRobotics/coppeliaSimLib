@@ -918,6 +918,16 @@ int CScriptObject::getAddOnUiMenuHandle() const
     return(_addOnUiMenuHandle);
 }
 
+void CScriptObject::setAddOnFilePath(const char* p)
+{
+    _addOnFilePath=p;
+}
+
+std::string CScriptObject::getAddOnFilePath() const
+{
+    return(_addOnFilePath);
+}
+
 int CScriptObject::getScriptState() const
 {
     return(_scriptState);
@@ -6936,6 +6946,8 @@ void CScriptObject::_adjustScriptText15_old(CScriptObject* scriptObject,bool doI
 
 void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
 {
+    if (_containsScriptText_old(scriptObject,"sim.getObjectUniqueIdentifier"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getObjectUniqueIdentifier...");
     if (_containsScriptText_old(scriptObject,"sim.isObjectInSelection"))
         App::logMsg(sim_verbosity_errors,"Contains sim.isObjectInSelection...");
     if (_containsScriptText_old(scriptObject,"sim.addObjectToSelection"))

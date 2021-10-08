@@ -101,6 +101,7 @@ int CAddOnScriptContainer::_insertAddOns()
             CScriptObject* defScript=new CScriptObject(sim_scripttype_addonscript);
             if (defScript->setScriptTextFromFile(fp.c_str()))
             {
+                defScript->setAddOnFilePath(fp.c_str());
                 _insertAddOn(defScript);
                 std::string nm(foundItem->name);
                 nm.erase(nm.begin(),nm.begin()+at.size());
@@ -152,6 +153,7 @@ int CAddOnScriptContainer::_insertAddOns()
                     archive >> script[i];
                 script[archiveLength]=0;
                 CScriptObject* defScript=new CScriptObject(sim_scripttype_addonscript);
+                defScript->setAddOnFilePath(fp.c_str());
                 _insertAddOn(defScript);
                 std::string sc(script);
                 defScript->setScriptText(sc.c_str());
