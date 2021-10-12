@@ -4981,16 +4981,12 @@ int _simTest(luaWrap_lua_State* L)
     if (checkInputArguments(L,nullptr,lua_arg_string,0))
     {
         std::string cmd=luaWrap_lua_tostring(L,1);
-        if (cmd.compare("sim.getShapeViz")==0)
+        if ( (cmd.compare("sim.getShapeViz")==0)&&luaWrap_lua_isinteger(L,2)&&luaWrap_lua_istable(L,3) )
         {
             int handle=luaWrap_lua_tointeger(L,2);
-            bool toCoppeliaSimPack=luaWrap_lua_toboolean(L,3);
+            bool toCoppeliaSimPack=luaWrap_lua_toboolean(L,4);
             CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-            stack->pushTableOntoStack();
-
-            stack->insertKeyStringIntoStackTable("event","objectAdded",0);
-            stack->insertKeyInt32IntoStackTable("handle",handle);
-            stack->insertKeyStringIntoStackTable("type","shape",0);
+            CScriptObject::buildFromInterpreterStack_lua(L,stack,3,1);
 
             stack->pushStringOntoStack("meshData",0);
             stack->pushTableOntoStack();
