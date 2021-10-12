@@ -917,39 +917,10 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
             CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
             inStack->pushTableOntoStack();
 
-            inStack->pushStringOntoStack("handle",0);
-            inStack->pushNumberOntoStack(getObjectHandle());
-            inStack->insertDataIntoStackTable();
-
-            inStack->pushStringOntoStack("detectedObjectHandle",0);
-            inStack->pushNumberOntoStack(_detectedObjectHandle);
-            inStack->insertDataIntoStackTable();
-
-            inStack->pushStringOntoStack("detectedPoint",0);
-            inStack->pushTableOntoStack();
-            inStack->pushNumberOntoStack(1);
-            inStack->pushNumberOntoStack(_detectedPoint(0));
-            inStack->insertDataIntoStackTable();
-            inStack->pushNumberOntoStack(2);
-            inStack->pushNumberOntoStack(_detectedPoint(1));
-            inStack->insertDataIntoStackTable();
-            inStack->pushNumberOntoStack(3);
-            inStack->pushNumberOntoStack(_detectedPoint(2));
-            inStack->insertDataIntoStackTable();
-            inStack->insertDataIntoStackTable();
-
-            inStack->pushStringOntoStack("normalVector",0);
-            inStack->pushTableOntoStack();
-            inStack->pushNumberOntoStack(1);
-            inStack->pushNumberOntoStack(_detectedNormalVector(0));
-            inStack->insertDataIntoStackTable();
-            inStack->pushNumberOntoStack(2);
-            inStack->pushNumberOntoStack(_detectedNormalVector(1));
-            inStack->insertDataIntoStackTable();
-            inStack->pushNumberOntoStack(3);
-            inStack->pushNumberOntoStack(_detectedNormalVector(2));
-            inStack->insertDataIntoStackTable();
-            inStack->insertDataIntoStackTable();
+            inStack->insertKeyInt32IntoStackTable("handle",getObjectHandle());
+            inStack->insertKeyInt32IntoStackTable("detectedObjectHandle",_detectedObjectHandle);
+            inStack->insertKeyFloatArrayIntoStackTable("detectedPoint",_detectedPoint.data,3);
+            inStack->insertKeyFloatArrayIntoStackTable("normalVector",_detectedNormalVector.data,3);
 
             CInterfaceStack* outStack1=App::worldContainer->interfaceStackContainer->createStack();
             CInterfaceStack* outStack2=App::worldContainer->interfaceStackContainer->createStack();

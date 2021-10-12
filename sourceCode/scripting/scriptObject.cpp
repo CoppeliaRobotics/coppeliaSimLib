@@ -1739,7 +1739,7 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
                 else
                 { // Following for backward compatibility with older add-ons: they could return 1 (sim_syscb_cleanup) to request cleanup
                     long long int theValue;
-                    if ( (_scriptType==sim_scripttype_addonscript)&&(outStack->getStackStrictIntegerValue(theValue))&&(theValue==1) )
+                    if ( (_scriptType==sim_scripttype_addonscript)&&(outStack->getStackStrictInt64Value(theValue))&&(theValue==1) )
                         _killInterpreterState();
                 }
             }

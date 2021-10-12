@@ -238,8 +238,8 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene,int selectionMode)
     stack->pushTableOntoStack();
     for (size_t i=0;i<objectCopy.size();i++)
     {
-        stack->pushNumberOntoStack(double(i+1)); // key or index
-        stack->pushNumberOntoStack(objectCopy[i]->getObjectHandle());
+        stack->pushInt32OntoStack(i+1); // key or index
+        stack->pushInt32OntoStack(objectCopy[i]->getObjectHandle());
         stack->insertDataIntoStackTable();
     }
     stack->insertDataIntoStackTable();
@@ -300,7 +300,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
     stack->pushTableOntoStack();
     for (size_t i=0;i<selObj.size();i++)
     {
-        stack->pushNumberOntoStack(double(selObj[i]->getObjectHandle())); // key or index
+        stack->pushInt32OntoStack(selObj[i]->getObjectHandle()); // key or index
         stack->pushBoolOntoStack(true);
         stack->insertDataIntoStackTable();
     }

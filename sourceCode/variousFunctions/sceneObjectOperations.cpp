@@ -1528,7 +1528,7 @@ void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection,bool s
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
         stack->pushStringOntoStack("objectHandles",0);
-        stack->pushInt32ArrayTableOntoStack(&newObjectHandles[0],newObjectHandles.size());
+        stack->pushInt32ArrayOntoStack(&newObjectHandles[0],newObjectHandles.size());
         stack->insertDataIntoStackTable();
         App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
@@ -1846,7 +1846,7 @@ void CSceneObjectOperations::divideSelection(std::vector<int>* selection,bool sh
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
         stack->pushStringOntoStack("objectHandles",0);
-        stack->pushInt32ArrayTableOntoStack(&newObjectHandles[0],newObjectHandles.size());
+        stack->pushInt32ArrayOntoStack(&newObjectHandles[0],newObjectHandles.size());
         stack->insertDataIntoStackTable();
         App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);

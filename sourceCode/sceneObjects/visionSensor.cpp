@@ -2272,41 +2272,15 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
         inStack->pushTableOntoStack();
 
-        inStack->pushStringOntoStack("handle",0);
-        inStack->pushNumberOntoStack(getObjectHandle());
-        inStack->insertDataIntoStackTable();
+        inStack->insertKeyInt32IntoStackTable("handle",getObjectHandle());
+        int res[2]={_resolutionX,_resolutionY};
+        inStack->insertKeyInt32ArrayIntoStackTable("resolution",res,2);
+        float clip[2]={getNearClippingPlane(),getFarClippingPlane()};
+        inStack->insertKeyFloatArrayIntoStackTable("clippingPlanes",clip,2);
 
-        inStack->pushStringOntoStack("resolution",0);
-        inStack->pushTableOntoStack();
-        inStack->pushNumberOntoStack(1);
-        inStack->pushNumberOntoStack(_resolutionX);
-        inStack->insertDataIntoStackTable();
-        inStack->pushNumberOntoStack(2);
-        inStack->pushNumberOntoStack(_resolutionY);
-        inStack->insertDataIntoStackTable();
-        inStack->insertDataIntoStackTable();
-
-        inStack->pushStringOntoStack("clippingPlanes",0);
-        inStack->pushTableOntoStack();
-        inStack->pushNumberOntoStack(1);
-        inStack->pushNumberOntoStack(getNearClippingPlane());
-        inStack->insertDataIntoStackTable();
-        inStack->pushNumberOntoStack(2);
-        inStack->pushNumberOntoStack(getFarClippingPlane());
-        inStack->insertDataIntoStackTable();
-        inStack->insertDataIntoStackTable();
-
-        inStack->pushStringOntoStack("viewAngle",0);
-        inStack->pushNumberOntoStack(getViewAngle());
-        inStack->insertDataIntoStackTable();
-
-        inStack->pushStringOntoStack("orthoSize",0);
-        inStack->pushNumberOntoStack(getOrthoViewSize());
-        inStack->insertDataIntoStackTable();
-
-        inStack->pushStringOntoStack("perspectiveOperation",0);
-        inStack->pushBoolOntoStack(getPerspectiveOperation());
-        inStack->insertDataIntoStackTable();
+        inStack->insertKeyFloatIntoStackTable("viewAngle",getViewAngle());
+        inStack->insertKeyFloatIntoStackTable("orthoSize",getOrthoViewSize());
+        inStack->insertKeyBoolIntoStackTable("perspectiveOperation",getPerspectiveOperation());
 
         CInterfaceStack* outStack1=App::worldContainer->interfaceStackContainer->createStack();
         CInterfaceStack* outStack2=App::worldContainer->interfaceStackContainer->createStack();
@@ -2375,15 +2349,13 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         {
             CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
             inStack->pushTableOntoStack();
-            inStack->pushStringOntoStack("handle",0);
-            inStack->pushNumberOntoStack(getObjectHandle());
-            inStack->insertDataIntoStackTable();
+            inStack->insertKeyInt32IntoStackTable("handle",getObjectHandle());
 
             inStack->pushStringOntoStack("packedPackets",0);
             inStack->pushTableOntoStack();
             for (size_t i=0;i<sensorAuxiliaryResult.size();i++)
             {
-                inStack->pushNumberOntoStack(i+1);
+                inStack->pushInt32OntoStack(i+1);
                 if (sensorAuxiliaryResult[i].size()>0)
                     inStack->pushStringOntoStack((char*)&(sensorAuxiliaryResult[i])[0],sensorAuxiliaryResult[i].size()*sizeof(float));
                 else

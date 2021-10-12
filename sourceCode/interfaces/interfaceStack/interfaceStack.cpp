@@ -113,7 +113,7 @@ bool CInterfaceStack::getStackBoolValue(bool& theValue) const
     return(false);
 }
 
-bool CInterfaceStack::getStackStrictNumberValue(double& theValue) const
+bool CInterfaceStack::getStackStrictDoubleValue(double& theValue) const
 {
     if (_stackObjects.size()!=0)
     {
@@ -129,11 +129,11 @@ bool CInterfaceStack::getStackStrictNumberValue(double& theValue) const
 
 bool CInterfaceStack::getStackDoubleValue(double& theValue) const
 {
-    bool retVal=getStackStrictNumberValue(theValue);
+    bool retVal=getStackStrictDoubleValue(theValue);
     if (!retVal)
     {
         long long int v;
-        retVal=getStackStrictIntegerValue(v);
+        retVal=getStackStrictInt64Value(v);
         if (retVal)
             theValue=(double)v;
     }
@@ -149,7 +149,7 @@ bool CInterfaceStack::getStackFloatValue(float& theValue) const
     return(retVal);
 }
 
-bool CInterfaceStack::getStackStrictIntegerValue(long long int& theValue) const
+bool CInterfaceStack::getStackStrictInt64Value(long long int& theValue) const
 {
     if (_stackObjects.size()!=0)
     {
@@ -165,11 +165,11 @@ bool CInterfaceStack::getStackStrictIntegerValue(long long int& theValue) const
 
 bool CInterfaceStack::getStackInt64Value(long long int& theValue) const
 {
-    bool retVal=getStackStrictIntegerValue(theValue);
+    bool retVal=getStackStrictInt64Value(theValue);
     if (!retVal)
     {
         double v;
-        retVal=getStackStrictNumberValue(v);
+        retVal=getStackStrictDoubleValue(v);
         if (retVal)
         {
             if (v>=0.0)
@@ -369,13 +369,13 @@ bool CInterfaceStack::getStackMapFloatValue(const char* fieldName,float& val) co
     return(retVal);
 }
 
-bool CInterfaceStack::getStackMapLongIntValue(const char* fieldName,long long int& val) const
+bool CInterfaceStack::getStackMapInt64Value(const char* fieldName,long long int& val) const
 {
-    bool retVal=getStackMapStrictIntegerValue(fieldName,val);
+    bool retVal=getStackMapStrictInt64Value(fieldName,val);
     if (!retVal)
     {
         double v;
-        retVal=getStackMapStrictNumberValue(fieldName,v);
+        retVal=getStackMapStrictDoubleValue(fieldName,v);
         if (retVal)
         {
             if (v>=0.0)
@@ -387,16 +387,16 @@ bool CInterfaceStack::getStackMapLongIntValue(const char* fieldName,long long in
     return(retVal);
 }
 
-bool CInterfaceStack::getStackMapIntValue(const char* fieldName,int& val) const
+bool CInterfaceStack::getStackMapInt32Value(const char* fieldName,int& val) const
 {
     long long int v;
-    bool retVal=getStackMapLongIntValue(fieldName,v);
+    bool retVal=getStackMapInt64Value(fieldName,v);
     if (retVal)
         val=(int)v;
     return(retVal);
 }
 
-bool CInterfaceStack::getStackMapStrictNumberValue(const char* fieldName,double& val) const
+bool CInterfaceStack::getStackMapStrictDoubleValue(const char* fieldName,double& val) const
 {
     const CInterfaceStackObject* obj=getStackMapObject(fieldName);
     if (obj!=nullptr)
@@ -410,7 +410,7 @@ bool CInterfaceStack::getStackMapStrictNumberValue(const char* fieldName,double&
     return(false);
 }
 
-bool CInterfaceStack::getStackMapStrictIntegerValue(const char* fieldName,long long int& val) const
+bool CInterfaceStack::getStackMapStrictInt64Value(const char* fieldName,long long int& val) const
 {
     const CInterfaceStackObject* obj=getStackMapObject(fieldName);
     if (obj!=nullptr)
@@ -426,11 +426,11 @@ bool CInterfaceStack::getStackMapStrictIntegerValue(const char* fieldName,long l
 
 bool CInterfaceStack::getStackMapDoubleValue(const char* fieldName,double& val) const
 {
-    bool retVal=getStackMapStrictNumberValue(fieldName,val);
+    bool retVal=getStackMapStrictDoubleValue(fieldName,val);
     if (!retVal)
     {
         long long int v;
-        retVal=getStackMapStrictIntegerValue(fieldName,v);
+        retVal=getStackMapStrictInt64Value(fieldName,v);
         if (retVal)
             val=(double)v;
     }
@@ -494,7 +494,12 @@ void CInterfaceStack::pushBoolOntoStack(bool v)
     _stackObjects.push_back(new CInterfaceStackBool(v));
 }
 
-void CInterfaceStack::pushNumberOntoStack(double v)
+void CInterfaceStack::pushFloatOntoStack(float v)
+{
+    pushDoubleOntoStack((double)v);
+}
+
+void CInterfaceStack::pushDoubleOntoStack(double v)
 {
     _stackObjects.push_back(new CInterfaceStackNumber(v));
 }
@@ -514,39 +519,116 @@ void CInterfaceStack::pushStringOntoStack(const char* str,size_t l)
     _stackObjects.push_back(new CInterfaceStackString(str,l));
 }
 
-void CInterfaceStack::pushInt32ArrayTableOntoStack(const int* arr,size_t l)
+void CInterfaceStack::pushInt32ArrayOntoStack(const int* arr,size_t l)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setInt32Array(arr,l);
     _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushInt64ArrayTableOntoStack(const long long int* arr,size_t l)
+void CInterfaceStack::pushInt64ArrayOntoStack(const long long int* arr,size_t l)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setInt64Array(arr,l);
     _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushUCharArrayTableOntoStack(const unsigned char* arr,size_t l)
+void CInterfaceStack::pushUCharArrayOntoStack(const unsigned char* arr,size_t l)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setUCharArray(arr,l);
     _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushFloatArrayTableOntoStack(const float* arr,size_t l)
+void CInterfaceStack::pushFloatArrayOntoStack(const float* arr,size_t l)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setFloatArray(arr,l);
     _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushDoubleArrayTableOntoStack(const double* arr,size_t l)
+void CInterfaceStack::pushDoubleArrayOntoStack(const double* arr,size_t l)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setDoubleArray(arr,l);
     _stackObjects.push_back(table);
+}
+
+void CInterfaceStack::insertKeyNullIntoStackTable(const char* key)
+{
+    pushStringOntoStack(key,0);
+    pushNullOntoStack();
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyBoolIntoStackTable(const char* key,bool value)
+{
+    pushStringOntoStack(key,0);
+    pushBoolOntoStack(value);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyFloatIntoStackTable(const char* key,float value)
+{
+    pushStringOntoStack(key,0);
+    pushFloatOntoStack(value);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyDoubleIntoStackTable(const char* key,double value)
+{
+    pushStringOntoStack(key,0);
+    pushDoubleOntoStack(value);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyInt32IntoStackTable(const char* key,int value)
+{
+    pushStringOntoStack(key,0);
+    pushInt32OntoStack(value);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyInt64IntoStackTable(const char* key,long long int value)
+{
+    pushStringOntoStack(key,0);
+    pushInt64OntoStack(value);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyStringIntoStackTable(const char* key,const char* value,size_t l)
+{
+    pushStringOntoStack(key,0);
+    pushStringOntoStack(value,l);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyInt32ArrayIntoStackTable(const char* key,const int* arr,size_t l)
+{
+    pushStringOntoStack(key,0);
+    pushInt32ArrayOntoStack(arr,l);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyInt64ArrayIntoStackTable(const char* key,const long long int* arr,size_t l)
+{
+    pushStringOntoStack(key,0);
+    pushInt64ArrayOntoStack(arr,l);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyFloatArrayIntoStackTable(const char* key,const float* arr,size_t l)
+{
+    pushStringOntoStack(key,0);
+    pushFloatArrayOntoStack(arr,l);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyDoubleArrayIntoStackTable(const char* key,const double* arr,size_t l)
+{
+    pushStringOntoStack(key,0);
+    pushDoubleArrayOntoStack(arr,l);
+    insertDataIntoStackTable();
 }
 
 void CInterfaceStack::pushTableOntoStack()

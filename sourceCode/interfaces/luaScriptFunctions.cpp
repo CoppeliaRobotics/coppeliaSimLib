@@ -4978,8 +4978,82 @@ int _simTest(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.test");
+    if (checkInputArguments(L,nullptr,lua_arg_string,0))
+    {
+        std::string cmd=luaWrap_lua_tostring(L,1);
+        if (cmd.compare("sim.getShapeViz")==0)
+        {
+            int handle=luaWrap_lua_tointeger(L,2);
+            bool toCoppeliaSimPack=luaWrap_lua_toboolean(L,3);
+            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+            stack->pushTableOntoStack();
 
+            stack->insertKeyStringIntoStackTable("event","objectAdded",0);
+            stack->insertKeyInt32IntoStackTable("handle",handle);
+            stack->insertKeyStringIntoStackTable("type","shape",0);
 
+            stack->pushStringOntoStack("meshData",0);
+            stack->pushTableOntoStack();
+
+            SShapeVizInfo info;
+            int index=0;
+            while (true)
+            {
+                int ret=simGetShapeViz_internal(handle+sim_handleflag_extended,index,&info);
+                if (ret<=0)
+                    break;
+
+                stack->pushInt32OntoStack(index+1);
+                stack->pushTableOntoStack();
+                index++;
+
+                stack->insertKeyFloatArrayIntoStackTable("vertices",info.vertices,size_t(info.verticesSize));
+                stack->insertKeyInt32ArrayIntoStackTable("indices",info.indices,size_t(info.indicesSize));
+                stack->insertKeyFloatArrayIntoStackTable("normals",info.normals,size_t(info.indicesSize*3));
+                stack->insertKeyFloatArrayIntoStackTable("colors",info.colors,9);
+                stack->insertKeyFloatIntoStackTable("shadingAngle",info.shadingAngle);
+                stack->insertKeyFloatIntoStackTable("transparency",info.transparency);
+                stack->insertKeyInt32IntoStackTable("options",info.options);
+                delete[] info.vertices;
+                delete[] info.indices;
+                delete[] info.normals;
+                if (ret>1)
+                {
+                    std::string buffer;
+                    bool res=CImageLoaderSaver::save((unsigned char*)info.texture,info.textureRes,1,".png",-1,&buffer);
+                    if (res)
+                    {
+                        stack->pushStringOntoStack("texture",0);
+                        stack->pushTableOntoStack();
+
+                        buffer=CTTUtil::encode64(buffer);
+                        stack->insertKeyStringIntoStackTable("texture",buffer.c_str(),buffer.size());
+                        stack->insertKeyInt32ArrayIntoStackTable("resolution",info.textureRes,2);
+                        stack->insertKeyFloatArrayIntoStackTable("coordinates",info.textureCoords,size_t(info.indicesSize*2));
+                        stack->insertKeyInt32IntoStackTable("applyMode",info.textureApplyMode);
+                        stack->insertKeyInt32IntoStackTable("options",info.textureOptions);
+                        stack->insertKeyInt32IntoStackTable("id",info.textureId);
+
+                        stack->insertDataIntoStackTable();
+                    }
+                    delete[] info.texture;
+                    delete[] info.textureCoords;
+                }
+                stack->insertDataIntoStackTable();
+            }
+
+            stack->insertDataIntoStackTable();
+            std::string s;
+            if (toCoppeliaSimPack)
+                s=stack->getBufferFromTable();
+            else
+                s=stack->getCborEncodedBufferFromTable();
+
+            luaWrap_lua_pushlstring(L,s.c_str(),s.length());
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+            LUA_END(1);
+        }
+    }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
@@ -12697,27 +12771,14 @@ int _simGetShapeViz(luaWrap_lua_State* L)
             CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
             stack->pushTableOntoStack();
 
-            stack->pushStringOntoStack("vertices",0);
-            stack->pushFloatArrayTableOntoStack(info.vertices,size_t(info.verticesSize));
-            stack->insertDataIntoStackTable();
-            stack->pushStringOntoStack("indices",0);
-            stack->pushInt32ArrayTableOntoStack(info.indices,size_t(info.indicesSize));
-            stack->insertDataIntoStackTable();
-            stack->pushStringOntoStack("normals",0);
-            stack->pushFloatArrayTableOntoStack(info.normals,size_t(info.indicesSize*3));
-            stack->insertDataIntoStackTable();
-            stack->pushStringOntoStack("colors",0);
-            stack->pushFloatArrayTableOntoStack(info.colors,9);
-            stack->insertDataIntoStackTable();
-            stack->pushStringOntoStack("shadingAngle",0);
-            stack->pushNumberOntoStack(double(info.shadingAngle));
-            stack->insertDataIntoStackTable();
-            stack->pushStringOntoStack("transparency",0);
-            stack->pushNumberOntoStack(double(info.transparency));
-            stack->insertDataIntoStackTable();
-            stack->pushStringOntoStack("options",0);
-            stack->pushInt32OntoStack(info.options);
-            stack->insertDataIntoStackTable();
+            stack->insertKeyFloatArrayIntoStackTable("vertices",info.vertices,size_t(info.verticesSize));
+            stack->insertKeyInt32ArrayIntoStackTable("indices",info.indices,size_t(info.indicesSize));
+            stack->insertKeyFloatArrayIntoStackTable("normals",info.normals,size_t(info.indicesSize*3));
+            stack->insertKeyFloatArrayIntoStackTable("colors",info.colors,9);
+            stack->insertKeyFloatIntoStackTable("shadingAngle",info.shadingAngle);
+            stack->insertKeyFloatIntoStackTable("transparency",info.transparency);
+            stack->insertKeyInt32IntoStackTable("options",info.options);
+
             delete[] info.vertices;
             delete[] info.indices;
             delete[] info.normals;
@@ -12726,24 +12787,12 @@ int _simGetShapeViz(luaWrap_lua_State* L)
                 stack->pushStringOntoStack("texture",0);
                 stack->pushTableOntoStack();
 
-                stack->pushStringOntoStack("texture",0);
-                stack->pushStringOntoStack(info.texture,4*info.textureRes[0]*info.textureRes[1]);
-                stack->insertDataIntoStackTable();
-                stack->pushStringOntoStack("resolution",0);
-                stack->pushInt32ArrayTableOntoStack(info.textureRes,2);
-                stack->insertDataIntoStackTable();
-                stack->pushStringOntoStack("coordinates",0);
-                stack->pushFloatArrayTableOntoStack(info.textureCoords,size_t(info.indicesSize*2));
-                stack->insertDataIntoStackTable();
-                stack->pushStringOntoStack("applyMode",0);
-                stack->pushInt32OntoStack(info.textureApplyMode);
-                stack->insertDataIntoStackTable();
-                stack->pushStringOntoStack("options",0);
-                stack->pushInt32OntoStack(info.textureOptions);
-                stack->insertDataIntoStackTable();
-                stack->pushStringOntoStack("id",0);
-                stack->pushInt32OntoStack(info.textureId);
-                stack->insertDataIntoStackTable();
+                stack->insertKeyStringIntoStackTable("texture",info.texture,4*info.textureRes[0]*info.textureRes[1]);
+                stack->insertKeyInt32ArrayIntoStackTable("resolution",info.textureRes,2);
+                stack->insertKeyFloatArrayIntoStackTable("coordinates",info.textureCoords,size_t(info.indicesSize*2));
+                stack->insertKeyInt32IntoStackTable("applyMode",info.textureApplyMode);
+                stack->insertKeyInt32IntoStackTable("options",info.textureOptions);
+                stack->insertKeyInt32IntoStackTable("id",info.textureId);
 
                 stack->insertDataIntoStackTable();
                 delete[] info.texture;
@@ -14973,8 +15022,8 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
             {
                 CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
                 stack->pushStringOntoStack(txt.c_str(),txt.size());
-                stack->pushInt32ArrayTableOntoStack(posAndSize+0,2);
-                stack->pushInt32ArrayTableOntoStack(posAndSize+2,2);
+                stack->pushInt32ArrayOntoStack(posAndSize+0,2);
+                stack->pushInt32ArrayOntoStack(posAndSize+2,2);
                 it->callCustomScriptFunction(cb.c_str(),stack);
                 App::worldContainer->interfaceStackContainer->destroyStack(stack);
             }
@@ -17001,7 +17050,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
                         stack->pushTableOntoStack();
                         for (int i=0;i<int(retParams.size());i++)
                         {
-                            stack->pushNumberOntoStack((double)i+1); // key
+                            stack->pushInt32OntoStack(i+1); // key
                             int t=getCorrectType_old(retParams[i]);
                             if (returnString)
                                 t=4; // we force for strings!
@@ -17013,7 +17062,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
                             {
                                 float v;
                                 tt::getValidFloat(retParams[i].c_str(),v);
-                                stack->pushNumberOntoStack((double)v);
+                                stack->pushFloatOntoStack(v);
                             }
                             if (t==4)
                                 stack->pushStringOntoStack(retParams[i].c_str(),0);

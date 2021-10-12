@@ -192,8 +192,8 @@ void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         stack->pushTableOntoStack();
         stack->pushStringOntoStack("objectHandles",0);
         stack->pushTableOntoStack();
-        stack->pushNumberOntoStack(double(1)); // key or index
-        stack->pushNumberOntoStack(newObject->getObjectHandle());
+        stack->pushInt32OntoStack(1); // key or index
+        stack->pushInt32OntoStack(newObject->getObjectHandle());
         stack->insertDataIntoStackTable();
         stack->insertDataIntoStackTable();
         App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
@@ -215,7 +215,7 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
         stack->pushTableOntoStack();
         stack->pushStringOntoStack("objectHandles",0);
         stack->pushTableOntoStack();
-        stack->pushNumberOntoStack(double(it->getObjectHandle())); // key or index
+        stack->pushInt32OntoStack(it->getObjectHandle()); // key or index
         stack->pushBoolOntoStack(true);
         stack->insertDataIntoStackTable();
         stack->insertDataIntoStackTable();

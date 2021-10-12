@@ -13694,7 +13694,7 @@ simInt simPushFloatOntoStack_internal(simInt stackHandle,simFloat value)
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushNumberOntoStack((double)value);
+            stack->pushFloatOntoStack(value);
             return(1);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
@@ -13717,7 +13717,7 @@ simInt simPushDoubleOntoStack_internal(simInt stackHandle,simDouble value)
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushNumberOntoStack(value);
+            stack->pushDoubleOntoStack(value);
             return(1);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
@@ -13763,7 +13763,7 @@ simInt simPushUInt8TableOntoStack_internal(simInt stackHandle,const simUChar* va
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushUCharArrayTableOntoStack(values,size_t(valueCnt));
+            stack->pushUCharArrayOntoStack(values,size_t(valueCnt));
             return(1);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
@@ -13786,7 +13786,7 @@ simInt simPushInt32TableOntoStack_internal(simInt stackHandle,const simInt* valu
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushInt32ArrayTableOntoStack(values,size_t(valueCnt));
+            stack->pushInt32ArrayOntoStack(values,size_t(valueCnt));
             return(1);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
@@ -13809,7 +13809,7 @@ simInt simPushInt64TableOntoStack_internal(simInt stackHandle,const simInt64* va
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushInt64ArrayTableOntoStack(values,size_t(valueCnt));
+            stack->pushInt64ArrayOntoStack(values,size_t(valueCnt));
             return(1);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
@@ -13832,7 +13832,7 @@ simInt simPushFloatTableOntoStack_internal(simInt stackHandle,const simFloat* va
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushFloatArrayTableOntoStack(values,size_t(valueCnt));
+            stack->pushFloatArrayOntoStack(values,size_t(valueCnt));
             return(1);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
@@ -13855,7 +13855,7 @@ simInt simPushDoubleTableOntoStack_internal(simInt stackHandle,const simDouble* 
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            stack->pushDoubleArrayTableOntoStack(values,size_t(valueCnt));
+            stack->pushDoubleArrayOntoStack(values,size_t(valueCnt));
             return(1);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
@@ -15885,8 +15885,8 @@ simInt simEventNotification_internal(const simChar* event)
                                     int posAndSize[4];
                                     std::string txt=App::mainWindow->codeEditorContainer->getText(h,posAndSize);
                                     stack->pushStringOntoStack(txt.c_str(),0);
-                                    stack->pushInt32ArrayTableOntoStack(posAndSize+0,2);
-                                    stack->pushInt32ArrayTableOntoStack(posAndSize+2,2);
+                                    stack->pushInt32ArrayOntoStack(posAndSize+0,2);
+                                    stack->pushInt32ArrayOntoStack(posAndSize+2,2);
                                     simCallScriptFunctionEx_internal(callingScript,data,stack->getId());
                                     App::worldContainer->interfaceStackContainer->destroyStack(stack);
                                 }
@@ -16725,15 +16725,9 @@ simInt _simHandleCustomContact_internal(simInt objHandle1,simInt objHandle2,simI
     {
         CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
         inStack->pushTableOntoStack();
-        inStack->pushStringOntoStack("handle1",0);
-        inStack->pushNumberOntoStack(double(objHandle1));
-        inStack->insertDataIntoStackTable();
-        inStack->pushStringOntoStack("handle2",0);
-        inStack->pushNumberOntoStack(double(objHandle2));
-        inStack->insertDataIntoStackTable();
-        inStack->pushStringOntoStack("engine",0);
-        inStack->pushNumberOntoStack(double(engine));
-        inStack->insertDataIntoStackTable();
+        inStack->insertKeyInt32IntoStackTable("handle1",objHandle1);
+        inStack->insertKeyInt32IntoStackTable("handle2",objHandle2);
+        inStack->insertKeyInt32IntoStackTable("engine",engine);
         CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
         int retInfo=0;
         App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,sim_syscb_contactcallback,inStack,outStack,&retInfo);
@@ -16753,8 +16747,8 @@ simInt _simHandleCustomContact_internal(simInt objHandle1,simInt objHandle2,simI
                 {
                     if (engine==sim_physics_ode)
                     {
-                        outStack->getStackMapIntValue("ode.maxContacts",dataInt[1]);
-                        outStack->getStackMapIntValue("ode.contactMode",dataInt[2]);
+                        outStack->getStackMapInt32Value("ode.maxContacts",dataInt[1]);
+                        outStack->getStackMapInt32Value("ode.contactMode",dataInt[2]);
                     }
                     if (engine==sim_physics_bullet)
                     {
@@ -16829,21 +16823,11 @@ simVoid _simDynCallback_internal(const simInt* intData,const simFloat* floatData
     { // to make it a bit faster than blindly parsing the whole object hierarchy
         CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
         inStack->pushTableOntoStack();
-        inStack->pushStringOntoStack("passCnt",0);
-        inStack->pushNumberOntoStack(double(intData[1]));
-        inStack->insertDataIntoStackTable();
 
-        inStack->pushStringOntoStack("totalPasses",0);
-        inStack->pushNumberOntoStack(double(intData[2]));
-        inStack->insertDataIntoStackTable();
-
-        inStack->pushStringOntoStack("dynStepSize",0);
-        inStack->pushNumberOntoStack(double(floatData[0]));
-        inStack->insertDataIntoStackTable();
-
-        inStack->pushStringOntoStack("afterStep",0);
-        inStack->pushBoolOntoStack(intData[3]!=0);
-        inStack->insertDataIntoStackTable();
+        inStack->insertKeyInt32IntoStackTable("passCnt",intData[1]);
+        inStack->insertKeyInt32IntoStackTable("totalPasses",intData[2]);
+        inStack->insertKeyFloatIntoStackTable("dynStepSize",floatData[0]);
+        inStack->insertKeyBoolIntoStackTable("afterStep",intData[3]!=0);
         App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,sim_syscb_dyncallback,inStack,nullptr,nullptr);
         App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_dyncallback,inStack,nullptr,nullptr);
         App::worldContainer->interfaceStackContainer->destroyStack(inStack);
@@ -22196,7 +22180,7 @@ simInt simDisplayDialog_internal(const simChar* titleText,const simChar* mainTex
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
         stack->pushStringOntoStack(titleText,0);
         stack->pushStringOntoStack(mainText,0);
-        stack->pushNumberOntoStack(dialogType);
+        stack->pushInt32OntoStack(dialogType);
         stack->pushBoolOntoStack(false);
         if (initialText!=nullptr)
             stack->pushStringOntoStack(initialText,0);
@@ -22224,7 +22208,7 @@ simInt simGetDialogResult_internal(simInt genericDialogHandle)
     {
 #ifdef SIM_WITH_GUI
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();;
-        stack->pushNumberOntoStack(genericDialogHandle);
+        stack->pushInt32OntoStack(genericDialogHandle);
         simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.getDialogResult",stack->getId());
         int retVal;
         stack->getStackInt32Value(retVal);
@@ -22250,7 +22234,7 @@ simChar* simGetDialogInput_internal(simInt genericDialogHandle)
         std::string tmp;
 #ifdef SIM_WITH_GUI
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-        stack->pushNumberOntoStack(genericDialogHandle);
+        stack->pushInt32OntoStack(genericDialogHandle);
         simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.getDialogInput",stack->getId());
         bool r=stack->getStackStringValue(tmp);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
@@ -22280,7 +22264,7 @@ simInt simEndDialog_internal(simInt genericDialogHandle)
     {
 #ifdef SIM_WITH_GUI
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-        stack->pushNumberOntoStack(genericDialogHandle);
+        stack->pushInt32OntoStack(genericDialogHandle);
         simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.endDialog",stack->getId());
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
 #endif

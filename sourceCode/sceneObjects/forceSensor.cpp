@@ -308,62 +308,11 @@ void CForceSensor::_handleSensorBreaking()
             {
                 CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
                 inStack->pushTableOntoStack();
-
-                inStack->pushStringOntoStack("handle",0);
-                inStack->pushNumberOntoStack(getObjectHandle());
-                inStack->insertDataIntoStackTable();
-
-                inStack->pushStringOntoStack("force",0);
-                inStack->pushTableOntoStack();
-                inStack->pushNumberOntoStack(1);
-                inStack->pushNumberOntoStack(_lastForce_dynStep(0));
-                inStack->insertDataIntoStackTable();
-                inStack->pushNumberOntoStack(2);
-                inStack->pushNumberOntoStack(_lastForce_dynStep(1));
-                inStack->insertDataIntoStackTable();
-                inStack->pushNumberOntoStack(3);
-                inStack->pushNumberOntoStack(_lastForce_dynStep(2));
-                inStack->insertDataIntoStackTable();
-                inStack->insertDataIntoStackTable();
-
-                inStack->pushStringOntoStack("torque",0);
-                inStack->pushTableOntoStack();
-                inStack->pushNumberOntoStack(1);
-                inStack->pushNumberOntoStack(_lastTorque_dynStep(0));
-                inStack->insertDataIntoStackTable();
-                inStack->pushNumberOntoStack(2);
-                inStack->pushNumberOntoStack(_lastTorque_dynStep(1));
-                inStack->insertDataIntoStackTable();
-                inStack->pushNumberOntoStack(3);
-                inStack->pushNumberOntoStack(_lastTorque_dynStep(2));
-                inStack->insertDataIntoStackTable();
-                inStack->insertDataIntoStackTable();
-
-                inStack->pushStringOntoStack("filteredForce",0);
-                inStack->pushTableOntoStack();
-                inStack->pushNumberOntoStack(1);
-                inStack->pushNumberOntoStack(_filteredDynamicForces(0));
-                inStack->insertDataIntoStackTable();
-                inStack->pushNumberOntoStack(2);
-                inStack->pushNumberOntoStack(_filteredDynamicForces(1));
-                inStack->insertDataIntoStackTable();
-                inStack->pushNumberOntoStack(3);
-                inStack->pushNumberOntoStack(_filteredDynamicForces(2));
-                inStack->insertDataIntoStackTable();
-                inStack->insertDataIntoStackTable();
-
-                inStack->pushStringOntoStack("filteredTorque",0);
-                inStack->pushTableOntoStack();
-                inStack->pushNumberOntoStack(1);
-                inStack->pushNumberOntoStack(_filteredDynamicTorques(0));
-                inStack->insertDataIntoStackTable();
-                inStack->pushNumberOntoStack(2);
-                inStack->pushNumberOntoStack(_filteredDynamicTorques(1));
-                inStack->insertDataIntoStackTable();
-                inStack->pushNumberOntoStack(3);
-                inStack->pushNumberOntoStack(_filteredDynamicTorques(2));
-                inStack->insertDataIntoStackTable();
-                inStack->insertDataIntoStackTable();
+                inStack->insertKeyInt32IntoStackTable("handle",getObjectHandle());
+                inStack->insertKeyFloatArrayIntoStackTable("force",_lastForce_dynStep.data,3);
+                inStack->insertKeyFloatArrayIntoStackTable("torque",_lastTorque_dynStep.data,3);
+                inStack->insertKeyFloatArrayIntoStackTable("filteredForce",_filteredDynamicForces.data,3);
+                inStack->insertKeyFloatArrayIntoStackTable("filteredTorque",_filteredDynamicTorques.data,3);
                 // we are in the main simulation thread. Call only scripts that live in the same thread
                 if ( (script!=nullptr)&&(!script->getThreadedExecution_oldThreads()) )
                     script->systemCallScript(sim_syscb_trigger,inStack,nullptr);
