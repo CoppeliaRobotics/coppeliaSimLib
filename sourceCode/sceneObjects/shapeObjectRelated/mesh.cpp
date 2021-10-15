@@ -730,6 +730,11 @@ void CMesh::getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentL
     shapeComponentList.push_back(this);
 }
 
+int CMesh::countAllShapeComponentsCumulative()
+{   // function has virtual/non-virtual counterpart!
+    return(1);
+}
+
 CMesh* CMesh::getShapeComponentAtIndex(int& index)
 { // function has virtual/non-virtual counterpart!
     if (index<0)

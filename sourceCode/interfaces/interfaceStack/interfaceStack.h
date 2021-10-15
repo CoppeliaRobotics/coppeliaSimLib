@@ -83,7 +83,7 @@ public:
     bool getStackMapStringValue(const char* fieldName,std::string& val) const;
     bool getStackMapFloatArray(const char* fieldName,float* array,int count) const;
     std::string getBufferFromTable() const;
-    std::string getCborEncodedBufferFromTable() const;
+    std::string getCborEncodedBufferFromTable(int options) const;
 
     void printContent(int cIndex,std::string& buffer) const;
 

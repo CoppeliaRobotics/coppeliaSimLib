@@ -42,7 +42,7 @@ std::string CInterfaceStackBool::getObjectData() const
     return(retVal);
 }
 
-void CInterfaceStackBool::getCborObjectData(CCbor* cborObj) const
+void CInterfaceStackBool::addCborObjectData(CCbor* cborObj) const
 {
     cborObj->appendBool(_value);
 }

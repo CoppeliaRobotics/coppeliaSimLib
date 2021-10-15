@@ -34,7 +34,8 @@ public:
     void getCumulativeMeshes(std::vector<float>& vertices,std::vector<int>* indices,std::vector<float>* normals);
     void setColor(const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset);
     bool getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset);
-    void getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList); // needed by the dynamics routine
+    void getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList);
+    int countAllShapeComponentsCumulative();
     CMesh* getShapeComponentAtIndex(int& index);
     int getComponentCount() const;
     void serialize(CSer& ar,const char* shapeName);

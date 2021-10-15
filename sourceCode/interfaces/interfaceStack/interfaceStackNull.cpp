@@ -28,7 +28,7 @@ std::string CInterfaceStackNull::getObjectData() const
     return("");
 }
 
-void CInterfaceStackNull::getCborObjectData(CCbor* cborObj) const
+void CInterfaceStackNull::addCborObjectData(CCbor* cborObj) const
 {
     cborObj->appendNull();
 }

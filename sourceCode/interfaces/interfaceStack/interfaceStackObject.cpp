@@ -33,7 +33,7 @@ std::string CInterfaceStackObject::getObjectData() const
     return("");
 }
 
-void CInterfaceStackObject::getCborObjectData(CCbor* cborObj) const
+void CInterfaceStackObject::addCborObjectData(CCbor* cborObj) const
 {
 }
 

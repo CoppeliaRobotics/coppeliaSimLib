@@ -382,6 +382,14 @@ void CMeshWrapper::getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeCom
         childList[i]->getAllShapeComponentsCumulative(shapeComponentList);
 }
 
+int CMeshWrapper::countAllShapeComponentsCumulative()
+{   // function has virtual/non-virtual counterpart!
+    int retVal=0;
+    for (size_t i=0;i<childList.size();i++)
+        retVal+=childList[i]->countAllShapeComponentsCumulative();
+    return(retVal);
+}
+
 CMesh* CMeshWrapper::getShapeComponentAtIndex(int& index)
 { // function has virtual/non-virtual counterpart!
     if (index<0)

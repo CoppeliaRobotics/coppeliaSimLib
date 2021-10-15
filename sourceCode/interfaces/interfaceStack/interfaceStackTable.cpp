@@ -707,7 +707,7 @@ std::string CInterfaceStackTable::getObjectData() const
     return(retVal);
 }
 
-void CInterfaceStackTable::getCborObjectData(CCbor* cborObj) const
+void CInterfaceStackTable::addCborObjectData(CCbor* cborObj) const
 {
     if (_isCircularRef)
         cborObj->appendMap(0);
@@ -726,7 +726,7 @@ void CInterfaceStackTable::getCborObjectData(CCbor* cborObj) const
     if (_isTableArray)
     {
         for (size_t i=0;i<_tableObjects.size();i++)
-            _tableObjects[i]->getCborObjectData(cborObj);
+            _tableObjects[i]->addCborObjectData(cborObj);
     }
     else
     { // we need to store the map data according to a specific key order,
@@ -755,8 +755,8 @@ void CInterfaceStackTable::getCborObjectData(CCbor* cborObj) const
                 stringKeys.push_back(std::make_pair(((CInterfaceStackString*)key)->getValue(nullptr),i));
             else
             { // should normally not happen. We push unordered
-                key->getCborObjectData(cborObj);
-                _tableObjects[2*i+1]->getCborObjectData(cborObj);
+                key->addCborObjectData(cborObj);
+                _tableObjects[2*i+1]->addCborObjectData(cborObj);
             }
             */
 
@@ -768,37 +768,38 @@ void CInterfaceStackTable::getCborObjectData(CCbor* cborObj) const
         /*
         if (boolFalse>=0)
         { // the key is 'false'
-            _tableObjects[2*boolFalse+0]->getCborObjectData(cborObj);
-            _tableObjects[2*boolFalse+1]->getCborObjectData(cborObj);
+            _tableObjects[2*boolFalse+0]->addCborObjectData(cborObj);
+            _tableObjects[2*boolFalse+1]->addCborObjectData(cborObj);
         }
         if (boolTrue>=0)
         { // the key is 'true'
-            _tableObjects[2*boolTrue+0]->getCborObjectData(cborObj);
-            _tableObjects[2*boolTrue+1]->getCborObjectData(cborObj);
+            _tableObjects[2*boolTrue+0]->addCborObjectData(cborObj);
+            _tableObjects[2*boolTrue+1]->addCborObjectData(cborObj);
         }
         std::sort(numberKeys.begin(),numberKeys.end());
         for (size_t i=0;i<numberKeys.size();i++)
         {
             int ind=numberKeys[i].second;
-            _tableObjects[2*ind+0]->getCborObjectData(cborObj);
-            _tableObjects[2*ind+1]->getCborObjectData(cborObj);
+            _tableObjects[2*ind+0]->addCborObjectData(cborObj);
+            _tableObjects[2*ind+1]->addCborObjectData(cborObj);
         }
         std::sort(integerKeys.begin(),integerKeys.end());
         for (size_t i=0;i<integerKeys.size();i++)
         {
             int ind=integerKeys[i].second;
-            _tableObjects[2*ind+0]->getCborObjectData(cborObj);
-            _tableObjects[2*ind+1]->getCborObjectData(cborObj);
+            _tableObjects[2*ind+0]->addCborObjectData(cborObj);
+            _tableObjects[2*ind+1]->addCborObjectData(cborObj);
         }
         */
         std::sort(stringKeys.begin(),stringKeys.end());
         for (size_t i=0;i<stringKeys.size();i++)
         {
             int ind=stringKeys[i].second;
-            _tableObjects[2*ind+0]->getCborObjectData(cborObj);
-            _tableObjects[2*ind+1]->getCborObjectData(cborObj);
+            _tableObjects[2*ind+0]->addCborObjectData(cborObj);
+            _tableObjects[2*ind+1]->addCborObjectData(cborObj);
         }
     }
+    cborObj->appendBreakIfApplicable();
 }
 
 

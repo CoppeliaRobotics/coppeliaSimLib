@@ -18,6 +18,7 @@
 #include "sceneObjectOperations.h"
 #include "collisionRoutines.h"
 #include "distanceRoutines.h"
+#include "cbor.h"
 
 #define LUA_START(funcName) \
     CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old(); \
@@ -4984,68 +4985,157 @@ int _simTest(luaWrap_lua_State* L)
         if ( (cmd.compare("sim.getShapeViz")==0)&&luaWrap_lua_isinteger(L,2)&&luaWrap_lua_istable(L,3) )
         {
             int handle=luaWrap_lua_tointeger(L,2);
-            bool toCoppeliaSimPack=luaWrap_lua_toboolean(L,4);
+            int packScheme=0;
+            if (luaWrap_lua_isinteger(L,4))
+                packScheme=luaWrap_lua_tointeger(L,4);
+
             CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
             CScriptObject::buildFromInterpreterStack_lua(L,stack,3,1);
+            std::string encodedBuff;
 
-            stack->pushStringOntoStack("meshData",0);
-            stack->pushTableOntoStack();
-
-            SShapeVizInfo info;
-            int index=0;
-            while (true)
+            if (packScheme>0)
             {
-                int ret=simGetShapeViz_internal(handle+sim_handleflag_extended,index,&info);
-                if (ret<=0)
-                    break;
 
-                stack->pushInt32OntoStack(index+1);
+                stack->pushStringOntoStack("meshData",0);
                 stack->pushTableOntoStack();
-                index++;
 
-                stack->insertKeyFloatArrayIntoStackTable("vertices",info.vertices,size_t(info.verticesSize));
-                stack->insertKeyInt32ArrayIntoStackTable("indices",info.indices,size_t(info.indicesSize));
-                stack->insertKeyFloatArrayIntoStackTable("normals",info.normals,size_t(info.indicesSize*3));
-                stack->insertKeyFloatArrayIntoStackTable("colors",info.colors,9);
-                stack->insertKeyFloatIntoStackTable("shadingAngle",info.shadingAngle);
-                stack->insertKeyFloatIntoStackTable("transparency",info.transparency);
-                stack->insertKeyInt32IntoStackTable("options",info.options);
-                delete[] info.vertices;
-                delete[] info.indices;
-                delete[] info.normals;
-                if (ret>1)
+                SShapeVizInfo info;
+                int index=0;
+                while (true)
                 {
-                    std::string buffer;
-                    bool res=CImageLoaderSaver::save((unsigned char*)info.texture,info.textureRes,1,".png",-1,&buffer);
-                    if (res)
+                    int ret=simGetShapeViz_internal(handle+sim_handleflag_extended,index,&info);
+                    if (ret<=0)
+                        break;
+
+                    stack->pushInt32OntoStack(index+1);
+                    stack->pushTableOntoStack();
+                    index++;
+
+                    stack->insertKeyFloatArrayIntoStackTable("vertices",info.vertices,size_t(info.verticesSize));
+                    stack->insertKeyInt32ArrayIntoStackTable("indices",info.indices,size_t(info.indicesSize));
+                    stack->insertKeyFloatArrayIntoStackTable("normals",info.normals,size_t(info.indicesSize*3));
+                    stack->insertKeyFloatArrayIntoStackTable("colors",info.colors,9);
+                    stack->insertKeyFloatIntoStackTable("shadingAngle",info.shadingAngle);
+                    stack->insertKeyFloatIntoStackTable("transparency",info.transparency);
+                    stack->insertKeyInt32IntoStackTable("options",info.options);
+                    delete[] info.vertices;
+                    delete[] info.indices;
+                    delete[] info.normals;
+                    if (ret>1)
                     {
-                        stack->pushStringOntoStack("texture",0);
-                        stack->pushTableOntoStack();
+                        std::string buffer;
+                        bool res=CImageLoaderSaver::save((unsigned char*)info.texture,info.textureRes,1,".png",-1,&buffer);
+                        if (res)
+                        {
+                            stack->pushStringOntoStack("texture",0);
+                            stack->pushTableOntoStack();
 
-                        buffer=CTTUtil::encode64(buffer);
-                        stack->insertKeyStringIntoStackTable("texture",buffer.c_str(),buffer.size());
-                        stack->insertKeyInt32ArrayIntoStackTable("resolution",info.textureRes,2);
-                        stack->insertKeyFloatArrayIntoStackTable("coordinates",info.textureCoords,size_t(info.indicesSize*2));
-                        stack->insertKeyInt32IntoStackTable("applyMode",info.textureApplyMode);
-                        stack->insertKeyInt32IntoStackTable("options",info.textureOptions);
-                        stack->insertKeyInt32IntoStackTable("id",info.textureId);
+                            buffer=CTTUtil::encode64(buffer);
+                            stack->insertKeyStringIntoStackTable("texture",buffer.c_str(),buffer.size());
+                            stack->insertKeyInt32ArrayIntoStackTable("resolution",info.textureRes,2);
+                            stack->insertKeyFloatArrayIntoStackTable("coordinates",info.textureCoords,size_t(info.indicesSize*2));
+                            stack->insertKeyInt32IntoStackTable("applyMode",info.textureApplyMode);
+                            stack->insertKeyInt32IntoStackTable("options",info.textureOptions);
+                            stack->insertKeyInt32IntoStackTable("id",info.textureId);
 
-                        stack->insertDataIntoStackTable();
+                            stack->insertDataIntoStackTable();
+                        }
+                        delete[] info.texture;
+                        delete[] info.textureCoords;
                     }
-                    delete[] info.texture;
-                    delete[] info.textureCoords;
+                    stack->insertDataIntoStackTable();
                 }
+
                 stack->insertDataIntoStackTable();
+                if (packScheme==1)
+                    encodedBuff=stack->getBufferFromTable();
+                else
+                    encodedBuff=stack->getCborEncodedBufferFromTable(0);
+            }
+            else
+            {
+                encodedBuff=stack->getCborEncodedBufferFromTable(0); // get the initial part...
+                encodedBuff.resize(encodedBuff.size()-1); // ... minus the final break char
+                CCbor obj(&encodedBuff,0); // Use that initial part from here
+                // append the next key-value pair:
+                obj.appendString("meshData");
+                obj.appendArray(0);
+
+                SShapeVizInfo info;
+                int index=0;
+                while (true)
+                {
+                    int ret=simGetShapeViz_internal(handle+sim_handleflag_extended,index++,&info);
+                    if (ret<=0)
+                        break;
+                    size_t c=7;
+                    std::string buffer;
+                    if (ret>1)
+                    {
+                        bool res=CImageLoaderSaver::save((unsigned char*)info.texture,info.textureRes,1,".png",-1,&buffer);
+                        if (res)
+                            c++;
+                    }
+
+                    obj.appendMap(c);
+
+                    obj.appendString("vertices");
+                    obj.appendFloatArray(info.vertices,size_t(info.verticesSize));
+                    obj.appendString("indices");
+                    obj.appendIntArray(info.indices,size_t(info.indicesSize));
+                    obj.appendString("normals");
+                    obj.appendFloatArray(info.normals,size_t(info.indicesSize*3));
+                    obj.appendString("colors");
+                    obj.appendFloatArray(info.colors,9);
+                    obj.appendString("shadingAngle");
+                    obj.appendFloat(info.shadingAngle);
+                    obj.appendString("transparency");
+                    obj.appendFloat(info.transparency);
+                    obj.appendString("options");
+                    obj.appendInt(info.options);
+                    delete[] info.vertices;
+                    delete[] info.indices;
+                    delete[] info.normals;
+                    if (c>7)
+                    {
+                        obj.appendString("texture");
+                        obj.appendMap(6);
+
+                        obj.appendString("texture");
+                        buffer=CTTUtil::encode64(buffer);
+                        obj.appendString(buffer.c_str(),buffer.size());
+//                        obj.appendBuff((const unsigned char*)buffer.c_str(),buffer.size());
+                        obj.appendString("resolution");
+                        obj.appendIntArray(info.textureRes,2);
+                        obj.appendString("coordinates");
+                        obj.appendFloatArray(info.textureCoords,size_t(info.indicesSize*2));
+                        obj.appendString("applyMode");
+                        obj.appendInt(info.textureApplyMode);
+                        obj.appendString("options");
+                        obj.appendInt(info.textureOptions);
+                        obj.appendString("id");
+                        obj.appendInt(info.textureId);
+
+                        obj.appendBreakIfApplicable(); // map break
+                    }
+
+                    obj.appendBreakIfApplicable(); // map break
+
+                    if (ret>1)
+                    {
+                        delete[] info.texture;
+                        delete[] info.textureCoords;
+                    }
+                }
+
+                obj.appendBreakIfApplicable(); // meshData array break
+
+                obj.appendBreakIfApplicable(); // user provided map break
+
+                encodedBuff=obj.getBuff();
             }
 
-            stack->insertDataIntoStackTable();
-            std::string s;
-            if (toCoppeliaSimPack)
-                s=stack->getBufferFromTable();
-            else
-                s=stack->getCborEncodedBufferFromTable();
-
-            luaWrap_lua_pushlstring(L,s.c_str(),s.length());
+            luaWrap_lua_pushlstring(L,encodedBuff.c_str(),encodedBuff.length());
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
             LUA_END(1);
         }
@@ -12286,7 +12376,9 @@ int _simPackTable(luaWrap_lua_State* L)
                 if (scheme==0)
                     s=stack->getBufferFromTable();
                 if (scheme==1)
-                    s=stack->getCborEncodedBufferFromTable();
+                    s=stack->getCborEncodedBufferFromTable(1);
+                if (scheme==2)
+                    s=stack->getCborEncodedBufferFromTable(0); // doubles coded as float
                 luaWrap_lua_pushlstring(L,s.c_str(),s.length());
                 App::worldContainer->interfaceStackContainer->destroyStack(stack);
                 LUA_END(1);

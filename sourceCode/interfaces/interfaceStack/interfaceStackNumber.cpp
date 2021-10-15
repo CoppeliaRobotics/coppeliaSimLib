@@ -39,7 +39,7 @@ std::string CInterfaceStackNumber::getObjectData() const
     return(retVal);
 }
 
-void CInterfaceStackNumber::getCborObjectData(CCbor* cborObj) const
+void CInterfaceStackNumber::addCborObjectData(CCbor* cborObj) const
 {
     cborObj->appendDouble(_value);
 }

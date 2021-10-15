@@ -645,7 +645,7 @@ bool CInterfaceStack::insertDataIntoStackTable()
     CInterfaceStackObject* obj3=_stackObjects[_stackObjects.size()-1];
     if (obj1->getObjectType()!=STACK_OBJECT_TABLE)
         return(false);
-    if ((obj2->getObjectType()!=STACK_OBJECT_NUMBER)&&(obj2->getObjectType()!=STACK_OBJECT_INTEGER)&&(obj2->getObjectType()!=STACK_OBJECT_STRING))
+    if ((obj2->getObjectType()!=STACK_OBJECT_NUMBER)&&(obj2->getObjectType()!=STACK_OBJECT_INTEGER)&&(obj2->getObjectType()!=STACK_OBJECT_STRING)&&(obj2->getObjectType()!=STACK_OBJECT_BOOL))
         return(false);
     CInterfaceStackTable* table=(CInterfaceStackTable*)obj1;
     table->appendArrayOrMapObject(obj3,obj2);
@@ -687,7 +687,7 @@ std::string CInterfaceStack::getBufferFromTable() const
     return(retVal);
 }
 
-std::string CInterfaceStack::getCborEncodedBufferFromTable() const
+std::string CInterfaceStack::getCborEncodedBufferFromTable(int options) const
 {
     std::string retVal;  // empty string=error
     if (_stackObjects.size()!=0)
@@ -696,8 +696,8 @@ std::string CInterfaceStack::getCborEncodedBufferFromTable() const
         if (it->getObjectType()==STACK_OBJECT_TABLE)
         {
             CInterfaceStackTable* table=(CInterfaceStackTable*)it;
-            CCbor cborObj;
-            table->getCborObjectData(&cborObj);
+            CCbor cborObj(nullptr,options);
+            table->addCborObjectData(&cborObj);
             retVal=cborObj.getBuff();
         }
     }

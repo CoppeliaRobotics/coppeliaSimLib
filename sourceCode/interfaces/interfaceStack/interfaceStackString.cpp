@@ -54,7 +54,7 @@ std::string CInterfaceStackString::getObjectData() const
     return(retVal);
 }
 
-void CInterfaceStackString::getCborObjectData(CCbor* cborObj) const
+void CInterfaceStackString::addCborObjectData(CCbor* cborObj) const
 {
     cborObj->appendLuaString(_value);
 }

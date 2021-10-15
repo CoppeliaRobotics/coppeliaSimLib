@@ -46,7 +46,7 @@ std::string CInterfaceStackInteger::getObjectData() const
     return(retVal);
 }
 
-void CInterfaceStackInteger::getCborObjectData(CCbor* cborObj) const
+void CInterfaceStackInteger::addCborObjectData(CCbor* cborObj) const
 {
     cborObj->appendInt(_value);
 }

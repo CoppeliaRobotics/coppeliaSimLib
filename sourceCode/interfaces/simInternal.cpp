@@ -15423,7 +15423,7 @@ simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizI
             info->vertices=new float[wvert->size()];
             for (size_t i=0;i<wvert->size()/3;i++)
             {
-                C3Vector v(&(wvert[0])[0]+i*3);
+                C3Vector v((&wvert[0][0])+i*3);
                 v=tr*v;
                 info->vertices[3*i+0]=v(0);
                 info->vertices[3*i+1]=v(1);
