@@ -53,6 +53,8 @@ simInt simGetJointTargetPosition_internal(simInt objectHandle,simFloat* targetPo
 simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque);
 simInt simGetJointMatrix_internal(simInt objectHandle,simFloat* matrix);
 simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* matrix);
+simInt simGetJointPose_internal(simInt objectHandle,simFloat* pose);
+simInt simSetJointPose_internal(simInt objectHandle,const simFloat* pose);
 simInt simGetJointInterval_internal(simInt objectHandle,simBool* cyclic,simFloat* interval);
 simInt simSetJointInterval_internal(simInt objectHandle,simBool cyclic,const simFloat* interval);
 simInt simGetObjectParent_internal(simInt objectHandle);

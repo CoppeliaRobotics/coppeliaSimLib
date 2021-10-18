@@ -154,6 +154,8 @@ extern int _simGetObjectPose(luaWrap_lua_State* L);
 extern int _simSetObjectPose(luaWrap_lua_State* L);
 extern int _simGetJointMatrix(luaWrap_lua_State* L);
 extern int _simSetSphericalJointMatrix(luaWrap_lua_State* L);
+extern int _simGetJointPose(luaWrap_lua_State* L);
+extern int _simSetJointPose(luaWrap_lua_State* L);
 extern int _simBuildIdentityMatrix(luaWrap_lua_State* L);
 extern int _simBuildMatrix(luaWrap_lua_State* L);
 extern int _simGetEulerAnglesFromMatrix(luaWrap_lua_State* L);

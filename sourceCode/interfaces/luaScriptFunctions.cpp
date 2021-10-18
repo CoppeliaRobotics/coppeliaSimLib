@@ -151,6 +151,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setObjectPose",_simSetObjectPose,                      "sim.setObjectPose(int objectHandle,int relativeToObjectHandle,table[7] pose)",true},
     {"sim.getJointMatrix",_simGetJointMatrix,                    "table[12] matrix=sim.getJointMatrix(int objectHandle)",true},
     {"sim.setSphericalJointMatrix",_simSetSphericalJointMatrix,  "sim.setSphericalJointMatrix(int objectHandle,table[12] matrix)",true},
+    {"sim.getJointPose",_simGetJointPose,                        "table[7] pose=sim.getJointPose(int objectHandle)",true},
+    {"sim.setJointPose",_simSetJointPose,                        "sim.setJointPose(int objectHandle,table[7] pose)",true},
     {"sim.buildIdentityMatrix",_simBuildIdentityMatrix,          "table[12] matrix=sim.buildIdentityMatrix()",true},
     {"sim.buildMatrix",_simBuildMatrix,                          "table[12] matrix=sim.buildMatrix(table[3] position,table[3] eulerAngles)",true},
     {"sim.getEulerAnglesFromMatrix",_simGetEulerAnglesFromMatrix,"table[3] eulerAngles=sim.getEulerAnglesFromMatrix(table[12] matrix)",true},
@@ -4019,6 +4021,41 @@ int _simSetSphericalJointMatrix(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
+}
+
+int _simGetJointPose(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getJointPose");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        float arr[7];
+        if (simGetJointPose_internal(luaWrap_lua_tointeger(L,1),arr)==1)
+        {
+            pushFloatTableOntoStack(L,7,arr); // Success
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetJointPose(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setJointPose");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,7))
+    {
+        float arr[7];
+        getFloatsFromTable(L,2,7,arr);
+        simSetJointPose_internal(luaWrap_lua_tointeger(L,1),arr);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 
 int _simBuildIdentityMatrix(luaWrap_lua_State* L)

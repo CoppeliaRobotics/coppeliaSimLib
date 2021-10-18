@@ -161,6 +161,14 @@ SIM_DLLEXPORT simInt simSetSphericalJointMatrix(simInt objectHandle,const simFlo
 {
     return(simSetSphericalJointMatrix_internal(objectHandle,matrix));
 }
+SIM_DLLEXPORT simInt simGetJointPose(simInt objectHandle,simFloat* pose)
+{
+    return(simGetJointPose_internal(objectHandle,pose));
+}
+SIM_DLLEXPORT simInt simSetJointPose(simInt objectHandle,const simFloat* pose)
+{
+    return(simSetJointPose_internal(objectHandle,pose));
+}
 SIM_DLLEXPORT simInt simGetJointInterval(simInt objectHandle,simBool* cyclic,simFloat* interval)
 {
     return(simGetJointInterval_internal(objectHandle,cyclic,interval));
