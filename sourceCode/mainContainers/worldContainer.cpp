@@ -55,7 +55,7 @@ int CWorldContainer::getModificationFlags(bool clearTheFlagsAfter)
     {
         CSceneObject* it=currentWorld->sceneObjects->getObjectFromHandle(currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
         if (it!=nullptr)
-            currentUniqueIdsOfSel.push_back(it->getUniqueId());
+            currentUniqueIdsOfSel.push_back(it->getObjectUniqueId());
     }
     if (currentUniqueIdsOfSel.size()==_uniqueIdsOfSelectionSinceLastTimeGetAndClearModificationFlagsWasCalled.size())
     {
@@ -86,6 +86,7 @@ int CWorldContainer::createNewWorld()
     // Inform scripts about future switch to new world (only if there is already at least one world):
     if (currentWorld!=nullptr)
     {
+        App::worldContainer->sendEvents();
         currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
         addOnScriptContainer->callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
@@ -123,6 +124,7 @@ int CWorldContainer::createNewWorld()
     currentWorld->initializeWorld();
 
     // Inform scripts about performed switch to new world:
+    App::worldContainer->sendEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
@@ -168,6 +170,7 @@ int CWorldContainer::destroyCurrentWorld()
             nextWorldIndex=int(_worlds.size())-2;
 
         // Inform scripts about future world switch:
+        App::worldContainer->sendEvents();
         currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
         addOnScriptContainer->callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
@@ -211,6 +214,7 @@ int CWorldContainer::destroyCurrentWorld()
         App::currentWorld=currentWorld;
 
         // Inform scripts about performed world switch:
+        App::worldContainer->sendEvents();
         currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
         addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
@@ -263,6 +267,11 @@ void CWorldContainer::initialize()
     customAppData=new CCustomData();
     calcInfo=new CCalculationInfo();
     addOnScriptContainer=new CAddOnScriptContainer();
+
+    _event=new CInterfaceStackTable();
+    _bufferedEvents=interfaceStackContainer->createStack();
+    _bufferedEvents->pushTableOntoStack();
+
     initializeRendering();
     createNewWorld();
 }
@@ -270,6 +279,9 @@ void CWorldContainer::initialize()
 void CWorldContainer::deinitialize()
 {
     TRACE_INTERNAL;
+    delete _event;
+    interfaceStackContainer->destroyStack(_bufferedEvents);
+
     copyBuffer->clearBuffer();
     while (_worlds.size()!=0)
         destroyCurrentWorld();
@@ -304,6 +316,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
         return(false);
 
     // Inform scripts about future world switch:
+    App::worldContainer->sendEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
@@ -335,6 +348,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     App::currentWorld=currentWorld;
 
     // Inform scripts about performed world switch:
+    App::worldContainer->sendEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
@@ -407,6 +421,62 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack)
     addOnScriptContainer->callScripts(callType,inStack,nullptr);
     if (sandboxScript!=nullptr)
         sandboxScript->systemCallScript(callType,inStack,nullptr);
+}
+
+CInterfaceStackTable* CWorldContainer::createFreshEvent(const char* event,int uid,bool mergeable/*=true*/)
+{
+    if (mergeable)
+    {
+        _lastEventN=event;
+        _lastEventNN=_lastEventN+std::to_string(uid);
+    }
+    else
+        _lastEventN.clear();
+    _event->appendMapObject_stringString("event",event,0);
+    return(_event);
+}
+
+void CWorldContainer::pushEvent()
+{
+    if (!_event->isEmpty())
+    {
+        CInterfaceStackTable* buff=(CInterfaceStackTable*)_bufferedEvents->getStackObjectFromIndex(0);
+        buff->appendArrayObject(_event);
+        _bufferedEventsSummary.push_back(_lastEventN);
+        _bufferedEventsSummary.push_back(_lastEventNN);
+        _event=new CInterfaceStackTable();
+    }
+}
+
+void CWorldContainer::sendEvents()
+{
+    CInterfaceStackTable* buff=(CInterfaceStackTable*)_bufferedEvents->getStackObjectFromIndex(0);
+    if ( (!VThread::isCurrentThreadTheUiThread())&&(!buff->isEmpty()) )
+    { // sim thread, send it!
+        CInterfaceStack* toSend=interfaceStackContainer->createStack();
+        toSend->pushTableOntoStack();
+        CInterfaceStackTable* toSendTable=(CInterfaceStackTable*)toSend->getStackObjectFromIndex(0);
+        std::map<std::string,bool> map;
+        for (int i=int(buff->getArraySize())-1;i>=0;i--)
+        {
+            if (_bufferedEventsSummary[2*i+0].size()>0)
+            {
+                std::map<std::string,bool>::iterator it=map.find(_bufferedEventsSummary[2*i+1]);
+                if (it==map.end())
+                {
+                    map[_bufferedEventsSummary[2*i+1]]=true;
+                    toSendTable->insertArrayObject(buff->getArrayItemAtIndex(i)->copyYourself(),0);
+                }
+            }
+            else
+                toSendTable->insertArrayObject(buff->getArrayItemAtIndex(i)->copyYourself(),0);
+        }
+        callScripts(sim_syscb_event,toSend);
+        interfaceStackContainer->destroyStack(toSend);
+        _bufferedEvents->clear();
+        _bufferedEvents->pushTableOntoStack();
+        _bufferedEventsSummary.clear();
+    }
 }
 
 #ifdef SIM_WITH_GUI

@@ -5,10 +5,10 @@
 
 CMemorizedConf::CMemorizedConf(CSceneObject* theObject)
 {
-    uniqueID=theObject->getUniqueId();
+    uniqueID=theObject->getObjectUniqueId();
     parentUniqueID=-1;
     if (theObject->getParent()!=nullptr)
-        parentUniqueID=theObject->getParent()->getUniqueId();
+        parentUniqueID=theObject->getParent()->getObjectUniqueId();
     configuration=theObject->getLocalTransformation();
     objectType=theObject->getObjectType();
     memorizedConfigurationValidCounter=theObject->getMemorizedConfigurationValidCounter();
@@ -49,7 +49,7 @@ void CMemorizedConf::restore()
     it->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
     int puid=-1;
     if (it->getParent()!=nullptr)
-        puid=it->getParent()->getUniqueId();
+        puid=it->getParent()->getObjectUniqueId();
     if (parentUniqueID==puid)
         it->setLocalTransformation(configuration);
     if (objectType==sim_object_joint_type)

@@ -648,7 +648,7 @@ bool CInterfaceStack::insertDataIntoStackTable()
     if ((obj2->getObjectType()!=STACK_OBJECT_NUMBER)&&(obj2->getObjectType()!=STACK_OBJECT_INTEGER)&&(obj2->getObjectType()!=STACK_OBJECT_STRING)&&(obj2->getObjectType()!=STACK_OBJECT_BOOL))
         return(false);
     CInterfaceStackTable* table=(CInterfaceStackTable*)obj1;
-    table->appendArrayOrMapObject(obj3,obj2);
+    table->appendArrayOrMapObject(obj2,obj3);
     _stackObjects.pop_back();
     _stackObjects.pop_back();
     return(true);

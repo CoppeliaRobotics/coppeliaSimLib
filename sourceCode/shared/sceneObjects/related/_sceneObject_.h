@@ -32,7 +32,9 @@ public:
     int getObjectType() const;
     CSceneObject* getParent() const;
     int getObjectHandle() const;
+    int getObjectUniqueId() const;
     bool getSelected() const;
+    bool getIsInScene() const;
     bool getModelBase() const;
     std::string getExtensionString() const;
     unsigned short getVisibilityLayer() const;
@@ -54,7 +56,9 @@ public:
     C7Vector getFullCumulativeTransformation() const;
 
 
+    void setObjectUniqueId();
     void setSelected(bool s); // doesn't generate a sync msg
+    void setIsInScene(bool s);
 
     virtual bool setObjectHandle(int newObjectHandle);
 
@@ -83,9 +87,11 @@ protected:
 
 
     int _objectHandle;
+    int _objectUniqueId; // valid for a given session (non-persistent)
     std::string _extensionString;
     unsigned short _visibilityLayer;
     bool _selected;
+    bool _isInScene;
     int _childOrder;
     std::string _objectAlias;
     C7Vector _localTransformation;
@@ -108,6 +114,8 @@ protected:
     int _localObjectSpecialProperty;
     int _localModelProperty;
     std::string _modelAcknowledgement;
+
+    static int _objectUniqueIDCounter;
 
     // Old:
     std::string _objectName_old;

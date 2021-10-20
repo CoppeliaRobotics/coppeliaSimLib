@@ -40,6 +40,9 @@ public:
     void getAllSceneNames(std::vector<std::string>& l) const;
     CScriptObject* getScriptFromHandle(int scriptHandle) const;
     void callScripts(int callType,CInterfaceStack* inStack);
+    CInterfaceStackTable* createFreshEvent(const char* event,int uid,bool mergeable=true);
+    void pushEvent();
+    void sendEvents();
 
     void simulationAboutToStart();
     void simulationPaused();
@@ -73,6 +76,11 @@ private:
 
     std::vector<CWorld*> _worlds;
     int _currentWorldIndex;
+    CInterfaceStackTable* _event;
+    CInterfaceStack* _bufferedEvents;
+    std::vector<std::string> _bufferedEventsSummary;
+    std::string _lastEventN;
+    std::string _lastEventNN;
 
     std::vector<int> _uniqueIdsOfSelectionSinceLastTimeGetAndClearModificationFlagsWasCalled;
     int _modificationFlags;

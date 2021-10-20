@@ -934,7 +934,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
                     cScript->systemCallScript(sim_syscb_trigger,inStack,outStack2);
             }
             else
-            { // we are in the thread started by a threaded child script. Call only that script
+            { // we are in the thread started by a threaded child script (OLD). Call only that script
                 if ( (script!=nullptr)&&script->getThreadedExecution_oldThreads() )
                 {
                     script->systemCallScript(sim_syscb_trigger,inStack,nullptr);

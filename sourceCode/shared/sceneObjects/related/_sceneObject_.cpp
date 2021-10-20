@@ -2,9 +2,12 @@
 #include "sceneObject.h"
 #include "app.h"
 
+int _CSceneObject_::_objectUniqueIDCounter=0;
+
 _CSceneObject_::_CSceneObject_()
 {
     _selected=false;
+    _isInScene=false;
     _parentObject=nullptr;
     _childOrder=-1;
     _localTransformation.setIdentity();
@@ -24,11 +27,40 @@ void _CSceneObject_::setParentPtr(CSceneObject* parent)
     _parentObject=parent;
 }
 
+void _CSceneObject_::setObjectUniqueId()
+{
+    _objectUniqueId=_objectUniqueIDCounter++;
+}
+
+int _CSceneObject_::getObjectUniqueId() const
+{
+    return(_objectUniqueId);
+}
+
 bool _CSceneObject_::setParent(CSceneObject* parent)
 {
     bool diff=(_parentObject!=parent);
     if (diff)
     {
+        if (_isInScene)
+        {
+            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectParent",_objectUniqueId);
+            event->appendMapObject_stringInt32("handle",_objectHandle);
+            event->appendMapObject_stringInt32("uid",_objectUniqueId);
+            int pHandle=-1;
+            int pUid=-1;
+            if (parent!=nullptr)
+            {
+                pHandle=parent->getObjectHandle();
+                pUid=parent->getObjectUniqueId();
+            }
+            CInterfaceStackTable* data=new CInterfaceStackTable();
+            event->appendMapObject_stringObject("data",data);
+            data->appendMapObject_stringInt32("handle",pHandle);
+            data->appendMapObject_stringInt32("uid",pUid);
+            App::worldContainer->pushEvent();
+        }
+
         if (getObjectCanChange())
             _parentObject=parent;
         if (getObjectCanSync())
@@ -80,6 +112,14 @@ bool _CSceneObject_::setVisibilityLayer(unsigned short l)
     bool diff=(_visibilityLayer!=l);
     if (diff)
     {
+        if (_isInScene)
+        {
+            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectLayer",_objectUniqueId);
+            event->appendMapObject_stringInt32("handle",_objectHandle);
+            event->appendMapObject_stringInt32("uid",_objectUniqueId);
+            event->appendMapObject_stringInt32("data",l);
+            App::worldContainer->pushEvent();
+        }
         if (getObjectCanChange())
             _visibilityLayer=l;
         if (getObjectCanSync())
@@ -93,6 +133,14 @@ bool _CSceneObject_::setChildOrder(int order)
     bool diff=(_childOrder!=order);
     if (diff)
     {
+        if (_isInScene)
+        {
+            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("childOrder",_objectUniqueId);
+            event->appendMapObject_stringInt32("handle",_objectHandle);
+            event->appendMapObject_stringInt32("uid",_objectUniqueId);
+            event->appendMapObject_stringInt32("data",order);
+            App::worldContainer->pushEvent();
+        }
         if (getObjectCanChange())
             _childOrder=order;
         if (getObjectCanSync())
@@ -116,6 +164,11 @@ bool _CSceneObject_::getSelected() const
     return(_selected);
 }
 
+bool _CSceneObject_::getIsInScene() const
+{
+    return(_isInScene);
+}
+
 bool _CSceneObject_::getModelBase() const
 {
     return(_modelBase);
@@ -124,6 +177,11 @@ bool _CSceneObject_::getModelBase() const
 void _CSceneObject_::setSelected(bool s)
 {
     _selected=s;
+}
+
+void _CSceneObject_::setIsInScene(bool s)
+{
+    _isInScene=s;
 }
 
 int _CSceneObject_::getHierarchyTreeObjects(std::vector<CSceneObject*>& allObjects)
@@ -302,6 +360,14 @@ bool _CSceneObject_::setObjectAlias_direct(const char* newName)
     bool diff=(_objectAlias!=newName);
     if (diff)
     {
+        if (_isInScene)
+        {
+            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectAlias",_objectUniqueId);
+            event->appendMapObject_stringInt32("handle",_objectHandle);
+            event->appendMapObject_stringInt32("uid",_objectUniqueId);
+            event->appendMapObject_stringString("data",newName,0);
+            App::worldContainer->pushEvent();
+        }
         if (getObjectCanChange())
             _objectAlias=newName;
         if (getObjectCanSync())
@@ -397,6 +463,15 @@ bool _CSceneObject_::setLocalTransformation(const C7Vector& tr)
     bool diff=(_localTransformation!=tr);
     if (diff)
     {
+        if (_isInScene)
+        {
+            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectPose",_objectUniqueId);
+            event->appendMapObject_stringInt32("handle",_objectHandle);
+            event->appendMapObject_stringInt32("uid",_objectUniqueId);
+            float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+            event->appendMapObject_stringFloatArray("data",p,7);
+            App::worldContainer->pushEvent();
+        }
         if (getObjectCanChange())
             _localTransformation=tr;
         if (getObjectCanSync())

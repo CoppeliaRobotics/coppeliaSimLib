@@ -4884,11 +4884,6 @@ simInt simHandleMainScript_internal()
     delete[] (char*)returnVal;
 
     // Customization scripts:
-//    int res=0;
-//    CInterfaceStack outStack;
-//    App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforemainscript,nullptr,&outStack,&res);
-//    bool cs=(res!=1);
-    // Customization scripts:
     bool cs=!App::currentWorld->embeddedScriptContainer->shouldTemporarilySuspendMainScript();
 
     // Add-on scripts:
@@ -8856,7 +8851,7 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
                 }
                 if (parameterID==sim_objintparam_unique_id)
                 {
-                    parameter[0]=it->getUniqueId();
+                    parameter[0]=it->getObjectUniqueId();
                     retVal=1;
                 }
                 if (parameterID==sim_objintparam_collection_self_collision_indicator)
@@ -22543,7 +22538,7 @@ simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueI
         if (objectHandle!=sim_handle_all)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            uniqueIdentifier[0]=it->getUniqueId();
+            uniqueIdentifier[0]=it->getObjectUniqueId();
         }
         else
         { // for backward compatibility
@@ -22552,7 +22547,7 @@ simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueI
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
                 if ( (it->getObjectHandle()==objectHandle)||(objectHandle==sim_handle_all) )
-                    uniqueIdentifier[p++]=it->getUniqueId();
+                    uniqueIdentifier[p++]=it->getObjectUniqueId();
             }
         }
         return(1);

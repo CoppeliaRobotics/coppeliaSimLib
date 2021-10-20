@@ -20,6 +20,11 @@ CInterfaceStackTable::~CInterfaceStackTable()
         delete _tableObjects[i];
 }
 
+bool CInterfaceStackTable::isEmpty() const
+{
+    return(_tableObjects.size()==0);
+}
+
 bool CInterfaceStackTable::isTableArray() const
 {
     return(_isTableArray);
@@ -284,38 +289,62 @@ bool CInterfaceStackTable::removeFromKey(const CInterfaceStackObject* keyToRemov
 
 void CInterfaceStackTable::appendArrayObject(CInterfaceStackObject* obj)
 {
-    _tableObjects.push_back(obj);
+    long long int index;
+    if (_isTableArray)
+        index=(long long int)(_tableObjects.size()+1);
+    else
+        index=(long long int)((_tableObjects.size()/2)+1);
+    appendArrayOrMapObject(new CInterfaceStackInteger(index),obj);
+//    _tableObjects.push_back(obj);
 }
 
-void CInterfaceStackTable::appendMapObject(CInterfaceStackObject* obj,const char* key,size_t l)
+void CInterfaceStackTable::insertArrayObject(CInterfaceStackObject* obj,size_t pos)
 {
+    if (_isTableArray)
+        _tableObjects.insert(_tableObjects.begin()+pos,obj);
+}
+
+void CInterfaceStackTable::appendMapObject(const char* key,size_t keyL,CInterfaceStackObject* obj)
+{
+    appendArrayOrMapObject(new CInterfaceStackString(key,keyL),obj);
+    /*
     _isTableArray=false;
-    _tableObjects.push_back(new CInterfaceStackString(key,l));
+    _tableObjects.push_back(new CInterfaceStackString(key,keyL));
     _tableObjects.push_back(obj);
+    */
 }
 
-void CInterfaceStackTable::appendMapObject(CInterfaceStackObject* obj,double key)
+void CInterfaceStackTable::appendMapObject(double key,CInterfaceStackObject* obj)
 {
+    appendArrayOrMapObject(new CInterfaceStackNumber(key),obj);
+    /*
     _isTableArray=false;
     _tableObjects.push_back(new CInterfaceStackNumber(key));
     _tableObjects.push_back(obj);
+    */
 }
 
-void CInterfaceStackTable::appendMapObject(CInterfaceStackObject* obj,long long int key)
+void CInterfaceStackTable::appendMapObject(long long int key,CInterfaceStackObject* obj)
 {
+    appendArrayOrMapObject(new CInterfaceStackInteger(key),obj);
+    /*
     _isTableArray=false;
     _tableObjects.push_back(new CInterfaceStackInteger(key));
     _tableObjects.push_back(obj);
+    */
 }
 
-void CInterfaceStackTable::appendMapObject(CInterfaceStackObject* obj,bool key)
+void CInterfaceStackTable::appendMapObject(bool key,CInterfaceStackObject* obj)
 {
+    appendArrayOrMapObject(new CInterfaceStackBool(key),obj);
+    /*
     _isTableArray=false;
     _tableObjects.push_back(new CInterfaceStackBool(key));
     _tableObjects.push_back(obj);
+    */
 }
 
-void CInterfaceStackTable::appendArrayOrMapObject(CInterfaceStackObject* obj,CInterfaceStackObject* key)
+void CInterfaceStackTable::appendArrayOrMapObject(CInterfaceStackObject* key,CInterfaceStackObject* obj)
 {   // here we basically treat this table as an array, until the key is:
     // 1) not a number, 2) not consecutive, 3) does not start at 1.
     // In that case, we then convert that table from array to map representation
@@ -327,8 +356,9 @@ void CInterfaceStackTable::appendArrayOrMapObject(CInterfaceStackObject* obj,CIn
             long long int ind;
             if (key->getObjectType()==STACK_OBJECT_NUMBER)
             {
-                ind=(long long int)((CInterfaceStackNumber*)key)->getValue();
-                if ( ((double)ind)!=((CInterfaceStackNumber*)key)->getValue() )
+                double v=((CInterfaceStackNumber*)key)->getValue();
+                ind=(long long int)v;
+                if ( ((double)ind)!=v )
                     ind=-1; // this can't be an array, not a round index
             }
             else
@@ -354,6 +384,74 @@ void CInterfaceStackTable::appendArrayOrMapObject(CInterfaceStackObject* obj,CIn
         _tableObjects.push_back(key);
         _tableObjects.push_back(obj);
     }
+}
+
+void CInterfaceStackTable::appendMapObject_stringNull(const char* key)
+{
+    appendArrayOrMapObject(new CInterfaceStackString(key,0),new CInterfaceStackNull());
+}
+
+void CInterfaceStackTable::appendMapObject_stringBool(const char* key,bool value)
+{
+    appendArrayOrMapObject(new CInterfaceStackString(key,0),new CInterfaceStackBool(value));
+}
+
+void CInterfaceStackTable::appendMapObject_stringFloat(const char* key,float value)
+{
+    appendArrayOrMapObject(new CInterfaceStackString(key,0),new CInterfaceStackNumber(double(value)));
+}
+
+void CInterfaceStackTable::appendMapObject_stringDouble(const char* key,double value)
+{
+    appendArrayOrMapObject(new CInterfaceStackString(key,0),new CInterfaceStackNumber(value));
+}
+
+void CInterfaceStackTable::appendMapObject_stringInt32(const char* key,int value)
+{
+    appendArrayOrMapObject(new CInterfaceStackString(key,0),new CInterfaceStackInteger((long long int)(value)));
+}
+
+void CInterfaceStackTable::appendMapObject_stringInt64(const char* key,long long int value)
+{
+    appendArrayOrMapObject(new CInterfaceStackString(key,0),new CInterfaceStackInteger(value));
+}
+
+void CInterfaceStackTable::appendMapObject_stringString(const char* key,const char* value,size_t l)
+{
+    appendArrayOrMapObject(new CInterfaceStackString(key,0),new CInterfaceStackString(value,l));
+}
+
+void CInterfaceStackTable::appendMapObject_stringInt32Array(const char* key,const int* arr,size_t l)
+{
+    CInterfaceStackTable* obj=new CInterfaceStackTable();
+    obj->setInt32Array(arr,l);
+    appendArrayOrMapObject(new CInterfaceStackString(key,0),obj);
+}
+
+void CInterfaceStackTable::appendMapObject_stringInt64Array(const char* key,const long long int* arr,size_t l)
+{
+    CInterfaceStackTable* obj=new CInterfaceStackTable();
+    obj->setInt64Array(arr,l);
+    appendArrayOrMapObject(new CInterfaceStackString(key,0),obj);
+}
+
+void CInterfaceStackTable::appendMapObject_stringFloatArray(const char* key,const float* arr,size_t l)
+{
+    CInterfaceStackTable* obj=new CInterfaceStackTable();
+    obj->setFloatArray(arr,l);
+    appendArrayOrMapObject(new CInterfaceStackString(key,0),obj);
+}
+
+void CInterfaceStackTable::appendMapObject_stringDoubleArray(const char* key,const double* arr,size_t l)
+{
+    CInterfaceStackTable* obj=new CInterfaceStackTable();
+    obj->setDoubleArray(arr,l);
+    appendArrayOrMapObject(new CInterfaceStackString(key,0),obj);
+}
+
+void CInterfaceStackTable::appendMapObject_stringObject(const char* key,CInterfaceStackObject* obj)
+{
+    appendArrayOrMapObject(new CInterfaceStackString(key,0),obj);
 }
 
 CInterfaceStackObject* CInterfaceStackTable::getArrayItemAtIndex(size_t ind) const

@@ -261,6 +261,7 @@ protected:
     bool _containsVisionCallbackFunction;
     bool _containsTriggerCallbackFunction;
     bool _containsUserConfigCallbackFunction;
+    bool _containsEventCallbackFunction;
     void _printContext(const char* str,size_t p);
 
     std::string _addOnName;

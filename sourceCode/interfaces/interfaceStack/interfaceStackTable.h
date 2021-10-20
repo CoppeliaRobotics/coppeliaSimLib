@@ -16,6 +16,7 @@ public:
     unsigned int createFromData(const char* data);
     static bool checkCreateFromData(const char* data,unsigned int& w,unsigned int l);
 
+    bool isEmpty() const;
     bool isTableArray() const;
     size_t getArraySize() const;
     size_t getMapEntryCount() const;
@@ -33,11 +34,25 @@ public:
     void setDoubleArray(const double* array,size_t l);
 
     void appendArrayObject(CInterfaceStackObject* obj);
-    void appendMapObject(CInterfaceStackObject* obj,const char* key,size_t l);
-    void appendMapObject(CInterfaceStackObject* obj,long long int key);
-    void appendMapObject(CInterfaceStackObject* obj,double key);
-    void appendMapObject(CInterfaceStackObject* obj,bool key);
-    void appendArrayOrMapObject(CInterfaceStackObject* obj,CInterfaceStackObject* key);
+    void insertArrayObject(CInterfaceStackObject* obj,size_t pos);
+    void appendMapObject(const char* key,size_t keyL,CInterfaceStackObject* obj);
+    void appendMapObject(long long int key,CInterfaceStackObject* obj);
+    void appendMapObject(double key,CInterfaceStackObject* obj);
+    void appendMapObject(bool key,CInterfaceStackObject* obj);
+    void appendArrayOrMapObject(CInterfaceStackObject* key,CInterfaceStackObject* obj);
+
+    void appendMapObject_stringNull(const char* key);
+    void appendMapObject_stringBool(const char* key,bool value);
+    void appendMapObject_stringFloat(const char* key,float value);
+    void appendMapObject_stringDouble(const char* key,double value);
+    void appendMapObject_stringInt32(const char* key,int value);
+    void appendMapObject_stringInt64(const char* key,long long int value);
+    void appendMapObject_stringString(const char* key,const char* value,size_t l);
+    void appendMapObject_stringInt32Array(const char* key,const int* arr,size_t l);
+    void appendMapObject_stringInt64Array(const char* key,const long long int* arr,size_t l);
+    void appendMapObject_stringFloatArray(const char* key,const float* arr,size_t l);
+    void appendMapObject_stringDoubleArray(const char* key,const double* arr,size_t l);
+    void appendMapObject_stringObject(const char* key,CInterfaceStackObject* obj);
 
     bool getUCharArray(unsigned char* array,int count) const;
     bool getInt32Array(int* array,int count) const;

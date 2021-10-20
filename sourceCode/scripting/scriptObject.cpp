@@ -72,6 +72,7 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
     _containsVisionCallbackFunction=false;
     _containsTriggerCallbackFunction=false;
     _containsUserConfigCallbackFunction=false;
+    _containsEventCallbackFunction=false;
     _timeOfScriptExecutionStart=-1;
     _interpreterState=nullptr;
 
@@ -445,6 +446,14 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
             r+="()\nCan be called by a customized main script.";
         return(r);
     }
+    if (calltype==sim_syscb_event)
+    {
+        std::string r("sysCall_event");
+        if (callTips)
+            r+="(inData)\nCalled frequently in various occasions.";
+        return(r);
+    }
+
 
     // Old:
     // ------------------------------
@@ -736,6 +745,8 @@ bool CScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int ca
             return(true);
         if (callType==sim_syscb_moduleentry)
             return(true);
+        if (callType==sim_syscb_event)
+            return(true);
     }
     if ( (scriptType==sim_scripttype_sandboxscript)||(scriptType==sim_scripttype_addonscript)||(scriptType==sim_scripttype_customizationscript) )
     {
@@ -818,6 +829,7 @@ std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptTy
                  sim_syscb_threadmain, // for backward compatibility
                  sim_syscb_userconfig,
                  sim_syscb_moduleentry,
+                 sim_syscb_event,
                  -1
             };
 
@@ -1328,6 +1340,7 @@ int CScriptObject::systemCallMainScript(int optionalCallType,const CInterfaceSta
                 retVal=systemCallScript(sim_syscb_init,inStack,outStack);
 
             retVal=systemCallScript(sim_syscb_actuation,inStack,outStack);
+            App::worldContainer->sendEvents();
             retVal=systemCallScript(sim_syscb_sensing,inStack,outStack);
 
             if (App::currentWorld->simulation->getSimulationState()==sim_simulation_advancing_lastbeforestop)
@@ -1398,9 +1411,14 @@ int CScriptObject::systemCallScript(int callType,const CInterfaceStack* inStack,
             { // Regular system function calls
                 if ( ((_scriptState&scriptState_error)==0)||(callType==sim_syscb_cleanup) )
                 {
-                    retVal=_callSystemScriptFunction(callType,inStack,outStack);
-                    if (_scriptType==sim_scripttype_sandboxscript)
-                        _scriptState&=7; // remove a possible error flag
+                    if ( (callType!=sim_syscb_event)||_containsEventCallbackFunction )
+                    {
+                        retVal=_callSystemScriptFunction(callType,inStack,outStack);
+                        if (_scriptType==sim_scripttype_sandboxscript)
+                            _scriptState&=7; // remove a possible error flag
+                    }
+                    else
+                        retVal=0;
                 }
             }
         }
@@ -1556,13 +1574,14 @@ bool CScriptObject::_loadCode()
         if (_initInterpreterState(&intStateErr))
         {
             std::string functions;
-            bool functionsPresent[6];
+            bool functionsPresent[7];
             functions+=getSystemCallbackString(sim_syscb_jointcallback,false)+'\0';
             functions+=getSystemCallbackString(sim_syscb_contactcallback,false)+'\0';
             functions+=getSystemCallbackString(sim_syscb_dyncallback,false)+'\0';
             functions+=getSystemCallbackString(sim_syscb_vision,false)+'\0';
             functions+=getSystemCallbackString(sim_syscb_trigger,false)+'\0';
             functions+=getSystemCallbackString(sim_syscb_userconfig,false)+'\0';
+            functions+=getSystemCallbackString(sim_syscb_event,false)+'\0';
             functions+='\0';
             std::string errMsg;
             int r=___loadCode(_scriptTextExec.c_str(),functions.c_str(),functionsPresent,&errMsg);
@@ -1589,6 +1608,7 @@ bool CScriptObject::_loadCode()
                         _containsVisionCallbackFunction=functionsPresent[3];
                         _containsTriggerCallbackFunction=functionsPresent[4];
                         _containsUserConfigCallbackFunction=functionsPresent[5];
+                        _containsEventCallbackFunction=functionsPresent[6];
                     }
                 }
                 _numberOfPasses++;
@@ -2090,6 +2110,7 @@ bool CScriptObject::_killInterpreterState()
     _containsVisionCallbackFunction=false;
     _containsTriggerCallbackFunction=false;
     _containsUserConfigCallbackFunction=false;
+    _containsEventCallbackFunction=false;
     _flaggedForDestruction=false;
     _functionHooks_before.clear();
     _functionHooks_after.clear();
@@ -3044,26 +3065,26 @@ CInterfaceStackTable* CScriptObject::_generateTableMapFromInterpreterStack_lua(v
         { // the key is a number
             double key=luaWrap_lua_tonumber(L,-1);
             CInterfaceStackObject* obj=_generateObjectFromInterpreterStack_lua(L,-2,visitedTables);
-            table->appendMapObject(obj,key);
+            table->appendMapObject(key,obj);
         }
         else if (t==STACK_OBJECT_INTEGER)
         { // the key is an integer
             long long int key=luaWrap_lua_tointeger(L,-1);
             CInterfaceStackObject* obj=_generateObjectFromInterpreterStack_lua(L,-2,visitedTables);
-            table->appendMapObject(obj,key);
+            table->appendMapObject(key,obj);
         }
         else if (t==STACK_OBJECT_BOOL)
         { // the key is a bool
             bool key=luaWrap_lua_toboolean(L,-1)!=0;
             CInterfaceStackObject* obj=_generateObjectFromInterpreterStack_lua(L,-2,visitedTables);
-            table->appendMapObject(obj,key);
+            table->appendMapObject(key,obj);
         }
         else if (t==STACK_OBJECT_STRING)
         { // the key is a string
             size_t l;
             std::string key=luaWrap_lua_tolstring(L,-1,&l);
             CInterfaceStackObject* obj=_generateObjectFromInterpreterStack_lua(L,-2,visitedTables);
-            table->appendMapObject(obj,key.c_str(),l);
+            table->appendMapObject(key.c_str(),l,obj);
         }
         else
         { // the key is something weird, e.g. a table, a thread, etc. Convert this to a string:
@@ -3086,7 +3107,7 @@ CInterfaceStackTable* CScriptObject::_generateTableMapFromInterpreterStack_lua(v
             str+=num;
             str+=">";
             CInterfaceStackObject* obj=_generateObjectFromInterpreterStack_lua(L,-2,visitedTables);
-            table->appendMapObject(obj,str.c_str(),0);
+            table->appendMapObject(str.c_str(),0,obj);
         }
         luaWrap_lua_pop(L,2); // pop 2 values (key+value)
         // stack now contains at -1 the key, at -2 the table
@@ -6946,6 +6967,10 @@ void CScriptObject::_adjustScriptText15_old(CScriptObject* scriptObject,bool doI
 
 void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
 {
+    if (_containsScriptText_old(scriptObject,"sim.getJointMatrix"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getJointMatrix...");
+    if (_containsScriptText_old(scriptObject,"sim.setSphericalJointMatrix"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setSphericalJointMatrix...");
     if (_containsScriptText_old(scriptObject,"sim.getObjectUniqueIdentifier"))
         App::logMsg(sim_verbosity_errors,"Contains sim.getObjectUniqueIdentifier...");
     if (_containsScriptText_old(scriptObject,"sim.isObjectInSelection"))

@@ -186,6 +186,7 @@ void App::simulationThreadLoop()
 
     if ( App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
     {
+        App::worldContainer->sendEvents();
         App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_nonsimulation,nullptr,nullptr,nullptr);
         App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
         App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_nonsimulation,nullptr,nullptr);
@@ -197,6 +198,7 @@ void App::simulationThreadLoop()
         CScriptObject* mainScript=App::currentWorld->embeddedScriptContainer->getMainScript();
         if (mainScript!=nullptr)
         {
+            App::worldContainer->sendEvents();
             if (mainScript->systemCallMainScript(sim_syscb_suspended,nullptr,nullptr)==0)
             { // For backward compatibility for scenes that have customized main script (e.g. BR)
                 App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_suspended,nullptr,nullptr,nullptr);

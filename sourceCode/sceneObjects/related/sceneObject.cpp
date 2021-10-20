@@ -343,16 +343,6 @@ int CSceneObject::getParentCount() const
     return(1+getParent()->getParentCount());
 }
 
-void CSceneObject::setUniqueId()
-{
-    _uniqueId=_uniqueIDCounter++;
-}
-
-int CSceneObject::getUniqueId() const
-{
-    return(_uniqueId);
-}
-
 int CSceneObject::_getAllowedObjectSpecialProperties() const
 {
     int retVal=0;
@@ -1322,7 +1312,7 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
     _initialParentUniqueId=-1; // -1 means there was no parent at begin
     CSceneObject* p=getParent();
     if (p!=nullptr)
-        _initialParentUniqueId=p->getUniqueId();
+        _initialParentUniqueId=p->getObjectUniqueId();
     _initialLocalTransformationPart1=_localTransformation;
     //********************************
 
@@ -1346,7 +1336,7 @@ void CSceneObject::simulationEnded()
                     int puid=-1;
                     CSceneObject* p=getParent();
                     if (p!=nullptr)
-                        puid=p->getUniqueId();
+                        puid=p->getObjectUniqueId();
                     // Changed following on 24/04/2011 (because we also wanna reset the parenting to the initial state!)
                     if (puid!=_initialParentUniqueId)
                     { // Not sure following instructions are not problematic here.
@@ -2706,8 +2696,6 @@ void CSceneObject::serializeWExtIk(CExtIkSer& ar)
 
     ar.writeString(_objectName_old.c_str());
 }
-
-int CSceneObject::_uniqueIDCounter=0;
 
 void CSceneObject::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
 {

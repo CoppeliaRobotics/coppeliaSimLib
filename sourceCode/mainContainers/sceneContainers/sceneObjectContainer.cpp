@@ -173,7 +173,7 @@ void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         _nextObjectHandle=SIM_IDSTART_SCENEOBJECT;
 
     newObject->setObjectHandle(handle);
-    newObject->setUniqueId();
+    newObject->setObjectUniqueId();
 
     _addObject(newObject);
 
@@ -196,6 +196,7 @@ void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         stack->pushInt32OntoStack(newObject->getObjectHandle());
         stack->insertDataIntoStackTable();
         stack->insertDataIntoStackTable();
+        App::worldContainer->sendEvents();
         App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
@@ -222,6 +223,7 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
         stack->pushStringOntoStack("allObjects",0);
         stack->pushBoolOntoStack(getObjectCount()==1);
         stack->insertDataIntoStackTable();
+        App::worldContainer->sendEvents();
         App::worldContainer->callScripts(sim_syscb_beforedelete,stack);
     }
 
@@ -234,7 +236,10 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
     App::worldContainer->setModificationFlag(1); // object erased
 
     if (generateBeforeAfterDeleteCallback)
+    {
+        App::worldContainer->sendEvents();
         App::worldContainer->callScripts(sim_syscb_afterdelete,stack);
+    }
     App::worldContainer->interfaceStackContainer->destroyStack(stack);
 
     return(true);
@@ -264,6 +269,7 @@ void CSceneObjectContainer::eraseSeveralObjects(const std::vector<int>& objectHa
             stack->pushStringOntoStack("allObjects",0);
             stack->pushBoolOntoStack(objectHandles.size()==getObjectCount());
             stack->insertDataIntoStackTable();
+            App::worldContainer->sendEvents();
             App::worldContainer->callScripts(sim_syscb_beforedelete,stack);
         }
 
@@ -275,7 +281,10 @@ void CSceneObjectContainer::eraseSeveralObjects(const std::vector<int>& objectHa
         }
 
         if (generateBeforeAfterDeleteCallback)
+        {
+            App::worldContainer->sendEvents();
             App::worldContainer->callScripts(sim_syscb_afterdelete,stack);
+        }
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
 }
@@ -1293,7 +1302,7 @@ CSceneObject* CSceneObjectContainer::getObjectFromUniqueId(int uniqueId) const
     for (size_t i=0;i<getObjectCount();i++)
     {
         CSceneObject* it=getObjectFromIndex(i);
-        if (it->getUniqueId()==uniqueId)
+        if (it->getObjectUniqueId()==uniqueId)
             return(it);
     }
     return(nullptr);
@@ -2168,10 +2177,12 @@ void CSceneObjectContainer::_addObject(CSceneObject* object)
 
     if (object->setObjectCanSync(true))
         object->buildUpdateAndPopulateSynchronizationObject(nullptr);
+    object->setIsInScene(true);
 }
 
 void CSceneObjectContainer::_removeObject(CSceneObject* object)
 { // Overridden from _CSceneObjectContainer_
+    object->setIsInScene(false);
     setObjectParent(object,nullptr,true);
     object->removeSynchronizationObject(false);
     _CSceneObjectContainer_::_removeObject(object);
