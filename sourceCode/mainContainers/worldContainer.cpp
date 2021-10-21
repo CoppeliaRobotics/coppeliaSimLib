@@ -436,6 +436,8 @@ CInterfaceStackTable* CWorldContainer::createFreshEvent(const char* event,const 
     else
         _lastEventN.clear();
     _event->appendMapObject_stringString("event",event,0);
+    if (change!=nullptr)
+        _event->appendMapObject_stringString("change",change,0);
     return(_event);
 }
 
