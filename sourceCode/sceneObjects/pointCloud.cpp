@@ -618,7 +618,7 @@ void CPointCloud::removeSceneDependencies()
 
 void CPointCloud::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
 {
-    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectPointcloudCreate",_objectUniqueId);
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectAdded","",_objectUniqueId);
     CSceneObject::pushCreationEvent(event);
     CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
 

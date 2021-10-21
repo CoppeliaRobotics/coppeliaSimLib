@@ -1464,13 +1464,13 @@ void CJoint::removeSceneDependencies()
 
 void CJoint::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
 {
-    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectJointCreate",_objectUniqueId);
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectAdded","",_objectUniqueId);
     CSceneObject::pushCreationEvent(event);
     CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
 
     data->appendMapObject_stringInt32("type",_jointType);
     float p[4]={_sphericalTransformation(1),_sphericalTransformation(2),_sphericalTransformation(3),_sphericalTransformation(0)};
-    data->appendMapObject_stringFloatArray("sphericalquaternion",p,4);
+    data->appendMapObject_stringFloatArray("quaternion",p,4);
     data->appendMapObject_stringFloat("position",_jointPosition);
     data->appendMapObject_stringFloat("diameter",_diameter);
     data->appendMapObject_stringFloat("length",_length);

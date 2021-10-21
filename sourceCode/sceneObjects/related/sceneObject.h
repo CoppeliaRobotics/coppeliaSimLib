@@ -9,7 +9,6 @@
 #include <map>
 #include "userParameters.h"
 #include "_sceneObject_.h"
-#include "interfaceStack.h"
 
 struct SCustomRefs
 {
@@ -89,6 +88,7 @@ public:
 
     void setRestoreToDefaultLights(bool s);
     bool getRestoreToDefaultLights() const;
+
     
     int getScriptExecutionOrder(int scriptType) const;
     int getScriptsToExecute(int scriptType,int parentTraversalDirection,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds);

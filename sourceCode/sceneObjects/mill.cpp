@@ -119,7 +119,7 @@ void CMill::removeSceneDependencies()
 
 void CMill::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
 {
-    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectMillCreate",_objectUniqueId);
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectAdded","",_objectUniqueId);
     CSceneObject::pushCreationEvent(event);
     CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
 

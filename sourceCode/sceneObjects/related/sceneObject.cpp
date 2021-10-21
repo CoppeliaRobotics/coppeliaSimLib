@@ -933,19 +933,18 @@ void CSceneObject::removeSceneDependencies()
 
 void CSceneObject::pushCreationEvent(CInterfaceStackTable* event/*=nullptr*/) const
 {
-    event->appendMapObject_stringInt32("handle",_objectHandle);
-    event->appendMapObject_stringInt32("uid",_objectUniqueId);
+    _decorateObjectEvent(event);
     CInterfaceStackTable* data=new CInterfaceStackTable();
     event->appendMapObject_stringObject("data",data);
     CInterfaceStackTable* object=new CInterfaceStackTable();
     data->appendMapObject_stringObject("object",object);
 
     object->appendMapObject_stringInt32("layer",_visibilityLayer);
-    object->appendMapObject_stringInt32("childorder",_childOrder);
+    object->appendMapObject_stringInt32("childOrder",_childOrder);
     float p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
     object->appendMapObject_stringFloatArray("pose",p,7);
     object->appendMapObject_stringString("alias",_objectAlias.c_str(),0);
-    object->appendMapObject_stringString("oldname",_objectName_old.c_str(),0);
+    object->appendMapObject_stringString("oldName",_objectName_old.c_str(),0);
 }
 
 CSceneObject* CSceneObject::copyYourself()

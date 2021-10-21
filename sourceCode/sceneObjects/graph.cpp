@@ -656,7 +656,7 @@ void CGraph::removeSceneDependencies()
 
 void CGraph::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
 {
-    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectGraphCreate",_objectUniqueId);
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectAdded","",_objectUniqueId);
     CSceneObject::pushCreationEvent(event);
     CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
 

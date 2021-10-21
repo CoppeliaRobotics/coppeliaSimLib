@@ -3,6 +3,7 @@
 #include "syncObject.h"
 #include "MyMath.h"
 #include <string>
+#include "interfaceStack.h"
 
 class CSceneObject;
 
@@ -76,6 +77,8 @@ public:
     virtual bool setLocalTransformation(const C3Vector& x);
 
 protected:
+    void _decorateObjectEvent(CInterfaceStackTable* event) const;
+
     virtual void _setChildOrder_send(int order) const;
     virtual void _setParent_send(int parentHandle) const;
     virtual void _setExtensionString_send(const char* str) const;

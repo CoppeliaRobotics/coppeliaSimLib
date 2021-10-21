@@ -5019,6 +5019,11 @@ int _simTest(luaWrap_lua_State* L)
     if (checkInputArguments(L,nullptr,lua_arg_string,0))
     {
         std::string cmd=luaWrap_lua_tostring(L,1);
+        if (cmd.compare("sim.cborEvents")==0)
+        {
+            App::worldContainer->setCborEvents();
+            LUA_END(0);
+        }
         if ( (cmd.compare("sim.getShapeViz")==0)&&luaWrap_lua_isinteger(L,2)&&luaWrap_lua_istable(L,3) )
         {
             int handle=luaWrap_lua_tointeger(L,2);

@@ -271,6 +271,7 @@ void CWorldContainer::initialize()
     _event=new CInterfaceStackTable();
     _bufferedEvents=interfaceStackContainer->createStack();
     _bufferedEvents->pushTableOntoStack();
+    _cborEvents=false;
 
     initializeRendering();
     createNewWorld();
@@ -423,11 +424,13 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack)
         sandboxScript->systemCallScript(callType,inStack,nullptr);
 }
 
-CInterfaceStackTable* CWorldContainer::createFreshEvent(const char* event,int uid,bool mergeable/*=true*/)
+CInterfaceStackTable* CWorldContainer::createFreshEvent(const char* event,const char* change,int uid,bool mergeable/*=true*/)
 {
     if (mergeable)
     {
         _lastEventN=event;
+        _lastEventN+="*";
+        _lastEventN+=change;
         _lastEventNN=_lastEventN+std::to_string(uid);
     }
     else
@@ -446,6 +449,11 @@ void CWorldContainer::pushEvent()
         _bufferedEventsSummary.push_back(_lastEventNN);
         _event=new CInterfaceStackTable();
     }
+}
+
+void CWorldContainer::setCborEvents()
+{
+    _cborEvents=true;
 }
 
 void CWorldContainer::sendEvents()
@@ -470,6 +478,12 @@ void CWorldContainer::sendEvents()
             }
             else
                 toSendTable->insertArrayObject(buff->getArrayItemAtIndex(i)->copyYourself(),0);
+        }
+        if (_cborEvents)
+        {
+            std::string cbor=toSend->getCborEncodedBufferFromTable(0);
+            toSend->clear();
+            toSend->pushStringOntoStack(cbor.c_str(),cbor.size());
         }
         callScripts(sim_syscb_event,toSend);
         interfaceStackContainer->destroyStack(toSend);

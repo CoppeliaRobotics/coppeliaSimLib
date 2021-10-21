@@ -96,7 +96,7 @@ void CDummy::removeSceneDependencies()
 
 void CDummy::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
 {
-    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectDummyCreate",_objectUniqueId);
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectAdded","",_objectUniqueId);
     CSceneObject::pushCreationEvent(event);
     CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
 

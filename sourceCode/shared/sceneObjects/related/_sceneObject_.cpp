@@ -44,9 +44,8 @@ bool _CSceneObject_::setParent(CSceneObject* parent)
     {
         if (_isInScene)
         {
-            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectParent",_objectUniqueId);
-            event->appendMapObject_stringInt32("handle",_objectHandle);
-            event->appendMapObject_stringInt32("uid",_objectUniqueId);
+            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectChanged","parent",_objectUniqueId);
+            _decorateObjectEvent(event);
             int pHandle=-1;
             int pUid=-1;
             if (parent!=nullptr)
@@ -114,9 +113,8 @@ bool _CSceneObject_::setVisibilityLayer(unsigned short l)
     {
         if (_isInScene)
         {
-            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectLayer",_objectUniqueId);
-            event->appendMapObject_stringInt32("handle",_objectHandle);
-            event->appendMapObject_stringInt32("uid",_objectUniqueId);
+            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectChanged","layer",_objectUniqueId);
+            _decorateObjectEvent(event);
             event->appendMapObject_stringInt32("data",l);
             App::worldContainer->pushEvent();
         }
@@ -135,9 +133,8 @@ bool _CSceneObject_::setChildOrder(int order)
     {
         if (_isInScene)
         {
-            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectChildorder",_objectUniqueId);
-            event->appendMapObject_stringInt32("handle",_objectHandle);
-            event->appendMapObject_stringInt32("uid",_objectUniqueId);
+            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectChanged","childOrder",_objectUniqueId);
+            _decorateObjectEvent(event);
             event->appendMapObject_stringInt32("data",order);
             App::worldContainer->pushEvent();
         }
@@ -362,9 +359,8 @@ bool _CSceneObject_::setObjectAlias_direct(const char* newName)
     {
         if (_isInScene)
         {
-            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectAlias",_objectUniqueId);
-            event->appendMapObject_stringInt32("handle",_objectHandle);
-            event->appendMapObject_stringInt32("uid",_objectUniqueId);
+            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectChanged","alias",_objectUniqueId);
+            _decorateObjectEvent(event);
             event->appendMapObject_stringString("data",newName,0);
             App::worldContainer->pushEvent();
         }
@@ -465,9 +461,8 @@ bool _CSceneObject_::setLocalTransformation(const C7Vector& tr)
     {
         if (_isInScene)
         {
-            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectPose",_objectUniqueId);
-            event->appendMapObject_stringInt32("handle",_objectHandle);
-            event->appendMapObject_stringInt32("uid",_objectUniqueId);
+            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectChanged","pose",_objectUniqueId);
+            _decorateObjectEvent(event);
             float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
             event->appendMapObject_stringFloatArray("data",p,7);
             App::worldContainer->pushEvent();
@@ -495,6 +490,45 @@ bool _CSceneObject_::setLocalTransformation(const C4Vector& q)
         }
     }
     return(diff&&getObjectCanChange());
+}
+
+void _CSceneObject_::_decorateObjectEvent(CInterfaceStackTable* event) const
+{
+    event->appendMapObject_stringInt32("handle",_objectHandle);
+    event->appendMapObject_stringInt32("uid",_objectUniqueId);
+    std::string tp;
+    switch(_objectType)
+    {
+        case sim_object_shape_type : tp="shape";
+            break;
+        case sim_object_joint_type : tp="joint";
+            break;
+        case sim_object_graph_type : tp="graph";
+            break;
+        case sim_object_camera_type : tp="camera";
+            break;
+        case sim_object_dummy_type : tp="dummy";
+            break;
+        case sim_object_proximitysensor_type : tp="proxSensor";
+            break;
+        case sim_object_path_type : tp="path";
+            break;
+        case sim_object_visionsensor_type : tp="visionSensor";
+            break;
+        case sim_object_mill_type : tp="mill";
+            break;
+        case sim_object_forcesensor_type : tp="forceSensor";
+            break;
+        case sim_object_light_type : tp="light";
+            break;
+        case sim_object_mirror_type : tp="mirror";
+            break;
+        case sim_object_octree_type : tp="octree";
+            break;
+        case sim_object_pointcloud_type : tp="pointCloud";
+            break;
+    }
+    event->appendMapObject_stringString("type",tp.c_str(),0);
 }
 
 bool _CSceneObject_::setLocalTransformation(const C3Vector& x)
