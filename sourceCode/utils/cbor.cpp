@@ -307,9 +307,3 @@ std::string CCbor::getBuff() const
     retVal.assign(_buff.begin(),_buff.end());
     return(retVal);
 }
-
-const std::vector<unsigned char>* CCbor::getBuffPtr() const
-{
-    return(&_buff);
-}
-

@@ -1944,15 +1944,15 @@ void CShape::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
 
         CCbor obj(nullptr,0);
         obj.appendFloatArray(info.vertices,size_t(info.verticesSize));
-        mesh->appendMapObject_stringString("vertices",(const char*)&obj.getBuffPtr()[0],obj.getBuffPtr()->size(),true);
+        mesh->appendMapObject_stringString("vertices",obj.getBuff().c_str(),obj.getBuff().size(),true);
 
         obj.clear();
         obj.appendIntArray(info.indices,size_t(info.indicesSize));
-        mesh->appendMapObject_stringString("indices",(const char*)&obj.getBuffPtr()[0],obj.getBuffPtr()->size(),true);
+        mesh->appendMapObject_stringString("indices",obj.getBuff().c_str(),obj.getBuff().size(),true);
 
         obj.clear();
         obj.appendFloatArray(info.normals,size_t(info.indicesSize*3));
-        mesh->appendMapObject_stringString("normals",(const char*)&obj.getBuffPtr()[0],obj.getBuffPtr()->size(),true);
+        mesh->appendMapObject_stringString("normals",obj.getBuff().c_str(),obj.getBuff().size(),true);
 
         mesh->appendMapObject_stringFloatArray("colors",info.colors,9);
         mesh->appendMapObject_stringFloat("shadingangle",info.shadingAngle);
@@ -1975,7 +1975,7 @@ void CShape::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
 
                 obj.clear();
                 obj.appendFloatArray(info.textureCoords,size_t(info.indicesSize*2));
-                texture->appendMapObject_stringString("coordinates",(const char*)&obj.getBuffPtr()[0],obj.getBuffPtr()->size(),true);
+                texture->appendMapObject_stringString("coordinates",obj.getBuff().c_str(),obj.getBuff().size(),true);
 
                 texture->appendMapObject_stringInt32("applymode",info.textureApplyMode);
                 texture->appendMapObject_stringInt32("options",info.textureOptions);

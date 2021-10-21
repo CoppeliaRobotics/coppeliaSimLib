@@ -201,7 +201,6 @@ void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
     App::worldContainer->setModificationFlag(2); // object created
-
     newObject->pushCreationEvent();
 }
 

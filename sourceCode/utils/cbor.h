@@ -31,7 +31,6 @@ public:
     void clear();
 
     std::string getBuff() const;
-    const std::vector<unsigned char>* getBuffPtr() const;
 
 protected:
     void _appendItemTypeAndLength(unsigned char t,long long int l);
