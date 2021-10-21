@@ -654,6 +654,17 @@ void CGraph::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
+void CGraph::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+{
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectGraphCreate",_objectUniqueId);
+    CSceneObject::pushCreationEvent(event);
+    CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
+
+    // todo
+
+    App::worldContainer->pushEvent();
+}
+
 CSceneObject* CGraph::copyYourself()
 {   
     CGraph* newGraph=(CGraph*)CSceneObject::copyYourself();

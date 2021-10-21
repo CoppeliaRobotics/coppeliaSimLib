@@ -739,6 +739,7 @@ void CCamera::commonInit()
     _nearClippingPlane=0.05f;
     _farClippingPlane=30.0f;
     cameraSize=0.05f;
+    _perspectiveOperation=-1; // undefined
     _renderMode=sim_rendermode_opengl;
     _renderModeDuringSimulation=false;
     _renderModeDuringRecording=false;
@@ -994,6 +995,17 @@ void CCamera::removeSceneDependencies()
     trackedObjectIdentifier_NeverDirectlyTouch=-1;
 }
 
+void CCamera::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+{
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectCameraCreate",_objectUniqueId);
+    CSceneObject::pushCreationEvent(event);
+    CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
+
+    // todo
+
+    App::worldContainer->pushEvent();
+}
+
 CSceneObject* CCamera::copyYourself()
 {   
     CCamera* newCamera=(CCamera*)CSceneObject::copyYourself();
@@ -1004,6 +1016,7 @@ CSceneObject* CCamera::copyYourself()
     newCamera->_renderModeDuringSimulation=_renderModeDuringSimulation;
     newCamera->_renderModeDuringRecording=_renderModeDuringRecording;
     newCamera->_viewAngle=_viewAngle;
+    newCamera->_perspectiveOperation=_perspectiveOperation;
     newCamera->_orthoViewSize=_orthoViewSize;
     newCamera->_nearClippingPlane=_nearClippingPlane;
     newCamera->_farClippingPlane=_farClippingPlane;
@@ -1083,6 +1096,19 @@ void CCamera::performTextureObjectLoadingMapping(const std::vector<int>* map)
 void CCamera::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
+}
+
+int CCamera::getPerspectiveOperation() const
+{
+    return(_perspectiveOperation);
+}
+
+void CCamera::setPerspectiveOperation(bool p)
+{
+    if (p)
+        _perspectiveOperation=1;
+    else
+        _perspectiveOperation=0;
 }
 
 int CCamera::getViewOrientation() const
@@ -1250,6 +1276,10 @@ void CCamera::serialize(CSer& ar)
             ar << _renderMode;
             ar.flush();
 
+            ar.storeDataName("Cpm");
+            ar << _perspectiveOperation;
+            ar.flush();
+
             ar.storeDataName("Ca2");
             unsigned char nothing=0;
             SIM_SET_CLEAR_BIT(nothing,0,_useParentObjectAsManipulationProxy);
@@ -1342,6 +1372,12 @@ void CCamera::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _renderMode;
+                    }
+                    if (theName.compare("Cpm")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _perspectiveOperation;
                     }
                     if (theName.compare("Rmd")==0)
                     { // keep for backward compatibility 28/06/2019
@@ -1468,16 +1504,20 @@ void CCamera::serialize(CSer& ar)
             if (exhaustiveXml)
                 ar.xmlAddNode_int("manipulationPermissions",_cameraManipulationModePermissions);
 
+            ar.xmlPushNewNode("switches");
             if (exhaustiveXml)
-            {
-                ar.xmlPushNewNode("switches");
                 ar.xmlAddNode_bool("useParentAsManipulationProxy",_useParentObjectAsManipulationProxy);
+            if (exhaustiveXml)
                 ar.xmlAddNode_bool("useLocalLights",_useLocalLights);
+            if (exhaustiveXml)
                 ar.xmlAddNode_bool("allowPicking",_allowPicking);
+            if (exhaustiveXml)
                 ar.xmlAddNode_bool("renderModeOnlyDuringSimulation",_renderModeDuringSimulation);
+            if (exhaustiveXml)
                 ar.xmlAddNode_bool("renderModeOnlyDuringRecording",_renderModeDuringRecording);
-                ar.xmlPopNode();
-            }
+            if (_perspectiveOperation!=-1)
+                ar.xmlAddNode_bool("perspectiveMode",_perspectiveOperation!=0);
+            ar.xmlPopNode();
 
             ar.xmlPushNewNode("color");
             if (exhaustiveXml)
@@ -1529,13 +1569,21 @@ void CCamera::serialize(CSer& ar)
             if (exhaustiveXml)
                 ar.xmlGetNode_int("manipulationPermissions",_cameraManipulationModePermissions);
 
-            if (exhaustiveXml&&ar.xmlPushChildNode("switches"))
+            if (ar.xmlPushChildNode("switches",exhaustiveXml))
             {
-                ar.xmlGetNode_bool("useParentAsManipulationProxy",_useParentObjectAsManipulationProxy);
-                ar.xmlGetNode_bool("useLocalLights",_useLocalLights);
-                ar.xmlGetNode_bool("allowPicking",_allowPicking);
-                ar.xmlGetNode_bool("renderModeOnlyDuringSimulation",_renderModeDuringSimulation);
-                ar.xmlGetNode_bool("renderModeOnlyDuringRecording",_renderModeDuringRecording);
+                bool p;
+                if (ar.xmlGetNode_bool("perspectiveMode",p,false))
+                {
+                    if (p)
+                        _perspectiveOperation=1;
+                    else
+                        _perspectiveOperation=0;
+                }
+                ar.xmlGetNode_bool("useParentAsManipulationProxy",_useParentObjectAsManipulationProxy,exhaustiveXml);
+                ar.xmlGetNode_bool("useLocalLights",_useLocalLights,exhaustiveXml);
+                ar.xmlGetNode_bool("allowPicking",_allowPicking,exhaustiveXml);
+                ar.xmlGetNode_bool("renderModeOnlyDuringSimulation",_renderModeDuringSimulation,exhaustiveXml);
+                ar.xmlGetNode_bool("renderModeOnlyDuringRecording",_renderModeDuringRecording,exhaustiveXml);
                 ar.xmlPopNode();
             }
 

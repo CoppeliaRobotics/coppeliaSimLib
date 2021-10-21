@@ -23,6 +23,7 @@ public:
 
     // Following functions are inherited from CSceneObject
     void display(CViewableBase* renderingObject,int displayAttrib);
+    void pushCreationEvent(CInterfaceStackTable* ev=nullptr) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
     void scaleObject(float scalingFactor);
@@ -57,6 +58,8 @@ public:
 
     void handleTrackingAndHeadAlwaysUp();
     void commonInit();
+    int getPerspectiveOperation() const;
+    void setPerspectiveOperation(bool p);
     int getViewOrientation() const;
     void setViewOrientation(int ori,bool setPositionAlso=false);
     void setCameraSize(float size);
@@ -84,6 +87,7 @@ protected:
     // Variables which need to be serialized & copied (don't forget the vars from the CViewableBase class!)
     float cameraSize;
     int _renderMode;
+    int _perspectiveOperation; // -1: undefined, 0=false, 1=true
     bool _useParentObjectAsManipulationProxy;
     bool _allowPicking;
     bool _renderModeDuringSimulation;

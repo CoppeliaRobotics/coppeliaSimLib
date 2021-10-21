@@ -135,7 +135,7 @@ bool _CSceneObject_::setChildOrder(int order)
     {
         if (_isInScene)
         {
-            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("childOrder",_objectUniqueId);
+            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectChildorder",_objectUniqueId);
             event->appendMapObject_stringInt32("handle",_objectHandle);
             event->appendMapObject_stringInt32("uid",_objectUniqueId);
             event->appendMapObject_stringInt32("data",order);

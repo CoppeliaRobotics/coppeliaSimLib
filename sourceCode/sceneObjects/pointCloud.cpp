@@ -616,6 +616,17 @@ void CPointCloud::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
+void CPointCloud::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+{
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectPointcloudCreate",_objectUniqueId);
+    CSceneObject::pushCreationEvent(event);
+    CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
+
+    // todo
+
+    App::worldContainer->pushEvent();
+}
+
 CSceneObject* CPointCloud::copyYourself()
 {   
     CPointCloud* newPointcloud=(CPointCloud*)CSceneObject::copyYourself();

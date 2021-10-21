@@ -9,6 +9,7 @@
 #include <map>
 #include "userParameters.h"
 #include "_sceneObject_.h"
+#include "interfaceStack.h"
 
 struct SCustomRefs
 {
@@ -42,6 +43,7 @@ public:
     virtual void removeSynchronizationObject(bool localReferencesToItOnly);
 
     virtual void display(CViewableBase* renderingObject,int displayAttrib);
+    virtual void pushCreationEvent(CInterfaceStackTable* event=nullptr) const;
     virtual CSceneObject* copyYourself();
     virtual void removeSceneDependencies();
     virtual void scaleObject(float scalingFactor);
@@ -55,6 +57,7 @@ public:
     virtual void performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
     virtual void performScriptLoadingMapping(const std::vector<int>* map);
     virtual void performTextureObjectLoadingMapping(const std::vector<int>* map);
+
 
     // Old:
     // -----------

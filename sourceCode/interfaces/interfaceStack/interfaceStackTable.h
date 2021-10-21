@@ -47,7 +47,7 @@ public:
     void appendMapObject_stringDouble(const char* key,double value);
     void appendMapObject_stringInt32(const char* key,int value);
     void appendMapObject_stringInt64(const char* key,long long int value);
-    void appendMapObject_stringString(const char* key,const char* value,size_t l);
+    void appendMapObject_stringString(const char* key,const char* value,size_t l,bool cborCoded=false);
     void appendMapObject_stringInt32Array(const char* key,const int* arr,size_t l);
     void appendMapObject_stringInt64Array(const char* key,const long long int* arr,size_t l);
     void appendMapObject_stringFloatArray(const char* key,const float* arr,size_t l);

@@ -261,6 +261,17 @@ void CPath_old::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
+void CPath_old::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+{
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectPathCreate",_objectUniqueId);
+    CSceneObject::pushCreationEvent(event);
+    CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
+
+    // todo
+
+    App::worldContainer->pushEvent();
+}
+
 CSceneObject* CPath_old::copyYourself()
 {   
     CPath_old* newPath=(CPath_old*)CSceneObject::copyYourself();

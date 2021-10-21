@@ -1948,6 +1948,17 @@ void CVisionSensor::removeSceneDependencies()
     _detectableEntityHandle=-1;
 }
 
+void CVisionSensor::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+{
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectVisionsensorCreate",_objectUniqueId);
+    CSceneObject::pushCreationEvent(event);
+    CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
+
+    // todo
+
+    App::worldContainer->pushEvent();
+}
+
 CSceneObject* CVisionSensor::copyYourself()
 {   
     CVisionSensor* newVisionSensor=(CVisionSensor*)CSceneObject::copyYourself();

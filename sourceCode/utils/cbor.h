@@ -25,9 +25,13 @@ public:
     void appendLuaString(const std::string& v);
     void appendArray(size_t cnt);
     void appendMap(size_t cnt);
+    void appendRaw(const unsigned char* v,size_t l);
     void appendBreakIfApplicable();
 
+    void clear();
+
     std::string getBuff() const;
+    const std::vector<unsigned char>* getBuffPtr() const;
 
 protected:
     void _appendItemTypeAndLength(unsigned char t,long long int l);

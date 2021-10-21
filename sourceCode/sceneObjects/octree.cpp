@@ -561,6 +561,17 @@ void COctree::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
+void COctree::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+{
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectOctreeCreate",_objectUniqueId);
+    CSceneObject::pushCreationEvent(event);
+    CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
+
+    // todo
+
+    App::worldContainer->pushEvent();
+}
+
 CSceneObject* COctree::copyYourself()
 {
     COctree* newOctree=(COctree*)CSceneObject::copyYourself();

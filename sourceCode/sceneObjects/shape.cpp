@@ -10,6 +10,8 @@
 #include "shapeRendering.h"
 #include "meshManip.h"
 #include "base64.h"
+#include "imgLoaderSaver.h"
+#include "ttUtil.h"
 
 bool CShape::_visualizeObbStructures=false;
 
@@ -1918,6 +1920,73 @@ bool CShape::getShapeShapeDistance_IfSmaller(CShape* it,float &dist,float ray[7]
 void CShape::removeSceneDependencies()
 {
     CSceneObject::removeSceneDependencies();
+}
+
+void CShape::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+{
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectShapeCreate",_objectUniqueId);
+    CSceneObject::pushCreationEvent(event);
+    CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
+
+    CInterfaceStackTable* meshData=new CInterfaceStackTable();
+    data->appendMapObject_stringObject("meshdata",meshData);
+
+    SShapeVizInfo info;
+    int index=0;
+    while (true)
+    {
+        int ret=simGetShapeViz_internal(_objectHandle|sim_handleflag_extended,index++,&info);
+        if (ret<=0)
+            break;
+
+        CInterfaceStackTable* mesh=new CInterfaceStackTable();
+        meshData->appendArrayObject(mesh);
+
+        CCbor obj(nullptr,0);
+        obj.appendFloatArray(info.vertices,size_t(info.verticesSize));
+        mesh->appendMapObject_stringString("vertices",(const char*)&obj.getBuffPtr()[0],obj.getBuffPtr()->size(),true);
+
+        obj.clear();
+        obj.appendIntArray(info.indices,size_t(info.indicesSize));
+        mesh->appendMapObject_stringString("indices",(const char*)&obj.getBuffPtr()[0],obj.getBuffPtr()->size(),true);
+
+        obj.clear();
+        obj.appendFloatArray(info.normals,size_t(info.indicesSize*3));
+        mesh->appendMapObject_stringString("normals",(const char*)&obj.getBuffPtr()[0],obj.getBuffPtr()->size(),true);
+
+        mesh->appendMapObject_stringFloatArray("colors",info.colors,9);
+        mesh->appendMapObject_stringFloat("shadingangle",info.shadingAngle);
+        mesh->appendMapObject_stringFloat("transparency",info.transparency);
+        mesh->appendMapObject_stringInt32("options",info.options);
+        delete[] info.vertices;
+        delete[] info.indices;
+        delete[] info.normals;
+        if (ret>1)
+        {
+            std::string buffer;
+            bool res=CImageLoaderSaver::save((unsigned char*)info.texture,info.textureRes,1,".png",-1,&buffer);
+            if (res)
+            {
+                CInterfaceStackTable* texture=new CInterfaceStackTable();
+                mesh->appendMapObject_stringObject("texture",texture);
+                buffer=CTTUtil::encode64(buffer);
+                texture->appendMapObject_stringString("texture",buffer.c_str(),buffer.size());
+                texture->appendMapObject_stringInt32Array("resolution",info.textureRes,2);
+
+                obj.clear();
+                obj.appendFloatArray(info.textureCoords,size_t(info.indicesSize*2));
+                texture->appendMapObject_stringString("coordinates",(const char*)&obj.getBuffPtr()[0],obj.getBuffPtr()->size(),true);
+
+                texture->appendMapObject_stringInt32("applymode",info.textureApplyMode);
+                texture->appendMapObject_stringInt32("options",info.textureOptions);
+                texture->appendMapObject_stringInt32("id",info.textureId);
+            }
+            delete[] info.texture;
+            delete[] info.textureCoords;
+        }
+    }
+
+    App::worldContainer->pushEvent();
 }
 
 CSceneObject* CShape::copyYourself()

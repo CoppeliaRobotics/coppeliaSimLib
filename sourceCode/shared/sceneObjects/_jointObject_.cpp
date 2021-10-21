@@ -1,5 +1,6 @@
 #include "_jointObject_.h"
 #include "simConst.h"
+#include "app.h"
 
 _CJoint_::_CJoint_()
 {
@@ -549,6 +550,14 @@ bool _CJoint_::setPosition(float pos)
     bool diff=(_jointPosition!=pos);
     if (diff)
     {
+        if (_isInScene)
+        {
+            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectJointPosition",_objectUniqueId);
+            event->appendMapObject_stringInt32("handle",_objectHandle);
+            event->appendMapObject_stringInt32("uid",_objectUniqueId);
+            event->appendMapObject_stringFloat("data",pos);
+            App::worldContainer->pushEvent();
+        }
         if (getObjectCanChange())
             _jointPosition=pos;
         if (getObjectCanSync())
@@ -567,6 +576,15 @@ bool _CJoint_::setSphericalTransformation(const C4Vector& tr)
     bool diff=(_sphericalTransformation!=tr);
     if (diff)
     {
+        if (_isInScene)
+        {
+            CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectJointSphericalquaternion",_objectUniqueId);
+            event->appendMapObject_stringInt32("handle",_objectHandle);
+            event->appendMapObject_stringInt32("uid",_objectUniqueId);
+            float p[4]={tr(1),tr(2),tr(3),tr(0)};
+            event->appendMapObject_stringFloatArray("data",p,4);
+            App::worldContainer->pushEvent();
+        }
         if (getObjectCanChange())
             _sphericalTransformation=tr;
         if (getObjectCanSync())

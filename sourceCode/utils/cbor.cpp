@@ -254,6 +254,11 @@ void CCbor::appendString(const char* v,int l/*=-1*/)
         _buff.push_back(v[i]);
 }
 
+void CCbor::appendRaw(const unsigned char* v,size_t l)
+{
+    _buff.insert(_buff.end(),v,v+l);
+}
+
 void CCbor::appendLuaString(const std::string& v)
 {
     if (v.find("@:txt:",v.size()-6-1)!=std::string::npos)
@@ -291,9 +296,20 @@ void CCbor::appendBreakIfApplicable()
         _buff.push_back(255); // break char
 }
 
+void CCbor::clear()
+{
+    _buff.clear();
+}
+
 std::string CCbor::getBuff() const
 {
     std::string retVal;
     retVal.assign(_buff.begin(),_buff.end());
     return(retVal);
 }
+
+const std::vector<unsigned char>* CCbor::getBuffPtr() const
+{
+    return(&_buff);
+}
+

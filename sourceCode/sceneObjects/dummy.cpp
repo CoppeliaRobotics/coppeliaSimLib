@@ -94,6 +94,17 @@ void CDummy::removeSceneDependencies()
     _CDummy_::setLinkedDummyHandle(-1,false);
 }
 
+void CDummy::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+{
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectDummyCreate",_objectUniqueId);
+    CSceneObject::pushCreationEvent(event);
+    CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
+
+    // todo
+
+    App::worldContainer->pushEvent();
+}
+
 CSceneObject* CDummy::copyYourself()
 {   
     CDummy* newDummy=(CDummy*)CSceneObject::copyYourself();

@@ -117,6 +117,17 @@ void CMill::removeSceneDependencies()
     _millableObject=-1;
 }
 
+void CMill::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+{
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectMillCreate",_objectUniqueId);
+    CSceneObject::pushCreationEvent(event);
+    CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
+
+    // todo
+
+    App::worldContainer->pushEvent();
+}
+
 CSceneObject* CMill::copyYourself()
 {   
     CMill* newMill=(CMill*)CSceneObject::copyYourself();

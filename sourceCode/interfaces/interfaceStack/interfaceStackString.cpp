@@ -3,6 +3,7 @@
 CInterfaceStackString::CInterfaceStackString(const char* str,size_t l)
 {
     _objectType=STACK_OBJECT_STRING;
+    _cborCoded=false;
     if (str!=nullptr)
     {
         if (l==0)
@@ -14,6 +15,11 @@ CInterfaceStackString::CInterfaceStackString(const char* str,size_t l)
 
 CInterfaceStackString::~CInterfaceStackString()
 {
+}
+
+void CInterfaceStackString::setCborCoded(bool coded)
+{
+    _cborCoded=coded;
 }
 
 const char* CInterfaceStackString::getValue(size_t* l) const
@@ -56,7 +62,10 @@ std::string CInterfaceStackString::getObjectData() const
 
 void CInterfaceStackString::addCborObjectData(CCbor* cborObj) const
 {
-    cborObj->appendLuaString(_value);
+    if (_cborCoded)
+        cborObj->appendRaw((const unsigned char*)_value.c_str(),_value.size());
+    else
+        cborObj->appendLuaString(_value);
 }
 
 unsigned int CInterfaceStackString::createFromData(const char* data)

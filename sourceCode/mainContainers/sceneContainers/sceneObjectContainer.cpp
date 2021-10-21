@@ -201,6 +201,8 @@ void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
     App::worldContainer->setModificationFlag(2); // object created
+
+    newObject->pushCreationEvent();
 }
 
 bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfterDeleteCallback)
@@ -230,6 +232,11 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
     // We announce the object will be erased:
     App::currentWorld->announceObjectWillBeErased(it->getObjectHandle()); // this may trigger other "interesting" things, such as customization script runs, etc.
     deselectObjects(); // to make sure, since above might have changed selection again
+
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectDelete",it->getObjectUniqueId());
+    event->appendMapObject_stringInt32("handle",it->getObjectHandle());
+    event->appendMapObject_stringInt32("uid",it->getObjectUniqueId());
+    App::worldContainer->pushEvent();
 
     _removeObject(it);
 

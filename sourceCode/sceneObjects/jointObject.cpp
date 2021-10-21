@@ -1462,6 +1462,33 @@ void CJoint::removeSceneDependencies()
     _CJoint_::setDependencyMasterJointHandle(-1);
 }
 
+void CJoint::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+{
+    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectJointCreate",_objectUniqueId);
+    CSceneObject::pushCreationEvent(event);
+    CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
+
+    data->appendMapObject_stringInt32("type",_jointType);
+    float p[4]={_sphericalTransformation(1),_sphericalTransformation(2),_sphericalTransformation(3),_sphericalTransformation(0)};
+    data->appendMapObject_stringFloatArray("sphericalquaternion",p,4);
+    data->appendMapObject_stringFloat("position",_jointPosition);
+    data->appendMapObject_stringFloat("diameter",_diameter);
+    data->appendMapObject_stringFloat("length",_length);
+
+    float c[9];
+    _colorPart1.getColor(c,sim_colorcomponent_ambient_diffuse);
+    _colorPart1.getColor(c+3,sim_colorcomponent_specular);
+    _colorPart1.getColor(c+6,sim_colorcomponent_emission);
+    data->appendMapObject_stringFloatArray("color1",c,9);
+
+    _colorPart2.getColor(c,sim_colorcomponent_ambient_diffuse);
+    _colorPart2.getColor(c+3,sim_colorcomponent_specular);
+    _colorPart2.getColor(c+6,sim_colorcomponent_emission);
+    data->appendMapObject_stringFloatArray("color2",c,9);
+
+    App::worldContainer->pushEvent();
+}
+
 CSceneObject* CJoint::copyYourself()
 {
     CJoint* newJoint=(CJoint*)CSceneObject::copyYourself();

@@ -18,6 +18,7 @@ public:
 
     // Following functions are inherited from CSceneObject
     void display(CViewableBase* renderingObject,int displayAttrib);
+    void pushCreationEvent(CInterfaceStackTable* ev=nullptr) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
     void scaleObject(float scalingFactor);

@@ -416,9 +416,11 @@ void CInterfaceStackTable::appendMapObject_stringInt64(const char* key,long long
     appendArrayOrMapObject(new CInterfaceStackString(key,0),new CInterfaceStackInteger(value));
 }
 
-void CInterfaceStackTable::appendMapObject_stringString(const char* key,const char* value,size_t l)
+void CInterfaceStackTable::appendMapObject_stringString(const char* key,const char* value,size_t l,bool cborCoded/*=false*/)
 {
-    appendArrayOrMapObject(new CInterfaceStackString(key,0),new CInterfaceStackString(value,l));
+    CInterfaceStackString* str=new CInterfaceStackString(value,l);
+    str->setCborCoded(cborCoded);
+    appendArrayOrMapObject(new CInterfaceStackString(key,0),str);
 }
 
 void CInterfaceStackTable::appendMapObject_stringInt32Array(const char* key,const int* arr,size_t l)
