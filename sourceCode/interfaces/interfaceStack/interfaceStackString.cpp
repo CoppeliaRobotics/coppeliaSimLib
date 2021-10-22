@@ -32,6 +32,7 @@ const char* CInterfaceStackString::getValue(size_t* l) const
 CInterfaceStackObject* CInterfaceStackString::copyYourself() const
 {
     CInterfaceStackString* retVal=new CInterfaceStackString(_value.c_str(),_value.size());
+    retVal->_cborCoded=_cborCoded;
     return(retVal);
 }
 
