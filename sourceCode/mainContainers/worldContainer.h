@@ -40,10 +40,11 @@ public:
     void getAllSceneNames(std::vector<std::string>& l) const;
     CScriptObject* getScriptFromHandle(int scriptHandle) const;
     void callScripts(int callType,CInterfaceStack* inStack);
-    CInterfaceStackTable* createFreshEvent(const char* event,const char* change,int uid,bool mergeable=true);
+    CInterfaceStackTable* createEvent(const char* event,const char* change,const _CSceneObject_* object,bool mergeable=true);
     void pushEvent();
     void sendEvents();
     void setCborEvents();
+    void setMergeEvents();
 
     void simulationAboutToStart();
     void simulationPaused();
@@ -82,7 +83,11 @@ private:
     std::vector<std::string> _bufferedEventsSummary;
     std::string _lastEventN;
     std::string _lastEventNN;
+    std::string _lastEventCat;
+    std::string _lastEventSubCat;
+    std::string _lastEventUid;
     bool _cborEvents;
+    bool _mergeEvents;
 
     std::vector<int> _uniqueIdsOfSelectionSinceLastTimeGetAndClearModificationFlagsWasCalled;
     int _modificationFlags;

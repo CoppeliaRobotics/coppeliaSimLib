@@ -1464,27 +1464,26 @@ void CJoint::removeSceneDependencies()
 
 void CJoint::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
 {
-    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectAdded","",_objectUniqueId);
+    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,"",this);
     CSceneObject::pushCreationEvent(event);
-    CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
 
-    data->appendMapObject_stringInt32("type",_jointType);
+    event->appendMapObject_stringInt32("jointType",_jointType);
     float p[4]={_sphericalTransformation(1),_sphericalTransformation(2),_sphericalTransformation(3),_sphericalTransformation(0)};
-    data->appendMapObject_stringFloatArray("quaternion",p,4);
-    data->appendMapObject_stringFloat("position",_jointPosition);
-    data->appendMapObject_stringFloat("diameter",_diameter);
-    data->appendMapObject_stringFloat("length",_length);
+    event->appendMapObject_stringFloatArray("jointQuaternion",p,4);
+    event->appendMapObject_stringFloat("jointPosition",_jointPosition);
+    event->appendMapObject_stringFloat("jointDiameter",_diameter);
+    event->appendMapObject_stringFloat("jointLength",_length);
 
     float c[9];
     _colorPart1.getColor(c,sim_colorcomponent_ambient_diffuse);
     _colorPart1.getColor(c+3,sim_colorcomponent_specular);
     _colorPart1.getColor(c+6,sim_colorcomponent_emission);
-    data->appendMapObject_stringFloatArray("color1",c,9);
+    event->appendMapObject_stringFloatArray("jointColor1",c,9);
 
     _colorPart2.getColor(c,sim_colorcomponent_ambient_diffuse);
     _colorPart2.getColor(c+3,sim_colorcomponent_specular);
     _colorPart2.getColor(c+6,sim_colorcomponent_emission);
-    data->appendMapObject_stringFloatArray("color2",c,9);
+    event->appendMapObject_stringFloatArray("jointColor2",c,9);
 
     App::worldContainer->pushEvent();
 }

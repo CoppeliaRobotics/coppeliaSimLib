@@ -21,6 +21,10 @@ enum {
     sim_syncobj_sceneobject_setchildorder,
 };
 
+#define EVENTTYPE_OBJECTADDED "objectAdded"
+#define EVENTTYPE_OBJECTCHANGED "objectChanged"
+#define EVENTTYPE_OBJECTREMOVED "objectRemoved"
+
 class _CSceneObject_ : public CSyncObject
 {
 public:
@@ -77,8 +81,6 @@ public:
     virtual bool setLocalTransformation(const C3Vector& x);
 
 protected:
-    void _decorateObjectEvent(CInterfaceStackTable* event) const;
-
     virtual void _setChildOrder_send(int order) const;
     virtual void _setParent_send(int parentHandle) const;
     virtual void _setExtensionString_send(const char* str) const;

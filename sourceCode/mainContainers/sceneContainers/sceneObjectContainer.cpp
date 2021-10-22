@@ -232,10 +232,7 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
     App::currentWorld->announceObjectWillBeErased(it->getObjectHandle()); // this may trigger other "interesting" things, such as customization script runs, etc.
     deselectObjects(); // to make sure, since above might have changed selection again
 
-    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectRemoved","",it->getObjectUniqueId());
-    event->appendMapObject_stringInt32("handle",it->getObjectHandle());
-    event->appendMapObject_stringInt32("uid",it->getObjectUniqueId());
-    event->appendMapObject_stringInt32("type",it->getObjectType());
+    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED,"",it);
     App::worldContainer->pushEvent();
 
     _removeObject(it);

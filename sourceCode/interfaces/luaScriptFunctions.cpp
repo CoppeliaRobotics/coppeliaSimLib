@@ -5024,6 +5024,11 @@ int _simTest(luaWrap_lua_State* L)
             App::worldContainer->setCborEvents();
             LUA_END(0);
         }
+        if (cmd.compare("sim.mergeEvents")==0)
+        {
+            App::worldContainer->setMergeEvents();
+            LUA_END(0);
+        }
         if ( (cmd.compare("sim.getShapeViz")==0)&&luaWrap_lua_isinteger(L,2)&&luaWrap_lua_istable(L,3) )
         {
             int handle=luaWrap_lua_tointeger(L,2);

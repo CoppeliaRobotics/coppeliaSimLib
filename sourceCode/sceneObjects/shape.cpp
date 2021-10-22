@@ -1924,12 +1924,11 @@ void CShape::removeSceneDependencies()
 
 void CShape::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
 {
-    CInterfaceStackTable* event=App::worldContainer->createFreshEvent("objectAdded","",_objectUniqueId);
+    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,"",this);
     CSceneObject::pushCreationEvent(event);
-    CInterfaceStackTable* data=(CInterfaceStackTable*)event->getMapObject("data");
 
     CInterfaceStackTable* meshData=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("meshData",meshData);
+    event->appendMapObject_stringObject("shapeData",meshData);
 
     std::vector<CMesh*> all;
     getMeshWrapper()->getAllShapeComponentsCumulative(all);
@@ -1984,7 +1983,7 @@ void CShape::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
         geom->color.getColor(c+0,sim_colorcomponent_ambient_diffuse);
         geom->color.getColor(c+3,sim_colorcomponent_specular);
         geom->color.getColor(c+6,sim_colorcomponent_emission);
-        data->appendMapObject_stringFloatArray("colors",c,9);
+        mesh->appendMapObject_stringFloatArray("colors",c,9);
 
         mesh->appendMapObject_stringFloat("shadingAngle",geom->getGouraudShadingAngle());
         float transp=0.0f;

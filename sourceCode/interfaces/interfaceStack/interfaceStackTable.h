@@ -25,6 +25,7 @@ public:
 
     CInterfaceStackObject* getArrayItemAtIndex(size_t ind) const;
     CInterfaceStackObject* getMapItemAtIndex(size_t ind,std::string& stringKey,double& numberKey,long long int& integerKey,bool& boolKey,int& keyType) const;
+    void removeArrayItemAtIndex(size_t ind);
     void getAllObjectsAndClearTable(std::vector<CInterfaceStackObject*>& allObjs);
 
     void setUCharArray(const unsigned char* array,size_t l);

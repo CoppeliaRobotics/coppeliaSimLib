@@ -456,6 +456,12 @@ void CInterfaceStackTable::appendMapObject_stringObject(const char* key,CInterfa
     appendArrayOrMapObject(new CInterfaceStackString(key,0),obj);
 }
 
+void CInterfaceStackTable::removeArrayItemAtIndex(size_t ind)
+{
+    delete _tableObjects[ind];
+    _tableObjects.erase(_tableObjects.begin()+ind);
+}
+
 CInterfaceStackObject* CInterfaceStackTable::getArrayItemAtIndex(size_t ind) const
 {
     if ( (!_isTableArray)||(ind>=_tableObjects.size()) )

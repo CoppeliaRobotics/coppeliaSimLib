@@ -272,6 +272,7 @@ void CWorldContainer::initialize()
     _bufferedEvents=interfaceStackContainer->createStack();
     _bufferedEvents->pushTableOntoStack();
     _cborEvents=false;
+    _mergeEvents=false;
 
     initializeRendering();
     createNewWorld();
@@ -424,21 +425,66 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack)
         sandboxScript->systemCallScript(callType,inStack,nullptr);
 }
 
-CInterfaceStackTable* CWorldContainer::createFreshEvent(const char* event,const char* change,int uid,bool mergeable/*=true*/)
+CInterfaceStackTable* CWorldContainer::createEvent(const char* event,const char* change,const _CSceneObject_* object,bool mergeable/*=true*/)
 {
     if (mergeable)
     {
         _lastEventN=event;
         _lastEventN+="*";
         _lastEventN+=change;
-        _lastEventNN=_lastEventN+std::to_string(uid);
+        _lastEventNN=_lastEventN+std::to_string(object->getObjectUniqueId());
+
+        _lastEventCat=event;
+        _lastEventSubCat=change;
+        _lastEventUid=std::to_string(object->getObjectUniqueId());
     }
     else
+    {
         _lastEventN.clear();
+
+        _lastEventCat.clear();
+    }
     _event->appendMapObject_stringString("event",event,0);
-    if (change!=nullptr)
-        _event->appendMapObject_stringString("change",change,0);
-    return(_event);
+
+    _event->appendMapObject_stringInt32("handle",object->getObjectHandle());
+    _event->appendMapObject_stringInt32("uid",object->getObjectUniqueId());
+    std::string tp;
+    switch(object->getObjectType())
+    {
+        case sim_object_shape_type : tp="shape";
+            break;
+        case sim_object_joint_type : tp="joint";
+            break;
+        case sim_object_graph_type : tp="graph";
+            break;
+        case sim_object_camera_type : tp="camera";
+            break;
+        case sim_object_dummy_type : tp="dummy";
+            break;
+        case sim_object_proximitysensor_type : tp="proxSensor";
+            break;
+        case sim_object_path_type : tp="path";
+            break;
+        case sim_object_visionsensor_type : tp="visionSensor";
+            break;
+        case sim_object_mill_type : tp="mill";
+            break;
+        case sim_object_forcesensor_type : tp="forceSensor";
+            break;
+        case sim_object_light_type : tp="light";
+            break;
+        case sim_object_mirror_type : tp="mirror";
+            break;
+        case sim_object_octree_type : tp="octree";
+            break;
+        case sim_object_pointcloud_type : tp="pointCloud";
+            break;
+    }
+    _event->appendMapObject_stringString("type",tp.c_str(),0);
+
+    CInterfaceStackTable* data=new CInterfaceStackTable();
+    _event->appendMapObject_stringObject("data",data);
+    return(data);
 }
 
 void CWorldContainer::pushEvent()
@@ -447,8 +493,14 @@ void CWorldContainer::pushEvent()
     {
         CInterfaceStackTable* buff=(CInterfaceStackTable*)_bufferedEvents->getStackObjectFromIndex(0);
         buff->appendArrayObject(_event);
-        _bufferedEventsSummary.push_back(_lastEventN);
-        _bufferedEventsSummary.push_back(_lastEventNN);
+//        _bufferedEventsSummary.push_back(_lastEventN);
+//        _bufferedEventsSummary.push_back(_lastEventNN);
+
+        _bufferedEventsSummary.push_back(_lastEventCat+"*"+_lastEventSubCat);
+        _bufferedEventsSummary.push_back(_lastEventCat+"*"+_lastEventSubCat+_lastEventUid);
+        _bufferedEventsSummary.push_back(_lastEventCat);
+        _bufferedEventsSummary.push_back(_lastEventCat+_lastEventUid);
+
         _event=new CInterfaceStackTable();
     }
 }
@@ -456,6 +508,11 @@ void CWorldContainer::pushEvent()
 void CWorldContainer::setCborEvents()
 {
     _cborEvents=true;
+}
+
+void CWorldContainer::setMergeEvents()
+{
+    _mergeEvents=true;
 }
 
 void CWorldContainer::sendEvents()
@@ -469,18 +526,45 @@ void CWorldContainer::sendEvents()
         std::map<std::string,bool> map;
         for (int i=int(buff->getArraySize())-1;i>=0;i--)
         {
-            if (_bufferedEventsSummary[2*i+0].size()>0)
-            {
-                std::map<std::string,bool>::iterator it=map.find(_bufferedEventsSummary[2*i+1]);
+            if (_bufferedEventsSummary[4*i+0].size()>0)
+            { // we can merge those events
+                std::map<std::string,bool>::iterator it=map.find(_bufferedEventsSummary[4*i+1]);
                 if (it==map.end())
                 {
-                    map[_bufferedEventsSummary[2*i+1]]=true;
+                    map[_bufferedEventsSummary[4*i+1]]=true;
                     toSendTable->insertArrayObject(buff->getArrayItemAtIndex(i)->copyYourself(),0);
                 }
             }
             else
                 toSendTable->insertArrayObject(buff->getArrayItemAtIndex(i)->copyYourself(),0);
         }
+
+        if (_mergeEvents)
+        {
+            for (int i=int(toSendTable->getArraySize())-1;i>=0;i--)
+            {
+                if (_bufferedEventsSummary[4*i+2].compare(EVENTTYPE_OBJECTCHANGED)==0)
+                {
+                    CInterfaceStackTable* data=(CInterfaceStackTable*)((CInterfaceStackTable*)toSendTable->getArrayItemAtIndex(i))->getMapObject("data");
+                    for (int j=i-1;j>=0;j--)
+                    {
+                        if (_bufferedEventsSummary[4*i+3].compare(_bufferedEventsSummary[4*j+3])==0)
+                        {
+                            CInterfaceStackTable* data2=(CInterfaceStackTable*)((CInterfaceStackTable*)toSendTable->getArrayItemAtIndex(j))->getMapObject("data");
+                            std::vector<CInterfaceStackObject*> allObjs;
+                            data2->getAllObjectsAndClearTable(allObjs);
+                            for (size_t k=0;k<allObjs.size()/2;k++)
+                                data->appendArrayOrMapObject(allObjs[2*k+0],allObjs[2*k+1]);
+                            toSendTable->removeArrayItemAtIndex(j);
+                            _bufferedEventsSummary.erase(_bufferedEventsSummary.begin()+4*j,_bufferedEventsSummary.begin()+4*j+4);
+                            i--;
+                        }
+                    }
+                }
+            }
+        }
+
+
         if (_cborEvents)
         {
             std::string cbor=toSend->getCborEncodedBufferFromTable(0);
