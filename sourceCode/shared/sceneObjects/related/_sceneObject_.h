@@ -41,6 +41,7 @@ public:
     bool getSelected() const;
     bool getIsInScene() const;
     bool getModelBase() const;
+    bool getModelInvisible() const;
     std::string getExtensionString() const;
     unsigned short getVisibilityLayer() const;
     int getChildOrder() const;
@@ -59,6 +60,8 @@ public:
     C7Vector getFullParentCumulativeTransformation() const;
     C7Vector getCumulativeTransformation() const;
     C7Vector getFullCumulativeTransformation() const;
+
+    void recomputeModelInfluencedValues(int flags=-1);
 
 
     void setObjectUniqueId();
@@ -81,6 +84,8 @@ public:
     virtual bool setLocalTransformation(const C3Vector& x);
 
 protected:
+    void _setModelInvisible(bool inv);
+
     virtual void _setChildOrder_send(int order) const;
     virtual void _setParent_send(int parentHandle) const;
     virtual void _setExtensionString_send(const char* str) const;
@@ -97,6 +102,7 @@ protected:
     unsigned short _visibilityLayer;
     bool _selected;
     bool _isInScene;
+    bool _modelInvisible;
     int _childOrder;
     std::string _objectAlias;
     C7Vector _localTransformation;
@@ -111,13 +117,15 @@ protected:
     // the exact same parent (which would be retrieved via 'CObjCont::getObject()')
     CSceneObject* _parentObject;
     int _objectType;
-    int _localObjectProperty;
+    int _objectProperty;
     bool _modelBase;
     bool _ignoredByViewFitting;
     int _hierarchyColorIndex;
     int _collectionSelfCollisionIndicator;
     int _localObjectSpecialProperty;
-    int _localModelProperty;
+    int _modelProperty;
+    int _calculatedModelProperty;
+    int _calculatedObjectProperty;
     std::string _modelAcknowledgement;
 
     static int _objectUniqueIDCounter;

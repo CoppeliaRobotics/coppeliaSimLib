@@ -6839,7 +6839,7 @@ simInt simSetObjectProperty_internal(simInt objectHandle,simInt prop)
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-        it->setLocalObjectProperty(prop);
+        it->setObjectProperty(prop);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -6860,7 +6860,7 @@ simInt simGetObjectProperty_internal(simInt objectHandle)
             return(-1);
         }
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-        int retVal=it->getLocalObjectProperty();
+        int retVal=it->getObjectProperty();
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -6929,7 +6929,7 @@ simInt simSetModelProperty_internal(simInt objectHandle,simInt modelProperty)
         {
             if (!it->getModelBase())
                 it->setModelBase(true);
-            it->setLocalModelProperty(modelProperty);
+            it->setModelProperty(modelProperty);
         }
         return(1);
     }
@@ -6951,7 +6951,7 @@ simInt simGetModelProperty_internal(simInt objectHandle)
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         int retVal;
         if (it->getModelBase())
-            retVal=it->getLocalModelProperty();
+            retVal=it->getModelProperty();
         else
             retVal=sim_modelproperty_not_model;
         return(retVal);

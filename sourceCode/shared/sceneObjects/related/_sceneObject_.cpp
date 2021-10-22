@@ -171,6 +171,24 @@ bool _CSceneObject_::getModelBase() const
     return(_modelBase);
 }
 
+bool _CSceneObject_::getModelInvisible() const
+{
+    return(_modelInvisible);
+}
+
+void _CSceneObject_::_setModelInvisible(bool inv)
+{
+    bool diff=(_modelInvisible!=inv);
+    if (diff&&_isInScene)
+    {
+        _modelInvisible=inv;
+        const char* cmd="modelInvisible";
+        CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this);
+        event->appendMapObject_stringBool(cmd,inv);
+        App::worldContainer->pushEvent();
+    }
+}
+
 void _CSceneObject_::setSelected(bool s)
 {
     _selected=s;
@@ -437,6 +455,34 @@ C7Vector _CSceneObject_::getCumulativeTransformation() const
 C7Vector _CSceneObject_::getFullCumulativeTransformation() const
 {
     return(getFullParentCumulativeTransformation()*getFullLocalTransformation());
+}
+
+void _CSceneObject_::recomputeModelInfluencedValues(int flags/*=-1*/)
+{ // -2: parent has correct values, -1: recompute for this object + children
+    if (flags==-1)
+    {
+        if (_parentObject==nullptr)
+            flags=_modelProperty;
+        else
+        {
+            _parentObject->recomputeModelInfluencedValues(-2);
+            return;
+        }
+    }
+    if (flags==-2)
+        flags=_calculatedModelProperty;
+    if (_modelBase)
+        flags|=_modelProperty;
+    _calculatedModelProperty=flags;
+
+    _setModelInvisible((_calculatedModelProperty&sim_modelproperty_not_visible)!=0);
+
+    _calculatedObjectProperty=_objectProperty;
+    if ((_calculatedModelProperty&sim_modelproperty_not_showasinsidemodel)!=0)
+        _calculatedObjectProperty|=sim_objectproperty_dontshowasinsidemodel;
+
+    for (size_t i=0;i<_childList.size();i++)
+        _childList[i]->recomputeModelInfluencedValues(flags);
 }
 
 void _CSceneObject_::_setObjectAlias_send(const char* newName) const

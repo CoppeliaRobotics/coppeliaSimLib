@@ -19,7 +19,7 @@ void displayProximitySensor(CProxSensor* proxSensor,CViewableBase* renderingObje
         _enableAuxClippingPlanes(proxSensor->getObjectHandle());
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
-            if (proxSensor->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
+            if (proxSensor->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(proxSensor->getModelSelectionHandle());
             else
                 glLoadName(proxSensor->getObjectHandle());

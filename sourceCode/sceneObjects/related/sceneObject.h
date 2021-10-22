@@ -120,8 +120,8 @@ public:
 
     int getModelSelectionHandle(bool firstObject=true);
 
-    void setLocalObjectProperty(int p);
-    int getLocalObjectProperty() const;
+    void setObjectProperty(int p);
+    int getObjectProperty() const;
     int getCumulativeObjectProperty();
     void setModelBase(bool m);
 
@@ -167,8 +167,8 @@ public:
 
     void setLocalObjectSpecialProperty(int prop);
     int getLocalObjectSpecialProperty() const;
-    void setLocalModelProperty(int prop);
-    int getLocalModelProperty() const;
+    void setModelProperty(int prop);
+    int getModelProperty() const;
     int getCumulativeModelProperty();
     int getCumulativeObjectSpecialProperty();
 
@@ -295,7 +295,7 @@ protected:
     int _getAllowedObjectSpecialProperties() const;
 
     int _dynamicSimulationIconCode;
-    static int _modelPropertyValidityNumber;
+//    static int _modelPropertyValidityNumber;
 
     bool _restoreToDefaultLights;
     bool _forceAlwaysVisible_tmp;
@@ -313,8 +313,8 @@ protected:
     std::string _objectTempName_old;
     std::string _objectTempAltName_old;
 
-    int _cumulativeModelProperty;
-    int _cumulativeModelPropertyValidityNumber;
+//    int _cumulativeModelProperty;
+//    int _cumulativeModelPropertyValidityNumber;
 
     int _authorizedViewableObjects; // -1 --> all, -2 --> none, otherwise object or collection handle
 

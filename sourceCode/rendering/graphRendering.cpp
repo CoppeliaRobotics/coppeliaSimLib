@@ -20,7 +20,7 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
-            if (graph->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
+            if (graph->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(graph->getModelSelectionHandle());
             else
                 glLoadName(graph->getObjectHandle());

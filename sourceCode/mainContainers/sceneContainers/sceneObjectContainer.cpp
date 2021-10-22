@@ -24,7 +24,7 @@ CSceneObjectContainer::~CSceneObjectContainer()
 
 void CSceneObjectContainer::simulationAboutToStart()
 {
-    CSceneObject::incrementModelPropertyValidityNumber();
+    //CSceneObject::incrementModelPropertyValidityNumber();
     for (size_t i=0;i<getObjectCount();i++)
         getObjectFromIndex(i)->simulationAboutToStart();
 }
@@ -33,7 +33,7 @@ void CSceneObjectContainer::simulationEnded()
 {
     for (size_t i=0;i<getObjectCount();i++)
        getObjectFromIndex(i)->simulationEnded();
-    CSceneObject::incrementModelPropertyValidityNumber();
+    //CSceneObject::incrementModelPropertyValidityNumber();
 }
 
 void CSceneObjectContainer::announceObjectWillBeErased(int objectHandle)
@@ -201,6 +201,7 @@ void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
     App::worldContainer->setModificationFlag(2); // object created
+    newObject->recomputeModelInfluencedValues();
     newObject->pushCreationEvent();
 }
 
@@ -351,10 +352,8 @@ void CSceneObjectContainer::actualizeObjectInformation()
             getShapeFromIndex(i)->clearLastParentForLocalGlobalRespondable();
 
         App::currentWorld->textureContainer->updateAllDependencies();
-        CSceneObject::incrementModelPropertyValidityNumber();
+        //CSceneObject::incrementModelPropertyValidityNumber();
         App::setRebuildHierarchyFlag();
-
-
     }
 }
 
@@ -1105,6 +1104,7 @@ void CSceneObjectContainer::setObjectParent(CSceneObject* object,CSceneObject* n
         else
             _addToOrphanObjects(object);
         object->setParent(newParent);
+        object->recomputeModelInfluencedValues();
         _handleOrderIndexOfOrphans();
 
         if (keepInPlace)
@@ -1234,6 +1234,7 @@ bool CSceneObjectContainer::setSelectedObjectHandles(const std::vector<int>* v)
 void CSceneObjectContainer::_handleOrderIndexOfOrphans()
 {
     std::map<std::string,int> nameMap;
+    std::vector<int> co(getOrphanCount());
     for (size_t i=0;i<getOrphanCount();i++)
     {
         CSceneObject* child=getOrphanFromIndex(i);
@@ -1243,7 +1244,7 @@ void CSceneObjectContainer::_handleOrderIndexOfOrphans()
             nameMap[hn]=0;
         else
             nameMap[hn]++;
-        child->setChildOrder(nameMap[hn]);
+        co[i]=nameMap[hn];
     }
     for (size_t i=0;i<getOrphanCount();i++)
     {
@@ -1251,7 +1252,8 @@ void CSceneObjectContainer::_handleOrderIndexOfOrphans()
         std::string hn(child->getObjectAlias());
         std::map<std::string,int>::iterator it=nameMap.find(hn);
         if (nameMap[hn]==0)
-            child->setChildOrder(-1); // means unique with that name, with that parent
+            co[i]=-1; // means unique with that name, with that parent
+        child->setChildOrder(co[i]);
     }
     App::setFullDialogRefreshFlag();
     App::setRebuildHierarchyFlag();
@@ -2192,7 +2194,7 @@ void CSceneObjectContainer::_removeObject(CSceneObject* object)
     _CSceneObjectContainer_::_removeObject(object);
     _handleOrderIndexOfOrphans();
 
-    CSceneObject::incrementModelPropertyValidityNumber();
+    //CSceneObject::incrementModelPropertyValidityNumber();
     actualizeObjectInformation();
     App::setFullDialogRefreshFlag();
     App::setRebuildHierarchyFlag();

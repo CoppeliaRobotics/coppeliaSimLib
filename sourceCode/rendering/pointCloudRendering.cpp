@@ -21,7 +21,7 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
-            if (pointCloud->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
+            if (pointCloud->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(pointCloud->getModelSelectionHandle());
             else
                 glLoadName(pointCloud->getObjectHandle());

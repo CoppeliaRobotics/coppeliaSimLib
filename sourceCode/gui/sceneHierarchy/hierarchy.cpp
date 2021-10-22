@@ -1489,9 +1489,9 @@ bool CHierarchy::processCommand(int commandID)
             for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-                it->setLocalObjectProperty(it->getLocalObjectProperty()|sim_objectproperty_collapsed);
+                it->setObjectProperty(it->getObjectProperty()|sim_objectproperty_collapsed);
                 if (commandID==EXPAND_HIERARCHY_CMD)
-                    it->setLocalObjectProperty(it->getLocalObjectProperty()-sim_objectproperty_collapsed);
+                    it->setObjectProperty(it->getObjectProperty()-sim_objectproperty_collapsed);
             }
             if (commandID==EXPAND_HIERARCHY_CMD)
                 App::logMsg(sim_verbosity_msgs,IDSNS_HIERARCHY_EXPANDED);
@@ -1519,9 +1519,9 @@ bool CHierarchy::processCommand(int commandID)
                 while (toExplore.size()!=0)
                 {
                     it=toExplore[0];
-                    it->setLocalObjectProperty(it->getLocalObjectProperty()|sim_objectproperty_collapsed);
+                    it->setObjectProperty(it->getObjectProperty()|sim_objectproperty_collapsed);
                     if (commandID==EXPAND_SELECTED_HIERARCHY_CMD)
-                        it->setLocalObjectProperty(it->getLocalObjectProperty()-sim_objectproperty_collapsed);
+                        it->setObjectProperty(it->getObjectProperty()-sim_objectproperty_collapsed);
                     toExplore.erase(toExplore.begin());
                     for (size_t j=0;j<it->getChildCount();j++)
                         toExplore.push_back(it->getChildFromIndex(j));

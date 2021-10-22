@@ -940,9 +940,9 @@ bool CSceneObjectOperations::processCommand(int commandID)
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-                if ((it->getLocalObjectProperty()&sim_objectproperty_cannotdelete)==0)
+                if ((it->getObjectProperty()&sim_objectproperty_cannotdelete)==0)
                 {
-                    if ( ((it->getLocalObjectProperty()&sim_objectproperty_cannotdeleteduringsim)==0)||App::currentWorld->simulation->isSimulationStopped() )
+                    if ( ((it->getObjectProperty()&sim_objectproperty_cannotdeleteduringsim)==0)||App::currentWorld->simulation->isSimulationStopped() )
                         sel.push_back(it->getObjectHandle());
                 }
             }
@@ -992,9 +992,9 @@ bool CSceneObjectOperations::processCommand(int commandID)
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-                if ((it->getLocalObjectProperty()&sim_objectproperty_cannotdelete)==0)
+                if ((it->getObjectProperty()&sim_objectproperty_cannotdelete)==0)
                 {
-                    if ( ((it->getLocalObjectProperty()&sim_objectproperty_cannotdeleteduringsim)==0)||App::currentWorld->simulation->isSimulationStopped() )
+                    if ( ((it->getObjectProperty()&sim_objectproperty_cannotdeleteduringsim)==0)||App::currentWorld->simulation->isSimulationStopped() )
                         sel.push_back(it->getObjectHandle());
                 }
             }
@@ -1610,7 +1610,7 @@ void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it,st
             // Now a few properties/things we want to be same for the new shape:
             App::currentWorld->sceneObjects->setObjectParent(newIt,it->getParent(),true);
             newIt->setSizeFactor(it->getSizeFactor());
-            newIt->setLocalObjectProperty(it->getLocalObjectProperty());
+            newIt->setObjectProperty(it->getObjectProperty());
             newIt->setLocalObjectSpecialProperty(it->getLocalObjectSpecialProperty());
             newIt->setVisibilityLayer(it->getVisibilityLayer());
             newIt->setShapeIsDynamicallyStatic(it->getShapeIsDynamicallyStatic());
@@ -1891,7 +1891,7 @@ bool CSceneObjectOperations::_divideShape(CShape* shape,std::vector<CShape*>& ne
                     // Now a few properties/things we want to be same for the new shape:
                     App::currentWorld->sceneObjects->setObjectParent(newIt,it->getParent(),true);
                     newIt->setSizeFactor(it->getSizeFactor());
-                    newIt->setLocalObjectProperty(it->getLocalObjectProperty());
+                    newIt->setObjectProperty(it->getObjectProperty());
                     newIt->setLocalObjectSpecialProperty(it->getLocalObjectSpecialProperty());
                     newIt->setVisibilityLayer(it->getVisibilityLayer());
                     // Do not copy following:

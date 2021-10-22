@@ -27,7 +27,7 @@
     #include "oglSurface.h"
 #endif
 
-int CSceneObject::_modelPropertyValidityNumber=0;
+//int CSceneObject::_modelPropertyValidityNumber=0;
 
 CSceneObject::CSceneObject()
 {
@@ -45,7 +45,7 @@ CSceneObject::CSceneObject()
     _assemblyMatchValuesParent.push_back("default");
     _forceAlwaysVisible_tmp=false;
 
-    _localObjectProperty=sim_objectproperty_selectable;
+    _objectProperty=sim_objectproperty_selectable;
     _hierarchyColorIndex=-1;
     _collectionSelfCollisionIndicator=0;
     _ignorePosAndCameraOrthoviewSize_forUndoRedo=false;
@@ -82,9 +82,9 @@ CSceneObject::CSceneObject()
     _customObjectData=nullptr;
     _customObjectData_tempData=nullptr;
     _localObjectSpecialProperty=0;
-    _localModelProperty=0; // By default, the main properties are not overriden! (0 means we inherit from parents)
-    _cumulativeModelProperty=0;
-    _cumulativeModelPropertyValidityNumber=-2;
+    _modelProperty=0; // By default, the main properties are not overriden! (0 means we inherit from parents)
+//    _cumulativeModelProperty=0;
+//    _cumulativeModelPropertyValidityNumber=-2;
 
     _memorizedConfigurationValidCounter=0;
 
@@ -235,7 +235,7 @@ bool CSceneObject::getShouldObjectBeDisplayed(int viewableHandle,int displayAttr
     }
 
     bool display=false;
-    if (((displayAttrib&sim_displayattribute_pickpass)==0)||((_localObjectProperty&sim_objectproperty_selectinvisible)==0))
+    if (((displayAttrib&sim_displayattribute_pickpass)==0)||((_objectProperty&sim_objectproperty_selectinvisible)==0))
     { // ok, no pickpass and select invisible
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
             display=(_dynamicObjectFlag_forVisualization!=0);
@@ -404,33 +404,59 @@ bool CSceneObject::isPotentiallyRenderable() const
 
 void CSceneObject::setModelBase(bool m)
 { // is also called from the ungroup/divide shape routines!!
-    _modelBase=m;
-    _localModelProperty=0; // Nothing is overridden!
-    _modelAcknowledgement="";
-    incrementModelPropertyValidityNumber();
+    bool diff=(_modelBase!=m);
+    if (diff)
+    {
+        if (_isInScene)
+        {
+            const char* cmd="modelBase";
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this);
+            event->appendMapObject_stringBool(cmd,m);
+            App::worldContainer->pushEvent();
+        }
+
+        _modelBase=m;
+        _modelProperty=0; // Nothing is overridden!
+        _modelAcknowledgement="";
+        //incrementModelPropertyValidityNumber();
+        recomputeModelInfluencedValues();
+    }
 }
 
-void CSceneObject::setLocalObjectProperty(int p)
+void CSceneObject::setObjectProperty(int p)
 {
-    _localObjectProperty=p;
+    bool diff=(_objectProperty!=p);
+    if (diff)
+    {
+        /*
+        if (_isInScene)
+        {
+            const char* cmd="objectPropertySelectModel";
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this);
+            event->appendMapObject_stringBool(cmd,p);
+            App::worldContainer->pushEvent();
+        }
+        */
+        _objectProperty=p;
+        recomputeModelInfluencedValues();
+    }
 }
 
-int CSceneObject::getLocalObjectProperty() const
+int CSceneObject::getObjectProperty() const
 {
-    return(_localObjectProperty);
+    return(_objectProperty);
 }
 
 int CSceneObject::getCumulativeObjectProperty()
 {
+    return(_calculatedObjectProperty);
+    /*
+    int retVal=_objectProperty;
     int o=getCumulativeModelProperty();
-    if (o==0)
-        return(_localObjectProperty); // nothing is overridden!
-    int p=_localObjectProperty;
-
-    if (o&sim_modelproperty_not_showasinsidemodel)
-        p=(p|sim_objectproperty_dontshowasinsidemodel);
-
-    return(p);
+    if (o&sim_modelproperty_not_showasinsidemodel!=0)
+        retVal|=sim_objectproperty_dontshowasinsidemodel;
+    return(retVal);
+    */
 }
 
 void CSceneObject::setLocalObjectSpecialProperty(int prop)
@@ -465,40 +491,46 @@ int CSceneObject::getCumulativeObjectSpecialProperty()
 }
 
 
-void CSceneObject::setLocalModelProperty(int prop)
+void CSceneObject::setModelProperty(int prop)
 { // model properties are actually override properties. This func. returns the local value
-    _localModelProperty=prop;
-    incrementModelPropertyValidityNumber();
+    _modelProperty=prop;
+    recomputeModelInfluencedValues();
+    //incrementModelPropertyValidityNumber();
 }
 
-int CSceneObject::getLocalModelProperty() const
+int CSceneObject::getModelProperty() const
 { // model properties are actually override properties. This func. returns the local value
-    return(_localModelProperty);
+    return(_modelProperty);
 }
 
 int CSceneObject::getCumulativeModelProperty()
 { // model properties are actually override properties. This func. returns the cumulative value
+    return(_calculatedModelProperty);
+    /*
     int vn=_modelPropertyValidityNumber;
     if (vn!=_cumulativeModelPropertyValidityNumber)
     { // the cumulative value is not up-to-date
         if (getParent()==nullptr)
-            _cumulativeModelProperty=_localModelProperty;
+            _cumulativeModelProperty=_modelProperty;
         else
         {
             int parentCumul=getParent()->getCumulativeModelProperty();
-            _cumulativeModelProperty=_localModelProperty|parentCumul;
+            _cumulativeModelProperty=_modelProperty|parentCumul;
         }
         if (_dynamicsTemporarilyDisabled)
             _cumulativeModelProperty|=sim_modelproperty_not_dynamic;
         _cumulativeModelPropertyValidityNumber=vn;
     }
     return(_cumulativeModelProperty);
+    */
 }
 
+/*
 void CSceneObject::incrementModelPropertyValidityNumber()
 { // static
     _modelPropertyValidityNumber++;
 }
+*/
 
 bool CSceneObject::isObjectVisible()
 {
@@ -542,7 +574,7 @@ int CSceneObject::getModelSelectionHandle(bool firstObject)
 
     if (_modelBase)
     {
-        if ( ((_localObjectProperty&sim_objectproperty_selectmodelbaseinstead)==0) )
+        if ( ((_objectProperty&sim_objectproperty_selectmodelbaseinstead)==0) )
             return(getObjectHandle());
         if (getParent()==nullptr)
             return(getObjectHandle());
@@ -622,8 +654,8 @@ bool CSceneObject::setBeforeDeleteCallbackSent()
 bool CSceneObject::getGlobalMarkingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool& minMaxNotYetDefined,bool first,bool guiIsRendering) const
 { // For root selection display! Return value false means there is no global marking bounding box and min/max values are not valid
     bool retVal=false;
-    int objProp=getLocalObjectProperty();
-    int modProp=getLocalModelProperty();
+    int objProp=getObjectProperty();
+    int modProp=getModelProperty();
 
     bool exploreChildren=((modProp&sim_modelproperty_not_showasinsidemodel)==0)||first;
     bool includeThisBox=(objProp&sim_objectproperty_dontshowasinsidemodel)==0;
@@ -939,6 +971,9 @@ void CSceneObject::pushCreationEvent(CInterfaceStackTable* event/*=nullptr*/) co
     event->appendMapObject_stringFloatArray("pose",p,7);
     event->appendMapObject_stringString("alias",_objectAlias.c_str(),0);
     event->appendMapObject_stringString("oldName",_objectName_old.c_str(),0);
+    event->appendMapObject_stringBool("modelInvisible",_modelInvisible);
+    event->appendMapObject_stringBool("modelBase",_modelBase);
+//    event->appendMapObject_stringBool("objectPropertySelectModel",_objectProperty&sim_objectproperty_selectmodelbaseinstead);
 }
 
 CSceneObject* CSceneObject::copyYourself()
@@ -983,13 +1018,13 @@ CSceneObject* CSceneObject::copyYourself()
     theNewObject->_objectAlias=_objectAlias;
     theNewObject->_objectName_old=_objectName_old;
     theNewObject->_objectAltName_old=_objectAltName_old;
-    theNewObject->_localObjectProperty=_localObjectProperty;
+    theNewObject->_objectProperty=_objectProperty;
     theNewObject->_hierarchyColorIndex=_hierarchyColorIndex;
     theNewObject->_collectionSelfCollisionIndicator=_collectionSelfCollisionIndicator;
     theNewObject->_modelBase=_modelBase;
     theNewObject->_objectType=_objectType;
     theNewObject->_localObjectSpecialProperty=_localObjectSpecialProperty;
-    theNewObject->_localModelProperty=_localModelProperty;
+    theNewObject->_modelProperty=_modelProperty;
     theNewObject->_extensionString=_extensionString;
 
     theNewObject->_dnaString=_dnaString;
@@ -1302,8 +1337,9 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     _dynamicSimulationIconCode=sim_dynamicsimicon_none;
     _initialValuesInitialized=true;
-    _localModelProperty=(_localModelProperty|sim_modelproperty_not_reset)-sim_modelproperty_not_reset;
-    incrementModelPropertyValidityNumber();
+    _modelProperty=(_modelProperty|sim_modelproperty_not_reset)-sim_modelproperty_not_reset;
+    recomputeModelInfluencedValues();
+    //incrementModelPropertyValidityNumber();
     _dynamicObjectFlag_forVisualization=0;
 
     _measuredAngularVelocity_velocityMeasurement=0.0f;
@@ -1326,7 +1362,7 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
     _initialLocalTransformationPart1=_localTransformation;
     //********************************
 
-    _initialMainPropertyOverride=_localModelProperty;
+    _initialMainPropertyOverride=_modelProperty;
 }
 
 void CSceneObject::simulationEnded()
@@ -1361,7 +1397,7 @@ void CSceneObject::simulationEnded()
                     else
                         setLocalTransformation(_initialLocalTransformationPart1);
                 }
-                _localModelProperty=_initialMainPropertyOverride;
+                _modelProperty=_initialMainPropertyOverride;
                 _initialConfigurationMemorized=false;
             }
         }
@@ -1382,7 +1418,8 @@ bool CSceneObject::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
 void CSceneObject::disableDynamicTreeForManipulation(bool d)
 {
     if (d!=_dynamicsTemporarilyDisabled)
-        incrementModelPropertyValidityNumber(); // we want the cumulative values all recalculated
+        recomputeModelInfluencedValues();
+//        incrementModelPropertyValidityNumber(); // we want the cumulative values all recalculated
     _dynamicsTemporarilyDisabled=d;
 }
 
@@ -1681,7 +1718,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Op2");
-            int objProp=_localObjectProperty|sim_objectproperty_reserved5; // Needed for backward compatibility (still in serialization version 15)
+            int objProp=_objectProperty|sim_objectproperty_reserved5; // Needed for backward compatibility (still in serialization version 15)
             ar << objProp;
             ar.flush();
 
@@ -1721,7 +1758,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Mpo");
-            ar << _localModelProperty;
+            ar << _modelProperty;
             ar.flush();
 
             ar.storeDataName("Lar");
@@ -1946,7 +1983,7 @@ void CSceneObject::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _localObjectProperty;
+                        ar >> _objectProperty;
                     }
                     if (theName.compare("Var")==0)
                     { // Keep for backward compatibility (31/3/2017)
@@ -2021,7 +2058,7 @@ void CSceneObject::serialize(CSer& ar)
                     { // from 2010/08/06
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _localModelProperty;
+                        ar >> _modelProperty;
                     }
                     if (theName.compare("Lar")==0)
                     {
@@ -2165,13 +2202,13 @@ void CSceneObject::serialize(CSer& ar)
             }
             //*************************************************************
             // For backward compatibility 13/09/2011
-            if ((_localObjectProperty&sim_objectproperty_reserved5)==0)
+            if ((_objectProperty&sim_objectproperty_reserved5)==0)
             { // this used to be the sim_objectproperty_visible property. If it wasn't set in the past, we now try to hide it in a hidden layer:
                 if (_visibilityLayer<256)
                     _visibilityLayer=_visibilityLayer*256;
             }
             else
-                _localObjectProperty-=sim_objectproperty_reserved5;
+                _objectProperty-=sim_objectproperty_reserved5;
             //*************************************************************
 
             //*************************************************************
@@ -2266,14 +2303,14 @@ void CSceneObject::serialize(CSer& ar)
             ar.xmlAddNode_int("collectionSelfCollisionIndicator",_collectionSelfCollisionIndicator);
 
             ar.xmlPushNewNode("localObjectProperty");
-            ar.xmlAddNode_bool("hierarchyCollapsed",_localObjectProperty&sim_objectproperty_collapsed);
-            ar.xmlAddNode_bool("selectable",_localObjectProperty&sim_objectproperty_selectable);
-            ar.xmlAddNode_bool("selectModelBaseInstead",_localObjectProperty&sim_objectproperty_selectmodelbaseinstead);
-            ar.xmlAddNode_bool("dontShowAsInsideModel",_localObjectProperty&sim_objectproperty_dontshowasinsidemodel);
-            ar.xmlAddNode_bool("selectInvisible",_localObjectProperty&sim_objectproperty_selectinvisible);
-            ar.xmlAddNode_bool("depthInvisible",_localObjectProperty&sim_objectproperty_depthinvisible);
-            ar.xmlAddNode_bool("cannotDelete",_localObjectProperty&sim_objectproperty_cannotdelete);
-            ar.xmlAddNode_bool("cannotDeleteDuringSimulation",_localObjectProperty&sim_objectproperty_cannotdeleteduringsim);
+            ar.xmlAddNode_bool("hierarchyCollapsed",_objectProperty&sim_objectproperty_collapsed);
+            ar.xmlAddNode_bool("selectable",_objectProperty&sim_objectproperty_selectable);
+            ar.xmlAddNode_bool("selectModelBaseInstead",_objectProperty&sim_objectproperty_selectmodelbaseinstead);
+            ar.xmlAddNode_bool("dontShowAsInsideModel",_objectProperty&sim_objectproperty_dontshowasinsidemodel);
+            ar.xmlAddNode_bool("selectInvisible",_objectProperty&sim_objectproperty_selectinvisible);
+            ar.xmlAddNode_bool("depthInvisible",_objectProperty&sim_objectproperty_depthinvisible);
+            ar.xmlAddNode_bool("cannotDelete",_objectProperty&sim_objectproperty_cannotdelete);
+            ar.xmlAddNode_bool("cannotDeleteDuringSimulation",_objectProperty&sim_objectproperty_cannotdeleteduringsim);
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("localObjectSpecialProperty");
@@ -2296,19 +2333,19 @@ void CSceneObject::serialize(CSer& ar)
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("localModelProperty");
-            ar.xmlAddNode_bool("notCollidable",_localModelProperty&sim_modelproperty_not_collidable);
-            ar.xmlAddNode_bool("notMeasurable",_localModelProperty&sim_modelproperty_not_measurable);
-            ar.xmlAddNode_bool("notDetectable",_localModelProperty&sim_modelproperty_not_detectable);
-            ar.xmlAddNode_bool("notDynamic",_localModelProperty&sim_modelproperty_not_dynamic);
-            ar.xmlAddNode_bool("notRespondable",_localModelProperty&sim_modelproperty_not_respondable);
-            ar.xmlAddNode_bool("notReset",_localModelProperty&sim_modelproperty_not_reset);
-            ar.xmlAddNode_bool("notVisible",_localModelProperty&sim_modelproperty_not_visible);
-            ar.xmlAddNode_bool("scriptsInactive",_localModelProperty&sim_modelproperty_scripts_inactive);
-            ar.xmlAddNode_bool("notShowAsInsideModel",_localModelProperty&sim_modelproperty_not_showasinsidemodel);
+            ar.xmlAddNode_bool("notCollidable",_modelProperty&sim_modelproperty_not_collidable);
+            ar.xmlAddNode_bool("notMeasurable",_modelProperty&sim_modelproperty_not_measurable);
+            ar.xmlAddNode_bool("notDetectable",_modelProperty&sim_modelproperty_not_detectable);
+            ar.xmlAddNode_bool("notDynamic",_modelProperty&sim_modelproperty_not_dynamic);
+            ar.xmlAddNode_bool("notRespondable",_modelProperty&sim_modelproperty_not_respondable);
+            ar.xmlAddNode_bool("notReset",_modelProperty&sim_modelproperty_not_reset);
+            ar.xmlAddNode_bool("notVisible",_modelProperty&sim_modelproperty_not_visible);
+            ar.xmlAddNode_bool("scriptsInactive",_modelProperty&sim_modelproperty_scripts_inactive);
+            ar.xmlAddNode_bool("notShowAsInsideModel",_modelProperty&sim_modelproperty_not_showasinsidemodel);
 
             // For backward compatibility:
             ar.xmlAddNode_comment(" 'notRenderable' tag for backward compatibility, set to 'false':",exhaustiveXml);
-            ar.xmlAddNode_bool("notRenderable",_localModelProperty&sim_modelproperty_not_renderable);
+            ar.xmlAddNode_bool("notRenderable",_modelProperty&sim_modelproperty_not_renderable);
 
             ar.xmlPopNode();
 
@@ -2498,15 +2535,15 @@ void CSceneObject::serialize(CSer& ar)
 
                 if (ar.xmlPushChildNode("localObjectProperty",exhaustiveXml))
                 {
-                    _localObjectProperty=0;
-                    ar.xmlGetNode_flags("hierarchyCollapsed",_localObjectProperty,sim_objectproperty_collapsed,exhaustiveXml);
-                    ar.xmlGetNode_flags("selectable",_localObjectProperty,sim_objectproperty_selectable,exhaustiveXml);
-                    ar.xmlGetNode_flags("selectModelBaseInstead",_localObjectProperty,sim_objectproperty_selectmodelbaseinstead,exhaustiveXml);
-                    ar.xmlGetNode_flags("dontShowAsInsideModel",_localObjectProperty,sim_objectproperty_dontshowasinsidemodel,exhaustiveXml);
-                    ar.xmlGetNode_flags("selectInvisible",_localObjectProperty,sim_objectproperty_selectinvisible,exhaustiveXml);
-                    ar.xmlGetNode_flags("depthInvisible",_localObjectProperty,sim_objectproperty_depthinvisible,exhaustiveXml);
-                    ar.xmlGetNode_flags("cannotDelete",_localObjectProperty,sim_objectproperty_cannotdelete,exhaustiveXml);
-                    ar.xmlGetNode_flags("cannotDeleteDuringSimulation",_localObjectProperty,sim_objectproperty_cannotdeleteduringsim,exhaustiveXml);
+                    _objectProperty=0;
+                    ar.xmlGetNode_flags("hierarchyCollapsed",_objectProperty,sim_objectproperty_collapsed,exhaustiveXml);
+                    ar.xmlGetNode_flags("selectable",_objectProperty,sim_objectproperty_selectable,exhaustiveXml);
+                    ar.xmlGetNode_flags("selectModelBaseInstead",_objectProperty,sim_objectproperty_selectmodelbaseinstead,exhaustiveXml);
+                    ar.xmlGetNode_flags("dontShowAsInsideModel",_objectProperty,sim_objectproperty_dontshowasinsidemodel,exhaustiveXml);
+                    ar.xmlGetNode_flags("selectInvisible",_objectProperty,sim_objectproperty_selectinvisible,exhaustiveXml);
+                    ar.xmlGetNode_flags("depthInvisible",_objectProperty,sim_objectproperty_depthinvisible,exhaustiveXml);
+                    ar.xmlGetNode_flags("cannotDelete",_objectProperty,sim_objectproperty_cannotdelete,exhaustiveXml);
+                    ar.xmlGetNode_flags("cannotDeleteDuringSimulation",_objectProperty,sim_objectproperty_cannotdeleteduringsim,exhaustiveXml);
                     ar.xmlPopNode();
                 }
 
@@ -2535,17 +2572,17 @@ void CSceneObject::serialize(CSer& ar)
 
                 if (ar.xmlPushChildNode("localModelProperty",exhaustiveXml))
                 {
-                    _localModelProperty=0;
-                    ar.xmlGetNode_flags("notCollidable",_localModelProperty,sim_modelproperty_not_collidable,exhaustiveXml);
-                    ar.xmlGetNode_flags("notMeasurable",_localModelProperty,sim_modelproperty_not_measurable,exhaustiveXml);
-                    ar.xmlGetNode_flags("notRenderable",_localModelProperty,sim_modelproperty_not_renderable,false); // for backward compatibility
-                    ar.xmlGetNode_flags("notDetectable",_localModelProperty,sim_modelproperty_not_detectable,exhaustiveXml);
-                    ar.xmlGetNode_flags("notDynamic",_localModelProperty,sim_modelproperty_not_dynamic,exhaustiveXml);
-                    ar.xmlGetNode_flags("notRespondable",_localModelProperty,sim_modelproperty_not_respondable,exhaustiveXml);
-                    ar.xmlGetNode_flags("notReset",_localModelProperty,sim_modelproperty_not_reset,exhaustiveXml);
-                    ar.xmlGetNode_flags("notVisible",_localModelProperty,sim_modelproperty_not_visible,exhaustiveXml);
-                    ar.xmlGetNode_flags("scriptsInactive",_localModelProperty,sim_modelproperty_scripts_inactive,exhaustiveXml);
-                    ar.xmlGetNode_flags("notShowAsInsideModel",_localModelProperty,sim_modelproperty_not_showasinsidemodel,exhaustiveXml);
+                    _modelProperty=0;
+                    ar.xmlGetNode_flags("notCollidable",_modelProperty,sim_modelproperty_not_collidable,exhaustiveXml);
+                    ar.xmlGetNode_flags("notMeasurable",_modelProperty,sim_modelproperty_not_measurable,exhaustiveXml);
+                    ar.xmlGetNode_flags("notRenderable",_modelProperty,sim_modelproperty_not_renderable,false); // for backward compatibility
+                    ar.xmlGetNode_flags("notDetectable",_modelProperty,sim_modelproperty_not_detectable,exhaustiveXml);
+                    ar.xmlGetNode_flags("notDynamic",_modelProperty,sim_modelproperty_not_dynamic,exhaustiveXml);
+                    ar.xmlGetNode_flags("notRespondable",_modelProperty,sim_modelproperty_not_respondable,exhaustiveXml);
+                    ar.xmlGetNode_flags("notReset",_modelProperty,sim_modelproperty_not_reset,exhaustiveXml);
+                    ar.xmlGetNode_flags("notVisible",_modelProperty,sim_modelproperty_not_visible,exhaustiveXml);
+                    ar.xmlGetNode_flags("scriptsInactive",_modelProperty,sim_modelproperty_scripts_inactive,exhaustiveXml);
+                    ar.xmlGetNode_flags("notShowAsInsideModel",_modelProperty,sim_modelproperty_not_showasinsidemodel,exhaustiveXml);
                     ar.xmlPopNode();
                 }
 
@@ -3161,9 +3198,9 @@ void CSceneObject::acquireCommonPropertiesFromObject_simpleXMLLoading(const CSce
     _localTransformation=obj->_localTransformation;
     _hierarchyColorIndex=obj->_hierarchyColorIndex;
     _collectionSelfCollisionIndicator=obj->_collectionSelfCollisionIndicator;
-    _localObjectProperty=obj->_localObjectProperty;
+    _objectProperty=obj->_objectProperty;
     _localObjectSpecialProperty=obj->_localObjectSpecialProperty;
-    _localModelProperty=obj->_localModelProperty;
+    _modelProperty=obj->_modelProperty;
     _modelBase=obj->_modelBase;
     _ignoredByViewFitting=obj->_ignoredByViewFitting;
     _CSceneObject_::setVisibilityLayer(obj->getVisibilityLayer());
@@ -4052,6 +4089,7 @@ bool CSceneObject::removeChild(const CSceneObject* child)
 void CSceneObject::handleOrderIndexOfChildren()
 {
     std::map<std::string,int> nameMap;
+    std::vector<int> co(_childList.size());
     for (size_t i=0;i<_childList.size();i++)
     {
         CSceneObject* child=_childList[i];
@@ -4061,7 +4099,7 @@ void CSceneObject::handleOrderIndexOfChildren()
             nameMap[hn]=0;
         else
             nameMap[hn]++;
-        child->setChildOrder(nameMap[hn]);
+        co[i]=nameMap[hn];
     }
     for (size_t i=0;i<_childList.size();i++)
     {
@@ -4069,7 +4107,8 @@ void CSceneObject::handleOrderIndexOfChildren()
         std::string hn(child->getObjectAlias());
         std::map<std::string,int>::iterator it=nameMap.find(hn);
         if (nameMap[hn]==0)
-            child->setChildOrder(-1); // means unique with that name, with that parent
+            co[i]=-1; // means unique with that name, with that parent
+        child->setChildOrder(co[i]);
     }
 }
 

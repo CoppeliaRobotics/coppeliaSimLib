@@ -17,7 +17,7 @@ void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
-            if (dummy->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
+            if (dummy->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(dummy->getModelSelectionHandle());
             else
                 glLoadName(dummy->getObjectHandle());

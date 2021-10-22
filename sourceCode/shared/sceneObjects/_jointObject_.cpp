@@ -555,6 +555,12 @@ bool _CJoint_::setPosition(float pos)
             const char* cmd="jointPosition";
             CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this);
             event->appendMapObject_stringFloat(cmd,pos);
+            float pose[7];
+            C7Vector trFull(getFullLocalTransformation());
+            C7Vector trPart1(getLocalTransformation());
+            C7Vector tr(trPart1.getInverse()*trFull);
+            tr.getInternalData(pose,true);
+            event->appendMapObject_stringFloatArray(cmd,pose,7);
             App::worldContainer->pushEvent();
         }
         if (getObjectCanChange())
@@ -581,6 +587,12 @@ bool _CJoint_::setSphericalTransformation(const C4Vector& tr)
             CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this);
             float p[4]={tr(1),tr(2),tr(3),tr(0)};
             event->appendMapObject_stringFloatArray(cmd,p,4);
+            float pose[7];
+            C7Vector trFull(getFullLocalTransformation());
+            C7Vector trPart1(getLocalTransformation());
+            C7Vector tr(trPart1.getInverse()*trFull);
+            tr.getInternalData(pose,true);
+            event->appendMapObject_stringFloatArray(cmd,pose,7);
             App::worldContainer->pushEvent();
         }
         if (getObjectCanChange())

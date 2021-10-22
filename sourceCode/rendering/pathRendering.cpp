@@ -22,7 +22,7 @@ void displayPath(CPath_old* path,CViewableBase* renderingObject,int displayAttri
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
-            if (path->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
+            if (path->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(path->getModelSelectionHandle());
             else
                 glLoadName(path->getObjectHandle());

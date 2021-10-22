@@ -239,7 +239,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
     {
         if (children.size()!=0) //-//
         {
-            if (it->getLocalObjectProperty()&sim_objectproperty_collapsed)
+            if (it->getObjectProperty()&sim_objectproperty_collapsed)
             {
                 int picture=PLUS_SIGN_TREE_PICTURE;
                 if (dontDisplay||(!textInside))
@@ -488,13 +488,13 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
         if (it->getModelBase())
         { //-//
             ogl::drawSingle2dLine_i(textPos[0]+16*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,textPos[0]+20*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);
-            if ((children.size()!=0)&&((it->getLocalObjectProperty()&sim_objectproperty_collapsed)==0))
+            if ((children.size()!=0)&&((it->getObjectProperty()&sim_objectproperty_collapsed)==0))
                 ogl::drawSingle2dLine_i(textPos[0]+10*App::sc,textPos[1]+(HIERARCHY_TEXT_CENTER_OFFSET-CONST_VAL_6)*App::sc,textPos[0]+10*App::sc,textPos[1]+(HIERARCHY_TEXT_CENTER_OFFSET-HIERARCHY_INTER_LINE_SPACE)*App::sc);
         }
         else
         { //-//
             ogl::drawSingle2dLine_i(textPos[0]+4*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,textPos[0]+20*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);
-            if ((children.size()!=0)&&((it->getLocalObjectProperty()&sim_objectproperty_collapsed)==0))
+            if ((children.size()!=0)&&((it->getObjectProperty()&sim_objectproperty_collapsed)==0))
                 ogl::drawSingle2dLine_i(textPos[0]+10*App::sc,textPos[1]+HIERARCHY_TEXT_CENTER_OFFSET*App::sc,textPos[0]+10*App::sc,textPos[1]+(HIERARCHY_TEXT_CENTER_OFFSET-HIERARCHY_INTER_LINE_SPACE)*App::sc);
         }
     }
@@ -502,7 +502,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
     textPos[1]=textPos[1]-HIERARCHY_INTER_LINE_SPACE*App::sc;
 
 
-    if ( ( (it!=nullptr)&&((it->getLocalObjectProperty()&sim_objectproperty_collapsed)==0) )||(objectID<0) )
+    if ( ( (it!=nullptr)&&((it->getObjectProperty()&sim_objectproperty_collapsed)==0) )||(objectID<0) )
     {
         int xPosCopy=textPos[0];
         textPos[0]=textPos[0]+horizontalShift;

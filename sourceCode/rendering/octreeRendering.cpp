@@ -70,7 +70,7 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
-            if (octree->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
+            if (octree->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(octree->getModelSelectionHandle());
             else
                 glLoadName(octree->getObjectHandle());

@@ -16,7 +16,7 @@ void displayMirror(CMirror* mirror,CViewableBase* renderingObject,int displayAtt
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
-            if (mirror->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
+            if (mirror->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(mirror->getModelSelectionHandle());
             else
                 glLoadName(mirror->getObjectHandle());

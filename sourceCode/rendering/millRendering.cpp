@@ -18,7 +18,7 @@ void displayMill(CMill* mill,CViewableBase* renderingObject,int displayAttrib)
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
-            if (mill->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
+            if (mill->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(mill->getModelSelectionHandle());
             else
                 glLoadName(mill->getObjectHandle());

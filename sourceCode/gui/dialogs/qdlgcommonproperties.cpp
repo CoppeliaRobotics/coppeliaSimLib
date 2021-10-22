@@ -74,7 +74,7 @@ void CQDlgCommonProperties::refresh()
     ui->qqIgnoreForViewFitting->setEnabled(noEditModeNoSim&&objIsSelected);
     ui->qqSelectBaseInstead->setEnabled(noEditModeNoSim&&objIsSelected);
     ui->qqCannotBeDeleted->setEnabled(noEditModeNoSim&&objIsSelected);
-    ui->qqCannotBeDeletedDuringSimul->setEnabled(noEditModeNoSim&&objIsSelected&&((ls->getLocalObjectProperty()&sim_objectproperty_cannotdelete)==0));
+    ui->qqCannotBeDeletedDuringSimul->setEnabled(noEditModeNoSim&&objIsSelected&&((ls->getObjectProperty()&sim_objectproperty_cannotdelete)==0));
     ui->qqDontShowInModelSelection->setEnabled(noEditModeNoSim&&objIsSelected);
     ui->qqApplyGeneralProperties->setEnabled(noEditModeNoSim&&bigSel);
     ui->qqAssembling->setEnabled(noEditModeNoSim&&objIsSelected);
@@ -86,14 +86,14 @@ void CQDlgCommonProperties::refresh()
 
     if (ls!=nullptr)
     {
-        ui->qqSelectable->setChecked((ls->getLocalObjectProperty()&sim_objectproperty_selectable)!=0);
-        ui->qqSelectInvisible->setChecked((ls->getLocalObjectProperty()&sim_objectproperty_selectinvisible)!=0);
-        ui->qqDepthInvisible->setChecked((ls->getLocalObjectProperty()&sim_objectproperty_depthinvisible)!=0);
+        ui->qqSelectable->setChecked((ls->getObjectProperty()&sim_objectproperty_selectable)!=0);
+        ui->qqSelectInvisible->setChecked((ls->getObjectProperty()&sim_objectproperty_selectinvisible)!=0);
+        ui->qqDepthInvisible->setChecked((ls->getObjectProperty()&sim_objectproperty_depthinvisible)!=0);
         ui->qqIgnoreForViewFitting->setChecked(ls->getIgnoredByViewFitting());
-        ui->qqSelectBaseInstead->setChecked((ls->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)!=0);
-        ui->qqDontShowInModelSelection->setChecked((ls->getLocalObjectProperty()&sim_objectproperty_dontshowasinsidemodel)!=0);
-        ui->qqCannotBeDeleted->setChecked((ls->getLocalObjectProperty()&sim_objectproperty_cannotdelete)!=0);
-        ui->qqCannotBeDeletedDuringSimul->setChecked((ls->getLocalObjectProperty()&(sim_objectproperty_cannotdeleteduringsim|sim_objectproperty_cannotdelete))!=0);
+        ui->qqSelectBaseInstead->setChecked((ls->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)!=0);
+        ui->qqDontShowInModelSelection->setChecked((ls->getObjectProperty()&sim_objectproperty_dontshowasinsidemodel)!=0);
+        ui->qqCannotBeDeleted->setChecked((ls->getObjectProperty()&sim_objectproperty_cannotdelete)!=0);
+        ui->qqCannotBeDeletedDuringSimul->setChecked((ls->getObjectProperty()&(sim_objectproperty_cannotdeleteduringsim|sim_objectproperty_cannotdelete))!=0);
         ui->qqExtensionString->setText(ls->getExtensionString().c_str());
     }
     else

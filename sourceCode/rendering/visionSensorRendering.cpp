@@ -19,7 +19,7 @@ void displayVisionSensor(CVisionSensor* visionSensor,CViewableBase* renderingObj
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
-            if (visionSensor->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
+            if (visionSensor->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(visionSensor->getModelSelectionHandle());
             else
                 glLoadName(visionSensor->getObjectHandle());

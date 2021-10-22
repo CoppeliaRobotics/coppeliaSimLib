@@ -36,7 +36,7 @@ void _displayForceSensor(CForceSensor* forceSensor,int displayAttrib,bool partOn
 {
     if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
     {
-        if (forceSensor->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
+        if (forceSensor->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
             glLoadName(forceSensor->getModelSelectionHandle());
         else
             glLoadName(forceSensor->getObjectHandle());

@@ -39,7 +39,7 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
-            if (shape->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
+            if (shape->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(shape->getModelSelectionHandle());
             else
                 glLoadName(shape->getObjectHandle());

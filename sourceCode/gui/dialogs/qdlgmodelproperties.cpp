@@ -30,7 +30,7 @@ void CQDlgModelProperties::okEvent()
 
 void CQDlgModelProperties::refresh()
 {
-    int ovProp=modelBaseObject->getLocalModelProperty();
+    int ovProp=modelBaseObject->getModelProperty();
     ui->qqNotVisible->setChecked((ovProp&sim_modelproperty_not_visible)!=0);
     ui->qqNotCollidable->setChecked((ovProp&sim_modelproperty_not_collidable)!=0);
     ui->qqNotMeasurable->setChecked((ovProp&sim_modelproperty_not_measurable)!=0);
@@ -87,57 +87,57 @@ void CQDlgModelProperties::on_qqSelectThumbnail_clicked()
 
 void CQDlgModelProperties::on_qqNotVisible_clicked()
 {
-    int p=modelBaseObject->getLocalModelProperty();
+    int p=modelBaseObject->getModelProperty();
     p=(p|sim_modelproperty_not_renderable)-sim_modelproperty_not_renderable; // for backward compatibility. This will always clear that flag
-    modelBaseObject->setLocalModelProperty(p^sim_modelproperty_not_visible);
+    modelBaseObject->setModelProperty(p^sim_modelproperty_not_visible);
     refresh();
 }
 
 void CQDlgModelProperties::on_qqNotCollidable_clicked()
 {
-    modelBaseObject->setLocalModelProperty(modelBaseObject->getLocalModelProperty()^sim_modelproperty_not_collidable);
+    modelBaseObject->setModelProperty(modelBaseObject->getModelProperty()^sim_modelproperty_not_collidable);
     refresh();
 }
 
 void CQDlgModelProperties::on_qqNotMeasurable_clicked()
 {
-    modelBaseObject->setLocalModelProperty(modelBaseObject->getLocalModelProperty()^sim_modelproperty_not_measurable);
+    modelBaseObject->setModelProperty(modelBaseObject->getModelProperty()^sim_modelproperty_not_measurable);
     refresh();
 }
 
 void CQDlgModelProperties::on_qqNotRenderable_clicked()
 {
-    modelBaseObject->setLocalModelProperty(modelBaseObject->getLocalModelProperty()^sim_modelproperty_not_renderable);
+    modelBaseObject->setModelProperty(modelBaseObject->getModelProperty()^sim_modelproperty_not_renderable);
     refresh();
 }
 
 void CQDlgModelProperties::on_qqNotDetectable_clicked()
 {
-    modelBaseObject->setLocalModelProperty(modelBaseObject->getLocalModelProperty()^sim_modelproperty_not_detectable);
+    modelBaseObject->setModelProperty(modelBaseObject->getModelProperty()^sim_modelproperty_not_detectable);
     refresh();
 }
 
 void CQDlgModelProperties::on_qqNotDynamic_clicked()
 {
-    modelBaseObject->setLocalModelProperty(modelBaseObject->getLocalModelProperty()^sim_modelproperty_not_dynamic);
+    modelBaseObject->setModelProperty(modelBaseObject->getModelProperty()^sim_modelproperty_not_dynamic);
     refresh();
 }
 
 void CQDlgModelProperties::on_qqNotRespondable_clicked()
 {
-    modelBaseObject->setLocalModelProperty(modelBaseObject->getLocalModelProperty()^sim_modelproperty_not_respondable);
+    modelBaseObject->setModelProperty(modelBaseObject->getModelProperty()^sim_modelproperty_not_respondable);
     refresh();
 }
 
 void CQDlgModelProperties::on_qqScriptsInactive_clicked()
 {
-    modelBaseObject->setLocalModelProperty(modelBaseObject->getLocalModelProperty()^sim_modelproperty_scripts_inactive);
+    modelBaseObject->setModelProperty(modelBaseObject->getModelProperty()^sim_modelproperty_scripts_inactive);
     refresh();
 }
 
 void CQDlgModelProperties::on_qqNotInsideModelBBox_clicked(bool checked)
 {
-    modelBaseObject->setLocalModelProperty(modelBaseObject->getLocalModelProperty()^sim_modelproperty_not_showasinsidemodel);
+    modelBaseObject->setModelProperty(modelBaseObject->getModelProperty()^sim_modelproperty_not_showasinsidemodel);
     refresh();
 }
 
@@ -148,7 +148,7 @@ void CQDlgModelProperties::on_qqClose_clicked(QAbstractButton *button)
     SSimulationThreadCommand cmd;
     cmd.cmdId=SET_OVERRIDEPROPANDACKNOWLEDGMENT_MODELGUITRIGGEREDCMD;
     cmd.intParams.push_back(modelBaseObject->getObjectHandle());
-    cmd.intParams.push_back(modelBaseObject->getLocalModelProperty());
+    cmd.intParams.push_back(modelBaseObject->getModelProperty());
     cmd.stringParams.push_back(acknowledgment.c_str());
     App::appendSimulationThreadCommand(cmd);
     App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);

@@ -247,7 +247,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (obj!=nullptr)
             {
-                obj->setLocalObjectProperty(obj->getLocalObjectProperty()^sim_objectproperty_collapsed);
+                obj->setObjectProperty(obj->getObjectProperty()^sim_objectproperty_collapsed);
                 App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             }
         }
@@ -1019,19 +1019,19 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setLocalObjectProperty(it->getLocalObjectProperty()^sim_objectproperty_selectable);
+                it->setObjectProperty(it->getObjectProperty()^sim_objectproperty_selectable);
         }
         if (cmd.cmdId==TOGGLE_SELECTBASEOFMODEL_COMMONPROPGUITRIGGEREDCMD)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setLocalObjectProperty(it->getLocalObjectProperty()^sim_objectproperty_selectmodelbaseinstead);
+                it->setObjectProperty(it->getObjectProperty()^sim_objectproperty_selectmodelbaseinstead);
         }
         if (cmd.cmdId==TOGGLE_DONGTSHOWINSIDEMODELSELECTION_COMMONPROPGUITRIGGEREDCMD)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setLocalObjectProperty(it->getLocalObjectProperty()^sim_objectproperty_dontshowasinsidemodel);
+                it->setObjectProperty(it->getObjectProperty()^sim_objectproperty_dontshowasinsidemodel);
         }
         if (cmd.cmdId==TOGGLE_VIEWFITTINGIGNORED_COMMONPROPGUITRIGGEREDCMD)
         {
@@ -1051,7 +1051,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     if (it!=nullptr)
                     {
                         int objPropToCopy=sim_objectproperty_selectable|sim_objectproperty_selectmodelbaseinstead|sim_objectproperty_dontshowasinsidemodel|sim_objectproperty_selectinvisible|sim_objectproperty_depthinvisible|sim_objectproperty_cannotdelete|sim_objectproperty_cannotdeleteduringsim;
-                        it->setLocalObjectProperty(((it->getLocalObjectProperty()|objPropToCopy)-objPropToCopy)|(last->getLocalObjectProperty()&objPropToCopy));
+                        it->setObjectProperty(((it->getObjectProperty()|objPropToCopy)-objPropToCopy)|(last->getObjectProperty()&objPropToCopy));
                         it->setIgnoredByViewFitting(last->getIgnoredByViewFitting());
                         it->setSizeFactor(last->getSizeFactor());
                         if (it->getObjectType()==lastType)
@@ -1167,25 +1167,25 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setLocalObjectProperty(it->getLocalObjectProperty()^sim_objectproperty_selectinvisible);
+                it->setObjectProperty(it->getObjectProperty()^sim_objectproperty_selectinvisible);
         }
         if (cmd.cmdId==TOGGLE_DEPTHMAPIGNORED_COMMONPROPGUITRIGGEREDCMD)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setLocalObjectProperty(it->getLocalObjectProperty()^sim_objectproperty_depthinvisible);
+                it->setObjectProperty(it->getObjectProperty()^sim_objectproperty_depthinvisible);
         }
         if (cmd.cmdId==TOGGLE_CANNOTBEDELETED_COMMONPROPGUITRIGGEREDCMD)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setLocalObjectProperty(it->getLocalObjectProperty()^sim_objectproperty_cannotdelete);
+                it->setObjectProperty(it->getObjectProperty()^sim_objectproperty_cannotdelete);
         }
         if (cmd.cmdId==TOGGLE_CANNOTBEDELETEDDURINGSIMULATION_COMMONPROPGUITRIGGEREDCMD)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setLocalObjectProperty(it->getLocalObjectProperty()^sim_objectproperty_cannotdeleteduringsim);
+                it->setObjectProperty(it->getObjectProperty()^sim_objectproperty_cannotdeleteduringsim);
         }
         if (cmd.cmdId==SET_SELFCOLLISIONINDICATOR_COMMONPROPGUITRIGGEREDCMD)
         {
@@ -1219,7 +1219,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                it->setLocalModelProperty(cmd.intParams[1]);
+                it->setModelProperty(cmd.intParams[1]);
                 it->setModelAcknowledgement(cmd.stringParams[0].c_str());
             }
         }
