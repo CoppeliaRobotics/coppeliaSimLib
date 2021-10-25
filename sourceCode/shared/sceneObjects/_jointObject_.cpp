@@ -595,7 +595,7 @@ bool _CJoint_::setPosition(float pos)
             C7Vector trPart1(getLocalTransformation());
             C7Vector tr(trPart1.getInverse()*trFull);
             tr.getInternalData(pose,true);
-            event->appendMapObject_stringFloatArray(cmd,pose,7);
+            event->appendMapObject_stringFloatArray("pose",pose,7);
             App::worldContainer->pushEvent();
         }
         if (getObjectCanChange())
@@ -627,7 +627,7 @@ bool _CJoint_::setSphericalTransformation(const C4Vector& tr)
             C7Vector trPart1(getLocalTransformation());
             C7Vector tr(trPart1.getInverse()*trFull);
             tr.getInternalData(pose,true);
-            event->appendMapObject_stringFloatArray(cmd,pose,7);
+            event->appendMapObject_stringFloatArray("pose",pose,7);
             App::worldContainer->pushEvent();
         }
         if (getObjectCanChange())
