@@ -227,6 +227,28 @@ CInterfaceStackObject* CInterfaceStackTable::getMapObject(const char* fieldName)
     return(nullptr);
 }
 
+bool CInterfaceStackTable::removeFromKey(const char* keyToRemove)
+{
+    if (_isTableArray)
+        return(false);
+    for (size_t i=0;i<_tableObjects.size()/2;i++)
+    {
+        CInterfaceStackObject* key=_tableObjects[2*i+0];
+        if (key->getObjectType()==STACK_OBJECT_STRING)
+        {
+            std::string theKey(((CInterfaceStackString*)key)->getValue(0));
+            if (theKey.compare(keyToRemove)==0)
+            {
+                delete key;
+                delete _tableObjects[2*i+1];
+                _tableObjects.erase(_tableObjects.begin()+2*i,_tableObjects.begin()+2*i+2);
+                return(true);
+            }
+        }
+    }
+    return(false);
+}
+
 bool CInterfaceStackTable::removeFromKey(const CInterfaceStackObject* keyToRemove)
 {
     if (_isTableArray)

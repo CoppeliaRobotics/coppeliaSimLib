@@ -8,6 +8,7 @@ _CSceneObject_::_CSceneObject_()
 {
     _selected=false;
     _isInScene=false;
+    _modelInvisible=false;
     _parentObject=nullptr;
     _childOrder=-1;
     _localTransformation.setIdentity();
@@ -45,7 +46,7 @@ bool _CSceneObject_::setParent(CSceneObject* parent)
         if (_isInScene)
         {
             const char* cmd="parent";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this);
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
             int pHandle=-1;
             int pUid=-1;
             if (parent!=nullptr)
@@ -114,7 +115,7 @@ bool _CSceneObject_::setVisibilityLayer(unsigned short l)
         if (_isInScene)
         {
             const char* cmd="layer";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this);
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
             event->appendMapObject_stringInt32(cmd,l);
             App::worldContainer->pushEvent();
         }
@@ -134,7 +135,7 @@ bool _CSceneObject_::setChildOrder(int order)
         if (_isInScene)
         {
             const char* cmd="childOrder";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this);
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
             event->appendMapObject_stringInt32(cmd,order);
             App::worldContainer->pushEvent();
         }
@@ -183,7 +184,7 @@ void _CSceneObject_::_setModelInvisible(bool inv)
     {
         _modelInvisible=inv;
         const char* cmd="modelInvisible";
-        CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this);
+        CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
         event->appendMapObject_stringBool(cmd,inv);
         App::worldContainer->pushEvent();
     }
@@ -378,7 +379,7 @@ bool _CSceneObject_::setObjectAlias_direct(const char* newName)
         if (_isInScene)
         {
             const char* cmd="alias";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this);
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
             event->appendMapObject_stringString(cmd,newName,0);
             App::worldContainer->pushEvent();
         }
@@ -508,7 +509,7 @@ bool _CSceneObject_::setLocalTransformation(const C7Vector& tr)
         if (_isInScene)
         {
             const char* cmd="pose";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this);
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
             float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
             event->appendMapObject_stringFloatArray(cmd,p,7);
             App::worldContainer->pushEvent();

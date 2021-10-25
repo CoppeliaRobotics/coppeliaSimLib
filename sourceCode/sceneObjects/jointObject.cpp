@@ -1464,26 +1464,43 @@ void CJoint::removeSceneDependencies()
 
 void CJoint::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
 {
-    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,"",this);
+    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
     CSceneObject::pushCreationEvent(event);
 
-    event->appendMapObject_stringInt32("jointType",_jointType);
+    CInterfaceStackTable* subC=new CInterfaceStackTable();
+    event->appendMapObject_stringObject("joint",subC);
+    event=subC;
+
+    std::string tmp;
+    switch(_jointType)
+    {
+        case sim_joint_revolute_subtype : tmp="revolute";
+            break;
+        case sim_joint_prismatic_subtype : tmp="prismatic";
+            break;
+        case sim_joint_spherical_subtype : tmp="spherical";
+            break;
+    }
+    event->appendMapObject_stringString("type",tmp.c_str(),0);
     float p[4]={_sphericalTransformation(1),_sphericalTransformation(2),_sphericalTransformation(3),_sphericalTransformation(0)};
-    event->appendMapObject_stringFloatArray("jointQuaternion",p,4);
-    event->appendMapObject_stringFloat("jointPosition",_jointPosition);
-    event->appendMapObject_stringFloat("jointDiameter",_diameter);
-    event->appendMapObject_stringFloat("jointLength",_length);
+    event->appendMapObject_stringFloatArray("quaternion",p,4);
+    event->appendMapObject_stringFloat("position",_jointPosition);
+    event->appendMapObject_stringBool("cyclic",_positionIsCyclic);
+    event->appendMapObject_stringFloat("min",_jointMinPosition);
+    event->appendMapObject_stringFloat("range",_jointPositionRange);
+    event->appendMapObject_stringFloat("diameter",_diameter);
+    event->appendMapObject_stringFloat("length",_length);
 
     float c[9];
     _colorPart1.getColor(c,sim_colorcomponent_ambient_diffuse);
     _colorPart1.getColor(c+3,sim_colorcomponent_specular);
     _colorPart1.getColor(c+6,sim_colorcomponent_emission);
-    event->appendMapObject_stringFloatArray("jointColor1",c,9);
+    event->appendMapObject_stringFloatArray("color1",c,9);
 
     _colorPart2.getColor(c,sim_colorcomponent_ambient_diffuse);
     _colorPart2.getColor(c+3,sim_colorcomponent_specular);
     _colorPart2.getColor(c+6,sim_colorcomponent_emission);
-    event->appendMapObject_stringFloatArray("jointColor2",c,9);
+    event->appendMapObject_stringFloatArray("color2",c,9);
 
     App::worldContainer->pushEvent();
 }

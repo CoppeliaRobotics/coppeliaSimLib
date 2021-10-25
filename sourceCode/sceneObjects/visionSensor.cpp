@@ -510,10 +510,18 @@ C3Vector CVisionSensor::getSize()
 
 void CVisionSensor::setPerspectiveOperation(bool p)
 {
-    _perspectiveOperation=p;
+    bool diff=(_perspectiveOperation!=p);
+    if (diff&&_isInScene)
+    {
+        _perspectiveOperation=p;
+        const char* cmd="perspectiveMode";
+        CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+        event->appendMapObject_stringBool(cmd,_perspectiveOperation);
+        App::worldContainer->pushEvent();
+    }
 }
 
-bool CVisionSensor::getPerspectiveOperation()
+bool CVisionSensor::getPerspectiveOperation() const
 {
     return(_perspectiveOperation);
 }
@@ -1950,10 +1958,18 @@ void CVisionSensor::removeSceneDependencies()
 
 void CVisionSensor::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
 {
-    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,"",this);
+    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
     CSceneObject::pushCreationEvent(event);
 
-    // todo
+    CInterfaceStackTable* subC=new CInterfaceStackTable();
+    event->appendMapObject_stringObject("visionSensor",subC);
+    event=subC;
+
+    event->appendMapObject_stringBool("perspectiveMode",_perspectiveOperation);
+    event->appendMapObject_stringFloat("nearClippingPlane",_nearClippingPlane);
+    event->appendMapObject_stringFloat("farClippingPlane",_farClippingPlane);
+    event->appendMapObject_stringFloat("viewAngle",_viewAngle);
+    event->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
 
     App::worldContainer->pushEvent();
 }

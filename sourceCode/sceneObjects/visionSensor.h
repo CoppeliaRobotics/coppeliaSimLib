@@ -69,7 +69,7 @@ public:
     void setSize(const C3Vector& s);
     C3Vector getSize();
     void setPerspectiveOperation(bool p);
-    bool getPerspectiveOperation();
+    bool getPerspectiveOperation() const;
     void setExplicitHandling(bool explicitHandl);
     bool getExplicitHandling();
     void setShowVolumeWhenNotDetecting(bool s);

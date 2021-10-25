@@ -35,16 +35,16 @@ public:
 
 
     void setNearClippingPlane(float nearPlane);
-    float getNearClippingPlane();
+    float getNearClippingPlane() const;
     void setFarClippingPlane(float farPlane);
-    float getFarClippingPlane();
+    float getFarClippingPlane() const;
     void setViewAngle(float angle);
-    float getViewAngle();
+    float getViewAngle() const;
     void setOrthoViewSize(float theSize);
-    float getOrthoViewSize();
+    float getOrthoViewSize() const;
 
     void setShowFogIfAvailable(bool showFog);
-    bool getShowFogIfAvailable();
+    bool getShowFogIfAvailable() const;
 
     bool isObjectInsideView(const C7Vector& objectM,const C3Vector& maxBB);
     void computeViewFrustumIfNeeded();

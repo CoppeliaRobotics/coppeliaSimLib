@@ -410,7 +410,7 @@ void CSceneObject::setModelBase(bool m)
         if (_isInScene)
         {
             const char* cmd="modelBase";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this);
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
             event->appendMapObject_stringBool(cmd,m);
             App::worldContainer->pushEvent();
         }
@@ -428,15 +428,30 @@ void CSceneObject::setObjectProperty(int p)
     bool diff=(_objectProperty!=p);
     if (diff)
     {
-        /*
         if (_isInScene)
         {
-            const char* cmd="objectPropertySelectModel";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this);
-            event->appendMapObject_stringBool(cmd,p);
-            App::worldContainer->pushEvent();
+            if ((p^_objectProperty)==sim_objectproperty_selectmodelbaseinstead)
+            {
+                const char* cmd="selectModelBase";
+                CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
+                event->appendMapObject_stringBool(cmd,(p&sim_objectproperty_selectmodelbaseinstead)!=0);
+                App::worldContainer->pushEvent();
+            }
+            if ((p^_objectProperty)==sim_objectproperty_collapsed)
+            {
+                const char* cmd="collapsedHierarchy";
+                CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
+                event->appendMapObject_stringBool(cmd,(p&sim_objectproperty_collapsed)!=0);
+                App::worldContainer->pushEvent();
+            }
+            if ((p^_objectProperty)==sim_objectproperty_selectable)
+            {
+                const char* cmd="selectable";
+                CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
+                event->appendMapObject_stringBool(cmd,(p&sim_objectproperty_selectable)!=0);
+                App::worldContainer->pushEvent();
+            }
         }
-        */
         _objectProperty=p;
         recomputeModelInfluencedValues();
     }
@@ -973,7 +988,9 @@ void CSceneObject::pushCreationEvent(CInterfaceStackTable* event/*=nullptr*/) co
     event->appendMapObject_stringString("oldName",_objectName_old.c_str(),0);
     event->appendMapObject_stringBool("modelInvisible",_modelInvisible);
     event->appendMapObject_stringBool("modelBase",_modelBase);
-//    event->appendMapObject_stringBool("objectPropertySelectModel",_objectProperty&sim_objectproperty_selectmodelbaseinstead);
+    event->appendMapObject_stringBool("selectModelBase",(_objectProperty&sim_objectproperty_selectmodelbaseinstead)!=0);
+    event->appendMapObject_stringBool("collapsedHierarchy",(_objectProperty&sim_objectproperty_collapsed)!=0);
+    event->appendMapObject_stringBool("selectable",(_objectProperty&sim_objectproperty_selectable)!=0);
 }
 
 CSceneObject* CSceneObject::copyYourself()

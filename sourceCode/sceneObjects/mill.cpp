@@ -119,7 +119,7 @@ void CMill::removeSceneDependencies()
 
 void CMill::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
 {
-    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,"",this);
+    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
     CSceneObject::pushCreationEvent(event);
 
     // todo

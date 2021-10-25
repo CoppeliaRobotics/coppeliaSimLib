@@ -40,11 +40,17 @@ public:
     void getAllSceneNames(std::vector<std::string>& l) const;
     CScriptObject* getScriptFromHandle(int scriptHandle) const;
     void callScripts(int callType,CInterfaceStack* inStack);
-    CInterfaceStackTable* createEvent(const char* event,const char* change,const _CSceneObject_* object,bool mergeable=true);
+    CInterfaceStackTable* createEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData);
     void pushEvent();
     void sendEvents();
-    void setCborEvents();
-    void setMergeEvents();
+    bool getCborEvents() const;
+    void setCborEvents(bool b);
+    void setMergeEvents(bool b);
+    bool getEnableEvents() const;
+    void setEnableEvents(bool b);
+    CInterfaceStack* getBufferedEventsStack() const;
+    void setBufferedEventsStack(CInterfaceStack* stack);
+
 
     void simulationAboutToStart();
     void simulationPaused();
@@ -80,14 +86,14 @@ private:
     int _currentWorldIndex;
     CInterfaceStackTable* _event;
     CInterfaceStack* _bufferedEvents;
-    std::vector<std::string> _bufferedEventsSummary;
-    std::string _lastEventN;
-    std::string _lastEventNN;
-    std::string _lastEventCat;
-    std::string _lastEventSubCat;
-    std::string _lastEventUid;
+    std::vector<std::string> _eventSumm;
+    std::string _lastEvent_event;
+    std::string _lastEvent_change;
+    std::string _lastEvent_sub;
+    std::string _lastEvent_uid;
     bool _cborEvents;
     bool _mergeEvents;
+    bool _enableEvents;
 
     std::vector<int> _uniqueIdsOfSelectionSinceLastTimeGetAndClearModificationFlagsWasCalled;
     int _modificationFlags;

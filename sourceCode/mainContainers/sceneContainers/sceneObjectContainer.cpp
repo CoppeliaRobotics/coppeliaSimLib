@@ -202,7 +202,12 @@ void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
     }
     App::worldContainer->setModificationFlag(2); // object created
     newObject->recomputeModelInfluencedValues();
-    newObject->pushCreationEvent();
+
+    if (App::worldContainer->getEnableEvents())
+    {
+        newObject->setIsInScene(true);
+        newObject->pushCreationEvent();
+    }
 }
 
 bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfterDeleteCallback)
@@ -233,8 +238,11 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
     App::currentWorld->announceObjectWillBeErased(it->getObjectHandle()); // this may trigger other "interesting" things, such as customization script runs, etc.
     deselectObjects(); // to make sure, since above might have changed selection again
 
-    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED,"",it);
-    App::worldContainer->pushEvent();
+    if (App::worldContainer->getEnableEvents())
+    {
+        App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED,nullptr,it,true);
+        App::worldContainer->pushEvent();
+    }
 
     _removeObject(it);
 
@@ -2183,7 +2191,6 @@ void CSceneObjectContainer::_addObject(CSceneObject* object)
 
     if (object->setObjectCanSync(true))
         object->buildUpdateAndPopulateSynchronizationObject(nullptr);
-    object->setIsInScene(true);
 }
 
 void CSceneObjectContainer::_removeObject(CSceneObject* object)

@@ -5021,170 +5021,38 @@ int _simTest(luaWrap_lua_State* L)
         std::string cmd=luaWrap_lua_tostring(L,1);
         if (cmd.compare("sim.cborEvents")==0)
         {
-            App::worldContainer->setCborEvents();
+            App::worldContainer->setCborEvents(luaWrap_lua_toboolean(L,2));
             LUA_END(0);
         }
         if (cmd.compare("sim.mergeEvents")==0)
         {
-            App::worldContainer->setMergeEvents();
+            App::worldContainer->setMergeEvents(luaWrap_lua_toboolean(L,2));
             LUA_END(0);
         }
-        if ( (cmd.compare("sim.getShapeViz")==0)&&luaWrap_lua_isinteger(L,2)&&luaWrap_lua_istable(L,3) )
+        if (cmd.compare("sim.enableEvents")==0)
         {
-            int handle=luaWrap_lua_tointeger(L,2);
-            int packScheme=0;
-            if (luaWrap_lua_isinteger(L,4))
-                packScheme=luaWrap_lua_tointeger(L,4);
-
-            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-            CScriptObject::buildFromInterpreterStack_lua(L,stack,3,1);
-            std::string encodedBuff;
-
-            if (packScheme>0)
+            App::worldContainer->setEnableEvents(luaWrap_lua_toboolean(L,2));
+            LUA_END(0);
+        }
+        if (cmd.compare("sim.fetchCreationEvents")==0)
+        {
+            CInterfaceStack* memorized=App::worldContainer->getBufferedEventsStack();
+            CInterfaceStack* tempStack=App::worldContainer->interfaceStackContainer->createStack();
+            tempStack->pushTableOntoStack();
+            App::worldContainer->setBufferedEventsStack(tempStack);
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
+                App::currentWorld->sceneObjects->getObjectFromIndex(i)->pushCreationEvent();
+            if (App::worldContainer->getCborEvents())
             {
-
-                stack->pushStringOntoStack("meshData",0);
-                stack->pushTableOntoStack();
-
-                SShapeVizInfo info;
-                int index=0;
-                while (true)
-                {
-                    int ret=simGetShapeViz_internal(handle+sim_handleflag_extended,index,&info);
-                    if (ret<=0)
-                        break;
-
-                    stack->pushInt32OntoStack(index+1);
-                    stack->pushTableOntoStack();
-                    index++;
-
-                    stack->insertKeyFloatArrayIntoStackTable("vertices",info.vertices,size_t(info.verticesSize));
-                    stack->insertKeyInt32ArrayIntoStackTable("indices",info.indices,size_t(info.indicesSize));
-                    stack->insertKeyFloatArrayIntoStackTable("normals",info.normals,size_t(info.indicesSize*3));
-                    stack->insertKeyFloatArrayIntoStackTable("colors",info.colors,9);
-                    stack->insertKeyFloatIntoStackTable("shadingAngle",info.shadingAngle);
-                    stack->insertKeyFloatIntoStackTable("transparency",info.transparency);
-                    stack->insertKeyInt32IntoStackTable("options",info.options);
-                    delete[] info.vertices;
-                    delete[] info.indices;
-                    delete[] info.normals;
-                    if (ret>1)
-                    {
-                        std::string buffer;
-                        bool res=CImageLoaderSaver::save((unsigned char*)info.texture,info.textureRes,1,".png",-1,&buffer);
-                        if (res)
-                        {
-                            stack->pushStringOntoStack("texture",0);
-                            stack->pushTableOntoStack();
-
-                            buffer=CTTUtil::encode64(buffer);
-                            stack->insertKeyStringIntoStackTable("texture",buffer.c_str(),buffer.size());
-                            stack->insertKeyInt32ArrayIntoStackTable("resolution",info.textureRes,2);
-                            stack->insertKeyFloatArrayIntoStackTable("coordinates",info.textureCoords,size_t(info.indicesSize*2));
-                            stack->insertKeyInt32IntoStackTable("applyMode",info.textureApplyMode);
-                            stack->insertKeyInt32IntoStackTable("options",info.textureOptions);
-                            stack->insertKeyInt32IntoStackTable("id",info.textureId);
-
-                            stack->insertDataIntoStackTable();
-                        }
-                        delete[] info.texture;
-                        delete[] info.textureCoords;
-                    }
-                    stack->insertDataIntoStackTable();
-                }
-
-                stack->insertDataIntoStackTable();
-                if (packScheme==1)
-                    encodedBuff=stack->getBufferFromTable();
-                else
-                    encodedBuff=stack->getCborEncodedBufferFromTable(0);
+                std::string cbor=tempStack->getCborEncodedBufferFromTable(0);
+                tempStack->clear();
+                tempStack->pushStringOntoStack(cbor.c_str(),cbor.size());
             }
-            else
-            {
-                encodedBuff=stack->getCborEncodedBufferFromTable(0); // get the initial part...
-                encodedBuff.resize(encodedBuff.size()-1); // ... minus the final break char
-                CCbor obj(&encodedBuff,0); // Use that initial part from here
-                // append the next key-value pair:
-                obj.appendString("meshData");
-                obj.appendArray(0);
-
-                SShapeVizInfo info;
-                int index=0;
-                while (true)
-                {
-                    int ret=simGetShapeViz_internal(handle+sim_handleflag_extended,index++,&info);
-                    if (ret<=0)
-                        break;
-                    size_t c=7;
-                    std::string buffer;
-                    if (ret>1)
-                    {
-                        bool res=CImageLoaderSaver::save((unsigned char*)info.texture,info.textureRes,1,".png",-1,&buffer);
-                        if (res)
-                            c++;
-                    }
-
-                    obj.appendMap(c);
-
-                    obj.appendString("vertices");
-                    obj.appendFloatArray(info.vertices,size_t(info.verticesSize));
-                    obj.appendString("indices");
-                    obj.appendIntArray(info.indices,size_t(info.indicesSize));
-                    obj.appendString("normals");
-                    obj.appendFloatArray(info.normals,size_t(info.indicesSize*3));
-                    obj.appendString("colors");
-                    obj.appendFloatArray(info.colors,9);
-                    obj.appendString("shadingAngle");
-                    obj.appendFloat(info.shadingAngle);
-                    obj.appendString("transparency");
-                    obj.appendFloat(info.transparency);
-                    obj.appendString("options");
-                    obj.appendInt(info.options);
-                    delete[] info.vertices;
-                    delete[] info.indices;
-                    delete[] info.normals;
-                    if (c>7)
-                    {
-                        obj.appendString("texture");
-                        obj.appendMap(6);
-
-                        obj.appendString("texture");
-                        buffer=CTTUtil::encode64(buffer);
-                        obj.appendString(buffer.c_str(),buffer.size());
-//                        obj.appendBuff((const unsigned char*)buffer.c_str(),buffer.size());
-                        obj.appendString("resolution");
-                        obj.appendIntArray(info.textureRes,2);
-                        obj.appendString("coordinates");
-                        obj.appendFloatArray(info.textureCoords,size_t(info.indicesSize*2));
-                        obj.appendString("applyMode");
-                        obj.appendInt(info.textureApplyMode);
-                        obj.appendString("options");
-                        obj.appendInt(info.textureOptions);
-                        obj.appendString("id");
-                        obj.appendInt(info.textureId);
-
-                        obj.appendBreakIfApplicable(); // map break
-                    }
-
-                    obj.appendBreakIfApplicable(); // map break
-
-                    if (ret>1)
-                    {
-                        delete[] info.texture;
-                        delete[] info.textureCoords;
-                    }
-                }
-
-                obj.appendBreakIfApplicable(); // meshData array break
-
-                obj.appendBreakIfApplicable(); // user provided map break
-
-                encodedBuff=obj.getBuff();
-            }
-
-            luaWrap_lua_pushlstring(L,encodedBuff.c_str(),encodedBuff.length());
-            App::worldContainer->interfaceStackContainer->destroyStack(stack);
-            LUA_END(1);
+            CScriptObject::buildOntoInterpreterStack_lua(L,tempStack,false);
+            int ss=tempStack->getStackSize();
+            App::worldContainer->setBufferedEventsStack(memorized);
+            App::worldContainer->interfaceStackContainer->destroyStack(tempStack);
+            LUA_END(ss);
         }
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

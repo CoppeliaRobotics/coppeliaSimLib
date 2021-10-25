@@ -62,6 +62,7 @@ public:
     bool getDoubleArray(double* array,int count) const;
     CInterfaceStackObject* getMapObject(const char* fieldName) const;
 
+    bool removeFromKey(const char* keyToRemove);
     bool removeFromKey(const CInterfaceStackObject* keyToRemove);
 
     int getTableInfo(int infoType) const;

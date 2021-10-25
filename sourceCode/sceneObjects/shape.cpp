@@ -1924,11 +1924,15 @@ void CShape::removeSceneDependencies()
 
 void CShape::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
 {
-    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,"",this);
+    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
     CSceneObject::pushCreationEvent(event);
 
+    CInterfaceStackTable* subC=new CInterfaceStackTable();
+    event->appendMapObject_stringObject("shape",subC);
+    event=subC;
+
     CInterfaceStackTable* meshData=new CInterfaceStackTable();
-    event->appendMapObject_stringObject("shapeData",meshData);
+    event->appendMapObject_stringObject("meshes",meshData);
 
     std::vector<CMesh*> all;
     getMeshWrapper()->getAllShapeComponentsCumulative(all);

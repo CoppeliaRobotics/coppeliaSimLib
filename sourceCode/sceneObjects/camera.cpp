@@ -997,10 +997,19 @@ void CCamera::removeSceneDependencies()
 
 void CCamera::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
 {
-    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,"",this);
+    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
     CSceneObject::pushCreationEvent(event);
 
-    // todo
+    CInterfaceStackTable* subC=new CInterfaceStackTable();
+    event->appendMapObject_stringObject("camera",subC);
+    event=subC;
+
+    if (_perspectiveOperation!=-1)
+        event->appendMapObject_stringBool("perspectiveMode",_perspectiveOperation!=0);
+    event->appendMapObject_stringFloat("nearClippingPlane",_nearClippingPlane);
+    event->appendMapObject_stringFloat("farClippingPlane",_farClippingPlane);
+    event->appendMapObject_stringFloat("viewAngle",_viewAngle);
+    event->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
 
     App::worldContainer->pushEvent();
 }
@@ -1104,10 +1113,21 @@ int CCamera::getPerspectiveOperation() const
 
 void CCamera::setPerspectiveOperation(bool p)
 {
+    int v=_perspectiveOperation;
     if (p)
-        _perspectiveOperation=1;
+        v=1;
     else
-        _perspectiveOperation=0;
+        v=0;
+
+    bool diff=(_perspectiveOperation!=v);
+    if (diff&&_isInScene)
+    {
+        _perspectiveOperation=v;
+        const char* cmd="perspectiveMode";
+        CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+        event->appendMapObject_stringFloat(cmd,_perspectiveOperation);
+        App::worldContainer->pushEvent();
+    }
 }
 
 int CCamera::getViewOrientation() const
