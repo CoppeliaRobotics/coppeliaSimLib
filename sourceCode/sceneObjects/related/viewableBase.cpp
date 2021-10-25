@@ -130,13 +130,16 @@ void CViewableBase::setNearClippingPlane(float nearPlane)
 {
     tt::limitValue(0.0001f,_farClippingPlane,nearPlane);
     bool diff=(_nearClippingPlane!=nearPlane);
-    if (diff&&_isInScene)
+    if (diff)
     {
         _nearClippingPlane=nearPlane;
-        const char* cmd="nearClippingPlane";
-        CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-        event->appendMapObject_stringFloat(cmd,_nearClippingPlane);
-        App::worldContainer->pushEvent();
+        if (_isInScene)
+        {
+            const char* cmd="nearClippingPlane";
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            event->appendMapObject_stringFloat(cmd,_nearClippingPlane);
+            App::worldContainer->pushEvent();
+        }
     }
 }
 
@@ -149,13 +152,16 @@ void CViewableBase::setFarClippingPlane(float farPlane)
 {
     tt::limitValue(_nearClippingPlane,100000.0f,farPlane);
     bool diff=(_farClippingPlane!=farPlane);
-    if (diff&&_isInScene)
+    if (diff)
     {
         _farClippingPlane=farPlane;
-        const char* cmd="farClippingPlane";
-        CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-        event->appendMapObject_stringFloat(cmd,_farClippingPlane);
-        App::worldContainer->pushEvent();
+        if (_isInScene)
+        {
+            const char* cmd="farClippingPlane";
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            event->appendMapObject_stringFloat(cmd,_farClippingPlane);
+            App::worldContainer->pushEvent();
+        }
     }
 }
 
@@ -168,13 +174,16 @@ void CViewableBase::setViewAngle(float angle)
 {
     tt::limitValue(1.0f*degToRad_f,135.0f*degToRad_f,angle); // with 90 degrees, objects disappear!! Really??? Changed to 135 on 2010/11/12
     bool diff=(_viewAngle!=angle);
-    if (diff&&_isInScene)
+    if (diff)
     {
         _viewAngle=angle;
-        const char* cmd="viewAngle";
-        CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-        event->appendMapObject_stringFloat(cmd,_viewAngle);
-        App::worldContainer->pushEvent();
+        if (_isInScene)
+        {
+            const char* cmd="viewAngle";
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            event->appendMapObject_stringFloat(cmd,_viewAngle);
+            App::worldContainer->pushEvent();
+        }
     }
 }
 
@@ -187,13 +196,16 @@ void CViewableBase::setOrthoViewSize(float theSize)
 {
     tt::limitValue(0.001f,200000.0f,theSize);
     bool diff=(_orthoViewSize!=theSize);
-    if (diff&&_isInScene)
+    if (diff)
     {
         _orthoViewSize=theSize;
-        const char* cmd="orthoSize";
-        CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-        event->appendMapObject_stringFloat(cmd,_orthoViewSize);
-        App::worldContainer->pushEvent();
+        if (_isInScene)
+        {
+            const char* cmd="orthoSize";
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            event->appendMapObject_stringFloat(cmd,_orthoViewSize);
+            App::worldContainer->pushEvent();
+        }
     }
 }
 

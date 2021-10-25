@@ -555,11 +555,16 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (cam!=nullptr)
                 cam->setShowFogIfAvailable(!cam->getShowFogIfAvailable());
         }
-        if (cmd.cmdId==TOGGLE_KEEPHEADUP_CAMERAGUITRIGGEREDCMD)
+        if (cmd.cmdId==TOGGLE_PERSPECTIVEMODE_CAMERAGUITRIGGEREDCMD)
         {
             CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
             if (cam!=nullptr)
-                cam->setCameraManipulationModePermissions(cam->getCameraManipulationModePermissions()^0x020);
+            {
+                if (cam->getPerspectiveOperation()==0)
+                    cam->setPerspectiveOperation(1);
+                else
+                    cam->setPerspectiveOperation(0);
+            }
         }
         if (cmd.cmdId==TOGGLE_USEPARENTASMANIPPROXY_CAMERAGUITRIGGEREDCMD)
         {

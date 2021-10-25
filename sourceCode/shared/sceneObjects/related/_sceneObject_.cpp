@@ -43,32 +43,23 @@ bool _CSceneObject_::setParent(CSceneObject* parent)
     bool diff=(_parentObject!=parent);
     if (diff)
     {
+        _parentObject=parent;
         if (_isInScene)
         {
             const char* cmd="parent";
             CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
             int pHandle=-1;
             int pUid=-1;
-            if (parent!=nullptr)
+            if (_parentObject!=nullptr)
             {
-                pHandle=parent->getObjectHandle();
-                pUid=parent->getObjectUniqueId();
+                pHandle=_parentObject->getObjectHandle();
+                pUid=_parentObject->getObjectUniqueId();
             }
             CInterfaceStackTable* data=new CInterfaceStackTable();
             event->appendMapObject_stringObject(cmd,data);
             data->appendMapObject_stringInt32("handle",pHandle);
             data->appendMapObject_stringInt32("uid",pUid);
             App::worldContainer->pushEvent();
-        }
-
-        if (getObjectCanChange())
-            _parentObject=parent;
-        if (getObjectCanSync())
-        {
-            int h=-1;
-            if (parent!=nullptr)
-                h=parent->getObjectHandle();
-            _setParent_send(h);
         }
     }
     return(diff&&getObjectCanChange());
@@ -112,6 +103,7 @@ bool _CSceneObject_::setVisibilityLayer(unsigned short l)
     bool diff=(_visibilityLayer!=l);
     if (diff)
     {
+        _visibilityLayer=l;
         if (_isInScene)
         {
             const char* cmd="layer";
@@ -119,10 +111,6 @@ bool _CSceneObject_::setVisibilityLayer(unsigned short l)
             event->appendMapObject_stringInt32(cmd,l);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanChange())
-            _visibilityLayer=l;
-        if (getObjectCanSync())
-            _setVisibilityLayer_send(l);
     }
     return(diff&&getObjectCanChange());
 }
@@ -132,6 +120,7 @@ bool _CSceneObject_::setChildOrder(int order)
     bool diff=(_childOrder!=order);
     if (diff)
     {
+        _childOrder=order;
         if (_isInScene)
         {
             const char* cmd="childOrder";
@@ -139,10 +128,6 @@ bool _CSceneObject_::setChildOrder(int order)
             event->appendMapObject_stringInt32(cmd,order);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanChange())
-            _childOrder=order;
-        if (getObjectCanSync())
-            _setChildOrder_send(order);
     }
     return(diff&&getObjectCanChange());
 }
@@ -180,13 +165,16 @@ bool _CSceneObject_::getModelInvisible() const
 void _CSceneObject_::_setModelInvisible(bool inv)
 {
     bool diff=(_modelInvisible!=inv);
-    if (diff&&_isInScene)
+    if (diff)
     {
         _modelInvisible=inv;
-        const char* cmd="modelInvisible";
-        CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
-        event->appendMapObject_stringBool(cmd,inv);
-        App::worldContainer->pushEvent();
+        if (_isInScene)
+        {
+            const char* cmd="modelInvisible";
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
+            event->appendMapObject_stringBool(cmd,inv);
+            App::worldContainer->pushEvent();
+        }
     }
 }
 
@@ -376,6 +364,7 @@ bool _CSceneObject_::setObjectAlias_direct(const char* newName)
     bool diff=(_objectAlias!=newName);
     if (diff)
     {
+        _objectAlias=newName;
         if (_isInScene)
         {
             const char* cmd="alias";
@@ -383,10 +372,6 @@ bool _CSceneObject_::setObjectAlias_direct(const char* newName)
             event->appendMapObject_stringString(cmd,newName,0);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanChange())
-            _objectAlias=newName;
-        if (getObjectCanSync())
-            _setObjectAlias_send(newName);
     }
     return(diff&&getObjectCanChange());
 }
@@ -506,6 +491,7 @@ bool _CSceneObject_::setLocalTransformation(const C7Vector& tr)
     bool diff=(_localTransformation!=tr);
     if (diff)
     {
+        _localTransformation=tr;
         if (_isInScene)
         {
             const char* cmd="pose";
@@ -514,10 +500,6 @@ bool _CSceneObject_::setLocalTransformation(const C7Vector& tr)
             event->appendMapObject_stringFloatArray(cmd,p,7);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanChange())
-            _localTransformation=tr;
-        if (getObjectCanSync())
-            _setLocalTransformation_send(tr);
     }
     return(diff&&getObjectCanChange());
 }

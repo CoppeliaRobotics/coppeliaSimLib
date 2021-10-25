@@ -407,6 +407,7 @@ void CSceneObject::setModelBase(bool m)
     bool diff=(_modelBase!=m);
     if (diff)
     {
+        _modelBase=m;
         if (_isInScene)
         {
             const char* cmd="modelBase";
@@ -414,9 +415,7 @@ void CSceneObject::setModelBase(bool m)
             event->appendMapObject_stringBool(cmd,m);
             App::worldContainer->pushEvent();
         }
-
-        _modelBase=m;
-        _modelProperty=0; // Nothing is overridden!
+       _modelProperty=0; // Nothing is overridden!
         _modelAcknowledgement="";
         //incrementModelPropertyValidityNumber();
         recomputeModelInfluencedValues();
@@ -428,6 +427,7 @@ void CSceneObject::setObjectProperty(int p)
     bool diff=(_objectProperty!=p);
     if (diff)
     {
+        _objectProperty=p;
         if (_isInScene)
         {
             if ((p^_objectProperty)==sim_objectproperty_selectmodelbaseinstead)
@@ -452,7 +452,6 @@ void CSceneObject::setObjectProperty(int p)
                 App::worldContainer->pushEvent();
             }
         }
-        _objectProperty=p;
         recomputeModelInfluencedValues();
     }
 }
@@ -991,6 +990,17 @@ void CSceneObject::pushCreationEvent(CInterfaceStackTable* event/*=nullptr*/) co
     event->appendMapObject_stringBool("selectModelBase",(_objectProperty&sim_objectproperty_selectmodelbaseinstead)!=0);
     event->appendMapObject_stringBool("collapsedHierarchy",(_objectProperty&sim_objectproperty_collapsed)!=0);
     event->appendMapObject_stringBool("selectable",(_objectProperty&sim_objectproperty_selectable)!=0);
+    int pHandle=-1;
+    int pUid=-1;
+    if (_parentObject!=nullptr)
+    {
+        pHandle=_parentObject->getObjectHandle();
+        pUid=_parentObject->getObjectUniqueId();
+    }
+    CInterfaceStackTable* data=new CInterfaceStackTable();
+    event->appendMapObject_stringObject("parent",data);
+    data->appendMapObject_stringInt32("handle",pHandle);
+    data->appendMapObject_stringInt32("uid",pUid);
 }
 
 CSceneObject* CSceneObject::copyYourself()

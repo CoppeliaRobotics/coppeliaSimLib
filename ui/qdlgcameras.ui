@@ -126,7 +126,7 @@
      <number>50</number>
     </property>
    </widget>
-   <widget class="QCheckBox" name="qqKeepHeadUp">
+   <widget class="QCheckBox" name="qqPerspectiveMode">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -139,7 +139,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Keep head always up</string>
+     <string>Perspective mode</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="qqManipProxy">
@@ -449,7 +449,7 @@
   <tabstop>qqFarClipping</tabstop>
   <tabstop>qqRenderModeCombo</tabstop>
   <tabstop>qqTrackedCombo</tabstop>
-  <tabstop>qqKeepHeadUp</tabstop>
+  <tabstop>qqPerspectiveMode</tabstop>
   <tabstop>qqManipProxy</tabstop>
   <tabstop>qqAlongX</tabstop>
   <tabstop>qqAlongY</tabstop>

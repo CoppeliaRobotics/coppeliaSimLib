@@ -408,92 +408,6 @@ bool CSView::getFitViewToSelection() const
 
 bool CSView::processCommand(int commandID,int subViewIndex)
 { // Return value is true if the command belonged to hierarchy menu and was executed
-    if (commandID==VIEW_FUNCTIONS_TOGGLE_SOLID_DISPLAY_VFCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            if (_renderingMode==RENDERING_MODE_SOLID)
-            {
-                _renderingMode=RENDERING_MODE_WIREFRAME_TRIANGLES;
-                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_WIREFRAME_RENDERING_MODE);
-            }
-            else
-            {
-                _renderingMode=RENDERING_MODE_SOLID;
-                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_SOLID_RENDERING_MODE);
-            }
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.intParams.push_back(subViewIndex);
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-
-    if (commandID==VIEW_FUNCTIONS_PERSPECTIVE_DISPLAY_VFCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            perspectiveDisplay=!perspectiveDisplay;
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-            if (perspectiveDisplay)
-                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_PERSPECTIVE_PROJECTION_MODE);
-            else
-                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_ORTHOGRAPHIC_PROJECTION_MODE);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.intParams.push_back(subViewIndex);
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==VIEW_FUNCTIONS_SHOW_EDGES_VFCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            _showEdges=!_showEdges;
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-            if (_showEdges)
-                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_SHOWING_EDGES);
-            else
-                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_HIDING_EDGES);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.intParams.push_back(subViewIndex);
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==VIEW_FUNCTIONS_THICK_EDGES_VFCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            _thickEdges=!_thickEdges;
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-            if (_thickEdges)
-                App::logMsg(sim_verbosity_msgs,IDSNS_EDGES_ARE_NOW_THICK);
-            else
-                App::logMsg(sim_verbosity_msgs,IDSNS_EDGES_ARE_NOW_THIN);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.intParams.push_back(subViewIndex);
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
     if (commandID==VIEW_FUNCTIONS_TEXTURED_DISPLAY_VFCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
@@ -1006,10 +920,6 @@ void CSView::addMenu(VMenu* menu)
     }
     if (camera!=nullptr)
     { // The linked object is a camera:
-        menu->appendMenuItem(true,_renderingMode==RENDERING_MODE_SOLID,VIEW_FUNCTIONS_TOGGLE_SOLID_DISPLAY_VFCMD,IDS_SOLID_RENDERING_MENU_ITEM,true);
-        menu->appendMenuItem(true,perspectiveDisplay,VIEW_FUNCTIONS_PERSPECTIVE_DISPLAY_VFCMD,IDS_PERSPECTIVE_PROJECTION_MENU_ITEM,true);
-        menu->appendMenuItem(true,_showEdges,VIEW_FUNCTIONS_SHOW_EDGES_VFCMD,IDS_SHOW_EDGES_IN_VIEW_MENU_ITEM,true);
-        menu->appendMenuItem(_showEdges,_thickEdges,VIEW_FUNCTIONS_THICK_EDGES_VFCMD,IDS_THICK_EDGES_IN_VIEW_MENU_ITEM,true);
         menu->appendMenuItem(true,_visualizeOnlyInertias,VIEW_FUNCTIONS_SHOW_INERTIAS_VFCMD,IDSN_SHOW_INERTIAS,true);
         menu->appendMenuItem(true,App::currentWorld->environment->getShapeTexturesEnabled(),VIEW_FUNCTIONS_TEXTURED_DISPLAY_VFCMD,IDSN_SHAPE_TEXTURES_ENABLED,true);
         menu->appendMenuSeparator();

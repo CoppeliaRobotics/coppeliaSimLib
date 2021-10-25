@@ -388,6 +388,7 @@ bool _CJoint_::setPositionIntervalMin(float min)
     bool diff=(_jointMinPosition!=min);
     if (diff)
     {
+        _jointMinPosition=min;
         if (_isInScene)
         {
             const char* cmd="min";
@@ -395,10 +396,6 @@ bool _CJoint_::setPositionIntervalMin(float min)
             event->appendMapObject_stringFloat(cmd,min);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanChange())
-            _jointMinPosition=min;
-        if (getObjectCanSync())
-            _setPositionIntervalMin_send(min);
     }
     return(diff&&getObjectCanChange());
 }
@@ -413,6 +410,7 @@ bool _CJoint_::setPositionIntervalRange(float range)
     bool diff=(_jointPositionRange!=range);
     if (diff)
     {
+        _jointPositionRange=range;
         if (_isInScene)
         {
             const char* cmd="range";
@@ -420,10 +418,6 @@ bool _CJoint_::setPositionIntervalRange(float range)
             event->appendMapObject_stringFloat(cmd,range);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanChange())
-            _jointPositionRange=range;
-        if (getObjectCanSync())
-            _setPositionIntervalRange_send(range);
     }
     return(diff&&getObjectCanChange());
 }
@@ -456,6 +450,7 @@ bool _CJoint_::setPositionIsCyclic(bool isCyclic)
     bool diff=(_positionIsCyclic!=isCyclic);
     if (diff)
     {
+        _positionIsCyclic=isCyclic;
         if (_isInScene)
         {
             const char* cmd="cyclic";
@@ -463,10 +458,6 @@ bool _CJoint_::setPositionIsCyclic(bool isCyclic)
             event->appendMapObject_stringBool(cmd,isCyclic);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanChange())
-            _positionIsCyclic=isCyclic;
-        if (getObjectCanSync())
-            _setPositionIsCyclic_send(isCyclic);
     }
     return(diff&&getObjectCanChange());
 }
@@ -481,6 +472,7 @@ bool _CJoint_::setDiameter(float d)
     bool diff=(_diameter!=d);
     if (diff)
     {
+        _diameter=d;
         if (_isInScene)
         {
             const char* cmd="diameter";
@@ -488,10 +480,6 @@ bool _CJoint_::setDiameter(float d)
             event->appendMapObject_stringFloat(cmd,d);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanChange())
-            _diameter=d;
-        if (getObjectCanSync())
-            _setDiameter_send(d);
     }
     return(diff&&getObjectCanChange());
 }
@@ -506,6 +494,7 @@ bool _CJoint_::setLength(float l)
     bool diff=(_length!=l);
     if (diff)
     {
+        _length=l;
         if (_isInScene)
         {
             const char* cmd="length";
@@ -513,10 +502,6 @@ bool _CJoint_::setLength(float l)
             event->appendMapObject_stringFloat(cmd,l);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanChange())
-            _length=l;
-        if (getObjectCanSync())
-            _setLength_send(l);
     }
     return(diff&&getObjectCanChange());
 }
@@ -585,11 +570,12 @@ bool _CJoint_::setPosition(float pos)
     bool diff=(_jointPosition!=pos);
     if (diff)
     {
+        _jointPosition=pos;
         if (_isInScene)
         {
             const char* cmd="position";
             CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-            event->appendMapObject_stringFloat(cmd,pos);
+            event->appendMapObject_stringFloat(cmd,_jointPosition);
             float pose[7];
             C7Vector trFull(getFullLocalTransformation());
             C7Vector trPart1(getLocalTransformation());
@@ -598,10 +584,6 @@ bool _CJoint_::setPosition(float pos)
             event->appendMapObject_stringFloatArray("pose",pose,7);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanChange())
-            _jointPosition=pos;
-        if (getObjectCanSync())
-            _setPosition_send(pos);
     }
     return(diff&&getObjectCanChange());
 }
@@ -616,6 +598,7 @@ bool _CJoint_::setSphericalTransformation(const C4Vector& tr)
     bool diff=(_sphericalTransformation!=tr);
     if (diff)
     {
+        _sphericalTransformation=tr;
         if (_isInScene)
         {
             const char* cmd="quaternion";
@@ -630,10 +613,6 @@ bool _CJoint_::setSphericalTransformation(const C4Vector& tr)
             event->appendMapObject_stringFloatArray("pose",pose,7);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanChange())
-            _sphericalTransformation=tr;
-        if (getObjectCanSync())
-            _setSphericalTransformation_send(tr);
     }
     return(diff&&getObjectCanChange());
 }

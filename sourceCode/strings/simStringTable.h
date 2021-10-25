@@ -95,14 +95,6 @@
 #define IDSNS_CREATED_VIEWS "Created View(s)."
 #define IDSNS_REMOVED_VIEW "Removed view."
 
-#define IDSNS_NOW_IN_WIREFRAME_RENDERING_MODE "View in wireframe rendering mode."
-#define IDSNS_NOW_IN_SOLID_RENDERING_MODE "View in solid rendering mode."
-#define IDSNS_NOW_IN_PERSPECTIVE_PROJECTION_MODE "View in perspective projection mode."
-#define IDSNS_NOW_IN_ORTHOGRAPHIC_PROJECTION_MODE "View in orthographic projection mode."
-#define IDSNS_NOW_SHOWING_EDGES "View showing edges."
-#define IDSNS_NOW_HIDING_EDGES "View hiding edges."
-#define IDSNS_EDGES_ARE_NOW_THICK "View showing thick edges."
-#define IDSNS_EDGES_ARE_NOW_THIN "View showing thin edges."
 #define IDSNS_SHAPE_TEXTURES_ENABLED "Shape textures enabled."
 #define IDSNS_SHAPE_TEXTURES_DISABLED "Shape textures disabled."
 #define IDSNS_SHOWING_INERTIAS "Visualizing inertias."
@@ -696,11 +688,6 @@
 
 #define IDS_REMOVE_PAGE_MENU_ITEM "Remove page"
 #define IDS_VIEW_MENU_ITEM      "View"
-#define IDS_SOLID_RENDERING_MENU_ITEM "Solid rendering"
-#define IDS_PERSPECTIVE_PROJECTION_MENU_ITEM "Perspective projection"
-
-#define IDS_SHOW_EDGES_IN_VIEW_MENU_ITEM "Visible edges"
-#define IDS_THICK_EDGES_IN_VIEW_MENU_ITEM "Thick edges"
 
 #define IDS_DISPLAY_TIME_GRAPH_MENU_ITEM "Display time-graph"
 #define IDS_DISPLAY_X_Y_GRAPH_MENU_ITEM "Display x/y graph"
@@ -781,9 +768,6 @@
 
 #define IDS_SIMULATION_SCRIPTS         "Simulation scripts"
 #define IDS_CUSTOMIZATION_SCRIPTS "Customization scripts"
-
-
-#define IDS_VISION_SENSOR_ORTHOGONAL_TYPE_MENU_ITEM "Orthographic type"
 
 #define IDS_DONT_TRACK_OBJECT__MENU_ITEM "Don't track object '"
 
@@ -956,7 +940,6 @@
 #define IDS__MOTOR_DISABLED_ "(motor disabled)"
 #define IDS__CONTROL_LOOP_DISABLED_ "(motor enabled, control loop disabled)"
 
-#define IDS_VISION_SENSOR_PERSPECTIVE_TYPE_MENU_ITEM "Perspective type"
 #define IDS_READING_NEWER_SERIALIZATION_FILE_WARNING "The file you are about to read was created with a newer version of CoppeliaSim. Some functionality might not be available or not working properly."
 #define IDS_MAKING_NON_PURE_CONCAVE_SHAPE_RESPONDABLE_WARNING "The shape you made respondable is not a pure shape, nor a convex shape. It is a random non-convex shape that will perform much worse than pure shapes or convex shapes. Additionally, calculations with non-pure non-convex respondable shapes are much more time-consuming. For collision response calculations, it is recomended to use pure shapes whenever possible, or if that is not possible, convex shapes."
 #define IDS_SCENE_LOCKING_INFO "Next scene save will be final: after that, this scene cannot anymore be saved, exported, or script content viewed."

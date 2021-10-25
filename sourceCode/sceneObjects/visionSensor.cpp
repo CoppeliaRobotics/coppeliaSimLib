@@ -511,13 +511,16 @@ C3Vector CVisionSensor::getSize()
 void CVisionSensor::setPerspectiveOperation(bool p)
 {
     bool diff=(_perspectiveOperation!=p);
-    if (diff&&_isInScene)
+    if (diff)
     {
         _perspectiveOperation=p;
-        const char* cmd="perspectiveMode";
-        CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-        event->appendMapObject_stringBool(cmd,_perspectiveOperation);
-        App::worldContainer->pushEvent();
+        if (_isInScene)
+        {
+            const char* cmd="perspectiveMode";
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            event->appendMapObject_stringBool(cmd,_perspectiveOperation);
+            App::worldContainer->pushEvent();
+        }
     }
 }
 

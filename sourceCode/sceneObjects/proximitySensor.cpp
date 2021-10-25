@@ -253,6 +253,10 @@ void CProxSensor::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
     CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
     CSceneObject::pushCreationEvent(event);
 
+    CInterfaceStackTable* subC=new CInterfaceStackTable();
+    event->appendMapObject_stringObject("proxSensor",subC);
+    event=subC;
+
     // todo
 
     App::worldContainer->pushEvent();

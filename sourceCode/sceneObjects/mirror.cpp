@@ -193,6 +193,10 @@ void CMirror::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
     CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
     CSceneObject::pushCreationEvent(event);
 
+    CInterfaceStackTable* subC=new CInterfaceStackTable();
+    event->appendMapObject_stringObject("mirror",subC);
+    event=subC;
+
     // todo
 
     App::worldContainer->pushEvent();

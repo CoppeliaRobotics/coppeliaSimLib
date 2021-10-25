@@ -1120,13 +1120,16 @@ void CCamera::setPerspectiveOperation(bool p)
         v=0;
 
     bool diff=(_perspectiveOperation!=v);
-    if (diff&&_isInScene)
+    if (diff)
     {
         _perspectiveOperation=v;
-        const char* cmd="perspectiveMode";
-        CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-        event->appendMapObject_stringFloat(cmd,_perspectiveOperation);
-        App::worldContainer->pushEvent();
+        if (_isInScene)
+        {
+            const char* cmd="perspectiveMode";
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            event->appendMapObject_stringFloat(cmd,_perspectiveOperation);
+            App::worldContainer->pushEvent();
+        }
     }
 }
 
@@ -1674,6 +1677,18 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
     if (subView!=nullptr)
     {
         isPerspective=subView->getPerspectiveDisplay();
+        if (_perspectiveOperation!=-1)
+        {
+            isPerspective=_perspectiveOperation;
+            subView->setPerspectiveDisplay(isPerspective);
+        }
+        else
+        {
+            if (isPerspective)
+                _perspectiveOperation=1;
+            else
+                _perspectiveOperation=0;
+        }
         renderingMode=subView->getRenderingMode();
         displ_ref=true;
         subView->getViewSize(currentWinSize);

@@ -119,6 +119,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_CAMERA);
                 myNewCamera=new CCamera();
+                myNewCamera->setPerspectiveOperation(true);
                 App::currentWorld->sceneObjects->addObjectToScene(myNewCamera,false,true);
                 App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
             }
@@ -373,28 +374,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         }
         return(true);
     }
-    if (commandID==ADD_COMMANDS_ADD_ORTHOGONAL_VISION_SENSOR_ACCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_VISION_SENSOR);
-            CVisionSensor* newObject=new CVisionSensor();
-            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            newObject->setLocalTransformation(C3Vector(0.0f,0.0f,newObject->getSize()(2)));
-            newObject->setPerspectiveOperation(false);
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==ADD_COMMANDS_ADD_PERSPECTIVE_VISION_SENSOR_ACCMD)
+    if (commandID==ADD_COMMANDS_ADD_VISION_SENSOR_ACCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -1281,10 +1261,7 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
 
             menu->appendMenuAndDetach(sens,true,IDS_PROXSENSOR_MENU_ITEM);
 
-            VMenu* visSens=new VMenu();
-            visSens->appendMenuItem(true,false,ADD_COMMANDS_ADD_ORTHOGONAL_VISION_SENSOR_ACCMD,IDS_VISION_SENSOR_ORTHOGONAL_TYPE_MENU_ITEM);
-            visSens->appendMenuItem(true,false,ADD_COMMANDS_ADD_PERSPECTIVE_VISION_SENSOR_ACCMD,IDS_VISION_SENSOR_PERSPECTIVE_TYPE_MENU_ITEM);
-            menu->appendMenuAndDetach(visSens,true,IDSN_VISION_SENSOR);
+            menu->appendMenuItem(true,false,ADD_COMMANDS_ADD_VISION_SENSOR_ACCMD,IDSN_VISION_SENSOR);
 
             menu->appendMenuItem(true,false,ADD_COMMANDS_ADD_FORCE_SENSOR_ACCMD,IDSN_FORCE_SENSOR);
 

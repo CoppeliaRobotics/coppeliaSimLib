@@ -9028,6 +9028,13 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
         }
         if (camera!=nullptr)
         {
+            if (parameterID==sim_cameraintparam_perspective_operation)
+            {
+                parameter[0]=0;
+                if (camera->getPerspectiveOperation()!=0)
+                    parameter[0]=1;
+                retVal=1;
+            }
             if (parameterID==sim_cameraintparam_disabled_light_components)
             {
                 parameter[0]=camera->getDisabledColorComponents();
@@ -9367,6 +9374,14 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
         }
         if (camera!=nullptr)
         {
+            if (parameterID==sim_cameraintparam_perspective_operation)
+            {
+                if (parameter!=0)
+                    camera->setPerspectiveOperation(1);
+                else
+                    camera->setPerspectiveOperation(0);
+                retVal=1;
+            }
             if (parameterID==sim_cameraintparam_disabled_light_components)
             {
                 camera->setDisabledColorComponents(parameter);
