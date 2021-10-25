@@ -1485,6 +1485,12 @@ void CJoint::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
     float p[4]={_sphericalTransformation(1),_sphericalTransformation(2),_sphericalTransformation(3),_sphericalTransformation(0)};
     event->appendMapObject_stringFloatArray("quaternion",p,4);
     event->appendMapObject_stringFloat("position",_jointPosition);
+    float pose[7];
+    C7Vector trFull(getFullLocalTransformation());
+    C7Vector trPart1(getLocalTransformation());
+    C7Vector tr(trPart1.getInverse()*trFull);
+    tr.getInternalData(pose,true);
+    event->appendMapObject_stringFloatArray("pose",pose,7);
     event->appendMapObject_stringBool("cyclic",_positionIsCyclic);
     event->appendMapObject_stringFloat("min",_jointMinPosition);
     event->appendMapObject_stringFloat("range",_jointPositionRange);
