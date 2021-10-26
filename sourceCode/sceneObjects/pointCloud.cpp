@@ -694,7 +694,22 @@ void CPointCloud::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
     event=subC;
 
     event->appendMapObject_stringInt32("pointSize",_pointSize);
-    // todo
+
+    subC=new CInterfaceStackTable();
+    event->appendMapObject_stringObject("points",subC);
+    event=subC;
+
+    CCbor obj(nullptr,0);
+    size_t l;
+    obj.appendFloatArray(_displayPoints.data(),_displayPoints.size());
+    const char* buff=(const char*)obj.getBuff(l);
+    event->appendMapObject_stringString("points",buff,l,true);
+
+    obj.clear();
+    obj.appendBuff(_displayColorsByte.data(),_displayColorsByte.size());
+    buff=(const char*)obj.getBuff(l);
+    event->appendMapObject_stringString("colors",buff,l,true);
+    App::worldContainer->pushEvent();
 
     App::worldContainer->pushEvent();
 }
@@ -795,7 +810,19 @@ int CPointCloud::getPointSize() const
 
 void CPointCloud::setPointSize(int s)
 {
-    _pointSize=tt::getLimitedInt(1,8,s);
+    s=tt::getLimitedInt(1,8,s);
+    bool diff=(_pointSize!=s);
+    if (diff)
+    {
+        _pointSize=s;
+        if (_isInScene)
+        {
+            const char* cmd="pointSize";
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            event->appendMapObject_stringInt32(cmd,_pointSize);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 float CPointCloud::getBuildResolution() const

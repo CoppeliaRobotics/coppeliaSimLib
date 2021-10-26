@@ -1,5 +1,6 @@
 #include "_dummy_.h"
 #include "simConst.h"
+#include "app.h"
 
 _CDummy_::_CDummy_()
 {
@@ -69,10 +70,14 @@ bool _CDummy_::setDummySize(float s)
     bool diff=(_dummySize!=s);
     if (diff)
     {
-        if (getObjectCanChange())
-            _dummySize=s;
-        if (getObjectCanSync())
-            _setDummySize_send(s);
+        _dummySize=s;
+        if (_isInScene)
+        {
+            const char* cmd="size";
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            event->appendMapObject_stringFloat(cmd,_dummySize);
+            App::worldContainer->pushEvent();
+        }
     }
     return(diff&&getObjectCanChange());
 }

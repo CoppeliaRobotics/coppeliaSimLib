@@ -103,7 +103,13 @@ void CDummy::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
     event->appendMapObject_stringObject("dummy",subC);
     event=subC;
 
-    // todo
+    event->appendMapObject_stringFloat("size",_dummySize);
+
+    float c[9];
+    _dummyColor.getColor(c,sim_colorcomponent_ambient_diffuse);
+    _dummyColor.getColor(c+3,sim_colorcomponent_specular);
+    _dummyColor.getColor(c+6,sim_colorcomponent_emission);
+    event->appendMapObject_stringFloatArray("color",c,9);
 
     App::worldContainer->pushEvent();
 }
