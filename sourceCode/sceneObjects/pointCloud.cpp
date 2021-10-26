@@ -84,7 +84,10 @@ std::vector<float>* CPointCloud::getDisplayColors()
 
 void CPointCloud::_readPositionsAndColorsAndSetDimensions()
 {
-    _displayPoints.clear();
+    std::vector<float> displayPoints_old;
+    std::vector<unsigned char> displayColorsByte_old;
+    displayPoints_old.swap(_displayPoints);
+    displayColorsByte_old.swap(_displayColorsByte);
     _displayColors.clear();
     if (_doNotUseOctreeStructure)
     {
@@ -123,6 +126,10 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
         _maxDim(1)+=_cellSize;
         _maxDim(2)+=_cellSize;
         */
+        _displayPoints.assign(_points.begin(),_points.end());
+        _displayColors.assign(_colors.begin(),_colors.end());
+        for (size_t i=0;i<_displayColors.size();i++)
+            _displayColorsByte.push_back((unsigned char)(_displayColors[i]*255.1f));
     }
     else
     {
@@ -135,6 +142,11 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
             CPluginContainer::geomPlugin_getPtcloudPoints(_pointCloudInfo,_points,&_colors);
             if (_pointDisplayRatio<0.99f)
                 CPluginContainer::geomPlugin_getPtcloudPoints(_pointCloudInfo,_displayPoints,&_displayColors,_pointDisplayRatio);
+            else
+            {
+                _displayPoints.assign(_points.begin(),_points.end());
+                _displayColors.assign(_colors.begin(),_colors.end());
+            }
             if (_useRandomColors)
             {
                 _colors.clear();
@@ -154,6 +166,8 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
                     _displayColors.push_back(0.0);
                 }
             }
+            for (size_t i=0;i<_displayColors.size();i++)
+                _displayColorsByte.push_back((unsigned char)(_displayColors[i]*255.1f));
 
             for (size_t i=0;i<_points.size()/3;i++)
             {
@@ -180,6 +194,59 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
         }
         else
             clear();
+    }
+
+    if (_isInScene)
+    {
+        bool generateEvent=true;
+        if (displayPoints_old.size()==_displayPoints.size())
+        {
+            unsigned char* v=(unsigned char*)_displayPoints.data();
+            unsigned char* w=(unsigned char*)displayPoints_old.data();
+            unsigned long long vv=0;
+            unsigned long long ww=0;
+            for (size_t i=0;i<displayPoints_old.size()*4;i++)
+            {
+                vv+=v[i];
+                ww+=w[i];
+            }
+            if (vv==ww)
+            {
+
+                v=_displayColorsByte.data();
+                w=displayColorsByte_old.data();
+                vv=0;
+                ww=0;
+                for (size_t i=0;i<_displayColorsByte.size();i++)
+                {
+                    vv+=v[i];
+                    ww+=w[i];
+                }
+                if (vv==ww)
+                    generateEvent=false;
+            }
+        }
+        if (generateEvent)
+        {
+            const char* cmd="points";
+            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+
+            CInterfaceStackTable* subC=new CInterfaceStackTable();
+            event->appendMapObject_stringObject(cmd,subC);
+            event=subC;
+
+            CCbor obj(nullptr,0);
+            size_t l;
+            obj.appendFloatArray(_displayPoints.data(),_displayPoints.size());
+            const char* buff=(const char*)obj.getBuff(l);
+            event->appendMapObject_stringString("points",buff,l,true);
+
+            obj.clear();
+            obj.appendBuff(_displayColorsByte.data(),_displayColorsByte.size());
+            buff=(const char*)obj.getBuff(l);
+            event->appendMapObject_stringString("colors",buff,l,true);
+            App::worldContainer->pushEvent();
+        }
     }
 }
 
@@ -511,6 +578,7 @@ void CPointCloud::clear()
     _colors.clear();
     _displayPoints.clear();
     _displayColors.clear();
+    _displayColorsByte.clear();
     if (_pointCloudInfo!=nullptr)
     {
         CPluginContainer::geomPlugin_destroyPtcloud(_pointCloudInfo);
@@ -625,6 +693,7 @@ void CPointCloud::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
     event->appendMapObject_stringObject("pointCloud",subC);
     event=subC;
 
+    event->appendMapObject_stringInt32("pointSize",_pointSize);
     // todo
 
     App::worldContainer->pushEvent();
@@ -657,6 +726,7 @@ CSceneObject* CPointCloud::copyYourself()
     newPointcloud->_pointDisplayRatio=_pointDisplayRatio;
     newPointcloud->_displayPoints.assign(_displayPoints.begin(),_displayPoints.end());
     newPointcloud->_displayColors.assign(_displayColors.begin(),_displayColors.end());
+    newPointcloud->_displayColorsByte.assign(_displayColorsByte.begin(),_displayColorsByte.end());
 
     return(newPointcloud);
 }

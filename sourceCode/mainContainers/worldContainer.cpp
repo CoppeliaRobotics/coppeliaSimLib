@@ -583,14 +583,20 @@ void CWorldContainer::sendEvents()
         toSend->pushTableOntoStack();
         CInterfaceStackTable* toSendTable=(CInterfaceStackTable*)toSend->getStackObjectFromIndex(0);
         std::map<std::string,bool> map;
+        std::vector<std::string> eventSummTmp;
+        eventSummTmp.swap(_eventSumm);
         for (int i=int(buff->getArraySize())-1;i>=0;i--)
         {
-            std::string c(_eventSumm[4*i+0]+_eventSumm[4*i+1]+_eventSumm[4*i+2]+_eventSumm[4*i+3]);
+            std::string c(eventSummTmp[4*i+0]+eventSummTmp[4*i+1]+eventSummTmp[4*i+2]+eventSummTmp[4*i+3]);
             std::map<std::string,bool>::iterator it=map.find(c);
             if (it==map.end())
             {
                 map[c]=true;
                 toSendTable->insertArrayObject(buff->getArrayItemAtIndex(i)->copyYourself(),0);
+                _eventSumm.insert(_eventSumm.begin(),eventSummTmp[4*i+3]);
+                _eventSumm.insert(_eventSumm.begin(),eventSummTmp[4*i+2]);
+                _eventSumm.insert(_eventSumm.begin(),eventSummTmp[4*i+1]);
+                _eventSumm.insert(_eventSumm.begin(),eventSummTmp[4*i+0]);
             }
         }
 

@@ -122,6 +122,7 @@ protected:
     std::vector<float> _colors;
     std::vector<float> _displayPoints;
     std::vector<float> _displayColors;
+    std::vector<unsigned char> _displayColorsByte;
     bool _showOctreeStructure;
     bool _useRandomColors;
     bool _saveCalculationStructure;
