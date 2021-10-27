@@ -1922,17 +1922,17 @@ void CShape::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CShape::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+void CShape::pushCreationEvent() const
 {
-    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::pushCreationEvent(event);
+    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
+    CSceneObject::_pushObjectCreationEventData(data);
 
     CInterfaceStackTable* subC=new CInterfaceStackTable();
-    event->appendMapObject_stringObject("shape",subC);
-    event=subC;
+    data->appendMapObject_stringObject("shape",subC);
+    data=subC;
 
     CInterfaceStackTable* meshData=new CInterfaceStackTable();
-    event->appendMapObject_stringObject("meshes",meshData);
+    data->appendMapObject_stringObject("meshes",meshData);
 
     std::vector<CMesh*> all;
     getMeshWrapper()->getAllShapeComponentsCumulative(all);
@@ -2048,7 +2048,7 @@ void CShape::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
         }
     }
 
-    App::worldContainer->pushEvent();
+    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* CShape::copyYourself()

@@ -94,24 +94,24 @@ void CDummy::removeSceneDependencies()
     _CDummy_::setLinkedDummyHandle(-1,false);
 }
 
-void CDummy::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+void CDummy::pushCreationEvent() const
 {
-    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::pushCreationEvent(event);
+    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
+    CSceneObject::_pushObjectCreationEventData(data);
 
     CInterfaceStackTable* subC=new CInterfaceStackTable();
-    event->appendMapObject_stringObject("dummy",subC);
-    event=subC;
+    data->appendMapObject_stringObject("dummy",subC);
+    data=subC;
 
-    event->appendMapObject_stringFloat("size",_dummySize);
+    data->appendMapObject_stringFloat("size",_dummySize);
 
     float c[9];
     _dummyColor.getColor(c,sim_colorcomponent_ambient_diffuse);
     _dummyColor.getColor(c+3,sim_colorcomponent_specular);
     _dummyColor.getColor(c+6,sim_colorcomponent_emission);
-    event->appendMapObject_stringFloatArray("color",c,9);
+    data->appendMapObject_stringFloatArray("color",c,9);
 
-    App::worldContainer->pushEvent();
+    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* CDummy::copyYourself()

@@ -392,9 +392,9 @@ bool _CJoint_::setPositionIntervalMin(float min)
         if (_isInScene)
         {
             const char* cmd="min";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-            event->appendMapObject_stringFloat(cmd,min);
-            App::worldContainer->pushEvent();
+            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            data->appendMapObject_stringFloat(cmd,min);
+            App::worldContainer->pushEvent(event);
         }
     }
     return(diff&&getObjectCanChange());
@@ -414,9 +414,9 @@ bool _CJoint_::setPositionIntervalRange(float range)
         if (_isInScene)
         {
             const char* cmd="range";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-            event->appendMapObject_stringFloat(cmd,range);
-            App::worldContainer->pushEvent();
+            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            data->appendMapObject_stringFloat(cmd,range);
+            App::worldContainer->pushEvent(event);
         }
     }
     return(diff&&getObjectCanChange());
@@ -454,9 +454,9 @@ bool _CJoint_::setPositionIsCyclic(bool isCyclic)
         if (_isInScene)
         {
             const char* cmd="cyclic";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-            event->appendMapObject_stringBool(cmd,isCyclic);
-            App::worldContainer->pushEvent();
+            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            data->appendMapObject_stringBool(cmd,isCyclic);
+            App::worldContainer->pushEvent(event);
         }
     }
     return(diff&&getObjectCanChange());
@@ -476,9 +476,9 @@ bool _CJoint_::setDiameter(float d)
         if (_isInScene)
         {
             const char* cmd="diameter";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-            event->appendMapObject_stringFloat(cmd,d);
-            App::worldContainer->pushEvent();
+            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            data->appendMapObject_stringFloat(cmd,d);
+            App::worldContainer->pushEvent(event);
         }
     }
     return(diff&&getObjectCanChange());
@@ -498,9 +498,9 @@ bool _CJoint_::setLength(float l)
         if (_isInScene)
         {
             const char* cmd="length";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-            event->appendMapObject_stringFloat(cmd,l);
-            App::worldContainer->pushEvent();
+            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            data->appendMapObject_stringFloat(cmd,l);
+            App::worldContainer->pushEvent(event);
         }
     }
     return(diff&&getObjectCanChange());
@@ -574,15 +574,15 @@ bool _CJoint_::setPosition(float pos)
         if (_isInScene)
         {
             const char* cmd="position";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-            event->appendMapObject_stringFloat(cmd,_jointPosition);
+            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            data->appendMapObject_stringFloat(cmd,_jointPosition);
             float pose[7];
             C7Vector trFull(getFullLocalTransformation());
             C7Vector trPart1(getLocalTransformation());
             C7Vector tr(trPart1.getInverse()*trFull);
             tr.getInternalData(pose,true);
-            event->appendMapObject_stringFloatArray("pose",pose,7);
-            App::worldContainer->pushEvent();
+            data->appendMapObject_stringFloatArray("pose",pose,7);
+            App::worldContainer->pushEvent(event);
         }
     }
     return(diff&&getObjectCanChange());
@@ -602,16 +602,16 @@ bool _CJoint_::setSphericalTransformation(const C4Vector& tr)
         if (_isInScene)
         {
             const char* cmd="quaternion";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
             float p[4]={tr(1),tr(2),tr(3),tr(0)};
-            event->appendMapObject_stringFloatArray(cmd,p,4);
+            data->appendMapObject_stringFloatArray(cmd,p,4);
             float pose[7];
             C7Vector trFull(getFullLocalTransformation());
             C7Vector trPart1(getLocalTransformation());
             C7Vector tr(trPart1.getInverse()*trFull);
             tr.getInternalData(pose,true);
-            event->appendMapObject_stringFloatArray("pose",pose,7);
-            App::worldContainer->pushEvent();
+            data->appendMapObject_stringFloatArray("pose",pose,7);
+            App::worldContainer->pushEvent(event);
         }
     }
     return(diff&&getObjectCanChange());

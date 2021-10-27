@@ -261,18 +261,18 @@ void CPath_old::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CPath_old::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+void CPath_old::pushCreationEvent() const
 {
-    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::pushCreationEvent(event);
+    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
+    CSceneObject::_pushObjectCreationEventData(data);
 
     CInterfaceStackTable* subC=new CInterfaceStackTable();
-    event->appendMapObject_stringObject("path",subC);
-    event=subC;
+    data->appendMapObject_stringObject("path",subC);
+    data=subC;
 
     // todo
 
-    App::worldContainer->pushEvent();
+    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* CPath_old::copyYourself()

@@ -229,23 +229,23 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
         if (generateEvent)
         {
             const char* cmd="points";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
 
             CInterfaceStackTable* subC=new CInterfaceStackTable();
-            event->appendMapObject_stringObject(cmd,subC);
-            event=subC;
+            data->appendMapObject_stringObject(cmd,subC);
+            data=subC;
 
             CCbor obj(nullptr,0);
             size_t l;
             obj.appendFloatArray(_displayPoints.data(),_displayPoints.size());
             const char* buff=(const char*)obj.getBuff(l);
-            event->appendMapObject_stringString("points",buff,l,true);
+            data->appendMapObject_stringString("points",buff,l,true);
 
             obj.clear();
             obj.appendBuff(_displayColorsByte.data(),_displayColorsByte.size());
             buff=(const char*)obj.getBuff(l);
-            event->appendMapObject_stringString("colors",buff,l,true);
-            App::worldContainer->pushEvent();
+            data->appendMapObject_stringString("colors",buff,l,true);
+            App::worldContainer->pushEvent(event);
         }
     }
 }
@@ -684,34 +684,33 @@ void CPointCloud::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CPointCloud::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+void CPointCloud::pushCreationEvent() const
 {
-    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::pushCreationEvent(event);
+    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
+    CSceneObject::_pushObjectCreationEventData(data);
 
     CInterfaceStackTable* subC=new CInterfaceStackTable();
-    event->appendMapObject_stringObject("pointCloud",subC);
-    event=subC;
+    data->appendMapObject_stringObject("pointCloud",subC);
+    data=subC;
 
-    event->appendMapObject_stringInt32("pointSize",_pointSize);
+    data->appendMapObject_stringInt32("pointSize",_pointSize);
 
     subC=new CInterfaceStackTable();
-    event->appendMapObject_stringObject("points",subC);
-    event=subC;
+    data->appendMapObject_stringObject("points",subC);
+    data=subC;
 
     CCbor obj(nullptr,0);
     size_t l;
     obj.appendFloatArray(_displayPoints.data(),_displayPoints.size());
     const char* buff=(const char*)obj.getBuff(l);
-    event->appendMapObject_stringString("points",buff,l,true);
+    data->appendMapObject_stringString("points",buff,l,true);
 
     obj.clear();
     obj.appendBuff(_displayColorsByte.data(),_displayColorsByte.size());
     buff=(const char*)obj.getBuff(l);
-    event->appendMapObject_stringString("colors",buff,l,true);
-    App::worldContainer->pushEvent();
+    data->appendMapObject_stringString("colors",buff,l,true);
 
-    App::worldContainer->pushEvent();
+    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* CPointCloud::copyYourself()
@@ -818,9 +817,9 @@ void CPointCloud::setPointSize(int s)
         if (_isInScene)
         {
             const char* cmd="pointSize";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-            event->appendMapObject_stringInt32(cmd,_pointSize);
-            App::worldContainer->pushEvent();
+            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            data->appendMapObject_stringInt32(cmd,_pointSize);
+            App::worldContainer->pushEvent(event);
         }
     }
 }

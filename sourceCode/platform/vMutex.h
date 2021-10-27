@@ -27,7 +27,7 @@ public:
     virtual ~VMutex();
 
     // When using recursive mutexes:
-    void lock(const char* location);
+    void lock(const char* location=nullptr);
     bool tryLock();
     void unlock();
 

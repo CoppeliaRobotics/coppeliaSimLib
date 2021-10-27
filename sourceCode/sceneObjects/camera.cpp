@@ -995,23 +995,23 @@ void CCamera::removeSceneDependencies()
     trackedObjectIdentifier_NeverDirectlyTouch=-1;
 }
 
-void CCamera::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+void CCamera::pushCreationEvent() const
 {
-    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::pushCreationEvent(event);
+    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
+    CSceneObject::_pushObjectCreationEventData(data);
 
     CInterfaceStackTable* subC=new CInterfaceStackTable();
-    event->appendMapObject_stringObject("camera",subC);
-    event=subC;
+    data->appendMapObject_stringObject("camera",subC);
+    data=subC;
 
     if (_perspectiveOperation!=-1)
-        event->appendMapObject_stringBool("perspectiveMode",_perspectiveOperation!=0);
-    event->appendMapObject_stringFloat("nearClippingPlane",_nearClippingPlane);
-    event->appendMapObject_stringFloat("farClippingPlane",_farClippingPlane);
-    event->appendMapObject_stringFloat("viewAngle",_viewAngle);
-    event->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
+        data->appendMapObject_stringBool("perspectiveMode",_perspectiveOperation!=0);
+    data->appendMapObject_stringFloat("nearClippingPlane",_nearClippingPlane);
+    data->appendMapObject_stringFloat("farClippingPlane",_farClippingPlane);
+    data->appendMapObject_stringFloat("viewAngle",_viewAngle);
+    data->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
 
-    App::worldContainer->pushEvent();
+    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* CCamera::copyYourself()
@@ -1126,9 +1126,9 @@ void CCamera::setPerspectiveOperation(bool p)
         if (_isInScene)
         {
             const char* cmd="perspectiveMode";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-            event->appendMapObject_stringFloat(cmd,_perspectiveOperation);
-            App::worldContainer->pushEvent();
+            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            data->appendMapObject_stringFloat(cmd,_perspectiveOperation);
+            App::worldContainer->pushEvent(event);
         }
     }
 }

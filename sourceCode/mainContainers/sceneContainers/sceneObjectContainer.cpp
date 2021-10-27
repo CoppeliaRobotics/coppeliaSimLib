@@ -196,7 +196,6 @@ void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         stack->pushInt32OntoStack(newObject->getObjectHandle());
         stack->insertDataIntoStackTable();
         stack->insertDataIntoStackTable();
-        App::worldContainer->sendEvents();
         App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
@@ -230,7 +229,6 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
         stack->pushStringOntoStack("allObjects",0);
         stack->pushBoolOntoStack(getObjectCount()==1);
         stack->insertDataIntoStackTable();
-        App::worldContainer->sendEvents();
         App::worldContainer->callScripts(sim_syscb_beforedelete,stack);
     }
 
@@ -240,8 +238,8 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
 
     if (App::worldContainer->getEnableEvents())
     {
-        App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED,nullptr,it,true);
-        App::worldContainer->pushEvent();
+        auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED,nullptr,it,true);
+        App::worldContainer->pushEvent(event);
     }
 
     _removeObject(it);
@@ -249,10 +247,7 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
     App::worldContainer->setModificationFlag(1); // object erased
 
     if (generateBeforeAfterDeleteCallback)
-    {
-        App::worldContainer->sendEvents();
         App::worldContainer->callScripts(sim_syscb_afterdelete,stack);
-    }
     App::worldContainer->interfaceStackContainer->destroyStack(stack);
 
     return(true);
@@ -282,7 +277,6 @@ void CSceneObjectContainer::eraseSeveralObjects(const std::vector<int>& objectHa
             stack->pushStringOntoStack("allObjects",0);
             stack->pushBoolOntoStack(objectHandles.size()==getObjectCount());
             stack->insertDataIntoStackTable();
-            App::worldContainer->sendEvents();
             App::worldContainer->callScripts(sim_syscb_beforedelete,stack);
         }
 
@@ -294,10 +288,7 @@ void CSceneObjectContainer::eraseSeveralObjects(const std::vector<int>& objectHa
         }
 
         if (generateBeforeAfterDeleteCallback)
-        {
-            App::worldContainer->sendEvents();
             App::worldContainer->callScripts(sim_syscb_afterdelete,stack);
-        }
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
 }

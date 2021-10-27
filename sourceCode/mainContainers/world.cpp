@@ -596,8 +596,6 @@ void CWorld::simulationAboutToStart()
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
-    App::worldContainer->sendEvents();
-
     embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforesimulation,nullptr,nullptr,nullptr);
     App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_beforesimulation,nullptr,nullptr);
     if (App::worldContainer->sandboxScript!=nullptr)
@@ -734,8 +732,6 @@ void CWorld::simulationEnded(bool removeNewObjects)
     }
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
     App::undoRedo_sceneChanged(""); // keeps this (additional objects were removed, and object positions were reset)
-
-    App::worldContainer->sendEvents();
 
     embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_aftersimulation,nullptr,nullptr,nullptr);
     App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_aftersimulation,nullptr,nullptr);
@@ -1624,7 +1620,6 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
             stack->insertDataIntoStackTable();
         }
         stack->insertDataIntoStackTable();
-        App::worldContainer->sendEvents();
         App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }

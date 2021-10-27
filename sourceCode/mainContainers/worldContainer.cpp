@@ -86,7 +86,6 @@ int CWorldContainer::createNewWorld()
     // Inform scripts about future switch to new world (only if there is already at least one world):
     if (currentWorld!=nullptr)
     {
-        App::worldContainer->sendEvents();
         currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
         addOnScriptContainer->callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
@@ -124,7 +123,6 @@ int CWorldContainer::createNewWorld()
     currentWorld->initializeWorld();
 
     // Inform scripts about performed switch to new world:
-    App::worldContainer->sendEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
@@ -170,7 +168,6 @@ int CWorldContainer::destroyCurrentWorld()
             nextWorldIndex=int(_worlds.size())-2;
 
         // Inform scripts about future world switch:
-        App::worldContainer->sendEvents();
         currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
         addOnScriptContainer->callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
@@ -214,7 +211,6 @@ int CWorldContainer::destroyCurrentWorld()
         App::currentWorld=currentWorld;
 
         // Inform scripts about performed world switch:
-        App::worldContainer->sendEvents();
         currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
         addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
@@ -268,9 +264,8 @@ void CWorldContainer::initialize()
     calcInfo=new CCalculationInfo();
     addOnScriptContainer=new CAddOnScriptContainer();
 
-    _event=new CInterfaceStackTable();
-    _bufferedEvents=interfaceStackContainer->createStack();
-    _bufferedEvents->pushTableOntoStack();
+    _bufferedEvents.eventsStack=interfaceStackContainer->createStack();
+    _bufferedEvents.eventsStack->pushTableOntoStack();
     _cborEvents=false;
     _mergeEvents=false;
     _enableEvents=true;
@@ -282,8 +277,7 @@ void CWorldContainer::initialize()
 void CWorldContainer::deinitialize()
 {
     TRACE_INTERNAL;
-    delete _event;
-    interfaceStackContainer->destroyStack(_bufferedEvents);
+    interfaceStackContainer->destroyStack(_bufferedEvents.eventsStack);
 
     copyBuffer->clearBuffer();
     while (_worlds.size()!=0)
@@ -319,7 +313,6 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
         return(false);
 
     // Inform scripts about future world switch:
-    App::worldContainer->sendEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
@@ -351,7 +344,6 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     App::currentWorld=currentWorld;
 
     // Inform scripts about performed world switch:
-    App::worldContainer->sendEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
@@ -426,8 +418,9 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack)
         sandboxScript->systemCallScript(callType,inStack,nullptr);
 }
 
-CInterfaceStackTable* CWorldContainer::createEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData)
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData)
 {
+    _eventMutex.lock();
     std::string sub;
     if (!isCommonObjectData)
     {
@@ -464,79 +457,42 @@ CInterfaceStackTable* CWorldContainer::createEvent(const char* event,const char*
         }
 
     }
+    SEventInfo eventInfo;
 
-    _lastEvent_event=event;
-    _lastEvent_change.clear();
+    eventInfo.event=event;
     if (change!=nullptr)
-        _lastEvent_change=change;
-    _lastEvent_sub=sub;
-    _lastEvent_uid=std::to_string(object->getObjectUniqueId());
+        eventInfo.subEvent=change;
+    eventInfo.objectType=sub;
+    eventInfo.objectUid=std::to_string(object->getObjectUniqueId());
 
-    _event->appendMapObject_stringString("event",event,0);
-    _event->appendMapObject_stringInt32("handle",object->getObjectHandle());
-    _event->appendMapObject_stringInt32("uid",object->getObjectUniqueId());
+    eventInfo.eventTable=new CInterfaceStackTable();
+    eventInfo.eventTable->appendMapObject_stringString("event",event,0);
+    eventInfo.eventTable->appendMapObject_stringInt32("handle",object->getObjectHandle());
+    eventInfo.eventTable->appendMapObject_stringInt32("uid",object->getObjectUniqueId());
     static long long int seq=0;
-    _event->appendMapObject_stringInt64("seq",seq++);
-    /*
-    std::string tp;
-    switch(object->getObjectType())
-    {
-        case sim_object_shape_type : tp="shape";
-            break;
-        case sim_object_joint_type : tp="joint";
-            break;
-        case sim_object_graph_type : tp="graph";
-            break;
-        case sim_object_camera_type : tp="camera";
-            break;
-        case sim_object_dummy_type : tp="dummy";
-            break;
-        case sim_object_proximitysensor_type : tp="proxSensor";
-            break;
-        case sim_object_path_type : tp="path";
-            break;
-        case sim_object_visionsensor_type : tp="visionSensor";
-            break;
-        case sim_object_mill_type : tp="mill";
-            break;
-        case sim_object_forcesensor_type : tp="forceSensor";
-            break;
-        case sim_object_light_type : tp="light";
-            break;
-        case sim_object_mirror_type : tp="mirror";
-            break;
-        case sim_object_octree_type : tp="octree";
-            break;
-        case sim_object_pointcloud_type : tp="pointCloud";
-            break;
-    }
-    _event->appendMapObject_stringString("type",tp.c_str(),0);
-*/
+    eventInfo.eventTable->appendMapObject_stringInt64("seq",seq++);
     CInterfaceStackTable* data=new CInterfaceStackTable();
-    _event->appendMapObject_stringObject("data",data);
+    eventInfo.eventTable->appendMapObject_stringObject("data",data);
     if (sub.size()>0)
     {
         CInterfaceStackTable* subC=new CInterfaceStackTable();
         data->appendMapObject_stringObject(sub.c_str(),subC);
         data=subC;
     }
-    return(data);
+    _eventMutex.unlock();
+    return {eventInfo,data};
 }
 
-void CWorldContainer::pushEvent()
+void CWorldContainer::pushEvent(SEventInfo& event)
 {
-    if (!_event->isEmpty())
-    {
-        CInterfaceStackTable* buff=(CInterfaceStackTable*)_bufferedEvents->getStackObjectFromIndex(0);
-        buff->appendArrayObject(_event);
-
-        _eventSumm.push_back(_lastEvent_event);
-        _eventSumm.push_back(_lastEvent_change);
-        _eventSumm.push_back(_lastEvent_sub);
-        _eventSumm.push_back(_lastEvent_uid);
-
-        _event=new CInterfaceStackTable();
-    }
+    _eventMutex.lock();
+    CInterfaceStackTable* buff=(CInterfaceStackTable*)_bufferedEvents.eventsStack->getStackObjectFromIndex(0);
+    buff->appendArrayObject(event.eventTable);
+    _bufferedEvents.eventDescriptions.push_back(event.event);
+    _bufferedEvents.eventDescriptions.push_back(event.subEvent);
+    _bufferedEvents.eventDescriptions.push_back(event.objectType);
+    _bufferedEvents.eventDescriptions.push_back(event.objectUid);
+    _eventMutex.unlock();
 }
 
 bool CWorldContainer::getCborEvents() const
@@ -564,98 +520,108 @@ void CWorldContainer::setEnableEvents(bool b)
     _enableEvents=b;
 }
 
-CInterfaceStack* CWorldContainer::getBufferedEventsStack() const
+SBufferedEvents CWorldContainer::swapBufferedEvents(SBufferedEvents newBuffer)
 {
-    return(_bufferedEvents);
-}
-
-void CWorldContainer::setBufferedEventsStack(CInterfaceStack* stack)
-{
-    _bufferedEvents=stack;
+    _eventMutex.lock();
+    SBufferedEvents retVal;
+    retVal.eventsStack=_bufferedEvents.eventsStack;
+    retVal.eventDescriptions=_bufferedEvents.eventDescriptions;
+    _bufferedEvents.eventsStack=newBuffer.eventsStack;
+    _bufferedEvents.eventDescriptions=newBuffer.eventDescriptions;
+    _eventMutex.unlock();
+    return(retVal);
 }
 
 void CWorldContainer::sendEvents()
 {
-    CInterfaceStackTable* buff=(CInterfaceStackTable*)_bufferedEvents->getStackObjectFromIndex(0);
-    if ( (!VThread::isCurrentThreadTheUiThread())&&(!buff->isEmpty()) )
-    { // sim thread, send it!
-        CInterfaceStack* toSend=interfaceStackContainer->createStack();
-        toSend->pushTableOntoStack();
-        CInterfaceStackTable* toSendTable=(CInterfaceStackTable*)toSend->getStackObjectFromIndex(0);
-        std::map<std::string,bool> map;
-        std::vector<std::string> eventSummTmp;
-        eventSummTmp.swap(_eventSumm);
-        for (int i=int(buff->getArraySize())-1;i>=0;i--)
-        {
-            std::string c(eventSummTmp[4*i+0]+eventSummTmp[4*i+1]+eventSummTmp[4*i+2]+eventSummTmp[4*i+3]);
-            std::map<std::string,bool>::iterator it=map.find(c);
-            if (it==map.end())
-            {
-                map[c]=true;
-                toSendTable->insertArrayObject(buff->getArrayItemAtIndex(i)->copyYourself(),0);
-                _eventSumm.insert(_eventSumm.begin(),eventSummTmp[4*i+3]);
-                _eventSumm.insert(_eventSumm.begin(),eventSummTmp[4*i+2]);
-                _eventSumm.insert(_eventSumm.begin(),eventSummTmp[4*i+1]);
-                _eventSumm.insert(_eventSumm.begin(),eventSummTmp[4*i+0]);
-            }
-        }
+    if (!VThread::isCurrentThreadTheUiThread())
+    {
+         _eventMutex.lock();
+        CInterfaceStack* eventsToWorkOn=_bufferedEvents.eventsStack;
+        _bufferedEvents.eventsStack=interfaceStackContainer->createStack();
+        _bufferedEvents.eventsStack->pushTableOntoStack();
+        std::vector<std::string> eventSummaryToWorkOn;
+        eventSummaryToWorkOn.swap(_bufferedEvents.eventDescriptions);
+        _eventMutex.unlock();
 
-        if (_mergeEvents)
-        {
-            for (int i=int(toSendTable->getArraySize())-1;i>=0;i--)
+        CInterfaceStackTable* buff=(CInterfaceStackTable*)eventsToWorkOn->getStackObjectFromIndex(0);
+        if (!buff->isEmpty())
+        { // sim thread, send it!
+            CInterfaceStack* toSend=interfaceStackContainer->createStack();
+            toSend->pushTableOntoStack();
+            CInterfaceStackTable* toSendTable=(CInterfaceStackTable*)toSend->getStackObjectFromIndex(0);
+            std::map<std::string,bool> map;
+            std::vector<std::string> eventSummTmp;
+            eventSummTmp.swap(eventSummaryToWorkOn);
+            for (int i=int(buff->getArraySize())-1;i>=0;i--)
             {
-                if (_eventSumm[4*i+0].compare(EVENTTYPE_OBJECTCHANGED)==0)
+                std::string c(eventSummTmp[4*i+0]+eventSummTmp[4*i+1]+eventSummTmp[4*i+2]+eventSummTmp[4*i+3]);
+                std::map<std::string,bool>::iterator it=map.find(c);
+                if (it==map.end())
                 {
-                    CInterfaceStackTable* data=(CInterfaceStackTable*)((CInterfaceStackTable*)toSendTable->getArrayItemAtIndex(i))->getMapObject("data");
-                    CInterfaceStackTable* sub=nullptr;
-                    if (_eventSumm[4*i+2].size()>0)
-                        sub=(CInterfaceStackTable*)data->getMapObject(_eventSumm[4*i+2].c_str());
-                    for (int j=i-1;j>=0;j--)
+                    map[c]=true;
+                    toSendTable->insertArrayObject(buff->getArrayItemAtIndex(i)->copyYourself(),0);
+                    eventSummaryToWorkOn.insert(eventSummaryToWorkOn.begin(),eventSummTmp[4*i+3]);
+                    eventSummaryToWorkOn.insert(eventSummaryToWorkOn.begin(),eventSummTmp[4*i+2]);
+                    eventSummaryToWorkOn.insert(eventSummaryToWorkOn.begin(),eventSummTmp[4*i+1]);
+                    eventSummaryToWorkOn.insert(eventSummaryToWorkOn.begin(),eventSummTmp[4*i+0]);
+                }
+            }
+
+            if (_mergeEvents)
+            {
+                for (int i=int(toSendTable->getArraySize())-1;i>=0;i--)
+                {
+                    if (eventSummaryToWorkOn[4*i+0].compare(EVENTTYPE_OBJECTCHANGED)==0)
                     {
-                        if ( (_eventSumm[4*i+0]+_eventSumm[4*i+3]).compare(_eventSumm[4*j+0]+_eventSumm[4*j+3])==0 )
+                        CInterfaceStackTable* data=(CInterfaceStackTable*)((CInterfaceStackTable*)toSendTable->getArrayItemAtIndex(i))->getMapObject("data");
+                        CInterfaceStackTable* sub=nullptr;
+                        if (eventSummaryToWorkOn[4*i+2].size()>0)
+                            sub=(CInterfaceStackTable*)data->getMapObject(eventSummaryToWorkOn[4*i+2].c_str());
+                        for (int j=i-1;j>=0;j--)
                         {
-                            CInterfaceStackTable* data2=(CInterfaceStackTable*)((CInterfaceStackTable*)toSendTable->getArrayItemAtIndex(j))->getMapObject("data");
-                            CInterfaceStackTable* sub2=nullptr;
-                            if (_eventSumm[4*j+2].size()>0)
-                                sub2=(CInterfaceStackTable*)data2->getMapObject(_eventSumm[4*j+2].c_str());
-
-                            if ( (sub!=nullptr)&&(sub2!=nullptr) )
+                            if ( (eventSummaryToWorkOn[4*i+0]+eventSummaryToWorkOn[4*i+3]).compare(eventSummaryToWorkOn[4*j+0]+eventSummaryToWorkOn[4*j+3])==0 )
                             {
+                                CInterfaceStackTable* data2=(CInterfaceStackTable*)((CInterfaceStackTable*)toSendTable->getArrayItemAtIndex(j))->getMapObject("data");
+                                CInterfaceStackTable* sub2=nullptr;
+                                if (eventSummaryToWorkOn[4*j+2].size()>0)
+                                    sub2=(CInterfaceStackTable*)data2->getMapObject(eventSummaryToWorkOn[4*j+2].c_str());
+
+                                if ( (sub!=nullptr)&&(sub2!=nullptr) )
+                                {
+                                    std::vector<CInterfaceStackObject*> allObjs;
+                                    sub2->getAllObjectsAndClearTable(allObjs);
+                                    for (size_t k=0;k<allObjs.size()/2;k++)
+                                        sub->appendArrayOrMapObject(allObjs[2*k+0],allObjs[2*k+1]);
+                                    data2->removeFromKey(eventSummaryToWorkOn[4*j+2].c_str());
+                                }
+
                                 std::vector<CInterfaceStackObject*> allObjs;
-                                sub2->getAllObjectsAndClearTable(allObjs);
+                                data2->getAllObjectsAndClearTable(allObjs);
                                 for (size_t k=0;k<allObjs.size()/2;k++)
-                                    sub->appendArrayOrMapObject(allObjs[2*k+0],allObjs[2*k+1]);
-                                data2->removeFromKey(_eventSumm[4*j+2].c_str());
+                                    data->appendArrayOrMapObject(allObjs[2*k+0],allObjs[2*k+1]);
+                                toSendTable->removeArrayItemAtIndex(j);
+                                eventSummaryToWorkOn.erase(eventSummaryToWorkOn.begin()+4*j,eventSummaryToWorkOn.begin()+4*j+4);
+                                i--;
+
+                                if ( (sub==nullptr)&&(sub2!=nullptr) )
+                                    sub=sub2;
                             }
-
-                            std::vector<CInterfaceStackObject*> allObjs;
-                            data2->getAllObjectsAndClearTable(allObjs);
-                            for (size_t k=0;k<allObjs.size()/2;k++)
-                                data->appendArrayOrMapObject(allObjs[2*k+0],allObjs[2*k+1]);
-                            toSendTable->removeArrayItemAtIndex(j);
-                            _eventSumm.erase(_eventSumm.begin()+4*j,_eventSumm.begin()+4*j+4);
-                            i--;
-
-                            if ( (sub==nullptr)&&(sub2!=nullptr) )
-                                sub=sub2;
                         }
                     }
                 }
             }
-        }
 
-
-        if (_cborEvents)
-        {
-            std::string cbor=toSend->getCborEncodedBufferFromTable(0);
-            toSend->clear();
-            toSend->pushStringOntoStack(cbor.c_str(),cbor.size());
+            if (_cborEvents)
+            {
+                std::string cbor=toSend->getCborEncodedBufferFromTable(0);
+                toSend->clear();
+                toSend->pushStringOntoStack(cbor.c_str(),cbor.size());
+            }
+            callScripts(sim_syscb_event,toSend);
+            interfaceStackContainer->destroyStack(toSend);
         }
-        callScripts(sim_syscb_event,toSend);
-        interfaceStackContainer->destroyStack(toSend);
-        _bufferedEvents->clear();
-        _bufferedEvents->pushTableOntoStack();
-        _eventSumm.clear();
+        interfaceStackContainer->destroyStack(eventsToWorkOn);
     }
 }
 

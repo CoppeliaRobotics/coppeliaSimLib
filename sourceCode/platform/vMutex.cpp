@@ -35,7 +35,7 @@ VMutex::~VMutex()
 }
 
 // Recursive here:
-void VMutex::lock(const char* location)
+void VMutex::lock(const char* location/*=nullptr*/)
 {
     if (location!=nullptr)
     {

@@ -5037,22 +5037,29 @@ int _simTest(luaWrap_lua_State* L)
         }
         if (cmd.compare("sim.fetchCreationEvents")==0)
         {
-            CInterfaceStack* memorized=App::worldContainer->getBufferedEventsStack();
-            CInterfaceStack* tempStack=App::worldContainer->interfaceStackContainer->createStack();
-            tempStack->pushTableOntoStack();
-            App::worldContainer->setBufferedEventsStack(tempStack);
+            SBufferedEvents newBuff;
+            newBuff.eventsStack=App::worldContainer->interfaceStackContainer->createStack();
+            newBuff.eventsStack->pushTableOntoStack();
+            SBufferedEvents savedBuff=App::worldContainer->swapBufferedEvents(newBuff);
+
             for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
                 App::currentWorld->sceneObjects->getObjectFromIndex(i)->pushCreationEvent();
+            App::worldContainer->swapBufferedEvents(savedBuff);
+
+            printf("a\n");
             if (App::worldContainer->getCborEvents())
             {
-                std::string cbor=tempStack->getCborEncodedBufferFromTable(0);
-                tempStack->clear();
-                tempStack->pushStringOntoStack(cbor.c_str(),cbor.size());
+                printf("b\n");
+                std::string cbor=newBuff.eventsStack->getCborEncodedBufferFromTable(0);
+                newBuff.eventsStack->clear();
+                newBuff.eventsStack->pushStringOntoStack(cbor.c_str(),cbor.size());
             }
-            CScriptObject::buildOntoInterpreterStack_lua(L,tempStack,false);
-            int ss=tempStack->getStackSize();
-            App::worldContainer->setBufferedEventsStack(memorized);
-            App::worldContainer->interfaceStackContainer->destroyStack(tempStack);
+            printf("c\n");
+            CScriptObject::buildOntoInterpreterStack_lua(L,newBuff.eventsStack,false);
+            printf("d\n");
+            int ss=newBuff.eventsStack->getStackSize();
+            App::worldContainer->interfaceStackContainer->destroyStack(newBuff.eventsStack);
+            printf("e\n");
             LUA_END(ss);
         }
     }

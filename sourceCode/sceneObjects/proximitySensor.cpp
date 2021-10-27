@@ -248,18 +248,18 @@ void CProxSensor::removeSceneDependencies()
     _sensableObject=-1;
 }
 
-void CProxSensor::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+void CProxSensor::pushCreationEvent() const
 {
-    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::pushCreationEvent(event);
+    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
+    CSceneObject::_pushObjectCreationEventData(data);
 
     CInterfaceStackTable* subC=new CInterfaceStackTable();
-    event->appendMapObject_stringObject("proxSensor",subC);
-    event=subC;
+    data->appendMapObject_stringObject("proxSensor",subC);
+    data=subC;
 
     // todo
 
-    App::worldContainer->pushEvent();
+    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* CProxSensor::copyYourself()

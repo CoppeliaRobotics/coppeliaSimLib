@@ -1462,14 +1462,14 @@ void CJoint::removeSceneDependencies()
     _CJoint_::setDependencyMasterJointHandle(-1);
 }
 
-void CJoint::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+void CJoint::pushCreationEvent() const
 {
-    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::pushCreationEvent(event);
+    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
+    CSceneObject::_pushObjectCreationEventData(data);
 
     CInterfaceStackTable* subC=new CInterfaceStackTable();
-    event->appendMapObject_stringObject("joint",subC);
-    event=subC;
+    data->appendMapObject_stringObject("joint",subC);
+    data=subC;
 
     std::string tmp;
     switch(_jointType)
@@ -1481,34 +1481,34 @@ void CJoint::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
         case sim_joint_spherical_subtype : tmp="spherical";
             break;
     }
-    event->appendMapObject_stringString("type",tmp.c_str(),0);
+    data->appendMapObject_stringString("type",tmp.c_str(),0);
     float p[4]={_sphericalTransformation(1),_sphericalTransformation(2),_sphericalTransformation(3),_sphericalTransformation(0)};
-    event->appendMapObject_stringFloatArray("quaternion",p,4);
-    event->appendMapObject_stringFloat("position",_jointPosition);
+    data->appendMapObject_stringFloatArray("quaternion",p,4);
+    data->appendMapObject_stringFloat("position",_jointPosition);
     float pose[7];
     C7Vector trFull(getFullLocalTransformation());
     C7Vector trPart1(getLocalTransformation());
     C7Vector tr(trPart1.getInverse()*trFull);
     tr.getInternalData(pose,true);
-    event->appendMapObject_stringFloatArray("pose",pose,7);
-    event->appendMapObject_stringBool("cyclic",_positionIsCyclic);
-    event->appendMapObject_stringFloat("min",_jointMinPosition);
-    event->appendMapObject_stringFloat("range",_jointPositionRange);
-    event->appendMapObject_stringFloat("diameter",_diameter);
-    event->appendMapObject_stringFloat("length",_length);
+    data->appendMapObject_stringFloatArray("pose",pose,7);
+    data->appendMapObject_stringBool("cyclic",_positionIsCyclic);
+    data->appendMapObject_stringFloat("min",_jointMinPosition);
+    data->appendMapObject_stringFloat("range",_jointPositionRange);
+    data->appendMapObject_stringFloat("diameter",_diameter);
+    data->appendMapObject_stringFloat("length",_length);
 
     float c[9];
     _colorPart1.getColor(c,sim_colorcomponent_ambient_diffuse);
     _colorPart1.getColor(c+3,sim_colorcomponent_specular);
     _colorPart1.getColor(c+6,sim_colorcomponent_emission);
-    event->appendMapObject_stringFloatArray("color1",c,9);
+    data->appendMapObject_stringFloatArray("color1",c,9);
 
     _colorPart2.getColor(c,sim_colorcomponent_ambient_diffuse);
     _colorPart2.getColor(c+3,sim_colorcomponent_specular);
     _colorPart2.getColor(c+6,sim_colorcomponent_emission);
-    event->appendMapObject_stringFloatArray("color2",c,9);
+    data->appendMapObject_stringFloatArray("color2",c,9);
 
-    App::worldContainer->pushEvent();
+    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* CJoint::copyYourself()

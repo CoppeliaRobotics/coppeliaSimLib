@@ -42,7 +42,7 @@ public:
     virtual void removeSynchronizationObject(bool localReferencesToItOnly);
 
     virtual void display(CViewableBase* renderingObject,int displayAttrib);
-    virtual void pushCreationEvent(CInterfaceStackTable* event=nullptr) const;
+    virtual void pushCreationEvent() const;
     virtual CSceneObject* copyYourself();
     virtual void removeSceneDependencies();
     virtual void scaleObject(float scalingFactor);
@@ -290,6 +290,8 @@ public:
 
 
 protected:
+    void _pushObjectCreationEventData(CInterfaceStackTable* data) const;
+
     bool _ignorePosAndCameraOrthoviewSize_forUndoRedo;
 
     int _getAllowedObjectSpecialProperties() const;

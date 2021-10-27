@@ -10,6 +10,7 @@
 #include "moduleMenuItemContainer.h"
 #include "world.h"
 #include "_worldContainer_.h"
+#include <tuple>
 
 #ifdef SIM_WITH_GUI
     #include "globalGuiTextureContainer.h"
@@ -18,6 +19,22 @@
 #ifdef SIM_WITH_SERIAL
     #include "serialPortContainer.h"
 #endif
+
+struct SEventInfo
+{
+    CInterfaceStackTable* eventTable;
+    std::string event;
+    std::string subEvent;
+    std::string objectType;
+    std::string objectUid;
+};
+
+struct SBufferedEvents
+{
+    CInterfaceStack* eventsStack;
+    std::vector<std::string> eventDescriptions;
+};
+
 
 class CWorldContainer : public _CWorldContainer_
 {
@@ -40,16 +57,16 @@ public:
     void getAllSceneNames(std::vector<std::string>& l) const;
     CScriptObject* getScriptFromHandle(int scriptHandle) const;
     void callScripts(int callType,CInterfaceStack* inStack);
-    CInterfaceStackTable* createEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData);
-    void pushEvent();
+
+    std::tuple<SEventInfo,CInterfaceStackTable*> createEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData);
+    void pushEvent(SEventInfo& event);
     void sendEvents();
     bool getCborEvents() const;
     void setCborEvents(bool b);
     void setMergeEvents(bool b);
     bool getEnableEvents() const;
     void setEnableEvents(bool b);
-    CInterfaceStack* getBufferedEventsStack() const;
-    void setBufferedEventsStack(CInterfaceStack* stack);
+    SBufferedEvents swapBufferedEvents(SBufferedEvents newBuffer);
 
 
     void simulationAboutToStart();
@@ -84,13 +101,8 @@ private:
 
     std::vector<CWorld*> _worlds;
     int _currentWorldIndex;
-    CInterfaceStackTable* _event;
-    CInterfaceStack* _bufferedEvents;
-    std::vector<std::string> _eventSumm;
-    std::string _lastEvent_event;
-    std::string _lastEvent_change;
-    std::string _lastEvent_sub;
-    std::string _lastEvent_uid;
+    SBufferedEvents _bufferedEvents;
+    VMutex _eventMutex;
     bool _cborEvents;
     bool _mergeEvents;
     bool _enableEvents;

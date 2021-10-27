@@ -74,9 +74,9 @@ bool _CDummy_::setDummySize(float s)
         if (_isInScene)
         {
             const char* cmd="size";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-            event->appendMapObject_stringFloat(cmd,_dummySize);
-            App::worldContainer->pushEvent();
+            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            data->appendMapObject_stringFloat(cmd,_dummySize);
+            App::worldContainer->pushEvent(event);
         }
     }
     return(diff&&getObjectCanChange());

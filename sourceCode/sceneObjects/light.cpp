@@ -258,18 +258,18 @@ void CLight::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CLight::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+void CLight::pushCreationEvent() const
 {
-    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::pushCreationEvent(event);
+    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
+    CSceneObject::_pushObjectCreationEventData(data);
 
     CInterfaceStackTable* subC=new CInterfaceStackTable();
-    event->appendMapObject_stringObject("light",subC);
-    event=subC;
+    data->appendMapObject_stringObject("light",subC);
+    data=subC;
 
     // todo
 
-    App::worldContainer->pushEvent();
+    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* CLight::copyYourself()

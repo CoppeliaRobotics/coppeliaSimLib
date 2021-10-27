@@ -517,9 +517,9 @@ void CVisionSensor::setPerspectiveOperation(bool p)
         if (_isInScene)
         {
             const char* cmd="perspectiveMode";
-            CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
-            event->appendMapObject_stringBool(cmd,_perspectiveOperation);
-            App::worldContainer->pushEvent();
+            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            data->appendMapObject_stringBool(cmd,_perspectiveOperation);
+            App::worldContainer->pushEvent(event);
         }
     }
 }
@@ -1959,22 +1959,22 @@ void CVisionSensor::removeSceneDependencies()
     _detectableEntityHandle=-1;
 }
 
-void CVisionSensor::pushCreationEvent(CInterfaceStackTable* ev/*=nullptr*/) const
+void CVisionSensor::pushCreationEvent() const
 {
-    CInterfaceStackTable* event=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::pushCreationEvent(event);
+    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
+    CSceneObject::_pushObjectCreationEventData(data);
 
     CInterfaceStackTable* subC=new CInterfaceStackTable();
-    event->appendMapObject_stringObject("visionSensor",subC);
-    event=subC;
+    data->appendMapObject_stringObject("visionSensor",subC);
+    data=subC;
 
-    event->appendMapObject_stringBool("perspectiveMode",_perspectiveOperation);
-    event->appendMapObject_stringFloat("nearClippingPlane",_nearClippingPlane);
-    event->appendMapObject_stringFloat("farClippingPlane",_farClippingPlane);
-    event->appendMapObject_stringFloat("viewAngle",_viewAngle);
-    event->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
+    data->appendMapObject_stringBool("perspectiveMode",_perspectiveOperation);
+    data->appendMapObject_stringFloat("nearClippingPlane",_nearClippingPlane);
+    data->appendMapObject_stringFloat("farClippingPlane",_farClippingPlane);
+    data->appendMapObject_stringFloat("viewAngle",_viewAngle);
+    data->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
 
-    App::worldContainer->pushEvent();
+    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* CVisionSensor::copyYourself()
