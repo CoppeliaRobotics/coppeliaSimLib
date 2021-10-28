@@ -20,6 +20,13 @@
     #include "serialPortContainer.h"
 #endif
 
+
+#define EVENTTYPE_OBJECTADDED "objectAdded"
+#define EVENTTYPE_OBJECTCHANGED "objectChanged"
+#define EVENTTYPE_OBJECTREMOVED "objectRemoved"
+#define EVENTTYPE_INSTANCESWITCH "instanceSwitch"
+#define EVENTTYPE_SCENECHANGE "sceneChange"
+
 struct SEventInfo
 {
     CInterfaceStackTable* eventTable;
@@ -58,8 +65,9 @@ public:
     CScriptObject* getScriptFromHandle(int scriptHandle) const;
     void callScripts(int callType,CInterfaceStack* inStack);
 
-    std::tuple<SEventInfo,CInterfaceStackTable*> createEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData,int subIndex=-2);
-    std::tuple<SEventInfo,CInterfaceStackTable*> createEvent(const char* event,const char* change,int objectHandle,bool isCommonObjectData,int subIndex=-2);
+    std::tuple<SEventInfo,CInterfaceStackTable*> createEvent(const char* event,const char* change,int handle=-2);
+    std::tuple<SEventInfo,CInterfaceStackTable*> createObjectEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData,int subIndex=-2);
+    std::tuple<SEventInfo,CInterfaceStackTable*> createObjectEvent(const char* event,const char* change,int objectHandle,bool isCommonObjectData,int subIndex=-2);
     void pushEvent(SEventInfo& event);
     void sendEvents();
     bool getCborEvents() const;
@@ -67,6 +75,9 @@ public:
     void setMergeEvents(bool b);
     bool getEnableEvents() const;
     void setEnableEvents(bool b);
+    void pushReconstructSceneEvents();
+    void buildReconstructSceneEventsOntoInterpreterStack(CInterfaceStack* stack);
+
     SBufferedEvents swapBufferedEvents(SBufferedEvents newBuffer);
 
 
@@ -102,6 +113,9 @@ private:
 
     std::vector<CWorld*> _worlds;
     int _currentWorldIndex;
+
+    static long long int _eventUid;
+    static long long int _eventSeq;
     SBufferedEvents _bufferedEvents;
     VMutex _eventMutex;
     bool _cborEvents;

@@ -238,7 +238,7 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
 
     if (App::worldContainer->getEnableEvents())
     {
-        auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED,nullptr,it,true);
+        auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTREMOVED,nullptr,it,true);
         App::worldContainer->pushEvent(event);
     }
 

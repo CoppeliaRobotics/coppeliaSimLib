@@ -123,14 +123,19 @@ int CWorldContainer::createNewWorld()
     currentWorld->initializeWorld();
 
     // Inform scripts about performed switch to new world:
+    const char* cmd="sceneUid";
+    auto [event,data]=createEvent(EVENTTYPE_INSTANCESWITCH,cmd,-1);
+    data->appendMapObject_stringInt32(cmd,currentWorld->environment->getSceneUniqueID());
+    pushEvent(event);
+    pushReconstructSceneEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
         sandboxScript->systemCallScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
 
     // Inform plugins about performed switch to new world:
-    int data[4]={getCurrentWorldIndex(),currentWorld->environment->getSceneUniqueID(),0,0};
-    void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,data,nullptr,nullptr);
+    int dat[4]={getCurrentWorldIndex(),currentWorld->environment->getSceneUniqueID(),0,0};
+    void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,dat,nullptr,nullptr);
     delete[] (char*)returnVal;
     setModificationFlag(64); // instance switched
 
@@ -211,6 +216,11 @@ int CWorldContainer::destroyCurrentWorld()
         App::currentWorld=currentWorld;
 
         // Inform scripts about performed world switch:
+        const char* cmd="sceneUid";
+        auto [event,data]=createEvent(EVENTTYPE_INSTANCESWITCH,cmd,-1);
+        data->appendMapObject_stringInt32(cmd,currentWorld->environment->getSceneUniqueID());
+        pushEvent(event);
+        pushReconstructSceneEvents();
         currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
         addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
@@ -344,6 +354,11 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     App::currentWorld=currentWorld;
 
     // Inform scripts about performed world switch:
+    const char* cmd="sceneUid";
+    auto [event,data]=createEvent(EVENTTYPE_INSTANCESWITCH,cmd,-1);
+    data->appendMapObject_stringInt32(cmd,currentWorld->environment->getSceneUniqueID());
+    pushEvent(event);
+    pushReconstructSceneEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
@@ -418,13 +433,43 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack)
         sandboxScript->systemCallScript(callType,inStack,nullptr);
 }
 
-std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const char* event,const char* change,int objectHandle,bool isCommonObjectData,int subIndex/*=-2*/)
-{
-    CSceneObject* object=currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-    return(createEvent(event,change,object,isCommonObjectData,subIndex));
+long long int CWorldContainer::_eventUid=0;
+long long int CWorldContainer::_eventSeq=0;
+
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const char* event,const char* change,int handle/*=-2*/)
+{ // handle==-2: mergeable, handle=-1: not mergeable, handle>=0: mergeable as long as handle is same too
+    _eventMutex.lock();
+
+    SEventInfo eventInfo;
+    eventInfo.event=event;
+    if (change!=nullptr)
+        eventInfo.subEvent=change;
+    if (handle!=-2)
+    {
+        if (handle==-1)
+            eventInfo.objectUid="#"+std::to_string(_eventUid++);
+        else
+            eventInfo.objectUid=std::to_string(handle);
+    }
+
+    eventInfo.eventTable=new CInterfaceStackTable();
+    eventInfo.eventTable->appendMapObject_stringString("event",event,0);
+    if (handle>=0)
+        eventInfo.eventTable->appendMapObject_stringInt32("handle",handle);
+    eventInfo.eventTable->appendMapObject_stringInt64("seq",_eventSeq++);
+    CInterfaceStackTable* data=new CInterfaceStackTable();
+    eventInfo.eventTable->appendMapObject_stringObject("data",data);
+    _eventMutex.unlock();
+    return {eventInfo,data};
 }
 
-std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData,int subIndex/*=-2*/)
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createObjectEvent(const char* event,const char* change,int objectHandle,bool isCommonObjectData,int subIndex/*=-2*/)
+{
+    CSceneObject* object=currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+    return(createObjectEvent(event,change,object,isCommonObjectData,subIndex));
+}
+
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createObjectEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData,int subIndex/*=-2*/)
 { // subIndex==-2: mergeable, subIndex=-1: not mergeable, subIndex>=0: mergeable as long as subIndex is same too
     _eventMutex.lock();
     std::string sub;
@@ -473,10 +518,7 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const 
     if (subIndex!=-2)
     {
         if (subIndex==-1)
-        {
-            static long long int uid=0;
-            eventInfo.objectUid+="#"+std::to_string(uid);
-        }
+            eventInfo.objectUid+="#"+std::to_string(_eventUid++);
         else
             eventInfo.objectUid+="*"+std::to_string(subIndex);
     }
@@ -485,8 +527,7 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const 
     eventInfo.eventTable->appendMapObject_stringString("event",event,0);
     eventInfo.eventTable->appendMapObject_stringInt32("handle",object->getObjectHandle());
     eventInfo.eventTable->appendMapObject_stringInt32("uid",object->getObjectUniqueId());
-    static long long int seq=0;
-    eventInfo.eventTable->appendMapObject_stringInt64("seq",seq++);
+    eventInfo.eventTable->appendMapObject_stringInt64("seq",_eventSeq++);
     CInterfaceStackTable* data=new CInterfaceStackTable();
     eventInfo.eventTable->appendMapObject_stringObject("data",data);
     if (sub.size()>0)
@@ -534,6 +575,35 @@ bool CWorldContainer::getEnableEvents() const
 void CWorldContainer::setEnableEvents(bool b)
 {
     _enableEvents=b;
+}
+
+void CWorldContainer::buildReconstructSceneEventsOntoInterpreterStack(CInterfaceStack* stack)
+{
+    SBufferedEvents newBuff;
+    newBuff.eventsStack=stack;
+    newBuff.eventsStack->pushTableOntoStack();
+    SBufferedEvents savedBuff=swapBufferedEvents(newBuff);
+
+    pushReconstructSceneEvents();
+    swapBufferedEvents(savedBuff);
+
+    if (_cborEvents)
+    {
+        std::string cbor=newBuff.eventsStack->getCborEncodedBufferFromTable(0);
+        newBuff.eventsStack->clear();
+        newBuff.eventsStack->pushStringOntoStack(cbor.c_str(),cbor.size());
+    }
+}
+
+void CWorldContainer::pushReconstructSceneEvents()
+{
+    const char* cmd="visibilityLayers";
+    auto [event,data]=createEvent(EVENTTYPE_SCENECHANGE,cmd,-1);
+    data->appendMapObject_stringInt32(cmd,currentWorld->mainSettings->getActiveLayers());
+    pushEvent(event);
+
+    for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
+        App::currentWorld->sceneObjects->getObjectFromIndex(i)->pushObjectCreationEvent();
 }
 
 SBufferedEvents CWorldContainer::swapBufferedEvents(SBufferedEvents newBuffer)

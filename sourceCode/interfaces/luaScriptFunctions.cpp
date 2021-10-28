@@ -5039,25 +5039,12 @@ int _simTest(luaWrap_lua_State* L)
         }
         if (cmd.compare("sim.fetchCreationEvents")==0)
         {
-            SBufferedEvents newBuff;
-            newBuff.eventsStack=App::worldContainer->interfaceStackContainer->createStack();
-            newBuff.eventsStack->pushTableOntoStack();
-            SBufferedEvents savedBuff=App::worldContainer->swapBufferedEvents(newBuff);
-
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
-                App::currentWorld->sceneObjects->getObjectFromIndex(i)->pushObjectCreationEvent();
-            App::worldContainer->swapBufferedEvents(savedBuff);
-
-            if (App::worldContainer->getCborEvents())
-            {
-                std::string cbor=newBuff.eventsStack->getCborEncodedBufferFromTable(0);
-                newBuff.eventsStack->clear();
-                newBuff.eventsStack->pushStringOntoStack(cbor.c_str(),cbor.size());
-            }
-            CScriptObject::buildOntoInterpreterStack_lua(L,newBuff.eventsStack,false);
-            int ss=newBuff.eventsStack->getStackSize();
-            App::worldContainer->interfaceStackContainer->destroyStack(newBuff.eventsStack);
-            LUA_END(ss);
+            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+            App::worldContainer->buildReconstructSceneEventsOntoInterpreterStack(stack);
+            CScriptObject::buildOntoInterpreterStack_lua(L,stack,false);
+            int s=stack->getStackSize();
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+            LUA_END(s);
         }
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

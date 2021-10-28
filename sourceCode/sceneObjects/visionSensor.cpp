@@ -517,7 +517,7 @@ void CVisionSensor::setPerspectiveOperation(bool p)
         if (_isInScene)
         {
             const char* cmd="perspectiveMode";
-            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
             data->appendMapObject_stringBool(cmd,_perspectiveOperation);
             App::worldContainer->pushEvent(event);
         }

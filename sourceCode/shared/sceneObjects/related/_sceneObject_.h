@@ -21,10 +21,6 @@ enum {
     sim_syncobj_sceneobject_setchildorder,
 };
 
-#define EVENTTYPE_OBJECTADDED "objectAdded"
-#define EVENTTYPE_OBJECTCHANGED "objectChanged"
-#define EVENTTYPE_OBJECTREMOVED "objectRemoved"
-
 class _CSceneObject_ : public CSyncObject
 {
 public:

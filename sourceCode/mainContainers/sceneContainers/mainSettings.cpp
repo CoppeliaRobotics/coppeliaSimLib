@@ -45,7 +45,15 @@ void CMainSettings::setUpDefaultValues()
 
 void CMainSettings::setActiveLayers(unsigned short l)
 {
-    _activeLayers=l;
+    bool diff=(_activeLayers!=l);
+    if (diff)
+    {
+        _activeLayers=l;
+        const char* cmd="visibilityLayers";
+        auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_SCENECHANGE,cmd,-1);
+        data->appendMapObject_stringInt32(cmd,_activeLayers);
+        App::worldContainer->pushEvent(event);
+    }
     App::setRefreshHierarchyViewFlag();
     App::setLightDialogRefreshFlag();
 }

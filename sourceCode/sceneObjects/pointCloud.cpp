@@ -229,7 +229,7 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
         if (generateEvent)
         {
             const char* cmd="points";
-            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
 
             CInterfaceStackTable* subC=new CInterfaceStackTable();
             data->appendMapObject_stringObject(cmd,subC);
@@ -812,7 +812,7 @@ void CPointCloud::setPointSize(int s)
         if (_isInScene)
         {
             const char* cmd="pointSize";
-            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
             data->appendMapObject_stringInt32(cmd,_pointSize);
             App::worldContainer->pushEvent(event);
         }
