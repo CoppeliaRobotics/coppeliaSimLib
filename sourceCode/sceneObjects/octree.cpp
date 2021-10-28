@@ -561,18 +561,13 @@ void COctree::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void COctree::pushCreationEvent() const
+void COctree::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 {
-    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::_pushObjectCreationEventData(data);
-
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("octree",subC);
     data=subC;
 
     // todo
-
-    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* COctree::copyYourself()

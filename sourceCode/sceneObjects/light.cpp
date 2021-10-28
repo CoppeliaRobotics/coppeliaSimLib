@@ -258,18 +258,25 @@ void CLight::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CLight::pushCreationEvent() const
+void CLight::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 {
-    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::_pushObjectCreationEventData(data);
-
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("light",subC);
     data=subC;
 
-    // todo
+    CInterfaceStackTable* colors=new CInterfaceStackTable();
+    data->appendMapObject_stringObject("colors",colors);
+    float c[9];
+    objectColor.getColor(c,sim_colorcomponent_ambient_diffuse);
+    objectColor.getColor(c+3,sim_colorcomponent_specular);
+    objectColor.getColor(c+6,sim_colorcomponent_emission);
+    colors->appendArrayObject_floatArray(c,9);
+    lightColor.getColor(c,sim_colorcomponent_diffuse);
+    lightColor.getColor(c+3,sim_colorcomponent_specular);
+    lightColor.getColor(c+6,sim_colorcomponent_emission);
+    colors->appendArrayObject_floatArray(c,9);
 
-    App::worldContainer->pushEvent(event);
+    // todo
 }
 
 CSceneObject* CLight::copyYourself()

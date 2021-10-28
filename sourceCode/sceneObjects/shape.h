@@ -38,7 +38,7 @@ public:
 
     // Following functions are inherited from CSceneObject
     void display(CViewableBase* renderingObject,int displayAttrib);
-    void pushCreationEvent() const;
+    void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
     void scaleObject(float scalingFactor);
@@ -104,6 +104,7 @@ public:
     C3Vector getInitialDynamicAngularVelocity();
     void setInitialDynamicAngularVelocity(const C3Vector& vel);
     bool isCompound() const;
+    void setColor(const char* colorName,int colorComponent,float r,float g,float b);
     void setColor(const char* colorName,int colorComponent,const float* rgbData);
     bool getColor(const char* colorName,int colorComponent,float* rgbData);
     void setRespondable(bool r);

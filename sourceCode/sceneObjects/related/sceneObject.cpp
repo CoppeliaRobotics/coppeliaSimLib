@@ -977,11 +977,27 @@ void CSceneObject::removeSceneDependencies()
     _customReferencedOriginalHandles.clear();
 }
 
-void CSceneObject::pushCreationEvent() const
+void CSceneObject::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 {
 }
 
-void CSceneObject::_pushObjectCreationEventData(CInterfaceStackTable* data) const
+void CSceneObject::pushObjectCreationEvent() const
+{
+    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true,-1);
+    CSceneObject::_addCommonObjectEventData(data);
+    addSpecializedObjectEventData(data);
+    App::worldContainer->pushEvent(event);
+}
+
+void CSceneObject::pushObjectRefreshEvent() const
+{
+    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,nullptr,this,true,-1);
+    CSceneObject::_addCommonObjectEventData(data);
+    addSpecializedObjectEventData(data);
+    App::worldContainer->pushEvent(event);
+}
+
+void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
 {
     data->appendMapObject_stringInt32("layer",_visibilityLayer);
     data->appendMapObject_stringInt32("childOrder",_childOrder);

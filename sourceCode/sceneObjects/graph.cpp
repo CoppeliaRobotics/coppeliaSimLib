@@ -654,18 +654,13 @@ void CGraph::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CGraph::pushCreationEvent() const
+void CGraph::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 {
-    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::_pushObjectCreationEventData(data);
-
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("graph",subC);
     data=subC;
 
     // todo
-
-    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* CGraph::copyYourself()

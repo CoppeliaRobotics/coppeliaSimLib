@@ -697,16 +697,16 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
 
         CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         it->getSingleMesh()->color.setDefaultValues();
-        it->getSingleMesh()->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
+        it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,1.0f,1.0f);
         it->getSingleMesh()->setVisibleEdges(false);
         it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
         it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         it->setObjectAlias_direct(IDSOGL_PLANE);
         it->setObjectName_direct_old(IDSOGL_PLANE);
         it->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(it->getObjectName_old().c_str()).c_str());
-        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // we shift the plane so that it is above the floor
         it->alignBoundingBoxWithWorld();
+        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         if (pure)
             it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_plane,sizes(0),sizes(1),0.0001f);
         if (dynamic)
@@ -715,7 +715,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             it->setLocalObjectSpecialProperty((it->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
             it->setRespondable(true);
             it->setShapeIsDynamicallyStatic(false);
-            it->getSingleMesh()->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
+            it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85f,0.85f,1.0f);
         }
         it->getMeshWrapper()->setMass(sizes(0)*sizes(1)*density*0.001f); // we assume 1mm thickness
         it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(sizes(1)*sizes(1)/12.0f,sizes(0)*sizes(0)/12.0f,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0f));
@@ -744,16 +744,16 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
 
         CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         it->getSingleMesh()->color.setDefaultValues();
-        it->getSingleMesh()->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
+        it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,1.0f,1.0f);
         it->getSingleMesh()->setVisibleEdges(false);
         it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
         it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         it->setObjectAlias_direct(IDSOGL_RECTANGLE);
         it->setObjectName_direct_old(IDSOGL_RECTANGLE);
         it->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(it->getObjectName_old().c_str()).c_str());
-        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the rectangle so that it sits on the floor
         it->alignBoundingBoxWithWorld();
+        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         if (pure)
             it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_cuboid,sizes(0),sizes(1),sizes(2));
         if (dynamic)
@@ -762,7 +762,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             it->setLocalObjectSpecialProperty((it->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
             it->setRespondable(true);
             it->setShapeIsDynamicallyStatic(false);
-            it->getSingleMesh()->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
+            it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85f,0.85f,1.0f);
         }
 
         it->getMeshWrapper()->setMass(sizes(0)*sizes(1)*sizes(2)*density);
@@ -792,7 +792,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
 
         CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         it->getSingleMesh()->color.setDefaultValues();
-        it->getSingleMesh()->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
+        it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,1.0f,1.0f);
         if (smooth)
         {
             it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
@@ -801,9 +801,9 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         it->setObjectAlias_direct(IDSOGL_SPHERE);
         it->setObjectName_direct_old(IDSOGL_SPHERE);
         it->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(it->getObjectName_old().c_str()).c_str());
-        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the sphere so that it sits on the floor
         it->alignBoundingBoxWithWorld();
+        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         if (pure)
             it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_spheroid,sizes(0),sizes(1),sizes(2));
         if (dynamic)
@@ -812,7 +812,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             it->setLocalObjectSpecialProperty((it->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
             it->setRespondable(true);
             it->setShapeIsDynamicallyStatic(false);
-            it->getSingleMesh()->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
+            it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85f,0.85f,1.0f);
         }
         float avR=(sizes(0)+sizes(1)+sizes(2))/6.0f;
 
@@ -845,7 +845,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
 
         CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         it->getSingleMesh()->color.setDefaultValues();
-        it->getSingleMesh()->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
+        it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,1.0f,1.0f);
         it->getSingleMesh()->setVisibleEdges(false);
         if (smooth)
         {
@@ -855,9 +855,9 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         it->setObjectAlias_direct(IDSOGL_CYLINDER);
         it->setObjectName_direct_old(IDSOGL_CYLINDER);
         it->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(it->getObjectName_old().c_str()).c_str());
-        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
-        it->alignBoundingBoxWithWorld();
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // Now we shift the cylinder so it sits on the floor
+        it->alignBoundingBoxWithWorld();
+        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         if (pure)
         {
             if (cone)
@@ -871,7 +871,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             it->setLocalObjectSpecialProperty((it->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
             it->setRespondable(true);
             it->setShapeIsDynamicallyStatic(false);
-            it->getSingleMesh()->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
+            it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85f,0.85f,1.0f);
         }
         float avR=(sizes(0)+sizes(1))/4.0f;
         float divider=1.0f;
@@ -961,16 +961,16 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
 
         CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         it->getSingleMesh()->color.setDefaultValues();
-        it->getSingleMesh()->color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
+        it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,1.0f,1.0f);
         it->getSingleMesh()->setVisibleEdges(false);
         it->getSingleMesh()->setGouraudShadingAngle(20.0f*degToRad_f);
         it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
         it->setObjectAlias_direct(IDSOGL_DISC);
         it->setObjectName_direct_old(IDSOGL_DISC);
         it->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(it->getObjectName_old().c_str()).c_str());
-        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // Now we shift the disc so it sits just above the floor
         it->alignBoundingBoxWithWorld();
+        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         if (pure)
             it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_disc,sizes(0),sizes(1),0.0001f);
         if (dynamic)
@@ -979,7 +979,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             it->setLocalObjectSpecialProperty((it->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
             it->setRespondable(true);
             it->setShapeIsDynamicallyStatic(false);
-            it->getSingleMesh()->color.setColor(0.85f,0.85f,1.0f,sim_colorcomponent_ambient_diffuse);
+            it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85f,0.85f,1.0f);
         }
         float avR=(sizes(0)+sizes(1))/4.0f;
         it->getMeshWrapper()->setMass(piValue_f*avR*avR*density*0.001f); // we assume 1mm thickness
@@ -1042,9 +1042,7 @@ CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& 
         {
             retVal=new CShape(nullptr,hull,indices,nullptr,nullptr);
             retVal->getSingleMesh()->setConvexVisualAttributes();
-            retVal->getSingleMesh()->color.getColorsPtr()[0]=1.0f;
-            retVal->getSingleMesh()->color.getColorsPtr()[1]=0.7f;
-            retVal->getSingleMesh()->color.getColorsPtr()[2]=0.7f;
+            retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,0.7f,0.7f);
             retVal->getSingleMesh()->setEdgeThresholdAngle(0.0f);
             retVal->getSingleMesh()->setGouraudShadingAngle(0.0f);
             retVal->getSingleMesh()->setVisibleEdges(false);
@@ -1125,9 +1123,7 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
             retVal->setObjectName_direct_old("convexHull");
             retVal->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(retVal->getObjectName_old().c_str()).c_str());
             retVal->getSingleMesh()->setConvexVisualAttributes();
-            retVal->getSingleMesh()->color.getColorsPtr()[0]=1.0f;
-            retVal->getSingleMesh()->color.getColorsPtr()[1]=0.7f;
-            retVal->getSingleMesh()->color.getColorsPtr()[2]=0.7f;
+            retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,0.7f,0.7f);
             retVal->getSingleMesh()->setEdgeThresholdAngle(0.0f);
             retVal->getSingleMesh()->setGouraudShadingAngle(0.0f);
             retVal->getSingleMesh()->setVisibleEdges(false);

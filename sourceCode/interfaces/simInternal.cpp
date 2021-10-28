@@ -7593,6 +7593,213 @@ simInt simSetLinkDummy_internal(simInt dummyHandle,simInt linkedDummyHandle)
     return(-1);
 }
 
+simInt simSetObjectColor_internal(simInt objectHandle,simInt index,simInt colorComponent,const simFloat* rgbData)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        int retVal=0;
+        if (it->getObjectType()==sim_object_shape_type)
+        {
+            CShape* shape=(CShape*)it;
+            std::vector<CMesh*> all;
+            shape->getMeshWrapper()->getAllShapeComponentsCumulative(all);
+            if ( (index>=0)&&(index<int(all.size()))&&(colorComponent<=sim_colorcomponent_auxiliary) )
+            {
+                CMesh* geom=all[index];
+                geom->color.setColor(rgbData,colorComponent);
+                geom->color.pushColorChangeEvent(objectHandle,index);
+                retVal=1;
+            }
+        }
+        if (it->getObjectType()==sim_object_dummy_type)
+        {
+            CDummy* dummy=(CDummy*)it;
+            if ( (index==0)&&(colorComponent<=sim_colorcomponent_emission) )
+            {
+                dummy->getDummyColor()->setColor(rgbData,colorComponent);
+                dummy->getDummyColor()->pushColorChangeEvent(objectHandle,index);
+                retVal=1;
+            }
+        }
+        if (it->getObjectType()==sim_object_camera_type)
+        {
+            CCamera* camera=(CCamera*)it;
+            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
+            {
+                camera->getColor(index==1)->setColor(rgbData,colorComponent);
+                camera->getColor(index==1)->pushColorChangeEvent(objectHandle,index);
+                retVal=1;
+            }
+        }
+        if (it->getObjectType()==sim_object_joint_type)
+        {
+            CJoint* joint=(CJoint*)it;
+            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
+            {
+                if (index==0)
+                {
+                    joint->getJointColor1()->setColor(rgbData,colorComponent);
+                    joint->getJointColor1()->pushColorChangeEvent(objectHandle,index);
+                }
+                if (index==1)
+                {
+                    joint->getJointColor2()->setColor(rgbData,colorComponent);
+                    joint->getJointColor2()->pushColorChangeEvent(objectHandle,index);
+                }
+                retVal=1;
+            }
+        }
+        if (it->getObjectType()==sim_object_light_type)
+        {
+            CLight* light=(CLight*)it;
+            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
+            {
+                light->getColor(index==1)->setColor(rgbData,colorComponent);
+                light->getColor(index==1)->pushColorChangeEvent(objectHandle,index);
+                retVal=1;
+            }
+        }
+        if (it->getObjectType()==sim_object_proximitysensor_type)
+        {
+            CProxSensor* sensor=(CProxSensor*)it;
+            if ( (index>=0)&&(index<=3)&&(colorComponent<=sim_colorcomponent_emission) )
+            {
+                sensor->getColor(index)->setColor(rgbData,colorComponent);
+                sensor->getColor(index)->pushColorChangeEvent(objectHandle,index);
+                retVal=1;
+            }
+        }
+        if (it->getObjectType()==sim_object_visionsensor_type)
+        {
+            CVisionSensor* sensor=(CVisionSensor*)it;
+            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
+            {
+                sensor->getColor(index==1)->setColor(rgbData,colorComponent);
+                sensor->getColor(index==1)->pushColorChangeEvent(objectHandle,index);
+                retVal=1;
+            }
+        }
+        if (it->getObjectType()==sim_object_forcesensor_type)
+        {
+            CForceSensor* sensor=(CForceSensor*)it;
+            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
+            {
+                sensor->getColor(index==1)->setColor(rgbData,colorComponent);
+                sensor->getColor(index==1)->pushColorChangeEvent(objectHandle,index);
+                retVal=1;
+            }
+        }
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetObjectColor_internal(simInt objectHandle,simInt index,simInt colorComponent,simFloat* rgbData)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        int retVal=0;
+        if (it->getObjectType()==sim_object_shape_type)
+        {
+            CShape* shape=(CShape*)it;
+            std::vector<CMesh*> all;
+            shape->getMeshWrapper()->getAllShapeComponentsCumulative(all);
+            if ( (index>=0)&&(index<int(all.size()))&&(colorComponent<=sim_colorcomponent_auxiliary) )
+            {
+                CMesh* geom=all[index];
+                geom->color.getColor(rgbData,colorComponent);
+                retVal=1;
+            }
+        }
+        if (it->getObjectType()==sim_object_dummy_type)
+        {
+            CDummy* dummy=(CDummy*)it;
+            if ( (index==0)&&(colorComponent<=sim_colorcomponent_emission) )
+            {
+                dummy->getDummyColor()->getColor(rgbData,colorComponent);
+                retVal=1;
+            }
+        }
+        if (it->getObjectType()==sim_object_camera_type)
+        {
+            CCamera* camera=(CCamera*)it;
+            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
+            {
+                camera->getColor(index==1)->getColor(rgbData,colorComponent);
+                retVal=1;
+            }
+        }
+        if (it->getObjectType()==sim_object_joint_type)
+        {
+            CJoint* joint=(CJoint*)it;
+            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
+            {
+                if (index==0)
+                    joint->getJointColor1()->getColor(rgbData,colorComponent);
+                if (index==1)
+                    joint->getJointColor2()->getColor(rgbData,colorComponent);
+                retVal=1;
+            }
+        }
+        if (it->getObjectType()==sim_object_light_type)
+        {
+            CLight* light=(CLight*)it;
+            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
+            {
+                light->getColor(index==1)->getColor(rgbData,colorComponent);
+                retVal=1;
+            }
+        }
+        if (it->getObjectType()==sim_object_proximitysensor_type)
+        {
+            CProxSensor* sensor=(CProxSensor*)it;
+            if ( (index>=0)&&(index<=3)&&(colorComponent<=sim_colorcomponent_emission) )
+            {
+                sensor->getColor(index)->getColor(rgbData,colorComponent);
+                retVal=1;
+            }
+        }
+        if (it->getObjectType()==sim_object_visionsensor_type)
+        {
+            CVisionSensor* sensor=(CVisionSensor*)it;
+            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
+            {
+                sensor->getColor(index==1)->getColor(rgbData,colorComponent);
+                retVal=1;
+            }
+        }
+        if (it->getObjectType()==sim_object_forcesensor_type)
+        {
+            CForceSensor* sensor=(CForceSensor*)it;
+            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
+            {
+                sensor->getColor(index==1)->getColor(rgbData,colorComponent);
+                retVal=1;
+            }
+        }
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
 simInt simSetShapeColor_internal(simInt shapeHandle,const simChar* colorName,simInt colorComponent,const simFloat* rgbData)
 {
     TRACE_C_API;

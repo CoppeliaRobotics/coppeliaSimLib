@@ -1462,11 +1462,8 @@ void CJoint::removeSceneDependencies()
     _CJoint_::setDependencyMasterJointHandle(-1);
 }
 
-void CJoint::pushCreationEvent() const
+void CJoint::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 {
-    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::_pushObjectCreationEventData(data);
-
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("joint",subC);
     data=subC;
@@ -1497,18 +1494,17 @@ void CJoint::pushCreationEvent() const
     data->appendMapObject_stringFloat("diameter",_diameter);
     data->appendMapObject_stringFloat("length",_length);
 
+    CInterfaceStackTable* colors=new CInterfaceStackTable();
+    data->appendMapObject_stringObject("colors",colors);
     float c[9];
     _colorPart1.getColor(c,sim_colorcomponent_ambient_diffuse);
     _colorPart1.getColor(c+3,sim_colorcomponent_specular);
     _colorPart1.getColor(c+6,sim_colorcomponent_emission);
-    data->appendMapObject_stringFloatArray("color1",c,9);
-
+    colors->appendArrayObject_floatArray(c,9);
     _colorPart2.getColor(c,sim_colorcomponent_ambient_diffuse);
     _colorPart2.getColor(c+3,sim_colorcomponent_specular);
     _colorPart2.getColor(c+6,sim_colorcomponent_emission);
-    data->appendMapObject_stringFloatArray("color2",c,9);
-
-    App::worldContainer->pushEvent(event);
+    colors->appendArrayObject_floatArray(c,9);
 }
 
 CSceneObject* CJoint::copyYourself()

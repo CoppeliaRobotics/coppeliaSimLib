@@ -185,6 +185,8 @@ simInt simGetLinkDummy_internal(simInt dummyHandle);
 simInt simSetLinkDummy_internal(simInt dummyHandle,simInt linkedDummyHandle);
 simInt simSetModelProperty_internal(simInt objectHandle,simInt modelProperty);
 simInt simGetModelProperty_internal(simInt objectHandle);
+simInt simSetObjectColor_internal(simInt objectHandle,simInt index,simInt colorComponent,const simFloat* rgbData);
+simInt simGetObjectColor_internal(simInt objectHandle,simInt index,simInt colorComponent,simFloat* rgbData);
 simInt simSetShapeColor_internal(simInt shapeHandle,const simChar* colorName,simInt colorComponent,const simFloat* rgbData);
 simInt simGetShapeColor_internal(simInt shapeHandle,const simChar* colorName,simInt colorComponent,simFloat* rgbData);
 simInt simResetDynamicObject_internal(simInt objectHandle);

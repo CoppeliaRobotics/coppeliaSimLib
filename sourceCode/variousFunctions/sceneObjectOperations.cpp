@@ -321,7 +321,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                             C7Vector relCOM(it->getFullCumulativeTransformation().getInverse()*absCOM);
                             it->getMeshWrapper()->setLocalInertiaFrame(relCOM);
 
-                            it->getSingleMesh()->color.setColor(1.0f,0.7f,0.7f,sim_colorcomponent_ambient_diffuse);
+                            it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,0.7f,0.7f);
                             it->getSingleMesh()->setEdgeThresholdAngle(0.0f);
                             it->getSingleMesh()->setGouraudShadingAngle(0.0f);
                             it->getSingleMesh()->setVisibleEdges(false);
@@ -440,7 +440,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         sh->getMeshWrapper()->setLocalInertiaFrame(relCOM);
 
                         // Set some visual parameters:
-                        sh->getSingleMesh()->color.setColor(0.7f,0.7f,1.0f,sim_colorcomponent_ambient_diffuse);
+                        sh->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.7f,0.7f,1.0f);
                         sh->getSingleMesh()->setEdgeThresholdAngle(0.0f);
                         sh->getSingleMesh()->setGouraudShadingAngle(0.0f);
                         sh->getSingleMesh()->setVisibleEdges(false);
@@ -2124,7 +2124,7 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
                             _tempHandles.push_back(handle);
                             shape->getSingleMesh()->setConvexVisualAttributes();
                             // Set some visual parameters:
-                            shape->getSingleMesh()->color.setColor(0.7f,1.0f,0.7f,sim_colorcomponent_ambient_diffuse);
+                            shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.7f,1.0f,0.7f);
                             shape->getSingleMesh()->setEdgeThresholdAngle(0.0f);
                             shape->getSingleMesh()->setGouraudShadingAngle(0.0f);
                             shape->getSingleMesh()->setVisibleEdges(false);
@@ -2211,7 +2211,7 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
 
                         shape->getSingleMesh()->setConvexVisualAttributes();
                         // Set some visual parameters:
-                        shape->getSingleMesh()->color.setColor(0.7f,1.0f,0.7f,sim_colorcomponent_ambient_diffuse);
+                        shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.7f,1.0f,0.7f);
                         shape->getSingleMesh()->setEdgeThresholdAngle(0.0f);
                         shape->getSingleMesh()->setGouraudShadingAngle(0.0f);
                         shape->getSingleMesh()->setVisibleEdges(false);

@@ -418,8 +418,14 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack)
         sandboxScript->systemCallScript(callType,inStack,nullptr);
 }
 
-std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData)
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const char* event,const char* change,int objectHandle,bool isCommonObjectData,int subIndex/*=-2*/)
 {
+    CSceneObject* object=currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+    return(createEvent(event,change,object,isCommonObjectData,subIndex));
+}
+
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData,int subIndex/*=-2*/)
+{ // subIndex==-2: mergeable, subIndex=-1: not mergeable, subIndex>=0: mergeable as long as subIndex is same too
     _eventMutex.lock();
     std::string sub;
     if (!isCommonObjectData)
@@ -464,6 +470,16 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const 
         eventInfo.subEvent=change;
     eventInfo.objectType=sub;
     eventInfo.objectUid=std::to_string(object->getObjectUniqueId());
+    if (subIndex!=-2)
+    {
+        if (subIndex==-1)
+        {
+            static long long int uid=0;
+            eventInfo.objectUid+="#"+std::to_string(uid);
+        }
+        else
+            eventInfo.objectUid+="*"+std::to_string(subIndex);
+    }
 
     eventInfo.eventTable=new CInterfaceStackTable();
     eventInfo.eventTable->appendMapObject_stringString("event",event,0);

@@ -117,18 +117,13 @@ void CMill::removeSceneDependencies()
     _millableObject=-1;
 }
 
-void CMill::pushCreationEvent() const
+void CMill::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 {
-    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::_pushObjectCreationEventData(data);
-
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("mill",subC);
     data=subC;
 
     // todo
-
-    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* CMill::copyYourself()

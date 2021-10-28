@@ -1765,6 +1765,7 @@ bool CShape::_reorientGeometry(int type)
         child->incrementMemorizedConfigurationValidCounter();
     }
     App::setFullDialogRefreshFlag(); // so that textures and other things get updated!
+    pushObjectRefreshEvent();
     return(true);
 }
 
@@ -1922,11 +1923,8 @@ void CShape::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CShape::pushCreationEvent() const
+void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 {
-    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::_pushObjectCreationEventData(data);
-
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("shape",subC);
     data=subC;
@@ -1987,7 +1985,7 @@ void CShape::pushCreationEvent() const
         geom->color.getColor(c+0,sim_colorcomponent_ambient_diffuse);
         geom->color.getColor(c+3,sim_colorcomponent_specular);
         geom->color.getColor(c+6,sim_colorcomponent_emission);
-        mesh->appendMapObject_stringFloatArray("colors",c,9);
+        mesh->appendMapObject_stringFloatArray("color",c,9);
 
         mesh->appendMapObject_stringFloat("shadingAngle",geom->getGouraudShadingAngle());
         float transp=0.0f;
@@ -2047,8 +2045,6 @@ void CShape::pushCreationEvent() const
             }
         }
     }
-
-    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* CShape::copyYourself()
@@ -2083,10 +2079,20 @@ CSceneObject* CShape::copyYourself()
     return(newShape);
 }
 
+void CShape::setColor(const char* colorName,int colorComponent,float r,float g,float b)
+{
+    float rgb[3]={r,g,b};
+    setColor(colorName,colorComponent,rgb);
+}
+
 void CShape::setColor(const char* colorName,int colorComponent,const float* rgbData)
 {
     int rgbDataOffset=0;
-    getMeshWrapper()->setColor(colorName,colorComponent,rgbData,rgbDataOffset);
+    int cnt=0;
+    const CShape* s=nullptr;
+    if (_isInScene)
+        s=this;
+    getMeshWrapper()->setColor(s,cnt,colorName,colorComponent,rgbData,rgbDataOffset);
     if (colorComponent==sim_colorcomponent_transparency)
         actualizeContainsTransparentComponent();
 }

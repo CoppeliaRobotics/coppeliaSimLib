@@ -487,18 +487,25 @@ void CForceSensor::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CForceSensor::pushCreationEvent() const
+void CForceSensor::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 {
-    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::_pushObjectCreationEventData(data);
-
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("forceSensor",subC);
     data=subC;
 
-    // todo
+    CInterfaceStackTable* colors=new CInterfaceStackTable();
+    data->appendMapObject_stringObject("colors",colors);
+    float c[9];
+    colorPart1.getColor(c,sim_colorcomponent_ambient_diffuse);
+    colorPart1.getColor(c+3,sim_colorcomponent_specular);
+    colorPart1.getColor(c+6,sim_colorcomponent_emission);
+    colors->appendArrayObject_floatArray(c,9);
+    colorPart2.getColor(c,sim_colorcomponent_ambient_diffuse);
+    colorPart2.getColor(c+3,sim_colorcomponent_specular);
+    colorPart2.getColor(c+6,sim_colorcomponent_emission);
+    colors->appendArrayObject_floatArray(c,9);
 
-    App::worldContainer->pushEvent(event);
+    // todo
 }
 
 CSceneObject* CForceSensor::copyYourself()

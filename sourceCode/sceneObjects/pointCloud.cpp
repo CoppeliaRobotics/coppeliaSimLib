@@ -684,11 +684,8 @@ void CPointCloud::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CPointCloud::pushCreationEvent() const
+void CPointCloud::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 {
-    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::_pushObjectCreationEventData(data);
-
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("pointCloud",subC);
     data=subC;
@@ -709,8 +706,6 @@ void CPointCloud::pushCreationEvent() const
     obj.appendBuff(_displayColorsByte.data(),_displayColorsByte.size());
     buff=(const char*)obj.getBuff(l);
     data->appendMapObject_stringString("colors",buff,l,true);
-
-    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* CPointCloud::copyYourself()

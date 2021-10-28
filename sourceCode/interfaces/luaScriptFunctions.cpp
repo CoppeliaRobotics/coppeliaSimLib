@@ -264,6 +264,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setLightParameters",_simSetLightParameters,            "sim.setLightParameters(int lightHandle,int state,nil,table[3] diffusePart,table[3] specularPart)",true},
     {"sim.getLinkDummy",_simGetLinkDummy,                        "int linkDummyHandle=sim.getLinkDummy(int dummyHandle)",true},
     {"sim.setLinkDummy",_simSetLinkDummy,                        "sim.setLinkDummy(int dummyHandle,int linkDummyHandle)",true},
+    {"sim.setObjectColor",_simSetObjectColor,                    "bool result=sim.setObjectColor(int objectHandle,int index,int colorComponent,table[3] rgbData)",true},
+    {"sim.getObjectColor",_simGetObjectColor,                    "table[3] rgbData=sim.getObjectColor(int objectHandle,int index,int colorComponent)",true},
     {"sim.setShapeColor",_simSetShapeColor,                      "sim.setShapeColor(int shapeHandle,string colorName,int colorComponent,table[3] rgbData)",true},
     {"sim.getShapeColor",_simGetShapeColor,                      "int result,table[3] rgbData=sim.getShapeColor(int shapeHandle,string colorName,int colorComponent)",true},
     {"sim.resetDynamicObject",_simResetDynamicObject,            "sim.resetDynamicObject(int objectHandle)",true},
@@ -5043,23 +5045,18 @@ int _simTest(luaWrap_lua_State* L)
             SBufferedEvents savedBuff=App::worldContainer->swapBufferedEvents(newBuff);
 
             for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
-                App::currentWorld->sceneObjects->getObjectFromIndex(i)->pushCreationEvent();
+                App::currentWorld->sceneObjects->getObjectFromIndex(i)->pushObjectCreationEvent();
             App::worldContainer->swapBufferedEvents(savedBuff);
 
-            printf("a\n");
             if (App::worldContainer->getCborEvents())
             {
-                printf("b\n");
                 std::string cbor=newBuff.eventsStack->getCborEncodedBufferFromTable(0);
                 newBuff.eventsStack->clear();
                 newBuff.eventsStack->pushStringOntoStack(cbor.c_str(),cbor.size());
             }
-            printf("c\n");
             CScriptObject::buildOntoInterpreterStack_lua(L,newBuff.eventsStack,false);
-            printf("d\n");
             int ss=newBuff.eventsStack->getStackSize();
             App::worldContainer->interfaceStackContainer->destroyStack(newBuff.eventsStack);
-            printf("e\n");
             LUA_END(ss);
         }
     }
@@ -8841,6 +8838,47 @@ int _simGetShapeColor(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
+}
+
+int _simSetObjectColor(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setObjectColor");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3))
+    {
+        float col[3];
+        getFloatsFromTable(L,4,3,col);
+        int res=simSetObjectColor_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3),col);
+        if (res>=0)
+        {
+            luaWrap_lua_pushboolean(L,res!=0);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetObjectColor(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectColor");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+    {
+        float col[3];
+        int res=simGetObjectColor_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3),col);
+        if (res>0)
+        {
+            pushFloatTableOntoStack(L,3,col);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 
 int _simResetDynamicObject(luaWrap_lua_State* L)

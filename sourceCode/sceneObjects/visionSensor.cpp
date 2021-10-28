@@ -1959,11 +1959,8 @@ void CVisionSensor::removeSceneDependencies()
     _detectableEntityHandle=-1;
 }
 
-void CVisionSensor::pushCreationEvent() const
+void CVisionSensor::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 {
-    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::_pushObjectCreationEventData(data);
-
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("visionSensor",subC);
     data=subC;
@@ -1973,8 +1970,6 @@ void CVisionSensor::pushCreationEvent() const
     data->appendMapObject_stringFloat("farClippingPlane",_farClippingPlane);
     data->appendMapObject_stringFloat("viewAngle",_viewAngle);
     data->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
-
-    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* CVisionSensor::copyYourself()

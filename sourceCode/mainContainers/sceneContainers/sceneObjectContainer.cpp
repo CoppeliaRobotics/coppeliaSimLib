@@ -205,7 +205,7 @@ void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
     if (App::worldContainer->getEnableEvents())
     {
         newObject->setIsInScene(true);
-        newObject->pushCreationEvent();
+        newObject->pushObjectCreationEvent();
     }
 }
 
@@ -1956,11 +1956,11 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
         {
             int rgb[3];
             if (ar.xmlGetNode_ints("ambientDiffuse",rgb,3,false))
-                retVal->getSingleMesh()->color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f);
             if (ar.xmlGetNode_ints("specular",rgb,3,false))
-                retVal->getSingleMesh()->color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_specular);
+                retVal->setColor(nullptr,sim_colorcomponent_specular,float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f);
             if (ar.xmlGetNode_ints("emission",rgb,3,false))
-                retVal->getSingleMesh()->color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_emission);
+                retVal->setColor(nullptr,sim_colorcomponent_emission,float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f);
             ar.xmlPopNode();
         }
         if (itemType==nullptr)

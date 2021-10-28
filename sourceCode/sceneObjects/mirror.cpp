@@ -188,18 +188,13 @@ void CMirror::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CMirror::pushCreationEvent() const
+void CMirror::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 {
-    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::_pushObjectCreationEventData(data);
-
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("mirror",subC);
     data=subC;
 
     // todo
-
-    App::worldContainer->pushEvent(event);
 }
 
 CSceneObject* CMirror::copyYourself()

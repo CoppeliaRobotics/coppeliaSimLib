@@ -361,10 +361,10 @@ void CMeshWrapper::getCumulativeMeshes(std::vector<float>& vertices,std::vector<
         childList[i]->getCumulativeMeshes(vertices,indices,normals);
 }
 
-void CMeshWrapper::setColor(const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset)
+void CMeshWrapper::setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
-        childList[i]->setColor(colorName,colorComponent,rgbData,rgbDataOffset);
+        childList[i]->setColor(shape,elementIndex,colorName,colorComponent,rgbData,rgbDataOffset);
 }
 
 bool CMeshWrapper::getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset)

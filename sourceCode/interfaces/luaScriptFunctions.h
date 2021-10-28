@@ -274,6 +274,8 @@ extern int _simGetShapeVertex(luaWrap_lua_State* L);
 extern int _simGetShapeTriangle(luaWrap_lua_State* L);
 extern int _simGetLightParameters(luaWrap_lua_State* L);
 extern int _simSetLightParameters(luaWrap_lua_State* L);
+extern int _simSetObjectColor(luaWrap_lua_State* L);
+extern int _simGetObjectColor(luaWrap_lua_State* L);
 extern int _simSetShapeColor(luaWrap_lua_State* L);
 extern int _simGetShapeColor(luaWrap_lua_State* L);
 extern int _simResetDynamicObject(luaWrap_lua_State* L);

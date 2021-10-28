@@ -693,6 +693,14 @@ SIM_DLLEXPORT simInt simGetModelProperty(simInt objectHandle)
 {
     return(simGetModelProperty_internal(objectHandle));
 }
+SIM_DLLEXPORT simInt simSetObjectColor(simInt objectHandle,simInt index,simInt colorComponent,const simFloat* rgbData)
+{
+    return(simSetObjectColor_internal(objectHandle,index,colorComponent,rgbData));
+}
+SIM_DLLEXPORT simInt simGetObjectColor(simInt objectHandle,simInt index,simInt colorComponent,simFloat* rgbData)
+{
+    return(simGetObjectColor_internal(objectHandle,index,colorComponent,rgbData));
+}
 SIM_DLLEXPORT simInt simSetShapeColor(simInt shapeHandle,const simChar* colorName,simInt colorComponent,const simFloat* rgbData)
 {
     return(simSetShapeColor_internal(shapeHandle,colorName,colorComponent,rgbData));

@@ -130,6 +130,24 @@ void CColorObject::setColor(const float theColor[3],unsigned char colorMode)
     setColors(col);
 }
 
+void CColorObject::pushColorChangeEvent(int objectHandle,int colorIndex,bool isLight/*=false*/)
+{
+    const char* cmd="color";
+    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,objectHandle,false,colorIndex);
+    CInterfaceStackTable* sdata=new CInterfaceStackTable();
+    data->appendMapObject_stringObject(cmd,sdata);
+    float c[9];
+    int w=sim_colorcomponent_ambient_diffuse;
+    if (isLight)
+        w=sim_colorcomponent_diffuse;
+    getColor(c+0,w);
+    getColor(c+3,sim_colorcomponent_specular);
+    getColor(c+6,sim_colorcomponent_emission);
+    sdata->appendMapObject_stringFloatArray("color",c,9);
+    sdata->appendMapObject_stringInt32("index",colorIndex);
+    App::worldContainer->pushEvent(event);
+}
+
 void CColorObject::setColor(float r,float g,float b,unsigned char colorMode)
 {
     float col[3]={r,g,b};

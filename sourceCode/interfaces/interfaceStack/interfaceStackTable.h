@@ -34,8 +34,21 @@ public:
     void setFloatArray(const float* array,size_t l);
     void setDoubleArray(const double* array,size_t l);
 
+
+    void appendArrayObject_null();
+    void appendArrayObject_bool(bool value);
+    void appendArrayObject_float(float value);
+    void appendArrayObject_double(double value);
+    void appendArrayObject_int32(int value);
+    void appendArrayObject_int64(long long int value);
+    void appendArrayObject_string(const char* value,size_t l,bool cborCoded=false);
+    void appendArrayObject_int32Array(const int* arr,size_t l);
+    void appendArrayObject_int64Array(const long long int* arr,size_t l);
+    void appendArrayObject_floatArray(const float* arr,size_t l);
+    void appendArrayObject_doubleArray(const double* arr,size_t l);
     void appendArrayObject(CInterfaceStackObject* obj);
     void insertArrayObject(CInterfaceStackObject* obj,size_t pos);
+
     void appendMapObject(const char* key,size_t keyL,CInterfaceStackObject* obj);
     void appendMapObject(long long int key,CInterfaceStackObject* obj);
     void appendMapObject(double key,CInterfaceStackObject* obj);

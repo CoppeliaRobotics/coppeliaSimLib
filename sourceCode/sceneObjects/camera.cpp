@@ -951,7 +951,17 @@ void CCamera::scaleObjectNonIsometrically(float x,float y,float z)
 void CCamera::setCameraSize(float size)
 {
     tt::limitValue(0.001f,100.0f,size);
-    cameraSize=size;
+    if (cameraSize!=size)
+    {
+        cameraSize=size;
+        if (_isInScene)
+        {
+            const char* cmd="size";
+            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            data->appendMapObject_stringFloat(cmd,cameraSize);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
 
 float CCamera::getCameraSize() const
@@ -995,11 +1005,8 @@ void CCamera::removeSceneDependencies()
     trackedObjectIdentifier_NeverDirectlyTouch=-1;
 }
 
-void CCamera::pushCreationEvent() const
+void CCamera::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 {
-    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true);
-    CSceneObject::_pushObjectCreationEventData(data);
-
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("camera",subC);
     data=subC;
@@ -1010,8 +1017,19 @@ void CCamera::pushCreationEvent() const
     data->appendMapObject_stringFloat("farClippingPlane",_farClippingPlane);
     data->appendMapObject_stringFloat("viewAngle",_viewAngle);
     data->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
+    data->appendMapObject_stringFloat("size",cameraSize);
 
-    App::worldContainer->pushEvent(event);
+    CInterfaceStackTable* colors=new CInterfaceStackTable();
+    data->appendMapObject_stringObject("colors",colors);
+    float c[9];
+    colorPart1.getColor(c,sim_colorcomponent_ambient_diffuse);
+    colorPart1.getColor(c+3,sim_colorcomponent_specular);
+    colorPart1.getColor(c+6,sim_colorcomponent_emission);
+    colors->appendArrayObject_floatArray(c,9);
+    colorPart2.getColor(c,sim_colorcomponent_ambient_diffuse);
+    colorPart2.getColor(c+3,sim_colorcomponent_specular);
+    colorPart2.getColor(c+6,sim_colorcomponent_emission);
+    colors->appendArrayObject_floatArray(c,9);
 }
 
 CSceneObject* CCamera::copyYourself()

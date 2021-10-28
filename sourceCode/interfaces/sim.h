@@ -188,6 +188,8 @@ SIM_DLLEXPORT simInt simGetLinkDummy(simInt dummyHandle);
 SIM_DLLEXPORT simInt simSetLinkDummy(simInt dummyHandle,simInt linkedDummyHandle);
 SIM_DLLEXPORT simInt simSetModelProperty(simInt objectHandle,simInt modelProperty);
 SIM_DLLEXPORT simInt simGetModelProperty(simInt objectHandle);
+SIM_DLLEXPORT simInt simSetObjectColor(simInt objectHandle,simInt index,simInt colorComponent,const simFloat* rgbData);
+SIM_DLLEXPORT simInt simGetObjectColor(simInt objectHandle,simInt index,simInt colorComponent,simFloat* rgbData);
 SIM_DLLEXPORT simInt simSetShapeColor(simInt shapeHandle,const simChar* colorName,simInt colorComponent,const simFloat* rgbData);
 SIM_DLLEXPORT simInt simGetShapeColor(simInt shapeHandle,const simChar* colorName,simInt colorComponent,simFloat* rgbData);
 SIM_DLLEXPORT simInt simResetDynamicObject(simInt objectHandle);

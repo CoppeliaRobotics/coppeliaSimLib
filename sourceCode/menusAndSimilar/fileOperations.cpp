@@ -1490,17 +1490,17 @@ int CFileOperations::apiAddHeightfieldToScene(int xSize,float pointSpacing,const
     if (options&4)
         shape->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_none,1.0f,1.0f,1.0f);
 
-    App::currentWorld->sceneObjects->addObjectToScene(shape,false,true);
+    shape->alignBoundingBoxWithWorld();
     shape->setCulling((options&1)!=0);
     shape->setVisibleEdges((options&2)!=0);
     shape->getSingleMesh()->setGouraudShadingAngle(shadingAngle);
     shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
-    shape->getSingleMesh()->color.setColor(0.68f,0.56f,0.36f,sim_colorcomponent_ambient_diffuse);
-    shape->getSingleMesh()->color.setColor(0.25f,0.25f,0.25f,sim_colorcomponent_specular);
+    shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.68f,0.56f,0.36f);
+    shape->setColor(nullptr,sim_colorcomponent_specular,0.25f,0.25f,0.25f);
+    App::currentWorld->sceneObjects->addObjectToScene(shape,false,true);
     App::currentWorld->sceneObjects->setObjectAlias(shape,"heightfield",true);
     App::currentWorld->sceneObjects->setObjectName_old(shape,"heightfield",true);
     App::currentWorld->sceneObjects->setObjectAltName_old(shape,"heightfield",true);
-    shape->alignBoundingBoxWithWorld();
 
     int propToRemove=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable;
     shape->setLocalObjectSpecialProperty((shape->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);

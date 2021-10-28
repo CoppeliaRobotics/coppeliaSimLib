@@ -39,7 +39,7 @@ public:
     virtual void setConvex(bool convex);
     virtual bool containsOnlyPureConvexShapes();
     virtual void getCumulativeMeshes(std::vector<float>& vertices,std::vector<int>* indices,std::vector<float>* normals);
-    virtual void setColor(const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset);
+    virtual void setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset);
     virtual bool getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset);
     virtual void getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList);
     virtual int countAllShapeComponentsCumulative();

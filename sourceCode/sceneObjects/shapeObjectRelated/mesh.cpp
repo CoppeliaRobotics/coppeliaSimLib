@@ -519,7 +519,7 @@ void CMesh::getCumulativeMeshes(std::vector<float>& vertices,std::vector<int>* i
     }
 }
 
-void CMesh::setColor(const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset)
+void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset)
 { // function has virtual/non-virtual counterpart!
     if ( (colorName==nullptr)||(color.getColorName().compare(colorName)==0)||(strcmp(colorName,"@compound")==0) )
     {
@@ -545,6 +545,8 @@ void CMesh::setColor(const char* colorName,int colorComponent,const float* rgbDa
             if (compoundColors)
                 rgbDataOffset+=3;
         }
+        if (shape!=nullptr)
+            color.pushColorChangeEvent(shape->getObjectHandle(),elementIndex);
     }
     if ((colorName!=nullptr)&&(insideColor_DEPRECATED.getColorName().compare(colorName)==0))
     { // OLD, deprecated
@@ -653,7 +655,7 @@ void CMesh::setColor(const char* colorName,int colorComponent,const float* rgbDa
             }
         }
     }
-
+    elementIndex++;
 }
 
 bool CMesh::getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset)
