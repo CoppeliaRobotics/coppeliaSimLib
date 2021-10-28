@@ -706,7 +706,6 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         it->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(it->getObjectName_old().c_str()).c_str());
         it->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // we shift the plane so that it is above the floor
         it->alignBoundingBoxWithWorld();
-        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         if (pure)
             it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_plane,sizes(0),sizes(1),0.0001f);
         if (dynamic)
@@ -723,6 +722,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         // make sure that object rests, stacks and can be easily grasped:
         it->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
 
+        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         return(it);
     }
 
@@ -753,7 +753,6 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         it->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(it->getObjectName_old().c_str()).c_str());
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the rectangle so that it sits on the floor
         it->alignBoundingBoxWithWorld();
-        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         if (pure)
             it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_cuboid,sizes(0),sizes(1),sizes(2));
         if (dynamic)
@@ -770,7 +769,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
 
         // make sure that object rests, stacks and can be easily grasped:
         it->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
-
+        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         return(it);
     }
 
@@ -803,7 +802,6 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         it->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(it->getObjectName_old().c_str()).c_str());
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the sphere so that it sits on the floor
         it->alignBoundingBoxWithWorld();
-        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         if (pure)
             it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_spheroid,sizes(0),sizes(1),sizes(2));
         if (dynamic)
@@ -824,6 +822,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         // make sure that object rests, stacks and can be easily grasped:
         it->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
 
+        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         return(it);
     }
 
@@ -857,7 +856,6 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         it->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(it->getObjectName_old().c_str()).c_str());
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // Now we shift the cylinder so it sits on the floor
         it->alignBoundingBoxWithWorld();
-        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         if (pure)
         {
             if (cone)
@@ -889,6 +887,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         // make sure that object rests, stacks and can be easily grasped:
         it->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
 
+        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         return(it);
     }
 
@@ -970,7 +969,6 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         it->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(it->getObjectName_old().c_str()).c_str());
         it->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // Now we shift the disc so it sits just above the floor
         it->alignBoundingBoxWithWorld();
-        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         if (pure)
             it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_disc,sizes(0),sizes(1),0.0001f);
         if (dynamic)
@@ -990,6 +988,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         // make sure that object rests, stacks and can be easily grasped:
         it->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
 
+        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         return(it);
     }
 

@@ -983,18 +983,24 @@ void CSceneObject::addSpecializedObjectEventData(CInterfaceStackTable* data) con
 
 void CSceneObject::pushObjectCreationEvent() const
 {
-    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true,-1);
-    CSceneObject::_addCommonObjectEventData(data);
-    addSpecializedObjectEventData(data);
-    App::worldContainer->pushEvent(event);
+    if (_isInScene)
+    {
+        auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true,-1);
+        CSceneObject::_addCommonObjectEventData(data);
+        addSpecializedObjectEventData(data);
+        App::worldContainer->pushEvent(event);
+    }
 }
 
 void CSceneObject::pushObjectRefreshEvent() const
 {
-    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,nullptr,this,true,-1);
-    CSceneObject::_addCommonObjectEventData(data);
-    addSpecializedObjectEventData(data);
-    App::worldContainer->pushEvent(event);
+    if (_isInScene)
+    {
+        auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED,nullptr,this,true,-1);
+        CSceneObject::_addCommonObjectEventData(data);
+        addSpecializedObjectEventData(data);
+        App::worldContainer->pushEvent(event);
+    }
 }
 
 void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
