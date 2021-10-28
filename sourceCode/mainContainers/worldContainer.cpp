@@ -123,10 +123,6 @@ int CWorldContainer::createNewWorld()
     currentWorld->initializeWorld();
 
     // Inform scripts about performed switch to new world:
-    const char* cmd="sceneUid";
-    auto [event,data]=createEvent(EVENTTYPE_INSTANCESWITCH,cmd,-1);
-    data->appendMapObject_stringInt32(cmd,currentWorld->environment->getSceneUniqueID());
-    pushEvent(event);
     pushReconstructSceneEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
@@ -216,10 +212,6 @@ int CWorldContainer::destroyCurrentWorld()
         App::currentWorld=currentWorld;
 
         // Inform scripts about performed world switch:
-        const char* cmd="sceneUid";
-        auto [event,data]=createEvent(EVENTTYPE_INSTANCESWITCH,cmd,-1);
-        data->appendMapObject_stringInt32(cmd,currentWorld->environment->getSceneUniqueID());
-        pushEvent(event);
         pushReconstructSceneEvents();
         currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
         addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
@@ -354,10 +346,6 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     App::currentWorld=currentWorld;
 
     // Inform scripts about performed world switch:
-    const char* cmd="sceneUid";
-    auto [event,data]=createEvent(EVENTTYPE_INSTANCESWITCH,cmd,-1);
-    data->appendMapObject_stringInt32(cmd,currentWorld->environment->getSceneUniqueID());
-    pushEvent(event);
     pushReconstructSceneEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
@@ -597,8 +585,13 @@ void CWorldContainer::buildReconstructSceneEventsOntoInterpreterStack(CInterface
 
 void CWorldContainer::pushReconstructSceneEvents()
 {
-    const char* cmd="visibilityLayers";
+    const char* cmd="sceneUid";
     auto [event,data]=createEvent(EVENTTYPE_SCENECHANGE,cmd,-1);
+    data->appendMapObject_stringInt32(cmd,currentWorld->environment->getSceneUniqueID());
+    pushEvent(event);
+
+    cmd="visibilityLayers";
+    std::tie(event,data)=createEvent(EVENTTYPE_SCENECHANGE,cmd,-1);
     data->appendMapObject_stringInt32(cmd,currentWorld->mainSettings->getActiveLayers());
     pushEvent(event);
 

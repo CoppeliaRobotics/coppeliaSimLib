@@ -24,7 +24,6 @@
 #define EVENTTYPE_OBJECTADDED "objectAdded"
 #define EVENTTYPE_OBJECTCHANGED "objectChanged"
 #define EVENTTYPE_OBJECTREMOVED "objectRemoved"
-#define EVENTTYPE_INSTANCESWITCH "instanceSwitch"
 #define EVENTTYPE_SCENECHANGE "sceneChange"
 
 struct SEventInfo
