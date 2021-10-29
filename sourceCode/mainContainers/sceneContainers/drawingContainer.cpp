@@ -1,8 +1,8 @@
-
 #include "simInternal.h"
 #include "drawingContainer.h"
 #include "viewableBase.h"
 #include "easyLock.h"
+#include "app.h"
 
 CDrawingContainer::CDrawingContainer()
 {
@@ -41,6 +41,7 @@ int CDrawingContainer::addObject(CDrawingObject* it)
         newID++;
     it->setObjectID(newID);
     _allObjects.push_back(it);
+    it->pushCreateContainerEvent();
     return(newID);
 }
 
@@ -55,6 +56,12 @@ void CDrawingContainer::removeObject(int objectID)
             _allObjects.erase(_allObjects.begin()+i);
             break;
         }
+    }
+
+    if (App::worldContainer->getEnableEvents())
+    {
+        auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTREMOVED,nullptr,objectID);
+        App::worldContainer->pushEvent(event);
     }
 }
 
@@ -98,9 +105,8 @@ void CDrawingContainer::adjustForScaling(int objectID,float xScale,float yScale,
 
 void CDrawingContainer::removeAllObjects()
 {
-    for (size_t i=0;i<_allObjects.size();i++)
-        delete _allObjects[i];
-    _allObjects.clear();
+    while (_allObjects.size()>0)
+        removeObject(_allObjects[0]->getObjectID());
 }
 
 void CDrawingContainer::announceObjectWillBeErased(int objID)
@@ -109,10 +115,7 @@ void CDrawingContainer::announceObjectWillBeErased(int objID)
     while (i<_allObjects.size())
     {
         if (_allObjects[i]->announceObjectWillBeErased(objID))
-        {
-            delete _allObjects[i];
-            _allObjects.erase(_allObjects.begin()+i);
-        }
+            removeObject(_allObjects[i]->getObjectID());
         else
             i++;
     }
@@ -124,10 +127,7 @@ void CDrawingContainer::announceScriptStateWillBeErased(int scriptHandle,bool si
     while (i<_allObjects.size())
     {
         if (_allObjects[i]->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript))
-        {
-            delete _allObjects[i];
-            _allObjects.erase(_allObjects.begin()+i);
-        }
+            removeObject(_allObjects[i]->getObjectID());
         else
             i++;
     }
@@ -169,8 +169,14 @@ void CDrawingContainer::drawObjectsParentedWith(bool overlay,bool transparentObj
 }
 
 
-void CDrawingContainer::pushReconstructSceneEvents() const
+void CDrawingContainer::pushReconstructSceneEvents()
 {
     for (size_t i=0;i<_allObjects.size();i++)
-        _allObjects[i]->pushReconstructSceneEvents();
+        _allObjects[i]->pushCreateContainerEvent();
+}
+
+void CDrawingContainer::pushAppendNewPointEvents()
+{
+    for (size_t i=0;i<_allObjects.size();i++)
+        _allObjects[i]->pushAppendNewPointEvent();
 }

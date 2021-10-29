@@ -28,7 +28,9 @@ public:
 
     bool getExportableMeshAtIndex(int parentObjectID,int index,std::vector<float>& vertices,std::vector<int>& indices);
 
-    void pushReconstructSceneEvents() const;
+    void pushReconstructSceneEvents();
+    void pushAppendNewPointEvents();
+
 
 
 private:

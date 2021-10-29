@@ -176,9 +176,22 @@ bool CDrawingObject::addItem(const float* itemData)
     if (itemData==nullptr)
     {
         _data.clear();
+        _bufferedEventData.clear();
         _startItem=0;
+
+        if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
+        {
+            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,nullptr,_objectID);
+            data->appendMapObject_stringFloatArray("points",nullptr,0);
+            App::worldContainer->pushEvent(event);
+        }
+
         return(false);
     }
+
+    if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
+        _bufferedEventData.insert(_bufferedEventData.begin(),itemData,itemData+floatsPerItem);
+
     int newPos=_startItem;
     if (int(_data.size())/floatsPerItem>=_maxItemCount)
     { // the buffer is full
@@ -457,18 +470,71 @@ void CDrawingObject::draw(bool overlay,bool transparentObject,int displayAttrib,
 
 }
 
-
-void CDrawingObject::pushReconstructSceneEvents() const
+void CDrawingObject::pushCreateContainerEvent()
 {
-    /*
-    const char* cmd="drawingObjectAdded";
-    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_SCENECHANGE,cmd,_objectID);
+    if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
+    {
+        auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED,nullptr,_objectID);
+        std::string tp;
+        switch(_objectType&0x001f)
+        {
+            case sim_drawing_points : tp="point";
+                break;
+            case sim_drawing_lines : tp="line";
+                break;
+            case sim_drawing_linestrip : tp="lineStrip";
+                break;
+            case sim_drawing_triangles : tp="triangle";
+                break;
+            case sim_drawing_trianglepoints : tp="trianglePoint";
+                break;
+            case sim_drawing_quadpoints : tp="quadPoint";
+                break;
+            case sim_drawing_discpoints : tp="discPoint";
+                break;
+            case sim_drawing_cubepoints : tp="cubePoint";
+                break;
+            case sim_drawing_spherepoints : tp="spherePoint";
+                break;
+        }
+        data->appendMapObject_stringString("type",tp.c_str(),0);
 
-    CInterfaceStackTable* subC=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("shape",subC);
-    data=subC;
+        float c[9];
+        color.getColor(c+0,sim_colorcomponent_ambient_diffuse);
+        color.getColor(c+3,sim_colorcomponent_specular);
+        color.getColor(c+6,sim_colorcomponent_emission);
+        data->appendMapObject_stringFloatArray("color",c,9);
 
-    data->appendMapObject_stringInt32(cmd,App::currentWorld->environment->getSceneUniqueID());
-    App::worldContainer->pushEvent(event);
-    */
+        data->appendMapObject_stringInt32("maxCnt",_maxItemCount);
+
+        data->appendMapObject_stringFloat("size",_size);
+
+        data->appendMapObject_stringFloat("duplicateTolerance",_duplicateTolerance);
+
+        data->appendMapObject_stringInt32("parent",_sceneObjectID);
+
+        data->appendMapObject_stringBool("cyclic",(_objectType&sim_drawing_cyclic)!=0);
+
+        App::worldContainer->pushEvent(event);
+
+        _bufferedEventData.assign(_data.begin(),_data.end());
+    }
 }
+
+void CDrawingObject::pushAppendNewPointEvent()
+{
+    if ( _bufferedEventData.size()>0 )
+    {
+        auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,nullptr,_objectID);
+
+        CCbor obj(nullptr,0);
+        size_t l;
+        obj.appendFloatArray(_bufferedEventData.data(),_bufferedEventData.size());
+        const char* buff=(const char*)obj.getBuff(l);
+        data->appendMapObject_stringString("points",buff,l,true);
+        _bufferedEventData.clear();
+
+        App::worldContainer->pushEvent(event);
+    }
+}
+

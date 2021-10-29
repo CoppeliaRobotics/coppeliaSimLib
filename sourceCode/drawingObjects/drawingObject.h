@@ -25,7 +25,8 @@ public:
     bool canMeshBeExported() const;
     void getExportableMesh(std::vector<float>& vertices,std::vector<int>& indices) const;
 
-    void pushReconstructSceneEvents() const;
+    void pushCreateContainerEvent();
+    void pushAppendNewPointEvent();
 
 
 
@@ -46,6 +47,7 @@ public:
     int floatsPerItem;
 
 protected:
+    void _pushAppendPointsEvent(const char) const;
     void _exportTrianglePoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const;
     void _exportQuadPoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const;
     void _exportDiscPoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const;
@@ -68,4 +70,5 @@ protected:
     VMutex _objectMutex;
 
     std::vector<float> _data;
+    std::vector<float> _bufferedEventData;
 };

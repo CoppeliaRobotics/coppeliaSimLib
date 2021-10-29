@@ -614,6 +614,8 @@ void CWorldContainer::sendEvents()
 {
     if (!VThread::isCurrentThreadTheUiThread())
     {
+        currentWorld->drawingCont->pushAppendNewPointEvents();
+
          _eventMutex.lock();
         CInterfaceStack* eventsToWorkOn=_bufferedEvents.eventsStack;
         _bufferedEvents.eventsStack=interfaceStackContainer->createStack();
