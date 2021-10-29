@@ -189,9 +189,6 @@ bool CDrawingObject::addItem(const float* itemData)
         return(false);
     }
 
-    if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
-        _bufferedEventData.insert(_bufferedEventData.begin(),itemData,itemData+floatsPerItem);
-
     int newPos=_startItem;
     if (int(_data.size())/floatsPerItem>=_maxItemCount)
     { // the buffer is full
@@ -227,6 +224,9 @@ bool CDrawingObject::addItem(const float* itemData)
                 return(false); // point already there!
         }
     }
+
+    if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
+        _bufferedEventData.insert(_bufferedEventData.begin(),itemData,itemData+floatsPerItem);
 
     if (int(_data.size())/floatsPerItem<_maxItemCount)
     { // The buffer is not yet full!
@@ -508,8 +508,6 @@ void CDrawingObject::pushCreateContainerEvent()
         data->appendMapObject_stringInt32("maxCnt",_maxItemCount);
 
         data->appendMapObject_stringFloat("size",_size);
-
-        data->appendMapObject_stringFloat("duplicateTolerance",_duplicateTolerance);
 
         data->appendMapObject_stringInt32("parent",_sceneObjectID);
 
