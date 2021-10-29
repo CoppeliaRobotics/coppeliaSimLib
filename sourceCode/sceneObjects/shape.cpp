@@ -2011,17 +2011,14 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 
         if ( (to!=nullptr)&&(tc!=nullptr) )
         {
-            std::string buffer;
-            int tRes[2];
-            to->getTextureSize(tRes[0],tRes[1]);
-            bool res=CImageLoaderSaver::save((unsigned char*)to->getTextureBufferPointer(),tRes,1,".png",-1,&buffer);
-            if (res)
-            {
+            if (true)
+            { // sending raw texture
+                int tRes[2];
+                to->getTextureSize(tRes[0],tRes[1]);
                 CInterfaceStackTable* texture=new CInterfaceStackTable();
                 mesh->appendMapObject_stringObject("texture",texture);
 
-                buffer=CTTUtil::encode64(buffer);
-                texture->appendMapObject_stringString("texture",buffer.c_str(),buffer.size());
+                texture->appendMapObject_stringString("rawTexture",(char*)to->getTextureBufferPointer(),tRes[1]*tRes[0]*4,true);
 
                 texture->appendMapObject_stringInt32Array("resolution",tRes,2);
 
@@ -2042,6 +2039,41 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
                 texture->appendMapObject_stringInt32("options",options);
 
                 texture->appendMapObject_stringInt32("id",tp->getTextureObjectID());
+            }
+            else
+            { // sending PNG texture
+                std::string buffer;
+                int tRes[2];
+                to->getTextureSize(tRes[0],tRes[1]);
+                bool res=CImageLoaderSaver::save((unsigned char*)to->getTextureBufferPointer(),tRes,1,".png",-1,&buffer);
+                if (res)
+                {
+                    CInterfaceStackTable* texture=new CInterfaceStackTable();
+                    mesh->appendMapObject_stringObject("texture",texture);
+
+                    buffer=CTTUtil::encode64(buffer);
+                    texture->appendMapObject_stringString("texture",buffer.c_str(),buffer.size());
+
+                    texture->appendMapObject_stringInt32Array("resolution",tRes,2);
+
+                    obj.clear();
+                    obj.appendFloatArray(tc->data(),tc->size());
+                    buff=(const char*)obj.getBuff(l);
+                    texture->appendMapObject_stringString("coordinates",buff,l,true);
+
+                    texture->appendMapObject_stringInt32("applyMode",tp->getApplyMode());
+
+                    int options=0;
+                    if (tp->getRepeatU())
+                        options|=1;
+                    if (tp->getRepeatV())
+                        options|=2;
+                    if (tp->getInterpolateColors())
+                        options|=4;
+                    texture->appendMapObject_stringInt32("options",options);
+
+                    texture->appendMapObject_stringInt32("id",tp->getTextureObjectID());
+                }
             }
         }
     }

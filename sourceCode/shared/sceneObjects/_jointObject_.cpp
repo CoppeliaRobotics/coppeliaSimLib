@@ -389,7 +389,7 @@ bool _CJoint_::setPositionIntervalMin(float min)
     if (diff)
     {
         _jointMinPosition=min;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="min";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
@@ -411,7 +411,7 @@ bool _CJoint_::setPositionIntervalRange(float range)
     if (diff)
     {
         _jointPositionRange=range;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="range";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
@@ -451,7 +451,7 @@ bool _CJoint_::setPositionIsCyclic(bool isCyclic)
     if (diff)
     {
         _positionIsCyclic=isCyclic;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="cyclic";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
@@ -473,7 +473,7 @@ bool _CJoint_::setDiameter(float d)
     if (diff)
     {
         _diameter=d;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="diameter";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
@@ -495,7 +495,7 @@ bool _CJoint_::setLength(float l)
     if (diff)
     {
         _length=l;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="length";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
@@ -571,7 +571,7 @@ bool _CJoint_::setPosition(float pos)
     if (diff)
     {
         _jointPosition=pos;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="position";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
@@ -599,7 +599,7 @@ bool _CJoint_::setSphericalTransformation(const C4Vector& tr)
     if (diff)
     {
         _sphericalTransformation=tr;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="quaternion";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);

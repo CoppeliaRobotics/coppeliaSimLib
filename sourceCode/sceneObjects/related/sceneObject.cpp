@@ -408,7 +408,7 @@ void CSceneObject::setModelBase(bool m)
     if (diff)
     {
         _modelBase=m;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="modelBase";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
@@ -428,7 +428,7 @@ void CSceneObject::setObjectProperty(int p)
     if (diff)
     {
         _objectProperty=p;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             if ((p^_objectProperty)==sim_objectproperty_selectmodelbaseinstead)
             {
@@ -983,7 +983,7 @@ void CSceneObject::addSpecializedObjectEventData(CInterfaceStackTable* data) con
 
 void CSceneObject::pushObjectCreationEvent() const
 {
-    if (_isInScene)
+    if ( _isInScene&&App::worldContainer->getEnableEvents() )
     {
         auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTADDED,nullptr,this,true,-1);
         CSceneObject::_addCommonObjectEventData(data);
@@ -994,7 +994,7 @@ void CSceneObject::pushObjectCreationEvent() const
 
 void CSceneObject::pushObjectRefreshEvent() const
 {
-    if (_isInScene)
+    if ( _isInScene&&App::worldContainer->getEnableEvents() )
     {
         auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,nullptr,this,true,-1);
         CSceneObject::_addCommonObjectEventData(data);

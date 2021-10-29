@@ -954,7 +954,7 @@ void CCamera::setCameraSize(float size)
     if (cameraSize!=size)
     {
         cameraSize=size;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="size";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
@@ -1141,7 +1141,7 @@ void CCamera::setPerspectiveOperation(bool p)
     if (diff)
     {
         _perspectiveOperation=v;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="perspectiveMode";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);

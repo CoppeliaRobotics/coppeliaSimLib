@@ -133,7 +133,7 @@ void CViewableBase::setNearClippingPlane(float nearPlane)
     if (diff)
     {
         _nearClippingPlane=nearPlane;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="nearClippingPlane";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
@@ -155,7 +155,7 @@ void CViewableBase::setFarClippingPlane(float farPlane)
     if (diff)
     {
         _farClippingPlane=farPlane;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="farClippingPlane";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
@@ -177,7 +177,7 @@ void CViewableBase::setViewAngle(float angle)
     if (diff)
     {
         _viewAngle=angle;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="viewAngle";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
@@ -199,7 +199,7 @@ void CViewableBase::setOrthoViewSize(float theSize)
     if (diff)
     {
         _orthoViewSize=theSize;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="orthoSize";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);

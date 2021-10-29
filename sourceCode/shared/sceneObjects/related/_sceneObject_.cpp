@@ -44,7 +44,7 @@ bool _CSceneObject_::setParent(CSceneObject* parent)
     if (diff)
     {
         _parentObject=parent;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="parent";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
@@ -104,7 +104,7 @@ bool _CSceneObject_::setVisibilityLayer(unsigned short l)
     if (diff)
     {
         _visibilityLayer=l;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="layer";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
@@ -121,7 +121,7 @@ bool _CSceneObject_::setChildOrder(int order)
     if (diff)
     {
         _childOrder=order;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="childOrder";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
@@ -168,7 +168,7 @@ void _CSceneObject_::_setModelInvisible(bool inv)
     if (diff)
     {
         _modelInvisible=inv;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="modelInvisible";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
@@ -365,7 +365,7 @@ bool _CSceneObject_::setObjectAlias_direct(const char* newName)
     if (diff)
     {
         _objectAlias=newName;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="alias";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
@@ -492,7 +492,7 @@ bool _CSceneObject_::setLocalTransformation(const C7Vector& tr)
     if (diff)
     {
         _localTransformation=tr;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="pose";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);

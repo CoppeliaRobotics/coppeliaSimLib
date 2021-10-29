@@ -71,7 +71,7 @@ bool _CDummy_::setDummySize(float s)
     if (diff)
     {
         _dummySize=s;
-        if (_isInScene)
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="size";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);

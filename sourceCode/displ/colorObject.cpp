@@ -132,7 +132,7 @@ void CColorObject::setColor(const float theColor[3],unsigned char colorMode)
 
 void CColorObject::pushColorChangeEvent(int objectHandle,int colorIndex,bool isLight/*=false*/)
 {
-    if (objectHandle!=-1)
+    if ( (objectHandle!=-1)&&App::worldContainer->getEnableEvents() )
     {
         const char* cmd="color";
         auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,objectHandle,false,colorIndex);
