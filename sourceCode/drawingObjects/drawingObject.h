@@ -25,6 +25,11 @@ public:
     bool canMeshBeExported() const;
     void getExportableMesh(std::vector<float>& vertices,std::vector<int>& indices) const;
 
+    void pushReconstructSceneEvents() const;
+
+
+
+
     int getSceneObjectID() const;
 
     float getSize() const;

@@ -167,3 +167,10 @@ void CDrawingContainer::drawObjectsParentedWith(bool overlay,bool transparentObj
         }
     }
 }
+
+
+void CDrawingContainer::pushReconstructSceneEvents() const
+{
+    for (size_t i=0;i<_allObjects.size();i++)
+        _allObjects[i]->pushReconstructSceneEvents();
+}

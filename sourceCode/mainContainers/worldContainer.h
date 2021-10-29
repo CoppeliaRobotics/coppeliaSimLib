@@ -26,6 +26,10 @@
 #define EVENTTYPE_OBJECTREMOVED "objectRemoved"
 #define EVENTTYPE_SCENECHANGE "sceneChange"
 
+#define EVENTTYPE_DRAWINGOBJECTADDED "drawingObjectAdded"
+#define EVENTTYPE_DRAWINGOBJECTCHANGED "drawingObjectChanged"
+#define EVENTTYPE_DRAWINGOBJECTREMOVED "drawingObjectRemoved"
+
 struct SEventInfo
 {
     CInterfaceStackTable* eventTable;
@@ -64,7 +68,7 @@ public:
     CScriptObject* getScriptFromHandle(int scriptHandle) const;
     void callScripts(int callType,CInterfaceStack* inStack);
 
-    std::tuple<SEventInfo,CInterfaceStackTable*> createEvent(const char* event,const char* change,int handle=-2);
+    std::tuple<SEventInfo,CInterfaceStackTable*> createEvent(const char* event,const char* change,int handle=-1,bool canMerge=false);
     std::tuple<SEventInfo,CInterfaceStackTable*> createObjectEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData,int subIndex=-2);
     std::tuple<SEventInfo,CInterfaceStackTable*> createObjectEvent(const char* event,const char* change,int objectHandle,bool isCommonObjectData,int subIndex=-2);
     void pushEvent(SEventInfo& event);

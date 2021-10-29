@@ -456,3 +456,19 @@ void CDrawingObject::draw(bool overlay,bool transparentObject,int displayAttrib,
     displayDrawingObject(this,tr,overlay,transparentObject,displayAttrib,cameraCTM);
 
 }
+
+
+void CDrawingObject::pushReconstructSceneEvents() const
+{
+    /*
+    const char* cmd="drawingObjectAdded";
+    auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_SCENECHANGE,cmd,_objectID);
+
+    CInterfaceStackTable* subC=new CInterfaceStackTable();
+    data->appendMapObject_stringObject("shape",subC);
+    data=subC;
+
+    data->appendMapObject_stringInt32(cmd,App::currentWorld->environment->getSceneUniqueID());
+    App::worldContainer->pushEvent(event);
+    */
+}

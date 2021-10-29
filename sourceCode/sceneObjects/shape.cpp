@@ -2018,7 +2018,7 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
                 CInterfaceStackTable* texture=new CInterfaceStackTable();
                 mesh->appendMapObject_stringObject("texture",texture);
 
-                texture->appendMapObject_stringString("rawTexture",(char*)to->getTextureBufferPointer(),tRes[1]*tRes[0]*4,true);
+                texture->appendMapObject_stringString("rawTexture",(char*)to->getTextureBufferPointer(),tRes[1]*tRes[0]*4);
 
                 texture->appendMapObject_stringInt32Array("resolution",tRes,2);
 

@@ -28,6 +28,9 @@ public:
 
     bool getExportableMeshAtIndex(int parentObjectID,int index,std::vector<float>& vertices,std::vector<int>& indices);
 
+    void pushReconstructSceneEvents() const;
+
+
 private:
     std::vector<CDrawingObject*> _allObjects;
     VMutex _objectMutex;

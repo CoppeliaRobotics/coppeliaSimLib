@@ -424,21 +424,18 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack)
 long long int CWorldContainer::_eventUid=0;
 long long int CWorldContainer::_eventSeq=0;
 
-std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const char* event,const char* change,int handle/*=-2*/)
-{ // handle==-2: mergeable, handle=-1: not mergeable, handle>=0: mergeable as long as handle is same too
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const char* event,const char* change,int handle/*=-1*/,bool canMerge/*=false*/)
+{
     _eventMutex.lock();
 
     SEventInfo eventInfo;
     eventInfo.event=event;
     if (change!=nullptr)
         eventInfo.subEvent=change;
-    if (handle!=-2)
-    {
-        if (handle==-1)
-            eventInfo.objectUid="#"+std::to_string(_eventUid++);
-        else
-            eventInfo.objectUid=std::to_string(handle);
-    }
+    if (canMerge)
+        eventInfo.objectUid=std::to_string(handle);
+    else
+        eventInfo.objectUid="#"+std::to_string(_eventUid++);
 
     eventInfo.eventTable=new CInterfaceStackTable();
     eventInfo.eventTable->appendMapObject_stringString("event",event,0);
@@ -597,6 +594,8 @@ void CWorldContainer::pushReconstructSceneEvents()
 
     for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
         App::currentWorld->sceneObjects->getObjectFromIndex(i)->pushObjectCreationEvent();
+
+    currentWorld->drawingCont->pushReconstructSceneEvents();
 }
 
 SBufferedEvents CWorldContainer::swapBufferedEvents(SBufferedEvents newBuffer)
